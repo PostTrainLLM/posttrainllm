@@ -134,7 +134,7 @@ def extract_calls(t):
         obj = _balanced_obj_at(t, k)
         if obj is None: break
         o = _parse_obj(obj)
-        if isinstance(o, dict): out.append((o.get("name"), o.get("arguments") or {}))
+        if isinstance(o, dict): out.append((o.get("name"), o.get("arguments") or o.get("parameters") or {}))
         i = k + len(obj)
     if out: return out
     # fallback: bare JSON objects (no <tool_call> markers). Brace-match each
@@ -147,7 +147,7 @@ def extract_calls(t):
             if obj is not None:
                 o = _parse_obj(obj)
                 if isinstance(o, dict) and "name" in o:
-                    out.append((o.get("name"), o.get("arguments") or {}))
+                    out.append((o.get("name"), o.get("arguments") or o.get("parameters") or {}))
                 p += len(obj); continue
         p += 1
     return out
@@ -193,7 +193,29 @@ def gen_frontier(system, user):
     except subprocess.TimeoutExpired:
         return "__TIMEOUT__"
 
-gen = gen_frontier if BACKEND == "frontier" else gen_local
+# free-ai gateway: a CLEAN OpenAI-compatible completions endpoint (unlike `claude -p`,
+# which is an assistant agent CLI that editorializes). Model via GW_MODEL; key from /tmp/gw_key.
+def gen_gateway(system, user):
+    import urllib.request
+    key = open(os.environ.get("GW_KEY_FILE", "/tmp/gw_key")).read().strip()
+    body = json.dumps({"model": os.environ.get("GW_MODEL", "gh-gpt-5"), "project_id": "tinygpt",
+                       "temperature": 0, "max_tokens": 700,
+                       "messages": [{"role": "system", "content": system},
+                                    {"role": "user", "content": user}]}).encode()
+    req = urllib.request.Request(
+        "https://free-ai-gateway.sarthakagrawal927.workers.dev/v1/chat/completions",
+        data=body, method="POST",
+        headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json",
+                 "User-Agent": "curl/8.4.0"})   # urllib's default UA hits Cloudflare 1010
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=120) as r:
+                return json.loads(r.read())["choices"][0]["message"]["content"] or ""
+        except Exception:
+            import time; time.sleep(3 * (attempt + 1))
+    return "__GW_ERR__"
+
+gen = {"frontier": gen_frontier, "gateway": gen_gateway}.get(BACKEND, gen_local)
 
 # ---------- run ----------
 def main():
