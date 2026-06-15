@@ -188,24 +188,31 @@ frontier-ceiling rule, a 95% bar there is mis-calibrated. So we built a **diffic
 right-sized gate** — deterministic single-backend (GorillaFileSystem) agentic tasks tuned so a
 strong model aces the easier tiers while the gap to a small model grows (`scripts/make_multiturn_gates.py`).
 
-**The capability gradient (the honest, nuanced picture):**
+**The capability gradient — frontier-validated (DeepSeek-V4-pro, true frontier):**
 
-| Tier | task shape | 30B-A3B | **Qwen3-4B-2507 bf16** | gap |
+| Tier | task shape | **DeepSeek-V4-pro** | 30B-A3B (proxy) | **Qwen3-4B-2507 bf16** |
 |---|---|---|---|---|
-| single-turn | one call | ~96 | 88.7 | 7 |
-| easy multi-turn | 1-2 calls | 100% | 94% | 6 |
-| **moderate** (sound 95% gate) | 3-4 calls + cd-nav | **100%** | **86%** | 14 |
-| **hard** | 5-7 calls, deep nesting, 4 turns | 83% | **58%** | **25** |
-| `multi_turn_base` (BFCL hardest) | multi-backend, long | 45% | 25% | 20 |
+| single-turn | one call | ~99 | ~96 | 88.7 |
+| easy multi-turn | 1-2 calls | 100% | 100% | 94% |
+| moderate | 3-4 calls + cd-nav | 100% | 100% | 86% |
+| **hard** (canonical gate) | 5-7 calls, deep nesting, 4 turns | **100%** | 83% | **58%** |
+| `multi_turn_base` (BFCL hardest) | multi-backend, long | — | 45% | 25% |
 
-**The 4B is a capable *simple*-agent, not a poor agent** — and the gate now *discriminates*:
-its curve **94 → 86 → 58 → 25** maps exactly where it degrades as agentic complexity rises.
-The **moderate tier is the sound 95% gate** (30B-proxy aces 100%; 4B clearly below at 86%). The
-**hard tier maximally separates** them (4B 58% vs 30B 83%, gap 25) — and since the 30B-A3B is
-only a 3B-active 4-bit *proxy*, a true frontier model (GPT-5/Claude) would likely ace it ~95%,
-making it the proper 95%-frontier / small-model-cliff gate (validate when a clean frontier API
-is wired). The lever to climb the hard tier is *multi-turn RL in an open-ended environment*
-(the game-RL PoC), since that env won't saturate the way single-turn RL did.
+**The hard tier is the sound, discriminating gate** — a *true* frontier model (DeepSeek-V4-pro,
+via OpenAI function-calling) aces it **100%**, while the **4B clearly cliffs to 58%** (a 42-pt
+frontier-to-small gap). So `make_multiturn_gates.py` + the DeepSeek backend
+(`bfcl_multiturn_deepseek.py`) give a *calibrated* multi-turn ruler: frontier ~100%, and the 4B's
+curve **94 → 86 → 58** maps exactly where it degrades as agentic complexity rises. (The 30B-A3B
+sits between at 83% on hard — a strong but not-frontier 3B-active proxy.)
+
+**The 4B is a capable *simple*-agent, not a poor agent** — near-frontier on easy/moderate flows,
+cliffing only as depth/length/turns grow. The lever to climb the hard tier is *multi-turn RL in
+an open-ended environment* (the game-RL PoC), since that env won't saturate the way single-turn
+RL did.
+
+(API note: BFCL func docs use `"type":"dict"`; OpenAI/DeepSeek require `"object"` — the DeepSeek
+backend normalizes BFCL's type vocabulary to JSON-schema, and needs a `curl` User-Agent to clear
+Cloudflare. Key read from `/tmp/deepseek_key` / `$DS_KEY_FILE`, never committed.)
 
 (Build note: the inference side IS the eval — a hand-rolled text transcript scored the 30B 0%;
 the native tool-calling chat template + proper roles fixed it. And `echo`-content tasks were
