@@ -184,23 +184,28 @@ So even the strong 30B more than halves on the *hardest* multi-turn; the 4B drop
 
 **But "95-96% multi-turn" is unachievable on `multi_turn_base` for *anyone*** — the BFCL-V4
 leader sits at 75% *overall* and multi-turn runs lower; frontier caps ~50-70%. By our own
-frontier-ceiling rule, a 95% bar there is mis-calibrated. So we built a **right-sized gate**:
-~16 trivial, deterministic, single-backend agentic tasks (`scripts/make_easy_multiturn_gate.py`)
-where a strong model genuinely aces it.
+frontier-ceiling rule, a 95% bar there is mis-calibrated. So we built a **difficulty-graded,
+right-sized gate** — deterministic single-backend (GorillaFileSystem) agentic tasks tuned so a
+strong model aces the easier tiers while the gap to a small model grows (`scripts/make_multiturn_gates.py`).
 
 **The capability gradient (the honest, nuanced picture):**
 
-| | single-turn | **easy multi-turn** (sound gate) | hard multi-turn (`multi_turn_base`) |
-|---|---|---|---|
-| 30B-A3B | ~96 | **100%** | 45% |
-| **Qwen3-4B-2507 bf16** | 88.7 | **93.8%** | 25% |
+| Tier | task shape | 30B-A3B | **Qwen3-4B-2507 bf16** | gap |
+|---|---|---|---|---|
+| single-turn | one call | ~96 | 88.7 | 7 |
+| easy multi-turn | 1-2 calls | 100% | 94% | 6 |
+| **moderate** (sound 95% gate) | 3-4 calls + cd-nav | **100%** | **86%** | 14 |
+| **hard** | 5-7 calls, deep nesting, 4 turns | 83% | **58%** | **25** |
+| `multi_turn_base` (BFCL hardest) | multi-backend, long | 45% | 25% | 20 |
 
-**The 4B is a capable *simple*-agent, not a poor agent.** On straightforward "act → observe →
-act" sequences it nearly matches the 30B (93.8% vs 100%) — within reach of the 95-96% bar. It
-only cliffs on the *gnarliest* multi-turn (state across many turns + multiple backends). So a
-Mac-local 4B is genuinely usable for everyday agentic flows; the cliff is hardest-tier-specific.
-The lever for the hard tier is *multi-turn RL in an open-ended environment* (the game-RL PoC),
-since that env won't saturate the way single-turn RL did.
+**The 4B is a capable *simple*-agent, not a poor agent** — and the gate now *discriminates*:
+its curve **94 → 86 → 58 → 25** maps exactly where it degrades as agentic complexity rises.
+The **moderate tier is the sound 95% gate** (30B-proxy aces 100%; 4B clearly below at 86%). The
+**hard tier maximally separates** them (4B 58% vs 30B 83%, gap 25) — and since the 30B-A3B is
+only a 3B-active 4-bit *proxy*, a true frontier model (GPT-5/Claude) would likely ace it ~95%,
+making it the proper 95%-frontier / small-model-cliff gate (validate when a clean frontier API
+is wired). The lever to climb the hard tier is *multi-turn RL in an open-ended environment*
+(the game-RL PoC), since that env won't saturate the way single-turn RL did.
 
 (Build note: the inference side IS the eval — a hand-rolled text transcript scored the 30B 0%;
 the native tool-calling chat template + proper roles fixed it. And `echo`-content tasks were

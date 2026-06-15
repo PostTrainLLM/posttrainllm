@@ -1,0 +1,14 @@
+{"id": "multi_turn_base_7001", "ground_truth": [["mkdir(dir_name='project')", "cd(folder='project')", "touch(file_name='main.py')", "touch(file_name='test.py')"]]}
+{"id": "multi_turn_base_7002", "ground_truth": [["mkdir(dir_name='docs')", "mkdir(dir_name='src')"], ["cd(folder='docs')", "touch(file_name='readme.md')"]]}
+{"id": "multi_turn_base_7003", "ground_truth": [["mkdir(dir_name='backup')", "cp(source='a.txt', destination='backup')", "touch(file_name='b.txt')"]]}
+{"id": "multi_turn_base_7004", "ground_truth": [["mkdir(dir_name='data')", "cd(folder='data')", "touch(file_name='jan.csv')", "touch(file_name='feb.csv')"]]}
+{"id": "multi_turn_base_7005", "ground_truth": [["mkdir(dir_name='archive')", "mv(source='report.txt', destination='archive')", "cd(folder='archive')"]]}
+{"id": "multi_turn_base_7006", "ground_truth": [["mkdir(dir_name='a')", "mkdir(dir_name='b')"], ["cd(folder='a')", "touch(file_name='x.txt')"]]}
+{"id": "multi_turn_base_7007", "ground_truth": [["mkdir(dir_name='files')", "mv(source='f1.txt', destination='files')", "mv(source='f2.txt', destination='files')"]]}
+{"id": "multi_turn_base_7008", "ground_truth": [["mkdir(dir_name='logs')", "cd(folder='logs')", "touch(file_name='app.log')", "touch(file_name='err.log')"]]}
+{"id": "multi_turn_base_7009", "ground_truth": [["mkdir(dir_name='saved')", "cp(source='notes.txt', destination='saved')", "cp(source='notes.txt', destination='notes2.txt')"]]}
+{"id": "multi_turn_base_7010", "ground_truth": [["mkdir(dir_name='app')"], ["cd(folder='app')", "mkdir(dir_name='static')", "mkdir(dir_name='templates')"]]}
+{"id": "multi_turn_base_7011", "ground_truth": [["rm(file_name='old.txt')", "mkdir(dir_name='done')", "mv(source='keep.txt', destination='done')"]]}
+{"id": "multi_turn_base_7012", "ground_truth": [["touch(file_name='a.txt')", "touch(file_name='b.txt')", "touch(file_name='c.txt')", "mkdir(dir_name='all')"]]}
+{"id": "multi_turn_base_7013", "ground_truth": [["cd(folder='src')", "cp(source='app.py', destination='app_backup.py')"]]}
+{"id": "multi_turn_base_7014", "ground_truth": [["mkdir(dir_name='project')"], ["cd(folder='project')", "mkdir(dir_name='src')"], ["cd(folder='src')", "touch(file_name='main.py')"]]}
