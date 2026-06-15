@@ -158,8 +158,34 @@ Two fixes made the number trustworthy:
 
 **On the *sound* categories the 4B is ~93–94 — near-frontier.** The residual gap is
 genuine capability on the hardest real-user args (`live_multiple` 64 vs frontier 92), not
-something more training of *this* base fixes. **The real next frontier is multi-turn /
-agentic — entirely unmeasured here, and where small models are known to cliff.**
+something more training of *this* base fixes.
+
+## 8. Multi-turn / agentic — the cliff, measured (2026-06-14)
+
+Single-turn (88.7) said nothing about *holding a conversation*. Built a stateful
+multi-turn harness reusing BFCL's machinery (`execute_multi_turn_func_call` +
+`multi_turn_checker` + the `involved_classes` backends); `scripts/bfcl_multiturn_eval.py`.
+
+**The build lesson:** the *inference side* is the eval. A hand-rolled text-transcript
+prompt under-elicited badly — the 30B-A3B scored **0/8 despite acing single-turn (96/96)**.
+The fix: drive the model with its **native tool-calling chat template** (`tools=` catalog +
+proper `assistant`/`tool` message roles — what Qwen3 was trained on) + BFCL's own
+multi-turn behaviour prompt. That lifted the 30B from **0% → 50%** — in BFCL's expected
+~50-70% range for `multi_turn_base` (the hardest category; *even frontier doesn't ace it*).
+
+**The cliff (multi_turn_base, native-template harness, n=20 same examples):**
+
+| Model | single-turn | **multi-turn** | drop |
+|---|---|---|---|
+| Qwen3-30B-A3B (3B active) | ~96 | **45%** | −51 |
+| **Qwen3-4B-2507 bf16** | 88.7 | **25%** | **−64** |
+
+So even the strong 30B more than halves on multi-turn; **the 4B falls off a cliff (88.7 → 25)** —
+the research-predicted small-model collapse (Command-R7B 69→5%), now measured on our own
+models. **Single-turn numbers massively overstate small models as agents.** This is the
+real gap for Jarvis/Pace and the game-RL NPCs — and the lever to climb it is *multi-turn
+RL in an open-ended environment* (the game-RL PoC), since the env won't saturate the way
+single-turn RL did.
 
 ## See also
 - [distillation.md](../distillation.md) — the distillation workflow + match-vs-from-scratch protocol.
