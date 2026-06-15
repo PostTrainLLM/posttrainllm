@@ -30,8 +30,8 @@ from mlx_lm.sample_utils import make_sampler
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 20
 CAT = "multi_turn_base"
 MAX_STEPS = 12   # BFCL allows up to 20 agentic steps per user turn
-DATA = f"{h.BFCL}/BFCL_v4_{CAT}.json"
-GOLD = f"{h.BFCL}/possible_answer/BFCL_v4_{CAT}.json"
+DATA = os.environ.get("MT_DATA", f"{h.BFCL}/BFCL_v4_{CAT}.json")
+GOLD = os.environ.get("MT_GOLD", f"{h.BFCL}/possible_answer/BFCL_v4_{CAT}.json")
 FUNCDOC = f"{h.BFCL}/multi_turn_func_doc"
 MODEL_PATH = os.environ["MODEL"]
 MODEL_NAME = MODEL_PATH.rstrip("/").split("/")[-1]
