@@ -1,13 +1,15 @@
 """Multi-turn / agentic tool-calling eval (see docs/prds/multi-turn-agentic-eval.md).
 
 STATEFUL: reuses BFCL's own multi-turn machinery (steal-first) — the involved_classes
-backends, execute_multi_turn_func_call, and multi_turn_checker. We generate the model's
-calls turn-by-turn (executing them to feed tool results back into the conversation),
-collect them as [turn][step][callstr], and hand off to BFCL's checker which re-executes
-(separately namespaced) and compares end-to-end state + call order.
+backends, execute_multi_turn_func_call, and multi_turn_checker.
 
-Backends: BACKEND=frontier (claude -p) | local (MODEL=path). Usage:
-  BACKEND=frontier python3 scripts/bfcl_multiturn_eval.py [n]
+INFERENCE (the fix): uses the model's NATIVE tool-calling chat template — proper
+`tools=` catalog + assistant/tool message roles (what Qwen3 was TRAINED on) + BFCL's
+own multi-turn behaviour prompt — instead of a hand-rolled text transcript. The model
+acts, sees tool results as `tool` messages, and keeps calling until the turn's task is
+done; we collect [turn][step][callstr] and hand off to BFCL's checker.
+
+Local MLX only (the clean gate reference): MODEL=<path> python3 bfcl_multiturn_eval.py [n]
 """
 import sys, os, json
 
@@ -18,18 +20,31 @@ from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_checker import multi_turn
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_utils import execute_multi_turn_func_call
 from bfcl_eval.constants.executable_backend_config import CLASS_FILE_PATH_MAPPING
 
-# reuse our single-turn harness for the model backend (gen + call parser)
-_argv = sys.argv
-sys.argv = ["bfcl_ast_eval"]
-import bfcl_ast_eval as h
+_argv = sys.argv; sys.argv = ["bfcl_ast_eval"]
+import bfcl_ast_eval as h            # reuse the call parser (extract_calls)
 sys.argv = _argv
+
+from mlx_lm import load, generate
+from mlx_lm.sample_utils import make_sampler
 
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 20
 CAT = "multi_turn_base"
+MAX_STEPS = 12   # BFCL allows up to 20 agentic steps per user turn
 DATA = f"{h.BFCL}/BFCL_v4_{CAT}.json"
 GOLD = f"{h.BFCL}/possible_answer/BFCL_v4_{CAT}.json"
 FUNCDOC = f"{h.BFCL}/multi_turn_func_doc"
-MODEL_NAME = (os.environ.get("MODEL", "frontier").rstrip("/").split("/")[-1]) or "frontier"
+MODEL_PATH = os.environ["MODEL"]
+MODEL_NAME = MODEL_PATH.rstrip("/").split("/")[-1]
+
+# BFCL's own multi-turn behaviour instruction (constants/default_prompts.py)
+SYS = ("You are an expert in composing functions. At each turn, do your best to complete "
+       "the tasks requested by the user within the current turn. Continue to output function "
+       "calls until you have fulfilled the user's request to the best of your ability. Once "
+       "you have no more functions to call, the system considers the current turn complete "
+       "and proceeds to the next turn.")
+
+_model, _tok = load(MODEL_PATH)
+_sampler = make_sampler(temp=0.0)
 
 def load_catalog(involved_classes, excluded):
     funcs = []
@@ -42,45 +57,33 @@ def load_catalog(involved_classes, excluded):
                     funcs.append(fd)
     return funcs
 
+def to_tools(catalog):  # BFCL func doc -> OpenAI tools schema the chat template expects
+    return [{"type": "function", "function": {"name": f["name"],
+             "description": f.get("description", ""), "parameters": f.get("parameters", {})}}
+            for f in catalog]
+
 def to_callstr(name, args):
     return f"{name}(" + ", ".join(f"{k}={v!r}" for k, v in (args or {}).items()) + ")"
 
-SYS = ("You are an AUTONOMOUS tool-using agent. For the current user turn you must "
-       "COMPLETE THE ENTIRE requested task yourself by issuing function calls — the user "
-       "will NOT prompt you again for intermediate steps. After each call you see its "
-       "result; keep issuing the NEXT call(s) until the full task is done (a task often "
-       "needs SEVERAL calls in sequence — e.g. cd, then mkdir, then mv). You may call "
-       "read-only functions (ls, cat, pwd, get_*) to inspect state before acting. "
-       "Emit calls as <tool_call>{\"name\":<fn>,\"arguments\":{<args>}}</tool_call> (one per "
-       "call). ONLY when the turn's task is fully complete, reply with the single token "
-       "DONE and no tool call.")
-
-MAX_STEPS = 8   # agentic steps within ONE user turn (call -> see results -> call again)
-
-def render(catalog, transcript, user_turn, step_history):
-    convo = ""
-    for u, calls, results in transcript:
-        convo += f"User: {u}\nAssistant: {' '.join(calls) or '(no call)'}\nTool results: {results}\n"
-    convo += f"User: {user_turn}\n"
-    for calls, results in step_history:                  # intra-turn steps so far
-        convo += f"Assistant: {' '.join(calls)}\nTool results: {results}\n"
-    if step_history:
-        convo += ("(The task for the CURRENT user turn is NOT finished until fully satisfied. "
-                  "Given the tool results above, issue the NEXT call(s) to make progress. "
-                  "Reply DONE with no tool call ONLY if everything the user asked for this turn "
-                  "is already complete.)")
-    return SYS, "# AVAILABLE FUNCTIONS\n" + json.dumps(catalog) + "\n\n# CONVERSATION\n" + convo
+def gen(messages, tools):
+    prompt = _tok.apply_chat_template(messages, tools=tools, add_generation_prompt=True, tokenize=False)
+    return generate(_model, _tok, prompt=prompt, sampler=_sampler, max_tokens=512, verbose=False)
 
 def run_example(ex, gold):
     catalog = load_catalog(ex["involved_classes"], set(ex.get("excluded_function", [])))
-    decoded, transcript = [], []
+    tools = to_tools(catalog)
+    messages = [{"role": "system", "content": SYS}]
+    decoded = []
     for turn in ex["question"]:
-        user_turn = " ".join(m["content"] for m in turn if m.get("role") == "user")
-        turn_steps, step_history = [], []
-        for _ in range(MAX_STEPS):                       # agentic loop: act -> observe -> act
-            system, user = render(catalog, transcript, user_turn, step_history)
-            calls = h.extract_calls(h.gen(system, user))
-            if not calls: break                          # model considers the turn done
+        messages.append({"role": "user",
+                         "content": " ".join(m["content"] for m in turn if m.get("role") == "user")})
+        turn_steps = []
+        for _ in range(MAX_STEPS):
+            out = gen(messages, tools)
+            calls = h.extract_calls(out)
+            messages.append({"role": "assistant", "content": out})   # raw, contains <tool_call> blocks
+            if not calls:
+                break                                                # turn complete
             callstrs = [to_callstr(n, a) for n, a in calls]
             turn_steps.append(callstrs)
             try:
@@ -89,17 +92,15 @@ def run_example(ex, gold):
                     MODEL_NAME, ex["id"], is_evaL_run=False)
             except Exception as e:
                 results = [f"<exec error: {e}>"]
-            step_history.append((callstrs, results))
+            messages.append({"role": "tool", "content": json.dumps(results)})
         decoded.append(turn_steps if turn_steps else [[]])
-        last_results = step_history[-1][1] if step_history else ""
-        transcript.append((user_turn, [c for s in turn_steps for c in s], last_results))
     res = multi_turn_checker(decoded, gold["ground_truth"], ex, CAT, MODEL_NAME)
     return bool(res.get("valid", False)) if isinstance(res, dict) else bool(res)
 
 def main():
     data = [json.loads(l) for l in open(DATA)][:N]
     golds = {json.loads(l)["id"]: json.loads(l) for l in open(GOLD)}
-    print(f"MULTI-TURN {CAT}  backend={os.environ.get('BACKEND','frontier')} model={MODEL_NAME}  n={len(data)}", flush=True)
+    print(f"MULTI-TURN {CAT}  model={MODEL_NAME}  n={len(data)}  (native chat-template + tools)", flush=True)
     ok = n = 0
     for ex in data:
         g = golds.get(ex["id"])
@@ -111,7 +112,7 @@ def main():
             print(f"  [{ex['id']}] ERROR {e}", flush=True)
         if n % 5 == 0: print(f"  {n}/{len(data)}  task-completion={100*ok/n:.0f}%", flush=True)
     print(f"\n== MULTI-TURN task-completion: {ok}/{n} = {100*ok/max(n,1):.1f}% ==")
-    print("(single-turn ref: Qwen3-4B-2507 bf16 = 88.7; frontier should ace — else fix the eval)")
+    print("(single-turn ref: Qwen3-4B-2507 bf16 = 88.7; 30B-A3B aced single-turn 96/96)")
 
 if __name__ == "__main__":
     main()
