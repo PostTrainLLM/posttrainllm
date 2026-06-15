@@ -45,11 +45,17 @@ def load_catalog(involved_classes, excluded):
 def to_callstr(name, args):
     return f"{name}(" + ", ".join(f"{k}={v!r}" for k, v in (args or {}).items()) + ")"
 
-SYS = ("You are a function-calling assistant in a MULTI-TURN conversation. Each user turn,"
-       " emit the function call(s) for THAT turn, each as <tool_call>{\"name\":<fn>,"
-       "\"arguments\":{<args>}}</tool_call>. Use prior tool results as context. No prose.")
+SYS = ("You are an AUTONOMOUS tool-using agent. For the current user turn you must "
+       "COMPLETE THE ENTIRE requested task yourself by issuing function calls — the user "
+       "will NOT prompt you again for intermediate steps. After each call you see its "
+       "result; keep issuing the NEXT call(s) until the full task is done (a task often "
+       "needs SEVERAL calls in sequence — e.g. cd, then mkdir, then mv). You may call "
+       "read-only functions (ls, cat, pwd, get_*) to inspect state before acting. "
+       "Emit calls as <tool_call>{\"name\":<fn>,\"arguments\":{<args>}}</tool_call> (one per "
+       "call). ONLY when the turn's task is fully complete, reply with the single token "
+       "DONE and no tool call.")
 
-MAX_STEPS = 6   # agentic steps within ONE user turn (call -> see results -> call again)
+MAX_STEPS = 8   # agentic steps within ONE user turn (call -> see results -> call again)
 
 def render(catalog, transcript, user_turn, step_history):
     convo = ""
@@ -59,8 +65,10 @@ def render(catalog, transcript, user_turn, step_history):
     for calls, results in step_history:                  # intra-turn steps so far
         convo += f"Assistant: {' '.join(calls)}\nTool results: {results}\n"
     if step_history:
-        convo += ("(Continue: issue the NEXT call(s) for this turn given the results above, "
-                  "or emit NOTHING if the turn's task is complete.)")
+        convo += ("(The task for the CURRENT user turn is NOT finished until fully satisfied. "
+                  "Given the tool results above, issue the NEXT call(s) to make progress. "
+                  "Reply DONE with no tool call ONLY if everything the user asked for this turn "
+                  "is already complete.)")
     return SYS, "# AVAILABLE FUNCTIONS\n" + json.dumps(catalog) + "\n\n# CONVERSATION\n" + convo
 
 def run_example(ex, gold):
