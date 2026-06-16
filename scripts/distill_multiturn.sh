@@ -40,8 +40,8 @@ python3 -m mlx_lm lora --model "$BASE" --train --data "$SFT_DATA" \
 echo "== 3/4 fuse =="
 python3 -m mlx_lm fuse --model "$BASE" --adapter-path "$ADAPTER" --save-path "$FUSED"
 
-echo "== 4/4 eval distilled model on the hard gate (12) + hardgen val (40) =="
-for SET in hard hardgen; do
+echo "== 4/4 eval distilled model (sets: ${EVAL_SETS:-hard hardgen}) =="
+for SET in ${EVAL_SETS:-hard hardgen}; do
   echo "### $SET ###"
   MODEL="$FUSED" MT_SYS="$PLAN_PROMPT" \
     MT_DATA="scripts/fixtures/multi_turn_${SET}_data.jsonl" \

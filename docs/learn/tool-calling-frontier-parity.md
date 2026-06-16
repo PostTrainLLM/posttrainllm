@@ -351,6 +351,42 @@ Implications:
   tasks; frontier may not ace all 52). The *relative* negative-transfer result is airtight regardless;
   the gpt-5.5 ceiling check (free, via the Codex backend) would place the absolute gap.
 
+## 8.5 The gold-cloning ceiling — why breadth needs *interleaved* trajectories (2026-06-16)
+
+Tried the obvious fix for §8.4's negative transfer: **multi-backend gold-cloning** — 248 tasks
+spanning file-ops + Trading/Vehicle/Travel/Ticket/Message/Twitter (clean split from the 52-task
+eval), gold-cloned and SFT'd. It made breadth **worse**:
+
+| 4B | file-ops (depth) | breadth (52 out-of-domain) |
+|---|---|---|
+| stock | 58% | **59.6%** ← still the best breadth |
+| file-ops gold-distill | 100% | 42.3% |
+| **multi-backend gold-distill** | 100% | **30.8%** |
+
+**Root cause (measured, not guessed):** **52% of multi-backend turns have a call argument that
+comes from a *tool result*, not the user prompt.** Example `multi_turn_base_57`: the gold lumps one
+turn as `get_zipcode(...)`, `get_zipcode(...)`, `estimate_distance(cityA='69238', cityB='51479')` —
+where `69238`/`51479` are the zipcodes the `get_zipcode` calls **return**. Behaviour-cloning that
+gold teaches the model to (a) emit all calls *blind* before seeing any result and (b) **hallucinate
+the specific result values**. More such data → more harm.
+
+**The law:** *gold-cloning ≡ frontier distillation only when call args are derivable from the user
+prompt* (file-ops: names, paths — §8.1 worked for exactly this reason). For **data-dependent
+agency**, the thing to learn is the trajectory *structure* — `call → read result → use result in the
+next call` — and the gold does not contain that structure. Cloning concrete result-values is
+anti-learning.
+
+**What actually fixes breadth:** *interleaved* trajectories that demonstrate reading a result before
+using it — either a **frontier teacher** (gpt-5.5 via the free Codex backend, which calls
+`get_zipcode`, reads `69238`, *then* calls `estimate_distance`) or the model's **own rollouts in a
+ReST/RL loop** (interleaving is intrinsic; the checker filters the correct ones). This is the
+decisive, evidence-backed motivation for [self-improving-agents.md](../prds/self-improving-agents.md):
+the loop teaches the one thing gold-cloning structurally can't.
+
+**Practical takeaway for Pace:** today the **stock 4B (60%) is the best multi-domain agent**; the
+gold-distilled models win only on their narrow domain (file-ops 100%). Either *route* to the
+specialist on its domain, or train breadth with *real interleaved* trajectories — not gold-clones.
+
 ## See also
 - [distillation.md](../distillation.md) — the distillation workflow + match-vs-from-scratch protocol.
 - [eval-methodology-2026-06-08.md](./eval-methodology-2026-06-08.md) — broader eval protocol.
