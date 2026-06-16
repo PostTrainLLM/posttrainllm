@@ -45,7 +45,7 @@ SYS = os.environ.get("MT_SYS",
        "and proceeds to the next turn."))
 
 _model, _tok = load(MODEL_PATH)
-_sampler = make_sampler(temp=0.0)
+_sampler = make_sampler(temp=float(os.environ.get("MT_TEMP", "0.0")))  # >0 for ReST rollout diversity
 
 def load_catalog(involved_classes, excluded):
     funcs = []
@@ -96,22 +96,38 @@ def run_example(ex, gold):
             messages.append({"role": "tool", "content": json.dumps(results)})
         decoded.append(turn_steps if turn_steps else [[]])
     res = multi_turn_checker(decoded, gold["ground_truth"], ex, CAT, MODEL_NAME)
-    return bool(res.get("valid", False)) if isinstance(res, dict) else bool(res)
+    valid = bool(res.get("valid", False)) if isinstance(res, dict) else bool(res)
+    return valid, messages, tools
 
 def main():
     data = [json.loads(l) for l in open(DATA)][:N]
     golds = {json.loads(l)["id"]: json.loads(l) for l in open(GOLD)}
-    print(f"MULTI-TURN {CAT}  model={MODEL_NAME}  n={len(data)}  (native chat-template + tools)", flush=True)
+    # ReST: MT_ROLLOUTS>1 + MT_TEMP>0 samples K rollouts/task; MT_DUMP_WINS dumps the model's OWN
+    # checker-passing trajectory ({id,tools,messages}) — correct interleaving + real tool-result values.
+    ROLLOUTS = int(os.environ.get("MT_ROLLOUTS", "1"))
+    DUMP = os.environ.get("MT_DUMP_WINS")
+    dumpf = open(DUMP, "a") if DUMP else None
+    print(f"MULTI-TURN {CAT}  model={MODEL_NAME}  n={len(data)}  rollouts={ROLLOUTS} temp={os.environ.get('MT_TEMP','0.0')}"
+          + (f"  DUMP_WINS={DUMP}" if DUMP else ""), flush=True)
     ok = n = 0
     for ex in data:
         g = golds.get(ex["id"])
         if not g: continue
         n += 1
-        try:
-            ok += run_example(ex, g)
-        except Exception as e:
-            print(f"  [{ex['id']}] ERROR {e}", flush=True)
-        if n % 5 == 0: print(f"  {n}/{len(data)}  task-completion={100*ok/n:.0f}%", flush=True)
+        solved = False
+        for _ in range(ROLLOUTS):
+            try:
+                valid, messages, tools = run_example(ex, g)
+            except Exception as e:
+                print(f"  [{ex['id']}] ERROR {e}", flush=True); continue
+            if valid:
+                solved = True
+                if dumpf:
+                    dumpf.write(json.dumps({"id": ex["id"], "tools": tools, "messages": messages}) + "\n"); dumpf.flush()
+                break  # one win per task is enough for a ReST SFT round
+        ok += solved
+        if n % 5 == 0: print(f"  {n}/{len(data)}  solve@{ROLLOUTS}={100*ok/n:.0f}%", flush=True)
+    if dumpf: dumpf.close()
     print(f"\n== MULTI-TURN task-completion: {ok}/{n} = {100*ok/max(n,1):.1f}% ==")
     print("(single-turn ref: Qwen3-4B-2507 bf16 = 88.7; 30B-A3B aced single-turn 96/96)")
 
