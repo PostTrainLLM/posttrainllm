@@ -89,6 +89,13 @@ in `Sources/TinyGPT/TinyGPT.swift`) after reviewing your PR.
 | [B29 trace-to-training-data](B29-trace-to-training-data.md) | `.atraj` → SFT/DPO JSONL via dedupe + tool-echo-drop + LLM-judge | ~2d |
 | [B30 prompt-reasoning-classifier](B30-prompt-reasoning-classifier.md) | classify training prompts by reasoning depth; feeds B29 + leaderboard | ~half-day |
 
+### RL environments / arena (Tier B — open-ended, won't-saturate RL)
+
+| PRD | What | Effort |
+|---|---|---|
+| [game-rl-environment-poc](game-rl-environment-poc.md) | single NPC self-improves at one behavior in the fleet's own game via GRPO (in-game reward = RLVR) | PoC |
+| [local-model-arena-selfplay](local-model-arena-selfplay.md) | pit local vs frontier models in turn-based strategy games (steal TextArena); self-play-RL a local model to beat frontier zero-shot — match win/lose = verifiable reward | phase-2 PoC |
+
 ### Distribution + project pinning
 
 | PRD | What | Effort |

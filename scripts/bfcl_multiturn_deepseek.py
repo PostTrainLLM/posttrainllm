@@ -17,14 +17,21 @@ from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_utils import execute_mult
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_checker import multi_turn_checker
 from bfcl_eval.constants.executable_backend_config import CLASS_FILE_PATH_MAPPING
 FUNCDOC=f"{BFCL}/bfcl_eval/data/multi_turn_func_doc"
-KEY=open(os.environ.get("DS_KEY_FILE","/tmp/deepseek_key")).read().strip()  # never commit the key
+# Generic OpenAI-function-calling backend. Defaults to DeepSeek; point DS_URL/DS_MODEL at
+# any compatible server (e.g. LM Studio at http://localhost:1234/v1/chat/completions) to
+# score another model (Gemma, etc.) on the same gate.
+DS_URL=os.environ.get("DS_URL","https://api.deepseek.com/chat/completions")
+_keyfile=os.environ.get("DS_KEY_FILE","/tmp/deepseek_key")
+KEY=open(_keyfile).read().strip() if os.path.exists(_keyfile) else "not-needed"  # local servers need no key
 DS_MODEL=os.environ.get("DS_MODEL","deepseek-v4-pro")
 DATA=os.environ["MT_DATA"]; GOLD=os.environ["MT_GOLD"]; N=int(sys.argv[1]) if len(sys.argv)>1 else 12
+DUMP=os.environ.get("MT_DUMP")  # if set: append checker-PASSING trajectories here (RFT distillation data)
 MAX_STEPS=12
-SYS=("You are an expert in composing functions. At each turn, do your best to complete the tasks "
+SYS=os.environ.get("MT_SYS",
+    ("You are an expert in composing functions. At each turn, do your best to complete the tasks "
      "requested by the user within the current turn. Continue to output function calls until you "
      "have fulfilled the user's request to the best of your ability. Once you have no more functions "
-     "to call, the system considers the current turn complete and proceeds to the next turn.")
+     "to call, the system considers the current turn complete and proceeds to the next turn."))
 def load_catalog(classes,excluded):
     out=[]
     for c in classes:
@@ -46,7 +53,7 @@ def to_tools(cat): return [{"type":"function","function":{"name":f["name"],"desc
 def to_callstr(name,args): return f"{name}("+", ".join(f"{k}={v!r}" for k,v in (args or {}).items())+")"
 def ds(messages,tools):
     body=json.dumps({"model":DS_MODEL,"messages":messages,"tools":tools,"temperature":0,"max_tokens":700}).encode()
-    req=urllib.request.Request("https://api.deepseek.com/chat/completions",data=body,method="POST",
+    req=urllib.request.Request(DS_URL,data=body,method="POST",
         headers={"Authorization":f"Bearer {KEY}","Content-Type":"application/json","User-Agent":"curl/8.4.0"})
     for a in range(4):
         try:
@@ -77,11 +84,18 @@ def run_example(ex,gold):
                 messages.append({"role":"tool","tool_call_id":tc["id"],"content":json.dumps(results[i] if i<len(results) else "ok")})
         decoded.append(steps if steps else [[]])
     r=multi_turn_checker(decoded,gold["ground_truth"],ex,"multi_turn_base","deepseek")
-    return bool(r.get("valid")) if isinstance(r,dict) else bool(r)
+    valid=bool(r.get("valid")) if isinstance(r,dict) else bool(r)
+    return valid,messages,tools
 data=[json.loads(l) for l in open(DATA)][:N]; golds={json.loads(l)["id"]:json.loads(l) for l in open(GOLD)}
-print(f"DeepSeek {DS_MODEL}  n={len(data)}",flush=True); ok=n=0
+print(f"DeepSeek {DS_MODEL}  n={len(data)}"+("  DUMP="+DUMP if DUMP else ""),flush=True); ok=n=0
+dumpf=open(DUMP,"a") if DUMP else None
 for ex in data:
     n+=1
-    try: ok+=run_example(ex,golds.get(ex["id"]))
+    try:
+        valid,messages,tools=run_example(ex,golds.get(ex["id"])); ok+=valid
+        if valid and dumpf:  # rejection-sampling: keep ONLY trajectories the checker passed
+            dumpf.write(json.dumps({"id":ex["id"],"tools":tools,"messages":messages})+"\n"); dumpf.flush()
     except Exception as e: print("  ERR",ex["id"],str(e)[:90])
+    if n%10==0: print(f"  {n}/{len(data)}  pass={100*ok/n:.0f}%",flush=True)
+if dumpf: dumpf.close()
 print(f"== DeepSeek-V4 task-completion: {ok}/{n} = {100*ok/max(n,1):.1f}% ==")

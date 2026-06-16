@@ -37,11 +37,12 @@ MODEL_PATH = os.environ["MODEL"]
 MODEL_NAME = MODEL_PATH.rstrip("/").split("/")[-1]
 
 # BFCL's own multi-turn behaviour instruction (constants/default_prompts.py)
-SYS = ("You are an expert in composing functions. At each turn, do your best to complete "
+SYS = os.environ.get("MT_SYS",
+      ("You are an expert in composing functions. At each turn, do your best to complete "
        "the tasks requested by the user within the current turn. Continue to output function "
        "calls until you have fulfilled the user's request to the best of your ability. Once "
        "you have no more functions to call, the system considers the current turn complete "
-       "and proceeds to the next turn.")
+       "and proceeds to the next turn."))
 
 _model, _tok = load(MODEL_PATH)
 _sampler = make_sampler(temp=0.0)

@@ -51,10 +51,15 @@ raw accuracy in isolation.
 This makes frontier models the **calibration anchor for every benchmark**:
 
 - **Frontier-ceiling gate.** Before any benchmark is used to grade Mac models, a
-  frontier model (strongest authed teacher available — `claude -p`, or the
-  `free-ai` gateway when keyed) must score **~100%** on it. If frontier can't ace
-  it, the benchmark is broken — **fix or drop it; never report Mac-model accuracy
-  on it.** Rationale: an eval that penalizes a frontier model's correct-or-better
+  frontier model must score **~100%** on it. If frontier can't ace it, the benchmark
+  is broken — **fix or drop it; never report Mac-model accuracy on it.**
+  - **Teacher backend preference (owner, 2026-06-16): prefer the FREE
+    Codex CLI (`gpt-5.5`, `scripts/bfcl_multiturn_codex.py`, `codex exec
+    --output-schema`) for frontier validation + teacher trajectories.** DeepSeek-V4
+    (`bfcl_multiturn_deepseek.py`) is a clean OpenAI-FC backend but **costs the owner
+    money — use sparingly / only to cross-check.** `claude -p` editorializes (it's an
+    agent CLI, not a clean endpoint) and the `free-ai` gateway health-routes to
+    llama-4-scout — neither is a reliable clean frontier; Codex `gpt-5.5` is. Rationale: an eval that penalizes a frontier model's correct-or-better
   answers will penalize our small models the same way — we'd be optimizing
   against noise, and any "gap" we measure is the ruler, not the model.
 - **Why this is load-bearing:** the hermes-fc tool-call set fails this gate hard —
@@ -76,6 +81,15 @@ This makes frontier models the **calibration anchor for every benchmark**:
   but ~24% on `live_multiple` (real-user, many-distractor function *selection* is
   the genuine gap — attack via multi-call/selection distillation data or GRPO with
   the AST matcher as the verifiable reward, not raw size).
+- **Incumbent + conclusive winner (owner, 2026-06-16).** Pace (the production app)
+  currently runs **Gemma**; our agentic-tool-calling work targets the **~4B**
+  (Qwen3-4B-2507) and a distilled/RL'd successor. The endgame deliverable is a
+  **single head-to-head that picks a conclusive winner for Pace** — Gemma vs the 4B
+  variants (and an 8B only if the 4B plateaus) on the same multi-turn agentic gate,
+  reported alongside decode tok/s + RAM. Until that table exists, no candidate is
+  "the answer." Multi-turn gate reference (task-completion, hard tier):
+  DeepSeek-V4-pro 100; Qwen3-4B-2507 bf16 58 stock → 75 with a plan-then-execute
+  system prompt; target ~95.
 
 ## Working rules specific to this repo
 
