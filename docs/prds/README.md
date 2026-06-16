@@ -93,6 +93,7 @@ in `Sources/TinyGPT/TinyGPT.swift`) after reviewing your PR.
 
 | PRD | What | Effort |
 |---|---|---|
+| [self-improving-agents](self-improving-agents.md) | the closed loop (act→score→learn→curriculum); smallest proof = teacher-free ReST loop on the file-ops env that raises pass-rate; umbrella over the two below | PoC |
 | [game-rl-environment-poc](game-rl-environment-poc.md) | single NPC self-improves at one behavior in the fleet's own game via GRPO (in-game reward = RLVR) | PoC |
 | [local-model-arena-selfplay](local-model-arena-selfplay.md) | pit local vs frontier models in turn-based strategy games (steal TextArena); self-play-RL a local model to beat frontier zero-shot — match win/lose = verifiable reward | phase-2 PoC |
 

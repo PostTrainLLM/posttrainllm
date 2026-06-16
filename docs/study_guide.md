@@ -132,7 +132,7 @@ l_new = α · l_old + Σ exp(s_jj − m_new)
 
 After the loop, divide `O /= l` and write out.
 
-The backward kernel (`webgpu/attention_fa2_backward.wgsl`) does the FA2 trick that's the actual reason to bother. The forward saves `L = m_final + log(l_final)` per Q row — one float per row, not a full matrix. The backward reconstructs `P[i,j] = exp(s[i,j] − L[i])` from raw `Q` and `K` instead of reading a cached attention matrix that no longer exists. Recomputing scores is cheap on a GPU; reading 67 MB from global memory is not.
+The backward kernel (the FA2 recomputation design — see `docs/fa2_backward_notes.md`; the currently shipped attention gradients are the non-fused `attn_dscores`/`attn_dvalue` in `webgpu/train.wgsl`) does the FA2 trick that's the actual reason to bother. The forward saves `L = m_final + log(l_final)` per Q row — one float per row, not a full matrix. The backward reconstructs `P[i,j] = exp(s[i,j] − L[i])` from raw `Q` and `K` instead of reading a cached attention matrix that no longer exists. Recomputing scores is cheap on a GPU; reading 67 MB from global memory is not.
 
 The shipping forward also dropped its previous "compatibility second pass" that re-walked K to write the attention matrix for the old backward — once the FA2 backward shipped, nothing needed the materialised attention any more. That was the real memory win.
 

@@ -259,6 +259,17 @@ to other agentic backends (trading, ticketing, …) is untested — distilling a
 the obvious next step. The recipe — *author verifiable tasks → frontier RFT → SFT in the student's
 template* — is domain-general.
 
+**Reproducible for free (gold behaviour-cloning ≡ frontier distillation).** When the trajectories
+were lost to a `/tmp` wipe, we rebuilt the identical model with **no teacher API**: for verifiable
+tasks the **gold ground-truth *is* the correct trajectory**, so `gold_to_sft_traj.py` synthesizes
+SFT data by executing the gold per turn (free, fast, deterministic). It reproduced **100% hard /
+95% hardgen exactly** — but only after one non-obvious fix: the SFT data must **demonstrate the
+turn-completion STOP signal** (an assistant message emitting *no* tool calls after the work is
+done). Without it the model never learns to stop, over-calls at eval, and lands at 75% — the gap
+that a teacher's trajectories close for free because they naturally end each turn with a no-call
+message. (Lesson with teeth for self-improvement: *knowing when to stop is a learned behaviour*,
+not a freebie — a ReST loop must reward it.)
+
 ## 8.2 Conclusive head-to-head — Pace incumbent (Gemma) vs the 4B (2026-06-16)
 
 Pace ships **Gemma**; this is the deciding comparison. Same hard gate, same plan prompt,
@@ -312,6 +323,33 @@ single-shot per step via `codex exec --output-schema` (forced JSON tool-calls), 
 BFCL executor + checker. Gotcha: OpenAI strict structured-output requires `additionalProperties:
 false` on every object and forbids free-form objects, so `arguments` is passed as a JSON *string*
 and parsed. This retires the paid DeepSeek API for routine frontier work.
+
+## 8.4 Breadth — narrow distillation causes negative transfer (2026-06-16)
+
+Saturation at file-ops raised the real question: does the specialist *generalize*? Tested on 52
+held-out **single-backend, non-filesystem** BFCL multi_turn tasks (TradingBot 20, VehicleControlAPI
+19, TravelAPI 13 — domains the 4B never trained on), same generic prompt, distilled vs stock:
+
+| 4B | file-ops (hard gate) | out-of-domain breadth (52) |
+|---|---|---|
+| stock | 58% | **59.6%** |
+| distilled (file-ops only) | 100% | **42.3%** |
+
+**The file-ops distillation made the model *worse* everywhere else — 60% → 42%, a −17pt regression.**
+Apples-to-apples (same tasks, same prompt), so this is real **catastrophic forgetting / negative
+transfer**, not noise. We bought depth (file-ops 58→100) at the cost of breadth. The distilled 4B is
+a file-ops *specialist*, **not a better agent**.
+
+Implications:
+- **For a multi-domain product (Pace):** a narrowly-distilled model is the wrong artifact unless it's
+  *routed* (used only on its domain). The general fix is **multi-backend distillation** — train across
+  all backends at once so gains don't come with forgetting.
+- **This is the strongest motivation for the self-improving auto-curriculum** ([self-improving-agents.md](../prds/self-improving-agents.md)):
+  a loop that samples + filters across the *whole* task distribution trains breadth and depth together,
+  structurally avoiding the single-domain over-fit we just measured.
+- **Caveat:** the *absolute* bar here isn't frontier-validated yet (these are real multi_turn_base
+  tasks; frontier may not ace all 52). The *relative* negative-transfer result is airtight regardless;
+  the gpt-5.5 ceiling check (free, via the Codex backend) would place the absolute gap.
 
 ## See also
 - [distillation.md](../distillation.md) — the distillation workflow + match-vs-from-scratch protocol.

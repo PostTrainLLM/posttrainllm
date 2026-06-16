@@ -9,9 +9,13 @@
 # Usage: scripts/distill_multiturn.sh <traj.jsonl> <base_model_path> [out_tag]
 set -euo pipefail
 TRAJ="${1:?trajectory jsonl}"; BASE="${2:?base model path}"; TAG="${3:-mt_distill}"
-SFT_DATA="/tmp/${TAG}_data"; ADAPTER="/tmp/${TAG}_adapter"; FUSED="/tmp/${TAG}_fused"
+# Fused model persists (survives /tmp cleanup); SFT data + adapter are cheap intermediates.
+OUTDIR="${OUTDIR:-$HOME/.cache/tinygpt/models}"; mkdir -p "$OUTDIR"
+SFT_DATA="/tmp/${TAG}_data"; ADAPTER="/tmp/${TAG}_adapter"; FUSED="$OUTDIR/${TAG}_fused"
 
-PLAN_PROMPT="You are an autonomous tool-using agent. For each user turn: (1) first think briefly about the FULL sequence of function calls the task needs; (2) then execute them one at a time, reading each tool result before the next call; (3) NEVER repeat a call that already succeeded — check the latest tool results to see what is already done; (4) once EVERY requested action is complete, stop and emit no tool call. Track the current directory and existing files/dirs from the tool results as you go."
+# Domain-agnostic (works for filesystem AND other backends) — must match the prompt baked into
+# the training trajectories (gold_to_sft_traj.py SYS).
+PLAN_PROMPT="You are an autonomous tool-using agent. For each user turn: (1) plan the full sequence of function calls the task needs; (2) execute them, reading each tool result; (3) never repeat a call that already succeeded; (4) once every requested action is complete, stop and emit no tool call. Use the tool results to track the current state as you go."
 
 echo "== 1/4 render trajectories -> mlx_lm text =="
 TRAJ="$TRAJ" MODEL="$BASE" OUT="$SFT_DATA" python3 scripts/render_sft_from_traj.py

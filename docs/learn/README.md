@@ -32,6 +32,8 @@ current LLMs. They're for someone who knows the basics and wants the
 "why" behind specific designs (RoPE, GQA, MoE, etc.).
 
 - [LLM mechanics fundamentals](./llm-mechanics-fundamentals.md) — RoPE, GQA, attention variants, MoE, expert routing
+- [Mathematically essential vs engineering optimization](./essential-vs-optimization.md) — the project split: the math that defines the model's function (oracle = `python_ref/model.py`) vs the optimization layer that only makes it faster/smaller; and **loss drift**, the number that polices the boundary
+- [The WebGPU execution model](./webgpu-execution-model.md) — device/queue, pipeline, dispatch, workgroups, invocations, bind groups, the memory hierarchy; how our matmul + attention shaders map onto it (read before the `.wgsl` files)
 
 **Interview-grade topic maps** (what / why-it-matters-here / external source / repo anchor — for senior/staff prep):
 - [Speech & systems topics](./speech-and-systems-topics.md) — voice-pipeline latency, WER, speech-to-speech, fine-tune debugging, feature selection, queues vs websockets, FSDP2
