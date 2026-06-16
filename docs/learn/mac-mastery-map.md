@@ -30,7 +30,9 @@ Canonical: [advanced-llm-training](./advanced-llm-training.md).
 - ✅ **Distillation / cost-compression** — validated: a 0.6B matched a 4B on
   tool-calling at 1/7th size. `tinygpt distill`. *This is the live winning lane.*
 - ✅ Synthetic data (`magpie`), quality classifier + filter.
-- 🟡 RL: GRPO-on-clarify (`docs/GRPO_CLARIFY.md`); reward modeling (B28 composite reward).
+- 🟡 RL: GRPO-on-clarify (`docs/GRPO_CLARIFY.md`); reward modeling (B28); **multi-turn agentic
+  distillation → frontier-parity (4B 58→100) + teacher-free ReST self-improvement loop scaffolded**
+  ([self-improving-agents](../prds/self-improving-agents.md), [journey §8](./tool-calling-frontier-parity.md)).
 - ⬜ **Learn deeper:** full GRPO/PPO loop, reward over-optimization, WSD schedule
   (B11), layer-wise LR decay (B15), micro-automixer (B21).
 
@@ -96,6 +98,13 @@ Theory: [advanced-llm-training](./advanced-llm-training.md) (ZeRO/FSDP/3D parall
 - **oMLX** — single-Mac serving done right (RAM↔SSD KV, continuous batching). [omlx.ai](https://omlx.ai/)
 - **Why decode resists distribution:** memory-bandwidth-bound + sequential → network round-trips dominate. (advanced-llm-inference §1.)
 
+**Buildable hands-on (you don't need a cluster to learn the primitives) — verified 2026-06-17:**
+MLX ships `mx.distributed` (`all_sum` / `all_gather` / `sum_scatter` / `send` / `recv`, `is_available()==True`)
++ the `mlx.launch` CLI. So **real data-parallel** training (all-reduce gradients with `all_sum`) and a
+**toy ZeRO** (shard optimizer state via `sum_scatter`, re-gather with `all_gather`) run across multiple
+*processes on one Mac* (or 2 Macs over Thunderbolt). You learn all-reduce, sharding, and comm/compute
+overlap firsthand — the *scale* needs a cluster, the *concepts* don't.
+
 ## Learning gaps — the ⬜ shortlist (what to learn/build next)
 
 1. **Inference depth** — batching + KV-SSD paging + prefix cache (B34); read the
@@ -106,6 +115,25 @@ Theory: [advanced-llm-training](./advanced-llm-training.md) (ZeRO/FSDP/3D parall
    able to whiteboard ZeRO stages, 3D parallelism, and why decode won't shard.
 4. **Compression** — logit-level distillation; fp8; the cost/quality frontier.
 5. **Agents** — trajectory recording (B22) + agent-eval protocol (B23).
+
+## Next up — direction chosen 2026-06-17
+
+Agentic tool-calling is now mined deep: frontier-parity distillation (4B 58→100, beats Gemma-12B)
++ the teacher-free **self-improvement loop scaffolded** ([self-improving-agents](../prds/self-improving-agents.md),
+[journey §8](./tool-calling-frontier-parity.md), [retention PRD](../prds/capability-retention.md)).
+Diminishing *product* returns there → pivoting for *breadth of learning*. Four candidate areas,
+**all queued (matter of time — we do the others in turn):**
+
+1. **Single-machine ↔ distributed boundary [CHOSEN]** — §boundary above; buildable via `mx.distributed`
+   + `mlx.launch` (data-parallel + toy ZeRO across processes on one Mac). The named thesis gap; positions for scale.
+2. **Interpretability** — §5; open the box on the distilled 4B (where the agentic skill lives; the
+   *mechanism* of the measured negative transfer — journey §8.4–8.5).
+3. **Vision-language** — §6; `qwen3-vl-2b` already local; a Pace pillar.
+4. **Mac-local serving systems** — §3; continuous batching + KV-cache + speculative decoding (also
+   ~10× the ReST rollouts — fixes the throughput bottleneck this session hit).
+
+(Still finishing from 2026-06-16/17: ReST iter-1 SFT → breadth number; VibeThinker-3B GSM8K
+sanity-check — task #60.)
 
 > Living doc — correct coverage markers as reality changes. New learning lands
 > as a focused page elsewhere in `docs/learn/`; this map just indexes + tracks.
