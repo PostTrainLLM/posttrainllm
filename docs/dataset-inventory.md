@@ -11,13 +11,13 @@ parquet-on-disk.
 |---|---|---:|---|---|---|
 | `NousResearch/hermes-function-calling-v1` | `NousResearch/` | 113 MB | `hermes-fc.jsonl` (49.8 MB) | A1 tool-caller SFT (Apache 2.0) | ✅ decoded |
 | `Locutusque/function-calling-chatml` | `Locutusque/data/` | 102 MB | `function-calling-chatml.jsonl` (333 MB) | A1 tool-caller SFT | ✅ decoded |
-| `Salesforce/xlam-function-calling-60k` | `Salesforce/` | 0 B | — | D1 tool-caller SFT (gated) | ⬜ blocked on `HF_TOKEN` |
+| `Salesforce/xlam-function-calling-60k` | `Salesforce/xlam-function-calling-60k/xlam_function_calling_60k.json` | 91.7 MB | ~60K rows | A1 tool-caller SFT (gated) | ✅ pulled 2026-06-17 (token + license click) |
 | `yahma/alpaca-cleaned` | `yahma/` | 82 MB | — | General-instruction SFT baseline | ✅ on disk |
 | `Intel/orca_dpo_pairs` | `Intel/` | 67 MB | — | DPO preference data | ✅ on disk |
 | `argilla/ultrafeedback-binarized-preferences-cleaned` | `argilla/` | 137 MB | `ultrafeedback.jsonl` | DPO preference data | ✅ decoded |
 | `meta-math/MetaMathQA` | `meta-math/` | 663 MB | — | Math specialist SFT | ✅ on disk |
 | `iamtarun/python_code_instructions_18k_alpaca` | `iamtarun/data/` | 11 MB | `python-code-instr.jsonl` (18 612 rows) | Code specialist SFT | ✅ decoded |
-| `bigcode/the-stack-smol` | `bigcode/data/assembly/` | 0 B | — | Code specialist pretrain | ⬜ gated — needs `HF_TOKEN`; 30 langs × ~10 MB each |
+| `bigcode/the-stack-smol` | `bigcode/the-stack-smol/data/{c,c++,go,java,javascript,python,rust,typescript}/data.json` | ~850 MB | 8 langs (of 30 in repo) | Code specialist pretrain | ✅ pulled 2026-06-17 (token + license click) |
 | `HuggingFaceFW/fineweb-edu` | `HuggingFaceFW/` + `fineweb-edu.txt` (230 MB) | 2.2 GB | `fineweb-edu.txt` (50K-row sample) | Pretrain quality baseline | ✅ sampled |
 
 ## ScaleDown (B25) corpora — pulled 2026-06-17
@@ -66,9 +66,8 @@ subcommands shell out to:
 
 ## Outstanding gaps
 
-1. **D1 xlam-function-calling-60k** — gated, blocked on user-side `export HF_TOKEN=hf_…`.
-2. **D4 the-stack-smol** — also gated; same `HF_TOKEN` unblocks it. 30 language shards (~10 MB each).
-3. **MS-MARCO v2.1** — only v1.1 is pulled; v2.1 has 7 train shards (~1 GB) if B25 needs additional training data.
-4. **Natural Questions** — only 2/287 train shards; pull more if B25 needs broader coverage.
+1. **MS-MARCO v2.1** — only v1.1 is pulled; v2.1 has 7 train shards (~1 GB) if B25 needs additional training data.
+2. **Natural Questions** — only 2/287 train shards; pull more if B25 needs broader coverage.
+3. **the-stack-smol additional langs** — 8/30 pulled (c, c++, go, java, javascript, python, rust, typescript). Add more (haskell, lua, ruby, scala, kotlin, etc.) if the code specialist needs broader exposure.
 
 All other items in PLAN.md Tier D are satisfied.

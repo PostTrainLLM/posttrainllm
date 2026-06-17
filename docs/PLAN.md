@@ -301,7 +301,7 @@ Sequencing: Tier D (data) + Tier E (evals) → A1 specialist → Tier B
 follow-ups.
 
 - ⬜ **A1. Train first specialist end-to-end (tool-caller)** — 3-5 days execution + GPU hours. Validates north-star thesis.
-- 🟡 **A2. Pull foundational datasets** — all on disk except xlam (gated, blocked on D1 HF_TOKEN). hermes-fc, function-calling-chatml, SWE-bench_Verified, alpaca-cleaned, orca_dpo_pairs, MetaMathQA, ultrafeedback, the-stack-smol, python_code_instructions_18k_alpaca all under `~/.cache/tinygpt/datasets/`. Inventory: `docs/dataset-inventory.md`.
+- ✅ **A2. Pull foundational datasets** (DONE 2026-06-17) — all on disk: xlam-function-calling-60k, hermes-fc, function-calling-chatml, SWE-bench_Verified, alpaca-cleaned, orca_dpo_pairs, MetaMathQA, ultrafeedback, the-stack-smol (8 langs), python_code_instructions_18k_alpaca, all under `~/.cache/tinygpt/datasets/`. Inventory: `docs/dataset-inventory.md`.
 - ⬜ **A3. Fetch GitHub issue→PR corpus for debugger** — ~1 day with `GITHUB_TOKEN`
 - ⬜ **A4. Pull BFCL + τ-bench via extractor-data** — ~30 min (DONE — sources at `~/.cache/tinygpt/datasets/_external/{gorilla-bfcl,tau-bench}/`; **wiring is Tier E**, not Tier A)
 - ⬜ **A5. Pull Indic eval datasets (MILU + IndicGenBench-XQuAD)** — ~30 min (DONE — MILU is lm-eval-harness, source at `_external/MILU/`; wiring → E3)
@@ -314,10 +314,10 @@ Pulled today: hermes-fc.jsonl, ultrafeedback.jsonl, MetaMathQA, alpaca-cleaned,
 orca_dpo_pairs, FineWeb-Edu (50K-row sample via parquet decoder). Blocked /
 missing for the planned specialists:
 
-- ⬜ **D1. xlam-function-calling-60k** — GATED. Needs `export HF_TOKEN=hf_…` then re-run `tinygpt download-dataset Salesforce/xlam-function-calling-60k`. ~5 min user-side. Directory exists empty at `~/.cache/tinygpt/datasets/Salesforce/xlam-function-calling-60k/`.
+- ✅ **D1. xlam-function-calling-60k** (DONE 2026-06-17) — `~/.cache/tinygpt/datasets/Salesforce/xlam-function-calling-60k/xlam_function_calling_60k.json` (91.7 MB, ~60K rows). Required both `HF_TOKEN` and per-account license click-through at the dataset page.
 - ✅ **D2. function-calling-chatml + SWE-bench_Verified** (DONE) — `~/.cache/tinygpt/datasets/Locutusque/function-calling-chatml/` (102 MB parquet) + `princeton-nlp/SWE-bench_Verified/` (2 MB).
 - ✅ **D3. MS-MARCO + Natural Questions subset** (DONE 2026-06-17) — `microsoft/ms_marco/v1.1/` (3 shards, 207 MB: test+train+val) + `google-research-datasets/natural_questions/default/` (2 train shards of 287, 375 MB — subset bounded for B25 training data; full corpus is multi-GB).
-- 🟡 **D4. the-stack-smol + python_code_instructions_18k_alpaca** — python alpaca DONE (`iamtarun/python_code_instructions_18k_alpaca/`, 10.8 MB parquet, 18 612 rows decoded). the-stack-smol is GATED (needs `HF_TOKEN`, same as D1) — `bigcode/the-stack-smol/data/` scaffolded but empty.
+- ✅ **D4. the-stack-smol + python_code_instructions_18k_alpaca** (DONE 2026-06-17) — python alpaca: `iamtarun/python_code_instructions_18k_alpaca/` (10.8 MB parquet, 18 612 rows decoded). the-stack-smol: 8 languages pulled (c 117 MB, c++ 147 MB, go 107 MB, java 67 MB, javascript 130 MB, python 83 MB, rust 132 MB, typescript 69 MB ≈ 850 MB total). Required license click-through at the dataset page.
 - ✅ **D5. GSM8K + MATH + HumanEval + MBPP eval splits** (DONE 2026-06-17) — `openai/gsm8k/main/` (test+train parquet) + `HuggingFaceH4/MATH-500/test.jsonl` (500 rows, the canonical math eval set) + `openai/openai_humaneval/` + `google-research-datasets/mbpp/full/` (prompt+test+train+val).
 
 ## Tier E — EVAL PIPELINES (wire harnesses → automate scores)
