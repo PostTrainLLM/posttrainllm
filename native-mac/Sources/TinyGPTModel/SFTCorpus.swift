@@ -63,7 +63,7 @@ public final class SFTCorpus: Sendable {
         var tgs = [Int32](repeating: 0, count: B * T)
         var msk = [Float](repeating: 0, count: B * T)
         for i in 0..<B {
-            let ex = examples[Int.random(in: 0..<examples.count)]
+            let ex = examples[BatchRng.randomInt(in: 0..<examples.count)]
             let seq = Array(ex.tokens.prefix(T + 1))     // need T+1 so we can shift by 1
             let mask = Array(ex.responseMask.prefix(T + 1))
             let usable = min(seq.count - 1, T)            // up to T (input, target) pairs
@@ -152,8 +152,8 @@ public final class SFTCorpus: Sendable {
         var tgs = [Int32](repeating: 0, count: B * T)
         var msk = [Float](repeating: 0, count: B * T)
         for i in 0..<B {
-            let bucket = nonEmpty[Int.random(in: 0..<nonEmpty.count)]
-            let idx = bucket[Int.random(in: 0..<bucket.count)]
+            let bucket = nonEmpty[BatchRng.randomInt(in: 0..<nonEmpty.count)]
+            let idx = bucket[BatchRng.randomInt(in: 0..<bucket.count)]
             let ex = examples[idx]
             let seq = Array(ex.tokens.prefix(T + 1))
             let mask = Array(ex.responseMask.prefix(T + 1))
@@ -213,7 +213,7 @@ public final class SFTCorpus: Sendable {
             var attempts = 0
             while pos < T && attempts < maxAttempts {
                 attempts += 1
-                let ex = examples[Int.random(in: 0..<nEx)]
+                let ex = examples[BatchRng.randomInt(in: 0..<nEx)]
                 // Need at least one (input, target) pair → exLen = tokens.count - 1.
                 let exLen = ex.tokens.count - 1
                 if exLen <= 0 { continue }

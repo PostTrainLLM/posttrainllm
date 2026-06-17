@@ -449,7 +449,7 @@ The competitive scan found the whole field monetizes the cost a Mac-first tool z
 - ✅ **C6. ChatML template inline-system split** — `splitChatmlSystem` helper + 6 unit tests. Shipped in `49dead5`.
 - ✅ **C7. Save+reload XCTest for LoRA adapters** — roundtrip + arch-mismatch coverage. Shipped in `49dead5`.
 - ✅ **C8. Install-path discipline** — `~/.cache/tinygpt/` for adapters + corpus discovery; off `/tmp`. Shipped in `49dead5`.
-- ⬜ **C9. Determinism harness** — bit-exact replay of step N for debugging spikes, drift, and grad-flow oddities. Pairs with B12. ~2 days.
+- ✅ **C9. Determinism harness** (SHIPPED 2026-06-17) — `--seed N` now seeds both MLXRandom AND `BatchRng` (Splitmix64-backed host generator) in `Sources/TinyGPTModel/BatchRng.swift`. All 7 corpus-sampler `Int.random(in:)` call sites swapped to `BatchRng.randomInt(in:)` across `Trainer.swift`, `SFTCorpus.swift`, `PreferenceCorpus.swift`. Two runs with the same seed now produce identical batch sequence (modulo prefetcher scheduling caveat — see `docs/determinism.md`). 5 unit tests pin the contract: same-seed determinism, different-seed divergence, reset-then-reseed reproducibility, range bounds, Splitmix64 bit-pattern.
 - ✅ **C10. Training-run dashboard** (SHIPPED) — `--log-jsonl <path>` in `tinygpt train` emits append-only JSONL via `Sources/TinyGPT/TrainLog.swift`; consumed by `browser/src/pages/training-dashboard.astro` for live charts.
 
 ## Tier 5 — RESEARCH FRONTIER (2026 stretch goals)
