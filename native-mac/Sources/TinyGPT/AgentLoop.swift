@@ -85,10 +85,18 @@ public final class AgentLoop {
         public let router: ToolRouterModel
         public let labels: [String]
         public let threshold: Float
-        public init(router: ToolRouterModel, labels: [String], threshold: Float) {
+        // C4 — optional BPE tokenizer matching the router's
+        // train-time tokenizer. nil → byte-level encoding (the
+        // legacy default; works for routers trained without
+        // --tokenizer).
+        public let tokenizer: HFTokenizer?
+        public init(router: ToolRouterModel, labels: [String], threshold: Float,
+                    tokenizer: HFTokenizer? = nil)
+        {
             self.router = router
             self.labels = labels
             self.threshold = threshold
+            self.tokenizer = tokenizer
         }
     }
     private let routerHook: RouterHook?
@@ -559,9 +567,18 @@ public final class AgentLoop {
         -> (tool: String, prob: Float)
     {
         let cfg = hook.router.config
-        var ids = [UInt8](query.utf8)
-            .prefix(cfg.contextLength)
-            .map { Int32($0) }
+        // C4 — use the router's BPE tokenizer when present so the
+        // encoding distribution matches `tinygpt train-extractor
+        // --tokenizer <dir>` at training time. Falls back to byte-level
+        // for routers trained without a tokenizer (the legacy default).
+        var ids: [Int32]
+        if let tok = hook.tokenizer, let bpe = try? tok.encode(query) {
+            ids = bpe.prefix(cfg.contextLength).map { Int32($0) }
+        } else {
+            ids = [UInt8](query.utf8)
+                .prefix(cfg.contextLength)
+                .map { Int32($0) }
+        }
         // Clamp + pad.
         for i in 0..<ids.count {
             if ids[i] < 0 || ids[i] >= Int32(cfg.vocabSize) { ids[i] = 0 }

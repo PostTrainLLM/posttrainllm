@@ -444,7 +444,7 @@ The competitive scan found the whole field monetizes the cost a Mac-first tool z
 - ✅ **C1. CLI cosmetic fixes** — 27 subcommands now `exit(0)` on `--help`; `bench-train --help` shows correct name. Shipped 2026-06-02 in `49dead5`.
 - ✅ **C2. Roll up pre-switch CLI shims into main switch** — 17 shims absorbed; TinyGPT.swift -170 LoC. Shipped in `49dead5`.
 - ✅ **C3. DoRA on-disk adapter format** (SHIPPED 2026-06-09) — TGLA v2 (magic `TGLA`, version 2) adds optional per-entry `[out]` magnitude vector after `loraB`; v1 readers ignore it; v2 readers autodetect. See `Sources/TinyGPTModel/LoraIO.swift` header. Memory: [[project_dora_fix_shipped_2026_06_09]].
-- ⬜ **C4. Tool-call extractor: BPE tokenizer support** — ~2 days
+- ✅ **C4. Tool-call extractor: BPE tokenizer support** (SHIPPED 2026-06-17) — `tinygpt train-extractor --tokenizer <hf-dir>` routes `encode()` through HFTokenizer instead of UTF-8 bytes; the tokenizer path is persisted in the checkpoint header (`tokenizerSource`). `ToolRouterLoader.load` surfaces it on `cfg.tokenizerSource`; `Agent.swift` autoloads the same tokenizer when the router declares one; `AgentLoop.RouterHook` gains an optional `tokenizer` field and `predictWithRouter` uses it when set. Byte-level remains the default + the fallback on tokenizer-load failure. Train-time warning fires when `--tokenizer` is set but `--vocab-size` is left at 256, and again if any encoded token ID lands outside `[0, vocab-size)`.
 - ⬜ **C5. Decode jitter under thermal load** — ~1 day (needs sustained workload measurement)
 - ✅ **C6. ChatML template inline-system split** — `splitChatmlSystem` helper + 6 unit tests. Shipped in `49dead5`.
 - ✅ **C7. Save+reload XCTest for LoRA adapters** — roundtrip + arch-mismatch coverage. Shipped in `49dead5`.

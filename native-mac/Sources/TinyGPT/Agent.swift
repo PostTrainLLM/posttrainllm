@@ -241,10 +241,25 @@ enum Agent {
                 let labels = try ToolRouterLabels.load(from: labelsURL)
                 let router = try ToolRouterLoader.load(
                     path: routerPath, numClasses: labels.labels.count)
+                // C4 — when the router's checkpoint declares a
+                // tokenizer source, load it so predictWithRouter uses
+                // the same BPE the router was trained with. Falls back
+                // to byte-level on load failure (the legacy behaviour).
+                var routerTokenizer: HFTokenizer? = nil
+                if let tokSrc = router.config.tokenizerSource {
+                    do {
+                        routerTokenizer = try HFTokenizer.loadBlocking(
+                            from: URL(fileURLWithPath: tokSrc))
+                        fputs("agent: router tokenizer loaded from \(tokSrc)\n", stderr)
+                    } catch {
+                        fputs("agent: router tokenizer load failed (\(error)); router will fall back to byte-level encoding\n", stderr)
+                    }
+                }
                 routerHook = AgentLoop.RouterHook(
                     router: router,
                     labels: labels.labels,
-                    threshold: routerThreshold)
+                    threshold: routerThreshold,
+                    tokenizer: routerTokenizer)
                 fputs("agent: router loaded — \(labels.labels.count) classes" +
                       String(format: ", threshold=%.2f\n", routerThreshold), stderr)
             } catch {
