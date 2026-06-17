@@ -5,15 +5,17 @@ import SwiftUI
 /// what's shipped, in-flight, queued, and rejected — anchored to the
 /// (speed × accuracy) / cost formula per the North Star.
 enum AppTab: Hashable {
-    case sample      // chat + A/B compare for currently loaded model
-    case gallery     // browse loadable models — click → opens chat
+    case sample      // model picker + chat + A/B compare (inline gallery)
     case train       // pretrain / fine-tune / DPO / distill (sub-modes)
     case eval        // score + compare
     case trace       // inference heatmap
     case interp      // mech-interp power tools
     case serve       // HTTP endpoint
-    case roadmap     // shipped / in-flight / queued / rejected — project state
-    case learn       // markdown viewer
+    // Removed 2026-06-17:
+    //  - .gallery → folded into .sample (inline model picker already lives there)
+    //  - .roadmap → docs/PLAN.md is canonical; no product surface needed
+    //  - .learn   → docs are reachable via Finder + repo browser, the in-app
+    //              markdown viewer was duplicative
 }
 
 struct ContentView: View {
@@ -52,14 +54,11 @@ struct ContentView: View {
                     Group {
                         switch tab {
                         case .sample:     mainPane
-                        case .gallery:    galleryPane
                         case .train:      TrainHubView()
                         case .eval:       EvalView()
                         case .trace:      InferenceHeatmapView()
                         case .interp:     InterpView()
                         case .serve:      ServerView()
-                        case .roadmap:    RoadmapView()
-                        case .learn:      LearnView()
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -216,14 +215,11 @@ struct ContentView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 1) {
                     navRow(.sample,     icon: "text.bubble",                       label: "Sample")
-                    navRow(.gallery,    icon: "rectangle.grid.2x2",                label: "Gallery")
                     navRow(.train,      icon: "waveform.path.ecg",                 label: "Train")
                     navRow(.eval,       icon: "checkmark.gobackward",              label: "Eval")
                     navRow(.trace,      icon: "chart.bar.xaxis",                   label: "Trace")
                     navRow(.interp,     icon: "scope",                             label: "Interp")
                     navRow(.serve,      icon: "antenna.radiowaves.left.and.right", label: "Serve")
-                    navRow(.roadmap,    icon: "map",                              label: "Roadmap")
-                    navRow(.learn,      icon: "graduationcap",                     label: "Learn")
 
                     // Inference section — live `tinygpt serve` processes
                     // detected via pgrep. Click a row to jump to Serve tab.

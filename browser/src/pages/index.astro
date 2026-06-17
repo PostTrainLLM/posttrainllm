@@ -3,238 +3,485 @@ import Default from "../layouts/Default.astro";
 ---
 
 <Default
-  title="TinyGPT — train a GPT-2 in your browser tab, 2.6× → 12.1× faster on WebGPU"
-  description="A GPT-2-shaped transformer trained from scratch in a browser tab via hand-written WebGPU kernels — 2.6× → 12.1× faster than multi-thread WASM SIMD as d_model grows. Same architecture on Apple Silicon via MLX. MIT licensed."
+  title="TinyGPT — an open-source LLM factory and runtime that lives on your Mac"
+  description="Distill a 4B specialist that matches frontier on a multi-turn agent gate. Train, fine-tune (LoRA / DoRA / QLoRA), evaluate (BFCL / τ-bench / lm-eval), serve OpenAI-compatible, and inspect with SAE / MEMIT / patch — all on one Apple Silicon machine. MIT licensed. Built in the open by one developer."
+  ogTitle="TinyGPT — an open-source LLM factory that lives on your Mac"
+  ogDescription="Distill, fine-tune, evaluate, serve, and inspect LLMs on a single Mac. Runs in a browser tab too. MIT."
+  twitterTitle="TinyGPT — an open-source LLM factory that lives on your Mac"
+  twitterDescription="Distill, fine-tune, evaluate, serve, and inspect LLMs on a single Mac. Runs in a browser tab too. MIT."
 >
-  <main class="landing">
-    <header class="hero">
-      <div class="brand-lockup" aria-label="TinyGPT">
-        <span class="brand-mark">T</span>
-        <span class="brand-name">TinyGPT</span>
-      </div>
-      <p class="eyebrow">Open-source transformer lab &middot; 2.6&times; &rarr; 12.1&times; faster on WebGPU</p>
-      <h1><span>TinyGPT</span> trains a GPT-2 from scratch in your browser tab.</h1>
-      <p class="lede">
-        Hand-written WebGPU kernels run <strong>2.6&times; &rarr; 12.1&times; faster</strong>
-        than the multi-thread WASM SIMD baseline as <code>d_model</code> climbs
-        from 96 to 256. Parity-tested to within 2.5% loss drift. Every modern
-        technique &mdash; <em>MoE</em>, <em>MTP</em>, <em>ALiBi</em>,
-        <em>differential attention</em>, <em>distillation</em>, <em>DoRA</em>,
-        <em>StreamingLLM</em> &mdash; ships as a single clean Swift or
-        TypeScript file, with a paper link next to it.
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topbar" role="banner">
+    <a class="brand-lockup" href="/" aria-label="TinyGPT home">
+      <span class="brand-mark" aria-hidden="true">T</span>
+      <span class="brand-name">TinyGPT</span>
+    </a>
+    <nav class="topnav" aria-label="Primary">
+      <a href="/playground">playground</a>
+      <a href="/leaderboard">leaderboard</a>
+      <a href="/devlog">devlog</a>
+      <a href="/roadmap">roadmap</a>
+      <a href="https://github.com/sarthak-fleet/tinygpt" rel="noopener">github</a>
+    </nav>
+  </header>
+
+  <main class="landing" id="main">
+    <!-- ========== HERO ========== -->
+    <section class="hero" aria-labelledby="hero-h1">
+      <p class="hero-kicker">An open-source LLM factory for one Mac.</p>
+      <h1 id="hero-h1">
+        Distill a specialist that matches frontier &mdash;
+        <span class="highlight">on a laptop you already own.</span>
+      </h1>
+      <p class="hero-lede">
+        TinyGPT is a Swift codebase + 30&plus; CLI subcommands for the full
+        post&#8209;training stack on Apple Silicon: train, distill from a local
+        teacher, fine&#8209;tune with LoRA / DoRA / QLoRA, gate with real evals
+        (BFCL, &tau;&#8209;bench, lm&#8209;eval), serve OpenAI&#8209;compatible,
+        and open the model up with sparse autoencoders, MEMIT, activation
+        patching. Same model also trains and runs in a browser tab via
+        hand&#8209;written WebGPU kernels.
       </p>
+
       <div class="cta-row">
-        <a class="cta primary" href="/playground">
-          <span class="cta-label">Train a transformer in your browser</span>
-          <span class="cta-sub">WebGPU · ~15 min to readable pseudo-Shakespeare on M-series + Chrome 113+</span>
+        <a class="cta primary" href="https://github.com/sarthak-fleet/tinygpt#build-it-locally" rel="noopener">
+          <span class="cta-label">Build the Mac CLI</span>
+          <span class="cta-sub"><code>xcodebuild</code> &middot; macOS 14+ &middot; MLX&#8209;Swift</span>
         </a>
-        <a class="cta secondary" href="https://github.com/sarthak-fleet/tinygpt/tree/main/native-mac" rel="noopener">
-          <span class="cta-label">Build the Mac CLI &amp; app</span>
-          <span class="cta-sub">MLX-Swift &middot; trains up to 1.3B params on unified memory</span>
+        <a class="cta secondary" href="/playground">
+          <span class="cta-label">Open the browser playground</span>
+          <span class="cta-sub">WebGPU &middot; trains a GPT&#8209;2 in your tab</span>
         </a>
       </div>
+
       <p class="hero-fineprint">
-        Open source under MIT. Source: <a href="https://github.com/sarthak-fleet/tinygpt" rel="noopener">github/tinygpt</a>.
-        Single-machine roadmap: <a href="/roadmap">7 parts</a>, 10 shipping phases.
+        MIT&nbsp;licensed &middot; one&nbsp;developer, building&nbsp;in&nbsp;the&nbsp;open &middot;
+        no cloud, no API key, nothing leaves the laptop.
       </p>
-    </header>
+    </section>
 
-    <section class="card-section" id="architecture">
-      <h2>Architecture menu</h2>
+    <!-- ========== THE NUMBER ========== -->
+    <section class="number-card" aria-labelledby="num-h2">
+      <p class="num-eyebrow">The strongest measured claim</p>
+      <h2 id="num-h2" class="num-h2">
+        A 4B model, locally distilled, matches the frontier on the
+        multi&#8209;turn hard gate.
+      </h2>
+
+      <div class="num-figure">
+        <div class="num-figure-left">
+          <span class="num-hero" aria-hidden="true">100<span class="num-pct">%</span></span>
+          <span class="num-hero-label">Qwen3&#8209;4B, distilled</span>
+        </div>
+        <ul class="num-bars" aria-label="Multi-turn hard gate, task-completion rate by model">
+          <li>
+            <span class="bar-row">
+              <span class="bar-label">DeepSeek&#8209;V4&#8209;pro <span class="bar-tag">frontier</span></span>
+              <span class="bar-track"><span class="bar-fill" style="--w:100%"></span></span>
+              <span class="bar-value">100<span class="pct">%</span></span>
+            </span>
+          </li>
+          <li class="is-us">
+            <span class="bar-row">
+              <span class="bar-label">Qwen3&#8209;4B (distilled) <span class="bar-tag bar-tag-accent">tinygpt</span></span>
+              <span class="bar-track"><span class="bar-fill bar-fill-accent" style="--w:100%"></span></span>
+              <span class="bar-value">100<span class="pct">%</span></span>
+            </span>
+          </li>
+          <li>
+            <span class="bar-row">
+              <span class="bar-label">Gemma&#8209;4&#8209;12B&#8209;qat</span>
+              <span class="bar-track"><span class="bar-fill" style="--w:83%"></span></span>
+              <span class="bar-value">83<span class="pct">%</span></span>
+            </span>
+          </li>
+          <li>
+            <span class="bar-row">
+              <span class="bar-label">Qwen3&#8209;4B (stock&nbsp;+&nbsp;plan&nbsp;prompt)</span>
+              <span class="bar-track"><span class="bar-fill" style="--w:75%"></span></span>
+              <span class="bar-value">75<span class="pct">%</span></span>
+            </span>
+          </li>
+          <li>
+            <span class="bar-row">
+              <span class="bar-label">Gemma&#8209;3&#8209;12B</span>
+              <span class="bar-track"><span class="bar-fill" style="--w:33%"></span></span>
+              <span class="bar-value">33<span class="pct">%</span></span>
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <p class="num-caption">
+        BFCL multi&#8209;turn hard gate, n=12 GorillaFileSystem agentic tasks,
+        task&#8209;completion rate. Distillation: ~99 frontier trajectories &times;
+        LoRA SFT, single Mac, no cloud train. Cheap&#8209;specialist&nbsp;&gt;&nbsp;bigger&#8209;general
+        is the project thesis &mdash; not "4B&nbsp;&gt;&nbsp;12B in general."
+        <a href="/docs/learn/tool-calling-frontier-parity">Full writeup, including the honest tradeoffs &rarr;</a>
+      </p>
+    </section>
+
+    <!-- ========== NUMBERS STRIP ========== -->
+    <section class="metrics" aria-labelledby="metrics-h2">
+      <h2 id="metrics-h2" class="section-h2">Measured, on one Mac.</h2>
       <p class="section-blurb">
-        Every block is one file. The CLI accepts each as an opt-in flag
-        (<code>--moe-experts</code>, <code>--mtp-horizons</code>,
-        <code>--diff-attn</code>, <code>--yoco</code>, &hellip;) so
-        configurations compose &mdash; you can train a Huge model with
-        MoE <em>and</em> MTP <em>and</em> differential attention
-        simultaneously, validated in a single shipped run.
+        Numbers below are from a stock M5 Pro / 48 GB. Reproducible via
+        <code>tinygpt bench</code> and the linked artefacts. Where a number
+        applies only to a specific preset or build, the preset is named.
       </p>
 
-      <div class="capability-grid">
-        <article class="capability">
+      <dl class="metric-grid">
+        <div class="metric">
+          <dt>Decode throughput</dt>
+          <dd><span class="m-val">696</span><span class="m-unit">tok/s</span></dd>
+          <p class="m-note">Huge preset, 221M params. 293&nbsp;tok/s on the 960M Mega pilot.</p>
+        </div>
+        <div class="metric">
+          <dt>TTFT warm</dt>
+          <dd><span class="m-val">5.8</span><span class="m-unit">ms</span><span class="m-pct">p99</span></dd>
+          <p class="m-note">Cold start: 24&nbsp;ms on a 1B model. ITL p99: 4.9&nbsp;ms.</p>
+        </div>
+        <div class="metric">
+          <dt>Training step</dt>
+          <dd><span class="m-val">42</span><span class="m-unit">ms</span></dd>
+          <p class="m-note">Huge preset, 17.2&times; the same model in&#8209;browser via WebGPU.</p>
+        </div>
+        <div class="metric">
+          <dt>WebGPU vs WASM SIMD</dt>
+          <dd><span class="m-val">12.1</span><span class="m-unit">&times;</span></dd>
+          <p class="m-note">At d_model=256. Scales 2.6&times;&rarr;12.1&times; as d_model grows 96&rarr;256.</p>
+        </div>
+        <div class="metric">
+          <dt>ANE M8 decode</dt>
+          <dd><span class="m-val">17</span><span class="m-unit">tok/s</span></dd>
+          <p class="m-note">28&#8209;block Qwen3 chain on the Apple Neural Engine, layer&#8209;chunked Core ML.</p>
+        </div>
+        <div class="metric">
+          <dt>Largest fit</dt>
+          <dd><span class="m-val">960</span><span class="m-unit">M</span></dd>
+          <p class="m-note">Params trainable end&#8209;to&#8209;end on unified memory; 473M in a browser tab via Memory64.</p>
+        </div>
+      </dl>
+    </section>
+
+    <!-- ========== THE LOOP ========== -->
+    <section class="loop" aria-labelledby="loop-h2">
+      <h2 id="loop-h2" class="section-h2">The loop the runtime closes.</h2>
+      <p class="section-blurb">
+        Each surface emits the input the next one needs. The agent runtime
+        records token&#8209;preserving trajectories; those trajectories become
+        SFT data; that data trains the next specialist; the eval gate decides
+        whether it ships.
+      </p>
+
+      <ol class="pipeline" role="list">
+        <li class="step" data-step="01">
+          <span class="step-num" aria-hidden="true">01</span>
+          <span class="step-name">Data</span>
+          <span class="step-cmd">tinygpt download&#8209;dataset</span>
+          <span class="step-detail">22 curated sets. HF streaming, Magpie synth, GitHub issue&rarr;PR, MS&#8209;MARCO, the&#8209;stack&#8209;smol.</span>
+        </li>
+        <li class="step" data-step="02">
+          <span class="step-num" aria-hidden="true">02</span>
+          <span class="step-name">Distill</span>
+          <span class="step-cmd">tinygpt distill</span>
+          <span class="step-detail">KL&nbsp;+&nbsp;NLL teacher&rarr;student. Local teacher (Qwen3, Gemma, DeepSeek via API or Codex CLI). Rejection&#8209;sample on a checker.</span>
+        </li>
+        <li class="step" data-step="03">
+          <span class="step-num" aria-hidden="true">03</span>
+          <span class="step-name">Train / SFT / DPO</span>
+          <span class="step-cmd">tinygpt sft &middot; dpo &middot; es</span>
+          <span class="step-detail">Full PEFT bundle: LoRA, LoRA+, DoRA, VeRA, LoftQ, AdaLoRA, RsLoRA, PISSA. DPO/SimPO/KTO/ORPO in one trainer.</span>
+        </li>
+        <li class="step" data-step="04">
+          <span class="step-num" aria-hidden="true">04</span>
+          <span class="step-name">Eval gate</span>
+          <span class="step-cmd">tinygpt eval&#8209;gate</span>
+          <span class="step-detail">BFCL, &tau;&#8209;bench, lm&#8209;eval (MLX adapter), HumanEval+sandbox, judge shim. Exit&#8209;non&#8209;zero on regression.</span>
+        </li>
+        <li class="step" data-step="05">
+          <span class="step-num" aria-hidden="true">05</span>
+          <span class="step-name">Serve</span>
+          <span class="step-cmd">tinygpt serve</span>
+          <span class="step-detail">OpenAI&nbsp;+&nbsp;Ollama surfaces on the same socket. Continue.dev / any OpenAI client plugs in unchanged.</span>
+        </li>
+        <li class="step" data-step="06">
+          <span class="step-num" aria-hidden="true">06</span>
+          <span class="step-name">Agent</span>
+          <span class="step-cmd">tinygpt agent</span>
+          <span class="step-detail">Multi&#8209;turn, tool dispatch, persistent KV, FSM&#8209;constrained JSON, optional <code>&#8209;&#8209;cloud&#8209;escalate</code>.</span>
+        </li>
+        <li class="step step-loop" data-step="07">
+          <span class="step-num" aria-hidden="true">07</span>
+          <span class="step-name">Traces &rarr; data</span>
+          <span class="step-cmd">tinygpt traces&#8209;to&#8209;data</span>
+          <span class="step-detail">Every rollout is a token&#8209;preserving <code>.atraj</code>. Filter, dedupe (MinHash), emit ChatML SFT JSONL. Then loop to step&nbsp;02.</span>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ========== PILLARS ========== -->
+    <section class="pillars" aria-labelledby="pillars-h2">
+      <h2 id="pillars-h2" class="section-h2">What ships, audited against the code.</h2>
+      <p class="section-blurb">
+        PLAN.md is the canonical shipped/skipped/TODO ledger. Each pillar
+        below is one subset; clicking through gets you to specific files
+        and the papers each technique cites.
+      </p>
+
+      <div class="pillar-grid">
+        <article class="pillar">
           <header>
-            <h3>Attention variants</h3>
-            <p>Plug-in alternatives to standard causal MHA.</p>
+            <span class="pillar-tag">Train</span>
+            <h3>Every modern pre/post&#8209;train, one trainer.</h3>
           </header>
           <ul>
-            <li><strong>RoPE + GQA</strong> &mdash; HF-Llama-compatible baseline (<a href="https://arxiv.org/abs/2104.09864" rel="noopener">RoPE</a>, <a href="https://arxiv.org/abs/2305.13245" rel="noopener">GQA</a>)</li>
-            <li><strong>ALiBi</strong> &mdash; linear position bias (<a href="https://arxiv.org/abs/2108.12409" rel="noopener">Press et al., 2021</a>)</li>
-            <li><strong>Sliding window</strong> &mdash; Mistral / GPT-OSS recipe</li>
-            <li><strong>Differential attention</strong> &mdash; subtract two softmaxes (<a href="https://arxiv.org/abs/2410.05258" rel="noopener">Ye et al., 2024</a>)</li>
-            <li><strong>YOCO</strong> &mdash; cross-layer KV sharing (<a href="https://arxiv.org/abs/2405.05254" rel="noopener">Lin et al., 2024</a>)</li>
-            <li><strong>StreamingLLM</strong> &mdash; attention sink for infinite context (<a href="https://arxiv.org/abs/2309.17453" rel="noopener">Xiao et al., 2024</a>)</li>
+            <li><strong>Pretrain</strong> &mdash; byte&#8209;level or BPE; WSD schedule, gradient checkpointing, spike recovery</li>
+            <li><strong>SFT</strong> &mdash; response&#8209;only masking, ChatML / Alpaca / Llama / plain</li>
+            <li><strong>Preference</strong> &mdash; DPO, SimPO, KTO, ORPO (one trainer, flags)</li>
+            <li><strong>PEFT</strong> &mdash; LoRA, LoRA+, DoRA <em>(TGLA v2 on disk)</em>, VeRA, LoftQ, AdaLoRA, RsLoRA, PISSA, LoRA&#8209;FA</li>
+            <li><strong>Optimisers</strong> &mdash; AdamW, Lion, Sophia, Muon, Adafactor, GaLore</li>
+            <li><strong>Architecture</strong> &mdash; RoPE+GQA, sliding window, ALiBi, MoE, MoD, differential attn, YOCO, MTP</li>
           </ul>
         </article>
 
-        <article class="capability">
+        <article class="pillar">
           <header>
-            <h3>Sparsity &amp; scale</h3>
-            <p>Capacity per byte of memory.</p>
+            <span class="pillar-tag">Distill</span>
+            <h3>Frontier teacher &rarr; small student.</h3>
           </header>
           <ul>
-            <li><strong>MoE</strong> &mdash; router + experts + load-balance loss (<a href="https://arxiv.org/abs/2101.03961" rel="noopener">Switch Transformer</a>, <a href="https://arxiv.org/abs/2401.04088" rel="noopener">Mixtral</a>)</li>
-            <li><strong>Multi-Token Prediction</strong> &mdash; H output heads (<a href="https://arxiv.org/abs/2404.19737" rel="noopener">Gloeckle et al., 2024</a>, used by DeepSeek-V3)</li>
-            <li><strong>Mixture of Depths</strong> &mdash; per-token sigmoid gate per block (<a href="https://arxiv.org/abs/2404.02258" rel="noopener">Raposo et al., 2024</a>)</li>
-            <li>See <a href="/docs/moe">docs/moe.md</a> for save/load + the scatter_add upstream gap that limits sparse compute today.</li>
+            <li><strong>KL&nbsp;+&nbsp;NLL</strong> mix loss with temperature and &alpha; (Hinton 2015)</li>
+            <li><strong>Rejection&#8209;sampled</strong> trajectories &mdash; keep only what a checker passes</li>
+            <li><strong>Gold&#8209;clone fallback</strong> &mdash; on verifiable tasks the gold IS the trajectory; teacher&#8209;free reproduces the same model</li>
+            <li><strong>Trace replay</strong> &mdash; render in the student's own chat template via <code>render_sft_from_traj.py</code></li>
+            <li><strong>Headline result</strong> &mdash; 4B at frontier&#8209;parity, <a href="/docs/learn/tool-calling-frontier-parity">documented honestly</a></li>
           </ul>
         </article>
 
-        <article class="capability">
+        <article class="pillar">
           <header>
-            <h3>Training</h3>
-            <p>Pre-train, instruction-tune, prefer.</p>
+            <span class="pillar-tag">Eval</span>
+            <h3>Where the moat is.</h3>
           </header>
           <ul>
-            <li><strong>Pre-train</strong> on raw text (byte-level or BPE via any HuggingFace tokenizer)</li>
-            <li><strong>SFT</strong> with response-only loss masking (ChatML / Alpaca / Llama / plain)</li>
-            <li><strong>DPO</strong> + <strong>SimPO</strong> / <strong>ORPO</strong> / <strong>KTO</strong> &mdash; preference variants in one trainer (<a href="https://arxiv.org/abs/2305.18290" rel="noopener">DPO</a>, <a href="https://arxiv.org/abs/2405.14734" rel="noopener">SimPO</a>, <a href="https://arxiv.org/abs/2403.07691" rel="noopener">ORPO</a>, <a href="https://arxiv.org/abs/2402.01306" rel="noopener">KTO</a>)</li>
-            <li><strong>Distillation</strong> &mdash; KL + NLL mix, temperature, alpha (<a href="https://arxiv.org/abs/1503.02531" rel="noopener">Hinton et al., 2015</a>)</li>
-            <li><strong>Evolution Strategies</strong> &mdash; gradient-free, antithetic sampling (<a href="https://arxiv.org/abs/1703.03864" rel="noopener">Salimans et al., 2017</a>)</li>
-            <li><strong>LoRA</strong> + <strong>LoRA+</strong> + <strong>DoRA</strong> + NEFTune + grad-clip + cosine LR</li>
+            <li><strong>Shared schema</strong> &mdash; every eval emits the same JSONL row (E0)</li>
+            <li><strong>tinygpt eval&#8209;bfcl</strong> &mdash; 10 BFCL categories, OpenAI&#8209;compat shim into <code>tinygpt&nbsp;serve</code></li>
+            <li><strong>tinygpt eval&#8209;tau&#8209;bench</strong> &mdash; retail + airline, configurable user simulator</li>
+            <li><strong>tinygpt run&#8209;lm&#8209;eval</strong> &mdash; MLX adapter for <code>lm&#8209;evaluation&#8209;harness</code>, two modes</li>
+            <li><strong>tinygpt eval&#8209;humaneval</strong> &mdash; Rust&nbsp;+&nbsp;<code>sandbox&#8209;exec</code> code execution</li>
+            <li><strong>tinygpt eval&#8209;gate</strong> &mdash; CI&#8209;grade regression gate, exits non&#8209;zero</li>
           </ul>
         </article>
 
-        <article class="capability">
+        <article class="pillar">
           <header>
-            <h3>Inference</h3>
-            <p>Fast, small, long-context.</p>
+            <span class="pillar-tag">Serve &middot; Agent</span>
+            <h3>OpenAI&#8209;compatible. Locally.</h3>
           </header>
           <ul>
-            <li><strong>KV cache</strong> with optional fp16/bf16 quantisation</li>
-            <li><strong>Prefix caching</strong> &mdash; save prompt KV state to disk, skip prefill on reload</li>
-            <li><strong>Speculative decoding</strong> (greedy) &mdash; draft + verify (<a href="https://arxiv.org/abs/2211.17192" rel="noopener">Leviathan et al., 2023</a>)</li>
-            <li><strong>StreamingLLM</strong> sink + window for unbounded context</li>
-            <li><strong>int4 / int8</strong> weight quantisation via MLX, plus <strong>HQQ</strong> sub-quadratic solver (<a href="https://mobiusml.github.io/hqq_blog/" rel="noopener">Badri &amp; Shaji, 2023</a>) and <strong>AWQ</strong> reader (<a href="https://arxiv.org/abs/2306.00978" rel="noopener">Lin et al., 2023</a>)</li>
-            <li><strong>LASER</strong> selective rank reduction (<a href="https://arxiv.org/abs/2312.13558" rel="noopener">Sharma et al., 2024</a>)</li>
+            <li><strong>tinygpt serve</strong> &mdash; OpenAI <em>and</em> Ollama on the same socket; Continue.dev provider compat</li>
+            <li><strong>tinygpt agent</strong> &mdash; multi&#8209;turn loop, tool dispatch, persistent KV, FSM JSON</li>
+            <li><strong>&#8209;&#8209;cloud&#8209;escalate</strong> &mdash; defer to Anthropic / OpenAI only when the local model wants to</li>
+            <li><strong>Speculative decoding</strong> &mdash; vanilla, Medusa, EAGLE&#8209;2 (trainable heads)</li>
+            <li><strong>StreamingLLM sink</strong>, KV&#8209;cache quant (KIVI), prefix caching</li>
+            <li><strong>Token&#8209;preserving traces</strong> &mdash; <code>.atraj</code> rollouts feed next round of SFT</li>
           </ul>
         </article>
 
-        <article class="capability">
+        <article class="pillar">
           <header>
-            <h3>Interpretability</h3>
-            <p>What is this thing actually doing?</p>
+            <span class="pillar-tag">Interp</span>
+            <h3>Open the model up.</h3>
           </header>
           <ul>
-            <li><strong>Logit lens</strong> &mdash; per-layer next-token predictions (<a href="https://www.lesswrong.com/posts/AcKRB8wDpdaN6v6ru/interpreting-gpt-the-logit-lens" rel="noopener">Nostalgebraist, 2020</a>)</li>
-            <li><strong>Tuned lens</strong> &mdash; trained per-layer probes (<a href="https://arxiv.org/abs/2303.08112" rel="noopener">Belrose et al., 2023</a>)</li>
-            <li><strong>Attention heatmap</strong> &mdash; per-head weights, "watch the model think"</li>
-            <li><strong>Per-layer ablation</strong> &mdash; zero out attn / mlp / whole block, observe</li>
-            <li><strong>Activation patching</strong> &mdash; intervene on residual stream at (layer, position) (<a href="https://arxiv.org/abs/2202.05262" rel="noopener">Meng et al., 2022</a>)</li>
+            <li><strong>Logit lens</strong> &middot; <strong>tuned lens</strong> (trainable per&#8209;layer probes)</li>
+            <li><strong>Activation patching</strong> &mdash; zero + donor&#8209;swap, on (layer, position)</li>
+            <li><strong>Per&#8209;layer ablation</strong> &middot; <strong>attention heatmap</strong></li>
+            <li><strong>Linear probes</strong> &mdash; trainable per&#8209;layer classifiers, <code>.lp</code> sidecar</li>
+            <li><strong>ROME</strong> &middot; <strong>MEMIT</strong> &mdash; rank&#8209;1 and rank&#8209;K fact editing, multi&#8209;layer with key&#8209;norm weighting</li>
+            <li><strong>Sparse autoencoders</strong> &mdash; <code>tinygpt sae</code>, group&#8209;SAE, SAELens / Neuronpedia export</li>
           </ul>
         </article>
 
-        <article class="capability">
+        <article class="pillar pillar-browser">
           <header>
-            <h3>Data</h3>
-            <p>Where the bytes come from.</p>
+            <span class="pillar-tag pillar-tag-warm">In a browser tab</span>
+            <h3>The same model, no install.</h3>
           </header>
-          <ul>
-            <li>Any HuggingFace dataset via streaming importer (<code>python_ref/fetch_hf_corpus.py</code>)</li>
-            <li>Wikipedia article fetcher (browser-side, in the playground)</li>
-            <li>Project Gutenberg corpus (19 books, ~34 MB &mdash; bundled)</li>
-            <li><strong>Magpie</strong> synthetic SFT data &mdash; bootstrap from a chat-tuned base (<a href="https://arxiv.org/abs/2406.08464" rel="noopener">Xu et al., 2024</a>)</li>
-            <li>Persistent tokenized corpus cache (skips re-tokenisation across runs)</li>
-          </ul>
+          <p class="pillar-prose">
+            Hand&#8209;written WGSL kernels train a GPT&#8209;2 in your tab.
+            Blocked 4&times;4 matmul (5.18&times; kernel speedup at 2048&sup3;), FA2
+            forward&nbsp;+&nbsp;backward in WGSL, Memory64 lifts the 4&nbsp;GB tab
+            heap so a 473M&#8209;param model allocates cleanly.
+            End&#8209;to&#8209;end parity vs. the WASM reference: &le;&nbsp;2.5%
+            loss drift.
+          </p>
+          <p class="pillar-cta">
+            <a class="inline-cta" href="/playground">Open the playground &rarr;</a>
+            <span class="inline-cta-divider" aria-hidden="true">&middot;</span>
+            <a class="inline-cta inline-cta-quiet" href="/speedup">See the speedup curve &rarr;</a>
+          </p>
         </article>
       </div>
     </section>
 
-    <section class="card-section" id="run-it">
-      <h2>Run it</h2>
-      <div class="run-it-grid">
-        <article class="platform-card">
+    <!-- ========== RUN IT ========== -->
+    <section class="run" aria-labelledby="run-h2">
+      <h2 id="run-h2" class="section-h2">Run it.</h2>
+      <p class="section-blurb">
+        Two paths. The Mac path is the primary one; the browser path is for
+        when you want everything in&#8209;tab, no toolchain, no install.
+      </p>
+
+      <div class="run-grid">
+        <article class="run-card run-card-primary">
           <header>
-            <h3>In your browser</h3>
-            <p class="platform-tag">WebGPU · in-tab training · works on M-series Macs and modern Chrome</p>
+            <h3>On a Mac</h3>
+            <p class="run-tag">macOS 14+ &middot; Xcode &middot; Apple Silicon &middot; MLX&#8209;Swift</p>
           </header>
-          <p>
-            The browser playground builds a transformer in WebAssembly + WebGPU, trains
-            it in a Web Worker so the UI never freezes, and lets you watch the loss curve
-            live as the model picks up structure. Every interpretability surface above is
-            wired into a single Sample card &mdash; benchmark, logit lens, ablation, all
-            under one collapsible &ldquo;Inspect &amp; evaluate&rdquo; panel.
-          </p>
-          <p class="card-cta">
-            <a href="/playground" class="inline-cta">Open the playground &rarr;</a>
+          <pre class="code-block" aria-label="Mac quickstart commands"><code><span class="cm"># build the CLI</span>
+cd native&#8209;mac
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+xcodebuild -scheme tinygpt -destination 'platform=macOS,arch=arm64' \
+  -derivedDataPath .xcode-build build
+
+<span class="cm"># one&#8209;command quickstart: data &rarr; specialist &rarr; chat</span>
+tinygpt quickstart --data my.jsonl
+
+<span class="cm"># or distill from a local teacher</span>
+tinygpt distill --teacher qwen3-4b --student huge \
+  --data ./traces --out ./student.tinygpt
+
+<span class="cm"># then serve it OpenAI&#8209;compatible</span>
+tinygpt serve --model ./student.tinygpt --port 8080</code></pre>
+          <p class="run-card-cta">
+            <a class="inline-cta" href="https://github.com/sarthak-fleet/tinygpt#build-it-locally" rel="noopener">Full build instructions &rarr;</a>
           </p>
         </article>
 
-        <article class="platform-card">
+        <article class="run-card">
           <header>
-            <h3>On your Mac</h3>
-            <p class="platform-tag">MLX-Swift · CLI + SwiftUI app · trains models the browser can&rsquo;t fit</p>
+            <h3>In a browser tab</h3>
+            <p class="run-tag">WebGPU &middot; Chrome 113+ / Safari 18+ &middot; no install</p>
           </header>
-          <p>
-            The Mac binary uses MLX-Swift to train preset sizes up to Titan (1.3B
-            parameters) on Apple Silicon&rsquo;s unified memory. The same architecture
-            ships as a CLI (<code>tinygpt train</code>, <code>sft</code>, <code>dpo</code>,
-            <code>distill</code>, <code>es</code>, <code>laser</code>, <code>hqq</code>,
-            <code>tuned-lens</code>, <code>magpie</code>) and a SwiftUI app for
-            point-and-click fine-tuning.
+          <p class="run-prose">
+            The playground builds a transformer in WebAssembly + WebGPU,
+            trains it in a Web Worker so the UI never freezes, and lets you
+            watch the loss curve live as the model picks up structure.
+            Every interpretability surface above is wired in &mdash;
+            attention heatmap, logit lens, ablation, patching &mdash; under
+            one "Inspect &amp; evaluate" panel.
           </p>
-          <p class="card-cta">
-            <a href="https://github.com/sarthak-fleet/tinygpt/tree/main/native-mac" rel="noopener" class="inline-cta">Build it from source &rarr;</a>
+          <ul class="run-bullets">
+            <li>Parity&#8209;tested against the WASM reference to &le;&nbsp;2.5% loss drift</li>
+            <li>OPFS checkpoint persistence &mdash; a run survives a tab refresh</li>
+            <li>Capability detection picks the right preset for your machine</li>
+          </ul>
+          <p class="run-card-cta">
+            <a class="inline-cta" href="/playground">Open the playground &rarr;</a>
           </p>
         </article>
       </div>
     </section>
 
-    <section class="card-section" id="learn">
-      <h2>Learn how it&rsquo;s built</h2>
+    <!-- ========== HONEST SCOPE ========== -->
+    <section class="honest" aria-labelledby="honest-h2">
+      <h2 id="honest-h2" class="section-h2">Honest scope.</h2>
+      <div class="honest-grid">
+        <div class="honest-col">
+          <h3>What this is</h3>
+          <ul>
+            <li>A single&#8209;developer project, shipping in public, MIT.</li>
+            <li>Mac&#8209;first &mdash; M&#8209;series, unified memory, MLX&#8209;Swift.</li>
+            <li>A factory for <em>specialists</em>, not a general assistant.</li>
+            <li>An OpenAI&#8209;compatible runtime any client already speaks.</li>
+            <li>A research substrate for interp, eval, and distillation.</li>
+          </ul>
+        </div>
+        <div class="honest-col">
+          <h3>What this isn&rsquo;t (yet)</h3>
+          <ul>
+            <li>
+              A general&#8209;skill specialist. The frontier&#8209;parity 4B
+              dropped on out&#8209;of&#8209;domain BFCL (60&nbsp;&rarr;&nbsp;42%) &mdash;
+              real catastrophic forgetting. Mixed&#8209;backend distillation
+              is the documented fix.
+            </li>
+            <li>Multi&#8209;GPU or distributed training. One device, single Mac.</li>
+            <li>A cloud product. Nothing leaves the laptop unless <code>&#8209;&#8209;cloud&#8209;escalate</code> is set.</li>
+            <li>An enterprise platform. No SSO, no tenancy, no SLA.</li>
+            <li>A finished story. The <a href="/roadmap">roadmap</a> shows what&rsquo;s shipped and what&rsquo;s next.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== LEARN ========== -->
+    <section class="learn" aria-labelledby="learn-h2">
+      <h2 id="learn-h2" class="section-h2">Read the journey.</h2>
       <p class="section-blurb">
-        Phase-by-phase guides cover every shipped feature with paper
-        references and reproducible commands.
+        Decision logs and per&#8209;technique explainers; each ties back to
+        the paper it cites and the file where it lives.
       </p>
       <div class="doc-grid">
-        <a class="doc-link" href="/docs/model_guide">The model from scratch <span>byte-level GPT, attention, MLP, LayerNorm &mdash; explained in code</span></a>
-        <a class="doc-link" href="/docs/training_phases">Three phases of training <span>pretrain &rarr; SFT &rarr; DPO, with commands you can paste</span></a>
-        <a class="doc-link" href="/docs/distillation">Knowledge distillation <span>teacher &rarr; student with the KL+NLL mix loss</span></a>
-        <a class="doc-link" href="/docs/moe">Mixture-of-Experts <span>router, experts, load balance, save/load &mdash; and the upstream gap that blocks real sparse compute</span></a>
-        <a class="doc-link" href="/docs/mtp">Multi-Token Prediction <span>training-only extra heads &mdash; checkpoints stay drop-in compatible</span></a>
-        <a class="doc-link" href="/docs/evolution_strategies">Evolution Strategies <span>gradient-free training (Salimans et al., 2017)</span></a>
-        <a class="doc-link" href="/docs/interpretability">Interpretability tools <span>logit lens, tuned lens, ablation, activation patching</span></a>
-        <a class="doc-link" href="/docs/memory_tradeoffs">Memory tradeoffs <span>bf16, gradient accumulation, sliding window &mdash; what fits in 48 GB</span></a>
-        <a class="doc-link" href="/docs/validation_report">Validation report <span>end-to-end runs with actual loss numbers and the bugs the validation caught</span></a>
-        <a class="doc-link" href="/docs/phase_9_10_status">Phase 9 + 10 status <span>quantisation + architecture menu: what shipped, what&rsquo;s queued</span></a>
-        <a class="doc-link" href="/docs/single_machine_roadmap">Single-machine roadmap <span>every technique that runs on one Mac, ROI-ranked</span></a>
-        <a class="doc-link" href="/docs/leaderboard">Leaderboard guide <span>how the three launch benchmarks are scored + how to submit</span></a>
+        <a class="doc-link" href="/docs/learn/tool-calling-frontier-parity">
+          <span class="doc-title">Tool&#8209;calling: frontier&#8209;parity at 4B</span>
+          <span class="doc-sub">The headline result, the distillation recipe, and the honest tradeoffs</span>
+        </a>
+        <a class="doc-link" href="/docs/PLAN">
+          <span class="doc-title">PLAN.md &mdash; shipped &middot; skipped &middot; TODO</span>
+          <span class="doc-sub">The canonical ledger, audited against the code</span>
+        </a>
+        <a class="doc-link" href="/docs/distillation">
+          <span class="doc-title">Knowledge distillation</span>
+          <span class="doc-sub">KL + NLL mix loss, temperature, &alpha;, rejection sampling</span>
+        </a>
+        <a class="doc-link" href="/docs/training/index">
+          <span class="doc-title">Three phases of training</span>
+          <span class="doc-sub">Pretrain &rarr; SFT &rarr; DPO with paste&#8209;ready commands</span>
+        </a>
+        <a class="doc-link" href="/docs/interpretability">
+          <span class="doc-title">Interpretability tools</span>
+          <span class="doc-sub">Logit lens, tuned lens, ablation, patching, SAE, ROME, MEMIT</span>
+        </a>
+        <a class="doc-link" href="/docs/agent_runtime">
+          <span class="doc-title">Agent runtime</span>
+          <span class="doc-sub">Multi&#8209;turn loop, tool dispatch, traces, cloud escalation</span>
+        </a>
+        <a class="doc-link" href="/eval-leaderboard">
+          <span class="doc-title">Eval leaderboard viewer</span>
+          <span class="doc-sub">Drag&#8209;drop a JSONL; compare by step / model / task</span>
+        </a>
+        <a class="doc-link" href="/docs/lessons">
+          <span class="doc-title">Lessons from the build</span>
+          <span class="doc-sub">The bugs and surprises that were worth more than the kernels</span>
+        </a>
       </div>
     </section>
 
-    <section class="card-section" id="numbers">
-      <h2>Numbers</h2>
-      <p class="section-blurb">
-        Concrete loss curves and benchmark scores live on the
-        <a href="/leaderboard">leaderboard</a>. The
-        <a href="/docs/validation_report">validation report</a> walks
-        through an end-to-end pipeline that exercises every shipped
-        feature with real corpus + real numbers.
-      </p>
-      <ul class="numbers-list">
-        <li><span class="n-label">Phase 1 validation, Huge + DiffAttn + MoD on FineWeb-Edu:</span> <span class="n-value">loss 11.22 &rarr; 6.46 over 500 steps</span> <span class="n-note">(val 6.49, no overfit, no NaN; commit <code>6cbe693</code>)</span></li>
-        <li><span class="n-label">MoE distillation:</span> <span class="n-value">tiny MoE student (4 experts &times; top-2)</span> <span class="n-note">distilled from the above teacher; loss 1.93 &rarr; 0.21 in 30 steps; full MoE structure round-tripped through save/load/sample</span></li>
-        <li><span class="n-label">Tuned-lens probes:</span> <span class="n-value">4 layer probes</span> <span class="n-note">trained on a frozen base, sidecar file format verified</span></li>
-        <li><span class="n-label">Two real bugs caught</span> by the autonomous validation loop (tuned-lens crash, Astro build break) &mdash; commits <code>a64de95</code> + <code>9877bb7</code>. Static analysis passed; runtime didn&rsquo;t.</li>
-      </ul>
-    </section>
-
-    <footer class="landing-footer">
-      <p>
-        <a href="/leaderboard">Leaderboard</a> &middot;
-        <a href="/devlog">Devlog</a> &middot;
-        <a href="/roadmap">Roadmap</a> &middot;
-        <a href="/docs">Docs</a> &middot;
-        <a href="https://github.com/sarthak-fleet/tinygpt" rel="noopener">GitHub</a>
-      </p>
+    <footer class="site-footer">
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="/playground">playground</a>
+        <a href="/leaderboard">leaderboard</a>
+        <a href="/eval-leaderboard">eval viewer</a>
+        <a href="/sae-timeline">sae timeline</a>
+        <a href="/devlog">devlog</a>
+        <a href="/roadmap">roadmap</a>
+        <a href="/inference">inference</a>
+        <a href="/speedup">speedup</a>
+        <a href="https://github.com/sarthak-fleet/tinygpt" rel="noopener">github</a>
+      </nav>
       <p class="footnote">
-        Built as a study of &ldquo;what does every modern LLM idea actually
-        look like as one file?&rdquo;. MIT licensed. The browser playground
-        runs everything client-side &mdash; no server, no inference API.
+        MIT licensed. Browser playground runs everything client&#8209;side &mdash;
+        no server, no inference API. Mac runtime runs everything locally
+        unless <code>&#8209;&#8209;cloud&#8209;escalate</code> is on.
       </p>
       <p class="signed">
-        &mdash; <a href="https://github.com/sarthakagrawal927" rel="noopener">Sarthak Agrawal</a>,
-        building TinyGPT in the open. Every backward pass derived by hand,
-        every kernel parity-checked.
+        &mdash; <a href="https://github.com/sarthakagrawal927" rel="noopener">Sarthak&nbsp;Agrawal</a>.
+        Building TinyGPT in the open; every backward pass derived by hand,
+        every kernel parity&#8209;checked.
       </p>
     </footer>
   </main>
@@ -242,157 +489,251 @@ import Default from "../layouts/Default.astro";
 
 <style is:global>
   :root {
+    color-scheme: dark;
+
+    /* Surfaces */
     --bg: #08090a;
-    --bg-card: #0e1014;
-    --bg-card-hover: #11141a;
-    --fg: #e8eaed;
-    --fg-soft: #c0c4cc;
-    --muted: #8a8f99;
-    --faint: #5a5e66;
-    --line: #1c1f26;
-    --line-strong: #262a33;
-    --accent: #7aa7ff;
-    --accent-dim: rgba(122, 167, 255, 0.35);
-    --warm: #ffb072;
+    --bg-1: #0b0d10;
+    --bg-2: #0f1217;
+    --bg-3: #141821;
+    --bg-hover: #161a23;
+
+    /* Lines */
+    --line: #1a1e26;
+    --line-soft: #14171e;
+    --line-strong: #262b35;
+
+    /* Ink */
+    --fg: #ecedf0;
+    --fg-soft: #c4c8d0;
+    --fg-quiet: #98a0ad;
+    --muted: #7a8290;
+    --faint: #565d68;
+
+    /* Brand */
+    --accent: #8db4ff;          /* cool blue */
+    --accent-strong: #a8c5ff;
+    --accent-dim: rgba(141, 180, 255, 0.32);
+    --accent-glow: rgba(141, 180, 255, 0.12);
+    --warm: #ffb072;            /* warm orange */
+    --warm-dim: rgba(255, 176, 114, 0.32);
+
+    /* Type */
     --font-sans: "Geist Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+    /* Rhythm */
+    --r-1: 6px;
+    --r-2: 10px;
+    --r-3: 14px;
+    --r-4: 20px;
+
+    /* Spacing scale, varied for rhythm */
+    --s-1: 6px;
+    --s-2: 10px;
+    --s-3: 16px;
+    --s-4: 24px;
+    --s-5: 36px;
+    --s-6: 56px;
+    --s-7: 88px;
+    --s-8: 128px;
+
+    /* z scale */
+    --z-skip: 100;
+    --z-topbar: 50;
   }
+
   * { box-sizing: border-box; }
+  *:focus-visible {
+    outline: 2px solid var(--accent-strong);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
   html, body {
     margin: 0; padding: 0;
     background: var(--bg);
     color: var(--fg);
-    font: 400 15px/1.6 var(--font-sans);
+    font: 400 16px/1.65 var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
+
+  ::selection { background: var(--accent-dim); color: var(--fg); }
+
   code {
-    font: 400 12.5px/1.4 var(--font-mono);
-    background: var(--line);
-    padding: 1px 5px;
-    border-radius: 3px;
+    font: 400 0.86em/1.4 var(--font-mono);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    padding: 1px 6px;
+    border-radius: 4px;
     color: var(--fg-soft);
+    white-space: nowrap;
   }
-  a { color: var(--accent); text-decoration: underline; text-decoration-color: var(--accent-dim); text-underline-offset: 2px; }
-  a:hover { text-decoration-color: var(--accent); }
+  em { font-style: italic; color: var(--fg-soft); }
 
-  .landing {
-    max-width: 940px;
-    margin: 0 auto;
-    padding: 64px 24px 96px;
+  a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: var(--accent-dim);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 140ms ease, color 140ms ease;
   }
-  @media (max-width: 600px) {
-    .landing { padding: 36px 18px 60px; }
-  }
+  a:hover { text-decoration-color: var(--accent); color: var(--accent-strong); }
 
-  /* Hero ----------------------------------------------------------- */
-  .hero {
-    position: relative;
-    margin-bottom: 80px;
-    padding: 30px 0 14px;
-  }
-  .hero::before {
-    content: "";
+  .skip-link {
     position: absolute;
-    inset: -38px -44px auto;
-    height: 360px;
-    pointer-events: none;
-    background:
-      radial-gradient(circle at 18% 10%, rgba(122, 167, 255, 0.22), transparent 30%),
-      linear-gradient(135deg, rgba(122, 167, 255, 0.08), rgba(255, 176, 114, 0.05) 48%, transparent 70%);
-    border: 1px solid rgba(122, 167, 255, 0.08);
-    border-radius: 28px;
-    opacity: 0.9;
-    z-index: -1;
+    top: -100px; left: 12px;
+    z-index: var(--z-skip);
+    background: var(--bg-2);
+    border: 1px solid var(--line-strong);
+    color: var(--fg);
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+  }
+  .skip-link:focus-visible { top: 12px; }
+
+  /* ========== TOPBAR ========== */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-topbar);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    padding: 14px clamp(16px, 4vw, 32px);
+    background: color-mix(in oklab, var(--bg) 84%, transparent);
+    backdrop-filter: saturate(1.4) blur(10px);
+    -webkit-backdrop-filter: saturate(1.4) blur(10px);
+    border-bottom: 1px solid var(--line-soft);
   }
   .brand-lockup {
     display: inline-flex;
     align-items: center;
-    gap: 11px;
-    margin: 0 0 18px;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--fg);
   }
+  .brand-lockup:hover { color: var(--fg); }
   .brand-mark {
     display: inline-grid;
     place-items: center;
-    width: 38px;
-    height: 38px;
-    border: 1px solid rgba(122, 167, 255, 0.5);
-    border-radius: 8px;
-    background: linear-gradient(145deg, rgba(122, 167, 255, 0.24), rgba(255, 176, 114, 0.1));
-    box-shadow: 0 0 32px rgba(122, 167, 255, 0.16);
+    width: 30px; height: 30px;
+    border-radius: 7px;
+    background:
+      linear-gradient(145deg, color-mix(in oklab, var(--accent) 32%, var(--bg-3)),
+                              color-mix(in oklab, var(--warm) 18%, var(--bg-3)));
+    border: 1px solid color-mix(in oklab, var(--accent) 45%, transparent);
+    box-shadow: 0 0 24px var(--accent-glow);
     color: var(--fg);
-    font: 600 20px/1 var(--font-mono);
+    font: 600 15px/1 var(--font-mono);
   }
   .brand-name {
-    color: var(--fg);
-    font: 600 18px/1 var(--font-sans);
-    letter-spacing: 0;
+    font: 600 15px/1 var(--font-sans);
+    letter-spacing: -0.01em;
   }
-  .hero .eyebrow {
-    font: 500 12px/1 var(--font-mono);
+  .topnav {
+    display: flex;
+    gap: clamp(10px, 2.5vw, 22px);
+    align-items: center;
+    font: 400 13px/1 var(--font-sans);
+  }
+  .topnav a {
+    color: var(--fg-quiet);
+    text-decoration: none;
+    padding: 8px 2px;
+    border-bottom: 1px solid transparent;
+    transition: color 120ms ease, border-color 120ms ease;
+  }
+  .topnav a:hover { color: var(--fg); border-bottom-color: var(--accent); }
+  @media (max-width: 560px) {
+    .topnav { gap: 14px; font-size: 12px; }
+    .topnav a:nth-child(n + 4) { display: none; } /* keep playground, leaderboard, github */
+  }
+
+  /* ========== LANDING SHELL ========== */
+  .landing {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: clamp(36px, 8vw, 80px) clamp(18px, 5vw, 36px) 96px;
+  }
+
+  /* ========== HERO ========== */
+  .hero {
+    position: relative;
+    padding: 0 0 var(--s-6);
+    margin-bottom: var(--s-7);
+    border-bottom: 1px solid var(--line);
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: -40px -10% auto;
+    height: 380px;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse at 14% 18%, var(--accent-glow), transparent 55%),
+      radial-gradient(ellipse at 78% 6%, color-mix(in oklab, var(--warm) 16%, transparent), transparent 55%);
+    opacity: 0.85;
+    z-index: -1;
+  }
+  .hero-kicker {
+    margin: 0 0 var(--s-3);
+    font: 500 13.5px/1.4 var(--font-mono);
     color: var(--warm);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    margin: 0 0 16px;
+    letter-spacing: -0.005em;
   }
   .hero h1 {
-    font: 700 56px/1.02 var(--font-sans);
-    letter-spacing: -0.02em;
+    margin: 0 0 var(--s-4);
+    font: 600 clamp(34px, 6.4vw, 68px)/1.05 var(--font-sans);
+    letter-spacing: -0.035em;
     color: var(--fg);
-    max-width: 830px;
-    margin: 0 0 24px;
+    max-width: 18ch;
+    text-wrap: balance;
   }
-  .hero h1 span {
-    color: var(--accent);
-    text-shadow: 0 0 30px rgba(122, 167, 255, 0.18);
-  }
-  @media (max-width: 600px) {
-    .hero {
-      padding-top: 18px;
-    }
-    .hero::before {
-      inset: -24px -18px auto;
-      height: 340px;
-      border-radius: 18px;
-    }
-    .hero h1 { font-size: 38px; }
-  }
-  .hero .lede {
-    font-size: 18px; line-height: 1.62;
+  .hero h1 .highlight {
     color: var(--fg-soft);
-    margin: 0 0 32px;
-    max-width: 760px;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: -0.025em;
   }
-  .hero .lede em {
-    font-style: normal;
-    color: var(--fg);
-    background: linear-gradient(transparent 70%, var(--accent-dim) 70%);
-    padding: 0 1px;
+  .hero-lede {
+    margin: 0 0 var(--s-5);
+    font-size: clamp(15.5px, 1.7vw, 18px);
+    line-height: 1.7;
+    color: var(--fg-soft);
+    max-width: 68ch;
+    text-wrap: pretty;
   }
   .cta-row {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    margin-bottom: 22px;
+    margin-bottom: var(--s-4);
   }
   .cta {
     display: inline-flex;
     flex-direction: column;
     gap: 4px;
-    padding: 16px 22px;
-    border-radius: 10px;
+    padding: 14px 20px;
+    border-radius: var(--r-2);
     text-decoration: none;
-    font-family: var(--font-sans);
-    transition: transform 120ms, background 120ms, border-color 120ms;
+    transition: transform 160ms cubic-bezier(0.2, 0.7, 0.1, 1),
+                background 140ms ease, border-color 140ms ease;
+    min-width: 240px;
   }
-  .cta:hover { transform: translateY(-1px); }
-  .cta-label {
-    font-size: 15px;
-    font-weight: 500;
-  }
-  .cta-sub {
-    font-size: 11.5px;
-    color: var(--muted);
-    font-weight: 400;
+  .cta-label { font-size: 14.5px; font-weight: 500; }
+  .cta-sub { font-size: 12px; color: var(--muted); font-weight: 400; }
+  .cta code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: inherit;
+    white-space: normal;
   }
   .cta.primary {
     background: var(--accent);
@@ -400,175 +741,620 @@ import Default from "../layouts/Default.astro";
     border: 1px solid var(--accent);
   }
   .cta.primary .cta-sub { color: rgba(6, 8, 12, 0.7); }
-  .cta.primary:hover { background: #95b8ff; border-color: #95b8ff; }
+  .cta.primary:hover {
+    background: var(--accent-strong);
+    border-color: var(--accent-strong);
+    transform: translateY(-1px);
+  }
   .cta.secondary {
     background: transparent;
     color: var(--fg);
     border: 1px solid var(--line-strong);
   }
   .cta.secondary:hover {
-    border-color: var(--accent);
-    background: var(--bg-card-hover);
+    border-color: var(--accent-dim);
+    background: var(--bg-2);
+    transform: translateY(-1px);
   }
   .hero-fineprint {
-    font-size: 12.5px;
+    font: 400 12.5px/1.6 var(--font-sans);
     color: var(--muted);
     margin: 0;
   }
 
-  /* Section scaffold ----------------------------------------------- */
-  .card-section {
-    margin-bottom: 80px;
-    border-top: 1px solid var(--line);
-    padding-top: 56px;
-  }
-  .card-section h2 {
-    font: 500 24px/1.2 var(--font-sans);
-    letter-spacing: -0.01em;
-    margin: 0 0 12px;
+  /* ========== SECTION SCAFFOLD ========== */
+  section { margin-bottom: var(--s-7); }
+  .section-h2 {
+    font: 500 clamp(22px, 3vw, 30px)/1.2 var(--font-sans);
+    letter-spacing: -0.02em;
+    margin: 0 0 var(--s-3);
     color: var(--fg);
+    text-wrap: balance;
   }
   .section-blurb {
-    font-size: 14.5px;
+    font-size: 15px;
     color: var(--fg-soft);
-    margin: 0 0 32px;
-    max-width: 720px;
     line-height: 1.7;
+    margin: 0 0 var(--s-5);
+    max-width: 68ch;
+    text-wrap: pretty;
   }
 
-  /* Architecture menu ---------------------------------------------- */
-  .capability-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
-  }
-  .capability {
-    background: var(--bg-card);
+  /* ========== NUMBER CARD ========== */
+  .number-card {
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--accent) 4%, var(--bg-1)) 0%, var(--bg-1) 100%);
     border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 22px 22px 18px;
-    transition: border-color 120ms;
+    border-radius: var(--r-4);
+    padding: clamp(22px, 4vw, 40px);
+    position: relative;
+    overflow: hidden;
   }
-  .capability:hover { border-color: var(--line-strong); }
-  .capability header { margin-bottom: 14px; }
-  .capability h3 {
-    font: 500 15px/1.3 var(--font-sans);
-    margin: 0 0 4px;
+  .number-card::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: var(--r-4);
+    padding: 1px;
+    background: linear-gradient(160deg, var(--accent-dim), transparent 40%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+  }
+  .num-eyebrow {
+    margin: 0 0 var(--s-2);
+    font: 500 12.5px/1.4 var(--font-mono);
+    color: var(--warm);
+  }
+  .num-h2 {
+    margin: 0 0 var(--s-5);
+    font: 500 clamp(22px, 3vw, 30px)/1.25 var(--font-sans);
+    letter-spacing: -0.02em;
     color: var(--fg);
+    max-width: 28ch;
+    text-wrap: balance;
   }
-  .capability header p {
-    font-size: 12.5px;
+  .num-figure {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(0, 2.2fr);
+    gap: clamp(20px, 4vw, 44px);
+    align-items: start;
+  }
+  @media (max-width: 720px) {
+    .num-figure { grid-template-columns: 1fr; gap: 28px; }
+  }
+  .num-figure-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-left: 1px solid var(--line); /* allowed: gutter, not stripe-accent */
+    padding-left: clamp(14px, 2vw, 22px);
+  }
+  @media (max-width: 720px) {
+    .num-figure-left { border-left: none; padding-left: 0; }
+  }
+  .num-hero {
+    font: 600 clamp(72px, 14vw, 132px)/0.95 var(--font-mono);
+    letter-spacing: -0.04em;
+    color: var(--accent);
+    display: inline-flex;
+    align-items: baseline;
+  }
+  .num-hero .num-pct {
+    font-size: 0.5em;
+    color: var(--accent-strong);
+    margin-left: 2px;
+  }
+  .num-hero-label {
+    font: 400 13px/1.4 var(--font-mono);
     color: var(--muted);
+    margin-top: 2px;
+  }
+  .num-bars {
+    list-style: none;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr) auto;
+    align-items: center;
+    gap: 14px;
+  }
+  @media (max-width: 540px) {
+    .bar-row {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .bar-value { justify-self: end; }
+  }
+  .bar-label {
+    font: 400 13.5px/1.4 var(--font-sans);
+    color: var(--fg-soft);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .is-us .bar-label { color: var(--fg); font-weight: 500; }
+  .bar-tag {
+    font: 500 10px/1 var(--font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    padding: 3px 6px;
+    border-radius: 999px;
+  }
+  .bar-tag-accent {
+    color: var(--accent-strong);
+    background: var(--accent-glow);
+    border-color: var(--accent-dim);
+  }
+  .bar-track {
+    position: relative;
+    height: 8px;
+    background: var(--bg-3);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--w, 0%);
+    background: linear-gradient(90deg, var(--fg-quiet), var(--fg-soft));
+    border-radius: 999px;
+    transform-origin: left center;
+    animation: barIn 900ms cubic-bezier(0.2, 0.7, 0.1, 1) both;
+  }
+  .bar-fill-accent {
+    background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+    box-shadow: 0 0 24px var(--accent-glow);
+  }
+  .bar-value {
+    font: 500 14px/1 var(--font-mono);
+    color: var(--fg);
+    letter-spacing: -0.01em;
+  }
+  .bar-value .pct { color: var(--muted); font-weight: 400; margin-left: 1px; }
+  .is-us .bar-value { color: var(--accent-strong); }
+  @keyframes barIn {
+    from { transform: scaleX(0); opacity: 0.4; }
+    to   { transform: scaleX(1); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bar-fill { animation: none; }
+  }
+  .num-caption {
+    margin: var(--s-5) 0 0;
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 72ch;
+  }
+  .num-caption a { color: var(--accent); }
+
+  /* ========== METRICS ========== */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    overflow: hidden;
     margin: 0;
   }
-  .capability ul {
+  .metric {
+    background: var(--bg-1);
+    padding: var(--s-4) var(--s-4);
+    transition: background 140ms ease;
+  }
+  .metric:hover { background: var(--bg-2); }
+  .metric dt {
+    font: 400 12px/1.3 var(--font-mono);
+    color: var(--muted);
+    margin: 0 0 var(--s-2);
+    letter-spacing: 0;
+  }
+  .metric dd {
+    margin: 0 0 var(--s-2);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    color: var(--fg);
+  }
+  .m-val {
+    font: 500 clamp(30px, 4vw, 38px)/1 var(--font-mono);
+    letter-spacing: -0.03em;
+  }
+  .m-unit {
+    font: 400 14px/1 var(--font-mono);
+    color: var(--fg-quiet);
+  }
+  .m-pct {
+    font: 400 11px/1 var(--font-mono);
+    color: var(--muted);
+    background: var(--bg-3);
+    padding: 3px 6px;
+    border-radius: 4px;
+    margin-left: 4px;
+  }
+  .m-note {
+    margin: 0;
+    font: 400 12.5px/1.55 var(--font-sans);
+    color: var(--muted);
+  }
+
+  /* ========== PIPELINE ========== */
+  .pipeline {
+    list-style: none;
+    margin: 0; padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    overflow: hidden;
+    background: var(--line);
+    counter-reset: step;
+  }
+  .step {
+    background: var(--bg-1);
+    padding: var(--s-4) var(--s-4) calc(var(--s-4) + 4px);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    transition: background 140ms ease;
+  }
+  .step:hover { background: var(--bg-2); }
+  .step-loop { background: color-mix(in oklab, var(--warm) 6%, var(--bg-1)); }
+  .step-loop:hover { background: color-mix(in oklab, var(--warm) 9%, var(--bg-2)); }
+  .step-num {
+    font: 500 11px/1 var(--font-mono);
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .step-loop .step-num { color: var(--warm); }
+  .step-name {
+    font: 500 15px/1.3 var(--font-sans);
+    color: var(--fg);
+    letter-spacing: -0.01em;
+  }
+  .step-cmd {
+    font: 400 12px/1.4 var(--font-mono);
+    color: var(--accent);
+    background: var(--bg-2);
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    align-self: flex-start;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .step-loop .step-cmd { color: var(--warm); }
+  .step-detail {
+    font: 400 12.5px/1.55 var(--font-sans);
+    color: var(--fg-quiet);
+  }
+  .step-detail code {
+    background: var(--bg-3);
+    font-size: 0.92em;
+    padding: 0 4px;
+    border-color: var(--line);
+  }
+
+  /* arrow between steps - hidden on wrap rows, on by hover for affordance */
+  @media (min-width: 720px) {
+    .step::after {
+      content: "";
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      width: 20px;
+      height: 1px;
+      background: var(--line-strong);
+      transform: translateY(-50%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .step:nth-last-child(1)::after { display: none; }
+  }
+
+  /* ========== PILLARS ========== */
+  .pillar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 14px;
+  }
+  .pillar {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    padding: var(--s-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
+    transition: border-color 140ms ease, background 140ms ease, transform 240ms cubic-bezier(0.2, 0.7, 0.1, 1);
+  }
+  .pillar:hover {
+    border-color: var(--line-strong);
+    background: var(--bg-2);
+    transform: translateY(-1px);
+  }
+  .pillar header { display: flex; flex-direction: column; gap: var(--s-2); }
+  .pillar-tag {
+    font: 500 10.5px/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-strong);
+    background: var(--accent-glow);
+    border: 1px solid var(--accent-dim);
+    padding: 4px 8px;
+    border-radius: 999px;
+    align-self: flex-start;
+  }
+  .pillar-tag-warm {
+    color: var(--warm);
+    background: color-mix(in oklab, var(--warm) 12%, transparent);
+    border-color: var(--warm-dim);
+  }
+  .pillar h3 {
+    margin: 0;
+    font: 500 17px/1.3 var(--font-sans);
+    letter-spacing: -0.015em;
+    color: var(--fg);
+    text-wrap: balance;
+  }
+  .pillar ul {
     list-style: none;
     margin: 0; padding: 0;
   }
-  .capability li {
-    font-size: 13px;
-    line-height: 1.6;
+  .pillar li {
+    font: 400 13.5px/1.6 var(--font-sans);
     color: var(--fg-soft);
-    padding: 5px 0;
-    border-top: 1px dashed var(--line);
+    padding: 8px 0;
+    border-top: 1px solid var(--line-soft);
   }
-  .capability li:first-child { border-top: none; }
-  .capability li strong { color: var(--fg); font-weight: 500; }
+  .pillar li:first-child { border-top: none; padding-top: 0; }
+  .pillar li strong { color: var(--fg); font-weight: 500; }
+  .pillar li em { color: var(--fg-quiet); }
+  .pillar-prose {
+    margin: 0;
+    font: 400 14px/1.7 var(--font-sans);
+    color: var(--fg-soft);
+  }
+  .pillar-browser {
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--warm) 5%, var(--bg-1)) 0%, var(--bg-1) 100%);
+    border-color: var(--warm-dim);
+  }
+  .pillar-browser:hover { border-color: var(--warm); background: var(--bg-2); }
+  .pillar-cta {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 14px;
+  }
+  .inline-cta {
+    text-decoration: none;
+    color: var(--warm);
+    font-weight: 500;
+    border-bottom: 1px solid var(--warm-dim);
+    padding-bottom: 1px;
+    transition: border-color 120ms ease;
+  }
+  .inline-cta:hover { border-bottom-color: var(--warm); color: var(--warm); }
+  .inline-cta-quiet { color: var(--fg-quiet); border-bottom-color: var(--line-strong); }
+  .inline-cta-quiet:hover { color: var(--fg); border-bottom-color: var(--accent); }
+  .inline-cta-divider { color: var(--faint); margin: 0 4px; }
 
-  /* Run it --------------------------------------------------------- */
-  .run-it-grid {
+  /* ========== RUN ========== */
+  .run-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.15fr 1fr;
     gap: 16px;
   }
-  @media (max-width: 720px) {
-    .run-it-grid { grid-template-columns: 1fr; }
+  @media (max-width: 780px) {
+    .run-grid { grid-template-columns: 1fr; }
   }
-  .platform-card {
-    background: var(--bg-card);
+  .run-card {
+    background: var(--bg-1);
     border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 24px 24px 22px;
+    border-radius: var(--r-3);
+    padding: var(--s-4) var(--s-4) calc(var(--s-4) + 4px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-3);
   }
-  .platform-card h3 {
+  .run-card-primary {
+    border-color: color-mix(in oklab, var(--accent) 38%, var(--line-strong));
+    background:
+      linear-gradient(180deg, color-mix(in oklab, var(--accent) 4%, var(--bg-1)) 0%, var(--bg-1) 100%);
+  }
+  .run-card header h3 {
+    margin: 0;
     font: 500 18px/1.2 var(--font-sans);
-    margin: 0 0 4px;
-    color: var(--fg);
+    letter-spacing: -0.015em;
   }
-  .platform-tag {
-    font: 400 12px/1.4 var(--font-sans);
+  .run-tag {
+    margin: 4px 0 0;
+    font: 400 12px/1.4 var(--font-mono);
     color: var(--muted);
-    margin: 0 0 14px;
   }
-  .platform-card p {
+  .run-prose {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--fg-soft);
+  }
+  .run-bullets {
+    margin: 0; padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .run-bullets li {
+    position: relative;
+    padding-left: 18px;
     font-size: 13.5px;
     color: var(--fg-soft);
-    line-height: 1.7;
-    margin: 0 0 14px;
+    line-height: 1.55;
   }
-  .card-cta { margin: 18px 0 0; }
-  .inline-cta {
-    font-weight: 500;
-    text-decoration: none;
-    color: var(--accent);
+  .run-bullets li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 9px;
+    width: 8px; height: 1px;
+    background: var(--accent);
   }
-  .inline-cta:hover { text-decoration: underline; text-decoration-color: var(--accent); }
+  .code-block {
+    margin: 0;
+    background: var(--bg);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-2);
+    padding: 16px 18px;
+    overflow-x: auto;
+    font: 400 12.5px/1.7 var(--font-mono);
+    color: var(--fg-soft);
+    -webkit-overflow-scrolling: touch;
+  }
+  .code-block code { background: transparent; border: none; padding: 0; white-space: pre; color: inherit; }
+  .code-block .cm { color: var(--muted); }
+  .run-card-cta { margin: var(--s-2) 0 0; font-size: 13.5px; }
+  .run-card-cta .inline-cta { color: var(--accent); border-bottom-color: var(--accent-dim); }
+  .run-card-cta .inline-cta:hover { color: var(--accent-strong); border-bottom-color: var(--accent); }
 
-  /* Doc grid ------------------------------------------------------- */
+  /* ========== HONEST ========== */
+  .honest-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(20px, 4vw, 48px);
+  }
+  @media (max-width: 720px) {
+    .honest-grid { grid-template-columns: 1fr; gap: 32px; }
+  }
+  .honest-col h3 {
+    margin: 0 0 var(--s-3);
+    font: 500 16px/1.3 var(--font-sans);
+    color: var(--fg);
+    letter-spacing: -0.01em;
+  }
+  .honest-col ul {
+    margin: 0; padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .honest-col li {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--fg-soft);
+    padding-left: 16px;
+    position: relative;
+  }
+  .honest-col li::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 11px;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--fg-quiet);
+  }
+  .honest-col:last-child li::before { background: var(--warm); }
+
+  /* ========== LEARN ========== */
   .doc-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1px;
     background: var(--line);
     border: 1px solid var(--line);
-    border-radius: 10px;
+    border-radius: var(--r-3);
     overflow: hidden;
   }
   .doc-link {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 16px 18px;
-    background: var(--bg-card);
+    gap: 5px;
+    padding: 18px 20px;
+    background: var(--bg-1);
     text-decoration: none;
     color: var(--fg);
-    font-size: 14px;
-    font-weight: 500;
-    transition: background 100ms;
+    transition: background 140ms ease, transform 240ms cubic-bezier(0.2, 0.7, 0.1, 1);
   }
-  .doc-link:hover { background: var(--bg-card-hover); }
-  .doc-link span {
-    font-size: 12.5px;
-    font-weight: 400;
+  .doc-link:hover {
+    background: var(--bg-2);
+    transform: translateY(-1px);
+  }
+  .doc-title {
+    font: 500 14px/1.4 var(--font-sans);
+    color: var(--fg);
+    letter-spacing: -0.005em;
+  }
+  .doc-sub {
+    font: 400 12.5px/1.55 var(--font-sans);
     color: var(--muted);
-    line-height: 1.5;
   }
 
-  /* Numbers -------------------------------------------------------- */
-  .numbers-list {
-    list-style: none;
-    margin: 0; padding: 0;
-  }
-  .numbers-list li {
-    padding: 14px 0;
-    border-top: 1px solid var(--line);
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--fg-soft);
-  }
-  .numbers-list li:first-child { border-top: none; }
-  .n-label { color: var(--muted); }
-  .n-value { color: var(--fg); font-weight: 500; }
-  .n-note { color: var(--muted); font-size: 12.5px; display: block; margin-top: 2px; }
-
-  /* Footer --------------------------------------------------------- */
-  .landing-footer {
-    margin-top: 80px;
-    padding-top: 28px;
+  /* ========== FOOTER ========== */
+  .site-footer {
+    margin-top: var(--s-7);
+    padding-top: var(--s-5);
     border-top: 1px solid var(--line);
     text-align: center;
   }
-  .landing-footer p { margin: 0 0 12px; font-size: 13.5px; color: var(--muted); }
-  .landing-footer .footnote { font-size: 12px; color: var(--faint); max-width: 560px; margin: 0 auto; line-height: 1.6; }
-  .landing-footer .signed { font-size: 12.5px; color: var(--fg-soft); max-width: 560px; margin: 14px auto 0; line-height: 1.6; }
+  .footer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(10px, 2vw, 22px);
+    justify-content: center;
+    margin-bottom: var(--s-4);
+    font-size: 13px;
+  }
+  .footer-nav a {
+    color: var(--fg-quiet);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 2px;
+    transition: color 120ms ease, border-color 120ms ease;
+  }
+  .footer-nav a:hover { color: var(--fg); border-bottom-color: var(--accent); }
+  .footnote {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 56ch;
+    margin: 0 auto var(--s-3);
+  }
+  .signed {
+    font-size: 12.5px;
+    color: var(--fg-quiet);
+    max-width: 60ch;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ========== REDUCED MOTION ========== */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
 </style>
+
