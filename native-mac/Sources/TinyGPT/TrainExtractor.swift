@@ -308,7 +308,7 @@ enum TrainExtractor {
         var inputs = [Int32](repeating: 0, count: batchSize * contextLength)
         var labels = [Int32](repeating: 0, count: batchSize)
         for i in 0..<batchSize {
-            let ex = examples[Int.random(in: 0..<examples.count)]
+            let ex = examples[BatchRng.randomInt(in: 0..<examples.count)]
             let ids = encode(ex.query, contextLength: contextLength, vocabSize: vocabSize)
             for j in 0..<contextLength {
                 inputs[i * contextLength + j] = ids[j]
