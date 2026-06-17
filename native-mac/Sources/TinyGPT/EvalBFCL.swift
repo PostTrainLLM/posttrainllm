@@ -7,7 +7,7 @@ enum EvalBFCL {
         var bfclModel = "openbmb/MiniCPM-SALA-FC"
         let parsed = EvalHarnessSupport.parseCommon(args, usage: { exitUsage() })
         var common = parsed.0
-        var rest = parsed.1
+        let rest = parsed.1
         var i = 0
         while i < rest.count {
             switch rest[i] {

@@ -14,7 +14,7 @@ enum EvalHumanEval {
         var sandboxPath = "scripts/humaneval-sandbox/target/release/humaneval-sandbox"
         let parsed = EvalHarnessSupport.parseCommon(args, usage: { exitUsage() })
         var common = parsed.0
-        var rest = parsed.1
+        let rest = parsed.1
         var i = 0
         while i < rest.count {
             switch rest[i] {

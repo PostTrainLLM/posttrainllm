@@ -856,7 +856,7 @@ enum Train {
         // avoid IOKit churn. When triggered: same path as SIGINT —
         // atomically save the final checkpoint + exit 0 so the user (or
         // a wrapper script) can `--resume` when conditions clear.
-        var pauseCfg = PowerMonitor.PauseConfig()
+        let pauseCfg = PowerMonitor.PauseConfig()
         // Pause checks are enabled by default. Set TINYGPT_NO_POWER_PAUSE=1
         // to disable (useful for benchmarks where we don't want the run
         // to bail on thermal noise).
