@@ -395,17 +395,17 @@ Both fall out for free if E0 + E8 are designed in, not retrofitted.
 **Pretrain + runtime quality (added 2026-06-04 — "good product" lens, not launch optics):**
 
 - ⬜ **B10. Quality classifier on pretrain data (FineWeb-Edu-style)** — tiny fastText classifier on educational-quality labels, score corpus, keep top X%. Highest direct quality lift per dev-day. ~2 days. See §4.3.
-- ⬜ **B11. WSD schedule (warmup-stable-decay)** — replaces cosine; the decay phase IS the annealing knob, unifying two adds. SmolLM/MiniCPM-validated. ~half-day. See §4.3.
-- ⬜ **B12. Loss-spike recovery + replay** — grad-norm tracker triggers auto-rollback N steps + LR drop on spike. Saves hours of wasted compute on long runs. ~1 day.
+- ✅ **B11. WSD schedule (warmup-stable-decay)** (SHIPPED) — `--schedule wsd --decay-steps N` in `Sources/TinyGPT/Train.swift`. Linear warmup → stable plateau → linear decay. Replaces cosine; the decay phase IS the annealing knob.
+- ✅ **B12. Loss-spike recovery + replay** (SHIPPED) — spike detector on by default; `--no-spike-detect` opts out. Grad-norm tracker triggers auto-rollback + LR drop. In `Sources/TinyGPT/Train.swift`.
 - ⬜ **B13. Interp-on-checkpoints** — replay SAE / MEMIT / `tinygpt patch` across the multi-checkpoint timeline. No competitor ships this combination at small scale. Needs save-every-N flag + checkpoint-batch loader. ~1-2 days infra + ongoing analysis. See §4.3.
-- ⬜ **B14. Speculative decoding (Mini-Llama draft for Mega)** — 2× runner throughput; natural fit with our model zoo. Needs numerics gate per the no-quality-regression rule. ~2-3 days. See §4.3.
+- ✅ **B14. Speculative decoding (Mini-Llama draft for Mega)** (SHIPPED) — `Sources/TinyGPT/SpeculativeDecode.swift` implements Leviathan et al. 2023 (simplified). Greedy speculative; speedup is K-ish on benign branches.
 - ⬜ **B15. Layer-wise LR decay for SFT** — lower layers stay stable; ULMFiT-era trick, still relevant. Flag-level add on existing optimizer. ~half-day. See §4.3.
 
 **Competitor-aware additions (added 2026-06-04 — surfaced by web sweep, not Jan-2026 cutoff knowledge):**
 
 - ⬜ **B16. M5 Neural Accelerator prefill benchmark + bump** — verify the claimed 3.5×–4× M5-vs-M4 prefill speedup is materializing on TinyGPT's MLX path. Current pin: `mlx-swift 0.31.3` on macOS 26.5 / M5 Pro (well past the 26.2 floor). Bump to latest (0.31.4) and benchmark. ~half-day. Free win if it's already on; bump is reversible. See §4.3.
-- ⬜ **B17. SAE Lens interop / Neuronpedia format export** — compare our SAE to [SAELens](https://github.com/decoderesearch/SAELens). Decide: (a) keep ours, (b) port to theirs, (c) export our SAEs in their format so Neuronpedia consumes them. Option (c) is the cheapest interop win. ~2 days for (c). See §4.3.
-- ⬜ **B18. nanochat-style `--depth` single-knob HP derivation** — one knob auto-derives width, heads, LR, batch, steps from depth via compute-optimal scaling laws. UX win. Pairs with µ-Transfer (deferred). ~1 day. See §4.3.
+- ✅ **B17. SAE Lens interop / Neuronpedia format export** (SHIPPED, option c) — `tinygpt sae-to-saelens <in.sae> --out <dir>` converts to SAELens (decoderesearch/SAELens) on-disk layout; Neuronpedia consumes the same. `Sources/TinyGPT/SaeToSaelens.swift`.
+- ✅ **B18. nanochat-style `--depth` single-knob HP derivation** (SHIPPED) — `--depth N` in `Sources/TinyGPT/Train.swift` derives the GPT-2-shaped width / heads / LR / batch / steps from one knob.
 - ⬜ **B19. Group-SAE (layer-group SAE training)** — train one SAE per layer-group instead of per-layer; cuts SAE training cost meaningfully. Layered onto existing SAE infra. ~2-3 days. See §4.3.
 - ⬜ **B20. Investigate learnable cross-stream attention** — modded-nanogpt speedrun trick; not yet a paper but on the GPT-2-quality speedrun playbook. Read-and-evaluate before adoption. ~half-day investigation, build cost TBD. See §4.3.
 - ⬜ **B21. Micro-AutoMixer for specialist data mixes** — Poolside-style data mixture optimization, scaled down: train 6-12 proxy runs across code/math/tool/web ratios, score on fixed capability evals, fit a simple surrogate, then propose the next mix. Do this before expensive specialist training so data ratios stop being hand-wavy. ~2-3 days plus small proxy runs. See §4.3.
@@ -443,14 +443,14 @@ The competitive scan found the whole field monetizes the cost a Mac-first tool z
 
 - ✅ **C1. CLI cosmetic fixes** — 27 subcommands now `exit(0)` on `--help`; `bench-train --help` shows correct name. Shipped 2026-06-02 in `49dead5`.
 - ✅ **C2. Roll up pre-switch CLI shims into main switch** — 17 shims absorbed; TinyGPT.swift -170 LoC. Shipped in `49dead5`.
-- ⬜ **C3. DoRA on-disk adapter format** — ~1 day (today DoRA is in-session only)
+- ✅ **C3. DoRA on-disk adapter format** (SHIPPED 2026-06-09) — TGLA v2 (magic `TGLA`, version 2) adds optional per-entry `[out]` magnitude vector after `loraB`; v1 readers ignore it; v2 readers autodetect. See `Sources/TinyGPTModel/LoraIO.swift` header. Memory: [[project_dora_fix_shipped_2026_06_09]].
 - ⬜ **C4. Tool-call extractor: BPE tokenizer support** — ~2 days
 - ⬜ **C5. Decode jitter under thermal load** — ~1 day (needs sustained workload measurement)
 - ✅ **C6. ChatML template inline-system split** — `splitChatmlSystem` helper + 6 unit tests. Shipped in `49dead5`.
 - ✅ **C7. Save+reload XCTest for LoRA adapters** — roundtrip + arch-mismatch coverage. Shipped in `49dead5`.
 - ✅ **C8. Install-path discipline** — `~/.cache/tinygpt/` for adapters + corpus discovery; off `/tmp`. Shipped in `49dead5`.
 - ⬜ **C9. Determinism harness** — bit-exact replay of step N for debugging spikes, drift, and grad-flow oddities. Pairs with B12. ~2 days.
-- ⬜ **C10. Training-run dashboard** — W&B / TensorBoard or in-house; live visibility instead of guessing during long runs. ~1 day.
+- ✅ **C10. Training-run dashboard** (SHIPPED) — `--log-jsonl <path>` in `tinygpt train` emits append-only JSONL via `Sources/TinyGPT/TrainLog.swift`; consumed by `browser/src/pages/training-dashboard.astro` for live charts.
 
 ## Tier 5 — RESEARCH FRONTIER (2026 stretch goals)
 

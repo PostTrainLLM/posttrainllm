@@ -47,12 +47,12 @@ tinygpt already owns ~70% of the stack for this wedge:
 |---|---|
 | QLoRA on 4-14B (`tinygpt sft`) | shipped |
 | Distillation from 30B teacher | shipped |
-| Trace recorder (B22) | shipped |
+| Trace recorder (B22) | **PRD only, not yet implemented** (corrected 2026-06-17) |
 | Deferred tools in `serve` (B26) | scaffolding shipped, BFCL gate pending |
 | Composite reward framework (B28) | scaffolding shipped |
-| Trace-to-training-data (B29) | scoped, not started |
-| Reasoning-depth classifier (B30) | scaffolding shipped 2026-06-17 |
-| Eval CI/CD gate (B32) | shipped, multi-suite pending |
+| Trace-to-training-data (B29) | PRD only — blocked on B22 |
+| Reasoning-depth classifier (B30) | ✅ shipped + verified 2026-06-17 |
+| Eval CI/CD gate (B32) | scaffolding shipped, multi-suite pending |
 | Gallery + project pins (B31) | scaffolding shipped |
 
 What's missing is **one shipped vertical** that proves the loop runs.
