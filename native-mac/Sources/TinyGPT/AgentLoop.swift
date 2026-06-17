@@ -93,6 +93,13 @@ public final class AgentLoop {
     }
     private let routerHook: RouterHook?
 
+    // Optional B22 trajectory recorder. When set, every user / assistant /
+    // tool turn appends a step capturing decoded text + the raw token IDs
+    // (input_ids for fed text, output_ids for sampled assistant text).
+    // The file is flushed via `finishTrajectory(...)` at session end.
+    private let trajectoryRecorder: AgentTrajectoryRecorder?
+    private let trajectoryDir: URL?
+
     /// Token boundary the agent expects between turns. We use a ChatML-ish
     /// scheme so models trained with that template have a fighting chance
     /// of producing the right shape. For byte-level models this is just
@@ -111,7 +118,10 @@ public final class AgentLoop {
                 maxAgentSteps: Int = 8,
                 cloudEscalateProvider: CloudEscalate.Provider? = nil,
                 cloudEscalateModel: String? = nil,
-                routerHook: RouterHook? = nil)
+                routerHook: RouterHook? = nil,
+                trajectoryDir: URL? = nil,
+                trajectoryCheckpointPath: String? = nil,
+                trajectoryTask: String? = nil)
     {
         self.routerHook = routerHook
         self.model = model
@@ -133,6 +143,12 @@ public final class AgentLoop {
         self.maxAgentSteps = maxAgentSteps
         self.cloudEscalateProvider = cloudEscalateProvider
         self.cloudEscalateModel = cloudEscalateModel
+        self.trajectoryDir = trajectoryDir
+        self.trajectoryRecorder = trajectoryDir.map { _ in
+            AgentTrajectoryRecorder(
+                checkpointPath: trajectoryCheckpointPath,
+                task: trajectoryTask)
+        }
     }
 
     /// Build a synthetic `escalate` tool definition and append it to the
@@ -244,6 +260,11 @@ public final class AgentLoop {
     /// text we fell back to when JSON parsing failed).
     public func runTurn(userText: String) -> String {
         recordEvent(event: ["type": "user", "text": userText])
+        // B22 trajectory: capture the user's clean text + its token IDs
+        // (excluding ChatML wrapping — downstream SFT/DPO wants the
+        // semantic content, not the framing).
+        trajectoryRecorder?.appendUser(
+            text: userText, inputIds: encode(userText))
         // Tool-call extractor pre-step. Runs BEFORE the LM forward
         // pass — predicts the most likely tool from the user query
         // alone (no system prompt, no tool catalog). High-confidence
@@ -285,6 +306,12 @@ public final class AgentLoop {
             }
             recordEvent(event: ["type": "assistant_raw", "step": step, "text": trimmed])
 
+            // B22 trajectory: record the assistant's sampled token IDs
+            // before we parse the JSON. The tool-call payload (if any)
+            // is added by the branch below so the trajectory step
+            // carries both the raw IDs *and* the structured action.
+            let assistantStepOutputIds = lastGeneratedIds
+
             // Parse JSON. On failure we treat the raw text as a final
             // answer — the unspecialized-base-model degradation path.
             if let obj = extractJSONObject(trimmed) {
@@ -293,6 +320,8 @@ public final class AgentLoop {
                     if jsonOut {
                         emitJSONEvent(["type": "answer", "text": answer])
                     }
+                    trajectoryRecorder?.appendAssistant(
+                        text: trimmed, outputIds: assistantStepOutputIds)
                     return answer
                 }
                 if let toolName = obj["tool"] as? String {
@@ -316,16 +345,36 @@ public final class AgentLoop {
                         "stderr": toolResult.stderr,
                         "exit_code": Int(toolResult.exitCode),
                     ])
+                    // B22 trajectory: assistant turn carried a tool
+                    // invocation; tool result follows on its own step.
+                    let argsJsonStr: String = (try? JSONSerialization.data(
+                        withJSONObject: args, options: [.sortedKeys]))
+                        .flatMap { String(data: $0, encoding: .utf8) } ?? "{}"
+                    trajectoryRecorder?.appendAssistant(
+                        text: trimmed, outputIds: assistantStepOutputIds,
+                        toolCall: ToolCallPayload(
+                            name: toolName, argumentsJson: argsJsonStr))
+                    trajectoryRecorder?.appendTool(
+                        result: ToolResultPayload(
+                            name: toolName,
+                            stdout: toolResult.stdout,
+                            stderr: toolResult.stderr,
+                            exitCode: Int(toolResult.exitCode),
+                            durationSec: toolResult.durationSec))
                     let resultJSON = encodeToolResult(toolName, result: toolResult)
                     feedText(toolResultPreface + resultJSON + toolResultSuffix)
                     continue
                 }
                 // JSON but neither shape we expect. Treat as freeform.
                 lastAnswer = trimmed
+                trajectoryRecorder?.appendAssistant(
+                    text: trimmed, outputIds: assistantStepOutputIds)
                 break
             } else {
                 // No parseable JSON — degrade.
                 lastAnswer = trimmed
+                trajectoryRecorder?.appendAssistant(
+                    text: trimmed, outputIds: assistantStepOutputIds)
                 break
             }
         }
@@ -335,6 +384,24 @@ public final class AgentLoop {
             emitJSONEvent(["type": "answer", "text": final, "fallback": true])
         }
         return final
+    }
+
+    // MARK: - Trajectory finalization
+
+    /// Flush the in-memory trajectory to `<trajectoryDir>/<uuid>.atraj`.
+    /// No-op when `--trajectory-dir` was not supplied. Returns the
+    /// written URL on success.
+    @discardableResult
+    public func finishTrajectory(summary: [String: String] = [:]) -> URL? {
+        guard let dir = trajectoryDir, let rec = trajectoryRecorder else {
+            return nil
+        }
+        rec.setSummary(summary)
+        do { return try rec.finish(to: dir) }
+        catch {
+            fputs("agent: trajectory write failed (\(error)) — continuing.\n", stderr)
+            return nil
+        }
     }
 
     private func runToolCall(name: String, arguments: [String: Any]) -> ToolExecutor.Result {
@@ -443,12 +510,20 @@ public final class AgentLoop {
             let logits = model.forwardCached(nextId.asType(.int32), cache: cache)
             lastLogits = logits[0..., 0, 0...]
         }
+        // Stash for the B22 trajectory recorder. Always set (even when
+        // the recorder is off) — the cost is one array assign per turn.
+        lastGeneratedIds = generated
         return decode(generated)
     }
 
     // MARK: - Cache feeding
 
     private var lastFedToken: Int = 0
+
+    // Most-recent assistant-turn sampled token IDs. Updated at the end of
+    // every `generateUntilJSONOrLimit`. The B22 trajectory recorder reads
+    // this to populate `output_ids` for the assistant step.
+    private var lastGeneratedIds: [Int] = []
 
     /// Encode + forward through the cache. We track the last token id so
     /// `generateUntilJSONOrLimit` can rewind + recover the next-token
