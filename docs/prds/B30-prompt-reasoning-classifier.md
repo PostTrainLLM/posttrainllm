@@ -1,12 +1,15 @@
 ---
 name: B30 prompt reasoning-depth classifier
-status: not-started
+status: scaffolding-shipped
 owner: unassigned
 created: 2026-06-13
+updated: 2026-06-17
 parent_plan: docs/PLAN.md §3 Tier B (B30)
 parent_learn: docs/learn/castform-rl-finetune.md (Steal #3)
 related_prds: B10-quality-classifier.md (sibling classifier; reasoning-depth is the orthogonal axis),
               B29-trace-to-training-data.md (downstream consumer of the labels)
+ships_in: Sources/TinyGPT/ReasoningClassify.swift, evals/reasoning-classifier-smoke.sh, docs/recipes/balanced-training-mix.md
+follow_ups: factor BagOfNgramClassifier shared utility into TinyGPTModel and refactor QualityClassifier to use it; replace synthetic smoke fixture with hand-labeled 500-seed + LLM-judge bootstrap; wire `--reasoning-balance` flag into B29.
 ---
 
 # PRD — Classify training prompts by reasoning depth

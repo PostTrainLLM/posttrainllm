@@ -301,7 +301,7 @@ Sequencing: Tier D (data) + Tier E (evals) → A1 specialist → Tier B
 follow-ups.
 
 - ⬜ **A1. Train first specialist end-to-end (tool-caller)** — 3-5 days execution + GPU hours. Validates north-star thesis.
-- ⬜ **A2. Pull foundational datasets** (xlam-function-calling-60k, hermes-function-calling-v1, function-calling-chatml, SWE-bench_Verified, alpaca-cleaned, orca_dpo_pairs, MetaMathQA, ultrafeedback-binarized-preferences-cleaned, the-stack-smol, python_code_instructions_18k_alpaca) — ~1 hr wall
+- 🟡 **A2. Pull foundational datasets** — all on disk except xlam (gated, blocked on D1 HF_TOKEN). hermes-fc, function-calling-chatml, SWE-bench_Verified, alpaca-cleaned, orca_dpo_pairs, MetaMathQA, ultrafeedback, the-stack-smol, python_code_instructions_18k_alpaca all under `~/.cache/tinygpt/datasets/`. Inventory: `docs/dataset-inventory.md`.
 - ⬜ **A3. Fetch GitHub issue→PR corpus for debugger** — ~1 day with `GITHUB_TOKEN`
 - ⬜ **A4. Pull BFCL + τ-bench via extractor-data** — ~30 min (DONE — sources at `~/.cache/tinygpt/datasets/_external/{gorilla-bfcl,tau-bench}/`; **wiring is Tier E**, not Tier A)
 - ⬜ **A5. Pull Indic eval datasets (MILU + IndicGenBench-XQuAD)** — ~30 min (DONE — MILU is lm-eval-harness, source at `_external/MILU/`; wiring → E3)
@@ -314,11 +314,11 @@ Pulled today: hermes-fc.jsonl, ultrafeedback.jsonl, MetaMathQA, alpaca-cleaned,
 orca_dpo_pairs, FineWeb-Edu (50K-row sample via parquet decoder). Blocked /
 missing for the planned specialists:
 
-- ⬜ **D1. xlam-function-calling-60k** — GATED. Needs `export HF_TOKEN=hf_…` then re-run `tinygpt download-dataset Salesforce/xlam-function-calling-60k`. ~5 min user-side.
-- ⬜ **D2. function-calling-chatml + SWE-bench_Verified** — public; rerun `tinygpt download-dataset` once xlam unblocks. ~15 min.
-- ⬜ **D3. MS-MARCO + Natural Questions** — needed for B25 ScaleDown specialist. Pull via `tinygpt download-dataset` + decode parquet via `scripts/parquet_to_txt.py --jsonl`. ~30 min.
-- ⬜ **D4. the-stack-smol + python_code_instructions_18k_alpaca** — needed for code specialist. ~30 min.
-- ⬜ **D5. GSM8K + MATH + HumanEval + MBPP eval splits** — small JSONLs (test splits only), needed for math/code specialist eval. ~15 min. Pairs with E4 + E5.
+- ⬜ **D1. xlam-function-calling-60k** — GATED. Needs `export HF_TOKEN=hf_…` then re-run `tinygpt download-dataset Salesforce/xlam-function-calling-60k`. ~5 min user-side. Directory exists empty at `~/.cache/tinygpt/datasets/Salesforce/xlam-function-calling-60k/`.
+- ✅ **D2. function-calling-chatml + SWE-bench_Verified** (DONE) — `~/.cache/tinygpt/datasets/Locutusque/function-calling-chatml/` (102 MB parquet) + `princeton-nlp/SWE-bench_Verified/` (2 MB).
+- ✅ **D3. MS-MARCO + Natural Questions subset** (DONE 2026-06-17) — `microsoft/ms_marco/v1.1/` (3 shards, 207 MB: test+train+val) + `google-research-datasets/natural_questions/default/` (2 train shards of 287, 375 MB — subset bounded for B25 training data; full corpus is multi-GB).
+- 🟡 **D4. the-stack-smol + python_code_instructions_18k_alpaca** — python alpaca DONE (`iamtarun/python_code_instructions_18k_alpaca/`, 10.8 MB parquet, 18 612 rows decoded). the-stack-smol is GATED (needs `HF_TOKEN`, same as D1) — `bigcode/the-stack-smol/data/` scaffolded but empty.
+- ✅ **D5. GSM8K + MATH + HumanEval + MBPP eval splits** (DONE 2026-06-17) — `openai/gsm8k/main/` (test+train parquet) + `HuggingFaceH4/MATH-500/test.jsonl` (500 rows, the canonical math eval set) + `openai/openai_humaneval/` + `google-research-datasets/mbpp/full/` (prompt+test+train+val).
 
 ## Tier E — EVAL PIPELINES (wire harnesses → automate scores)
 
@@ -422,7 +422,7 @@ Both fall out for free if E0 + E8 are designed in, not retrofitted.
 
 - 🟡 **B31. Unified model gallery + project-level model pins** (scaffolding shipped 2026-06-13) — extends `browser/src/gallery-schema.ts` with a `kind` discriminator (`browser-bin` / `mac-tinygpt` / `mac-adapter` / `mac-gguf` / `mac-safetensors-hf`) so one published manifest covers browser + Mac models. New `tinygpt.project.json` per-project pin file (`package.json`-style). Swift mirrors + 11 unit tests pass in this PR (`GalleryManifest.swift`, `ProjectManifest.swift`); `tinygpt pull` + `tinygpt validate` CLI extensions + browser UI filter remain. PRD: `docs/prds/B31-gallery-and-project-pins.md`. **The trace-loop dividend:** project pins flip the Castform asymmetry — pinning + serving locally means the project owner naturally accumulates `.atraj` traces (B22) that B29 turns into training data. The substrate-refinement cycle closes here.
 
-- ⬜ **B30. Prompt reasoning-depth classifier** — `tinygpt reasoning-classify` labels prompts as {single-hop, multi-hop, comparison, other}. Feeds B29's mix-balancing + the leaderboard's per-category breakdown. Bag-of-trigram softmax-4, factored from B10's classifier. PRD: `docs/prds/B30-prompt-reasoning-classifier.md`.
+- 🟡 **B30. Prompt reasoning-depth classifier** (shipped 2026-06-17, build-verify pending) — `tinygpt reasoning-classify --train|--score|--filter` labels prompts as {single-hop, multi-hop, comparison, other}. Bag-of-trigram softmax-4 (the FineWeb-Edu shape extended to multiclass), `TGFR` on-disk format. Files: `Sources/TinyGPT/ReasoningClassify.swift`, subcommand wired in `TinyGPT.swift`. Smoke: `evals/reasoning-classifier-smoke.sh` + `evals/reasoning-classifier-fixtures/{train,heldout}.jsonl` (80 train / 32 held-out, synthetic 4-class), asserts macro-F1 ≥ 0.5 (the PRD bar). Recipe: `docs/recipes/balanced-training-mix.md`. `BagOfNgramClassifier` shared utility deferred — V1 duplicates the tokenize/hash/ngram block from `QualityClassifier`; a follow-up factors them out and updates QualityClassify. PRD: `docs/prds/B30-prompt-reasoning-classifier.md`. Build verification blocked locally by a Metal-toolchain issue on Xcode 27.0.0-Beta (`metal -c ... .dia not found`); `swiftc -typecheck ReasoningClassify.swift` passes standalone — user to run the smoke once the full build is unstuck.
 
 **Market-landscape positioning (added 2026-06-13 — see `docs/sessions/2026-06-13-market-landscape-mac-first.md`):**
 
