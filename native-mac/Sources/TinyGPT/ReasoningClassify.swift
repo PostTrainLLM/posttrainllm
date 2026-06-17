@@ -288,8 +288,9 @@ enum ReasoningClassify {
               macro-F1:   \(String(format: "%.3f", metrics.macroF1))
             """)
             for (i, lbl) in labels.enumerated() {
-                print(String(format: "    %-12s  precision %.3f  recall %.3f  f1 %.3f  (n=%d)",
-                              lbl, metrics.precision[i], metrics.recall[i], metrics.f1[i], metrics.support[i]))
+                let padded = lbl.padding(toLength: 12, withPad: " ", startingAt: 0)
+                print(String(format: "    \(padded)  precision %.3f  recall %.3f  f1 %.3f  (n=%d)",
+                              metrics.precision[i], metrics.recall[i], metrics.f1[i], metrics.support[i]))
             }
         }
 
@@ -417,7 +418,8 @@ enum ReasoningClassify {
         """)
         for c in 0..<model.numClasses {
             let pct = total == 0 ? 0 : Float(counts[c]) / Float(total) * 100
-            print(String(format: "  %-12s %d (%.1f%%)", labels[c], counts[c], pct))
+            let padded = labels[c].padding(toLength: 12, withPad: " ", startingAt: 0)
+            print(String(format: "  \(padded) %d (%.1f%%)", counts[c], pct))
         }
     }
 
@@ -526,7 +528,8 @@ enum ReasoningClassify {
         """)
         for c in 0..<numClasses {
             let frac = totalOut == 0 ? 0 : Float(emitted[c]) / Float(totalOut)
-            print(String(format: "  %-12s %d (%.1f%%)", labels[c], emitted[c], frac * 100))
+            let padded = labels[c].padding(toLength: 12, withPad: " ", startingAt: 0)
+            print(String(format: "  \(padded) %d (%.1f%%)", emitted[c], frac * 100))
         }
         print("out:         \(outPath)")
     }
