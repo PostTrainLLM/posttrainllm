@@ -57,6 +57,15 @@ python3 scripts/build_slm_leaderboard.py \
 
 <!-- TABLE END -->
 
+## Protocol
+
+Publication rows should use the B23/B32 repeated-run protocol when the
+suite is stochastic or agentic: run `tinygpt eval-gate --passes 3` (or
+higher for final claims), report the candidate mean, and keep
+`gate-result.json` alongside the suite JSON. The gate records per-trial
+scores, stdev, stderr, and 95% CI under `candidateStats`, so a leaderboard
+claim can distinguish a real model delta from single-run noise.
+
 ## What each column measures
 
 - **decode tok/s** — median over 20 streamed runs at gen=128 against

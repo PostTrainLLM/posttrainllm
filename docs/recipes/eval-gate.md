@@ -61,6 +61,9 @@ tinygpt eval-gate --passes 3      # run each suite 3× and gate on the mean (noi
 ```
 
 It prints a per-suite table and writes `gate-result.json` (machine-readable).
+When a suite has repeated rows, the JSON keeps the trial scores plus n,
+stdev, stderr, and 95% CI under `candidateStats`; the console renders the
+candidate cell as `mean±ci95`.
 
 ## GitHub Action
 
@@ -109,6 +112,10 @@ JSONL and reserve the full run for CI.
 ```bash
 bash evals/eval-gate-smoke.sh    # asserts exit 0 (match) + exit 1 (regression) with fixtures
 ```
+
+The smoke also checks repeated-run stats using
+`evals/eval-gate-fixtures/candidate-repeat.jsonl`, so this path stays
+covered without starting a model or server.
 
 ## See also
 

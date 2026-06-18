@@ -73,8 +73,14 @@ enum EvalGateCommand {
             exit(2)
         }
 
-        let averaged = passes > 1 ? EvalGate.averagedByKey(candidateRows) : candidateRows
-        let report = EvalGate.evaluate(baseline: baselineRows, candidate: averaged, spec: spec)
+        let summarized = EvalGate.summarizedByKey(candidateRows)
+        let hasRepeatedRows = !summarized.stats.isEmpty
+        let rowsForGate = (passes > 1 || hasRepeatedRows) ? summarized.rows : candidateRows
+        let report = EvalGate.evaluate(
+            baseline: baselineRows,
+            candidate: rowsForGate,
+            candidateStats: summarized.stats,
+            spec: spec)
 
         // 5. Print + persist + exit code.
         printReport(report, spec: spec, passes: passes)
@@ -176,7 +182,13 @@ enum EvalGateCommand {
         for s in report.suites {
             let label = (s.name + "/" + (s.subtask ?? s.metric)).padding(toLength: nameW, withPad: " ", startingAt: 0)
             let base = s.baselineScore.map { String(format: "%.3f", $0) } ?? "  —  "
-            let cand = s.candidateScore.map { String(format: "%.3f", $0) } ?? "  —  "
+            let cand: String
+            if let stats = s.candidateStats, stats.n > 1 {
+                let halfWidth = (stats.ci95High - stats.ci95Low) / 2.0
+                cand = String(format: "%.3f±%.3f", stats.mean, halfWidth)
+            } else {
+                cand = s.candidateScore.map { String(format: "%.3f", $0) } ?? "  —  "
+            }
             let delta = s.deltaPP.map { String(format: "%+.1f", $0) } ?? "  —  "
             let thr = String(format: "%.1f", s.thresholdPP)
             let mark: String

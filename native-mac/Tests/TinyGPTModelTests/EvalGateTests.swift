@@ -118,9 +118,35 @@ final class EvalGateTests: XCTestCase {
     func test_averaging_collapses_repeated_keys() {
         let rows = [row("bfcl", "accuracy", 0.70), row("bfcl", "accuracy", 0.80),
                     row("bfcl", "accuracy", 0.90)]
-        let avg = EvalGate.averagedByKey(rows)
-        XCTAssertEqual(avg.count, 1)
-        XCTAssertEqual(avg.first?.score ?? 0, 0.80, accuracy: 0.0001)
+        let summary = EvalGate.summarizedByKey(rows)
+        XCTAssertEqual(summary.rows.count, 1)
+        XCTAssertEqual(summary.rows.first?.score ?? 0, 0.80, accuracy: 0.0001)
+
+        let stats = try! XCTUnwrap(summary.stats[summary.rows[0].key])
+        XCTAssertEqual(stats.n, 3)
+        XCTAssertEqual(stats.mean, 0.80, accuracy: 0.0001)
+        XCTAssertEqual(stats.stdev, 0.10, accuracy: 0.0001)
+        XCTAssertLessThan(stats.ci95Low, stats.mean)
+        XCTAssertGreaterThan(stats.ci95High, stats.mean)
+    }
+
+    func test_evaluate_attaches_repeated_pass_stats() {
+        let base = [row("bfcl", "accuracy", 0.80)]
+        let repeated = [row("bfcl", "accuracy", 0.78),
+                        row("bfcl", "accuracy", 0.80),
+                        row("bfcl", "accuracy", 0.82)]
+        let summary = EvalGate.summarizedByKey(repeated)
+        let report = EvalGate.evaluate(
+            baseline: base,
+            candidate: summary.rows,
+            candidateStats: summary.stats,
+            spec: spec([.init(name: "bfcl")]))
+
+        XCTAssertTrue(report.passed)
+        let stats = try! XCTUnwrap(report.suites.first?.candidateStats)
+        XCTAssertEqual(stats.n, 3)
+        XCTAssertEqual(stats.trialScores, [0.78, 0.80, 0.82])
+        XCTAssertEqual(report.suites.first?.candidateScore ?? 0, 0.80, accuracy: 0.0001)
     }
 
     func test_loadRows_parses_evalcompare_jsonl_and_skips_garbage() throws {

@@ -64,6 +64,16 @@ else
   echo "  ✗ gate-result.json missing or malformed"; fail=1
 fi
 
+echo "==> K-pass candidate stats are preserved"
+assert_exit 0 "repeated candidate passes with uncertainty stats" \
+  "$TINYGPT" eval-gate --spec "$SPEC" --baseline "$BASELINE" \
+    --candidate "$FIX/candidate-repeat.jsonl" --passes 3 --out "$WORK/gate-repeat.json"
+if python3 -c "import json,sys; d=json.load(open('$WORK/gate-repeat.json')); s=d['suites'][0].get('candidateStats'); sys.exit(0 if s and s['n']==3 and 'ci95Low' in s and 'ci95High' in s and len(s['trialScores'])==3 else 1)"; then
+  echo "  ✓ gate-result.json carries n/stdev/ci95/trialScores for repeated rows"
+else
+  echo "  ✗ repeated-run stats missing from gate-result.json"; fail=1
+fi
+
 echo "==> --update-baseline re-stamps from a candidate run"
 cp "$BASELINE" "$WORK/baseline.jsonl"
 assert_exit 0 "update-baseline succeeds" \
