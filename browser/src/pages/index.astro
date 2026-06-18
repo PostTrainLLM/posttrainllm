@@ -2191,6 +2191,246 @@ tinygpt serve --model ./student.tinygpt --port 8080</code></pre>
     }
   }
 
+  /* ========== COMPACT SCALE TUNING ========== */
+  body {
+    font-size: 15px;
+    line-height: 1.62;
+  }
+
+  .topbar {
+    padding-block: 9px;
+  }
+
+  .landing {
+    max-width: 1180px;
+  }
+
+  section {
+    margin-bottom: clamp(58px, 8vw, 104px);
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(330px, 0.7fr);
+    column-gap: clamp(26px, 4vw, 56px);
+    min-height: calc(100svh - 132px);
+    padding: clamp(24px, 4.8vw, 54px) 0 clamp(28px, 4vw, 48px);
+  }
+
+  .hero-kicker {
+    margin-bottom: 14px;
+    padding: 7px 9px;
+    font-size: 10px;
+  }
+
+  .hero h1 {
+    max-width: 14.5ch;
+    margin-bottom: 20px;
+    font-size: clamp(36px, 5.1vw, 64px);
+    line-height: 1;
+  }
+
+  .hero-lede {
+    max-width: 60ch;
+    margin-bottom: 24px;
+    font-size: clamp(14.5px, 1.25vw, 16px);
+    line-height: 1.62;
+  }
+
+  .hero-visual {
+    min-height: 460px;
+  }
+
+  .holo-frame {
+    width: min(100%, 410px);
+  }
+
+  .holo-header {
+    padding: 12px 14px;
+  }
+
+  .holo-stack {
+    gap: 10px;
+    padding: 16px 14px;
+  }
+
+  .holo-package {
+    margin: 0 14px 14px;
+    padding: 12px;
+  }
+
+  .chip-strip {
+    padding: 0 14px 14px;
+  }
+
+  .cta {
+    min-width: min(100%, 240px);
+    padding: 12px 16px;
+  }
+
+  .cta-label {
+    font-size: 13.5px;
+  }
+
+  .cta-sub {
+    font-size: 11px;
+  }
+
+  .hero-fineprint,
+  .num-caption,
+  .footnote,
+  .signed {
+    font-size: 12px;
+  }
+
+  .section-h2 {
+    font-size: clamp(22px, 2.65vw, 30px);
+  }
+
+  .section-blurb {
+    max-width: 64ch;
+    font-size: 14px;
+    line-height: 1.62;
+  }
+
+  .number-card {
+    padding: clamp(20px, 3vw, 32px);
+  }
+
+  .num-h2 {
+    font-size: clamp(20px, 2.45vw, 26px);
+  }
+
+  .num-hero {
+    font-size: clamp(58px, 10vw, 104px);
+  }
+
+  .bar-label {
+    font-size: 12.5px;
+  }
+
+  .bar-value {
+    font-size: 13px;
+  }
+
+  .metric {
+    padding: 18px;
+  }
+
+  .m-val {
+    font-size: clamp(25px, 3vw, 32px);
+  }
+
+  .m-note,
+  .step-detail,
+  .doc-sub {
+    font-size: 12px;
+  }
+
+  .step {
+    padding: 18px;
+  }
+
+  .step-name {
+    font-size: 14px;
+  }
+
+  .step-cmd {
+    font-size: 11px;
+  }
+
+  .pillar {
+    padding: 20px;
+  }
+
+  .pillar h3,
+  .run-card header h3 {
+    font-size: 15.5px;
+  }
+
+  .pillar li,
+  .pillar-prose,
+  .run-prose,
+  .honest-col li {
+    font-size: 13px;
+  }
+
+  .run-card {
+    padding: 20px;
+  }
+
+  .code-block {
+    font-size: 11.5px;
+  }
+
+  .doc-link {
+    padding: 16px 18px;
+  }
+
+  .doc-title {
+    font-size: 13.5px;
+  }
+
+  @media (max-width: 980px) {
+    .hero {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto;
+      column-gap: 0;
+      min-height: auto;
+    }
+
+    .hero h1 {
+      max-width: 13ch;
+      font-size: clamp(36px, 9vw, 56px);
+    }
+
+    .hero-visual {
+      min-height: 370px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    body {
+      font-size: 14.5px;
+    }
+
+    .landing {
+      padding-top: 102px;
+    }
+
+    .hero-kicker {
+      width: auto;
+      max-width: 100%;
+    }
+
+    .hero h1 {
+      max-width: 100%;
+      font-size: clamp(30px, 9.8vw, 40px);
+      line-height: 1.02;
+    }
+
+    .hero-lede {
+      max-width: 100%;
+      font-size: 14px;
+      line-height: 1.58;
+    }
+
+    .hero-visual {
+      min-height: 320px;
+    }
+
+    .holo-title {
+      font-size: 10px;
+    }
+
+    .number-card {
+      padding: 18px;
+    }
+
+    .num-hero {
+      font-size: clamp(52px, 18vw, 78px);
+    }
+  }
+
   /* ========== REDUCED MOTION ========== */
   @media (prefers-reduced-motion: reduce) {
     *,
