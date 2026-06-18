@@ -124,6 +124,13 @@ Bounded wiring smoke run 2026-06-19: `browser/public/demo.tinygpt`, one BFCL
 scored 0/1 (random demo model parse errors), proving the server mode switch and
 harness pass-through work; this is not an acceptance-quality parity result.
 
+Bounded real-model probe 2026-06-19: Qwen3-0.6B, BFCL `pace12`, normalized
+12-tool catalog. Full schema mode scored 5/12 (41.7%, 1 parse error, p50
+7354ms). Deferred mode on the same first four prompts scored 0/4 (0 parse
+errors, p50 10137ms), while the full-schema prefix was 2/4; deferred delta on
+that tiny prefix was -50pp. This is not the full B26 acceptance gate, but it is
+enough to keep deferred mode OFF for the planner lock.
+
 **Accept** if the deferred BFCL average is within ±2pp of the full
 average across the 10 BFCL categories, AND the average number of
 `get_tool_info` round-trips per BFCL sample is ≤2.
