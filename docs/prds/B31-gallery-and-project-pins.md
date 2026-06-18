@@ -164,8 +164,14 @@ project file ships with a non-trivial `models` list.
 
 ### Full B31 ship (remaining)
 
-- [ ] One Mac-side specialist (A1 once shipped) added to the
-  gallery manifest with `kind: "mac-adapter"`, `parent:`, `r2_path:`.
+- [x] One Mac-side specialist package registered:
+  `specialists/qwen3-4b-file-ops-distilled` with model card, prompt,
+  eval report, artifact lock, and MLX validation helper. It is tracked in
+  `specialists/registry.json` rather than the browser manifest because its
+  7.5 GB HF/MLX safetensors artifact is not browser-loadable.
+- [ ] Publish Mac-side specialist entries into the unified gallery manifest
+  once the browser filters out `kind != "browser-bin"` rows and R2 paths are
+  assigned.
 - [ ] `tinygpt pull` reads `./tinygpt.project.json`, fetches every
   pin from R2, validates checksums (the `fileBytes` field from
   the manifest), reports skipped + failed.

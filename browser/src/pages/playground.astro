@@ -2976,12 +2976,19 @@ const pageBody = `
       <aside id="introCard" class="intro-card">
         <button id="introDismiss" class="intro-dismiss" type="button" aria-label="Dismiss intro">×</button>
         <p>
-          <strong>What is this?</strong> A tiny GPT — same architecture as
-          ChatGPT, a million times smaller, trained right here in your
-          browser. <em>Load pretrained</em> to see one we trained earlier,
-          or <em>Start training</em> to teach a fresh one in a few minutes.
-          Every line of math is in the
+          <strong>What is this?</strong> The learning playground: a tiny GPT —
+          same architecture family as ChatGPT, a million times smaller,
+          trained right here in your browser. <em>Load pretrained</em> to see
+          one we trained earlier, or <em>Start training</em> to teach a fresh
+          one in a few minutes. Every line of math is in the
           <a href="https://github.com/sarthak-fleet/tinygpt" target="_blank" rel="noopener">source</a>.
+        </p>
+        <p class="intro-why">
+          <strong>Want the Mac-side model factory?</strong> The CLI packages
+          real trained modules separately: model card, prompt, eval report,
+          lock file, and MLX loader. Start with the
+          <a href="https://github.com/sarthak-fleet/tinygpt/tree/main/specialists" target="_blank" rel="noopener">specialist registry</a>
+          or the <a href="/docs/recipes/mlx-export">MLX export recipe</a>.
         </p>
       </aside>
 
@@ -3692,8 +3699,10 @@ const pageBody = `
     <dialog id="welcome">
       <h2>Welcome to TinyGPT</h2>
       <p>
-        A complete transformer that trains from scratch — right here, in this tab,
-        with no server. Every layer was written by hand. Three ways to start:
+        This is the learning playground: a complete transformer that trains
+        from scratch right here, in this tab, with no server. Load a model,
+        train one, or take the tour. The Mac-side specialist packages live in
+        the CLI registry and MLX export docs.
       </p>
       <div class="welcome-actions">
         <button class="secondary" id="welcomeSkip">Just explore</button>

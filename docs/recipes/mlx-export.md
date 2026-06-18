@@ -31,3 +31,18 @@ Their tensors are MLX-loadable, but a caller still needs a TinyGPT-aware module
 class to run a forward pass. HF / MLX model directories copied through
 `export-mlx` remain `mlx-lm` compatible when their original architecture is
 supported by `mlx-lm`.
+
+## Specialist packages
+
+For trained modules that should be shared or routed in an app, pair the MLX
+export with a specialist package under `specialists/<id>/`:
+
+- `model_card.md` for the human-facing claim and limitations.
+- `prompt.md` for the measured system/developer prompt.
+- `eval_report.json` for machine-readable scores and regressions.
+- `tinygpt.lock.json` for artifact files, sizes, checksums, base model, and
+  compatibility.
+- `mlx_load.py` for cheap metadata validation and optional MLX loading.
+
+The first package is `specialists/qwen3-4b-file-ops-distilled`: a real fused
+Qwen3-4B file-ops specialist stored at `~/.cache/tinygpt/models/mt4b_fused`.

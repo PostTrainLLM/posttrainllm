@@ -21,6 +21,7 @@ For Pace work, TinyGPT is now the development-time factory and eval lab: it prod
 - `tinygpt eval-gate` has the no-GPU gate path, baseline re-stamping, `--passes`, repeated-run uncertainty reporting, and optional B23 budget metadata in `gate-result.json`; Swift eval rows emitted via `EvalHarnessSupport` now carry the same protocol block when a budget is provided.
 - `tinygpt export-mlx` packages distilled/trained `.tinygpt` checkpoints and fine-tuned `.lora` / `.tgla` adapters into MLX-friendly safetensors directories with config/tokenizer sidecars and a Python MLX loader helper.
 - Planner-model selection is locked for Pace as of 2026-06-19: **Qwen3-4B-Instruct-2507 bf16, stock weights, plan-then-execute prompt** is the default general planner. Gemma remains a challenger/unhappy-path reference, the file-ops distilled 4B is routed-only, 0.6B is smoke-only, and deferred tools stay off by default. See `docs/planner-lock-2026-06-19.md`.
+- The first TinyGPT-built specialist package is registered under `specialists/qwen3-4b-file-ops-distilled`: model card, prompt, eval report, artifact lock, and MLX validation helper for the fused file-ops distilled 4B in `~/.cache/tinygpt/models/mt4b_fused`.
 - `tinygpt eval-bfcl` can pass `--tools` / `--tool-mode full|deferred` into its managed server; a one-sample demo-model BFCL smoke completed for both modes. The real B26 acceptance gate still requires the full specialist BFCL run.
 
 ## Planned Next

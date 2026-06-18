@@ -1,9 +1,6 @@
 ---
 title: Self-improving agents — the closed loop (PRD)
-description: Close the act -> score -> learn -> curriculum loop so a Mac-local agent improves
-  itself with NO teacher, using a verifiable reward. The smallest proof: a teacher-free ReST
-  loop on the file-ops env that raises pass-rate round over round. The compounding engine:
-  an automatic curriculum that keeps proposing tasks at the edge of the agent's ability.
+description: "Close the act -> score -> learn -> curriculum loop so a Mac-local agent improves itself with NO teacher, using a verifiable reward. The smallest proof: a teacher-free ReST loop on the file-ops env that raises pass-rate round over round. The compounding engine: an automatic curriculum that keeps proposing tasks at the edge of the agent's ability."
 status: proposed
 ---
 

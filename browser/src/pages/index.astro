@@ -4,7 +4,7 @@ import Default from "../layouts/Default.astro";
 
 <Default
   title="TinyGPT — an open-source LLM factory and runtime that lives on your Mac"
-  description="Distill a 4B specialist that matches frontier on a multi-turn agent gate. Train, fine-tune (LoRA / DoRA / QLoRA), evaluate (BFCL / τ-bench / lm-eval), serve OpenAI-compatible, and inspect with SAE / MEMIT / patch — all on one Apple Silicon machine. MIT licensed. Built in the open by one developer."
+  description="Distill routed specialists, package them for MLX, and know exactly where they fail. Train, fine-tune (LoRA / DoRA / QLoRA), evaluate (BFCL / τ-bench / lm-eval), serve OpenAI-compatible, and inspect with SAE / MEMIT / patch — all on one Apple Silicon machine. MIT licensed. Built in the open by one developer."
   ogTitle="TinyGPT — an open-source LLM factory that lives on your Mac"
   ogDescription="Distill, fine-tune, evaluate, serve, and inspect LLMs on a single Mac. Runs in a browser tab too. MIT."
   twitterTitle="TinyGPT — an open-source LLM factory that lives on your Mac"
@@ -31,7 +31,7 @@ import Default from "../layouts/Default.astro";
     <section class="hero" aria-labelledby="hero-h1">
       <p class="hero-kicker">An open-source LLM factory for one Mac.</p>
       <h1 id="hero-h1">
-        Distill a specialist that matches frontier &mdash;
+        Build routed specialists that earn their keep &mdash;
         <span class="highlight">on a laptop you already own.</span>
       </h1>
       <p class="hero-lede">
@@ -41,7 +41,9 @@ import Default from "../layouts/Default.astro";
         (BFCL, &tau;&#8209;bench, lm&#8209;eval), serve OpenAI&#8209;compatible,
         and open the model up with sparse autoencoders, MEMIT, activation
         patching. Same model also trains and runs in a browser tab via
-        hand&#8209;written WebGPU kernels.
+        hand&#8209;written WebGPU kernels. The first packaged specialist is
+        honest by design: frontier&#8209;level on file&#8209;ops, routed only because
+        it regresses outside that domain.
       </p>
 
       <div class="cta-row">
@@ -65,14 +67,14 @@ import Default from "../layouts/Default.astro";
     <section class="number-card" aria-labelledby="num-h2">
       <p class="num-eyebrow">The strongest measured claim</p>
       <h2 id="num-h2" class="num-h2">
-        A 4B model, locally distilled, matches the frontier on the
-        multi&#8209;turn hard gate.
+        A 4B routed file&#8209;ops specialist, locally distilled, matches the
+        frontier on its multi&#8209;turn hard gate.
       </h2>
 
       <div class="num-figure">
         <div class="num-figure-left">
           <span class="num-hero" aria-hidden="true">100<span class="num-pct">%</span></span>
-          <span class="num-hero-label">Qwen3&#8209;4B, distilled</span>
+          <span class="num-hero-label">Qwen3&#8209;4B file&#8209;ops specialist</span>
         </div>
         <ul class="num-bars" aria-label="Multi-turn hard gate, task-completion rate by model">
           <li>
@@ -84,7 +86,7 @@ import Default from "../layouts/Default.astro";
           </li>
           <li class="is-us">
             <span class="bar-row">
-              <span class="bar-label">Qwen3&#8209;4B (distilled) <span class="bar-tag bar-tag-accent">tinygpt</span></span>
+              <span class="bar-label">Qwen3&#8209;4B file&#8209;ops specialist <span class="bar-tag bar-tag-accent">tinygpt</span></span>
               <span class="bar-track"><span class="bar-fill bar-fill-accent" style="--w:100%"></span></span>
               <span class="bar-value">100<span class="pct">%</span></span>
             </span>
@@ -116,8 +118,11 @@ import Default from "../layouts/Default.astro";
       <p class="num-caption">
         BFCL multi&#8209;turn hard gate, n=12 GorillaFileSystem agentic tasks,
         task&#8209;completion rate. Distillation: ~99 frontier trajectories &times;
-        LoRA SFT, single Mac, no cloud train. Cheap&#8209;specialist&nbsp;&gt;&nbsp;bigger&#8209;general
-        is the project thesis &mdash; not "4B&nbsp;&gt;&nbsp;12B in general."
+        LoRA SFT, single Mac, no cloud train. Cheap routed specialist&nbsp;&gt;&nbsp;bigger general
+        on one domain is the project thesis &mdash; not "4B&nbsp;&gt;&nbsp;12B in general."
+        The same file&#8209;ops specialist regresses on out&#8209;of&#8209;domain breadth
+        (60&nbsp;&rarr;&nbsp;42%), so TinyGPT packages it with the caveat instead of
+        pretending it is a general planner.
         <a href="/docs/learn/tool-calling-frontier-parity">Full writeup, including the honest tradeoffs &rarr;</a>
       </p>
     </section>
@@ -1357,4 +1362,3 @@ tinygpt serve --model ./student.tinygpt --port 8080</code></pre>
     }
   }
 </style>
-

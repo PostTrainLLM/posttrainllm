@@ -1,8 +1,6 @@
 ---
 title: Mathematically essential vs engineering optimization
-description: The single most useful lens on this project — which parts compute the model's
-  function (irreducible math, the correctness oracle) vs which parts only make that function
-  cheaper/faster (the optimization layer). Plus the one number that polices the boundary: loss drift.
+description: "The single most useful lens on this project — which parts compute the model's function (irreducible math, the correctness oracle) vs which parts only make that function cheaper/faster (the optimization layer). Plus the one number that polices the boundary: loss drift."
 ---
 
 # Mathematically essential vs engineering optimization

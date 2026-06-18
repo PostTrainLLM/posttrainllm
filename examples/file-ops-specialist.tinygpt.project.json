@@ -1,0 +1,28 @@
+{
+  "_doc": "Example project pinning the routed file-ops specialist package. Use this only behind a domain router; it is not the general planner.",
+  "name": "file-ops-specialist-project",
+  "tinygpt_version": ">=2026.06",
+  "models": [
+    {
+      "id": "qwen3-4b-file-ops-distilled",
+      "role": "routed-specialist",
+      "package": "specialists/qwen3-4b-file-ops-distilled",
+      "applies_to": "file-ops"
+    }
+  ],
+  "datasets": [],
+  "eval": {
+    "baseline": "evals/baseline.jsonl",
+    "default_threshold": 2.0,
+    "suites": [
+      {
+        "name": "file-ops-hard",
+        "task": "multi-turn-file-ops",
+        "command": [
+          "scripts/headtohead_multiturn.sh",
+          "specialists/qwen3-4b-file-ops-distilled"
+        ]
+      }
+    ]
+  }
+}
