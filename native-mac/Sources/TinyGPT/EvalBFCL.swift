@@ -5,6 +5,8 @@ enum EvalBFCL {
         var categories = "simple,multiple,parallel,parallel_multiple,relevance,irrelevance,live_simple,live_multiple,live_parallel,live_parallel_multiple"
         var root = "\(FileManager.default.homeDirectoryForCurrentUser.path)/.cache/tinygpt/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"
         var bfclModel = "openbmb/MiniCPM-SALA-FC"
+        var toolsPath: String?
+        var toolMode = "full"
         let parsed = EvalHarnessSupport.parseCommon(args, usage: { exitUsage() })
         var common = parsed.0
         let rest = parsed.1
@@ -14,13 +16,27 @@ enum EvalBFCL {
             case "--tasks", "--categories": categories = rest[i + 1]; i += 2
             case "--bfcl-root": root = rest[i + 1]; i += 2
             case "--bfcl-model": bfclModel = rest[i + 1]; i += 2
+            case "--tools": toolsPath = rest[i + 1]; i += 2
+            case "--tool-mode":
+                toolMode = rest[i + 1]
+                guard toolMode == "full" || toolMode == "deferred" else {
+                    fputs("--tool-mode must be full or deferred\n", stderr); exitUsage()
+                }
+                i += 2
             default: fputs("unknown flag: \(rest[i])\n", stderr); exitUsage()
             }
         }
         common = EvalHarnessSupport.require(common, usage: { exitUsage() })
         guard let model = common.modelPath else { exitUsage() }
 
-        let serve = EvalHarnessSupport.startServe(modelPath: model, port: common.servePort)
+        var serveArgs: [String] = []
+        if let toolsPath {
+            serveArgs += ["--tools", toolsPath, "--tool-mode", toolMode]
+        } else if toolMode != "full" {
+            fputs("--tool-mode deferred requires --tools <path.json>\n", stderr)
+            exitUsage()
+        }
+        let serve = EvalHarnessSupport.startServe(modelPath: model, port: common.servePort, extraArgs: serveArgs)
         defer { if serve.isRunning { serve.terminate() } }
 
         let work = URL(fileURLWithPath: "/tmp/tinygpt-bfcl-\(UUID().uuidString.prefix(8))")
@@ -86,8 +102,11 @@ enum EvalBFCL {
         --tasks <csv>           BFCL categories (default: core non-exec set)
         --limit N               reserved for future BFCL run-id sampling
         --serve-port N          local tinygpt serve port (default: 8097)
+        --budget <json>         fixed eval budget metadata for emitted rows
         --bfcl-root <dir>       local BFCL checkout
         --bfcl-model NAME       BFCL registry model id (default: openbmb/MiniCPM-SALA-FC)
+        --tools <json>          OpenAI-compatible tool schema passed to serve
+        --tool-mode MODE        serve tool mode: full|deferred (default: full)
         --model-name NAME       display name in eval-compare
         --model-step N          checkpoint step
         """)

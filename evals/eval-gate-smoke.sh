@@ -75,6 +75,57 @@ else
   echo "  ✗ repeated-run stats or protocol budget missing from gate-result.json"; fail=1
 fi
 
+echo "==> command-driven suite receives protocol env"
+cat > "$WORK/emit-row.py" <<'PY'
+import json, os, sys, time, uuid
+budget_path = os.environ.get("TINYGPT_EVAL_BUDGET")
+out = os.environ["TINYGPT_EVAL_OUT"]
+passes = int(os.environ.get("TINYGPT_EVAL_PASSES", "1"))
+if not budget_path:
+    raise SystemExit("TINYGPT_EVAL_BUDGET missing")
+budget = json.load(open(budget_path))
+row = {
+    "run_id": str(uuid.uuid4()),
+    "model_path": "/tmp/protocol-env-model",
+    "model_name": "protocol-env-model",
+    "baseline": False,
+    "task": "bfcl",
+    "subtask": "simple",
+    "metric": "accuracy",
+    "score": 0.8,
+    "n_examples": 1,
+    "wall_seconds": 0.0,
+    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    "harness_version": "env-smoke",
+    "protocol": {"passes": passes, "budget": budget},
+}
+with open(out, "a") as f:
+    f.write(json.dumps(row, sort_keys=True) + "\n")
+PY
+cat > "$WORK/command-spec.json" <<JSON
+{
+  "baseline": "$BASELINE",
+  "default_threshold": 2.0,
+  "suites": [
+    {
+      "name": "bfcl",
+      "task": "bfcl",
+      "subtask": "simple",
+      "metric": "accuracy",
+      "command": ["python3", "$WORK/emit-row.py"]
+    }
+  ]
+}
+JSON
+assert_exit 0 "command suite receives TINYGPT_EVAL_BUDGET/PASSES" \
+  "$TINYGPT" eval-gate --spec "$WORK/command-spec.json" \
+    --passes 2 --budget "$BUDGET" --out "$WORK/gate-command.json"
+if python3 -c "import json,sys; d=json.load(open('$WORK/gate-command.json')); p=d.get('protocol') or {}; ok=d.get('passed') is True and p.get('passes')==2; sys.exit(0 if ok else 1)"; then
+  echo "  ✓ command-driven gate-result preserves protocol passes"
+else
+  echo "  ✗ command-driven protocol metadata missing"; fail=1
+fi
+
 echo "==> --update-baseline re-stamps from a candidate run"
 cp "$BASELINE" "$WORK/baseline.jsonl"
 assert_exit 0 "update-baseline succeeds" \

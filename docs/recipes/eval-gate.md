@@ -66,6 +66,11 @@ When a suite has repeated rows, the JSON keeps the trial scores plus n,
 stdev, stderr, and 95% CI under `candidateStats`; the console renders the
 candidate cell as `mean±ci95`.
 
+Suite commands receive the budget path as `TINYGPT_EVAL_BUDGET` and the outer
+pass count as `TINYGPT_EVAL_PASSES`. Swift harness rows emitted through
+`EvalHarnessSupport.appendRow` attach the same `"protocol"` block beside their
+raw scores.
+
 When `--budget` is passed, the report also includes a `"protocol"` block:
 
 ```json

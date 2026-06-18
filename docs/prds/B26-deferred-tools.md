@@ -100,7 +100,10 @@ The decision to keep serve-side interception (rather than expose a
 ## BFCL parity ship gate
 
 Deferred mode is OFF by default until BFCL says it doesn't regress.
-The gate (not run by this PR; user runs against a loaded model):
+As of 2026-06-19, `tinygpt eval-bfcl` can pass `--tools <json>` and
+`--tool-mode {full,deferred}` through to the server it starts, so the gate is
+runnable from the Swift harness. The full acceptance gate still needs a loaded
+specialist model and the 10-category BFCL run:
 
 ```
 # baseline
@@ -115,6 +118,11 @@ pkill -f "tinygpt serve"
 
 tinygpt eval-compare /tmp/bfcl-full.jsonl /tmp/bfcl-deferred.jsonl --by model
 ```
+
+Bounded wiring smoke run 2026-06-19: `browser/public/demo.tinygpt`, one BFCL
+`simple` item, same toy tools file, full vs deferred. Both modes completed and
+scored 0/1 (random demo model parse errors), proving the server mode switch and
+harness pass-through work; this is not an acceptance-quality parity result.
 
 **Accept** if the deferred BFCL average is within ±2pp of the full
 average across the 10 BFCL categories, AND the average number of

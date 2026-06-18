@@ -1,4 +1,5 @@
 import Foundation
+import TinyGPTModel
 
 /// Shared schema for every `tinygpt eval-*` subcommand + a comparison
 /// CLI that ingests multiple eval JSONLs and renders a pivot table.
@@ -30,13 +31,22 @@ public enum EvalCompare {
         public let wall_seconds: Double
         public let timestamp: String       // ISO8601
         public let harness_version: String?
+        public let evalProtocol: EvalGate.AgentEvalProtocol?
+
+        enum CodingKeys: String, CodingKey {
+            case run_id, model_path, model_name, model_step, baseline
+            case task, subtask, metric, score, n_examples, wall_seconds
+            case timestamp, harness_version
+            case evalProtocol = "protocol"
+        }
 
         public init(run_id: String, model_path: String, model_name: String,
                     model_step: Int? = nil, baseline: Bool = false,
                     task: String, subtask: String? = nil,
                     metric: String, score: Double, n_examples: Int,
                     wall_seconds: Double, timestamp: String? = nil,
-                    harness_version: String? = nil) {
+                    harness_version: String? = nil,
+                    evalProtocol: EvalGate.AgentEvalProtocol? = nil) {
             self.run_id = run_id
             self.model_path = model_path
             self.model_name = model_name
@@ -50,6 +60,7 @@ public enum EvalCompare {
             self.wall_seconds = wall_seconds
             self.timestamp = timestamp ?? ISO8601DateFormatter().string(from: Date())
             self.harness_version = harness_version
+            self.evalProtocol = evalProtocol
         }
 
         /// Helper for harness wrappers — encode + append one row.

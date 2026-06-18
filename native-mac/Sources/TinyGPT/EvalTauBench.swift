@@ -74,6 +74,7 @@ enum EvalTauBench {
         --env retail|airline      tau-bench env (default: retail)
         --limit N                 first N tasks (default: full)
         --serve-port N            local tinygpt serve port (default: 8097)
+        --budget <json>           fixed eval budget metadata for emitted rows
         --tau-root <dir>          local tau-bench checkout
         --user-model NAME         user simulator model (default: gpt-4o)
         --user-provider NAME      user simulator provider (default: openai)

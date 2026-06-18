@@ -48,6 +48,21 @@ assert len(header) > 0
 assert any(k.endswith(".weight") for k in header)
 PY
 
+if python3 - <<'PY' >/dev/null 2>&1
+import mlx.core as mx
+PY
+then
+  python3 "$WORK/model-mlx/mlx_load.py" "$WORK/model-mlx" >/tmp/export-mlx-loader.out
+  python3 - <<'PY' || exit 1
+import json
+data = json.load(open("/tmp/export-mlx-loader.out"))
+assert data["artifact_type"] == "full_model"
+assert data["tensor_count"] > 0
+PY
+else
+  echo "python mlx unavailable; skipped mlx_load.py execution"
+fi
+
 echo "--- adapter export ---"
 python3 - "$WORK/fake.lora" <<'PY'
 import json, struct, sys

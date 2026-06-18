@@ -178,6 +178,7 @@ enum EvalGateCommand {
                 if let budgetPath {
                     env["TINYGPT_EVAL_BUDGET"] = budgetPath
                 }
+                env["TINYGPT_EVAL_PASSES"] = "\(max(1, passes))"
                 let status = EvalHarnessSupport.runProcess(exeURL, expanded, env: env)
                 if status != 0 {
                     fputs("suite '\(suite.name)' exited \(status) on pass \(pass + 1)\n", stderr)

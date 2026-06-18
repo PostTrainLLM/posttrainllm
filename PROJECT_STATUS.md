@@ -18,8 +18,9 @@ For Pace work, TinyGPT is now the development-time factory and eval lab: it prod
 - The Pace v9 serve path now precomputes tokenizer byte tables once at server boot for much faster grammar-constrained first-token latency. A trie-based grammar-mask experiment was implemented but left disabled after measurement showed it was slower than the legacy path.
 - Pace v9/v10 grammar and dataset-helper assets are staged as factory inputs, with remaining train/eval/runtime work tracked as SaaS Maker tasks instead of uncompleted PRD files.
 - The eval methodology gate found by #270 is no longer a vague blocker: FakePace/rule-baseline evidence and v2 fixtures exist in `scripts/fake_pace.py` and `docs/learn/eval-methodology-2026-06-08.md`.
-- `tinygpt eval-gate` has the no-GPU gate path, baseline re-stamping, `--passes`, repeated-run uncertainty reporting, and optional B23 budget metadata in `gate-result.json`.
+- `tinygpt eval-gate` has the no-GPU gate path, baseline re-stamping, `--passes`, repeated-run uncertainty reporting, and optional B23 budget metadata in `gate-result.json`; Swift eval rows emitted via `EvalHarnessSupport` now carry the same protocol block when a budget is provided.
 - `tinygpt export-mlx` packages distilled/trained `.tinygpt` checkpoints and fine-tuned `.lora` / `.tgla` adapters into MLX-friendly safetensors directories with config/tokenizer sidecars and a Python MLX loader helper.
+- `tinygpt eval-bfcl` can pass `--tools` / `--tool-mode full|deferred` into its managed server; a one-sample demo-model BFCL smoke completed for both modes. The real B26 acceptance gate still requires the full specialist BFCL run.
 
 ## Planned Next
 
