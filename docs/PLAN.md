@@ -601,6 +601,7 @@ After these: training-dependent (specialist Wave 3, Mini-Llama+ANE, Tier 5 modal
 - ✅ to-coreml conversion bridge (`tinygpt to-coreml` — generates a tailored Python conversion script for the user's coremltools install; now end-to-end runnable via safetensors hop)
 - ✅ Safetensors writer (`TinyGPTModel/SafetensorsWriter.swift` — HF-compatible binary format; shared foundation)
 - ✅ `tinygpt to-safetensors` — converts `.tinygpt` → `model.safetensors` with HF Llama tensor names (or `--keep-names` for native). Verified 196 tensors / 38.4 MB / valid HF format on the shakespeare gallery model.
+- ✅ `tinygpt export-mlx` — packages `.tinygpt` students, `.lora` / `.tgla` adapters, and existing HF dirs as MLX-friendly safetensors directories with config/tokenizer sidecars plus `mlx_load.py`. This is the interop path for users who want to take TinyGPT fine-tune/distill artifacts into Python MLX or MLX-Swift.
 - ✅ `gguf-extract` materializes weights to safetensors — output directory is now a complete HuggingFace model bundle loadable via `transformers.AutoModelForCausalLM.from_pretrained()`. Verified on a 21-tensor llama-shape GGUF: tokenizer.json + tokenizer_config.json + config.json + model.safetensors all populated.
 - ✅ to-coreml safetensors bridge — Python script no longer stubbed; loads weights via `safetensors.torch.load_file()` with full HF Llama → TinyGPT name-map. `py_compile` clean.
 

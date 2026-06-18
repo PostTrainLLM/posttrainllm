@@ -60,6 +60,10 @@ $BIN sample /tmp/tiny.tinygpt --prompt "ROMEO:" --max-tokens 100
 $BIN sft <hf-model-dir-or-id> \
   --data your-corpus.jsonl --out my-adapter.tgla
 
+# Export a distilled model or adapter for Python MLX / MLX-Swift
+$BIN export-mlx /tmp/tiny.tinygpt --out /tmp/tiny-mlx
+$BIN export-mlx my-adapter.tgla --out ./my-adapter-mlx
+
 # Serve any tinygpt or HF model on an OpenAI-compatible endpoint
 $BIN serve <model> --port 8090
 curl http://localhost:8090/v1/chat/completions \
