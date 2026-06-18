@@ -13,10 +13,12 @@ related_prds: B22-trajectory-recorder.md, B21-micro-automixer.md (Poolside-disci
 > **Status (2026-06-18): partial shipped.** `tinygpt eval-gate --passes K`
 > now preserves repeated-run uncertainty in `gate-result.json`: per-suite
 > trial scores, n, stdev, stderr, and 95% CI are attached to the candidate
-> result, and the console table renders `mean±ci95_half_width`. This covers
-> the statistical-reporting half of the PRD for B32. Remaining B23 work:
-> declarative budget config (`--budget`), budget logging in BFCL / tau /
-> Pace unhappy harness outputs, and `eval-compare` error-bar rendering.
+> result, and the console table renders `mean±ci95_half_width`. `--budget
+> evals/sample-budget.json` now attaches the fixed eval budget under the
+> report's `"protocol"` block and exposes its path to suite commands as
+> `TINYGPT_EVAL_BUDGET`. Remaining B23 work: budget logging in BFCL / tau /
+> Pace unhappy harness output rows, `eval-compare` error-bar rendering, and
+> actual sandbox/resource enforcement.
 
 ## Goal
 
@@ -92,8 +94,8 @@ under (max_steps=8, T=0, sandbox=1cpu+512mb)".
 
 | File | Change |
 |---|---|
-| `Sources/TinyGPTModel/EvalGate.swift` | shipped partial — `PassStats` + K-pass mean/stdev/stderr/ci95 for gate results |
-| `Sources/TinyGPTModel/AgentEvalProtocol.swift` | remaining — shared budget/run-summary types |
+| `Sources/TinyGPTModel/EvalGate.swift` | shipped partial — `PassStats`, `AgentEvalBudget`, `AgentEvalProtocol` for gate results |
+| `evals/sample-budget.json` | shipped partial — example fixed budget config |
 | `Sources/TinyGPT/EvalBFCL.swift` | `--passes K --budget` wiring |
 | `Sources/TinyGPT/EvalTauBench.swift` | same |
 | `scripts/eval_pace_unhappy.py` | `--passes K`; aggregate per-trial via mean ± stdev |
@@ -111,6 +113,7 @@ under (max_steps=8, T=0, sandbox=1cpu+512mb)".
   runs 3 passes per BFCL category and emits the `AgentEvalRunSummary`
   shape.
 - [x] `tinygpt eval-gate --passes K` gates on K-pass means and writes per-trial scores + 95% CI to `gate-result.json`.
+- [x] `tinygpt eval-gate --budget evals/sample-budget.json` writes budget metadata to `gate-result.json`.
 - [ ] Default K=1 with default budget reproduces today's exact output
   format (back-compat).
 - [ ] `tinygpt eval-compare` renders error bars when `ci95` is present.

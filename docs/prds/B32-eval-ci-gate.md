@@ -13,11 +13,12 @@ related_prds: E1-bfcl-eval.md, E2-tau-bench-eval.md (the shipped harnesses this 
 > **Status (updated 2026-06-18): scaffolding shipped.** Pure gate logic
 > (`TinyGPTModel/EvalGate.swift`: direction heuristic, pp thresholds,
 > per-suite override, missing-baseline handling, K-pass mean + repeated-run
-> stdev/stderr/95% CI in `gate-result.json`) with unit tests in
+> stdev/stderr/95% CI + optional B23 budget metadata in `gate-result.json`)
+> with unit tests in
 > `EvalGateTests.swift`. CLI (`Sources/TinyGPT/EvalGate.swift`):
 > `--spec` / `eval-gate.json` / `tinygpt.project.json` `eval` block
 > resolution, `--candidate` (no-GPU path), `--baseline`, `--threshold`,
-> `--passes`, `--update-baseline`, `gate-result.json`, exit 0/1. Action at
+> `--passes`, `--budget`, `--update-baseline`, `gate-result.json`, exit 0/1. Action at
 > `.github/actions/tinygpt-eval-gate/`, recipe `docs/recipes/eval-gate.md`,
 > smoke `evals/eval-gate-smoke.sh` (asserts both exit codes against committed
 > fixtures, including repeated-row CI output). **Remaining to flip to ✅:**

@@ -16,6 +16,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FIX="$ROOT/evals/eval-gate-fixtures"
 SPEC="$FIX/eval-gate.json"
 BASELINE="$FIX/baseline.jsonl"
+BUDGET="$ROOT/evals/sample-budget.json"
 
 # Resolve the tinygpt binary: prefer release, then debug, else build.
 TINYGPT="$ROOT/native-mac/.build/release/tinygpt"
@@ -67,11 +68,11 @@ fi
 echo "==> K-pass candidate stats are preserved"
 assert_exit 0 "repeated candidate passes with uncertainty stats" \
   "$TINYGPT" eval-gate --spec "$SPEC" --baseline "$BASELINE" \
-    --candidate "$FIX/candidate-repeat.jsonl" --passes 3 --out "$WORK/gate-repeat.json"
-if python3 -c "import json,sys; d=json.load(open('$WORK/gate-repeat.json')); s=d['suites'][0].get('candidateStats'); sys.exit(0 if s and s['n']==3 and 'ci95Low' in s and 'ci95High' in s and len(s['trialScores'])==3 else 1)"; then
+    --candidate "$FIX/candidate-repeat.jsonl" --passes 3 --budget "$BUDGET" --out "$WORK/gate-repeat.json"
+if python3 -c "import json,sys; d=json.load(open('$WORK/gate-repeat.json')); s=d['suites'][0].get('candidateStats'); p=d.get('protocol') or {}; b=p.get('budget') or {}; ok=s and s['n']==3 and 'ci95Low' in s and 'ci95High' in s and len(s['trialScores'])==3 and p.get('passes')==3 and b.get('max_steps')==8 and b.get('sampling_seed')==17; sys.exit(0 if ok else 1)"; then
   echo "  ✓ gate-result.json carries n/stdev/ci95/trialScores for repeated rows"
 else
-  echo "  ✗ repeated-run stats missing from gate-result.json"; fail=1
+  echo "  ✗ repeated-run stats or protocol budget missing from gate-result.json"; fail=1
 fi
 
 echo "==> --update-baseline re-stamps from a candidate run"

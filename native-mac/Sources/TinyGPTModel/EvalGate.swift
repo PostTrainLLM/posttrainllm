@@ -191,17 +191,70 @@ public enum EvalGate {
         }
     }
 
+    public struct AgentEvalBudget: Codable, Sendable, Hashable {
+        public let maxSteps: Int?
+        public let sandboxCpus: Double?
+        public let sandboxRamMb: Int?
+        public let temperature: Double?
+        public let topP: Double?
+        public let samplingSeed: Int?
+        public let infraPatches: [String]
+
+        public init(maxSteps: Int? = nil,
+                    sandboxCpus: Double? = nil,
+                    sandboxRamMb: Int? = nil,
+                    temperature: Double? = nil,
+                    topP: Double? = nil,
+                    samplingSeed: Int? = nil,
+                    infraPatches: [String] = []) {
+            self.maxSteps = maxSteps
+            self.sandboxCpus = sandboxCpus
+            self.sandboxRamMb = sandboxRamMb
+            self.temperature = temperature
+            self.topP = topP
+            self.samplingSeed = samplingSeed
+            self.infraPatches = infraPatches
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case maxSteps = "max_steps"
+            case sandboxCpus = "sandbox_cpus"
+            case sandboxRamMb = "sandbox_ram_mb"
+            case temperature
+            case topP = "top_p"
+            case samplingSeed = "sampling_seed"
+            case infraPatches = "infra_patches"
+        }
+    }
+
+    public struct AgentEvalProtocol: Codable, Sendable, Hashable {
+        public let passes: Int
+        public let budget: AgentEvalBudget?
+
+        public init(passes: Int = 1, budget: AgentEvalBudget? = nil) {
+            self.passes = max(1, passes)
+            self.budget = budget
+        }
+    }
+
     public struct Report: Codable, Sendable {
         public let suites: [SuiteResult]
         public let passed: Bool
         public let failedCount: Int
         public let missingCount: Int
+        public let evalProtocol: AgentEvalProtocol?
 
-        public init(suites: [SuiteResult]) {
+        enum CodingKeys: String, CodingKey {
+            case suites, passed, failedCount, missingCount
+            case evalProtocol = "protocol"
+        }
+
+        public init(suites: [SuiteResult], evalProtocol: AgentEvalProtocol? = nil) {
             self.suites = suites
             self.failedCount = suites.filter { $0.verdict == .fail }.count
             self.missingCount = suites.filter { $0.verdict == .missing }.count
             self.passed = failedCount == 0
+            self.evalProtocol = evalProtocol
         }
     }
 
@@ -221,7 +274,8 @@ public enum EvalGate {
     public static func evaluate(baseline: [Row],
                                 candidate: [Row],
                                 candidateStats: [String: PassStats],
-                                spec: Spec) -> Report {
+                                spec: Spec,
+                                evalProtocol: AgentEvalProtocol? = nil) -> Report {
         let baseByKey = Dictionary(baseline.map { ($0.key, $0) },
                                    uniquingKeysWith: { _, b in b })
 
@@ -266,7 +320,7 @@ public enum EvalGate {
                 thresholdPP: threshold,
                 verdict: verdict))
         }
-        return Report(suites: results)
+        return Report(suites: results, evalProtocol: evalProtocol)
     }
 
     /// Collapse rows sharing a key into one row whose score is the mean.

@@ -58,12 +58,36 @@ Re-run `--update-baseline` whenever you *intentionally* move the numbers
 ```bash
 tinygpt eval-gate                 # exit 0 = all suites within threshold; 1 = a regression
 tinygpt eval-gate --passes 3      # run each suite 3× and gate on the mean (noise guard)
+tinygpt eval-gate --budget evals/sample-budget.json
 ```
 
 It prints a per-suite table and writes `gate-result.json` (machine-readable).
 When a suite has repeated rows, the JSON keeps the trial scores plus n,
 stdev, stderr, and 95% CI under `candidateStats`; the console renders the
 candidate cell as `mean±ci95`.
+
+When `--budget` is passed, the report also includes a `"protocol"` block:
+
+```json
+{
+  "protocol": {
+    "passes": 3,
+    "budget": {
+      "max_steps": 8,
+      "sandbox_cpus": 1.0,
+      "sandbox_ram_mb": 512,
+      "temperature": 0.0,
+      "top_p": 1.0,
+      "sampling_seed": 17,
+      "infra_patches": []
+    }
+  }
+}
+```
+
+Suite commands receive the budget path as `TINYGPT_EVAL_BUDGET`; BFCL,
+τ-bench, and Pace unhappy-path harnesses can use that to log the same
+budget beside their raw rows.
 
 ## GitHub Action
 
@@ -113,7 +137,7 @@ JSONL and reserve the full run for CI.
 bash evals/eval-gate-smoke.sh    # asserts exit 0 (match) + exit 1 (regression) with fixtures
 ```
 
-The smoke also checks repeated-run stats using
+The smoke also checks repeated-run stats and budget metadata using
 `evals/eval-gate-fixtures/candidate-repeat.jsonl`, so this path stays
 covered without starting a model or server.
 

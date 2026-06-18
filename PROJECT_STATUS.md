@@ -18,12 +18,12 @@ For Pace work, TinyGPT is now the development-time factory and eval lab: it prod
 - The Pace v9 serve path now precomputes tokenizer byte tables once at server boot for much faster grammar-constrained first-token latency. A trie-based grammar-mask experiment was implemented but left disabled after measurement showed it was slower than the legacy path.
 - Pace v9/v10 grammar and dataset-helper assets are staged as factory inputs, with remaining train/eval/runtime work tracked as SaaS Maker tasks instead of uncompleted PRD files.
 - The eval methodology gate found by #270 is no longer a vague blocker: FakePace/rule-baseline evidence and v2 fixtures exist in `scripts/fake_pace.py` and `docs/learn/eval-methodology-2026-06-08.md`.
-- `tinygpt eval-gate` has the no-GPU gate path, baseline re-stamping, `--passes`, and repeated-run uncertainty reporting in `gate-result.json` (trial scores, stdev, stderr, 95% CI).
+- `tinygpt eval-gate` has the no-GPU gate path, baseline re-stamping, `--passes`, repeated-run uncertainty reporting, and optional B23 budget metadata in `gate-result.json`.
 
 ## Planned Next
 
 1. Run a real specialist through the `eval-gate` command-driven path on a self-hosted Mac runner; only then mark B32 fully ✅ in `docs/PLAN.md`.
-2. Finish B23's remaining protocol work: declarative budget config/logging for BFCL, τ-bench, Pace unhappy paths, and future agent suites.
+2. Finish B23's remaining protocol work: budget logging in BFCL, τ-bench, Pace unhappy paths, and future agent-suite rows, then actual sandbox/resource enforcement.
 3. Close B26 deferred-tool mode with the BFCL full-vs-deferred parity gate before flipping defaults.
 4. Continue the trace-improvement loop: B22 trajectories → B29 SFT data, then add the judged/rewarded DPO path once B23/B28 make the scores auditable.
 5. Preserve trained checkpoints and generated gallery artifacts unless a cleanup is explicitly requested.
