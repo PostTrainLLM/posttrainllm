@@ -53,7 +53,7 @@ Three of these are the harder reasoning + abstract cases. To close
 to ≥85% (the ship-worthy bar), v9 would need ~10 more examples
 targeting these specific failure shapes.
 
-**Training corpus** (committed in `scripts/pace-v8-augment.py`):
+**Training corpus** (committed in `scripts/archive/pace-v8-augment.py`):
 - 248 v5 rows (semantic-rich, action-tag-aware base)
 - 29 semantic disambiguation rows
 - 18 multi-element reasoning rows

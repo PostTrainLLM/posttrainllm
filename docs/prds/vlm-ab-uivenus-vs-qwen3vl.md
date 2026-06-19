@@ -47,7 +47,7 @@ For each model:
    - **Click**: response label matches AX-tree label OR (x,y) lies inside ground-truth bounds
    - **Activity**: LLM-as-judge (Qwen3-14B teacher) scores 0-2 on coverage
 
-Eval script: `scripts/eval_pace_vlm_ab.py` (write — extends eval_pace_v2.py pattern).
+Eval script: `scripts/archive/eval_pace_vlm_ab.py` (write — extends eval_pace_v2.py pattern).
 
 ### Metrics captured
 

@@ -104,7 +104,7 @@ Theory: [advanced-llm-training](./advanced-llm-training.md) (ZeRO/FSDP/3D parall
 
 **Buildable hands-on (you don't need a cluster to learn the primitives) — DP PoC ran 2026-06-17:**
 MLX ships `mx.distributed` (`all_sum` / `all_gather` / `sum_scatter` / `send` / `recv`) + `mlx.launch`.
-`scripts/dist_dp_poc.py` ran **data-parallel all-reduce** across n=2/4 ranks on one Mac and proved
+`scripts/archive/dist_dp_poc.py` ran **data-parallel all-reduce** across n=2/4 ranks on one Mac and proved
 replicas stay **bit-identical** (per-rank param checksums matched; effective batch scaled 64→128→256).
 So all-reduce, sharded data, and lockstep replicas are learned firsthand; next rung = **toy ZeRO**
 (shard optimizer state via `sum_scatter`, re-gather with `all_gather`). The *scale* needs a cluster,

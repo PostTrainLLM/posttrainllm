@@ -48,7 +48,7 @@ Show **one** distilled small model, as **one** NPC's brain, measurably improve a
 3. **GRPO trainer**: reuse the validated loop (group-normalized advantage, KL-to-ref,
    grad-accumulation — the same structure as our tool-calling GRPO). Generalize it to
    take an `(env.reset, env.step, reward)` interface instead of the BFCL prompt set.
-   Skeleton: `scripts/game_rl_poc.py` (this PR).
+   Skeleton: `scripts/archive/game_rl_poc.py` (this PR).
 4. **Loop**: sample K rollouts of the NPC acting in the scenario → reward each →
    group-normalize → policy-gradient on the LoRA → repeat. Watch the behavior's
    success rate trend up.

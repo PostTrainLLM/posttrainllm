@@ -15,8 +15,8 @@ unblocks: Pace v6 daily-drive integration
 Owner approval was granted and the SFT/eval path was attempted. Artifacts
 created:
 
-- Added `scripts/pace-v6_1-augment.py`
-- Added `scripts/pace-v6_1-fixture-gold.py`
+- Added `scripts/archive/pace-v6_1-augment.py`
+- Added `scripts/archive/pace-v6_1-fixture-gold.py`
 - Verified the local v6 input corpus is
   `~/.cache/tinygpt/datasets/pace-v6-sft.jsonl`
 - Generated `~/.cache/tinygpt/datasets/pace-v6_1-sft.jsonl`
@@ -55,11 +55,11 @@ Focused investigation of the v6.1 failure and the broader Pace specialist
 quality block found two shared issues:
 
 1. The v6.1 builders trained user-only prompts, while serve/eval sends the
-   full Pace system prompt. `scripts/pace-v6_1-augment.py` and
-   `scripts/pace-v6_1-fixture-gold.py` now wrap rows as
+   full Pace system prompt. `scripts/archive/pace-v6_1-augment.py` and
+   `scripts/archive/pace-v6_1-fixture-gold.py` now wrap rows as
    `system: <pace prompt>\n\nuser: <fixture prompt>`, which routes through
    `PromptTemplate.chatml`'s system/user split.
-2. `scripts/pace-eval-v6.py` parsed JSON by counting braces, so valid JSON
+2. `scripts/archive/pace-eval-v6.py` parsed JSON by counting braces, so valid JSON
    strings containing `}` inside `spokenText` were marked as "no JSON". It
    now uses `json.JSONDecoder().raw_decode`.
 
@@ -257,7 +257,7 @@ When building v6.1, use the current/best of everything available:
 1. **Read existing v6 training corpus** at
    `/Users/sarthak/.cache/tinygpt/datasets/pace-planner-v6.jsonl` (or wherever
    the v6 SFT input lived)
-2. **Generate the new rows** via `scripts/pace-v6_1-augment.py` (new
+2. **Generate the new rows** via `scripts/archive/pace-v6_1-augment.py` (new
    file): write the ~40 examples above as proper JSONL with full
    formatting (`<|im_start|>system\n...\n<|im_end|>\n<|im_start|>user\n...\n<|im_end|>\n<|im_start|>assistant\n{...}\n<|im_end|>`)
 3. **Append** to v6 corpus → `pace-planner-v6_1.jsonl` (~290 rows)
@@ -265,7 +265,7 @@ When building v6.1, use the current/best of everything available:
    validates against the schema
 5. **SFT**: same hyperparameters as v6, output to
    `~/.cache/tinygpt/runs/pace-planner-v6_1/pace-planner-v6_1.lora`
-6. **Eval**: run `scripts/pace-eval-v6.py` against serve with the new
+6. **Eval**: run `scripts/archive/pace-eval-v6.py` against serve with the new
    LoRA. Target: 19/19.
 
 ## Acceptance
@@ -290,7 +290,7 @@ When building v6.1, use the current/best of everything available:
 ## Files involved
 
 **New**:
-- `scripts/pace-v6_1-augment.py` — emit the ~40 new training rows
+- `scripts/archive/pace-v6_1-augment.py` — emit the ~40 new training rows
 - `~/.cache/tinygpt/datasets/pace-planner-v6_1.jsonl` — augmented corpus
 - `~/.cache/tinygpt/runs/pace-planner-v6_1/pace-planner-v6_1.lora` —
   new LoRA artifact
