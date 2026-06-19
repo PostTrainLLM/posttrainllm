@@ -106,6 +106,16 @@ runnable from the Swift harness. The full acceptance gate still needs a loaded
 specialist model and the 10-category BFCL run:
 
 ```
+evals/b26-deferred-parity-run.sh \
+  --model /path/to/specialist-model \
+  --tools /path/to/tools.json \
+  --out-dir /tmp/tinygpt-b26 \
+  --confirm-heavy-run
+```
+
+Equivalent manual form:
+
+```
 TINYGPT=./native-mac/.build/arm64-apple-macosx/release/tinygpt
 MODEL=/path/to/specialist-model
 TOOLS=/path/to/tools.json
