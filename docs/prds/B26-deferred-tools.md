@@ -113,6 +113,9 @@ evals/b26-deferred-parity-run.sh \
   --confirm-heavy-run
 ```
 
+Use `--dry-run` first to print the exact commands without starting BFCL or
+loading a model.
+
 Equivalent manual form:
 
 ```

@@ -18,6 +18,7 @@ BFCL_MODEL=""
 SERVE_PORT="8097"
 FORCE=0
 CONFIRM=0
+DRY_RUN=0
 
 usage() {
   cat <<EOF
@@ -38,6 +39,7 @@ Options:
   --serve-port N           Port for the managed tinygpt serve (default: 8097)
   --tinygpt PATH           tinygpt binary (default: native-mac release binary)
   --force                  Remove existing gate artifacts before running
+  --dry-run                Print commands without starting model evals
   --confirm-heavy-run      Required; acknowledges this starts real model evals
   -h, --help               Show this help
 
@@ -62,13 +64,28 @@ while [[ $# -gt 0 ]]; do
     --serve-port) SERVE_PORT="${2:?--serve-port needs a value}"; shift 2 ;;
     --tinygpt) TINYGPT="${2:?--tinygpt needs a value}"; shift 2 ;;
     --force) FORCE=1; shift ;;
+    --dry-run) DRY_RUN=1; shift ;;
     --confirm-heavy-run) CONFIRM=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "unknown argument: $1" >&2; usage >&2; exit 2 ;;
   esac
 done
 
-if [[ "$CONFIRM" -ne 1 ]]; then
+print_cmd() {
+  printf '+'
+  printf ' %q' "$@"
+  printf '\n'
+}
+
+run_cmd() {
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    print_cmd "$@"
+  else
+    "$@"
+  fi
+}
+
+if [[ "$CONFIRM" -ne 1 && "$DRY_RUN" -ne 1 ]]; then
   echo "refusing to start the real B26 gate without --confirm-heavy-run" >&2
   usage >&2
   exit 2
@@ -78,29 +95,30 @@ if [[ -z "$MODEL" || -z "$TOOLS" ]]; then
   usage >&2
   exit 2
 fi
-if [[ ! -x "$TINYGPT" ]]; then
+if [[ "$DRY_RUN" -ne 1 && ! -x "$TINYGPT" ]]; then
   echo "tinygpt binary is not executable: $TINYGPT" >&2
   echo "Build it first, for example:" >&2
   echo "  cd '$ROOT/native-mac' && swift build -c release --product tinygpt" >&2
   exit 2
 fi
-if [[ ! -e "$MODEL" ]]; then
+if [[ "$DRY_RUN" -ne 1 && ! -e "$MODEL" ]]; then
   echo "model path does not exist: $MODEL" >&2
   exit 2
 fi
-if [[ ! -f "$TOOLS" ]]; then
+if [[ "$DRY_RUN" -ne 1 && ! -f "$TOOLS" ]]; then
   echo "tools JSON does not exist: $TOOLS" >&2
   exit 2
 fi
 
-mkdir -p "$OUT_DIR"
 FULL_JSONL="$OUT_DIR/bfcl-full.jsonl"
 DEFERRED_JSONL="$OUT_DIR/bfcl-deferred.jsonl"
 REPORT_JSON="$OUT_DIR/b26-parity.json"
 
+run_cmd mkdir -p "$OUT_DIR"
+
 if [[ "$FORCE" -eq 1 ]]; then
-  rm -f "$FULL_JSONL" "$DEFERRED_JSONL" "$REPORT_JSON"
-elif [[ -e "$FULL_JSONL" || -e "$DEFERRED_JSONL" || -e "$REPORT_JSON" ]]; then
+  run_cmd rm -f "$FULL_JSONL" "$DEFERRED_JSONL" "$REPORT_JSON"
+elif [[ "$DRY_RUN" -ne 1 && ( -e "$FULL_JSONL" || -e "$DEFERRED_JSONL" || -e "$REPORT_JSON" ) ]]; then
   echo "refusing to append to existing B26 artifacts under $OUT_DIR; pass --force to replace them" >&2
   exit 2
 fi
@@ -118,22 +136,26 @@ if [[ -n "$BFCL_MODEL" ]]; then
 fi
 
 echo "[b26] full-schema BFCL -> $FULL_JSONL"
-"$TINYGPT" eval-bfcl "$MODEL" \
+run_cmd "$TINYGPT" eval-bfcl "$MODEL" \
   "${COMMON_ARGS[@]}" \
   --tool-mode full \
   --model-name b26-full \
   --out "$FULL_JSONL"
 
 echo "[b26] deferred-tool BFCL -> $DEFERRED_JSONL"
-"$TINYGPT" eval-bfcl "$MODEL" \
+run_cmd "$TINYGPT" eval-bfcl "$MODEL" \
   "${COMMON_ARGS[@]}" \
   --tool-mode deferred \
   --model-name b26-deferred \
   --out "$DEFERRED_JSONL"
 
 echo "[b26] parity report -> $REPORT_JSON"
-python3 "$ROOT/scripts/b26_deferred_parity_report.py" \
+run_cmd python3 "$ROOT/scripts/b26_deferred_parity_report.py" \
   --full "$FULL_JSONL" \
   --deferred "$DEFERRED_JSONL" \
   --require-hop-stats \
   --out "$REPORT_JSON"
+
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  echo "[b26] dry run only; no evals were started."
+fi
