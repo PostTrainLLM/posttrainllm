@@ -116,7 +116,10 @@ tinygpt serve <model> --tools pace-tools.json --tool-mode deferred &
 tinygpt eval-bfcl <model> --out /tmp/bfcl-deferred.jsonl
 pkill -f "tinygpt serve"
 
-tinygpt eval-compare /tmp/bfcl-full.jsonl /tmp/bfcl-deferred.jsonl --by model
+python3 scripts/b26_deferred_parity_report.py \
+  --full /tmp/bfcl-full.jsonl \
+  --deferred /tmp/bfcl-deferred.jsonl \
+  --out /tmp/b26-parity.json
 ```
 
 Bounded wiring smoke run 2026-06-19: `browser/public/demo.tinygpt`, one BFCL
@@ -157,6 +160,8 @@ the gate runs.
 | `native-mac/Sources/TinyGPTServe/Serve.swift` | `--tool-mode` parsing, plumb through `Server.boot`, select compact prompt/grammar in deferred mode, post-`generate()` interception loop in `handleChatCompletions` non-streaming branch, `parseGetToolInfoCall(_:)` static helper |
 | `native-mac/Tests/TinyGPTServeTests/DeferredToolsTests.swift` | 5 unit tests (no model needed): `compactSystemPrompt` strips schemas, `compactGrammarSpec` adds `get_tool_info` to the verb enum, `toolInfo` resolves known/unknown names, `parseGetToolInfoCall` recognizes the canonical shape and rejects garbage |
 | `docs/PLAN.md` | B26 entry already filed; status update after BFCL gate runs |
+| `scripts/b26_deferred_parity_report.py` | score-parity + optional hop-count acceptance report for full-vs-deferred BFCL JSONLs |
+| `evals/b26-deferred-parity-smoke.sh` | no-model smoke for pass/fail parity-report behavior |
 | `docs/learn/agent-context-hierarchy.md` | Already linked as the parent learn doc (Steal #3) |
 
 ## Out of scope but worth noting later
