@@ -118,6 +118,10 @@ struct TinyGPT {
             QualityClassifier.runTrain(args: Array(args.dropFirst()))
         case "quality-filter":
             QualityClassifier.runFilter(args: Array(args.dropFirst()))
+        case "reasoning-classify":
+            ReasoningClassify.run(args: Array(args.dropFirst()))
+        case "traces-to-data":
+            TracesToData.run(args: Array(args.dropFirst()))
         case "filter":
             Filter.run(args: Array(args.dropFirst()))
         case "eval-compare":
@@ -183,6 +187,8 @@ struct TinyGPT {
             ToCoreML.run(args: Array(args.dropFirst()))
         case "to-safetensors":
             ToSafetensors.run(args: Array(args.dropFirst()))
+        case "export-mlx":
+            ExportMLX.run(args: Array(args.dropFirst()))
         case "train-heads":
             TrainHeads.run(args: Array(args.dropFirst()))
         case "compare":
@@ -267,6 +273,7 @@ struct TinyGPT {
           tinygpt bench-train [flags] training-throughput benchmark vs. WebGPU baseline
           tinygpt synthesize [flags] label prompt JSONL via an OpenAI-compatible teacher
           tinygpt tokenize-train [flags] train a domain BPE tokenizer.json
+          tinygpt export-mlx <artifact> export .tinygpt/.lora/HF dir for MLX use
           tinygpt rerank-train [flags] train a lightweight reranker artifact
           tinygpt rerank-eval [flags]  evaluate a reranker and emit E0 rows
           tinygpt screen <sub> ...   Mac screen-reading scaffold (Wave 2.6)

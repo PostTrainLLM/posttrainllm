@@ -144,7 +144,7 @@ public func eagleTrainingForward(
     let T = tokens.shape[1]
     // First step: draft uses (baseHidden_t, embed(tokens_t)) → predicts t+1.
     var hidden = baseHidden
-    var tokenIn = tokens
+    let tokenIn = tokens
     let (h0, logits0) = draft.step(hidden: hidden, prevTokenId: tokenIn)
     out.append(logits0)
     hidden = h0

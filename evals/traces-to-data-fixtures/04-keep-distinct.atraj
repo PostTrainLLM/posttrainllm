@@ -1,0 +1,19 @@
+{
+  "checkpoint_path": "/models/fixture.tinygpt",
+  "id": "04-keep-distinct",
+  "steps": [
+    {
+      "content": "What is the capital of France?",
+      "input_ids": [30, 31, 32, 33, 34],
+      "role": "user"
+    },
+    {
+      "content": "{\"answer\": \"Paris\"}",
+      "output_ids": [40, 41, 42],
+      "role": "assistant"
+    }
+  ],
+  "summary": {},
+  "task": "geography",
+  "version": 1
+}

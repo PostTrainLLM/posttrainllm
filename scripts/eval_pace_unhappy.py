@@ -48,11 +48,17 @@ Usage:
   python3 scripts/eval_pace_unhappy.py \\
     --fixtures-dir /Users/sarthak/Desktop/fleet/pace/evals/fm-fixtures-oos \\
     --skip-model
+
+  # B23 publication protocol — repeat pass@1 and attach budget metadata:
+  python3 scripts/eval_pace_unhappy.py \\
+    --fixtures-dir evals/fm-fixtures-oos-h2 \\
+    --skip-model --passes 3 --budget evals/sample-budget.json --out /tmp/oos.json
 """
 from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import sys
@@ -355,10 +361,83 @@ def failure_patterns(rows: list[dict]) -> list[dict]:
             for k, v in sorted(groups.items(), key=lambda kv: -len(kv[1]))]
 
 
+def pass_stats(scores: list[float]) -> dict:
+    clean = [s for s in scores if math.isfinite(s)]
+    n = len(clean)
+    if n == 0:
+        return {
+            "n": 0,
+            "trialScores": [],
+            "mean": 0.0,
+            "stdev": 0.0,
+            "stderr": 0.0,
+            "ci95Low": 0.0,
+            "ci95High": 0.0,
+        }
+    mean = sum(clean) / n
+    variance = (sum((s - mean) ** 2 for s in clean) / (n - 1)
+                if n > 1 else 0.0)
+    stdev = math.sqrt(variance)
+    stderr = stdev / math.sqrt(n)
+    ci = 1.96 * stderr
+    return {
+        "n": n,
+        "trialScores": clean,
+        "mean": mean,
+        "stdev": stdev,
+        "stderr": stderr,
+        "ci95Low": mean - ci,
+        "ci95High": mean + ci,
+    }
+
+
+def load_budget(path: Path | None) -> dict | None:
+    if path is None:
+        env_path = os.environ.get("TINYGPT_EVAL_BUDGET")
+        path = Path(env_path) if env_path else None
+    if path is None:
+        return None
+    return json.loads(path.read_text())
+
+
+def protocol_block(passes: int, budget: dict | None) -> dict | None:
+    if passes <= 1 and budget is None:
+        return None
+    return {"passes": max(1, passes), "budget": budget}
+
+
+def aggregate_trials(trials: list[dict], protocol: dict | None) -> dict:
+    if len(trials) == 1:
+        result = dict(trials[0])
+        if protocol is not None:
+            result["protocol"] = protocol
+        return result
+
+    scores = [trial["pct"] / 100.0 for trial in trials]
+    stats = pass_stats(scores)
+    first = trials[0]
+    total = first["total"]
+    result = {
+        "dir": first["dir"],
+        "strict": first["strict"],
+        "passed": stats["mean"] * total,
+        "total": total,
+        "pct": stats["mean"] * 100.0,
+        "pass_stats": stats,
+        "failure_patterns": failure_patterns([
+            row for trial in trials for row in trial["rows"]
+        ]),
+        "trials": trials,
+    }
+    if protocol is not None:
+        result["protocol"] = protocol
+    return result
+
+
 # ----- runner ---------------------------------------------------------------
 def run(fixtures_dir: Path, serve_url: str | None, model_id: str,
         sys_prompt_path: Path, verbose: bool = False,
-        strict: bool = False) -> dict:
+        strict: bool = False, pass_index: int | None = None) -> dict:
     sysp = sys_prompt_path.read_text().strip()
     fxs = sorted(fixtures_dir.glob("*.txt"))
     # topic pool for anti-stuffing: every expected clarify topic in the suite
@@ -366,8 +445,9 @@ def run(fixtures_dir: Path, serve_url: str | None, model_id: str,
                          (parse_fixture(p.read_text())["expect_clarify_topic"]
                           for p in fxs) if t})
     mode = "STRICT" if strict else "lenient"
-    print(f"=== eval_pace_unhappy ({mode}) against {len(fxs)} fixtures "
-          f"in {fixtures_dir.name} ===\n")
+    pass_suffix = f" pass {pass_index}" if pass_index is not None else ""
+    print(f"=== eval_pace_unhappy ({mode}{pass_suffix}) against {len(fxs)} "
+          f"fixtures in {fixtures_dir.name} ===\n")
     if serve_url:
         print(f"Serve URL: {serve_url}")
         print(f"Model ID:  {model_id}\n")
@@ -575,6 +655,12 @@ def main() -> None:
                    help="Hardened RL-reward scoring (schema + anti-stuffing "
                         "+ anti-echo). Default off — lenient results stay "
                         "comparable with prior runs.")
+    p.add_argument("--passes", type=int, default=1,
+                   help="Repeat the suite K times and aggregate mean/stdev/ci95 "
+                        "(default: 1).")
+    p.add_argument("--budget", type=Path, default=None,
+                   help="Fixed eval budget JSON to attach under protocol. "
+                        "Defaults to TINYGPT_EVAL_BUDGET when set.")
     p.add_argument("--self-test", action="store_true",
                    help="Run the strict-scorer adversarial self-test and exit")
     p.add_argument("--verbose", action="store_true")
@@ -587,10 +673,19 @@ def main() -> None:
         return
     if not args.fixtures_dir:
         p.error("--fixtures-dir is required (unless --self-test)")
+    if args.passes < 1:
+        p.error("--passes must be >= 1")
 
     serve_url = None if args.skip_model else args.serve_url
-    result = run(args.fixtures_dir, serve_url, args.model_id,
-                 args.sys_prompt, verbose=args.verbose, strict=args.strict)
+    budget = load_budget(args.budget)
+    protocol = protocol_block(args.passes, budget)
+    trials = []
+    for idx in range(args.passes):
+        trials.append(run(args.fixtures_dir, serve_url, args.model_id,
+                          args.sys_prompt, verbose=args.verbose,
+                          strict=args.strict,
+                          pass_index=(idx + 1 if args.passes > 1 else None)))
+    result = aggregate_trials(trials, protocol)
 
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)

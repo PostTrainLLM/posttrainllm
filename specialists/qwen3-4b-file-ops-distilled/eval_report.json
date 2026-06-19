@@ -1,0 +1,39 @@
+{
+  "id": "qwen3-4b-file-ops-distilled",
+  "updated": "2026-06-19",
+  "artifact": "~/.cache/tinygpt/models/mt4b_fused",
+  "base": "Qwen/Qwen3-4B-Instruct-2507",
+  "precision": "bf16",
+  "training_method": "frontier/gold trajectory distillation on GorillaFileSystem multi-turn tasks",
+  "scores": [
+    {
+      "suite": "file_ops_hard_gate",
+      "n": 12,
+      "stock_4b": 0.58,
+      "distilled_4b": 1.0,
+      "frontier": 1.0,
+      "source": "docs/learn/tool-calling-frontier-parity.md#81-climbing-the-cliff--frontier-trajectory-distillation-2026-06-16"
+    },
+    {
+      "suite": "file_ops_hardgen_heldout",
+      "n": 40,
+      "stock_4b": 0.6,
+      "distilled_4b": 0.95,
+      "source": "docs/learn/tool-calling-frontier-parity.md#81-climbing-the-cliff--frontier-trajectory-distillation-2026-06-16"
+    },
+    {
+      "suite": "out_of_domain_breadth",
+      "n": 52,
+      "stock_4b": 0.596,
+      "distilled_4b": 0.423,
+      "delta": -0.173,
+      "source": "docs/learn/tool-calling-frontier-parity.md#84-breadth--narrow-distillation-causes-negative-transfer-2026-06-16"
+    }
+  ],
+  "verdict": "ship only as a routed file-ops specialist; do not use as the general planner",
+  "caveats": [
+    "The out-of-domain breadth ceiling is not frontier-validated yet.",
+    "The negative-transfer result is relative and directly comparable: same 52 tasks, same prompt, stock vs distilled.",
+    "The model is a fused full HF/MLX directory, not a small adapter package."
+  ]
+}

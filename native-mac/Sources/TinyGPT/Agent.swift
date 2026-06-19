@@ -43,6 +43,12 @@ enum Agent {
         // the prediction is fed to the LM as a constrained-decode hint.
         var routerPath: String? = nil
         var routerThreshold: Float = 0.7
+        // B22 — Token-preserving agent trajectory recorder. When set, the
+        // loop appends one `.atraj` JSON file per rollout to the given
+        // directory; each step carries the raw token IDs alongside the
+        // decoded text. Off by default — no behaviour change.
+        var trajectoryDir: String? = nil
+        var trajectoryTask: String? = nil
         var i = 0
         while i < args.count {
             switch args[i] {
@@ -93,6 +99,12 @@ enum Agent {
             case "--router-threshold":
                 guard i + 1 < args.count else { exitUsage() }
                 routerThreshold = Float(args[i + 1]) ?? routerThreshold; i += 2
+            case "--trajectory-dir":
+                guard i + 1 < args.count else { exitUsage() }
+                trajectoryDir = args[i + 1]; i += 2
+            case "--trajectory-task":
+                guard i + 1 < args.count else { exitUsage() }
+                trajectoryTask = args[i + 1]; i += 2
             case "-h", "--help":
                 exitUsage(0)
             default:
@@ -229,10 +241,25 @@ enum Agent {
                 let labels = try ToolRouterLabels.load(from: labelsURL)
                 let router = try ToolRouterLoader.load(
                     path: routerPath, numClasses: labels.labels.count)
+                // C4 — when the router's checkpoint declares a
+                // tokenizer source, load it so predictWithRouter uses
+                // the same BPE the router was trained with. Falls back
+                // to byte-level on load failure (the legacy behaviour).
+                var routerTokenizer: HFTokenizer? = nil
+                if let tokSrc = router.config.tokenizerSource {
+                    do {
+                        routerTokenizer = try HFTokenizer.loadBlocking(
+                            from: URL(fileURLWithPath: tokSrc))
+                        fputs("agent: router tokenizer loaded from \(tokSrc)\n", stderr)
+                    } catch {
+                        fputs("agent: router tokenizer load failed (\(error)); router will fall back to byte-level encoding\n", stderr)
+                    }
+                }
                 routerHook = AgentLoop.RouterHook(
                     router: router,
                     labels: labels.labels,
-                    threshold: routerThreshold)
+                    threshold: routerThreshold,
+                    tokenizer: routerTokenizer)
                 fputs("agent: router loaded — \(labels.labels.count) classes" +
                       String(format: ", threshold=%.2f\n", routerThreshold), stderr)
             } catch {
@@ -249,7 +276,10 @@ enum Agent {
             maxAgentSteps: maxSteps,
             cloudEscalateProvider: cloudProvider,
             cloudEscalateModel: cloudEscalateModel,
-            routerHook: routerHook
+            routerHook: routerHook,
+            trajectoryDir: trajectoryDir.map { URL(fileURLWithPath: $0) },
+            trajectoryCheckpointPath: path,
+            trajectoryTask: trajectoryTask
         )
 
         // Prefill (no-op if loaded from disk).
@@ -284,9 +314,19 @@ enum Agent {
                 print("")
                 print(answer)
             }
+            if let url = loop.finishTrajectory(
+                summary: ["mode": "single-shot",
+                          "final_answer_chars": String(answer.count)])
+            {
+                fputs("agent: wrote trajectory → \(url.path)\n", stderr)
+            }
             return
         }
         runREPL(loop: loop, jsonOut: jsonOut)
+        // Flush the multi-turn REPL trajectory on quit.
+        if let url = loop.finishTrajectory(summary: ["mode": "repl"]) {
+            fputs("agent: wrote trajectory → \(url.path)\n", stderr)
+        }
     }
 
     private static func runREPL(loop: AgentLoop, jsonOut: Bool) {
@@ -356,6 +396,17 @@ enum Agent {
                                  constrained-decode hint.
         --router-threshold F     Minimum softmax confidence to fire the
                                  router (default: 0.7).
+
+        Trajectory recording (B22 — substrate for B29 trace-to-training):
+        --trajectory-dir <dir>   Write one .atraj JSON file per rollout
+                                 capturing per-step role, decoded text,
+                                 and raw token IDs (input_ids for fed
+                                 user / tool text; output_ids for the
+                                 sampled assistant tokens). Consumed by
+                                 `tinygpt traces-to-data` (B29) for
+                                 retokenization-free SFT / DPO corpora.
+        --trajectory-task <name> Optional free-form label that lands in
+                                 the .atraj header (e.g. "bfcl-mt-easy").
 
         examples:
           tinygpt agent specialist.tinygpt --tools tools.json

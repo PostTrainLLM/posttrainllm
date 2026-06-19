@@ -316,7 +316,11 @@ public enum ToolRouterLoader {
             dMlp: h.dMlp ?? 1024,
             dropout: 0.0,
             tieEmbeddings: false,
-            dtype: "float32"
+            dtype: "float32",
+            // C4 — surface the tokenizer source so AgentLoop can load
+            // the same tokenizer the router was trained with. nil
+            // (byte-level) when the trainer was called without --tokenizer.
+            tokenizerSource: h.tokenizerSource
         )
         let model = ToolRouterModel(cfg, numClasses: numClasses, pooling: .mean)
 

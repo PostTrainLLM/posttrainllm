@@ -1,0 +1,34 @@
+{
+  "checkpoint_path": "/models/fixture.tinygpt",
+  "id": "05-tool-echo-drop",
+  "steps": [
+    {
+      "content": "Look up the weather in Paris",
+      "input_ids": [50, 51, 52, 53],
+      "role": "user"
+    },
+    {
+      "content": "{\"tool\": \"weather\", \"arguments\": {\"city\": \"Paris\"}}",
+      "output_ids": [60, 61, 62, 63, 64],
+      "role": "assistant",
+      "tool_call": {
+        "arguments_json": "{\"city\":\"Paris\"}",
+        "name": "weather"
+      }
+    },
+    {
+      "content": "Sunny, 22C",
+      "role": "tool",
+      "tool_result": {
+        "duration_sec": 0.01,
+        "exit_code": 0,
+        "name": "weather",
+        "stderr": "",
+        "stdout": "Sunny, 22C"
+      }
+    }
+  ],
+  "summary": {},
+  "task": "weather",
+  "version": 1
+}

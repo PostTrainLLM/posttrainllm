@@ -8,8 +8,11 @@ import UniformTypeIdentifiers
 struct InterpView: View {
     @StateObject private var controller = InterpController()
 
-    @State private var modelPath: String = ""
-    @State private var corpusPath: String = ""
+    // @AppStorage so the Gallery → Interp action button can pre-populate
+    // the path via UserDefaults before switching tabs, and so the
+    // selection persists across launches.
+    @AppStorage("tg.interp.modelPath") private var modelPath: String = ""
+    @AppStorage("tg.interp.corpusPath") private var corpusPath: String = ""
     @State private var layer: Int = 3
     @State private var features: Int = 1024
     @State private var steps: Int = 1000

@@ -1,4 +1,5 @@
 import Foundation
+import TinyGPTModel
 
 enum EvalHarnessSupport {
     struct Common {
@@ -10,6 +11,9 @@ enum EvalHarnessSupport {
         var baseline = false
         var limit = 0
         var servePort = 8097
+        var budgetPath: String?
+        var evalBudget: EvalGate.AgentEvalBudget?
+        var evalPasses = 1
     }
 
     static func parseCommon(_ args: [String], usage: () -> Never) -> (Common, [String]) {
@@ -25,6 +29,7 @@ enum EvalHarnessSupport {
             case "--baseline": common.baseline = true; i += 1
             case "--limit": common.limit = Int(args[i + 1]) ?? common.limit; i += 2
             case "--serve-port": common.servePort = Int(args[i + 1]) ?? common.servePort; i += 2
+            case "--budget": common.budgetPath = args[i + 1]; i += 2
             case "-h", "--help": usage()
             default:
                 if args[i].hasPrefix("-") {
@@ -41,6 +46,16 @@ enum EvalHarnessSupport {
                 }
             }
         }
+        let env = ProcessInfo.processInfo.environment
+        if common.budgetPath == nil {
+            common.budgetPath = env["TINYGPT_EVAL_BUDGET"]
+        }
+        if let passes = env["TINYGPT_EVAL_PASSES"].flatMap(Int.init), passes > 0 {
+            common.evalPasses = passes
+        }
+        if let budgetPath = common.budgetPath {
+            common.evalBudget = loadBudget(path: budgetPath)
+        }
         return (common, rest)
     }
 
@@ -54,7 +69,28 @@ enum EvalHarnessSupport {
         common.modelName ?? URL(fileURLWithPath: common.modelPath ?? "model").deletingPathExtension().lastPathComponent
     }
 
-    static func startServe(modelPath: String, port: Int, maxContext: Int = 4096) -> Process {
+    static func protocolBlock(_ common: Common) -> EvalGate.AgentEvalProtocol? {
+        if let budget = common.evalBudget {
+            return EvalGate.AgentEvalProtocol(passes: common.evalPasses, budget: budget)
+        }
+        let env = ProcessInfo.processInfo.environment
+        guard let path = common.budgetPath ?? env["TINYGPT_EVAL_BUDGET"] else { return nil }
+        let passes = env["TINYGPT_EVAL_PASSES"].flatMap(Int.init).map { max(1, $0) } ?? common.evalPasses
+        return EvalGate.AgentEvalProtocol(passes: passes, budget: loadBudget(path: path))
+    }
+
+    static func loadBudget(path: String) -> EvalGate.AgentEvalBudget {
+        do {
+            let data = try Data(contentsOf: URL(fileURLWithPath: path))
+            return try JSONDecoder().decode(EvalGate.AgentEvalBudget.self, from: data)
+        } catch {
+            fputs("could not parse eval budget at \(path): \(error)\n", stderr)
+            exit(2)
+        }
+    }
+
+    static func startServe(modelPath: String, port: Int, maxContext: Int = 4096,
+                           extraArgs: [String] = []) -> Process {
         let cli = resolveExecutable(CommandLine.arguments.first ?? "tinygpt")
             ?? resolveExecutable("tinygpt")
             ?? resolveExecutable("tinygpt-cli")
@@ -63,7 +99,7 @@ enum EvalHarnessSupport {
         }
         let p = Process()
         p.executableURL = cli
-        p.arguments = ["serve", modelPath, "--host", "127.0.0.1", "--port", "\(port)", "--max-context", "\(maxContext)"]
+        p.arguments = ["serve", modelPath, "--host", "127.0.0.1", "--port", "\(port)", "--max-context", "\(maxContext)"] + extraArgs
         p.standardOutput = Pipe()
         p.standardError = Pipe()
         do { try p.run() }
@@ -155,7 +191,8 @@ enum EvalHarnessSupport {
             score: score,
             n_examples: n,
             wall_seconds: wall,
-            harness_version: harness
+            harness_version: harness,
+            evalProtocol: protocolBlock(common)
         )
         do { try EvalCompare.Row.append(row, to: URL(fileURLWithPath: out)) }
         catch { fputs("could not append eval row: \(error)\n", stderr) }

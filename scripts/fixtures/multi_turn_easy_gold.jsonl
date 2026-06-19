@@ -1,0 +1,16 @@
+{"id": "multi_turn_base_9001", "ground_truth": [["mkdir(dir_name='reports')"]]}
+{"id": "multi_turn_base_9002", "ground_truth": [["touch(file_name='notes.txt')"]]}
+{"id": "multi_turn_base_9003", "ground_truth": [["mv(source='old.txt', destination='new.txt')"]]}
+{"id": "multi_turn_base_9004", "ground_truth": [["mkdir(dir_name='images')", "touch(file_name='readme.txt')"]]}
+{"id": "multi_turn_base_9005", "ground_truth": [["rm(file_name='temp.txt')"]]}
+{"id": "multi_turn_base_9006", "ground_truth": [["cp(source='a.txt', destination='b.txt')"]]}
+{"id": "multi_turn_base_9007", "ground_truth": [["rmdir(dir_name='junk')"]]}
+{"id": "multi_turn_base_9008", "ground_truth": [["touch(file_name='a.txt')", "touch(file_name='b.txt')"]]}
+{"id": "multi_turn_base_9009", "ground_truth": [["mkdir(dir_name='data')", "cd(folder='data')", "touch(file_name='x.txt')"]]}
+{"id": "multi_turn_base_9010", "ground_truth": [["mkdir(dir_name='logs')"], ["cd(folder='logs')", "touch(file_name='app.log')"]]}
+{"id": "multi_turn_base_9011", "ground_truth": [["echo(content='final version', file_name='draft.txt')"]]}
+{"id": "multi_turn_base_9012", "ground_truth": [["mv(source='report.txt', destination='archive')"]]}
+{"id": "multi_turn_base_9013", "ground_truth": [["mkdir(dir_name='project')", "mkdir(dir_name='docs')"]]}
+{"id": "multi_turn_base_9014", "ground_truth": [["cp(source='notes.txt', destination='notes_backup.txt')"]]}
+{"id": "multi_turn_base_9015", "ground_truth": [["rm(file_name='a.txt')", "rm(file_name='b.txt')"]]}
+{"id": "multi_turn_base_9016", "ground_truth": [["mkdir(dir_name='app')"], ["cd(folder='app')", "mkdir(dir_name='lib')"]]}

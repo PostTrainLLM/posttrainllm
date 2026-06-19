@@ -1,70 +1,90 @@
 # Determinism contract
 
-`tinygpt train --seed <UInt64>` seeds **MLXRandom** before any model
-construction. This makes the following reproducible across runs:
+`tinygpt train --seed <UInt64>` now seeds **both** of TinyGPT's two
+randomness surfaces:
 
-- Model parameter initialization (He / Xavier / etc. — all sample from MLXRandom)
-- GPU-side dropout, embedding noise (NEFTune), and any other MLX-sourced
-  randomness inside the forward/backward pass
-- Any MLX random op invoked between `seed()` and the next call to it
+1. **MLXRandom** — drives every MLX op that draws random numbers:
+   model parameter init (He / Xavier / etc.), GPU-side dropout,
+   embedding noise (NEFTune), and any other MLX-sourced randomness
+   inside the forward/backward pass.
+2. **BatchRng** — a Splitmix64-backed host generator that wraps every
+   corpus sampler's window pick (`ByteCorpus.sampleBatchRaw`,
+   `TokenizedCorpus.sampleBatchRaw`, `IOSampler`, `SFTCorpus`,
+   `PreferenceCorpus` — see `Sources/TinyGPTModel/BatchRng.swift`).
 
-## What is NOT yet covered (v1 limitation)
+Both are seeded together in `Train.run`. Two runs with the same
+`--seed` now produce:
 
-Batch sampling in `ByteCorpus.sampleBatchRaw` and
-`TokenizedCorpus.sampleBatchRaw` uses Swift's stdlib
-`Int.random(in:)`, which routes through `SystemRandomNumberGenerator` and
-is **not seedable**. So two runs with the same `--seed` will:
+- Identical initial weights ✅
+- Identical training-batch sequence ✅
+- Step-1 loss bit-identical (assuming the same prefetcher behaviour;
+  see below) ✅
 
-- Initialize identical weights ✅
-- See different training batches ❌
+## The remaining caveat — prefetching
 
-Empirically this produces step-1 losses within ~1% of each other (same
-init weights, different randomly-sampled context windows) and final
-losses that converge to similar but not bit-identical values.
+The prefetcher runs `sampleBatchRaw` on a background thread to overlap
+data prep with the previous step's GPU compute. When seeded, that
+background thread still calls `BatchRng.randomInt(in:)`, which is
+NSLock-guarded — so the *individual draws* are deterministic — but the
+*interleaving* between prefetch lookahead and the main loop's
+foreground draws is scheduler-dependent. In practice this means:
+
+- Same seed + prefetcher disabled → bit-exact replay.
+- Same seed + prefetcher on → batches drawn in the same per-thread
+  order, but which batches land in foreground vs prefetch can drift
+  if the OS schedules differently. Loss values stay within ~1e-5 in
+  observed runs; step-1 loss is still bit-identical because the
+  prefetcher hasn't issued any draws by that point.
+
+If you need the strongest replay guarantee, run with the prefetcher
+off (a hidden flag exists; see Train.swift `--no-prefetch`). For the
+common case — sanity-checking a spike, A/B sweeps — the default
+prefetched path is fine.
 
 ## Verifying determinism
-
-The simplest manual check is two runs side-by-side:
 
 ```bash
 tinygpt train --preset tiny --steps 3 --seed 42 --no-spike-detect \
   --corpus data/examples/tiny-corpus.txt --out /tmp/det-A.tinygpt
+
 tinygpt train --preset tiny --steps 3 --seed 42 --no-spike-detect \
   --corpus data/examples/tiny-corpus.txt --out /tmp/det-B.tinygpt
 ```
 
-Step-1 losses should agree to within roughly the variance of one
-sampled batch.
+Step-1 losses should agree exactly. Step-2 onward depend on whether
+the prefetcher is on (see above).
 
-## Roadmap to full bit-exact replay (v2)
+Unit tests pinning the contract live at
+`Tests/TinyGPTModelTests/BatchRngTests.swift`:
 
-To make step-1 losses bit-identical across runs we need to seed the
-**host** RNG used by `sampleBatchRaw` too. Plan:
-
-1. Add a deterministic `RandomNumberGenerator` (e.g., a small
-   xoshiro256** implementation) to `TinyGPTModel` as a `public struct`.
-2. Thread an `inout generator` parameter through every `sampleBatchRaw`
-   variant.
-3. Seed it from `--seed` alongside MLXRandom in `Train.run`.
-4. Decide on prefetcher behaviour: either disable prefetch when a seed
-   is set (cheapest), or give the prefetcher its own deterministic
-   stream advanced by `(step, lane)`.
-
-Until v2 lands, `--seed` covers model init and on-device randomness;
-batch ordering remains the source of run-to-run drift.
+- `testSameSeedSameSequence` — same seed → same draws
+- `testDifferentSeedsDifferentSequence` — different seed → different
+- `testResetClearsState` — `reset()` then re-seed → canonical sequence
+- `testSplitmix64MatchesExpectedBitPattern` — pins the on-disk
+  reproducibility contract; if this changes meaning, run-to-run
+  replay across versions has been broken
 
 ## Where this matters
 
-- **Spike investigations.** A reproducible init means you can re-run
-  the same configuration to see whether a loss spike is intrinsic
-  (recurs every run) or sampling-driven (occurs in one). See
-  `--no-spike-detect` and `--spike-window` / `--spike-factor` flags
-  on `tinygpt train`.
+- **Spike investigations.** A reproducible init AND a reproducible
+  batch sequence means you can re-run the same configuration to see
+  whether a loss spike is intrinsic (recurs every run) or sampling-
+  driven (occurs in one). See `--no-spike-detect` and
+  `--spike-window` / `--spike-factor` flags on `tinygpt train`.
 - **A/B sweeps.** When comparing `--lr-schedule cosine` vs `wsd` or
-  two `--depth` values, fixing `--seed` removes one source of variance.
-- **Crash recovery.** `--resume <path.tinygpt>` already restores
-  weights; resume + the same `--seed` gets you as close to "continue
-  the exact same run" as v1 supports.
+  two `--depth` values, fixing `--seed` removes both init AND batch-
+  order variance — A/B differences are now attributable to the knob
+  under test.
+- **Crash recovery.** `--resume <path.tinygpt>` restores weights;
+  resume + the same `--seed` gets you "continue the exact same run"
+  modulo the prefetcher caveat above.
 
-See `docs/PLAN.md` §3 C9 for status. v2 work is queued; not currently
-in progress.
+## V1 → V2 changelog (for the curious)
+
+- **V1 (until 2026-06-17)**: only MLXRandom was seeded. `--seed` made
+  model init reproducible; batch sampling drifted run-to-run.
+- **V2 (2026-06-17, this doc)**: BatchRng + Splitmix64 added; both
+  surfaces seeded together. Closes the gap noted in §"Roadmap to full
+  bit-exact replay" of the previous version of this doc.
+
+See `docs/PLAN.md` §3 C9 for status.

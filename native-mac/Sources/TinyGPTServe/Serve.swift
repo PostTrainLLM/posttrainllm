@@ -50,6 +50,7 @@ public enum Serve {
         var grammarPath: String? = nil
         var toolsPath: String? = nil
         var toolMode: ServeToolMode = .full
+        var toolMetricsOut: String? = nil
         var promptCacheDir: String? = nil
         var traceDir: String? = nil
         var eosStopEnabled = true
@@ -94,6 +95,9 @@ public enum Serve {
                     fputs("--tool-mode must be full or deferred\n", stderr); exitUsage()
                 }
                 i += 2
+            case "--tool-metrics-out":
+                guard i + 1 < args.count else { exitUsage() }
+                toolMetricsOut = args[i + 1]; i += 2
             case "--prompt-cache-dir":
                 guard i + 1 < args.count else { exitUsage() }
                 promptCacheDir = args[i + 1]; i += 2
@@ -138,6 +142,7 @@ public enum Serve {
                                           grammarText: grammarText,
                                           toolsSpec: toolsSpec,
                                           toolMode: toolMode,
+                                          toolMetricsOut: toolMetricsOut,
                                           promptCacheDir: promptCacheDir,
                                           traceDir: traceDir,
                                           eosStopEnabled: eosStopEnabled)
@@ -149,6 +154,7 @@ public enum Serve {
             }
             if let gp = grammarPath { print("grammar: \(gp)") }
             if let tp = toolsPath { print("tools: \(tp)  (mode: \(toolMode.rawValue))") }
+            if let tm = toolMetricsOut { print("tool metrics: \(tm)") }
             if let dir = promptCacheDir { print("prompt cache: \(dir)") }
             if let dir = traceDir {
                 print("inference traces: \(dir)")
@@ -208,6 +214,9 @@ public enum Serve {
                               Streaming + Ollama endpoints emit get_tool_info
                               verbatim — the client owns that round-trip there.
                               See docs/prds/B26-deferred-tools.md.
+        --tool-metrics-out <jsonl>
+                              Append per-request tool-mode metrics such as
+                              get_tool_info_hops. Used by B26 parity reports.
         --prompt-cache-dir <dir>
                               Auto-cache repeated prompt-prefix KV state.
         --trace-infer          Write per-request inference traces to /tmp/tinygpt-traces.
@@ -260,6 +269,7 @@ extension Serve {
         // when serve was booted without --tools.
         let toolsSpec: ServeToolsSpec?
         let toolMode: ServeToolMode
+        let toolMetricsOut: URL?
         let eosTokenIds: Set<Int>
         let promptCacheDir: URL?
         let traceDir: URL?
@@ -270,6 +280,7 @@ extension Serve {
         let cachedTokenBytes: [[UInt8]]
         private let listenFd: Int32
         private let inferenceQueue: DispatchQueue
+        private let toolMetricsQueue: DispatchQueue
         private var running: Bool = true
 
         init(listenFd: Int32, host: String, port: UInt16,
@@ -278,6 +289,7 @@ extension Serve {
              toolsSystemPrompt: String?,
              toolsSpec: ServeToolsSpec?,
              toolMode: ServeToolMode,
+             toolMetricsOut: URL?,
              eosTokenIds: Set<Int>, promptCacheDir: URL?,
              traceDir: URL?,
              modelFingerprint: String,
@@ -294,12 +306,14 @@ extension Serve {
             self.toolsSystemPrompt = toolsSystemPrompt
             self.toolsSpec = toolsSpec
             self.toolMode = toolMode
+            self.toolMetricsOut = toolMetricsOut
             self.eosTokenIds = eosTokenIds
             self.promptCacheDir = promptCacheDir
             self.traceDir = traceDir
             self.modelFingerprint = modelFingerprint
             self.cachedTokenBytes = cachedTokenBytes
             self.inferenceQueue = DispatchQueue(label: "tinygpt.serve.inference")
+            self.toolMetricsQueue = DispatchQueue(label: "tinygpt.serve.tool-metrics")
         }
 
         static func boot(modelPath: String, host: String, port: UInt16,
@@ -309,6 +323,7 @@ extension Serve {
                           grammarText: String? = nil,
                           toolsSpec: ServeToolsSpec? = nil,
                           toolMode: ServeToolMode = .full,
+                          toolMetricsOut: String? = nil,
                           promptCacheDir: String? = nil,
                           traceDir: String? = nil,
                           eosStopEnabled: Bool = true) throws -> Server
@@ -386,6 +401,11 @@ extension Serve {
             if let traceURL {
                 try FileManager.default.createDirectory(at: traceURL, withIntermediateDirectories: true)
             }
+            let toolMetricsURL = toolMetricsOut.map { URL(fileURLWithPath: $0) }
+            if let toolMetricsURL {
+                try FileManager.default.createDirectory(at: toolMetricsURL.deletingLastPathComponent(),
+                                                        withIntermediateDirectories: true)
+            }
             let fingerprint = [
                 "model:\(modelPath):\(KVCachePersist.fingerprint(of: modelPath))",
                 loraPath.map { "lora:\($0):\(KVCachePersist.fingerprint(of: $0))" } ?? "lora:none",
@@ -415,6 +435,7 @@ extension Serve {
                                  toolsSystemPrompt: renderedToolsSystemPrompt,
                                  toolsSpec: toolsSpec,
                                  toolMode: toolMode,
+                                 toolMetricsOut: toolMetricsURL,
                                  eosTokenIds: eosIds,
                                  promptCacheDir: promptCacheURL,
                                  traceDir: traceURL,
@@ -439,6 +460,39 @@ extension Serve {
                   !name.isEmpty
             else { return nil }
             return name
+        }
+
+        private func appendToolMetrics(toolInfoHops: Int,
+                                       promptTokens: Int,
+                                       completionTokens: Int,
+                                       streaming: Bool) {
+            guard let toolMetricsOut else { return }
+            let row: [String: Any] = [
+                "timestamp": ISO8601DateFormatter().string(from: Date()),
+                "tool_mode": toolMode.rawValue,
+                "get_tool_info_hops": toolInfoHops,
+                "prompt_tokens": promptTokens,
+                "completion_tokens": completionTokens,
+                "streaming": streaming
+            ]
+            guard JSONSerialization.isValidJSONObject(row),
+                  var data = try? JSONSerialization.data(withJSONObject: row, options: [.sortedKeys])
+            else { return }
+            data.append(0x0A)
+            toolMetricsQueue.sync {
+                if FileManager.default.fileExists(atPath: toolMetricsOut.path),
+                   let handle = try? FileHandle(forWritingTo: toolMetricsOut) {
+                    do {
+                        try handle.seekToEnd()
+                        try handle.write(contentsOf: data)
+                        try handle.close()
+                    } catch {
+                        try? handle.close()
+                    }
+                } else {
+                    try? data.write(to: toolMetricsOut, options: .atomic)
+                }
+            }
         }
 
         private static func detectEOSTokenIds(tokenizerDir: URL, tokenizer: TokenizerBox) -> Set<Int> {
@@ -778,15 +832,15 @@ extension Serve {
                                        cachePrefix: cachePrefix,
                                        tracer: tracer)
                 }
+                var toolInfoHops = 0
                 // Deferred-mode interception (B26): if the model emitted
                 // verb=get_tool_info, look up the schema, append a synthetic
                 // turn carrying it, and re-prompt. Cap re-entry to bound
                 // runaway loops on a misbehaving model.
                 if toolMode == .deferred, toolsSpec != nil {
                     var working = messages
-                    var hops = 0
-                    while let toolName = Self.parseGetToolInfoCall(text), hops < 3 {
-                        hops += 1
+                    while let toolName = Self.parseGetToolInfoCall(text), toolInfoHops < 3 {
+                        toolInfoHops += 1
                         let toolResult = toolsSpec?.toolInfo(name: toolName)
                             ?? "{\"error\":\"unknown tool '\(toolName)' — pick a name from the index\"}"
                         working.append(["role": "assistant", "content": text])
@@ -808,6 +862,10 @@ extension Serve {
                         completionTokens += c2
                     }
                 }
+                appendToolMetrics(toolInfoHops: toolInfoHops,
+                                  promptTokens: promptTokens,
+                                  completionTokens: completionTokens,
+                                  streaming: false)
                 tracer?.setTokenCounts(prompt: promptTokens, generated: completionTokens)
 
                 let payload: [String: Any] = [
@@ -823,7 +881,8 @@ extension Serve {
                     "usage": [
                         "prompt_tokens": promptTokens,
                         "completion_tokens": completionTokens,
-                        "total_tokens": promptTokens + completionTokens
+                        "total_tokens": promptTokens + completionTokens,
+                        "get_tool_info_hops": toolInfoHops
                     ]
                 ]
                 traceSpan(tracer, "response_write") {

@@ -34,7 +34,7 @@ public final class ByteCorpus: Sendable {
         var inputs = [Int32](repeating: 0, count: B * T)
         var targets = [Int32](repeating: 0, count: B * T)
         for i in 0..<B {
-            let start = Int.random(in: 0..<(bytes.count - T - 1))
+            let start = BatchRng.randomInt(in: 0..<(bytes.count - T - 1))
             for j in 0..<T {
                 inputs[i * T + j] = Int32(bytes[start + j])
                 targets[i * T + j] = Int32(bytes[start + j + 1])
@@ -72,7 +72,7 @@ public final class TokenizedCorpus: Sendable {
         var inputs = [Int32](repeating: 0, count: B * T)
         var targets = [Int32](repeating: 0, count: B * T)
         for i in 0..<B {
-            let start = Int.random(in: 0..<(tokens.count - T - 1))
+            let start = BatchRng.randomInt(in: 0..<(tokens.count - T - 1))
             for j in 0..<T {
                 inputs[i * T + j] = tokens[start + j]
                 targets[i * T + j] = tokens[start + j + 1]
@@ -150,7 +150,7 @@ public final class StreamingTokenizedCorpus: @unchecked Sendable {
         for i in 0..<B {
             var attempt = 0
             while attempt < 4 {
-                let start = Int.random(in: 0..<(totalBytes - windowBytes))
+                let start = BatchRng.randomInt(in: 0..<(totalBytes - windowBytes))
                 // Snap to a valid UTF-8 boundary by stepping forward until
                 // we find a non-continuation byte (top two bits != 0b10).
                 var s = start

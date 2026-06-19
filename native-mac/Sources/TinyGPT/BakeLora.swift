@@ -393,35 +393,42 @@ enum BakeLora {
         //   - A = loraB stored as [K=r, M=out] → set TRANS_A to convert to [out, r]
         //   - B = loraA stored as [N=in, K=r] → set TRANS_B to convert to [r, in]
         //   Output written directly into a freshly-zeroed [out, in] buffer.
+        //
+        //   delta[j, i] = scale * Σ_k loraB[k, j] * loraA[i, k]
+        //
+        // Storage indices:
+        //   loraB[k, j] = bPtr[k * out + j]   (loraB is [r, out] row-major)
+        //   loraA[i, k] = aPtr[i * r + k]     (loraA is [in, r] row-major)
+        //   delta[j, i] = cPtr[j * in + i]
+        //
+        // Plain triple loop. Adapter baking runs once per export; vDSP_mmul
+        // would need an explicit transpose pass and BLAS is deprecated, so
+        // the loop wins on simplicity at this volume.
         var delta = [Float](repeating: 0, count: n)
         slot.loraB.withUnsafeBufferPointer { bPtr in
             slot.loraA.withUnsafeBufferPointer { aPtr in
                 delta.withUnsafeMutableBufferPointer { cPtr in
-                    cblas_sgemm(
-                        CblasRowMajor,
-                        CblasTrans,             // op(A): transpose loraB → [out, r]
-                        CblasTrans,             // op(B): transpose loraA → [r, in]
-                        Int32(outF),            // M = out
-                        Int32(inF),             // N = in
-                        Int32(r),               // K = r
-                        slot.scale,             // α = alpha / rank
-                        bPtr.baseAddress,       // A_storage = loraB, stored as [r, out] row-major
-                        Int32(outF),            // lda = leading dim of A_storage = out
-                        aPtr.baseAddress,       // B_storage = loraA, stored as [in, r] row-major
-                        Int32(r),               // ldb = leading dim of B_storage = r
-                        0,                      // β = 0 (overwrite)
-                        cPtr.baseAddress,       // C = delta, [out, in] row-major
-                        Int32(inF)              // ldc = leading dim of C = in
-                    )
+                    let scale = slot.scale
+                    for j in 0..<outF {
+                        for i in 0..<inF {
+                            var acc: Float = 0
+                            for k in 0..<r {
+                                acc += bPtr[k * outF + j] * aPtr[i * r + k]
+                            }
+                            cPtr[j * inF + i] = scale * acc
+                        }
+                    }
                 }
             }
         }
 
-        // Fused add: weight ← weight + delta. cblas_saxpy handles the
-        // contiguous case efficiently (vDSP_vadd would also work).
+        // Fused add: weight ← weight + delta.
         weight.withUnsafeMutableBufferPointer { wPtr in
             delta.withUnsafeBufferPointer { dPtr in
-                cblas_saxpy(Int32(n), 1.0, dPtr.baseAddress, 1, wPtr.baseAddress, 1)
+                vDSP_vadd(dPtr.baseAddress!, 1,
+                          wPtr.baseAddress!, 1,
+                          wPtr.baseAddress!, 1,
+                          vDSP_Length(n))
             }
         }
 

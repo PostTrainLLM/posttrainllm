@@ -1,0 +1,80 @@
+{"prompt": "What is the capital of France?", "reasoning_depth": "single-hop"}
+{"prompt": "Who wrote Hamlet?", "reasoning_depth": "single-hop"}
+{"prompt": "What year did World War II end?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the boiling point of water in Celsius?", "reasoning_depth": "single-hop"}
+{"prompt": "Who is the current president of the United States?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the chemical symbol for gold?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the speed of light in vacuum?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the largest planet in our solar system?", "reasoning_depth": "single-hop"}
+{"prompt": "Who invented the telephone?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the smallest prime number?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the population of Tokyo?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the currency of Japan?", "reasoning_depth": "single-hop"}
+{"prompt": "Who painted the Mona Lisa?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the freezing point of water?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the longest river in the world?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the atomic number of carbon?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the highest mountain on Earth?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the capital of Australia?", "reasoning_depth": "single-hop"}
+{"prompt": "Who discovered penicillin?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the largest ocean on Earth?", "reasoning_depth": "single-hop"}
+{"prompt": "After finding the boiling point of water, convert that temperature to Fahrenheit then explain how it changes at high altitude.", "reasoning_depth": "multi-hop"}
+{"prompt": "First identify the author of Hamlet, and then list three other plays by the same author and explain their themes.", "reasoning_depth": "multi-hop"}
+{"prompt": "Given that France has a capital city, and given that the city is on a river, what river is it and how long is that river?", "reasoning_depth": "multi-hop"}
+{"prompt": "If a train leaves at 3pm and another leaves at 5pm, and the trains travel toward each other, calculate when they meet given speeds X and Y.", "reasoning_depth": "multi-hop"}
+{"prompt": "Find the chemical symbol of gold, then identify which group of the periodic table it belongs to, and then explain why it does not tarnish.", "reasoning_depth": "multi-hop"}
+{"prompt": "Starting from the speed of light, derive the time it takes light to travel from the Sun to the Earth and then to Mars.", "reasoning_depth": "multi-hop"}
+{"prompt": "Given the population of Tokyo, estimate the density in people per square kilometer and then explain how density compares to New York City.", "reasoning_depth": "multi-hop"}
+{"prompt": "Once you determine the largest planet, find its number of moons and then determine which moon is largest, then explain its surface.", "reasoning_depth": "multi-hop"}
+{"prompt": "Identify the inventor of the telephone, find their nationality, and then list two other inventors from that same country.", "reasoning_depth": "multi-hop"}
+{"prompt": "Given a list of integers, find the smallest prime, then compute its square, and then compute the cube of that result.", "reasoning_depth": "multi-hop"}
+{"prompt": "Start by listing the currency of Japan, then describe the exchange rate to USD, and then estimate what a $100 American breakfast costs there.", "reasoning_depth": "multi-hop"}
+{"prompt": "First find the painter of the Mona Lisa, then identify the museum holding it, and then describe how many visitors per year see it.", "reasoning_depth": "multi-hop"}
+{"prompt": "Identify the longest river, then determine the countries it passes through, and then explain how it is used for trade in each country.", "reasoning_depth": "multi-hop"}
+{"prompt": "Given the atomic number of carbon, derive the electron configuration and then explain why it forms four bonds.", "reasoning_depth": "multi-hop"}
+{"prompt": "Find the highest mountain on Earth, then identify the first person to summit it, and then explain the route they used.", "reasoning_depth": "multi-hop"}
+{"prompt": "Identify the capital of Australia, then explain how it was chosen as the capital and then how its location differs from Sydney.", "reasoning_depth": "multi-hop"}
+{"prompt": "Once you find the discoverer of penicillin, identify the year of the discovery, and then list two diseases it treats.", "reasoning_depth": "multi-hop"}
+{"prompt": "Starting with the largest ocean, find its average depth, and then identify the deepest point and how it was first measured.", "reasoning_depth": "multi-hop"}
+{"prompt": "Given the chemical symbol of gold and the atomic number of carbon, explain which is denser and then why.", "reasoning_depth": "multi-hop"}
+{"prompt": "Find the freezing point of water in Celsius, then convert to Kelvin, and then explain how it changes at high pressure.", "reasoning_depth": "multi-hop"}
+{"prompt": "Compare the boiling point of water and the freezing point of mercury, which is higher.", "reasoning_depth": "comparison"}
+{"prompt": "Compare the population of Tokyo versus the population of New York City and explain which is denser.", "reasoning_depth": "comparison"}
+{"prompt": "Which is larger, Jupiter or Saturn, compare their masses and radii.", "reasoning_depth": "comparison"}
+{"prompt": "Compare Python and Rust as systems programming languages and explain which is faster.", "reasoning_depth": "comparison"}
+{"prompt": "Which is older, Hamlet or Macbeth, and compare their tragic themes.", "reasoning_depth": "comparison"}
+{"prompt": "Compare the speed of light versus the speed of sound and which medium each prefers.", "reasoning_depth": "comparison"}
+{"prompt": "Which is more abundant on Earth, oxygen or nitrogen, compare their atmospheric percentages.", "reasoning_depth": "comparison"}
+{"prompt": "Compare the longest river versus the second longest river and explain which has more tributaries.", "reasoning_depth": "comparison"}
+{"prompt": "Which is taller, K2 or Mount Everest, compare their elevations in meters.", "reasoning_depth": "comparison"}
+{"prompt": "Compare gold versus silver as investments and which one has appreciated more over the last decade.", "reasoning_depth": "comparison"}
+{"prompt": "Which country has the larger GDP, France or Australia, compare their economies.", "reasoning_depth": "comparison"}
+{"prompt": "Compare the Tokyo subway versus the New York subway and which carries more passengers per day.", "reasoning_depth": "comparison"}
+{"prompt": "Which language is harder to learn, Japanese or Mandarin, compare for English speakers.", "reasoning_depth": "comparison"}
+{"prompt": "Compare classical mechanics versus quantum mechanics and which describes atoms better.", "reasoning_depth": "comparison"}
+{"prompt": "Which is bigger, the Pacific Ocean or the Atlantic Ocean, compare areas and average depths.", "reasoning_depth": "comparison"}
+{"prompt": "Compare the iPhone versus the Pixel and which has better cameras for low-light.", "reasoning_depth": "comparison"}
+{"prompt": "Which is healthier, olive oil or butter, compare their saturated fat content.", "reasoning_depth": "comparison"}
+{"prompt": "Compare DNA versus RNA and explain which is more stable in cells.", "reasoning_depth": "comparison"}
+{"prompt": "Which is older, the Sun or the Earth, compare their estimated ages.", "reasoning_depth": "comparison"}
+{"prompt": "Compare diesel versus gasoline engines and which is more efficient for heavy trucks.", "reasoning_depth": "comparison"}
+{"prompt": "Hello, how are you today?", "reasoning_depth": "other"}
+{"prompt": "Write a short poem about autumn leaves.", "reasoning_depth": "other"}
+{"prompt": "Tell me a joke about cats.", "reasoning_depth": "other"}
+{"prompt": "Write a Python function that reverses a string.", "reasoning_depth": "other"}
+{"prompt": "Translate this sentence to Spanish: I love coffee.", "reasoning_depth": "other"}
+{"prompt": "Generate a story about a dragon and a knight.", "reasoning_depth": "other"}
+{"prompt": "Summarize the following paragraph in one sentence.", "reasoning_depth": "other"}
+{"prompt": "Write me a haiku about the ocean.", "reasoning_depth": "other"}
+{"prompt": "Draft an email to my landlord asking for repairs.", "reasoning_depth": "other"}
+{"prompt": "Give me a recipe for chocolate chip cookies.", "reasoning_depth": "other"}
+{"prompt": "Write a function in JavaScript that sorts an array.", "reasoning_depth": "other"}
+{"prompt": "Compose a tweet announcing a product launch.", "reasoning_depth": "other"}
+{"prompt": "Brainstorm five names for a coffee shop.", "reasoning_depth": "other"}
+{"prompt": "Write a song lyric about heartbreak.", "reasoning_depth": "other"}
+{"prompt": "Generate three slogans for an eco-friendly soap brand.", "reasoning_depth": "other"}
+{"prompt": "Tell me a fun fact about dolphins.", "reasoning_depth": "other"}
+{"prompt": "Write a SQL query to count users by signup date.", "reasoning_depth": "other"}
+{"prompt": "Compose a thank-you note to my mentor.", "reasoning_depth": "other"}
+{"prompt": "Write a short bedtime story for a five year old.", "reasoning_depth": "other"}
+{"prompt": "Draft a tweet thread about productivity tips.", "reasoning_depth": "other"}

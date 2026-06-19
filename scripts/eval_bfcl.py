@@ -6,10 +6,12 @@ pass-rate. Calls any OpenAI-compatible endpoint (tinygpt serve, LM Studio,
 Ollama with OpenAI shim). Score = AST-match (function name + arg values
 contained in ground-truth possible-value lists per arg).
 
-For v10 validation: model must emit our v10 schema
+For v10 validation: model may emit our v10 schema
     {"spokenText": "...", "intent": "action",
      "payload": {"name": "fn_name", "args": {...}}}
-The runner extracts payload.name + payload.args and scores against BFCL ground truth.
+or, when routed through `tinygpt serve --tools`, the planner-v7 envelope
+    {"verb": "fn_name", "args": {...}, "spoken_text": "..."}
+The runner extracts function name + args and scores against BFCL ground truth.
 
 Usage:
     python3 scripts/eval_bfcl.py \\
@@ -158,7 +160,13 @@ def call_model(serve_url: str, model_name: str, messages: list[dict],
 
 
 def parse_v10(content: str) -> tuple[str, dict | None]:
-    """Extract (intent, payload) from model output. Tolerate sloppy JSON."""
+    """Extract (intent, payload) from model output. Tolerate sloppy JSON.
+
+    `tinygpt serve --tools` constrains output to the planner-v7 envelope
+    {"verb": "...", "args": {...}}. Normalize that shape into the v10
+    payload form so BFCL scoring measures the tool choice instead of the
+    response-envelope generation.
+    """
     # Strip code fences if present
     s = content.strip()
     s = re.sub(r"^```(?:json)?\s*", "", s)
@@ -176,6 +184,8 @@ def parse_v10(content: str) -> tuple[str, dict | None]:
             return "__parse_error__", None
     intent = d.get("intent", "")
     payload = d.get("payload", None)
+    if not intent and "verb" in d:
+        return "action", {"name": d.get("verb"), "args": d.get("args", {})}
     return intent, payload
 
 
