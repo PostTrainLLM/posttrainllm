@@ -22,13 +22,13 @@ landed:
 - The larger tools system prompt is included in prompt-cache prefixing
 - Added `grammars/pace-system-prompt-v7-tools.txt`
 - Added data/eval scaffolding:
-  - `scripts/v7-data/normalize-xlam.py`
-  - `scripts/v7-data/build-pace-topup.py`
-  - `scripts/v7-data/build-heldout.py`
-  - `scripts/v7-eval/run-heldout.py`
-  - `scripts/v7-eval/run-bfcl.py`
-  - `scripts/v7-eval/run-tau-bench.py`
-  - `scripts/v7-eval/heldout-tools.jsonl`
+  - `scripts/archive/v7-data/normalize-xlam.py`
+  - `scripts/archive/v7-data/build-pace-topup.py`
+  - `scripts/archive/v7-data/build-heldout.py`
+  - `scripts/archive/v7-eval/run-heldout.py`
+  - `scripts/archive/v7-eval/run-bfcl.py`
+  - `scripts/archive/v7-eval/run-tau-bench.py`
+  - `scripts/archive/v7-eval/heldout-tools.jsonl`
 - Generated local Pace top-up data at
   `~/.cache/tinygpt/datasets/pace-v7-topup.jsonl`
 
@@ -355,13 +355,13 @@ When v7 lands:
 ## Files involved
 
 **New**:
-- `scripts/v7-data/normalize-xlam.py` — convert xlam-60k to our verb schema
-- `scripts/v7-data/build-pace-topup.py` — hand-curate Stage B
-- `scripts/v7-data/build-heldout.py` — generate Stage C
+- `scripts/archive/v7-data/normalize-xlam.py` — convert xlam-60k to our verb schema
+- `scripts/archive/v7-data/build-pace-topup.py` — hand-curate Stage B
+- `scripts/archive/v7-data/build-heldout.py` — generate Stage C
 - `native-mac/Sources/TinyGPTServe/DynamicGrammar.swift` — JSON Schema → GBNF
-- `scripts/v7-eval/run-bfcl.py` — wrap BFCL harness for v7 model
-- `scripts/v7-eval/run-tau-bench.py` — wrap τ-bench
-- `scripts/v7-eval/heldout-tools.jsonl` — our held-out eval set
+- `scripts/archive/v7-eval/run-bfcl.py` — wrap BFCL harness for v7 model
+- `scripts/archive/v7-eval/run-tau-bench.py` — wrap τ-bench
+- `scripts/archive/v7-eval/heldout-tools.jsonl` — our held-out eval set
 
 **Modified**:
 - `native-mac/Sources/TinyGPTServe/Serve.swift` — add `--tools` flag,

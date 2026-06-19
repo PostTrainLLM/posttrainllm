@@ -89,12 +89,6 @@ enum ReasoningClassify {
         return exps
     }
 
-    private static func argmax(_ v: [Float]) -> Int {
-        var bi = 0
-        for i in 1..<v.count where v[i] > v[bi] { bi = i }
-        return bi
-    }
-
     // MARK: - Model I/O
 
     private static func saveModel(weights: [[Float]], bias: [Float],

@@ -443,11 +443,6 @@ enum TrainExtractor {
 
     // MARK: - Misc
 
-    private static func formatLargeInt(_ n: Int) -> String {
-        let f = NumberFormatter(); f.numberStyle = .decimal
-        return f.string(from: NSNumber(value: n)) ?? "\(n)"
-    }
-
     static func exitUsage() -> Never {
         print("""
         usage: tinygpt train-extractor <data.jsonl> [flags]

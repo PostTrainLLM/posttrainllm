@@ -226,18 +226,7 @@ final class CoreMLServer: @unchecked Sendable {
     }
 
     private static func blockingLoadTokenizer(from dir: URL) throws -> Tokenizer {
-        let sem = DispatchSemaphore(value: 0)
-        nonisolated(unsafe) var boxed: Tokenizer? = nil
-        nonisolated(unsafe) var error: Error? = nil
-        Task.detached {
-            do { boxed = try await AutoTokenizer.from(modelFolder: dir) }
-            catch let e { error = e }
-            sem.signal()
-        }
-        sem.wait()
-        if let e = error { throw e }
-        guard let t = boxed else { throw NSError(domain: "CoreMLServe", code: 2) }
-        return t
+        try runBlocking { try await AutoTokenizer.from(modelFolder: dir) }
     }
 
     private static func detectEOSTokenIds(hfDir: URL, tokenizer: Tokenizer) -> Set<Int> {
@@ -513,13 +502,4 @@ final class CoreMLServer: @unchecked Sendable {
     }
 }
 
-private func mlComputeUnits(from s: String) -> MLComputeUnits {
-    switch s.lowercased() {
-    case "ane":  return .cpuAndNeuralEngine
-    case "gpu":  return .cpuAndGPU
-    case "all":  return .all
-    case "cpu":  return .cpuOnly
-    default:    return .cpuAndNeuralEngine
-    }
-}
 #endif

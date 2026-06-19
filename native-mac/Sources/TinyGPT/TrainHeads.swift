@@ -303,12 +303,6 @@ enum TrainHeads {
         return 8
     }
 
-    private static func formatLargeInt(_ n: Int) -> String {
-        let f = NumberFormatter()
-        f.numberStyle = .decimal
-        return f.string(from: NSNumber(value: n)) ?? "\(n)"
-    }
-
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
         usage: tinygpt train-heads <model.tinygpt> --type {medusa|eagle} --corpus <text> --out <path> [options]

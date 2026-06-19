@@ -149,7 +149,7 @@ multi-GPU, no cloud, no asterisk.
   actions — verdict: free routing floor, never a dependency.
   [`docs/learn/apple-on-device-foundation-models.md`](docs/learn/apple-on-device-foundation-models.md).
 - Multi-GPU / distributed: a single-Mac data-parallel mlx.distributed
-  PoC exists ([`scripts/dist_dp_poc.py`](scripts/dist_dp_poc.py));
+  PoC exists ([`scripts/archive/dist_dp_poc.py`](scripts/archive/dist_dp_poc.py));
   multi-Mac is unblocked but unproven.
 
 ---

@@ -160,7 +160,7 @@ is knowing exactly what you're NOT paying for (all-gather bandwidth,
 sharding bugs) and why single-device MLX training tops out where it does
 (the Mega-bf16 OOM was solved by config, not sharding — there's no
 second device to shard to). **As of 2026-06-17 there's a small exception:**
-`scripts/dist_dp_poc.py` is a working data-parallel all-reduce PoC over
+`scripts/archive/dist_dp_poc.py` is a working data-parallel all-reduce PoC over
 `mlx.distributed` on a single Mac, n=2/4 ranks, bit-identical replicas,
 effective batch 64→256. That's the buildable scale-out path if/when a
 second Mac shows up — the boundary between "scale up" and "scale out"
@@ -172,7 +172,7 @@ current canonical treatment of all parallelism forms, interactive;
 [mlx.distributed](https://ml-explore.github.io/mlx/build/html/usage/distributed.html) for the Apple-silicon equivalent.
 
 **In the repo:** `native-mac/Sources/TinyGPT/Train.swift` is the
-single-device anchor; `scripts/dist_dp_poc.py` is the bit-identical
+single-device anchor; `scripts/archive/dist_dp_poc.py` is the bit-identical
 data-parallel PoC over mlx.distributed (2026-06-17); `docs/learn/session-05-scaling.md`
 covers why scale-up beat scale-out for this project.
 

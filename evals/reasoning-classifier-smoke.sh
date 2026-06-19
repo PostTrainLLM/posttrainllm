@@ -9,18 +9,9 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FIX="$ROOT/evals/reasoning-classifier-fixtures"
 NATIVE="$ROOT/native-mac"
 
-BIN=""
-for cand in "$NATIVE/.build/release/tinygpt" "$NATIVE/.build/debug/tinygpt"; do
-  [ -x "$cand" ] && BIN="$cand" && break
-done
-if [ -z "$BIN" ]; then
-  echo "no built binary found — building debug…"
-  (cd "$NATIVE" && DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swift build)
-  BIN="$NATIVE/.build/debug/tinygpt"
-fi
+source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
+BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
 echo "binary: $BIN"
-
-fail() { echo "SMOKE FAIL: $1" >&2; exit 1; }
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
