@@ -1,13 +1,18 @@
 ---
 name: B29 trace-to-training-data pipeline
-status: not-started
+status: v1-shipped
 owner: unassigned
 created: 2026-06-13
+updated: 2026-06-17
 parent_plan: docs/PLAN.md §3 Tier B (B29)
 parent_learn: docs/learn/castform-rl-finetune.md (Steal #2)
-related_prds: B22-trajectory-recorder.md (the substrate this consumes),
+related_prds: B22-trajectory-recorder.md (the substrate this consumes — shipped),
               A1-first-specialist-tool-caller.md (the eventual consumer of the output JSONL),
-              E7-judge-shim.md (the LLM-judge filter step)
+              E7-judge-shim.md (the LLM-judge filter step — V2)
+ships_in: Sources/TinyGPT/TracesToData.swift, evals/traces-to-data-smoke.sh, evals/traces-to-data-fixtures/*.atraj, docs/recipes/from-traces.md
+verified: 2026-06-17 — smoke pass on 5-trajectory fixture (default threshold + looser-threshold MinHash + no-tool-echo + dry-run + --judge-model rejection scenarios all green).
+v1_scope: --mode sft only; tool-echo drop + exact dedup + MinHash near-dedup; --judge-model reserved + rejected; --mode dpo reserved + rejected.
+v2_followups: wire `tinygpt judge` (E7) as subprocess for LLM-pivot filter; ship --mode dpo with --dpo-source {reward,judge}; external observability ingest (Braintrust / Langfuse).
 ---
 
 # PRD — Turn `.atraj` rollouts into SFT/DPO training JSONL

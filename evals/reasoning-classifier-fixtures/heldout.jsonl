@@ -1,0 +1,32 @@
+{"prompt": "What is the capital of Germany?", "reasoning_depth": "single-hop"}
+{"prompt": "Who wrote The Iliad?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the melting point of iron?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the smallest planet?", "reasoning_depth": "single-hop"}
+{"prompt": "Who invented the light bulb?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the chemical symbol for silver?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the population of Mumbai?", "reasoning_depth": "single-hop"}
+{"prompt": "What is the currency of Brazil?", "reasoning_depth": "single-hop"}
+{"prompt": "First find the capital of Germany, then identify its main river, and then explain how that river connects to other European rivers.", "reasoning_depth": "multi-hop"}
+{"prompt": "Given the author of The Iliad, find when it was written, and then list two epic poems that came after it.", "reasoning_depth": "multi-hop"}
+{"prompt": "Starting with the melting point of iron, convert it to Fahrenheit, and then explain how alloys with carbon change that point.", "reasoning_depth": "multi-hop"}
+{"prompt": "Find the smallest planet, then identify its orbital period, and then derive how many of its years equal one Earth year.", "reasoning_depth": "multi-hop"}
+{"prompt": "Identify the inventor of the light bulb, find their nationality, and then list two other inventions by them.", "reasoning_depth": "multi-hop"}
+{"prompt": "Given the chemical symbol for silver, derive its atomic number, and then identify which group it belongs to.", "reasoning_depth": "multi-hop"}
+{"prompt": "First find the population of Mumbai, then estimate its growth rate, and then project its population in twenty years.", "reasoning_depth": "multi-hop"}
+{"prompt": "Identify the currency of Brazil, find its current exchange rate to USD, and then estimate the cost of a $50 meal there.", "reasoning_depth": "multi-hop"}
+{"prompt": "Compare the capital of Germany versus the capital of France and which is older.", "reasoning_depth": "comparison"}
+{"prompt": "Which is older, The Iliad or The Odyssey, compare their authorship and dates.", "reasoning_depth": "comparison"}
+{"prompt": "Compare iron versus aluminum as building materials and which is stronger.", "reasoning_depth": "comparison"}
+{"prompt": "Which is closer to the Sun, Mercury or Venus, compare their orbital distances.", "reasoning_depth": "comparison"}
+{"prompt": "Compare Edison versus Tesla and which one had more patents.", "reasoning_depth": "comparison"}
+{"prompt": "Which is denser, gold or silver, compare their grams per cubic centimeter.", "reasoning_depth": "comparison"}
+{"prompt": "Compare Mumbai versus Delhi as cities and which has a larger population.", "reasoning_depth": "comparison"}
+{"prompt": "Which currency is stronger, the Brazilian real or the Argentine peso, compare.", "reasoning_depth": "comparison"}
+{"prompt": "Hi there, how was your weekend?", "reasoning_depth": "other"}
+{"prompt": "Write a haiku about cherry blossoms.", "reasoning_depth": "other"}
+{"prompt": "Generate a story about a lost wizard.", "reasoning_depth": "other"}
+{"prompt": "Write a Python function to compute factorial.", "reasoning_depth": "other"}
+{"prompt": "Translate this to French: I love mountains.", "reasoning_depth": "other"}
+{"prompt": "Write a poem about a winter evening.", "reasoning_depth": "other"}
+{"prompt": "Brainstorm five names for a startup.", "reasoning_depth": "other"}
+{"prompt": "Compose a friendly birthday card message.", "reasoning_depth": "other"}

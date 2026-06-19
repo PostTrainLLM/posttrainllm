@@ -1,0 +1,19 @@
+{
+  "checkpoint_path": "/models/fixture.tinygpt",
+  "id": "03-near-dup-prompt",
+  "steps": [
+    {
+      "content": "What is 2 + 2 ?",
+      "input_ids": [1, 2, 3, 4],
+      "role": "user"
+    },
+    {
+      "content": "{\"answer\": \"It is four.\"}",
+      "output_ids": [20, 21, 22, 23],
+      "role": "assistant"
+    }
+  ],
+  "summary": {},
+  "task": "math",
+  "version": 1
+}

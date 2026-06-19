@@ -127,6 +127,24 @@ Concepts: `ml-evaluation`
 
 ---
 
+## Self-test — the exit exam
+
+The roadmap works if you can answer these from first principles. Each links to where the
+answer lives; if a link doesn't make it click, that doc is the gap to fix.
+
+1. **Why does attention need the max-subtraction in softmax for numerical stability?** (and why is *online* softmax a structural, not numerical, win?) → [`online_softmax_in_attention.md`](online_softmax_in_attention.md)
+2. **How does the backward pass for attention work?** (recompute `P` from the saved `L = m + log l`) → [`fa2_backward_notes.md`](fa2_backward_notes.md), [`study_guide.md`](study_guide.md) §7
+3. **Why does register blocking improve matmul until it hurts occupancy?** (4×4 vs 8×8 register spill) → [`study_guide.md`](study_guide.md) §8
+4. **What caused the Memory64 ABI issue?** (`memory.grow` detaches SAB views mid-kernel; host plumbing differs) → [`study_guide.md`](study_guide.md) §4
+5. **Why does parity testing matter more than standalone kernel benchmarks?** → [`study_guide.md`](study_guide.md) §9
+6. **What does 2.5% loss drift actually mean?** → [`learn/essential-vs-optimization.md`](learn/essential-vs-optimization.md) (loss-drift section)
+7. **Which parts are mathematically essential vs engineering optimization?** → [`learn/essential-vs-optimization.md`](learn/essential-vs-optimization.md)
+8. **Could you reimplement the core transformer training loop without AI?** → [`python_ref/model.py`](../python_ref/model.py) + Phases 1–4 / sessions 1–8
+9. **Could you debug a wrong-gradient bug from first principles?** → [`study_guide.md`](study_guide.md) §9 (worked example), §2
+10. **Could you explain the WebGPU execution model clearly to another engineer?** → [`learn/webgpu-execution-model.md`](learn/webgpu-execution-model.md)
+
+---
+
 ## 12-week schedule
 
 | Weeks | Build | Milestone |

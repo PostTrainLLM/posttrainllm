@@ -17,6 +17,10 @@ inputs:
     description: "Run each suite K times and gate on the mean."
     required: false
     default: "1"
+  budget:
+    description: "Optional fixed eval budget JSON; forwarded to `tinygpt eval-gate --budget`."
+    required: false
+    default: ""
   working-directory:
     description: "Directory to run the gate from (where the spec/project file lives)."
     required: false
@@ -32,7 +36,10 @@ runs:
       shell: bash
       run: |
         cd "${{ github.action_path }}/../../../native-mac"
-        DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swift build -c release
+        if [ -d /Applications/Xcode.app/Contents/Developer ]; then
+          export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+        fi
+        xcrun swift build -c release
     - name: Run eval-gate
       id: gate
       shell: bash
@@ -43,6 +50,7 @@ runs:
         ARGS=(eval-gate --out gate-result.json --passes "${{ inputs.passes }}")
         [ -n "${{ inputs.spec }}" ] && ARGS+=(--spec "${{ inputs.spec }}")
         [ -n "${{ inputs.candidate }}" ] && ARGS+=(--candidate "${{ inputs.candidate }}")
+        [ -n "${{ inputs.budget }}" ] && ARGS+=(--budget "${{ inputs.budget }}")
         "$BIN" "${ARGS[@]}" | tee gate-output.txt
         CODE=${PIPESTATUS[0]}
         if [ "$CODE" -eq 0 ]; then echo "passed=true" >> "$GITHUB_OUTPUT"; else echo "passed=false" >> "$GITHUB_OUTPUT"; fi

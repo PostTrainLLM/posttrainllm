@@ -100,21 +100,67 @@ The decision to keep serve-side interception (rather than expose a
 ## BFCL parity ship gate
 
 Deferred mode is OFF by default until BFCL says it doesn't regress.
-The gate (not run by this PR; user runs against a loaded model):
+As of 2026-06-19, `tinygpt eval-bfcl` can pass `--tools <json>` and
+`--tool-mode {full,deferred}` through to the server it starts, so the gate is
+runnable from the Swift harness. The full acceptance gate still needs a loaded
+specialist model and the 10-category BFCL run:
 
 ```
-# baseline
-tinygpt serve <model> --tools pace-tools.json &
-tinygpt eval-bfcl <model> --out /tmp/bfcl-full.jsonl
-pkill -f "tinygpt serve"
-
-# deferred
-tinygpt serve <model> --tools pace-tools.json --tool-mode deferred &
-tinygpt eval-bfcl <model> --out /tmp/bfcl-deferred.jsonl
-pkill -f "tinygpt serve"
-
-tinygpt eval-compare /tmp/bfcl-full.jsonl /tmp/bfcl-deferred.jsonl --by model
+evals/b26-deferred-parity-run.sh \
+  --model /path/to/specialist-model \
+  --tools /path/to/tools.json \
+  --out-dir /tmp/tinygpt-b26 \
+  --confirm-heavy-run
 ```
+
+Use `--dry-run` first to print the exact commands without starting BFCL or
+loading a model.
+
+Equivalent manual form:
+
+```
+TINYGPT=./native-mac/.build/arm64-apple-macosx/release/tinygpt
+MODEL=/path/to/specialist-model
+TOOLS=/path/to/tools.json
+OUT=/tmp/tinygpt-b26
+mkdir -p "$OUT"
+
+"$TINYGPT" eval-bfcl "$MODEL" \
+  --tools "$TOOLS" \
+  --tool-mode full \
+  --model-name b26-full \
+  --out "$OUT/bfcl-full.jsonl"
+
+"$TINYGPT" eval-bfcl "$MODEL" \
+  --tools "$TOOLS" \
+  --tool-mode deferred \
+  --model-name b26-deferred \
+  --out "$OUT/bfcl-deferred.jsonl"
+
+python3 scripts/b26_deferred_parity_report.py \
+  --full "$OUT/bfcl-full.jsonl" \
+  --deferred "$OUT/bfcl-deferred.jsonl" \
+  --require-hop-stats \
+  --out "$OUT/b26-parity.json"
+```
+
+Bounded wiring smoke run 2026-06-19: `browser/public/demo.tinygpt`, one BFCL
+`simple` item, same toy tools file, full vs deferred. Both modes completed and
+scored 0/1 (random demo model parse errors), proving the server mode switch and
+harness pass-through work; this is not an acceptance-quality parity result.
+
+Bounded real-model probe 2026-06-19: Qwen3-0.6B, BFCL `pace12`, normalized
+12-tool catalog. Full schema mode scored 5/12 (41.7%, 1 parse error, p50
+7354ms). Deferred mode on the same first four prompts scored 0/4 (0 parse
+errors, p50 10137ms), while the full-schema prefix was 2/4; deferred delta on
+that tiny prefix was -50pp. This is not the full B26 acceptance gate, but it is
+enough to keep deferred mode OFF for the planner lock.
+
+Hop accounting is wired for the real gate: `serve --tool-metrics-out <jsonl>`
+records `get_tool_info_hops` per non-streaming chat request, and
+`tinygpt eval-bfcl --tool-mode deferred` emits the average as a
+`bfcl/deferred_tools/get_tool_info_hops` row for
+`scripts/b26_deferred_parity_report.py`.
 
 **Accept** if the deferred BFCL average is within ±2pp of the full
 average across the 10 BFCL categories, AND the average number of
@@ -139,9 +185,12 @@ the gate runs.
 | File | Change |
 |---|---|
 | `native-mac/Sources/TinyGPTServe/DynamicGrammar.swift` | `ServeToolMode` enum + `compactSystemPrompt()` + `compactGrammarSpec()` + `compactOutputSchemaJSON()` + `toolInfo(name:)` |
-| `native-mac/Sources/TinyGPTServe/Serve.swift` | `--tool-mode` parsing, plumb through `Server.boot`, select compact prompt/grammar in deferred mode, post-`generate()` interception loop in `handleChatCompletions` non-streaming branch, `parseGetToolInfoCall(_:)` static helper |
+| `native-mac/Sources/TinyGPTServe/Serve.swift` | `--tool-mode` parsing, `--tool-metrics-out`, plumb through `Server.boot`, select compact prompt/grammar in deferred mode, post-`generate()` interception loop in `handleChatCompletions` non-streaming branch, `parseGetToolInfoCall(_:)` static helper |
+| `native-mac/Sources/TinyGPT/EvalBFCL.swift` | passes `--tool-metrics-out` in deferred mode and emits the average hop-count metric row |
 | `native-mac/Tests/TinyGPTServeTests/DeferredToolsTests.swift` | 5 unit tests (no model needed): `compactSystemPrompt` strips schemas, `compactGrammarSpec` adds `get_tool_info` to the verb enum, `toolInfo` resolves known/unknown names, `parseGetToolInfoCall` recognizes the canonical shape and rejects garbage |
 | `docs/PLAN.md` | B26 entry already filed; status update after BFCL gate runs |
+| `scripts/b26_deferred_parity_report.py` | score-parity + optional hop-count acceptance report for full-vs-deferred BFCL JSONLs |
+| `evals/b26-deferred-parity-smoke.sh` | no-model smoke for pass/fail parity-report behavior |
 | `docs/learn/agent-context-hierarchy.md` | Already linked as the parent learn doc (Steal #3) |
 
 ## Out of scope but worth noting later

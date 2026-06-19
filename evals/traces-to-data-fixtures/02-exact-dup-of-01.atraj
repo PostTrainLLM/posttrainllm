@@ -1,0 +1,19 @@
+{
+  "checkpoint_path": "/models/fixture.tinygpt",
+  "id": "02-exact-dup-of-01",
+  "steps": [
+    {
+      "content": "What is 2 + 2?",
+      "input_ids": [1, 2, 3],
+      "role": "user"
+    },
+    {
+      "content": "{\"answer\": \"4\"}",
+      "output_ids": [10, 11, 12],
+      "role": "assistant"
+    }
+  ],
+  "summary": {},
+  "task": "math",
+  "version": 1
+}

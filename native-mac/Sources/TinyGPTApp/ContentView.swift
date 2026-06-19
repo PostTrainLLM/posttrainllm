@@ -5,15 +5,19 @@ import SwiftUI
 /// what's shipped, in-flight, queued, and rejected — anchored to the
 /// (speed × accuracy) / cost formula per the North Star.
 enum AppTab: Hashable {
-    case sample      // chat + A/B compare for currently loaded model
-    case gallery     // browse loadable models — click → opens chat
+    case gallery     // every loadable model + chat with whichever is loaded
     case train       // pretrain / fine-tune / DPO / distill (sub-modes)
     case eval        // score + compare
     case trace       // inference heatmap
     case interp      // mech-interp power tools
     case serve       // HTTP endpoint
-    case roadmap     // shipped / in-flight / queued / rejected — project state
-    case learn       // markdown viewer
+    // Removed 2026-06-17:
+    //  - .sample  → renamed to .gallery (was previously two distinct tabs
+    //              which duplicated each other; one workspace owns picker +
+    //              chat now, see mainPane)
+    //  - .roadmap → docs/PLAN.md is canonical; no product surface needed
+    //  - .learn   → docs are reachable via Finder + repo browser, the in-app
+    //              markdown viewer was duplicative
 }
 
 struct ContentView: View {
@@ -35,7 +39,7 @@ struct ContentView: View {
     @AppStorage("tg.repPenalty")    private var repPenalty: Double = 1.0
     @AppStorage("tg.showInspector") private var showInspector: Bool = true
 
-    @State private var tab: AppTab = .sample
+    @State private var tab: AppTab = .gallery
     @State private var liveServes: [ServeProcess] = []
     // Sidebar nav default lands on Sample — most common "use a model" entry.
 
@@ -51,15 +55,12 @@ struct ContentView: View {
                 VStack(spacing: 0) {
                     Group {
                         switch tab {
-                        case .sample:     mainPane
-                        case .gallery:    galleryPane
+                        case .gallery:    mainPane
                         case .train:      TrainHubView()
                         case .eval:       EvalView()
                         case .trace:      InferenceHeatmapView()
                         case .interp:     InterpView()
                         case .serve:      ServerView()
-                        case .roadmap:    RoadmapView()
-                        case .learn:      LearnView()
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -215,15 +216,12 @@ struct ContentView: View {
             // (2026-06-07 PM, after user audit found 12 tabs overengineered).
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 1) {
-                    navRow(.sample,     icon: "text.bubble",                       label: "Sample")
                     navRow(.gallery,    icon: "rectangle.grid.2x2",                label: "Gallery")
                     navRow(.train,      icon: "waveform.path.ecg",                 label: "Train")
                     navRow(.eval,       icon: "checkmark.gobackward",              label: "Eval")
                     navRow(.trace,      icon: "chart.bar.xaxis",                   label: "Trace")
                     navRow(.interp,     icon: "scope",                             label: "Interp")
                     navRow(.serve,      icon: "antenna.radiowaves.left.and.right", label: "Serve")
-                    navRow(.roadmap,    icon: "map",                              label: "Roadmap")
-                    navRow(.learn,      icon: "graduationcap",                     label: "Learn")
 
                     // Inference section — live `tinygpt serve` processes
                     // detected via pgrep. Click a row to jump to Serve tab.
@@ -347,15 +345,23 @@ struct ContentView: View {
                     selectedItem = item
                     prompt = item.prompt
                     Task { await controller.load(item) }
-                    tab = .sample
+                    tab = .gallery
                 }
                 galleryActionButton(label: "Eval", icon: "checkmark.gobackward") {
                     selectedItem = item
+                    // Pin model path into UserDefaults so EvalController's
+                    // init picks it up — EvalView is created fresh on tab
+                    // switch and its controller has no other way to see
+                    // the gallery's selection.
+                    UserDefaults.standard.set(item.url.path, forKey: "tg.eval.modelPath")
                     Task { await controller.load(item) }
                     tab = .eval
                 }
                 galleryActionButton(label: "Interp", icon: "scope") {
                     selectedItem = item
+                    // Same — InterpView reads tg.interp.modelPath via
+                    // @AppStorage so this lands before the view appears.
+                    UserDefaults.standard.set(item.url.path, forKey: "tg.interp.modelPath")
                     Task { await controller.load(item) }
                     tab = .interp
                 }
@@ -504,55 +510,50 @@ struct ContentView: View {
     }
 
     private var placeholderPane: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 12) {
-                Text("Chat with a model")
-                    .font(.system(size: 26, weight: .semibold))
-                    .foregroundStyle(Theme.fg)
-                Text("pick from the gallery — base models, your trained specialists, or HF downloads")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundStyle(Theme.muted)
-            }
-            .padding(.top, 40)
-
-            // Model picker — inline grid replaces the prior sidebar Gallery.
-            if galleryItems.isEmpty {
-                VStack(spacing: 12) {
-                    Image(systemName: "tray")
-                        .font(.system(size: 28))
-                        .foregroundStyle(Theme.faint)
-                    Text("No models found")
-                        .font(.system(size: 13, weight: .medium))
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Gallery")
+                        .font(.tgDisplay)
+                        .foregroundStyle(Theme.fg)
+                    Text("\(galleryItems.count) model\(galleryItems.count == 1 ? "" : "s") loadable from data/gallery/ + ~/.cache/tinygpt/runs/ · pick an action below each model")
+                        .font(.system(size: 12, design: .monospaced))
                         .foregroundStyle(Theme.muted)
-                    Text("Drop .tinygpt files into data/gallery/ or click the + above")
-                        .font(.system(size: 11, design: .monospaced))
-                        .foregroundStyle(Theme.faint)
                 }
-                .frame(maxHeight: .infinity)
-            } else {
-                ScrollView {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 220, maximum: 320), spacing: 12)],
-                              alignment: .leading, spacing: 12) {
+
+                if galleryItems.isEmpty {
+                    VStack(spacing: 10) {
+                        Image(systemName: "tray")
+                            .font(.system(size: 28))
+                            .foregroundStyle(Theme.faint)
+                        Text("No models found")
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundStyle(Theme.muted)
+                        Text("Drop .tinygpt / HF-dir into data/gallery/, train via the Train tab, or click + in the sidebar to add one.")
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundStyle(Theme.faint)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 240)
+                } else {
+                    // Show ALL models — rich card per item with Chat / Eval / Interp
+                    // actions so the workspace doubles as a hub: jump straight to
+                    // any surface from any model.
+                    LazyVGrid(columns: [
+                        GridItem(.flexible(), spacing: 16),
+                        GridItem(.flexible(), spacing: 16),
+                    ], alignment: .leading, spacing: 16) {
                         ForEach(galleryItems) { item in
-                            modelCard(item)
+                            galleryCardWithActions(item)
                         }
                     }
-                    .padding(.horizontal, 40)
                 }
             }
-            Spacer()
-
-            VStack(spacing: 4) {
-                Text("Each gallery model is a 9.6M-parameter byte-level transformer")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Theme.faint)
-                Text("trained on a different corpus. Same architecture, different mind.")
-                    .font(.system(size: 11))
-                    .foregroundStyle(Theme.faint)
-            }
-            .padding(.bottom, 40)
+            .padding(.horizontal, 32)
+            .padding(.vertical, 28)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.base)
     }
 
     /// One past completion as a card. Prompt is highlighted in the

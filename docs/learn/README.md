@@ -32,6 +32,8 @@ current LLMs. They're for someone who knows the basics and wants the
 "why" behind specific designs (RoPE, GQA, MoE, etc.).
 
 - [LLM mechanics fundamentals](./llm-mechanics-fundamentals.md) — RoPE, GQA, attention variants, MoE, expert routing
+- [Mathematically essential vs engineering optimization](./essential-vs-optimization.md) — the project split: the math that defines the model's function (oracle = `python_ref/model.py`) vs the optimization layer that only makes it faster/smaller; and **loss drift**, the number that polices the boundary
+- [The WebGPU execution model](./webgpu-execution-model.md) — device/queue, pipeline, dispatch, workgroups, invocations, bind groups, the memory hierarchy; how our matmul + attention shaders map onto it (read before the `.wgsl` files)
 
 **Interview-grade topic maps** (what / why-it-matters-here / external source / repo anchor — for senior/staff prep):
 - [Speech & systems topics](./speech-and-systems-topics.md) — voice-pipeline latency, WER, speech-to-speech, fine-tune debugging, feature selection, queues vs websockets, FSDP2
@@ -40,10 +42,12 @@ current LLMs. They're for someone who knows the basics and wants the
 - [Advanced architecture, RAG/agents, eval & system design](./advanced-ml-systems-eval.md) — modern decoder block, attention-as-matmuls whiteboard, RAG, agents, LLM-as-judge, perplexity, contamination, ML system-design rounds, classic-ML depth
 - [Qwen3-VL mRoPE + DeepStack](./qwen3-vl-mrope-deepstack.md) — vision-language attention specifics; relevant to Pace's VLM pillar
 - [App Intents comparison](./app-intents-comparison.md) — how Pace's action surface relates to macOS App Intents
+- [Apple on-device Foundation Models — where they fit (and don't)](./apple-on-device-foundation-models.md) — the bridge we built, the measured verdict (can't ground actions; 4096-ctx can't hold a tool catalog; not faster), and the decision to use it as a free routing floor, never a dependency
 - [Agent context as a memory hierarchy](./agent-context-hierarchy.md) — the L1/L2/L3 framing for agent context engineering, and the steals it produced (eval failure triage, E9 prompt-tiering A/B, B26 deferred tools)
 - [Castform's RL fine-tune platform — what we stole](./castform-rl-finetune.md) — composite reward functions (B28), trace-driven data synthesis (B29), reasoning-depth classification (B30)
 - [Tool-calling: how close can a Mac-local small model get to frontier?](./tool-calling-frontier-parity.md) — broken-eval → frontier-validated BFCL gate, the honest size curve, the distillation result (1.7B avg 56→76), and where RL takes over
 - [Small-model tool-calling: the SOTA playbook (what others do)](./small-model-tool-calling-playbook.md) — survey of data synthesis, SFT tricks (function masking), RL (ToolRL graded reward, DAPO), eval traps, and on-device serving, with a prioritized steal list
+- [Diversity-driven small-model reasoning (Spectrum-to-Signal)](./diversity-driven-small-model-reasoning.md) — VibeThinker's three transferable methods (Diversity-Exploring Distillation, MGPO, specialist weight-merging) mapped to our loop; specialist-merging as the negative-transfer antidote
 - [Model vs agent — what's actually different](./model-vs-agent.md) — the architectural distinction; "what makes a model into an agent" beyond tools + loop; mapped onto this repo's layers
 - [Competitive landscape (2026)](./competitive-landscape.md) — map of fine-tune + eval + interp players, the Mac-first whitespace, and the consolidation signal
 - [External references](./external-references.md) — papers, blog posts, code-base reading list

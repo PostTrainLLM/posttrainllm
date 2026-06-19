@@ -15,6 +15,7 @@ enum EvalGateCommand {
         var baselineOverride: String? = nil
         var outPath: String? = nil
         var thresholdOverride: Double? = nil
+        var budgetPath: String? = nil
         var passes = 1
         var updateBaseline = false
 
@@ -26,6 +27,7 @@ enum EvalGateCommand {
             case "--baseline": baselineOverride = value(args, &i)
             case "--out": outPath = value(args, &i)
             case "--threshold": thresholdOverride = Double(value(args, &i) ?? "")
+            case "--budget": budgetPath = value(args, &i)
             case "--passes": passes = Int(value(args, &i) ?? "") ?? 1
             case "--update-baseline": updateBaseline = true; i += 1
             case "-h", "--help": exitUsage(0)
@@ -41,11 +43,13 @@ enum EvalGateCommand {
             baseline: baselinePath,
             defaultThreshold: thresholdOverride ?? baseSpec.defaultThreshold,
             suites: baseSpec.suites)
+        let budget = loadBudget(budgetPath)
+        let protocolBlock = EvalGate.AgentEvalProtocol(passes: passes, budget: budget)
 
         // 2. Obtain candidate rows + the JSONL file they came from (so
         //    --update-baseline can copy full EvalCompare.Row fidelity).
         let (candidateRows, candidateFile) = resolveCandidate(
-            candidatePath: candidatePath, spec: spec, passes: passes)
+            candidatePath: candidatePath, spec: spec, passes: passes, budgetPath: budgetPath)
 
         // 3. --update-baseline: re-stamp the baseline from the candidate run.
         if updateBaseline {
@@ -73,8 +77,15 @@ enum EvalGateCommand {
             exit(2)
         }
 
-        let averaged = passes > 1 ? EvalGate.averagedByKey(candidateRows) : candidateRows
-        let report = EvalGate.evaluate(baseline: baselineRows, candidate: averaged, spec: spec)
+        let summarized = EvalGate.summarizedByKey(candidateRows)
+        let hasRepeatedRows = !summarized.stats.isEmpty
+        let rowsForGate = (passes > 1 || hasRepeatedRows) ? summarized.rows : candidateRows
+        let report = EvalGate.evaluate(
+            baseline: baselineRows,
+            candidate: rowsForGate,
+            candidateStats: summarized.stats,
+            spec: spec,
+            evalProtocol: protocolBlock)
 
         // 5. Print + persist + exit code.
         printReport(report, spec: spec, passes: passes)
@@ -113,6 +124,18 @@ enum EvalGateCommand {
         return try? EvalGate.Spec.jsonDecoder.decode(EvalGate.Spec.self, from: data)
     }
 
+    private static func loadBudget(_ path: String?) -> EvalGate.AgentEvalBudget? {
+        guard let path else { return nil }
+        do {
+            let data = try Data(contentsOf: URL(fileURLWithPath: path))
+            let dec = JSONDecoder()
+            return try dec.decode(EvalGate.AgentEvalBudget.self, from: data)
+        } catch {
+            fputs("could not parse eval budget at \(path): \(error)\n", stderr)
+            exit(2)
+        }
+    }
+
     // MARK: - candidate resolution
 
     /// Returns (rows, sourceJSONLPath). When `--candidate` is given we read
@@ -120,7 +143,8 @@ enum EvalGateCommand {
     /// suite's command, appending to one temp JSONL, K times for K passes.
     private static func resolveCandidate(candidatePath: String?,
                                          spec: EvalGate.Spec,
-                                         passes: Int) -> ([EvalGate.Row], String?) {
+                                         passes: Int,
+                                         budgetPath: String?) -> ([EvalGate.Row], String?) {
         if let p = candidatePath {
             guard let rows = try? EvalGate.loadRows(fromJSONLAt: p) else {
                 fputs("could not read candidate \(p)\n", stderr); exit(2)
@@ -150,9 +174,12 @@ enum EvalGateCommand {
                     $0.replacingOccurrences(of: "${TINYGPT_EVAL_OUT}", with: temp.path)
                         .replacingOccurrences(of: "$TINYGPT_EVAL_OUT", with: temp.path)
                 }
-                let status = EvalHarnessSupport.runProcess(
-                    exeURL, expanded,
-                    env: ["TINYGPT_EVAL_OUT": temp.path])
+                var env = ["TINYGPT_EVAL_OUT": temp.path]
+                if let budgetPath {
+                    env["TINYGPT_EVAL_BUDGET"] = budgetPath
+                }
+                env["TINYGPT_EVAL_PASSES"] = "\(max(1, passes))"
+                let status = EvalHarnessSupport.runProcess(exeURL, expanded, env: env)
                 if status != 0 {
                     fputs("suite '\(suite.name)' exited \(status) on pass \(pass + 1)\n", stderr)
                     exit(status)
@@ -176,7 +203,13 @@ enum EvalGateCommand {
         for s in report.suites {
             let label = (s.name + "/" + (s.subtask ?? s.metric)).padding(toLength: nameW, withPad: " ", startingAt: 0)
             let base = s.baselineScore.map { String(format: "%.3f", $0) } ?? "  —  "
-            let cand = s.candidateScore.map { String(format: "%.3f", $0) } ?? "  —  "
+            let cand: String
+            if let stats = s.candidateStats, stats.n > 1 {
+                let halfWidth = (stats.ci95High - stats.ci95Low) / 2.0
+                cand = String(format: "%.3f±%.3f", stats.mean, halfWidth)
+            } else {
+                cand = s.candidateScore.map { String(format: "%.3f", $0) } ?? "  —  "
+            }
             let delta = s.deltaPP.map { String(format: "%+.1f", $0) } ?? "  —  "
             let thr = String(format: "%.1f", s.thresholdPP)
             let mark: String
@@ -230,6 +263,9 @@ enum EvalGateCommand {
           --baseline <jsonl>       override the spec's baseline path
           --threshold <pp>         override the default regression tolerance
                                    (percentage points; per-suite values win)
+          --budget <json>          attach fixed eval budget/protocol metadata
+                                   to gate-result.json and expose it to suite
+                                   commands as TINYGPT_EVAL_BUDGET
           --passes <K>             run each suite K times, gate on the mean
           --update-baseline        re-stamp the baseline from this run, exit 0
           --out <path>             gate-result.json location (default: ./)

@@ -118,9 +118,69 @@ final class EvalGateTests: XCTestCase {
     func test_averaging_collapses_repeated_keys() {
         let rows = [row("bfcl", "accuracy", 0.70), row("bfcl", "accuracy", 0.80),
                     row("bfcl", "accuracy", 0.90)]
-        let avg = EvalGate.averagedByKey(rows)
-        XCTAssertEqual(avg.count, 1)
-        XCTAssertEqual(avg.first?.score ?? 0, 0.80, accuracy: 0.0001)
+        let summary = EvalGate.summarizedByKey(rows)
+        XCTAssertEqual(summary.rows.count, 1)
+        XCTAssertEqual(summary.rows.first?.score ?? 0, 0.80, accuracy: 0.0001)
+
+        let stats = try! XCTUnwrap(summary.stats[summary.rows[0].key])
+        XCTAssertEqual(stats.n, 3)
+        XCTAssertEqual(stats.mean, 0.80, accuracy: 0.0001)
+        XCTAssertEqual(stats.stdev, 0.10, accuracy: 0.0001)
+        XCTAssertLessThan(stats.ci95Low, stats.mean)
+        XCTAssertGreaterThan(stats.ci95High, stats.mean)
+    }
+
+    func test_evaluate_attaches_repeated_pass_stats() {
+        let base = [row("bfcl", "accuracy", 0.80)]
+        let repeated = [row("bfcl", "accuracy", 0.78),
+                        row("bfcl", "accuracy", 0.80),
+                        row("bfcl", "accuracy", 0.82)]
+        let summary = EvalGate.summarizedByKey(repeated)
+        let report = EvalGate.evaluate(
+            baseline: base,
+            candidate: summary.rows,
+            candidateStats: summary.stats,
+            spec: spec([.init(name: "bfcl")]))
+
+        XCTAssertTrue(report.passed)
+        let stats = try! XCTUnwrap(report.suites.first?.candidateStats)
+        XCTAssertEqual(stats.n, 3)
+        XCTAssertEqual(stats.trialScores, [0.78, 0.80, 0.82])
+        XCTAssertEqual(report.suites.first?.candidateScore ?? 0, 0.80, accuracy: 0.0001)
+    }
+
+    func test_budget_decodes_and_report_encodes_protocol_block() throws {
+        let budgetJSON = #"""
+        {
+          "max_steps": 8,
+          "sandbox_cpus": 1.0,
+          "sandbox_ram_mb": 512,
+          "temperature": 0.0,
+          "top_p": 1.0,
+          "sampling_seed": 17,
+          "infra_patches": ["bfcl#127 patched"]
+        }
+        """#
+        let budget = try JSONDecoder().decode(
+            EvalGate.AgentEvalBudget.self,
+            from: budgetJSON.data(using: .utf8)!)
+        XCTAssertEqual(budget.maxSteps, 8)
+        XCTAssertEqual(budget.sandboxRamMb, 512)
+        XCTAssertEqual(budget.infraPatches, ["bfcl#127 patched"])
+
+        let report = EvalGate.evaluate(
+            baseline: [row("bfcl", "accuracy", 0.80)],
+            candidate: [row("bfcl", "accuracy", 0.81)],
+            candidateStats: [:],
+            spec: spec([.init(name: "bfcl")]),
+            evalProtocol: .init(passes: 3, budget: budget))
+        let data = try JSONEncoder().encode(report)
+        let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let proto = try XCTUnwrap(obj?["protocol"] as? [String: Any])
+        XCTAssertEqual(proto["passes"] as? Int, 3)
+        let encodedBudget = try XCTUnwrap(proto["budget"] as? [String: Any])
+        XCTAssertEqual(encodedBudget["max_steps"] as? Int, 8)
+        XCTAssertEqual(encodedBudget["sampling_seed"] as? Int, 17)
     }
 
     func test_loadRows_parses_evalcompare_jsonl_and_skips_garbage() throws {

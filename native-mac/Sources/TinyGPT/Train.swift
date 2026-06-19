@@ -103,10 +103,11 @@ enum Train {
         var evalEvery: Int? = nil
         var evalTasks: String = "arc_easy,gsm8k"
         var evalLimit: Int = 50
-        // C9 determinism: --seed N seeds MLXRandom early so model init +
-        // any GPU-side dropout/noise is reproducible. Batch sampling via
-        // Swift's stdlib `Int.random` is NOT covered yet — v2 will replace
-        // it with a seeded host RNG. See banner footer + docs/determinism.md.
+        // C9 determinism: --seed N seeds MLXRandom (model init, GPU-side
+        // dropout/noise) AND BatchRng (Splitmix64 host-side generator
+        // that backs every corpus sampler's window pick). Together, two
+        // runs with the same seed produce identical INIT loss AND the
+        // same training batches. See banner footer + docs/determinism.md.
         var rngSeed: UInt64? = nil
         var valSplit: Double = 0
         var valEvery: Int = 200
@@ -319,15 +320,15 @@ enum Train {
             warnIfVolatileOutputPath(out)
         }
 
-        // C9: seed MLXRandom BEFORE any model construction or weight init.
-        // Model parameter initialization (e.g., He/Xavier init) draws from
-        // MLXRandom, so seeding here makes init reproducible across runs.
-        // Documented limitation: batch sampling still uses Swift stdlib
-        // `Int.random`, which is non-deterministic — full determinism is a
-        // v2 follow-up (replace stdlib RNG in sampleBatchRaw with a seeded
-        // host generator).
+        // C9: seed both MLXRandom AND the batch-sampling RNG before any
+        // model construction or weight init. Model parameter init goes
+        // through MLXRandom (He/Xavier); corpus samplers (byte/token/IO
+        // windows, SFT, DPO) go through BatchRng — a Splitmix64-backed
+        // helper that wraps the formerly-stdlib `Int.random(in:)` calls.
+        // Together: same --seed → same init AND same batch sequence.
         if let s = rngSeed {
             MLXRandom.seed(s)
+            BatchRng.seed(UInt64(bitPattern: Int64(s)))
         }
 
         // Model + config — either fresh from preset, or resumed from .tinygpt.
@@ -751,7 +752,7 @@ enum Train {
         corpus:        \(corpusSummary)
         train/val:     \(trainSummary) / \(valSummary)
         lr schedule:   \(lrSchedule)\(useSchedule ? " (warmup \(warmupSteps), max \(maxLR), min \(minLR)\(lrSchedule == "wsd" ? ", decay \(effectiveDecaySteps)" : ""))" : " @ \(maxLR)")
-        seed:          \(rngSeed.map { "\($0) (deterministic init; batch sampling NOT yet covered — see docs/determinism.md)" } ?? "random (non-deterministic)")
+        seed:          \(rngSeed.map { "\($0) (deterministic init + batch sampling via BatchRng/Splitmix64)" } ?? "random (non-deterministic)")
         optimizer:     \(optimizerKind.rawValue)
         grad clip:     \(effectiveClip.map { "global L2 ≤ \($0)" } ?? "off")
         grad ckpt:     \(cfg.useGradCheckpoint ? "on (per-block VJP recompute · ~30% slower, ~√L activation mem)" : "off")
@@ -856,7 +857,7 @@ enum Train {
         // avoid IOKit churn. When triggered: same path as SIGINT —
         // atomically save the final checkpoint + exit 0 so the user (or
         // a wrapper script) can `--resume` when conditions clear.
-        var pauseCfg = PowerMonitor.PauseConfig()
+        let pauseCfg = PowerMonitor.PauseConfig()
         // Pause checks are enabled by default. Set TINYGPT_NO_POWER_PAUSE=1
         // to disable (useful for benchmarks where we don't want the run
         // to bail on thermal noise).
@@ -1737,11 +1738,12 @@ enum Train {
           --eval-tasks <csv>              Tasks for --eval-every (default: arc_easy,gsm8k).
           --eval-limit N                  Example cap per task for --eval-every (default: 50).
                                            Eval rows append to `<out-stem>-evals.jsonl`.
-          --seed N                        Seed MLXRandom for reproducible model init +
-                                           GPU-side dropout/noise. Two runs with the same
-                                           seed produce identical INIT loss. Batch sampling
-                                           (Swift stdlib `Int.random`) is NOT seeded in v1
-                                           — full bit-exact replay is a v2 follow-up.
+          --seed N                        Seed MLXRandom (model init + GPU-side
+                                           dropout/noise) AND BatchRng (Splitmix64 host
+                                           generator wrapping every corpus sampler's window
+                                           pick). Two runs with the same seed produce
+                                           identical INIT loss AND the same training-batch
+                                           sequence.
           --val-split 0.0-0.2             Hold out last fraction of corpus for val
           --val-every N                   Eval val loss every N steps (default: 200)
 

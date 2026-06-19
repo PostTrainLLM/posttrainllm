@@ -158,8 +158,234 @@ Two fixes made the number trustworthy:
 
 **On the *sound* categories the 4B is ~93–94 — near-frontier.** The residual gap is
 genuine capability on the hardest real-user args (`live_multiple` 64 vs frontier 92), not
-something more training of *this* base fixes. **The real next frontier is multi-turn /
-agentic — entirely unmeasured here, and where small models are known to cliff.**
+something more training of *this* base fixes.
+
+## 8. Multi-turn / agentic — the cliff, measured (2026-06-14)
+
+Single-turn (88.7) said nothing about *holding a conversation*. Built a stateful
+multi-turn harness reusing BFCL's machinery (`execute_multi_turn_func_call` +
+`multi_turn_checker` + the `involved_classes` backends); `scripts/bfcl_multiturn_eval.py`.
+
+**The build lesson:** the *inference side* is the eval. A hand-rolled text-transcript
+prompt under-elicited badly — the 30B-A3B scored **0/8 despite acing single-turn (96/96)**.
+The fix: drive the model with its **native tool-calling chat template** (`tools=` catalog +
+proper `assistant`/`tool` message roles — what Qwen3 was trained on) + BFCL's own
+multi-turn behaviour prompt. That lifted the 30B from **0% → 50%** — in BFCL's expected
+~50-70% range for `multi_turn_base` (the hardest category; *even frontier doesn't ace it*).
+
+**The cliff (multi_turn_base, native-template harness, n=20 same examples):**
+
+| Model | single-turn | **multi-turn** | drop |
+|---|---|---|---|
+| Qwen3-30B-A3B (3B active) | ~96 | **45%** | −51 |
+| **Qwen3-4B-2507 bf16** | 88.7 | **25%** | **−64** |
+
+So even the strong 30B more than halves on the *hardest* multi-turn; the 4B drops to 25%.
+
+**But "95-96% multi-turn" is unachievable on `multi_turn_base` for *anyone*** — the BFCL-V4
+leader sits at 75% *overall* and multi-turn runs lower; frontier caps ~50-70%. By our own
+frontier-ceiling rule, a 95% bar there is mis-calibrated. So we built a **difficulty-graded,
+right-sized gate** — deterministic single-backend (GorillaFileSystem) agentic tasks tuned so a
+strong model aces the easier tiers while the gap to a small model grows (`scripts/make_multiturn_gates.py`).
+
+**The capability gradient — frontier-validated (DeepSeek-V4-pro, true frontier):**
+
+| Tier | task shape | **DeepSeek-V4-pro** | 30B-A3B (proxy) | **Qwen3-4B-2507 bf16** |
+|---|---|---|---|---|
+| single-turn | one call | ~99 | ~96 | 88.7 |
+| easy multi-turn | 1-2 calls | 100% | 100% | 94% |
+| moderate | 3-4 calls + cd-nav | 100% | 100% | 86% |
+| **hard** (canonical gate) | 5-7 calls, deep nesting, 4 turns | **100%** | 83% | **58%** |
+| `multi_turn_base` (BFCL hardest) | multi-backend, long | — | 45% | 25% |
+
+**The hard tier is the sound, discriminating gate** — a *true* frontier model (DeepSeek-V4-pro,
+via OpenAI function-calling) aces it **100%**, while the **4B clearly cliffs to 58%** (a 42-pt
+frontier-to-small gap). So `make_multiturn_gates.py` + the DeepSeek backend
+(`bfcl_multiturn_deepseek.py`) give a *calibrated* multi-turn ruler: frontier ~100%, and the 4B's
+curve **94 → 86 → 58** maps exactly where it degrades as agentic complexity rises. (The 30B-A3B
+sits between at 83% on hard — a strong but not-frontier 3B-active proxy.)
+
+**The 4B is a capable *simple*-agent, not a poor agent** — near-frontier on easy/moderate flows,
+cliffing only as depth/length/turns grow. We expected the climb lever to be *multi-turn RL*;
+in fact **rejection-sampling distillation alone cleared it** (§8.1). RL (GRPO) stays available
+as a further top-up, but wasn't needed to reach frontier-parity on this gate.
+
+(API note: BFCL func docs use `"type":"dict"`; OpenAI/DeepSeek require `"object"` — the DeepSeek
+backend normalizes BFCL's type vocabulary to JSON-schema, and needs a `curl` User-Agent to clear
+Cloudflare. Key read from `/tmp/deepseek_key` / `$DS_KEY_FILE`, never committed.)
+
+(Build note: the inference side IS the eval — a hand-rolled text transcript scored the 30B 0%;
+the native tool-calling chat template + proper roles fixed it. And `echo`-content tasks were
+flaky because small models over-call and a stray `touch` blanks the file — idempotent
+mkdir/mv/rm tasks make the gate clean. Both are real "agentic eval is subtle" lessons.)
+
+## 8.1 Climbing the cliff — frontier-trajectory distillation (2026-06-16)
+
+Goal: get the 4B from its 58% hard-tier cliff to the ~95% frontier level **without
+stepping up to 8B**. Two levers, stacked:
+
+1. **Free first — a plan-then-execute system prompt** (plan the full call sequence, act one
+   step at a time, never repeat a succeeded call, stop when done). Stock 4B **58 → 75** on the
+   12-task gate (the harness `SYS` is now `MT_SYS`-overridable). A real +17, but brittle.
+2. **The durable lever — RFT (rejection-sampling distillation).** Recipe, all Mac-local:
+   - **Scale the task family:** `gen_multiturn_trajdata.py` templates hundreds of deterministic,
+     idempotent GorillaFileSystem agentic tasks (gold-validated via `multi_turn_checker`).
+   - **Teacher trajectories:** run **DeepSeek-V4-pro** over 100 held-out tasks (`bfcl_multiturn_deepseek.py
+     --dump`), keep **only the 99 the checker passed** (rejection sampling ⇒ clean labels).
+   - **Render in the student's own format:** `render_sft_from_traj.py` re-emits each trajectory
+     through the 4B's chat template (`tools=` + `<tool_call>` + tool roles) as mlx_lm text.
+   - **LoRA SFT:** 16 layers, lr 1e-5, 4 epochs. *`--grad-checkpoint` is mandatory* — every
+     example is ~3.1-3.7k tokens (the 18-tool catalog floors them) and the 151k-vocab logits OOM
+     the backward pass without it. One command: `distill_multiturn.sh`.
+
+**The climb (held-out, zero train/eval content overlap — verified):**
+
+| Qwen3-4B-2507 | hard gate (12) | 40-task held-out set |
+|---|---|---|
+| stock | 58% | — |
+| + plan prompt | 75% | 60% |
+| **+ distilled (99 frontier trajectories)** | **100%** | **95%** |
+
+**The 4B now matches DeepSeek-V4-pro (100%) on the frontier-validated hard gate** — frontier-parity
+on multi-turn file-system agency, at 4B, locally, no 8B needed.
+
+**The tradeoff (honest):** single-turn BFCL slipped ~**87 → 83** avg (simple_python −8,
+parallel_multiple −16, multiple/parallel unchanged, live_multiple +4) — the classic specialization
+cost of a narrow SFT. Recoverable by mixing single-turn data into the SFT or fewer epochs if we
+want both skills; for a multi-turn agentic product (Pace) the trade is strongly positive.
+
+**Scope:** proven on the GorillaFileSystem multi-turn domain (the gate's backend). Generalization
+to other agentic backends (trading, ticketing, …) is untested — distilling a multi-backend mix is
+the obvious next step. The recipe — *author verifiable tasks → frontier RFT → SFT in the student's
+template* — is domain-general.
+
+**Reproducible for free (gold behaviour-cloning ≡ frontier distillation).** When the trajectories
+were lost to a `/tmp` wipe, we rebuilt the identical model with **no teacher API**: for verifiable
+tasks the **gold ground-truth *is* the correct trajectory**, so `gold_to_sft_traj.py` synthesizes
+SFT data by executing the gold per turn (free, fast, deterministic). It reproduced **100% hard /
+95% hardgen exactly** — but only after one non-obvious fix: the SFT data must **demonstrate the
+turn-completion STOP signal** (an assistant message emitting *no* tool calls after the work is
+done). Without it the model never learns to stop, over-calls at eval, and lands at 75% — the gap
+that a teacher's trajectories close for free because they naturally end each turn with a no-call
+message. (Lesson with teeth for self-improvement: *knowing when to stop is a learned behaviour*,
+not a freebie — a ReST loop must reward it.)
+
+## 8.2 Conclusive head-to-head — Pace incumbent (Gemma) vs the 4B (2026-06-16)
+
+Pace ships **Gemma**; this is the deciding comparison. Same hard gate, same plan prompt,
+n=12. Gemma scored **zero-shot** via LM Studio (OpenAI function-calling); the distilled 4B is
+the §8.1 specialist; frontier + stock-4B are anchors. Reproducible via `headtohead_multiturn.sh`.
+
+| Model | params | hard-gate task-completion |
+|---|---|---|
+| DeepSeek-V4-pro (frontier anchor) | — | **100%** |
+| **Qwen3-4B-2507 — distilled** | **4B** | **100%** |
+| Gemma-4-12b-qat | 12B | 83% |
+| Qwen3-4B-2507 — stock (+plan prompt) | 4B | 75% |
+| Gemma-3-12b | 12B | 33% |
+
+**The distilled 4B matches frontier and beats both Gemma-12B variants at ⅓ the parameters** —
+higher agentic accuracy *and* smaller/faster/less-RAM. For a multi-turn agentic app, the
+distilled 4B is the clear winner over the incumbent.
+
+**Honest framing:** the 4B is *specialized* on this domain (GorillaFileSystem) via cheap
+frontier-distillation; Gemma is *zero-shot*. The claim is the project thesis — *a cheaply
+specialized small model beats a larger general model on the target task* — **not** "4B > 12B in
+general." Distilling Gemma the same way would likely lift it too. Caveats: Gemma-3-12b's 33%
+partly reflects weaker tool-call formatting (Gemma-4-qat's 83% shows the protocol is fine, so
+most of the gap is real capability); Pace's exact production Gemma is still TBD (if Gemma-3, the
+upgrade is dramatic; if Gemma-4-qat, still +17pp at ⅓ size); decode tok/s + RAM (the 4B wins both
+structurally) and single-turn (distilled 4B ~83) are the remaining leaderboard columns.
+
+## 8.3 Domain saturated at 4B + a free frontier backend (2026-06-16)
+
+Pushed a **longer-horizon `veryhard` tier** (6-8 turns, 9-16 calls, heavy cd-navigation; new
+templates the 4B never trained on — `gen_multiturn_trajdata.py … veryhard`) to see if a *harder*
+gate would finally separate the distilled 4B from frontier and justify a bigger model:
+
+| Model | veryhard (12) |
+|---|---|
+| gpt-5.5 (true frontier) | **100%** |
+| **Qwen3-4B-2507 — distilled** | **100%** |
+| DeepSeek-V4-pro | 83% |
+| Qwen3-4B-2507 — stock (+plan) | 25% |
+
+**The distilled 4B aces it too — matching the strongest frontier (gpt-5.5) on longer unseen
+tasks, while stock collapses to 25%.** Conclusion: **the file-ops agentic domain is saturated at
+4B** — a harder *file-ops* gate won't discriminate it, so a distilled 12B has no payoff here. The
+real open question is **breadth** (other BFCL backends — trading/ticketing/travel — that the 4B
+never trained on), not depth. (DeepSeek's 83% < gpt-5.5's 100% just means DeepSeek is a slightly
+less reliable frontier on fiddly 16-call navigation; the gate is sound — true frontier aces it.)
+
+**Free frontier backend (cost fix):** validation + teacher trajectories now run on the **Codex
+CLI (`gpt-5.5`), free under subscription** — `scripts/bfcl_multiturn_codex.py` drives it
+single-shot per step via `codex exec --output-schema` (forced JSON tool-calls), reusing the same
+BFCL executor + checker. Gotcha: OpenAI strict structured-output requires `additionalProperties:
+false` on every object and forbids free-form objects, so `arguments` is passed as a JSON *string*
+and parsed. This retires the paid DeepSeek API for routine frontier work.
+
+## 8.4 Breadth — narrow distillation causes negative transfer (2026-06-16)
+
+Saturation at file-ops raised the real question: does the specialist *generalize*? Tested on 52
+held-out **single-backend, non-filesystem** BFCL multi_turn tasks (TradingBot 20, VehicleControlAPI
+19, TravelAPI 13 — domains the 4B never trained on), same generic prompt, distilled vs stock:
+
+| 4B | file-ops (hard gate) | out-of-domain breadth (52) |
+|---|---|---|
+| stock | 58% | **59.6%** |
+| distilled (file-ops only) | 100% | **42.3%** |
+
+**The file-ops distillation made the model *worse* everywhere else — 60% → 42%, a −17pt regression.**
+Apples-to-apples (same tasks, same prompt), so this is real **catastrophic forgetting / negative
+transfer**, not noise. We bought depth (file-ops 58→100) at the cost of breadth. The distilled 4B is
+a file-ops *specialist*, **not a better agent**.
+
+Implications:
+- **For a multi-domain product (Pace):** a narrowly-distilled model is the wrong artifact unless it's
+  *routed* (used only on its domain). The general fix is **multi-backend distillation** — train across
+  all backends at once so gains don't come with forgetting.
+- **This is the strongest motivation for the self-improving auto-curriculum** ([self-improving-agents.md](../prds/self-improving-agents.md)):
+  a loop that samples + filters across the *whole* task distribution trains breadth and depth together,
+  structurally avoiding the single-domain over-fit we just measured.
+- **Caveat:** the *absolute* bar here isn't frontier-validated yet (these are real multi_turn_base
+  tasks; frontier may not ace all 52). The *relative* negative-transfer result is airtight regardless;
+  the gpt-5.5 ceiling check (free, via the Codex backend) would place the absolute gap.
+
+## 8.5 The gold-cloning ceiling — why breadth needs *interleaved* trajectories (2026-06-16)
+
+Tried the obvious fix for §8.4's negative transfer: **multi-backend gold-cloning** — 248 tasks
+spanning file-ops + Trading/Vehicle/Travel/Ticket/Message/Twitter (clean split from the 52-task
+eval), gold-cloned and SFT'd. It made breadth **worse**:
+
+| 4B | file-ops (depth) | breadth (52 out-of-domain) |
+|---|---|---|
+| stock | 58% | **59.6%** ← still the best breadth |
+| file-ops gold-distill | 100% | 42.3% |
+| **multi-backend gold-distill** | 100% | **30.8%** |
+
+**Root cause (measured, not guessed):** **52% of multi-backend turns have a call argument that
+comes from a *tool result*, not the user prompt.** Example `multi_turn_base_57`: the gold lumps one
+turn as `get_zipcode(...)`, `get_zipcode(...)`, `estimate_distance(cityA='69238', cityB='51479')` —
+where `69238`/`51479` are the zipcodes the `get_zipcode` calls **return**. Behaviour-cloning that
+gold teaches the model to (a) emit all calls *blind* before seeing any result and (b) **hallucinate
+the specific result values**. More such data → more harm.
+
+**The law:** *gold-cloning ≡ frontier distillation only when call args are derivable from the user
+prompt* (file-ops: names, paths — §8.1 worked for exactly this reason). For **data-dependent
+agency**, the thing to learn is the trajectory *structure* — `call → read result → use result in the
+next call` — and the gold does not contain that structure. Cloning concrete result-values is
+anti-learning.
+
+**What actually fixes breadth:** *interleaved* trajectories that demonstrate reading a result before
+using it — either a **frontier teacher** (gpt-5.5 via the free Codex backend, which calls
+`get_zipcode`, reads `69238`, *then* calls `estimate_distance`) or the model's **own rollouts in a
+ReST/RL loop** (interleaving is intrinsic; the checker filters the correct ones). This is the
+decisive, evidence-backed motivation for [self-improving-agents.md](../prds/self-improving-agents.md):
+the loop teaches the one thing gold-cloning structurally can't.
+
+**Practical takeaway for Pace:** today the **stock 4B (60%) is the best multi-domain agent**; the
+gold-distilled models win only on their narrow domain (file-ops 100%). Either *route* to the
+specialist on its domain, or train breadth with *real interleaved* trajectories — not gold-clones.
 
 ## See also
 - [distillation.md](../distillation.md) — the distillation workflow + match-vs-from-scratch protocol.

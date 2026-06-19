@@ -1,4 +1,5 @@
 import Foundation
+import TinyGPTModel
 
 /// Shared schema for every `tinygpt eval-*` subcommand + a comparison
 /// CLI that ingests multiple eval JSONLs and renders a pivot table.
@@ -30,13 +31,28 @@ public enum EvalCompare {
         public let wall_seconds: Double
         public let timestamp: String       // ISO8601
         public let harness_version: String?
+        public let evalProtocol: EvalGate.AgentEvalProtocol?
+        /// Optional K-pass uncertainty for this row. Older rows omit it;
+        /// `eval-compare` also derives the same shape when repeated rows
+        /// with the same task/model/metric are present in the input JSONL.
+        public let passStats: EvalGate.PassStats?
+
+        enum CodingKeys: String, CodingKey {
+            case run_id, model_path, model_name, model_step, baseline
+            case task, subtask, metric, score, n_examples, wall_seconds
+            case timestamp, harness_version
+            case evalProtocol = "protocol"
+            case passStats = "pass_stats"
+        }
 
         public init(run_id: String, model_path: String, model_name: String,
                     model_step: Int? = nil, baseline: Bool = false,
                     task: String, subtask: String? = nil,
                     metric: String, score: Double, n_examples: Int,
                     wall_seconds: Double, timestamp: String? = nil,
-                    harness_version: String? = nil) {
+                    harness_version: String? = nil,
+                    evalProtocol: EvalGate.AgentEvalProtocol? = nil,
+                    passStats: EvalGate.PassStats? = nil) {
             self.run_id = run_id
             self.model_path = model_path
             self.model_name = model_name
@@ -50,6 +66,8 @@ public enum EvalCompare {
             self.wall_seconds = wall_seconds
             self.timestamp = timestamp ?? ISO8601DateFormatter().string(from: Date())
             self.harness_version = harness_version
+            self.evalProtocol = evalProtocol
+            self.passStats = passStats
         }
 
         /// Helper for harness wrappers — encode + append one row.
@@ -141,19 +159,24 @@ public enum EvalCompare {
             return a < b
         }
 
-        var lookup: [String: [String: Double]] = [:]   // task → model → score
-        var counts: [String: [String: Int]] = [:]      // task → model → n
+        var grouped: [String: [String: [Row]]] = [:]   // task → model → rows
         for r in rows {
-            lookup[r.task, default: [:]][r.model_name] = r.score
-            counts[r.task, default: [:]][r.model_name] = r.n_examples
+            grouped[r.task, default: [:]][r.model_name, default: []].append(r)
         }
 
         // Column width has to fit BOTH the header (model name) and the
-        // wide-format cells ("0.350  (n=12345)"). Otherwise the trailing
+        // wide-format cells ("0.350±0.020  (n=12345,k=3)"). Otherwise the trailing
         // ")" gets truncated by `.padding(toLength:)`.
-        let maxN = counts.values.flatMap { $0.values }.max() ?? 0
-        let cellW = ("0.350  (n=\(maxN))").count
-        let modelW = max((models.map { $0.count }.max() ?? 8), cellW)
+        var renderedCells: [String: [String: String]] = [:]
+        for task in tasks {
+            for model in models {
+                if let summary = summarize(grouped[task]?[model] ?? []) {
+                    renderedCells[task, default: [:]][model] = render(summary)
+                }
+            }
+        }
+        let maxCellW = renderedCells.values.flatMap { $0.values.map(\.count) }.max() ?? 0
+        let modelW = max((models.map { $0.count }.max() ?? 8), maxCellW)
         let taskW = max(8, (tasks.map { $0.count }.max() ?? 8))
 
         print("")
@@ -168,10 +191,7 @@ public enum EvalCompare {
         for task in tasks {
             var row = task.padding(toLength: taskW, withPad: " ", startingAt: 0)
             for m in models {
-                let score = lookup[task]?[m]
-                let n = counts[task]?[m] ?? 0
-                if let s = score {
-                    let cell = String(format: "%.3f  (n=%d)", s, n)
+                if let cell = renderedCells[task]?[m] {
                     row += "  " + cell.padding(toLength: modelW, withPad: " ", startingAt: 0)
                 } else {
                     row += "  " + "—".padding(toLength: modelW, withPad: " ", startingAt: 0)
@@ -205,14 +225,14 @@ public enum EvalCompare {
         print(header)
         print(String(repeating: "─", count: header.count))
 
-        var by: [Int: [String: Double]] = [:]
+        var by: [Int: [String: [Row]]] = [:]
         for r in mine {
-            by[r.model_step!, default: [:]][r.task] = r.score
+            by[r.model_step!, default: [:]][r.task, default: []].append(r)
         }
         for s in steps {
             var line = String(format: "%-8d", s)
             for t in tasks {
-                let cell = by[s]?[t].map { String(format: "%.3f", $0) } ?? "—"
+                let cell = summarize(by[s]?[t] ?? []).map { renderScoreOnly($0) } ?? "—"
                 line += "  " + cell.padding(toLength: 10, withPad: " ", startingAt: 0)
             }
             print(line)
@@ -228,15 +248,57 @@ public enum EvalCompare {
         for t in tasks {
             print("\n\(t)")
             print(String(repeating: "─", count: t.count + 4))
-            let mine = rows.filter { $0.task == t }
-                .sorted { $0.score > $1.score }
-            for r in mine {
+            let grouped = Dictionary(grouping: rows.filter { $0.task == t }) {
+                "\($0.model_name)::\($0.model_step.map(String.init) ?? "")"
+            }
+            let ranked = grouped.values.compactMap { group -> (Row, RenderSummary)? in
+                guard let first = group.first, let summary = summarize(group) else { return nil }
+                return (first, summary)
+            }.sorted { $0.1.score > $1.1.score }
+            for (r, summary) in ranked {
                 let star = r.baseline ? "  (baseline)" : ""
                 let step = r.model_step.map { " step=\($0)" } ?? ""
-                print(String(format: "  %.3f  %@%@%@  (n=%d)", r.score, r.model_name, step, star, r.n_examples))
+                print("  \(render(summary))  \(r.model_name)\(step)\(star)")
             }
         }
         print("")
+    }
+
+    private struct RenderSummary {
+        let score: Double
+        let nExamples: Int
+        let stats: EvalGate.PassStats?
+    }
+
+    private static func summarize(_ rows: [Row]) -> RenderSummary? {
+        guard let first = rows.first else { return nil }
+        if rows.count == 1 {
+            return RenderSummary(score: first.score, nExamples: first.n_examples,
+                                 stats: first.passStats)
+        }
+        let stats = EvalGate.PassStats(scores: rows.map(\.score))
+        return RenderSummary(score: stats.mean, nExamples: first.n_examples,
+                             stats: stats)
+    }
+
+    private static func ci95HalfWidth(_ stats: EvalGate.PassStats, score: Double) -> Double? {
+        guard stats.n > 1 else { return nil }
+        return max(abs(stats.ci95High - score), abs(score - stats.ci95Low))
+    }
+
+    private static func renderScoreOnly(_ summary: RenderSummary) -> String {
+        if let stats = summary.stats, let ci = ci95HalfWidth(stats, score: summary.score) {
+            return String(format: "%.3f±%.3f", summary.score, ci)
+        }
+        return String(format: "%.3f", summary.score)
+    }
+
+    private static func render(_ summary: RenderSummary) -> String {
+        let score = renderScoreOnly(summary)
+        if let k = summary.stats?.n, k > 1 {
+            return "\(score)  (n=\(summary.nExamples),k=\(k))"
+        }
+        return "\(score)  (n=\(summary.nExamples))"
     }
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {

@@ -49,6 +49,11 @@ enum TrainExtractor {
         var preset = "tiny"
         var vocabSize = 256
         var contextLength = 128
+        // C4 — when set, route encode() through the HF tokenizer at this
+        // path. The path becomes `cfg.tokenizerSource` in the checkpoint
+        // header so the agent runtime can load the SAME tokenizer at
+        // inference time and avoid train/serve distribution drift.
+        var tokenizerDir: String? = nil
         var steps = 500
         var batchSize = 32
         var maxLR: Float = 3e-4
@@ -99,6 +104,9 @@ enum TrainExtractor {
             case "--seed":
                 guard i + 1 < args.count else { exitUsage() }
                 seed = UInt64(args[i + 1]) ?? seed; i += 2
+            case "--tokenizer":
+                guard i + 1 < args.count else { exitUsage() }
+                tokenizerDir = args[i + 1]; i += 2
             case "--dry-run":
                 dryRun = true; i += 1
             case "-h", "--help":
@@ -126,6 +134,44 @@ enum TrainExtractor {
         guard !examples.isEmpty else {
             fputs("train-extractor: corpus is empty\n", stderr); exit(1)
         }
+
+        // C4 — optional HF tokenizer. When set, encode() uses BPE token
+        // IDs instead of raw UTF-8 byte values; the resulting model is
+        // a BPE-aware router. The user must also pass --vocab-size N
+        // matching the tokenizer's vocab (we validate by clamping a
+        // sample query — if any ID lands outside [0, N) we warn).
+        var bpeTokenizer: HFTokenizer? = nil
+        var tokenizerSourcePath: String? = nil
+        if let tokDir = tokenizerDir {
+            let tokURL = URL(fileURLWithPath: tokDir)
+            do {
+                bpeTokenizer = try HFTokenizer.loadBlocking(from: tokURL)
+                tokenizerSourcePath = tokURL.path
+                if vocabSize == 256 {
+                    fputs("train-extractor: warning — --tokenizer <dir> set but --vocab-size is still 256 (byte-level default). Pass --vocab-size matching the tokenizer's BPE vocab (typically 32k-100k) or training will clamp and discard most token IDs.\n", stderr)
+                }
+                // Sanity-check: encode the first 5 examples and ensure
+                // every produced ID lands within [0, vocabSize). One
+                // out-of-range ID gets clamped to 0 by encode(); we
+                // surface it once here so the user can fix --vocab-size.
+                var sawClamp = false
+                for ex in examples.prefix(5) {
+                    if let ids = try? bpeTokenizer!.encode(ex.query) {
+                        for id in ids where id < 0 || id >= vocabSize {
+                            sawClamp = true; break
+                        }
+                    }
+                    if sawClamp { break }
+                }
+                if sawClamp {
+                    fputs("train-extractor: warning — tokenizer produced IDs outside [0, \(vocabSize)). encode() will clamp them to 0; pass --vocab-size matching the tokenizer.\n", stderr)
+                }
+                fputs("train-extractor: loaded BPE tokenizer from \(tokURL.path)\n", stderr)
+            } catch {
+                fputs("train-extractor: --tokenizer load failed (\(error)); falling back to byte-level.\n", stderr)
+                bpeTokenizer = nil
+            }
+        }
         // Build the label table from the union of tool names.
         let labelNames = Array(Set(examples.map { $0.tool })).sorted()
         let labelIndex: [String: Int] = Dictionary(
@@ -138,7 +184,7 @@ enum TrainExtractor {
         }
 
         // Build the model.
-        let (cfg, numClasses): (ModelConfig, Int) = {
+        var (cfg, numClasses): (ModelConfig, Int) = {
             switch preset.lowercased() {
             case "small":
                 return ToolRouterModel.smallPreset(
@@ -151,6 +197,10 @@ enum TrainExtractor {
             }
         }()
         _ = numClasses
+        // C4 — pin the BPE tokenizer path into the cfg so the
+        // checkpoint header carries it (saveCheckpoint reads
+        // cfg.tokenizerSource directly).
+        cfg.tokenizerSource = tokenizerSourcePath
         MLXRandom.seed(seed)
         let model = ToolRouterModel(cfg, numClasses: labelNames.count, pooling: .mean)
         eval(model)
@@ -199,7 +249,8 @@ enum TrainExtractor {
             let (x, y) = sampleBatch(
                 examples: train, batchSize: batchSize,
                 contextLength: cfg.contextLength,
-                vocabSize: vocabSize, labelIndex: labelIndex)
+                vocabSize: vocabSize, labelIndex: labelIndex,
+                tokenizer: bpeTokenizer)
             let (loss, grads) = gradFn(model, x, y)
             opt.update(model: model, gradients: grads)
             MLX.eval(loss, model, opt)
@@ -286,13 +337,21 @@ enum TrainExtractor {
 
     // MARK: - Batching
 
-    /// Encode a query → token-id vector (byte-level by default). Truncates
-    /// or zero-pads to `contextLength`. Returns ids clamped to
-    /// `[0, vocabSize-1]` so a BPE-mismatched vocab doesn't index out of
-    /// range during early experiments.
-    static func encode(_ s: String, contextLength: Int, vocabSize: Int) -> [Int32] {
-        var ids = [UInt8](s.utf8).prefix(contextLength).map { Int32($0) }
-        // Clamp to vocab range.
+    /// Encode a query → token-id vector. Byte-level by default; when a
+    /// `tokenizer` is supplied, route through HF BPE instead so the
+    /// model sees real BPE tokens. Truncates or zero-pads to
+    /// `contextLength`. IDs are clamped to `[0, vocabSize-1]` so a
+    /// BPE-mismatched vocab doesn't index out of range — the train
+    /// path warns on first encounter; the inference path stays silent.
+    static func encode(_ s: String, contextLength: Int, vocabSize: Int,
+                        tokenizer: HFTokenizer? = nil) -> [Int32]
+    {
+        var ids: [Int32]
+        if let tok = tokenizer, let bpe = try? tok.encode(s) {
+            ids = bpe.prefix(contextLength).map { Int32($0) }
+        } else {
+            ids = [UInt8](s.utf8).prefix(contextLength).map { Int32($0) }
+        }
         for i in 0..<ids.count {
             if ids[i] < 0 || ids[i] >= Int32(vocabSize) {
                 ids[i] = 0
@@ -304,12 +363,14 @@ enum TrainExtractor {
 
     static func sampleBatch(examples: [RouterExample], batchSize: Int,
                              contextLength: Int, vocabSize: Int,
-                             labelIndex: [String: Int]) -> (MLXArray, MLXArray) {
+                             labelIndex: [String: Int],
+                             tokenizer: HFTokenizer? = nil) -> (MLXArray, MLXArray) {
         var inputs = [Int32](repeating: 0, count: batchSize * contextLength)
         var labels = [Int32](repeating: 0, count: batchSize)
         for i in 0..<batchSize {
-            let ex = examples[Int.random(in: 0..<examples.count)]
-            let ids = encode(ex.query, contextLength: contextLength, vocabSize: vocabSize)
+            let ex = examples[BatchRng.randomInt(in: 0..<examples.count)]
+            let ids = encode(ex.query, contextLength: contextLength,
+                              vocabSize: vocabSize, tokenizer: tokenizer)
             for j in 0..<contextLength {
                 inputs[i * contextLength + j] = ids[j]
             }
@@ -392,7 +453,15 @@ enum TrainExtractor {
         usage: tinygpt train-extractor <data.jsonl> [flags]
 
           --preset tiny|small     model size (default: tiny)
-          --vocab-size N          vocab size (default: 256, byte-level)
+          --vocab-size N          vocab size (default: 256, byte-level; pass the
+                                  tokenizer's BPE vocab size when --tokenizer
+                                  is set, typically 32k-100k)
+        --tokenizer <dir>       OPTIONAL HF tokenizer directory. When set, the
+                                  router encodes queries through this BPE
+                                  tokenizer instead of UTF-8 bytes; the path
+                                  is persisted in the checkpoint header so
+                                  the agent runtime loads the SAME tokenizer
+                                  at inference and avoids train/serve drift.
           --context N             sequence length (default: 128)
           --steps N               training steps (default: 500)
           --batch B               batch size (default: 32)

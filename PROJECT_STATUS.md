@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-06-09
+Last updated: 2026-06-18
 
 ## Current Scope
 
@@ -17,13 +17,19 @@ For Pace work, TinyGPT is now the development-time factory and eval lab: it prod
 - Future work is documented around the single-machine roadmap rather than the completed browser milestone list.
 - The Pace v9 serve path now precomputes tokenizer byte tables once at server boot for much faster grammar-constrained first-token latency. A trie-based grammar-mask experiment was implemented but left disabled after measurement showed it was slower than the legacy path.
 - Pace v9/v10 grammar and dataset-helper assets are staged as factory inputs, with remaining train/eval/runtime work tracked as SaaS Maker tasks instead of uncompleted PRD files.
+- The eval methodology gate found by #270 is no longer a vague blocker: FakePace/rule-baseline evidence and v2 fixtures exist in `scripts/fake_pace.py` and `docs/learn/eval-methodology-2026-06-08.md`.
+- `tinygpt eval-gate` has the no-GPU gate path, baseline re-stamping, `--passes`, repeated-run uncertainty reporting, and optional B23 budget metadata in `gate-result.json`; Swift eval rows emitted via `EvalHarnessSupport` now carry the same protocol block when a budget is provided.
+- `tinygpt export-mlx` packages distilled/trained `.tinygpt` checkpoints and fine-tuned `.lora` / `.tgla` adapters into MLX-friendly safetensors directories with config/tokenizer sidecars and a Python MLX loader helper.
+- Planner-model selection is locked for Pace as of 2026-06-19: **Qwen3-4B-Instruct-2507 bf16, stock weights, plan-then-execute prompt** is the default general planner. Gemma remains a challenger/unhappy-path reference, the file-ops distilled 4B is routed-only, 0.6B is smoke-only, and deferred tools stay off by default. See `docs/planner-lock-2026-06-19.md`.
+- The first TinyGPT-built specialist package is registered under `specialists/qwen3-4b-file-ops-distilled`: model card, prompt, eval report, artifact lock, and MLX validation helper for the fused file-ops distilled 4B in `~/.cache/tinygpt/models/mt4b_fused`.
+- `tinygpt eval-bfcl` can pass `--tools` / `--tool-mode full|deferred` into its managed server; a one-sample demo-model BFCL smoke completed for both modes. The real B26 acceptance gate still requires the full specialist BFCL run.
 
 ## Planned Next
 
-1. Use SaaS Maker tasks for the active Pace/TinyGPT factory queue: DoRA serialization v2, Pace v9 body streaming, Pace v10 parameterized actions, factory-only scope docs, serve FSM latency follow-up, and WhisperKit qualification.
-2. Use `docs/single_machine_roadmap.md` as the current roadmap for native Mac/local-model work.
-3. Separate completed browser milestones from active native-app research tasks in docs and issue/task references.
-4. Continue measuring backend changes with the existing eval/performance harness before claiming speed or quality wins.
+1. Run a real specialist through the `eval-gate` command-driven path on a self-hosted Mac runner; only then mark B32 fully ✅ in `docs/PLAN.md`.
+2. Finish B23's remaining protocol work: budget logging in BFCL, τ-bench, Pace unhappy paths, and future agent-suite rows, then actual sandbox/resource enforcement.
+3. Close B26 deferred-tool mode with the BFCL full-vs-deferred parity gate before flipping defaults.
+4. Continue the trace-improvement loop: B22 trajectories → B29 SFT data, then add the judged/rewarded DPO path once B23/B28 make the scores auditable.
 5. Preserve trained checkpoints and generated gallery artifacts unless a cleanup is explicitly requested.
 
 ## Deferred / Parked
@@ -32,3 +38,4 @@ For Pace work, TinyGPT is now the development-time factory and eval lab: it prod
 - Larger backend/evaluation ideas such as WebNN or alternate attention paths are deferred until they have a measured reason.
 - Hosted model service or commercial API scope is parked.
 - Pace runtime over TinyGPT HTTP/localhost is parked; keep `serve` as a development and evaluation tool.
+- New LoRA/specialist training should not be treated as meaningful without a baseline-aware eval-gate result.

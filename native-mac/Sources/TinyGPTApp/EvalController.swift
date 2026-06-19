@@ -89,6 +89,14 @@ final class EvalController: ObservableObject {
     init() {
         loadHistory()
         resultsPath = defaultResultsURL().path
+        // Pick up a model path the Gallery → Eval action button may have
+        // written into UserDefaults just before switching tabs. Empty
+        // string = nothing pinned; user types/picks via the form.
+        if let pinned = UserDefaults.standard.string(forKey: "tg.eval.modelPath"),
+           !pinned.isEmpty
+        {
+            modelPath = pinned
+        }
     }
 
     var selectedLimit: Int { limits[min(max(0, limitIndex), limits.count - 1)] }

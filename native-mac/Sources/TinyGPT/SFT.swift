@@ -439,7 +439,8 @@ enum SFT {
         --dora                   Use DoRA instead of LoRA (Liu et al., 2024).
                                    Adds a learnable per-output magnitude vector to
                                    each wrapped Linear; better quality at same rank.
-                                   In-session only — DoRA adapters aren't yet on disk.
+                                   Persists to disk via the TGLA v2 adapter format
+                                   (magnitudes captured per entry; LoadIO autodetects).
 
         PEFT variants (mutually exclusive; pick at most one — see docs/peft_variants.md):
         --vera                   VeRA — frozen random A/B, train per-rank scalars (~10× fewer params).

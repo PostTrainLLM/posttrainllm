@@ -3,6 +3,13 @@
 Started 2026-06-11 after the "miner stopping 30 min before the diamond"
 check. Closed 2026-06-12 with the full table below.
 
+**Supersession note (2026-06-19):** this remains the canonical unhappy-path
+drill, where Gemma-3-12B-it won the n=130 matrix. It is no longer the active
+general-planner decision. The later multi-turn/breadth work in
+`docs/learn/tool-calling-frontier-parity.md` plus
+`docs/planner-lock-2026-06-19.md` locks the general Pace planner to stock
+Qwen3-4B-Instruct-2507 bf16 with the plan-then-execute prompt.
+
 ## What had been mined to bedrock as of session start
 
 1. 0.6B specialist training (v1–v11). Capacity ceiling — proven.

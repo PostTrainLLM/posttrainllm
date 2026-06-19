@@ -1,10 +1,14 @@
 ---
 name: B22 token-preserving agent trajectory recorder
-status: not-started
+status: shipped
 owner: unassigned
 created: 2026-06-13
+updated: 2026-06-17
 parent_plan: docs/PLAN.md §3 Tier B (B22)
 related_prds: B21-micro-automixer.md, B23-agent-eval-protocol.md (Poolside-discipline sibling PRDs)
+ships_in: Sources/TinyGPTModel/AgentTrajectory.swift, Sources/TinyGPT/AgentLoop.swift (recorder hooks), Sources/TinyGPT/Agent.swift (CLI flags), Tests/TinyGPTModelTests/AgentTrajectoryTests.swift, docs/agent_runtime.md §"Token-preserving trajectories (B22)"
+verified: 2026-06-17 — 3 unit tests pass; roundtrip preserves byte-equal input_ids/output_ids; agent CLI accepts --trajectory-dir + --trajectory-task and flushes one .atraj per rollout.
+follow_ups: thread --trajectory-dir into EvalBFCL + EvalTauBench (PRD scope item, deferred); SHA-256(weights) model_fingerprint computation (PRD scope item, deferred); optional gzip via .atraj.gz extension.
 ---
 
 # PRD — Store input_ids/output_ids/tool-calls/rewards through agent rollouts

@@ -356,6 +356,49 @@ schema is embedded in the prompt), so editing `tools.json` invalidates
 the cache. Editing the model file (different size or mtime) also
 invalidates. See `Sources/TinyGPTModel/KVCachePersist.swift`.
 
+## Token-preserving trajectories (B22)
+
+When `--trajectory-dir <dir>` is set, the agent writes one `.atraj`
+JSON file per rollout containing every step of the conversation. Each
+step carries:
+
+- `role` — one of `system` / `user` / `assistant` / `tool`
+- `content` — the decoded text, ChatML wrappers stripped
+- `input_ids` — token IDs as fed to the model (user/tool steps)
+- `output_ids` — token IDs as sampled by the model (assistant steps)
+- `tool_call` — structured `{name, arguments_json}` when the assistant
+  initiates a tool invocation
+- `tool_result` — structured `{name, stdout, stderr, exit_code,
+  duration_sec}` on the tool step that follows
+- `reward` — optional Double, populated by the caller after scoring
+
+The point of the format is the **token-ID invariant**: downstream SFT,
+DPO, and RLVR consumers read `output_ids` directly instead of
+retokenizing the decoded `content`. Per Poolside's
+[Laguna deep dive](https://poolside.ai/blog/laguna-a-deeper-dive),
+re-tokenizing tool-call args containing `\n` or non-ASCII can produce
+sequences that differ from what was originally sampled, silently
+biasing off-policy gradients.
+
+The substrate is the producer; [B29 `tinygpt traces-to-data`](prds/B29-trace-to-training-data.md)
+is the consumer — it turns `.atraj` directories into training-ready
+SFT/DPO JSONL.
+
+Format details and the reader API live in
+`native-mac/Sources/TinyGPTModel/AgentTrajectory.swift`. Roundtrip
+tests pin the byte equality of token-ID arrays at
+`native-mac/Tests/TinyGPTModelTests/AgentTrajectoryTests.swift`.
+
+```bash
+tinygpt agent specialist.tinygpt --tools tools.json \
+  --trajectory-dir /tmp/traj \
+  --trajectory-task "bfcl-mt-easy" \
+  --single "look up the weather in Paris and tell me if I need an umbrella"
+
+# ls /tmp/traj
+# 6f8b9d4a-...-...-.....atraj
+```
+
 ## Honest assessment
 
 The runtime works end-to-end with the demo byte-level Shakespeare model

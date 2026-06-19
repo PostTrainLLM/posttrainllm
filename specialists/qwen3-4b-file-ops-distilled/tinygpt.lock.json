@@ -1,0 +1,62 @@
+{
+  "schema": "tinygpt.specialist.lock.v1",
+  "id": "qwen3-4b-file-ops-distilled",
+  "artifact_type": "hf_safetensors_directory",
+  "local_path": "~/.cache/tinygpt/models/mt4b_fused",
+  "base_model": {
+    "id": "Qwen/Qwen3-4B-Instruct-2507",
+    "precision": "bf16",
+    "architecture": "Qwen3ForCausalLM"
+  },
+  "compatibility": {
+    "mlx_lm": true,
+    "tinygpt_serve_hf_dir": true,
+    "browser_playground": false
+  },
+  "files": [
+    {
+      "path": "model-00001-of-00002.safetensors",
+      "bytes": 5321133607,
+      "sha256": "4674dcae878efd81c3a6f10409c96598c0c646e61bea6a2174d0a49d53d99865"
+    },
+    {
+      "path": "model-00002-of-00002.safetensors",
+      "bytes": 2723848286,
+      "sha256": "c311219f995e5805d8c7e4200ca4546de9cacbaeffab98c81b8505f44b86f6fd"
+    },
+    {
+      "path": "model.safetensors.index.json",
+      "bytes": 34462
+    },
+    {
+      "path": "config.json",
+      "bytes": 817
+    },
+    {
+      "path": "generation_config.json",
+      "bytes": 238
+    },
+    {
+      "path": "tokenizer.json",
+      "bytes": 11422650
+    },
+    {
+      "path": "tokenizer_config.json",
+      "bytes": 730
+    },
+    {
+      "path": "chat_template.jinja",
+      "bytes": 2630
+    }
+  ],
+  "package_files": {
+    "model_card": "model_card.md",
+    "prompt": "prompt.md",
+    "eval_report": "eval_report.json",
+    "loader": "mlx_load.py"
+  },
+  "notes": [
+    "Large weights are stored outside git.",
+    "Use mlx_load.py for metadata checks by default; pass --load to load arrays."
+  ]
+}

@@ -10,18 +10,22 @@ related_prds: E1-bfcl-eval.md, E2-tau-bench-eval.md (the shipped harnesses this 
 
 # PRD — Reframe the eval harnesses as a developer-workflow gate
 
-> **Status (2026-06-13): scaffolding shipped.** Pure gate logic
+> **Status (updated 2026-06-18): scaffolding shipped.** Pure gate logic
 > (`TinyGPTModel/EvalGate.swift`: direction heuristic, pp thresholds,
-> per-suite override, missing-baseline handling, K-pass mean) with 13 unit
-> tests in `EvalGateTests.swift`. CLI (`Sources/TinyGPT/EvalGate.swift`):
+> per-suite override, missing-baseline handling, K-pass mean + repeated-run
+> stdev/stderr/95% CI + optional B23 budget metadata in `gate-result.json`)
+> with unit tests in
+> `EvalGateTests.swift`. CLI (`Sources/TinyGPT/EvalGate.swift`):
 > `--spec` / `eval-gate.json` / `tinygpt.project.json` `eval` block
 > resolution, `--candidate` (no-GPU path), `--baseline`, `--threshold`,
-> `--passes`, `--update-baseline`, `gate-result.json`, exit 0/1. Action at
-> `.github/actions/tinygpt-eval-gate/`, recipe `docs/recipes/eval-gate.md`,
-> smoke `evals/eval-gate-smoke.sh` (asserts both exit codes against committed
-> fixtures). **Remaining to flip to ✅:** run a real specialist's suites end
-> to end through the gate (the `command`-driven path) on a self-hosted Mac
-> runner — exercised by the user, not by CI.
+> `--passes`, `--budget`, `--update-baseline`, `gate-result.json`, exit 0/1. Action at
+> `.github/actions/tinygpt-eval-gate/` forwards `spec`, `candidate`, `passes`,
+> and `budget`; recipe `docs/recipes/eval-gate.md`, smoke
+> `evals/eval-gate-smoke.sh` (asserts both exit codes against committed
+> fixtures, including repeated-row CI output). **Remaining to flip to ✅:**
+> run a real specialist's suites end to end through the gate (the
+> `command`-driven path) on a self-hosted Mac runner — exercised by the
+> user, not by CI.
 
 ## Goal
 
@@ -88,7 +92,7 @@ primitive — near-zero new model code, high product leverage.
 | `Sources/TinyGPT/EvalGate.swift` | new — orchestrator + exit-code logic |
 | `Sources/TinyGPT/TinyGPT.swift` | `case "eval-gate"` |
 | `Sources/TinyGPTModel/ProjectManifest.swift` | extend with an optional `[eval]` block (B31 schema addition) |
-| `.github/actions/tinygpt-eval-gate/action.yml` | new — Action wrapper |
+| `.github/actions/tinygpt-eval-gate/action.yml` | shipped — Action wrapper with `--passes` and optional `--budget` forwarding |
 | `evals/eval-gate-smoke.sh` | new — pass + fail cases assert correct exit codes |
 | `docs/recipes/eval-gate.md` | new — pre-commit + Action recipe |
 | `docs/PLAN.md` | B32 ⬜ → ✅ on ship |

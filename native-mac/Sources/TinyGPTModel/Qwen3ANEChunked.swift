@@ -317,18 +317,19 @@ public final class Qwen3ANEChunked: @unchecked Sendable {
 
         // 7. Tied lm_head: logits[v] = sum_h normed[h] * embed_tokens[v, h].
         // embedTokensWeight is row-major [vocab, hidden], stored as Float.
-        // GEMV: y[V] = A[V, H] @ x[H].  Use Accelerate's cblas_sgemv.
+        // GEMV: y[V] = A[V, H] @ x[H]. vDSP_mmul treats `x` as a [H, 1]
+        // column and writes [V, 1] into `y`, equivalent to GEMV with α=1
+        // β=0 — and unlike cblas_sgemv it isn't deprecated in macOS 13.3+.
         var logits = [Float](repeating: 0, count: vocabSize)
         embedTokensWeight.withUnsafeBufferPointer { Aptr in
             normed.withUnsafeBufferPointer { xptr in
                 logits.withUnsafeMutableBufferPointer { yptr in
-                    cblas_sgemv(CblasRowMajor, CblasNoTrans,
-                                Int32(vocabSize), Int32(hiddenSize),
-                                1.0,
-                                Aptr.baseAddress, Int32(hiddenSize),
-                                xptr.baseAddress, 1,
-                                0.0,
-                                yptr.baseAddress, 1)
+                    vDSP_mmul(Aptr.baseAddress!, 1,
+                              xptr.baseAddress!, 1,
+                              yptr.baseAddress!, 1,
+                              vDSP_Length(vocabSize),
+                              1,
+                              vDSP_Length(hiddenSize))
                 }
             }
         }

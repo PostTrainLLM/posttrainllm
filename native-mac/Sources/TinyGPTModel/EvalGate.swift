@@ -142,10 +142,99 @@ public enum EvalGate {
         public let direction: Direction
         public let baselineScore: Double?
         public let candidateScore: Double?
+        /// Present when the candidate score is a K-pass mean. Carries the
+        /// underlying trial scores so a gate result is auditable, not just a
+        /// collapsed number.
+        public let candidateStats: PassStats?
         /// Direction-adjusted delta in percentage points. Positive = better.
         public let deltaPP: Double?
         public let thresholdPP: Double
         public let verdict: Verdict
+    }
+
+    public struct PassStats: Codable, Sendable, Hashable {
+        public let n: Int
+        public let trialScores: [Double]
+        public let mean: Double
+        public let stdev: Double
+        public let stderr: Double
+        public let ci95Low: Double
+        public let ci95High: Double
+
+        public init(scores: [Double]) {
+            let clean = scores.filter { $0.isFinite }
+            self.n = clean.count
+            self.trialScores = clean
+            if clean.isEmpty {
+                self.mean = 0
+                self.stdev = 0
+                self.stderr = 0
+                self.ci95Low = 0
+                self.ci95High = 0
+                return
+            }
+            let mean = clean.reduce(0, +) / Double(clean.count)
+            let variance: Double
+            if clean.count > 1 {
+                variance = clean.reduce(0) { $0 + pow($1 - mean, 2) } / Double(clean.count - 1)
+            } else {
+                variance = 0
+            }
+            let stdev = sqrt(variance)
+            let stderr = stdev / sqrt(Double(clean.count))
+            let ci = 1.96 * stderr
+            self.mean = mean
+            self.stdev = stdev
+            self.stderr = stderr
+            self.ci95Low = mean - ci
+            self.ci95High = mean + ci
+        }
+    }
+
+    public struct AgentEvalBudget: Codable, Sendable, Hashable {
+        public let maxSteps: Int?
+        public let sandboxCpus: Double?
+        public let sandboxRamMb: Int?
+        public let temperature: Double?
+        public let topP: Double?
+        public let samplingSeed: Int?
+        public let infraPatches: [String]
+
+        public init(maxSteps: Int? = nil,
+                    sandboxCpus: Double? = nil,
+                    sandboxRamMb: Int? = nil,
+                    temperature: Double? = nil,
+                    topP: Double? = nil,
+                    samplingSeed: Int? = nil,
+                    infraPatches: [String] = []) {
+            self.maxSteps = maxSteps
+            self.sandboxCpus = sandboxCpus
+            self.sandboxRamMb = sandboxRamMb
+            self.temperature = temperature
+            self.topP = topP
+            self.samplingSeed = samplingSeed
+            self.infraPatches = infraPatches
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case maxSteps = "max_steps"
+            case sandboxCpus = "sandbox_cpus"
+            case sandboxRamMb = "sandbox_ram_mb"
+            case temperature
+            case topP = "top_p"
+            case samplingSeed = "sampling_seed"
+            case infraPatches = "infra_patches"
+        }
+    }
+
+    public struct AgentEvalProtocol: Codable, Sendable, Hashable {
+        public let passes: Int
+        public let budget: AgentEvalBudget?
+
+        public init(passes: Int = 1, budget: AgentEvalBudget? = nil) {
+            self.passes = max(1, passes)
+            self.budget = budget
+        }
     }
 
     public struct Report: Codable, Sendable {
@@ -153,12 +242,19 @@ public enum EvalGate {
         public let passed: Bool
         public let failedCount: Int
         public let missingCount: Int
+        public let evalProtocol: AgentEvalProtocol?
 
-        public init(suites: [SuiteResult]) {
+        enum CodingKeys: String, CodingKey {
+            case suites, passed, failedCount, missingCount
+            case evalProtocol = "protocol"
+        }
+
+        public init(suites: [SuiteResult], evalProtocol: AgentEvalProtocol? = nil) {
             self.suites = suites
             self.failedCount = suites.filter { $0.verdict == .fail }.count
             self.missingCount = suites.filter { $0.verdict == .missing }.count
             self.passed = failedCount == 0
+            self.evalProtocol = evalProtocol
         }
     }
 
@@ -172,6 +268,14 @@ public enum EvalGate {
     ///   a `.fail`. A missing baseline row is `.missing` (does not fail the
     ///   gate — you can't regress against a number you never had).
     public static func evaluate(baseline: [Row], candidate: [Row], spec: Spec) -> Report {
+        evaluate(baseline: baseline, candidate: candidate, candidateStats: [:], spec: spec)
+    }
+
+    public static func evaluate(baseline: [Row],
+                                candidate: [Row],
+                                candidateStats: [String: PassStats],
+                                spec: Spec,
+                                evalProtocol: AgentEvalProtocol? = nil) -> Report {
         let baseByKey = Dictionary(baseline.map { ($0.key, $0) },
                                    uniquingKeysWith: { _, b in b })
 
@@ -211,11 +315,12 @@ public enum EvalGate {
                 direction: dir,
                 baselineScore: base?.score,
                 candidateScore: cand.score,
+                candidateStats: candidateStats[cand.key],
                 deltaPP: deltaPP,
                 thresholdPP: threshold,
                 verdict: verdict))
         }
-        return Report(suites: results)
+        return Report(suites: results, evalProtocol: evalProtocol)
     }
 
     /// Collapse rows sharing a key into one row whose score is the mean.
@@ -223,19 +328,28 @@ public enum EvalGate {
     /// average rather than the last run, so single-run noise can't flip the
     /// verdict. Input order of first-seen keys is preserved.
     public static func averagedByKey(_ rows: [Row]) -> [Row] {
+        summarizedByKey(rows).rows
+    }
+
+    /// Collapse repeated rows into mean rows and return per-key uncertainty
+    /// stats for keys with multiple trials. Used by `eval-gate --passes K`.
+    public static func summarizedByKey(_ rows: [Row]) -> (rows: [Row], stats: [String: PassStats]) {
         var order: [String] = []
         var groups: [String: [Row]] = [:]
         for r in rows {
             if groups[r.key] == nil { order.append(r.key) }
             groups[r.key, default: []].append(r)
         }
-        return order.map { key in
+        var stats: [String: PassStats] = [:]
+        let averaged = order.map { key in
             let g = groups[key]!
-            let mean = g.reduce(0.0) { $0 + $1.score } / Double(g.count)
+            let passStats = PassStats(scores: g.map(\.score))
+            if g.count > 1 { stats[key] = passStats }
             let first = g[0]
             return Row(task: first.task, subtask: first.subtask, metric: first.metric,
-                       score: mean, n_examples: first.n_examples, baseline: first.baseline)
+                       score: passStats.mean, n_examples: first.n_examples, baseline: first.baseline)
         }
+        return (averaged, stats)
     }
 
     // MARK: - JSONL IO

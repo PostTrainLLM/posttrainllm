@@ -65,7 +65,7 @@ public final class PreferenceCorpus: Sendable {
         var rTg = [Int32](repeating: 0, count: B * T)
         var rMs = [Float](repeating: 0, count: B * T)
         for i in 0..<B {
-            let ex = examples[Int.random(in: 0..<examples.count)]
+            let ex = examples[BatchRng.randomInt(in: 0..<examples.count)]
             fill(rowStart: i * T, tokens: ex.chosenTokens, mask: ex.chosenMask,
                  T: T, ins: &cIn, tgs: &cTg, msk: &cMs)
             fill(rowStart: i * T, tokens: ex.rejectedTokens, mask: ex.rejectedMask,

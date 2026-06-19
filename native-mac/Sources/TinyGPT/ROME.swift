@@ -202,7 +202,7 @@ enum ROME {
         }
         var root = NestedDictionary<String, MLXArray>()
         root["blocks"] = .array(blocksList)
-        try? model.update(parameters: root, verify: [])
+        _ = try? model.update(parameters: root, verify: [])
 
         // Diff report — how big was the edit, in Frobenius norm vs the
         // original weight magnitude.
