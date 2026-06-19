@@ -20,8 +20,10 @@ related_prds: B22-trajectory-recorder.md, B21-micro-automixer.md (Poolside-disci
 > attach the same protocol block when `--budget` or `TINYGPT_EVAL_BUDGET` is
 > present. `tinygpt eval-compare` now renders repeated-run uncertainty as
 > `mean±ci95_half_width` either from row-level `pass_stats` or from repeated
-> rows with the same task/model/metric. Remaining B23 work: Pace unhappy
-> harness output rows and actual sandbox/resource enforcement.
+> rows with the same task/model/metric. `scripts/eval_pace_unhappy.py` now
+> supports `--passes K` plus budget/protocol metadata in its JSON output.
+> Remaining B23 work: future SWE-mini / Terminal-mini rows and actual
+> sandbox/resource enforcement.
 
 ## Goal
 
@@ -101,7 +103,7 @@ under (max_steps=8, T=0, sandbox=1cpu+512mb)".
 | `evals/sample-budget.json` | shipped partial — example fixed budget config |
 | `Sources/TinyGPT/EvalBFCL.swift` | shipped partial — `--budget` row metadata wiring; K-pass repetition stays at `eval-gate` |
 | `Sources/TinyGPT/EvalTauBench.swift` | shipped partial — same |
-| `scripts/eval_pace_unhappy.py` | `--passes K`; aggregate per-trial via mean ± stdev |
+| `scripts/eval_pace_unhappy.py` | shipped partial — `--passes K`; aggregate per-trial via mean/stdev/ci95 and protocol budget |
 | `Sources/TinyGPT/EvalCompare.swift` | shipped partial — renders `mean±ci95` for repeated rows / row-level `pass_stats` |
 | `evals/sample-budget.json` | new — fixture budget config |
 | `docs/research/mac_slm_leaderboard_v0.md` | "Protocol" subsection citing the budget format |
@@ -123,7 +125,7 @@ under (max_steps=8, T=0, sandbox=1cpu+512mb)".
 - [x] `tinygpt eval-compare` renders error bars when `ci95` is present.
 - [ ] The SLM leaderboard page updates its column headers to reflect
   the per-task pass count.
-- [ ] Pace unhappy-paths gains `--passes` and the runbook in
+- [x] Pace unhappy-paths gains `--passes` and the runbook in
   `docs/recipes/eval_planner.md` (if it exists; create if not) walks
   through the K=3 protocol.
 
