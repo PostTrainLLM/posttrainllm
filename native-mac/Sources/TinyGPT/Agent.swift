@@ -348,12 +348,6 @@ enum Agent {
         }
     }
 
-    private static func formatLargeInt(_ n: Int) -> String {
-        let f = NumberFormatter()
-        f.numberStyle = .decimal
-        return f.string(from: NSNumber(value: n)) ?? "\(n)"
-    }
-
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
         usage: tinygpt agent <path.tinygpt|model_dir> --tools tools.json [options]

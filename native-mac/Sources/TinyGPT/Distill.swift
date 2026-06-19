@@ -315,11 +315,6 @@ enum Distill {
         return 8
     }
 
-    private static func formatLargeInt(_ n: Int) -> String {
-        let f = NumberFormatter(); f.numberStyle = .decimal
-        return f.string(from: NSNumber(value: n)) ?? "\(n)"
-    }
-
     private static func teacherDescription(
         path: String?, load: ModelLoader.LoadResult?
     ) -> String {

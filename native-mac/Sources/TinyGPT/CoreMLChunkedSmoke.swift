@@ -123,12 +123,6 @@ enum CoreMLChunkedSmoke {
         }
     }
 
-    static func argmax(_ x: [Float]) -> Int {
-        var best = 0; var bestV: Float = -Float.infinity
-        for i in 0..<x.count where x[i] > bestV { best = i; bestV = x[i] }
-        return best
-    }
-
     static func printHelp() {
         let s = """
         usage: tinygpt coreml-chunked-smoke --chunked-dir <dir> --hf-dir <dir> [opts]

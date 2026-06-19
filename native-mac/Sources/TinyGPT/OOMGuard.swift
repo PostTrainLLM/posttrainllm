@@ -130,8 +130,4 @@ enum OOMGuard {
         return String(format: "%6.0f MB", mb)
     }
 
-    private static func formatLargeInt(_ n: Int) -> String {
-        let f = NumberFormatter(); f.numberStyle = .decimal
-        return f.string(from: NSNumber(value: n)) ?? "\(n)"
-    }
 }

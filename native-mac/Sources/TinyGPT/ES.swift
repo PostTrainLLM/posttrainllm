@@ -260,11 +260,6 @@ enum ES {
         return 8
     }
 
-    private static func formatLargeInt(_ n: Int) -> String {
-        let f = NumberFormatter(); f.numberStyle = .decimal
-        return f.string(from: NSNumber(value: n)) ?? "\(n)"
-    }
-
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
         usage: tinygpt es <model.tinygpt> --corpus <text> [options]

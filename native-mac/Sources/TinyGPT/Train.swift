@@ -1571,12 +1571,6 @@ enum Train {
         return 16
     }
 
-    private static func formatLargeInt(_ n: Int) -> String {
-        let f = NumberFormatter()
-        f.numberStyle = .decimal
-        return f.string(from: NSNumber(value: n)) ?? "\(n)"
-    }
-
     private static func formatBytes(_ n: Int) -> String {
         if n >= 1_000_000 { return String(format: "%.1f MB", Double(n) / 1_000_000) }
         if n >= 1_000 { return String(format: "%.0f KB", Double(n) / 1_000) }
