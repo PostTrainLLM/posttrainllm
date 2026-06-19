@@ -29,21 +29,25 @@ enum EvalBFCL {
         common = EvalHarnessSupport.require(common, usage: { exitUsage() })
         guard let model = common.modelPath else { exitUsage() }
 
+        let work = URL(fileURLWithPath: "/tmp/tinygpt-bfcl-\(UUID().uuidString.prefix(8))")
+        let resultDir = work.appendingPathComponent("result")
+        let scoreDir = work.appendingPathComponent("score")
+        let toolMetrics = work.appendingPathComponent("tool-metrics.jsonl")
+        try? FileManager.default.createDirectory(at: resultDir, withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(at: scoreDir, withIntermediateDirectories: true)
+
         var serveArgs: [String] = []
         if let toolsPath {
             serveArgs += ["--tools", toolsPath, "--tool-mode", toolMode]
+            if toolMode == "deferred" {
+                serveArgs += ["--tool-metrics-out", toolMetrics.path]
+            }
         } else if toolMode != "full" {
             fputs("--tool-mode deferred requires --tools <path.json>\n", stderr)
             exitUsage()
         }
         let serve = EvalHarnessSupport.startServe(modelPath: model, port: common.servePort, extraArgs: serveArgs)
         defer { if serve.isRunning { serve.terminate() } }
-
-        let work = URL(fileURLWithPath: "/tmp/tinygpt-bfcl-\(UUID().uuidString.prefix(8))")
-        let resultDir = work.appendingPathComponent("result")
-        let scoreDir = work.appendingPathComponent("score")
-        try? FileManager.default.createDirectory(at: resultDir, withIntermediateDirectories: true)
-        try? FileManager.default.createDirectory(at: scoreDir, withIntermediateDirectories: true)
 
         let py = EvalHarnessSupport.resolveExecutable("python3") ?? URL(fileURLWithPath: "/usr/bin/python3")
         let base = "http://127.0.0.1:\(common.servePort)/v1"
@@ -91,7 +95,31 @@ enum EvalBFCL {
                                          harness: "bfcl")
             emitted += 1
         }
+        if toolMode == "deferred", let (avgHops, n) = toolHopSummary(toolMetrics) {
+            EvalHarnessSupport.appendRow(common: common, task: "bfcl", subtask: "deferred_tools",
+                                         metric: "get_tool_info_hops", score: avgHops, n: n,
+                                         wall: wall, harness: "bfcl-tool-metrics")
+            emitted += 1
+        }
         print("✓ wrote \(emitted) BFCL rows to \(common.outJsonl!)")
+    }
+
+    private static func toolHopSummary(_ url: URL) -> (Double, Int)? {
+        guard let data = try? Data(contentsOf: url),
+              let text = String(data: data, encoding: .utf8)
+        else { return nil }
+        var total = 0.0
+        var count = 0
+        for line in text.split(separator: "\n") {
+            guard let lineData = String(line).data(using: .utf8),
+                  let obj = try? JSONSerialization.jsonObject(with: lineData) as? [String: Any],
+                  let hops = EvalHarnessSupport.doubleValue(obj["get_tool_info_hops"])
+            else { continue }
+            total += hops
+            count += 1
+        }
+        guard count > 0 else { return nil }
+        return (total / Double(count), count)
     }
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {

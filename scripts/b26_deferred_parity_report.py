@@ -35,6 +35,12 @@ HOP_KEYS = (
 )
 
 
+def is_hop_metric(row: dict[str, Any]) -> bool:
+    metric = str(row.get("metric") or "")
+    subtask = str(row.get("subtask") or "")
+    return metric in HOP_KEYS or subtask == "deferred_tools"
+
+
 def read_jsonl(path: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     with path.open() as f:
@@ -63,6 +69,8 @@ def weighted_average(rows: list[dict[str, Any]]) -> float:
     num = 0.0
     den = 0
     for row in rows:
+        if is_hop_metric(row):
+            continue
         score = float(row.get("score", 0.0))
         n = int(row.get("n_examples") or 1)
         if not math.isfinite(score) or n <= 0:
@@ -74,8 +82,8 @@ def weighted_average(rows: list[dict[str, Any]]) -> float:
 
 def matching_rows(full: list[dict[str, Any]],
                   deferred: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    full_by_key = {row_key(row): row for row in full}
-    deferred_by_key = {row_key(row): row for row in deferred}
+    full_by_key = {row_key(row): row for row in full if not is_hop_metric(row)}
+    deferred_by_key = {row_key(row): row for row in deferred if not is_hop_metric(row)}
     keys = sorted(set(full_by_key) | set(deferred_by_key))
     rows = []
     for key in keys:
@@ -99,6 +107,9 @@ def matching_rows(full: list[dict[str, Any]],
 def hop_values(rows: list[dict[str, Any]]) -> list[float]:
     values: list[float] = []
     for row in rows:
+        if is_hop_metric(row):
+            values.append(float(row.get("score", 0.0)))
+            continue
         for key in HOP_KEYS:
             if key in row and row[key] is not None:
                 values.append(float(row[key]))

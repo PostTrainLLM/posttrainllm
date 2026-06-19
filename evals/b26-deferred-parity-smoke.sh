@@ -13,8 +13,9 @@ cat >"$WORK/full.jsonl" <<'JSONL'
 JSONL
 
 cat >"$WORK/deferred-pass.jsonl" <<'JSONL'
-{"task":"bfcl","subtask":"simple","metric":"accuracy","score":0.79,"n_examples":100,"get_tool_info_hops":1.0,"model_name":"deferred","model_path":"/m","run_id":"d1","baseline":false,"wall_seconds":1,"timestamp":"t"}
-{"task":"bfcl","subtask":"multiple","metric":"accuracy","score":0.69,"n_examples":100,"get_tool_info_hops":2.0,"model_name":"deferred","model_path":"/m","run_id":"d2","baseline":false,"wall_seconds":1,"timestamp":"t"}
+{"task":"bfcl","subtask":"simple","metric":"accuracy","score":0.79,"n_examples":100,"model_name":"deferred","model_path":"/m","run_id":"d1","baseline":false,"wall_seconds":1,"timestamp":"t"}
+{"task":"bfcl","subtask":"multiple","metric":"accuracy","score":0.69,"n_examples":100,"model_name":"deferred","model_path":"/m","run_id":"d2","baseline":false,"wall_seconds":1,"timestamp":"t"}
+{"task":"bfcl","subtask":"deferred_tools","metric":"get_tool_info_hops","score":1.5,"n_examples":200,"model_name":"deferred","model_path":"/m","run_id":"d3","baseline":false,"wall_seconds":1,"timestamp":"t"}
 JSONL
 
 cat >"$WORK/deferred-fail.jsonl" <<'JSONL'

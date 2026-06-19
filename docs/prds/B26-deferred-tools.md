@@ -134,6 +134,12 @@ errors, p50 10137ms), while the full-schema prefix was 2/4; deferred delta on
 that tiny prefix was -50pp. This is not the full B26 acceptance gate, but it is
 enough to keep deferred mode OFF for the planner lock.
 
+Hop accounting is wired for the real gate: `serve --tool-metrics-out <jsonl>`
+records `get_tool_info_hops` per non-streaming chat request, and
+`tinygpt eval-bfcl --tool-mode deferred` emits the average as a
+`bfcl/deferred_tools/get_tool_info_hops` row for
+`scripts/b26_deferred_parity_report.py`.
+
 **Accept** if the deferred BFCL average is within ±2pp of the full
 average across the 10 BFCL categories, AND the average number of
 `get_tool_info` round-trips per BFCL sample is ≤2.
@@ -157,7 +163,8 @@ the gate runs.
 | File | Change |
 |---|---|
 | `native-mac/Sources/TinyGPTServe/DynamicGrammar.swift` | `ServeToolMode` enum + `compactSystemPrompt()` + `compactGrammarSpec()` + `compactOutputSchemaJSON()` + `toolInfo(name:)` |
-| `native-mac/Sources/TinyGPTServe/Serve.swift` | `--tool-mode` parsing, plumb through `Server.boot`, select compact prompt/grammar in deferred mode, post-`generate()` interception loop in `handleChatCompletions` non-streaming branch, `parseGetToolInfoCall(_:)` static helper |
+| `native-mac/Sources/TinyGPTServe/Serve.swift` | `--tool-mode` parsing, `--tool-metrics-out`, plumb through `Server.boot`, select compact prompt/grammar in deferred mode, post-`generate()` interception loop in `handleChatCompletions` non-streaming branch, `parseGetToolInfoCall(_:)` static helper |
+| `native-mac/Sources/TinyGPT/EvalBFCL.swift` | passes `--tool-metrics-out` in deferred mode and emits the average hop-count metric row |
 | `native-mac/Tests/TinyGPTServeTests/DeferredToolsTests.swift` | 5 unit tests (no model needed): `compactSystemPrompt` strips schemas, `compactGrammarSpec` adds `get_tool_info` to the verb enum, `toolInfo` resolves known/unknown names, `parseGetToolInfoCall` recognizes the canonical shape and rejects garbage |
 | `docs/PLAN.md` | B26 entry already filed; status update after BFCL gate runs |
 | `scripts/b26_deferred_parity_report.py` | score-parity + optional hop-count acceptance report for full-vs-deferred BFCL JSONLs |
