@@ -117,10 +117,12 @@ jobs:
         with:
           spec: tinygpt.project.json
           passes: "3"
+          budget: evals/sample-budget.json
 ```
 
 The action builds `tinygpt` release, runs the gate, annotates the PR with
-the suite table in the job summary, and fails the check on a regression.
+the suite table in the job summary, records the optional B23 budget metadata
+in `gate-result.json`, and fails the check on a regression.
 
 ## Pre-commit hook
 
