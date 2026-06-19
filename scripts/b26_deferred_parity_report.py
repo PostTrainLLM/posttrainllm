@@ -12,10 +12,11 @@ The B26 ship rule is:
   1. deferred BFCL average is no more than 2pp below full mode, and
   2. average get_tool_info round-trips per sample is <= 2.
 
-Current eval rows prove (1). Hop counts are optional because the existing
-shared EvalCompare row does not carry them yet; if a future harness adds
-`get_tool_info_hops`, `tool_info_hops`, `meta_tool_hops`, or
-`deferred_tool_hops`, this report will enforce (2).
+For the real B26 acceptance gate, pass `--require-hop-stats`. Current
+`tinygpt eval-bfcl --tool-mode deferred` emits a
+`bfcl/deferred_tools/get_tool_info_hops` metric row, and this report also
+understands legacy per-row hop fields named `get_tool_info_hops`,
+`tool_info_hops`, `meta_tool_hops`, or `deferred_tool_hops`.
 """
 from __future__ import annotations
 

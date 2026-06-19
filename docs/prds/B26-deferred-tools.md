@@ -106,20 +106,29 @@ runnable from the Swift harness. The full acceptance gate still needs a loaded
 specialist model and the 10-category BFCL run:
 
 ```
-# baseline
-tinygpt serve <model> --tools pace-tools.json &
-tinygpt eval-bfcl <model> --out /tmp/bfcl-full.jsonl
-pkill -f "tinygpt serve"
+TINYGPT=./native-mac/.build/arm64-apple-macosx/release/tinygpt
+MODEL=/path/to/specialist-model
+TOOLS=/path/to/tools.json
+OUT=/tmp/tinygpt-b26
+mkdir -p "$OUT"
 
-# deferred
-tinygpt serve <model> --tools pace-tools.json --tool-mode deferred &
-tinygpt eval-bfcl <model> --out /tmp/bfcl-deferred.jsonl
-pkill -f "tinygpt serve"
+"$TINYGPT" eval-bfcl "$MODEL" \
+  --tools "$TOOLS" \
+  --tool-mode full \
+  --model-name b26-full \
+  --out "$OUT/bfcl-full.jsonl"
+
+"$TINYGPT" eval-bfcl "$MODEL" \
+  --tools "$TOOLS" \
+  --tool-mode deferred \
+  --model-name b26-deferred \
+  --out "$OUT/bfcl-deferred.jsonl"
 
 python3 scripts/b26_deferred_parity_report.py \
-  --full /tmp/bfcl-full.jsonl \
-  --deferred /tmp/bfcl-deferred.jsonl \
-  --out /tmp/b26-parity.json
+  --full "$OUT/bfcl-full.jsonl" \
+  --deferred "$OUT/bfcl-deferred.jsonl" \
+  --require-hop-stats \
+  --out "$OUT/b26-parity.json"
 ```
 
 Bounded wiring smoke run 2026-06-19: `browser/public/demo.tinygpt`, one BFCL
