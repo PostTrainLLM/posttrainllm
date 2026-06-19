@@ -66,6 +66,11 @@ When a suite has repeated rows, the JSON keeps the trial scores plus n,
 stdev, stderr, and 95% CI under `candidateStats`; the console renders the
 candidate cell as `mean±ci95`.
 
+For JSONL comparison outside the gate, `tinygpt eval-compare` also renders
+repeated rows with the same task/model/metric as `mean±ci95` and shows `k=...`
+in the cell. Harnesses that pre-aggregate repeated runs can emit row-level
+`pass_stats` in the same shape as `candidateStats`.
+
 Suite commands receive the budget path as `TINYGPT_EVAL_BUDGET` and the outer
 pass count as `TINYGPT_EVAL_PASSES`. Swift harness rows emitted through
 `EvalHarnessSupport.appendRow` attach the same `"protocol"` block beside their

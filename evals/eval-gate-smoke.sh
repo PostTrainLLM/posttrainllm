@@ -75,6 +75,17 @@ else
   echo "  ✗ repeated-run stats or protocol budget missing from gate-result.json"; fail=1
 fi
 
+echo "==> eval-compare renders repeated-run uncertainty"
+if "$TINYGPT" eval-compare "$FIX/candidate-repeat.jsonl" --by model >"$WORK/compare-repeat.txt" 2>&1 \
+  && grep -q "0.800±" "$WORK/compare-repeat.txt" \
+  && grep -q "k=3" "$WORK/compare-repeat.txt"; then
+  echo "  ✓ eval-compare renders mean±ci95 and k for repeated rows"
+else
+  echo "  ✗ eval-compare uncertainty rendering missing"
+  sed 's/^/      /' "$WORK/compare-repeat.txt" || true
+  fail=1
+fi
+
 echo "==> command-driven suite receives protocol env"
 cat > "$WORK/emit-row.py" <<'PY'
 import json, os, sys, time, uuid

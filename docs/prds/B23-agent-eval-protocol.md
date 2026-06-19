@@ -18,8 +18,10 @@ related_prds: B22-trajectory-recorder.md, B21-micro-automixer.md (Poolside-disci
 > report's `"protocol"` block and exposes its path to suite commands as
 > `TINYGPT_EVAL_BUDGET`. BFCL / tau / common Swift harness output rows now
 > attach the same protocol block when `--budget` or `TINYGPT_EVAL_BUDGET` is
-> present. Remaining B23 work: Pace unhappy harness output rows,
-> `eval-compare` error-bar rendering, and actual sandbox/resource enforcement.
+> present. `tinygpt eval-compare` now renders repeated-run uncertainty as
+> `mean±ci95_half_width` either from row-level `pass_stats` or from repeated
+> rows with the same task/model/metric. Remaining B23 work: Pace unhappy
+> harness output rows and actual sandbox/resource enforcement.
 
 ## Goal
 
@@ -100,7 +102,7 @@ under (max_steps=8, T=0, sandbox=1cpu+512mb)".
 | `Sources/TinyGPT/EvalBFCL.swift` | shipped partial — `--budget` row metadata wiring; K-pass repetition stays at `eval-gate` |
 | `Sources/TinyGPT/EvalTauBench.swift` | shipped partial — same |
 | `scripts/eval_pace_unhappy.py` | `--passes K`; aggregate per-trial via mean ± stdev |
-| `Sources/TinyGPT/EvalCompare.swift` | render ci95 as `score ± σ` columns |
+| `Sources/TinyGPT/EvalCompare.swift` | shipped partial — renders `mean±ci95` for repeated rows / row-level `pass_stats` |
 | `evals/sample-budget.json` | new — fixture budget config |
 | `docs/research/mac_slm_leaderboard_v0.md` | "Protocol" subsection citing the budget format |
 
@@ -118,7 +120,7 @@ under (max_steps=8, T=0, sandbox=1cpu+512mb)".
 - [x] `tinygpt eval-gate --budget evals/sample-budget.json` writes budget metadata to `gate-result.json`.
 - [ ] Default K=1 with default budget reproduces today's exact output
   format (back-compat).
-- [ ] `tinygpt eval-compare` renders error bars when `ci95` is present.
+- [x] `tinygpt eval-compare` renders error bars when `ci95` is present.
 - [ ] The SLM leaderboard page updates its column headers to reflect
   the per-task pass count.
 - [ ] Pace unhappy-paths gains `--passes` and the runbook in
