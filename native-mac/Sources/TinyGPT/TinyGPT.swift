@@ -122,6 +122,10 @@ struct TinyGPT {
             AutoMix.run(args: Array(args.dropFirst()))
         case "compress":
             Compress.run(args: Array(args.dropFirst()))
+        case "build-escalate-data":
+            BuildEscalateData.run(args: Array(args.dropFirst()))
+        case "eval-escalate":
+            EvalEscalate.run(args: Array(args.dropFirst()))
         case "reasoning-classify":
             ReasoningClassify.run(args: Array(args.dropFirst()))
         case "traces-to-data":

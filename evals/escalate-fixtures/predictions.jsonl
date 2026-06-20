@@ -1,0 +1,5 @@
+{"defer_pred": true, "local_wrong": true}
+{"defer_pred": true, "local_wrong": false}
+{"defer_pred": false, "local_wrong": true}
+{"defer_pred": false, "local_wrong": false}
+{"defer_pred": true, "local_wrong": true}

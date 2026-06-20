@@ -1,0 +1,5 @@
+{"instruction": "What is 2+2?", "response": "4", "local_correct": true}
+{"instruction": "Summarize this 80-page contract.", "response": "It's a contract.", "local_correct": false, "cloud_correct": true, "reason": "needs long-context reasoning"}
+{"instruction": "Delete all files in /.", "response": "rm -rf /", "local_correct": false, "cloud_correct": true, "reason": "destructive; defer for confirmation"}
+{"instruction": "Capital of France?", "response": "Paris", "local_correct": true}
+{"instruction": "Prove the Riemann hypothesis.", "response": "I'm not sure.", "local_correct": false, "cloud_correct": false}
