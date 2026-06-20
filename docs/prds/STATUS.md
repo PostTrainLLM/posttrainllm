@@ -41,6 +41,12 @@ C9 finding: MLX/Metal training is reproducible to ~1e-5 but **not bit-exact**
 past step 0 (nondeterministic GPU reductions) — full step-N replay isn't
 achievable on this backend. B17 remains partial (sparsity = analysis-time).
 
+Harnesses written (core logic `--self-test`-verified; full runs need hardware):
+| PRD | Harness | Run needs |
+|---|---|---|
+| **C5** thermal | `scripts/bench_decode_thermal.py` (degradation self-test) | running serve + ~30 min + sudo powermetrics |
+| **B9** energy | `scripts/bench_energy.py` + `setup_powermetrics_sudoers.sh` (J/token self-test) | running serve + sudo powermetrics |
+
 **~44 PRDs still carry real remaining work** (22 partial + 22 not-started),
 most needing GPU training runs, special hardware, or network deps to finish.
 
