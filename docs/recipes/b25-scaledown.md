@@ -5,6 +5,22 @@ and outputs an *extractive* compressed document — a subset of the original
 sentences that preserves the answer-relevant span — and submit to the
 [ScaleDown.ai](https://scaledown.ai) challenge.
 
+## V1 (shipped, lexical — no GPU)
+
+`tinygpt compress` is the runnable extractive compressor today, scoring
+sentences with a lexical BM25-lite relevance (`LexicalRelevance`) instead of a
+trained head:
+
+```bash
+tinygpt compress "what is RoPE?" --doc rope_paper.txt --keep-frac 0.3 --out short.txt
+tinygpt compress "what is RoPE?" --doc rope_paper.txt --threshold 0.4   # score cutoff instead of length budget
+```
+
+Verified by `evals/compress-smoke.sh` (keeps on-topic sentences, drops filler,
+shortens the doc) — the same "lexical V1 before the learned model" path the
+reranker took. The learned token-level relevance head + LoRA + leaderboard
+submission below is **V2** and needs a GPU.
+
 **Status as of 2026-06-05:** unblocked on compute (N02 produces the base);
 blocked on the canonical training data pull (D3 — MS-MARCO + NQ). A
 synthesis fallback path is documented below so we can start on something
