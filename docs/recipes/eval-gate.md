@@ -156,6 +156,6 @@ covered without starting a model or server.
 ## See also
 
 - `docs/prds/B32-eval-ci-gate.md` — the PRD + scope boundaries.
-- `docs/prds/E1-bfcl-eval.md`, `E2-tau-bench-eval.md` — the harnesses this gates.
+- `tinygpt eval-bfcl` / `tinygpt eval-tau-bench` — the harnesses this gates (both shipped).
 - `docs/sessions/2026-06-13-market-landscape-mac-first.md` — why a local,
   exit-code gate is the structural counter to eval-as-a-SaaS.
