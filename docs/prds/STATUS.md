@@ -15,13 +15,13 @@ table wins**.
 
 | Verdict | Count | Meaning |
 |---|---|---|
-| ✅ Done | 10 | all acceptance criteria met + verified |
-| 🟡 Partial | 22 | core/scaffolding ships, named gaps remain |
-| ⬜ Not-started | 22 | no deliverables found in code |
+| ✅ Done | 11 | all acceptance criteria met + verified |
+| 🟡 Partial | 24 | core/scaffolding ships, named gaps remain |
+| ⬜ Not-started | 19 | no deliverables found in code |
 | 📄 Non-task | 6 | decision / positioning / tracking / upstream-blocked doc |
 | **Total** | **60** | |
 
-### Finished in the 2026-06-20 implementation session (7 PRDs)
+### Finished in the 2026-06-20 implementation session (8 PRDs)
 
 All verified by `swift test` / smoke scripts. Build note: Xcode-27's default
 build system has a broken incremental relink; use `swift build --build-system
@@ -35,6 +35,7 @@ native --product tinygpt`.
 | **B10** quality | `--score` {doc_id,score} sidecar mode | quality-filter-smoke.sh (science 0.77 > spam 0.02) |
 | **B12** spike | `--auto-rollback off\|warn\|on` adaptive LR-cut controller | SpikeRecoveryTests (4) |
 | **C9** determinism | `evals/determinism-smoke.sh` harness + corrected doc | smoke (step-0 exact, ~2.7e-5 same-seed) |
+| **B21** automixer | Dirichlet `MixSampler` + quadratic `SurrogateFit` + `automix` orchestrator (`--dry-run`) | AutoMixTests (5) + automix-smoke.sh (converges to optimum) |
 | **B17** saelens | exporter writes README + docs section | builds; py round-trip needs `sae_lens` |
 
 C9 finding: MLX/Metal training is reproducible to ~1e-5 but **not bit-exact**
@@ -47,8 +48,11 @@ Harnesses written (core logic `--self-test`-verified; full runs need hardware):
 | **C5** thermal | `scripts/bench_decode_thermal.py` (degradation self-test) | running serve + ~30 min + sudo powermetrics |
 | **B9** energy | `scripts/bench_energy.py` + `setup_powermetrics_sudoers.sh` (J/token self-test) | running serve + sudo powermetrics |
 
-**~44 PRDs still carry real remaining work** (22 partial + 22 not-started),
-most needing GPU training runs, special hardware, or network deps to finish.
+**~43 PRDs still carry real remaining work** (24 partial + 19 not-started),
+nearly all gated on GPU training runs, special hardware (M5 / sudo
+powermetrics), network installs (ScaleBench, sae_lens), or a cloud API —
+i.e. not finishable in a CPU/sandbox dev environment. The remaining writable
+slices are thin helpers wrapped around that resource-blocked work.
 
 ---
 
