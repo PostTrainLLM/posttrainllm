@@ -1,0 +1,6 @@
+{"language":"hindi","correct":true}
+{"language":"hindi","correct":false}
+{"language":"tamil","predicted":"B","gold":"B"}
+{"language":"tamil","predicted":"A","gold":"B"}
+{"language":"telugu","correct":true}
+{"language":"telugu","correct":true}
