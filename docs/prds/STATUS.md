@@ -15,11 +15,27 @@ table wins**.
 
 | Verdict | Count | Meaning |
 |---|---|---|
-| ✅ Done | 13 | all acceptance criteria met + verified (some V1, V2 noted) |
-| 🟡 Partial | 30 | core/scaffolding ships, named gaps remain |
+| ✅ Done | 14 | all acceptance criteria met + verified (some V1, V2 noted) |
+| 🟡 Partial | 29 | core/scaffolding ships, named gaps remain |
 | ⬜ Not-started | 11 | no deliverables found in code |
 | 📄 Non-task | 6 | decision / positioning / tracking / upstream-blocked doc |
 | **Total** | **60** | |
+
+### sudo/network round (2026-06-20, after sudo+network unblocked)
+
+- **B17 → done** (#40): real `sae_lens` 6.44.3 round-trip — caught + fixed a
+  W_enc/W_dec transpose bug; export now loads + runs in SAELens.
+- **C4 BPE path validated** (#43): `train-extractor --tokenizer` exercised with
+  a real gpt2 tokenizer (train converged, router + labels written); CI-safe smoke.
+- **C5 throughput validated** (#42): live tiny-model serve → 128/128 real tok/s,
+  2.9% drop; fixed a bench-output parsing bug. Thermal (die temp) still needs sudo.
+- **E6 finding** (#41): the PRD's ScaleBench repo URL 404s; installer now
+  fails fast. E6-V1 (`eval-scaledown`) is the working path.
+- **B9**: token-count parsing fixed; full J/token still needs sudo powermetrics.
+
+Still pending sudo (run `sudo bash scripts/setup_powermetrics_sudoers.sh`):
+C5 die-temp + B9 J/token. Everything else needs a training GPU / M5 / weeks
+of model-building (see GPU-RESEARCH-BACKLOG.md).
 
 ### Finished in the 2026-06-20 implementation session
 
