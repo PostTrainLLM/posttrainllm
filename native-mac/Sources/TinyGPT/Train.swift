@@ -90,6 +90,8 @@ enum Train {
         var minLR: Float = 3e-5
         // -1 sentinel = auto-derive to 10% of `steps` at run time.
         var decaySteps: Int = -1
+        // WSD decay-phase shape (B11): 1-sqrt (MiniCPM default), cosine, linear.
+        var decayShape = "1-sqrt"
         // Loss-spike detector — observe-only v1. Logs a warning when a
         // step's loss exceeds `spikeFactor × moving-average over
         // spikeWindow steps`. Off-switch is `--no-spike-detect`.
@@ -234,6 +236,12 @@ enum Train {
             case "--max-lr":      maxLR = Float(args[i+1]) ?? maxLR; explicitMaxLR = true; i += 2
             case "--min-lr":      minLR = Float(args[i+1]) ?? minLR; explicitMinLR = true; i += 2
             case "--decay-steps": decaySteps = Int(args[i+1]) ?? decaySteps; explicitDecaySteps = true; i += 2
+            case "--decay-shape":
+                decayShape = args[i+1]
+                if WSDDecayShape(rawValue: decayShape) == nil {
+                    fputs("warning: unknown --decay-shape '\(decayShape)' (use 1-sqrt|cosine|linear); falling back to 1-sqrt\n", stderr)
+                }
+                i += 2
             case "--no-spike-detect": spikeDetectEnabled = false; i += 1
             case "--spike-window": spikeWindow = max(2, Int(args[i+1]) ?? spikeWindow); i += 2
             case "--spike-factor": spikeFactor = max(1.01, Float(args[i+1]) ?? spikeFactor); i += 2
@@ -685,7 +693,8 @@ enum Train {
                 return lrAtWSD(
                     step: step, total: steps, warmup: warmupSteps,
                     decaySteps: effectiveDecaySteps,
-                    maxLR: maxLR, minLR: minLR
+                    maxLR: maxLR, minLR: minLR,
+                    decayShape: WSDDecayShape(rawValue: decayShape) ?? .oneMinusSqrt
                 )
             case "constant":
                 return maxLR
@@ -1715,6 +1724,9 @@ enum Train {
           --warmup N                      Warmup steps (default: 500 when cosine/wsd)
           --max-lr / --min-lr             Schedule endpoints (defaults: 3e-4 / 3e-5)
           --decay-steps N                 WSD decay window in steps (default: 10% of --steps).
+                                           Ignored unless --lr-schedule wsd.
+          --decay-shape 1-sqrt|cosine|linear
+                                          WSD decay-phase shape (default: 1-sqrt, MiniCPM).
                                            Ignored unless --lr-schedule wsd.
           --no-spike-detect               Disable loss-spike detector (default: on).
           --spike-window N                Moving-average window for the spike detector
