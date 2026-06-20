@@ -19,8 +19,8 @@ final class EscalationLabelingTests: XCTestCase {
         // i2: keep  & wrong  → FN
         // i3: keep  & right  → TN
         // i4: defer & wrong  → TP
-        let pred  = [true,  true,  false, false, true ]
-        let wrong = [true,  false, true,  false, true ]
+        let pred  = [true,  true,  false, false, true]
+        let wrong = [true,  false, true,  false, true]
         let m = EscalationLabeling.metrics(predictions: pred, localWrong: wrong)
         XCTAssertEqual(m.precision, 2.0/3.0, accuracy: 1e-9)   // TP=2, FP=1
         XCTAssertEqual(m.recall, 2.0/3.0, accuracy: 1e-9)      // TP=2, FN=1
