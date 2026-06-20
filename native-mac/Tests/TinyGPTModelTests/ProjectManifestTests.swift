@@ -44,6 +44,28 @@ final class ProjectManifestTests: XCTestCase {
         XCTAssertNoThrow(try m.validate())
     }
 
+    // B31 — `pull` with no --tag resolves the first base pin.
+    func test_basePin_resolvesFirstBaseModel() throws {
+        let json = #"""
+        {
+          "name": "p",
+          "models": [
+            {"id": "a1-tool-caller", "role": "adapter", "applies_to": "qwen3-4b"},
+            {"id": "qwen3-4b", "role": "base"},
+            {"id": "judge-9b", "role": "judge"}
+          ]
+        }
+        """#
+        let m = try ProjectManifest.decode(from: Data(json.utf8))
+        XCTAssertEqual(m.basePin?.id, "qwen3-4b")
+    }
+
+    func test_basePin_nilWhenNoBase() throws {
+        let json = #"{"name":"p","models":[{"id":"j","role":"judge"}]}"#
+        let m = try ProjectManifest.decode(from: Data(json.utf8))
+        XCTAssertNil(m.basePin)
+    }
+
     func test_rejects_adapter_without_appliesTo() throws {
         let json = #"""
         {

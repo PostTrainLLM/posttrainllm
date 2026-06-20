@@ -102,6 +102,11 @@ public extension ProjectManifest {
         }
     }
 
+    /// The default model to pull/serve for this project: the first pin with
+    /// `role == .base` (B31 — what `tinygpt pull` resolves when no `--tag` is
+    /// given). nil if the project pins no base model.
+    var basePin: ProjectModelPin? { models.first { $0.role == .base } }
+
     func validate() throws {
         var seen = Set<String>()
         for pin in models {
