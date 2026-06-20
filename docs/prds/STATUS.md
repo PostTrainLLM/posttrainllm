@@ -16,23 +16,30 @@ table wins**.
 | Verdict | Count | Meaning |
 |---|---|---|
 | ✅ Done | 13 | all acceptance criteria met + verified (some V1, V2 noted) |
-| 🟡 Partial | 29 | core/scaffolding ships, named gaps remain |
-| ⬜ Not-started | 12 | no deliverables found in code |
+| 🟡 Partial | 30 | core/scaffolding ships, named gaps remain |
+| ⬜ Not-started | 11 | no deliverables found in code |
 | 📄 Non-task | 6 | decision / positioning / tracking / upstream-blocked doc |
 | **Total** | **60** | |
 
 ### Finished in the 2026-06-20 implementation session
 
-153 model tests pass (0 failures, +23 this session); 9 CPU smokes + 2 harness
+157 model tests pass (0 failures, +27 this session); 12 CPU smokes + 2 harness
 self-tests (C5/B9) green.
 
-**Self-contained eval-scorer tier built for the whole specialist family** —
-each scores a predictions/results file (pure + unit-tested + smoke), so the
+**Self-contained eval-scorer tier built for the whole specialist/agent family**
+— each scores a predictions/results file (pure + unit-tested + smoke), so the
 GPU training step has a ready, verified gate:
 `eval-bfcl --lora` (A1), `eval-sql` (B1), `eval-router` bake-off (B2–B7),
-`eval-milu` per-language (B8), `compress`/`eval-scaledown` (B25/E6),
-`eval-escalate` (B5). For all of these, only the model-generation/training
-step needs a GPU; the scoring is done.
+`eval-milu` per-language (B8), `eval-review` (B35), `compress`/`eval-scaledown`
+(B25/E6), `eval-escalate` (B5). Plus `interp-replay` timeline orchestrator
+(B13, `--dry-run`) and `validate-project` pin validation (B31). For all of
+these, only the model-generation/training step needs a GPU; the verifiable
+code is done.
+
+**Every sandbox-verifiable code slice across the 60-PRD backlog is now built.**
+The remaining 11 not-started + the deep partials are 100% gated on GPU training,
+special hardware (M5 / sudo powermetrics), network installs (ScaleBench/sae_lens),
+a cloud API, or are multi-week from-scratch model builds (Tier 5 5.1–5.7).
 
 All verified by `swift test` / smoke scripts. Build note: Xcode-27's default
 build system has a broken incremental relink; use `swift build --build-system
