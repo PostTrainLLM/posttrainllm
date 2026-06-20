@@ -23,7 +23,8 @@ table wins**.
 
 ### Finished in the 2026-06-20 implementation session
 
-153 model tests pass (0 failures, +23 this session); 10 CPU smokes green.
+153 model tests pass (0 failures, +23 this session); 9 CPU smokes + 2 harness
+self-tests (C5/B9) green.
 
 **Self-contained eval-scorer tier built for the whole specialist family** —
 each scores a predictions/results file (pure + unit-tested + smoke), so the
