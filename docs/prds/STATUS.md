@@ -11,17 +11,38 @@ table wins**.
 > and `docs/PLAN.md`'s `✅` markers overstated it (it marks features "shipped"
 > that miss their PRD's acceptance criteria). This doc is the reconciled truth.
 
-## Summary
+## Summary (after the 2026-06-20 implementation session)
 
 | Verdict | Count | Meaning |
 |---|---|---|
-| ✅ Done | 4 | all acceptance criteria met in code — removal candidates |
-| 🟡 Partial | 26 | core/scaffolding ships, named gaps remain |
-| ⬜ Not-started | 24 | no deliverables found in code |
+| ✅ Done | 10 | all acceptance criteria met + verified |
+| 🟡 Partial | 22 | core/scaffolding ships, named gaps remain |
+| ⬜ Not-started | 22 | no deliverables found in code |
 | 📄 Non-task | 6 | decision / positioning / tracking / upstream-blocked doc |
 | **Total** | **60** | |
 
-**~50 PRDs carry real remaining work** (26 partial + 24 not-started).
+### Finished in the 2026-06-20 implementation session (7 PRDs)
+
+All verified by `swift test` / smoke scripts. Build note: Xcode-27's default
+build system has a broken incremental relink; use `swift build --build-system
+native --product tinygpt`.
+
+| PRD | What shipped | Verification |
+|---|---|---|
+| **B15** llrd | `--llrd γ` on sft/dpo/finetune via `scaleLayerwiseLR` | LLRDTests (2) |
+| **B11** wsd | `--decay-shape {1-sqrt,cosine,linear}` | TrainSchedHelpersTests |
+| **B18** depth | `--depth` derives lr/batch/steps + `--regime`; DepthDerivation module + training_guide table | DepthDerivationTests (6) |
+| **B10** quality | `--score` {doc_id,score} sidecar mode | quality-filter-smoke.sh (science 0.77 > spam 0.02) |
+| **B12** spike | `--auto-rollback off\|warn\|on` adaptive LR-cut controller | SpikeRecoveryTests (4) |
+| **C9** determinism | `evals/determinism-smoke.sh` harness + corrected doc | smoke (step-0 exact, ~2.7e-5 same-seed) |
+| **B17** saelens | exporter writes README + docs section | builds; py round-trip needs `sae_lens` |
+
+C9 finding: MLX/Metal training is reproducible to ~1e-5 but **not bit-exact**
+past step 0 (nondeterministic GPU reductions) — full step-N replay isn't
+achievable on this backend. B17 remains partial (sparsity = analysis-time).
+
+**~44 PRDs still carry real remaining work** (22 partial + 22 not-started),
+most needing GPU training runs, special hardware, or network deps to finish.
 
 ---
 
