@@ -128,6 +128,8 @@ struct TinyGPT {
             EvalEscalate.run(args: Array(args.dropFirst()))
         case "eval-scaledown":
             EvalScaledown.run(args: Array(args.dropFirst()))
+        case "eval-sql":
+            EvalSql.run(args: Array(args.dropFirst()))
         case "reasoning-classify":
             ReasoningClassify.run(args: Array(args.dropFirst()))
         case "traces-to-data":
