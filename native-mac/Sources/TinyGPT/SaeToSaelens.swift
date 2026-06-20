@@ -113,6 +113,15 @@ enum SaeToSaelens {
         do { try cfgData.write(to: cfgURL, options: .atomic) }
         catch { fputs("cfg.json write failed: \(error)\n", stderr); exit(1) }
 
+        // README.md — the human/Neuronpedia-facing card. Documents the
+        // schema, the load snippet, the provenance metadata, and how to
+        // generate sparsity.safetensors (which is computed from activations
+        // at analysis time, not from the weights-only .sae).
+        let readme = makeReadme(modelName: modelName, hookName: hookName, parsed: parsed)
+        let readmeURL = outURL.appendingPathComponent("README.md")
+        do { try readme.write(to: readmeURL, atomically: true, encoding: .utf8) }
+        catch { fputs("README.md write failed: \(error)\n", stderr); exit(1) }
+
         let wSize = (try? weightsURL.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
         let cSize = cfgData.count
 
@@ -121,10 +130,14 @@ enum SaeToSaelens {
         wrote SAELens-format SAE to \(outDir):
           sae_weights.safetensors  \(wSize) bytes  (W_enc \(parsed.dFeatures)×\(parsed.dModel), b_enc \(parsed.dFeatures), W_dec \(parsed.dModel)×\(parsed.dFeatures), b_dec \(parsed.dModel))
           cfg.json                 \(cSize) bytes  (architecture=standard, d_in=\(parsed.dModel), d_sae=\(parsed.dFeatures), hook=\(hookName))
+          README.md                schema + load snippet + Neuronpedia notes
 
         load in Python:
           from sae_lens import SAE
           sae = SAE.load_from_disk("\(outDir)")
+
+        sparsity.safetensors (optional, for Neuronpedia dashboards) is computed
+        from activations at analysis time — see README.md.
 
         """)
     }
@@ -199,6 +212,48 @@ enum SaeToSaelens {
             wDec: MLXArray(wDec, [D, F]),
             bDec: MLXArray(bDec, [D])
         )
+    }
+
+    /// The Neuronpedia/SAELens-facing README written next to the weights.
+    private static func makeReadme(modelName: String, hookName: String, parsed: Parsed) -> String {
+        let group = (parsed.layers?.count ?? 1) > 1
+            ? "\n- **Group SAE** over base layers \(parsed.layers!) (B19)."
+            : ""
+        return """
+        # \(modelName) — SAELens / Neuronpedia SAE
+
+        TinyGPT-trained sparse autoencoder, exported to the
+        [SAELens](https://github.com/decoderesearch/SAELens) on-disk format
+        via `tinygpt sae-to-saelens`.
+
+        ## Files
+
+        | file | contents |
+        |---|---|
+        | `sae_weights.safetensors` | `W_enc` [\(parsed.dFeatures)×\(parsed.dModel)], `b_enc` [\(parsed.dFeatures)], `W_dec` [\(parsed.dModel)×\(parsed.dFeatures)], `b_dec` [\(parsed.dModel)] |
+        | `cfg.json` | `architecture=standard`, `d_in=\(parsed.dModel)`, `d_sae=\(parsed.dFeatures)`, hook `\(hookName)`, + `metadata` provenance |
+        | `README.md` | this file |
+
+        ## Load
+
+        ```python
+        from sae_lens import SAE
+        sae = SAE.load_from_disk("<this-dir>")
+        ```
+
+        ## Provenance
+
+        - Base model: \(parsed.baseLayers)L · d=\(parsed.baseDModel) · ctx=\(parsed.baseCtx)
+        - Hook layer: \(parsed.layer)\(group)
+
+        ## Sparsity (for Neuronpedia dashboards)
+
+        `sparsity.safetensors` (a `sparsity` tensor of shape [\(parsed.dFeatures)],
+        log10 feature firing density) is **not** emitted here — it is a property
+        of activations over a corpus, not of the weights. Generate it at analysis
+        time with SAELens' `ActivationsStore` over your eval set and drop it next
+        to these files; Neuronpedia's uploader then picks it up automatically.
+        """
     }
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {

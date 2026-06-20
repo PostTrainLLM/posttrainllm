@@ -189,3 +189,33 @@ sampler making most of the decision.
 The whole feature is ~200 lines of TypeScript and one new GPU method. The lever you
 want to make a transformer "feel" navigable is small once the forward pass is already
 there.
+
+## Publishing to SAELens / Neuronpedia (B17)
+
+`tinygpt sae-to-saelens <in.sae> --out <dir>` converts a TinyGPT `.sae`
+sidecar to the [SAELens](https://github.com/decoderesearch/SAELens) on-disk
+layout, so TinyGPT-trained SAEs become first-class in the interp ecosystem
+without reimplementing visualization:
+
+```
+<dir>/sae_weights.safetensors   W_enc, b_enc, W_dec, b_dec
+<dir>/cfg.json                  architecture=standard, d_in, d_sae, hook, metadata
+<dir>/README.md                 schema + load snippet + provenance
+```
+
+Load + analyse in Python:
+
+```python
+from sae_lens import SAE
+sae = SAE.load_from_disk("<dir>")
+```
+
+The `metadata` block in `cfg.json` preserves provenance (base layer, base
+model shape, and — for B19 group SAEs — the full `tinygpt_group_layers`
+list) so a round-trip back to our format isn't lossy.
+
+**Sparsity / Neuronpedia dashboards.** `sparsity.safetensors` (per-feature
+log10 firing density) is a property of *activations over a corpus*, not of
+the exported weights, so it is generated at analysis time with SAELens'
+`ActivationsStore` over your eval set — not by the converter. Drop the file
+next to the others and Neuronpedia's uploader picks it up.
