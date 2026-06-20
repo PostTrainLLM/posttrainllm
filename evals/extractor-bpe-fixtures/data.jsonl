@@ -1,0 +1,12 @@
+{"query": "what's the weather in Paris today", "tool": "get_weather"}
+{"query": "is it going to rain tomorrow", "tool": "get_weather"}
+{"query": "temperature in Tokyo right now", "tool": "get_weather"}
+{"query": "forecast for this weekend", "tool": "get_weather"}
+{"query": "send an email to Bob about lunch", "tool": "send_email"}
+{"query": "email the team the meeting notes", "tool": "send_email"}
+{"query": "compose a message to my manager", "tool": "send_email"}
+{"query": "reply to Alice's last email", "tool": "send_email"}
+{"query": "book a flight to New York", "tool": "book_flight"}
+{"query": "find me a flight to London next week", "tool": "book_flight"}
+{"query": "reserve a seat on the morning plane", "tool": "book_flight"}
+{"query": "cancel my flight reservation", "tool": "book_flight"}
