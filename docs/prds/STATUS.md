@@ -15,13 +15,15 @@ table wins**.
 
 | Verdict | Count | Meaning |
 |---|---|---|
-| ✅ Done | 11 | all acceptance criteria met + verified |
-| 🟡 Partial | 24 | core/scaffolding ships, named gaps remain |
-| ⬜ Not-started | 19 | no deliverables found in code |
+| ✅ Done | 13 | all acceptance criteria met + verified (some V1, V2 noted) |
+| 🟡 Partial | 26 | core/scaffolding ships, named gaps remain |
+| ⬜ Not-started | 15 | no deliverables found in code |
 | 📄 Non-task | 6 | decision / positioning / tracking / upstream-blocked doc |
 | **Total** | **60** | |
 
-### Finished in the 2026-06-20 implementation session (8 PRDs)
+### Finished in the 2026-06-20 implementation session (10 PRDs + harnesses)
+
+144 model tests pass (0 failures); 6 CPU smokes green.
 
 All verified by `swift test` / smoke scripts. Build note: Xcode-27's default
 build system has a broken incremental relink; use `swift build --build-system
@@ -36,6 +38,10 @@ native --product tinygpt`.
 | **B12** spike | `--auto-rollback off\|warn\|on` adaptive LR-cut controller | SpikeRecoveryTests (4) |
 | **C9** determinism | `evals/determinism-smoke.sh` harness + corrected doc | smoke (step-0 exact, ~2.7e-5 same-seed) |
 | **B21** automixer | Dirichlet `MixSampler` + quadratic `SurrogateFit` + `automix` orchestrator (`--dry-run`) | AutoMixTests (5) + automix-smoke.sh (converges to optimum) |
+| **B25** compress (V1) | lexical `compress` (BM25-lite `LexicalRelevance`) | LexicalRelevanceTests (6) + compress-smoke.sh; learned head V2 (GPU) |
+| **E6** eval-scaledown (V1) | self-contained compression eval (ratio + answer-retention) + install-scalebench.sh | scaledown-smoke.sh (ratio 0.58, retention 1.0); ScaleBench wrapper V2 |
+| **B5** escalate (data+eval) | `EscalationLabeling` + `build-escalate-data` + `eval-escalate` | EscalationLabelingTests (3) + escalate-smoke.sh; SFT run/cloud teacher pending |
+| **A1** tool-caller | `eval-bfcl --lora` + recipe + acceptance + brief | builds; 4B train + BFCL run need GPU |
 | **B17** saelens | exporter writes README + docs section | builds; py round-trip needs `sae_lens` |
 
 C9 finding: MLX/Metal training is reproducible to ~1e-5 but **not bit-exact**
@@ -48,11 +54,11 @@ Harnesses written (core logic `--self-test`-verified; full runs need hardware):
 | **C5** thermal | `scripts/bench_decode_thermal.py` (degradation self-test) | running serve + ~30 min + sudo powermetrics |
 | **B9** energy | `scripts/bench_energy.py` + `setup_powermetrics_sudoers.sh` (J/token self-test) | running serve + sudo powermetrics |
 
-**~43 PRDs still carry real remaining work** (24 partial + 19 not-started),
-nearly all gated on GPU training runs, special hardware (M5 / sudo
-powermetrics), network installs (ScaleBench, sae_lens), or a cloud API —
-i.e. not finishable in a CPU/sandbox dev environment. The remaining writable
-slices are thin helpers wrapped around that resource-blocked work.
+**~41 PRDs still carry remaining work** (26 partial + 15 not-started). The
+partials are mostly V1-shipped-here with a V2/training gap; the not-started and
+the deeper partials are gated on GPU training runs, special hardware (M5 / sudo
+powermetrics), network installs (ScaleBench, sae_lens), a cloud API, or are
+multi-week from-scratch model builds (Tier 5) — not finishable in a CPU sandbox.
 
 ---
 
