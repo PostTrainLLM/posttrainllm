@@ -58,6 +58,18 @@ export interface GalleryModel {
    *  incompatible (e.g. byte-level scorer + BPE model). Absence =
    *  hasn't been scored yet. */
   benchmarks?: Record<string, number | null>;
+  /** B31 — artifact kind, so the unified gallery can mix browser-trained
+   *  GPT-2 models with Mac-side HF/safetensors specialists. Absent ⇒
+   *  `browser-gpt2` (the historical default, a browser-loadable `.bin`). */
+  kind?: 'browser-gpt2' | 'mac-tinygpt' | 'mac-safetensors-hf' | 'mac-lora';
+  /** B31 — for adapter kinds (`mac-lora`): the `id` of the base model it
+   *  applies to. Should match another entry's `id` in the same manifest. */
+  parent?: string;
+  /** B31 — R2/remote object path for Mac-side artifacts not shipped under
+   *  `browser/public/gallery/` (the gallery lists but can't load them). */
+  r2_path?: string;
+  /** B31 — freeform tags for gallery filtering (e.g. "specialist", "indic"). */
+  tags?: string[];
 }
 
 /** Submission metadata for a single model. The `featured` flag marks
