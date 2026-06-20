@@ -66,6 +66,20 @@ final class ProjectManifestTests: XCTestCase {
         XCTAssertNil(m.basePin)
     }
 
+    // B31 gallery-resolve.
+    func test_unresolvedPins() throws {
+        let json = #"""
+        {"name":"p","models":[
+          {"id":"qwen3-4b","role":"base"},
+          {"id":"a1","role":"adapter","applies_to":"qwen3-4b"},
+          {"id":"ghost","role":"judge"}
+        ]}
+        """#
+        let m = try ProjectManifest.decode(from: Data(json.utf8))
+        XCTAssertEqual(m.unresolvedPins(galleryIds: ["qwen3-4b", "a1", "ghost"]), [])
+        XCTAssertEqual(m.unresolvedPins(galleryIds: ["qwen3-4b", "a1"]), ["ghost"])
+    }
+
     func test_rejects_adapter_without_appliesTo() throws {
         let json = #"""
         {

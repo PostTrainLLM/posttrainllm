@@ -59,10 +59,11 @@ export interface GalleryModel {
    *  hasn't been scored yet. */
   benchmarks?: Record<string, number | null>;
   /** B31 — artifact kind, so the unified gallery can mix browser-trained
-   *  GPT-2 models with Mac-side HF/safetensors specialists. Absent ⇒
-   *  `browser-gpt2` (the historical default, a browser-loadable `.bin`). */
-  kind?: 'browser-gpt2' | 'mac-tinygpt' | 'mac-safetensors-hf' | 'mac-lora';
-  /** B31 — for adapter kinds (`mac-lora`): the `id` of the base model it
+   *  models with Mac-side HF/safetensors specialists. Values mirror the Swift
+   *  `GalleryModelKind` raw values EXACTLY (one schema, two readers). Absent ⇒
+   *  `browser-bin` (the historical default, a browser-loadable `.bin`). */
+  kind?: 'browser-bin' | 'mac-tinygpt' | 'mac-adapter' | 'mac-gguf' | 'mac-safetensors-hf';
+  /** B31 — for adapter kinds (`mac-adapter`): the `id` of the base model it
    *  applies to. Should match another entry's `id` in the same manifest. */
   parent?: string;
   /** B31 — R2/remote object path for Mac-side artifacts not shipped under
