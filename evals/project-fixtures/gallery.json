@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "models": [
+    { "id": "qwen3-4b-instruct-2507", "name": "Qwen3-4B Instruct", "file": "qwen3-4b.bin", "kind": "mac-safetensors-hf" },
+    { "id": "a1-tool-caller", "name": "A1 tool-caller", "file": "a1.lora", "kind": "mac-adapter", "parent": "qwen3-4b-instruct-2507" },
+    { "id": "qwen3-9b", "name": "Qwen3-9B judge", "file": "qwen3-9b.bin", "kind": "mac-safetensors-hf" }
+  ]
+}

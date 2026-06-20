@@ -107,6 +107,13 @@ public extension ProjectManifest {
     /// given). nil if the project pins no base model.
     var basePin: ProjectModelPin? { models.first { $0.role == .base } }
 
+    /// B31 gallery-resolve: model pin ids that don't exist in the gallery's id
+    /// set. Empty ⇒ every pin resolves. (Datasets resolve against a separate
+    /// registry; this checks model pins only.)
+    func unresolvedPins(galleryIds: Set<String>) -> [String] {
+        models.map(\.id).filter { !galleryIds.contains($0) }
+    }
+
     func validate() throws {
         var seen = Set<String>()
         for pin in models {
