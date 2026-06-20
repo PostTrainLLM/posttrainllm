@@ -104,6 +104,9 @@ enum Train {
         var spikeDetectEnabled: Bool = true
         var spikeWindow: Int = 50
         var spikeFactor: Float = 3.0
+        // B12: spike-recovery policy. off=silent, warn=log (v1), on=adaptive
+        // LR cut + abort after the spike budget. --no-spike-detect forces off.
+        var autoRollback = "warn"
         // JSONL log emitter (C10 training dashboard). One JSON object per
         // step appended to the file; consumed by browser/src/pages/training-dashboard.
         var logJsonlPath: String? = nil
@@ -253,6 +256,7 @@ enum Train {
             case "--no-spike-detect": spikeDetectEnabled = false; i += 1
             case "--spike-window": spikeWindow = max(2, Int(args[i+1]) ?? spikeWindow); i += 2
             case "--spike-factor": spikeFactor = max(1.01, Float(args[i+1]) ?? spikeFactor); i += 2
+            case "--auto-rollback": autoRollback = args[i+1]; i += 2
             case "--log-jsonl":   logJsonlPath = args[i+1]; i += 2
             case "--eval-every":  evalEvery = Int(args[i+1]); i += 2
             case "--eval-tasks":  evalTasks = args[i+1]; i += 2
@@ -907,6 +911,14 @@ enum Train {
         var spikeDetector = LossSpikeDetector(
             window: spikeWindow, factor: spikeFactor
         )
+        // B12 recovery controller. --no-spike-detect forces off; otherwise
+        // --auto-rollback {off,warn,on} selects the policy (default warn).
+        if spikeDetectEnabled, SpikeRecoveryMode(rawValue: autoRollback) == nil {
+            fputs("warning: unknown --auto-rollback '\(autoRollback)' (use off|warn|on); using warn\n", stderr)
+        }
+        let spikeMode: SpikeRecoveryMode = !spikeDetectEnabled
+            ? .off : (SpikeRecoveryMode(rawValue: autoRollback) ?? .warn)
+        var spikeController = SpikeController(mode: spikeMode)
         for step in startStep..<steps {
             let stepStartedAt = Date()
             // LR schedule update. When `useCompiledLR` is on (AdamW +
@@ -915,7 +927,9 @@ enum Train {
             // `_updateInternal`s the underlying MLXArray in place — the
             // compiled trace keeps using the same scalar object.
             if useSchedule {
-                trainer.optimizer.learningRate = lrAtStep(step)
+                // B12: the recovery controller's LR multiplier (1.0 unless a
+                // spike triggered an auto-cut) scales the scheduled LR.
+                trainer.optimizer.learningRate = lrAtStep(step) * spikeController.lrMultiplier
             }
 
             // Cooperative power/thermal pause check. Every 50 steps to
@@ -970,14 +984,28 @@ enum Train {
             // surfaces the spike so the operator can investigate.
             var lastSpikeMA: Float? = nil
             var lastSpikeWasFiring: Bool? = nil
-            if spikeDetectEnabled {
+            if spikeMode != .off {
                 let (spike, ma) = spikeDetector.observe(loss: lastLoss, step: step)
                 lastSpikeMA = ma > 0 ? ma : nil
                 lastSpikeWasFiring = spike
                 if spike {
-                    fputs(String(format:
-                        "\n[spike] step %d: loss %.3f > %.1f × moving-avg %.3f over last %d steps. Investigate or --resume from the latest checkpoint with a lower LR.\n",
-                        step + 1, lastLoss, spikeFactor, ma, spikeWindow), stderr)
+                    switch spikeController.onSpike(ma: ma) {
+                    case .warn:
+                        fputs(String(format:
+                            "\n[spike] step %d: loss %.3f > %.1f × moving-avg %.3f over last %d steps. Investigate or --resume with a lower LR.\n",
+                            step + 1, lastLoss, spikeFactor, ma, spikeWindow), stderr)
+                    case .dropLR(let mult, _):
+                        fputs(String(format:
+                            "\n[spike] step %d: loss %.3f > %.1f × moving-avg %.3f — auto-recovery: LR ×%.4f (drop %d/%d).\n",
+                            step + 1, lastLoss, spikeFactor, ma, mult, spikeController.drops, spikeController.maxDrops), stderr)
+                    case .abort(let n):
+                        fputs(String(format:
+                            "\n[spike] step %d: %d spikes exceeded the recovery budget — aborting cleanly (checkpoint flushed). Lower --max-lr or check the data.\n",
+                            step + 1, n), stderr)
+                        TrainSupport.stopRequested.set()
+                    case .none:
+                        break
+                    }
                 }
             }
 
@@ -1765,6 +1793,9 @@ enum Train {
           --spike-window N                Moving-average window for the spike detector
                                            (default: 50 steps; min 2).
           --spike-factor F                Trigger when loss > F × moving-avg (default: 3.0).
+          --auto-rollback off|warn|on     Spike response: off=silent, warn=log only
+                                          (default), on=adaptive LR cut + abort after
+                                          the spike budget (3 drops, LR ×0.5 each).
           --log-jsonl <path.jsonl>        Append-only JSON-lines log of the training run
                                            (one record per step + val + done event).
                                            Off by default; consumed by the in-house

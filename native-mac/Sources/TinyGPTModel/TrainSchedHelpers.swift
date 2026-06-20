@@ -96,3 +96,54 @@ public struct LossSpikeDetector {
         return (isSpike, ma)
     }
 }
+
+// MARK: - Loss spike recovery controller (B12)
+
+/// What the train loop should do when the detector fires.
+public enum SpikeRecoveryMode: String, Sendable, CaseIterable {
+    case off    // detector not consulted
+    case warn   // log only (v1 behaviour)
+    case on     // auto-recover: cut LR, abort after too many spikes
+}
+
+/// The action the controller decides on a detected spike.
+public enum SpikeAction: Equatable, Sendable {
+    case none
+    case warn(ma: Float)
+    case dropLR(multiplier: Float, ma: Float)
+    case abort(spikes: Int)
+}
+
+/// Spike-recovery controller layered on `LossSpikeDetector` (B12).
+///
+/// Recovery mechanism is an adaptive **LR cut** (multiply the schedule by
+/// `lrDropFactor` each spike) rather than a checkpoint rollback: it needs
+/// no checkpoint I/O and never discards optimiser (Adam) state, so it's
+/// strictly safer than restore-and-resume. After `maxDrops` spikes the run
+/// aborts — a sustained spike storm means the LR/data is wrong, not a blip.
+public struct SpikeController {
+    public let mode: SpikeRecoveryMode
+    public let lrDropFactor: Float
+    public let maxDrops: Int
+    public private(set) var lrMultiplier: Float = 1.0
+    public private(set) var drops: Int = 0
+
+    public init(mode: SpikeRecoveryMode, lrDropFactor: Float = 0.5, maxDrops: Int = 3) {
+        self.mode = mode
+        self.lrDropFactor = min(0.999, max(0.01, lrDropFactor))
+        self.maxDrops = max(1, maxDrops)
+    }
+
+    /// Decide what to do given a detected spike. Updates `lrMultiplier`.
+    public mutating func onSpike(ma: Float) -> SpikeAction {
+        switch mode {
+        case .off:  return .none
+        case .warn: return .warn(ma: ma)
+        case .on:
+            drops += 1
+            if drops > maxDrops { return .abort(spikes: drops) }
+            lrMultiplier *= lrDropFactor
+            return .dropLR(multiplier: lrMultiplier, ma: ma)
+        }
+    }
+}
