@@ -88,8 +88,9 @@ def run(args):
         capture_output=True, text=True, timeout=600).stdout
     stop.set(); th.join(timeout=1)
     rec = json.loads(out)
-    runs = rec.get("runs") or [rec]
-    n_tokens = sum(r.get("n_tokens", 0) for r in runs)
+    # bench_decode.py emits inter-token-latency count (itl_ms.n = tokens − n_runs)
+    # across n_runs; total generated tokens = itl_ms.n + n_runs.
+    n_tokens = rec.get("itl_ms", {}).get("n", 0) + rec.get("n_runs", 0)
     jpt = energy_per_token(samples, n_tokens)
     row = {"label": args.label or args.model, "metric": "j_per_token",
            "j_per_token": jpt, "n_tokens": n_tokens,
