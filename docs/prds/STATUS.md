@@ -16,14 +16,17 @@ table wins**.
 | Verdict | Count | Meaning |
 |---|---|---|
 | ✅ Done | 13 | all acceptance criteria met + verified (some V1, V2 noted) |
-| 🟡 Partial | 26 | core/scaffolding ships, named gaps remain |
-| ⬜ Not-started | 15 | no deliverables found in code |
+| 🟡 Partial | 27 | core/scaffolding ships, named gaps remain |
+| ⬜ Not-started | 14 | no deliverables found in code |
 | 📄 Non-task | 6 | decision / positioning / tracking / upstream-blocked doc |
 | **Total** | **60** | |
 
-### Finished in the 2026-06-20 implementation session (10 PRDs + harnesses)
+### Finished in the 2026-06-20 implementation session
 
-144 model tests pass (0 failures); 6 CPU smokes green.
+148 model tests pass (0 failures, +18 this session); 7 CPU smokes green.
+**B1** also gained its self-contained `eval-sql` execution-accuracy harness
+(SqlEvalTests + eval-sql-smoke.sh) — eval infra + SQL domain decision shipped,
+training/generation pending a GPU.
 
 All verified by `swift test` / smoke scripts. Build note: Xcode-27's default
 build system has a broken incremental relink; use `swift build --build-system
