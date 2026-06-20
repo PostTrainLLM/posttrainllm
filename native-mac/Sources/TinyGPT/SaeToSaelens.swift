@@ -54,16 +54,17 @@ enum SaeToSaelens {
         do { try fm.createDirectory(at: outURL, withIntermediateDirectories: true) }
         catch { fputs("could not create \(outDir): \(error)\n", stderr); exit(1) }
 
-        // Weights — SAELens uses capitalized W_enc/W_dec; our reader
-        // produced w_enc/w_dec with the same shape conventions (encoder
-        // weight is [d_sae, d_in], decoder weight is [d_in, d_sae]).
-        // No transpose needed.
+        // Weights — SAELens's StandardSAE expects `W_enc: [d_in, d_sae]` and
+        // `W_dec: [d_sae, d_in]`. Our `.sae` stores the opposite orientation
+        // (wEnc `[d_sae, d_in]`, wDec `[d_in, d_sae]`), so both must be
+        // TRANSPOSED on export. (Verified by scripts/sae_saelens_roundtrip.py —
+        // SAELens `load_from_disk` rejects the untransposed shapes.)
         let weightsURL = outURL.appendingPathComponent("sae_weights.safetensors")
         do {
             try SafetensorsWriter.write(named: [
-                ("W_enc", parsed.wEnc),
+                ("W_enc", parsed.wEnc.transposed()),   // [F,D] → [d_in, d_sae]
                 ("b_enc", parsed.bEnc),
-                ("W_dec", parsed.wDec),
+                ("W_dec", parsed.wDec.transposed()),   // [D,F] → [d_sae, d_in]
                 ("b_dec", parsed.bDec),
             ], to: weightsURL)
         } catch {
