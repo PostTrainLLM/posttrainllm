@@ -15,11 +15,17 @@ table wins**.
 
 | Verdict | Count | Meaning |
 |---|---|---|
-| ✅ Done | 14 | all acceptance criteria met + verified (some V1, V2 noted) |
-| 🟡 Partial | 29 | core/scaffolding ships, named gaps remain |
+| ✅ Done | 15 | all acceptance criteria met + verified (some V1, V2 noted) |
+| 🟡 Partial | 28 | core/scaffolding ships, named gaps remain |
 | ⬜ Not-started | 11 | no deliverables found in code |
 | 📄 Non-task | 6 | decision / positioning / tracking / upstream-blocked doc |
 | **Total** | **60** | |
+
+> **B31 → done** (#45/#46/#47): browser `kind` discriminator (aligned to the
+> Swift `GalleryModelKind` raw values — fixed a mismatch), pin-aware `pull`
+> (resolves the base pin from `tinygpt.project.json`), and `validate-project`
+> (structural + `--gallery` resolve). Leftovers are the R2 download (needs
+> credentials) and B6's GUI picker (B6's scope), not B31 code.
 
 ### sudo/network round (2026-06-20, after sudo+network unblocked)
 
