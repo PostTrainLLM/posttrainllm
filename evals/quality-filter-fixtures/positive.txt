@@ -1,0 +1,11 @@
+The transformer architecture uses self attention to model long range dependencies across a sequence of tokens.
+
+Gradient descent minimizes a loss function by repeatedly stepping along the negative gradient of the parameters.
+
+Photosynthesis converts sunlight, carbon dioxide, and water into glucose and oxygen inside the chloroplasts of plants.
+
+The mitochondria is the organelle responsible for producing chemical energy in eukaryotic cells through respiration.
+
+A binary search algorithm finds a target value in a sorted array by repeatedly halving the search interval.
+
+Newton's second law states that the acceleration of an object equals the net force divided by its mass.

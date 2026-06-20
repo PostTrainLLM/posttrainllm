@@ -118,6 +118,28 @@ struct TinyGPT {
             QualityClassifier.runTrain(args: Array(args.dropFirst()))
         case "quality-filter":
             QualityClassifier.runFilter(args: Array(args.dropFirst()))
+        case "automix":
+            AutoMix.run(args: Array(args.dropFirst()))
+        case "compress":
+            Compress.run(args: Array(args.dropFirst()))
+        case "build-escalate-data":
+            BuildEscalateData.run(args: Array(args.dropFirst()))
+        case "eval-escalate":
+            EvalEscalate.run(args: Array(args.dropFirst()))
+        case "eval-scaledown":
+            EvalScaledown.run(args: Array(args.dropFirst()))
+        case "eval-sql":
+            EvalSql.run(args: Array(args.dropFirst()))
+        case "eval-router":
+            EvalRouter.run(args: Array(args.dropFirst()))
+        case "eval-milu":
+            EvalMilu.run(args: Array(args.dropFirst()))
+        case "eval-review":
+            EvalReview.run(args: Array(args.dropFirst()))
+        case "interp-replay":
+            InterpReplay.run(args: Array(args.dropFirst()))
+        case "validate-project":
+            ValidateProject.run(args: Array(args.dropFirst()))
         case "reasoning-classify":
             ReasoningClassify.run(args: Array(args.dropFirst()))
         case "traces-to-data":

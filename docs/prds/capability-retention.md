@@ -36,7 +36,7 @@ shipped blind. Half the battery already exists (breadth gate + single-turn BFCL)
 - **LoRA hygiene** — lower rank, fewer epochs, lower LR, fewer target layers (we saw val loss → 0.01
   = overfit; less is more).
 - **KL-to-reference** (the GRPO lever) — bound drift from the base.
-- **Model merging** — TIES-merge ([factory-ties-merge.md](factory-ties-merge.md)) a specialist back
+- **Model merging** — TIES-merge (shipped) a specialist back
   toward the base, or merge multiple specialists, to recover breadth.
 - **Routing instead of merging** — keep the specialist narrow and route to it only on its domain
   (the "stock 4B is the best generalist" finding makes this attractive).

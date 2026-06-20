@@ -1,0 +1,6 @@
+Rotary position embeddings, or RoPE, encode token positions by rotating the query and key vectors.
+The annual company picnic was held in the park last Saturday with sandwiches and lemonade.
+RoPE applies a rotation whose angle grows with the absolute position, so relative positions fall out of the dot product.
+My neighbor's dog barked all night and kept the whole street awake.
+Because RoPE is multiplicative on the query and key, it extends cleanly to longer contexts than learned absolute embeddings.
+The bakery on the corner sells excellent croissants every morning before nine.

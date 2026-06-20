@@ -1,0 +1,7 @@
+{
+  "name": "bad-project",
+  "models": [
+    { "id": "qwen3-4b", "role": "base" },
+    { "id": "qwen3-4b", "role": "base" }
+  ]
+}

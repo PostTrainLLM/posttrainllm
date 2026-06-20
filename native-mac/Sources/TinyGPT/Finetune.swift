@@ -30,6 +30,8 @@ enum Finetune {
         var peftVariant: PeftVariant = .lora
         var adaLoraTargetRank = 0
         var layerDropProb: Float = 0
+        // Layer-wise LR decay (B15): γ^(L-1-i) per block; 1.0 = off.
+        var layerDecay: Float = 1.0
         var i = 0
         while i < args.count {
             switch args[i] {
@@ -52,6 +54,7 @@ enum Finetune {
                 peftVariant = .adaLora
                 adaLoraTargetRank = Int(args[i+1]) ?? adaLoraTargetRank; i += 2
             case "--layer-drop":   layerDropProb = Float(args[i+1]) ?? layerDropProb; i += 2
+            case "--llrd":         layerDecay = Float(args[i+1]) ?? layerDecay; i += 2
             case "-h", "--help": exitUsage(0)
             default:
                 if args[i].hasPrefix("-") { fputs("unknown flag: \(args[i])\n", stderr); exitUsage() }
@@ -168,7 +171,7 @@ enum Finetune {
 
         // One step function works for either model variant — the
         // AnyModel wrapper hides the underlying type and dispatches.
-        let stepFn = makeStepFn(load.model, lr: lr)
+        let stepFn = makeStepFn(load.model, lr: lr, layerDecay: layerDecay)
         let t0 = Date()
         var lastLoss: Float = 0
         // Cooperative cancellation — Ctrl-C flushes the in-progress
@@ -224,13 +227,13 @@ enum Finetune {
 
     /// Build a per-step train function bound to the right model class.
     /// We dispatch once here (at trainer-build time) rather than per-step.
-    private static func makeStepFn(_ model: AnyModel, lr: Float) -> (MLXArray, MLXArray) -> Float {
+    private static func makeStepFn(_ model: AnyModel, lr: Float, layerDecay: Float = 1.0) -> (MLXArray, MLXArray) -> Float {
         switch model {
         case .fromScratch(let m):
-            let trainer = Trainer(model: m, learningRate: lr, weightDecay: 0.0)
+            let trainer = Trainer(model: m, learningRate: lr, weightDecay: 0.0, lrLayerDecay: layerDecay)
             return { x, y in trainer.step(inputs: x, targets: y) }
         case .huggingFace(let m):
-            let trainer = TrainerHF(model: m, learningRate: lr, weightDecay: 0.0)
+            let trainer = TrainerHF(model: m, learningRate: lr, weightDecay: 0.0, lrLayerDecay: layerDecay)
             return { x, y in trainer.step(inputs: x, targets: y) }
         }
     }
@@ -287,6 +290,7 @@ enum Finetune {
         --loftq                  LoftQ — init compensates a simulated int4 quantization of the base.
         --adalora-target-rank R  AdaLoRA — train per-rank importance scores, target avg rank R.
         --layer-drop F           LayerDrop fraction (0.0-0.5) — stochastically skip whole blocks.
+        --llrd F                 Layer-wise LR decay γ (0<γ≤1); block i's grad ×γ^(L-1-i). 1.0 = off.
         """)
         exit(code)
     }

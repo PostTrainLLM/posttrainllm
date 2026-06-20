@@ -124,9 +124,6 @@ knows what's missing:
 | `Sources/TinyGPT/ReasoningClassify.swift` | B30 — depth classifier + filter |
 | `evals/traces-to-data-fixtures/*.atraj` | smoke fixture (5 trajectories) |
 | `evals/traces-to-data-smoke.sh` | end-to-end smoke (rows in / rows out + filter-summary asserts) |
-| `docs/prds/B22-trajectory-recorder.md` | the substrate PRD |
-| `docs/prds/B29-trace-to-training-data.md` | this stage's PRD |
-| `docs/prds/B30-prompt-reasoning-classifier.md` | depth classifier PRD |
 
 ## Pairs with
 

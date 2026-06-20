@@ -1,0 +1,8 @@
+{"method":"classifier","predicted_tool":"get_weather","gold_tool":"get_weather"}
+{"method":"classifier","predicted_tool":"send_email","gold_tool":"send_email"}
+{"method":"classifier","predicted_tool":"get_weather","gold_tool":"get_weather"}
+{"method":"classifier","predicted_tool":"search","gold_tool":"book_flight"}
+{"method":"fsm","predicted_tool":"get_weather","gold_tool":"get_weather"}
+{"method":"fsm","predicted_tool":"search","gold_tool":"send_email"}
+{"method":"fsm","predicted_tool":"search","gold_tool":"get_weather"}
+{"method":"fsm","predicted_tool":"book_flight","gold_tool":"book_flight"}

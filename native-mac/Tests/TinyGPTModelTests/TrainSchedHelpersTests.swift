@@ -29,6 +29,29 @@ final class TrainSchedHelpersTests: XCTestCase {
                        "end-of-warmup should equal maxLR")
     }
 
+    /// B11: the three decay shapes diverge inside the decay window. At
+    /// progress 0.25 (step 925 of a 100-step window starting at 900), with
+    /// maxLR=1, minLR=0: linear=0.75, cosine≈0.8536, 1-sqrt=0.5. The default
+    /// (no decayShape arg) must equal 1-sqrt for backward compatibility.
+    func test_wsd_decayShapes_diverge() {
+        let total = 1000, warmup = 100, decaySteps = 100, step = 925
+        func lr(_ shape: WSDDecayShape) -> Float {
+            lrAtWSD(step: step, total: total, warmup: warmup, decaySteps: decaySteps,
+                    maxLR: 1.0, minLR: 0.0, decayShape: shape)
+        }
+        XCTAssertEqual(lr(.oneMinusSqrt), 0.5, accuracy: 1e-4)
+        XCTAssertEqual(lr(.linear), 0.75, accuracy: 1e-4)
+        XCTAssertEqual(lr(.cosine), 0.85355, accuracy: 1e-4)
+        // default param == 1-sqrt (back-compat for existing callers)
+        let dflt = lrAtWSD(step: step, total: total, warmup: warmup,
+                           decaySteps: decaySteps, maxLR: 1.0, minLR: 0.0)
+        XCTAssertEqual(dflt, lr(.oneMinusSqrt), accuracy: 1e-9)
+        // all shapes agree at the endpoints
+        for s in WSDDecayShape.allCases {
+            XCTAssertEqual(lrAtWSD(step: 900, total: total, warmup: warmup, decaySteps: decaySteps, maxLR: 1.0, minLR: 0.0, decayShape: s), 1.0, accuracy: 1e-6)
+        }
+    }
+
     /// Anywhere in the stable phase, LR should be exactly maxLR.
     func test_wsd_stablePhase_holdsAtMaxLR() {
         for step in [100, 250, 500, 800, 899] {

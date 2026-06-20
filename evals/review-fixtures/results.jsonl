@@ -1,0 +1,3 @@
+{"planted_issues":["null-deref","off-by-one"],"found_issues":["null-deref","style-nit"]}
+{"planted_issues":["sql-injection"],"found_issues":["sql-injection"]}
+{"planted_issues":["race-condition"],"found_issues":[]}

@@ -7,6 +7,7 @@ enum EvalBFCL {
         var bfclModel = "openbmb/MiniCPM-SALA-FC"
         var toolsPath: String?
         var toolMode = "full"
+        var loraPath: String?   // B5/A1: BFCL-eval a trained adapter on the base
         let parsed = EvalHarnessSupport.parseCommon(args, usage: { exitUsage() })
         var common = parsed.0
         let rest = parsed.1
@@ -17,6 +18,7 @@ enum EvalBFCL {
             case "--bfcl-root": root = rest[i + 1]; i += 2
             case "--bfcl-model": bfclModel = rest[i + 1]; i += 2
             case "--tools": toolsPath = rest[i + 1]; i += 2
+            case "--lora": loraPath = rest[i + 1]; i += 2
             case "--tool-mode":
                 toolMode = rest[i + 1]
                 guard toolMode == "full" || toolMode == "deferred" else {
@@ -37,6 +39,7 @@ enum EvalBFCL {
         try? FileManager.default.createDirectory(at: scoreDir, withIntermediateDirectories: true)
 
         var serveArgs: [String] = []
+        if let loraPath { serveArgs += ["--lora", loraPath] }
         if let toolsPath {
             serveArgs += ["--tools", toolsPath, "--tool-mode", toolMode]
             if toolMode == "deferred" {
@@ -135,6 +138,8 @@ enum EvalBFCL {
         --bfcl-model NAME       BFCL registry model id (default: openbmb/MiniCPM-SALA-FC)
         --tools <json>          OpenAI-compatible tool schema passed to serve
         --tool-mode MODE        serve tool mode: full|deferred (default: full)
+        --lora <path.lora>      apply a trained LoRA adapter on the served base
+                                (BFCL-eval a specialist adapter — A1/B25)
         --model-name NAME       display name in eval-compare
         --model-step N          checkpoint step
         """)

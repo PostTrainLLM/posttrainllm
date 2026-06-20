@@ -301,12 +301,16 @@ enum QualityClassifier {
         var threshold: Float = 0.5
         var perLine: Bool = false
         var maxDocs: Int? = nil
+        // --score sidecar mode (B10): write {doc_id,score} JSONL for every
+        // doc instead of / alongside filtering. --out becomes optional.
+        var scorePath: String? = nil
 
         var i = 0
         while i < args.count {
             switch args[i] {
             case "--classifier":  classifierPath = args[i+1]; i += 2
             case "--out":         outputPath = args[i+1]; i += 2
+            case "--score":       scorePath = args[i+1]; i += 2
             case "--threshold":   threshold = Float(args[i+1]) ?? threshold; i += 2
             case "--per-line":    perLine = true; i += 1
             case "--max-docs":    maxDocs = Int(args[i+1]); i += 2
@@ -317,7 +321,9 @@ enum QualityClassifier {
             }
         }
         guard let inputPath = inputPath else { fputs("missing <input>\n", stderr); exitUsageFilter() }
-        guard let outputPath = outputPath else { fputs("--out required\n", stderr); exitUsageFilter() }
+        guard outputPath != nil || scorePath != nil else {
+            fputs("--out (filter) or --score (sidecar) required\n", stderr); exitUsageFilter()
+        }
         guard let classifierPath = classifierPath else { fputs("--classifier required\n", stderr); exitUsageFilter() }
 
         let model: LoadedModel
@@ -341,13 +347,18 @@ enum QualityClassifier {
         var totalScored = 0
         var scoreSum: Double = 0
 
-        let outURL = URL(fileURLWithPath: outputPath)
-        try? FileManager.default.removeItem(at: outURL)
-        FileManager.default.createFile(atPath: outURL.path, contents: nil)
-        guard let outFH = try? FileHandle(forWritingTo: outURL) else {
-            fputs("could not open \(outputPath) for write\n", stderr); exit(1)
+        func openForWrite(_ path: String) -> FileHandle {
+            let url = URL(fileURLWithPath: path)
+            try? FileManager.default.removeItem(at: url)
+            FileManager.default.createFile(atPath: url.path, contents: nil)
+            guard let fh = try? FileHandle(forWritingTo: url) else {
+                fputs("could not open \(path) for write\n", stderr); exit(1)
+            }
+            return fh
         }
-        defer { try? outFH.close() }
+        let outFH = outputPath.map(openForWrite)
+        let scoreFH = scorePath.map(openForWrite)
+        defer { try? outFH?.close(); try? scoreFH?.close() }
 
         let separator = perLine ? "\n" : "\n\n"
         for i in 0..<docsToScan {
@@ -357,10 +368,16 @@ enum QualityClassifier {
             let p = sigmoid(s)
             scoreSum += Double(p)
             totalScored += 1
+            // --score sidecar: one {doc_id,score} JSONL line per doc.
+            if let scoreFH {
+                let line = "{\"doc_id\": \(i), \"score\": \(String(format: "%.6f", p))}\n"
+                try? scoreFH.write(contentsOf: Data(line.utf8))
+            }
             if p >= threshold {
-                let payload = (doc + separator).data(using: .utf8) ?? Data()
-                try? outFH.write(contentsOf: payload)
                 keptCount += 1
+                if let outFH {
+                    try? outFH.write(contentsOf: (doc + separator).data(using: .utf8) ?? Data())
+                }
             }
         }
 
@@ -371,7 +388,8 @@ enum QualityClassifier {
         scanned:   \(totalScored) docs
         kept:      \(keptCount) (\(String(format: "%.1f%%", keepRate * 100)) ≥ \(threshold))
         avg score: \(String(format: "%.3f", avgScore))
-        out:       \(outputPath)
+        \(outputPath.map { "filtered:  \($0)" } ?? "")
+        \(scorePath.map { "scores:    \($0)  ({doc_id,score} JSONL)" } ?? "")
         """)
     }
 
@@ -399,14 +417,18 @@ enum QualityClassifier {
     private static func exitUsageFilter(_ code: Int32 = 2) -> Never {
         print("""
         usage: tinygpt quality-filter <input> --classifier <model.tgfq> \\
-                                              --out <filtered> [options]
+                                              (--out <filtered> | --score <scores.jsonl>) [options]
 
         Apply a trained TGFQ classifier to <input>. Documents (paragraphs
         by default; --per-line for line-delimited inputs) with predicted
-        P(positive) ≥ --threshold are written to <output>.
+        P(positive) ≥ --threshold are written to --out. With --score, a
+        {doc_id,score} JSONL sidecar is written for EVERY doc (regardless of
+        threshold). At least one of --out / --score is required; both may be
+        given together.
 
         --classifier <path.tgfq>   trained model (required)
-        --out <path>               filtered output (required)
+        --out <path>               filtered output (docs ≥ threshold)
+        --score <path.jsonl>       per-doc {doc_id,score} sidecar (all docs)
         --threshold F              keep when P ≥ F (default 0.5)
         --per-line                 treat each line as a document (default: paragraphs by \\n\\n)
         --max-docs N               stop after scanning N input docs (handy for sampling)

@@ -380,6 +380,9 @@ work briefs** ready so the training day produces a model you can
 briefs an elf can pick up cold. Each names its "don't touch" files so
 multiple agents can ship in parallel without merge conflict:
 
+> _Update 2026-06-20: all 10 of the briefs below shipped and were removed in
+> the PRD cleanup (recoverable from git history). Table kept as historical record._
+
 | PRD | What | Estimated |
 |---|---|---|
 | `E1-bfcl-eval.md` | wire Berkeley Function Calling Leaderboard | ~1d |

@@ -29,30 +29,36 @@ NSLock-guarded — so the *individual draws* are deterministic — but the
 *interleaving* between prefetch lookahead and the main loop's
 foreground draws is scheduler-dependent. In practice this means:
 
-- Same seed + prefetcher disabled → bit-exact replay.
-- Same seed + prefetcher on → batches drawn in the same per-thread
-  order, but which batches land in foreground vs prefetch can drift
-  if the OS schedules differently. Loss values stay within ~1e-5 in
-  observed runs; step-1 loss is still bit-identical because the
-  prefetcher hasn't issued any draws by that point.
+Same seed → batches drawn in the same per-thread order, but which
+batches land in foreground vs prefetch can drift if the OS schedules
+differently. **Observed: same-seed loss stays within ~1e-5; step-0 is
+bit-identical** because the prefetcher hasn't issued any draws by that
+point. A *different* seed diverges ~1e-1 — four orders of magnitude
+larger, so the harness below cleanly separates "reproducible" from
+"different run".
 
-If you need the strongest replay guarantee, run with the prefetcher
-off (a hidden flag exists; see Train.swift `--no-prefetch`). For the
-common case — sanity-checking a spike, A/B sweeps — the default
-prefetched path is fine.
+There is currently **no flag to disable the prefetcher**, so bit-exact
+replay past step 0 is not available on the GPU path. For the common
+case — sanity-checking a spike, A/B sweeps — the ~1e-5 reproducibility
+is more than enough (the knob-under-test moves loss by far more).
 
 ## Verifying determinism
 
-```bash
-tinygpt train --preset tiny --steps 3 --seed 42 --no-spike-detect \
-  --corpus data/examples/tiny-corpus.txt --out /tmp/det-A.tinygpt
+The C9 harness runs the same training twice at one seed and asserts
+step-0 is bit-exact, the same-seed divergence stays within tolerance
+(`DETERMINISM_TOL`, default 1e-2), and a different seed produces a
+distinct trajectory:
 
-tinygpt train --preset tiny --steps 3 --seed 42 --no-spike-detect \
-  --corpus data/examples/tiny-corpus.txt --out /tmp/det-B.tinygpt
+```bash
+bash evals/determinism-smoke.sh
+# step-0 bit-exact: 6.103198
+# same-seed max divergence: 2.67e-05 (<= 1e-02) — reproducible, not bit-exact past step 0
+# cross-seed divergence:    1.85e-01 (distinct trajectory)
 ```
 
-Step-1 losses should agree exactly. Step-2 onward depend on whether
-the prefetcher is on (see above).
+A real determinism regression (an unseeded sampler, a stray RNG draw)
+would diverge by O(1) and trip the harness; ordinary GPU FP noise
+(O(1e-5)) passes.
 
 Unit tests pinning the contract live at
 `Tests/TinyGPTModelTests/BatchRngTests.swift`:

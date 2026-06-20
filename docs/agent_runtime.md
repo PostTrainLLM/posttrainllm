@@ -380,7 +380,7 @@ re-tokenizing tool-call args containing `\n` or non-ASCII can produce
 sequences that differ from what was originally sampled, silently
 biasing off-policy gradients.
 
-The substrate is the producer; [B29 `tinygpt traces-to-data`](prds/B29-trace-to-training-data.md)
+The substrate is the producer; B29 `tinygpt traces-to-data`
 is the consumer — it turns `.atraj` directories into training-ready
 SFT/DPO JSONL.
 

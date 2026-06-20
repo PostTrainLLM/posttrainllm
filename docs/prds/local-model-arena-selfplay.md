@@ -38,7 +38,7 @@ frontier model that plays the same game **zero-shot**.
   validated from-scratch MLX GRPO loop (group-normalized advantage, KL-to-ref,
   grad-accum) we reuse via an `(env.reset, env.step, reward)` interface.
 - Reward + trajectory plumbing: [B28 composite-reward](B28-composite-reward-framework.md),
-  [B22 trajectory-recorder](B22-trajectory-recorder.md).
+  B22 trajectory-recorder (shipped).
 
 ## Steal first (do NOT build an arena from scratch)
 
@@ -93,7 +93,7 @@ observation/action token cost.
 ## Risks / notes
 
 - **Illegal-move loops / reward hacking** — enforce legal-move masking (grammar-
-  constrained decoding; see [factory-serve-grammar.md](factory-serve-grammar.md)) and
+  constrained decoding; see factory-serve-grammar, shipped) and
   penalize illegal moves; keep the reward strictly the game outcome.
 - **Self-play collapse / cycling** — keep an opponent pool of past snapshots; always
   evaluate against a *fixed external* baseline (frontier-zero-shot / scripted), not just
@@ -108,6 +108,5 @@ observation/action token cost.
 ## Future — the actual "arena product"
 
 Many games + a public **Mac local-model leaderboard** (TrueSkill), sibling of the
-agentic leaderboard. Fold the viewer into
-[eval-leaderboard-viewer.md](eval-leaderboard-viewer.md) /
+agentic leaderboard. Fold the viewer into the eval-leaderboard viewer (shipped) /
 [B31 gallery](B31-gallery-and-project-pins.md).

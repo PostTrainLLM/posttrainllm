@@ -4,6 +4,10 @@ Self-contained briefs for parallel-agent tasks. Each PRD is written
 so an agent can pick it up cold, ship the task, and submit a PR without
 loading the full session context.
 
+**Shipped PRDs:** 51 completed/superseded briefs were removed on 2026-06-20 (recoverable from git history). This index lists active `not-started` / `partial` work only.
+
+**⚠️ Per-PRD `status:` frontmatter is unreliable** (stale in ~17 files). For code-verified status of every active PRD, see **[STATUS.md](STATUS.md)** (2026-06-20 audit: 4 done · 26 partial · 24 not-started · 6 non-task). That table is canonical when it disagrees with a PRD's frontmatter.
+
 ## How to use
 
 If you're a fresh agent: pick a `status: not-started` PRD, set the
@@ -16,29 +20,9 @@ in `Sources/TinyGPT/TinyGPT.swift`) after reviewing your PR.
 
 ## Index
 
-### Eval pipelines (Tier E)
-
-| PRD | What | Effort | Blocks |
-|---|---|---|---|
-| [E1 BFCL](E1-bfcl-eval.md) | wrap BFCL function-calling harness | ~1d | A1 specialist scoring |
-| [E2 τ-bench](E2-tau-bench-eval.md) | wrap τ-bench multi-turn agent harness | ~1d | A1 multi-turn score |
-| [E5 HumanEval + sandbox](E5-humaneval-sandbox.md) | Rust-isolated Python sandbox + scorer | ~1-2d | code specialist eval |
-| [E7 Local judge](E7-judge-shim.md) | LLM-as-judge via local Qwen/SmolLM | ~1d | preference evals (AlpacaEval, MT-Bench) |
-| [E8 train-time hook](E8-train-time-eval-hook.md) | `--eval-every N` flag for emergence view | ~1d | training-dynamics dashboard |
-
-### Browser viewers
-
-| PRD | What | Effort |
-|---|---|---|
-| [Eval leaderboard](eval-leaderboard-viewer.md) | `/eval-leaderboard.astro` — 3-view comparison page | ~2-3d |
-| [SAE timeline](sae-timeline-viewer.md) | `/sae-timeline.astro` — B13 feature-emergence chart | ~1d |
-
-### Rust performance tools
-
-| PRD | What | Effort |
-|---|---|---|
-| [Parquet decoder](rust-parquet-decoder.md) | replace pyarrow with a 2 MB static binary | ~half-day |
-| [HF downloader](rust-hf-downloader.md) | parallel shard fetches with progress + retry + resume | ~1d |
+> Eval pipelines (E1/E2/E5/E7/E8), browser viewers (eval-leaderboard, sae-timeline),
+> and the Rust performance tools (parquet-decoder, hf-downloader) all shipped and were
+> removed in the 2026-06-20 cleanup.
 
 ### Specialists (Tier A integration + Tier B follow-ons)
 
@@ -77,17 +61,16 @@ in `Sources/TinyGPT/TinyGPT.swift`) after reviewing your PR.
 |---|---|---|
 | [B2-B7 router-family](B2-B7-router-family.md) | mini-router on real BFCL + bake-off + FSM-injection + specialist routing (bundled) | 1-2w |
 | [B5 cloud-escalate-training](B5-cloud-escalate-training.md) | train the specialist to emit `defer_to_cloud` instead of regex-trigger | ~1w |
-| [B22 trajectory-recorder](B22-trajectory-recorder.md) | `.atraj` files preserve input_ids/output_ids/rewards | ~2d |
 | [B23 agent-eval-protocol](B23-agent-eval-protocol.md) | repeated pass@1 with fixed budgets; mean ± σ + ci95 | ~1d |
 | [B26 deferred-tools](B26-deferred-tools.md) | `--tool-mode {full,deferred}` + `get_tool_info` meta-tool | shipped, BFCL gate pending |
 
-### RL-finetune trio (Tier B — Castform discipline)
+### RL-finetune (Tier B — Castform discipline)
+
+> B29 trace-to-training-data (v1) and B30 prompt-reasoning-classifier shipped and were removed in the 2026-06-20 cleanup.
 
 | PRD | What | Effort |
 |---|---|---|
 | [B28 composite-reward-framework](B28-composite-reward-framework.md) | typed multi-dim reward (correctness + conciseness + ... → total) | scaffolding shipped, integrations pending |
-| [B29 trace-to-training-data](B29-trace-to-training-data.md) | `.atraj` → SFT/DPO JSONL via dedupe + tool-echo-drop + LLM-judge | ~2d |
-| [B30 prompt-reasoning-classifier](B30-prompt-reasoning-classifier.md) | classify training prompts by reasoning depth; feeds B29 + leaderboard | ~half-day |
 
 ### RL environments / arena (Tier B — open-ended, won't-saturate RL)
 

@@ -102,5 +102,5 @@ something keeps proposing tasks **at the edge of the agent's ability**:
   fleet's own game.
 - [local-model-arena-selfplay.md](local-model-arena-selfplay.md) — competitive self-play; the match
   outcome is the verifiable reward.
-- [B28 composite-reward](B28-composite-reward-framework.md), [B22 trajectory-recorder](B22-trajectory-recorder.md)
+- [B28 composite-reward](B28-composite-reward-framework.md), B22 trajectory-recorder (shipped)
   — reward + experience plumbing this loop consumes.

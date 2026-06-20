@@ -15,9 +15,13 @@ import TinyGPTModel
 ///                               intact (write-to-.tmp then rename).
 ///   --depth N                   nanochat-style single-knob override:
 ///                               derives nLayers=N, dModel=64·N, nHeads=N,
-///                               dMlp=4·dModel. Takes precedence over the
-///                               preset's L/d/h/MLP fields; preset still
-///                               supplies ctx, vocab, dtype.
+///                               dMlp=4·dModel AND the schedule HPs
+///                               peak_lr / batch / total_steps from
+///                               compute-optimal scaling laws (B18). Takes
+///                               precedence over the preset's L/d/h/MLP;
+///                               explicit --max-lr/--steps/--batch still win.
+///   --regime chinchilla|overtrained  Token budget for --depth (default
+///                               chinchilla, ~20 tok/param; overtrained ~40).
 ///   --lr-schedule cosine|wsd|constant  Default cosine. `wsd` is
 ///                               warmup-stable-decay: linear warmup →
 ///                               constant maxLR → 1−√(t) decay over the
@@ -60,6 +64,8 @@ enum Train {
         // GPT-2-shaped rules below. Preset still supplies ctx, vocab,
         // tokenizer, and dtype.
         var depthOverride: Int? = nil
+        // B18: token-budget regime for --depth-derived schedule HPs.
+        var regime = "chinchilla"
         var steps = 500
         var corpusPath: String? = nil
         var outPath: String? = nil
@@ -90,12 +96,17 @@ enum Train {
         var minLR: Float = 3e-5
         // -1 sentinel = auto-derive to 10% of `steps` at run time.
         var decaySteps: Int = -1
+        // WSD decay-phase shape (B11): 1-sqrt (MiniCPM default), cosine, linear.
+        var decayShape = "1-sqrt"
         // Loss-spike detector — observe-only v1. Logs a warning when a
         // step's loss exceeds `spikeFactor × moving-average over
         // spikeWindow steps`. Off-switch is `--no-spike-detect`.
         var spikeDetectEnabled: Bool = true
         var spikeWindow: Int = 50
         var spikeFactor: Float = 3.0
+        // B12: spike-recovery policy. off=silent, warn=log (v1), on=adaptive
+        // LR cut + abort after the spike budget. --no-spike-detect forces off.
+        var autoRollback = "warn"
         // JSONL log emitter (C10 training dashboard). One JSON object per
         // step appended to the file; consumed by browser/src/pages/training-dashboard.
         var logJsonlPath: String? = nil
@@ -207,6 +218,7 @@ enum Train {
         var explicitMinLR = false
         var explicitDecaySteps = false
         var explicitLayerDecay = false
+        var explicitSteps = false
         let cliArgsSnapshot = args
 
         var i = 0
@@ -214,7 +226,8 @@ enum Train {
             switch args[i] {
             case "--preset":      preset = args[i+1]; i += 2
             case "--depth":       depthOverride = Int(args[i+1]); i += 2
-            case "--steps":       steps = Int(args[i+1]) ?? steps; i += 2
+            case "--regime":      regime = args[i+1]; i += 2
+            case "--steps":       steps = Int(args[i+1]) ?? steps; explicitSteps = true; i += 2
             case "--corpus":      corpusPath = args[i+1]; i += 2
             case "--out":         outPath = args[i+1]; userSpecifiedOut = true; i += 2
             case "--dtype":       dtype = args[i+1]; i += 2
@@ -234,9 +247,16 @@ enum Train {
             case "--max-lr":      maxLR = Float(args[i+1]) ?? maxLR; explicitMaxLR = true; i += 2
             case "--min-lr":      minLR = Float(args[i+1]) ?? minLR; explicitMinLR = true; i += 2
             case "--decay-steps": decaySteps = Int(args[i+1]) ?? decaySteps; explicitDecaySteps = true; i += 2
+            case "--decay-shape":
+                decayShape = args[i+1]
+                if WSDDecayShape(rawValue: decayShape) == nil {
+                    fputs("warning: unknown --decay-shape '\(decayShape)' (use 1-sqrt|cosine|linear); falling back to 1-sqrt\n", stderr)
+                }
+                i += 2
             case "--no-spike-detect": spikeDetectEnabled = false; i += 1
             case "--spike-window": spikeWindow = max(2, Int(args[i+1]) ?? spikeWindow); i += 2
             case "--spike-factor": spikeFactor = max(1.01, Float(args[i+1]) ?? spikeFactor); i += 2
+            case "--auto-rollback": autoRollback = args[i+1]; i += 2
             case "--log-jsonl":   logJsonlPath = args[i+1]; i += 2
             case "--eval-every":  evalEvery = Int(args[i+1]); i += 2
             case "--eval-tasks":  evalTasks = args[i+1]; i += 2
@@ -308,6 +328,28 @@ enum Train {
             if !explicitMinLR { minLR = 1e-5 }
             if !explicitDecaySteps { decaySteps = max(1, steps / 20) }
             if !explicitLayerDecay { lrLayerDecay = 0.85 }
+        }
+        // B18: --depth single knob. Width/heads/MLP are applied at config
+        // build below; peak_lr / batch / total_steps are derived here so one
+        // number implies a compute-optimal point. Explicit HP flags win,
+        // with a warning. Only for fresh runs (depth reshapes the model).
+        var depthHP: DepthDerivedHP? = nil
+        if let dp = depthOverride, dp >= 1, resumePath == nil {
+            let seq = ctxOverride ?? configFor(preset).contextLength
+            if TrainRegime(rawValue: regime) == nil {
+                fputs("warning: unknown --regime '\(regime)' (use chinchilla|overtrained); using chinchilla\n", stderr)
+            }
+            let hp = deriveHP(depth: dp, regime: TrainRegime(rawValue: regime) ?? .chinchilla, seqLen: seq)
+            depthHP = hp
+            if explicitMaxLR { fputs("warning: --max-lr overrides --depth-derived peak LR (\(hp.peakLR))\n", stderr) }
+            else { maxLR = hp.peakLR }
+            if explicitSteps { fputs("warning: --steps overrides --depth-derived total steps (\(hp.totalSteps))\n", stderr) }
+            else { steps = hp.totalSteps }
+            if batchSize != nil { fputs("warning: --batch overrides --depth-derived batch size (\(hp.batchSize))\n", stderr) }
+            else { batchSize = hp.batchSize }
+            print(String(format: "depth %d → %dL d=%d h=%d mlp=%d | peak_lr=%.2e batch=%d steps=%d (~%dM params, %@ %dM tokens)",
+                         dp, hp.nLayers, hp.dModel, hp.nHeads, hp.dMlp, hp.peakLR, hp.batchSize, hp.totalSteps,
+                         hp.approxParams / 1_000_000, regime, hp.approxTokens / 1_000_000))
         }
         resolveOutputPaths(
             preset: preset,
@@ -412,12 +454,12 @@ enum Train {
             // full multi-head, no GQA. Without this the
             // `nHeads % nKvHeads == 0` precondition fires when the
             // preset's nKvHeads doesn't divide our new nHeads.
-            if let d = depthOverride, d >= 1 {
-                cfg.nLayers = d
-                cfg.dModel = 64 * d
-                cfg.nHeads = d
-                cfg.nKvHeads = d
-                cfg.dMlp = 4 * cfg.dModel
+            if let hp = depthHP {
+                cfg.nLayers = hp.nLayers
+                cfg.dModel = hp.dModel
+                cfg.nHeads = hp.nHeads
+                cfg.nKvHeads = hp.nHeads
+                cfg.dMlp = hp.dMlp
             }
             cfg.dtype = dtype
             // Apply tokenizer override BEFORE building the model — vocabSize
@@ -685,7 +727,8 @@ enum Train {
                 return lrAtWSD(
                     step: step, total: steps, warmup: warmupSteps,
                     decaySteps: effectiveDecaySteps,
-                    maxLR: maxLR, minLR: minLR
+                    maxLR: maxLR, minLR: minLR,
+                    decayShape: WSDDecayShape(rawValue: decayShape) ?? .oneMinusSqrt
                 )
             case "constant":
                 return maxLR
@@ -868,6 +911,14 @@ enum Train {
         var spikeDetector = LossSpikeDetector(
             window: spikeWindow, factor: spikeFactor
         )
+        // B12 recovery controller. --no-spike-detect forces off; otherwise
+        // --auto-rollback {off,warn,on} selects the policy (default warn).
+        if spikeDetectEnabled, SpikeRecoveryMode(rawValue: autoRollback) == nil {
+            fputs("warning: unknown --auto-rollback '\(autoRollback)' (use off|warn|on); using warn\n", stderr)
+        }
+        let spikeMode: SpikeRecoveryMode = !spikeDetectEnabled
+            ? .off : (SpikeRecoveryMode(rawValue: autoRollback) ?? .warn)
+        var spikeController = SpikeController(mode: spikeMode)
         for step in startStep..<steps {
             let stepStartedAt = Date()
             // LR schedule update. When `useCompiledLR` is on (AdamW +
@@ -876,7 +927,9 @@ enum Train {
             // `_updateInternal`s the underlying MLXArray in place — the
             // compiled trace keeps using the same scalar object.
             if useSchedule {
-                trainer.optimizer.learningRate = lrAtStep(step)
+                // B12: the recovery controller's LR multiplier (1.0 unless a
+                // spike triggered an auto-cut) scales the scheduled LR.
+                trainer.optimizer.learningRate = lrAtStep(step) * spikeController.lrMultiplier
             }
 
             // Cooperative power/thermal pause check. Every 50 steps to
@@ -931,14 +984,28 @@ enum Train {
             // surfaces the spike so the operator can investigate.
             var lastSpikeMA: Float? = nil
             var lastSpikeWasFiring: Bool? = nil
-            if spikeDetectEnabled {
+            if spikeMode != .off {
                 let (spike, ma) = spikeDetector.observe(loss: lastLoss, step: step)
                 lastSpikeMA = ma > 0 ? ma : nil
                 lastSpikeWasFiring = spike
                 if spike {
-                    fputs(String(format:
-                        "\n[spike] step %d: loss %.3f > %.1f × moving-avg %.3f over last %d steps. Investigate or --resume from the latest checkpoint with a lower LR.\n",
-                        step + 1, lastLoss, spikeFactor, ma, spikeWindow), stderr)
+                    switch spikeController.onSpike(ma: ma) {
+                    case .warn:
+                        fputs(String(format:
+                            "\n[spike] step %d: loss %.3f > %.1f × moving-avg %.3f over last %d steps. Investigate or --resume with a lower LR.\n",
+                            step + 1, lastLoss, spikeFactor, ma, spikeWindow), stderr)
+                    case .dropLR(let mult, _):
+                        fputs(String(format:
+                            "\n[spike] step %d: loss %.3f > %.1f × moving-avg %.3f — auto-recovery: LR ×%.4f (drop %d/%d).\n",
+                            step + 1, lastLoss, spikeFactor, ma, mult, spikeController.drops, spikeController.maxDrops), stderr)
+                    case .abort(let n):
+                        fputs(String(format:
+                            "\n[spike] step %d: %d spikes exceeded the recovery budget — aborting cleanly (checkpoint flushed). Lower --max-lr or check the data.\n",
+                            step + 1, n), stderr)
+                        TrainSupport.stopRequested.set()
+                    case .none:
+                        break
+                    }
                 }
             }
 
@@ -1589,7 +1656,10 @@ enum Train {
 
         Core:
           --preset tiny|small|huge|mega|behemoth|titan   (default: tiny)
-          --depth N                       nanochat-style single-knob override.
+          --depth N                       nanochat single-knob: derives arch +
+                                          peak_lr/batch/steps (B18). Explicit
+                                          --max-lr/--steps/--batch override.
+          --regime chinchilla|overtrained Token budget for --depth (default chinchilla).
                                            Sets nLayers=N, dModel=64·N, nHeads=N,
                                            dMlp=4·dModel. Preset still supplies
                                            ctx, vocab, dtype.
@@ -1716,10 +1786,16 @@ enum Train {
           --max-lr / --min-lr             Schedule endpoints (defaults: 3e-4 / 3e-5)
           --decay-steps N                 WSD decay window in steps (default: 10% of --steps).
                                            Ignored unless --lr-schedule wsd.
+          --decay-shape 1-sqrt|cosine|linear
+                                          WSD decay-phase shape (default: 1-sqrt, MiniCPM).
+                                           Ignored unless --lr-schedule wsd.
           --no-spike-detect               Disable loss-spike detector (default: on).
           --spike-window N                Moving-average window for the spike detector
                                            (default: 50 steps; min 2).
           --spike-factor F                Trigger when loss > F × moving-avg (default: 3.0).
+          --auto-rollback off|warn|on     Spike response: off=silent, warn=log only
+                                          (default), on=adaptive LR cut + abort after
+                                          the spike budget (3 drops, LR ×0.5 each).
           --log-jsonl <path.jsonl>        Append-only JSON-lines log of the training run
                                            (one record per step + val + done event).
                                            Off by default; consumed by the in-house
