@@ -57,7 +57,12 @@ import { fileURLToPath } from "node:url";
 import type { GalleryManifest } from "./src/gallery-schema.ts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUT_DIR = resolve(__dirname, "public/gallery");
+// Reads the fp16 .bin files finalize_gallery.ts just wrote and writes the
+// int4 variants alongside them. GALLERY_OUT_DIR lets CI's drift check point
+// both stages at the same temp dir (see scripts/check_gallery_drift.mjs).
+const OUT_DIR = process.env.GALLERY_OUT_DIR
+  ? resolve(process.env.GALLERY_OUT_DIR)
+  : resolve(__dirname, "public/gallery");
 
 const MODEL_MAGIC = "TGPT";
 const MODEL_VERSION = 2;

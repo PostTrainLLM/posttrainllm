@@ -132,3 +132,103 @@ jobs:
         # `--lint`) locally auto-fixes. Excludes are also in `.swiftformat`,
         # so they apply both to lint and to the developer's auto-fix run.
         run: swiftformat --lint native-mac/Sources native-mac/Tests
+
+  gallery-drift:
+    name: gallery-drift (committed .bin vs regenerate)
+    # WHY: Cloudflare Pages deploys with a plain `git clone` + `npm run build`
+    # and NEVER runs finalize_gallery.ts. So the committed
+    # browser/public/gallery/*.bin files are the source of truth at deploy
+    # time — and can silently drift from the canonical data/gallery/*.tinygpt
+    # training outputs if someone retrains but forgets to re-finalize + commit.
+    # This job regenerates and fails on any divergence.
+    #
+    # IMPORTANT: data/gallery/ is gitignored (see .gitignore) and therefore
+    # ABSENT on CI checkouts. With no canonical source to regenerate from, the
+    # check script (browser/scripts/check_gallery_drift.mjs) detects the
+    # missing dir and exits 0 with a SKIP notice — so this job is green on CI
+    # today and only does real work where the training data lives (locally, or
+    # a future runner that restores data/gallery). It exists so the guard is
+    # wired in and ready the moment that data is present.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          # Node 22+ runs the .ts finalize scripts directly via built-in type
+          # stripping (the scripts are fully erasable TS). No tsx/ts-node dep.
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: browser/package-lock.json
+
+      - name: Install dependencies
+        working-directory: browser
+        run: npm ci
+
+      - name: Check gallery artifacts match a fresh regenerate
+        working-directory: browser
+        # Skips gracefully (exit 0) when data/gallery is absent; fails (exit 1)
+        # only when a committed .bin / manifest entry diverges from regenerate.
+        run: npm run gallery:check
+
+  wasm-drift:
+    name: wasm-drift (committed tinygpt.{js,wasm} vs rebuild)
+    # WHY: same deploy story as gallery-drift — CF Pages never runs
+    # wasm/build_wasm*.sh, so the committed browser/public/tinygpt{,64}.{js,wasm}
+    # are what ships. This job rebuilds them with Emscripten and fails if the
+    # rebuilt bytes differ from what's committed.
+    #
+    # REPRODUCIBILITY CAVEAT: Emscripten output embeds the toolchain version
+    # and codegen details, so byte-identical output requires the SAME emsdk
+    # version that produced the committed artifacts. We pin EMSDK_VERSION
+    # below. If this job's FIRST failure is a pure byte diff (not a C++ source
+    # change), the committed artifacts were almost certainly built with a
+    # different emsdk — reconcile once by either (a) bumping EMSDK_VERSION here
+    # to match, or (b) rebuilding locally with the pinned version
+    # (`bash wasm/build_wasm.sh && bash wasm/build_wasm64.sh`) and committing.
+    # After that one-time reconciliation the job stays green until the C++
+    # actually changes.
+    runs-on: ubuntu-latest
+    env:
+      # Pin the Emscripten SDK so the build is reproducible run-to-run.
+      EMSDK_VERSION: "3.1.74"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Emscripten (pinned)
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: ${{ env.EMSDK_VERSION }}
+          # Cache the SDK install keyed on the pinned version.
+          actions-cache-folder: "emsdk-cache-${{ env.EMSDK_VERSION }}"
+
+      - name: Show emcc version
+        run: emcc --version | head -1
+
+      - name: Rebuild WASM (wasm32 + wasm64)
+        # build_wasm.sh / build_wasm64.sh write to browser/public/tinygpt*.{js,wasm}.
+        # emcc is already on PATH from setup-emsdk, so the scripts' emsdk fallback
+        # branch is skipped.
+        run: |
+          bash wasm/build_wasm.sh
+          bash wasm/build_wasm64.sh
+
+      - name: Fail if committed WASM differs from the rebuild
+        # Any byte difference in the four tracked artifacts means the committed
+        # copies are stale (or built with a different emsdk — see caveat above).
+        run: |
+          if ! git diff --exit-code --stat -- \
+              browser/public/tinygpt.js \
+              browser/public/tinygpt.wasm \
+              browser/public/tinygpt64.js \
+              browser/public/tinygpt64.wasm; then
+            echo "::error::Committed WASM artifacts differ from a fresh emsdk ${EMSDK_VERSION} rebuild."
+            echo "Rebuild locally with the pinned emsdk and commit:"
+            echo "  bash wasm/build_wasm.sh && bash wasm/build_wasm64.sh"
+            echo "Or, if only the emsdk version drifted, bump EMSDK_VERSION in .github/workflows/ci.yml."
+            exit 1
+          fi
+          echo "✅ committed WASM matches the rebuild."

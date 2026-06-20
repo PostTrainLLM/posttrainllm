@@ -11,7 +11,9 @@
     "build": "node scripts/copy_docs.mjs && tsc --noEmit && astro build",
     "preview": "astro preview --port 4173",
     "e2e": "node e2e_browser.mjs",
-    "webgpu-test": "node webgpu_test.mjs"
+    "webgpu-test": "node webgpu_test.mjs",
+    "gallery": "node finalize_gallery.ts && node finalize_gallery_int4.ts",
+    "gallery:check": "node scripts/check_gallery_drift.mjs"
   },
   "devDependencies": {
     "@astrojs/mdx": "^4.0.0",

@@ -24,7 +24,12 @@ import type { GalleryManifest } from "./src/gallery-schema.ts";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const DATA_DIR = resolve(ROOT, "data/gallery");
-const OUT_DIR = resolve(__dirname, "public/gallery");
+// Output dir defaults to the published gallery. CI's drift check
+// (scripts/check_gallery_drift.mjs) overrides it to a temp dir via
+// GALLERY_OUT_DIR so it can regenerate without clobbering the working tree.
+const OUT_DIR = process.env.GALLERY_OUT_DIR
+  ? resolve(process.env.GALLERY_OUT_DIR)
+  : resolve(__dirname, "public/gallery");
 await fs.mkdir(OUT_DIR, { recursive: true });
 
 const args = Object.fromEntries(
