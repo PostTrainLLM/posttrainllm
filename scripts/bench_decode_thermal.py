@@ -77,9 +77,8 @@ def one_decode(url, model, max_tokens):
              "--warm", "0", "--max-tokens", str(max_tokens)],
             capture_output=True, text=True, timeout=180).stdout
         rec = json.loads(out)
-        runs = rec.get("runs") or [rec]
-        r = runs[0]
-        return (r["n_tokens"] - 1) / r["decode_s"] if r.get("decode_s") else None
+        # bench_decode.py emits decode_tok_s.{median,...} (steady-state tok/s)
+        return rec.get("decode_tok_s", {}).get("median")
     except Exception as e:
         print(f"  decode failed: {e}", file=sys.stderr)
         return None
