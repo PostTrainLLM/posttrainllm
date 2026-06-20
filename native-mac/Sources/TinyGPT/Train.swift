@@ -15,9 +15,13 @@ import TinyGPTModel
 ///                               intact (write-to-.tmp then rename).
 ///   --depth N                   nanochat-style single-knob override:
 ///                               derives nLayers=N, dModel=64·N, nHeads=N,
-///                               dMlp=4·dModel. Takes precedence over the
-///                               preset's L/d/h/MLP fields; preset still
-///                               supplies ctx, vocab, dtype.
+///                               dMlp=4·dModel AND the schedule HPs
+///                               peak_lr / batch / total_steps from
+///                               compute-optimal scaling laws (B18). Takes
+///                               precedence over the preset's L/d/h/MLP;
+///                               explicit --max-lr/--steps/--batch still win.
+///   --regime chinchilla|overtrained  Token budget for --depth (default
+///                               chinchilla, ~20 tok/param; overtrained ~40).
 ///   --lr-schedule cosine|wsd|constant  Default cosine. `wsd` is
 ///                               warmup-stable-decay: linear warmup →
 ///                               constant maxLR → 1−√(t) decay over the
@@ -60,6 +64,8 @@ enum Train {
         // GPT-2-shaped rules below. Preset still supplies ctx, vocab,
         // tokenizer, and dtype.
         var depthOverride: Int? = nil
+        // B18: token-budget regime for --depth-derived schedule HPs.
+        var regime = "chinchilla"
         var steps = 500
         var corpusPath: String? = nil
         var outPath: String? = nil
@@ -209,6 +215,7 @@ enum Train {
         var explicitMinLR = false
         var explicitDecaySteps = false
         var explicitLayerDecay = false
+        var explicitSteps = false
         let cliArgsSnapshot = args
 
         var i = 0
@@ -216,7 +223,8 @@ enum Train {
             switch args[i] {
             case "--preset":      preset = args[i+1]; i += 2
             case "--depth":       depthOverride = Int(args[i+1]); i += 2
-            case "--steps":       steps = Int(args[i+1]) ?? steps; i += 2
+            case "--regime":      regime = args[i+1]; i += 2
+            case "--steps":       steps = Int(args[i+1]) ?? steps; explicitSteps = true; i += 2
             case "--corpus":      corpusPath = args[i+1]; i += 2
             case "--out":         outPath = args[i+1]; userSpecifiedOut = true; i += 2
             case "--dtype":       dtype = args[i+1]; i += 2
@@ -316,6 +324,28 @@ enum Train {
             if !explicitMinLR { minLR = 1e-5 }
             if !explicitDecaySteps { decaySteps = max(1, steps / 20) }
             if !explicitLayerDecay { lrLayerDecay = 0.85 }
+        }
+        // B18: --depth single knob. Width/heads/MLP are applied at config
+        // build below; peak_lr / batch / total_steps are derived here so one
+        // number implies a compute-optimal point. Explicit HP flags win,
+        // with a warning. Only for fresh runs (depth reshapes the model).
+        var depthHP: DepthDerivedHP? = nil
+        if let dp = depthOverride, dp >= 1, resumePath == nil {
+            let seq = ctxOverride ?? configFor(preset).contextLength
+            if TrainRegime(rawValue: regime) == nil {
+                fputs("warning: unknown --regime '\(regime)' (use chinchilla|overtrained); using chinchilla\n", stderr)
+            }
+            let hp = deriveHP(depth: dp, regime: TrainRegime(rawValue: regime) ?? .chinchilla, seqLen: seq)
+            depthHP = hp
+            if explicitMaxLR { fputs("warning: --max-lr overrides --depth-derived peak LR (\(hp.peakLR))\n", stderr) }
+            else { maxLR = hp.peakLR }
+            if explicitSteps { fputs("warning: --steps overrides --depth-derived total steps (\(hp.totalSteps))\n", stderr) }
+            else { steps = hp.totalSteps }
+            if batchSize != nil { fputs("warning: --batch overrides --depth-derived batch size (\(hp.batchSize))\n", stderr) }
+            else { batchSize = hp.batchSize }
+            print(String(format: "depth %d → %dL d=%d h=%d mlp=%d | peak_lr=%.2e batch=%d steps=%d (~%dM params, %@ %dM tokens)",
+                         dp, hp.nLayers, hp.dModel, hp.nHeads, hp.dMlp, hp.peakLR, hp.batchSize, hp.totalSteps,
+                         hp.approxParams / 1_000_000, regime, hp.approxTokens / 1_000_000))
         }
         resolveOutputPaths(
             preset: preset,
@@ -420,12 +450,12 @@ enum Train {
             // full multi-head, no GQA. Without this the
             // `nHeads % nKvHeads == 0` precondition fires when the
             // preset's nKvHeads doesn't divide our new nHeads.
-            if let d = depthOverride, d >= 1 {
-                cfg.nLayers = d
-                cfg.dModel = 64 * d
-                cfg.nHeads = d
-                cfg.nKvHeads = d
-                cfg.dMlp = 4 * cfg.dModel
+            if let hp = depthHP {
+                cfg.nLayers = hp.nLayers
+                cfg.dModel = hp.dModel
+                cfg.nHeads = hp.nHeads
+                cfg.nKvHeads = hp.nHeads
+                cfg.dMlp = hp.dMlp
             }
             cfg.dtype = dtype
             // Apply tokenizer override BEFORE building the model — vocabSize
@@ -1598,7 +1628,10 @@ enum Train {
 
         Core:
           --preset tiny|small|huge|mega|behemoth|titan   (default: tiny)
-          --depth N                       nanochat-style single-knob override.
+          --depth N                       nanochat single-knob: derives arch +
+                                          peak_lr/batch/steps (B18). Explicit
+                                          --max-lr/--steps/--batch override.
+          --regime chinchilla|overtrained Token budget for --depth (default chinchilla).
                                            Sets nLayers=N, dModel=64·N, nHeads=N,
                                            dMlp=4·dModel. Preset still supplies
                                            ctx, vocab, dtype.
