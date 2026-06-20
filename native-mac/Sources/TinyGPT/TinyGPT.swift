@@ -138,6 +138,8 @@ struct TinyGPT {
             EvalReview.run(args: Array(args.dropFirst()))
         case "interp-replay":
             InterpReplay.run(args: Array(args.dropFirst()))
+        case "validate-project":
+            ValidateProject.run(args: Array(args.dropFirst()))
         case "reasoning-classify":
             ReasoningClassify.run(args: Array(args.dropFirst()))
         case "traces-to-data":
