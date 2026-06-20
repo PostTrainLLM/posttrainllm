@@ -118,6 +118,8 @@ struct TinyGPT {
             QualityClassifier.runTrain(args: Array(args.dropFirst()))
         case "quality-filter":
             QualityClassifier.runFilter(args: Array(args.dropFirst()))
+        case "automix":
+            AutoMix.run(args: Array(args.dropFirst()))
         case "reasoning-classify":
             ReasoningClassify.run(args: Array(args.dropFirst()))
         case "traces-to-data":
