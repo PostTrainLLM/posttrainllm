@@ -34,6 +34,9 @@ enum SFT {
         var nefTuneAlpha: Float = 0
         var gradClipNorm: Float = 1.0
         var loraPlusRatio: Float = 1.0
+        // Layer-wise LR decay (B15): scale each block's grad by γ^(L-1-i)
+        // so deeper layers train at full LR, shallower ones slower. 1.0 = off.
+        var layerDecay: Float = 1.0
         var qlora = false
         var qloraBits = 4
         // Curated-recipe default: DoRA on. 5-10% better than vanilla LoRA
@@ -79,6 +82,7 @@ enum SFT {
             case "--neftune-alpha": nefTuneAlpha = Float(args[i+1]) ?? nefTuneAlpha; i += 2
             case "--grad-clip":     gradClipNorm = Float(args[i+1]) ?? gradClipNorm; i += 2
             case "--lora-plus-ratio": loraPlusRatio = Float(args[i+1]) ?? loraPlusRatio; i += 2
+            case "--llrd":          layerDecay = Float(args[i+1]) ?? layerDecay; i += 2
             case "--qlora":
                 qlora = true
                 peftVariant = .loftq
@@ -253,6 +257,7 @@ enum SFT {
         let stepFn = makeMaskedStepFn(load.model, lr: lr,
                                        gradClipNorm: gradClipNorm > 0 ? gradClipNorm : nil,
                                        loraPlusRatio: loraPlusRatio > 1 ? loraPlusRatio : nil,
+                                       layerDecay: layerDecay, nLayers: cfg.nLayers,
                                        optimizerKind: optimizerKind)
 
         TrainSupport.installSigintHandler()
@@ -328,6 +333,7 @@ enum SFT {
     private static func makeMaskedStepFn(_ model: AnyModel, lr: Float,
                                           gradClipNorm: Float?,
                                           loraPlusRatio: Float?,
+                                          layerDecay: Float, nLayers: Int,
                                           optimizerKind: OptimizerKind)
         -> (MLXArray, MLXArray, MLXArray) -> Float
     {
@@ -351,6 +357,7 @@ enum SFT {
                 let (loss, grads) = gradFn(m, x, y)
                 var final = clip.map { clipGradNorm(grads, maxNorm: $0) } ?? grads
                 if let r = lpRatio { final = scaleLoraBGradients(final, ratio: r) }
+                if layerDecay < 0.9999 { final = scaleLayerwiseLR(final, decay: layerDecay, nLayers: nLayers) }
                 opt.update(model: m, gradients: final)
                 MLX.eval(loss, m, opt)
                 return loss.item(Float.self)
@@ -366,6 +373,7 @@ enum SFT {
                 let (loss, grads) = gradFn(m, x, y)
                 var final = clip.map { clipGradNorm(grads, maxNorm: $0) } ?? grads
                 if let r = lpRatio { final = scaleLoraBGradients(final, ratio: r) }
+                if layerDecay < 0.9999 { final = scaleLayerwiseLR(final, decay: layerDecay, nLayers: nLayers) }
                 opt.update(model: m, gradients: final)
                 MLX.eval(loss, m, opt)
                 return loss.item(Float.self)
@@ -412,6 +420,8 @@ enum SFT {
         --grad-clip F            Global L2 grad-norm cap (default 1.0). Pass 0 to disable.
         --lora-plus-ratio F      LoRA+ B-matrix LR multiplier (Hayou et al., 2024).
                                    1.0 (default) = standard LoRA; 16.0 is the recipe.
+        --llrd F                 Layer-wise LR decay γ (0<γ≤1). Block i's grad ×γ^(L-1-i)
+                                   so the deepest layer trains at full LR. 1.0 = off (default).
         --qlora                  QLoRA-style recipe: simulated int4 base + LoRA
                                    adapter training. Uses the repo's LoftQ path:
                                    the wrapped base weights are quantize-then-

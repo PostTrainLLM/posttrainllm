@@ -50,6 +50,8 @@ enum DPO {
         var nefTuneAlpha: Float = 0
         var gradClipNorm: Float = 1.0
         var loraPlusRatio: Float = 1.0
+        // Layer-wise LR decay (B15): γ^(L-1-i) per block; 1.0 = off.
+        var layerDecay: Float = 1.0
         var useDora: Bool = false
         // Curated-recipe default: SimPO (reference-free, ½ the memory of
         // DPO at equivalent quality on published benchmarks). Override with
@@ -82,6 +84,7 @@ enum DPO {
             case "--neftune-alpha": nefTuneAlpha = Float(args[i+1]) ?? nefTuneAlpha; i += 2
             case "--grad-clip":     gradClipNorm = Float(args[i+1]) ?? gradClipNorm; i += 2
             case "--lora-plus-ratio": loraPlusRatio = Float(args[i+1]) ?? loraPlusRatio; i += 2
+            case "--llrd":          layerDecay = Float(args[i+1]) ?? layerDecay; i += 2
             case "--dora":            useDora = true; i += 1
             case "--vera":          peftVariant = .vera; i += 1
             case "--rs-lora":       peftVariant = .rsLora; i += 1
@@ -223,6 +226,7 @@ enum DPO {
             simpoGamma: simpoGamma, orpoLambda: orpoLambda,
             gradClipNorm: gradClipNorm > 0 ? gradClipNorm : nil,
             loraPlusRatio: loraPlusRatio > 1 ? loraPlusRatio : nil,
+            layerDecay: layerDecay, nLayers: cfg.nLayers,
             optimizerKind: optimizerKind)
 
         TrainSupport.installSigintHandler()
@@ -324,6 +328,7 @@ enum DPO {
         lossType: LossType, lr: Float, beta: Float,
         simpoGamma: Float, orpoLambda: Float,
         gradClipNorm: Float?, loraPlusRatio: Float?,
+        layerDecay: Float, nLayers: Int,
         optimizerKind: OptimizerKind
     ) -> ((MLXArray, MLXArray, MLXArray), (MLXArray, MLXArray, MLXArray)) -> Float {
         let clip = gradClipNorm
@@ -399,6 +404,7 @@ enum DPO {
                 let (loss, grads) = gradFn(polM, chosen.0, chosen.1)
                 var final = clip.map { clipGradNorm(grads, maxNorm: $0) } ?? grads
                 if let r = lpRatio { final = scaleLoraBGradients(final, ratio: r) }
+                if layerDecay < 0.9999 { final = scaleLayerwiseLR(final, decay: layerDecay, nLayers: nLayers) }
                 opt.update(model: polM, gradients: final)
                 MLX.eval(loss, polM, opt)
                 return loss.item(Float.self)
@@ -420,6 +426,7 @@ enum DPO {
                 let (loss, grads) = gradFn(polM, chosen.0, chosen.1)
                 var final = clip.map { clipGradNorm(grads, maxNorm: $0) } ?? grads
                 if let r = lpRatio { final = scaleLoraBGradients(final, ratio: r) }
+                if layerDecay < 0.9999 { final = scaleLayerwiseLR(final, decay: layerDecay, nLayers: nLayers) }
                 opt.update(model: polM, gradients: final)
                 MLX.eval(loss, polM, opt)
                 return loss.item(Float.self)
@@ -483,6 +490,7 @@ enum DPO {
                                    5 is typical). Reference stays clean.
         --grad-clip F            Global L2 grad-norm cap (default 1.0). Pass 0 to disable.
         --lora-plus-ratio F      LoRA+ B-matrix LR multiplier (default 1.0; 16 is the recipe).
+        --llrd F                 Layer-wise LR decay γ (0<γ≤1); block i's grad ×γ^(L-1-i). 1.0 = off.
         --dora                   Use DoRA (Liu et al., 2024) instead of LoRA — adds a
                                    learnable per-output magnitude. In-session only.
         --loss-type T            Loss variant: dpo (default) | simpo | orpo | kto.
