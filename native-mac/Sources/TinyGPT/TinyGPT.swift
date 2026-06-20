@@ -134,6 +134,8 @@ struct TinyGPT {
             EvalRouter.run(args: Array(args.dropFirst()))
         case "eval-milu":
             EvalMilu.run(args: Array(args.dropFirst()))
+        case "eval-review":
+            EvalReview.run(args: Array(args.dropFirst()))
         case "reasoning-classify":
             ReasoningClassify.run(args: Array(args.dropFirst()))
         case "traces-to-data":
