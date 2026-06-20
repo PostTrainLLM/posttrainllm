@@ -16,17 +16,22 @@ table wins**.
 | Verdict | Count | Meaning |
 |---|---|---|
 | ✅ Done | 13 | all acceptance criteria met + verified (some V1, V2 noted) |
-| 🟡 Partial | 27 | core/scaffolding ships, named gaps remain |
-| ⬜ Not-started | 14 | no deliverables found in code |
+| 🟡 Partial | 29 | core/scaffolding ships, named gaps remain |
+| ⬜ Not-started | 12 | no deliverables found in code |
 | 📄 Non-task | 6 | decision / positioning / tracking / upstream-blocked doc |
 | **Total** | **60** | |
 
 ### Finished in the 2026-06-20 implementation session
 
-148 model tests pass (0 failures, +18 this session); 7 CPU smokes green.
-**B1** also gained its self-contained `eval-sql` execution-accuracy harness
-(SqlEvalTests + eval-sql-smoke.sh) — eval infra + SQL domain decision shipped,
-training/generation pending a GPU.
+153 model tests pass (0 failures, +23 this session); 10 CPU smokes green.
+
+**Self-contained eval-scorer tier built for the whole specialist family** —
+each scores a predictions/results file (pure + unit-tested + smoke), so the
+GPU training step has a ready, verified gate:
+`eval-bfcl --lora` (A1), `eval-sql` (B1), `eval-router` bake-off (B2–B7),
+`eval-milu` per-language (B8), `compress`/`eval-scaledown` (B25/E6),
+`eval-escalate` (B5). For all of these, only the model-generation/training
+step needs a GPU; the scoring is done.
 
 All verified by `swift test` / smoke scripts. Build note: Xcode-27's default
 build system has a broken incremental relink; use `swift build --build-system
