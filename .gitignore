@@ -25,9 +25,13 @@ browser/.env.local
 # (then commit the diff as part of the same PR as the .cpp change.)
 
 # Build scratch directories
+.build/
 wasm/build/
 dist/tinygpt.js
 dist/tinygpt.simd.js
+# tsc-emitted JS sitting next to its .ts source (generated, not authored)
+browser/src/benchmarks/types.js
+browser/src/gallery-schema.js
 # .wasm.map files are sourcemaps and stay ignored.
 *.wasm.map
 
