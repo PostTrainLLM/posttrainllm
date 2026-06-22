@@ -193,7 +193,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Pin the Emscripten SDK so the build is reproducible run-to-run.
-      EMSDK_VERSION: "3.1.74"
+      # Must match the emsdk that built the committed browser/public/tinygpt*.{js,wasm}:
+      # the artifacts use the `growMemViews()` glue introduced in emsdk 4.0.13, so
+      # any 3.1.x pin can never byte-match. 5.0.7 reproduces all four byte-for-byte
+      # (verified locally); the build is path-independent so ubuntu output matches.
+      EMSDK_VERSION: "5.0.7"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
