@@ -1,0 +1,8 @@
+[
+  {
+    "name": "JS bundle",
+    "path": "dist/_astro/*.js",
+    "limit": "500 KB",
+    "gzip": true
+  }
+]

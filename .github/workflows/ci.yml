@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   browser:
-    name: browser (tsc + astro build)
+    name: browser (tsc + astro build + unit tests)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -52,6 +52,10 @@ jobs:
         working-directory: browser
         run: npm run typecheck
 
+      - name: Unit tests (vitest)
+        working-directory: browser
+        run: npm test
+
       - name: Production build (copy_docs + tsc + astro build)
         working-directory: browser
         # Same env as deploy.yml — VITE_* vars get inlined; falling back
@@ -60,6 +64,9 @@ jobs:
           VITE_POSTHOG_KEY: ""
           VITE_POSTHOG_HOST: ""
         run: npm run build
+      - name: Check bundle size
+        working-directory: browser
+        run: npm run size
 
   mac:
     name: mac (swift build + xcodebuild test)
@@ -91,16 +98,46 @@ jobs:
         # `xcodebuild test` produces a bundle with the Metal lib included,
         # so the Mac unit tests can actually run. -destination platform=macOS
         # uses the runner host directly (no simulator needed).
+        # CLANG_ENABLE_CODE_COVERAGE=YES collects .xccoverage data for the
+        # post-test extraction step.
         run: |
           xcodebuild test \
             -scheme TinyGPT-Package \
             -destination 'platform=macOS' \
             -resultBundlePath /tmp/test-result.xcresult \
+            CLANG_ENABLE_CODE_COVERAGE=YES \
           | xcbeautify --renderer github-actions || \
           xcodebuild test \
             -scheme TinyGPT-Package \
             -destination 'platform=macOS' \
-            -resultBundlePath /tmp/test-result.xcresult
+            -resultBundlePath /tmp/test-result.xcresult \
+            CLANG_ENABLE_CODE_COVERAGE=YES
+
+      - name: Extract coverage report
+        working-directory: native-mac
+        # Extract per-target line coverage from the xcresult bundle.
+        # Wrapped in `|| true` so xccov issues never fail the build.
+        run: |
+          xcrun xccov view --report --json /tmp/test-result.xcresult > /tmp/coverage.json 2>/dev/null || true
+          if [ -f /tmp/coverage.json ]; then
+            python3 -c "
+          import json
+          with open('/tmp/coverage.json') as f:
+              data = json.load(f)
+              for target in data.get('targets', []):
+                  name = target.get('name', 'unknown')
+                  line_cov = target.get('lineCoverage', 0) * 100
+                  print(f'{name}: {line_cov:.1f}% line coverage')
+            " || true
+          fi
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: swift-coverage-report
+          path: /tmp/coverage.json
+          if-no-files-found: ignore
 
       - name: Upload test result bundle on failure
         if: failure()
@@ -236,3 +273,50 @@ jobs:
             exit 1
           fi
           echo "✅ committed WASM matches the rebuild."
+
+  python:
+    name: python (reference impl tests + coverage)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install torch numpy --index-url https://download.pytorch.org/whl/cpu
+          pip install coverage
+
+      - name: Run tests with coverage
+        run: |
+          coverage run --source=python_ref -m pytest tests/ -v || \
+          (coverage run --source=python_ref tests/test_phase1.py && \
+           coverage run --source=python_ref --append tests/test_lora.py)
+          coverage report -m
+          coverage xml -o /tmp/python-coverage.xml
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: python-coverage-report
+          path: /tmp/python-coverage.xml
+          if-no-files-found: ignore
+
+  evals:
+    name: evals (smoke tests)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run eval-gate smoke test
+        run: bash evals/eval-gate-smoke.sh
+
+      - name: Run common smoke test
+        run: bash evals/common-smoke.sh
