@@ -250,7 +250,7 @@ describe("datasets", () => {
     it("sends Authorization header when token provided", async () => {
       const originalFetch = globalThis.fetch;
       let capturedHeaders: Record<string, string> = {};
-      globalThis.fetch = vi.fn().mockImplementation((url: string, opts?: { headers?: Record<string, string> }) => {
+      globalThis.fetch = vi.fn().mockImplementation((_url: string, opts?: { headers?: Record<string, string> }) => {
         capturedHeaders = opts?.headers ?? {};
         return Promise.resolve(mockFetchResponse([{ row: { text: "data" } }]));
       });
