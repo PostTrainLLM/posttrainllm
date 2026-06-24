@@ -54,6 +54,7 @@ public enum Serve {
         var toolMetricsOut: String? = nil
         var promptCacheDir: String? = nil
         var traceDir: String? = nil
+        var correctionsDir: String? = nil
         var eosStopEnabled = true
         var i = 0
         while i < args.count {
@@ -110,6 +111,9 @@ public enum Serve {
             case "--trace-dir":
                 guard i + 1 < args.count else { exitUsage() }
                 traceDir = args[i + 1]; i += 2
+            case "--corrections-dir":
+                guard i + 1 < args.count else { exitUsage() }
+                correctionsDir = args[i + 1]; i += 2
             case "--no-eos-stop":
                 eosStopEnabled = false; i += 1
             case "-h", "--help":
@@ -150,6 +154,7 @@ public enum Serve {
                                           toolMetricsOut: toolMetricsOut,
                                           promptCacheDir: promptCacheDir,
                                           traceDir: traceDir,
+                                          correctionsDir: correctionsDir,
                                           eosStopEnabled: eosStopEnabled)
             print("tinygpt serve — listening on http://\(host):\(server.port)")
             print("model: \(modelPath)  ·  ctx=\(server.maxContext)  ·  vocab=\(server.config.vocabSize)")
@@ -162,6 +167,7 @@ public enum Serve {
             if let tp = toolsPath { print("tools: \(tp)  (mode: \(toolMode.rawValue))") }
             if let tm = toolMetricsOut { print("tool metrics: \(tm)") }
             if let dir = promptCacheDir { print("prompt cache: \(dir)") }
+            print("corrections: POST /v1/corrections → \(correctionsDir ?? CorrectionStore.defaultDirectory().path)")
             if let dir = traceDir {
                 print("inference traces: \(dir)")
                 print("  → after a request, render latency heatmap with:")
@@ -231,10 +237,13 @@ public enum Serve {
                               Auto-cache repeated prompt-prefix KV state.
         --trace-infer          Write per-request inference traces to /tmp/tinygpt-traces.
         --trace-dir <dir>      Write per-request inference traces to a custom directory.
+        --corrections-dir <dir>  Where POST /v1/corrections appends captured user
+                              corrections (default: ~/.tinygpt/corrections). On-device.
         --no-eos-stop         Do not auto-stop on tokenizer EOS/chat-end tokens.
 
         Endpoints (OpenAI surface):
           POST /v1/chat/completions   OpenAI ChatCompletion (SSE if stream:true)
+          POST /v1/corrections        Capture a user correction (continual learning)
           POST /v1/completions        OpenAI Completion (SSE if stream:true)
           GET  /v1/models             list loaded model
 
@@ -292,6 +301,9 @@ extension Serve {
         // rebuild this on every request (~230ms for 152k Qwen vocab); we
         // compute it once at boot and share across grammar constraints.
         let cachedTokenBytes: [[UInt8]]
+        // On-device continual-learning capture store (always present; writes
+        // lazily on first POST /v1/corrections). Default ~/.tinygpt/corrections.
+        let correctionStore: CorrectionStore
         private let listenFd: Int32
         private let inferenceQueue: DispatchQueue
         private let toolMetricsQueue: DispatchQueue
@@ -308,7 +320,8 @@ extension Serve {
              eosTokenIds: Set<Int>, promptCacheDir: URL?,
              traceDir: URL?,
              modelFingerprint: String,
-             cachedTokenBytes: [[UInt8]])
+             cachedTokenBytes: [[UInt8]],
+             correctionStore: CorrectionStore)
         {
             self.listenFd = listenFd
             self.host = host
@@ -316,6 +329,7 @@ extension Serve {
             self.model = model
             self.draftModel = draftModel
             self.draftNLayers = draftNLayers
+            self.correctionStore = correctionStore
             self.config = config
             self.tokenizer = tokenizer
             self.maxContext = maxContext
@@ -344,6 +358,7 @@ extension Serve {
                           toolMetricsOut: String? = nil,
                           promptCacheDir: String? = nil,
                           traceDir: String? = nil,
+                          correctionsDir: String? = nil,
                           eosStopEnabled: Bool = true) throws -> Server
         {
             // Writes to a socket whose peer has hung up raise SIGPIPE,
@@ -466,6 +481,9 @@ extension Serve {
             let renderedToolsSystemPrompt: String? = toolsSpec.map {
                 toolMode == .deferred ? $0.compactSystemPrompt() : $0.systemPrompt()
             }
+            let correctionStore = CorrectionStore(
+                directory: correctionsDir.map { URL(fileURLWithPath: $0) }
+                    ?? CorrectionStore.defaultDirectory())
             let server = Server(listenFd: fd, host: host, port: boundPort,
                                  model: load.model, draftModel: draftModel,
                                  draftNLayers: draftNLayers, config: cfg, tokenizer: tok,
@@ -478,7 +496,8 @@ extension Serve {
                                  promptCacheDir: promptCacheURL,
                                  traceDir: traceURL,
                                  modelFingerprint: fingerprint,
-                                 cachedTokenBytes: tokenBytes)
+                                 cachedTokenBytes: tokenBytes,
+                                 correctionStore: correctionStore)
             server.startAcceptLoop()
             return server
         }
@@ -721,6 +740,13 @@ extension Serve {
                 handleCompletions(clientFd: clientFd, body: request.body)
                 return
             }
+            // Continual-learning capture: clients POST a user correction
+            // (original → corrected) which is appended to the local on-device
+            // store. No training here — see docs/prds/continual-learning-loop.md.
+            if request.method == "POST" && request.path == "/v1/corrections" {
+                handleCorrections(clientFd: clientFd, body: request.body)
+                return
+            }
 
             // Ollama-compatible surface — Continue.dev / Cline / Aider
             // configured with `provider: ollama` talk to tinygpt directly.
@@ -825,6 +851,43 @@ extension Serve {
         private func stringValue(_ value: Any?) -> String {
             guard let value, !(value is NSNull) else { return "" }
             return String(describing: value).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        // MARK: /v1/corrections
+
+        /// Ingest a user correction into the local continual-learning store.
+        /// Body: {"intent":"dictation","original":"…","corrected":"…",
+        ///        "input":"…"?, "model":"…"?, "source":"…"?}
+        /// (`intentKind` accepted as an alias for `intent`.) Appends one event
+        /// and returns {"ok":true,"id":…}. Data stays on device.
+        private func handleCorrections(clientFd: Int32, body: Data) {
+            guard let json = try? JSONSerialization.jsonObject(with: body) as? [String: Any] else {
+                respond(clientFd: clientFd, status: 400, body: "json must be an object")
+                return
+            }
+            let intent = stringValue(json["intent"] ?? json["intentKind"])
+            let original = stringValue(json["original"])
+            let corrected = stringValue(json["corrected"])
+            guard !intent.isEmpty, !original.isEmpty, !corrected.isEmpty else {
+                respondJSON(clientFd: clientFd, status: 400,
+                            payload: ["error": "intent, original, and corrected are required"])
+                return
+            }
+            let input = (json["input"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+            let source = (json["source"] as? String) ?? "serve"
+            let event = CorrectionEvent(
+                intentKind: intent, input: input,
+                original: original, corrected: corrected,
+                modelFingerprint: (json["model"] as? String) ?? modelFingerprint,
+                source: source)
+            do {
+                try correctionStore.append(event)
+                respondJSON(clientFd: clientFd, status: 200,
+                            payload: ["ok": true, "id": event.id])
+            } catch {
+                respondJSON(clientFd: clientFd, status: 500,
+                            payload: ["error": "failed to store correction: \(error)"])
+            }
         }
 
         // MARK: /v1/chat/completions
