@@ -86,6 +86,14 @@ public struct CorrectionStore {
     /// Append one event as a single JSON line, creating the file (and parent
     /// directory) on first write. Encoding uses sorted keys + no pretty-print
     /// so each event is exactly one line.
+    ///
+    /// Concurrency: opens with `O_APPEND | O_CREAT` and writes the whole line
+    /// in one `write(2)`. On a local filesystem an append-mode write of a
+    /// line-sized payload is atomic — the kernel seeks-to-end and writes as a
+    /// unit — so concurrent writers (the CLI and the planned serve endpoint)
+    /// can't interleave or clobber each other. (No separate exists-check, so
+    /// no create-race either.) Files are created `0600` / dirs `0700` since
+    /// corrections are potentially-sensitive user text that stays on-device.
     public func append(_ event: CorrectionEvent) throws {
         let enc = JSONEncoder()
         enc.outputFormatting = [.sortedKeys]
@@ -95,16 +103,30 @@ public struct CorrectionStore {
         let fm = FileManager.default
         let dir = url.deletingLastPathComponent()
         if !fm.fileExists(atPath: dir.path) {
-            try fm.createDirectory(at: dir, withIntermediateDirectories: true)
+            try fm.createDirectory(at: dir, withIntermediateDirectories: true,
+                                   attributes: [.posixPermissions: 0o700])
         }
-        if !fm.fileExists(atPath: url.path) {
-            try line.write(to: url, options: .atomic)
-            return
+
+        let fd = open(url.path, O_WRONLY | O_APPEND | O_CREAT, 0o600)
+        guard fd >= 0 else {
+            throw NSError(domain: "tinygpt.correction-store", code: Int(errno),
+                          userInfo: [NSLocalizedDescriptionKey:
+                            "open(\(url.path)) failed: \(String(cString: strerror(errno)))"])
         }
-        let handle = try FileHandle(forWritingTo: url)
-        defer { try? handle.close() }
-        try handle.seekToEnd()
-        try handle.write(contentsOf: line)
+        defer { close(fd) }
+        try line.withUnsafeBytes { (raw: UnsafeRawBufferPointer) in
+            guard let base = raw.baseAddress else { return }
+            var written = 0
+            while written < line.count {
+                let n = write(fd, base.advanced(by: written), line.count - written)
+                if n < 0 {
+                    throw NSError(domain: "tinygpt.correction-store", code: Int(errno),
+                                  userInfo: [NSLocalizedDescriptionKey:
+                                    "write failed: \(String(cString: strerror(errno)))"])
+                }
+                written += n
+            }
+        }
     }
 
     /// Load every parseable event. Unparseable lines (partial final write,
