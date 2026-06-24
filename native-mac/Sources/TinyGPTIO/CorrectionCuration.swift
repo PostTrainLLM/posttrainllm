@@ -53,11 +53,14 @@ public enum CorrectionCurator {
             switch format {
             case .sft:
                 if let pair = e.sftPair() {
+                    // Shape MUST match SFTReader (SFTCorpus.swift): it parses
+                    // {instruction|prompt, input?, response|completion} and skips
+                    // rows where instruction AND response are both empty. A
+                    // {messages:[…]} row (traces-to-data's shape, consumed by a
+                    // different recipe path) would be silently dropped here.
                     row = [
-                        "messages": [
-                            ["role": "user", "content": pair.user],
-                            ["role": "assistant", "content": pair.assistant],
-                        ],
+                        "instruction": pair.user,
+                        "response": pair.assistant,
                         "task": e.intentKind,
                         "source": "correction:\(e.id)",
                     ]

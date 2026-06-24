@@ -29,7 +29,7 @@ final class CorrectionCurationTests: XCTestCase {
         XCTAssertNil(noChange.dpoTriple(), "no preference signal when corrected == original")
     }
 
-    func test_curate_sft_emitsChatMLAndSkips() {
+    func test_curate_sft_isSFTReaderCompatibleAndSkips() {
         let events = [
             CorrectionEvent(intentKind: "dictation", input: "in1", original: "o1", corrected: "c1"),
             CorrectionEvent(intentKind: "dictation", original: "o2", corrected: "c2"), // no input → skip
@@ -38,12 +38,14 @@ final class CorrectionCurationTests: XCTestCase {
         XCTAssertEqual(r.emitted, 1)
         XCTAssertEqual(r.skipped, 1)
         let row = decode(r.lines[0])
-        let msgs = row["messages"] as? [[String: String]]
-        XCTAssertEqual(msgs?.count, 2)
-        XCTAssertEqual(msgs?[0]["role"], "user")
-        XCTAssertEqual(msgs?[0]["content"], "in1")
-        XCTAssertEqual(msgs?[1]["role"], "assistant")
-        XCTAssertEqual(msgs?[1]["content"], "c1")
+        // Mirror SFTReader's exact contract (SFTCorpus.swift): instruction|prompt
+        // and response|completion, and it drops rows where BOTH are empty. This
+        // is the guard for the bug where a {messages:[…]} row loaded as 0 records.
+        let instruction = (row["instruction"] as? String) ?? (row["prompt"] as? String) ?? ""
+        let response = (row["response"] as? String) ?? (row["completion"] as? String) ?? ""
+        XCTAssertEqual(instruction, "in1", "user prompt must map to instruction")
+        XCTAssertEqual(response, "c1", "corrected must map to response")
+        XCTAssertFalse(instruction.isEmpty && response.isEmpty, "SFTReader would skip this row")
         XCTAssertEqual(row["task"] as? String, "dictation")
     }
 
