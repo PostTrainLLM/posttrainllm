@@ -146,6 +146,8 @@ struct TinyGPT {
             ReasoningClassify.run(args: Array(args.dropFirst()))
         case "traces-to-data":
             TracesToData.run(args: Array(args.dropFirst()))
+        case "record-correction":
+            RecordCorrection.run(args: Array(args.dropFirst()))
         case "filter":
             Filter.run(args: Array(args.dropFirst()))
         case "eval-compare":
