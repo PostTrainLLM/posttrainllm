@@ -219,6 +219,11 @@ import Default from "../layouts/Default.astro";
           <dd><span class="m-val">960</span><span class="m-unit">M</span></dd>
           <p class="m-note">Params trainable end&#8209;to&#8209;end on unified memory; 473M in a browser tab via Memory64.</p>
         </div>
+        <div class="metric">
+          <dt>Spec&#8209;decode speedup</dt>
+          <dd><span class="m-val">1.4</span><span class="m-unit">&times;</span></dd>
+          <p class="m-note"><code>serve &#8209;&#8209;draft&#8209;model</code>, Qwen3 0.6B draft &rarr; 4B target. Lossless greedy; content&#8209;dependent, 1.0&ndash;1.4&times;.</p>
+        </div>
       </dl>
     </section>
 
@@ -341,7 +346,7 @@ import Default from "../layouts/Default.astro";
             <li><strong>tinygpt serve</strong> &mdash; OpenAI <em>and</em> Ollama on the same socket; Continue.dev provider compat</li>
             <li><strong>tinygpt agent</strong> &mdash; multi&#8209;turn loop, tool dispatch, persistent KV, FSM JSON</li>
             <li><strong>&#8209;&#8209;cloud&#8209;escalate</strong> &mdash; defer to Anthropic / OpenAI only when the local model wants to</li>
-            <li><strong>Speculative decoding</strong> &mdash; vanilla, Medusa, EAGLE&#8209;2 (trainable heads)</li>
+            <li><strong>Speculative decoding in <code>serve</code></strong> &mdash; <code>&#8209;&#8209;draft&#8209;model</code> draft&#43;verify, ~1.4&times; decode, lossless greedy; vanilla/Medusa/EAGLE&#8209;2 heads in the CLI</li>
             <li><strong>StreamingLLM sink</strong>, KV&#8209;cache quant (KIVI), prefix caching</li>
             <li><strong>Token&#8209;preserving traces</strong> &mdash; <code>.atraj</code> rollouts feed next round of SFT</li>
           </ul>
