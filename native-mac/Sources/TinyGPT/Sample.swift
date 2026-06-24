@@ -627,6 +627,13 @@ enum Sample {
                 ids = promptInts
             }
             let startCount = ids.count
+            // Acceptance instrumentation: each loop iteration is exactly
+            // ONE target forward over k positions, so mean accepted tokens
+            // per iteration == mean accepted tokens per target forward —
+            // the path-independent metric that gates a cache-aware serve
+            // build (it transfers regardless of caching).
+            var specSteps = 0
+            var specAccepted = 0
             while ids.count - startCount < maxTokens {
                 if TrainSupport.stopRequested.isSet { break }
                 let remaining = maxTokens - (ids.count - startCount)
@@ -639,9 +646,16 @@ enum Sample {
                     : SpeculativeDecode.step(
                         target: model, draft: draft,
                         ids: &ids, k: k, ctxCap: cfg.contextLength)
+                specSteps += 1
+                specAccepted += accepted.count
                 for id in accepted { emit(id) }
                 if ids.count >= cfg.contextLength { break }
             }
+            let specElapsed = -t0.timeIntervalSinceNow
+            let specTps = specElapsed > 0 ? Double(specAccepted) / specElapsed : 0
+            let meanAccept = specSteps > 0 ? Double(specAccepted) / Double(specSteps) : 0
+            fputs(String(format: "\n[spec] target-forwards=%d accepted=%d · mean-accept=%.2f tok/forward · k=%d · %.0f tok/s · %.2fs\n",
+                          specSteps, specAccepted, meanAccept, speculativeK, specTps, specElapsed), stderr)
         } else if useActualCache, let cache {
             // Prefill the cache from the prompt, UNLESS we loaded a saved
             // prefix cache for this prompt (then we already have the KV
