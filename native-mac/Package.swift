@@ -120,6 +120,20 @@ let package = Package(
                 .product(name: "MLXNN", package: "mlx-swift"),
                 .product(name: "MLXOptimizers", package: "mlx-swift"),
                 .product(name: "MLXRandom", package: "mlx-swift"),
+            ],
+            swiftSettings: [
+                // Workaround for an Xcode-27 Beta SIL optimizer crash. The
+                // DeadArgSignatureOpt pass hits an OSSA "didn't complete
+                // lifetimes" assertion (PassManager.cpp:1504) on the
+                // `() -> Never` closures the Eval* commands pass for usage
+                // handling (e.g. `usage: { exitUsage() }`). Without this,
+                // `swift build -c release` of this executable target crashes
+                // the compiler; the perf-critical library targets
+                // (TinyGPTModel / TinyGPTServe) are unaffected and keep full
+                // optimization. Scope is the one buggy pass, release only.
+                // Remove when the toolchain bug is fixed.
+                .unsafeFlags(["-Xllvm", "-sil-disable-pass=DeadArgSignatureOpt"],
+                             .when(configuration: .release)),
             ]
         ),
         .executableTarget(

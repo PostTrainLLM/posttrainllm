@@ -802,17 +802,33 @@ extension CausalSelfAttention {
         let kFull = cache.keys(layer: layer, asDType: q.dtype)!
         let vFull = cache.values(layer: layer, asDType: q.dtype)!
 
-        // Attention. For the prefill case (T > 1), we need causal masking
-        // among the new tokens. For the per-token decode case (T == 1),
-        // the new token attends to all past + itself with no masking
-        // (single position is trivially valid). MLX-Fast's `.causal` mask
-        // works correctly because it masks j > i within the query range
-        // (which is 1 row when T_q == 1, so the mask is empty).
-        let out = MLXFast.scaledDotProductAttention(
-            queries: q, keys: kFull, values: vFull,
-            scale: scale,
-            mask: T == kFull.shape[2] ? .causal : .none
-        )
+        // Attention mask. Three cases (mirrors KVCacheHF.swift):
+        //   • T == 1 (per-token decode): single query attends to all cached
+        //     keys — no future to mask.
+        //   • T == S (aligned prefill at offset 0): plain causal.
+        //   • T > 1 AND offset > 0 (speculative-decode verify, or a
+        //     prompt-cache resume feeding the remaining prompt at offset>0):
+        //     the T new queries must attend to ALL cached keys AND causally
+        //     among themselves. The old `T == S ? .causal : .none` used
+        //     `.none` here, letting query i see future queries — wrong.
+        //     basePos (tokens already cached before this append) = S - T.
+        let S = kFull.shape[2]
+        let out: MLXArray
+        if T == 1 {
+            out = MLXFast.scaledDotProductAttention(
+                queries: q, keys: kFull, values: vFull, scale: scale, mask: .none)
+        } else if T == S {
+            out = MLXFast.scaledDotProductAttention(
+                queries: q, keys: kFull, values: vFull, scale: scale, mask: .causal)
+        } else {
+            let basePos = S - T
+            let qPos = MLXArray((0..<T).map { Int32($0 + basePos) }).reshaped([T, 1])
+            let kPos = MLXArray((0..<S).map { Int32($0) }).reshaped([1, S])
+            let m = MLX.where(kPos .<= qPos, MLXArray(Float(0)),
+                              MLXArray(Float(-1e9))).asType(q.dtype).reshaped([1, 1, T, S])
+            out = MLXFast.scaledDotProductAttention(
+                queries: q, keys: kFull, values: vFull, scale: scale, mask: .array(m))
+        }
         let merged = out.transposed(0, 2, 1, 3).reshaped([B, T, nHeads * headDim])
         return oProj(merged)
     }

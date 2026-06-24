@@ -81,3 +81,14 @@ Fill in `Why here:` yourself after internalising each topic.
 - What: fine-tuning method that freezes pre-trained weights and injects trainable low-rank matrices (A·B) into each projection; only A and B are updated.
 - Why here: TBD
 - Source: https://arxiv.org/abs/2106.09685
+
+## Speculative decoding (draft + verify)
+- What: a small fast draft model proposes K tokens; the big target verifies them in ONE batched forward and accepts the longest matching prefix — lossless vs the target's own sampling, just faster wall-clock.
+- Why here: TBD
+- Gotcha (from code): on Metal, greedy spec-decode is NOT byte-identical to single-token decode — batched-verify vs single-token attention aren't bit-reproducible across batch shapes, so a near-tie argmax occasionally flips (still a valid greedy decode; verified against the uncached reference). serve speedup is content-dependent (acceptance 2.3 dense → 3.3 structured) and masking-bound under `--grammar`. "Seed-carry" (feed the last burst token as the next verify's first) avoids a wasted second target forward.
+- Source: https://arxiv.org/abs/2211.17192 (Leviathan et al., 2023)
+
+## Continual learning / online adapter refresh
+- What: instead of freezing a model at ship time, capture real-usage signal (corrections, edits, retries) and periodically retrain a LoRA on it so the model improves from production; the on-device version keeps all data local.
+- Why here: TBD
+- Source: https://docs.trajectory.ai/introduction · see `docs/prds/continual-learning-loop.md`

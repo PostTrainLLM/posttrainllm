@@ -45,6 +45,7 @@ public enum Serve {
         var port: UInt16 = 8080
         var maxContext: Int? = nil
         var loraPath: String? = nil
+        var draftModelPath: String? = nil
         var quantizeBits: Int? = nil
         var quantizeGroup: Int = 64
         var grammarPath: String? = nil
@@ -69,6 +70,9 @@ public enum Serve {
             case "--lora":
                 guard i + 1 < args.count else { exitUsage() }
                 loraPath = args[i + 1]; i += 2
+            case "--draft-model":
+                guard i + 1 < args.count else { exitUsage() }
+                draftModelPath = args[i + 1]; i += 2
             case "--quantize":
                 guard i + 1 < args.count else { exitUsage() }
                 switch args[i + 1] {
@@ -137,6 +141,7 @@ public enum Serve {
             let server = try Server.boot(modelPath: modelPath, host: host, port: port,
                                           maxContextOverride: maxContext,
                                           loraPath: loraPath,
+                                          draftModelPath: draftModelPath,
                                           quantizeBits: quantizeBits,
                                           quantizeGroup: quantizeGroup,
                                           grammarText: grammarText,
@@ -149,6 +154,7 @@ public enum Serve {
             print("tinygpt serve — listening on http://\(host):\(server.port)")
             print("model: \(modelPath)  ·  ctx=\(server.maxContext)  ·  vocab=\(server.config.vocabSize)")
             if let lp = loraPath { print("lora:  \(lp)") }
+            if let dm = draftModelPath { print("draft: \(dm)  (speculative decoding, greedy/T=0)") }
             if let qb = quantizeBits, loraPath == nil {
                 print("quantized: int\(qb) (group=\(quantizeGroup))")
             }
@@ -193,6 +199,10 @@ public enum Serve {
                                like MMLU-Pro where the harness sometimes overshoots)
         --lora <path.lora>    Apply a LoRA adapter on top of the base before serving.
                               Works for both .tinygpt and HF-dir bases.
+        --draft-model <path>  Speculative decoding: a small fast draft model proposes
+                              tokens that the main model verifies in one forward. Lossless
+                              vs greedy output. Must share the base model's tokenizer/vocab.
+                              Active only at temperature 0 and without a grammar (v1).
         --quantize int4|int8  Quantize Linear/Embedding weights in-memory after
                               load (MLX QuantizedLinear). ~4-8× memory savings.
                               Ignored when --lora is in play (would discard the
@@ -262,6 +272,10 @@ extension Serve {
         public let config: ModelConfig
         public let maxContext: Int
         let model: AnyModel
+        // Optional speculative-decoding draft model + its layer count (for a
+        // separate KV cache). nil unless serve was booted with --draft-model.
+        let draftModel: AnyModel?
+        let draftNLayers: Int?
         let tokenizer: TokenizerBox
         let defaultGrammar: ServeGrammarSpec?
         let toolsSystemPrompt: String?
@@ -284,7 +298,8 @@ extension Serve {
         private var running: Bool = true
 
         init(listenFd: Int32, host: String, port: UInt16,
-             model: AnyModel, config: ModelConfig, tokenizer: TokenizerBox,
+             model: AnyModel, draftModel: AnyModel?, draftNLayers: Int?,
+             config: ModelConfig, tokenizer: TokenizerBox,
              maxContext: Int, defaultGrammar: ServeGrammarSpec?,
              toolsSystemPrompt: String?,
              toolsSpec: ServeToolsSpec?,
@@ -299,6 +314,8 @@ extension Serve {
             self.host = host
             self.port = port
             self.model = model
+            self.draftModel = draftModel
+            self.draftNLayers = draftNLayers
             self.config = config
             self.tokenizer = tokenizer
             self.maxContext = maxContext
@@ -318,6 +335,7 @@ extension Serve {
 
         static func boot(modelPath: String, host: String, port: UInt16,
                           maxContextOverride: Int?, loraPath: String? = nil,
+                          draftModelPath: String? = nil,
                           quantizeBits: Int? = nil,
                           quantizeGroup: Int = 64,
                           grammarText: String? = nil,
@@ -362,6 +380,25 @@ extension Serve {
                 } else {
                     MLXNN.quantize(model: load.model.module, groupSize: quantizeGroup, bits: bits)
                     fputs("serve: quantized to int\(bits) (group=\(quantizeGroup))\n", stderr)
+                }
+            }
+            // Optional speculative-decoding draft model. Loaded as a plain
+            // base (no LoRA / no quantize) — it only proposes tokens the
+            // target verifies, so its absolute quality matters less than its
+            // speed. Must share the target's vocab/tokenizer for the verify
+            // step to be meaningful; we hard-require matching vocabSize and
+            // skip spec-decode (with a warning) on mismatch rather than
+            // serving wrong tokens.
+            var draftModel: AnyModel? = nil
+            var draftNLayers: Int? = nil
+            if let dp = draftModelPath {
+                let draftLoad = try ModelLoader.load(dp)
+                if draftLoad.config.vocabSize != cfg.vocabSize {
+                    fputs("warning: --draft-model vocab \(draftLoad.config.vocabSize) != target vocab \(cfg.vocabSize); disabling speculative decoding.\n", stderr)
+                } else {
+                    draftModel = draftLoad.model
+                    draftNLayers = draftLoad.config.nLayers
+                    fputs("serve: speculative draft loaded (\(draftLoad.config.nLayers) layers, k=\(Self.speculativeK))\n", stderr)
                 }
             }
             let tok: TokenizerBox
@@ -430,7 +467,8 @@ extension Serve {
                 toolMode == .deferred ? $0.compactSystemPrompt() : $0.systemPrompt()
             }
             let server = Server(listenFd: fd, host: host, port: boundPort,
-                                 model: load.model, config: cfg, tokenizer: tok,
+                                 model: load.model, draftModel: draftModel,
+                                 draftNLayers: draftNLayers, config: cfg, tokenizer: tok,
                                  maxContext: maxCtx, defaultGrammar: defaultGrammar,
                                  toolsSystemPrompt: renderedToolsSystemPrompt,
                                  toolsSpec: toolsSpec,
@@ -1236,6 +1274,52 @@ extension Serve {
             let constraint = try makeConstraint(grammar)
             let activeStopTokenIds = eosTokenIds.union(extraStopTokenIds)
 
+            // Speculative-decode fast path: greedy (T=0), no grammar. Emits the
+            // same token stream as the single-token loop below, in bursts.
+            if let draft = draftModel, let dNL = draftNLayers,
+               temperature <= 0, constraint == nil {
+                let draftCache = specPrefillDraft(draft: draft, draftNLayers: dNL,
+                                                  kept: kept, tokenDType: tokenDType)
+                var generated: [Int] = []
+                generated.reserveCapacity(maxTokens)
+                var lastDecoded: String = ""
+                // Append a token + stream its decoded delta. Returns false when
+                // generation should stop (client gone, stop string, maxTokens).
+                func emitToken(_ tok: Int) -> Bool {
+                    generated.append(tok)
+                    let nowDecoded = tokenizer.decode(generated)
+                    if nowDecoded.count > lastDecoded.count
+                        && nowDecoded.hasPrefix(lastDecoded) {
+                        let suffix = String(nowDecoded.dropFirst(lastDecoded.count))
+                        let keepGoing = onText(suffix)
+                        lastDecoded = nowDecoded
+                        if !keepGoing { return false }
+                    }
+                    if !stop.isEmpty
+                        && stop.contains(where: { !$0.isEmpty && nowDecoded.contains($0) }) {
+                        return false
+                    }
+                    return generated.count < maxTokens
+                }
+                var seed = Int(argMax(lastLogits, axis: -1).item(Int32.self))
+                if activeStopTokenIds.contains(seed) { return }
+                if !emitToken(seed) { return }
+                while generated.count < maxTokens {
+                    let room = ctxCap - cache.currentLength - 1
+                    let k = min(Self.speculativeK, room, maxTokens - generated.count)
+                    if k < 1 { return }
+                    let burst = specStepGreedy(draft: draft,
+                                               targetCache: cache, draftCache: draftCache,
+                                               seed: seed, k: k, tokenDType: tokenDType)
+                    for tok in burst {
+                        if activeStopTokenIds.contains(tok) { return }
+                        if !emitToken(tok) { return }
+                    }
+                    seed = burst[burst.count - 1]
+                }
+                return
+            }
+
             var generated: [Int] = []
             generated.reserveCapacity(maxTokens)
             var lastDecoded: String = ""
@@ -1775,6 +1859,51 @@ extension Serve {
                 try makeConstraint(grammar)
             }
             let activeStopTokenIds = eosTokenIds.union(extraStopTokenIds)
+
+            // Speculative-decode fast path: greedy (T=0) and no grammar. The
+            // draft proposes bursts the target verifies in one forward; emitted
+            // tokens are byte-identical to the single-token loop below. Grammar
+            // and T>0 stay on the standard path for now.
+            if let draft = draftModel, let dNL = draftNLayers,
+               temperature <= 0, constraint == nil {
+                let draftCache = specPrefillDraft(draft: draft, draftNLayers: dNL,
+                                                  kept: kept, tokenDType: tokenDType)
+                var generated: [Int] = []
+                generated.reserveCapacity(maxTokens)
+                // First token comes from the prefill logits; carried as the seed
+                // for the first verify batch (then never re-fed standalone).
+                var seed = Int(argMax(lastLogits, axis: -1).item(Int32.self))
+                if !activeStopTokenIds.contains(seed) {
+                    generated.append(seed)
+                    var stopHit = false
+                    while generated.count < maxTokens && !stopHit {
+                        // Clamp k so the verify forward (cache +k+1) never pushes
+                        // past ctxCap (a prealloc cache would trip appendInPlace).
+                        let room = ctxCap - cache.currentLength - 1
+                        let k = min(Self.speculativeK, room, maxTokens - generated.count)
+                        if k < 1 { break }
+                        let burst = specStepGreedy(draft: draft,
+                                                   targetCache: cache, draftCache: draftCache,
+                                                   seed: seed, k: k, tokenDType: tokenDType)
+                        for tok in burst {
+                            if activeStopTokenIds.contains(tok) { stopHit = true; break }
+                            generated.append(tok)
+                            if generated.count >= maxTokens { stopHit = true; break }
+                        }
+                        seed = burst[burst.count - 1]
+                        if !stopHit && !stop.isEmpty {
+                            let rendered = tokenizer.decode(generated)
+                            if stop.contains(where: { !$0.isEmpty && rendered.contains($0) }) {
+                                if let trimmed = trimAtStop(rendered, stops: stop) {
+                                    return (trimmed, promptIds.count, generated.count)
+                                }
+                            }
+                        }
+                    }
+                }
+                let text = tokenizer.decode(generated)
+                return (text, promptIds.count, generated.count)
+            }
 
             var generated: [Int] = []
             generated.reserveCapacity(maxTokens)
