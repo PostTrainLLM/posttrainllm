@@ -105,7 +105,12 @@ serve/agent ──(user corrects)──> correction store (local, on-device)
    no Metal). Ingestion: `tinygpt record-correction` CLI AND `serve POST /v1/corrections`
    (✅ added 2026-06-24 — `--corrections-dir`, atomic O_APPEND store, 0600 perms; clients
    like Pace can capture directly). **Phase 1 complete.**
-2. **Curation** — `traces-to-data` extension: corrections → SFT/DPO pairs + replay mix.
+2. **Curation** — ✅ SHIPPED (2026-06-24). `tinygpt corrections-to-data --out … [--format
+   sft|dpo] [--intent …] [--replay base.jsonl --replay-ratio r]`. Pure curation in
+   `TinyGPTIO/CorrectionCuration.swift` (`sftPair`/`dpoTriple`/`CorrectionCurator`,
+   unit-tested); SFT rows match the `traces-to-data` ChatML shape. Corrections without an
+   `input` (can't ground a pair) are skipped + reported. Replay mix stride-samples the base
+   SFT file (deterministic) to resist forgetting.
 3. **Gated refresh** — scheduled overnight `sft` + `eval-gate` + auto-rollback. The core
    loop, unattended-safe.
 4. **Promotion UX** — user-gated apply + notification.
