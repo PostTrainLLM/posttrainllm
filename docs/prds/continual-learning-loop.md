@@ -98,9 +98,12 @@ serve/agent ──(user corrects)──> correction store (local, on-device)
 
 ## Phased plan (smallest shippable first)
 
-1. **Capture only** — define the `correction` event, hook the correction points, store
-   locally. No training. Just prove we collect clean, useful correction data. (Lowest risk;
-   delivers a dataset even before any refresh.)
+1. **Capture only** — ✅ SHIPPED (2026-06-24). `CorrectionEvent` + append-only JSONL
+   `CorrectionStore` (`TinyGPTIO/CorrectionEvent.swift`, pure Foundation), `tinygpt
+   record-correction` CLI (`--intent/--original/--corrected/…`, `--list`), defaulting to
+   `~/.tinygpt/corrections`. Unit-tested (`CorrectionStoreTests`, runs under `swift test`,
+   no Metal). Ingestion is CLI-only so far — a `serve` endpoint (`POST /v1/corrections`) for
+   clients (Pace) is the next slice within this phase.
 2. **Curation** — `traces-to-data` extension: corrections → SFT/DPO pairs + replay mix.
 3. **Gated refresh** — scheduled overnight `sft` + `eval-gate` + auto-rollback. The core
    loop, unattended-safe.
