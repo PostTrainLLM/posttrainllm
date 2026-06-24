@@ -102,8 +102,9 @@ serve/agent ──(user corrects)──> correction store (local, on-device)
    `CorrectionStore` (`TinyGPTIO/CorrectionEvent.swift`, pure Foundation), `tinygpt
    record-correction` CLI (`--intent/--original/--corrected/…`, `--list`), defaulting to
    `~/.tinygpt/corrections`. Unit-tested (`CorrectionStoreTests`, runs under `swift test`,
-   no Metal). Ingestion is CLI-only so far — a `serve` endpoint (`POST /v1/corrections`) for
-   clients (Pace) is the next slice within this phase.
+   no Metal). Ingestion: `tinygpt record-correction` CLI AND `serve POST /v1/corrections`
+   (✅ added 2026-06-24 — `--corrections-dir`, atomic O_APPEND store, 0600 perms; clients
+   like Pace can capture directly). **Phase 1 complete.**
 2. **Curation** — `traces-to-data` extension: corrections → SFT/DPO pairs + replay mix.
 3. **Gated refresh** — scheduled overnight `sft` + `eval-gate` + auto-rollback. The core
    loop, unattended-safe.
