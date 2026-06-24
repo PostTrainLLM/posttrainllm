@@ -89,6 +89,14 @@ enum CorrectionsToData {
             }
         }
 
+        // Fail loudly rather than write a blank-line file that would feed the
+        // trainer as 0 records silently. All-skipped means no correction had
+        // an `input` to ground a pair (and no replay rows were added).
+        if lines.isEmpty {
+            fputs("corrections-to-data: nothing to write — \(result.emitted) emitted, \(result.skipped) skipped (no `input`), \(replayAdded) replay. Not writing \(outPath).\n", stderr)
+            exit(1)
+        }
+
         do {
             try lines.joined(separator: "\n").appending("\n").write(toFile: outPath, atomically: true, encoding: .utf8)
         } catch {

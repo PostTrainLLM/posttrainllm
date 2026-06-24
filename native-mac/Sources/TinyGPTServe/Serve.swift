@@ -865,12 +865,19 @@ extension Serve {
                 respond(clientFd: clientFd, status: 400, body: "json must be an object")
                 return
             }
-            let intent = stringValue(json["intent"] ?? json["intentKind"])
-            let original = stringValue(json["original"])
-            let corrected = stringValue(json["corrected"])
-            guard !intent.isEmpty, !original.isEmpty, !corrected.isEmpty else {
+            // Require actual non-empty strings (don't coerce numbers/objects via
+            // String(describing:) — that would store junk like "5" or a Swift
+            // dictionary description into the training corpus).
+            func reqString(_ v: Any?) -> String? {
+                guard let s = v as? String else { return nil }
+                let t = s.trimmingCharacters(in: .whitespacesAndNewlines)
+                return t.isEmpty ? nil : t
+            }
+            guard let intent = reqString(json["intent"] ?? json["intentKind"]),
+                  let original = reqString(json["original"]),
+                  let corrected = reqString(json["corrected"]) else {
                 respondJSON(clientFd: clientFd, status: 400,
-                            payload: ["error": "intent, original, and corrected are required"])
+                            payload: ["error": "intent, original, and corrected must be non-empty strings"])
                 return
             }
             let input = (json["input"] as? String).flatMap { $0.isEmpty ? nil : $0 }
