@@ -1,11 +1,11 @@
-# Auto-deploy the browser playground to Cloudflare Pages on every push to main.
+# Manually deploy the browser playground to Cloudflare Pages.
 #
 # Why a GitHub Action and not native CF Pages Git integration: the `tinygpt`
 # CF Pages project was originally set up as direct-upload, and CF Pages does
 # not allow direct-upload projects to be retroactively connected to Git.
 # Re-creating the project would require re-pointing the custom domain. This
-# workflow keeps everything where it is and just runs `wrangler pages deploy`
-# from GitHub's runners.
+# workflow keeps everything where it is and runs `wrangler pages deploy`
+# from GitHub's runners only when explicitly dispatched.
 #
 # Required GitHub secrets (Settings → Secrets and variables → Actions):
 #   CLOUDFLARE_API_TOKEN  — a Cloudflare API token with the "Pages: Edit"
@@ -29,13 +29,7 @@
 name: Deploy to Cloudflare Pages
 
 on:
-  push:
-    branches: [main]
-  # Allow manual triggering from the Actions tab too.
   workflow_dispatch:
-
-# Only one deploy in flight at a time; cancel any earlier in-flight run on a
-# new push so we don't race deploys against each other.
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
