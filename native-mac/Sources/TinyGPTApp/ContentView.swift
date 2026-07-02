@@ -1,12 +1,11 @@
 import SwiftUI
 
-/// Seven workspaces. Train internally has sub-modes
-/// (pretrain / fine-tune / DPO / distill). Roadmap surfaces
-/// what's shipped, in-flight, queued, and rejected — anchored to the
-/// (speed × accuracy) / cost formula per the North Star.
+/// Six workspaces. Factory internally has sub-modes
+/// (pretrain / fine-tune / DPO / distill). The current product center is the
+/// factory loop: target -> data -> post-training -> eval -> package -> report.
 enum AppTab: Hashable {
     case gallery     // every loadable model + chat with whichever is loaded
-    case train       // pretrain / fine-tune / DPO / distill (sub-modes)
+    case train       // factory/post-training workspace (sub-modes)
     case eval        // score + compare
     case trace       // inference heatmap
     case interp      // mech-interp power tools
@@ -41,7 +40,7 @@ struct ContentView: View {
 
     @State private var tab: AppTab = .gallery
     @State private var liveServes: [ServeProcess] = []
-    // Sidebar nav default lands on Sample — most common "use a model" entry.
+    // Sidebar nav default lands on Gallery — most common "use a model" entry.
 
     var body: some View {
         VStack(spacing: 0) {
@@ -179,7 +178,7 @@ struct ContentView: View {
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
                         .minimumScaleFactor(0.7)
-                    Text("native macOS")
+                    Text("Mac factory")
                         .font(.system(size: 11, design: .monospaced))
                         .foregroundStyle(Theme.muted)
                         .lineLimit(1)
@@ -217,7 +216,7 @@ struct ContentView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 1) {
                     navRow(.gallery,    icon: "rectangle.grid.2x2",                label: "Gallery")
-                    navRow(.train,      icon: "waveform.path.ecg",                 label: "Train")
+                    navRow(.train,      icon: "waveform.path.ecg",                 label: "Factory")
                     navRow(.eval,       icon: "checkmark.gobackward",              label: "Eval")
                     navRow(.trace,      icon: "chart.bar.xaxis",                   label: "Trace")
                     navRow(.interp,     icon: "scope",                             label: "Interp")

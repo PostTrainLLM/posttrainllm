@@ -1,0 +1,12 @@
+{"instruction":"List the names of employees in engineering.","response":"select e.name from employees e join departments d on e.dept_id = d.id where d.name = 'engineering';"}
+{"instruction":"How many employees are in sales?","response":"select count(*) from employees e join departments d on e.dept_id = d.id where d.name = 'sales';"}
+{"instruction":"Which department owns the Apollo project?","response":"select d.name from projects p join departments d on p.owner_dept_id = d.id where p.name = 'Apollo';"}
+{"instruction":"List projects with a budget above 100000.","response":"select name from projects where budget > 100000;"}
+{"instruction":"What is the highest salary in engineering?","response":"select max(e.salary) from employees e join departments d on e.dept_id = d.id where d.name = 'engineering';"}
+{"instruction":"List employee names with salary below 90000.","response":"select name from employees where salary < 90000;"}
+{"instruction":"Count all projects.","response":"select count(*) from projects;"}
+{"instruction":"List department names that have an employee named Dan.","response":"select d.name from employees e join departments d on e.dept_id = d.id where e.name = 'Dan';"}
+{"instruction":"What is the total project budget for engineering?","response":"select sum(p.budget) from projects p join departments d on p.owner_dept_id = d.id where d.name = 'engineering';"}
+{"instruction":"List all employee names.","response":"select name from employees;"}
+{"instruction":"Which employees earn at least 120000?","response":"select name from employees where salary >= 120000;"}
+{"instruction":"Which project is owned by sales?","response":"select p.name from projects p join departments d on p.owner_dept_id = d.id where d.name = 'sales';"}

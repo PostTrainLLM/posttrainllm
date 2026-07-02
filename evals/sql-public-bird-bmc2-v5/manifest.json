@@ -1,0 +1,28 @@
+{
+  "bird_limit": 4096,
+  "bird_source": "xu3kev/BIRD-SQL-data-train",
+  "bmc2_limit": 4096,
+  "bmc2_train": "evals/sql-public-bmc2-train-v4-joinweighted/train.jsonl",
+  "curriculum_counts": {
+    "aggregate": 888,
+    "filter": 361,
+    "group_having": 906,
+    "join": 5715,
+    "multi_table_no_join": 1,
+    "order_limit": 231,
+    "projection": 87,
+    "subquery": 3
+  },
+  "gate": {
+    "public_exact_min": 0.531,
+    "routing_required": true,
+    "synthetic_execution_target": 0.86
+  },
+  "max_prompt_chars": 2600,
+  "max_schema_chars": 1800,
+  "rows": 8192,
+  "source_counts": {
+    "b-mc2/sql-create-context": 4096,
+    "xu3kev/BIRD-SQL-data-train": 4096
+  }
+}

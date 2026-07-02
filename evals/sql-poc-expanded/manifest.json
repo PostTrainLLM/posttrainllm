@@ -1,0 +1,47 @@
+{
+  "counts": {
+    "dev_rows": 50,
+    "preference_rows": 108,
+    "train_rows": 108
+  },
+  "dataset_id": "sql-poc-expanded-v1",
+  "domains": [
+    {
+      "db": "evals/sql-poc-expanded/dbs/company.db",
+      "dev_rows": 11,
+      "name": "company",
+      "schema": "evals/sql-poc-expanded/schemas/company.sql",
+      "train_rows": 23
+    },
+    {
+      "db": "evals/sql-poc-expanded/dbs/retail.db",
+      "dev_rows": 8,
+      "name": "retail",
+      "schema": "evals/sql-poc-expanded/schemas/retail.sql",
+      "train_rows": 18
+    },
+    {
+      "db": "evals/sql-poc-expanded/dbs/library.db",
+      "dev_rows": 9,
+      "name": "library",
+      "schema": "evals/sql-poc-expanded/schemas/library.sql",
+      "train_rows": 19
+    },
+    {
+      "db": "evals/sql-poc-expanded/dbs/school.db",
+      "dev_rows": 11,
+      "name": "school",
+      "schema": "evals/sql-poc-expanded/schemas/school.sql",
+      "train_rows": 24
+    },
+    {
+      "db": "evals/sql-poc-expanded/dbs/clinic.db",
+      "dev_rows": 11,
+      "name": "clinic",
+      "schema": "evals/sql-poc-expanded/schemas/clinic.sql",
+      "train_rows": 24
+    }
+  ],
+  "seed": 20260702,
+  "split": "domain-stratified deterministic shuffle; train/dev examples do not share question text or gold SQL"
+}

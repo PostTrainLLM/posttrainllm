@@ -11,7 +11,9 @@ import TinyGPTModel
 /// JudgeShim serve+completion pattern (compiles; behavior unverified here).
 enum Generate {
     static func run(args: [String]) {
-        var model: String?, dataPath: String?, outPath: String?, lora: String?
+        var model: String?, dataPath: String?, outPath: String?
+        var loraPaths: [String] = []
+        var loraWeights: [Float] = []
         var promptField = "prompt", outField = "output"
         var maxTokens = 256, servePort = 8097
         var i = 0
@@ -19,7 +21,8 @@ enum Generate {
             switch args[i] {
             case "--data":         dataPath = args[i+1]; i += 2
             case "--out":          outPath = args[i+1]; i += 2
-            case "--lora":         lora = args[i+1]; i += 2
+            case "--lora":         loraPaths.append(args[i+1]); i += 2
+            case "--lora-weight":  loraWeights.append(Float(args[i+1]) ?? 1.0); i += 2
             case "--prompt-field": promptField = args[i+1]; i += 2
             case "--out-field":    outField = args[i+1]; i += 2
             case "--max-tokens":   maxTokens = Int(args[i+1]) ?? maxTokens; i += 2
@@ -37,8 +40,13 @@ enum Generate {
             fputs("could not read \(dataPath)\n", stderr); exit(1)
         }
 
+        while loraWeights.count < loraPaths.count { loraWeights.append(1.0) }
+        var serveArgs: [String] = []
+        for (idx, path) in loraPaths.enumerated() {
+            serveArgs += ["--lora", path, "--lora-weight", "\(loraWeights[idx])"]
+        }
         let serve = EvalHarnessSupport.startServe(modelPath: model, port: servePort,
-                                                  extraArgs: lora.map { ["--lora", $0] } ?? [])
+                                                  extraArgs: serveArgs)
         defer { if serve.isRunning { serve.terminate() } }
         let base = "http://127.0.0.1:\(servePort)/v1"
 
@@ -74,7 +82,8 @@ enum Generate {
 
         --data <jsonl>        input rows (required)
         --out <jsonl>         output rows (required)
-        --lora <path>         apply a trained adapter on the base
+        --lora <path>         apply a trained adapter on the base; repeat to compose
+        --lora-weight F       per-adapter mix weight when composing (default 1.0)
         --prompt-field NAME   field to send as the prompt (default: prompt)
         --out-field NAME      field to write the output under (default: output)
         --max-tokens N        (default 256)   --serve-port N (default 8097)

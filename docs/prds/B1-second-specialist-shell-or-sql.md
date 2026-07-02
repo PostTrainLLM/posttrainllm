@@ -1,6 +1,6 @@
 ---
-name: B1 second specialist (shell or SQL)
-status: not-started (blocked-by A1)
+name: B1 second specialist (SQL POC)
+status: expanded-qwen06-poc-complete; retry-data
 owner: unassigned
 created: 2026-06-13
 parent_plan: docs/PLAN.md §3 Tier B (B1)
@@ -11,38 +11,29 @@ related_prds: A1-first-specialist-tool-caller.md (the template; B1 cookie-cuts o
 
 ## Goal
 
-Once A1 (tool-caller) lands, run the same recipe shape against a
-*different domain* — shell command generation OR SQL — to validate
-the platform isn't accidentally A1-specific. Same base (qwen3-4b),
-same SFT + LoRA path, different data + different eval.
+Run the factory recipe shape against SQL to validate that the platform is not
+accidentally tied to a tool-calling target. Same factory loop, different data
+and eval.
 
 Two specialists ship the platform thesis: "you can do this for *any*
 task" is much stronger than "we did this for one task."
 
 ## Why now
 
-- Blocked on A1. A1 ships the template recipe + acceptance scaffolding
-  this PRD reuses verbatim.
-- Choice of shell vs SQL: pick whichever has cleaner public eval
-  scaffolding by the time A1 lands. **Default recommendation: shell**
-  via [InterCode-Bash](https://intercode-benchmark.github.io/) (multi-
-  turn, sandboxed, verifiable). SQL via [Spider](https://yale-lily.github.io/spider)
-  is the fallback if shell sandbox setup is friction.
+- The active factory cleanup selected SQL as the first low-compute POC because
+  `tinygpt eval-sql` is already self-contained and smoke-tested.
+- The initial fixture is deliberately tiny and deterministic. The first live
+  Qwen3-0.6B runs proved the loop but were marked `retry-data`; Spider remains
+  the later public benchmark once preference tuning is tested.
 
 ## Scope — in
 
-- Pick the domain (shell vs SQL) at A1-ship-time based on eval-
-  scaffolding state. Document the call in `docs/decision_log.md`.
-- Pull the dataset: `scripts/recipes/b1-<domain>.sh` mirrors
-  A1's recipe template.
-- Training data: domain-specific public corpora (e.g.
-  `glaiveai/glaive-function-calling-v2` already pulled for tool
-  context; need shell-specific or SQL-specific equivalents).
-- New eval: `tinygpt eval-<domain>` — a thin wrapper around the
-  domain's public harness (InterCode-Bash or Spider's official
-  scorer).
-- Ship gate: domain-eval avg ≥ base + 3pp under B23 K=3 protocol.
-- Artifact: `adapters/b1-<domain>.lora`.
+- Freeze the POC fixture in `evals/sql-poc/`.
+- Use `scripts/recipes/b1-sql.sh` for the live SFT/generate/eval path.
+- Score with `tinygpt eval-sql`.
+- Write row-level failure traces from `eval-sql --out`.
+- Ship/retry gate: candidate execution accuracy ≥ baseline + 3pp.
+- Artifact: `adapters/b1-sql.lora` or `specialists/b1-sql/`.
 
 ## Scope — out
 
@@ -54,18 +45,26 @@ task" is much stronger than "we did this for one task."
 
 | File | Change |
 |---|---|
-| `scripts/recipes/b1-<domain>.sh` | new — recipe (cookie-cut from A1) |
-| `Sources/TinyGPT/EvalShell.swift` OR `EvalSpider.swift` | new — harness wrapper |
-| `docs/specialists/b1-<domain>.md` | new — brief |
+| `scripts/recipes/b1-sql.sh` | recipe path for SFT → generate → eval |
+| `Sources/TinyGPT/EvalSql.swift` | SQL execution-accuracy harness |
+| `docs/specialists/b1-sql-poc.md` | POC brief |
 | `docs/research/mac_slm_leaderboard_v0.md` | regenerate with the new row |
 | `docs/PLAN.md` | B1 ⬜ → ✅ on ship |
 
 ## Acceptance criteria
 
-- [ ] B1 specialist beats base by ≥ 3pp on the domain eval (K=3).
-- [ ] A1's eval scores ≥ stay at parity (the new specialist
-  doesn't regress; orthogonal adapter).
-- [ ] Leaderboard shows ≥ 3 distinct rows: A1, B1, base.
+- [x] Low-compute SQL fixture exists and is smoke-tested.
+- [x] Row-level eval traces capture SQL failures.
+- [x] Live baseline score recorded from Qwen3-0.6B on the toy SQL eval.
+- [x] First SQL adapter beats base by ≥ 3pp on the toy SQL eval.
+- [x] Expanded non-overlapping synthetic SQL set generated and evaluated.
+- [x] Failure labels and DPO-style preference rows emitted from the expanded
+  candidate failures.
+- [x] Factory run folder contains config, dataset, train log,
+  baseline/candidate evals, row traces, report, artifact metadata, and
+  decision.
+- [ ] Run preference tuning or move to a public benchmark slice before any ship
+  claim.
 
 ## Reference patterns
 
@@ -79,6 +78,5 @@ task" is much stronger than "we did this for one task."
 
 ## Open questions
 
-- Which domain. **Recommendation:** defer the binary choice to
-  A1-ship-time; decide based on InterCode-Bash vs Spider setup
-  friction.
+- Which public benchmark replaces the toy fixture after the POC: Spider is the
+  default unless another SQLite-backed text-to-SQL set is lower friction.

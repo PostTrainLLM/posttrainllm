@@ -1,0 +1,28 @@
+{
+  "curriculum_or_domain_counts": {
+    "aggregate": 714,
+    "clinic": 720,
+    "company": 690,
+    "filter": 306,
+    "group_having": 1096,
+    "join": 3120,
+    "library": 570,
+    "order_limit": 226,
+    "projection": 105,
+    "retail": 540,
+    "school": 720
+  },
+  "gate": {
+    "public_exact_min": 0.484,
+    "synthetic_execution_target": 0.86
+  },
+  "public_repeat": 1,
+  "public_train": "evals/sql-public-bmc2-train-v4-joinweighted/train.jsonl",
+  "rows": 8807,
+  "source_counts": {
+    "public": 5567,
+    "synthetic": 3240
+  },
+  "synthetic_repeat": 30,
+  "synthetic_train": "evals/sql-poc-expanded/train.jsonl"
+}

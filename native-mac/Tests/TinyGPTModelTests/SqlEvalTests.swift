@@ -19,6 +19,14 @@ final class SqlEvalTests: XCTestCase {
         XCTAssertFalse(SqlEval.exactMatch("select a from t", "select b from t"))
     }
 
+    func test_extractFirstSelect_handlesProseWrappedSql() {
+        XCTAssertEqual(
+            SqlEval.extractFirstSelect("Answer: SELECT name FROM employees WHERE salary < 90000; Test case: no"),
+            "SELECT name FROM employees WHERE salary < 90000;"
+        )
+        XCTAssertNil(SqlEval.extractFirstSelect("Answer: engineering"))
+    }
+
     func test_score_aggregates() {
         let r = SqlEval.score(execMatches: [true, true, false, true],
                               exactMatches: [true, false, false, false])

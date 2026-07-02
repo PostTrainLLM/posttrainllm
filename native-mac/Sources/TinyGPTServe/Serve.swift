@@ -44,7 +44,8 @@ public enum Serve {
         var host = "127.0.0.1"
         var port: UInt16 = 8080
         var maxContext: Int? = nil
-        var loraPath: String? = nil
+        var loraPaths: [String] = []
+        var loraWeights: [Float] = []
         var draftModelPath: String? = nil
         var quantizeBits: Int? = nil
         var quantizeGroup: Int = 64
@@ -70,7 +71,10 @@ public enum Serve {
                 maxContext = n; i += 2
             case "--lora":
                 guard i + 1 < args.count else { exitUsage() }
-                loraPath = args[i + 1]; i += 2
+                loraPaths.append(args[i + 1]); i += 2
+            case "--lora-weight":
+                guard i + 1 < args.count else { exitUsage() }
+                loraWeights.append(Float(args[i + 1]) ?? 1.0); i += 2
             case "--draft-model":
                 guard i + 1 < args.count else { exitUsage() }
                 draftModelPath = args[i + 1]; i += 2
@@ -142,9 +146,11 @@ public enum Serve {
             if toolsSpec == nil && toolMode == .deferred {
                 fputs("warning: --tool-mode deferred is a no-op without --tools.\n", stderr)
             }
+            while loraWeights.count < loraPaths.count { loraWeights.append(1.0) }
             let server = try Server.boot(modelPath: modelPath, host: host, port: port,
                                           maxContextOverride: maxContext,
-                                          loraPath: loraPath,
+                                          loraPaths: loraPaths,
+                                          loraWeights: loraWeights,
                                           draftModelPath: draftModelPath,
                                           quantizeBits: quantizeBits,
                                           quantizeGroup: quantizeGroup,
@@ -158,9 +164,14 @@ public enum Serve {
                                           eosStopEnabled: eosStopEnabled)
             print("tinygpt serve — listening on http://\(host):\(server.port)")
             print("model: \(modelPath)  ·  ctx=\(server.maxContext)  ·  vocab=\(server.config.vocabSize)")
-            if let lp = loraPath { print("lora:  \(lp)") }
+            if !loraPaths.isEmpty {
+                let desc = loraPaths.enumerated().map { idx, path in
+                    "\(path) @ \(loraWeights[idx])"
+                }.joined(separator: " + ")
+                print("lora:  \(desc)")
+            }
             if let dm = draftModelPath { print("draft: \(dm)  (speculative decoding, greedy/T=0)") }
-            if let qb = quantizeBits, loraPath == nil {
+            if let qb = quantizeBits, loraPaths.isEmpty {
                 print("quantized: int\(qb) (group=\(quantizeGroup))")
             }
             if let gp = grammarPath { print("grammar: \(gp)") }
@@ -204,6 +215,8 @@ public enum Serve {
                               (useful when running lm-eval on long-prompt tasks
                                like MMLU-Pro where the harness sometimes overshoots)
         --lora <path.lora>    Apply a LoRA adapter on top of the base before serving.
+                              Repeat to compose multiple adapters.
+        --lora-weight F       Per-adapter mix weight when composing (default 1.0).
                               Works for both .tinygpt and HF-dir bases.
         --draft-model <path>  Speculative decoding: a small fast draft model proposes
                               tokens that the main model verifies in one forward. Lossless
@@ -348,7 +361,8 @@ extension Serve {
         }
 
         static func boot(modelPath: String, host: String, port: UInt16,
-                          maxContextOverride: Int?, loraPath: String? = nil,
+                          maxContextOverride: Int?, loraPaths: [String] = [],
+                          loraWeights: [Float] = [],
                           draftModelPath: String? = nil,
                           quantizeBits: Int? = nil,
                           quantizeGroup: Int = 64,
@@ -374,23 +388,36 @@ extension Serve {
             let load = try ModelLoader.load(modelPath)
             let cfg = load.config
 
-            // Optional LoRA adapter — applied AFTER base load. Routes to
-            // the right injector based on model class (fromScratch vs
-            // huggingFace), using the same adapter file format.
-            if let lp = loraPath {
-                let adapter = try LoraAdapterReader.read(URL(fileURLWithPath: lp))
-                switch load.model {
-                case .fromScratch(let m):
-                    try LoraAdapterReader.apply(adapter, to: m)
-                case .huggingFace(let m):
-                    try LoraAdapterHFReader.apply(adapter, to: m)
+            // Optional LoRA adapters — applied AFTER base load. One adapter
+            // preserves the legacy path; multiple adapters are stacked by
+            // summing weighted deltas at each target Linear.
+            var effectiveLoraWeights = loraWeights
+            while effectiveLoraWeights.count < loraPaths.count {
+                effectiveLoraWeights.append(1.0)
+            }
+            if !loraPaths.isEmpty {
+                let adapters = try loraPaths.map { try LoraAdapterReader.read(URL(fileURLWithPath: $0)) }
+                if adapters.count == 1 {
+                    switch load.model {
+                    case .fromScratch(let m):
+                        try LoraAdapterReader.apply(adapters[0], to: m)
+                    case .huggingFace(let m):
+                        try LoraAdapterHFReader.apply(adapters[0], to: m)
+                    }
+                } else {
+                    switch load.model {
+                    case .fromScratch(let m):
+                        try LoraStackInjection.apply(adapters, weights: effectiveLoraWeights, to: m)
+                    case .huggingFace(let m):
+                        try LoraStackInjectionHF.apply(adapters, weights: effectiveLoraWeights, to: m)
+                    }
                 }
             }
             // In-memory quantization — same semantics as Sample.swift:
             // skipped under --lora because quantizing a LoraLinear (a
             // Linear subclass) discards the adapter delta.
             if let bits = quantizeBits {
-                if loraPath != nil {
+                if !loraPaths.isEmpty {
                     fputs("warning: --quantize ignored when --lora is in play (would discard the adapter delta). Skipping.\n", stderr)
                 } else {
                     MLXNN.quantize(model: load.model.module, groupSize: quantizeGroup, bits: bits)
@@ -460,8 +487,12 @@ extension Serve {
             }
             let fingerprint = [
                 "model:\(modelPath):\(KVCachePersist.fingerprint(of: modelPath))",
-                loraPath.map { "lora:\($0):\(KVCachePersist.fingerprint(of: $0))" } ?? "lora:none",
-                (quantizeBits != nil && loraPath == nil)
+                loraPaths.isEmpty
+                    ? "lora:none"
+                    : zip(loraPaths, effectiveLoraWeights).map { path, weight in
+                        "lora:\(path):\(weight):\(KVCachePersist.fingerprint(of: path))"
+                    }.joined(separator: ","),
+                (quantizeBits != nil && loraPaths.isEmpty)
                     ? "quant:int\(quantizeBits!):g\(quantizeGroup)" : "quant:none"
             ].joined(separator: "|")
 

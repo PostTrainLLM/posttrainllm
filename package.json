@@ -2,5 +2,8 @@
   "private": true,
   "scripts": {
     "deploy": "node scripts/manual-deploy.mjs deploy.yml ci.yml"
+  },
+  "devDependencies": {
+    "wrangler": "^4.107.0"
   }
 }

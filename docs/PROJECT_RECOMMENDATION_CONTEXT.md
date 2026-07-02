@@ -1,6 +1,6 @@
 # Project Recommendation Context
 
-Generated: 2026-06-06T21:14:19.634Z
+Generated: 2026-07-02T00:00:00.000Z
 
 This file is a CodeVetter Repo Unpacked-inspired audit written for Starboard recommendations. It is intentionally local, evidence-oriented, and safe to commit: it records product context, feature areas, stack inventory, and recommendation guidance without secrets or environment values.
 
@@ -13,11 +13,17 @@ This file is a CodeVetter Repo Unpacked-inspired audit written for Starboard rec
 
 ## Product Context
 
-TinyGPT.
+TinyGPT is now framed as a **Mac-local specialist factory**. The active product
+loop is target -> data -> post-training -> eval -> package -> report. The
+browser GPT-from-scratch playground remains a successful public demo and
+learning artifact, but the active work center is the native Swift/MLX factory
+CLI, run artifacts, eval gates, and specialist package reports.
 
-TinyGPT is a from-scratch GPT-2-shaped transformer project with browser training/inference, Python/PyTorch references, C++/WASM, WGSL/WebGPU acceleration, and a native macOS research track for local model experimentation.
-
-TinyGPT A GPT-2-shaped transformer, written from scratch and trained in your browser tab — 2.6× → 12.1× faster than the multi-threaded WebAssembly baseline thanks to hand-written WebGPU kernels. The speedup is a curve, not a single number: GPU work amortizes better as d model grows. Parity-tested to within 2.5% loss drift across the curve. Python reference, hand-written C++/WASM, hand-written WGSL — the same model at three levels, with every gradient pinned down by a test. Live playground → https://tinygpt.sarthakagrawal.dev · Speedup chart browser/speedup.html · Devlog browser/devlog.html · Roadmap browser/roadmap.html ! TinyGPT playground browser/public/og-image.png There is also a native 
+The current wedge is not a coding-agent product, a browser/WebGPU polish push,
+or broad research expansion. It is proving that TinyGPT can repeatedly turn a
+local base model plus task data into a measured specialist on a Mac, with
+before/after evals, regressions, cost/latency/RAM/tok-s, packaging metadata, and
+a ship/reject decision.
 
 ## Feature Map
 
@@ -31,9 +37,13 @@ TinyGPT A GPT-2-shaped transformer, written from scratch and trained in your bro
 
 ## Runtime Surfaces and Entrypoints
 
-- `browser/src/pages/devlog.astro`
-- `browser/src/pages/docs/[...slug].astro`
-- `browser/src/pages/docs/index.astro`
+- `PROJECT_STATUS.md`
+- `docs/NEXT.md`
+- `docs/factory/overview.md`
+- `docs/factory/run-schema.md`
+- `docs/factory/eval-protocol.md`
+- `docs/factory/packaging.md`
+- `docs/factory/reports.md`
 - `browser/src/pages/eval-leaderboard.astro`
 - `browser/src/pages/index.astro`
 - `browser/src/pages/leaderboard.astro`
@@ -135,28 +145,34 @@ Package scripts:
 ## Recommendation Guidance
 
 Good matches:
-- Repos that strengthen ai agents without replacing already-installed libraries.
-- Repos that strengthen ui workflows without replacing already-installed libraries.
-- Repos that strengthen testing and quality without replacing already-installed libraries.
-- Repos that strengthen content and media without replacing already-installed libraries.
-- Repos that strengthen browser and extensions without replacing already-installed libraries.
-- Repos that strengthen search and discovery without replacing already-installed libraries.
-- Repos that strengthen analytics and intelligence without replacing already-installed libraries.
-- Tools with concrete support for tinygpt, browser, native-mac, sources, webgpu, pages, model, src.
+- Repos that strengthen local model post-training, PEFT, preference tuning, eval
+  gates, dataset curation, trace conversion, specialist packaging, or before/after
+  reporting.
+- Tools that help implement the factory loop without replacing the existing
+  Swift/MLX, Astro, or eval infrastructure.
+- Focused benchmark/report utilities that can attach cost, latency, RAM, tok-s,
+  and regression data to a run artifact.
+- Tools with concrete support for TinyGPT's native factory path:
+  `native-mac`, `evals`, `scripts`, `docs/factory`, `specialists`.
 - Implementation repos, SDKs, CLIs, testing utilities, adapters, and focused libraries are higher value than generic awesome lists.
 
 Avoid recommending:
 - Do not recommend packages already listed under direct or development dependencies unless the task is migration research.
 - Do not recommend broad framework replacements unless the project context explicitly calls for a rewrite.
 - Downrank curated lists, archived repos, stale demos, and generic UI kits that do not map to the feature catalog.
+- Downrank browser/WebGPU polish, VLM, ANE/CoreML, or Tier 5 research tooling
+  unless the current factory run explicitly needs it.
 
 ## Evidence Read
 
 Primary docs and handoff files:
 - `AGENTS.md`
-- `HANDOFF.md`
 - `PROJECT_STATUS.md`
 - `README.md`
+- `docs/NEXT.md`
+- `docs/factory/overview.md`
+- `docs/factory/run-schema.md`
+- `docs/factory/eval-protocol.md`
 - `docs/CITATIONS.md`
 - `docs/MAP.md`
 - `docs/PLAN.md`

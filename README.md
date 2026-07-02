@@ -12,7 +12,7 @@ on. The full writeup, methodology, and head-to-head table is
 
 **[Live browser playground →](https://tinygpt.sarthakagrawal.dev)**
 · [Mac CLI quickstart](#quickstart-mac)
-· [Roadmap](docs/PLAN.md)
+· [Current factory plan](docs/NEXT.md)
 · [Frontier-parity result](docs/learn/tool-calling-frontier-parity.md)
 
 ![TinyGPT playground](browser/public/og-image.png)
@@ -23,13 +23,14 @@ on. The full writeup, methodology, and head-to-head table is
 
 | Surface | What it does | Where to look |
 |---|---|---|
-| **CLI** (`tinygpt`) | Pretrain · fine-tune (LoRA/DoRA/QLoRA/PEFT bundle) · DPO · ES · distill · serve · agent · ~30 subcommands. MLX-Swift on Apple Silicon. | [`native-mac/`](native-mac/) |
-| **Mac app** (SwiftUI) | GUI shell over the CLI: Sample · Train · Eval · Trace · Interp · Serve. | [`native-mac/Sources/TinyGPTApp/`](native-mac/Sources/TinyGPTApp/) |
+| **Factory CLI** (`tinygpt`) | Data prep · post-training · eval gates · traces · packaging · serve/agent/runtime utilities. MLX-Swift on Apple Silicon. | [`native-mac/`](native-mac/), [`docs/NEXT.md`](docs/NEXT.md) |
+| **Factory docs** | Active sequence, run schema, eval protocol, packaging, and report shape. | [`docs/factory/`](docs/factory/) |
+| **Mac app** (SwiftUI) | GUI shell over the CLI. Parked except for a future minimal Factory Run Center. | [`native-mac/Sources/TinyGPTApp/`](native-mac/Sources/TinyGPTApp/), [`docs/parked/app-polish.md`](docs/parked/app-polish.md) |
 | **Eval moat** | E0 shared schema · BFCL · τ-bench · lm-eval (MLX-routed) · HumanEval (sandbox-exec) · eval-gate (CI). | [`docs/leaderboard.md`](docs/leaderboard.md), [`docs/research/mac_slm_leaderboard_v0.md`](docs/research/mac_slm_leaderboard_v0.md) |
 | **Agent runtime** | OpenAI + Ollama-compatible local serve · multi-turn loop · FSM-constrained JSON · cloud-escalate · token-preserving `.atraj` trajectories. | [`docs/agent_runtime.md`](docs/agent_runtime.md) |
 | **Interp** | SAE (per-layer + group) · SAELens export · MEMIT · ROME · tuned/logit lens · activation patching. | [`docs/interpretability.md`](docs/interpretability.md) |
-| **Browser playground** | The original surface: GPT-2 trained from scratch in a browser tab via hand-written WebGPU. 2.6× → 12.1× speedup vs WASM SIMD as `d_model` grows. | [`browser/`](browser/), [live](https://tinygpt.sarthakagrawal.dev) |
-| **ANE M8** | Layer-chunked Core ML chain running Qwen3-28-block on the Apple Neural Engine at ~17 tok/s. | [`docs/PLAN.md`](docs/PLAN.md) §1 Mac runtime |
+| **Browser playground** | The original surface: GPT-2 trained from scratch in a browser tab via hand-written WebGPU. Parked for active factory work. | [`browser/`](browser/), [live](https://tinygpt.sarthakagrawal.dev), [`docs/parked/browser.md`](docs/parked/browser.md) |
+| **ANE M8** | Layer-chunked Core ML chain running Qwen3-28-block on the Apple Neural Engine at ~17 tok/s. Parked until a shipped specialist needs runtime optimization. | [`docs/parked/ane-coreml.md`](docs/parked/ane-coreml.md) |
 
 ---
 
@@ -126,8 +127,7 @@ multi-GPU, no cloud, no asterisk.
 - A single-developer project that ships in public, MIT-licensed.
 - Mac-first (Apple Silicon, MLX-Swift). The Linux/CUDA path is not
   built. Browser path stays first-class.
-- A factory: train → fine-tune → distill → eval-gate → serve, all
-  locally, all reproducible from one binary.
+- A factory: target → data → post-training → eval → package → report.
 
 **What this isn't (yet):**
 
@@ -177,8 +177,12 @@ tinygpt/
 
 Start here:
 
-- [`docs/PLAN.md`](docs/PLAN.md) — the canonical project ledger.
-  Shipped / skipped / TODO with status legend.
+- [`PROJECT_STATUS.md`](PROJECT_STATUS.md) — current state and active scope.
+- [`docs/NEXT.md`](docs/NEXT.md) — the active factory sequence.
+- [`docs/factory/`](docs/factory/) — run schema, eval protocol, packaging,
+  and report templates.
+- [`docs/parked/`](docs/parked/) — paused lanes that should not compete with
+  the current factory proof.
 - [`docs/learn/tool-calling-frontier-parity.md`](docs/learn/tool-calling-frontier-parity.md)
   — the strongest measured result, head-to-head methodology.
 - [`docs/agent_runtime.md`](docs/agent_runtime.md) — the agent
@@ -189,6 +193,8 @@ Start here:
   — the Mac SLM leaderboard.
 - [`native-mac/ARCHITECTURE.md`](native-mac/ARCHITECTURE.md) —
   top-down tour of the Mac codebase.
+- [`docs/PLAN.md`](docs/PLAN.md) — long historical ledger. Useful, but not the
+  active queue.
 
 Deeper:
 

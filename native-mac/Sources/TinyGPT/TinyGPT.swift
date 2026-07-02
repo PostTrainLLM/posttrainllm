@@ -53,6 +53,8 @@ struct TinyGPT {
             Train.run(args: Array(args.dropFirst()))
         case "quickstart":
             QuickstartCommand.run(args: Array(args.dropFirst()))
+        case "factory-run":
+            FactoryRunCommand.run(args: Array(args.dropFirst()))
         case "eval":
             Eval.run(args: Array(args.dropFirst()))
         case "eval-indic":
@@ -300,6 +302,7 @@ struct TinyGPT {
           tinygpt infer-heatmap <trace.json> render an inference latency heatmap
           tinygpt bench-train [flags] training-throughput benchmark vs. WebGPU baseline
           tinygpt synthesize [flags] label prompt JSONL via an OpenAI-compatible teacher
+          tinygpt factory-run <sub>  render/validate a canonical factory run folder
           tinygpt tokenize-train [flags] train a domain BPE tokenizer.json
           tinygpt export-mlx <artifact> export .tinygpt/.lora/HF dir for MLX use
           tinygpt rerank-train [flags] train a lightweight reranker artifact

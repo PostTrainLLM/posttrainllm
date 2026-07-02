@@ -1,0 +1,26 @@
+{
+  "dataset_id": "sql-routed-mixed-v1",
+  "public_rows": 64,
+  "synthetic_rows": 50,
+  "mixed_rows": 114,
+  "router": {
+    "script": "scripts/run_sql_routed_generate.py",
+    "mode": "schema/eval-family classifier",
+    "label_field_required": false,
+    "rules": [
+      "db field -> synthetic adapter",
+      "source=b-mc2/sql-create-context -> public adapter",
+      "CREATE TABLE schema without db -> public adapter",
+      "compact schema prompt with local domain/question/gold -> synthetic adapter"
+    ],
+    "smoke": "evals/sql-routed-router-smoke.sh"
+  },
+  "current_best": {
+    "public_adapter": "runs/2026-07-02-sql-public-bmc2/qwen06-public-bmc2-v4-joinweighted.lora",
+    "synthetic_adapter": "runs/2026-07-02-sql-expanded-qwen06/qwen06-sql-expanded.lora",
+    "public_exact": 0.531,
+    "synthetic_execution": 0.86,
+    "synthetic_exact": 0.84,
+    "decision": "current-best-routed-artifact"
+  }
+}

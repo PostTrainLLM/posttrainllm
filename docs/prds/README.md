@@ -1,157 +1,51 @@
 # docs/prds/ — Product Requirement Briefs
 
-Self-contained briefs for parallel-agent tasks. Each PRD is written
-so an agent can pick it up cold, ship the task, and submit a PR without
-loading the full session context.
+Active work starts in [`../NEXT.md`](../NEXT.md), not here.
 
-**Shipped PRDs:** 51 completed/superseded briefs were removed on 2026-06-20 (recoverable from git history). This index lists active `not-started` / `partial` work only.
+Use this directory only when the active factory plan points to a PRD or when
+you need exact acceptance criteria for a deferred lane.
 
-**⚠️ Per-PRD `status:` frontmatter is unreliable** (stale in ~17 files). For code-verified status of every active PRD, see **[STATUS.md](STATUS.md)** (2026-06-20 audit: 4 done · 26 partial · 24 not-started · 6 non-task). That table is canonical when it disagrees with a PRD's frontmatter.
+## Start Here
 
-## How to use
+1. Read [`../../PROJECT_STATUS.md`](../../PROJECT_STATUS.md).
+2. Read [`../NEXT.md`](../NEXT.md).
+3. Read [`../factory/`](../factory/).
+4. Use [`PRIORITY.md`](PRIORITY.md) to find the relevant PRD.
+5. Open the PRD file only if it is P0/P1 for the current target or explicitly
+   named by the task.
 
-If you're a fresh agent: pick a `status: not-started` PRD, set the
-`owner:` field on your branch, work the acceptance criteria, submit
-a PR with the deliverables the PRD asks for.
+## Current Triage
 
-**Coordination rule**: every PRD names a small set of "don't touch"
-files. The maintainer merges those changes (typically a switch-case
-in `Sources/TinyGPT/TinyGPT.swift`) after reviewing your PR.
+[`PRIORITY.md`](PRIORITY.md) is the working map for all PRDs on disk:
 
-## Index
+- **P0** — build next for the first canonical factory run.
+- **P1** — useful immediately after the first candidate exists.
+- **P2** — later support.
+- **P3** — parked research.
+- **Archive candidates** — shipped, superseded, negative-result closed, or
+  upstream-blocked.
 
-> Eval pipelines (E1/E2/E5/E7/E8), browser viewers (eval-leaderboard, sae-timeline),
-> and the Rust performance tools (parquet-decoder, hf-downloader) all shipped and were
-> removed in the 2026-06-20 cleanup.
+Per-PRD frontmatter is stale in many files. `PRIORITY.md` and
+[`STATUS.md`](STATUS.md) win over frontmatter when they disagree.
 
-### Specialists (Tier A integration + Tier B follow-ons)
+## Do Not
 
-| PRD | What | Effort | Blocks / blocked-by |
-|---|---|---|---|
-| [A1 first-specialist-tool-caller](A1-first-specialist-tool-caller.md) | qwen3-4b + LoRA tool-calling specialist; +3pp BFCL ship gate | 3-5d | north-star validator; consumes E1/E8 + B23 |
-| [B1 second-specialist-shell-or-sql](B1-second-specialist-shell-or-sql.md) | cookie-cut A1 onto a 2nd domain to prove platform generality | 3-5d | blocked-by A1 |
-| [B6 mac-app-demo](B6-mac-app-demo.md) | Factory tab in the Mac app: drop data → train → eval → deploy a specialist end-to-end | 1w | blocked-by A1 + C10 |
-| [B8 multilingual-specialist](B8-multilingual-specialist.md) | Indic-focused specialist on Sarvam-Edge/Airavata base | 1-2w | blocked-by A7 (Indic eval baseline) |
-| [B25 scaledown-specialist](B25-scaledown-specialist.md) | extractive context-compression specialist; submit to ScaleDown leaderboard | 3-5d | needs E6 harness |
+- Do not pick a broad PRD just because it exists.
+- Do not revive browser/WebGPU, ANE/CoreML, VLM, Tier 5, broad app polish, or
+  coding-agent product work unless it directly unblocks the current factory run.
+- Do not write a new PRD for exploratory research. Record exploration in a
+  short session note or factory report instead.
 
-### Training-quality + optimizer (Tier B)
+## Archive Policy
 
-| PRD | What | Effort |
-|---|---|---|
-| [B10 quality-classifier](B10-quality-classifier.md) | FineWeb-Edu-style scorer + corpus filter | ~2d |
-| [B11 wsd-schedule](B11-wsd-schedule.md) | warmup-stable-decay LR; replaces cosine default | ~half-day |
-| [B12 loss-spike-recovery](B12-loss-spike-recovery.md) | auto-rollback on grad-norm spikes (uses adam-state-persist + C9) | ~1d |
-| [B14 speculative-decoding](B14-speculative-decoding.md) | Mini-Llama draft → Mega target; T=0 byte-equality gate | ~2-3d |
-| [B15 layerwise-lr-decay-sft](B15-layerwise-lr-decay-sft.md) | `--llrd γ` on sft/dpo/finetune; γ^k depth decay | ~half-day |
-| [B16 m5-na-prefill-bench](B16-m5-na-prefill-bench.md) | verify Apple's claimed M5 NA prefill speedup on our path | ~half-day |
-| [B18 nanochat-depth-knob](B18-nanochat-depth-knob.md) | `--depth N` auto-derives all pretrain HPs | ~1d |
-| [B21 micro-automixer](B21-micro-automixer.md) | Dirichlet+EI ratio search before specialist training | ~2-3d |
+This repo uses a soft archive first. Closed/superseded PRDs stay in place but
+are listed under `PRIORITY.md` archive candidates.
 
-### Interpretability (Tier B)
+Physically moving PRDs is allowed only when links are updated in the same
+change. This avoids breaking old session docs and PLAN references.
 
-| PRD | What | Effort |
-|---|---|---|
-| [B13 interp-on-checkpoints](B13-interp-on-checkpoints.md) | `tinygpt interp-replay` across a history dir → timeline JSONL | ~1-2d |
-| [B17 saelens-interop](B17-saelens-interop.md) | one-way `.sae` → SAELens/Neuronpedia exporter | ~2d |
-| [B19 group-sae](B19-group-sae.md) | one SAE per layer-group; ~4× cheaper training | ~2-3d |
+## Coordination Rule
 
-### Agent protocol (Tier B — Poolside discipline)
-
-| PRD | What | Effort |
-|---|---|---|
-| [B2-B7 router-family](B2-B7-router-family.md) | mini-router on real BFCL + bake-off + FSM-injection + specialist routing (bundled) | 1-2w |
-| [B5 cloud-escalate-training](B5-cloud-escalate-training.md) | train the specialist to emit `defer_to_cloud` instead of regex-trigger | ~1w |
-| [B23 agent-eval-protocol](B23-agent-eval-protocol.md) | repeated pass@1 with fixed budgets; mean ± σ + ci95 | ~1d |
-| [B26 deferred-tools](B26-deferred-tools.md) | `--tool-mode {full,deferred}` + `get_tool_info` meta-tool | shipped, BFCL gate pending |
-
-### RL-finetune (Tier B — Castform discipline)
-
-> B29 trace-to-training-data (v1) and B30 prompt-reasoning-classifier shipped and were removed in the 2026-06-20 cleanup.
-
-| PRD | What | Effort |
-|---|---|---|
-| [B28 composite-reward-framework](B28-composite-reward-framework.md) | typed multi-dim reward (correctness + conciseness + ... → total) | scaffolding shipped, integrations pending |
-
-### RL environments / arena (Tier B — open-ended, won't-saturate RL)
-
-| PRD | What | Effort |
-|---|---|---|
-| [self-improving-agents](self-improving-agents.md) | the closed loop (act→score→learn→curriculum); smallest proof = teacher-free ReST loop on the file-ops env that raises pass-rate; umbrella over the two below | PoC |
-| [game-rl-environment-poc](game-rl-environment-poc.md) | single NPC self-improves at one behavior in the fleet's own game via GRPO (in-game reward = RLVR) | PoC |
-| [local-model-arena-selfplay](local-model-arena-selfplay.md) | pit local vs frontier models in turn-based strategy games (steal TextArena); self-play-RL a local model to beat frontier zero-shot — match win/lose = verifiable reward | phase-2 PoC |
-| [capability-retention](capability-retention.md) | measure + preserve general intelligence when specializing a small model (specialization erodes breadth — measured §8.4-8.5); retention battery + data-mixing/merging/routing | backlog |
-
-### Distribution + project pinning
-
-| PRD | What | Effort |
-|---|---|---|
-| [B31 gallery-and-project-pins](B31-gallery-and-project-pins.md) | unified browser+Mac gallery manifest + `tinygpt.project.json` per-project model/dataset pins; flips the trace-loop dividend toward project-side serving | scaffolding shipped, CLI extensions pending |
-
-### Polish + harness (Tier C)
-
-| PRD | What | Effort |
-|---|---|---|
-| [C3 dora-ondisk-format](C3-dora-ondisk-format.md) | persist trained DoRA adapters (closes the gap with LoRA roundtrip) | ~1d |
-| [C4 tool-extractor-bpe](C4-tool-extractor-bpe.md) | BPE tokenizer path for the mini-router trainer | ~2d |
-| [C5 decode-jitter-thermal](C5-decode-jitter-thermal.md) | 30-min sustained decode bench + powermetrics sidecar | ~1d |
-| [C9 determinism-harness](C9-determinism-harness.md) | bit-exact replay of step N (uses Adam-state-persist) | ~2d |
-| [C10 train-run-dashboard](C10-train-run-dashboard.md) | `/train-viewer.astro` drag-drop live charts | ~1d |
-
-### Operations + measurement (Tier B / E)
-
-| PRD | What | Effort |
-|---|---|---|
-| [B9 energy-per-token](B9-energy-per-token.md) | J/token via powermetrics sidecar; leaderboard column | ~1d |
-| [E6 eval-scaledown](E6-eval-scaledown.md) | wrap ScaleBench into `tinygpt eval-scaledown`; unblocks B25 | ~half-day |
-
-### Market-landscape positioning (Tier B)
-
-Reframes shipped infra as product surfaces. See `docs/sessions/2026-06-13-market-landscape-mac-first.md`.
-
-| PRD | What | Effort |
-|---|---|---|
-| [B32 eval-ci-gate](B32-eval-ci-gate.md) | `tinygpt eval-gate` exits non-zero on regression; GitHub Action + pre-commit recipe | 🟡 shipped; live GPU run pending |
-| [B33 laptop-finetune-onboarding](B33-laptop-finetune-onboarding.md) | `tinygpt quickstart <data>` — data → trained specialist in one command (CLI sibling of B6) | 🟡 core + dry-run shipped; live GPU run pending |
-
-### Tier 5 — research frontier
-
-| PRD | What | Order |
-|---|---|---|
-| [5.1 reasoning-on-22M](5.1-reasoning-on-22M.md) | GRPO/DAPO at 22M; publishable negative-result-shaped artifact | 5-7d |
-| [5.2 testtime-compute-scaling](5.2-testtime-compute-scaling.md) | Snell quality-vs-FLOPs curve at 22M (+ stretch cross-size) | 3-5d |
-| [5.3 vision-language-toy](5.3-vision-language-toy.md) | LLaVA-style from-scratch VL on consumer hardware | ~2w |
-| [5.4 diffusion-lm-micro](5.4-diffusion-lm-micro.md) | discrete-masked-denoising 22M from-scratch | 1-2w |
-| [5.5 sparse-moe-kernels](5.5-sparse-moe-kernels.md) | Metal kernels for hard MoE routing (blocked upstream) | 2-3w when unblocked |
-| [5.6 tts-toy](5.6-tts-toy.md) | EnCodec + autoregressive over codebook IDs (after 5.3) | 2-4w |
-| [5.7 explainer-video-model](5.7-explainer-video-model.md) | structured DSL + renderer; visual-planner specialist (after A1-B8 + 5.3) | 3-6w |
-
-## File-touching protocol
-
-Every PRD's **"don't touch"** section names files that, if multiple
-agents edited in parallel, would conflict. The canonical list:
-
-- `Sources/TinyGPT/TinyGPT.swift` — dispatch table (one new
-  case per E* task; agents submit the diff line, maintainer merges)
-- `docs/PLAN.md` — single source of truth for status; maintainer
-  updates after each merge
-- `HANDOFF.md` — single source of truth for next-session pickup
-- `Package.swift` — only the maintainer adds new targets
-- `Package.resolved` — auto-generated; never hand-edit
-
-Everything else (new files, new tests, new scripts, new browser pages)
-is fair game per the per-PRD scope.
-
-## When to write a new PRD
-
-- A task is independent enough that another agent can ship it without
-  reading the current session
-- The scope is well-bounded (single feature, single file or small set)
-- Acceptance criteria can be stated in <10 bullets
-- There's a concrete pattern in the repo the agent can copy
-
-Don't write a PRD for:
-
-- Exploratory research / "figure out the right approach"
-- Anything requiring tight coordination across multiple files
-- Bugfixes — those are too small / the fix is usually obvious from the
-  symptom
+Every PRD's "don't touch" section names files that can conflict under parallel
+agent work. For the current factory push, prefer the new factory docs and avoid
+editing global dispatch/status files unless the task explicitly requires it.

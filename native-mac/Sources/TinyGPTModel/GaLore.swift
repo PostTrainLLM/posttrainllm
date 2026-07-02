@@ -332,12 +332,9 @@ private func scaleLayerItem(_ item: NestedItem<String, MLXArray>,
         // ancestor in the path. If absent → full LR (embeddings, norms,
         // lm_head). If present → scale by decay^(nLayers - 1 - N).
         let name = path.joined(separator: ".")
-        if let layerIdx = extractLayerIdx(name: name) {
-            let exponent = max(0, nLayers - 1 - layerIdx)
-            let factor = pow(decay, Float(exponent))
-            return .value(g * MLXArray(factor))
-        }
-        return .value(g)
+        return .value(g * MLXArray(layerwiseLRFactor(parameterName: name,
+                                                     decay: decay,
+                                                     nLayers: nLayers)))
     case .array(let elems):
         return .array(elems.enumerated().map { (i, e) in
             scaleLayerItem(e, path: path + [String(i)], decay: decay, nLayers: nLayers)
@@ -349,21 +346,4 @@ private func scaleLayerItem(_ item: NestedItem<String, MLXArray>,
         }
         return .dictionary(newDict)
     }
-}
-
-/// Parse a dotted parameter name like "blocks.7.attn.q_proj.weight"
-/// or "layers.3.self_attn.o_proj.weight" and return the layer index
-/// (7 / 3 here). Returns nil for non-layer paths (embeddings, final
-/// norm, lm_head).
-private func extractLayerIdx(name: String) -> Int? {
-    // Both "blocks.N" and "layers.N" are layer-prefixes. Walk the
-    // dotted components; if we see one of those keys, the next
-    // component is the index.
-    let parts = name.split(separator: ".")
-    for i in 0..<parts.count - 1 {
-        if parts[i] == "blocks" || parts[i] == "layers" {
-            return Int(parts[i + 1])
-        }
-    }
-    return nil
 }

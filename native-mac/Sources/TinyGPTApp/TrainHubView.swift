@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Train workspace = top-level segmented picker between training modes
+/// Factory workspace = top-level segmented picker between training modes
 /// (pretrain / fine-tune / DPO / distill), each routes to its own view.
 /// Restored 2026-06-07 PM after the consolidation pass dropped fine-tune
 /// from the sidebar — it was always shipped in the CLI, just hidden in
@@ -16,13 +16,13 @@ struct TrainHubView: View {
         var subtitle: String {
             switch self {
             case .pretrain:
-                return "Train a transformer from scratch on a text corpus. Watch loss drop live."
+                return "Build a baseline model from scratch on a text corpus."
             case .finetune:
-                return "LoRA / SFT a base model on instruction-response pairs. Save adapters."
+                return "SFT / LoRA a base model on target data and save an adapter."
             case .dpo:
-                return "Preference tuning — chosen vs rejected responses. Shapes style + helpfulness."
+                return "Preference tuning from chosen-vs-rejected pairs after SFT data exists."
             case .distill:
-                return "Distill a smaller specialist from a larger teacher. Local — no API spend."
+                return "Distill a specialist from a larger teacher or stronger local baseline."
             }
         }
     }
@@ -67,7 +67,7 @@ struct TrainHubView: View {
 struct DPOStubView: View {
     var body: some View {
         WorkspaceShelf(title: "DPO — preference tuning",
-                       tagline: "Shape model style + helpfulness via chosen-vs-rejected pairs.",
+                       tagline: "Factory step for good-vs-bad examples after a baseline eval exists.",
                        items: [
                         .init("CLI shipped",
                               "tinygpt dpo <base> --data prefs.jsonl --out model.lora",
@@ -76,7 +76,7 @@ struct DPOStubView: View {
                               "docs/recipes/distillation-fc.md describes the broader specialist arc",
                               .info),
                         .init("App UI",
-                              "queued — same shape as Fine-tune tab; sub-PRD when prioritized",
+                              "parked until the CLI factory loop proves before/after improvement",
                               .pending),
                        ])
     }
@@ -85,7 +85,7 @@ struct DPOStubView: View {
 struct DistillStubView: View {
     var body: some View {
         WorkspaceShelf(title: "Distill — teacher → student",
-                       tagline: "Distill a smaller specialist from a local teacher. Zero API spend.",
+                       tagline: "Factory step for compressing a stronger teacher into a measured specialist.",
                        items: [
                         .init("CLI shipped",
                               "tinygpt distill --teacher <model> --student <preset> --data <jsonl>",
@@ -94,7 +94,7 @@ struct DistillStubView: View {
                               "docs/recipes/distillation-fc.md — full Phi-3-mini → 22M function-calling spec",
                               .info),
                         .init("App UI",
-                              "queued — pick teacher (HF / local), pick student, pick data → train",
+                              "parked until run-schema/report orchestration exists in the CLI",
                               .pending),
                        ])
     }

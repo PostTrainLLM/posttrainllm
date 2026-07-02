@@ -1,12 +1,10 @@
 import SwiftUI
 
-/// Roadmap workspace — what tinygpt has shipped, what's actively in flight,
-/// what's queued next. Anchored to the (speed × accuracy) / cost formula
-/// per the 2026-06-09 North Star — every queued item must justify itself
-/// against a measurable formula delta.
+/// Legacy roadmap workspace. It is not exposed in ContentView.
 ///
-/// Replaces the old "Modalities" view: this is the canonical "what's the
-/// state of the project" surface.
+/// The active navigation is now PROJECT_STATUS.md + docs/NEXT.md +
+/// docs/factory/. Keep this view parked unless it is rebuilt as a minimal
+/// Factory Run Center.
 struct RoadmapView: View {
     var body: some View {
         ScrollView {

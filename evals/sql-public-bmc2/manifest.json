@@ -1,0 +1,1 @@
+{"dataset":"b-mc2/sql-create-context","split":"train[:2000]","limit":24,"metric":"normalized_exact_sql","notes":["public HF dataset derived from Spider/WikiSQL","schema-grounded exact-match only; no SQLite DB contents shipped","filtered to single-table SELECT examples for first public sanity check"]}

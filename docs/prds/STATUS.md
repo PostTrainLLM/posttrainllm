@@ -1,11 +1,16 @@
 # PRD status — code-verified audit (2026-06-20)
 
-Canonical, **code-cross-checked** status of every active PRD in `docs/prds/`.
+> Current prioritization lives in `docs/prds/PRIORITY.md`. This file is the
+> historical code-verified audit; use it for implementation evidence, not for
+> deciding what to build next.
+
+Historical, **code-cross-checked** status of every active PRD in `docs/prds/`.
 Each verdict was verified against `native-mac/Sources/`, `scripts/`, `evals/`,
 and `browser/src/` — **not** the PRD's own `status:` frontmatter, which is
 unreliable (many were stale; several said `not-started` while the feature had
-partly shipped). When a PRD's frontmatter disagrees with this table, **this
-table wins**.
+partly shipped). When a PRD's frontmatter disagrees with this table, treat this
+as the stronger implementation-evidence snapshot, then apply the current
+priority/archive map in `docs/prds/PRIORITY.md`.
 
 > Why this exists: a 2026-06-20 audit found frontmatter understated progress
 > and `docs/PLAN.md`'s `✅` markers overstated it (it marks features "shipped"
@@ -99,6 +104,13 @@ powermetrics), network installs (ScaleBench, sae_lens), a cloud API, or are
 multi-week from-scratch model builds (Tier 5) — not finishable in a CPU sandbox.
 
 ---
+
+## Legacy pre-implementation snapshot
+
+The section below is the earlier 2026-06-20 audit snapshot kept for detail. It
+is superseded by the implementation-session summary above when counts or PRD
+status disagree. For active work, start from `PROJECT_STATUS.md` and
+`docs/NEXT.md`.
 
 ## ✅ Done (4) — acceptance met; candidates for removal
 

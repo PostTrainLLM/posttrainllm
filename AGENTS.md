@@ -146,42 +146,50 @@ See `README.md`. Specs in `configs/`, guide in `docs/`, tests in `tests/`.
 This project is a sandbox: no SaaS Maker product record, deployment, or analytics
 wiring is expected unless explicitly requested.
 
-## Project sequencing (owner's call, do not re-litigate)
+## Project sequencing (owner's call, updated 2026-07-02)
 
-The order in which remaining major threads should land, as decided by the
-owner. **Polish is treated as a moat, not a finish line** — when a project
-catches a niche social moment, low-effort clones appear within days, and the
-original survives only if it's polished enough that the clones look obviously
-worse. So we spend longer here than the engineering-effort estimate suggests.
+The active project center is now the **Mac-local specialist factory**, not
+browser polish, a coding-agent product, or broad research expansion.
 
-1.  **Polish** — editorial passes + UI sweep + every rough edge sanded. Owner
-    explicit: clones will appear post-launch; this is what differentiates.
-2.  **Docs / learning** — turn this from "perf demo" into "how to build a
-    GPT from scratch, narrated."
-3.  **Further perf** — small safe pushes (operator fusion, async dispatch,
-    workgroup tuning). Capped at 1-2 days.
-4.  **Astro migration** — chosen for the speed (static-first, partial
-    hydration), Lighthouse scores, MDX content authoring, and the learning
-    value for the owner. Not just cleanup.
-5.  **Deploy + launch** (task #55) — blog post live, HN submission, X/Twitter
-    thread, link from portfolio. After this, decisions become data-driven.
-6.  **PostHog analytics** (task #56) — three events, no PII. Pairs with #5
-    so launch-day data starts flowing immediately.
-7.  **"Watch the model think" view** (task #57) — interactive forward-pass
-    visualization. The teaching-visualization lever; screenshots travel.
-8.  **Native macOS app** (`native-mac/`) — comes BEFORE FA2. Larger
-    models become natural here, which makes FA2's payoff worth the
-    multi-day effort. See `native-mac/ROADMAP.md`.
-9.  **Flash Attention 2** (task #47) — once big models are real in the
-    Mac app, FA2's long-context win pays off.
-10. **Pre-trained model gallery** — last. Implicit promise of the gallery
-    ("you can train these too") is only honest once the speed + Mac
-    paths are both shipped.
+Active loop:
 
-Items 5 + 6 can land in parallel with later polish/docs work — the deploy
-isn't gated on "everything perfect", and analytics is ~30 min once a project
-key is in hand. Items 1-4 are the in-session loop; 5-10 are the launch +
-beyond sequence. If asked to flip this order, ask the owner before acting.
+```text
+target -> data -> post-training -> eval -> package -> report
+```
+
+Before starting work, read:
+
+1. `PROJECT_STATUS.md` — current state and scope.
+2. `docs/NEXT.md` — active sequence only.
+3. `docs/factory/` — run schema, eval protocol, packaging, reports.
+4. `docs/prds/PRIORITY.md` — PRD priority map, only when PRD-level acceptance
+   criteria are needed.
+5. `docs/parked/` — paused lanes that should not compete with the factory proof.
+
+Every active task must answer one of these questions:
+
+1. Can we prepare or improve the data?
+2. Can we post-train a candidate?
+3. Can we evaluate it against a frozen baseline?
+4. Can we package it as a specialist artifact?
+5. Can we report score delta, regressions, cost, latency, RAM, tok/s, and a
+   ship/reject decision?
+
+If not, park it.
+
+Currently parked unless directly needed by the active factory run:
+
+- browser/WebGPU polish and launch prep
+- Astro migration
+- ANE/CoreML research
+- VLM work
+- Tier 5 research
+- broad Mac app polish
+- new PRD expansion
+
+The old polish-first launch sequence is superseded. Preserve the idea that
+polish matters, but apply it narrowly to the **Factory Run Center** and
+before/after reports after the CLI factory loop proves improvement.
 
 ## Safety rules for heavy GPU / compile loops (macOS host)
 

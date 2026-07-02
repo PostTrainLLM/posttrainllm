@@ -28,6 +28,37 @@ public enum SqlEval {
         return norm(a) == norm(b)
     }
 
+    /// Pull the first generated SQLite SELECT statement out of common model
+    /// wrappers such as "Answer: SELECT ...;" or fenced/prose completions.
+    /// Returns nil when no SELECT appears so callers can record the raw failure.
+    public static func extractFirstSelect(_ text: String) -> String? {
+        let lowered = text.lowercased()
+        guard let range = lowered.range(of: "select") else { return nil }
+        let startOffset = lowered.distance(from: lowered.startIndex, to: range.lowerBound)
+        let start = text.index(text.startIndex, offsetBy: startOffset)
+        let tail = text[start...]
+        if let semi = tail.firstIndex(of: ";") {
+            return String(tail[...semi]).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        let stopMarkers = ["\n\n", "\nanswer:", "\ncheck:", "\ntest case", "```"]
+        let lowerTail = String(tail).lowercased()
+        var stopOffset: Int?
+        for marker in stopMarkers {
+            if let markerRange = lowerTail.range(of: marker) {
+                let offset = lowerTail.distance(from: lowerTail.startIndex, to: markerRange.lowerBound)
+                if stopOffset == nil || offset < stopOffset! {
+                    stopOffset = offset
+                }
+            }
+        }
+        if let stopOffset {
+            let end = tail.index(tail.startIndex, offsetBy: stopOffset)
+            return String(tail[..<end]).trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return String(tail).trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     public struct Report: Equatable, Sendable {
         public let execAccuracy: Double
         public let exactMatch: Double

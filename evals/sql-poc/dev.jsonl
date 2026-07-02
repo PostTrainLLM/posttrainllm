@@ -1,0 +1,6 @@
+{"question":"List the names of employees in engineering.","gold_sql":"select e.name from employees e join departments d on e.dept_id = d.id where d.name = 'engineering';","db":"company.db"}
+{"question":"How many employees are in sales?","gold_sql":"select count(*) from employees e join departments d on e.dept_id = d.id where d.name = 'sales';","db":"company.db"}
+{"question":"Which department owns the Apollo project?","gold_sql":"select d.name from projects p join departments d on p.owner_dept_id = d.id where p.name = 'Apollo';","db":"company.db"}
+{"question":"List projects with a budget above 100000.","gold_sql":"select name from projects where budget > 100000;","db":"company.db"}
+{"question":"What is the highest salary in engineering?","gold_sql":"select max(e.salary) from employees e join departments d on e.dept_id = d.id where d.name = 'engineering';","db":"company.db"}
+{"question":"List employee names with salary below 90000.","gold_sql":"select name from employees where salary < 90000;","db":"company.db"}
