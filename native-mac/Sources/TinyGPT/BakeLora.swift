@@ -1,5 +1,4 @@
 import Foundation
-import Accelerate
 import TinyGPTIO
 import TinyGPTModel
 
@@ -100,10 +99,7 @@ enum BakeLora {
             fputs("lora read failed: \(error)\n", stderr); exit(1)
         }
         let scale = adapter.header.alpha / Float(adapter.header.rank)
-        if adapter.matrices.contains(where: { $0.m != nil }) {
-            fputs("bake-lora does not support DoRA adapter magnitudes yet; use a plain LoRA adapter or add magnitude-aware baking.\n", stderr)
-            exit(1)
-        }
+        let isDora = adapter.matrices.contains(where: { $0.m != nil })
         print("""
 
         tinygpt bake-lora
@@ -113,7 +109,7 @@ enum BakeLora {
         out:     \(outDir.path)
         rank:    \(adapter.header.rank)
         alpha:   \(adapter.header.alpha)
-        scale:   \(String(format: "%.3f", scale))   (alpha / rank, vanilla LoRA)
+        scale:   \(String(format: "%.3f", scale))   (alpha / rank\(isDora ? ", DoRA" : ", vanilla LoRA"))
         targets: \(adapter.header.targetSuffixes.joined(separator: ", "))
         entries: \(adapter.header.entries.count)
         out-dtype: \(outDtype.rawValue)
@@ -142,7 +138,7 @@ enum BakeLora {
             loraByKey[hfName] = LoraSlot(
                 loraA: a, aShape: entry.loraAShape,
                 loraB: b, bShape: entry.loraBShape,
-                scale: scale, name: entry.name
+                m: matrix.m, scale: scale, name: entry.name
             )
         }
 
@@ -214,6 +210,7 @@ enum BakeLora {
             "rank": adapter.header.rank,
             "alpha": adapter.header.alpha,
             "scale": Double(scale),
+            "variant": isDora ? "dora" : "lora",
             "targets": adapter.header.targetSuffixes,
             "entries": adapter.header.entries.count,
             "baked_at": ISO8601DateFormatter().string(from: Date()),
@@ -262,6 +259,7 @@ enum BakeLora {
     private struct LoraSlot {
         let loraA: [Float]; let aShape: [Int]
         let loraB: [Float]; let bShape: [Int]
+        let m: [Float]?
         let scale: Float
         let name: String
     }
@@ -345,94 +343,24 @@ enum BakeLora {
         )
     }
 
-    /// Bake one Linear's LoRA delta into its weight.
-    ///
-    /// Safetensors stores Linear `weight` as `[out, in]` (PyTorch convention).
-    /// LoRA adapter stores `loraA` as `[in, r]` and `loraB` as `[r, out]`.
-    /// The delta in the [out, in] frame is `(loraA @ loraB).T * scale`.
-    /// We compute it via a single GEMM `C = scale · loraB.T @ loraA.T`
-    /// — equivalent and avoids a transpose pass.
+    /// Bake one Linear's LoRA (or DoRA) delta into its weight.
     private static func bakeLoraIntoWeight(
         rawBytes: Data, dtype: String, shape: [Int],
         slot: LoraSlot, outDtype: String
     ) throws -> (bytes: Data, dtype: String) {
-        guard shape.count == 2 else {
-            throw BakeError("LoRA-targeted weight \(slot.name) has shape \(shape); expected 2-D")
+        let n = shape.reduce(1, *)
+        let weight = decodeToFloat32(bytes: rawBytes, dtype: dtype, count: n)
+        let matrices = LoraBake.Matrices(
+            loraA: slot.loraA, aShape: slot.aShape,
+            loraB: slot.loraB, bShape: slot.bShape,
+            m: slot.m, scale: slot.scale)
+        let baked: [Float]
+        do {
+            baked = try LoraBake.bake(weight: weight, shape: shape, matrices: matrices)
+        } catch let err as LoraBake.Error {
+            throw BakeError("baking '\(slot.name)': \(err.message)")
         }
-        let outF = shape[0]   // [out, in]
-        let inF = shape[1]
-        // Shape validation: loraA must be [in, r], loraB must be [r, out].
-        guard slot.aShape.count == 2,
-              slot.aShape[0] == inF,
-              slot.aShape[1] == slot.bShape[0],
-              slot.bShape.count == 2,
-              slot.bShape[1] == outF else {
-            throw BakeError("shape mismatch baking '\(slot.name)' into [out=\(outF), in=\(inF)]: A=\(slot.aShape), B=\(slot.bShape)")
-        }
-        let r = slot.aShape[1]
-        let n = outF * inF
-
-        // Decode base weight to fp32 (Accelerate ops want contiguous fp32).
-        var weight = decodeToFloat32(bytes: rawBytes, dtype: dtype, count: n)
-        precondition(weight.count == n, "decode size mismatch")
-
-        // Compute delta_[out, in] = scale * loraB.T @ loraA.T
-        //   loraA is [in, r] (row-major)  →  loraA.T is [r, in]
-        //   loraB is [r, out] (row-major) →  loraB.T is [out, r]
-        //   product is [out, in]
-        //
-        // Accelerate's cblas_sgemm:
-        //   C[M, N] = α A[M, K] @ B[K, N] + β C[M, N]
-        //   We want M=out, N=in, K=r, A=loraB.T, B=loraA.T.
-        //   Easier: use the OpTrans flags to multiply loraB and loraA in
-        //   their stored (non-transposed) layouts:
-        //     cblas_sgemm(RowMajor, TRANS_A, TRANS_B,
-        //                 M=out, N=in, K=r,
-        //                 α, loraB[r, out], ldb=out, loraA[in, r], lda=r,
-        //                 β=0, C[out, in], ldc=in)
-        //   - A = loraB stored as [K=r, M=out] → set TRANS_A to convert to [out, r]
-        //   - B = loraA stored as [N=in, K=r] → set TRANS_B to convert to [r, in]
-        //   Output written directly into a freshly-zeroed [out, in] buffer.
-        //
-        //   delta[j, i] = scale * Σ_k loraB[k, j] * loraA[i, k]
-        //
-        // Storage indices:
-        //   loraB[k, j] = bPtr[k * out + j]   (loraB is [r, out] row-major)
-        //   loraA[i, k] = aPtr[i * r + k]     (loraA is [in, r] row-major)
-        //   delta[j, i] = cPtr[j * in + i]
-        //
-        // Plain triple loop. Adapter baking runs once per export; vDSP_mmul
-        // would need an explicit transpose pass and BLAS is deprecated, so
-        // the loop wins on simplicity at this volume.
-        var delta = [Float](repeating: 0, count: n)
-        slot.loraB.withUnsafeBufferPointer { bPtr in
-            slot.loraA.withUnsafeBufferPointer { aPtr in
-                delta.withUnsafeMutableBufferPointer { cPtr in
-                    let scale = slot.scale
-                    for j in 0..<outF {
-                        for i in 0..<inF {
-                            var acc: Float = 0
-                            for k in 0..<r {
-                                acc += bPtr[k * outF + j] * aPtr[i * r + k]
-                            }
-                            cPtr[j * inF + i] = scale * acc
-                        }
-                    }
-                }
-            }
-        }
-
-        // Fused add: weight ← weight + delta.
-        weight.withUnsafeMutableBufferPointer { wPtr in
-            delta.withUnsafeBufferPointer { dPtr in
-                vDSP_vadd(dPtr.baseAddress!, 1,
-                          wPtr.baseAddress!, 1,
-                          wPtr.baseAddress!, 1,
-                          vDSP_Length(n))
-            }
-        }
-
-        let outBytes = encodeFromFloat32(floats: weight, dtype: outDtype)
+        let outBytes = encodeFromFloat32(floats: baked, dtype: outDtype)
         return (outBytes, outDtype)
     }
 
