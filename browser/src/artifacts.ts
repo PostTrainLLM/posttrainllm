@@ -1,5 +1,6 @@
 export type ArtifactState =
   | "release-ready-metadata"
+  | "release-ready-weights"
   | "candidate-current-best"
   | "report-ready-candidate"
   | "report-only"
@@ -48,6 +49,7 @@ export type ArtifactEntry = {
 
 export const stateLabel: Record<ArtifactState, string> = {
   "release-ready-metadata": "Release-ready metadata",
+  "release-ready-weights": "Release-ready weights",
   "candidate-current-best": "Current-best candidate",
   "report-ready-candidate": "Report-ready candidate",
   "report-only": "Report artifact",
@@ -173,9 +175,9 @@ export const artifacts: ArtifactEntry[] = [
     slug: "qwen3-4b-file-ops-distilled",
     title: "Qwen3-4B File-Ops Distilled",
     eyebrow: "First specialist package",
-    state: "release-ready-metadata",
+    state: "release-ready-weights",
     date: "2026-06-19",
-    kind: "Specialist package metadata",
+    kind: "Specialist package",
     tags: ["agentic", "distillation", "file ops", "BFCL"],
     summary:
       "A routed 4B file-operation specialist distilled from frontier/gold trajectories, with the breadth regression disclosed in the package.",
@@ -267,6 +269,121 @@ export const artifacts: ArtifactEntry[] = [
     ],
     nextAction:
       "Keep routed-only warnings attached and add a consumer pull/load smoke before wiring this into any app.",
+  },
+  {
+    slug: "hf-specialist-model-archive-v1",
+    title: "Hugging Face Specialist Model Archive v1",
+    eyebrow: "Artifact storage cleanup",
+    state: "report-only",
+    date: "2026-07-03",
+    kind: "Model archive index",
+    tags: ["Hugging Face", "artifacts", "specialists", "cleanup"],
+    summary:
+      "The local specialist model cache was promoted to Hugging Face or deleted when safely re-downloadable from upstream repos.",
+    lede:
+      "This archive makes artifact storage explicit: unique TinyGPT model outputs live on Hugging Face, while plain upstream base-model caches are removed locally instead of being mirrored under TinyGPT.",
+    metrics: [
+      { label: "TinyGPT HF repos", value: "5", context: "unique specialist or converted model artifacts" },
+      { label: "Local model cache", value: "cleared", context: "after upload/remote-size verification" },
+      { label: "Storage policy", value: "HF first", context: "R2 remains optional private cache or legacy mirror" },
+    ],
+    comparisons: [
+      {
+        name: "Hugging Face artifact storage",
+        metric: "public model distribution",
+        score: "active",
+        size: "model repos",
+        comparability: "Direct",
+        note: "Current target for public weights, adapters, and large specialist artifacts.",
+        sourceHref: "https://huggingface.co/sarthakagrawal927",
+      },
+      {
+        name: "Local Mac cache",
+        metric: "durable artifact storage",
+        score: "rejected",
+        size: "~30GB cleaned",
+        comparability: "Direct",
+        note: "Useful during training, but not the system of record after a model is uploaded or known re-downloadable.",
+      },
+      {
+        name: "Cloudflare R2",
+        metric: "artifact storage role",
+        score: "optional",
+        size: "private cache / legacy mirror",
+        comparability: "Directional",
+        note: "No longer the default public artifact store for model weights.",
+      },
+    ],
+    tables: [
+      {
+        title: "Uploaded TinyGPT artifacts",
+        columns: ["Artifact", "HF repo", "Status", "Readout"],
+        rows: [
+          [
+            "mt4b_fused",
+            "qwen3-4b-file-ops-distilled",
+            "release-ready",
+            "File-ops hard gate 58% -> 100%; breadth regression disclosed",
+          ],
+          [
+            "mt4b_rest_fused",
+            "qwen3-4b-rest-fused",
+            "archive",
+            "ReST breadth recovery variant: depth 100%, breadth 65%",
+          ],
+          [
+            "mt4b_mb_fused",
+            "qwen3-4b-multibackend-distilled",
+            "archive / failed attempt",
+            "Negative-transfer comparison artifact: depth 100%, breadth 31%",
+          ],
+          [
+            "vibethinker-3b-mlx",
+            "vibethinker-3b-mlx",
+            "archive",
+            "Local MLX conversion of the VibeThinker 3B reasoning specialist",
+          ],
+          [
+            "vibe_distill_fused",
+            "vibethinker-3b-agentic-distilled",
+            "archive",
+            "TinyGPT distilled VibeThinker variant; needs eval promotion before product use",
+          ],
+        ],
+      },
+      {
+        title: "Deleted upstream caches",
+        columns: ["Local cache", "Upstream repo", "Reason"],
+        rows: [
+          ["mxbai-embed-large-v1", "mixedbread-ai/mxbai-embed-large-v1", "Public upstream cache; no TinyGPT delta"],
+          ["qwen3-embedding-0.6b", "Qwen/Qwen3-Embedding-0.6B", "Public upstream cache; no TinyGPT delta"],
+          ["qwen3-vl-2b-instruct", "Qwen/Qwen3-VL-2B-Instruct", "Public upstream cache; no TinyGPT delta"],
+        ],
+      },
+    ],
+    evidence: [
+      { label: "File-ops HF model", href: "https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled" },
+      { label: "ReST HF model", href: "https://huggingface.co/sarthakagrawal927/qwen3-4b-rest-fused" },
+      { label: "Multibackend HF model", href: "https://huggingface.co/sarthakagrawal927/qwen3-4b-multibackend-distilled" },
+      { label: "VibeThinker MLX HF model", href: "https://huggingface.co/sarthakagrawal927/vibethinker-3b-mlx" },
+      { label: "VibeThinker distilled HF model", href: "https://huggingface.co/sarthakagrawal927/vibethinker-3b-agentic-distilled" },
+      { label: "HF storage policy", href: "/docs/factory/huggingface-artifact-storage" },
+      { label: "Public artifacts policy", href: "/docs/factory/public-artifacts" },
+    ],
+    blockers: [
+      {
+        blocker: "Archive entries are not ship decisions",
+        why: "Public weights can be useful as evidence without being the selected model for Pace or any product lane.",
+        unblock: "Promote only candidates with a current factory run, eval report, package metadata, and routed-use decision.",
+      },
+      {
+        blocker: "VibeThinker distilled eval needs promotion",
+        why: "The weights are preserved, but the public artifact should not imply a measured win until the eval evidence is attached.",
+        unblock: "Run the factory eval gate and publish a before/after report before using it as a specialist package.",
+      },
+    ],
+    nextAction:
+      "Use this as the public storage index. Future specialist pages should link to specific HF repos and keep failed variants visible as comparison evidence.",
   },
   {
     slug: "factory-run-schema-v1",

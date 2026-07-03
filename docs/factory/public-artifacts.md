@@ -55,6 +55,7 @@ Public copy should prefer "we beat X on this exact local gate" only for
 | Artifact | Type | State | Public value | Next release action |
 |---|---|---|---|---|
 | `qwen3-4b-file-ops-distilled` | Specialist package | `release-ready-weights` | Shows a real TinyGPT-built routed specialist: 58% -> 100% on file-ops hard gate, with breadth regression disclosed. | Keep routed-only warnings prominent; add a loader/pull smoke when wiring consumers. |
+| `hf-specialist-model-archive-v1` | Model archive index | `report-only` | Links every unique local specialist/conversion artifact moved to Hugging Face, and records which plain upstream caches were deleted. | Use as the storage index; promote individual models only after eval/report/package evidence exists. |
 | `qwen06-sql-routed-v1` | Routed SQL specialist POC | `report-ready-candidate` | Shows the factory/router pattern on SQL: public exact 0.531 and synthetic execution 0.860 using separate routed adapters. | Publish as report-only; package only after a public execution benchmark gate exists. |
 | `factory-run-schema-v1` | Process artifact | `report-only` | Explains the repeatable `target -> data -> post-training -> eval -> package -> report` contract. | Use the SQL routed rendered run as the canonical example. |
 | `browser-playground` | Demo artifact | `parked` | Public proof of the earlier browser/WASM/WebGPU learning track. | Keep parked unless it directly presents factory reports or artifacts. |
@@ -90,6 +91,41 @@ Release blockers:
 |---|---|---|
 | Breadth regression is real | The model is unsafe as a general planner. | Keep routed-only positioning in all public copy. |
 | Frontier/breadth caveat remains | The breadth suite is directly comparable but not fully frontier-validated. | Keep caveat in model card; do not oversell as general capability. |
+
+### `hf-specialist-model-archive-v1`
+
+Status: `report-only`
+
+Purpose: public storage index for model artifacts that were previously only
+durable because they existed in the local Mac cache. Hugging Face is now the
+public artifact store for unique TinyGPT weights and conversions; plain upstream
+base-model caches should be deleted locally instead of re-uploaded under
+TinyGPT.
+
+Uploaded TinyGPT artifacts:
+
+| Local cache | HF repo | Status | Evidence / readout |
+|---|---|---|---|
+| `mt4b_fused` | `https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled` | Release-ready specialist | File-ops hard gate 58% -> 100%; breadth regression disclosed. |
+| `mt4b_rest_fused` | `https://huggingface.co/sarthakagrawal927/qwen3-4b-rest-fused` | Archive / comparison model | ReST breadth recovery variant: depth 100%, breadth 65% vs stock breadth 60%. |
+| `mt4b_mb_fused` | `https://huggingface.co/sarthakagrawal927/qwen3-4b-multibackend-distilled` | Archive / failed attempt | Negative-transfer artifact: depth 100%, breadth 31%. |
+| `vibethinker-3b-mlx` | `https://huggingface.co/sarthakagrawal927/vibethinker-3b-mlx` | Archive / conversion | Local MLX conversion of `WeiboAI/VibeThinker-3B`. |
+| `vibe_distill_fused` | `https://huggingface.co/sarthakagrawal927/vibethinker-3b-agentic-distilled` | Archive / needs eval promotion | TinyGPT distilled VibeThinker variant; do not treat as a shipped specialist until a current eval report exists. |
+
+Deleted upstream caches:
+
+| Local cache | Upstream repo | Reason |
+|---|---|---|
+| `mxbai-embed-large-v1` | `https://huggingface.co/mixedbread-ai/mxbai-embed-large-v1` | Public upstream model; no TinyGPT delta. |
+| `qwen3-embedding-0.6b` | `https://huggingface.co/Qwen/Qwen3-Embedding-0.6B` | Public upstream model; no TinyGPT delta. |
+| `qwen3-vl-2b-instruct` | `https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct` | Public upstream model; no TinyGPT delta. |
+
+Release blockers:
+
+| Blocker | Why it matters | Unblock action |
+|---|---|---|
+| Archive entries are not ship decisions | Public weights can be useful evidence without being selected for Pace or any product lane. | Promote only candidates with a current factory run, eval report, package metadata, and routed-use decision. |
+| VibeThinker distilled eval needs promotion | The weights are preserved, but the public artifact should not imply a measured win yet. | Run the factory eval gate and publish a before/after report before using it as a specialist package. |
 
 ### `qwen06-sql-routed-v1`
 
@@ -198,8 +234,10 @@ Website page: `/artifacts/qwen06-sql-routed-v1`
 1. `qwen06-sql-routed-v1` report artifact: best current story for the factory
    thesis because it includes failed attempts, routing, blockers, and measured
    improvement.
-2. `qwen3-4b-file-ops-distilled` metadata artifact: strongest model win, but
+2. `qwen3-4b-file-ops-distilled` weights artifact: strongest model win, but
    weight distribution and routed-only caveats must be handled carefully.
-3. `factory-run-schema-v1`: publish as process proof using the SQL routed
+3. `hf-specialist-model-archive-v1`: keep public links to preserved weights and
+   failed variants without over-promoting them as product models.
+4. `factory-run-schema-v1`: publish as process proof using the SQL routed
    rendered run as the canonical example.
-4. `browser-playground`: leave parked unless it becomes a report browser.
+5. `browser-playground`: leave parked unless it becomes a report browser.
