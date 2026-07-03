@@ -3,6 +3,14 @@
   "id": "qwen3-4b-file-ops-distilled",
   "artifact_type": "hf_safetensors_directory",
   "local_path": "~/.cache/tinygpt/models/mt4b_fused",
+  "storage": {
+    "primary": "huggingface_hub",
+    "repo_type": "model",
+    "repo_id": "sarthakagrawal927/qwen3-4b-file-ops-distilled",
+    "status": "metadata-published",
+    "large_weights_published": false,
+    "r2": "legacy-optional-cache"
+  },
   "base_model": {
     "id": "Qwen/Qwen3-4B-Instruct-2507",
     "precision": "bf16",

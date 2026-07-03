@@ -120,6 +120,7 @@ const parkedArtifacts = artifacts.filter((entry) => entry.state === "parked");
   .card-head p { color: var(--faint); font: 600 11px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; margin: 0; }
   .card-head span { border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font: 12px/1 var(--font-mono); padding: 7px 9px; white-space: nowrap; }
   .card-head span[data-state="candidate-current-best"] { color: var(--warn); border-color: color-mix(in srgb, var(--warn), transparent 45%); }
+  .card-head span[data-state="report-ready-candidate"] { color: var(--warn); border-color: color-mix(in srgb, var(--warn), transparent 45%); }
   .card-head span[data-state="release-ready-metadata"] { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2), transparent 45%); }
   .card-head span[data-state="report-only"] { color: var(--blue); border-color: color-mix(in srgb, var(--blue), transparent 45%); }
   .artifact-card h3 { font-size: 24px; line-height: 1.15; margin: 0 0 10px; letter-spacing: 0; }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-19",
+  "updated": "2026-07-03",
   "packages": [
     {
       "id": "qwen3-4b-file-ops-distilled",
@@ -8,6 +8,13 @@
       "kind": "mac-safetensors-hf",
       "package_path": "specialists/qwen3-4b-file-ops-distilled",
       "artifact_path": "~/.cache/tinygpt/models/mt4b_fused",
+      "storage": {
+        "primary": "huggingface_hub",
+        "repo_type": "model",
+        "repo_id": "sarthakagrawal927/qwen3-4b-file-ops-distilled",
+        "status": "metadata-published",
+        "r2": "legacy-optional-cache"
+      },
       "base": "Qwen/Qwen3-4B-Instruct-2507",
       "base_precision": "bf16",
       "training": "frontier/gold trajectory distillation on GorillaFileSystem multi-turn tasks",

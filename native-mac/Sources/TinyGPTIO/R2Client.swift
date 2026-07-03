@@ -1,7 +1,11 @@
 import Foundation
 
-/// Cloudflare R2 client — shell-out wrapper around the `aws s3` CLI with
+/// Legacy Cloudflare R2 client — shell-out wrapper around the `aws s3` CLI with
 /// R2's S3-compatible endpoint.
+///
+/// Public TinyGPT artifacts now use Hugging Face Hub as the source of truth.
+/// Keep this client for private caches, old gallery artifacts, or explicit
+/// R2 mirror work only.
 ///
 /// Why shell-out rather than native Swift HTTP + SigV4: SigV4 signing is
 /// ~200 lines of HMAC chains that we'd have to maintain forever; `aws`

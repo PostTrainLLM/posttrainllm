@@ -17,8 +17,8 @@ Two surfaces:
 1. **Unified gallery manifest** — extend the existing
    `browser/public/gallery/manifest.json` so it lists not just the
    browser-loadable from-scratch `.bin` models but also the
-   *Mac-side* specialists (LoRA + DoRA adapters, GGUF base bundles,
-   .tinygpt full models, R2-hosted artifacts). One published JSON,
+  *Mac-side* specialists (LoRA + DoRA adapters, GGUF base bundles,
+  .tinygpt full models, Hugging Face-hosted artifacts). One published JSON,
    two clients (browser playground + `tinygpt` CLI), no parallel
    registries.
 
@@ -79,8 +79,9 @@ project file ships with a non-trivial `models` list.
   - `kind: GalleryModelKind`
   - `parent`: for adapters, the gallery id of the base model
     (e.g. `a1-tool-caller` has `parent: "qwen3-4b-instruct-2507"`)
-  - `r2_path`: relative path under the R2 bucket for Mac
-    artifacts that don't live in `browser/public/gallery/`
+  - `hf_repo`: Hugging Face repo id for Mac artifacts that don't live in
+    `browser/public/gallery/`
+  - `hf_revision`: optional pinned revision/commit
   - `tags`: `["tool-call", "english", "lora-adapter", ...]`
   - `benchmarks_extended`: composite-reward block per B28 +
     per-suite breakdowns (already partially covered by
@@ -111,7 +112,7 @@ project file ships with a non-trivial `models` list.
   }
   ```
 - New CLI: `tinygpt pull` resolves the project file + the gallery
-  manifest + the R2 bucket, fetches everything to
+  manifest + Hugging Face Hub, fetches everything to
   `~/.cache/tinygpt/`, prints what's missing.
 - New CLI: `tinygpt validate` checks every pin in
   `tinygpt.project.json` exists in the published gallery; flags
@@ -133,17 +134,16 @@ project file ships with a non-trivial `models` list.
 - Browser-side gallery UI changes (filter by `kind`, show
   adapters alongside bases). Browser team consumes the schema
   extension when ready.
-- `tinygpt pull` CLI extension — extends the existing
-  `Sources/TinyGPT/CloudPull.swift`; needs the published gallery
-  on R2 to test against. Spec is in this PRD.
+- `tinygpt pull` CLI extension — should resolve `hf_repo`/`hf_revision`
+  through Hugging Face Hub first; R2 remains a legacy mirror only.
 - `tinygpt validate` CLI — same.
 - Publishing `a1-tool-caller` as the first new gallery row — gated
   on A1 actually shipping.
 
 ## Scope — out
 
-- **HF Hub integration** as the source of truth. R2 is faster (no
-  egress) and we already own the pipeline.
+- **R2 as the source of truth.** It remains useful as a private cache, but
+  public artifacts should live on Hugging Face Hub.
 - **Multi-version pinning** with semver resolution. V1 is
   exact-id pinning. Versions come later if churn becomes a problem.
 - **Lockfile** (`tinygpt.project.lock.json`). Defer; until we
@@ -170,10 +170,10 @@ project file ships with a non-trivial `models` list.
   `specialists/registry.json` rather than the browser manifest because its
   7.5 GB HF/MLX safetensors artifact is not browser-loadable.
 - [ ] Publish Mac-side specialist entries into the unified gallery manifest
-  once the browser filters out `kind != "browser-bin"` rows and R2 paths are
+  once the browser filters out `kind != "browser-bin"` rows and HF repo ids are
   assigned.
 - [ ] `tinygpt pull` reads `./tinygpt.project.json`, fetches every
-  pin from R2, validates checksums (the `fileBytes` field from
+  pin from Hugging Face Hub, validates checksums (the `fileBytes` field from
   the manifest), reports skipped + failed.
 - [ ] `tinygpt validate` flags unknown ids.
 - [ ] Browser playground filters out `kind != browser-bin` rows
@@ -186,12 +186,10 @@ project file ships with a non-trivial `models` list.
 
 - `browser/src/gallery-schema.ts` — the existing schema; extend,
   don't fork.
-- `native-mac/Sources/TinyGPT/CloudPush.swift` /
-  `CloudPull.swift` / `CloudList.swift` — the R2 plumbing; `pull`
-  extends Pull, `validate` is a new sibling.
-- `docs/gallery_v2_plan.md` — the v1.5 + v2 roadmap; this PRD
-  supersedes its "v2 hosting" section since R2 is already shipped
-  and the new question is "what about Mac models?"
+- `scripts/plan_hf_artifact_upload.py` — stages specialist metadata for
+  Hugging Face upload without requiring secrets.
+- `docs/gallery_v2_plan.md` — the v1.5 + v2 roadmap; this PRD now
+  supersedes its old R2-first hosting stance for public Mac artifacts.
 
 ## Open questions
 

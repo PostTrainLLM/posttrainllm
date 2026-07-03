@@ -20,7 +20,9 @@ specialists/<id>/
 
 The package is metadata-first. Large weights are not committed here. The lock
 file points to the artifact location and records file sizes and hashes so a
-downloaded/cache copy can be verified.
+downloaded/cache copy can be verified. Public artifact storage should use
+Hugging Face Hub first; Cloudflare R2 is only an optional private cache or
+legacy mirror.
 
 Required files:
 
@@ -35,6 +37,17 @@ Required files:
 
 `registry.json` is the index used by docs, the Mac app, and future `tinygpt
 pull` / `tinygpt validate` work.
+
+## Hugging Face storage
+
+Stage a package for upload with:
+
+```bash
+python3 scripts/plan_hf_artifact_upload.py specialists/<id> --repo-id <hf-namespace>/<id>
+```
+
+The default staging mode copies only metadata. Use `--include-weights` only
+after a release decision explicitly approves uploading large model files.
 
 ## Current policy
 

@@ -1,3 +1,19 @@
+---
+base_model: Qwen/Qwen3-4B-Instruct-2507
+language:
+  - en
+library_name: transformers
+license: other
+pipeline_tag: text-generation
+tags:
+  - tinygpt
+  - mlx
+  - tool-calling
+  - function-calling
+  - agentic
+  - file-ops
+---
+
 # Qwen3-4B File-Ops Distilled
 
 ## Summary
@@ -12,6 +28,8 @@ It is a **routed specialist**, not the general Pace planner.
 
 - Package id: `qwen3-4b-file-ops-distilled`
 - Local artifact: `~/.cache/tinygpt/models/mt4b_fused`
+- Public storage target: Hugging Face Hub model repo, metadata-first
+  (`sarthakagrawal927/qwen3-4b-file-ops-distilled`)
 - Format: HF/MLX safetensors directory
 - Base: `Qwen/Qwen3-4B-Instruct-2507`
 - Precision: bf16
@@ -47,6 +65,8 @@ Qwen3-4B-Instruct-2507 bf16 with the plan-then-execute prompt.
 - It depends on correct routing. Bad routing turns a narrow win into a broad
   regression.
 - The artifact is multi-GB and is not committed to this repository.
+- Large weights are not uploaded yet; this public artifact currently publishes
+  metadata, prompt, eval report, and lockfile only.
 
 ## References
 

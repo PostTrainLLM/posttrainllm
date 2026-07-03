@@ -24,6 +24,10 @@ Weights, adapters, and large run outputs do not need to live in git, but the
 public artifact must explain where they came from, how they were evaluated, and
 why it is or is not ready to package.
 
+Public artifact storage target: Hugging Face Hub. Use Cloudflare R2 only as an
+optional private cache or legacy mirror. See
+`docs/factory/huggingface-artifact-storage.md`.
+
 Competition rows must be labeled as:
 
 | Label | Meaning |
@@ -67,6 +71,9 @@ Committed surface:
 - `specialists/qwen3-4b-file-ops-distilled/tinygpt.lock.json`
 - `specialists/qwen3-4b-file-ops-distilled/prompt.md`
 - `specialists/registry.json`
+- HF repo: `https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled`
+- HF staging command:
+  `python3 scripts/plan_hf_artifact_upload.py specialists/qwen3-4b-file-ops-distilled --repo-id sarthakagrawal927/qwen3-4b-file-ops-distilled`
 
 Measured evidence:
 
@@ -80,7 +87,7 @@ Release blockers:
 
 | Blocker | Why it matters | Unblock action |
 |---|---|---|
-| Weight distribution undecided | The lock points to `~/.cache/tinygpt/models/mt4b_fused`, not a public download. | Choose metadata-only release or publish the artifact to a durable host. |
+| Weight distribution undecided | The metadata is public on Hugging Face, but the multi-GB fused weights are not uploaded. | Keep metadata-only until an explicit weight-release decision approves hosting the fused files. |
 | Breadth regression is real | The model is unsafe as a general planner. | Keep routed-only positioning in all public copy. |
 | Frontier/breadth caveat remains | The breadth suite is directly comparable but not fully frontier-validated. | Keep caveat in model card; do not oversell as general capability. |
 

@@ -1,6 +1,7 @@
 export type ArtifactState =
   | "release-ready-metadata"
   | "candidate-current-best"
+  | "report-ready-candidate"
   | "report-only"
   | "blocked"
   | "parked";
@@ -48,6 +49,7 @@ export type ArtifactEntry = {
 export const stateLabel: Record<ArtifactState, string> = {
   "release-ready-metadata": "Release-ready metadata",
   "candidate-current-best": "Current-best candidate",
+  "report-ready-candidate": "Report-ready candidate",
   "report-only": "Report artifact",
   blocked: "Blocked",
   parked: "Parked",
@@ -58,7 +60,7 @@ export const artifacts: ArtifactEntry[] = [
     slug: "qwen06-sql-routed-v1",
     title: "Qwen3-0.6B Routed SQL Specialist",
     eyebrow: "SQL factory POC",
-    state: "candidate-current-best",
+    state: "report-ready-candidate",
     date: "2026-07-02",
     kind: "Routed adapter artifact",
     tags: ["SQL", "routing", "LoRA", "evals"],
