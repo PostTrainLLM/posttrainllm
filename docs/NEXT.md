@@ -39,7 +39,11 @@ Before starting a new run or release push, update the artifact entry with:
 - next release action
 
 Current priority artifact: `qwen06-sql-routed-v1` as a public report artifact,
-not yet a shipped specialist package.
+not yet a shipped specialist package. Render its canonical report run with:
+
+```bash
+python3 scripts/render_sql_factory_run.py --out runs/2026-07-02-sql-routed-qwen06-v1
+```
 
 ### 1. Pick the Factory Target
 
@@ -141,13 +145,13 @@ Exit criteria:
 
 ## Near-Term Cleanup Tasks
 
-1. Wire one CLI/report path around the run schema in
-   `docs/factory/run-schema.md`.
-2. Convert one existing specialist result into the new run artifact shape as a
-   fixture/example.
-3. Pick the next target and freeze its baseline eval.
-4. Run exactly one SFT-first candidate.
-5. Produce the first before/after factory report.
+1. Wire real train/eval commands to emit the run schema automatically, using
+   `scripts/render_sql_factory_run.py` as the report-artifact bridge.
+2. Run `scripts/build_sql_spider_execution_gate.py` against a local Spider DB
+   bundle and score the current routed candidate on execution accuracy.
+3. Measure routed SQL latency, RAM/peak RSS, and tok/s.
+4. Run exactly one preference-tuning/output-hygiene candidate.
+5. Re-render the before/after factory report and decide package vs retry.
 
 Use `docs/prds/PRIORITY.md` only when a task needs PRD-level acceptance
 criteria. Do not work from the full PRD list directly.

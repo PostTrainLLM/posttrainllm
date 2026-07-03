@@ -50,8 +50,8 @@ Public copy should prefer "we beat X on this exact local gate" only for
 | Artifact | Type | State | Public value | Next release action |
 |---|---|---|---|---|
 | `qwen3-4b-file-ops-distilled` | Specialist package metadata | `release-ready-metadata` | Shows a real TinyGPT-built routed specialist: 58% -> 100% on file-ops hard gate, with breadth regression disclosed. | Decide whether to release metadata-only first or publish/host the multi-GB fused weights. |
-| `qwen06-sql-routed-v1` | Routed SQL specialist POC | `candidate-current-best` | Shows the factory/router pattern on SQL: public exact 0.531 and synthetic execution 0.860 using separate routed adapters. | Convert to a public report artifact; package only after a public execution benchmark gate exists. |
-| `factory-run-schema-v1` | Process artifact | `report-only` | Explains the repeatable `target -> data -> post-training -> eval -> package -> report` contract. | Add one canonical rendered example run and link it from the README. |
+| `qwen06-sql-routed-v1` | Routed SQL specialist POC | `report-ready-candidate` | Shows the factory/router pattern on SQL: public exact 0.531 and synthetic execution 0.860 using separate routed adapters. | Publish as report-only; package only after a public execution benchmark gate exists. |
+| `factory-run-schema-v1` | Process artifact | `report-only` | Explains the repeatable `target -> data -> post-training -> eval -> package -> report` contract. | Use the SQL routed rendered run as the canonical example. |
 | `browser-playground` | Demo artifact | `parked` | Public proof of the earlier browser/WASM/WebGPU learning track. | Keep parked unless it directly presents factory reports or artifacts. |
 
 ## Artifact Details
@@ -86,7 +86,7 @@ Release blockers:
 
 ### `qwen06-sql-routed-v1`
 
-Status: `candidate-current-best`
+Status: `report-ready-candidate`
 
 Current artifact shape:
 
@@ -102,6 +102,14 @@ Current artifact shape:
   `evals/sql-routed-mixed-v1/`
 - Report:
   `docs/specialists/b1-sql-poc.md`
+- Canonical run renderer:
+  `scripts/render_sql_factory_run.py`
+- Run smoke:
+  `evals/sql-factory-run-smoke.sh`
+- Public execution gate builder:
+  `scripts/build_sql_spider_execution_gate.py`
+- Public execution gate smoke:
+  `evals/sql-spider-execution-smoke.sh`
 
 Measured evidence:
 
@@ -162,6 +170,20 @@ specialist package. The report should say: targeted 0.6B SQL adapter beats a
 small T5 baseline on the frozen public exact slice, but the robust artifact is a
 router over two specialists, and public execution benchmarking is the next gate.
 
+Canonical local render:
+
+```bash
+python3 scripts/render_sql_factory_run.py --out runs/2026-07-02-sql-routed-qwen06-v1
+```
+
+Spider execution gate once a local Spider bundle exists:
+
+```bash
+python3 scripts/build_sql_spider_execution_gate.py \
+  --spider-root /path/to/spider \
+  --out evals/sql-spider-execution
+```
+
 Website page: `/artifacts/qwen06-sql-routed-v1`
 
 ## Release Priority
@@ -171,6 +193,6 @@ Website page: `/artifacts/qwen06-sql-routed-v1`
    improvement.
 2. `qwen3-4b-file-ops-distilled` metadata artifact: strongest model win, but
    weight distribution and routed-only caveats must be handled carefully.
-3. `factory-run-schema-v1`: publish as process proof once one rendered run
-   folder is canonical.
+3. `factory-run-schema-v1`: publish as process proof using the SQL routed
+   rendered run as the canonical example.
 4. `browser-playground`: leave parked unless it becomes a report browser.

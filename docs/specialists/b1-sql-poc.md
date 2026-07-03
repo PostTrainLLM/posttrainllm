@@ -395,6 +395,15 @@ both current SQL gates, and it no longer depends on hand-authored route labels.
 The next real benchmark step is to run BIRD Mini-Dev SQLite or Spider execution
 fixtures once their DB bundles are local.
 
+Public execution gate scaffolding:
+
+- Builder: `scripts/build_sql_spider_execution_gate.py`.
+- Smoke: `evals/sql-spider-execution-smoke.sh`.
+- Input shape: local Spider bundle with `dev.json` and
+  `database/<db_id>/<db_id>.sqlite`.
+- Output: `dev.jsonl` rows compatible with `tinygpt eval-sql --db-dir
+  <spider-root>` after generation adds `predicted_sql`.
+
 ## BIRD-Augmented Public v5 Attempt
 
 Question: can broader schema-rich public SQL data improve the public adapter's
