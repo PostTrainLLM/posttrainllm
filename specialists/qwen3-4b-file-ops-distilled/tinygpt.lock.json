@@ -2,13 +2,15 @@
   "schema": "tinygpt.specialist.lock.v1",
   "id": "qwen3-4b-file-ops-distilled",
   "artifact_type": "hf_safetensors_directory",
-  "local_path": "~/.cache/tinygpt/models/mt4b_fused",
+  "local_path": null,
+  "public_uri": "hf://models/sarthakagrawal927/qwen3-4b-file-ops-distilled",
   "storage": {
     "primary": "huggingface_hub",
     "repo_type": "model",
     "repo_id": "sarthakagrawal927/qwen3-4b-file-ops-distilled",
-    "status": "metadata-published",
-    "large_weights_published": false,
+    "status": "weights-published",
+    "large_weights_published": true,
+    "weights_commit": "33a7244854f797e35b34ce05a6d5184f0949ada7",
     "r2": "legacy-optional-cache"
   },
   "base_model": {
@@ -64,7 +66,7 @@
     "loader": "mlx_load.py"
   },
   "notes": [
-    "Large weights are stored outside git.",
+    "Large weights are published on Hugging Face Hub, not stored in git or required to remain in local cache.",
     "Use mlx_load.py for metadata checks by default; pass --load to load arrays."
   ]
 }

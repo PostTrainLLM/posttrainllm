@@ -49,7 +49,13 @@ def package_id(package_dir: Path) -> str:
     return package_dir.name
 
 
-def stage_package(package_dir: Path, repo_id: str, out_dir: Path, include_weights: bool) -> None:
+def stage_package(
+    package_dir: Path,
+    repo_id: str,
+    out_dir: Path,
+    include_weights: bool,
+    weights_source: str | None,
+) -> None:
     package_dir = package_dir.resolve()
     if not package_dir.exists():
         raise SystemExit(f"package not found: {package_dir}")
@@ -80,16 +86,24 @@ def stage_package(package_dir: Path, repo_id: str, out_dir: Path, include_weight
         "package_dir": str(package_dir.relative_to(ROOT)),
         "metadata_files": copied,
         "large_weights_included": include_weights,
+        "large_weights_published": bool(lock.get("storage", {}).get("large_weights_published")),
         "large_weight_policy": (
             "included in this staged directory"
             if include_weights
-            else "not staged by default; upload only after ship decision and size review"
+            else (
+                "already published in the target Hugging Face repo"
+                if lock.get("storage", {}).get("large_weights_published")
+                else "not staged by default; upload only after ship decision and size review"
+            )
         ),
         "source_lock": "tinygpt.lock.json",
     }
 
     if include_weights:
-        local_path = Path(str(lock["local_path"])).expanduser()
+        source = weights_source or lock.get("local_path")
+        if not source:
+            raise SystemExit("--include-weights requires --weights-source when lock local_path is empty")
+        local_path = Path(str(source)).expanduser()
         if not local_path.exists():
             raise SystemExit(f"local artifact path missing: {local_path}")
         weights_dir = out_dir / "weights"
@@ -122,6 +136,10 @@ def main() -> None:
         action="store_true",
         help="Also copy large local weight files into the staging directory. Off by default.",
     )
+    ap.add_argument(
+        "--weights-source",
+        help="Local HF/MLX artifact directory to copy when --include-weights is set.",
+    )
     args = ap.parse_args()
 
     package_dir = (ROOT / args.package).resolve()
@@ -133,7 +151,7 @@ def main() -> None:
 
     if out_dir.exists():
         shutil.rmtree(out_dir)
-    stage_package(package_dir, repo_id, out_dir, args.include_weights)
+    stage_package(package_dir, repo_id, out_dir, args.include_weights, args.weights_source)
 
 
 if __name__ == "__main__":

@@ -18,11 +18,11 @@ specialists/<id>/
   mlx_load.py
 ```
 
-The package is metadata-first. Large weights are not committed here. The lock
-file points to the artifact location and records file sizes and hashes so a
-downloaded/cache copy can be verified. Public artifact storage should use
-Hugging Face Hub first; Cloudflare R2 is only an optional private cache or
-legacy mirror.
+The package is metadata-first in git. Large weights are not committed here; they
+should live on Hugging Face Hub once released. The lock file points to the
+artifact location and records file sizes and hashes so a downloaded/cache copy
+can be verified. Cloudflare R2 is only an optional private cache or legacy
+mirror.
 
 Required files:
 
@@ -47,7 +47,8 @@ python3 scripts/plan_hf_artifact_upload.py specialists/<id> --repo-id <hf-namesp
 ```
 
 The default staging mode copies only metadata. Use `--include-weights` only
-after a release decision explicitly approves uploading large model files.
+after a release decision explicitly approves uploading large model files; pass
+`--weights-source` if the local cache path is no longer recorded in the lock.
 
 ## Current policy
 

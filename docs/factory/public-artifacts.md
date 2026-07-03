@@ -44,6 +44,7 @@ Public copy should prefer "we beat X on this exact local gate" only for
 | State | Meaning |
 |---|---|
 | `release-ready-metadata` | Small committed metadata exists; large weights may still be external. |
+| `release-ready-weights` | Metadata and model weights are public on the artifact store. |
 | `candidate-current-best` | Best measured candidate, but not yet a shipped specialist package. |
 | `report-only` | Good public write-up/repro artifact, but no model should be used directly. |
 | `blocked` | Needs a named unblocker before public release work continues. |
@@ -53,7 +54,7 @@ Public copy should prefer "we beat X on this exact local gate" only for
 
 | Artifact | Type | State | Public value | Next release action |
 |---|---|---|---|---|
-| `qwen3-4b-file-ops-distilled` | Specialist package metadata | `release-ready-metadata` | Shows a real TinyGPT-built routed specialist: 58% -> 100% on file-ops hard gate, with breadth regression disclosed. | Decide whether to release metadata-only first or publish/host the multi-GB fused weights. |
+| `qwen3-4b-file-ops-distilled` | Specialist package | `release-ready-weights` | Shows a real TinyGPT-built routed specialist: 58% -> 100% on file-ops hard gate, with breadth regression disclosed. | Keep routed-only warnings prominent; add a loader/pull smoke when wiring consumers. |
 | `qwen06-sql-routed-v1` | Routed SQL specialist POC | `report-ready-candidate` | Shows the factory/router pattern on SQL: public exact 0.531 and synthetic execution 0.860 using separate routed adapters. | Publish as report-only; package only after a public execution benchmark gate exists. |
 | `factory-run-schema-v1` | Process artifact | `report-only` | Explains the repeatable `target -> data -> post-training -> eval -> package -> report` contract. | Use the SQL routed rendered run as the canonical example. |
 | `browser-playground` | Demo artifact | `parked` | Public proof of the earlier browser/WASM/WebGPU learning track. | Keep parked unless it directly presents factory reports or artifacts. |
@@ -62,7 +63,7 @@ Public copy should prefer "we beat X on this exact local gate" only for
 
 ### `qwen3-4b-file-ops-distilled`
 
-Status: `release-ready-metadata`
+Status: `release-ready-weights`
 
 Committed surface:
 
@@ -87,7 +88,6 @@ Release blockers:
 
 | Blocker | Why it matters | Unblock action |
 |---|---|---|
-| Weight distribution undecided | The metadata is public on Hugging Face, but the multi-GB fused weights are not uploaded. | Keep metadata-only until an explicit weight-release decision approves hosting the fused files. |
 | Breadth regression is real | The model is unsafe as a general planner. | Keep routed-only positioning in all public copy. |
 | Frontier/breadth caveat remains | The breadth suite is directly comparable but not fully frontier-validated. | Keep caveat in model card; do not oversell as general capability. |
 

@@ -16,7 +16,8 @@ R2 only as an optional private cache or legacy mirror.
   folders.
 - Do not commit HF tokens. Use `hf auth login` or `HF_TOKEN` from the
   shell environment.
-- Prefer metadata-only releases before uploading multi-GB fused weights.
+- Prefer metadata-only releases first; upload large weights after an explicit
+  release decision and remote verification plan.
 
 ## Repo Shape
 
@@ -65,23 +66,25 @@ hf upload sarthakagrawal927/qwen3-4b-file-ops-distilled \
   --repo-type model
 ```
 
-Only stage weights when we deliberately choose to publish them:
+Only stage weights when we deliberately choose to publish them. If the package
+lock no longer points to a local cache, pass `--weights-source`:
 
 ```bash
 python3 scripts/plan_hf_artifact_upload.py \
   specialists/qwen3-4b-file-ops-distilled \
   --repo-id sarthakagrawal927/qwen3-4b-file-ops-distilled \
+  --weights-source ~/.cache/tinygpt/models/mt4b_fused \
   --include-weights
 ```
 
 ## Current State
 
-The CLI is authenticated for metadata upload, and the first metadata-only
-specialist repo is live at:
+The CLI is authenticated, and the first specialist repo is live at:
 
 ```text
 https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled
 ```
 
-The current public release remains metadata-only until a separate weight-hosting
-decision approves uploading the multi-GB fused files.
+The fused model files were uploaded in commit
+`33a7244854f797e35b34ce05a6d5184f0949ada7` and verified against the lock by
+remote file size. Local cache copies are optional after that verification.

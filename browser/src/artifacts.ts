@@ -253,16 +253,12 @@ export const artifacts: ArtifactEntry[] = [
     ],
     evidence: [
       { label: "Model card", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/specialists/qwen3-4b-file-ops-distilled/model_card.md" },
+      { label: "Hugging Face model", href: "https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled" },
       { label: "Eval report", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/specialists/qwen3-4b-file-ops-distilled/eval_report.json" },
       { label: "Frontier parity writeup", href: "/docs/learn/tool-calling-frontier-parity" },
       { label: "Specialist registry", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/specialists/registry.json" },
     ],
     blockers: [
-      {
-        blocker: "Weight distribution undecided",
-        why: "The package lock points to a local cache path, not a public artifact host.",
-        unblock: "Decide metadata-only release vs durable hosted weight release.",
-      },
       {
         blocker: "Breadth regression",
         why: "The tuned model is wrong to use as a general planner.",
@@ -270,7 +266,7 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     nextAction:
-      "Release as metadata/model-card first, or publish the fused weights only with routed-only warnings attached.",
+      "Keep routed-only warnings attached and add a consumer pull/load smoke before wiring this into any app.",
   },
   {
     slug: "factory-run-schema-v1",

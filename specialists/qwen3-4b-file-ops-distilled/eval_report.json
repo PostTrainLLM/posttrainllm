@@ -1,7 +1,7 @@
 {
   "id": "qwen3-4b-file-ops-distilled",
   "updated": "2026-06-19",
-  "artifact": "~/.cache/tinygpt/models/mt4b_fused",
+  "artifact": "hf://models/sarthakagrawal927/qwen3-4b-file-ops-distilled",
   "base": "Qwen/Qwen3-4B-Instruct-2507",
   "precision": "bf16",
   "training_method": "frontier/gold trajectory distillation on GorillaFileSystem multi-turn tasks",

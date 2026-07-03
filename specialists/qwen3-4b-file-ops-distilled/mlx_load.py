@@ -58,12 +58,19 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--artifact",
-        default=lock["local_path"],
-        help="HF/MLX artifact directory; defaults to the local path recorded in tinygpt.lock.json",
+        default=lock.get("local_path"),
+        help="Local HF/MLX artifact directory to validate or load.",
     )
     parser.add_argument("--verify-hashes", action="store_true", help="hash-check large weight shards")
     parser.add_argument("--load", action="store_true", help="load all safetensor arrays with MLX")
     args = parser.parse_args()
+
+    if not args.artifact:
+        repo_id = lock["storage"]["repo_id"]
+        raise SystemExit(
+            "no local artifact path recorded; download or cache the model first, "
+            f"for example: hf download {repo_id} --local-dir <artifact-dir>"
+        )
 
     root = expand(args.artifact)
     errors = validate(lock, root, verify_hashes=args.verify_hashes)

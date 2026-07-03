@@ -27,9 +27,8 @@ It is a **routed specialist**, not the general Pace planner.
 ## Artifact
 
 - Package id: `qwen3-4b-file-ops-distilled`
-- Local artifact: `~/.cache/tinygpt/models/mt4b_fused`
-- Public storage target: Hugging Face Hub model repo, metadata-first
-  (`sarthakagrawal927/qwen3-4b-file-ops-distilled`)
+- Public artifact: `sarthakagrawal927/qwen3-4b-file-ops-distilled`
+- Public storage target: Hugging Face Hub model repo
 - Format: HF/MLX safetensors directory
 - Base: `Qwen/Qwen3-4B-Instruct-2507`
 - Precision: bf16
@@ -64,9 +63,8 @@ Qwen3-4B-Instruct-2507 bf16 with the plan-then-execute prompt.
 - It was not validated as a broad Pace planner.
 - It depends on correct routing. Bad routing turns a narrow win into a broad
   regression.
-- The artifact is multi-GB and is not committed to this repository.
-- Large weights are not uploaded yet; this public artifact currently publishes
-  metadata, prompt, eval report, and lockfile only.
+- The artifact is multi-GB and is published on Hugging Face Hub, not committed
+  to this repository or required to remain in local cache.
 
 ## References
 
