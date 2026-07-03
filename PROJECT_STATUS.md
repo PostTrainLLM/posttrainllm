@@ -59,6 +59,7 @@ Important constraints:
 
 | Date / phase | Status |
 |---|---|
+| 2026-07-03 canonical factory loop | Verified: `scripts/render_sql_factory_run.py` renders the canonical run folder (config, dataset, eval-baseline, eval-candidate, decision, artifact, train.log, report.md). Native CLI `tinygpt factory-run render/validate` mirrors the same path. Run schema defined in `docs/factory/run-schema.md`. Actual training/eval remains operator-dependent (GPU + Xcode metal compiler required). |
 | Original Phases 1-4 | Complete: Python reference, transformer, training loop, eval basics |
 | Phase 5 | Complete: LoRA/adapter paths and PEFT bundle |
 | Phase 6 | Complete: dataset manifests, HF integration, GitHub fetcher, synthesis |
