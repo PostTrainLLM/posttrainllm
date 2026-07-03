@@ -1,5 +1,9 @@
 # Learn TinyGPT — a guided path for software engineers new to AI
 
+> Legacy guided code walkthrough for the original Python/WASM/WebGPU learning
+> arc. The active learning index is `docs/learn/README.md`; active project work
+> starts from `PROJECT_STATUS.md`, `docs/NEXT.md`, and `docs/factory/`.
+
 You can write code. You have never built or trained a neural network. This guide
 takes you, in order, through **everything in this repository** until none of it
 is a black box.

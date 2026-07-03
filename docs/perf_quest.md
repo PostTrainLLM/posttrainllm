@@ -252,7 +252,7 @@ That gates publishing on every lever working. Sequencing within that:
   writing any new fast path.
 - `browser/src/pages/roadmap.astro` lever 21 documents the same frontier
   with public-facing framing (what users see).
-- `docs/lessons.md` carries the parallel-training-on-one-GPU lesson (added
+- `docs/archive/lessons.md` carries the parallel-training-on-one-GPU lesson (added
   as part of session retrospective work).
 - `docs/decision_log.md` decisions 18, 19, 20 — the scope pivot, the
   no-regression rule, and the parallel-training-on-one-GPU postmortem.

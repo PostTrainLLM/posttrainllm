@@ -66,8 +66,9 @@ reference full-duplex S2S paper; [Qwen2.5-Omni](https://arxiv.org/abs/2503.20215
 for the "thinker-talker" hybrid that keeps a text spine.
 
 **In the repo:** the whole Pace pipeline; tinygpt's contribution is the
-middle box (planner eval + serve). `docs/DRILLDOWN.md` shows why the
-modular middle is a feature — you can't A/B 12 planners inside a fused S2S model.
+middle box (planner eval + serve). The historical `docs/DRILLDOWN.md` planner
+drill shows why the modular middle is a feature — you can't A/B 12 planners
+inside a fused S2S model.
 
 ## 4. Fine-tuning a decoder-only model when loss won't drop
 
@@ -85,7 +86,8 @@ thinking-mode template mismatch that silently burned an hour.
 
 **In the repo:** `native-mac/Sources/TinyGPT/Train.swift` (WSD schedule,
 loss-spike recovery + replay); `docs/learn/session-08-training-mechanics.md`
-covers the mechanics ground-up; `docs/RETROSPECTIVE.md` for the v1–v11 arc.
+covers the mechanics ground-up; historical `docs/RETROSPECTIVE.md` covers the
+v1–v11 arc.
 
 ## 5. Feature selection — PCA vs recursive elimination vs isolation forest
 

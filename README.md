@@ -198,7 +198,7 @@ Start here:
 
 Deeper:
 
-- [`docs/performance.md`](docs/performance.md), [`docs/lessons.md`](docs/lessons.md),
+- [`docs/performance.md`](docs/performance.md), [`docs/archive/lessons.md`](docs/archive/lessons.md),
   [`docs/training/index.md`](docs/training/index.md),
   [`docs/distillation.md`](docs/distillation.md),
   [`docs/interpretability.md`](docs/interpretability.md),

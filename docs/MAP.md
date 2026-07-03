@@ -82,5 +82,6 @@ a full explanation.
 | Quantization (Phase 9 status appendix) | [`docs/roadmap/blockers.md`](roadmap/blockers.md) |
 | Interpretability (logit lens, attention vis, ablation) | [`docs/interpretability.md`](interpretability.md) |
 | Training pipeline (pretrain → SFT → DPO) | [`docs/training/`](training/index.md) |
+| Post-training factory positioning | [`docs/factory/post-training-factory.md`](factory/post-training-factory.md) |
 | Single-machine roadmap + research | [`docs/roadmap/`](roadmap/index.md) |
 | Open-source datasets (pretrain/SFT/DPO/code/math/eval) | [`docs/roadmap/datasets.md`](roadmap/datasets.md) |

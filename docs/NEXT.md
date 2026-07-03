@@ -52,6 +52,34 @@ Choose exactly one target before training.
 Current POC target: SQL specialist. The low-compute fixture is
 `evals/sql-poc/`; the brief is `docs/specialists/b1-sql-poc.md`.
 
+**Frozen target (2026-07-03): `qwen06-sql-hygiene-dpo-v1`** — the single
+preference-tuning/output-hygiene candidate from cleanup task 4. Frozen before
+training:
+
+- Baseline model: `Qwen/Qwen3-0.6B` + synthetic expanded adapter
+  (`runs/2026-07-02-sql-expanded-qwen06/qwen06-sql-expanded.lora`), the
+  synthetic side of `qwen06-sql-routed-v1`. Frozen baseline scores:
+  synthetic execution 0.860, synthetic exact 0.840, clean-SQL raw rate 0.000
+  (0/50 raw completions are a single bare SQL statement).
+- Candidate method: `tinygpt dpo` on `evals/sql-poc-expanded/preferences.jsonl`
+  (108 hygiene pairs; verified zero prompt/gold overlap with the dev set),
+  composed with the SFT adapter at inference via the existing multi-LoRA stack
+  (`--lora sft --lora dpo`). First plan was `bake-lora` then DPO on the merged
+  base, but `bake-lora` does not support DoRA adapter magnitudes yet and the
+  SFT adapter is DoRA — recorded as a tooling gap, not worked around with new
+  infrastructure.
+- Eval suite: `tinygpt generate` + `tinygpt eval-sql --db-dir
+  evals/sql-poc-expanded/dbs` on the frozen 50-row
+  `evals/sql-poc-expanded/dev.jsonl`, plus the clean-SQL raw-output metric
+  (single statement, starts with SELECT, no fence/prose, nothing after `;`).
+- Regression suite: the public64 b-mc2 exact gate (0.531) is unchanged by
+  construction — the public adapter and router are untouched. Recorded as a
+  skipped recheck, not a measured one.
+- Ship bar: synthetic execution >= 0.86 (no regression) AND clean-SQL raw
+  rate >= 0.80. "Ship" means the candidate replaces the synthetic side of
+  `qwen06-sql-routed-v1` as current-best; it does not unblock public
+  packaging, which stays gated on a public execution benchmark.
+
 Good targets:
 
 - Pace planner/action-surface specialist.

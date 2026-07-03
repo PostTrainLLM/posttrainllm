@@ -27,7 +27,7 @@ At Small (d_model = 96), `fixed_overhead` is a meaningful fraction of step time 
 
 This pattern generalises far beyond TinyGPT: any time you publish a single "Nx faster" number for a workload whose cost is a function of a tuneable, you are implicitly claiming the value of that function at one point. Publish the function instead.
 
-**Reference**: `docs/lessons.md` §3 (the curve story); `docs/session_retrospective.md` §1 for the longer arc; `browser/measure_curve.mjs` is the actual measurement harness.
+**Reference**: `docs/archive/lessons.md` §3 (the curve story); `docs/session_retrospective.md` §1 for the longer arc; `browser/measure_curve.mjs` is the actual measurement harness.
 
 ---
 
@@ -43,7 +43,7 @@ Fix: `browser/src/types.ts:35` and the `value="0.003"` on the `#lr` input at `br
 
 The deeper lesson is that "loss has plateaued" is not a fact — it's a hypothesis with two competing explanations: the model has run out of capacity, *or* the optimiser has run out of resolution. Cross-reference your hyperparameters against the reference path before committing to the capacity story.
 
-**Reference**: `browser/src/types.ts:28-41`; `docs/lessons.md` §1; `docs/session_retrospective.md` §2.
+**Reference**: `browser/src/types.ts:28-41`; `docs/archive/lessons.md` §1; `docs/session_retrospective.md` §2.
 
 ---
 
@@ -57,7 +57,7 @@ At Small, the per-call overhead is comparable in magnitude to the per-call work.
 
 The honest takeaway is that you cannot use a Node-WASM benchmark to predict browser-WASM performance, particularly at small model sizes. Per-host, per-shape numbers are the only ones that mean anything. "WASM is fast" is incomplete; you have to name the host.
 
-**Reference**: `docs/performance.md` (the WASM section); `docs/lessons.md` §7 / `docs/session_retrospective.md` §7.
+**Reference**: `docs/performance.md` (the WASM section); `docs/archive/lessons.md` §7 / `docs/session_retrospective.md` §7.
 
 ---
 
@@ -76,7 +76,7 @@ Node's `worker_threads` shim resolves typed-array views differently — it re-gr
 
 The cheap, ship-now mitigation is to *avoid growth entirely*: bump `INITIAL_MEMORY` in `wasm/build_wasm64.sh` from 32 MB to 256 MB so XL (~350 MB live, with growth headroom from the initial pool) never triggers `memory.grow`. Behemoth still needs growth and remains the open case. The proper fix is `GROWABLE_HEAP_*` view helpers in the C++ kernels so stale views re-resolve on each access — that's a bigger refactor.
 
-**Reference**: `docs/lessons.md` §2 (the full diagnosis); `wasm/build_wasm64.sh`; `tests/test_wasm64_xl_node.mjs` (the reproducer that surfaced it).
+**Reference**: `docs/archive/lessons.md` §2 (the full diagnosis); `wasm/build_wasm64.sh`; `tests/test_wasm64_xl_node.mjs` (the reproducer that surfaced it).
 
 ---
 
@@ -166,7 +166,7 @@ The fix is one line — `buffer: { type: "read-only-storage" }` in the bind-grou
 
 This pattern repeated three times in the project: vec4 loads, f16-packed weights (1.7× standalone, slower in the real pipeline because tiling had already amortised the global reads), and 8×8 thread blocks (great on paper, register-spill in practice).
 
-**Reference**: `webgpu/matmul_blocked_vec4.wgsl`; `docs/lessons.md` §5.
+**Reference**: `webgpu/matmul_blocked_vec4.wgsl`; `docs/archive/lessons.md` §5.
 
 ---
 
@@ -233,7 +233,7 @@ This is a sweet spot, not a coincidence. If you swapped in a 10 MB corpus, the m
 
 For larger corpora, the cure is more training time, not a bigger model. For smaller corpora, the cure is a hold-out validation split and early stopping.
 
-**Reference**: `docs/performance.md`; `docs/lessons.md` §4.
+**Reference**: `docs/performance.md`; `docs/archive/lessons.md` §4.
 
 ---
 
@@ -288,7 +288,15 @@ For private datasets you can store an HF token in `localStorage` and the loader 
 
 If you want to follow specific threads further, here are the most useful entry points:
 
-- **Inside TinyGPT.** `docs/learn.md` walks the entire codebase top-down: what each file does, how the pieces compose, where to make changes for common modifications. `docs/performance.md` is the canonical perf doc, including the real-device benchmark protocol you'd use if you wanted to add a hardware datapoint. The root `PROJECT_STATUS.md` is the live "what's shipped, what's open" board (`docs/archive/status.md` is the 2026 browser/perf-era snapshot). `python_ref/` is the reference implementation — model.py is the cleanest single-file transformer you'll find in this project, and it's the oracle every other backend is validated against.
+- **Inside TinyGPT.** `docs/learn/README.md` is the active learning index;
+  `docs/learn.md` is the legacy code walkthrough for the original
+  Python/WASM/WebGPU arc. `docs/performance.md` is the canonical perf doc,
+  including the real-device benchmark protocol you'd use if you wanted to add a
+  hardware datapoint. The root `PROJECT_STATUS.md` is the live "what's shipped,
+  what's open" board (`docs/archive/status.md` is the 2026 browser/perf-era
+  snapshot). `python_ref/` is the reference implementation — model.py is the
+  cleanest single-file transformer you'll find in this project, and it's the
+  oracle every other backend is validated against.
 
 - **Transformers from scratch.** Andrej Karpathy's [nanoGPT](https://github.com/karpathy/nanoGPT) is the canonical 300-line PyTorch implementation; the architecture in `python_ref/model.py` is a direct descendant. His [makemore](https://github.com/karpathy/makemore) tutorial series builds up to a transformer one notebook at a time and is the gentlest path in.
 
@@ -300,4 +308,7 @@ If you want to follow specific threads further, here are the most useful entry p
 
 - **The Web platform pieces.** [SharedArrayBuffer and cross-origin isolation](https://web.dev/articles/coop-coep) on web.dev covers the COOP/COEP machinery in §11. The [Compute Pressure API explainer](https://developer.chrome.com/docs/web-platform/compute-pressure) covers §13. The [Hugging Face datasets-server docs](https://huggingface.co/docs/datasets-server) cover the API in §14, including the rate limits you'll hit on heavier pulls.
 
-Read in this order if you're starting fresh: Karpathy's makemore → `python_ref/model.py` → `docs/learn.md` → the relevant kernel notes (`fa2_*`, `online_softmax_in_attention.md`) → the WebGPU shaders themselves. By the time you get to the shaders, every loop will mean something.
+Read in this order if you're starting fresh: Karpathy's makemore →
+`python_ref/model.py` → `docs/learn/README.md` → the relevant kernel notes
+(`fa2_*`, `online_softmax_in_attention.md`) → the WebGPU shaders themselves. By
+the time you get to the shaders, every loop will mean something.

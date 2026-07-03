@@ -1,5 +1,10 @@
 # TinyGPT — retrospective and forward plan
 
+> Historical strategy note. This captured the 2026-06-11 Pace/small-specialist
+> failure arc and remains valuable learning evidence. It is not the current
+> project plan. Current active scope lives in `PROJECT_STATUS.md`,
+> `docs/NEXT.md`, and `docs/factory/`.
+
 Written 2026-06-11 after the clarify-v1 experiment failed and the
 small-specialist training bet closed. This doc replaces no other; it
 records what we learned at high cost so future work doesn't relearn it.

@@ -139,10 +139,11 @@ browser/
 
 ## Mac app crossover
 
-When the Mac app ships (see `mac_app_plan.md`), the same R2-backed
-manifest powers its gallery dialog. Browser and Mac app both pull
-identical `.tinygpt` files from R2; the local OPFS cache (browser) and
-`~/Library/Caches/TinyGPT/` (Mac) keep cold-fetches rare.
+If the parked Mac app work reopens (see `docs/parked/app-polish.md` and the
+historical `mac_app_plan.md`), the same artifact manifest can power its gallery
+dialog. Browser and Mac app both pull identical `.tinygpt` files from the chosen
+artifact store; the local OPFS cache (browser) and `~/Library/Caches/TinyGPT/`
+(Mac) keep cold-fetches rare.
 
 No file-format change needed — `.tinygpt` is already the shared
 contract. The manifest's `url` field is just as resolvable from Swift's

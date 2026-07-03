@@ -1,5 +1,9 @@
 # Native macOS app — build plan
 
+> Historical app plan. The current Mac app stance is parked except for a future
+> minimal Factory Run Center after the CLI factory loop proves improvement. See
+> `docs/parked/app-polish.md` and `docs/factory/overview.md`.
+
 The browser playground is the on-ramp. The Mac app is the depth: same
 architecture, same `.tinygpt` file format, ~20-30× the training throughput.
 This doc translates roadmap lever 20 into a concrete week-by-week build

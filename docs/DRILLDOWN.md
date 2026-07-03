@@ -1,5 +1,9 @@
 # Drilldown — the experiments left untried, run to bedrock
 
+> Historical Pace planner drill. Keep this as learning/eval evidence, not as the
+> active model-selection plan. Current TinyGPT factory work starts from
+> `PROJECT_STATUS.md`, `docs/NEXT.md`, and `docs/factory/`.
+
 Started 2026-06-11 after the "miner stopping 30 min before the diamond"
 check. Closed 2026-06-12 with the full table below.
 

@@ -9,6 +9,9 @@ artifact:
 target -> data -> post-training -> eval -> package -> report
 ```
 
+For the fuller project/learning split and the post-training pillar map, see
+[`post-training-factory.md`](post-training-factory.md).
+
 ## Factory Contract
 
 A valid factory run has:

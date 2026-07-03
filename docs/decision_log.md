@@ -180,7 +180,7 @@ This is the meta-log: not the lessons learned, not the open questions, but the m
 **The trigger:** Sarthak's response when asked which to prioritize — "I would say build them all and people can choose what they want to read."
 **The call:** Author all four in parallel rather than picking one and trimming the others.
 **Why it was right:** The four documents have genuinely different shapes. The README is scannable; the BLOG is narrative; the devlog is chronological; the status doc is structured. Forcing them into one doc would have served no audience well.
-**What it shipped:** Coordinated updates to `README.md`, `BLOG.md`, `browser/src/pages/devlog.astro`, and `docs/archive/status.md`. Plus the lessons file (`docs/lessons.md`) as a fifth artefact for a fifth audience.
+**What it shipped:** Coordinated updates to `README.md`, `BLOG.md`, `browser/src/pages/devlog.astro`, and `docs/archive/status.md`. Plus the lessons file (`docs/archive/lessons.md`) as a fifth artefact for a fifth audience.
 
 ---
 

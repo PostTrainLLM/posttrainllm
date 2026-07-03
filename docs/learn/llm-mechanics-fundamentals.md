@@ -142,4 +142,4 @@ A "22M parameter model" means **22 million floats stored in these matrices.** Th
 ## Related TinyGPT docs
 
 - `docs/sessions/2026-06-06-mac-specialist-platform.md` — strategy doc; covers memory bandwidth math + tokenization frontier
-- `docs/learn.md` — broader learning roadmap (if it exists)
+- `docs/learn/README.md` — active learning index

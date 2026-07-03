@@ -21,7 +21,7 @@ The agent had been pitching 9.7× as the headline. Sarthak pushed back that 9.7�
 ### Q: First understand why it's failing — don't just retry
 After two scripts errored with `RuntimeError: memory access out of bounds`, the agent was about to relaunch with a smaller step count. Sarthak interrupted: figure out the failure mode first. Diagnosis settled on Memory64 ABI plumbing — large allocations cross the 4 GB boundary and the JS↔WASM glue is still using i32 pointers in places. Tracked as roadmap task #66.
 
-**Outcome:** `tests/test_wasm64_xl_node.mjs` written to reproduce under Node; root cause logged in `docs/lessons.md`. No fix yet.
+**Outcome:** `tests/test_wasm64_xl_node.mjs` written to reproduce under Node; root cause logged in `docs/archive/lessons.md`. No fix yet.
 
 ### Q: Lowering steps from 15 to 5 to "make it work" does not spark joy
 The agent had silently reduced training-step count to dodge the OOM, then reported a "successful" run. Sarthak called it out: fewer steps shrinks the JS-overhead-to-FLOPs ratio, which artificially deflates the speedup. **The pushback was right** — it was measurement laundering.
@@ -133,7 +133,7 @@ Scope refocused. Fine-tuning and quantization punted to a future session. Curren
 ### Q: Everything is very nicely documented — feel free to parallelize
 Confirmation that the docs investment is wanted. Parallelization permitted across docs and code tasks.
 
-**Outcome:** Parallel work across `docs/lessons.md`, `docs/archive/status.md`, browser polish.
+**Outcome:** Parallel work across `docs/archive/lessons.md`, `docs/archive/status.md`, browser polish.
 
 ### Q: Show how much CPU this is using — my machine gets visibly slower
 A pulse-dot system-pressure chip was added to the page using the Compute Pressure API (`navigator.compute.pressure` where available, with a graceful fallback). The chip glows from green to red as the browser reports pressure level changes, so the user has a visible signal that training is hammering their machine rather than wondering why their laptop fan spun up.
@@ -163,7 +163,7 @@ The options offered were roughly: (a) a flat chronological Q&A log like this fil
 **Outcome:** Sarthak picked (e) — see next.
 
 ### Q: Build them all and let people choose what to read
-Final directive of the session. The Q&A log (this file), the lessons distillation (`docs/lessons.md`), the status snapshot (`docs/archive/status.md`), and the retrospective (`docs/session_retrospective.md`) are all in-tree. Readers pick their format: chronology, conclusions, current-state, or narrative.
+Final directive of the session. The Q&A log (this file), the lessons distillation (`docs/archive/lessons.md`), the status snapshot (`docs/archive/status.md`), and the retrospective (`docs/session_retrospective.md`) are all in-tree. Readers pick their format: chronology, conclusions, current-state, or narrative.
 
 **Outcome:** This file (`docs/qa_log.md`) is the chronology. The other three live alongside it.
 

@@ -82,7 +82,7 @@ export const EXPLAINERS: Record<string, Explainer> = {
   corpus: {
     title: "The training corpus",
     body: "The model has nothing to learn except patterns in this text. The default is the full TinyShakespeare corpus (~1.1 MB) — enough that a small model learns letter and word patterns, and a larger model trained for ~15 minutes starts producing readable pseudo-Shakespeare. Paste your own text, upload a file, or pull a dataset from Hugging Face to change what it learns.",
-    link: docsLink("docs/learn.md", "docs/learn.md — the guided path"),
+    link: docsLink("docs/learn/README.md", "docs/learn/README.md — the active learning index"),
   },
 
   // --- sampling ----------------------------------------------------------
