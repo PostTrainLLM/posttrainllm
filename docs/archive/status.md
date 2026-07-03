@@ -1,5 +1,8 @@
 # Project status — 2026 update
 
+> Archived snapshot (browser/perf era). The live status board is the root
+> [`PROJECT_STATUS.md`](../../PROJECT_STATUS.md).
+
 A review-oriented snapshot of where TinyGPT stands. The detailed docs are linked
 at the bottom; this page is the map.
 
@@ -62,11 +65,11 @@ Everything that can be checked by a machine, is — that was the method througho
 
 ## Where the docs are
 
-- [`learn.md`](learn.md) — start here to understand the repo
-- [`notes.md`](notes.md) — what each component does and what each experiment showed
-- [`performance.md`](performance.md) — the SIMD and WebGPU performance work
+- [`learn.md`](../learn.md) — start here to understand the repo
+- [`notes.md`](../notes.md) — what each component does and what each experiment showed
+- [`performance.md`](../performance.md) — the SIMD and WebGPU performance work
 - [`lessons.md`](lessons.md) — the bugs and surprises worth more than the kernels
-- [`model_guide.md`](model_guide.md), [`lora_guide.md`](lora_guide.md),
-  [`browser_notes.md`](browser_notes.md),
-  [`validation_report.md`](validation_report.md) — per-phase detail
-- [`feature_ideas.md`](feature_ideas.md) — interactive-learning backlog
+- [`model_guide.md`](../model_guide.md), [`lora_guide.md`](../lora_guide.md),
+  [`browser_notes.md`](../browser_notes.md),
+  [`validation_report.md`](../validation_report.md) — per-phase detail
+- [`feature_ideas.md`](../feature_ideas.md) — interactive-learning backlog

@@ -5,6 +5,21 @@ Fill in `Why here:` yourself after internalising each topic.
 
 ---
 
+## Backpropagation & gradient descent
+- What: compute the loss gradient w.r.t. every parameter via the chain rule (reverse-mode autodiff), then step each parameter against its gradient.
+- Why here: TBD
+- Source: https://www.youtube.com/watch?v=VMj-3S1tku0 (Karpathy — spelled-out intro, builds a tiny autograd by hand)
+
+## Next-token language modeling & sampling
+- What: a language model predicts a probability distribution over the next token; generation repeatedly samples from it, shaped by temperature and top-k truncation.
+- Why here: TBD
+- Source: https://github.com/karpathy/makemore
+
+## Memorization testing (style-adaptation eval)
+- What: feed a training-set prefix and check whether the model copies the exact continuation; distinguishes learned style from memorised text, alongside base/prompt-only/LoRA baselines.
+- Why here: TBD
+- Source: https://arxiv.org/abs/2012.07805 (Carlini et al. — extracting training data from LMs)
+
 ## Transformer / scaled-dot-product attention
 - What: sequence model where each token attends to all previous tokens via learned Q/K/V projections; output is a weighted sum of values.
 - Why here: TBD

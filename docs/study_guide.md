@@ -288,7 +288,7 @@ For private datasets you can store an HF token in `localStorage` and the loader 
 
 If you want to follow specific threads further, here are the most useful entry points:
 
-- **Inside TinyGPT.** `docs/learn.md` walks the entire codebase top-down: what each file does, how the pieces compose, where to make changes for common modifications. `docs/performance.md` is the canonical perf doc, including the real-device benchmark protocol you'd use if you wanted to add a hardware datapoint. `docs/status.md` is the live "what's shipped, what's open" board. `python_ref/` is the reference implementation — model.py is the cleanest single-file transformer you'll find in this project, and it's the oracle every other backend is validated against.
+- **Inside TinyGPT.** `docs/learn.md` walks the entire codebase top-down: what each file does, how the pieces compose, where to make changes for common modifications. `docs/performance.md` is the canonical perf doc, including the real-device benchmark protocol you'd use if you wanted to add a hardware datapoint. The root `PROJECT_STATUS.md` is the live "what's shipped, what's open" board (`docs/archive/status.md` is the 2026 browser/perf-era snapshot). `python_ref/` is the reference implementation — model.py is the cleanest single-file transformer you'll find in this project, and it's the oracle every other backend is validated against.
 
 - **Transformers from scratch.** Andrej Karpathy's [nanoGPT](https://github.com/karpathy/nanoGPT) is the canonical 300-line PyTorch implementation; the architecture in `python_ref/model.py` is a direct descendant. His [makemore](https://github.com/karpathy/makemore) tutorial series builds up to a transformer one notebook at a time and is the gentlest path in.
 

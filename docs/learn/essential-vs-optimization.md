@@ -93,4 +93,4 @@ function?" Only the second question is the one that ships. (See [study_guide §9
 - Optimization-layer deep dives: [study_guide.md](../study_guide.md) §7 (FA2), §8 (register blocking),
   §9 (parity + the drift bug); [online-softmax](../online_softmax_in_attention.md);
   [WebGPU execution model](./webgpu-execution-model.md).
-- The math, taught from scratch: roadmap [Phases 1–4](../learning_roadmap.md); sessions 1–8 in this dir.
+- The math, taught from scratch: roadmap [Phases 1–4](../archive/learning_roadmap.md); sessions 1–8 in this dir.

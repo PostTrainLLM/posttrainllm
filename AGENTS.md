@@ -108,7 +108,7 @@ This makes frontier models the **calibration anchor for every benchmark**:
 
 - **Respect the build order.** Python reference → WASM → WebGPU. Do not implement a
   browser/WebGPU path before the Python reference for that component is correct and
-  tested. See `README.md` and `docs/learning_roadmap.md`.
+  tested. See `README.md` and `docs/archive/learning_roadmap.md`.
 - **Correctness gates.** Before scaling anything, the model must overfit a tiny
   (1–10 KB) repeated dataset. If it cannot, the bug is in model/backprop/data — fix
   that first. See `tests/README.md`.

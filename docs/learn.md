@@ -405,7 +405,7 @@ cd browser && npm install && npm run dev
 
 For the full story of what each test proved — with the numbers — read
 [`notes.md`](notes.md). For a per-phase deep spec, see the other files in
-`docs/`. The phase/week breakdown is in [`learning_roadmap.md`](learning_roadmap.md).
+`docs/`. The phase/week breakdown is in [`archive/learning_roadmap.md`](archive/learning_roadmap.md).
 
 ---
 

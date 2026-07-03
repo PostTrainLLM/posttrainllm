@@ -1,7 +1,7 @@
 # Industry learning roadmap
 
 This is the external learning track for TinyGPT. Use it after the repo-local
-[`learning_roadmap.md`](learning_roadmap.md): CS336 is the spine, and company
+[`archive/learning_roadmap.md`](archive/learning_roadmap.md): CS336 is the spine, and company
 docs/blogs are the applied case studies.
 
 The goal is not to copy frontier-scale infrastructure. The goal is to extract

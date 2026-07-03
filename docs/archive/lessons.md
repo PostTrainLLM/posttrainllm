@@ -2,7 +2,7 @@
 
 What didn't work, what surprised me, and what I'd carry forward. The kernel
 optimisations are documented in `docs/performance.md` and the milestones in
-`docs/status.md`. This is the meta layer: the bugs that taught more than the
+`docs/archive/status.md`. This is the meta layer: the bugs that taught more than the
 features.
 
 ## 1. The LR-default bug — config drift hides as a modelling ceiling

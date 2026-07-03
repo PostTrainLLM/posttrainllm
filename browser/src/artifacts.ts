@@ -633,7 +633,7 @@ export const artifacts: ArtifactEntry[] = [
     evidence: [
       { label: "ANE/CoreML parked lane", href: "/docs/parked/ane-coreml" },
       { label: "Apple on-device model notes", href: "/docs/learn/apple-on-device-foundation-models" },
-      { label: "Project status", href: "/docs/status" },
+      { label: "Project status", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/PROJECT_STATUS.md" },
     ],
     blockers: [
       {

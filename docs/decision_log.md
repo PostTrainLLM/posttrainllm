@@ -10,7 +10,7 @@ This is the meta-log: not the lessons learned, not the open questions, but the m
 **The trigger:** Sarthak's pushback — "Just 9.7×?" — calling out that a single number both undersold the bigger presets and overpromised the smaller ones.
 **The call:** Replace the flat number with a measured curve across four presets and publish the function, not the point.
 **Why it was right:** A curve is honest. A point estimate at one model size implies the speedup is constant; the curve reveals it grows monotonically with model dimension, which is the actual interesting finding (memory-bandwidth-bound kernels widen the WebGPU lead as tensors grow).
-**What it shipped:** Edits to `README.md`, `BLOG.md`, `docs/status.md`, `browser/src/pages/speedup.astro`, `browser/src/pages/roadmap.astro`, `browser/src/pages/devlog.astro`. The published numbers became Small 2.6×, Medium 6.8×, Large 9.3×, XL 12.1×.
+**What it shipped:** Edits to `README.md`, `BLOG.md`, `docs/archive/status.md`, `browser/src/pages/speedup.astro`, `browser/src/pages/roadmap.astro`, `browser/src/pages/devlog.astro`. The published numbers became Small 2.6×, Medium 6.8×, Large 9.3×, XL 12.1×.
 
 ---
 
@@ -78,7 +78,7 @@ This is the meta-log: not the lessons learned, not the open questions, but the m
 **When:** Documentation phase, after the speedup numbers settled.
 **Context:** Two artefacts competed for the headline slot on the speedup page: a per-preset speedup curve (Small → XL) and a loss-vs-step curve from training. Both told true stories. Only one fit the page's question.
 **The trigger:** A realization that the speedup page is about "how much faster is the kernel" — not "how well does it learn." Mixing the two muddied both.
-**The call:** Publish the preset-to-speedup function on the speedup page. Keep loss curves in `docs/status.md` and the devlog.
+**The call:** Publish the preset-to-speedup function on the speedup page. Keep loss curves in `docs/archive/status.md` and the devlog.
 **Why it was right:** Separation of concerns inside the docs. A reader asking "is this fast" gets a clean answer; a reader asking "does this work" gets a different clean answer.
 **What it shipped:** Final `browser/src/pages/speedup.astro` layout — preset axis, speedup axis, four marked points, a fitted shape.
 
@@ -180,7 +180,7 @@ This is the meta-log: not the lessons learned, not the open questions, but the m
 **The trigger:** Sarthak's response when asked which to prioritize — "I would say build them all and people can choose what they want to read."
 **The call:** Author all four in parallel rather than picking one and trimming the others.
 **Why it was right:** The four documents have genuinely different shapes. The README is scannable; the BLOG is narrative; the devlog is chronological; the status doc is structured. Forcing them into one doc would have served no audience well.
-**What it shipped:** Coordinated updates to `README.md`, `BLOG.md`, `browser/src/pages/devlog.astro`, and `docs/status.md`. Plus the lessons file (`docs/lessons.md`) as a fifth artefact for a fifth audience.
+**What it shipped:** Coordinated updates to `README.md`, `BLOG.md`, `browser/src/pages/devlog.astro`, and `docs/archive/status.md`. Plus the lessons file (`docs/lessons.md`) as a fifth artefact for a fifth audience.
 
 ---
 

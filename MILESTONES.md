@@ -1,7 +1,7 @@
 # Milestones
 
 Project milestone tracker for tinygpt. Each milestone links to the phase and
-docs that specify it; the underlying curriculum is in `docs/learning_roadmap.md`.
+docs that specify it; the underlying curriculum is in `docs/archive/learning_roadmap.md`.
 Interactive-feature backlog: `docs/feature_ideas.md`.
 
 - [x] **1. PyTorch TinyGPT baseline** — the ~0.8M byte-level model runs a correct
