@@ -65,9 +65,11 @@ training:
   (108 hygiene pairs; verified zero prompt/gold overlap with the dev set),
   composed with the SFT adapter at inference via the existing multi-LoRA stack
   (`--lora sft --lora dpo`). First plan was `bake-lora` then DPO on the merged
-  base, but `bake-lora` does not support DoRA adapter magnitudes yet and the
-  SFT adapter is DoRA — recorded as a tooling gap, not worked around with new
-  infrastructure.
+  base, but `bake-lora` did not support DoRA adapter magnitudes at freeze time
+  and the SFT adapter is DoRA — recorded as a tooling gap, not worked around
+  with new infrastructure. (Gap closed 2026-07-04: `bake-lora` now bakes DoRA
+  magnitudes. The frozen candidate keeps multi-LoRA composition; do not
+  re-plan a frozen run.)
 - Eval suite: `tinygpt generate` + `tinygpt eval-sql --db-dir
   evals/sql-poc-expanded/dbs` on the frozen 50-row
   `evals/sql-poc-expanded/dev.jsonl`, plus the clean-SQL raw-output metric

@@ -203,7 +203,7 @@ Release blockers:
 | Public execution benchmark missing | b-mc2 exact match is useful but not enough for a serious SQL model claim. | Add BIRD Mini-Dev SQLite or Spider SQLite execution gate once DBs are local. |
 | Not packaged under `specialists/` | Current adapter paths are local `runs/` outputs, not package metadata. | Create a package only after `decision.json` is `ship`; until then publish as report-only/candidate. |
 | Output hygiene is weak | Scorers extract the first `SELECT`; many completions still include prose after the query. | Add clean-SQL metric and stopping/format preference data before shipping. |
-| Performance numbers missing | Public artifact should report latency, RAM, tok/s, and eval time. | Add one measured inference/eval run on the routed setup. |
+| Performance numbers missing | Public artifact should report latency, RAM, tok/s, and eval time. | Run `scripts/measure_sql_routed_perf.py` on the routed setup (offline smoke: `evals/sql-perf-smoke.sh`) and paste the report. |
 | Data provenance needs public copy | b-mc2 and BIRD-derived rows have different licenses/provenance surfaces. | Add dataset license/provenance notes to the public report. |
 
 Next release action:
