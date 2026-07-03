@@ -29,8 +29,11 @@ Current proof point:
   out-of-domain breadth from 59.6% to 42.3%.
 - Therefore it is a routed specialist, not a general planner.
 
-The current missing proof is a repeatable factory run that produces a broadly
-acceptable specialist with a before/after report and a ship/reject decision.
+The full loop has now executed end-to-end on a real candidate: the frozen
+`qwen06-sql-hygiene-dpo-v1` run (train → eval vs frozen baseline →
+schema-valid artifacts → documented decision) completed 2026-07-04 with a
+**retry-training** decision. The remaining missing proof is a run through the
+same loop whose decision is **ship**.
 
 ## Dependencies
 
@@ -59,6 +62,7 @@ Important constraints:
 
 | Date / phase | Status |
 |---|---|
+| 2026-07-04 first full factory decision | Shipped: frozen `qwen06-sql-hygiene-dpo-v1` candidate trained (SimPO), evaluated composed against the reproduced frozen baseline, and decided **retry-training** (policy collapse: exec 0.860 → 0.080). Schema-valid run in `runs/2026-07-03-sql-hygiene-dpo-qwen06/`. Also landed: DoRA-aware `bake-lora`, routed-SQL perf harness, clean-SQL scorer. |
 | 2026-07-03 canonical factory loop | Verified: `scripts/render_sql_factory_run.py` renders the canonical run folder (config, dataset, eval-baseline, eval-candidate, decision, artifact, train.log, report.md). Native CLI `tinygpt factory-run render/validate` mirrors the same path. Run schema defined in `docs/factory/run-schema.md`. Actual training/eval remains operator-dependent (GPU + Xcode metal compiler required). |
 | Original Phases 1-4 | Complete: Python reference, transformer, training loop, eval basics |
 | Phase 5 | Complete: LoRA/adapter paths and PEFT bundle |

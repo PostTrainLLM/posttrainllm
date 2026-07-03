@@ -82,6 +82,16 @@ training:
   `qwen06-sql-routed-v1` as current-best; it does not unblock public
   packaging, which stays gated on a public execution benchmark.
 
+**Outcome (2026-07-04): retry-training.** The ref-free SimPO run collapsed
+the policy (composed execution 0.860 → 0.080, clean-SQL 0.000; the adapter
+alone generates fence spam). Full schema-valid run artifacts and report:
+`runs/2026-07-03-sql-hygiene-dpo-qwen06/`. Clean-SQL scorer now exists at
+`scripts/score_sql_clean_output.py`. Next candidate: reference-anchored DPO
+(or SimPO at ~10× lower lr / ≤50 steps) on the same frozen pairs, evaluated
+composed. Gotcha for future runs: record the tinygpt binary provenance —
+the 2026-06-25 release build scores identical preds at 0.000 where the
+2026-07-02 debug build scores 0.860, and composes multi-LoRA differently.
+
 Good targets:
 
 - Pace planner/action-surface specialist.
@@ -179,9 +189,13 @@ Exit criteria:
    `scripts/render_sql_factory_run.py` as the report-artifact bridge.
 2. Run `scripts/build_sql_spider_execution_gate.py` against a local Spider DB
    bundle and score the current routed candidate on execution accuracy.
-3. Measure routed SQL latency, RAM/peak RSS, and tok/s.
-4. Run exactly one preference-tuning/output-hygiene candidate.
-5. Re-render the before/after factory report and decide package vs retry.
+3. Measure routed SQL latency, RAM/peak RSS, and tok/s
+   (harness ready: `scripts/measure_sql_routed_perf.py`).
+4. ~~Run exactly one preference-tuning/output-hygiene candidate.~~ Done
+   2026-07-04 — decision retry-training (see frozen-target outcome above).
+5. ~~Report and decide package vs retry.~~ Done 2026-07-04 — schema-valid
+   run + report in `runs/2026-07-03-sql-hygiene-dpo-qwen06/`; retry lane
+   defined there.
 
 Use `docs/prds/PRIORITY.md` only when a task needs PRD-level acceptance
 criteria. Do not work from the full PRD list directly.
