@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@10.33.2",
   "description": "Browser TinyGPT — trains a tiny GPT in a Web Worker on WASM (Phase 4)",
   "scripts": {
     "dev": "node scripts/copy_docs.mjs && astro dev --port 5173",

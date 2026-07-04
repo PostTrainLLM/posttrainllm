@@ -37,24 +37,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7.0.0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v6.4.0
         with:
           node-version: "22"
-          cache: "npm"
-          cache-dependency-path: browser/package-lock.json
+          cache: "pnpm"
+          cache-dependency-path: browser/pnpm-lock.yaml
 
       - name: Install dependencies
         working-directory: browser
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Type-check (tsc --noEmit)
         working-directory: browser
-        run: npm run typecheck
+        run: pnpm run typecheck
 
       - name: Unit tests (vitest)
         working-directory: browser
-        run: npm test
+        run: pnpm test
 
       - name: Production build (copy_docs + tsc + astro build)
         working-directory: browser
@@ -63,10 +66,10 @@ jobs:
         env:
           VITE_POSTHOG_KEY: ""
           VITE_POSTHOG_HOST: ""
-        run: npm run build
+        run: pnpm run build
       - name: Check bundle size
         working-directory: browser
-        run: npm run size
+        run: pnpm run size
 
   mac:
     name: mac (swift build + xcodebuild test)
@@ -191,24 +194,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7.0.0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v6.4.0
         with:
           # Node 22+ runs the .ts finalize scripts directly via built-in type
           # stripping (the scripts are fully erasable TS). No tsx/ts-node dep.
           node-version: "22"
-          cache: "npm"
-          cache-dependency-path: browser/package-lock.json
+          cache: "pnpm"
+          cache-dependency-path: browser/pnpm-lock.yaml
 
       - name: Install dependencies
         working-directory: browser
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Check gallery artifacts match a fresh regenerate
         working-directory: browser
         # Skips gracefully (exit 0) when data/gallery is absent; fails (exit 1)
         # only when a committed .bin / manifest entry diverges from regenerate.
-        run: npm run gallery:check
+        run: pnpm run gallery:check
 
   wasm-drift:
     name: wasm-drift (committed tinygpt.{js,wasm} vs rebuild)
