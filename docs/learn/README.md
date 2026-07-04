@@ -9,6 +9,11 @@ A reading map for the `docs/learn/` directory. Three reading paths depending on 
 
 **Start here:** [Mac-local AI mastery map](./mac-mastery-map.md) — the living agenda: everything buildable on a Mac, what's already covered, and the single-machine ↔ distributed boundary. The spine for "learn everything + build everything buildable on this Mac."
 
+For the active owner learning sequence tied to current factory work, use
+[`../learning-pipeline.md`](../learning-pipeline.md). It orders eval design,
+post-training data, SFT/LoRA, preference tuning, verifiable rewards,
+RLVR/OAPL, failure analysis, and public reporting around the SQL/factory loop.
+
 ## I want to learn ML from scratch
 
 Read these in order — the curriculum is designed as a single arc from

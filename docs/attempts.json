@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "attempts": [
+    {
+      "id": "sql-toy-sft-r4",
+      "name": "Toy SQL SFT",
+      "status": "worked-with-caveat",
+      "evidence": "execution `0.167 -> 0.833` on 6-row fixture",
+      "source": "docs/specialists/b1-sql-poc.md"
+    },
+    {
+      "id": "sql-expanded-synthetic-sft-r4",
+      "name": "Expanded synthetic SQL SFT",
+      "status": "worked",
+      "evidence": "execution `0.160 -> 0.860`, exact `0.140 -> 0.840`",
+      "source": "runs/2026-07-02-sql-expanded-qwen06/report.md"
+    },
+    {
+      "id": "sql-public-bmc2-v1",
+      "name": "Public b-mc2 v1",
+      "status": "failed",
+      "evidence": "exact `0.344` vs T5-small `0.484`",
+      "source": "docs/specialists/b1-sql-poc.md"
+    },
+    {
+      "id": "sql-public-bmc2-v2",
+      "name": "Public b-mc2 v2",
+      "status": "failed",
+      "evidence": "exact `0.031`",
+      "source": "docs/specialists/b1-sql-poc.md"
+    },
+    {
+      "id": "sql-public-bmc2-v3",
+      "name": "Public b-mc2 v3",
+      "status": "failed",
+      "evidence": "exact `0.422`",
+      "source": "docs/specialists/b1-sql-poc.md"
+    },
+    {
+      "id": "sql-public-bmc2-v4",
+      "name": "Public b-mc2 v4",
+      "status": "worked-with-caveat",
+      "evidence": "exact `0.531` vs T5-small `0.484`",
+      "source": "docs/specialists/b1-sql-poc.md"
+    },
+    {
+      "id": "sql-public-v4-synthetic-regression",
+      "name": "Public v4 synthetic regression check",
+      "status": "regressed",
+      "evidence": "synthetic execution `0.240` vs incumbent `0.860`",
+      "source": "docs/specialists/b1-sql-poc.md"
+    },
+    {
+      "id": "sql-blended-public-synthetic-v1",
+      "name": "Blended public+synthetic SFT",
+      "status": "failed",
+      "evidence": "public `0.297`, synthetic execution `0.560`",
+      "source": "docs/specialists/b1-sql-poc.md"
+    },
+    {
+      "id": "sql-static-multilora-composition",
+      "name": "Static multi-LoRA composition",
+      "status": "failed",
+      "evidence": "best public-pass setting still synthetic-failed",
+      "source": "docs/specialists/b1-sql-poc.md"
+    },
+    {
+      "id": "sql-routed-v1",
+      "name": "Routed public + synthetic adapters",
+      "status": "worked-with-caveat",
+      "evidence": "public exact `0.531`, synthetic execution `0.860`",
+      "source": "docs/factory/public-artifacts.md"
+    },
+    {
+      "id": "sql-hygiene-simpo-dpo",
+      "name": "Hygiene SimPO/DPO",
+      "status": "failed",
+      "evidence": "execution `0.860 -> 0.080`, clean-SQL `0.000 -> 0.000`",
+      "source": "runs/2026-07-03-sql-hygiene-dpo-qwen06/report.md"
+    },
+    {
+      "id": "sql-candidate-selection",
+      "name": "SQL candidate selection",
+      "status": "not-tried",
+      "evidence": "tooling and smoke exist; no model run",
+      "source": "docs/techniques/sql-technique-backlog.md"
+    },
+    {
+      "id": "sql-offline-rollout-oapl",
+      "name": "Offline rollout / OAPL-style SQL update",
+      "status": "not-tried",
+      "evidence": "plan renderer exists; no model run",
+      "source": "docs/techniques/sql-technique-backlog.md"
+    },
+    {
+      "id": "sql-controlled-lora-rank-sweep",
+      "name": "Controlled SQL LoRA rank sweep",
+      "status": "not-tried",
+      "evidence": "not run",
+      "source": "docs/techniques/sql-technique-backlog.md"
+    }
+  ]
+}

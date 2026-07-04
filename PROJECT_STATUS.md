@@ -47,6 +47,11 @@ same loop whose decision is **ship**.
 | Python reference | `python_ref/` | Correctness/reference path for from-scratch pieces |
 | Active roadmap | `docs/NEXT.md` | Current sequence only |
 | Factory docs | `docs/factory/` | Run schema, eval protocol, packaging, reports |
+| Technique registry | `docs/techniques/` | Method-vs-recipe cards, external teardowns, target-specific experiment backlog |
+| Docs hub | `docs/README.md` | Golden path through state, attempts, reviewed products, roadmap, and learning |
+| Attempt ledger | `docs/attempt-ledger.md` | Worked/failed/regressed/not-tried attempt history |
+| External review ledger | `docs/external-products-reviewed.md` | Products, papers, startups, and techniques reviewed or stolen |
+| Learning pipeline | `docs/learning-pipeline.md` | Owner learning sequence tied to active factory work |
 | Parked lanes | `docs/parked/` | Explicitly paused work so it does not compete with factory proof |
 | Detailed backlog | `docs/prds/`, `docs/PLAN.md` | Historical and deep task inventory; not the first navigation layer |
 

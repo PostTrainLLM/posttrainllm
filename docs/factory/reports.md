@@ -37,6 +37,14 @@ Reason: <one paragraph>
 | Regression / breadth | | | | |
 | Parse errors | | | | |
 
+## Slice Metrics
+
+| Slice | Baseline | Candidate | Delta | Pass |
+|---|---:|---:|---:|---|
+| Overall | | | | |
+| Hard / rare / OOD | | | | |
+| Format / parse | | | | |
+
 ## Performance
 
 | Metric | Value |
@@ -49,8 +57,21 @@ Reason: <one paragraph>
 
 ## Failures
 
-- What failed:
-- Likely cause:
+| Attempt | Method | Result | Decision | Lesson |
+|---|---|---|---|---|
+| A0 | | | | |
+
+## Trace Review
+
+- File: `trace_review.md`
+- Reward hacking:
+- Hallucinated schema/API/tool:
+- Fake reasoning/prose:
+- Format collapse:
+- Incorrect-but-plausible answers:
+
+## Fixes
+
 - Data fix:
 - Training fix:
 - Eval fix:
@@ -68,6 +89,7 @@ subtle.
 Do not hide:
 
 - regressions
+- failed attempts
 - skipped evals
 - non-determinism
 - missing artifacts

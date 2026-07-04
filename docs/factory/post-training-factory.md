@@ -37,11 +37,28 @@ Active project work must produce or improve one of these:
 - a post-trained candidate
 - a frozen baseline/candidate eval
 - a failure taxonomy or trace-to-data loop
+- a candidate-selection curriculum for sparse-reward tasks
+- a batch rollout/offline-score plan for a verifiable reward
 - a packaged specialist artifact
 - a public before/after report
 
 If work does not improve one of those, it belongs in learning, parked docs, or
 research notes.
+
+## Methods Are Not Recipes
+
+The factory should track methods, but train from recipes.
+
+- A **method** is a general tool: SFT, DPO, RLVR, LoRA, routing, constrained
+  decoding, evals.
+- A **recipe** is a target-specific plan: data, reward or labels, model config,
+  eval gate, slice gate, failure mode, and stop rule.
+
+Use `docs/techniques/` before starting a post-training run. The active SQL
+ledger is `docs/techniques/sql-technique-backlog.md`.
+
+Do not start a run whose plan is only "try DPO", "try RLVR", or "try a bigger
+rank". Those are methods. The run needs a recipe.
 
 ## What Belongs In Learning
 

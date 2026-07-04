@@ -83,5 +83,13 @@ a full explanation.
 | Interpretability (logit lens, attention vis, ablation) | [`docs/interpretability.md`](interpretability.md) |
 | Training pipeline (pretrain → SFT → DPO) | [`docs/training/`](training/index.md) |
 | Post-training factory positioning | [`docs/factory/post-training-factory.md`](factory/post-training-factory.md) |
+| Docs golden path | [`docs/README.md`](README.md) |
+| Docs quality audit | [`docs/docs-quality-audit.md`](docs-quality-audit.md) |
+| Active/reference/archive status labels | [`docs/doc-status.md`](doc-status.md) |
+| Attempt history / worked vs failed | [`docs/attempt-ledger.md`](attempt-ledger.md) |
+| External products reviewed / steals | [`docs/external-products-reviewed.md`](external-products-reviewed.md) |
+| Method vs recipe / technique cards | [`docs/techniques/`](techniques/README.md) |
+| Owner learning pipeline | [`docs/learning-pipeline.md`](learning-pipeline.md) |
+| Owner learning progress | [`docs/learning-progress.md`](learning-progress.md) |
 | Single-machine roadmap + research | [`docs/roadmap/`](roadmap/index.md) |
 | Open-source datasets (pretrain/SFT/DPO/code/math/eval) | [`docs/roadmap/datasets.md`](roadmap/datasets.md) |

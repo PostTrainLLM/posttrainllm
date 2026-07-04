@@ -1,5 +1,11 @@
 # docs/prds/ — Product Requirement Briefs
 
+> **Status: reference.**
+>
+> This directory is not the active queue. Start with [`../README.md`](../README.md)
+> and [`../NEXT.md`](../NEXT.md). Use PRDs only when the active factory plan
+> names one or needs acceptance criteria.
+
 Active work starts in [`../NEXT.md`](../NEXT.md), not here.
 
 Use this directory only when the active factory plan points to a PRD or when

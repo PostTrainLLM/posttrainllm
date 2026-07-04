@@ -9,6 +9,9 @@ runs/<YYYY-MM-DD>-<target-slug>/
   train.log
   eval-baseline.json
   eval-candidate.json
+  slice-metrics.json
+  trace_review.md
+  provenance.json
   report.md
   artifact.json
   decision.json
@@ -106,6 +109,92 @@ Required fields:
 - latency if available
 - RAM/peak RSS if available
 - notes on non-determinism or skipped checks
+
+## `slice-metrics.json`
+
+Reports the primary metric by meaningful task slice. For SQL, generate it with:
+
+```bash
+python3 scripts/score_sql_slices.py <eval-row-trace.jsonl> --out slice-metrics.json
+```
+
+Required fields:
+
+- overall score
+- slice names
+- rows per slice
+- score per slice
+
+Do not publish an overall-only win if the artifact is meant to be a specialist.
+
+## `trace_review.md`
+
+Qualitative failure review. For SQL, generate it with:
+
+```bash
+python3 scripts/review_sql_trace.py --rows <rows-or-preds.jsonl> --out trace_review.md
+```
+
+Required checks:
+
+- reward hacking
+- hallucinated schema/API/tool
+- fake reasoning or prose wrappers
+- format collapse
+- incorrect-but-plausible answers
+
+## Publish Check
+
+Before publishing or releasing a run report, run:
+
+```bash
+tinygpt factory-run publish-check --allow-report-only runs/<id>
+```
+
+Before shipping a package, run without `--allow-report-only`:
+
+```bash
+tinygpt factory-run publish-check runs/<id>
+```
+
+See [`enforcement.md`](enforcement.md) for the exact enforcement layers.
+
+## `provenance.json`
+
+Machine-readable reproducibility metadata:
+
+```json
+{
+  "schema_version": 1,
+  "renderer": "scripts/render_sql_factory_run.py",
+  "renderer_command": "python3 scripts/render_sql_factory_run.py --out <run-dir>",
+  "git": {
+    "commit": "<sha>",
+    "branch": "main",
+    "dirty": true
+  },
+  "commands": {
+    "baseline": "tinygpt generate ...",
+    "candidate": "scripts/run_sql_routed_generate.py ...",
+    "training": "tinygpt sft ...",
+    "publish_check": "tinygpt factory-run publish-check --allow-report-only <run-dir>"
+  },
+  "datasets": [
+    {
+      "path": "evals/...",
+      "rows": 50,
+      "sha256": "<hash>"
+    }
+  ]
+}
+```
+
+Required fields:
+
+- git commit, branch, dirty flag
+- exact baseline/candidate/training command strings or explicit pointers
+- dataset paths, row counts, and SHA-256 hashes
+- renderer and publish-check command
 
 ## `artifact.json`
 

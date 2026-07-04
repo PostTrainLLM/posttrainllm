@@ -9,6 +9,8 @@ enum FactoryRunCommand {
             render(args: Array(args.dropFirst()))
         case "validate":
             validate(args: Array(args.dropFirst()))
+        case "publish-check":
+            publishCheck(args: Array(args.dropFirst()))
         case "-h", "--help":
             exitUsage(0)
         default:
@@ -88,6 +90,140 @@ enum FactoryRunCommand {
         }
     }
 
+    private static func publishCheck(args: [String]) {
+        var allowReportOnly = false
+        var path: String?
+        var i = 0
+        while i < args.count {
+            switch args[i] {
+            case "--allow-report-only":
+                allowReportOnly = true
+                i += 1
+            case "-h", "--help":
+                exitUsage(0)
+            default:
+                if path == nil {
+                    path = args[i]
+                    i += 1
+                } else {
+                    fputs("factory-run publish-check: unexpected argument \(args[i])\n", stderr)
+                    exitUsage()
+                }
+            }
+        }
+        guard let path else { exitUsage() }
+
+        do {
+            let dir = URL(fileURLWithPath: path)
+            let bundle = try FactoryRunFolder.validate(directory: dir)
+            try checkPublishEvidence(bundle: bundle, directory: dir, allowReportOnly: allowReportOnly)
+            print("factory-run: publish-check OK \(dir.path) decision=\(bundle.decision.decision.rawValue)")
+        } catch {
+            fputs("factory-run publish-check failed: \(error)\n", stderr)
+            exit(1)
+        }
+    }
+
+    private static func checkPublishEvidence(bundle: FactoryRun.Bundle,
+                                             directory: URL,
+                                             allowReportOnly: Bool) throws {
+        let fm = FileManager.default
+        let required = [
+            FactoryRunFolder.configFile,
+            FactoryRunFolder.datasetFile,
+            FactoryRunFolder.baselineFile,
+            FactoryRunFolder.candidateFile,
+            FactoryRunFolder.decisionFile,
+            FactoryRunFolder.reportFile,
+            FactoryRunFolder.trainLogFile,
+            "slice-metrics.json",
+            "trace_review.md",
+            "provenance.json",
+        ]
+        for name in required {
+            let url = directory.appendingPathComponent(name)
+            if !fm.fileExists(atPath: url.path) {
+                throw PublishCheckError.missingFile(name)
+            }
+        }
+        if !allowReportOnly && bundle.artifact == nil {
+            throw PublishCheckError.missingFile(FactoryRunFolder.artifactFile)
+        }
+        if bundle.dataset.counts.heldoutRows <= 0 {
+            throw PublishCheckError.invalidField("dataset.counts.heldout_rows must be > 0")
+        }
+        if bundle.baseline.command?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
+            throw PublishCheckError.invalidField("eval-baseline.command is required")
+        }
+        if bundle.candidate.command?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
+            throw PublishCheckError.invalidField("eval-candidate.command is required")
+        }
+        if bundle.decision.nextAction?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
+            throw PublishCheckError.invalidField("decision.next_action is required")
+        }
+
+        let sliceURL = directory.appendingPathComponent("slice-metrics.json")
+        let sliceData = try Data(contentsOf: sliceURL)
+        let sliceJSON = try JSONSerialization.jsonObject(with: sliceData)
+        guard let sliceDict = sliceJSON as? [String: Any],
+              sliceDict["overall"] != nil,
+              sliceDict["slices"] != nil else {
+            throw PublishCheckError.invalidField("slice-metrics.json must contain overall and slices")
+        }
+
+        let provenanceURL = directory.appendingPathComponent("provenance.json")
+        let provenanceData = try Data(contentsOf: provenanceURL)
+        let provenanceJSON = try JSONSerialization.jsonObject(with: provenanceData)
+        guard let provenance = provenanceJSON as? [String: Any],
+              provenance["schema_version"] != nil,
+              let renderer = provenance["renderer"] as? String,
+              !renderer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              let git = provenance["git"] as? [String: Any],
+              let commit = git["commit"] as? String,
+              !commit.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              let commands = provenance["commands"] as? [String: Any],
+              commands["baseline"] as? String == bundle.baseline.command,
+              commands["candidate"] as? String == bundle.candidate.command,
+              let datasets = provenance["datasets"] as? [[String: Any]],
+              !datasets.isEmpty else {
+            throw PublishCheckError.invalidField("provenance.json must contain schema, renderer, git commit, matching commands, and dataset hashes")
+        }
+        for (idx, dataset) in datasets.enumerated() {
+            let path = dataset["path"] as? String
+            let sha = dataset["sha256"] as? String
+            if path?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
+                throw PublishCheckError.invalidField("provenance.datasets[\(idx)].path is required")
+            }
+            if sha?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
+                throw PublishCheckError.invalidField("provenance.datasets[\(idx)].sha256 is required")
+            }
+        }
+
+        let trace = try String(contentsOf: directory.appendingPathComponent("trace_review.md"), encoding: .utf8)
+        if !trace.localizedCaseInsensitiveContains("trace review") {
+            throw PublishCheckError.invalidField("trace_review.md must be a trace review")
+        }
+
+        let report = try String(contentsOf: directory.appendingPathComponent(FactoryRunFolder.reportFile), encoding: .utf8)
+        for section in ["## Decision", "## Target", "## Data", "## Eval", "## Performance", "## Failures", "## Next Action"] {
+            if !report.contains(section) {
+                throw PublishCheckError.invalidField("report.md missing section \(section)")
+            }
+        }
+
+        if bundle.decision.decision == .ship {
+            guard let artifact = bundle.artifact else {
+                throw FactoryRun.ValidationError.shipDecisionMissingArtifact
+            }
+            if artifact.packageDir?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
+                throw PublishCheckError.invalidField("ship decision requires artifact.package_dir")
+            }
+            if !bundle.decision.blockedBy.isEmpty {
+                throw PublishCheckError.invalidField("ship decision must not have blockers")
+            }
+        }
+    }
+
     private static func read<T: Decodable>(_ type: T.Type, _ path: String) throws -> T {
         let data = try Data(contentsOf: URL(fileURLWithPath: path))
         return try FactoryRun.decode(type, from: data)
@@ -108,10 +244,24 @@ enum FactoryRunCommand {
 
           tinygpt factory-run validate runs/<id>
 
+          tinygpt factory-run publish-check [--allow-report-only] runs/<id>
+
         Renders and validates the canonical factory run folder documented in
         docs/factory/run-schema.md. This command is metadata-only: it does not
         train, evaluate, load MLX, or touch checkpoints.
         """)
         exit(code)
+    }
+
+    enum PublishCheckError: Error, CustomStringConvertible {
+        case missingFile(String)
+        case invalidField(String)
+
+        var description: String {
+            switch self {
+            case .missingFile(let name): return "missing required file: \(name)"
+            case .invalidField(let message): return message
+            }
+        }
     }
 }

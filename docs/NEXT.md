@@ -2,6 +2,11 @@
 
 This is the active queue. It intentionally ignores most historical PRDs.
 
+For the full documentation path, start at `docs/README.md`. For what worked or
+failed, use `docs/attempt-ledger.md`. For reviewed external products and
+techniques, use `docs/external-products-reviewed.md`. For the owner's learning
+sequence, use `docs/learning-pipeline.md`.
+
 ## Current Thesis
 
 TinyGPT is a Mac-local specialist factory:
@@ -25,6 +30,17 @@ Every active task must answer one of these:
 5. Can we report score delta, regressions, cost, latency, RAM, and a decision?
 
 If not, move it to `docs/parked/` or leave it in `docs/prds/` for later.
+
+Post-training tasks must also name a **recipe**, not only a method. Use
+`docs/techniques/` before training:
+
+- `docs/techniques/method-vs-recipe.md` defines the standard.
+- `docs/techniques/sql-technique-backlog.md` is the current SQL recipe ledger.
+- `docs/techniques/trainloop-teardown.md` records the latest external teardown.
+
+"Try DPO", "try RLVR", or "try a different LoRA rank" is not specific enough.
+The recipe must name the failure mode, data, eval gate, slice gate, and stop
+rule.
 
 ## Active Sequence
 
@@ -91,6 +107,21 @@ alone generates fence spam). Full schema-valid run artifacts and report:
 composed. Gotcha for future runs: record the tinygpt binary provenance —
 the 2026-06-25 release build scores identical preds at 0.000 where the
 2026-07-02 debug build scores 0.860, and composes multi-LoRA differently.
+
+**TrainLoop-style additions required for the next SQL retry (2026-07-04):**
+
+1. Method-vs-recipe registry: `docs/techniques/`.
+2. Case-study report shape: `docs/factory/case-study-template.md`.
+3. Candidate-selection curriculum before another open-generation hygiene retry:
+   `scripts/build_sql_candidate_choice.py` and
+   `scripts/score_sql_candidate_choice.py`.
+4. Slice metrics: `scripts/score_sql_slices.py`.
+5. Trace review: `scripts/review_sql_trace.py`.
+6. Batch-first rollout plan: `scripts/render_batch_posttrain_plan.py`.
+7. LoRA diagnostics on every meaningful adapter: `scripts/lora_geometry.py`.
+
+No next SQL candidate should be reported without `slice-metrics.json` and
+`trace_review.md`.
 
 Good targets:
 
@@ -185,6 +216,14 @@ Exit criteria:
 
 ## Near-Term Cleanup Tasks
 
+0. Run the no-GPU factory smoke set for the TrainLoop-style additions:
+   `bash evals/sql-choice-smoke.sh`,
+   `bash evals/sql-trace-review-smoke.sh`, and
+   `bash evals/lora-geometry-smoke.sh`.
+0.1. Run the stricter publish evidence smoke:
+   `bash evals/factory-publish-check-smoke.sh`.
+0.2. Run the docs golden-path smoke:
+   `bash evals/docs-world-class-smoke.sh`.
 1. Wire real train/eval commands to emit the run schema automatically, using
    `scripts/render_sql_factory_run.py` as the report-artifact bridge.
 2. Run `scripts/build_sql_spider_execution_gate.py` against a local Spider DB

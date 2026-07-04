@@ -5,6 +5,13 @@ description: Single source of truth for what's shipped, skipped, and still to bu
 
 # TinyGPT — master plan
 
+> **Status: reference / historical inventory.**
+>
+> This is not the active queue. Start with [`PROJECT_STATUS.md`](../PROJECT_STATUS.md)
+> and [`docs/NEXT.md`](NEXT.md). Use this file for historical shipped/skipped/TODO
+> context only, then verify active work through [`docs/README.md`](README.md),
+> [`docs/factory/`](factory/README.md), and [`docs/techniques/`](techniques/README.md).
+
 **Last verified against codebase**: 2026-06-06 (eval-pipeline + serve fix + elf PRDs landed; product framing clarified to "Mac platform for building/upgrading specialists")
 **Sources merged**: `docs/roadmap/*` · `docs/progress.md` · `docs/backlog.md` · `docs/feature_audit_2026_05_31.md` · `docs/roadmap/recent_research.md` (paper catalogue → §4)
 

@@ -9,8 +9,10 @@ train an adapter, or rerun a GPU eval.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -26,6 +28,58 @@ def line_count(path: Path) -> int:
 
 def write_json(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def rel(path: Path) -> str:
+    return str(path.relative_to(ROOT))
+
+
+def git_value(args: list[str], default: str | None = None) -> str | None:
+    try:
+        return subprocess.check_output(
+            ["git", *args],
+            cwd=ROOT,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        ).strip()
+    except Exception:
+        return default
+
+
+def build_provenance(payloads: dict[str, dict[str, Any]], dataset_paths: list[Path]) -> dict[str, Any]:
+    status = git_value(["status", "--short"], default="")
+    return {
+        "schema_version": 1,
+        "renderer": rel(Path(__file__).resolve()),
+        "renderer_command": "python3 scripts/render_sql_factory_run.py --out <run-dir>",
+        "git": {
+            "commit": git_value(["rev-parse", "HEAD"], default=None),
+            "branch": git_value(["rev-parse", "--abbrev-ref", "HEAD"], default=None),
+            "dirty": bool(status),
+        },
+        "commands": {
+            "baseline": payloads["eval-baseline"]["command"],
+            "candidate": payloads["eval-candidate"]["command"],
+            "training": payloads["config"]["candidate"]["training_command"],
+            "publish_check": "tinygpt factory-run publish-check --allow-report-only <run-dir>",
+        },
+        "datasets": [
+            {
+                "path": rel(path),
+                "rows": line_count(path),
+                "sha256": sha256_file(path),
+            }
+            for path in dataset_paths
+        ],
+    }
 
 
 def render_report(payloads: dict[str, dict[str, Any]]) -> str:
@@ -92,6 +146,88 @@ Reason: {decision["reason"]}
 ## Next Action
 
 {decision["next_action"]}
+"""
+
+
+def build_slice_metrics() -> dict[str, Any]:
+    return {
+        "overall": {
+            "rows": 114,
+            "note": (
+                "Routed report combines two metric families: public b-mc2 exact "
+                "match and synthetic SQLite execution. Do not collapse this into "
+                "one public SQL quality score."
+            ),
+        },
+        "slices": {
+            "public_bmc2_exact": {
+                "rows": 64,
+                "metric": "normalized_exact_match",
+                "baseline": 0.484,
+                "candidate": 0.531,
+                "delta": 0.047,
+                "pass": True,
+            },
+            "synthetic_sqlite_execution": {
+                "rows": 50,
+                "metric": "execution_accuracy",
+                "baseline": 0.160,
+                "candidate": 0.860,
+                "delta": 0.700,
+                "pass": True,
+            },
+            "synthetic_sqlite_exact": {
+                "rows": 50,
+                "metric": "normalized_exact_match",
+                "baseline": 0.140,
+                "candidate": 0.840,
+                "delta": 0.700,
+                "pass": True,
+            },
+            "known_hard_slice_join": {
+                "rows": 16,
+                "metric": "synthetic_execution_accuracy",
+                "candidate": 0.6875,
+                "note": "From expanded synthetic adapter slice analysis; joins remain weaker than single-table rows.",
+            },
+        },
+    }
+
+
+def render_trace_review() -> str:
+    return """# SQL Trace Review
+
+## Summary
+
+- Artifact: `qwen06-sql-routed-v1`
+- Rows covered by report: 64 public b-mc2 exact rows + 50 synthetic SQLite execution rows
+- Current decision: report-ready candidate, not shipped package
+
+## Failure Taxonomy
+
+| Label | Evidence | Readout |
+|---|---:|---|
+| `public_execution_missing` | 1 blocker | Public b-mc2 exact match is not enough for a serious SQL claim. |
+| `output_hygiene_weak` | known blocker | Scorers still extract first `SELECT`; clean raw SQL is not solved. |
+| `join_slice_weak` | 16-row synthetic slice | Synthetic join execution is weaker than single-table execution. |
+| `single_adapter_interference` | blend/composition attempts | One blended/static-composed adapter failed to pass both public and synthetic gates. |
+
+## Required Checks
+
+- Reward hacking: not assessed for routed report; required for next training run.
+- Hallucinated schema/API/tool: public-v4 synthetic regression showed schema hallucination/over-joining.
+- Fake reasoning/prose: output hygiene remains a blocker.
+- Format collapse: ref-free SimPO hygiene retry collapsed into fence/comment spam.
+- Incorrect-but-plausible answers: visible in public exact failures and synthetic wrong-filter failures.
+
+## Next Review
+
+Generate a row-level `trace_review.md` from the next candidate's prediction JSONL
+with:
+
+```bash
+python3 scripts/review_sql_trace.py --rows <rows-or-preds.jsonl> --out trace_review.md
+```
 """
 
 
@@ -242,7 +378,7 @@ def build_payloads(run_id: str) -> dict[str, dict[str, Any]]:
         ],
     }
 
-    return {
+    payloads = {
         "config": config,
         "dataset": dataset,
         "eval-baseline": baseline,
@@ -250,6 +386,19 @@ def build_payloads(run_id: str) -> dict[str, dict[str, Any]]:
         "artifact": artifact,
         "decision": decision,
     }
+    payloads["provenance"] = build_provenance(
+        payloads,
+        [
+            synthetic_train,
+            synthetic_dev,
+            synthetic_prefs,
+            public_train,
+            public_dev,
+            public_prefs,
+            mixed,
+        ],
+    )
+    return payloads
 
 
 def render(out: Path, run_id: str, force: bool) -> None:
@@ -262,6 +411,8 @@ def render(out: Path, run_id: str, force: bool) -> None:
     payloads = build_payloads(run_id)
     for name, payload in payloads.items():
         write_json(out / f"{name}.json", payload)
+    write_json(out / "slice-metrics.json", build_slice_metrics())
+    (out / "trace_review.md").write_text(render_trace_review(), encoding="utf-8")
     (out / "train.log").write_text(
         "Rendered from completed local SQL runs; no training was started by this command.\n",
         encoding="utf-8",
