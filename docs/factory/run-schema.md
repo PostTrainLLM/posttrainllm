@@ -216,7 +216,15 @@ Required fields:
 {
   "decision": "ship",
   "reason": "Primary score cleared threshold with acceptable breadth retention.",
+  "failure_reason": null,
+  "failure_reason_confidence": "not-applicable",
+  "lesson": "This recipe passed the frozen gates without hidden blockers.",
   "next_action": "Register specialist package and add model card.",
+  "evidence_sources": [
+    "report.md",
+    "eval-candidate.json",
+    "trace_review.md"
+  ],
   "blocked_by": []
 }
 ```
@@ -230,6 +238,19 @@ Allowed decisions:
 - `retry-eval`
 - `park`
 
+`failure_reason_confidence` must be one of:
+
+- `exact`
+- `inferred`
+- `missing-evidence`
+- `not-applicable`
+
+Non-`ship` decisions must include `failure_reason`, `lesson`, and at least one
+`evidence_sources` entry. `ship` decisions should use
+`failure_reason_confidence: "not-applicable"` and still include evidence sources
+for the positive claim.
+
 ## `report.md`
 
-Use the template in `docs/factory/reports.md`.
+Use the template in `docs/factory/reports.md`. Reports must include an
+`## Evidence / Exactness` section matching `decision.json`.

@@ -99,6 +99,14 @@ Decision: {decision["decision"]}
 
 Reason: {decision["reason"]}
 
+## Evidence / Exactness
+
+- Failure reason: {decision["failure_reason"]}
+- Failure reason confidence: `{decision["failure_reason_confidence"]}`
+- Lesson: {decision["lesson"]}
+- Evidence sources:
+{chr(10).join(f'  - `{source}`' for source in decision["evidence_sources"])}
+
 ## Target
 
 - Target: {config["target"]}
@@ -367,10 +375,24 @@ def build_payloads(run_id: str) -> dict[str, dict[str, Any]]:
             "public exact plus synthetic execution gates, but it is not a shipped specialist "
             "until a public execution benchmark and performance measurements exist."
         ),
+        "failure_reason": (
+            "The routed artifact lacks public execution benchmarking, performance "
+            "measurements, and a clean-SQL package gate."
+        ),
+        "failure_reason_confidence": "exact",
+        "lesson": (
+            "Routing preserves both measured SQL slices, but artifact status still "
+            "depends on public execution and performance evidence."
+        ),
         "next_action": (
             "Run scripts/build_sql_spider_execution_gate.py against a local Spider DB "
             "bundle, score the routed candidate, then re-render this report with latency/RAM/tok-s."
         ),
+        "evidence_sources": [
+            "docs/factory/public-artifacts.md",
+            "docs/specialists/b1-sql-poc.md",
+            "runs/2026-07-02-sql-routed-qwen06-v1/report.md",
+        ],
         "blocked_by": [
             "public execution DB bundle not local",
             "latency/RAM/tok-s not measured",

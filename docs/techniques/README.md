@@ -24,6 +24,8 @@ See [`method-vs-recipe.md`](method-vs-recipe.md) for the distinction.
 ## Active Files
 
 - [`method-vs-recipe.md`](method-vs-recipe.md) — vocabulary and examples.
+- [`audit-inventory.md`](audit-inventory.md) — row-level treatment of the
+  broad `audit_2026.md` technique audit.
 - [`sql-technique-backlog.md`](sql-technique-backlog.md) — SQL-specific method,
   recipe, status, and next-test ledger.
 - [`trainloop-teardown.md`](trainloop-teardown.md) — techniques extracted from

@@ -4,6 +4,13 @@ After ~70 techniques shipped across the project, this doc is the honest
 reckoning. Each entry: **what it claimed**, **what we measured**, and
 **verdict** (🟢 KEEP / 🟡 FLAG / 🔴 DELETE).
 
+**2026-07-05 exactness note:** this remains the prose audit. The structured
+row-level inventory now lives in
+[`docs/techniques/audit-inventory.md`](techniques/audit-inventory.md): 83
+tracked audit rows, including intentional duplicate mentions such as YOCO and
+BPE-dropout. Use that inventory for classification; use
+[`docs/attempt-ledger.md`](attempt-ledger.md) only for concrete run attempts.
+
 **Conviction bar for DELETE**: only items I'm genuinely convinced are
 useless to the project under ANY scenario. Items where the test was
 narrow (e.g., tested at 22M but might work at 1.5B base) or the

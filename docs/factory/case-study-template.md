@@ -26,10 +26,10 @@ Use this for every public artifact page or report that claims learning.
 
 ## Attempts
 
-| Attempt | Method | Result | Decision | Lesson |
-|---|---|---|---|---|
-| A0 | stock/base | | baseline | |
-| A1 | SFT / distill / DPO / RL | | ship/retry/reject | |
+| Attempt | Method | Result | Decision | Failure reason | Confidence | Lesson |
+|---|---|---|---|---|---|---|
+| A0 | stock/base | | baseline | | not-applicable | |
+| A1 | SFT / distill / DPO / RL | | ship/retry/reject | | exact/inferred/missing-evidence | |
 
 Failed attempts are evidence. Do not collapse them into a footnote.
 
@@ -81,6 +81,12 @@ Required checks:
 Decision: ship | report-only | retry-data | retry-training | retry-eval | reject | park
 
 Reason:
+
+Failure reason:
+
+Failure reason confidence: exact | inferred | missing-evidence | not-applicable
+
+Evidence sources:
 
 Next blocker:
 ```

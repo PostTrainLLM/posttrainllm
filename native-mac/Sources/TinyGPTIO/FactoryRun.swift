@@ -209,16 +209,28 @@ public enum FactoryRun {
     public struct DecisionRecord: Codable, Hashable, Sendable {
         public let decision: Decision
         public let reason: String
+        public let failureReason: String?
+        public let failureReasonConfidence: String?
+        public let lesson: String?
         public let nextAction: String?
+        public let evidenceSources: [String]
         public let blockedBy: [String]
 
         public init(decision: Decision,
                     reason: String,
+                    failureReason: String? = nil,
+                    failureReasonConfidence: String? = nil,
+                    lesson: String? = nil,
                     nextAction: String? = nil,
+                    evidenceSources: [String] = [],
                     blockedBy: [String] = []) {
             self.decision = decision
             self.reason = reason
+            self.failureReason = failureReason
+            self.failureReasonConfidence = failureReasonConfidence
+            self.lesson = lesson
             self.nextAction = nextAction
+            self.evidenceSources = evidenceSources
             self.blockedBy = blockedBy
         }
     }
@@ -278,6 +290,20 @@ public enum FactoryRun {
             lines.append("")
             lines.append("Reason: \(decision.reason)")
             lines.append("")
+            lines.append("## Evidence / Exactness")
+            lines.append("")
+            lines.append("- Failure reason: \(decision.failureReason ?? "n/a")")
+            lines.append("- Failure reason confidence: \(decision.failureReasonConfidence ?? "n/a")")
+            lines.append("- Lesson: \(decision.lesson ?? "n/a")")
+            lines.append("- Evidence sources:")
+            if decision.evidenceSources.isEmpty {
+                lines.append("  - n/a")
+            } else {
+                for source in decision.evidenceSources {
+                    lines.append("  - `\(source)`")
+                }
+            }
+            lines.append("")
             lines.append("## Target")
             lines.append("")
             lines.append("- Target: \(config.target)")
@@ -308,6 +334,11 @@ public enum FactoryRun {
             lines.append("| Latency ms | \(optional(candidate.latencyMs)) |")
             lines.append("| tok/s | \(optional(candidate.tokensPerSecond)) |")
             lines.append("| RAM / peak RSS MB | \(optional(candidate.peakRssMb)) |")
+            lines.append("")
+            lines.append("## Failures")
+            lines.append("")
+            lines.append("- What failed: \(decision.failureReason ?? "n/a")")
+            lines.append("- Lesson: \(decision.lesson ?? "n/a")")
             lines.append("")
             lines.append("## Next Action")
             lines.append("")

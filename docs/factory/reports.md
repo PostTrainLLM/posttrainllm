@@ -13,6 +13,16 @@ Decision: ship | reject | retry-data | retry-training | retry-eval | park
 
 Reason: <one paragraph>
 
+## Evidence / Exactness
+
+- Failure reason:
+- Failure reason confidence: exact | inferred | missing-evidence | not-applicable
+- Lesson:
+- Evidence sources:
+  - `report.md`
+  - `eval-candidate.json`
+  - `trace_review.md`
+
 ## Target
 
 - Target:
@@ -57,9 +67,9 @@ Reason: <one paragraph>
 
 ## Failures
 
-| Attempt | Method | Result | Decision | Lesson |
-|---|---|---|---|---|
-| A0 | | | | |
+| Attempt | Method | Result | Decision | Failure reason | Confidence | Lesson |
+|---|---|---|---|---|---|---|
+| A0 | | | | | | |
 
 ## Trace Review
 
@@ -85,6 +95,9 @@ One next action only.
 
 Reports should be short and numeric. Avoid long narrative unless a failure is
 subtle.
+
+If the decision is not `ship`, the report must explain why it did not ship.
+Use `exact` only when the linked evidence directly proves the reason.
 
 Do not hide:
 

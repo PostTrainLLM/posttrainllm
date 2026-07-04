@@ -161,6 +161,29 @@ enum FactoryRunCommand {
         if bundle.decision.nextAction?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
             throw PublishCheckError.invalidField("decision.next_action is required")
         }
+        let allowedConfidence = ["exact", "inferred", "missing-evidence", "not-applicable"]
+        let confidence = bundle.decision.failureReasonConfidence?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if confidence == nil || !allowedConfidence.contains(confidence!) {
+            throw PublishCheckError.invalidField("decision.failure_reason_confidence must be exact, inferred, missing-evidence, or not-applicable")
+        }
+        if bundle.decision.decision == .ship {
+            if confidence != "not-applicable" {
+                throw PublishCheckError.invalidField("ship decision must use decision.failure_reason_confidence=not-applicable")
+            }
+        } else {
+            if bundle.decision.failureReason?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
+                throw PublishCheckError.invalidField("non-ship decision.failure_reason is required")
+            }
+            if bundle.decision.lesson?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true {
+                throw PublishCheckError.invalidField("non-ship decision.lesson is required")
+            }
+            if confidence == "not-applicable" {
+                throw PublishCheckError.invalidField("non-ship decision requires real failure_reason_confidence")
+            }
+        }
+        if bundle.decision.evidenceSources.isEmpty {
+            throw PublishCheckError.invalidField("decision.evidence_sources must be a non-empty list")
+        }
 
         let sliceURL = directory.appendingPathComponent("slice-metrics.json")
         let sliceData = try Data(contentsOf: sliceURL)
@@ -205,7 +228,7 @@ enum FactoryRunCommand {
         }
 
         let report = try String(contentsOf: directory.appendingPathComponent(FactoryRunFolder.reportFile), encoding: .utf8)
-        for section in ["## Decision", "## Target", "## Data", "## Eval", "## Performance", "## Failures", "## Next Action"] {
+        for section in ["## Decision", "## Evidence / Exactness", "## Target", "## Data", "## Eval", "## Performance", "## Failures", "## Next Action"] {
             if !report.contains(section) {
                 throw PublishCheckError.invalidField("report.md missing section \(section)")
             }

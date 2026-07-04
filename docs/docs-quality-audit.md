@@ -26,7 +26,9 @@ Docs are world-class when an outsider can answer:
 | Golden path | `docs/README.md` | strong |
 | Factory pipeline | `docs/factory/` | strong |
 | Method vs recipe | `docs/techniques/method-vs-recipe.md` | strong |
-| Attempt history | `docs/attempt-ledger.md`, `docs/attempts.json`, `scripts/check_attempt_ledger.py` | strong |
+| Technique audit inventory | `docs/techniques/audit-inventory.md` | strong |
+| Attempt history | `docs/attempt-ledger.md`, `docs/attempts.json`, `docs/history-coverage-audit.md`, `scripts/check_attempt_ledger.py` | strong |
+| Exactness completion audit | `docs/exactness-completion-audit.md` | complete |
 | External products reviewed | `docs/external-products-reviewed.md` | good, should grow with every teardown |
 | Learning pipeline | `docs/learning-pipeline.md` | strong, tied to current factory work |
 | Learning progress | `docs/learning-progress.md` | good, manually maintained |
@@ -38,11 +40,18 @@ Docs are world-class when an outsider can answer:
 ## What Improved In This Pass
 
 - Added a canonical docs entrypoint.
-- Added an attempt ledger with worked, failed, regressed, and not-tried SQL
-  attempts plus a structured sync check.
+- Added an attempt ledger with worked, failed, regressed, and not-tried
+  attempts plus confidence labels, evidence sources, and a structured sync
+  check.
+- Added a history coverage audit so normalized, classified, partial, and
+  narrative-only historical surfaces are separated honestly.
 - Added an external products/research review ledger.
 - Added a learning pipeline tied to the factory loop.
 - Added a method-vs-recipe registry and SQL technique backlog.
+- Added a row-level technique inventory for `docs/audit_2026.md`, so broad
+  technique rows are classified without being misrepresented as run attempts.
+- Added an exactness completion audit that records the proof set and
+  non-blocking future hardening.
 - Added factory enforcement docs.
 - Added a stricter publish-check script.
 - Added a docs golden-path completeness check.
@@ -60,8 +69,8 @@ The current docs meet the world-class baseline defined above:
 |---|---|
 | What is the project? | `PROJECT_STATUS.md`, `docs/README.md` |
 | What is active vs parked? | `docs/doc-status.md`, `docs/NEXT.md`, `docs/parked/` |
-| What did we try? | `docs/attempt-ledger.md`, `docs/attempts.json` |
-| What worked, failed, or regressed? | `docs/attempt-ledger.md`, `docs/techniques/sql-technique-backlog.md` |
+| What did we try? | `docs/attempt-ledger.md`, `docs/attempts.json`, `docs/history-coverage-audit.md`, `docs/exactness-completion-audit.md` |
+| What worked, failed, or regressed? | `docs/attempt-ledger.md`, `docs/techniques/sql-technique-backlog.md`, `docs/techniques/audit-inventory.md`, `docs/history-coverage-audit.md` |
 | What products/papers/blogs changed the plan? | `docs/external-products-reviewed.md`, `docs/techniques/trainloop-teardown.md` |
 | What is on the roadmap? | `docs/NEXT.md`, `docs/techniques/sql-technique-backlog.md`, `docs/factory/public-artifacts.md` |
 | What should the owner learn next? | `docs/learning-pipeline.md`, `docs/learning-progress.md` |
@@ -73,6 +82,7 @@ Verification commands:
 ```bash
 bash evals/docs-world-class-smoke.sh
 bash evals/attempt-ledger-smoke.sh
+bash evals/technique-inventory-smoke.sh
 bash evals/factory-publish-check-smoke.sh
 npm run build # from browser/
 ```
@@ -91,10 +101,10 @@ improve:
    `scripts/check_factory_run_publish.py` remains as a portable smoke. This is
    acceptable, but should eventually share one implementation.
 
-3. **Old docs are still noisy.**
+3. **Old docs are still noisy, but bounded.**
    `docs/PLAN.md`, older PRDs, and session notes remain useful but can distract
-   readers. The golden path now exists, but stale docs are not all visibly
-   labeled.
+   readers. `docs/history-coverage-audit.md` now names which older surfaces are
+   normalized, classified, or narrative-only.
 
 4. **External teardown corpus is shallow.**
    TrainLoop, Baseten, SQL specialists, Apple, Castform, and agent-system notes

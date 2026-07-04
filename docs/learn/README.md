@@ -7,7 +7,11 @@ description: TinyGPT's learning corpus — a ground-up curriculum from "what's a
 
 A reading map for the `docs/learn/` directory. Three reading paths depending on what you want.
 
-**Start here:** [Mac-local AI mastery map](./mac-mastery-map.md) — the living agenda: everything buildable on a Mac, what's already covered, and the single-machine ↔ distributed boundary. The spine for "learn everything + build everything buildable on this Mac."
+**Start here for ground-up learning:** [Curriculum overview](./curriculum.md).
+It is the 10-module path from functions and loss to transformers,
+post-training, evals, rewards, and the self-improving factory.
+
+**Start here for Mac-local scope:** [Mac-local AI mastery map](./mac-mastery-map.md) — the living agenda: everything buildable on a Mac, what's already covered, and the single-machine ↔ distributed boundary.
 
 For the active owner learning sequence tied to current factory work, use
 [`../learning-pipeline.md`](../learning-pipeline.md). It orders eval design,
@@ -20,7 +24,7 @@ Read these in order — the curriculum is designed as a single arc from
 basic math to modern transformer training. Each session is self-contained
 but builds on the last.
 
-- [Curriculum overview](./curriculum.md) — the 8-session plan, what each session covers, what you need before starting.
+- [Curriculum overview](./curriculum.md) — the 10-module ground-up roadmap, mastery gates, exercises, and project anchors.
 - [Session 1 — From a line to a learned line](./session-01-neural-net-basics.md)
 - [Session 2 — Gradient descent](./session-02-gradient-descent.md)
 - [Session 3 — Non-linearities](./session-03-non-linearities.md)

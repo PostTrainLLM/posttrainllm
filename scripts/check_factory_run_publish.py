@@ -31,6 +31,12 @@ ALLOWED_DECISIONS = {
     "retry-eval",
     "park",
 }
+ALLOWED_CONFIDENCE = {
+    "exact",
+    "inferred",
+    "missing-evidence",
+    "not-applicable",
+}
 
 
 def load_json(path: Path) -> Any:
@@ -107,6 +113,16 @@ def main() -> int:
     require(decision_value in ALLOWED_DECISIONS, f"decision.decision must be one of {sorted(ALLOWED_DECISIONS)}", errors)
     require(nonempty(decision.get("reason")), "decision.reason is required", errors)
     require(nonempty(decision.get("next_action")), "decision.next_action is required", errors)
+    confidence = decision.get("failure_reason_confidence")
+    require(confidence in ALLOWED_CONFIDENCE, "decision.failure_reason_confidence must be exact, inferred, missing-evidence, or not-applicable", errors)
+    if decision_value == "ship":
+        require(confidence == "not-applicable", "ship decision must use decision.failure_reason_confidence=not-applicable", errors)
+    else:
+        require(nonempty(decision.get("failure_reason")), "non-ship decision.failure_reason is required", errors)
+        require(nonempty(decision.get("lesson")), "non-ship decision.lesson is required", errors)
+        require(confidence != "not-applicable", "non-ship decision requires real failure_reason_confidence", errors)
+    evidence_sources = decision.get("evidence_sources")
+    require(isinstance(evidence_sources, list) and bool(evidence_sources), "decision.evidence_sources must be a non-empty list", errors)
 
     require("overall" in slice_metrics, "slice-metrics.json must contain overall", errors)
     require("slices" in slice_metrics, "slice-metrics.json must contain slices", errors)
@@ -121,7 +137,7 @@ def main() -> int:
         require(nonempty(item.get("path")), f"provenance.datasets[{idx}].path is required", errors)
         require(nonempty(item.get("sha256")), f"provenance.datasets[{idx}].sha256 is required", errors)
 
-    for section in ("## Decision", "## Target", "## Data", "## Eval", "## Performance", "## Failures", "## Next Action"):
+    for section in ("## Decision", "## Evidence / Exactness", "## Target", "## Data", "## Eval", "## Performance", "## Failures", "## Next Action"):
         require(section in report, f"report.md missing section: {section}", errors)
 
     if decision_value == "ship":

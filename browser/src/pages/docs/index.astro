@@ -1,14 +1,11 @@
 ---
 /**
- * /docs/ — auto-generated landing page.
+ * /docs/ - documentation cockpit.
  *
- * Walks src/content/docs/ via import.meta.glob, groups by top-level
- * directory, and emits one card per markdown file. Each card's blurb
- * is taken from the doc's frontmatter `description` if present, else
- * from the first paragraph after the title heading.
- *
- * Adding a new doc → just drop a .md under docs/ and rebuild; the
- * landing page picks it up automatically. No wrapper page needed.
+ * The markdown source is copied from repo-root docs/ into src/content/docs/
+ * before every Astro build. This page indexes that content and adds the
+ * project-specific navigation the raw markdown tree does not provide:
+ * golden path, evidence/proof docs, section filters, and client-side search.
  */
 import Default from "../../layouts/Default.astro";
 
@@ -25,14 +22,14 @@ const docs = import.meta.glob<MdModule>("../../content/docs/**/*.md", {
 });
 
 type DocEntry = {
-  slug: string;       // url path after /docs/
+  slug: string;
   title: string;
   blurb: string;
-  group: string;      // category for grouping
+  group: string;
+  groupLabel: string;
+  search: string;
 };
 
-// Acronyms / abbreviations that should stay uppercased when humanizing
-// a slug. Maps lower-case match → preferred display.
 const ACRONYMS: Record<string, string> = {
   dpo: "DPO",
   sft: "SFT",
@@ -53,20 +50,62 @@ const ACRONYMS: Record<string, string> = {
   webgpu: "WebGPU",
   wasm: "WASM",
   wgsl: "WGSL",
+  prd: "PRD",
+  prds: "PRDs",
+  sql: "SQL",
 };
+
+const GROUP_LABEL: Record<string, string> = {
+  "Top-level": "Core",
+  factory: "Factory",
+  techniques: "Techniques",
+  learn: "Learning",
+  learning: "Learning",
+  prds: "PRDs",
+  recipes: "Recipes",
+  research: "Research",
+  roadmap: "Roadmap",
+  parked: "Parked",
+  archive: "Archive",
+  training: "Training",
+  artifacts: "Artifacts",
+};
+
+const GROUP_ORDER = [
+  "Top-level",
+  "factory",
+  "techniques",
+  "learn",
+  "learning",
+  "prds",
+  "recipes",
+  "research",
+  "roadmap",
+  "training",
+  "artifacts",
+  "parked",
+  "archive",
+];
 
 function humanize(s: string): string {
   return s
     .replace(/[_-]+/g, " ")
-    // Split "tier1" → "tier 1", "phase9" → "phase 9".
     .replace(/([a-zA-Z])(\d)/g, "$1 $2")
     .split(" ")
     .map((w) => ACRONYMS[w.toLowerCase()] ?? w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
 
-// Pull a one-line blurb from raw markdown — first non-heading narrative
-// paragraph, trimmed to ~160 chars. Falls back to the title if none found.
+function cleanMarkdown(text: string): string {
+  return text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function deriveBlurb(raw: string, fallback: string): string {
   const lines = raw.split(/\r?\n/);
   const paragraphs: string[] = [];
@@ -92,12 +131,10 @@ function deriveBlurb(raw: string, fallback: string): string {
       flush();
       continue;
     }
-    if (t === "") {
+    if (!t) {
       flush();
       continue;
     }
-    // Skip non-narrative lines (bullets, tables, quotes) outright. If a
-    // paragraph is BUILT from these we don't want it — just continue.
     if (t.startsWith("|") || t.startsWith("-") || t.startsWith("*") || t.startsWith(">") || /^\d+\./.test(t)) {
       flush();
       continue;
@@ -108,15 +145,14 @@ function deriveBlurb(raw: string, fallback: string): string {
 
   const first = paragraphs.find((p) => p.length > 30);
   if (!first) return fallback;
-  // Strip markdown link / inline-code / bold-italic syntax.
-  const cleaned = first
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/`([^`]+)`/g, "$1")
-    .replace(/\*\*([^*]+)\*\*/g, "$1")
-    .replace(/\*([^*]+)\*/g, "$1")
-    .replace(/\s+/g, " ")
-    .trim();
-  return cleaned.length > 200 ? cleaned.slice(0, 197) + "…" : cleaned;
+  const cleaned = cleanMarkdown(first);
+  return cleaned.length > 190 ? cleaned.slice(0, 187) + "..." : cleaned;
+}
+
+function tableCount(raw: string, label: string): string {
+  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = raw.match(new RegExp(`\\|\\s*${escaped}\\s*\\|\\s*([0-9]+)\\s*\\|`));
+  return match?.[1] ?? "0";
 }
 
 const entries: DocEntry[] = Object.entries(docs).map(([path, mod]) => {
@@ -126,232 +162,583 @@ const entries: DocEntry[] = Object.entries(docs).map(([path, mod]) => {
   const parts = rel.split("/");
   const last = parts[parts.length - 1];
   const title = fm.title ?? humanize(last === "index" ? parts[parts.length - 2] ?? "Overview" : last);
-
-  // Group by top-level directory; root files go in "Project" (renamed below).
   const group = parts.length > 1 ? parts[0] : "Top-level";
-
+  const groupLabel = GROUP_LABEL[group] ?? humanize(group);
   const rawFn = (mod as any).rawContent;
   const raw = typeof rawFn === "function" ? rawFn() : "";
   const blurb = fm.description ?? deriveBlurb(raw, title);
-
-  return { slug, title, blurb, group };
+  const search = `${title} ${slug} ${groupLabel} ${blurb}`.toLowerCase();
+  return { slug, title, blurb, group, groupLabel, search };
 });
 
-// Sort entries within each group: index/overview first, then alphabetical.
 entries.sort((a, b) => {
-  if (a.group !== b.group) return a.group.localeCompare(b.group);
-  // Bring directory-index pages to the top of their group.
-  const aIdx = a.slug.endsWith("/index") || !a.slug.includes("/");
-  const bIdx = b.slug.endsWith("/index") || !b.slug.includes("/");
-  if (aIdx !== bIdx) return aIdx ? -1 : 1;
+  if (a.group !== b.group) {
+    const ai = GROUP_ORDER.indexOf(a.group);
+    const bi = GROUP_ORDER.indexOf(b.group);
+    if (ai !== bi) return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+    return a.group.localeCompare(b.group);
+  }
   return a.title.localeCompare(b.title);
 });
 
-// Group label friendly names — keep stable insertion order.
-const GROUP_LABEL: Record<string, string> = {
-  "Top-level": "Core docs",
-  roadmap: "Roadmap (single-machine plan)",
-  training: "Training pipeline",
-  research: "Recent benchmark research",
-  archive: "Archive (older / superseded)",
-};
-
-const GROUP_ORDER = ["Top-level", "roadmap", "training", "research", "archive"];
-
-// Bucket entries by group.
 const grouped = new Map<string, DocEntry[]>();
-for (const e of entries) {
-  if (!grouped.has(e.group)) grouped.set(e.group, []);
-  grouped.get(e.group)!.push(e);
+for (const entry of entries) {
+  if (!grouped.has(entry.group)) grouped.set(entry.group, []);
+  grouped.get(entry.group)!.push(entry);
 }
 
-// Ordered list of [groupKey, label, entries] tuples for the template.
-const sections = GROUP_ORDER
-  .filter((g) => grouped.has(g))
-  .map((g) => ({
-    key: g,
-    label: GROUP_LABEL[g] ?? humanize(g),
-    items: grouped.get(g)!,
-  }));
+const sections = [...grouped.entries()].map(([key, items]) => ({
+  key,
+  label: GROUP_LABEL[key] ?? humanize(key),
+  items,
+}));
 
-// Anything in an unexpected group (future folders): append.
-for (const [g, items] of grouped) {
-  if (!GROUP_ORDER.includes(g)) {
-    sections.push({ key: g, label: GROUP_LABEL[g] ?? humanize(g), items });
-  }
+function doc(slug: string) {
+  return entries.find((entry) => entry.slug === slug);
 }
+
+const exactnessRaw = (docs["../../content/docs/exactness-completion-audit.md"] as any)?.rawContent?.() ?? "";
+const stats = [
+  { label: "Attempts", value: tableCount(exactnessRaw, "Total attempts") },
+  { label: "Exact", value: tableCount(exactnessRaw, "Exact confidence") },
+  { label: "Audit rows", value: tableCount(exactnessRaw, "Tracked audit rows") },
+  { label: "Docs", value: String(entries.length) },
+];
+
+const goldenPath = [
+  "README",
+  "NEXT",
+  "factory/README",
+  "techniques/README",
+  "techniques/audit-inventory",
+  "attempt-ledger",
+  "history-coverage-audit",
+  "exactness-completion-audit",
+  "docs-quality-audit",
+  "learning-pipeline",
+  "learning-progress",
+  "factory/public-artifacts",
+]
+  .map(doc)
+  .filter(Boolean) as DocEntry[];
+
+const evidenceDocs = [
+  "attempt-ledger",
+  "history-coverage-audit",
+  "exactness-completion-audit",
+  "techniques/audit-inventory",
+  "factory/enforcement",
+  "factory/run-schema",
+  "factory/reports",
+  "factory/public-artifacts",
+].map(doc).filter(Boolean) as DocEntry[];
+
+const filters = [
+  { key: "all", label: "All" },
+  { key: "Top-level", label: "Core" },
+  { key: "factory", label: "Factory" },
+  { key: "techniques", label: "Techniques" },
+  { key: "learn", label: "Learning" },
+  { key: "prds", label: "PRDs" },
+  { key: "archive", label: "Archive" },
+];
 
 const totalCount = entries.length;
 
 const layoutProps = {
-  title: "TinyGPT — documentation library",
-  description: `Every doc in the repo, ${totalCount} files in total — lessons, retrospectives, the full roadmap, training pipeline, interpretability, performance research, and archived material.`,
+  title: "TinyGPT docs cockpit",
+  description: `TinyGPT documentation cockpit: golden path, evidence, exactness audits, and ${totalCount} rendered docs.`,
   ogType: "article" as const,
-  ogTitle: "TinyGPT — documentation library",
-  ogDescription: "Every doc in the repo: lessons, retrospectives, roadmap, training pipeline, perf research, and archived material.",
+  ogTitle: "TinyGPT docs cockpit",
+  ogDescription: "Golden path, evidence, exactness audits, and rendered docs for the TinyGPT factory.",
   themeColor: "#0a0c10",
 };
 
 const style = `
   :root {
     --bg: #0a0c10;
-    --panel: #11141a;
-    --line: #232733;
-    --fg: #e7e8ea;
-    --muted: #c8cbd4;
-    --faint: #787d88;
+    --panel: #10141a;
+    --panel-2: #151a22;
+    --line: #252b36;
+    --fg: #e8ebef;
+    --muted: #c5cad3;
+    --faint: #838a96;
     --accent: #48e5c2;
-    --accent-dim: #2a8a78;
+    --accent-2: #8ad4ff;
+    --warn: #f2c46b;
     --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", monospace;
   }
   html, body {
-    background: var(--bg); color: var(--fg);
-    font: 16px/1.7 var(--font-sans);
-    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.6 var(--font-sans);
+    margin: 0;
+    padding: 0;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 880px; margin: 0 auto; padding: 56px 24px 96px; }
-  .eyebrow {
-    font: 500 11px/1 var(--font-mono);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 18px;
-    display: flex; gap: 8px; flex-wrap: wrap;
+  .wrap {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 36px 0 88px;
   }
-  .eyebrow a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed transparent; transition: border-color 0.2s; }
-  .eyebrow a:hover { border-bottom-color: var(--accent); }
-  .eyebrow .sep { color: var(--faint); }
-
-  h1 { font: 600 36px/1.2 var(--font-sans); color: var(--fg); margin: 0 0 16px; letter-spacing: -0.01em; }
-  .lede { color: var(--muted); font-size: 17px; line-height: 1.6; margin: 0 0 40px; max-width: 700px; }
-
-  h2.section {
-    font: 600 16px/1.3 var(--font-sans);
-    color: var(--fg);
-    margin: 36px 0 14px;
-    letter-spacing: 0.005em;
-    padding-bottom: 8px;
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 26px;
     border-bottom: 1px solid var(--line);
-    display: flex; justify-content: space-between; align-items: baseline;
+    padding-bottom: 14px;
   }
-  h2.section .count {
-    font: 500 11px/1 var(--font-mono);
-    color: var(--faint);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font: 500 12px/1 var(--font-mono);
   }
-
-  .doc-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-
-  .doc-card {
-    display: block;
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 16px 20px;
-    text-decoration: none;
-    color: inherit;
-    transition: border-color 0.2s, background 0.2s, transform 0.2s;
-  }
-  .doc-card:hover {
-    border-color: var(--accent-dim);
-    background: rgba(72, 229, 194, 0.03);
-    transform: translateY(-1px);
-  }
-  .doc-card-head {
-    display: flex; justify-content: space-between; align-items: baseline;
-    gap: 16px; margin-bottom: 6px;
-  }
-  .doc-card-title {
-    font: 600 15.5px/1.3 var(--font-sans);
-    color: var(--fg);
-  }
-  .doc-card-tag {
-    font: 500 10px/1 var(--font-mono);
-    text-transform: lowercase;
-    letter-spacing: 0.06em;
-    color: var(--accent);
-    background: rgba(72, 229, 194, 0.06);
-    border: 1px solid rgba(72, 229, 194, 0.18);
-    padding: 3px 7px;
-    border-radius: 999px;
-    flex-shrink: 0;
-    word-break: break-all;
-  }
-  .doc-card-blurb {
+  .nav a {
     color: var(--muted);
-    font-size: 13.5px;
-    line-height: 1.55;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .badge {
+    font: 500 11px/1 var(--font-mono);
+    color: var(--accent);
+    border: 1px solid rgba(72, 229, 194, 0.3);
+    padding: 7px 9px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 26px;
+    align-items: end;
+    margin-bottom: 30px;
+  }
+  h1 {
+    font: 650 42px/1.08 var(--font-sans);
+    letter-spacing: 0;
+    margin: 0 0 14px;
+  }
+  .lede {
+    max-width: 760px;
+    color: var(--muted);
+    font-size: 17px;
     margin: 0;
   }
-
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .stat {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 14px 16px;
+    min-height: 70px;
+  }
+  .stat-value {
+    display: block;
+    font: 650 28px/1.1 var(--font-sans);
+    color: var(--fg);
+  }
+  .stat-label {
+    display: block;
+    margin-top: 8px;
+    font: 500 11px/1 var(--font-mono);
+    color: var(--faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .panel-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+    margin: 26px 0;
+  }
+  .panel {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  .panel h2,
+  .library-head h2,
+  .section h2 {
+    font: 620 18px/1.25 var(--font-sans);
+    letter-spacing: 0;
+    margin: 0;
+  }
+  .panel p,
+  .section p {
+    color: var(--muted);
+    margin: 8px 0 0;
+    font-size: 14px;
+  }
+  .link-list {
+    display: grid;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .doc-link {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.015);
+  }
+  .doc-link:hover {
+    border-color: rgba(72, 229, 194, 0.45);
+    background: rgba(72, 229, 194, 0.045);
+  }
+  .doc-link strong {
+    display: block;
+    overflow-wrap: anywhere;
+    font: 580 14px/1.25 var(--font-sans);
+  }
+  .doc-link span {
+    color: var(--faint);
+    font: 500 10px/1 var(--font-mono);
+  }
+  .doc-link em {
+    color: var(--accent);
+    font-style: normal;
+    font: 500 11px/1 var(--font-mono);
+  }
+  .library-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 16px;
+    border-top: 1px solid var(--line);
+    padding-top: 28px;
+    margin-top: 28px;
+  }
+  .library-head p {
+    color: var(--muted);
+    margin: 7px 0 0;
+    font-size: 14px;
+  }
+  .search {
+    width: min(360px, 100%);
+    display: grid;
+    gap: 7px;
+  }
+  .search label {
+    color: var(--faint);
+    font: 500 11px/1 var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .search input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--line);
+    background: #0c0f14;
+    color: var(--fg);
+    border-radius: 7px;
+    padding: 11px 12px;
+    font: 14px/1.2 var(--font-sans);
+  }
+  .search input:focus {
+    outline: none;
+    border-color: rgba(72, 229, 194, 0.65);
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 18px 0 18px;
+  }
+  .filter {
+    appearance: none;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--muted);
+    border-radius: 7px;
+    padding: 8px 11px;
+    font: 500 12px/1 var(--font-mono);
+    cursor: pointer;
+  }
+  .filter[data-active="true"] {
+    color: var(--bg);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .section {
+    margin-top: 24px;
+  }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 14px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 9px;
+    margin-bottom: 10px;
+  }
+  .section-count {
+    color: var(--faint);
+    font: 500 11px/1 var(--font-mono);
+  }
+  .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .doc-card {
+    display: block;
+    min-height: 132px;
+    color: inherit;
+    text-decoration: none;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .doc-card:hover {
+    border-color: rgba(72, 229, 194, 0.45);
+    background: rgba(72, 229, 194, 0.035);
+  }
+  .doc-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .doc-title {
+    font: 620 15px/1.3 var(--font-sans);
+    overflow-wrap: anywhere;
+  }
+  .doc-group {
+    color: var(--accent-2);
+    font: 500 10px/1 var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+  .doc-blurb {
+    color: var(--muted);
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .empty {
+    display: none;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+    color: var(--muted);
+    background: var(--panel);
+  }
   .foot {
-    margin-top: 56px;
-    padding-top: 22px;
+    margin-top: 46px;
+    padding-top: 18px;
     border-top: 1px solid var(--line);
     color: var(--faint);
-    font: 13px/1.6 var(--font-mono);
-    display: flex; gap: 12px; flex-wrap: wrap;
+    font: 12px/1.6 var(--font-mono);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
   }
   .foot a {
     color: var(--accent);
     text-decoration: none;
-    border-bottom: 1px dashed var(--accent-dim);
+    border-bottom: 1px dashed rgba(72, 229, 194, 0.45);
   }
   .foot a:hover { border-bottom-color: var(--accent); }
+  @media (max-width: 860px) {
+    .wrap { width: min(100% - 28px, 1180px); padding-top: 24px; }
+    .hero,
+    .panel-row,
+    .doc-grid {
+      grid-template-columns: 1fr;
+    }
+    .topbar,
+    .library-head {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    h1 { font-size: 34px; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 460px) {
+    .stats { grid-template-columns: 1fr; }
+    h1 { font-size: 30px; }
+  }
 `;
 ---
 
 <Default {...layoutProps}>
   <style is:global slot="head" set:html={style}></style>
   <div class="wrap">
-    <div class="eyebrow">
-      <a href="/">← TinyGPT</a>
-      <span class="sep">·</span>
-      <a href="/devlog">devlog</a>
-      <span class="sep">·</span>
-      <a href="/roadmap">roadmap</a>
-      <span class="sep">·</span>
-      <a href="/speedup">speedup</a>
-    </div>
+    <header class="topbar">
+      <nav class="nav" aria-label="Primary">
+        <a href="/">TinyGPT</a>
+        <a href="/artifacts">Artifacts</a>
+        <a href="/devlog">Devlog</a>
+        <a href="/roadmap">Roadmap</a>
+        <a href="/playground">Playground</a>
+      </nav>
+      <div class="badge">Docs cockpit</div>
+    </header>
 
-    <h1>Documentation</h1>
-    <p class="lede">
-      Every markdown file in <code>docs/</code> rendered as a page —
-      {totalCount} docs in total. The markdown source lives in the repo at
-      <a href="https://github.com/sarthak-fleet/tinygpt/tree/main/docs" target="_blank" rel="noopener">github.com/sarthak-fleet/tinygpt/tree/main/docs</a>.
-      A "where things moved" table for anything you can't find lives at
-      <a href="/docs/MAP">/docs/MAP</a>.
-    </p>
+    <section class="hero">
+      <div>
+        <h1>TinyGPT Docs</h1>
+        <p class="lede">
+          The operating surface for the Mac-local specialist factory: current
+          state, attempts, exactness audits, technique inventory, public
+          artifacts, and the learning path.
+        </p>
+      </div>
+      <div class="stats" aria-label="Documentation statistics">
+        {stats.map((stat) => (
+          <div class="stat">
+            <span class="stat-value">{stat.value}</span>
+            <span class="stat-label">{stat.label}</span>
+          </div>
+        ))}
+      </div>
+    </section>
 
-    {sections.map((s) => (
-      <>
-        <h2 class="section">
-          <span>{s.label}</span>
-          <span class="count">{s.items.length} files</span>
-        </h2>
-        <div class="doc-grid">
-          {s.items.map((d) => (
-            <a class="doc-card" href={`/docs/${d.slug}`}>
-              <div class="doc-card-head">
-                <span class="doc-card-title">{d.title}</span>
-                <span class="doc-card-tag">{d.slug}</span>
-              </div>
-              <p class="doc-card-blurb">{d.blurb}</p>
+    <section class="panel-row" aria-label="Pinned docs">
+      <div class="panel">
+        <h2>Golden Path</h2>
+        <p>Read these first when you need to know what is true now.</p>
+        <div class="link-list">
+          {goldenPath.map((entry, index) => (
+            <a class="doc-link" href={`/docs/${entry.slug}`}>
+              <strong>{index + 1}. {entry.title}</strong>
+              <em>{entry.groupLabel}</em>
             </a>
           ))}
         </div>
-      </>
-    ))}
+      </div>
+      <div class="panel">
+        <h2>Evidence & Exactness</h2>
+        <p>Proof surfaces for attempts, counts, schemas, and publishing gates.</p>
+        <div class="link-list">
+          {evidenceDocs.map((entry) => (
+            <a class="doc-link" href={`/docs/${entry.slug}`}>
+              <strong>{entry.title}</strong>
+              <span>{entry.slug}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
 
-    <div class="foot">
-      <span>TinyGPT</span>
-      <span class="sep">·</span>
-      <a href="https://github.com/sarthak-fleet/tinygpt">repo ↗</a>
-      <span class="sep">·</span>
-      <a href="https://github.com/sarthak-fleet/tinygpt/tree/main/docs">raw markdown ↗</a>
+    <section class="library-head">
+      <div>
+        <h2>Library</h2>
+        <p><span id="visibleCount">{totalCount}</span> visible docs from the rendered repo corpus.</p>
+      </div>
+      <div class="search">
+        <label for="docSearch">Search docs</label>
+        <input id="docSearch" type="search" autocomplete="off" placeholder="SQL, eval, LoRA, exactness..." />
+      </div>
+    </section>
+
+    <div class="filters" aria-label="Doc category filters">
+      {filters.map((filter) => (
+        <button class="filter" type="button" data-filter={filter.key} data-active={filter.key === "all" ? "true" : "false"}>
+          {filter.label}
+        </button>
+      ))}
     </div>
+
+    <div class="empty" id="emptyState">No docs match the current filter.</div>
+
+    <div id="docSections">
+      {sections.map((section) => (
+        <section class="section" data-doc-section={section.key}>
+          <div class="section-head">
+            <h2>{section.label}</h2>
+            <span class="section-count">{section.items.length} docs</span>
+          </div>
+          <div class="doc-grid">
+            {section.items.map((entry) => (
+              <a
+                class="doc-card"
+                href={`/docs/${entry.slug}`}
+                data-doc-card
+                data-group={entry.group}
+                data-search={entry.search}
+              >
+                <div class="doc-card-top">
+                  <span class="doc-title">{entry.title}</span>
+                  <span class="doc-group">{entry.groupLabel}</span>
+                </div>
+                <p class="doc-blurb">{entry.blurb}</p>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+
+    <footer class="foot">
+      <span>TinyGPT</span>
+      <a href="https://github.com/sarthak-fleet/tinygpt">repo</a>
+      <a href="https://github.com/sarthak-fleet/tinygpt/tree/main/docs">raw markdown</a>
+    </footer>
   </div>
+
+  <script is:inline>
+    (() => {
+      const input = document.getElementById("docSearch");
+      const buttons = Array.from(document.querySelectorAll("[data-filter]"));
+      const cards = Array.from(document.querySelectorAll("[data-doc-card]"));
+      const sections = Array.from(document.querySelectorAll("[data-doc-section]"));
+      const count = document.getElementById("visibleCount");
+      const empty = document.getElementById("emptyState");
+      let filter = "all";
+
+      const apply = () => {
+        const query = (input?.value || "").trim().toLowerCase();
+        let visible = 0;
+
+        for (const card of cards) {
+          const group = card.getAttribute("data-group") || "";
+          const text = card.getAttribute("data-search") || "";
+          const okFilter = filter === "all" || group === filter;
+          const okQuery = !query || text.includes(query);
+          const show = okFilter && okQuery;
+          card.hidden = !show;
+          if (show) visible += 1;
+        }
+
+        for (const section of sections) {
+          const shownCards = section.querySelectorAll("[data-doc-card]:not([hidden])").length;
+          section.hidden = shownCards === 0;
+        }
+
+        if (count) count.textContent = String(visible);
+        if (empty) empty.style.display = visible === 0 ? "block" : "none";
+      };
+
+      input?.addEventListener("input", apply);
+      for (const button of buttons) {
+        button.addEventListener("click", () => {
+          filter = button.getAttribute("data-filter") || "all";
+          for (const other of buttons) {
+            other.setAttribute("data-active", String(other === button));
+          }
+          apply();
+        });
+      }
+      apply();
+    })();
+  </script>
 </Default>

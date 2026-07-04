@@ -1,20 +1,50 @@
 # Learning Pipeline
 
-The owner's learning track should reinforce the TinyGPT factory. Learning is not
-separate from building; every module should make the next run better.
+The owner's learning track is now explicitly ground-up. It still reinforces the
+TinyGPT factory, but it does not start with post-training jargon.
+
+Primary path:
+
+```text
+math intuition -> tiny neural net -> training loop -> transformer
+-> LLM behavior -> post-training -> evals -> self-improving factory
+```
+
+Learning is not separate from building; every module should eventually make the
+next run better.
 
 Progress is tracked in [`learning-progress.md`](learning-progress.md).
 
 ## Principle
 
 ```text
-project failure -> concept to learn -> recipe improvement -> next measured run
+concept -> toy implementation -> TinyGPT anchor -> recipe improvement
 ```
 
 If a learning topic does not improve target selection, data, post-training,
 eval, packaging, or reporting, park it until it does.
 
-## Current Learning Sequence
+## Ground-Up Master Roadmap
+
+The canonical roadmap is [`docs/learn/curriculum.md`](learn/curriculum.md).
+
+It defines the 10-module path:
+
+1. functions, data, parameters
+2. loss and gradient descent
+3. vectors, matrices, tensors
+4. non-linear neural nets and backprop
+5. ML paradigms and scaling
+6. tokenization, embeddings, language modeling
+7. attention and transformer blocks
+8. training mechanics
+9. post-training: SFT, LoRA, preference tuning
+10. evals, rewards, and self-improvement
+
+The SQL factory is the lab, not the starting point. Do not skip the foundation
+unless the module mastery gate can be passed out loud.
+
+## Factory-Attached Learning Sequence
 
 | Order | Topic | Why Now | Project Work It Unlocks | Primary Docs |
 |---:|---|---|---|---|
@@ -28,6 +58,9 @@ eval, packaging, or reporting, park it until it does.
 | 8 | Public reporting | Public artifacts are a product surface | case-study reports, blockers, competition comparison, reproduction notes | [`docs/factory/case-study-template.md`](factory/case-study-template.md), [`docs/factory/public-artifacts.md`](factory/public-artifacts.md) |
 
 ## Current Practical Curriculum
+
+This is the project lab sequence. It should run alongside the ground-up path,
+not replace it.
 
 ### Module 1 — SQL Eval Quality
 

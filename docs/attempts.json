@@ -1,103 +1,830 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "confidence_vocabulary": {
+    "exact": "Direct run report, decision file, artifact metadata, or current source doc contains the stated result and reason.",
+    "inferred": "Reason is reconstructed from prose or artifact notes, but no canonical run folder proves the full claim.",
+    "missing-evidence": "Attempt is known, but available docs do not preserve enough evidence to state a real reason.",
+    "not-applicable": "No failure reason is expected for this status."
+  },
   "attempts": [
     {
       "id": "sql-toy-sft-r4",
       "name": "Toy SQL SFT",
+      "family": "sql",
       "status": "worked-with-caveat",
       "evidence": "execution `0.167 -> 0.833` on 6-row fixture",
+      "failure_reason": "Train/eval overlap made the apparent improvement non-shippable.",
+      "failure_reason_confidence": "exact",
+      "lesson": "The SFT loop mechanics work, but eval splits must be frozen before claiming quality.",
+      "next_action": "Use only as a loop sanity check; rely on heldout SQL evals for real claims.",
+      "evidence_sources": [
+        "runs/2026-07-02-sql-poc-qwen06/report.md",
+        "docs/specialists/b1-sql-poc.md"
+      ],
       "source": "docs/specialists/b1-sql-poc.md"
     },
     {
       "id": "sql-expanded-synthetic-sft-r4",
       "name": "Expanded synthetic SQL SFT",
+      "family": "sql",
       "status": "worked",
       "evidence": "execution `0.160 -> 0.860`, exact `0.140 -> 0.840`",
+      "failure_reason_confidence": "not-applicable",
+      "lesson": "The synthetic SQL adapter is the current synthetic incumbent, but joins remain weaker than single-table rows.",
+      "next_action": "Keep as the synthetic incumbent until a candidate beats it on the same heldout gate.",
+      "evidence_sources": [
+        "runs/2026-07-02-sql-expanded-qwen06/report.md",
+        "runs/2026-07-02-sql-expanded-qwen06/failure-summary.json",
+        "docs/specialists/b1-sql-poc.md"
+      ],
       "source": "runs/2026-07-02-sql-expanded-qwen06/report.md"
     },
     {
       "id": "sql-public-bmc2-v1",
       "name": "Public b-mc2 v1",
+      "family": "sql",
       "status": "failed",
       "evidence": "exact `0.344` vs T5-small `0.484`",
+      "failure_reason": "The public-style dataset was too small to beat the T5-small baseline.",
+      "failure_reason_confidence": "inferred",
+      "lesson": "Public benchmark adaptation needs more coverage before tuning knobs matter.",
+      "next_action": "Scale public-style rows and re-evaluate against the same exact gate.",
+      "evidence_sources": [
+        "docs/specialists/b1-sql-poc.md"
+      ],
       "source": "docs/specialists/b1-sql-poc.md"
     },
     {
       "id": "sql-public-bmc2-v2",
       "name": "Public b-mc2 v2",
+      "family": "sql",
       "status": "failed",
       "evidence": "exact `0.031`",
+      "failure_reason": "Increasing rows, rank, and steps together made the recipe worse and confounded the cause.",
+      "failure_reason_confidence": "inferred",
+      "lesson": "Do not change data volume, rank, and training length in one uncontrolled jump.",
+      "next_action": "Use smaller controlled deltas with fixed eval and comparable training settings.",
+      "evidence_sources": [
+        "docs/specialists/b1-sql-poc.md"
+      ],
       "source": "docs/specialists/b1-sql-poc.md"
     },
     {
       "id": "sql-public-bmc2-v3",
       "name": "Public b-mc2 v3",
+      "family": "sql",
       "status": "failed",
       "evidence": "exact `0.422`",
+      "failure_reason": "Lower LR and fewer steps recovered quality but still missed the public baseline.",
+      "failure_reason_confidence": "inferred",
+      "lesson": "The public recipe was directionally better, but not enough for a win.",
+      "next_action": "Try targeted data weighting instead of only global hyperparameter changes.",
+      "evidence_sources": [
+        "docs/specialists/b1-sql-poc.md"
+      ],
       "source": "docs/specialists/b1-sql-poc.md"
     },
     {
       "id": "sql-public-bmc2-v4",
       "name": "Public b-mc2 v4",
+      "family": "sql",
       "status": "worked-with-caveat",
       "evidence": "exact `0.531` vs T5-small `0.484`",
+      "failure_reason": "The public win did not preserve synthetic SQL execution behavior.",
+      "failure_reason_confidence": "exact",
+      "lesson": "A narrow public exact-match win can still damage the incumbent specialist behavior.",
+      "next_action": "Route or compose specialists instead of forcing one adapter to satisfy both gates.",
+      "evidence_sources": [
+        "docs/specialists/b1-sql-poc.md",
+        "docs/factory/public-artifacts.md"
+      ],
       "source": "docs/specialists/b1-sql-poc.md"
     },
     {
       "id": "sql-public-v4-synthetic-regression",
       "name": "Public v4 synthetic regression check",
+      "family": "sql",
       "status": "regressed",
       "evidence": "synthetic execution `0.240` vs incumbent `0.860`",
+      "failure_reason": "Public-style training overfit schema-linking patterns that did not transfer to synthetic SQLite domains.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Every public benchmark gain needs a breadth/regression gate before packaging.",
+      "next_action": "Keep public and synthetic adapters separate unless a candidate passes both gates.",
+      "evidence_sources": [
+        "docs/specialists/b1-sql-poc.md",
+        "docs/factory/public-artifacts.md"
+      ],
       "source": "docs/specialists/b1-sql-poc.md"
     },
     {
       "id": "sql-blended-public-synthetic-v1",
       "name": "Blended public+synthetic SFT",
+      "family": "sql",
       "status": "failed",
       "evidence": "public `0.297`, synthetic execution `0.560`",
+      "failure_reason": "Naive mixture training caused interference and output-format collapse.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Mixing domains is not automatically regularization; it can reduce both capabilities.",
+      "next_action": "Use routing, data-mix search, or explicit slice gates before another blended adapter.",
+      "evidence_sources": [
+        "docs/specialists/b1-sql-poc.md",
+        "docs/factory/public-artifacts.md"
+      ],
       "source": "docs/specialists/b1-sql-poc.md"
     },
     {
       "id": "sql-static-multilora-composition",
       "name": "Static multi-LoRA composition",
+      "family": "sql",
       "status": "failed",
       "evidence": "best public-pass setting still synthetic-failed",
+      "failure_reason": "Fixed adapter weights produced a smooth tradeoff but no setting passed both gates.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Static composition cannot solve domain conflict when the right behavior depends on input type.",
+      "next_action": "Prefer input-aware routing over global composition weights.",
+      "evidence_sources": [
+        "docs/specialists/b1-sql-poc.md",
+        "docs/factory/public-artifacts.md"
+      ],
       "source": "docs/specialists/b1-sql-poc.md"
     },
     {
       "id": "sql-routed-v1",
       "name": "Routed public + synthetic adapters",
+      "family": "sql",
       "status": "worked-with-caveat",
       "evidence": "public exact `0.531`, synthetic execution `0.860`",
+      "failure_reason": "The routed artifact lacks public execution benchmarking and perf/package gates.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Routing preserves both measured slices, but artifact status still depends on public execution and performance evidence.",
+      "next_action": "Add public execution gate, latency/RAM/tok-s measurement, and a package decision.",
+      "evidence_sources": [
+        "runs/2026-07-02-sql-routed-qwen06-v1/report.md",
+        "runs/2026-07-02-sql-routed-qwen06-v1/decision.json",
+        "docs/factory/public-artifacts.md"
+      ],
       "source": "docs/factory/public-artifacts.md"
     },
     {
       "id": "sql-hygiene-simpo-dpo",
       "name": "Hygiene SimPO/DPO",
+      "family": "sql",
       "status": "failed",
       "evidence": "execution `0.860 -> 0.080`, clean-SQL `0.000 -> 0.000`",
+      "failure_reason": "Ref-free SimPO update collapsed the policy and produced degenerate fenced/prose outputs.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Preference tuning needs reference anchoring, smaller updates, and composed-eval checks.",
+      "next_action": "Retry with reference-anchored DPO or much lower LR/step count on the same frozen pairs.",
+      "evidence_sources": [
+        "runs/2026-07-03-sql-hygiene-dpo-qwen06/report.md",
+        "runs/2026-07-03-sql-hygiene-dpo-qwen06/decision.json"
+      ],
       "source": "runs/2026-07-03-sql-hygiene-dpo-qwen06/report.md"
     },
     {
       "id": "sql-candidate-selection",
       "name": "SQL candidate selection",
+      "family": "sql",
       "status": "not-tried",
       "evidence": "tooling and smoke exist; no model run",
+      "failure_reason_confidence": "not-applicable",
+      "lesson": "Highest-priority next recipe.",
+      "next_action": "Run only after candidate rows are generated without leakage.",
+      "evidence_sources": [
+        "docs/techniques/sql-technique-backlog.md",
+        "scripts/build_sql_candidate_choice.py",
+        "scripts/score_sql_candidate_choice.py"
+      ],
       "source": "docs/techniques/sql-technique-backlog.md"
     },
     {
       "id": "sql-offline-rollout-oapl",
       "name": "Offline rollout / OAPL-style SQL update",
+      "family": "sql",
       "status": "not-tried",
       "evidence": "plan renderer exists; no model run",
+      "failure_reason_confidence": "not-applicable",
+      "lesson": "Run only after candidate-selection reward surface is clean.",
+      "next_action": "Use after candidate selection proves the reward/data loop.",
+      "evidence_sources": [
+        "docs/techniques/sql-technique-backlog.md",
+        "scripts/render_batch_posttrain_plan.py"
+      ],
       "source": "docs/techniques/sql-technique-backlog.md"
     },
     {
       "id": "sql-controlled-lora-rank-sweep",
       "name": "Controlled SQL LoRA rank sweep",
+      "family": "sql",
       "status": "not-tried",
       "evidence": "not run",
+      "failure_reason_confidence": "not-applicable",
+      "lesson": "Needed to separate capacity from data/recipe confounds.",
+      "next_action": "Run only after the next target/eval is frozen.",
+      "evidence_sources": [
+        "docs/techniques/sql-technique-backlog.md"
+      ],
       "source": "docs/techniques/sql-technique-backlog.md"
+    },
+    {
+      "id": "fileops-qwen3-4b-distilled",
+      "name": "Qwen3-4B file-ops distilled specialist",
+      "family": "file-ops",
+      "status": "worked-with-caveat",
+      "evidence": "file-ops hard gate `0.58 -> 1.00`; breadth `0.596 -> 0.423`",
+      "failure_reason": "The specialist improved the narrow file-ops gate but regressed out-of-domain breadth.",
+      "failure_reason_confidence": "exact",
+      "lesson": "The artifact is useful only with routed-only positioning; it should not be sold as a general planner.",
+      "next_action": "Keep routed-only warnings prominent and add loader/pull smoke before wiring consumers.",
+      "evidence_sources": [
+        "docs/factory/public-artifacts.md",
+        "specialists/qwen3-4b-file-ops-distilled/eval_report.json",
+        "specialists/qwen3-4b-file-ops-distilled/model_card.md"
+      ],
+      "source": "docs/factory/public-artifacts.md"
+    },
+    {
+      "id": "fileops-qwen3-4b-rest-fused",
+      "name": "Qwen3-4B ReST fused breadth recovery variant",
+      "family": "file-ops",
+      "status": "worked-with-caveat",
+      "evidence": "depth `100%`, breadth `65%` vs stock breadth `60%`",
+      "failure_reason": "The artifact is archived as a comparison model, not promoted as the selected specialist.",
+      "failure_reason_confidence": "inferred",
+      "lesson": "Breadth recovery variants are useful evidence, but need current factory reports before promotion.",
+      "next_action": "Promote only after a current eval report, package metadata, and routed-use decision exist.",
+      "evidence_sources": [
+        "docs/factory/public-artifacts.md"
+      ],
+      "source": "docs/factory/public-artifacts.md"
+    },
+    {
+      "id": "fileops-qwen3-4b-multibackend-distilled",
+      "name": "Qwen3-4B multibackend distilled variant",
+      "family": "file-ops",
+      "status": "regressed",
+      "evidence": "depth `100%`, breadth `31%`",
+      "failure_reason": "Negative transfer damaged breadth even though depth remained high.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Multi-backend distillation can over-specialize and needs breadth gates by default.",
+      "next_action": "Keep as failed comparison evidence; do not promote without a new breadth-preserving recipe.",
+      "evidence_sources": [
+        "docs/factory/public-artifacts.md"
+      ],
+      "source": "docs/factory/public-artifacts.md"
+    },
+    {
+      "id": "vibethinker-3b-agentic-distilled",
+      "name": "VibeThinker 3B agentic distilled variant",
+      "family": "archive-model",
+      "status": "inconclusive",
+      "evidence": "weights preserved; current eval promotion missing",
+      "failure_reason": "The weights exist, but the docs do not preserve a current factory eval proving a win.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Preserved weights are not a ship decision.",
+      "next_action": "Run the factory eval gate and publish a before/after report before using it as a specialist package.",
+      "evidence_sources": [
+        "docs/factory/public-artifacts.md"
+      ],
+      "source": "docs/factory/public-artifacts.md"
+    },
+    {
+      "id": "apple-foundation-models-action-grounding",
+      "name": "Apple on-device Foundation Models action-grounding probe",
+      "family": "apple-fm",
+      "status": "failed",
+      "evidence": "BFCL agentic `25%` full catalog / approximately `0%` compact; Pace planner action-grounding `13%`",
+      "failure_reason": "Apple's on-device model could not ground actions well enough and its 4096-token context could not hold a real tool catalog.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Apple Foundation Models are useful as a free routing floor and intel source, not as the core capability dependency.",
+      "next_action": "Keep Core ML for our own weights as an optional future battery optimization, not a model-dependency bet.",
+      "evidence_sources": [
+        "docs/learn/apple-on-device-foundation-models.md",
+        "AGENTS.md"
+      ],
+      "source": "docs/learn/apple-on-device-foundation-models.md"
+    },
+    {
+      "id": "pace-qwen06-v1-v11-specialists",
+      "name": "Pace Qwen3-0.6B planner specialists v1-v11",
+      "family": "pace-planner",
+      "status": "failed",
+      "evidence": "v11 reached train loss `0.001` but refused `0/30` held-out OOS prompts; drilldown shows Pace v9-LoRA `0%/22%/3%` and v11-LoRA `0%/15%/17%` on ambig/oos/destructive",
+      "failure_reason": "The 0.6B specialists memorized surface behaviors but did not learn the planner judgment rules needed for held-out refusal and clarification.",
+      "failure_reason_confidence": "exact",
+      "lesson": "A tiny local specialist can memorize a corpus without acquiring the product judgment capability.",
+      "next_action": "Do not train v12; use larger base models or a different premise when the missing skill is judgment.",
+      "evidence_sources": [
+        "docs/RETROSPECTIVE.md",
+        "docs/DRILLDOWN.md",
+        "docs/pace-handoff-2026-06-10.md"
+      ],
+      "source": "docs/RETROSPECTIVE.md"
+    },
+    {
+      "id": "pace-clarify-v1-qwen4b-lora",
+      "name": "Pace clarify-v1 Qwen3-4B LoRA",
+      "family": "pace-planner",
+      "status": "regressed",
+      "evidence": "38 contrastive rows moved ambig only `0% -> 5%` while OOS regressed `80% -> 33%` in the retrospective; drilldown records the same attempt as `2%/40%/50%` on ambig/oos/destructive",
+      "failure_reason": "Small-corpus LoRA on a competent base caused catastrophic interference across planner dimensions.",
+      "failure_reason_confidence": "inferred",
+      "lesson": "Fine-tuning a strong base on a thin behavior slice requires coverage for every dimension that must not regress.",
+      "next_action": "Do not fine-tune the planner on narrow clarify rows unless the corpus also covers OOS, destructive, happy path, and breadth gates.",
+      "evidence_sources": [
+        "docs/RETROSPECTIVE.md",
+        "docs/DRILLDOWN.md"
+      ],
+      "source": "docs/RETROSPECTIVE.md"
+    },
+    {
+      "id": "pace-two-stage-ambiguity-shim-v2",
+      "name": "Pace two-stage ambiguity detector shim v2",
+      "family": "pace-planner",
+      "status": "worked-with-caveat",
+      "evidence": "ambig moved `0% -> 20%`, while OOS dropped `78% -> 55%` and destructive stayed `67%`; not shipped on top of Gemma",
+      "failure_reason": "The shim improved ambiguity detection for the 4B floor but over-triggered and became unnecessary once Gemma reached the same ambig score with better OOS/destructive behavior.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Rule wrappers can expose the missing behavior, but they still need the same regression gates as model updates.",
+      "next_action": "Keep as an option only if shipping the 4B footprint floor; do not stack it on the stronger Gemma path.",
+      "evidence_sources": [
+        "docs/DRILLDOWN.md"
+      ],
+      "source": "docs/DRILLDOWN.md"
+    },
+    {
+      "id": "pace-thinking-models-unhappy-path",
+      "name": "Pace reasoning-model unhappy-path drill",
+      "family": "pace-planner",
+      "status": "inconclusive",
+      "evidence": "Qwen3-4B-Thinking scored `0%/10%/0%` and DeepSeek-R1-Distill-Qwen-7B scored `0%/3%/0%` on ambig/oos/destructive under a 300-token cap",
+      "failure_reason": "The evaluation budget was consumed by think traces, so the apparent zero scores were not a fair model-quality verdict.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Reasoning models need adequate max tokens and a stop-on-think strategy before interpreting planner scores.",
+      "next_action": "Re-run with max_tokens >= 1024 and stop on `</think>` only if Gemma or the locked planner fails in production.",
+      "evidence_sources": [
+        "docs/DRILLDOWN.md"
+      ],
+      "source": "docs/DRILLDOWN.md"
+    },
+    {
+      "id": "pace-gemma-3-12b-drill-winner",
+      "name": "Pace Gemma-3-12B unhappy-path drill winner",
+      "family": "pace-planner",
+      "status": "worked-with-caveat",
+      "evidence": "Gemma-3-12B scored `22%` ambig, `82%` OOS, `77%` destructive and won all three unhappy-path dimensions in the n=130 drill",
+      "failure_reason": "Gemma won the drill but ambiguity remained poor in absolute terms and the decision was later superseded by the general planner lock.",
+      "failure_reason_confidence": "exact",
+      "lesson": "A stronger zero-shot base beat the local fine-tunes, but model-selection evidence can be superseded by later broader gates.",
+      "next_action": "Keep as historical unhappy-path evidence; prefer current `PROJECT_STATUS.md`/`docs/NEXT.md` for active planner decisions.",
+      "evidence_sources": [
+        "docs/DRILLDOWN.md"
+      ],
+      "source": "docs/DRILLDOWN.md"
+    },
+    {
+      "id": "pace-qwen35-challenger-round",
+      "name": "Pace Qwen3.5 challenger round",
+      "family": "pace-planner",
+      "status": "worked-with-caveat",
+      "evidence": "Qwen3.5-9B scored `18%/97%/63%`; Qwen3.5-4B scored `15%/55%/70%` on ambig/oos/destructive; champion stood",
+      "failure_reason": "Qwen3.5 improved some dimensions, especially OOS for 9B, but did not beat the stored champion across the full swap decision.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Single-dimension wins do not justify a planner swap when another required dimension regresses.",
+      "next_action": "Use `scripts/eval_planner.sh` for future challengers and keep swap/no-swap verdicts tied to all required dimensions.",
+      "evidence_sources": [
+        "docs/DRILLDOWN.md"
+      ],
+      "source": "docs/DRILLDOWN.md"
+    },
+    {
+      "id": "browser-memory64-large-presets",
+      "name": "Browser Memory64 large-preset runs",
+      "family": "browser-product",
+      "status": "worked-with-caveat",
+      "evidence": "larger browser presets hit Memory64 OOB; matching Node direct-export reproducer passed XL; `INITIAL_MEMORY=268435456` fixed up to XL while Behemoth still exercises growth",
+      "failure_reason": "The original retries treated the OOB as a model-size problem before the matching reproducer showed a browser pthread plus SharedArrayBuffer memory-growth race.",
+      "failure_reason_confidence": "exact",
+      "lesson": "A reproducer must match the production host and call path before it can explain a browser-only WASM failure.",
+      "next_action": "Keep the higher initial memory for supported presets and only claim Behemoth after a SAB-view-aware growth path lands.",
+      "evidence_sources": [
+        "docs/qa_log.md",
+        "docs/archive/lessons.md"
+      ],
+      "source": "docs/archive/lessons.md"
+    },
+    {
+      "id": "browser-speedup-headline-curve",
+      "name": "Browser speedup headline curve",
+      "family": "browser-product",
+      "status": "worked-with-caveat",
+      "evidence": "single `9.7x` headline was replaced by a preset curve: Small `2.6x`, Medium `6.8x`, Large `9.3x`, XL `12.1x`",
+      "failure_reason": "The original one-number headline made a shape-dependent performance result look like a universal property of the code.",
+      "failure_reason_confidence": "exact",
+      "lesson": "If a performance result depends on preset size, publish the curve rather than the most convenient point.",
+      "next_action": "Keep future public performance artifacts tied to config-specific tables with reproduction context.",
+      "evidence_sources": [
+        "docs/qa_log.md",
+        "docs/archive/lessons.md"
+      ],
+      "source": "docs/archive/lessons.md"
+    },
+    {
+      "id": "browser-default-corpus-fix",
+      "name": "Browser default corpus fix",
+      "family": "browser-product",
+      "status": "worked-with-caveat",
+      "evidence": "the old default corpus was `863 bytes`; a Huge model memorized it with train loss `0.14`; default changed to TinyShakespeare at about `1.1 MB`",
+      "failure_reason": "The demo was trying to prove learning with a corpus so small that memorization looked like training success.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Default data is part of the product claim; a training demo's default corpus must produce non-memorized samples.",
+      "next_action": "Keep corpus defaults in the same parity review as model and optimizer defaults.",
+      "evidence_sources": [
+        "docs/qa_log.md",
+        "docs/archive/lessons.md"
+      ],
+      "source": "docs/archive/lessons.md"
+    },
+    {
+      "id": "browser-lr-default-drift",
+      "name": "Browser learning-rate default drift",
+      "family": "browser-product",
+      "status": "worked-with-caveat",
+      "evidence": "browser default LR was `3e-3` while Python reference used `3e-4`; training plateaued around loss `2.45` until the browser default was changed",
+      "failure_reason": "Reference/kernel parity tests covered math drift but not hyperparameter default drift.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Reference defaults are part of correctness, not just documentation.",
+      "next_action": "Add or keep a config-default parity check whenever browser and reference paths share a training story.",
+      "evidence_sources": [
+        "docs/qa_log.md",
+        "docs/archive/lessons.md"
+      ],
+      "source": "docs/archive/lessons.md"
+    },
+    {
+      "id": "browser-webgpu-export-serialization",
+      "name": "Browser WebGPU export serialization",
+      "family": "browser-product",
+      "status": "worked-with-caveat",
+      "evidence": "a trained WebGPU run was lost because `webgpu/gpu_model.ts` had no checkpoint serialization; `exportState` was then implemented and worker plumbing updated",
+      "failure_reason": "The training path could produce useful weights that the WebGPU backend could not export, and auto-cleanup destroyed a real trained artifact.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Long-running browser training is not product-complete until the smallest export path is smoke-tested before the long run.",
+      "next_action": "Smoke export on a short WebGPU run before any long browser training claim.",
+      "evidence_sources": [
+        "docs/qa_log.md"
+      ],
+      "source": "docs/qa_log.md"
+    },
+    {
+      "id": "browser-generation-streaming-kv-cache",
+      "name": "Browser generation streaming and KV cache",
+      "family": "browser-product",
+      "status": "not-tried",
+      "evidence": "tokens/sec counter was added, but browser generation still lacked KV cache and true token streaming; task `#72` was logged",
+      "failure_reason_confidence": "not-applicable",
+      "lesson": "A typewriter animation over an already-complete response is not true streaming.",
+      "next_action": "Add worker protocol support for intermediate tokens and KV-cached browser generation before claiming interactive decode latency.",
+      "evidence_sources": [
+        "docs/qa_log.md"
+      ],
+      "source": "docs/qa_log.md"
+    },
+    {
+      "id": "wasm-backward-scratch-reuse",
+      "name": "WASM backward-scratch reuse",
+      "family": "runtime-perf",
+      "status": "worked-with-caveat",
+      "evidence": "standard `304 -> 305 ms/step`, capable `632 -> ~640 ms/step`",
+      "failure_reason": "Caching backward scratch buffers removed hot-path allocations but produced no measurable speedup because compute, not malloc, was the bottleneck.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Hot-path hygiene is not the same as a performance win; measure the real step time before claiming speedup.",
+      "next_action": "Keep the allocation cleanup, but do not prioritize allocator work until profiling shows allocation cost again.",
+      "evidence_sources": [
+        "docs/performance.md"
+      ],
+      "source": "docs/performance.md"
+    },
+    {
+      "id": "wasm-simd-training-speedup",
+      "name": "WASM SIMD training speedup",
+      "family": "runtime-perf",
+      "status": "worked",
+      "evidence": "standard `304 -> 191 ms/step`, capable `632 -> 391 ms/step`, net `1.6x` speedup",
+      "failure_reason_confidence": "not-applicable",
+      "lesson": "Emscripten/LLVM autovectorization was the right browser-training speed lever before hand-written kernels.",
+      "next_action": "Keep SIMD enabled by default and use the WASM smoke gate to protect training correctness.",
+      "evidence_sources": [
+        "docs/performance.md",
+        "tests/smoke_wasm_node.mjs"
+      ],
+      "source": "docs/performance.md"
+    },
+    {
+      "id": "browser-webgpu-training-loop",
+      "name": "Browser WebGPU training loop",
+      "family": "runtime-perf",
+      "status": "worked-with-caveat",
+      "evidence": "24 kernel parity checks, GPU overfit gate loss `5.55 -> 0.002` in 150 steps, and headless-browser e2e passed",
+      "failure_reason": "Correctness is proven, but speed is not measured because headless Chromium exposes SwiftShader software WebGPU rather than a real GPU.",
+      "failure_reason_confidence": "exact",
+      "lesson": "GPU API correctness can be CI-proven, but performance claims require a hardware adapter measurement.",
+      "next_action": "Collect the documented real-device WebGPU vs WASM-SIMD benchmark before quoting a browser GPU speedup.",
+      "evidence_sources": [
+        "docs/performance.md"
+      ],
+      "source": "docs/performance.md"
+    },
+    {
+      "id": "wasm-register-cache-blocked-matmul",
+      "name": "WASM register/cache-blocked matmul",
+      "family": "runtime-perf",
+      "status": "worked-with-caveat",
+      "evidence": "microbench `3-4x`, but end-to-end WASM training only `1.03-1.06x` after forward blocking",
+      "failure_reason": "The isolated microbench overstated impact because the real WASM training workload was threaded, already SIMD-vectorized, and dominated by backward matmuls.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Optimize and report on the real workload, not only on isolated single-kernel microbenches.",
+      "next_action": "Keep the bit-exact forward kernel for inference, but judge future perf work with end-to-end training and generation benches.",
+      "evidence_sources": [
+        "docs/performance.md"
+      ],
+      "source": "docs/performance.md"
+    },
+    {
+      "id": "wasm-backward-da-blocking",
+      "name": "WASM backward_dA blocking",
+      "family": "runtime-perf",
+      "status": "worked-with-caveat",
+      "evidence": "fwd+bwd-blocked reached small `90.3`, medium `317.6`, large `1057.4`, xl `1643.6`, or about `1.10-1.13x` over naive",
+      "failure_reason": "The backward_dA optimization improved end-to-end training, but the remaining backward_dB path still limits the total speedup.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Training speed follows the backward-pass bottleneck; forward-only wins are capped until dA and dB are addressed.",
+      "next_action": "Only continue matmul blocking if backward_dB or generation benches show enough remaining headroom.",
+      "evidence_sources": [
+        "docs/performance.md"
+      ],
+      "source": "docs/performance.md"
+    },
+    {
+      "id": "speculative-heads-medusa-eagle-smoke",
+      "name": "Speculative-decoding heads Medusa/EAGLE smoke",
+      "family": "runtime-perf",
+      "status": "worked-with-caveat",
+      "evidence": "baseline `232 tok/s`; Medusa 50-step `202 tok/s` at `21.7%`; Medusa 300-step `375 tok/s` at `20.8%`; EAGLE-2 50-step `200 tok/s` at `26.5%`, all bit-identical where verified",
+      "failure_reason": "The heads trained and verified losslessly, but acceptance stayed far below the paper recipes because this run lacked long training, logit distillation, tree attention, and a full EAGLE transformer draft block.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Speculative heads are a valid local speed path, but the production recipe is data/training heavy rather than a quick sidecar smoke.",
+      "next_action": "Revive only with self-generated data, logit-KL distillation, tree verification, and a real acceptance-rate gate.",
+      "evidence_sources": [
+        "docs/speculative_heads.md"
+      ],
+      "source": "docs/speculative_heads.md"
+    },
+    {
+      "id": "moe-dense-compute-smoke",
+      "name": "MoE dense-compute smoke",
+      "family": "architecture",
+      "status": "worked-with-caveat",
+      "evidence": "Dense MLP `842 K` params loss `6.09 -> 1.76` at `55.6 step/s`; MoE 4 experts top-2 `2.42 M` params loss `5.95 -> 1.68` at `29.3 step/s`",
+      "failure_reason": "The MoE architecture, save/load, sample, eval, and inspect paths work, but the current compute path runs every expert and therefore does not deliver sparse-dispatch savings.",
+      "failure_reason_confidence": "exact",
+      "lesson": "MoE is a capacity feature until sparse gather/scatter or grouped matmul lands; it should not be marketed as a compute-saving win yet.",
+      "next_action": "Return to MoE only with MLX scatter_add/grouped matmul support or a scoped custom Metal sparse-dispatch kernel.",
+      "evidence_sources": [
+        "docs/moe.md"
+      ],
+      "source": "docs/moe.md"
+    },
+    {
+      "id": "cpu-speedup-bundle",
+      "name": "CPU speedup bundle",
+      "family": "runtime-perf",
+      "status": "worked-with-caveat",
+      "evidence": "all four items ON reached median `6.8 step/s` vs `5.0 step/s` baseline, `+36%`, with final loss `4.188-4.192` unchanged",
+      "failure_reason": "The bundle produced a real host-side speedup, but QoS and compiled cosine LR were individually in the noise, prefetch stayed single-digit, and open CPU items remained.",
+      "failure_reason_confidence": "exact",
+      "lesson": "The big win was fused accumulation inside the compiled trace; individual CPU tweaks need isolation before being credited.",
+      "next_action": "Use the bundle as shipped, but keep Rust-FFI BPE, preallocated CPU buffers, and SVD-on-CPU AMX as separate future attempts.",
+      "evidence_sources": [
+        "docs/cpu_speedup_results.md"
+      ],
+      "source": "docs/cpu_speedup_results.md"
+    },
+    {
+      "id": "cold-start-bundle",
+      "name": "Cold-start bundle",
+      "family": "runtime-perf",
+      "status": "worked-with-caveat",
+      "evidence": "mmap saved `10-20 ms` and `25 MB` peak RSS on `demo.tinygpt`; lazy embedding deferred `262.1 KB`; package tests passed `43/43`",
+      "failure_reason": "The cold-start path improved the measured demo case, but the 250 MB target file was missing, async spinner overhead added about `30 ms`, and persistent Metal pipeline caching was infeasible through public MLX-Swift APIs.",
+      "failure_reason_confidence": "exact",
+      "lesson": "mmap and direct byte construction are good scaling levers, but large-model cold-start claims need large-model measurements.",
+      "next_action": "Re-measure on a real 50-250 MB checkpoint and keep persistent Metal cache work parked unless MLX-Swift exposes pipeline descriptors.",
+      "evidence_sources": [
+        "docs/cold_start_results.md"
+      ],
+      "source": "docs/cold_start_results.md"
+    },
+    {
+      "id": "gradient-checkpointing-mac-training",
+      "name": "Gradient checkpointing Mac training",
+      "family": "runtime-perf",
+      "status": "worked-with-caveat",
+      "evidence": "behemoth B=4 ctx=1024 peak memory dropped `27679 MB -> 17816 MB` while step/s moved `0.4 -> 0.3`; tiny memory worsened `161 MB -> 189 MB`",
+      "failure_reason": "Checkpointing recovered large-model memory but hurt small-model memory and speed, and the OOMGuard estimator still reports uncheckpointed activation projections.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Activation recompute is a scale-dependent lever; it should stay opt-in for models where memory, not step time, is the blocker.",
+      "next_action": "Update memory estimation for `--grad-checkpoint` and consider selective layer checkpointing before broad default use.",
+      "evidence_sources": [
+        "docs/gradient_checkpointing_results.md"
+      ],
+      "source": "docs/gradient_checkpointing_results.md"
+    },
+    {
+      "id": "kv-cache-optimization-bundle",
+      "name": "KV cache optimization bundle",
+      "family": "runtime-perf",
+      "status": "worked-with-caveat",
+      "evidence": "prompt-cache hot run `1.005 s -> 0.106 s`; pre-alloc decode stayed `706 -> 711 tok/s` with physical cache flat at `6.3 MB`",
+      "failure_reason": "Persistent prompt cache delivered the TTFT win, but pre-alloc was kept opt-in, pre-alloc does not compose with KIVI or StreamingLLM, and some cache keying edge cases remain.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Reuse of prefilled KV is the user-visible win; cache storage policy changes need composition gates before becoming defaults.",
+      "next_action": "Keep prompt-cache as the main shipped path and revisit pre-alloc defaults only after KIVI/StreamingLLM interactions are designed.",
+      "evidence_sources": [
+        "docs/kv_cache_optimization.md"
+      ],
+      "source": "docs/kv_cache_optimization.md"
+    },
+    {
+      "id": "yoco-cache-halving-smoke",
+      "name": "YOCO cache-halving smoke",
+      "family": "runtime-perf",
+      "status": "worked-with-caveat",
+      "evidence": "huge cache at 206 tokens dropped `5.1 MB -> 2.5 MB`, while throughput moved `767 -> 676 tok/s`",
+      "failure_reason": "YOCO halved decode KV cache memory, but throughput dropped at ctx=256 and HF checkpoint round-trip or production-quality YOCO weights were not proven.",
+      "failure_reason_confidence": "exact",
+      "lesson": "YOCO is a long-context memory lever, not an immediate short-context speedup.",
+      "next_action": "Treat YOCO as a long-context experiment until anchor tuning, HF round-trip, and long-context quality gates exist.",
+      "evidence_sources": [
+        "docs/yoco_results.md"
+      ],
+      "source": "docs/yoco_results.md"
+    },
+    {
+      "id": "streamingllm-kivi-cache-compression",
+      "name": "StreamingLLM + KIVI cache compression",
+      "family": "runtime-perf",
+      "status": "worked-with-caveat",
+      "evidence": "StreamingLLM reduced 500-token cache `12.6 MB -> 6.4 MB`; int8 KIVI matched greedy baseline `100%` and int4 averaged `96%` prefix match",
+      "failure_reason": "The cache compression worked in smoke tests, but int4 precision still used int8 storage bytes, K scales recompute every step, and no held-out perplexity gate measured quality.",
+      "failure_reason_confidence": "exact",
+      "lesson": "KV compression can preserve greedy decode locally, but storage format and quality gates matter before making long-context claims.",
+      "next_action": "Add packed int4 storage or grouped KIVI scales only after a cached-forward perplexity or trajectory-match eval exists.",
+      "evidence_sources": [
+        "docs/streaming_llm_kivi.md"
+      ],
+      "source": "docs/streaming_llm_kivi.md"
+    },
+    {
+      "id": "data-perf-sample-packing-bpe-dropout",
+      "name": "Data-side sample packing and BPE-dropout",
+      "family": "runtime-perf",
+      "status": "worked-with-caveat",
+      "evidence": "sample packing flattened CoV `0.582 -> 0.061`; BPE-dropout 100-step smoke stayed stable with final loss `7.382` baseline vs `7.597` dropout",
+      "failure_reason": "Sample packing's histogram property was proven, but BPE-dropout was only a stability smoke and did not prove downstream generalization on this corpus.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Data-pipeline regularizers need behavioral evals, not just stable loss curves, before being treated as quality improvements.",
+      "next_action": "Use sample-packing where length bias matters, and evaluate BPE-dropout on rare-word or morphology-sensitive gates before promotion.",
+      "evidence_sources": [
+        "docs/data_perf.md"
+      ],
+      "source": "docs/data_perf.md"
+    },
+    {
+      "id": "mlxfast-sdpa-tied-embedding-audit",
+      "name": "MLXFast SDPA and tied-embedding audit",
+      "family": "runtime-perf",
+      "status": "worked",
+      "evidence": "audit found SDPA call sites and tied-embedding build/save/load paths clean; build succeeded and sample smoke reached `603 tok/s` on demo and `261 tok/s` on mega5",
+      "failure_reason_confidence": "not-applicable",
+      "lesson": "The suspected SDPA mask/contiguity and tied-embedding duplication issues were not present.",
+      "next_action": "Keep this as positive verification; only reopen if new SDPA call sites or untied embedding save paths are added.",
+      "evidence_sources": [
+        "docs/perf_audit_mlxfast_tied.md"
+      ],
+      "source": "docs/perf_audit_mlxfast_tied.md"
+    },
+    {
+      "id": "a1-tool-caller-harness",
+      "name": "A1 first tool-calling specialist harness",
+      "family": "tool-calling",
+      "status": "not-tried",
+      "evidence": "recipe and acceptance harness shipped; training run pending GPU Mac + local BFCL checkout",
+      "failure_reason_confidence": "not-applicable",
+      "lesson": "The four-step specialist contract is reusable, but the model claim does not exist until BFCL training/eval runs.",
+      "next_action": "Run BFCL baseline, SFT, adapter eval, and +3pp gate once GPU/BFCL prerequisites are available.",
+      "evidence_sources": [
+        "docs/specialists/a1-tool-caller.md"
+      ],
+      "source": "docs/specialists/a1-tool-caller.md"
+    },
+    {
+      "id": "b1-sql-eval-infra",
+      "name": "B1 SQL eval infrastructure",
+      "family": "sql",
+      "status": "worked-with-caveat",
+      "evidence": "`tinygpt eval-sql` shipped and smoke-tested; training/generation originally pending GPU",
+      "failure_reason": "The scoring half existed before the live SQL factory run, but the original PRD did not include trained adapter evidence.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Execution accuracy over SQLite is the right reusable gate; infra alone is not a specialist result.",
+      "next_action": "Continue using eval-sql as the frozen SQL gate and attach run folders to model claims.",
+      "evidence_sources": [
+        "docs/specialists/b1-sql.md",
+        "evals/eval-sql-smoke.sh"
+      ],
+      "source": "docs/specialists/b1-sql.md"
+    },
+    {
+      "id": "factory-run-schema",
+      "name": "Factory run schema",
+      "family": "factory-docs",
+      "status": "worked-with-caveat",
+      "evidence": "`docs/factory/run-schema.md` defines the expected run folder",
+      "failure_reason": "The schema exists, but real train/eval commands still need to emit every file automatically.",
+      "failure_reason_confidence": "exact",
+      "lesson": "A schema is necessary but not sufficient; publish checks must enforce complete run folders.",
+      "next_action": "Wire live train/eval commands to produce schema-complete run folders automatically.",
+      "evidence_sources": [
+        "docs/factory/run-schema.md",
+        "docs/factory/enforcement.md"
+      ],
+      "source": "docs/factory/run-schema.md"
+    },
+    {
+      "id": "sql-factory-run-renderer",
+      "name": "SQL factory run renderer",
+      "family": "factory-docs",
+      "status": "worked-with-caveat",
+      "evidence": "`scripts/render_sql_factory_run.py` renders canonical SQL report artifacts",
+      "failure_reason": "The renderer is a useful bridge but not yet one universal factory command.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Rendered reports made SQL publishable, but the factory still needs command-level automation.",
+      "next_action": "Use the renderer until the canonical train/eval/report command can emit the same artifacts directly.",
+      "evidence_sources": [
+        "scripts/render_sql_factory_run.py",
+        "evals/factory-publish-check-smoke.sh",
+        "docs/factory/reports.md"
+      ],
+      "source": "scripts/render_sql_factory_run.py"
+    },
+    {
+      "id": "public-artifact-registry",
+      "name": "Public artifact registry",
+      "family": "factory-docs",
+      "status": "worked",
+      "evidence": "`docs/factory/public-artifacts.md` tracks artifacts, blockers, release state",
+      "failure_reason_confidence": "not-applicable",
+      "lesson": "Public artifacts and blockers are first-class.",
+      "next_action": "Keep every artifact entry updated before a release push.",
+      "evidence_sources": [
+        "docs/factory/public-artifacts.md"
+      ],
+      "source": "docs/factory/public-artifacts.md"
+    },
+    {
+      "id": "technique-registry",
+      "name": "Technique registry",
+      "family": "factory-docs",
+      "status": "worked-with-caveat",
+      "evidence": "`docs/techniques/` distinguishes methods from recipes",
+      "failure_reason": "The registry exists, but the next SQL recipe still needs validator/release enforcement before training claims.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Method names are not enough; recipes need failure mode, data, eval, slice gate, and stop rule.",
+      "next_action": "Require a recipe card before any new post-training run.",
+      "evidence_sources": [
+        "docs/techniques/README.md",
+        "docs/techniques/method-vs-recipe.md",
+        "docs/techniques/sql-technique-backlog.md"
+      ],
+      "source": "docs/techniques/README.md"
+    },
+    {
+      "id": "trainloop-style-tooling",
+      "name": "TrainLoop-style tooling",
+      "family": "factory-docs",
+      "status": "worked-with-caveat",
+      "evidence": "candidate choice, slice metrics, trace review, batch plan, LoRA geometry smokes pass",
+      "failure_reason": "The tools exist and pass smokes, but most recipes have not yet been trained with them.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Discipline is valuable only when enforced in every reported run.",
+      "next_action": "Do not report the next SQL candidate without `slice-metrics.json` and `trace_review.md`.",
+      "evidence_sources": [
+        "docs/NEXT.md",
+        "evals/sql-choice-smoke.sh",
+        "evals/sql-trace-review-smoke.sh",
+        "evals/lora-geometry-smoke.sh"
+      ],
+      "source": "docs/NEXT.md"
     }
   ]
 }
