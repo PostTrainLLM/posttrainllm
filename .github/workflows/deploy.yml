@@ -1,6 +1,6 @@
 # Manually deploy the browser playground to Cloudflare Pages.
 #
-# Why a GitHub Action and not native CF Pages Git integration: the `posttrainllm`
+# Why a GitHub Action and not native CF Pages Git integration: the `tinygpt`
 # CF Pages project was originally set up as direct-upload, and CF Pages does
 # not allow direct-upload projects to be retroactively connected to Git.
 # Re-creating the project would require re-pointing the custom domain. This
@@ -76,4 +76,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy browser/dist --project-name=posttrainllm --commit-dirty=true --branch=main
+          command: pages deploy browser/dist --project-name=tinygpt --commit-dirty=true --branch=main
