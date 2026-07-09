@@ -104,3 +104,4 @@ python_ref/.python-version
 default.profraw
 build/
 .claude/
+.playwright-mcp/
