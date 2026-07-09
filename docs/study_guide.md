@@ -1,12 +1,12 @@
-# TinyGPT study guide
+# posttrainllm study guide
 
-The technical material this session touched, organized so you can pick what to learn at your own pace. The chapters are thematic, not chronological. Each one answers the same two questions in a different domain: *what is this thing*, and *why does it matter for TinyGPT specifically*. You don't need to read them in order. If you're comfortable with JavaScript and have shipped a neural net in PyTorch, the prerequisites are met — the rest is the connective tissue between transformer training internals, GPU shading languages, and the particular way the modern web shoves both of those into a static page.
+The technical material this session touched, organized so you can pick what to learn at your own pace. The chapters are thematic, not chronological. Each one answers the same two questions in a different domain: *what is this thing*, and *why does it matter for posttrainllm specifically*. You don't need to read them in order. If you're comfortable with JavaScript and have shipped a neural net in PyTorch, the prerequisites are met — the rest is the connective tissue between transformer training internals, GPU shading languages, and the particular way the modern web shoves both of those into a static page.
 
 ---
 
 ## 1. Why the speedup is a curve, not a number
 
-For most of the project's life, TinyGPT advertised "9.7× faster than the Python reference" as a single headline. That number was real, but it was the value of a function evaluated at exactly one point — the Medium preset (d_model = 128). When the same measurement was re-run across the preset table the picture changed shape:
+For most of the project's life, posttrainllm advertised "9.7× faster than the Python reference" as a single headline. That number was real, but it was the value of a function evaluated at exactly one point — the Medium preset (d_model = 128). When the same measurement was re-run across the preset table the picture changed shape:
 
 | preset  | d_model | WebGPU vs WASM-SIMD multi-thread |
 | ------- | ------- | -------------------------------- |
@@ -25,7 +25,7 @@ step_time(d) = fixed_overhead + math_cost(d)
 
 At Small (d_model = 96), `fixed_overhead` is a meaningful fraction of step time on both backends, so the ratio compresses toward 1. By XL, `math_cost(d)` dominates and the ratio approaches the *intrinsic* GPU-vs-CPU arithmetic gap. Extrapolating to Mega/Behemoth (d_model ≥ 384) you would expect the ratio to keep climbing until it asymptotes around whatever the silicon's true compute-throughput ratio is on the M-series chip.
 
-This pattern generalises far beyond TinyGPT: any time you publish a single "Nx faster" number for a workload whose cost is a function of a tuneable, you are implicitly claiming the value of that function at one point. Publish the function instead.
+This pattern generalises far beyond posttrainllm: any time you publish a single "Nx faster" number for a workload whose cost is a function of a tuneable, you are implicitly claiming the value of that function at one point. Publish the function instead.
 
 **Reference**: `docs/archive/lessons.md` §3 (the curve story); `docs/session_retrospective.md` §1 for the longer arc; `browser/measure_curve.mjs` is the actual measurement harness.
 
@@ -197,7 +197,7 @@ Version bumps are explicit: v1 was the original (config + flat state), v2 added 
 
 ## 11. Astro + Cloudflare Pages deployment
 
-TinyGPT's playground is an Astro site (`browser/`) built statically — `npm run build` emits `dist/` with one HTML file per route, all CSS inlined per page, and JavaScript bundles fingerprinted for cache-busting. Cloudflare Pages serves the static directory verbatim from edge caches; there is no server-side Astro runtime at deploy time.
+posttrainllm's playground is an Astro site (`browser/`) built statically — `npm run build` emits `dist/` with one HTML file per route, all CSS inlined per page, and JavaScript bundles fingerprinted for cache-busting. Cloudflare Pages serves the static directory verbatim from edge caches; there is no server-side Astro runtime at deploy time.
 
 The wrinkle is `SharedArrayBuffer`. The multi-threaded WASM build needs it; the browser only exposes it under "cross-origin isolation," which requires two response headers:
 
@@ -250,7 +250,7 @@ const observer = new PressureObserver(records => {
 observer.observe("cpu");
 ```
 
-TinyGPT uses it for the pulse-dot chip in the playground's sticky header (`browser/src/main.ts:2506`). When a training run pushes the system to `fair` or `serious`, the chip turns yellow and pulses; at `critical` it turns red. The intent is purely informational — to give the user a real signal of *why* their machine feels slower while training runs, rather than letting them blame the page for being heavy.
+posttrainllm uses it for the pulse-dot chip in the playground's sticky header (`browser/src/main.ts:2506`). When a training run pushes the system to `fair` or `serious`, the chip turns yellow and pulses; at `critical` it turns red. The intent is purely informational — to give the user a real signal of *why* their machine feels slower while training runs, rather than letting them blame the page for being heavy.
 
 It's a small but instructive piece of UX engineering. The page is doing heavy work; the OS knows; the user notices; without the chip, the user assumes the page is just badly written. With the chip, the user understands "I'm asking my laptop to do a lot, and it's telling me." The same status was always observable in Activity Monitor / Task Manager — the chip just brings it into the user's flow.
 
@@ -262,7 +262,7 @@ Browser support is the catch: Safari and Firefox don't ship it yet, so the chip 
 
 ## 14. The Hugging Face datasets-server pattern
 
-To let users train on real corpora beyond Shakespeare, TinyGPT pulls text directly from Hugging Face in the browser via the `datasets-server` HTTP API. This works because the server emits `Access-Control-Allow-Origin: *` and serves public datasets without authentication:
+To let users train on real corpora beyond Shakespeare, posttrainllm pulls text directly from Hugging Face in the browser via the `datasets-server` HTTP API. This works because the server emits `Access-Control-Allow-Origin: *` and serves public datasets without authentication:
 
 ```
 GET https://datasets-server.huggingface.co/rows
@@ -278,7 +278,7 @@ GET https://datasets-server.huggingface.co/rows
 
 `browser/src/main.ts:1656 loadHfDataset` is the pager: it walks `offset` in chunks of 100 rows, concatenating each row's text until it reaches the user's character budget (default 2 MB). Each fetch reports progress to the UI so the user sees a live byte counter. The fetch is cancellable via an incrementing token — if the user picks a different dataset mid-fetch, the in-flight one becomes orphaned and its results are dropped.
 
-For private datasets you can store an HF token in `localStorage` and the loader injects an `Authorization: Bearer …` header. The token never leaves the browser — there's no TinyGPT server to forward it through, by design.
+For private datasets you can store an HF token in `localStorage` and the loader injects an `Authorization: Bearer …` header. The token never leaves the browser — there's no posttrainllm server to forward it through, by design.
 
 **Reference**: `browser/src/datasets.ts`; `browser/src/main.ts:1656-1745`.
 
@@ -288,7 +288,7 @@ For private datasets you can store an HF token in `localStorage` and the loader 
 
 If you want to follow specific threads further, here are the most useful entry points:
 
-- **Inside TinyGPT.** `docs/learn/README.md` is the active learning index;
+- **Inside posttrainllm.** `docs/learn/README.md` is the active learning index;
   `docs/learn.md` is the legacy code walkthrough for the original
   Python/WASM/WebGPU arc. `docs/performance.md` is the canonical perf doc,
   including the real-device benchmark protocol you'd use if you wanted to add a
@@ -300,7 +300,7 @@ If you want to follow specific threads further, here are the most useful entry p
 
 - **Transformers from scratch.** Andrej Karpathy's [nanoGPT](https://github.com/karpathy/nanoGPT) is the canonical 300-line PyTorch implementation; the architecture in `python_ref/model.py` is a direct descendant. His [makemore](https://github.com/karpathy/makemore) tutorial series builds up to a transformer one notebook at a time and is the gentlest path in.
 
-- **Flash Attention 2.** The [original paper (Dao 2023)](https://arxiv.org/abs/2307.08691). For pedagogical purposes, the [Triton tutorial implementation](https://triton-lang.org/main/getting-started/tutorials/06-fused-attention.html) is much easier to read than CUDA. The local notes at `docs/fa2_forward_notes.md` and `docs/fa2_backward_notes.md` are TinyGPT-specific commentary on the same algorithm.
+- **Flash Attention 2.** The [original paper (Dao 2023)](https://arxiv.org/abs/2307.08691). For pedagogical purposes, the [Triton tutorial implementation](https://triton-lang.org/main/getting-started/tutorials/06-fused-attention.html) is much easier to read than CUDA. The local notes at `docs/fa2_forward_notes.md` and `docs/fa2_backward_notes.md` are posttrainllm-specific commentary on the same algorithm.
 
 - **Matmul tiling and register blocking.** Goto & van de Geijn's "Anatomy of High-Performance Matrix Multiplication" (ACM TOMS, 2008) is the canonical explanation of the cache-blocking + register-blocking decomposition that every GPU matmul kernel rediscovers. For a modern GPU-oriented walkthrough, [Lei Mao's GEMM optimisation series](https://leimao.github.io/article/CUDA-Matrix-Multiplication-Optimization/) is excellent — it covers the exact 4×4 vs 8×8 register-pressure tradeoff you'll find in `matmul_blocked.wgsl`.
 

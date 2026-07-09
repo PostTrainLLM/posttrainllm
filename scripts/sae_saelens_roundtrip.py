@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""B17 — verify a `tinygpt sae-to-saelens` export actually loads in SAELens.
+"""B17 — verify a `posttrainllm sae-to-saelens` export actually loads in SAELens.
 
 Usage: python3 scripts/sae_saelens_roundtrip.py <saelens-dir> [d_in] [d_sae]
 
@@ -39,7 +39,7 @@ def main() -> int:
     recon = sae.decode(feats)
     assert recon.shape == x.shape, f"decode shape {tuple(recon.shape)} != {tuple(x.shape)}"
 
-    print("ROUND-TRIP OK: tinygpt SAE loads + runs in SAELens")
+    print("ROUND-TRIP OK: posttrainllm SAE loads + runs in SAELens")
     return 0
 
 

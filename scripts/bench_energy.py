@@ -2,7 +2,7 @@
 """B9 — energy per token (J/token).
 
 Samples combined CPU+GPU+ANE power via `powermetrics` while a decode workload
-runs against `tinygpt serve`, integrates power over the decode window to get
+runs against `posttrainllm serve`, integrates power over the decode window to get
 joules, and divides by tokens generated → J/token. Emits a leaderboard-ready
 row (and can append to the SLM leaderboard JSONL).
 
@@ -13,7 +13,7 @@ passwordless drop-in). The energy math is covered by `--self-test` (no sudo):
 
 Real run:
 
-    tinygpt serve --model <m> &
+    posttrainllm serve --model <m> &
     sudo python3 scripts/bench_energy.py --model <m> --label qwen3-4b \\
         --jsonl docs/research/data/energy.jsonl
 """

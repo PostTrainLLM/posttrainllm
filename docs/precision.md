@@ -1,6 +1,6 @@
 # Numerics & precision — the gate framework
 
-How TinyGPT ensures every accelerated code path preserves model quality
+How posttrainllm ensures every accelerated code path preserves model quality
 before it activates for the user. The non-negotiable rule from the
 opportunistic-acceleration scope (see `docs/perf_quest.md` and decision
 log entry 19): **speed only counts if it preserves loss.**

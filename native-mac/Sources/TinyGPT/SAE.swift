@@ -6,7 +6,7 @@ import MLXRandom
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt sae` — train a sparse autoencoder on per-layer hidden
+/// `posttrainllm sae` — train a sparse autoencoder on per-layer hidden
 /// states. Each decoder column becomes one "feature direction" in
 /// residual space; the encoder + ReLU produces a sparse activation
 /// pattern over those features for any input.
@@ -30,7 +30,7 @@ import TinyGPTModel
 /// directions, which empirically gives cleaner features.
 ///
 /// USAGE
-///   tinygpt sae <model.tinygpt> --corpus <text.txt> --layer N \
+///   posttrainllm sae <model.tinygpt> --corpus <text.txt> --layer N \
 ///               --out probe.sae [--features F] [--steps N]
 ///               [--lr F] [--l1 F] [--batch N] [--ctx N]
 ///
@@ -177,7 +177,7 @@ enum SAE {
 
         print("""
 
-        TinyGPT — sparse autoencoder
+        posttrainllm — sparse autoencoder
         ----------------------------
         base:           \(modelPath)
         corpus:         \(corpusPath) (\(bytes.count) bytes)
@@ -333,7 +333,7 @@ enum SAE {
         do {
             entries = try fm.contentsOfDirectory(at: dirURL,
                                                   includingPropertiesForKeys: nil)
-                              .filter { $0.pathExtension == "tinygpt" }
+                              .filter { $0.pathExtension == "posttrainllm" }
         } catch {
             fputs("could not list \(checkpointDir): \(error)\n", stderr); exit(1)
         }
@@ -361,7 +361,7 @@ enum SAE {
 
         print("""
 
-        TinyGPT — SAE timeline
+        posttrainllm — SAE timeline
         ----------------------
         checkpoints: \(ckpts.count) (steps \(ckpts.first!.step) → \(ckpts.last!.step))
         corpus:      \(corpusPath)
@@ -440,7 +440,7 @@ enum SAE {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt sae <model.tinygpt> --corpus <text.txt> --layer N \\
+        usage: posttrainllm sae <model.tinygpt> --corpus <text.txt> --layer N \\
                            --out <probe.sae> [options]
 
         Train a sparse autoencoder on per-layer hidden states for

@@ -5,7 +5,7 @@ import MLXRandom
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt es` — Evolution Strategies trainer (Salimans et al., 2017,
+/// `posttrainllm es` — Evolution Strategies trainer (Salimans et al., 2017,
 /// "Evolution Strategies as a Scalable Alternative to Reinforcement
 /// Learning"). Gradient-free training: at each step we sample K random
 /// perturbations of the current weights, evaluate each perturbed model
@@ -27,7 +27,7 @@ import TinyGPTModel
 /// variance-reduction trick from Salimans 2017.
 ///
 /// USAGE
-///   tinygpt es <model.tinygpt> --corpus <text> \
+///   posttrainllm es <model.tinygpt> --corpus <text> \
 ///       --steps 200 --population 40 --sigma 0.02 --lr 0.01 \
 ///       --out es-trained.tinygpt
 ///
@@ -93,7 +93,7 @@ enum ES {
 
         print("""
 
-        TinyGPT — Evolution Strategies
+        posttrainllm — Evolution Strategies
         ------------------------------
         model:          \(modelPath) (\(cfg.nLayers)L · d=\(cfg.dModel))
         params:         \(formatLargeInt(model.numParameters()))
@@ -262,7 +262,7 @@ enum ES {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt es <model.tinygpt> --corpus <text> [options]
+        usage: posttrainllm es <model.tinygpt> --corpus <text> [options]
 
         --corpus <text>          UTF-8 text (byte-level only in this first cut)
         --out <path>             Where to save the trained checkpoint

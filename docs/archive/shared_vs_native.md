@@ -1,6 +1,6 @@
 # Shared vs. native — how the browser and macOS paths relate
 
-TinyGPT will ship as two binaries: a browser playground (Chromium + M-series
+posttrainllm will ship as two binaries: a browser playground (Chromium + M-series
 targeted) and a native macOS app (M-series only). They are **separate
 implementations** of the same model, optimized for different ceilings. They
 deliberately share what's cheap to share (data + UX + words) and don't share

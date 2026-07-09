@@ -1,7 +1,7 @@
 # Wave 4 landscape — TML / Apple FM / code agents / Indic
 
 **Date**: 2026-05-31
-**Question**: What's the competitive + capability landscape tinygpt
+**Question**: What's the competitive + capability landscape posttrainllm
 should know about before training specialists?
 **Outcome**: TML's "interaction model" framing maps onto Wave 2.6;
 Apple owns the same architecture but walled; code agents are
@@ -33,9 +33,9 @@ the `desi-max` reference replaced.
 - Posture: **cloud-only, infrastructure-focused, research-lab** —
   selling APIs to researchers, not shipping a consumer on-device product.
 
-**Implications for tinygpt**: TML's interaction-model framing maps
-directly onto tinygpt's Wave 2.6, but their implementation is cloud-bound.
-tinygpt's differentiator is doing the foreground-interaction model
+**Implications for posttrainllm**: TML's interaction-model framing maps
+directly onto posttrainllm's Wave 2.6, but their implementation is cloud-bound.
+posttrainllm's differentiator is doing the foreground-interaction model
 *on-device* on Apple Silicon — that's a real differentiator, not
 duplication. Steal the architectural vocabulary ("foreground interaction
 model + background async") for the docs. Read "LoRA Without Regret"
@@ -67,10 +67,10 @@ fine-tune is ever needed, use it.
 - Outperforms Qwen-2.5-3B across all 15 languages on internal evals;
   competitive with 4B models on English.
 
-**Implications for tinygpt**: Apple owns the exact architecture tinygpt
+**Implications for posttrainllm**: Apple owns the exact architecture posttrainllm
 is chasing, but the wall is real — closed model, closed router,
 adapter-only customization, OS-dependency on retraining. Position
-tinygpt as the **open, hackable, multi-specialist** counterpart:
+posttrainllm as the **open, hackable, multi-specialist** counterpart:
 - Can swap base models (Llama/Qwen/Sarvam)
 - Can do full SFT/DPO not just adapters
 - Can route to *any* cloud (not just PCC)
@@ -110,8 +110,8 @@ third-party LLMs into Apple Intelligence. Stay parallel.
   cloud Sonnet/GPT for the real work.
 - Codeium/Windsurf excluded — fully cloud, closed.
 
-**Implications for tinygpt**: The competitive gap is real but narrow.
-If tinygpt ships a Mac dev tool *today* with on-device specialists, you
+**Implications for posttrainllm**: The competitive gap is real but narrow.
+If posttrainllm ships a Mac dev tool *today* with on-device specialists, you
 lose on raw SWE-bench (Sonnet 4.6 > anything we fit in 3B). You win on:
 - **Latency**: sub-50ms TTFT vs 200-500ms cloud round-trip
 - **Cost**: zero per-token
@@ -119,11 +119,11 @@ lose on raw SWE-bench (Sonnet 4.6 > anything we fit in 3B). You win on:
 - **Multi-specialist routing**: none of them have it
 
 **Three concrete steals**:
-- Cline's structured-output-enforcement-via-tool (tinygpt already does
+- Cline's structured-output-enforcement-via-tool (posttrainllm already does
   JSON mode — push harder)
 - Aider's edit-format contracts (cleaner than raw diff text for small
   models)
-- Continue's Ollama provider compatibility (ship a tinygpt provider for
+- Continue's Ollama provider compatibility (ship a posttrainllm provider for
   Continue and you're instantly in dev workflows)
 
 Don't try to beat Cursor on SWE-bench; build the "local-first specialist
@@ -143,7 +143,7 @@ with cloud escalation" framing they can't ship.
   ([Sarvam blog](https://www.sarvam.ai/blogs/sarvam-30b-105b),
   [sovereign LLM](https://www.sarvam.ai/blogs/indias-sovereign-llm)).
   Plan includes **Sarvam-Edge** for on-device — direct overlap with
-  tinygpt scope.
+  posttrainllm scope.
 - **AI4Bharat Airavata**: Hindi instruction-tuned LLM fine-tuned from
   OpenHathi using machine-translated English instruction sets via
   IndicTrans2; instruction datasets released publicly
@@ -164,7 +164,7 @@ with cloud escalation" framing they can't ship.
   Devanagari. Sarvam's tokenizer is the right choice for serious Indic
   work; falling back to Qwen3 gives 2-4× token bloat on Hindi text.
 
-**Implications for tinygpt**: Replace `desi-max` with **Sarvam-Edge (when
+**Implications for posttrainllm**: Replace `desi-max` with **Sarvam-Edge (when
 released) or Airavata** as the Indic specialist starting point. The
 Indic specialist isn't a one-week dropin — tokenizer choice matters
 (likely retokenize with Sarvam's vocab or accept Qwen3 token-bloat
@@ -176,7 +176,7 @@ for specialists cheaply.
 
 ## Top 3 actions (next 3 months)
 
-1. **Continue.dev provider adapter for tinygpt** — Ollama-compatible
+1. **Continue.dev provider adapter for posttrainllm** — Ollama-compatible
    endpoint that drops into Continue/Cline/Aider configs. Lowest-effort
    path to real users, validates the local-first thesis against the
    actual code-agent ecosystem, and provides a benchmark surface

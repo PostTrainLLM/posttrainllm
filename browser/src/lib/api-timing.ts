@@ -28,7 +28,7 @@ let _extraPatterns: RegExp[] = [];
 let _intervalMs = 30_000;
 let _flushTimer: ReturnType<typeof setInterval> | null = null;
 let _lastSeenStart = 0;
-let _projectSlug = 'tinygpt';
+let _projectSlug = 'posttrainllm';
 
 /** True for fetch() and XMLHttpRequest calls only (not scripts, images, etc.). */
 function isApiCall(entry: PerformanceResourceTiming): boolean {

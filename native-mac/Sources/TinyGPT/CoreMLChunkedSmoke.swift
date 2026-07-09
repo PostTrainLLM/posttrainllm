@@ -4,7 +4,7 @@ import Foundation
 import TinyGPTModel
 import Tokenizers
 
-/// `tinygpt coreml-chunked-smoke` — drive a chunked-block Qwen3 ANE bundle
+/// `posttrainllm coreml-chunked-smoke` — drive a chunked-block Qwen3 ANE bundle
 /// end-to-end from Swift. Measures prefill + decode tok/s and verifies
 /// the model emits a coherent continuation.
 ///
@@ -125,7 +125,7 @@ enum CoreMLChunkedSmoke {
 
     static func printHelp() {
         let s = """
-        usage: tinygpt coreml-chunked-smoke --chunked-dir <dir> --hf-dir <dir> [opts]
+        usage: posttrainllm coreml-chunked-smoke --chunked-dir <dir> --hf-dir <dir> [opts]
 
         --chunked-dir DIR     dir containing m8-block-{0..N-1}.mlpackage files
                               (output of scripts/ane/m8_block_export.py)

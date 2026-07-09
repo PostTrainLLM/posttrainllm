@@ -1,6 +1,6 @@
 # Performance notes
 
-How fast TinyGPT trains, what has been done to speed it up, and what is left.
+How fast posttrainllm trains, what has been done to speed it up, and what is left.
 All numbers are from an Apple M5 Pro laptop.
 
 ## Measuring it
@@ -116,7 +116,7 @@ goal is one number — steady-state tokens/sec — that another contributor can
 reproduce on the same machine.
 
 **Prerequisites.** Open the live app at
-[tinygpt.sarthakagrawal.dev](https://tinygpt.sarthakagrawal.dev) (or run
+[posttrainllm.sarthakagrawal.dev](https://posttrainllm.sarthakagrawal.dev) (or run
 `cd browser && npm run dev` locally after `bash wasm/build_wasm.sh`). Use a
 desktop Chrome 113+ / Edge 113+ / Safari 18+ build. The app probes the WebGPU
 adapter on load and displays its vendor/device name; check that the displayed

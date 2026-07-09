@@ -5,7 +5,7 @@ when you wake up. Reading time: 5 minutes.
 
 ## TL;DR
 
-- Wired `tinygpt finetune` / `sample` / `compare` to accept **either** a
+- Wired `posttrainllm finetune` / `sample` / `compare` to accept **either** a
   `.tinygpt` checkpoint **or** a HuggingFace model directory. Same CLI
   surface; the loader auto-detects.
 - Then ran a real 1000-step LoRA fine-tune of the Mac Shakespeare model
@@ -63,7 +63,7 @@ voices like a slider.
 
 ```sh
 huggingface-cli download HuggingFaceTB/SmolLM2-135M-Instruct --local-dir /tmp/smollm2
-tinygpt hf-load /tmp/smollm2 --sample --prompt "Once upon a time"
+posttrainllm hf-load /tmp/smollm2 --sample --prompt "Once upon a time"
 ```
 
 Produces:
@@ -82,12 +82,12 @@ through `swift-transformers`. 66 tok/s.
 
 | CLI | Accepts | Notes |
 |---|---|---|
-| `tinygpt sample` | `.tinygpt` OR HF dir | Auto-detects; HF path uses BPE tokenizer |
-| `tinygpt finetune` | `.tinygpt` OR HF dir | LoRA injection works on both architectures |
-| `tinygpt compare` | `.tinygpt` OR HF dir | Same metric output regardless of source |
-| `tinygpt eval --lora` | both | Adapter applied before scoring |
-| `tinygpt hf-inspect` | HF dir | Tensor inventory + capability check |
-| `tinygpt hf-load` | HF dir | End-to-end load + optional sample |
+| `posttrainllm sample` | `.tinygpt` OR HF dir | Auto-detects; HF path uses BPE tokenizer |
+| `posttrainllm finetune` | `.tinygpt` OR HF dir | LoRA injection works on both architectures |
+| `posttrainllm compare` | `.tinygpt` OR HF dir | Same metric output regardless of source |
+| `posttrainllm eval --lora` | both | Adapter applied before scoring |
+| `posttrainllm hf-inspect` | HF dir | Tensor inventory + capability check |
+| `posttrainllm hf-load` | HF dir | End-to-end load + optional sample |
 
 ## What's left for the actual "fine-tune your downloaded LFM2.5 with your
 own data" pitch
@@ -130,28 +130,28 @@ on .tinygpt-vs-HF-dir.
 ## How to verify tonight's claims yourself
 
 ```sh
-cd /Users/sarthak/Desktop/fleet/tinygpt/native-mac
+cd /Users/sarthak/Desktop/fleet/posttrainllm/native-mac
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 
 # 1. Reproduce the compare numbers
-.xcode-build/Build/Products/Debug/tinygpt compare \
-  /tmp/tinygpt-huge-shakespeare-full.tinygpt \
+.xcode-build/Build/Products/Debug/posttrainllm compare \
+  /tmp/posttrainllm-huge-shakespeare-full.tinygpt \
   --lora /tmp/austen-deep.lora \
-  --corpus /tmp/tinygpt-corpora/pride-prejudice.txt \
+  --corpus /tmp/posttrainllm-corpora/pride-prejudice.txt \
   --batches 30
 
 # 2. Generate the voice-shift samples
-.xcode-build/Build/Products/Debug/tinygpt sample \
-  /tmp/tinygpt-huge-shakespeare-full.tinygpt \
+.xcode-build/Build/Products/Debug/posttrainllm sample \
+  /tmp/posttrainllm-huge-shakespeare-full.tinygpt \
   --prompt "Elizabeth said," --tokens 200 --temperature 0.7
 
-.xcode-build/Build/Products/Debug/tinygpt sample \
-  /tmp/tinygpt-huge-shakespeare-full.tinygpt \
+.xcode-build/Build/Products/Debug/posttrainllm sample \
+  /tmp/posttrainllm-huge-shakespeare-full.tinygpt \
   --lora /tmp/austen-deep.lora \
   --prompt "Elizabeth said," --tokens 200 --temperature 0.7
 
 # 3. Run SmolLM2 from HuggingFace
-.xcode-build/Build/Products/Debug/tinygpt hf-load /tmp/smollm2 \
+.xcode-build/Build/Products/Debug/posttrainllm hf-load /tmp/smollm2 \
   --sample --prompt "The capital of France is" --tokens 60
 ```
 

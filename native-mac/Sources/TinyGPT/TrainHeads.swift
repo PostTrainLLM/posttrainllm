@@ -5,12 +5,12 @@ import MLXOptimizers
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt train-heads` — train Medusa / EAGLE-2 speculative-decode
+/// `posttrainllm train-heads` — train Medusa / EAGLE-2 speculative-decode
 /// heads on top of a FROZEN base model. Sidecar output (`.heads`),
-/// loadable via `tinygpt sample --heads <path>`.
+/// loadable via `posttrainllm sample --heads <path>`.
 ///
 /// The base is closure-captured during the training step (the same
-/// trick `tinygpt tuned-lens` uses) so MLX autograd treats its
+/// trick `posttrainllm tuned-lens` uses) so MLX autograd treats its
 /// parameters as constants — no freeze gymnastics required, no
 /// accidental base-weight drift. Only the heads / draft net update.
 ///
@@ -25,7 +25,7 @@ import TinyGPTModel
 /// production-quality acceptance rates need 10k+ steps.
 ///
 /// USAGE
-///   tinygpt train-heads <model.tinygpt> --type {medusa|eagle} \
+///   posttrainllm train-heads <model.tinygpt> --type {medusa|eagle} \
 ///       --corpus <text.txt> --steps 500 --num-heads 4 \
 ///       --out heads.heads
 enum TrainHeads {
@@ -103,7 +103,7 @@ enum TrainHeads {
             let stack = MedusaHeadStack(cfg: headCfg, dModel: cfg.dModel, vocabSize: cfg.vocabSize)
             print("""
 
-            TinyGPT — Medusa head training
+            posttrainllm — Medusa head training
             ------------------------------
             base:            \(modelPath)  (\(cfg.nLayers)L · d=\(cfg.dModel) · vocab=\(cfg.vocabSize))
             base frozen:     yes (closure-captured)
@@ -132,7 +132,7 @@ enum TrainHeads {
             }
             print("""
 
-            TinyGPT — EAGLE-2 draft training
+            posttrainllm — EAGLE-2 draft training
             --------------------------------
             base:            \(modelPath)  (\(cfg.nLayers)L · d=\(cfg.dModel) · vocab=\(cfg.vocabSize))
             base frozen:     yes (closure-captured)
@@ -305,7 +305,7 @@ enum TrainHeads {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt train-heads <model.tinygpt> --type {medusa|eagle} --corpus <text> --out <path> [options]
+        usage: posttrainllm train-heads <model.tinygpt> --type {medusa|eagle} --corpus <text> --out <path> [options]
 
         --type {medusa|eagle}   Head architecture
         --corpus <text>         UTF-8 byte-level text to fit the heads on
@@ -319,7 +319,7 @@ enum TrainHeads {
 
         Trains the heads on top of a FROZEN base model. The base is
         closure-captured so MLX autograd never updates its parameters.
-        Output: a .heads sidecar loadable via `tinygpt sample --heads`.
+        Output: a .heads sidecar loadable via `posttrainllm sample --heads`.
         """)
         exit(code)
     }

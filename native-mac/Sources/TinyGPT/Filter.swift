@@ -1,6 +1,6 @@
 import Foundation
 
-/// `tinygpt filter` — lightweight data-safety filtering for training corpora.
+/// `posttrainllm filter` — lightweight data-safety filtering for training corpora.
 ///
 /// v1 deliberately stays dependency-free: built-in regex PII redaction plus a
 /// transparent heuristic toxicity score. External toxicity models such as
@@ -135,7 +135,7 @@ enum Filter {
 
         print("""
 
-        TinyGPT — filter
+        posttrainllm — filter
         ----------------
         input:          \(inputPath)
         out:            \(outputPath)
@@ -337,7 +337,7 @@ enum Filter {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt filter --in raw.jsonl --out cleaned.jsonl [options]
+        usage: posttrainllm filter --in raw.jsonl --out cleaned.jsonl [options]
 
         Redact PII and optionally drop toxic rows. JSONL rows are preserved
         as JSON with string fields redacted; non-JSON lines are treated as text.

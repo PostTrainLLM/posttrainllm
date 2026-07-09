@@ -3,7 +3,7 @@
 Audience: an ML-curious engineer who can read C++/WGSL but hasn't derived
 the trick before. This doc walks through what "online softmax" means, why
 it matters for attention specifically, and where the idea shows up in the
-TinyGPT codebase. It builds toward the existing `attn_fused_sv` kernel in
+posttrainllm codebase. It builds toward the existing `attn_fused_sv` kernel in
 [`webgpu/train.wgsl`](../webgpu/train.wgsl) and gestures at where Flash
 Attention 2 takes the same idea further.
 
@@ -126,7 +126,7 @@ That's two full round trips through the `[B,H,T,T]` attention tensor in
 global memory, which gets very expensive at long context — that buffer
 grows as O(T²).
 
-TinyGPT's [`attn_fused_sv`](../webgpu/train.wgsl) kernel fuses the second
+posttrainllm's [`attn_fused_sv`](../webgpu/train.wgsl) kernel fuses the second
 and third pass into one. It's still two-pass *within* a query position
 (it has to materialise the scores into shared memory to find the max), but
 the second pass produces both the softmax weights *and* the context
@@ -186,7 +186,7 @@ Flash Attention 2 takes the online softmax idea and applies it at a
 
 The two payoffs: peak memory drops from O(T²) to O(T) per head, and the
 arithmetic intensity climbs because you keep the small running state hot
-in registers and stream K/V through tiles. That's the lever TinyGPT
+in registers and stream K/V through tiles. That's the lever posttrainllm
 hasn't pulled yet — `attn_fused_sv` is one step toward it, kernel-fusion
 of softmax + value, but it still pays the O(T²) memory and the per-query
 loop is still serial.
@@ -196,7 +196,7 @@ loop is still serial.
 - "Online softmax" = update the max and sum incrementally so you don't
   need a separate max pass. It's algebraically identical to the textbook
   formulation; the win is structural, not numerical.
-- The single fused kernel in TinyGPT (`attn_fused_sv`) fuses softmax and
+- The single fused kernel in posttrainllm (`attn_fused_sv`) fuses softmax and
   value-projection but still keeps the full scores vector in shared
   memory. That's a one-tile-per-query special case of the more general
   online algorithm.

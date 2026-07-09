@@ -3,15 +3,15 @@ import MLX
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt finetune` — LoRA-fine-tune a checkpoint on a small text
+/// `posttrainllm finetune` — LoRA-fine-tune a checkpoint on a small text
 /// corpus. The base weights stay frozen; only the rank-r adapter
 /// matrices are trained. Adapter files are tiny (~100KB-1MB) and
 /// portable: load a base + multiple adapters to switch "voices"
 /// without reloading the base.
 ///
 /// USAGE
-///   tinygpt finetune base.tinygpt --corpus my-text.txt --out mine.lora
-///   tinygpt finetune shakespeare.bin --corpus my-blog.txt --rank 8 --steps 200 --out blog.lora
+///   posttrainllm finetune base.tinygpt --corpus my-text.txt --out mine.lora
+///   posttrainllm finetune shakespeare.bin --corpus my-blog.txt --rank 8 --steps 200 --out blog.lora
 enum Finetune {
     static func run(args: [String]) {
         var basePath: String?
@@ -153,7 +153,7 @@ enum Finetune {
         let B = batchSize ?? defaultBatch(cfg)
         print("""
 
-        TinyGPT — LoRA fine-tune
+        posttrainllm — LoRA fine-tune
         ------------------------
         base:           \(basePath)
         corpus:         \(corpusDescription)
@@ -197,7 +197,7 @@ enum Finetune {
                 break
             }
             if (step + 1) % sampleEvery == 0 || step == steps - 1 {
-                fputs("    [step \(step + 1)] (sample skipped during HF fine-tune; use `tinygpt sample` after)\n", stderr)
+                fputs("    [step \(step + 1)] (sample skipped during HF fine-tune; use `posttrainllm sample` after)\n", stderr)
             }
         }
         let elapsed = -t0.timeIntervalSinceNow
@@ -270,7 +270,7 @@ enum Finetune {
     }
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt finetune <base.tinygpt> [options]
+        usage: posttrainllm finetune <base.tinygpt> [options]
 
         --corpus path.txt        UTF-8 text to fine-tune on (required)
         --out path.lora          Where to save the adapter (required)

@@ -5,7 +5,7 @@ import MLXOptimizers
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt distill` — knowledge distillation training.
+/// `posttrainllm distill` — knowledge distillation training.
 ///
 /// Trains a STUDENT model to match a frozen TEACHER's output distribution.
 /// Loss is a mix of two terms:
@@ -27,7 +27,7 @@ import TinyGPTModel
 /// HuggingFace "distil" family recipe.
 ///
 /// USAGE
-///   tinygpt distill <student> --teacher <teacher_path> \
+///   posttrainllm distill <student> --teacher <teacher_path> \
 ///       --corpus <text> --tokenizer <hf-dir> \
 ///       --steps 5000 --temperature 4 --alpha 0.7 --out distilled.tinygpt
 ///
@@ -168,7 +168,7 @@ enum Distill {
 
         print("""
 
-        TinyGPT — knowledge distillation
+        posttrainllm — knowledge distillation
         --------------------------------
         student:        \(studentPath)  (\(scfg.nLayers)L · d=\(scfg.dModel) · \(formatLargeInt(studentLoad.model.numParameters())) params)
         teacher:        \(teacherDescription(path: teacherPath, load: teacherLoad))
@@ -327,7 +327,7 @@ enum Distill {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt distill <student> --teacher <path> --corpus <text> [options]
+        usage: posttrainllm distill <student> --teacher <path> --corpus <text> [options]
 
         --teacher <path>         Frozen teacher model (.tinygpt or HF dir);
                                  required for --mode soft / --kl-weight > 0

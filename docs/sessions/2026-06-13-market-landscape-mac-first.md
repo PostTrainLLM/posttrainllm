@@ -35,7 +35,7 @@ local-first UX but *delegates* training to external providers.
 
 So "fine-tune on your laptop" is owned by a *library* (MLX-LM), not a
 *product*. Nobody ships the packaged data → train → eval → deploy loop as
-one Mac-native app. **That is the lane.** TinyGPT already has the full
+one Mac-native app. **That is the lane.** posttrainllm already has the full
 pipeline (pretrain / SFT / DPO / distill / quantize / serve) on MLX-Swift;
 the gap to fill is the product wrapper (B6 Factory tab) + the distribution
 surface (B31 gallery + project pins).
@@ -50,7 +50,7 @@ internals. Interpretability tooling (Neuronpedia, TransformerLens, SAELens)
 is research-funded OSS with **zero eval integration**; Goodfire's Ember
 went partnership-only in Feb 2026. The two communities barely overlap.
 
-TinyGPT already ships the fusion nobody else has: eval harnesses (BFCL /
+posttrainllm already ships the fusion nobody else has: eval harnesses (BFCL /
 τ-bench / lm-eval wrappers) **plus** an interpretability lab (SAE, activation
 patching, logit lens, ROME/MEMIT, causal trace) **plus** a local agentic
 leaderboard. Fused + local = category-of-one. This is the strongest
@@ -61,9 +61,9 @@ differentiation, stronger than local-training alone — because local
 ### 3. Academic agent benchmarks as a local CI gate
 
 BFCL (Berkeley) and τ-bench are leaderboards, not products — no commercial
-harness wraps them into "gate my SLM in CI." TinyGPT already wrapped both
+harness wraps them into "gate my SLM in CI." posttrainllm already wrapped both
 (E1 / E2 shipped). The unfilled step is *framing* them as a developer
-workflow primitive: `tinygpt eval` as a pre-commit / CI gate that fails the
+workflow primitive: `posttrainllm eval` as a pre-commit / CI gate that fails the
 build when a specialist regresses. That reframes shipped infra as a
 product surface for ~zero new code (filed below).
 
@@ -103,7 +103,7 @@ compute), which is exactly why it survives the roll-up.
    gallery/pins are the surfaces that convert the primitive into a named
    product.
 
-4. **Ship `tinygpt eval` as a CI gate.** Reframe shipped E1/E2 as a
+4. **Ship `posttrainllm eval` as a CI gate.** Reframe shipped E1/E2 as a
    developer-workflow primitive (pre-commit / GitHub Action). Near-zero
    code; turns a benchmark wrapper into a product surface. Filed as **B32**.
 
@@ -124,6 +124,6 @@ compute), which is exactly why it survives the roll-up.
 
 ## Filed from this session
 
-- **B32. `tinygpt eval` as a CI/pre-commit gate** — `docs/prds/B32-eval-ci-gate.md`
+- **B32. `posttrainllm eval` as a CI/pre-commit gate** — `docs/prds/B32-eval-ci-gate.md`
 - **B33. One-command laptop-finetune onboarding** — `docs/prds/B33-laptop-finetune-onboarding.md`
 - Competitive-landscape evidence page — `docs/learn/competitive-landscape.md`

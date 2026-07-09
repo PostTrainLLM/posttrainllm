@@ -1,4 +1,4 @@
-# WWDC 2026 (June 8–9) — impact on tinygpt + Pace
+# WWDC 2026 (June 8–9) — impact on posttrainllm + Pace
 
 Researched 2026-06-10 via two web sweeps (platform + product). Sources at
 bottom; unverified items marked. macOS 27 is "Golden Gate", fall 2026.
@@ -40,7 +40,7 @@ exact base model). Our remaining moat: grammar-constrained decoding fidelity
 any-app AX control.
 
 **Action:** benchmark `CoreAILanguageModel(Qwen3-0.6B)` vs M8 chain vs
-serve-int8 (tok/s, TTFW, constraint fidelity). Conform tinygpt's serve to
+serve-int8 (tok/s, TTFW, constraint fidelity). Conform posttrainllm's serve to
 the `LanguageModel` protocol so Pace's planner is model-pluggable either way.
 
 ### 3. Siri-Gemini + macOS 27 defines Pace's launch window

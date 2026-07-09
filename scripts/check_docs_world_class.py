@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check that the TinyGPT docs golden path is present and wired."""
+"""Check that the posttrainllm docs golden path is present and wired."""
 
 from __future__ import annotations
 
@@ -114,7 +114,7 @@ REQUIRED = {
     "docs/factory/enforcement.md": [
         "## Enforcement Layers",
         "## Publish Check",
-        "tinygpt factory-run publish-check",
+        "posttrainllm factory-run publish-check",
         "scripts/check_factory_run_publish.py",
     ],
     "docs/techniques/README.md": [

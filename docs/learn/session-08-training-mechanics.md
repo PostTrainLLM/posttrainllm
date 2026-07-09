@@ -269,7 +269,7 @@ if total_norm > max_norm:
 ```
 
 Standard value: `max_norm = 1.0`. **huge-base-v1** used `grad_clip = 1.0`,
-TinyGPT default.
+posttrainllm default.
 
 This is cheap insurance. Almost every modern training run uses it.
 
@@ -325,7 +325,7 @@ Sudden jump up. Often resolves on its own. Causes:
 - LR temporarily too high
 
 When to worry: if it doesn't resolve, or repeats. Then look at data + LR
-+ warmup. TinyGPT logs a `spike` field per step if loss > 3× moving avg;
++ warmup. posttrainllm logs a `spike` field per step if loss > 3× moving avg;
 huge-base-v1 had ZERO spikes in 200K steps.
 
 ### Divergence
@@ -440,6 +440,6 @@ Don't peek:
 - Session 9 (production optimizations, journal Entry 14) is "the knobs
   on this loop, plus the architecture-level ones."
 - The wsd schedule's "stop in stable phase, decay later" property is
-  what makes TinyGPT's `tinygpt train --resume` workflow work cleanly:
+  what makes posttrainllm's `posttrainllm train --resume` workflow work cleanly:
   you can pause training, do other things, resume, and the LR is at the
   right point to keep going.

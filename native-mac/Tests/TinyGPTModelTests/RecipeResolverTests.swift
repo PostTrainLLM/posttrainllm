@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import TinyGPTModel
 
-/// B33 coverage for the `tinygpt quickstart` decision core: data-shape
+/// B33 coverage for the `posttrainllm quickstart` decision core: data-shape
 /// detection, gallery base selection, and recipe sizing. Pure — no GPU,
 /// no filesystem.
 final class RecipeResolverTests: XCTestCase {

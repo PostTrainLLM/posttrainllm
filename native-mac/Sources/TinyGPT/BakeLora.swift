@@ -2,10 +2,10 @@ import Foundation
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt bake-lora` — fold a `.lora` adapter into the base safetensors
+/// `posttrainllm bake-lora` — fold a `.lora` adapter into the base safetensors
 /// weights and emit a fresh HF directory with the LoRA delta merged in.
 ///
-/// Why this exists (motivation distinct from `tinygpt merge`):
+/// Why this exists (motivation distinct from `posttrainllm merge`):
 ///   `merge` operates on .tinygpt files and combines N task-vector deltas
 ///   via TIES / DARE / linear math. `bake-lora` is the inverse plumbing —
 ///   it takes ONE LoRA adapter (rank-r A, B matrices) and bakes the
@@ -40,16 +40,16 @@ import TinyGPTModel
 ///      / fp16 storage decision the base was published in).
 ///   4. Copy every non-safetensors file (config.json, tokenizer.json,
 ///      tokenizer_config.json, generation_config.json, merges.txt,
-///      vocab.json, ...) so the output dir is drop-in for `tinygpt
+///      vocab.json, ...) so the output dir is drop-in for `posttrainllm
 ///      hf-load`, the CoreML converter, or any HF tool.
 ///
 /// USAGE
-///   tinygpt bake-lora <base-hf-dir> <adapter.lora> --out <merged-hf-dir>
+///   posttrainllm bake-lora <base-hf-dir> <adapter.lora> --out <merged-hf-dir>
 ///                     [--shard-size BYTES] [--dtype f32|f16|bf16|preserve]
 ///
 /// SMOKE TEST (the brief calls this out explicitly — keep both paths)
-///   tinygpt hf-load <base-hf-dir>      --lora <adapter.lora> --sample --prompt "X" --temperature 0
-///   tinygpt hf-load <merged-hf-dir>                              --sample --prompt "X" --temperature 0
+///   posttrainllm hf-load <base-hf-dir>      --lora <adapter.lora> --sample --prompt "X" --temperature 0
+///   posttrainllm hf-load <merged-hf-dir>                              --sample --prompt "X" --temperature 0
 ///
 /// At temperature 0 (argmax) the two paths should produce identical top-1
 /// token IDs up to bf16 rounding noise. The harness in this file's
@@ -78,7 +78,7 @@ enum BakeLora {
         guard let baseDirPath = baseDirPath,
               let loraPath = loraPath,
               let outDirPath = outDirPath else {
-            fputs("usage: tinygpt bake-lora <base-hf-dir> <adapter.lora> --out <merged-hf-dir>\n", stderr)
+            fputs("usage: posttrainllm bake-lora <base-hf-dir> <adapter.lora> --out <merged-hf-dir>\n", stderr)
             exit(2)
         }
         guard let outDtype = OutDtype(rawValue: dtypeOpt) else {
@@ -102,7 +102,7 @@ enum BakeLora {
         let isDora = adapter.matrices.contains(where: { $0.m != nil })
         print("""
 
-        tinygpt bake-lora
+        posttrainllm bake-lora
         ----------------------------------------------
         base:    \(baseDir.path)
         lora:    \(loraURL.path)
@@ -244,11 +244,11 @@ enum BakeLora {
           \(totalTensors) tensors total · \(totalBaked) baked · \(formatBytes(totalBytesOut))
 
         smoke check (compares base+lora vs merged, expect identical argmax tokens at T=0):
-          tinygpt hf-load \(baseDir.path) --lora \(loraURL.path) --sample --temperature 0 --tokens 16
-          tinygpt hf-load \(outDir.path)                              --sample --temperature 0 --tokens 16
+          posttrainllm hf-load \(baseDir.path) --lora \(loraURL.path) --sample --temperature 0 --tokens 16
+          posttrainllm hf-load \(outDir.path)                              --sample --temperature 0 --tokens 16
 
         next step in the ANE pipeline:
-          tinygpt to-coreml \(outDir.path) --out convert.py
+          posttrainllm to-coreml \(outDir.path) --out convert.py
           python convert.py --input \(outDir.path)/model.safetensors --output pace.mlpackage
 
         """)
@@ -478,7 +478,7 @@ enum BakeLora {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt bake-lora <base-hf-dir> <adapter.lora> --out <merged-hf-dir>
+        usage: posttrainllm bake-lora <base-hf-dir> <adapter.lora> --out <merged-hf-dir>
 
           --out PATH       output directory for the merged HF model
           --dtype OPT      preserve (default) | f32 | f16 | bf16
@@ -489,7 +489,7 @@ enum BakeLora {
         Folds a `.lora` adapter into the base safetensors weights and writes
         a fresh HF dir (config.json + tokenizer files + merged shards).
         Output is identical to the base + lora composition up to bf16
-        rounding noise. After baking, `tinygpt to-coreml <merged-dir>` /
+        rounding noise. After baking, `posttrainllm to-coreml <merged-dir>` /
         any HF-aware tool sees a plain base model — the CoreML / ANE path
         is the immediate consumer.
         """)

@@ -16,7 +16,7 @@ Target: ~40-60 effective tok/s on the 14B output via spec dec.
 
 Usage:
   python3 scripts/ane/m9_spec_decode.py \
-      --draft-dir ~/.cache/tinygpt/ane \
+      --draft-dir ~/.cache/posttrainllm/ane \
       --draft-hf-dir <Qwen3-0.6B-HF> \
       --verify-dir ~/.lmstudio/models/lmstudio-community/Qwen3-14B-MLX-4bit \
       --prompt "The capital of France is" \

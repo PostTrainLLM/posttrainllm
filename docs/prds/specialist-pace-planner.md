@@ -40,9 +40,9 @@ This moved the narrow v6.1 fm-fixture result from the earlier broken
 2/19 fixture-gold attempt to 17/19 with the 300-step prompt-aligned
 fixture adapter:
 
-`~/.cache/tinygpt/runs/pace-planner-v6_1-fixture-system-300/pace-planner-v6_1-fixture-system-300.lora`
+`~/.cache/posttrainllm/runs/pace-planner-v6_1-fixture-system-300/pace-planner-v6_1-fixture-system-300.lora`
 
-The final 19/19 gate required one more serving fix: TinyGPT's JSON Schema
+The final 19/19 gate required one more serving fix: posttrainllm's JSON Schema
 parser/FSM previously ignored `minLength` and `maxLength`, so the constrained
 decoder allowed degenerate one-character `spokenText` values such as `}`.
 After implementing string length enforcement and raising Pace `spokenText`
@@ -71,7 +71,7 @@ Distill Pace's qwen3-30b-a3b planner (current production model, scoring
    `clickyLocal/evals/fixtures/`
 2. **Latency < 200ms p50** (vs 925ms today — ~5× faster)
 3. **Footprint ≤ 1.5 GB Q4** (vs 18.6 GB today — ~12× less RAM)
-4. Drops in as `PlannerProvider=tinygpt` via the existing
+4. Drops in as `PlannerProvider=posttrainllm` via the existing
    `BuddyPlannerClient` Swift protocol
 
 If this lands, Pace's planner becomes free + 5× faster + fits comfortably
@@ -95,7 +95,7 @@ already a "they."
 
 ## Recipe — uses the factory primitives that just shipped
 
-### Step 1: Synthesize labels from the teacher (via `tinygpt synthesize`)
+### Step 1: Synthesize labels from the teacher (via `posttrainllm synthesize`)
 
 Inputs: a pool of Pace-shaped prompts. Source options ranked by quality:
 - **Best**: real Pace usage logs (we don't have, but `generate-intent-corpus.py`
@@ -107,7 +107,7 @@ For v1, hybrid: 500 hand-curated from fixtures + 9,500 synthesized.
 
 ```bash
 # Label inputs against the running LM Studio teacher
-tinygpt synthesize \
+posttrainllm synthesize \
     --teacher http://localhost:1234/v1 \
     --teacher-model qwen/qwen3-30b-a3b \
     --inputs pace-prompts.jsonl \
@@ -119,11 +119,11 @@ tinygpt synthesize \
     --out pace-labeled.jsonl
 ```
 
-### Step 2: Distill into a small student (via `tinygpt distill`)
+### Step 2: Distill into a small student (via `posttrainllm distill`)
 
 ```bash
 # Soft distillation (just shipped today) for best transfer
-tinygpt distill \
+posttrainllm distill \
     --teacher qwen3-30b-a3b.tinygpt \  # if local; else use hard-only
     --student qwen3-0.6b.tinygpt \
     --corpus pace-labeled.jsonl \
@@ -152,7 +152,7 @@ decoding makes the model never emit malformed ones.
 
 ```bash
 # Spin up the student as an OpenAI-compat endpoint
-tinygpt serve pace-planner.tinygpt --port 8765 &
+posttrainllm serve pace-planner.tinygpt --port 8765 &
 
 # Run Pace's existing eval runner against our endpoint
 cd /Users/sarthak/Desktop/fleet/clickyLocal/
@@ -168,7 +168,7 @@ latency vs the 925ms baseline.
 
 In Pace's Info.plist:
 ```
-PlannerProvider = tinygpt-local
+PlannerProvider = posttrainllm-local
 LocalPlannerModelIdentifier = pace-planner
 ```
 
@@ -210,7 +210,7 @@ points at our serve port.)
 **~1 week of focused work** assuming the factory primitives work:
 - Day 1: extract Pace's system prompt + generate prompt pool (use
   `generate-intent-corpus.py`)
-- Day 2: `tinygpt synthesize` against LM Studio overnight (~1-2 hrs
+- Day 2: `posttrainllm synthesize` against LM Studio overnight (~1-2 hrs
   wall, depends on parallel)
 - Day 3: distillation run on Qwen3-0.6B base — overnight
 - Day 4: eval against fixtures, iterate
@@ -233,7 +233,7 @@ points at our serve port.)
 ## Why this validates the factory
 
 If Pace planner ships:
-- Confirms `tinygpt synthesize` works end-to-end with a real teacher
+- Confirms `posttrainllm synthesize` works end-to-end with a real teacher
 - Confirms soft distillation transfers reasoning capability
 - Confirms constrained decoding solves format compliance
 - Confirms our serve OpenAI-compat surface is consumer-ready

@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// Pre-flight memory estimate for `tinygpt train`.
+/// Pre-flight memory estimate for `posttrainllm train`.
 ///
 /// The Mega-bf16 attempt died at step 1 with no error message — almost
 /// certainly OOM during the first backward, after we'd already paid the

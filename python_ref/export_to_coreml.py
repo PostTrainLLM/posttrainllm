@@ -2,7 +2,7 @@
 that runs on the Apple Neural Engine.
 
 The path is:
-    .tinygpt  →  PyTorch state_dict  →  traced TinyGPT module  →  .mlpackage
+    .tinygpt  →  PyTorch state_dict  →  traced posttrainllm module  →  .mlpackage
 
 The .mlpackage runs from Swift via MLModel with computeUnits=.cpuAndNeuralEngine,
 which dispatches eligible ops to the ANE (16-core, ~38 TOPS on M3+).
@@ -160,7 +160,7 @@ class Block(nn.Module):
         return x
 
 
-class TinyGPT(nn.Module):
+class posttrainllm(nn.Module):
     def __init__(self, vocab: int, ctx: int, n_layers: int, n_heads: int, d_model: int, d_mlp: int):
         super().__init__()
         self.token_embedding = nn.Embedding(vocab, d_model)
@@ -255,8 +255,8 @@ def load_tinygpt(path: Path) -> tuple[dict, dict[str, np.ndarray]]:
 # ---------------------------------------------------------------------------
 
 
-def build_torch_model(config: dict, state: dict[str, np.ndarray]) -> TinyGPT:
-    model = TinyGPT(
+def build_torch_model(config: dict, state: dict[str, np.ndarray]) -> posttrainllm:
+    model = posttrainllm(
         vocab=256,
         ctx=config["ctx"],
         n_layers=config["layers"],
@@ -279,7 +279,7 @@ def build_torch_model(config: dict, state: dict[str, np.ndarray]) -> TinyGPT:
     return model
 
 
-def convert_to_coreml(model: TinyGPT, ctx: int, out_path: Path) -> None:
+def convert_to_coreml(model: posttrainllm, ctx: int, out_path: Path) -> None:
     # Trace at a representative prompt length. For variable-length we'd
     # need MLProgram with `RangeDim`, but fixed-shape is more ANE-friendly.
     example = torch.randint(0, 256, (1, ctx), dtype=torch.int32)
@@ -300,7 +300,7 @@ def convert_to_coreml(model: TinyGPT, ctx: int, out_path: Path) -> None:
         minimum_deployment_target=ct.target.macOS14,
         convert_to="mlprogram",
     )
-    mlmodel.short_description = "TinyGPT byte-level transformer (ANE-routed)"
+    mlmodel.short_description = "posttrainllm byte-level transformer (ANE-routed)"
     mlmodel.save(str(out_path))
     print(f"✓ wrote {out_path}")
 

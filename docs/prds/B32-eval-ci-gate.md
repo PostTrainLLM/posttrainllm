@@ -1,5 +1,5 @@
 ---
-name: B32 `tinygpt eval` as a CI / pre-commit gate
+name: B32 `posttrainllm eval` as a CI / pre-commit gate
 status: scaffolding-shipped
 owner: unassigned
 created: 2026-06-13
@@ -16,10 +16,10 @@ related_prds: E1-bfcl-eval.md, E2-tau-bench-eval.md (the shipped harnesses this 
 > stdev/stderr/95% CI + optional B23 budget metadata in `gate-result.json`)
 > with unit tests in
 > `EvalGateTests.swift`. CLI (`Sources/TinyGPT/EvalGate.swift`):
-> `--spec` / `eval-gate.json` / `tinygpt.project.json` `eval` block
+> `--spec` / `eval-gate.json` / `posttrainllm.project.json` `eval` block
 > resolution, `--candidate` (no-GPU path), `--baseline`, `--threshold`,
 > `--passes`, `--budget`, `--update-baseline`, `gate-result.json`, exit 0/1. Action at
-> `.github/actions/tinygpt-eval-gate/` forwards `spec`, `candidate`, `passes`,
+> `.github/actions/posttrainllm-eval-gate/` forwards `spec`, `candidate`, `passes`,
 > and `budget`; recipe `docs/recipes/eval-gate.md`, smoke
 > `evals/eval-gate-smoke.sh` (asserts both exit codes against committed
 > fixtures, including repeated-row CI output). **Remaining to flip to ✅:**
@@ -29,7 +29,7 @@ related_prds: E1-bfcl-eval.md, E2-tau-bench-eval.md (the shipped harnesses this 
 
 ## Goal
 
-Ship `tinygpt eval-gate` — a single command that runs a project's
+Ship `posttrainllm eval-gate` — a single command that runs a project's
 declared eval suites against a model + adapter, compares to a stored
 baseline, and **exits non-zero when any suite regresses past a
 threshold**. Plus a GitHub Action wrapper and a pre-commit hook recipe.
@@ -49,13 +49,13 @@ primitive — near-zero new model code, high product leverage.
   exit-code gate that never phones home is the structural counter — it
   runs in *your* CI on *your* runner.
 - Pairs with the B31 project file: the gate reads which models the
-  project pins + which suites it declares, so `tinygpt eval-gate` is
-  zero-config in a project that already has a `tinygpt.project.json`.
+  project pins + which suites it declares, so `posttrainllm eval-gate` is
+  zero-config in a project that already has a `posttrainllm.project.json`.
 
 ## Scope — in
 
 - `Sources/TinyGPT/EvalGate.swift` — orchestrator:
-  - Reads an eval-gate spec (a `[eval]` block in `tinygpt.project.json`,
+  - Reads an eval-gate spec (a `[eval]` block in `posttrainllm.project.json`,
     or a standalone `eval-gate.json`): which suites, which model/adapter,
     which baseline file, per-suite regression thresholds (default: any
     drop > 2pp fails; configurable per suite).
@@ -68,7 +68,7 @@ primitive — near-zero new model code, high product leverage.
 - `--passes K` — delegates to B23 protocol (K-pass mean ± σ) so the gate
   isn't fooled by single-run noise. Default K=1 for CI speed; recipe
   recommends K=3 for release gates.
-- GitHub Action: `.github/actions/tinygpt-eval-gate/action.yml` — thin
+- GitHub Action: `.github/actions/posttrainllm-eval-gate/action.yml` — thin
   wrapper that runs the binary on a self-hosted Mac runner and annotates
   the PR with the pass/fail table.
 - Pre-commit recipe: `docs/recipes/eval-gate.md` documents both the
@@ -92,7 +92,7 @@ primitive — near-zero new model code, high product leverage.
 | `Sources/TinyGPT/EvalGate.swift` | new — orchestrator + exit-code logic |
 | `Sources/TinyGPT/TinyGPT.swift` | `case "eval-gate"` |
 | `Sources/TinyGPTModel/ProjectManifest.swift` | extend with an optional `[eval]` block (B31 schema addition) |
-| `.github/actions/tinygpt-eval-gate/action.yml` | shipped — Action wrapper with `--passes` and optional `--budget` forwarding |
+| `.github/actions/posttrainllm-eval-gate/action.yml` | shipped — Action wrapper with `--passes` and optional `--budget` forwarding |
 | `evals/eval-gate-smoke.sh` | new — pass + fail cases assert correct exit codes |
 | `docs/recipes/eval-gate.md` | new — pre-commit + Action recipe |
 | `docs/PLAN.md` | B32 ⬜ → ✅ on ship |
@@ -105,7 +105,7 @@ primitive — near-zero new model code, high product leverage.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt eval-gate` in a dir with a valid spec runs the declared
+- [ ] `posttrainllm eval-gate` in a dir with a valid spec runs the declared
   suites and exits 0 when all pass, 1 when any regresses past threshold.
 - [ ] `--update-baseline` re-stamps the baseline JSONL.
 - [ ] The GitHub Action annotates a PR with the suite table + pass/fail.
@@ -129,6 +129,6 @@ primitive — near-zero new model code, high product leverage.
   "fail if score drops > 2pp from baseline"; suites where lower-is-better
   (PPL, latency) invert automatically via the `EvalCompare` direction
   metadata.
-- Whether the gate spec lives in `tinygpt.project.json` or a separate
+- Whether the gate spec lives in `posttrainllm.project.json` or a separate
   `eval-gate.json`. **Recommendation:** an optional block in the project
   file (one config surface), with the standalone file as an override.

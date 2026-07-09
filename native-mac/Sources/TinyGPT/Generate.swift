@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt generate <model> --data rows.jsonl --out preds.jsonl` — run a model
+/// `posttrainllm generate <model> --data rows.jsonl --out preds.jsonl` — run a model
 /// (optionally base+adapter) over a dataset via a managed serve, writing each
 /// row back with the model's output. This is the missing "generate predictions"
 /// step the specialist recipes feed into the eval-* gates (eval-sql, eval-router,
@@ -75,7 +75,7 @@ enum Generate {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt generate <model> --data rows.jsonl --out preds.jsonl [options]
+        usage: posttrainllm generate <model> --data rows.jsonl --out preds.jsonl [options]
 
         Run a model over a dataset via a managed serve; each output row is the
         input row plus the model's text under --out-field. Feeds the eval-* gates.

@@ -6,7 +6,7 @@ v5, but gold output uses labels from the element list."""
 import json
 from pathlib import Path
 
-OUT = Path.home() / ".cache" / "tinygpt" / "datasets" / "pace-v6-gold.jsonl"
+OUT = Path.home() / ".cache" / "posttrainllm" / "datasets" / "pace-v6-gold.jsonl"
 
 GOLD = [
     # FREE_TEXT_MODE — raw action tags

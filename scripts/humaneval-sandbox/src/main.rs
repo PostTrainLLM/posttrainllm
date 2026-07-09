@@ -28,7 +28,7 @@ fn main() -> Result<()> {
     let args = Args::parse();
     let started = Instant::now();
     let run_dir = std::env::temp_dir().join(format!(
-        "tinygpt-humaneval-{}-{}",
+        "posttrainllm-humaneval-{}-{}",
         std::process::id(),
         SystemTime::now().duration_since(UNIX_EPOCH)?.as_millis()
     ));

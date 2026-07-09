@@ -17,7 +17,7 @@ enum TrainSupport {
     /// - warmup ≤ step < total: cosine decay from maxLR → minLR
     /// - step ≥ total: minLR (rarely hit, but defensive for off-by-one)
     ///
-    /// Used by `tinygpt train` when `--lr-schedule=cosine`. The constant
+    /// Used by `posttrainllm train` when `--lr-schedule=cosine`. The constant
     /// schedule path just returns `maxLR` for all steps.
     static func lrAt(step: Int, total: Int, warmup: Int,
                      maxLR: Float, minLR: Float) -> Float {
@@ -102,7 +102,7 @@ enum TrainSupport {
         tensors.reserveCapacity(entries.count)
         for entry in entries {
             guard let mlxValue = paramMap[entry.name] else {
-                throw NSError(domain: "TinyGPT", code: 1,
+                throw NSError(domain: "posttrainllm", code: 1,
                               userInfo: [NSLocalizedDescriptionKey: "missing param \(entry.name)"])
             }
             var array = mlxValue

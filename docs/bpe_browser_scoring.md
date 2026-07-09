@@ -9,10 +9,10 @@ Run
 
 ```
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-  xcodebuild -scheme tinygpt -destination "platform=macOS" \
-  -derivedDataPath /tmp/tinygpt-smoke-bpe-score -configuration Release build
+  xcodebuild -scheme posttrainllm -destination "platform=macOS" \
+  -derivedDataPath /tmp/posttrainllm-smoke-bpe-score -configuration Release build
 
-/tmp/tinygpt-smoke-bpe-score/Build/Products/Release/tinygpt \
+/tmp/posttrainllm-smoke-bpe-score/Build/Products/Release/posttrainllm \
   score-bench /tmp/flagship-huge.tinygpt \
   --benchmarks bench/benchmarks.json
 
@@ -61,7 +61,7 @@ bench/benchmarks.json
   source-of-truth benchmark descriptors
 
 native-mac/Sources/TinyGPT/Score.swift
-  `tinygpt score-bench` subcommand — loads model, runs benches,
+  `posttrainllm score-bench` subcommand — loads model, runs benches,
   surgically patches manifest.json in place
 
 browser/score_gallery.ts
@@ -115,8 +115,8 @@ leaderboard UI correctly — incompatible rows don't show on that tab.
 1. **Parse `--benchmarks`**: load descriptors from JSON.
 2. **Load model**: `ModelLoader.load(<path>)` → detects byte-vs-BPE
    from header.tokenizerSource and header.vocabSize. Same loader the
-   `eval` subcommand uses, so any model that `tinygpt eval` can score
-   `tinygpt score-bench` can also score.
+   `eval` subcommand uses, so any model that `posttrainllm eval` can score
+   `posttrainllm score-bench` can also score.
 3. **For each descriptor:**
    - Compatibility check via `vocabType` ⇒ write `null` if mismatched.
    - **`kind: "perplexity"`** — load corpus (BPE: encode once via
@@ -144,11 +144,11 @@ doesn't matter):
 ```bash
 # 1. Build the binary
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-  xcodebuild -scheme tinygpt -destination "platform=macOS" \
-  -derivedDataPath /tmp/tinygpt-smoke-bpe-score -configuration Release build
+  xcodebuild -scheme posttrainllm -destination "platform=macOS" \
+  -derivedDataPath /tmp/posttrainllm-smoke-bpe-score -configuration Release build
 
 # 2. Run scoring (writes to manifest.json by default)
-./tinygpt score-bench ~/checkpoints/my-experiment.tinygpt \
+./posttrainllm score-bench ~/checkpoints/my-experiment.tinygpt \
   --benchmarks bench/benchmarks.json \
   --id my-experiment      # optional — defaults to filename stem
 
@@ -179,7 +179,7 @@ useful for sanity-checking a new descriptor.
    benches can point outside the public dir (e.g.,
    `/tmp/eval-holdout-tail.txt`) — they never get fetched from the
    browser.
-4. Re-run `tinygpt score-bench` over the existing gallery to backfill
+4. Re-run `posttrainllm score-bench` over the existing gallery to backfill
    scores.
 
 ## Caveats
@@ -188,7 +188,7 @@ useful for sanity-checking a new descriptor.
   parameters from the model config rather than counting the .tinygpt
   tensors. The number ends up within ~5% of the real count for
   standard dense models; if exactness matters, copy the real number
-  in by hand or run `tinygpt inspect` and update the
+  in by hand or run `posttrainllm inspect` and update the
   `paramCount` field.
 - **Single source of variance**: random window sampling for the
   perplexity benches re-seeds the global MLX RNG per call. Two
@@ -216,6 +216,6 @@ Three reasons:
    fp32, vocab=256, fit in the WASM module's address space, and run
    in seconds.
 3. Now it explicitly skips BPE models with a one-liner pointing at
-   `tinygpt score-bench`. Anyone running the legacy script on a BPE
+   `posttrainllm score-bench`. Anyone running the legacy script on a BPE
    checkpoint gets the actionable message instead of a corrupted
    number.

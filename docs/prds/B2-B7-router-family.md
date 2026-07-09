@@ -41,12 +41,12 @@ unified-model + grammar?"
 **B2 (mini-router on real BFCL data):**
 - `scripts/recipes/b2-router-train.sh` — pulls BFCL train split,
   reformats as `{query, tool}` pairs, trains the mini-router via
-  `tinygpt train-extractor`.
-- Eval the trained router via `tinygpt eval-bfcl` with the router
+  `posttrainllm train-extractor`.
+- Eval the trained router via `posttrainllm eval-bfcl` with the router
   in front (intent → tool name → constrained generation).
 
 **B2b (bake-off):**
-- Wire the alternative: `tinygpt serve --tools <catalog> --grammar
+- Wire the alternative: `posttrainllm serve --tools <catalog> --grammar
   bfcl-tool.gbnf` end-to-end (no router head; FSM only).
 - `evals/router-bakeoff.sh` runs both configurations against the
   same BFCL eval; reports per-category + average + per-sample

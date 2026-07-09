@@ -10,8 +10,8 @@
 #
 # Preconditions:
 #   - GPU free (no other training / no other agent using LM Studio)
-#   - ~/.cache/tinygpt/datasets/pace-v10-multiplied.jsonl exists
-#   - ~/.cache/tinygpt/datasets/pace-v11-seed.jsonl exists
+#   - ~/.cache/posttrainllm/datasets/pace-v10-multiplied.jsonl exists
+#   - ~/.cache/posttrainllm/datasets/pace-v11-seed.jsonl exists
 #   - for --amplify: LM Studio running with qwen/qwen3-14b loaded
 #
 # Wall: ~90min train + ~5min bake + ~25min eval  (+~90min if --amplify)
@@ -19,13 +19,13 @@
 set -euo pipefail
 
 BASE=/Users/sarthak/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B/snapshots/c1899de289a04d12100db370d81485cdf75e47ca
-DS=/Users/sarthak/.cache/tinygpt/datasets
-RUN_DIR=/Users/sarthak/.cache/tinygpt/runs/pace-planner-v11
+DS=/Users/sarthak/.cache/posttrainllm/datasets
+RUN_DIR=/Users/sarthak/.cache/posttrainllm/runs/pace-planner-v11
 LORA="$RUN_DIR/pace-planner-v11.lora"
 BAKED="$RUN_DIR/baked-hf"
 LOG="$RUN_DIR/train.log"
-TGT=/Users/sarthak/Desktop/fleet/tinygpt
-TINYGPT="$TGT/native-mac/.build/release/tinygpt"
+TGT=/Users/sarthak/Desktop/fleet/posttrainllm
+TINYGPT="$TGT/native-mac/.build/release/posttrainllm"
 SYSP="$TGT/grammars/pace-system-prompt-v11.txt"
 GRAMMAR="$TGT/grammars/pace-fm-response-v11.schema.json"
 PACE_EVAL=/Users/sarthak/Desktop/fleet/pace/evals
@@ -90,13 +90,13 @@ echo ""
 
 # Step 5: serve with v11 grammar + prompt
 echo "[5/6] Starting serve..."
-pkill -f "tinygpt serve" 2>/dev/null || true
+pkill -f "posttrainllm serve" 2>/dev/null || true
 sleep 2
-mkdir -p /tmp/tinygpt-cache-v11
+mkdir -p /tmp/posttrainllm-cache-v11
 "$TINYGPT" serve \
   "$BASE" --lora "$LORA" \
   --grammar "$GRAMMAR" \
-  --prompt-cache-dir /tmp/tinygpt-cache-v11 \
+  --prompt-cache-dir /tmp/posttrainllm-cache-v11 \
   --port 8765 > /tmp/serve-v11.log 2>&1 &
 SERVE_PID=$!
 echo $SERVE_PID > "$RUN_DIR/serve.pid"
@@ -137,7 +137,7 @@ run_dim "dim1-fm-fixtures-v2" "$PACE_EVAL/fm-fixtures-v2"
 echo "--- dim2-bfcl-pace12 ---" | tee -a "$EVAL_LOG"
 python3 "$TGT/scripts/eval_bfcl.py" \
   --serve-url "$SERVE_URL" \
-  --bfcl-dir "$HOME/.cache/tinygpt/datasets/bfcl" \
+  --bfcl-dir "$HOME/.cache/posttrainllm/datasets/bfcl" \
   --categories pace12 \
   --out "$RUN_DIR/eval-bfcl-pace12.json" \
   2>&1 | tee -a "$EVAL_LOG" | tail -6

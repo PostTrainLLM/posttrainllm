@@ -70,7 +70,7 @@ if (!existsSync(DATA_GALLERY)) {
 }
 
 // --- 1. Regenerate into a temp dir. ---
-const outDir = mkdtempSync(join(tmpdir(), "tinygpt-gallery-"));
+const outDir = mkdtempSync(join(tmpdir(), "posttrainllm-gallery-"));
 const env = { ...process.env, GALLERY_OUT_DIR: outDir };
 console.log(`Regenerating gallery into ${outDir} …`);
 for (const script of ["finalize_gallery.ts", "finalize_gallery_int4.ts"]) {

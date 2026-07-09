@@ -5,14 +5,14 @@ import TinyGPTServe
 
 /// CLI entry point. Mirrors `python_ref/load_tinygpt.py --inspect`.
 /// Subcommands:
-///   tinygpt inspect <path>     — print the file's manifest + metadata
-///   tinygpt validate <path>    — read and re-encode, exit 0 iff round-trips
+///   posttrainllm inspect <path>     — print the file's manifest + metadata
+///   posttrainllm validate <path>    — read and re-encode, exit 0 iff round-trips
 ///                                bit-identically (sanity check for writers)
 ///
 /// Once the model + training milestones land, this entry point grows
 /// `train` and `sample` subcommands. For M1 it's read-only.
 @main
-struct TinyGPT {
+struct posttrainllm {
     static func main() {
         let args = Array(CommandLine.arguments.dropFirst())
         guard let cmd = args.first else {
@@ -25,7 +25,7 @@ struct TinyGPT {
                 fputs("inspect: missing <path>\n", stderr); exit(2)
             }
             if path == "-h" || path == "--help" {
-                print("usage: tinygpt inspect <path.tinygpt>\n  Prints the file's manifest + metadata.")
+                print("usage: posttrainllm inspect <path.tinygpt>\n  Prints the file's manifest + metadata.")
                 exit(0)
             }
             run { try inspect(path: path) }
@@ -34,7 +34,7 @@ struct TinyGPT {
                 fputs("validate: missing <path>\n", stderr); exit(2)
             }
             if path == "-h" || path == "--help" {
-                print("usage: tinygpt validate <path.tinygpt>\n  Round-trip check: read → encode → byte-compare.\n  Exit 0 iff the file re-encodes bit-identically.")
+                print("usage: posttrainllm validate <path.tinygpt>\n  Round-trip check: read → encode → byte-compare.\n  Exit 0 iff the file re-encodes bit-identically.")
                 exit(0)
             }
             run { try validate(path: path) }
@@ -46,7 +46,7 @@ struct TinyGPT {
             InferHeatmap.run(args: Array(args.dropFirst()))
         case "bench-train":
             // Legacy training-throughput benchmark vs the WebGPU browser
-            // baseline. Used to be `tinygpt bench` before the inference
+            // baseline. Used to be `posttrainllm bench` before the inference
             // harness shipped — preserved under a new name.
             Bench.run(args: Array(args.dropFirst()))
         case "train":
@@ -293,27 +293,27 @@ struct TinyGPT {
 
     private static func printUsage() {
         print("""
-        tinygpt — native-side CLI for the .tinygpt file format and training
+        posttrainllm — native-side CLI for the .tinygpt file format and training
 
         usage:
-          tinygpt inspect <path>     print manifest + metadata for a .tinygpt file
-          tinygpt validate <path>    round-trip check: read → encode → byte-compare
-          tinygpt bench [flags]      inference-side LLM benchmark harness (Bench360-modelled)
-          tinygpt infer-heatmap <trace.json> render an inference latency heatmap
-          tinygpt bench-train [flags] training-throughput benchmark vs. WebGPU baseline
-          tinygpt synthesize [flags] label prompt JSONL via an OpenAI-compatible teacher
-          tinygpt factory-run <sub>  render/validate a canonical factory run folder
-          tinygpt tokenize-train [flags] train a domain BPE tokenizer.json
-          tinygpt export-mlx <artifact> export .tinygpt/.lora/HF dir for MLX use
-          tinygpt rerank-train [flags] train a lightweight reranker artifact
-          tinygpt rerank-eval [flags]  evaluate a reranker and emit E0 rows
-          tinygpt screen <sub> ...   Mac screen-reading scaffold (Wave 2.6)
+          posttrainllm inspect <path>     print manifest + metadata for a .tinygpt file
+          posttrainllm validate <path>    round-trip check: read → encode → byte-compare
+          posttrainllm bench [flags]      inference-side LLM benchmark harness (Bench360-modelled)
+          posttrainllm infer-heatmap <trace.json> render an inference latency heatmap
+          posttrainllm bench-train [flags] training-throughput benchmark vs. WebGPU baseline
+          posttrainllm synthesize [flags] label prompt JSONL via an OpenAI-compatible teacher
+          posttrainllm factory-run <sub>  render/validate a canonical factory run folder
+          posttrainllm tokenize-train [flags] train a domain BPE tokenizer.json
+          posttrainllm export-mlx <artifact> export .tinygpt/.lora/HF dir for MLX use
+          posttrainllm rerank-train [flags] train a lightweight reranker artifact
+          posttrainllm rerank-eval [flags]  evaluate a reranker and emit E0 rows
+          posttrainllm screen <sub> ...   Mac screen-reading scaffold (Wave 2.6)
                                      subs: capture | tree | both
-                                     see `tinygpt screen --help` for flags
-          tinygpt ax-capture [flags] capture PNG + AX JSON pairs for VLM data
+                                     see `posttrainllm screen --help` for flags
+          posttrainllm ax-capture [flags] capture PNG + AX JSON pairs for VLM data
 
         file format documented in Sources/TinyGPTIO/TinyGPTFile.swift.
-        bench flags documented in `tinygpt bench --help`.
+        bench flags documented in `posttrainllm bench --help`.
         bench harness design documented in docs/benchmark_harness_design.md.
         """)
     }

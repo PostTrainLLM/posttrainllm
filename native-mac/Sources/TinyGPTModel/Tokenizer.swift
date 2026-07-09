@@ -82,7 +82,7 @@ public final class HFTokenizer: TGTokenizer {
         sem.wait()
         if let e = error { throw e }
         guard let t = boxed else {
-            throw NSError(domain: "TinyGPT", code: 99,
+            throw NSError(domain: "posttrainllm", code: 99,
                           userInfo: [NSLocalizedDescriptionKey: "tokenizer load returned nothing"])
         }
         return HFTokenizer(tokenizer: t)

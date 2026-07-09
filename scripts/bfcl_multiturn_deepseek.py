@@ -11,7 +11,7 @@ Usage: MT_DATA=scripts/fixtures/multi_turn_hard_data.jsonl \
        python3 scripts/bfcl_multiturn_deepseek.py 12
 """
 import sys, os, json, urllib.request, time
-BFCL="/Users/sarthak/.cache/tinygpt/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"
+BFCL="/Users/sarthak/.cache/posttrainllm/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"
 sys.path.insert(0,BFCL)
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_utils import execute_multi_turn_func_call
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_checker import multi_turn_checker

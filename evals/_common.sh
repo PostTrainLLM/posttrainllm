@@ -1,4 +1,4 @@
-# evals/_common.sh — shared helpers for tinygpt eval smoke scripts.
+# evals/_common.sh — shared helpers for posttrainllm eval smoke scripts.
 #
 # Source this AFTER `set -euo pipefail` and after defining $ROOT:
 #   source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
@@ -9,16 +9,16 @@
 # fail <msg>: print a SMOKE FAIL line to stderr and exit non-zero.
 fail() { echo "SMOKE FAIL: $1" >&2; exit 1; }
 
-# resolve_tinygpt: print the path to a usable `tinygpt` binary, preferring a
+# resolve_posttrainllm: print the path to a usable `posttrainllm` binary, preferring a
 # release build, then debug, and building debug if neither exists. Honors
 # $NATIVE if set, else derives it from $ROOT.
 #
 # Diagnostics go to stderr so the binary path is the only thing on stdout:
-#   BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
-resolve_tinygpt() {
+#   BIN="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
+resolve_posttrainllm() {
   local native="${NATIVE:-$ROOT/native-mac}"
   local bin=""
-  for cand in "$native/.build/release/tinygpt" "$native/.build/debug/tinygpt"; do
+  for cand in "$native/.build/release/posttrainllm" "$native/.build/debug/posttrainllm"; do
     [ -x "$cand" ] && { bin="$cand"; break; }
   done
   if [ -z "$bin" ]; then
@@ -28,7 +28,7 @@ resolve_tinygpt() {
     local devdir="/Applications/Xcode.app/Contents/Developer"
     [ -d "$devdir" ] || devdir="$(xcode-select -p 2>/dev/null || true)"
     ( cd "$native" && DEVELOPER_DIR="$devdir" xcrun swift build ) >&2
-    bin="$native/.build/debug/tinygpt"
+    bin="$native/.build/debug/posttrainllm"
   fi
   [ -x "$bin" ] || return 1
   printf '%s\n' "$bin"

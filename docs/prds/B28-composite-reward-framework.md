@@ -40,7 +40,7 @@ ES/DPO single-scalar paths.
   - `CompositeReward` (dimensions, total computed property, logging)
   - JSONL round-trip for per-rollout dashboards
 - Training-loop integration (the remaining work):
-  - `tinygpt dpo --reward-fn <path>` — load a user-defined reward
+  - `posttrainllm dpo --reward-fn <path>` — load a user-defined reward
     fn from a Swift-shaped specification file (JSON with weights;
     individual scorers are still Swift code per recipe). The shipped
     `.swift` recipe files do the actual scoring; the `--reward-fn`
@@ -89,7 +89,7 @@ ES/DPO single-scalar paths.
 
 ### Full B28 ship (remaining)
 
-- [ ] `tinygpt dpo --reward-fn weights.json ...` runs end-to-end on
+- [ ] `posttrainllm dpo --reward-fn weights.json ...` runs end-to-end on
   a fixture dataset; per-step history JSONL carries the composite
   reward block.
 - [ ] Train viewer (C10) renders per-dimension reward curves.

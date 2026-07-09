@@ -9,8 +9,8 @@ This recipe is the executable form — the actual commands to run.
 ## Prerequisites (verified 2026-06-07)
 
 - ✅ Qwen3-0.6B base on disk + SFT-compatible (GQA + head_dim fix landed)
-- ✅ `tinygpt synthesize` ships (OpenAI-compat teacher endpoint)
-- ✅ `tinygpt sft` ships
+- ✅ `posttrainllm synthesize` ships (OpenAI-compat teacher endpoint)
+- ✅ `posttrainllm sft` ships
 - ✅ Pace eval fixtures at `clickyLocal/evals/fixtures/`
 - ✅ Pace system prompt extracted (see "system prompt" section below)
 - ✅ Pace tool-tag GBNF grammar drafted at `grammars/pace-tool-tags.gbnf`
@@ -72,7 +72,7 @@ Extract or synthesize prompts in Pace's shape.
 Option A — use clickyLocal's existing tool:
 ```bash
 cd /Users/sarthak/Desktop/fleet/clickyLocal/
-python scripts/generate-intent-corpus.py --count 1000 --out ~/.cache/tinygpt/datasets/pace-prompts.jsonl
+python scripts/generate-intent-corpus.py --count 1000 --out ~/.cache/posttrainllm/datasets/pace-prompts.jsonl
 ```
 
 Option B — start with the 4 fixtures and synth variants:
@@ -81,24 +81,24 @@ Option B — start with the 4 fixtures and synth variants:
 python scripts/pace-prompts-from-fixtures.py \
     --fixtures /Users/sarthak/Desktop/fleet/clickyLocal/evals/fixtures/ \
     --variants-per 100 \
-    --out ~/.cache/tinygpt/datasets/pace-prompts.jsonl
+    --out ~/.cache/posttrainllm/datasets/pace-prompts.jsonl
 # (TODO: write this; ~50 lines)
 ```
 
 ### 2. Label with teacher (qwen3-30b-a3b via LM Studio)
 
 ```bash
-tinygpt synthesize \
+posttrainllm synthesize \
     --teacher http://localhost:1234/v1 \
     --teacher-model qwen/qwen3-30b-a3b \
-    --inputs ~/.cache/tinygpt/datasets/pace-prompts.jsonl \
+    --inputs ~/.cache/posttrainllm/datasets/pace-prompts.jsonl \
     --input-field prompt \
     --system-file docs/recipes/pace-system-prompt.txt \
     --grammar grammars/pace-tool-tags.gbnf \
     --temperature 0.0 \
     --parallel 4 \
     --rate-limit 30 \
-    --out ~/.cache/tinygpt/datasets/pace-labeled.jsonl
+    --out ~/.cache/posttrainllm/datasets/pace-labeled.jsonl
 ```
 
 Wall time: ~30-60 min for 1K-10K samples, depending on LM Studio's tok/s.
@@ -107,16 +107,16 @@ Wall time: ~30-60 min for 1K-10K samples, depending on LM Studio's tok/s.
 
 ```bash
 QWEN_DIR=~/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B/snapshots/<HASH>
-mkdir -p ~/.cache/tinygpt/runs/pace-planner-v1
+mkdir -p ~/.cache/posttrainllm/runs/pace-planner-v1
 
-tinygpt sft "$QWEN_DIR" \
-    --data ~/.cache/tinygpt/datasets/pace-labeled.jsonl \
+posttrainllm sft "$QWEN_DIR" \
+    --data ~/.cache/posttrainllm/datasets/pace-labeled.jsonl \
     --template chatml \
     --rank 16 --alpha 32 \
     --steps 2000 \
     --lr 1e-4 \
     --max-seq 2048 \
-    --out ~/.cache/tinygpt/runs/pace-planner-v1/pace-planner-v1.lora
+    --out ~/.cache/posttrainllm/runs/pace-planner-v1/pace-planner-v1.lora
 ```
 
 Wall time: ~30 min on M5 Pro.
@@ -125,7 +125,7 @@ Wall time: ~30 min on M5 Pro.
 
 ```bash
 # Spin up student as OpenAI-compat endpoint
-tinygpt serve ~/.cache/tinygpt/runs/pace-planner-v1/pace-planner-v1.lora \
+posttrainllm serve ~/.cache/posttrainllm/runs/pace-planner-v1/pace-planner-v1.lora \
     --base "$QWEN_DIR" \
     --port 8765 \
     --grammar grammars/pace-tool-tags.gbnf &
@@ -145,7 +145,7 @@ Add a `TinyGPTPlannerClient.swift` conformer in clickyLocal that
 implements `BuddyPlannerClient` against the serve port. Toggle via:
 
 ```
-PlannerProvider = tinygpt-local
+PlannerProvider = posttrainllm-local
 LocalPlannerModelIdentifier = pace-planner-v1
 LocalPlannerURL = http://127.0.0.1:8765/v1
 ```

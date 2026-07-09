@@ -1,6 +1,6 @@
 import Foundation
 
-/// `tinygpt run-lm-eval` — wrap EleutherAI's lm-evaluation-harness as a
+/// `posttrainllm run-lm-eval` — wrap EleutherAI's lm-evaluation-harness as a
 /// subprocess and emit results to the shared `EvalCompare.Row` schema
 /// (E0). One wrapper unlocks MMLU + ARC + HellaSwag + PIQA + BoolQ +
 /// WinoGrande + GSM8K + dozens of other tasks.
@@ -13,11 +13,11 @@ import Foundation
 /// Qwen3, Phi-mini all become scorable side-by-side).
 ///
 /// Output: one JSONL row per (task, metric) pair to `--out <path>`. Use
-/// `tinygpt eval-compare <jsonl>+ --by model` to render the comparison.
+/// `posttrainllm eval-compare <jsonl>+ --by model` to render the comparison.
 enum RunLmEval {
     static func run(args: [String]) {
         var hfModel: String? = nil
-        var tinygptModel: String? = nil           // .tinygpt path; routes via serve
+        var TinyGPTModel: String? = nil           // .tinygpt path; routes via serve
         var servePort: Int = 8089                 // avoid 8080 collision
         var tasks: String = "arc_easy"
         var limit: Int = 0                         // 0 = full
@@ -27,7 +27,7 @@ enum RunLmEval {
         var modelStep: Int? = nil
         var baseline: Bool = false
         var lmEvalBin: String = "lm_eval"          // PATH lookup
-        var workDir: String = "/tmp/tinygpt-lm-eval"
+        var workDir: String = "/tmp/posttrainllm-lm-eval"
         var dtype: String = "float32"
         var device: String = "mps"                 // Metal on Apple Silicon
         var tokenizerPath: String? = nil          // override; default = read from .tinygpt header
@@ -36,7 +36,7 @@ enum RunLmEval {
         while i < args.count {
             switch args[i] {
             case "--hf-model":      hfModel = args[i+1]; i += 2
-            case "--tinygpt-model": tinygptModel = args[i+1]; i += 2
+            case "--posttrainllm-model": TinyGPTModel = args[i+1]; i += 2
             case "--serve-port":    servePort = Int(args[i+1]) ?? servePort; i += 2
             case "--tokenizer":     tokenizerPath = args[i+1]; i += 2
             case "--tasks":      tasks = args[i+1]; i += 2
@@ -55,20 +55,20 @@ enum RunLmEval {
                 fputs("unknown flag: \(args[i])\n", stderr); exitUsage()
             }
         }
-        guard hfModel != nil || tinygptModel != nil else {
-            fputs("either --hf-model <dir> or --tinygpt-model <path.tinygpt> is required\n", stderr); exitUsage()
+        guard hfModel != nil || TinyGPTModel != nil else {
+            fputs("either --hf-model <dir> or --posttrainllm-model <path.tinygpt> is required\n", stderr); exitUsage()
         }
-        if hfModel != nil && tinygptModel != nil {
-            fputs("--hf-model and --tinygpt-model are mutually exclusive\n", stderr); exitUsage()
+        if hfModel != nil && TinyGPTModel != nil {
+            fputs("--hf-model and --posttrainllm-model are mutually exclusive\n", stderr); exitUsage()
         }
         guard let outJsonl = outJsonl else { fputs("--out <path.jsonl> required (E0 schema target)\n", stderr); exitUsage() }
 
-        // .tinygpt mode: spawn `tinygpt-cli serve` in the background +
+        // .tinygpt mode: spawn `posttrainllm-cli serve` in the background +
         // run lm_eval against the resulting OpenAI-compatible endpoint.
-        // The actual TinyGPT forward pass evaluates — no semantic
+        // The actual posttrainllm forward pass evaluates — no semantic
         // mismatch from re-loading our weights into LlamaForCausalLM.
-        if let tg = tinygptModel {
-            runViaServe(tinygptPath: tg, servePort: servePort,
+        if let tg = TinyGPTModel {
+            runViaServe(TinyGPTPath: tg, servePort: servePort,
                          tokenizerOverride: tokenizerPath,
                          tasks: tasks, limit: limit, batchSize: batchSize,
                          outJsonl: outJsonl, modelName: modelName,
@@ -113,7 +113,7 @@ enum RunLmEval {
         let limitTag = limit > 0 ? "limit \(limit)" : "FULL splits"
         print("""
 
-        tinygpt run-lm-eval
+        posttrainllm run-lm-eval
         -------------------
         model:    \(hfModel)
         name:     \(displayName)\(baseline ? " (baseline)" : "")\(modelStep.map { " · step \($0)" } ?? "")
@@ -163,7 +163,7 @@ enum RunLmEval {
 
         print("")
         print("✓ wrote \(rowsEmitted ?? 0) rows to \(outJsonl)")
-        print("  → view: tinygpt eval-compare \(outJsonl) --by model")
+        print("  → view: posttrainllm eval-compare \(outJsonl) --by model")
         print("")
     }
 
@@ -223,31 +223,31 @@ enum RunLmEval {
         return emitted
     }
 
-    /// Score a `.tinygpt` model by spawning `tinygpt-cli serve` and
+    /// Score a `.tinygpt` model by spawning `posttrainllm-cli serve` and
     /// running lm_eval against its OpenAI-compatible endpoint via the
     /// `local-completions` backend. The model's actual forward pass
     /// evaluates — no architecture-cast misfire.
     private static func runViaServe(
-        tinygptPath: String, servePort: Int, tokenizerOverride: String?,
+        TinyGPTPath: String, servePort: Int, tokenizerOverride: String?,
         tasks: String, limit: Int, batchSize: Int, outJsonl: String,
         modelName: String?, modelStep: Int?, baseline: Bool,
         lmEvalBin: String, workDir: String
     ) {
-        let displayName = modelName ?? URL(fileURLWithPath: tinygptPath)
+        let displayName = modelName ?? URL(fileURLWithPath: TinyGPTPath)
             .deletingPathExtension().lastPathComponent
 
-        // Locate the bundled tinygpt-cli for serve. Order:
+        // Locate the bundled posttrainllm-cli for serve. Order:
         //   1. self — the binary we're already running (covers SwiftPM
-        //      build, .app bundle, and a `cp /usr/local/bin/tinygpt`
+        //      build, .app bundle, and a `cp /usr/local/bin/posttrainllm`
         //      install equally). This is the cleanest path when the
-        //      runner IS tinygpt invoking itself.
-        //   2. PATH lookup via `which tinygpt` / `which tinygpt-cli`.
+        //      runner IS posttrainllm invoking itself.
+        //   2. PATH lookup via `which posttrainllm` / `which posttrainllm-cli`.
         //   3. Common install locations as a last-ditch fallback.
         let selfPath = CommandLine.arguments.first.map { URL(fileURLWithPath: $0) }
             ?? Bundle.main.executableURL
-        let tinygptCLI: URL? = selfPath ?? resolveExecutable("tinygpt") ?? resolveExecutable("tinygpt-cli")
-        guard let tinygptCLI = tinygptCLI else {
-            fputs("tinygpt CLI not found for serve. Build with `swift build -c release`.\n", stderr); exit(1)
+        let TinyGPTCLI: URL? = selfPath ?? resolveExecutable("posttrainllm") ?? resolveExecutable("posttrainllm-cli")
+        guard let TinyGPTCLI = TinyGPTCLI else {
+            fputs("posttrainllm CLI not found for serve. Build with `swift build -c release`.\n", stderr); exit(1)
         }
         guard let lmEvalURL = resolveExecutable(lmEvalBin) else {
             fputs("lm_eval not found. `pip install lm-eval` then ensure it's on PATH.\n", stderr); exit(1)
@@ -257,7 +257,7 @@ enum RunLmEval {
         // local-completions backend needs a tokenizer to count tokens.
         // Read it from the .tinygpt header (tokenizerSource field),
         // fall back to the explicit --tokenizer override.
-        let tokenizerPath: String? = tokenizerOverride ?? Self.readTokenizerSource(from: tinygptPath)
+        let tokenizerPath: String? = tokenizerOverride ?? Self.readTokenizerSource(from: TinyGPTPath)
         if tokenizerPath == nil {
             fputs("could not infer tokenizer path. Pass --tokenizer <HF model id or dir>.\n", stderr); exit(1)
         }
@@ -272,9 +272,9 @@ enum RunLmEval {
 
         print("""
 
-        tinygpt run-lm-eval  (via tinygpt serve)
+        posttrainllm run-lm-eval  (via posttrainllm serve)
         ----------------------------------------
-        model:      \(tinygptPath)
+        model:      \(TinyGPTPath)
         name:       \(displayName)\(baseline ? " (baseline)" : "")\(modelStep.map { " · step \($0)" } ?? "")
         tasks:      \(tasks)
         batch:      \(batchSize)\(limit > 0 ? " · limit \(limit)" : " · FULL splits")
@@ -286,21 +286,21 @@ enum RunLmEval {
 
         // 1. Spawn the server in the background.
         let serveProc = Process()
-        serveProc.executableURL = tinygptCLI
-        serveProc.arguments = ["serve", tinygptPath, "--host", "127.0.0.1", "--port", "\(servePort)"]
+        serveProc.executableURL = TinyGPTCLI
+        serveProc.arguments = ["serve", TinyGPTPath, "--host", "127.0.0.1", "--port", "\(servePort)"]
         let servePipe = Pipe()
         serveProc.standardOutput = servePipe
         serveProc.standardError = servePipe
         do { try serveProc.run() }
         catch {
-            fputs("couldn't launch tinygpt serve: \(error)\n", stderr); exit(1)
+            fputs("couldn't launch posttrainllm serve: \(error)\n", stderr); exit(1)
         }
         // Best-effort cleanup if we crash before reaching the explicit
         // terminate() below.
         defer { if serveProc.isRunning { serveProc.terminate() } }
 
-        // 2. Poll the endpoint until ready. tinygpt serve prints
-        //    "tinygpt serve — listening on ..." once bound; easier to
+        // 2. Poll the endpoint until ready. posttrainllm serve prints
+        //    "posttrainllm serve — listening on ..." once bound; easier to
         //    just hit /v1/models in a loop.
         print("  waiting for serve …", terminator: "")
         fflush(stdout)
@@ -322,7 +322,7 @@ enum RunLmEval {
         }
         if !ready {
             print(" ✗")
-            fputs("\ntinygpt serve never became reachable on \(serveBaseUrl).\n", stderr)
+            fputs("\nposttrainllm serve never became reachable on \(serveBaseUrl).\n", stderr)
             // Surface the serve's last 10 lines for debugging.
             servePipe.fileHandleForReading.closeFile()
             exit(1)
@@ -330,7 +330,7 @@ enum RunLmEval {
         print(" ✓ (model loaded, evaluating…)")
 
         // 3. Run lm_eval against the endpoint.
-        let modelArgs = "base_url=\(serveBaseUrl)/completions,model=tinygpt,tokenizer_backend=huggingface,tokenizer=\(tokenizerPath!)"
+        let modelArgs = "base_url=\(serveBaseUrl)/completions,model=posttrainllm,tokenizer_backend=huggingface,tokenizer=\(tokenizerPath!)"
         var lmArgs: [String] = [
             "--model", "local-completions",
             "--model_args", modelArgs,
@@ -367,7 +367,7 @@ enum RunLmEval {
             from: resultsURL,
             outJsonl: URL(fileURLWithPath: outJsonl),
             runId: runId,
-            modelPath: tinygptPath,
+            modelPath: TinyGPTPath,
             modelName: displayName,
             modelStep: modelStep,
             baseline: baseline,
@@ -375,7 +375,7 @@ enum RunLmEval {
         )
         print("")
         print("✓ wrote \(rowsEmitted ?? 0) rows to \(outJsonl)")
-        print("  → view: tinygpt eval-compare \(outJsonl) --by model")
+        print("  → view: posttrainllm eval-compare \(outJsonl) --by model")
         print("")
     }
 
@@ -455,11 +455,11 @@ enum RunLmEval {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt run-lm-eval --hf-model <dir> --tasks <csv> --out <jsonl> [options]
+        usage: posttrainllm run-lm-eval --hf-model <dir> --tasks <csv> --out <jsonl> [options]
 
         Wraps EleutherAI's lm-evaluation-harness (PyPI: `lm-eval`) and emits
         results to the shared E0 schema so they compare cleanly via
-        `tinygpt eval-compare`.
+        `posttrainllm eval-compare`.
 
         --hf-model <dir>      HuggingFace model directory (config.json +
                               model.safetensors + tokenizer files). REQUIRED.
@@ -481,25 +481,25 @@ enum RunLmEval {
         --baseline            mark this row as a reference model
         --lm-eval <path>      override lm_eval CLI lookup
         --work-dir <path>     where lm_eval drops its results JSON
-                              (default: /tmp/tinygpt-lm-eval/<uuid>)
+                              (default: /tmp/posttrainllm-lm-eval/<uuid>)
 
         Examples:
           # Score SmolLM2 on ARC-Easy + HellaSwag, mark as baseline:
-          tinygpt run-lm-eval \\
+          posttrainllm run-lm-eval \\
               --hf-model ~/.cache/huggingface/hub/.../SmolLM2-135M/snapshots/.../ \\
               --tasks arc_easy,hellaswag \\
               --baseline --model-name SmolLM2-135M \\
               --out ~/eval/baselines.jsonl
 
           # Score our trained huge-base at step 50000:
-          tinygpt run-lm-eval \\
+          posttrainllm run-lm-eval \\
               --hf-model /tmp/huge-base-v1.step-50000.hf/ \\
-              --tasks arc_easy --model-name tinygpt-huge-base-v1 --model-step 50000 \\
+              --tasks arc_easy --model-name posttrainllm-huge-base-v1 --model-step 50000 \\
               --out ~/eval/huge-base-timeline.jsonl
 
           # Compare:
-          tinygpt eval-compare ~/eval/*.jsonl --by model
-          tinygpt eval-compare ~/eval/huge-base-timeline.jsonl --by step
+          posttrainllm eval-compare ~/eval/*.jsonl --by model
+          posttrainllm eval-compare ~/eval/huge-base-timeline.jsonl --by step
         """)
         exit(code)
     }

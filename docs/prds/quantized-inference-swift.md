@@ -1,4 +1,4 @@
-# Quantized inference in tinygpt's HFModel — Swift-side QuantizedLinear
+# Quantized inference in posttrainllm's HFModel — Swift-side QuantizedLinear
 
 Status: PRD (2026-06-09). Phase 1 SHIPPED 2026-06-10 (`serve --quantize`); native packed load (the design below) still open.
 
@@ -41,7 +41,7 @@ serve-side `--grammar`):
 
 Tinygpt's `HFModel.swift::makeMLXArray` (line 442) fatal-errors on `U32` dtype. The loader has no concept of quantized weights.
 
-Result: v9-LoRA baked-hf is 1.4 GB fp16. Quantized to Q4 is 331 MB (4.2× smaller). But tinygpt serve cannot load it → Pace ships fp16.
+Result: v9-LoRA baked-hf is 1.4 GB fp16. Quantized to Q4 is 331 MB (4.2× smaller). But posttrainllm serve cannot load it → Pace ships fp16.
 
 ## Target outcome
 
@@ -98,7 +98,7 @@ mlx-swift's `QuantizedLinear.callAsFunction` does `quantized_matmul` automatical
 
 ### 7. Smoke + accuracy test
 
-- Load v9-LoRA-baked → quantize via `mlx_lm convert -q` → load via tinygpt serve.
+- Load v9-LoRA-baked → quantize via `mlx_lm convert -q` → load via posttrainllm serve.
 - Run fm-fixtures-v2 + compose suite.
 - Compare to fp16 baseline: accuracy delta should be ≤2% absolute (vs current 33% + 70%).
 - Measure: disk size, RSS during inference, TTFW, tok/s.
@@ -125,7 +125,7 @@ Could use `dequant_mlx_generic.py` to dequant Q4 → fp16 before loading. Saves 
 
 ## Alternative — switch Pace to mlx_lm.server (rejected)
 
-mlx_lm has its own serving with native quantized model support. But Pace's plan per `tinygpt/docs/prds/scope-narrowing-tinygpt-as-factory.md` is embedded MLX-Swift inference (no HTTP at runtime). mlx_lm is Python — doesn't fit. Reject.
+mlx_lm has its own serving with native quantized model support. But Pace's plan per `posttrainllm/docs/prds/scope-narrowing-posttrainllm-as-factory.md` is embedded MLX-Swift inference (no HTTP at runtime). mlx_lm is Python — doesn't fit. Reject.
 
 ## Done when
 
@@ -136,7 +136,7 @@ mlx_lm has its own serving with native quantized model support. But Pace's plan 
 
 ## Related
 
-- `feedback-tinygpt-north-star` — the formula
+- `feedback-posttrainllm-north-star` — the formula
 - `feedback-pace-decision-framework` — accuracy > speed > footprint
 - mlx-swift `QuantizedLinear` reference: github.com/ml-explore/mlx-swift `Sources/MLXNN/QuantizedLinear.swift`
 - Existing dequant tooling: `scripts/ane/dequant_mlx_generic.py` (the inverse — can re-use for testing)

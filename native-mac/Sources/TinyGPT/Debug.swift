@@ -4,14 +4,14 @@ import MLXNN
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt debug-names` — print the model's parameter names side-by-side
+/// `posttrainllm debug-names` — print the model's parameter names side-by-side
 /// with the file's manifest, so any mismatch is visible at a glance.
 enum DebugNames {
     /// Inspect dtypes of loaded weights — maybe MLX is interpreting them
     /// differently than expected (e.g., as fp16 when I think they're fp32).
     static func dtypes(args: [String]) {
         guard let path = args.first else {
-            fputs("usage: tinygpt debug-dtypes <path.tinygpt>\n", stderr); exit(2)
+            fputs("usage: posttrainllm debug-dtypes <path.tinygpt>\n", stderr); exit(2)
         }
         let url = URL(fileURLWithPath: path)
         let file = try! TinyGPTFileReader.read(url)
@@ -109,7 +109,7 @@ enum DebugNames {
     /// is in the model or in the sampling/generation code.
     static func sanityLoss(args: [String]) {
         guard let path = args.first else {
-            fputs("usage: tinygpt debug-loss <path.tinygpt>\n", stderr); exit(2)
+            fputs("usage: posttrainllm debug-loss <path.tinygpt>\n", stderr); exit(2)
         }
         let url = URL(fileURLWithPath: path)
         let file = try! TinyGPTFileReader.read(url)
@@ -158,7 +158,7 @@ enum DebugNames {
         // distribution is degenerate (all probability on one token) vs
         // healthy (top-5 looks like plausible next characters).
         guard let path = args.first else {
-            fputs("usage: tinygpt debug-logits <path.tinygpt>\n", stderr); exit(2)
+            fputs("usage: posttrainllm debug-logits <path.tinygpt>\n", stderr); exit(2)
         }
         let url = URL(fileURLWithPath: path)
         let file = try! TinyGPTFileReader.read(url)
@@ -223,7 +223,7 @@ enum DebugNames {
         // Verify the loader actually changed the model weights — print a
         // few token_embedding values before-and-after loading.
         guard let path = args.first else {
-            fputs("usage: tinygpt debug-load <path.tinygpt>\n", stderr); exit(2)
+            fputs("usage: posttrainllm debug-load <path.tinygpt>\n", stderr); exit(2)
         }
         let url = URL(fileURLWithPath: path)
         let file = try! TinyGPTFileReader.read(url)
@@ -333,7 +333,7 @@ enum DebugNames {
 
     static func run(args: [String]) {
         guard let path = args.first else {
-            fputs("usage: tinygpt debug-names <path.tinygpt>\n", stderr)
+            fputs("usage: posttrainllm debug-names <path.tinygpt>\n", stderr)
             exit(2)
         }
         let url = URL(fileURLWithPath: path)

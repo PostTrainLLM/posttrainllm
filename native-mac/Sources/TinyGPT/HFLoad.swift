@@ -5,14 +5,14 @@ import TinyGPTIO
 import TinyGPTModel
 @preconcurrency import Tokenizers
 
-/// `tinygpt hf-load <dir> [--sample] [--prompt "..."]` — instantiate a
+/// `posttrainllm hf-load <dir> [--sample] [--prompt "..."]` — instantiate a
 /// TinyGPTModelHF from a downloaded HuggingFace model directory, load
 /// the safetensors weights, optionally generate a sample to verify
 /// everything wires up.
 ///
 /// USAGE
 ///   huggingface-cli download meta-llama/Llama-3.2-1B --local-dir ~/Models/llama-3.2-1b
-///   tinygpt hf-load ~/Models/llama-3.2-1b --sample --prompt "The capital of France is"
+///   posttrainllm hf-load ~/Models/llama-3.2-1b --sample --prompt "The capital of France is"
 ///
 /// The dir must contain:
 ///   config.json                                — architecture description
@@ -64,7 +64,7 @@ enum HFLoad {
           device:   \(Device.defaultDevice())
         """)
 
-        // Apply LoRA adapter (trained via `tinygpt sft <hf-dir>`).
+        // Apply LoRA adapter (trained via `posttrainllm sft <hf-dir>`).
         // The HF reader injects LoraLinears + loads the saved A/B
         // matrices in one pass. Architecture must match (validated by
         // base config equality).
@@ -85,7 +85,7 @@ enum HFLoad {
                                  temperature: temperature)
         }
 
-        print("\nNext: `tinygpt finetune \(dirPath) --corpus my.txt --out my.lora`")
+        print("\nNext: `posttrainllm finetune \(dirPath) --corpus my.txt --out my.lora`")
     }
 
     /// Sample using the HF tokenizer attached to the model directory.
@@ -184,7 +184,7 @@ enum HFLoad {
             sem.wait()
             if let e = error { throw e }
             guard let t = boxed else {
-                throw NSError(domain: "TinyGPT", code: 99,
+                throw NSError(domain: "posttrainllm", code: 99,
                               userInfo: [NSLocalizedDescriptionKey: "tokenizer load returned nothing"])
             }
             return t
@@ -193,7 +193,7 @@ enum HFLoad {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt hf-load <hf-model-dir> [options]
+        usage: posttrainllm hf-load <hf-model-dir> [options]
 
         --sample                Run a quick sample after loading (smoke test)
         --prompt "..."          Sampling prompt (default: "The capital of France is")

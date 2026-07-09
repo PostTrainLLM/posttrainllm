@@ -13,7 +13,7 @@ export interface Explainer {
 }
 
 const docsLink = (path: string, label: string) => ({
-  href: `https://github.com/sarthak-fleet/tinygpt/blob/main/${path}`,
+  href: `https://github.com/sarthak-fleet/posttrainllm/blob/main/${path}`,
   label,
 });
 
@@ -174,7 +174,7 @@ export const EXPLAINERS: Record<string, Explainer> = {
   },
   lossMeaning: {
     title: "What the loss number actually means",
-    body: "TinyGPT predicts one byte at a time, so loss is in natural-log nats per byte. Random guessing on a 256-byte vocab is ln(256) ≈ 5.55. Useful thresholds for this codebase:\n\n• > 3.0 — letter-pair statistics only, no recognisable words\n• > 2.0 — short n-grams, letters look right but words don't form\n• > 1.5 — words start forming, grammar still random\n• < 1.5 — real grammar emerges, sentences start parsing\n• < 1.0 — fluent local grammar; on tiny corpora this is usually memorisation, so watch the train↔val gap\n\nIf you want grammatical English, aim for val loss below 1.5 — that's the bar. Below that you're in the regime where the prose starts looking like prose.",
+    body: "posttrainllm predicts one byte at a time, so loss is in natural-log nats per byte. Random guessing on a 256-byte vocab is ln(256) ≈ 5.55. Useful thresholds for this codebase:\n\n• > 3.0 — letter-pair statistics only, no recognisable words\n• > 2.0 — short n-grams, letters look right but words don't form\n• > 1.5 — words start forming, grammar still random\n• < 1.5 — real grammar emerges, sentences start parsing\n• < 1.0 — fluent local grammar; on tiny corpora this is usually memorisation, so watch the train↔val gap\n\nIf you want grammatical English, aim for val loss below 1.5 — that's the bar. Below that you're in the regime where the prose starts looking like prose.",
   },
   memory64: {
     title: "WebAssembly Memory64",
@@ -214,7 +214,7 @@ export const EXPLAINERS: Record<string, Explainer> = {
   },
   subgroups: {
     title: "WebGPU subgroups",
-    body: "Cross-lane primitives (subgroupAdd, subgroupBroadcast, etc.) for the threads in a workgroup. In TinyGPT we use them for the reductions inside layernorm, softmax, and cross-entropy — one cooperative pass across the row instead of a workgroup-shared-memory scan. Behind chrome://flags#enable-unsafe-webgpu on Chrome 125+; ships in Chrome stable later.",
+    body: "Cross-lane primitives (subgroupAdd, subgroupBroadcast, etc.) for the threads in a workgroup. In posttrainllm we use them for the reductions inside layernorm, softmax, and cross-entropy — one cooperative pass across the row instead of a workgroup-shared-memory scan. Behind chrome://flags#enable-unsafe-webgpu on Chrome 125+; ships in Chrome stable later.",
     link: {
       href: "https://developer.chrome.com/blog/new-in-webgpu-125",
       label: "Chrome — subgroups in WebGPU",
@@ -275,7 +275,7 @@ export const EXPLAINERS: Record<string, Explainer> = {
   },
   machine: {
     title: "Your machine, and what it can train",
-    body: "TinyGPT detects your browser's capabilities (WebGPU, WASM SIMD, cross-origin isolation) and your hardware (cores, RAM, a quick CPU probe) and suggests a model size that should train in a sensible amount of time. Click Apply to use it.",
+    body: "posttrainllm detects your browser's capabilities (WebGPU, WASM SIMD, cross-origin isolation) and your hardware (cores, RAM, a quick CPU probe) and suggests a model size that should train in a sensible amount of time. Click Apply to use it.",
     link: docsLink("src/runtime_detect.ts", "runtime_detect.ts — how the probe works"),
   },
 };

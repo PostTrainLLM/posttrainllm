@@ -11,7 +11,7 @@ import Foundation
 ///
 /// This implementation is the same SHAPE (bag-of-ngrams + linear scorer)
 /// in pure Swift — the user supplies positive + negative texts, we fit
-/// weights with SGD, and save a tiny on-disk binary that `tinygpt
+/// weights with SGD, and save a tiny on-disk binary that `posttrainllm
 /// quality-filter` consumes. The labels are whatever the user trains on:
 /// we ship the technique, not a specific quality definition.
 ///
@@ -23,8 +23,8 @@ import Foundation
 /// is bound by tokenisation, not arithmetic — ~100s of MB/s on M-series.
 ///
 /// Subcommands (registered in TinyGPT.swift):
-///   tinygpt train-quality-classifier  — fit on positive + negative files
-///   tinygpt quality-filter            — score input lines; keep ≥ threshold
+///   posttrainllm train-quality-classifier  — fit on positive + negative files
+///   posttrainllm quality-filter            — score input lines; keep ≥ threshold
 enum QualityClassifier {
 
     static let magic: [UInt8] = Array("TGFQ".utf8)
@@ -153,7 +153,7 @@ enum QualityClassifier {
 
     // MARK: - train subcommand
 
-    /// `tinygpt train-quality-classifier`
+    /// `posttrainllm train-quality-classifier`
     static func runTrain(args: [String]) {
         var positivePath: String? = nil
         var negativePath: String? = nil
@@ -193,7 +193,7 @@ enum QualityClassifier {
         }
         print("""
 
-        TinyGPT — quality classifier (train)
+        posttrainllm — quality classifier (train)
         -----------------------------------
         positive:    \(positivePath) (\(positives.count) docs)
         negative:    \(negativePath) (\(negatives.count) docs)
@@ -292,7 +292,7 @@ enum QualityClassifier {
 
     // MARK: - filter subcommand
 
-    /// `tinygpt quality-filter` — score lines of <input>, write those
+    /// `posttrainllm quality-filter` — score lines of <input>, write those
     /// passing --threshold to <output>.
     static func runFilter(args: [String]) {
         var inputPath: String? = nil
@@ -395,7 +395,7 @@ enum QualityClassifier {
 
     private static func exitUsageTrain(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt train-quality-classifier --positive <pos.txt|jsonl> \\
+        usage: posttrainllm train-quality-classifier --positive <pos.txt|jsonl> \\
                                                 --negative <neg.txt|jsonl> \\
                                                 --out <model.tgfq> [options]
 
@@ -416,7 +416,7 @@ enum QualityClassifier {
 
     private static func exitUsageFilter(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt quality-filter <input> --classifier <model.tgfq> \\
+        usage: posttrainllm quality-filter <input> --classifier <model.tgfq> \\
                                               (--out <filtered> | --score <scores.jsonl>) [options]
 
         Apply a trained TGFQ classifier to <input>. Documents (paragraphs

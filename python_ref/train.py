@@ -1,5 +1,5 @@
 """
-train.py — training loop for TinyGPT (Phase 1).
+train.py — training loop for posttrainllm (Phase 1).
 
     for step in range(max_steps):
         x, y   = get_batch("train")
@@ -39,7 +39,7 @@ import torch
 
 from checkpoint import load_checkpoint, save_checkpoint
 from dataset import ByteDataset, decode
-from model import ModelConfig, TinyGPT
+from model import ModelConfig, posttrainllm
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -95,7 +95,7 @@ def build_optimizer(model: torch.nn.Module, cfg: TrainConfig) -> torch.optim.Opt
 
 
 @torch.no_grad()
-def evaluate(model: TinyGPT, data: ByteDataset, cfg: TrainConfig, device: torch.device,
+def evaluate(model: posttrainllm, data: ByteDataset, cfg: TrainConfig, device: torch.device,
              n_batches: int = 20) -> dict[str, float]:
     """Average loss over a few fixed-count batches per split."""
     model.eval()
@@ -137,7 +137,7 @@ def train(args: argparse.Namespace) -> None:
           f"(train {len(data.train):,} / val {len(data.val):,})  id {data.manifest.dataset_id[:12]}…")
 
     # ---- model + optimizer --------------------------------------------
-    model = TinyGPT(model_cfg).to(device)
+    model = posttrainllm(model_cfg).to(device)
     optimizer = build_optimizer(model, train_cfg)
     print(f"model:   {model_cfg.model_name}  {model.num_params():,} params  device={device}")
 
@@ -211,7 +211,7 @@ def train(args: argparse.Namespace) -> None:
 
 
 def main(argv: list[str] | None = None) -> None:
-    p = argparse.ArgumentParser(description="Train TinyGPT (Phase 1).")
+    p = argparse.ArgumentParser(description="Train posttrainllm (Phase 1).")
     p.add_argument("--data", help="path to a plain-text training corpus")
     p.add_argument("--overfit", action="store_true",
                    help="train on a tiny built-in corpus (the overfit smoke test)")

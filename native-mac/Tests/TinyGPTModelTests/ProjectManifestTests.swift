@@ -2,17 +2,17 @@ import Foundation
 import XCTest
 @testable import TinyGPTModel
 
-/// B31 coverage for `tinygpt.project.json` parsing + the schema-level
+/// B31 coverage for `posttrainllm.project.json` parsing + the schema-level
 /// validation pass (the cross-check against an actual GalleryManifest
-/// lives in the CLI's `tinygpt validate`, not here).
+/// lives in the CLI's `posttrainllm validate`, not here).
 final class ProjectManifestTests: XCTestCase {
 
     func test_parses_fixture_example() throws {
         // The shipped fixture under examples/ — round-trip parse +
         // basic field check.
         let candidates = [
-            "examples/tinygpt.project.json",
-            "../examples/tinygpt.project.json",
+            "examples/posttrainllm.project.json",
+            "../examples/posttrainllm.project.json",
         ]
         var data: Data?
         for p in candidates {

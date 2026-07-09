@@ -3,7 +3,7 @@ import MLX
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt laser` — selective rank reduction via SVD (Sharma et al.,
+/// `posttrainllm laser` — selective rank reduction via SVD (Sharma et al.,
 /// 2024, "The Truth Is in There").
 ///
 /// LASER ("LAyer SElective Rank reduction") replaces a weight matrix
@@ -22,7 +22,7 @@ import TinyGPTModel
 /// keeps every other tensor bit-identical.
 ///
 /// USAGE
-///   tinygpt laser <input.tinygpt> \
+///   posttrainllm laser <input.tinygpt> \
 ///       --target mlp.fc_out --layers 8,9,10,11 \
 ///       --rank-fraction 0.85 \
 ///       --out reduced.tinygpt
@@ -63,7 +63,7 @@ enum LASER {
 
         print("""
 
-        TinyGPT — LASER (selective rank reduction)
+        posttrainllm — LASER (selective rank reduction)
         ------------------------------------------
         input:          \(inPath)
         target:         \(target)
@@ -215,7 +215,7 @@ enum LASER {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt laser <input.tinygpt> [options]
+        usage: posttrainllm laser <input.tinygpt> [options]
 
         --out <path>         Where to save the rank-reduced model — required
         --target SUFFIX      Which matrix to reduce per layer (default mlp.fc_out)

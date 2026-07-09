@@ -34,7 +34,7 @@ The minimum extra pieces:
 | **Error recovery** | What happens when a tool fails or the model goes off-rails | Cloud-escalate fallback (regex today; B5 trained signal next) |
 | **Safety / scoping** | What the agent IS and ISN'T allowed to do; destructive-action gating | Pace's `confirm_destructive` intent + the H4 rule in `pace-system-prompt-v11.txt` |
 
-You can have a model without an agent (every call to `tinygpt sample`
+You can have a model without an agent (every call to `posttrainllm sample`
 qualifies). You cannot have an agent without a model.
 
 ## What makes a "good" agent — beyond the bare minimum
@@ -107,14 +107,14 @@ fine-tuning targets, in rough priority:
   cheerfully empty your trash. The intent-level scoping is
   agent-side policy, not model behavior.
 
-## The TinyGPT framing
+## The posttrainllm framing
 
 This repo treats the two layers explicitly:
 
-- **Model layer** — `tinygpt train`, `sft`, `dpo`, `distill`,
+- **Model layer** — `posttrainllm train`, `sft`, `dpo`, `distill`,
   `peft variants`, `quantize`. Substrate quality.
-- **Agent layer** — `tinygpt serve` (the runtime that hosts the
-  substrate), `tinygpt agent` (the loop that drives it), the
+- **Agent layer** — `posttrainllm serve` (the runtime that hosts the
+  substrate), `posttrainllm agent` (the loop that drives it), the
   tool registry, the system prompt, the constraint grammars, the
   cloud-escalate policy. System quality.
 

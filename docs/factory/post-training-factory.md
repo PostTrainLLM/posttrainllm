@@ -1,6 +1,6 @@
 # Post-Training Factory Positioning
 
-TinyGPT's active center is a Mac-local specialist factory, not a generic
+posttrainllm's active center is a Mac-local specialist factory, not a generic
 fine-tuning notebook.
 
 The loop is:
@@ -15,12 +15,12 @@ to learning work.
 External positioning reference: Baseten's
 [`Post-training`](https://www.baseten.co/about-us/#post-training) framing
 emphasizes custom training pipelines, RL, reward shaping, model performance,
-infrastructure, and applied engineering around a customer's data. TinyGPT should
+infrastructure, and applied engineering around a customer's data. posttrainllm should
 use the same shape, but scaled down to one Mac and public artifacts.
 
 ## Project Pillars
 
-| Pillar | TinyGPT version | Required proof |
+| Pillar | posttrainllm version | Required proof |
 |---|---|---|
 | Data | traces, failures, public datasets, synthetic examples, preference pairs | manifest, provenance, heldout split, filter/dedupe stats |
 | Post-training | SFT, distillation, DPO/SimPO/ORPO/KTO, ReST/RLVR-style loops when reward is verifiable | train config, logs, artifact path, baseline/candidate comparison |
@@ -68,7 +68,7 @@ Learning docs are still first-class, but they answer a different question:
 Good learning artifacts:
 
 - explain SFT/DPO/RLVR/ReST mechanics in a reusable way
-- map prior art to TinyGPT choices
+- map prior art to posttrainllm choices
 - document failed experiments and why they failed
 - explain the single-Mac vs distributed boundary
 - preserve session retrospectives that changed the strategy

@@ -1,6 +1,6 @@
 # Leaderboard — benchmarks for tiny models
 
-The TinyGPT leaderboard at [/leaderboard.html](https://tinygpt.sarthakagrawal.dev/leaderboard.html)
+The posttrainllm leaderboard at [/leaderboard.html](https://posttrainllm.sarthakagrawal.dev/leaderboard.html)
 ranks small, browser-runnable language models on a curated set of
 benchmarks. Three properties are non-negotiable:
 

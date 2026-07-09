@@ -28,7 +28,7 @@ struct ContentView: View {
     @State private var galleryItems: [GalleryItem] = []
     @State private var selectedItem: GalleryItem? = nil
     @State private var showHFBrowser: Bool = false
-    @AppStorage("tinygpt.gallery.expanded") private var galleryExpanded: Bool = false
+    @AppStorage("posttrainllm.gallery.expanded") private var galleryExpanded: Bool = false
 
     // Sampler params — persisted across launches so a tuned recipe sticks.
     @AppStorage("tg.prompt")        private var prompt: String = "ROMEO:"
@@ -172,7 +172,7 @@ struct ContentView: View {
             // was retired in favor of the Gallery workspace tab.
             HStack(alignment: .top, spacing: 8) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("TinyGPT")
+                    Text("posttrainllm")
                         .font(.tgDisplay)
                         .foregroundStyle(Theme.fg)
                         .lineLimit(1)
@@ -222,7 +222,7 @@ struct ContentView: View {
                     navRow(.interp,     icon: "scope",                             label: "Interp")
                     navRow(.serve,      icon: "antenna.radiowaves.left.and.right", label: "Serve")
 
-                    // Inference section — live `tinygpt serve` processes
+                    // Inference section — live `posttrainllm serve` processes
                     // detected via pgrep. Click a row to jump to Serve tab.
                     if !liveServes.isEmpty {
                         Text("INFERENCE")
@@ -294,7 +294,7 @@ struct ContentView: View {
                     Text("Gallery")
                         .font(.tgDisplay)
                         .foregroundStyle(Theme.fg)
-                    Text("models loadable from data/gallery/ + ~/.cache/tinygpt/runs/ · click an action below each model")
+                    Text("models loadable from data/gallery/ + ~/.cache/posttrainllm/runs/ · click an action below each model")
                         .font(.system(size: 12, design: .monospaced))
                         .foregroundStyle(Theme.muted)
                 }
@@ -515,7 +515,7 @@ struct ContentView: View {
                     Text("Gallery")
                         .font(.tgDisplay)
                         .foregroundStyle(Theme.fg)
-                    Text("\(galleryItems.count) model\(galleryItems.count == 1 ? "" : "s") loadable from data/gallery/ + ~/.cache/tinygpt/runs/ · pick an action below each model")
+                    Text("\(galleryItems.count) model\(galleryItems.count == 1 ? "" : "s") loadable from data/gallery/ + ~/.cache/posttrainllm/runs/ · pick an action below each model")
                         .font(.system(size: 12, design: .monospaced))
                         .foregroundStyle(Theme.muted)
                 }

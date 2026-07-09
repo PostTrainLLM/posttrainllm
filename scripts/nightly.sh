@@ -7,8 +7,8 @@
 #   ./scripts/nightly.sh --dry       # show what would run, exit
 #
 # Picks the lowest-numbered scripts/nightly/N*.sh whose `.done` marker
-# under ~/.cache/tinygpt/nightly/done/ doesn't exist, runs it under
-# caffeinate -di, logs to ~/.cache/tinygpt/nightly/logs/. On success,
+# under ~/.cache/posttrainllm/nightly/done/ doesn't exist, runs it under
+# caffeinate -di, logs to ~/.cache/posttrainllm/nightly/logs/. On success,
 # touches the .done marker and posts a Mac notification. On failure,
 # notifies with the error tail and leaves the .done marker absent so a
 # rerun picks it up again.
@@ -17,7 +17,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 JOBS_DIR="$REPO_ROOT/scripts/nightly"
-NIGHTLY_HOME="$HOME/.cache/tinygpt/nightly"
+NIGHTLY_HOME="$HOME/.cache/posttrainllm/nightly"
 DONE_DIR="$NIGHTLY_HOME/done"
 LOG_DIR="$NIGHTLY_HOME/logs"
 mkdir -p "$DONE_DIR" "$LOG_DIR"
@@ -35,7 +35,7 @@ shopt -u nullglob
 
 if [[ ${#jobs[@]} -eq 0 ]]; then
     echo "no jobs under $JOBS_DIR" >&2
-    notify "TinyGPT nightly" "queue is empty (no N*.sh under scripts/nightly)"
+    notify "posttrainllm nightly" "queue is empty (no N*.sh under scripts/nightly)"
     exit 0
 fi
 
@@ -66,7 +66,7 @@ done
 if [[ -z "$NEXT" ]]; then
     echo "queue empty — all ${#jobs[@]} jobs marked done."
     echo "to rerun a job, delete its .done marker under $DONE_DIR"
-    notify "TinyGPT nightly" "queue complete — ${#jobs[@]} done"
+    notify "posttrainllm nightly" "queue complete — ${#jobs[@]} done"
     exit 0
 fi
 
@@ -80,7 +80,7 @@ ln -sf "$LOG" "$LATEST_LOG"
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] starting $NAME"
 echo "  log: $LOG"
 echo "  cmd: bash $NEXT"
-notify "TinyGPT nightly" "Starting $NAME"
+notify "posttrainllm nightly" "Starting $NAME"
 
 START=$(date +%s)
 
@@ -98,13 +98,13 @@ if caffeinate -di bash "$NEXT" >"$LOG" 2>&1; then
     # Pull a short summary from the tail — last 5 non-empty lines.
     SUMMARY="$(grep -v '^$' "$LOG" | tail -5 | tr '\n' ' ' | head -c 200)"
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] ✓ $NAME complete in ${H}h${M}m"
-    notify "TinyGPT nightly ✓" "$NAME complete in ${H}h${M}m · $SUMMARY"
+    notify "posttrainllm nightly ✓" "$NAME complete in ${H}h${M}m · $SUMMARY"
 else
     EXIT=$?
     END=$(date +%s)
     DUR=$((END - START))
     TAIL="$(grep -v '^$' "$LOG" | tail -5 | tr '\n' ' ' | head -c 200)"
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] ✗ $NAME failed (exit $EXIT) after ${DUR}s"
-    notify "TinyGPT nightly ✗" "$NAME FAILED ($EXIT) · $TAIL"
+    notify "posttrainllm nightly ✗" "$NAME FAILED ($EXIT) · $TAIL"
     exit "$EXIT"
 fi

@@ -262,7 +262,7 @@ public final class BatchPipeline: @unchecked Sendable {
         // thread for the P-core. Background CPU work; the consumer
         // dictates the cadence anyway.
         self.producer = DispatchQueue(
-            label: "tinygpt.trainer.batch-pipeline",
+            label: "posttrainllm.trainer.batch-pipeline",
             qos: .utility
         )
         producer.async { [weak self] in self?.produceLoop() }

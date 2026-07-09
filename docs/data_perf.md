@@ -22,7 +22,7 @@ padding. That's a throughput lever.
 
 **Sample packing** is a different idea: change *which examples* you
 draw, not *how you tile them*. The new `--pack-mode` selector lives in
-`tinygpt sft`:
+`posttrainllm sft`:
 
 | `--pack-mode` | What it does |
 | --- | --- |
@@ -81,14 +81,14 @@ Reading the result:
   bucket-uniform doesn't compensate for within-bucket length variance.
   Use it deliberately when you want each LENGTH REGIME equally seen.
 
-Reproduce: `xcodebuild -scheme TinyGPT-Package test
+Reproduce: `xcodebuild -scheme posttrainllm-Package test
 -only-testing:TinyGPTModelTests/TinyGPTModelTests/test_smoke_samplePackingHistogram`
 
 ### CLI
 
 ```
-tinygpt sft <base> --data foo.jsonl --pack-mode sample --out adapter.lora
-tinygpt sft <base> --data foo.jsonl --pack-mode bucket --length-bucket 6 --out adapter.lora
+posttrainllm sft <base> --data foo.jsonl --pack-mode sample --out adapter.lora
+posttrainllm sft <base> --data foo.jsonl --pack-mode bucket --length-bucket 6 --out adapter.lora
 ```
 
 The `--pack` short-flag remains and is equivalent to `--pack-mode sequence`.
@@ -193,7 +193,7 @@ must be deterministic to be comparable across steps.
 ### CLI
 
 ```
-tinygpt train --preset tiny --tokenizer /path/to/hf-model \
+posttrainllm train --preset tiny --tokenizer /path/to/hf-model \
               --corpus shakespeare.txt --steps 200 \
               --bpe-dropout 0.1
 ```
@@ -204,7 +204,7 @@ Llama-3 (128k), Gemma (256k) all qualify.
 
 ### Smoke: 100-step training comparison
 
-`tinygpt train --preset tiny --tokenizer <qwen3-dir> --corpus
+`posttrainllm train --preset tiny --tokenizer <qwen3-dir> --corpus
 shakespeare.txt --steps 100 --batch 4 --ctx 64 --lr-schedule constant
 --max-lr 3e-4`:
 
@@ -267,14 +267,14 @@ comparable, not that dropout helps on this corpus at this scale.
 Both features compile clean under
 ```
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
-  -scheme tinygpt -destination "platform=macOS" \
-  -derivedDataPath /tmp/tinygpt-smoke-datperf -configuration Release build
+  -scheme posttrainllm -destination "platform=macOS" \
+  -derivedDataPath /tmp/posttrainllm-smoke-datperf -configuration Release build
 ```
 
 Test smoke:
 ```
-xcodebuild -scheme TinyGPT-Package -destination "platform=macOS" \
-  -derivedDataPath /tmp/tinygpt-smoke-datperf-test -configuration Debug test \
+xcodebuild -scheme posttrainllm-Package -destination "platform=macOS" \
+  -derivedDataPath /tmp/posttrainllm-smoke-datperf-test -configuration Debug test \
   -only-testing:TinyGPTModelTests/TinyGPTModelTests/test_smoke_samplePackingHistogram \
   -only-testing:TinyGPTModelTests/TinyGPTModelTests/test_smoke_bpeDropoutVariability \
   -only-testing:TinyGPTModelTests/TinyGPTModelTests/test_smoke_bpeDropoutByteAlphabetMatches

@@ -14,7 +14,7 @@ That's a product. Every piece below is grounded in user-stated vision.
 **Vocabulary borrowed from TML's "Interaction Models" (May 2026)**:
 foreground interaction model (200ms micro-turns for direct UX) +
 background async model (reasoning, tool calls, long-horizon work).
-TML's implementation is cloud-only; tinygpt's on-device version on
+TML's implementation is cloud-only; posttrainllm's on-device version on
 Apple Silicon is a real differentiator. See
 [wave_4_landscape.md](../research/wave_4_landscape.md) for the full
 landscape analysis.
@@ -84,7 +84,7 @@ landscape analysis.
 - Apple is closed: closed model, closed router, LoRA-adapters-only
   customization, adapters re-trained per OS update, no public API to
   swap in your own model or route to non-PCC cloud.
-- tinygpt's positioning: **open, hackable, multi-specialist, route-
+- posttrainllm's positioning: **open, hackable, multi-specialist, route-
   anywhere**. Swap base models (Llama/Qwen/Sarvam), do full SFT/DPO not
   just adapters, route to any cloud (Claude/GPT/local), target
   devs/researchers Apple won't serve.
@@ -103,7 +103,7 @@ landscape analysis.
 | **Specialist registry** | 🟡 Have HF + GitHub data; need per-specialist training pipeline | 1 week |
 | **Screen reading — capture** | ⬜ ScreenCaptureKit (macOS Sonoma+) integration | 3-5 days |
 | **Screen reading — UI tree** | ⬜ macOS Accessibility (AX) APIs | 3-5 days |
-| **Screen reading — vision model** | ⬜ Small ViT encoder → tinygpt decoder | 2 weeks |
+| **Screen reading — vision model** | ⬜ Small ViT encoder → posttrainllm decoder | 2 weeks |
 | **Cloud-escalation training** | ⬜ Train model to emit `{"defer_to_cloud": ...}` when uncertain | 1 week |
 | **Cloud API client** | ✅ curl-shellout for Anthropic + OpenAI (commit ef0e5e3) |  |
 | **SSE streaming on serve** | ✅ OpenAI-compat per-token streaming + cancellation (e754d6c, c11265b) |  |
@@ -144,7 +144,7 @@ the architecture look like — separate eval needed.
 In order of probable demo value:
 
 1. **Code debugger** — issue → diagnosis → fix proposal
-   - Training data: GitHub issue→PR pairs (we have `tinygpt fetch-github`)
+   - Training data: GitHub issue→PR pairs (we have `posttrainllm fetch-github`)
    - Tools: read_file, run_test, search_code, edit_file
    - Eval: SWE-bench scaled-down + custom corpus
 
@@ -197,7 +197,7 @@ What "realtime" means concretely:
 |---|---|---|
 | TTFT (time-to-first-token) | < 100ms cold, < 50ms warm | Cold-start work landed (1.80s→0.10s on demo; mmap + lazy embed + async + Metal warmup); warm probably 50-100ms on huge preset |
 | Per-token latency (decode jitter) | < 30ms p99 | 470 tok/s = 2ms median; spec decode + KIVI keep this; jitter measurement unmeasured |
-| Streaming output | token-by-token to client | Already streams via `tinygpt sample` stdout; `tinygpt serve` /v1/chat/completions is non-streaming today — needs SSE wrapper |
+| Streaming output | token-by-token to client | Already streams via `posttrainllm sample` stdout; `posttrainllm serve` /v1/chat/completions is non-streaming today — needs SSE wrapper |
 | Interrupt mid-stream | user cancels generation, model stops within 1 step | Not wired; needs cancellation token through AgentLoop |
 | Continuous conversation | no clear turn boundaries; new input can arrive while model is generating | Not wired; persistent-KV cache makes this possible |
 | Audio in/out (eventually) | speech-to-text + text-to-speech | Not in scope; Apple's Speech.framework + AVSpeechSynthesizer are the natural local choices |
@@ -315,8 +315,8 @@ roughly:
 1. **Mac fast-path**: adopt cider W8A8 on M5 Pro (1-2 days, 1.2-1.9×
    prefill). Pair with decode jitter benchmark to baseline realtime
    targets (1 day).
-2. **Continue.dev / Ollama provider adapter** for tinygpt (~2-3 days).
-   Drops tinygpt into Continue/Cline/Aider configs — lowest-effort path
+2. **Continue.dev / Ollama provider adapter** for posttrainllm (~2-3 days).
+   Drops posttrainllm into Continue/Cline/Aider configs — lowest-effort path
    to real users. Pairs with the SSE streaming already shipped.
 3. **Fix Indic plan** + wire MILU + IndicGenBench evals (1-2 days)
    before any Hindi specialist training.

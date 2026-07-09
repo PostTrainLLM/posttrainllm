@@ -1,6 +1,6 @@
 # Watch the model think
 
-The TinyGPT playground has a small interpretability lever bolted onto the Sample card:
+The posttrainllm playground has a small interpretability lever bolted onto the Sample card:
 click any byte the model just generated and see the two things the model "actually
 knew" at that position — the next-byte probability distribution it sampled from, and
 the attention weights from the final transformer block.

@@ -72,7 +72,7 @@ The CPU is preferred when:
 
 ---
 
-## 2. What's actually CPU-bottlenecked in tinygpt's loop
+## 2. What's actually CPU-bottlenecked in posttrainllm's loop
 
 I walked the live code paths in `native-mac/Sources/TinyGPT/Train.swift`
 and `TinyGPTModel/Trainer.swift`. Here are the CPU candidates, ranked by
@@ -368,7 +368,7 @@ both recommend the following stack:
 
 ```
 xctrace record --template "Time Profiler" \
-    --launch -- ./tinygpt train --preset huge --steps 100 --corpus /tmp/x.txt \
+    --launch -- ./posttrainllm train --preset huge --steps 100 --corpus /tmp/x.txt \
     --output /tmp/train.trace
 ```
 Then open in Instruments. Look for:
@@ -492,7 +492,7 @@ than the 3.2 step/s baseline → ~0.2 step/s, close to the observed 0.07-0.1.
 The remaining gap is z-loss + embedding RMSNorm + general overhead.
 
 The way to confirm without changing the live run: launch a parallel
-quick `bench` with the **same flags** on the same hardware (`tinygpt
+quick `bench` with the **same flags** on the same hardware (`posttrainllm
 bench --preset huge --steps 50`) once the other agents finish. If that
 bench also reports ~0.1 step/s, it's the flag stack. If it reports
 ~3 step/s, it's GPU contention.

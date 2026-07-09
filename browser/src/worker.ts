@@ -3,7 +3,7 @@
  *
  * Runs the whole training loop off the main thread, so the UI never freezes.
  * Two backends:
- *   - "wasm"   — the C++ TinyGPT compiled to WebAssembly (default; supports
+ *   - "wasm"   — the C++ posttrainllm compiled to WebAssembly (default; supports
  *                checkpointing).
  *   - "webgpu" — the GPU model in webgpu/gpu_model.ts (faster on real GPUs).
  *
@@ -681,7 +681,7 @@ interface TunedLens {
 }
 let tunedLenses: TunedLens | null = null;
 
-/// Parse a `.lenses` sidecar produced by `tinygpt tuned-lens`.
+/// Parse a `.lenses` sidecar produced by `posttrainllm tuned-lens`.
 /// Layout (little-endian):
 ///   magic "TGTL"  (4 bytes)
 ///   version u32   (== 1)

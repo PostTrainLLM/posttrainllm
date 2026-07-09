@@ -24,7 +24,7 @@ let bundle = FactoryRun.Bundle(
         ownerGoal: "Prove the factory run folder can be emitted without compute.",
         baseModel: .init(id: "fixture-base", revision: "abc123", precision: "bf16"),
         candidate: .init(method: "sft-lora", adapterFormat: "tgla",
-                         trainingCommand: "tinygpt sft fixture-base --data data.jsonl"),
+                         trainingCommand: "posttrainllm sft fixture-base --data data.jsonl"),
         eval: .init(primary: "fixture-gate", regression: "fixture-regression",
                     threshold: .init(primaryMin: 0.9, breadthDropMaxPp: 3))
     ),
@@ -34,11 +34,11 @@ let bundle = FactoryRun.Bundle(
         processing: .init(dedupe: true, qualityFilter: true, heldoutSplit: "locked"),
         counts: .init(trainRows: 10, heldoutRows: 2, droppedRows: 1)
     ),
-    baseline: FactoryRun.EvalResult(modelId: "base", command: "tinygpt eval-gate base",
+    baseline: FactoryRun.EvalResult(modelId: "base", command: "posttrainllm eval-gate base",
                                     suite: "fixture-gate", score: 0.70,
                                     passed: false, date: "2026-07-02"),
     candidate: FactoryRun.EvalResult(modelId: "candidate",
-                                     command: "tinygpt eval-gate candidate",
+                                     command: "posttrainllm eval-gate candidate",
                                      suite: "fixture-gate", score: 0.93,
                                      passed: true, date: "2026-07-02",
                                      latencyMs: 42, peakRssMb: 128,

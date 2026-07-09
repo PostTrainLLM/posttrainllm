@@ -20,7 +20,7 @@ single-rollout harness before trusting (compare solved-set + dumped wins on a sm
 """
 import sys, os, json, time
 BFCL = os.path.expanduser(
-    "~/.cache/tinygpt/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard")
+    "~/.cache/posttrainllm/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard")
 sys.path.insert(0, BFCL)
 import bfcl_eval.eval_checker.multi_turn_eval.multi_turn_utils as mtu
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_utils import execute_multi_turn_func_call

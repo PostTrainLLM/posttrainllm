@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # scripts/migrate-tmp-runs.sh — one-time helper to move surviving /tmp
-# training artifacts into ~/.cache/tinygpt/runs/<name>/.
+# training artifacts into ~/.cache/posttrainllm/runs/<name>/.
 #
 # Usage:
 #   ./scripts/migrate-tmp-runs.sh          # interactive
@@ -9,7 +9,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-RUNS_ROOT="$HOME/.cache/tinygpt/runs"
+RUNS_ROOT="$HOME/.cache/posttrainllm/runs"
 AUTO_YES=false
 
 if [[ "${1:-}" == "--yes" ]]; then

@@ -15,7 +15,7 @@ stays in character on a narrow world better and faster than the base model.
 Use a small instruct base with a normal HF tokenizer:
 
 ```bash
-tinygpt download-model Qwen/Qwen2.5-0.5B
+posttrainllm download-model Qwen/Qwen2.5-0.5B
 ```
 
 Useful alternatives:
@@ -38,13 +38,13 @@ Start with permissive public roleplay/dialogue datasets:
 ```bash
 mkdir -p .tinygpt/character
 
-tinygpt download-dataset chimbiwide/RolePlay-NPC \
+posttrainllm download-dataset chimbiwide/RolePlay-NPC \
   --out .tinygpt/character/roleplay-npc.jsonl
 
-tinygpt download-dataset agentlans/multi-character-dialogue \
+posttrainllm download-dataset agentlans/multi-character-dialogue \
   --out .tinygpt/character/multi-character-dialogue.jsonl
 
-tinygpt download-dataset NousResearch/CharacterCodex \
+posttrainllm download-dataset NousResearch/CharacterCodex \
   --out .tinygpt/character/character-codex.jsonl
 ```
 
@@ -71,7 +71,7 @@ Save them to:
 Run a local teacher in LM Studio or any OpenAI-compatible server. Then label:
 
 ```bash
-tinygpt synthesize \
+posttrainllm synthesize \
   --teacher http://127.0.0.1:1234/v1 \
   --teacher-model qwen2.5-72b-instruct-q4 \
   --inputs .tinygpt/character/character-prompts.jsonl \
@@ -87,7 +87,7 @@ For a fast first pass, use 500-1000 prompts. For a stronger specialist, use
 
 ## 5. Merge And Clean
 
-Use existing shell tooling to merge rows, then TinyGPT cleanup commands to
+Use existing shell tooling to merge rows, then posttrainllm cleanup commands to
 remove obvious duplicates and unsafe text:
 
 ```bash
@@ -98,12 +98,12 @@ cat \
   .tinygpt/character/synthetic-character.jsonl \
   > .tinygpt/character/merged-raw.jsonl
 
-tinygpt filter \
+posttrainllm filter \
   --in .tinygpt/character/merged-raw.jsonl \
   --out .tinygpt/character/merged-filtered.jsonl \
   --toxicity
 
-tinygpt dedupe \
+posttrainllm dedupe \
   .tinygpt/character/merged-filtered.jsonl \
   --out .tinygpt/character/merged-sft.jsonl
 ```
@@ -115,7 +115,7 @@ the desired assistant response.
 ## 6. Train LoRA
 
 ```bash
-tinygpt sft "$STUDENT_DIR" \
+posttrainllm sft "$STUDENT_DIR" \
   --data .tinygpt/character/merged-sft.jsonl \
   --template chatml \
   --rank 16 \
@@ -129,7 +129,7 @@ tinygpt sft "$STUDENT_DIR" \
 Start with a 100-step smoke before a long run:
 
 ```bash
-tinygpt sft "$STUDENT_DIR" \
+posttrainllm sft "$STUDENT_DIR" \
   --data .tinygpt/character/merged-sft.jsonl \
   --template chatml \
   --rank 16 \
@@ -142,7 +142,7 @@ tinygpt sft "$STUDENT_DIR" \
 ## 7. Serve
 
 ```bash
-tinygpt serve "$STUDENT_DIR" \
+posttrainllm serve "$STUDENT_DIR" \
   --lora .tinygpt/character/character-specialist.lora \
   --host 127.0.0.1 \
   --port 8080 \
@@ -165,9 +165,9 @@ Run the base and LoRA through the same prompts, then compare by hand or with a
 small rubric script:
 
 ```bash
-tinygpt synthesize \
+posttrainllm synthesize \
   --teacher http://127.0.0.1:8080/v1 \
-  --teacher-model tinygpt \
+  --teacher-model posttrainllm \
   --inputs .tinygpt/character/eval-prompts.jsonl \
   --input-field prompt \
   --temperature 0.7 \
@@ -195,7 +195,7 @@ Common fixes:
 - Breaks character: add negative examples and tighten the system prompt.
 - Too much lore dumping: cap response length in the training examples.
 - Repeats catchphrases: dedupe harder and raise data diversity.
-- Unsafe or private data: rerun `tinygpt filter --toxicity --sidecar`.
+- Unsafe or private data: rerun `posttrainllm filter --toxicity --sidecar`.
 
 ## Current CLI Gaps
 

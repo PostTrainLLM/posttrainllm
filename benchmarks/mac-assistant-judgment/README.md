@@ -7,7 +7,7 @@ has published baselines for: **refusing out-of-scope requests**,
 operations**. Plus a happy-path regression suite so over-correction is
 visible.
 
-Built as part of [tinygpt](https://github.com/sarthakagrawal927/tinygpt)
+Built as part of [posttrainllm](https://github.com/sarthakagrawal927/posttrainllm)
 after eleven specialist-training versions failed to beat zero-shot
 larger models — the lessons that produced these fixtures cost real time.
 
@@ -75,7 +75,7 @@ python3 scripts/fm_shim.py --port 8766 &
 bash scripts/eval_combined.sh apple-fm http://127.0.0.1:8766/v1/chat/completions \\
   apple-foundation-models grammars/pace-system-prompt-v11.txt my-run
 
-# Any OpenAI-compatible local endpoint (LM Studio, mlx-lm.server, tinygpt serve)
+# Any OpenAI-compatible local endpoint (LM Studio, mlx-lm.server, posttrainllm serve)
 bash scripts/eval_combined.sh my-model http://127.0.0.1:1234/v1/chat/completions \\
   qwen3-4b-instruct-2507 grammars/pace-system-prompt-v11.txt my-run
 ```
@@ -94,4 +94,4 @@ bash scripts/eval_combined.sh my-model http://127.0.0.1:1234/v1/chat/completions
 ## License
 
 Fixtures, scripts, and findings: MIT. Cite as "mac-assistant-judgment-v1,
-tinygpt, 2026."
+posttrainllm, 2026."

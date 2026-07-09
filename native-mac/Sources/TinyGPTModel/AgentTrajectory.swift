@@ -2,7 +2,7 @@ import Foundation
 
 /// B22 — Token-preserving agent trajectory record.
 ///
-/// Every agent rollout (the CLI `tinygpt agent`, the serve-side multi-turn
+/// Every agent rollout (the CLI `posttrainllm agent`, the serve-side multi-turn
 /// loop, BFCL / τ-bench harness runs) can write one `.atraj` file
 /// describing the full conversation: per-step role, decoded content,
 /// **raw token IDs** sampled or fed, structured tool calls, tool results,

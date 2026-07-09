@@ -16,7 +16,7 @@ Questions canonical pull) stays blocked. Replace with the canonical
 sources when they land — same output schema. See docs/recipes/b25-scaledown.md.
 
 Currently supports one source format: --source hermes-fc
-(reads ~/.cache/tinygpt/datasets/hermes-fc.jsonl).
+(reads ~/.cache/posttrainllm/datasets/hermes-fc.jsonl).
 
 For hermes-fc: each row has `instruction` (system + tools + user query)
 and `response` (tool call(s)). The "compressed" form keeps only the tool
@@ -34,9 +34,9 @@ import sys
 from pathlib import Path
 
 HOME = Path.home()
-DEFAULT_HERMES = HOME / ".cache/tinygpt/datasets/hermes-fc.jsonl"
-DEFAULT_FCC = HOME / ".cache/tinygpt/datasets/function-calling-chatml.jsonl"
-DEFAULT_OUT = HOME / ".cache/tinygpt/datasets/scaledown-train-synthetic.jsonl"
+DEFAULT_HERMES = HOME / ".cache/posttrainllm/datasets/hermes-fc.jsonl"
+DEFAULT_FCC = HOME / ".cache/posttrainllm/datasets/function-calling-chatml.jsonl"
+DEFAULT_OUT = HOME / ".cache/posttrainllm/datasets/scaledown-train-synthetic.jsonl"
 
 # Regex compiled once.
 TOOL_BLOCK_ALL_RE = re.compile(r"<tools>(.*?)</tools>", re.DOTALL)

@@ -1,4 +1,4 @@
-// model.h — the WASM-side TinyGPT: a full byte-level GPT assembled from the
+// model.h — the WASM-side posttrainllm: a full byte-level GPT assembled from the
 // kernels in kernels.h (Phase 4).
 //
 // The kernels (matmul, layernorm, attention, adamw) are the heavy ops; this

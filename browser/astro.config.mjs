@@ -1,4 +1,4 @@
-// astro.config.mjs — TinyGPT browser frontend.
+// astro.config.mjs — posttrainllm browser frontend.
 //
 // Astro wraps Vite, so the existing `?raw` WGSL imports from ../webgpu and the
 // `new Worker(new URL("./worker.ts", import.meta.url))` pattern in src/main.ts

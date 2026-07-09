@@ -6,7 +6,7 @@ final class CorrectionStoreTests: XCTestCase {
 
     private func tempDir() -> URL {
         let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tinygpt-correction-tests")
+            .appendingPathComponent("posttrainllm-correction-tests")
             .appendingPathComponent(UUID().uuidString)
         return dir
     }

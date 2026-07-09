@@ -21,7 +21,7 @@ task" is much stronger than "we did this for one task."
 ## Why now
 
 - The active factory cleanup selected SQL as the first low-compute POC because
-  `tinygpt eval-sql` is already self-contained and smoke-tested.
+  `posttrainllm eval-sql` is already self-contained and smoke-tested.
 - The initial fixture is deliberately tiny and deterministic. The first live
   Qwen3-0.6B runs proved the loop but were marked `retry-data`; Spider remains
   the later public benchmark once preference tuning is tested.
@@ -30,7 +30,7 @@ task" is much stronger than "we did this for one task."
 
 - Freeze the POC fixture in `evals/sql-poc/`.
 - Use `scripts/recipes/b1-sql.sh` for the live SFT/generate/eval path.
-- Score with `tinygpt eval-sql`.
+- Score with `posttrainllm eval-sql`.
 - Write row-level failure traces from `eval-sql --out`.
 - Ship/retry gate: candidate execution accuracy ≥ baseline + 3pp.
 - Artifact: `adapters/b1-sql.lora` or `specialists/b1-sql/`.

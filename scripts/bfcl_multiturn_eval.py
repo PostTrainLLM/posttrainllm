@@ -14,7 +14,7 @@ Local MLX only (the clean gate reference): MODEL=<path> python3 bfcl_multiturn_e
 import sys, os, json
 
 BFCL_ROOT = os.path.expanduser(
-    "~/.cache/tinygpt/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard")
+    "~/.cache/posttrainllm/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard")
 sys.path.insert(0, BFCL_ROOT)
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_checker import multi_turn_checker
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_utils import execute_multi_turn_func_call

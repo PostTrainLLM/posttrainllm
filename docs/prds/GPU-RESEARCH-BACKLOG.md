@@ -3,7 +3,7 @@
 The PRDs below can't be finished-and-verified in a CPU sandbox: they need a GPU
 (training is the deliverable), special hardware, network installs, or are
 multi-week from-scratch model builds. The **verifiable scaffolding ships** (eval
-gates, `tinygpt generate`, recipes) — what remains is the run/implementation.
+gates, `posttrainllm generate`, recipes) — what remains is the run/implementation.
 This is the implementation outline for whoever picks them up on a GPU box.
 
 > Honesty note: I deliberately did **not** write thousands of lines of untested
@@ -12,7 +12,7 @@ This is the implementation outline for whoever picks them up on a GPU box.
 
 ## Specialist training tier (eval gate + `generate` already ship)
 
-The pipeline is built: `sft --llrd` → `tinygpt generate` → the eval gate. What's
+The pipeline is built: `sft --llrd` → `posttrainllm generate` → the eval gate. What's
 left is the GPU run + (for some) a domain parse step.
 
 - **A1 / B1 / B8** — recipes ship (`scripts/recipes/a1-tool-caller.sh`,

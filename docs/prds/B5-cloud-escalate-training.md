@@ -15,7 +15,7 @@ related_prds: A1-first-specialist-tool-caller.md (V1 specialist doesn't yet lear
 Train a specialist to emit `{"defer_to_cloud": true, "reason": "..."}`
 when it shouldn't answer itself — too uncertain, off-domain, or
 explicitly destructive — instead of fabricating. Today's
-`tinygpt agent --cloud-escalate` is a *runtime* policy: a regex over
+`posttrainllm agent --cloud-escalate` is a *runtime* policy: a regex over
 the response that triggers cloud retry. B5 makes escalation a
 *trained behavior*: the model learns to emit the signal.
 
@@ -43,12 +43,12 @@ the response that triggers cloud retry. B5 makes escalation a
 - **Training:** SFT on the labeled set with a new output channel.
   Schema gains a `defer_to_cloud: bool` + `reason: string` field
   on the existing planner response shape.
-- **Eval:** `tinygpt eval-escalate` — measures (a) escalation
+- **Eval:** `posttrainllm eval-escalate` — measures (a) escalation
   precision (when the model says defer, was it actually wrong
   locally?), (b) recall (of the cases where local was wrong, what
   fraction did the model flag?), (c) over-escalation rate (defer
   when local was right).
-- **Runtime:** `tinygpt agent` honors the trained signal as the
+- **Runtime:** `posttrainllm agent` honors the trained signal as the
   *primary* trigger; the regex stays as a fallback for safety.
 
 ## Scope — out
@@ -78,7 +78,7 @@ the response that triggers cloud retry. B5 makes escalation a
 - [ ] Trained specialist + escalation head reduces over-escalation
   (false defer) to < 10% on a held-out 200-rollout eval, while
   catching ≥ 70% of true defer cases.
-- [ ] Runtime: `tinygpt agent --cloud-escalate` honors the trained
+- [ ] Runtime: `posttrainllm agent --cloud-escalate` honors the trained
   signal first, regex second. Token-level test confirms.
 
 ## Reference patterns

@@ -1,6 +1,6 @@
 # Annotated transcript
 
-The conversation, condensed. Long replies have been squeezed to their actionable conclusion; emoji-free; some early phases reconstructed from compressed records. What follows is a chat-style record of the working session that built much of TinyGPT. Tone preserved where it carries signal — the shorthand that drove decisions in the moment is part of how those decisions actually got made.
+The conversation, condensed. Long replies have been squeezed to their actionable conclusion; emoji-free; some early phases reconstructed from compressed records. What follows is a chat-style record of the working session that built much of posttrainllm. Tone preserved where it carries signal — the shorthand that drove decisions in the moment is part of how those decisions actually got made.
 
 ---
 
@@ -228,17 +228,17 @@ A few terms recur often enough across this thread and its sibling documents that
 
 **Cost model.** The mental model the agent landed on for explaining where time goes during training. `step_time = fixed_overhead + math(model_size)`. Small models live on the left side of that equation, big models live on the right. The speedup ratio between backends is a function of where on the curve you measure.
 
-**Memory64.** The WebAssembly proposal that gives wasm modules a 64-bit address space. TinyGPT's larger model presets need it because they exceed the 32-bit 4GB ceiling. The OOB-at-`d_model >= 256`-in-browser bug is in this code path, and the Node test that claimed to cover it was secretly running the 32-bit binary.
+**Memory64.** The WebAssembly proposal that gives wasm modules a 64-bit address space. posttrainllm's larger model presets need it because they exceed the 32-bit 4GB ceiling. The OOB-at-`d_model >= 256`-in-browser bug is in this code path, and the Node test that claimed to cover it was secretly running the 32-bit binary.
 
 **Compute Pressure API.** A Chromium 125+ web API that reports a coarse system-load signal — nominal, fair, serious, critical. Wired into the training UI as a pulse-dot chip so users can see when their machine is straining without having to open Activity Monitor.
 
-**KV cache.** Standard transformer inference optimization. Cache the keys and values from previous tokens so each new token only needs the math for itself, not the whole prefix. Not implemented in TinyGPT's generation path yet, which is why generation gets slower as the response grows.
+**KV cache.** Standard transformer inference optimization. Cache the keys and values from previous tokens so each new token only needs the math for itself, not the whole prefix. Not implemented in posttrainllm's generation path yet, which is why generation gets slower as the response grows.
 
 **Streaming.** Returning tokens to the UI as they're produced rather than as a single end-of-run message. The worker→UI message boundary currently waits for the entire generation to complete; switching to per-token messages is part of task #72.
 
 **Smoke test.** A small, fast end-to-end run whose only job is to prove the full pipeline works before you commit to a long one. The thirty-second `smoke_export.mjs` is the canonical example from this session — it found a stub in the export path that would have ruined a sixty-minute training run.
 
-**Preset ladder.** TinyGPT's named model sizes — Small, Medium, Huge, XL, Mega, Behemoth — used both for the speedup chart and as user-facing training options. Each step roughly doubles parameters; the WASM baseline becomes increasingly painful as you climb.
+**Preset ladder.** posttrainllm's named model sizes — Small, Medium, Huge, XL, Mega, Behemoth — used both for the speedup chart and as user-facing training options. Each step roughly doubles parameters; the WASM baseline becomes increasingly painful as you climb.
 
 ## Reading order
 

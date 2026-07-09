@@ -54,10 +54,10 @@ enum RerankEval {
         )
         EvalHarnessSupport.appendRow(common: common, task: "rerank/custom", subtask: nil,
                                      metric: "accuracy", score: acc, n: triples.count,
-                                     wall: 0, harness: "tinygpt-rerank")
+                                     wall: 0, harness: "posttrainllm-rerank")
         EvalHarnessSupport.appendRow(common: common, task: "rerank/custom", subtask: nil,
                                      metric: "mrr", score: mrr / Double(triples.count),
-                                     n: triples.count, wall: 0, harness: "tinygpt-rerank")
+                                     n: triples.count, wall: 0, harness: "posttrainllm-rerank")
         print("✓ wrote rerank eval rows to \(outPath)")
     }
 
@@ -78,7 +78,7 @@ enum RerankEval {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt rerank-eval --model model.tinygpt-rerank --data triples.jsonl --out results.jsonl
+        usage: posttrainllm rerank-eval --model model.tinygpt-rerank --data triples.jsonl --out results.jsonl
         """)
         exit(code)
     }

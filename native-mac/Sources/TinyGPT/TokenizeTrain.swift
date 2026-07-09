@@ -1,6 +1,6 @@
 import Foundation
 
-/// `tinygpt tokenize-train` — thin wrapper around the repo-local Rust
+/// `posttrainllm tokenize-train` — thin wrapper around the repo-local Rust
 /// HuggingFace tokenizers helper in `scripts/tokenizer-trainer`.
 enum TokenizeTrain {
     static func run(args: [String]) {
@@ -14,7 +14,7 @@ enum TokenizeTrain {
             Build it once with:
               cd scripts/tokenizer-trainer && cargo build --release
 
-            Then rerun `tinygpt tokenize-train ...`.
+            Then rerun `posttrainllm tokenize-train ...`.
             """, stderr)
             exit(1)
         }
@@ -41,9 +41,9 @@ enum TokenizeTrain {
     private static func findHelper() -> URL? {
         let cwd = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
         let rels = [
-            "scripts/tokenizer-trainer/target/release/tinygpt-tokenizer-trainer",
-            "../scripts/tokenizer-trainer/target/release/tinygpt-tokenizer-trainer",
-            "../../scripts/tokenizer-trainer/target/release/tinygpt-tokenizer-trainer",
+            "scripts/tokenizer-trainer/target/release/posttrainllm-tokenizer-trainer",
+            "../scripts/tokenizer-trainer/target/release/posttrainllm-tokenizer-trainer",
+            "../../scripts/tokenizer-trainer/target/release/posttrainllm-tokenizer-trainer",
         ]
         for rel in rels {
             let url = cwd.appendingPathComponent(rel)
@@ -54,7 +54,7 @@ enum TokenizeTrain {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt tokenize-train --corpus corpus.txt --vocab-size 32000 --out tokenizer.json [options]
+        usage: posttrainllm tokenize-train --corpus corpus.txt --vocab-size 32000 --out tokenizer.json [options]
 
         Trains a HuggingFace-compatible tokenizer.json via the repo-local
         Rust helper under scripts/tokenizer-trainer.

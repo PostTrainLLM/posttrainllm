@@ -44,13 +44,13 @@ PY
     ;;
   continue)
     cat <<EOF
-name: TinyGPT Local Specialist
+name: posttrainllm Local Specialist
 version: 0.0.1
 schema: v1
 models:
-  - name: TinyGPT Repo Specialist
+  - name: posttrainllm Repo Specialist
     provider: openai
-    model: tinygpt
+    model: posttrainllm
     apiBase: http://127.0.0.1:${PORT}/v1
     apiKey: not-needed
     roles:
@@ -65,7 +65,7 @@ EOF
     cat <<EOF
 export OPENAI_API_BASE=http://127.0.0.1:${PORT}/v1
 export OPENAI_API_KEY=not-needed
-aider --model openai/tinygpt
+aider --model openai/posttrainllm
 EOF
     ;;
   help|*)

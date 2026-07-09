@@ -3,7 +3,7 @@ import XCTest
 @testable import TinyGPTModel
 import TinyGPTIO
 
-/// Crash-recovery tests that spawn the `tinygpt` CLI as a subprocess.
+/// Crash-recovery tests that spawn the `posttrainllm` CLI as a subprocess.
 ///
 /// Why a subprocess: in-process tests can't validate that the SIGKILL /
 /// SIGTERM path leaves the checkpoint dir in a sane state — XCTest itself
@@ -13,7 +13,7 @@ import TinyGPTIO
 ///
 /// Where the binary comes from:
 ///   1. TINYGPT_BIN env var (explicit override, used by CI workflow)
-///   2. <derived-data>/Build/Products/Debug/tinygpt — sibling of this
+///   2. <derived-data>/Build/Products/Debug/posttrainllm — sibling of this
 ///      test bundle when xcodebuild ran `test` (which build-for-tests
 ///      the executable target as a dependency).
 ///   3. Skip — the unit / model tests still run, just the subprocess
@@ -23,16 +23,16 @@ final class CrashRecoverySubprocessTests: XCTestCase {
 
     // MARK: - Binary discovery
 
-    private var tinygptBinaryURL: URL? {
+    private var TinyGPTBinaryURL: URL? {
         if let p = ProcessInfo.processInfo.environment["TINYGPT_BIN"],
            FileManager.default.isExecutableFile(atPath: p) {
             return URL(fileURLWithPath: p)
         }
-        // Walk up from the test bundle to find `Build/Products/<config>/tinygpt`.
+        // Walk up from the test bundle to find `Build/Products/<config>/posttrainllm`.
         let bundleURL = Bundle(for: type(of: self)).bundleURL
         var dir: URL? = bundleURL.deletingLastPathComponent()
         while let d = dir {
-            let candidate = d.appendingPathComponent("tinygpt")
+            let candidate = d.appendingPathComponent("posttrainllm")
             if FileManager.default.isExecutableFile(atPath: candidate.path) {
                 return candidate
             }
@@ -45,9 +45,9 @@ final class CrashRecoverySubprocessTests: XCTestCase {
 
     // MARK: - Test 2: kill mid-train, resume, compare losses
 
-    /// Spawn `tinygpt train --steps 100 --save-every 25`. Wait until at
+    /// Spawn `posttrainllm train --steps 100 --save-every 25`. Wait until at
     /// least one checkpoint has landed, kill the process, then spawn
-    /// `tinygpt train --resume <ckpt> --steps 100`. The final loss must
+    /// `posttrainllm train --resume <ckpt> --steps 100`. The final loss must
     /// match a contiguous-run target within ~0.5% (Adam restarts on
     /// resume — the warm-up settles within ~25 steps for the toy model
     /// we use here).
@@ -55,8 +55,8 @@ final class CrashRecoverySubprocessTests: XCTestCase {
     /// The test runs a deliberately tiny preset (`tiny`, 100 steps total)
     /// so it finishes within a few seconds even on macos-15 CI.
     func test_subprocessCrashRecovery_resumeMatchesContiguousFinalLoss() throws {
-        guard let bin = tinygptBinaryURL else {
-            throw XCTSkip("tinygpt binary not found; set TINYGPT_BIN to enable")
+        guard let bin = TinyGPTBinaryURL else {
+            throw XCTSkip("posttrainllm binary not found; set TINYGPT_BIN to enable")
         }
         let workDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("crash-recovery-\(UUID().uuidString)")
@@ -153,8 +153,8 @@ final class CrashRecoverySubprocessTests: XCTestCase {
     /// nothing at the target path — never a truncated file at the
     /// target. (POSIX rename(2) is atomic on the same filesystem.)
     func test_atomicWrite_leavesOnlyCompleteOrPreviousCheckpointOnDisk() throws {
-        guard let bin = tinygptBinaryURL else {
-            throw XCTSkip("tinygpt binary not found; set TINYGPT_BIN to enable")
+        guard let bin = TinyGPTBinaryURL else {
+            throw XCTSkip("posttrainllm binary not found; set TINYGPT_BIN to enable")
         }
         let workDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("atomic-write-\(UUID().uuidString)")
@@ -217,7 +217,7 @@ final class CrashRecoverySubprocessTests: XCTestCase {
 
     // MARK: - Subprocess helpers
 
-    /// Spawn `tinygpt <args>` and return after it exits. The process's
+    /// Spawn `posttrainllm <args>` and return after it exits. The process's
     /// stdout + stderr are merged into the returned string. Throws on
     /// timeout (a runaway process is a test failure).
     private func runCapture(bin: URL, args: [String], timeout: TimeInterval) throws -> String {

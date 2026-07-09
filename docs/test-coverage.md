@@ -1,8 +1,8 @@
-# Test Coverage Goals — tinygpt
+# Test Coverage Goals — posttrainllm
 
 ## Tier: EXEMPLARY
 
-tinygpt targets EXEMPLARY test coverage across all three runtimes: Swift (native Mac), Python (reference impl), and TypeScript (browser).
+posttrainllm targets EXEMPLARY test coverage across all three runtimes: Swift (native Mac), Python (reference impl), and TypeScript (browser).
 
 ## Coverage Targets
 
@@ -36,7 +36,7 @@ tinygpt targets EXEMPLARY test coverage across all three runtimes: Swift (native
 ```bash
 cd native-mac
 xcodebuild test \
-  -scheme TinyGPT-Package \
+  -scheme posttrainllm-Package \
   -destination 'platform=macOS' \
   -resultBundlePath /tmp/test-result.xcresult \
   CLANG_ENABLE_CODE_COVERAGE=YES

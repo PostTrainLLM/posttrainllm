@@ -1,4 +1,4 @@
-# Cloudflare Pages headers for the TinyGPT playground.
+# Cloudflare Pages headers for the posttrainllm playground.
 #
 # Cross-origin isolation enables SharedArrayBuffer, which is the precondition
 # for multi-threaded WebAssembly via Worker threads. The "cross-origin isolated"

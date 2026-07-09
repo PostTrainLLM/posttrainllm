@@ -1,5 +1,5 @@
 {
-  "schema": "tinygpt.specialist.lock.v1",
+  "schema": "posttrainllm.specialist.lock.v1",
   "id": "qwen3-4b-file-ops-distilled",
   "artifact_type": "hf_safetensors_directory",
   "local_path": null,
@@ -20,7 +20,7 @@
   },
   "compatibility": {
     "mlx_lm": true,
-    "tinygpt_serve_hf_dir": true,
+    "posttrainllm_serve_hf_dir": true,
     "browser_playground": false
   },
   "files": [

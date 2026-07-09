@@ -60,11 +60,11 @@ final class TrainController: ObservableObject {
     private var manualThrottleCap: Double = 0.50
 
     private enum DefaultsKey {
-        static let paused = "tinygpt.train.paused"
-        static let pausedStep = "tinygpt.train.paused.step"
-        static let pausedPreset = "tinygpt.train.paused.preset"
-        static let pausedTarget = "tinygpt.train.paused.target"
-        static let pausedCheckpoint = "tinygpt.train.paused.checkpoint"
+        static let paused = "posttrainllm.train.paused"
+        static let pausedStep = "posttrainllm.train.paused.step"
+        static let pausedPreset = "posttrainllm.train.paused.preset"
+        static let pausedTarget = "posttrainllm.train.paused.target"
+        static let pausedCheckpoint = "posttrainllm.train.paused.checkpoint"
     }
 
     func start(corpus: Data) {
@@ -172,7 +172,7 @@ final class TrainController: ObservableObject {
 
     // MARK: External-run detection (orphan CLI training runs)
 
-    /// Snapshot of an externally-spawned `tinygpt train` process so the
+    /// Snapshot of an externally-spawned `posttrainllm train` process so the
     /// Train tab can surface "you have training already going" without
     /// requiring the user to remember to start it via the app.
     struct ExternalRun: Equatable {
@@ -241,14 +241,14 @@ final class TrainController: ObservableObject {
     }
 
     private static func runsFromPgrep() -> [ExternalRun] {
-        let pidsOut = Self.runShort("/usr/bin/pgrep", ["-f", "tinygpt train.*--steps"])
+        let pidsOut = Self.runShort("/usr/bin/pgrep", ["-f", "posttrainllm train.*--steps"])
         let myPid = ProcessInfo.processInfo.processIdentifier
         let pids = pidsOut.split(separator: "\n").compactMap { Int32($0.trimmingCharacters(in: .whitespaces)) }
         var out: [ExternalRun] = []
         for pid in pids where pid != myPid {
             let cmd = Self.runShort("/bin/ps", ["-p", "\(pid)", "-o", "command="])
                 .trimmingCharacters(in: .whitespacesAndNewlines)
-            guard cmd.contains("tinygpt train") && !cmd.contains("--help") else { continue }
+            guard cmd.contains("posttrainllm train") && !cmd.contains("--help") else { continue }
             if cmd.hasPrefix("caffeinate") { continue }
             let logPath = Self.argValue(cmd: cmd, flag: "--log-jsonl")
                 ?? Self.argValue(cmd: cmd, flag: "--out").map { ($0 as NSString).deletingPathExtension + ".jsonl" }
@@ -726,7 +726,7 @@ final class TrainController: ObservableObject {
     private func writeThrottleControlFile(_ value: Double) {
         let url = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".cache")
-            .appendingPathComponent("tinygpt")
+            .appendingPathComponent("posttrainllm")
             .appendingPathComponent("app-training.throttle")
         do {
             try FileManager.default.createDirectory(
@@ -746,7 +746,7 @@ final class TrainController: ObservableObject {
 
     /// Dispatch the LR for a step across the three schedule modes. WSD
     /// reuses the same `lrAtWSD` helper the CLI uses so behavior matches
-    /// `tinygpt train --lr-schedule wsd`. Cosine is inlined here (small
+    /// `posttrainllm train --lr-schedule wsd`. Cosine is inlined here (small
     /// + the equivalent CLI helper lives in `TrainSupport` which is in
     /// the CLI executable target, not reachable from the app).
     private func lrAt(step: Int, schedule: LRSchedule, maxLR: Float, minLR: Float,

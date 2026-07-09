@@ -541,7 +541,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "tinygpt-tokenizer-trainer"
+name = "posttrainllm-tokenizer-trainer"
 version = "0.1.0"
 dependencies = [
  "anyhow",

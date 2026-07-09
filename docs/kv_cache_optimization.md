@@ -11,7 +11,7 @@ the cache GROWS during decode (in-place writes vs concat), and how fast
 multi-turn sessions can warm up against a fixed system prompt (persistent cache).
 
 This patch addresses all three. The headline metric the user feels is TTFT
-on the second launch of `tinygpt sample` with the same prompt — we measured
+on the second launch of `posttrainllm sample` with the same prompt — we measured
 ~9× wall-clock and ~10× user-perceived speedup on a 201-token prompt against
 the `huge` preset, and the same pattern is expected to compound on Mega /
 Behemoth / Titan presets where prefill dominates wall-clock.
@@ -267,8 +267,8 @@ that's a separate cleanup left for a future patch.
 
 ```
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-  xcodebuild -scheme tinygpt -destination "platform=macOS" \
-  -derivedDataPath /tmp/tinygpt-kvopt -configuration Release build
+  xcodebuild -scheme posttrainllm -destination "platform=macOS" \
+  -derivedDataPath /tmp/posttrainllm-kvopt -configuration Release build
 ```
 
 **BUILD SUCCEEDED** with one pre-existing unrelated warning (`EagleDraft.swift`

@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTIO
 
-/// `tinygpt cloud list|delete|setup` — manage R2 cloud storage.
+/// `posttrainllm cloud list|delete|setup` — manage R2 cloud storage.
 enum CloudList {
     static func run(args: [String]) {
         guard let sub = args.first else { exitUsage() }
@@ -68,7 +68,7 @@ enum CloudList {
         }
     }
 
-    /// Interactive credential setup — writes ~/.config/tinygpt/r2.env mode 600.
+    /// Interactive credential setup — writes ~/.config/posttrainllm/r2.env mode 600.
     static func runSetup(_ args: [String]) {
         _ = args  // no flags for now
 
@@ -76,7 +76,7 @@ enum CloudList {
         Cloudflare R2 setup
         -------------------
         We'll prompt for the four values needed to talk to R2 and write
-        them to ~/.config/tinygpt/r2.env (mode 600 — owner-readable only).
+        them to ~/.config/posttrainllm/r2.env (mode 600 — owner-readable only).
 
         If you don't have an R2 bucket + API token yet:
           https://dash.cloudflare.com → R2 → Create bucket → Manage API
@@ -98,14 +98,14 @@ enum CloudList {
         let bucket    = prompt("R2_BUCKET")
 
         let home = FileManager.default.homeDirectoryForCurrentUser
-        let confDir = home.appendingPathComponent(".config/tinygpt")
+        let confDir = home.appendingPathComponent(".config/posttrainllm")
         let confURL = confDir.appendingPathComponent("r2.env")
         do {
             try FileManager.default.createDirectory(at: confDir,
                                                      withIntermediateDirectories: true)
             let body = """
-            # tinygpt R2 credentials — keep secret.
-            # Created by `tinygpt cloud setup` on \(ISO8601DateFormatter().string(from: Date())).
+            # posttrainllm R2 credentials — keep secret.
+            # Created by `posttrainllm cloud setup` on \(ISO8601DateFormatter().string(from: Date())).
             R2_ACCOUNT_ID=\(accountID)
             R2_ACCESS_KEY_ID=\(accessKey)
             R2_SECRET_ACCESS_KEY=\(secret)
@@ -118,7 +118,7 @@ enum CloudList {
                 ofItemAtPath: confURL.path
             )
             print("\n✓ wrote \(confURL.path) (mode 600)")
-            print("verify with: tinygpt cloud list")
+            print("verify with: posttrainllm cloud list")
         } catch {
             fputs("setup failed: \(error)\n", stderr); exit(1)
         }
@@ -126,7 +126,7 @@ enum CloudList {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt cloud <subcommand>
+        usage: posttrainllm cloud <subcommand>
 
         Subcommands:
           list [--prefix <p>]            List bucket contents

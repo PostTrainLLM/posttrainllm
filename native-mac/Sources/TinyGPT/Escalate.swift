@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTServe
 
-/// `tinygpt escalate --provider <p> --prompt "..."` — direct cloud
+/// `posttrainllm escalate --provider <p> --prompt "..."` — direct cloud
 /// escalation entry point. Calls the configured cloud provider with
 /// the prompt; returns the assistant's response.
 ///
@@ -11,8 +11,8 @@ import TinyGPTServe
 /// AgentLoop and uses `CloudEscalate.complete(...)` programmatically.
 ///
 /// USAGE
-///   tinygpt escalate --provider anthropic --prompt "Explain RoPE"
-///   tinygpt escalate --provider openai --model gpt-4o --system "..." --prompt "..."
+///   posttrainllm escalate --provider anthropic --prompt "Explain RoPE"
+///   posttrainllm escalate --provider openai --model gpt-4o --system "..." --prompt "..."
 enum Escalate {
     static func run(args: [String]) {
         var providerName = "anthropic"
@@ -58,7 +58,7 @@ enum Escalate {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt escalate --provider {anthropic|openai} --prompt "..."
+        usage: posttrainllm escalate --provider {anthropic|openai} --prompt "..."
 
         Direct cloud escalation — call a larger remote model when the
         on-device specialist defers (or for testing the cloud path).

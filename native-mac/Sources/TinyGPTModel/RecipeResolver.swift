@@ -1,10 +1,10 @@
 import Foundation
 
-/// `tinygpt quickstart` (B33) decision core — pure, unit-tested.
+/// `posttrainllm quickstart` (B33) decision core — pure, unit-tested.
 ///
 /// Turns a user's raw data file into a concrete (base model, training
 /// recipe) plan with zero ML knowledge required. The CLI wizard in
-/// `TinyGPT.Quickstart` is the orchestration shell; the judgement lives
+/// `posttrainllm.Quickstart` is the orchestration shell; the judgement lives
 /// here so it is testable without a GPU and shareable with B6's GUI
 /// Factory tab.
 public enum RecipeResolver {
@@ -113,7 +113,7 @@ public enum RecipeResolver {
         public let pack: Bool
         public let dora: Bool
 
-        /// Flags for `tinygpt sft <base> <flags…>`. The base path plus
+        /// Flags for `posttrainllm sft <base> <flags…>`. The base path plus
         /// `--data`/`--out` are supplied by the orchestration layer.
         public func sftFlags() -> [String] {
             var a: [String] = [

@@ -1,6 +1,6 @@
 # Optimizers
 
-TinyGPT ships five optimizers, selectable on `tinygpt train`, `sft`, and
+posttrainllm ships five optimizers, selectable on `posttrainllm train`, `sft`, and
 `dpo` via `--optimizer {adamw|lion|sophia|muon|adafactor}`. Default is
 `adamw` (preserves backward compatibility — pre-existing scripts work
 unchanged).
@@ -67,8 +67,8 @@ optimizer follows paper recommendations. Build:
 
 ```
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
-  -scheme tinygpt -destination "platform=macOS" \
-  -derivedDataPath /tmp/tinygpt-smoke-opts -configuration Release build
+  -scheme posttrainllm -destination "platform=macOS" \
+  -derivedDataPath /tmp/posttrainllm-smoke-opts -configuration Release build
 ```
 
 ### Tiny preset (4L · d=128 · ctx=128 · batch=8 · 842k params)

@@ -1,5 +1,5 @@
 /**
- * gpu_model.ts — a TinyGPT that trains entirely on the GPU (Phase 5, stage 5).
+ * gpu_model.ts — a posttrainllm that trains entirely on the GPU (Phase 5, stage 5).
  *
  * Wires the WGSL kernels in ops.ts into a full forward + backward + AdamW loop.
  * Every weight, gradient, optimizer moment, and activation is a GpuTensor that
@@ -450,7 +450,7 @@ export class GpuModel {
    *
    * This is the on-disk format the .tinygpt header keys off, so the resulting
    * ArrayBuffer can be passed straight into `encodeModelFile()` and the saved
-   * file is loadable in any TinyGPT backend (WASM or another WebGPU session).
+   * file is loadable in any posttrainllm backend (WASM or another WebGPU session).
    */
   async exportState(): Promise<ArrayBuffer> {
     let totalFloats = 0;

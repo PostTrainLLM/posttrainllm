@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt eval-escalate` (B5) — score a defer-to-cloud classifier.
+/// `posttrainllm eval-escalate` (B5) — score a defer-to-cloud classifier.
 ///
 /// Input JSONL rows: `{defer_pred: Bool, local_wrong: Bool}` (the model's
 /// defer decision vs whether local was actually wrong). Emits precision,
@@ -46,7 +46,7 @@ enum EvalEscalate {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-escalate <predictions.jsonl> [--out result.json]
+        usage: posttrainllm eval-escalate <predictions.jsonl> [--out result.json]
 
         Score a defer-to-cloud classifier (B5). Input rows:
           {defer_pred: Bool, local_wrong: Bool}

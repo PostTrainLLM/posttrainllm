@@ -1,8 +1,8 @@
 import Foundation
 
-/// Per-project model + dataset pins. Lives at `./tinygpt.project.json`
-/// in the consumer project's root. Read by `tinygpt pull` (fetch
-/// every pin from the gallery) and `tinygpt validate` (sanity-check
+/// Per-project model + dataset pins. Lives at `./posttrainllm.project.json`
+/// in the consumer project's root. Read by `posttrainllm pull` (fetch
+/// every pin from the gallery) and `posttrainllm validate` (sanity-check
 /// every pin resolves).
 ///
 /// Analogous to `package.json`: visible at the project root, JSON
@@ -14,15 +14,15 @@ import Foundation
 public struct ProjectManifest: Codable, Sendable {
     /// Display name; not load-bearing.
     public let name: String
-    /// Optional minimum tinygpt version (informational; CLI may warn
+    /// Optional minimum posttrainllm version (informational; CLI may warn
     /// on mismatch but does not enforce).
-    public let tinygptVersion: String?
+    public let TinyGPTVersion: String?
     /// Model pins. Order is not significant.
     public let models: [ProjectModelPin]
     /// Dataset pins. Order is not significant. Optional —
     /// pure-inference projects don't ship datasets.
     public let datasets: [ProjectDatasetPin]?
-    /// Optional eval-gate spec (B32). When present, `tinygpt eval-gate`
+    /// Optional eval-gate spec (B32). When present, `posttrainllm eval-gate`
     /// reads it as zero-config; a standalone `eval-gate.json` overrides it.
     public let eval: EvalGate.Spec?
 
@@ -67,22 +67,22 @@ public struct ProjectModelPin: Codable, Sendable {
     /// For `role == .adapter`: the id of the base the adapter
     /// applies to. Must match a gallery model whose kind is one of
     /// the base kinds, AND must match another pin in the same
-    /// project file (the cross-check is done by `tinygpt validate`).
+    /// project file (the cross-check is done by `posttrainllm validate`).
     public let appliesTo: String?
-    /// Optional opt-out — when present and true, `tinygpt pull`
+    /// Optional opt-out — when present and true, `posttrainllm pull`
     /// reports the pin as a no-op (useful for dev-time adapters).
     public let optional: Bool?
 }
 
 public struct ProjectDatasetPin: Codable, Sendable {
-    /// Dataset id (the same id `tinygpt list-datasets` shows).
+    /// Dataset id (the same id `posttrainllm list-datasets` shows).
     public let id: String
-    /// When true, missing dataset doesn't fail `tinygpt validate`.
+    /// When true, missing dataset doesn't fail `posttrainllm validate`.
     public let optional: Bool?
 }
 
 /// Lightweight validation: schema-level checks that don't need a
-/// gallery to be present. `tinygpt validate` runs both this AND
+/// gallery to be present. `posttrainllm validate` runs both this AND
 /// the cross-check against the resolved `GalleryManifest`.
 public extension ProjectManifest {
     enum ValidationError: Error, CustomStringConvertible {
@@ -103,7 +103,7 @@ public extension ProjectManifest {
     }
 
     /// The default model to pull/serve for this project: the first pin with
-    /// `role == .base` (B31 — what `tinygpt pull` resolves when no `--tag` is
+    /// `role == .base` (B31 — what `posttrainllm pull` resolves when no `--tag` is
     /// given). nil if the project pins no base model.
     var basePin: ProjectModelPin? { models.first { $0.role == .base } }
 

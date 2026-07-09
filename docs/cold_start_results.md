@@ -3,7 +3,7 @@
 Date: 2026-05-30
 Branch: worktree `agent-acdbc93fc70df3aed`
 Target machine: M3 Max, 36 GB RAM, macOS 25.5
-Build: `xcodebuild -scheme tinygpt -configuration Release` (LLVM optimisation on)
+Build: `xcodebuild -scheme posttrainllm -configuration Release` (LLVM optimisation on)
 
 ## What this bundle changes
 
@@ -71,10 +71,10 @@ KV cache, that's typically <40% of the file.
 
 ## Build verdict
 
-`xcodebuild -scheme tinygpt -destination "platform=macOS" -derivedDataPath
-/tmp/tinygpt-coldstart -configuration Release build` → **BUILD SUCCEEDED**.
+`xcodebuild -scheme posttrainllm -destination "platform=macOS" -derivedDataPath
+/tmp/posttrainllm-coldstart -configuration Release build` → **BUILD SUCCEEDED**.
 
-All in-tree tests (`xcodebuild test -scheme TinyGPT-Package`) pass:
+All in-tree tests (`xcodebuild test -scheme posttrainllm-Package`) pass:
 - TinyGPTIOTests: 19 / 19
 - TinyGPTModelTests: 17 / 17
 - CrashRecoverySubprocessTests: 2 / 2
@@ -172,7 +172,7 @@ runtime warmup; here's the reasoning:
 1. MLX-Swift ships its kernels as a precompiled `default.metallib`
    baked into the `Cmlx` target (`mlx-swift/Package.swift::METAL_PATH`).
    The kernels are already compiled at MLX-build time, not at every
-   tinygpt launch. There is no Swift-side shader source to compile.
+   posttrainllm launch. There is no Swift-side shader source to compile.
 2. The "compile cost" we *can* observe is Metal pipeline-state creation
    (the device-specific binding of a kernel to a `MTLComputePipelineState`
    object). This happens lazily on first use of each kernel — ~50–200 ms
@@ -228,22 +228,22 @@ opted not to file one rather than add a TODO that may rot).
 # Build (Release, ~30 s from a clean checkout):
 cd native-mac
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
-  -scheme tinygpt -destination "platform=macOS" \
-  -derivedDataPath /tmp/tinygpt-coldstart \
+  -scheme posttrainllm -destination "platform=macOS" \
+  -derivedDataPath /tmp/posttrainllm-coldstart \
   -configuration Release build
 
 # Smoke (eager, blocking load — matches old behaviour):
-/tmp/tinygpt-coldstart/Build/Products/Release/tinygpt sample \
+/tmp/posttrainllm-coldstart/Build/Products/Release/posttrainllm sample \
   browser/public/demo.tinygpt --prompt "ROMEO:" --tokens 30 \
   --temperature 0 --no-async-load
 
 # Smoke (lazy embedding):
-/tmp/tinygpt-coldstart/Build/Products/Release/tinygpt sample \
+/tmp/posttrainllm-coldstart/Build/Products/Release/posttrainllm sample \
   browser/public/demo.tinygpt --prompt "ROMEO:" --tokens 30 \
   --temperature 0 --lazy-embedding
 
 # Smoke (async load with spinner):
-/tmp/tinygpt-coldstart/Build/Products/Release/tinygpt sample \
+/tmp/posttrainllm-coldstart/Build/Products/Release/posttrainllm sample \
   browser/public/demo.tinygpt --prompt "ROMEO:" --tokens 30 \
   --temperature 0
 ```

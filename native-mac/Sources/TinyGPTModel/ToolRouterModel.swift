@@ -12,7 +12,7 @@ import TinyGPTIO
 ///
 /// # Architecture
 ///
-/// The model reuses tinygpt's existing `TransformerBlock` stack — same
+/// The model reuses posttrainllm's existing `TransformerBlock` stack — same
 /// attention, same MLP, same param names — but:
 ///
 ///   - DROPs the LM head (no token prediction)
@@ -278,7 +278,7 @@ public struct ToolRouterLabels: Codable, Equatable, Sendable {
 
 // MARK: - Loader
 
-/// Load a router checkpoint produced by `tinygpt train-extractor`.
+/// Load a router checkpoint produced by `posttrainllm train-extractor`.
 /// Mirrors `TinyGPTWeightLoader.load` but targets `ToolRouterModel` —
 /// the manifest contains `router_head.{weight,bias}` instead of
 /// `lm_head.weight`.

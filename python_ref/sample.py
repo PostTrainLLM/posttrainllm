@@ -1,5 +1,5 @@
 """
-sample.py — text generation / sampling from a trained TinyGPT (Phase 1).
+sample.py — text generation / sampling from a trained posttrainllm (Phase 1).
 
 Autoregressive decoding:
     prompt bytes -> token ids
@@ -31,22 +31,22 @@ import torch
 
 from checkpoint import load_checkpoint
 from dataset import decode, encode
-from model import ModelConfig, TinyGPT
+from model import ModelConfig, posttrainllm
 
 REPO = Path(__file__).resolve().parent.parent
 
 
-def load_model(ckpt_dir: str | Path, device: str | torch.device = "cpu") -> TinyGPT:
-    """Rebuild a TinyGPT from a checkpoint directory and load its weights."""
+def load_model(ckpt_dir: str | Path, device: str | torch.device = "cpu") -> posttrainllm:
+    """Rebuild a posttrainllm from a checkpoint directory and load its weights."""
     ckpt = load_checkpoint(ckpt_dir, map_location=device)
-    model = TinyGPT(ModelConfig(**ckpt["model_config"])).to(device)
+    model = posttrainllm(ModelConfig(**ckpt["model_config"])).to(device)
     model.load_state_dict(ckpt["model"])
     model.eval()
     return model
 
 
 def generate(
-    model: TinyGPT,
+    model: posttrainllm,
     prompt: str,
     max_new_tokens: int = 200,
     temperature: float = 0.8,
@@ -67,7 +67,7 @@ def generate(
 
 
 def main(argv: list[str] | None = None) -> None:
-    p = argparse.ArgumentParser(description="Sample from a trained TinyGPT.")
+    p = argparse.ArgumentParser(description="Sample from a trained posttrainllm.")
     p.add_argument("--checkpoint", default=str(REPO / "checkpoints" / "run"))
     p.add_argument("--prompt", default="")
     p.add_argument("--tokens", type=int, default=200, help="max new tokens to generate")

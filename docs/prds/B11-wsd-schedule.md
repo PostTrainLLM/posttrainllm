@@ -11,7 +11,7 @@ related_prds: B10-quality-classifier.md, B12 (loss-spike recovery, partly covere
 
 ## Goal
 
-Add `--lr-schedule wsd` to `tinygpt train` (`tinygpt finetune` / `sft` /
+Add `--lr-schedule wsd` to `posttrainllm train` (`posttrainllm finetune` / `sft` /
 `distill` get it for free since they share the optimizer wrapper) with
 three flags: `--warmup N` (steps to peak LR), `--stable-frac F`
 (fraction of remaining steps held at peak), `--decay-shape {1-sqrt,
@@ -44,7 +44,7 @@ Replaces cosine-warmup as the curated default for new pretrain runs.
   is the curated default the README example uses. `1-sqrt` (MiniCPM)
   decays slower than `cosine` early and faster late — empirically the
   best of the three.
-- `tinygpt train --resume <ckpt> --lr-schedule wsd --warmup 0 ...` —
+- `posttrainllm train --resume <ckpt> --lr-schedule wsd --warmup 0 ...` —
   the killer use case: resume from the end of a stable-phase checkpoint
   into a decay-shaped fine-tune.
 - One sentence in `docs/training_guide.md` flipping the curated default.
@@ -72,7 +72,7 @@ Replaces cosine-warmup as the curated default for new pretrain runs.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt train --lr-schedule wsd --warmup 500 --stable-frac 0.7
+- [ ] `posttrainllm train --lr-schedule wsd --warmup 500 --stable-frac 0.7
   --decay-shape 1-sqrt --steps 5000 ...` runs and the in-loop LR matches
   the closed-form WSD curve at every checkpoint print.
 - [ ] On a 22M shakespeare pretrain over 5K steps, val PPL at the end

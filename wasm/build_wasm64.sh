@@ -3,7 +3,7 @@
 # Emscripten. Run wasm/build_native.sh first: it verifies the same C++ with the
 # host compiler, which is far faster to iterate on than the browser.
 #
-# Output: browser/public/tinygpt.{js,wasm} — the Worker imports these.
+# Output: browser/public/tinygpt64.{js,wasm} — the Worker imports these.
 # Needs the Emscripten SDK on PATH (source ~/emsdk/emsdk_env.sh).
 set -euo pipefail
 

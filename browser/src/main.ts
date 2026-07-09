@@ -255,7 +255,7 @@ const autoSaveFilename: string | null = (() => {
 })();
 
 let firstRunCelebrated = (() => {
-  try { return localStorage.getItem("tinygpt.firstRunCelebrated") === "1"; } catch { return false; }
+  try { return localStorage.getItem("posttrainllm.firstRunCelebrated") === "1"; } catch { return false; }
 })();
 
 /**
@@ -1305,7 +1305,7 @@ function refreshSampleNote(): void {
     `For genuinely grammatical English you need at least val loss ~1.5 — roughly ` +
     `Medium/Large preset on a real dataset (TinyStories, Tiny Shakespeare). ` +
     `For coherent prose: 10M+ params on MB of text via ` +
-    `<a href="https://github.com/sarthak-fleet/tinygpt/blob/main/python_ref/train.py" target="_blank" rel="noopener">the Python reference</a>.` +
+    `<a href="https://github.com/sarthak-fleet/posttrainllm/blob/main/python_ref/train.py" target="_blank" rel="noopener">the Python reference</a>.` +
     `</span>`;
 }
 
@@ -1605,7 +1605,7 @@ function encodeModelFile(config: RunConfig, state: ArrayBuffer): Blob {
     finalLoss: final ? { step: final.step, train: final.trainLoss, val: final.valLoss ?? null } : null,
     sample: lastSampleText.slice(0, 320),
     bestVal: Number.isFinite(bestVal) ? { loss: bestVal, step: bestValStep } : null,
-    project: "https://github.com/sarthak-fleet/tinygpt",
+    project: "https://github.com/sarthak-fleet/posttrainllm",
   };
   const headerJson = JSON.stringify(headerObj);
   const headerBytes = new TextEncoder().encode(headerJson);
@@ -1800,7 +1800,7 @@ els.downloadModel.addEventListener("click", () => {
   }
   const blob = encodeModelFile(latestStateConfig, latestState);
   const sizeKb = (blob.size / 1024).toFixed(0);
-  const filename = `tinygpt-${latestStateConfig.layers}L-d${latestStateConfig.dModel}-ctx${latestStateConfig.ctx}.tinygpt`;
+  const filename = `posttrainllm-${latestStateConfig.layers}L-d${latestStateConfig.dModel}-ctx${latestStateConfig.ctx}.tinygpt`;
   triggerDownload(blob, filename);
   setModelStatus(`✓ saved ${filename} (${sizeKb} KB)`, "ok");
 });
@@ -1813,7 +1813,7 @@ els.downloadSafetensors.addEventListener("click", () => {
   try {
     const blob = encodeSafetensorsFile(latestStateConfig, latestState);
     const sizeKb = (blob.size / 1024).toFixed(0);
-    const filename = `tinygpt-${latestStateConfig.layers}L-d${latestStateConfig.dModel}-ctx${latestStateConfig.ctx}.safetensors`;
+    const filename = `posttrainllm-${latestStateConfig.layers}L-d${latestStateConfig.dModel}-ctx${latestStateConfig.ctx}.safetensors`;
     triggerDownload(blob, filename);
     setModelStatus(`✓ saved ${filename} (${sizeKb} KB) — load in Python with safetensors.numpy.load_file`, "ok");
   } catch (err) {
@@ -1869,8 +1869,8 @@ function encodeSafetensorsFile(config: RunConfig, state: ArrayBuffer): Blob {
   // Build safetensors JSON header.
   const headerObj: Record<string, unknown> = {
     __metadata__: {
-      project: "https://github.com/sarthak-fleet/tinygpt",
-      tinygpt_version: "1",
+      project: "https://github.com/sarthak-fleet/posttrainllm",
+      posttrainllm_version: "1",
       config: JSON.stringify(config),
     },
   };
@@ -2132,10 +2132,10 @@ function fireDoneNotification(message: string): void {
   // Always fire — the user explicitly opted in. Skipping when the tab is
   // focused turned out to be surprising more than helpful.
   try {
-    new Notification("TinyGPT — training complete", {
+    new Notification("posttrainllm — training complete", {
       body: message,
       icon: "/favicon.svg",
-      tag: "tinygpt-training",
+      tag: "posttrainllm-training",
     });
   } catch {
     // Some browsers throw on Notification construction in non-secure contexts.
@@ -2210,7 +2210,7 @@ for (const d of HF_CATALOG) {
 
 let hfLoadToken = 0;
 let lastHfEntry: import("./datasets").HfDataset | null = null;
-const HF_TOKEN_KEY = "tinygpt.hf.token";
+const HF_TOKEN_KEY = "posttrainllm.hf.token";
 
 function getStoredHfToken(): string {
   try { return localStorage.getItem(HF_TOKEN_KEY) ?? ""; } catch { return ""; }
@@ -2840,7 +2840,7 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
         els.stEta.textContent = elapsedStr;
         if (!firstRunCelebrated) {
           firstRunCelebrated = true;
-          try { localStorage.setItem("tinygpt.firstRunCelebrated", "1"); } catch {}
+          try { localStorage.setItem("posttrainllm.firstRunCelebrated", "1"); } catch {}
           showFirstRunCelebration();
         }
       } else {
@@ -3160,13 +3160,13 @@ async function init(): Promise<void> {
     `(~${formatParams(rec.approxParams)} params, ${rec.tier})` +
     `</span>` +
     `<button id="applyRec" class="ghost" style="margin-left:4px">Apply</button>` +
-    // Honest note for Safari users: TinyGPT is built + tested on Chromium.
+    // Honest note for Safari users: posttrainllm is built + tested on Chromium.
     // Safari mostly works for small/medium presets but a few load-time and
     // runtime quirks (no Memory64 below 18.4, partial WebGPU, slower pthread
     // shim) make bigger models flaky. Don't hide it — just tell them.
     (browser.name === "Safari"
       ? `<div class="safari-note">
-           <strong>You're on Safari.</strong> TinyGPT is built + tested on
+           <strong>You're on Safari.</strong> posttrainllm is built + tested on
            Chromium — Safari should be fine for small / medium presets, but
            larger ones may misbehave (no Memory64 below 18.4, WebGPU is
            partial). For the smoothest experience, open this in Chrome.
@@ -3549,7 +3549,7 @@ function setupDefaultCorpus(): void {
 // Shown to Chrome users on WebGPU who are MISSING subgroups (canonical
 // "you don't have the experimental flag on" signal). Dismissible — once
 // dismissed, never re-shown for that user.
-const SPEED_NUDGE_KEY = "tinygpt.speedNudgeDismissed";
+const SPEED_NUDGE_KEY = "posttrainllm.speedNudgeDismissed";
 function speedNudgeHtml(
   browser: { name: string; chromium: boolean },
   caps: { webgpu: boolean; gpuFeatures: { subgroups: boolean; cooperativeMatrix?: boolean } },
@@ -3676,7 +3676,7 @@ interface GalleryModel {
    *  Used by the leaderboard's "score per compute" pareto view to reward
    *  efficient submissions over brute-force ones. */
   trainWallMs?: number;
-  /** Submission metadata. Curated gallery cards have author = "TinyGPT"
+  /** Submission metadata. Curated gallery cards have author = "posttrainllm"
    *  + featured = true. Community submissions arrive with author set to
    *  the submitter's handle and featured = false until promoted. */
   submission?: {
@@ -4054,7 +4054,7 @@ async function loadGalleryCard(
 function setupIntroCard(): void {
   const dismiss = document.getElementById("introDismiss");
   if (!dismiss) return;
-  const KEY = "tinygpt.introDismissed";
+  const KEY = "posttrainllm.introDismissed";
   dismiss.addEventListener("click", () => {
     document.documentElement.classList.add("intro-dismissed");
     try { localStorage.setItem(KEY, "1"); } catch { /* private mode */ }

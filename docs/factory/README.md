@@ -1,8 +1,8 @@
 # Factory Docs
 
-Start here for active TinyGPT work.
+Start here for active posttrainllm work.
 
-TinyGPT's current product loop is:
+posttrainllm's current product loop is:
 
 ```text
 target -> data -> post-training -> eval -> package -> report

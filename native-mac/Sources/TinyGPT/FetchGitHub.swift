@@ -1,10 +1,10 @@
 import Foundation
 import TinyGPTData
 
-/// `tinygpt fetch-github <owner/repo> [flags]` — pull structured
+/// `posttrainllm fetch-github <owner/repo> [flags]` — pull structured
 /// training records from GitHub.
 ///
-/// This is the GitHub-side counterpart to `tinygpt download-dataset`.
+/// This is the GitHub-side counterpart to `posttrainllm download-dataset`.
 /// HuggingFace gives you pre-curated datasets; GitHub gives you the
 /// raw, in-the-wild signal for a code-specialist agent:
 ///
@@ -31,14 +31,14 @@ import TinyGPTData
 ///   --dry-run              estimate count, no fetch
 ///
 /// EXAMPLES
-///   tinygpt fetch-github pytorch/pytorch --kind issues-prs --limit 200
-///   tinygpt fetch-github rust-lang/rust --kind commits --limit 5000 --out rust.commits.jsonl
-///   tinygpt fetch-github huggingface/transformers --kind reviews --limit 500
-///   tinygpt fetch-github --multi-repo bug_repos.txt --kind issues-prs --out combined.jsonl
+///   posttrainllm fetch-github pytorch/pytorch --kind issues-prs --limit 200
+///   posttrainllm fetch-github rust-lang/rust --kind commits --limit 5000 --out rust.commits.jsonl
+///   posttrainllm fetch-github huggingface/transformers --kind reviews --limit 500
+///   posttrainllm fetch-github --multi-repo bug_repos.txt --kind issues-prs --out combined.jsonl
 ///
 /// ENV
 ///   GITHUB_TOKEN           bearer token (5000 req/h with, 60 without)
-///   TINYGPT_GITHUB_CACHE   override cache root (default ~/.cache/tinygpt/github)
+///   TINYGPT_GITHUB_CACHE   override cache root (default ~/.cache/posttrainllm/github)
 enum FetchGitHub {
 
     static func run(args: [String]) {
@@ -213,11 +213,11 @@ enum FetchGitHub {
         print("    output:   \(outURL.path)")
         switch kind {
         case .issuesPRs:
-            print("    next: tinygpt sft <base> --data \(outURL.path) --template chatml --out debugger.tinygpt")
+            print("    next: posttrainllm sft <base> --data \(outURL.path) --template chatml --out debugger.tinygpt")
         case .reviews:
-            print("    next: tinygpt sft <base> --data \(outURL.path) --template chatml --out reviewer.tinygpt")
+            print("    next: posttrainllm sft <base> --data \(outURL.path) --template chatml --out reviewer.tinygpt")
         case .commits:
-            print("    next: tinygpt sft <base> --data \(outURL.path) --template chatml --out commit-msg.tinygpt")
+            print("    next: posttrainllm sft <base> --data \(outURL.path) --template chatml --out commit-msg.tinygpt")
         }
     }
 
@@ -303,7 +303,7 @@ enum FetchGitHub {
     static func printUsage() {
         let kinds = GitHubCorpus.Kind.allCases.map(\.rawValue).joined(separator: " | ")
         print("""
-        usage: tinygpt fetch-github <owner/repo> [flags]
+        usage: posttrainllm fetch-github <owner/repo> [flags]
 
         flags:
           --kind <\(kinds)>
@@ -320,7 +320,7 @@ enum FetchGitHub {
 
         env:
           GITHUB_TOKEN            bearer token; without it 60 req/h hard cap
-          TINYGPT_GITHUB_CACHE    override cache root (~/.cache/tinygpt/github)
+          TINYGPT_GITHUB_CACHE    override cache root (~/.cache/posttrainllm/github)
         """)
     }
 }

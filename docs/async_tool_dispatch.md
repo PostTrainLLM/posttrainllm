@@ -49,7 +49,7 @@ between args-complete and `<|im_end|>`** — typically 2-5 tokens =
 
 **Flavor #2 (inter-tool overlap)** would matter for a specialist
 that emits parallel tool calls (`tool_calls: [{...}, {...}]` —
-Apple's `Tool` protocol shape supports this). tinygpt's current
+Apple's `Tool` protocol shape supports this). posttrainllm's current
 prompt template asks for ONE tool per JSON object, looping
 serially. No specialist exists yet that emits parallel calls.
 
@@ -76,7 +76,7 @@ When the time comes:
 
 ```swift
 // AgentLoop additions:
-private let toolQueue = DispatchQueue(label: "tinygpt.agent.tool",
+private let toolQueue = DispatchQueue(label: "posttrainllm.agent.tool",
                                        attributes: .concurrent)
 
 // In runTurn(), when JSON parsed:

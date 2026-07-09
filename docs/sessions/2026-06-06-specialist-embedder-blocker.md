@@ -25,7 +25,7 @@ approval before running that class of workload.
 
 ## What Not To Do
 
-Do not add fake `tinygpt embed` or `tinygpt embed-train` commands that produce
+Do not add fake `posttrainllm embed` or `posttrainllm embed-train` commands that produce
 hash vectors or placeholders. That would make downstream RAG examples look
 shipped while the model and eval path do not exist.
 

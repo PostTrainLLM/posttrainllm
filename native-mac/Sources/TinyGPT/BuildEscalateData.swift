@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt build-escalate-data` (B5) — turn labeled rollouts into SFT data
+/// `posttrainllm build-escalate-data` (B5) — turn labeled rollouts into SFT data
 /// that teaches a specialist when to emit `{"defer_to_cloud": true, ...}`.
 ///
 /// Input JSONL rows: `{instruction|prompt, response, local_correct: Bool,
@@ -69,12 +69,12 @@ enum BuildEscalateData {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt build-escalate-data <in.jsonl> --out <sft.jsonl>
+        usage: posttrainllm build-escalate-data <in.jsonl> --out <sft.jsonl>
 
         Label rollouts for defer-to-cloud SFT (B5). Input rows:
           {instruction|prompt, response, local_correct: Bool, cloud_correct?: Bool, reason?}
         Output: chatml SFT JSONL teaching the {"defer_to_cloud": bool, ...} signal.
-        Train it with `tinygpt sft` (the GPU step). Score with `tinygpt eval-escalate`.
+        Train it with `posttrainllm sft` (the GPU step). Score with `posttrainllm eval-escalate`.
         """)
         exit(code)
     }

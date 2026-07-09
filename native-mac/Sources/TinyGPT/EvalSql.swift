@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt eval-sql` (B1, SQL domain) — execution-accuracy eval for a
+/// `posttrainllm eval-sql` (B1, SQL domain) — execution-accuracy eval for a
 /// text-to-SQL specialist. Self-contained: runs predicted vs gold SQL against
 /// a SQLite DB via the `sqlite3` CLI and compares result sets (order-
 /// insensitive) plus normalized exact-match. No model needed to score a
@@ -108,7 +108,7 @@ enum EvalSql {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-sql <preds.jsonl> [--db-dir <dir>] [--out rows.jsonl]
+        usage: posttrainllm eval-sql <preds.jsonl> [--db-dir <dir>] [--out rows.jsonl]
 
         Execution-accuracy eval for text-to-SQL (B1). Rows:
           {predicted_sql, gold_sql, db}   (db relative to --db-dir if given)

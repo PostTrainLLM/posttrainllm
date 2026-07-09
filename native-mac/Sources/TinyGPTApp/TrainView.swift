@@ -268,7 +268,7 @@ struct TrainView: View {
                 .overlay(Rectangle().fill(Theme.warn).frame(height: 1), alignment: .bottom)
             }
 
-            // Training history strip — all runs found in ~/.cache/tinygpt/runs/.
+            // Training history strip — all runs found in ~/.cache/posttrainllm/runs/.
             // Active runs marked with a green dot; SIGSTOP'd with orange;
             // exited with grey. Click a row to load its loss curve.
             if !trainingRuns.isEmpty {
@@ -318,7 +318,7 @@ struct TrainView: View {
                 .overlay(Rectangle().fill(Theme.line).frame(height: 1), alignment: .bottom)
             }
 
-            // External-run banner — surfaces a `tinygpt train` process
+            // External-run banner — surfaces a `posttrainllm train` process
             // that wasn't started by this app instance (CLI-spawned nohup,
             // previous app session, etc.). User can SIGCONT/SIGSTOP it
             // without losing in-memory state.
@@ -511,7 +511,7 @@ struct TrainView: View {
         controller.start(corpus: corpus)
     }
 
-    /// One chip per run discovered under ~/.cache/tinygpt/runs/.
+    /// One chip per run discovered under ~/.cache/posttrainllm/runs/.
     /// Status dot: green = active, orange = paused (SIGSTOP'd),
     /// grey = exited. Click to reveal the run dir in Finder.
     private func runChip(_ run: RunSummary) -> some View {

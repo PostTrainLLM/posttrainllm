@@ -16,7 +16,7 @@ import Foundation
 ///   2. `Qwen3ANE` — the HF-arch path used by the Pace specialist
 ///      (Qwen3-0.6B + baked LoRA). Input is `input_ids: [1, T] Int32`
 ///      (BPE token IDs), output is logits of shape `[1, T, vocab]`.
-///      Used by `tinygpt ane-validate` and `tinygpt serve --coreml`.
+///      Used by `posttrainllm ane-validate` and `posttrainllm serve --coreml`.
 ///
 /// Both classes are stateless (full-prompt-at-once). The M3 stateful
 /// variant adds KV-cache state via CoreML 8+ `MLState` — gated behind

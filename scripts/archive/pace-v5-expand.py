@@ -10,14 +10,14 @@ gold response.
 Also add 100+ samples from clickyLocal/evals/intent-corpus/seed.jsonl
 mapped to template responses (no screen state).
 
-Output: ~/.cache/tinygpt/datasets/pace-v5-sft.jsonl
+Output: ~/.cache/posttrainllm/datasets/pace-v5-sft.jsonl
 """
 import json, re, requests, sys
 from pathlib import Path
 
-GOLD = Path.home() / ".cache/tinygpt/datasets/pace-v5-gold.jsonl"
+GOLD = Path.home() / ".cache/posttrainllm/datasets/pace-v5-gold.jsonl"
 INTENT = Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/intent-corpus/seed.jsonl")
-OUT = Path.home() / ".cache/tinygpt/datasets/pace-v5-sft.jsonl"
+OUT = Path.home() / ".cache/posttrainllm/datasets/pace-v5-sft.jsonl"
 TEACHER_URL = "http://127.0.0.1:1234/v1/chat/completions"
 MODEL = "qwen/qwen3-30b-a3b"
 

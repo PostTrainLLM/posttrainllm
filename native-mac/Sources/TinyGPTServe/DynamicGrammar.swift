@@ -36,7 +36,7 @@ struct ServeToolsSpec {
         } else if let arr = any as? [Any] {
             rawTools = arr
         } else {
-            throw NSError(domain: "tinygpt.serve.tools", code: 1,
+            throw NSError(domain: "posttrainllm.serve.tools", code: 1,
                           userInfo: [NSLocalizedDescriptionKey:
                             "tools must be {\"tools\":[...]} or a raw tools array"])
         }
@@ -204,7 +204,7 @@ struct ServeToolsSpec {
     }
 
     private static func toolError(_ message: String) -> NSError {
-        NSError(domain: "tinygpt.serve.tools", code: 2,
+        NSError(domain: "posttrainllm.serve.tools", code: 2,
                 userInfo: [NSLocalizedDescriptionKey: message])
     }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage a TinyGPT artifact for Hugging Face Hub upload.
+"""Stage a posttrainllm artifact for Hugging Face Hub upload.
 
 This script does not require an HF token and does not upload by itself. It
 creates the small public metadata surface that should go to the Hub first, then
@@ -78,7 +78,7 @@ def stage_package(
     copied.append("tinygpt.lock.json")
 
     manifest = {
-        "schema": "tinygpt.hf_artifact_manifest.v1",
+        "schema": "posttrainllm.hf_artifact_manifest.v1",
         "artifact_id": artifact_id,
         "repo_id": repo_id,
         "repo_type": "model",

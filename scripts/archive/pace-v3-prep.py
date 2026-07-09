@@ -12,7 +12,7 @@ We extract USER + ELEMENT blocks from each fixture, then ask the
 teacher for 8 paraphrases per scenario, also generating realistic
 NEW screens with element lists.
 
-Output: ~/.cache/tinygpt/datasets/pace-prompts-v3.jsonl
+Output: ~/.cache/posttrainllm/datasets/pace-prompts-v3.jsonl
 Each row: {"prompt": "<full user turn with element context>", "category": "<fixture name>", "source": "..."}
 """
 import json
@@ -22,7 +22,7 @@ import sys
 from pathlib import Path
 
 FM_FIX_DIR = Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/fm-fixtures")
-OUT = Path.home() / ".cache" / "tinygpt" / "datasets" / "pace-prompts-v3.jsonl"
+OUT = Path.home() / ".cache" / "posttrainllm" / "datasets" / "pace-prompts-v3.jsonl"
 TEACHER_URL = "http://127.0.0.1:1234/v1/chat/completions"
 TEACHER_MODEL = "qwen/qwen3-30b-a3b"
 

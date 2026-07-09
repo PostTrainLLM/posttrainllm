@@ -85,7 +85,7 @@ decisive negative result in 30 minutes instead of an inconclusive
 ### 3. Deferred tool schemas — feature filed
 
 The essay's meta-tool wall (`get_tool_info` → fetch schema once,
-session-cached) maps onto `tinygpt serve --tools`, which today injects
+session-cached) maps onto `posttrainllm serve --tools`, which today injects
 the full catalog into every request. Filed as **B26** in
 [PLAN.md](../PLAN.md): serve answers `get_tool_info` itself, so any
 OpenAI-compatible client gets deferred tools for free. Gated on BFCL
@@ -103,7 +103,7 @@ occupy attention even when prefill is free. Cache solves cost, not bias.
 ## What we deliberately did not steal
 
 - **The single `execute_code` tool.** Shortcut owns its agent loop;
-  `tinygpt serve` is an OpenAI-compatible *server* — the client owns the
+  `posttrainllm serve` is an OpenAI-compatible *server* — the client owns the
   loop, so tool-surface design belongs to the caller. B26 is the piece
   of this idea that lives server-side.
 - **The 70k-line L3 tome + grep skill.** No equivalent surface here; our

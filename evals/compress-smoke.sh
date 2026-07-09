@@ -8,7 +8,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
 
-BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
+BIN="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
 DOC="$ROOT/evals/compress-fixtures/doc.txt"
 [ -f "$DOC" ] || fail "missing fixture $DOC"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT

@@ -16,7 +16,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
 
-BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
+BIN="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
 CORPUS="$ROOT/data/examples/tiny-corpus.txt"
 [ -f "$CORPUS" ] || fail "missing corpus $CORPUS"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT

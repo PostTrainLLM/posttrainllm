@@ -24,8 +24,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_V8 = Path.home() / ".cache/tinygpt/datasets/pace-v8-sft.jsonl"
-DEFAULT_OUT = Path.home() / ".cache/tinygpt/datasets/pace-v9-sft.jsonl"
+DEFAULT_V8 = Path.home() / ".cache/posttrainllm/datasets/pace-v8-sft.jsonl"
+DEFAULT_OUT = Path.home() / ".cache/posttrainllm/datasets/pace-v9-sft.jsonl"
 
 
 def _row(user: str, elements: list[str], response: dict) -> dict:

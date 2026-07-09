@@ -34,14 +34,14 @@ final class HFBrowserController: ObservableObject {
         Task { await self.refresh() }
     }
 
-    /// Cache root: `~/Library/Application Support/TinyGPT/hf/`. Lives next
+    /// Cache root: `~/Library/Application Support/posttrainllm/hf/`. Lives next
     /// to the gallery cache so a single rm -rf cleans up everything.
     static func cacheRoot() -> URL {
         let support = (try? FileManager.default.url(
             for: .applicationSupportDirectory,
             in: .userDomainMask, appropriateFor: nil, create: true))
             ?? FileManager.default.homeDirectoryForCurrentUser
-        return support.appendingPathComponent("TinyGPT/hf", isDirectory: true)
+        return support.appendingPathComponent("posttrainllm/hf", isDirectory: true)
     }
 
     static func cacheDir(for id: String) -> URL {
@@ -211,7 +211,7 @@ final class HFBrowserController: ObservableObject {
     private func downloadFile(id: String, file: String, to dest: URL,
                               progress: @escaping (Int64, Int64) -> Void) async throws {
         if FileManager.default.fileExists(atPath: dest.path) {
-            // Trust prior downloads — same scope as `tinygpt download-dataset`'s
+            // Trust prior downloads — same scope as `posttrainllm download-dataset`'s
             // resume-by-skip behavior. Re-downloading needs an explicit delete.
             return
         }

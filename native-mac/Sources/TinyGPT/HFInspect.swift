@@ -2,28 +2,28 @@ import Foundation
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt hf-inspect <dir>` — point at a downloaded HuggingFace
+/// `posttrainllm hf-inspect <dir>` — point at a downloaded HuggingFace
 /// model directory (the `config.json`, `tokenizer.json`,
 /// `model.safetensors` triple) and print what we find. This is the
 /// diagnostic step that says "yes we can load this" or "no, here's
 /// what's unsupported."
 ///
-/// Once the loader is wired (next commit), `tinygpt hf-load` will
+/// Once the loader is wired (next commit), `posttrainllm hf-load` will
 /// actually instantiate a TinyGPTModel from the HF weights.
 enum HFInspect {
     static func run(args: [String]) {
         guard let dirPath = args.first else {
-            fputs("usage: tinygpt hf-inspect <dir-with-config.json-and-safetensors>\n", stderr)
+            fputs("usage: posttrainllm hf-inspect <dir-with-config.json-and-safetensors>\n", stderr)
             exit(2)
         }
         if dirPath == "-h" || dirPath == "--help" {
             print("""
-            usage: tinygpt hf-inspect <model-dir>
+            usage: posttrainllm hf-inspect <model-dir>
 
             Inspect a downloaded HuggingFace model directory: prints
             architecture, vocab size, layer counts, GQA layout, context
             length, RoPE theta, tied-embedding flag, and confirms
-            whether tinygpt can load it.
+            whether posttrainllm can load it.
 
             The directory must contain at minimum config.json plus
             either model.safetensors or a pytorch_model.bin shard set.

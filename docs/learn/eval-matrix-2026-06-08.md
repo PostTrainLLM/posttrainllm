@@ -226,7 +226,7 @@ real. Otherwise it's not.
 python3 scripts/eval_pace_v2.py --skip-model
 
 # Any LoRA — boot serve then run eval:
-tinygpt serve <hf-dir> \
+posttrainllm serve <hf-dir> \
     --lora <lora-path>.lora \
     --grammar grammars/pace-fm-label-response.schema.json \
     --port 8765 &

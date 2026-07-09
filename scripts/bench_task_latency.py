@@ -3,7 +3,7 @@
 
 Replays an ordered fixture sequence (a task trace — each step's prompt
 carries prior progress, see evals/task-latency-download-v1/) against a
-running tinygpt serve and reports per-step latency + correctness, then
+running posttrainllm serve and reports per-step latency + correctness, then
 extrapolates to the full quaternius scenario (71 packs).
 
 Latency here is the DECISION cost only (planner round-trip). AX snapshot +
@@ -11,7 +11,7 @@ dispatch (~0.1-0.2s/step) get added as a constant in the extrapolation; the
 true end-to-end number comes from T2's live run.
 
 Usage:
-  tinygpt serve <baked-hf> --quantize int8 --grammar <schema> --port 8765 &
+  posttrainllm serve <baked-hf> --quantize int8 --grammar <schema> --port 8765 &
   python3 scripts/bench_task_latency.py \
     --fixtures-dir evals/task-latency-download-v1 \
     --serve-url http://127.0.0.1:8765/v1/chat/completions \
@@ -47,7 +47,7 @@ def format_user(fx: dict) -> str:
 
 def query(url: str, sys_prompt: str, fx: dict, timeout: int = 120) -> tuple[str, float]:
     body = {
-        "model": "tinygpt",
+        "model": "posttrainllm",
         "messages": [
             {"role": "system", "content": sys_prompt},
             {"role": "user", "content": format_user(fx)},

@@ -1,18 +1,18 @@
-# TinyGPT — native macOS
+# posttrainllm — native macOS
 
-Native macOS implementation of TinyGPT, sibling to the browser playground.
+Native macOS implementation of posttrainllm, sibling to the browser playground.
 Same architecture, same `.tinygpt` file format, runs on Metal via MLX-Swift.
 
 ## Status
 
 | Milestone | State | Deliverable |
 |---|---|---|
-| File format I/O | ✅ ships | `TinyGPTIO` library + `tinygpt inspect/validate` CLI, 12 round-trip tests |
+| File format I/O | ✅ ships | `TinyGPTIO` library + `posttrainllm inspect/validate` CLI, 12 round-trip tests |
 | Model port | ✅ ships | `TinyGPTModel` library with full transformer (MLX-Swift) |
 | Weight loader | ✅ ships | `TinyGPTWeightLoader.load()` — browser `.tinygpt` → MLX-Swift model |
 | Training loop | ✅ ships | `Trainer` class with compiled train step + AdamW |
-| Benchmark CLI | ✅ ships | `tinygpt bench` — measures real GPU throughput vs WebGPU baseline |
-| Sample CLI | ✅ ships | `tinygpt sample` — load checkpoint + generate Shakespeare-quality text at ~130 tok/s |
+| Benchmark CLI | ✅ ships | `posttrainllm bench` — measures real GPU throughput vs WebGPU baseline |
+| Sample CLI | ✅ ships | `posttrainllm sample` — load checkpoint + generate Shakespeare-quality text at ~130 tok/s |
 | SwiftUI app | ✅ ships | `TinyGPTApp` — single window, Sample + Train tabs, gallery sidebar, live loss chart |
 | Notarized DMG | ⏳ blocked | needs Apple Developer account |
 
@@ -28,13 +28,13 @@ export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 swift test
 
 # CLI executable (must go through xcodebuild for Metal):
-xcodebuild -scheme tinygpt -destination 'platform=macOS,arch=arm64' \
+xcodebuild -scheme posttrainllm -destination 'platform=macOS,arch=arm64' \
   -derivedDataPath .xcode-build build
 
 # Run the CLI:
-.xcode-build/Build/Products/Debug/tinygpt inspect path/to/model.tinygpt
-.xcode-build/Build/Products/Debug/tinygpt bench --preset mega --batch 8
-.xcode-build/Build/Products/Debug/tinygpt sample path/to/model.tinygpt --prompt "ROMEO:"
+.xcode-build/Build/Products/Debug/posttrainllm inspect path/to/model.tinygpt
+.xcode-build/Build/Products/Debug/posttrainllm bench --preset mega --batch 8
+.xcode-build/Build/Products/Debug/posttrainllm sample path/to/model.tinygpt --prompt "ROMEO:"
 
 # SwiftUI app — single window, gallery sidebar, Sample + Train tabs.
 # Auto-discovers gallery files in ../browser/public/gallery/ at launch.
@@ -46,29 +46,29 @@ xcodebuild -scheme TinyGPTApp -destination 'platform=macOS,arch=arm64' \
 ## CLI
 
 ```
-tinygpt inspect <path>            print manifest + metadata
-tinygpt validate <path>           round-trip check (read → encode → byte compare)
-tinygpt bench [flags]             training-throughput benchmark vs WebGPU baseline
-tinygpt train [flags]             train from scratch and save a checkpoint
-tinygpt sample <path> [flags]     load checkpoint, generate text
+posttrainllm inspect <path>            print manifest + metadata
+posttrainllm validate <path>           round-trip check (read → encode → byte compare)
+posttrainllm bench [flags]             training-throughput benchmark vs WebGPU baseline
+posttrainllm train [flags]             train from scratch and save a checkpoint
+posttrainllm sample <path> [flags]     load checkpoint, generate text
 ```
 
 Round-trip example — train on Mac, save, sample back:
 
 ```sh
-tinygpt train --preset tiny --steps 500 --corpus shakespeare.txt --out my.tinygpt
-tinygpt sample my.tinygpt --prompt "ROMEO:" --tokens 100
+posttrainllm train --preset tiny --steps 500 --corpus shakespeare.txt --out my.tinygpt
+posttrainllm sample my.tinygpt --prompt "ROMEO:" --tokens 100
 ```
 
 ### Install paths
 
 - **Cache** (datasets, GitHub corpora, BPE-tokenized sidecars, in-flight
-  finetune adapters): `~/.cache/tinygpt/` — persistent across reboots.
+  finetune adapters): `~/.cache/posttrainllm/` — persistent across reboots.
   macOS reaps `/tmp` aggressively (mid-session in some cases), so we
   default everything user-fetched here.
 - **Binary**: build via `swift build -c release` →
-  `native-mac/.build/release/tinygpt`. If you want it on `$PATH`,
-  symlink to `~/.local/bin/tinygpt`.
+  `native-mac/.build/release/posttrainllm`. If you want it on `$PATH`,
+  symlink to `~/.local/bin/posttrainllm`.
 - **Build cache**: `native-mac/.build/` and `native-mac/.xcode-build/`
   (incremental; safe to `rm -rf` to force a clean rebuild).
 
@@ -128,7 +128,7 @@ either way, but asymmetric MLP weights don't). Worth raising upstream.
 ## Known limitations
 
 1. **`swift build` doesn't compile MLX's Metal library.** Use Xcode or
-   `xcodebuild`. The `tinygpt` executable from `swift build` works for
+   `xcodebuild`. The `posttrainllm` executable from `swift build` works for
    pure-Foundation subcommands (`inspect`, `validate`) but crashes on
    any MLX operation with "Failed to load the default metallib."
 2. **fp16 training works but doesn't speedup as expected.** The dtype
@@ -162,13 +162,13 @@ Sources/
 ├── TinyGPTModel/                    MLX-Swift; the model + training
 │   ├── ModelConfig.swift            Architecture config (Huge / Mega / custom)
 │   ├── TransformerBlock.swift       CausalSelfAttention (mx.fast.attn) + MLP + Block
-│   ├── TinyGPTModel.swift           Top-level TinyGPT (embedding + blocks + head)
+│   ├── TinyGPTModel.swift           Top-level posttrainllm (embedding + blocks + head)
 │   ├── WeightLoader.swift           Load .tinygpt → MLX-Swift module
 │   └── Trainer.swift                AdamW + compiled train step
-└── TinyGPT/                         Executable
+└── posttrainllm/                         Executable
     ├── TinyGPT.swift                CLI entry + subcommand dispatch
-    ├── Bench.swift                  `tinygpt bench` — throughput benchmark
-    └── Sample.swift                 `tinygpt sample` — load + generate
+    ├── Bench.swift                  `posttrainllm bench` — throughput benchmark
+    └── Sample.swift                 `posttrainllm sample` — load + generate
 
 Tests/
 ├── TinyGPTIOTests/                  12 file-format round-trip tests (passing)

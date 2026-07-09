@@ -1,7 +1,7 @@
 [project]
-name = "tinygpt-data-prep"
+name = "posttrainllm-data-prep"
 version = "0.1.0"
-description = "TinyGPT data preparation shim for BFCL, tau-bench, and GitHub corpora"
+description = "posttrainllm data preparation shim for BFCL, tau-bench, and GitHub corpora"
 requires-python = ">=3.10"
 dependencies = [
   "datatrove>=0.4.0",
@@ -10,5 +10,5 @@ dependencies = [
 ]
 
 [project.scripts]
-tinygpt-prep-data = "prep_data:main"
+posttrainllm-prep-data = "prep_data:main"
 

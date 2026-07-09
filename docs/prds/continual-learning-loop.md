@@ -13,7 +13,7 @@ On-device, those are structural givens — the wedge competitors pay overhead to
 
 ## Why / What
 
-- **Problem:** TinyGPT's factory is an *offline batch* loop. A specialist ships once and
+- **Problem:** posttrainllm's factory is an *offline batch* loop. A specialist ships once and
   is frozen until someone manually re-runs the pipeline. The market (Trajectory, Applied
   Compute) has moved the loop *online* — improve continuously from production signal.
 - **Users:** anyone running a local specialist/planner (Pace, dictation post-proc, a
@@ -30,11 +30,11 @@ The offline pipeline is shipped — the continual loop wraps and automates it:
 
 - `AgentTrajectory` / `.atraj` (`native-mac/Sources/TinyGPTModel/AgentTrajectory.swift`,
   `Agent.swift`, `AgentLoop.swift`) — token-preserving rollouts.
-- `tinygpt traces-to-data` (`TracesToData.swift`) — trajectories → SFT pairs.
-- `tinygpt sft` (`SFT.swift`) — LoRA/DoRA fine-tune (DoRA default; magnitudes persist
+- `posttrainllm traces-to-data` (`TracesToData.swift`) — trajectories → SFT pairs.
+- `posttrainllm sft` (`SFT.swift`) — LoRA/DoRA fine-tune (DoRA default; magnitudes persist
   since the TGLA-v2 fix).
-- `tinygpt eval-gate` (`EvalGate.swift`) — the promotion gate (BFCL/τ-bench/lm-eval).
-- `tinygpt bake-lora` (`BakeLora.swift`) — merge adapter for deployment.
+- `posttrainllm eval-gate` (`EvalGate.swift`) — the promotion gate (BFCL/τ-bench/lm-eval).
+- `posttrainllm bake-lora` (`BakeLora.swift`) — merge adapter for deployment.
 
 ## What's new (the delta)
 
@@ -99,13 +99,13 @@ serve/agent ──(user corrects)──> correction store (local, on-device)
 ## Phased plan (smallest shippable first)
 
 1. **Capture only** — ✅ SHIPPED (2026-06-24). `CorrectionEvent` + append-only JSONL
-   `CorrectionStore` (`TinyGPTIO/CorrectionEvent.swift`, pure Foundation), `tinygpt
+   `CorrectionStore` (`TinyGPTIO/CorrectionEvent.swift`, pure Foundation), `posttrainllm
    record-correction` CLI (`--intent/--original/--corrected/…`, `--list`), defaulting to
    `~/.tinygpt/corrections`. Unit-tested (`CorrectionStoreTests`, runs under `swift test`,
-   no Metal). Ingestion: `tinygpt record-correction` CLI AND `serve POST /v1/corrections`
+   no Metal). Ingestion: `posttrainllm record-correction` CLI AND `serve POST /v1/corrections`
    (✅ added 2026-06-24 — `--corrections-dir`, atomic O_APPEND store, 0600 perms; clients
    like Pace can capture directly). **Phase 1 complete.**
-2. **Curation** — ✅ SHIPPED (2026-06-24). `tinygpt corrections-to-data --out … [--format
+2. **Curation** — ✅ SHIPPED (2026-06-24). `posttrainllm corrections-to-data --out … [--format
    sft|dpo] [--intent …] [--replay base.jsonl --replay-ratio r]`. Pure curation in
    `TinyGPTIO/CorrectionCuration.swift` (`sftPair`/`dpoTriple`/`CorrectionCurator`,
    unit-tested); SFT rows match the `traces-to-data` ChatML shape. Corrections without an

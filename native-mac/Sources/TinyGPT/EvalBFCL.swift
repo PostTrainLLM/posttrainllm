@@ -3,7 +3,7 @@ import Foundation
 enum EvalBFCL {
     static func run(args: [String]) {
         var categories = "simple,multiple,parallel,parallel_multiple,relevance,irrelevance,live_simple,live_multiple,live_parallel,live_parallel_multiple"
-        var root = "\(FileManager.default.homeDirectoryForCurrentUser.path)/.cache/tinygpt/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"
+        var root = "\(FileManager.default.homeDirectoryForCurrentUser.path)/.cache/posttrainllm/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"
         var bfclModel = "openbmb/MiniCPM-SALA-FC"
         var toolsPath: String?
         var toolMode = "full"
@@ -31,7 +31,7 @@ enum EvalBFCL {
         common = EvalHarnessSupport.require(common, usage: { exitUsage() })
         guard let model = common.modelPath else { exitUsage() }
 
-        let work = URL(fileURLWithPath: "/tmp/tinygpt-bfcl-\(UUID().uuidString.prefix(8))")
+        let work = URL(fileURLWithPath: "/tmp/posttrainllm-bfcl-\(UUID().uuidString.prefix(8))")
         let resultDir = work.appendingPathComponent("result")
         let scoreDir = work.appendingPathComponent("score")
         let toolMetrics = work.appendingPathComponent("tool-metrics.jsonl")
@@ -55,7 +55,7 @@ enum EvalBFCL {
         let py = EvalHarnessSupport.resolveExecutable("python3") ?? URL(fileURLWithPath: "/usr/bin/python3")
         let base = "http://127.0.0.1:\(common.servePort)/v1"
         let env = [
-            "OPENAI_API_KEY": "tinygpt",
+            "OPENAI_API_KEY": "posttrainllm",
             "OPENAI_BASE_URL": base,
             "BFCL_PROJECT_ROOT": root
         ]
@@ -127,12 +127,12 @@ enum EvalBFCL {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-bfcl <model.tinygpt|hf-dir> --out <jsonl> [options]
+        usage: posttrainllm eval-bfcl <model.tinygpt|hf-dir> --out <jsonl> [options]
 
         --tokenizer <dir>       accepted for symmetry; serve reads model config
         --tasks <csv>           BFCL categories (default: core non-exec set)
         --limit N               reserved for future BFCL run-id sampling
-        --serve-port N          local tinygpt serve port (default: 8097)
+        --serve-port N          local posttrainllm serve port (default: 8097)
         --budget <json>         fixed eval budget metadata for emitted rows
         --bfcl-root <dir>       local BFCL checkout
         --bfcl-model NAME       BFCL registry model id (default: openbmb/MiniCPM-SALA-FC)

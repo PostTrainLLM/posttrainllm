@@ -5,7 +5,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
-BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
+BIN="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 
 for s in 100 200 300; do : > "$TMP/run.step-$s.tinygpt"; done

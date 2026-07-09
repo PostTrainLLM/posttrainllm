@@ -142,7 +142,7 @@ browser/
 If the parked Mac app work reopens (see `docs/parked/app-polish.md` and the
 historical `mac_app_plan.md`), the same artifact manifest can power its gallery
 dialog. Browser and Mac app both pull identical `.tinygpt` files from the chosen
-artifact store; the local OPFS cache (browser) and `~/Library/Caches/TinyGPT/`
+artifact store; the local OPFS cache (browser) and `~/Library/Caches/posttrainllm/`
 (Mac) keep cold-fetches rare.
 
 No file-format change needed — `.tinygpt` is already the shared

@@ -98,7 +98,7 @@ jobs:
         # on the separate `xcodebuild test` step below for runtime checks.
         run: swift build
 
-      - name: Run unit tests (xcodebuild on TinyGPT-Package)
+      - name: Run unit tests (xcodebuild on posttrainllm-Package)
         working-directory: native-mac
         # `xcodebuild test` produces a bundle with the Metal lib included,
         # so the Mac unit tests can actually run. -destination platform=macOS
@@ -107,13 +107,13 @@ jobs:
         # post-test extraction step.
         run: |
           xcodebuild test \
-            -scheme TinyGPT-Package \
+            -scheme posttrainllm-Package \
             -destination 'platform=macOS' \
             -resultBundlePath /tmp/test-result.xcresult \
             CLANG_ENABLE_CODE_COVERAGE=YES \
           | xcbeautify --renderer github-actions || \
           xcodebuild test \
-            -scheme TinyGPT-Package \
+            -scheme posttrainllm-Package \
             -destination 'platform=macOS' \
             -resultBundlePath /tmp/test-result.xcresult \
             CLANG_ENABLE_CODE_COVERAGE=YES

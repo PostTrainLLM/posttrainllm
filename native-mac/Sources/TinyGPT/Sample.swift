@@ -5,7 +5,7 @@ import MLXRandom
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt sample` — load a browser-trained `.tinygpt` file and generate
+/// `posttrainllm sample` — load a browser-trained `.tinygpt` file and generate
 /// text. The cross-path interop demo: the model trained in the browser,
 /// run here on Metal at native speeds.
 enum Sample {
@@ -851,7 +851,7 @@ enum Sample {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt sample <path.tinygpt> [options]
+        usage: posttrainllm sample <path.tinygpt> [options]
 
         --prompt "..."        Starting text (default: "ROMEO:")
         --tokens N            Max new tokens (default: 200)
@@ -886,7 +886,7 @@ enum Sample {
         --streaming-llm-window M
                               Keep only the last M tokens beyond the sink
         --heads <path>        Speculative decoding with joint-trained heads
-                              (`.heads` sidecar from `tinygpt train-heads`).
+                              (`.heads` sidecar from `posttrainllm train-heads`).
                               Greedy verify — temperature is ignored.
         --head-type {medusa|eagle}
                               Head architecture used by --heads (default medusa).

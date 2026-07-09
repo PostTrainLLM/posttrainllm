@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/make_icon.sh — produce native-mac/Resources/TinyGPT.icns from
+# scripts/make_icon.sh — produce native-mac/Resources/posttrainllm.icns from
 # the existing browser/public/favicon.svg.
 #
 # Pipeline:
@@ -14,7 +14,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SVG="$REPO_ROOT/browser/public/favicon.svg"
 OUT_DIR="$REPO_ROOT/native-mac/Resources"
-ICNS="$OUT_DIR/TinyGPT.icns"
+ICNS="$OUT_DIR/posttrainllm.icns"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
@@ -35,7 +35,7 @@ fi
 
 # Build the .iconset/ directory. Apple's layout is rigid: one PNG per
 # (size, scale) pair, named exactly. iconutil will reject anything else.
-ICONSET="$TMP/TinyGPT.iconset"
+ICONSET="$TMP/posttrainllm.iconset"
 mkdir -p "$ICONSET"
 
 resize() {

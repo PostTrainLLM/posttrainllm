@@ -97,7 +97,7 @@ export type ToWorker =
       }[];
     }
   // Upload a `.lenses` sidecar (per-layer trained projection probes
-  // from `tinygpt tuned-lens`). The worker stores them in-memory; the
+  // from `posttrainllm tuned-lens`). The worker stores them in-memory; the
   // next `lens` request uses them in lieu of the raw final-LN + LM-
   // head projection. Pass `null` to clear and revert to the raw lens.
   | {

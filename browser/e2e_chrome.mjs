@@ -1,4 +1,4 @@
-// e2e_chrome.mjs — exhaustive Chrome end-to-end test of tinygpt.sarthakagrawal.dev.
+// e2e_chrome.mjs — exhaustive Chrome end-to-end test of posttrainllm.sarthakagrawal.dev.
 // Reads as the "everything works" gate. Each block is an independent check;
 // failures are reported but don't stop the run, so a single broken thing
 // doesn't mask the others.
@@ -7,7 +7,7 @@
 
 import { chromium } from "playwright";
 
-const SITE = process.env.E2E_URL || "https://tinygpt.sarthakagrawal.dev";
+const SITE = process.env.E2E_URL || "https://posttrainllm.sarthakagrawal.dev";
 // E2E_VIEWPORT=mobile runs at iPhone-14-ish dimensions to catch responsive
 // breakage. Default is desktop (1400x900) for full-fidelity tests.
 const VIEWPORT = process.env.E2E_VIEWPORT === "mobile"

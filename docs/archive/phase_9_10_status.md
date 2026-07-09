@@ -11,8 +11,8 @@ items not yet shipped, what's needed to land them.
 | Item | Status | Notes |
 |---|---|---|
 | DoRA | ✅ shipped | `--dora` flag on sft + dpo. Adapter file format extension is queued. |
-| LASER selective rank reduction | ✅ shipped | `tinygpt laser` command. File-level SVD truncation. |
-| HQQ (half-quadratic quantization) | ✅ shipped — storage-only | `tinygpt hqq` command. IRLS solver with sub-quadratic loss runs in Swift; writes a model whose weights have been quantize-then-dequantised. Inference-time memory win still needs a packed-int4 matmul kernel. |
+| LASER selective rank reduction | ✅ shipped | `posttrainllm laser` command. File-level SVD truncation. |
+| HQQ (half-quadratic quantization) | ✅ shipped — storage-only | `posttrainllm hqq` command. IRLS solver with sub-quadratic loss runs in Swift; writes a model whose weights have been quantize-then-dequantised. Inference-time memory win still needs a packed-int4 matmul kernel. |
 | AWQ safetensors reader | ✅ shipped | `AWQReader.swift`. Detects qweight/scales/qzeros triples in HF safetensors, unpacks the GEMM-pack int4 layout into dense fp32 weights the existing HFModelLoader consumes. |
 | QLoRA (int4 base + LoRA) | 📋 designed | Blocker: MLX-Swift's quantized arrays don't yet fwd-prop gradients through to the underlying float matrices — see "QLoRA" section below. |
 
@@ -89,7 +89,7 @@ dispatch. The quantization step itself is Swift-side and feasible.
 
 ### Differential attention (Ye et al., 2024)  *(shipped)*
 
-`DifferentialAttention.swift` + `--diff-attn` flag on `tinygpt train`.
+`DifferentialAttention.swift` + `--diff-attn` flag on `posttrainllm train`.
 Each attention head computes TWO independent softmax attention maps
 and subtracts them, weighted by a learnable scalar λ:
 
@@ -140,7 +140,7 @@ this batch".
 
 ### Mixture of Depths (Raposo et al., 2024)  *(shipped — soft routing)*
 
-`--mod` flag on `tinygpt train`. Each TransformerBlock gains a
+`--mod` flag on `posttrainllm train`. Each TransformerBlock gains a
 per-token sigmoid gate:
 
 ```
@@ -169,7 +169,7 @@ sigmoid gate for argTopK + STE and the compute saving lands too.
 | Attention heatmap | ✅ shipped | Existing "Watch the model think" panel. |
 | Per-layer ablation | ✅ shipped | New "Ablate & sample" button. |
 | Activation patching | ✅ shipped — position-zeroing variant | Worker `patch` message + `GpuModel.generatePatched`. Zeroes the residual stream at (layer, position); donor → recipient SWAP is the next iteration. |
-| Tuned lens | ✅ shipped | `tinygpt tuned-lens` Mac CLI command trains per-layer probes on a frozen base. Sidecar `.lenses` file format. `TinyGPTModel.forwardTunedLens` for inference once loaded. |
+| Tuned lens | ✅ shipped | `posttrainllm tuned-lens` Mac CLI command trains per-layer probes on a frozen base. Sidecar `.lenses` file format. `TinyGPTModel.forwardTunedLens` for inference once loaded. |
 
 ### Activation patching (Meng et al., 2022)  *(shipped — zero-patch variant)*
 
@@ -194,7 +194,7 @@ row. Bounded follow-up.
 
 ### Tuned lens (Belrose et al., 2023)  *(shipped)*
 
-`tinygpt tuned-lens <model> --corpus <text>` trains one
+`posttrainllm tuned-lens <model> --corpus <text>` trains one
 `Linear(d_model → vocab)` per layer with the base model frozen.
 Cross-entropy on each layer's projection, mean across layers, AdamW.
 Output: a small `.lenses` sidecar (~`L × (vocab+1) × d_model` floats)

@@ -10,7 +10,7 @@ real FC specialist. Find every gap.
 |---|---|---|
 | 1 | **GQA + head_dim fix** in attention path (PRD shipped) | Qwen3 family (1024 hidden, 16 heads, 128 head_dim) loads + trains. The reshape bug was off-by-2× because we assumed `head_dim = hidden_size/num_heads`. |
 | 2 | **QK-Norm support** (Qwen3 RMSNorm on Q/K) shipped | Qwen3 base attention was mathematically wrong without this. Step-1 SFT loss dropped 12.8 → 0.68 (19× improvement) after wiring. |
-| 3 | **DoRA serialization** fix (both writers) shipped | Default `tinygpt sft` uses DoRA. Both writers (`LoraIO` + `LoraHF`) only checked `as? LoraLinear` — every DoRA-trained adapter was silently empty (209 bytes). Now DoRA round-trips as LoRA (m vector deferred to v2). |
+| 3 | **DoRA serialization** fix (both writers) shipped | Default `posttrainllm sft` uses DoRA. Both writers (`LoraIO` + `LoraHF`) only checked `as? LoraLinear` — every DoRA-trained adapter was silently empty (209 bytes). Now DoRA round-trips as LoRA (m vector deferred to v2). |
 | 4 | **Theme-completer trained from scratch** in 38 seconds | 842K-param Tiny preset, 5050 hex palette pairs, loss 5+ → 0.114. Path-1 from-scratch validated on a non-text task. Echoes input colors (memorization on tiny corpus) but produces valid hex completions. |
 | 5 | **Pace specialist arc end-to-end prep** | System prompt extracted, tool-tag GBNF grammar drafted, recipe at `docs/recipes/pace-planner.md`. Tomorrow's flagship arc is ready to fire. |
 
@@ -36,10 +36,10 @@ Without (4), we cannot inference-test the adapters we trained. Tomorrow's first 
 
 | Path | Size | What |
 |---|---|---|
-| `~/.cache/tinygpt/runs/n02-20260606-1128/huge-base-v1.tinygpt` | 253 MB | N02 22M from-scratch, val 4.32. Useful for interp/B13. Not for SFT. |
-| `~/.cache/tinygpt/runs/theme-v1/theme-v1.tinygpt` | ~3 MB | Tiny theme-completer. Validates path-1. |
-| `~/.cache/tinygpt/runs/qwen3-fc-v1/qwen3-fc-v1.lora` | 8.8 MB | First real Qwen3 LoRA. Trained pre-QK-Norm fix → numerics suspect. Replace with v2. |
-| `~/.cache/tinygpt/runs/qwen3-fc-v2/qwen3-fc-v2.lora` | in flight | Real Qwen3 FC SFT with QK-Norm + `--no-dora`. Expected size ~8-15 MB. |
+| `~/.cache/posttrainllm/runs/n02-20260606-1128/huge-base-v1.tinygpt` | 253 MB | N02 22M from-scratch, val 4.32. Useful for interp/B13. Not for SFT. |
+| `~/.cache/posttrainllm/runs/theme-v1/theme-v1.tinygpt` | ~3 MB | Tiny theme-completer. Validates path-1. |
+| `~/.cache/posttrainllm/runs/qwen3-fc-v1/qwen3-fc-v1.lora` | 8.8 MB | First real Qwen3 LoRA. Trained pre-QK-Norm fix → numerics suspect. Replace with v2. |
+| `~/.cache/posttrainllm/runs/qwen3-fc-v2/qwen3-fc-v2.lora` | in flight | Real Qwen3 FC SFT with QK-Norm + `--no-dora`. Expected size ~8-15 MB. |
 
 ## Tomorrow's plan
 
@@ -47,7 +47,7 @@ Without (4), we cannot inference-test the adapters we trained. Tomorrow's first 
 |---|---|---|
 | 1 | LoRA support for TinyGPTModelHF (#250) — `hf-load --lora` + `serve --lora` | 2-3 hrs |
 | 2 | Verify qwen3-fc-v2 generates FC-shaped output for hermes-fc test prompts | 30 min |
-| 3 | Pace specialist arc fire: pace prompts → `tinygpt synthesize` (LM Studio teacher) → `tinygpt sft` Qwen3 → eval against Pace fixtures | half day |
+| 3 | Pace specialist arc fire: pace prompts → `posttrainllm synthesize` (LM Studio teacher) → `posttrainllm sft` Qwen3 → eval against Pace fixtures | half day |
 | 4 | DoRA format v2 (round-trip with `m` vector) | 2-4 hrs |
 | 5 | Theme-completer v2: scrape ColorHunt for 10K palettes, retrain at Small preset | half day |
 

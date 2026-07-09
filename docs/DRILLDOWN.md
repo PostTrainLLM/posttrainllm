@@ -1,7 +1,7 @@
 # Drilldown — the experiments left untried, run to bedrock
 
 > Historical Pace planner drill. Keep this as learning/eval evidence, not as the
-> active model-selection plan. Current TinyGPT factory work starts from
+> active model-selection plan. Current posttrainllm factory work starts from
 > `PROJECT_STATUS.md`, `docs/NEXT.md`, and `docs/factory/`.
 
 Started 2026-06-11 after the "miner stopping 30 min before the diamond"
@@ -63,7 +63,7 @@ All scored with `scripts/eval_pace_unhappy.py` against
    we end up shipping 4B-Instruct for footprint reasons.
 
 4. **DPO on contrastive clarify pairs**. NOT drilled.
-   149 pairs built (`~/.cache/tinygpt/datasets/clarify-dpo-v1.jsonl`),
+   149 pairs built (`~/.cache/posttrainllm/datasets/clarify-dpo-v1.jsonl`),
    trainer not written. Given Gemma already clears the floor on every
    dim and DPO would target the 0.6B / 4B paths we now don't ship, the
    ROI is gone. **Parked** unless Gemma proves unworkable in production
@@ -134,6 +134,6 @@ run `lms` commands while an eval is in flight — one server, one client.
   `stop=["</think>"]` to give Qwen3-4B-Thinking and DeepSeek-R1 a real
   scoreboard. Cheap experiment, scheduled as a TODO not a blocker.
 
-- **tinygpt's role.** With training closed, tinygpt's keepers:
+- **posttrainllm's role.** With training closed, posttrainllm's keepers:
   benchmark + eval harness (this drilldown is the canonical example),
   serve runtime + grammar + int8 ANE, mech-interp tooling.

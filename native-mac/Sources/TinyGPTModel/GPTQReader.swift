@@ -11,7 +11,7 @@ import TinyGPTIO
 // Saw: works. But AWQReader covers the common case of loading
 //   already-quantised HF models. From-scratch GPTQ is for OWN-model
 //   export to int4, which we rarely need (we'd ship via AWQ).
-// When this would help: when you want to export your trained tinygpt
+// When this would help: when you want to export your trained posttrainllm
 //   model to int4 for distribution; AWQ produces slightly different
 //   results, GPTQ may win on some models.
 

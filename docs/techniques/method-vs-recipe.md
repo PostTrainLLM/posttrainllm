@@ -1,6 +1,6 @@
 # Method vs Recipe
 
-TinyGPT should not confuse having a method on the roadmap with having a recipe
+posttrainllm should not confuse having a method on the roadmap with having a recipe
 that is likely to work.
 
 ## Method

@@ -4,7 +4,7 @@ import MLXNN
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt prune-structured` — drop entire attention heads or whole
+/// `posttrainllm prune-structured` — drop entire attention heads or whole
 /// transformer layers. Unlike unstructured pruning (which leaves
 /// tensor shapes intact), this DOES change the model topology:
 ///
@@ -28,9 +28,9 @@ import TinyGPTModel
 ///     2024, "The Unreasonable Ineffectiveness of the Deeper Layers".
 ///
 /// USAGE
-///   tinygpt prune-structured <model.tinygpt> \
+///   posttrainllm prune-structured <model.tinygpt> \
 ///       --heads-to-drop 4 --calibration calib.txt --out reduced.tinygpt
-///   tinygpt prune-structured <model.tinygpt> \
+///   posttrainllm prune-structured <model.tinygpt> \
 ///       --layers-to-drop 2 --calibration calib.txt --out reduced.tinygpt
 enum PruneStructured {
     static func run(args: [String]) {
@@ -81,7 +81,7 @@ enum PruneStructured {
 
         print("""
 
-        TinyGPT — Structured pruning
+        posttrainllm — Structured pruning
         ----------------------------
         input:           \(inPath)
         nLayers:         \(cfg.nLayers)    drop: \(layersToDrop)
@@ -476,7 +476,7 @@ enum PruneStructured {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt prune-structured <model.tinygpt> [options]
+        usage: posttrainllm prune-structured <model.tinygpt> [options]
 
         --out <path>          Where to save the pruned model — required
         --heads-to-drop N     Number of attention heads to zero PER LAYER (Michel et al.

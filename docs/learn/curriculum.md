@@ -1,4 +1,4 @@
-# TinyGPT learning curriculum — ground up
+# posttrainllm learning curriculum — ground up
 
 This is the owner learning roadmap from first principles to a self-improving
 factory for Mac-local specialist models: a self-improving factory in practice,
@@ -18,7 +18,7 @@ The roadmap is good enough only if it satisfies all of these:
 1. **Ground-up order** — no DPO, LoRA, RLVR, or eval jargon before the
    underlying model/training concepts are in place.
 2. **One spine** — every module fits the same arc:
-   `concept -> toy implementation -> TinyGPT anchor -> factory consequence`.
+   `concept -> toy implementation -> posttrainllm anchor -> factory consequence`.
 3. **Exercises, not passive reading** — each module has something to compute,
    inspect, run, or write.
 4. **Mastery gates** — each module has a concrete "you understand it when"
@@ -29,7 +29,7 @@ The roadmap is good enough only if it satisfies all of these:
 7. **Progress tracking** — learning state lives in
    [`../learning-progress.md`](../learning-progress.md), with evidence.
 8. **Cadence** — each week ends in a note, a repo artifact, or a recipe change.
-9. **Failure feedback** — failed TinyGPT runs create the next learning prompt.
+9. **Failure feedback** — failed posttrainllm runs create the next learning prompt.
 10. **No random walk** — interesting topics are parked unless they improve
     target selection, data, post-training, eval, packaging, or reporting.
 
@@ -38,7 +38,7 @@ The roadmap is good enough only if it satisfies all of these:
 For each module:
 
 ```text
-read -> explain -> implement/inspect -> connect to TinyGPT -> change a recipe/report
+read -> explain -> implement/inspect -> connect to posttrainllm -> change a recipe/report
 ```
 
 Suggested weekly cadence:
@@ -47,7 +47,7 @@ Suggested weekly cadence:
 |---|---:|---|
 | Read/watch | 30-60 min | notes on the concept |
 | Rebuild toy version | 60-120 min | tiny script, notebook, or code inspection |
-| TinyGPT bridge | 30-60 min | point to the repo file/run where it matters |
+| posttrainllm bridge | 30-60 min | point to the repo file/run where it matters |
 | Written checkpoint | 15 min | one paragraph in the next report or learning note |
 
 Do not advance because a file was read. Advance when the mastery gate is met.
@@ -76,7 +76,7 @@ does not decide what to build next.
 | 2 | Loss and gradient descent | Loss turns wrongness into one number; gradients say how to change parameters | Compute MSE for two `(m,b)` guesses; take one gradient-descent step | [`session-02-gradient-descent.md`](session-02-gradient-descent.md) | You can predict what too-high and too-low learning rate look like |
 | 3 | Vectors, matrices, tensors | Neural nets are mostly structured multiply/add over arrays | Rewrite a one-input line as a dot product; trace tensor shapes through one layer | [`llm-mechanics-fundamentals.md`](llm-mechanics-fundamentals.md), [`essential-vs-optimization.md`](essential-vs-optimization.md) | You can read a shape error and identify which axis is wrong |
 | 4 | Non-linear neural nets + backprop | Stacking linear layers only stays linear; activations and chain rule make depth useful | Train a tiny 2-layer MLP on a non-linear toy dataset; explain backprop as credit assignment | [`session-03-non-linearities.md`](session-03-non-linearities.md) | You can explain why a model can fit curves after adding activation functions |
-| 5 | ML paradigms and scaling | Supervised learning, self-supervision, imitation, RL, and scale each solve different parts | Classify TinyGPT attempts as pretrain, SFT, preference tuning, eval, or routing | [`session-04-ml-paradigms.md`](session-04-ml-paradigms.md), [`session-05-scaling.md`](session-05-scaling.md) | You can say why scale helps knowledge but does not fix bad evals or bad data |
+| 5 | ML paradigms and scaling | Supervised learning, self-supervision, imitation, RL, and scale each solve different parts | Classify posttrainllm attempts as pretrain, SFT, preference tuning, eval, or routing | [`session-04-ml-paradigms.md`](session-04-ml-paradigms.md), [`session-05-scaling.md`](session-05-scaling.md) | You can say why scale helps knowledge but does not fix bad evals or bad data |
 | 6 | Tokenization, embeddings, language modeling | Text becomes tokens; tokens become vectors; next-token prediction creates language skill | Tokenize three prompts; inspect how SQL punctuation and identifiers split | [`session-06-tokenization-embeddings.md`](session-06-tokenization-embeddings.md), [`../tool_call_extractor.md`](../tool_call_extractor.md) | You can explain why tokenization affects SQL/tool-call reliability |
 | 7 | Attention and transformer blocks | Attention routes information across positions; transformer blocks repeat attention + MLP | Work one tiny attention example with query/key/value vectors and shapes | [`llm-mechanics-fundamentals.md`](llm-mechanics-fundamentals.md), [`advanced-llm-inference.md`](advanced-llm-inference.md) | You can describe what attention can copy/route that an MLP alone cannot |
 | 8 | Training mechanics | Batches, epochs, optimizers, schedules, precision, overfit checks, and loss curves govern whether training worked | Overfit a tiny dataset or inspect an existing overfit gate; identify failure mode from a loss curve | [`session-08-training-mechanics.md`](session-08-training-mechanics.md), [`../training_guide.md`](../training_guide.md) | You can tell data bug vs LR bug vs capacity bug from symptoms |
@@ -131,7 +131,7 @@ At the end of each module, write a short checkpoint:
 Module:
 Concept in my words:
 Toy exercise completed:
-TinyGPT file/run inspected:
+posttrainllm file/run inspected:
 What this changes about the next SQL/factory recipe:
 Open confusion:
 ```

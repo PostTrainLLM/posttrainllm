@@ -10,7 +10,7 @@ import Foundation
 /// only batch sampling was the open determinism gap before this.
 ///
 /// `BatchRng` is a process-wide handle: call `seed(_:)` from
-/// `tinygpt train` when `--seed` is supplied; then sampler code calls
+/// `posttrainllm train` when `--seed` is supplied; then sampler code calls
 /// `randomInt(in:)` instead of `Int.random(in:)`. When unseeded, the
 /// helper falls back to `Int.random(in:)` so production behaviour is
 /// unchanged (no global determinism imposed implicitly).

@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTIO
 
-// `tinygpt record-correction` — Phase 1 of the on-device continual-learning
+// `posttrainllm record-correction` — Phase 1 of the on-device continual-learning
 // loop: ingest a user correction into the local append-only store. No model,
 // no training; this only captures the signal. Clients (serve/agent/Pace) can
 // call this, or it can be driven by hand for testing.
@@ -95,8 +95,8 @@ enum RecordCorrection {
 
     private static func printUsage() {
         print("""
-        usage: tinygpt record-correction --intent <kind> --original <text> --corrected <text> [options]
-               tinygpt record-correction --list
+        usage: posttrainllm record-correction --intent <kind> --original <text> --corrected <text> [options]
+               posttrainllm record-correction --list
 
         Capture a user correction into the local continual-learning store
         (Phase 1: capture only — no training). Defaults to ~/.tinygpt/corrections.

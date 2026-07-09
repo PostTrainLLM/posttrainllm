@@ -1,4 +1,4 @@
-# `tinygpt quickstart` — your first specialist in one command
+# `posttrainllm quickstart` — your first specialist in one command
 
 `quickstart` turns a data file into a trained, runnable specialist on your
 Mac with **one command and zero ML knowledge**: it inspects the data,
@@ -13,17 +13,17 @@ is the initial base-model pull.
 ## One command
 
 ```bash
-tinygpt quickstart mydata.jsonl --yes
+posttrainllm quickstart mydata.jsonl --yes
 ```
 
 That inspects `mydata.jsonl`, resolves a `(base, recipe)`, trains an adapter
-to `adapter.lora`, writes a reproducible `tinygpt.project.json`, and prints
+to `adapter.lora`, writes a reproducible `posttrainllm.project.json`, and prints
 a few sample completions from the new specialist.
 
 See the plan **without training** first:
 
 ```bash
-tinygpt quickstart mydata.jsonl --dry-run
+posttrainllm quickstart mydata.jsonl --dry-run
 ```
 
 ## What it accepts
@@ -35,7 +35,7 @@ tinygpt quickstart mydata.jsonl --dry-run
 | `{"messages":[{role,content},…]}` | `chat` | LoRA fine-tune, chatml template |
 | messages with `tool_calls` / a `"tools"` key | `toolCall` | LoRA fine-tune, longer `--max-seq` |
 | `{"instruction","output"}` or `{"prompt","completion"}` | `instruction` | LoRA fine-tune |
-| not JSON (a plain-text corpus) | `rawText` | from-scratch pretrain (use `tinygpt train`) |
+| not JSON (a plain-text corpus) | `rawText` | from-scratch pretrain (use `posttrainllm train`) |
 
 If it can't classify the data it tells you the expected formats and exits
 non-zero rather than guessing silently.
@@ -56,8 +56,8 @@ The full mapping lives in `RecipeResolver` (see
 ## Output
 
 - `adapter.lora` — the trained adapter (`--out` to change).
-- `tinygpt.project.json` — base + adapter pins so the result is reproducible
-  and shippable (the B31 project-pin format; passes `tinygpt validate`).
+- `posttrainllm.project.json` — base + adapter pins so the result is reproducible
+  and shippable (the B31 project-pin format; passes `posttrainllm validate`).
 
 ## Flags
 
@@ -83,9 +83,9 @@ project preview carries an adapter pin, and a missing file exits non-zero.
 ## Limits (V1)
 
 - **From-scratch (raw-text) training** isn't wired into `quickstart` yet —
-  it prints the plan but routes you to `tinygpt train`.
+  it prints the plan but routes you to `posttrainllm train`.
 - **Auto-pull of a bare gallery id** isn't wired: if the auto-picked base is
   a gallery id with no local weights, pass `--base <local-path-or-hf-id>`
-  (or `tinygpt pull` it first). Paths and HF ids train directly.
+  (or `posttrainllm pull` it first). Paths and HF ids train directly.
 - **Single SFT pass** — no SFT→DPO→quantize chains yet (the recipe resolver
   can grow stages later). See `docs/prds/B33-laptop-finetune-onboarding.md`.

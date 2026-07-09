@@ -1,6 +1,6 @@
 # Attempt Ledger
 
-This ledger records meaningful TinyGPT attempts as worked, failed, regressed,
+This ledger records meaningful posttrainllm attempts as worked, failed, regressed,
 inconclusive, or not yet tried. It is the human-readable companion to run
 folders and factory reports.
 
@@ -470,7 +470,7 @@ SQL is the current factory POC and the best-documented attempt family.
 
 ### B1 SQL eval infrastructure
 
-- Evidence: `tinygpt eval-sql` shipped and smoke-tested; training/generation originally pending GPU.
+- Evidence: `posttrainllm eval-sql` shipped and smoke-tested; training/generation originally pending GPU.
 - Status: `worked-with-caveat`.
 - Failure reason: The scoring half existed before the live SQL factory run, but the original PRD did not include trained adapter evidence.
 - Lesson: Execution accuracy over SQLite is the right reusable gate; infra alone is not a specialist result.

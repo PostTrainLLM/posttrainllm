@@ -6,7 +6,7 @@ library_name: transformers
 license: other
 pipeline_tag: text-generation
 tags:
-  - tinygpt
+  - posttrainllm
   - mlx
   - tool-calling
   - function-calling
@@ -18,7 +18,7 @@ tags:
 
 ## Summary
 
-This is the first TinyGPT specialist package for a model we actually built:
+This is the first posttrainllm specialist package for a model we actually built:
 a fused Qwen3-4B-Instruct-2507 bf16 HF/MLX safetensors directory distilled for
 GorillaFileSystem multi-turn file-operation tasks.
 

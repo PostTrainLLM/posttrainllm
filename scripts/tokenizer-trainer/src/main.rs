@@ -127,6 +127,6 @@ fn train_bpe(cfg: Config) -> Result<()> {
 
 fn usage() {
     eprintln!(
-        "usage: tinygpt-tokenizer-trainer --corpus corpus.txt --vocab-size 32000 --model-type bpe --out tokenizer.json"
+        "usage: posttrainllm-tokenizer-trainer --corpus corpus.txt --vocab-size 32000 --model-type bpe --out tokenizer.json"
     );
 }

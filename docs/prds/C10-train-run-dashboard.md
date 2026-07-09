@@ -12,14 +12,14 @@ related_prds: train-controls-gap-closure.md, app-train-controls-thermal.md
 ## Goal
 
 Ship a browser page (`/train-viewer.astro`) that drag-drops a
-`tinygpt train` run-history directory (or watches it live via OPFS on
+`posttrainllm train` run-history directory (or watches it live via OPFS on
 the same machine) and renders the canonical live-training charts:
 loss + grad-norm + LR + tok/s over steps. Drag-drop pattern mirrors
 `eval-leaderboard.astro` and `sae-timeline.astro` — no server, the
 browser parses the on-disk artifacts.
 
 Removes the "guess what's happening at hour 6 of a run" tax. Today
-`tinygpt train` prints a line per step to stdout; you scroll the
+`posttrainllm train` prints a line per step to stdout; you scroll the
 terminal hoping you saw the right thing.
 
 ## Why now
@@ -77,7 +77,7 @@ terminal hoping you saw the right thing.
 
 ## Don't touch
 
-- `tinygpt train` itself — viewer reads what it already writes.
+- `posttrainllm train` itself — viewer reads what it already writes.
 
 ## Acceptance criteria
 
@@ -98,7 +98,7 @@ terminal hoping you saw the right thing.
   ingest + render. Steal the dropzone + the chart wrapper.
 - `web/src/pages/sae-timeline.astro` — secondary template (time-series
   rendering).
-- `tinygpt train`'s existing history.jsonl format — already documented
+- `posttrainllm train`'s existing history.jsonl format — already documented
   in `train-controls-gap-closure.md`. No new format.
 
 ## Open questions

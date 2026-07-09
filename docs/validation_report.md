@@ -46,7 +46,7 @@ val tracks closely → no overfit.
 ### Sample after training
 
 ```
-$ tinygpt sample /tmp/validation-huge.tinygpt --prompt "Once upon a time" --tokens 40 --temperature 0.8
+$ posttrainllm sample /tmp/validation-huge.tinygpt --prompt "Once upon a time" --tokens 40 --temperature 0.8
 
 Once upon a time, has a last, for what it over the the kids and I 2.
 the guide's areas at the we have place, a biodiversity healthy has
@@ -59,7 +59,7 @@ coherent with the FineWeb-Edu domain). No NaN garbage, no repetition
 loops.
 
 ```sh
-caffeinate -di tinygpt train \
+caffeinate -di posttrainllm train \
     --preset huge \
     --tokenizer /tmp/smollm2 \
     --corpus /tmp/fineweb-edu-500M.txt \
@@ -79,7 +79,7 @@ Expected runtime (M-series, bf16):
 Success criteria:
 - Training completes without OOM, NaN, or kernel errors
 - Final loss decreases relative to step 0
-- Checkpoint loads + samples successfully via `tinygpt sample`
+- Checkpoint loads + samples successfully via `posttrainllm sample`
 
 The combination of DiffAttn (2× attention projections + λ) and MoD
 (sigmoid gate per token per block) puts both new architectural
@@ -94,7 +94,7 @@ sample.
 
 ```sh
 # Step 1 — train a tiny MoE
-tinygpt train \
+posttrainllm train \
     --preset tiny \
     --tokenizer /tmp/smollm2 \
     --corpus /tmp/smoke-corpus.txt \
@@ -103,14 +103,14 @@ tinygpt train \
     --out /tmp/moe-tiny.tinygpt
 
 # Step 2 — sample from the saved MoE
-tinygpt sample /tmp/moe-tiny.tinygpt \
+posttrainllm sample /tmp/moe-tiny.tinygpt \
     --prompt "Once upon a time" --tokens 80 --temperature 0.8
 ```
 
 Success criteria:
 - Step 1 trains without router collapse (loss decreases)
 - Step 2 loads the MoE blocks correctly and produces coherent text
-- `tinygpt inspect /tmp/moe-tiny.tinygpt` shows `moe.router.weight`
+- `posttrainllm inspect /tmp/moe-tiny.tinygpt` shows `moe.router.weight`
   and `moe.experts.0..3.{fc_in,fc_out}.weight` entries per layer
 
 ## 3. MoE distillation pipeline  ✓ RUN
@@ -120,7 +120,7 @@ our smaller MoE". The mechanics:
 
 ```sh
 # Step 1 — initialise a small MoE student with the teacher's tokenizer.
-tinygpt train \
+posttrainllm train \
     --preset tiny \
     --tokenizer /tmp/smollm2 \
     --corpus /tmp/smoke-corpus.txt \
@@ -129,7 +129,7 @@ tinygpt train \
     --out /tmp/moe-student-init.tinygpt
 
 # Step 2 — distill from SmolLM2 (HF, dense) into the MoE student.
-tinygpt distill /tmp/moe-student-init.tinygpt \
+posttrainllm distill /tmp/moe-student-init.tinygpt \
     --teacher /tmp/smollm2 \
     --corpus /tmp/smoke-corpus.txt \
     --tokenizer /tmp/smollm2 \
@@ -161,7 +161,7 @@ much smaller than the teacher and learning from soft labels on a
 tiny corpus. The DISTILLED MoE sampled:
 
 ```
-$ tinygpt sample /tmp/moe-distilled.tinygpt --prompt "The quick brown fox" --tokens 20 --temperature 0.8
+$ posttrainllm sample /tmp/moe-distilled.tinygpt --prompt "The quick brown fox" --tokens 20 --temperature 0.8
 
 The quick brown fox jumps over the lazy dog. Lorem ($ ipsum dolor sit amet, consect
 ```
@@ -172,7 +172,7 @@ distillation pipeline closes the loop: a Phase 10 teacher (with
 DiffAttn + MoD) distilled into a Phase 5 student (MoE), saved via
 the new manifest schema, reloaded, sampled cleanly.
 
-`tinygpt inspect /tmp/moe-distilled.tinygpt` confirms the full MoE
+`posttrainllm inspect /tmp/moe-distilled.tinygpt` confirms the full MoE
 structure round-tripped through distillation:
 
 ```
@@ -194,7 +194,7 @@ raw final-LN + LM-head lens.
 
 ```sh
 # Train the probes — base frozen, only the lens probes update.
-tinygpt tuned-lens /tmp/validation-huge.tinygpt \
+posttrainllm tuned-lens /tmp/validation-huge.tinygpt \
     --corpus /tmp/smoke-corpus.txt \
     --steps 300 --lr 1e-3 \
     --out /tmp/huge.lenses
@@ -226,7 +226,7 @@ Post-training operations on a finished `.tinygpt` file:
 # Drop the bottom 30% of singular components from the late layers'
 # MLP outputs. Sometimes improves downstream accuracy by removing
 # the "noise tail" that the higher components had to fight.
-tinygpt laser /tmp/validation-huge.tinygpt \
+posttrainllm laser /tmp/validation-huge.tinygpt \
     --target mlp.fc_out --layers 8-11 \
     --rank-fraction 0.7 \
     --out /tmp/huge-lasered.tinygpt
@@ -234,7 +234,7 @@ tinygpt laser /tmp/validation-huge.tinygpt \
 # Quantize-then-dequantise via HQQ's IRLS solver. Stores the
 # REQUANTISED weights as dense fp32 (the inference-time memory win
 # would require a packed-int4 matmul kernel).
-tinygpt hqq /tmp/validation-huge.tinygpt \
+posttrainllm hqq /tmp/validation-huge.tinygpt \
     --bits 4 --group-size 64 --p 0.7 \
     --layers 0-11 \
     --out /tmp/huge-hqq.tinygpt
@@ -250,7 +250,7 @@ A separate trainer for non-differentiable rewards or as an
 educational counterpoint to AdamW:
 
 ```sh
-tinygpt es /tmp/validation-huge.tinygpt \
+posttrainllm es /tmp/validation-huge.tinygpt \
     --corpus /tmp/smoke-corpus.txt \
     --steps 50 --population 40 --sigma 0.02 --lr 0.01 \
     --out /tmp/huge-es.tinygpt
@@ -265,13 +265,13 @@ differentiable.
 Bootstrap an SFT dataset from any chat-format base:
 
 ```sh
-tinygpt magpie /path/to/chat-tuned-model \
+posttrainllm magpie /path/to/chat-tuned-model \
     --count 500 --template chatml --temperature 0.9 \
     --out /tmp/magpie-sft.jsonl
 ```
 
 Each line: `{"instruction": "...", "response": "..."}`. Pipe this
-into `tinygpt sft` for fine-tuning, applying user-side quality
+into `posttrainllm sft` for fine-tuning, applying user-side quality
 filters (length ≥ 20, no repeating loops) first.
 
 ---
@@ -303,7 +303,7 @@ The point of running this report is not to feel good about the work
 bugs landed during the validation that wouldn't have surfaced
 otherwise:
 
-1. **`tinygpt tuned-lens` crashed at the first gradient step** with
+1. **`posttrainllm tuned-lens` crashed at the first gradient step** with
    `Fatal error: [grad] Must specify at least one argument.` The
    probe Linears were being attached to TinyGPTModel via post-init
    assignment to an Optional @ModuleInfo field — MLX-Swift's
@@ -314,7 +314,7 @@ otherwise:
 
 2. **`npm run build` (production Astro) failed with a Vite parse
    error** at `src/pages/index.astro:3315:16`:
-   `Expected ";" but found "tinygpt"`. Astro / esbuild's JSX-ish
+   `Expected ";" but found "posttrainllm"`. Astro / esbuild's JSX-ish
    parser interprets backticks inside HTML comments as
    template-literal delimiters; the comment content then fails to
    tokenise as JS. Fix in commit `9877bb7`: replaced backticks

@@ -16,7 +16,7 @@ If UI-Venus wins:
 ## Models on disk (downloaded 2026-06-09)
 
 - `~/.lmstudio/models/mlx-community/UI-Venus-1.5-2B-6bit` — already there for the port
-- `~/.cache/tinygpt/models/qwen3-vl-2b-instruct/` — 2.8 GB, just downloaded
+- `~/.cache/posttrainllm/models/qwen3-vl-2b-instruct/` — 2.8 GB, just downloaded
 
 Both available for A/B without further setup.
 
@@ -26,7 +26,7 @@ Run both via mlx_lm in Python (no Swift port needed for A/B). Compare on a Mac-s
 
 ### Fixture set construction
 
-**`pace/evals/fm-vlm-fixtures-mac-v1/`** — 30 fixtures, captured via `tinygpt ax-capture`:
+**`pace/evals/fm-vlm-fixtures-mac-v1/`** — 30 fixtures, captured via `posttrainllm ax-capture`:
 
 Categories:
 1. **Identity** (8): "what app is this" on Mac apps Microsoft probably didn't train on — Xcode, Final Cut, Logic, OmniFocus, Bear, Things, Tot, Drafts
@@ -93,5 +93,5 @@ Either winner can be fine-tuned later on Pace's ax-capture corpus once Pace is d
 
 - #266 UI-Venus M4 port (consumer of this decision)
 - `project-embedding-swap-2026-06-09` (parallel: same-family-wins logic applied to embedding)
-- `feedback-tinygpt-north-star` (formula bar applied here)
+- `feedback-posttrainllm-north-star` (formula bar applied here)
 - `feedback-research-first-doctrine` (this A/B IS the research-first response to the Qwen3-VL surfacing)

@@ -1,6 +1,6 @@
 # Factory Overview
 
-TinyGPT's active product is the specialist factory.
+posttrainllm's active product is the specialist factory.
 
 The factory should turn a base model plus task data into a measured specialist
 artifact:
@@ -38,7 +38,7 @@ Use these before adding new tooling:
   `run-lm-eval`, `eval-humaneval`, `eval-sql`, `eval-router`,
   `eval-scaledown`, `eval-escalate`.
 - Packaging: `export-mlx`, specialist package directories under
-  `specialists/`, `tinygpt.project.json` / lock metadata.
+  `specialists/`, `posttrainllm.project.json` / lock metadata.
 - Runtime checks: `serve`, `bench`, `run-bench`, smoke scripts in `evals/`.
 
 ## First-Class Output

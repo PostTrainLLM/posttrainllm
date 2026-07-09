@@ -112,7 +112,7 @@ same template every time. A regex endpoint produces one template.
 `scripts/fake_pace.py` is the gate. To compare any LoRA against the
 real-model-contribution standard:
 
-1. Run the LoRA via `tinygpt serve` against fm-fixtures →
+1. Run the LoRA via `posttrainllm serve` against fm-fixtures →
    `lora_score / N`
 2. The FakePace baseline depends on the fixture set:
    - v1 (`clickyLocal/evals/fm-fixtures`): **19/19** — useless for

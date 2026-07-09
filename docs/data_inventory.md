@@ -1,6 +1,6 @@
 ---
 title: Dataset inventory — what's available, sizes, schemas
-description: Reference doc for every dataset wired into tinygpt — registry entries, what they're for, how to pull them, what the records look like after conversion, and known gotchas (gated datasets, parquet decode).
+description: Reference doc for every dataset wired into posttrainllm — registry entries, what they're for, how to pull them, what the records look like after conversion, and known gotchas (gated datasets, parquet decode).
 ---
 
 # Dataset inventory
@@ -11,10 +11,10 @@ adds the practical bits (downloadable today? what's in the file?
 known gotchas?) the registry doesn't cover.
 
 **Quick map**:
-- Browse: `tinygpt list-datasets [--specialist kind | --format sft|dpo|plain]`
-- Pull: `tinygpt download-dataset hf://datasets/owner/name --out path.jsonl`
-- Convert: `tinygpt extractor-data` (BFCL/τ-bench → router pairs)
-- Default cache: `~/.cache/tinygpt/datasets/`
+- Browse: `posttrainllm list-datasets [--specialist kind | --format sft|dpo|plain]`
+- Pull: `posttrainllm download-dataset hf://datasets/owner/name --out path.jsonl`
+- Convert: `posttrainllm extractor-data` (BFCL/τ-bench → router pairs)
+- Default cache: `~/.cache/posttrainllm/datasets/`
 
 ## Cache snapshot — 2026-06-02
 
@@ -37,12 +37,12 @@ Verified by pulling each Tier A foundational set. Sizes from `du -sh`:
 
 | Source | On-disk | Form | Ready for use? |
 |---|---|---|---|
-| `gorilla-llm/gorilla` (BFCL v4) | 223 MB | repo + `bfcl_eval/data/*.json` (JSONL despite `.json` ext) | ✅ — 1,951 router pairs extracted via `tinygpt extractor-data --bfcl` into `~/.cache/tinygpt/router/bfcl_*.jsonl` |
+| `gorilla-llm/gorilla` (BFCL v4) | 223 MB | repo + `bfcl_eval/data/*.json` (JSONL despite `.json` ext) | ✅ — 1,951 router pairs extracted via `posttrainllm extractor-data --bfcl` into `~/.cache/posttrainllm/router/bfcl_*.jsonl` |
 | `sierra-research/tau-bench` | 65 MB | python task files | ⚠️ — clone done; extractor-data parser doesn't yet read Python literal tasks |
 
 Three of the four ready-for-training sets (alpaca-cleaned, hermes-fc-v1,
 orca_dpo_pairs, MetaMathQA) are immediately usable with
-`tinygpt sft` / `tinygpt dpo`. Parquet-only sets stage on disk but
+`posttrainllm sft` / `posttrainllm dpo`. Parquet-only sets stage on disk but
 need a python-side decode pass; see "Known gotchas" §2 below.
 
 GitHub corpus path verified unauthenticated on `sindresorhus/is` (4
@@ -55,7 +55,7 @@ for the 5,000 req/h limit).
 |---|---|---|---|---|
 | `Salesforce/xlam-function-calling-60k` | ~80 MB | sft (query + tools + answer) | **GATED** | Needs `HF_TOKEN` + accept license at HF |
 | `NousResearch/hermes-function-calling-v1` | ~50 MB JSONL | `{instruction, response}` 11,230 records, response wraps tool call in `<tool_call>…</tool_call>` | ✅ pulls clean | None |
-| `Locutusque/function-calling-chatml` | ~60 MB | sft, ChatML conversations | **PARQUET** | tinygpt's converter doesn't decode parquet yet — file lands as `.parquet` shards; manual decode needed |
+| `Locutusque/function-calling-chatml` | ~60 MB | sft, ChatML conversations | **PARQUET** | posttrainllm's converter doesn't decode parquet yet — file lands as `.parquet` shards; manual decode needed |
 
 **Verified pull (commit `f566023`)**: hermes-function-calling-v1
 schema-sniffed as `sft (confidence 75%, chat array → conversations)`,
@@ -77,7 +77,7 @@ metrics.**
 
 For the debugger specialist, the natural starting corpus is
 **SWE-bench_Verified + python_code_instructions_18k_alpaca** (~62 MB
-total), with **issue→PR pairs from `tinygpt fetch-github`** added on
+total), with **issue→PR pairs from `posttrainllm fetch-github`** added on
 top for repo-specific context. SWE-bench Verified is also the
 canonical eval target.
 
@@ -95,7 +95,7 @@ canonical eval target.
 
 | Dataset | Size | Format | Status |
 |---|---|---|---|
-| `yahma/alpaca-cleaned` | ~25 MB | sft (alpaca) | Already cached at `~/.cache/tinygpt/datasets/yahma/` |
+| `yahma/alpaca-cleaned` | ~25 MB | sft (alpaca) | Already cached at `~/.cache/posttrainllm/datasets/yahma/` |
 | `iamtarun/python_code_instructions_18k_alpaca` | ~12 MB | sft | (also in Code section) |
 | `teknium/OpenHermes-2.5` | ~1.6 GB | sft | Large general-purpose SFT |
 | `HuggingFaceH4/ultrachat_200k` | ~1.2 GB | sft | Multi-turn chat |
@@ -119,18 +119,18 @@ canonical eval target.
 
 | Eval | Size | What it scores | Wire-up |
 |---|---|---|---|
-| `ai4bharat/MILU` | ~50 MB | MMLU-style MCQ, 11 Indic langs | `tinygpt eval-indic --task milu --milu-data <path>` (scaffold only — eval CLI works, run on real data is operator step) |
-| `google/IndicGenBench` (XQuAD subtask) | varies | Extractive QA, 29 Indic langs | `tinygpt eval-indic --task indicgenbench --subtask xquad` |
+| `ai4bharat/MILU` | ~50 MB | MMLU-style MCQ, 11 Indic langs | `posttrainllm eval-indic --task milu --milu-data <path>` (scaffold only — eval CLI works, run on real data is operator step) |
+| `google/IndicGenBench` (XQuAD subtask) | varies | Extractive QA, 29 Indic langs | `posttrainllm eval-indic --task indicgenbench --subtask xquad` |
 
 ## Special pipelines (not HF Datasets)
 
 | Source | CLI | Output | Notes |
 |---|---|---|---|
-| **GitHub REST API** (issue→PR, reviews, commits) | `tinygpt fetch-github <owner/repo>` | per-record JSONL | Rate-limited 60 req/h without `GITHUB_TOKEN`; 5000 req/h with one |
-| **BFCL** (Berkeley Function-Calling) | `tinygpt extractor-data --bfcl <path>` | `{query, tool}` JSONL for mini-router training | Walks the BFCL JSON dump |
-| **τ-bench** | `tinygpt extractor-data` | `{query, tool}` pairs | Best-effort parser; full τ-bench ships Python files needing pre-conversion |
-| **Synthetic (Magpie)** | `tinygpt magpie <chat-tuned-base>` | `{instruction, response}` JSONL | Needs a chat-tuned base; common bootstrap for low-resource tools |
-| **Synthetic (cloud)** | `tinygpt extractor-data --synth` | augments small classes via Claude/GPT | Uses `CloudEscalate` — needs `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` |
+| **GitHub REST API** (issue→PR, reviews, commits) | `posttrainllm fetch-github <owner/repo>` | per-record JSONL | Rate-limited 60 req/h without `GITHUB_TOKEN`; 5000 req/h with one |
+| **BFCL** (Berkeley Function-Calling) | `posttrainllm extractor-data --bfcl <path>` | `{query, tool}` JSONL for mini-router training | Walks the BFCL JSON dump |
+| **τ-bench** | `posttrainllm extractor-data` | `{query, tool}` pairs | Best-effort parser; full τ-bench ships Python files needing pre-conversion |
+| **Synthetic (Magpie)** | `posttrainllm magpie <chat-tuned-base>` | `{instruction, response}` JSONL | Needs a chat-tuned base; common bootstrap for low-resource tools |
+| **Synthetic (cloud)** | `posttrainllm extractor-data --synth` | augments small classes via Claude/GPT | Uses `CloudEscalate` — needs `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` |
 
 ## Known gotchas
 
@@ -141,11 +141,11 @@ canonical eval target.
 
 2. **Parquet shards aren't decoded yet**. Some datasets only ship
    as `.parquet` (e.g., `Locutusque/function-calling-chatml`). The
-   `tinygpt download-dataset` CLI surfaces this with a clear error
+   `posttrainllm download-dataset` CLI surfaces this with a clear error
    and the cache path. Decode manually via Python pandas /
    pyarrow until upstream support lands.
 
-3. **JSONL vs ChatML wrap** is a real footgun. `tinygpt sft
+3. **JSONL vs ChatML wrap** is a real footgun. `posttrainllm sft
    --template chatml` wraps **everything** in
    `<|im_start|>user\n{instruction}<|im_end|>\n<|im_start|>assistant\n{response}`.
    The hermes records already prefix `"system: ..."` inline, so all
@@ -155,11 +155,11 @@ canonical eval target.
    you might expect. See `docs/specialist_v1_findings.md`.
 
 4. **macOS reaps `/tmp`**. Long-lived training caches should go
-   to `~/.cache/tinygpt/` or a stable project directory. `/tmp`
+   to `~/.cache/posttrainllm/` or a stable project directory. `/tmp`
    gets cleaned aggressively (saw this mid-session on 2026-05-31).
 
 5. **The 22-entry registry isn't exhaustive**. It's the curated
-   slice that's been tested with `tinygpt download-dataset`'s
+   slice that's been tested with `posttrainllm download-dataset`'s
    schema sniffer. Other HF datasets work if you pass the field
    names manually via `--map`.
 

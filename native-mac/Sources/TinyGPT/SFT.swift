@@ -5,8 +5,8 @@ import MLXOptimizers
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt sft` — supervised fine-tuning with response-only loss
-/// masking. Same LoRA injection + checkpoint plumbing as `tinygpt
+/// `posttrainllm sft` — supervised fine-tuning with response-only loss
+/// masking. Same LoRA injection + checkpoint plumbing as `posttrainllm
 /// finetune`, but the training corpus is a JSONL of
 /// `{instruction, input?, response}` and the loss is computed ONLY
 /// on the response tokens (instruction tokens are seen but don't
@@ -18,7 +18,7 @@ import TinyGPTModel
 /// prompt, produce THAT response."
 ///
 /// USAGE
-///   tinygpt sft <base> --data path.jsonl --template chatml --out my.lora
+///   posttrainllm sft <base> --data path.jsonl --template chatml --out my.lora
 enum SFT {
     static func run(args: [String]) {
         var basePath: String?
@@ -231,7 +231,7 @@ enum SFT {
         let maskedTokens = examples.flatMap { $0.responseMask }.filter { $0 }.count
         print("""
 
-        TinyGPT — SFT (response-only loss)
+        posttrainllm — SFT (response-only loss)
         ----------------------------------
         base:           \(basePath)
         template:       \(template.rawValue)
@@ -404,7 +404,7 @@ enum SFT {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt sft <base> [options]
+        usage: posttrainllm sft <base> [options]
 
         --data path.jsonl        JSONL of {instruction,input?,response} records (required)
         --out path.lora          Where to save the adapter (required)

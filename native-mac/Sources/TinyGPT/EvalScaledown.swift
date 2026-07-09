@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt eval-scaledown` (E6) — score extractive context compression.
+/// `posttrainllm eval-scaledown` (E6) — score extractive context compression.
 ///
 /// V1 is **self-contained** (no external harness, no GPU): over a QA set
 /// `{question, context, answer}`, compress each context with the lexical
@@ -76,7 +76,7 @@ enum EvalScaledown {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-scaledown <qa.jsonl> [--keep-frac F | --threshold T] [--out rows.jsonl]
+        usage: posttrainllm eval-scaledown <qa.jsonl> [--keep-frac F | --threshold T] [--out rows.jsonl]
 
         Self-contained extractive-compression eval (E6 V1). QA rows:
           {question, context, answer}

@@ -100,7 +100,7 @@ const {
       (function () {
         try {
           const html = document.documentElement;
-          if (localStorage.getItem("tinygpt.introDismissed") === "1") {
+          if (localStorage.getItem("posttrainllm.introDismissed") === "1") {
             html.classList.add("intro-dismissed");
           }
         } catch (_) { /* private mode / disabled storage — accept the one-time shift */ }

@@ -2,7 +2,7 @@
 
 A shipped specialist needs a small, inspectable package. The package metadata is
 committed; the large model or adapter artifact usually stays under
-`~/.cache/tinygpt/models/` or another local/cache path.
+`~/.cache/posttrainllm/models/` or another local/cache path.
 
 ## Package Layout
 

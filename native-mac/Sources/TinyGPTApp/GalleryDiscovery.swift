@@ -35,7 +35,7 @@ enum GalleryDiscovery {
         let candidates = candidatePaths()
         for (id, name, icon, prompt) in slots {
             // Try `.bin` first (gallery distribution format), then `.tinygpt`.
-            for ext in ["bin", "tinygpt"] {
+            for ext in ["bin", "posttrainllm"] {
                 for base in candidates {
                     let url = base.appendingPathComponent("\(id).\(ext)")
                     if FileManager.default.fileExists(atPath: url.path) {
@@ -49,20 +49,20 @@ enum GalleryDiscovery {
                 if found.last?.id == id { break }
             }
         }
-        // Locally-trained checkpoints — walk ~/.cache/tinygpt/runs/<name>/<name>.tinygpt.
+        // Locally-trained checkpoints — walk ~/.cache/posttrainllm/runs/<name>/<name>.tinygpt.
         // These are the user's own training runs (theme-completer, N02, etc.)
         // and deserve a sidebar slot just like the curated gallery models.
         found.append(contentsOf: discoverUserRuns())
         return found
     }
 
-    /// Scan ~/.cache/tinygpt/runs/ for user-trained .tinygpt checkpoints
+    /// Scan ~/.cache/posttrainllm/runs/ for user-trained .tinygpt checkpoints
     /// (one canonical per run directory). LoRA adapters (.lora files) are
     /// NOT surfaced here — they need a base model and live in their own
     /// flow (Sample tab's adapter picker, future feature).
     private static func discoverUserRuns() -> [GalleryItem] {
         let fm = FileManager.default
-        let runsDir = URL(fileURLWithPath: NSString("~/.cache/tinygpt/runs").expandingTildeInPath)
+        let runsDir = URL(fileURLWithPath: NSString("~/.cache/posttrainllm/runs").expandingTildeInPath)
         guard fm.fileExists(atPath: runsDir.path) else { return [] }
         guard let entries = try? fm.contentsOfDirectory(at: runsDir,
                                                         includingPropertiesForKeys: nil) else { return [] }
@@ -86,7 +86,7 @@ enum GalleryDiscovery {
             }
             // Fall back: first non-step .tinygpt file in the dir.
             if let files = try? fm.contentsOfDirectory(at: runDir, includingPropertiesForKeys: nil),
-               let first = files.first(where: { $0.pathExtension == "tinygpt" && !$0.lastPathComponent.contains(".step-") }) {
+               let first = files.first(where: { $0.pathExtension == "posttrainllm" && !$0.lastPathComponent.contains(".step-") }) {
                 out.append(GalleryItem(
                     id: "run-\(runName)",
                     displayName: runName,
@@ -127,9 +127,9 @@ enum GalleryDiscovery {
                 dir = dir.deletingLastPathComponent()
             }
         }
-        // 3. ~/Library/Application Support/TinyGPT/gallery — user cache.
+        // 3. ~/Library/Application Support/posttrainllm/gallery — user cache.
         if let appSupport = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            paths.append(appSupport.appendingPathComponent("TinyGPT/gallery"))
+            paths.append(appSupport.appendingPathComponent("posttrainllm/gallery"))
         }
         return paths
     }

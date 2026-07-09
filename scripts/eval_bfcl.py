@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
-"""tinygpt eval-bfcl — Berkeley Function Calling Leaderboard runner (#231).
+"""posttrainllm eval-bfcl — Berkeley Function Calling Leaderboard runner (#231).
 
 Runs a model endpoint against BFCL v3 test files and reports per-category
-pass-rate. Calls any OpenAI-compatible endpoint (tinygpt serve, LM Studio,
+pass-rate. Calls any OpenAI-compatible endpoint (posttrainllm serve, LM Studio,
 Ollama with OpenAI shim). Score = AST-match (function name + arg values
 contained in ground-truth possible-value lists per arg).
 
 For v10 validation: model may emit our v10 schema
     {"spokenText": "...", "intent": "action",
      "payload": {"name": "fn_name", "args": {...}}}
-or, when routed through `tinygpt serve --tools`, the planner-v7 envelope
+or, when routed through `posttrainllm serve --tools`, the planner-v7 envelope
     {"verb": "fn_name", "args": {...}, "spoken_text": "..."}
 The runner extracts function name + args and scores against BFCL ground truth.
 
 Usage:
     python3 scripts/eval_bfcl.py \\
       --serve-url http://127.0.0.1:8765/v1/chat/completions \\
-      --bfcl-dir ~/.cache/tinygpt/datasets/bfcl \\
+      --bfcl-dir ~/.cache/posttrainllm/datasets/bfcl \\
       --categories simple,multiple,irrelevance \\
       --max-per-category 50 \\
-      --out ~/.cache/tinygpt/evals/bfcl-v10-<timestamp>.json
+      --out ~/.cache/posttrainllm/evals/bfcl-v10-<timestamp>.json
 """
 from __future__ import annotations
 
@@ -33,7 +33,7 @@ from pathlib import Path
 from typing import Any
 
 
-DEFAULT_BFCL_DIR = Path.home() / ".cache/tinygpt/datasets/bfcl"
+DEFAULT_BFCL_DIR = Path.home() / ".cache/posttrainllm/datasets/bfcl"
 
 # Files we score for v10. Multi-turn deliberately excluded (single-shot doctrine).
 DEFAULT_CATEGORIES = [
@@ -162,7 +162,7 @@ def call_model(serve_url: str, model_name: str, messages: list[dict],
 def parse_v10(content: str) -> tuple[str, dict | None]:
     """Extract (intent, payload) from model output. Tolerate sloppy JSON.
 
-    `tinygpt serve --tools` constrains output to the planner-v7 envelope
+    `posttrainllm serve --tools` constrains output to the planner-v7 envelope
     {"verb": "...", "args": {...}}. Normalize that shape into the v10
     payload form so BFCL scoring measures the tool choice instead of the
     response-envelope generation.
@@ -320,14 +320,14 @@ def run_category(bfcl_dir: Path, category: str, serve_url: str, model_name: str,
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--serve-url", default="http://127.0.0.1:8765/v1/chat/completions")
-    p.add_argument("--model", default="tinygpt")
+    p.add_argument("--model", default="posttrainllm")
     p.add_argument("--bfcl-dir", type=Path, default=DEFAULT_BFCL_DIR)
     p.add_argument("--categories", default=",".join(DEFAULT_CATEGORIES),
                      help="comma-separated; available: simple, multiple, parallel, parallel_multiple, live_simple, live_multiple, live_parallel, irrelevance, live_irrelevance")
     p.add_argument("--max-per-category", type=int, default=None,
                      help="cap N per category for quick runs")
     p.add_argument("--out", type=Path, default=None,
-                     help="JSON output path; default ~/.cache/tinygpt/evals/bfcl-<timestamp>.json")
+                     help="JSON output path; default ~/.cache/posttrainllm/evals/bfcl-<timestamp>.json")
     p.add_argument("-v", "--verbose", action="store_true")
     args = p.parse_args()
 
@@ -365,7 +365,7 @@ def main() -> None:
     print()
     print(f"OVERALL: {total_pass}/{total_n} ({overall['summary']['overall_pass_rate']*100:.1f}%)")
 
-    out = args.out or Path.home() / ".cache/tinygpt/evals" / f"bfcl-{overall['timestamp']}.json"
+    out = args.out or Path.home() / ".cache/posttrainllm/evals" / f"bfcl-{overall['timestamp']}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(overall, indent=2, default=str))
     print(f"wrote: {out}")

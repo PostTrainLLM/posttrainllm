@@ -6,10 +6,10 @@ import MLXRandom
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt train-extractor` — train a tool-call extractor (mini-router).
+/// `posttrainllm train-extractor` — train a tool-call extractor (mini-router).
 ///
 /// Reads a JSONL of `{"query": "...", "tool": "name"}` pairs (built by
-/// `tinygpt extractor-data`), builds a `ToolRouterModel`, runs a
+/// `posttrainllm extractor-data`), builds a `ToolRouterModel`, runs a
 /// standard AdamW training loop, and saves a `.tinygpt` checkpoint +
 /// sidecar `.labels.json` file.
 ///
@@ -37,8 +37,8 @@ import TinyGPTModel
 ///   --dry-run               Build the model + report sizes; don't train
 ///
 /// EXAMPLES
-///   tinygpt train-extractor router_data.jsonl --out router.tinygpt
-///   tinygpt train-extractor router_data.jsonl --preset small --steps 1000
+///   posttrainllm train-extractor router_data.jsonl --out router.tinygpt
+///   posttrainllm train-extractor router_data.jsonl --preset small --steps 1000
 enum TrainExtractor {
 
     static func run(args: [String]) {
@@ -445,7 +445,7 @@ enum TrainExtractor {
 
     static func exitUsage() -> Never {
         print("""
-        usage: tinygpt train-extractor <data.jsonl> [flags]
+        usage: posttrainllm train-extractor <data.jsonl> [flags]
 
           --preset tiny|small     model size (default: tiny)
           --vocab-size N          vocab size (default: 256, byte-level; pass the

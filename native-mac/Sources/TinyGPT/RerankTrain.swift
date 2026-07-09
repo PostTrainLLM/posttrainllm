@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt rerank-train` — lightweight lexical cross-encoder baseline.
+/// `posttrainllm rerank-train` — lightweight lexical cross-encoder baseline.
 ///
 /// This v1 trains a pairwise logistic model over query+document overlap
 /// features from `{query,pos_doc,neg_doc}` JSONL triples. It gives the
@@ -72,7 +72,7 @@ enum RerankTrain {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt rerank-train --triples triples.jsonl --out model.tinygpt-rerank [options]
+        usage: posttrainllm rerank-train --triples triples.jsonl --out model.tinygpt-rerank [options]
 
         triples.jsonl rows: {"query": "...", "pos_doc": "...", "neg_doc": "..."}
         --steps N   Epochs over triples (default 5)

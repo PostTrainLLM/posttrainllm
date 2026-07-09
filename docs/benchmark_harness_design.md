@@ -1,4 +1,4 @@
-# TinyGPT Inference Benchmark Harness — Design
+# posttrainllm Inference Benchmark Harness — Design
 
 *Status: scaffold landed 2026-05-30. This is the foundation for the
 "most powerful inference engine for modern transformers" claim; nothing
@@ -51,7 +51,7 @@ addition (`PowerSampler`):
 
 ```
                      ┌───────────────────┐
-                     │   CLI: `tinygpt   │
+                     │   CLI: `posttrainllm   │
                      │       bench`      │
                      └────────┬──────────┘
                               │
@@ -158,7 +158,7 @@ reading. JSON schema is the canonical artifact; markdown is derived.
 {
   "harness_version": "0.1.0",
   "git_commit": "abc1234",
-  "engine": "tinygpt",
+  "engine": "posttrainllm",
   "engine_commit": "abc1234",
   "model": { "path": "...", "params": 9608704, "config": {...} },
   "workload": { "mode": "single", "batch_size": 1, "prompt_tokens": 128, "gen_tokens": 100, "n_runs": 5, "warm_runs": 1 },
@@ -301,7 +301,7 @@ Full survey, with URLs:
 
 | Component | Status |
 |---|---|
-| `tinygpt bench` CLI subcommand | ✅ wired |
+| `posttrainllm bench` CLI subcommand | ✅ wired |
 | `Benchmark.swift` arg parser | ✅ |
 | `WorkloadController` single / batch | ✅ |
 | `WorkloadController` server / sustained | placeholder, warns |
@@ -317,14 +317,14 @@ Full survey, with URLs:
 ## 10. Open design questions for review
 
 1. **`bench` subcommand name collision** — the existing
-   `tinygpt bench` is a *training-throughput* benchmark vs the browser
-   baseline. This work renames that to `tinygpt bench-train` and
+   `posttrainllm bench` is a *training-throughput* benchmark vs the browser
+   baseline. This work renames that to `posttrainllm bench-train` and
    reassigns `bench` to inference. If preferred, we could keep
-   `bench` for training and call this `tinygpt bench-infer` instead.
+   `bench` for training and call this `posttrainllm bench-infer` instead.
 2. **`powermetrics` permission UX** — we currently log a warning and
    skip energy metrics if not root. Alternative: `sudo`-prompt
    interactively. The warning approach matches how the rest of the
-   tinygpt CLI behaves (no privilege escalation), so it's the default.
+   posttrainllm CLI behaves (no privilege escalation), so it's the default.
 3. **Default prompt corpus** — short Shakespeare excerpt for the
    scaffold. ShareGPT-v3 / LMSYS-Chat-1M are the conventional choices
    per the research doc; adding a downloader is a 1-day follow-up but

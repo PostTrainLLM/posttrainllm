@@ -97,7 +97,7 @@ def load_tinygpt(
         # Drop config out — surface it next to the state dict for convenience.
         config = header.get("config", {})
         # Include rich metadata too if present (v2 files include loss history + sample).
-        config["_tinygpt_meta"] = {
+        config["_posttrainllm_meta"] = {
             "savedAt": header.get("savedAt"),
             "finalLoss": header.get("finalLoss"),
             "bestVal": header.get("bestVal"),
@@ -112,7 +112,7 @@ def load_tinygpt(
 def inspect(path: str | Path) -> None:
     """Print a human-readable summary of the file's tensors and metadata."""
     config, state_dict = load_tinygpt(path)
-    meta = config.get("_tinygpt_meta", {})
+    meta = config.get("_posttrainllm_meta", {})
     print(f"\nFile: {path}")
     print("-" * 64)
     print("Config:")

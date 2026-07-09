@@ -6,12 +6,12 @@ free execution-accuracy metric; shell needs sandboxing (deferred).
 
 ## Eval (shipped + verified)
 
-`tinygpt eval-sql` scores a predictions file by **execution accuracy** (run
+`posttrainllm eval-sql` scores a predictions file by **execution accuracy** (run
 predicted vs gold SQL on the DB, compare result sets order-insensitively) plus
 normalized exact-match — the Spider metric, self-contained via `sqlite3`:
 
 ```bash
-tinygpt eval-sql preds.jsonl --db-dir ./dbs --out sql-rows.jsonl
+posttrainllm eval-sql preds.jsonl --db-dir ./dbs --out sql-rows.jsonl
 # preds.jsonl rows: {predicted_sql, gold_sql, db}
 ```
 
@@ -20,12 +20,12 @@ Core comparison + aggregation are unit-tested (`SqlEvalTests`).
 
 ## Remaining (needs a GPU)
 
-- **Training** — `tinygpt sft <base> --data spider-sft.jsonl --llrd 0.9`
+- **Training** — `posttrainllm sft <base> --data spider-sft.jsonl --llrd 0.9`
   (cookie-cut of A1's step 2), on a Spider/WikiSQL SFT export.
 - **Generation** — produce `predicted_sql` for the dev set by serving the
   adapter and prompting; eval-sql then scores it. (A dedicated
   generate-then-score path like eval-bfcl's is the small follow-up; for now
-  generate via `tinygpt serve <base> --lora b1.lora` + a client.)
+  generate via `posttrainllm serve <base> --lora b1.lora` + a client.)
 - **Gate** — `eval-gate` on execution-accuracy delta vs base.
 
 ## Status

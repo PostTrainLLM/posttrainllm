@@ -10,7 +10,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
-BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
+BIN="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
 
 TOK="${EXTRACTOR_BPE_TOKENIZER:-/tmp/gpt2-tok}"
 [ -f "$TOK/tokenizer.json" ] || { echo "SKIP: no BPE tokenizer at $TOK (set EXTRACTOR_BPE_TOKENIZER or fetch gpt2 — see header)"; exit 0; }

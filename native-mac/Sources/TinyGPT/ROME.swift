@@ -4,7 +4,7 @@ import MLXNN
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt rome` — surgical fact editing via rank-1 update to one
+/// `posttrainllm rome` — surgical fact editing via rank-1 update to one
 /// layer's MLP down-projection.
 ///
 /// Meng et al. 2022, "Locating and Editing Factual Associations in
@@ -24,7 +24,7 @@ import TinyGPTModel
 /// follow-up.
 ///
 /// USAGE
-///   tinygpt rome <model.tinygpt> --prompt "..." --target <byte>
+///   posttrainllm rome <model.tinygpt> --prompt "..." --target <byte>
 ///                --layer N --out <edited.tinygpt>
 ///
 ///   --prompt "..."      The full prompt the model should complete
@@ -37,7 +37,7 @@ import TinyGPTModel
 ///                       (default 1.0; lower → softer edit)
 ///
 /// EXAMPLE
-///   tinygpt rome shakespeare.tinygpt --prompt "ROMEO:" --target "X" \
+///   posttrainllm rome shakespeare.tinygpt --prompt "ROMEO:" --target "X" \
 ///       --layer 6 --out shakespeare-romeo-says-x.tinygpt
 ///
 /// After editing, sampling from the edited checkpoint with the same
@@ -283,7 +283,7 @@ enum ROME {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt rome <model.tinygpt> --prompt "..." --target <byte> \\
+        usage: posttrainllm rome <model.tinygpt> --prompt "..." --target <byte> \\
                             --layer N --out <edited.tinygpt> [--scale F]
 
         Rank-1 fact-editing of one MLP down-projection. Meng et al. 2022.

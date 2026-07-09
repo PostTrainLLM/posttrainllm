@@ -2,7 +2,7 @@
 
 **Date**: 2026-05-31
 **Hardware**: Apple M5 Pro, 48 GB, 18 cores (6 perf + 12 P), macOS 25F71
-**Harness**: `tinygpt bench --engine tinygpt` (greedy decode, seed=42)
+**Harness**: `posttrainllm bench --engine posttrainllm` (greedy decode, seed=42)
 **Commit**: d4a9de6
 **Question**: Where is the actual bottleneck on M5 Pro? Is cider's
 W8A8 worth the 4-7 day port?
@@ -147,7 +147,7 @@ Per `docs/research/wave_2_5_kernel_audit.md` §2, cider on M5 Pro:
    touch the bandwidth picture.
 
 5. **Effort cost is high**. cider is Python+C++ targeting MLX's C++
-   primitive interface; tinygpt is MLX-Swift. Port is 4-7 days, not
+   primitive interface; posttrainllm is MLX-Swift. Port is 4-7 days, not
    the 1-2 days a Python project would face. See research/wave_2_5_kernel_audit.md
    for the integration analysis.
 

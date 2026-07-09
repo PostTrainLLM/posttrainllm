@@ -1,4 +1,4 @@
-# TinyGPT — nightly training queue
+# posttrainllm — nightly training queue
 
 Project shape: **every night the Mac produces a training artifact.** Daytime
 work fills the queue and polishes infrastructure; nighttime runs through it.
@@ -9,8 +9,8 @@ work fills the queue and polishes infrastructure; nighttime runs through it.
    numbered lex-sortably.
 2. The runner [`scripts/nightly.sh`](scripts/nightly.sh) picks the
    lowest-numbered job that doesn't have a matching `.done` file in
-   `~/.cache/tinygpt/nightly/done/`, runs it under `caffeinate -di`, logs
-   to `~/.cache/tinygpt/nightly/logs/<ts>-<name>.log`, and posts a
+   `~/.cache/posttrainllm/nightly/done/`, runs it under `caffeinate -di`, logs
+   to `~/.cache/posttrainllm/nightly/logs/<ts>-<name>.log`, and posts a
    completion notification.
 3. Before bed: `./scripts/nightly.sh &`. Wake up to a done job + a log
    + a `/training-dashboard` JSONL ready to drop.
@@ -48,11 +48,11 @@ v2 work (see "Known blockers" at bottom):
       loss, 6.2 step/s steady state.
 **Known blockers (limit our recipe for now):**
 
-- `tinygpt download-dataset` saves parquet files as-is — no parquet→txt
+- `posttrainllm download-dataset` saves parquet files as-is — no parquet→txt
   decoder yet. Blocks FineWeb-Edu (richer pretrain, 2.4 GB on disk),
   UltraFeedback (DPO data), and any other parquet-only HF dataset.
-  **Daytime task**: add parquet decoding to `tinygpt download-dataset`
-  (or write a small `tinygpt parquet-to-txt` subcommand).
+  **Daytime task**: add parquet decoding to `posttrainllm download-dataset`
+  (or write a small `posttrainllm parquet-to-txt` subcommand).
 - `Salesforce/xlam-function-calling-60k` is gated — needs `HF_TOKEN`.
   Either `export HF_TOKEN=hf_…` or `huggingface-cli login`.
 - BFCL flat-emit hit a bug — `bfcl.jsonl` is 0 bytes. The cached HF
@@ -65,7 +65,7 @@ v2 work (see "Known blockers" at bottom):
   Output: `/tmp/sft-toolcaller-v1.lora`. **Recipe finalized after we
   see N02 base PPL + sample quality** — bad base → adjust SFT steps/lr.
 - N04 · dpo-toolcaller-v1 · ~6 hr · DPO LoRA on huge-base-v1 against
-  UltraFeedback (β=0.1, 1 epoch, rank 4). NOTE: tinygpt dpo's
+  UltraFeedback (β=0.1, 1 epoch, rank 4). NOTE: posttrainllm dpo's
   reference model is the BASE, not the SFT-tuned base, so this is a
   separate adapter from N03 rather than chained on top. v2 = adapter
   composition at inference + a `dpo --init-from-sft` flag.
@@ -82,7 +82,7 @@ Next queue depends on the numbers:
 
 ## Done
 
-(Touch a `~/.cache/tinygpt/nightly/done/<name>.done` marker to "complete"
+(Touch a `~/.cache/posttrainllm/nightly/done/<name>.done` marker to "complete"
 a job manually. Or run the job via the runner and the marker is created
 automatically on exit-0.)
 

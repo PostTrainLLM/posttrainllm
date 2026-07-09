@@ -2,12 +2,12 @@
 import Default from "../layouts/Default.astro";
 
 const layoutProps = {
-  title: "TinyGPT — leaderboard",
+  title: "posttrainllm — leaderboard",
   description: "Browser-trained, browser-runnable LLMs ranked on small benchmarks. Pareto views by params and by training compute.",
   ogType: "website",
-  ogTitle: "TinyGPT leaderboard",
+  ogTitle: "posttrainllm leaderboard",
   ogDescription: "Train an LLM in your browser tab. Submit it. See how it ranks against the gallery models and the community.",
-  twitterTitle: "TinyGPT leaderboard",
+  twitterTitle: "posttrainllm leaderboard",
   twitterDescription: "Train an LLM in your browser tab. Submit it. See how it ranks against the gallery models and the community.",
   themeColor: "#08090a",
 };
@@ -205,7 +205,7 @@ table.board td.params { font-family: monospace; color: var(--muted); }
         name: "FineWeb PPL (BPE)",
         lowerIsBetter: true,
         explainer:
-          "<strong>FineWeb PPL (BPE).</strong> Held-out perplexity over a 5MB FineWeb-style text slice, scored token-level using the model's BPE tokenizer. Lower is better. Byte-level browser-trained models score `null` (incompatible vocab); BPE models scored natively via `tinygpt score-bench` (see docs/bpe_browser_scoring.md).",
+          "<strong>FineWeb PPL (BPE).</strong> Held-out perplexity over a 5MB FineWeb-style text slice, scored token-level using the model's BPE tokenizer. Lower is better. Byte-level browser-trained models score `null` (incompatible vocab); BPE models scored natively via `posttrainllm score-bench` (see docs/bpe_browser_scoring.md).",
       },
     };
 

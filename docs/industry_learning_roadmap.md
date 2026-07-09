@@ -1,37 +1,37 @@
 # Industry learning roadmap
 
-This is the external learning track for TinyGPT. Use it after the repo-local
+This is the external learning track for posttrainllm. Use it after the repo-local
 [`archive/learning_roadmap.md`](archive/learning_roadmap.md): CS336 is the spine, and company
 docs/blogs are the applied case studies.
 
 The goal is not to copy frontier-scale infrastructure. The goal is to extract
-small, testable ideas that fit TinyGPT: better data, cleaner evals, stronger
+small, testable ideas that fit posttrainllm: better data, cleaner evals, stronger
 specialist training, and Mac-first runtime discipline.
 
 ## How to read
 
 1. Read the source.
 2. Write the one sentence lesson.
-3. Map it to a TinyGPT artifact: code, doc, eval, or explicit skip.
+3. Map it to a posttrainllm artifact: code, doc, eval, or explicit skip.
 4. Only implement if it improves a current Tier A/B item in `PLAN.md`.
 
 ## Module 0 - Course spine: Stanford CS336
 
 Source: [Stanford CS336 - Language Modeling from Scratch](https://cs336.stanford.edu/)
 
-Why it matters: CS336 is almost exactly TinyGPT's educational contract. It
+Why it matters: CS336 is almost exactly posttrainllm's educational contract. It
 walks through tokenizer/model/optimizer basics, systems profiling,
 FlashAttention, distributed memory efficiency, scaling laws, data filtering and
 deduplication, and SFT/RL-style post-training.
 
-TinyGPT mapping:
+posttrainllm mapping:
 
-| CS336 piece | TinyGPT anchor |
+| CS336 piece | posttrainllm anchor |
 |---|---|
 | Assignment 1: basics | `python_ref/`, `tests/test_phase1.py` |
 | Assignment 2: systems | `wasm/`, `webgpu/`, FA2 notes |
 | Assignment 3: scaling | `configs/`, `bench/`, `docs/benchmark_harness_design.md` |
-| Assignment 4: data | `tinygpt download-dataset`, `dedupe`, dataset registry |
+| Assignment 4: data | `posttrainllm download-dataset`, `dedupe`, dataset registry |
 | Assignment 5: alignment/reasoning RL | `sft`, `dpo`, future RLVR/Tier 5 reasoning |
 
 Action: add CS336 as the default external course for anyone learning the repo.
@@ -48,7 +48,7 @@ Lesson: small models do not win by architecture alone. They need unusually good
 data: educational-quality text, code subsets, deduplication, and scale-aware
 evaluation.
 
-TinyGPT actions:
+posttrainllm actions:
 
 - Keep B10: quality classifier on pretrain data.
 - Keep dedupe and MinHash dedupe in the default data path.
@@ -67,7 +67,7 @@ Lesson: post-training is a recipe, not a single dataset. The useful shape is
 SFT -> preference tuning -> verifiable-reward RL, with explicit data mixtures
 and evaluation.
 
-TinyGPT actions:
+posttrainllm actions:
 
 - Keep `docs/training/` as the canonical pretrain/SFT/DPO pipeline.
 - Add held-out task evals before claiming any specialist win.
@@ -80,7 +80,7 @@ Source: [DeepSeek-R1 official repo/report](https://github.com/deepseek-ai/DeepSe
 Lesson: reasoning gains come from verifiable rewards and long rollouts, but
 this is only meaningful after the base model and SFT path are stable.
 
-TinyGPT actions:
+posttrainllm actions:
 
 - Use math/code tasks with exact checkers before any LLM judge.
 - Start with GRPO/DAPO as mental models, not immediate production features.
@@ -97,7 +97,7 @@ Sources:
 Lesson: most useful agent systems are simple workflows with good tools. Multi-
 agent handoffs help only when the boundary is crisp.
 
-TinyGPT actions:
+posttrainllm actions:
 
 - Prefer tool quality and eval harnesses over more agent layers.
 - Keep the router/specialist boundary explicit: one specialist per task family.
@@ -111,7 +111,7 @@ Lesson: the stealable pieces are not 30T tokens or 6,144 GPUs. They are data
 mixing discipline, repeated agent evals, token-preserving trajectories, and
 careful sandbox budgets.
 
-TinyGPT actions:
+posttrainllm actions:
 
 - Keep B21: micro-AutoMixer for specialist data mixes.
 - Keep B22: token-preserving agent trajectory recorder.
@@ -130,7 +130,7 @@ Lesson: evals should be scenario-shaped and rubric-shaped, not just aggregate
 leaderboard numbers. Structured-output tasks need schema validity plus semantic
 grading.
 
-TinyGPT actions:
+posttrainllm actions:
 
 - Add custom evals for each specialist before training the specialist.
 - For JSON/tool/storyboard outputs, score both schema validity and task success.
@@ -145,9 +145,9 @@ Sources:
 
 Lesson: foundation-model reports are useful for phase structure, eval breadth,
 tokenizer and multilingual choices, and safety/post-training taxonomy. They are
-not directly actionable at TinyGPT scale.
+not directly actionable at posttrainllm scale.
 
-TinyGPT actions:
+posttrainllm actions:
 
 - Read these for vocabulary and comparison tables.
 - Do not chase 100B-scale architecture changes unless a tiny proxy can falsify
@@ -160,10 +160,10 @@ Sources:
 - [Apple MLX open-source project](https://opensource.apple.com/projects/mlx/)
 - [Apple MLX M5 LLM research note](https://machinelearning.apple.com/research/exploring-llms-mlx-m5)
 
-Lesson: TinyGPT's differentiator is not beating CUDA. It is making local,
+Lesson: posttrainllm's differentiator is not beating CUDA. It is making local,
 inspectable model training and inference work well on Apple Silicon.
 
-TinyGPT actions:
+posttrainllm actions:
 
 - Keep Mac-native MLX paths first-class.
 - Measure TTFT, throughput, memory, and energy before adding runtime tricks.
@@ -177,10 +177,10 @@ Sources:
 - [Qwen Image technical direction](https://arxiv.org/abs/2605.10730) for a
   larger-scale multimodal comparison point.
 
-Lesson: for TinyGPT, the feasible first step is a structured explainer compiler,
+Lesson: for posttrainllm, the feasible first step is a structured explainer compiler,
 not pixel-native video generation.
 
-TinyGPT actions:
+posttrainllm actions:
 
 - Keep Tier 5.7 scoped to prompt/doc -> script -> storyboard DSL -> deterministic
   render.
@@ -206,4 +206,4 @@ Each time a new source is added, update this file with one of:
 - **Adopt now**: exact Tier A/B task.
 - **Adopt later**: exact trigger.
 - **Study only**: why it is context, not roadmap.
-- **Skip**: why it does not fit TinyGPT.
+- **Skip**: why it does not fit posttrainllm.

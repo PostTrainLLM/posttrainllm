@@ -11,10 +11,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const { default: createTinyGPT } = await import(
+const { default: createposttrainllm } = await import(
   path.join(here, "..", "browser", "public", "tinygpt.js")
 );
-const M = await createTinyGPT();
+const M = await createposttrainllm();
 
 const N = "number";
 const create = M.cwrap("tg_model_create", N, [N, N, N, N, N, N, N]);

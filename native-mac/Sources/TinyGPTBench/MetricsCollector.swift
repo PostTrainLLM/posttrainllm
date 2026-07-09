@@ -125,7 +125,7 @@ public final class PowerSampler {
 
     private var process: Process?
     private var outputPipe: Pipe?
-    private var queue = DispatchQueue(label: "tinygpt.bench.powermetrics")
+    private var queue = DispatchQueue(label: "posttrainllm.bench.powermetrics")
     private var samples: [(t: Date, anePowerMW: Double, gpuPowerMW: Double, cpuPowerMW: Double)] = []
     private var samplesLock = NSLock()
     private var decodeStartTime: Date?

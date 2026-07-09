@@ -1,7 +1,7 @@
 {
   "_doc": "Example project pinning the routed file-ops specialist package. Use this only behind a domain router; it is not the general planner.",
   "name": "file-ops-specialist-project",
-  "tinygpt_version": ">=2026.06",
+  "posttrainllm_version": ">=2026.06",
   "models": [
     {
       "id": "qwen3-4b-file-ops-distilled",

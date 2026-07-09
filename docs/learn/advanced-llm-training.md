@@ -28,7 +28,7 @@ on 1024 GPUs and justify each axis." *Learn:* [ZeRO paper](https://arxiv.org/pdf
 **3. Comms–compute overlap & MFU.** All-gather/reduce-scatter overlapped
 with backward, bucketing, prefetch; diagnosing comms-bound vs compute-bound.
 "MFU is 35% on multi-node FSDP — which knobs?" *Learn:* [Ultra-Scale Playbook](https://huggingface.co/spaces/nanotron/ultrascale-playbook) · *staff*
-*In repo:* tinygpt is the **single-device counterexample** (`Train.swift`,
+*In repo:* posttrainllm is the **single-device counterexample** (`Train.swift`,
 unified memory, zero inter-device comms) — know FSDP to know what you're *not* paying for.
 
 ## Memory & precision
@@ -59,7 +59,7 @@ load-balancing loss, routing collapse / dead experts, capacity factor +
 token dropping, and the newer **aux-loss-free** bias adjustment (DeepSeek).
 "Dead + overloaded experts — diagnose and contrast aux-loss vs expert-choice
 vs loss-free." *Learn:* [Aux-Loss-Free Balancing](https://arxiv.org/abs/2408.15664) · *staff*
-*In repo:* tinygpt is dense; the MoE you actually run is qwen3-30b-a3b
+*In repo:* posttrainllm is dense; the MoE you actually run is qwen3-30b-a3b
 (Pace's planner) — the serving/expert-parallel angle is in
 [`advanced-llm-inference.md`](advanced-llm-inference.md).
 
@@ -67,8 +67,8 @@ vs loss-free." *Learn:* [Aux-Loss-Free Balancing](https://arxiv.org/abs/2408.156
 (fastText/classifier top-k%) → safety → dedup → domain upsampling; choosing
 mixture weights via proxy-model sweeps / DoReMi. "Decide code:web:books
 ratio and validate it without a full run." *Learn:* [DCLM](https://arxiv.org/abs/2406.11794) · *senior*
-*In repo:* `tinygpt train-quality-classifier` + `quality-filter` (B10,
-FineWeb-Edu-style scorer) and `tinygpt dedupe` are this pipeline in miniature.
+*In repo:* `posttrainllm train-quality-classifier` + `quality-filter` (B10,
+FineWeb-Edu-style scorer) and `posttrainllm dedupe` are this pipeline in miniature.
 
 **9. Dedup & decontamination.** Exact vs fuzzy (MinHash/LSH) vs semantic
 dedup; why it beats just saving tokens; eval-set contamination guards.
@@ -91,7 +91,7 @@ in GPU memory during PPO and where's it expensive?" *Learn:* [InstructGPT](https
 modes (off-policy drift, likelihood displacement) → iterative DPO, IPO,
 KTO, SimPO. "Derive why DPO needs no RM; when still prefer PPO?"
 *Learn:* [DPO paper](https://arxiv.org/abs/2305.18290) · *senior*
-*In repo:* `tinygpt dpo` (`DPO.swift`) — the implicit-reward loss in code.
+*In repo:* `posttrainllm dpo` (`DPO.swift`) — the implicit-reward loss in code.
 
 **13. GRPO & RL-for-reasoning (RLVR).** Drops the critic; advantage from
 group-normalized rewards over k samples/prompt; ties to DeepSeek-R1
@@ -109,14 +109,14 @@ reward over-optimization; when PRM over ORM?" *Learn:* [Lil'Log: Reward Hacking]
 labels (critique-revise + AI-preference RL); inference-time alignment via
 rejection sampling / best-of-N reranking with an RM. "When is RLAIF > RLHF;
 how does BoN trade train vs inference cost?" *Learn:* [Constitutional AI](https://arxiv.org/abs/2212.08073) · *senior*
-*In repo:* `tinygpt bon` (`BestOfN.swift`) is the inference-time BoN lever.
+*In repo:* `posttrainllm bon` (`BestOfN.swift`) is the inference-time BoN lever.
 
 **16. Distillation & continued pretraining.** Logit/sequence distillation,
 domain-adaptive continued pretraining, and forgetting mitigations (replay,
 re-warming, distill-as-regularizer, LoRA isolation). "New domain via
 continued pretraining tanks general benchmarks — fix without re-pretraining."
 *Learn:* [Scalable Continued Pretraining](https://arxiv.org/abs/2403.08763) · *senior*
-*In repo:* `tinygpt distill` (`Distill.swift`); the historical v1–v11 arc
+*In repo:* `posttrainllm distill` (`Distill.swift`); the historical v1–v11 arc
 (`docs/RETROSPECTIVE.md`) is a documented catastrophic-forgetting case
 (47pp OOS regression from 38 rows).
 

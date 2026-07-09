@@ -1,6 +1,6 @@
 # External Products And Research Reviewed
 
-This page records products, startups, papers, and blogs that changed the TinyGPT
+This page records products, startups, papers, and blogs that changed the posttrainllm
 roadmap. It is a teardown ledger: what we learned, what we stole, what we
 rejected, and what still needs a local experiment.
 
@@ -11,20 +11,20 @@ Every external review should answer:
 - What is the source?
 - What claim or technique matters?
 - Is it method-level or recipe-level?
-- What is the TinyGPT translation?
+- What is the posttrainllm translation?
 - Did we adopt, scaffold, try, reject, or park it?
 - What is the next smallest experiment?
 
 ## Reviewed Sources
 
-| Source | What Mattered | TinyGPT Translation | Status | Next Action |
+| Source | What Mattered | posttrainllm Translation | Status | Next Action |
 |---|---|---|---|---|
 | TrainLoop AI | Case studies emphasize failed-attempt accounting, slice metrics, trace review, candidate selection, batch-first post-training, policy lag, and LoRA geometry | Added technique registry, SQL candidate-selection tooling, slice metrics, trace review, batch plan renderer, LoRA geometry docs/tooling | `scaffolded` | Run SQL candidate-selection model experiment |
 | TrainLoop NollaMD case study | Multiple-choice/candidate-selection framing can unlock sparse tasks where open generation is too hard | Use SQL candidate selection before open SQL generation | `scaffolded` | Build/train/eval candidate-selection SQL recipe |
 | TrainLoop OAPL writeup | Batch rollouts + offline scoring + compact update; policy lag can stabilize learning | Add batch post-training plan and defer OAPL-style run until reward surface is clean | `scaffolded` | Use after candidate-selection has evidence |
 | TrainLoop LoRA writeup | Effective-update geometry and controlled rank/layer analysis matter | Add LoRA geometry diagnostics and plan a controlled rank sweep | `scaffolded` | Attach `lora-geometry.json` to next adapter run |
 | TrainLoop Mercor coding-agent post | Coding-native harnesses can beat bespoke tool APIs for knowledge-work agents | Keep future coding-agent/product work file/code-native | `parked` | Revisit when coding-agent product becomes active |
-| Baseten post-training positioning | Post-training is custom data + RL/reward shaping + performance + infra, not generic fine-tune UI | Reframed TinyGPT as Mac-local specialist factory | `adopted` | Keep factory docs centered on data/post-training/eval/perf/package/report |
+| Baseten post-training positioning | Post-training is custom data + RL/reward shaping + performance + infra, not generic fine-tune UI | Reframed posttrainllm as Mac-local specialist factory | `adopted` | Keep factory docs centered on data/post-training/eval/perf/package/report |
 | Hugging Face model hub / SQL specialists | Small public SQL models create realistic baselines | Compared against `cssupport/t5-small-awesome-text-to-sql`; scanned `prem-1B-SQL`, Qwen SQL variants, SQLCoder | `tried` | Add public execution benchmark before claiming serious SQL competitiveness |
 | Defog SQLCoder / Arctic Text2SQL class models | Strong SQL systems report execution accuracy on serious SQL benchmarks, not only exact string match | Treat BIRD/Spider execution as required next public SQL gate | `adopted` | Build/run Spider or BIRD Mini execution gate |
 | Apple on-device Foundation Models | Useful as a free routing floor, not a capability dependency | Documented measured limitations and ruled out adapter dependency | `rejected-for-core` | Keep our own model/eval gate as differentiation |

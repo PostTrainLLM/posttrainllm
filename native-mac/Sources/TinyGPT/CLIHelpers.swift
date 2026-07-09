@@ -27,7 +27,7 @@ func runBlocking<T>(_ work: @escaping () async throws -> T) throws -> T {
     sem.wait()
     if let e = error { throw e }
     guard let v = boxed else {
-        throw NSError(domain: "TinyGPT.runBlocking", code: 99,
+        throw NSError(domain: "posttrainllm.runBlocking", code: 99,
                       userInfo: [NSLocalizedDescriptionKey: "async operation returned nil"])
     }
     return v

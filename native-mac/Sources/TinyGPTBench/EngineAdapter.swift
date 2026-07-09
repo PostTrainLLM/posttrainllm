@@ -22,7 +22,7 @@ public protocol EngineAdapter {
 
     /// Engine commit hash if available. Foreign engines fill this in by
     /// shelling out to their binary's `--version`; the in-process
-    /// TinyGPT engine returns this repo's HEAD.
+    /// posttrainllm engine returns this repo's HEAD.
     var commitHash: String? { get }
 
     /// Load weights + tokenizer from disk. May be slow; not timed.
@@ -122,7 +122,7 @@ public enum EngineError: Error, CustomStringConvertible {
 /// path so we have real numbers from day one. Stays in-process for
 /// minimum overhead; the harness does NOT subprocess itself.
 public final class TinyGPTEngine: EngineAdapter {
-    public let name = "tinygpt"
+    public let name = "posttrainllm"
     public let commitHash: String?
 
     private var model: AnyModel?
@@ -197,7 +197,7 @@ public final class TinyGPTEngine: EngineAdapter {
         guard let model = self.model, let cfg = self.config, let cache = self.cache else {
             throw EngineError.modelNotLoaded
         }
-        // The TinyGPT KV path is B=1 today; the harness reports the
+        // The posttrainllm KV path is B=1 today; the harness reports the
         // discrepancy rather than over-claiming.
         if batchSize > 1 {
             // No-op; we still run B=1 and report effective batch=1.

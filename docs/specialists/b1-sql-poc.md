@@ -36,15 +36,15 @@ Expected dry-run scores:
 | Baseline fixture | 0.667 | 0.167 | 6 |
 | Candidate fixture | 0.833 | 0.833 | 6 |
 
-The smoke also checks row-level failure logging from `tinygpt eval-sql --out`.
+The smoke also checks row-level failure logging from `posttrainllm eval-sql --out`.
 
 ## Live POC Steps
 
 1. Generate SQL from the base model on `evals/sql-poc/dev.jsonl`.
-2. Score it with `tinygpt eval-sql`.
+2. Score it with `posttrainllm eval-sql`.
 3. Train the cheapest LoRA SFT candidate on `evals/sql-poc/train.jsonl`.
 4. Generate SQL from base+adapter on the same frozen dev set.
-5. Score candidate output with `tinygpt eval-sql`.
+5. Score candidate output with `posttrainllm eval-sql`.
 6. Render a `runs/<date>-sql-poc/` folder with baseline, candidate, row traces,
    report, and decision.
 
@@ -77,7 +77,7 @@ Xcode. Use:
 
 ```bash
 DEVELOPER_DIR=/Applications/Xcode-27.0.0-Beta.app/Contents/Developer \
-  swift build --build-system native --product tinygpt
+  swift build --build-system native --product posttrainllm
 ```
 
 ## Expanded POC Result
@@ -149,7 +149,7 @@ HF specialized model scan:
 
 | Candidate | Size / shape | Practical note |
 |---|---:|---|
-| `cssupport/t5-small-awesome-text-to-sql` | ~242 MB, T5 seq2seq | Small, public, strong cheap baseline; not TinyGPT-runtime compatible. |
+| `cssupport/t5-small-awesome-text-to-sql` | ~242 MB, T5 seq2seq | Small, public, strong cheap baseline; not posttrainllm-runtime compatible. |
 | `prem-research/prem-1B-SQL` | ~1.35B params, Llama-family | Best next sub-4B SQL specialist to inspect/load; full download is multi-GB. |
 | `Ellbendls/Qwen-2.5-3b-Text_to_SQL` | ~3.1B params, Qwen2 | Relevant under the "smaller than 4B" constraint, but still a larger candidate. |
 | `defog/sqlcoder-7b-2` | ~6.7B params | Strong known specialist, but above the current smallest-model target. |
@@ -183,7 +183,7 @@ Curriculum mix:
 Next run:
 
 ```bash
-native-mac/.build/debug/tinygpt sft \
+native-mac/.build/debug/posttrainllm sft \
   ~/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B/snapshots/c1899de289a04d12100db370d81485cdf75e47ca \
   --data evals/sql-public-bmc2-train/train.jsonl \
   --template plain \
@@ -317,7 +317,7 @@ adapters separate and test adapter merge or routing:
 
 ## Adapter Composition Sweep
 
-Implementation: `tinygpt serve` and `tinygpt generate` now accept repeatable
+Implementation: `posttrainllm serve` and `posttrainllm generate` now accept repeatable
 `--lora` plus `--lora-weight`, using the existing HF multi-LoRA stack injection.
 
 Adapters:
@@ -401,7 +401,7 @@ Public execution gate scaffolding:
 - Smoke: `evals/sql-spider-execution-smoke.sh`.
 - Input shape: local Spider bundle with `dev.json` and
   `database/<db_id>/<db_id>.sqlite`.
-- Output: `dev.jsonl` rows compatible with `tinygpt eval-sql --db-dir
+- Output: `dev.jsonl` rows compatible with `posttrainllm eval-sql --db-dir
   <spider-root>` after generation adds `predicted_sql`.
 
 ## BIRD-Augmented Public v5 Attempt

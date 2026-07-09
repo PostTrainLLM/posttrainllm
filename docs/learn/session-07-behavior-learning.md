@@ -232,20 +232,20 @@ demonstrations. The combination beats either component used alone.
 
 ---
 
-## RLHF specifically (since this is what TinyGPT supports)
+## RLHF specifically (since this is what posttrainllm supports)
 
 RLHF = Reinforcement Learning from Human Feedback. The three-stage
 recipe used to turn a base LM into ChatGPT/Claude:
 
 1. **Pretrain.** Self-supervised on web text. Model learns language
-   structure. (TinyGPT's `tinygpt train` does this.)
+   structure. (posttrainllm's `posttrainllm train` does this.)
 2. **SFT (Supervised Fine-Tune).** Imitation on `(prompt, ideal_response)`
-   pairs from humans. Teaches the assistant persona. (TinyGPT's `tinygpt
+   pairs from humans. Teaches the assistant persona. (posttrainllm's `posttrainllm
    sft` does this.)
 3. **RL on preferences.** Humans rate pairs of responses; train a reward
    model on the ratings; then use PPO (policy gradient) to fine-tune
-   the LM to produce responses the reward model rates highly. (TinyGPT's
-   `tinygpt dpo` is a related but simpler variant.)
+   the LM to produce responses the reward model rates highly. (posttrainllm's
+   `posttrainllm dpo` is a related but simpler variant.)
 
 What gets learned at each stage:
 - Stage 1: language and world facts.

@@ -22,15 +22,15 @@ KERNELS=(
 
 echo "compiling kernel tests with $CXX ..."
 "$CXX" "${FLAGS[@]}" "${KERNELS[@]}" \
-  "$ROOT"/tests/test_wasm_kernels.cpp -o "$TMP"/tinygpt_test_kernels
+  "$ROOT"/tests/test_wasm_kernels.cpp -o "$TMP"/posttrainllm_test_kernels
 
 echo "compiling model tests with $CXX ..."
 "$CXX" "${FLAGS[@]}" "${KERNELS[@]}" "$ROOT"/wasm/src/model.cpp \
-  "$ROOT"/tests/test_wasm_model.cpp -o "$TMP"/tinygpt_test_model
+  "$ROOT"/tests/test_wasm_model.cpp -o "$TMP"/posttrainllm_test_model
 
 echo
 echo "=== kernel tests ==="
-"$TMP"/tinygpt_test_kernels
+"$TMP"/posttrainllm_test_kernels
 echo
 echo "=== model tests ==="
-"$TMP"/tinygpt_test_model
+"$TMP"/posttrainllm_test_model

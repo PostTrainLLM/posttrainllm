@@ -19,7 +19,7 @@ CURRICULUM_NEEDLES = [
     "## Where Existing Sessions Fit",
     "## Current Starting Point",
     "## Checkpoint Template",
-    "concept -> toy implementation -> TinyGPT anchor -> factory consequence",
+    "concept -> toy implementation -> posttrainllm anchor -> factory consequence",
     "functions, data, parameters",
     "loss and gradient descent",
     "vectors, matrices, tensors",

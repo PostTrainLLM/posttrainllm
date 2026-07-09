@@ -1,4 +1,4 @@
-# Recipe — distill function-calling from Phi-3-mini → TinyGPT-Huge
+# Recipe — distill function-calling from Phi-3-mini → posttrainllm-Huge
 
 **Goal:** produce a 22M-param specialist that matches Phi-3-mini-4k-instruct
 (3.8B) on function-call accuracy while running 15-30× faster and using
@@ -29,10 +29,10 @@ Compare three models on the same BFCL benchmark + the same Mac:
 | Model | Params | What we expect |
 |---|---|---|
 | **Phi-3-mini-4k-instruct** (teacher) | 3.8B | quality reference; the bar we want to match |
-| **TinyGPT-Huge-FC** (our distilled student) | 22M | ≥ 90% of teacher's BFCL accuracy; **15-30× faster**, **150× less memory** |
+| **posttrainllm-Huge-FC** (our distilled student) | 22M | ≥ 90% of teacher's BFCL accuracy; **15-30× faster**, **150× less memory** |
 | **SmolLM2-135M-Instruct** (size-class peer baseline) | 135M | should LOSE to us on BFCL — it's instruct-tuned, not FC-specialized |
 
-If TinyGPT-Huge-FC hits the middle row spec, that's the win. Performance
+If posttrainllm-Huge-FC hits the middle row spec, that's the win. Performance
 optimizations (quantization, KV cache, ANE, spec-dec) come after.
 
 ## Pipeline
@@ -54,7 +54,7 @@ python3 scripts/distill-prep.py \
     --task fc \
     --sources hermes-fc,fcc \
     --target-rows 10000 \
-    --out ~/.cache/tinygpt/datasets/distill-fc-inputs.jsonl
+    --out ~/.cache/posttrainllm/datasets/distill-fc-inputs.jsonl
 ```
 
 (Need to write `scripts/distill-prep.py` — it's a thin reformatter; the
@@ -62,11 +62,11 @@ existing `scripts/scaledown-prep.py` is the pattern.)
 
 ### 2. Label with the teacher
 
-Run Phi-3-mini-4k locally via `tinygpt serve` or HF transformers:
+Run Phi-3-mini-4k locally via `posttrainllm serve` or HF transformers:
 
 ```bash
 # Spin up Phi-3 as an OpenAI-compatible endpoint.
-# Easiest path: use existing `tinygpt run-lm-eval --hf-model` machinery
+# Easiest path: use existing `posttrainllm run-lm-eval --hf-model` machinery
 # with a relabel mode (TODO: add `--relabel` flag to RunLmEval).
 
 # OR — simpler — use llama-cpp-python / HF transformers from a Python
@@ -74,21 +74,21 @@ Run Phi-3-mini-4k locally via `tinygpt serve` or HF transformers:
 
 python3 scripts/distill-label.py \
     --teacher microsoft/Phi-3-mini-4k-instruct \
-    --input ~/.cache/tinygpt/datasets/distill-fc-inputs.jsonl \
-    --out ~/.cache/tinygpt/datasets/distill-fc-labeled.jsonl
+    --input ~/.cache/posttrainllm/datasets/distill-fc-inputs.jsonl \
+    --out ~/.cache/posttrainllm/datasets/distill-fc-labeled.jsonl
 ```
 
 Expected wall time: ~30 ms/row × 10K = ~5 min on Mac (M5 Pro), but Phi-3
 will hog 8 GB; do this when N02 finishes.
 
-### 3. SFT TinyGPT-Huge on the labeled data
+### 3. SFT posttrainllm-Huge on the labeled data
 
 ```bash
-tinygpt train \
-    --base ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt \
+posttrainllm train \
+    --base ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt \
     --preset huge \
     --tokenizer <SmolLM2 dir> \
-    --corpus ~/.cache/tinygpt/datasets/distill-fc-labeled.jsonl \
+    --corpus ~/.cache/posttrainllm/datasets/distill-fc-labeled.jsonl \
     --task sft-distill \
     --steps 20000 \
     --batch 4 --accum 4 \
@@ -96,8 +96,8 @@ tinygpt train \
     --max-lr 1e-4 --min-lr 1e-5 \
     --save-every 1000 --save-history \
     --val-split 0.02 --val-every 200 \
-    --log-jsonl ~/.cache/tinygpt/runs/huge-fc-distill/huge-fc-distill.jsonl \
-    --out ~/.cache/tinygpt/runs/huge-fc-distill/huge-fc-distilled.tinygpt
+    --log-jsonl ~/.cache/posttrainllm/runs/huge-fc-distill/huge-fc-distill.jsonl \
+    --out ~/.cache/posttrainllm/runs/huge-fc-distill/huge-fc-distilled.tinygpt
 ```
 
 Expected wall time: ~45 min on M5 Pro (estimate from N02's 7 step/s).
@@ -106,11 +106,11 @@ Expected wall time: ~45 min on M5 Pro (estimate from N02's 7 step/s).
 
 ```bash
 # Quality.
-tinygpt eval-bfcl /tmp/huge-fc-distilled.tinygpt \
+posttrainllm eval-bfcl /tmp/huge-fc-distilled.tinygpt \
     --out docs/artifacts/distill-fc-quality.jsonl
-tinygpt eval-bfcl microsoft/Phi-3-mini-4k-instruct \
+posttrainllm eval-bfcl microsoft/Phi-3-mini-4k-instruct \
     --baseline --out docs/artifacts/distill-fc-quality.jsonl
-tinygpt eval-bfcl HuggingFaceTB/SmolLM2-135M-Instruct \
+posttrainllm eval-bfcl HuggingFaceTB/SmolLM2-135M-Instruct \
     --baseline --out docs/artifacts/distill-fc-quality.jsonl
 
 # Speed + memory.
@@ -122,7 +122,7 @@ scripts/bench-perf.sh microsoft/Phi-3-mini-4k-instruct
 Render:
 
 ```bash
-tinygpt eval-compare docs/artifacts/distill-fc-quality.jsonl --by model
+posttrainllm eval-compare docs/artifacts/distill-fc-quality.jsonl --by model
 ```
 
 ## Variants for "even better"
@@ -148,7 +148,7 @@ quality bar is hit, fire these in order:
 1. **GGUF quantization** (B17, already shipped) — Q8 → Q5 → Q4 step-down
    gives 4× more memory headroom; usually <1% quality drop. Use existing
    `gguf-extract` toolchain.
-2. **KV cache for `tinygpt serve`** — currently disabled per
+2. **KV cache for `posttrainllm serve`** — currently disabled per
    `serve.swift:986` ("KV cache is built fresh each call"). For batched
    eval and long sessions, KV cache cuts per-token cost dramatically.
 3. **Speculative decoding** (B14, already shipped) — use the student as
@@ -157,7 +157,7 @@ quality bar is hit, fire these in order:
 4. **ANE (Apple Neural Engine) inference** (queued #193) — 22M-param
    model is small enough to fit on the NE; potential 5-10× speedup on
    M5 hardware, ~0 power draw.
-5. **MLX compile + fusion** — `tinygpt sample --compile` already
+5. **MLX compile + fusion** — `posttrainllm sample --compile` already
    exists; ensure serve uses it.
 
 Stacked: distilled student + Q5 GGUF + KV cache + spec-dec + ANE
@@ -166,11 +166,11 @@ while using 1/300th the memory.
 
 ## Acceptance criteria for "v1 done"
 
-1. `docs/artifacts/distill-fc-quality.jsonl` shows TinyGPT-Huge-FC
+1. `docs/artifacts/distill-fc-quality.jsonl` shows posttrainllm-Huge-FC
    within 10 percentage points of Phi-3-mini-4k on BFCL.
-2. `tokens/sec` for TinyGPT-Huge-FC ≥ 10× Phi-3-mini-4k on the same
+2. `tokens/sec` for posttrainllm-Huge-FC ≥ 10× Phi-3-mini-4k on the same
    prompts, same Mac.
-3. Peak RSS for TinyGPT-Huge-FC < 200 MB; Phi-3-mini-4k > 4 GB.
+3. Peak RSS for posttrainllm-Huge-FC < 200 MB; Phi-3-mini-4k > 4 GB.
 4. Three-row JSONL renders cleanly via `eval-compare --by model`.
 5. A short writeup in `docs/sessions/<date>-distill-v1.md` covering the
    recipe + the numbers + what didn't work.
@@ -196,8 +196,8 @@ while using 1/300th the memory.
 | `scripts/distill-prep.py` | dataset sampler (TODO) |
 | `scripts/distill-label.py` | teacher inference loop (TODO) |
 | `scripts/bench-perf.sh` | tokens/sec + RSS benchmark (TODO) |
-| `~/.cache/tinygpt/datasets/distill-fc-inputs.jsonl` | unlabeled inputs (TODO) |
-| `~/.cache/tinygpt/datasets/distill-fc-labeled.jsonl` | (input, teacher_output) pairs (TODO) |
+| `~/.cache/posttrainllm/datasets/distill-fc-inputs.jsonl` | unlabeled inputs (TODO) |
+| `~/.cache/posttrainllm/datasets/distill-fc-labeled.jsonl` | (input, teacher_output) pairs (TODO) |
 | `/tmp/huge-fc-distilled.tinygpt` | trained student |
 | `docs/artifacts/distill-fc-quality.jsonl` | 3-model BFCL comparison |
 

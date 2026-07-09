@@ -11,7 +11,7 @@ related_prds: docs/research/mac_decode_baseline_m5pro.md (decode baseline; this 
 
 ## Goal
 
-Verify, on TinyGPT's actual MLX path, the [Apple ML Research,
+Verify, on posttrainllm's actual MLX path, the [Apple ML Research,
 2026](https://machinelearning.apple.com/research/exploring-llms-mlx-m5)
 claim that the M5 Neural Accelerator delivers 3.5–4× faster prefill
 vs M4 on the same workload. Bump `mlx-swift` to the latest (0.31.4+)
@@ -25,7 +25,7 @@ Half-day. Free win if confirmed; the bump is reversible.
 - Current pin: `mlx-swift 0.31.3` on macOS 26.5 / M5 Pro (well past
   the 26.2 floor Apple cites). Whether the M5 NA paths are already
   hot or still gated by a version bump is the open question.
-- If Apple's claim holds, TinyGPT inherits a 3.5–4× prefill speedup
+- If Apple's claim holds, posttrainllm inherits a 3.5–4× prefill speedup
   with no code changes — material for the bigger specialist models
   in the model zoo.
 - If the claim doesn't hold on our path, the negative finding is

@@ -6,12 +6,12 @@
 import Default from "../layouts/Default.astro";
 
 const layoutProps = {
-  title: "TinyGPT — devlog",
-  description: "Notes from building TinyGPT — kernel measurements, honest negative results, decisions made while AI-pairing.",
+  title: "posttrainllm — devlog",
+  description: "Notes from building posttrainllm — kernel measurements, honest negative results, decisions made while AI-pairing.",
   ogType: "article",
-  ogTitle: "TinyGPT — devlog: kernel measurements + honest negative results",
+  ogTitle: "posttrainllm — devlog: kernel measurements + honest negative results",
   ogDescription: "What worked, what didn't. f16 doesn't compound on top of tiling. 8×8 register block lost to 4×4. vec4 wins standalone but a WGSL access-mode mismatch breaks integration — until you find it.",
-  twitterTitle: "TinyGPT — devlog",
+  twitterTitle: "posttrainllm — devlog",
   twitterDescription: "Kernel measurements, honest negative results, decisions made while AI-pairing on a GPT-2 implementation.",
   themeColor: "#0a0c10",
   loadFonts: false,
@@ -170,8 +170,8 @@ const pageStyle = `
 const pageBody = `
     <div class="wrap">
       <header>
-        <div class="crumb"><a href="/">← TinyGPT</a> · <a href="/roadmap">roadmap</a> · devlog · <a href="/docs">docs</a></div>
-        <h1>Devlog — building TinyGPT while pair-programming with AI</h1>
+        <div class="crumb"><a href="/">← posttrainllm</a> · <a href="/roadmap">roadmap</a> · devlog · <a href="/docs">docs</a></div>
+        <h1>Devlog — building posttrainllm while pair-programming with AI</h1>
         <p class="sub">
           Decisions made, measurements taken, things that didn't work. Most of this came out of
           live AI-pair-programming sessions; the dialogue is condensed but the numbers are
@@ -180,7 +180,7 @@ const pageBody = `
       </header>
 
       <p>
-        TinyGPT started as a teaching project — a GPT-2-shaped model implemented from scratch
+        posttrainllm started as a teaching project — a GPT-2-shaped model implemented from scratch
         in Python, then ported to C++/WASM for the browser, then to WebGPU. Somewhere along
         the way it became a speed-optimization project too. The interesting part isn't the
         final number; it's <em>which optimizations worked, which didn't, and why</em>. That's
@@ -209,7 +209,7 @@ const pageBody = `
         the module to 64-bit pointers, lifting the cap into the tens of GB on Chromium
         133+ and Firefox 134+. The build script
         (<code>wasm/build_wasm64.sh</code>) produces a separate
-        <code>tinygpt64.{js,wasm}</code> module — same C++ source, just compiled with the
+        <code>posttrainllm64.{js,wasm}</code> module — same C++ source, just compiled with the
         new flags. Runtime feature-detection picks the right module.
       </p>
 
@@ -478,7 +478,7 @@ WebGPU + FA2 fwd
           same way the gradients are. Fixed in
           <code>browser/src/types.ts</code> and
           <code>browser/src/pages/index.astro</code>. Full write-up in
-          <a href="https://github.com/sarthak-fleet/tinygpt/blob/main/docs/archive/lessons.md">
+          <a href="https://github.com/sarthak-fleet/posttrainllm/blob/main/docs/archive/lessons.md">
             <code>docs/archive/lessons.md</code></a>.
         </p>
       </div>
@@ -554,7 +554,7 @@ WebGPU + FA2 fwd
         <span>·</span>
         <a href="/roadmap">Roadmap (with the full benchmark log)</a>
         <span>·</span>
-        <a href="https://github.com/sarthak-fleet/tinygpt" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="https://github.com/sarthak-fleet/posttrainllm" target="_blank" rel="noopener">GitHub ↗</a>
       </footer>
     </div>
   `;

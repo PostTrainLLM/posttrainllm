@@ -1,7 +1,7 @@
 {
-  "_doc": "Example tinygpt.project.json — per-project model + dataset pins. Read by `tinygpt pull` and `tinygpt validate`. See docs/prds/B31-gallery-and-project-pins.md for the schema.",
+  "_doc": "Example posttrainllm.project.json — per-project model + dataset pins. Read by `posttrainllm pull` and `posttrainllm validate`. See docs/prds/B31-gallery-and-project-pins.md for the schema.",
   "name": "example-pace-project",
-  "tinygpt_version": ">=2026.06",
+  "posttrainllm_version": ">=2026.06",
   "models": [
     {
       "id": "qwen3-4b-instruct-2507",
@@ -25,20 +25,20 @@
     }
   ],
   "eval": {
-    "_doc": "Optional B32 eval-gate spec. `tinygpt eval-gate` reads this as zero-config. threshold/default_threshold are in percentage points; per-suite `command` writes EvalCompare.Row JSONL to $TINYGPT_EVAL_OUT.",
+    "_doc": "Optional B32 eval-gate spec. `posttrainllm eval-gate` reads this as zero-config. threshold/default_threshold are in percentage points; per-suite `command` writes EvalCompare.Row JSONL to $TINYGPT_EVAL_OUT.",
     "baseline": "evals/baseline.jsonl",
     "default_threshold": 2.0,
     "suites": [
       {
         "name": "bfcl",
         "task": "bfcl",
-        "command": ["tinygpt", "eval-bfcl", "model.tinygpt", "--out", "$TINYGPT_EVAL_OUT"]
+        "command": ["posttrainllm", "eval-bfcl", "model.tinygpt", "--out", "$TINYGPT_EVAL_OUT"]
       },
       {
         "name": "tau",
         "task": "tau",
         "threshold": 3.0,
-        "command": ["tinygpt", "eval-tau-bench", "model.tinygpt", "--out", "$TINYGPT_EVAL_OUT"]
+        "command": ["posttrainllm", "eval-tau-bench", "model.tinygpt", "--out", "$TINYGPT_EVAL_OUT"]
       }
     ]
   }

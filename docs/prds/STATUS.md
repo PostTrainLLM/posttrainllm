@@ -28,7 +28,7 @@ priority/archive map in `docs/prds/PRIORITY.md`.
 
 > **B31 → done** (#45/#46/#47): browser `kind` discriminator (aligned to the
 > Swift `GalleryModelKind` raw values — fixed a mismatch), pin-aware `pull`
-> (resolves the base pin from `tinygpt.project.json`), and `validate-project`
+> (resolves the base pin from `posttrainllm.project.json`), and `validate-project`
 > (structural + `--gallery` resolve). Leftovers are the R2 download (needs
 > credentials) and B6's GUI picker (B6's scope), not B31 code.
 
@@ -70,7 +70,7 @@ a cloud API, or are multi-week from-scratch model builds (Tier 5 5.1–5.7).
 
 All verified by `swift test` / smoke scripts. Build note: Xcode-27's default
 build system has a broken incremental relink; use `swift build --build-system
-native --product tinygpt`.
+native --product posttrainllm`.
 
 | PRD | What shipped | Verification |
 |---|---|---|
@@ -177,4 +177,4 @@ status disagree. For active work, start from `PROJECT_STATUS.md` and
 - **factory-completeness-tracker** — tracking matrix; its primitive claims hold up in code.
 - **factory-vision-m4-architecture-decision** — decision made (Option A, UI-Venus base) and acted on.
 - **pace-planner-v11-ship-gate** — gate-criteria doc; honored (v11 run once, failed all dims, 30B kept).
-- **tinygpt-product-thesis** — positioning/strategy doc.
+- **posttrainllm-product-thesis** — positioning/strategy doc.

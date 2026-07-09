@@ -3,7 +3,7 @@
 
 Input is intentionally tolerant because xLAM-style datasets appear in a few
 shapes. The script looks for an intent/user prompt, a tools list, and a target
-tool call. Output rows are `{instruction,response}` for `tinygpt sft`.
+tool call. Output rows are `{instruction,response}` for `posttrainllm sft`.
 """
 
 from __future__ import annotations

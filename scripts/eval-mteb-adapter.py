@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Thin MTEB wrapper for tinygpt eval-mteb.
+"""Thin MTEB wrapper for posttrainllm eval-mteb.
 
 Runs a subset of BEIR/MTEB tasks and writes a compact JSON summary that
 EvalMTEB.swift converts into E0 JSONL rows.
 
-Usage (invoked by tinygpt eval-mteb, not directly):
+Usage (invoked by posttrainllm eval-mteb, not directly):
   python3 scripts/eval-mteb-adapter.py --model BAAI/bge-small-en --hf \
       --tasks BEIR/scifact --limit 100 --results-json /tmp/out.json
 """
@@ -57,9 +57,9 @@ def main() -> int:
             return 1
         model = SentenceTransformer(args.model)
     else:
-        # Future: tinygpt embed CLI. For now, fail clearly.
+        # Future: posttrainllm embed CLI. For now, fail clearly.
         print(
-            f"tinygpt embedder path {args.model} — embed CLI not shipped yet; use --hf-model for HF baselines",
+            f"posttrainllm embedder path {args.model} — embed CLI not shipped yet; use --hf-model for HF baselines",
             file=sys.stderr,
         )
         return 1

@@ -11,8 +11,8 @@ accumulate fastest. Training on the raw blob bakes in that imbalance
 and makes the resulting specialist worse at multi-hop and comparison
 prompts even though both are present in the data.
 
-This recipe runs **B30** (`tinygpt reasoning-classify`) over the
-synthesized JSONL before B29 hands it to `tinygpt sft`, so the depth
+This recipe runs **B30** (`posttrainllm reasoning-classify`) over the
+synthesized JSONL before B29 hands it to `posttrainllm sft`, so the depth
 ratio is a knob the operator sets explicitly.
 
 ## Pipeline
@@ -20,12 +20,12 @@ ratio is a knob the operator sets explicitly.
 ```
 .atraj rollouts            (B22)
    ↓
-tinygpt traces-to-data     (B29)  →  raw-sft.jsonl
+posttrainllm traces-to-data     (B29)  →  raw-sft.jsonl
    ↓
-tinygpt reasoning-classify --score      → scored.jsonl
-tinygpt reasoning-classify --filter     → balanced.jsonl
+posttrainllm reasoning-classify --score      → scored.jsonl
+posttrainllm reasoning-classify --filter     → balanced.jsonl
    ↓
-tinygpt sft --data balanced.jsonl       (Tier A)
+posttrainllm sft --data balanced.jsonl       (Tier A)
 ```
 
 ## Step 1 — train the depth classifier (one-time per dataset family)
@@ -36,7 +36,7 @@ enough to bootstrap. Castform's published mix examples use a
 apply here.
 
 ```bash
-tinygpt reasoning-classify \
+posttrainllm reasoning-classify \
   --train labeled-seed.jsonl \
   --heldout labeled-heldout.jsonl \
   --out reason.tgfr
@@ -48,7 +48,7 @@ Expected output: per-class precision / recall / F1, model written to
 ## Step 2 — score the trace-dump corpus
 
 ```bash
-tinygpt reasoning-classify \
+posttrainllm reasoning-classify \
   --score raw-sft.jsonl \
   --model reason.tgfr \
   --out scored.jsonl
@@ -60,7 +60,7 @@ tokenization (~hundreds of MB/s on M-series), not arithmetic.
 ## Step 3 — downsample to a target mix
 
 ```bash
-tinygpt reasoning-classify \
+posttrainllm reasoning-classify \
   --filter scored.jsonl \
   --target-mix "single=0.3,multi=0.5,comparison=0.2,other=0.0" \
   --out balanced.jsonl
@@ -78,7 +78,7 @@ most-often regresses on raw trace dumps.
 ## Step 4 — train
 
 ```bash
-tinygpt sft --data balanced.jsonl --base <gallery-pin> ...
+posttrainllm sft --data balanced.jsonl --base <gallery-pin> ...
 ```
 
 ## Notes

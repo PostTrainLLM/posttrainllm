@@ -733,7 +733,7 @@
       "name": "B1 SQL eval infrastructure",
       "family": "sql",
       "status": "worked-with-caveat",
-      "evidence": "`tinygpt eval-sql` shipped and smoke-tested; training/generation originally pending GPU",
+      "evidence": "`posttrainllm eval-sql` shipped and smoke-tested; training/generation originally pending GPU",
       "failure_reason": "The scoring half existed before the live SQL factory run, but the original PRD did not include trained adapter evidence.",
       "failure_reason_confidence": "exact",
       "lesson": "Execution accuracy over SQLite is the right reusable gate; infra alone is not a specialist result.",

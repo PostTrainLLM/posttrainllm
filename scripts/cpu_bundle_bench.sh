@@ -15,7 +15,7 @@
 
 set -euo pipefail
 
-BIN=${BIN:-/tmp/tinygpt-smoke-cpubundle/Build/Products/Release/tinygpt}
+BIN=${BIN:-/tmp/posttrainllm-smoke-cpubundle/Build/Products/Release/posttrainllm}
 STEPS=${STEPS:-60}
 BATCH=${BATCH:-8}
 PRESET=${PRESET:-tiny}
@@ -57,7 +57,7 @@ COSINE_ACCUM4="--lr-schedule cosine --warmup 5 --max-lr 3e-4 --min-lr 3e-5 --acc
 
 echo "preset=$PRESET, batch=$BATCH, steps=$STEPS, corpus=$DATAFILE"
 echo "binary: $BIN"
-echo "concurrent: $(ps -A | grep -i 'tinygpt train' | grep -v grep | wc -l | tr -d ' ') tinygpt train processes alive"
+echo "concurrent: $(ps -A | grep -i 'posttrainllm train' | grep -v grep | wc -l | tr -d ' ') posttrainllm train processes alive"
 echo "-----------------------------------------------------------------------------"
 echo "[A] baseline-on-bundle-binary: cosine+accum=4 with EVERY item off"
 bench_config "  all items off (= HEAD baseline)" \

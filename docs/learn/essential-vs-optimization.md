@@ -6,7 +6,7 @@ description: "The single most useful lens on this project — which parts comput
 # Mathematically essential vs engineering optimization
 
 The whole project splits cleanly into two layers, and keeping them separate is the difference
-between understanding TinyGPT and memorizing it.
+between understanding posttrainllm and memorizing it.
 
 - **Mathematically essential** — the code that *defines what function the model computes*. Change
   it and the model computes something **different**. The oracle is [`python_ref/model.py`](../../python_ref/model.py):

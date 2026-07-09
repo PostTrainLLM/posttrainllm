@@ -1,4 +1,4 @@
-/// Browser-runnable benchmark suite for the TinyGPT leaderboard.
+/// Browser-runnable benchmark suite for the posttrainllm leaderboard.
 ///
 /// Each Benchmark takes a loaded model handle and produces a single
 /// numeric score plus optional structured details. Lower scores are

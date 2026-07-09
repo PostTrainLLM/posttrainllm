@@ -3,9 +3,9 @@
 # Args: TAG SERVE_URL MODEL_ID SYSP_PATH RUN_NAME
 set -euo pipefail
 TAG=$1; URL=$2; MODEL=$3; SYSP=$4; RUN_NAME=${5:-$TAG}
-RUN_DIR=$HOME/.cache/tinygpt/runs/h2-combined-$RUN_NAME
+RUN_DIR=$HOME/.cache/posttrainllm/runs/h2-combined-$RUN_NAME
 mkdir -p "$RUN_DIR"
-TGT=/Users/sarthak/Desktop/fleet/tinygpt
+TGT=/Users/sarthak/Desktop/fleet/posttrainllm
 
 for SUITE in ambig oos destructive; do
   COMBINED=/tmp/h2-combined-$SUITE

@@ -11,7 +11,7 @@ import Foundation
 /// API:
 ///   - DatasetRegistry.all                — every curated entry
 ///   - DatasetRegistry.entries(for: ...)  — filter by specialist
-///   - `tinygpt list-datasets [--specialist <k>]`  → uses these
+///   - `posttrainllm list-datasets [--specialist <k>]`  → uses these
 ///
 /// When you add a new entry, fill in:
 ///   - id: canonical HF id ("owner/name")
@@ -64,7 +64,7 @@ public struct RegistryEntry: Sendable {
 public enum DatasetRegistry {
 
     /// The curated catalog. Hand-maintained; small enough to inline.
-    /// Bias is "what would a tinygpt user actually want to train on?"
+    /// Bias is "what would a posttrainllm user actually want to train on?"
     /// — every entry should have a clear hypothesis for what it improves.
     public static let all: [RegistryEntry] = [
         // ── Tool / function calling ─────────────────────────────────
@@ -280,9 +280,9 @@ public enum DatasetRegistry {
 /// API:
 ///   - GitHubRecipes.all                 — every recipe
 ///   - GitHubRecipes.entries(for: .debugger)  — filter by specialist
-///   - `tinygpt list-datasets --specialist debugger` includes these.
+///   - `posttrainllm list-datasets --specialist debugger` includes these.
 ///
-/// All recipes are public repos. Fetching with `tinygpt fetch-github`
+/// All recipes are public repos. Fetching with `posttrainllm fetch-github`
 /// honours their underlying source license — record metadata carries
 /// `repo` and `kind` so downstream license attribution stays attached.
 public struct GitHubRecipe: Sendable {

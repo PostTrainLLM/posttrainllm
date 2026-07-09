@@ -1,6 +1,6 @@
 ---
 title: Tool-call extractor (mini-router)
-description: Design + training recipe for tinygpt's tiny encoder model that picks which tool a user query needs, before the full LM forward pass.
+description: Design + training recipe for posttrainllm's tiny encoder model that picks which tool a user query needs, before the full LM forward pass.
 ---
 
 # Tool-call extractor (mini-router)
@@ -28,7 +28,7 @@ the operator makes later.
 ### Architecture
 
 `ToolRouterModel` (in `native-mac/Sources/TinyGPTModel/ToolRouterModel.swift`)
-reuses tinygpt's existing `TransformerBlock` stack with three changes
+reuses posttrainllm's existing `TransformerBlock` stack with three changes
 vs `TinyGPTModel`:
 
 1. **No LM head.** The `lm_head` Linear is dropped entirely; no
@@ -55,7 +55,7 @@ weight loader, and `.tinygpt` file-format round-trip works unchanged.
 | `small` |     6  |    384  | 1536 |             ~13 M  |              ~37 M |
 
 Defined in `ToolRouterModel.tinyPreset` / `smallPreset`. Default for
-`tinygpt train-extractor` is `tiny`.
+`posttrainllm train-extractor` is `tiny`.
 
 ### Why a separate model?
 
@@ -71,7 +71,7 @@ tool to call.
 Apple's [Foundation Models framework `Tool`
 protocol](https://developer.apple.com/videos/play/wwdc2025/286/)
 defines a tool as `(name, description, parameters as a JSON-schema
-graph)`. tinygpt's `ToolSchema` already has this shape (see
+graph)`. posttrainllm's `ToolSchema` already has this shape (see
 `Sources/TinyGPT/ToolSchema.swift`); the router classifies over the
 `name` field. Multi-tool call graphs and argument generation are
 left to the downstream LM — the router's job is just "which tool".
@@ -81,7 +81,7 @@ left to the downstream LM — the router's job is just "which tool".
 [Cline's ReAct loop](https://deepwiki.com/cline/cline) **forces a
 tool call every turn** — plain assistant text is rejected and the LM
 has to emit a tool call (or a sentinel `plan_mode_respond` tool).
-When tinygpt's router fires with high confidence (default ≥ 0.7),
+When posttrainllm's router fires with high confidence (default ≥ 0.7),
 the downstream LM is supposed to be locked into the predicted tool's
 JSON schema via the existing FSM in `ConstrainedGen.swift`. That
 constraint-injection is the integration TODO below.
@@ -95,7 +95,7 @@ The router's training signal is a flat JSONL:
 {"query": "find files containing TODO", "tool": "grep"}
 ```
 
-`tinygpt extractor-data` builds this corpus from three sources:
+`posttrainllm extractor-data` builds this corpus from three sources:
 
 1. **[BFCL](https://gorilla.cs.berkeley.edu/leaderboard.html)** —
    Berkeley Function-Calling Leaderboard. Distributed on HF Hub as
@@ -120,32 +120,32 @@ unknown tools are dropped silently.
 ## Pipeline
 
 ```bash
-# 1. (optional) Pull BFCL via tinygpt's HF downloader.
-tinygpt download-dataset hf://datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard
+# 1. (optional) Pull BFCL via posttrainllm's HF downloader.
+posttrainllm download-dataset hf://datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard
 
 # 2. (optional) Clone τ-bench (small repo, manual step).
 git clone https://github.com/sierra-research/tau-bench ~/code/tau-bench
 
 # 3. Build the training corpus.
-tinygpt extractor-data \
-  --bfcl ~/.cache/tinygpt/datasets/gorilla-llm/.../corpus.jsonl \
+posttrainllm extractor-data \
+  --bfcl ~/.cache/posttrainllm/datasets/gorilla-llm/.../corpus.jsonl \
   --tau-bench ~/code/tau-bench/tau_bench/envs \
   --tools my_tools.json \
   --out router_data.jsonl
 
 # 4. (optional) Backfill rare tools with synthetic queries.
-tinygpt extractor-data \
+posttrainllm extractor-data \
   --tools my_tools.json --synth --synth-per-tool 40 \
   --bfcl ... --tau-bench ... \
   --out router_data.jsonl
 
 # 5. Train.
-tinygpt train-extractor router_data.jsonl \
+posttrainllm train-extractor router_data.jsonl \
   --preset tiny --steps 500 --batch 32 \
   --out router.tinygpt
 
 # 6. Use.
-tinygpt extract router.tinygpt --query "find files containing TODO"
+posttrainllm extract router.tinygpt --query "find files containing TODO"
 # query: find files containing TODO
 #   latency: 2.18 ms
 #   0.8412  grep
@@ -153,7 +153,7 @@ tinygpt extract router.tinygpt --query "find files containing TODO"
 #   0.0421  ls
 
 # 7. (optional) Wire into the agent.
-tinygpt agent specialist.tinygpt --tools my_tools.json \
+posttrainllm agent specialist.tinygpt --tools my_tools.json \
   --router router.tinygpt --router-threshold 0.7
 ```
 
@@ -200,9 +200,9 @@ first router actually trains.
 | File | Role |
 |---|---|
 | `native-mac/Sources/TinyGPTModel/ToolRouterModel.swift` | Model class + `ToolRouterLoader` |
-| `native-mac/Sources/TinyGPT/ExtractorData.swift` | `tinygpt extractor-data` |
-| `native-mac/Sources/TinyGPT/TrainExtractor.swift` | `tinygpt train-extractor` |
-| `native-mac/Sources/TinyGPT/Extract.swift` | `tinygpt extract` |
+| `native-mac/Sources/TinyGPT/ExtractorData.swift` | `posttrainllm extractor-data` |
+| `native-mac/Sources/TinyGPT/TrainExtractor.swift` | `posttrainllm train-extractor` |
+| `native-mac/Sources/TinyGPT/Extract.swift` | `posttrainllm extract` |
 | `native-mac/Sources/TinyGPT/Agent.swift` | `--router` + `--router-threshold` flags |
 | `native-mac/Sources/TinyGPT/AgentLoop.swift` | `RouterHook` + `predictWithRouter` |
 

@@ -8,15 +8,15 @@ import TinyGPTModel
 
 // MARK: - lm-eval-harness adapter
 //
-// `tinygpt serve` exposes an OpenAI-compatible HTTP endpoint over a loaded
-// tinygpt / HF model. This unlocks running the canonical `lm-evaluation-harness`
-// against any tinygpt model — HellaSwag, MMLU-Pro, GSM8K, IFEval, GPQA-Diamond
+// `posttrainllm serve` exposes an OpenAI-compatible HTTP endpoint over a loaded
+// posttrainllm / HF model. This unlocks running the canonical `lm-evaluation-harness`
+// against any posttrainllm model — HellaSwag, MMLU-Pro, GSM8K, IFEval, GPQA-Diamond
 // — by pointing the harness at `local-chat-completions` with our base_url.
 //
 // Wire-up:
 //   POST /v1/chat/completions     — chat-style requests (messages: [...])
 //   POST /v1/completions          — plain text completion (prompt: "...")
-//   GET  /v1/models               — list "tinygpt" so clients can probe readiness
+//   GET  /v1/models               — list "posttrainllm" so clients can probe readiness
 //
 // Implementation notes:
 //   - Uses POSIX sockets (Darwin) — zero new dependencies, works on macOS 14+.
@@ -111,7 +111,7 @@ public enum Serve {
                 guard i + 1 < args.count else { exitUsage() }
                 promptCacheDir = args[i + 1]; i += 2
             case "--trace-infer":
-                traceDir = traceDir ?? "/tmp/tinygpt-traces"; i += 1
+                traceDir = traceDir ?? "/tmp/posttrainllm-traces"; i += 1
             case "--trace-dir":
                 guard i + 1 < args.count else { exitUsage() }
                 traceDir = args[i + 1]; i += 2
@@ -162,7 +162,7 @@ public enum Serve {
                                           traceDir: traceDir,
                                           correctionsDir: correctionsDir,
                                           eosStopEnabled: eosStopEnabled)
-            print("tinygpt serve — listening on http://\(host):\(server.port)")
+            print("posttrainllm serve — listening on http://\(host):\(server.port)")
             print("model: \(modelPath)  ·  ctx=\(server.maxContext)  ·  vocab=\(server.config.vocabSize)")
             if !loraPaths.isEmpty {
                 let desc = loraPaths.enumerated().map { idx, path in
@@ -182,10 +182,10 @@ public enum Serve {
             if let dir = traceDir {
                 print("inference traces: \(dir)")
                 print("  → after a request, render latency heatmap with:")
-                print("      tinygpt infer-heatmap '\(dir)/*.json' --html /tmp/heatmap.html && open /tmp/heatmap.html")
-                print("  → for a single trace: tinygpt infer-heatmap <trace.json> --summary")
+                print("      posttrainllm infer-heatmap '\(dir)/*.json' --html /tmp/heatmap.html && open /tmp/heatmap.html")
+                print("  → for a single trace: posttrainllm infer-heatmap <trace.json> --summary")
             } else {
-                print("tip: pass --trace-infer to record per-request latency traces (renderable via `tinygpt infer-heatmap`)")
+                print("tip: pass --trace-infer to record per-request latency traces (renderable via `posttrainllm infer-heatmap`)")
             }
             // Block forever — the listener thread runs detached.
             dispatchMain()
@@ -207,7 +207,7 @@ public enum Serve {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt serve <model.tinygpt | hf-dir> [options]
+        usage: posttrainllm serve <model.tinygpt | hf-dir> [options]
 
         --port N              TCP port (default: 8080; 0 = pick any free port)
         --host HOST           bind address (default: 127.0.0.1)
@@ -248,7 +248,7 @@ public enum Serve {
                               get_tool_info_hops. Used by B26 parity reports.
         --prompt-cache-dir <dir>
                               Auto-cache repeated prompt-prefix KV state.
-        --trace-infer          Write per-request inference traces to /tmp/tinygpt-traces.
+        --trace-infer          Write per-request inference traces to /tmp/posttrainllm-traces.
         --trace-dir <dir>      Write per-request inference traces to a custom directory.
         --corrections-dir <dir>  Where POST /v1/corrections appends captured user
                               corrections (default: ~/.tinygpt/corrections). On-device.
@@ -270,12 +270,12 @@ public enum Serve {
         For lm-eval (OpenAI surface):
           lm-eval --model local-chat-completions \\
               --tasks hellaswag,arc_easy --model_args \\
-              "base_url=http://127.0.0.1:8080/v1/chat/completions,model=tinygpt"
+              "base_url=http://127.0.0.1:8080/v1/chat/completions,model=posttrainllm"
 
         For Continue.dev (Ollama surface) — run with --port 11434 and add
         to ~/.continue/config.json:
-          { "models": [{ "title": "tinygpt", "provider": "ollama",
-                          "model": "tinygpt:latest",
+          { "models": [{ "title": "posttrainllm", "provider": "ollama",
+                          "model": "posttrainllm:latest",
                           "apiBase": "http://127.0.0.1:11434" }] }
         See docs/continue_provider.md for the full walkthrough.
         """)
@@ -356,8 +356,8 @@ extension Serve {
             self.traceDir = traceDir
             self.modelFingerprint = modelFingerprint
             self.cachedTokenBytes = cachedTokenBytes
-            self.inferenceQueue = DispatchQueue(label: "tinygpt.serve.inference")
-            self.toolMetricsQueue = DispatchQueue(label: "tinygpt.serve.tool-metrics")
+            self.inferenceQueue = DispatchQueue(label: "posttrainllm.serve.inference")
+            self.toolMetricsQueue = DispatchQueue(label: "posttrainllm.serve.tool-metrics")
         }
 
         static func boot(modelPath: String, host: String, port: UInt16,
@@ -652,7 +652,7 @@ extension Serve {
         private static func bindListener(host: String, port: UInt16) throws -> (Int32, UInt16) {
             let fd = Darwin.socket(AF_INET, SOCK_STREAM, 0)
             guard fd >= 0 else {
-                throw NSError(domain: "tinygpt.serve", code: 1,
+                throw NSError(domain: "posttrainllm.serve", code: 1,
                               userInfo: [NSLocalizedDescriptionKey: "socket() failed: \(String(cString: strerror(errno)))"])
             }
             // SO_REUSEADDR — convenient when restarting the server quickly.
@@ -668,7 +668,7 @@ extension Serve {
             }
             guard inetResult == 1 else {
                 Darwin.close(fd)
-                throw NSError(domain: "tinygpt.serve", code: 2,
+                throw NSError(domain: "posttrainllm.serve", code: 2,
                               userInfo: [NSLocalizedDescriptionKey: "bad host: \(host)"])
             }
             let bindResult = withUnsafePointer(to: &addr) { ptr -> Int32 in
@@ -679,13 +679,13 @@ extension Serve {
             guard bindResult == 0 else {
                 let err = String(cString: strerror(errno))
                 Darwin.close(fd)
-                throw NSError(domain: "tinygpt.serve", code: 3,
+                throw NSError(domain: "posttrainllm.serve", code: 3,
                               userInfo: [NSLocalizedDescriptionKey: "bind() failed: \(err)"])
             }
             guard listen(fd, 16) == 0 else {
                 let err = String(cString: strerror(errno))
                 Darwin.close(fd)
-                throw NSError(domain: "tinygpt.serve", code: 4,
+                throw NSError(domain: "posttrainllm.serve", code: 4,
                               userInfo: [NSLocalizedDescriptionKey: "listen() failed: \(err)"])
             }
             // Resolve the actual bound port (port==0 → kernel-assigned).
@@ -751,7 +751,7 @@ extension Serve {
                 let payload: [String: Any] = [
                     "object": "list",
                     "data": [
-                        ["id": "tinygpt", "object": "model", "owned_by": "tinygpt"]
+                        ["id": "posttrainllm", "object": "model", "owned_by": "posttrainllm"]
                     ]
                 ]
                 respondJSON(clientFd: clientFd, status: 200, payload: payload)
@@ -780,7 +780,7 @@ extension Serve {
             }
 
             // Ollama-compatible surface — Continue.dev / Cline / Aider
-            // configured with `provider: ollama` talk to tinygpt directly.
+            // configured with `provider: ollama` talk to posttrainllm directly.
             // NDJSON streaming (not SSE); shared generation core with the
             // OpenAI handlers above. See docs/continue_provider.md.
             if request.method == "GET" && request.path == "/api/tags" {
@@ -789,7 +789,7 @@ extension Serve {
             }
             if request.method == "GET" && request.path == "/api/version" {
                 respondJSON(clientFd: clientFd, status: 200,
-                             payload: ["version": "0.5.0-tinygpt"])
+                             payload: ["version": "0.5.0-posttrainllm"])
                 return
             }
             if request.method == "POST" && request.path == "/api/show" {
@@ -840,7 +840,7 @@ extension Serve {
             if let strings = raw as? [String] {
                 return strings.compactMap(parsePaceElementString)
             }
-            throw NSError(domain: "tinygpt.serve.pace", code: 1,
+            throw NSError(domain: "posttrainllm.serve.pace", code: 1,
                           userInfo: [NSLocalizedDescriptionKey: "elements must be an array of objects or fixture strings"])
         }
 
@@ -1011,7 +1011,7 @@ extension Serve {
                     "id": "chatcmpl-\(UUID().uuidString)",
                     "object": "chat.completion",
                     "created": Int(Date().timeIntervalSince1970),
-                    "model": "tinygpt",
+                    "model": "posttrainllm",
                     "choices": [[
                         "index": 0,
                         "message": ["role": "assistant", "content": text],
@@ -1114,7 +1114,7 @@ extension Serve {
                         "id": "cmpl-\(UUID().uuidString)",
                         "object": "text_completion",
                         "created": Int(Date().timeIntervalSince1970),
-                        "model": "tinygpt",
+                        "model": "posttrainllm",
                         "choices": choices,
                         "usage": [
                             "prompt_tokens": totalTokens,
@@ -1137,7 +1137,7 @@ extension Serve {
                     "id": "cmpl-\(UUID().uuidString)",
                     "object": "text_completion",
                     "created": Int(Date().timeIntervalSince1970),
-                    "model": "tinygpt",
+                    "model": "posttrainllm",
                     "choices": [[
                         "index": 0,
                         "text": text,
@@ -1206,7 +1206,7 @@ extension Serve {
         ///
         /// Wire format (OpenAI-compatible):
         ///   data: {"id":"chatcmpl-...","object":"chat.completion.chunk",
-        ///           "created":TS,"model":"tinygpt",
+        ///           "created":TS,"model":"posttrainllm",
         ///           "choices":[{"index":0,"delta":{"role":"assistant"}}]}
         ///
         ///   data: {...,"choices":[{"index":0,"delta":{"content":"hello"}}]}
@@ -1286,7 +1286,7 @@ extension Serve {
                             "id": id,
                             "object": "text_completion",
                             "created": Int(Date().timeIntervalSince1970),
-                            "model": "tinygpt",
+                            "model": "posttrainllm",
                             "choices": [[
                                 "index": 0,
                                 "text": newText,
@@ -1306,7 +1306,7 @@ extension Serve {
                 "id": id,
                 "object": "text_completion",
                 "created": Int(Date().timeIntervalSince1970),
-                "model": "tinygpt",
+                "model": "posttrainllm",
                 "choices": [[
                     "index": 0,
                     "text": "",
@@ -1329,7 +1329,7 @@ extension Serve {
                 "id": id,
                 "object": object,
                 "created": Int(Date().timeIntervalSince1970),
-                "model": "tinygpt",
+                "model": "posttrainllm",
                 "choices": [choice]
             ]
         }
@@ -1496,20 +1496,20 @@ extension Serve {
 
         /// `GET /api/tags` — Ollama's model-list endpoint. Continue.dev /
         /// Cline / Aider use it to discover what models the server hosts.
-        /// We always have exactly one ("tinygpt"); the response shape mirrors
+        /// We always have exactly one ("posttrainllm"); the response shape mirrors
         /// Ollama's so the client doesn't need a special case.
         private func handleOllamaTags(clientFd: Int32) {
             let now = ISO8601DateFormatter().string(from: Date())
             let payload: [String: Any] = [
                 "models": [[
-                    "name": "tinygpt:latest",
-                    "model": "tinygpt:latest",
+                    "name": "posttrainllm:latest",
+                    "model": "posttrainllm:latest",
                     "modified_at": now,
                     "size": 0,
-                    "digest": "tinygpt-\(config.modelName)",
+                    "digest": "posttrainllm-\(config.modelName)",
                     "details": [
-                        "format": "tinygpt",
-                        "family": "tinygpt",
+                        "format": "posttrainllm",
+                        "family": "posttrainllm",
                         "parameter_size": "\(model.numParameters())",
                         "quantization_level": "F32"
                     ] as [String: Any]
@@ -1522,12 +1522,12 @@ extension Serve {
         /// pings this to verify a model is loaded.
         private func handleOllamaShow(clientFd: Int32, body: Data) {
             let payload: [String: Any] = [
-                "modelfile": "# tinygpt model",
+                "modelfile": "# posttrainllm model",
                 "parameters": "stop \"<|im_end|>\"",
                 "template": "{{ .System }}\n{{ .Prompt }}",
                 "details": [
-                    "format": "tinygpt",
-                    "family": "tinygpt",
+                    "format": "posttrainllm",
+                    "family": "posttrainllm",
                     "parameter_size": "\(model.numParameters())",
                     "quantization_level": "F32"
                 ] as [String: Any]
@@ -1561,7 +1561,7 @@ extension Serve {
                                        temperature: temperature, stop: stop)
                 }
                 let payload: [String: Any] = [
-                    "model": "tinygpt:latest",
+                    "model": "posttrainllm:latest",
                     "created_at": ISO8601DateFormatter().string(from: Date()),
                     "message": ["role": "assistant", "content": text] as [String: Any],
                     "done": true,
@@ -1599,7 +1599,7 @@ extension Serve {
                                        temperature: temperature, stop: stop)
                 }
                 let payload: [String: Any] = [
-                    "model": "tinygpt:latest",
+                    "model": "posttrainllm:latest",
                     "created_at": ISO8601DateFormatter().string(from: Date()),
                     "response": text,
                     "done": true,
@@ -1624,7 +1624,7 @@ extension Serve {
                                                 temperature: temperature, stop: stop)
                     { newText in
                         let chunk: [String: Any] = [
-                            "model": "tinygpt:latest",
+                            "model": "posttrainllm:latest",
                             "created_at": ISO8601DateFormatter().string(from: Date()),
                             "message": ["role": "assistant", "content": newText] as [String: Any],
                             "done": false
@@ -1637,7 +1637,7 @@ extension Serve {
             } catch { /* fall through to terminator */ }
             if clientGone { return }
             writeNDJSONLine(clientFd: clientFd, payload: [
-                "model": "tinygpt:latest",
+                "model": "posttrainllm:latest",
                 "created_at": ISO8601DateFormatter().string(from: Date()),
                 "message": ["role": "assistant", "content": ""] as [String: Any],
                 "done": true,
@@ -1656,7 +1656,7 @@ extension Serve {
                                                 temperature: temperature, stop: stop)
                     { newText in
                         let chunk: [String: Any] = [
-                            "model": "tinygpt:latest",
+                            "model": "posttrainllm:latest",
                             "created_at": ISO8601DateFormatter().string(from: Date()),
                             "response": newText,
                             "done": false
@@ -1669,7 +1669,7 @@ extension Serve {
             } catch { /* fall through to terminator */ }
             if clientGone { return }
             writeNDJSONLine(clientFd: clientFd, payload: [
-                "model": "tinygpt:latest",
+                "model": "posttrainllm:latest",
                 "created_at": ISO8601DateFormatter().string(from: Date()),
                 "response": "",
                 "done": true,
@@ -1838,7 +1838,7 @@ extension Serve {
                     }
                     tracer?.setCache(enabled: true, hit: true, prefixTokens: prefixIds.count)
                     guard cache.currentLength == prefixIds.count else {
-                        throw NSError(domain: "tinygpt.serve.prompt-cache", code: 2,
+                        throw NSError(domain: "posttrainllm.serve.prompt-cache", code: 2,
                                       userInfo: [NSLocalizedDescriptionKey:
                                         "cache length \(cache.currentLength) != prefix \(prefixIds.count)"])
                     }
@@ -2064,7 +2064,7 @@ extension Serve {
         }
 
         /// OpenAI ChatCompletion `messages` → flat prompt. We use ChatML-ish
-        /// formatting because that's what tinygpt's SFT templates can match;
+        /// formatting because that's what posttrainllm's SFT templates can match;
         /// if your model was trained on a different template, prefer the
         /// `/v1/completions` endpoint and pass an already-formatted prompt.
         private func renderChatMessages(_ messages: [[String: Any]]) -> String {
@@ -2225,7 +2225,7 @@ struct ServeGrammarSpec {
         if trimmed.contains("root ::="), trimmed.contains("[POINT:") {
             return ServeGrammarSpec(kind: .paceToolTags)
         }
-        throw NSError(domain: "tinygpt.serve.grammar", code: 1,
+        throw NSError(domain: "posttrainllm.serve.grammar", code: 1,
                       userInfo: [NSLocalizedDescriptionKey:
                         "unsupported grammar: pass a JSON Schema or grammars/pace-tool-tags.gbnf"])
     }

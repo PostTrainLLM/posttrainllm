@@ -2,8 +2,8 @@ import Foundation
 
 /// Swift mirror of `browser/src/gallery-schema.ts`. Single source of
 /// truth for the published `gallery/manifest.json`. Browser is the
-/// authoring side; this struct lets `tinygpt pull` / `tinygpt
-/// validate` / `tinygpt sample <gallery-id>` parse the same file.
+/// authoring side; this struct lets `posttrainllm pull` / `posttrainllm
+/// validate` / `posttrainllm sample <gallery-id>` parse the same file.
 ///
 /// V1 of the schema (per the TS file's `version: 1` field) covered
 /// only browser-loadable `.bin` from-scratch models. The B31
@@ -18,12 +18,12 @@ public enum GalleryModelKind: String, Codable, Sendable {
     /// `browser/public/gallery/<file>`. The original V1 shape.
     case browserBin = "browser-bin"
     /// A full-model `.tinygpt` checkpoint loadable by the Mac CLI.
-    case macTinygpt = "mac-tinygpt"
+    case macTinygpt = "mac-posttrainllm"
     /// A LoRA / DoRA / PEFT adapter loadable atop a base. Requires
     /// `parent` to be set to the base's gallery id.
     case macAdapter = "mac-adapter"
     /// A GGUF bundle (base + tokenizer + config) loadable via
-    /// `tinygpt gguf-load`.
+    /// `posttrainllm gguf-load`.
     case macGguf = "mac-gguf"
     /// A HuggingFace safetensors bundle (base + tokenizer + config)
     /// loadable via the existing HF loader path.

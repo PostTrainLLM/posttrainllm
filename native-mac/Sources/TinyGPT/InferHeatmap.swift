@@ -133,7 +133,7 @@ enum InferHeatmap {
         return """
         <!doctype html>
         <meta charset="utf-8">
-        <title>TinyGPT Inference Heatmap</title>
+        <title>posttrainllm Inference Heatmap</title>
         <style>
         body{font:14px -apple-system,BlinkMacSystemFont,sans-serif;margin:24px;color:#1f2937}
         h1{font-size:20px}.meta{color:#4b5563;margin-bottom:18px}
@@ -141,7 +141,7 @@ enum InferHeatmap {
         .name{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.bar{background:#f3f4f6;height:18px}
         .bar span{display:block;height:18px;background:#ef4444}.ms{text-align:right}
         </style>
-        <h1>TinyGPT Inference Heatmap</h1>
+        <h1>posttrainllm Inference Heatmap</h1>
         <div class="meta">total \(String(format: "%.1f", t.totalMs))ms · prompt \(t.promptTokens) tok · generated \(t.generatedTokens) tok · cache \(t.cache.hit ? "hit" : "miss")</div>
         \(body)
         """
@@ -171,7 +171,7 @@ enum InferHeatmap {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt infer-heatmap <trace.json|glob> [--summary] [--html out.html]
+        usage: posttrainllm infer-heatmap <trace.json|glob> [--summary] [--html out.html]
         """)
         exit(code)
     }

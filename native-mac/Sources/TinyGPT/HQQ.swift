@@ -3,7 +3,7 @@ import MLX
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt hqq` — Half-Quadratic Quantization (Badri & Shaji, 2023).
+/// `posttrainllm hqq` — Half-Quadratic Quantization (Badri & Shaji, 2023).
 ///
 /// Replaces every linear-weight tensor in a `.tinygpt` file with a
 /// per-group int4 representation: `W_dequant = scale · (Q − zero)`.
@@ -24,7 +24,7 @@ import TinyGPTModel
 /// the LASER effect.
 ///
 /// USAGE
-///   tinygpt hqq <input.tinygpt> --group-size 64 --bits 4 --p 0.7 \
+///   posttrainllm hqq <input.tinygpt> --group-size 64 --bits 4 --p 0.7 \
 ///       --layers 0-11 --out reduced.tinygpt
 enum HQQ {
     static func run(args: [String]) {
@@ -83,7 +83,7 @@ enum HQQ {
 
         print("""
 
-        TinyGPT — HQQ (half-quadratic quantize-then-dequantise)
+        posttrainllm — HQQ (half-quadratic quantize-then-dequantise)
         -------------------------------------------------------
         input:          \(inPath)
         layers:         \(targetLayers.map(String.init).joined(separator: ","))
@@ -248,7 +248,7 @@ enum HQQ {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt hqq <input.tinygpt> [options]
+        usage: posttrainllm hqq <input.tinygpt> [options]
 
         --out <path>         Where to save the (re)quantised model — required
         --bits N             Bit-width (2 | 3 | 4 | 8; default 4)

@@ -1,19 +1,19 @@
 # Recipe — B25 ScaleDown specialist (extractive context compression)
 
-**Goal:** train a small TinyGPT model that takes `(question, long_document)`
+**Goal:** train a small posttrainllm model that takes `(question, long_document)`
 and outputs an *extractive* compressed document — a subset of the original
 sentences that preserves the answer-relevant span — and submit to the
 [ScaleDown.ai](https://scaledown.ai) challenge.
 
 ## V1 (shipped, lexical — no GPU)
 
-`tinygpt compress` is the runnable extractive compressor today, scoring
+`posttrainllm compress` is the runnable extractive compressor today, scoring
 sentences with a lexical BM25-lite relevance (`LexicalRelevance`) instead of a
 trained head:
 
 ```bash
-tinygpt compress "what is RoPE?" --doc rope_paper.txt --keep-frac 0.3 --out short.txt
-tinygpt compress "what is RoPE?" --doc rope_paper.txt --threshold 0.4   # score cutoff instead of length budget
+posttrainllm compress "what is RoPE?" --doc rope_paper.txt --keep-frac 0.3 --out short.txt
+posttrainllm compress "what is RoPE?" --doc rope_paper.txt --threshold 0.4   # score cutoff instead of length budget
 ```
 
 Verified by `evals/compress-smoke.sh` (keeps on-topic sentences, drops filler,
@@ -45,8 +45,8 @@ to answer the question.
 
 | Dataset | Why | Path it will land |
 |---|---|---|
-| MS-MARCO (passage config) | question + passage + answer span | `~/.cache/tinygpt/datasets/ms-marco.jsonl` |
-| Natural Questions (long+short answer) | natural web passages with explicit long-answer spans | `~/.cache/tinygpt/datasets/natural-questions.jsonl` |
+| MS-MARCO (passage config) | question + passage + answer span | `~/.cache/posttrainllm/datasets/ms-marco.jsonl` |
+| Natural Questions (long+short answer) | natural web passages with explicit long-answer spans | `~/.cache/posttrainllm/datasets/natural-questions.jsonl` |
 | HotpotQA (supporting_facts) | multi-hop — explicitly labelled supporting sentences | not yet planned; ~115 MB |
 
 ### Synthesis fallback (if D3 stays blocked)
@@ -62,7 +62,7 @@ from data we already have:
    answer + bad answer. Compressed form = the sentences from the reference
    that justify the rating. Weaker signal but plenty of volume.
 3. **From FineWeb-Edu (the N02 corpus)** — synthesize questions via a
-   frozen LLM (Qwen 0.6B via `tinygpt sample`), label the source sentences
+   frozen LLM (Qwen 0.6B via `posttrainllm sample`), label the source sentences
    that contain the answer span. Bootstrap.
 
 The synthesis path is `scripts/scaledown-prep.py`:
@@ -73,7 +73,7 @@ python3 scripts/scaledown-prep.py
 
 # Strong-compression-only (0.8% yield, ~85 rows, keep-ratio ≤ 0.60):
 python3 scripts/scaledown-prep.py --max-keep-ratio 0.60 \
-    --out ~/.cache/tinygpt/datasets/scaledown-train-strong.jsonl
+    --out ~/.cache/posttrainllm/datasets/scaledown-train-strong.jsonl
 ```
 
 The script extracts tools-pruning supervision from hermes-fc: each row's
@@ -88,8 +88,8 @@ land for real signal.
 Once N02 lands:
 
 ```bash
-tinygpt train \
-    --base ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt \
+posttrainllm train \
+    --base ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt \
     --preset huge \
     --tokenizer <SmolLM2 dir> \
     --corpus <scaledown-train.jsonl> \
@@ -100,8 +100,8 @@ tinygpt train \
     --max-lr 1e-4 \
     --save-every 5000 --save-history \
     --val-split 0.01 --val-every 250 \
-    --log-jsonl ~/.cache/tinygpt/runs/scaledown-sft/scaledown-sft.jsonl \
-    --out ~/.cache/tinygpt/runs/scaledown-sft/scaledown-sft.tinygpt
+    --log-jsonl ~/.cache/posttrainllm/runs/scaledown-sft/scaledown-sft.jsonl \
+    --out ~/.cache/posttrainllm/runs/scaledown-sft/scaledown-sft.tinygpt
 ```
 
 Output format expected (per ScaleDown submission schema):
@@ -117,7 +117,7 @@ Output format expected (per ScaleDown submission schema):
 ## Eval recipe — E6 (per PRD)
 
 ```bash
-tinygpt eval-scaledown /tmp/scaledown-sft.tinygpt \
+posttrainllm eval-scaledown /tmp/scaledown-sft.tinygpt \
     --benchmark <scaledown-bench.jsonl> \
     --judge HuggingFaceTB/SmolLM2-1.7B-Instruct \
     --out docs/artifacts/scaledown-e6-<date>.jsonl
@@ -144,7 +144,7 @@ wrapper — write after E6 produces a benchmark-format JSONL.
 - **Local + tiny**: most ScaleDown entries will be massive proprietary
   models with prompt-engineering tricks. A 22M-param SLM that runs on
   laptop CPU shipping a non-trivial score is the demo.
-- **Mechanistic interp**: if we run B13 (`tinygpt sae --checkpoint-dir`)
+- **Mechanistic interp**: if we run B13 (`posttrainllm sae --checkpoint-dir`)
   across the SFT checkpoints, we can show the feature that fires on
   "this sentence is load-bearing." First publicly-watchable feature
   for a context-compression task.
@@ -168,8 +168,8 @@ wrapper — write after E6 produces a benchmark-format JSONL.
 | `docs/recipes/b25-scaledown.md` | this doc |
 | `scripts/scaledown-prep.py` | data synthesis from existing cached JSONLs (TODO) |
 | `scripts/scaledown-submit.py` | challenge-submission POST wrapper (TODO) |
-| `~/.cache/tinygpt/datasets/scaledown-train.jsonl` | prepared training data |
-| `~/.cache/tinygpt/datasets/scaledown-bench.jsonl` | held-out evaluation set |
+| `~/.cache/posttrainllm/datasets/scaledown-train.jsonl` | prepared training data |
+| `~/.cache/posttrainllm/datasets/scaledown-bench.jsonl` | held-out evaluation set |
 
 ## Links
 

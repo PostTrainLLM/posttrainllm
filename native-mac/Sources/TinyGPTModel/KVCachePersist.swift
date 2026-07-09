@@ -2,7 +2,7 @@ import Foundation
 import CryptoKit
 
 /// Persistent KV cache by hash of (model identity + prompt + cache-affecting
-/// config) — the "system prompt cache" that lets a `tinygpt sample` invocation
+/// config) — the "system prompt cache" that lets a `posttrainllm sample` invocation
 /// skip the prefill on its second run with the same prompt.
 ///
 /// # Why this exists

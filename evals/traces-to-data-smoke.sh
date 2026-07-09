@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# B29 smoke: `tinygpt traces-to-data` reads 5 fixture .atraj files,
+# B29 smoke: `posttrainllm traces-to-data` reads 5 fixture .atraj files,
 # applies tool-echo drop + exact dedup + MinHash near-dedup, and emits
 # exactly 2 SFT rows (the two semantically-distinct prompts).
 #
@@ -16,7 +16,7 @@ FIX="$ROOT/evals/traces-to-data-fixtures"
 NATIVE="$ROOT/native-mac"
 
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
-BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
+BIN="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
 echo "binary: $BIN"
 
 TMP="$(mktemp -d)"

@@ -1,4 +1,4 @@
-# TinyGPT — native macOS app
+# posttrainllm — native macOS app
 
 Status: bootstrapping. Goal: lift the browser-tab ceiling from ~250M params to
 7B+ params on Apple Silicon, with a UI that matches the playground's feel.
@@ -152,7 +152,7 @@ clearer:
    on its own; together they're rare.
 3. **A demo people screenshot**: the Mac app training a 1B+ model with the
    loss curve falling live. Very tweetable; very HN-friendly.
-4. **A blog post writes itself**: "What I learned building TinyGPT —
+4. **A blog post writes itself**: "What I learned building posttrainllm —
    hand-deriving every backward pass." 1500 words, plenty of code snippets,
    plenty of "I got X wrong, here's how I noticed."
 5. **A talk possibility**: the project is fertile for "build it from scratch"

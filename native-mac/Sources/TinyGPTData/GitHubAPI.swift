@@ -1,9 +1,9 @@
 import Foundation
 
-/// GitHub REST API v3 client used by the `tinygpt fetch-github` data
+/// GitHub REST API v3 client used by the `posttrainllm fetch-github` data
 /// pipeline.
 ///
-/// Why this exists: tinygpt is an on-device SLM factory and the
+/// Why this exists: posttrainllm is an on-device SLM factory and the
 /// code-debugger specialist needs a very specific training signal —
 /// "here is the issue someone filed, here is the PR that fixed it"
 /// pairs. The HuggingFace Datasets integration (see HFDatasets.swift)
@@ -62,7 +62,7 @@ public enum GitHubAPI {
                 return """
                 GitHub API rate limit hit\(when) for \(u).
                 Without GITHUB_TOKEN the limit is 60 requests/hour — too low
-                for `tinygpt fetch-github`. Set:
+                for `posttrainllm fetch-github`. Set:
                     export GITHUB_TOKEN=ghp_xxx
                 A fine-grained personal access token with `public_repo` scope
                 (or `repo` for private repos) is enough. Tokens raise the
@@ -123,7 +123,7 @@ public enum GitHubAPI {
             // newer fine-grained tokens prefer Bearer.
             req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-        req.setValue("tinygpt/0.1 (+https://github.com/sarthak/tinygpt)", forHTTPHeaderField: "User-Agent")
+        req.setValue("posttrainllm/0.1 (+https://github.com/sarthak/posttrainllm)", forHTTPHeaderField: "User-Agent")
 
         let box = HTTPResultBox()
         let sema = DispatchSemaphore(value: 0)
@@ -195,7 +195,7 @@ public enum GitHubAPI {
         if let token = ProcessInfo.processInfo.environment["GITHUB_TOKEN"], !token.isEmpty {
             req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-        req.setValue("tinygpt/0.1", forHTTPHeaderField: "User-Agent")
+        req.setValue("posttrainllm/0.1", forHTTPHeaderField: "User-Agent")
 
         let box = HTTPResultBox()
         let sema = DispatchSemaphore(value: 0)

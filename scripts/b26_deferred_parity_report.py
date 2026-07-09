@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """B26 deferred-tool parity report.
 
-Consumes two EvalCompare.Row JSONL files from `tinygpt eval-bfcl`:
+Consumes two EvalCompare.Row JSONL files from `posttrainllm eval-bfcl`:
 
   python3 scripts/b26_deferred_parity_report.py \
     --full /tmp/bfcl-full.jsonl \
@@ -13,7 +13,7 @@ The B26 ship rule is:
   2. average get_tool_info round-trips per sample is <= 2.
 
 For the real B26 acceptance gate, pass `--require-hop-stats`. Current
-`tinygpt eval-bfcl --tool-mode deferred` emits a
+`posttrainllm eval-bfcl --tool-mode deferred` emits a
 `bfcl/deferred_tools/get_tool_info_hops` metric row, and this report also
 understands legacy per-row hop fields named `get_tool_info_hops`,
 `tool_info_hops`, `meta_tool_hops`, or `deferred_tool_hops`.

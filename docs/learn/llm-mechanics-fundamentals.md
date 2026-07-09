@@ -139,7 +139,7 @@ A "22M parameter model" means **22 million floats stored in these matrices.** Th
 - Karpathy's "Let's build GPT" — implements all this from scratch in PyTorch
 - `native-mac/Sources/TinyGPTModel/TransformerBlock.swift` — our actual Swift implementation; ~515 lines covering Q/K/V projection, attention, MLP exactly as described above
 
-## Related TinyGPT docs
+## Related posttrainllm docs
 
 - `docs/sessions/2026-06-06-mac-specialist-platform.md` — strategy doc; covers memory bandwidth math + tokenization frontier
 - `docs/learn/README.md` — active learning index

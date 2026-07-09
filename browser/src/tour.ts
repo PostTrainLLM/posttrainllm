@@ -76,7 +76,7 @@ const STEPS: TourStep[] = [
   },
 ];
 
-const STORAGE_KEY = "tinygpt.tour.completed";
+const STORAGE_KEY = "posttrainllm.tour.completed";
 
 export function hasSeenTour(): boolean {
   try {

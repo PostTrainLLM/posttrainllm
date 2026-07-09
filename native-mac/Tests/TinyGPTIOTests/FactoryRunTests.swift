@@ -16,7 +16,7 @@ final class FactoryRunTests: XCTestCase {
                              precision: "bf16"),
             candidate: .init(method: "sft-lora",
                              adapterFormat: "tgla",
-                             trainingCommand: "tinygpt sft ..."),
+                             trainingCommand: "posttrainllm sft ..."),
             eval: .init(primary: "pace-v11-ship-gate",
                         regression: "bfcl-heldout-breadth",
                         threshold: .init(primaryMin: 0.95, breadthDropMaxPp: 3)))
@@ -27,7 +27,7 @@ final class FactoryRunTests: XCTestCase {
             counts: .init(trainRows: 600, heldoutRows: 109, droppedRows: 12))
         let baseline = FactoryRun.EvalResult(
             modelId: "base",
-            command: "tinygpt eval-gate --candidate base.jsonl",
+            command: "posttrainllm eval-gate --candidate base.jsonl",
             suite: "pace-v11-ship-gate",
             score: 0.75,
             passed: false,
@@ -36,7 +36,7 @@ final class FactoryRunTests: XCTestCase {
             tokensPerSecond: 35)
         let candidate = FactoryRun.EvalResult(
             modelId: "candidate",
-            command: "tinygpt eval-gate --candidate cand.jsonl",
+            command: "posttrainllm eval-gate --candidate cand.jsonl",
             suite: "pace-v11-ship-gate",
             score: 0.96,
             passed: true,
@@ -46,7 +46,7 @@ final class FactoryRunTests: XCTestCase {
         let defaultArtifact = FactoryRun.Artifact(
             artifactId: "pace-planner-sft-v1",
             kind: "adapter",
-            path: "~/.cache/tinygpt/models/pace-planner-sft-v1",
+            path: "~/.cache/posttrainllm/models/pace-planner-sft-v1",
             baseModel: "Qwen/Qwen3-4B-Instruct-2507",
             format: "tgla",
             packageDir: "specialists/pace-planner-sft-v1",

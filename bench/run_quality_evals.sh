@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 #
 # run_quality_evals.sh — drive lm-evaluation-harness against the flagship
-# tinygpt checkpoint. Wraps `python_ref/lm_eval_tinygpt.py` with sane
+# posttrainllm checkpoint. Wraps `python_ref/lm_eval_tinygpt.py` with sane
 # defaults; writes per-task JSON into `bench/results/<model-tag>-<date>/`.
 #
 # Pre-reqs (one-time):
-#   1. Build the tinygpt CLI:
+#   1. Build the posttrainllm CLI:
 #        cd native-mac
 #        DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-#          xcodebuild -scheme tinygpt -destination "platform=macOS" \
-#          -derivedDataPath /tmp/tinygpt-smoke -configuration Release build
+#          xcodebuild -scheme posttrainllm -destination "platform=macOS" \
+#          -derivedDataPath /tmp/posttrainllm-smoke -configuration Release build
 #      (this is the same incantation the project's smoke build uses; the
-#       built binary lands at /tmp/tinygpt-smoke/Build/Products/Release/tinygpt)
+#       built binary lands at /tmp/posttrainllm-smoke/Build/Products/Release/posttrainllm)
 #
 #   2. Wire `case "serve":` into Sources/TinyGPT/TinyGPT.swift's dispatch.
-#      See TODO(serve-merge) in that file. Until then `tinygpt serve` is
+#      See TODO(serve-merge) in that file. Until then `posttrainllm serve` is
 #      compiled-in but not callable via the CLI.
 #
 #   3. Install lm-evaluation-harness:
@@ -47,27 +47,27 @@ LIMIT="${LIMIT:-}"  # empty = full task; set to e.g. 50 for smoke runs
 MAX_CONTEXT="${MAX_CONTEXT:-}"  # empty = model's native context length
 
 # Locate the binary; fall back to PATH lookup.
-TINYGPT_BIN="${TINYGPT_BIN:-/tmp/tinygpt-smoke/Build/Products/Release/tinygpt}"
+TINYGPT_BIN="${TINYGPT_BIN:-/tmp/posttrainllm-smoke/Build/Products/Release/posttrainllm}"
 if [[ ! -x "$TINYGPT_BIN" ]]; then
-    TINYGPT_BIN="$(command -v tinygpt || true)"
+    TINYGPT_BIN="$(command -v posttrainllm || true)"
     if [[ -z "$TINYGPT_BIN" ]]; then
-        echo "error: can't find tinygpt binary. Build it first or set TINYGPT_BIN." >&2
+        echo "error: can't find posttrainllm binary. Build it first or set TINYGPT_BIN." >&2
         exit 1
     fi
 fi
 
-# Pre-flight: confirm `tinygpt serve` is callable. If the main case dispatch
+# Pre-flight: confirm `posttrainllm serve` is callable. If the main case dispatch
 # in TinyGPT.swift isn't wired yet (see TODO(serve-merge) in that file),
-# fall back to the stand-in `tinygpt-serve-smoke` binary.
+# fall back to the stand-in `posttrainllm-serve-smoke` binary.
 if ! "$TINYGPT_BIN" serve --help >/dev/null 2>&1; then
-    SMOKE_BIN="$(dirname "$TINYGPT_BIN")/tinygpt-serve-smoke"
+    SMOKE_BIN="$(dirname "$TINYGPT_BIN")/posttrainllm-serve-smoke"
     if [[ -x "$SMOKE_BIN" ]]; then
-        echo "note: main 'tinygpt' lacks 'serve' subcommand — falling back to $SMOKE_BIN" >&2
+        echo "note: main 'posttrainllm' lacks 'serve' subcommand — falling back to $SMOKE_BIN" >&2
         TINYGPT_BIN="$SMOKE_BIN"
     else
-        echo "error: '$TINYGPT_BIN serve' isn't callable and tinygpt-serve-smoke is missing." >&2
+        echo "error: '$TINYGPT_BIN serve' isn't callable and posttrainllm-serve-smoke is missing." >&2
         echo "  Wire case \"serve\": into Sources/TinyGPT/TinyGPT.swift, OR build the smoke target:" >&2
-        echo "    xcodebuild -scheme tinygpt-serve-smoke -derivedDataPath /tmp/tinygpt-smoke -configuration Release build" >&2
+        echo "    xcodebuild -scheme posttrainllm-serve-smoke -derivedDataPath /tmp/posttrainllm-smoke -configuration Release build" >&2
         exit 1
     fi
 fi
@@ -93,7 +93,7 @@ if [[ -n "$MAX_CONTEXT" ]]; then
     EXTRA_ARGS+=("--max-context" "$MAX_CONTEXT")
 fi
 
-echo "tinygpt binary: $TINYGPT_BIN"
+echo "posttrainllm binary: $TINYGPT_BIN"
 echo "model:          $MODEL_PATH"
 echo "tasks:          $TASKS"
 echo "output:         $OUT_DIR"
@@ -113,5 +113,5 @@ exec python "$REPO_ROOT/python_ref/lm_eval_tinygpt.py" \
     "$MODEL_PATH" \
     --tasks "$TASKS" \
     --output-path "$OUT_DIR" \
-    --tinygpt-bin "$TINYGPT_BIN" \
+    --posttrainllm-bin "$TINYGPT_BIN" \
     "${EXTRA_ARGS[@]}"

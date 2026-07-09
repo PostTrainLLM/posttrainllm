@@ -10,7 +10,7 @@ final class ThermalMonitor: ObservableObject {
 }
 
 struct ThermalSafetyBanner: View {
-    @AppStorage("tinygpt.train.thermalBannerDismissed")
+    @AppStorage("posttrainllm.train.thermalBannerDismissed")
     private var dismissed = false
 
     var body: some View {

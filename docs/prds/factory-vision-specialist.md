@@ -43,7 +43,7 @@ Distill Pace's current screen-reading VLM (Qwen3-VL-8B via LM Studio at
    ```
 3. Matches teacher quality on a held-out Pace screenshot eval set
 4. Runs at ~1-2 GB RAM (~3× less than Qwen3-VL-8B)
-5. Drops in via `tinygpt serve --vlm <path>` for Pace's `LocalVLMClient`
+5. Drops in via `posttrainllm serve --vlm <path>` for Pace's `LocalVLMClient`
 
 ## Why P0
 
@@ -144,7 +144,7 @@ pretrained data already exists for the same task. See
     training row. Deterministic ground truth, no teacher errors.
   - Sarthak runs in the background during normal Mac use → ~500-2000
     pairs across his actual app set in a few days
-- Output: `~/.cache/tinygpt/datasets/vlm-ax-mac.jsonl`
+- Output: `~/.cache/posttrainllm/datasets/vlm-ax-mac.jsonl`
 
 **Stage C — teacher fill-in** (last resort, AX-blind cases only):
 - Apps where AX is blind: Electron-rendered, canvas-rendered (Figma,
@@ -161,7 +161,7 @@ objective. Don't train on these.
 - Output: `vlm-pace-v1.tinygpt` (or .safetensors)
 
 ### Milestone 8 — VLM serve integration
-- Add `--vlm <path>` flag to `tinygpt serve`
+- Add `--vlm <path>` flag to `posttrainllm serve`
 - Multipart request body: image part + text part (mirrors OpenAI's image-in-message format)
 - Output: standard OpenAI chat completion shape
 - Pace's `LocalVLMClient` already expects OpenAI-compat shape
@@ -217,7 +217,7 @@ objective. Don't train on these.
 
 ## Acceptance — full ship
 
-1. `tinygpt serve <hf-vlm-dir> --vlm-mode auto --port 8765` boots and accepts image inputs
+1. `posttrainllm serve <hf-vlm-dir> --vlm-mode auto --port 8765` boots and accepts image inputs
 2. End-to-end smoke: send a Pace screenshot via curl → returns a valid `[N] role|x,y|label|text` element list
 3. Eval ≥90% of teacher's element-detection rate on held-out screens
 4. RAM: ≤2 GB peak (vs Qwen3-VL-8B's ~6 GB Q4)
@@ -261,7 +261,7 @@ verified against `openai/clip-vit-large-patch14`.
   if present (handles both old `size: int` and new
   `size: {shortest_edge}` shapes). Synthetic gradient helper for
   smoke tests with no image.
-- `VLMSmoke.swift`: `tinygpt vlm-smoke <hf-dir> [image.png]`
+- `VLMSmoke.swift`: `posttrainllm vlm-smoke <hf-dir> [image.png]`
   subcommand. Loads, forwards, asserts shape/finite/std. Registered
   in `TinyGPT.swift` (single new case).
 
@@ -273,7 +273,7 @@ verified against `openai/clip-vit-large-patch14`.
 
 **Smoke result**:
 ```
-tinygpt vlm-smoke <openai/clip-vit-large-patch14 snapshot dir>
+posttrainllm vlm-smoke <openai/clip-vit-large-patch14 snapshot dir>
   → loads 24-layer ViT-L
   → forwards synthetic 224×224 → features [1, 257, 1024], finite
   → forwards real screenshot → features [1, 257, 1024], finite
@@ -313,7 +313,7 @@ LLaVA-1.5 / Qwen3-VL checkpoint's pretrained projector).
   keys (`linear_1`, `linear_2`) match LLaVA-1.5 safetensors naming so
   the HF VLM loader can splice in pretrained projector weights at M4
   without translation.
-- Extended `tinygpt vlm-smoke` to chain the projection after the
+- Extended `posttrainllm vlm-smoke` to chain the projection after the
   encoder forward: drops CLS, runs projection, asserts shape +
   finite + non-degenerate.
 
@@ -472,7 +472,7 @@ session, a clean `swift build -c release` is currently broken by a
 pre-existing async/await error in `ANEInference.swift:339` (the ANE
 elf's in-flight territory, called out as "Don't touch" by the PRD).
 The VLM specialist binary at
-`.build/arm64-apple-macosx/release/tinygpt` was built BEFORE that
+`.build/arm64-apple-macosx/release/posttrainllm` was built BEFORE that
 file was edited and still includes the VLM smoke subcommand working
 correctly — all three M1/M2/M3 smokes still pass against it. When
 the ANE elf clears their error, an incremental rebuild will produce

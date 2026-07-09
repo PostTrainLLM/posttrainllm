@@ -23,8 +23,8 @@ Pipeline:
 Usage:
   # boot LM Studio with Qwen3-14B-MLX-4bit first, then:
   python3 -u scripts/v11-amplify.py \\
-      --seeds ~/.cache/tinygpt/datasets/pace-v11-seed.jsonl \\
-      --out   ~/.cache/tinygpt/datasets/pace-v11-amplified.jsonl
+      --seeds ~/.cache/posttrainllm/datasets/pace-v11-seed.jsonl \\
+      --out   ~/.cache/posttrainllm/datasets/pace-v11-amplified.jsonl
 
 Expected wall: ~60-100 minutes on Qwen3-14B + thinking with N=4.
 """

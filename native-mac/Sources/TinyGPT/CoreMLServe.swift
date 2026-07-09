@@ -6,14 +6,14 @@ import TinyGPTModel
 import CoreML
 @preconcurrency import Tokenizers
 
-/// `tinygpt coreml-serve` — a minimal OpenAI-compatible HTTP server that
+/// `posttrainllm coreml-serve` — a minimal OpenAI-compatible HTTP server that
 /// routes inference through a Qwen3 stateful CoreML .mlpackage instead
 /// of MLX-Swift.
 ///
 /// Deviation from the PRD's `serve --coreml` flag spec
 /// ----------------------------------------------------
 ///
-/// The PRD specified the flag form `tinygpt serve --coreml <path>`. We
+/// The PRD specified the flag form `posttrainllm serve --coreml <path>`. We
 /// ship it as a sibling subcommand because:
 ///
 ///   1. The existing `Serve.swift` is 1880 lines of stable production
@@ -40,7 +40,7 @@ import CoreML
 /// What ships here
 /// ----------------
 ///   - POST /v1/completions   plain text completion (prompt:"...")
-///   - GET  /v1/models        list "tinygpt-coreml" so probe clients can
+///   - GET  /v1/models        list "posttrainllm-coreml" so probe clients can
 ///                            confirm readiness
 ///
 /// What does NOT ship here (and why)
@@ -61,7 +61,7 @@ import CoreML
 ///                                keeps the smoke surface clean
 ///
 /// USAGE
-///   tinygpt coreml-serve <pkg.mlpackage> --hf-dir <hf-dir> [--port 8765] [--max-context 256]
+///   posttrainllm coreml-serve <pkg.mlpackage> --hf-dir <hf-dir> [--port 8765] [--max-context 256]
 ///
 /// SMOKE
 ///   curl -s http://127.0.0.1:8765/v1/completions \
@@ -69,10 +69,10 @@ import CoreML
 enum CoreMLServe {
     static func run(args: [String]) {
         // The stateful CoreML server requires macOS 15+ (`MLState`,
-        // `coremltools.StateType`). Gate at runtime; the rest of TinyGPT
+        // `coremltools.StateType`). Gate at runtime; the rest of posttrainllm
         // still builds on macOS 14 where this subcommand is just a stub.
         guard #available(macOS 15.0, *) else {
-            fputs("tinygpt coreml-serve requires macOS 15+ (MLState).\n", stderr)
+            fputs("posttrainllm coreml-serve requires macOS 15+ (MLState).\n", stderr)
             exit(1)
         }
         runImpl(args: args)
@@ -117,7 +117,7 @@ enum CoreMLServe {
                                                   computeUnits: computeUnits,
                                                   maxContextOverride: maxContextOverride,
                                                   defaultMaxSeq: defaultMaxSeq)
-            print("tinygpt coreml-serve — listening on http://\(host):\(server.port)")
+            print("posttrainllm coreml-serve — listening on http://\(host):\(server.port)")
             print("mlpackage:    \(packagePath)")
             print("hf-dir:       \(hfDirPath)")
             print("compute:      \(computeUnits)")
@@ -130,7 +130,7 @@ enum CoreMLServe {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt coreml-serve <pkg.mlpackage> --hf-dir <hf-dir> [options]
+        usage: posttrainllm coreml-serve <pkg.mlpackage> --hf-dir <hf-dir> [options]
 
           --hf-dir PATH          HF dir for tokenizer + EOS detection
           --port N               TCP port (default 8765)
@@ -140,7 +140,7 @@ enum CoreMLServe {
 
         Endpoints:
           POST /v1/completions   OpenAI-shape text completion (non-streaming)
-          GET  /v1/models        probe: returns {"data":[{"id":"tinygpt-coreml"}]}
+          GET  /v1/models        probe: returns {"data":[{"id":"posttrainllm-coreml"}]}
           GET  /healthz          plain "ok" for liveness checks
 
         Note: this is the M4-M5 surface for the ANE conversion pipeline.
@@ -175,7 +175,7 @@ final class CoreMLServer: @unchecked Sendable {
     private let model: Qwen3ANEStateful
     private let tokenizer: Tokenizer
     private let eosTokenIds: Set<Int>
-    private let inferenceQueue = DispatchQueue(label: "tinygpt.coreml-serve.infer")
+    private let inferenceQueue = DispatchQueue(label: "posttrainllm.coreml-serve.infer")
     private var running = true
 
     init(listenFd: Int32, port: UInt16, host: String,
@@ -310,7 +310,7 @@ final class CoreMLServer: @unchecked Sendable {
         case ("GET", "/healthz"):
             writeResponse(cfd: cfd, status: 200, ctype: "text/plain", body: Data("ok".utf8))
         case ("GET", "/v1/models"):
-            let payload: [String: Any] = ["object": "list", "data": [["id": "tinygpt-coreml", "object": "model"]]]
+            let payload: [String: Any] = ["object": "list", "data": [["id": "posttrainllm-coreml", "object": "model"]]]
             sendJSON(cfd: cfd, payload: payload)
         case ("POST", "/v1/completions"):
             handleCompletion(cfd: cfd, body: body)
@@ -339,7 +339,7 @@ final class CoreMLServer: @unchecked Sendable {
         let payload: [String: Any] = [
             "id": "cmpl-\(Int(Date().timeIntervalSince1970*1000))",
             "object": "text_completion",
-            "model": "tinygpt-coreml",
+            "model": "posttrainllm-coreml",
             "choices": [[
                 "text": result.text,
                 "index": 0,
@@ -350,7 +350,7 @@ final class CoreMLServer: @unchecked Sendable {
                 "completion_tokens": result.completionTokens,
                 "total_tokens": result.promptTokens + result.completionTokens,
             ],
-            "_tinygpt": [
+            "_posttrainllm": [
                 "wall_seconds": elapsed,
                 "decode_tok_per_sec": Double(result.completionTokens) / max(elapsed, 1e-6),
                 "ane_loaded": true,

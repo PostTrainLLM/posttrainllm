@@ -7,7 +7,7 @@ enum AppTrainingCheckpoint {
     static var defaultURL: URL {
         FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".cache")
-            .appendingPathComponent("tinygpt")
+            .appendingPathComponent("posttrainllm")
             .appendingPathComponent("app-training")
             .appendingPathComponent("paused.tinygpt")
     }

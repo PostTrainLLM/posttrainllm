@@ -28,7 +28,7 @@ correct; the perf knob is a follow-up.
 
 ## What's wired today
 
-`tinygpt train --moe-experts N --moe-topk K --moe-aux-weight F`
+`posttrainllm train --moe-experts N --moe-topk K --moe-aux-weight F`
 
 - `--moe-experts N` (default 1): how many experts per block. Set to
   the same N at every block — heterogeneous MoE isn't supported yet.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect TinyGPT TGLA LoRA/DoRA adapter geometry.
+"""Inspect posttrainllm TGLA LoRA/DoRA adapter geometry.
 
 The script reports per-module effective update statistics without loading the
 base model. It parses the TGLA header plus A/B matrices and summarizes the

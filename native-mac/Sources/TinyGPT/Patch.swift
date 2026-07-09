@@ -3,7 +3,7 @@ import MLX
 import MLXRandom
 import TinyGPTModel
 
-/// `tinygpt patch` — activation patching (Meng et al. 2022).
+/// `posttrainllm patch` — activation patching (Meng et al. 2022).
 ///
 /// The Mac-CLI version of the browser playground's Inspect-tab
 /// patching. Two variants:
@@ -20,7 +20,7 @@ import TinyGPTModel
 ///             coord?
 ///
 /// USAGE
-///   tinygpt patch <model.tinygpt> --recipient "..." --layer N \
+///   posttrainllm patch <model.tinygpt> --recipient "..." --layer N \
 ///                 --position P [--zero | --donor "..." --donor-layer N --donor-position P] \
 ///                 [--tokens N] [--temperature F]
 enum Patch {
@@ -155,7 +155,7 @@ enum Patch {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt patch <model.tinygpt> --recipient "..." \\
+        usage: posttrainllm patch <model.tinygpt> --recipient "..." \\
                              --layer N --position P \\
                              [--zero | --donor "..." --donor-layer N --donor-position P] \\
                              [--tokens N] [--temperature F]

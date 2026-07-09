@@ -124,7 +124,7 @@ public final class WorkloadController {
                                          batchSize: config.batchSize)
             // For honesty: report tokens × effective_batch in
             // tokens/sec only when the engine actually scaled. For the
-            // TinyGPT in-process adapter, effective batch is 1.
+            // posttrainllm in-process adapter, effective batch is 1.
             let effectiveTokens = dec.tokens.count  // engine returns per-batch row 0 only
             collector.recordDecode(tokenCount: effectiveTokens,
                                     totalMs: dec.totalDecodeMs,

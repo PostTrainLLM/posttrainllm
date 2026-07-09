@@ -14,7 +14,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = Path.home() / ".cache/tinygpt/datasets/pace-v6_1-fixture-gold-sft.jsonl"
+OUT = Path.home() / ".cache/posttrainllm/datasets/pace-v6_1-fixture-gold-sft.jsonl"
 SYSTEM_PROMPT = ROOT / "grammars/pace-system-prompt-v6-label.txt"
 
 

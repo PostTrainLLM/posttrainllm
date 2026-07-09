@@ -1,8 +1,8 @@
-# TinyGPT Docs
+# posttrainllm Docs
 
-This is the canonical entrypoint for TinyGPT documentation.
+This is the canonical entrypoint for posttrainllm documentation.
 
-TinyGPT is a Mac-local specialist factory. The docs should let a new reader
+posttrainllm is a Mac-local specialist factory. The docs should let a new reader
 answer five questions without asking the project owner:
 
 1. What is this project?

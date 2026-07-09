@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""score_formula — measure (speed × accuracy) / cost for a tinygpt model.
+"""score_formula — measure (speed × accuracy) / cost for a posttrainllm model.
 
 The user's North Star (2026-06-09): result = (speed × accuracy) / cost-to-run.
 Higher = better. This script computes that score for any model+adapter setup,
@@ -22,7 +22,7 @@ with the same flags and compare formula scores.
 
 The script does NOT start serve — it expects you to have a serve running
 at --serve-url. This keeps it composable with whatever process management
-you prefer (the README suggests `tinygpt serve` directly).
+you prefer (the README suggests `posttrainllm serve` directly).
 """
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ HERE = Path(__file__).resolve().parent
 def time_request(url: str, sys_prompt: str, user: str,
                   max_tokens: int = 80, stream: bool = True) -> dict:
     body = {
-        "model": "tinygpt",
+        "model": "posttrainllm",
         "messages": [
             {"role": "system", "content": sys_prompt},
             {"role": "user", "content": user}
@@ -238,7 +238,7 @@ def main() -> None:
                      help="system prompt path (default: eval_pace_v2's default)")
     p.add_argument("--runs", type=int, default=5)
     p.add_argument("--out", type=Path, default=None,
-                     help="JSON output path (default: ~/.cache/tinygpt/scores/<label>-<ts>.json)")
+                     help="JSON output path (default: ~/.cache/posttrainllm/scores/<label>-<ts>.json)")
     args = p.parse_args()
 
     print(f"=== formula score: {args.label} ===")
@@ -248,7 +248,7 @@ def main() -> None:
 
     # System prompt for speed calibration
     sys_prompt_path = args.sys_prompt or Path(
-        "/Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-system-prompt-v6-label.txt"
+        "/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v6-label.txt"
     )
     sys_prompt = sys_prompt_path.read_text().strip()
 
@@ -292,7 +292,7 @@ def main() -> None:
         "cost": cost,
         "formula": formula,
     }
-    out_path = args.out or Path.home() / ".cache/tinygpt/scores" / f"{args.label}-{int(time.time())}.json"
+    out_path = args.out or Path.home() / ".cache/posttrainllm/scores" / f"{args.label}-{int(time.time())}.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(result, indent=2))
     print(f"\nwrote: {out_path}")

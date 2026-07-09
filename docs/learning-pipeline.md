@@ -1,7 +1,7 @@
 # Learning Pipeline
 
 The owner's learning track is now explicitly ground-up. It still reinforces the
-TinyGPT factory, but it does not start with post-training jargon.
+posttrainllm factory, but it does not start with post-training jargon.
 
 Primary path:
 
@@ -18,7 +18,7 @@ Progress is tracked in [`learning-progress.md`](learning-progress.md).
 ## Principle
 
 ```text
-concept -> toy implementation -> TinyGPT anchor -> recipe improvement
+concept -> toy implementation -> posttrainllm anchor -> recipe improvement
 ```
 
 If a learning topic does not improve target selection, data, post-training,

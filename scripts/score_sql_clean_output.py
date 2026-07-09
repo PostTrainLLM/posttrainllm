@@ -10,7 +10,7 @@ statement (docs/NEXT.md frozen target definition):
 
 Prose prefixes ("Answer: select ...") fail the SELECT check; trailing
 explanations fail the nothing-after-`;` check; fenced blocks fail the
-fence check. Execution accuracy is scored separately by `tinygpt
+fence check. Execution accuracy is scored separately by `posttrainllm
 eval-sql`; this metric only judges output hygiene.
 """
 

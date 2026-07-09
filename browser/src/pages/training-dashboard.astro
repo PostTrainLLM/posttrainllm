@@ -2,12 +2,12 @@
 import Default from "../layouts/Default.astro";
 
 const layoutProps = {
-  title: "TinyGPT — training run dashboard",
+  title: "posttrainllm — training run dashboard",
   description: "Drop a .jsonl training log to see loss, LR, val, step-rate, and spike markers — overlay multiple runs to compare.",
   ogType: "article",
-  ogTitle: "TinyGPT — training dashboard",
-  ogDescription: "In-house, zero-dependency viewer for tinygpt train --log-jsonl streams.",
-  twitterTitle: "TinyGPT — training dashboard",
+  ogTitle: "posttrainllm — training dashboard",
+  ogDescription: "In-house, zero-dependency viewer for posttrainllm train --log-jsonl streams.",
+  twitterTitle: "posttrainllm — training dashboard",
   twitterDescription: "Drop a .jsonl training log; see loss, LR, val, step-rate, and spike markers.",
   themeColor: "#0a0c10",
   loadFonts: false,
@@ -79,7 +79,7 @@ const pageStyle = `
     <h1>Training-run dashboard</h1>
     <p class="sub">
       Drop one or more <code>.jsonl</code> files produced by
-      <code>tinygpt train --log-jsonl &lt;path&gt;</code>. Files are parsed
+      <code>posttrainllm train --log-jsonl &lt;path&gt;</code>. Files are parsed
       in your browser only — nothing leaves this tab. Multiple runs overlay
       for side-by-side comparison.
     </p>

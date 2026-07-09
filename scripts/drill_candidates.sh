@@ -3,12 +3,12 @@
 # bases. Each gets the full combined h2 + h2-ext suite (ambig 40, oos 60,
 # destructive 30). Run after the current verification chain finishes.
 set -euo pipefail
-TGT=/Users/sarthak/Desktop/fleet/tinygpt
+TGT=/Users/sarthak/Desktop/fleet/posttrainllm
 SYSP="$TGT/grammars/pace-system-prompt-v11.txt"
 
 cleanup() {
   pkill -f "two_stage_shim" 2>/dev/null || true
-  pkill -f "tinygpt serve" 2>/dev/null || true
+  pkill -f "posttrainllm serve" 2>/dev/null || true
 }
 trap cleanup EXIT
 

@@ -12,7 +12,7 @@ document is a positive verification, with the supporting evidence and the
 specific gotchas we now know to guard against.
 
 Verified against MLX-Swift checkout under
-`/private/tmp/tinygpt-merge/SourcePackages/checkouts/mlx-swift`.
+`/private/tmp/posttrainllm-merge/SourcePackages/checkouts/mlx-swift`.
 
 ---
 
@@ -151,19 +151,19 @@ training where you also need gradients.
 
 ### Measurement
 
-Built `tinygpt` Release on commit `645c2f4` via:
+Built `posttrainllm` Release on commit `645c2f4` via:
 
 ```
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
-  -scheme tinygpt -destination "platform=macOS" \
-  -derivedDataPath /tmp/tinygpt-mlxfast -configuration Release build
+  -scheme posttrainllm -destination "platform=macOS" \
+  -derivedDataPath /tmp/posttrainllm-mlxfast -configuration Release build
 ```
 
 Build: **SUCCESS.**
 
 #### demo.tinygpt (headDim=32, slow-path)
 
-  `tinygpt sample browser/public/demo.tinygpt --prompt "ROMEO:" --tokens 50 --temperature 0`
+  `posttrainllm sample browser/public/demo.tinygpt --prompt "ROMEO:" --tokens 50 --temperature 0`
 
   Run 1: 50 tokens / 0.10s — **483 tok/s** (cold; includes Metal-shader compile)
   Run 2: 50 tokens / 0.08s — **647 tok/s**
@@ -175,10 +175,10 @@ Build: **SUCCESS.**
 
 #### mega5.tinygpt (headDim=64, fast-path)
 
-Trained 5 steps via `tinygpt train --preset mega --steps 5` so we have a
+Trained 5 steps via `posttrainllm train --preset mega --steps 5` so we have a
 fast-path-eligible model:
 
-  `tinygpt sample /tmp/mlxaudit/mega5.tinygpt --prompt "hello world" --tokens 50 --temperature 0`
+  `posttrainllm sample /tmp/mlxaudit/mega5.tinygpt --prompt "hello world" --tokens 50 --temperature 0`
 
   Run 1: 50 tokens / 0.29s — **175 tok/s** (cold)
   Run 2: 50 tokens / 0.22s — **229 tok/s**
@@ -247,7 +247,7 @@ When `tieEmbeddings == true`:
     module tree. Confirmed by:
       - `model.parameters()` doesn't enumerate `lm_head.weight` (MLX-Swift's
         `@ModuleInfo` with Optional reflects nil as "no child").
-      - The total parameter count from `tinygpt inspect` matches a model
+      - The total parameter count from `posttrainllm inspect` matches a model
         without a separate lm_head.
 
   * At forward, `tokenEmbedding.weight` is the SOLE matrix used for both
@@ -269,11 +269,11 @@ ln_final.{weight,bias}
 ```
 
 (I read the actual entries Train.swift emits — full list at lines 810-877.)
-Empirical confirmation via `tinygpt inspect /tmp/mlxaudit/mega5.tinygpt`:
+Empirical confirmation via `posttrainllm inspect /tmp/mlxaudit/mega5.tinygpt`:
 
   * `token_embedding.weight  [256, 512]  131,072` — one and only embedding-shaped tensor in the manifest.
   * No `lm_head.weight` row.
-  * Round-trip `tinygpt validate` passes bit-identical.
+  * Round-trip `posttrainllm validate` passes bit-identical.
 
 So a tied model NEVER writes a second copy. **Save path is clean.**
 
@@ -377,7 +377,7 @@ audited; no edits required:
 
 ## Build verdict
 
-`xcodebuild -scheme tinygpt -configuration Release` on commit `645c2f4`:
+`xcodebuild -scheme posttrainllm -configuration Release` on commit `645c2f4`:
 
 ```
 ** BUILD SUCCEEDED **
@@ -386,4 +386,4 @@ audited; no edits required:
 Sample smoke test passed on both:
   * demo.tinygpt (headDim=32, slow-path fallback) — 603 tok/s
   * /tmp/mlxaudit/mega5.tinygpt (headDim=64, fast-path) — 261 tok/s
-  * tinygpt validate confirms .tinygpt round-trip is byte-identical
+  * posttrainllm validate confirms .tinygpt round-trip is byte-identical

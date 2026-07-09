@@ -1,11 +1,11 @@
-# lm-evaluation-harness integration for tinygpt
+# lm-evaluation-harness integration for posttrainllm
 
-This doc describes how tinygpt plugs into [EleutherAI's
+This doc describes how posttrainllm plugs into [EleutherAI's
 `lm-evaluation-harness`](https://github.com/EleutherAI/lm-evaluation-harness),
 the canonical eval framework behind the HuggingFace Open LLM Leaderboard.
 With the wiring in this commit you can run **HellaSwag, ARC-Easy/Challenge,
 GSM8K, IFEval, MMLU-Pro, GPQA-Diamond, MATH-500, AIME, BBH, HumanEval, …**
-— anything the harness defines — against any tinygpt-loaded model.
+— anything the harness defines — against any posttrainllm-loaded model.
 
 For the *why* (benchmark landscape, leaderboard saturation, contamination
 issues), see [`docs/research/quality_benchmarks_may_2026.md`](research/quality_benchmarks_may_2026.md).
@@ -14,7 +14,7 @@ issues), see [`docs/research/quality_benchmarks_may_2026.md`](research/quality_b
 
 ```
 ┌────────────────┐     spawn      ┌──────────────────────┐
-│ lm-eval-harness│ ─────────────► │ tinygpt serve <model>│
+│ lm-eval-harness│ ─────────────► │ posttrainllm serve <model>│
 │  (python)      │                │  (Swift, MLX-Metal)  │
 └────────────────┘                └──────────────────────┘
         │                                   ▲
@@ -29,7 +29,7 @@ issues), see [`docs/research/quality_benchmarks_may_2026.md`](research/quality_b
 ```
 
 The harness's `local-chat-completions` adapter talks to any
-OpenAI-compatible HTTP endpoint. `tinygpt serve` *is* that endpoint —
+OpenAI-compatible HTTP endpoint. `posttrainllm serve` *is* that endpoint —
 implemented in `Sources/TinyGPTServe/Serve.swift` as a hand-rolled
 POSIX-socket HTTP server (zero new deps, ~600 LOC).
 
@@ -37,7 +37,7 @@ POSIX-socket HTTP server (zero new deps, ~600 LOC).
 
 | Endpoint                          | Method | Purpose                                          |
 |-----------------------------------|--------|--------------------------------------------------|
-| `/v1/models`                      | GET    | Lists `tinygpt` — used by clients to probe ready |
+| `/v1/models`                      | GET    | Lists `posttrainllm` — used by clients to probe ready |
 | `/v1/chat/completions`            | POST   | OpenAI ChatCompletion (messages: [...])          |
 | `/v1/completions`                 | POST   | OpenAI text completion (prompt: "...")           |
 
@@ -54,16 +54,16 @@ an already-formatted prompt directly.
 
 ## Setup
 
-### 1. Build tinygpt
+### 1. Build posttrainllm
 
 ```bash
 cd native-mac
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-  xcodebuild -scheme tinygpt -destination "platform=macOS" \
-  -derivedDataPath /tmp/tinygpt-smoke -configuration Release build
+  xcodebuild -scheme posttrainllm -destination "platform=macOS" \
+  -derivedDataPath /tmp/posttrainllm-smoke -configuration Release build
 ```
 
-This produces `/tmp/tinygpt-smoke/Build/Products/Release/tinygpt`. The
+This produces `/tmp/posttrainllm-smoke/Build/Products/Release/posttrainllm`. The
 `bench/run_quality_evals.sh` script auto-detects this path.
 
 ### 2. Wire `case "serve":` into TinyGPT.swift
@@ -77,9 +77,9 @@ case "serve":
 ```
 
 The constraint that left this un-wired was agent-coordination overhead.
-Once it's in, `tinygpt serve` becomes callable from the standard CLI.
+Once it's in, `posttrainllm serve` becomes callable from the standard CLI.
 
-There's also a stand-in executable `tinygpt-serve-smoke` (in
+There's also a stand-in executable `posttrainllm-serve-smoke` (in
 `Sources/TinyGPTServeSmoke/main.swift`) that exposes the same entry point
 through a separate binary — useful for testing the HTTP layer before the
 main dispatch is merged. Delete that target once `case "serve":` lands.
@@ -126,7 +126,7 @@ Env knobs:
 | `TASKS`        | `hellaswag,arc_easy`               | Comma-separated lm-eval task names                      |
 | `LIMIT`        | _empty_ (full)                     | Per-task example cap — set to e.g. `50` for smoke runs  |
 | `MAX_CONTEXT`  | _empty_ (model's native ctx)       | Truncate prompts to this length (helps for MMLU-Pro)    |
-| `TINYGPT_BIN`  | `/tmp/tinygpt-smoke/.../tinygpt`   | Explicit path to the binary                             |
+| `TINYGPT_BIN`  | `/tmp/posttrainllm-smoke/.../posttrainllm`   | Explicit path to the binary                             |
 
 Or call the Python wrapper directly:
 
@@ -177,20 +177,20 @@ into `bench/results/`.
 
 ### HTTP smoke-test results
 
-Captured during this commit using `tinygpt-serve-smoke` (the stand-in
+Captured during this commit using `posttrainllm-serve-smoke` (the stand-in
 executable) against `/tmp/flagship-huge.tinygpt`:
 
 ```text
 $ curl -s http://127.0.0.1:8765/v1/models
-{"object":"list","data":[{"object":"model","id":"tinygpt","owned_by":"tinygpt"}]}
+{"object":"list","data":[{"object":"model","id":"posttrainllm","owned_by":"posttrainllm"}]}
 
 $ curl -s -X POST http://127.0.0.1:8765/v1/chat/completions \
     -H "Content-Type: application/json" \
-    -d '{"model":"tinygpt","messages":[{"role":"user","content":"Once upon a time"}],"max_tokens":10,"temperature":0.0}'
+    -d '{"model":"posttrainllm","messages":[{"role":"user","content":"Once upon a time"}],"max_tokens":10,"temperature":0.0}'
 {"id":"chatcmpl-...","object":"chat.completion",
  "choices":[{"message":{"role":"assistant","content":"The first step in the process is to make a"},
              "finish_reason":"stop","index":0}],
- "model":"tinygpt","created":...,
+ "model":"posttrainllm","created":...,
  "usage":{"prompt_tokens":13,"completion_tokens":10,"total_tokens":23}}
 
 $ curl -s -X POST http://127.0.0.1:8765/v1/completions \
@@ -241,7 +241,7 @@ definitions go in `bench/tasks/<name>.yaml` and are picked up by
 For tasks that need a judge LLM (`mt_bench`, `arena_hard`, anything with
 `judge_model` in its config), expect to pay GPT-4 or Claude API costs.
 The harness's `--judge_model` flag accepts an OpenAI-compatible URL — so
-you could in principle judge tinygpt's output with another tinygpt
+you could in principle judge posttrainllm's output with another posttrainllm
 serving on a second port, but the resulting scores are not comparable
 to published numbers.
 
@@ -257,7 +257,7 @@ to published numbers.
   the left so the question survives. For real evaluation, retrain (or
   HF-load) at 4K+.
 - **Throughput** — uncached, one-forward-per-token. Throughput is ~50%
-  of `tinygpt sample`'s KV-cached path. The harness sends independent
+  of `posttrainllm sample`'s KV-cached path. The harness sends independent
   prompts so KV caching doesn't help across requests. Acceptable for
   HellaSwag-class tasks; painful for GSM8K-class generate-until.
   TODO: per-request KV cache.
@@ -272,7 +272,7 @@ to published numbers.
 - `Tests/TinyGPTServeTests/TinyGPTServeTests.swift` — XCTest covering
   HTTP parser + live endpoints
 - `python_ref/lm_eval_tinygpt.py` — subprocess wrapper that spawns
-  `tinygpt serve`, waits for ready, runs `lm-eval`
+  `posttrainllm serve`, waits for ready, runs `lm-eval`
 - `bench/run_quality_evals.sh` — one-liner driver writing to
   `bench/results/<model>-<timestamp>/`
 - `docs/research/quality_benchmarks_may_2026.md` — background research
@@ -280,7 +280,7 @@ to published numbers.
 
 ## Related
 
-- `tinygpt eval` — perplexity / bits-per-byte (val loss). Faster signal
+- `posttrainllm eval` — perplexity / bits-per-byte (val loss). Faster signal
   for byte-level models; complementary to harness multi-choice tasks.
-- `tinygpt bench` — inference-side latency/throughput harness.
+- `posttrainllm bench` — inference-side latency/throughput harness.
 - `docs/leaderboard.md` — places we plan to publish numbers.

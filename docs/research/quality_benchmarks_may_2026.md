@@ -1,4 +1,4 @@
-# LLM Quality Benchmark Landscape, May 2026 — Survey for tinygpt
+# LLM Quality Benchmark Landscape, May 2026 — Survey for posttrainllm
 
 *Research compiled by an Explore subagent on 2026-05-29 to cover the gap
 between my Jan 2026 knowledge cutoff and current state. Includes URLs.*
@@ -78,7 +78,7 @@ MATH-500, SWE-bench Verified**. Plain MMLU is now considered
 - **TinyStories PPL and bits-per-byte** stay valuable for byte-level
   models. The **NeurIPS 2025 E2LM** competition explicitly addresses
   early-training (<200B tokens) evaluation for sub-7B models —
-  directly relevant to tinygpt.
+  directly relevant to posttrainllm.
 
 **Requires paid API judge (cost gate):**
 - MT-Bench, AlpacaEval, Arena-Hard, GAIA-text-judge, HLE auto-grader,
@@ -98,7 +98,7 @@ MATH-500, SWE-bench Verified**. Plain MMLU is now considered
 - Berkeley RDI **agent benchmark exploit paper** (2026) — caveat on
   trusting τ/SWE/WebArena scores
 
-## Recommendation for tinygpt
+## Recommendation for posttrainllm
 
 Wire in (all local, no judge cost):
 1. **bits-per-byte on held-out TinyStories/Shakespeare** (already have

@@ -10,7 +10,7 @@
 set -euo pipefail
 TRAJ="${1:?trajectory jsonl}"; BASE="${2:?base model path}"; TAG="${3:-mt_distill}"
 # Fused model persists (survives /tmp cleanup); SFT data + adapter are cheap intermediates.
-OUTDIR="${OUTDIR:-$HOME/.cache/tinygpt/models}"; mkdir -p "$OUTDIR"
+OUTDIR="${OUTDIR:-$HOME/.cache/posttrainllm/models}"; mkdir -p "$OUTDIR"
 SFT_DATA="/tmp/${TAG}_data"; ADAPTER="/tmp/${TAG}_adapter"; FUSED="$OUTDIR/${TAG}_fused"
 
 # Domain-agnostic (works for filesystem AND other backends) — must match the prompt baked into

@@ -1,12 +1,12 @@
 import Foundation
 
-/// OpenAI-compatible tool schema for the `tinygpt agent` runtime.
+/// OpenAI-compatible tool schema for the `posttrainllm agent` runtime.
 ///
 /// # Format
 ///
 /// The agent reads a JSON file shaped like the OpenAI ChatCompletions
 /// `tools` array. Every tool has a `function` block with a `name`,
-/// `description`, and JSON-Schema `parameters`. tinygpt extends this
+/// `description`, and JSON-Schema `parameters`. posttrainllm extends this
 /// with two sibling fields that are otherwise ignored by OpenAI:
 ///
 ///   - `_exec`        — bash command template. `$arg` substitution maps
@@ -61,7 +61,7 @@ public struct ToolSchema {
         public let handler: String?
     }
 
-    /// Subset of JSON Schema we model. `tinygpt agent` only needs a
+    /// Subset of JSON Schema we model. `posttrainllm agent` only needs a
     /// flat object-of-scalars; nested object schemas pass through
     /// untouched so the schema is still emittable in the system prompt.
     ///
@@ -138,7 +138,7 @@ public struct ToolSchema {
             // Permit it — the executor will refuse to run the tool with a
             // clear error message. Some users may want to load a schema
             // that the model can SEE but the host fulfills outside the
-            // tinygpt loop.
+            // posttrainllm loop.
         }
         return Tool(
             name: name,

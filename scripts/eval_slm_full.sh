@@ -5,12 +5,12 @@
 #
 # Runs (in order):
 #   1. scripts/eval_planner.sh <model> <tag>        # unhappy-paths n=130
-#   2. tinygpt eval-bfcl --base-url … --out …       # BFCL 10 categories
-#   3. tinygpt eval-tau-bench --base-url … --out …  # retail + airline
+#   2. posttrainllm eval-bfcl --base-url … --out …       # BFCL 10 categories
+#   3. posttrainllm eval-tau-bench --base-url … --out …  # retail + airline
 #   4. scripts/bench_decode.py --url … --model …    # decode + RSS
 #
 # Produces per-suite artifacts under docs/research/data/<tag>/ and
-# updates ~/.cache/tinygpt/runs/h2-combined-<tag>/. Compose them into
+# updates ~/.cache/posttrainllm/runs/h2-combined-<tag>/. Compose them into
 # the leaderboard table with:
 #
 #   scripts/build_slm_leaderboard.py \
@@ -25,7 +25,7 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 URL_CHAT="http://127.0.0.1:1234/v1/chat/completions"
 URL_BASE="http://127.0.0.1:1234/v1"
 DATA_DIR="$REPO/docs/research/data"
-TINYGPT="$REPO/native-mac/.build/arm64-apple-macosx/release/tinygpt"
+TINYGPT="$REPO/native-mac/.build/arm64-apple-macosx/release/posttrainllm"
 
 FORCE=0
 POSARGS=()
@@ -42,7 +42,7 @@ TAG="${2:?usage: eval_slm_full.sh <lm-studio-model-id> <tag> [--force]}"
 OUT="$DATA_DIR/$TAG"
 mkdir -p "$OUT"
 
-UNHAPPY_JSON="$HOME/.cache/tinygpt/runs/h2-combined-$TAG/ambig.json"
+UNHAPPY_JSON="$HOME/.cache/posttrainllm/runs/h2-combined-$TAG/ambig.json"
 BFCL_JSON="$OUT/bfcl.json"
 TAU_JSON="$OUT/tau.json"
 DECODE_JSON="$OUT/decode.json"
@@ -61,10 +61,10 @@ skip_or_run() {
 skip_or_run "unhappy" "$UNHAPPY_JSON" bash "$REPO/scripts/eval_planner.sh" "$MODEL" "$TAG"
 
 # --- 2. BFCL ------------------------------------------------------------
-# tinygpt eval-bfcl writes to a temp dir; we copy its summary JSON to a
+# posttrainllm eval-bfcl writes to a temp dir; we copy its summary JSON to a
 # stable path so the leaderboard manifest can point at it.
 if [ ! -x "$TINYGPT" ]; then
-  echo "[bfcl/tau] tinygpt binary missing — build it with:" >&2
+  echo "[bfcl/tau] posttrainllm binary missing — build it with:" >&2
   echo "    cd native-mac && swift build -c release" >&2
   echo "[bfcl/tau] skipping these two suites; leaderboard will show '—' for them." >&2
 else

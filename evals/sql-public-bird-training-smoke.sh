@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-OUT="$(mktemp -d /tmp/tinygpt-sql-bird.XXXXXX)"
+OUT="$(mktemp -d /tmp/posttrainllm-sql-bird.XXXXXX)"
 python3 scripts/build_sql_bird_public_training.py \
   --out "$OUT" \
   --bird-limit 32 \

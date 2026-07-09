@@ -1,15 +1,15 @@
 import Foundation
 import TinyGPTData
 
-/// `tinygpt list-datasets [--specialist <kind>]` —
+/// `posttrainllm list-datasets [--specialist <kind>]` —
 /// pretty-print the curated dataset registry. The registry lives in
 /// TinyGPTData/DatasetRegistry.swift; this command is just the lens.
 ///
 /// USAGE
-///   tinygpt list-datasets                          # everything
-///   tinygpt list-datasets --specialist tool-calling
-///   tinygpt list-datasets --specialist math
-///   tinygpt list-datasets --info Salesforce/xlam-function-calling-60k
+///   posttrainllm list-datasets                          # everything
+///   posttrainllm list-datasets --specialist tool-calling
+///   posttrainllm list-datasets --specialist math
+///   posttrainllm list-datasets --info Salesforce/xlam-function-calling-60k
 enum ListDatasets {
 
     static func run(args: [String]) {
@@ -57,7 +57,7 @@ enum ListDatasets {
 
         // Group by specialist for the all-list view.
         if specialist == nil && format == nil {
-            print("tinygpt curated dataset registry  (\(entries.count) entries)")
+            print("posttrainllm curated dataset registry  (\(entries.count) entries)")
             print(String(repeating: "=", count: 72))
             for spec in DatasetSpecialist.allCases {
                 let group = DatasetRegistry.entries(for: spec)
@@ -70,11 +70,11 @@ enum ListDatasets {
             let header = specialist.map { "specialist: \($0.rawValue)" }
                 ?? format.map { "format: \($0.rawValue)" }
                 ?? "all"
-            print("tinygpt datasets — \(header)  (\(entries.count) entries)")
+            print("posttrainllm datasets — \(header)  (\(entries.count) entries)")
             print(String(repeating: "=", count: 72))
             for e in entries { printEntryShort(e) }
             print("")
-            print("download with:  tinygpt download-dataset hf://datasets/<id>")
+            print("download with:  posttrainllm download-dataset hf://datasets/<id>")
             // For specialists with GitHub recipes (debugger / code), also
             // list the curated repos. The HF datasets are pre-packaged;
             // the GitHub recipes are live signal — both belong in the
@@ -88,7 +88,7 @@ enum ListDatasets {
                     print(String(repeating: "-", count: 72))
                     for r in recipes { printRecipeShort(r) }
                     print("")
-                    print("fetch with:     tinygpt fetch-github <owner/repo> --kind issues-prs")
+                    print("fetch with:     posttrainllm fetch-github <owner/repo> --kind issues-prs")
                 }
             }
         }
@@ -120,7 +120,7 @@ enum ListDatasets {
         \(e.notes)
 
         download:
-          tinygpt download-dataset hf://datasets/\(e.id) --format \(e.format.rawValue)
+          posttrainllm download-dataset hf://datasets/\(e.id) --format \(e.format.rawValue)
 
         """)
     }
@@ -133,10 +133,10 @@ enum ListDatasets {
         let specs = DatasetSpecialist.allCases.map(\.rawValue).joined(separator: " | ")
         print("""
         usage:
-          tinygpt list-datasets                          show full registry
-          tinygpt list-datasets --specialist <kind>      filter by specialist
-          tinygpt list-datasets --format sft|dpo|plain   filter by target format
-          tinygpt list-datasets --info <id>              detailed info for one entry
+          posttrainllm list-datasets                          show full registry
+          posttrainllm list-datasets --specialist <kind>      filter by specialist
+          posttrainllm list-datasets --format sft|dpo|plain   filter by target format
+          posttrainllm list-datasets --info <id>              detailed info for one entry
 
         specialists: \(specs)
         """)

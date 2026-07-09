@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build the theme-completer training corpus from fetched palette data.
 
-Reads from ~/.cache/tinygpt/datasets/themes/{tailwind,open-color,radix-*}.{json,js,ts}
-Writes ~/.cache/tinygpt/datasets/themes-train.jsonl
+Reads from ~/.cache/posttrainllm/datasets/themes/{tailwind,open-color,radix-*}.{json,js,ts}
+Writes ~/.cache/posttrainllm/datasets/themes-train.jsonl
 
 Each row = {"prompt": "...", "completion": "..."} — train a model to
 predict the rest of a palette given 2-3 colors.
@@ -16,8 +16,8 @@ import sys
 from pathlib import Path
 from itertools import combinations
 
-CACHE = Path.home() / ".cache" / "tinygpt" / "datasets" / "themes"
-OUT_JSONL = Path.home() / ".cache" / "tinygpt" / "datasets" / "themes-train.jsonl"
+CACHE = Path.home() / ".cache" / "posttrainllm" / "datasets" / "themes"
+OUT_JSONL = Path.home() / ".cache" / "posttrainllm" / "datasets" / "themes-train.jsonl"
 
 HEX_RE = re.compile(r"#?([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b")
 

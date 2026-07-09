@@ -73,11 +73,11 @@ overlap.
 ## The whitespace (one line each)
 
 1. **Mac-first training as a product** — owned by a library (MLX-LM), not
-   a product. → TinyGPT's B6 + B31.
+   a product. → posttrainllm's B6 + B31.
 2. **Eval + interp + local, fused** — category-of-one; nobody combines all
-   three. → TinyGPT already ships the fusion.
+   three. → posttrainllm already ships the fusion.
 3. **Academic agent benchmarks as a local CI gate** — BFCL/τ-bench are
-   leaderboards, not products. → TinyGPT wrapped both (E1/E2); reframe as a
+   leaderboards, not products. → posttrainllm wrapped both (E1/E2); reframe as a
    workflow primitive (B32).
 
 ## Consolidation (the market is being rolled up)

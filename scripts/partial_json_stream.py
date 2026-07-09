@@ -18,7 +18,7 @@ Usage as a library:
     parser = PartialJSONStream()
     parser.on_chunk = lambda f, t: print(f"{f}: {t}", end="", flush=True)
     parser.on_complete = lambda f, v: print(f"\n[{f} = {v!r}]")
-    for tok in tinygpt_serve_sse_stream(prompt):
+    for tok in posttrainllm_serve_sse_stream(prompt):
         parser.feed(tok)
 
 Usage as a CLI to validate against a live serve:
@@ -280,12 +280,12 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--unit", action="store_true", help="run unit tests only, no serve")
     p.add_argument("--serve-url", default="http://127.0.0.1:8765/v1/chat/completions")
-    p.add_argument("--model", default="tinygpt")
+    p.add_argument("--model", default="posttrainllm")
     p.add_argument("--prompt", default="click the save button")
     p.add_argument("--elements", action="append", default=[],
                      help="repeatable; each is one ELEMENT line")
     p.add_argument("--sys-prompt", type=Path,
-                     default=Path("/Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-system-prompt-v6-label.txt"))
+                     default=Path("/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v6-label.txt"))
     p.add_argument("--max-tokens", type=int, default=200)
     args = p.parse_args()
 

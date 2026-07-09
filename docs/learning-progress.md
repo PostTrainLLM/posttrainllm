@@ -1,7 +1,7 @@
 # Learning Progress Tracker
 
 This tracker makes the owner learning pipeline measurable. The goal is to learn
-from the ground up while using TinyGPT as the lab.
+from the ground up while using posttrainllm as the lab.
 
 Status values:
 
@@ -20,7 +20,7 @@ Canonical roadmap: [`learn/curriculum.md`](learn/curriculum.md).
 | 2 | Loss and gradient descent | `reading` | Session 2 exists and has worked examples | Compute one MSE + gradient step by hand |
 | 3 | Vectors, matrices, tensors | `not-started` | References exist; polished session missing | Write compact tensor-shapes session or checkpoint from references |
 | 4 | Non-linear neural nets + backprop | `not-started` | Session 3 exists | Run/inspect tiny non-linear example |
-| 5 | ML paradigms and scaling | `not-started` | Sessions 4 and 5 exist | Classify TinyGPT attempts by paradigm |
+| 5 | ML paradigms and scaling | `not-started` | Sessions 4 and 5 exist | Classify posttrainllm attempts by paradigm |
 | 6 | Tokenization, embeddings, language modeling | `not-started` | Session 6 exists | Tokenize SQL prompts and inspect splits |
 | 7 | Attention and transformer blocks | `not-started` | References exist; polished session missing | Work one tiny Q/K/V attention example |
 | 8 | Training mechanics | `not-started` | Session 8 exists | Inspect tiny overfit gate and failure symptoms |

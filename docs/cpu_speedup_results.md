@@ -268,10 +268,10 @@ run-to-run noise band.
 
 ```sh
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-  xcodebuild -scheme tinygpt -destination "platform=macOS" \
-  -derivedDataPath /tmp/tinygpt-cpubundle -configuration Release build
+  xcodebuild -scheme posttrainllm -destination "platform=macOS" \
+  -derivedDataPath /tmp/posttrainllm-cpubundle -configuration Release build
 
-BIN=/tmp/tinygpt-cpubundle/Build/Products/Release/tinygpt \
+BIN=/tmp/posttrainllm-cpubundle/Build/Products/Release/posttrainllm \
   STEPS=80 BATCH=16 PRESET=small \
   bash scripts/cpu_bundle_bench.sh
 ```
@@ -279,7 +279,7 @@ BIN=/tmp/tinygpt-cpubundle/Build/Products/Release/tinygpt \
 The harness toggles each item via env var (`TINYGPT_DISABLE_*=1`) and
 the `--prefetch on/off` flag. It runs three trials per config and
 reports the median. Median is preferred over mean because of the
-heavy-tailed outliers we get from `tinygpt train` cold-starts on
+heavy-tailed outliers we get from `posttrainllm train` cold-starts on
 macOS (first run after build is consistently 30-40% slower).
 
 ---

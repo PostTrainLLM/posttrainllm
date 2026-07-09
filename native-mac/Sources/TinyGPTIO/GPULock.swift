@@ -3,18 +3,18 @@ import Foundation
 /// Cross-process GPU coordination via file-lock.
 ///
 /// Why this exists: macOS lets any process dispatch Metal compute work
-/// concurrently. When TWO MLX processes (e.g., tinygpt training + a
+/// concurrently. When TWO MLX processes (e.g., posttrainllm training + a
 /// researchPapers MLX tagger) both saturate the GPU, both run slower
 /// than either would alone — and the laptop can discharge while
 /// charging because total power draw exceeds adapter throughput.
 ///
-/// This module provides a cooperative lock: long-running tinygpt
+/// This module provides a cooperative lock: long-running posttrainllm
 /// commands (train, sample with --max-tokens > N, agent-eval) acquire
-/// the lock; other tinygpt invocations either wait or fail-fast. The
-/// lock does NOT prevent NON-tinygpt MLX processes from running —
+/// the lock; other posttrainllm invocations either wait or fail-fast. The
+/// lock does NOT prevent NON-posttrainllm MLX processes from running —
 /// that's a different problem.
 ///
-/// Lock file: ~/.cache/tinygpt/gpu.lock
+/// Lock file: ~/.cache/posttrainllm/gpu.lock
 /// Contains: pid, command name, start time. A stale lock (process
 /// no longer alive) is auto-cleared on next acquire attempt.
 public enum GPULock {
@@ -26,7 +26,7 @@ public enum GPULock {
         public var description: String {
             switch self {
             case .heldByAnother(let pid, let command, let startedAt):
-                return "GPU lock held by another tinygpt process (PID \(pid), `\(command)`, started \(startedAt)). Wait, or pass --no-gpu-lock to skip."
+                return "GPU lock held by another posttrainllm process (PID \(pid), `\(command)`, started \(startedAt)). Wait, or pass --no-gpu-lock to skip."
             case .lockfileError(let msg):
                 return "GPU lock file error: \(msg)"
             }
@@ -48,7 +48,7 @@ public enum GPULock {
     /// Path to the lock file.
     public static var lockFileURL: URL {
         let home = FileManager.default.homeDirectoryForCurrentUser
-        return home.appendingPathComponent(".cache/tinygpt/gpu.lock")
+        return home.appendingPathComponent(".cache/posttrainllm/gpu.lock")
     }
 
     /// Try to acquire the lock. Returns the lock token (a file handle)

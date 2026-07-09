@@ -1,5 +1,5 @@
 """
-model.py — byte-level TinyGPT model (Phase 1-2).
+model.py — byte-level posttrainllm model (Phase 1-2).
 
 The ~0.8M-parameter causal language model from docs/model_guide.md and
 configs/model.byte-tinygpt-v0.json.
@@ -132,7 +132,7 @@ class TransformerBlock(nn.Module):
         return x
 
 
-class TinyGPT(nn.Module):
+class posttrainllm(nn.Module):
     """Byte-level causal language model with tied input/output embeddings."""
 
     def __init__(self, cfg: ModelConfig):
@@ -227,16 +227,16 @@ class TinyGPT(nn.Module):
         return idx
 
 
-def build_model(config_path: str | Path) -> TinyGPT:
+def build_model(config_path: str | Path) -> posttrainllm:
     """Convenience constructor used by train.py / sample.py / tests."""
-    return TinyGPT(ModelConfig.from_json(config_path))
+    return posttrainllm(ModelConfig.from_json(config_path))
 
 
 if __name__ == "__main__":
     # Smoke check: param count and a random-model forward pass.
     here = Path(__file__).resolve().parent.parent
     cfg = ModelConfig.from_json(here / "configs" / "model.byte-tinygpt-v0.json")
-    model = TinyGPT(cfg)
+    model = posttrainllm(cfg)
     print(f"{cfg.model_name}: {model.num_params():,} parameters")
 
     x = torch.randint(0, cfg.vocab_size, (2, cfg.context_length))

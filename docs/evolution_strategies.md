@@ -21,7 +21,7 @@ Alternative to Reinforcement Learning" ([arXiv:1703.03864](https://arxiv.org/abs
 ## Command
 
 ```sh
-tinygpt es <model.tinygpt> --corpus <text> \
+posttrainllm es <model.tinygpt> --corpus <text> \
     --steps 200 --population 40 --sigma 0.02 --lr 0.01 \
     --out es-trained.tinygpt
 ```

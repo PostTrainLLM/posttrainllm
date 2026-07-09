@@ -112,7 +112,7 @@ function humanize(s: string): string {
 const title = frontmatter?.title ?? humanize(slug);
 const description =
   frontmatter?.description ??
-  `TinyGPT docs — ${title}. Rendered from the repo's docs/ markdown.`;
+  `posttrainllm docs — ${title}. Rendered from the repo's docs/ markdown.`;
 ---
 
 <DocLayout title={title} description={description} sourcePath={sourcePath}>

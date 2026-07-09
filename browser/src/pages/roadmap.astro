@@ -6,13 +6,13 @@
 import Default from "../layouts/Default.astro";
 
 const layoutProps = {
-  title: "TinyGPT — the performance journey",
-  description: "The performance journey of TinyGPT — every speed lever, what's shipped, what's blocked, and why.",
+  title: "posttrainllm — the performance journey",
+  description: "The performance journey of posttrainllm — every speed lever, what's shipped, what's blocked, and why.",
   ogType: "article",
-  ogTitle: "TinyGPT — the performance journey",
+  ogTitle: "posttrainllm — the performance journey",
   ogDescription: "Every speed lever, what's shipped, what's blocked, and why. Scalar → SIMD → threads → WebGPU naive → blocked-4×4. End-to-end speedup grows from 2.6× at Small to 12.1× at XL — anchored to numbers you can reproduce.",
-  twitterTitle: "TinyGPT — the performance journey",
-  twitterDescription: "Every speed lever in TinyGPT, what's shipped, what's blocked, and why — with reproducible numbers.",
+  twitterTitle: "posttrainllm — the performance journey",
+  twitterDescription: "Every speed lever in posttrainllm, what's shipped, what's blocked, and why — with reproducible numbers.",
   themeColor: "#08090a",
 };
 
@@ -379,7 +379,7 @@ const pageBody = `
           <span class="tag">roadmap</span>
         </div>
         <p class="lede">
-          A live ledger of every lever that would make in-browser training of TinyGPT
+          A live ledger of every lever that would make in-browser training of posttrainllm
           faster — what's shipped, what's blocked, what's open, and the honest reason
           each is in the state it's in. <strong>~80% of training time is matmul</strong>;
           most of these levers attack it from a different angle.
@@ -557,7 +557,7 @@ const pageBody = `
             <span class="why-key">Why now</span>
             <span class="why-val">Smallest cost / biggest immediate win.
             Doesn't change any maths, just generates better machine code.
-            See <a href="https://github.com/sarthak-fleet/tinygpt/blob/main/docs/performance.md">docs/performance.md</a>.</span>
+            See <a href="https://github.com/sarthak-fleet/posttrainllm/blob/main/docs/performance.md">docs/performance.md</a>.</span>
           </div>
         </div>
       </article>
@@ -808,7 +808,7 @@ const pageBody = `
         </div>
         <div class="lever-meta">
           <span>Impact: <strong>~2× model size</strong> (in fp32)</span>
-          <span>Needs: <code>tinygpt64.{js,wasm}</code></span>
+          <span>Needs: <code>posttrainllm64.{js,wasm}</code></span>
         </div>
         <div class="lever-body">
           <p>
@@ -832,7 +832,7 @@ const pageBody = `
             falls back to the 32-bit module for XL/Massive/Mega/Behemoth
             in-browser. Reproducer: <code>tests/test_wasm64_xl_node.mjs</code>.
             Lesson captured in
-            <a href="https://github.com/sarthak-fleet/tinygpt/blob/main/docs/archive/lessons.md">
+            <a href="https://github.com/sarthak-fleet/posttrainllm/blob/main/docs/archive/lessons.md">
               <code>docs/archive/lessons.md</code></a>.
           </p>
         </div>
@@ -1080,8 +1080,8 @@ const pageBody = `
           <div class="why">
             <span class="why-key">Design notes</span>
             <span class="why-val">
-              <a href="https://github.com/sarthak-fleet/tinygpt/blob/main/docs/fa2_forward_notes.md">fa2_forward_notes.md</a>
-              · <a href="https://github.com/sarthak-fleet/tinygpt/blob/main/docs/fa2_backward_notes.md">fa2_backward_notes.md</a>
+              <a href="https://github.com/sarthak-fleet/posttrainllm/blob/main/docs/fa2_forward_notes.md">fa2_forward_notes.md</a>
+              · <a href="https://github.com/sarthak-fleet/posttrainllm/blob/main/docs/fa2_backward_notes.md">fa2_backward_notes.md</a>
             </span>
           </div>
         </div>
@@ -1137,7 +1137,7 @@ const pageBody = `
             gradients before stepping. Empirically matches AdamW in fewer
             steps. Skipped here because faster-convergence isn't the project's
             constraint — readability and per-step compute are. Listed in
-            <a href="https://github.com/sarthak-fleet/tinygpt/blob/main/docs/feature_ideas.md"><code>docs/feature_ideas.md</code></a>
+            <a href="https://github.com/sarthak-fleet/posttrainllm/blob/main/docs/feature_ideas.md"><code>docs/feature_ideas.md</code></a>
             for whenever someone wants to port it as a contributor experiment.
           </p>
         </div>
@@ -1295,7 +1295,7 @@ const pageBody = `
             <li><strong>LoRA fine-tuning.</strong> Load a base checkpoint, freeze
                 the weights, train low-rank adapter matrices on your own corpus.
                 The Python reference already supports this
-                (<a href="https://github.com/sarthak-fleet/tinygpt/blob/main/docs/lora_guide.md"><code>docs/lora_guide.md</code></a>);
+                (<a href="https://github.com/sarthak-fleet/posttrainllm/blob/main/docs/lora_guide.md"><code>docs/lora_guide.md</code></a>);
                 the hook is "load a gallery model → click Fine-tune → watch the
                 voice shift in a few minutes." Pairs directly with lever 17.</li>
           </ul>
@@ -1360,7 +1360,7 @@ const pageBody = `
           <p>
             <strong>The boundary</strong> between what belongs in-browser and
             what belongs native is in
-            <a href="https://github.com/sarthak-fleet/tinygpt/blob/main/docs/shared_vs_native.md">
+            <a href="https://github.com/sarthak-fleet/posttrainllm/blob/main/docs/shared_vs_native.md">
               <code>docs/shared_vs_native.md</code></a>.
             Together with the gallery (lever 17), the diverse-data milestone
             (lever 18), and the quant + LoRA bundle (lever 19, which lands
@@ -1498,7 +1498,7 @@ const pageBody = `
 
       <footer>
         <span>Have a faster idea?</span>
-        <a href="https://github.com/sarthak-fleet/tinygpt/issues/new" target="_blank" rel="noopener">Open an issue ↗</a>
+        <a href="https://github.com/sarthak-fleet/posttrainllm/issues/new" target="_blank" rel="noopener">Open an issue ↗</a>
         <span>·</span>
         <a href="/playground">Back to the playground</a>
         <span>·</span>
@@ -1506,7 +1506,7 @@ const pageBody = `
         <span>·</span>
         <a href="/docs">Docs library ↗</a>
         <span>·</span>
-        <a href="https://github.com/sarthak-fleet/tinygpt" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="https://github.com/sarthak-fleet/posttrainllm" target="_blank" rel="noopener">GitHub ↗</a>
       </footer>
     </div>
   `;

@@ -16,8 +16,8 @@ import path from "node:path";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const modPath = path.join(here, "..", "browser", "public", "tinygpt64.js");
 
-const { default: createTinyGPT } = await import(modPath);
-const M = await createTinyGPT();
+const { default: createposttrainllm } = await import(modPath);
+const M = await createposttrainllm();
 
 // Raw exports (Memory64-aware ABI: pointers as BigInt, scalars as Number).
 const create = M._tg_model_create;

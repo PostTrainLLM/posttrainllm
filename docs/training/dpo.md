@@ -65,7 +65,7 @@ Full catalog with URLs and licenses in
 
 ```bash
 # Once we tokenize UltraFeedback into the JSONL shape DPO expects.
-.xcode-build/Build/Products/Debug/tinygpt dpo \
+.xcode-build/Build/Products/Debug/posttrainllm dpo \
     /tmp/mega-fineweb.tinygpt \
     --data /tmp/ultrafeedback.jsonl \
     --template chatml \
@@ -76,7 +76,7 @@ Full catalog with URLs and licenses in
     --out /tmp/mega-dpo.lora
 ```
 
-`tinygpt dpo` accepts either the flat `{prompt, chosen, rejected}`
+`posttrainllm dpo` accepts either the flat `{prompt, chosen, rejected}`
 shape or the HF chat-array shape — see `PreferenceReader` for details.
 
 ## How to know it worked
@@ -85,7 +85,7 @@ DPO loss alone is hard to interpret directly. The useful signal is
 **preference accuracy**: at evaluation, sample two responses from the
 policy and the reference for the same held-out prompt, run them through
 a stronger judge model, and report what fraction of the time the policy
-beats the reference. That's an upcoming `tinygpt dpo-eval` command;
+beats the reference. That's an upcoming `posttrainllm dpo-eval` command;
 for now, eyeball samples.
 
 ## Background reading

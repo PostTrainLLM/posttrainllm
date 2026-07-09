@@ -78,7 +78,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     comparisons: [
       {
-        name: "TinyGPT routed SQL v1",
+        name: "posttrainllm routed SQL v1",
         metric: "b-mc2 exact / synthetic exec",
         score: "0.531 / 0.860",
         size: "0.6B base + 2 routed LoRAs",
@@ -91,7 +91,7 @@ export const artifacts: ArtifactEntry[] = [
         score: "0.484",
         size: "~60M",
         comparability: "Direct",
-        note: "Same 64-row public slice; TinyGPT is +4.7 points exact on this narrow gate.",
+        note: "Same 64-row public slice; posttrainllm is +4.7 points exact on this narrow gate.",
         sourceHref: "https://huggingface.co/cssupport/t5-small-awesome-text-to-sql",
       },
       {
@@ -109,7 +109,7 @@ export const artifacts: ArtifactEntry[] = [
         score: "68.47%",
         size: "7B",
         comparability: "Not comparable",
-        note: "Useful target class for public SQL execution; TinyGPT must add a BIRD/Spider execution gate before claiming this lane.",
+        note: "Useful target class for public SQL execution; posttrainllm must add a BIRD/Spider execution gate before claiming this lane.",
         sourceHref: "https://www.snowflake.com/en/blog/engineering/arctic-text2sql-r1-sql-generation-benchmark/",
       },
       {
@@ -148,8 +148,8 @@ export const artifacts: ArtifactEntry[] = [
     evidence: [
       { label: "SQL POC report", href: "/docs/specialists/b1-sql-poc" },
       { label: "Public artifact registry", href: "/docs/factory/public-artifacts" },
-      { label: "Router smoke", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/evals/sql-routed-router-smoke.sh" },
-      { label: "Router implementation", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/scripts/run_sql_routed_generate.py" },
+      { label: "Router smoke", href: "https://github.com/sarthak-fleet/posttrainllm/blob/main/evals/sql-routed-router-smoke.sh" },
+      { label: "Router implementation", href: "https://github.com/sarthak-fleet/posttrainllm/blob/main/scripts/run_sql_routed_generate.py" },
     ],
     blockers: [
       {
@@ -191,7 +191,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     comparisons: [
       {
-        name: "TinyGPT Qwen3-4B file-ops specialist",
+        name: "posttrainllm Qwen3-4B file-ops specialist",
         metric: "local file-ops hard gate",
         score: "100%",
         size: "4B, 7.5GB package",
@@ -229,7 +229,7 @@ export const artifacts: ArtifactEntry[] = [
         score: "61.1%",
         size: "13 tracked models",
         comparability: "Directional",
-        note: "LLM Stats reports 13 self-reported rows and 0 verified rows; TinyGPT still needs a full BFCL submission for direct comparison.",
+        note: "LLM Stats reports 13 self-reported rows and 0 verified rows; posttrainllm still needs a full BFCL submission for direct comparison.",
         sourceHref: "https://llm-stats.com/benchmarks/bfcl-v4",
       },
       {
@@ -254,11 +254,11 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     evidence: [
-      { label: "Model card", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/specialists/qwen3-4b-file-ops-distilled/model_card.md" },
+      { label: "Model card", href: "https://github.com/sarthak-fleet/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/model_card.md" },
       { label: "Hugging Face model", href: "https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled" },
-      { label: "Eval report", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/specialists/qwen3-4b-file-ops-distilled/eval_report.json" },
+      { label: "Eval report", href: "https://github.com/sarthak-fleet/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/eval_report.json" },
       { label: "Frontier parity writeup", href: "/docs/learn/tool-calling-frontier-parity" },
-      { label: "Specialist registry", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/specialists/registry.json" },
+      { label: "Specialist registry", href: "https://github.com/sarthak-fleet/posttrainllm/blob/main/specialists/registry.json" },
     ],
     blockers: [
       {
@@ -281,9 +281,9 @@ export const artifacts: ArtifactEntry[] = [
     summary:
       "The local specialist model cache was promoted to Hugging Face or deleted when safely re-downloadable from upstream repos.",
     lede:
-      "This archive makes artifact storage explicit: unique TinyGPT model outputs live on Hugging Face, while plain upstream base-model caches are removed locally instead of being mirrored under TinyGPT.",
+      "This archive makes artifact storage explicit: unique posttrainllm model outputs live on Hugging Face, while plain upstream base-model caches are removed locally instead of being mirrored under posttrainllm.",
     metrics: [
-      { label: "TinyGPT HF repos", value: "5", context: "unique specialist or converted model artifacts" },
+      { label: "posttrainllm HF repos", value: "5", context: "unique specialist or converted model artifacts" },
       { label: "Local model cache", value: "cleared", context: "after upload/remote-size verification" },
       { label: "Storage policy", value: "HF first", context: "R2 remains optional private cache or legacy mirror" },
     ],
@@ -316,7 +316,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     tables: [
       {
-        title: "Uploaded TinyGPT artifacts",
+        title: "Uploaded posttrainllm artifacts",
         columns: ["Artifact", "HF repo", "Status", "Readout"],
         rows: [
           [
@@ -347,7 +347,7 @@ export const artifacts: ArtifactEntry[] = [
             "vibe_distill_fused",
             "vibethinker-3b-agentic-distilled",
             "archive",
-            "TinyGPT distilled VibeThinker variant; needs eval promotion before product use",
+            "posttrainllm distilled VibeThinker variant; needs eval promotion before product use",
           ],
         ],
       },
@@ -355,9 +355,9 @@ export const artifacts: ArtifactEntry[] = [
         title: "Deleted upstream caches",
         columns: ["Local cache", "Upstream repo", "Reason"],
         rows: [
-          ["mxbai-embed-large-v1", "mixedbread-ai/mxbai-embed-large-v1", "Public upstream cache; no TinyGPT delta"],
-          ["qwen3-embedding-0.6b", "Qwen/Qwen3-Embedding-0.6B", "Public upstream cache; no TinyGPT delta"],
-          ["qwen3-vl-2b-instruct", "Qwen/Qwen3-VL-2B-Instruct", "Public upstream cache; no TinyGPT delta"],
+          ["mxbai-embed-large-v1", "mixedbread-ai/mxbai-embed-large-v1", "Public upstream cache; no posttrainllm delta"],
+          ["qwen3-embedding-0.6b", "Qwen/Qwen3-Embedding-0.6B", "Public upstream cache; no posttrainllm delta"],
+          ["qwen3-vl-2b-instruct", "Qwen/Qwen3-VL-2B-Instruct", "Public upstream cache; no posttrainllm delta"],
         ],
       },
     ],
@@ -394,7 +394,7 @@ export const artifacts: ArtifactEntry[] = [
     kind: "Factory contract",
     tags: ["factory", "evals", "reports"],
     summary:
-      "The canonical target -> data -> post-training -> eval -> package -> report shape for TinyGPT runs.",
+      "The canonical target -> data -> post-training -> eval -> package -> report shape for posttrainllm runs.",
     lede:
       "A specialist factory needs proof folders, not vibes. This schema defines the local run directory, required metrics, and decision vocabulary that every public artifact should eventually satisfy.",
     metrics: [
@@ -404,7 +404,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     comparisons: [
       {
-        name: "TinyGPT factory schema",
+        name: "posttrainllm factory schema",
         metric: "required public run files",
         score: "8",
         size: "repo-local contract",
@@ -457,7 +457,7 @@ export const artifacts: ArtifactEntry[] = [
     kind: "Benchmark report",
     tags: ["WebGPU", "WASM", "browser", "performance"],
     summary:
-      "The original browser TinyGPT track: hand-written WebGPU kernels beat WASM SIMD more as model width grows.",
+      "The original browser posttrainllm track: hand-written WebGPU kernels beat WASM SIMD more as model width grows.",
     lede:
       "This is the public proof that the browser playground was not just a demo. The same GPT-2-shaped training path runs through a benchmark harness and reports measured end-to-end speedups.",
     metrics: [
@@ -467,7 +467,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     comparisons: [
       {
-        name: "TinyGPT WebGPU",
+        name: "posttrainllm WebGPU",
         metric: "training step speedup",
         score: "12.1x",
         size: "d_model=256 browser run",
@@ -475,7 +475,7 @@ export const artifacts: ArtifactEntry[] = [
         note: "Directly measured against the repo's WASM SIMD path.",
       },
       {
-        name: "TinyGPT WASM SIMD",
+        name: "posttrainllm WASM SIMD",
         metric: "training step speedup",
         score: "1.0x",
         size: "same browser model/config",
@@ -536,7 +536,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     comparisons: [
       {
-        name: "TinyGPT Memory64 build",
+        name: "posttrainllm Memory64 build",
         metric: "browser allocation ceiling",
         score: "473M params",
         size: ">4GB heap path",
@@ -544,7 +544,7 @@ export const artifacts: ArtifactEntry[] = [
         note: "Shows the browser can allocate beyond the old wasm32 limit on supported runtimes.",
       },
       {
-        name: "TinyGPT wasm32 build",
+        name: "posttrainllm wasm32 build",
         metric: "browser allocation ceiling",
         score: "OOM around 4GB",
         size: "32-bit heap path",
@@ -595,12 +595,12 @@ export const artifacts: ArtifactEntry[] = [
     ],
     comparisons: [
       {
-        name: "TinyGPT Qwen3 Core ML chain",
+        name: "posttrainllm Qwen3 Core ML chain",
         metric: "ANE decode",
         score: "17 tok/s",
         size: "28-block Qwen3 path",
         comparability: "Direct",
-        note: "Runtime experiment only; capability still comes from TinyGPT weights and evals.",
+        note: "Runtime experiment only; capability still comes from posttrainllm weights and evals.",
       },
       {
         name: "Apple FoundationModels",
@@ -611,7 +611,7 @@ export const artifacts: ArtifactEntry[] = [
         note: "Useful as a free local floor, but too weak to be the specialist capability dependency.",
       },
       {
-        name: "TinyGPT active MLX path",
+        name: "posttrainllm active MLX path",
         metric: "specialist eval readiness",
         score: "active",
         size: "owned weights",
@@ -626,20 +626,20 @@ export const artifacts: ArtifactEntry[] = [
         rows: [
           ["Apple FoundationModels", "Routing floor only", "Weak action grounding and short context"],
           ["Our weights -> Core ML", "Optional future", "Battery/perf optimization if capability is already solved"],
-          ["MLX/TinyGPT runtime", "Active", "Own the model and eval gate"],
+          ["MLX/posttrainllm runtime", "Active", "Own the model and eval gate"],
         ],
       },
     ],
     evidence: [
       { label: "ANE/CoreML parked lane", href: "/docs/parked/ane-coreml" },
       { label: "Apple on-device model notes", href: "/docs/learn/apple-on-device-foundation-models" },
-      { label: "Project status", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/PROJECT_STATUS.md" },
+      { label: "Project status", href: "https://github.com/sarthak-fleet/posttrainllm/blob/main/PROJECT_STATUS.md" },
     ],
     blockers: [
       {
         blocker: "Capability dependency rejected",
         why: "Apple's model cannot be the differentiator; it is a free local floor at best.",
-        unblock: "Only revive Core ML when a shipped TinyGPT specialist needs a battery/runtime optimization.",
+        unblock: "Only revive Core ML when a shipped posttrainllm specialist needs a battery/runtime optimization.",
       },
     ],
     nextAction:
@@ -664,7 +664,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     comparisons: [
       {
-        name: "TinyGPT Huge preset",
+        name: "posttrainllm Huge preset",
         metric: "decode throughput",
         score: "696 tok/s",
         size: "96M",
@@ -672,7 +672,7 @@ export const artifacts: ArtifactEntry[] = [
         note: "Local runtime baseline for cheap repeated eval/smoke loops.",
       },
       {
-        name: "TinyGPT Mega pilot",
+        name: "posttrainllm Mega pilot",
         metric: "decode throughput",
         score: "293 tok/s",
         size: "960M",
@@ -700,7 +700,7 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     evidence: [
-      { label: "README headline metrics", href: "https://github.com/sarthak-fleet/tinygpt#headline-results" },
+      { label: "README headline metrics", href: "https://github.com/sarthak-fleet/posttrainllm#headline-results" },
       { label: "Performance docs", href: "/docs/performance" },
     ],
     blockers: [
@@ -732,7 +732,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     comparisons: [
       {
-        name: "TinyGPT int4 gallery file",
+        name: "posttrainllm int4 gallery file",
         metric: "download size",
         score: "~20MB",
         size: "4-bit storage",
@@ -740,7 +740,7 @@ export const artifacts: ArtifactEntry[] = [
         note: "Smaller cold-load distribution artifact for browser demos.",
       },
       {
-        name: "TinyGPT fp16 gallery file",
+        name: "posttrainllm fp16 gallery file",
         metric: "download size",
         score: "~75MB",
         size: "fp16 storage",

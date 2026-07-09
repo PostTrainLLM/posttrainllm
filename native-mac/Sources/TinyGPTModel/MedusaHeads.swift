@@ -32,7 +32,7 @@ import MLXRandom
 ///
 /// File format for a saved head set is a sidecar `.heads`, similar in
 /// spirit to the LoRA adapter / tuned-lens formats:
-///   magic "TGMH" (4 bytes)     — TinyGPT Medusa/EAGLE Heads
+///   magic "TGMH" (4 bytes)     — posttrainllm Medusa/EAGLE Heads
 ///   version u32 (currently 1)
 ///   header_len u32
 ///   JSON header  { kind, numHeads, dModel, vocabSize, ... }
@@ -292,7 +292,7 @@ public struct SpecHeadsTensorEntry: Codable, Sendable {
 }
 
 public enum SpecHeadsFormat {
-    public static let magic: [UInt8] = Array("TGMH".utf8)   // TinyGPT Medusa/EAGLE Heads
+    public static let magic: [UInt8] = Array("TGMH".utf8)   // posttrainllm Medusa/EAGLE Heads
     public static let currentVersion: UInt32 = 1
 }
 

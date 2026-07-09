@@ -5,7 +5,7 @@ import MLXOptimizers
 import MLXRandom
 import TinyGPTModel
 
-/// `tinygpt linear-probe` — train a small linear classifier on the
+/// `posttrainllm linear-probe` — train a small linear classifier on the
 /// hidden-state representations at a specific layer of a frozen base.
 ///
 /// Linear probes are the canonical interpretability tool for detecting
@@ -23,7 +23,7 @@ import TinyGPTModel
 /// using linear classifier probes."
 ///
 /// USAGE
-///   tinygpt linear-probe <model.tinygpt> --data labels.jsonl --out probe.lp \
+///   posttrainllm linear-probe <model.tinygpt> --data labels.jsonl --out probe.lp \
 ///       [--layer N | --all] [--steps 500] [--lr 1e-3]
 ///
 /// DATA FORMAT (JSONL, one record per line):
@@ -200,7 +200,7 @@ enum LinearProbe {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt linear-probe <model.tinygpt> --data <jsonl> --out <probe.lp> [options]
+        usage: posttrainllm linear-probe <model.tinygpt> --data <jsonl> --out <probe.lp> [options]
 
         --data <path.jsonl>    JSONL of {text, label} records (required)
         --out <path.lp>        Where to save the trained probe(s) — required

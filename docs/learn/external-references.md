@@ -1,6 +1,6 @@
 # External references — articles worth reading
 
-Curated articles, papers, and projects relevant to TinyGPT. Each entry
+Curated articles, papers, and projects relevant to posttrainllm. Each entry
 is one-sentence-what + one-sentence-why-for-us + link, per the docs
 preference for leaning on authoritative external sources rather than
 re-explaining them.
@@ -15,7 +15,7 @@ Updated 2026-06-08.
   Visual explainer of the original transformer; got a 2025 refresh with
   animations.
   *Why for us*: the bar for "explain a transformer with diagrams" — any
-  TinyGPT learning doc should link here rather than redraw the diagrams.
+  posttrainllm learning doc should link here rather than redraw the diagrams.
 
 - **[Transformer Explainer (Poloclub)](https://poloclub.github.io/transformer-explainer/)**
   Interactive GPT-2 running live in the browser; click any layer to see
@@ -27,22 +27,22 @@ Updated 2026-06-08.
   Long-form deep technical essays on inference, training, evals, and
   agents.
   *Why for us*: the quality bar for technical writing we should aim for
-  in TinyGPT's own learning docs.
+  in posttrainllm's own learning docs.
 
 - **[Lil'Log — Why We Think (May 2025)](https://lilianweng.github.io/posts/2025-05-01-thinking/)**
   40-min read on test-time compute and why small models + better
   inference can beat scaling up.
-  *Why for us*: direct intellectual backing for the TinyGPT thesis
+  *Why for us*: direct intellectual backing for the posttrainllm thesis
   (specialists + on-device > frontier APIs).
 
 - **[Karpathy — 2025 LLM Year in Review](https://karpathy.bearblog.dev/year-in-review-2025/)**
   Opinionated short post on the paradigm shifts of the year.
   *Why for us*: useful framing for the HN-launch positioning of
-  TinyGPT relative to where the field is.
+  posttrainllm relative to where the field is.
 
 - **[ByteByteGo — How Transformers Architecture Powers Modern LLMs](https://blog.bytebytego.com/p/how-transformers-architecture-powers)**
   Diagram-heavy walkthrough of the seven-step decode loop.
-  *Why for us*: closest reference for what a TinyGPT explainer post
+  *Why for us*: closest reference for what a posttrainllm explainer post
   should look like structurally.
 
 - **[Stephen Wolfram — What Is ChatGPT Doing](https://writings.stephenwolfram.com/2023/02/what-is-chatgpt-doing-and-why-does-it-work/)**
@@ -98,7 +98,7 @@ for our synthesized dossier of these and adjacent sources.)
 - **[CoreML-LLM (john-rocky, GitHub)](https://github.com/john-rocky/CoreML-LLM)**
   Community project hitting 52 tok/s on ANE for Gemma 4 / Qwen3.5 /
   Qwen3-VL with zero GPU contention.
-  *Why for us*: closest direct competitor to TinyGPT's ANE work;
+  *Why for us*: closest direct competitor to posttrainllm's ANE work;
   understand their patterns before shipping our own.
 
 - **[Orion — Characterizing and Programming Apple's Neural Engine for LLM Training and Inference (arXiv)](https://arxiv.org/html/2603.06728v1)**
@@ -123,7 +123,7 @@ for our synthesized dossier of these and adjacent sources.)
 
 - **[Labelbox — End-to-end distillation with Gemini](https://labelbox.com/guides/end-to-end-workflow-for-knowledge-distillation-with-nlp/)**
   Concrete walkthrough: label with teacher, train student, compare.
-  *Why for us*: structure to borrow for the TinyGPT "factory" docs.
+  *Why for us*: structure to borrow for the posttrainllm "factory" docs.
 
 - **[Nebius — The Concept Behind Distilling an LLM](https://nebius.com/blog/posts/concept-behind-distilling-llm)**
   Accessible intro for non-practitioners.

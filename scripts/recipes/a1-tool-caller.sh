@@ -10,9 +10,9 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT/evals/_common.sh"
-BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
+BIN="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
 
-BASE="${BASE:-qwen3-4b-instruct-2507}"          # HF dir or gallery id (tinygpt pull)
+BASE="${BASE:-qwen3-4b-instruct-2507}"          # HF dir or gallery id (posttrainllm pull)
 DATA="${DATA:?set DATA=<tool-calling SFT jsonl> ({instruction,input?,response})}"
 OUT="${OUT:-$ROOT/specialists/a1-tool-caller/a1.lora}"
 STEPS="${STEPS:-2000}"; RANK="${RANK:-16}"; LLRD="${LLRD:-0.9}"

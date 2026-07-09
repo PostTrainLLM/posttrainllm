@@ -136,7 +136,7 @@ in this doc + the gate-framework pattern in `docs/precision.md`.
 4. **Recipes gallery model** — third-corpus model. Not retrained in this
    thread (TinyStories + Code shipped; Recipes is ~47 min more wall and
    the user opted to ship with 3 models). Run
-   `caffeinate -i node browser/train_gallery_one.mjs --corpus=/tmp/tinygpt-corpora/recipes.txt --out=recipes --prompt="Ingredients:"`
+   `caffeinate -i node browser/train_gallery_one.mjs --corpus=/tmp/posttrainllm-corpora/recipes.txt --out=recipes --prompt="Ingredients:"`
    then `node browser/finalize_gallery.mjs` to rebuild the manifest.
 5. **Training smoke verification** — `browser/smoke_f16_train.mjs`
    exists; runs a 200-step Medium training and checks loss descent + no
@@ -200,7 +200,7 @@ in this doc + the gate-framework pattern in `docs/precision.md`.
   hit the wall cap due to parallel-on-one-GPU contention; see lesson below).
 - `browser/finalize_gallery.mjs` — fp16-packs canonical checkpoints and
   assembles the unified manifest. Verified end-to-end on Shakespeare.
-- Corpora pre-fetched and on disk at `/tmp/tinygpt-corpora/`
+- Corpora pre-fetched and on disk at `/tmp/posttrainllm-corpora/`
   (`tinystories.txt`, `code.txt`, `recipes.txt`, ~1.1 MB each).
 
 The gallery dialog UI ships now — manifest-driven, ready to show the other

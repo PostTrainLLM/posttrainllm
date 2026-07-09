@@ -6,7 +6,7 @@ Input is a local Spider checkout/download with:
   dev.json
   database/<db_id>/<db_id>.sqlite
 
-The output JSONL is compatible with `tinygpt eval-sql`: generation should add a
+The output JSONL is compatible with `posttrainllm eval-sql`: generation should add a
 `predicted_sql` field, and scoring uses `--db-dir <spider-root>`.
 """
 
@@ -125,7 +125,7 @@ def main() -> None:
                 "rows": len(rows),
                 "db_count": len({r["db_id"] for r in rows}),
                 "metric": "execution_accuracy_sqlite",
-                "scorer": "tinygpt eval-sql --db-dir <spider-root>",
+                "scorer": "posttrainllm eval-sql --db-dir <spider-root>",
                 "select_only": args.select_only,
                 "skipped": skipped,
                 "notes": [

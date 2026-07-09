@@ -1,4 +1,4 @@
-# Lessons from building TinyGPT
+# Lessons from building posttrainllm
 
 What didn't work, what surprised me, and what I'd carry forward. The kernel
 optimisations are documented in `docs/performance.md` and the milestones in
@@ -29,7 +29,7 @@ hyperparameters against the reference path before suspecting the model.
 
 ## 2. The Memory64 OOB was a pthread + memory-growth race, not an ABI bug
 
-The 64-bit WASM module (`browser/public/tinygpt64.{js,wasm}`) was hitting
+The 64-bit WASM module (`browser/public/posttrainllm64.{js,wasm}`) was hitting
 "memory access out of bounds" in the *browser* at d_model ≥ 256 — XL,
 Massive, Mega, Behemoth. The exact same `.wasm` ran fine when called
 directly in Node. Two days of looking turned up two unrelated findings.

@@ -22,7 +22,7 @@ function sendToAnalytics(metric: VitalMetric) {
   } else {
     // Fallback: beacon to fleet analytics endpoint
     const body = JSON.stringify({
-      project: import.meta.env.VITE_PROJECT_SLUG ?? "tinygpt",
+      project: import.meta.env.VITE_PROJECT_SLUG ?? "posttrainllm",
       ...metric,
     });
     navigator.sendBeacon("https://vitals.fleet.workers.dev/collect", body);

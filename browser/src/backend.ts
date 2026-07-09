@@ -1,5 +1,5 @@
 /**
- * backend.ts — typed wrapper around the WASM TinyGPT module (Phase 4).
+ * backend.ts — typed wrapper around the WASM posttrainllm module (Phase 4).
  *
  * The kernels + model are compiled by wasm/build_wasm.sh into the ES module
  * browser/public/tinygpt.js. This file loads that module and exposes its C-ABI

@@ -4,8 +4,8 @@ import json, re, sys, urllib.request
 from pathlib import Path
 
 FM_FIX_DIR = Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/fm-fixtures")
-SYSP_PATH = Path("/Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-system-prompt-v3.txt")
-SCHEMA_PATH = Path("/Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-fm-response.schema.json")
+SYSP_PATH = Path("/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v3.txt")
+SCHEMA_PATH = Path("/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-fm-response.schema.json")
 
 
 def parse_fx(text):

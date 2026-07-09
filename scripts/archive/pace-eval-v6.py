@@ -11,8 +11,8 @@ import json, re, sys, urllib.request
 from pathlib import Path
 
 FM_FIX_DIR = Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/fm-fixtures")
-SYSP_PATH = Path("/Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-system-prompt-v6-label.txt")
-SCHEMA_PATH = Path("/Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-fm-label-response.schema.json")
+SYSP_PATH = Path("/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v6-label.txt")
+SCHEMA_PATH = Path("/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-fm-label-response.schema.json")
 
 
 def parse_fx(text):
@@ -152,7 +152,7 @@ def eval_one(fx_path, url, model_id, sys_prompt, schema):
 
 def main():
     url = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8765/v1/chat/completions"
-    model = sys.argv[2] if len(sys.argv) > 2 else "tinygpt"
+    model = sys.argv[2] if len(sys.argv) > 2 else "posttrainllm"
     sysp = SYSP_PATH.read_text().strip()
     schema = json.loads(SCHEMA_PATH.read_text())
 

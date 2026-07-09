@@ -6,7 +6,7 @@ import CoreML
 @preconcurrency import Tokenizers
 #endif
 
-/// `tinygpt ane-bench-smoke` — quick decode-rate measurement on a
+/// `posttrainllm ane-bench-smoke` — quick decode-rate measurement on a
 /// stateless Qwen3 .mlpackage. NOT a full benchmark — just enough to
 /// tell us whether ANE dispatch is happening at all.
 ///
@@ -22,7 +22,7 @@ import CoreML
 /// per the brief's resource-discipline rule.
 ///
 /// USAGE
-///   tinygpt ane-bench-smoke \
+///   posttrainllm ane-bench-smoke \
 ///       --coreml /path/to/pace.mlpackage \
 ///       --hf-dir /path/to/hf-dir \
 ///       --prompt "..." --tokens 16 --compute-units ane
@@ -67,7 +67,7 @@ enum AneBenchSmoke {
         var ids = tok.encode(text: prompt).map { Int32($0) }
         print("""
 
-        tinygpt ane-bench-smoke
+        posttrainllm ane-bench-smoke
         ----------------------------------------------------
         mlpackage:     \(coremlURL.path)
         prompt tokens: \(ids.count)
@@ -150,7 +150,7 @@ enum AneBenchSmoke {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt ane-bench-smoke --coreml <pkg> --hf-dir <dir> [options]
+        usage: posttrainllm ane-bench-smoke --coreml <pkg> --hf-dir <dir> [options]
 
           --coreml PATH         the .mlpackage to bench
           --hf-dir PATH         HF dir for the matching tokenizer

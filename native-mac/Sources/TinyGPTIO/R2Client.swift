@@ -3,7 +3,7 @@ import Foundation
 /// Legacy Cloudflare R2 client — shell-out wrapper around the `aws s3` CLI with
 /// R2's S3-compatible endpoint.
 ///
-/// Public TinyGPT artifacts now use Hugging Face Hub as the source of truth.
+/// Public posttrainllm artifacts now use Hugging Face Hub as the source of truth.
 /// Keep this client for private caches, old gallery artifacts, or explicit
 /// R2 mirror work only.
 ///
@@ -14,7 +14,7 @@ import Foundation
 /// (`brew install awscli`) which most ML devs already have.
 ///
 /// AUTH: reads four values from env first, falls back to
-/// `~/.config/tinygpt/r2.env`:
+/// `~/.config/posttrainllm/r2.env`:
 ///   R2_ACCOUNT_ID       — your Cloudflare account ID
 ///   R2_ACCESS_KEY_ID    — R2 API token
 ///   R2_SECRET_ACCESS_KEY — R2 API token secret
@@ -44,7 +44,7 @@ public enum R2Client {
         public var description: String {
             switch self {
             case .missingCredentials(let which):
-                return "R2 credentials missing: \(which). Run `tinygpt cloud setup` or set R2_ACCOUNT_ID / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_BUCKET."
+                return "R2 credentials missing: \(which). Run `posttrainllm cloud setup` or set R2_ACCOUNT_ID / R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY / R2_BUCKET."
             case .awsCliNotFound:
                 return "`aws` CLI not found in PATH. Install via `brew install awscli`."
             case .commandFailed(let exit, let stderr):
@@ -53,7 +53,7 @@ public enum R2Client {
         }
     }
 
-    /// Resolve credentials: env vars first, then ~/.config/tinygpt/r2.env.
+    /// Resolve credentials: env vars first, then ~/.config/posttrainllm/r2.env.
     /// Returns nil if any of the four required values are missing.
     public static func resolveCredentials() throws -> Credentials {
         let env = ProcessInfo.processInfo.environment
@@ -64,9 +64,9 @@ public enum R2Client {
             if let v = env[key], !v.isEmpty { values[key] = v }
         }
 
-        // Layer 2: ~/.config/tinygpt/r2.env (only fills missing keys)
+        // Layer 2: ~/.config/posttrainllm/r2.env (only fills missing keys)
         let home = FileManager.default.homeDirectoryForCurrentUser
-        let confURL = home.appendingPathComponent(".config/tinygpt/r2.env")
+        let confURL = home.appendingPathComponent(".config/posttrainllm/r2.env")
         if let data = try? String(contentsOf: confURL, encoding: .utf8) {
             for line in data.split(separator: "\n") {
                 let trimmed = line.trimmingCharacters(in: .whitespaces)

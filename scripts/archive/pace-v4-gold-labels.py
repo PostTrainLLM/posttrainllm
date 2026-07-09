@@ -7,7 +7,7 @@ response from the EXPECT_POINT_ID / EXPECT_CLICK_ID and a hand-crafted
 spokenText that satisfies SPOKEN_MUST_MATCH_REGEX + SPOKEN_MUST_NOT_CONTAIN
 + SPOKEN_MAX_WORDS.
 
-Output: ~/.cache/tinygpt/datasets/pace-v4-gold.jsonl
+Output: ~/.cache/posttrainllm/datasets/pace-v4-gold.jsonl
 Each row: {"input": <full user-turn with elements>, "output": "<gold JSON>"}
 """
 import json
@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 FM_FIX_DIR = Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/fm-fixtures")
-OUT = Path.home() / ".cache" / "tinygpt" / "datasets" / "pace-v4-gold.jsonl"
+OUT = Path.home() / ".cache" / "posttrainllm" / "datasets" / "pace-v4-gold.jsonl"
 
 
 def parse_fixture(text: str) -> dict:

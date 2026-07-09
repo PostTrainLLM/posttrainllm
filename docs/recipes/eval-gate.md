@@ -1,11 +1,11 @@
 ---
 title: Eval gate (CI / pre-commit)
-description: Gate a TinyGPT specialist in CI — `tinygpt eval-gate` exits non-zero when any declared eval suite regresses past threshold, on a self-hosted Mac runner so the model never leaves the device.
+description: Gate a posttrainllm specialist in CI — `posttrainllm eval-gate` exits non-zero when any declared eval suite regresses past threshold, on a self-hosted Mac runner so the model never leaves the device.
 ---
 
-# Recipe — `tinygpt eval-gate` as a CI / pre-commit gate
+# Recipe — `posttrainllm eval-gate` as a CI / pre-commit gate
 
-`tinygpt eval-gate` runs your project's declared eval suites against a
+`posttrainllm eval-gate` runs your project's declared eval suites against a
 stored baseline and **exits non-zero when any suite regresses past a
 threshold**. It's the developer-workflow framing of the shipped eval
 harnesses (E1 BFCL, E2 τ-bench, E3 lm-eval, E5 HumanEval, the unhappy-path
@@ -16,7 +16,7 @@ Everything runs on *your* runner — the gate never phones home.
 ## The spec
 
 The gate reads an `eval-gate.json` in the cwd, an `eval` block in
-`tinygpt.project.json` (B31), or a path you pass with `--spec`:
+`posttrainllm.project.json` (B31), or a path you pass with `--spec`:
 
 ```json
 {
@@ -24,15 +24,15 @@ The gate reads an `eval-gate.json` in the cwd, an `eval` block in
   "default_threshold": 2.0,
   "suites": [
     { "name": "bfcl", "task": "bfcl",
-      "command": ["tinygpt", "eval-bfcl", "model.tinygpt", "--out", "$TINYGPT_EVAL_OUT"] },
+      "command": ["posttrainllm", "eval-bfcl", "model.tinygpt", "--out", "$TINYGPT_EVAL_OUT"] },
     { "name": "tau",  "task": "tau", "threshold": 3.0,
-      "command": ["tinygpt", "eval-tau-bench", "model.tinygpt", "--out", "$TINYGPT_EVAL_OUT"] }
+      "command": ["posttrainllm", "eval-tau-bench", "model.tinygpt", "--out", "$TINYGPT_EVAL_OUT"] }
   ]
 }
 ```
 
 - `baseline` — a JSONL of `EvalCompare.Row`s (the shared schema every
-  `tinygpt eval-*` command emits). Generate it once with `--update-baseline`.
+  `posttrainllm eval-*` command emits). Generate it once with `--update-baseline`.
 - `default_threshold` — max allowed regression in **percentage points**
   (default 2.0). `threshold` on a suite overrides it.
 - `command` — the argv to produce candidate rows; the gate sets
@@ -47,7 +47,7 @@ automatically.
 ## First run — stamp the baseline
 
 ```bash
-tinygpt eval-gate --update-baseline      # runs the suites, writes baseline.jsonl, exits 0
+posttrainllm eval-gate --update-baseline      # runs the suites, writes baseline.jsonl, exits 0
 ```
 
 Re-run `--update-baseline` whenever you *intentionally* move the numbers
@@ -56,9 +56,9 @@ Re-run `--update-baseline` whenever you *intentionally* move the numbers
 ## Gate a change
 
 ```bash
-tinygpt eval-gate                 # exit 0 = all suites within threshold; 1 = a regression
-tinygpt eval-gate --passes 3      # run each suite 3× and gate on the mean (noise guard)
-tinygpt eval-gate --budget evals/sample-budget.json
+posttrainllm eval-gate                 # exit 0 = all suites within threshold; 1 = a regression
+posttrainllm eval-gate --passes 3      # run each suite 3× and gate on the mean (noise guard)
+posttrainllm eval-gate --budget evals/sample-budget.json
 ```
 
 It prints a per-suite table and writes `gate-result.json` (machine-readable).
@@ -66,7 +66,7 @@ When a suite has repeated rows, the JSON keeps the trial scores plus n,
 stdev, stderr, and 95% CI under `candidateStats`; the console renders the
 candidate cell as `mean±ci95`.
 
-For JSONL comparison outside the gate, `tinygpt eval-compare` also renders
+For JSONL comparison outside the gate, `posttrainllm eval-compare` also renders
 repeated rows with the same task/model/metric as `mean±ci95` and shows `k=...`
 in the cell. Harnesses that pre-aggregate repeated runs can emit row-level
 `pass_stats` in the same shape as `candidateStats`.
@@ -113,14 +113,14 @@ jobs:
     runs-on: [self-hosted, macOS, ARM64]
     steps:
       - uses: actions/checkout@v4
-      - uses: ./.github/actions/tinygpt-eval-gate
+      - uses: ./.github/actions/posttrainllm-eval-gate
         with:
-          spec: tinygpt.project.json
+          spec: posttrainllm.project.json
           passes: "3"
           budget: evals/sample-budget.json
 ```
 
-The action builds `tinygpt` release, runs the gate, annotates the PR with
+The action builds `posttrainllm` release, runs the gate, annotates the PR with
 the suite table in the job summary, records the optional B23 budget metadata
 in `gate-result.json`, and fails the check on a regression.
 
@@ -131,9 +131,9 @@ in `gate-result.json`, and fails the check on a regression.
 repos:
   - repo: local
     hooks:
-      - id: tinygpt-eval-gate
-        name: tinygpt eval-gate
-        entry: tinygpt eval-gate
+      - id: posttrainllm-eval-gate
+        name: posttrainllm eval-gate
+        entry: posttrainllm eval-gate
         language: system
         pass_filenames: false
         stages: [pre-push]   # too slow for every commit; gate on push
@@ -156,6 +156,6 @@ covered without starting a model or server.
 ## See also
 
 - `docs/prds/B32-eval-ci-gate.md` — the PRD + scope boundaries.
-- `tinygpt eval-bfcl` / `tinygpt eval-tau-bench` — the harnesses this gates (both shipped).
+- `posttrainllm eval-bfcl` / `posttrainllm eval-tau-bench` — the harnesses this gates (both shipped).
 - `docs/sessions/2026-06-13-market-landscape-mac-first.md` — why a local,
   exit-code gate is the structural counter to eval-as-a-SaaS.

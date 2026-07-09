@@ -111,7 +111,7 @@ first — one large model at a time.** Run under `caffeinate`.
   (missing recipient/time/content/quantity, multi-candidate elements)
   plus non-ambig distractors, from templates + teacher paraphrase.
 - Seed material: **149 DPO pairs** at
-  `~/.cache/tinygpt/datasets/clarify-dpo-v1.jsonl` — use the *prompts*
+  `~/.cache/posttrainllm/datasets/clarify-dpo-v1.jsonl` — use the *prompts*
   as scenario seeds and the chosen/rejected pairs to sanity-check the
   reward (chosen should score ≥ rejected). Audit first: some chosen
   completions (`"which app?"`) only earn partial credit under strict.

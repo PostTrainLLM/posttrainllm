@@ -1,6 +1,6 @@
 # History Coverage Audit
 
-This audit tracks how much of TinyGPT's historical work is normalized into the
+This audit tracks how much of posttrainllm's historical work is normalized into the
 structured attempt ledger, classified as technique inventory, or intentionally
 left as narrative/reference material.
 

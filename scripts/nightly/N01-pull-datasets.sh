@@ -5,7 +5,7 @@
 #   ✅ Gutenberg corpus (32 MB clean text) via fetch_corpora.sh        — pretrain
 #   ✅ hermes-function-calling-v1 (~50 MB JSONL)                        — SFT
 #   ✅ SmolLM2-135M tokenizer in ~/.cache/huggingface/hub               — BPE
-#   ❌ FineWeb-Edu (parquet — tinygpt has no parquet decoder yet)        — pretrain v2
+#   ❌ FineWeb-Edu (parquet — posttrainllm has no parquet decoder yet)        — pretrain v2
 #   ❌ xlam-function-calling-60k (gated — needs HF_TOKEN)                — SFT v2
 #   ❌ UltraFeedback (parquet)                                           — DPO
 #   ❌ BFCL (cache present, flat-emit broken)                            — eval
@@ -16,8 +16,8 @@
 
 set -euo pipefail
 
-CACHE="$HOME/.cache/tinygpt/datasets"
-GUTENBERG_DIR="/tmp/tinygpt-corpora"
+CACHE="$HOME/.cache/posttrainllm/datasets"
+GUTENBERG_DIR="/tmp/posttrainllm-corpora"
 EVERYTHING="$GUTENBERG_DIR/everything.txt"
 TOKENIZER_DIR="$HOME/.cache/huggingface/hub/models--HuggingFaceTB--SmolLM2-135M"
 
@@ -64,7 +64,7 @@ if [[ -f "$CACHE/hermes-fc.jsonl" ]] && [[ -s "$CACHE/hermes-fc.jsonl" ]]; then
     LINES=$(wc -l < "$CACHE/hermes-fc.jsonl")
     check ok "hermes-fc.jsonl: $SZ bytes, $LINES lines"
 else
-    check fail "hermes-fc.jsonl missing or empty — run \`tinygpt download-dataset NousResearch/hermes-function-calling-v1 --format sft --out $CACHE/hermes-fc.jsonl\`"
+    check fail "hermes-fc.jsonl missing or empty — run \`posttrainllm download-dataset NousResearch/hermes-function-calling-v1 --format sft --out $CACHE/hermes-fc.jsonl\`"
 fi
 
 echo ""

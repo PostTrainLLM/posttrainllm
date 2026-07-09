@@ -13,9 +13,9 @@
 //   ScreenCaptureKit's permission grant lives in System Settings under
 //   Screen Recording, and the macOS TCC subsystem keys grants to the
 //   *signed bundle identifier* of the calling binary. A bare `swift run`
-//   build of `tinygpt` does NOT have a stable bundle ID — TCC will prompt
+//   build of `posttrainllm` does NOT have a stable bundle ID — TCC will prompt
 //   on first use and may not remember the grant across rebuilds. The
-//   workaround is to launch tinygpt from a terminal app that already has
+//   workaround is to launch posttrainllm from a terminal app that already has
 //   Screen Recording permission (Terminal.app, iTerm, Ghostty) — the grant
 //   is then inherited by the child process. We document this in the CLI
 //   help text below.

@@ -1,6 +1,6 @@
 # Dataset inventory
 
-Live snapshot of `~/.cache/tinygpt/datasets/` (not checked into the
+Live snapshot of `~/.cache/posttrainllm/datasets/` (not checked into the
 repo). Last refreshed 2026-06-17. Sizes are directory totals; row
 counts are from decoded JSONLs where available, otherwise marked as
 parquet-on-disk.
@@ -55,13 +55,13 @@ parquet-on-disk.
 
 ## External evaluators (source code, not data)
 
-`_external/` holds checked-out harness repos that the `tinygpt eval-*`
+`_external/` holds checked-out harness repos that the `posttrainllm eval-*`
 subcommands shell out to:
 
 | Path | Role |
 |---|---|
-| `_external/gorilla-bfcl/` | BFCL harness — invoked by `tinygpt eval-bfcl` (E1) |
-| `_external/tau-bench/` | τ-bench harness — invoked by `tinygpt eval-tau-bench` (E2) |
+| `_external/gorilla-bfcl/` | BFCL harness — invoked by `posttrainllm eval-bfcl` (E1) |
+| `_external/tau-bench/` | τ-bench harness — invoked by `posttrainllm eval-tau-bench` (E2) |
 | `_external/MILU/` | lm-eval-harness MILU task config |
 
 ## Outstanding gaps

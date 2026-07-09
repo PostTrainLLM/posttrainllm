@@ -4,7 +4,7 @@ import MLXNN
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt gptq` — from-scratch GPTQ quantisation (Frantar et al., 2022).
+/// `posttrainllm gptq` — from-scratch GPTQ quantisation (Frantar et al., 2022).
 ///
 /// The algorithm:
 ///   1. Forward a calibration corpus through the model in eval mode.
@@ -30,7 +30,7 @@ import TinyGPTModel
 /// quantisation, especially at int4 where the grid is coarse.
 ///
 /// USAGE
-///   tinygpt gptq <input.tinygpt> --calibration <text> --bits 4 \
+///   posttrainllm gptq <input.tinygpt> --calibration <text> --bits 4 \
 ///       --group 128 --out <path.tinygpt>
 ///
 /// We operate at the `.tinygpt` file level (not on the live MLX model)
@@ -96,7 +96,7 @@ enum GPTQWorker {
 
         print("""
 
-        TinyGPT — GPTQ (Hessian-aware int\(bits) quantize-then-dequantise)
+        posttrainllm — GPTQ (Hessian-aware int\(bits) quantize-then-dequantise)
         -----------------------------------------------------------------
         input:           \(inPath)
         calibration:     \(calibrationPath) (\(corpusBytes.count) bytes)
@@ -490,7 +490,7 @@ enum GPTQWorker {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt gptq <input.tinygpt> [options]
+        usage: posttrainllm gptq <input.tinygpt> [options]
 
         --out <path>         Where to save the quantised model — required
         --calibration <txt>  Text corpus to drive Hessian calibration — required

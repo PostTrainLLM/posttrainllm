@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # evals/automix-smoke.sh — B21 micro-AutoMixer search-loop smoke.
 #
-# Runs `tinygpt automix --dry-run` (synthetic scorer with a known geometric
+# Runs `posttrainllm automix --dry-run` (synthetic scorer with a known geometric
 # optimum, no GPU/training) over 3 corpora and asserts the surrogate-guided
 # search converges near that optimum. This exercises the whole loop —
 # Dirichlet sampling, quadratic surrogate fit, EI proposal, stop rule — in CI.
@@ -9,7 +9,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
 
-BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
+BIN="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 
 "$BIN" automix --corpus code=/dev/null --corpus web=/dev/null --corpus math=/dev/null \

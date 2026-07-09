@@ -71,7 +71,7 @@ If any non-regression gate fails, v11 fails the ship gate too. No "the new dimen
 ## What "ship" means
 
 If v11 clears the gate:
-1. v11 becomes the default `--lora` path served by `tinygpt serve`
+1. v11 becomes the default `--lora` path served by `posttrainllm serve`
 2. `pace/serve` in Pace's deployment bundle swaps to v11 weights
 3. v9 weights stay in the registry for one release as a known-good fallback
 4. Landing-page numbers (Codevetter draft, `pace/docs/landing/v1-draft.md`) update with v11 results — and only with v11 results

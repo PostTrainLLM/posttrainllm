@@ -1,6 +1,6 @@
 # Citations
 
-Every architectural claim in TinyGPT's code + docs traces back to a
+Every architectural claim in posttrainllm's code + docs traces back to a
 primary source here. If a claim doesn't have a citation in this file,
 treat it as informed-opinion-not-evidence and challenge it.
 

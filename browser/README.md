@@ -42,7 +42,7 @@ Training must never run on the main thread — the UI has to stay responsive.
 
 ```bash
 # 1. build the WASM module (needs the Emscripten SDK on PATH)
-bash ../wasm/build_wasm.sh           # -> browser/public/tinygpt.{js,wasm}
+bash ../wasm/build_wasm.sh           # -> browser/public/posttrainllm.{js,wasm}
 
 # 2. install deps and start the dev server
 npm install
@@ -53,7 +53,7 @@ npm run dev                          # open the printed localhost URL
 
 ## Status
 
-Implemented. The app trains a byte-level TinyGPT from scratch in a Web Worker on
+Implemented. The app trains a byte-level posttrainllm from scratch in a Web Worker on
 the WASM backend; the main thread only handles UI, so it never freezes. The
 compiled module is verified from Node by `../tests/smoke_wasm_node.mjs`.
 

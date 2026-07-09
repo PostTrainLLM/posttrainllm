@@ -221,7 +221,7 @@ public struct TinyGPTHeader: Codable, Sendable, Equatable {
 
     /// Unstructured-pruning sparsity masks, keyed by tensor name. Each
     /// value is RLE-encoded 0/1 bytes (one per weight). Present only
-    /// when `tinygpt prune-unstructured` wrote the file. The
+    /// when `posttrainllm prune-unstructured` wrote the file. The
     /// inference path multiplies the loaded weights by the decoded
     /// mask — already-zeroed weights stay zero, so the mask is
     /// purely informational at sample time. Its real value is at

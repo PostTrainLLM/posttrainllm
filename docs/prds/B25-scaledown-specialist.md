@@ -5,7 +5,7 @@ owner: unassigned
 created: 2026-06-13
 parent_plan: docs/PLAN.md §3 Tier B (B25)
 related_prds: A1-first-specialist-tool-caller.md (sibling specialist; different domain),
-              E6 `tinygpt eval-scaledown` (the harness — still ⬜, doc-only at docs/recipes/b25-scaledown.md)
+              E6 `posttrainllm eval-scaledown` (the harness — still ⬜, doc-only at docs/recipes/b25-scaledown.md)
 ---
 
 # PRD — Extractive context-compression specialist for ScaleDown leaderboard
@@ -30,7 +30,7 @@ shape: not a generic chat model, a domain-shaped specialist.
   the only one that ships with a *public external scoreboard* — the
   exact "shipped specialist trained on a Mac" proof-point the
   platform needs for credibility beyond our docs.
-- The harness (E6 `tinygpt eval-scaledown`) is the smaller PRD — it's
+- The harness (E6 `posttrainllm eval-scaledown`) is the smaller PRD — it's
   one of the still-⬜ Tier-E items. Once it lands, B25 has its scoring.
 - The training cost is small (~half-week wall-clock on M5 Pro per the
   recipe at `docs/recipes/b25-scaledown.md`); the leaderboard
@@ -43,7 +43,7 @@ shape: not a generic chat model, a domain-shaped specialist.
 - **New module:** `Sources/TinyGPTModel/RelevanceHead.swift` — a small
   Linear(d_model → 2) classification head trained on per-token labels
   (relevant / not). Attaches at the final residual stream (post-norm).
-- **New subcommand:** `tinygpt compress <query> --doc <doc.txt>
+- **New subcommand:** `posttrainllm compress <query> --doc <doc.txt>
   --model <base+adapter> --threshold 0.5 --out compressed.txt`.
   Token-level scores → sentence-level mean → threshold filter.
 - **Training data:** MS-MARCO + Natural Questions (D3 pulls these
@@ -56,7 +56,7 @@ shape: not a generic chat model, a domain-shaped specialist.
 - **Recipe:** `scripts/recipes/b25-scaledown.sh` — data prep, SFT
   with the new head (frozen base + trained head + LoRA on a few
   blocks), eval, ScaleBench submission.
-- **Eval:** the E6 `tinygpt eval-scaledown` harness scores
+- **Eval:** the E6 `posttrainllm eval-scaledown` harness scores
   downstream F1/EM after compression vs full-context.
 - **Submission:** the leaderboard accepts a model + a small wrapper
   script; we package both.
@@ -88,16 +88,16 @@ shape: not a generic chat model, a domain-shaped specialist.
 ## Don't touch
 
 - A1 specialist artifacts — orthogonal recipe.
-- The OpenAI surface in `tinygpt serve` — V1 ships compress as a
+- The OpenAI surface in `posttrainllm serve` — V1 ships compress as a
   CLI, not a server endpoint.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt compress "what is RoPE?" --doc rope_paper.txt
+- [ ] `posttrainllm compress "what is RoPE?" --doc rope_paper.txt
   --model qwen3-4b-instruct-2507+b25.lora --threshold 0.5` returns a
   ≤ 30%-original-length excerpt that, on a held-out QA eval, scores
   within 5pp F1 of the full document.
-- [ ] `tinygpt eval-scaledown <model+adapter>` (E6) produces a row
+- [ ] `posttrainllm eval-scaledown <model+adapter>` (E6) produces a row
   in the shared E0 schema.
 - [ ] Submission to the [ScaleDown leaderboard](https://main.d3hbeukddvrxcc.amplifyapp.com/leaderboard)
   succeeds; we land a public rank, regardless of where.

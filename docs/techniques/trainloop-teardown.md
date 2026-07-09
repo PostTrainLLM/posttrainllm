@@ -1,12 +1,12 @@
 # TrainLoop Teardown
 
 This note records the useful techniques extracted from TrainLoop case studies
-and maps them into TinyGPT recipes. The point is not to copy marketing language.
+and maps them into posttrainllm recipes. The point is not to copy marketing language.
 The point is to convert external evidence into local experiments.
 
 ## What We Learned
 
-| External Technique | TinyGPT Translation | Status |
+| External Technique | posttrainllm Translation | Status |
 |---|---|---|
 | Failed attempts are part of the artifact | Reports must include failed recipes and why they failed | Added to factory report template |
 | Slice metrics matter more than headline score | SQL reports need join/filter/group/format/clean-output slices | Tooling added with `scripts/score_sql_slices.py` |

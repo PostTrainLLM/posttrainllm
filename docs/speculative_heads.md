@@ -93,7 +93,7 @@ native-mac/Sources/TinyGPTModel/
                             base manifest (heads are a SIDECAR, by design).
 
 native-mac/Sources/TinyGPT/
-├── TrainHeads.swift        `tinygpt train-heads` CLI. Loads a base model,
+├── TrainHeads.swift        `posttrainllm train-heads` CLI. Loads a base model,
 │                           closure-captures it (so MLX autograd treats
 │                           base params as constants — same trick as
 │                           tuned-lens), trains the heads with AdamW on a
@@ -115,7 +115,7 @@ Shared format for both Medusa and EAGLE-2 (distinguished by the JSON
 header's `kind` field). Little-endian throughout:
 
 ```
-0    4    magic "TGMH"  (TinyGPT Medusa/EAGLE Heads)
+0    4    magic "TGMH"  (posttrainllm Medusa/EAGLE Heads)
 4    4    version u32   (currently 1)
 8    4    header_len u32
 12   N    JSON header   (SpecHeadsFileHeader — see MedusaHeads.swift)
@@ -138,7 +138,7 @@ re-saved or re-quantised base.)
 ### Train heads on a frozen base
 
 ```bash
-tinygpt train-heads <base.tinygpt> \
+posttrainllm train-heads <base.tinygpt> \
     --type medusa            # or 'eagle'
     --corpus <text.txt>      # UTF-8 byte-level text
     --steps 500              # default
@@ -160,7 +160,7 @@ agent log captures whether loss actually moved during a smoke run.
 ### Sample with heads attached
 
 ```bash
-tinygpt sample <base.tinygpt> \
+posttrainllm sample <base.tinygpt> \
     --heads heads.heads \
     --head-type medusa       # must match the sidecar
     --prompt "ROMEO:" \
@@ -329,7 +329,7 @@ something like:
   arXiv:2406.16858.
 * Leviathan, Y., Kalman, M., & Matias, Y. (2023). *Fast Inference from
   Transformers via Speculative Decoding*. ICML.
-* Existing tinygpt prior art:
+* Existing posttrainllm prior art:
   - `docs/interpretability.md` (tuned-lens, same closure-frozen-base
     training pattern)
   - `SpeculativeDecode.swift` (the small-draft variant this work

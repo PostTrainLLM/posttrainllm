@@ -20,7 +20,7 @@
 #endif
 
 // --- tensor.cpp ----------------------------------------------------------
-// A flat float32 buffer plus a shape. Up to 4 dims is plenty for TinyGPT.
+// A flat float32 buffer plus a shape. Up to 4 dims is plenty for posttrainllm.
 struct Tensor {
   float* data;
   int shape[4];

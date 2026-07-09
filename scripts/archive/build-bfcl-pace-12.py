@@ -17,7 +17,7 @@ The BFCL "possible value list" idea:
 import json
 from pathlib import Path
 
-BFCL_DIR = Path.home() / ".cache/tinygpt/datasets/bfcl"
+BFCL_DIR = Path.home() / ".cache/posttrainllm/datasets/bfcl"
 OUT_PROMPTS = BFCL_DIR / "BFCL_v3_pace12.json"
 OUT_GROUND = BFCL_DIR / "possible_answer" / "BFCL_v3_pace12.json"
 

@@ -4,7 +4,7 @@
 This proves the eval-driver side can exercise an OpenAI-compatible endpoint
 with bounded concurrency and produce a throughput report. It deliberately uses
 a local threaded mock instead of a model server, so it does not satisfy the real
-B34 acceptance gate; the real gate still needs tinygpt vs mlx-server/oMLX on a
+B34 acceptance gate; the real gate still needs posttrainllm vs mlx-server/oMLX on a
 fixed BFCL/tau suite.
 """
 
@@ -54,7 +54,7 @@ def free_port() -> int:
 
 def request(url: str, idx: int) -> str:
     payload = json.dumps({
-        "model": "tinygpt-b34-mock",
+        "model": "posttrainllm-b34-mock",
         "prompt": f"fixture {idx}",
         "max_tokens": 1,
         "temperature": 0,

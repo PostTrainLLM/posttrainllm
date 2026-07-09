@@ -1,7 +1,7 @@
 # Technique Registry
 
 This directory is the canonical place for post-training tactics that may improve
-TinyGPT factory runs.
+posttrainllm factory runs.
 
 The rest of the roadmap tracks products, PRDs, and run artifacts. This registry
 tracks the smaller unit that actually changes model quality:
@@ -29,7 +29,7 @@ See [`method-vs-recipe.md`](method-vs-recipe.md) for the distinction.
 - [`sql-technique-backlog.md`](sql-technique-backlog.md) — SQL-specific method,
   recipe, status, and next-test ledger.
 - [`trainloop-teardown.md`](trainloop-teardown.md) — techniques extracted from
-  TrainLoop case studies and how they map to TinyGPT.
+  TrainLoop case studies and how they map to posttrainllm.
 - [`../external-products-reviewed.md`](../external-products-reviewed.md) —
   cross-project ledger of products, papers, and techniques reviewed.
 - [`../attempt-ledger.md`](../attempt-ledger.md) — global worked/failed attempt

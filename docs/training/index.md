@@ -2,7 +2,7 @@
 
 A modern useful language model is the product of three distinct training
 phases, each with its own dataset shape, loss function, and goal. This
-section walks the whole pipeline as it exists in TinyGPT today, with the
+section walks the whole pipeline as it exists in posttrainllm today, with the
 exact commands to reproduce each step.
 
 Three phases, in order:
@@ -26,23 +26,23 @@ The three phases compose into one workflow:
 
 ```bash
 # Phase 1 — pretrain on FineWeb-edu 500M (~23 hr).
-caffeinate -di tinygpt train --preset mega --tokenizer /tmp/smollm2 \
+caffeinate -di posttrainllm train --preset mega --tokenizer /tmp/smollm2 \
     --corpus /tmp/fineweb-edu-500M.txt --out /tmp/mega.tinygpt \
     --dtype bfloat16 --batch 4 --accum 4 --ctx 1024 \
     --steps 30500 --lr-schedule cosine --warmup 1000 \
     --save-every 1000 --val-split 0.005 --val-every 500
 
 # Phase 2 — SFT on Dolly (~30 min).
-tinygpt sft /tmp/mega.tinygpt --data /tmp/dolly.jsonl \
+posttrainllm sft /tmp/mega.tinygpt --data /tmp/dolly.jsonl \
     --template chatml --steps 500 --out /tmp/mega-sft.lora
 
 # Phase 3 — DPO on UltraFeedback (~30 min).
-tinygpt dpo /tmp/mega.tinygpt --data /tmp/ultrafeedback.jsonl \
+posttrainllm dpo /tmp/mega.tinygpt --data /tmp/ultrafeedback.jsonl \
     --template chatml --beta 0.1 --steps 500 \
     --out /tmp/mega-dpo.lora
 
 # Sample with the full stack — base + SFT + DPO adapters.
-tinygpt sample /tmp/mega.tinygpt \
+posttrainllm sample /tmp/mega.tinygpt \
     --lora /tmp/mega-sft.lora --lora-weight 1.0 \
     --lora /tmp/mega-dpo.lora --lora-weight 1.0 \
     --prompt "<|im_start|>user\nExplain DPO simply.<|im_end|>\n<|im_start|>assistant\n"

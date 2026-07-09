@@ -54,7 +54,7 @@ import MLXNN
 /// output (so no runtime divide is needed) is a per-architecture
 /// fold and queued as a follow-up — for now, we save the scaled
 /// weights AND the s vector so downstream tooling (`llama.cpp`,
-/// `mlx-lm` int8 path, future TinyGPT kernels) can apply both halves.
+/// `mlx-lm` int8 path, future posttrainllm kernels) can apply both halves.
 ///
 /// **Honest caveat — no int8 matmul kernel today.** MLX-Swift's
 /// matmul is fp32/fp16/bf16. Calling this pass produces a model
@@ -189,7 +189,7 @@ public enum SmoothQuant {
     /// run the model end-to-end on a sample, then for each Linear call
     /// `MLX.abs(linear_input).max(axis: [0,1])` and pool element-wise.
     /// Doing that requires reaching into the forward path; the
-    /// `tinygpt sft` style finetune driver does the same kind of
+    /// `posttrainllm sft` style finetune driver does the same kind of
     /// per-layer access via Module reflection.
     public static func makeAccumulator(linearWeights: [String: MLXArray]) -> [String: [Float]] {
         var acc: [String: [Float]] = [:]

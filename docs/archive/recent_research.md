@@ -218,7 +218,7 @@ full parameter scale (no dimensionality reduction). Findings:
 - Tolerates very high-dimensional parameter spaces.
 - Open source: [VsonicV/es-fine-tuning-paper](https://github.com/VsonicV/es-fine-tuning-paper).
 
-**Why this matters specifically for TinyGPT:** ES is parallelizable
+**Why this matters specifically for posttrainllm:** ES is parallelizable
 across CPU workers (no GPU needed for the rollouts) and has lower
 per-step memory than PPO/GRPO. At our resource-constrained scale it
 could plausibly out-perform DPO/SimPO for instruction-following at
@@ -245,7 +245,7 @@ into training you can stay in FP4.
 **For us:** Mac M-series GPUs don't have native FP4 ops yet (we'd
 simulate). bf16 → FP4 is a ~3-4× memory savings on top of bf16's 2×.
 But the dependency on hardware FP4 means this is **parked** for
-TinyGPT until Apple silicon supports it. Listed in
+posttrainllm until Apple silicon supports it. Listed in
 [`blockers.md`](blockers.md).
 
 ## 2026 small-model landscape (relevant peers)

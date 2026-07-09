@@ -30,8 +30,8 @@ public struct RewardDimension: Codable, Hashable, Sendable {
 
 /// A reward that is *a bag of named dimensions* aggregated to a total.
 ///
-/// Consumed by DPO (`tinygpt dpo`), ES (`tinygpt es`), and GRPO
-/// (`tinygpt grpo` — see PRD 5.1) once the per-recipe integrations
+/// Consumed by DPO (`posttrainllm dpo`), ES (`posttrainllm es`), and GRPO
+/// (`posttrainllm grpo` — see PRD 5.1) once the per-recipe integrations
 /// land. Until then, this struct ships standalone so other call sites
 /// (eval scorers, judge shims) can already emit composite rewards
 /// that the training loops will consume in B28's V2.

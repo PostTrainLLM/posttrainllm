@@ -97,7 +97,7 @@ run interactively for any prompt in the playground.
 
 (Merged from the former `docs/watch_the_model_think.md`.)
 
-The TinyGPT playground has a small interpretability lever bolted onto the Sample card:
+The posttrainllm playground has a small interpretability lever bolted onto the Sample card:
 click any byte the model just generated and see the two things the model "actually
 knew" at that position — the next-byte probability distribution it sampled from, and
 the attention weights from the final transformer block.
@@ -192,9 +192,9 @@ there.
 
 ## Publishing to SAELens / Neuronpedia (B17)
 
-`tinygpt sae-to-saelens <in.sae> --out <dir>` converts a TinyGPT `.sae`
+`posttrainllm sae-to-saelens <in.sae> --out <dir>` converts a posttrainllm `.sae`
 sidecar to the [SAELens](https://github.com/decoderesearch/SAELens) on-disk
-layout, so TinyGPT-trained SAEs become first-class in the interp ecosystem
+layout, so posttrainllm-trained SAEs become first-class in the interp ecosystem
 without reimplementing visualization:
 
 ```
@@ -211,7 +211,7 @@ sae = SAE.load_from_disk("<dir>")
 ```
 
 The `metadata` block in `cfg.json` preserves provenance (base layer, base
-model shape, and — for B19 group SAEs — the full `tinygpt_group_layers`
+model shape, and — for B19 group SAEs — the full `posttrainllm_group_layers`
 list) so a round-trip back to our format isn't lossy.
 
 **Sparsity / Neuronpedia dashboards.** `sparsity.safetensors` (per-feature

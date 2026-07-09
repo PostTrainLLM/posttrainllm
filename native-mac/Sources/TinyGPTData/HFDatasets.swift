@@ -7,7 +7,7 @@ import Foundation
 /// function-calling, OpenHermes-2.5, MetaMath, UltraFeedback, etc.).
 /// This client provides the read-side moat: resolve a dataset by id,
 /// list its shards via the Hub API, stream them to a local cache, and
-/// hand back URLs for downstream conversion to tinygpt's JSONL / plain
+/// hand back URLs for downstream conversion to posttrainllm's JSONL / plain
 /// formats.
 ///
 /// References:
@@ -143,9 +143,9 @@ public enum HFDatasets {
         return "https://huggingface.co/datasets/\(id)/resolve/\(revision)/\(encodedFilename)"
     }
 
-    /// Default cache root: `~/.cache/tinygpt/datasets/`.
+    /// Default cache root: `~/.cache/posttrainllm/datasets/`.
     /// We use `HF_HOME` only as a hint — never write into HuggingFace's own
-    /// cache layout, so users can `rm -rf` tinygpt's cache without
+    /// cache layout, so users can `rm -rf` posttrainllm's cache without
     /// affecting their `~/.cache/huggingface` directory.
     public static func cacheRoot() -> URL {
         let env = ProcessInfo.processInfo.environment
@@ -154,7 +154,7 @@ public enum HFDatasets {
         }
         let home = env["HOME"].map { URL(fileURLWithPath: $0, isDirectory: true) }
             ?? FileManager.default.homeDirectoryForCurrentUser
-        return home.appendingPathComponent(".cache/tinygpt/datasets", isDirectory: true)
+        return home.appendingPathComponent(".cache/posttrainllm/datasets", isDirectory: true)
     }
 
     /// `cacheRoot / <id>` — `id` may contain '/' which we keep as a
@@ -219,7 +219,7 @@ public enum HFDatasets {
         if let token = ProcessInfo.processInfo.environment["HF_TOKEN"], !token.isEmpty {
             req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-        req.setValue("tinygpt/0.1 (+https://github.com/sarthak/tinygpt)", forHTTPHeaderField: "User-Agent")
+        req.setValue("posttrainllm/0.1 (+https://github.com/sarthak/posttrainllm)", forHTTPHeaderField: "User-Agent")
 
         let box = ResultBox()
         let sema = DispatchSemaphore(value: 0)
@@ -253,7 +253,7 @@ public enum HFDatasets {
         if let token = ProcessInfo.processInfo.environment["HF_TOKEN"], !token.isEmpty {
             req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-        req.setValue("tinygpt/0.1", forHTTPHeaderField: "User-Agent")
+        req.setValue("posttrainllm/0.1", forHTTPHeaderField: "User-Agent")
 
         let delegate = DownloadDelegate(destination: dest, progress: progress)
         let cfg = URLSessionConfiguration.default

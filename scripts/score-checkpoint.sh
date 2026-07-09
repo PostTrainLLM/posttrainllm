@@ -3,11 +3,11 @@
 #
 # Usage:
 #   ./scripts/score-checkpoint.sh <ckpt.tinygpt> [out.jsonl]
-#   ./scripts/score-checkpoint.sh ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt
+#   ./scripts/score-checkpoint.sh ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt
 #
 # Defaults out.jsonl to docs/artifacts/score-$(basename ckpt)-$(date).jsonl
 #
-# Runs `tinygpt run-lm-eval` against the checkpoint for a fixed sweep
+# Runs `posttrainllm run-lm-eval` against the checkpoint for a fixed sweep
 # of tasks, appends rows to the JSONL, prints `eval-compare --by model`.
 # Optionally scores SmolLM2-135M baseline on the same tasks if not
 # already in the JSONL (idempotent via `--model-name` dedup at the
@@ -20,7 +20,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TINYGPT="$REPO_ROOT/native-mac/.build/arm64-apple-macosx/release/tinygpt"
+TINYGPT="$REPO_ROOT/native-mac/.build/arm64-apple-macosx/release/posttrainllm"
 
 if [[ $# -lt 1 ]]; then
     echo "usage: $0 <ckpt.tinygpt> [out.jsonl] [--tasks csv] [--limit N]" >&2
@@ -34,7 +34,7 @@ if [[ ! -f "$CKPT" ]]; then
     exit 1
 fi
 if [[ ! -x "$TINYGPT" ]]; then
-    echo "tinygpt binary missing — run \`cd native-mac && swift build -c release\`" >&2
+    echo "posttrainllm binary missing — run \`cd native-mac && swift build -c release\`" >&2
     exit 1
 fi
 
@@ -73,7 +73,7 @@ echo "  out:    $OUT"
 echo ""
 
 "$TINYGPT" run-lm-eval \
-    --tinygpt-model "$CKPT" \
+    --posttrainllm-model "$CKPT" \
     --tokenizer "$TOKENIZER_PATH" \
     --tasks "$TASKS" \
     --limit "$LIMIT" \
@@ -91,7 +91,7 @@ if ! grep -q '"model_name":"SmolLM2-135M"' "$OUT" 2>/dev/null; then
         --limit "$LIMIT" \
         --model-name "SmolLM2-135M" \
         --baseline \
-        --out "$OUT" || echo "baseline scoring failed (non-fatal — TinyGPT row already written)"
+        --out "$OUT" || echo "baseline scoring failed (non-fatal — posttrainllm row already written)"
 fi
 
 echo ""

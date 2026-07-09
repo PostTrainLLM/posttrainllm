@@ -1,9 +1,9 @@
 // swift-tools-version: 6.1
 //
-// TinyGPT — native macOS app.
+// posttrainllm — native macOS app.
 //
 // The package is split into a library target (`TinyGPTIO`) that owns the
-// `.tinygpt` file-format reader/writer and an executable (`tinygpt`) that
+// `.tinygpt` file-format reader/writer and an executable (`posttrainllm`) that
 // exposes a CLI today (`inspect`, `validate`) and will host the SwiftUI app
 // once the file-format + model parity milestones land.
 //
@@ -13,7 +13,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "TinyGPT",
+    name: "posttrainllm",
     platforms: [.macOS(.v14)],
     products: [
         .library(name: "TinyGPTIO", targets: ["TinyGPTIO"]),
@@ -34,7 +34,7 @@ let package = Package(
         // any model is loaded). The vision-encoder/ViT half (consuming
         // PNG → tokens) is intentionally NOT in this target.
         .library(name: "TinyGPTScreen", targets: ["TinyGPTScreen"]),
-        .executable(name: "tinygpt", targets: ["TinyGPT"]),
+        .executable(name: "posttrainllm", targets: ["TinyGPT"]),
         .executable(name: "TinyGPTApp", targets: ["TinyGPTApp"]),
     ],
     dependencies: [
@@ -91,9 +91,9 @@ let package = Package(
             ]
         ),
         // `TinyGPTServe` exposes an OpenAI-compatible HTTP endpoint over a
-        // loaded tinygpt / HF model. This is the adapter that lets
+        // loaded posttrainllm / HF model. This is the adapter that lets
         // `lm-evaluation-harness` (HellaSwag, MMLU-Pro, GSM8K, IFEval, …)
-        // evaluate any tinygpt-loaded model. Lives in its own library so the
+        // evaluate any posttrainllm-loaded model. Lives in its own library so the
         // executable target stays a thin CLI shim AND so we can unit-test
         // the server by calling `Serve.start()` directly from XCTest.
         // See docs/lm_eval_integration.md.

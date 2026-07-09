@@ -156,14 +156,14 @@ export function trackSampleGenerated(props: SampleGeneratedProps): void {
 }
 
 // --- fleet page crash monitoring (page_crash_capture requirement) ------------
-// Standard browser crash capture hook (documented equivalent for TinyGPT's
+// Standard browser crash capture hook (documented equivalent for posttrainllm's
 // Astro + vanilla-TS bundle; see saas-maker/standards/hardening/error-kit).
 // Wires global listeners so uncaught errors and unhandled rejections in
 // production are captured with project slug. Always console.errors (never
 // silent). Sends `foundry_page_crash` via PostHog only when analytics enabled
 // (respects existing VITE_POSTHOG_KEY + opt-out gates; no behavior change).
 
-const PROJECT_SLUG = "tinygpt";
+const PROJECT_SLUG = "posttrainllm";
 
 function route(): string | undefined {
   if (typeof window === "undefined") return undefined;
@@ -189,10 +189,10 @@ export function capturePageCrash(
   };
 
   // Always surface to console — ops + debugging visibility even when
-  // analytics is fully disabled (matches tinygpt "page must keep working"
+  // analytics is fully disabled (matches posttrainllm "page must keep working"
   // rule while giving signal).
   // eslint-disable-next-line no-console
-  console.error("[tinygpt:page_crash]", payload);
+  console.error("[posttrainllm:page_crash]", payload);
 
   if (!enabled) return;
   try {

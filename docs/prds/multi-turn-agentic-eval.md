@@ -42,7 +42,7 @@ A Mac-local, **stateful** multi-turn tool-calling eval that, for a given model:
 ## Data + matching
 
 - **Source:** BFCL-v4 `multi_turn_base` (200 examples, ~4 turns each) — already on
-  disk at `~/.cache/tinygpt/datasets/_external/gorilla-bfcl/.../data/`. Each example
+  disk at `~/.cache/posttrainllm/datasets/_external/gorilla-bfcl/.../data/`. Each example
   has `question` (turn-list), `initial_config` (backend state), `involved_classes`
   (the stateful Python backends, e.g. `GorillaFileSystem`), and a gold action `path`.
 - **Matching:** state-based — instantiate the backend from `initial_config`, execute

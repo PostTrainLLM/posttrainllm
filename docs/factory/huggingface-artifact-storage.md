@@ -1,6 +1,6 @@
 # Hugging Face Artifact Storage
 
-Hugging Face Hub is the default public artifact store for TinyGPT factory
+Hugging Face Hub is the default public artifact store for posttrainllm factory
 outputs.
 
 Cloudflare R2 is no longer the source of truth for public model artifacts. Keep
@@ -73,7 +73,7 @@ lock no longer points to a local cache, pass `--weights-source`:
 python3 scripts/plan_hf_artifact_upload.py \
   specialists/qwen3-4b-file-ops-distilled \
   --repo-id sarthakagrawal927/qwen3-4b-file-ops-distilled \
-  --weights-source ~/.cache/tinygpt/models/mt4b_fused \
+  --weights-source ~/.cache/posttrainllm/models/mt4b_fused \
   --include-weights
 ```
 

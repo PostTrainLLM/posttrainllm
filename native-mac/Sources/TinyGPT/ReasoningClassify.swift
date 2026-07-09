@@ -11,7 +11,7 @@ import Foundation
 ///   magic "TGFR" (4B) | version u32 | vocabSize u32 | ngramOrder u32 | numClasses u32
 ///   | for c in 0..<numClasses: bias[c] f32, weights[c] f32 × vocabSize
 ///
-/// Subcommand: `tinygpt reasoning-classify --mode {train|score|filter} ...`
+/// Subcommand: `posttrainllm reasoning-classify --mode {train|score|filter} ...`
 enum ReasoningClassify {
 
     static let magic: [UInt8] = Array("TGFR".utf8)
@@ -211,7 +211,7 @@ enum ReasoningClassify {
         guard !rows.isEmpty else { fputs("no rows in \(trainPath)\n", stderr); exit(1) }
         print("""
 
-        TinyGPT — reasoning-depth classifier (train)
+        posttrainllm — reasoning-depth classifier (train)
         --------------------------------------------
         train:       \(trainPath) (\(rows.count) rows)
         heldout:     \(heldoutPath ?? "none")
@@ -514,7 +514,7 @@ enum ReasoningClassify {
         let totalOut = emitted.reduce(0, +)
         print("""
 
-        TinyGPT — reasoning-classify --filter
+        posttrainllm — reasoning-classify --filter
         input:       \(inputPath)  (per-class: \(bucket.map { $0.count }))
         target mix:  \(target.map { String(format: "%.2f", $0) })
         emitted:     \(totalOut) rows
@@ -543,11 +543,11 @@ enum ReasoningClassify {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt reasoning-classify --train <labeled.jsonl> --out <reason.tgfr> \\
+        usage: posttrainllm reasoning-classify --train <labeled.jsonl> --out <reason.tgfr> \\
                                           [--heldout <held.jsonl>] [options]
-               tinygpt reasoning-classify --score <corpus.jsonl> --model <reason.tgfr> \\
+               posttrainllm reasoning-classify --score <corpus.jsonl> --model <reason.tgfr> \\
                                           --out <scored.jsonl> [--field <prompt-field>]
-               tinygpt reasoning-classify --filter <scored.jsonl> --out <balanced.jsonl> \\
+               posttrainllm reasoning-classify --filter <scored.jsonl> --out <balanced.jsonl> \\
                                           --target-mix "single=0.3,multi=0.5,comparison=0.2,other=0.0" \\
                                           [--seed <n>]
 

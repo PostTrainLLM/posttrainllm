@@ -3,10 +3,10 @@
 
 Combines per-model eval artifacts into one publication-shape table:
   * decode tok/s + TTFT p99 + peak RSS (from `scripts/bench_decode.py`)
-  * BFCL avg + per-category (from `tinygpt eval-bfcl`'s JSON output)
-  * τ-bench retail + airline pass@1 (from `tinygpt eval-tau-bench`'s JSON)
+  * BFCL avg + per-category (from `posttrainllm eval-bfcl`'s JSON output)
+  * τ-bench retail + airline pass@1 (from `posttrainllm eval-tau-bench`'s JSON)
   * Pace unhappy-path ambig/oos/destructive pass rates
-    (from `~/.cache/tinygpt/runs/h2-combined-<tag>/*.json`)
+    (from `~/.cache/posttrainllm/runs/h2-combined-<tag>/*.json`)
   * Composite = mean(accuracy) × speed × cost,
     mirrors the formula in scripts/score_formula.py §3 (no DRY breach).
 
@@ -42,7 +42,7 @@ from typing import Any
 
 
 REPO = Path(__file__).resolve().parent.parent
-UNHAPPY_DIR = Path.home() / ".cache" / "tinygpt" / "runs"
+UNHAPPY_DIR = Path.home() / ".cache" / "posttrainllm" / "runs"
 SUITES = ("ambig", "oos", "destructive")
 DEFAULT_OUT_MD = REPO / "docs" / "research" / "mac_slm_leaderboard_v0.md"
 DEFAULT_OUT_JSON = REPO / "docs" / "research" / "data" / "slm_leaderboard_v0.json"
@@ -99,7 +99,7 @@ def load_decode(p: Path) -> dict | None:
 
 
 def load_bfcl(p: Path) -> dict | None:
-    """Pulls the BFCL average from `tinygpt eval-bfcl`'s JSON output.
+    """Pulls the BFCL average from `posttrainllm eval-bfcl`'s JSON output.
 
     The exact shape is: a dict of categories → scores. Average over
     numeric values; bail if the file's shape is unrecognized rather than
@@ -119,7 +119,7 @@ def load_bfcl(p: Path) -> dict | None:
 
 
 def load_tau(p: Path) -> dict | None:
-    """Pulls retail + airline pass@1 from `tinygpt eval-tau-bench`'s JSON.
+    """Pulls retail + airline pass@1 from `posttrainllm eval-tau-bench`'s JSON.
 
     Tries the canonical {retail: …, airline: …} shape first; falls back
     to averaging all numerics.
@@ -360,9 +360,9 @@ python3 scripts/build_slm_leaderboard.py \\
 - **RSS p99 (MB)** — peak resident memory of the serving process,
   polled via `ps -o rss=` once per run. Gates "will it OOM on a 24 GB
   Mac?"
-- **BFCL avg** — `tinygpt eval-bfcl`'s 10-category average. Tool-calling
+- **BFCL avg** — `posttrainllm eval-bfcl`'s 10-category average. Tool-calling
   capability.
-- **τ-bench avg** — `tinygpt eval-tau-bench`'s retail + airline mean.
+- **τ-bench avg** — `posttrainllm eval-tau-bench`'s retail + airline mean.
   Multi-turn agent capability.
 - **unhappy avg** — Pace planner n=130 ambig/oos/destructive mean.
   Robustness on the cases that mis-route the most.

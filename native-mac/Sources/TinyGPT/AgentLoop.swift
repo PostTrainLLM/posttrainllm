@@ -568,7 +568,7 @@ public final class AgentLoop {
     {
         let cfg = hook.router.config
         // C4 — use the router's BPE tokenizer when present so the
-        // encoding distribution matches `tinygpt train-extractor
+        // encoding distribution matches `posttrainllm train-extractor
         // --tokenizer <dir>` at training time. Falls back to byte-level
         // for routers trained without a tokenizer (the legacy default).
         var ids: [Int32]

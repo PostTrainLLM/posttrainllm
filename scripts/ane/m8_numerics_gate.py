@@ -16,15 +16,15 @@ PASS criteria (vs baseline):
 Usage:
   # 1. capture baseline from the current (fp32-IO) chain:
   python3 scripts/ane/m8_numerics_gate.py \
-      --pkg-dir ~/.cache/tinygpt/ane \
+      --pkg-dir ~/.cache/posttrainllm/ane \
       --hf-dir <Qwen3-0.6B HF snapshot> \
-      --save-baseline ~/.cache/tinygpt/ane/m8-gate-baseline.npz
+      --save-baseline ~/.cache/posttrainllm/ane/m8-gate-baseline.npz
 
   # 2. after re-export / runtime change, compare:
   python3 scripts/ane/m8_numerics_gate.py \
-      --pkg-dir ~/.cache/tinygpt/ane-fp16io \
+      --pkg-dir ~/.cache/posttrainllm/ane-fp16io \
       --hf-dir <Qwen3-0.6B HF snapshot> \
-      --compare ~/.cache/tinygpt/ane/m8-gate-baseline.npz
+      --compare ~/.cache/posttrainllm/ane/m8-gate-baseline.npz
 
 Exit code 0 = gate PASS, 1 = gate FAIL, 2 = setup error.
 """

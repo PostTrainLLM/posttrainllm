@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt bench` — Mac LLM-inference benchmark harness.
+/// `posttrainllm bench` — Mac LLM-inference benchmark harness.
 ///
 /// CLI entry point. Parses args, builds the engine + workload, runs
 /// it, dumps JSON + markdown.
@@ -9,7 +9,7 @@ import TinyGPTModel
 /// Design doc: docs/benchmark_harness_design.md
 public enum Benchmark {
     public static func run(args: [String]) {
-        var engineName = "tinygpt"
+        var engineName = "posttrainllm"
         var modelPath: String? = nil
         var mode = "single"
         var batchSize = 1
@@ -76,7 +76,7 @@ public enum Benchmark {
         // Build the engine.
         var engine: EngineAdapter
         switch engineName {
-        case "tinygpt":
+        case "posttrainllm":
             let e = TinyGPTEngine()
             engine = e
         case "mlx-lm":
@@ -86,13 +86,13 @@ public enum Benchmark {
         case "ollama":
             engine = OllamaEngine()
         default:
-            fputs("unknown engine \(engineName). Choose tinygpt|mlx-lm|llama.cpp|ollama\n", stderr)
+            fputs("unknown engine \(engineName). Choose posttrainllm|mlx-lm|llama.cpp|ollama\n", stderr)
             exit(2)
         }
 
         print("""
 
-        tinygpt bench — \(engineName)
+        posttrainllm bench — \(engineName)
         ---------------------------------
         model:           \(modelPath)
         workload:        \(mode), prompt=\(promptTokens) tok, gen=\(genTokens) tok, batch=\(batchSize)
@@ -191,11 +191,11 @@ public enum Benchmark {
 
     static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt bench --model <path> [options]
+        usage: posttrainllm bench --model <path> [options]
 
-        --engine tinygpt|mlx-lm|llama.cpp|ollama
-                                    Inference engine to benchmark (default: tinygpt).
-                                    Only `tinygpt` is implemented in this scaffold.
+        --engine posttrainllm|mlx-lm|llama.cpp|ollama
+                                    Inference engine to benchmark (default: posttrainllm).
+                                    Only `posttrainllm` is implemented in this scaffold.
         --model <path>              Path to a .tinygpt file or an HF model dir. Required.
         --mode single|batch|server|sustained
                                     Workload pattern (default: single).

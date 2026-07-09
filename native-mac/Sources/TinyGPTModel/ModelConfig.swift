@@ -137,7 +137,7 @@ public struct ModelConfig: Sendable, Equatable {
     /// Default KIVI precision for sample-time KV cache. `nil` = sample
     /// uses fp32/fp16/bf16 KV cache (the historical default). Set to 4
     /// or 8 to recommend KIVI quantisation in the checkpoint manifest;
-    /// `tinygpt sample --kv-quantize ...` overrides. Inference-time
+    /// `posttrainllm sample --kv-quantize ...` overrides. Inference-time
     /// hint only — has no effect on training.
     public var kviBits: Int?
 
@@ -160,7 +160,7 @@ public struct ModelConfig: Sendable, Equatable {
 
     /// Default StreamingLLM sink + window for sample-time KV cache.
     /// `nil` = unbounded growth (historical default). Inference-time
-    /// hint only; `tinygpt sample` flags override.
+    /// hint only; `posttrainllm sample` flags override.
     public var streamingSink: Int?
     public var streamingWindow: Int?
 

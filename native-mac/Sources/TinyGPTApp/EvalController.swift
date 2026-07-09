@@ -83,7 +83,7 @@ final class EvalController: ObservableObject {
     private var pollTask: Task<Void, Never>?
     private var sweepTask: Task<Void, Never>?
     private var customTask: Task<Void, Never>?
-    private static let historyKey = "tinygpt.eval.history.v1"
+    private static let historyKey = "posttrainllm.eval.history.v1"
     private static let historyMax = 20
 
     init() {
@@ -189,7 +189,7 @@ final class EvalController: ObservableObject {
             if lmTasks.isEmpty { lmTasks = ["arc_easy"] }
             var args = [
                 "run-lm-eval",
-                "--tinygpt-model", modelPath,
+                "--posttrainllm-model", modelPath,
                 "--tasks", lmTasks.sorted().joined(separator: ","),
                 "--out", out.path
             ]
@@ -257,7 +257,7 @@ final class EvalController: ObservableObject {
                 n_examples: cases.count,
                 wall_seconds: -started.timeIntervalSinceNow,
                 timestamp: ISO8601DateFormatter().string(from: Date()),
-                harness_version: "tinygpt-app-custom"
+                harness_version: "posttrainllm-app-custom"
             )
             rows = [row]
             writeRows([row], to: out)
@@ -269,7 +269,7 @@ final class EvalController: ObservableObject {
 
     private func launch(args: [String], outURL: URL, modeLabel: String) {
         guard let cli = locateCLI() else {
-            lastError = "tinygpt CLI not found; build native-mac first"
+            lastError = "posttrainllm CLI not found; build native-mac first"
             return
         }
         isRunning = true
@@ -306,7 +306,7 @@ final class EvalController: ObservableObject {
 
     private func runProcessSync(args: [String]) async {
         guard let cli = locateCLI() else {
-            appendLog("tinygpt CLI not found\n")
+            appendLog("posttrainllm CLI not found\n")
             return
         }
         let p = Process()
@@ -336,16 +336,16 @@ final class EvalController: ObservableObject {
         if let exec = Bundle.main.executableURL {
             var dir = exec.deletingLastPathComponent()
             for _ in 0..<8 {
-                let candidate = dir.appendingPathComponent(".build/arm64-apple-macosx/release/tinygpt")
+                let candidate = dir.appendingPathComponent(".build/arm64-apple-macosx/release/posttrainllm")
                 if fm.fileExists(atPath: candidate.path) { return candidate }
-                let nested = dir.appendingPathComponent("native-mac/.build/arm64-apple-macosx/release/tinygpt")
+                let nested = dir.appendingPathComponent("native-mac/.build/arm64-apple-macosx/release/posttrainllm")
                 if fm.fileExists(atPath: nested.path) { return nested }
                 dir = dir.deletingLastPathComponent()
             }
         }
-        let local = URL(fileURLWithPath: "native-mac/.build/arm64-apple-macosx/release/tinygpt")
+        let local = URL(fileURLWithPath: "native-mac/.build/arm64-apple-macosx/release/posttrainllm")
         if fm.fileExists(atPath: local.path) { return local }
-        let usr = URL(fileURLWithPath: "/usr/local/bin/tinygpt")
+        let usr = URL(fileURLWithPath: "/usr/local/bin/posttrainllm")
         return fm.fileExists(atPath: usr.path) ? usr : nil
     }
 
@@ -381,7 +381,7 @@ final class EvalController: ObservableObject {
     private func defaultResultsURL() -> URL {
         let dir = FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent(".cache")
-            .appendingPathComponent("tinygpt")
+            .appendingPathComponent("posttrainllm")
             .appendingPathComponent("evals")
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir.appendingPathComponent("app-eval-\(Int(Date().timeIntervalSince1970)).jsonl")
@@ -392,7 +392,7 @@ final class EvalController: ObservableObject {
         let stem = url.deletingPathExtension().lastPathComponent
         let files = (try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)) ?? []
         let history = files.filter {
-            $0.pathExtension == "tinygpt" &&
+            $0.pathExtension == "posttrainllm" &&
             $0.deletingPathExtension().lastPathComponent.hasPrefix("\(stem).step-")
         }
         let sorted = history.sorted { (Self.step(from: $0) ?? 0) < (Self.step(from: $1) ?? 0) }

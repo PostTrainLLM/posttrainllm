@@ -5,12 +5,12 @@
 # the action twins or other h2 suites.
 set -euo pipefail
 BASE=~/.cache/huggingface/hub/models--Qwen--Qwen3-4B-Instruct-2507/snapshots/main
-DATA=~/.cache/tinygpt/datasets/clarify-train-v1.jsonl
-RUN_DIR=~/.cache/tinygpt/runs/clarify-v1
+DATA=~/.cache/posttrainllm/datasets/clarify-train-v1.jsonl
+RUN_DIR=~/.cache/posttrainllm/runs/clarify-v1
 LORA="$RUN_DIR/clarify-v1.lora"
 BAKED="$RUN_DIR/baked-hf"
-TINYGPT=/Users/sarthak/Desktop/fleet/tinygpt/native-mac/.build/arm64-apple-macosx/release/tinygpt
-TGT=/Users/sarthak/Desktop/fleet/tinygpt
+TINYGPT=/Users/sarthak/Desktop/fleet/posttrainllm/native-mac/.build/arm64-apple-macosx/release/posttrainllm
+TGT=/Users/sarthak/Desktop/fleet/posttrainllm
 SYSP="$TGT/grammars/pace-system-prompt-v11.txt"
 GRAMMAR="$TGT/grammars/pace-fm-response-v11.schema.json"
 
@@ -25,7 +25,7 @@ echo "[2/4] Baking adapter..."
 "$TINYGPT" bake-lora "$BASE" "$LORA" --out "$BAKED" 2>&1 | tail -2
 
 echo "[3/4] Serving baked model on :8765..."
-pkill -f "tinygpt serve" 2>/dev/null || true; sleep 2
+pkill -f "posttrainllm serve" 2>/dev/null || true; sleep 2
 "$TINYGPT" serve "$BAKED" --grammar "$GRAMMAR" --port 8765 \
   > "$RUN_DIR/serve.log" 2>&1 &
 for i in $(seq 1 60); do
@@ -42,5 +42,5 @@ for SUITE in ambig oos destructive; do
     --serve-url "$URL" --sys-prompt "$SYSP" \
     --out "$RUN_DIR/$SUITE.json" 2>&1 | tail -2
 done
-pkill -f "tinygpt serve" 2>/dev/null || true
+pkill -f "posttrainllm serve" 2>/dev/null || true
 echo "=== done. results in $RUN_DIR ==="

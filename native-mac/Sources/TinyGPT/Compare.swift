@@ -3,14 +3,14 @@ import MLX
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt compare` — the headline workflow: pit a base model against
+/// `posttrainllm compare` — the headline workflow: pit a base model against
 /// the same base + a LoRA adapter on a held-out eval set, report the
 /// delta. Lets the user see "did my fine-tune actually help, and by
 /// how much?" in one command.
 ///
 /// USAGE
-///   tinygpt compare base.tinygpt --lora my.lora --corpus held-out.txt
-///   tinygpt compare base.tinygpt --lora a.lora --lora b.lora \
+///   posttrainllm compare base.tinygpt --lora my.lora --corpus held-out.txt
+///   posttrainllm compare base.tinygpt --lora a.lora --lora b.lora \
 ///       --corpus held-out.txt   # composes both adapters
 ///
 /// Prints a side-by-side table of cross-entropy loss / BPB / perplexity
@@ -65,7 +65,7 @@ enum Compare {
 
         print("""
 
-        TinyGPT — base vs LoRA comparison
+        posttrainllm — base vs LoRA comparison
         ---------------------------------
         base:     \(URL(fileURLWithPath: basePath).lastPathComponent) (\(cfg.nLayers)L · d=\(cfg.dModel))
         adapters: \(loraPaths.count) — \(loraPaths.map { URL(fileURLWithPath: $0).lastPathComponent }.joined(separator: " + "))
@@ -182,7 +182,7 @@ enum Compare {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt compare <base.tinygpt> [options]
+        usage: posttrainllm compare <base.tinygpt> [options]
 
         --corpus path.txt    UTF-8 held-out text (required)
         --lora path.lora     Adapter to test (required; can repeat for composition)

@@ -93,7 +93,7 @@ enum RunBench {
         }
 
         print("✓ wrote \(emitted) E0 rows to \(outPath)")
-        print("  view: tinygpt eval-compare \(outPath) --by task")
+        print("  view: posttrainllm eval-compare \(outPath) --by task")
     }
 
     private static func scorePerplexity(
@@ -263,7 +263,7 @@ enum RunBench {
             score: score,
             n_examples: n,
             wall_seconds: wall,
-            harness_version: "tinygpt-run-bench"
+            harness_version: "posttrainllm-run-bench"
         )
         do { try EvalCompare.Row.append(row, to: outURL) }
         catch { fputs("run-bench: could not append row: \(error)\n", stderr); exit(1) }
@@ -271,7 +271,7 @@ enum RunBench {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt run-bench --model <path> --out <jsonl> [options]
+        usage: posttrainllm run-bench --model <path> --out <jsonl> [options]
 
         Modes:
           --perplexity <txt|json|jsonl>   corpus loss/perplexity rows

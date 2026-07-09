@@ -10,7 +10,7 @@ import Foundation
 /// Subprocess execution is *plainly unsafe* when the schema or the
 /// model output is attacker-controlled. The agent runtime is meant for
 /// developer-driven workflows on the user's own machine; do NOT expose
-/// `tinygpt agent` to untrusted prompts or schemas. See
+/// `posttrainllm agent` to untrusted prompts or schemas. See
 /// `docs/agent_runtime.md` for the threat model.
 ///
 /// We make two small but real mitigations:
@@ -143,8 +143,8 @@ public enum ToolExecutor {
         final class Box: @unchecked Sendable { var data: Data = .init() }
         let outBox = Box()
         let errBox = Box()
-        let outQ = DispatchQueue(label: "tinygpt.tool.stdout")
-        let errQ = DispatchQueue(label: "tinygpt.tool.stderr")
+        let outQ = DispatchQueue(label: "posttrainllm.tool.stdout")
+        let errQ = DispatchQueue(label: "posttrainllm.tool.stderr")
         let outDoneSem = DispatchSemaphore(value: 0)
         let errDoneSem = DispatchSemaphore(value: 0)
         outQ.async {

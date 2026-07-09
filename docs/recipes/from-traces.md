@@ -1,13 +1,13 @@
 ---
 title: From .atraj rollouts to a trained specialist
-description: B22 + B29 + B30 + tinygpt sft chained — the closed substrate→training loop, V1.
+description: B22 + B29 + B30 + posttrainllm sft chained — the closed substrate→training loop, V1.
 ---
 
 # From `.atraj` rollouts to a trained specialist
 
 This recipe walks the **substrate-refinement cycle** that closes between
 B22 (token-preserving trajectory recorder), B29 (trace-to-training-data),
-B30 (reasoning-depth classifier for mix balancing), and `tinygpt sft`.
+B30 (reasoning-depth classifier for mix balancing), and `posttrainllm sft`.
 
 Inputs in / model out, no LLM judge in V1, no DPO.
 
@@ -16,20 +16,20 @@ Inputs in / model out, no LLM judge in V1, no DPO.
 ```
 agent rollouts → .atraj files (B22)
    ↓
-tinygpt traces-to-data        (B29)   →  raw-sft.jsonl
+posttrainllm traces-to-data        (B29)   →  raw-sft.jsonl
    ↓
-tinygpt reasoning-classify --train    →  reason.tgfr
-tinygpt reasoning-classify --score    →  scored.jsonl     (B30)
-tinygpt reasoning-classify --filter   →  balanced.jsonl
+posttrainllm reasoning-classify --train    →  reason.tgfr
+posttrainllm reasoning-classify --score    →  scored.jsonl     (B30)
+posttrainllm reasoning-classify --filter   →  balanced.jsonl
    ↓
-tinygpt sft --data balanced.jsonl --base <gallery-pin>
+posttrainllm sft --data balanced.jsonl --base <gallery-pin>
 ```
 
 ## Step 1 — collect trajectories
 
 ```bash
-tinygpt agent specialist.tinygpt --tools tools.json \
-  --trajectory-dir ~/.cache/tinygpt/atraj/tool-call-v1 \
+posttrainllm agent specialist.tinygpt --tools tools.json \
+  --trajectory-dir ~/.cache/posttrainllm/atraj/tool-call-v1 \
   --trajectory-task "tool-call" \
   --single "look up the weather in Paris"
 ```
@@ -42,7 +42,7 @@ trajectories (B22)" for the format.
 ## Step 2 — turn the trajectories into SFT JSONL
 
 ```bash
-tinygpt traces-to-data ~/.cache/tinygpt/atraj/tool-call-v1 \
+posttrainllm traces-to-data ~/.cache/posttrainllm/atraj/tool-call-v1 \
   --task tool-call \
   --out raw-sft.jsonl
 ```
@@ -56,7 +56,7 @@ Jaccard ≥ 0.85.
 Tune the MinHash threshold per corpus:
 
 ```bash
-tinygpt traces-to-data ~/.cache/tinygpt/atraj/tool-call-v1 \
+posttrainllm traces-to-data ~/.cache/posttrainllm/atraj/tool-call-v1 \
   --task tool-call \
   --minhash-threshold 0.7 \
   --out raw-sft.jsonl
@@ -74,15 +74,15 @@ both are present in `raw-sft.jsonl`. B30 fixes this:
 
 ```bash
 # Train the depth classifier ONCE per corpus family.
-tinygpt reasoning-classify \
+posttrainllm reasoning-classify \
   --train labeled-seed.jsonl \
   --heldout labeled-heldout.jsonl \
   --out reason.tgfr
 
-tinygpt reasoning-classify --score raw-sft.jsonl \
+posttrainllm reasoning-classify --score raw-sft.jsonl \
   --model reason.tgfr --out scored.jsonl --field user
 
-tinygpt reasoning-classify --filter scored.jsonl \
+posttrainllm reasoning-classify --filter scored.jsonl \
   --target-mix "single=0.3,multi=0.5,comparison=0.2,other=0.0" \
   --out balanced.jsonl
 ```
@@ -95,7 +95,7 @@ full B30 details.
 ## Step 4 — fine-tune
 
 ```bash
-tinygpt sft --base <pin-from-gallery> --data balanced.jsonl ...
+posttrainllm sft --base <pin-from-gallery> --data balanced.jsonl ...
 ```
 
 ## What V1 is NOT
@@ -106,7 +106,7 @@ knows what's missing:
 - **No LLM-pivot judge filter.** `--judge-model <id>` is reserved but
   exits non-zero in V1 — wiring the judge would need a live LLM, and
   this recipe is intentionally compute-light. Coming in B29 V2 via
-  `tinygpt judge` (E7) as a subprocess.
+  `posttrainllm judge` (E7) as a subprocess.
 - **No DPO-pair construction.** `--mode dpo` is reserved but rejected;
   V1 ships `--mode sft` only. DPO needs either a per-step reward
   signal or a judge-score margin; PRD §"Open questions" picks the

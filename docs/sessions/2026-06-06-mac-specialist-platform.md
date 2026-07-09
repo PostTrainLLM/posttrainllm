@@ -1,7 +1,7 @@
-# Strategy session — what TinyGPT actually is, what's possible on a Mac
+# Strategy session — what posttrainllm actually is, what's possible on a Mac
 
 **Date:** 2026-06-06
-**Premise:** TinyGPT shouldn't be framed as "small models beat large ones on
+**Premise:** posttrainllm shouldn't be framed as "small models beat large ones on
 benchmarks." The real thesis is: **a Mac app where individuals build a
 specialist for their specific task — bring data, pick a teacher, ship a
 fast/cheap/comparable-quality model.** Distillation, fine-tuning, and
@@ -10,7 +10,7 @@ quantization are the toolkit that makes this actually work.
 This doc captures the strategic frame, the memory math, and the product
 roadmap implications.
 
-## What TinyGPT is, restated
+## What posttrainllm is, restated
 
 > **"A Mac app where you bring data, pick a teacher, and ship a
 > specialist that runs 15-100× faster than the teacher with comparable
@@ -90,7 +90,7 @@ Open-weights ecosystem clusters at 1B / 3B / 7B / 13B / 30B / 70B. The
    recipe that only varies depth/width to hit Llama-class sizes.
 
 **This is an opportunity, not a constraint.** Distillation lets you
-target any size including 4-6B. A TinyGPT-Mega-tuned variant at 5-6B
+target any size including 4-6B. A posttrainllm-Mega-tuned variant at 5-6B
 would slot into "better than 3B, faster than 7B, fits 8 GB GPUs at Q8."
 Niche worth investigating once the base recipe works.
 
@@ -98,7 +98,7 @@ Niche worth investigating once the base recipe works.
 
 | Student size | Memory (Q4 inference) | Train path on Mac | Likely speed vs 7B teacher |
 |---|---|---|---|
-| 22M (TinyGPT-Huge — what we're training) | ~12 MB | Pretrain from scratch ✓ | ~50-100× |
+| 22M (posttrainllm-Huge — what we're training) | ~12 MB | Pretrain from scratch ✓ | ~50-100× |
 | 76M (Mega) | ~38 MB | Pretrain from scratch ✓ | ~30-50× |
 | 1B | ~500 MB | Pretrain from scratch or fine-tune ✓ | ~10-20× |
 | 3B | ~1.5 GB | Pretrain from scratch (tight) or fine-tune ✓ | ~5-10× |
@@ -153,8 +153,8 @@ Honest read: **~70% of the Tier 1 backlog has strong existing OSS to adopt.** Wo
 | Constrained decoding | llama.cpp GBNF format (text grammars, no engine to write) | 2 days (was 2-3) |
 | KV cache in serve | Our own `sample` command already has it — port internally | 1-2 days |
 | Safetensors loader in serve | mlx-lm architecture mappers (Llama/Qwen/Mistral/Phi/Gemma ready) | 2-3 days (was 3-5) |
-| `tinygpt prep` data CLI | `datatrove` (HF) patterns + our existing MinHash + quality filter | 2 days (was 2-3) |
-| `tinygpt eval-custom` | lm-eval-harness YAML custom-task spec | 1 day (was 2-3) |
+| `posttrainllm prep` data CLI | `datatrove` (HF) patterns + our existing MinHash + quality filter | 2 days (was 2-3) |
+| `posttrainllm eval-custom` | lm-eval-harness YAML custom-task spec | 1 day (was 2-3) |
 | TIES model merging | `mergekit` core algorithm (~100 lines) | 1-2 days (was 2-3) |
 | Q4_K_M quantization | llama.cpp dequant code | 1-2 days |
 | Tokenizer trainer | HF `tokenizers` (Rust crate) wrapper | 2 days (was 2-3) |
@@ -186,7 +186,7 @@ Honest read: **~70% of the Tier 1 backlog has strong existing OSS to adopt.** Wo
 
 The integration glue and product UX:
 - Local-teacher labeling pipeline (no one has this at this scope)
-- Unified `tinygpt prep` CLI wrapper
+- Unified `posttrainllm prep` CLI wrapper
 - "Create Specialist" app wizard
 - Templates for common patterns (router, classifier, JSON-extractor, etc.)
 - Quality predictability heuristics
@@ -220,8 +220,8 @@ The session-doc gap-table format above should be **filled in** for every new cap
 | **TIES model merging** | Port from mergekit (~100 lines algorithm) | 1-2 days |
 | **Safetensors loader for serve** (foreign architectures) | Adopt mlx-lm's architecture mappers | 2-3 days |
 | **KV cache wired into `serve`** | `KVCache.swift` exists; needs serve integration | 1-2 days |
-| **`tinygpt prep`** wrapper | Bundle existing `dedupe` + `quality-filter` + extract + format normalize | 1 day |
-| **`tinygpt eval-custom`** | Custom-task YAML on top of existing `run-lm-eval` | 1-2 days |
+| **`posttrainllm prep`** wrapper | Bundle existing `dedupe` + `quality-filter` + extract + format normalize | 1 day |
+| **`posttrainllm eval-custom`** | Custom-task YAML on top of existing `run-lm-eval` | 1-2 days |
 | **Q4_K_M quantization level** | Port from llama.cpp | 1-2 days |
 | **Tokenizer trainer** | Wrap HF `tokenizers` Rust crate | 2 days |
 | **Domain-adapt SFT mode** | May already be a `train` flag — verify before building | 0-1 day |
@@ -427,7 +427,7 @@ The platform pitch isn't "as fast as Groq" — it's "fast enough for your specif
 
 ## Market landscape (what's out there as of mid-2026)
 
-For situating where TinyGPT fits in the broader inference / specialization market:
+For situating where posttrainllm fits in the broader inference / specialization market:
 
 | Category | Players | What they sell |
 |---|---|---|
@@ -441,9 +441,9 @@ For situating where TinyGPT fits in the broader inference / specialization marke
 | **Diffusion text (emerging)** | Mercury (Inception Labs), LLaDA, SEDD | Parallel-decoding via diffusion, 1000+ tok/s claims |
 | **Mobile / on-device** | Apple Intelligence, Gemini Nano, Anthropic-on-iOS | 3B-class distilled for phone CPUs |
 | **Specialized agents** | Cognition Devin, browser-use, Stagehand, Cline, Aider | Agent loops over standard models with task-specific scaffolding |
-| **Local-Mac inference** | Ollama, LM Studio, MLX-LM, llama.cpp, **TinyGPT** | Run open weights on consumer Mac |
+| **Local-Mac inference** | Ollama, LM Studio, MLX-LM, llama.cpp, **posttrainllm** | Run open weights on consumer Mac |
 
-**TinyGPT's positioning:** the only player in "local-Mac inference" that ALSO covers the full build/upgrade lifecycle (data → train → eval → deploy). Ollama / LM Studio run pretrained models; TinyGPT builds and ships specialists end-to-end on the same machine.
+**posttrainllm's positioning:** the only player in "local-Mac inference" that ALSO covers the full build/upgrade lifecycle (data → train → eval → deploy). Ollama / LM Studio run pretrained models; posttrainllm builds and ships specialists end-to-end on the same machine.
 
 ### Competitive landscape — deeper research (added 2026-06-06)
 
@@ -451,12 +451,12 @@ For situating where TinyGPT fits in the broader inference / specialization marke
 
 | Player | What it is | Differentiator |
 |---|---|---|
-| **LM Studio** | GUI for GGUF/MLX models; no fine-tuning | "LM Studio runs models. TinyGPT *makes* them." |
-| **Ollama** | Local inference daemon; loads adapters | Complement — export target. "Bring your fine-tune to Ollama; build it in TinyGPT." |
-| **Jan** | OSS ChatGPT desktop, inference-only | Jan = chat client; TinyGPT = factory. |
+| **LM Studio** | GUI for GGUF/MLX models; no fine-tuning | "LM Studio runs models. posttrainllm *makes* them." |
+| **Ollama** | Local inference daemon; loads adapters | Complement — export target. "Bring your fine-tune to Ollama; build it in posttrainllm." |
+| **Jan** | OSS ChatGPT desktop, inference-only | Jan = chat client; posttrainllm = factory. |
 | **GPT4All** | Inference + LocalDocs RAG | Different lane — RAG vs distilled specialist. |
-| **MLX-LM** | Apple library: train + inference on Apple Silicon | **Closest direct competitor.** TinyGPT = product/workflow/eval loop atop MLX-LM as library. |
-| **Unsloth + Ollama** | Linux/CUDA fine-tune + export | "Unsloth needs a 4090; TinyGPT runs on your laptop." |
+| **MLX-LM** | Apple library: train + inference on Apple Silicon | **Closest direct competitor.** posttrainllm = product/workflow/eval loop atop MLX-LM as library. |
+| **Unsloth + Ollama** | Linux/CUDA fine-tune + export | "Unsloth needs a 4090; posttrainllm runs on your laptop." |
 
 #### Cloud fine-tuning (we don't compete)
 
@@ -494,13 +494,13 @@ For situating where TinyGPT fits in the broader inference / specialization marke
 
 ### Top 5 positioning statements
 
-1. **"Run-only tools chat with models. TinyGPT *builds* them."** — vs LM Studio / Ollama / Jan / GPT4All.
+1. **"Run-only tools chat with models. posttrainllm *builds* them."** — vs LM Studio / Ollama / Jan / GPT4All.
 2. **"Fine-tune on the Mac you already own — no 4090, no cloud bill, no data leaving the device."** — vs Together / Fireworks / Unsloth.
 3. **"OpenAI killed their fine-tune API in May 2026. Specialist models shouldn't be a hosted API in the first place."** — market-signal positioning.
 4. **"One opinionated path — pick a teacher, bring data, get a fast specialist — wrapped around the best OSS pieces (MLX-LM, lm-eval-harness, Distilabel)."** — honest about adoption; integrated workflow is the differentiator.
-5. **"Apple's Foundation Models give you one 3B model locked to iOS. TinyGPT gives you any open base from 22M to 13B, deployable anywhere."** — vs Apple's on-device push; no ecosystem lock-in.
+5. **"Apple's Foundation Models give you one 3B model locked to iOS. posttrainllm gives you any open base from 22M to 13B, deployable anywhere."** — vs Apple's on-device push; no ecosystem lock-in.
 
-### Where TinyGPT honestly does NOT compete
+### Where posttrainllm honestly does NOT compete
 
 - 70B+ production fine-tuning — Together/Fireworks win; concede
 - LangChain-tied production observability — LangSmith owns it
@@ -515,7 +515,7 @@ For situating where TinyGPT fits in the broader inference / specialization marke
 | Player | Verdict | Notes |
 |---|---|---|
 | Cursor, Cody, Codeium, Augment, Windsurf | **Ignore** (cloud-IDE plays, different surface) | Wrong layer for us |
-| **Continue.dev, Aider** | **Complement** — they consume our `serve` endpoint | "Point Continue at a TinyGPT specialist trained on your repo" |
+| **Continue.dev, Aider** | **Complement** — they consume our `serve` endpoint | "Point Continue at a posttrainllm specialist trained on your repo" |
 | **Tabnine** | **Direct competitor on "per-repo fine-tune" claim** | They charge enterprise $$, cloud-clone of proprietary. **Tagline: "Tabnine's per-repo fine-tune, but on your Mac, on open weights, free."** |
 
 #### Agent frameworks
@@ -526,7 +526,7 @@ For situating where TinyGPT fits in the broader inference / specialization marke
 | AutoGen, CrewAI | Complement, lower priority | Smaller / less-aligned audiences |
 | Magentic | Ignore | Tiny audience |
 
-**Sharp insight:** None of these *produce* specialists. They orchestrate. **TinyGPT is the missing model-producer layer underneath.** Cookbook pages for smolagents + Pydantic AI reach high-intent audiences cheaply.
+**Sharp insight:** None of these *produce* specialists. They orchestrate. **posttrainllm is the missing model-producer layer underneath.** Cookbook pages for smolagents + Pydantic AI reach high-intent audiences cheaply.
 
 #### Inference framework wars
 
@@ -542,18 +542,18 @@ For situating where TinyGPT fits in the broader inference / specialization marke
 
 | Player | Verdict | Notes |
 |---|---|---|
-| **DeepSeek-R1-Distill-Qwen-1.5B** | **Default base for `tinygpt grpo`** (Tier 3) | Only realistic single-Mac GRPO target |
+| **DeepSeek-R1-Distill-Qwen-1.5B** | **Default base for `posttrainllm grpo`** (Tier 3) | Only realistic single-Mac GRPO target |
 | **QwQ-32B (Q4)** | **Mac flagship reasoning teacher** | 32B fits 48GB at Q4; Apache 2.0 |
 | DeepSeek-R1 (671B) | Use as teacher via distillation traces | Not runnable on Mac |
 | o1 / o3 / Claude thinking / Gemini thinking | **Forbid as teacher** (our positioning is "no API spend") | — |
 
-**Sharp insight:** Half of HF reasoning model cards mention GRPO; it's table stakes. If we ship `tinygpt grpo`, DeepSeek-R1-Distill-Qwen-1.5B + GSM8K reward is the recipe.
+**Sharp insight:** Half of HF reasoning model cards mention GRPO; it's table stakes. If we ship `posttrainllm grpo`, DeepSeek-R1-Distill-Qwen-1.5B + GSM8K reward is the recipe.
 
 #### RAG infrastructure
 
 | Player | Verdict |
 |---|---|
-| **LanceDB** | **Default for TinyGPT RAG** — embedded, no server, matches our "single binary" ethos |
+| **LanceDB** | **Default for posttrainllm RAG** — embedded, no server, matches our "single binary" ethos |
 | ChromaDB | Optional default for tutorials |
 | Qdrant | Optional (richer filters) |
 | Pinecone, Turbopuffer | Ignore (SaaS) |
@@ -579,7 +579,7 @@ vllm-mlx is claiming 4.3× throughput at 16 concurrent requests on Apple Silicon
 
 #### Decision 2: Add "specialist embedder" as Tier 2 modality
 
-**New opportunity surfaced:** every RAG stack assumes OpenAI embeddings. A `tinygpt embed-train` recipe + LanceDB integration is weekend-buildable, reuses our existing specialist-training stack, opens the RAG category without us shipping a vector DB.
+**New opportunity surfaced:** every RAG stack assumes OpenAI embeddings. A `posttrainllm embed-train` recipe + LanceDB integration is weekend-buildable, reuses our existing specialist-training stack, opens the RAG category without us shipping a vector DB.
 
 **Recommended: yes, add to Tier 2.** Slot between "Speech-in (Whisper)" and "Image gen" by priority. PRD-sized.
 
@@ -680,7 +680,7 @@ That's why every production LLM uses subword tokenization. The cost is a larger 
 
 The disciplined call: keep BPE as default. Watch BLT — if it becomes mature open weights, byte-with-patches becomes the right answer for multilingual + code + typo-robust specialists.
 
-### Why this is a research frontier (and why TinyGPT is positioned for it)
+### Why this is a research frontier (and why posttrainllm is positioned for it)
 
 Tokenization is one of the few hardcoded preprocessing steps left in modern LLMs — everything else (embeddings, attention patterns, position encoding, expert routing) has been "learned" over the past decade. Letting the model learn its own input units is **active 2024-2025 research**.
 
@@ -704,7 +704,7 @@ Known problems with fixed BPE tokenization that motivate this:
 | Latent reasoning (Quiet-STaR) | Internal "thinking tokens" | Research |
 | Adaptive computation time (ACT) | Compute steps per token | Recently revived |
 
-**TinyGPT's positioning is unusual:** most platforms (HF transformers, llama.cpp, etc.) are BPE-locked. We **already** support byte-level + SmolLM2 BPE as first-class options. Adding BLT-style adaptive patches when open weights mature is **incremental**, not a rewrite. That's a strategic asset worth preserving.
+**posttrainllm's positioning is unusual:** most platforms (HF transformers, llama.cpp, etc.) are BPE-locked. We **already** support byte-level + SmolLM2 BPE as first-class options. Adding BLT-style adaptive patches when open weights mature is **incremental**, not a rewrite. That's a strategic asset worth preserving.
 
 Three honest tiers of involvement:
 1. **Conservative (now):** BPE default, byte fallback. Ship the product.
@@ -725,7 +725,7 @@ Three honest tiers of involvement:
 | Quantize for shipping | GGUF Q5/Q6/Q8 ✓ | Q4_K_M (Tier 1) |
 | Distill into smaller | recipe doc | feature (Tier 1) |
 | Merge with another model | gap | TIES merging (Tier 1) |
-| Revert / repair (rollback to checkpoint) | save-history ✓ | `tinygpt revert --step N` flow |
+| Revert / repair (rollback to checkpoint) | save-history ✓ | `posttrainllm revert --step N` flow |
 
 ## Local-teacher architecture (confirmed 2026-06-06)
 
@@ -770,7 +770,7 @@ Net 14 PRDs in `docs/prds/`. Status snapshot as of end-of-session:
 1. **Now**: N02 base finishes → A1 tool-call distillation proves the
    recipe works end-to-end. Without this, building UI on an unproven
    recipe is premature.
-2. **Then**: `tinygpt specialist` CLI subcommand wraps the proven flow
+2. **Then**: `posttrainllm specialist` CLI subcommand wraps the proven flow
    (data prep → teacher label → SFT/LoRA → eval). Headless API.
 3. **Then**: App wizard built on top of the CLI. App = GUI for the
    proven flow.
@@ -784,7 +784,7 @@ Net 14 PRDs in `docs/prds/`. Status snapshot as of end-of-session:
 Assuming sustained execution at the current pace:
 
 - **A1 tool-call specialist lands within 2 weeks of N02 finishing:** ~70%
-- **`tinygpt specialist` CLI wrapping the proven flow:** ~85% (mostly packaging)
+- **`posttrainllm specialist` CLI wrapping the proven flow:** ~85% (mostly packaging)
 - **App wizard built on the CLI:** ~75% (Mac UI work, real effort)
 - **5 production-quality templates:** ~60% (need empirical tuning per template)
 - **QLoRA path opens 13-30B fine-tuning:** ~70% (requires real ML engineering)
@@ -797,7 +797,7 @@ The bottleneck is *not* technical capability. It's:
 
 ## What this changes about today's plans
 
-- Stop framing TinyGPT as "training tiny models from scratch on your Mac."
+- Stop framing posttrainllm as "training tiny models from scratch on your Mac."
   That's *one* capability, not the product.
 - Start framing it as "**fine-tune or distill any model up to ~30B on
   your Mac for your specific task.**" That's the actual platform.
@@ -811,19 +811,19 @@ The bottleneck is *not* technical capability. It's:
 
 ## Design principle: laptop-thermal-aware defaults
 
-**Not a new direction — overdue translation.** TinyGPT has been explicitly Mac-first since day one. The audience target has always been the individual on a personal Mac. But the existing build's *defaults* (training loop, throttle behavior, fan-load assumptions) still implicitly inherit datacenter-era assumptions from upstream tools — nanoGPT's "for step in 0..<steps" loop, MLX's "use all the silicon you can" philosophy, ML papers' max-throughput benchmark culture. The platform was Mac-targeted at the API level but hadn't yet retrofitted the *defaults* to reflect "this is running on a laptop."
+**Not a new direction — overdue translation.** posttrainllm has been explicitly Mac-first since day one. The audience target has always been the individual on a personal Mac. But the existing build's *defaults* (training loop, throttle behavior, fan-load assumptions) still implicitly inherit datacenter-era assumptions from upstream tools — nanoGPT's "for step in 0..<steps" loop, MLX's "use all the silicon you can" philosophy, ML papers' max-throughput benchmark culture. The platform was Mac-targeted at the API level but hadn't yet retrofitted the *defaults* to reflect "this is running on a laptop."
 
 **This section codifies the overdue fix**: defaults should actively reflect the Mac-laptop audience that's been the thesis from day one.
 
-| Surface | TinyGPT-correct default |
+| Surface | posttrainllm-correct default |
 |---|---|
 | **App Train tab — throttle slider** | Default position: **75%** or **"Auto"** (thermal-state-driven). NOT 100%. |
 | **App Train tab — first-run banner** | "Training runs your Mac at full load. Slide down for cooler operation, or leave on Auto to throttle automatically when heat rises." |
-| **CLI `tinygpt train`** | Default `--throttle 1.0` (CLI users opt in to what they want; no surprise behavior). |
+| **CLI `posttrainllm train`** | Default `--throttle 1.0` (CLI users opt in to what they want; no surprise behavior). |
 | **App Train tab — auto-throttle toggle** | **On by default.** Maps `ProcessInfo.thermalState` → automatic throttle adjustment (`.nominal` 100% / `.fair` 75% / `.serious` 50% / `.critical` 25%). |
 | **Pre-launch confirm for long runs** | Show estimated thermal impact: "This will run at ~50W sustained for ~8 hours. [✓] My Mac is on a hard surface with good airflow." |
 
-This makes TinyGPT the **first** Mac-native ML platform with laptop-aware defaults out of the box. The discipline is: **assume the user's machine is a laptop, not a server.** Every default decision flows from there.
+This makes posttrainllm the **first** Mac-native ML platform with laptop-aware defaults out of the box. The discipline is: **assume the user's machine is a laptop, not a server.** Every default decision flows from there.
 
 ## Maintainer learning roadmap (added 2026-06-06)
 
@@ -835,7 +835,7 @@ Personalized for outsider-perspective + AI-augmented + shipping-while-learning c
 |---|---|---|
 | **Karpathy "Zero to Hero" YouTube series** (6 videos, ~10 hrs) | 1 week of evenings | Best practical ML pedagogy that exists. Builds transformer from scratch. After this, the matmul-stack mental model is locked in. |
 | **3blue1brown "Neural Networks" series** (~3 hrs) | 1 evening | Visual intuition for matmul + gradient descent. Pairs with Karpathy. |
-| **Read nanoGPT line by line** (~300 lines PyTorch) | 2-3 hrs | Karpathy's reference impl. Once this clicks, ~80% of TinyGPT's `Train.swift` is legible. |
+| **Read nanoGPT line by line** (~300 lines PyTorch) | 2-3 hrs | Karpathy's reference impl. Once this clicks, ~80% of posttrainllm's `Train.swift` is legible. |
 | **The Annotated Transformer (Harvard NLP)** | 2-3 hrs | Original 2017 paper, line-by-line with running code. Canonical reference. |
 | **Read your own codebase actively** | ongoing | `TransformerBlock.swift`, `Train.swift`, `Sample.swift`. Best teacher is the system you shipped. |
 | **Papers, chronologically, just-in-time** | on-demand | Transformer (2017) → GPT-2 (2019) → Scaling Laws (2020) → Chinchilla (2022) → LLaMA (2023) → DPO (2023) → BLT (2024). Don't pre-read; read when relevant to current work. |
@@ -856,7 +856,7 @@ Personalized for outsider-perspective + AI-augmented + shipping-while-learning c
 
 ## Open questions for future sessions
 
-1. **Should TinyGPT ship its own pretrained 3B base?** Or rely on
+1. **Should posttrainllm ship its own pretrained 3B base?** Or rely on
    downloaded Qwen3-3B / Phi-3.5-mini as starting points? Argument for:
    architectural consistency, one binary handles everything. Argument
    against: weeks of training, doesn't differentiate from existing
@@ -922,7 +922,7 @@ Even though we lost the weights, the *recipe* and *learnings* are intact:
 
 | Setting | Old | New (post-2026-06-07) |
 |---|---|---|
-| `--out` default | `/tmp/<name>.tinygpt` | `~/.cache/tinygpt/runs/<name>/<name>.tinygpt` |
+| `--out` default | `/tmp/<name>.tinygpt` | `~/.cache/posttrainllm/runs/<name>/<name>.tinygpt` |
 | App throttle slider default | 75% | 50% |
 | Pre-launch confirmation threshold | >30 min | >2 hrs (most users will skip 30-min runs through it without thinking) |
 | `--log-jsonl` on `--resume` | write mode (truncates) | append mode (preserves history) |
@@ -948,7 +948,7 @@ Even though we lost the weights, the *recipe* and *learnings* are intact:
 
 ## TL;DR for myself in 3 months
 
-You decided TinyGPT is **a Mac app for individual task-specialization**.
+You decided posttrainllm is **a Mac app for individual task-specialization**.
 The product is "bring data → pick teacher → ship a fast specialist."
 Distillation + LoRA + QLoRA + Q4 inference lift the ceiling from "3B
 trained from scratch" to "30B fine-tuned locally + 70B-class quality via

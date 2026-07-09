@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt eval-review` (B35) — score a code-review run on issue detection:
+/// `posttrainllm eval-review` (B35) — score a code-review run on issue detection:
 /// recall/precision/F1 of reported vs planted issues. Scores a results file;
 /// running the review agent over SWE-bench is the GPU step.
 enum EvalReview {
@@ -47,7 +47,7 @@ enum EvalReview {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-review <results.jsonl> [--out rows.jsonl]
+        usage: posttrainllm eval-review <results.jsonl> [--out rows.jsonl]
 
         Score a code-review run on issue detection (B35). Rows:
           {planted_issues: [String], found_issues: [String]}

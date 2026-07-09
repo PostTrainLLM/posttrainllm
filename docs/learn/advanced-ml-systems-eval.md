@@ -55,7 +55,7 @@ re-ranker today (`docs/prds/local-rag-layer.md`).
 cross-encoder (accurate rerank of top-k); when to fine-tune embeddings;
 MTEB for selection. "Recall fine, top-3 precision poor — what stage?"
 *Learn:* [Retrieve & Re-Rank](https://www.sbert.net/examples/applications/retrieve_rerank/README.html) · *senior*
-*In repo:* `tinygpt rerank-train` / `rerank-eval` / `eval-mteb`; mxbai-embed.
+*In repo:* `posttrainllm rerank-train` / `rerank-eval` / `eval-mteb`; mxbai-embed.
 
 **7. RAG evaluation.** Measure retrieval (recall@k, MRR/nDCG) *separately*
 from generation faithfulness/groundedness; knowledge conflict
@@ -72,14 +72,14 @@ memory + tools; reason↔act loop; short-term (context) vs long-term (vector)
 memory; structured function-calling + error recovery + loop bounding.
 "Design a travel-booking agent — where does it loop/fail, how do you bound it?"
 *Learn:* [Lil'Log: LLM Agents](https://lilianweng.github.io/posts/2023-06-23-agent/) · *senior*
-*In repo:* `tinygpt agent`; Pace's plan-act-observe loop; `agent-context-hierarchy.md`.
+*In repo:* `posttrainllm agent`; Pace's plan-act-observe loop; `agent-context-hierarchy.md`.
 
 **10. Agent evaluation (trace-based).** Score tool-call correctness,
 planning quality, task completion via step-level traces — not just the final
 answer. "Eval an agent with 20 tool calls when only the last output shows."
 *Learn:* [Agent Eval Guide](https://www.confident-ai.com/blog/llm-agent-evaluation-complete-guide) · *staff*
 *In repo:* B23 agent-eval-protocol (pass@1 over repeated runs ± σ);
-`tinygpt eval-bfcl` / `eval-tau-bench` — and **today's A1 run** is this end-to-end.
+`posttrainllm eval-bfcl` / `eval-tau-bench` — and **today's A1 run** is this end-to-end.
 
 ## Evaluation depth
 
@@ -88,7 +88,7 @@ position, length/verbosity, self-preference, concreteness, prompt-injection.
 Mitigate: pairwise + order randomization, rubric + CoT, validate vs human
 labels. "Your judge prefers longer answers — prove it and correct it."
 *Learn:* [Hamel: Evals FAQ](https://hamel.dev/blog/posts/evals-faq/) · *senior/staff*
-*In repo:* `tinygpt judge` (E7, `JudgeShim.swift`); strict-scorer mode.
+*In repo:* `posttrainllm judge` (E7, `JudgeShim.swift`); strict-scorer mode.
 
 **12. Perplexity — definition, uses, limits.** PPL = exp(mean per-token NLL)
 = exp(cross-entropy). The catch: comparable **only under the same tokenizer**,
@@ -103,7 +103,7 @@ detect/guard via held-out/private sets, canary strings, decontamination;
 pass@k for code (functional correctness over k samples); calibration (ECE,
 reliability diagrams). *Learn:* [Contamination Survey](https://arxiv.org/abs/2406.04244) · *staff*
 *In repo:* `mac-assistant-judgment` benchmark ships a real contamination
-check (Jaccard ≥0.6 vs train); `tinygpt eval-humaneval` is pass@k.
+check (Jaccard ≥0.6 vs train); `posttrainllm eval-humaneval` is pass@k.
 
 ## ML system design & classic-ML depth
 

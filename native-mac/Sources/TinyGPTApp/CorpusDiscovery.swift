@@ -66,20 +66,20 @@ enum CorpusDiscovery {
         var paths: [URL] = []
         let fm = FileManager.default
         let home = fm.homeDirectoryForCurrentUser
-        // ~/.cache/tinygpt/corpora — primary persistent cache (macOS doesn't
+        // ~/.cache/posttrainllm/corpora — primary persistent cache (macOS doesn't
         // reap this, unlike /tmp).
-        paths.append(home.appendingPathComponent(".cache/tinygpt/corpora"))
-        // /tmp/tinygpt-corpora — legacy fetch_corpora.sh default. Kept for
+        paths.append(home.appendingPathComponent(".cache/posttrainllm/corpora"))
+        // /tmp/posttrainllm-corpora — legacy fetch_corpora.sh default. Kept for
         // backwards compatibility but macOS reaps it; new fetches go to
-        // ~/.cache/tinygpt/corpora.
-        paths.append(URL(fileURLWithPath: "/tmp/tinygpt-corpora"))
+        // ~/.cache/posttrainllm/corpora.
+        paths.append(URL(fileURLWithPath: "/tmp/posttrainllm-corpora"))
         // Bundled resources/corpora (production install)
         if let resourceURL = Bundle.main.resourceURL {
             paths.append(resourceURL.appendingPathComponent("corpora"))
         }
-        // ~/Library/Application Support/TinyGPT/corpora
+        // ~/Library/Application Support/posttrainllm/corpora
         if let appSupport = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            paths.append(appSupport.appendingPathComponent("TinyGPT/corpora"))
+            paths.append(appSupport.appendingPathComponent("posttrainllm/corpora"))
         }
         // Repo-local data/corpora (when launched from .xcode-build during dev)
         if let exec = Bundle.main.executableURL {

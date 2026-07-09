@@ -1,6 +1,6 @@
 // finalize_gallery.ts — assemble the gallery from canonical training outputs.
 //
-// Inputs: data/gallery/<id>.{tinygpt, sample.txt, meta.json}  (one set per id)
+// Inputs: data/gallery/<id>.{posttrainllm, sample.txt, meta.json}  (one set per id)
 // Outputs:
 //   browser/public/gallery/<id>.tinygpt          fp16 weights-only (~18 MB)
 //   browser/public/gallery/manifest.json         unified, in deterministic order
@@ -334,8 +334,8 @@ for (const slot of SLOTS) {
   // mirror per param when active. The 12-byte figure shown is what a
   // loaded model occupies regardless of inference vs training mode.
   const cfgSource = (canonicalExists && canonicalSrc) || dstPath;
-  const tinygptConfig = await readConfigFromTinyGpt(cfgSource);
-  const paramCount = tinygptConfig ? paramsFromManifestConfig(tinygptConfig) : 0;
+  const TinyGPTConfig = await readConfigFromTinyGpt(cfgSource);
+  const paramCount = TinyGPTConfig ? paramsFromManifestConfig(TinyGPTConfig) : 0;
   const gpuBytes = paramCount * 12;
 
   // Pick a starting prompt per model so the user lands on the right
@@ -366,7 +366,7 @@ for (const slot of SLOTS) {
     // authored by the project. Submission flow populates these
     // differently for community uploads.
     submission: {
-      author: "TinyGPT",
+      author: "posttrainllm",
       submittedAt: meta?.savedAt ?? new Date().toISOString(),
       browserTrained: true,
       featured: true,

@@ -1,9 +1,9 @@
 # GitHub data integration
 
-`tinygpt fetch-github` pulls structured training data from GitHub for
+`posttrainllm fetch-github` pulls structured training data from GitHub for
 the code-specialist agent track (debugger, reviewer, commit-message
 generator). It is the GitHub-side counterpart to
-`tinygpt download-dataset` (HuggingFace Hub).
+`posttrainllm download-dataset` (HuggingFace Hub).
 
 > **Why this matters.** HuggingFace gives you pre-curated datasets;
 > GitHub gives you the in-the-wild signal that nobody has packaged yet.
@@ -11,7 +11,7 @@ generator). It is the GitHub-side counterpart to
 > reported X, here is the diff that fixed it". Review-comment pairs are
 > the training data for a PR-reviewer agent. Commit-message pairs train
 > a "write a commit message for this diff" model. All three live on
-> GitHub, all three are huge, and all three were missing from tinygpt's
+> GitHub, all three are huge, and all three were missing from posttrainllm's
 > data pipeline before this module.
 
 ---
@@ -23,18 +23,18 @@ generator). It is the GitHub-side counterpart to
 export GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
 
 # Issue→PR pairs from a smallish repo, capped at 50 records.
-tinygpt fetch-github pallets/flask --kind issues-prs --limit 50
+posttrainllm fetch-github pallets/flask --kind issues-prs --limit 50
 
 # Commits from rust-lang/rust since 2024 — commit-message training.
-tinygpt fetch-github rust-lang/rust --kind commits \
+posttrainllm fetch-github rust-lang/rust --kind commits \
     --since 2024-01-01T00:00:00Z --limit 5000 \
     --out rust.commits.jsonl
 
 # PR review comments — reviewer-agent training signal.
-tinygpt fetch-github huggingface/transformers --kind reviews --limit 500
+posttrainllm fetch-github huggingface/transformers --kind reviews --limit 500
 
 # Browse the curated GitHub recipes for a specialist.
-tinygpt list-datasets --specialist debugger
+posttrainllm list-datasets --specialist debugger
 # (will list HF datasets first, then the curated GitHub recipes)
 ```
 
@@ -64,7 +64,7 @@ Output lands in the JSONL file passed to `--out` (or
 ## Output formats
 
 All three record kinds use the same outer shape so they drop into
-`tinygpt sft` without extra adapters:
+`posttrainllm sft` without extra adapters:
 
 ```json
 { "instruction": "...", "response": "...", "metadata": { ... } }
@@ -72,7 +72,7 @@ All three record kinds use the same outer shape so they drop into
 
 `metadata` carries provenance (repo, issue/PR/commit number, labels,
 `kind`) so downstream filtering can dedupe / weight / license-check.
-`tinygpt sft` ignores `metadata` and consumes only
+`posttrainllm sft` ignores `metadata` and consumes only
 `instruction` + `response`.
 
 ### `issues-prs` — bug fix training
@@ -190,7 +190,7 @@ not useful training signal for a PR-writer agent.
 
 ## Resume + caching
 
-* Cache root: `~/.cache/tinygpt/github/<owner>/<repo>/`. Override with
+* Cache root: `~/.cache/posttrainllm/github/<owner>/<repo>/`. Override with
   `TINYGPT_GITHUB_CACHE`.
 * The cache directory is created on demand but currently not populated
   with per-record JSON blobs — the resume path works by reading back
@@ -209,7 +209,7 @@ not useful training signal for a PR-writer agent.
 
 ## Curated recipes
 
-`tinygpt list-datasets --specialist debugger` (or `--specialist code`)
+`posttrainllm list-datasets --specialist debugger` (or `--specialist code`)
 prints both the HF datasets *and* the GitHub recipes — a hand-picked
 set of repos that have well-labelled bug trackers, "Fixes #N" PR
 discipline, and permissive licenses. The shortlist lives in

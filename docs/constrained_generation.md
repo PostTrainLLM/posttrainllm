@@ -1,4 +1,4 @@
-# Constrained generation: JSON-mode for tinygpt
+# Constrained generation: JSON-mode for posttrainllm
 
 Reliable JSON output is the most common production failure mode for
 small (1-3B) LLMs in agent loops. Even when the model "knows" how to
@@ -22,7 +22,7 @@ token-level FSM but a touch slower per step.
 ## Usage
 
 ```bash
-tinygpt sample <model.tinygpt> \
+posttrainllm sample <model.tinygpt> \
     --prompt "Output JSON:" \
     --tokens 200 \
     --temperature 0.5 \
@@ -167,7 +167,7 @@ for `outlines` and `vLLM` on equivalent grammars.)
 Run:
 
 ```bash
-tinygpt sample demo.tinygpt \
+posttrainllm sample demo.tinygpt \
     --prompt "JSON:" --tokens 200 --temperature 0.6 \
     --json-schema schema_toolcall.json
 ```

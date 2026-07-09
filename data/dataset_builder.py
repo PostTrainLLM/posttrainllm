@@ -161,7 +161,7 @@ def build_from_hf(dataset: str, config: str, split: str, text_column: str,
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(description="Build TinyGPT training data.")
+    parser = argparse.ArgumentParser(description="Build posttrainllm training data.")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p_tokens = sub.add_parser("tokens", help="Phase 1: text file -> token array + manifest")

@@ -7,11 +7,11 @@ parent_plan: docs/PLAN.md §3 Tier C (C9)
 related_prds: B12 loss-spike recovery (covered partly by adam-state-persistence.md) — this is the debug counterpart
 ---
 
-# PRD — Bit-exact replay of `tinygpt train` step N
+# PRD — Bit-exact replay of `posttrainllm train` step N
 
 ## Goal
 
-Add `tinygpt train --replay-step N --replay-from <ckpt>` that runs
+Add `posttrainllm train --replay-step N --replay-from <ckpt>` that runs
 exactly step N of an earlier training run, deterministically. The
 output is a logged forward + backward trace identical to what the
 original step produced — same input batch, same weights at step N-1,
@@ -35,7 +35,7 @@ inspect the activations / gradients / Adam state directly.
 
 ## Scope — in
 
-- `tinygpt train --replay-step N --replay-from <history-dir>` flag set.
+- `posttrainllm train --replay-step N --replay-from <history-dir>` flag set.
   Loads the checkpoint at step N-1, the AdamState at step N-1, the RNG
   state at step N-1, and the data-loader cursor at step N-1; runs one
   forward + backward + optimizer step; emits a JSON trace.
@@ -71,7 +71,7 @@ inspect the activations / gradients / Adam state directly.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt train --replay-step 10 --replay-from <hist-dir>` on a
+- [ ] `posttrainllm train --replay-step 10 --replay-from <hist-dir>` on a
   fresh shakespeare run produces a trace whose `loss` matches the
   original step 10 loss to ε=0 (byte-equal float).
 - [ ] DeterminismTests.swift passes — 5-step replay byte-equal on the

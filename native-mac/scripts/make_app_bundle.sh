@@ -5,7 +5,7 @@
 set -euo pipefail
 
 BUILD_DIR="${1:-.xcode-build/Build/Products/Debug}"
-APP_NAME="TinyGPT"
+APP_NAME="posttrainllm"
 BUNDLE_ID="dev.sarthakagrawal.tinygpt"
 EXEC_NAME="TinyGPTApp"
 OUT="${BUILD_DIR}/${APP_NAME}.app"

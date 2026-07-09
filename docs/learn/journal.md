@@ -594,7 +594,7 @@ better 22M model — just at the cost of spending 10× the training time.
 Whether that's worth it depends on how often you'll run it: high
 throughput → yes; low throughput → no.
 
-For TinyGPT specifically: the product framing is "Mac platform for
+For posttrainllm specifically: the product framing is "Mac platform for
 building specialists for your specific tasks." Those specialists will be
 hit many times (chat, completions, etc.) — so over-training the base
 might be a real lever to pull, distinct from "make the base bigger."
@@ -841,20 +841,20 @@ better base + moderate T.** NOT crank T higher on a weak base.
 
 ---
 
-## 2026-06-07 — Entry 14: Optimization audit — TinyGPT vs Kaiju + modern small models
+## 2026-06-07 — Entry 14: Optimization audit — posttrainllm vs Kaiju + modern small models
 
 **Triggered by HuggingFace research for the character recipe.** User
 asked: "how can we use the different optimisations [from Character.AI
 Kaiju + modern small models] in our own model training regimen?"
 
-Short answer: **TinyGPT already ships virtually all of them.** The gap
+Short answer: **posttrainllm already ships virtually all of them.** The gap
 is that the default `huge` preset deliberately doesn't enable them —
 it's a vanilla GPT-2 teaching baseline. Modernizing the preset would be
 a free quality bump.
 
 ### Full audit table
 
-| Optimization | Where it comes from | TinyGPT status | Used by `huge` preset? |
+| Optimization | Where it comes from | posttrainllm status | Used by `huge` preset? |
 | ------------ | ------------------- | -------------- | ---------------------- |
 | **MQA** (Multi-Query Attention) | Kaiju | ✅ shipped (`nKvHeads: 1`) | ❌ (uses full MHA) |
 | **GQA** (Grouped Query Attention) | Llama-2+ | ✅ shipped | ❌ (uses full MHA) |
@@ -872,15 +872,15 @@ a free quality bump.
 | **Cosine warmup schedule** | Standard | ✅ shipped (`--lr-schedule cosine`) | optional |
 | **WSD schedule** | MiniCPM | ✅ shipped (`--lr-schedule wsd`) | ✅ (huge uses this) |
 | **BPE dropout** | Provilkov 2019 | ✅ shipped (`BPEDropout.swift`) | optional |
-| **Knowledge distillation** | Hinton et al. | ✅ shipped (`tinygpt distill`) | n/a |
-| **DPO / SimPO / KTO / ORPO** | RLHF alternatives | ✅ shipped (`tinygpt dpo` with flags) | n/a |
+| **Knowledge distillation** | Hinton et al. | ✅ shipped (`posttrainllm distill`) | n/a |
+| **DPO / SimPO / KTO / ORPO** | RLHF alternatives | ✅ shipped (`posttrainllm dpo` with flags) | n/a |
 | **LoRA + DoRA + VeRA + LoftQ + AdaLoRA + RsLoRA + PISSA + LoRA-FA + LayerDrop** | various | ✅ shipped (entire bundle) | n/a |
 | **Multi-Token Prediction (MTP)** | Gloeckle 2024, DeepSeek-V3 | ✅ shipped (`cfg.mtpHorizons > 1`) | ❌ |
 | **MoE (dense routing)** | Switch Transformer | ✅ shipped (`cfg.nExperts > 1`) | ❌ |
 | **NEFTune** (noisy embeddings) | Jain 2024 | ✅ shipped (`--neftune-alpha`) | n/a (SFT-time) |
-| **Curriculum-quality classifier** | FineWeb-Edu approach | ✅ shipped (`tinygpt train-quality-classifier`) | n/a (data) |
+| **Curriculum-quality classifier** | FineWeb-Edu approach | ✅ shipped (`posttrainllm train-quality-classifier`) | n/a (data) |
 | **Speculative decoding (Medusa, EAGLE-2)** | Standard | ✅ shipped (`--draft`, `--heads`) | n/a (inference) |
-| **Synthetic data generation** | Phi-3 textbook approach | ✅ shipped (`tinygpt synthesize`) | n/a |
+| **Synthetic data generation** | Phi-3 textbook approach | ✅ shipped (`posttrainllm synthesize`) | n/a |
 | **ALiBi positional** | Press 2022 | ✅ shipped (alt to RoPE) | ❌ |
 | **Tied embeddings** | Standard | ✅ shipped | ✅ (huge uses this) |
 | **Gradient checkpointing** | Standard | ✅ shipped | optional |
@@ -891,7 +891,7 @@ a free quality bump.
 ### Headline finding
 
 **~95% of modern small-model + Kaiju optimizations are already shipped
-in TinyGPT.** The remaining gaps are either niche (Squinch is for
+in posttrainllm.** The remaining gaps are either niche (Squinch is for
 multi-GPU communication, mostly irrelevant on single-Mac), niche-2-2
 (sparse MoE kernels — dense routing works for training, sparse compute
 is a future engineering project), or non-architectural (B22 trajectory

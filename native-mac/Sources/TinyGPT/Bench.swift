@@ -4,7 +4,7 @@ import MLXNN
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt bench` — runs the apples-to-apples training-throughput
+/// `posttrainllm bench` — runs the apples-to-apples training-throughput
 /// benchmark against the browser's WebGPU baseline.
 ///
 /// Reports steps/sec, tokens/sec, time-per-step, and the implied speedup
@@ -83,7 +83,7 @@ enum Bench {
 
         print("""
 
-        TinyGPT — Mac training-throughput benchmark
+        posttrainllm — Mac training-throughput benchmark
         -------------------------------------------
         preset:       \(preset) (\(cfg.nLayers)L, d=\(cfg.dModel), ctx=\(cfg.contextLength), heads=\(cfg.nHeads), dMlp=\(cfg.dMlp))
         batch size:   \(batchSize)
@@ -191,7 +191,7 @@ enum Bench {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt bench-train [options]
+        usage: posttrainllm bench-train [options]
 
         --preset huge|mega    Model size (default huge — matches gallery)
         --steps N             Timed steps (default 200)

@@ -1,4 +1,4 @@
-# TinyGPT — study queue
+# posttrainllm — study queue
 
 Short stubs for every genuinely-novel topic in the codebase.
 Fill in `Why here:` yourself after internalising each topic.

@@ -6,21 +6,21 @@ This file is a CodeVetter Repo Unpacked-inspired audit written for Starboard rec
 
 ## Project Identity
 
-- Slug: `tinygpt`
-- Registry description: TinyGPT.
+- Slug: `posttrainllm`
+- Registry description: posttrainllm.
 - Product grouping: `internal-first`
-- Source path: `tinygpt`
+- Source path: `posttrainllm`
 
 ## Product Context
 
-TinyGPT is now framed as a **Mac-local specialist factory**. The active product
+posttrainllm is now framed as a **Mac-local specialist factory**. The active product
 loop is target -> data -> post-training -> eval -> package -> report. The
 browser GPT-from-scratch playground remains a successful public demo and
 learning artifact, but the active work center is the native Swift/MLX factory
 CLI, run artifacts, eval gates, and specialist package reports.
 
 The current wedge is not a coding-agent product, a browser/WebGPU polish push,
-or broad research expansion. It is proving that TinyGPT can repeatedly turn a
+or broad research expansion. It is proving that posttrainllm can repeatedly turn a
 local base model plus task data into a measured specialist on a Mac, with
 before/after evals, regressions, cost/latency/RAM/tok-s, packaging metadata, and
 a ship/reject decision.
@@ -152,7 +152,7 @@ Good matches:
   Swift/MLX, Astro, or eval infrastructure.
 - Focused benchmark/report utilities that can attach cost, latency, RAM, tok-s,
   and regression data to a run artifact.
-- Tools with concrete support for TinyGPT's native factory path:
+- Tools with concrete support for posttrainllm's native factory path:
   `native-mac`, `evals`, `scripts`, `docs/factory`, `specialists`.
 - Implementation repos, SDKs, CLIs, testing utilities, adapters, and focused libraries are higher value than generic awesome lists.
 

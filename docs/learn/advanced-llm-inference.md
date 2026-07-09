@@ -48,7 +48,7 @@ shared system prompt — avoid recomputing it per request?"
 / evicts requests every decode step so the GPU never idles on stragglers.
 "Why does static batching tank throughput with heterogeneous lengths?"
 *Learn:* [Orca (OSDI'22)](https://www.usenix.org/conference/osdi22/presentation/yu) · *senior*
-*In repo:* tinygpt serve is single-stream — know this as the throughput
+*In repo:* posttrainllm serve is single-stream — know this as the throughput
 lever you'd add for multi-tenant serving.
 
 ## Decoding & quantization
@@ -66,14 +66,14 @@ two models. *Learn:* [EAGLE](https://arxiv.org/abs/2401.15077) · *staff*
 compensation vs AWQ's activation-aware salient-channel scaling; weight-only
 int4 helps memory-bound decode. "Pick a scheme for a latency-sensitive 70B."
 *Learn:* [AWQ](https://arxiv.org/abs/2306.00978) · *senior*
-*In repo:* `tinygpt gptq` / `hqq` (`GPTQ.swift`, `HQQ.swift`); quantized-HF
+*In repo:* `posttrainllm gptq` / `hqq` (`GPTQ.swift`, `HQQ.swift`); quantized-HF
 checkpoint loading (commit ccf8937) is what let today's A1 load a 4-bit base.
 
 **10. fp8 / activation quant / formats.** fp8 on Hopper/Blackwell, int8
 SmoothQuant for activation outliers, GGUF for CPU/edge. "weight-only int4
 vs fp8 weight+act — which for throughput, which for accuracy?"
 *Learn:* [TensorRT-LLM quantization](https://nvidia.github.io/TensorRT-LLM/blogs/quantization-in-TRT-LLM.html) · *senior*
-*In repo:* `tinygpt gguf-load` / `to-coreml` (the edge/ANE path).
+*In repo:* `posttrainllm gguf-load` / `to-coreml` (the edge/ANE path).
 
 **11. KV-cache quantization.** The lever for long context + large batch;
 harder than weight quant (outlier keys, accuracy cliffs). *Learn:* [roofline survey](https://arxiv.org/abs/2402.16363) · *staff*
@@ -90,7 +90,7 @@ MHA→GQA, and what does MLA add?" *Learn:* [GQA](https://arxiv.org/abs/2305.132
 **13. FlashAttention v2/v3.** IO-aware tiling avoids the N×N matrix; v3
 adds Hopper async (warp-specialization, TMA, fp8); recompute-in-backward.
 "Why faster despite recomputing softmax stats?" *Learn:* [FlashAttention-3](https://arxiv.org/abs/2407.08608) · *staff*
-*In repo:* tinygpt rides MLX's fused attention — the kernel you *don't* hand-write.
+*In repo:* posttrainllm rides MLX's fused attention — the kernel you *don't* hand-write.
 
 **14. Long context: RoPE scaling + sparse attention.** Position
 interpolation vs NTK-aware vs YaRN; sliding-window (Mistral), ring/blockwise

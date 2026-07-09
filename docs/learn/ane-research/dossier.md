@@ -1,10 +1,10 @@
-# ANE research dossier for TinyGPT
+# ANE research dossier for posttrainllm
 
 Status: v1 research synthesis landed 2026-06-07  
 Supports: `docs/prds/factory-ane-inference-pace.md`
 
 This dossier is implementation guidance, not a benchmark result. Anything
-marked repo-local comes from TinyGPT PRDs / smoke notes and should be verified
+marked repo-local comes from posttrainllm PRDs / smoke notes and should be verified
 again before a long conversion or benchmark loop.
 
 ## Source map
@@ -54,7 +54,7 @@ expanded from iPhone to iPad and then to Mac with M1.
 
 Core ML is the public dispatch layer. It can place work on CPU, GPU, and ANE,
 and it may choose a hybrid execution plan. That is useful for app developers,
-but difficult for TinyGPT because we need to know whether decode actually uses
+but difficult for posttrainllm because we need to know whether decode actually uses
 ANE and which graph pattern blocked compilation.
 
 Apple's public ANE guidance is not "convert arbitrary PyTorch and hope." The
@@ -77,7 +77,7 @@ Important implications:
 M5 Pro / M5 Max note: Apple's March 2026 newsroom describes a faster
 power-efficient Neural Engine, higher unified-memory bandwidth, and GPU cores
 with Neural Accelerators. Treat those GPU Neural Accelerators as separate from
-the ANE until tools prove otherwise. For TinyGPT, the practical M5 win is
+the ANE until tools prove otherwise. For posttrainllm, the practical M5 win is
 higher memory bandwidth plus more AI-capable GPU fallback; the ANE path still
 needs an ANE-friendly Core ML graph.
 
@@ -139,7 +139,7 @@ Read the Apple repo in this order:
 4. Hugging Face DistilBERT example for conversion plumbing.
 5. Any LLaMA or decoder-style example branches if present in the current repo.
 
-Copy patterns, not class names. TinyGPT's Qwen path should remain shaped by
+Copy patterns, not class names. posttrainllm's Qwen path should remain shaped by
 Qwen3 architecture and the local Swift/CoreML integration.
 
 ## 3. Core ML Tools capabilities and limits
@@ -150,7 +150,7 @@ Core ML Tools 7+ produces `mlprogram` by default for iOS15 / macOS12 or newer.
 Apple says new feature work targets ML Program; the older neural-network
 format is maintenance mode. Stateful models also require ML Program.
 
-For TinyGPT, default all serious ANE work to `.mlpackage` / ML Program.
+For posttrainllm, default all serious ANE work to `.mlpackage` / ML Program.
 
 ### Stateful models
 
@@ -160,7 +160,7 @@ Core ML stateful prediction is available starting iOS18 / macOS15 for
 prediction calls. Apple's docs warn that predictions using the same state must
 be serialized.
 
-TinyGPT implication:
+posttrainllm implication:
 
 - One decode stream = one `MLState`.
 - Do not share one state across concurrent requests.
@@ -206,7 +206,7 @@ Do not run installs from an agent session without owner approval.
 ### Error handling
 
 Apple does not publish a complete ANECCompile error-code manual. Treat code -14
-as a symptom, not a diagnosis. Repo-local notes say TinyGPT saw -14 around
+as a symptom, not a diagnosis. Repo-local notes say posttrainllm saw -14 around
 state slots / graph size. The diagnostic plan should bisect shape, state,
 operator, and layer-count causes rather than assuming one root cause.
 
@@ -332,7 +332,7 @@ optimization unless we train or distill for it.
 
 FastVLM's lesson is to reduce vision tokens before the LLM, not to make the
 LLM itself magical. It uses an efficient hybrid vision encoder to reduce TTFT
-and token count. For TinyGPT VLM work, this argues for a smaller ANE-friendly
+and token count. For posttrainllm VLM work, this argues for a smaller ANE-friendly
 vision encoder plus fewer visual tokens before spending time on large language
 decoder ANE execution.
 
@@ -349,7 +349,7 @@ and should not be a product dependency. Keep it as background reading only.
 ### Halved-depth distillation
 
 If full 28-layer Qwen3 remains blocked, a 14-layer distilled specialist may be
-more tractable than forcing the full model onto ANE. This fits TinyGPT's
+more tractable than forcing the full model onto ANE. This fits posttrainllm's
 specialist-model philosophy: narrow domain, smaller model, measurable eval.
 
 ## 7. Recommended next experiments

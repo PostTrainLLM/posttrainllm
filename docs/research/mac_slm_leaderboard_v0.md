@@ -60,7 +60,7 @@ python3 scripts/build_slm_leaderboard.py \
 ## Protocol
 
 Publication rows should use the B23/B32 repeated-run protocol when the
-suite is stochastic or agentic: run `tinygpt eval-gate --passes 3` (or
+suite is stochastic or agentic: run `posttrainllm eval-gate --passes 3` (or
 higher for final claims) with `--budget evals/sample-budget.json`, report the candidate mean, and keep
 `gate-result.json` alongside the suite JSON. The gate records per-trial
 scores, stdev, stderr, and 95% CI under `candidateStats`, and records the
@@ -78,9 +78,9 @@ and protocol drift.
 - **RSS p99 (MB)** — peak resident memory of the serving process,
   polled via `ps -o rss=` once per run. Gates "will it OOM on a 24 GB
   Mac?"
-- **BFCL avg** — `tinygpt eval-bfcl`'s 10-category average. Tool-calling
+- **BFCL avg** — `posttrainllm eval-bfcl`'s 10-category average. Tool-calling
   capability.
-- **τ-bench avg** — `tinygpt eval-tau-bench`'s retail + airline mean.
+- **τ-bench avg** — `posttrainllm eval-tau-bench`'s retail + airline mean.
   Multi-turn agent capability.
 - **unhappy avg** — Pace planner n=130 ambig/oos/destructive mean.
   Robustness on the cases that mis-route the most.

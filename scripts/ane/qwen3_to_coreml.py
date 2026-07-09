@@ -2,7 +2,7 @@
 """qwen3_to_coreml.py — convert a Qwen3 HF directory to a CoreML `.mlpackage`
 tuned for Apple Neural Engine dispatch on M-series silicon.
 
-The matching Swift CLI is `tinygpt to-coreml-qwen3`. This script is the
+The matching Swift CLI is `posttrainllm to-coreml-qwen3`. This script is the
 honest deliverable (CoreML conversion requires Python coremltools; no
 Swift-side writer exists). It is reachable directly:
 
@@ -688,7 +688,7 @@ def parity_check(model: Qwen3Model, hf_dir: Path, tokens: list[int]) -> dict:
 
     We can't (cleanly) compare against MLX-Swift from Python in one process,
     so we emit (top-5 token IDs at last position, max logit value) and
-    expect the caller to cross-check via `tinygpt sample` or `tinygpt
+    expect the caller to cross-check via `posttrainllm sample` or `posttrainllm
     hf-load --sample` on the same prompt.
     """
     model.eval()
@@ -883,7 +883,7 @@ def main() -> None:
         print(f"      ✓ wrote {out_path} (stateful)")
         print()
         print(f"validate via:")
-        print(f"  tinygpt ane-validate --coreml {out_path} --hf-dir {hf_dir} \\")
+        print(f"  posttrainllm ane-validate --coreml {out_path} --hf-dir {hf_dir} \\")
         print(f"      --prompt {args.parity_prompt!r}  --stateful")
         return
 
@@ -901,7 +901,7 @@ def main() -> None:
     print()
     print(f"validate via:")
     print(f"  open {out_path}     # Xcode → Instruments → Core ML profile")
-    print(f"  tinygpt ane-validate --coreml {out_path} --hf-dir {hf_dir} \\")
+    print(f"  posttrainllm ane-validate --coreml {out_path} --hf-dir {hf_dir} \\")
     print(f"      --prompt {args.parity_prompt!r}")
 
 

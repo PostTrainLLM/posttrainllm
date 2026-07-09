@@ -5,7 +5,7 @@ import MLXRandom
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt train` — train a model from scratch on a UTF-8 text corpus.
+/// `posttrainllm train` — train a model from scratch on a UTF-8 text corpus.
 ///
 /// Long-run features (Tier 0 safety nets):
 ///   --resume <path.tinygpt>     Resume weights + step from a checkpoint
@@ -81,7 +81,7 @@ enum Train {
         var saveEvery: Int? = nil
         // B13 support: when set, every --save-every tick ALSO writes a
         // step-numbered copy to `<out-stem>.step-N.tinygpt` alongside the
-        // overwriting atomic save. Enables `tinygpt sae --checkpoint-dir`
+        // overwriting atomic save. Enables `posttrainllm sae --checkpoint-dir`
         // (and future interp-on-checkpoints tools) to replay training
         // dynamics. Disk-hungry on long runs; off by default.
         var saveHistory: Bool = false
@@ -783,7 +783,7 @@ enum Train {
         )
         print("""
 
-        TinyGPT — training run
+        posttrainllm — training run
         ---------------------
         recipe:        \(domainAdapt ? "domain-adapt (continued pretrain defaults)" : "pretrain")
         preset:        \(preset) (\(cfg.nLayers)L · d=\(cfg.dModel) · ctx=\(cfg.contextLength))\(cfg.isMoE ? " · MoE(\(cfg.nExperts) experts, top-\(cfg.moeTopK))" : "")\(cfg.mtpHorizons > 1 ? " · MTP(\(cfg.mtpHorizons) horizons)" : "")\(cfg.slidingWindow.map { " · sliding-window=\($0)" } ?? "")\(cfg.useALiBi ? " · ALiBi" : "")
@@ -941,7 +941,7 @@ enum Train {
                 )
                 if shouldPause {
                     fputs("\n[power-pause] \(reason ?? "?") — flushing checkpoint and exiting cleanly\n", stderr)
-                    fputs("[power-pause] resume with: tinygpt train --resume \(outPath ?? "?.tinygpt") --steps \(steps)\n", stderr)
+                    fputs("[power-pause] resume with: posttrainllm train --resume \(outPath ?? "?.tinygpt") --steps \(steps)\n", stderr)
                     TrainSupport.stopRequested.set()
                 }
             }
@@ -1051,7 +1051,7 @@ enum Train {
             }
             if (step + 1) % sampleEvery == 0 || step == steps - 1 {
                 // Inline sample only meaningful for byte-level — BPE prints
-                // would need tokenizer decode; use `tinygpt sample` instead.
+                // would need tokenizer decode; use `posttrainllm sample` instead.
                 if cfg.tokenizerSource == nil {
                     printSample(model: model, cfg: cfg, tag: "step \(step + 1)")
                 }
@@ -1211,7 +1211,7 @@ enum Train {
         let home = FileManager.default.homeDirectoryForCurrentUser
         let dir = home
             .appendingPathComponent(".cache")
-            .appendingPathComponent("tinygpt")
+            .appendingPathComponent("posttrainllm")
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         let stem: String
         if let outPath {
@@ -1280,7 +1280,7 @@ enum Train {
         let logHandle = try? FileHandle(forWritingTo: logURL)
 
         let proc = Process()
-        let selfPath = CommandLine.arguments.first ?? "tinygpt"
+        let selfPath = CommandLine.arguments.first ?? "posttrainllm"
         var args: [String] = []
         if selfPath.contains("/") {
             proc.executableURL = URL(fileURLWithPath: selfPath)
@@ -1291,7 +1291,7 @@ enum Train {
         let servePort = 8200 + (step % 100)
         args.append(contentsOf: [
             "run-lm-eval",
-            "--tinygpt-model", checkpoint.path,
+            "--posttrainllm-model", checkpoint.path,
             "--tokenizer", tokenizer,
             "--tasks", config.tasks,
             "--limit", "\(config.limit)",
@@ -1299,7 +1299,7 @@ enum Train {
             "--model-step", "\(step)",
             "--out", config.outJsonl.path,
             "--serve-port", "\(servePort)",
-            "--work-dir", "/tmp/tinygpt-train-evals"
+            "--work-dir", "/tmp/posttrainllm-train-evals"
         ])
         proc.arguments = args
         if let logHandle {
@@ -1532,7 +1532,7 @@ enum Train {
 
     private static func runsRoot() -> URL {
         FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".cache/tinygpt/runs", isDirectory: true)
+            .appendingPathComponent(".cache/posttrainllm/runs", isDirectory: true)
     }
 
     private static func autoRunName(preset: String) -> String {
@@ -1543,7 +1543,7 @@ enum Train {
         return "\(preset)-\(fmt.string(from: Date()))"
     }
 
-    /// Default `~/.cache/tinygpt/runs/<name>/<name>.tinygpt` when `--out`
+    /// Default `~/.cache/posttrainllm/runs/<name>/<name>.tinygpt` when `--out`
     /// is omitted. Resume-without-`--out` keeps writing to the resume path.
     private static func resolveOutputPaths(
         preset: String,
@@ -1576,7 +1576,7 @@ enum Train {
         guard path.hasPrefix("/tmp/") || path == "/tmp" else { return }
         fputs("""
         [warn] --out points at /tmp — this path is wiped on Mac reboot!
-        [warn] If you intend long training, use --out ~/.cache/tinygpt/runs/<name>/<name>.tinygpt
+        [warn] If you intend long training, use --out ~/.cache/posttrainllm/runs/<name>/<name>.tinygpt
         [warn] Continuing in 3s... (Ctrl-C to abort)
 
         """, stderr)
@@ -1611,7 +1611,7 @@ enum Train {
             corpusLine = "- corpus: (random bytes — no file)"
         }
         let body = """
-        # TinyGPT training run
+        # posttrainllm training run
 
         - started: \(started)
         - preset: `\(preset)`
@@ -1625,7 +1625,7 @@ enum Train {
         ## CLI flags
 
         ```
-        tinygpt train \(cliArgs.joined(separator: " "))
+        posttrainllm train \(cliArgs.joined(separator: " "))
         ```
         """
         try? body.write(to: readme, atomically: true, encoding: .utf8)
@@ -1646,7 +1646,7 @@ enum Train {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt train [options]
+        usage: posttrainllm train [options]
 
         The curated default recipe trains a stable, modern transformer with
         sensible choices baked in (bfloat16 + cosine LR + warmup + gradient
@@ -1666,7 +1666,7 @@ enum Train {
           --steps N                       Training steps (default: 500)
           --corpus path.txt               UTF-8 text file (default: random bytes)
           --out path.tinygpt              Checkpoint path (default:
-                                           ~/.cache/tinygpt/runs/<preset>-<ts>/<name>.tinygpt)
+                                           ~/.cache/posttrainllm/runs/<preset>-<ts>/<name>.tinygpt)
           --dtype bfloat16|float32|float16  Training dtype (default: bfloat16)
           --batch N                       Batch size (default: by preset)
           --sample-every N                Print a sample every N steps (default: 100)
@@ -1771,7 +1771,7 @@ enum Train {
           --max-step-rate N               Absolute cap in steps/sec; combines with
                                            --throttle by taking the slower setting.
           --throttle-file PATH            Poll PATH every 100 steps for live throttle
-                                           updates (default ~/.cache/tinygpt/<run>.throttle)
+                                           updates (default ~/.cache/posttrainllm/<run>.throttle)
           --save-every N                  Atomic checkpoint every N steps
           --save-history                  Also copy each save-every checkpoint to
                                            `<out-stem>.step-N.tinygpt` (B13

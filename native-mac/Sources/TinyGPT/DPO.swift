@@ -5,7 +5,7 @@ import MLXOptimizers
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt dpo` — preference-optimisation trainer with four loss
+/// `posttrainllm dpo` — preference-optimisation trainer with four loss
 /// variants selectable via `--loss-type`:
 ///
 ///   • **dpo** (Rafailov et al., 2023) — the original. Needs a frozen
@@ -27,7 +27,7 @@ import TinyGPTModel
 /// reference load entirely, cutting memory by ~half.
 ///
 /// USAGE
-///   tinygpt dpo <base> --data path.jsonl --loss-type simpo \
+///   posttrainllm dpo <base> --data path.jsonl --loss-type simpo \
 ///       --beta 2.0 --gamma 1.0 --rank 4 --steps 500 --out my.lora
 enum DPO {
 
@@ -198,7 +198,7 @@ enum DPO {
 
         print("""
 
-        TinyGPT — preference optimisation (\(lossType.rawValue))
+        posttrainllm — preference optimisation (\(lossType.rawValue))
         -------------
         base:           \(basePath)
         template:       \(template.rawValue)
@@ -473,7 +473,7 @@ enum DPO {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt dpo <base> [options]
+        usage: posttrainllm dpo <base> [options]
 
         --data path.jsonl        JSONL of {prompt, chosen, rejected} triplets (required)
         --out path.lora          Where to save the adapter (required)

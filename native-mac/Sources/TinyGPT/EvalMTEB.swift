@@ -1,6 +1,6 @@
 import Foundation
 
-/// `tinygpt eval-mteb` — score an embedder against MTEB/BEIR subtasks.
+/// `posttrainllm eval-mteb` — score an embedder against MTEB/BEIR subtasks.
 /// Wraps the Python `mteb` library via `scripts/eval-mteb-adapter.py` and
 /// emits E0-conformant JSONL rows.
 enum EvalMTEB {
@@ -13,7 +13,7 @@ enum EvalMTEB {
         var modelName: String? = nil
         var modelStep: Int? = nil
         var baseline = false
-        var workDir = "/tmp/tinygpt-mteb"
+        var workDir = "/tmp/posttrainllm-mteb"
         var batchSize = 32
 
         var i = 0
@@ -78,7 +78,7 @@ enum EvalMTEB {
         let start = Date()
         print("""
 
-        tinygpt eval-mteb
+        posttrainllm eval-mteb
         -----------------
         model:  \(modelPath)
         name:   \(displayName)\(baseline ? " (baseline)" : "")\(modelStep.map { " · step \($0)" } ?? "")
@@ -144,8 +144,8 @@ enum EvalMTEB {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-mteb --hf-model <hub-id|dir> --out <jsonl> [options]
-               tinygpt eval-mteb --model <embedder.tinygpt-embed> --out <jsonl> [options]
+        usage: posttrainllm eval-mteb --hf-model <hub-id|dir> --out <jsonl> [options]
+               posttrainllm eval-mteb --model <embedder.tinygpt-embed> --out <jsonl> [options]
 
           --tasks CSV             MTEB/BEIR task names (default: scifact,nfcorpus,StackOverflowDupQ)
           --limit N               Cap docs per task (default: 500)
@@ -153,7 +153,7 @@ enum EvalMTEB {
           --model-name NAME       Display name in eval-compare
           --model-step N          Checkpoint step metadata
           --baseline              Mark rows as baseline reference
-          --work-dir PATH         Scratch dir (default: /tmp/tinygpt-mteb)
+          --work-dir PATH         Scratch dir (default: /tmp/posttrainllm-mteb)
         """)
         exit(code)
     }

@@ -1,4 +1,4 @@
-// model.cpp — the WASM-side TinyGPT (Phase 4).
+// model.cpp — the WASM-side posttrainllm (Phase 4).
 //
 // A full byte-level GPT assembled from the kernels in kernels.h. No autograd:
 // every op below (embedding, GELU, MLP, the tied head, cross-entropy) carries a

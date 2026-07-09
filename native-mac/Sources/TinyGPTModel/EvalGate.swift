@@ -1,6 +1,6 @@
 import Foundation
 
-/// Pure gate logic for `tinygpt eval-gate` (B32). Compares a candidate
+/// Pure gate logic for `posttrainllm eval-gate` (B32). Compares a candidate
 /// eval run against a stored baseline and decides PASS/FAIL per suite.
 ///
 /// This namespace is intentionally model-free and side-effect-free so the
@@ -39,7 +39,7 @@ public enum EvalGate {
         return .higherIsBetter
     }
 
-    /// Minimal projection of `EvalCompare.Row` (defined in the TinyGPT
+    /// Minimal projection of `EvalCompare.Row` (defined in the posttrainllm
     /// executable module). Decodes the same snake_case JSONL; extra keys are
     /// ignored. Kept here so the gate logic lives in a test-target-backed
     /// library rather than the un-testable executable target.
@@ -101,7 +101,7 @@ public enum EvalGate {
         public var resolvedTask: String { task ?? name }
     }
 
-    /// The gate spec. Lives either in `tinygpt.project.json` under an
+    /// The gate spec. Lives either in `posttrainllm.project.json` under an
     /// optional `eval` block, or in a standalone `eval-gate.json`.
     public struct Spec: Codable, Sendable {
         public let baseline: String

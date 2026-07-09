@@ -5,7 +5,7 @@ import MLXRandom
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt magpie` — bootstrap synthetic SFT data from any chat-format
+/// `posttrainllm magpie` — bootstrap synthetic SFT data from any chat-format
 /// base model (Xu et al., 2024).
 ///
 /// Trick: a base model trained on chat-template tokens will, when
@@ -22,8 +22,8 @@ import TinyGPTModel
 /// works on any model but yields less varied data.
 ///
 /// USAGE
-///   tinygpt magpie <model> --count 500 --out sft-data.jsonl
-///   tinygpt magpie <model> --count 500 --template chatml \
+///   posttrainllm magpie <model> --count 500 --out sft-data.jsonl
+///   posttrainllm magpie <model> --count 500 --template chatml \
 ///       --max-user 64 --max-assistant 256 --temperature 0.9 \
 ///       --out sft.jsonl
 enum Magpie {
@@ -91,7 +91,7 @@ enum Magpie {
 
         print("""
 
-        TinyGPT — Magpie (synthetic SFT data)
+        posttrainllm — Magpie (synthetic SFT data)
         -------------------------------------
         model:          \(modelPath)
         count:          \(count) pairs
@@ -225,7 +225,7 @@ enum Magpie {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt magpie <model> [options]
+        usage: posttrainllm magpie <model> [options]
 
         --out <path>             Where to write the JSONL (required)
         --count N                Number of (instruction, response) pairs (default 100)

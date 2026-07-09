@@ -60,7 +60,7 @@ int8 win at long context is dominated by KV cache (still fp16) per
 
 **Verdict**: If the target Mac is M5/M5 Pro, **adopt cider** (1-2 days
 integration). Building from scratch = 2-3 weeks to recreate what cider
-already published. tinygpt's primary dev machine is M5 Pro (confirmed
+already published. posttrainllm's primary dev machine is M5 Pro (confirmed
 2026-05-31), so this is viable and is the **largest single Mac-speed
 lever currently available**.
 
@@ -78,7 +78,7 @@ benchmarks all measure.
   MLX-Swift LLM server) doesn't roll its own — it uses stock
   `quantized_matmul`. Where it wins is KV-cache compression and SSD
   streaming, not matmul.
-- tinygpt's quantization stack (HQQ/AWQ/GPTQ readers + QAT — see
+- posttrainllm's quantization stack (HQQ/AWQ/GPTQ readers + QAT — see
   `docs/quantization_expansion.md`) is already aimed at this kernel.
   The algorithmic pieces are shipped; the matmul itself is MLX's.
 
@@ -115,7 +115,7 @@ runtime + screen-watching specialist in Wave 2.6.
 - Apple's Stateful Models API (rumored late 2026 per `docs/perf_research.md`)
   is the gating prerequisite for int4 stateful ANE
 
-**Verdict**: tinygpt already has a CoreML fp32 path (365 pass/s ANE
+**Verdict**: posttrainllm already has a CoreML fp32 path (365 pass/s ANE
 forward measured). Extending to int4 stateful models is gated on Apple
 shipping the Stateful Models API. **Defer until at least one full
 specialist ships; revisit when Stateful Models lands OR when
@@ -127,7 +127,7 @@ the screen-watching specialist work in Wave 2.6.
 The one clear win.
 
 **Evidence**:
-- tinygpt already ships subgroup variants for LN, cross-entropy, and
+- posttrainllm already ships subgroup variants for LN, cross-entropy, and
   bias_grad (`webgpu/train_sg.wgsl`) — explicitly **not** matmul yet.
 - The [nuss-and-bolts WebGPU matmul writeup](https://www.nuss-and-bolts.com/p/optimizing-a-webgpu-matmul-kernel)
   hit 1 TFLOP/s on M2 Pro = ~17% of peak (6 TFLOP/s) and flagged
@@ -176,9 +176,9 @@ of the five.
 ## Sources
 
 - [MLXFast SDPA audit (in-repo)](../perf_audit_mlxfast_tied.md)
-- [tinygpt perf_research notes (in-repo)](../perf_research.md)
-- [tinygpt quantization_expansion notes (in-repo)](../quantization_expansion.md)
-- [tinygpt train_sg.wgsl (in-repo)](../../webgpu/train_sg.wgsl)
+- [posttrainllm perf_research notes (in-repo)](../perf_research.md)
+- [posttrainllm quantization_expansion notes (in-repo)](../quantization_expansion.md)
+- [posttrainllm train_sg.wgsl (in-repo)](../../webgpu/train_sg.wgsl)
 - [MLX PagedAttention proposal — ml-explore/mlx#2955](https://github.com/ml-explore/mlx/issues/2955)
 - [MLX inference benchmarks discussion — ml-explore/mlx#3209](https://github.com/ml-explore/mlx/discussions/3209)
 - [Metal FlashAttention 2.0 writeup — Liu Liu (Draw Things)](https://medium.com/engineering-draw-things/metal-flashattention-2-0-pushing-forward-on-device-inference-training-on-apple-silicon-fe8aac1ab23c)

@@ -1,4 +1,4 @@
-# First Worked Run — `tinygpt bench`
+# First Worked Run — `posttrainllm bench`
 
 *Captured 2026-05-30. Validates the harness wired up end-to-end against
 the existing in-process MLX inference path. This is the "smoke test"
@@ -23,7 +23,7 @@ swift build -c release
 # load_colocated_library() — see "MLX metallib lookup" caveat below.
 cp /opt/homebrew/lib/mlx.metallib .build/release/mlx.metallib
 
-./.build/release/tinygpt bench \
+./.build/release/posttrainllm bench \
   --model ../browser/public/gallery/shakespeare.bin \
   --mode single \
   --prompt-tokens 64 \
@@ -31,13 +31,13 @@ cp /opt/homebrew/lib/mlx.metallib .build/release/mlx.metallib
   --n-runs 5 \
   --warm-runs 1 \
   --no-energy \
-  --output /tmp/tinygpt_bench_shakespeare.json
+  --output /tmp/posttrainllm_bench_shakespeare.json
 ```
 
 ## Markdown table the harness printed
 
 ```
-tinygpt bench — tinygpt
+posttrainllm bench — posttrainllm
 ---------------------------------
 model:           ../browser/public/gallery/shakespeare.bin
 workload:        single, prompt=64 tok, gen=100 tok, batch=1
@@ -73,7 +73,7 @@ guardrails the design doc §1 promised.
 
 ```json
 {
-  "engine": { "name": "tinygpt", "commit": "bc4d4a0" },
+  "engine": { "name": "posttrainllm", "commit": "bc4d4a0" },
   "git_commit": "bc4d4a0",
   "git_dirty": true,
   "harness_version": "0.1.0",
@@ -116,7 +116,7 @@ detecting drift over the run series.
 
 - Anything about engine ranking (no foreign engines wired yet).
 - Anything about energy efficiency (no sudo for powermetrics).
-- Anything about ANE utilization (no ANE path in TinyGPT today;
+- Anything about ANE utilization (no ANE path in posttrainllm today;
   Orion-style routing is future work).
 - Anything about thermal sustained performance (mode is `single`, not
   `sustained` — that mode is a placeholder).
@@ -130,7 +130,7 @@ for this commit.
   `mlx.metallib` next to the SPM-produced binary. MLX's
   `load_default_library` looks for `mlx.metallib` colocated with the
   executable first; without it, every model load fails with
-  `Failed to load the default metallib`. This bites `tinygpt sample`
+  `Failed to load the default metallib`. This bites `posttrainllm sample`
   too; it's a pre-existing build-system gap, not introduced by the
   bench harness. The fix above (`cp /opt/homebrew/lib/mlx.metallib
   .build/release/`) is the local workaround. The systemic fix —

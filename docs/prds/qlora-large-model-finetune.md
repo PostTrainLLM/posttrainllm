@@ -3,11 +3,11 @@
 Status: PRD (2026-06-10). Phase-3 centerpiece of the roadmap (specialist
 close-out → VLM/Pace → **this**). Implements the 2026-06-10 strategic shift:
 focus moves from training small models to fine-tuning/distilling larger open
-models. See `tinygpt-product-thesis.md` for the positioning this serves.
+models. See `posttrainllm-product-thesis.md` for the positioning this serves.
 
 ## Problem
 
-tinygpt's trainer applies LoRA against an **fp16-materialized base**. Fine at
+posttrainllm's trainer applies LoRA against an **fp16-materialized base**. Fine at
 0.6B; impossible at the sizes that now matter:
 
 | Base | fp16 weights | 4-bit weights | LoRA-trainable on 48 GB today? |
@@ -121,6 +121,6 @@ Two entry points, same model afterwards:
 ## Related
 
 - `docs/prds/quantized-inference-swift.md` — shares Q1; serving half shipped
-- `docs/prds/tinygpt-product-thesis.md` — why this is the centerpiece
+- `docs/prds/posttrainllm-product-thesis.md` — why this is the centerpiece
 - Memory: `feedback-focus-finetune-distill-large`,
   `project-mega-bf16-oom`, `feedback-no-quality-regression`

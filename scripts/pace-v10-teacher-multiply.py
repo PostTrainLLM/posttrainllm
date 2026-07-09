@@ -14,8 +14,8 @@ Run AFTER v9 training finishes (memory pressure: 14B + 0.6B-DoRA = OOM).
 
 Usage:
     python3 scripts/pace-v10-teacher-multiply.py \\
-      --seeds-in ~/.cache/tinygpt/datasets/pace-v10-sft.jsonl \\
-      --out ~/.cache/tinygpt/datasets/pace-v10-multiplied.jsonl \\
+      --seeds-in ~/.cache/posttrainllm/datasets/pace-v10-sft.jsonl \\
+      --out ~/.cache/posttrainllm/datasets/pace-v10-multiplied.jsonl \\
       --variations-per-seed 10 \\
       --teacher-url http://127.0.0.1:1234/v1/chat/completions \\
       --teacher-model qwen3-14b
@@ -31,8 +31,8 @@ import urllib.request
 from pathlib import Path
 
 
-DEFAULT_SEEDS = Path.home() / ".cache/tinygpt/datasets/pace-v10-sft.jsonl"
-DEFAULT_OUT = Path.home() / ".cache/tinygpt/datasets/pace-v10-multiplied.jsonl"
+DEFAULT_SEEDS = Path.home() / ".cache/posttrainllm/datasets/pace-v10-sft.jsonl"
+DEFAULT_OUT = Path.home() / ".cache/posttrainllm/datasets/pace-v10-multiplied.jsonl"
 DEFAULT_REGISTRY = Path(__file__).resolve().parents[1] / "grammars/v10-actions/registry.json"
 
 

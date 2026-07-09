@@ -6,12 +6,12 @@ import CoreML
 @preconcurrency import Tokenizers
 #endif
 
-/// `tinygpt ane-validate` — sanity check a converted Pace .mlpackage
+/// `posttrainllm ane-validate` — sanity check a converted Pace .mlpackage
 /// against the MLX-Swift reference.
 ///
 /// Runs the prompt through both paths at temperature 0:
 ///   - MLX-Swift via TinyGPTModelHF (CoreGPU, fp32, the production
-///     `tinygpt hf-load --sample` codepath)
+///     `posttrainllm hf-load --sample` codepath)
 ///   - CoreML via `Qwen3ANE` (CPU+ANE, fp16 inside the .mlpackage)
 ///
 /// Reports:
@@ -20,7 +20,7 @@ import CoreML
 ///   - logit cosine similarity at the last position (numerical health)
 ///
 /// USAGE
-///   tinygpt ane-validate \\
+///   posttrainllm ane-validate \\
 ///       --coreml /path/to/pace.mlpackage \\
 ///       --hf-dir /path/to/baked-hf-dir \\
 ///       --prompt "The capital of France is" \\
@@ -74,7 +74,7 @@ enum AneValidate {
         let ids = tok.encode(text: prompt).map { Int32($0) }
         print("""
 
-        tinygpt ane-validate
+        posttrainllm ane-validate
         --------------------------------------------------------------
         prompt:        \(prompt.debugDescription)
         encoded ids:   \(ids)   (\(ids.count) tokens)
@@ -199,11 +199,11 @@ enum AneValidate {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt ane-validate --coreml <pkg.mlpackage> --hf-dir <dir> [options]
+        usage: posttrainllm ane-validate --coreml <pkg.mlpackage> --hf-dir <dir> [options]
 
           --coreml PATH         the .mlpackage produced by qwen3_to_coreml.py
           --hf-dir PATH         HF directory whose weights match the .mlpackage
-                                (baked dir from `tinygpt bake-lora`, OR the
+                                (baked dir from `posttrainllm bake-lora`, OR the
                                 base if the .mlpackage was converted from base)
           --prompt STR          parity prompt (default: "The capital of France is")
           --compute-units OPT   ane (default) | gpu | all | cpu

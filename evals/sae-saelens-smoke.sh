@@ -13,7 +13,7 @@ MODEL="$ROOT/data/gallery/shakespeare.tinygpt"
 CORPUS="$ROOT/data/examples/shakespeare.txt"
 { [ -f "$MODEL" ] && [ -f "$CORPUS" ]; } || { echo "SKIP: gallery model/corpus not present"; exit 0; }
 
-BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
+BIN="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 
 head -c 200000 "$CORPUS" > "$TMP/c.txt"

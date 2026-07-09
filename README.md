@@ -1,4 +1,4 @@
-# TinyGPT
+# posttrainllm
 
 A **Mac-first LLM factory + runtime + research substrate** — and the
 browser playground that started the project. MIT-licensed, runs
@@ -10,12 +10,12 @@ multi-turn agentic tool-calling gate** that Gemma-12B-qat scores 75%
 on. The full writeup, methodology, and head-to-head table is
 [`docs/learn/tool-calling-frontier-parity.md`](docs/learn/tool-calling-frontier-parity.md).
 
-**[Live browser playground →](https://tinygpt.sarthakagrawal.dev)**
+**[Live browser playground →](https://posttrainllm.sarthakagrawal.dev)**
 · [Mac CLI quickstart](#quickstart-mac)
 · [Current factory plan](docs/NEXT.md)
 · [Frontier-parity result](docs/learn/tool-calling-frontier-parity.md)
 
-![TinyGPT playground](browser/public/og-image.png)
+![posttrainllm playground](browser/public/og-image.png)
 
 ---
 
@@ -23,13 +23,13 @@ on. The full writeup, methodology, and head-to-head table is
 
 | Surface | What it does | Where to look |
 |---|---|---|
-| **Factory CLI** (`tinygpt`) | Data prep · post-training · eval gates · traces · packaging · serve/agent/runtime utilities. MLX-Swift on Apple Silicon. | [`native-mac/`](native-mac/), [`docs/NEXT.md`](docs/NEXT.md) |
+| **Factory CLI** (`posttrainllm`) | Data prep · post-training · eval gates · traces · packaging · serve/agent/runtime utilities. MLX-Swift on Apple Silicon. | [`native-mac/`](native-mac/), [`docs/NEXT.md`](docs/NEXT.md) |
 | **Factory docs** | Active sequence, run schema, eval protocol, packaging, and report shape. | [`docs/factory/`](docs/factory/) |
 | **Mac app** (SwiftUI) | GUI shell over the CLI. Parked except for a future minimal Factory Run Center. | [`native-mac/Sources/TinyGPTApp/`](native-mac/Sources/TinyGPTApp/), [`docs/parked/app-polish.md`](docs/parked/app-polish.md) |
 | **Eval moat** | E0 shared schema · BFCL · τ-bench · lm-eval (MLX-routed) · HumanEval (sandbox-exec) · eval-gate (CI). | [`docs/leaderboard.md`](docs/leaderboard.md), [`docs/research/mac_slm_leaderboard_v0.md`](docs/research/mac_slm_leaderboard_v0.md) |
 | **Agent runtime** | OpenAI + Ollama-compatible local serve · multi-turn loop · FSM-constrained JSON · cloud-escalate · token-preserving `.atraj` trajectories. | [`docs/agent_runtime.md`](docs/agent_runtime.md) |
 | **Interp** | SAE (per-layer + group) · SAELens export · MEMIT · ROME · tuned/logit lens · activation patching. | [`docs/interpretability.md`](docs/interpretability.md) |
-| **Browser playground** | The original surface: GPT-2 trained from scratch in a browser tab via hand-written WebGPU. Parked for active factory work. | [`browser/`](browser/), [live](https://tinygpt.sarthakagrawal.dev), [`docs/parked/browser.md`](docs/parked/browser.md) |
+| **Browser playground** | The original surface: GPT-2 trained from scratch in a browser tab via hand-written WebGPU. Parked for active factory work. | [`browser/`](browser/), [live](https://posttrainllm.sarthakagrawal.dev), [`docs/parked/browser.md`](docs/parked/browser.md) |
 | **ANE M8** | Layer-chunked Core ML chain running Qwen3-28-block on the Apple Neural Engine at ~17 tok/s. Parked until a shipped specialist needs runtime optimization. | [`docs/parked/ane-coreml.md`](docs/parked/ane-coreml.md) |
 
 ---
@@ -37,7 +37,7 @@ on. The full writeup, methodology, and head-to-head table is
 ## Quickstart (Mac)
 
 ```bash
-git clone https://github.com/sarthakagrawal927/tinygpt && cd tinygpt/native-mac
+git clone https://github.com/sarthakagrawal927/posttrainllm && cd posttrainllm/native-mac
 
 # One-time: Metal toolchain (Xcode 27+).
 xcodebuild -downloadComponent MetalToolchain
@@ -45,7 +45,7 @@ xcodebuild -downloadComponent MetalToolchain
 # Build
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
   xcrun swift build -c release
-BIN=.build/release/tinygpt
+BIN=.build/release/posttrainllm
 
 # Try the CLI
 $BIN --help
@@ -65,11 +65,11 @@ $BIN sft <hf-model-dir-or-id> \
 $BIN export-mlx /tmp/tiny.tinygpt --out /tmp/tiny-mlx
 $BIN export-mlx my-adapter.tgla --out ./my-adapter-mlx
 
-# Serve any tinygpt or HF model on an OpenAI-compatible endpoint
+# Serve any posttrainllm or HF model on an OpenAI-compatible endpoint
 $BIN serve <model> --port 8090
 curl http://localhost:8090/v1/chat/completions \
   -H "Content-Type: application/json" \
-  -d '{"model":"tinygpt","messages":[{"role":"user","content":"hi"}]}'
+  -d '{"model":"posttrainllm","messages":[{"role":"user","content":"hi"}]}'
 ```
 
 **Mac app** — same project, SwiftUI frontend:
@@ -84,7 +84,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
 
 ## Quickstart (browser playground)
 
-Open **[tinygpt.sarthakagrawal.dev](https://tinygpt.sarthakagrawal.dev)**.
+Open **[posttrainllm.sarthakagrawal.dev](https://posttrainllm.sarthakagrawal.dev)**.
 
 - *Load pretrained model* — Shakespeare checkpoint, generate immediately.
 - *Train your own from scratch* — ~15 min on the larger presets,
@@ -157,7 +157,7 @@ multi-GPU, no cloud, no asterisk.
 ## Repo layout
 
 ```
-tinygpt/
+posttrainllm/
   native-mac/      MLX-Swift CLI + SwiftUI app — the main surface
   browser/         The original WebGPU playground (Astro + WGSL + WASM)
   webgpu/          Hand-written WGSL kernels (forward, backward, AdamW, FA2)
@@ -219,7 +219,7 @@ MIT — see [`LICENSE`](LICENSE).
 
 Author: **Sarthak Agrawal** ([@sarthakagrawal927](https://github.com/sarthakagrawal927)).
 
-If TinyGPT is useful to your work or you want to chat about
+If posttrainllm is useful to your work or you want to chat about
 Mac-first ML training: open an issue, or reach out on
 [LinkedIn](https://www.linkedin.com/in/sarthakagrawal927/) /
 [Twitter](https://twitter.com/sarthakai).

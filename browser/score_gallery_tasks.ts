@@ -22,8 +22,8 @@ const GALLERY_DIR = resolve(ROOT, "data/gallery");
 const MANIFEST_PATH = resolve(ROOT, "browser/public/gallery/manifest.json");
 
 console.log("[score-tasks] loading WASM module…");
-const { default: createTinyGPT } = await import(WASM_JS);
-const M = await createTinyGPT();
+const { default: createposttrainllm } = await import(WASM_JS);
+const M = await createposttrainllm();
 
 const N = "number";
 const tgModelCreate = M.cwrap("tg_model_create", N, [N, N, N, N, N, N, N]);

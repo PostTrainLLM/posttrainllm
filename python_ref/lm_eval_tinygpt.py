@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-lm_eval_tinygpt.py — drive lm-evaluation-harness against a tinygpt checkpoint.
+lm_eval_tinygpt.py — drive lm-evaluation-harness against a posttrainllm checkpoint.
 
-Wraps the standard `lm-eval-harness` so any tinygpt model (from-scratch
+Wraps the standard `lm-eval-harness` so any posttrainllm model (from-scratch
 .tinygpt file OR an HF model directory loaded through our HF path) can be
 scored against HellaSwag, ARC-Easy, GSM8K, IFEval, MMLU-Pro, GPQA-Diamond,
 MATH-500, HumanEval, … — anything the harness has a task definition for.
 
 Pipeline:
-  1. Spawn `tinygpt serve <model> --port <free port>` as a subprocess.
+  1. Spawn `posttrainllm serve <model> --port <free port>` as a subprocess.
   2. Poll `GET /v1/models` until it answers 200 (server is ready).
   3. Run `lm-eval --model local-chat-completions
-                  --model_args base_url=http://127.0.0.1:<port>/v1/chat/completions,model=tinygpt,…
+                  --model_args base_url=http://127.0.0.1:<port>/v1/chat/completions,model=posttrainllm,…
                   --tasks <tasks> --output_path <out>`.
   4. SIGTERM the server on exit; print scores; write JSON results.
 
@@ -23,10 +23,10 @@ Pre-reqs (one-time):
   # See docs/lm_eval_integration.md "Known issues" for the bug spec.
 
 Build prerequisite:
-  The `tinygpt serve` subcommand requires the `case "serve":` to be wired
+  The `posttrainllm serve` subcommand requires the `case "serve":` to be wired
   in Sources/TinyGPT/TinyGPT.swift (see the TODO(serve-merge) comment in
   that file). Until that's merged, this script will fail with "unknown
-  subcommand: serve". Workaround: pass --tinygpt-bin to a wrapper script
+  subcommand: serve". Workaround: pass --posttrainllm-bin to a wrapper script
   or run the server manually first (see --skip-spawn flag).
 
 Usage:
@@ -77,17 +77,17 @@ def wait_for_ready(base_url: str, timeout_s: float = 60.0) -> None:
             last_err = e
         time.sleep(0.5)
     raise RuntimeError(
-        f"tinygpt serve did not become ready within {timeout_s}s at {models_url} "
+        f"posttrainllm serve did not become ready within {timeout_s}s at {models_url} "
         f"(last error: {last_err})"
     )
 
 
-def _tinygpt_has_serve(binary: str) -> bool:
+def _posttrainllm_has_serve(binary: str) -> bool:
     """Quick probe: does this binary know the `serve` subcommand?
 
     Until `case "serve":` is wired into Sources/TinyGPT/TinyGPT.swift,
-    the main `tinygpt` binary doesn't dispatch serve and we have to fall
-    back to `tinygpt-serve-smoke`. This probe is what makes that
+    the main `posttrainllm` binary doesn't dispatch serve and we have to fall
+    back to `posttrainllm-serve-smoke`. This probe is what makes that
     fallback transparent.
     """
     try:
@@ -102,15 +102,15 @@ def _tinygpt_has_serve(binary: str) -> bool:
         return False
 
 
-def find_tinygpt_binary(explicit: str | None) -> str:
-    """Locate the `tinygpt` executable. Order:
-       1. --tinygpt-bin flag if passed
+def find_posttrainllm_binary(explicit: str | None) -> str:
+    """Locate the `posttrainllm` executable. Order:
+       1. --posttrainllm-bin flag if passed
        2. $TINYGPT_BIN env var
-       3. ./native-mac/build/Release/tinygpt (and a few common derived-data paths)
-       4. shutil.which("tinygpt")
+       3. ./native-mac/build/Release/posttrainllm (and a few common derived-data paths)
+       4. shutil.which("posttrainllm")
 
     If the located binary doesn't have the `serve` subcommand wired,
-    we swap to `tinygpt-serve-smoke` (the stand-in target — see
+    we swap to `posttrainllm-serve-smoke` (the stand-in target — see
     docs/lm_eval_integration.md for why it exists).
     """
     binary: str | None = None
@@ -123,27 +123,27 @@ def find_tinygpt_binary(explicit: str | None) -> str:
         else:
             root = Path(__file__).resolve().parent.parent
             candidates = [
-                root / "native-mac" / "build" / "Release" / "tinygpt",
-                root / "build" / "Release" / "tinygpt",
-                Path("/tmp/tinygpt-smoke/Build/Products/Release/tinygpt"),
+                root / "native-mac" / "build" / "Release" / "posttrainllm",
+                root / "build" / "Release" / "posttrainllm",
+                Path("/tmp/posttrainllm-smoke/Build/Products/Release/posttrainllm"),
             ]
             for c in candidates:
                 if c.exists():
                     binary = str(c)
                     break
             if binary is None:
-                which = shutil.which("tinygpt")
+                which = shutil.which("posttrainllm")
                 if which:
                     binary = which
     if binary is None:
         raise SystemExit(
-            "couldn't find the tinygpt binary. Either build it first "
-            "(see README) or pass --tinygpt-bin /path/to/tinygpt."
+            "couldn't find the posttrainllm binary. Either build it first "
+            "(see README) or pass --posttrainllm-bin /path/to/posttrainllm."
         )
 
     # If serve isn't wired into this binary, look for the smoke target alongside.
-    if os.path.basename(binary) != "tinygpt-serve-smoke" and not _tinygpt_has_serve(binary):
-        smoke = str(Path(binary).parent / "tinygpt-serve-smoke")
+    if os.path.basename(binary) != "posttrainllm-serve-smoke" and not _posttrainllm_has_serve(binary):
+        smoke = str(Path(binary).parent / "posttrainllm-serve-smoke")
         if Path(smoke).exists():
             print(f"[lm_eval_tinygpt] '{binary}' lacks the serve subcommand — "
                   f"falling back to {smoke}", flush=True)
@@ -153,7 +153,7 @@ def find_tinygpt_binary(explicit: str | None) -> str:
                 f"'{binary} serve' isn't callable and {smoke} doesn't exist. "
                 "Either wire case \"serve\": into Sources/TinyGPT/TinyGPT.swift, "
                 "OR build the smoke target:\n"
-                "  xcodebuild -scheme tinygpt-serve-smoke -derivedDataPath /tmp/tinygpt-smoke "
+                "  xcodebuild -scheme posttrainllm-serve-smoke -derivedDataPath /tmp/posttrainllm-smoke "
                 "-configuration Release build"
             )
     return binary
@@ -161,7 +161,7 @@ def find_tinygpt_binary(explicit: str | None) -> str:
 
 def main():
     ap = argparse.ArgumentParser(
-        description="Run lm-evaluation-harness against a tinygpt model.",
+        description="Run lm-evaluation-harness against a posttrainllm model.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
@@ -175,15 +175,15 @@ def main():
     ap.add_argument("--limit", type=int, default=None,
                      help="limit per task — useful for smoke runs (e.g. --limit 10)")
     ap.add_argument("--batch-size", default="1",
-                     help="lm-eval batch size (default: 1; tinygpt serves one at a time)")
+                     help="lm-eval batch size (default: 1; posttrainllm serves one at a time)")
     ap.add_argument("--port", type=int, default=0,
                      help="serve port (default: auto-pick a free port)")
     ap.add_argument("--max-context", type=int, default=None,
                      help="cap context length below the model's native limit")
-    ap.add_argument("--tinygpt-bin", default=None,
-                     help="path to the `tinygpt` binary (auto-detect by default)")
+    ap.add_argument("--posttrainllm-bin", default=None,
+                     help="path to the `posttrainllm` binary (auto-detect by default)")
     ap.add_argument("--skip-spawn", action="store_true",
-                     help="don't spawn `tinygpt serve` — assume one is already running")
+                     help="don't spawn `posttrainllm serve` — assume one is already running")
     ap.add_argument("--base-url", default=None,
                      help="explicit OpenAI base URL (default: auto from --port)")
     ap.add_argument("--lm-eval-extra", default="",
@@ -201,13 +201,13 @@ def main():
     server_log = None
     try:
         if not args.skip_spawn:
-            binary = find_tinygpt_binary(args.tinygpt_bin)
-            # The stand-in `tinygpt-serve-smoke` binary takes its first arg
+            binary = find_posttrainllm_binary(args.posttrainllm_bin)
+            # The stand-in `posttrainllm-serve-smoke` binary takes its first arg
             # directly as the model path (no "serve" keyword); the main
-            # `tinygpt` CLI dispatches via `tinygpt serve <model>`. Detect
+            # `posttrainllm` CLI dispatches via `posttrainllm serve <model>`. Detect
             # by basename so the wrapper works against either binary
             # transparently.
-            is_smoke = os.path.basename(binary) == "tinygpt-serve-smoke"
+            is_smoke = os.path.basename(binary) == "posttrainllm-serve-smoke"
             serve_cmd: list[str] = [binary]
             if not is_smoke:
                 serve_cmd.append("serve")
@@ -216,7 +216,7 @@ def main():
                 serve_cmd += ["--max-context", str(args.max_context)]
             print(f"[lm_eval_tinygpt] starting: {' '.join(serve_cmd)}", flush=True)
             # Capture server logs for post-mortem if it dies.
-            server_log = open("/tmp/tinygpt-serve.log", "w")
+            server_log = open("/tmp/posttrainllm-serve.log", "w")
             server_proc = subprocess.Popen(
                 serve_cmd, stdout=server_log, stderr=subprocess.STDOUT
             )
@@ -235,7 +235,7 @@ def main():
         # tiktoken/transformers tokenizers we don't need.
         model_args = (
             f"base_url={base_url},"
-            f"model=tinygpt,"
+            f"model=posttrainllm,"
             f"tokenizer_backend=None,"
             f"tokenized_requests=False,"
             f"num_concurrent=1"
@@ -283,7 +283,7 @@ def main():
 
     finally:
         if server_proc is not None:
-            print("[lm_eval_tinygpt] stopping tinygpt serve...", flush=True)
+            print("[lm_eval_tinygpt] stopping posttrainllm serve...", flush=True)
             try:
                 server_proc.send_signal(signal.SIGTERM)
                 server_proc.wait(timeout=10)

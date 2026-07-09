@@ -15,7 +15,7 @@ Writes scripts/fixtures/multi_turn_hardgen_{data,gold}.jsonl
 """
 import json, sys, os, random
 sys.path.insert(0, os.path.expanduser(
-    "~/.cache/tinygpt/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"))
+    "~/.cache/posttrainllm/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"))
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_checker import multi_turn_checker
 
 def fs(c): return {"GorillaFileSystem": {"root": {"workspace": {"type": "directory", "contents": c}}}}

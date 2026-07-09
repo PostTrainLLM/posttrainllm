@@ -2,7 +2,7 @@
 
 **Date**: 2026-06-09
 **Status**: SPEC — execution conditional on v10 result missing one or more dimensions of the [v11 ship gate](pace-planner-v11-ship-gate.md)
-**Owner**: tinygpt repo
+**Owner**: posttrainllm repo
 
 ---
 
@@ -123,12 +123,12 @@ Expected pass rate ~50-70% per category based on Tulu-3 / Llama-3.1 paper baseli
 ## Output
 
 ```
-~/.cache/tinygpt/datasets/pace-v11-unhappy.jsonl
+~/.cache/posttrainllm/datasets/pace-v11-unhappy.jsonl
   - one JSONL per row, shape: {messages: [{system, user, assistant}]}
   - assistant = {spokenText, intent, payload}
   - ~450 rows total, balanced across the 3 classes
 
-~/.cache/tinygpt/datasets/pace-v11-merged.jsonl
+~/.cache/posttrainllm/datasets/pace-v11-merged.jsonl
   - v10 (404) + v11-unhappy (~450) = ~850 rows
   - shuffle preserved, no class label leakage
 ```

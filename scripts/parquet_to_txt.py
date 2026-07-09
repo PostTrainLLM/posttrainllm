@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """parquet_to_txt.py — decode parquet shards to plain text (or JSONL).
 
-Bridges the gap until `tinygpt download-dataset` learns parquet
+Bridges the gap until `posttrainllm download-dataset` learns parquet
 natively. Most HuggingFace datasets ship as parquet shards; this
 script unblocks the ones we already have on disk (FineWeb-Edu,
 UltraFeedback, etc.).
@@ -28,13 +28,13 @@ or smoke-testing).
 Examples:
     # FineWeb-Edu shard → pretrain text file
     parquet_to_txt.py \
-        ~/.cache/tinygpt/datasets/HuggingFaceFW/fineweb-edu/data/CC-MAIN-2013-20/ \
+        ~/.cache/posttrainllm/datasets/HuggingFaceFW/fineweb-edu/data/CC-MAIN-2013-20/ \
         /tmp/fineweb-edu.txt --max-rows 200000
 
     # UltraFeedback → DPO JSONL (preserves prompt/chosen/rejected fields)
     parquet_to_txt.py \
-        ~/.cache/tinygpt/datasets/HuggingFaceH4/ultrafeedback_binarized/data/ \
-        ~/.cache/tinygpt/datasets/ultrafeedback.jsonl --jsonl
+        ~/.cache/posttrainllm/datasets/HuggingFaceH4/ultrafeedback_binarized/data/ \
+        ~/.cache/posttrainllm/datasets/ultrafeedback.jsonl --jsonl
 """
 import argparse
 import json

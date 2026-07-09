@@ -4,7 +4,7 @@
  *
  * Used by the pages under /docs/. Wraps imported markdown with the site's
  * dark theme + prose typography. The source markdown lives one level up in
- * `tinygpt/docs/` (so GitHub renders the same content); these pages just
+ * `posttrainllm/docs/` (so GitHub renders the same content); these pages just
  * import + render via Astro's built-in markdown handling.
  */
 import Default from "./Default.astro";
@@ -16,13 +16,13 @@ export interface Props {
 }
 
 const { title, description, sourcePath } = Astro.props;
-const githubUrl = `https://github.com/sarthak-fleet/tinygpt/blob/main/${sourcePath}`;
+const githubUrl = `https://github.com/sarthak-fleet/posttrainllm/blob/main/${sourcePath}`;
 
 const layoutProps = {
-  title: `TinyGPT — ${title}`,
+  title: `posttrainllm — ${title}`,
   description,
   ogType: "article" as const,
-  ogTitle: `TinyGPT — ${title}`,
+  ogTitle: `posttrainllm — ${title}`,
   ogDescription: description,
   themeColor: "#0a0c10",
   loadFonts: true,
@@ -196,7 +196,7 @@ const style = `
   <style is:global slot="head" set:html={style}></style>
   <div class="doc-wrap">
     <div class="eyebrow">
-      <a href="/">← TinyGPT</a>
+      <a href="/">← posttrainllm</a>
       <span class="sep">·</span>
       <a href="/docs">docs</a>
       <span class="sep">·</span>
@@ -213,9 +213,9 @@ const style = `
       <slot />
     </article>
     <footer class="doc-footer">
-      <span>TinyGPT</span>
+      <span>posttrainllm</span>
       <span class="sep">·</span>
-      <a href="https://github.com/sarthak-fleet/tinygpt">repo ↗</a>
+      <a href="https://github.com/sarthak-fleet/posttrainllm">repo ↗</a>
       <span class="sep">·</span>
       <a href="/docs">other docs</a>
     </footer>

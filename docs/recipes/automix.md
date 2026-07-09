@@ -1,6 +1,6 @@
 # Recipe — micro-AutoMixer for data-mix ratios (B21)
 
-Stop hand-waving "50/30/20 code/web/math". `tinygpt automix` searches the
+Stop hand-waving "50/30/20 code/web/math". `posttrainllm automix` searches the
 ratio: sample candidate mixes, score each with a short proxy train run, fit a
 quadratic surrogate, and propose the next mix by predicted improvement until
 gains fall below a threshold. Scaled down from Poolside's Laguna recipe;
@@ -9,7 +9,7 @@ gains fall below a threshold. Scaled down from Poolside's Laguna recipe;
 ## Run
 
 ```bash
-tinygpt automix \
+posttrainllm automix \
   --corpus code=stack.txt --corpus web=fineweb.txt --corpus math=meta.txt \
   --proxy-runs 6 --proxy-steps 2000 --max-iters 4 \
   --out automix-report.jsonl
@@ -36,7 +36,7 @@ via `run-lm-eval`) is the V2 extension; `--task` is reserved for it.
 
 - `MixSampler` (TinyGPTModel) — symmetric-Dirichlet draws over corpora, seeded.
 - `SurrogateFit` (TinyGPTModel) — ridge quadratic fit + predicted-improvement proposer.
-- `AutoMix` (TinyGPT) — the loop; `--dry-run` swaps train+eval for a synthetic
+- `AutoMix` (posttrainllm) — the loop; `--dry-run` swaps train+eval for a synthetic
   scorer with a known optimum so the whole search is CI-checkable without a GPU:
 
 ```bash

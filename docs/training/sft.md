@@ -28,7 +28,7 @@ except for the index set.
 
 ## Templates
 
-Three are supported by `tinygpt sft --template`:
+Three are supported by `posttrainllm sft --template`:
 
 ```
 chatml  (default, matches SmolLM2 / Qwen tokenizers)
@@ -77,7 +77,7 @@ python python_ref/fetch_hf_corpus.py \
 
 # SFT on top of the pretrained base. Adapter is rank-4 LoRA — adapter
 # file is ~MB, base stays frozen.
-.xcode-build/Build/Products/Debug/tinygpt sft \
+.xcode-build/Build/Products/Debug/posttrainllm sft \
     /tmp/mega-fineweb.tinygpt \
     --data /tmp/dolly.jsonl \
     --template chatml \
@@ -92,15 +92,15 @@ Sample with and without the adapter and compare:
 
 ```
 # Base only — completes text but doesn't follow instructions
-tinygpt sample /tmp/mega-fineweb.tinygpt --prompt "User: What is 2+2?" --tokens 50
+posttrainllm sample /tmp/mega-fineweb.tinygpt --prompt "User: What is 2+2?" --tokens 50
 
 # With SFT adapter — responds in the expected format
-tinygpt sample /tmp/mega-fineweb.tinygpt --lora /tmp/mega-sft.lora \
+posttrainllm sample /tmp/mega-fineweb.tinygpt --lora /tmp/mega-sft.lora \
     --prompt "<|im_start|>user\nWhat is 2+2?<|im_end|>\n<|im_start|>assistant\n" \
     --tokens 50
 ```
 
-The masked-tokens count printed by `tinygpt sft` tells you how much
+The masked-tokens count printed by `posttrainllm sft` tells you how much
 signal you actually trained on — for Dolly that's ~1.5 M response
 tokens, vs ~3 M total prompt+response tokens. Half the data is
 "context for the loss, not scored."

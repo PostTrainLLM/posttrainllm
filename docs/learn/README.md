@@ -1,9 +1,9 @@
 ---
 title: Learn
-description: TinyGPT's learning corpus — a ground-up curriculum from "what's a neural net" to modern training mechanics, plus reference + research notes.
+description: posttrainllm's learning corpus — a ground-up curriculum from "what's a neural net" to modern training mechanics, plus reference + research notes.
 ---
 
-# TinyGPT learning corpus
+# posttrainllm learning corpus
 
 A reading map for the `docs/learn/` directory. Three reading paths depending on what you want.
 
@@ -74,7 +74,7 @@ Captured-in-the-moment notes from real training sessions and decision points.
 
 - Each session has a one-sentence "where we're starting" up top — read that first.
 - Annotated diagrams (in text) prefer ASCII over images so they're readable in git diffs and on every renderer.
-- "Why this matters to THIS project" is called out where applicable — the curriculum isn't generic, it's anchored to tinygpt's choices.
+- "Why this matters to THIS project" is called out where applicable — the curriculum isn't generic, it's anchored to posttrainllm's choices.
 - Annotated retroactively when an earlier claim turns out wrong (see eval-matrix's 2026-06-09 addendum for an example).
 
 ## Related

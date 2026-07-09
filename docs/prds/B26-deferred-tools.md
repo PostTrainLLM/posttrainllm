@@ -7,11 +7,11 @@ parent_plan: docs/PLAN.md §3 Tier B (B26)
 parent_learn: docs/learn/agent-context-hierarchy.md (Steal #3)
 ---
 
-# PRD — `tinygpt serve --tool-mode deferred`
+# PRD — `posttrainllm serve --tool-mode deferred`
 
 ## Goal
 
-Today, `tinygpt serve --tools <catalog.json>` injects every tool's full
+Today, `posttrainllm serve --tools <catalog.json>` injects every tool's full
 JSON schema into the system prompt of every request via
 `ServeToolsSpec.systemPrompt()` (`DynamicGrammar.swift`). For a catalog
 of 20–100 tools that is hundreds of always-resident tokens that the
@@ -47,7 +47,7 @@ clients.
 - `ServeToolsSpec.toolInfo(name:)` — JSON schema lookup for one tool;
   returns nil for unknown names so the caller can emit an error sentinel
   that the model can react to.
-- `tinygpt serve --tool-mode {full,deferred}` CLI flag (default
+- `posttrainllm serve --tool-mode {full,deferred}` CLI flag (default
   `full` → exact byte-for-byte parity with today's behavior).
 - `/v1/chat/completions` (non-streaming): after `generate()` returns,
   parse the model's JSON; if `verb == "get_tool_info"`, look up the
@@ -100,7 +100,7 @@ The decision to keep serve-side interception (rather than expose a
 ## BFCL parity ship gate
 
 Deferred mode is OFF by default until BFCL says it doesn't regress.
-As of 2026-06-19, `tinygpt eval-bfcl` can pass `--tools <json>` and
+As of 2026-06-19, `posttrainllm eval-bfcl` can pass `--tools <json>` and
 `--tool-mode {full,deferred}` through to the server it starts, so the gate is
 runnable from the Swift harness. The full acceptance gate still needs a loaded
 specialist model and the 10-category BFCL run:
@@ -109,7 +109,7 @@ specialist model and the 10-category BFCL run:
 evals/b26-deferred-parity-run.sh \
   --model /path/to/specialist-model \
   --tools /path/to/tools.json \
-  --out-dir /tmp/tinygpt-b26 \
+  --out-dir /tmp/posttrainllm-b26 \
   --confirm-heavy-run
 ```
 
@@ -119,10 +119,10 @@ loading a model.
 Equivalent manual form:
 
 ```
-TINYGPT=./native-mac/.build/arm64-apple-macosx/release/tinygpt
+TINYGPT=./native-mac/.build/arm64-apple-macosx/release/posttrainllm
 MODEL=/path/to/specialist-model
 TOOLS=/path/to/tools.json
-OUT=/tmp/tinygpt-b26
+OUT=/tmp/posttrainllm-b26
 mkdir -p "$OUT"
 
 "$TINYGPT" eval-bfcl "$MODEL" \
@@ -158,7 +158,7 @@ enough to keep deferred mode OFF for the planner lock.
 
 Hop accounting is wired for the real gate: `serve --tool-metrics-out <jsonl>`
 records `get_tool_info_hops` per non-streaming chat request, and
-`tinygpt eval-bfcl --tool-mode deferred` emits the average as a
+`posttrainllm eval-bfcl --tool-mode deferred` emits the average as a
 `bfcl/deferred_tools/get_tool_info_hops` row for
 `scripts/b26_deferred_parity_report.py`.
 

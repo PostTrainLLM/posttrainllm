@@ -6,7 +6,7 @@ graph because the graph is too deep / too many ops, not because of any
 specific op. Bisect by truncating to N layers, converting, and trying
 to load on CPU_AND_NE — that's the step that fires ANECCompile.
 
-Outputs `~/.cache/tinygpt/ane/m6-bisect-results.json` with one entry per
+Outputs `~/.cache/posttrainllm/ane/m6-bisect-results.json` with one entry per
 N tested, plus a printed summary table.
 
 Usage:
@@ -192,7 +192,7 @@ def main() -> None:
     parser.add_argument("--layers", default="1,4,8,14,20,28",
                           help="comma-separated layer counts to test")
     parser.add_argument("--max-seq", type=int, default=128)
-    parser.add_argument("--work-dir", default="~/.cache/tinygpt/ane")
+    parser.add_argument("--work-dir", default="~/.cache/posttrainllm/ane")
     args = parser.parse_args()
 
     hf_dir = Path(args.hf_dir).expanduser()

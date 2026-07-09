@@ -4,7 +4,7 @@ import TinyGPTData
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt eval-indic` — Indic-language eval harness for MILU and
+/// `posttrainllm eval-indic` — Indic-language eval harness for MILU and
 /// IndicGenBench. This is the Wave 4 doorway for claiming Hindi /
 /// multilingual support: before any specialist training, run base
 /// models through these two evals to get a real baseline.
@@ -26,28 +26,28 @@ import TinyGPTModel
 /// USAGE
 ///
 ///   # MILU (Hindi split, 100 samples)
-///   tinygpt eval-indic --task milu --model /tmp/flagship-huge.tinygpt \
-///       --milu-data ~/.cache/tinygpt/datasets/ai4bharat/MILU/hi.jsonl \
+///   posttrainllm eval-indic --task milu --model /tmp/flagship-huge.tinygpt \
+///       --milu-data ~/.cache/posttrainllm/datasets/ai4bharat/MILU/hi.jsonl \
 ///       --limit 100
 ///
 ///   # IndicGenBench XQuAD (Hindi split, 50 samples)
-///   tinygpt eval-indic --task indicgenbench --subtask xquad \
+///   posttrainllm eval-indic --task indicgenbench --subtask xquad \
 ///       --model /tmp/flagship-huge.tinygpt \
-///       --indicgen-data ~/.cache/tinygpt/datasets/google/IndicGenBench_xquad_in/hi.jsonl \
+///       --indicgen-data ~/.cache/posttrainllm/datasets/google/IndicGenBench_xquad_in/hi.jsonl \
 ///       --limit 50
 ///
 ///   # Both, aggregate report
-///   tinygpt eval-indic --task all --model /tmp/flagship-huge.tinygpt \
+///   posttrainllm eval-indic --task all --model /tmp/flagship-huge.tinygpt \
 ///       --milu-data … --indicgen-data … --limit 100
 ///
 /// DATA PREP
 ///
 /// Datasets are not bundled. Pre-fetch with:
 ///
-///   tinygpt download-dataset ai4bharat/MILU --format plain
-///   # ↑ produces ~/.cache/tinygpt/datasets/ai4bharat/MILU/*.jsonl
+///   posttrainllm download-dataset ai4bharat/MILU --format plain
+///   # ↑ produces ~/.cache/posttrainllm/datasets/ai4bharat/MILU/*.jsonl
 ///   # For IndicGenBench:
-///   tinygpt download-dataset google/IndicGenBench_xquad_in --format plain
+///   posttrainllm download-dataset google/IndicGenBench_xquad_in --format plain
 ///
 /// Or pass any local JSONL with the expected schemas (see SCHEMAS below).
 ///
@@ -140,7 +140,7 @@ enum EvalIndic {
         // Header.
         print("""
 
-        TinyGPT — eval-indic
+        posttrainllm — eval-indic
         --------------------
         task:    \(task)\(task == "indicgenbench" ? " (\(subtask))" : "")
         model:   \(modelPath)
@@ -186,7 +186,7 @@ enum EvalIndic {
                 fputs("""
                 eval-indic: --milu-data <path.jsonl> is required for task=milu
                   Try:
-                    tinygpt download-dataset ai4bharat/MILU
+                    posttrainllm download-dataset ai4bharat/MILU
                   then point --milu-data at the resulting JSONL.
                   See docs/research/indic_evals.md for the schema.
                 """, stderr)
@@ -201,7 +201,7 @@ enum EvalIndic {
                 fputs("""
                 eval-indic: --indicgen-data <path.jsonl> is required for task=indicgenbench
                   Try:
-                    tinygpt download-dataset google/IndicGenBench_xquad_in
+                    posttrainllm download-dataset google/IndicGenBench_xquad_in
                   then point --indicgen-data at the resulting JSONL.
                   See docs/research/indic_evals.md for the schema.
                 """, stderr)
@@ -265,7 +265,7 @@ enum EvalIndic {
         let url = URL(fileURLWithPath: path)
         guard FileManager.default.fileExists(atPath: url.path) else {
             print("  ! data file not found: \(path)")
-            print("    Pre-fetch with: tinygpt download-dataset ai4bharat/MILU")
+            print("    Pre-fetch with: posttrainllm download-dataset ai4bharat/MILU")
             return TaskResult(total: 0, correct: 0)
         }
 
@@ -456,7 +456,7 @@ enum EvalIndic {
         let url = URL(fileURLWithPath: path)
         guard FileManager.default.fileExists(atPath: url.path) else {
             print("  ! data file not found: \(path)")
-            print("    Pre-fetch with: tinygpt download-dataset google/IndicGenBench_xquad_in")
+            print("    Pre-fetch with: posttrainllm download-dataset google/IndicGenBench_xquad_in")
             return TaskResult(total: 0, correct: 0)
         }
 
@@ -551,7 +551,7 @@ enum EvalIndic {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-indic --task <milu|indicgenbench|all> --model <path> [options]
+        usage: posttrainllm eval-indic --task <milu|indicgenbench|all> --model <path> [options]
 
         --task <name>             milu | indicgenbench | all  (required)
         --subtask <name>          indicgenbench subtask (default: xquad — only one wired)
@@ -563,8 +563,8 @@ enum EvalIndic {
         --verbose                 Per-row progress
 
         Pre-fetch datasets:
-          tinygpt download-dataset ai4bharat/MILU
-          tinygpt download-dataset google/IndicGenBench_xquad_in
+          posttrainllm download-dataset ai4bharat/MILU
+          posttrainllm download-dataset google/IndicGenBench_xquad_in
 
         See docs/research/indic_evals.md for schema, scoring, baselines,
         and the published-paper context.

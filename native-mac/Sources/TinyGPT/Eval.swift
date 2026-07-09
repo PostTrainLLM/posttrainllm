@@ -3,7 +3,7 @@ import MLX
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt eval` — measure how well a checkpoint predicts a held-out text.
+/// `posttrainllm eval` — measure how well a checkpoint predicts a held-out text.
 /// Reports:
 ///   - cross-entropy loss (lower = better)
 ///   - bits per token (loss / ln(2))
@@ -19,8 +19,8 @@ import TinyGPTModel
 ///
 /// USAGE
 ///
-///   tinygpt eval path/to/model.tinygpt --corpus held-out.txt
-///   tinygpt eval shakespeare.bin --corpus shakespeare-complete.txt --batches 100
+///   posttrainllm eval path/to/model.tinygpt --corpus held-out.txt
+///   posttrainllm eval shakespeare.bin --corpus shakespeare-complete.txt --batches 100
 enum Eval {
     static func run(args: [String]) {
         var path: String?
@@ -133,7 +133,7 @@ enum Eval {
         let B = batchSize ?? 8
         print("""
 
-        TinyGPT — eval
+        posttrainllm — eval
         --------------
         model:    \(path)
         corpus:   \(corpusSummary)
@@ -248,7 +248,7 @@ enum Eval {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval <model.tinygpt> --corpus path.txt [options]
+        usage: posttrainllm eval <model.tinygpt> --corpus path.txt [options]
 
         --corpus path.txt    Held-out UTF-8 text to score (required)
         --batches N          Number of random windows to score (default: 50)

@@ -1,4 +1,4 @@
-name: "tinygpt eval-gate"
+name: "posttrainllm eval-gate"
 description: >
   Run a project's declared eval suites against a baseline and fail the job
   when any suite regresses past threshold. Runs the MLX path, so it must
@@ -6,7 +6,7 @@ description: >
   leaves the device.
 inputs:
   spec:
-    description: "Path to the eval-gate spec (eval-gate.json or a tinygpt.project.json with an `eval` block)."
+    description: "Path to the eval-gate spec (eval-gate.json or a posttrainllm.project.json with an `eval` block)."
     required: false
     default: ""
   candidate:
@@ -18,7 +18,7 @@ inputs:
     required: false
     default: "1"
   budget:
-    description: "Optional fixed eval budget JSON; forwarded to `tinygpt eval-gate --budget`."
+    description: "Optional fixed eval budget JSON; forwarded to `posttrainllm eval-gate --budget`."
     required: false
     default: ""
   working-directory:
@@ -32,7 +32,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Build tinygpt (release)
+    - name: Build posttrainllm (release)
       shell: bash
       run: |
         cd "${{ github.action_path }}/../../../native-mac"
@@ -46,7 +46,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         set +e
-        BIN="${{ github.workspace }}/native-mac/.build/release/tinygpt"
+        BIN="${{ github.workspace }}/native-mac/.build/release/posttrainllm"
         ARGS=(eval-gate --out gate-result.json --passes "${{ inputs.passes }}")
         [ -n "${{ inputs.spec }}" ] && ARGS+=(--spec "${{ inputs.spec }}")
         [ -n "${{ inputs.candidate }}" ] && ARGS+=(--candidate "${{ inputs.candidate }}")
@@ -55,7 +55,7 @@ runs:
         CODE=${PIPESTATUS[0]}
         if [ "$CODE" -eq 0 ]; then echo "passed=true" >> "$GITHUB_OUTPUT"; else echo "passed=false" >> "$GITHUB_OUTPUT"; fi
         {
-          echo "## tinygpt eval-gate"
+          echo "## posttrainllm eval-gate"
           echo '```'
           cat gate-output.txt
           echo '```'

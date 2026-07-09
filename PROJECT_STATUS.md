@@ -1,10 +1,10 @@
-# tinygpt — PROJECT STATUS
+# posttrainllm — PROJECT STATUS
 
 Last updated: 2026-07-02
 
 ## Why / What
 
-TinyGPT is a **Mac-local specialist factory**.
+posttrainllm is a **Mac-local specialist factory**.
 
 The active product loop is:
 
@@ -16,9 +16,9 @@ The browser playground, Python reference, WASM/WebGPU training path, native
 Swift/MLX runtime, eval harnesses, and research docs are all assets for that
 factory. They are not all active product centers.
 
-For Pace, TinyGPT is a development-time factory and eval lab: it can prepare
+For Pace, posttrainllm is a development-time factory and eval lab: it can prepare
 planner data, adapters, specialist packages, eval fixtures, and reports. Pace
-production must not depend on `tinygpt serve`, localhost, or this repo's dev
+production must not depend on `posttrainllm serve`, localhost, or this repo's dev
 runtime.
 
 Current proof point:
@@ -58,7 +58,7 @@ same loop whose decision is **ship**.
 Important constraints:
 
 - Do not run long GPU/model-training loops without explicit owner approval.
-- Respect `~/.cache/tinygpt/gpu.lock` before training.
+- Respect `~/.cache/posttrainllm/gpu.lock` before training.
 - Do not touch secrets, cloud credentials, production configs, or Pace runtime
   wiring unless explicitly asked.
 - Prefer no-GPU smokes and fixture checks before heavier validation.
@@ -68,7 +68,7 @@ Important constraints:
 | Date / phase | Status |
 |---|---|
 | 2026-07-04 first full factory decision | Shipped: frozen `qwen06-sql-hygiene-dpo-v1` candidate trained (SimPO), evaluated composed against the reproduced frozen baseline, and decided **retry-training** (policy collapse: exec 0.860 → 0.080). Schema-valid run in `runs/2026-07-03-sql-hygiene-dpo-qwen06/`. Also landed: DoRA-aware `bake-lora`, routed-SQL perf harness, clean-SQL scorer. |
-| 2026-07-03 canonical factory loop | Verified: `scripts/render_sql_factory_run.py` renders the canonical run folder (config, dataset, eval-baseline, eval-candidate, decision, artifact, train.log, report.md). Native CLI `tinygpt factory-run render/validate` mirrors the same path. Run schema defined in `docs/factory/run-schema.md`. Actual training/eval remains operator-dependent (GPU + Xcode metal compiler required). |
+| 2026-07-03 canonical factory loop | Verified: `scripts/render_sql_factory_run.py` renders the canonical run folder (config, dataset, eval-baseline, eval-candidate, decision, artifact, train.log, report.md). Native CLI `posttrainllm factory-run render/validate` mirrors the same path. Run schema defined in `docs/factory/run-schema.md`. Actual training/eval remains operator-dependent (GPU + Xcode metal compiler required). |
 | Original Phases 1-4 | Complete: Python reference, transformer, training loop, eval basics |
 | Phase 5 | Complete: LoRA/adapter paths and PEFT bundle |
 | Phase 6 | Complete: dataset manifests, HF integration, GitHub fetcher, synthesis |

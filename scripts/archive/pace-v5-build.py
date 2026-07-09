@@ -5,13 +5,13 @@ Bypasses the teacher entirely — we read each fixture's EXPECT_* fields
 and write the perfect response by hand. Skipping teacher errors gives
 us a 19/19 training ceiling.
 
-Output: ~/.cache/tinygpt/datasets/pace-v5-gold.jsonl
+Output: ~/.cache/posttrainllm/datasets/pace-v5-gold.jsonl
 Each row: {"input": <user turn>, "output": <gold JSON or raw text>, "_fixture": ...}
 """
 import json
 from pathlib import Path
 
-OUT = Path.home() / ".cache" / "tinygpt" / "datasets" / "pace-v5-gold.jsonl"
+OUT = Path.home() / ".cache" / "posttrainllm" / "datasets" / "pace-v5-gold.jsonl"
 
 # (fixture_name, user_message_with_elements, gold_output, is_free_text)
 # Each gold is hand-crafted to satisfy all EXPECT_* / SPOKEN_MUST_* / MAX_WORDS.

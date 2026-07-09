@@ -11,7 +11,7 @@
 //     data/checkpoints/huge-shakespeare-5000-loss1.22.tinygpt \
 //     browser/public/demo.tinygpt
 //
-// The output is loadable by any standard tinygpt loader — see
+// The output is loadable by any standard posttrainllm loader — see
 // decodeModelFile() in browser/src/main.ts, which detects
 // `header.weightDtype === "fp16"` + `includesOptimizerState === false`
 // and expands back to the canonical [w, m=0, v=0] layout in memory.

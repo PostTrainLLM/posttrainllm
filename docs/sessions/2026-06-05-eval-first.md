@@ -28,7 +28,7 @@ Split data gaps (Tier D — pull / decode / verify) from eval pipelines
 (Tier E — wrap harness → score JSONL). E0–E8 enumerated. A1 specialist
 shipping criterion now includes E1+E3 wired.
 
-### 2. E0 — shared eval JSONL schema + `tinygpt eval-compare`
+### 2. E0 — shared eval JSONL schema + `posttrainllm eval-compare`
 
 `Sources/TinyGPT/EvalCompare.swift`. One Codable `Row` (snake_case JSON
 keys) that every harness emits. Three view modes:
@@ -41,13 +41,13 @@ This was the unblocking architectural choice. Every E* harness writes the
 same shape so `eval-compare` can aggregate across families without per-
 harness adapters.
 
-### 3. E3 — `tinygpt run-lm-eval` wraps EleutherAI lm-eval-harness
+### 3. E3 — `posttrainllm run-lm-eval` wraps EleutherAI lm-eval-harness
 
 `Sources/TinyGPT/RunLmEval.swift`. Subprocess-out to the
 canonical loglikelihood harness, two modes:
 
 - `--hf-model <id>` — score any HF transformers model (baseline scoring)
-- `--tinygpt-model <ckpt>` — boots `tinygpt serve` and routes lm-eval via
+- `--posttrainllm-model <ckpt>` — boots `posttrainllm serve` and routes lm-eval via
   the `local-completions` backend. Uses our actual forward pass; no
   semantic conversion from `.tinygpt` → llama-architecture HF dir.
 
@@ -57,7 +57,7 @@ GQA configuration, custom byte fallback) into a Llama-shaped folder.
 Lossy and bug-prone. Serving the model and letting lm-eval treat it as
 "some OpenAI-compatible server" is the cleaner separation.
 
-### 4. `tinygpt serve` — log-prob scoring path
+### 4. `posttrainllm serve` — log-prob scoring path
 
 `Sources/TinyGPTServe/Serve.swift`. Added `scoreLogprobs(prompt:)` for
 echo + logprobs requests. Teacher-forced `log_softmax`. Triggered when
@@ -75,7 +75,7 @@ the next item was about answering it.
 
 ### 6. Cross-checkpoint + cross-model sweep
 
-Scored all 5 TinyGPT checkpoints + SmolLM2-135M baseline on arc_easy
+Scored all 5 posttrainllm checkpoints + SmolLM2-135M baseline on arc_easy
 (limit=10). Emitted 12 rows. Three view modes rendered.
 
 The numbers were honest and informative:
@@ -83,11 +83,11 @@ The numbers were honest and informative:
 | Model | Step | arc_easy (n=10) |
 |---|---|---|
 | SmolLM2-135M (135M params, ~7T tokens) | baseline | **0.500** |
-| tinygpt-huge-smoke (22M params, 10K steps) | 2000 | 0.300 |
-| tinygpt-huge-smoke | 4000 | 0.300 |
-| tinygpt-huge-smoke | 6000 | 0.300 |
-| tinygpt-huge-smoke | 8000 | 0.300 |
-| tinygpt-huge-smoke | 10000 | 0.300 |
+| posttrainllm-huge-smoke (22M params, 10K steps) | 2000 | 0.300 |
+| posttrainllm-huge-smoke | 4000 | 0.300 |
+| posttrainllm-huge-smoke | 6000 | 0.300 |
+| posttrainllm-huge-smoke | 8000 | 0.300 |
+| posttrainllm-huge-smoke | 10000 | 0.300 |
 
 0.300 across all our checkpoints is statistically equivalent to random at
 this sample size (0.25 baseline + ~0.15 stderr at n=10). The smoke model
@@ -141,15 +141,15 @@ server" sidesteps all of that, and uses our actual forward pass.
 
 ### Self-invocation needs `CommandLine.arguments.first`
 
-`tinygpt run-lm-eval --tinygpt-model` spawns `tinygpt serve` as a child.
+`posttrainllm run-lm-eval --posttrainllm-model` spawns `posttrainllm serve` as a child.
 Finding the right binary path failed when running from
-`.build/arm64-apple-macosx/release/tinygpt` because `resolveExecutable("tinygpt")`
+`.build/arm64-apple-macosx/release/posttrainllm` because `resolveExecutable("posttrainllm")`
 only searches `PATH`. Fallback chain that works:
 
 ```swift
 let selfPath = CommandLine.arguments.first.map { URL(fileURLWithPath: $0) }
     ?? Bundle.main.executableURL
-let tinygptCLI = selfPath ?? resolveExecutable("tinygpt") ?? resolveExecutable("tinygpt-cli")
+let TinyGPTCLI = selfPath ?? resolveExecutable("posttrainllm") ?? resolveExecutable("posttrainllm-cli")
 ```
 
 ### lm-eval extras are not optional
@@ -182,8 +182,8 @@ pip install 'lm-eval[api]' torch transformers safetensors accelerate
 When it finishes:
 
 ```bash
-./scripts/score-run.sh ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt    # full eval sweep
-./scripts/sae-run.sh   ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt    # SAE feature timeline
+./scripts/score-run.sh ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt    # full eval sweep
+./scripts/sae-run.sh   ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt    # SAE feature timeline
 ```
 
 Outputs land under `docs/artifacts/`. The browser viewers (eval-leaderboard

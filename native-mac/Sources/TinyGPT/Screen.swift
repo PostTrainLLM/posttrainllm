@@ -4,23 +4,23 @@ import TinyGPTScreen
 import ImageIO
 #endif
 
-/// `tinygpt screen <capture|tree|both>` — Mac screen-reading capabilities.
+/// `posttrainllm screen <capture|tree|both>` — Mac screen-reading capabilities.
 ///
 /// Wave 2.6 scaffold for the demonstration-specialist screen reader. We
 /// ship the *data-capture* half here:
 ///
-///   tinygpt screen capture --out window.png
+///   posttrainllm screen capture --out window.png
 ///       Snapshot the active window via ScreenCaptureKit (macOS 14+).
 ///
-///   tinygpt screen tree [--out tree.json]
+///   posttrainllm screen tree [--out tree.json]
 ///       Dump the focused window's macOS Accessibility (AX) tree as JSON.
 ///       Prints to stdout if --out is omitted.
 ///
-///   tinygpt screen both --out-dir /tmp/snap
+///   posttrainllm screen both --out-dir /tmp/snap
 ///       Both of the above, side-by-side, into <out-dir>/window.png +
 ///       <out-dir>/tree.json.
 ///
-/// The vision-encoder → tinygpt-decoder half (consuming the PNG and
+/// The vision-encoder → posttrainllm-decoder half (consuming the PNG and
 /// emitting tokens) is intentionally *not* in this commit — that's
 /// research-grade work tracked separately in the roadmap. The AX tree
 /// is the more useful half for tool-calling SLMs anyway.
@@ -182,7 +182,7 @@ enum Screen {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt screen <capture|tree|both> [flags]
+        usage: posttrainllm screen <capture|tree|both> [flags]
 
         Screen-reading capabilities for the demonstration specialist.
         Wave 2.6 scaffold — data capture only; vision-encoder integration
@@ -203,12 +203,12 @@ enum Screen {
         Permissions (one-time setup; macOS will prompt on first use):
           • capture / both — System Settings → Privacy & Security →
                              Screen Recording → enable for your terminal
-                             (or the tinygpt binary).
+                             (or the posttrainllm binary).
           • tree    / both — System Settings → Privacy & Security →
                              Accessibility → enable for your terminal
-                             (or the tinygpt binary).
+                             (or the posttrainllm binary).
         Both permissions are tied to the *signed bundle identifier* of
-        the calling process; the simplest workflow is to launch tinygpt
+        the calling process; the simplest workflow is to launch posttrainllm
         from a terminal that already has the relevant grants.
         """)
         exit(code)

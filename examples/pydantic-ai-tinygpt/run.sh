@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-TINYGPT_BIN="${TINYGPT_BIN:-$ROOT/native-mac/.build/arm64-apple-macosx/release/tinygpt}"
+TINYGPT_BIN="${TINYGPT_BIN:-$ROOT/native-mac/.build/arm64-apple-macosx/release/posttrainllm}"
 TINYGPT_MODEL="${TINYGPT_MODEL:-}"
 PORT="${TINYGPT_PORT:-8080}"
 
@@ -12,7 +12,7 @@ if [[ -z "$TINYGPT_MODEL" ]]; then
 fi
 
 if [[ ! -x "$TINYGPT_BIN" ]]; then
-  echo "tinygpt binary not found at $TINYGPT_BIN; run swift build -c release --product tinygpt" >&2
+  echo "posttrainllm binary not found at $TINYGPT_BIN; run swift build -c release --product posttrainllm" >&2
   exit 2
 fi
 
@@ -37,7 +37,7 @@ class TicketRoute(BaseModel):
 
 port = os.environ.get("TINYGPT_PORT", "8080")
 model = OpenAIChatModel(
-    "tinygpt",
+    "posttrainllm",
     provider=OpenAIProvider(
         base_url=f"http://127.0.0.1:{port}/v1",
         api_key="not-needed",

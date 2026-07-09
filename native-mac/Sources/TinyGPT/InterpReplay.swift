@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt interp-replay <history-dir>` (B13) — replay an interp probe across
+/// `posttrainllm interp-replay <history-dir>` (B13) — replay an interp probe across
 /// a training run's saved checkpoints, emitting one timeline JSONL row per
 /// (probe, layer, checkpoint) in the shared schema the `/sae-timeline.astro`
 /// viewer consumes. `--dry-run` emits a deterministic synthetic metric per
@@ -37,7 +37,7 @@ enum InterpReplay {
         guard !ckpts.isEmpty else { fputs("no step-N checkpoints (*.step-N.tinygpt) in \(historyDir)\n", stderr); exit(1) }
 
         if !dryRun {
-            fputs("note: V1 interp-replay only implements --dry-run (schema/orchestration); for real SAE timelines use `tinygpt sae --checkpoint-dir`. Emitting dry-run rows.\n", stderr)
+            fputs("note: V1 interp-replay only implements --dry-run (schema/orchestration); for real SAE timelines use `posttrainllm sae --checkpoint-dir`. Emitting dry-run rows.\n", stderr)
         }
         let outURL = URL(fileURLWithPath: outPath)
         try? fm.removeItem(at: outURL); fm.createFile(atPath: outURL.path, contents: nil)
@@ -64,14 +64,14 @@ enum InterpReplay {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt interp-replay <history-dir> --probe sae --layers 0,4,8 \\
+        usage: posttrainllm interp-replay <history-dir> --probe sae --layers 0,4,8 \\
                                      --out timeline.jsonl [--dry-run]
 
         Replay an interp probe across a run's *.step-N.tinygpt checkpoints,
         emitting timeline rows {step, ckpt_hash, probe, layer, metric, value,
         extra} for /sae-timeline.astro. V1 implements --dry-run (synthetic
         metric — verifies the walk + schema); for real SAE timelines use
-        `tinygpt sae --checkpoint-dir`.
+        `posttrainllm sae --checkpoint-dir`.
         """)
         exit(code)
     }

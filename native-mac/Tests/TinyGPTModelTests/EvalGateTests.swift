@@ -201,7 +201,7 @@ final class EvalGateTests: XCTestCase {
     }
 
     func test_spec_decodes_from_project_eval_block() throws {
-        // The optional "eval" block on tinygpt.project.json (B31 schema add).
+        // The optional "eval" block on posttrainllm.project.json (B31 schema add).
         let json = #"""
         {
           "name": "proj",

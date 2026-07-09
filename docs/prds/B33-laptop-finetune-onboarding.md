@@ -8,11 +8,11 @@ parent_strategy: docs/sessions/2026-06-13-market-landscape-mac-first.md (move #3
 related_prds: A1-first-specialist-tool-caller.md (the recipe this wraps), B6-mac-app-demo.md (the GUI version), B31-gallery-and-project-pins.md (resolves the base model)
 ---
 
-# PRD — `tinygpt quickstart`: data → trained specialist in one command
+# PRD — `posttrainllm quickstart`: data → trained specialist in one command
 
 ## Goal
 
-`tinygpt quickstart <data.jsonl>` takes a user's task data and walks them
+`posttrainllm quickstart <data.jsonl>` takes a user's task data and walks them
 to a trained, evaluated, runnable specialist on their Mac with **one
 command and zero prior knowledge** — auto-picks a sensible base from the
 gallery, infers the recipe, trains, evals against a baseline, and drops
@@ -29,7 +29,7 @@ actually does it." B33 is that bridge for the CLI; B6 is it for the GUI.
   the recipe. The recipe being *good* and the recipe being *reachable*
   are different problems — A1 solves the first, B33 the second.
 - Every competitor's onboarding is "sign up, add a credit card, upload to
-  our cloud." A `brew install` → `tinygpt quickstart mydata.jsonl` flow
+  our cloud." A `brew install` → `posttrainllm quickstart mydata.jsonl` flow
   with no account and no cloud is a categorically different first-run.
 - B31 gallery + project pins give `quickstart` the base-model resolution
   it needs for free.
@@ -50,9 +50,9 @@ actually does it." B33 is that bridge for the CLI; B6 is it for the GUI.
   4. **Train** — call the shipped trainer; show the C10 live view URL.
   5. **Eval** — run a relevant suite vs the base 0-shot; print the
      before/after delta (the "did this help?" answer).
-  6. **Try it** — drop into an interactive `tinygpt chat` against the
+  6. **Try it** — drop into an interactive `posttrainllm chat` against the
      new specialist, with the base available for A/B.
-  - Writes a `tinygpt.project.json` (B31) so the result is reproducible
+  - Writes a `posttrainllm.project.json` (B31) so the result is reproducible
     + shippable.
 - `--dry-run` prints the full resolved plan without training.
 
@@ -86,14 +86,14 @@ actually does it." B33 is that bridge for the CLI; B6 is it for the GUI.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt quickstart sample-toolcalls.jsonl --yes` trains an adapter,
+- [ ] `posttrainllm quickstart sample-toolcalls.jsonl --yes` trains an adapter,
   evals it, and lands in a chat — end to end on M5 Pro, no account, no
   network beyond an initial base-model pull.
 - [ ] `--dry-run` prints the resolved (base, recipe) plan and exits
   without training.
 - [ ] Data it can't parse fails with an actionable message naming the
   expected formats.
-- [ ] The run writes a valid `tinygpt.project.json` (passes B31's
+- [ ] The run writes a valid `posttrainllm.project.json` (passes B31's
   `validate()`).
 - [ ] `docs/quickstart.md` reproduces on a clean `brew install`.
 

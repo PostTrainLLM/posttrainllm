@@ -1,8 +1,8 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// The Interp tab — TinyGPT's unique-vs-LM-Studio surface. v1 launches
-/// a SAE training run via the bundled CLI (`tinygpt sae`) and streams
+/// The Interp tab — posttrainllm's unique-vs-LM-Studio surface. v1 launches
+/// a SAE training run via the bundled CLI (`posttrainllm sae`) and streams
 /// the output here. Future iterations layer MEMIT, activation patching,
 /// and the SAE timeline viewer on top of the same primitive.
 struct InterpView: View {
@@ -139,7 +139,7 @@ struct InterpView: View {
             ScrollView {
                 ScrollViewReader { proxy in
                     Text(controller.output.isEmpty
-                         ? "Output from `tinygpt sae` will stream here once a run starts.\n\nThis trains a sparse autoencoder on the residual stream of the picked layer — the decoder columns become interpretable feature directions, the encoder sparsifies the model's activations into a feature pattern per token. Bricken et al. 2023."
+                         ? "Output from `posttrainllm sae` will stream here once a run starts.\n\nThis trains a sparse autoencoder on the residual stream of the picked layer — the decoder columns become interpretable feature directions, the encoder sparsifies the model's activations into a feature pattern per token. Bricken et al. 2023."
                          : controller.output)
                         .font(.tgMono)
                         .foregroundStyle(controller.output.isEmpty ? Theme.faint : Theme.fg)

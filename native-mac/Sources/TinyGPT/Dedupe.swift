@@ -1,7 +1,7 @@
 import Foundation
 import CryptoKit
 
-/// `tinygpt dedupe` — drop duplicate lines or documents from a text
+/// `posttrainllm dedupe` — drop duplicate lines or documents from a text
 /// corpus.
 ///
 /// Matters most for raw web scrapes (Common Crawl subsets, raw HTML
@@ -12,7 +12,7 @@ import CryptoKit
 /// unique unit).
 ///
 /// USAGE
-///   tinygpt dedupe <input.txt> --out <output.txt>
+///   posttrainllm dedupe <input.txt> --out <output.txt>
 ///                  [--unit line|doc] [--min-len N] [--quiet]
 ///
 ///   --unit line     SHA each line; skip duplicates (default)
@@ -203,7 +203,7 @@ enum Dedupe {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt dedupe <input.txt> --out <output.txt> [options]
+        usage: posttrainllm dedupe <input.txt> --out <output.txt> [options]
 
         --unit line|doc        line-level (SHA per line) or document-level
                                (SHA per paragraph, separated by blank lines)

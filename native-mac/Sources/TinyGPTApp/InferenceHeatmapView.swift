@@ -103,7 +103,7 @@ struct InferenceHeatmapView: View {
                         Text("Open a trace JSON")
                             .font(.system(size: 20, weight: .semibold))
                             .foregroundStyle(Theme.fg)
-                        Text("Generate one with `tinygpt serve --trace-infer --trace-dir <dir>`.")
+                        Text("Generate one with `posttrainllm serve --trace-infer --trace-dir <dir>`.")
                             .font(.system(size: 12, design: .monospaced))
                             .foregroundStyle(Theme.muted)
                     }

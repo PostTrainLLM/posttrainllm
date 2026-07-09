@@ -3,7 +3,7 @@
 
 Hits the teacher endpoint and asks for N paraphrases per fixture, plus
 adjacent-intent variants. Output is more raw prompts to feed back into
-`tinygpt synthesize` for labeling.
+`posttrainllm synthesize` for labeling.
 """
 import json
 import os
@@ -11,8 +11,8 @@ import requests
 import sys
 from pathlib import Path
 
-SEED = Path.home() / ".cache" / "tinygpt" / "datasets" / "pace-prompts.jsonl"
-OUT  = Path.home() / ".cache" / "tinygpt" / "datasets" / "pace-prompts-v2.jsonl"
+SEED = Path.home() / ".cache" / "posttrainllm" / "datasets" / "pace-prompts.jsonl"
+OUT  = Path.home() / ".cache" / "posttrainllm" / "datasets" / "pace-prompts-v2.jsonl"
 TEACHER_URL = "http://127.0.0.1:1234/v1/chat/completions"
 TEACHER_MODEL = "qwen/qwen3-30b-a3b"
 

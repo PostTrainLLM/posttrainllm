@@ -3,13 +3,13 @@
 What you get:
 
 - A per-repo corpus extraction flow.
-- A TinyGPT checkpoint served as an OpenAI-compatible local coding model.
+- A posttrainllm checkpoint served as an OpenAI-compatible local coding model.
 - Continue.dev and Aider config snippets.
 - A small benchmark template for repo-pattern completions.
 - A clear limit: this is not GPT-4 for general coding.
 
 What this is not: an editor plugin. Continue.dev and Aider already know how
-to call OpenAI-compatible local servers; TinyGPT only has to serve the model.
+to call OpenAI-compatible local servers; posttrainllm only has to serve the model.
 
 ## 1. Build A Repo Corpus
 
@@ -32,8 +32,8 @@ Use the corpus as the domain data for a specialist run. The exact command
 depends on the base model you are using; keep it small and eval-driven:
 
 ```bash
-tinygpt sft \
-  --base ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt \
+posttrainllm sft \
+  --base ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt \
   --corpus .tinygpt/repo-specialist/corpus.jsonl \
   --steps 2000 \
   --out .tinygpt/repo-specialist/model.tinygpt
@@ -48,7 +48,7 @@ export TINYGPT_MODEL=.tinygpt/repo-specialist/model.tinygpt
 ## 3. Serve It
 
 ```bash
-tinygpt serve "$TINYGPT_MODEL" --host 127.0.0.1 --port 8080
+posttrainllm serve "$TINYGPT_MODEL" --host 127.0.0.1 --port 8080
 ```
 
 ## 4. Continue.dev
@@ -57,13 +57,13 @@ Continue's OpenAI provider accepts `apiBase`. Add this to
 `~/.continue/config.yaml`:
 
 ```yaml
-name: TinyGPT Local Specialist
+name: posttrainllm Local Specialist
 version: 0.0.1
 schema: v1
 models:
-  - name: TinyGPT Repo Specialist
+  - name: posttrainllm Repo Specialist
     provider: openai
-    model: tinygpt
+    model: posttrainllm
     apiBase: http://127.0.0.1:8080/v1
     apiKey: not-needed
     roles:
@@ -88,7 +88,7 @@ variables:
 ```bash
 export OPENAI_API_BASE=http://127.0.0.1:8080/v1
 export OPENAI_API_KEY=not-needed
-aider --model openai/tinygpt
+aider --model openai/posttrainllm
 ```
 
 Generate the snippet:
@@ -109,7 +109,7 @@ Create a held-out file of repo-specific prompts:
 Then run:
 
 ```bash
-tinygpt run-bench \
+posttrainllm run-bench \
   --model "$TINYGPT_MODEL" \
   --tasks custom-code-patterns \
   --limit 50 \
@@ -120,7 +120,7 @@ Record:
 
 | Model | Pattern match | Compile/test pass | Mean latency |
 |---|---:|---:|---:|
-| TinyGPT repo specialist | fill after run | fill after run | fill after run |
+| posttrainllm repo specialist | fill after run | fill after run | fill after run |
 | General coding baseline | fill after run | fill after run | fill after run |
 
 ## Honest Limitations

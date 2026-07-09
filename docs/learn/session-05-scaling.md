@@ -174,8 +174,8 @@ At a fixed pretraining compute: better data >> more bad data. This
 crossed a threshold in 2024 where "quality" became visible as a separate
 axis from raw scale.
 
-TinyGPT already ships a quality-classifier (`tinygpt
-train-quality-classifier` + `tinygpt quality-filter`) for exactly this
+posttrainllm already ships a quality-classifier (`posttrainllm
+train-quality-classifier` + `posttrainllm quality-filter`) for exactly this
 kind of curation.
 
 ## Data mixture and curation
@@ -209,7 +209,7 @@ different apparent capability:
   ChatGPT.
 - **Distillation.** Transfers capability from a bigger teacher model into
   a smaller student. The student "inherits" more than its scale would
-  predict. This is the TinyGPT thesis: a 22M specialist distilled from
+  predict. This is the posttrainllm thesis: a 22M specialist distilled from
   a 70B teacher beats a 22M generalist by a lot.
 - **Tool use / RAG.** Extends the model's reach without changing weights
   — external memory and computation. A 22M model + good retrieval often
@@ -227,7 +227,7 @@ model + one-shot answer. The trade-off is latency.
 
 ---
 
-## What this means for huge-base-v1 (and the TinyGPT thesis)
+## What this means for huge-base-v1 (and the posttrainllm thesis)
 
 Two practical conclusions:
 
@@ -243,7 +243,7 @@ Two practical conclusions:
    - Constrained generation for structured output
    - Tool use / RAG for tasks that need external memory
 
-This is exactly the TinyGPT thesis. Scaling laws say "your small base is
+This is exactly the posttrainllm thesis. Scaling laws say "your small base is
 structurally limited"; the post-training story says "but the *useful*
 ceiling is way higher than that suggests, when stages compose right."
 
@@ -270,7 +270,7 @@ Don't peek:
 
 ## Where this connects
 
-- The "small specialist on small base" play in TinyGPT's product roadmap
+- The "small specialist on small base" play in posttrainllm's product roadmap
   is enabled by **post-training axes scaling laws don't cover**. Without
   that route, a 22M model would have a hard ceiling far below practical
   usefulness. With it, "narrow but sharp" is feasible.

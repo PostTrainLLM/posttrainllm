@@ -1,33 +1,33 @@
 ---
-title: Using tinygpt with Continue.dev / Cline / Aider
-description: tinygpt exposes an Ollama-compatible HTTP surface so it drops straight into Continue.dev, Cline, and Aider configs as a local provider. Setup + caveats.
+title: Using posttrainllm with Continue.dev / Cline / Aider
+description: posttrainllm exposes an Ollama-compatible HTTP surface so it drops straight into Continue.dev, Cline, and Aider configs as a local provider. Setup + caveats.
 ---
 
-# Using tinygpt with Continue.dev / Cline / Aider
+# Using posttrainllm with Continue.dev / Cline / Aider
 
-`tinygpt serve` exposes both an OpenAI-compatible surface (for
+`posttrainllm serve` exposes both an OpenAI-compatible surface (for
 lm-evaluation-harness, langchain, etc.) **and** an Ollama-compatible
 surface (for the dev-tool ecosystem). The Ollama surface uses the
 same generation core but emits NDJSON streaming chunks per the Ollama
 protocol — Continue.dev, Cline, and Aider all configure against
-`provider: ollama` and "just work" with tinygpt as the backend.
+`provider: ollama` and "just work" with posttrainllm as the backend.
 
 ## Quickstart
 
 1. **Start the server on Ollama's conventional port:**
    ```bash
-   tinygpt serve <model.tinygpt> --port 11434
+   posttrainllm serve <model.tinygpt> --port 11434
    # → listening on http://127.0.0.1:11434
    ```
 
 2. **Sanity check the Ollama surface:**
    ```bash
    curl -s http://127.0.0.1:11434/api/tags
-   # → {"models":[{"name":"tinygpt:latest", ...}]}
+   # → {"models":[{"name":"posttrainllm:latest", ...}]}
 
    curl -s http://127.0.0.1:11434/api/generate \
-        -d '{"model":"tinygpt","prompt":"Hello","stream":false}'
-   # → {"model":"tinygpt:latest","response":"...","done":true,...}
+        -d '{"model":"posttrainllm","prompt":"Hello","stream":false}'
+   # → {"model":"posttrainllm:latest","response":"...","done":true,...}
    ```
 
 3. **Point a client at it** (see per-tool sections below).
@@ -40,18 +40,18 @@ Add to `~/.continue/config.json`:
 {
   "models": [
     {
-      "title": "tinygpt",
+      "title": "posttrainllm",
       "provider": "ollama",
-      "model": "tinygpt:latest",
+      "model": "posttrainllm:latest",
       "apiBase": "http://127.0.0.1:11434"
     }
   ]
 }
 ```
 
-Reload Continue (Cmd-Shift-P → "Continue: Reload") and the `tinygpt`
+Reload Continue (Cmd-Shift-P → "Continue: Reload") and the `posttrainllm`
 model appears in the model picker. Chat, autocomplete, and edit all
-route through tinygpt's local model now — code never leaves device.
+route through posttrainllm's local model now — code never leaves device.
 
 ## Cline (VS Code)
 
@@ -60,23 +60,23 @@ Cline's settings → API Provider → "Ollama":
 | Field | Value |
 |---|---|
 | Base URL | `http://127.0.0.1:11434` |
-| Model ID | `tinygpt:latest` |
+| Model ID | `posttrainllm:latest` |
 
 That's it. Cline's Plan-mode dialogue + Act-mode tool-call enforcement
-both work against the tinygpt local model.
+both work against the posttrainllm local model.
 
 ## Aider
 
-`aider --model ollama/tinygpt:latest --openai-api-base http://127.0.0.1:11434`
+`aider --model ollama/posttrainllm:latest --openai-api-base http://127.0.0.1:11434`
 
 Or in `~/.aider.conf.yml`:
 
 ```yaml
-model: ollama/tinygpt:latest
+model: ollama/posttrainllm:latest
 openai-api-base: http://127.0.0.1:11434
 ```
 
-Aider's "architect mode" can use tinygpt for either the planner or
+Aider's "architect mode" can use posttrainllm for either the planner or
 the editor; configure two model entries if you want different
 specialists for each role.
 
@@ -105,9 +105,9 @@ When streaming, the wire format is **NDJSON** — one JSON object per
 line, terminated by a chunk with `"done": true`:
 
 ```
-{"model":"tinygpt:latest","created_at":"...","message":{"role":"assistant","content":"Hello"},"done":false}
-{"model":"tinygpt:latest","created_at":"...","message":{"role":"assistant","content":" there"},"done":false}
-{"model":"tinygpt:latest","created_at":"...","message":{"role":"assistant","content":""},"done":true,"done_reason":"stop"}
+{"model":"posttrainllm:latest","created_at":"...","message":{"role":"assistant","content":"Hello"},"done":false}
+{"model":"posttrainllm:latest","created_at":"...","message":{"role":"assistant","content":" there"},"done":false}
+{"model":"posttrainllm:latest","created_at":"...","message":{"role":"assistant","content":""},"done":true,"done_reason":"stop"}
 ```
 
 This is *not* SSE (no `data: ` prefix). The OpenAI surface on
@@ -116,10 +116,10 @@ for your client.
 
 ## Tool calling
 
-Today: tinygpt's Ollama surface does **not** emit tool-call chunks
+Today: posttrainllm's Ollama surface does **not** emit tool-call chunks
 (`message.tool_calls`). Continue/Cline tool calling requires the
 OpenAI surface (`/v1/chat/completions` with `tools: [...]`) or the
-agent runtime path (`tinygpt agent --tools tools.json`).
+agent runtime path (`posttrainllm agent --tools tools.json`).
 
 Roadmap: once the **tool-call extractor (mini-router)** ships
 (see docs/roadmap/north_star_refined.md), the Ollama surface will
@@ -131,7 +131,7 @@ own format. Tracked as a Wave 2.6 follow-on.
 You probably came here because you wanted to keep code on-device.
 Honest framing:
 
-| Dimension | tinygpt (local) | Claude / GPT cloud |
+| Dimension | posttrainllm (local) | Claude / GPT cloud |
 |---|---|---|
 | Latency (TTFT) | < 10 ms warm | 200–500 ms |
 | Cost per token | Free | $0.50–$2 / M tokens |
@@ -139,14 +139,14 @@ Honest framing:
 | Raw quality (SWE-bench) | Lower (1-3B class) | Higher (Sonnet 4.6) |
 | Tool calling polish | Basic | Strong (Sonnet, GPT-4o) |
 
-The right mental model: tinygpt handles **routine** asks (rename a
+The right mental model: posttrainllm handles **routine** asks (rename a
 symbol, write a small function, explain a snippet) instantly +
-privately; escalate to cloud (via tinygpt's `--cloud-escalate` flag,
+privately; escalate to cloud (via posttrainllm's `--cloud-escalate` flag,
 or by switching providers in Continue) for the hard ones.
 
 ## Limits + bugs to know about
 
-- `tinygpt serve` is single-threaded for inference (one model, one
+- `posttrainllm serve` is single-threaded for inference (one model, one
   request at a time). Multiple concurrent Continue requests queue.
 - Tokenizer mismatch: Continue may count tokens with its own
   tokenizer and over-/under-shoot budgets. Use generous
@@ -161,6 +161,6 @@ or by switching providers in Continue) for the hard ones.
 ## What's next
 
 Once the tool-call extractor (mini-router) lands, this page becomes
-the canonical "use tinygpt in your editor" walkthrough — with
+the canonical "use posttrainllm in your editor" walkthrough — with
 tool-call support, it's the first real-user-visible product surface
 for the project. See docs/progress.md for shipping status.

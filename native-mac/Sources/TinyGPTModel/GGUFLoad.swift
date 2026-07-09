@@ -29,7 +29,7 @@ public enum GGUFHFMaterializer {
     private static func cacheDirectory(for url: URL) throws -> URL {
         let fm = FileManager.default
         let base = fm.homeDirectoryForCurrentUser
-            .appendingPathComponent(".cache/tinygpt/gguf-hf", isDirectory: true)
+            .appendingPathComponent(".cache/posttrainllm/gguf-hf", isDirectory: true)
         let attrs = try? fm.attributesOfItem(atPath: url.path)
         let size = (attrs?[.size] as? NSNumber)?.int64Value ?? 0
         let mtime = ((attrs?[.modificationDate] as? Date)?.timeIntervalSince1970 ?? 0) * 1000
@@ -48,7 +48,7 @@ public enum GGUFHFMaterializer {
         let merges = (parsed.metadata["tokenizer.ggml.merges"] as? [Any])?
             .compactMap { $0 as? String } ?? []
         guard !tokens.isEmpty else {
-            throw NSError(domain: "tinygpt.gguf", code: 1,
+            throw NSError(domain: "posttrainllm.gguf", code: 1,
                           userInfo: [NSLocalizedDescriptionKey: "GGUF has no tokenizer.ggml.tokens"])
         }
         let bosId = intOrNil(parsed.metadata["tokenizer.ggml.bos_token_id"])

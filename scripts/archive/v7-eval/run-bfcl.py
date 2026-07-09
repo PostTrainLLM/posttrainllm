@@ -16,7 +16,7 @@ import sys
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--cmd", default="bfcl")
-    parser.add_argument("--model", default="tinygpt")
+    parser.add_argument("--model", default="posttrainllm")
     parser.add_argument("--base-url", default="http://127.0.0.1:8765/v1")
     parser.add_argument("extra", nargs="*")
     args = parser.parse_args()

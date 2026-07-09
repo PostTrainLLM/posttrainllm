@@ -69,7 +69,7 @@ debug-tool half. B12 is the **automatic policy** that uses both.
 
 ## Acceptance criteria
 
-- [ ] Synthetic spike test: a training run with a `tinygpt train
+- [ ] Synthetic spike test: a training run with a `posttrainllm train
   --spike-at 200 --auto-rollback on` (test-only flag that injects a
   10× grad-norm spike at step 200) rolls back to step 190, drops LR,
   resumes, and the rest of training proceeds normally.

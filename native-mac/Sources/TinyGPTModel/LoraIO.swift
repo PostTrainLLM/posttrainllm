@@ -5,7 +5,7 @@ import MLXNN
 /// On-disk format for a LoRA adapter — separate from `.tinygpt`. A small
 /// header + the A/B matrices for each wrapped Linear. Bytes:
 ///
-///     0    4    magic = "TGLA"  (TinyGPT LoRA Adapter)
+///     0    4    magic = "TGLA"  (posttrainllm LoRA Adapter)
 ///     4    4    version (u32; v1 = LoRA-only; v2 = LoRA+DoRA optional)
 ///     8    4    header_len (u32)
 ///     12   N    JSON header — { config, modelConfig, entries: [{name, shape, loraMShape?}, ...] }

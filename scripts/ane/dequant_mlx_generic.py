@@ -3,7 +3,7 @@
 
 Uses mlx.core.dequantize() as the workhorse, so packing format details
 are handled by MLX itself. Output: fp16 HF-compatible safetensors dir
-that the existing TinyGPT HFModel pipeline can load.
+that the existing posttrainllm HFModel pipeline can load.
 
 Supersedes scripts/ane/dequant_mlx4bit.py (which handled 4-bit only via
 hand-rolled bit unpacking). This version handles any mlx-community
@@ -12,7 +12,7 @@ quantization — Qwen3-14B-MLX-4bit, UI-Venus-1.5-2B-6bit, etc.
 Usage:
     python3 scripts/ane/dequant_mlx_generic.py \\
         --src ~/.lmstudio/models/mlx-community/UI-Venus-1.5-2B-6bit \\
-        --dst ~/.cache/tinygpt/ui-venus-1.5-2b-fp16
+        --dst ~/.cache/posttrainllm/ui-venus-1.5-2b-fp16
 """
 from __future__ import annotations
 

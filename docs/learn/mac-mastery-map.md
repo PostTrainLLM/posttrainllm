@@ -25,10 +25,10 @@ sessions [01](./session-01-neural-net-basics.md)–[08](./session-08-training-me
 
 ## 2. Training & post-training
 Canonical: [advanced-llm-training](./advanced-llm-training.md).
-- ✅ From-scratch pretrain (tiny), SFT, DPO, finetune — `tinygpt train/sft/dpo/finetune`.
+- ✅ From-scratch pretrain (tiny), SFT, DPO, finetune — `posttrainllm train/sft/dpo/finetune`.
 - ✅ PEFT zoo: LoRA, DoRA, QLoRA, VeRA, PISSA, LoftQ, AdaLoRA — `SFT.swift`.
 - ✅ **Distillation / cost-compression** — validated: a 0.6B matched a 4B on
-  tool-calling at 1/7th size. `tinygpt distill`. *This is the live winning lane.*
+  tool-calling at 1/7th size. `posttrainllm distill`. *This is the live winning lane.*
 - ✅ Synthetic data (`magpie`), quality classifier + filter.
 - 🟡 RL: GRPO-on-clarify (`docs/GRPO_CLARIFY.md`); reward modeling (B28); **multi-turn agentic
   distillation → frontier-parity (4B 58→100); teacher-free ReST ran (iter-1: breadth 60→65%,
@@ -44,7 +44,7 @@ Canonical: [advanced-llm-training](./advanced-llm-training.md).
 Canonical: [advanced-llm-inference](./advanced-llm-inference.md).
 - ✅ Sampling, speculative decoding (B14), KV-quant, ANE/CoreML serve, GGUF load.
 - ✅ Browser WebGPU inference (hand-written WGSL kernels) + transformers.js page.
-- 🟡 `tinygpt serve` HF path is **unoptimized (~7 tok/s on 4B)** — known gap.
+- 🟡 `posttrainllm serve` HF path is **unoptimized (~7 tok/s on 4B)** — known gap.
 - ⬜ **Learn/build (steal from oMLX):** continuous batching (B34, for eval),
   tiered KV cache RAM→SSD, persistent prefix-KV cache, PagedAttention,
   FlashAttention internals.
@@ -71,7 +71,7 @@ Canonical: [advanced-ml-systems-eval](./advanced-ml-systems-eval.md) §11–13.
 ## 7. Agents & tools
 Canonical: [advanced-ml-systems-eval](./advanced-ml-systems-eval.md) §9–10,
 [agent-context-hierarchy](./agent-context-hierarchy.md), [model-vs-agent](./model-vs-agent.md).
-- ✅ Tool-calling, `tinygpt agent`, deferred tools (B26 🟡), Pace's plan-act-observe loop.
+- ✅ Tool-calling, `posttrainllm agent`, deferred tools (B26 🟡), Pace's plan-act-observe loop.
 - 🟡 Mini-router family (B2–B7).
 - ⬜ Trajectory recorder (B22), agent-eval protocol (B23), RAG vector layer.
 

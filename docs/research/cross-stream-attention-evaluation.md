@@ -1,6 +1,6 @@
 ---
 title: B20 — Learnable cross-stream attention evaluation
-description: Read-and-evaluate write-up on the modded-nanogpt speedrun's "cross-stream attention" trick; decide whether to adopt for TinyGPT.
+description: Read-and-evaluate write-up on the modded-nanogpt speedrun's "cross-stream attention" trick; decide whether to adopt for posttrainllm.
 ---
 
 # Learnable cross-stream attention — adopt or skip?
@@ -51,7 +51,7 @@ absolute terms.
    decoding (B14) traces the residual stream; a forked stream changes
    the draft path's hidden state shape.
 
-## Why "skip for now" is the right call at TinyGPT's scale
+## Why "skip for now" is the right call at posttrainllm's scale
 
 Three independent reasons:
 
@@ -60,7 +60,7 @@ Three independent reasons:
 modded-nanogpt's speedrun runs are typically a few minutes total at
 GPT-2-124M-equivalent capacity on H100s. The 3–6% wall-clock win is
 measurable because the rest of the configuration is pinned and the
-training distribution is exactly FineWeb val-loss. TinyGPT's typical
+training distribution is exactly FineWeb val-loss. posttrainllm's typical
 configurations:
 
 | Surface | Param count | Eval setup |
@@ -112,7 +112,7 @@ the right move is **wait for the paper, then adopt**.
 
 Revisit B20 if any of these become true:
 
-- TinyGPT ships a from-scratch run at ≥ 50M params on FineWeb-like
+- posttrainllm ships a from-scratch run at ≥ 50M params on FineWeb-like
   data (we'd be in the speedrun's regime, the gain would be visible).
 - The speedrun PR gets a formal write-up with ablations on at least
   two corpora (the gain generalises).

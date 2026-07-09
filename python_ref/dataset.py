@@ -140,7 +140,7 @@ class ByteDataset:
 
 if __name__ == "__main__":
     # Smoke check: tokenizer roundtrip + a batch shape.
-    sample = "Hello, TinyGPT! " * 64
+    sample = "Hello, posttrainllm! " * 64
     ds = ByteDataset.from_text(sample, name="smoke")
     assert decode(encode(sample)) == sample, "tokenizer roundtrip failed"
     x, y = ds.get_batch("train", batch_size=4, context_length=32)

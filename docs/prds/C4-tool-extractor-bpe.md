@@ -7,11 +7,11 @@ parent_plan: docs/PLAN.md §3 Tier C (C4)
 related_prds: factory-planner-v7-tools-in-prompt.md (the planner this extractor sits behind)
 ---
 
-# PRD — Extend `tinygpt train-extractor` to BPE tokenizers
+# PRD — Extend `posttrainllm train-extractor` to BPE tokenizers
 
 ## Goal
 
-`tinygpt train-extractor` (the mini-router-trainer that ships the
+`posttrainllm train-extractor` (the mini-router-trainer that ships the
 "intent + tool" classifier on top of the residual stream) currently
 assumes a byte-level tokenizer. Bases the user actually wants to
 specialize (Qwen3-4B, Gemma-3, anything HF) use BPE. The extractor
@@ -62,7 +62,7 @@ unless the extractor speaks its tokenizer.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt train-extractor --base qwen3-4b-instruct-2507 ...`
+- [ ] `posttrainllm train-extractor --base qwen3-4b-instruct-2507 ...`
   runs without "tokenizer mismatch" errors and produces a `.tre`
   sidecar.
 - [ ] On a fixed BFCL-extracted training set (20 samples, 100 steps),

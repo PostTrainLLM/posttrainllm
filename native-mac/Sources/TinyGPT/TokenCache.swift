@@ -1,7 +1,7 @@
 import Foundation
 import CryptoKit
 
-/// Persistent BPE-token cache for `tinygpt train`.
+/// Persistent BPE-token cache for `posttrainllm train`.
 ///
 /// Tokenising a 500 MB+ corpus through SentencePiece / BPE costs 10-30
 /// minutes on M-series silicon. Every Mega/Huge re-train (and every

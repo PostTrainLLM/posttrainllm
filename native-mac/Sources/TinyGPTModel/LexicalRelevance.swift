@@ -2,7 +2,7 @@
 //
 // The PRD's learned path is a token-level relevance head trained with a
 // teacher (needs a GPU). This is the lexical V1 — a BM25-lite sentence scorer
-// — so `tinygpt compress` works today (mirrors how the reranker shipped a
+// — so `posttrainllm compress` works today (mirrors how the reranker shipped a
 // lexical V1 before the learned one). Pure, no MLX, fully unit-testable.
 import Foundation
 

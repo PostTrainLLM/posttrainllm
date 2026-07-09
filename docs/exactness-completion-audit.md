@@ -1,6 +1,6 @@
 # Exactness Completion Audit
 
-This audit answers one question: are the TinyGPT docs now exact enough to be
+This audit answers one question: are the posttrainllm docs now exact enough to be
 trusted as the operating system for the project?
 
 ## Completion Standard

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # evals/scaledown-smoke.sh — E6 V1 self-contained compression eval (pure CPU).
 #
-# Runs `tinygpt eval-scaledown` over a tiny QA set and asserts the compressor
+# Runs `posttrainllm eval-scaledown` over a tiny QA set and asserts the compressor
 # both shortens the context (ratio < 1) and keeps the answer (retention == 1).
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
-BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
+BIN="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
 QA="$ROOT/evals/scaledown-fixtures/qa.jsonl"
 [ -f "$QA" ] || fail "missing fixture $QA"
 

@@ -1,4 +1,4 @@
-# Model guide — building TinyGPT from scratch
+# Model guide — building posttrainllm from scratch
 
 Phase 1–2. Build a tiny GPT-style causal language model. First goal is
 **correctness**, not impressive output.

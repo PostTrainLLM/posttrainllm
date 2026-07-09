@@ -1,4 +1,4 @@
-# PEFT Variants in TinyGPT
+# PEFT Variants in posttrainllm
 
 A bundle of parameter-efficient fine-tuning (PEFT) flavours, all wired
 into the existing `finetune` / `sft` / `dpo` commands as opt-in flags.
@@ -61,7 +61,7 @@ SFT-style fine-tunes; the win is in the parameter count.
 CLI:
 
 ```
-tinygpt finetune base.tinygpt --corpus corp.txt --out tiny.lora --vera
+posttrainllm finetune base.tinygpt --corpus corp.txt --out tiny.lora --vera
 ```
 
 ### 2. LoftQ — Quantization-aware LoRA init (Li et al., 2023)
@@ -82,7 +82,7 @@ production int4 base, the same code is the right thing.
 CLI:
 
 ```
-tinygpt sft base.tinygpt --data sft.jsonl --out out.lora --loftq --rank 8
+posttrainllm sft base.tinygpt --data sft.jsonl --out out.lora --loftq --rank 8
 ```
 
 ### 3. AdaLoRA — Per-layer adaptive rank (Zhang et al., 2023)
@@ -100,7 +100,7 @@ flows).
 CLI:
 
 ```
-tinygpt finetune base.tinygpt --corpus corp.txt --out tiny.lora \
+posttrainllm finetune base.tinygpt --corpus corp.txt --out tiny.lora \
   --adalora-target-rank 2 --rank 4
 ```
 
@@ -119,7 +119,7 @@ difference is barely visible; at r=64 the difference is dramatic.
 CLI:
 
 ```
-tinygpt finetune base.tinygpt --corpus corp.txt --out tiny.lora --rs-lora --rank 32
+posttrainllm finetune base.tinygpt --corpus corp.txt --out tiny.lora --rs-lora --rank 32
 ```
 
 ### 5. PISSA — Principal SVD init (Meng et al., 2024)
@@ -144,7 +144,7 @@ run.
 CLI:
 
 ```
-tinygpt finetune base.tinygpt --corpus corp.txt --out tiny.lora --pissa-init
+posttrainllm finetune base.tinygpt --corpus corp.txt --out tiny.lora --pissa-init
 ```
 
 ### 6. LoRA-FA — Frozen A (Zhang et al., 2023)
@@ -163,7 +163,7 @@ trainable-mask just keeps A's gradient at zero.)
 CLI:
 
 ```
-tinygpt sft base.tinygpt --data sft.jsonl --out out.lora --lora-fa
+posttrainllm sft base.tinygpt --data sft.jsonl --out out.lora --lora-fa
 ```
 
 ### 7. LayerDrop — Stochastic depth (Fan et al., 2019)
@@ -184,8 +184,8 @@ the smallest acceptable subset of layers in the deployed model.
 CLI:
 
 ```
-tinygpt train --corpus large.txt --layer-drop 0.1 ...  # pretraining
-tinygpt sft base.tinygpt --data sft.jsonl --layer-drop 0.05 ...  # SFT regulariser
+posttrainllm train --corpus large.txt --layer-drop 0.1 ...  # pretraining
+posttrainllm sft base.tinygpt --data sft.jsonl --layer-drop 0.05 ...  # SFT regulariser
 ```
 
 ## 30-step smoke comparison (huge config, r=4, batch=4)

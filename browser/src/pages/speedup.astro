@@ -6,12 +6,12 @@
 import Default from "../layouts/Default.astro";
 
 const layoutProps = {
-  title: "TinyGPT — the speedup curve, in one chart",
+  title: "posttrainllm — the speedup curve, in one chart",
   description: "WebAssembly SIMD vs hand-written WebGPU on the same GPT-2 model. The speedup is a curve, not a single number: Small 2.6×, Medium 6.8×, Large 9.3×, XL 12.1× — and growing with model size.",
   ogType: "article",
-  ogTitle: "TinyGPT — 2.6× → 12.1× faster, in one chart",
+  ogTitle: "posttrainllm — 2.6× → 12.1× faster, in one chart",
   ogDescription: "WASM SIMD vs hand-written WebGPU on the same GPT-2 model. The speedup is a curve, not a single number: GPU work amortizes better as d_model grows.",
-  twitterTitle: "TinyGPT — 2.6× → 12.1× faster",
+  twitterTitle: "posttrainllm — 2.6× → 12.1× faster",
   twitterDescription: "WASM SIMD vs hand-written WebGPU. Small 2.6×, Medium 6.8×, Large 9.3×, XL 12.1× — the speedup grows with model size.",
   themeColor: "#0a0c10",
   loadFonts: false,
@@ -208,7 +208,7 @@ const pageStyle = `
 
 const pageBody = `
     <div class="wrap">
-      <div class="eyebrow"><a href="/">← TinyGPT</a> · <a href="/roadmap">roadmap</a> · <a href="/devlog">devlog</a> · <a href="/docs">docs</a></div>
+      <div class="eyebrow"><a href="/">← posttrainllm</a> · <a href="/roadmap">roadmap</a> · <a href="/devlog">devlog</a> · <a href="/docs">docs</a></div>
       <h1>The speedup, measured — and why it's a curve</h1>
       <p class="lede">
         Same model, same seed, same data, same Apple M-series laptop. Two backends.

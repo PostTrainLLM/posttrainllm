@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-TMP="$(mktemp -d /tmp/tinygpt-sql-router.XXXXXX)"
+TMP="$(mktemp -d /tmp/posttrainllm-sql-router.XXXXXX)"
 trap 'rm -rf "$TMP"' EXIT
 
 python3 - "$TMP/unlabeled.jsonl" <<'PY'

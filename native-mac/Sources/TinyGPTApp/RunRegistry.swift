@@ -1,12 +1,12 @@
 import Foundation
 
-/// Scans `~/.cache/tinygpt/runs/` for training-run directories, surfacing
+/// Scans `~/.cache/posttrainllm/runs/` for training-run directories, surfacing
 /// each as a `RunSummary` so the Train tab can show history alongside
 /// the currently-active run.
 ///
 /// A run directory pattern (from `docs/prds/persistent-training-output.md`):
 ///
-///     ~/.cache/tinygpt/runs/<run-name>/
+///     ~/.cache/posttrainllm/runs/<run-name>/
 ///       <run-name>.tinygpt        ← canonical
 ///       <run-name>.best.tinygpt   ← lowest-val checkpoint
 ///       <run-name>.jsonl          ← training log
@@ -31,7 +31,7 @@ public struct RunSummary: Identifiable, Hashable {
     public let updatedAt: Date
 }
 
-// MARK: - Inference processes (running `tinygpt serve` instances)
+// MARK: - Inference processes (running `posttrainllm serve` instances)
 
 public struct ServeProcess: Identifiable, Hashable {
     public let id: Int32          // pid
@@ -42,17 +42,17 @@ public struct ServeProcess: Identifiable, Hashable {
 }
 
 public enum ServeRegistry {
-    /// Scan running `tinygpt serve` processes; map each to its
+    /// Scan running `posttrainllm serve` processes; map each to its
     /// `--port` + model. Backs an "Inference" sidebar section showing
     /// what models are currently answering OpenAI-compat requests.
     public static func discover() -> [ServeProcess] {
-        let pidsOut = pgrep(["-f", "tinygpt serve"])
+        let pidsOut = pgrep(["-f", "posttrainllm serve"])
         let pids = pidsOut.split(separator: "\n").compactMap { Int32($0.trimmingCharacters(in: .whitespaces)) }
         var out: [ServeProcess] = []
         for pid in pids {
             let cmd = psCmd(pid).trimmingCharacters(in: .whitespacesAndNewlines)
             // Skip our own grepping + caffeinate wrappers + lookalikes
-            guard cmd.contains("tinygpt serve") && !cmd.hasPrefix("caffeinate") else { continue }
+            guard cmd.contains("posttrainllm serve") && !cmd.hasPrefix("caffeinate") else { continue }
             let parts = cmd.split(separator: " ").map(String.init)
             guard let serveIdx = parts.firstIndex(of: "serve") else { continue }
             // Model path is the first positional arg after "serve"
@@ -90,10 +90,10 @@ public enum RunRegistry {
 
     public static var runsRoot: URL {
         FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".cache/tinygpt/runs", isDirectory: true)
+            .appendingPathComponent(".cache/posttrainllm/runs", isDirectory: true)
     }
 
-    /// Walk `~/.cache/tinygpt/runs/`, return one `RunSummary` per
+    /// Walk `~/.cache/posttrainllm/runs/`, return one `RunSummary` per
     /// directory. Sorted most-recently-modified first.
     public static func discover() -> [RunSummary] {
         let fm = FileManager.default
@@ -113,7 +113,7 @@ public enum RunRegistry {
             if !fm.fileExists(atPath: canonical.path) {
                 // Some runs auto-named with different stem (e.g. huge-base-v1 inside n02-…/)
                 if let first = (try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil))?
-                    .first(where: { $0.pathExtension == "tinygpt" && !$0.lastPathComponent.contains(".step-") && !$0.lastPathComponent.contains(".best") })
+                    .first(where: { $0.pathExtension == "posttrainllm" && !$0.lastPathComponent.contains(".step-") && !$0.lastPathComponent.contains(".best") })
                 {
                     canonical = first
                 } else {
@@ -165,16 +165,16 @@ public enum RunRegistry {
         return (step, loss, val, total)
     }
 
-    /// Map of `--out` path → PID for any currently-alive `tinygpt train`
+    /// Map of `--out` path → PID for any currently-alive `posttrainllm train`
     /// process. Lets us mark `isActive` on summaries.
     private static func activeTrainingByOut() -> [String: Int32] {
-        let pidsOut = runShort("/usr/bin/pgrep", ["-f", "tinygpt train"])
+        let pidsOut = runShort("/usr/bin/pgrep", ["-f", "posttrainllm train"])
         let pids = pidsOut.split(separator: "\n").compactMap { Int32($0.trimmingCharacters(in: .whitespaces)) }
         var map: [String: Int32] = [:]
         for pid in pids {
             let cmd = runShort("/bin/ps", ["-p", "\(pid)", "-o", "command="])
                 .trimmingCharacters(in: .whitespacesAndNewlines)
-            guard cmd.contains("tinygpt train") && !cmd.hasPrefix("caffeinate") else { continue }
+            guard cmd.contains("posttrainllm train") && !cmd.hasPrefix("caffeinate") else { continue }
             if let path = argValue(cmd: cmd, flag: "--out") {
                 map[path] = pid
             }

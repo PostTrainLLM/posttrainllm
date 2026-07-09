@@ -13,12 +13,12 @@ KEY INVARIANT: prompts here must NOT overlap with any prompt in
 pace/evals/fm-fixtures-{oos,ambig,destructive}/. Verified post-build
 via a substring check.
 
-Output: ~/.cache/tinygpt/datasets/pace-v11-seed.jsonl  (extended in place)
+Output: ~/.cache/posttrainllm/datasets/pace-v11-seed.jsonl  (extended in place)
 """
 import json
 from pathlib import Path
 
-OUT_FILE = Path.home() / ".cache/tinygpt/datasets/pace-v11-seed.jsonl"
+OUT_FILE = Path.home() / ".cache/posttrainllm/datasets/pace-v11-seed.jsonl"
 PACE_EVAL = Path("/Users/sarthak/Desktop/fleet/pace/evals")
 
 

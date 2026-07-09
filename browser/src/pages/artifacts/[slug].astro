@@ -12,10 +12,10 @@ if (!artifact) {
 }
 
 const layoutProps = {
-  title: `TinyGPT Artifact — ${artifact.title}`,
+  title: `posttrainllm Artifact — ${artifact.title}`,
   description: artifact.summary,
   ogType: "article" as const,
-  ogTitle: `TinyGPT Artifact — ${artifact.title}`,
+  ogTitle: `posttrainllm Artifact — ${artifact.title}`,
   ogDescription: artifact.summary,
   themeColor: "#0a0c10",
 };
@@ -24,7 +24,7 @@ const layoutProps = {
 <Default {...layoutProps}>
   <main class="artifact-detail">
     <header class="hero">
-      <nav class="crumb"><a href="/">TinyGPT</a> / <a href="/artifacts">artifacts</a> / {artifact.slug}</nav>
+      <nav class="crumb"><a href="/">posttrainllm</a> / <a href="/artifacts">artifacts</a> / {artifact.slug}</nav>
       <div class="meta-row">
         <span>{artifact.eyebrow}</span>
         <span data-state={artifact.state}>{stateLabel[artifact.state]}</span>

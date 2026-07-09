@@ -66,7 +66,7 @@ schemas and architectural invariants that have been changing fastest.
 ### CI wiring
 
 `.github/workflows/ci.yml` already runs `xcodebuild test -scheme
-TinyGPT-Package` on every push / PR via the `mac` job. The new tests
+posttrainllm-Package` on every push / PR via the `mac` job. The new tests
 piggy-back on that runner — no new GitHub Actions cost. The job runs
 in ~10-15 minutes on `macos-15`.
 
@@ -152,19 +152,19 @@ Runs in ~4 seconds.
 `test_subprocessCrashRecovery_resumeMatchesContiguousFinalLoss` in
 `CrashRecoverySubprocessTests.swift`.
 
-Spawns the real `tinygpt` CLI via `Foundation.Process`:
+Spawns the real `posttrainllm` CLI via `Foundation.Process`:
 
-1. **Contiguous** run: `tinygpt train --preset tiny --steps 100`,
+1. **Contiguous** run: `posttrainllm train --preset tiny --steps 100`,
    capture the final loss from `step N/T loss F.fff` log line.
-2. **Interrupted** run: `tinygpt train --preset tiny --steps 100
+2. **Interrupted** run: `posttrainllm train --preset tiny --steps 100
    --save-every 25`. Poll for the checkpoint file. When it
    appears (≥ step 25), SIGKILL the process.
-3. **Resumed** run: `tinygpt train --resume <ckpt> --steps 100`.
+3. **Resumed** run: `posttrainllm train --resume <ckpt> --steps 100`.
 4. Assert `|contig_loss − resume_loss| < 0.5` (absolute units;
    the corpus is short so both runs converge fast).
 
 Binary discovery: `TINYGPT_BIN` env var first, then walk up from
-the test bundle's directory looking for `Build/Products/Debug/tinygpt`.
+the test bundle's directory looking for `Build/Products/Debug/posttrainllm`.
 Skips gracefully (`XCTSkip`) when neither resolves.
 
 Runs in ~6 seconds.
@@ -174,7 +174,7 @@ Runs in ~6 seconds.
 `test_atomicWrite_leavesOnlyCompleteOrPreviousCheckpointOnDisk` in
 `CrashRecoverySubprocessTests.swift`.
 
-Spawns `tinygpt train --save-every 5`, polls for the first
+Spawns `posttrainllm train --save-every 5`, polls for the first
 checkpoint to land, then `terminate()`s the process. Once the
 process is dead, the test asserts: the file at the target path is
 either **absent** or **decodes cleanly via `TinyGPTFileReader.read`**.
@@ -195,4 +195,4 @@ Runs in ~4 seconds.
 | **Total**                        |     19 |    40 |
 
 All 40 pass on `macos-15` with `xcodebuild test -scheme
-TinyGPT-Package -destination "platform=macOS"`. Total runtime: ~30s.
+posttrainllm-Package -destination "platform=macOS"`. Total runtime: ~30s.

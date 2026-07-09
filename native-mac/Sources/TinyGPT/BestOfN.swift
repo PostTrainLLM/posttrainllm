@@ -4,7 +4,7 @@ import MLXNN
 import MLXRandom
 import TinyGPTModel
 
-/// `tinygpt bon` — best-of-N sampling with a self-likelihood verifier
+/// `posttrainllm bon` — best-of-N sampling with a self-likelihood verifier
 /// (test-time compute scaling, Tier-5 §5.2).
 ///
 /// Methodology mirrors Snell et al. 2024 ("Scaling LLM Test-Time
@@ -26,7 +26,7 @@ import TinyGPTModel
 /// the chosen completion).
 ///
 /// USAGE
-///   tinygpt bon <model.tinygpt> --prompt "..." --tokens 30 \
+///   posttrainllm bon <model.tinygpt> --prompt "..." --tokens 30 \
 ///               --temperature 0.8 [--n 16 | --scan 1,2,4,8,16,32]
 ///               [--seed 42] [--out curve.json]
 enum BestOfN {
@@ -278,7 +278,7 @@ enum BestOfN {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt bon <model.tinygpt> [options]
+        usage: posttrainllm bon <model.tinygpt> [options]
 
         Best-of-N sampling with self-likelihood verifier. Implements the
         Tier-5 §5.2 test-time-compute-scaling methodology (Snell et al.

@@ -1,6 +1,6 @@
 import Foundation
 
-/// `tinygpt prep-data ...` — compatibility wrapper around the Python
+/// `posttrainllm prep-data ...` — compatibility wrapper around the Python
 /// data-prep shim in scripts/data-prep/prep_data.py.
 enum PrepData {
     static func run(args: [String]) {

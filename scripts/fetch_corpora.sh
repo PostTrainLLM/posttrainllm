@@ -1,5 +1,5 @@
 #!/bin/bash
-# Fetch a varied set of Project Gutenberg corpora to /tmp/tinygpt-corpora/.
+# Fetch a varied set of Project Gutenberg corpora to /tmp/posttrainllm-corpora/.
 # All public domain. Strip the standard Gutenberg headers/footers so the
 # byte-level model sees clean text only.
 #
@@ -7,7 +7,7 @@
 #   ./scripts/fetch_corpora.sh           # default 11 books
 #   OUT_DIR=./data/corpora ./scripts/fetch_corpora.sh
 #
-# After running, /tmp/tinygpt-corpora/ has ~34 MB of varied prose:
+# After running, /tmp/posttrainllm-corpora/ has ~34 MB of varied prose:
 #
 #   shakespeare-complete.txt   5.6 MB   Shakespeare (Complete)
 #   bible-kjv.txt              4.4 MB   King James Bible
@@ -37,7 +37,7 @@
 
 set -uo pipefail
 
-OUT_DIR="${OUT_DIR:-/tmp/tinygpt-corpora}"
+OUT_DIR="${OUT_DIR:-/tmp/posttrainllm-corpora}"
 mkdir -p "$OUT_DIR"
 cd "$OUT_DIR"
 

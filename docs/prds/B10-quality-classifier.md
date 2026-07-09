@@ -11,11 +11,11 @@ related_prds: B11-wsd-schedule.md (paired training-quality win)
 
 ## Goal
 
-Ship `tinygpt quality-classify <corpus.txt>` that scores every document on
+Ship `posttrainllm quality-classify <corpus.txt>` that scores every document on
 an educational-quality axis, writes the per-doc scores to a sidecar, and
 filters to a top-X% subset for downstream pretraining. Mirrors the
 FineWeb-Edu recipe ([Penedo et al. 2024](https://arxiv.org/abs/2406.17557))
-scaled down for the corpora TinyGPT trains on.
+scaled down for the corpora posttrainllm trains on.
 
 The lift, per the FineWeb-Edu paper: top-quality filtering at fixed token
 budget improved downstream eval scores 2–4× more than scaling tokens alone
@@ -49,7 +49,7 @@ in our pretrain pipeline.
   without re-scoring.
 - Use the existing tokenizer for ngram extraction (don't add a
   vocabulary). 3-5 char ngrams (FineWeb-Edu default).
-- Wire into `tinygpt dedupe`'s output: typical pipeline becomes
+- Wire into `posttrainllm dedupe`'s output: typical pipeline becomes
   `dedupe → quality-classify --score → quality-classify --filter`.
 
 ## Scope — out (explicit)
@@ -83,13 +83,13 @@ in our pretrain pipeline.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt quality-classify --train labeled.jsonl --out model.qcls`
+- [ ] `posttrainllm quality-classify --train labeled.jsonl --out model.qcls`
   fits a classifier on a held-out validation set with macro-F1 ≥ 0.55
   on the 6-bucket task (FineWeb-Edu reports ~0.6; we accept slightly
   lower since we're not finetuning the embedding).
-- [ ] `tinygpt quality-classify --score corpus.txt --model model.qcls
+- [ ] `posttrainllm quality-classify --score corpus.txt --model model.qcls
   --out-scores scores.jsonl` runs at ≥ 5 MB/s on M5 Pro CPU.
-- [ ] `tinygpt quality-classify --filter --threshold 3 ...` produces a
+- [ ] `posttrainllm quality-classify --filter --threshold 3 ...` produces a
   filtered corpus whose downstream PPL on a held-out eval set is ≥ 2pp
   better than random sampling at the same token count. Reference
   comparison: pretrain a 22M model 5K steps on filtered vs random;
@@ -113,11 +113,11 @@ in our pretrain pipeline.
 
 - Source of training labels for V1: port the fineweb-edu-classifier
   weights vs. relabel a TinyStories-sized subset with a local teacher
-  (Qwen3-9B-as-judge through the shipped `tinygpt judge` shim, scored
+  (Qwen3-9B-as-judge through the shipped `posttrainllm judge` shim, scored
   on the same 6-bucket rubric)? **Recommendation:** port the weights
-  first, validate the macro-F1 on a small TinyGPT-corpus eval,
+  first, validate the macro-F1 on a small posttrainllm-corpus eval,
   re-finetune only if needed.
-- Whether to add `--quality-floor N` directly to `tinygpt train` so the
+- Whether to add `--quality-floor N` directly to `posttrainllm train` so the
   filter is applied lazily at batch time. **Recommendation:** ship the
   offline pipeline first; in-loop is V2 once we have the filter
   on disk.

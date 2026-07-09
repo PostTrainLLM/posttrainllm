@@ -177,7 +177,7 @@ Script template: `scripts/vlm/qwen3vl_parity.py`. Borrow shape from
 
 ### M4.6 — Smoke + acceptance (~half day)
 
-`tinygpt qwen3vl-smoke <ui-venus-dir> <image.png>` — loads UI-Venus,
+`posttrainllm qwen3vl-smoke <ui-venus-dir> <image.png>` — loads UI-Venus,
 runs `forward(image, "What's on screen?")`, prints top-5 tokens.
 Acceptance: top-1 is plausible (not gibberish) AND parity cos_sim
 ≥ 0.99 against HF PyTorch on the same input.
@@ -214,7 +214,7 @@ The cleanest first PR for the elf picking this up:
 2. Decide: dequant UI-Venus-6bit OR download `inclusionAI/UI-Venus-Ground-2B`
    (unquantized) for a clean fp16 reference
 3. Write `HFVLMLoader.swift` (M4.1) that LOADS and reports tensor
-   stats — no forward pass yet. Smoke: `tinygpt qwen3vl-load <dir>`
+   stats — no forward pass yet. Smoke: `posttrainllm qwen3vl-load <dir>`
    prints "loaded 28 LLM layers + 24 vision blocks + 3 deepstack
    mergers + merger projection."
 

@@ -1,6 +1,6 @@
 # Agent runtime
 
-`tinygpt agent <model> --tools tools.json` is the product surface for the
+`posttrainllm agent <model> --tools tools.json` is the product surface for the
 on-device agent SLM factory. The CLI loads a model (browser-trained
 `.tinygpt`, HuggingFace dir, or finetuned specialist), reads an
 OpenAI-compatible tool schema, and runs a conversation loop where the
@@ -80,7 +80,7 @@ per user turn, and `--max-tokens N` (default 256) per assistant step.
 
 ### KV cache mechanics
 
-We use the same `KVCache` class as `tinygpt sample`. The agent loop
+We use the same `KVCache` class as `posttrainllm sample`. The agent loop
 runs in `forwardCached` mode for every chunk — system prompt, each user
 turn, each tool result. To recover the next-token logits after appending
 a chunk (the cache doesn't store logits) we rewind by one token and
@@ -100,7 +100,7 @@ follow-up.
 
 ## Tool schema format
 
-OpenAI-compatible JSON. `tinygpt agent` reads either `{"tools": [...]}`
+OpenAI-compatible JSON. `posttrainllm agent` reads either `{"tools": [...]}`
 or a bare `[...]` array. Each entry has a `function` block (the OpenAI
 shape) or has the function fields at the top level (some hand-written
 schemas do this — we accept both).
@@ -136,7 +136,7 @@ Fields:
   `name → {type, description}`) and `required` (array of names). Nested
   schemas pass through untouched into the prompt but the executor only
   validates required-name presence.
-- `_exec` — bash command template. tinygpt extension; OpenAI ignores it.
+- `_exec` — bash command template. posttrainllm extension; OpenAI ignores it.
   Required for subprocess execution.
 - `_exec_args` — explicit ordered list of argument names that `_exec`
   references. If absent, we use the alphabetical order of `properties`.
@@ -230,7 +230,7 @@ runtime alone is not a sandbox.
 ### Single-shot mode
 
 ```
-tinygpt agent specialist.tinygpt \
+posttrainllm agent specialist.tinygpt \
   --tools tools.json \
   --single "Debug the failing test in tests/test_loss.py"
 ```
@@ -241,7 +241,7 @@ model emits `{ "answer": "..." }`, prints the answer, exits.
 ### Interactive REPL
 
 ```
-tinygpt agent specialist.tinygpt --tools tools.json
+posttrainllm agent specialist.tinygpt --tools tools.json
 ```
 
 Drops into a prompt:
@@ -256,7 +256,7 @@ agent> ... (tool calls happen here, then a final answer)
 ### JSON event stream
 
 ```
-tinygpt agent specialist.tinygpt --tools tools.json --json-out
+posttrainllm agent specialist.tinygpt --tools tools.json --json-out
 ```
 
 Every event is one JSON object per line on stdout. The event types:
@@ -325,7 +325,7 @@ file format is the same, plus a `tool_result` event).
 Usage:
 
 ```
-tinygpt agent specialist.tinygpt --tools debugger.json \
+posttrainllm agent specialist.tinygpt --tools debugger.json \
   --single "tests/test_loss.py::test_xent fails on commit abc123. Find the cause."
 ```
 
@@ -341,8 +341,8 @@ The system prompt is identical across launches. Caching its KV state on
 disk turns the 200ms-2s prefill into a single mmap + small forward.
 
 ```
-tinygpt agent specialist.tinygpt --tools tools.json \
-  --prompt-cache-dir ~/.cache/tinygpt/kv
+posttrainllm agent specialist.tinygpt --tools tools.json \
+  --prompt-cache-dir ~/.cache/posttrainllm/kv
 ```
 
 First launch: prefill + save. Second launch (and every subsequent one):
@@ -380,7 +380,7 @@ re-tokenizing tool-call args containing `\n` or non-ASCII can produce
 sequences that differ from what was originally sampled, silently
 biasing off-policy gradients.
 
-The substrate is the producer; B29 `tinygpt traces-to-data`
+The substrate is the producer; B29 `posttrainllm traces-to-data`
 is the consumer — it turns `.atraj` directories into training-ready
 SFT/DPO JSONL.
 
@@ -390,7 +390,7 @@ tests pin the byte equality of token-ID arrays at
 `native-mac/Tests/TinyGPTModelTests/AgentTrajectoryTests.swift`.
 
 ```bash
-tinygpt agent specialist.tinygpt --tools tools.json \
+posttrainllm agent specialist.tinygpt --tools tools.json \
   --trajectory-dir /tmp/traj \
   --trajectory-task "bfcl-mt-easy" \
   --single "look up the weather in Paris and tell me if I need an umbrella"
@@ -414,7 +414,7 @@ a final answer."
 This is what the runtime delivers TODAY:
 
 - Loads any `.tinygpt` file or HF model directory through the same
-  `ColdStart.loadWithSpinner` path `tinygpt sample` uses.
+  `ColdStart.loadWithSpinner` path `posttrainllm sample` uses.
 - Parses OpenAI-compatible tool schemas plus the `_exec` extension.
 - Runs the conversation loop, tracks KV state across turns, scans for
   balanced JSON, dispatches tool calls, feeds results back.
@@ -444,10 +444,10 @@ The next steps for shipping a usable agent are NOT in this runtime —
 they're in the specialist training pipeline:
 
 1. Generate SFT data of (system+tool+user → tool-call JSON) pairs.
-2. Finetune a base model on that schema with the SFT loop (`tinygpt
+2. Finetune a base model on that schema with the SFT loop (`posttrainllm
    sft`).
 3. Evaluate with `--transcript` against a held-out task set.
-4. Re-deploy via `tinygpt agent`.
+4. Re-deploy via `posttrainllm agent`.
 
 The runtime is intentionally model-agnostic so the same binary works
 across the full ladder from a demo model up to a 7B specialist.
@@ -458,8 +458,8 @@ across the full ladder from a demo model up to a 7B specialist.
 # Build:
 cd native-mac
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-  xcodebuild -scheme tinygpt -destination "platform=macOS" \
-  -derivedDataPath /tmp/tinygpt-agent -configuration Release build
+  xcodebuild -scheme posttrainllm -destination "platform=macOS" \
+  -derivedDataPath /tmp/posttrainllm-agent -configuration Release build
 
 # Echo tool that just returns its input:
 cat > /tmp/tools.json << 'EOF'
@@ -474,14 +474,14 @@ cat > /tmp/tools.json << 'EOF'
 EOF
 
 # Single-shot:
-/tmp/tinygpt-agent/Build/Products/Release/tinygpt agent \
+/tmp/posttrainllm-agent/Build/Products/Release/posttrainllm agent \
   browser/public/demo.tinygpt --tools /tmp/tools.json \
   --single "Use the echo tool" \
   --max-tokens 30 --max-steps 1 \
   --transcript /tmp/agent.jsonl
 
 # Persistent KV cache:
-/tmp/tinygpt-agent/Build/Products/Release/tinygpt agent \
+/tmp/posttrainllm-agent/Build/Products/Release/posttrainllm agent \
   browser/public/demo.tinygpt --tools /tmp/tools.json \
   --single "x" --prompt-cache-dir /tmp/kv
 # Second run shows: "loaded system-prompt cache (192 tokens) — skipping prefill"

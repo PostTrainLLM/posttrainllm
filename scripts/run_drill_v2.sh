@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Clean drill driver — no `lms unload --all` race, single-load per model.
 # Output: per-model {ambig, oos, destructive}.json in
-#   ~/.cache/tinygpt/runs/h2-combined-<tag>/
+#   ~/.cache/posttrainllm/runs/h2-combined-<tag>/
 set -uo pipefail
-TGT=/Users/sarthak/Desktop/fleet/tinygpt
+TGT=/Users/sarthak/Desktop/fleet/posttrainllm
 SYSP="$TGT/grammars/pace-system-prompt-v11.txt"
 LOG=/tmp/drill_v2.log
 echo "drill_v2 starting at $(date)" > "$LOG"

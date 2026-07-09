@@ -192,7 +192,7 @@ def main() -> int:
 
     # Action-twins from clarify-train-v1 — chosen = act, rejected = over-clarify.
     # Critical for preventing the over-correction failure mode (clarify-v1's mistake).
-    seeds_path = Path.home() / ".cache/tinygpt/datasets/clarify-train-v1.jsonl"
+    seeds_path = Path.home() / ".cache/posttrainllm/datasets/clarify-train-v1.jsonl"
     if seeds_path.exists():
         for line in open(seeds_path):
             seed = json.loads(line)

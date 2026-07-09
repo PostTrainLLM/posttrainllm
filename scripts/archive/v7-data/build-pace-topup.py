@@ -186,7 +186,7 @@ def instruction(intent: str) -> str:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--out", type=Path, default=Path.home() / ".cache/tinygpt/datasets/pace-v7-topup.jsonl")
+    parser.add_argument("--out", type=Path, default=Path.home() / ".cache/posttrainllm/datasets/pace-v7-topup.jsonl")
     parser.add_argument("--repeat", type=int, default=12)
     args = parser.parse_args()
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """fetch_hf_corpus.py — stream a HuggingFace dataset to a UTF-8 text file
-ready for `tinygpt train --corpus`.
+ready for `posttrainllm train --corpus`.
 
 Streams so the full dataset doesn't materialize on disk — pick how many
 tokens you want via --target-tokens and the script stops once that's
@@ -125,7 +125,7 @@ def main():
     print(f"[fetch] done: {records:,} records · {final_mb:.1f} MB · "
           f"~{final_tokens / 1e6:.1f}M tokens · {elapsed:.0f}s · wrote {args.out}",
           file=sys.stderr)
-    print(f"[fetch] next:  tinygpt train --corpus {args.out} --tokenizer <hf-dir> ...",
+    print(f"[fetch] next:  posttrainllm train --corpus {args.out} --tokenizer <hf-dir> ...",
           file=sys.stderr)
 
 

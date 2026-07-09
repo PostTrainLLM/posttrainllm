@@ -15,7 +15,7 @@ Intent enum extended from v10's 2 classes ("action", "answer") to 5:
   - "clarify"              NEW — ask back, payload.question + topic
   - "confirm_destructive"  NEW — flag before firing, payload.action + target
 
-Output: ~/.cache/tinygpt/datasets/pace-v11-seed.jsonl
+Output: ~/.cache/posttrainllm/datasets/pace-v11-seed.jsonl
 Total rows: 60 (30 OOS + 20 ambig + 10 destructive)
 
 These are the BASE seeds for v11 training; merge with v10's 404-row
@@ -29,7 +29,7 @@ import re
 from pathlib import Path
 
 PACE_EVAL = Path("/Users/sarthak/Desktop/fleet/pace/evals")
-OUT_FILE = Path.home() / ".cache/tinygpt/datasets/pace-v11-seed.jsonl"
+OUT_FILE = Path.home() / ".cache/posttrainllm/datasets/pace-v11-seed.jsonl"
 
 
 # ---- parser (mirrors eval_pace_unhappy.parse_fixture) ----------------------

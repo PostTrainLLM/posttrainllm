@@ -1,6 +1,6 @@
 import Foundation
 
-/// `tinygpt synthesize` labels prompt rows with any OpenAI-compatible teacher
+/// `posttrainllm synthesize` labels prompt rows with any OpenAI-compatible teacher
 /// endpoint and writes distillation-ready `{input, output, _meta}` JSONL.
 enum Synthesize {
     struct Example {
@@ -362,7 +362,7 @@ enum Synthesize {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt synthesize --teacher <base-url> --teacher-model <id> --inputs <jsonl> --out <jsonl> [options]
+        usage: posttrainllm synthesize --teacher <base-url> --teacher-model <id> --inputs <jsonl> --out <jsonl> [options]
 
         Required:
           --teacher URL              OpenAI-compatible base URL, e.g. http://127.0.0.1:1234/v1
@@ -566,19 +566,19 @@ private final class OpenAICompatClient {
 
         let (data, response) = try Self.syncData(for: req)
         guard let http = response as? HTTPURLResponse else {
-            throw NSError(domain: "tinygpt.synthesize", code: 1,
+            throw NSError(domain: "posttrainllm.synthesize", code: 1,
                           userInfo: [NSLocalizedDescriptionKey: "missing HTTP response"])
         }
         guard (200..<300).contains(http.statusCode) else {
             let text = String(data: data, encoding: .utf8) ?? ""
-            throw NSError(domain: "tinygpt.synthesize", code: http.statusCode,
+            throw NSError(domain: "posttrainllm.synthesize", code: http.statusCode,
                           userInfo: [NSLocalizedDescriptionKey: "HTTP \(http.statusCode): \(text.prefix(500))"])
         }
         guard let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               let choices = obj["choices"] as? [[String: Any]],
               let first = choices.first
         else {
-            throw NSError(domain: "tinygpt.synthesize", code: 2,
+            throw NSError(domain: "posttrainllm.synthesize", code: 2,
                           userInfo: [NSLocalizedDescriptionKey: "bad OpenAI response"])
         }
         let content: String?
@@ -588,7 +588,7 @@ private final class OpenAICompatClient {
             content = first["text"] as? String
         }
         guard let content else {
-            throw NSError(domain: "tinygpt.synthesize", code: 3,
+            throw NSError(domain: "posttrainllm.synthesize", code: 3,
                           userInfo: [NSLocalizedDescriptionKey: "response choice had no content/text"])
         }
         let tokens = (obj["usage"] as? [String: Any])?["total_tokens"] as? Int
@@ -612,7 +612,7 @@ private final class OpenAICompatClient {
         sem.wait()
         if let error = box.error { throw error }
         guard let data = box.data, let response = box.response else {
-            throw NSError(domain: "tinygpt.synthesize", code: 4,
+            throw NSError(domain: "posttrainllm.synthesize", code: 4,
                           userInfo: [NSLocalizedDescriptionKey: "empty URLSession response"])
         }
         return (data, response)

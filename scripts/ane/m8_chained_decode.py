@@ -71,7 +71,7 @@ def main() -> None:
     parser.add_argument("--max-seq", type=int, default=128)
     parser.add_argument("--steps", type=int, default=8,
                           help="how many tokens to decode after prefill")
-    parser.add_argument("--pkg-dir", default="~/.cache/tinygpt/ane")
+    parser.add_argument("--pkg-dir", default="~/.cache/posttrainllm/ane")
     args = parser.parse_args()
 
     import coremltools as ct

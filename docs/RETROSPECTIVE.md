@@ -1,4 +1,4 @@
-# TinyGPT — retrospective and forward plan
+# posttrainllm — retrospective and forward plan
 
 > Historical strategy note. This captured the 2026-06-11 Pace/small-specialist
 > failure arc and remains valuable learning evidence. It is not the current
@@ -21,7 +21,7 @@ that bet.
 ## What we found out
 
 Each finding below is backed by a numbered run in
-`~/.cache/tinygpt/runs/` or a fixture suite in `evals/`.
+`~/.cache/posttrainllm/runs/` or a fixture suite in `evals/`.
 
 ### 1. A 0.6B model memorizes behaviors; it does not learn rules.
 
@@ -54,7 +54,7 @@ Every model we tested on the held-out clarify suite — trained 0.6B
 specialists, Apple Foundation Models, Qwen3-4B zero-shot, **Claude via
 CLI** — scored 0–15%. All of them confidently picked one option
 instead of asking. This is a real product gap in local-and-cloud
-assistants generally, not a TinyGPT-specific failure.
+assistants generally, not a posttrainllm-specific failure.
 
 ### 5. Apple Foundation Models is the refusal champion, action-blind.
 
@@ -82,7 +82,7 @@ Across the run we caught:
 
 ### 7. The runtime infrastructure outperformed the training bet.
 
-Things that work and are reusable: `tinygpt serve` with grammar-
+Things that work and are reusable: `posttrainllm serve` with grammar-
 constrained JSON masking (119 ms warm TTFW), `--quantize int4|int8`
 in-memory (int8 = 2.3× decode at zero quality loss on v9), the 28-block
 ANE chain (17 tok/s decode, int8 per-block weights, fp32-compute /
@@ -110,7 +110,7 @@ Apple FM, the contamination-checked h2 suites (60 fixtures).
 | Track | What | Status |
 |---|---|---|
 | Pace, daily-use | Use Pace daily, fix the things that break first. Voice loop, AX actions, retrieval, dictation — all wired. | Active |
-| TinyGPT, paused | Active development stops. The runtime + eval + harnesses are reference assets. | Paused |
+| posttrainllm, paused | Active development stops. The runtime + eval + harnesses are reference assets. | Paused |
 | Write-up | One public post on the small-corpus interference finding (this doc + clarify-v1 numbers + h2 suites + cloud baselines as evidence). Optional but cheap. | Optional |
 | QLoRA on 4B+, deferred | Only if Pace usage surfaces a *specific* capability gap that's clearly worth fine-tuning *and* that fine-tuning won't regress the dimensions Pace already relies on. Documented in `docs/prds/qlora-large-model-finetune.md`. | Deferred |
 | Core AI / M9 | Apple's new framework is the right vehicle for whatever ANE work resumes. The M8 chain is reference code for that. | Deferred |
@@ -120,7 +120,7 @@ Apple FM, the contamination-checked h2 suites (60 fixtures).
 - Train v12. The dimension that needs improvement (clarify) is universal across all
   tested models, including Claude — *no fine-tuning evidence shows
   small corpora fix it without breaking the rest*.
-- Reopen Pace integration in tinygpt. The collaboration is closed
+- Reopen Pace integration in posttrainllm. The collaboration is closed
   (memory `pace-divorce-2026-06-11`).
 - Optimize the eval system further without a model worth gating.
 
@@ -135,14 +135,14 @@ Apple FM, the contamination-checked h2 suites (60 fixtures).
   `scripts/cloud_shim.py`
 - Held-out fixtures: `evals/fm-fixtures-{oos,ambig,destructive}-h2/`
   (60 prompts, zero overlap with any training corpus)
-- Training runs (numbers in `~/.cache/tinygpt/runs/`): v1 through v11
+- Training runs (numbers in `~/.cache/posttrainllm/runs/`): v1 through v11
   (0.6B), clarify-v1 (4B), h2-{qwen3-4b,apple-fm,claude} (zero-shot
   baselines)
 - Docs that are still current: `docs/wwdc-2026-impact.md`,
   `docs/v11-baselines-2026-06-09.md`,
   `docs/prds/quantized-inference-swift.md`,
   `docs/prds/qlora-large-model-finetune.md`,
-  `docs/prds/tinygpt-product-thesis.md`. Read those alongside this one;
+  `docs/prds/posttrainllm-product-thesis.md`. Read those alongside this one;
   they predate the final findings.
 
 ## One-line summary
@@ -150,5 +150,5 @@ Apple FM, the contamination-checked h2 suites (60 fixtures).
 We tried to train small models to beat big ones. We learned, with
 numbers, that a strong base zero-shot is a better bet than a small
 model trained — and that fine-tuning a strong base on a thin corpus
-breaks more than it fixes. Pace ships on the strong base; TinyGPT
+breaks more than it fixes. Pace ships on the strong base; posttrainllm
 training pauses.

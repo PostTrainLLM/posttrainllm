@@ -1,6 +1,6 @@
 import Foundation
 
-/// Drives the Interp tab. Today: launches `tinygpt sae` as a subprocess
+/// Drives the Interp tab. Today: launches `posttrainllm sae` as a subprocess
 /// and streams stdout/stderr into a Published string the view renders.
 /// Tomorrow: same pattern for memit, patch, sae-to-saelens — the CLI is
 /// the authoritative implementation, the app is the orchestrator + viewer.
@@ -17,32 +17,32 @@ final class InterpController: ObservableObject {
 
     private var process: Process? = nil
 
-    /// Find the bundled `tinygpt-cli` next to the app binary, then fall
+    /// Find the bundled `posttrainllm-cli` next to the app binary, then fall
     /// back to common dev paths so this works equally well when running
     /// from `swift run TinyGPTApp` and from an installed .app.
     private func locateCLI() -> URL? {
         let fm = FileManager.default
         // 1. Same MacOS dir as us (production .app layout).
         if let exec = Bundle.main.executableURL {
-            let sibling = exec.deletingLastPathComponent().appendingPathComponent("tinygpt-cli")
+            let sibling = exec.deletingLastPathComponent().appendingPathComponent("posttrainllm-cli")
             if fm.fileExists(atPath: sibling.path) { return sibling }
             // 2. Walk up looking for a SwiftPM build.
             var dir = exec.deletingLastPathComponent()
             for _ in 0..<8 {
-                let candidate = dir.appendingPathComponent(".build/arm64-apple-macosx/release/tinygpt")
+                let candidate = dir.appendingPathComponent(".build/arm64-apple-macosx/release/posttrainllm")
                 if fm.fileExists(atPath: candidate.path) { return candidate }
-                let candidate2 = dir.appendingPathComponent("native-mac/.build/arm64-apple-macosx/release/tinygpt")
+                let candidate2 = dir.appendingPathComponent("native-mac/.build/arm64-apple-macosx/release/posttrainllm")
                 if fm.fileExists(atPath: candidate2.path) { return candidate2 }
                 dir = dir.deletingLastPathComponent()
             }
         }
-        // 3. /usr/local/bin/tinygpt for users who `cp`'d it there.
-        let systemPath = URL(fileURLWithPath: "/usr/local/bin/tinygpt")
+        // 3. /usr/local/bin/posttrainllm for users who `cp`'d it there.
+        let systemPath = URL(fileURLWithPath: "/usr/local/bin/posttrainllm")
         if fm.fileExists(atPath: systemPath.path) { return systemPath }
         return nil
     }
 
-    /// Run `tinygpt sae <model> --corpus <text> --layer N --features F
+    /// Run `posttrainllm sae <model> --corpus <text> --layer N --features F
     ///                          --steps S --batch B --ctx T --out <out>`.
     /// All paths/numbers come from the view; this stays a thin wrapper.
     func trainSAE(modelPath: String, corpusPath: String,
@@ -50,7 +50,7 @@ final class InterpController: ObservableObject {
                   batch: Int, ctx: Int, outPath: String) {
         cancel()
         guard let cli = locateCLI() else {
-            status = "tinygpt CLI not found — build with `swift build -c release`"
+            status = "posttrainllm CLI not found — build with `swift build -c release`"
             return
         }
         output = ""

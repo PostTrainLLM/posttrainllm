@@ -4,7 +4,7 @@ The browser app in `browser/` is a Vite static build — no server, no API. It
 loads a pre-compiled WASM module from `browser/public/`, so the deploy
 environment does **not** need Emscripten; it only needs Node to run `vite build`.
 
-Target: **`tinygpt.sarthakagrawal.dev`**, on Cloudflare Pages.
+Target: **`posttrainllm.sarthakagrawal.dev`**, on Cloudflare Pages.
 
 ## ⚠ Deploy-gating prerequisite — the WASM artifacts must be in the repo at build time
 
@@ -39,7 +39,7 @@ Three resolutions, ranked:
 
 ## Deploying — current state and how it actually works
 
-**Heads-up.** The `tinygpt` Pages project is currently set up as a
+**Heads-up.** The `posttrainllm` Pages project is currently set up as a
 **direct-upload** project (Git Provider: No in `wrangler pages project list`).
 That means every `git push` to GitHub does *nothing* for the live site —
 deploys need an explicit `wrangler pages deploy`.
@@ -49,12 +49,12 @@ deploys need an explicit `wrangler pages deploy`.
 ```bash
 cd browser
 npm run build
-npx wrangler pages deploy dist --project-name=tinygpt --commit-dirty=true
+npx wrangler pages deploy dist --project-name=posttrainllm --commit-dirty=true
 ```
 
 That uploads `dist/` to the production environment. Output ends with
 `✨ Deployment complete! Take a peek over at https://<hash>.tinygpt.pages.dev`
-and the canonical `tinygpt.sarthakagrawal.dev` updates immediately (CF Pages
+and the canonical `posttrainllm.sarthakagrawal.dev` updates immediately (CF Pages
 does no edge caching on `must-revalidate` files; HTML and assets are
 re-fetched on every request).
 
@@ -63,8 +63,8 @@ re-fetched on every request).
 If you want every `git push` to auto-deploy, connect Git provider in the
 Cloudflare dashboard:
 
-1. **Workers & Pages → tinygpt → Settings → Builds & deployments → Connect to Git**
-2. Select `sarthak-fleet/tinygpt`.
+1. **Workers & Pages → posttrainllm → Settings → Builds & deployments → Connect to Git**
+2. Select `sarthak-fleet/posttrainllm`.
 3. **Build configuration:**
    - Production branch: `main`
    - Framework preset: *None* (Astro auto-detected; Vite isn't in the preset list)
@@ -90,7 +90,7 @@ the new path.
 After the first successful deploy:
 
 1. In the Pages project: **Custom domains → Set up a custom domain**.
-2. Add `tinygpt.sarthakagrawal.dev`. CF Pages will then sit in **Verifying**
+2. Add `posttrainllm.sarthakagrawal.dev`. CF Pages will then sit in **Verifying**
    state and show you a CNAME to add.
 3. **Add the CNAME manually**, even though `sarthakagrawal.dev` is on the
    same Cloudflare account. The "added automatically" claim that used to
@@ -101,15 +101,15 @@ After the first successful deploy:
 
    - **Zone**: `sarthakagrawal.dev` → DNS → Records → Add record
    - **Type**: `CNAME`
-   - **Name**: `tinygpt` (just the subdomain, not the full hostname)
-   - **Target**: the value CF Pages shows (e.g. `tinygpt.pages.dev`)
+   - **Name**: `posttrainllm` (just the subdomain, not the full hostname)
+   - **Target**: the value CF Pages shows (e.g. `posttrainllm.pages.dev`)
    - **Proxy**: orange-cloud Proxied
    - **TTL**: Auto
 
 4. Back in Pages → Custom domains, click **Check DNS records**. It flips to
    **Active** in 30–60 s. SSL is then automatic.
 
-After a minute or two: <https://tinygpt.sarthakagrawal.dev>.
+After a minute or two: <https://posttrainllm.sarthakagrawal.dev>.
 
 ## What ships
 
@@ -131,12 +131,12 @@ The deployed assets total around 600 KB (WASM + JS chunks).
 
 ## After deploy — update the case study
 
-The TinyGPT case study on the portfolio
-(`sarthak-fleet/portfolio: src/content/work/tinygpt.mdx`) has `repo:` set
+The posttrainllm case study on the portfolio
+(`sarthak-fleet/portfolio: src/content/work/posttrainllm.mdx`) has `repo:` set
 but `demo:` deliberately omitted until the URL is live. Add:
 
 ```yaml
-demo: 'https://tinygpt.sarthakagrawal.dev'
+demo: 'https://posttrainllm.sarthakagrawal.dev'
 ```
 
 and the case-study header will render a `live demo ↗` link.

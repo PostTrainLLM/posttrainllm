@@ -9,7 +9,7 @@ With --candidate-b, renders an A/B view: floor / champion / candidate-A /
 candidate-B, plus an A-vs-B delta per suite and a failure-pattern diff so
 patterns that shrink under B get a ↓ marker and patterns new in B get a ⚠.
 
-Reads ~/.cache/tinygpt/runs/h2-combined-<run-tag>/{ambig,oos,destructive}.json
+Reads ~/.cache/posttrainllm/runs/h2-combined-<run-tag>/{ambig,oos,destructive}.json
 """
 import argparse
 import json
@@ -25,7 +25,7 @@ def pct(passed, total):
 
 
 def load_run(tag: str):
-    run_dir = Path.home() / ".cache" / "tinygpt" / "runs" / f"h2-combined-{tag}"
+    run_dir = Path.home() / ".cache" / "posttrainllm" / "runs" / f"h2-combined-{tag}"
     score = {}
     patterns = {}
     for suite in SUITES:

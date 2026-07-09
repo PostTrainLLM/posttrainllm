@@ -30,7 +30,7 @@ real users actually ask.
 ## Scope — in
 
 - `scripts/bench_energy.py` — wraps either `bench_decode.py` (decode)
-  or a `tinygpt train --steps N` (training) in a powermetrics sidecar
+  or a `posttrainllm train --steps N` (training) in a powermetrics sidecar
   that samples package power at 1 Hz, integrates over the window,
   and divides by tokens generated (or steps run).
 - Output JSON gains `joules_total`, `joules_per_token`, `joules_per_step`.
@@ -76,6 +76,6 @@ real users actually ask.
 
 ## Open questions
 
-- Whether to integrate into `tinygpt bench` itself (Swift-side)
+- Whether to integrate into `posttrainllm bench` itself (Swift-side)
   vs keep it a script wrapper. **Recommendation:** Python wrapper —
   powermetrics has too much shell glue to comfortably go in Swift.

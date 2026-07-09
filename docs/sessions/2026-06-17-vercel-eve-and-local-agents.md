@@ -41,11 +41,11 @@ per invocation. None serves the buyer who needs:
 3. **Offline operation** — air-gapped environments, intermittent
    connectivity.
 
-tinygpt already owns ~70% of the stack for this wedge:
+posttrainllm already owns ~70% of the stack for this wedge:
 
 | Piece | Status |
 |---|---|
-| QLoRA on 4-14B (`tinygpt sft`) | shipped |
+| QLoRA on 4-14B (`posttrainllm sft`) | shipped |
 | Distillation from 30B teacher | shipped |
 | Trace recorder (B22) | **PRD only, not yet implemented** (corrected 2026-06-17) |
 | Deferred tools in `serve` (B26) | scaffolding shipped, BFCL gate pending |
@@ -60,16 +60,16 @@ What's missing is **one shipped vertical** that proves the loop runs.
 ## The decision
 
 Open [[B35-local-agent-vertical-poc]] as a future kill-or-validate
-experiment. Code reviewer on a Mac, on a tinygpt-fine-tuned 12B, no
+experiment. Code reviewer on a Mac, on a posttrainllm-fine-tuned 12B, no
 cloud. Four-week timebox, explicit kill criterion: if the loop can't
 beat zero-shot open baseline by ≥5pp, publish the negative result and
-keep tinygpt narrow as a model factory.
+keep posttrainllm narrow as a model factory.
 
 ## What this is NOT
 
-A pivot. The decision is to **not** pivot tinygpt into being an agent
+A pivot. The decision is to **not** pivot posttrainllm into being an agent
 company in the Eve sense. The model-factory north star
-([[feedback_tinygpt_north_star]]) is unchanged. B35 is one
+([[feedback_posttrainllm_north_star]]) is unchanged. B35 is one
 experiment on top of that factory — the factory ships either way.
 
 ## What's NOT in B35 scope
@@ -88,7 +88,7 @@ experiment on top of that factory — the factory ships either way.
   that a future code-review specialist will SFT on.
 - `2d931ef` (B35 PRD): the experiment itself, parked for future.
 
-## What changes for tinygpt's day-to-day
+## What changes for posttrainllm's day-to-day
 
 Nothing immediate. The factory keeps shipping. B35 sits in §3 Tier
 B as an explicit option that future sessions can pick up. When the

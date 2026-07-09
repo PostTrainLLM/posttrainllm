@@ -23,8 +23,8 @@ import sys
 from pathlib import Path
 
 FM_FIX_DIR = Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/fm-fixtures")
-DEFAULT_PROMPT = Path("/Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-system-prompt-v3.txt")
-TINYGPT = "/Users/sarthak/Desktop/fleet/tinygpt/native-mac/.build/arm64-apple-macosx/release/tinygpt"
+DEFAULT_PROMPT = Path("/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v3.txt")
+TINYGPT = "/Users/sarthak/Desktop/fleet/posttrainllm/native-mac/.build/arm64-apple-macosx/release/posttrainllm"
 
 
 def parse_fixture(text: str) -> dict:

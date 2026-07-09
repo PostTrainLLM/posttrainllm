@@ -192,7 +192,7 @@ struct ServerView: View {
             ScrollView {
                 ScrollViewReader { proxy in
                     Text(controller.log.isEmpty
-                         ? "Start the server to stream log lines here.\n\nThe endpoint speaks OpenAI Chat Completions. Point Cursor / Cline / Continue / a Python script at it and it sees TinyGPT as a GPT-style backend. No network calls leave your machine."
+                         ? "Start the server to stream log lines here.\n\nThe endpoint speaks OpenAI Chat Completions. Point Cursor / Cline / Continue / a Python script at it and it sees posttrainllm as a GPT-style backend. No network calls leave your machine."
                          : controller.log)
                         .font(.tgMono)
                         .foregroundStyle(controller.log.isEmpty ? Theme.faint : Theme.fg)

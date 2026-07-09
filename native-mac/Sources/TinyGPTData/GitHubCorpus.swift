@@ -1,10 +1,10 @@
 import Foundation
 
-/// GitHub → tinygpt training corpus extractor.
+/// GitHub → posttrainllm training corpus extractor.
 ///
 /// Three kinds of records, all written as JSONL with the same shape as
 /// the SFT format (instruction + response + metadata) so they drop
-/// straight into `tinygpt sft`:
+/// straight into `posttrainllm sft`:
 ///
 ///   * issue→PR pairs  — bug fix training signal
 ///   * PR reviews      — refinement / reviewer-agent training signal
@@ -34,7 +34,7 @@ public enum GitHubCorpus {
 
     /// One record. We serialize this directly as JSON; the structure
     /// matches the SFT JSONL convention (`instruction` / `response`)
-    /// plus a `metadata` block. Downstream `tinygpt sft` consumes the
+    /// plus a `metadata` block. Downstream `posttrainllm sft` consumes the
     /// instruction+response pair and ignores metadata.
     ///
     /// We intentionally do NOT mark this `Sendable`: `metadata`'s
@@ -95,7 +95,7 @@ public enum GitHubCorpus {
 
     // MARK: - Cache root
 
-    /// Per-repo cache root: `~/.cache/tinygpt/github/<owner>/<repo>/`
+    /// Per-repo cache root: `~/.cache/posttrainllm/github/<owner>/<repo>/`
     /// (parallels HFDatasets.cacheRoot). Cache files are JSON dumps of
     /// previously-fetched records, keyed by issue / PR / commit
     /// identifier — resume just skips ids that have already been
@@ -107,7 +107,7 @@ public enum GitHubCorpus {
         }
         let home = env["HOME"].map { URL(fileURLWithPath: $0, isDirectory: true) }
             ?? FileManager.default.homeDirectoryForCurrentUser
-        return home.appendingPathComponent(".cache/tinygpt/github", isDirectory: true)
+        return home.appendingPathComponent(".cache/posttrainllm/github", isDirectory: true)
     }
 
     public static func cacheDir(owner: String, repo: String) throws -> URL {

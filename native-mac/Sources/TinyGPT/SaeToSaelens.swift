@@ -2,7 +2,7 @@ import Foundation
 import MLX
 import TinyGPTModel
 
-/// `tinygpt sae-to-saelens` — convert a TinyGPT `.sae` sidecar to the
+/// `posttrainllm sae-to-saelens` — convert a posttrainllm `.sae` sidecar to the
 /// directory layout SAELens (decoderesearch/SAELens) consumes.
 ///
 /// The destination directory ends up with:
@@ -15,17 +15,17 @@ import TinyGPTModel
 ///   sae = SAE.load_from_disk("<out>")
 ///
 /// That also unlocks Neuronpedia upload (their tooling consumes the
-/// same on-disk shape) — TinyGPT-trained SAEs become first-class in
+/// same on-disk shape) — posttrainllm-trained SAEs become first-class in
 /// the interp ecosystem without us reinventing visualisation.
 ///
 /// Conversion is metadata-faithful: the `metadata` block in cfg.json
 /// preserves the .sae's training context — base layer, base model
-/// shape, and (B19) the full `tinygpt_layers` list for group SAEs.
+/// shape, and (B19) the full `posttrainllm_layers` list for group SAEs.
 enum SaeToSaelens {
     static func run(args: [String]) {
         var inPath: String? = nil
         var outDir: String? = nil
-        var modelName: String = "tinygpt-from-scratch"
+        var modelName: String = "posttrainllm-from-scratch"
         var hookTemplate: String = "blocks.{layer}.hook_resid_post"
 
         var i = 0
@@ -72,7 +72,7 @@ enum SaeToSaelens {
         }
 
         // cfg.json — match SAELens's expected schema. The "metadata"
-        // block carries TinyGPT-specific provenance so a future round-
+        // block carries posttrainllm-specific provenance so a future round-
         // trip back to our format isn't lossy.
         let hookLayer = parsed.layer
         let hookName = hookTemplate.replacingOccurrences(of: "{layer}", with: "\(hookLayer)")
@@ -82,15 +82,15 @@ enum SaeToSaelens {
             "hook_layer": hookLayer,
             "context_size": parsed.baseCtx,
             "prepend_bos": false,
-            "dataset_path": "tinygpt-pretrain",
-            "tinygpt_layer": parsed.layer,
-            "tinygpt_base_layers": parsed.baseLayers,
-            "tinygpt_base_d_model": parsed.baseDModel,
-            "tinygpt_base_ctx": parsed.baseCtx,
+            "dataset_path": "posttrainllm-pretrain",
+            "posttrainllm_layer": parsed.layer,
+            "posttrainllm_base_layers": parsed.baseLayers,
+            "posttrainllm_base_d_model": parsed.baseDModel,
+            "posttrainllm_base_ctx": parsed.baseCtx,
         ]
         if let group = parsed.layers, group.count > 1 {
-            metadata["tinygpt_group_layers"] = group
-            metadata["tinygpt_is_group_sae"] = true
+            metadata["posttrainllm_group_layers"] = group
+            metadata["posttrainllm_is_group_sae"] = true
         }
 
         let cfg: [String: Any] = [
@@ -223,9 +223,9 @@ enum SaeToSaelens {
         return """
         # \(modelName) — SAELens / Neuronpedia SAE
 
-        TinyGPT-trained sparse autoencoder, exported to the
+        posttrainllm-trained sparse autoencoder, exported to the
         [SAELens](https://github.com/decoderesearch/SAELens) on-disk format
-        via `tinygpt sae-to-saelens`.
+        via `posttrainllm sae-to-saelens`.
 
         ## Files
 
@@ -259,9 +259,9 @@ enum SaeToSaelens {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt sae-to-saelens <in.sae> --out <dir> [options]
+        usage: posttrainllm sae-to-saelens <in.sae> --out <dir> [options]
 
-        Convert a TinyGPT-trained .sae sidecar to SAELens's on-disk
+        Convert a posttrainllm-trained .sae sidecar to SAELens's on-disk
         format (sae_weights.safetensors + cfg.json under <dir>). Once
         written, the SAE loads in Python via:
 
@@ -269,18 +269,18 @@ enum SaeToSaelens {
           sae = SAE.load_from_disk("<dir>")
 
         That unlocks SAELens's analysis tooling and Neuronpedia upload
-        on TinyGPT-trained SAEs without reimplementing either ourselves.
+        on posttrainllm-trained SAEs without reimplementing either ourselves.
 
         --out <dir>           destination directory (created if absent)
         --model-name NAME     written into cfg.json metadata.model_name
-                              (default: "tinygpt-from-scratch")
+                              (default: "posttrainllm-from-scratch")
         --hook TEMPLATE       hook-name template; {layer} is substituted.
                               (default: "blocks.{layer}.hook_resid_post";
                                TransformerLens convention, matches what
                                SAELens expects to load against)
 
-        For a group SAE (B19), metadata gets `tinygpt_group_layers` +
-        `tinygpt_is_group_sae=true` so the provenance round-trips.
+        For a group SAE (B19), metadata gets `posttrainllm_group_layers` +
+        `posttrainllm_is_group_sae=true` so the provenance round-trips.
         """)
         exit(code)
     }

@@ -4,7 +4,7 @@ import MLXNN
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt extract` — run a trained tool-call extractor on a query.
+/// `posttrainllm extract` — run a trained tool-call extractor on a query.
 ///
 /// Loads a router checkpoint + its `.labels.json` sidecar, encodes the
 /// query, and prints the top-K predicted tool names with softmax
@@ -19,9 +19,9 @@ import TinyGPTModel
 ///   --threshold F         Only print predictions with prob >= F
 ///
 /// EXAMPLES
-///   tinygpt extract router.tinygpt --query "open foo.py and read it"
-///   echo "find the bug" | tinygpt extract router.tinygpt --stdin
-///   tinygpt extract router.tinygpt --query "..." --json --top-k 5
+///   posttrainllm extract router.tinygpt --query "open foo.py and read it"
+///   echo "find the bug" | posttrainllm extract router.tinygpt --stdin
+///   posttrainllm extract router.tinygpt --query "..." --json --top-k 5
 enum Extract {
 
     static func run(args: [String]) {
@@ -147,7 +147,7 @@ enum Extract {
 
     static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt extract <router.tinygpt> [--query "<text>" | --stdin] [flags]
+        usage: posttrainllm extract <router.tinygpt> [--query "<text>" | --stdin] [flags]
 
           --query "<text>"     query to classify
           --stdin              read queries from stdin (one per line)

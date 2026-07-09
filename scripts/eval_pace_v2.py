@@ -14,7 +14,7 @@ Usage:
   python3 scripts/eval_pace_v2.py --skip-model
 
   # Both, with serve at default port:
-  tinygpt serve <hf-dir> --lora <lora>.lora --grammar grammars/pace-fm-label-response.schema.json --port 8765
+  posttrainllm serve <hf-dir> --lora <lora>.lora --grammar grammars/pace-fm-label-response.schema.json --port 8765
   python3 scripts/eval_pace_v2.py --serve-url http://127.0.0.1:8765/v1/chat/completions
 
   # Custom fixtures dir (e.g. v1 to see the false-positive comparison):
@@ -36,8 +36,8 @@ from fake_pace import fake_pace, parse_fixture, score_response
 
 
 DEFAULT_FIXTURES = Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/fm-fixtures-v2")
-DEFAULT_SYSP = Path("/Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-system-prompt-v6-label.txt")
-DEFAULT_SCHEMA = Path("/Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-fm-label-response.schema.json")
+DEFAULT_SYSP = Path("/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v6-label.txt")
+DEFAULT_SCHEMA = Path("/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-fm-label-response.schema.json")
 
 
 def _format_user(fx: dict) -> str:
@@ -187,9 +187,9 @@ def main() -> None:
     p.add_argument("--fixtures-dir", type=Path, default=DEFAULT_FIXTURES)
     p.add_argument("--serve-url",
                      default="http://127.0.0.1:8765/v1/chat/completions",
-                     help="OpenAI-compat endpoint (default tinygpt-serve port). "
+                     help="OpenAI-compat endpoint (default posttrainllm-serve port). "
                           "Skipped if --skip-model is set.")
-    p.add_argument("--model", default="tinygpt", help="model ID for the request body")
+    p.add_argument("--model", default="posttrainllm", help="model ID for the request body")
     p.add_argument("--sys-prompt", type=Path, default=DEFAULT_SYSP)
     p.add_argument("--schema", type=Path, default=DEFAULT_SCHEMA)
     p.add_argument("--skip-model", action="store_true",

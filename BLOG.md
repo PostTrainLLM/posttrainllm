@@ -1,6 +1,6 @@
 # I built a GPT-2 in the browser, then made it 2.6×–12.1× faster
 
-I started [TinyGPT](https://github.com/sarthak-fleet/tinygpt) as a
+I started [posttrainllm](https://github.com/sarthak-fleet/posttrainllm) as a
 teaching project. I wanted to understand the modern LLM stack at a size where
 nothing stays a black box — every backward pass derived by hand, every kernel
 parity-checked, no autograd engine hiding the maths on the C++ and GPU side.
@@ -32,7 +32,7 @@ trained in any path continues training in any other.
 One detail mattered more than I expected: Memory64. V8 caps each tab's
 WebAssembly heap near 4 GB using 32-bit pointers — roughly 250M fp32
 parameters plus their AdamW optimizer state. Compiling with `-sMEMORY64=1
--sWASM_BIGINT` produces a separate `tinygpt64.{js,wasm}` module that uses
+-sWASM_BIGINT` produces a separate `posttrainllm64.{js,wasm}` module that uses
 64-bit pointers; the runtime feature-detects and picks the right one. With
 that, I could allocate a **473M-parameter** model — same C++ source, same
 training-step machinery — that hard-OOMs on the 32-bit module. Allocation
@@ -250,7 +250,7 @@ Most of the easy wins are done. What's left:
 - **Native macOS app** — MLX-Swift + SwiftUI, same `.tinygpt` file format
   both ways, lifts the ceiling into the 7B–30B range on Apple Silicon.
 
-Code, devlog, and roadmap: [github.com/sarthak-fleet/tinygpt](https://github.com/sarthak-fleet/tinygpt).
-Playground: [tinygpt.sarthakagrawal.dev](https://tinygpt.sarthakagrawal.dev).
+Code, devlog, and roadmap: [github.com/sarthak-fleet/posttrainllm](https://github.com/sarthak-fleet/posttrainllm).
+Playground: [posttrainllm.sarthakagrawal.dev](https://posttrainllm.sarthakagrawal.dev).
 
 — Sarthak Agrawal

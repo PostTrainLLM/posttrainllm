@@ -2,8 +2,8 @@ import Foundation
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt pull --tag <name> [--out path]` — download a checkpoint from R2.
-/// B31: with no `--tag`, resolves the base model pin from `tinygpt.project.json`.
+/// `posttrainllm pull --tag <name> [--out path]` — download a checkpoint from R2.
+/// B31: with no `--tag`, resolves the base model pin from `posttrainllm.project.json`.
 enum CloudPull {
     static func run(args: [String]) {
         var tag: String?
@@ -22,13 +22,13 @@ enum CloudPull {
         }
         // B31 — no --tag: resolve the base model pin from the project file.
         if tag == nil,
-           let manifest = try? ProjectManifest.load(path: "tinygpt.project.json"),
+           let manifest = try? ProjectManifest.load(path: "posttrainllm.project.json"),
            let base = manifest.basePin {
             tag = base.id
-            print("pull: no --tag — using base pin '\(base.id)' from tinygpt.project.json")
+            print("pull: no --tag — using base pin '\(base.id)' from posttrainllm.project.json")
         }
         guard let tag = tag else {
-            fputs("pull: --tag <name> required (or a tinygpt.project.json with a base pin)\n", stderr); exitUsage()
+            fputs("pull: --tag <name> required (or a posttrainllm.project.json with a base pin)\n", stderr); exitUsage()
         }
         let remoteKey = tag.hasSuffix(".tinygpt") ? tag : "\(tag).tinygpt"
         // Default output: same filename in current dir
@@ -51,10 +51,10 @@ enum CloudPull {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt pull --tag <name> [--out path] [--dry-run]
+        usage: posttrainllm pull --tag <name> [--out path] [--dry-run]
 
         Download a checkpoint from Cloudflare R2. Same credential
-        resolution as `tinygpt push`.
+        resolution as `posttrainllm push`.
         """)
         exit(code)
     }

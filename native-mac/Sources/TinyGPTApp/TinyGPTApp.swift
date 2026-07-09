@@ -6,7 +6,7 @@ struct TinyGPTApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
 
     var body: some Scene {
-        Window("TinyGPT", id: "main") {
+        Window("posttrainllm", id: "main") {
             ContentView()
                 .frame(minWidth: 920, minHeight: 600)
                 .preferredColorScheme(.dark)
@@ -14,7 +14,7 @@ struct TinyGPTApp: App {
         .windowStyle(.titleBar)
         .windowResizability(.contentSize)
         .commands {
-            // Drop the default "New" item — TinyGPT has no document model
+            // Drop the default "New" item — posttrainllm has no document model
             // to create a new instance of, so File→New would be a dead
             // entry. Everything else (Cmd-Q, window minimize/zoom, etc.)
             // stays at SwiftUI defaults.

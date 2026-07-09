@@ -4,7 +4,7 @@
 # Reference: clickyLocal/evals/fixtures/*.json, AGENTS.md
 #
 # Format: llama.cpp GBNF / LM Studio compatible. Pass via `--grammar`
-# in tinygpt synthesize / serve.
+# in posttrainllm synthesize / serve.
 
 root ::= response
 response ::= sentence (" " sentence)* " " tag

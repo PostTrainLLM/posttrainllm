@@ -1,4 +1,4 @@
-# agents.md — tinygpt
+# agents.md — posttrainllm
 
 ## Shared Fleet Standard
 
@@ -6,7 +6,7 @@ Also read and follow the shared fleet-level agent standard at `../AGENTS.md`.
 
 ## Purpose
 
-A **learning project**, not a deployed product: build a browser-capable TinyGPT that
+A **learning project**, not a deployed product: build a browser-capable posttrainllm that
 trains from scratch and adapts a small base model with LoRA. Priority is correctness
 and understanding over output quality or shipping.
 

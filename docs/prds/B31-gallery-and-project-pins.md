@@ -19,13 +19,13 @@ Two surfaces:
    browser-loadable from-scratch `.bin` models but also the
   *Mac-side* specialists (LoRA + DoRA adapters, GGUF base bundles,
   .tinygpt full models, Hugging Face-hosted artifacts). One published JSON,
-   two clients (browser playground + `tinygpt` CLI), no parallel
+   two clients (browser playground + `posttrainllm` CLI), no parallel
    registries.
 
-2. **Project-level model pins** — a `tinygpt.project.json` per-
+2. **Project-level model pins** — a `posttrainllm.project.json` per-
    project manifest declaring which models the project depends on
    (analogous to `package.json` / `requirements.txt`). Running
-   `tinygpt pull` from a project dir fetches everything; `tinygpt
+   `posttrainllm pull` from a project dir fetches everything; `posttrainllm
    validate` checks every pin resolves; the Mac app's Factory tab
    (B6) reads pins to populate its model picker.
 
@@ -72,7 +72,7 @@ project file ships with a non-trivial `models` list.
 ### Unified manifest (extends the browser schema)
 
 - Browser-side `browser/src/gallery-schema.ts` gains an optional
-  `kind` discriminator: `"browser-bin" | "mac-tinygpt" |
+  `kind` discriminator: `"browser-bin" | "mac-posttrainllm" |
   "mac-adapter" | "mac-gguf" | "mac-safetensors-hf"`. Existing
   rows default to `"browser-bin"` so nothing breaks.
 - New optional fields on `GalleryModel`:
@@ -94,13 +94,13 @@ project file ships with a non-trivial `models` list.
 
 ### Project pins
 
-- New file format: `tinygpt.project.json` at repo root of a
+- New file format: `posttrainllm.project.json` at repo root of a
   consumer project. JSON (not TOML — TS-first codebase, no
   TOML readers shipped). Schema:
   ```json
   {
     "name": "my-pace",
-    "tinygpt_version": ">=2026.06",
+    "posttrainllm_version": ">=2026.06",
     "models": [
       {"id": "qwen3-4b-instruct-2507", "role": "base"},
       {"id": "a1-tool-caller", "role": "adapter",
@@ -111,11 +111,11 @@ project file ships with a non-trivial `models` list.
     ]
   }
   ```
-- New CLI: `tinygpt pull` resolves the project file + the gallery
+- New CLI: `posttrainllm pull` resolves the project file + the gallery
   manifest + Hugging Face Hub, fetches everything to
-  `~/.cache/tinygpt/`, prints what's missing.
-- New CLI: `tinygpt validate` checks every pin in
-  `tinygpt.project.json` exists in the published gallery; flags
+  `~/.cache/posttrainllm/`, prints what's missing.
+- New CLI: `posttrainllm validate` checks every pin in
+  `posttrainllm.project.json` exists in the published gallery; flags
   unknown ids before you ship.
 
 ### What ships in *this* PR (the scaffolding)
@@ -123,10 +123,10 @@ project file ships with a non-trivial `models` list.
 | File | Content |
 |---|---|
 | `native-mac/Sources/TinyGPTModel/GalleryManifest.swift` | new — Codable types matching gallery-schema.ts; reader for a manifest JSON file. |
-| `native-mac/Sources/TinyGPTModel/ProjectManifest.swift` | new — Codable types for `tinygpt.project.json`. |
+| `native-mac/Sources/TinyGPTModel/ProjectManifest.swift` | new — Codable types for `posttrainllm.project.json`. |
 | `native-mac/Tests/TinyGPTModelTests/GalleryManifestTests.swift` | new — parse the shipped browser gallery manifest; round-trip; reject malformed shapes. |
 | `native-mac/Tests/TinyGPTModelTests/ProjectManifestTests.swift` | new — parse a fixture project file; reject schema violations. |
-| `examples/tinygpt.project.json` | new — fixture example a consumer project can copy. |
+| `examples/posttrainllm.project.json` | new — fixture example a consumer project can copy. |
 | `docs/prds/B31-gallery-and-project-pins.md` | this file. |
 
 ### What's deferred (PRD captures, not shipped this PR)
@@ -134,9 +134,9 @@ project file ships with a non-trivial `models` list.
 - Browser-side gallery UI changes (filter by `kind`, show
   adapters alongside bases). Browser team consumes the schema
   extension when ready.
-- `tinygpt pull` CLI extension — should resolve `hf_repo`/`hf_revision`
+- `posttrainllm pull` CLI extension — should resolve `hf_repo`/`hf_revision`
   through Hugging Face Hub first; R2 remains a legacy mirror only.
-- `tinygpt validate` CLI — same.
+- `posttrainllm validate` CLI — same.
 - Publishing `a1-tool-caller` as the first new gallery row — gated
   on A1 actually shipping.
 
@@ -146,7 +146,7 @@ project file ships with a non-trivial `models` list.
   public artifacts should live on Hugging Face Hub.
 - **Multi-version pinning** with semver resolution. V1 is
   exact-id pinning. Versions come later if churn becomes a problem.
-- **Lockfile** (`tinygpt.project.lock.json`). Defer; until we
+- **Lockfile** (`posttrainllm.project.lock.json`). Defer; until we
   have versioning, lockfile content is the same as the pins.
 - **OCI registry-style content addressing.** Big design surface;
   defer.
@@ -158,7 +158,7 @@ project file ships with a non-trivial `models` list.
 - [x] `GalleryManifest.swift` parses
   `browser/public/gallery/manifest.json` without error (existing
   rows; new `kind` field defaults to `browser-bin`).
-- [x] `ProjectManifest.swift` parses `examples/tinygpt.project.json`
+- [x] `ProjectManifest.swift` parses `examples/posttrainllm.project.json`
   and rejects a malformed fixture.
 - [x] Both Swift modules ship with passing unit tests.
 
@@ -172,10 +172,10 @@ project file ships with a non-trivial `models` list.
 - [ ] Publish Mac-side specialist entries into the unified gallery manifest
   once the browser filters out `kind != "browser-bin"` rows and HF repo ids are
   assigned.
-- [ ] `tinygpt pull` reads `./tinygpt.project.json`, fetches every
+- [ ] `posttrainllm pull` reads `./posttrainllm.project.json`, fetches every
   pin from Hugging Face Hub, validates checksums (the `fileBytes` field from
   the manifest), reports skipped + failed.
-- [ ] `tinygpt validate` flags unknown ids.
+- [ ] `posttrainllm validate` flags unknown ids.
 - [ ] Browser playground filters out `kind != browser-bin` rows
   from its dropdown (so it stays focused on the in-browser
   models).
@@ -193,7 +193,7 @@ project file ships with a non-trivial `models` list.
 
 ## Open questions
 
-- Whether the project file lives in `./tinygpt.project.json` (at
+- Whether the project file lives in `./posttrainllm.project.json` (at
   project root) or `./.tinygpt/project.json` (hidden, package-
   manager convention). **Recommendation:** visible — users should
   be able to read it without `ls -la`. Convention follows
@@ -205,8 +205,8 @@ project file ships with a non-trivial `models` list.
 ## Sibling note: mascot
 
 Castform's brand-ambassador cartoon prompted a related question:
-should TinyGPT have one? **Yes** — pace-the-companion is the
-natural Pace caricature; "tinygpt-the-trainer" is the distinct
+should posttrainllm have one? **Yes** — pace-the-companion is the
+natural Pace caricature; "posttrainllm-the-trainer" is the distinct
 character for the platform/toolkit side. Filed in
 `docs/decision_log.md` as a marketing/identity item (not a feature
 PRD).

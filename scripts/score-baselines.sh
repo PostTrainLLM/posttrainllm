@@ -7,7 +7,7 @@
 # Scores a fixed set of small open-weight baselines (SmolLM2-135M,
 # SmolLM2-360M, Qwen3-0.6B, TinyLlama-1.1B, Phi-3-mini-4K) on the same
 # tasks the post-N02 sweep uses. Output rows are E0-shaped, so the same
-# `tinygpt eval-compare` consumes them.
+# `posttrainllm eval-compare` consumes them.
 #
 # Why pre-score: when N02 lands and `score-run.sh` runs, the comparison
 # table only has SmolLM2 as the cross-model anchor. Pre-scoring the
@@ -20,7 +20,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TINYGPT="$REPO_ROOT/native-mac/.build/arm64-apple-macosx/release/tinygpt"
+TINYGPT="$REPO_ROOT/native-mac/.build/arm64-apple-macosx/release/posttrainllm"
 
 OUT="${1:-$REPO_ROOT/docs/artifacts/baselines-$(date +%Y%m%d).jsonl}"
 TASKS="${TASKS:-arc_easy}"
@@ -41,7 +41,7 @@ BASELINES=(
 )
 
 if [[ ! -x "$TINYGPT" ]]; then
-    echo "tinygpt binary missing — run \`cd native-mac && swift build -c release\`" >&2
+    echo "posttrainllm binary missing — run \`cd native-mac && swift build -c release\`" >&2
     exit 1
 fi
 

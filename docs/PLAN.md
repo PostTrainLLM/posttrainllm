@@ -1,9 +1,9 @@
 ---
-title: TinyGPT — master plan (shipped / skipped / TODO)
+title: posttrainllm — master plan (shipped / skipped / TODO)
 description: Single source of truth for what's shipped, skipped, and still to build. Consolidated from docs/roadmap/*, docs/progress.md, docs/backlog.md, docs/feature_audit_2026_05_31.md, and docs/roadmap/recent_research.md (paper catalogue). Replaces them as the canonical reference; the older docs are now pointer stubs or archived under docs/archive/.
 ---
 
-# TinyGPT — master plan
+# posttrainllm — master plan
 
 > **Status: reference / historical inventory.**
 >
@@ -15,7 +15,7 @@ description: Single source of truth for what's shipped, skipped, and still to bu
 **Last verified against codebase**: 2026-06-06 (eval-pipeline + serve fix + elf PRDs landed; product framing clarified to "Mac platform for building/upgrading specialists")
 **Sources merged**: `docs/roadmap/*` · `docs/progress.md` · `docs/backlog.md` · `docs/feature_audit_2026_05_31.md` · `docs/roadmap/recent_research.md` (paper catalogue → §4)
 
-**Product framing** (clarified 2026-06-06): TinyGPT is a **Mac platform for individuals to build and upgrade specialist models for their specific tasks** — bring data, pick a local teacher, ship a fast/cheap specialist. Distillation + LoRA + QLoRA + constrained decoding are the toolkit. Local teacher = no API spend. Comprehensive multimodal roadmap (text/code/vision/voice/image-gen) under disciplined "one canonical best per slot" principle. **Canonical strategy doc**: [`docs/sessions/2026-06-06-mac-specialist-platform.md`](sessions/2026-06-06-mac-specialist-platform.md) — covers Tier 1-4 backlog, multi-model architectures (phone-a-friend / cascade / LoRA hot-swap / etc.), structured-output formats beyond JSON (incl. Protobuf / SQL / GraphQL via grammar), and flagship example apps (browser agent, per-language code specialist, voice command, etc.).
+**Product framing** (clarified 2026-06-06): posttrainllm is a **Mac platform for individuals to build and upgrade specialist models for their specific tasks** — bring data, pick a local teacher, ship a fast/cheap specialist. Distillation + LoRA + QLoRA + constrained decoding are the toolkit. Local teacher = no API spend. Comprehensive multimodal roadmap (text/code/vision/voice/image-gen) under disciplined "one canonical best per slot" principle. **Canonical strategy doc**: [`docs/sessions/2026-06-06-mac-specialist-platform.md`](sessions/2026-06-06-mac-specialist-platform.md) — covers Tier 1-4 backlog, multi-model architectures (phone-a-friend / cascade / LoRA hot-swap / etc.), structured-output formats beyond JSON (incl. Protobuf / SQL / GraphQL via grammar), and flagship example apps (browser agent, per-language code specialist, voice command, etc.).
 
 Three sections — **shipped**, **skipped**, **TODO**. Every claim verified
 against the code. The first audit caught Lion/Sophia/Muon/PEFT-bundle/
@@ -47,27 +47,27 @@ all shipped, all previously marked ⬜.
 - ✅ Cold-start bundle (mmap + lazy embed + async load + compile cache) — 24 ms in-process TTFT on 1B
 - ✅ KV cache (GQA + in-place + persistent across sessions)
 - ✅ Pausable training (cooperative SIGINT + atomic save + `--resume`)
-- ✅ Cross-process GPU lock (`~/.cache/tinygpt/gpu.lock`)
+- ✅ Cross-process GPU lock (`~/.cache/posttrainllm/gpu.lock`)
 - ✅ CF R2 cloud save/load pipeline (push / pull / list / setup; zero egress)
-- ✅ `tinygpt serve` — OpenAI + Ollama surfaces on the same socket
-- ✅ `tinygpt agent` — multi-turn + tool dispatch + persistent KV + `--cloud-escalate`
+- ✅ `posttrainllm serve` — OpenAI + Ollama surfaces on the same socket
+- ✅ `posttrainllm agent` — multi-turn + tool dispatch + persistent KV + `--cloud-escalate`
 - ✅ JSON-mode constrained generation (FSM token masking)
 - ✅ Cloud API client (Anthropic + OpenAI via curl) + SSE streaming + cancellation
 - ✅ Continue.dev / Ollama-compat provider (`/api/tags`, `/api/version`, `/api/show`, `/api/chat`, `/api/generate`)
-- ✅ `tinygpt escalate` (direct cloud-API call)
+- ✅ `posttrainllm escalate` (direct cloud-API call)
 
 ## Mac training + post-training
 
-- ✅ Pretrain (`tinygpt train`) — 42 ms/step Huge on M5 Pro, 17.2× browser
-- ✅ Finetune (`tinygpt finetune`)
-- ✅ SFT (`tinygpt sft`) — DoRA default + every PEFT variant
-- ✅ DPO / SimPO / KTO / ORPO (all in `tinygpt dpo` via flags)
-- ✅ Knowledge distillation (`tinygpt distill`) — KL teacher → student
-- ✅ Speculative-decoding head training (`tinygpt train-heads --type medusa|eagle`)
-- ✅ Evolution Strategies trainer (`tinygpt es`)
-- ✅ Tuned-lens trainer (`tinygpt tuned-lens`)
-- ✅ Mini-router trainer (`tinygpt train-extractor`)
-- ✅ Magpie synthetic-instruction generator (`tinygpt magpie`)
+- ✅ Pretrain (`posttrainllm train`) — 42 ms/step Huge on M5 Pro, 17.2× browser
+- ✅ Finetune (`posttrainllm finetune`)
+- ✅ SFT (`posttrainllm sft`) — DoRA default + every PEFT variant
+- ✅ DPO / SimPO / KTO / ORPO (all in `posttrainllm dpo` via flags)
+- ✅ Knowledge distillation (`posttrainllm distill`) — KL teacher → student
+- ✅ Speculative-decoding head training (`posttrainllm train-heads --type medusa|eagle`)
+- ✅ Evolution Strategies trainer (`posttrainllm es`)
+- ✅ Tuned-lens trainer (`posttrainllm tuned-lens`)
+- ✅ Mini-router trainer (`posttrainllm train-extractor`)
+- ✅ Magpie synthetic-instruction generator (`posttrainllm magpie`)
 - ✅ Sequence packing for SFT
 - ✅ NEFTune (noisy embeddings) — `--neftune-alpha` in `sft` + `dpo` (matches the paper's "Noisy Embeddings Improve **Instruction Finetuning**" scope; not in the pretrain path)
 - ✅ Gradient clipping (`--grad-clip F`, default 1.0, on train + sft + dpo)
@@ -88,7 +88,7 @@ all shipped, all previously marked ⬜.
 
 ## PEFT bundle
 
-All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, all gated through `tinygpt sft`:
+All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, all gated through `posttrainllm sft`:
 
 - ✅ LoRA · Multi-LoRA composition · LoRA+ (different LR for A/B)
 - ✅ DoRA (in-session; on-disk format pending — see Tier C)
@@ -109,14 +109,14 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, all gated through `
 
 ## Quantization + compression
 
-- ✅ HQQ (`tinygpt hqq` — int4 q-then-dq, 0.087 rel error)
-- ✅ GPTQ (`tinygpt gptq` — from-scratch int4 quant of own model, 0.102 rel error)
+- ✅ HQQ (`posttrainllm hqq` — int4 q-then-dq, 0.087 rel error)
+- ✅ GPTQ (`posttrainllm gptq` — from-scratch int4 quant of own model, 0.102 rel error)
 - ✅ AWQ safetensors reader (loads HF AWQ-quantized models)
 - ✅ GPTQ safetensors reader (`GPTQReader.swift` — loads HF GPTQ-format models; tested 72 tensors quantised in 31s)
-- ✅ GGUF reader (`GGUFReader.swift` + `tinygpt gguf-inspect`) — parses v2/v3 header + metadata + tensor inventory; dequantises F32 / F16 / Q4_0 / Q8_0 tensors to fp32. K-quants (Q4_K / Q6_K / etc.) slot into the same switch when needed.
+- ✅ GGUF reader (`GGUFReader.swift` + `posttrainllm gguf-inspect`) — parses v2/v3 header + metadata + tensor inventory; dequantises F32 / F16 / Q4_0 / Q8_0 tensors to fp32. K-quants (Q4_K / Q6_K / etc.) slot into the same switch when needed.
 - ✅ SmoothQuant (in-training)
-- ✅ Pruning — unstructured (`tinygpt prune-unstructured`) + structured (`tinygpt prune-structured`)
-- ✅ LASER selective rank reduction (`tinygpt laser`)
+- ✅ Pruning — unstructured (`posttrainllm prune-unstructured`) + structured (`posttrainllm prune-structured`)
+- ✅ LASER selective rank reduction (`posttrainllm laser`)
 
 ## Optimizers
 
@@ -144,9 +144,9 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, all gated through `
 - ✅ Attention heatmap ("Watch the model think" panel)
 - ✅ Per-layer ablation ("Ablate & sample" button)
 - ✅ Activation patching — both variants (zero + donor-swap, shipped 2026-06-02 in `17021bc`)
-- ✅ Linear probes (`tinygpt linear-probe`) — train Linear(d_model → C) on per-layer hidden states + label data; `.lp` sidecar format. Detects whether a layer represents an arbitrary external property (Alain & Bengio 2016).
-- ✅ ROME — surgical fact editing (`tinygpt rome`). Rank-1 update to one MLP's W_out, identity-Hessian first cut. Verified on shakespeare.tinygpt: `--target X --layer 11 --scale 10` flipped sampled next-token to X. Covariance-based ROME is the follow-up.
-- ✅ MEMIT — batched fact editing (`tinygpt memit`). Rank-K least-squares ΔW = R(KᵀK + λI)⁻¹Kᵀ via hand-rolled Gauss-Jordan inverse on the small N×N system. Verified math: per-fact residual ~1e-4 at scale=1 (machine noise — least-squares is exact). Single-layer visibility-in-sampling tradeoff documented; multi-layer MEMIT (distribute update across 5-7 mid-network layers) is the next-cut.
+- ✅ Linear probes (`posttrainllm linear-probe`) — train Linear(d_model → C) on per-layer hidden states + label data; `.lp` sidecar format. Detects whether a layer represents an arbitrary external property (Alain & Bengio 2016).
+- ✅ ROME — surgical fact editing (`posttrainllm rome`). Rank-1 update to one MLP's W_out, identity-Hessian first cut. Verified on shakespeare.tinygpt: `--target X --layer 11 --scale 10` flipped sampled next-token to X. Covariance-based ROME is the follow-up.
+- ✅ MEMIT — batched fact editing (`posttrainllm memit`). Rank-K least-squares ΔW = R(KᵀK + λI)⁻¹Kᵀ via hand-rolled Gauss-Jordan inverse on the small N×N system. Verified math: per-fact residual ~1e-4 at scale=1 (machine noise — least-squares is exact). Single-layer visibility-in-sampling tradeoff documented; multi-layer MEMIT (distribute update across 5-7 mid-network layers) is the next-cut.
 
 ## Browser / Web track
 
@@ -157,7 +157,7 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, all gated through `
 - ✅ Doc consolidation — every doc visible at `/docs/[slug]`
 - ✅ WASM SIMD (`-msimd128`) — measured 1.6×
 - ✅ Multi-threaded WASM (pthreads + SAB) — measured ~2×
-- ✅ Memory64 module (`tinygpt64.{js,wasm}`) — partial: Node ok, browser blocked at d_model ≥ 256 (ABI bug, task #66)
+- ✅ Memory64 module (`posttrainllm64.{js,wasm}`) — partial: Node ok, browser blocked at d_model ≥ 256 (ABI bug, task #66)
 - ✅ Speedup curve vs WASM SIMD: Small 2.6× / Medium 6.8× / Large 9.3× / XL 12.1×
 - ✅ **WebNN active probe** (`webnn_probe.ts`, builds a tiny MLGraph and verifies it computes, drives the `+WebNN (gpu/npu)` pill state — 2026-06-02 in `86433c3`). Full transformer-as-MLGraph follow-up unblocked.
 
@@ -183,8 +183,8 @@ zero regression risk. See `docs/precision.md`.
 
 ## Datasets + data pipelines
 
-- ✅ `tinygpt list-datasets` — 22 curated entries (tool-calling / debugger / code / math / reasoning)
-- ✅ `tinygpt download-dataset` (canonical `hf://datasets/owner/name` form)
+- ✅ `posttrainllm list-datasets` — 22 curated entries (tool-calling / debugger / code / math / reasoning)
+- ✅ `posttrainllm download-dataset` (canonical `hf://datasets/owner/name` form)
 - ✅ HF Datasets / Hub integration (`hf-load`, `hf-inspect`)
 - ✅ GitHub data fetcher (`fetch-github` — issue→PR pairs)
 - ✅ Magpie synthetic instruction generator
@@ -194,12 +194,12 @@ zero regression risk. See `docs/precision.md`.
 ## Tooling + infra
 
 - ✅ XCTest harness + swiftformat + lint CI (Mac)
-- ✅ `tinygpt inspect` / `validate` (round-trip byte-compare verified on 110 MB model)
-- ✅ `tinygpt bench` (TTFT/ITL/decode tok/s/peak RSS) + `tinygpt bench-train`
-- ✅ `tinygpt eval` / `score-bench` (loss + benchmark scorers)
-- ✅ `tinygpt compare` (side-by-side base vs LoRA-adapted)
-- ✅ `tinygpt debug-*` (dtypes / load / logits / loss / names helpers)
-- ✅ `tinygpt screen tree` (AX tree readout — focused-window JSON)
+- ✅ `posttrainllm inspect` / `validate` (round-trip byte-compare verified on 110 MB model)
+- ✅ `posttrainllm bench` (TTFT/ITL/decode tok/s/peak RSS) + `posttrainllm bench-train`
+- ✅ `posttrainllm eval` / `score-bench` (loss + benchmark scorers)
+- ✅ `posttrainllm compare` (side-by-side base vs LoRA-adapted)
+- ✅ `posttrainllm debug-*` (dtypes / load / logits / loss / names helpers)
+- ✅ `posttrainllm screen tree` (AX tree readout — focused-window JSON)
 - ✅ lm-evaluation-harness MLX adapter
 
 ## Headline metrics (Mac, M5 Pro / 48 GB)
@@ -260,7 +260,7 @@ zero regression risk. See `docs/precision.md`.
 | cider W8A8 adoption | a 3B+ specialist ships | At ≤ 1B, Mac already 10× under realtime; cider's prefill win is immaterial |
 | ANE + GPU heterogeneous routing | Apple ships Stateful Models API (rumored late 2026) | Research-grade; current path uses private ANEMLL APIs |
 | WebGPU subgroup matmul redesign | browser focus returns | Current gate fails (1415% mean_rel); fallback works |
-| Vision encoder (ViT → tinygpt decoder) | vision-specialist demand becomes concrete | 2-week research-grade work; not critical-path |
+| Vision encoder (ViT → posttrainllm decoder) | vision-specialist demand becomes concrete | 2-week research-grade work; not critical-path |
 | Audio I/O (Speech.framework + AVSpeechSynthesizer) | voice-mode demo becomes priority | Not in scope for Wave 3 |
 | Async tool-call dispatch | parallel-tool specialist ships | LM dominates 5-100× over subprocess at current scales |
 | ScreenCaptureKit raw image (CGS-init fix) | vision specialist needs raw bytes | AX tree sufficient for tool-calling specialists |
@@ -308,9 +308,9 @@ Sequencing: Tier D (data) + Tier E (evals) → A1 specialist → Tier B
 follow-ups.
 
 - ⬜ **A1. Train first specialist end-to-end (tool-caller)** — 3-5 days execution + GPU hours. Validates north-star thesis.
-- ✅ **A2. Pull foundational datasets** (DONE 2026-06-17) — all on disk: xlam-function-calling-60k, hermes-fc, function-calling-chatml, SWE-bench_Verified, alpaca-cleaned, orca_dpo_pairs, MetaMathQA, ultrafeedback, the-stack-smol (8 langs), python_code_instructions_18k_alpaca, all under `~/.cache/tinygpt/datasets/`. Inventory: `docs/dataset-inventory.md`.
+- ✅ **A2. Pull foundational datasets** (DONE 2026-06-17) — all on disk: xlam-function-calling-60k, hermes-fc, function-calling-chatml, SWE-bench_Verified, alpaca-cleaned, orca_dpo_pairs, MetaMathQA, ultrafeedback, the-stack-smol (8 langs), python_code_instructions_18k_alpaca, all under `~/.cache/posttrainllm/datasets/`. Inventory: `docs/dataset-inventory.md`.
 - ⬜ **A3. Fetch GitHub issue→PR corpus for debugger** — ~1 day with `GITHUB_TOKEN`
-- ⬜ **A4. Pull BFCL + τ-bench via extractor-data** — ~30 min (DONE — sources at `~/.cache/tinygpt/datasets/_external/{gorilla-bfcl,tau-bench}/`; **wiring is Tier E**, not Tier A)
+- ⬜ **A4. Pull BFCL + τ-bench via extractor-data** — ~30 min (DONE — sources at `~/.cache/posttrainllm/datasets/_external/{gorilla-bfcl,tau-bench}/`; **wiring is Tier E**, not Tier A)
 - ⬜ **A5. Pull Indic eval datasets (MILU + IndicGenBench-XQuAD)** — ~30 min (DONE — MILU is lm-eval-harness, source at `_external/MILU/`; wiring → E3)
 - ⬜ **A6. Dataset inventory doc** — ~30 min after A2-A5
 - ⬜ **A7. Real-data MILU baseline on flagship-huge-v5** — ~2 hr; depends on A5 + E3
@@ -321,8 +321,8 @@ Pulled today: hermes-fc.jsonl, ultrafeedback.jsonl, MetaMathQA, alpaca-cleaned,
 orca_dpo_pairs, FineWeb-Edu (50K-row sample via parquet decoder). Blocked /
 missing for the planned specialists:
 
-- ✅ **D1. xlam-function-calling-60k** (DONE 2026-06-17) — `~/.cache/tinygpt/datasets/Salesforce/xlam-function-calling-60k/xlam_function_calling_60k.json` (91.7 MB, ~60K rows). Required both `HF_TOKEN` and per-account license click-through at the dataset page.
-- ✅ **D2. function-calling-chatml + SWE-bench_Verified** (DONE) — `~/.cache/tinygpt/datasets/Locutusque/function-calling-chatml/` (102 MB parquet) + `princeton-nlp/SWE-bench_Verified/` (2 MB).
+- ✅ **D1. xlam-function-calling-60k** (DONE 2026-06-17) — `~/.cache/posttrainllm/datasets/Salesforce/xlam-function-calling-60k/xlam_function_calling_60k.json` (91.7 MB, ~60K rows). Required both `HF_TOKEN` and per-account license click-through at the dataset page.
+- ✅ **D2. function-calling-chatml + SWE-bench_Verified** (DONE) — `~/.cache/posttrainllm/datasets/Locutusque/function-calling-chatml/` (102 MB parquet) + `princeton-nlp/SWE-bench_Verified/` (2 MB).
 - ✅ **D3. MS-MARCO + Natural Questions subset** (DONE 2026-06-17) — `microsoft/ms_marco/v1.1/` (3 shards, 207 MB: test+train+val) + `google-research-datasets/natural_questions/default/` (2 train shards of 287, 375 MB — subset bounded for B25 training data; full corpus is multi-GB).
 - ✅ **D4. the-stack-smol + python_code_instructions_18k_alpaca** (DONE 2026-06-17) — python alpaca: `iamtarun/python_code_instructions_18k_alpaca/` (10.8 MB parquet, 18 612 rows decoded). the-stack-smol: 8 languages pulled (c 117 MB, c++ 147 MB, go 107 MB, java 67 MB, javascript 130 MB, python 83 MB, rust 132 MB, typescript 69 MB ≈ 850 MB total). Required license click-through at the dataset page.
 - ✅ **D5. GSM8K + MATH + HumanEval + MBPP eval splits** (DONE 2026-06-17) — `openai/gsm8k/main/` (test+train parquet) + `HuggingFaceH4/MATH-500/test.jsonl` (500 rows, the canonical math eval set) + `openai/openai_humaneval/` + `google-research-datasets/mbpp/full/` (prompt+test+train+val).
@@ -330,8 +330,8 @@ missing for the planned specialists:
 ## Tier E — EVAL PIPELINES (wire harnesses → automate scores)
 
 Source code for BFCL / τ-bench / lm-eval-harness is already on disk under
-`~/.cache/tinygpt/datasets/_external/`. **Pulling source ≠ usable evaluator.**
-Each item below is the wiring work — a `tinygpt eval-<name>` subcommand that
+`~/.cache/posttrainllm/datasets/_external/`. **Pulling source ≠ usable evaluator.**
+Each item below is the wiring work — a `posttrainllm eval-<name>` subcommand that
 takes a model path, runs the harness via subprocess, parses the score JSON,
 returns a clean number. Until these land, "did the specialist learn anything?"
 has no automated answer.
@@ -340,7 +340,7 @@ has no automated answer.
 structured JSONL conforming to a shared eval schema (E0). That makes two
 critical comparisons possible:
 
-1. **Cross-model**: TinyGPT vs SmolLM2 vs Qwen3 vs Phi-mini on the same task —
+1. **Cross-model**: posttrainllm vs SmolLM2 vs Qwen3 vs Phi-mini on the same task —
    without this, "we trained a model" doesn't answer "is it any good?"
 2. **Cross-checkpoint** (training dynamics): every save-history checkpoint
    scored against the same task → see WHEN a capability emerges. Pairs with
@@ -349,15 +349,15 @@ critical comparisons possible:
 
 Both fall out for free if E0 + E8 are designed in, not retrofitted.
 
-- ✅ **E0. Shared eval JSONL schema + `tinygpt eval-compare`** (SHIPPED 2026-06-05) — `Sources/TinyGPT/EvalCompare.swift`. Codable `Row` with snake_case JSON. Three view modes: `--by step` / `--by model` / `--by task`. Sample artifact at `docs/artifacts/emergence-smoke-2026-06-05.jsonl`.
-- ✅ **E1. `tinygpt eval-bfcl <model>`** (SHIPPED 2026-06-05) — `Sources/TinyGPT/EvalBFCL.swift`. Boots `tinygpt serve`, invokes `bfcl_eval._llm_response_generation` + `bfcl_eval.eval_checker.eval_runner` via subprocess with OpenAI-compatible base URL. Default 10 BFCL categories. **Unblocks A1.**
-- ✅ **E2. `tinygpt eval-tau-bench <model>`** (SHIPPED 2026-06-05) — `Sources/TinyGPT/EvalTauBench.swift`. Retail + airline envs. Configurable user simulator model.
-- ✅ **E3. `tinygpt run-lm-eval <model>`** (SHIPPED 2026-06-05) — `Sources/TinyGPT/RunLmEval.swift`. Two modes: `--hf-model <id>` (baseline scoring via HF transformers) and `--tinygpt-model <ckpt>` (boots `tinygpt serve` + routes lm-eval via `local-completions` for our actual forward pass). `tinygpt serve` learned `scoreLogprobs` for echo+logprobs requests. Smoke-tested cross-checkpoint + cross-model emergence sweep.
-- ⬜ **E4. `tinygpt eval-gsm8k <model>`** — standalone scorer. Parse model's final numeric answer, compare to gold. Tiny — covered by E3 if lm-eval-harness lands, but a standalone fallback gets you a number in ~half-day if E3 slips. **May be unnecessary** — E3 via local-completions should handle gsm8k; will validate on first post-N02 sweep.
-- ✅ **E5. `tinygpt eval-humaneval <model>` + sandbox** (SHIPPED 2026-06-05) — `Sources/TinyGPT/EvalHumanEval.swift` + Rust crate at `scripts/humaneval-sandbox/` (macOS sandbox-exec policy at `macos-sandbox.sb`). HumanEval + MBPP suites.
-- ⬜ **E6. `tinygpt eval-scaledown <model>`** — clone ScaleBench, wire to TinyGPT-loaded model, run. Prereq for B25 submission. ~half-day after E1's subprocess pattern is the template. See `docs/recipes/b25-scaledown.md` for the training-side plan.
-- ✅ **E7. `tinygpt judge <out.jsonl> --judge-model <model>`** (SHIPPED 2026-06-05) — `Sources/TinyGPT/JudgeShim.swift`. Two modes: `pairwise` (chosen-vs-rejected) and `rate` (1-10 score).
-- ✅ **E8. Train-time eval hook + dashboard plot** (SHIPPED 2026-06-05) — `--eval-every N --eval-tasks csv --eval-limit N` flags in `tinygpt train`. Spawns background `run-lm-eval` per checkpoint, appends to `<out-stem>-evals.jsonl`. Non-blocking; skips if previous eval still in flight. Post-training equivalent: `scripts/score-run.sh`.
+- ✅ **E0. Shared eval JSONL schema + `posttrainllm eval-compare`** (SHIPPED 2026-06-05) — `Sources/TinyGPT/EvalCompare.swift`. Codable `Row` with snake_case JSON. Three view modes: `--by step` / `--by model` / `--by task`. Sample artifact at `docs/artifacts/emergence-smoke-2026-06-05.jsonl`.
+- ✅ **E1. `posttrainllm eval-bfcl <model>`** (SHIPPED 2026-06-05) — `Sources/TinyGPT/EvalBFCL.swift`. Boots `posttrainllm serve`, invokes `bfcl_eval._llm_response_generation` + `bfcl_eval.eval_checker.eval_runner` via subprocess with OpenAI-compatible base URL. Default 10 BFCL categories. **Unblocks A1.**
+- ✅ **E2. `posttrainllm eval-tau-bench <model>`** (SHIPPED 2026-06-05) — `Sources/TinyGPT/EvalTauBench.swift`. Retail + airline envs. Configurable user simulator model.
+- ✅ **E3. `posttrainllm run-lm-eval <model>`** (SHIPPED 2026-06-05) — `Sources/TinyGPT/RunLmEval.swift`. Two modes: `--hf-model <id>` (baseline scoring via HF transformers) and `--posttrainllm-model <ckpt>` (boots `posttrainllm serve` + routes lm-eval via `local-completions` for our actual forward pass). `posttrainllm serve` learned `scoreLogprobs` for echo+logprobs requests. Smoke-tested cross-checkpoint + cross-model emergence sweep.
+- ⬜ **E4. `posttrainllm eval-gsm8k <model>`** — standalone scorer. Parse model's final numeric answer, compare to gold. Tiny — covered by E3 if lm-eval-harness lands, but a standalone fallback gets you a number in ~half-day if E3 slips. **May be unnecessary** — E3 via local-completions should handle gsm8k; will validate on first post-N02 sweep.
+- ✅ **E5. `posttrainllm eval-humaneval <model>` + sandbox** (SHIPPED 2026-06-05) — `Sources/TinyGPT/EvalHumanEval.swift` + Rust crate at `scripts/humaneval-sandbox/` (macOS sandbox-exec policy at `macos-sandbox.sb`). HumanEval + MBPP suites.
+- ⬜ **E6. `posttrainllm eval-scaledown <model>`** — clone ScaleBench, wire to posttrainllm-loaded model, run. Prereq for B25 submission. ~half-day after E1's subprocess pattern is the template. See `docs/recipes/b25-scaledown.md` for the training-side plan.
+- ✅ **E7. `posttrainllm judge <out.jsonl> --judge-model <model>`** (SHIPPED 2026-06-05) — `Sources/TinyGPT/JudgeShim.swift`. Two modes: `pairwise` (chosen-vs-rejected) and `rate` (1-10 score).
+- ✅ **E8. Train-time eval hook + dashboard plot** (SHIPPED 2026-06-05) — `--eval-every N --eval-tasks csv --eval-limit N` flags in `posttrainllm train`. Spawns background `run-lm-eval` per checkpoint, appends to `<out-stem>-evals.jsonl`. Non-blocking; skips if previous eval still in flight. Post-training equivalent: `scripts/score-run.sh`.
 - ❌ **E9. Prompt-tiering A/B on the planner unhappy suite** — RAN 2026-06-13 against google/gemma-3-12b on the n=130 drill. **Hypothesis refuted.** Compact (name-only) action index made every dim worse: ambig 11/40 → 7/40 (-10pp), oos 51/60 → 47/60 (-6.7pp), destructive 24/30 → 23/30 (-3.3pp). The failure-pattern diff is mostly silent (one ambig pattern shrank 12→11; one new ⚠ pattern in B) — meaning compact mode doesn't introduce new failure modes, it just makes existing intent-mismatch confusions worse. **Interpretation:** at our scale (12B + 12-action surface), Gemma needs the schemas to confidently route non-action intents; the schemas are evidence for what kinds of requests pace can do, which sharpens both "this is an action" and "this is NOT an action" judgments. Steal #2 from the Shortcut essay is **not portable to Pace** as stated. v11 stays the default; v11-compact retained at `grammars/pace-system-prompt-v11-compact.txt` for re-test against larger catalogs (e.g. App Intents-class surfaces) where the schema budget shifts the tradeoff. Updated `docs/learn/agent-context-hierarchy.md` Steal #2 with this verdict.
 
 ### Browser viewers shipped 2026-06-05
@@ -404,60 +404,60 @@ Both fall out for free if E0 + E8 are designed in, not retrofitted.
 - ⬜ **B10. Quality classifier on pretrain data (FineWeb-Edu-style)** — tiny fastText classifier on educational-quality labels, score corpus, keep top X%. Highest direct quality lift per dev-day. ~2 days. See §4.3.
 - ✅ **B11. WSD schedule (warmup-stable-decay)** (SHIPPED) — `--schedule wsd --decay-steps N` in `Sources/TinyGPT/Train.swift`. Linear warmup → stable plateau → linear decay. Replaces cosine; the decay phase IS the annealing knob.
 - ✅ **B12. Loss-spike recovery + replay** (SHIPPED) — spike detector on by default; `--no-spike-detect` opts out. Grad-norm tracker triggers auto-rollback + LR drop. In `Sources/TinyGPT/Train.swift`.
-- 🟡 **B13. Interp-on-checkpoints** (partial — `--save-every N` shipped in `tinygpt train`; multi-checkpoint replay tooling still pending) — replay SAE / MEMIT / `tinygpt patch` across the multi-checkpoint timeline. Checkpoint emission is in code; the analysis-side batch driver is the open part. See §4.3.
+- 🟡 **B13. Interp-on-checkpoints** (partial — `--save-every N` shipped in `posttrainllm train`; multi-checkpoint replay tooling still pending) — replay SAE / MEMIT / `posttrainllm patch` across the multi-checkpoint timeline. Checkpoint emission is in code; the analysis-side batch driver is the open part. See §4.3.
 - ✅ **B14. Speculative decoding (Mini-Llama draft for Mega)** (SHIPPED) — `Sources/TinyGPT/SpeculativeDecode.swift` implements Leviathan et al. 2023 (simplified). Greedy speculative; speedup is K-ish on benign branches.
-- ✅ **B15. Layer-wise LR decay for SFT** (SHIPPED) — `--lr-layer-decay F` flag in `tinygpt train`. Each block's gradient is multiplied by `factor^(L - 1 - i)` so deeper layers get the full LR. `Sources/TinyGPTModel/Trainer.swift` exposes `lrLayerDecay` as graph-pure scalar multiply per leaf; smart default 0.85 in certain training modes.
+- ✅ **B15. Layer-wise LR decay for SFT** (SHIPPED) — `--lr-layer-decay F` flag in `posttrainllm train`. Each block's gradient is multiplied by `factor^(L - 1 - i)` so deeper layers get the full LR. `Sources/TinyGPTModel/Trainer.swift` exposes `lrLayerDecay` as graph-pure scalar multiply per leaf; smart default 0.85 in certain training modes.
 
 **Competitor-aware additions (added 2026-06-04 — surfaced by web sweep, not Jan-2026 cutoff knowledge):**
 
-- ⬜ **B16. M5 Neural Accelerator prefill benchmark + bump** — verify the claimed 3.5×–4× M5-vs-M4 prefill speedup is materializing on TinyGPT's MLX path. Current pin: `mlx-swift 0.31.3` on macOS 26.5 / M5 Pro (well past the 26.2 floor). Bump to latest (0.31.4) and benchmark. ~half-day. Free win if it's already on; bump is reversible. See §4.3.
-- ✅ **B17. SAE Lens interop / Neuronpedia format export** (SHIPPED, option c) — `tinygpt sae-to-saelens <in.sae> --out <dir>` converts to SAELens (decoderesearch/SAELens) on-disk layout; Neuronpedia consumes the same. `Sources/TinyGPT/SaeToSaelens.swift`.
+- ⬜ **B16. M5 Neural Accelerator prefill benchmark + bump** — verify the claimed 3.5×–4× M5-vs-M4 prefill speedup is materializing on posttrainllm's MLX path. Current pin: `mlx-swift 0.31.3` on macOS 26.5 / M5 Pro (well past the 26.2 floor). Bump to latest (0.31.4) and benchmark. ~half-day. Free win if it's already on; bump is reversible. See §4.3.
+- ✅ **B17. SAE Lens interop / Neuronpedia format export** (SHIPPED, option c) — `posttrainllm sae-to-saelens <in.sae> --out <dir>` converts to SAELens (decoderesearch/SAELens) on-disk layout; Neuronpedia consumes the same. `Sources/TinyGPT/SaeToSaelens.swift`.
 - ✅ **B18. nanochat-style `--depth` single-knob HP derivation** (SHIPPED) — `--depth N` in `Sources/TinyGPT/Train.swift` derives the GPT-2-shaped width / heads / LR / batch / steps from one knob.
-- ✅ **B19. Group-SAE (layer-group SAE training)** (SHIPPED) — `tinygpt sae --layer-group A,B,C` trains ONE SAE on the union of residuals across the listed layers (mutually exclusive with `--layer`). Provenance round-trips through SAELens export via `tinygpt_is_group_sae=true` metadata key.
-- ⬜ **B20. Investigate learnable cross-stream attention** (EVALUATED 2026-06-17 — verdict: skip; revisit on scale or paper) — full read-and-evaluate write-up at `docs/research/cross-stream-attention-evaluation.md`. Gain is ~3–6% wall-clock at speedrun scale on FineWeb; not visible at our scales, interacts non-trivially with B14 spec-decode + GaLore + DoRA TGLA + ANE M8, and not yet a paper. Revisit if (a) TinyGPT ships a from-scratch ≥50M FineWeb-class run, (b) the speedrun PR gets a formal ablation write-up, or (c) the interaction-surface items land formally so the boilerplate is paid.
+- ✅ **B19. Group-SAE (layer-group SAE training)** (SHIPPED) — `posttrainllm sae --layer-group A,B,C` trains ONE SAE on the union of residuals across the listed layers (mutually exclusive with `--layer`). Provenance round-trips through SAELens export via `posttrainllm_is_group_sae=true` metadata key.
+- ⬜ **B20. Investigate learnable cross-stream attention** (EVALUATED 2026-06-17 — verdict: skip; revisit on scale or paper) — full read-and-evaluate write-up at `docs/research/cross-stream-attention-evaluation.md`. Gain is ~3–6% wall-clock at speedrun scale on FineWeb; not visible at our scales, interacts non-trivially with B14 spec-decode + GaLore + DoRA TGLA + ANE M8, and not yet a paper. Revisit if (a) posttrainllm ships a from-scratch ≥50M FineWeb-class run, (b) the speedrun PR gets a formal ablation write-up, or (c) the interaction-surface items land formally so the boilerplate is paid.
 - ⬜ **B21. Micro-AutoMixer for specialist data mixes** — Poolside-style data mixture optimization, scaled down: train 6-12 proxy runs across code/math/tool/web ratios, score on fixed capability evals, fit a simple surrogate, then propose the next mix. Do this before expensive specialist training so data ratios stop being hand-wavy. ~2-3 days plus small proxy runs. See §4.3.
-- ✅ **B22. Token-preserving agent trajectory recorder** (SHIPPED + verified 2026-06-17) — `tinygpt agent --trajectory-dir <dir>` writes one `.atraj` JSON file per rollout with per-step role / decoded content / raw token IDs (`input_ids` for fed text, `output_ids` for sampled assistant text) / structured tool-call args / structured tool results / rewards. Format + reader API: `Sources/TinyGPTModel/AgentTrajectory.swift`. Threading: `Sources/TinyGPT/AgentLoop.swift` (recorder hooks at every turn boundary; `finishTrajectory(summary:)` flushes on session end). CLI: `Sources/TinyGPT/Agent.swift` (`--trajectory-dir`, `--trajectory-task`). 3 unit tests (roundtrip byte-equality of input_ids/output_ids, recorder lifecycle, empty-trajectory + auto-mkdir) — all pass. Docs: `docs/agent_runtime.md` §"Token-preserving trajectories (B22)". **Unblocks B29.**
-- 🟡 **B23. Agent eval protocol hardening** — statistical-reporting + budget-metadata slice shipped 2026-06-18: `tinygpt eval-gate --passes K` now gates on K-pass means and preserves per-trial scores, stdev, stderr, and 95% CI in `gate-result.json`; `--budget evals/sample-budget.json` attaches fixed max steps, sandbox resources, sampling params, seed, and infra patches under the report's `"protocol"` block. Swift eval rows emitted via `EvalHarnessSupport.appendRow` now attach the same protocol metadata when `--budget` / `TINYGPT_EVAL_BUDGET` is present, with `eval-gate` forwarding `TINYGPT_EVAL_PASSES`. `tinygpt eval-compare` now renders repeated-run uncertainty as `mean±ci95`; `scripts/eval_pace_unhappy.py` supports `--passes K` plus protocol metadata. Remaining: future SWE-mini/Terminal-mini rows, plus actual sandbox/resource enforcement.
-- ⬜ **B24. Muon re-benchmark at 1B+ or skip** — Poolside reports Muon giving a large-step efficiency win at scale with distributed overhead below 1%; TinyGPT's current Muon smoke loses badly at small scale. Do not promote it until a ≥1B-ish run or a proxy matmul-dominated benchmark shows the overhead is amortized. ~half-day once a large run exists.
-- 🟡 **B26. Server-side deferred tools in `tinygpt serve`** (scaffolding shipped 2026-06-13; BFCL parity gate pending) — `tinygpt serve --tool-mode {full,deferred}` ships. `full` is default and byte-for-byte identical to today. `deferred` swaps in `ServeToolsSpec.compactSystemPrompt()` (one-line-per-tool index + `get_tool_info(name)` contract) and `compactGrammarSpec()` (verb enum extended with `get_tool_info`). Non-streaming `/v1/chat/completions` intercepts `verb=get_tool_info`, appends a synthetic tool result with the schema, and re-prompts (cap=3 hops). Streaming + Ollama emit the meta-tool verbatim — documented in the PRD, not a bug. Unit tests: `DeferredToolsTests.swift`. `tinygpt eval-bfcl` now passes `--tools` / `--tool-mode` through to its managed server, records deferred hop metrics via `--tool-metrics-out`, a one-sample demo-model full-vs-deferred smoke completed 2026-06-19, and `scripts/b26_deferred_parity_report.py` makes the final JSONL accept/reject decision mechanical. **Default flips on after**: BFCL avg of `--tool-mode deferred` within ±2pp of `--tool-mode full` on the real specialist run, with ≤2 `get_tool_info` round-trips per sample.
+- ✅ **B22. Token-preserving agent trajectory recorder** (SHIPPED + verified 2026-06-17) — `posttrainllm agent --trajectory-dir <dir>` writes one `.atraj` JSON file per rollout with per-step role / decoded content / raw token IDs (`input_ids` for fed text, `output_ids` for sampled assistant text) / structured tool-call args / structured tool results / rewards. Format + reader API: `Sources/TinyGPTModel/AgentTrajectory.swift`. Threading: `Sources/TinyGPT/AgentLoop.swift` (recorder hooks at every turn boundary; `finishTrajectory(summary:)` flushes on session end). CLI: `Sources/TinyGPT/Agent.swift` (`--trajectory-dir`, `--trajectory-task`). 3 unit tests (roundtrip byte-equality of input_ids/output_ids, recorder lifecycle, empty-trajectory + auto-mkdir) — all pass. Docs: `docs/agent_runtime.md` §"Token-preserving trajectories (B22)". **Unblocks B29.**
+- 🟡 **B23. Agent eval protocol hardening** — statistical-reporting + budget-metadata slice shipped 2026-06-18: `posttrainllm eval-gate --passes K` now gates on K-pass means and preserves per-trial scores, stdev, stderr, and 95% CI in `gate-result.json`; `--budget evals/sample-budget.json` attaches fixed max steps, sandbox resources, sampling params, seed, and infra patches under the report's `"protocol"` block. Swift eval rows emitted via `EvalHarnessSupport.appendRow` now attach the same protocol metadata when `--budget` / `TINYGPT_EVAL_BUDGET` is present, with `eval-gate` forwarding `TINYGPT_EVAL_PASSES`. `posttrainllm eval-compare` now renders repeated-run uncertainty as `mean±ci95`; `scripts/eval_pace_unhappy.py` supports `--passes K` plus protocol metadata. Remaining: future SWE-mini/Terminal-mini rows, plus actual sandbox/resource enforcement.
+- ⬜ **B24. Muon re-benchmark at 1B+ or skip** — Poolside reports Muon giving a large-step efficiency win at scale with distributed overhead below 1%; posttrainllm's current Muon smoke loses badly at small scale. Do not promote it until a ≥1B-ish run or a proxy matmul-dominated benchmark shows the overhead is amortized. ~half-day once a large run exists.
+- 🟡 **B26. Server-side deferred tools in `posttrainllm serve`** (scaffolding shipped 2026-06-13; BFCL parity gate pending) — `posttrainllm serve --tool-mode {full,deferred}` ships. `full` is default and byte-for-byte identical to today. `deferred` swaps in `ServeToolsSpec.compactSystemPrompt()` (one-line-per-tool index + `get_tool_info(name)` contract) and `compactGrammarSpec()` (verb enum extended with `get_tool_info`). Non-streaming `/v1/chat/completions` intercepts `verb=get_tool_info`, appends a synthetic tool result with the schema, and re-prompts (cap=3 hops). Streaming + Ollama emit the meta-tool verbatim — documented in the PRD, not a bug. Unit tests: `DeferredToolsTests.swift`. `posttrainllm eval-bfcl` now passes `--tools` / `--tool-mode` through to its managed server, records deferred hop metrics via `--tool-metrics-out`, a one-sample demo-model full-vs-deferred smoke completed 2026-06-19, and `scripts/b26_deferred_parity_report.py` makes the final JSONL accept/reject decision mechanical. **Default flips on after**: BFCL avg of `--tool-mode deferred` within ±2pp of `--tool-mode full` on the real specialist run, with ≤2 `get_tool_info` round-trips per sample.
 
 **Castform-inspired training-pipeline trio (added 2026-06-13 from `docs/learn/castform-rl-finetune.md`):**
 
 - 🟡 **B28. Composite reward framework with named dimensions** (scaffolding shipped 2026-06-13) — `CompositeReward` + `RewardDimension` + `CompositeRewardBuilder` in `native-mac/Sources/TinyGPTModel/CompositeReward.swift` (6 unit tests, all passing). Castform-pattern (`docs/learn/castform-rl-finetune.md` §1). Training-loop integrations (DPO `--reward-fn`, ES, GRPO 5.1) are the remaining work; viewer (C10) gains per-dim curves.
 
-- 🟡 **B29. Trace-to-training-data pipeline** (V1 shipped 2026-06-17 — `--mode sft` + tool-echo drop + exact dedup + MinHash near-dedup) — `tinygpt traces-to-data <atraj-dir> --task <t> --out <jsonl>` consumes B22 `.atraj` rollouts (`Sources/TinyGPT/TracesToData.swift`). Smoke: `evals/traces-to-data-smoke.sh` + 5-trajectory fixture, asserts post-filter row counts + per-stage filter stats + `--no-tool-echo-drop` / `--minhash-threshold 0.6` / `--dry-run` / `--judge-model` (reserved + rejected). Recipe: `docs/recipes/from-traces.md`. **V2 follow-ups**: wire `tinygpt judge` (E7) as a subprocess for the LLM-pivot judge step; add `--mode dpo` (reward-source or judge-margin); external observability ingest (Braintrust / Langfuse).
+- 🟡 **B29. Trace-to-training-data pipeline** (V1 shipped 2026-06-17 — `--mode sft` + tool-echo drop + exact dedup + MinHash near-dedup) — `posttrainllm traces-to-data <atraj-dir> --task <t> --out <jsonl>` consumes B22 `.atraj` rollouts (`Sources/TinyGPT/TracesToData.swift`). Smoke: `evals/traces-to-data-smoke.sh` + 5-trajectory fixture, asserts post-filter row counts + per-stage filter stats + `--no-tool-echo-drop` / `--minhash-threshold 0.6` / `--dry-run` / `--judge-model` (reserved + rejected). Recipe: `docs/recipes/from-traces.md`. **V2 follow-ups**: wire `posttrainllm judge` (E7) as a subprocess for the LLM-pivot judge step; add `--mode dpo` (reward-source or judge-margin); external observability ingest (Braintrust / Langfuse).
 
-- 🟡 **B31. Unified model gallery + project-level model pins** (scaffolding shipped 2026-06-13; first specialist package registered 2026-06-19) — extends `browser/src/gallery-schema.ts` with a `kind` discriminator (`browser-bin` / `mac-tinygpt` / `mac-adapter` / `mac-gguf` / `mac-safetensors-hf`) so one published manifest covers browser + Mac models. New `tinygpt.project.json` per-project pin file (`package.json`-style). Swift mirrors + 11 unit tests pass in this PR (`GalleryManifest.swift`, `ProjectManifest.swift`). `specialists/qwen3-4b-file-ops-distilled` now provides the first TinyGPT-built package: model card, prompt, eval report, artifact lock, and MLX validation helper for the fused file-ops distilled 4B. `tinygpt pull` + `tinygpt validate` CLI extensions + browser UI filter remain. **The trace-loop dividend:** project pins flip the Castform asymmetry — pinning + serving locally means the project owner naturally accumulates `.atraj` traces (B22) that B29 turns into training data. The substrate-refinement cycle closes here.
+- 🟡 **B31. Unified model gallery + project-level model pins** (scaffolding shipped 2026-06-13; first specialist package registered 2026-06-19) — extends `browser/src/gallery-schema.ts` with a `kind` discriminator (`browser-bin` / `mac-posttrainllm` / `mac-adapter` / `mac-gguf` / `mac-safetensors-hf`) so one published manifest covers browser + Mac models. New `posttrainllm.project.json` per-project pin file (`package.json`-style). Swift mirrors + 11 unit tests pass in this PR (`GalleryManifest.swift`, `ProjectManifest.swift`). `specialists/qwen3-4b-file-ops-distilled` now provides the first posttrainllm-built package: model card, prompt, eval report, artifact lock, and MLX validation helper for the fused file-ops distilled 4B. `posttrainllm pull` + `posttrainllm validate` CLI extensions + browser UI filter remain. **The trace-loop dividend:** project pins flip the Castform asymmetry — pinning + serving locally means the project owner naturally accumulates `.atraj` traces (B22) that B29 turns into training data. The substrate-refinement cycle closes here.
 
-- ✅ **B30. Prompt reasoning-depth classifier** (shipped + verified 2026-06-17) — `tinygpt reasoning-classify --train|--score|--filter` labels prompts as {single-hop, multi-hop, comparison, other}. Bag-of-trigram softmax-4 (the FineWeb-Edu shape extended to multiclass), `TGFR` on-disk format. Files: `Sources/TinyGPT/ReasoningClassify.swift`, subcommand wired in `TinyGPT.swift`. Smoke: `evals/reasoning-classifier-smoke.sh` + `evals/reasoning-classifier-fixtures/{train,heldout}.jsonl`. **Smoke result: macro-F1 1.000 on the 32-row held-out (well above PRD's 0.5 bar); score + filter modes verified.** Recipe: `docs/recipes/balanced-training-mix.md`. `BagOfNgramClassifier` shared utility deferred — V1 duplicates the tokenize/hash/ngram block from `QualityClassifier`.
+- ✅ **B30. Prompt reasoning-depth classifier** (shipped + verified 2026-06-17) — `posttrainllm reasoning-classify --train|--score|--filter` labels prompts as {single-hop, multi-hop, comparison, other}. Bag-of-trigram softmax-4 (the FineWeb-Edu shape extended to multiclass), `TGFR` on-disk format. Files: `Sources/TinyGPT/ReasoningClassify.swift`, subcommand wired in `TinyGPT.swift`. Smoke: `evals/reasoning-classifier-smoke.sh` + `evals/reasoning-classifier-fixtures/{train,heldout}.jsonl`. **Smoke result: macro-F1 1.000 on the 32-row held-out (well above PRD's 0.5 bar); score + filter modes verified.** Recipe: `docs/recipes/balanced-training-mix.md`. `BagOfNgramClassifier` shared utility deferred — V1 duplicates the tokenize/hash/ngram block from `QualityClassifier`.
 
 **Market-landscape positioning (added 2026-06-13 — see `docs/sessions/2026-06-13-market-landscape-mac-first.md`):**
 
 The competitive scan found the whole field monetizes the cost a Mac-first tool zeroes out (cloud GPU rent / trace ingestion) and is consolidating into infra + frontier-lab acquirers. Three whitespaces: Mac-first *training* as a product (B6 + B31), eval+interp+local fused (already shipped — the moat), and academic agent benchmarks as a local CI gate (B32). These two items reframe shipped infra as product surfaces.
 
-- 🟡 **B32. `tinygpt eval` as a CI / pre-commit gate** (shipped 2026-06-13; K-pass stats + budget metadata added 2026-06-18; live multi-suite GPU run pending a self-hosted runner) — `tinygpt eval-gate` runs declared suites vs a baseline and exits non-zero on regression. Pure gate logic in `TinyGPTModel/EvalGate.swift` (direction heuristic, pp thresholds, per-suite override, missing-baseline handling, K-pass mean + stdev/stderr/95% CI + optional protocol budget) with unit tests; CLI orchestration in `Sources/TinyGPT/EvalGate.swift` (`--candidate` no-GPU path, `--update-baseline`, `--passes`, `--budget`, `gate-result.json`). Spec lives in `eval-gate.json` or the `tinygpt.project.json` `eval` block (B31 schema add). GitHub Action `.github/actions/tinygpt-eval-gate/` forwards `spec`, `candidate`, `passes`, and `budget`; recipe `docs/recipes/eval-gate.md`, smoke `evals/eval-gate-smoke.sh` (asserts exit 0 match, exit 1 regression, repeated-run stats, and budget metadata). **Flips to ✅** once a real specialist's suites run end-to-end through the gate on a self-hosted Mac runner.
-- ⬜ **B35. Local-agent vertical PoC — code reviewer on a Mac** — future-looking kill-or-validate experiment surfaced 2026-06-17 by the Vercel Eve launch. Eve validates the agent-platform thesis but is cloud-bound; tinygpt already owns ~70% of a local-agent stack (B22 + B26 + B28 + B29 + B30 + B32 + QLoRA + serve) and can target the wedge Eve doesn't address: zero-cloud, specialist-distilled agents that run entirely on the user's Mac. Kill criterion: 4-week timebox, ≥5pp lift over zero-shot open baseline on the chosen code-review eval, else publish the negative result and keep tinygpt narrow as a model factory.
+- 🟡 **B32. `posttrainllm eval` as a CI / pre-commit gate** (shipped 2026-06-13; K-pass stats + budget metadata added 2026-06-18; live multi-suite GPU run pending a self-hosted runner) — `posttrainllm eval-gate` runs declared suites vs a baseline and exits non-zero on regression. Pure gate logic in `TinyGPTModel/EvalGate.swift` (direction heuristic, pp thresholds, per-suite override, missing-baseline handling, K-pass mean + stdev/stderr/95% CI + optional protocol budget) with unit tests; CLI orchestration in `Sources/TinyGPT/EvalGate.swift` (`--candidate` no-GPU path, `--update-baseline`, `--passes`, `--budget`, `gate-result.json`). Spec lives in `eval-gate.json` or the `posttrainllm.project.json` `eval` block (B31 schema add). GitHub Action `.github/actions/posttrainllm-eval-gate/` forwards `spec`, `candidate`, `passes`, and `budget`; recipe `docs/recipes/eval-gate.md`, smoke `evals/eval-gate-smoke.sh` (asserts exit 0 match, exit 1 regression, repeated-run stats, and budget metadata). **Flips to ✅** once a real specialist's suites run end-to-end through the gate on a self-hosted Mac runner.
+- ⬜ **B35. Local-agent vertical PoC — code reviewer on a Mac** — future-looking kill-or-validate experiment surfaced 2026-06-17 by the Vercel Eve launch. Eve validates the agent-platform thesis but is cloud-bound; posttrainllm already owns ~70% of a local-agent stack (B22 + B26 + B28 + B29 + B30 + B32 + QLoRA + serve) and can target the wedge Eve doesn't address: zero-cloud, specialist-distilled agents that run entirely on the user's Mac. Kill criterion: 4-week timebox, ≥5pp lift over zero-shot open baseline on the chosen code-review eval, else publish the negative result and keep posttrainllm narrow as a model factory.
 
-- 🟡 **B33. `tinygpt quickstart` — data → trained specialist in one command** — CLI wizard: inspect data → auto-pick base from gallery → infer recipe → train → eval vs base → drop into chat. The CLI sibling of B6's GUI Factory tab; closes the gap between "MLX-LM can technically do this" and "a non-ML-engineer actually does it." **Status:** decision core (`RecipeResolver`, pure + unit-tested) + CLI (`Quickstart.swift` + dispatch) + `--dry-run` plan & project.json emission + `evals/quickstart-smoke.sh` + `docs/quickstart.md` shipped. Live train→sample path wired (orchestrates `sft`/`sample`); user runs it on a Mac. Follow-ups: from-scratch raw-text path, auto-pull of bare gallery ids, quantitative eval-vs-base delta.
+- 🟡 **B33. `posttrainllm quickstart` — data → trained specialist in one command** — CLI wizard: inspect data → auto-pick base from gallery → infer recipe → train → eval vs base → drop into chat. The CLI sibling of B6's GUI Factory tab; closes the gap between "MLX-LM can technically do this" and "a non-ML-engineer actually does it." **Status:** decision core (`RecipeResolver`, pure + unit-tested) + CLI (`Quickstart.swift` + dispatch) + `--dry-run` plan & project.json emission + `evals/quickstart-smoke.sh` + `docs/quickstart.md` shipped. Live train→sample path wired (orchestrates `sft`/`sample`); user runs it on a Mac. Follow-ups: from-scratch raw-text path, auto-pull of bare gallery ids, quantitative eval-vs-base delta.
 
 **External-leaderboard arc (added 2026-06-05 — first public competitive submission target):**
 
 - ⬜ **B27. Mac SLM agentic leaderboard v0** (scaffolding shipped 2026-06-13) — one publication-shape artifact at `docs/research/mac_slm_leaderboard_v0.md` cross-cutting BFCL + τ-bench + Pace unhappy-paths + decode tok/s + peak RSS. `scripts/eval_slm_full.sh <model-id> <tag>` runs all four suites against one LM Studio model; `scripts/build_slm_leaderboard.py --manifest …` rebuilds the table. Composite = accuracy × speed × cost, citing `score_formula.py` (DRY — no re-derivation in the doc). **Status flips to ✅ when ≥2 models land on the board** so the table actually compares something. First-model target: gemma-3-12b-it (Run 5 in `docs/research/mac_decode_baseline_m5pro.md`).
 
-- ⬜ **B25. ScaleDown Challenge specialist — extractive context compression** — train a task-specific SLM that takes `(query, long_context)` and returns the subset of sentences relevant to the query. Token-level relevance classifier head on the residual stream → sentence-level aggregation → threshold-keep. Training data: MS-MARCO + Natural Questions + similar (query, doc, answer) triplets with teacher-labeled per-sentence relevance scores; teacher can be a local Qwen/SmolLM. Eval via [ScaleBench](https://tinyml.substack.com/p/benchmarking-scaledowns-summarization) (their open-source harness, downstream F1/EM after compression). Submit to the [ScaleDown Challenge leaderboard](https://main.d3hbeukddvrxcc.amplifyapp.com/leaderboard). **~3-5 days end-to-end**: dataset pulls (~1 hr, reuse `tinygpt download-dataset`), teacher-labeling pipeline (~half-day), classification-head module in `Sources/TinyGPTModel/` (~half-day), new `tinygpt compress` subcommand with token-level BCE loss (~1 day), ScaleBench integration + submission (~half-day). Pairs naturally with A1 (different domain, same A-track shape) and gives TinyGPT a public proof-point — "competitive task SLM trained from scratch on a Mac" — with an external scoreboard. See §4.3.
+- ⬜ **B25. ScaleDown Challenge specialist — extractive context compression** — train a task-specific SLM that takes `(query, long_context)` and returns the subset of sentences relevant to the query. Token-level relevance classifier head on the residual stream → sentence-level aggregation → threshold-keep. Training data: MS-MARCO + Natural Questions + similar (query, doc, answer) triplets with teacher-labeled per-sentence relevance scores; teacher can be a local Qwen/SmolLM. Eval via [ScaleBench](https://tinyml.substack.com/p/benchmarking-scaledowns-summarization) (their open-source harness, downstream F1/EM after compression). Submit to the [ScaleDown Challenge leaderboard](https://main.d3hbeukddvrxcc.amplifyapp.com/leaderboard). **~3-5 days end-to-end**: dataset pulls (~1 hr, reuse `posttrainllm download-dataset`), teacher-labeling pipeline (~half-day), classification-head module in `Sources/TinyGPTModel/` (~half-day), new `posttrainllm compress` subcommand with token-level BCE loss (~1 day), ScaleBench integration + submission (~half-day). Pairs naturally with A1 (different domain, same A-track shape) and gives posttrainllm a public proof-point — "competitive task SLM trained from scratch on a Mac" — with an external scoreboard. See §4.3.
 
 ## Tier C — POLISH (mostly shipped this session)
 
 - ✅ **C1. CLI cosmetic fixes** — 27 subcommands now `exit(0)` on `--help`; `bench-train --help` shows correct name. Shipped 2026-06-02 in `49dead5`.
 - ✅ **C2. Roll up pre-switch CLI shims into main switch** — 17 shims absorbed; TinyGPT.swift -170 LoC. Shipped in `49dead5`.
 - ✅ **C3. DoRA on-disk adapter format** (SHIPPED 2026-06-09) — TGLA v2 (magic `TGLA`, version 2) adds optional per-entry `[out]` magnitude vector after `loraB`; v1 readers ignore it; v2 readers autodetect. See `Sources/TinyGPTModel/LoraIO.swift` header. Memory: [[project_dora_fix_shipped_2026_06_09]].
-- ✅ **C4. Tool-call extractor: BPE tokenizer support** (SHIPPED 2026-06-17) — `tinygpt train-extractor --tokenizer <hf-dir>` routes `encode()` through HFTokenizer instead of UTF-8 bytes; the tokenizer path is persisted in the checkpoint header (`tokenizerSource`). `ToolRouterLoader.load` surfaces it on `cfg.tokenizerSource`; `Agent.swift` autoloads the same tokenizer when the router declares one; `AgentLoop.RouterHook` gains an optional `tokenizer` field and `predictWithRouter` uses it when set. Byte-level remains the default + the fallback on tokenizer-load failure. Train-time warning fires when `--tokenizer` is set but `--vocab-size` is left at 256, and again if any encoded token ID lands outside `[0, vocab-size)`.
+- ✅ **C4. Tool-call extractor: BPE tokenizer support** (SHIPPED 2026-06-17) — `posttrainllm train-extractor --tokenizer <hf-dir>` routes `encode()` through HFTokenizer instead of UTF-8 bytes; the tokenizer path is persisted in the checkpoint header (`tokenizerSource`). `ToolRouterLoader.load` surfaces it on `cfg.tokenizerSource`; `Agent.swift` autoloads the same tokenizer when the router declares one; `AgentLoop.RouterHook` gains an optional `tokenizer` field and `predictWithRouter` uses it when set. Byte-level remains the default + the fallback on tokenizer-load failure. Train-time warning fires when `--tokenizer` is set but `--vocab-size` is left at 256, and again if any encoded token ID lands outside `[0, vocab-size)`.
 - ⬜ **C5. Decode jitter under thermal load** — ~1 day (needs sustained workload measurement)
 - ✅ **C6. ChatML template inline-system split** — `splitChatmlSystem` helper + 6 unit tests. Shipped in `49dead5`.
 - ✅ **C7. Save+reload XCTest for LoRA adapters** — roundtrip + arch-mismatch coverage. Shipped in `49dead5`.
-- ✅ **C8. Install-path discipline** — `~/.cache/tinygpt/` for adapters + corpus discovery; off `/tmp`. Shipped in `49dead5`.
+- ✅ **C8. Install-path discipline** — `~/.cache/posttrainllm/` for adapters + corpus discovery; off `/tmp`. Shipped in `49dead5`.
 - ✅ **C9. Determinism harness** (SHIPPED 2026-06-17) — `--seed N` now seeds both MLXRandom AND `BatchRng` (Splitmix64-backed host generator) in `Sources/TinyGPTModel/BatchRng.swift`. All 7 corpus-sampler `Int.random(in:)` call sites swapped to `BatchRng.randomInt(in:)` across `Trainer.swift`, `SFTCorpus.swift`, `PreferenceCorpus.swift`. Two runs with the same seed now produce identical batch sequence (modulo prefetcher scheduling caveat — see `docs/determinism.md`). 5 unit tests pin the contract: same-seed determinism, different-seed divergence, reset-then-reseed reproducibility, range bounds, Splitmix64 bit-pattern.
-- ✅ **C10. Training-run dashboard** (SHIPPED) — `--log-jsonl <path>` in `tinygpt train` emits append-only JSONL via `Sources/TinyGPT/TrainLog.swift`; consumed by `browser/src/pages/training-dashboard.astro` for live charts.
+- ✅ **C10. Training-run dashboard** (SHIPPED) — `--log-jsonl <path>` in `posttrainllm train` emits append-only JSONL via `Sources/TinyGPT/TrainLog.swift`; consumed by `browser/src/pages/training-dashboard.astro` for live charts.
 
 ## Tier 5 — RESEARCH FRONTIER (2026 stretch goals)
 
@@ -468,17 +468,17 @@ Pauses the "training at 2024 fundamentals" cadence; deliverable is a paper-shape
 - ⬜ **5.3 Vision-language toy** — ~2 weeks; ViT + projector + LLaVA-style. Smallest from-scratch VL model on consumer hardware.
 - ⬜ **5.4 Diffusion LM micro-implementation** — 1-2 weeks; new paradigm via masked denoising loss.
 - ⬜ **5.5 Real sparse MoE kernels** — 2-3 weeks; custom Metal kernel + measure FLOP reduction.
-- ⬜ **5.6 TTS toy (text-to-speech via audio-token GPT)** — ~2-4 weeks; integrate EnCodec, train an autoregressive decoder over discrete audio tokens (VALL-E / MusicGen shape). The transformer side already exists in TinyGPT; the new pieces are codec integration, text→audio conditioning, vocoder decode, and an audio data pipeline. **Scoping note (2026-06-03): comes AFTER the Wave 3 specialist track (A1-B8) AND after 5.3 vision-language toy** — both higher-priority research arcs ahead of it.
+- ⬜ **5.6 TTS toy (text-to-speech via audio-token GPT)** — ~2-4 weeks; integrate EnCodec, train an autoregressive decoder over discrete audio tokens (VALL-E / MusicGen shape). The transformer side already exists in posttrainllm; the new pieces are codec integration, text→audio conditioning, vocoder decode, and an audio data pipeline. **Scoping note (2026-06-03): comes AFTER the Wave 3 specialist track (A1-B8) AND after 5.3 vision-language toy** — both higher-priority research arcs ahead of it.
 - ⬜ **5.7 Specialized explainer-video model** — ~3-6 weeks for a Lamina-like toy: document/prompt → script → storyboard DSL → deterministic whiteboard/diagram render. This is NOT a Sora/Runway competitor; the first useful version is a specialized visual-planning model plus renderer. **Scoping note (2026-06-04): comes after A1-B8 and after 5.3 VL, because it needs both specialist training discipline and the text↔visual bridge.**
 
 ### 5.6 TTS toy — detailed scoping
 
-What carries over from current TinyGPT:
+What carries over from current posttrainllm:
 
 | Piece | Reuse |
 |---|---|
 | Transformer decoder, KV cache, sampling, MTP heads (for K-codebook prediction) | direct |
-| Training loop (`tinygpt train`) + PEFT bundle for downstream fine-tunes | direct |
+| Training loop (`posttrainllm train`) + PEFT bundle for downstream fine-tunes | direct |
 | `CrossAttention.swift` (currently used for YOCO) | adapt to text-encoder K/V source for conditioning |
 
 New code surface (~2 weeks of focused engineering + 3-7 days training):
@@ -505,7 +505,7 @@ for students, course creators, customer training, and teams. The public
 lesson is not "train a giant cinematic video model"; it is "make a
 narrow video system that explains accurately, quickly, and consistently."
 
-The TinyGPT version should start as a **structured explainer compiler**:
+The posttrainllm version should start as a **structured explainer compiler**:
 
 ```
 source document / prompt
@@ -533,7 +533,7 @@ Model ladder:
 1. **No learned video model**: use a strong text model or cloud model to
    produce the DSL; render deterministically. This validates product and
    schema fast.
-2. **Tiny visual-planner specialist**: fine-tune tinygpt/HF-loaded base
+2. **Tiny visual-planner specialist**: fine-tune posttrainllm/HF-loaded base
    on prompt/doc → storyboard DSL. This is the first trainable model.
 3. **Visual critic/evaluator**: model scores whether scene frames match
    the script and flags bad labels, missing objects, impossible diagrams.
@@ -550,12 +550,12 @@ Good first eval tasks:
 | Pacing | Scene duration fits narration without overcrowding |
 | Editability | Regenerate one scene without changing locked scenes |
 
-Why this is plausible for TinyGPT:
+Why this is plausible for posttrainllm:
 
 - The project already has specialist SFT/LoRA, structured output,
   constrained generation, eval harnesses, and renderer-friendly web/native
   surfaces.
-- A storyboard DSL is text. TinyGPT can train on that before any pixel
+- A storyboard DSL is text. posttrainllm can train on that before any pixel
   generation exists.
 - Deterministic rendering avoids the hardest part of video generation:
   long-horizon visual consistency.
@@ -589,28 +589,28 @@ After these: training-dependent (specialist Wave 3, Mini-Llama+ANE, Tier 5 modal
 
 **Shipped this session (third → fourth audit pass corrections):**
 
-- ✅ Linear probes (`tinygpt linear-probe`)
-- ✅ Deduplication (`tinygpt dedupe`, line + doc modes)
-- ✅ ROME (`tinygpt rome`, identity-Hessian first cut)
-- ✅ MEMIT (`tinygpt memit`, single-layer least-squares, exact per-fact residual at scale=1)
+- ✅ Linear probes (`posttrainllm linear-probe`)
+- ✅ Deduplication (`posttrainllm dedupe`, line + doc modes)
+- ✅ ROME (`posttrainllm rome`, identity-Hessian first cut)
+- ✅ MEMIT (`posttrainllm memit`, single-layer least-squares, exact per-fact residual at scale=1)
 - ✅ Multi-layer MEMIT (`--layers SPEC`, residual partitioned across N layers; 8-14% per-layer rel vs 41-72% single-layer)
 - ✅ MEMIT `--layer-weighting key-norm` (data-driven proxy for Meng 2023's causal-trace influence)
-- ✅ GGUF reader (`GGUFReader.swift` + `tinygpt gguf-inspect` — F32/F16/Q4_0/Q8_0/Q4_K/Q5_K/Q6_K/Q8_K)
-- ✅ GGUF model loader validator (`tinygpt gguf-load` — metadata parse, tensor-name mapping, shape validation against TinyGPT-HF op tree)
-- ✅ Best-of-N + Snell-style scaling curve (`tinygpt bon --scan`)
+- ✅ GGUF reader (`GGUFReader.swift` + `posttrainllm gguf-inspect` — F32/F16/Q4_0/Q8_0/Q4_K/Q5_K/Q6_K/Q8_K)
+- ✅ GGUF model loader validator (`posttrainllm gguf-load` — metadata parse, tensor-name mapping, shape validation against posttrainllm-HF op tree)
+- ✅ Best-of-N + Snell-style scaling curve (`posttrainllm bon --scan`)
 - ✅ `bon --verifier corpus-ppl` (corpus-anchored PPL as scoring signal — distinct from self-likelihood)
-- ✅ Sparse autoencoders (`tinygpt sae` — Bricken et al. 2023; encoder + decoder + L1, .sae sidecar)
-- ✅ SAE feature explorer (`tinygpt sae-explore` — load .sae, scan corpus, surface top-K activating windows per feature)
-- ✅ Activation patching CLI (`tinygpt patch` — Mac CLI for zero + donor-swap; reuses shipped `forwardWithPatch`)
-- ✅ Causal trace CLI (`tinygpt causal-trace` — Meng et al. 2022 per-layer fact localization)
-- ✅ MinHash near-duplicate dedup (`tinygpt dedupe --near-dup` — catches paraphrased boilerplate that exact-SHA misses)
-- ✅ GGUF tokenizer + config extractor (`tinygpt gguf-extract` — writes tokenizer.json + config.json + manifest, the missing piece between gguf-load and runnable model)
-- ✅ to-coreml conversion bridge (`tinygpt to-coreml` — generates a tailored Python conversion script for the user's coremltools install; now end-to-end runnable via safetensors hop)
+- ✅ Sparse autoencoders (`posttrainllm sae` — Bricken et al. 2023; encoder + decoder + L1, .sae sidecar)
+- ✅ SAE feature explorer (`posttrainllm sae-explore` — load .sae, scan corpus, surface top-K activating windows per feature)
+- ✅ Activation patching CLI (`posttrainllm patch` — Mac CLI for zero + donor-swap; reuses shipped `forwardWithPatch`)
+- ✅ Causal trace CLI (`posttrainllm causal-trace` — Meng et al. 2022 per-layer fact localization)
+- ✅ MinHash near-duplicate dedup (`posttrainllm dedupe --near-dup` — catches paraphrased boilerplate that exact-SHA misses)
+- ✅ GGUF tokenizer + config extractor (`posttrainllm gguf-extract` — writes tokenizer.json + config.json + manifest, the missing piece between gguf-load and runnable model)
+- ✅ to-coreml conversion bridge (`posttrainllm to-coreml` — generates a tailored Python conversion script for the user's coremltools install; now end-to-end runnable via safetensors hop)
 - ✅ Safetensors writer (`TinyGPTModel/SafetensorsWriter.swift` — HF-compatible binary format; shared foundation)
-- ✅ `tinygpt to-safetensors` — converts `.tinygpt` → `model.safetensors` with HF Llama tensor names (or `--keep-names` for native). Verified 196 tensors / 38.4 MB / valid HF format on the shakespeare gallery model.
-- ✅ `tinygpt export-mlx` — packages `.tinygpt` students, `.lora` / `.tgla` adapters, and existing HF dirs as MLX-friendly safetensors directories with config/tokenizer sidecars plus `mlx_load.py`. This is the interop path for users who want to take TinyGPT fine-tune/distill artifacts into Python MLX or MLX-Swift.
+- ✅ `posttrainllm to-safetensors` — converts `.tinygpt` → `model.safetensors` with HF Llama tensor names (or `--keep-names` for native). Verified 196 tensors / 38.4 MB / valid HF format on the shakespeare gallery model.
+- ✅ `posttrainllm export-mlx` — packages `.tinygpt` students, `.lora` / `.tgla` adapters, and existing HF dirs as MLX-friendly safetensors directories with config/tokenizer sidecars plus `mlx_load.py`. This is the interop path for users who want to take posttrainllm fine-tune/distill artifacts into Python MLX or MLX-Swift.
 - ✅ `gguf-extract` materializes weights to safetensors — output directory is now a complete HuggingFace model bundle loadable via `transformers.AutoModelForCausalLM.from_pretrained()`. Verified on a 21-tensor llama-shape GGUF: tokenizer.json + tokenizer_config.json + config.json + model.safetensors all populated.
-- ✅ to-coreml safetensors bridge — Python script no longer stubbed; loads weights via `safetensors.torch.load_file()` with full HF Llama → TinyGPT name-map. `py_compile` clean.
+- ✅ to-coreml safetensors bridge — Python script no longer stubbed; loads weights via `safetensors.torch.load_file()` with full HF Llama → posttrainllm name-map. `py_compile` clean.
 
 **Stale ⬜ markers caught + corrected this session — now ✅:**
 
@@ -623,7 +623,7 @@ After these: training-dependent (specialist Wave 3, Mini-Llama+ANE, Tier 5 modal
 | BPE-dropout | `BPEDropout.swift` |
 | Real CI | `.github/workflows/ci.yml` + `deploy.yml` |
 | Persistent tokenized cache | `TokenCache.swift` wired into Train+Eval+Distill+Finetune |
-| Linear probes | `tinygpt linear-probe` (this session, `6dbe15c`) |
+| Linear probes | `posttrainllm linear-probe` (this session, `6dbe15c`) |
 | YOCO cross-layer KV | `--yoco` flag, `CrossAttention.swift`, `docs/yoco_results.md` |
 | GPTQ safetensors reader | `GPTQReader.swift` (72 tensors quantised in 31s) |
 
@@ -647,7 +647,7 @@ After these: training-dependent (specialist Wave 3, Mini-Llama+ANE, Tier 5 modal
 | Tiktoken adoption | swift-transformers handles BPE-family tokenizers already |
 | Subword regularization | Marginal vs BPE-dropout |
 | Train own BPE on corpus | Modest gain (~5% PPL); blocked on Rust-FFI for speed |
-| TinyGPT-as-library API | User explicitly deferred until specialists beat a baseline |
+| posttrainllm-as-library API | User explicitly deferred until specialists beat a baseline |
 
 ---
 
@@ -676,7 +676,7 @@ headline from "17× training" to "30-80× sampling, 17× training."
 
 **Why queued**: tiny work, just hasn't been done. No blockers.
 
-## 2. ANE-routed inference via Mini-Llama TinyGPT — MEDIUM, 1-2 weeks
+## 2. ANE-routed inference via Mini-Llama posttrainllm — MEDIUM, 1-2 weeks
 
 Apple Neural Engine routes only when the graph hits its preferred
 shapes. The published numbers (ANEMLL, perf-quest memory) are 2-3×
@@ -684,13 +684,13 @@ sampling over the same model on Apple GPU when ANE engages cleanly,
 not 100×+ end-to-end. The big win is the *combined* ratio: bigger
 ANE-friendly model × ANE-routing × already-unfit-for-browser size.
 
-### Why TinyGPT doesn't route today
+### Why posttrainllm doesn't route today
 
 ANE prefers `head_dim ∈ {64, 128}`, tensor dims multiples of 64,
 fp16, RoPE-style attention, bias-free linears, RMSNorm. Our Huge
 default is the opposite of all of these:
 
-| Dimension | TinyGPT Huge | Llama 3.1 8B | ANE impact |
+| Dimension | posttrainllm Huge | Llama 3.1 8B | ANE impact |
 |---|---|---|---|
 | `head_dim` | 32 | 128 | falls off ANE matrix engine |
 | `d_model` | 256 | 4,096 | tiny matmuls under-utilize ANE tiles |
@@ -722,7 +722,7 @@ ModelConfig(
 // ~600M params; scale down to (1280, 16) for ~200M first cut
 ```
 
-Plus `tinygpt to-coreml` exporter (~1-2 days): maps our transformer
+Plus `posttrainllm to-coreml` exporter (~1-2 days): maps our transformer
 ops to CoreML's op set, produces a `.mlpackage` that Instruments can
 profile to see whether ANE actually engages.
 
@@ -746,7 +746,7 @@ could still fail:
 ANEMLL on Llama works?
 ├─ No  → done, environment broken
 └─ Yes → environment confirmed
-         └─ Build tinygpt to-coreml exporter
+         └─ Build posttrainllm to-coreml exporter
             └─ Convert + profile Mini-Llama
                ├─ All ops on ANE     → 🎉 ~30-50% chance, you win
                ├─ Partial split      → 🟡 ~40% chance, measure if net speedup
@@ -758,7 +758,7 @@ ANEMLL on Llama works?
 | Item | Cost | Outcome regardless of ANE result |
 |---|---|---|
 | Train Mini-Llama (200-600M) | 3-7 days mostly-background | Real Llama-architecture gallery model. Useful independently. |
-| `tinygpt to-coreml` exporter | 1-2 days focused | Reusable for any future model. Useful independently. |
+| `posttrainllm to-coreml` exporter | 1-2 days focused | Reusable for any future model. Useful independently. |
 | Profile + iterate | 1-3 days unpredictable | Empirical learning either way. |
 
 **Total**: 1-2 weeks calendar; dominated by training wall-clock.
@@ -805,15 +805,15 @@ or why it doesn't.
 
 | Technique | Source | Where it lives |
 |---|---|---|
-| DPO | [Rafailov et al., NeurIPS 2023](https://arxiv.org/abs/2305.18290) | `tinygpt dpo` |
-| KTO | [Ethayarajh et al., 2024](https://arxiv.org/abs/2402.01306) | `tinygpt dpo --variant kto` |
-| ORPO | [Hong et al., 2024](https://arxiv.org/abs/2403.07691) | `tinygpt dpo --variant orpo` |
-| SimPO | [Meng et al., 2024](https://arxiv.org/abs/2405.14734) | `tinygpt dpo --variant simpo` |
+| DPO | [Rafailov et al., NeurIPS 2023](https://arxiv.org/abs/2305.18290) | `posttrainllm dpo` |
+| KTO | [Ethayarajh et al., 2024](https://arxiv.org/abs/2402.01306) | `posttrainllm dpo --variant kto` |
+| ORPO | [Hong et al., 2024](https://arxiv.org/abs/2403.07691) | `posttrainllm dpo --variant orpo` |
+| SimPO | [Meng et al., 2024](https://arxiv.org/abs/2405.14734) | `posttrainllm dpo --variant simpo` |
 | NEFTune | [Jain et al., NeurIPS 2023](https://arxiv.org/abs/2310.05914) | `--neftune` |
 
 ### PEFT
 
-All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, surfaced via `tinygpt sft`.
+All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, surfaced via `posttrainllm sft`.
 
 | Technique | Source | Where it lives |
 |---|---|---|
@@ -829,16 +829,16 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, surfaced via `tinyg
 
 | Technique | Source | Where it lives |
 |---|---|---|
-| GPTQ | [Frantar et al., ICLR 2023](https://arxiv.org/abs/2210.17323) | `tinygpt gptq` + `GPTQReader.swift` |
+| GPTQ | [Frantar et al., ICLR 2023](https://arxiv.org/abs/2210.17323) | `posttrainllm gptq` + `GPTQReader.swift` |
 | AWQ | [Lin et al., MLSys 2024](https://arxiv.org/abs/2306.00978) | AWQ safetensors reader |
-| HQQ | [Badri & Shaji, 2024](https://mobiusml.github.io/hqq_blog/) | `tinygpt hqq` |
+| HQQ | [Badri & Shaji, 2024](https://mobiusml.github.io/hqq_blog/) | `posttrainllm hqq` |
 | KIVI | [Liu et al., 2024](https://arxiv.org/abs/2402.02750) | KV cache quantization path |
 
 ### Inference / efficiency
 
 | Technique | Source | Where it lives |
 |---|---|---|
-| Speculative decoding | [Leviathan et al., ICML 2023](https://arxiv.org/abs/2211.17192) | `tinygpt train-heads --type medusa\|eagle` + decode loop |
+| Speculative decoding | [Leviathan et al., ICML 2023](https://arxiv.org/abs/2211.17192) | `posttrainllm train-heads --type medusa\|eagle` + decode loop |
 | Medusa | [Cai et al., 2024](https://arxiv.org/abs/2401.10774) | same path, head type |
 | EAGLE-2 | [Li et al., 2024](https://arxiv.org/abs/2406.16858) | same path, head type |
 | StreamingLLM | [Xiao et al., ICLR 2024](https://arxiv.org/abs/2309.17453) | attention-sink path |
@@ -850,7 +850,7 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, surfaced via `tinyg
 | MTP | [Gloeckle et al., ICML 2024](https://arxiv.org/abs/2404.19737) | `Train.swift`, `docs/mtp.md` |
 | Differential Transformer | [Microsoft 2024](https://arxiv.org/abs/2410.05258) | `DifferentialAttention.swift`, `--diff-attn` |
 | Mixture of Depths | [Raposo et al., 2024](https://arxiv.org/abs/2404.02258) | soft sigmoid gate (hard top-K upstream-blocked) |
-| LASER | [Sharma et al., ICLR 2024](https://arxiv.org/abs/2312.13558) | `tinygpt laser` |
+| LASER | [Sharma et al., ICLR 2024](https://arxiv.org/abs/2312.13558) | `posttrainllm laser` |
 
 ### Optimizers
 
@@ -865,26 +865,26 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, surfaced via `tinyg
 
 | Technique | Source | Where it lives |
 |---|---|---|
-| Soft-targets distillation | Hinton et al., 2015 | `tinygpt distill` |
+| Soft-targets distillation | Hinton et al., 2015 | `posttrainllm distill` |
 
 ### Synthetic data
 
 | Technique | Source | Where it lives |
 |---|---|---|
-| Magpie | [Xu et al., ICLR 2025](https://arxiv.org/abs/2406.08464) | `tinygpt magpie` |
+| Magpie | [Xu et al., ICLR 2025](https://arxiv.org/abs/2406.08464) | `posttrainllm magpie` |
 | TinyStories | [Eldan & Li, 2023](https://arxiv.org/abs/2305.07759) | dataset source |
 
 ### Test-time compute
 
 | Technique | Source | Where it lives |
 |---|---|---|
-| Best-of-N | [Snell et al., 2024](https://arxiv.org/abs/2408.03314) | `tinygpt bon --scan` |
+| Best-of-N | [Snell et al., 2024](https://arxiv.org/abs/2408.03314) | `posttrainllm bon --scan` |
 
 ### Evolution Strategies
 
 | Technique | Source | Where it lives |
 |---|---|---|
-| ES at scale | [Qiu et al., Sept 2025](https://arxiv.org/abs/2509.24372) | `tinygpt es`, `docs/evolution_strategies.md` |
+| ES at scale | [Qiu et al., Sept 2025](https://arxiv.org/abs/2509.24372) | `posttrainllm es`, `docs/evolution_strategies.md` |
 
 ## 4.2 Cannot — blocked, parked, or skipped
 
@@ -938,8 +938,8 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, surfaced via `tinyg
 | Item | Source | Effort |
 |---|---|---|
 | LISA optimizer | [Pan et al., 2024](https://arxiv.org/abs/2403.17919) | ~1 day; layerwise importance sampling, drop-in alongside Sophia/Muon |
-| MiniLLM KL variants | [Gu et al., ICLR 2024](https://arxiv.org/abs/2306.08543) | ~1-2 days; reverse-KL / skew-KL switches on top of existing `tinygpt distill` |
-| Distilling Step-by-Step | [Hsieh et al., ACL 2023](https://arxiv.org/abs/2305.02301) | ~1-2 days; rationale-distillation recipe on top of `tinygpt distill` |
+| MiniLLM KL variants | [Gu et al., ICLR 2024](https://arxiv.org/abs/2306.08543) | ~1-2 days; reverse-KL / skew-KL switches on top of existing `posttrainllm distill` |
+| Distilling Step-by-Step | [Hsieh et al., ACL 2023](https://arxiv.org/abs/2305.02301) | ~1-2 days; rationale-distillation recipe on top of `posttrainllm distill` |
 | DoReMi data-mixture optimization | [Xie et al., NeurIPS 2023](https://arxiv.org/abs/2305.10429) | Park until ≥3 distinct domains are mixed at non-trivial scale |
 | Quality classifier (FineWeb-Edu-style) | [Penedo et al., 2024 — FineWeb / FineWeb-Edu](https://arxiv.org/abs/2406.17557) | §3 B10 — ~2 days; tiny fastText scorer + top-X% filter |
 | WSD schedule (warmup-stable-decay) | [MiniCPM, Hu et al., 2024](https://arxiv.org/abs/2404.06395) · [SmolLM blog](https://huggingface.co/blog/smollm) | §3 B11 — ~half-day; decay phase doubles as annealing |

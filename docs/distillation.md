@@ -6,10 +6,10 @@ distribution on a corpus. The result: students that significantly
 outperform what you'd get by training the same architecture from
 scratch on the same data — sometimes by 2-5x in perplexity terms.
 
-This guide covers the workflow as it exists in `tinygpt distill`, plus
+This guide covers the workflow as it exists in `posttrainllm distill`, plus
 the comparison protocol for "distilled vs from-scratch at the same
 parameter count" — the case study that justifies the technique on the
-TinyGPT leaderboard.
+posttrainllm leaderboard.
 
 Reference: Hinton et al., 2015, "Distilling the Knowledge in a Neural
 Network" (`https://arxiv.org/abs/1503.02531`).
@@ -34,7 +34,7 @@ That richer signal is most valuable when:
 
 ## The loss
 
-`tinygpt distill` uses the standard two-term distillation loss:
+`posttrainllm distill` uses the standard two-term distillation loss:
 
     L = α · T² · KL( softmax(s_logits / T) ‖ softmax(t_logits / T) )
       + (1 − α) · NLL(s_logits, true_target)
@@ -57,7 +57,7 @@ teacher's soft information. The 0.7/0.3 mix is the HuggingFace
 ## Command
 
 ```sh
-tinygpt distill <student-init> \
+posttrainllm distill <student-init> \
     --teacher <teacher-path> \
     --corpus <corpus.txt> \
     --tokenizer <hf-tokenizer-dir> \
@@ -68,7 +68,7 @@ tinygpt distill <student-init> \
 ```
 
 The student-init path is a `.tinygpt` checkpoint — start with the
-output of a short `tinygpt train --preset tiny` run (just enough to
+output of a short `posttrainllm train --preset tiny` run (just enough to
 have valid weights — distillation does the heavy lifting). The
 teacher path is either another `.tinygpt` file OR an HF model
 directory; the loader auto-detects.
@@ -87,7 +87,7 @@ configuration both ways and score them on the same benchmark.
 
 ```sh
 # A 100M-class teacher on FineWeb-Edu, BPE-tokenised.
-tinygpt train --preset huge \
+posttrainllm train --preset huge \
     --tokenizer /tmp/smollm2 \
     --corpus /tmp/fineweb-edu-500M.txt \
     --dtype bfloat16 --batch 4 --accum 4 --ctx 512 \
@@ -101,7 +101,7 @@ tinygpt train --preset huge \
 # A 5M-class student, also BPE on the same tokenizer. Train for a
 # matched compute budget (NOT a matched step count — the bigger
 # teacher's steps cost more, so the student gets more steps).
-tinygpt train --preset tiny \
+posttrainllm train --preset tiny \
     --tokenizer /tmp/smollm2 \
     --corpus /tmp/fineweb-edu-500M.txt \
     --dtype bfloat16 --batch 16 --ctx 512 \
@@ -114,12 +114,12 @@ tinygpt train --preset tiny \
 ```sh
 # Same architecture as Step 2, same compute budget. Initialise from a
 # short randomly-trained run so weights are in a reasonable range.
-tinygpt train --preset tiny \
+posttrainllm train --preset tiny \
     --tokenizer /tmp/smollm2 \
     --corpus /tmp/fineweb-edu-500M.txt --dtype bfloat16 \
     --steps 500 --out /tmp/student-init.tinygpt
 
-tinygpt distill /tmp/student-init.tinygpt \
+posttrainllm distill /tmp/student-init.tinygpt \
     --teacher /tmp/teacher.tinygpt \
     --corpus /tmp/fineweb-edu-500M.txt \
     --tokenizer /tmp/smollm2 \
@@ -131,9 +131,9 @@ tinygpt distill /tmp/student-init.tinygpt \
 ### Step 4: Score both on the same held-out benchmark
 
 ```sh
-tinygpt eval /tmp/student-scratch.tinygpt    --corpus /tmp/holdout.txt
-tinygpt eval /tmp/student-distilled.tinygpt  --corpus /tmp/holdout.txt
-tinygpt eval /tmp/teacher.tinygpt            --corpus /tmp/holdout.txt
+posttrainllm eval /tmp/student-scratch.tinygpt    --corpus /tmp/holdout.txt
+posttrainllm eval /tmp/student-distilled.tinygpt  --corpus /tmp/holdout.txt
+posttrainllm eval /tmp/teacher.tinygpt            --corpus /tmp/holdout.txt
 ```
 
 Expected (rough) result for a 100M teacher → 5M student on
@@ -195,7 +195,7 @@ To reproduce that workflow:
 1. Generate or collect a corpus of `prompt → step-by-step response`
    pairs from a reasoning teacher.
 2. Format them with the same `chatml` template SFT uses.
-3. Run `tinygpt distill` with `--temperature 2` (sharper — we want to
+3. Run `posttrainllm distill` with `--temperature 2` (sharper — we want to
    preserve the reasoning chain's specific tokens, not the broad
    distribution shape).
 

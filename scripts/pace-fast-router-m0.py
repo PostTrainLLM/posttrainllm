@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Deterministic M0 Pace fast-router eval for clickyLocal fm-fixtures.
 
-This is intentionally standalone: no TinyGPT serve path, no model runtime, and
+This is intentionally standalone: no posttrainllm serve path, no model runtime, and
 no dependencies beyond the Python standard library. It measures the local
 obvious-action router only.
 """

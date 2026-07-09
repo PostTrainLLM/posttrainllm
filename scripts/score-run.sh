@@ -3,7 +3,7 @@
 #
 # Usage:
 #   ./scripts/score-run.sh <canonical.tinygpt> [out.jsonl]
-#   ./scripts/score-run.sh ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt
+#   ./scripts/score-run.sh ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt
 #
 # Given a canonical training output, finds the sibling step-N history
 # checkpoints (from `--save-history`), scores each one + the canonical
@@ -14,7 +14,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TINYGPT="$REPO_ROOT/native-mac/.build/arm64-apple-macosx/release/tinygpt"
+TINYGPT="$REPO_ROOT/native-mac/.build/arm64-apple-macosx/release/posttrainllm"
 
 if [[ $# -lt 1 ]]; then
     echo "usage: $0 <canonical.tinygpt> [out.jsonl]" >&2
@@ -32,7 +32,7 @@ if [[ ! -f "$CKPT" ]]; then
     exit 1
 fi
 if [[ ! -x "$TINYGPT" ]]; then
-    echo "tinygpt binary missing — run \`cd native-mac && swift build -c release\`" >&2
+    echo "posttrainllm binary missing — run \`cd native-mac && swift build -c release\`" >&2
     exit 1
 fi
 

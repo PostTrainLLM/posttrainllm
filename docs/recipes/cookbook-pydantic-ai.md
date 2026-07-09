@@ -1,8 +1,8 @@
-# Cookbook - TinyGPT with Pydantic AI
+# Cookbook - posttrainllm with Pydantic AI
 
 What you get:
 
-- A TinyGPT specialist behind Pydantic AI's OpenAI-compatible provider.
+- A posttrainllm specialist behind Pydantic AI's OpenAI-compatible provider.
 - A typed result model that validates the response.
 - One runnable local demo.
 - A structured-output benchmark template.
@@ -18,18 +18,18 @@ you care about. Function-calling and constrained-output data are the closest
 starting point:
 
 ```bash
-export TINYGPT_MODEL=/tmp/tinygpt-structured-specialist.tinygpt
+export TINYGPT_MODEL=/tmp/posttrainllm-structured-specialist.tinygpt
 ```
 
-## 2. Serve TinyGPT
+## 2. Serve posttrainllm
 
 ```bash
-tinygpt serve "$TINYGPT_MODEL" --host 127.0.0.1 --port 8080
+posttrainllm serve "$TINYGPT_MODEL" --host 127.0.0.1 --port 8080
 ```
 
 ## 3. Configure Pydantic AI
 
-Pydantic AI's `OpenAIProvider` accepts a custom `base_url`, so TinyGPT can be
+Pydantic AI's `OpenAIProvider` accepts a custom `base_url`, so posttrainllm can be
 used like any other OpenAI-compatible server:
 
 ```python
@@ -44,7 +44,7 @@ class TicketRoute(BaseModel):
     summary: str
 
 model = OpenAIChatModel(
-    "tinygpt",
+    "posttrainllm",
     provider=OpenAIProvider(
         base_url="http://127.0.0.1:8080/v1",
         api_key="not-needed",
@@ -61,7 +61,7 @@ print(result.output)
 Runnable example:
 
 ```bash
-examples/pydantic-ai-tinygpt/run.sh
+examples/pydantic-ai-posttrainllm/run.sh
 ```
 
 ## 4. Benchmark
@@ -69,7 +69,7 @@ examples/pydantic-ai-tinygpt/run.sh
 Measure schema compliance and semantic accuracy separately:
 
 ```bash
-tinygpt run-bench \
+posttrainllm run-bench \
   --model "$TINYGPT_MODEL" \
   --tasks json-schema-routing \
   --limit 50 \
@@ -80,14 +80,14 @@ Record:
 
 | Model | Valid schema | Correct route | Mean latency |
 |---|---:|---:|---:|
-| TinyGPT specialist | fill after run | fill after run | fill after run |
+| posttrainllm specialist | fill after run | fill after run | fill after run |
 | General baseline | fill after run | fill after run | fill after run |
 
 ## Honest Limitations
 
 - Pydantic AI can validate the object, but it cannot make a weak model smart.
 - Some OpenAI-compatible servers need profile tweaks for strict schemas; keep
-  TinyGPT prompts simple until the constrained-decoding path is wired into
+  posttrainllm prompts simple until the constrained-decoding path is wired into
   serve.
 - Do not publish the benchmark table until it contains real numbers.
 

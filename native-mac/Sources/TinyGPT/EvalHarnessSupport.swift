@@ -91,11 +91,11 @@ enum EvalHarnessSupport {
 
     static func startServe(modelPath: String, port: Int, maxContext: Int = 4096,
                            extraArgs: [String] = []) -> Process {
-        let cli = resolveExecutable(CommandLine.arguments.first ?? "tinygpt")
-            ?? resolveExecutable("tinygpt")
-            ?? resolveExecutable("tinygpt-cli")
+        let cli = resolveExecutable(CommandLine.arguments.first ?? "posttrainllm")
+            ?? resolveExecutable("posttrainllm")
+            ?? resolveExecutable("posttrainllm-cli")
         guard let cli else {
-            fputs("tinygpt CLI not found for serve. Build with `swift build -c release`.\n", stderr); exit(1)
+            fputs("posttrainllm CLI not found for serve. Build with `swift build -c release`.\n", stderr); exit(1)
         }
         let p = Process()
         p.executableURL = cli
@@ -103,7 +103,7 @@ enum EvalHarnessSupport {
         p.standardOutput = Pipe()
         p.standardError = Pipe()
         do { try p.run() }
-        catch { fputs("could not start tinygpt serve: \(error)\n", stderr); exit(1) }
+        catch { fputs("could not start posttrainllm serve: \(error)\n", stderr); exit(1) }
         waitForServe(port: port, process: p)
         return p
     }
@@ -125,7 +125,7 @@ enum EvalHarnessSupport {
             if box.ok { return }
             if !process.isRunning { break }
         }
-        fputs("tinygpt serve did not become ready on port \(port)\n", stderr); exit(1)
+        fputs("posttrainllm serve did not become ready on port \(port)\n", stderr); exit(1)
     }
 
     @discardableResult
@@ -239,7 +239,7 @@ enum EvalHarnessSupport {
     static func completion(baseURL: String, prompt: String, maxTokens: Int = 128, temperature: Double = 0) -> String? {
         guard let url = URL(string: "\(baseURL)/completions") else { return nil }
         let body: [String: Any] = [
-            "model": "tinygpt",
+            "model": "posttrainllm",
             "prompt": prompt,
             "max_tokens": maxTokens,
             "temperature": temperature

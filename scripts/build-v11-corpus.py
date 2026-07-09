@@ -3,12 +3,12 @@
 into the final v11 training JSONL.
 
 Inputs (any missing optional input is skipped with a warning):
-  ~/.cache/tinygpt/datasets/pace-v10-multiplied.jsonl   (404 rows, required)
-  ~/.cache/tinygpt/datasets/pace-v11-seed.jsonl         (93 rows, required)
-  ~/.cache/tinygpt/datasets/pace-v11-amplified.jsonl    (optional — output of v11-amplify.py)
+  ~/.cache/posttrainllm/datasets/pace-v10-multiplied.jsonl   (404 rows, required)
+  ~/.cache/posttrainllm/datasets/pace-v11-seed.jsonl         (93 rows, required)
+  ~/.cache/posttrainllm/datasets/pace-v11-amplified.jsonl    (optional — output of v11-amplify.py)
 
 Output:
-  ~/.cache/tinygpt/datasets/pace-v11-train.jsonl
+  ~/.cache/posttrainllm/datasets/pace-v11-train.jsonl
 
 Steps:
   1. Load all sources; strip _meta keys (training shape is {instruction, response} only)
@@ -21,7 +21,7 @@ import json
 import random
 from pathlib import Path
 
-DS = Path.home() / ".cache/tinygpt/datasets"
+DS = Path.home() / ".cache/posttrainllm/datasets"
 V10 = DS / "pace-v10-multiplied.jsonl"
 SEED = DS / "pace-v11-seed.jsonl"
 AMP = DS / "pace-v11-amplified.jsonl"

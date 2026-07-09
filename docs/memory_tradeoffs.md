@@ -83,7 +83,7 @@ known limitation for the Titan-class training horizon.
 ### Reproduce
 
 ```bash
-tinygpt train --preset mega --dtype bfloat16 ...
+posttrainllm train --preset mega --dtype bfloat16 ...
 ```
 
 Verified parity: a 100-step bf16 run on alice.txt lands within 0.04 nats
@@ -129,7 +129,7 @@ math is correct.
 ### Reproduce
 
 ```bash
-tinygpt train --preset mega --batch 4 --accum 4 ...
+posttrainllm train --preset mega --batch 4 --accum 4 ...
 # effective batch 16, memory cost of batch 4
 ```
 
@@ -165,7 +165,7 @@ critical path for our scale today (Mega fits comfortably without).
 ## Combined recipe — what we use for Mega-on-FineWeb
 
 ```bash
-tinygpt train --preset mega \
+posttrainllm train --preset mega \
     --dtype bfloat16 \    # 2× memory savings → 2× batch headroom
     --batch 4 \           # micro-batch memory budget
     --accum 4 \           # effective batch 16 — Chinchilla-ish for stable training

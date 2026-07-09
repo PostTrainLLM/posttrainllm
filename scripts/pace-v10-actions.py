@@ -14,8 +14,8 @@ Sources:
 
 Run:
     python3 scripts/pace-v10-actions.py \\
-      --v9-in ~/.cache/tinygpt/datasets/pace-v9-sft.jsonl \\
-      --out ~/.cache/tinygpt/datasets/pace-v10-sft.jsonl
+      --v9-in ~/.cache/posttrainllm/datasets/pace-v9-sft.jsonl \\
+      --out ~/.cache/posttrainllm/datasets/pace-v10-sft.jsonl
 """
 from __future__ import annotations
 
@@ -24,8 +24,8 @@ import json
 from pathlib import Path
 
 
-DEFAULT_V9 = Path.home() / ".cache/tinygpt/datasets/pace-v9-sft.jsonl"
-DEFAULT_OUT = Path.home() / ".cache/tinygpt/datasets/pace-v10-sft.jsonl"
+DEFAULT_V9 = Path.home() / ".cache/posttrainllm/datasets/pace-v9-sft.jsonl"
+DEFAULT_OUT = Path.home() / ".cache/posttrainllm/datasets/pace-v10-sft.jsonl"
 
 
 # =====================================================================

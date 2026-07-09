@@ -69,7 +69,7 @@ def build_provenance(payloads: dict[str, dict[str, Any]], dataset_paths: list[Pa
             "baseline": payloads["eval-baseline"]["command"],
             "candidate": payloads["eval-candidate"]["command"],
             "training": payloads["config"]["candidate"]["training_command"],
-            "publish_check": "tinygpt factory-run publish-check --allow-report-only <run-dir>",
+            "publish_check": "posttrainllm factory-run publish-check --allow-report-only <run-dir>",
         },
         "datasets": [
             {
@@ -331,7 +331,7 @@ def build_payloads(run_id: str) -> dict[str, dict[str, Any]]:
 
     baseline = {
         "model_id": "Qwen/Qwen3-0.6B baseline",
-        "command": "tinygpt generate + eval-sql over evals/sql-poc-expanded/dev.jsonl",
+        "command": "posttrainllm generate + eval-sql over evals/sql-poc-expanded/dev.jsonl",
         "suite": "sql-poc-expanded-synthetic-execution",
         "score": 0.160,
         "passed": False,

@@ -8,7 +8,7 @@ description: Voice-pipeline latency, WER, speech-to-speech, fine-tuning debuggin
 Eight topics that came up in a real technical interview, mapped the house
 way: **Learn it** (best external source — we don't re-teach), **why it
 matters to THIS project**, and **in the repo** where applicable. Several
-of these aren't theory here — tinygpt/Pace has shipped them.
+of these aren't theory here — posttrainllm/Pace has shipped them.
 
 Where we're starting: you've built the cascade (Pace is literally
 speech → text → LLM → text → speech, all local) — this doc connects what
@@ -65,7 +65,7 @@ is knowing Pace's ceiling.
 reference full-duplex S2S paper; [Qwen2.5-Omni](https://arxiv.org/abs/2503.20215)
 for the "thinker-talker" hybrid that keeps a text spine.
 
-**In the repo:** the whole Pace pipeline; tinygpt's contribution is the
+**In the repo:** the whole Pace pipeline; posttrainllm's contribution is the
 middle box (planner eval + serve). The historical `docs/DRILLDOWN.md` planner
 drill shows why the modular middle is a feature — you can't A/B 12 planners
 inside a fused S2S model.
@@ -122,7 +122,7 @@ feature engineering, with interpretability as a regulatory requirement
 
 **Why it matters here:** it doesn't — this is the one topic with no repo
 anchor. Learn it as the canonical *tabular + interpretability-constrained*
-ML setting, the opposite pole from everything tinygpt does.
+ML setting, the opposite pole from everything posttrainllm does.
 
 **Learn it:** [scikit-learn's gradient boosting guide](https://scikit-learn.org/stable/modules/ensemble.html#gradient-boosting) +
 [ESL](https://hastie.su.domains/ElemStatLearn/) ch. 10; for the domain
@@ -156,7 +156,7 @@ just-in-time), tensor parallel (split individual matmuls), pipeline
 parallel (split layers across devices). FSDP2 is PyTorch's rewrite with
 per-parameter DTensor sharding — composable with the others.
 
-**Why it matters here:** tinygpt is mostly the *opposite* regime — one
+**Why it matters here:** posttrainllm is mostly the *opposite* regime — one
 Mac, unified memory, zero inter-device communication. Knowing FSDP2
 is knowing exactly what you're NOT paying for (all-gather bandwidth,
 sharding bugs) and why single-device MLX training tops out where it does

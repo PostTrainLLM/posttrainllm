@@ -70,7 +70,7 @@ async fn main() -> Result<()> {
         .with_context(|| format!("could not create {}", args.out_dir.display()))?;
 
     let client = Client::builder()
-        .user_agent("tinygpt-hf-downloader/0.1")
+        .user_agent("posttrainllm-hf-downloader/0.1")
         .redirect(reqwest::redirect::Policy::limited(10))
         .build()?;
 

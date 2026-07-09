@@ -41,7 +41,7 @@ enum EvalHumanEval {
         for p in problems {
             let completion = EvalHarnessSupport.completion(baseURL: base, prompt: p.prompt, maxTokens: 256) ?? ""
             let code = p.prompt + "\n" + completion
-            let work = URL(fileURLWithPath: "/tmp/tinygpt-humaneval-\(UUID().uuidString.prefix(8))")
+            let work = URL(fileURLWithPath: "/tmp/posttrainllm-humaneval-\(UUID().uuidString.prefix(8))")
             try? FileManager.default.createDirectory(at: work, withIntermediateDirectories: true)
             let codeURL = work.appendingPathComponent("code.py")
             let testURL = work.appendingPathComponent("test.py")
@@ -77,7 +77,7 @@ enum EvalHumanEval {
     }
 
     static func loadSuite(_ suite: String) -> [Problem] {
-        let root = "\(FileManager.default.homeDirectoryForCurrentUser.path)/.cache/tinygpt/datasets"
+        let root = "\(FileManager.default.homeDirectoryForCurrentUser.path)/.cache/posttrainllm/datasets"
         let path = suite == "mbpp" ? "\(root)/mbpp-test.jsonl" : "\(root)/humaneval-test.jsonl"
         guard let text = try? String(contentsOfFile: path, encoding: .utf8) else { return [] }
         return text.split(separator: "\n").compactMap { line in
@@ -100,11 +100,11 @@ enum EvalHumanEval {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-humaneval <model.tinygpt|hf-dir> --out <jsonl> [options]
+        usage: posttrainllm eval-humaneval <model.tinygpt|hf-dir> --out <jsonl> [options]
 
         --suites humaneval,mbpp    suites to run
         --limit N                  cap total problems across selected suites
-        --serve-port N             local tinygpt serve port
+        --serve-port N             local posttrainllm serve port
         --sandbox <path>           humaneval-sandbox binary
         """)
         exit(code)

@@ -34,16 +34,16 @@ from lora import (  # noqa: E402
     mark_only_lora_trainable,
     save_adapter,
 )
-from model import ModelConfig, TinyGPT  # noqa: E402
+from model import ModelConfig, posttrainllm  # noqa: E402
 
 TEST_CFG = ModelConfig(
     vocab_size=256, context_length=64, n_layers=3, n_heads=2, d_model=64, d_mlp=256
 )
 
 
-def _fresh_model() -> TinyGPT:
+def _fresh_model() -> posttrainllm:
     torch.manual_seed(0)
-    return TinyGPT(TEST_CFG)
+    return posttrainllm(TEST_CFG)
 
 
 def _batch():

@@ -2,7 +2,7 @@
 # v10 cascade: train + bake + serve + eval + score
 #
 # Assumes:
-#   ~/.cache/tinygpt/datasets/pace-v10-multiplied.jsonl exists (output of teacher multiplier)
+#   ~/.cache/posttrainllm/datasets/pace-v10-multiplied.jsonl exists (output of teacher multiplier)
 #   Qwen3-0.6B base at ~/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B/.../
 #   No serve running on port 8765
 #   LM Studio Qwen3-14B can be unloaded (frees GPU for training)
@@ -12,12 +12,12 @@
 set -euo pipefail
 
 BASE=/Users/sarthak/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B/snapshots/c1899de289a04d12100db370d81485cdf75e47ca
-DATA=/Users/sarthak/.cache/tinygpt/datasets/pace-v10-multiplied.jsonl
-RUN_DIR=/Users/sarthak/.cache/tinygpt/runs/pace-planner-v10
+DATA=/Users/sarthak/.cache/posttrainllm/datasets/pace-v10-multiplied.jsonl
+RUN_DIR=/Users/sarthak/.cache/posttrainllm/runs/pace-planner-v10
 LORA="$RUN_DIR/pace-planner-v10.lora"
 BAKED="$RUN_DIR/baked-hf"
 LOG="$RUN_DIR/train.log"
-TINYGPT=/Users/sarthak/Desktop/fleet/tinygpt/native-mac/.build/release/tinygpt
+TINYGPT=/Users/sarthak/Desktop/fleet/posttrainllm/native-mac/.build/release/posttrainllm
 
 mkdir -p "$RUN_DIR"
 
@@ -72,17 +72,17 @@ echo ""
 
 # Step 4: Boot serve + warm up
 echo "[4/5] Starting serve with v10 + v9-grammar..."
-pkill -f "tinygpt serve" 2>/dev/null || true
+pkill -f "posttrainllm serve" 2>/dev/null || true
 sleep 2
-mkdir -p /tmp/tinygpt-cache-v10
+mkdir -p /tmp/posttrainllm-cache-v10
 # Kill the serve process on ANY exit (eval failure under set -e included),
 # not just the happy path.
 SERVE_PID=""
 trap '[ -n "${SERVE_PID:-}" ] && kill "$SERVE_PID" 2>/dev/null || true' EXIT
 "$TINYGPT" serve \
   "$BASE" --lora "$LORA" \
-  --grammar /Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-fm-label-response-v9.schema.json \
-  --prompt-cache-dir /tmp/tinygpt-cache-v10 \
+  --grammar /Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-fm-label-response-v9.schema.json \
+  --prompt-cache-dir /tmp/posttrainllm-cache-v10 \
   --port 8765 > /tmp/serve-v10.log 2>&1 &
 SERVE_PID=$!
 echo $SERVE_PID > $RUN_DIR/serve.pid
@@ -111,34 +111,34 @@ EVAL_LOG="$RUN_DIR/eval.log"
 
 # 5a: fm-fixtures-v2 with tightened v9-compose-v2 prompt
 echo "--- v10 vs fm-fixtures-v2 (with v9-compose-v2 prompt) ---" | tee "$EVAL_LOG"
-python3 /Users/sarthak/Desktop/fleet/tinygpt/scripts/eval_pace_v2.py \
+python3 /Users/sarthak/Desktop/fleet/posttrainllm/scripts/eval_pace_v2.py \
   --fixtures-dir /Users/sarthak/Desktop/fleet/pace/evals/fm-fixtures-v2 \
   --serve-url http://127.0.0.1:8765/v1/chat/completions \
-  --sys-prompt /Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-system-prompt-v9-compose-v2.txt \
+  --sys-prompt /Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v9-compose-v2.txt \
   2>&1 | tee -a "$EVAL_LOG" | tail -10
 
 # 5b: fm-fixtures-holdout
 echo "" | tee -a "$EVAL_LOG"
 echo "--- v10 vs fm-fixtures-holdout ---" | tee -a "$EVAL_LOG"
-python3 /Users/sarthak/Desktop/fleet/tinygpt/scripts/eval_pace_v2.py \
+python3 /Users/sarthak/Desktop/fleet/posttrainllm/scripts/eval_pace_v2.py \
   --fixtures-dir /Users/sarthak/Desktop/fleet/pace/evals/fm-fixtures-holdout \
   --serve-url http://127.0.0.1:8765/v1/chat/completions \
-  --sys-prompt /Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-system-prompt-v9-compose-v2.txt \
+  --sys-prompt /Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v9-compose-v2.txt \
   2>&1 | tee -a "$EVAL_LOG" | tail -10
 
 # 5c: compose fixtures
 echo "" | tee -a "$EVAL_LOG"
 echo "--- v10 vs fm-fixtures-compose ---" | tee -a "$EVAL_LOG"
-python3 /Users/sarthak/Desktop/fleet/tinygpt/scripts/eval_pace_v2.py \
+python3 /Users/sarthak/Desktop/fleet/posttrainllm/scripts/eval_pace_v2.py \
   --fixtures-dir /Users/sarthak/Desktop/fleet/pace/evals/fm-fixtures-compose \
   --serve-url http://127.0.0.1:8765/v1/chat/completions \
-  --sys-prompt /Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-system-prompt-v9-compose-v2.txt \
+  --sys-prompt /Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v9-compose-v2.txt \
   2>&1 | tee -a "$EVAL_LOG" | tail -10
 
 # 5d: BFCL (smaller sample to keep wall-clock bounded)
 echo "" | tee -a "$EVAL_LOG"
 echo "--- v10 vs BFCL (15 per category) ---" | tee -a "$EVAL_LOG"
-python3 /Users/sarthak/Desktop/fleet/tinygpt/scripts/eval_bfcl.py \
+python3 /Users/sarthak/Desktop/fleet/posttrainllm/scripts/eval_bfcl.py \
   --max-per-category 15 \
   --serve-url http://127.0.0.1:8765/v1/chat/completions \
   2>&1 | tee -a "$EVAL_LOG" | tail -15
@@ -146,11 +146,11 @@ python3 /Users/sarthak/Desktop/fleet/tinygpt/scripts/eval_bfcl.py \
 # 5e: formula score
 echo "" | tee -a "$EVAL_LOG"
 echo "--- v10 formula score ---" | tee -a "$EVAL_LOG"
-python3 /Users/sarthak/Desktop/fleet/tinygpt/scripts/score_formula.py \
+python3 /Users/sarthak/Desktop/fleet/posttrainllm/scripts/score_formula.py \
   --label "v10-DoRA-fp16" \
   --model-dir "$BAKED" \
   --serve-pid "$SERVE_PID" \
-  --sys-prompt /Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-system-prompt-v9-compose-v2.txt \
+  --sys-prompt /Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v9-compose-v2.txt \
   2>&1 | tee -a "$EVAL_LOG" | tail -15
 
 # Cleanup

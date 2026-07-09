@@ -10,7 +10,7 @@ related_prds: B22-trajectory-recorder.md, B21-micro-automixer.md (Poolside-disci
 
 # PRD — Repeated-pass@1 + fixed resource budgets for agent evals
 
-> **Status (2026-06-18): partial shipped.** `tinygpt eval-gate --passes K`
+> **Status (2026-06-18): partial shipped.** `posttrainllm eval-gate --passes K`
 > now preserves repeated-run uncertainty in `gate-result.json`: per-suite
 > trial scores, n, stdev, stderr, and 95% CI are attached to the candidate
 > result, and the console table renders `mean±ci95_half_width`. `--budget
@@ -18,7 +18,7 @@ related_prds: B22-trajectory-recorder.md, B21-micro-automixer.md (Poolside-disci
 > report's `"protocol"` block and exposes its path to suite commands as
 > `TINYGPT_EVAL_BUDGET`. BFCL / tau / common Swift harness output rows now
 > attach the same protocol block when `--budget` or `TINYGPT_EVAL_BUDGET` is
-> present. `tinygpt eval-compare` now renders repeated-run uncertainty as
+> present. `posttrainllm eval-compare` now renders repeated-run uncertainty as
 > `mean±ci95_half_width` either from row-level `pass_stats` or from repeated
 > rows with the same task/model/metric. `scripts/eval_pace_unhappy.py` now
 > supports `--passes K` plus budget/protocol metadata in its JSON output.
@@ -74,14 +74,14 @@ under (max_steps=8, T=0, sandbox=1cpu+512mb)".
       let ci95: (low: Double, high: Double)
   }
   ```
-- Add `--passes K --budget budget.json` to `tinygpt eval-bfcl`,
-  `tinygpt eval-tau-bench`, `scripts/eval_pace_unhappy.py`.
+- Add `--passes K --budget budget.json` to `posttrainllm eval-bfcl`,
+  `posttrainllm eval-tau-bench`, `scripts/eval_pace_unhappy.py`.
 - Output JSON gains the `protocol` block carrying the budget + the
   per-trial scores. Existing `passed`/`total` stays for back-compat.
 - `eval-compare` learns to render error bars (use ±1.96σ if `ci95`
   present).
 - Default K=1 with budget loaded from a sensible per-task default
-  (so the old `tinygpt eval-bfcl` invocation works the same; opt
+  (so the old `posttrainllm eval-bfcl` invocation works the same; opt
   into repeats via `--passes 3`).
 
 ## Scope — out
@@ -114,15 +114,15 @@ under (max_steps=8, T=0, sandbox=1cpu+512mb)".
 
 ## Acceptance criteria
 
-- [x] `tinygpt eval-bfcl <model> --budget evals/sample-budget.json`
+- [x] `posttrainllm eval-bfcl <model> --budget evals/sample-budget.json`
   emits row-level protocol metadata.
 - [ ] Per-harness `--passes 3` loops emit the `AgentEvalRunSummary`
   shape. Current K-pass repetition is centralized in `eval-gate`.
-- [x] `tinygpt eval-gate --passes K` gates on K-pass means and writes per-trial scores + 95% CI to `gate-result.json`.
-- [x] `tinygpt eval-gate --budget evals/sample-budget.json` writes budget metadata to `gate-result.json`.
+- [x] `posttrainllm eval-gate --passes K` gates on K-pass means and writes per-trial scores + 95% CI to `gate-result.json`.
+- [x] `posttrainllm eval-gate --budget evals/sample-budget.json` writes budget metadata to `gate-result.json`.
 - [ ] Default K=1 with default budget reproduces today's exact output
   format (back-compat).
-- [x] `tinygpt eval-compare` renders error bars when `ci95` is present.
+- [x] `posttrainllm eval-compare` renders error bars when `ci95` is present.
 - [ ] The SLM leaderboard page updates its column headers to reflect
   the per-task pass count.
 - [x] Pace unhappy-paths gains `--passes` and the runbook in

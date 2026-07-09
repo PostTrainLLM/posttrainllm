@@ -1,6 +1,6 @@
-# TinyGPT specialist packages
+# posttrainllm specialist packages
 
-This directory is the registry for model artifacts TinyGPT actually produced.
+This directory is the registry for model artifacts posttrainllm actually produced.
 It is separate from the browser playground gallery because Mac specialists are
 often multi-GB HF/MLX safetensors directories, adapters, or GGUF bundles that
 the browser cannot load directly.
@@ -35,8 +35,8 @@ Required files:
 - `mlx_load.py`: lightweight helper. It should support metadata-only validation
   by default and require an explicit `--load` before reading large weights.
 
-`registry.json` is the index used by docs, the Mac app, and future `tinygpt
-pull` / `tinygpt validate` work.
+`registry.json` is the index used by docs, the Mac app, and future `posttrainllm
+pull` / `posttrainllm validate` work.
 
 ## Hugging Face storage
 
@@ -52,6 +52,6 @@ after a release decision explicitly approves uploading large model files; pass
 
 ## Current policy
 
-Only publish rows that are real TinyGPT outputs with measured deltas. A stock
+Only publish rows that are real posttrainllm outputs with measured deltas. A stock
 base model can be referenced as a parent or baseline, but it should not be
-listed as a TinyGPT-built specialist.
+listed as a posttrainllm-built specialist.

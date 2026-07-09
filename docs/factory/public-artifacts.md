@@ -54,7 +54,7 @@ Public copy should prefer "we beat X on this exact local gate" only for
 
 | Artifact | Type | State | Public value | Next release action |
 |---|---|---|---|---|
-| `qwen3-4b-file-ops-distilled` | Specialist package | `release-ready-weights` | Shows a real TinyGPT-built routed specialist: 58% -> 100% on file-ops hard gate, with breadth regression disclosed. | Keep routed-only warnings prominent; add a loader/pull smoke when wiring consumers. |
+| `qwen3-4b-file-ops-distilled` | Specialist package | `release-ready-weights` | Shows a real posttrainllm-built routed specialist: 58% -> 100% on file-ops hard gate, with breadth regression disclosed. | Keep routed-only warnings prominent; add a loader/pull smoke when wiring consumers. |
 | `hf-specialist-model-archive-v1` | Model archive index | `report-only` | Links every unique local specialist/conversion artifact moved to Hugging Face, and records which plain upstream caches were deleted. | Use as the storage index; promote individual models only after eval/report/package evidence exists. |
 | `qwen06-sql-routed-v1` | Routed SQL specialist POC | `report-ready-candidate` | Shows the factory/router pattern on SQL: public exact 0.531 and synthetic execution 0.860 using separate routed adapters. | Publish as report-only; package only after a public execution benchmark gate exists. |
 | `factory-run-schema-v1` | Process artifact | `report-only` | Explains the repeatable `target -> data -> post-training -> eval -> package -> report` contract. | Use the SQL routed rendered run as the canonical example. |
@@ -98,11 +98,11 @@ Status: `report-only`
 
 Purpose: public storage index for model artifacts that were previously only
 durable because they existed in the local Mac cache. Hugging Face is now the
-public artifact store for unique TinyGPT weights and conversions; plain upstream
+public artifact store for unique posttrainllm weights and conversions; plain upstream
 base-model caches should be deleted locally instead of re-uploaded under
-TinyGPT.
+posttrainllm.
 
-Uploaded TinyGPT artifacts:
+Uploaded posttrainllm artifacts:
 
 | Local cache | HF repo | Status | Evidence / readout |
 |---|---|---|---|
@@ -110,15 +110,15 @@ Uploaded TinyGPT artifacts:
 | `mt4b_rest_fused` | `https://huggingface.co/sarthakagrawal927/qwen3-4b-rest-fused` | Archive / comparison model | ReST breadth recovery variant: depth 100%, breadth 65% vs stock breadth 60%. |
 | `mt4b_mb_fused` | `https://huggingface.co/sarthakagrawal927/qwen3-4b-multibackend-distilled` | Archive / failed attempt | Negative-transfer artifact: depth 100%, breadth 31%. |
 | `vibethinker-3b-mlx` | `https://huggingface.co/sarthakagrawal927/vibethinker-3b-mlx` | Archive / conversion | Local MLX conversion of `WeiboAI/VibeThinker-3B`. |
-| `vibe_distill_fused` | `https://huggingface.co/sarthakagrawal927/vibethinker-3b-agentic-distilled` | Archive / needs eval promotion | TinyGPT distilled VibeThinker variant; do not treat as a shipped specialist until a current eval report exists. |
+| `vibe_distill_fused` | `https://huggingface.co/sarthakagrawal927/vibethinker-3b-agentic-distilled` | Archive / needs eval promotion | posttrainllm distilled VibeThinker variant; do not treat as a shipped specialist until a current eval report exists. |
 
 Deleted upstream caches:
 
 | Local cache | Upstream repo | Reason |
 |---|---|---|
-| `mxbai-embed-large-v1` | `https://huggingface.co/mixedbread-ai/mxbai-embed-large-v1` | Public upstream model; no TinyGPT delta. |
-| `qwen3-embedding-0.6b` | `https://huggingface.co/Qwen/Qwen3-Embedding-0.6B` | Public upstream model; no TinyGPT delta. |
-| `qwen3-vl-2b-instruct` | `https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct` | Public upstream model; no TinyGPT delta. |
+| `mxbai-embed-large-v1` | `https://huggingface.co/mixedbread-ai/mxbai-embed-large-v1` | Public upstream model; no posttrainllm delta. |
+| `qwen3-embedding-0.6b` | `https://huggingface.co/Qwen/Qwen3-Embedding-0.6B` | Public upstream model; no posttrainllm delta. |
+| `qwen3-vl-2b-instruct` | `https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct` | Public upstream model; no posttrainllm delta. |
 
 Release blockers:
 
@@ -168,10 +168,10 @@ Competitive context:
 
 | System | Metric | Score | Comparable? | Readout |
 |---|---|---:|---|---|
-| TinyGPT routed SQL v1 | b-mc2 exact / synthetic exec | 0.531 / 0.860 | Direct | Current local candidate. |
-| T5-small local baseline | b-mc2 exact | 0.484 | Direct | Same 64-row public slice; TinyGPT is +4.7 points. |
+| posttrainllm routed SQL v1 | b-mc2 exact / synthetic exec | 0.531 / 0.860 | Direct | Current local candidate. |
+| T5-small local baseline | b-mc2 exact | 0.484 | Direct | Same 64-row public slice; posttrainllm is +4.7 points. |
 | Defog SQLCoder-7B-2 | Defog SQL-Eval category scores | 77.1-96% | Directional | Strong public SQL specialist, but different benchmark and 7B size class. |
-| Arctic-Text2SQL-R1-7B | BIRD execution accuracy | 68.47% | Not comparable | Public execution target class; TinyGPT needs BIRD/Spider execution before competing here. |
+| Arctic-Text2SQL-R1-7B | BIRD execution accuracy | 68.47% | Not comparable | Public execution target class; posttrainllm needs BIRD/Spider execution before competing here. |
 | Arctic-Text2SQL-R1-14B / 32B | BIRD execution accuracy | 70.04% / 71.83% | Not comparable | Current public high bar is execution accuracy, not exact string match. |
 
 External source notes:

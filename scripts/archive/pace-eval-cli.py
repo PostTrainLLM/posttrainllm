@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""pace-eval-cli.py — eval pace LoRA via `tinygpt hf-load --sample` (CLI,
+"""pace-eval-cli.py — eval pace LoRA via `posttrainllm hf-load --sample` (CLI,
 no HTTP). Workaround for the serve-side crash on long generations
 (separate bug).
 
@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 FIXTURES_DIR = Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/fixtures")
-TINYGPT = "/Users/sarthak/Desktop/fleet/tinygpt/native-mac/.build/arm64-apple-macosx/release/tinygpt"
+TINYGPT = "/Users/sarthak/Desktop/fleet/posttrainllm/native-mac/.build/arm64-apple-macosx/release/posttrainllm"
 
 
 def evaluate_one(fx_path: Path, hf_dir: str, lora_path: str) -> dict:

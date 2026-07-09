@@ -46,7 +46,7 @@ import torch.nn as nn
 
 from checkpoint import load_checkpoint
 from dataset import ByteDataset, decode, encode
-from model import ModelConfig, TinyGPT
+from model import ModelConfig, posttrainllm
 
 REPO = Path(__file__).resolve().parent.parent
 LORA_PARAM_SUFFIXES = ("lora_A", "lora_B")
@@ -172,10 +172,10 @@ def count_params(model: nn.Module) -> tuple[int, int]:
 # --------------------------------------------------------------------------
 # Base model + adapter checkpoint I/O
 # --------------------------------------------------------------------------
-def load_base(ckpt_dir: str | Path, device: str | torch.device = "cpu") -> tuple[TinyGPT, str]:
+def load_base(ckpt_dir: str | Path, device: str | torch.device = "cpu") -> tuple[posttrainllm, str]:
     """Load a frozen Phase 1 base model. Returns (model, sha256-of-checkpoint)."""
     ckpt = load_checkpoint(ckpt_dir, map_location=device)
-    model = TinyGPT(ModelConfig(**ckpt["model_config"])).to(device)
+    model = posttrainllm(ModelConfig(**ckpt["model_config"])).to(device)
     model.load_state_dict(ckpt["model"])
     digest = hashlib.sha256((Path(ckpt_dir) / "checkpoint.pt").read_bytes()).hexdigest()
     return model, digest
@@ -333,7 +333,7 @@ def compare(args: argparse.Namespace) -> None:
     ids = encode(args.prompt).tolist() or [10]
     idx = torch.tensor([ids], dtype=torch.long, device=device)
 
-    def gen(model: TinyGPT) -> str:
+    def gen(model: posttrainllm) -> str:
         g = torch.Generator().manual_seed(args.seed)
         out = model.generate(idx, max_new_tokens=args.tokens,
                              temperature=args.temperature,
@@ -353,7 +353,7 @@ def compare(args: argparse.Namespace) -> None:
 
 
 def main(argv: list[str] | None = None) -> None:
-    p = argparse.ArgumentParser(description="LoRA fine-tuning for TinyGPT (Phase 3).")
+    p = argparse.ArgumentParser(description="LoRA fine-tuning for posttrainllm (Phase 3).")
     p.add_argument("--base", required=True, help="base model checkpoint directory")
     p.add_argument("--data", help="text corpus to fine-tune on")
     p.add_argument("--out", default=str(REPO / "checkpoints" / "adapter"))

@@ -26,7 +26,7 @@ contiguous corpus makes loss directly comparable across runs.
 |---|---|---|
 | **Large text corpus** | ~5-20× more tokens than the model has parameters (Hoffmann/Chinchilla) | Streamed from HuggingFace via `python_ref/fetch_hf_corpus.py` |
 | **BPE tokenizer** | Byte-level wastes ~4× the compute at the same coverage | `--tokenizer <hf-dir>` pointing at any HF model directory |
-| **Long-run infrastructure** | A crash at hour 22 of 26 shouldn't lose 22 hours | Tier 0 safety nets in `tinygpt train`: resume, atomic save-every, SIGINT-flushes-final |
+| **Long-run infrastructure** | A crash at hour 22 of 26 shouldn't lose 22 hours | Tier 0 safety nets in `posttrainllm train`: resume, atomic save-every, SIGINT-flushes-final |
 | **bf16 training** | 2× memory savings → 2× larger effective batch. See [`docs/memory_tradeoffs.md`](../memory_tradeoffs.md). | `--dtype bfloat16` |
 | **Gradient accumulation** | Effective batch larger than memory budget. See [`docs/memory_tradeoffs.md`](../memory_tradeoffs.md). | `--accum N` |
 
@@ -44,7 +44,7 @@ python python_ref/fetch_hf_corpus.py \
 #    B=4 × accum=4 × ctx=1024 = effective batch 16 at ~2 GB GPU memory.
 #    ~23 hours on M5 Pro / 48 GB.
 cd native-mac
-caffeinate -di .xcode-build/Build/Products/Debug/tinygpt train \
+caffeinate -di .xcode-build/Build/Products/Debug/posttrainllm train \
     --preset mega \
     --tokenizer /tmp/smollm2 \
     --corpus /tmp/fineweb-edu-500M.txt \

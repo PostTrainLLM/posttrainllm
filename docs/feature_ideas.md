@@ -1,6 +1,6 @@
 # Feature ideas — interactive learning content
 
-A backlog of concrete features for the browser TinyGPT, drawn from the famous
+A backlog of concrete features for the browser posttrainllm, drawn from the famous
 educational GPT projects worth learning from. Source repos are filtered to
 **5,000+ GitHub stars**; blogs to well-known authors only. This doc is a menu —
 pick from it per milestone; it does not change the build order in `README.md`.

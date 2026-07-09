@@ -3,10 +3,10 @@ import Default from "../../layouts/Default.astro";
 import { artifacts, stateLabel } from "../../artifacts";
 
 const layoutProps = {
-  title: "TinyGPT — public artifacts",
+  title: "posttrainllm — public artifacts",
   description:
-    "Public TinyGPT artifacts: measured model packages, routed specialists, benchmark reports, blockers, and release status.",
-  ogTitle: "TinyGPT — public artifacts",
+    "Public posttrainllm artifacts: measured model packages, routed specialists, benchmark reports, blockers, and release status.",
+  ogTitle: "posttrainllm — public artifacts",
   ogDescription:
     "Measured model packages, routed specialists, benchmark reports, blockers, and release status.",
   themeColor: "#0a0c10",
@@ -19,11 +19,11 @@ const parkedArtifacts = artifacts.filter((entry) => entry.state === "parked");
 <Default {...layoutProps}>
   <main class="artifact-page">
     <header class="hero">
-      <nav class="crumb"><a href="/">TinyGPT</a> / artifacts</nav>
+      <nav class="crumb"><a href="/">posttrainllm</a> / artifacts</nav>
       <p class="kicker">Built-in artifact log</p>
       <h1>Public artifacts, with the numbers and the blockers.</h1>
       <p class="lede">
-        These are the publishable units of the TinyGPT factory: model packages,
+        These are the publishable units of the posttrainllm factory: model packages,
         routed candidates, benchmark reports, and process artifacts. Each entry
         carries measured evidence, competitive context, and the exact reason it
         is ready, blocked, or parked.

@@ -2,7 +2,7 @@ import Foundation
 import MLX
 import TinyGPTModel
 
-/// `tinygpt gguf-extract` — extract the tokenizer + arch config from a
+/// `posttrainllm gguf-extract` — extract the tokenizer + arch config from a
 /// GGUF file into a directory that the HF loader can consume.
 ///
 /// Produces (when run with `--out-dir <dir>`):
@@ -14,16 +14,16 @@ import TinyGPTModel
 ///                                   vocab, etc.)
 ///   <dir>/gguf_manifest.json      — tensor inventory pointing back at
 ///                                   the source GGUF + the dequant
-///                                   recipe (which `tinygpt gguf-load`
+///                                   recipe (which `posttrainllm gguf-load`
 ///                                   already validates)
 ///
-/// Companion to `tinygpt gguf-load` (the validator) and `tinygpt
+/// Companion to `posttrainllm gguf-load` (the validator) and `posttrainllm
 /// gguf-inspect` (the metadata browser). This command now also
 /// materializes weights: dequant GGUF tensors → write `model.safetensors`
 /// so the existing HF loader can consume the output directory.
 ///
 /// USAGE
-///   tinygpt gguf-extract <input.gguf> --out-dir <dir>
+///   posttrainllm gguf-extract <input.gguf> --out-dir <dir>
 enum GGUFExtract {
     static func run(args: [String]) {
         var inputPath: String? = nil
@@ -213,7 +213,7 @@ enum GGUFExtract {
 
         print("""
 
-        TinyGPT — GGUF extract
+        posttrainllm — GGUF extract
         ----------------------
         source:           \(inputPath)
         out:              \(outDir)
@@ -232,7 +232,7 @@ enum GGUFExtract {
 
     /// Map GGUF tensor names → HuggingFace Llama-family conventions.
     /// Mirrors the dequant + weight-load conventions documented in
-    /// `tinygpt gguf-load`'s validator.
+    /// `posttrainllm gguf-load`'s validator.
     private static func mapGGUFToHF(_ name: String) -> String {
         // Top-level renames.
         if name == "token_embd.weight" { return "model.embed_tokens.weight" }
@@ -285,7 +285,7 @@ enum GGUFExtract {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt gguf-extract <input.gguf> --out-dir <dir>
+        usage: posttrainllm gguf-extract <input.gguf> --out-dir <dir>
 
         Extract tokenizer + arch config from a GGUF file into a
         directory consumable by swift-transformers / HFModelLoader.

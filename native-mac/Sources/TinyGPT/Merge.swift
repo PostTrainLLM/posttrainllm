@@ -2,7 +2,7 @@ import Foundation
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt merge` — combine 2+ same-architecture `.tinygpt` checkpoints
+/// `posttrainllm merge` — combine 2+ same-architecture `.tinygpt` checkpoints
 /// using TIES, DARE, or plain weighted averaging (mergekit-style).
 enum Merge {
     enum Method: String {
@@ -276,7 +276,7 @@ enum Merge {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt merge --models A.tinygpt B.tinygpt [C.tinygpt ...] --out merged.tinygpt [options]
+        usage: posttrainllm merge --models A.tinygpt B.tinygpt [C.tinygpt ...] --out merged.tinygpt [options]
 
           --weights W1 W2 ...     Per-model contribution (default: 1.0 each)
           --method ties|dare|linear   Merge algorithm (default: ties)

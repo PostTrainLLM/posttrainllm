@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt eval-gate` (B32) — run a project's declared eval suites against
+/// `posttrainllm eval-gate` (B32) — run a project's declared eval suites against
 /// a baseline and exit non-zero when any suite regresses past its threshold.
 ///
 /// The judgement lives in `TinyGPTModel.EvalGate` (pure, unit-tested). This
@@ -107,15 +107,15 @@ enum EvalGateCommand {
            let s = loadStandaloneSpec("eval-gate.json") {
             return s
         }
-        if FileManager.default.fileExists(atPath: "tinygpt.project.json") {
-            if let manifest = try? ProjectManifest.load(path: "tinygpt.project.json"),
+        if FileManager.default.fileExists(atPath: "posttrainllm.project.json") {
+            if let manifest = try? ProjectManifest.load(path: "posttrainllm.project.json"),
                let s = manifest.eval {
                 return s
             }
-            fputs("tinygpt.project.json has no \"eval\" block; add one or pass --spec\n", stderr)
+            fputs("posttrainllm.project.json has no \"eval\" block; add one or pass --spec\n", stderr)
             exit(2)
         }
-        fputs("no eval-gate spec found (looked for --spec, ./eval-gate.json, ./tinygpt.project.json)\n", stderr)
+        fputs("no eval-gate spec found (looked for --spec, ./eval-gate.json, ./posttrainllm.project.json)\n", stderr)
         exit(2)
     }
 
@@ -158,7 +158,7 @@ enum EvalGateCommand {
             fputs("no --candidate and spec declares no suites to run\n", stderr); exit(2)
         }
         let temp = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent("tinygpt-gate-\(UUID().uuidString.prefix(8)).jsonl")
+            .appendingPathComponent("posttrainllm-gate-\(UUID().uuidString.prefix(8)).jsonl")
         for pass in 0..<max(1, passes) {
             for suite in spec.suites {
                 guard let cmd = suite.command, let exe = cmd.first else {
@@ -246,7 +246,7 @@ enum EvalGateCommand {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-gate [options]
+        usage: posttrainllm eval-gate [options]
 
         Run a project's declared eval suites against a baseline and exit
         non-zero when any suite regresses past its threshold. Designed to run
@@ -255,7 +255,7 @@ enum EvalGateCommand {
         Spec resolution (first found wins):
           --spec <path>            explicit eval-gate.json
           ./eval-gate.json         standalone spec in the cwd
-          ./tinygpt.project.json   the optional "eval" block (B31)
+          ./posttrainllm.project.json   the optional "eval" block (B31)
 
         Options:
           --candidate <jsonl>      compare these rows instead of running the

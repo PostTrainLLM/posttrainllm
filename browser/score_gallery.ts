@@ -10,10 +10,10 @@
 // embedding table had vocab=49152, so `tg_import_state` would either
 // crash or produce garbage outputs and meaningless perplexity numbers.
 //
-// Replacement: `tinygpt score-bench` (Mac-side). The native binary
+// Replacement: `posttrainllm score-bench` (Mac-side). The native binary
 // loads the model through `ModelLoader` (which already auto-detects
 // BPE-vs-byte from the header), runs the benchmark via the same
-// `model.loss` path used by `tinygpt eval`, and writes the result back
+// `model.loss` path used by `posttrainllm eval`, and writes the result back
 // into `browser/public/gallery/manifest.json` — exactly the same shape
 // the leaderboard reads. See docs/bpe_browser_scoring.md.
 //
@@ -30,7 +30,7 @@
 // those entries. Any NEW model goes through the Mac path.
 //
 // Usage:
-//   tinygpt score-bench <model.tinygpt> --benchmarks bench/benchmarks.json
+//   posttrainllm score-bench <model.tinygpt> --benchmarks bench/benchmarks.json
 //   node browser/score_gallery.ts   # legacy byte-only refresh
 //
 // The legacy refresh below ignores any `.tinygpt` files that don't
@@ -77,8 +77,8 @@ if (candidates.length === 0) {
 }
 
 console.log("[score] loading WASM module…");
-const { default: createTinyGPT } = await import(WASM_JS);
-const M: TinyGPTModule = await createTinyGPT();
+const { default: createposttrainllm } = await import(WASM_JS);
+const M: TinyGPTModule = await createposttrainllm();
 
 const N = "number";
 const tgModelCreate = M.cwrap("tg_model_create", N, [N, N, N, N, N, N, N]);
@@ -173,11 +173,11 @@ for (const filename of candidates.sort()) {
     const parsed = parseTinygpt(buf);
     if (parsed.isBpe) {
       console.log(`[score] skipping ${id}: BPE model (vocab=${parsed.config.vocabSize}). ` +
-                  `Run \`tinygpt score-bench ${path} --benchmarks bench/benchmarks.json\` ` +
+                  `Run \`posttrainllm score-bench ${path} --benchmarks bench/benchmarks.json\` ` +
                   `from the worktree root to score it natively.`);
       updated.push({
         id, score: null,
-        details: { skipped: "BPE model — use Mac-side `tinygpt score-bench`" },
+        details: { skipped: "BPE model — use Mac-side `posttrainllm score-bench`" },
       });
       continue;
     }
@@ -216,7 +216,7 @@ for (const filename of candidates.sort()) {
 }
 
 // Merge byte-only scores into the manifest. We do NOT touch BPE entries
-// here (those come through `tinygpt score-bench`); if `id` already has
+// here (those come through `posttrainllm score-bench`); if `id` already has
 // a score from the Mac path we leave it alone unless we have a new
 // number to write.
 console.log("\n[score] merging legacy byte-only scores into manifest…");
@@ -228,7 +228,7 @@ for (const { id, score } of updated) {
     entry = {
       id, name: id, file: `${id}.bin`,
       benchmarks: {},
-      submission: { author: "TinyGPT", submittedAt: new Date().toISOString(), featured: false },
+      submission: { author: "posttrainllm", submittedAt: new Date().toISOString(), featured: false },
     };
     manifest.models = manifest.models || [];
     manifest.models.push(entry);

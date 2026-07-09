@@ -2,14 +2,14 @@ import Foundation
 import MLX
 import TinyGPTModel
 
-/// `tinygpt gguf-load` — parse a GGUF model file, extract the
-/// llama-arch metadata, map GGUF tensor names onto TinyGPT's HF op
+/// `posttrainllm gguf-load` — parse a GGUF model file, extract the
+/// llama-arch metadata, map GGUF tensor names onto posttrainllm's HF op
 /// tree, and report what would load.
 ///
 /// First-cut deliverable: the validator pass. Reports:
 ///   - which model shape the GGUF declares (n_layers, d_model, etc.)
 ///   - which tensor names are present + their types
-///   - which TinyGPT-HF parameters they map to
+///   - which posttrainllm-HF parameters they map to
 ///   - which (if any) expected parameters are missing
 ///   - whether dequantising every tensor would actually work
 ///
@@ -22,7 +22,7 @@ import TinyGPTModel
 /// the loaded model as `.tinygpt` for ordinary `sample` use.
 ///
 /// USAGE
-///   tinygpt gguf-load <path.gguf> [--verbose]
+///   posttrainllm gguf-load <path.gguf> [--verbose]
 ///
 /// Llama-family GGUF naming convention (covered today):
 ///   token_embd.weight                 → tok embeddings
@@ -82,7 +82,7 @@ enum GGUFLoad {
 
         print("""
 
-        TinyGPT — GGUF load report
+        posttrainllm — GGUF load report
         --------------------------
         path:           \(path)
         architecture:   \(arch)
@@ -214,7 +214,7 @@ enum GGUFLoad {
             print("""
 
             ✅ all tensors present, shapes match, all dtypes supported.
-            This GGUF would load into a TinyGPT-HF model at:
+            This GGUF would load into a posttrainllm-HF model at:
               ModelConfig(nLayers: \(L), nHeads: \(H), nKvHeads: \(nKvHeads!),
                           dModel: \(D), dMlp: \(M),
                           contextLength: \(ctx ?? 0),
@@ -229,7 +229,7 @@ enum GGUFLoad {
         } else {
             print("""
 
-            ⚠️  GGUF would NOT load cleanly into the current TinyGPT-HF
+            ⚠️  GGUF would NOT load cleanly into the current posttrainllm-HF
                 model surface. See the missing / mismatch lists above.
             """)
             exit(1)
@@ -257,10 +257,10 @@ enum GGUFLoad {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt gguf-load <path.gguf> [--verbose]
+        usage: posttrainllm gguf-load <path.gguf> [--verbose]
 
         Parse a GGUF model file and validate that its tensor inventory +
-        shapes would load into TinyGPT's HF model surface. Reports
+        shapes would load into posttrainllm's HF model surface. Reports
         which tensors are present / missing / shape-mismatched / use
         unsupported quant types. Llama-family naming convention covered;
         other archs (qwen, gemma) typically follow the same shape.

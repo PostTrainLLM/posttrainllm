@@ -3,21 +3,21 @@ import MLX
 import MLXNN
 import TinyGPTModel
 
-/// `tinygpt sae-explore` — load a trained SAE sidecar + a base model,
+/// `posttrainllm sae-explore` — load a trained SAE sidecar + a base model,
 /// scan a corpus, and for each feature in the dictionary find the
 /// input windows that activate it most. The standard interpretability
 /// move once an SAE is trained: "what does feature 47 mean?" answered
 /// by showing you the top-K windows whose encoded vector lights up
 /// that feature.
 ///
-/// Companion to `tinygpt sae`. The .sae sidecar produced by SAE.swift
+/// Companion to `posttrainllm sae`. The .sae sidecar produced by SAE.swift
 /// is loaded here, the SaeModule is re-instantiated with the saved
 /// weights, and we run encoded = ReLU(W_enc·(h - b_dec) + b_enc) over
 /// every window of the corpus, tracking per-feature max-activation +
 /// the window that produced it.
 ///
 /// USAGE
-///   tinygpt sae-explore <model.tinygpt> --probe <probe.sae> \
+///   posttrainllm sae-explore <model.tinygpt> --probe <probe.sae> \
 ///       --corpus <text.txt> [--features 47,128,256 | --top 8]
 ///       [--top-k 3] [--window-ctx 32]
 ///
@@ -189,7 +189,7 @@ enum SaeExplore {
         }
     }
 
-    /// Parse the .sae sidecar produced by `tinygpt sae`. Returns the
+    /// Parse the .sae sidecar produced by `posttrainllm sae`. Returns the
     /// JSON header + a fresh SaeModule with the saved weights bound
     /// into its @ParameterInfo slots.
     private static func parseSaeSidecar(_ data: Data) -> (SaeHeaderView, SaeModule) {
@@ -245,7 +245,7 @@ enum SaeExplore {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt sae-explore <model.tinygpt> --probe <probe.sae> \\
+        usage: posttrainllm sae-explore <model.tinygpt> --probe <probe.sae> \\
                                    --corpus <text.txt> [options]
 
         For each feature in the trained SAE dictionary, surface the

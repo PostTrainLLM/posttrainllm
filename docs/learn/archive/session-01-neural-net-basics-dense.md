@@ -86,7 +86,7 @@ Where `W` is an M×D matrix, `x` is a D-vector, `y` is an M-vector,
 matrix." Every linear layer in PyTorch (`nn.Linear(D, M)`) is one
 matmul + one add.
 
-### In TinyGPT code
+### In posttrainllm code
 
 Open `native-mac/Sources/TinyGPTModel/TransformerBlock.swift`. You'll
 see `MLX.matmul(...)` calls. Every single one of those is "compute a
@@ -182,7 +182,7 @@ A 3-layer net with 1000 inputs and 500-unit hidden layers:
 
 Each parameter is one float (typically 32 or 16 bits). Modern LLMs have
 billions of parameters. Your Pace planner today: ~30 billion. The
-TinyGPT distill target: ~600M-1.5B.
+posttrainllm distill target: ~600M-1.5B.
 
 ## 7. What "training" means (a preview)
 
@@ -207,9 +207,9 @@ Training = adjust `W` and `b` to make loss smaller. **That's it.** The
 | 3 | The actual training loop with batches, epochs, learning rate |
 | 4 | Transformers: a specific architecture for sequences |
 
-## 9. Code anchor — see this in TinyGPT
+## 9. Code anchor — see this in posttrainllm
 
-The simplest neural-net forward pass in TinyGPT is the LM head — the
+The simplest neural-net forward pass in posttrainllm is the LM head — the
 final layer that projects from the transformer's hidden state to
 vocabulary scores. Find it in `TinyGPTModel.swift`:
 

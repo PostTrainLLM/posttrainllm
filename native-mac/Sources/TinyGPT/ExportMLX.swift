@@ -2,7 +2,7 @@ import Foundation
 import MLX
 import TinyGPTModel
 
-/// Export TinyGPT artifacts into a directory that Python MLX / MLX-Swift
+/// Export posttrainllm artifacts into a directory that Python MLX / MLX-Swift
 /// callers can load without understanding `.tinygpt` or `.lora`.
 enum ExportMLX {
     static func run(args: [String]) {
@@ -49,7 +49,7 @@ enum ExportMLX {
             } else if isDirectory(inputURL) {
                 try exportHFDirectory(inputURL, to: outURL)
             } else {
-                try exportTinyGPT(inputPath, to: outURL, hfNames: hfNames)
+                try exportposttrainllm(inputPath, to: outURL, hfNames: hfNames)
             }
         } catch {
             fputs("export-mlx failed: \(error)\n", stderr)
@@ -57,11 +57,11 @@ enum ExportMLX {
         }
     }
 
-    private static func exportTinyGPT(_ path: String, to outURL: URL, hfNames: Bool) throws {
+    private static func exportposttrainllm(_ path: String, to outURL: URL, hfNames: Bool) throws {
         let load = try ModelLoader.load(path)
         guard case .fromScratch(let model) = load.model else {
             throw NSError(domain: "ExportMLX", code: 1, userInfo: [
-                NSLocalizedDescriptionKey: "expected a TinyGPT from-scratch checkpoint",
+                NSLocalizedDescriptionKey: "expected a posttrainllm from-scratch checkpoint",
             ])
         }
 
@@ -84,17 +84,17 @@ enum ExportMLX {
         try writeLoaderScript(to: outURL)
 
         let metadata: [String: Any] = [
-            "format": "tinygpt-mlx-export",
+            "format": "posttrainllm-mlx-export",
             "version": 1,
             "artifact_type": "full_model",
             "source": URL(fileURLWithPath: path).path,
             "weights": "model.safetensors",
-            "weight_naming": hfNames ? "hf-llama" : "tinygpt-native",
+            "weight_naming": hfNames ? "hf-llama" : "posttrainllm-native",
             "mlx_lm_compatible": false,
             "loader": "mlx_load.py",
-            "note": "TinyGPT-native architectures need a TinyGPT-aware MLX module; mlx_load.py loads arrays/config for integration.",
+            "note": "posttrainllm-native architectures need a posttrainllm-aware MLX module; mlx_load.py loads arrays/config for integration.",
         ]
-        try writeJSON(metadata, to: outURL.appendingPathComponent("tinygpt_mlx_export.json"))
+        try writeJSON(metadata, to: outURL.appendingPathComponent("posttrainllm_mlx_export.json"))
 
         printSummary(kind: "full model", outURL: outURL, tensors: entries.count,
                      bytes: entries.reduce(0) { $0 + $1.data.count * 4 })
@@ -121,7 +121,7 @@ enum ExportMLX {
         try writeLoaderScript(to: outURL)
 
         let metadata: [String: Any] = [
-            "format": "tinygpt-mlx-export",
+            "format": "posttrainllm-mlx-export",
             "version": 1,
             "artifact_type": "adapter",
             "source": url.path,
@@ -132,9 +132,9 @@ enum ExportMLX {
             "entries": adapter.header.entries.count,
             "mlx_lm_compatible": false,
             "loader": "mlx_load.py",
-            "note": "Adapter tensor names preserve TinyGPT's module path plus .loraA/.loraB/.doraM suffixes.",
+            "note": "Adapter tensor names preserve posttrainllm's module path plus .loraA/.loraB/.doraM suffixes.",
         ]
-        try writeJSON(metadata, to: outURL.appendingPathComponent("tinygpt_mlx_export.json"))
+        try writeJSON(metadata, to: outURL.appendingPathComponent("posttrainllm_mlx_export.json"))
 
         printSummary(kind: "adapter", outURL: outURL, tensors: entries.count,
                      bytes: entries.reduce(0) { $0 + $1.data.count * 4 })
@@ -148,18 +148,18 @@ enum ExportMLX {
         }
         try writeLoaderScript(to: outURL)
         try writeJSON([
-            "format": "tinygpt-mlx-export",
+            "format": "posttrainllm-mlx-export",
             "version": 1,
             "artifact_type": "hf_directory",
             "source": inputURL.path,
             "mlx_lm_compatible": true,
             "loader": "mlx_load.py",
             "note": "HF/MLX model directory copied as-is; use mlx_lm.load or mlx_load.py.",
-        ], to: outURL.appendingPathComponent("tinygpt_mlx_export.json"))
+        ], to: outURL.appendingPathComponent("posttrainllm_mlx_export.json"))
 
         print("""
 
-        TinyGPT - MLX export
+        posttrainllm - MLX export
         --------------------
         kind:             HF/MLX directory
         out:              \(outURL.path)
@@ -170,9 +170,9 @@ enum ExportMLX {
     private static func configJSON(_ cfg: ModelConfig, hfNames: Bool) -> [String: Any] {
         var obj: [String: Any] = [
             "architectures": ["TinyGPTForCausalLM"],
-            "model_type": "tinygpt",
-            "tinygpt_config_version": 1,
-            "weight_naming": hfNames ? "hf-llama" : "tinygpt-native",
+            "model_type": "posttrainllm",
+            "posttrainllm_config_version": 1,
+            "weight_naming": hfNames ? "hf-llama" : "posttrainllm-native",
             "model_name": cfg.modelName,
             "vocab_size": cfg.vocabSize,
             "hidden_size": cfg.dModel,
@@ -221,7 +221,7 @@ enum ExportMLX {
         let h = adapter.header
         return [
             "peft_type": adapter.matrices.allSatisfy { $0.m != nil } ? "DORA" : "LORA",
-            "format": "tinygpt-lora",
+            "format": "posttrainllm-lora",
             "rank": h.rank,
             "alpha": h.alpha,
             "target_modules": h.targetSuffixes,
@@ -261,8 +261,8 @@ enum ExportMLX {
             "type": "byte",
             "vocab_size": cfg.vocabSize,
             "encoding": "utf-8",
-            "description": "TinyGPT byte tokenizer: token id equals raw byte value for vocab_size=256.",
-        ], to: outURL.appendingPathComponent("tinygpt_tokenizer.json"))
+            "description": "posttrainllm byte tokenizer: token id equals raw byte value for vocab_size=256.",
+        ], to: outURL.appendingPathComponent("posttrainllm_tokenizer.json"))
         try writeJSON([
             "tokenizer_class": "TinyGPTByteTokenizer",
             "model_max_length": cfg.contextLength,
@@ -272,7 +272,7 @@ enum ExportMLX {
 
     private static func writeLoaderScript(to outURL: URL) throws {
         let script = #"""
-        # TinyGPT MLX export helper.
+        # posttrainllm MLX export helper.
         # Usage:
         #   python mlx_load.py /path/to/export-dir
         from __future__ import annotations
@@ -286,7 +286,7 @@ enum ExportMLX {
 
         def load_export(path: str | Path):
             root = Path(path)
-            meta = json.loads((root / "tinygpt_mlx_export.json").read_text())
+            meta = json.loads((root / "posttrainllm_mlx_export.json").read_text())
             result = {"metadata": meta}
             config_path = root / "config.json"
             if config_path.exists():
@@ -367,7 +367,7 @@ enum ExportMLX {
     private static func printSummary(kind: String, outURL: URL, tensors: Int, bytes: Int) {
         print("""
 
-        TinyGPT - MLX export
+        posttrainllm - MLX export
         --------------------
         kind:             \(kind)
         tensors written:  \(tensors)
@@ -398,14 +398,14 @@ enum ExportMLX {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt export-mlx <model.tinygpt|adapter.lora|adapter.tgla|hf-dir> --out <dir> [--hf-names]
+        usage: posttrainllm export-mlx <model.tinygpt|adapter.lora|adapter.tgla|hf-dir> --out <dir> [--hf-names]
 
-        Export TinyGPT artifacts for MLX integration:
+        Export posttrainllm artifacts for MLX integration:
           .tinygpt  -> model.safetensors + config/tokenizer sidecars
           .lora     -> adapters.safetensors + adapter_config.json
-          HF dir    -> copied as an MLX/HF directory with TinyGPT metadata
+          HF dir    -> copied as an MLX/HF directory with posttrainllm metadata
 
-        By default, .tinygpt tensor names stay TinyGPT-native. Pass
+        By default, .tinygpt tensor names stay posttrainllm-native. Pass
         --hf-names to write best-effort HF Llama-style names for tools
         that expect model.layers.* keys.
         """)

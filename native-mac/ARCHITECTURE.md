@@ -30,7 +30,7 @@ native-mac/
 │   │   ├── LoraComposition.swift — Multi-adapter stacking
 │   │   ├── Trainer.swift        — AdamW + compiled train step
 │   │   └── ANEInference.swift   — Core ML / ANE inference path
-│   ├── TinyGPT/                 — CLI executable
+│   ├── posttrainllm/                 — CLI executable
 │   │   ├── TinyGPT.swift        — Entry point + subcommand dispatch
 │   │   ├── Bench.swift          — Training throughput benchmark
 │   │   ├── Train.swift          — Train from scratch + save
@@ -129,7 +129,7 @@ LoraAdapterWriter.write() → .lora               [LoraIO.swift]
    - JSON header with rank/alpha/targets + base config snapshot
    - Raw A, B fp32 matrices
 
-Then `tinygpt compare` runs eval on both base alone and base+adapter,
+Then `posttrainllm compare` runs eval on both base alone and base+adapter,
 prints loss/BPB/perplexity table + a sample from each.
 ```
 
@@ -260,20 +260,20 @@ to support four things the from-scratch GPT skips:
 ```sh
 # CLI tools (must use Xcode toolchain for Metal compilation)
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-xcodebuild -scheme tinygpt -destination 'platform=macOS,arch=arm64' \
+xcodebuild -scheme posttrainllm -destination 'platform=macOS,arch=arm64' \
   -derivedDataPath .xcode-build build
 
 # Run CLI subcommands
-.xcode-build/Build/Products/Debug/tinygpt inspect path/to/model.tinygpt
-.xcode-build/Build/Products/Debug/tinygpt sample path/to/model.tinygpt --prompt "ROMEO:"
-.xcode-build/Build/Products/Debug/tinygpt finetune base --corpus my.txt --out my.lora
-.xcode-build/Build/Products/Debug/tinygpt compare base --lora my.lora --corpus held-out.txt
+.xcode-build/Build/Products/Debug/posttrainllm inspect path/to/model.tinygpt
+.xcode-build/Build/Products/Debug/posttrainllm sample path/to/model.tinygpt --prompt "ROMEO:"
+.xcode-build/Build/Products/Debug/posttrainllm finetune base --corpus my.txt --out my.lora
+.xcode-build/Build/Products/Debug/posttrainllm compare base --lora my.lora --corpus held-out.txt
 
 # SwiftUI app
 xcodebuild -scheme TinyGPTApp -destination 'platform=macOS,arch=arm64' \
   -derivedDataPath .xcode-build build
 ./scripts/make_app_bundle.sh
-open .xcode-build/Build/Products/Debug/TinyGPT.app
+open .xcode-build/Build/Products/Debug/posttrainllm.app
 
 # Tests (file-format suite passes via swift test; the MLX-using
 # tests need Xcode for Metal libraries)
@@ -294,10 +294,10 @@ Shipped tonight:
   (via swift-transformers)
 
 Next session:
-- Wire `tinygpt hf-load <dir>` end-to-end (config → ModelConfig →
+- Wire `posttrainllm hf-load <dir>` end-to-end (config → ModelConfig →
   TinyGPTModel → load safetensors via name map → tokenizer
   attached)
-- Reuse `tinygpt finetune` and `tinygpt compare` against the
+- Reuse `posttrainllm finetune` and `posttrainllm compare` against the
   HF-loaded models so the same LoRA workflow applies
 - SwiftUI Fine-tune tab that drives the LoRA pipeline visually
 - Multi-modal / MoE / model ensembling — see `docs/parked_multi_model.md`

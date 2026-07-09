@@ -1,6 +1,6 @@
 import Foundation
 
-/// CorpusFormat — convert HF dataset rows into tinygpt's training formats.
+/// CorpusFormat — convert HF dataset rows into posttrainllm's training formats.
 ///
 /// Three target formats:
 ///   - .sft    → JSONL with `{instruction, input?, response}` (per

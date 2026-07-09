@@ -23,7 +23,7 @@ import time
 
 import torch
 
-from model import ModelConfig, TinyGPT
+from model import ModelConfig, posttrainllm
 from train import pick_device
 
 # (label, d_model, n_layers) — head_dim is fixed at 64, so n_heads = d_model/64.
@@ -47,7 +47,7 @@ def bench_one(d_model: int, n_layers: int, device: torch.device,
     """Return (parameter count, seconds per training step)."""
     cfg = ModelConfig(n_layers=n_layers, n_heads=d_model // 64, d_model=d_model,
                       d_mlp=4 * d_model, context_length=ctx)
-    model = TinyGPT(cfg).to(device)
+    model = posttrainllm(cfg).to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=3e-4)
     x = torch.randint(0, 256, (batch, ctx), device=device)
 
@@ -77,7 +77,7 @@ def fmt_time(seconds: float) -> str:
 
 
 def main(argv: list[str] | None = None) -> None:
-    p = argparse.ArgumentParser(description="Benchmark TinyGPT training throughput.")
+    p = argparse.ArgumentParser(description="Benchmark posttrainllm training throughput.")
     p.add_argument("--device", default="auto", help="auto | cpu | cuda | mps")
     p.add_argument("--batch", type=int, default=8)
     p.add_argument("--ctx", type=int, default=128)

@@ -28,7 +28,7 @@ SIMD (verify it matches the scalar build first):
 
 ```bash
 emcc src/*.cpp -O3 -msimd128 -s MODULARIZE=1 -s EXPORT_ES6=1 -s ALLOW_MEMORY_GROWTH=1 \
-  -o dist/tinygpt.simd.js
+  -o dist/posttrainllm.simd.js
 ```
 
 ## Native verification (no Emscripten needed)

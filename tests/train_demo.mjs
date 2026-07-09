@@ -115,7 +115,7 @@ function encodeFile(cfg, stateBuffer, history, sampleText) {
       : null,
     sample: sampleText.slice(0, 320),
     bestVal,
-    project: "https://github.com/sarthak-fleet/tinygpt",
+    project: "https://github.com/sarthak-fleet/posttrainllm",
   };
   const headerJson = Buffer.from(JSON.stringify(header), "utf8");
   const prefix = Buffer.alloc(12);
@@ -131,8 +131,8 @@ async function main() {
   const bytes = new TextEncoder().encode(text);
 
   console.log(`loading WASM module from ${TINYGPT_JS}…`);
-  const { default: createTinyGPT } = await import(TINYGPT_JS);
-  const M = await createTinyGPT();
+  const { default: createposttrainllm } = await import(TINYGPT_JS);
+  const M = await createposttrainllm();
 
   const N = "number";
   const create = M.cwrap("tg_model_create", N, [N, N, N, N, N, N, N]);

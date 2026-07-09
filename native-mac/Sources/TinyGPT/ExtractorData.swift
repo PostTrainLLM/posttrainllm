@@ -2,7 +2,7 @@ import Foundation
 import TinyGPTData
 import TinyGPTServe
 
-/// `tinygpt extractor-data` — build a (query, tool_name) JSONL corpus
+/// `posttrainllm extractor-data` — build a (query, tool_name) JSONL corpus
 /// for training the tool-call extractor / mini-router.
 ///
 /// The router is a tiny BERT-class classifier; its training signal is a
@@ -31,7 +31,7 @@ import TinyGPTServe
 ///
 /// FLAGS:
 ///   --bfcl <path>          Path to a downloaded BFCL JSONL file
-///                          (see `tinygpt download-dataset` to grab it)
+///                          (see `posttrainllm download-dataset` to grab it)
 ///   --tau-bench <dir>      Path to a tau-bench checkout's `data/`
 ///                          directory (the JSON task files)
 ///   --tools <schema.json>  Tool catalog (OpenAI tool schema). Used
@@ -47,25 +47,25 @@ import TinyGPTServe
 ///                          resource" and gets --synth backfill
 ///                          (default: 5)
 ///   --out <path>           Output JSONL path (default:
-///                          ~/.cache/tinygpt/router/router_data.jsonl)
+///                          ~/.cache/posttrainllm/router/router_data.jsonl)
 ///   --dry-run              Parse + report stats, don't write
 ///
 /// EXAMPLES
 ///   # Step 1: fetch BFCL via the existing dataset downloader
-///   tinygpt download-dataset hf://datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard
+///   posttrainllm download-dataset hf://datasets/gorilla-llm/Berkeley-Function-Calling-Leaderboard
 ///
 ///   # Step 2: clone tau-bench (small repo, do this manually)
 ///   git clone https://github.com/sierra-research/tau-bench ~/code/tau-bench
 ///
 ///   # Step 3: build the training corpus
-///   tinygpt extractor-data \
-///     --bfcl ~/.cache/tinygpt/datasets/gorilla-llm/.../corpus.jsonl \
+///   posttrainllm extractor-data \
+///     --bfcl ~/.cache/posttrainllm/datasets/gorilla-llm/.../corpus.jsonl \
 ///     --tau-bench ~/code/tau-bench/tau_bench/envs \
 ///     --tools my_agent_tools.json \
 ///     --out router_data.jsonl
 ///
 ///   # Step 4 (optional): add synthetic examples for rare tools
-///   tinygpt extractor-data --tools my_agent_tools.json --synth \
+///   posttrainllm extractor-data --tools my_agent_tools.json --synth \
 ///     --bfcl ... --out router_data.jsonl
 enum ExtractorData {
 
@@ -148,7 +148,7 @@ enum ExtractorData {
             let home = FileManager.default.homeDirectoryForCurrentUser
             let dir = home
                 .appendingPathComponent(".cache")
-                .appendingPathComponent("tinygpt")
+                .appendingPathComponent("posttrainllm")
                 .appendingPathComponent("router")
             try? FileManager.default.createDirectory(at: dir,
                                                      withIntermediateDirectories: true)
@@ -557,7 +557,7 @@ enum ExtractorData {
 
     static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt extractor-data [flags]
+        usage: posttrainllm extractor-data [flags]
 
         Builds (query, tool) pairs for training the tool-call extractor.
 
@@ -577,12 +577,12 @@ enum ExtractorData {
 
         output:
           --out <path>            JSONL output (default:
-                                  ~/.cache/tinygpt/router/router_data.jsonl)
+                                  ~/.cache/posttrainllm/router/router_data.jsonl)
           --dry-run               parse + report stats, don't write
 
         examples:
-          tinygpt extractor-data --bfcl ~/.cache/tinygpt/datasets/.../corpus.jsonl --out router_data.jsonl
-          tinygpt extractor-data --tools tools.json --synth --bfcl ... --out router_data.jsonl
+          posttrainllm extractor-data --bfcl ~/.cache/posttrainllm/datasets/.../corpus.jsonl --out router_data.jsonl
+          posttrainllm extractor-data --tools tools.json --synth --bfcl ... --out router_data.jsonl
         """)
         exit(code)
     }

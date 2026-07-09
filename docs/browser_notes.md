@@ -21,7 +21,7 @@ SIMD build (`-msimd128`):
 
 ```bash
 emcc src/*.cpp -O3 -msimd128 -s MODULARIZE=1 -s EXPORT_ES6=1 -s ALLOW_MEMORY_GROWTH=1 \
-  -o dist/tinygpt.simd.js
+  -o dist/posttrainllm.simd.js
 ```
 
 Verify the SIMD build matches the scalar build before relying on it. Kernels

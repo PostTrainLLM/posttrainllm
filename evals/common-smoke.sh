@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Test for evals/_common.sh — verifies the shared smoke-script helpers
-# (resolve_tinygpt, fail) behave correctly. No GPU, no network, no build.
+# (resolve_posttrainllm, fail) behave correctly. No GPU, no network, no build.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -16,23 +16,23 @@ tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
 
 # 2) prefers an existing release binary under $NATIVE
 mkdir -p "$tmp/.build/release"
-printf '#!/bin/sh\necho fake\n' > "$tmp/.build/release/tinygpt"; chmod +x "$tmp/.build/release/tinygpt"
-got="$(NATIVE="$tmp" resolve_tinygpt 2>/dev/null)"
-check "prefers existing release binary" '[ "$got" = "$tmp/.build/release/tinygpt" ]'
+printf '#!/bin/sh\necho fake\n' > "$tmp/.build/release/posttrainllm"; chmod +x "$tmp/.build/release/posttrainllm"
+got="$(NATIVE="$tmp" resolve_posttrainllm 2>/dev/null)"
+check "prefers existing release binary" '[ "$got" = "$tmp/.build/release/posttrainllm" ]'
 
 # 3) falls back to debug when no release exists
 rm -rf "$tmp/.build/release"; mkdir -p "$tmp/.build/debug"
-printf '#!/bin/sh\necho fake\n' > "$tmp/.build/debug/tinygpt"; chmod +x "$tmp/.build/debug/tinygpt"
-got="$(NATIVE="$tmp" resolve_tinygpt 2>/dev/null)"
-check "falls back to debug binary" '[ "$got" = "$tmp/.build/debug/tinygpt" ]'
+printf '#!/bin/sh\necho fake\n' > "$tmp/.build/debug/posttrainllm"; chmod +x "$tmp/.build/debug/posttrainllm"
+got="$(NATIVE="$tmp" resolve_posttrainllm 2>/dev/null)"
+check "falls back to debug binary" '[ "$got" = "$tmp/.build/debug/posttrainllm" ]'
 
 # 4) diagnostics go to stderr — stdout is the path only (single clean line)
-got="$(NATIVE="$tmp" resolve_tinygpt 2>/dev/null)"
+got="$(NATIVE="$tmp" resolve_posttrainllm 2>/dev/null)"
 check "stdout is a single clean line" '[ "$(printf "%s" "$got" | wc -l | tr -d " ")" = 0 ]'
 
 # 5) resolves the real repo binary if one is already built (no build triggered)
-if [ -x "$ROOT/native-mac/.build/release/tinygpt" ] || [ -x "$ROOT/native-mac/.build/debug/tinygpt" ]; then
-  got="$(resolve_tinygpt 2>/dev/null)"
+if [ -x "$ROOT/native-mac/.build/release/posttrainllm" ] || [ -x "$ROOT/native-mac/.build/debug/posttrainllm" ]; then
+  got="$(resolve_posttrainllm 2>/dev/null)"
   check "resolves a real executable from the repo" '[ -x "$got" ]'
 else
   echo "  - skipped real-binary check (no build present)"

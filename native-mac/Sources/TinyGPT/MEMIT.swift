@@ -4,8 +4,8 @@ import MLXNN
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt memit` — mass fact editing via rank-K update to one MLP's
-/// down-projection. The batched generalisation of `tinygpt rome`.
+/// `posttrainllm memit` — mass fact editing via rank-K update to one MLP's
+/// down-projection. The batched generalisation of `posttrainllm rome`.
 ///
 /// Meng et al. 2023, "Mass-Editing Memory in a Transformer" (MEMIT).
 /// Given N (prompt, target) pairs:
@@ -41,7 +41,7 @@ import TinyGPTModel
 /// breaking the rest of the model. Queued as the second-cut.
 ///
 /// USAGE
-///   tinygpt memit <model.tinygpt> --facts facts.jsonl \
+///   posttrainllm memit <model.tinygpt> --facts facts.jsonl \
 ///                 --layer N --out edited.tinygpt [--scale F] [--lambda F]
 ///
 /// FACTS FILE (JSONL):
@@ -471,7 +471,7 @@ enum MEMIT {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt memit <model.tinygpt> --facts facts.jsonl \\
+        usage: posttrainllm memit <model.tinygpt> --facts facts.jsonl \\
                              --layer N --out <edited.tinygpt> [--scale F] [--lambda F]
 
         Batched rank-K fact editing (Meng et al. 2023). Solves a

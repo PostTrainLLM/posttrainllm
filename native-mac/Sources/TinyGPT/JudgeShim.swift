@@ -142,7 +142,7 @@ enum JudgeShim {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt judge <input.jsonl> --judge-model <model.tinygpt|hf-dir> --out <jsonl> [options]
+        usage: posttrainllm judge <input.jsonl> --judge-model <model.tinygpt|hf-dir> --out <jsonl> [options]
 
         input rate rows:     {"prompt":"...","response":"..."}
         input pairwise rows: {"prompt":"...","response_a":"...","response_b":"..."}

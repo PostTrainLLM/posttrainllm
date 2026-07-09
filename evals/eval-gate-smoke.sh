@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# B32 smoke test for `tinygpt eval-gate`.
+# B32 smoke test for `posttrainllm eval-gate`.
 #
 # Asserts the exit-code contract with committed fixtures — no GPU, no
 # server, no network:
@@ -18,13 +18,13 @@ SPEC="$FIX/eval-gate.json"
 BASELINE="$FIX/baseline.jsonl"
 BUDGET="$ROOT/evals/sample-budget.json"
 
-# Resolve the tinygpt binary: prefer release, then debug, else build.
-TINYGPT="$ROOT/native-mac/.build/release/tinygpt"
-[ -x "$TINYGPT" ] || TINYGPT="$ROOT/native-mac/.build/debug/tinygpt"
+# Resolve the posttrainllm binary: prefer release, then debug, else build.
+TINYGPT="$ROOT/native-mac/.build/release/posttrainllm"
+[ -x "$TINYGPT" ] || TINYGPT="$ROOT/native-mac/.build/debug/posttrainllm"
 if [ ! -x "$TINYGPT" ]; then
-  echo "==> tinygpt binary not found; building (debug)…"
+  echo "==> posttrainllm binary not found; building (debug)…"
   ( cd "$ROOT/native-mac" && DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swift build )
-  TINYGPT="$ROOT/native-mac/.build/debug/tinygpt"
+  TINYGPT="$ROOT/native-mac/.build/debug/posttrainllm"
 fi
 echo "==> using $TINYGPT"
 

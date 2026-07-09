@@ -18,7 +18,7 @@ needs a 30B comparison row.
 [--amplify]`, supersedes v10_pipeline.sh). One run, ship or fail, then the
 planner freezes for a month regardless. Gate: `docs/prds/pace-planner-v11-ship-gate.md`.
 
-**tinygpt is now a local-LLM research lab.** Four threads mapped with
+**posttrainllm is now a local-LLM research lab.** Four threads mapped with
 file:line plans (2026-06-10 research agents):
 1. int8 ANE handoff (#306) — Phase A: fp16 IOSurface outputBackings ping-pong
    in `Qwen3ANEChunked.swift:188-203` (1d, macOS 15+); Phase B: int8 weights
@@ -46,7 +46,7 @@ Jan 2026 is stale; verify current state before recommending any
 model/library.
 
 **Memory to load first**:
-- `feedback-tinygpt-north-star` (formula + ROI bar)
+- `feedback-posttrainllm-north-star` (formula + ROI bar)
 - `feedback-research-first-doctrine` (verify before recommending)
 - `feedback-pace-doctrine-2026-06-08` (manifesto)
 - `project-dora-fix-shipped-2026-06-09` (TGLA v1→v2 with magnitudes)
@@ -107,9 +107,9 @@ Shipped artifacts (all in tree, committed):
 - M8 per-block ANE export: `scripts/ane/m8_block_export.py`
 - M8 chained decode: `scripts/ane/m8_chained_decode.py`
 - Swift orchestrator: `native-mac/Sources/TinyGPTModel/Qwen3ANEChunked.swift`
-- CLI: `tinygpt coreml-chunked-smoke --chunked-dir <dir> --hf-dir <dir>`
-- Pace-baked bundle: `~/.cache/tinygpt/ane-pace-v5/m8-block-{0..27}.mlpackage`
-- Base Qwen3-0.6B bundle: `~/.cache/tinygpt/ane/m8-block-{0..27}.mlpackage`
+- CLI: `posttrainllm coreml-chunked-smoke --chunked-dir <dir> --hf-dir <dir>`
+- Pace-baked bundle: `~/.cache/posttrainllm/ane-pace-v5/m8-block-{0..27}.mlpackage`
+- Base Qwen3-0.6B bundle: `~/.cache/posttrainllm/ane/m8-block-{0..27}.mlpackage`
 - M9 spec-dec experiment (negative result): `scripts/ane/m9_spec_decode.py`
 
 Critical precision fix learned the hard way: chunked ANE needs
@@ -177,7 +177,7 @@ What an honest eval looks like:
 2. **#266 VLM M4 Qwen3-VL port** — real engineering, not eval-blocked
    because it's about getting Qwen3-VL working at all, not comparing
    to a baseline.
-3. **HTTP wrap of coreml-chunked-smoke** — `tinygpt coreml-chunked-serve
+3. **HTTP wrap of coreml-chunked-smoke** — `posttrainllm coreml-chunked-serve
    --chunked-dir <dir> --hf-dir <dir> --port N`. Makes the ANE moat
    usable from Pace. Mechanical port of CoreMLServe.swift.
 
@@ -187,8 +187,8 @@ either pretend or eval-blocked.
 ### Anomalies the next session should know about
 
 - **Remote URL outdated**: pushes work but redirect from
-  `sarthakagrawal927/tinygpt` → `sarthak-fleet/tinygpt`. Update with
-  `git remote set-url origin https://github.com/sarthak-fleet/tinygpt.git`
+  `sarthakagrawal927/posttrainllm` → `sarthak-fleet/posttrainllm`. Update with
+  `git remote set-url origin https://github.com/sarthak-fleet/posttrainllm.git`
 - **v6.1 four-way SFT collapse** (10 → 8 → 2 → 0 of 19) — almost
   certainly an eval-methodology artifact. Don't retry SFT.
 - **190 uncommitted files** caught up in 5 commits on 2026-06-08
@@ -202,7 +202,7 @@ either pretend or eval-blocked.
 Project shape changed: every night the Mac produces a training artifact.
 Run `./scripts/nightly.sh` before bed; it picks the next pending job
 from `scripts/nightly/N*.sh`, wraps it in `caffeinate -di`, logs to
-`~/.cache/tinygpt/nightly/logs/`, and posts a Mac notification on
+`~/.cache/posttrainllm/nightly/logs/`, and posts a Mac notification on
 completion. See `NIGHTLY.md` for the full plan and queue state.
 
 **State as of 2026-06-05 PM (after daytime audit + parquet unblocking):**
@@ -221,25 +221,25 @@ UltraFeedback (187K rows = 1.2 GB JSONL) both decoded and ready.
 `scripts/parquet_to_txt.py` handles arbitrary parquet shards — see its
 header docstring. Requires `pyarrow` (pip-installed today).
 
-**Group-SAE v1 (B19)** — `tinygpt sae --layer-group A,B,C` trains one
+**Group-SAE v1 (B19)** — `posttrainllm sae --layer-group A,B,C` trains one
 SAE on the union of residuals from N layers. ~3× fewer SAE trainings
 at ~16% higher MSE. Smoke-tested. Combines with --checkpoint-dir for
 group-aware timeline. AMAD-driven group selection deferred to v2.
 
-**SAELens export (B17)** — `tinygpt sae-to-saelens <in.sae> --out <dir>`
+**SAELens export (B17)** — `posttrainllm sae-to-saelens <in.sae> --out <dir>`
 emits sae_weights.safetensors + cfg.json in the on-disk shape SAELens
 and Neuronpedia consume. Provenance preserved in cfg.json metadata
 (hook_name, hook_layer, base shapes, group layers for B19 SAEs).
 Smoke-verified: safetensors loads in Python.
 
-**Stochastic spec-dec (B14)** — `tinygpt sample --draft <m> --temperature T`
+**Stochastic spec-dec (B14)** — `posttrainllm sample --draft <m> --temperature T`
 now picks the right algorithm: T==0 → existing greedy step (lossless wrt
 argmax); T>0 → new rejection-sampling step (Leviathan 2023 Thm 3.5 —
 distributionally lossless wrt sampling from p_target). Smoke-tested with
 self-speculation.
 
-**Quality classifier (B10)** — `tinygpt train-quality-classifier` +
-`tinygpt quality-filter`. Bag-of-ngrams + logistic regression, pure
+**Quality classifier (B10)** — `posttrainllm train-quality-classifier` +
+`posttrainllm quality-filter`. Bag-of-ngrams + logistic regression, pure
 Swift no MLX. The FineWeb-Edu architecture, agnostic to labels — user
 supplies positive/negative for their quality dimension. .tgfq format
 (~262 KB binary). Smoke-tested: 97% accept on coherent text vs 2%
@@ -261,7 +261,7 @@ Sample tab:
 
 Train tab (unique vs LM Studio/Ollama — they don't train):
 - LR-schedule picker: cosine / **wsd** / constant (calls the same
-  `lrAtWSD` primitive `tinygpt train` uses)
+  `lrAtWSD` primitive `posttrainllm train` uses)
 - `--seed` text field (UInt64; blank = random) — `MLXRandom.seed`
   before model construction
 - Spike-detector toggle (uses `LossSpikeDetector` from TinyGPTModel)
@@ -270,7 +270,7 @@ Train tab (unique vs LM Studio/Ollama — they don't train):
 Interp tab (unique — no other local-AI Mac app has this):
 - Pickers for model + corpus + output sidecar
 - Steppers for layer / d_features / steps / batch / ctx
-- "Train SAE" runs `tinygpt-cli sae …` as a subprocess; stdout
+- "Train SAE" runs `posttrainllm-cli sae …` as a subprocess; stdout
   streams live into the right pane; MSE + L0 pills update inline
   while the run is in flight
 - Reveal-in-Finder on the saved sidecar
@@ -278,11 +278,11 @@ Interp tab (unique — no other local-AI Mac app has this):
 App-wide:
 - `.app` bundle via `scripts/build_macapp.sh` — proper
   Contents/{MacOS,Resources} layout, Info.plist, ad-hoc codesigned,
-  bundled `tinygpt-cli` next to the app binary so Interp works
+  bundled `posttrainllm-cli` next to the app binary so Interp works
   regardless of where the .app is installed
 - Branded icon via `scripts/make_icon.sh` — pipes
   `browser/public/favicon.svg` through qlmanage → sips → iconutil →
-  `native-mac/Resources/TinyGPT.icns`
+  `native-mac/Resources/posttrainllm.icns`
 - Welcome pane with Sample/Train/Fine-tune/Interp three-feature pitch
 - Gallery discovery walks `data/gallery/` (added), `browser/public/
   gallery/`, `public/gallery/`, plus the system Application Support
@@ -292,7 +292,7 @@ App-wide:
 HF model browser (cloud-icon button in sidebar):
 - Sheet-based downloader. Text-input for `owner/repo`; pulls
   config.json + tokenizer.json + safetensors shards into
-  `~/Library/Application Support/TinyGPT/hf/<owner>__<repo>/`.
+  `~/Library/Application Support/posttrainllm/hf/<owner>__<repo>/`.
 - URLSession + per-chunk progress callbacks. `HF_TOKEN` env for
   gated models. Atomic .part rename on completion.
 - Downloaded models list with Reveal-in-Finder + Copy-CLI-cmd +
@@ -302,7 +302,7 @@ HF model browser (cloud-icon button in sidebar):
   existing `TinyGPTModel`).
 
 Server tab (5th tab, OpenAI-compatible HTTP endpoint):
-- Wraps `tinygpt-cli serve <model> --host 127.0.0.1 --port N` as a
+- Wraps `posttrainllm-cli serve <model> --host 127.0.0.1 --port N` as a
   subprocess. Model picker accepts files OR HF dirs. Start/Stop
   toggle with live status. Endpoint card shows the URL + the three
   OpenAI routes (/v1/chat/completions, /v1/completions, /v1/models).
@@ -318,7 +318,7 @@ Jan comparison + ships two things they don't have (live training,
 interp).
 
 App bundle: ~380 MB (mostly the MLX metallib + a CLI binary copy).
-Launch: `open build/TinyGPT.app` or `cp -r build/TinyGPT.app /Applications/`.
+Launch: `open build/posttrainllm.app` or `cp -r build/posttrainllm.app /Applications/`.
 Both binaries verified by smoke-launching the .app + invoking the
 bundled CLI to produce a real `.sae` sidecar (MSE 5.52e-02, L0 34.45%).
 
@@ -334,21 +334,21 @@ work briefs** ready so the training day produces a model you can
 1. **PLAN.md Tier D + Tier E** — split data gaps (Tier D) from eval
    pipelines (Tier E). E0–E8 enumerated, A1 specialist now gated on
    E1+E3.
-2. **E0 shared schema + `tinygpt eval-compare`** —
+2. **E0 shared schema + `posttrainllm eval-compare`** —
    `Sources/TinyGPT/EvalCompare.swift`. Codable `Row` (snake_case
    JSON) so every harness writes one JSONL shape. Three view modes:
    `--by step` (training emergence), `--by model` (cross-model), `--by
    task` (which task scored what). Fixed dup-key crash + cell-truncation
    bug during smoke.
-3. **E3 `tinygpt run-lm-eval`** — `Sources/TinyGPT/RunLmEval.swift`
+3. **E3 `posttrainllm run-lm-eval`** — `Sources/TinyGPT/RunLmEval.swift`
    wraps `lm-eval-harness` as a subprocess. Two modes:
    - `--hf-model <id>` (canonical baseline scoring via HF transformers)
-   - `--tinygpt-model <ckpt>` (boots `tinygpt serve` and routes lm-eval
+   - `--posttrainllm-model <ckpt>` (boots `posttrainllm serve` and routes lm-eval
      via `local-completions` — uses our actual forward pass; no
      .tinygpt→HF semantic conversion). Self-invocation fallback chain:
      `CommandLine.arguments.first ?? Bundle.main.executableURL ??
-     resolveExecutable("tinygpt"|"tinygpt-cli")`.
-4. **`tinygpt serve` logprobs path** — added `scoreLogprobs(prompt:)`
+     resolveExecutable("posttrainllm"|"posttrainllm-cli")`.
+4. **`posttrainllm serve` logprobs path** — added `scoreLogprobs(prompt:)`
    in `Sources/TinyGPTServe/Serve.swift` for echo+logprobs requests
    (teacher-forced log_softmax). Required by lm-eval's loglikelihood
    tasks. Trigger condition is `logprobsRequested && echo` (any
@@ -356,18 +356,18 @@ work briefs** ready so the training day produces a model you can
 5. **Smoke training** — 10K steps Huge bf16 on FineWeb-Edu w/
    `--save-history`, completed in 1627s (6.1 step/s). 5 checkpoints
    at 2K/4K/6K/8K/10K written under `/tmp/huge-smoke-30min.*`.
-6. **Emergence sweep** — `tinygpt run-lm-eval` against all 5 checkpoints
+6. **Emergence sweep** — `posttrainllm run-lm-eval` against all 5 checkpoints
    + `SmolLM2-135M` baseline (limit=10, arc_easy). 12-row JSONL preserved
    at `docs/artifacts/emergence-smoke-2026-06-05.jsonl`. Real numbers:
 
    | Model | Step | arc_easy (n=10) |
    |---|---|---|
    | SmolLM2-135M | baseline | **0.500** |
-   | tinygpt-huge-smoke | 2000 | 0.300 |
-   | tinygpt-huge-smoke | 4000 | 0.300 |
-   | tinygpt-huge-smoke | 6000 | 0.300 |
-   | tinygpt-huge-smoke | 8000 | 0.300 |
-   | tinygpt-huge-smoke | 10000 | 0.300 |
+   | posttrainllm-huge-smoke | 2000 | 0.300 |
+   | posttrainllm-huge-smoke | 4000 | 0.300 |
+   | posttrainllm-huge-smoke | 6000 | 0.300 |
+   | posttrainllm-huge-smoke | 8000 | 0.300 |
+   | posttrainllm-huge-smoke | 10000 | 0.300 |
 
    Honest read: 0.300 across all our checkpoints is statistically
    indistinguishable from random (0.25 + ~0.15 stderr at n=10) — our
@@ -389,7 +389,7 @@ multiple agents can ship in parallel without merge conflict:
 | `E2-tau-bench-eval.md` | multi-turn agent eval | ~1d |
 | `E5-humaneval-sandbox.md` | Rust-isolated Python exec scorer | ~1-2d |
 | `E7-judge-shim.md` | LLM-as-judge via local Qwen/SmolLM | ~1d |
-| `E8-train-time-eval-hook.md` | `tinygpt train --eval-every N` | ~1d |
+| `E8-train-time-eval-hook.md` | `posttrainllm train --eval-every N` | ~1d |
 | `eval-leaderboard-viewer.md` | `/eval-leaderboard.astro` (3 views) | ~2-3d |
 | `sae-timeline-viewer.md` | `/sae-timeline.astro` (B13 viz) | ~1d |
 | `rust-parquet-decoder.md` | replace pyarrow with Rust binary | ~half-day |
@@ -403,18 +403,18 @@ files, maintainer merges.
 **Verify pipeline still works (quick smoke before training):**
 
 ```bash
-./native-mac/.build/arm64-apple-macosx/release/tinygpt \
+./native-mac/.build/arm64-apple-macosx/release/posttrainllm \
     eval-compare docs/artifacts/emergence-smoke-2026-06-05.jsonl --by step
 ```
 
-Should print the 5-row TinyGPT trajectory table above.
+Should print the 5-row posttrainllm trajectory table above.
 
 **Training-day state (2026-06-05 PM):**
 
 - **N02 fired** — `./scripts/nightly.sh` started N02 (Huge bf16,
   FineWeb-Edu, 200K steps, ~11 hrs). PID was 18877; `caffeinate -di`
   wrapping the job. Output goes to
-  `~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt` +
+  `~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt` +
   `huge-base-v1.step-*.tinygpt` (every 2K steps) +
   `huge-base-v1.jsonl` (dashboard log).
 - N02 script already has `--save-history --log-jsonl --val-every 500`
@@ -429,12 +429,12 @@ Should print the 5-row TinyGPT trajectory table above.
 
 ```bash
 # Score every checkpoint against the eval suite + SmolLM2 baseline.
-./scripts/score-run.sh ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt
+./scripts/score-run.sh ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt
 #   → writes docs/artifacts/score-huge-base-v1-<date>.jsonl
 #   → prints --by step / --by model / --by task tables
 
 # Train SAEs across the same checkpoints → feature-emergence timeline.
-./scripts/sae-run.sh ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt
+./scripts/sae-run.sh ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt
 #   → writes docs/artifacts/sae-huge-base-v1-<date>/timeline.jsonl
 ```
 
@@ -458,8 +458,8 @@ infrastructure that wasn't worth blocking the lane on:
   isn't a clean restore. Real work; skip until either MLX upstreams
   state-readable Adam, or someone does a clean manual port.
 - **B13 v2 (memit/patch on checkpoints + browser viewer)** — the
-  `--checkpoint-dir` pattern from `tinygpt sae` ports mechanically
-  to `tinygpt memit` and `tinygpt patch`. ~1 day. The browser
+  `--checkpoint-dir` pattern from `posttrainllm sae` ports mechanically
+  to `posttrainllm memit` and `posttrainllm patch`. ~1 day. The browser
   viewer to plot SAE feature emergence over time is the third
   piece. None of this blocks training; all of it is post-N02
   follow-up work.
@@ -472,7 +472,7 @@ infrastructure that wasn't worth blocking the lane on:
   `Int.random`. Full coverage needs a seeded host RNG threaded
   through ByteCorpus/TokenizedCorpus.sampleBatchRaw. See
   `docs/determinism.md` for the v2 plan.
-- **KV-cache for spec-dec path** — `tinygpt sample --draft` (both
+- **KV-cache for spec-dec path** — `posttrainllm sample --draft` (both
   greedy + new stochastic) bypasses the KV cache. Wiring KV
   through to target's parallel verification forward is a
   separate task.
@@ -496,7 +496,7 @@ infrastructure that wasn't worth blocking the lane on:
 <sha> docs: PLAN.md — roadmap + 2026-06-04 competitor sweep
 ```
 
-**Nothing is running.** No background `tinygpt train` process, no pending shell jobs. `pgrep -fl 'tinygpt train'` should return nothing.
+**Nothing is running.** No background `posttrainllm train` process, no pending shell jobs. `pgrep -fl 'posttrainllm train'` should return nothing.
 
 ## What just shipped (this session)
 
@@ -510,7 +510,7 @@ In commit order, oldest → newest:
 6. **B16 mlx-swift 0.31.3 → 0.31.4** — bumped, bench at small preset showed no signal (workload too small to be compute-bound). Real M5 NA verification deferred until a Mega/Huge checkpoint exists.
 7. **C10 training-run dashboard** — `--log-jsonl <path>` appends JSON-lines stream (meta/step/val/done events). Viewer at `/training-dashboard.astro` (zero-dep, multi-run overlay, drag-drop).
 8. **C9 v1 determinism** — `--seed UInt64` seeds MLXRandom before model construction. Init reproducible; batch sampling still uses non-seedable `Int.random` (v2 follow-up). See `docs/determinism.md`.
-9. **B13 v1 interp-on-checkpoints** — `tinygpt train --save-history` writes per-step `<stem>.step-N.tinygpt` copies; `tinygpt sae --checkpoint-dir <dir> --timeline-out <jsonl>` trains an SAE per checkpoint and emits a JSONL timeline. Smoke: tiny preset · 5 ckpts · MSE 0.019→0.013 trajectory + L0 24%→37% — feature emergence visible. v2 = same pattern for memit/patch + browser viewer.
+9. **B13 v1 interp-on-checkpoints** — `posttrainllm train --save-history` writes per-step `<stem>.step-N.tinygpt` copies; `posttrainllm sae --checkpoint-dir <dir> --timeline-out <jsonl>` trains an SAE per checkpoint and emits a JSONL timeline. Smoke: tiny preset · 5 ckpts · MSE 0.019→0.013 trajectory + L0 24%→37% — feature emergence visible. v2 = same pattern for memit/patch + browser viewer.
 
 **Files touched this session** (use `git diff 5143366..HEAD --stat`):
 
@@ -535,10 +535,10 @@ All shipped today (2026-06-05). Nothing left on this tier.
 
 | Task | Status |
 |---|---|
-| **B13 v1 Interp-on-checkpoints** | SHIPPED — `tinygpt train --save-history` + `tinygpt sae --checkpoint-dir` + JSONL timeline. |
-| **B17 SAELens / Neuronpedia export** | SHIPPED — `tinygpt sae-to-saelens`. |
-| **B19 Group-SAE** | SHIPPED — `tinygpt sae --layer-group A,B,C`. |
-| **B10 Quality classifier** | SHIPPED — `tinygpt train-quality-classifier` + `tinygpt quality-filter`. |
+| **B13 v1 Interp-on-checkpoints** | SHIPPED — `posttrainllm train --save-history` + `posttrainllm sae --checkpoint-dir` + JSONL timeline. |
+| **B17 SAELens / Neuronpedia export** | SHIPPED — `posttrainllm sae-to-saelens`. |
+| **B19 Group-SAE** | SHIPPED — `posttrainllm sae --layer-group A,B,C`. |
+| **B10 Quality classifier** | SHIPPED — `posttrainllm train-quality-classifier` + `posttrainllm quality-filter`. |
 
 ### Tier 2 — light training (~30 min to a few hrs)
 
@@ -546,7 +546,7 @@ All shipped today (2026-06-05). Nothing left on this tier.
 |---|---|---|
 | ~~**B14 Speculative decoding**~~ | SHIPPED — greedy was already there; stochastic (T>0) added today via SpeculativeDecode.stepStochastic. |
 | ~~B13 demo~~ | DONE — smoke-tested at 5 ckpts. Real-scale demo runs on tonight's N02 base. |
-| **B13 v2 — port pattern to memit + patch + browser viewer** | ~1-2 days | Mechanical: `tinygpt memit --checkpoint-dir <dir> --timeline-out <jsonl>`. Then `/sae-timeline.astro` viewer mirrors `/training-dashboard.astro`. Cross-checkpoint feature alignment is the harder follow-up. |
+| **B13 v2 — port pattern to memit + patch + browser viewer** | ~1-2 days | Mechanical: `posttrainllm memit --checkpoint-dir <dir> --timeline-out <jsonl>`. Then `/sae-timeline.astro` viewer mirrors `/training-dashboard.astro`. Cross-checkpoint feature alignment is the harder follow-up. |
 
 ### Tier 3 — serious training (the A-track gate)
 
@@ -564,7 +564,7 @@ All shipped today (2026-06-05). Nothing left on this tier.
 1. `cd native-mac && swift build -c release` — must complete with `ok (build complete)`
 2. **For training paths**: run a smoke train, e.g.
    ```bash
-   ./native-mac/.build/arm64-apple-macosx/release/tinygpt train \
+   ./native-mac/.build/arm64-apple-macosx/release/posttrainllm train \
      --preset small --steps 30 --warmup 5 --lr-schedule wsd --decay-steps 10 \
      --val-split 0.1 --val-every 10 --seed 42 \
      --corpus data/examples/tiny-corpus.txt --out /tmp/smoke.tinygpt \

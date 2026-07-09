@@ -1,11 +1,11 @@
 ---
 title: Indic-language evals — MILU + IndicGenBench wiring
-description: How tinygpt scores Indic-language ability — MILU multi-choice across 11 langs, IndicGenBench XQuAD extractive QA. The Wave 4 gate before claiming Hindi support.
+description: How posttrainllm scores Indic-language ability — MILU multi-choice across 11 langs, IndicGenBench XQuAD extractive QA. The Wave 4 gate before claiming Hindi support.
 ---
 
 # Indic-language evals — MILU + IndicGenBench
 
-**Status**: CLI shipped (`tinygpt eval-indic`), datasets must be
+**Status**: CLI shipped (`posttrainllm eval-indic`), datasets must be
 pre-fetched, baseline numbers below are against an English byte-level
 Shakespeare model — i.e. the expected ~0% baseline.
 **Date**: 2026-05-31
@@ -38,7 +38,7 @@ get a real baseline. See the §4 landscape doc for *why* the previous
 
 ```
 ┌──────────────────────────┐
-│  tinygpt eval-indic      │
+│  posttrainllm eval-indic      │
 │  --task milu | indic…    │
 └──────────┬───────────────┘
            │ ModelLoader.load
@@ -65,19 +65,19 @@ Implementation in [`native-mac/Sources/TinyGPT/EvalIndic.swift`][src].
 
 ```bash
 # MILU (Hindi split, 100 samples)
-tinygpt eval-indic --task milu \
+posttrainllm eval-indic --task milu \
     --model /tmp/flagship-huge.tinygpt \
-    --milu-data ~/.cache/tinygpt/datasets/ai4bharat/MILU/hi.jsonl \
+    --milu-data ~/.cache/posttrainllm/datasets/ai4bharat/MILU/hi.jsonl \
     --limit 100
 
 # IndicGenBench XQuAD (Hindi split, 50 samples)
-tinygpt eval-indic --task indicgenbench --subtask xquad \
+posttrainllm eval-indic --task indicgenbench --subtask xquad \
     --model /tmp/flagship-huge.tinygpt \
-    --indicgen-data ~/.cache/tinygpt/datasets/google/IndicGenBench_xquad_in/hi.jsonl \
+    --indicgen-data ~/.cache/posttrainllm/datasets/google/IndicGenBench_xquad_in/hi.jsonl \
     --limit 50
 
 # Both, aggregate report
-tinygpt eval-indic --task all \
+posttrainllm eval-indic --task all \
     --model /tmp/flagship-huge.tinygpt \
     --milu-data … --indicgen-data … --limit 100
 ```
@@ -87,8 +87,8 @@ tinygpt eval-indic --task all \
 Datasets are not bundled — pre-fetch with the existing dataset loader:
 
 ```bash
-tinygpt download-dataset ai4bharat/MILU
-tinygpt download-dataset google/IndicGenBench_xquad_in
+posttrainllm download-dataset ai4bharat/MILU
+posttrainllm download-dataset google/IndicGenBench_xquad_in
 ```
 
 Or any local JSONL with the schemas below. See the source-file
@@ -141,7 +141,7 @@ collapse whitespace.
 
 ## Baseline numbers — Shakespeare byte-level (smoke run)
 
-Run: `tinygpt eval-indic --task all --model
+Run: `posttrainllm eval-indic --task all --model
 data/checkpoints/huge-shakespeare-5000-loss1.22.tinygpt --milu-data
 /tmp/milu-smoke.jsonl --indicgen-data /tmp/xquad-smoke.jsonl --limit 4`
 
@@ -166,10 +166,10 @@ SQuAD-EM works) without making a claim about Indic ability.
 ## What a real baseline run needs
 
 1. **Pre-fetch real MILU data** (~85k questions × 11 languages):
-   `tinygpt download-dataset ai4bharat/MILU` — produces JSONL per
-   language at `~/.cache/tinygpt/datasets/ai4bharat/MILU/<lang>.jsonl`.
+   `posttrainllm download-dataset ai4bharat/MILU` — produces JSONL per
+   language at `~/.cache/posttrainllm/datasets/ai4bharat/MILU/<lang>.jsonl`.
    First-time download is ~50MB; per-language shards are 2-8MB.
-2. **Pre-fetch IndicGenBench XQuAD**: `tinygpt download-dataset
+2. **Pre-fetch IndicGenBench XQuAD**: `posttrainllm download-dataset
    google/IndicGenBench_xquad_in` — ~12MB for the Indic XQuAD shard.
 3. **Pick a real base model**: flagship-huge (221M params, byte-
    level) will also score ~0 on Indic — the right baseline targets are

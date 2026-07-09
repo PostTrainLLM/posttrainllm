@@ -5,7 +5,7 @@ import MLXOptimizers
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt prune-unstructured` — drop weights below a magnitude
+/// `posttrainllm prune-unstructured` — drop weights below a magnitude
 /// threshold. Each Linear-weight tensor gets a 0/1 mask; weights at
 /// mask-0 positions are zeroed.
 ///
@@ -24,8 +24,8 @@ import TinyGPTModel
 ///     Hypothesis".
 ///
 /// USAGE
-///   tinygpt prune-unstructured <model.tinygpt> --sparsity 0.5 --out pruned.tinygpt
-///   tinygpt prune-unstructured <model.tinygpt> --sparsity 0.3 --iterations 3 \
+///   posttrainllm prune-unstructured <model.tinygpt> --sparsity 0.5 --out pruned.tinygpt
+///   posttrainllm prune-unstructured <model.tinygpt> --sparsity 0.3 --iterations 3 \
 ///       --corpus train.txt --ft-steps 100 --out pruned.tinygpt
 enum PruneUnstructured {
     static func run(args: [String]) {
@@ -75,7 +75,7 @@ enum PruneUnstructured {
 
         print("""
 
-        TinyGPT — Unstructured magnitude pruning
+        posttrainllm — Unstructured magnitude pruning
         ----------------------------------------
         input:         \(inPath)
         sparsity:      \(sparsity)  (per round)
@@ -318,7 +318,7 @@ enum PruneUnstructured {
         // and reload via the canonical loader. Avoids re-implementing
         // the WASM→PyTorch transpose / nested-parameter merge.
         let tmp = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tinygpt-imp-\(UUID().uuidString).tinygpt")
+            .appendingPathComponent("posttrainllm-imp-\(UUID().uuidString).tinygpt")
         try TinyGPTFileWriter.write(file, to: tmp)
         defer { try? FileManager.default.removeItem(at: tmp) }
         try TinyGPTWeightLoader.load(tmp, into: model)
@@ -527,7 +527,7 @@ enum PruneUnstructured {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt prune-unstructured <model.tinygpt> [options]
+        usage: posttrainllm prune-unstructured <model.tinygpt> [options]
 
         --out <path>            Where to save the pruned model — required
         --sparsity F            Fraction of weights to zero in each round

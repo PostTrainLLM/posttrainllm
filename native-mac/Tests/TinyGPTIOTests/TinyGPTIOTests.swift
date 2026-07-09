@@ -35,9 +35,9 @@ final class TinyGPTIOTests: XCTestCase {
         return buf.withUnsafeBufferPointer { Data(buffer: $0) }
     }
 
-    private func tmpURL(_ name: String = "tinygpt-test.tinygpt") -> URL {
+    private func tmpURL(_ name: String = "posttrainllm-test.tinygpt") -> URL {
         let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tinygpt-tests-\(UUID().uuidString)")
+            .appendingPathComponent("posttrainllm-tests-\(UUID().uuidString)")
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir.appendingPathComponent(name)
     }

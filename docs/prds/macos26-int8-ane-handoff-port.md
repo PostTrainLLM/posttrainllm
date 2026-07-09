@@ -24,7 +24,7 @@ Status: IN PROGRESS (2026-06-10) — Phase A SHIPPED, Phase B in flight. Spawned
 4. **Numerics gate exists**: `scripts/ane/m8_numerics_gate.py` — 5 prompts
    × 8 greedy steps vs saved fp32 baseline; PASS = 100% top-1 + cosine
    ≥ 0.999 + canary. Run on every phase. Baseline:
-   `~/.cache/tinygpt/ane/m8-gate-baseline.npz`.
+   `~/.cache/posttrainllm/ane/m8-gate-baseline.npz`.
 5. Phase C (int8 activation IO) stays gated/optional — it is the only part
    that truly needs the macOS26 target, which is currently broken (#3).
 
@@ -42,7 +42,7 @@ Files in scope: `native-mac/Sources/TinyGPTModel/Qwen3ANEChunked.swift` (299 lin
 
 ### 1. Block .mlpackage conversion
 
-Today: each `m8-block-i.mlpackage` is converted via the Python `tinygpt to-coreml` exporter with fp16 weights. The fp16 weights get loaded into ANE memory at runtime.
+Today: each `m8-block-i.mlpackage` is converted via the Python `posttrainllm to-coreml` exporter with fp16 weights. The fp16 weights get loaded into ANE memory at runtime.
 
 Change: convert with int8 quantized linear weights using `coremltools.optimize.coreml.linear_quantize_weights` (granularity=`per_block`, mode=`linear_symmetric`, bits=8). Output `.mlpackage` is ~2× smaller on disk; ANE loads int8 + per-block scales directly.
 
@@ -119,7 +119,7 @@ Per anemll-vs-M8 memo (today): anemll has no LoRA path, has open Qwen3 bugs on m
 
 ## Related
 
-- `feedback-tinygpt-north-star` — formula gate (5%/2-week bar; this ships ~30%)
+- `feedback-posttrainllm-north-star` — formula gate (5%/2-week bar; this ships ~30%)
 - `project-anemll-vs-m8-2026-06-09` — the decision context
 - `feedback-research-first-doctrine` — research that found this
 - Draw Things engineering blog 2026-04-16 (primary source for the macOS 26 int8 numbers)

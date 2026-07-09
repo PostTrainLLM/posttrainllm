@@ -12,7 +12,7 @@ related_prds: factory-serve-mlx-compile-specdec.md (existing serve-side spec-dec
 
 ## Goal
 
-Wire `--draft-model <path>` into `tinygpt serve` and `tinygpt sample`
+Wire `--draft-model <path>` into `posttrainllm serve` and `posttrainllm sample`
 so a small "draft" model proposes K tokens per step and the target
 model verifies them in one parallel forward. Expect ~1.6–2× decode
 tok/s on Mega (~960M target) using a Tiny-class draft (~10M params),
@@ -42,8 +42,8 @@ a small model trained on the same domain.
 
 - `Sources/TinyGPTServe/SpecDec.swift` — new file with the
   accept/reject loop. Takes target + draft + K (draft length).
-- `tinygpt serve --draft-model <path> --draft-k 4` flag.
-- `tinygpt sample --draft-model <path>` for offline CLI use.
+- `posttrainllm serve --draft-model <path> --draft-k 4` flag.
+- `posttrainllm sample --draft-model <path>` for offline CLI use.
 - Numerics gate: `evals/specdec-numerics.swift` asserts
   `serve(target, draft) == serve(target)` byte-for-byte at T=0 on a
   fixed 100-prompt set. Gate-fail → spec-dec disabled, fall back to

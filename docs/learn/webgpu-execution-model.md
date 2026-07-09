@@ -1,6 +1,6 @@
 ---
 title: The WebGPU execution model (for reading our shaders)
-description: The mental model you need to read TinyGPT's WGSL compute kernels and explain them to
+description: The mental model you need to read posttrainllm's WGSL compute kernels and explain them to
   another engineer — device/queue, pipeline, dispatch, workgroups, invocations, bind groups, the
   memory hierarchy — then how our matmul + attention shaders map onto it.
 ---

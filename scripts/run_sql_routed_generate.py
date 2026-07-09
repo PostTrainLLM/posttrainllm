@@ -58,7 +58,7 @@ def route_for(row: dict, default: str, trust_route_field: bool = False) -> Route
 
 
 def run_generate(
-    tinygpt: str,
+    posttrainllm: str,
     base: str,
     lora: str,
     data: Path,
@@ -67,7 +67,7 @@ def run_generate(
     max_tokens: int,
 ) -> None:
     cmd = [
-        tinygpt,
+        posttrainllm,
         "generate",
         base,
         "--lora",
@@ -88,7 +88,7 @@ def run_generate(
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("--tinygpt", default="native-mac/.build/debug/tinygpt")
+    p.add_argument("--posttrainllm", default="native-mac/.build/debug/posttrainllm")
     p.add_argument("--base")
     p.add_argument("--input", required=True)
     p.add_argument("--out")
@@ -138,7 +138,7 @@ def main() -> None:
         print(f"routed-generate: route-only {len(rows)} rows {route_counts}")
         return
 
-    with tempfile.TemporaryDirectory(prefix="tinygpt-sql-route-") as td:
+    with tempfile.TemporaryDirectory(prefix="posttrainllm-sql-route-") as td:
         tmp = Path(td)
         outputs: dict[int, dict] = {}
         for offset, route in enumerate(["public", "synthetic"]):

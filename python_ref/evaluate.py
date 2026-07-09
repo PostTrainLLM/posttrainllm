@@ -31,7 +31,7 @@ from pathlib import Path
 import torch
 
 from lora import apply_adapter, load_base
-from model import TinyGPT
+from model import posttrainllm
 from sample import generate
 
 REPO = Path(__file__).resolve().parent.parent
@@ -81,7 +81,7 @@ def longest_verbatim_match(generated: str, corpus: str) -> int:
     return best
 
 
-def memorization_check(model: TinyGPT, corpus: str, device, n_probes: int = 3) -> dict:
+def memorization_check(model: posttrainllm, corpus: str, device, n_probes: int = 3) -> dict:
     """Feed training prefixes back in; measure verbatim reproduction."""
     matches = []
     step = max(1, len(corpus) // (n_probes + 1))
@@ -102,9 +102,9 @@ def memorization_check(model: TinyGPT, corpus: str, device, n_probes: int = 3) -
     }
 
 
-def run_matrix(base: TinyGPT, lora: TinyGPT, retriever: Retriever,
+def run_matrix(base: posttrainllm, lora: posttrainllm, retriever: Retriever,
                few_shot: str, prompts: list[str], device) -> None:
-    def gen(model: TinyGPT, text: str) -> str:
+    def gen(model: posttrainllm, text: str) -> str:
         return generate(model, text, max_new_tokens=90, temperature=0.8,
                         top_k=40, seed=0, device=device)
 

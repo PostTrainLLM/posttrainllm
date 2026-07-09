@@ -3,19 +3,19 @@ import Default from "../layouts/Default.astro";
 ---
 
 <Default
-  title="TinyGPT — an open-source LLM factory and runtime that lives on your Mac"
+  title="posttrainllm — an open-source LLM factory and runtime that lives on your Mac"
   description="Distill routed specialists, package them for MLX, and know exactly where they fail. Train, fine-tune (LoRA / DoRA / QLoRA), evaluate (BFCL / τ-bench / lm-eval), serve OpenAI-compatible, and inspect with SAE / MEMIT / patch — all on one Apple Silicon machine. MIT licensed. Built in the open by one developer."
-  ogTitle="TinyGPT — an open-source LLM factory that lives on your Mac"
+  ogTitle="posttrainllm — an open-source LLM factory that lives on your Mac"
   ogDescription="Distill, fine-tune, evaluate, serve, and inspect LLMs on a single Mac. Runs in a browser tab too. MIT."
-  twitterTitle="TinyGPT — an open-source LLM factory that lives on your Mac"
+  twitterTitle="posttrainllm — an open-source LLM factory that lives on your Mac"
   twitterDescription="Distill, fine-tune, evaluate, serve, and inspect LLMs on a single Mac. Runs in a browser tab too. MIT."
 >
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="topbar" role="banner">
-    <a class="brand-lockup" href="/" aria-label="TinyGPT home">
+    <a class="brand-lockup" href="/" aria-label="posttrainllm home">
       <span class="brand-mark" aria-hidden="true">T</span>
-      <span class="brand-name">TinyGPT</span>
+      <span class="brand-name">posttrainllm</span>
     </a>
     <nav class="topnav" aria-label="Primary">
       <a href="/playground">playground</a>
@@ -23,7 +23,7 @@ import Default from "../layouts/Default.astro";
       <a href="/leaderboard">leaderboard</a>
       <a href="/devlog">devlog</a>
       <a href="/roadmap">roadmap</a>
-      <a href="https://github.com/sarthak-fleet/tinygpt" rel="noopener">github</a>
+      <a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github</a>
     </nav>
   </header>
 
@@ -36,7 +36,7 @@ import Default from "../layouts/Default.astro";
         <span class="highlight">on a laptop you already own.</span>
       </h1>
       <p class="hero-lede">
-        TinyGPT is a Swift codebase + 30&plus; CLI subcommands for the full
+        posttrainllm is a Swift codebase + 30&plus; CLI subcommands for the full
         post&#8209;training stack on Apple Silicon: train, distill from a local
         teacher, fine&#8209;tune with LoRA / DoRA / QLoRA, gate with real evals
         (BFCL, &tau;&#8209;bench, lm&#8209;eval), serve OpenAI&#8209;compatible,
@@ -54,7 +54,7 @@ import Default from "../layouts/Default.astro";
             <span class="holo-dot"></span>
             <span class="holo-dot is-warm"></span>
             <span class="holo-dot is-violet"></span>
-            <span class="holo-title">specialist-router://tinygpt</span>
+            <span class="holo-title">specialist-router://posttrainllm</span>
             <span class="holo-pill">local</span>
           </div>
 
@@ -100,7 +100,7 @@ import Default from "../layouts/Default.astro";
       </div>
 
       <div class="cta-row">
-        <a class="cta primary" href="https://github.com/sarthak-fleet/tinygpt#build-it-locally" rel="noopener">
+        <a class="cta primary" href="https://github.com/sarthak-fleet/posttrainllm#build-it-locally" rel="noopener">
           <span class="cta-label">Build the Mac CLI</span>
           <span class="cta-sub"><code>xcodebuild</code> &middot; macOS 14+ &middot; MLX&#8209;Swift</span>
         </a>
@@ -143,7 +143,7 @@ import Default from "../layouts/Default.astro";
           </li>
           <li class="is-us">
             <span class="bar-row">
-              <span class="bar-label">Qwen3&#8209;4B file&#8209;ops specialist <span class="bar-tag bar-tag-accent">tinygpt</span></span>
+              <span class="bar-label">Qwen3&#8209;4B file&#8209;ops specialist <span class="bar-tag bar-tag-accent">posttrainllm</span></span>
               <span class="bar-track"><span class="bar-fill bar-fill-accent" style="--w:100%"></span></span>
               <span class="bar-value">100<span class="pct">%</span></span>
             </span>
@@ -178,7 +178,7 @@ import Default from "../layouts/Default.astro";
         LoRA SFT, single Mac, no cloud train. Cheap routed specialist&nbsp;&gt;&nbsp;bigger general
         on one domain is the project thesis &mdash; not "4B&nbsp;&gt;&nbsp;12B in general."
         The same file&#8209;ops specialist regresses on out&#8209;of&#8209;domain breadth
-        (60&nbsp;&rarr;&nbsp;42%), so TinyGPT packages it with the caveat instead of
+        (60&nbsp;&rarr;&nbsp;42%), so posttrainllm packages it with the caveat instead of
         pretending it is a general planner.
         <a href="/docs/learn/tool-calling-frontier-parity">Full writeup, including the honest tradeoffs &rarr;</a>
       </p>
@@ -189,7 +189,7 @@ import Default from "../layouts/Default.astro";
       <h2 id="metrics-h2" class="section-h2">Measured, on one Mac.</h2>
       <p class="section-blurb">
         Numbers below are from a stock M5 Pro / 48 GB. Reproducible via
-        <code>tinygpt bench</code> and the linked artefacts. Where a number
+        <code>posttrainllm bench</code> and the linked artefacts. Where a number
         applies only to a specific preset or build, the preset is named.
       </p>
 
@@ -264,43 +264,43 @@ import Default from "../layouts/Default.astro";
         <li class="step" data-step="01">
           <span class="step-num" aria-hidden="true">01</span>
           <span class="step-name">Data</span>
-          <span class="step-cmd">tinygpt download&#8209;dataset</span>
+          <span class="step-cmd">posttrainllm download&#8209;dataset</span>
           <span class="step-detail">22 curated sets. HF streaming, Magpie synth, GitHub issue&rarr;PR, MS&#8209;MARCO, the&#8209;stack&#8209;smol.</span>
         </li>
         <li class="step" data-step="02">
           <span class="step-num" aria-hidden="true">02</span>
           <span class="step-name">Distill</span>
-          <span class="step-cmd">tinygpt distill</span>
+          <span class="step-cmd">posttrainllm distill</span>
           <span class="step-detail">KL&nbsp;+&nbsp;NLL teacher&rarr;student. Local teacher (Qwen3, Gemma, DeepSeek via API or Codex CLI). Rejection&#8209;sample on a checker.</span>
         </li>
         <li class="step" data-step="03">
           <span class="step-num" aria-hidden="true">03</span>
           <span class="step-name">Train / SFT / DPO</span>
-          <span class="step-cmd">tinygpt sft &middot; dpo &middot; es</span>
+          <span class="step-cmd">posttrainllm sft &middot; dpo &middot; es</span>
           <span class="step-detail">Full PEFT bundle: LoRA, LoRA+, DoRA, VeRA, LoftQ, AdaLoRA, RsLoRA, PISSA. DPO/SimPO/KTO/ORPO in one trainer.</span>
         </li>
         <li class="step" data-step="04">
           <span class="step-num" aria-hidden="true">04</span>
           <span class="step-name">Eval gate</span>
-          <span class="step-cmd">tinygpt eval&#8209;gate</span>
+          <span class="step-cmd">posttrainllm eval&#8209;gate</span>
           <span class="step-detail">BFCL, &tau;&#8209;bench, lm&#8209;eval (MLX adapter), HumanEval+sandbox, judge shim. Exit&#8209;non&#8209;zero on regression.</span>
         </li>
         <li class="step" data-step="05">
           <span class="step-num" aria-hidden="true">05</span>
           <span class="step-name">Serve</span>
-          <span class="step-cmd">tinygpt serve</span>
+          <span class="step-cmd">posttrainllm serve</span>
           <span class="step-detail">OpenAI&nbsp;+&nbsp;Ollama surfaces on the same socket. Continue.dev / any OpenAI client plugs in unchanged.</span>
         </li>
         <li class="step" data-step="06">
           <span class="step-num" aria-hidden="true">06</span>
           <span class="step-name">Agent</span>
-          <span class="step-cmd">tinygpt agent</span>
+          <span class="step-cmd">posttrainllm agent</span>
           <span class="step-detail">Multi&#8209;turn, tool dispatch, persistent KV, FSM&#8209;constrained JSON, optional <code>&#8209;&#8209;cloud&#8209;escalate</code>.</span>
         </li>
         <li class="step step-loop" data-step="07">
           <span class="step-num" aria-hidden="true">07</span>
           <span class="step-name">Traces &rarr; data</span>
-          <span class="step-cmd">tinygpt traces&#8209;to&#8209;data</span>
+          <span class="step-cmd">posttrainllm traces&#8209;to&#8209;data</span>
           <span class="step-detail">Every rollout is a token&#8209;preserving <code>.atraj</code>. Filter, dedupe (MinHash), emit ChatML SFT JSONL. Then loop to step&nbsp;02.</span>
         </li>
       </ol>
@@ -352,11 +352,11 @@ import Default from "../layouts/Default.astro";
           </header>
           <ul>
             <li><strong>Shared schema</strong> &mdash; every eval emits the same JSONL row (E0)</li>
-            <li><strong>tinygpt eval&#8209;bfcl</strong> &mdash; 10 BFCL categories, OpenAI&#8209;compat shim into <code>tinygpt&nbsp;serve</code></li>
-            <li><strong>tinygpt eval&#8209;tau&#8209;bench</strong> &mdash; retail + airline, configurable user simulator</li>
-            <li><strong>tinygpt run&#8209;lm&#8209;eval</strong> &mdash; MLX adapter for <code>lm&#8209;evaluation&#8209;harness</code>, two modes</li>
-            <li><strong>tinygpt eval&#8209;humaneval</strong> &mdash; Rust&nbsp;+&nbsp;<code>sandbox&#8209;exec</code> code execution</li>
-            <li><strong>tinygpt eval&#8209;gate</strong> &mdash; CI&#8209;grade regression gate, exits non&#8209;zero</li>
+            <li><strong>posttrainllm eval&#8209;bfcl</strong> &mdash; 10 BFCL categories, OpenAI&#8209;compat shim into <code>posttrainllm&nbsp;serve</code></li>
+            <li><strong>posttrainllm eval&#8209;tau&#8209;bench</strong> &mdash; retail + airline, configurable user simulator</li>
+            <li><strong>posttrainllm run&#8209;lm&#8209;eval</strong> &mdash; MLX adapter for <code>lm&#8209;evaluation&#8209;harness</code>, two modes</li>
+            <li><strong>posttrainllm eval&#8209;humaneval</strong> &mdash; Rust&nbsp;+&nbsp;<code>sandbox&#8209;exec</code> code execution</li>
+            <li><strong>posttrainllm eval&#8209;gate</strong> &mdash; CI&#8209;grade regression gate, exits non&#8209;zero</li>
           </ul>
         </article>
 
@@ -366,8 +366,8 @@ import Default from "../layouts/Default.astro";
             <h3>OpenAI&#8209;compatible. Locally.</h3>
           </header>
           <ul>
-            <li><strong>tinygpt serve</strong> &mdash; OpenAI <em>and</em> Ollama on the same socket; Continue.dev provider compat</li>
-            <li><strong>tinygpt agent</strong> &mdash; multi&#8209;turn loop, tool dispatch, persistent KV, FSM JSON</li>
+            <li><strong>posttrainllm serve</strong> &mdash; OpenAI <em>and</em> Ollama on the same socket; Continue.dev provider compat</li>
+            <li><strong>posttrainllm agent</strong> &mdash; multi&#8209;turn loop, tool dispatch, persistent KV, FSM JSON</li>
             <li><strong>&#8209;&#8209;cloud&#8209;escalate</strong> &mdash; defer to Anthropic / OpenAI only when the local model wants to</li>
             <li><strong>Speculative decoding in <code>serve</code></strong> &mdash; <code>&#8209;&#8209;draft&#8209;model</code> draft&#43;verify, ~1.4&times; decode, lossless greedy; vanilla/Medusa/EAGLE&#8209;2 heads in the CLI</li>
             <li><strong>StreamingLLM sink</strong>, KV&#8209;cache quant (KIVI), prefix caching</li>
@@ -386,7 +386,7 @@ import Default from "../layouts/Default.astro";
             <li><strong>Per&#8209;layer ablation</strong> &middot; <strong>attention heatmap</strong></li>
             <li><strong>Linear probes</strong> &mdash; trainable per&#8209;layer classifiers, <code>.lp</code> sidecar</li>
             <li><strong>ROME</strong> &middot; <strong>MEMIT</strong> &mdash; rank&#8209;1 and rank&#8209;K fact editing, multi&#8209;layer with key&#8209;norm weighting</li>
-            <li><strong>Sparse autoencoders</strong> &mdash; <code>tinygpt sae</code>, group&#8209;SAE, SAELens / Neuronpedia export</li>
+            <li><strong>Sparse autoencoders</strong> &mdash; <code>posttrainllm sae</code>, group&#8209;SAE, SAELens / Neuronpedia export</li>
           </ul>
         </article>
 
@@ -429,20 +429,20 @@ import Default from "../layouts/Default.astro";
           <pre class="code-block" aria-label="Mac quickstart commands"><code><span class="cm"># build the CLI</span>
 cd native&#8209;mac
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-xcodebuild -scheme tinygpt -destination 'platform=macOS,arch=arm64' \
+xcodebuild -scheme posttrainllm -destination 'platform=macOS,arch=arm64' \
   -derivedDataPath .xcode-build build
 
 <span class="cm"># one&#8209;command quickstart: data &rarr; specialist &rarr; chat</span>
-tinygpt quickstart --data my.jsonl
+posttrainllm quickstart --data my.jsonl
 
 <span class="cm"># or distill from a local teacher</span>
-tinygpt distill --teacher qwen3-4b --student huge \
+posttrainllm distill --teacher qwen3-4b --student huge \
   --data ./traces --out ./student.tinygpt
 
 <span class="cm"># then serve it OpenAI&#8209;compatible</span>
-tinygpt serve --model ./student.tinygpt --port 8080</code></pre>
+posttrainllm serve --model ./student.tinygpt --port 8080</code></pre>
           <p class="run-card-cta">
-            <a class="inline-cta" href="https://github.com/sarthak-fleet/tinygpt#build-it-locally" rel="noopener">Full build instructions &rarr;</a>
+            <a class="inline-cta" href="https://github.com/sarthak-fleet/posttrainllm#build-it-locally" rel="noopener">Full build instructions &rarr;</a>
           </p>
         </article>
 
@@ -556,7 +556,7 @@ tinygpt serve --model ./student.tinygpt --port 8080</code></pre>
         <a href="/roadmap">roadmap</a>
         <a href="/inference">inference</a>
         <a href="/speedup">speedup</a>
-        <a href="https://github.com/sarthak-fleet/tinygpt" rel="noopener">github</a>
+        <a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github</a>
       </nav>
       <p class="footnote">
         MIT licensed. Browser playground runs everything client&#8209;side &mdash;
@@ -565,7 +565,7 @@ tinygpt serve --model ./student.tinygpt --port 8080</code></pre>
       </p>
       <p class="signed">
         &mdash; <a href="https://github.com/sarthakagrawal927" rel="noopener">Sarthak&nbsp;Agrawal</a>.
-        Building TinyGPT in the open; every backward pass derived by hand,
+        Building posttrainllm in the open; every backward pass derived by hand,
         every kernel parity&#8209;checked.
       </p>
     </footer>

@@ -515,7 +515,7 @@ public final class KVCache {
     /// Total cached-K/V bytes across all layers. Counts the active storage
     /// path only — dense (`keys` + `values`) when KIVI is off, or
     /// (`keysQ` + `valuesQ` + scales + zeros) when KIVI is on. Reported in
-    /// `tinygpt sample`'s footer for the memory-tradeoff smoke tests.
+    /// `posttrainllm sample`'s footer for the memory-tradeoff smoke tests.
     public func totalBytes(byteWidth: (DType) -> Int) -> (bytes: Int, populated: Int) {
         // Two byte counts to keep honest:
         //   - PHYSICAL bytes: actual allocated buffer size. In the

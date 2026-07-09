@@ -42,7 +42,7 @@ Usage:
   python3 scripts/eval_pace_unhappy.py \\
     --fixtures-dir /Users/sarthak/Desktop/fleet/pace/evals/fm-fixtures-oos \\
     --serve-url http://127.0.0.1:8765/v1/chat/completions \\
-    --sys-prompt /Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-system-prompt-v10-actions.txt
+    --sys-prompt /Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v10-actions.txt
 
   # baseline only (no serve) — reports structural failure for models with no intent class:
   python3 scripts/eval_pace_unhappy.py \\
@@ -67,7 +67,7 @@ import urllib.request
 from pathlib import Path
 
 PACE_EVAL = Path("/Users/sarthak/Desktop/fleet/pace/evals")
-DEFAULT_SYSP = Path("/Users/sarthak/Desktop/fleet/tinygpt/grammars/pace-system-prompt-v10-actions.txt")
+DEFAULT_SYSP = Path("/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v10-actions.txt")
 
 
 # ----- parser ---------------------------------------------------------------
@@ -159,7 +159,7 @@ def query_serve(url: str, model_id: str, sys_prompt: str, fx: dict,
     dt_ms = (time.monotonic() - t0) * 1000.0
     payload = json.loads(r)
     content = payload["choices"][0]["message"]["content"]
-    # output token count if the server reports it (LM Studio + tinygpt serve
+    # output token count if the server reports it (LM Studio + posttrainllm serve
     # both do); else fall back to the OpenAI-style usage block.
     out_toks = (payload.get("usage") or {}).get("completion_tokens") or 0
     return content, dt_ms, int(out_toks)

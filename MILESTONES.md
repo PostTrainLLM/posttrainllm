@@ -1,10 +1,10 @@
 # Milestones
 
-Project milestone tracker for tinygpt. Each milestone links to the phase and
+Project milestone tracker for posttrainllm. Each milestone links to the phase and
 docs that specify it; the underlying curriculum is in `docs/archive/learning_roadmap.md`.
 Interactive-feature backlog: `docs/feature_ideas.md`.
 
-- [x] **1. PyTorch TinyGPT baseline** — the ~0.8M byte-level model runs a correct
+- [x] **1. PyTorch posttrainllm baseline** — the ~0.8M byte-level model runs a correct
   forward pass and matches expected shapes at every layer.
   Phase 1 · `python_ref/model.py` · `docs/model_guide.md`
   _Done: 842,496 params; shape, loss-sanity (5.56 ≈ ln 256) and gradient-check tests pass._
@@ -27,7 +27,7 @@ Interactive-feature backlog: `docs/feature_ideas.md`.
 - [x] **5. Browser WASM port** — C++ kernels compiled with Emscripten; training
   runs in a Web Worker without freezing the UI.
   Phase 4 · `browser/`, `wasm/` · `docs/browser_notes.md`
-  _Done: five C++ kernels + a full C++ TinyGPT (`wasm/src/`), all hand-written
+  _Done: five C++ kernels + a full C++ posttrainllm (`wasm/src/`), all hand-written
   backward, verified natively (kernels 18/18 finite-diff; model overfits 5.56 →
   0.03). Compiled to WASM and driven by a Web Worker; headless-browser e2e trains
   to completion (loss 5.5 → 0.017) with the UI thread free and zero errors._

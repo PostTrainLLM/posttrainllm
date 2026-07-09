@@ -4,7 +4,7 @@ import Foundation
 import TinyGPTScreen
 
 enum AXCapture {
-    private static let defaultOutput = "~/.cache/tinygpt/datasets/vlm-ax-mac"
+    private static let defaultOutput = "~/.cache/posttrainllm/datasets/vlm-ax-mac"
     private static let defaultInterval: TimeInterval = 10
     private static let defaultMaxCaptures = 10_000
     private static let defaultMaxDepth = AccessibilityTree.defaultMaxDepth
@@ -280,7 +280,7 @@ enum AXCapture {
 
     private static func printUsage() {
         print("""
-        usage: tinygpt ax-capture [flags]
+        usage: posttrainllm ax-capture [flags]
 
         Capture foreground-window PNG + Accessibility-tree JSON pairs for
         Mac-specific VLM training data.
@@ -294,7 +294,7 @@ enum AXCapture {
           --max-depth <n>          AX recursion depth. Default: \(defaultMaxDepth)
           --max-children <n>       AX children expanded per node. Default: \(defaultMaxChildren)
           --excludes <path.json>   Exclude-list JSON. Default:
-                                   ~/.config/tinygpt/ax-capture-excludes.json
+                                   ~/.config/posttrainllm/ax-capture-excludes.json
           --daemonize              Start in background and write a PID file.
           --pid-file <path>        PID file for --daemonize / --stop.
           --stop                   Stop the daemon named by --pid-file.
@@ -306,7 +306,7 @@ enum AXCapture {
 
         Permissions:
           Screen Recording and Accessibility access must be granted to the
-          terminal or tinygpt binary in System Settings.
+          terminal or posttrainllm binary in System Settings.
         """)
     }
 }
@@ -321,7 +321,7 @@ private struct Options {
     var daemonize = false
     var stop = false
     var help = false
-    var pidFile = "~/.cache/tinygpt/ax-capture.pid"
+    var pidFile = "~/.cache/posttrainllm/ax-capture.pid"
 
     static func parse(_ args: [String]) throws -> Options {
         var opts = Options()
@@ -371,7 +371,7 @@ private struct Options {
 }
 
 private enum AXCaptureDefault {
-    static let output = "~/.cache/tinygpt/datasets/vlm-ax-mac"
+    static let output = "~/.cache/posttrainllm/datasets/vlm-ax-mac"
     static let interval: TimeInterval = 10
     static let maxCaptures = 10_000
 }
@@ -459,7 +459,7 @@ private struct Excludes: Decodable {
     }
 
     static func load(path: String?) throws -> Excludes {
-        let defaultPath = "~/.config/tinygpt/ax-capture-excludes.json"
+        let defaultPath = "~/.config/posttrainllm/ax-capture-excludes.json"
         let rawPath = path ?? defaultPath
         let resolved = (rawPath as NSString).expandingTildeInPath
         if FileManager.default.fileExists(atPath: resolved) {

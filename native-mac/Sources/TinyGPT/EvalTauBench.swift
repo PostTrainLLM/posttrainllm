@@ -3,7 +3,7 @@ import Foundation
 enum EvalTauBench {
     static func run(args: [String]) {
         var envName = "retail"
-        var root = "\(FileManager.default.homeDirectoryForCurrentUser.path)/.cache/tinygpt/datasets/_external/tau-bench"
+        var root = "\(FileManager.default.homeDirectoryForCurrentUser.path)/.cache/posttrainllm/datasets/_external/tau-bench"
         var userModel = "gpt-4o"
         var userProvider = "openai"
         let parsed = EvalHarnessSupport.parseCommon(args, usage: { exitUsage() })
@@ -29,21 +29,21 @@ enum EvalTauBench {
         let serve = EvalHarnessSupport.startServe(modelPath: model, port: common.servePort)
         defer { if serve.isRunning { serve.terminate() } }
 
-        let work = URL(fileURLWithPath: "/tmp/tinygpt-tau-\(UUID().uuidString.prefix(8))")
+        let work = URL(fileURLWithPath: "/tmp/posttrainllm-tau-\(UUID().uuidString.prefix(8))")
         try? FileManager.default.createDirectory(at: work, withIntermediateDirectories: true)
         let py = EvalHarnessSupport.resolveExecutable("python3") ?? URL(fileURLWithPath: "/usr/bin/python3")
         let base = "http://127.0.0.1:\(common.servePort)/v1"
         var env = ProcessInfo.processInfo.environment
         env["OPENAI_BASE_URL"] = base
         env["OPENAI_API_BASE"] = base
-        env["OPENAI_API_KEY"] = env["OPENAI_API_KEY"] ?? "tinygpt"
+        env["OPENAI_API_KEY"] = env["OPENAI_API_KEY"] ?? "posttrainllm"
         let end = common.limit > 0 ? "\(common.limit)" : "-1"
         let start = Date()
         let status = EvalHarnessSupport.runProcess(py, [
             "run.py",
             "--agent-strategy", "tool-calling",
             "--env", envName,
-            "--model", "tinygpt",
+            "--model", "posttrainllm",
             "--model-provider", "openai",
             "--user-model", userModel,
             "--user-model-provider", userProvider,
@@ -69,11 +69,11 @@ enum EvalTauBench {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-tau-bench <model.tinygpt|hf-dir> --out <jsonl> [options]
+        usage: posttrainllm eval-tau-bench <model.tinygpt|hf-dir> --out <jsonl> [options]
 
         --env retail|airline      tau-bench env (default: retail)
         --limit N                 first N tasks (default: full)
-        --serve-port N            local tinygpt serve port (default: 8097)
+        --serve-port N            local posttrainllm serve port (default: 8097)
         --budget <json>           fixed eval budget metadata for emitted rows
         --tau-root <dir>          local tau-bench checkout
         --user-model NAME         user simulator model (default: gpt-4o)

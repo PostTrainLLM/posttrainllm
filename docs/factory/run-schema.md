@@ -28,7 +28,7 @@ code can parse run metadata without loading MLX or a checkpoint.
 Use the CLI wrapper to render or validate a folder:
 
 ```bash
-tinygpt factory-run render \
+posttrainllm factory-run render \
   --config config.json \
   --dataset dataset.json \
   --baseline eval-baseline.json \
@@ -37,7 +37,7 @@ tinygpt factory-run render \
   --artifact artifact.json \
   --out runs/<id>
 
-tinygpt factory-run validate runs/<id>
+posttrainllm factory-run validate runs/<id>
 ```
 
 ## `config.json`
@@ -55,7 +55,7 @@ tinygpt factory-run validate runs/<id>
   "candidate": {
     "method": "sft-lora",
     "adapter_format": "tgla",
-    "training_command": "tinygpt sft ..."
+    "training_command": "posttrainllm sft ..."
   },
   "eval": {
     "primary": "pace-v11-ship-gate",
@@ -148,13 +148,13 @@ Required checks:
 Before publishing or releasing a run report, run:
 
 ```bash
-tinygpt factory-run publish-check --allow-report-only runs/<id>
+posttrainllm factory-run publish-check --allow-report-only runs/<id>
 ```
 
 Before shipping a package, run without `--allow-report-only`:
 
 ```bash
-tinygpt factory-run publish-check runs/<id>
+posttrainllm factory-run publish-check runs/<id>
 ```
 
 See [`enforcement.md`](enforcement.md) for the exact enforcement layers.
@@ -174,10 +174,10 @@ Machine-readable reproducibility metadata:
     "dirty": true
   },
   "commands": {
-    "baseline": "tinygpt generate ...",
+    "baseline": "posttrainllm generate ...",
     "candidate": "scripts/run_sql_routed_generate.py ...",
-    "training": "tinygpt sft ...",
-    "publish_check": "tinygpt factory-run publish-check --allow-report-only <run-dir>"
+    "training": "posttrainllm sft ...",
+    "publish_check": "posttrainllm factory-run publish-check --allow-report-only <run-dir>"
   },
   "datasets": [
     {
@@ -202,7 +202,7 @@ Required fields:
 {
   "artifact_id": "pace-planner-sft-v1",
   "kind": "adapter",
-  "path": "~/.cache/tinygpt/models/pace-planner-sft-v1",
+  "path": "~/.cache/posttrainllm/models/pace-planner-sft-v1",
   "base_model": "Qwen/Qwen3-4B-Instruct-2507",
   "format": "tgla",
   "package_dir": "specialists/pace-planner-sft-v1",

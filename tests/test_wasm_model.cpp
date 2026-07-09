@@ -1,4 +1,4 @@
-// test_wasm_model.cpp — correctness gate for the WASM-side TinyGPT (Phase 4).
+// test_wasm_model.cpp — correctness gate for the WASM-side posttrainllm (Phase 4).
 //
 // The kernel tests prove each op in isolation; this proves the whole model
 // assembled from them — forward, every hand-written backward, and the AdamW

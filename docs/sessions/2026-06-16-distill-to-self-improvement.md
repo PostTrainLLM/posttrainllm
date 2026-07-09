@@ -45,7 +45,7 @@ RL** as the answer. Ended building the (teacher-free) ReST loop + a batched thro
 
 ## Gotchas worth remembering
 
-- **`/tmp` gets wiped** — persist fused models under `~/.cache/tinygpt/models/`.
+- **`/tmp` gets wiped** — persist fused models under `~/.cache/posttrainllm/models/`.
 - **`--grad-checkpoint` is mandatory** for long-seq SFT (18-tool catalog floors examples ~3.5k tokens;
   151k-vocab logits OOM the backward without it).
 - **BFCL global-state isolation** — instances are keyed by `(model_name, test_id, class)` in module

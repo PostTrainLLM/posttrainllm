@@ -2,12 +2,12 @@
 import Default from "../layouts/Default.astro";
 
 const layoutProps = {
-  title: "TinyGPT — SAE timeline",
-  description: "Drop a tinygpt SAE timeline JSONL to see reconstruction error and sparse-feature activity over checkpoints.",
+  title: "posttrainllm — SAE timeline",
+  description: "Drop a posttrainllm SAE timeline JSONL to see reconstruction error and sparse-feature activity over checkpoints.",
   ogType: "article",
-  ogTitle: "TinyGPT — SAE timeline",
-  ogDescription: "Browser viewer for tinygpt sae --checkpoint-dir --timeline-out JSONL files.",
-  twitterTitle: "TinyGPT — SAE timeline",
+  ogTitle: "posttrainllm — SAE timeline",
+  ogDescription: "Browser viewer for posttrainllm sae --checkpoint-dir --timeline-out JSONL files.",
+  twitterTitle: "posttrainllm — SAE timeline",
   twitterDescription: "Watch SAE reconstruction and L0 activity evolve over training checkpoints.",
   themeColor: "#0a0c10",
   loadFonts: false,
@@ -115,7 +115,7 @@ const pageStyle = `
     <h1>SAE timeline</h1>
     <p class="sub">
       Drop a <code>.jsonl</code> produced by
-      <code>tinygpt sae --checkpoint-dir … --timeline-out …</code>. The
+      <code>posttrainllm sae --checkpoint-dir … --timeline-out …</code>. The
       page plots reconstruction MSE and L0 feature activity across training
       checkpoints, with group-SAE rows filterable by layer group.
     </p>

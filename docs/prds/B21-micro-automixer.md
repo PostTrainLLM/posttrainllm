@@ -40,7 +40,7 @@ to a single Mac.
   - A list of corpora (`--corpus name1=path1.txt --corpus
     name2=path2.txt ...`) — these are the variables to ratio.
   - A list of eval tasks (`--task bfcl --task gsm8k ...`) — uses the
-    existing `tinygpt run-lm-eval` + `tinygpt eval-bfcl` paths.
+    existing `posttrainllm run-lm-eval` + `posttrainllm eval-bfcl` paths.
   - Search budget: `--proxy-runs N --proxy-steps S` (e.g. 8 × 2000
     steps).
 - Search loop:
@@ -81,12 +81,12 @@ to a single Mac.
 
 ## Don't touch
 
-- `tinygpt train` itself — automix orchestrates `tinygpt train`
+- `posttrainllm train` itself — automix orchestrates `posttrainllm train`
   subprocesses. No coupling.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt automix --corpus code=stack.txt --corpus math=meta.txt
+- [ ] `posttrainllm automix --corpus code=stack.txt --corpus math=meta.txt
   --corpus web=fineweb.txt --task bfcl --proxy-runs 6 --proxy-steps
   2000 --out auto.jsonl` runs end-to-end on the M5 Pro.
 - [ ] The surrogate's EI estimate at step N+1 correlates positively

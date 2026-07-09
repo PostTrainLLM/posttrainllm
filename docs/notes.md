@@ -1,4 +1,4 @@
-# TinyGPT — a detailed write-up
+# posttrainllm — a detailed write-up
 
 How a documented scaffold became a verified, end-to-end implementation of the
 modern LLM stack: a GPT trained from scratch, adapted with LoRA, ported to
@@ -12,7 +12,7 @@ the commands in [§12](#12-how-to-reproduce-everything).
 
 ## 1. The point of the project
 
-TinyGPT is a **learning project**, not a product. The goal was never impressive
+posttrainllm is a **learning project**, not a product. The goal was never impressive
 text — a 0.8M-parameter model on a few kilobytes of data cannot produce that.
 The goal was to understand the whole stack *by building every layer of it* and
 **proving each layer correct before moving on**.
@@ -233,7 +233,7 @@ hand-written forward *and* backward:
 | `attention` | causal multi-head attention | through softmax, mask, all 4 projections |
 | `adamw` | the optimiser step | — (plus grad-norm/clip helpers) |
 
-Then `model.cpp` assembles them into a full TinyGPT — embeddings, the GELU MLP,
+Then `model.cpp` assembles them into a full posttrainllm — embeddings, the GELU MLP,
 the tied head, cross-entropy — again with every backward derived by hand.
 
 ### Verifying a hand-written backward
@@ -301,7 +301,7 @@ Main thread (main.ts)    UI only — controls, capability panel, loss chart
         │  postMessage (corpus + config)  ↑  TrainingProgress / checkpoint
 Web Worker (worker.ts)   the entire training loop
         │  calls
-WASM module              the kernels + the C++ TinyGPT
+WASM module              the kernels + the C++ posttrainllm
 ```
 
 **The main thread never does model maths.** Training runs in a Web Worker — a
@@ -489,9 +489,9 @@ ticked by code, is.
 - **[mlc-ai/web-llm](https://github.com/mlc-ai/web-llm)** — runs already-trained
   LLMs (Llama, Phi, Mistral, Qwen, Gemma) in the browser via WebGPU, exposing an
   OpenAI-compatible API. It is the *other half* of the in-browser LLM story:
-  TinyGPT is how a transformer is **built and trained** from the maths up;
+  posttrainllm is how a transformer is **built and trained** from the maths up;
   WebLLM is how a real, large pretrained model is **served** in a tab. They are
-  not stackable — WebLLM consumes MLC-compiled 4-bit artifacts, TinyGPT writes
+  not stackable — WebLLM consumes MLC-compiled 4-bit artifacts, posttrainllm writes
   its own f32 weights, and a LoRA adapter trained here cannot be applied to a
   Llama checkpoint there. They are complementary in spirit: read this repo to
   understand *what is happening inside the model*, read WebLLM to see *how the

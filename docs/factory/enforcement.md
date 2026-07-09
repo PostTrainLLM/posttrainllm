@@ -1,14 +1,14 @@
 # Factory Enforcement
 
-World-class docs are not enough by themselves. TinyGPT needs validators that
+World-class docs are not enough by themselves. posttrainllm needs validators that
 refuse weak artifacts.
 
 ## Enforcement Layers
 
 | Layer | Tool | What It Checks |
 |---|---|---|
-| Run bundle schema | `tinygpt factory-run validate runs/<id>` | Core typed JSON bundle: config, dataset, baseline, candidate, decision, optional artifact |
-| Publish evidence | `tinygpt factory-run publish-check runs/<id>` | Required evidence files, report sections, slice metrics, trace review, decision, ship/package constraints |
+| Run bundle schema | `posttrainllm factory-run validate runs/<id>` | Core typed JSON bundle: config, dataset, baseline, candidate, decision, optional artifact |
+| Publish evidence | `posttrainllm factory-run publish-check runs/<id>` | Required evidence files, report sections, slice metrics, trace review, decision, ship/package constraints |
 | Portable publish smoke | `python3 scripts/check_factory_run_publish.py runs/<id>` | Same policy in a no-build Python checker for CI/smokes |
 | Target-specific smokes | `evals/*-smoke.sh` | No-GPU fixture checks for scripts and report helpers |
 | Public artifact review | `docs/factory/public-artifacts.md` | Human-readable release state, blockers, competition context |
@@ -18,13 +18,13 @@ refuse weak artifacts.
 Report-only artifacts may have blockers, but they still need evidence:
 
 ```bash
-tinygpt factory-run publish-check --allow-report-only runs/<id>
+posttrainllm factory-run publish-check --allow-report-only runs/<id>
 ```
 
 Shipped artifacts are stricter:
 
 ```bash
-tinygpt factory-run publish-check runs/<id>
+posttrainllm factory-run publish-check runs/<id>
 ```
 
 For `decision=ship`, the check requires:

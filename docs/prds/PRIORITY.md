@@ -21,7 +21,7 @@ These are the real gaps before building the next candidate:
    heldout rows and was correctly marked `retry-data`; the next gate is
    preference tuning or a public benchmark slice.
 2. **Canonical run command/readout** — `FactoryRun` and
-   `FactoryRunFolder` define the schema/readout and `tinygpt factory-run`
+   `FactoryRunFolder` define the schema/readout and `posttrainllm factory-run`
    renders/validates a complete run folder. The next missing piece is wiring
    real eval/train commands to emit those files automatically.
 3. **Live baseline eval** — done for expanded SQL POC on Qwen3-0.6B.
@@ -72,13 +72,13 @@ include `metal`. Use:
 
 ```bash
 DEVELOPER_DIR=/Applications/Xcode-27.0.0-Beta.app/Contents/Developer \
-  swift build --build-system native --product tinygpt
+  swift build --build-system native --product posttrainllm
 ```
 
 Remaining gates that are not part of the low-compute sweep:
 
 - `B34` now has no-model bounded-concurrency smoke coverage. It still needs
-  real tinygpt-vs-mlx-server/oMLX qualification before claiming the PRD's
+  real posttrainllm-vs-mlx-server/oMLX qualification before claiming the PRD's
   `>=3x` live eval-runtime gate.
 - `C10`/`B6` now have typed run artifacts and a render/validate command. The UI
   should still wait until real train/eval commands emit `runs/<id>/`
@@ -143,7 +143,7 @@ Useful, but not needed before the first measured factory proof.
 | [B19 group-sae](B19-group-sae.md) | P2 | Interpretability cost reduction; not active. |
 | [capability-retention](capability-retention.md) | P2 | Important evaluation concept, but implement through the selected target's regression suite first. |
 | [factory-planner-v7-tools-in-prompt](factory-planner-v7-tools-in-prompt.md) | P2 | Use only if selected target is planner/tool-schema prompt work. |
-| [pace-task-loop-v1](pace-task-loop-v1.md) | P2 | Pace app integration is separate from TinyGPT factory proof. |
+| [pace-task-loop-v1](pace-task-loop-v1.md) | P2 | Pace app integration is separate from posttrainllm factory proof. |
 
 ## P3 — Parked Research
 
@@ -163,7 +163,7 @@ Keep these for learning/future expansion. Do not open during the factory proof.
 | [game-rl-environment-poc](game-rl-environment-poc.md) | P3 | RL environment research. |
 | [local-model-arena-selfplay](local-model-arena-selfplay.md) | P3 | Self-play research. |
 | [gepa-prompt-evolution](gepa-prompt-evolution.md) | P3 | Prompt-evolution research; not factory proof. |
-| [B35 local-agent-vertical-poc](B35-local-agent-vertical-poc.md) | P3 | Coding-agent product wedge is not the current TinyGPT center. |
+| [B35 local-agent-vertical-poc](B35-local-agent-vertical-poc.md) | P3 | Coding-agent product wedge is not the current posttrainllm center. |
 | [GPU-RESEARCH-BACKLOG](GPU-RESEARCH-BACKLOG.md) | P3 | Hardware-heavy backlog; use only after target proof. |
 
 ## Archive Candidates
@@ -181,7 +181,7 @@ future cleanup physically moves them into an archive directory and updates links
 | [specialist-pace-planner](specialist-pace-planner.md) | Track closed; pivoted to stock 4B/general planner lock. |
 | [factory-completeness-tracker](factory-completeness-tracker.md) | Tracking document; primitives mostly hold up in code. |
 | [factory-vision-m4-architecture-decision](factory-vision-m4-architecture-decision.md) | Decision made; downstream VLM work parked. |
-| [tinygpt-product-thesis](tinygpt-product-thesis.md) | Historical positioning; superseded by factory-first cleanup. |
+| [posttrainllm-product-thesis](posttrainllm-product-thesis.md) | Historical positioning; superseded by factory-first cleanup. |
 | [macos26-int8-ane-handoff-port](macos26-int8-ane-handoff-port.md) | Negative result; parked/closed. |
 | [5.5 sparse-moe-kernels](5.5-sparse-moe-kernels.md) | Blocked upstream; design note only. |
 

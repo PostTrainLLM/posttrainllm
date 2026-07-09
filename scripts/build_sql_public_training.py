@@ -5,7 +5,7 @@ This is the next step after the tiny synthetic SQL POC: train on
 schema-grounded public data while holding out a non-overlapping public slice.
 
 Default source is b-mc2/sql-create-context because it is lightweight and ships
-question + CREATE TABLE context + SQL. The output shape matches tinygpt's SFT
+question + CREATE TABLE context + SQL. The output shape matches posttrainllm's SFT
 reader and the existing exact-match public scorer.
 """
 

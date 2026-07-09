@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTIO
 
-/// `tinygpt push <local.tinygpt> --tag <name>` — upload a checkpoint to
+/// `posttrainllm push <local.tinygpt> --tag <name>` — upload a checkpoint to
 /// Cloudflare R2 (S3-compatible, zero egress, cheap).
 ///
 /// See R2Client.swift for the auth + CLI plumbing. This file is just the
@@ -54,13 +54,13 @@ enum CloudPush {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt push <local.tinygpt> --tag <name> [--dry-run]
+        usage: posttrainllm push <local.tinygpt> --tag <name> [--dry-run]
 
         Upload a checkpoint to Cloudflare R2. Uses the `aws` CLI under
         the hood with R2's S3-compatible endpoint.
 
         Credentials: set in env (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID,
-        R2_SECRET_ACCESS_KEY, R2_BUCKET) or in ~/.config/tinygpt/r2.env.
+        R2_SECRET_ACCESS_KEY, R2_BUCKET) or in ~/.config/posttrainllm/r2.env.
         """)
         exit(code)
     }

@@ -1,8 +1,8 @@
 import Foundation
 import TinyGPTIO
 
-// `tinygpt corrections-to-data` — Phase 2 of the continual-learning loop:
-// turn captured corrections into training JSONL ready for `tinygpt sft`/`dpo`.
+// `posttrainllm corrections-to-data` — Phase 2 of the continual-learning loop:
+// turn captured corrections into training JSONL ready for `posttrainllm sft`/`dpo`.
 // Optional replay mix folds in a sample of the base SFT data to resist
 // catastrophic forgetting. See docs/prds/continual-learning-loop.md.
 enum CorrectionsToData {
@@ -119,10 +119,10 @@ enum CorrectionsToData {
 
     private static func printUsage() {
         print("""
-        usage: tinygpt corrections-to-data --out <data.jsonl> [options]
+        usage: posttrainllm corrections-to-data --out <data.jsonl> [options]
 
         Convert captured corrections (Phase 1 store) into training JSONL for
-        `tinygpt sft` (default) or `tinygpt dpo`. Only corrections that carry an
+        `posttrainllm sft` (default) or `posttrainllm dpo`. Only corrections that carry an
         `input` produce a grounded pair; the rest are skipped and reported.
 
         --out <file>         output JSONL  (required)

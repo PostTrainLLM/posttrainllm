@@ -196,7 +196,7 @@ def main() -> None:
 
     results: list[RowResult] = []
     failures = 0
-    with tempfile.TemporaryDirectory(prefix="tinygpt-sql-perf-") as td:
+    with tempfile.TemporaryDirectory(prefix="posttrainllm-sql-perf-") as td:
         tmp = Path(td)
         for idx, row in enumerate(rows):
             row = dict(row)

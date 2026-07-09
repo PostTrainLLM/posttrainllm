@@ -1,4 +1,4 @@
-# tinygpt product thesis — the embedded local-AI runtime for Mac apps
+# posttrainllm product thesis — the embedded local-AI runtime for Mac apps
 
 Status: positioning doc (2026-06-10). Written as the specialist track closes
 (v11 = final 0.6B planner run, verdict pending) and focus shifts to
@@ -7,7 +7,7 @@ so the large-model phase starts from it, not from habit.
 
 ## The thesis in one line
 
-**tinygpt's durable asset is the runtime, not the factory. Product = the
+**posttrainllm's durable asset is the runtime, not the factory. Product = the
 embedded local-AI runtime for Mac apps. Pace is its first proof.**
 
 ## Evidence (why the factory isn't the product)
@@ -22,7 +22,7 @@ embedded local-AI runtime for Mac apps. Pace is its first proof.**
 - Specialist training only paid when it was *adaptation* of a strong base
   (LoRA/DoRA on Qwen3) — never from-scratch.
 
-## What tinygpt uniquely has (the moat inventory)
+## What posttrainllm uniquely has (the moat inventory)
 
 1. **ANE end-to-end LLM decode with LoRA support** (M8: 28-block stateful
    CoreML chain, fp32-compute/fp16-state, int8 per-block weights, numerics
@@ -36,9 +36,9 @@ embedded local-AI runtime for Mac apps. Pace is its first proof.**
 
 The competitive gap: Apple Foundation Models framework is closed, small, and
 uncustomizable; the MLX ecosystem is Python-first. Embeddable + customizable
-+ Apple-silicon-native is the empty quadrant tinygpt occupies.
++ Apple-silicon-native is the empty quadrant posttrainllm occupies.
 
-## What tinygpt is NOT (scope discipline)
+## What posttrainllm is NOT (scope discipline)
 
 - Not a from-scratch training framework (learning corpus only — keep for the
   HN story, don't maintain as product surface; SAE/MEMIT/interp likewise).
@@ -52,7 +52,7 @@ uncustomizable; the MLX ecosystem is Python-first. Embeddable + customizable
 |---|---|
 | 1. v11 specialist close-out | Bounded: one run, ship or fail. Either way the track closes and the adaptation pipeline is proven on a real gate. |
 | 2. VLM + Pace needs | Voice loop airtight first (WhisperKit → planner → executor under 100ms doctrine) — the make-or-break demo. VLM A/B picks the port target; the port itself extends the runtime (M8 pattern → vision tower). |
-| 3. Fine-tune/distill larger models | tinygpt's new job: adapt + serve 4–14B open weights brilliantly on Apple silicon. QLoRA (LoRA-on-quantized-base) is the hardware unlock on 48 GB; 30B-A3B stays teacher-only. |
+| 3. Fine-tune/distill larger models | posttrainllm's new job: adapt + serve 4–14B open weights brilliantly on Apple silicon. QLoRA (LoRA-on-quantized-base) is the hardware unlock on 48 GB; 30B-A3B stays teacher-only. |
 
 Decision rule carried forward from the specialist era: **before any
 fine-tune, measure the zero-shot base on the same gate.** Train only when
@@ -85,4 +85,4 @@ _Placeholder — fill when the 2026-06-10 pipeline run lands:_
 - `docs/prds/quantized-inference-swift.md` — Phase 2 (native packed load / QLoRA) now centerpiece
 - `docs/prds/vlm-ab-uivenus-vs-qwen3vl.md` — phase 2 decision gate
 - Memory: `feedback-focus-finetune-distill-large`, `feedback-leverage-first`,
-  `feedback-tinygpt-north-star`
+  `feedback-posttrainllm-north-star`

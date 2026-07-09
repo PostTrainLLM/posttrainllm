@@ -8,7 +8,7 @@ backend.
 
 ## TL;DR
 
-`tinygpt train --grad-checkpoint` wraps every `TransformerBlock`
+`posttrainllm train --grad-checkpoint` wraps every `TransformerBlock`
 forward in an MLX `CustomFunction` whose VJP re-runs the block
 forward at backward time. The block's intermediate activations are
 not retained across the outer backward, so per-block activation
@@ -114,10 +114,10 @@ to amortise compile-trace cost but short enough to iterate quickly.
 
 ```bash
 # Baseline (no checkpoint)
-tinygpt train --preset behemoth --steps 3 --corpus /tmp/corpus.txt --batch 3
+posttrainllm train --preset behemoth --steps 3 --corpus /tmp/corpus.txt --batch 3
 
 # With checkpoint
-tinygpt train --preset behemoth --steps 3 --corpus /tmp/corpus.txt --batch 3 --grad-checkpoint
+posttrainllm train --preset behemoth --steps 3 --corpus /tmp/corpus.txt --batch 3 --grad-checkpoint
 ```
 
 The "memory:" line at end of training reports peak GPU memory,

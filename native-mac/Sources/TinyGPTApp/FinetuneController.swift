@@ -4,7 +4,7 @@ import TinyGPTIO
 import TinyGPTModel
 
 /// Drives a LoRA fine-tune from the SwiftUI tab. Same pieces as the CLI
-/// `tinygpt finetune` (ModelLoader → AnyModel.injectLora → step loop →
+/// `posttrainllm finetune` (ModelLoader → AnyModel.injectLora → step loop →
 /// saveLora), but with state exposed as `@Published` so the chart and
 /// counters update as training runs.
 ///
@@ -186,10 +186,10 @@ final class FinetuneController: ObservableObject {
         let corpusName = URL(fileURLWithPath: corpusPath).deletingPathExtension().lastPathComponent
         let stamp = Int(Date().timeIntervalSince1970)
         let name = "\(baseName)-\(corpusName)-\(stamp).lora"
-        // ~/.cache/tinygpt/adapters/ — persistent across reboots; /tmp gets
+        // ~/.cache/posttrainllm/adapters/ — persistent across reboots; /tmp gets
         // reaped by macOS, losing the LoRA file mid-session.
         let cache = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".cache/tinygpt/adapters", isDirectory: true)
+            .appendingPathComponent(".cache/posttrainllm/adapters", isDirectory: true)
         try? FileManager.default.createDirectory(at: cache, withIntermediateDirectories: true)
         return cache.appendingPathComponent(name)
     }

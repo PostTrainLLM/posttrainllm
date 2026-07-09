@@ -10,7 +10,7 @@ import TinyGPTIO
 ///
 /// SAME RUN CAVEAT AS TinyGPTModelTests: the MLX runtime needs the Metal
 /// library compiled, which only Xcode does. Run via:
-///   `xcodebuild test -scheme TinyGPT -destination "platform=macOS"`
+///   `xcodebuild test -scheme posttrainllm -destination "platform=macOS"`
 /// `swift test` will fail at module load with "Failed to load the default
 /// metallib." (the test itself is fine, MLX's init isn't).
 ///
@@ -80,7 +80,7 @@ final class TinyGPTServeTests: XCTestCase {
     // MARK: Live server (requires a model checkpoint)
 
     /// Bring up the server against the user's real checkpoint and verify
-    /// `/v1/models` returns "tinygpt" — proves the bind, accept, and
+    /// `/v1/models` returns "posttrainllm" — proves the bind, accept, and
     /// HTTP-response path all work.
     func test_modelsEndpoint_returnsTinygptModel() throws {
         let modelPath = try resolveModelPathOrSkip()
@@ -93,7 +93,7 @@ final class TinyGPTServeTests: XCTestCase {
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         XCTAssertEqual(json?["object"] as? String, "list")
         let list = json?["data"] as? [[String: Any]]
-        XCTAssertEqual(list?.first?["id"] as? String, "tinygpt")
+        XCTAssertEqual(list?.first?["id"] as? String, "posttrainllm")
     }
 
     /// Verifies a /v1/chat/completions request returns a well-formed
@@ -110,7 +110,7 @@ final class TinyGPTServeTests: XCTestCase {
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         let body: [String: Any] = [
-            "model": "tinygpt",
+            "model": "posttrainllm",
             "messages": [["role": "user", "content": "hi"]],
             "max_tokens": 4,
             "temperature": 0.0,
@@ -121,7 +121,7 @@ final class TinyGPTServeTests: XCTestCase {
         XCTAssertEqual(status, 200)
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         XCTAssertEqual(json?["object"] as? String, "chat.completion")
-        XCTAssertEqual(json?["model"] as? String, "tinygpt")
+        XCTAssertEqual(json?["model"] as? String, "posttrainllm")
         let choices = json?["choices"] as? [[String: Any]]
         XCTAssertNotNil(choices?.first?["message"] as? [String: Any])
         XCTAssertEqual((choices?.first?["message"] as? [String: Any])?["role"] as? String, "assistant")
@@ -142,7 +142,7 @@ final class TinyGPTServeTests: XCTestCase {
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         let body: [String: Any] = [
-            "model": "tinygpt",
+            "model": "posttrainllm",
             "prompt": "ROMEO",
             "max_tokens": 4,
             "temperature": 0.0,

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# B33 smoke: `tinygpt quickstart --dry-run` resolves a sane (base, recipe)
+# B33 smoke: `posttrainllm quickstart --dry-run` resolves a sane (base, recipe)
 # plan from fixture data and emits a valid project manifest — no GPU, no
 # training. Verifies the exit-code + plan contract the CLI promises.
 set -euo pipefail
@@ -9,7 +9,7 @@ FIX="$ROOT/evals/quickstart-fixtures"
 NATIVE="$ROOT/native-mac"
 
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
-BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
+BIN="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
 echo "binary: $BIN"
 
 # 1) chat data → shape=chat, picks the chat-tagged base, emits adapter pin

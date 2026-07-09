@@ -11,7 +11,7 @@ related_prds: B11-wsd-schedule.md (the LR-schedule half; --depth derives that to
 
 ## Goal
 
-`tinygpt train --depth 12 ...` should auto-derive `d_model`, `n_heads`,
+`posttrainllm train --depth 12 ...` should auto-derive `d_model`, `n_heads`,
 `d_mlp`, `peak_lr`, `batch_size`, and `total_steps` from compute-
 optimal scaling laws. UX win — most users don't want to tune 6
 hyperparameters when the depth alone implies a reasonable point.
@@ -24,7 +24,7 @@ exact pattern. We borrow the surface.
 - B6 (Mac app demo) wants a 1-click train flow. Six hyperparameter
   fields in the app are six bugs waiting to happen. `--depth` is
   the right abstraction.
-- TinyGPT users currently hand-set d_model / n_heads / etc. via
+- posttrainllm users currently hand-set d_model / n_heads / etc. via
   `ModelConfig` presets. Presets work for ~5 named sizes; everything
   in between is hand-tuning.
 - Cheap to add — a single function that maps depth → ModelConfig +
@@ -36,7 +36,7 @@ exact pattern. We borrow the surface.
   -> (config: ModelConfig, schedule: TrainSchedule)` per the scaling
   laws documented in nanochat's recipe + the Chinchilla compute-
   optimal corner.
-- `tinygpt train --depth N` flag — when set, overrides individual
+- `posttrainllm train --depth N` flag — when set, overrides individual
   HP flags (with a warning if conflicting flags are also passed).
 - Documented table in `docs/training_guide.md` mapping depth →
   derived HPs, so users can verify what they're getting.
@@ -61,7 +61,7 @@ exact pattern. We borrow the surface.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt train --depth 12 --corpus shakespeare.txt --steps
+- [ ] `posttrainllm train --depth 12 --corpus shakespeare.txt --steps
   1000` runs with auto-derived HPs and reports them in the banner.
 - [ ] Derivation matches nanochat's curve to ±10% on the chinchilla-
   optimal points.

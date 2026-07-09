@@ -20,17 +20,17 @@
 # 4B target, driven by how often the draft and target agree).
 #
 # Usage:
-#   scripts/spec-decode-verify.sh <target-model-dir-or-tinygpt> <draft-model-dir>
+#   scripts/spec-decode-verify.sh <target-model-dir-or-posttrainllm> <draft-model-dir>
 #
-# Requires a release build: from native-mac/, `swift build -c release --product tinygpt`.
+# Requires a release build: from native-mac/, `swift build -c release --product posttrainllm`.
 set -uo pipefail
 
 TARGET="${1:?usage: spec-decode-verify.sh <target> <draft>}"
 DRAFT="${2:?usage: spec-decode-verify.sh <target> <draft>}"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BIN="${TINYGPT_BIN:-$REPO/native-mac/.build/out/Products/Release/tinygpt}"
-[ -x "$BIN" ] || BIN="$REPO/native-mac/.build/release/tinygpt"
-[ -x "$BIN" ] || { echo "FAIL: tinygpt release binary not found (build it first)"; exit 2; }
+BIN="${TINYGPT_BIN:-$REPO/native-mac/.build/out/Products/Release/posttrainllm}"
+[ -x "$BIN" ] || BIN="$REPO/native-mac/.build/release/posttrainllm"
+[ -x "$BIN" ] || { echo "FAIL: posttrainllm release binary not found (build it first)"; exit 2; }
 
 PROMPTS=(
   "List the first 12 prime numbers and briefly explain what makes a number prime."

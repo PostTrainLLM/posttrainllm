@@ -1,10 +1,10 @@
 import Foundation
 
-/// Lock file written by `tinygpt train` while a run is active.
+/// Lock file written by `posttrainllm train` while a run is active.
 /// Consumed by the Mac app's Train tab to attach to CLI-spawned runs
 /// without requiring the user to remember which terminal they used.
 ///
-/// Path: `~/.cache/tinygpt/runs/active.json`
+/// Path: `~/.cache/posttrainllm/runs/active.json`
 public struct RunLockFile: Codable, Sendable, Equatable {
     public let pid: Int32
     public let logJsonlPath: String
@@ -23,7 +23,7 @@ public struct RunLockFile: Codable, Sendable, Equatable {
 
     public static var url: URL {
         FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent(".cache/tinygpt/runs/active.json", isDirectory: false)
+            .appendingPathComponent(".cache/posttrainllm/runs/active.json", isDirectory: false)
     }
 
     public static func write(_ lock: RunLockFile) throws {

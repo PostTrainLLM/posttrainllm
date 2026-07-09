@@ -1,11 +1,11 @@
 import Foundation
 import TinyGPTModel
 
-/// B29 — `tinygpt traces-to-data <atraj-dir> --task <t> --out <jsonl>`.
+/// B29 — `posttrainllm traces-to-data <atraj-dir> --task <t> --out <jsonl>`.
 ///
 /// Reads every `.atraj` file in `<atraj-dir>` (recursively), extracts
 /// per-turn (user → assistant) pairs, applies cheap filters, and emits
-/// ChatML-style SFT JSONL ready to feed `tinygpt sft --data`.
+/// ChatML-style SFT JSONL ready to feed `posttrainllm sft --data`.
 ///
 /// Filters applied in order:
 ///   1. **Tool-echo drop** — assistant turn that just echoes the prior
@@ -93,7 +93,7 @@ enum TracesToData {
 
         print("""
 
-        TinyGPT — traces-to-data
+        posttrainllm — traces-to-data
         ------------------------
         in:                 \(inDir) (\(atrajURLs.count) trajectories)
         out:                \(outPath)
@@ -138,7 +138,7 @@ enum TracesToData {
 
         // Filter 3: MinHash near-dedup on prompts. The shipped
         // `Dedupe.minHashSketch` takes pre-generated linear-hash
-        // coefficients; we mirror the seed scheme `tinygpt dedupe`
+        // coefficients; we mirror the seed scheme `posttrainllm dedupe`
         // uses so two runs with the same --minhash-perms produce
         // identical sketches (and identical dedup decisions).
         let prime: UInt64 = (1 << 61) - 1
@@ -339,7 +339,7 @@ enum TracesToData {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         Swift.print("""
-        usage: tinygpt traces-to-data <atraj-dir> --out <data.jsonl> [options]
+        usage: posttrainllm traces-to-data <atraj-dir> --out <data.jsonl> [options]
 
         Convert a directory of B22 `.atraj` rollouts into ChatML-style SFT JSONL.
         One row per (user → assistant final-answer) pair, deduped exactly +
@@ -361,8 +361,8 @@ enum TracesToData {
         --dry-run                 Compute filter counts; don't write the output
 
         Examples:
-          tinygpt traces-to-data /tmp/atrajs --task tool-call --out tool-call-sft.jsonl
-          tinygpt traces-to-data /tmp/atrajs --task tool-call --out /dev/null --dry-run
+          posttrainllm traces-to-data /tmp/atrajs --task tool-call --out tool-call-sft.jsonl
+          posttrainllm traces-to-data /tmp/atrajs --task tool-call --out /dev/null --dry-run
         """)
         exit(code)
     }

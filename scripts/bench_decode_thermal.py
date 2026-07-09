@@ -2,7 +2,7 @@
 """C5 — sustained decode + thermal bench.
 
 Wraps scripts/bench_decode.py in a sustained loop (default 30 min) against a
-running `tinygpt serve`, sampling decode tok/s over time plus (optionally,
+running `posttrainllm serve`, sampling decode tok/s over time plus (optionally,
 sudo) `powermetrics` thermal pressure / CPU-die temperature. Writes a
 time-series JSONL and reports throughput degradation (first-decile vs
 last-decile median tok/s) — the number that says whether the Mac throttles
@@ -16,7 +16,7 @@ powermetrics. The pure aggregation logic is covered by `--self-test`
 
 Real run:
 
-    tinygpt serve --model <m> &                 # OpenAI-compatible endpoint
+    posttrainllm serve --model <m> &                 # OpenAI-compatible endpoint
     sudo python3 scripts/bench_decode_thermal.py \\
         --model <m> --minutes 30 --out docs/research/data/decode-thermal-m5.jsonl
 """

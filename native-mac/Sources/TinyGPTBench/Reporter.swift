@@ -125,7 +125,7 @@ public enum Reporter {
     /// Emit a markdown table summary. Designed for pasting into PRs.
     public static func toMarkdown(_ report: Report) -> String {
         let s = summaryStruct(report.runs)
-        var md = "## tinygpt bench — \(report.engineName)\n\n"
+        var md = "## posttrainllm bench — \(report.engineName)\n\n"
         md += "model: `\(report.modelPath)` (\(formatInt(report.modelParams)) params)\n"
         md += "workload: \(report.workload.mode.rawValue), prompt=\(report.workload.promptTokens) tok, gen=\(report.workload.genTokens) tok, batch=\(report.workload.batchSize), n_runs=\(report.workload.nRuns) (+\(report.workload.warmRuns) warm)\n"
         md += "system: \(report.provenance.hardwareModel), \(String(format: "%.1f", report.provenance.physicalRamGB)) GB, macOS build \(report.provenance.macOSBuild)\n"

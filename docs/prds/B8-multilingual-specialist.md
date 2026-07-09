@@ -15,7 +15,7 @@ related_prds: A1-first-specialist-tool-caller.md (A1's recipe template),
 Train a multilingual SFT/LoRA specialist on a Sarvam-Edge or Airavata
 base (both are Indic-LLM bases optimized for English + 10+ Indian
 languages) for a Mac-runnable Indic-capable agent. Ship gate: beats
-the 0-shot base on the MILU eval (`tinygpt eval-indic`) by ≥ 3pp
+the 0-shot base on the MILU eval (`posttrainllm eval-indic`) by ≥ 3pp
 average across at least 3 Indian languages.
 
 Different from A1/B1: A1/B1 are domain specialists; B8 is a
@@ -24,7 +24,7 @@ acceptance axis.
 
 ## Why now
 
-- Indic evals are wired (`tinygpt eval-indic`, smoke-validated per
+- Indic evals are wired (`posttrainllm eval-indic`, smoke-validated per
   PLAN.md). The eval surface exists; the *trained-for-Indic*
   specialist doesn't.
 - The Indian-language LLM ecosystem (Airavata, OpenHathi, Sarvam)
@@ -43,7 +43,7 @@ acceptance axis.
 - **Training data:** Indic SFT corpora (Aya from CohereForAI,
   IndicSUPERB, MILU's training split). All open.
 - **Recipe:** mirror A1's recipe shape (`scripts/recipes/b8-indic.sh`).
-- **Eval:** existing `tinygpt eval-indic` extended to report per-
+- **Eval:** existing `posttrainllm eval-indic` extended to report per-
   language scores in MILU + IndicGenBench-XQuAD.
 - **Ship gate:** average across Hindi/Tamil/Telugu MILU ≥ base
   + 3pp under B23 K=3 protocol.

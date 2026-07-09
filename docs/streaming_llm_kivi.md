@@ -1,6 +1,6 @@
 # StreamingLLM + KIVI — long-context decode without growing the KV cache
 
-Two changes that let `tinygpt sample` survive arbitrarily long generations
+Two changes that let `posttrainllm sample` survive arbitrarily long generations
 on a memory-bounded Mac:
 
 1. **StreamingLLM** (Xiao et al., 2023) — when the KV cache exceeds a
@@ -13,7 +13,7 @@ on a memory-bounded Mac:
    on this model size; ~8× smaller in principle at int4 (storage caveat
    below).
 
-Both ship under one flag surface in `tinygpt sample`:
+Both ship under one flag surface in `posttrainllm sample`:
 
 ```
 --streaming-llm-sink N        Always keep the first N tokens.
@@ -103,7 +103,7 @@ after the 260th step.
 
 Cmd:
 ```
-tinygpt sample /tmp/flagship-huge.tinygpt \
+posttrainllm sample /tmp/flagship-huge.tinygpt \
   --prompt "The quick brown fox jumps over the lazy dog. " \
   --tokens 500 --temperature 0.6 \
   --streaming-llm-sink 4 --streaming-llm-window 256
@@ -240,11 +240,11 @@ K + per-token V is more robust than bf16-everywhere for this model.
 ### Smoke test — bare minimum
 
 ```
-tinygpt sample /tmp/flagship-huge.tinygpt --prompt "Once upon a time" \
+posttrainllm sample /tmp/flagship-huge.tinygpt --prompt "Once upon a time" \
   --tokens 100 --temperature 0.6 --kv-quantize int8
 # → generates 100 tokens, cache reports ~691 KB at int8 vs 2.6 MB bf16
 
-tinygpt sample /tmp/flagship-huge.tinygpt --prompt "Once upon a time" \
+posttrainllm sample /tmp/flagship-huge.tinygpt --prompt "Once upon a time" \
   --tokens 100 --temperature 0.6 --kv-quantize int4
 # → generates 100 tokens (precision = int4, storage = int8 bytes)
 ```

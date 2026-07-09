@@ -4,7 +4,7 @@ import MLXNN
 import MLXRandom
 
 /// Byte-level causal language model — Swift / MLX port of `python_ref/model.py`'s
-/// `TinyGPT`. Same architecture, same parameter names, same `.tinygpt`
+/// `posttrainllm`. Same architecture, same parameter names, same `.tinygpt`
 /// file format. A browser-trained checkpoint loads here unchanged.
 public final class TinyGPTModel: Module {
     public let config: ModelConfig
@@ -35,7 +35,7 @@ public final class TinyGPTModel: Module {
     /// LAYER-CALIBRATED projection instead of the noisy "reuse the
     /// final LN" lens. Loaded from a sidecar `.lenses` file via
     /// `attachTunedLens`. Inference: forwardTunedLens returns per-
-    /// layer logits via these probes; training: tinygpt tuned-lens
+    /// layer logits via these probes; training: posttrainllm tuned-lens
     /// freezes the base and SGDs the probes on a corpus.
     @ModuleInfo(key: "tuned_lens") public var tunedLens: [Linear]?
 
@@ -268,7 +268,7 @@ public final class TinyGPTModel: Module {
     }
 
     /// Initialise the tuned-lens probes (one Linear per block). Used by
-    /// `tinygpt tuned-lens` BEFORE training. After training, persist via
+    /// `posttrainllm tuned-lens` BEFORE training. After training, persist via
     /// `saveTunedLens` and re-attach next session via `attachTunedLens`.
     public func initTunedLens() {
         let probes = (0..<blocks.count).map { _ in

@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt quickstart <data>` (B33) — data → trained specialist in one
+/// `posttrainllm quickstart <data>` (B33) — data → trained specialist in one
 /// command. Inspect the data, auto-pick a base from the gallery, infer a
 /// recipe, train, then drop the user into a side-by-side sample so they
 /// can see whether it helped. The CLI sibling of B6's GUI Factory tab.
@@ -9,7 +9,7 @@ import TinyGPTModel
 /// The judgement (data-shape → base + recipe) lives in
 /// `TinyGPTModel.RecipeResolver` (pure, unit-tested). This command is the
 /// orchestration shell: read the file, resolve the plan, print it, emit a
-/// `tinygpt.project.json`, and — unless `--dry-run` — run the shipped
+/// `posttrainllm.project.json`, and — unless `--dry-run` — run the shipped
 /// `sft` / `sample` subcommands. Designed so the model never leaves the
 /// device.
 enum QuickstartCommand {
@@ -18,7 +18,7 @@ enum QuickstartCommand {
         var baseOverride: String?
         var galleryPath: String?
         var outPath = "adapter.lora"
-        var projectOut = "tinygpt.project.json"
+        var projectOut = "posttrainllm.project.json"
         var assumeYes = false
         var dryRun = false
         var sampleN = 3
@@ -103,7 +103,7 @@ enum QuickstartCommand {
 
     // MARK: - project manifest emission
 
-    /// Build the `tinygpt.project.json` body as a dictionary so it decodes
+    /// Build the `posttrainllm.project.json` body as a dictionary so it decodes
     /// + passes `ProjectManifest.validate()` without needing the (internal)
     /// memberwise initializer from this module.
     private static func projectManifestJSON(plan: RecipeResolver.ResolvedPlan, outPath: String) -> String {
@@ -137,7 +137,7 @@ enum QuickstartCommand {
             print("  recipe: LoRA r=\(r.rank) α=\(r.alpha) · steps=\(r.steps) · lr=\(String(format: "%g", r.lr))"
                 + " · batch=\(r.batch) · max-seq=\(r.maxSeq) · neftune=\(r.neftuneAlpha)"
                 + " · pack=\(r.pack)" + (r.template.map { " · template=\($0)" } ?? ""))
-            print("  →       tinygpt sft <base> --data \(dataPath) --out \(outPath) " + r.sftFlags().joined(separator: " "))
+            print("  →       posttrainllm sft <base> --data \(dataPath) --out \(outPath) " + r.sftFlags().joined(separator: " "))
         } else {
             print("  recipe: from-scratch pretrain (raw text) — steps=\(r.steps), max-seq=\(r.maxSeq)")
         }
@@ -152,7 +152,7 @@ enum QuickstartCommand {
         guard !plan.base.fromScratch else {
             fputs("""
             from-scratch (raw-text) training isn't wired into quickstart yet.
-            Use `tinygpt train` directly, or provide chat / instruction / tool-call JSONL.
+            Use `posttrainllm train` directly, or provide chat / instruction / tool-call JSONL.
             """, stderr)
             exit(2)
         }
@@ -160,7 +160,7 @@ enum QuickstartCommand {
             fputs("""
             couldn't resolve a local base to train from (auto-picked gallery id
             '\(plan.base.galleryId ?? "?")' has no local weights yet).
-            Pass --base <local-path-or-hf-id>, or `tinygpt pull` the gallery model first.
+            Pass --base <local-path-or-hf-id>, or `posttrainllm pull` the gallery model first.
             """, stderr)
             exit(2)
         }
@@ -214,7 +214,7 @@ enum QuickstartCommand {
     }
 
     private static func selfExecutable() -> String {
-        Bundle.main.executablePath ?? CommandLine.arguments.first ?? "tinygpt"
+        Bundle.main.executablePath ?? CommandLine.arguments.first ?? "posttrainllm"
     }
 
     private static func runProcess(_ exe: String, _ args: [String]) -> Int32 {
@@ -237,7 +237,7 @@ enum QuickstartCommand {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt quickstart <data> [options]
+        usage: posttrainllm quickstart <data> [options]
 
         Turn a data file into a trained, runnable specialist in one command:
         inspect the data, auto-pick a base from the gallery, infer a LoRA
@@ -251,7 +251,7 @@ enum QuickstartCommand {
           --base <id|path|hf-id>  override the auto-picked base
           --gallery <path>        gallery manifest.json (default: ./gallery/…)
           --out <path>            adapter output (default: adapter.lora)
-          --project-out <path>    project file (default: tinygpt.project.json)
+          --project-out <path>    project file (default: posttrainllm.project.json)
           --samples <N>           demo samples after training (default: 3)
           --yes, -y               skip the train confirmation
           --dry-run               print the resolved plan + project file, don't train

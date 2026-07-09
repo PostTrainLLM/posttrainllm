@@ -111,9 +111,9 @@ revisit any item.
 
 | Item | Why kept | Evidence |
 |---|---|---|
-| **`tinygpt eval`** (BPE-aware) | Real perplexity measurement | 4.71 on flagship matches training-time val |
-| **`tinygpt bench`** (TTFT/ITL/RSS/power) | Bench360-modeled inference benchmark | Real numbers: 1.91ms TTFT, 794 tok/s on Shakespeare |
-| **`tinygpt score-bench`** + manifest patcher | Browser leaderboard pipeline | End-to-end working |
+| **`posttrainllm eval`** (BPE-aware) | Real perplexity measurement | 4.71 on flagship matches training-time val |
+| **`posttrainllm bench`** (TTFT/ITL/RSS/power) | Bench360-modeled inference benchmark | Real numbers: 1.91ms TTFT, 794 tok/s on Shakespeare |
+| **`posttrainllm score-bench`** + manifest patcher | Browser leaderboard pipeline | End-to-end working |
 | **lm-evaluation-harness HTTP adapter** | Wire to standard quality benchmarks | OpenAI-compatible serve verified curl-tested |
 
 ### Quality
@@ -259,7 +259,7 @@ keeping it tested + documented, which the FLAG annotations address.
 
 Current state:
 ```
-tinygpt train --preset huge --tokenizer ... --dtype bfloat16 \
+posttrainllm train --preset huge --tokenizer ... --dtype bfloat16 \
     --optimizer adamw --grad-checkpoint \
     --z-loss-weight 1e-4 --embedding-rmsnorm \
     --galore-rank 0 --bpe-dropout 0 --qat 0 \
@@ -270,25 +270,25 @@ tinygpt train --preset huge --tokenizer ... --dtype bfloat16 \
 
 After cleanup:
 ```
-tinygpt train <corpus>          # AdamW + bf16 + cosine + clip — recipe defaults
+posttrainllm train <corpus>          # AdamW + bf16 + cosine + clip — recipe defaults
   --preset huge|mega|behemoth
   --tokenizer <hf-dir>
   --grad-checkpoint              # for mega+ models
   --resume <path>
   --save-every N
 
-tinygpt finetune <base> <data>  # DoRA + SFT — recipe defaults
+posttrainllm finetune <base> <data>  # DoRA + SFT — recipe defaults
   --rank R
   --lora-fa                      # halve params if you want
 
-tinygpt align <base> <prefs>    # SimPO — recipe default
+posttrainllm align <base> <prefs>    # SimPO — recipe default
   --loss-type dpo|simpo|orpo|kto # if you really want to pick
 
-tinygpt sample <model>          # KV cache + KIVI int8 + speculative — defaults
+posttrainllm sample <model>          # KV cache + KIVI int8 + speculative — defaults
   --prompt "..."
   --tokens N
 
-tinygpt quantize <model>        # AWQ → int4 — recipe default
+posttrainllm quantize <model>        # AWQ → int4 — recipe default
   --bits 4|8
 
 # All other techniques: --experimental-X for the alternatives
@@ -300,7 +300,7 @@ tinygpt quantize <model>        # AWQ → int4 — recipe default
 
 1. **Draft this doc** — done
 2. **Per-FLAGGED-technique inline annotation** — add `// AUDIT FLAG:` block at each entry point in source, with what-we-tested / what-we-saw / when-it'd-help. ~1-2 days mechanical.
-3. **Default-CLI curation** — `tinygpt train` etc. = curated recipe with no flags needed; FLAGGED features move to `--experimental-*`. ~2 days.
+3. **Default-CLI curation** — `posttrainllm train` etc. = curated recipe with no flags needed; FLAGGED features move to `--experimental-*`. ~2 days.
 4. **Help text + landing page rewrite** — preach the ONE curated recipe; "Advanced/experimental" gates the rest. ~2 days.
 5. **No source-code deletion this round** — keep everything; the FLAG annotations are the documentation.
 

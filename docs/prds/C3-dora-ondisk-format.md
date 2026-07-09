@@ -11,7 +11,7 @@ related_prds: factory-dora-serialization.md (incomplete sibling — covers the p
 
 ## Goal
 
-DoRA already trains in-session under `tinygpt sft` (default PEFT
+DoRA already trains in-session under `posttrainllm sft` (default PEFT
 variant since 2026-05; `PeftVariants.swift`). It does NOT yet persist
 to disk in a reusable format — the adapter lives only in the running
 process's parameters, so finishing an `sft` run with DoRA produces no
@@ -40,10 +40,10 @@ parity with LoRA / LoRA+ / VeRA (all of which already roundtrip).
 - `LoraAdapterReader.read(...)` learns to apply the magnitude when
   `peft_variant == "dora"`. New name kept for backcompat: `PeftAdapter`
   as a module-level alias may come later, but not in this PRD.
-- `tinygpt sft --peft dora ... --out adapter.lora` actually writes a
+- `posttrainllm sft --peft dora ... --out adapter.lora` actually writes a
   loadable adapter at the end of training. Today it prints "DoRA
   adapter not yet serializable" — that warning gets deleted.
-- `tinygpt compare base.tinygpt + adapter.lora vs base.tinygpt` (the
+- `posttrainllm compare base.tinygpt + adapter.lora vs base.tinygpt` (the
   existing compare CLI) gives a real per-eval delta now that adapters
   are reloadable.
 
@@ -75,14 +75,14 @@ parity with LoRA / LoRA+ / VeRA (all of which already roundtrip).
 
 ## Acceptance criteria
 
-- [ ] `tinygpt sft --peft dora --out /tmp/a.lora ...` produces a file
+- [ ] `posttrainllm sft --peft dora --out /tmp/a.lora ...` produces a file
   with `peft_variant: "dora"` and a non-empty `dora_magnitude` block.
-- [ ] `tinygpt sample <base> --lora /tmp/a.lora` loads, runs, and
+- [ ] `posttrainllm sample <base> --lora /tmp/a.lora` loads, runs, and
   produces *token-identical* output at T=0 to in-memory DoRA after the
   same SFT step count.
 - [ ] DoRARoundtripTests.swift passes — save → reload → forward
   matches step-end logits to ε=1e-5.
-- [ ] `tinygpt compare base.tinygpt + a.lora vs base.tinygpt` on a 200-
+- [ ] `posttrainllm compare base.tinygpt + a.lora vs base.tinygpt` on a 200-
   prompt eval shows a non-zero delta consistent with the in-memory DoRA's
   effect.
 

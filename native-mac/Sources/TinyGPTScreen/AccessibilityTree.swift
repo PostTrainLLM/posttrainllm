@@ -99,20 +99,20 @@ public enum ScreenError: Error, CustomStringConvertible {
             return """
             Accessibility permission denied.
 
-            tinygpt needs Accessibility access to read the focused window's
+            posttrainllm needs Accessibility access to read the focused window's
             UI tree. Grant it in:
               System Settings → Privacy & Security → Accessibility
-            and add (or enable) the `tinygpt` binary or the terminal you
+            and add (or enable) the `posttrainllm` binary or the terminal you
             launched it from. After granting, restart the terminal.
             """
         case .screenRecordingPermissionDenied:
             return """
             Screen Recording permission denied.
 
-            tinygpt needs Screen Recording access to capture window pixels
+            posttrainllm needs Screen Recording access to capture window pixels
             via ScreenCaptureKit. Grant it in:
               System Settings → Privacy & Security → Screen Recording
-            and add (or enable) the `tinygpt` binary or the terminal you
+            and add (or enable) the `posttrainllm` binary or the terminal you
             launched it from. After granting, restart the terminal.
             """
         case .noFocusedApplication:

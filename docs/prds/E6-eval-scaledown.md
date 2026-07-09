@@ -1,5 +1,5 @@
 ---
-name: E6 `tinygpt eval-scaledown` harness
+name: E6 `posttrainllm eval-scaledown` harness
 status: not-started
 owner: unassigned
 created: 2026-06-13
@@ -8,12 +8,12 @@ related_prds: B25-scaledown-specialist.md (consumes this harness for ship gate),
               E1-bfcl-eval.md (subprocess-via-serve template)
 ---
 
-# PRD — Wire ScaleBench (extractive-compression eval) into a `tinygpt eval-*` subcommand
+# PRD — Wire ScaleBench (extractive-compression eval) into a `posttrainllm eval-*` subcommand
 
 ## Goal
 
-Ship `tinygpt eval-scaledown <model>` that runs the official
-ScaleBench harness against a TinyGPT-loaded model and emits results
+Ship `posttrainllm eval-scaledown <model>` that runs the official
+ScaleBench harness against a posttrainllm-loaded model and emits results
 in the shared E0 `EvalCompare.Row` schema. B25 specialist needs
 this for its ship gate; this PRD unblocks B25.
 
@@ -32,11 +32,11 @@ Half-day. Subprocess-via-serve pattern is established by E1/E2.
 
 ## Scope — in
 
-- `Sources/TinyGPT/EvalScaledown.swift` — boots `tinygpt serve`,
+- `Sources/TinyGPT/EvalScaledown.swift` — boots `posttrainllm serve`,
   invokes the ScaleBench harness via subprocess with the
   OpenAI-compatible base URL, parses the score JSON, emits
   E0 `Row`s.
-- `tinygpt eval-scaledown <model.tinygpt> [--lora <a.lora>]
+- `posttrainllm eval-scaledown <model.tinygpt> [--lora <a.lora>]
   --out scaledown.jsonl`
 - Default test set: ScaleBench's main split. Override via
   `--split <name>`.
@@ -63,9 +63,9 @@ Half-day. Subprocess-via-serve pattern is established by E1/E2.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt eval-scaledown qwen3-4b-instruct-2507 --limit 100
+- [ ] `posttrainllm eval-scaledown qwen3-4b-instruct-2507 --limit 100
   --out /tmp/sd.jsonl` runs end-to-end against a serve subprocess.
-- [ ] Output JSONL conforms to `EvalCompare.Row`; `tinygpt
+- [ ] Output JSONL conforms to `EvalCompare.Row`; `posttrainllm
   eval-compare /tmp/sd.jsonl` renders cleanly.
 - [ ] Returns within 5% of the published leaderboard score on
   qwen3-4b 0-shot (sanity).
@@ -81,5 +81,5 @@ Half-day. Subprocess-via-serve pattern is established by E1/E2.
 
 - ScaleBench's repo layout vs our `_external/` convention.
   **Recommendation:** install at
-  `~/.cache/tinygpt/datasets/_external/scalebench` mirroring
+  `~/.cache/posttrainllm/datasets/_external/scalebench` mirroring
   BFCL/τ-bench.

@@ -1,8 +1,8 @@
-# Cookbook - TinyGPT with smolagents
+# Cookbook - posttrainllm with smolagents
 
 What you get:
 
-- A TinyGPT specialist served through the OpenAI-compatible API.
+- A posttrainllm specialist served through the OpenAI-compatible API.
 - A Hugging Face smolagents agent pointed at that local endpoint.
 - One tool-calling demo you can run from a clean clone.
 - A benchmark command to compare the specialist against a general model.
@@ -18,26 +18,26 @@ For function calling, use the distillation flow in
 [`distillation-fc.md`](distillation-fc.md). The short version is:
 
 ```bash
-tinygpt distill \
+posttrainllm distill \
   --teacher microsoft/Phi-3-mini-4k-instruct \
-  --student ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt \
+  --student ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt \
   --task function-calling \
-  --out /tmp/tinygpt-fc-specialist.tinygpt
+  --out /tmp/posttrainllm-fc-specialist.tinygpt
 ```
 
 If you already have a checkpoint, set:
 
 ```bash
-export TINYGPT_MODEL=/tmp/tinygpt-fc-specialist.tinygpt
+export TINYGPT_MODEL=/tmp/posttrainllm-fc-specialist.tinygpt
 ```
 
 ## 2. Serve The Model
 
 ```bash
-tinygpt serve "$TINYGPT_MODEL" --host 127.0.0.1 --port 8080
+posttrainllm serve "$TINYGPT_MODEL" --host 127.0.0.1 --port 8080
 ```
 
-TinyGPT exposes `/v1/chat/completions`, `/v1/completions`, and `/v1/models`.
+posttrainllm exposes `/v1/chat/completions`, `/v1/completions`, and `/v1/models`.
 smolagents can use either `OpenAIServerModel` or `LiteLLMModel`; this recipe
 uses `OpenAIServerModel` because it directly accepts `api_base`.
 
@@ -55,7 +55,7 @@ Minimal agent:
 from smolagents import CodeAgent, OpenAIServerModel, tool
 
 model = OpenAIServerModel(
-    model_id="tinygpt",
+    model_id="posttrainllm",
     api_base="http://127.0.0.1:8080/v1",
     api_key="not-needed",
 )
@@ -72,7 +72,7 @@ print(agent.run("Check ticket A-100 and answer in one sentence."))
 Runnable example:
 
 ```bash
-examples/smolagents-tinygpt/run.sh
+examples/smolagents-posttrainllm/run.sh
 ```
 
 ## 4. Benchmark
@@ -80,7 +80,7 @@ examples/smolagents-tinygpt/run.sh
 Use the same prompt set for the specialist and the general baseline:
 
 ```bash
-tinygpt run-bench \
+posttrainllm run-bench \
   --model "$TINYGPT_MODEL" \
   --tasks tool-routing \
   --limit 50 \
@@ -91,13 +91,13 @@ Record:
 
 | Model | Exact tool call | Invalid JSON | Mean latency |
 |---|---:|---:|---:|
-| TinyGPT specialist | fill after run | fill after run | fill after run |
+| posttrainllm specialist | fill after run | fill after run | fill after run |
 | General baseline | fill after run | fill after run | fill after run |
 
 ## Honest Limitations
 
 - smolagents will only be as good as the model's tool-call formatting.
-- Native TinyGPT serve is single-process and best for local demos/evals.
+- Native posttrainllm serve is single-process and best for local demos/evals.
 - Do not claim a win until the benchmark table is filled with real numbers.
 
 See also: [Pydantic AI](cookbook-pydantic-ai.md) and

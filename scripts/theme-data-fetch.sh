@@ -9,7 +9,7 @@
 #   4. Open Color      — github yeun/open-color
 #   5. ColorHunt       — public 10K+ palette scrape
 #
-# Output: ~/.cache/tinygpt/datasets/themes/
+# Output: ~/.cache/posttrainllm/datasets/themes/
 #   ├── tailwind.json
 #   ├── material.json
 #   ├── radix.json
@@ -19,7 +19,7 @@
 
 set -euo pipefail
 
-OUT="$HOME/.cache/tinygpt/datasets/themes"
+OUT="$HOME/.cache/posttrainllm/datasets/themes"
 mkdir -p "$OUT"
 
 echo "=== fetching theme palette data → $OUT ==="

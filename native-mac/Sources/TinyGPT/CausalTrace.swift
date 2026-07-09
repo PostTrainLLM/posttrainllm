@@ -3,7 +3,7 @@ import MLX
 import MLXRandom
 import TinyGPTModel
 
-/// `tinygpt causal-trace` — Meng et al. 2022's causal-trace methodology.
+/// `posttrainllm causal-trace` — Meng et al. 2022's causal-trace methodology.
 ///
 /// For a fact (prompt, target-token), measure per-layer how important
 /// each layer's residual state at the subject position is to the
@@ -33,7 +33,7 @@ import TinyGPTModel
 /// the rank-K update across layers.
 ///
 /// USAGE
-///   tinygpt causal-trace <model.tinygpt> --prompt "..." --target <byte> \
+///   posttrainllm causal-trace <model.tinygpt> --prompt "..." --target <byte> \
 ///       [--subject-position N | --subject "..."]
 enum CausalTrace {
     static func run(args: [String]) {
@@ -209,7 +209,7 @@ enum CausalTrace {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt causal-trace <model.tinygpt> --prompt "..." --target <byte> \\
+        usage: posttrainllm causal-trace <model.tinygpt> --prompt "..." --target <byte> \\
                                     [--subject-position N | --subject "..."]
 
         Per-layer causal-trace (Meng et al. 2022). Reports where in

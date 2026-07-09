@@ -1,7 +1,7 @@
 // smoke_export.mjs — validate the WebGPU checkpoint-export path end to end
 // before committing to a 60-minute training run. Trains a Small model for
 // ~30 seconds, then exercises the same download flow train_demo.mjs uses.
-// Saves to /tmp/tinygpt-smoke.tinygpt — does NOT touch public/demo.tinygpt.
+// Saves to /tmp/posttrainllm-smoke.tinygpt — does NOT touch public/demo.tinygpt.
 
 import { chromium } from "playwright";
 import { promises as fs } from "node:fs";
@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
 const CORPUS_PATH = resolve(ROOT, "data/examples/shakespeare.txt");
-const SMOKE_OUT = "/tmp/tinygpt-smoke.tinygpt";
+const SMOKE_OUT = "/tmp/posttrainllm-smoke.tinygpt";
 const STEPS = 50; // ~30s on Small preset
 
 const corpus = await fs.readFile(CORPUS_PATH, "utf8");

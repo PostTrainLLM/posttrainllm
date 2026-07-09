@@ -1,4 +1,4 @@
-# Learn TinyGPT — a guided path for software engineers new to AI
+# Learn posttrainllm — a guided path for software engineers new to AI
 
 > Legacy guided code walkthrough for the original Python/WASM/WebGPU learning
 > arc. The active learning index is `docs/learn/README.md`; active project work
@@ -11,7 +11,7 @@ is a black box.
 It does not re-teach what others teach better. For each concept it gives you:
 
 > **Learn it** — a link to the best free explainer (watch / read it).
-> **In the repo** — the exact file and function where TinyGPT implements it.
+> **In the repo** — the exact file and function where posttrainllm implements it.
 > **See it work** — the command that runs that code and proves it.
 
 The repo is a real, working GPT — trained from scratch, fine-tuned with LoRA,
@@ -39,7 +39,7 @@ in one sitting — the parts are self-contained.
 
 ## 0. Orientation — the repo in 10 minutes
 
-**What TinyGPT is.** A GPT-2-shaped transformer the user can size from ~360k
+**What posttrainllm is.** A GPT-2-shaped transformer the user can size from ~360k
 parameters (Small) up to ~470M (Behemoth, Memory64). The same architecture as
 ChatGPT, ten-to-five-hundred-thousand× smaller depending on preset. It is
 intentionally readable — every part has a *test*. It will never say anything
@@ -132,7 +132,7 @@ it is low when the model put high probability on the correct byte.
 
 - **Learn it:** the key intuition — a model that guesses uniformly over 256
   options has loss `ln(256) ≈ 5.54`. That number recurs everywhere in this repo.
-- **In the repo:** the `F.cross_entropy` call in `TinyGPT.forward`
+- **In the repo:** the `F.cross_entropy` call in `posttrainllm.forward`
   (`python_ref/model.py`), and the from-scratch `cross_entropy` in
   `wasm/src/model.cpp`.
 - **See it work:** `python tests/test_phase1.py` — the "loss sanity" test
@@ -178,7 +178,7 @@ one trick, repeated.
 ### 2.2 Tokenization — text becomes numbers
 
 A model only sees numbers. A **tokenizer** maps text to integers. Real GPTs use
-"BPE"; TinyGPT uses the simplest possible scheme — **one byte = one token**, so
+"BPE"; posttrainllm uses the simplest possible scheme — **one byte = one token**, so
 the vocabulary is exactly 256. No tokenizer to train, no edge cases.
 
 - **In the repo:** `python_ref/dataset.py` — `encode` / `decode` (4 lines each);
@@ -231,7 +231,7 @@ vector. A second table does the same for the token's *position*. The two are
 added: now the model knows *what* the token is and *where* it sits.
 
 - **In the repo:** `token_embedding` and `position_embedding` in
-  `python_ref/model.py` `TinyGPT`.
+  `python_ref/model.py` `posttrainllm`.
 
 ### 3.2 Self-attention — tokens look at each other
 
@@ -269,9 +269,9 @@ Read these straight from `python_ref/model.py` — each is a few lines:
 A `TransformerBlock` is `attention` + `MLP`, each wrapped in LayerNorm and a
 residual. Stack four of them, add a final LayerNorm, and project back to 256
 scores with the **tied** output head (it reuses the embedding table). That is
-`TinyGPT`.
+`posttrainllm`.
 
-- **In the repo:** `TransformerBlock` and `TinyGPT` in `python_ref/model.py`;
+- **In the repo:** `TransformerBlock` and `posttrainllm` in `python_ref/model.py`;
   the design rationale is in [`model_guide.md`](model_guide.md).
 - **See it work:** `python tests/test_phase1.py` — the "param count" (842,496)
   and "layer shapes" tests confirm the assembled model is wired correctly.
@@ -326,7 +326,7 @@ have to rebuild the compute yourself and respect the browser's constraints.
 ### 5.1 WebAssembly — running C++ in the browser
 
 **WebAssembly (WASM)** is a fast, low-level bytecode browsers can run. You write
-C/C++ and compile it to WASM with **Emscripten**. TinyGPT's kernels are written
+C/C++ and compile it to WASM with **Emscripten**. posttrainllm's kernels are written
 in plain C++ for exactly this.
 
 - **Learn it:** [MDN — WebAssembly concepts](https://developer.mozilla.org/en-US/docs/WebAssembly/Concepts),
@@ -353,7 +353,7 @@ wrong.
 ### 5.3 Web Workers — not freezing the page
 
 JavaScript runs on one thread. If you train a model on it, the whole tab
-freezes. A **Web Worker** is a separate thread; TinyGPT runs all training there
+freezes. A **Web Worker** is a separate thread; posttrainllm runs all training there
 and the UI thread only draws.
 
 - **Learn it:** [MDN — Using Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers).
@@ -372,7 +372,7 @@ WASM has its own block of memory. JavaScript reaches into it through typed-array
 
 ### 5.5 WebGPU — using the GPU
 
-**WebGPU** is the browser API for running compute on the GPU. TinyGPT uses it for
+**WebGPU** is the browser API for running compute on the GPU. posttrainllm uses it for
 the heaviest operation, matrix multiply, written as a **compute shader** in WGSL.
 
 - **Learn it:** [WebGPU Fundamentals](https://webgpufundamentals.org/) — the
@@ -415,17 +415,17 @@ For the full story of what each test proved — with the numbers — read
 
 ## Going deeper
 
-When you want to go beyond TinyGPT — to models that actually produce good text:
+When you want to go beyond posttrainllm — to models that actually produce good text:
 
 - **Andrej Karpathy — [Let's build GPT, from scratch](https://www.youtube.com/watch?v=kCc8FmEb1nY)**
   — the same journey as Parts 1–3, in video, in more depth.
 - **[nanoGPT](https://github.com/karpathy/nanoGPT)** — the slightly bigger,
-  production-shaped cousin of `python_ref/`. TinyGPT's structure mirrors it.
+  production-shaped cousin of `python_ref/`. posttrainllm's structure mirrors it.
 - **[Lil'Log — The Transformer Family](https://lilianweng.github.io/posts/2023-01-27-the-transformer-family-v2/)**
   — every variation on the architecture, rigorously.
 - **[`industry_learning_roadmap.md`](industry_learning_roadmap.md)** — the
   external reading track: Stanford CS336 as the course spine, then company
-  docs/blogs mapped back to TinyGPT tasks.
+  docs/blogs mapped back to posttrainllm tasks.
 
 You started as a software engineer who had never built a neural network. If you
 have followed this path, you can now read — and have tested — every line of a

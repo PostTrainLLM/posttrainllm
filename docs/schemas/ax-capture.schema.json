@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://tinygpt.local/schemas/ax-capture.schema.json",
-  "title": "TinyGPT AX Capture Record",
+  "$id": "https://posttrainllm.local/schemas/ax-capture.schema.json",
+  "title": "posttrainllm AX Capture Record",
   "type": "object",
   "required": [
     "timestamp",

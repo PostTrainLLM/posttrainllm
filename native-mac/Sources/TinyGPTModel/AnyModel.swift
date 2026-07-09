@@ -227,7 +227,7 @@ public enum ModelLoader {
             // HF model directory — expects config.json inside.
             let configURL = url.appendingPathComponent("config.json")
             guard FileManager.default.fileExists(atPath: configURL.path) else {
-                throw NSError(domain: "TinyGPT", code: 10,
+                throw NSError(domain: "posttrainllm", code: 10,
                               userInfo: [NSLocalizedDescriptionKey:
                                 "directory \(path) has no config.json — not an HF model dir"])
             }

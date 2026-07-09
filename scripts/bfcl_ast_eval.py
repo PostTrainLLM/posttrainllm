@@ -14,7 +14,7 @@ Env: BACKEND, MODEL, ADAPTER, SHOW_FAILS=1
 """
 import sys, json, re, os, subprocess
 
-BFCL = os.path.expanduser("~/.cache/tinygpt/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard/bfcl_eval/data")
+BFCL = os.path.expanduser("~/.cache/posttrainllm/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard/bfcl_eval/data")
 CAT = sys.argv[1] if len(sys.argv) > 1 else "simple_python"
 N = int(sys.argv[2]) if len(sys.argv) > 2 else 25
 BACKEND = os.environ.get("BACKEND", "frontier")
@@ -198,7 +198,7 @@ def gen_frontier(system, user):
 def gen_gateway(system, user):
     import urllib.request
     key = open(os.environ.get("GW_KEY_FILE", "/tmp/gw_key")).read().strip()
-    body = json.dumps({"model": os.environ.get("GW_MODEL", "gh-gpt-5"), "project_id": "tinygpt",
+    body = json.dumps({"model": os.environ.get("GW_MODEL", "gh-gpt-5"), "project_id": "posttrainllm",
                        "temperature": 0, "max_tokens": 700,
                        "messages": [{"role": "system", "content": system},
                                     {"role": "user", "content": user}]}).encode()

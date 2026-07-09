@@ -31,7 +31,7 @@ output:         /tmp/specialist/toolcall-v1.lora (3.5 MB)
 
 ## What worked
 
-1. **HF model load** — `tinygpt hf-load /tmp/smollm2` works clean,
+1. **HF model load** — `posttrainllm hf-load /tmp/smollm2` works clean,
    sample at 64 tok/s with coherent output
 2. **Dataset download + schema sniff** — hermes JSONL detected and
    converted correctly (`format: sft, confidence 75%`)
@@ -101,8 +101,8 @@ Worth adding to prevent recurrence.
 - Cheap; might already work and we've been mismeasuring
 
 ### Option D — task-specific eval harness
-- Use the existing `tinygpt extractor-data` to build (query, expected_tool)
-  pairs from hermes itself, hold out 10%, eval `tinygpt sample` outputs
+- Use the existing `posttrainllm extractor-data` to build (query, expected_tool)
+  pairs from hermes itself, hold out 10%, eval `posttrainllm sample` outputs
   vs expected tool name
 - Tighter feedback loop than eyeball-checking samples
 
@@ -115,7 +115,7 @@ whether the LoRA is even being applied at inference correctly.
 ## Reproduction
 
 ```bash
-BIN=/tmp/tinygpt-sft-fix/Build/Products/Release/tinygpt
+BIN=/tmp/posttrainllm-sft-fix/Build/Products/Release/posttrainllm
 
 $BIN sft /tmp/smollm2 \
   --data /tmp/data/hermes.jsonl \

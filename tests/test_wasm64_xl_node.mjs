@@ -9,11 +9,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 const here = path.dirname(fileURLToPath(import.meta.url));
 
-const { default: createTinyGPT64 } = await import(
+const { default: createposttrainllm64 } = await import(
   path.join(here, "..", "browser", "public", "tinygpt64.js")
 );
 console.log("loading tinygpt64.wasm in Node…");
-const M = await createTinyGPT64({
+const M = await createposttrainllm64({
   locateFile: (f) => path.join(here, "..", "browser", "public", f),
 });
 console.log("module loaded.");

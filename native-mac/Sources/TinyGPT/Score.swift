@@ -4,7 +4,7 @@ import MLXNN
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt score-bench` — Mac-side offline benchmark scorer for the
+/// `posttrainllm score-bench` — Mac-side offline benchmark scorer for the
 /// browser leaderboard.
 ///
 /// Why this lives on the Mac:
@@ -724,7 +724,7 @@ enum Score {
               "params": "\(params)",
               "paramCount": \(paramCount),
               "submission": {
-                "author": "TinyGPT (Mac)",
+                "author": "posttrainllm (Mac)",
                 "submittedAt": "\(timestamp)",
                 "browserTrained": false,
                 "featured": false
@@ -764,7 +764,7 @@ enum Score {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt score-bench <model.tinygpt> [options]
+        usage: posttrainllm score-bench <model.tinygpt> [options]
 
         --benchmarks <path>   Benchmark descriptor JSON (default: bench/benchmarks.json)
         --manifest <path>     Gallery manifest to patch in place

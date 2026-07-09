@@ -260,14 +260,14 @@ enum FactoryRunCommand {
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
         usage:
-          tinygpt factory-run render --config config.json --dataset dataset.json \\
+          posttrainllm factory-run render --config config.json --dataset dataset.json \\
             --baseline eval-baseline.json --candidate eval-candidate.json \\
             --decision decision.json [--artifact artifact.json] \\
             [--train-log train.log] --out runs/<id>
 
-          tinygpt factory-run validate runs/<id>
+          posttrainllm factory-run validate runs/<id>
 
-          tinygpt factory-run publish-check [--allow-report-only] runs/<id>
+          posttrainllm factory-run publish-check [--allow-report-only] runs/<id>
 
         Renders and validates the canonical factory run folder documented in
         docs/factory/run-schema.md. This command is metadata-only: it does not

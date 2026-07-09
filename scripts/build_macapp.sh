@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # scripts/build_macapp.sh — wrap the SwiftPM-built TinyGPTApp binary into
 # a proper .app bundle so it launches like any other Mac app (via Finder,
-# Spotlight, `open TinyGPT.app`, dock pinning, etc.).
+# Spotlight, `open posttrainllm.app`, dock pinning, etc.).
 #
 # SwiftPM only emits a raw Mach-O executable — perfectly runnable from
 # the command line but not LaunchServices-friendly. This script copies
@@ -10,13 +10,13 @@
 # CFBundle/LaunchServices need.
 #
 # Usage:
-#   ./scripts/build_macapp.sh                       # release build → ./build/TinyGPT.app
+#   ./scripts/build_macapp.sh                       # release build → ./build/posttrainllm.app
 #   ./scripts/build_macapp.sh --debug               # debug build instead
 #   ./scripts/build_macapp.sh --out /path/to/Apps   # custom output dir
 #
 # After running:
-#   open ./build/TinyGPT.app                        # standard Mac launch
-#   cp -r ./build/TinyGPT.app /Applications/        # install
+#   open ./build/posttrainllm.app                        # standard Mac launch
+#   cp -r ./build/posttrainllm.app /Applications/        # install
 #
 # Not codesigned / notarized — Gatekeeper will warn on first launch.
 # That's a separate, account-required step; for solo dev use, right-
@@ -42,7 +42,7 @@ done
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PKG="$REPO_ROOT/native-mac"
 BUILD_DIR="$PKG/.build/arm64-apple-macosx/$CONFIG"
-APP="$OUT_DIR/TinyGPT.app"
+APP="$OUT_DIR/posttrainllm.app"
 
 echo "== build (swift build -c $CONFIG --product TinyGPTApp)"
 ( cd "$PKG" && swift build -c "$CONFIG" --product TinyGPTApp )
@@ -56,16 +56,16 @@ echo "== assemble bundle → $APP"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
-cp "$BUILD_DIR/TinyGPTApp" "$APP/Contents/MacOS/TinyGPT"
-chmod +x "$APP/Contents/MacOS/TinyGPT"
+cp "$BUILD_DIR/TinyGPTApp" "$APP/Contents/MacOS/posttrainllm"
+chmod +x "$APP/Contents/MacOS/posttrainllm"
 
 # Also build + bundle the CLI binary. The Interp tab shells out to it
 # for SAE / MEMIT / patch training so the app doesn't have to duplicate
 # the CLI's training paths in-process.
-( cd "$PKG" && swift build -c "$CONFIG" --product tinygpt )
-if [[ -x "$BUILD_DIR/tinygpt" ]]; then
-    cp "$BUILD_DIR/tinygpt" "$APP/Contents/MacOS/tinygpt-cli"
-    chmod +x "$APP/Contents/MacOS/tinygpt-cli"
+( cd "$PKG" && swift build -c "$CONFIG" --product posttrainllm )
+if [[ -x "$BUILD_DIR/posttrainllm" ]]; then
+    cp "$BUILD_DIR/posttrainllm" "$APP/Contents/MacOS/posttrainllm-cli"
+    chmod +x "$APP/Contents/MacOS/posttrainllm-cli"
 fi
 
 # MLX needs its compiled Metal shader library at runtime. SwiftPM drops
@@ -87,13 +87,13 @@ done
 
 # App icon. Regenerated from browser/public/favicon.svg via
 # scripts/make_icon.sh if missing.
-ICON_SRC="$PKG/Resources/TinyGPT.icns"
+ICON_SRC="$PKG/Resources/posttrainllm.icns"
 if [[ ! -f "$ICON_SRC" ]]; then
     echo "== generating icon (scripts/make_icon.sh)"
     "$REPO_ROOT/scripts/make_icon.sh"
 fi
 if [[ -f "$ICON_SRC" ]]; then
-    cp "$ICON_SRC" "$APP/Contents/Resources/TinyGPT.icns"
+    cp "$ICON_SRC" "$APP/Contents/Resources/posttrainllm.icns"
 fi
 
 # Info.plist — the minimum LaunchServices wants.
@@ -103,9 +103,9 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>TinyGPT</string>
+    <string>posttrainllm</string>
     <key>CFBundleDisplayName</key>
-    <string>TinyGPT</string>
+    <string>posttrainllm</string>
     <key>CFBundleIdentifier</key>
     <string>com.tinygpt.app</string>
     <key>CFBundleVersion</key>
@@ -113,9 +113,9 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
     <key>CFBundleShortVersionString</key>
     <string>0.1</string>
     <key>CFBundleExecutable</key>
-    <string>TinyGPT</string>
+    <string>posttrainllm</string>
     <key>CFBundleIconFile</key>
-    <string>TinyGPT</string>
+    <string>posttrainllm</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleInfoDictionaryVersion</key>
@@ -131,7 +131,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
     <key>NSSupportsAutomaticGraphicsSwitching</key>
     <true/>
     <key>NSHumanReadableCopyright</key>
-    <string>TinyGPT — native macOS</string>
+    <string>posttrainllm — native macOS</string>
 </dict>
 </plist>
 PLIST
@@ -150,7 +150,7 @@ echo "== ad-hoc codesign"
 chmod -R u+w "$APP"
 # Strip any inherited signatures on payload binaries before re-signing
 # the whole bundle. Cleanest path.
-codesign --remove-signature "$APP/Contents/MacOS/TinyGPT" 2>/dev/null || true
+codesign --remove-signature "$APP/Contents/MacOS/posttrainllm" 2>/dev/null || true
 codesign --force --deep --sign - "$APP" 2>&1 | sed 's/^/  /' || \
     echo "  (codesign failed — app should still launch via right-click → Open)"
 

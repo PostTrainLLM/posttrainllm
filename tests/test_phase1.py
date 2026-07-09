@@ -28,7 +28,7 @@ import torch  # noqa: E402
 
 from checkpoint import load_checkpoint, save_checkpoint  # noqa: E402
 from dataset import ByteDataset, decode, encode  # noqa: E402
-from model import ModelConfig, TinyGPT  # noqa: E402
+from model import ModelConfig, posttrainllm  # noqa: E402
 from train import TrainConfig, build_optimizer  # noqa: E402
 
 # A small, fast config for tests — proves correctness without the full 0.8M run.
@@ -47,7 +47,7 @@ def test_tokenizer_roundtrip() -> None:
 def test_layer_shapes() -> None:
     """Every layer returns the documented shape; loss is a scalar."""
     cfg = TEST_CFG
-    model = TinyGPT(cfg)
+    model = posttrainllm(cfg)
     B, T = 3, cfg.context_length
     idx = torch.randint(0, cfg.vocab_size, (B, T))
 
@@ -61,7 +61,7 @@ def test_layer_shapes() -> None:
 
 def test_param_count() -> None:
     """The shipped config sits near the documented ~0.8M parameters."""
-    model = TinyGPT(ModelConfig.from_json(REPO / "configs" / "model.byte-tinygpt-v0.json"))
+    model = posttrainllm(ModelConfig.from_json(REPO / "configs" / "model.byte-tinygpt-v0.json"))
     n = model.num_params()
     assert 0.7e6 < n < 1.0e6, f"expected ~0.8M params, got {n:,}"
     print(f"ok  param count ({n:,})")
@@ -77,7 +77,7 @@ def test_loss_sanity() -> None:
     data the model genuinely cannot predict — hence loss == ln(vocab)."""
     cfg = TEST_CFG
     torch.manual_seed(0)
-    model = TinyGPT(cfg)
+    model = posttrainllm(cfg)
     idx = torch.randint(0, cfg.vocab_size, (8, cfg.context_length))
     targets = torch.randint(0, cfg.vocab_size, (8, cfg.context_length))
     _, loss = model(idx, targets)
@@ -92,7 +92,7 @@ def test_tiny_overfit() -> None:
     torch.manual_seed(42)
     corpus = "the quick brown fox jumps over the lazy dog. " * 50
     data = ByteDataset.from_text(corpus, name="overfit-test")
-    model = TinyGPT(cfg)
+    model = posttrainllm(cfg)
     opt = build_optimizer(model, TrainConfig(learning_rate=1e-3))
 
     _, first = model(*data.get_batch("train", 8, cfg.context_length))
@@ -127,7 +127,7 @@ def test_checkpoint_reload() -> None:
     """Loss is identical (bit-for-bit) after save + reload."""
     cfg = TEST_CFG
     torch.manual_seed(7)
-    model = TinyGPT(cfg)
+    model = posttrainllm(cfg)
     opt = build_optimizer(model, TrainConfig())
     data = ByteDataset.from_text("checkpoint reload test corpus. " * 40, name="ckpt")
     x, y = data.get_batch("train", 4, cfg.context_length)
@@ -143,7 +143,7 @@ def test_checkpoint_reload() -> None:
             loss_history=[{"step": 0, "train_loss": 5.5, "val_loss": 5.5}],
             best_val_loss=5.5, tokens_seen=999, wall_time=1.0)
         ckpt = load_checkpoint(tmp)
-        reloaded = TinyGPT(cfg)
+        reloaded = posttrainllm(cfg)
         reloaded.load_state_dict(ckpt["model"])
         reloaded.eval()
         with torch.no_grad():
@@ -159,7 +159,7 @@ def test_sampling_fixed_seed() -> None:
     """Generation is reproducible with a fixed seed, and varies without one."""
     cfg = TEST_CFG
     torch.manual_seed(0)
-    model = TinyGPT(cfg)
+    model = posttrainllm(cfg)
     prompt = torch.tensor([[ord("a")]])
 
     def gen(seed: int) -> list[int]:

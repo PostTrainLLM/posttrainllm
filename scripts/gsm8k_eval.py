@@ -1,6 +1,6 @@
 """Tiny self-contained GSM8K eval — independently sanity-check a model's reasoning claims.
 
-No lm-eval-harness, no `tinygpt serve`: load an mlx model, pull GSM8K test rows from the HF
+No lm-eval-harness, no `posttrainllm serve`: load an mlx model, pull GSM8K test rows from the HF
 datasets-server, let the model reason (long max_tokens), extract the final integer, score.
 Built to vet "crazy benchmark" claims (e.g. VibeThinker-3B) on our own infra.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# B30 smoke: `tinygpt reasoning-classify` trains a bag-of-trigram softmax-4
+# B30 smoke: `posttrainllm reasoning-classify` trains a bag-of-trigram softmax-4
 # on a synthetic 80-row 4-class fixture, evaluates on a 32-row held-out,
 # asserts macro-F1 ≥ 0.5 (PRD acceptance criterion). Then re-runs in --score
 # mode to confirm the round-trip adds the `reasoning_depth` field. No GPU.
@@ -10,7 +10,7 @@ FIX="$ROOT/evals/reasoning-classifier-fixtures"
 NATIVE="$ROOT/native-mac"
 
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
-BIN="$(resolve_tinygpt)" || fail "could not resolve tinygpt binary"
+BIN="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
 echo "binary: $BIN"
 
 TMP="$(mktemp -d)"

@@ -1,6 +1,6 @@
 # GaLore + training-stability bells (Tier 2)
 
-This page documents the five `tinygpt train` flags introduced in the
+This page documents the five `posttrainllm train` flags introduced in the
 Tier-2 stability batch:
 
 | Flag                          | Feature                                    | Touches                |
@@ -45,7 +45,7 @@ prior is too restrictive.
 ### Surface
 
 ```bash
-tinygpt train --preset huge --steps 50000 \
+posttrainllm train --preset huge --steps 50000 \
     --galore-rank 256 \
     --galore-update-every 200 \
     --corpus shakespeare.txt --out out.tinygpt
@@ -139,7 +139,7 @@ PaLM defaults: `z = 1e-4`.
 ### Surface
 
 ```bash
-tinygpt train --preset mega --z-loss-weight 1e-4 ...
+posttrainllm train --preset mega --z-loss-weight 1e-4 ...
 ```
 
 ### Implementation
@@ -184,7 +184,7 @@ on a 12-layer toy model the gain is much smaller.
 ### Surface
 
 ```bash
-tinygpt train --preset behemoth --deep-norm ...
+posttrainllm train --preset behemoth --deep-norm ...
 ```
 
 For N=32 layers: α = (64)^¼ ≈ 2.83, β = (256)^(-¼) ≈ 0.250.
@@ -234,7 +234,7 @@ when fine-tuning a pre-trained model.
 ### Surface
 
 ```bash
-tinygpt train --preset huge --resume base.tinygpt --lr-layer-decay 0.85 ...
+posttrainllm train --preset huge --resume base.tinygpt --lr-layer-decay 0.85 ...
 ```
 
 For L=12: deepest layer @ 100% LR, shallowest at `0.85^11 ≈ 17%` LR.
@@ -257,7 +257,7 @@ path.
 Layer-wise LR decay is a **fine-tuning** lever, not a pretraining
 one. Applying it from-scratch can leave the early layers
 under-trained (they never get enough signal to learn good low-level
-features). The recommended usage is `tinygpt train --resume ...
+features). The recommended usage is `posttrainllm train --resume ...
 --lr-layer-decay 0.85` for adaptation runs.
 
 ---
@@ -287,7 +287,7 @@ the most.
 ### Surface
 
 ```bash
-tinygpt train --preset huge --embedding-rmsnorm ...
+posttrainllm train --preset huge --embedding-rmsnorm ...
 ```
 
 ### Implementation
@@ -351,5 +351,5 @@ corrupt learned weights.
 | `TinyGPTModel/AnyModel.swift`              | round-trip new fields through loader    |
 | `TinyGPTModel/KVCache.swift` / `KVCacheHF.swift` | embed_norm in `forwardCached`     |
 | `TinyGPTIO/Manifest.swift`                 | six new optional header fields          |
-| `TinyGPT/Train.swift`                      | CLI flags + run-summary lines + manifest entry |
-| `TinyGPT/TrainSupport.swift`               | propagate the new fields on save        |
+| `posttrainllm/Train.swift`                      | CLI flags + run-summary lines + manifest entry |
+| `posttrainllm/TrainSupport.swift`               | propagate the new fields on save        |

@@ -7,7 +7,7 @@ with 48 GB unified memory, MLX-Swift 0.31, fp32, Metal backend.
 
 ## TL;DR
 
-`tinygpt train --yoco` halves the KV cache at long-context decode time
+`posttrainllm train --yoco` halves the KV cache at long-context decode time
 with no measurable quality regression on small-corpus smoke tests.
 
 | Config | Layers | Cache @ 206 tok (off) | Cache @ 206 tok (on) | Δ memory |
@@ -150,16 +150,16 @@ the throughput crossover should land in YOCO's favour.
 ```bash
 # Train YOCO model
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-  xcodebuild -scheme tinygpt -destination "platform=macOS" \
-  -derivedDataPath /tmp/tinygpt-build -configuration Release build
+  xcodebuild -scheme posttrainllm -destination "platform=macOS" \
+  -derivedDataPath /tmp/posttrainllm-build -configuration Release build
 
-/tmp/tinygpt-build/Build/Products/Release/tinygpt train \
+/tmp/posttrainllm-build/Build/Products/Release/posttrainllm train \
   --preset huge --steps 200 --yoco \
   --corpus data/examples/shakespeare.txt \
   --out yoco-on.tinygpt
 
 # Compare KV cache sizes
-/tmp/tinygpt-build/Build/Products/Release/tinygpt sample \
+/tmp/posttrainllm-build/Build/Products/Release/posttrainllm sample \
   yoco-on.tinygpt --tokens 200 --prompt "ROMEO:"
 # → "KV cache:  206 tokens · 2.5 MB  · YOCO (6/12 layers populated)"
 ```

@@ -15,7 +15,7 @@ authorized-by: maintainer 2026-06-08 (architectural direction confirmed — impl
 Owner approved the previously gated v7 work. The first implementation slice
 landed:
 
-- `tinygpt serve --tools <tools.json>` injects the tool catalog into
+- `posttrainllm serve --tools <tools.json>` injects the tool catalog into
   the ChatML system prompt
 - `--tools` also installs a default constrained output schema shaped as
   `{ "verb": <tool-name-enum>, "args": {}, "spoken_text": "" }`
@@ -30,9 +30,9 @@ landed:
   - `scripts/archive/v7-eval/run-tau-bench.py`
   - `scripts/archive/v7-eval/heldout-tools.jsonl`
 - Generated local Pace top-up data at
-  `~/.cache/tinygpt/datasets/pace-v7-topup.jsonl`
+  `~/.cache/posttrainllm/datasets/pace-v7-topup.jsonl`
 
-Known v0 limitation: the current TinyGPT JSON-Schema FSM does not support
+Known v0 limitation: the current posttrainllm JSON-Schema FSM does not support
 `oneOf` / conditional schemas, so v0 constrains the verb enum but does not
 yet enforce per-verb argument schemas. That remains the next grammar
 milestone before claiming full v7 acceptance. The 6-8 hour xLAM-scale SFT
@@ -44,7 +44,7 @@ v6's grammar hardcodes Pace's action set. Adding a new action type
 (drag-and-drop, multi-select, keyboard shortcut sequences, novel app
 integrations) requires re-training. That's manageable when Pace evolves
 slowly, but the moment Pace gains 5+ new tool types in a sprint, or a
-second TinyGPT consumer wants its own tool set, the v6 architecture
+second posttrainllm consumer wants its own tool set, the v6 architecture
 becomes a bottleneck.
 
 v7 inverts the design: **tools live in the system prompt at inference
@@ -67,8 +67,8 @@ that:
 3. Emits a structured tool call: which tool, with which arguments
 4. Generalizes to tools NOT seen during training, given only their
    schemas in the prompt
-5. Drops into Pace via `tinygpt serve --tools <tools.json>` — and into
-   any future TinyGPT consumer the same way
+5. Drops into Pace via `posttrainllm serve --tools <tools.json>` — and into
+   any future posttrainllm consumer the same way
 
 ## Architectural shift — what changes from v6
 
@@ -306,7 +306,7 @@ within 10% of teacher, held-out >70% accuracy.
 serve wire-in + eval).
 
 **Benefit**: every future Pace tool change costs zero retrain. Every
-non-Pace TinyGPT consumer gets a planner that works for their tools.
+non-Pace posttrainllm consumer gets a planner that works for their tools.
 
 **When v7 pays off**: when Pace gains 5+ new tool types, OR when a
 second consumer shows up, OR when the user wants to expose 3rd-party
@@ -377,7 +377,7 @@ When v7 lands:
 
 1. xlam-60k normalized to our verb schema; format-validated
 2. SFT completes; LoRA artifact written
-3. `tinygpt serve --tools tools.json` loads and accepts requests
+3. `posttrainllm serve --tools tools.json` loads and accepts requests
 4. BFCL: within 5% of xLAM-7B (subject to held-out result; if too
    ambitious, target xLAM-1B parity)
 5. Held-out-tools eval: ≥70% correct call on tools never seen in training
@@ -388,11 +388,11 @@ When v7 lands:
 
 ## Why this matters — the moat argument
 
-v6 makes Pace specialist-grade. v7 makes the TinyGPT *planner factory*
+v6 makes Pace specialist-grade. v7 makes the posttrainllm *planner factory*
 generalizable. Pace becomes the first consumer; the platform is then
 usable for any future Mac-native voice-companion / agent that wants a
-small fast planner. That's the difference between "TinyGPT trained one
-good model for one app" and "TinyGPT is the way you ship local
+small fast planner. That's the difference between "posttrainllm trained one
+good model for one app" and "posttrainllm is the way you ship local
 planners on Mac."
 
 v7 is what turns a specialist into a platform.

@@ -11,7 +11,7 @@ All scenarios are surface-disjoint from the held-out eval suites
 (evals/fm-fixtures-ambig-h2) — verified by the collision check in the
 pipeline. Output rows: {"instruction", "response", "_meta"}.
 
-Usage: python3 scripts/build-clarify-seeds.py --out ~/.cache/tinygpt/datasets/clarify-seeds.jsonl
+Usage: python3 scripts/build-clarify-seeds.py --out ~/.cache/posttrainllm/datasets/clarify-seeds.jsonl
 """
 from __future__ import annotations
 

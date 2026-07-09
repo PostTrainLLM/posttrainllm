@@ -5,13 +5,13 @@ trained model and accept a small quality hit in exchange for a smaller
 model. There are two flavours here, with very different payoff
 profiles:
 
-- **Unstructured** (`tinygpt prune-unstructured`) — zero out
+- **Unstructured** (`posttrainllm prune-unstructured`) — zero out
   individual weights below a magnitude threshold. The model shape is
   unchanged; matmuls still operate on the original `[out, in]` slabs.
   On Metal this means **no wallclock speedup at inference** (there's
   no sparse-matmul kernel). The win shows up at **distribution time**
   — once you gzip the file, the long runs of zeros collapse.
-- **Structured** (`tinygpt prune-structured`) — remove whole attention
+- **Structured** (`posttrainllm prune-structured`) — remove whole attention
   heads or whole transformer layers. Layer pruning is genuinely
   topology-changing: the output model has fewer blocks, fewer
   parameters, fewer FLOPs, **real wallclock + memory win**. Head
@@ -36,7 +36,7 @@ The simplest recipe: for every Linear weight tensor, find the
 keep everything above.
 
 ```bash
-tinygpt prune-unstructured browser/public/gallery/shakespeare.bin \
+posttrainllm prune-unstructured browser/public/gallery/shakespeare.bin \
     --sparsity 0.5 --out shakespeare-p50.tinygpt
 ```
 
@@ -78,7 +78,7 @@ Observations:
 ### Iterative Magnitude Pruning (IMP)
 
 ```bash
-tinygpt prune-unstructured shakespeare.bin \
+posttrainllm prune-unstructured shakespeare.bin \
     --sparsity 0.3 --iterations 3 \
     --corpus shakespeare.txt --ft-steps 100 \
     --out shakespeare-p65.tinygpt
@@ -131,7 +131,7 @@ could plug in a 2:4 structured-sparse matmul (Ampere+) for a real
 ## Structured: head pruning
 
 ```bash
-tinygpt prune-structured shakespeare.bin \
+posttrainllm prune-structured shakespeare.bin \
     --heads-to-drop 4 --out shakespeare-h4.tinygpt
 ```
 
@@ -199,7 +199,7 @@ gzip-compress) and no wallclock savings.
 ## Structured: layer pruning
 
 ```bash
-tinygpt prune-structured shakespeare.bin \
+posttrainllm prune-structured shakespeare.bin \
     --layers-to-drop 2 --calibration shakespeare.txt \
     --out shakespeare-l2.tinygpt
 ```
@@ -290,7 +290,7 @@ inspectability. Example after a 50%-sparsity prune:
 }
 ```
 
-`tinygpt inspect` doesn't surface these yet (this surface is new);
+`posttrainllm inspect` doesn't surface these yet (this surface is new);
 the JSON is human-readable if you pull the header out yourself.
 
 ---
@@ -344,11 +344,11 @@ the JSON is human-readable if you pull the header out yourself.
   the projection matrices (real wallclock win, ~30 minutes of work
   plus testing).
 - **Fine-tune after head/layer pruning** with the standard
-  `tinygpt finetune` plumbing. Probably 200-500 LOC to wire through.
+  `posttrainllm finetune` plumbing. Probably 200-500 LOC to wire through.
 - **Block-sparse 2:4 or 4:8 patterns** so the sparsity actually
   accelerates on a future Metal sparse-matmul kernel. Not portable
   yet.
 - **HF model support** for IMP. Mirror image of LoraInjection vs
   LoraInjectionHF — parallel paths for the two model variants.
-- **Surface `pruningInfo` in `tinygpt inspect`.** Currently you have
+- **Surface `pruningInfo` in `posttrainllm inspect`.** Currently you have
   to look at the raw JSON.

@@ -1,4 +1,4 @@
-# TinyGPT Next
+# posttrainllm Next
 
 This is the active queue. It intentionally ignores most historical PRDs.
 
@@ -9,7 +9,7 @@ sequence, use `docs/learning-pipeline.md`.
 
 ## Current Thesis
 
-TinyGPT is a Mac-local specialist factory:
+posttrainllm is a Mac-local specialist factory:
 
 ```text
 target -> data -> post-training -> eval -> package -> report
@@ -77,7 +77,7 @@ training:
   synthetic side of `qwen06-sql-routed-v1`. Frozen baseline scores:
   synthetic execution 0.860, synthetic exact 0.840, clean-SQL raw rate 0.000
   (0/50 raw completions are a single bare SQL statement).
-- Candidate method: `tinygpt dpo` on `evals/sql-poc-expanded/preferences.jsonl`
+- Candidate method: `posttrainllm dpo` on `evals/sql-poc-expanded/preferences.jsonl`
   (108 hygiene pairs; verified zero prompt/gold overlap with the dev set),
   composed with the SFT adapter at inference via the existing multi-LoRA stack
   (`--lora sft --lora dpo`). First plan was `bake-lora` then DPO on the merged
@@ -86,7 +86,7 @@ training:
   with new infrastructure. (Gap closed 2026-07-04: `bake-lora` now bakes DoRA
   magnitudes. The frozen candidate keeps multi-LoRA composition; do not
   re-plan a frozen run.)
-- Eval suite: `tinygpt generate` + `tinygpt eval-sql --db-dir
+- Eval suite: `posttrainllm generate` + `posttrainllm eval-sql --db-dir
   evals/sql-poc-expanded/dbs` on the frozen 50-row
   `evals/sql-poc-expanded/dev.jsonl`, plus the clean-SQL raw-output metric
   (single statement, starts with SELECT, no fence/prose, nothing after `;`).
@@ -104,7 +104,7 @@ alone generates fence spam). Full schema-valid run artifacts and report:
 `runs/2026-07-03-sql-hygiene-dpo-qwen06/`. Clean-SQL scorer now exists at
 `scripts/score_sql_clean_output.py`. Next candidate: reference-anchored DPO
 (or SimPO at ~10× lower lr / ≤50 steps) on the same frozen pairs, evaluated
-composed. Gotcha for future runs: record the tinygpt binary provenance —
+composed. Gotcha for future runs: record the posttrainllm binary provenance —
 the 2026-06-25 release build scores identical preds at 0.000 where the
 2026-07-02 debug build scores 0.860, and composes multi-LoRA differently.
 

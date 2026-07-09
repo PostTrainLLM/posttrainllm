@@ -15,7 +15,7 @@ Usage:
         --hf-dir <Qwen3-0.6B HF snapshot> \
         --block-index 0 \
         --max-seq 128 \
-        --out ~/.cache/tinygpt/ane/m8-block-0.mlpackage
+        --out ~/.cache/posttrainllm/ane/m8-block-0.mlpackage
 """
 from __future__ import annotations
 
@@ -215,7 +215,7 @@ def main() -> None:
     parser.add_argument("--block-index", type=int, default=0)
     parser.add_argument("--max-seq", type=int, default=128)
     parser.add_argument("--out", default=None,
-                          help="output .mlpackage path (default: ~/.cache/tinygpt/ane/m8-block-N.mlpackage)")
+                          help="output .mlpackage path (default: ~/.cache/posttrainllm/ane/m8-block-N.mlpackage)")
     parser.add_argument("--io-dtype", choices=["fp32", "fp16"], default="fp32",
                           help="hidden_state/hidden_out boundary dtype. fp16 enables "
                                "IOSurface outputBackings handoff in the Swift runner.")
@@ -226,7 +226,7 @@ def main() -> None:
 
     hf_dir = Path(args.hf_dir).expanduser()
     out_path = (Path(args.out).expanduser() if args.out
-                 else Path.home() / ".cache/tinygpt/ane" /
+                 else Path.home() / ".cache/posttrainllm/ane" /
                        f"m8-block-{args.block_index}.mlpackage")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     if out_path.exists():

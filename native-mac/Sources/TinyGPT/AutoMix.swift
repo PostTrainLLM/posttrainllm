@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt automix` (B21) — micro-AutoMixer for specialist pretrain ratios.
+/// `posttrainllm automix` (B21) — micro-AutoMixer for specialist pretrain ratios.
 ///
 /// Replaces "hand-wave a 50/30/20 split" with a small ratio search: sample
 /// candidate mixes (Dirichlet), score each with a short proxy run, fit a
@@ -138,7 +138,7 @@ enum AutoMix {
     }
 
     /// Real proxy score: build a mixed corpus at this ratio, run a short
-    /// `tinygpt train`, and use the negated final loss as the capability
+    /// `posttrainllm train`, and use the negated final loss as the capability
     /// proxy. (Task-eval scoring — BFCL/GSM8K via run-lm-eval — is the V2
     /// extension noted in the recipe.) Needs a GPU; covered structurally only.
     static func realScore(_ mix: [Float], corpora: [Corpus], steps: Int, seed: UInt64) -> Float {
@@ -187,7 +187,7 @@ enum AutoMix {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt automix --corpus name=path --corpus name=path [...] [options]
+        usage: posttrainllm automix --corpus name=path --corpus name=path [...] [options]
 
         Search data-mix ratios across corpora: sample mixes (Dirichlet), score
         each with a short proxy train run, fit a quadratic surrogate, propose

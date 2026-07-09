@@ -146,9 +146,9 @@ either succeeds in ms or crashes immediately (SIGTRAP).
 ## Artifact list
 
 - `scripts/ane/m6_layer_bisect.py` — bisect harness
-- `~/.cache/tinygpt/ane/bisect-n1.mlpackage` — kept as reference
+- `~/.cache/posttrainllm/ane/bisect-n1.mlpackage` — kept as reference
   (the only ANE-working variant)
-- `~/.cache/tinygpt/ane/bisect-n2.mlpackage` — kept as reference
+- `~/.cache/posttrainllm/ane/bisect-n2.mlpackage` — kept as reference
   (first failing variant, useful for future ANE-trap debugging)
 
 ## Recommendation for the ANE elf
@@ -160,7 +160,7 @@ deprioritize M7 layout rewrite until needed.
 Implementation outline:
 1. Add `--mode block` to `scripts/ane/qwen3_to_coreml.py` — exports a
    single Qwen3Block as an mlpackage with one (k_cache, v_cache) pair
-2. Write `tinygpt coreml-serve-chunked` (Swift) that loads N
+2. Write `posttrainllm coreml-serve-chunked` (Swift) that loads N
    block-mlpackages and orchestrates sequential predict calls
 3. Validate parity (top-1 token agreement vs MLX) on the same prompts
 4. Benchmark: tok/s on ANE-chunked vs MLX vs current coreml-serve
@@ -258,14 +258,14 @@ Approaches tried that didn't help:
    This is what makes "Pace on ANE" not just "Qwen3 on ANE."
 4. **Longer max_seq** — current export caps at 128. For real
    contexts (256-2048), re-export with bigger MLState slots.
-5. **Tinygpt CLI wrapping** — `tinygpt serve --coreml-chunked <dir>`
+5. **Tinygpt CLI wrapping** — `posttrainllm serve --coreml-chunked <dir>`
    surface, alongside the existing `coreml-serve` sibling.
 
 ### Artifacts (kept on disk)
 
-- `~/.cache/tinygpt/ane/m8-block-{0..27}.mlpackage` — 28 block packages, 32 MB each
-- `~/.cache/tinygpt/ane/m8-block-{0..27}-summary.json` — per-block convert/run timings + parity
-- `~/.cache/tinygpt/ane/m8-chained-decode-summary.json` — end-to-end run result
+- `~/.cache/posttrainllm/ane/m8-block-{0..27}.mlpackage` — 28 block packages, 32 MB each
+- `~/.cache/posttrainllm/ane/m8-block-{0..27}-summary.json` — per-block convert/run timings + parity
+- `~/.cache/posttrainllm/ane/m8-chained-decode-summary.json` — end-to-end run result
 - `scripts/ane/m8_block_export.py` — per-block export + parity smoke
 - `scripts/ane/m8_chained_decode.py` — full pipeline driver (currently produces garbage; needs precision fix)
 
@@ -274,4 +274,4 @@ Approaches tried that didn't help:
 - The blocks chain on ANE without crashing — the M6 bisect prediction held.
 - ANE is genuinely engaged: Activity Monitor or `powermetrics` during a chained predict should show ANE utilization at ~3W, not GPU.
 - Speed of 22-25 tok/s is the floor. Adding Swift-side dispatch (instead of Python's ml.predict overhead) should push to 35-50 tok/s.
-- Correctness is the only thing blocking ship. Once a precision fix lands and parity vs MLX is acceptable (cos_sim ≥0.999 end-to-end), the path forward is the Swift orchestrator + `tinygpt coreml-serve-chunked`.
+- Correctness is the only thing blocking ship. Once a precision fix lands and parity vs MLX is acceptable (cos_sim ≥0.999 end-to-end), the path forward is the Swift orchestrator + `posttrainllm coreml-serve-chunked`.

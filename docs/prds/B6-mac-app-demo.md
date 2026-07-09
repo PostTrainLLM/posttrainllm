@@ -52,7 +52,7 @@ on your machine."
   7. **Try it now** (opens a chat with the new specialist;
      before/after compare against the base 0-shot)
 - The wizard is a single SwiftUI view tree calling the existing
-  `tinygpt train` / `eval-*` subprocesses through the existing
+  `posttrainllm train` / `eval-*` subprocesses through the existing
   ServerController + ProcessRunner.
 - A "Save recipe" button so a working recipe becomes a sharable
   `.tinygpt-recipe` file users can ship to others.
@@ -81,7 +81,7 @@ on your machine."
 
 - The existing Train + Eval tabs — Factory is a new sibling, not
   a refactor.
-- `tinygpt train` / eval subcommands — V1 calls them as
+- `posttrainllm train` / eval subcommands — V1 calls them as
   subprocesses through the existing ServerController.
 
 ## Acceptance criteria

@@ -3,9 +3,9 @@
 #
 # Usage:
 #   ./scripts/sae-run.sh <canonical.tinygpt> [out-dir]
-#   ./scripts/sae-run.sh ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt
+#   ./scripts/sae-run.sh ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt
 #
-# Sibling of score-run.sh. Runs `tinygpt sae --checkpoint-dir` against
+# Sibling of score-run.sh. Runs `posttrainllm sae --checkpoint-dir` against
 # the history checkpoints + canonical, emitting a JSONL timeline that
 # `browser/src/pages/sae-timeline.astro` (when the elf ships it) will
 # render as a feature-emergence chart.
@@ -16,7 +16,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TINYGPT="$REPO_ROOT/native-mac/.build/arm64-apple-macosx/release/tinygpt"
+TINYGPT="$REPO_ROOT/native-mac/.build/arm64-apple-macosx/release/posttrainllm"
 
 if [[ $# -lt 1 ]]; then
     echo "usage: $0 <canonical.tinygpt> [out-dir]" >&2
@@ -34,7 +34,7 @@ if [[ ! -f "$CKPT" ]]; then
     exit 1
 fi
 if [[ ! -x "$TINYGPT" ]]; then
-    echo "tinygpt binary missing — run \`cd native-mac && swift build -c release\`" >&2
+    echo "posttrainllm binary missing — run \`cd native-mac && swift build -c release\`" >&2
     exit 1
 fi
 
@@ -64,10 +64,10 @@ echo "  out-dir:    $OUT_DIR"
 echo "  timeline:   $TIMELINE_JSONL"
 echo ""
 
-# `tinygpt sae --checkpoint-dir <dir>` walks all .tinygpt files (history
+# `posttrainllm sae --checkpoint-dir <dir>` walks all .tinygpt files (history
 # + canonical) and trains one SAE per checkpoint. JSONL row schema is
 # whatever B13 (SAE.swift) emits — see docs/prds/sae-timeline-viewer.md.
-# Note: `tinygpt sae --checkpoint-dir` walks every .tinygpt under that
+# Note: `posttrainllm sae --checkpoint-dir` walks every .tinygpt under that
 # dir. Symlink the run's checkpoints into a clean staging dir so we
 # don't accidentally pick up unrelated checkpoints (the default save
 # location was /tmp/ before persistent-output PRD; staging dir stays local).

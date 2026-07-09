@@ -44,7 +44,7 @@ def chat(url: str, model: str, tools: list[dict[str, Any]], intent: str) -> dict
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", default="http://127.0.0.1:8765/v1/chat/completions")
-    parser.add_argument("--model", default="tinygpt")
+    parser.add_argument("--model", default="posttrainllm")
     parser.add_argument("--data", type=Path, default=Path("scripts/v7-eval/heldout-tools.jsonl"))
     args = parser.parse_args()
 

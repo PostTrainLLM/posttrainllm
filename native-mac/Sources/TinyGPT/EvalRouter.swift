@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt eval-router` (B2–B7) — router bake-off: per-method tool-selection
+/// `posttrainllm eval-router` (B2–B7) — router bake-off: per-method tool-selection
 /// accuracy from a predictions file, naming the winner + its lead. Generating
 /// the predictions (classifier vs FSM-only routers) is the trained-model step;
 /// this scores their output.
@@ -50,7 +50,7 @@ enum EvalRouter {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-router <preds.jsonl> [--out rows.jsonl]
+        usage: posttrainllm eval-router <preds.jsonl> [--out rows.jsonl]
 
         Router bake-off (B2–B7): per-method tool-selection accuracy. Rows:
           {method, predicted_tool, gold_tool}

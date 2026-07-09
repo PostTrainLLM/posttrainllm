@@ -7,19 +7,19 @@
 # Loads the HF base + applies the LoRA adapter + samples a short
 # completion. Confirms the full train→apply→inference loop works.
 #
-# Requires: tinygpt binary built (`cd native-mac && swift build -c release`).
+# Requires: posttrainllm binary built (`cd native-mac && swift build -c release`).
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TINYGPT="$REPO_ROOT/native-mac/.build/arm64-apple-macosx/release/tinygpt"
+TINYGPT="$REPO_ROOT/native-mac/.build/arm64-apple-macosx/release/posttrainllm"
 
 if [[ $# -lt 2 ]]; then
     echo "usage: $0 <hf-base-dir> <adapter.lora> [prompt]" >&2
     echo "" >&2
     echo "example (after Qwen3 FC SFT completes):" >&2
     echo "  $0 ~/.cache/huggingface/hub/models--Qwen--Qwen3-0.6B/snapshots/c1899de... \\" >&2
-    echo "     ~/.cache/tinygpt/runs/qwen3-fc-v2/qwen3-fc-v2.lora \\" >&2
+    echo "     ~/.cache/posttrainllm/runs/qwen3-fc-v2/qwen3-fc-v2.lora \\" >&2
     echo "     'What is 2 + 2?'" >&2
     exit 1
 fi
@@ -37,7 +37,7 @@ if [[ ! -f "$LORA_PATH" ]]; then
     exit 1
 fi
 if [[ ! -x "$TINYGPT" ]]; then
-    echo "error: tinygpt binary missing — run 'cd native-mac && swift build -c release'" >&2
+    echo "error: posttrainllm binary missing — run 'cd native-mac && swift build -c release'" >&2
     exit 1
 fi
 

@@ -27,7 +27,7 @@ The recipe (`scripts/recipes/a1-tool-caller.sh`) runs four shipped steps:
 ## Data
 
 `DATA` is a chatml SFT JSONL of `{instruction, input?, response}` tool-calling
-examples (e.g. an xLAM / glaive-function-calling export, or `tinygpt synthesize`
+examples (e.g. an xLAM / glaive-function-calling export, or `posttrainllm synthesize`
 output). The recipe is data-agnostic; the gate is the contract.
 
 ## Acceptance

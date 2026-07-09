@@ -1,9 +1,9 @@
 import Foundation
 import TinyGPTData
 
-/// `tinygpt download-dataset hf://datasets/<id>` —
+/// `posttrainllm download-dataset hf://datasets/<id>` —
 /// resolves a HuggingFace dataset, streams its shards to
-/// `~/.cache/tinygpt/datasets/<id>/`, and converts to one of tinygpt's
+/// `~/.cache/posttrainllm/datasets/<id>/`, and converts to one of posttrainllm's
 /// training formats (SFT JSONL, DPO JSONL, plain text).
 ///
 /// This is the data-pipeline entry point for the agent-factory north
@@ -21,9 +21,9 @@ import TinyGPTData
 ///   --dry-run             resolve + detect, no I/O to corpus file
 ///
 /// EXAMPLES
-///   tinygpt download-dataset hf://datasets/Salesforce/xlam-function-calling-60k
-///   tinygpt download-dataset OpenHermes-2.5 --format sft --out openhermes.jsonl
-///   tinygpt download-dataset yahma/alpaca-cleaned --max-files 1 --inspect
+///   posttrainllm download-dataset hf://datasets/Salesforce/xlam-function-calling-60k
+///   posttrainllm download-dataset OpenHermes-2.5 --format sft --out openhermes.jsonl
+///   posttrainllm download-dataset yahma/alpaca-cleaned --max-files 1 --inspect
 enum DownloadDataset {
 
     static func run(args: [String]) {
@@ -232,11 +232,11 @@ enum DownloadDataset {
         print("==> done. corpus at \(outURL.path)")
         switch resolvedFormat {
         case .sft:
-            print("    next:  tinygpt sft <base> --data \(outURL.path) --template chatml --out lora.tinygpt")
+            print("    next:  posttrainllm sft <base> --data \(outURL.path) --template chatml --out lora.tinygpt")
         case .dpo:
-            print("    next:  tinygpt dpo <base> --data \(outURL.path) --out dpo.tinygpt")
+            print("    next:  posttrainllm dpo <base> --data \(outURL.path) --out dpo.tinygpt")
         case .plain:
-            print("    next:  pass --data \(outURL.path) to tinygpt train")
+            print("    next:  pass --data \(outURL.path) to posttrainllm train")
         }
     }
 
@@ -328,7 +328,7 @@ enum DownloadDataset {
 
     static func printUsage() {
         print("""
-        usage: tinygpt download-dataset <dataset> [flags]
+        usage: posttrainllm download-dataset <dataset> [flags]
 
         dataset:
           hf://datasets/owner/name    canonical form
@@ -345,7 +345,7 @@ enum DownloadDataset {
 
         env:
           HF_TOKEN                    bearer token for gated/private datasets
-          TINYGPT_DATASET_CACHE       override cache root (default: ~/.cache/tinygpt/datasets)
+          TINYGPT_DATASET_CACHE       override cache root (default: ~/.cache/posttrainllm/datasets)
         """)
     }
 }

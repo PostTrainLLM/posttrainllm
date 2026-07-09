@@ -2,7 +2,7 @@
 
 Date: 2026-06-06
 
-Recommendation: partial-proceed. Do not wrap `vllm-mlx` into `tinygpt serve`
+Recommendation: partial-proceed. Do not wrap `vllm-mlx` into `posttrainllm serve`
 yet. Keep native serve as the default and as the eval/logprob backend. Treat
 `vllm-mlx` as a production-chat candidate after an approved local install and
 benchmark pass.
@@ -14,7 +14,7 @@ benchmark pass.
 - CLI reference: https://github.com/waybarrios/vllm-mlx/blob/main/docs/reference/cli.md
 - Continuous batching guide: https://github.com/waybarrios/vllm-mlx/blob/main/docs/guides/continuous-batching.md
 - LLM benchmarks: https://github.com/waybarrios/vllm-mlx/blob/main/docs/benchmarks/llm.md
-- Local tinygpt serve: `native-mac/Sources/TinyGPTServe/Serve.swift`
+- Local posttrainllm serve: `native-mac/Sources/TinyGPTServe/Serve.swift`
 - Local safetensors exporter: `native-mac/Sources/TinyGPT/ToSafetensors.swift`
 
 ## 1. Maturity
@@ -29,7 +29,7 @@ The project is real and active enough to watch:
   paged KV cache, prefix cache, model acquisition/conversion, and
   `bench-serve`.
 
-But it is not mature enough to become the default tinygpt serving backend:
+But it is not mature enough to become the default posttrainllm serving backend:
 
 - `pyproject.toml` marks it as `Development Status :: 3 - Alpha`.
 - Recent open issues include continuous-batching crashes and MLX stream
@@ -54,10 +54,10 @@ directory:
 
 It does not load `.tinygpt` checkpoints directly.
 
-TinyGPT already has `tinygpt to-safetensors`, but that currently writes a
+posttrainllm already has `posttrainllm to-safetensors`, but that currently writes a
 single `model.safetensors` with HF-Llama-ish names. That is not yet a complete
 MLX/HF model directory contract for vllm-mlx because serving needs compatible
-`config.json`, tokenizer files, and architecture expectations. TinyGPT's
+`config.json`, tokenizer files, and architecture expectations. posttrainllm's
 from-scratch byte-level models also do not map cleanly to an upstream HF model
 family without a wrapper config.
 
@@ -70,7 +70,7 @@ minimum honest bridge is:
 3. Verify `vllm-mlx serve <dir>` loads it.
 
 Until that exists, vllm-mlx can serve external MLX/HF models, not arbitrary
-TinyGPT checkpoints.
+posttrainllm checkpoints.
 
 ## 3. OpenAI Surface Parity
 
@@ -89,7 +89,7 @@ The critical eval question is `logprobs + echo` for
 lm-eval-harness/local-completions. This remains unproven. The server docs and
 CLI reference checked today document chat/completions and streaming, but do not
 document the exact completions `echo: true` plus `logprobs` behavior that
-TinyGPT's native `Serve.scoreLogprobs` supports for eval scoring.
+posttrainllm's native `Serve.scoreLogprobs` supports for eval scoring.
 
 Decision: keep native serve as the eval backend. Even if vllm-mlx is adopted
 for production chat, eval code should continue to route through native serve
@@ -111,17 +111,17 @@ Upstream benchmark data is still useful for triage:
 - Paged-cache docs show workload-dependent gains: meaningful memory savings,
   modest or no throughput gain in some M1 Max paged-cache tests.
 
-Decision: performance upside is plausible, but not proven for TinyGPT. The
+Decision: performance upside is plausible, but not proven for posttrainllm. The
 next step is an approved local benchmark, not code integration.
 
 ## Recommendation
 
 Partial-proceed:
 
-1. Do not modify `tinygpt serve` yet.
+1. Do not modify `posttrainllm serve` yet.
 2. Keep native serve as the default and as the eval backend.
 3. Add a future integration only after a local benchmark answers:
-   - Can vllm-mlx load a TinyGPT-exported model directory?
+   - Can vllm-mlx load a posttrainllm-exported model directory?
    - Does `/v1/completions` support `echo + logprobs` well enough for
      lm-eval-harness?
    - What are throughput, startup time, and memory deltas on the same Mac and
@@ -145,6 +145,6 @@ vllm-mlx serve mlx-community/Qwen3-0.6B-8bit --port 8001 --continuous-batching
 vllm-mlx bench-serve --url http://127.0.0.1:8001 --prompts short --concurrency 1,4 --max-tokens 64 --format json
 ```
 
-Compare with native serve on an existing TinyGPT checkpoint using the same
+Compare with native serve on an existing posttrainllm checkpoint using the same
 prompt set and max-token cap. Stop all spawned servers immediately after the
 run.

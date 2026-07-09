@@ -163,7 +163,7 @@ public enum HFVLMLoader {
     /// shard's manifest WITHOUT materializing weights. Reports tensor
     /// counts + sizes per major branch (vision_tower / language_model).
     ///
-    /// This is enough for the M4.1 acceptance test: `tinygpt qwen3vl-load
+    /// This is enough for the M4.1 acceptance test: `posttrainllm qwen3vl-load
     /// <dir>` prints "loaded N LLM layers + M vision blocks + K deepstack
     /// mergers + main merger; total bytes X".
     public static func inspect(hfDir: URL) throws -> InspectionReport {

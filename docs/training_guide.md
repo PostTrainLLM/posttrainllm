@@ -2,7 +2,7 @@
 
 ## The `--depth` single knob (B18)
 
-`tinygpt train --depth N` derives **every** pretrain hyperparameter from
+`posttrainllm train --depth N` derives **every** pretrain hyperparameter from
 one number — architecture *and* the learning-rate / batch / step schedule —
 following the nanochat surface ([karpathy/nanochat](https://github.com/karpathy/nanochat))
 and the Chinchilla compute-optimal corner ([Hoffmann et al. 2022](https://arxiv.org/abs/2203.15556)).

@@ -7,7 +7,7 @@
 #
 #   sudo bash scripts/setup_powermetrics_sudoers.sh
 #
-# Undo: sudo rm /etc/sudoers.d/tinygpt-powermetrics
+# Undo: sudo rm /etc/sudoers.d/posttrainllm-powermetrics
 set -euo pipefail
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -16,7 +16,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 USER_NAME="${SUDO_USER:-$(whoami)}"
-DROPIN=/etc/sudoers.d/tinygpt-powermetrics
+DROPIN=/etc/sudoers.d/posttrainllm-powermetrics
 TMP="$(mktemp)"
 printf '%s ALL=(root) NOPASSWD: /usr/bin/powermetrics\n' "$USER_NAME" > "$TMP"
 

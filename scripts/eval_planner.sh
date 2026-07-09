@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# tinygpt eval-planner — one-command planner drilldown for a new model.
+# posttrainllm eval-planner — one-command planner drilldown for a new model.
 #
 #   scripts/eval_planner.sh <lm-studio-model-id> [run-tag] [--compact]
 #
@@ -55,7 +55,7 @@ fi
 echo "[eval-planner] running 3 suites (n=130) as run-tag '$TAG'..."
 # Clear any previous run under this tag — a partial/aborted earlier run
 # must not survive to be misread as fresh results by the report.
-rm -rf "$HOME/.cache/tinygpt/runs/h2-combined-$TAG"
+rm -rf "$HOME/.cache/posttrainllm/runs/h2-combined-$TAG"
 if ! bash "$TGT/scripts/eval_combined.sh" "$TAG" "$URL" "$MODEL" "$SYSP" "$TAG"; then
   echo "[eval-planner] eval aborted for $MODEL — no verdict (NOT a 0% score)." >&2
   exit 1
@@ -68,7 +68,7 @@ if [ "$COMPACT" -eq 1 ]; then
   fi
   TAG_B="$TAG-compact"
   echo "[eval-planner] re-running n=130 against v11-compact prompt as '$TAG_B'..."
-  rm -rf "$HOME/.cache/tinygpt/runs/h2-combined-$TAG_B"
+  rm -rf "$HOME/.cache/posttrainllm/runs/h2-combined-$TAG_B"
   if ! bash "$TGT/scripts/eval_combined.sh" "$TAG_B" "$URL" "$MODEL" "$SYSP_COMPACT" "$TAG_B"; then
     echo "[eval-planner] compact eval aborted for $MODEL — A/B incomplete." >&2
     exit 1

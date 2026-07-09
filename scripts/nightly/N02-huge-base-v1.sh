@@ -5,9 +5,9 @@
 # specialist SFT will start from. All later runs amortise this cost.
 #
 # Outputs:
-#   ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.tinygpt   canonical
-#   ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.step-*.tinygpt  history
-#   ~/.cache/tinygpt/runs/huge-base-v1/huge-base-v1.jsonl     dashboard log
+#   ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt   canonical
+#   ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.step-*.tinygpt  history
+#   ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.jsonl     dashboard log
 #
 # Recipe choices (all set with intent — change deliberately):
 #   --preset huge                   12L · d=256 · 10M body params · fits 48 GB
@@ -26,8 +26,8 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-TINYGPT="$REPO_ROOT/native-mac/.build/arm64-apple-macosx/release/tinygpt"
-CACHE="$HOME/.cache/tinygpt/datasets"
+TINYGPT="$REPO_ROOT/native-mac/.build/arm64-apple-macosx/release/posttrainllm"
+CACHE="$HOME/.cache/posttrainllm/datasets"
 TOKENIZER_DIR="$HOME/.cache/huggingface/hub/models--HuggingFaceTB--SmolLM2-135M"
 # SmolLM2 ships with multiple snapshot/<commit>/ dirs; pick the latest
 # snapshot dir that has tokenizer.json.
@@ -35,7 +35,7 @@ TOKENIZER_PATH="$(find "$TOKENIZER_DIR/snapshots" -name "tokenizer.json" 2>/dev/
                   | head -1 | xargs -I {} dirname {} || true)"
 
 if [[ ! -x "$TINYGPT" ]]; then
-    echo "tinygpt binary not found at $TINYGPT — run \`cd native-mac && swift build -c release\` first" >&2
+    echo "posttrainllm binary not found at $TINYGPT — run \`cd native-mac && swift build -c release\` first" >&2
     exit 1
 fi
 
@@ -51,9 +51,9 @@ fi
 # vs. 19th-century literary; the right corpus for a tool-caller base.
 #
 # If you want the smaller/cheaper Gutenberg corpus instead, override:
-#   CORPUS_TXT=/tmp/tinygpt-corpora/everything.txt ./scripts/nightly/N02-...
+#   CORPUS_TXT=/tmp/posttrainllm-corpora/everything.txt ./scripts/nightly/N02-...
 CORPUS_TXT="${CORPUS_TXT:-/tmp/fineweb-edu.txt}"
-PARQUET_DIR="$HOME/.cache/tinygpt/datasets/HuggingFaceFW/fineweb-edu/data/CC-MAIN-2013-20/"
+PARQUET_DIR="$HOME/.cache/posttrainllm/datasets/HuggingFaceFW/fineweb-edu/data/CC-MAIN-2013-20/"
 
 if [[ ! -f "$CORPUS_TXT" ]]; then
     if [[ "$CORPUS_TXT" == "/tmp/fineweb-edu.txt" ]] && [[ -d "$PARQUET_DIR" ]]; then
@@ -64,12 +64,12 @@ if [[ ! -f "$CORPUS_TXT" ]]; then
         echo "pretrain corpus missing at $CORPUS_TXT" >&2
         echo "options:" >&2
         echo "  1. ensure $PARQUET_DIR exists and pyarrow is installed (default path)" >&2
-        echo "  2. CORPUS_TXT=/tmp/tinygpt-corpora/everything.txt $0  (Gutenberg fallback)" >&2
+        echo "  2. CORPUS_TXT=/tmp/posttrainllm-corpora/everything.txt $0  (Gutenberg fallback)" >&2
         exit 1
     fi
 fi
 
-RUN_DIR="$HOME/.cache/tinygpt/runs/huge-base-v1"
+RUN_DIR="$HOME/.cache/posttrainllm/runs/huge-base-v1"
 OUT="$RUN_DIR/huge-base-v1.tinygpt"
 LOG="$RUN_DIR/huge-base-v1.jsonl"
 mkdir -p "$RUN_DIR"

@@ -3,13 +3,13 @@ import XCTest
 import TinyGPTIO
 
 final class AdamPersistenceTests: XCTestCase {
-    private var tinygptBinaryURL: URL? {
+    private var TinyGPTBinaryURL: URL? {
         if let p = ProcessInfo.processInfo.environment["TINYGPT_BIN"],
            FileManager.default.isExecutableFile(atPath: p) {
             return URL(fileURLWithPath: p)
         }
         let local = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-            .appendingPathComponent(".build/arm64-apple-macosx/release/tinygpt")
+            .appendingPathComponent(".build/arm64-apple-macosx/release/posttrainllm")
         return FileManager.default.isExecutableFile(atPath: local.path) ? local : nil
     }
 
@@ -17,12 +17,12 @@ final class AdamPersistenceTests: XCTestCase {
         guard ProcessInfo.processInfo.environment["TINYGPT_RUN_ADAM_PERSISTENCE_SMOKE"] == "1" else {
             throw XCTSkip("set TINYGPT_RUN_ADAM_PERSISTENCE_SMOKE=1 to run the GPU/subprocess Adam persistence smoke")
         }
-        guard let bin = tinygptBinaryURL else {
-            throw XCTSkip("tinygpt binary not found; set TINYGPT_BIN")
+        guard let bin = TinyGPTBinaryURL else {
+            throw XCTSkip("posttrainllm binary not found; set TINYGPT_BIN")
         }
 
         let dir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("tinygpt-adam-persist-\(UUID().uuidString)")
+            .appendingPathComponent("posttrainllm-adam-persist-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: dir) }
 

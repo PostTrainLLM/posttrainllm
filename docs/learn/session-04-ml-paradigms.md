@@ -193,7 +193,7 @@ pretraining, the model knows everything but doesn't know it's supposed to
 be helpful; SFT teaches the pattern of "user asks → assistant answers
 helpfully and concisely."
 
-In TinyGPT terms: `tinygpt sft` is this. Most fine-tunes use LoRA so they
+In posttrainllm terms: `posttrainllm sft` is this. Most fine-tunes use LoRA so they
 only update a small fraction of parameters — see `Lora.swift`.
 
 ## RLHF / RLAIF
@@ -305,10 +305,10 @@ families still win on them.
 
 ## Where this connects
 
-- Pretraining of TinyGPT (`huge-base-v1.tinygpt`) = transformer +
+- Pretraining of posttrainllm (`huge-base-v1.tinygpt`) = transformer +
   self-supervised + SGD. The "easiest" combination conceptually, but the
   one that produced the biggest practical leap of the last decade.
-- LoRA, SFT, RLHF, distillation — all in TinyGPT under
+- LoRA, SFT, RLHF, distillation — all in posttrainllm under
   `native-mac/Sources/TinyGPT/SFT.swift` and the various `Lora*.swift`,
   `Distill.swift` files. Each is a different point in the 3-axis matrix.
 - The journal Entry 7 has the same axes table for quick reference outside

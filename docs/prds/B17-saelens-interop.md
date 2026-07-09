@@ -7,11 +7,11 @@ parent_plan: docs/PLAN.md §3 Tier B (B17)
 related_prds: B13-interp-on-checkpoints.md, B19-group-sae.md
 ---
 
-# PRD — Export TinyGPT SAEs in SAELens / Neuronpedia format
+# PRD — Export posttrainllm SAEs in SAELens / Neuronpedia format
 
 ## Goal
 
-Add `tinygpt sae export --format saelens <input.sae> --out <dir>`
+Add `posttrainllm sae export --format saelens <input.sae> --out <dir>`
 that converts our shipped `.sae` sidecar format to the
 [SAELens](https://github.com/decoderesearch/SAELens) on-disk format
 ([Neuronpedia](https://www.neuronpedia.org/) ingest target). One-way
@@ -27,7 +27,7 @@ This is the cheapest of the three interop options floated in PLAN B17:
 
 ## Why now
 
-- Our SAE infra exists and works (`tinygpt sae`, `sae-explore`).
+- Our SAE infra exists and works (`posttrainllm sae`, `sae-explore`).
   Whether to interop with the rest of the field is a UX question, not
   a science question.
 - Neuronpedia is the public storefront for SAE feature dictionaries —
@@ -55,7 +55,7 @@ This is the cheapest of the three interop options floated in PLAN B17:
 
 ## Scope — out
 
-- **Inbound import** (SAELens → tinygpt). Defer.
+- **Inbound import** (SAELens → posttrainllm). Defer.
 - **Cross-format feature explorer** — keep our `sae-explore`; the
   exported SAEs live on Neuronpedia for cross-tool exploration.
 - **Auto-publish to Neuronpedia.** Their API exists but ingestion
@@ -74,7 +74,7 @@ This is the cheapest of the three interop options floated in PLAN B17:
 
 ## Acceptance criteria
 
-- [ ] `tinygpt sae export --format saelens existing.sae --out /tmp/exp/`
+- [ ] `posttrainllm sae export --format saelens existing.sae --out /tmp/exp/`
   produces `cfg.json`, `sae_weights.safetensors`, `sparsity.safetensors`,
   `README.md`.
 - [ ] SAELens' loader (called via a 5-line Python subprocess in CI)

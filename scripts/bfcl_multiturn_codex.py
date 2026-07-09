@@ -13,7 +13,7 @@ Usage: MT_DATA=...veryhard_data.jsonl MT_GOLD=...veryhard_gold.jsonl \
        [MT_DUMP=/tmp/codex_traj.jsonl] python3 scripts/bfcl_multiturn_codex.py 12
 """
 import sys, os, json, subprocess, tempfile
-BFCL="/Users/sarthak/.cache/tinygpt/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"
+BFCL="/Users/sarthak/.cache/posttrainllm/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"
 sys.path.insert(0,BFCL)
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_utils import execute_multi_turn_func_call
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_checker import multi_turn_checker

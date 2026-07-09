@@ -109,7 +109,7 @@ public struct CorrectionStore {
 
         let fd = open(url.path, O_WRONLY | O_APPEND | O_CREAT, 0o600)
         guard fd >= 0 else {
-            throw NSError(domain: "tinygpt.correction-store", code: Int(errno),
+            throw NSError(domain: "posttrainllm.correction-store", code: Int(errno),
                           userInfo: [NSLocalizedDescriptionKey:
                             "open(\(url.path)) failed: \(String(cString: strerror(errno)))"])
         }
@@ -120,7 +120,7 @@ public struct CorrectionStore {
             while written < line.count {
                 let n = write(fd, base.advanced(by: written), line.count - written)
                 if n < 0 {
-                    throw NSError(domain: "tinygpt.correction-store", code: Int(errno),
+                    throw NSError(domain: "posttrainllm.correction-store", code: Int(errno),
                                   userInfo: [NSLocalizedDescriptionKey:
                                     "write failed: \(String(cString: strerror(errno)))"])
                 }

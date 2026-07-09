@@ -13,7 +13,7 @@ from tau_bench_reader import read_tau_bench
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Prepare TinyGPT tool-routing data from BFCL, tau-bench, and GitHub.")
+    parser = argparse.ArgumentParser(description="Prepare posttrainllm tool-routing data from BFCL, tau-bench, and GitHub.")
     parser.add_argument("--bfcl", action="append", default=[], help="Path to BFCL JSON/JSONL file or directory.")
     parser.add_argument("--tau-bench", action="append", default=[], help="Path to tau-bench JSON/JSONL file or directory.")
     parser.add_argument("--github", action="append", default=[], help="GitHub owner/repo to ingest through the REST API.")

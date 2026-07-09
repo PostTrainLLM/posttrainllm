@@ -77,9 +77,9 @@ current utility and future conditions:
 | Inference | AWQ reader | Loads AWQ-quantized HF model | Technique row |
 | Inference | ANE Core ML inference path | `365 tok/s` on Shakespeare via Core ML | Technique row; parked unless deploy path reactivates |
 | Inference | OpenAI-compatible HTTP serve | Curl-tested; lm-eval-harness compatible | Technique row |
-| Eval/bench | `tinygpt eval` | Perplexity `4.71` on flagship matches val | Technique row |
-| Eval/bench | `tinygpt bench` | TTFT `1.91ms`, `794 tok/s` on Shakespeare | Technique row |
-| Eval/bench | `tinygpt score-bench` + manifest patcher | Browser leaderboard pipeline works | Technique row |
+| Eval/bench | `posttrainllm eval` | Perplexity `4.71` on flagship matches val | Technique row |
+| Eval/bench | `posttrainllm bench` | TTFT `1.91ms`, `794 tok/s` on Shakespeare | Technique row |
+| Eval/bench | `posttrainllm score-bench` + manifest patcher | Browser leaderboard pipeline works | Technique row |
 | Eval/bench | lm-evaluation-harness HTTP adapter | OpenAI-compatible serve verified | Technique row |
 | Quality | 40 XCTests | CI gate with core coverage | Technique row |
 | Quality | swiftformat + CI lint | 0 violations on 76 files | Technique row |

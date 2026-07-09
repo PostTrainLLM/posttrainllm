@@ -48,8 +48,8 @@ how fast it runs. Pace consumes the same qualified backend.
 ## Scope — in
 
 - **Pluggable backend for the eval harness.** `EvalHarnessSupport.startServe`
-  gains a `--backend {tinygpt,omlx,mlx-server,openai-url}` selector. Default
-  stays `tinygpt` (no behavior change); the new paths point the harness at a
+  gains a `--backend {posttrainllm,omlx,mlx-server,openai-url}` selector. Default
+  stays `posttrainllm` (no behavior change); the new paths point the harness at a
   fast batching-capable backend (oMLX / `mlx_lm.server`) or an external
   OpenAI-compatible URL.
 - **Concurrent request submission.** Refactor the eval drivers (BFCL/τ-bench/
@@ -62,7 +62,7 @@ how fast it runs. Pace consumes the same qualified backend.
 - **Anthropic-format adapter** alongside the existing OpenAI one, so the
   harness can drive Anthropic-API backends.
 - A `scripts/eval-throughput-smoke.sh` that runs a fixed N-request suite
-  through `tinygpt` vs a batched backend and reports the speedup.
+  through `posttrainllm` vs a batched backend and reports the speedup.
 
 ## Scope — out
 
@@ -81,7 +81,7 @@ how fast it runs. Pace consumes the same qualified backend.
 | `native-mac/Sources/TinyGPT/EvalHarnessSupport.swift` | `--backend` selector + concurrent submission helper |
 | `native-mac/Sources/TinyGPT/EvalBFCL.swift` / `EvalTauBench.swift` | fire requests with bounded concurrency |
 | `native-mac/Sources/TinyGPT/*` (Anthropic shim) | new — Anthropic-format request adapter |
-| `scripts/eval-throughput-smoke.sh` | new — throughput A/B (tinygpt vs batched backend) |
+| `scripts/eval-throughput-smoke.sh` | new — throughput A/B (posttrainllm vs batched backend) |
 | `docs/learn/omlx-steals.md` | new — the steal rationale (house style) |
 | `docs/PLAN.md` | B34 entry |
 
@@ -93,11 +93,11 @@ how fast it runs. Pace consumes the same qualified backend.
 ## Acceptance criteria
 
 - [ ] A fixed BFCL/τ-bench suite runs **≥3× faster** end-to-end via a batched
-  backend vs the current sequential `tinygpt serve` path (measured by
+  backend vs the current sequential `posttrainllm serve` path (measured by
   `eval-throughput-smoke.sh`).
 - [ ] Shared system+tools prefix is computed once and reused (cache-hit logged);
   per-request TTFT drops accordingly.
-- [ ] `--backend` defaults to `tinygpt` — existing eval invocations are
+- [ ] `--backend` defaults to `posttrainllm` — existing eval invocations are
   byte-unchanged.
 - [ ] Eval scores are within noise of the sequential baseline (batching/caching
   must not change outputs at T=0).

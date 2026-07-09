@@ -8,10 +8,10 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TINYGPT="${TINYGPT:-$ROOT/native-mac/.build/arm64-apple-macosx/release/tinygpt}"
+TINYGPT="${TINYGPT:-$ROOT/native-mac/.build/arm64-apple-macosx/release/posttrainllm}"
 MODEL=""
 TOOLS=""
-OUT_DIR="/tmp/tinygpt-b26"
+OUT_DIR="/tmp/posttrainllm-b26"
 CATEGORIES="simple,multiple,parallel,parallel_multiple,relevance,irrelevance,live_simple,live_multiple,live_parallel,live_parallel_multiple"
 BFCL_ROOT=""
 BFCL_MODEL=""
@@ -25,26 +25,26 @@ usage() {
 usage: evals/b26-deferred-parity-run.sh --model <path> --tools <json> --confirm-heavy-run [options]
 
 Runs the real B26 acceptance gate:
-  1. tinygpt eval-bfcl --tool-mode full
-  2. tinygpt eval-bfcl --tool-mode deferred
+  1. posttrainllm eval-bfcl --tool-mode full
+  2. posttrainllm eval-bfcl --tool-mode deferred
   3. scripts/b26_deferred_parity_report.py --require-hop-stats
 
 Options:
   --model PATH             Specialist model path or HF dir (required)
   --tools JSON             OpenAI-compatible tool catalog JSON (required)
-  --out-dir DIR            Artifact directory (default: /tmp/tinygpt-b26)
+  --out-dir DIR            Artifact directory (default: /tmp/posttrainllm-b26)
   --categories CSV         BFCL categories CSV (default: 10-category gate)
   --bfcl-root DIR          Override local BFCL checkout
   --bfcl-model NAME        Override BFCL registry model id
-  --serve-port N           Port for the managed tinygpt serve (default: 8097)
-  --tinygpt PATH           tinygpt binary (default: native-mac release binary)
+  --serve-port N           Port for the managed posttrainllm serve (default: 8097)
+  --posttrainllm PATH           posttrainllm binary (default: native-mac release binary)
   --force                  Remove existing gate artifacts before running
   --dry-run                Print commands without starting model evals
   --confirm-heavy-run      Required; acknowledges this starts real model evals
   -h, --help               Show this help
 
 Environment:
-  TINYGPT                  Alternative tinygpt binary path
+  TINYGPT                  Alternative posttrainllm binary path
 
 Outputs:
   <out-dir>/bfcl-full.jsonl
@@ -62,7 +62,7 @@ while [[ $# -gt 0 ]]; do
     --bfcl-root) BFCL_ROOT="${2:?--bfcl-root needs a value}"; shift 2 ;;
     --bfcl-model) BFCL_MODEL="${2:?--bfcl-model needs a value}"; shift 2 ;;
     --serve-port) SERVE_PORT="${2:?--serve-port needs a value}"; shift 2 ;;
-    --tinygpt) TINYGPT="${2:?--tinygpt needs a value}"; shift 2 ;;
+    --posttrainllm) TINYGPT="${2:?--posttrainllm needs a value}"; shift 2 ;;
     --force) FORCE=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
     --confirm-heavy-run) CONFIRM=1; shift ;;
@@ -96,9 +96,9 @@ if [[ -z "$MODEL" || -z "$TOOLS" ]]; then
   exit 2
 fi
 if [[ "$DRY_RUN" -ne 1 && ! -x "$TINYGPT" ]]; then
-  echo "tinygpt binary is not executable: $TINYGPT" >&2
+  echo "posttrainllm binary is not executable: $TINYGPT" >&2
   echo "Build it first, for example:" >&2
-  echo "  cd '$ROOT/native-mac' && swift build -c release --product tinygpt" >&2
+  echo "  cd '$ROOT/native-mac' && swift build -c release --product posttrainllm" >&2
   exit 2
 fi
 if [[ "$DRY_RUN" -ne 1 && ! -e "$MODEL" ]]; then

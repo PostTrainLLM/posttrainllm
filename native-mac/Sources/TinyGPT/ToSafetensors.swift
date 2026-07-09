@@ -3,25 +3,25 @@ import MLX
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt to-safetensors` — exports a `.tinygpt` checkpoint as a
+/// `posttrainllm to-safetensors` — exports a `.tinygpt` checkpoint as a
 /// HuggingFace-compatible `model.safetensors` file.
 ///
 /// Bridges two ecosystems:
-///   • TinyGPT's native `.tinygpt` format → universal HF safetensors
-///   • Lets you load TinyGPT-trained models in PyTorch / transformers
-///   • Acts as the weight-loading hop for `tinygpt to-coreml` (the
+///   • posttrainllm's native `.tinygpt` format → universal HF safetensors
+///   • Lets you load posttrainllm-trained models in PyTorch / transformers
+///   • Acts as the weight-loading hop for `posttrainllm to-coreml` (the
 ///     generated Python script now does `safetensors.torch.load_file`)
 ///
-/// Name remapping: `.tinygpt` parameters live under the TinyGPT-Swift
+/// Name remapping: `.tinygpt` parameters live under the posttrainllm-Swift
 /// op tree (`blocks.0.attn.q_proj.weight`, etc.). We can either
 /// preserve those names or translate to HF Llama-style conventions
 /// (`model.layers.0.self_attn.q_proj.weight`). The default is HF-
 /// compatible so the file drops into transformers' AutoModel surface.
 ///
 /// USAGE
-///   tinygpt to-safetensors <model.tinygpt> --out model.safetensors [--keep-names]
+///   posttrainllm to-safetensors <model.tinygpt> --out model.safetensors [--keep-names]
 ///
-/// --keep-names   write tensors with the TinyGPT-native names instead
+/// --keep-names   write tensors with the posttrainllm-native names instead
 ///                of remapping to HF Llama conventions
 enum ToSafetensors {
     static func run(args: [String]) {
@@ -79,12 +79,12 @@ enum ToSafetensors {
         for e in entries { totalBytes += e.data.count * 4 }
         print("""
 
-        TinyGPT — safetensors export
+        posttrainllm — safetensors export
         ----------------------------
         source:           \(inputPath)
         tensors written:  \(entries.count)
         body size:        \(formatBytes(totalBytes))
-        names:            \(keepNames ? "TinyGPT-native" : "HF Llama convention")
+        names:            \(keepNames ? "posttrainllm-native" : "HF Llama convention")
         out:              \(outPath)
 
         Loadable from Python via:
@@ -94,10 +94,10 @@ enum ToSafetensors {
         """)
     }
 
-    /// Remap a TinyGPT parameter name into HF Llama convention.
+    /// Remap a posttrainllm parameter name into HF Llama convention.
     /// Standard mapping:
     ///   tokenEmbedding.weight             → model.embed_tokens.weight
-    ///   positionEmbedding.weight          → model.embed_positions.weight  (TinyGPT-specific; HF Llama uses RoPE-only — keep)
+    ///   positionEmbedding.weight          → model.embed_positions.weight  (posttrainllm-specific; HF Llama uses RoPE-only — keep)
     ///   lnFinal.weight / .bias            → model.norm.weight / .bias
     ///   blocks.{i}.ln1.weight             → model.layers.{i}.input_layernorm.weight
     ///   blocks.{i}.ln2.weight             → model.layers.{i}.post_attention_layernorm.weight
@@ -140,11 +140,11 @@ enum ToSafetensors {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt to-safetensors <model.tinygpt> --out <model.safetensors> [--keep-names]
+        usage: posttrainllm to-safetensors <model.tinygpt> --out <model.safetensors> [--keep-names]
 
         Convert a .tinygpt checkpoint to HuggingFace safetensors. Tensor
         names are remapped to HF Llama convention by default; pass
-        --keep-names to preserve TinyGPT-native names.
+        --keep-names to preserve posttrainllm-native names.
 
         After conversion, load with PyTorch:
           from safetensors.torch import load_file

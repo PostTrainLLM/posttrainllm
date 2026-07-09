@@ -32,7 +32,7 @@ public enum CorrectionCorpusFormat: String {
     case dpo
 }
 
-/// Convert a batch of correction events into JSONL rows for `tinygpt sft`/`dpo`.
+/// Convert a batch of correction events into JSONL rows for `posttrainllm sft`/`dpo`.
 /// Returns the encoded lines (one JSON object each, no trailing newline) plus a
 /// skipped count for events that couldn't ground a pair. Row shapes match the
 /// existing `traces-to-data` SFT JSONL (ChatML `messages`) and the DPO loader.

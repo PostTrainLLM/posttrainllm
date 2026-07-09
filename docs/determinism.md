@@ -1,6 +1,6 @@
 # Determinism contract
 
-`tinygpt train --seed <UInt64>` now seeds **both** of TinyGPT's two
+`posttrainllm train --seed <UInt64>` now seeds **both** of posttrainllm's two
 randomness surfaces:
 
 1. **MLXRandom** — drives every MLX op that draws random numbers:
@@ -76,7 +76,7 @@ Unit tests pinning the contract live at
   batch sequence means you can re-run the same configuration to see
   whether a loss spike is intrinsic (recurs every run) or sampling-
   driven (occurs in one). See `--no-spike-detect` and
-  `--spike-window` / `--spike-factor` flags on `tinygpt train`.
+  `--spike-window` / `--spike-factor` flags on `posttrainllm train`.
 - **A/B sweeps.** When comparing `--lr-schedule cosine` vs `wsd` or
   two `--depth` values, fixing `--seed` removes both init AND batch-
   order variance — A/B differences are now attributable to the knob

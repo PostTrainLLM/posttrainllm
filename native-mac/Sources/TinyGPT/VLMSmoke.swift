@@ -3,7 +3,7 @@ import MLX
 import TinyGPTIO
 import TinyGPTModel
 
-/// `tinygpt vlm-smoke <hf-vision-dir> [image.png]` — Milestone-1 smoke
+/// `posttrainllm vlm-smoke <hf-vision-dir> [image.png]` — Milestone-1 smoke
 /// for the vision encoder primitive (see PRD
 /// `docs/prds/factory-vision-specialist.md`).
 ///
@@ -29,7 +29,7 @@ enum VLMSmoke {
     static func run(args: [String]) {
         guard let dirArg = args.first else {
             fputs("""
-            usage: tinygpt vlm-smoke <hf-vision-dir> [image.png]
+            usage: posttrainllm vlm-smoke <hf-vision-dir> [image.png]
 
             Loads a CLIP-style ViT vision encoder from the given HF
             snapshot directory and runs a single forward pass. If
@@ -37,7 +37,7 @@ enum VLMSmoke {
             a synthetic gradient image is used.
 
             Example:
-              tinygpt vlm-smoke \\
+              posttrainllm vlm-smoke \\
                 ~/.cache/huggingface/hub/models--openai--clip-vit-large-patch14/snapshots/<hash>
 
             """, stderr)

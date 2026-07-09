@@ -17,7 +17,7 @@ the *learning* compounded; the *product* (agentic tool-calling) is near its chea
 
 ## What we have (the inventory)
 
-### Models (`~/.cache/tinygpt/models/`)
+### Models (`~/.cache/posttrainllm/models/`)
 | model | what it is | numbers |
 |---|---|---|
 | `mt4b_fused` | Qwen3-4B distilled, file-ops agentic specialist | **100%** hard, beats Gemma-12B at ⅓ size |

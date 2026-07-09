@@ -10,7 +10,7 @@ Run: MT_DATA=scripts/fixtures/multi_turn_moderate_data.jsonl \
      MT_GOLD=scripts/fixtures/multi_turn_moderate_gold.jsonl MODEL=<path> python3 scripts/bfcl_multiturn_eval.py 14
 """
 import json, sys, os
-sys.path.insert(0,os.path.expanduser("~/.cache/tinygpt/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"))
+sys.path.insert(0,os.path.expanduser("~/.cache/posttrainllm/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"))
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_checker import multi_turn_checker
 def fs(c): return {"GorillaFileSystem":{"root":{"workspace":{"type":"directory","contents":c}}}}
 def F(t=""): return {"type":"file","content":t}

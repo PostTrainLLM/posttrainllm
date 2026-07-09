@@ -30,7 +30,7 @@ horizons, which pushes representations to be more semantically rich.
 ## What's wired today
 
 ```sh
-tinygpt train --preset tiny --steps 5000 \
+posttrainllm train --preset tiny --steps 5000 \
     --corpus /tmp/corpus.txt \
     --mtp-horizons 4 \
     --out /tmp/model.tinygpt

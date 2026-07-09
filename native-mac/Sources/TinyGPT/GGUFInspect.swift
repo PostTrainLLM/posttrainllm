@@ -1,12 +1,12 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt gguf-inspect <path.gguf>` — parse a GGUF file and print its
+/// `posttrainllm gguf-inspect <path.gguf>` — parse a GGUF file and print its
 /// metadata + tensor inventory. Doubles as a smoke test for
 /// `GGUFReader.parse` until full HF-style loading lands.
 ///
 /// USAGE
-///   tinygpt gguf-inspect <path.gguf> [--dequant <name>]
+///   posttrainllm gguf-inspect <path.gguf> [--dequant <name>]
 ///
 ///   --dequant <name>   also dequantise the named tensor and print
 ///                      its shape + first/last few elements
@@ -83,7 +83,7 @@ enum GGUFInspect {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt gguf-inspect <path.gguf> [--dequant <tensor-name>]
+        usage: posttrainllm gguf-inspect <path.gguf> [--dequant <tensor-name>]
 
         Print metadata + tensor inventory for a GGUF file. Recognises
         F32 / F16 / Q4_0 / Q8_0 and K-quants Q4_K / Q5_K / Q6_K / Q8_K.

@@ -3,10 +3,10 @@
 > Archived snapshot (browser/perf era). The live status board is the root
 > [`PROJECT_STATUS.md`](../../PROJECT_STATUS.md).
 
-A review-oriented snapshot of where TinyGPT stands. The detailed docs are linked
+A review-oriented snapshot of where posttrainllm stands. The detailed docs are linked
 at the bottom; this page is the map.
 
-TinyGPT is finished as a teaching project and continuing as a performance
+posttrainllm is finished as a teaching project and continuing as a performance
 project. The original ten milestones (PyTorch ref, training, LoRA, WASM
 backend, browser app, WebGPU matmul, checkpointing, metrics dashboard,
 write-up, public repo) are all complete and on `main`. The work past that
@@ -21,7 +21,7 @@ and the lessons each failed lever taught.
 | Perf | Multi-threaded WASM (pthreads + SAB) — measured ~2× | shipped |
 | Perf | WebGPU full stack (blocked4 + vec4 + subgroups + FA2 fwd+bwd) | shipped |
 | Perf | End-to-end curve vs multi-thread WASM SIMD: Small 2.6×, Medium 6.8×, Large 9.3×, XL 12.1× | measured |
-| Capacity | Memory64 module (`tinygpt64.{js,wasm}`) — 473M params in Node, browser blocked at d_model ≥ 256 (task #66) | partial |
+| Capacity | Memory64 module (`posttrainllm64.{js,wasm}`) — 473M params in Node, browser blocked at d_model ≥ 256 (task #66) | partial |
 | Data | Default corpus switched from inline 863-byte paragraph to TinyShakespeare (1.1 MB, `/shakespeare.txt`) | shipped |
 | Data | Hugging Face dataset loading via public datasets-server API | shipped |
 | Config | Default LR fixed: was `3e-3` (10× the Python ref), now `3e-4` — see [`lessons.md`](lessons.md) | shipped |

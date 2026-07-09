@@ -1,13 +1,13 @@
 import Foundation
 import TinyGPTModel
 
-/// Shared schema for every `tinygpt eval-*` subcommand + a comparison
+/// Shared schema for every `posttrainllm eval-*` subcommand + a comparison
 /// CLI that ingests multiple eval JSONLs and renders a pivot table.
 ///
 /// Design decision (E0, see docs/PLAN.md Tier E): every harness wrapper
 /// emits rows that conform to this exact shape. Two queries become
 /// trivial:
-///   - **Cross-model**: TinyGPT-huge-base-v1 vs SmolLM2-135M on MMLU
+///   - **Cross-model**: posttrainllm-huge-base-v1 vs SmolLM2-135M on MMLU
 ///   - **Cross-checkpoint**: huge-base-v1 step-1000 vs step-10000 vs
 ///     step-50000 on GSM8K (training dynamics)
 ///
@@ -20,7 +20,7 @@ public enum EvalCompare {
     public struct Row: Codable, Hashable {
         public let run_id: String          // UUID per eval invocation
         public let model_path: String      // absolute path on disk
-        public let model_name: String      // "tinygpt-huge-base-v1", "SmolLM2-135M", ...
+        public let model_name: String      // "posttrainllm-huge-base-v1", "SmolLM2-135M", ...
         public let model_step: Int?        // training step (nil for foreign models)
         public let baseline: Bool          // true = reference model
         public let task: String            // "mmlu", "gsm8k", "bfcl", "humaneval", ...
@@ -303,10 +303,10 @@ public enum EvalCompare {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-compare <results.jsonl>+ [--by model|step|task]
+        usage: posttrainllm eval-compare <results.jsonl>+ [--by model|step|task]
 
         Render comparison tables across one or more eval JSONL files. Every
-        `tinygpt eval-*` subcommand emits rows in the shared schema (see
+        `posttrainllm eval-*` subcommand emits rows in the shared schema (see
         EvalCompare.Row in this file) so cross-model and cross-checkpoint
         comparisons are one command.
 
@@ -316,8 +316,8 @@ public enum EvalCompare {
         --by task    for each task, all models ranked best-to-worst.
 
         Example:
-          tinygpt eval-compare ~/eval/run-*.jsonl --by model
-          tinygpt eval-compare ~/eval/huge-base-v1-timeline.jsonl --by step
+          posttrainllm eval-compare ~/eval/run-*.jsonl --by model
+          posttrainllm eval-compare ~/eval/huge-base-v1-timeline.jsonl --by step
         """)
         exit(code)
     }

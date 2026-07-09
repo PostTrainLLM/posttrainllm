@@ -33,7 +33,7 @@ private extension Data {
 /// because MLX's C runtime tries to init both streams at module load.
 ///
 /// **Workaround**: run these tests inside Xcode (Product → Test) or via
-/// `xcodebuild test -scheme TinyGPT`. The compiled metallib ends up in the
+/// `xcodebuild test -scheme posttrainllm`. The compiled metallib ends up in the
 /// product's resources directory and the C runtime finds it.
 ///
 /// We keep one trivial test that doesn't touch MLX at runtime so `swift test`
@@ -908,7 +908,7 @@ final class TinyGPTModelTests: XCTestCase {
 // MARK: - Helpers (private to this test file)
 
 /// Manifest entries for a dense byte-level model. Inlined here to avoid
-/// importing the TinyGPT executable target into the test module.
+/// importing the posttrainllm executable target into the test module.
 private func manifestForByteLevel(_ cfg: ModelConfig) -> [TinyGPTHeader.TensorEntry] {
     var entries: [TinyGPTHeader.TensorEntry] = []
     var offset = 0

@@ -11,19 +11,19 @@ related_prds: B13-interp-on-checkpoints.md, B17-saelens-interop.md
 
 ## Goal
 
-Add `tinygpt sae --group-layers SPEC` so a single SAE is trained on
+Add `posttrainllm sae --group-layers SPEC` so a single SAE is trained on
 the concatenated activations of a contiguous block of layers — e.g.
 `--group-layers "0-3,4-7,8-11,12-15"` trains 4 SAEs for a 16-layer
 model instead of 16. Cuts SAE training cost ~4× at this group size
 ([Wang et al. 2024](https://arxiv.org/abs/2410.21508)) with modest
 feature-recovery loss.
 
-Layered onto the existing `tinygpt sae` path — no new model class,
+Layered onto the existing `posttrainllm sae` path — no new model class,
 just a different activation source.
 
 ## Why now
 
-- We ship per-layer SAEs today (`tinygpt sae --layer L`). At 24 layers
+- We ship per-layer SAEs today (`posttrainllm sae --layer L`). At 24 layers
   × ~hours-per-SAE on a small model, "train SAEs across the timeline"
   (B13) costs days. Group-SAE makes that interp-on-checkpoints arc
   practical.
@@ -36,8 +36,8 @@ just a different activation source.
 
 ## Scope — in
 
-- `--group-layers SPEC` flag on `tinygpt sae`, parsed as
-  comma-separated layer ranges (same parser style as `tinygpt memit
+- `--group-layers SPEC` flag on `posttrainllm sae`, parsed as
+  comma-separated layer ranges (same parser style as `posttrainllm memit
   --layers`).
 - New activation gather path: for a group `[lo, hi]`, concatenate the
   residual-stream tensors across `lo..hi` *along the d_model axis*
@@ -45,7 +45,7 @@ just a different activation source.
   input dimension becomes `(hi - lo + 1) × d_model`.
 - Sidecar format extends `.sae` with a `group: [lo, hi]` field
   (back-compat: absent = single layer, the existing semantics).
-- `tinygpt sae-explore` learns the group format — for a group SAE,
+- `posttrainllm sae-explore` learns the group format — for a group SAE,
   features are decomposed back to per-layer via a simple column
   slice when visualizing per-layer attribution.
 - Re-use the existing trainer hyperparameters; the only width change
@@ -72,14 +72,14 @@ just a different activation source.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt sae --group-layers "0-3,4-7" --corpus shakespeare.txt
+- [ ] `posttrainllm sae --group-layers "0-3,4-7" --corpus shakespeare.txt
   --steps 500 --out /tmp/g.sae` produces a single sidecar with two
   group SAEs.
 - [ ] Reconstruction MSE on a held-out shakespeare batch is within
   20% of the per-layer SAE for the same configuration.
 - [ ] Training wall-clock for `--group-layers "0-3"` is within ±10%
   of *one* per-layer SAE, not 4× (the whole point).
-- [ ] `tinygpt sae-explore` opens a group SAE without errors and
+- [ ] `posttrainllm sae-explore` opens a group SAE without errors and
   reports per-layer attribution for the top-K features.
 - [ ] Smoke test passes.
 
@@ -88,7 +88,7 @@ just a different activation source.
 - `Sources/TinyGPT/Sae.swift` — direct template.
 - [Wang et al. 2024](https://arxiv.org/abs/2410.21508), §4 — the
   group concatenation strategy + per-layer decomposition recipe.
-- `tinygpt memit --layers SPEC` parser — same grammar; lift the helper
+- `posttrainllm memit --layers SPEC` parser — same grammar; lift the helper
   into a shared `LayerSpec.parse(_:)`.
 
 ## Open questions

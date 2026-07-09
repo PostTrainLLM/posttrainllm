@@ -7,7 +7,7 @@ LoRA geometry is a learning artifact for the factory. It answers:
 - Are DoRA/LoRA updates concentrated enough to try lower rank?
 - Can we compare failed and successful adapters without rerunning training?
 
-TinyGPT adapters use the TGLA format, so we can inspect effective updates
+posttrainllm adapters use the TGLA format, so we can inspect effective updates
 without loading the base model:
 
 ```bash

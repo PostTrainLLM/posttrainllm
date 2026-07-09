@@ -5,7 +5,7 @@ Measures TTFT (time to first token), per-token ITL, and steady-state
 decode tok/s by streaming /v1/chat/completions. Designed for the
 "Gemma decode tok/s" row in docs/research/mac_decode_baseline_m5pro.md
 but generic over any model on any OpenAI-compatible server (LM Studio,
-ollama, tinygpt serve, vLLM, …).
+ollama, posttrainllm serve, vLLM, …).
 
 Reuses the SSE / per-token-timing pattern from scripts/score_formula.py
 (`time_request`) instead of duplicating it — the only delta here is

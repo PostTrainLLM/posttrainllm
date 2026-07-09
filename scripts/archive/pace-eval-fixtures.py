@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """pace-eval-fixtures.py — run clickyLocal/evals/fixtures/*.json against
-an OpenAI-compat endpoint (e.g. our tinygpt serve --lora) and report
+an OpenAI-compat endpoint (e.g. our posttrainllm serve --lora) and report
 pass/fail per fixture.
 
 Pass = response matches all `must_contain_patterns` AND none of the
@@ -65,7 +65,7 @@ def evaluate_one(fx_path: Path, url: str, model_id: str) -> dict:
 
 def main() -> int:
     url = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8765/v1/chat/completions"
-    model_id = sys.argv[2] if len(sys.argv) > 2 else "tinygpt"
+    model_id = sys.argv[2] if len(sys.argv) > 2 else "posttrainllm"
 
     print(f"=== pace eval ({url}, model={model_id}) ===\n")
     fixtures = sorted(FIXTURES_DIR.glob("*.json"))

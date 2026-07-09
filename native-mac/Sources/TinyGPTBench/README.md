@@ -1,6 +1,6 @@
 # TinyGPTBench
 
-In-process Mac LLM-inference benchmark harness for the tinygpt
+In-process Mac LLM-inference benchmark harness for the posttrainllm
 project. Modeled on Bench360 (arXiv 2511.16682, Nov 2025) with two
 Apple-Silicon additions no public benchmark currently publishes:
 `powermetrics`-derived **energy/token** and **ANE residency** during
@@ -19,7 +19,7 @@ swift build -c release
 # this once after each release build:
 cp /opt/homebrew/lib/mlx.metallib .build/release/mlx.metallib
 
-./.build/release/tinygpt bench \
+./.build/release/posttrainllm bench \
   --model ../browser/public/gallery/shakespeare.bin \
   --gen-tokens 100 --n-runs 5 --no-energy \
   --output /tmp/bench.json
@@ -29,16 +29,16 @@ cp /opt/homebrew/lib/mlx.metallib .build/release/mlx.metallib
 
 | File | Role |
 |---|---|
-| `Benchmark.swift` | `tinygpt bench` CLI entry; arg parsing; main run. |
+| `Benchmark.swift` | `posttrainllm bench` CLI entry; arg parsing; main run. |
 | `EngineAdapter.swift` | Protocol every engine satisfies. Includes `TinyGPTEngine` (the in-process MLX adapter, implemented end-to-end) plus stubs for `MLXLMEngine`, `LlamaCppEngine`, `OllamaEngine`. |
 | `WorkloadController.swift` | Drives `--mode {single,batch,server,sustained}` on top of an `EngineAdapter`. Single + batch are implemented; server + sustained are placeholders that warn and fall back. |
 | `MetricsCollector.swift` | Per-run timers, peak-RSS sampling via `task_info`, and `PowerSampler` — a child `powermetrics` process parsed plist-by-plist for ANE/GPU/CPU power time-series. |
 | `Reporter.swift` | JSON + markdown emission. Computes median/p95/p99 across runs; flags warnings about small n and dirty git trees. |
 
-The CLI wiring is in `../TinyGPT/TinyGPT.swift` — `tinygpt bench`
+The CLI wiring is in `../posttrainllm/TinyGPT.swift` — `posttrainllm bench`
 dispatches into `Benchmark.run`. (Heads up: the previous
-`tinygpt bench` — a training-throughput benchmark vs the browser
-WebGPU baseline — was renamed to `tinygpt bench-train` when this
+`posttrainllm bench` — a training-throughput benchmark vs the browser
+WebGPU baseline — was renamed to `posttrainllm bench-train` when this
 module shipped.)
 
 ## Adding a new engine
@@ -96,10 +96,10 @@ See the design doc §4 for exact definitions.
 - `--mode server` and `--mode sustained` are placeholders. The
   controller accepts them but emits a warning and falls back. Real
   implementations are the next milestone.
-- Foreign engines are stubs. Only `--engine tinygpt` produces numbers.
+- Foreign engines are stubs. Only `--engine posttrainllm` produces numbers.
 - `powermetrics` requires sudo. If not available the harness logs a
   warning and skips energy/ANE; CPU watts via task_info still work.
-- TinyGPT itself runs B=1 even when `--batch-size > 1` — the model's
+- posttrainllm itself runs B=1 even when `--batch-size > 1` — the model's
   KV cache is B=1 today. The harness reports what actually ran rather
   than over-claiming throughput.
 - No long-context (RULER / LongBench) driver yet. Hooks in the metrics

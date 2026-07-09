@@ -5,12 +5,12 @@ AWQReader (HF AWQ safetensors loader) and HQQ (storage-only Half-Quadratic
 Quantization) that already live in the tree:
 
 1. **GPTQReader** — load HF GPTQ-format safetensors files transparently.
-2. **From-scratch GPTQ** — `tinygpt gptq` worker: Hessian-aware int4
+2. **From-scratch GPTQ** — `posttrainllm gptq` worker: Hessian-aware int4
    layer-by-layer quantisation with calibration corpus.
 3. **SmoothQuant** — calibration + per-channel activation scaling pass
    that preconditions a model for downstream int8 inference.
 4. **QAT** — Quantization-Aware Training via `--qat int4|int8` on
-   `tinygpt train`: fake-quant + straight-through estimator on every
+   `posttrainllm train`: fake-quant + straight-through estimator on every
    Linear weight during the forward pass.
 
 The story is the same for all four: **the inference-side runtime win is
@@ -92,7 +92,7 @@ for base in awqBases where !dequantised.contains(base) {
 ```
 
 Result: a downloaded `Llama-2-7B-GPTQ` (or any other GPTQ checkpoint)
-loads via `tinygpt hf-load <dir>` with no Python pre-step. The
+loads via `posttrainllm hf-load <dir>` with no Python pre-step. The
 runtime memory cost is 8× the packed payload (int4 → fp32) for the
 duration of the load; the inference-side win is queued behind the
 packed-int matmul kernel.
@@ -117,7 +117,7 @@ the loader is correct.
 
 ---
 
-## 2. From-scratch GPTQ — `tinygpt gptq`
+## 2. From-scratch GPTQ — `posttrainllm gptq`
 
 **File:** `native-mac/Sources/TinyGPT/GPTQ.swift`
 **Wires into:** `native-mac/Sources/TinyGPT/TinyGPT.swift` via the
@@ -165,7 +165,7 @@ reconstruction loss `‖X · W^T − X · Wq^T‖²`.
 ### Usage
 
 ```
-tinygpt gptq <input.tinygpt>
+posttrainllm gptq <input.tinygpt>
     --calibration <text.txt>
     --bits 4                 # 2 | 3 | 4 | 8
     --group 128
@@ -177,7 +177,7 @@ tinygpt gptq <input.tinygpt>
 ### Smoke test
 
 ```
-tinygpt gptq /tmp/flagship-huge.tinygpt \
+posttrainllm gptq /tmp/flagship-huge.tinygpt \
     --calibration data/examples/shakespeare.txt \
     --bits 4 --group 128 --samples 4 --ctx 128 \
     --out /tmp/flagship-gptq.tinygpt
@@ -188,7 +188,7 @@ Result:
 - Relative reconstruction error 0.1064 (10.6%) at int4 — consistent
   with the int4 grid quantisation noise floor.
 - Runtime: ~31 seconds end-to-end on M5 Pro.
-- `tinygpt sample /tmp/flagship-gptq.tinygpt` loads + samples cleanly.
+- `posttrainllm sample /tmp/flagship-gptq.tinygpt` loads + samples cleanly.
 
 ### Honest caveat — Storage-only payoff
 
@@ -367,7 +367,7 @@ at fp32.
 ### CLI
 
 ```
-tinygpt train --preset huge --steps 1000 --qat int4 \
+posttrainllm train --preset huge --steps 1000 --qat int4 \
     --corpus shakespeare.txt --out huge-qat4.tinygpt
 ```
 
@@ -392,7 +392,7 @@ int8 the bound is `1/127 ≈ 0.008`; in our 30-step smoke we sit at
 30 steps on `data/examples/shakespeare.txt`, tiny preset:
 
 ```
-$ tinygpt train --preset tiny --steps 30 --qat int4 \
+$ posttrainllm train --preset tiny --steps 30 --qat int4 \
     --corpus data/examples/shakespeare.txt --out /tmp/qat-int4-smoke.tinygpt
 
   step     1/   30  loss 5.898  qat-err 0.070  · 0.6 step/s
@@ -407,7 +407,7 @@ $ tinygpt train --preset tiny --steps 30 --qat int4 \
 
 For int8:
 ```
-$ tinygpt train --preset tiny --steps 30 --qat int8 ...
+$ posttrainllm train --preset tiny --steps 30 --qat int8 ...
   step    30/   30  loss 3.228  qat-err 0.004  · 14.7 step/s
 ```
 
@@ -437,8 +437,8 @@ the actual packed payload.
 
 ```
 $ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-    xcodebuild -scheme tinygpt -destination "platform=macOS" \
-    -derivedDataPath /tmp/tinygpt-smoke-quant -configuration Release build
+    xcodebuild -scheme posttrainllm -destination "platform=macOS" \
+    -derivedDataPath /tmp/posttrainllm-smoke-quant -configuration Release build
 ** BUILD SUCCEEDED **
 ```
 

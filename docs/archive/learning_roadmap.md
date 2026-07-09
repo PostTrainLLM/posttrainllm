@@ -11,7 +11,7 @@ For external course/company-doc reading, use
 [`industry_learning_roadmap.md`](../industry_learning_roadmap.md). It makes
 Stanford CS336 the course spine and maps company docs from Hugging Face, Ai2,
 Anthropic, OpenAI, Poolside, Apple, Meta, Qwen, DeepSeek, Mistral, and Lamina
-back to concrete TinyGPT work.
+back to concrete posttrainllm work.
 
 This roadmap is also mirrored into the `swe-interview-prep` fleet project as 19
 FSRS-tracked `ml-*` concepts (`swe-interview-prep/docs/TINYGPT_LEARNING_PATH.md`).
@@ -50,7 +50,7 @@ Concepts: `ml-tokenization`, `ml-language-modeling`, `ml-sampling`
 Goal: understand the architecture.
 Learn: embeddings, position embeddings, self-attention, causal attention,
 multi-head attention, layernorm, residuals, MLP blocks, GELU, logits.
-Do: build one transformer block, then a full TinyGPT; train 0.8M on a small
+Do: build one transformer block, then a full posttrainllm; train 0.8M on a small
 corpus; overfit 10 KB; generate samples.
 External sources:
 - [Attention is All You Need — Vaswani et al. 2017](https://arxiv.org/abs/1706.03762) (the original transformer)
@@ -153,7 +153,7 @@ answer lives; if a link doesn't make it click, that doc is the gap to fix.
 | Weeks | Build | Milestone |
 | ----- | ----- | --------- |
 | 1–2   | bigram LM, byte tokenizer, cross entropy, sampling | Generate text from a tiny LM |
-| 3–4   | GPT block, attention, MLP, training loop, checkpointing, sampling | 0.8M TinyGPT overfits 10 KB |
+| 3–4   | GPT block, attention, MLP, training loop, checkpointing, sampling | 0.8M posttrainllm overfits 10 KB |
 | 5–6   | val loss, loss chart, fixed eval prompts, grad clipping, checkpoint reload, dataset manifest | Reliable, reproducible training harness |
 | 7–8   | `LoRALinear`, adapter injection, frozen base, adapter checkpoint, base-vs-LoRA comparison | Tiny base model adapts to a small corpus |
 | 9–10  | Worker training shell, WASM backend, WASM-SIMD build, OPFS checkpointing, capability panel | Tiny model trains in browser, UI not frozen |
@@ -179,7 +179,7 @@ answer lives; if a link doesn't make it click, that doc is the gap to fix.
 ## Final build order
 
 ```
-1.  Byte-level 0.8M TinyGPT in Python
+1.  Byte-level 0.8M posttrainllm in Python
 2.  Train from scratch on tiny text
 3.  Save / load checkpoints
 4.  Pretrain a 5M–15M base model outside the browser
@@ -193,10 +193,10 @@ answer lives; if a link doesn't make it click, that doc is the gap to fix.
 
 ## Project deliverables
 
-1. Python TinyGPT reference
+1. Python posttrainllm reference
 2. Python LoRA fine-tuning reference
 3. Clean blog/style dataset builder
-4. Browser TinyGPT demo
+4. Browser posttrainllm demo
 5. WASM backend
 6. Adapter checkpoint format
 7. Evaluation harness

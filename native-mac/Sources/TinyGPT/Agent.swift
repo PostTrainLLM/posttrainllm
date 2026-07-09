@@ -4,7 +4,7 @@ import MLXNN
 import TinyGPTModel
 import TinyGPTServe
 
-/// `tinygpt agent <model> --tools tools.json [...]` — the agent runtime CLI.
+/// `posttrainllm agent <model> --tools tools.json [...]` — the agent runtime CLI.
 ///
 /// Wires together:
 ///   - `ColdStart.loadWithSpinner` for fast model load + spinner UX
@@ -331,7 +331,7 @@ enum Agent {
 
     private static func runREPL(loop: AgentLoop, jsonOut: Bool) {
         if !jsonOut {
-            fputs("tinygpt agent — interactive. Ctrl-D or `:quit` to exit.\n", stderr)
+            fputs("posttrainllm agent — interactive. Ctrl-D or `:quit` to exit.\n", stderr)
         }
         while true {
             if !jsonOut {
@@ -350,7 +350,7 @@ enum Agent {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt agent <path.tinygpt|model_dir> --tools tools.json [options]
+        usage: posttrainllm agent <path.tinygpt|model_dir> --tools tools.json [options]
 
         --tools <path>           OpenAI-compatible tool schema (required)
         --system "..."           Extra system-prompt prefix above the tool block
@@ -383,7 +383,7 @@ enum Agent {
 
         Tool-call extractor (mini-router) — Wave 2.6 scaffold:
         --router <path>          Load a router checkpoint trained via
-                                 `tinygpt train-extractor`. Before the LM
+                                 `posttrainllm train-extractor`. Before the LM
                                  forward pass, the router predicts which
                                  tool best matches the user query; high-
                                  confidence picks are fed to the LM as a
@@ -397,16 +397,16 @@ enum Agent {
                                  and raw token IDs (input_ids for fed
                                  user / tool text; output_ids for the
                                  sampled assistant tokens). Consumed by
-                                 `tinygpt traces-to-data` (B29) for
+                                 `posttrainllm traces-to-data` (B29) for
                                  retokenization-free SFT / DPO corpora.
         --trajectory-task <name> Optional free-form label that lands in
                                  the .atraj header (e.g. "bfcl-mt-easy").
 
         examples:
-          tinygpt agent specialist.tinygpt --tools tools.json
-          tinygpt agent specialist.tinygpt --tools tools.json --single "Debug this error"
-          tinygpt agent specialist.tinygpt --tools tools.json --json-out
-          tinygpt agent specialist.tinygpt --tools tools.json --cloud-escalate anthropic
+          posttrainllm agent specialist.tinygpt --tools tools.json
+          posttrainllm agent specialist.tinygpt --tools tools.json --single "Debug this error"
+          posttrainllm agent specialist.tinygpt --tools tools.json --json-out
+          posttrainllm agent specialist.tinygpt --tools tools.json --cloud-escalate anthropic
         """)
         exit(code)
     }

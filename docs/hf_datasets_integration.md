@@ -1,6 +1,6 @@
 # HuggingFace Datasets Hub integration
 
-`tinygpt download-dataset` and `tinygpt list-datasets` give the on-device
+`posttrainllm download-dataset` and `posttrainllm list-datasets` give the on-device
 agent-factory direct access to HuggingFace's 100k+ dataset hub. This
 document covers how to use them, how the format adapter works, the
 curated registry of "good" datasets by specialist type, and the
@@ -20,27 +20,27 @@ caveats.
 
 ```bash
 # Browse the curated registry (no network).
-tinygpt list-datasets
-tinygpt list-datasets --specialist tool-calling
-tinygpt list-datasets --info Salesforce/xlam-function-calling-60k
+posttrainllm list-datasets
+posttrainllm list-datasets --specialist tool-calling
+posttrainllm list-datasets --info Salesforce/xlam-function-calling-60k
 
 # Resolve + download. Auto-detects schema and converts to JSONL.
-tinygpt download-dataset hf://datasets/yahma/alpaca-cleaned
+posttrainllm download-dataset hf://datasets/yahma/alpaca-cleaned
 
 # Force a target format if auto-detect picks the wrong one.
-tinygpt download-dataset hf://datasets/OpenHermes-2.5 --format sft
+posttrainllm download-dataset hf://datasets/OpenHermes-2.5 --format sft
 
 # Cap shards for a quick sanity test.
-tinygpt download-dataset Salesforce/xlam-function-calling-60k --max-files 1
+posttrainllm download-dataset Salesforce/xlam-function-calling-60k --max-files 1
 
 # Inspect (no download) — print file list and predicted schema.
-tinygpt download-dataset hf://datasets/argilla/ultrafeedback-binarized-preferences-cleaned --inspect
+posttrainllm download-dataset hf://datasets/argilla/ultrafeedback-binarized-preferences-cleaned --inspect
 
 # Field aliasing for unusual schemas.
-tinygpt download-dataset some-owner/some-dataset --map question:instruction,solution:response
+posttrainllm download-dataset some-owner/some-dataset --map question:instruction,solution:response
 ```
 
-Output lands at `~/.cache/tinygpt/datasets/<owner>/<name>/corpus.jsonl`
+Output lands at `~/.cache/posttrainllm/datasets/<owner>/<name>/corpus.jsonl`
 (or `corpus.txt` for plain format), unless `--out` is given.
 
 ---
@@ -106,7 +106,7 @@ unusual schemas), pass `--map src_field:canonical_field,...`. For
 example:
 
 ```bash
-tinygpt download-dataset some-owner/some-dataset \
+posttrainllm download-dataset some-owner/some-dataset \
   --format sft \
   --map problem:instruction,solution:response
 ```
@@ -120,7 +120,7 @@ Downstream SFT trainers see deterministic strings.
 
 ---
 
-## Curated registry (`tinygpt list-datasets`)
+## Curated registry (`posttrainllm list-datasets`)
 
 The registry lives in
 `native-mac/Sources/TinyGPTData/DatasetRegistry.swift`. Today it has
@@ -145,7 +145,7 @@ Adding a new entry is a one-line addition to
 
 ## Caching
 
-- Root: `~/.cache/tinygpt/datasets/<owner>/<name>/`
+- Root: `~/.cache/posttrainllm/datasets/<owner>/<name>/`
 - Override: set `TINYGPT_DATASET_CACHE=/path/to/cache`
 - Tinygpt's cache is **separate** from HuggingFace's
   `~/.cache/huggingface/` so users can blow it away independently.
@@ -226,7 +226,7 @@ we just can't show a percentage.
 Every registry entry has a `license` field. Some are permissive
 (MIT / Apache-2.0); some are NC-only (`CC BY-NC 4.0` for xLAM and
 yahma/alpaca-cleaned) — be aware before training a commercial
-model. `tinygpt list-datasets --info <id>` shows the license.
+model. `posttrainllm list-datasets --info <id>` shows the license.
 
 ---
 
@@ -240,8 +240,8 @@ native-mac/Sources/TinyGPTData/
   DatasetRegistry.swift     - curated catalog by specialist
 
 native-mac/Sources/TinyGPT/
-  DownloadDataset.swift     - `tinygpt download-dataset` CLI
-  ListDatasets.swift        - `tinygpt list-datasets` CLI
+  DownloadDataset.swift     - `posttrainllm download-dataset` CLI
+  ListDatasets.swift        - `posttrainllm list-datasets` CLI
 ```
 
 `TinyGPTData` is intentionally a **pure-Foundation library**. It
@@ -263,7 +263,7 @@ gets removed when `TODO(hf-datasets-merge)` is resolved.
   UltraFeedback) work end-to-end.
 - **Dataset-server rows API** (`/api/datasets/<id>/rows?...`) for
   small slices of huge datasets when the user just wants a sample.
-- **Schema diff CLI**: `tinygpt diff-dataset <a> <b>` to compare
+- **Schema diff CLI**: `posttrainllm diff-dataset <a> <b>` to compare
   schemas between two HF datasets.
 - **Config selection**: many HF datasets have multiple configs
   (subsets). Today we ignore configs — a follow-up adds

@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt eval-milu` (B8) — per-language accuracy breakdown + macro-average
+/// `posttrainllm eval-milu` (B8) — per-language accuracy breakdown + macro-average
 /// for a multilingual eval (MILU shape). Scores a results file; running the
 /// model to produce the results is the trained-specialist step.
 enum EvalMilu {
@@ -48,7 +48,7 @@ enum EvalMilu {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt eval-milu <results.jsonl> [--out rows.jsonl]
+        usage: posttrainllm eval-milu <results.jsonl> [--out rows.jsonl]
 
         Per-language accuracy + macro-average (B8, MILU shape). Rows:
           {language, correct: Bool}  or  {language, predicted, gold}

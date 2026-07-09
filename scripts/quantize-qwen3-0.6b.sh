@@ -6,7 +6,7 @@ set -euo pipefail
 # or set QWEN3_06B_DIR.
 
 MODEL_DIR="${1:-${QWEN3_06B_DIR:-}}"
-OUT="${2:-${HOME}/.cache/tinygpt/runs/qwen3-0.6b-q4_km.gguf}"
+OUT="${2:-${HOME}/.cache/posttrainllm/runs/qwen3-0.6b-q4_km.gguf}"
 
 if [[ -z "${MODEL_DIR}" ]]; then
   echo "usage: scripts/quantize-qwen3-0.6b.sh <qwen3-0.6b-hf-dir> [out.gguf]" >&2

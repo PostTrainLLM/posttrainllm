@@ -7,11 +7,11 @@ parent_plan: docs/PLAN.md §3 Tier B (B15)
 related_prds: B11-wsd-schedule.md (sibling — LR-schedule family)
 ---
 
-# PRD — Layer-wise LR decay (`--llrd γ`) for `tinygpt sft`
+# PRD — Layer-wise LR decay (`--llrd γ`) for `posttrainllm sft`
 
 ## Goal
 
-Add `--llrd γ` to `tinygpt sft` (and the DPO family for symmetry).
+Add `--llrd γ` to `posttrainllm sft` (and the DPO family for symmetry).
 For γ < 1, each transformer block's LR is multiplied by γ^(depth_from_top),
 so the embedding + lower blocks see exponentially smaller updates than
 the LM head + upper blocks. The standard "freeze the foundation, finetune
@@ -25,7 +25,7 @@ recipes don't drift.
 ## Why now
 
 - We already ship `cfg.lrLayerDecay` for *pretrain* (verified 2026-06-02
-  in the third-audit pass). It is NOT wired into `tinygpt sft`'s
+  in the third-audit pass). It is NOT wired into `posttrainllm sft`'s
   optimizer construction — finetune runs use a flat LR across all
   parameter groups. Mismatched.
 - SFT on small + tiny corpora overfits the upper layers and degrades
@@ -38,7 +38,7 @@ recipes don't drift.
 
 ## Scope — in
 
-- `--llrd γ` flag on `tinygpt sft`, `dpo`, `finetune`. Range check:
+- `--llrd γ` flag on `posttrainllm sft`, `dpo`, `finetune`. Range check:
   0.5 ≤ γ ≤ 1.0; γ outside that prints a usage error.
 - Per-block LR computed as `base_lr × γ^(n_layers - 1 - layer_idx)` so
   the topmost transformer block gets `base_lr`, and the embedding +
@@ -68,7 +68,7 @@ recipes don't drift.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt sft --llrd 0.95 ...` runs and reports per-block LR
+- [ ] `posttrainllm sft --llrd 0.95 ...` runs and reports per-block LR
   in the banner.
 - [ ] On a fixed shakespeare → alpaca SFT recipe, val loss at the
   end of training is ≤ the no-LLRD baseline (this is the

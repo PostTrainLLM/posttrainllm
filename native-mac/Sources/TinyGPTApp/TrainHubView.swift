@@ -70,7 +70,7 @@ struct DPOStubView: View {
                        tagline: "Factory step for good-vs-bad examples after a baseline eval exists.",
                        items: [
                         .init("CLI shipped",
-                              "tinygpt dpo <base> --data prefs.jsonl --out model.lora",
+                              "posttrainllm dpo <base> --data prefs.jsonl --out model.lora",
                               .ok),
                         .init("Recipe",
                               "docs/recipes/distillation-fc.md describes the broader specialist arc",
@@ -88,7 +88,7 @@ struct DistillStubView: View {
                        tagline: "Factory step for compressing a stronger teacher into a measured specialist.",
                        items: [
                         .init("CLI shipped",
-                              "tinygpt distill --teacher <model> --student <preset> --data <jsonl>",
+                              "posttrainllm distill --teacher <model> --student <preset> --data <jsonl>",
                               .ok),
                         .init("Recipe",
                               "docs/recipes/distillation-fc.md — full Phi-3-mini → 22M function-calling spec",

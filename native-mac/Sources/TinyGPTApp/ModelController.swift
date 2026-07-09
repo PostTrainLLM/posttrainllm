@@ -191,7 +191,7 @@ final class ModelController: ObservableObject {
     }
 
     /// Score the loaded model on the given UTF-8 corpus. Sets `evalResult`
-    /// when finished. Mirrors `tinygpt eval` semantics: cross-entropy loss
+    /// when finished. Mirrors `posttrainllm eval` semantics: cross-entropy loss
     /// + bits-per-byte + perplexity over N random windows.
     func evaluate(corpus: Data, batches: Int = 20) {
         guard let model, let cfg = modelConfig else {

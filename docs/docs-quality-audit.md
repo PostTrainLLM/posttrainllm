@@ -1,6 +1,6 @@
 # Docs Quality Audit
 
-This page tracks whether TinyGPT documentation is actually world-class, not just
+This page tracks whether posttrainllm documentation is actually world-class, not just
 large.
 
 ## Definition
@@ -33,7 +33,7 @@ Docs are world-class when an outsider can answer:
 | Learning pipeline | `docs/learning-pipeline.md` | strong, tied to current factory work |
 | Learning progress | `docs/learning-progress.md` | good, manually maintained |
 | Public artifacts | `docs/factory/public-artifacts.md` | strong |
-| Enforcement | `docs/factory/enforcement.md`, `tinygpt factory-run publish-check`, `scripts/check_factory_run_publish.py` | strong |
+| Enforcement | `docs/factory/enforcement.md`, `posttrainllm factory-run publish-check`, `scripts/check_factory_run_publish.py` | strong |
 | Docs completeness check | `scripts/check_docs_world_class.py` | good, checks golden-path surfaces exist |
 | Old docs status | `docs/README.md`, `docs/MAP.md`, `docs/parked/` | acceptable, still noisy |
 
@@ -74,7 +74,7 @@ The current docs meet the world-class baseline defined above:
 | What products/papers/blogs changed the plan? | `docs/external-products-reviewed.md`, `docs/techniques/trainloop-teardown.md` |
 | What is on the roadmap? | `docs/NEXT.md`, `docs/techniques/sql-technique-backlog.md`, `docs/factory/public-artifacts.md` |
 | What should the owner learn next? | `docs/learning-pipeline.md`, `docs/learning-progress.md` |
-| How is a public claim validated? | `docs/factory/enforcement.md`, `tinygpt factory-run publish-check`, `scripts/check_factory_run_publish.py` |
+| How is a public claim validated? | `docs/factory/enforcement.md`, `posttrainllm factory-run publish-check`, `scripts/check_factory_run_publish.py` |
 | How can the next run reproduce or improve the result? | `docs/factory/run-schema.md`, `provenance.json`, `docs/techniques/` |
 
 Verification commands:
@@ -97,7 +97,7 @@ improve:
    append attempts automatically.
 
 2. **Publish validation has two implementations.**
-   `tinygpt factory-run publish-check` is the canonical command, while
+   `posttrainllm factory-run publish-check` is the canonical command, while
    `scripts/check_factory_run_publish.py` remains as a portable smoke. This is
    acceptable, but should eventually share one implementation.
 

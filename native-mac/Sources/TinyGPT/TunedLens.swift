@@ -19,7 +19,7 @@ final class TunedLensProbes: Module {
     }
 }
 
-/// `tinygpt tuned-lens` — train per-layer projection probes that
+/// `posttrainllm tuned-lens` — train per-layer projection probes that
 /// improve on the raw logit lens (Belrose et al., 2023, "Eliciting
 /// Latent Predictions from Transformers with the Tuned Lens").
 ///
@@ -35,7 +35,7 @@ final class TunedLensProbes: Module {
 /// per probe. Loadable via `attachTunedLens(from:)` for inference.
 ///
 /// USAGE
-///   tinygpt tuned-lens <model.tinygpt> --corpus <text.txt> \
+///   posttrainllm tuned-lens <model.tinygpt> --corpus <text.txt> \
 ///       --steps 500 --lr 1e-3 --out lenses.lenses
 enum TunedLens {
     static func run(args: [String]) {
@@ -98,7 +98,7 @@ enum TunedLens {
 
         print("""
 
-        TinyGPT — tuned lens (probe training)
+        posttrainllm — tuned lens (probe training)
         -------------------------------------
         model:           \(modelPath)  (\(cfg.nLayers)L · d=\(cfg.dModel))
         corpus:          \(corpusPath) (\(corpus.bytes.count) bytes)
@@ -212,7 +212,7 @@ enum TunedLens {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt tuned-lens <model.tinygpt> --corpus <text> [options]
+        usage: posttrainllm tuned-lens <model.tinygpt> --corpus <text> [options]
 
         --corpus <text>     UTF-8 byte-level text to fit the probes on
         --out <path>        Where to save the .lenses sidecar (required)

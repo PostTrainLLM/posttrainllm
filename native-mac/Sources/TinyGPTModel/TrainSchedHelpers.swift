@@ -62,7 +62,7 @@ public func lrAtWSD(step: Int, total: Int, warmup: Int, decaySteps: Int,
 ///
 /// Auto-rollback to a prior checkpoint is a v2 follow-up — the current
 /// Adam-state-doesn't-persist limitation means a rollback already implies
-/// a partial restart pain (see `--resume` docs on `tinygpt train`). v1
+/// a partial restart pain (see `--resume` docs on `posttrainllm train`). v1
 /// gives the operator an early warning so they can investigate or
 /// `--resume` with a lower LR.
 public struct LossSpikeDetector {

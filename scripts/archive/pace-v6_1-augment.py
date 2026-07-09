@@ -20,8 +20,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_IN = Path.home() / ".cache/tinygpt/datasets/pace-v6-sft.jsonl"
-DEFAULT_OUT = Path.home() / ".cache/tinygpt/datasets/pace-v6_1-sft.jsonl"
+DEFAULT_IN = Path.home() / ".cache/posttrainllm/datasets/pace-v6-sft.jsonl"
+DEFAULT_OUT = Path.home() / ".cache/posttrainllm/datasets/pace-v6_1-sft.jsonl"
 SCHEMA_PATH = ROOT / "grammars/pace-fm-label-response.schema.json"
 SYSTEM_PROMPT = ROOT / "grammars/pace-system-prompt-v6-label.txt"
 

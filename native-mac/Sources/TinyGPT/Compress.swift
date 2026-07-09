@@ -1,7 +1,7 @@
 import Foundation
 import TinyGPTModel
 
-/// `tinygpt compress <query> --doc <doc.txt>` (B25 V1) — extractive context
+/// `posttrainllm compress <query> --doc <doc.txt>` (B25 V1) — extractive context
 /// compression: keep the document sentences most relevant to the query, drop
 /// the rest. V1 scores sentences with a lexical BM25-lite relevance
 /// (`LexicalRelevance`); the learned token-level relevance head + LoRA recipe
@@ -80,7 +80,7 @@ enum Compress {
 
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
-        usage: tinygpt compress <query> --doc <doc.txt> [options]
+        usage: posttrainllm compress <query> --doc <doc.txt> [options]
 
         Extractive context compression (B25 V1, lexical): keep the document
         sentences most relevant to <query>, drop the rest.

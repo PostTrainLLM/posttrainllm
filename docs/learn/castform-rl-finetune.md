@@ -1,6 +1,6 @@
 ---
 title: Castform's RL fine-tune platform — what we stole
-description: Patterns lifted from castform.com (RL fine-tune SaaS) into TinyGPT's specialist-training surface. Sibling page to docs/learn/agent-context-hierarchy.md.
+description: Patterns lifted from castform.com (RL fine-tune SaaS) into posttrainllm's specialist-training surface. Sibling page to docs/learn/agent-context-hierarchy.md.
 ---
 
 # Castform RL fine-tune — what we stole
@@ -12,7 +12,7 @@ via product copy + the public Python SDK sketches.
 
 **Why look at them:** Castform's product thesis ("4B fine-tuned beats
 GPT-5.4 on the narrow task at 1.0× the cost") is identical to
-TinyGPT's Mac-specialist thesis. The interesting question isn't
+posttrainllm's Mac-specialist thesis. The interesting question isn't
 *whether* small models can win — it's *which engineering primitives*
 make training them practical. Castform exposes four that are worth
 borrowing.
@@ -61,7 +61,7 @@ substrate into SFT/DPO training data.
 
 Filed as **B29 trace-to-training-data** in [PLAN.md](../PLAN.md) —
 the bridge between B22 and A1. Reads `.atraj` files, runs the
-existing `tinygpt dedupe`, `tinygpt judge` (E7) shims for filtering,
+existing `posttrainllm dedupe`, `posttrainllm judge` (E7) shims for filtering,
 emits training JSONL.
 
 ### 3. Multi-hop reasoning classification — filed as B30
@@ -87,7 +87,7 @@ Castform: users subclass `BaseEnv` with `async run_tool()` +
 `compute_reward()`. The platform handles rollouts + the training
 loop. This is a UX choice for a SaaS surface.
 
-Where we are: TinyGPT is a CLI + Swift library, not a SaaS. Users
+Where we are: posttrainllm is a CLI + Swift library, not a SaaS. Users
 write a Swift `EvalCompare.Row` row or a Python eval harness; the
 "plug in your env" abstraction is already there, just spelled in
 two languages.

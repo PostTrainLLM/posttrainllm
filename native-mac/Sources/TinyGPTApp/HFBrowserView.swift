@@ -36,7 +36,7 @@ struct HFBrowserView: View {
                 Text("HuggingFace models")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(Theme.fg)
-                Text("download to ~/Library/Application Support/TinyGPT/hf/")
+                Text("download to ~/Library/Application Support/posttrainllm/hf/")
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(Theme.faint)
             }
@@ -156,7 +156,7 @@ struct HFBrowserView: View {
             Button {
                 let pb = NSPasteboard.general
                 pb.clearContents()
-                pb.setString("./native-mac/.build/release/tinygpt sample \(model.url.path) --prompt \"Hello\" --tokens 100", forType: .string)
+                pb.setString("./native-mac/.build/release/posttrainllm sample \(model.url.path) --prompt \"Hello\" --tokens 100", forType: .string)
             } label: { Image(systemName: "terminal").font(.system(size: 12)) }
             .buttonStyle(.plain)
             .help("Copy CLI sample command to clipboard")

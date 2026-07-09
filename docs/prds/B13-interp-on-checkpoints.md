@@ -11,14 +11,14 @@ related_prds: sae-timeline-viewer.md (visualization sibling — ships the chart,
 
 ## Goal
 
-Replay the shipped interp tools (`tinygpt sae`, `tinygpt memit`,
-`tinygpt rome`, `tinygpt patch`, `tinygpt causal-trace`) across the
-multi-checkpoint history a single `tinygpt train` run produces, so we
+Replay the shipped interp tools (`posttrainllm sae`, `posttrainllm memit`,
+`posttrainllm rome`, `posttrainllm patch`, `posttrainllm causal-trace`) across the
+multi-checkpoint history a single `posttrainllm train` run produces, so we
 can see *when* a feature emerges, not just *that* a final model has it.
 Pythia ([Biderman et al. 2023](https://arxiv.org/abs/2304.01373)) and
 OLMo ([Groeneveld et al. 2024](https://arxiv.org/abs/2402.00838)) made
 this the standard small-model interp protocol; no competitor ships it
-at TinyGPT's "every-byte-of-code-here" scale.
+at posttrainllm's "every-byte-of-code-here" scale.
 
 The `/sae-timeline.astro` viewer (already shipped) consumes the
 output of this PRD's tooling. Without this PRD, the viewer renders
@@ -40,7 +40,7 @@ empty.
 - `Sources/TinyGPT/InterpReplay.swift` — orchestrator. Walks a
   history directory, loads each checkpoint, runs the requested probe,
   writes one JSONL row per (probe, layer, checkpoint).
-- New CLI: `tinygpt interp-replay <history-dir> --probe {sae,memit,
+- New CLI: `posttrainllm interp-replay <history-dir> --probe {sae,memit,
   rome,patch,causal-trace} [--layer L | --layers SPEC] --out timeline.jsonl`
 - Row schema: `{step: Int, ckpt_hash: String, probe: String, layer:
   Int, metric: String, value: Double, extra: [String: Any]}`. The
@@ -51,7 +51,7 @@ empty.
   all probes that have inputs (a `.sae` config, a `--memit-facts` file,
   etc.) — turns this into "give me the full interp timeline for this
   run".
-- Wire into `tinygpt train`'s optional `--interp-every N` hook (same
+- Wire into `posttrainllm train`'s optional `--interp-every N` hook (same
   shape as `--eval-every`). Non-blocking; skip if previous interp
   pass is still running.
 
@@ -87,9 +87,9 @@ empty.
 
 ## Acceptance criteria
 
-- [ ] `tinygpt interp-replay <history> --probe sae --out timeline.jsonl`
+- [ ] `posttrainllm interp-replay <history> --probe sae --out timeline.jsonl`
   on a 5-checkpoint history produces a JSONL with 5 × n_layers rows.
-- [ ] `--interp-every 1000` integrated into `tinygpt train` doesn't
+- [ ] `--interp-every 1000` integrated into `posttrainllm train` doesn't
   block the training loop more than 100 ms per checkpoint (the heavy
   interp work happens in a separate process).
 - [ ] `/sae-timeline.astro` drag-drops the produced JSONL and renders
@@ -103,7 +103,7 @@ empty.
 - `Sources/TinyGPT/RunLmEval.swift` — the post-checkpoint multi-task
   orchestrator pattern. Same shape: load checkpoint, run probe, write
   row, repeat.
-- `tinygpt sae`'s existing `.sae` sidecar — the per-checkpoint output
+- `posttrainllm sae`'s existing `.sae` sidecar — the per-checkpoint output
   artifact this PRD batches.
 - [Pythia paper](https://arxiv.org/abs/2304.01373) — the methodology
   is theirs; cite. Their interp-on-checkpoints findings (feature

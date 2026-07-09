@@ -1,13 +1,13 @@
 import Foundation
 
-/// Drives the Server tab. Spawns `tinygpt-cli serve <model> --port N`
+/// Drives the Server tab. Spawns `posttrainllm-cli serve <model> --port N`
 /// as a subprocess and exposes Start/Stop + a live log + the current
 /// endpoint to the view. Same pattern as InterpController — the CLI is
 /// the authoritative server, the app is the orchestrator.
 ///
 /// The server speaks OpenAI's chat-completions shape (per
 /// TinyGPTServe/Serve.swift), so anything that talks to OpenAI can be
-/// repointed at `http://127.0.0.1:<port>/v1`. That makes TinyGPT a
+/// repointed at `http://127.0.0.1:<port>/v1`. That makes posttrainllm a
 /// drop-in local backend for Cursor / Continue / Cline / your own
 /// scripts — the LM Studio / Ollama play.
 @MainActor
@@ -30,18 +30,18 @@ final class ServerController: ObservableObject {
     private func locateCLI() -> URL? {
         let fm = FileManager.default
         if let exec = Bundle.main.executableURL {
-            let sibling = exec.deletingLastPathComponent().appendingPathComponent("tinygpt-cli")
+            let sibling = exec.deletingLastPathComponent().appendingPathComponent("posttrainllm-cli")
             if fm.fileExists(atPath: sibling.path) { return sibling }
             var dir = exec.deletingLastPathComponent()
             for _ in 0..<8 {
-                let c1 = dir.appendingPathComponent(".build/arm64-apple-macosx/release/tinygpt")
+                let c1 = dir.appendingPathComponent(".build/arm64-apple-macosx/release/posttrainllm")
                 if fm.fileExists(atPath: c1.path) { return c1 }
-                let c2 = dir.appendingPathComponent("native-mac/.build/arm64-apple-macosx/release/tinygpt")
+                let c2 = dir.appendingPathComponent("native-mac/.build/arm64-apple-macosx/release/posttrainllm")
                 if fm.fileExists(atPath: c2.path) { return c2 }
                 dir = dir.deletingLastPathComponent()
             }
         }
-        let p = URL(fileURLWithPath: "/usr/local/bin/tinygpt")
+        let p = URL(fileURLWithPath: "/usr/local/bin/posttrainllm")
         return fm.fileExists(atPath: p.path) ? p : nil
     }
 
@@ -51,7 +51,7 @@ final class ServerController: ObservableObject {
             lastError = "pick a model first"; return
         }
         guard let cli = locateCLI() else {
-            lastError = "tinygpt CLI not found — build with `swift build -c release`"; return
+            lastError = "posttrainllm CLI not found — build with `swift build -c release`"; return
         }
         lastError = nil
         log = ""

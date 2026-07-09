@@ -3,7 +3,7 @@
 
 For each fixture in clickyLocal/evals/fixtures/, pull the user message
 and create N variants (paraphrases of the same intent). Output is a
-JSONL ready for `tinygpt synthesize` to label via LM Studio teacher.
+JSONL ready for `posttrainllm synthesize` to label via LM Studio teacher.
 
 Each row: {"prompt": "<user message>", "category": "<fixture name>"}
 """
@@ -12,10 +12,10 @@ import sys
 from pathlib import Path
 
 FIXTURE_DIR = Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/fixtures")
-OUT = Path.home() / ".cache" / "tinygpt" / "datasets" / "pace-prompts.jsonl"
+OUT = Path.home() / ".cache" / "posttrainllm" / "datasets" / "pace-prompts.jsonl"
 
 # Seed variants per category — minimal hand-curated set. Tomorrow's
-# `tinygpt synthesize` will dramatically expand this by letting the
+# `posttrainllm synthesize` will dramatically expand this by letting the
 # teacher generate more under the same prompt scaffolding.
 VARIANTS = {
     "qa-no-screen": [
