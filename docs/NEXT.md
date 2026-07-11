@@ -131,11 +131,20 @@ but clean-SQL stayed `0.000`: the composed output keeps `Answer:` and the
 DPO-alone output keeps `The answer is:`. **Across two pressure regimes (gentle
 50-step and aggressive 200-step) composed rank-4 q/v DPO never removed the prose
 wrapper while execution only rose — output format is SFT/base-controlled, not
-DPO-reachable.** Decision: **retry-data**. The frozen `qwen06-sql-hygiene-dpo-v1`
-hygiene goal is now blocked on an **SFT-level fix**: rebuild the SFT training
-data with single bare-SELECT targets and re-SFT the synthetic adapter, then
-re-measure clean-SQL; only add hygiene DPO afterward if a residual wrapper
-remains. Run: `runs/2026-07-11-sql-hygiene-dpo-refanchored-b03-s200-qwen06/`.
+DPO-reachable.** Decision: **retry-data**. Run:
+`runs/2026-07-11-sql-hygiene-dpo-refanchored-b03-s200-qwen06/`.
+
+**Diagnosis correction (2026-07-11):** the SFT data is **already clean** —
+108/108 `evals/sql-poc-expanded/train.jsonl` targets are bare SELECT with no
+wrapper. So the `Answer:`/`The answer is:` lead-in is the **base Qwen3-0.6B
+prose prior**, not a data defect; a data rebuild would be a no-op. The hygiene
+goal needs a **generation-strength** fix, not a data-content one:
+(a) stronger SFT (higher rank / more epochs / more bare-SELECT examples) to
+overpower the base prior, or (b) inference-time steering (few-shot bare-SELECT
+exemplars, a stop sequence, or constrained-generation SELECT prefix). Since
+`eval-sql` already extracts the inner SELECT (exec 0.92), a cheap deterministic
+output post-process is also a legitimate hygiene fix. Execution is not the
+problem (0.860 → 0.920 across retries) — only the output wrapper is.
 
 **TrainLoop-style additions required for the next SQL retry (2026-07-04):**
 

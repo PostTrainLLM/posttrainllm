@@ -177,11 +177,19 @@ SQL is the current factory POC and the best-documented attempt family.
 - Lesson: **Composed DPO cannot fix output-format hygiene here — proven across
   two pressure regimes (gentle 50-step and aggressive 200-step both leave clean
   at 0.000 while execution only rises 0.860 → 0.900 → 0.920).** Preference
-  tuning is the wrong tool for format; the fix is SFT-level (bare-SELECT
-  targets). Positive side effect: execution improved every time.
-- Next action: Rebuild the SFT data with single bare-SELECT targets, re-SFT the
-  synthetic adapter, re-measure clean-SQL; add hygiene DPO only if residual
-  wrapper remains.
+  tuning is the wrong tool for format. Positive side effect: execution improved
+  every time.
+- Diagnosis correction (2026-07-11): the SFT training data is **already clean** —
+  108/108 `evals/sql-poc-expanded/train.jsonl` targets start with a bare SELECT,
+  no wrapper. So the `Answer:`/`The answer is:` lead-in is the **base model's
+  (Qwen3-0.6B) prose prior**, which the rank-4 DoRA SFT (108 examples) and the
+  rank-4 DPO both fail to suppress. A data rebuild would be a no-op.
+- Next action: fix the format at generation strength, not data content —
+  candidates: (a) stronger SFT (higher rank / more epochs / more bare-SELECT
+  examples) to overpower the base prior; (b) inference-time steering (few-shot
+  bare-SELECT exemplars, a stop sequence, or a constrained-generation SELECT
+  prefix). The scorer already extracts the inner SELECT (exec 0.92), so a
+  cheap deterministic output post-process is also a legitimate hygiene fix.
 
 ### SQL candidate selection
 
