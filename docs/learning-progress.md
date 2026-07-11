@@ -13,19 +13,23 @@ Status values:
 ## Ground-Up Roadmap Progress
 
 Canonical roadmap: [`learn/curriculum.md`](learn/curriculum.md).
+Coverage index (every subsystem → anchor): [`learn/coverage-map.md`](learn/coverage-map.md).
+
+All ten modules now have a polished session; remaining work is mastery, not
+authoring. Status is per-module learning state, not doc-existence.
 
 | # | Module | Status | Evidence | Next Concrete Action |
 |---:|---|---|---|---|
 | 1 | Functions, data, parameters | `reading` | Session 1 exists and has self-checks | Pass mastery gate out loud; write checkpoint |
 | 2 | Loss and gradient descent | `reading` | Session 2 exists and has worked examples | Compute one MSE + gradient step by hand |
-| 3 | Vectors, matrices, tensors | `not-started` | References exist; polished session missing | Write compact tensor-shapes session or checkpoint from references |
+| 3 | Vectors, matrices, tensors | `reading` | Session 9 (tensors) written; anchors LoRA shape logic | Trace one layer's shapes; read a shape error and name the wrong axis |
 | 4 | Non-linear neural nets + backprop | `not-started` | Session 3 exists | Run/inspect tiny non-linear example |
 | 5 | ML paradigms and scaling | `not-started` | Sessions 4 and 5 exist | Classify posttrainllm attempts by paradigm |
 | 6 | Tokenization, embeddings, language modeling | `not-started` | Session 6 exists | Tokenize SQL prompts and inspect splits |
-| 7 | Attention and transformer blocks | `not-started` | References exist; polished session missing | Work one tiny Q/K/V attention example |
+| 7 | Attention and transformer blocks | `reading` | Session 10 (attention) written; ties to interpretability heatmap | Work one tiny Q/K/V attention example |
 | 8 | Training mechanics | `not-started` | Session 8 exists | Inspect tiny overfit gate and failure symptoms |
 | 9 | Post-training: SFT, LoRA, preference tuning | `reading` | SFT/LoRA/DPO docs and SQL run evidence exist | Explain SQL SFT win vs SimPO collapse |
-| 10 | Evals, rewards, self-improvement | `reading` | Factory eval protocol, attempt ledger, SQL candidate-choice tools exist | Build/inspect candidate-selection rows and report slice metrics |
+| 10 | Evals, rewards, self-improvement | `reading` | Session 11 (evals/rewards) written; eval protocol, attempt ledger, SQL candidate-choice tools exist | Build/inspect candidate-selection rows and report slice metrics |
 
 ## Factory Lab Progress
 

@@ -24,7 +24,7 @@ Read in this order:
 | 5 | [`techniques/audit-inventory.md`](techniques/audit-inventory.md) | Row-level treatment of the broad 2026 technique audit |
 | 6 | [`attempt-ledger.md`](attempt-ledger.md) | What worked, failed, regressed, or remains untried |
 | 7 | [`external-products-reviewed.md`](external-products-reviewed.md) | Competitors/startups/papers/blogs reviewed and what we stole or rejected |
-| 8 | [`learn/curriculum.md`](learn/curriculum.md) | Ground-up learning roadmap from first principles to self-improving specialists |
+| 8 | [`learn/curriculum.md`](learn/curriculum.md) | Ground-up learning roadmap from first principles to self-improving specialists; [`learn/coverage-map.md`](learn/coverage-map.md) indexes every subsystem to a learning anchor |
 | 9 | [`learning-progress.md`](learning-progress.md) | Measured progress through the owner learning pipeline |
 | 10 | [`learning-pipeline.md`](learning-pipeline.md) | How ground-up learning attaches to the factory lab |
 | 11 | [`factory/public-artifacts.md`](factory/public-artifacts.md) | Public artifact inventory, blockers, and release posture |

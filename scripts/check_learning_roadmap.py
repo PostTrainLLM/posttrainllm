@@ -17,6 +17,7 @@ CURRICULUM_NEEDLES = [
     "## Canonical External Anchors",
     "## Master Roadmap",
     "## Where Existing Sessions Fit",
+    "## Coverage Beyond the Spine",
     "## Current Starting Point",
     "## Checkpoint Template",
     "concept -> toy implementation -> posttrainllm anchor -> factory consequence",
@@ -27,6 +28,35 @@ CURRICULUM_NEEDLES = [
     "post-training: SFT, LoRA, preference tuning",
     "evals, rewards, and self-improvement",
     "Mastery Gate",
+    # Every module now has a polished session; the curriculum must point at all three
+    # gap-filling sessions so they cannot be orphaned.
+    "session-09-tensors.md",
+    "session-10-attention.md",
+    "session-11-evals-rewards.md",
+    "coverage-map.md",
+]
+
+# Each module maps to exactly one polished session. The three below closed the
+# previously reference-only gaps (Modules 3, 7, 10).
+SESSION_FILES = [
+    ("docs/learn/session-09-tensors.md", "Module 3"),
+    ("docs/learn/session-10-attention.md", "Module 7"),
+    ("docs/learn/session-11-evals-rewards.md", "Module 10"),
+]
+
+# The coverage map is the guarantee that every shipped subsystem has a learning
+# anchor, not just the ground-up spine.
+COVERAGE_NEEDLES = [
+    "# Learning coverage map",
+    "## 1. Foundations",
+    "## Coverage Guarantee",
+    "### Maintenance rule",
+    "target -> data -> post-training -> eval -> package -> report",
+    "session-09-tensors.md",
+    "session-10-attention.md",
+    "session-11-evals-rewards.md",
+    "interpretability",
+    "quantization",
 ]
 
 PIPELINE_NEEDLES = [
@@ -70,9 +100,23 @@ def main() -> int:
         [
             "Start here for ground-up learning",
             "10-module ground-up roadmap",
+            "coverage-map.md",
         ],
         errors,
     )
+
+    require_needles("docs/learn/coverage-map.md", COVERAGE_NEEDLES, errors)
+
+    # Every module's polished session must exist and keep the sibling structure
+    # (a self-check and a "where this connects" bridge back to the project).
+    for rel, module_tag in SESSION_FILES:
+        text = require_needles(
+            rel,
+            [module_tag, "## Self-check", "## Where this connects"],
+            errors,
+        )
+        if text and "posttrainllm" not in text.lower():
+            errors.append(f"{rel}: missing posttrainllm project anchor")
 
     roadmap_rows = re.findall(r"^\| (10|[1-9]) \|", curriculum, flags=re.MULTILINE)
     if sorted(int(row) for row in roadmap_rows) != list(range(1, 11)):

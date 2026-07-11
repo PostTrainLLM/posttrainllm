@@ -25,14 +25,21 @@ basic math to modern transformer training. Each session is self-contained
 but builds on the last.
 
 - [Curriculum overview](./curriculum.md) — the 10-module ground-up roadmap, mastery gates, exercises, and project anchors.
-- [Session 1 — From a line to a learned line](./session-01-neural-net-basics.md)
-- [Session 2 — Gradient descent](./session-02-gradient-descent.md)
-- [Session 3 — Non-linearities](./session-03-non-linearities.md)
-- [Session 4 — ML paradigms](./session-04-ml-paradigms.md)
-- [Session 5 — Scaling](./session-05-scaling.md)
-- [Session 6 — Tokenization + embeddings](./session-06-tokenization-embeddings.md)
-- [Session 7 — Behavior learning](./session-07-behavior-learning.md)
-- [Session 8 — Training mechanics](./session-08-training-mechanics.md)
+- [Coverage map](./coverage-map.md) — the index proving every project subsystem has a learning anchor (read after the curriculum).
+
+Read the sessions in **module order** (session file numbers are creation order,
+not reading order):
+
+- Module 1 — [From a line to a learned line](./session-01-neural-net-basics.md)
+- Module 2 — [Gradient descent](./session-02-gradient-descent.md)
+- Module 3 — [Vectors, matrices, tensors](./session-09-tensors.md)
+- Module 4 — [Non-linearities + backprop](./session-03-non-linearities.md)
+- Module 5 — [ML paradigms](./session-04-ml-paradigms.md) + [Scaling](./session-05-scaling.md)
+- Module 6 — [Tokenization + embeddings](./session-06-tokenization-embeddings.md)
+- Module 7 — [Attention + transformer blocks](./session-10-attention.md)
+- Module 8 — [Training mechanics](./session-08-training-mechanics.md)
+- Module 9 — [Behavior learning (SFT/LoRA/preference)](./session-07-behavior-learning.md)
+- Module 10 — [Evals, rewards, self-improvement](./session-11-evals-rewards.md)
 
 ## I want the modern-LLM mechanics reference
 

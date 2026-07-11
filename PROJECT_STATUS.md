@@ -1,6 +1,6 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-07-02
+Last updated: 2026-07-11
 
 ## Why / What
 
@@ -67,6 +67,7 @@ Important constraints:
 
 | Date / phase | Status |
 |---|---|
+| 2026-07-11 ground-up learning roadmap completed | Shipped: all 10 curriculum modules now have polished sessions (added `session-09-tensors`, `session-10-attention`, `session-11-evals-rewards` for the previously reference-only Modules 3/7/10), plus `docs/learn/coverage-map.md` mapping every shipped subsystem to a learning anchor. Guarded by `scripts/check_learning_roadmap.py` (`bash evals/learning-roadmap-smoke.sh`). |
 | 2026-07-04 first full factory decision | Shipped: frozen `qwen06-sql-hygiene-dpo-v1` candidate trained (SimPO), evaluated composed against the reproduced frozen baseline, and decided **retry-training** (policy collapse: exec 0.860 → 0.080). Schema-valid run in `runs/2026-07-03-sql-hygiene-dpo-qwen06/`. Also landed: DoRA-aware `bake-lora`, routed-SQL perf harness, clean-SQL scorer. |
 | 2026-07-03 canonical factory loop | Verified: `scripts/render_sql_factory_run.py` renders the canonical run folder (config, dataset, eval-baseline, eval-candidate, decision, artifact, train.log, report.md). Native CLI `posttrainllm factory-run render/validate` mirrors the same path. Run schema defined in `docs/factory/run-schema.md`. Actual training/eval remains operator-dependent (GPU + Xcode metal compiler required). |
 | Original Phases 1-4 | Complete: Python reference, transformer, training loop, eval basics |

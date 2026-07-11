@@ -44,6 +44,11 @@ It defines the 10-module path:
 The SQL factory is the lab, not the starting point. Do not skip the foundation
 unless the module mastery gate can be passed out loud.
 
+All ten modules now have a polished session. For the guarantee that every
+shipped subsystem (post-training internals, quantization, serving,
+interpretability, WASM/WebGPU, VLM, the factory loop) also has a learning
+anchor, see [`docs/learn/coverage-map.md`](learn/coverage-map.md).
+
 ## Factory-Attached Learning Sequence
 
 | Order | Topic | Why Now | Project Work It Unlocks | Primary Docs |

@@ -74,39 +74,46 @@ does not decide what to build next.
 |---:|---|---|---|---|---|
 | 1 | Functions, data, parameters | A model is a parameterized function; learning means choosing parameters from data | Fit `y = mx + b` by hand on 5 points; explain fixed data vs moving parameters | [`session-01-neural-net-basics.md`](session-01-neural-net-basics.md) | You can explain what a "parameter" is without using LLM examples |
 | 2 | Loss and gradient descent | Loss turns wrongness into one number; gradients say how to change parameters | Compute MSE for two `(m,b)` guesses; take one gradient-descent step | [`session-02-gradient-descent.md`](session-02-gradient-descent.md) | You can predict what too-high and too-low learning rate look like |
-| 3 | Vectors, matrices, tensors | Neural nets are mostly structured multiply/add over arrays | Rewrite a one-input line as a dot product; trace tensor shapes through one layer | [`llm-mechanics-fundamentals.md`](llm-mechanics-fundamentals.md), [`essential-vs-optimization.md`](essential-vs-optimization.md) | You can read a shape error and identify which axis is wrong |
+| 3 | Vectors, matrices, tensors | Neural nets are mostly structured multiply/add over arrays | Rewrite a one-input line as a dot product; trace tensor shapes through one layer | [`session-09-tensors.md`](session-09-tensors.md), [`essential-vs-optimization.md`](essential-vs-optimization.md) | You can read a shape error and identify which axis is wrong |
 | 4 | Non-linear neural nets + backprop | Stacking linear layers only stays linear; activations and chain rule make depth useful | Train a tiny 2-layer MLP on a non-linear toy dataset; explain backprop as credit assignment | [`session-03-non-linearities.md`](session-03-non-linearities.md) | You can explain why a model can fit curves after adding activation functions |
 | 5 | ML paradigms and scaling | Supervised learning, self-supervision, imitation, RL, and scale each solve different parts | Classify posttrainllm attempts as pretrain, SFT, preference tuning, eval, or routing | [`session-04-ml-paradigms.md`](session-04-ml-paradigms.md), [`session-05-scaling.md`](session-05-scaling.md) | You can say why scale helps knowledge but does not fix bad evals or bad data |
 | 6 | Tokenization, embeddings, language modeling | Text becomes tokens; tokens become vectors; next-token prediction creates language skill | Tokenize three prompts; inspect how SQL punctuation and identifiers split | [`session-06-tokenization-embeddings.md`](session-06-tokenization-embeddings.md), [`../tool_call_extractor.md`](../tool_call_extractor.md) | You can explain why tokenization affects SQL/tool-call reliability |
-| 7 | Attention and transformer blocks | Attention routes information across positions; transformer blocks repeat attention + MLP | Work one tiny attention example with query/key/value vectors and shapes | [`llm-mechanics-fundamentals.md`](llm-mechanics-fundamentals.md), [`advanced-llm-inference.md`](advanced-llm-inference.md) | You can describe what attention can copy/route that an MLP alone cannot |
+| 7 | Attention and transformer blocks | Attention routes information across positions; transformer blocks repeat attention + MLP | Work one tiny attention example with query/key/value vectors and shapes | [`session-10-attention.md`](session-10-attention.md), [`llm-mechanics-fundamentals.md`](llm-mechanics-fundamentals.md) | You can describe what attention can copy/route that an MLP alone cannot |
 | 8 | Training mechanics | Batches, epochs, optimizers, schedules, precision, overfit checks, and loss curves govern whether training worked | Overfit a tiny dataset or inspect an existing overfit gate; identify failure mode from a loss curve | [`session-08-training-mechanics.md`](session-08-training-mechanics.md), [`../training_guide.md`](../training_guide.md) | You can tell data bug vs LR bug vs capacity bug from symptoms |
 | 9 | Post-training: SFT, LoRA, preference tuning | SFT teaches behavior; LoRA changes a low-rank slice; DPO/SimPO shape preferences and can collapse | Compare successful SQL SFT vs failed hygiene SimPO; run/inspect LoRA geometry | [`../training/sft.md`](../training/sft.md), [`../training/dpo.md`](../training/dpo.md), [`../factory/lora-geometry.md`](../factory/lora-geometry.md) | You can explain why the hygiene SimPO run collapsed without hand-waving |
-| 10 | Evals, rewards, and self-improvement | Frozen evals, verifiable rewards, traces, failure taxonomy, and public reports make improvement measurable | Build/inspect SQL candidate-selection rows; attach slice metrics and trace review to a run | [`../factory/eval-protocol.md`](../factory/eval-protocol.md), [`../techniques/sql-technique-backlog.md`](../techniques/sql-technique-backlog.md), [`../attempt-ledger.md`](../attempt-ledger.md) | You can design the next SQL recipe with target, data, reward/eval, stop rule, and report fields |
+| 10 | Evals, rewards, and self-improvement | Frozen evals, verifiable rewards, traces, failure taxonomy, and public reports make improvement measurable | Build/inspect SQL candidate-selection rows; attach slice metrics and trace review to a run | [`session-11-evals-rewards.md`](session-11-evals-rewards.md), [`../factory/eval-protocol.md`](../factory/eval-protocol.md), [`../techniques/sql-technique-backlog.md`](../techniques/sql-technique-backlog.md) | You can design the next SQL recipe with target, data, reward/eval, stop rule, and report fields |
 
 ## Where Existing Sessions Fit
 
-The original eight sessions remain useful. They are now the foundation half of
-the roadmap, not the whole roadmap.
+All ten modules now have a polished session. The original eight are the
+foundation half; the three sessions added later (9, 10, 11) fill the gaps that
+were previously reference-only.
 
-| Existing Session | Roadmap Module |
+| Session | Roadmap Module |
 |---|---|
 | [`session-01-neural-net-basics.md`](session-01-neural-net-basics.md) | 1 |
 | [`session-02-gradient-descent.md`](session-02-gradient-descent.md) | 2 |
+| [`session-09-tensors.md`](session-09-tensors.md) | 3 |
 | [`session-03-non-linearities.md`](session-03-non-linearities.md) | 4 |
 | [`session-04-ml-paradigms.md`](session-04-ml-paradigms.md) | 5 |
 | [`session-05-scaling.md`](session-05-scaling.md) | 5 |
 | [`session-06-tokenization-embeddings.md`](session-06-tokenization-embeddings.md) | 6 |
-| [`session-07-behavior-learning.md`](session-07-behavior-learning.md) | 9 |
+| [`session-10-attention.md`](session-10-attention.md) | 7 |
 | [`session-08-training-mechanics.md`](session-08-training-mechanics.md) | 8 |
+| [`session-07-behavior-learning.md`](session-07-behavior-learning.md) | 9 |
+| [`session-11-evals-rewards.md`](session-11-evals-rewards.md) | 10 |
 
-Missing polished sessions are explicit:
+Session file numbers are creation order, not reading order — read by module. The
+three later sessions (9 = tensors → Module 3, 10 = attention → Module 7,
+11 = evals/rewards → Module 10) closed the previously-missing gaps.
 
-- Module 3 needs a compact vectors/matrices/tensors session.
-- Module 7 needs a tiny attention/transformer-block session.
-- Module 10 needs a ground-up evals/rewards/self-improvement session.
+## Coverage Beyond the Spine
 
-Until those are written, the linked reference docs plus the exercises above are
-the working path.
+This curriculum is the ground-up spine. For the guarantee that **every** shipped
+subsystem in the project — post-training internals, quantization, serving,
+interpretability, WASM/WebGPU, VLM, the factory loop — has a learning anchor, see
+[`coverage-map.md`](coverage-map.md). The spine teaches you to read the system;
+the coverage map is the index that proves nothing was left unread.
 
 ## Current Starting Point
 
