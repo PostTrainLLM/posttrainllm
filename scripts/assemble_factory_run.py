@@ -146,15 +146,19 @@ def render_slice_table(slice_metrics: dict[str, Any] | None) -> str:
             "|---|---:|---:|---:|---|\n"
             "| Overall | n/a | n/a | n/a | see `slice-metrics.json` |\n"
         )
-    rows = ["| Slice | Baseline | Candidate | Delta | Pass |", "|---|---:|---:|---:|---|"]
+    rows = ["| Slice | Baseline | Candidate | Delta | Rows |", "|---|---:|---:|---:|---:|"]
     for name, slc in (slice_metrics.get("slices") or {}).items():
+        # Two shapes are supported: the explicit baseline/candidate/delta shape,
+        # and the candidate-only score_sql_slices.py shape (execution_accuracy /
+        # exact_match / rows).
         base = slc.get("baseline")
         cand = slc.get("candidate")
+        if cand is None:
+            cand = slc.get("execution_accuracy", slc.get("exact_match"))
         delta = slc.get("delta")
-        passed = slc.get("pass")
-        passed_s = "yes" if passed else ("no" if passed is False else "n/a")
+        n_rows = slc.get("rows")
         rows.append(
-            f"| {name} | {num(base)} | {num(cand)} | {num(delta)} | {passed_s} |"
+            f"| {name} | {num(base)} | {num(cand)} | {num(delta)} | {n_rows if n_rows is not None else 'n/a'} |"
         )
     return "\n".join(rows) + "\n"
 

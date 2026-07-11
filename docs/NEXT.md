@@ -108,6 +108,22 @@ composed. Gotcha for future runs: record the posttrainllm binary provenance —
 the 2026-06-25 release build scores identical preds at 0.000 where the
 2026-07-02 debug build scores 0.860, and composes multi-LoRA differently.
 
+**Retry outcome (2026-07-11): retry-training — collapse fixed, hygiene still
+unmet.** Reference-anchored DPO (`--loss-type dpo --beta 0.1`, r4 q/v, 50 steps,
+lr 5e-6) on the same 108 frozen pairs, evaluated composed. Result: **no
+collapse** — composed execution `0.860 → 0.900` (+0.040), DPO-adapter-alone
+`0.120` (healthy, not fence-spam), DPO step-1 loss `0.6931 ≈ log 2`. But
+clean-SQL raw rate stayed `0.000`: 41/50 outputs changed yet all keep the
+`Answer:`/`Explanation:` prose wrapper. Execution bar passes, hygiene bar
+fails → not shipped. Reproduced the 0.860 baseline exactly first with a fresh
+swift-build DEBUG binary (git 74cb267). Full run:
+`runs/2026-07-11-sql-hygiene-dpo-refanchored-qwen06/` (assembled via
+`scripts/assemble_factory_run.py`; validates + publish-check passes). Next:
+higher-pressure ref-anchored DPO (150-300 steps and/or beta 0.3, lr 1e-5),
+watching exec; else fix the SFT data to emit a bare SELECT. Takeaway:
+reference anchoring is the validated cure for the SimPO collapse; format
+hygiene is a separate, still-open pressure problem.
+
 **TrainLoop-style additions required for the next SQL retry (2026-07-04):**
 
 1. Method-vs-recipe registry: `docs/techniques/`.

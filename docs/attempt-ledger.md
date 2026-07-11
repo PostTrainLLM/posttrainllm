@@ -139,7 +139,30 @@ SQL is the current factory POC and the best-documented attempt family.
 - Status: `failed`.
 - Failure reason: Ref-free SimPO update collapsed the policy and produced degenerate fenced/prose outputs.
 - Lesson: Preference tuning needs reference anchoring, smaller updates, and composed-eval checks.
-- Next action: Retry with reference-anchored DPO or much lower LR/step count on the same frozen pairs.
+- Next action: ~~Retry with reference-anchored DPO or much lower LR/step count on the same frozen pairs.~~ Done 2026-07-11 (see next entry).
+
+### Hygiene DPO reference-anchored retry (2026-07-11)
+
+- Recipe: Reference-anchored DPO (`posttrainllm dpo --loss-type dpo --beta 0.1`,
+  LoRA r4 q/v, 50 steps, lr 5e-6) on the same 108 frozen pairs, composed at
+  inference with the SFT DoRA adapter; evaluated on the frozen 50-row dev set.
+- Evidence: composed execution `0.860 -> 0.900` (+0.040, exact `0.840 -> 0.860`),
+  clean-SQL `0.000 -> 0.000`; DPO-adapter-alone execution `0.120` (healthy, not
+  the SimPO retry's 0.000 fence-spam); DPO step-1 loss `0.6931 ≈ log 2` (correct
+  reference-anchored sanity check). Run: `runs/2026-07-11-sql-hygiene-dpo-refanchored-qwen06/`.
+- Status: `regressed`? No — `retry-training` (execution bar passes, hygiene bar fails).
+- Failure reason: DPO pressure too low to change output FORMAT — 41/50 raw
+  outputs changed but all keep the `Answer:`/`Explanation:` prose wrapper, so
+  clean-SQL stays 0.000 (< 0.80 bar).
+- Lesson: Reference-anchored DPO is the correct fix for the SimPO collapse
+  (validated: no collapse, execution preserved/improved, adapter-alone healthy).
+  Output-format hygiene needs stronger preference pressure (more steps / higher
+  beta/lr, still ref-anchored) or an SFT-level format fix. Binary provenance
+  matters: reproduced the 0.860 baseline exactly with a fresh swift-build DEBUG
+  binary before scoring.
+- Next action: Higher-pressure reference-anchored DPO (150-300 steps and/or
+  beta 0.3, lr 1e-5) on the same pairs, watching exec for regression; else fix
+  the SFT data to emit a bare SELECT.
 
 ### SQL candidate selection
 
