@@ -805,12 +805,6 @@ enum Sample {
         }
     }
 
-    private static func formatBytes(_ n: Int) -> String {
-        if n >= 1_000_000 { return String(format: "%.1f MB", Double(n) / 1_000_000) }
-        if n >= 1_000 { return String(format: "%.1f KB", Double(n) / 1_000) }
-        return "\(n) B"
-    }
-
     private static func MLXRandomCategorical(_ logits: MLXArray) -> MLXArray {
         // Sample one id per leading row from the unnormalized logits.
         return MLXRandom.categorical(logits)

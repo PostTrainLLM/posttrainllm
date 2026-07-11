@@ -1,4 +1,5 @@
 import Foundation
+import TinyGPTIO
 import TinyGPTData
 
 /// `posttrainllm download-dataset hf://datasets/<id>` —
@@ -317,13 +318,6 @@ enum DownloadDataset {
         let dataExt = [".jsonl", ".json", ".jsonl.gz", ".ndjson", ".parquet", ".arrow",
                        ".csv", ".tsv", ".feather"]
         return dataExt.contains(where: { lower.hasSuffix($0) })
-    }
-
-    static func formatBytes(_ n: Int) -> String {
-        if n >= 1_000_000_000 { return String(format: "%.1f GB", Double(n) / 1_000_000_000) }
-        if n >= 1_000_000     { return String(format: "%.0f MB", Double(n) / 1_000_000) }
-        if n >= 1_000         { return String(format: "%.0f KB", Double(n) / 1_000) }
-        return "\(n) B"
     }
 
     static func printUsage() {

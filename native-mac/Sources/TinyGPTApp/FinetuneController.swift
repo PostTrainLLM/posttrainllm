@@ -194,14 +194,4 @@ final class FinetuneController: ObservableObject {
         return cache.appendingPathComponent(name)
     }
 
-    private nonisolated func formatNum(_ n: Int) -> String {
-        let f = NumberFormatter(); f.numberStyle = .decimal
-        return f.string(from: NSNumber(value: n)) ?? "\(n)"
-    }
-
-    private nonisolated func formatBytes(_ n: Int) -> String {
-        if n >= 1_000_000 { return String(format: "%.1f MB", Double(n) / 1_000_000) }
-        if n >= 1_000 { return String(format: "%.0f KB", Double(n) / 1_000) }
-        return "\(n)"
-    }
 }

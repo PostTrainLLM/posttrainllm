@@ -752,12 +752,6 @@ enum Score {
         return "\(n)"
     }
 
-    private static func formatBytes(_ n: Int) -> String {
-        if n >= 1_000_000 { return String(format: "%.1f MB", Double(n) / 1_000_000) }
-        if n >= 1_000 { return String(format: "%.0f KB", Double(n) / 1_000) }
-        return "\(n) B"
-    }
-
     private static func pad(_ s: String, _ width: Int) -> String {
         s.count >= width ? s : s + String(repeating: " ", count: width - s.count)
     }

@@ -137,10 +137,4 @@ enum HFInspect {
         return "\(n)"
     }
 
-    private static func formatBytes(_ n: Int) -> String {
-        if n >= 1_000_000_000 { return String(format: "%.1f GB", Double(n) / 1_000_000_000) }
-        if n >= 1_000_000 { return String(format: "%.0f MB", Double(n) / 1_000_000) }
-        if n >= 1_000 { return String(format: "%.0f KB", Double(n) / 1_000) }
-        return "\(n) B"
-    }
 }

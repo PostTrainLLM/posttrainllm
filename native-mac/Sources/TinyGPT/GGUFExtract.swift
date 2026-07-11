@@ -1,4 +1,5 @@
 import Foundation
+import TinyGPTIO
 import MLX
 import TinyGPTModel
 
@@ -259,13 +260,6 @@ enum GGUFExtract {
         default:                   suffix = rest  // pass-through for arch-specific extras
         }
         return "model.layers.\(layerIdx).\(suffix)"
-    }
-
-    private static func formatBytes(_ n: Int) -> String {
-        if n >= 1_000_000_000 { return String(format: "%.2f GB", Double(n) / 1e9) }
-        if n >= 1_000_000     { return String(format: "%.2f MB", Double(n) / 1e6) }
-        if n >= 1_000         { return String(format: "%.1f KB", Double(n) / 1e3) }
-        return "\(n) B"
     }
 
     private static func intOrNil(_ v: Any?) -> Int? {

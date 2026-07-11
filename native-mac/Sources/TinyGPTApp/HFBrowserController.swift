@@ -1,4 +1,5 @@
 import Foundation
+import TinyGPTIO
 
 /// Minimal HuggingFace **model** downloader for the app — pulls the
 /// files needed to feed `HFModelLoader` (config.json, tokenizer files,
@@ -119,7 +120,7 @@ final class HFBrowserController: ObservableObject {
                 var bytesDone = 0
                 for (i, sib) in candidates.enumerated() {
                     if Task.isCancelled { throw HFError.cancelled }
-                    self.status = "[\(i+1)/\(candidates.count)] \(sib.rfilename) (\(Self.formatBytes(sib.size ?? 0)))"
+                    self.status = "[\(i+1)/\(candidates.count)] \(sib.rfilename) (\(formatBytes(sib.size ?? 0)))"
                     try await self.downloadFile(
                         id: id, file: sib.rfilename,
                         to: cacheDir.appendingPathComponent(sib.rfilename)
@@ -283,10 +284,4 @@ final class HFBrowserController: ObservableObject {
         return total
     }
 
-    static func formatBytes(_ n: Int) -> String {
-        if n >= 1 << 30 { return String(format: "%.1f GB", Double(n) / Double(1 << 30)) }
-        if n >= 1 << 20 { return String(format: "%.0f MB", Double(n) / Double(1 << 20)) }
-        if n >= 1 << 10 { return String(format: "%.0f KB", Double(n) / Double(1 << 10)) }
-        return "\(n) B"
-    }
 }

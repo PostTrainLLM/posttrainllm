@@ -243,15 +243,6 @@ enum Finetune {
         if cfg.dModel >= 256 { return 8 }
         return 16
     }
-    private static func formatNum(_ n: Int) -> String {
-        let f = NumberFormatter(); f.numberStyle = .decimal
-        return f.string(from: NSNumber(value: n)) ?? "\(n)"
-    }
-    private static func formatBytes(_ n: Int) -> String {
-        if n >= 1_000_000 { return String(format: "%.1f MB", Double(n) / 1_000_000) }
-        if n >= 1_000 { return String(format: "%.0f KB", Double(n) / 1_000) }
-        return "\(n) B"
-    }
     /// Short label for the active PEFT variant. Mirrors the table in
     /// docs/peft_variants.md so the run-summary header stays grep-able.
     static func describeVariant(_ v: PeftVariant, target: Int) -> String {

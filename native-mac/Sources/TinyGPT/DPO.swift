@@ -466,11 +466,6 @@ enum DPO {
         return 8
     }
 
-    private static func formatNum(_ n: Int) -> String {
-        let f = NumberFormatter(); f.numberStyle = .decimal
-        return f.string(from: NSNumber(value: n)) ?? "\(n)"
-    }
-
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
         usage: posttrainllm dpo <base> [options]

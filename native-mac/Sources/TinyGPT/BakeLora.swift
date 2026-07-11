@@ -469,13 +469,6 @@ enum BakeLora {
         var description: String { message }
     }
 
-    private static func formatBytes(_ n: Int) -> String {
-        if n >= 1 << 30 { return String(format: "%.2f GB", Double(n) / Double(1 << 30)) }
-        if n >= 1 << 20 { return String(format: "%.1f MB", Double(n) / Double(1 << 20)) }
-        if n >= 1 << 10 { return String(format: "%.1f KB", Double(n) / Double(1 << 10)) }
-        return "\(n) B"
-    }
-
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
         usage: posttrainllm bake-lora <base-hf-dir> <adapter.lora> --out <merged-hf-dir>

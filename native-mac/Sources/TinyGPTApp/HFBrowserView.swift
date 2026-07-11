@@ -1,4 +1,5 @@
 import SwiftUI
+import TinyGPTIO
 
 /// Sheet UI for the HF model browser. Wraps `HFBrowserController` —
 /// downloads models from huggingface.co/<owner>/<repo> into the app's
@@ -142,7 +143,7 @@ struct HFBrowserView: View {
                 Text(model.displayName)
                     .font(.system(size: 12))
                     .foregroundStyle(Theme.fg)
-                Text(HFBrowserController.formatBytes(model.sizeBytes))
+                Text(formatBytes(model.sizeBytes))
                     .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(Theme.faint)
             }

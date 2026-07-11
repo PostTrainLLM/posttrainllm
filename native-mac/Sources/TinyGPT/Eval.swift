@@ -240,12 +240,6 @@ enum Eval {
         }
     }
 
-    private static func formatBytes(_ n: Int) -> String {
-        if n >= 1_000_000 { return String(format: "%.1f MB", Double(n) / 1_000_000) }
-        if n >= 1_000 { return String(format: "%.0f KB", Double(n) / 1_000) }
-        return "\(n) B"
-    }
-
     private static func exitUsage(_ code: Int32 = 2) -> Never {
         print("""
         usage: posttrainllm eval <model.tinygpt> --corpus path.txt [options]
