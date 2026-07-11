@@ -40,6 +40,25 @@ posttrainllm factory-run render \
 posttrainllm factory-run validate runs/<id>
 ```
 
+## Assembling a folder from emitted fragments
+
+When the train/eval/decision steps drop their fragments (`config.json`,
+`dataset.json`, `eval-baseline.json`, `eval-candidate.json`, `decision.json`,
+optionally `artifact.json` / `slice-metrics.json` / `trace_review.md`) into the
+run directory, assemble the derived files (`provenance.json`, `report.md`,
+`train.log`) with the generic bridge:
+
+```bash
+python3 scripts/assemble_factory_run.py runs/<id> --publish-check
+```
+
+It is metadata-only (no server, no training, no GPU eval): it computes the eval
+delta, hashes the real dataset sources into `provenance.json`, renders the
+`reports.md` template, and — with `--publish-check` — runs
+`check_factory_run_publish.py --allow-report-only`. The output validates against
+the typed Swift `FactoryRunFolder`. `scripts/render_sql_factory_run.py` remains
+the SQL-specific one-shot renderer for the routed POC.
+
 ## `config.json`
 
 ```json

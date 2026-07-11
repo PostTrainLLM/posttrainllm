@@ -224,8 +224,21 @@ Exit criteria:
    `bash evals/factory-publish-check-smoke.sh`.
 0.2. Run the docs golden-path smoke:
    `bash evals/docs-world-class-smoke.sh`.
-1. Wire real train/eval commands to emit the run schema automatically, using
-   `scripts/render_sql_factory_run.py` as the report-artifact bridge.
+0.3. Run the factory-run assembler bridge smoke:
+   `bash evals/factory-run-assemble-smoke.sh`.
+1. Wire real train/eval commands to emit the run schema automatically.
+   **Bridge half done (2026-07-11):** `scripts/assemble_factory_run.py` is the
+   generic report-artifact bridge. It turns the emitted fragments (`config`,
+   `dataset`, `eval-baseline`, `eval-candidate`, `decision`, optional
+   `artifact`/`slice-metrics`/`trace_review`) into a canonical run folder with
+   derived `provenance.json` (git + real dataset SHA-256) and `report.md` (eval
+   delta computed, not typed), and the output passes both
+   `scripts/check_factory_run_publish.py` and the typed Swift `FactoryRunFolder`
+   validator (smoke: `bash evals/factory-run-assemble-smoke.sh`).
+   `scripts/render_sql_factory_run.py` remains the SQL-specific one-shot renderer.
+   **Remaining (operator-verify-gated):** have the live Swift `sft` / `eval-gate`
+   / `eval-compare` commands drop those fragments during a real run — that half
+   is only end-to-end verifiable with a GPU train/eval pass.
 2. Run `scripts/build_sql_spider_execution_gate.py` against a local Spider DB
    bundle and score the current routed candidate on execution accuracy.
 3. Measure routed SQL latency, RAM/peak RSS, and tok/s

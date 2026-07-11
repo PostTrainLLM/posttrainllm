@@ -146,7 +146,12 @@ If a task does not answer one of those, park it.
 ### Active gaps
 
 - No single canonical factory command/readout yet. Existing commands are real,
-  but orchestration is still spread across scripts and docs.
+  but orchestration is still spread across scripts and docs. Partially closed
+  2026-07-11: `scripts/assemble_factory_run.py` is the generic report-artifact
+  bridge (fragments → canonical folder with derived provenance/report, passing
+  publish-check and the typed Swift schema; smoke
+  `evals/factory-run-assemble-smoke.sh`). Remaining: live Swift train/eval
+  commands emitting those fragments, which needs a real GPU run to verify.
 - Public artifacts are now tracked, but only one model package has committed
   package metadata and the SQL routed candidate is still report-only until a
   public execution SQL gate is added.
