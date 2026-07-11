@@ -124,6 +124,19 @@ watching exec; else fix the SFT data to emit a bare SELECT. Takeaway:
 reference anchoring is the validated cure for the SimPO collapse; format
 hygiene is a separate, still-open pressure problem.
 
+**Higher-pressure retry outcome (2026-07-11): retry-data — composed DPO ruled
+out for hygiene.** Ref-anchored DPO at beta 0.3 / 200 steps / lr 1e-5 drove the
+loss to 0.0073 and pushed composed execution to `0.920` (+0.060 vs baseline),
+but clean-SQL stayed `0.000`: the composed output keeps `Answer:` and the
+DPO-alone output keeps `The answer is:`. **Across two pressure regimes (gentle
+50-step and aggressive 200-step) composed rank-4 q/v DPO never removed the prose
+wrapper while execution only rose — output format is SFT/base-controlled, not
+DPO-reachable.** Decision: **retry-data**. The frozen `qwen06-sql-hygiene-dpo-v1`
+hygiene goal is now blocked on an **SFT-level fix**: rebuild the SFT training
+data with single bare-SELECT targets and re-SFT the synthetic adapter, then
+re-measure clean-SQL; only add hygiene DPO afterward if a residual wrapper
+remains. Run: `runs/2026-07-11-sql-hygiene-dpo-refanchored-b03-s200-qwen06/`.
+
 **TrainLoop-style additions required for the next SQL retry (2026-07-04):**
 
 1. Method-vs-recipe registry: `docs/techniques/`.

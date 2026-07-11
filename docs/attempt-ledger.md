@@ -160,9 +160,28 @@ SQL is the current factory POC and the best-documented attempt family.
   beta/lr, still ref-anchored) or an SFT-level format fix. Binary provenance
   matters: reproduced the 0.860 baseline exactly with a fresh swift-build DEBUG
   binary before scoring.
-- Next action: Higher-pressure reference-anchored DPO (150-300 steps and/or
-  beta 0.3, lr 1e-5) on the same pairs, watching exec for regression; else fix
-  the SFT data to emit a bare SELECT.
+- Next action: ~~Higher-pressure reference-anchored DPO...~~ Done 2026-07-11 (next entry).
+
+### Hygiene DPO higher-pressure retry (2026-07-11)
+
+- Recipe: Reference-anchored DPO at higher pressure (`--beta 0.3`, 200 steps,
+  lr 1e-5) on the same 108 frozen pairs; composed eval + DPO-alone.
+- Evidence: DPO loss `0.6931 -> 0.0073` (strong preference separation). Composed
+  execution `0.860 -> 0.920` (+0.060, exact 0.880); clean-SQL still `0.000`.
+  Composed output keeps `Answer:`; DPO-alone (exec 0.300) outputs `The answer
+  is:`. Run: `runs/2026-07-11-sql-hygiene-dpo-refanchored-b03-s200-qwen06/`.
+- Status: `failed` (for hygiene); decision `retry-data`.
+- Failure reason: Output format is SFT/base-controlled and not reachable by a
+  composed rank-4 q/v preference adapter — DPO perfectly separates the pairs
+  without changing greedy generation's opening tokens.
+- Lesson: **Composed DPO cannot fix output-format hygiene here — proven across
+  two pressure regimes (gentle 50-step and aggressive 200-step both leave clean
+  at 0.000 while execution only rises 0.860 → 0.900 → 0.920).** Preference
+  tuning is the wrong tool for format; the fix is SFT-level (bare-SELECT
+  targets). Positive side effect: execution improved every time.
+- Next action: Rebuild the SFT data with single bare-SELECT targets, re-SFT the
+  synthetic adapter, re-measure clean-SQL; add hygiene DPO only if residual
+  wrapper remains.
 
 ### SQL candidate selection
 
