@@ -144,6 +144,16 @@ export const artifacts: ArtifactEntry[] = [
           ["Route confidence", ">= 0.99", "all smoke rows"],
         ],
       },
+      {
+        title: "Output-hygiene DPO retries (composed, 50 heldout rows)",
+        columns: ["Run", "Execution", "Clean-SQL", "Decision"],
+        rows: [
+          ["Frozen baseline (SFT)", "0.860", "0.000", "reference"],
+          ["2026-07-04 ref-free SimPO", "0.080", "0.000", "retry-training (collapse)"],
+          ["2026-07-11 ref-anchored DPO", "0.900", "0.000", "retry-training"],
+          ["2026-07-11 higher-pressure DPO", "0.920", "0.000", "retry-data"],
+        ],
+      },
     ],
     evidence: [
       { label: "SQL POC report", href: "/docs/specialists/b1-sql-poc" },
@@ -158,9 +168,9 @@ export const artifacts: ArtifactEntry[] = [
         unblock: "Add BIRD Mini-Dev SQLite or Spider SQLite execution fixtures once the DB bundle is local.",
       },
       {
-        blocker: "Output hygiene",
-        why: "The scorer extracts the first SELECT; completions can still include prose after the query.",
-        unblock: "Add clean-SQL metric plus stopping/format preference data.",
+        blocker: "Output hygiene (raw completions carry an Answer:/Explanation: wrapper)",
+        why: "Two reference-anchored DPO retries (2026-07-04 SimPO collapse → fixed; 2026-07-11 gentle + higher-pressure) improved execution 0.860 → 0.900 → 0.920 but left the clean-SQL raw rate at 0.000. The wrapper is a base-model prose prior a rank-4 preference adapter can't strip — the 108 SFT targets are already bare SELECT. Composed DPO is ruled out for hygiene.",
+        unblock: "Generation-strength fix, not more DPO: stronger SFT (higher rank / more examples) or inference-time steering (constrained SELECT-prefix decoding / stop sequence). Execution is not the problem; only the wrapper is.",
       },
       {
         blocker: "Not a specialist package yet",
@@ -169,7 +179,7 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     nextAction:
-      "Publish this as a report artifact first. Do not present it as a shipped SQL model until public execution eval and clean-output gates pass.",
+      "Publish as a report artifact. Two hygiene DPO retries proved reference anchoring cures the SimPO collapse and even lifts execution to 0.920, but output hygiene needs a generation-strength fix (stronger SFT or constrained SELECT-prefix decoding), not more preference tuning. Do not present as a shipped SQL model until a public execution gate and clean-output gate pass.",
   },
   {
     slug: "qwen3-4b-file-ops-distilled",

@@ -36,15 +36,16 @@ import Default from "../layouts/Default.astro";
         <span class="highlight">on a laptop you already own.</span>
       </h1>
       <p class="hero-lede">
-        posttrainllm is a Swift codebase + 30&plus; CLI subcommands for the full
+        posttrainllm is a Swift codebase + 100&plus; CLI subcommands for the full
         post&#8209;training stack on Apple Silicon: train, distill from a local
         teacher, fine&#8209;tune with LoRA / DoRA / QLoRA, gate with real evals
         (BFCL, &tau;&#8209;bench, lm&#8209;eval), serve OpenAI&#8209;compatible,
         and open the model up with sparse autoencoders, MEMIT, activation
-        patching. Same model also trains and runs in a browser tab via
-        hand&#8209;written WebGPU kernels. The first packaged specialist is
-        honest by design: frontier&#8209;level on file&#8209;ops, routed only because
-        it regresses outside that domain.
+        patching. The Swift/MLX CLI is the factory; the same model also trains
+        and runs in a browser tab via hand&#8209;written WebGPU kernels &mdash; a
+        from&#8209;scratch learning track, now parked. The first packaged
+        specialist is honest by design: frontier&#8209;level on file&#8209;ops,
+        routed only because it regresses outside that domain.
       </p>
 
       <div class="hero-visual" aria-hidden="true">
@@ -304,6 +305,23 @@ import Default from "../layouts/Default.astro";
           <span class="step-detail">Every rollout is a token&#8209;preserving <code>.atraj</code>. Filter, dedupe (MinHash), emit ChatML SFT JSONL. Then loop to step&nbsp;02.</span>
         </li>
       </ol>
+
+      <p class="section-blurb loop-latest">
+        <strong>The loop has run end&#8209;to&#8209;end.</strong> Latest
+        (2026&#8209;07&#8209;11, <code>qwen06&#8209;sql&#8209;hygiene&#8209;dpo</code>):
+        reference&#8209;anchored DPO fixed an earlier ref&#8209;free SimPO collapse &mdash;
+        composed SQL execution went 0.860&nbsp;&rarr;&nbsp;0.900&nbsp;&rarr;&nbsp;0.920
+        across two retries with no regression &mdash; but output hygiene stayed at
+        0.000: the <code>Answer:</code> wrapper is a base&#8209;model prior a
+        rank&#8209;4 preference adapter can&rsquo;t strip. Decision:
+        <strong>retry&#8209;data</strong>, because the fix is
+        generation&#8209;strength, not more DPO. Every run assembles a
+        schema&#8209;valid folder (config &middot; dataset &middot; eval &middot;
+        decision &middot; report) via <code>posttrainllm factory&#8209;run</code>.
+        The one proof still missing is a run whose decision is <strong>ship</strong>.
+        &mdash; <a href="/docs/attempt-ledger">full attempt ledger</a> &middot;
+        <a href="/docs/NEXT">active queue &amp; decisions</a>
+      </p>
     </section>
 
     <!-- ========== PILLARS ========== -->
@@ -494,6 +512,13 @@ posttrainllm serve --model ./student.tinygpt --port 8080</code></pre>
               real catastrophic forgetting. Mixed&#8209;backend distillation
               is the documented fix.
             </li>
+            <li>
+              A proven ship loop. One specialist is released (file&#8209;ops);
+              the SQL specialist is still a <em>report&#8209;only candidate</em>,
+              blocked on a public execution gate and output hygiene. The one
+              proof still missing is a factory run whose decision is
+              <strong>ship</strong>.
+            </li>
             <li>Multi&#8209;GPU or distributed training. One device, single Mac.</li>
             <li>A cloud product. Nothing leaves the laptop unless <code>&#8209;&#8209;cloud&#8209;escalate</code> is set.</li>
             <li>An enterprise platform. No SSO, no tenancy, no SLA.</li>
@@ -507,10 +532,20 @@ posttrainllm serve --model ./student.tinygpt --port 8080</code></pre>
     <section class="learn" aria-labelledby="learn-h2">
       <h2 id="learn-h2" class="section-h2">Read the journey.</h2>
       <p class="section-blurb">
-        Decision logs and per&#8209;technique explainers; each ties back to
-        the paper it cites and the file where it lives.
+        A ground&#8209;up curriculum, decision logs, and per&#8209;technique
+        explainers &mdash; each ties back to the paper it cites and the file
+        where it lives. The attempt ledger keeps every worked, failed, and
+        retried experiment with its decision.
       </p>
       <div class="doc-grid">
+        <a class="doc-link" href="/docs/learn/curriculum">
+          <span class="doc-title">Ground&#8209;up learning curriculum</span>
+          <span class="doc-sub">10 modules from <code>y = mx + b</code> to a self&#8209;improving factory; every subsystem mapped to an anchor in the coverage map</span>
+        </a>
+        <a class="doc-link" href="/docs/attempt-ledger">
+          <span class="doc-title">Attempt ledger &mdash; what we tried</span>
+          <span class="doc-sub">Worked / failed / regressed / retried, each with its decision and lesson (incl. the SQL hygiene DPO retries)</span>
+        </a>
         <a class="doc-link" href="/docs/learn/tool-calling-frontier-parity">
           <span class="doc-title">Tool&#8209;calling: frontier&#8209;parity at 4B</span>
           <span class="doc-sub">The headline result, the distillation recipe, and the honest tradeoffs</span>
@@ -863,6 +898,16 @@ posttrainllm serve --model ./student.tinygpt --port 8080</code></pre>
     margin: 0 0 var(--s-5);
     max-width: 68ch;
     text-wrap: pretty;
+  }
+
+  .loop-latest {
+    margin-top: var(--s-6);
+    margin-bottom: 0;
+    padding: var(--s-4) var(--s-5);
+    border-left: 2px solid var(--accent);
+    background: var(--accent-glow);
+    border-radius: 0 8px 8px 0;
+    max-width: 82ch;
   }
 
   /* ========== NUMBER CARD ========== */
