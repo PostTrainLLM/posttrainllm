@@ -3748,6 +3748,19 @@ async function setupGallery(): Promise<void> {
     renderGallery(manifest!, dialog, grid, noteEl);
     dialog.showModal();
   });
+
+  // Deep link: /playground?gallery=<id> (e.g. the leaderboard "try →" button)
+  // opens the gallery and auto-loads that specific checkpoint. If the id is
+  // unknown, still open the gallery so the visitor lands on the model list.
+  const wantedId = new URLSearchParams(window.location.search).get("gallery");
+  if (wantedId) {
+    renderGallery(manifest, dialog, grid, noteEl);
+    dialog.showModal();
+    const target = grid.querySelector<HTMLButtonElement>(
+      `.gallery-card[data-id="${(window.CSS && CSS.escape) ? CSS.escape(wantedId) : wantedId}"]`,
+    );
+    if (target) target.click();
+  }
 }
 
 function renderGallery(

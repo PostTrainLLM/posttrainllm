@@ -103,13 +103,15 @@ table.board td.params { font-family: monospace; color: var(--muted); }
     </div>
 
     <div class="hero">
-      <h1>Leaderboard</h1>
+      <h1>Tiny models, browser-trained, ranked.</h1>
       <p class="sub">
-        Small models, browser-runnable, ranked. Each entry is a
-        <code>.tinygpt</code> checkpoint you can load and try in one click.
-        The launch benchmark is <strong>TinyStories PPL</strong> — perplexity
-        on a 50-story holdout. Lower is better. More benchmarks (sort-6,
-        reverse-16, shakespeare-ppl) land next.
+        This is the <strong>learning track</strong> — small byte-level GPTs you can
+        train from scratch <em>in a browser tab</em> and run instantly. It is not the
+        factory's specialist evals (those live under
+        <a href="/artifacts">specialists</a> and <a href="/docs/attempt-ledger">experiments</a>).
+        Each row is a <code>.tinygpt</code> checkpoint — hit <strong>try →</strong> to load
+        it in the playground. Ranked by <strong>TinyStories perplexity</strong> (a 50-story
+        holdout; lower is better); sort-6, reverse-16, and FineWeb tabs below.
       </p>
     </div>
 
@@ -262,7 +264,7 @@ table.board td.params { font-family: monospace; color: var(--muted); }
           '<td class="params">' + params + '</td>' +
           '<td class="score">' + formatScore(score, meta.lowerIsBetter) + '</td>' +
           '<td class="params">' + wall + '</td>' +
-          '<td><a href="/?gallery=' + encodeURIComponent(m.id) + '">try →</a></td>' +
+          '<td><a href="/playground?gallery=' + encodeURIComponent(m.id) + '">try →</a></td>' +
           '</tr>';
       }).join("");
     }
