@@ -1,18 +1,19 @@
 ---
 /**
- * DocLayout.astro — shared shell for rendered markdown docs.
+ * DocLayout.astro — shared shell for rendered markdown docs (/docs/*).
  *
- * Used by the pages under /docs/. Wraps imported markdown with the site's
- * dark theme + prose typography. The source markdown lives one level up in
- * `posttrainllm/docs/` (so GitHub renders the same content); these pages just
- * import + render via Astro's built-in markdown handling.
+ * Bright editorial "lab" theme, matching the homepage. The source markdown
+ * lives in `posttrainllm/docs/` (GitHub renders the same content); these pages
+ * import + render it via Astro's markdown handling. Restyling this one file
+ * themes every doc page cohesively.
  */
 import Default from "./Default.astro";
+import "../styles/system.css";
 
 export interface Props {
   title: string;
   description: string;
-  sourcePath: string;  // e.g. "docs/archive/lessons.md" — shown + linked to GitHub
+  sourcePath: string; // e.g. "docs/archive/lessons.md" — shown + linked to GitHub
 }
 
 const { title, description, sourcePath } = Astro.props;
@@ -24,200 +25,93 @@ const layoutProps = {
   ogType: "article" as const,
   ogTitle: `posttrainllm — ${title}`,
   ogDescription: description,
-  themeColor: "#0a0c10",
-  loadFonts: true,
+  themeColor: "#f5f6f8",
 };
-
-const style = `
-  :root {
-    --bg: #0a0c10;
-    --panel: #11141a;
-    --line: #232733;
-    --fg: #e7e8ea;
-    --muted: #c8cbd4;
-    --faint: #787d88;
-    --accent: #48e5c2;
-    --accent-dim: #2a8a78;
-    --accent-glow: rgba(72, 229, 194, 0.18);
-    --warn: #f5b14a;
-    --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", monospace;
-  }
-  html, body {
-    background: var(--bg); color: var(--fg);
-    font: 16px/1.7 var(--font-sans);
-    margin: 0; padding: 0;
-    -webkit-font-smoothing: antialiased;
-  }
-  .doc-wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 96px; }
-
-  .eyebrow {
-    font: 500 11px/1 var(--font-mono);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 14px;
-    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-  }
-  .eyebrow a { color: var(--accent); text-decoration: none; border-bottom: 1px dashed transparent; transition: border-color 0.2s; }
-  .eyebrow a:hover { border-bottom-color: var(--accent); }
-  .eyebrow .sep { color: var(--faint); }
-
-  .doc-source {
-    margin-bottom: 28px;
-    font: 11.5px/1.5 var(--font-mono);
-    color: var(--faint);
-    display: flex; gap: 10px; align-items: center;
-  }
-  .doc-source code {
-    background: rgba(72, 229, 194, 0.04);
-    border: 1px solid var(--line);
-    padding: 2px 6px;
-    border-radius: 4px;
-    color: var(--muted);
-  }
-  .doc-source a {
-    color: var(--accent);
-    text-decoration: none;
-    border-bottom: 1px dashed var(--accent-dim);
-  }
-  .doc-source a:hover { border-bottom-color: var(--accent); }
-
-  .prose h1 {
-    font: 600 32px/1.2 var(--font-sans);
-    color: var(--fg);
-    margin: 0 0 28px;
-    letter-spacing: -0.01em;
-  }
-  .prose h2 {
-    font: 600 22px/1.3 var(--font-sans);
-    color: var(--fg);
-    margin: 44px 0 16px;
-    letter-spacing: -0.005em;
-    padding-top: 12px;
-    border-top: 1px solid var(--line);
-  }
-  .prose h2:first-of-type { border-top: none; padding-top: 0; }
-  .prose h3 {
-    font: 600 17px/1.4 var(--font-sans);
-    color: var(--fg);
-    margin: 32px 0 12px;
-  }
-  .prose h4 {
-    font: 600 15px/1.4 var(--font-sans);
-    color: var(--muted);
-    margin: 24px 0 8px;
-  }
-  .prose p { color: var(--muted); margin: 0 0 16px; }
-  .prose strong { color: var(--fg); font-weight: 600; }
-  .prose em { color: var(--muted); font-style: italic; }
-
-  .prose a {
-    color: var(--accent);
-    text-decoration: none;
-    border-bottom: 1px dashed var(--accent-dim);
-    transition: border-color 0.15s;
-  }
-  .prose a:hover { border-bottom-color: var(--accent); }
-
-  .prose code {
-    font: 13.5px/1.5 var(--font-mono);
-    background: rgba(72, 229, 194, 0.05);
-    border: 1px solid var(--line);
-    padding: 1px 6px;
-    border-radius: 4px;
-    color: var(--muted);
-  }
-  .prose pre {
-    background: #0c0f15;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 14px 18px;
-    overflow-x: auto;
-    margin: 18px 0;
-    font: 13px/1.55 var(--font-mono);
-  }
-  .prose pre code {
-    background: none; border: none; padding: 0; border-radius: 0;
-    color: var(--muted);
-    font-size: inherit;
-  }
-
-  .prose ul, .prose ol { color: var(--muted); padding-left: 24px; margin: 12px 0 18px; }
-  .prose li { margin-bottom: 6px; }
-  .prose li::marker { color: var(--faint); }
-
-  .prose blockquote {
-    border-left: 2px solid var(--accent-dim);
-    background: rgba(72, 229, 194, 0.04);
-    margin: 18px 0;
-    padding: 12px 18px;
-    color: var(--muted);
-    border-radius: 0 6px 6px 0;
-  }
-  .prose blockquote p { margin: 0 0 8px; }
-  .prose blockquote p:last-child { margin-bottom: 0; }
-
-  .prose table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 18px 0;
-    font-size: 14px;
-  }
-  .prose th, .prose td {
-    border-bottom: 1px solid var(--line);
-    padding: 8px 12px;
-    text-align: left;
-  }
-  .prose th { color: var(--fg); font-weight: 500; background: rgba(72, 229, 194, 0.03); }
-  .prose td { color: var(--muted); }
-
-  .prose hr { border: none; border-top: 1px solid var(--line); margin: 36px 0; }
-
-  .doc-footer {
-    margin-top: 64px;
-    padding-top: 24px;
-    border-top: 1px solid var(--line);
-    font: 13px/1.6 var(--font-mono);
-    color: var(--faint);
-    display: flex; flex-wrap: wrap; gap: 12px;
-  }
-  .doc-footer a {
-    color: var(--accent);
-    text-decoration: none;
-    border-bottom: 1px dashed var(--accent-dim);
-  }
-  .doc-footer a:hover { border-bottom-color: var(--accent); }
-  .doc-footer .sep { color: var(--faint); }
-`;
 ---
 
 <Default {...layoutProps}>
-  <style is:global slot="head" set:html={style}></style>
-  <div class="doc-wrap">
-    <div class="eyebrow">
-      <a href="/">← posttrainllm</a>
-      <span class="sep">·</span>
-      <a href="/docs">docs</a>
-      <span class="sep">·</span>
-      <a href="/devlog">devlog</a>
-      <span class="sep">·</span>
-      <a href="/roadmap">roadmap</a>
-      <span class="sep">·</span>
-      <a href="/speedup">speedup</a>
-    </div>
-    <div class="doc-source">
-      source: <code>{sourcePath}</code> · <a href={githubUrl} target="_blank" rel="noopener">view on GitHub ↗</a>
-    </div>
+  <a class="skip-link" href="#doc">Skip to content</a>
+
+  <header class="topbar" role="banner">
+    <a class="brand-lockup" href="/" aria-label="posttrainllm home">
+      <span class="brand-mark" aria-hidden="true">p</span>
+      <span class="brand-name">posttrainllm</span>
+    </a>
+    <nav class="topnav" aria-label="Primary">
+      <a href="/artifacts">specialists</a>
+      <a href="/docs/attempt-ledger">experiments</a>
+      <a href="/docs/learn/curriculum">learn</a>
+      <a href="/leaderboard">evals</a>
+      <a href="/playground">playground</a>
+      <a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github ↗</a>
+    </nav>
+  </header>
+
+  <div class="doc-wrap" id="doc">
+    <nav class="doc-crumb" aria-label="Breadcrumb">
+      <a href="/docs">docs</a><span class="sep">/</span><span class="here">{title}</span>
+    </nav>
+    <p class="doc-source mono-label">
+      source <code>{sourcePath}</code> · <a href={githubUrl} target="_blank" rel="noopener">view on GitHub ↗</a>
+    </p>
     <article class="prose">
       <slot />
     </article>
-    <footer class="doc-footer">
-      <span>posttrainllm</span>
-      <span class="sep">·</span>
-      <a href="https://github.com/sarthak-fleet/posttrainllm">repo ↗</a>
-      <span class="sep">·</span>
-      <a href="/docs">other docs</a>
+    <footer class="doc-foot">
+      <a href="/docs">← all docs</a>
+      <a href={githubUrl} target="_blank" rel="noopener">edit on GitHub ↗</a>
     </footer>
   </div>
 </Default>
+
+<style is:global>
+  .doc-wrap { max-width: 74ch; margin-inline: auto; padding: clamp(40px, 6vw, 72px) var(--gutter) var(--s-10); }
+  .doc-crumb { font-family: var(--font-mono); font-size: var(--step--1); color: var(--fg-quiet); margin-bottom: var(--s-2); }
+  .doc-crumb a { color: var(--fg-soft); }
+  .doc-crumb a:hover { color: var(--brand); }
+  .doc-crumb .sep { margin: 0 8px; color: var(--line-strong); }
+  .doc-crumb .here { color: var(--fg); }
+  .doc-source { margin-bottom: var(--s-7); }
+  .doc-source code { background: var(--sunken); border: 1px solid var(--line); padding: 2px 6px; border-radius: 4px; color: var(--fg-soft); }
+  .doc-source a { color: var(--brand); }
+
+  /* ---------- prose ---------- */
+  .prose { color: var(--fg-soft); font-size: 1.02rem; line-height: 1.72; }
+  .prose > * + * { margin-top: var(--s-4); }
+  .prose h1 { font-family: var(--font-display); font-size: var(--step-4); font-weight: 640; letter-spacing: -0.035em; color: var(--ink); line-height: 1.08; margin-bottom: var(--s-5); }
+  .prose h2 { font-family: var(--font-display); font-size: var(--step-2); font-weight: 620; letter-spacing: -0.02em; color: var(--ink); margin-top: var(--s-8); margin-bottom: var(--s-3); padding-top: var(--s-5); border-top: 1px solid var(--line); }
+  .prose h2:first-of-type { border-top: 0; padding-top: 0; margin-top: var(--s-6); }
+  .prose h3 { font-family: var(--font-display); font-size: var(--step-1); font-weight: 600; color: var(--ink); margin-top: var(--s-6); margin-bottom: var(--s-2); }
+  .prose h4 { font-family: var(--font-mono); font-size: var(--step-0); font-weight: 500; color: var(--fg); margin-top: var(--s-5); margin-bottom: var(--s-2); }
+  .prose p { color: var(--fg-soft); }
+  .prose strong { color: var(--ink); font-weight: 620; }
+  .prose em { color: var(--fg); font-style: italic; }
+  .prose a { color: var(--brand); text-decoration: underline; text-decoration-color: color-mix(in oklab, var(--brand) 32%, transparent); text-underline-offset: 2px; transition: text-decoration-color var(--dur-1) var(--ease-out); }
+  .prose a:hover { text-decoration-color: var(--brand); }
+
+  .prose code { font-family: var(--font-mono); font-size: 0.86em; background: var(--sunken); border: 1px solid var(--line); padding: 1px 6px; border-radius: 5px; color: var(--live); }
+  /* code blocks: dark "instrument" inset — the signature lab contrast */
+  .prose pre { background: #0d1014; border: 1px solid #1e222b; border-radius: var(--r-2); padding: var(--s-4) var(--s-5); overflow-x: auto; margin-top: var(--s-5); margin-bottom: var(--s-5); font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.7; box-shadow: var(--shadow-2); }
+  .prose pre code { background: none; border: 0; padding: 0; border-radius: 0; color: #cfd3db; font-size: inherit; }
+
+  .prose ul, .prose ol { color: var(--fg-soft); padding-left: 1.4em; }
+  .prose li { margin-bottom: 5px; }
+  .prose li::marker { color: var(--live); }
+  .prose ul > li::marker { color: var(--brand); }
+
+  .prose blockquote { margin-top: var(--s-5); margin-bottom: var(--s-5); padding: var(--s-4) var(--s-5); background: var(--accent-wash); border: 1px solid color-mix(in oklab, var(--brand) 18%, var(--line)); border-radius: var(--r-2); color: var(--fg); }
+  .prose blockquote p { margin: 0; }
+  .prose blockquote p + p { margin-top: var(--s-2); }
+
+  .prose table { width: 100%; border-collapse: collapse; margin-top: var(--s-5); margin-bottom: var(--s-5); font-size: 0.92rem; display: block; overflow-x: auto; }
+  .prose th, .prose td { border-bottom: 1px solid var(--line); padding: 9px 14px; text-align: left; }
+  .prose thead th { color: var(--ink); font-weight: 600; border-bottom: 2px solid var(--ink); white-space: nowrap; }
+  .prose td { color: var(--fg-soft); font-variant-numeric: tabular-nums; }
+  .prose tbody tr:hover { background: var(--sunken); }
+
+  .prose hr { border: 0; border-top: 1px solid var(--line); margin-top: var(--s-7); margin-bottom: var(--s-7); }
+  .prose img { border-radius: var(--r-2); border: 1px solid var(--line); margin-top: var(--s-5); margin-bottom: var(--s-5); }
+
+  .doc-foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--s-4); margin-top: var(--s-9); padding-top: var(--s-5); border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: var(--step--1); }
+  .doc-foot a { color: var(--brand); }
+</style>
