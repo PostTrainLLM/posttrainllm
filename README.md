@@ -10,7 +10,7 @@ multi-turn agentic tool-calling gate** that Gemma-12B-qat scores 75%
 on. The full writeup, methodology, and head-to-head table is
 [`docs/learn/tool-calling-frontier-parity.md`](docs/learn/tool-calling-frontier-parity.md).
 
-**[Live browser playground →](https://posttrainllm.sarthakagrawal.dev)**
+**[Live browser playground →](https://posttrainllm.com)**
 · [Mac CLI quickstart](#quickstart-mac)
 · [Current factory plan](docs/NEXT.md)
 · [Frontier-parity result](docs/learn/tool-calling-frontier-parity.md)
@@ -29,7 +29,7 @@ on. The full writeup, methodology, and head-to-head table is
 | **Eval moat** | E0 shared schema · BFCL · τ-bench · lm-eval (MLX-routed) · HumanEval (sandbox-exec) · eval-gate (CI). | [`docs/leaderboard.md`](docs/leaderboard.md), [`docs/research/mac_slm_leaderboard_v0.md`](docs/research/mac_slm_leaderboard_v0.md) |
 | **Agent runtime** | OpenAI + Ollama-compatible local serve · multi-turn loop · FSM-constrained JSON · cloud-escalate · token-preserving `.atraj` trajectories. | [`docs/agent_runtime.md`](docs/agent_runtime.md) |
 | **Interp** | SAE (per-layer + group) · SAELens export · MEMIT · ROME · tuned/logit lens · activation patching. | [`docs/interpretability.md`](docs/interpretability.md) |
-| **Browser playground** | The original surface: GPT-2 trained from scratch in a browser tab via hand-written WebGPU. Parked for active factory work. | [`browser/`](browser/), [live](https://posttrainllm.sarthakagrawal.dev), [`docs/parked/browser.md`](docs/parked/browser.md) |
+| **Browser playground** | The original surface: GPT-2 trained from scratch in a browser tab via hand-written WebGPU. Parked for active factory work. | [`browser/`](browser/), [live](https://posttrainllm.com), [`docs/parked/browser.md`](docs/parked/browser.md) |
 | **ANE M8** | Layer-chunked Core ML chain running Qwen3-28-block on the Apple Neural Engine at ~17 tok/s. Parked until a shipped specialist needs runtime optimization. | [`docs/parked/ane-coreml.md`](docs/parked/ane-coreml.md) |
 
 ---
@@ -84,7 +84,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
 
 ## Quickstart (browser playground)
 
-Open **[posttrainllm.sarthakagrawal.dev](https://posttrainllm.sarthakagrawal.dev)**.
+Open **[posttrainllm.com](https://posttrainllm.com)**.
 
 - *Load pretrained model* — Shakespeare checkpoint, generate immediately.
 - *Train your own from scratch* — ~15 min on the larger presets,

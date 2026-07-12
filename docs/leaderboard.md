@@ -1,6 +1,6 @@
 # Leaderboard — benchmarks for tiny models
 
-The posttrainllm leaderboard at [/leaderboard.html](https://posttrainllm.sarthakagrawal.dev/leaderboard.html)
+The posttrainllm leaderboard at [/leaderboard.html](https://posttrainllm.com/leaderboard.html)
 ranks small, browser-runnable language models on a curated set of
 benchmarks. Three properties are non-negotiable:
 

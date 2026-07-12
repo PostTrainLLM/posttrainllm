@@ -206,7 +206,7 @@ What's in:
 - Code-sign with a Developer ID Application cert (paid Apple Dev
   account required — gate this milestone on that)
 - Notarize via `notarytool` and staple the ticket
-- Build a simple landing page (or add to `posttrainllm.sarthakagrawal.dev`)
+- Build a simple landing page (or add to `posttrainllm.com`)
   with the DMG download
 - Sparkle setup for auto-update (gate on Apple Dev approval)
 

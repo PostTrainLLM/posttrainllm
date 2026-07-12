@@ -4,7 +4,7 @@ The browser app in `browser/` is a Vite static build — no server, no API. It
 loads a pre-compiled WASM module from `browser/public/`, so the deploy
 environment does **not** need Emscripten; it only needs Node to run `vite build`.
 
-Target: **`posttrainllm.sarthakagrawal.dev`**, on Cloudflare Pages.
+Target: **`posttrainllm.com`**, on Cloudflare Pages.
 
 ## ⚠ Deploy-gating prerequisite — the WASM artifacts must be in the repo at build time
 
@@ -54,7 +54,7 @@ npx wrangler pages deploy dist --project-name=posttrainllm --commit-dirty=true
 
 That uploads `dist/` to the production environment. Output ends with
 `✨ Deployment complete! Take a peek over at https://<hash>.tinygpt.pages.dev`
-and the canonical `posttrainllm.sarthakagrawal.dev` updates immediately (CF Pages
+and the canonical `posttrainllm.com` updates immediately (CF Pages
 does no edge caching on `must-revalidate` files; HTML and assets are
 re-fetched on every request).
 
@@ -90,7 +90,7 @@ the new path.
 After the first successful deploy:
 
 1. In the Pages project: **Custom domains → Set up a custom domain**.
-2. Add `posttrainllm.sarthakagrawal.dev`. CF Pages will then sit in **Verifying**
+2. Add `posttrainllm.com`. CF Pages will then sit in **Verifying**
    state and show you a CNAME to add.
 3. **Add the CNAME manually**, even though `sarthakagrawal.dev` is on the
    same Cloudflare account. The "added automatically" claim that used to
@@ -109,7 +109,7 @@ After the first successful deploy:
 4. Back in Pages → Custom domains, click **Check DNS records**. It flips to
    **Active** in 30–60 s. SSL is then automatic.
 
-After a minute or two: <https://posttrainllm.sarthakagrawal.dev>.
+After a minute or two: <https://posttrainllm.com>.
 
 ## What ships
 
@@ -136,7 +136,7 @@ The posttrainllm case study on the portfolio
 but `demo:` deliberately omitted until the URL is live. Add:
 
 ```yaml
-demo: 'https://posttrainllm.sarthakagrawal.dev'
+demo: 'https://posttrainllm.com'
 ```
 
 and the case-study header will render a `live demo ↗` link.

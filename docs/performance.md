@@ -116,7 +116,7 @@ goal is one number — steady-state tokens/sec — that another contributor can
 reproduce on the same machine.
 
 **Prerequisites.** Open the live app at
-[posttrainllm.sarthakagrawal.dev](https://posttrainllm.sarthakagrawal.dev) (or run
+[posttrainllm.com](https://posttrainllm.com) (or run
 `cd browser && npm run dev` locally after `bash wasm/build_wasm.sh`). Use a
 desktop Chrome 113+ / Edge 113+ / Safari 18+ build. The app probes the WebGPU
 adapter on load and displays its vendor/device name; check that the displayed

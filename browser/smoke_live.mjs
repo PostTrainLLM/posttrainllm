@@ -1,5 +1,5 @@
 // smoke_live.mjs — pre-launch walkthrough of the deployed playground.
-// Verifies the full user flow end-to-end against https://posttrainllm.sarthakagrawal.dev
+// Verifies the full user flow end-to-end against https://posttrainllm.com
 // (or whatever SMOKE_URL points at). Reports each step pass/fail with timing.
 //
 // Run:  node browser/smoke_live.mjs
@@ -8,7 +8,7 @@
 import { chromium } from "playwright";
 import dns from "node:dns/promises";
 
-const SITE = process.env.SMOKE_URL || "https://posttrainllm.sarthakagrawal.dev";
+const SITE = process.env.SMOKE_URL || "https://posttrainllm.com";
 const isLive = SITE.startsWith("https://");
 
 const results = [];

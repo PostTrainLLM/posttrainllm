@@ -251,6 +251,6 @@ Most of the easy wins are done. What's left:
   both ways, lifts the ceiling into the 7B–30B range on Apple Silicon.
 
 Code, devlog, and roadmap: [github.com/sarthak-fleet/posttrainllm](https://github.com/sarthak-fleet/posttrainllm).
-Playground: [posttrainllm.sarthakagrawal.dev](https://posttrainllm.sarthakagrawal.dev).
+Playground: [posttrainllm.com](https://posttrainllm.com).
 
 — Sarthak Agrawal
