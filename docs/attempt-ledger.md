@@ -230,10 +230,10 @@ SQL is the current factory POC and the best-documented attempt family.
 
 - Evidence: depth `100%`, breadth `65%` vs stock breadth `60%`.
 - Status: `worked-with-caveat`.
-- Failure reason: The artifact is archived as a comparison model, not promoted as the selected specialist.
-- Lesson: Breadth recovery variants are useful evidence, but need current factory reports before promotion.
-- Next action: Promote only after a current eval report, package metadata, and routed-use decision exist.
-- Confidence: `inferred`.
+- Failure reason: Historical runtime and raw trace artifacts were not preserved, so the package cannot claim current latency/RAM/tok-s or a fresh qualitative review.
+- Lesson: Existing public weights can be promoted honestly when the measured delta, routing boundary, and missing evidence are explicit.
+- Next action: Keep it research-only unless a product-specific target justifies a fresh heavy eval and re-distillation.
+- Confidence: `exact` for artifact/package state; `inferred` for the rounded historical breadth result.
 
 ### Qwen3-4B multibackend distilled variant
 

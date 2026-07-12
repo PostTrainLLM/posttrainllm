@@ -1,0 +1,46 @@
+{
+  "id": "qwen3-4b-rest-fused",
+  "updated": "2026-07-13",
+  "evaluation_date": "2026-06-17",
+  "artifact": "hf://models/sarthakagrawal927/qwen3-4b-rest-fused",
+  "artifact_revision": "b332dfe437dc201922d50b28eddf0c99ebcc79a7",
+  "base": "Qwen/Qwen3-4B-Instruct-2507",
+  "precision": "bf16",
+  "training_method": "teacher-free ReST over checker-passing interleaved trajectories with a file-ops gold depth anchor",
+  "evidence_quality": "historical-results-without-raw-predictions",
+  "scores": [
+    {
+      "suite": "file_ops_hard_gate",
+      "n": 12,
+      "stock_4b": 0.58,
+      "rest_4b": 1.0,
+      "delta": 0.42,
+      "source": "docs/sessions/2026-06-17-stepback-inventory-roi.md"
+    },
+    {
+      "suite": "out_of_domain_breadth",
+      "n": 52,
+      "stock_4b": 0.596,
+      "rest_4b": 0.65,
+      "delta": 0.054,
+      "source": "docs/sessions/2026-06-17-stepback-inventory-roi.md"
+    }
+  ],
+  "performance": {
+    "training_cost_usd": 0,
+    "training_cost_note": "Teacher-free local ReST iteration; no paid model API was used.",
+    "training_time_seconds": null,
+    "eval_time_seconds": null,
+    "latency_ms": null,
+    "tokens_per_second": null,
+    "peak_rss_mb": null,
+    "missing_evidence": "Historical timing, memory, throughput, and raw trace artifacts were not preserved. A rerun is intentionally not implied by this metadata promotion."
+  },
+  "decision": "ship as a research specialist package; do not use as the Pace default planner",
+  "caveats": [
+    "The 65% breadth score is the rounded historical result recorded in project docs.",
+    "The breadth slice was directly compared with stock but not frontier-ceiling validated.",
+    "Raw prediction traces are unavailable for a current qualitative failure review.",
+    "Pace requires a different intent envelope and product-specific ship gate."
+  ]
+}

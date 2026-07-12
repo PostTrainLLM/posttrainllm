@@ -281,6 +281,83 @@ export const artifacts: ArtifactEntry[] = [
       "Keep routed-only warnings attached and add a consumer pull/load smoke before wiring this into any app.",
   },
   {
+    slug: "qwen3-4b-rest-fused",
+    title: "Qwen3-4B ReST Fused",
+    eyebrow: "Teacher-free breadth recovery",
+    state: "release-ready-weights",
+    date: "2026-07-13",
+    kind: "Research specialist package",
+    tags: ["agentic", "ReST", "tool calling", "BFCL"],
+    summary:
+      "A teacher-free ReST candidate that preserves the 100% file-ops gate while recovering out-of-domain breadth above the stock 4B baseline.",
+    lede:
+      "This is the factory's first narrow ship decision from an existing measured candidate: the public weights, frozen fixtures, package, and routing boundary are preserved, while missing historical performance and trace evidence stays visible.",
+    metrics: [
+      { label: "File-ops hard gate", value: "100%", context: "held from the distilled depth anchor" },
+      { label: "Breadth after ReST", value: "65%", context: "up from 59.6% stock 4B" },
+      { label: "Breadth delta", value: "+5.4pp", context: "52 held-out non-file-ops tasks" },
+      { label: "Paid API cost", value: "$0", context: "teacher-free local ReST iteration" },
+    ],
+    comparisons: [
+      {
+        name: "posttrainllm Qwen3-4B ReST",
+        metric: "out-of-domain breadth",
+        score: "65%",
+        size: "4B, 8.06GB stored",
+        comparability: "Direct",
+        note: "Recorded on the same 52-task breadth fixture and prompt family as stock.",
+      },
+      {
+        name: "Stock Qwen3-4B",
+        metric: "same out-of-domain breadth fixture",
+        score: "59.6%",
+        size: "4B",
+        comparability: "Direct",
+        note: "The ReST iteration recovers breadth without giving up the file-ops depth gate.",
+      },
+      {
+        name: "File-ops-only distilled 4B",
+        metric: "same out-of-domain breadth fixture",
+        score: "42.3%",
+        size: "4B",
+        comparability: "Direct",
+        note: "Shows the negative transfer that the ReST iteration was designed to recover.",
+      },
+    ],
+    tables: [
+      {
+        title: "Recorded result",
+        columns: ["Gate", "Stock", "ReST candidate", "Readout"],
+        rows: [
+          ["File-ops hard gate", "0.58", "1.00", "Depth preserved"],
+          ["Out-of-domain breadth", "0.596", "0.65", "+5.4 points over stock"],
+          ["Latency / RAM / tok-s", "not preserved", "not preserved", "No estimated values"],
+        ],
+      },
+    ],
+    evidence: [
+      { label: "Model card", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/specialists/qwen3-4b-rest-fused/model_card.md" },
+      { label: "Hugging Face model", href: "https://huggingface.co/sarthakagrawal927/qwen3-4b-rest-fused" },
+      { label: "Eval report", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/specialists/qwen3-4b-rest-fused/eval_report.json" },
+      { label: "ReST inventory", href: "/docs/sessions/2026-06-17-stepback-inventory-roi" },
+      { label: "Specialist registry", href: "https://github.com/sarthak-fleet/tinygpt/blob/main/specialists/registry.json" },
+    ],
+    blockers: [
+      {
+        blocker: "Historical performance evidence missing",
+        why: "The original run did not preserve latency, RAM, tok-s, elapsed time, or raw predictions.",
+        unblock: "Run a fresh product-specific gate only when a downstream integration justifies the heavy model work.",
+      },
+      {
+        blocker: "Not a Pace planner",
+        why: "Pace uses a different intent envelope and its own six-dimension ship gate.",
+        unblock: "Re-distill on Pace's action surface and clear the Pace gate before runtime wiring.",
+      },
+    ],
+    nextAction:
+      "Keep this package research-only. Freeze a product-specific target before spending compute on another eval or training run.",
+  },
+  {
     slug: "hf-specialist-model-archive-v1",
     title: "Hugging Face Specialist Model Archive v1",
     eyebrow: "Artifact storage cleanup",

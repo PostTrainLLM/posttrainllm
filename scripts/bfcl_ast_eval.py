@@ -14,7 +14,9 @@ Env: BACKEND, MODEL, ADAPTER, SHOW_FAILS=1
 """
 import sys, json, re, os, subprocess
 
-BFCL = os.path.expanduser("~/.cache/posttrainllm/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard/bfcl_eval/data")
+from bfcl_paths import resolve_bfcl_data
+
+BFCL = str(resolve_bfcl_data())
 CAT = sys.argv[1] if len(sys.argv) > 1 else "simple_python"
 N = int(sys.argv[2]) if len(sys.argv) > 2 else 25
 BACKEND = os.environ.get("BACKEND", "frontier")

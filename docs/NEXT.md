@@ -15,9 +15,9 @@ posttrainllm is a Mac-local specialist factory:
 target -> data -> post-training -> eval -> package -> report
 ```
 
-The next milestone is not another surface area expansion. It is one canonical
-factory run that starts from a frozen target and ends in a documented
-ship/reject decision.
+The canonical loop now has both retry and ship examples. The next milestone is
+not preselected: freeze a new target only when a concrete owner goal justifies
+another run. Do not keep a speculative training task alive between targets.
 
 ## Operating Rule
 
@@ -54,8 +54,11 @@ Before starting a new run or release push, update the artifact entry with:
 - blockers
 - next release action
 
-Current priority artifact: `qwen06-sql-routed-v1` as a public report artifact,
-not yet a shipped specialist package. Render its canonical report run with:
+Current shipped research artifact: `qwen3-4b-rest-fused`, with package metadata,
+public weights, a narrow routing decision, and historical-evidence caveats.
+
+Current report-only priority remains `qwen06-sql-routed-v1`. Render its canonical
+report run with:
 
 ```bash
 python3 scripts/render_sql_factory_run.py --out runs/2026-07-02-sql-routed-qwen06-v1
@@ -64,6 +67,11 @@ python3 scripts/render_sql_factory_run.py --out runs/2026-07-02-sql-routed-qwen0
 ### 1. Pick the Factory Target
 
 Choose exactly one target before training.
+
+**Queue state (2026-07-13): no active training target.** The ReST candidate was
+promoted through the canonical metadata/package/publish path and the prior SQL
+hygiene recipe reached its stop rule. Start another run only after freezing a
+new owner goal, baseline, candidate recipe, eval, and stop rule.
 
 Current POC target: SQL specialist. The low-compute fixture is
 `evals/sql-poc/`; the brief is `docs/specialists/b1-sql-poc.md`.

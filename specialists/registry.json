@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-07-03",
+  "updated": "2026-07-13",
   "packages": [
     {
       "id": "qwen3-4b-file-ops-distilled",
@@ -37,6 +37,41 @@
       "eval_report": "specialists/qwen3-4b-file-ops-distilled/eval_report.json",
       "prompt": "specialists/qwen3-4b-file-ops-distilled/prompt.md",
       "lock": "specialists/qwen3-4b-file-ops-distilled/tinygpt.lock.json"
+    },
+    {
+      "id": "qwen3-4b-rest-fused",
+      "name": "Qwen3-4B ReST Fused",
+      "kind": "mac-safetensors-hf",
+      "package_path": "specialists/qwen3-4b-rest-fused",
+      "artifact_path": "hf://models/sarthakagrawal927/qwen3-4b-rest-fused",
+      "storage": {
+        "primary": "huggingface_hub",
+        "repo_type": "model",
+        "repo_id": "sarthakagrawal927/qwen3-4b-rest-fused",
+        "status": "weights-published",
+        "r2": "legacy-optional-cache"
+      },
+      "base": "Qwen/Qwen3-4B-Instruct-2507",
+      "base_precision": "bf16",
+      "training": "teacher-free ReST over checker-passing interleaved trajectories with a file-ops depth anchor",
+      "status": "research-specialist",
+      "use_for": [
+        "Mac-local BFCL-style tool-calling research",
+        "explicitly routed agentic experiments"
+      ],
+      "do_not_use_for": [
+        "Pace default planner without re-distillation and its product ship gate",
+        "unqualified broad general-agent claims"
+      ],
+      "headline": {
+        "file_ops_hard_gate": "100%",
+        "out_of_domain_breadth": "65%",
+        "stock_4b_out_of_domain_breadth": "59.6%"
+      },
+      "model_card": "specialists/qwen3-4b-rest-fused/model_card.md",
+      "eval_report": "specialists/qwen3-4b-rest-fused/eval_report.json",
+      "prompt": "specialists/qwen3-4b-rest-fused/prompt.md",
+      "lock": "specialists/qwen3-4b-rest-fused/tinygpt.lock.json"
     }
   ]
 }

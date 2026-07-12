@@ -55,6 +55,7 @@ Public copy should prefer "we beat X on this exact local gate" only for
 | Artifact | Type | State | Public value | Next release action |
 |---|---|---|---|---|
 | `qwen3-4b-file-ops-distilled` | Specialist package | `release-ready-weights` | Shows a real posttrainllm-built routed specialist: 58% -> 100% on file-ops hard gate, with breadth regression disclosed. | Keep routed-only warnings prominent; add a loader/pull smoke when wiring consumers. |
+| `qwen3-4b-rest-fused` | Research specialist package | `release-ready-weights` | Teacher-free ReST preserved 100% file-ops depth and recovered breadth to 65% vs stock 59.6%. | Keep research-only; run a fresh product-specific gate before any runtime wiring. |
 | `hf-specialist-model-archive-v1` | Model archive index | `report-only` | Links every unique local specialist/conversion artifact moved to Hugging Face, and records which plain upstream caches were deleted. | Use as the storage index; promote individual models only after eval/report/package evidence exists. |
 | `qwen06-sql-routed-v1` | Routed SQL specialist POC | `report-ready-candidate` | Shows the factory/router pattern on SQL: public exact 0.531 and synthetic execution 0.860 using separate routed adapters. | Publish as report-only; package only after a public execution benchmark gate exists. |
 | `factory-run-schema-v1` | Process artifact | `report-only` | Explains the repeatable `target -> data -> post-training -> eval -> package -> report` contract. | Use the SQL routed rendered run as the canonical example. |
@@ -92,6 +93,32 @@ Release blockers:
 | Breadth regression is real | The model is unsafe as a general planner. | Keep routed-only positioning in all public copy. |
 | Frontier/breadth caveat remains | The breadth suite is directly comparable but not fully frontier-validated. | Keep caveat in model card; do not oversell as general capability. |
 
+### `qwen3-4b-rest-fused`
+
+Status: `release-ready-weights`
+
+Committed surface:
+
+- `specialists/qwen3-4b-rest-fused/model_card.md`
+- `specialists/qwen3-4b-rest-fused/eval_report.json`
+- `specialists/qwen3-4b-rest-fused/tinygpt.lock.json`
+- `specialists/qwen3-4b-rest-fused/prompt.md`
+- `specialists/registry.json`
+- HF repo: `https://huggingface.co/sarthakagrawal927/qwen3-4b-rest-fused`
+
+Recorded evidence:
+
+| Gate | Stock | ReST candidate |
+|---|---:|---:|
+| File-ops hard gate | 0.58 | 1.00 |
+| Out-of-domain breadth | 0.596 | 0.65 |
+
+Release decision: ship as a Mac-local research specialist package. Do not make
+it the Pace default planner: Pace has a different intent envelope and ship
+gate. The historical run did not preserve latency, RAM, tok/s, training time,
+or raw predictions; the package reports those fields as unavailable rather
+than estimating them.
+
 ### `hf-specialist-model-archive-v1`
 
 Status: `report-only`
@@ -107,7 +134,7 @@ Uploaded posttrainllm artifacts:
 | Local cache | HF repo | Status | Evidence / readout |
 |---|---|---|---|
 | `mt4b_fused` | `https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled` | Release-ready specialist | File-ops hard gate 58% -> 100%; breadth regression disclosed. |
-| `mt4b_rest_fused` | `https://huggingface.co/sarthakagrawal927/qwen3-4b-rest-fused` | Archive / comparison model | ReST breadth recovery variant: depth 100%, breadth 65% vs stock breadth 60%. |
+| `mt4b_rest_fused` | `https://huggingface.co/sarthakagrawal927/qwen3-4b-rest-fused` | Release-ready research specialist | ReST breadth recovery variant: depth 100%, breadth 65% vs stock breadth 59.6%; missing historical performance evidence disclosed. |
 | `mt4b_mb_fused` | `https://huggingface.co/sarthakagrawal927/qwen3-4b-multibackend-distilled` | Archive / failed attempt | Negative-transfer artifact: depth 100%, breadth 31%. |
 | `vibethinker-3b-mlx` | `https://huggingface.co/sarthakagrawal927/vibethinker-3b-mlx` | Archive / conversion | Local MLX conversion of `WeiboAI/VibeThinker-3B`. |
 | `vibe_distill_fused` | `https://huggingface.co/sarthakagrawal927/vibethinker-3b-agentic-distilled` | Archive / needs eval promotion | posttrainllm distilled VibeThinker variant; do not treat as a shipped specialist until a current eval report exists. |

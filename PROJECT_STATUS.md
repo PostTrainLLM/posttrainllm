@@ -1,6 +1,6 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-07-11
+Last updated: 2026-07-13
 
 ## Why / What
 
@@ -21,19 +21,26 @@ planner data, adapters, specialist packages, eval fixtures, and reports. Pace
 production must not depend on `posttrainllm serve`, localhost, or this repo's dev
 runtime.
 
-Current proof point:
+Current proof points:
 
 - First registered specialist package:
   `specialists/qwen3-4b-file-ops-distilled`.
 - It improves file-ops hard gate from 58% to 100%, but regresses
   out-of-domain breadth from 59.6% to 42.3%.
 - Therefore it is a routed specialist, not a general planner.
+- Second registered specialist package:
+  `specialists/qwen3-4b-rest-fused`.
+- Its recorded teacher-free ReST run retains the 100% file-ops gate and raises
+  the same breadth family from the stock 59.6% to 65%. It ships as a research
+  specialist, not a Pace default; historical performance and raw trace logs
+  were not preserved and are disclosed as missing evidence.
 
-The full loop has now executed end-to-end on a real candidate: the frozen
-`qwen06-sql-hygiene-dpo-v1` run (train → eval vs frozen baseline →
-schema-valid artifacts → documented decision) completed 2026-07-04 with a
-**retry-training** decision. The remaining missing proof is a run through the
-same loop whose decision is **ship**.
+The full loop has executed end-to-end with both outcomes: the frozen
+`qwen06-sql-hygiene-dpo-v1` run ended in a documented **retry-training**
+decision, while `qwen3-4b-rest-fused` now has a canonical assembled run,
+package, public weights, and narrow **ship** decision. The latter promotes
+existing measured evidence; it does not pretend the missing historical
+latency/RAM/tok-s and raw traces were recreated.
 
 ## Dependencies
 
@@ -67,6 +74,7 @@ Important constraints:
 
 | Date / phase | Status |
 |---|---|
+| 2026-07-13 ReST candidate promotion | Promoted public `qwen3-4b-rest-fused` weights into the second registered specialist package. Canonical metadata run passes the strict publish check with a narrow research-specialist ship decision: file-ops depth 100%, breadth 65% vs stock 59.6%. Added BFCL standalone/monorepo path resolution. Historical timing/RAM/tok-s and raw traces remain explicitly unavailable; no heavy rerun or Pace wiring was performed. |
 | 2026-07-11 ref-anchored DPO retries (×2) | Executed two full GPU factory loops on the frozen qwen06-sql-hygiene target. **(1)** Ref-anchored DPO (50 steps, lr 5e-6) **fixed the SimPO collapse** — composed exec 0.860 → 0.900 (SimPO retry was 0.080), DPO-alone healthy 0.120, step-1 loss 0.6931 ≈ log 2. **(2)** Higher-pressure retry (beta 0.3, 200 steps, lr 1e-5) drove loss to 0.0073 and exec to 0.920, but clean-SQL stayed 0.000. **Definitive: composed rank-4 DPO cannot fix output-format hygiene at any tested pressure** (both keep a prose wrapper while execution only rises). Decision **retry-data**. Diagnosis correction: SFT targets are already 108/108 bare SELECT — the `Answer:` wrapper is the base Qwen3-0.6B prose prior, so the fix is generation-strength (stronger SFT or inference steering / output post-process), not a data rebuild. Execution is not the problem (0.860 → 0.920); only the wrapper is. Both runs assembled via `scripts/assemble_factory_run.py` (validate + publish-check pass); runs gitignored. |
 | 2026-07-11 ground-up learning roadmap completed | Shipped: all 10 curriculum modules now have polished sessions (added `session-09-tensors`, `session-10-attention`, `session-11-evals-rewards` for the previously reference-only Modules 3/7/10), plus `docs/learn/coverage-map.md` mapping every shipped subsystem to a learning anchor. Guarded by `scripts/check_learning_roadmap.py` (`bash evals/learning-roadmap-smoke.sh`). |
 | 2026-07-04 first full factory decision | Shipped: frozen `qwen06-sql-hygiene-dpo-v1` candidate trained (SimPO), evaluated composed against the reproduced frozen baseline, and decided **retry-training** (policy collapse: exec 0.860 → 0.080). Schema-valid run in `runs/2026-07-03-sql-hygiene-dpo-qwen06/`. Also landed: DoRA-aware `bake-lora`, routed-SQL perf harness, clean-SQL scorer. |
@@ -89,9 +97,9 @@ Important constraints:
 
 | Product / artifact | State |
 |---|---|
-| Factory CLI | Main product surface. It has the commands needed for data prep, post-training, eval, traces, packaging, and reporting, but still needs one canonical factory-run command/readout path. |
+| Factory CLI | Main product surface. It has commands for data prep, post-training, eval, traces, packaging, reporting, and canonical factory-run render/validate/publish checks. |
 | Factory run artifacts | Target shape defined in `docs/factory/run-schema.md`; `runs/` is local-output and gitignored. |
-| Specialist packages | Pattern exists in `specialists/qwen3-4b-file-ops-distilled/`; needs the next candidate produced through the canonical run schema. |
+| Specialist packages | Two public-weight packages are registered: routed file-ops distillation and the breadth-recovering ReST research specialist. |
 | Public artifact registry | First-class release list lives in `docs/factory/public-artifacts.md`; website surface is `/artifacts`; every artifact carries blockers beside evidence. |
 | Eval gates | Strong fixture/no-GPU layer exists. Live GPU/full-suite gates remain operator-dependent. |
 | Browser playground | Live demo and proof of from-scratch/browser track. Parked for active factory work. |

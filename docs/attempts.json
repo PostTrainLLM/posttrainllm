@@ -18,7 +18,6 @@
       "lesson": "The SFT loop mechanics work, but eval splits must be frozen before claiming quality.",
       "next_action": "Use only as a loop sanity check; rely on heldout SQL evals for real claims.",
       "evidence_sources": [
-        "runs/2026-07-02-sql-poc-qwen06/report.md",
         "docs/specialists/b1-sql-poc.md"
       ],
       "source": "docs/specialists/b1-sql-poc.md"
@@ -33,11 +32,10 @@
       "lesson": "The synthetic SQL adapter is the current synthetic incumbent, but joins remain weaker than single-table rows.",
       "next_action": "Keep as the synthetic incumbent until a candidate beats it on the same heldout gate.",
       "evidence_sources": [
-        "runs/2026-07-02-sql-expanded-qwen06/report.md",
-        "runs/2026-07-02-sql-expanded-qwen06/failure-summary.json",
-        "docs/specialists/b1-sql-poc.md"
+        "docs/specialists/b1-sql-poc.md",
+        "docs/factory/public-artifacts.md"
       ],
-      "source": "runs/2026-07-02-sql-expanded-qwen06/report.md"
+      "source": "docs/factory/public-artifacts.md"
     },
     {
       "id": "sql-public-bmc2-v1",
@@ -159,8 +157,6 @@
       "lesson": "Routing preserves both measured slices, but artifact status still depends on public execution and performance evidence.",
       "next_action": "Add public execution gate, latency/RAM/tok-s measurement, and a package decision.",
       "evidence_sources": [
-        "runs/2026-07-02-sql-routed-qwen06-v1/report.md",
-        "runs/2026-07-02-sql-routed-qwen06-v1/decision.json",
         "docs/factory/public-artifacts.md"
       ],
       "source": "docs/factory/public-artifacts.md"
@@ -176,10 +172,10 @@
       "lesson": "Preference tuning needs reference anchoring, smaller updates, and composed-eval checks.",
       "next_action": "Retry with reference-anchored DPO or much lower LR/step count on the same frozen pairs.",
       "evidence_sources": [
-        "runs/2026-07-03-sql-hygiene-dpo-qwen06/report.md",
-        "runs/2026-07-03-sql-hygiene-dpo-qwen06/decision.json"
+        "PROJECT_STATUS.md",
+        "docs/NEXT.md"
       ],
-      "source": "runs/2026-07-03-sql-hygiene-dpo-qwen06/report.md"
+      "source": "PROJECT_STATUS.md"
     },
     {
       "id": "sql-candidate-selection",
@@ -249,12 +245,14 @@
       "family": "file-ops",
       "status": "worked-with-caveat",
       "evidence": "depth `100%`, breadth `65%` vs stock breadth `60%`",
-      "failure_reason": "The artifact is archived as a comparison model, not promoted as the selected specialist.",
+      "failure_reason": "Historical runtime and raw trace artifacts were not preserved, so the package cannot claim current latency/RAM/tok-s or a fresh qualitative review.",
       "failure_reason_confidence": "inferred",
-      "lesson": "Breadth recovery variants are useful evidence, but need current factory reports before promotion.",
-      "next_action": "Promote only after a current eval report, package metadata, and routed-use decision exist.",
+      "lesson": "Existing public weights can be promoted honestly when the measured delta, routing boundary, and missing evidence are explicit.",
+      "next_action": "Keep it research-only unless a product-specific target justifies a fresh heavy eval and re-distillation.",
       "evidence_sources": [
-        "docs/factory/public-artifacts.md"
+        "docs/factory/public-artifacts.md",
+        "specialists/qwen3-4b-rest-fused/eval_report.json",
+        "specialists/qwen3-4b-rest-fused/model_card.md"
       ],
       "source": "docs/factory/public-artifacts.md"
     },
