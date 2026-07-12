@@ -51,51 +51,12 @@ struct TrainHubView: View {
                 switch mode {
                 case .pretrain: TrainView()
                 case .finetune: FinetuneView()
-                case .dpo:      DPOStubView()
-                case .distill:  DistillStubView()
+                case .dpo:      DPOView()
+                case .distill:  DistillView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(Theme.base)
-    }
-}
-
-// Light stubs for DPO + Distill. They have shipped CLI surface but
-// no dedicated app view yet; these point users at the CLI + recipe docs.
-
-struct DPOStubView: View {
-    var body: some View {
-        WorkspaceShelf(title: "DPO — preference tuning",
-                       tagline: "Factory step for good-vs-bad examples after a baseline eval exists.",
-                       items: [
-                        .init("CLI shipped",
-                              "posttrainllm dpo <base> --data prefs.jsonl --out model.lora",
-                              .ok),
-                        .init("Recipe",
-                              "docs/recipes/distillation-fc.md describes the broader specialist arc",
-                              .info),
-                        .init("App UI",
-                              "parked until the CLI factory loop proves before/after improvement",
-                              .pending),
-                       ])
-    }
-}
-
-struct DistillStubView: View {
-    var body: some View {
-        WorkspaceShelf(title: "Distill — teacher → student",
-                       tagline: "Factory step for compressing a stronger teacher into a measured specialist.",
-                       items: [
-                        .init("CLI shipped",
-                              "posttrainllm distill --teacher <model> --student <preset> --data <jsonl>",
-                              .ok),
-                        .init("Recipe",
-                              "docs/recipes/distillation-fc.md — full Phi-3-mini → 22M function-calling spec",
-                              .info),
-                        .init("App UI",
-                              "parked until run-schema/report orchestration exists in the CLI",
-                              .pending),
-                       ])
     }
 }
