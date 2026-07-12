@@ -13,7 +13,7 @@ const layoutProps = {
   twitterTitle: "In-browser LLM inference (WebGPU)",
   twitterDescription:
     "Pull a Hugging Face model and run it client-side via WebGPU. No server.",
-  themeColor: "#08090a",
+  themeColor: "#0a0c0f",
 };
 
 // Curated models known to run under transformers.js + WebGPU (onnx-community
@@ -28,8 +28,9 @@ const CURATED = [
 ];
 
 const pageStyle = `
-:root{color-scheme:dark;--base:#08090a;--panel:#0d0e10;--panel-2:#141518;--line:#1d1f23;--line-strong:#2c2f35;--fg:#e7e8ea;--muted:#9296a0;--faint:#787d88;--accent:#48e5c2;--accent-dim:#1f6f5f;--gold:#f5b14a;--err:#ff6b6b;}
+:root{color-scheme:dark;--base: #0a0c0f;--panel:#0d0e10;--panel-2:#141518;--line:#1d1f23;--line-strong:#2c2f35;--fg:#e7e8ea;--muted:#9296a0;--faint:#787d88;--accent:#48e5c2;--accent-dim:#1f6f5f;--gold:#f5b14a;--err:#ff6b6b;}
 *{box-sizing:border-box}
+html,body{margin:0;background:var(--base);color:var(--fg);font-family:"Geist Variable",ui-sans-serif,system-ui,-apple-system,sans-serif}
 .wrap{max-width:880px;margin:0 auto;padding:32px 20px 80px}
 h1{font-size:1.6rem;margin:0 0 6px}
 .sub{color:var(--muted);margin:0 0 24px;line-height:1.5}

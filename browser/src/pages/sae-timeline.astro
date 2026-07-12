@@ -1,5 +1,6 @@
 ---
 import Default from "../layouts/Default.astro";
+import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
   title: "posttrainllm — SAE timeline",
@@ -9,17 +10,17 @@ const layoutProps = {
   ogDescription: "Browser viewer for posttrainllm sae --checkpoint-dir --timeline-out JSONL files.",
   twitterTitle: "posttrainllm — SAE timeline",
   twitterDescription: "Watch SAE reconstruction and L0 activity evolve over training checkpoints.",
-  themeColor: "#0a0c10",
+  themeColor: "#0a0c0f",
   loadFonts: false,
 };
 
 const pageStyle = `
   :root {
-    --bg: #0a0c10; --panel: #11141a; --line: #232733;
+    --bg: #0a0c0f; --panel: #11141a; --line: #232733;
     --fg: #e7e8ea; --muted: #c8cbd4; --faint: #787d88;
     --accent: #48e5c2; --warn: #f5b14a; --bad: #ec6a5c;
-    --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-mono: ui-monospace, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", monospace;
+    --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", monospace;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -110,6 +111,7 @@ const pageStyle = `
 ---
 
 <Default {...layoutProps}>
+  <SiteHeader mode="instrument" />
   <style is:global slot="head" set:html={pageStyle}></style>
   <div class="wrap">
     <h1>SAE timeline</h1>

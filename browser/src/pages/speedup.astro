@@ -14,13 +14,13 @@ const layoutProps = {
   ogDescription: "WASM SIMD vs hand-written WebGPU on the same GPT-2 model. The speedup is a curve, not a single number: GPU work amortizes better as d_model grows.",
   twitterTitle: "posttrainllm — 2.6× → 12.1× faster",
   twitterDescription: "WASM SIMD vs hand-written WebGPU. Small 2.6×, Medium 6.8×, Large 9.3×, XL 12.1× — the speedup grows with model size.",
-  themeColor: "#0a0c10",
+  themeColor: "#0a0c0f",
   loadFonts: false,
 };
 
 const pageStyle = `
       :root {
-        --bg: #0a0c10;
+        --bg: #0a0c0f;
         --panel: #11141a;
         --line: #232733;
         --fg: #e7e8ea;
@@ -30,8 +30,8 @@ const pageStyle = `
         --accent-dim: #2a8a78;
         --accent-glow: rgba(72, 229, 194, 0.18);
         --warn: #f5b14a;
-        --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        --font-mono: ui-monospace, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", monospace;
+        --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", monospace;
       }
       * { box-sizing: border-box; }
       html, body {

@@ -16,18 +16,19 @@ enum Theme {
     static let brand = Color(red: 255/255, green: 122/255, blue: 106/255)    // #ff7a6a
     static let brandBright = Color(red: 255/255, green: 145/255, blue: 132/255)
 
-    /// Surface colors — three depths matching the browser's `--base`, `--panel`,
-    /// `--panel-2`.
-    static let base = Color(red: 8/255, green: 9/255, blue: 10/255)
-    static let panel = Color(red: 13/255, green: 14/255, blue: 16/255)
-    static let panel2 = Color(red: 20/255, green: 21/255, blue: 24/255)
-    static let line = Color(red: 29/255, green: 31/255, blue: 35/255)
-    static let lineStrong = Color(red: 44/255, green: 47/255, blue: 53/255)
+    /// Surface colors — exactly the web system's `--paper`, `--paper-raised`,
+    /// `--paper-2`, `--rule`, `--rule-2` (browser/src/styles/system.css), so
+    /// the app and the site are literally one palette.
+    static let base = Color(red: 10/255, green: 12/255, blue: 15/255)        // #0a0c0f
+    static let panel = Color(red: 17/255, green: 20/255, blue: 25/255)       // #111419
+    static let panel2 = Color(red: 23/255, green: 27/255, blue: 34/255)      // #171b22
+    static let line = Color(red: 28/255, green: 33/255, blue: 42/255)        // #1c212a
+    static let lineStrong = Color(red: 42/255, green: 48/255, blue: 57/255)  // #2a3039
 
-    /// Foreground hierarchy.
-    static let fg = Color(red: 231/255, green: 232/255, blue: 234/255)
-    static let muted = Color(red: 146/255, green: 150/255, blue: 160/255)
-    static let faint = Color(red: 120/255, green: 125/255, blue: 136/255)
+    /// Foreground hierarchy — web `--ink`, `--ink-70`, `--ink-55`.
+    static let fg = Color(red: 234/255, green: 237/255, blue: 242/255)       // #eaedf2
+    static let muted = Color(red: 166/255, green: 173/255, blue: 185/255)    // #a6adb9
+    static let faint = Color(red: 115/255, green: 123/255, blue: 136/255)    // #737b88
 
     static let warn = Color(red: 245/255, green: 177/255, blue: 74/255)
     static let danger = Color(red: 255/255, green: 104/255, blue: 104/255)

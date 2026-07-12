@@ -47,11 +47,11 @@
 
   --step--1: clamp(0.78rem, 0.76rem + 0.1vw, 0.84rem);
   --step-0:  clamp(0.95rem, 0.92rem + 0.15vw, 1.02rem);
-  --step-1:  clamp(1.15rem, 1.06rem + 0.4vw, 1.4rem);
-  --step-2:  clamp(1.5rem, 1.32rem + 0.85vw, 2.05rem);
-  --step-3:  clamp(2rem, 1.62rem + 1.7vw, 3rem);
-  --step-4:  clamp(2.7rem, 2rem + 3.2vw, 4.6rem);
-  --step-5:  clamp(3.3rem, 2.1rem + 5.4vw, 6.4rem);
+  --step-1:  clamp(1.12rem, 1.05rem + 0.35vw, 1.3rem);
+  --step-2:  clamp(1.42rem, 1.28rem + 0.7vw, 1.85rem);
+  --step-3:  clamp(1.8rem, 1.5rem + 1.4vw, 2.5rem);
+  --step-4:  clamp(2.2rem, 1.7rem + 2.5vw, 3.4rem);
+  --step-5:  clamp(2.8rem, 2rem + 4.2vw, 4.9rem);
 
   /* ---- space ---- */
   --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px;
