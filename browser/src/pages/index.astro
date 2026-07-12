@@ -1,29 +1,32 @@
 ---
 import Default from "../layouts/Default.astro";
+import Logo from "../components/Logo.astro";
 import "../styles/system.css";
+
+const REPO = "https://github.com/sarthak-fleet/tinygpt";
 ---
 
 <Default
-  title="posttrainllm — an open-source LLM factory that lives on your Mac"
-  description="Distill routed specialists, package them for MLX, and know exactly where they fail. Train, fine-tune (LoRA / DoRA / QLoRA), evaluate (BFCL / τ-bench / lm-eval / SQL), serve OpenAI-compatible, and inspect with SAE / MEMIT / patching — all on one Apple Silicon machine. MIT. Built in the open by one developer."
-  themeColor="#f5f6f8"
-  ogTitle="posttrainllm — an open-source LLM factory that lives on your Mac"
-  ogDescription="Distill, fine-tune, evaluate, serve, and inspect LLMs on a single Mac. Runs in a browser tab too. MIT."
+  title="posttrainllm — a Mac-local LLM specialist factory"
+  description="An open research lab in one file: distill routed specialists, gate them on real evals (BFCL / τ-bench / lm-eval / SQL), package for MLX, and inspect with SAE / MEMIT / patching — all on one Apple Silicon machine. Trains in a browser tab too. MIT, built in the open."
+  themeColor="#0a0c0f"
+  ogTitle="posttrainllm — a Mac-local LLM specialist factory"
+  ogDescription="Distill, fine-tune, evaluate, serve, and inspect LLMs on a single Mac. An open research lab, built in the open. MIT."
 >
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="topbar" role="banner">
     <a class="brand-lockup" href="/" aria-label="posttrainllm home">
-      <span class="brand-mark" aria-hidden="true">p</span>
+      <Logo size={28} />
       <span class="brand-name">posttrainllm</span>
     </a>
     <nav class="topnav" aria-label="Primary">
       <a href="/artifacts">specialists</a>
-      <a href="/docs/attempt-ledger">experiments</a>
+      <a href="/devlog">devlog</a>
       <a href="/docs/learn/curriculum">learn</a>
       <a href="/leaderboard">evals</a>
       <a href="/playground">playground</a>
-      <a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github ↗</a>
+      <a href={REPO} rel="noopener">github ↗</a>
     </nav>
   </header>
 
@@ -31,95 +34,110 @@ import "../styles/system.css";
 
     <!-- ================= HERO ================= -->
     <section class="hero wrap">
-      <p class="hero-kicker mono-label">MIT · one developer · Apple Silicon</p>
-      <h1 class="hero-h1">
-        An LLM factory that fits<br />on <span class="ox">one&nbsp;Mac</span>.
-      </h1>
-      <p class="hero-lede">
-        posttrainllm turns a stock open model into a <em>routed specialist</em> that
-        earns its keep — then tells you exactly where it fails. Distill, fine-tune,
-        gate on real evals, package for MLX, and open the model up with
-        interpretability. 100+ CLI subcommands, one Apple&nbsp;Silicon machine, no cloud.
-      </p>
-      <div class="hero-cta">
-        <a class="btn btn-primary" href="/artifacts">See the specialists</a>
-        <a class="btn btn-ghost" href="/docs/quickstart">Read the quickstart</a>
+      <div class="hero-copy reveal">
+        <p class="hero-kicker mono-label"><span class="pulse"></span> a one-machine research lab · MIT</p>
+        <h1 class="hero-h1">The LLM factory<br />that fits on <span class="tl">one Mac</span>.</h1>
+        <p class="hero-lede">
+          posttrainllm turns a stock open model into a <em>routed specialist</em> that
+          earns its keep — then shows you exactly where it fails. Distill, fine-tune,
+          gate on real evals, package for MLX, and open the model up with
+          interpretability. One Apple&nbsp;Silicon machine. No cloud. No hand-waving.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="/artifacts">See the specialists</a>
+          <a class="btn btn-ghost" href="/playground">Train one in your browser →</a>
+        </div>
       </div>
 
-      <!-- live factory-loop specimen -->
-      <figure class="loop" data-theme="instrument" aria-label="The factory loop">
-        <figcaption class="loop-cap">
-          <span class="mono-label">the loop the runtime closes</span>
-          <span class="loop-live"><span class="dot"></span> last run 2026-07-11</span>
+      <figure class="hero-fig reveal" aria-label="A training loss curve descending — the mark of the lab">
+        <Logo size={64} glow={true} class="hero-logo" />
+        <svg class="losscurve" viewBox="0 0 420 220" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="lc" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#48e5c2" stop-opacity="0.22" />
+              <stop offset="1" stop-color="#48e5c2" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <path class="lc-fill" d="M0,26 C70,30 110,150 200,175 C280,196 340,200 420,203 L420,220 L0,220 Z" fill="url(#lc)" />
+          <path class="lc-line" d="M0,26 C70,30 110,150 200,175 C280,196 340,200 420,203" fill="none" stroke="#48e5c2" stroke-width="2.4" stroke-linecap="round" />
+          <circle class="lc-dot" cx="420" cy="203" r="4" fill="#48e5c2" />
+        </svg>
+        <figcaption class="hero-fig-cap">
+          <span>loss</span><span>huge-base-v1 · 200k steps · 0 spikes · loss 4.16</span>
         </figcaption>
+      </figure>
+
+      <ul class="hero-stats reveal" role="list">
+        <li><b>0.920</b><span>SQL execution, on-device</span></li>
+        <li><b>100<i>%</i></b><span>file-ops hard gate — from 58%</span></li>
+        <li><b>100<i>+</i></b><span>CLI subcommands, one binary</span></li>
+        <li><b>0</b><span>data leaves the laptop</span></li>
+      </ul>
+    </section>
+
+    <!-- ================= MANIFESTO ================= -->
+    <section class="manifesto">
+      <div class="wrap">
+        <p class="man-eyebrow mono-label">the thesis</p>
+        <h2 class="man-h2">
+          Not trying to win the frontier. Trying to reach frontier
+          <span class="tl">capability</span> at a fraction of the compute — and to
+          understand the whole machine while doing it.
+        </h2>
+        <div class="man-grid">
+          <p><b>Win on the Mac.</b> Be best-in-class at what one Apple&nbsp;Silicon machine can actually do — train, post-train, evaluate, serve, inspect — with no cluster and no cloud dependency.</p>
+          <p><b>Learn the whole space.</b> From <code>y = mx + b</code> to a self-improving factory. Every technique is built from scratch, anchored to the paper, and mapped to the file where it lives.</p>
+          <p><b>Show the scars.</b> Failed runs are first-class. Every attempt is logged with the decision it forced. A number without its regression is marketing, not a result.</p>
+          <p><b>Build everything buildable here.</b> If it fits on this Mac, it gets built — and packaged so that when compute arrives, the lab scales from a running start.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FACTORY LOOP ================= -->
+    <section class="band loop-band">
+      <div class="wrap">
+        <header class="band-head">
+          <h2>The loop the runtime closes.</h2>
+          <p class="band-sub">Each surface emits the input the next one needs. Every run ends in a schema-valid folder — config, dataset, eval, decision, report — that <code>factory-run</code> validates.</p>
+        </header>
         <ol class="loop-steps" role="list">
           <li><span class="ls-n">01</span><span class="ls-k">target</span><code>frozen</code></li>
           <li><span class="ls-n">02</span><span class="ls-k">data</span><code>5,675 rows</code></li>
           <li><span class="ls-n">03</span><span class="ls-k">post-train</span><code>dpo · 200 steps</code></li>
           <li><span class="ls-n">04</span><span class="ls-k">eval</span><code class="ok">exec 0.920</code></li>
-          <li><span class="ls-n">05</span><span class="ls-k">package</span><code>tgla / mlx</code></li>
-          <li class="ls-decide"><span class="ls-n">06</span><span class="ls-k">decide</span><code>retry-data</code></li>
+          <li><span class="ls-n">05</span><span class="ls-k">package</span><code>tgla · mlx</code></li>
+          <li class="dec"><span class="ls-n">06</span><span class="ls-k">decide</span><code>retry-data</code></li>
         </ol>
-        <p class="loop-note">
-          Every run assembles a schema-valid folder — config, dataset, eval, decision,
-          report — that <code>factory-run</code> validates. The one proof still missing
-          is a run whose decision is <span class="ship">ship</span>.
+        <p class="loop-latest mono-label">
+          latest · 2026-07-11 · qwen06-sql-hygiene-dpo · reference-anchored DPO fixed an earlier collapse, execution 0.860→0.920 with no regression — but output hygiene is a base-model prior, so the decision is <span class="dec-t">retry-data</span>. the one proof still missing is a run whose decision is <span class="ship">ship</span>.
         </p>
-      </figure>
-
-      <ul class="hero-stats" role="list">
-        <li><b>0.920</b><span>SQL execution, on-device</span></li>
-        <li><b>100%</b><span>file-ops hard gate (from 58%)</span></li>
-        <li><b>1×</b><span>Apple Silicon, zero cloud</span></li>
-        <li><b>MIT</b><span>open, one developer</span></li>
-      </ul>
+      </div>
     </section>
 
     <!-- ================= SPECIALISTS ================= -->
     <section class="band">
       <div class="wrap">
         <header class="band-head">
-          <h2>Specialists that are honest by design.</h2>
-          <p class="band-sub">
-            A specialist beats a generalist on its target and routes away when it
-            shouldn't answer. Every result here ships with the regression it costs.
-          </p>
+          <h2>Specialists, honest by design.</h2>
+          <p class="band-sub">A specialist beats a generalist on its target and routes away when it shouldn't answer. Every result ships with the regression it costs.</p>
         </header>
-
         <div class="spec-grid">
-          <article class="spec spec-lead">
-            <div class="spec-top">
-              <span class="mono-label">released · weights</span>
-              <h3>Qwen3-4B, file-ops distilled</h3>
-            </div>
-            <p class="spec-body">
-              Distilled to <strong>100%</strong> on the multi-turn file-ops hard gate
-              (BFCL), up from 58%. The honest cost: out-of-domain breadth dropped
-              <strong>60% → 42%</strong> — real catastrophic forgetting. So it ships
-              <em>routed</em>, never as a general planner.
-            </p>
+          <article class="spec">
+            <div class="spec-top"><span class="mono-label live">released · weights</span><span class="spec-badge">4B · MLX</span></div>
+            <h3>Qwen3-4B, file-ops distilled</h3>
+            <p class="spec-body">Distilled to <strong>100%</strong> on the multi-turn file-ops hard gate (BFCL), up from 58%. The honest cost: out-of-domain breadth dropped <strong>59.6% → 42.3%</strong> — real catastrophic forgetting. It ships <em>routed</em>, never as a general planner.</p>
             <dl class="spec-metrics">
-              <div><dt>file-ops gate</dt><dd>58% → <b>100%</b></dd></div>
-              <div><dt>OOD breadth</dt><dd class="down">60% → 42%</dd></div>
-              <div><dt>size</dt><dd>4B · MLX</dd></div>
+              <div><dt>file-ops gate</dt><dd>58 → <b>100%</b></dd></div>
+              <div><dt>OOD breadth</dt><dd class="down">59.6 → 42.3%</dd></div>
             </dl>
             <a class="spec-link" href="/docs/learn/tool-calling-frontier-parity">The distillation write-up →</a>
           </article>
-
           <article class="spec">
-            <div class="spec-top">
-              <span class="mono-label">report-only candidate</span>
-              <h3>Qwen3-0.6B, routed SQL</h3>
-            </div>
-            <p class="spec-body">
-              Two adapters behind a router: public schema-SQL and local execution-SQL.
-              Two reference-anchored DPO retries cured a policy collapse and pushed
-              execution to <strong>0.920</strong> — but output hygiene is a base-model
-              prior a small adapter can't strip. Decision: <em>retry-data</em>.
-            </p>
+            <div class="spec-top"><span class="mono-label brand">report-only candidate</span><span class="spec-badge">0.6B · routed</span></div>
+            <h3>Qwen3-0.6B, routed SQL</h3>
+            <p class="spec-body">Two adapters behind a router. Two reference-anchored DPO retries cured a policy collapse and pushed execution to <strong>0.920</strong> — but output hygiene is a base-model prior a small adapter can't strip. Decision: <em>retry-data</em>.</p>
             <dl class="spec-metrics">
               <div><dt>synthetic exec</dt><dd>0.860 → <b>0.920</b></dd></div>
-              <div><dt>public exact</dt><dd>0.531</dd></div>
               <div><dt>clean-SQL</dt><dd class="down">0.000</dd></div>
             </dl>
             <a class="spec-link" href="/artifacts/qwen06-sql-routed-v1">Full artifact + blockers →</a>
@@ -134,133 +152,62 @@ import "../styles/system.css";
       <div class="wrap">
         <header class="band-head">
           <h2>Measured, on one machine.</h2>
-          <p class="band-sub">Every number below was recorded on a single M5&nbsp;Pro / 48&nbsp;GB. No estimates.</p>
+          <p class="band-sub">Every figure below was recorded on a single Apple <strong>M5&nbsp;Pro / 48&nbsp;GB</strong>. No estimates, no extrapolation.</p>
         </header>
         <div class="metric-row" role="list">
           <div role="listitem"><b>76</b><span class="mu">tok/s</span><small>4B decode, MLX</small></div>
           <div role="listitem"><b>12.1×</b><span class="mu">speedup</span><small>WebGPU vs WASM, XL</small></div>
           <div role="listitem"><b>&lt;45s</b><span class="mu">per pass</span><small>50-row SQL eval</small></div>
           <div role="listitem"><b>0</b><span class="mu">spikes</span><small>200k pretrain steps</small></div>
-          <div role="listitem"><b>2×</b><span class="mu">half memory</span><small>ref-free vs DPO</small></div>
+          <div role="listitem"><b>½</b><span class="mu">memory</span><small>ref-free vs DPO</small></div>
         </div>
       </div>
     </section>
 
-    <!-- ================= WHAT SHIPS ================= -->
+    <!-- ================= THE STACK ================= -->
     <section class="band">
       <div class="wrap">
         <header class="band-head">
-          <h2>The whole stack, audited against the code.</h2>
-          <p class="band-sub">Not a wrapper. Every capability below is a real subcommand with tests behind it.</p>
+          <h2>The whole stack — audited against the code.</h2>
+          <p class="band-sub">Not a wrapper. Every capability is a real subcommand with tests behind it.</p>
         </header>
         <div class="pillars">
-          <div class="pillar">
-            <span class="pillar-i mono-label">train</span>
-            <p>Pretrain, SFT, DPO / SimPO / KTO / ORPO, distillation, ES. Full PEFT bundle — LoRA, LoRA+, DoRA, VeRA, LoftQ, AdaLoRA, PISSA. WSD schedules, spike recovery, z-loss.</p>
-          </div>
-          <div class="pillar">
-            <span class="pillar-i mono-label">eval</span>
-            <p>BFCL, τ-bench, lm-eval (MLX adapter), HumanEval + sandbox, SQL execution, router, MILU, MTEB. Frozen baselines, slice metrics, exit-non-zero gates.</p>
-          </div>
-          <div class="pillar">
-            <span class="pillar-i mono-label">serve</span>
-            <p>OpenAI- and Ollama-compatible on one socket. Agent loop, tool dispatch, FSM-constrained JSON, persistent KV cache, speculative decoding, optional cloud escalation.</p>
-          </div>
-          <div class="pillar">
-            <span class="pillar-i mono-label">package</span>
-            <p>Export to MLX, safetensors, CoreML. Quantize (GGUF / AWQ / GPTQ / HQQ), prune, merge, bake-LoRA — DoRA magnitudes included. Specialist model cards.</p>
-          </div>
-          <div class="pillar">
-            <span class="pillar-i mono-label">inspect</span>
-            <p>SAE features, ROME, MEMIT, tuned / logit lens, activation patching, linear probes, attention heatmaps. Know <em>where</em> the model decides, not just what it answers.</p>
-          </div>
-          <div class="pillar">
-            <span class="pillar-i mono-label">browser</span>
-            <p>The same model trains in a browser tab via hand-written WebGPU kernels — Memory64, FlashAttention-2, blocked matmul. A from-scratch learning track, honest negative results and all.</p>
-          </div>
+          <div class="pillar"><span class="pillar-i mono-label">train</span><p>Pretrain, SFT, DPO / SimPO / KTO / ORPO, distillation, ES. Full PEFT — LoRA, LoRA+, DoRA, VeRA, LoftQ, AdaLoRA, PISSA. WSD schedules, spike recovery, z-loss.</p></div>
+          <div class="pillar"><span class="pillar-i mono-label">eval</span><p>BFCL, τ-bench, lm-eval (MLX adapter), HumanEval + sandbox, SQL execution, router, MILU, MTEB. Frozen baselines, slice metrics, non-zero-exit gates.</p></div>
+          <div class="pillar"><span class="pillar-i mono-label">serve</span><p>OpenAI- and Ollama-compatible on one socket. Agent loop, tool dispatch, FSM-constrained JSON, persistent KV cache, speculative decoding, optional cloud escalation.</p></div>
+          <div class="pillar"><span class="pillar-i mono-label">package</span><p>Export to MLX, safetensors, CoreML. Quantize (GGUF / AWQ / GPTQ / HQQ), prune, merge, bake-LoRA with DoRA magnitudes. Specialist model cards.</p></div>
+          <div class="pillar"><span class="pillar-i mono-label">inspect</span><p>SAE features, ROME, MEMIT, tuned / logit lens, activation patching, linear probes, attention heatmaps. Know <em>where</em> the model decides.</p></div>
+          <div class="pillar"><span class="pillar-i mono-label">browser</span><p>The same model trains in a browser tab via hand-written WebGPU kernels — Memory64, FlashAttention-2, blocked matmul. A from-scratch learning track, honest negative results included.</p></div>
         </div>
       </div>
     </section>
 
-    <!-- ================= EXPERIMENTS ================= -->
+    <!-- ================= LAB LOGS ================= -->
     <section class="band band-alt">
-      <div class="wrap wrap-narrow">
-        <header class="band-head">
-          <h2>The work shows its scars.</h2>
-          <p class="band-sub">
-            A factory is a loop, not a demo. Failed runs become the next recipe — and
-            all of it is written down, with the decision it forced.
-          </p>
-        </header>
-        <ol class="ledger" role="list">
-          <li>
-            <span class="led-date mono-label">07-04</span>
-            <div>
-              <p class="led-what"><strong>Ref-free SimPO collapsed the SQL policy.</strong> Execution 0.860 → 0.080, degenerate fence-spam.</p>
-              <p class="led-dec">→ <span class="tag">retry-training</span> preference tuning needs a reference anchor.</p>
-            </div>
-          </li>
-          <li>
-            <span class="led-date mono-label">07-11</span>
-            <div>
-              <p class="led-what"><strong>Reference-anchored DPO fixed the collapse.</strong> Execution recovered to 0.900, then 0.920 at higher pressure — no regression.</p>
-              <p class="led-dec">→ <span class="tag">retry-data</span> execution was never the problem; the <code>Answer:</code> wrapper is a base-model prior.</p>
-            </div>
-          </li>
-          <li>
-            <span class="led-date mono-label">now</span>
-            <div>
-              <p class="led-what"><strong>Diagnosis corrected in the open.</strong> The 108 SFT targets were already bare SQL — so hygiene needs a generation-strength fix, not more DPO.</p>
-              <p class="led-dec">→ next: constrained SELECT-prefix decoding.</p>
-            </div>
-          </li>
-        </ol>
-        <a class="band-more" href="/docs/attempt-ledger">The full attempt ledger →</a>
-      </div>
-    </section>
-
-    <!-- ================= LEARN ================= -->
-    <section class="band">
       <div class="wrap">
         <header class="band-head">
-          <h2>Built to be learned from.</h2>
-          <p class="band-sub">A ground-up curriculum and per-technique explainers — each tied to the paper it cites and the file where it lives.</p>
+          <h2>The lab keeps a paper trail.</h2>
+          <p class="band-sub">Every experiment, lesson, and recipe is written down — with the decision it forced and the file it lives in.</p>
         </header>
-        <div class="learn-grid">
-          <a class="learn-card learn-lead" href="/docs/learn/curriculum">
-            <span class="mono-label">the curriculum</span>
+        <div class="logs">
+          <a class="log log-lead" href="/docs/learn/curriculum">
+            <span class="mono-label live">learning log</span>
             <h3>Ground-up, in 10 modules</h3>
-            <p>From <code>y = mx + b</code> to a self-improving factory. Every subsystem in the repo maps to an anchor in the coverage map — nothing is a black box.</p>
-            <span class="learn-go">Start module 1 →</span>
+            <p>From <code>y = mx + b</code> to a self-improving factory. Every subsystem maps to an anchor in the coverage map — nothing is a black box.</p>
+            <span class="log-go">Open the curriculum →</span>
           </a>
-          <a class="learn-card" href="/docs/learn/tool-calling-frontier-parity">
-            <span class="mono-label">case study</span>
-            <h4>Frontier-parity at 4B</h4>
-            <p>The headline result, the recipe, the honest tradeoffs.</p>
-          </a>
-          <a class="learn-card" href="/docs/interpretability">
-            <span class="mono-label">interpretability</span>
-            <h4>Where the model decides</h4>
-            <p>Logit / tuned lens, patching, SAE, ROME, MEMIT.</p>
-          </a>
-          <a class="learn-card" href="/docs/distillation">
-            <span class="mono-label">distillation</span>
-            <h4>Teacher → student</h4>
-            <p>KL + NLL mix, temperature, α, rejection sampling.</p>
-          </a>
-          <a class="learn-card" href="/leaderboard">
-            <span class="mono-label">evals</span>
-            <h4>The leaderboard</h4>
-            <p>Drop a JSONL; compare by step, model, task.</p>
-          </a>
+          <a class="log" href="/docs/attempt-ledger"><span class="mono-label">attempt ledger</span><h4>What we tried</h4><p>Worked · failed · regressed · retried — each with a decision.</p></a>
+          <a class="log" href="/devlog"><span class="mono-label">devlog</span><h4>How it was built</h4><p>Kernels, bugs, and the surprises worth more than the code.</p></a>
+          <a class="log" href="/docs/techniques/README"><span class="mono-label">recipes</span><h4>Method → recipe</h4><p>Not "try DPO" — a named failure mode, data, gate, and stop rule.</p></a>
+          <a class="log" href="/docs/interpretability"><span class="mono-label">interpretability</span><h4>Where it decides</h4><p>Lens, patching, SAE, ROME, MEMIT.</p></a>
         </div>
       </div>
     </section>
 
     <!-- ================= HONEST + RUN ================= -->
-    <section class="band band-close">
+    <section class="band">
       <div class="wrap honest-wrap">
-        <div class="honest-col">
+        <div>
           <h2>Honest scope.</h2>
           <ul class="honest-list is">
             <li>A single-developer project, shipping in public, MIT.</li>
@@ -274,16 +221,16 @@ import "../styles/system.css";
             <li>Not a cloud product. Nothing leaves the laptop unless you ask.</li>
           </ul>
         </div>
-        <aside class="run-col" data-theme="instrument">
-          <span class="mono-label">run it</span>
-          <pre class="run-block"><code><span class="c">// one Mac, from source</span>
-git clone posttrainllm && cd native-mac
+        <aside class="run-col">
+          <span class="mono-label live">run it — one Mac, from source</span>
+          <pre class="run-block"><code><span class="c"># build the native factory</span>
+git clone …/tinygpt && cd native-mac
 swift build --product posttrainllm
 
-<span class="c">// train a specialist, gate it, serve it</span>
-posttrainllm distill --teacher qwen3 --student ...
-posttrainllm eval-gate --spec sql.json --candidate ...
-posttrainllm serve --port 8080  <span class="c">// OpenAI-compatible</span></code></pre>
+<span class="c"># distill a specialist, gate it, serve it</span>
+posttrainllm distill --teacher qwen3 --student …
+posttrainllm eval-gate --spec sql.json --candidate …
+posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code></pre>
           <a class="btn btn-primary" href="/docs/quickstart">Full quickstart →</a>
         </aside>
       </div>
@@ -292,147 +239,125 @@ posttrainllm serve --port 8080  <span class="c">// OpenAI-compatible</span></cod
   </main>
 
   <footer class="site-footer">
-    <div class="wrap foot-wrap">
-      <span>posttrainllm — an LLM factory for one Mac. MIT.</span>
-      <span class="foot-links">
-        <a href="/artifacts">specialists</a>
-        <a href="/docs/attempt-ledger">experiments</a>
-        <a href="/docs/README">docs</a>
-        <a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github ↗</a>
-      </span>
+    <div class="wrap">
+      <div class="foot-top">
+        <a class="brand-lockup" href="/"><Logo size={26} /><span class="brand-name">posttrainllm</span></a>
+        <nav class="foot-links" aria-label="Footer">
+          <a href="/artifacts">specialists</a>
+          <a href="/devlog">devlog</a>
+          <a href="/docs/learn/curriculum">learn</a>
+          <a href="/docs/attempt-ledger">experiments</a>
+          <a href="/docs/README">docs</a>
+          <a href={REPO} rel="noopener">github ↗</a>
+        </nav>
+      </div>
+      <p class="foot-disclaimer">
+        Every performance figure on this site was measured on a single Apple
+        <strong>M5&nbsp;Pro (18-core GPU) with 48&nbsp;GB unified memory</strong> —
+        one machine, no cluster, no cloud. Model-quality numbers are on frozen,
+        documented evals; where a result is a candidate and not shipped, the page
+        says so. Built in the open by one developer. MIT-licensed.
+      </p>
     </div>
   </footer>
 </Default>
 
 <style is:global>
+  .landing { padding-bottom: 0; }
+
   /* ---------- hero ---------- */
-  .landing { padding-bottom: var(--s-9); }
-  .hero { padding-top: clamp(var(--s-8), 9vw, var(--s-10)); padding-bottom: var(--s-9); }
-  .hero-kicker { margin-bottom: var(--s-5); }
-  .hero-h1 { font-size: var(--step-5); font-weight: 640; letter-spacing: -0.04em; }
-  .hero-h1 .ox { color: var(--brand); }
-  .hero-lede {
-    max-width: 60ch; margin-top: var(--s-5);
-    font-size: var(--step-1); line-height: 1.55; color: var(--fg-soft);
+  .hero {
+    display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(28px, 5vw, 64px);
+    align-items: center; padding-top: clamp(48px, 8vw, 104px); padding-bottom: var(--s-9);
   }
+  @media (max-width: 900px) { .hero { grid-template-columns: 1fr; } }
+  .hero-kicker { display: inline-flex; align-items: center; gap: 9px; margin-bottom: var(--s-5); color: var(--fg-soft); }
+  .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--live); box-shadow: 0 0 0 0 var(--live); animation: pulse 2.6s var(--ease-out) infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(72,229,194,0.5); } 70% { box-shadow: 0 0 0 8px rgba(72,229,194,0); } 100% { box-shadow: 0 0 0 0 rgba(72,229,194,0); } }
+  .hero-h1 { font-size: var(--step-5); font-weight: 700; letter-spacing: -0.04em; }
+  .hero-h1 .tl { color: var(--live); }
+  .hero-lede { max-width: 54ch; margin-top: var(--s-5); font-size: var(--step-1); line-height: 1.55; color: var(--fg-soft); }
   .hero-lede em { color: var(--fg); font-style: normal; font-weight: 560; }
   .hero-cta { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-6); }
 
-  /* factory-loop specimen (dark instrument card in the light page) */
-  .loop {
-    margin-top: var(--s-8);
-    background: var(--paper);
-    color: var(--ink);
-    border: 1px solid var(--rule);
-    border-radius: var(--r-4);
-    padding: clamp(var(--s-5), 3vw, var(--s-7));
-    box-shadow: var(--shadow-3);
-    position: relative; overflow: hidden;
+  .hero-fig { position: relative; border: 1px solid var(--line); border-radius: var(--r-4); background: linear-gradient(180deg, var(--paper-raised), var(--paper)); padding: var(--s-6); box-shadow: var(--shadow-3); overflow: hidden; min-height: 260px; display: flex; flex-direction: column; }
+  .hero-fig::after { content: ""; position: absolute; inset: 0; background: radial-gradient(90% 60% at 80% 0%, rgba(72,229,194,0.10), transparent 60%); pointer-events: none; }
+  .hero-logo { position: relative; z-index: 2; }
+  .losscurve { position: absolute; left: 0; right: 0; bottom: 34px; width: 100%; height: 62%; }
+  @media (prefers-reduced-motion: no-preference) {
+    .lc-line { stroke-dasharray: 620; stroke-dashoffset: 620; animation: draw 1.8s var(--ease-out-expo) 0.2s forwards; }
+    .lc-fill { opacity: 0; animation: fadein 1.2s var(--ease-out) 1.1s forwards; }
+    .lc-dot { opacity: 0; animation: fadein 0.4s ease 1.9s forwards; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    @keyframes fadein { to { opacity: 1; } }
   }
-  .loop::before {
-    content: ""; position: absolute; inset: 0;
-    background: radial-gradient(120% 80% at 85% -10%, var(--live-wash), transparent 60%);
-    pointer-events: none;
-  }
-  .loop-cap {
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
-    gap: var(--s-3); margin-bottom: var(--s-5);
-  }
-  .loop-live { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: var(--step--1); color: var(--live); }
-  .loop-live .dot {
-    width: 7px; height: 7px; border-radius: 50%; background: var(--live-bright);
-    box-shadow: 0 0 0 0 var(--live-bright); animation: pulse 2.4s var(--ease-out) infinite;
-  }
-  @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(72,229,194,0.5); }
-    70% { box-shadow: 0 0 0 7px rgba(72,229,194,0); }
-    100% { box-shadow: 0 0 0 0 rgba(72,229,194,0); }
-  }
-  .loop-steps {
-    list-style: none; padding: 0; margin: 0;
-    display: grid; grid-template-columns: repeat(6, 1fr); gap: 0;
-    border: 1px solid var(--rule); border-radius: var(--r-2); overflow: hidden;
-  }
-  .loop-steps li {
-    padding: var(--s-4) var(--s-4) var(--s-5);
-    display: flex; flex-direction: column; gap: 7px;
-    border-right: 1px solid var(--rule);
-    position: relative;
-  }
-  .loop-steps li:last-child { border-right: 0; }
-  .loop-steps li::after {
-    content: "→"; position: absolute; right: -8px; top: 50%; transform: translateY(-50%);
-    color: var(--ink-55); font-size: 13px; z-index: 1; background: var(--paper-raised);
-    width: 16px; text-align: center;
-  }
-  .loop-steps li:last-child::after { content: ""; }
-  .ls-n { font-family: var(--font-mono); font-size: 11px; color: var(--ink-55); }
-  .ls-k { font-size: var(--step--1); color: var(--fg-soft); font-weight: 500; }
-  .loop-steps code { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); }
-  .loop-steps code.ok { color: var(--live); }
-  .loop-steps .ls-decide code { color: var(--brand); }
-  .loop-note { margin-top: var(--s-5); font-size: var(--step-0); color: var(--fg-soft); max-width: 70ch; }
-  .loop-note code { color: var(--live); font-size: 0.92em; }
-  .loop-note .ship { color: var(--brand); font-weight: 600; }
-  @media (max-width: 760px) {
-    .loop-steps { grid-template-columns: repeat(2, 1fr); }
-    .loop-steps li:nth-child(2n)::after { content: ""; }
-    .loop-steps li { border-bottom: 1px solid var(--rule); }
-  }
+  .hero-fig-cap { position: relative; z-index: 2; margin-top: auto; display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: var(--step--1); color: var(--fg-quiet); }
+  .hero-fig-cap span:first-child { color: var(--live); }
 
-  .hero-stats {
-    list-style: none; padding: 0; margin: var(--s-8) 0 0;
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-5);
-    border-top: 1px solid var(--line); padding-top: var(--s-6);
-  }
-  .hero-stats b {
-    display: block; font-family: var(--font-display); font-size: var(--step-3);
-    font-weight: 620; letter-spacing: -0.03em; color: var(--ink);
-  }
-  .hero-stats span { display: block; margin-top: 4px; font-size: var(--step--1); color: var(--fg-quiet); }
+  .hero-stats { grid-column: 1 / -1; list-style: none; padding: var(--s-6) 0 0; margin: var(--s-6) 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-5); border-top: 1px solid var(--line); }
+  .hero-stats b { display: block; font-family: var(--font-display); font-size: var(--step-3); font-weight: 680; letter-spacing: -0.03em; color: var(--ink); }
+  .hero-stats b i { font-style: normal; color: var(--live); font-size: 0.7em; }
+  .hero-stats span { display: block; margin-top: 5px; font-size: var(--step--1); color: var(--fg-quiet); }
   @media (max-width: 720px) { .hero-stats { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ---------- manifesto ---------- */
+  .manifesto { padding: var(--s-9) 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: linear-gradient(180deg, var(--paper-sunken), var(--paper)); }
+  .man-eyebrow { color: var(--live); margin-bottom: var(--s-5); }
+  .man-h2 { font-size: var(--step-3); font-weight: 640; line-height: 1.12; letter-spacing: -0.025em; max-width: 24ch; }
+  .man-h2 .tl { color: var(--live); }
+  .man-grid { margin-top: var(--s-7); display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-6) var(--s-8); max-width: 1000px; }
+  @media (max-width: 760px) { .man-grid { grid-template-columns: 1fr; } }
+  .man-grid p { color: var(--fg-soft); font-size: var(--step-0); line-height: 1.6; }
+  .man-grid b { color: var(--ink); font-weight: 620; display: block; margin-bottom: 4px; font-family: var(--font-display); font-size: var(--step-1); letter-spacing: -0.01em; }
+  .man-grid code { color: var(--live); }
 
   /* ---------- bands ---------- */
   .band { padding: var(--s-9) 0; border-top: 1px solid var(--line); }
-  .band-alt { background: var(--sunken); }
-  .band-close { background: var(--ink); color: var(--paper); border-top: 0; }
-  .band-head { max-width: 62ch; margin-bottom: var(--s-7); }
+  .band-alt { background: var(--paper-sunken); }
+  .band-head { max-width: 60ch; margin-bottom: var(--s-7); }
   .band-head h2 { margin-bottom: var(--s-3); }
   .band-sub { font-size: var(--step-1); color: var(--fg-soft); line-height: 1.5; }
-  .band-more { display: inline-block; margin-top: var(--s-6); font-weight: 550; color: var(--brand); }
-  .band-more:hover { color: var(--brand-bright); }
+  .band-sub code, .band-sub strong { color: var(--ink); }
+  .band-sub code { color: var(--live); font-size: 0.92em; }
+  .band-more { display: inline-block; margin-top: var(--s-6); font-weight: 550; color: var(--live); }
+  .band-more:hover { color: var(--live-bright); }
+
+  /* ---------- loop ---------- */
+  .loop-steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(6, 1fr); border: 1px solid var(--line); border-radius: var(--r-3); overflow: hidden; background: var(--paper-raised); }
+  .loop-steps li { padding: var(--s-5) var(--s-4); display: flex; flex-direction: column; gap: 8px; border-right: 1px solid var(--line); position: relative; }
+  .loop-steps li:last-child { border-right: 0; }
+  .loop-steps li.dec { background: var(--brand-wash); }
+  .ls-n { font-family: var(--font-mono); font-size: 11px; color: var(--live-dim); }
+  .ls-k { font-size: var(--step--1); color: var(--fg-soft); font-weight: 500; }
+  .loop-steps code { font-family: var(--font-mono); font-size: 12.5px; color: var(--fg); }
+  .loop-steps code.ok { color: var(--live); }
+  .loop-steps li.dec code { color: var(--brand); }
+  @media (max-width: 760px) { .loop-steps { grid-template-columns: repeat(2, 1fr); } .loop-steps li { border-bottom: 1px solid var(--line); } }
+  .loop-latest { margin-top: var(--s-5); line-height: 1.7; color: var(--fg-soft); max-width: 96ch; }
+  .loop-latest .dec-t { color: var(--brand); } .loop-latest .ship { color: var(--live); }
 
   /* ---------- specialists ---------- */
-  .spec-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: var(--s-5); }
+  .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-5); }
   @media (max-width: 860px) { .spec-grid { grid-template-columns: 1fr; } }
-  .spec {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-3);
-    padding: clamp(var(--s-5), 3vw, var(--s-7)); display: flex; flex-direction: column;
-    box-shadow: var(--shadow-1);
-    transition: box-shadow var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
-  }
-  .spec:hover { box-shadow: var(--shadow-2); transform: translateY(-2px); border-color: var(--line-strong); }
-  .spec-lead { border-top: 3px solid var(--brand); }
-  .spec-top { margin-bottom: var(--s-4); }
-  .spec-top .mono-label { display: block; margin-bottom: var(--s-3); color: var(--live); }
-  .spec-lead .spec-top .mono-label { color: var(--brand); }
-  .spec-body { color: var(--fg-soft); margin-bottom: var(--s-5); }
-  .spec-body strong { color: var(--ink); font-weight: 620; }
-  .spec-body em { font-style: normal; color: var(--brand); font-weight: 560; }
-  .spec-metrics { display: flex; flex-wrap: wrap; gap: var(--s-5); margin: 0 0 var(--s-5); padding-top: var(--s-5); border-top: 1px solid var(--line); }
-  .spec-metrics div { display: flex; flex-direction: column; gap: 2px; }
-  .spec-metrics dt { font-size: var(--step--1); color: var(--fg-quiet); }
+  .spec { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-3); padding: clamp(var(--s-5), 3vw, var(--s-6)); display: flex; flex-direction: column; transition: border-color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out); }
+  .spec:hover { border-color: var(--live-dim); transform: translateY(-2px); box-shadow: var(--shadow-2); }
+  .spec-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-4); }
+  .mono-label.live { color: var(--live); } .mono-label.brand { color: var(--brand); }
+  .spec-badge { font-family: var(--font-mono); font-size: var(--step--1); color: var(--fg-quiet); border: 1px solid var(--line-strong); border-radius: 999px; padding: 3px 10px; }
+  .spec-body { color: var(--fg-soft); margin: var(--s-2) 0 var(--s-5); }
+  .spec-body strong { color: var(--ink); } .spec-body em { font-style: normal; color: var(--brand); font-weight: 560; }
+  .spec-metrics { display: flex; gap: var(--s-6); margin: 0 0 var(--s-5); padding-top: var(--s-5); border-top: 1px solid var(--line); }
+  .spec-metrics dt { font-size: var(--step--1); color: var(--fg-quiet); margin-bottom: 3px; }
   .spec-metrics dd { font-family: var(--font-mono); font-size: var(--step-0); color: var(--fg); }
-  .spec-metrics dd b { color: var(--live); font-weight: 600; }
-  .spec-metrics dd.down { color: var(--brand); }
+  .spec-metrics dd b { color: var(--live); } .spec-metrics dd.down { color: var(--brand); }
   .spec-link { margin-top: auto; font-weight: 550; color: var(--ink); }
-  .spec-link:hover { color: var(--brand); }
+  .spec-link:hover { color: var(--live); }
 
-  /* ---------- metric row ---------- */
+  /* ---------- metrics ---------- */
   .metric-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s-4); }
   @media (max-width: 860px) { .metric-row { grid-template-columns: repeat(2, 1fr); } }
-  .metric-row > div { padding: var(--s-5) 0; border-top: 2px solid var(--ink); }
-  .metric-row b { font-family: var(--font-display); font-size: var(--step-4); font-weight: 620; letter-spacing: -0.03em; display: block; }
+  .metric-row > div { padding: var(--s-5) 0; border-top: 2px solid var(--live); }
+  .metric-row b { font-family: var(--font-display); font-size: var(--step-4); font-weight: 680; letter-spacing: -0.03em; display: block; }
   .metric-row .mu { font-family: var(--font-mono); font-size: var(--step--1); color: var(--live); display: block; margin-top: 2px; }
   .metric-row small { display: block; margin-top: var(--s-3); font-size: var(--step--1); color: var(--fg-quiet); }
 
@@ -440,62 +365,41 @@ posttrainllm serve --port 8080  <span class="c">// OpenAI-compatible</span></cod
   .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-6) var(--s-7); }
   @media (max-width: 860px) { .pillars { grid-template-columns: 1fr; } }
   .pillar { border-top: 1px solid var(--line-strong); padding-top: var(--s-4); }
-  .pillar-i { display: block; color: var(--brand); font-weight: 600; margin-bottom: var(--s-3); font-size: var(--step-0); letter-spacing: 0; }
+  .pillar-i { display: block; color: var(--live); font-weight: 600; margin-bottom: var(--s-3); font-size: var(--step-0); letter-spacing: 0; }
   .pillar p { color: var(--fg-soft); font-size: var(--step-0); }
   .pillar em { font-style: normal; color: var(--ink); font-weight: 560; }
 
-  /* ---------- ledger ---------- */
-  .ledger { list-style: none; padding: 0; margin: 0; }
-  .ledger li { display: grid; grid-template-columns: 64px 1fr; gap: var(--s-5); padding: var(--s-5) 0; border-top: 1px solid var(--line); }
-  .ledger li:first-child { border-top: 0; }
-  .led-date { padding-top: 3px; color: var(--live); }
-  .led-what { font-size: var(--step-1); color: var(--ink); line-height: 1.45; }
-  .led-what strong { font-weight: 620; }
-  .led-dec { margin-top: var(--s-2); color: var(--fg-soft); }
-  .led-dec code { color: var(--live); }
-  .tag { font-family: var(--font-mono); font-size: var(--step--1); color: var(--brand); background: var(--brand-wash); padding: 2px 8px; border-radius: 999px; }
-
-  /* ---------- learn ---------- */
-  .learn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-4); }
-  @media (max-width: 980px) { .learn-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 560px) { .learn-grid { grid-template-columns: 1fr; } }
-  .learn-card {
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-3);
-    padding: var(--s-5); display: flex; flex-direction: column; gap: var(--s-2); color: var(--fg);
-    transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
-  }
-  .learn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); border-color: var(--line-strong); }
-  .learn-card .mono-label { color: var(--live); }
-  .learn-card h3, .learn-card h4 { margin-top: 2px; }
-  .learn-card p { font-size: var(--step--1); color: var(--fg-soft); }
-  .learn-card code { color: var(--brand); }
-  .learn-lead { grid-row: span 2; grid-column: span 2; background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .learn-lead .mono-label { color: var(--live-bright); }
-  .learn-lead h3 { color: var(--paper); font-size: var(--step-2); }
-  .learn-lead p { color: color-mix(in oklab, var(--paper) 78%, transparent); font-size: var(--step-0); }
-  .learn-lead code { color: var(--live-bright); }
-  .learn-go { margin-top: auto; color: var(--live-bright); font-weight: 550; font-size: var(--step-0); }
-  @media (max-width: 560px) { .learn-lead { grid-column: span 1; grid-row: auto; } }
+  /* ---------- logs ---------- */
+  .logs { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-4); }
+  @media (max-width: 980px) { .logs { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .logs { grid-template-columns: 1fr; } }
+  .log { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-3); padding: var(--s-5); display: flex; flex-direction: column; gap: 6px; color: var(--fg); transition: border-color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out); }
+  .log:hover { border-color: var(--live-dim); transform: translateY(-2px); }
+  .log h4 { font-size: var(--step-1); } .log p { font-size: var(--step--1); color: var(--fg-soft); }
+  .log code { color: var(--live); }
+  .log-lead { grid-row: span 2; grid-column: span 2; background: linear-gradient(160deg, var(--paper-2), var(--paper-raised)); box-shadow: var(--glow-live); }
+  .log-lead h3 { font-size: var(--step-2); } .log-lead p { font-size: var(--step-0); }
+  .log-go { margin-top: auto; color: var(--live); font-weight: 550; }
+  @media (max-width: 560px) { .log-lead { grid-column: span 1; grid-row: auto; } }
 
   /* ---------- honest + run ---------- */
-  .honest-wrap { display: grid; grid-template-columns: 1fr 0.9fr; gap: var(--s-8); align-items: start; }
+  .honest-wrap { display: grid; grid-template-columns: 1fr 0.95fr; gap: var(--s-8); align-items: start; }
   @media (max-width: 860px) { .honest-wrap { grid-template-columns: 1fr; } }
-  .band-close h2 { color: var(--paper); }
   .honest-list { list-style: none; padding: 0; margin: var(--s-6) 0 0; display: grid; gap: var(--s-3); }
-  .honest-list li { padding-left: var(--s-5); position: relative; color: color-mix(in oklab, var(--paper) 80%, transparent); }
-  .honest-list.is li::before { content: "✓"; position: absolute; left: 0; color: var(--live-bright); }
-  .honest-list.isnt li::before { content: "—"; position: absolute; left: 0; color: var(--brand-bright); }
-  .honest-list em { font-style: normal; color: var(--paper); font-weight: 560; }
-  .honest-list strong { color: var(--live-bright); }
-  .run-col { background: var(--paper-raised); border: 1px solid var(--rule); border-radius: var(--r-3); padding: var(--s-6); }
+  .honest-list li { padding-left: var(--s-5); position: relative; color: var(--fg-soft); }
+  .honest-list.is li::before { content: "→"; position: absolute; left: 0; color: var(--live); }
+  .honest-list.isnt li::before { content: "×"; position: absolute; left: 0; color: var(--brand); }
+  .honest-list em { font-style: normal; color: var(--fg); font-weight: 560; } .honest-list strong { color: var(--live); }
+  .run-col { background: var(--paper-sunken); border: 1px solid var(--line); border-radius: var(--r-3); padding: var(--s-6); }
   .run-col .mono-label { color: var(--live); }
   .run-block { margin: var(--s-4) 0 var(--s-5); overflow-x: auto; }
-  .run-block code { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.85; color: var(--ink); white-space: pre; }
-  .run-block .c { color: var(--ink-55); }
+  .run-block code { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.85; color: var(--fg); white-space: pre; }
+  .run-block .c { color: var(--fg-quiet); }
 
   /* ---------- footer ---------- */
-  .foot-wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--s-4); }
-  .foot-links { display: flex; gap: var(--s-5); }
-  .foot-links a { color: var(--fg-soft); }
-  .foot-links a:hover { color: var(--brand); }
+  .foot-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--s-4); padding-bottom: var(--s-5); border-bottom: 1px solid var(--line); }
+  .foot-links { display: flex; flex-wrap: wrap; gap: var(--s-5); }
+  .foot-links a { color: var(--fg-soft); } .foot-links a:hover { color: var(--live); }
+  .foot-disclaimer { margin-top: var(--s-5); max-width: 92ch; line-height: 1.7; color: var(--fg-quiet); }
+  .foot-disclaimer strong { color: var(--fg-soft); }
 </style>

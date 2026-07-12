@@ -37,7 +37,9 @@
     "vitest": "^4.1.9"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
     "@floating-ui/dom": "^1.7.6",
+    "@fontsource-variable/bricolage-grotesque": "^5.2.10",
     "posthog-js": "^1.376.2",
     "web-vitals": "^4.2.4"
   }

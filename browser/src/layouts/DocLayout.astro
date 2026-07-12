@@ -8,6 +8,7 @@
  * themes every doc page cohesively.
  */
 import Default from "./Default.astro";
+import Logo from "../components/Logo.astro";
 import "../styles/system.css";
 
 export interface Props {
@@ -17,7 +18,7 @@ export interface Props {
 }
 
 const { title, description, sourcePath } = Astro.props;
-const githubUrl = `https://github.com/sarthak-fleet/posttrainllm/blob/main/${sourcePath}`;
+const githubUrl = `https://github.com/sarthak-fleet/tinygpt/blob/main/${sourcePath}`;
 
 const layoutProps = {
   title: `posttrainllm — ${title}`,
@@ -25,7 +26,7 @@ const layoutProps = {
   ogType: "article" as const,
   ogTitle: `posttrainllm — ${title}`,
   ogDescription: description,
-  themeColor: "#f5f6f8",
+  themeColor: "#0a0c0f",
 };
 ---
 
@@ -34,7 +35,7 @@ const layoutProps = {
 
   <header class="topbar" role="banner">
     <a class="brand-lockup" href="/" aria-label="posttrainllm home">
-      <span class="brand-mark" aria-hidden="true">p</span>
+      <Logo size={26} />
       <span class="brand-name">posttrainllm</span>
     </a>
     <nav class="topnav" aria-label="Primary">
@@ -43,7 +44,7 @@ const layoutProps = {
       <a href="/docs/learn/curriculum">learn</a>
       <a href="/leaderboard">evals</a>
       <a href="/playground">playground</a>
-      <a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github ↗</a>
+      <a href="https://github.com/sarthak-fleet/tinygpt" rel="noopener">github ↗</a>
     </nav>
   </header>
 

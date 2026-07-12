@@ -2,6 +2,7 @@
 import Default from "../../layouts/Default.astro";
 import "../../styles/system.css";
 import { artifacts, stateLabel } from "../../artifacts";
+import Logo from "../../components/Logo.astro";
 
 const layoutProps = {
   title: "posttrainllm — public artifacts",
@@ -10,7 +11,7 @@ const layoutProps = {
   ogTitle: "posttrainllm — public artifacts",
   ogDescription:
     "Measured model packages, routed specialists, benchmark reports, blockers, and release status.",
-  themeColor: "#f5f6f8",
+  themeColor: "#0a0c0f",
 };
 
 const primaryArtifacts = artifacts.filter((entry) => entry.state !== "parked");
@@ -20,8 +21,8 @@ const parkedArtifacts = artifacts.filter((entry) => entry.state === "parked");
 <Default {...layoutProps}>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar" role="banner">
-    <a class="brand-lockup" href="/" aria-label="posttrainllm home"><span class="brand-mark" aria-hidden="true">p</span><span class="brand-name">posttrainllm</span></a>
-    <nav class="topnav" aria-label="Primary"><a href="/artifacts">specialists</a><a href="/docs/attempt-ledger">experiments</a><a href="/docs/learn/curriculum">learn</a><a href="/leaderboard">evals</a><a href="/playground">playground</a><a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github ↗</a></nav>
+    <a class="brand-lockup" href="/" aria-label="posttrainllm home"><Logo size={26} /><span class="brand-name">posttrainllm</span></a>
+    <nav class="topnav" aria-label="Primary"><a href="/artifacts">specialists</a><a href="/docs/attempt-ledger">experiments</a><a href="/docs/learn/curriculum">learn</a><a href="/leaderboard">evals</a><a href="/playground">playground</a><a href="https://github.com/sarthak-fleet/tinygpt" rel="noopener">github ↗</a></nav>
   </header>
   <main class="artifact-page">
     <header class="hero">

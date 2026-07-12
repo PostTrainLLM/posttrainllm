@@ -2,6 +2,7 @@
 import Default from "../../layouts/Default.astro";
 import "../../styles/system.css";
 import { artifacts, getArtifact, stateLabel } from "../../artifacts";
+import Logo from "../../components/Logo.astro";
 
 export function getStaticPaths() {
   return artifacts.map((entry) => ({ params: { slug: entry.slug } }));
@@ -18,15 +19,15 @@ const layoutProps = {
   ogType: "article" as const,
   ogTitle: `posttrainllm Artifact — ${artifact.title}`,
   ogDescription: artifact.summary,
-  themeColor: "#f5f6f8",
+  themeColor: "#0a0c0f",
 };
 ---
 
 <Default {...layoutProps}>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar" role="banner">
-    <a class="brand-lockup" href="/" aria-label="posttrainllm home"><span class="brand-mark" aria-hidden="true">p</span><span class="brand-name">posttrainllm</span></a>
-    <nav class="topnav" aria-label="Primary"><a href="/artifacts">specialists</a><a href="/docs/attempt-ledger">experiments</a><a href="/docs/learn/curriculum">learn</a><a href="/leaderboard">evals</a><a href="/playground">playground</a><a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github ↗</a></nav>
+    <a class="brand-lockup" href="/" aria-label="posttrainllm home"><Logo size={26} /><span class="brand-name">posttrainllm</span></a>
+    <nav class="topnav" aria-label="Primary"><a href="/artifacts">specialists</a><a href="/docs/attempt-ledger">experiments</a><a href="/docs/learn/curriculum">learn</a><a href="/leaderboard">evals</a><a href="/playground">playground</a><a href="https://github.com/sarthak-fleet/tinygpt" rel="noopener">github ↗</a></nav>
   </header>
   <main class="artifact-detail">
     <header class="hero">

@@ -26,6 +26,7 @@
  */
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
+import "@fontsource-variable/bricolage-grotesque";
 
 export interface Props {
   title: string;
@@ -55,9 +56,48 @@ const {
   ogUrl,
   twitterTitle,
   twitterDescription,
-  themeColor = "#08090a",
+  themeColor = "#0a0c0f",
   loadFonts: _loadFonts = true,
 } = Astro.props;
+
+const ORIGIN = "https://posttrainllm.com";
+const canonical = new URL(Astro.url.pathname, ORIGIN).href;
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${ORIGIN}/#website`,
+      url: `${ORIGIN}/`,
+      name: "posttrainllm",
+      description:
+        "A Mac-local LLM specialist factory: distill, fine-tune, evaluate, serve, and inspect models on one Apple Silicon machine.",
+      inLanguage: "en",
+      publisher: { "@id": `${ORIGIN}/#person` },
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${ORIGIN}/#software`,
+      name: "posttrainllm",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "macOS (Apple Silicon), Web browser (WebGPU)",
+      description:
+        "Open-source LLM factory and runtime that lives on your Mac. Train, fine-tune (LoRA / DoRA / QLoRA), distill, evaluate (BFCL / τ-bench / lm-eval / SQL), serve OpenAI-compatible, and inspect with SAE / MEMIT / patching — all on one machine.",
+      url: `${ORIGIN}/`,
+      license: "https://opensource.org/licenses/MIT",
+      isAccessibleForFree: true,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      author: { "@id": `${ORIGIN}/#person` },
+      codeRepository: "https://github.com/sarthak-fleet/tinygpt",
+    },
+    {
+      "@type": "Person",
+      "@id": `${ORIGIN}/#person`,
+      name: "Sarthak Agrawal",
+      url: "https://github.com/sarthak-fleet",
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -70,18 +110,30 @@ const {
     <meta name="description" content={description} />
     <title>{title}</title>
 
+    <!-- Canonical + robots -->
+    <link rel="canonical" href={ogUrl ?? canonical} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="author" content="Sarthak Agrawal" />
+    <meta name="keywords" content="LLM factory, Mac LLM, Apple Silicon LLM, MLX, LoRA, DoRA, QLoRA, distillation, BFCL, model evaluation, SAE interpretability, on-device AI, posttrainllm, WebGPU training" />
+
     <!-- Open Graph / Twitter card -->
     <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="posttrainllm" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content={ogUrl ?? canonical} />
     <meta property="og:title" content={ogTitle ?? title} />
     <meta property="og:description" content={ogDescription ?? description} />
-    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image" content={`${ORIGIN}/og-image.png`} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    {ogUrl && <meta property="og:url" content={ogUrl} />}
+    <meta property="og:image:alt" content="posttrainllm — a Mac-local LLM specialist factory" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={twitterTitle ?? ogTitle ?? title} />
     <meta name="twitter:description" content={twitterDescription ?? ogDescription ?? description} />
-    <meta name="twitter:image" content="/og-image.png" />
+    <meta name="twitter:image" content={`${ORIGIN}/og-image.png`} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} is:inline />
+    <link rel="sitemap" href="/sitemap-index.xml" />
 
     <!-- Preload the gallery manifest so the demo banner doesn't pop in
          late on a cold load (was waiting for the JS bundle to evaluate

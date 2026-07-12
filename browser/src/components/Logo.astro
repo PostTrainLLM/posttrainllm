@@ -1,0 +1,36 @@
+---
+/**
+ * Logo — the posttrainllm mark: a loss curve descending and settling, with the
+ * final checkpoint dot. This is THE brand mark (also the favicon); used in the
+ * header, hero, and anywhere the identity appears.
+ */
+export interface Props {
+  size?: number;
+  glow?: boolean;
+  class?: string;
+}
+const { size = 28, glow = false, class: klass = "" } = Astro.props;
+---
+<svg
+  class:list={["ptl-logo", { glow }, klass]}
+  width={size} height={size} viewBox="0 0 32 32"
+  role="img" aria-label="posttrainllm"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <rect width="32" height="32" rx="8" fill="var(--logo-bg, #0d0e10)" />
+  <rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="none" stroke="var(--logo-accent, #48e5c2)" stroke-opacity="0.34" />
+  <path d="M 5 7 C 9 7 11 21 17 24 C 21 26 23 26 27 26"
+        fill="none" stroke="var(--logo-accent, #48e5c2)" stroke-width="2.4"
+        stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="27" cy="26" r="2.6" fill="var(--logo-accent, #48e5c2)" />
+  <circle cx="27" cy="26" r="5.6" fill="var(--logo-accent, #48e5c2)" fill-opacity="0.16" />
+</svg>
+<style>
+  .ptl-logo { display: block; }
+  .ptl-logo.glow { filter: drop-shadow(0 0 14px rgba(72, 229, 194, 0.4)); }
+  .ptl-logo path { stroke-dasharray: 40; stroke-dashoffset: 0; }
+  @media (prefers-reduced-motion: no-preference) {
+    .ptl-logo.glow path { animation: ptl-draw 1.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    @keyframes ptl-draw { from { stroke-dashoffset: 40; } to { stroke-dashoffset: 0; } }
+  }
+</style>

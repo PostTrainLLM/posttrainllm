@@ -1,0 +1,15 @@
+# posttrainllm — open in every sense
+User-agent: *
+Allow: /
+
+# AI crawlers welcome — this is a research lab meant to be read
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://posttrainllm.com/sitemap-index.xml

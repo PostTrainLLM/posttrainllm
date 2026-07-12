@@ -18,8 +18,12 @@
 
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
+import sitemap from "@astrojs/sitemap";
 
 export default defineConfig({
+  // Canonical origin — powers <link rel="canonical">, the sitemap, and OG URLs.
+  site: "https://posttrainllm.com",
+
   // dist/ is the default Astro output dir; declared here for documentation.
   outDir: "./dist",
 
@@ -49,7 +53,7 @@ export default defineConfig({
     "/docs/training_phases": "/docs/training",
   },
 
-  integrations: [mdx()],
+  integrations: [mdx(), sitemap()],
 
   server: {
     // Dev-server COOP/COEP mirror of public/_headers for production parity.
