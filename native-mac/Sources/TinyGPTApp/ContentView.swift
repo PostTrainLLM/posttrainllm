@@ -6,6 +6,7 @@ import SwiftUI
 enum AppTab: Hashable {
     case gallery     // every loadable model + chat with whichever is loaded
     case train       // factory/post-training workspace (sub-modes)
+    case runs        // orchestration: factory-run validate/publish-check, SQL eval, generate
     case eval        // score + compare
     case trace       // inference heatmap
     case interp      // mech-interp power tools
@@ -56,6 +57,7 @@ struct ContentView: View {
                         switch tab {
                         case .gallery:    mainPane
                         case .train:      TrainHubView()
+                        case .runs:       RunsHubView()
                         case .eval:       EvalView()
                         case .trace:      InferenceHeatmapView()
                         case .interp:     InterpView()
@@ -217,6 +219,7 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 1) {
                     navRow(.gallery,    icon: "rectangle.grid.2x2",                label: "Gallery")
                     navRow(.train,      icon: "waveform.path.ecg",                 label: "Factory")
+                    navRow(.runs,       icon: "shippingbox",                       label: "Runs")
                     navRow(.eval,       icon: "checkmark.gobackward",              label: "Eval")
                     navRow(.trace,      icon: "chart.bar.xaxis",                   label: "Trace")
                     navRow(.interp,     icon: "scope",                             label: "Interp")
