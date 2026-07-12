@@ -1,0 +1,75 @@
+---
+/**
+ * SiteHeader — the one nav chrome shared by every page. Self-contained
+ * (scoped styles, no global-token dependency) so it drops onto any page —
+ * bright "brand" pages or dark "instrument" tool pages — without cascade
+ * conflicts. mode="instrument" renders the dark variant that matches the
+ * Mac app; mode="brand" renders the light editorial variant.
+ */
+export interface Props {
+  mode?: "brand" | "instrument";
+  active?: string;
+}
+const { mode = "brand", active } = Astro.props;
+const links = [
+  { href: "/artifacts", label: "specialists", key: "specialists" },
+  { href: "/docs/attempt-ledger", label: "experiments", key: "experiments" },
+  { href: "/docs/learn/curriculum", label: "learn", key: "learn" },
+  { href: "/leaderboard", label: "evals", key: "evals" },
+  { href: "/playground", label: "playground", key: "playground" },
+];
+---
+
+<header class:list={["site-header", mode]} data-mode={mode} role="banner">
+  <a class="sh-brand" href="/" aria-label="posttrainllm home">
+    <span class="sh-mark" aria-hidden="true">p</span>
+    <span class="sh-name">posttrainllm</span>
+  </a>
+  <nav class="sh-nav" aria-label="Primary">
+    {links.map((l) => (
+      <a href={l.href} class:list={[{ current: active === l.key }]}>{l.label}</a>
+    ))}
+    <a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github ↗</a>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    position: sticky; top: 0; z-index: 200;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    padding: 14px clamp(20px, 5vw, 72px);
+    font-family: "Geist Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  }
+  .site-header.brand {
+    background: color-mix(in oklab, #f5f6f8 82%, transparent);
+    border-bottom: 1px solid #e3e6ec;
+    --sh-fg: #15171e; --sh-soft: #3b404b; --sh-accent: #8a2a22; --sh-mark: #8a2a22; --sh-mark-fg: #fff;
+  }
+  .site-header.instrument {
+    background: color-mix(in oklab, #0b0d11 78%, transparent);
+    border-bottom: 1px solid #23272f;
+    --sh-fg: #eceef2; --sh-soft: #b3b9c4; --sh-accent: #48e5c2; --sh-mark: #48e5c2; --sh-mark-fg: #06110e;
+  }
+  .sh-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--sh-fg); text-decoration: none; }
+  .sh-mark {
+    display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px;
+    background: var(--sh-mark); color: var(--sh-mark-fg);
+    font-family: "Geist Mono Variable", ui-monospace, monospace; font-weight: 600; font-size: 15px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+  }
+  .sh-name { font-family: "Geist Mono Variable", ui-monospace, monospace; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
+  .sh-nav { display: flex; align-items: center; gap: 24px; }
+  .sh-nav a {
+    font-size: 0.82rem; color: var(--sh-soft); font-weight: 500; text-decoration: none;
+    position: relative; padding: 4px 0; transition: color 0.14s ease;
+  }
+  .sh-nav a::after {
+    content: ""; position: absolute; left: 0; right: 100%; bottom: -2px; height: 1.5px;
+    background: var(--sh-accent); transition: right 0.24s cubic-bezier(0.22,1,0.36,1);
+  }
+  .sh-nav a:hover, .sh-nav a.current { color: var(--sh-fg); }
+  .sh-nav a:hover::after, .sh-nav a.current::after { right: 0; }
+  @media (max-width: 720px) { .sh-nav { display: none; } }
+</style>

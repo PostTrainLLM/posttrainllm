@@ -1,5 +1,6 @@
 ---
 import Default from "../layouts/Default.astro";
+import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
   title: "posttrainllm — leaderboard",
@@ -90,6 +91,7 @@ table.board td.params { font-family: monospace; color: var(--muted); }
 ---
 
 <Default {...layoutProps}>
+  <SiteHeader mode="instrument" />
   <style set:html={pageStyle}></style>
 
   <div class="wrap">

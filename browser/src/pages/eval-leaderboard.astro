@@ -1,5 +1,6 @@
 ---
 import Default from "../layouts/Default.astro";
+import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
   title: "posttrainllm — eval leaderboard",
@@ -146,6 +147,7 @@ const pageStyle = `
 ---
 
 <Default {...layoutProps}>
+  <SiteHeader mode="instrument" />
   <style is:global slot="head" set:html={pageStyle}></style>
   <div class="wrap">
     <div class="topbar">

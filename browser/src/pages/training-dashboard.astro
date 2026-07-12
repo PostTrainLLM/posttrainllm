@@ -1,5 +1,6 @@
 ---
 import Default from "../layouts/Default.astro";
+import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
   title: "posttrainllm — training run dashboard",
@@ -74,6 +75,7 @@ const pageStyle = `
 ---
 
 <Default {...layoutProps}>
+  <SiteHeader mode="instrument" />
   <style is:global slot="head" set:html={pageStyle}></style>
   <div class="wrap">
     <h1>Training-run dashboard</h1>

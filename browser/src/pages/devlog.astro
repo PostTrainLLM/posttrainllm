@@ -4,6 +4,7 @@
 // directly — both are valid. Keep IDs/attributes stable for src/main.ts and
 // the popover system to keep wiring up correctly.
 import Default from "../layouts/Default.astro";
+import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
   title: "posttrainllm — devlog",
@@ -561,6 +562,7 @@ WebGPU + FA2 fwd
 ---
 
 <Default {...layoutProps}>
+  <SiteHeader mode="instrument" />
   <style is:global slot="head" set:html={pageStyle}></style>
   <Fragment set:html={pageBody} />
 

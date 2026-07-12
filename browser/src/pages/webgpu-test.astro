@@ -4,6 +4,7 @@
 // directly — both are valid. Keep IDs/attributes stable for src/main.ts and
 // the popover system to keep wiring up correctly.
 import Default from "../layouts/Default.astro";
+import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
   title: "posttrainllm — WebGPU kernel tests",
@@ -28,6 +29,7 @@ const pageBody = `
 ---
 
 <Default {...layoutProps}>
+  <SiteHeader mode="instrument" />
   <style is:global slot="head" set:html={pageStyle}></style>
   <Fragment set:html={pageBody} />
   <script>import "/src/webgpu-test.ts";</script>

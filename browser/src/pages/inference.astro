@@ -1,5 +1,6 @@
 ---
 import Default from "../layouts/Default.astro";
+import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
   title: "posttrainllm — in-browser inference",
@@ -55,6 +56,7 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
 ---
 
 <Default {...layoutProps}>
+  <SiteHeader mode="instrument" />
   <style set:html={pageStyle}></style>
   <div class="wrap">
     <h1>Run an LLM in your browser</h1>
