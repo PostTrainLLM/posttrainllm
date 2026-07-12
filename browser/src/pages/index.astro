@@ -1,2572 +1,501 @@
 ---
 import Default from "../layouts/Default.astro";
+import "../styles/system.css";
 ---
 
 <Default
-  title="posttrainllm — an open-source LLM factory and runtime that lives on your Mac"
-  description="Distill routed specialists, package them for MLX, and know exactly where they fail. Train, fine-tune (LoRA / DoRA / QLoRA), evaluate (BFCL / τ-bench / lm-eval), serve OpenAI-compatible, and inspect with SAE / MEMIT / patch — all on one Apple Silicon machine. MIT licensed. Built in the open by one developer."
+  title="posttrainllm — an open-source LLM factory that lives on your Mac"
+  description="Distill routed specialists, package them for MLX, and know exactly where they fail. Train, fine-tune (LoRA / DoRA / QLoRA), evaluate (BFCL / τ-bench / lm-eval / SQL), serve OpenAI-compatible, and inspect with SAE / MEMIT / patching — all on one Apple Silicon machine. MIT. Built in the open by one developer."
+  themeColor="#f5f6f8"
   ogTitle="posttrainllm — an open-source LLM factory that lives on your Mac"
   ogDescription="Distill, fine-tune, evaluate, serve, and inspect LLMs on a single Mac. Runs in a browser tab too. MIT."
-  twitterTitle="posttrainllm — an open-source LLM factory that lives on your Mac"
-  twitterDescription="Distill, fine-tune, evaluate, serve, and inspect LLMs on a single Mac. Runs in a browser tab too. MIT."
 >
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="topbar" role="banner">
     <a class="brand-lockup" href="/" aria-label="posttrainllm home">
-      <span class="brand-mark" aria-hidden="true">T</span>
+      <span class="brand-mark" aria-hidden="true">p</span>
       <span class="brand-name">posttrainllm</span>
     </a>
     <nav class="topnav" aria-label="Primary">
+      <a href="/artifacts">specialists</a>
+      <a href="/docs/attempt-ledger">experiments</a>
+      <a href="/docs/learn/curriculum">learn</a>
+      <a href="/leaderboard">evals</a>
       <a href="/playground">playground</a>
-      <a href="/artifacts">artifacts</a>
-      <a href="/leaderboard">leaderboard</a>
-      <a href="/devlog">devlog</a>
-      <a href="/roadmap">roadmap</a>
-      <a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github</a>
+      <a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github ↗</a>
     </nav>
   </header>
 
   <main class="landing" id="main">
-    <!-- ========== HERO ========== -->
-    <section class="hero" aria-labelledby="hero-h1">
-      <p class="hero-kicker">An open-source LLM factory for one Mac.</p>
-      <h1 id="hero-h1">
-        Build routed specialists that earn their keep &mdash;
-        <span class="highlight">on a laptop you already own.</span>
+
+    <!-- ================= HERO ================= -->
+    <section class="hero wrap">
+      <p class="hero-kicker mono-label">MIT · one developer · Apple Silicon</p>
+      <h1 class="hero-h1">
+        An LLM factory that fits<br />on <span class="ox">one&nbsp;Mac</span>.
       </h1>
       <p class="hero-lede">
-        posttrainllm is a Swift codebase + 100&plus; CLI subcommands for the full
-        post&#8209;training stack on Apple Silicon: train, distill from a local
-        teacher, fine&#8209;tune with LoRA / DoRA / QLoRA, gate with real evals
-        (BFCL, &tau;&#8209;bench, lm&#8209;eval), serve OpenAI&#8209;compatible,
-        and open the model up with sparse autoencoders, MEMIT, activation
-        patching. The Swift/MLX CLI is the factory; the same model also trains
-        and runs in a browser tab via hand&#8209;written WebGPU kernels &mdash; a
-        from&#8209;scratch learning track, now parked. The first packaged
-        specialist is honest by design: frontier&#8209;level on file&#8209;ops,
-        routed only because it regresses outside that domain.
+        posttrainllm turns a stock open model into a <em>routed specialist</em> that
+        earns its keep — then tells you exactly where it fails. Distill, fine-tune,
+        gate on real evals, package for MLX, and open the model up with
+        interpretability. 100+ CLI subcommands, one Apple&nbsp;Silicon machine, no cloud.
       </p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="/artifacts">See the specialists</a>
+        <a class="btn btn-ghost" href="/docs/quickstart">Read the quickstart</a>
+      </div>
 
-      <div class="hero-visual" aria-hidden="true">
-        <div class="signal-grid"></div>
-        <div class="holo-frame">
-          <div class="holo-header">
-            <span class="holo-dot"></span>
-            <span class="holo-dot is-warm"></span>
-            <span class="holo-dot is-violet"></span>
-            <span class="holo-title">specialist-router://posttrainllm</span>
-            <span class="holo-pill">local</span>
+      <!-- live factory-loop specimen -->
+      <figure class="loop" data-theme="instrument" aria-label="The factory loop">
+        <figcaption class="loop-cap">
+          <span class="mono-label">the loop the runtime closes</span>
+          <span class="loop-live"><span class="dot"></span> last run 2026-07-11</span>
+        </figcaption>
+        <ol class="loop-steps" role="list">
+          <li><span class="ls-n">01</span><span class="ls-k">target</span><code>frozen</code></li>
+          <li><span class="ls-n">02</span><span class="ls-k">data</span><code>5,675 rows</code></li>
+          <li><span class="ls-n">03</span><span class="ls-k">post-train</span><code>dpo · 200 steps</code></li>
+          <li><span class="ls-n">04</span><span class="ls-k">eval</span><code class="ok">exec 0.920</code></li>
+          <li><span class="ls-n">05</span><span class="ls-k">package</span><code>tgla / mlx</code></li>
+          <li class="ls-decide"><span class="ls-n">06</span><span class="ls-k">decide</span><code>retry-data</code></li>
+        </ol>
+        <p class="loop-note">
+          Every run assembles a schema-valid folder — config, dataset, eval, decision,
+          report — that <code>factory-run</code> validates. The one proof still missing
+          is a run whose decision is <span class="ship">ship</span>.
+        </p>
+      </figure>
+
+      <ul class="hero-stats" role="list">
+        <li><b>0.920</b><span>SQL execution, on-device</span></li>
+        <li><b>100%</b><span>file-ops hard gate (from 58%)</span></li>
+        <li><b>1×</b><span>Apple Silicon, zero cloud</span></li>
+        <li><b>MIT</b><span>open, one developer</span></li>
+      </ul>
+    </section>
+
+    <!-- ================= SPECIALISTS ================= -->
+    <section class="band">
+      <div class="wrap">
+        <header class="band-head">
+          <h2>Specialists that are honest by design.</h2>
+          <p class="band-sub">
+            A specialist beats a generalist on its target and routes away when it
+            shouldn't answer. Every result here ships with the regression it costs.
+          </p>
+        </header>
+
+        <div class="spec-grid">
+          <article class="spec spec-lead">
+            <div class="spec-top">
+              <span class="mono-label">released · weights</span>
+              <h3>Qwen3-4B, file-ops distilled</h3>
+            </div>
+            <p class="spec-body">
+              Distilled to <strong>100%</strong> on the multi-turn file-ops hard gate
+              (BFCL), up from 58%. The honest cost: out-of-domain breadth dropped
+              <strong>60% → 42%</strong> — real catastrophic forgetting. So it ships
+              <em>routed</em>, never as a general planner.
+            </p>
+            <dl class="spec-metrics">
+              <div><dt>file-ops gate</dt><dd>58% → <b>100%</b></dd></div>
+              <div><dt>OOD breadth</dt><dd class="down">60% → 42%</dd></div>
+              <div><dt>size</dt><dd>4B · MLX</dd></div>
+            </dl>
+            <a class="spec-link" href="/docs/learn/tool-calling-frontier-parity">The distillation write-up →</a>
+          </article>
+
+          <article class="spec">
+            <div class="spec-top">
+              <span class="mono-label">report-only candidate</span>
+              <h3>Qwen3-0.6B, routed SQL</h3>
+            </div>
+            <p class="spec-body">
+              Two adapters behind a router: public schema-SQL and local execution-SQL.
+              Two reference-anchored DPO retries cured a policy collapse and pushed
+              execution to <strong>0.920</strong> — but output hygiene is a base-model
+              prior a small adapter can't strip. Decision: <em>retry-data</em>.
+            </p>
+            <dl class="spec-metrics">
+              <div><dt>synthetic exec</dt><dd>0.860 → <b>0.920</b></dd></div>
+              <div><dt>public exact</dt><dd>0.531</dd></div>
+              <div><dt>clean-SQL</dt><dd class="down">0.000</dd></div>
+            </dl>
+            <a class="spec-link" href="/artifacts/qwen06-sql-routed-v1">Full artifact + blockers →</a>
+          </article>
+        </div>
+        <a class="band-more" href="/artifacts">Every artifact, with evidence and blockers →</a>
+      </div>
+    </section>
+
+    <!-- ================= MEASURED ================= -->
+    <section class="band band-alt">
+      <div class="wrap">
+        <header class="band-head">
+          <h2>Measured, on one machine.</h2>
+          <p class="band-sub">Every number below was recorded on a single M5&nbsp;Pro / 48&nbsp;GB. No estimates.</p>
+        </header>
+        <div class="metric-row" role="list">
+          <div role="listitem"><b>76</b><span class="mu">tok/s</span><small>4B decode, MLX</small></div>
+          <div role="listitem"><b>12.1×</b><span class="mu">speedup</span><small>WebGPU vs WASM, XL</small></div>
+          <div role="listitem"><b>&lt;45s</b><span class="mu">per pass</span><small>50-row SQL eval</small></div>
+          <div role="listitem"><b>0</b><span class="mu">spikes</span><small>200k pretrain steps</small></div>
+          <div role="listitem"><b>2×</b><span class="mu">half memory</span><small>ref-free vs DPO</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= WHAT SHIPS ================= -->
+    <section class="band">
+      <div class="wrap">
+        <header class="band-head">
+          <h2>The whole stack, audited against the code.</h2>
+          <p class="band-sub">Not a wrapper. Every capability below is a real subcommand with tests behind it.</p>
+        </header>
+        <div class="pillars">
+          <div class="pillar">
+            <span class="pillar-i mono-label">train</span>
+            <p>Pretrain, SFT, DPO / SimPO / KTO / ORPO, distillation, ES. Full PEFT bundle — LoRA, LoRA+, DoRA, VeRA, LoftQ, AdaLoRA, PISSA. WSD schedules, spike recovery, z-loss.</p>
           </div>
-
-          <div class="holo-stack">
-            <div class="holo-row">
-              <span class="holo-label">frontier gate</span>
-              <span class="holo-value">100%</span>
-              <span class="holo-rail"><span class="holo-fill is-full"></span></span>
-            </div>
-            <div class="holo-row">
-              <span class="holo-label">file ops route</span>
-              <span class="holo-value">armed</span>
-              <span class="holo-rail"><span class="holo-fill is-route"></span></span>
-            </div>
-            <div class="holo-row">
-              <span class="holo-label">oos guard</span>
-              <span class="holo-value">caveated</span>
-              <span class="holo-rail"><span class="holo-fill is-warn"></span></span>
-            </div>
+          <div class="pillar">
+            <span class="pillar-i mono-label">eval</span>
+            <p>BFCL, τ-bench, lm-eval (MLX adapter), HumanEval + sandbox, SQL execution, router, MILU, MTEB. Frozen baselines, slice metrics, exit-non-zero gates.</p>
           </div>
+          <div class="pillar">
+            <span class="pillar-i mono-label">serve</span>
+            <p>OpenAI- and Ollama-compatible on one socket. Agent loop, tool dispatch, FSM-constrained JSON, persistent KV cache, speculative decoding, optional cloud escalation.</p>
+          </div>
+          <div class="pillar">
+            <span class="pillar-i mono-label">package</span>
+            <p>Export to MLX, safetensors, CoreML. Quantize (GGUF / AWQ / GPTQ / HQQ), prune, merge, bake-LoRA — DoRA magnitudes included. Specialist model cards.</p>
+          </div>
+          <div class="pillar">
+            <span class="pillar-i mono-label">inspect</span>
+            <p>SAE features, ROME, MEMIT, tuned / logit lens, activation patching, linear probes, attention heatmaps. Know <em>where</em> the model decides, not just what it answers.</p>
+          </div>
+          <div class="pillar">
+            <span class="pillar-i mono-label">browser</span>
+            <p>The same model trains in a browser tab via hand-written WebGPU kernels — Memory64, FlashAttention-2, blocked matmul. A from-scratch learning track, honest negative results and all.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-          <div class="holo-package">
+    <!-- ================= EXPERIMENTS ================= -->
+    <section class="band band-alt">
+      <div class="wrap wrap-narrow">
+        <header class="band-head">
+          <h2>The work shows its scars.</h2>
+          <p class="band-sub">
+            A factory is a loop, not a demo. Failed runs become the next recipe — and
+            all of it is written down, with the decision it forced.
+          </p>
+        </header>
+        <ol class="ledger" role="list">
+          <li>
+            <span class="led-date mono-label">07-04</span>
             <div>
-              <span class="package-title">qwen3-4b-file-ops-distilled</span>
-              <span class="package-path">HF artifact -> MLX adapter -> OpenAI-compatible socket</span>
+              <p class="led-what"><strong>Ref-free SimPO collapsed the SQL policy.</strong> Execution 0.860 → 0.080, degenerate fence-spam.</p>
+              <p class="led-dec">→ <span class="tag">retry-training</span> preference tuning needs a reference anchor.</p>
             </div>
-            <div class="package-grid">
-              <span><b>7.5</b> GB</span>
-              <span><b>4B</b> params</span>
-              <span><b>BFCL</b> gated</span>
-              <span><b>MIT</b> code</span>
+          </li>
+          <li>
+            <span class="led-date mono-label">07-11</span>
+            <div>
+              <p class="led-what"><strong>Reference-anchored DPO fixed the collapse.</strong> Execution recovered to 0.900, then 0.920 at higher pressure — no regression.</p>
+              <p class="led-dec">→ <span class="tag">retry-data</span> execution was never the problem; the <code>Answer:</code> wrapper is a base-model prior.</p>
             </div>
-          </div>
-
-          <div class="chip-strip">
-            <span class="chip ok">distill</span>
-            <span class="chip ok">eval</span>
-            <span class="chip ok">serve</span>
-            <span class="chip warn">route-only</span>
-          </div>
-          <span class="scanline"></span>
-        </div>
-      </div>
-
-      <div class="cta-row">
-        <a class="cta primary" href="https://github.com/sarthak-fleet/posttrainllm#build-it-locally" rel="noopener">
-          <span class="cta-label">Build the Mac CLI</span>
-          <span class="cta-sub"><code>xcodebuild</code> &middot; macOS 14+ &middot; MLX&#8209;Swift</span>
-        </a>
-        <a class="cta secondary" href="/playground">
-          <span class="cta-label">Open the browser playground</span>
-          <span class="cta-sub">WebGPU &middot; trains a GPT&#8209;2 in your tab</span>
-        </a>
-        <a class="cta secondary" href="/artifacts">
-          <span class="cta-label">Read the public artifacts</span>
-          <span class="cta-sub">model packages &middot; benchmark reports &middot; blockers</span>
-        </a>
-      </div>
-
-      <p class="hero-fineprint">
-        First package: qwen3&#8209;4B file&#8209;ops specialist &middot; 7.5&nbsp;GB local HF/MLX artifact &middot;
-        routed specialist, not a general planner.
-      </p>
-    </section>
-
-    <!-- ========== THE NUMBER ========== -->
-    <section class="number-card" aria-labelledby="num-h2">
-      <p class="num-eyebrow">The strongest measured claim</p>
-      <h2 id="num-h2" class="num-h2">
-        A 4B routed file&#8209;ops specialist, locally distilled, matches the
-        frontier on its multi&#8209;turn hard gate.
-      </h2>
-
-      <div class="num-figure">
-        <div class="num-figure-left">
-          <span class="num-hero" aria-hidden="true">100<span class="num-pct">%</span></span>
-          <span class="num-hero-label">Qwen3&#8209;4B file&#8209;ops specialist</span>
-        </div>
-        <ul class="num-bars" aria-label="Multi-turn hard gate, task-completion rate by model">
-          <li>
-            <span class="bar-row">
-              <span class="bar-label">DeepSeek&#8209;V4&#8209;pro <span class="bar-tag">frontier</span></span>
-              <span class="bar-track"><span class="bar-fill" style="--w:100%"></span></span>
-              <span class="bar-value">100<span class="pct">%</span></span>
-            </span>
-          </li>
-          <li class="is-us">
-            <span class="bar-row">
-              <span class="bar-label">Qwen3&#8209;4B file&#8209;ops specialist <span class="bar-tag bar-tag-accent">posttrainllm</span></span>
-              <span class="bar-track"><span class="bar-fill bar-fill-accent" style="--w:100%"></span></span>
-              <span class="bar-value">100<span class="pct">%</span></span>
-            </span>
           </li>
           <li>
-            <span class="bar-row">
-              <span class="bar-label">Gemma&#8209;4&#8209;12B&#8209;qat</span>
-              <span class="bar-track"><span class="bar-fill" style="--w:83%"></span></span>
-              <span class="bar-value">83<span class="pct">%</span></span>
-            </span>
+            <span class="led-date mono-label">now</span>
+            <div>
+              <p class="led-what"><strong>Diagnosis corrected in the open.</strong> The 108 SFT targets were already bare SQL — so hygiene needs a generation-strength fix, not more DPO.</p>
+              <p class="led-dec">→ next: constrained SELECT-prefix decoding.</p>
+            </div>
           </li>
-          <li>
-            <span class="bar-row">
-              <span class="bar-label">Qwen3&#8209;4B (stock&nbsp;+&nbsp;plan&nbsp;prompt)</span>
-              <span class="bar-track"><span class="bar-fill" style="--w:75%"></span></span>
-              <span class="bar-value">75<span class="pct">%</span></span>
-            </span>
-          </li>
-          <li>
-            <span class="bar-row">
-              <span class="bar-label">Gemma&#8209;3&#8209;12B</span>
-              <span class="bar-track"><span class="bar-fill" style="--w:33%"></span></span>
-              <span class="bar-value">33<span class="pct">%</span></span>
-            </span>
-          </li>
-        </ul>
-      </div>
-
-      <p class="num-caption">
-        BFCL multi&#8209;turn hard gate, n=12 GorillaFileSystem agentic tasks,
-        task&#8209;completion rate. Distillation: ~99 frontier trajectories &times;
-        LoRA SFT, single Mac, no cloud train. Cheap routed specialist&nbsp;&gt;&nbsp;bigger general
-        on one domain is the project thesis &mdash; not "4B&nbsp;&gt;&nbsp;12B in general."
-        The same file&#8209;ops specialist regresses on out&#8209;of&#8209;domain breadth
-        (60&nbsp;&rarr;&nbsp;42%), so posttrainllm packages it with the caveat instead of
-        pretending it is a general planner.
-        <a href="/docs/learn/tool-calling-frontier-parity">Full writeup, including the honest tradeoffs &rarr;</a>
-      </p>
-    </section>
-
-    <!-- ========== NUMBERS STRIP ========== -->
-    <section class="metrics" aria-labelledby="metrics-h2">
-      <h2 id="metrics-h2" class="section-h2">Measured, on one Mac.</h2>
-      <p class="section-blurb">
-        Numbers below are from a stock M5 Pro / 48 GB. Reproducible via
-        <code>posttrainllm bench</code> and the linked artefacts. Where a number
-        applies only to a specific preset or build, the preset is named.
-      </p>
-
-      <dl class="metric-grid">
-        <div class="metric">
-          <dt>Decode throughput</dt>
-          <dd><span class="m-val">696</span><span class="m-unit">tok/s</span></dd>
-          <p class="m-note">Huge preset, 221M params. 293&nbsp;tok/s on the 960M Mega pilot.</p>
-        </div>
-        <div class="metric">
-          <dt>TTFT warm</dt>
-          <dd><span class="m-val">5.8</span><span class="m-unit">ms</span><span class="m-pct">p99</span></dd>
-          <p class="m-note">Cold start: 24&nbsp;ms on a 1B model. ITL p99: 4.9&nbsp;ms.</p>
-        </div>
-        <div class="metric">
-          <dt>Training step</dt>
-          <dd><span class="m-val">42</span><span class="m-unit">ms</span></dd>
-          <p class="m-note">Huge preset, 17.2&times; the same model in&#8209;browser via WebGPU.</p>
-        </div>
-        <div class="metric">
-          <dt>WebGPU vs WASM SIMD</dt>
-          <dd><span class="m-val">12.1</span><span class="m-unit">&times;</span></dd>
-          <p class="m-note">At d_model=256. Scales 2.6&times;&rarr;12.1&times; as d_model grows 96&rarr;256.</p>
-        </div>
-        <div class="metric">
-          <dt>ANE M8 decode</dt>
-          <dd><span class="m-val">17</span><span class="m-unit">tok/s</span></dd>
-          <p class="m-note">28&#8209;block Qwen3 chain on the Apple Neural Engine, layer&#8209;chunked Core ML.</p>
-        </div>
-        <div class="metric">
-          <dt>Largest fit</dt>
-          <dd><span class="m-val">960</span><span class="m-unit">M</span></dd>
-          <p class="m-note">Params trainable end&#8209;to&#8209;end on unified memory; 473M in a browser tab via Memory64.</p>
-        </div>
-        <div class="metric">
-          <dt>Spec&#8209;decode speedup</dt>
-          <dd><span class="m-val">1.4</span><span class="m-unit">&times;</span></dd>
-          <p class="m-note"><code>serve &#8209;&#8209;draft&#8209;model</code>, Qwen3 0.6B draft &rarr; 4B target. Lossless greedy; content&#8209;dependent, 1.0&ndash;1.4&times;.</p>
-        </div>
-      </dl>
-    </section>
-
-    <!-- ========== COST ========== -->
-    <section class="cost" aria-labelledby="cost-h2">
-      <h2 id="cost-h2" class="section-h2">The cheapest token is the one you don&rsquo;t rent.</h2>
-      <div class="cost-row">
-        <div class="cost-side">
-          <span class="cost-tag">Cloud serverless</span>
-          <span class="cost-val">$0.20<span class="cost-unit">/ 1M tokens</span></span>
-          <p class="cost-note">A 4B model on Fireworks serverless (4B&ndash;16B tier). Every prompt and completion leaves the device.</p>
-        </div>
-        <div class="cost-side cost-local">
-          <span class="cost-tag">The same model, on your Mac</span>
-          <span class="cost-val">$0<span class="cost-unit">marginal</span></span>
-          <p class="cost-note">After a one&#8209;time download: no metering, runs offline, and the data never leaves the laptop.</p>
-        </div>
-      </div>
-      <p class="cost-fineprint">Cloud rate: <a href="https://docs.fireworks.ai/serverless/pricing">Fireworks serverless pricing</a>, 4B&ndash;16B tier, June&nbsp;2026. Local marginal cost excludes electricity.</p>
-    </section>
-
-    <!-- ========== THE LOOP ========== -->
-    <section class="loop" aria-labelledby="loop-h2">
-      <h2 id="loop-h2" class="section-h2">The loop the runtime closes.</h2>
-      <p class="section-blurb">
-        Each surface emits the input the next one needs. The agent runtime
-        records token&#8209;preserving trajectories; those trajectories become
-        SFT data; that data trains the next specialist; the eval gate decides
-        whether it ships.
-      </p>
-
-      <ol class="pipeline" role="list">
-        <li class="step" data-step="01">
-          <span class="step-num" aria-hidden="true">01</span>
-          <span class="step-name">Data</span>
-          <span class="step-cmd">posttrainllm download&#8209;dataset</span>
-          <span class="step-detail">22 curated sets. HF streaming, Magpie synth, GitHub issue&rarr;PR, MS&#8209;MARCO, the&#8209;stack&#8209;smol.</span>
-        </li>
-        <li class="step" data-step="02">
-          <span class="step-num" aria-hidden="true">02</span>
-          <span class="step-name">Distill</span>
-          <span class="step-cmd">posttrainllm distill</span>
-          <span class="step-detail">KL&nbsp;+&nbsp;NLL teacher&rarr;student. Local teacher (Qwen3, Gemma, DeepSeek via API or Codex CLI). Rejection&#8209;sample on a checker.</span>
-        </li>
-        <li class="step" data-step="03">
-          <span class="step-num" aria-hidden="true">03</span>
-          <span class="step-name">Train / SFT / DPO</span>
-          <span class="step-cmd">posttrainllm sft &middot; dpo &middot; es</span>
-          <span class="step-detail">Full PEFT bundle: LoRA, LoRA+, DoRA, VeRA, LoftQ, AdaLoRA, RsLoRA, PISSA. DPO/SimPO/KTO/ORPO in one trainer.</span>
-        </li>
-        <li class="step" data-step="04">
-          <span class="step-num" aria-hidden="true">04</span>
-          <span class="step-name">Eval gate</span>
-          <span class="step-cmd">posttrainllm eval&#8209;gate</span>
-          <span class="step-detail">BFCL, &tau;&#8209;bench, lm&#8209;eval (MLX adapter), HumanEval+sandbox, judge shim. Exit&#8209;non&#8209;zero on regression.</span>
-        </li>
-        <li class="step" data-step="05">
-          <span class="step-num" aria-hidden="true">05</span>
-          <span class="step-name">Serve</span>
-          <span class="step-cmd">posttrainllm serve</span>
-          <span class="step-detail">OpenAI&nbsp;+&nbsp;Ollama surfaces on the same socket. Continue.dev / any OpenAI client plugs in unchanged.</span>
-        </li>
-        <li class="step" data-step="06">
-          <span class="step-num" aria-hidden="true">06</span>
-          <span class="step-name">Agent</span>
-          <span class="step-cmd">posttrainllm agent</span>
-          <span class="step-detail">Multi&#8209;turn, tool dispatch, persistent KV, FSM&#8209;constrained JSON, optional <code>&#8209;&#8209;cloud&#8209;escalate</code>.</span>
-        </li>
-        <li class="step step-loop" data-step="07">
-          <span class="step-num" aria-hidden="true">07</span>
-          <span class="step-name">Traces &rarr; data</span>
-          <span class="step-cmd">posttrainllm traces&#8209;to&#8209;data</span>
-          <span class="step-detail">Every rollout is a token&#8209;preserving <code>.atraj</code>. Filter, dedupe (MinHash), emit ChatML SFT JSONL. Then loop to step&nbsp;02.</span>
-        </li>
-      </ol>
-
-      <p class="section-blurb loop-latest">
-        <strong>The loop has run end&#8209;to&#8209;end.</strong> Latest
-        (2026&#8209;07&#8209;11, <code>qwen06&#8209;sql&#8209;hygiene&#8209;dpo</code>):
-        reference&#8209;anchored DPO fixed an earlier ref&#8209;free SimPO collapse &mdash;
-        composed SQL execution went 0.860&nbsp;&rarr;&nbsp;0.900&nbsp;&rarr;&nbsp;0.920
-        across two retries with no regression &mdash; but output hygiene stayed at
-        0.000: the <code>Answer:</code> wrapper is a base&#8209;model prior a
-        rank&#8209;4 preference adapter can&rsquo;t strip. Decision:
-        <strong>retry&#8209;data</strong>, because the fix is
-        generation&#8209;strength, not more DPO. Every run assembles a
-        schema&#8209;valid folder (config &middot; dataset &middot; eval &middot;
-        decision &middot; report) via <code>posttrainllm factory&#8209;run</code>.
-        The one proof still missing is a run whose decision is <strong>ship</strong>.
-        &mdash; <a href="/docs/attempt-ledger">full attempt ledger</a> &middot;
-        <a href="/docs/NEXT">active queue &amp; decisions</a>
-      </p>
-    </section>
-
-    <!-- ========== PILLARS ========== -->
-    <section class="pillars" aria-labelledby="pillars-h2">
-      <h2 id="pillars-h2" class="section-h2">What ships, audited against the code.</h2>
-      <p class="section-blurb">
-        PLAN.md is the canonical shipped/skipped/TODO ledger. Each pillar
-        below is one subset; clicking through gets you to specific files
-        and the papers each technique cites.
-      </p>
-
-      <div class="pillar-grid">
-        <article class="pillar">
-          <header>
-            <span class="pillar-tag">Train</span>
-            <h3>Every modern pre/post&#8209;train, one trainer.</h3>
-          </header>
-          <ul>
-            <li><strong>Pretrain</strong> &mdash; byte&#8209;level or BPE; WSD schedule, gradient checkpointing, spike recovery</li>
-            <li><strong>SFT</strong> &mdash; response&#8209;only masking, ChatML / Alpaca / Llama / plain</li>
-            <li><strong>Preference</strong> &mdash; DPO, SimPO, KTO, ORPO (one trainer, flags)</li>
-            <li><strong>PEFT</strong> &mdash; LoRA, LoRA+, DoRA <em>(TGLA v2 on disk)</em>, VeRA, LoftQ, AdaLoRA, RsLoRA, PISSA, LoRA&#8209;FA</li>
-            <li><strong>Optimisers</strong> &mdash; AdamW, Lion, Sophia, Muon, Adafactor, GaLore</li>
-            <li><strong>Architecture</strong> &mdash; RoPE+GQA, sliding window, ALiBi, MoE, MoD, differential attn, YOCO, MTP</li>
-          </ul>
-        </article>
-
-        <article class="pillar">
-          <header>
-            <span class="pillar-tag">Distill</span>
-            <h3>Frontier teacher &rarr; small student.</h3>
-          </header>
-          <ul>
-            <li><strong>KL&nbsp;+&nbsp;NLL</strong> mix loss with temperature and &alpha; (Hinton 2015)</li>
-            <li><strong>Rejection&#8209;sampled</strong> trajectories &mdash; keep only what a checker passes</li>
-            <li><strong>Gold&#8209;clone fallback</strong> &mdash; on verifiable tasks the gold IS the trajectory; teacher&#8209;free reproduces the same model</li>
-            <li><strong>Trace replay</strong> &mdash; render in the student's own chat template via <code>render_sft_from_traj.py</code></li>
-            <li><strong>Headline result</strong> &mdash; 4B at frontier&#8209;parity, <a href="/docs/learn/tool-calling-frontier-parity">documented honestly</a></li>
-          </ul>
-        </article>
-
-        <article class="pillar">
-          <header>
-            <span class="pillar-tag">Eval</span>
-            <h3>Where the moat is.</h3>
-          </header>
-          <ul>
-            <li><strong>Shared schema</strong> &mdash; every eval emits the same JSONL row (E0)</li>
-            <li><strong>posttrainllm eval&#8209;bfcl</strong> &mdash; 10 BFCL categories, OpenAI&#8209;compat shim into <code>posttrainllm&nbsp;serve</code></li>
-            <li><strong>posttrainllm eval&#8209;tau&#8209;bench</strong> &mdash; retail + airline, configurable user simulator</li>
-            <li><strong>posttrainllm run&#8209;lm&#8209;eval</strong> &mdash; MLX adapter for <code>lm&#8209;evaluation&#8209;harness</code>, two modes</li>
-            <li><strong>posttrainllm eval&#8209;humaneval</strong> &mdash; Rust&nbsp;+&nbsp;<code>sandbox&#8209;exec</code> code execution</li>
-            <li><strong>posttrainllm eval&#8209;gate</strong> &mdash; CI&#8209;grade regression gate, exits non&#8209;zero</li>
-          </ul>
-        </article>
-
-        <article class="pillar">
-          <header>
-            <span class="pillar-tag">Serve &middot; Agent</span>
-            <h3>OpenAI&#8209;compatible. Locally.</h3>
-          </header>
-          <ul>
-            <li><strong>posttrainllm serve</strong> &mdash; OpenAI <em>and</em> Ollama on the same socket; Continue.dev provider compat</li>
-            <li><strong>posttrainllm agent</strong> &mdash; multi&#8209;turn loop, tool dispatch, persistent KV, FSM JSON</li>
-            <li><strong>&#8209;&#8209;cloud&#8209;escalate</strong> &mdash; defer to Anthropic / OpenAI only when the local model wants to</li>
-            <li><strong>Speculative decoding in <code>serve</code></strong> &mdash; <code>&#8209;&#8209;draft&#8209;model</code> draft&#43;verify, ~1.4&times; decode, lossless greedy; vanilla/Medusa/EAGLE&#8209;2 heads in the CLI</li>
-            <li><strong>StreamingLLM sink</strong>, KV&#8209;cache quant (KIVI), prefix caching</li>
-            <li><strong>Token&#8209;preserving traces</strong> &mdash; <code>.atraj</code> rollouts feed next round of SFT</li>
-          </ul>
-        </article>
-
-        <article class="pillar">
-          <header>
-            <span class="pillar-tag">Interp</span>
-            <h3>Open the model up.</h3>
-          </header>
-          <ul>
-            <li><strong>Logit lens</strong> &middot; <strong>tuned lens</strong> (trainable per&#8209;layer probes)</li>
-            <li><strong>Activation patching</strong> &mdash; zero + donor&#8209;swap, on (layer, position)</li>
-            <li><strong>Per&#8209;layer ablation</strong> &middot; <strong>attention heatmap</strong></li>
-            <li><strong>Linear probes</strong> &mdash; trainable per&#8209;layer classifiers, <code>.lp</code> sidecar</li>
-            <li><strong>ROME</strong> &middot; <strong>MEMIT</strong> &mdash; rank&#8209;1 and rank&#8209;K fact editing, multi&#8209;layer with key&#8209;norm weighting</li>
-            <li><strong>Sparse autoencoders</strong> &mdash; <code>posttrainllm sae</code>, group&#8209;SAE, SAELens / Neuronpedia export</li>
-          </ul>
-        </article>
-
-        <article class="pillar pillar-browser">
-          <header>
-            <span class="pillar-tag pillar-tag-warm">In a browser tab</span>
-            <h3>The same model, no install.</h3>
-          </header>
-          <p class="pillar-prose">
-            Hand&#8209;written WGSL kernels train a GPT&#8209;2 in your tab.
-            Blocked 4&times;4 matmul (5.18&times; kernel speedup at 2048&sup3;), FA2
-            forward&nbsp;+&nbsp;backward in WGSL, Memory64 lifts the 4&nbsp;GB tab
-            heap so a 473M&#8209;param model allocates cleanly.
-            End&#8209;to&#8209;end parity vs. the WASM reference: &le;&nbsp;2.5%
-            loss drift.
-          </p>
-          <p class="pillar-cta">
-            <a class="inline-cta" href="/playground">Open the playground &rarr;</a>
-            <span class="inline-cta-divider" aria-hidden="true">&middot;</span>
-            <a class="inline-cta inline-cta-quiet" href="/speedup">See the speedup curve &rarr;</a>
-          </p>
-        </article>
+        </ol>
+        <a class="band-more" href="/docs/attempt-ledger">The full attempt ledger →</a>
       </div>
     </section>
 
-    <!-- ========== RUN IT ========== -->
-    <section class="run" aria-labelledby="run-h2">
-      <h2 id="run-h2" class="section-h2">Run it.</h2>
-      <p class="section-blurb">
-        Two paths. The Mac path is the primary one; the browser path is for
-        when you want everything in&#8209;tab, no toolchain, no install.
-      </p>
-
-      <div class="run-grid">
-        <article class="run-card run-card-primary">
-          <header>
-            <h3>On a Mac</h3>
-            <p class="run-tag">macOS 14+ &middot; Xcode &middot; Apple Silicon &middot; MLX&#8209;Swift</p>
-          </header>
-          <pre class="code-block" aria-label="Mac quickstart commands"><code><span class="cm"># build the CLI</span>
-cd native&#8209;mac
-export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
-xcodebuild -scheme posttrainllm -destination 'platform=macOS,arch=arm64' \
-  -derivedDataPath .xcode-build build
-
-<span class="cm"># one&#8209;command quickstart: data &rarr; specialist &rarr; chat</span>
-posttrainllm quickstart --data my.jsonl
-
-<span class="cm"># or distill from a local teacher</span>
-posttrainllm distill --teacher qwen3-4b --student huge \
-  --data ./traces --out ./student.tinygpt
-
-<span class="cm"># then serve it OpenAI&#8209;compatible</span>
-posttrainllm serve --model ./student.tinygpt --port 8080</code></pre>
-          <p class="run-card-cta">
-            <a class="inline-cta" href="https://github.com/sarthak-fleet/posttrainllm#build-it-locally" rel="noopener">Full build instructions &rarr;</a>
-          </p>
-        </article>
-
-        <article class="run-card">
-          <header>
-            <h3>In a browser tab</h3>
-            <p class="run-tag">WebGPU &middot; Chrome 113+ / Safari 18+ &middot; no install</p>
-          </header>
-          <p class="run-prose">
-            The playground builds a transformer in WebAssembly + WebGPU,
-            trains it in a Web Worker so the UI never freezes, and lets you
-            watch the loss curve live as the model picks up structure.
-            Every interpretability surface above is wired in &mdash;
-            attention heatmap, logit lens, ablation, patching &mdash; under
-            one "Inspect &amp; evaluate" panel.
-          </p>
-          <ul class="run-bullets">
-            <li>Parity&#8209;tested against the WASM reference to &le;&nbsp;2.5% loss drift</li>
-            <li>OPFS checkpoint persistence &mdash; a run survives a tab refresh</li>
-            <li>Capability detection picks the right preset for your machine</li>
-          </ul>
-          <p class="run-card-cta">
-            <a class="inline-cta" href="/playground">Open the playground &rarr;</a>
-          </p>
-        </article>
+    <!-- ================= LEARN ================= -->
+    <section class="band">
+      <div class="wrap">
+        <header class="band-head">
+          <h2>Built to be learned from.</h2>
+          <p class="band-sub">A ground-up curriculum and per-technique explainers — each tied to the paper it cites and the file where it lives.</p>
+        </header>
+        <div class="learn-grid">
+          <a class="learn-card learn-lead" href="/docs/learn/curriculum">
+            <span class="mono-label">the curriculum</span>
+            <h3>Ground-up, in 10 modules</h3>
+            <p>From <code>y = mx + b</code> to a self-improving factory. Every subsystem in the repo maps to an anchor in the coverage map — nothing is a black box.</p>
+            <span class="learn-go">Start module 1 →</span>
+          </a>
+          <a class="learn-card" href="/docs/learn/tool-calling-frontier-parity">
+            <span class="mono-label">case study</span>
+            <h4>Frontier-parity at 4B</h4>
+            <p>The headline result, the recipe, the honest tradeoffs.</p>
+          </a>
+          <a class="learn-card" href="/docs/interpretability">
+            <span class="mono-label">interpretability</span>
+            <h4>Where the model decides</h4>
+            <p>Logit / tuned lens, patching, SAE, ROME, MEMIT.</p>
+          </a>
+          <a class="learn-card" href="/docs/distillation">
+            <span class="mono-label">distillation</span>
+            <h4>Teacher → student</h4>
+            <p>KL + NLL mix, temperature, α, rejection sampling.</p>
+          </a>
+          <a class="learn-card" href="/leaderboard">
+            <span class="mono-label">evals</span>
+            <h4>The leaderboard</h4>
+            <p>Drop a JSONL; compare by step, model, task.</p>
+          </a>
+        </div>
       </div>
     </section>
 
-    <!-- ========== HONEST SCOPE ========== -->
-    <section class="honest" aria-labelledby="honest-h2">
-      <h2 id="honest-h2" class="section-h2">Honest scope.</h2>
-      <div class="honest-grid">
+    <!-- ================= HONEST + RUN ================= -->
+    <section class="band band-close">
+      <div class="wrap honest-wrap">
         <div class="honest-col">
-          <h3>What this is</h3>
-          <ul>
-            <li>A single&#8209;developer project, shipping in public, MIT.</li>
-            <li>Mac&#8209;first &mdash; M&#8209;series, unified memory, MLX&#8209;Swift.</li>
+          <h2>Honest scope.</h2>
+          <ul class="honest-list is">
+            <li>A single-developer project, shipping in public, MIT.</li>
+            <li>Mac-first — M-series, unified memory, MLX-Swift.</li>
             <li>A factory for <em>specialists</em>, not a general assistant.</li>
-            <li>An OpenAI&#8209;compatible runtime any client already speaks.</li>
-            <li>A research substrate for interp, eval, and distillation.</li>
+            <li>An OpenAI-compatible runtime any client already speaks.</li>
+          </ul>
+          <ul class="honest-list isnt">
+            <li>Not a proven ship loop yet — the missing proof is a run that decides <strong>ship</strong>.</li>
+            <li>Not multi-GPU or distributed. One device, one Mac.</li>
+            <li>Not a cloud product. Nothing leaves the laptop unless you ask.</li>
           </ul>
         </div>
-        <div class="honest-col">
-          <h3>What this isn&rsquo;t (yet)</h3>
-          <ul>
-            <li>
-              A general&#8209;skill specialist. The frontier&#8209;parity 4B
-              dropped on out&#8209;of&#8209;domain BFCL (60&nbsp;&rarr;&nbsp;42%) &mdash;
-              real catastrophic forgetting. Mixed&#8209;backend distillation
-              is the documented fix.
-            </li>
-            <li>
-              A proven ship loop. One specialist is released (file&#8209;ops);
-              the SQL specialist is still a <em>report&#8209;only candidate</em>,
-              blocked on a public execution gate and output hygiene. The one
-              proof still missing is a factory run whose decision is
-              <strong>ship</strong>.
-            </li>
-            <li>Multi&#8209;GPU or distributed training. One device, single Mac.</li>
-            <li>A cloud product. Nothing leaves the laptop unless <code>&#8209;&#8209;cloud&#8209;escalate</code> is set.</li>
-            <li>An enterprise platform. No SSO, no tenancy, no SLA.</li>
-            <li>A finished story. The <a href="/roadmap">roadmap</a> shows what&rsquo;s shipped and what&rsquo;s next.</li>
-          </ul>
-        </div>
+        <aside class="run-col" data-theme="instrument">
+          <span class="mono-label">run it</span>
+          <pre class="run-block"><code><span class="c">// one Mac, from source</span>
+git clone posttrainllm && cd native-mac
+swift build --product posttrainllm
+
+<span class="c">// train a specialist, gate it, serve it</span>
+posttrainllm distill --teacher qwen3 --student ...
+posttrainllm eval-gate --spec sql.json --candidate ...
+posttrainllm serve --port 8080  <span class="c">// OpenAI-compatible</span></code></pre>
+          <a class="btn btn-primary" href="/docs/quickstart">Full quickstart →</a>
+        </aside>
       </div>
     </section>
 
-    <!-- ========== LEARN ========== -->
-    <section class="learn" aria-labelledby="learn-h2">
-      <h2 id="learn-h2" class="section-h2">Read the journey.</h2>
-      <p class="section-blurb">
-        A ground&#8209;up curriculum, decision logs, and per&#8209;technique
-        explainers &mdash; each ties back to the paper it cites and the file
-        where it lives. The attempt ledger keeps every worked, failed, and
-        retried experiment with its decision.
-      </p>
-      <div class="doc-grid">
-        <a class="doc-link" href="/docs/learn/curriculum">
-          <span class="doc-title">Ground&#8209;up learning curriculum</span>
-          <span class="doc-sub">10 modules from <code>y = mx + b</code> to a self&#8209;improving factory; every subsystem mapped to an anchor in the coverage map</span>
-        </a>
-        <a class="doc-link" href="/docs/attempt-ledger">
-          <span class="doc-title">Attempt ledger &mdash; what we tried</span>
-          <span class="doc-sub">Worked / failed / regressed / retried, each with its decision and lesson (incl. the SQL hygiene DPO retries)</span>
-        </a>
-        <a class="doc-link" href="/docs/learn/tool-calling-frontier-parity">
-          <span class="doc-title">Tool&#8209;calling: frontier&#8209;parity at 4B</span>
-          <span class="doc-sub">The headline result, the distillation recipe, and the honest tradeoffs</span>
-        </a>
-        <a class="doc-link" href="/docs/PLAN">
-          <span class="doc-title">PLAN.md &mdash; shipped &middot; skipped &middot; TODO</span>
-          <span class="doc-sub">The canonical ledger, audited against the code</span>
-        </a>
-        <a class="doc-link" href="/docs/distillation">
-          <span class="doc-title">Knowledge distillation</span>
-          <span class="doc-sub">KL + NLL mix loss, temperature, &alpha;, rejection sampling</span>
-        </a>
-        <a class="doc-link" href="/docs/training/index">
-          <span class="doc-title">Three phases of training</span>
-          <span class="doc-sub">Pretrain &rarr; SFT &rarr; DPO with paste&#8209;ready commands</span>
-        </a>
-        <a class="doc-link" href="/docs/interpretability">
-          <span class="doc-title">Interpretability tools</span>
-          <span class="doc-sub">Logit lens, tuned lens, ablation, patching, SAE, ROME, MEMIT</span>
-        </a>
-        <a class="doc-link" href="/docs/agent_runtime">
-          <span class="doc-title">Agent runtime</span>
-          <span class="doc-sub">Multi&#8209;turn loop, tool dispatch, traces, cloud escalation</span>
-        </a>
-        <a class="doc-link" href="/eval-leaderboard">
-          <span class="doc-title">Eval leaderboard viewer</span>
-          <span class="doc-sub">Drag&#8209;drop a JSONL; compare by step / model / task</span>
-        </a>
-        <a class="doc-link" href="/docs/lessons">
-          <span class="doc-title">Lessons from the build</span>
-          <span class="doc-sub">The bugs and surprises that were worth more than the kernels</span>
-        </a>
-      </div>
-    </section>
-
-    <footer class="site-footer">
-      <nav class="footer-nav" aria-label="Footer">
-        <a href="/playground">playground</a>
-        <a href="/leaderboard">leaderboard</a>
-        <a href="/eval-leaderboard">eval viewer</a>
-        <a href="/sae-timeline">sae timeline</a>
-        <a href="/devlog">devlog</a>
-        <a href="/roadmap">roadmap</a>
-        <a href="/inference">inference</a>
-        <a href="/speedup">speedup</a>
-        <a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github</a>
-      </nav>
-      <p class="footnote">
-        MIT licensed. Browser playground runs everything client&#8209;side &mdash;
-        no server, no inference API. Mac runtime runs everything locally
-        unless <code>&#8209;&#8209;cloud&#8209;escalate</code> is on.
-      </p>
-      <p class="signed">
-        &mdash; <a href="https://github.com/sarthakagrawal927" rel="noopener">Sarthak&nbsp;Agrawal</a>.
-        Building posttrainllm in the open; every backward pass derived by hand,
-        every kernel parity&#8209;checked.
-      </p>
-    </footer>
   </main>
+
+  <footer class="site-footer">
+    <div class="wrap foot-wrap">
+      <span>posttrainllm — an LLM factory for one Mac. MIT.</span>
+      <span class="foot-links">
+        <a href="/artifacts">specialists</a>
+        <a href="/docs/attempt-ledger">experiments</a>
+        <a href="/docs/README">docs</a>
+        <a href="https://github.com/sarthak-fleet/posttrainllm" rel="noopener">github ↗</a>
+      </span>
+    </div>
+  </footer>
 </Default>
 
 <style is:global>
-  :root {
-    color-scheme: dark;
-
-    /* Surfaces */
-    --bg: #08090a;
-    --bg-1: #0b0d10;
-    --bg-2: #0f1217;
-    --bg-3: #141821;
-    --bg-hover: #161a23;
-
-    /* Lines */
-    --line: #1a1e26;
-    --line-soft: #14171e;
-    --line-strong: #262b35;
-
-    /* Ink */
-    --fg: #ecedf0;
-    --fg-soft: #c4c8d0;
-    --fg-quiet: #98a0ad;
-    --muted: #7a8290;
-    --faint: #565d68;
-
-    /* Brand */
-    --accent: #8db4ff;          /* cool blue */
-    --accent-strong: #a8c5ff;
-    --accent-dim: rgba(141, 180, 255, 0.32);
-    --accent-glow: rgba(141, 180, 255, 0.12);
-    --warm: #ffb072;            /* warm orange */
-    --warm-dim: rgba(255, 176, 114, 0.32);
-
-    /* Type */
-    --font-sans: "Geist Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-mono: "Geist Mono Variable", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-
-    /* Rhythm */
-    --r-1: 6px;
-    --r-2: 10px;
-    --r-3: 14px;
-    --r-4: 20px;
-
-    /* Spacing scale, varied for rhythm */
-    --s-1: 6px;
-    --s-2: 10px;
-    --s-3: 16px;
-    --s-4: 24px;
-    --s-5: 36px;
-    --s-6: 56px;
-    --s-7: 88px;
-    --s-8: 128px;
-
-    /* z scale */
-    --z-skip: 100;
-    --z-topbar: 50;
-  }
-
-  * { box-sizing: border-box; }
-  *:focus-visible {
-    outline: 2px solid var(--accent-strong);
-    outline-offset: 3px;
-    border-radius: 4px;
-  }
-
-  html, body {
-    margin: 0; padding: 0;
-    background: var(--bg);
-    color: var(--fg);
-    font: 400 16px/1.65 var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
-
-  ::selection { background: var(--accent-dim); color: var(--fg); }
-
-  code {
-    font: 400 0.86em/1.4 var(--font-mono);
-    background: var(--bg-2);
-    border: 1px solid var(--line);
-    padding: 1px 6px;
-    border-radius: 4px;
-    color: var(--fg-soft);
-    white-space: nowrap;
-  }
-  em { font-style: italic; color: var(--fg-soft); }
-
-  a {
-    color: var(--accent);
-    text-decoration: underline;
-    text-decoration-color: var(--accent-dim);
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
-    transition: text-decoration-color 140ms ease, color 140ms ease;
-  }
-  a:hover { text-decoration-color: var(--accent); color: var(--accent-strong); }
-
-  .skip-link {
-    position: absolute;
-    top: -100px; left: 12px;
-    z-index: var(--z-skip);
-    background: var(--bg-2);
-    border: 1px solid var(--line-strong);
-    color: var(--fg);
-    padding: 10px 14px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 13px;
-  }
-  .skip-link:focus-visible { top: 12px; }
-
-  /* ========== TOPBAR ========== */
-  .topbar {
-    position: sticky;
-    top: 0;
-    z-index: var(--z-topbar);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--s-3);
-    padding: 14px clamp(16px, 4vw, 32px);
-    background: color-mix(in oklab, var(--bg) 84%, transparent);
-    backdrop-filter: saturate(1.4) blur(10px);
-    -webkit-backdrop-filter: saturate(1.4) blur(10px);
-    border-bottom: 1px solid var(--line-soft);
-  }
-  .brand-lockup {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: var(--fg);
-  }
-  .brand-lockup:hover { color: var(--fg); }
-  .brand-mark {
-    display: inline-grid;
-    place-items: center;
-    width: 30px; height: 30px;
-    border-radius: 7px;
-    background:
-      linear-gradient(145deg, color-mix(in oklab, var(--accent) 32%, var(--bg-3)),
-                              color-mix(in oklab, var(--warm) 18%, var(--bg-3)));
-    border: 1px solid color-mix(in oklab, var(--accent) 45%, transparent);
-    box-shadow: 0 0 24px var(--accent-glow);
-    color: var(--fg);
-    font: 600 15px/1 var(--font-mono);
-  }
-  .brand-name {
-    font: 600 15px/1 var(--font-sans);
-    letter-spacing: -0.01em;
-  }
-  .topnav {
-    display: flex;
-    gap: clamp(10px, 2.5vw, 22px);
-    align-items: center;
-    font: 400 13px/1 var(--font-sans);
-  }
-  .topnav a {
-    color: var(--fg-quiet);
-    text-decoration: none;
-    padding: 8px 2px;
-    border-bottom: 1px solid transparent;
-    transition: color 120ms ease, border-color 120ms ease;
-  }
-  .topnav a:hover { color: var(--fg); border-bottom-color: var(--accent); }
-  @media (max-width: 560px) {
-    .topnav { gap: 14px; font-size: 12px; }
-    .topnav a:nth-child(n + 4) { display: none; } /* keep playground, leaderboard, github */
-  }
-
-  /* ========== LANDING SHELL ========== */
-  .landing {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: clamp(36px, 8vw, 80px) clamp(18px, 5vw, 36px) 96px;
-  }
-
-  /* ========== HERO ========== */
-  .hero {
-    position: relative;
-    padding: 0 0 var(--s-6);
-    margin-bottom: var(--s-7);
-    border-bottom: 1px solid var(--line);
-  }
-  .hero::before {
-    content: "";
-    position: absolute;
-    inset: -40px -10% auto;
-    height: 380px;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse at 14% 18%, var(--accent-glow), transparent 55%),
-      radial-gradient(ellipse at 78% 6%, color-mix(in oklab, var(--warm) 16%, transparent), transparent 55%);
-    opacity: 0.85;
-    z-index: -1;
-  }
-  .hero-kicker {
-    margin: 0 0 var(--s-3);
-    font: 500 13.5px/1.4 var(--font-mono);
-    color: var(--warm);
-    letter-spacing: -0.005em;
-  }
-  .hero h1 {
-    margin: 0 0 var(--s-4);
-    font: 600 clamp(34px, 6.4vw, 68px)/1.05 var(--font-sans);
-    letter-spacing: -0.035em;
-    color: var(--fg);
-    max-width: 18ch;
-    text-wrap: balance;
-  }
-  .hero h1 .highlight {
-    color: var(--fg-soft);
-    font-weight: 400;
-    font-style: italic;
-    letter-spacing: -0.025em;
-  }
+  /* ---------- hero ---------- */
+  .landing { padding-bottom: var(--s-9); }
+  .hero { padding-top: clamp(var(--s-8), 9vw, var(--s-10)); padding-bottom: var(--s-9); }
+  .hero-kicker { margin-bottom: var(--s-5); }
+  .hero-h1 { font-size: var(--step-5); font-weight: 640; letter-spacing: -0.04em; }
+  .hero-h1 .ox { color: var(--brand); }
   .hero-lede {
-    margin: 0 0 var(--s-5);
-    font-size: clamp(15.5px, 1.7vw, 18px);
-    line-height: 1.7;
-    color: var(--fg-soft);
-    max-width: 68ch;
-    text-wrap: pretty;
+    max-width: 60ch; margin-top: var(--s-5);
+    font-size: var(--step-1); line-height: 1.55; color: var(--fg-soft);
   }
-  .cta-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: var(--s-4);
-  }
-  .cta {
-    display: inline-flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 14px 20px;
-    border-radius: var(--r-2);
-    text-decoration: none;
-    transition: transform 160ms cubic-bezier(0.2, 0.7, 0.1, 1),
-                background 140ms ease, border-color 140ms ease;
-    min-width: 240px;
-  }
-  .cta-label { font-size: 14.5px; font-weight: 500; }
-  .cta-sub { font-size: 12px; color: var(--muted); font-weight: 400; }
-  .cta code {
-    background: transparent;
-    border: none;
-    padding: 0;
-    color: inherit;
-    white-space: normal;
-  }
-  .cta.primary {
-    background: var(--accent);
-    color: #06080c;
-    border: 1px solid var(--accent);
-  }
-  .cta.primary .cta-sub { color: rgba(6, 8, 12, 0.7); }
-  .cta.primary:hover {
-    background: var(--accent-strong);
-    border-color: var(--accent-strong);
-    transform: translateY(-1px);
-  }
-  .cta.secondary {
-    background: transparent;
-    color: var(--fg);
-    border: 1px solid var(--line-strong);
-  }
-  .cta.secondary:hover {
-    border-color: var(--accent-dim);
-    background: var(--bg-2);
-    transform: translateY(-1px);
-  }
-  .hero-fineprint {
-    font: 400 12.5px/1.6 var(--font-sans);
-    color: var(--muted);
-    margin: 0;
-  }
+  .hero-lede em { color: var(--fg); font-style: normal; font-weight: 560; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-6); }
 
-  /* ========== SECTION SCAFFOLD ========== */
-  section { margin-bottom: var(--s-7); }
-  .section-h2 {
-    font: 500 clamp(22px, 3vw, 30px)/1.2 var(--font-sans);
-    letter-spacing: -0.02em;
-    margin: 0 0 var(--s-3);
-    color: var(--fg);
-    text-wrap: balance;
-  }
-  .section-blurb {
-    font-size: 15px;
-    color: var(--fg-soft);
-    line-height: 1.7;
-    margin: 0 0 var(--s-5);
-    max-width: 68ch;
-    text-wrap: pretty;
-  }
-
-  .loop-latest {
-    margin-top: var(--s-6);
-    margin-bottom: 0;
-    padding: var(--s-4) var(--s-5);
-    border-left: 2px solid var(--accent);
-    background: var(--accent-glow);
-    border-radius: 0 8px 8px 0;
-    max-width: 82ch;
-  }
-
-  /* ========== NUMBER CARD ========== */
-  .number-card {
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--accent) 4%, var(--bg-1)) 0%, var(--bg-1) 100%);
-    border: 1px solid var(--line);
+  /* factory-loop specimen (dark instrument card in the light page) */
+  .loop {
+    margin-top: var(--s-8);
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--rule);
     border-radius: var(--r-4);
-    padding: clamp(22px, 4vw, 40px);
-    position: relative;
-    overflow: hidden;
+    padding: clamp(var(--s-5), 3vw, var(--s-7));
+    box-shadow: var(--shadow-3);
+    position: relative; overflow: hidden;
   }
-  .number-card::after {
-    content: "";
-    position: absolute;
-    inset: -1px;
-    border-radius: var(--r-4);
-    padding: 1px;
-    background: linear-gradient(160deg, var(--accent-dim), transparent 40%);
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-            mask-composite: exclude;
+  .loop::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(120% 80% at 85% -10%, var(--live-wash), transparent 60%);
     pointer-events: none;
   }
-  .num-eyebrow {
-    margin: 0 0 var(--s-2);
-    font: 500 12.5px/1.4 var(--font-mono);
-    color: var(--warm);
-  }
-  .num-h2 {
-    margin: 0 0 var(--s-5);
-    font: 500 clamp(22px, 3vw, 30px)/1.25 var(--font-sans);
-    letter-spacing: -0.02em;
-    color: var(--fg);
-    max-width: 28ch;
-    text-wrap: balance;
-  }
-  .num-figure {
-    display: grid;
-    grid-template-columns: minmax(180px, 1fr) minmax(0, 2.2fr);
-    gap: clamp(20px, 4vw, 44px);
-    align-items: start;
-  }
-  @media (max-width: 720px) {
-    .num-figure { grid-template-columns: 1fr; gap: 28px; }
-  }
-  .num-figure-left {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    border-left: 1px solid var(--line); /* allowed: gutter, not stripe-accent */
-    padding-left: clamp(14px, 2vw, 22px);
-  }
-  @media (max-width: 720px) {
-    .num-figure-left { border-left: none; padding-left: 0; }
-  }
-  .num-hero {
-    font: 600 clamp(72px, 14vw, 132px)/0.95 var(--font-mono);
-    letter-spacing: -0.04em;
-    color: var(--accent);
-    display: inline-flex;
-    align-items: baseline;
-  }
-  .num-hero .num-pct {
-    font-size: 0.5em;
-    color: var(--accent-strong);
-    margin-left: 2px;
-  }
-  .num-hero-label {
-    font: 400 13px/1.4 var(--font-mono);
-    color: var(--muted);
-    margin-top: 2px;
-  }
-  .num-bars {
-    list-style: none;
-    margin: 0; padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .bar-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr) auto;
-    align-items: center;
-    gap: 14px;
-  }
-  @media (max-width: 540px) {
-    .bar-row {
-      grid-template-columns: 1fr;
-      gap: 6px;
-    }
-    .bar-value { justify-self: end; }
-  }
-  .bar-label {
-    font: 400 13.5px/1.4 var(--font-sans);
-    color: var(--fg-soft);
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .is-us .bar-label { color: var(--fg); font-weight: 500; }
-  .bar-tag {
-    font: 500 10px/1 var(--font-mono);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--muted);
-    background: var(--bg-2);
-    border: 1px solid var(--line);
-    padding: 3px 6px;
-    border-radius: 999px;
-  }
-  .bar-tag-accent {
-    color: var(--accent-strong);
-    background: var(--accent-glow);
-    border-color: var(--accent-dim);
-  }
-  .bar-track {
-    position: relative;
-    height: 8px;
-    background: var(--bg-3);
-    border-radius: 999px;
-    overflow: hidden;
-  }
-  .bar-fill {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: var(--w, 0%);
-    background: linear-gradient(90deg, var(--fg-quiet), var(--fg-soft));
-    border-radius: 999px;
-    transform-origin: left center;
-    animation: barIn 900ms cubic-bezier(0.2, 0.7, 0.1, 1) both;
-  }
-  .bar-fill-accent {
-    background: linear-gradient(90deg, var(--accent), var(--accent-strong));
-    box-shadow: 0 0 24px var(--accent-glow);
-  }
-  .bar-value {
-    font: 500 14px/1 var(--font-mono);
-    color: var(--fg);
-    letter-spacing: -0.01em;
-  }
-  .bar-value .pct { color: var(--muted); font-weight: 400; margin-left: 1px; }
-  .is-us .bar-value { color: var(--accent-strong); }
-  @keyframes barIn {
-    from { transform: scaleX(0); opacity: 0.4; }
-    to   { transform: scaleX(1); opacity: 1; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .bar-fill { animation: none; }
-  }
-  .num-caption {
-    margin: var(--s-5) 0 0;
-    font-size: 13.5px;
-    color: var(--muted);
-    line-height: 1.7;
-    max-width: 72ch;
-  }
-  .num-caption a { color: var(--accent); }
-
-  /* ========== METRICS ========== */
-  .metric-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1px;
-    background: var(--line);
-    border: 1px solid var(--line);
-    border-radius: var(--r-3);
-    overflow: hidden;
-    margin: 0;
-  }
-  .metric {
-    background: var(--bg-1);
-    padding: var(--s-4) var(--s-4);
-    transition: background 140ms ease;
-  }
-  .metric:hover { background: var(--bg-2); }
-  .metric dt {
-    font: 400 12px/1.3 var(--font-mono);
-    color: var(--muted);
-    margin: 0 0 var(--s-2);
-    letter-spacing: 0;
-  }
-  .metric dd {
-    margin: 0 0 var(--s-2);
-    display: inline-flex;
-    align-items: baseline;
-    gap: 6px;
-    color: var(--fg);
-  }
-  .m-val {
-    font: 500 clamp(30px, 4vw, 38px)/1 var(--font-mono);
-    letter-spacing: -0.03em;
-  }
-  .m-unit {
-    font: 400 14px/1 var(--font-mono);
-    color: var(--fg-quiet);
-  }
-  .m-pct {
-    font: 400 11px/1 var(--font-mono);
-    color: var(--muted);
-    background: var(--bg-3);
-    padding: 3px 6px;
-    border-radius: 4px;
-    margin-left: 4px;
-  }
-  .m-note {
-    margin: 0;
-    font: 400 12.5px/1.55 var(--font-sans);
-    color: var(--muted);
-  }
-
-  /* ========== COST ========== */
-  .cost { margin-top: var(--s-7); }
-  .cost-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1px;
-    background: var(--line);
-    border: 1px solid var(--line);
-    border-radius: var(--r-3);
-    overflow: hidden;
-  }
-  .cost-side {
-    background: var(--bg-1);
-    padding: var(--s-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--s-2);
-  }
-  .cost-local {
-    background: color-mix(in srgb, var(--accent) 7%, var(--bg-1));
-  }
-  .cost-tag {
-    font: 400 12px/1.3 var(--font-mono);
-    color: var(--muted);
-  }
-  .cost-local .cost-tag { color: var(--accent); }
-  .cost-val {
-    font: 500 clamp(30px, 4vw, 40px)/1 var(--font-mono);
-    letter-spacing: -0.03em;
-    color: var(--fg);
-    display: inline-flex;
-    align-items: baseline;
-    gap: 8px;
-  }
-  .cost-unit {
-    font: 400 14px/1 var(--font-mono);
-    color: var(--fg-quiet);
-  }
-  .cost-note {
-    margin: 0;
-    font: 400 12.5px/1.55 var(--font-sans);
-    color: var(--muted);
-  }
-  .cost-fineprint {
-    margin: var(--s-3) 0 0;
-    font: 400 11.5px/1.5 var(--font-sans);
-    color: var(--faint);
-  }
-  .cost-fineprint a { color: var(--muted); }
-
-  /* ========== PIPELINE ========== */
-  .pipeline {
-    list-style: none;
-    margin: 0; padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 0;
-    border: 1px solid var(--line);
-    border-radius: var(--r-3);
-    overflow: hidden;
-    background: var(--line);
-    counter-reset: step;
-  }
-  .step {
-    background: var(--bg-1);
-    padding: var(--s-4) var(--s-4) calc(var(--s-4) + 4px);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    position: relative;
-    transition: background 140ms ease;
-  }
-  .step:hover { background: var(--bg-2); }
-  .step-loop { background: color-mix(in oklab, var(--warm) 6%, var(--bg-1)); }
-  .step-loop:hover { background: color-mix(in oklab, var(--warm) 9%, var(--bg-2)); }
-  .step-num {
-    font: 500 11px/1 var(--font-mono);
-    color: var(--muted);
-    letter-spacing: 0.06em;
-  }
-  .step-loop .step-num { color: var(--warm); }
-  .step-name {
-    font: 500 15px/1.3 var(--font-sans);
-    color: var(--fg);
-    letter-spacing: -0.01em;
-  }
-  .step-cmd {
-    font: 400 12px/1.4 var(--font-mono);
-    color: var(--accent);
-    background: var(--bg-2);
-    padding: 4px 8px;
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    align-self: flex-start;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .step-loop .step-cmd { color: var(--warm); }
-  .step-detail {
-    font: 400 12.5px/1.55 var(--font-sans);
-    color: var(--fg-quiet);
-  }
-  .step-detail code {
-    background: var(--bg-3);
-    font-size: 0.92em;
-    padding: 0 4px;
-    border-color: var(--line);
-  }
-
-  /* arrow between steps - hidden on wrap rows, on by hover for affordance */
-  @media (min-width: 720px) {
-    .step::after {
-      content: "";
-      position: absolute;
-      right: -10px;
-      top: 50%;
-      width: 20px;
-      height: 1px;
-      background: var(--line-strong);
-      transform: translateY(-50%);
-      pointer-events: none;
-      z-index: 1;
-    }
-    .step:nth-last-child(1)::after { display: none; }
-  }
-
-  /* ========== PILLARS ========== */
-  .pillar-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-    gap: 14px;
-  }
-  .pillar {
-    background: var(--bg-1);
-    border: 1px solid var(--line);
-    border-radius: var(--r-3);
-    padding: var(--s-4);
-    display: flex;
-    flex-direction: column;
-    gap: var(--s-3);
-    transition: border-color 140ms ease, background 140ms ease, transform 240ms cubic-bezier(0.2, 0.7, 0.1, 1);
-  }
-  .pillar:hover {
-    border-color: var(--line-strong);
-    background: var(--bg-2);
-    transform: translateY(-1px);
-  }
-  .pillar header { display: flex; flex-direction: column; gap: var(--s-2); }
-  .pillar-tag {
-    font: 500 10.5px/1 var(--font-mono);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent-strong);
-    background: var(--accent-glow);
-    border: 1px solid var(--accent-dim);
-    padding: 4px 8px;
-    border-radius: 999px;
-    align-self: flex-start;
-  }
-  .pillar-tag-warm {
-    color: var(--warm);
-    background: color-mix(in oklab, var(--warm) 12%, transparent);
-    border-color: var(--warm-dim);
-  }
-  .pillar h3 {
-    margin: 0;
-    font: 500 17px/1.3 var(--font-sans);
-    letter-spacing: -0.015em;
-    color: var(--fg);
-    text-wrap: balance;
-  }
-  .pillar ul {
-    list-style: none;
-    margin: 0; padding: 0;
-  }
-  .pillar li {
-    font: 400 13.5px/1.6 var(--font-sans);
-    color: var(--fg-soft);
-    padding: 8px 0;
-    border-top: 1px solid var(--line-soft);
-  }
-  .pillar li:first-child { border-top: none; padding-top: 0; }
-  .pillar li strong { color: var(--fg); font-weight: 500; }
-  .pillar li em { color: var(--fg-quiet); }
-  .pillar-prose {
-    margin: 0;
-    font: 400 14px/1.7 var(--font-sans);
-    color: var(--fg-soft);
-  }
-  .pillar-browser {
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--warm) 5%, var(--bg-1)) 0%, var(--bg-1) 100%);
-    border-color: var(--warm-dim);
-  }
-  .pillar-browser:hover { border-color: var(--warm); background: var(--bg-2); }
-  .pillar-cta {
-    margin: 0;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
-    font-size: 14px;
-  }
-  .inline-cta {
-    text-decoration: none;
-    color: var(--warm);
-    font-weight: 500;
-    border-bottom: 1px solid var(--warm-dim);
-    padding-bottom: 1px;
-    transition: border-color 120ms ease;
-  }
-  .inline-cta:hover { border-bottom-color: var(--warm); color: var(--warm); }
-  .inline-cta-quiet { color: var(--fg-quiet); border-bottom-color: var(--line-strong); }
-  .inline-cta-quiet:hover { color: var(--fg); border-bottom-color: var(--accent); }
-  .inline-cta-divider { color: var(--faint); margin: 0 4px; }
-
-  /* ========== RUN ========== */
-  .run-grid {
-    display: grid;
-    grid-template-columns: 1.15fr 1fr;
-    gap: 16px;
-  }
-  @media (max-width: 780px) {
-    .run-grid { grid-template-columns: 1fr; }
-  }
-  .run-card {
-    background: var(--bg-1);
-    border: 1px solid var(--line);
-    border-radius: var(--r-3);
-    padding: var(--s-4) var(--s-4) calc(var(--s-4) + 4px);
-    display: flex;
-    flex-direction: column;
-    gap: var(--s-3);
-  }
-  .run-card-primary {
-    border-color: color-mix(in oklab, var(--accent) 38%, var(--line-strong));
-    background:
-      linear-gradient(180deg, color-mix(in oklab, var(--accent) 4%, var(--bg-1)) 0%, var(--bg-1) 100%);
-  }
-  .run-card header h3 {
-    margin: 0;
-    font: 500 18px/1.2 var(--font-sans);
-    letter-spacing: -0.015em;
-  }
-  .run-tag {
-    margin: 4px 0 0;
-    font: 400 12px/1.4 var(--font-mono);
-    color: var(--muted);
-  }
-  .run-prose {
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--fg-soft);
-  }
-  .run-bullets {
-    margin: 0; padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .run-bullets li {
-    position: relative;
-    padding-left: 18px;
-    font-size: 13.5px;
-    color: var(--fg-soft);
-    line-height: 1.55;
-  }
-  .run-bullets li::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 9px;
-    width: 8px; height: 1px;
-    background: var(--accent);
-  }
-  .code-block {
-    margin: 0;
-    background: var(--bg);
-    border: 1px solid var(--line-strong);
-    border-radius: var(--r-2);
-    padding: 16px 18px;
-    overflow-x: auto;
-    font: 400 12.5px/1.7 var(--font-mono);
-    color: var(--fg-soft);
-    -webkit-overflow-scrolling: touch;
-  }
-  .code-block code { background: transparent; border: none; padding: 0; white-space: pre; color: inherit; }
-  .code-block .cm { color: var(--muted); }
-  .run-card-cta { margin: var(--s-2) 0 0; font-size: 13.5px; }
-  .run-card-cta .inline-cta { color: var(--accent); border-bottom-color: var(--accent-dim); }
-  .run-card-cta .inline-cta:hover { color: var(--accent-strong); border-bottom-color: var(--accent); }
-
-  /* ========== HONEST ========== */
-  .honest-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(20px, 4vw, 48px);
-  }
-  @media (max-width: 720px) {
-    .honest-grid { grid-template-columns: 1fr; gap: 32px; }
-  }
-  .honest-col h3 {
-    margin: 0 0 var(--s-3);
-    font: 500 16px/1.3 var(--font-sans);
-    color: var(--fg);
-    letter-spacing: -0.01em;
-  }
-  .honest-col ul {
-    margin: 0; padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .honest-col li {
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--fg-soft);
-    padding-left: 16px;
+  .loop-cap {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+    gap: var(--s-3); margin-bottom: var(--s-5);
+  }
+  .loop-live { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: var(--step--1); color: var(--live); }
+  .loop-live .dot {
+    width: 7px; height: 7px; border-radius: 50%; background: var(--live-bright);
+    box-shadow: 0 0 0 0 var(--live-bright); animation: pulse 2.4s var(--ease-out) infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(72,229,194,0.5); }
+    70% { box-shadow: 0 0 0 7px rgba(72,229,194,0); }
+    100% { box-shadow: 0 0 0 0 rgba(72,229,194,0); }
+  }
+  .loop-steps {
+    list-style: none; padding: 0; margin: 0;
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 0;
+    border: 1px solid var(--rule); border-radius: var(--r-2); overflow: hidden;
+  }
+  .loop-steps li {
+    padding: var(--s-4) var(--s-4) var(--s-5);
+    display: flex; flex-direction: column; gap: 7px;
+    border-right: 1px solid var(--rule);
     position: relative;
   }
-  .honest-col li::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 11px;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--fg-quiet);
-  }
-  .honest-col:last-child li::before { background: var(--warm); }
-
-  /* ========== LEARN ========== */
-  .doc-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1px;
-    background: var(--line);
-    border: 1px solid var(--line);
-    border-radius: var(--r-3);
-    overflow: hidden;
-  }
-  .doc-link {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    padding: 18px 20px;
-    background: var(--bg-1);
-    text-decoration: none;
-    color: var(--fg);
-    transition: background 140ms ease, transform 240ms cubic-bezier(0.2, 0.7, 0.1, 1);
-  }
-  .doc-link:hover {
-    background: var(--bg-2);
-    transform: translateY(-1px);
-  }
-  .doc-title {
-    font: 500 14px/1.4 var(--font-sans);
-    color: var(--fg);
-    letter-spacing: -0.005em;
-  }
-  .doc-sub {
-    font: 400 12.5px/1.55 var(--font-sans);
-    color: var(--muted);
-  }
-
-  /* ========== FOOTER ========== */
-  .site-footer {
-    margin-top: var(--s-7);
-    padding-top: var(--s-5);
-    border-top: 1px solid var(--line);
-    text-align: center;
-  }
-  .footer-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: clamp(10px, 2vw, 22px);
-    justify-content: center;
-    margin-bottom: var(--s-4);
-    font-size: 13px;
-  }
-  .footer-nav a {
-    color: var(--fg-quiet);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    padding-bottom: 2px;
-    transition: color 120ms ease, border-color 120ms ease;
-  }
-  .footer-nav a:hover { color: var(--fg); border-bottom-color: var(--accent); }
-  .footnote {
-    font-size: 12.5px;
-    color: var(--muted);
-    line-height: 1.7;
-    max-width: 56ch;
-    margin: 0 auto var(--s-3);
-  }
-  .signed {
-    font-size: 12.5px;
-    color: var(--fg-quiet);
-    max-width: 60ch;
-    margin: 0 auto;
-    line-height: 1.7;
-  }
-
-  /* ========== FUTURE SYSTEM OVERRIDE ========== */
-  :root {
-    --bg: #050608;
-    --bg-1: #090d12;
-    --bg-2: #0e141b;
-    --bg-3: #141d26;
-    --bg-hover: #17212b;
-    --line: rgba(162, 190, 210, 0.14);
-    --line-soft: rgba(162, 190, 210, 0.09);
-    --line-strong: rgba(162, 190, 210, 0.24);
-    --fg: #f4f7f7;
-    --fg-soft: #c7d1d3;
-    --fg-quiet: #91a0a5;
-    --muted: #6f7c84;
-    --faint: #48525a;
-    --accent: #61f4d4;
-    --accent-strong: #a8fff0;
-    --accent-dim: rgba(97, 244, 212, 0.34);
-    --accent-glow: rgba(97, 244, 212, 0.12);
-    --violet: #b59cff;
-    --violet-dim: rgba(181, 156, 255, 0.24);
-    --warm: #ffcf7a;
-    --warm-dim: rgba(255, 207, 122, 0.24);
-    --danger: #ff887d;
-    --r-2: 8px;
-    --r-3: 8px;
-    --r-4: 8px;
-  }
-
-  html,
-  body {
-    min-height: 100%;
-    background:
-      linear-gradient(116deg, rgba(97, 244, 212, 0.08) 0%, transparent 22%, rgba(181, 156, 255, 0.07) 49%, transparent 72%),
-      linear-gradient(180deg, #050608 0%, #071017 44%, #050608 100%);
-  }
-
-  body {
-    position: relative;
-    overflow-x: hidden;
-  }
-
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -2;
-    pointer-events: none;
-    background:
-      linear-gradient(90deg, rgba(97, 244, 212, 0.055) 1px, transparent 1px),
-      linear-gradient(180deg, rgba(97, 244, 212, 0.045) 1px, transparent 1px),
-      linear-gradient(180deg, transparent 0 44%, rgba(255, 255, 255, 0.035) 45%, transparent 46% 100%);
-    background-size: 72px 72px, 72px 72px, 100% 8px;
-    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.56) 62%, transparent);
-  }
-
-  code {
-    background: rgba(255, 255, 255, 0.035);
-    border-color: var(--line-strong);
-    color: var(--fg-soft);
-  }
-
-  .topbar {
-    position: fixed;
-    top: 12px;
-    left: 50%;
-    width: min(calc(100% - 24px), 1220px);
-    transform: translateX(-50%);
-    border: 1px solid var(--line-strong);
-    border-radius: 8px;
-    background: rgba(5, 6, 8, 0.72);
-    box-shadow: 0 18px 54px rgba(0, 0, 0, 0.28);
-    padding: 10px clamp(12px, 2vw, 20px);
-  }
-
-  .brand-mark {
-    width: 34px;
-    height: 34px;
-    border-radius: 6px;
-    clip-path: polygon(0 0, 86% 0, 100% 14%, 100% 100%, 14% 100%, 0 86%);
-    background:
-      linear-gradient(135deg, rgba(97, 244, 212, 0.28), rgba(181, 156, 255, 0.16)),
-      var(--bg-2);
-    border-color: var(--accent-dim);
-    color: var(--accent-strong);
-    text-shadow: 0 0 18px var(--accent-dim);
-  }
-
-  .brand-name {
-    font: 650 13px/1 var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-
-  .topnav {
-    font: 500 11px/1 var(--font-mono);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .topnav a {
-    color: var(--fg-quiet);
-    padding: 9px 8px;
-    border: 1px solid transparent;
-    border-radius: 6px;
-  }
-
-  .topnav a:hover {
-    color: var(--fg);
-    background: rgba(255, 255, 255, 0.035);
-    border-color: var(--line-strong);
-  }
-
-  .landing {
-    max-width: 1220px;
-    padding: 92px clamp(16px, 4vw, 36px) 104px;
-  }
-
-  section {
-    margin-bottom: clamp(76px, 10vw, 132px);
-    scroll-margin-top: 112px;
-  }
-
-  .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 0.96fr) minmax(360px, 0.78fr);
-    grid-template-rows: auto auto auto auto 1fr;
-    column-gap: clamp(30px, 5vw, 76px);
-    align-items: center;
-    min-height: calc(100svh - 112px);
-    padding: clamp(38px, 6vw, 74px) 0 clamp(34px, 5vw, 64px);
-    border-bottom-color: var(--line-soft);
-    margin-bottom: clamp(72px, 9vw, 116px);
-  }
-
-  .hero::before {
-    display: none;
-  }
-
-  .hero-kicker,
-  .hero h1,
-  .hero-lede,
-  .cta-row,
-  .hero-fineprint {
-    grid-column: 1;
-  }
-
-  .hero-kicker {
-    width: fit-content;
-    margin-bottom: 18px;
-    padding: 8px 10px;
-    border: 1px solid var(--accent-dim);
-    border-radius: 6px;
-    background: rgba(97, 244, 212, 0.07);
-    color: var(--accent-strong);
-    font: 600 11px/1 var(--font-mono);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-
-  .hero h1 {
-    max-width: 13ch;
-    margin-bottom: 24px;
-    font-size: clamp(44px, 7vw, 86px);
-    line-height: 0.96;
-    letter-spacing: 0;
-  }
-
-  .hero h1 .highlight {
-    display: block;
-    color: var(--accent-strong);
-    font-style: normal;
-    font-weight: 650;
-    text-shadow: 0 0 36px var(--accent-glow);
-  }
-
-  .hero-lede {
-    max-width: 62ch;
-    margin-bottom: 28px;
-    color: var(--fg-soft);
-  }
-
-  .hero-visual {
-    grid-column: 2;
-    grid-row: 1 / span 5;
-    position: relative;
-    min-height: 560px;
-    display: grid;
-    place-items: center;
-  }
-
-  .signal-grid {
-    position: absolute;
-    inset: 0;
-    clip-path: polygon(7% 0, 100% 0, 100% 91%, 91% 100%, 0 100%, 0 9%);
-    border: 1px solid var(--line-strong);
-    background:
-      linear-gradient(90deg, rgba(97, 244, 212, 0.09) 1px, transparent 1px),
-      linear-gradient(180deg, rgba(181, 156, 255, 0.07) 1px, transparent 1px),
-      linear-gradient(135deg, rgba(97, 244, 212, 0.08), rgba(255, 207, 122, 0.045) 42%, rgba(181, 156, 255, 0.08));
-    background-size: 34px 34px, 34px 34px, 100% 100%;
-    opacity: 0.72;
-  }
-
-  .signal-grid::before,
-  .signal-grid::after {
-    content: "";
-    position: absolute;
-    left: 12%;
-    right: 12%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    opacity: 0.55;
-  }
-
-  .signal-grid::before { top: 22%; }
-  .signal-grid::after { bottom: 24%; background: linear-gradient(90deg, transparent, var(--violet), transparent); }
-
-  .holo-frame {
-    position: relative;
-    width: min(100%, 460px);
-    border: 1px solid var(--line-strong);
-    border-radius: 8px;
-    background: rgba(6, 9, 12, 0.86);
-    box-shadow:
-      0 0 0 1px rgba(97, 244, 212, 0.04) inset,
-      0 30px 90px rgba(0, 0, 0, 0.48),
-      0 0 70px rgba(97, 244, 212, 0.11);
-    overflow: hidden;
-  }
-
-  .holo-frame::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-      linear-gradient(120deg, rgba(255, 255, 255, 0.08), transparent 26%),
-      linear-gradient(180deg, transparent 0 70%, rgba(97, 244, 212, 0.06));
-  }
-
-  .holo-header {
-    position: relative;
-    display: grid;
-    grid-template-columns: 8px 8px 8px 1fr auto;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .holo-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 16px var(--accent-dim);
-  }
-
-  .holo-dot.is-warm { background: var(--warm); box-shadow: 0 0 16px var(--warm-dim); }
-  .holo-dot.is-violet { background: var(--violet); box-shadow: 0 0 16px var(--violet-dim); }
-
-  .holo-title,
-  .holo-pill,
-  .holo-label,
-  .holo-value,
-  .chip,
-  .package-title,
-  .package-path,
-  .package-grid {
-    font-family: var(--font-mono);
-  }
-
-  .holo-title {
-    color: var(--fg-quiet);
-    font-size: 11px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .holo-pill {
-    border: 1px solid var(--accent-dim);
-    border-radius: 999px;
-    padding: 4px 8px;
-    color: var(--accent-strong);
-    background: rgba(97, 244, 212, 0.08);
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .holo-stack {
-    position: relative;
-    display: grid;
-    gap: 12px;
-    padding: 18px 16px;
-  }
-
-  .holo-row {
-    display: grid;
-    grid-template-columns: minmax(104px, 1fr) auto;
-    gap: 8px 14px;
-    align-items: center;
-  }
-
-  .holo-label {
-    color: var(--fg-quiet);
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .holo-value {
-    color: var(--fg);
-    font-size: 12px;
-  }
-
-  .holo-rail {
-    grid-column: 1 / -1;
-    height: 9px;
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    background:
-      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 12px),
-      rgba(255, 255, 255, 0.035);
-    overflow: hidden;
-  }
-
-  .holo-fill {
-    display: block;
-    height: 100%;
-    width: 78%;
-    background: linear-gradient(90deg, var(--accent), var(--accent-strong));
-    box-shadow: 0 0 24px var(--accent-dim);
-  }
-
-  .holo-fill.is-full { width: 100%; }
-  .holo-fill.is-route { width: 88%; background: linear-gradient(90deg, var(--violet), var(--accent)); }
-  .holo-fill.is-warn { width: 58%; background: linear-gradient(90deg, var(--warm), var(--danger)); box-shadow: 0 0 24px var(--warm-dim); }
-
-  .holo-package {
-    position: relative;
-    margin: 0 16px 16px;
-    padding: 14px;
-    border: 1px solid var(--line-strong);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.035);
-  }
-
-  .package-title {
-    display: block;
-    color: var(--accent-strong);
-    font-size: 12px;
-    line-height: 1.35;
-    overflow-wrap: anywhere;
-  }
-
-  .package-path {
-    display: block;
-    margin-top: 4px;
-    color: var(--muted);
-    font-size: 10.5px;
-    line-height: 1.45;
-  }
-
-  .package-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1px;
-    margin-top: 14px;
-    border: 1px solid var(--line);
-    background: var(--line);
-  }
-
-  .package-grid span {
-    min-width: 0;
-    padding: 10px 8px;
-    background: rgba(5, 6, 8, 0.72);
-    color: var(--fg-quiet);
-    font-size: 10px;
-    text-align: center;
-  }
-
-  .package-grid b {
-    display: block;
-    color: var(--fg);
-    font-weight: 650;
-    font-size: 12px;
-  }
-
-  .chip-strip {
-    position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 0 16px 16px;
-  }
-
-  .chip {
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    padding: 6px 9px;
-    color: var(--fg-quiet);
-    background: rgba(255, 255, 255, 0.035);
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .chip.ok {
-    border-color: var(--accent-dim);
-    color: var(--accent-strong);
-  }
-
-  .chip.warn {
-    border-color: var(--warm-dim);
-    color: var(--warm);
-  }
-
-  .scanline {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: -18%;
-    height: 28%;
-    pointer-events: none;
-    background: linear-gradient(180deg, transparent, rgba(97, 244, 212, 0.13), transparent);
-    animation: scan 5.5s linear infinite;
-  }
-
-  @keyframes scan {
-    from { transform: translateY(0); }
-    to { transform: translateY(520%); }
-  }
-
-  .cta {
-    position: relative;
-    min-width: min(100%, 264px);
-    border-radius: 8px;
-    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
-  }
-
-  .cta.primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-    box-shadow: 0 18px 48px rgba(97, 244, 212, 0.16);
-  }
-
-  .cta.secondary {
-    background: rgba(255, 255, 255, 0.035);
-    border-color: var(--line-strong);
-  }
-
-  .hero-fineprint {
-    color: var(--fg-quiet);
-  }
-
-  .section-h2 {
-    position: relative;
-    padding-top: 16px;
-    font-size: clamp(25px, 3.4vw, 38px);
-    letter-spacing: 0;
-  }
-
-  .section-h2::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 72px;
-    height: 1px;
-    background: linear-gradient(90deg, var(--accent), transparent);
-  }
-
-  .number-card,
-  .metric-grid,
-  .pipeline,
-  .pillar,
-  .run-card,
-  .honest-col,
-  .doc-grid,
-  .doc-link {
-    border-radius: 8px;
-  }
-
-  .number-card {
-    clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
-    background:
-      linear-gradient(90deg, rgba(97, 244, 212, 0.1), transparent 36%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015)),
-      rgba(6, 9, 12, 0.82);
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.3);
-  }
-
-  .number-card::after {
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent-dim), transparent 36%, var(--violet-dim));
-  }
-
-  .num-eyebrow,
-  .step-num,
-  .metric dt,
-  .run-tag {
-    text-transform: uppercase;
-    letter-spacing: 0.09em;
-  }
-
-  .num-hero {
-    color: var(--accent-strong);
-    text-shadow: 0 0 34px var(--accent-glow);
-  }
-
-  .bar-track,
-  .step-cmd,
-  .m-pct {
-    border-radius: 999px;
-  }
-
-  .bar-track {
-    background:
-      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 12px),
-      rgba(255, 255, 255, 0.04);
-  }
-
-  .metric-grid,
-  .pipeline,
-  .doc-grid {
-    gap: 1px;
-    background: var(--line-strong);
-    border-color: var(--line-strong);
-  }
-
-  .metric,
-  .step,
-  .doc-link {
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent),
-      rgba(8, 13, 18, 0.82);
-  }
-
-  .metric:hover,
-  .step:hover,
-  .doc-link:hover {
-    background:
-      linear-gradient(180deg, rgba(97, 244, 212, 0.075), transparent),
-      rgba(11, 18, 24, 0.94);
-  }
-
-  .pipeline {
-    overflow: visible;
-    border: none;
-    background: transparent;
-    gap: 12px;
-  }
-
-  .step {
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
-  }
-
-  .step::before {
-    content: attr(data-step);
-    position: absolute;
-    right: 12px;
-    bottom: 10px;
-    color: rgba(255, 255, 255, 0.035);
-    font: 800 44px/1 var(--font-mono);
-  }
-
-  .step::after {
-    display: none;
-  }
-
-  .step-cmd {
-    max-width: 100%;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    text-overflow: clip;
-  }
-
-  .pillar-grid {
-    grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
-    gap: 14px;
-  }
-
-  .pillar,
-  .run-card,
-  .honest-col {
-    position: relative;
-    overflow: hidden;
-    border-color: var(--line-strong);
-    background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 42%),
-      rgba(8, 13, 18, 0.82);
-  }
-
-  .pillar::before,
-  .run-card::before,
-  .honest-col::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 2px;
-    background: linear-gradient(180deg, var(--accent), transparent);
-    opacity: 0.62;
-  }
-
-  .pillar:hover,
-  .run-card:hover,
-  .honest-col:hover {
-    border-color: var(--accent-dim);
-    background:
-      linear-gradient(180deg, rgba(97, 244, 212, 0.07), transparent 42%),
-      rgba(9, 16, 22, 0.92);
-  }
-
-  .pillar-tag {
-    border-radius: 999px;
-  }
-
-  .pillar-browser::before,
-  .run-card-primary::before,
-  .honest-col:last-child::before {
-    background: linear-gradient(180deg, var(--warm), transparent);
-  }
-
-  .run-card-primary,
-  .pillar-browser {
-    background:
-      linear-gradient(180deg, rgba(255, 207, 122, 0.08), transparent 48%),
-      rgba(8, 13, 18, 0.86);
-  }
-
-  .code-block {
-    border-radius: 8px;
-    background:
-      linear-gradient(90deg, rgba(97, 244, 212, 0.07) 1px, transparent 1px),
-      linear-gradient(180deg, #050608, #070b0f);
-    background-size: 28px 100%, 100% 100%;
-    border-color: var(--line-strong);
-  }
-
-  .honest-grid {
-    gap: 14px;
-  }
-
-  .honest-col {
-    padding: var(--s-4);
-    border: 1px solid var(--line-strong);
-  }
-
-  .honest-col li::before {
-    border-radius: 0;
-    width: 8px;
-    height: 1px;
-    background: var(--accent);
-  }
-
-  .doc-grid {
-    border: 0;
-    background: transparent;
-    gap: 12px;
-  }
-
-  .doc-link {
-    border: 1px solid var(--line);
-    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
-  }
-
-  .doc-title {
-    color: var(--fg);
-  }
-
-  .doc-link:hover .doc-title {
-    color: var(--accent-strong);
-  }
-
-  .site-footer {
-    position: relative;
-    border-top-color: var(--line-strong);
-  }
-
-  .site-footer::before {
-    content: "";
-    position: absolute;
-    top: -1px;
-    left: 50%;
-    width: min(420px, 70%);
-    height: 1px;
-    transform: translateX(-50%);
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  }
-
-  @media (max-width: 980px) {
-    .hero {
-      grid-template-columns: 1fr;
-      min-height: auto;
-    }
-
-    .hero-visual {
-      grid-column: 1;
-      grid-row: auto;
-      min-height: 420px;
-      margin: 10px 0 28px;
-    }
-
-    .hero h1 {
-      max-width: 14ch;
-      font-size: clamp(42px, 11vw, 72px);
-    }
-  }
-
-  @media (max-width: 640px) {
-    .topbar {
-      align-items: flex-start;
-      gap: 10px;
-    }
-
-    .topnav {
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 6px;
-    }
-
-    .topnav a {
-      padding: 7px 5px;
-    }
-
-    .topnav a:nth-child(3) {
-      display: none;
-    }
-
-    .topnav a:nth-child(5) {
-      display: inline-flex;
-    }
-
-    .landing {
-      padding-top: 108px;
-    }
-
-    .hero {
-      padding-top: 20px;
-    }
-
-    .hero h1 {
-      max-width: 11ch;
-      font-size: clamp(38px, 13vw, 58px);
-    }
-
-    .hero-lede {
-      font-size: 15px;
-    }
-
-    .hero-visual {
-      min-height: 360px;
-    }
-
-    .holo-frame {
-      width: 100%;
-    }
-
-    .holo-header {
-      grid-template-columns: 8px 8px 8px minmax(0, 1fr);
-    }
-
-    .holo-pill {
-      display: none;
-    }
-
-    .package-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .cta-row {
-      display: grid;
-      grid-template-columns: 1fr;
-    }
-
-    .num-h2 {
-      max-width: none;
-    }
-
-    .pillar-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* ========== COMPACT SCALE TUNING ========== */
-  body {
-    font-size: 15px;
-    line-height: 1.62;
-  }
-
-  .topbar {
-    padding-block: 9px;
-  }
-
-  .landing {
-    max-width: 1180px;
-  }
-
-  section {
-    margin-bottom: clamp(58px, 8vw, 104px);
-  }
-
-  .hero {
-    grid-template-columns: minmax(0, 1fr) minmax(330px, 0.7fr);
-    column-gap: clamp(26px, 4vw, 56px);
-    min-height: calc(100svh - 132px);
-    padding: clamp(24px, 4.8vw, 54px) 0 clamp(28px, 4vw, 48px);
-  }
-
-  .hero-kicker {
-    margin-bottom: 14px;
-    padding: 7px 9px;
-    font-size: 10px;
-  }
-
-  .hero h1 {
-    max-width: 14.5ch;
-    margin-bottom: 20px;
-    font-size: clamp(36px, 5.1vw, 64px);
-    line-height: 1;
-  }
-
-  .hero-lede {
-    max-width: 60ch;
-    margin-bottom: 24px;
-    font-size: clamp(14.5px, 1.25vw, 16px);
-    line-height: 1.62;
-  }
-
-  .hero-visual {
-    min-height: 460px;
-  }
-
-  .holo-frame {
-    width: min(100%, 410px);
-  }
-
-  .holo-header {
-    padding: 12px 14px;
-  }
-
-  .holo-stack {
-    gap: 10px;
-    padding: 16px 14px;
-  }
-
-  .holo-package {
-    margin: 0 14px 14px;
-    padding: 12px;
-  }
-
-  .chip-strip {
-    padding: 0 14px 14px;
-  }
-
-  .cta {
-    min-width: min(100%, 240px);
-    padding: 12px 16px;
-  }
-
-  .cta-label {
-    font-size: 13.5px;
-  }
-
-  .cta-sub {
-    font-size: 11px;
-  }
-
-  .hero-fineprint,
-  .num-caption,
-  .footnote,
-  .signed {
-    font-size: 12px;
-  }
-
-  .section-h2 {
-    font-size: clamp(22px, 2.65vw, 30px);
-  }
-
-  .section-blurb {
-    max-width: 64ch;
-    font-size: 14px;
-    line-height: 1.62;
-  }
-
-  .number-card {
-    padding: clamp(20px, 3vw, 32px);
-  }
-
-  .num-h2 {
-    font-size: clamp(20px, 2.45vw, 26px);
-  }
-
-  .num-hero {
-    font-size: clamp(58px, 10vw, 104px);
-  }
-
-  .bar-label {
-    font-size: 12.5px;
-  }
-
-  .bar-value {
-    font-size: 13px;
-  }
-
-  .metric {
-    padding: 18px;
-  }
-
-  .m-val {
-    font-size: clamp(25px, 3vw, 32px);
-  }
-
-  .m-note,
-  .step-detail,
-  .doc-sub {
-    font-size: 12px;
-  }
-
-  .step {
-    padding: 18px;
-  }
-
-  .step-name {
-    font-size: 14px;
-  }
-
-  .step-cmd {
-    font-size: 11px;
-  }
-
-  .pillar {
-    padding: 20px;
-  }
-
-  .pillar h3,
-  .run-card header h3 {
-    font-size: 15.5px;
-  }
-
-  .pillar li,
-  .pillar-prose,
-  .run-prose,
-  .honest-col li {
-    font-size: 13px;
-  }
-
-  .run-card {
-    padding: 20px;
-  }
-
-  .code-block {
-    font-size: 11.5px;
-  }
-
-  .doc-link {
-    padding: 16px 18px;
-  }
-
-  .doc-title {
-    font-size: 13.5px;
-  }
-
-  @media (max-width: 980px) {
-    .hero {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-rows: auto;
-      column-gap: 0;
-      min-height: auto;
-    }
-
-    .hero h1 {
-      max-width: 13ch;
-      font-size: clamp(36px, 9vw, 56px);
-    }
-
-    .hero-visual {
-      min-height: 370px;
-    }
-  }
-
-  @media (max-width: 640px) {
-    body {
-      font-size: 14.5px;
-    }
-
-    .landing {
-      padding-top: 102px;
-    }
-
-    .hero-kicker {
-      width: auto;
-      max-width: 100%;
-    }
-
-    .hero h1 {
-      max-width: 100%;
-      font-size: clamp(30px, 9.8vw, 40px);
-      line-height: 1.02;
-    }
-
-    .hero-lede {
-      max-width: 100%;
-      font-size: 14px;
-      line-height: 1.58;
-    }
-
-    .hero-visual {
-      min-height: 320px;
-    }
-
-    .holo-title {
-      font-size: 10px;
-    }
-
-    .number-card {
-      padding: 18px;
-    }
-
-    .num-hero {
-      font-size: clamp(52px, 18vw, 78px);
-    }
-  }
-
-  /* ========== REDUCED MOTION ========== */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.001ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.001ms !important;
-    }
-
-    .scanline {
-      animation: none;
-      opacity: 0;
-    }
-  }
+  .loop-steps li:last-child { border-right: 0; }
+  .loop-steps li::after {
+    content: "→"; position: absolute; right: -8px; top: 50%; transform: translateY(-50%);
+    color: var(--ink-55); font-size: 13px; z-index: 1; background: var(--paper-raised);
+    width: 16px; text-align: center;
+  }
+  .loop-steps li:last-child::after { content: ""; }
+  .ls-n { font-family: var(--font-mono); font-size: 11px; color: var(--ink-55); }
+  .ls-k { font-size: var(--step--1); color: var(--fg-soft); font-weight: 500; }
+  .loop-steps code { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); }
+  .loop-steps code.ok { color: var(--live); }
+  .loop-steps .ls-decide code { color: var(--brand); }
+  .loop-note { margin-top: var(--s-5); font-size: var(--step-0); color: var(--fg-soft); max-width: 70ch; }
+  .loop-note code { color: var(--live); font-size: 0.92em; }
+  .loop-note .ship { color: var(--brand); font-weight: 600; }
+  @media (max-width: 760px) {
+    .loop-steps { grid-template-columns: repeat(2, 1fr); }
+    .loop-steps li:nth-child(2n)::after { content: ""; }
+    .loop-steps li { border-bottom: 1px solid var(--rule); }
+  }
+
+  .hero-stats {
+    list-style: none; padding: 0; margin: var(--s-8) 0 0;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-5);
+    border-top: 1px solid var(--line); padding-top: var(--s-6);
+  }
+  .hero-stats b {
+    display: block; font-family: var(--font-display); font-size: var(--step-3);
+    font-weight: 620; letter-spacing: -0.03em; color: var(--ink);
+  }
+  .hero-stats span { display: block; margin-top: 4px; font-size: var(--step--1); color: var(--fg-quiet); }
+  @media (max-width: 720px) { .hero-stats { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ---------- bands ---------- */
+  .band { padding: var(--s-9) 0; border-top: 1px solid var(--line); }
+  .band-alt { background: var(--sunken); }
+  .band-close { background: var(--ink); color: var(--paper); border-top: 0; }
+  .band-head { max-width: 62ch; margin-bottom: var(--s-7); }
+  .band-head h2 { margin-bottom: var(--s-3); }
+  .band-sub { font-size: var(--step-1); color: var(--fg-soft); line-height: 1.5; }
+  .band-more { display: inline-block; margin-top: var(--s-6); font-weight: 550; color: var(--brand); }
+  .band-more:hover { color: var(--brand-bright); }
+
+  /* ---------- specialists ---------- */
+  .spec-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: var(--s-5); }
+  @media (max-width: 860px) { .spec-grid { grid-template-columns: 1fr; } }
+  .spec {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-3);
+    padding: clamp(var(--s-5), 3vw, var(--s-7)); display: flex; flex-direction: column;
+    box-shadow: var(--shadow-1);
+    transition: box-shadow var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
+  }
+  .spec:hover { box-shadow: var(--shadow-2); transform: translateY(-2px); border-color: var(--line-strong); }
+  .spec-lead { border-top: 3px solid var(--brand); }
+  .spec-top { margin-bottom: var(--s-4); }
+  .spec-top .mono-label { display: block; margin-bottom: var(--s-3); color: var(--live); }
+  .spec-lead .spec-top .mono-label { color: var(--brand); }
+  .spec-body { color: var(--fg-soft); margin-bottom: var(--s-5); }
+  .spec-body strong { color: var(--ink); font-weight: 620; }
+  .spec-body em { font-style: normal; color: var(--brand); font-weight: 560; }
+  .spec-metrics { display: flex; flex-wrap: wrap; gap: var(--s-5); margin: 0 0 var(--s-5); padding-top: var(--s-5); border-top: 1px solid var(--line); }
+  .spec-metrics div { display: flex; flex-direction: column; gap: 2px; }
+  .spec-metrics dt { font-size: var(--step--1); color: var(--fg-quiet); }
+  .spec-metrics dd { font-family: var(--font-mono); font-size: var(--step-0); color: var(--fg); }
+  .spec-metrics dd b { color: var(--live); font-weight: 600; }
+  .spec-metrics dd.down { color: var(--brand); }
+  .spec-link { margin-top: auto; font-weight: 550; color: var(--ink); }
+  .spec-link:hover { color: var(--brand); }
+
+  /* ---------- metric row ---------- */
+  .metric-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s-4); }
+  @media (max-width: 860px) { .metric-row { grid-template-columns: repeat(2, 1fr); } }
+  .metric-row > div { padding: var(--s-5) 0; border-top: 2px solid var(--ink); }
+  .metric-row b { font-family: var(--font-display); font-size: var(--step-4); font-weight: 620; letter-spacing: -0.03em; display: block; }
+  .metric-row .mu { font-family: var(--font-mono); font-size: var(--step--1); color: var(--live); display: block; margin-top: 2px; }
+  .metric-row small { display: block; margin-top: var(--s-3); font-size: var(--step--1); color: var(--fg-quiet); }
+
+  /* ---------- pillars ---------- */
+  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-6) var(--s-7); }
+  @media (max-width: 860px) { .pillars { grid-template-columns: 1fr; } }
+  .pillar { border-top: 1px solid var(--line-strong); padding-top: var(--s-4); }
+  .pillar-i { display: block; color: var(--brand); font-weight: 600; margin-bottom: var(--s-3); font-size: var(--step-0); letter-spacing: 0; }
+  .pillar p { color: var(--fg-soft); font-size: var(--step-0); }
+  .pillar em { font-style: normal; color: var(--ink); font-weight: 560; }
+
+  /* ---------- ledger ---------- */
+  .ledger { list-style: none; padding: 0; margin: 0; }
+  .ledger li { display: grid; grid-template-columns: 64px 1fr; gap: var(--s-5); padding: var(--s-5) 0; border-top: 1px solid var(--line); }
+  .ledger li:first-child { border-top: 0; }
+  .led-date { padding-top: 3px; color: var(--live); }
+  .led-what { font-size: var(--step-1); color: var(--ink); line-height: 1.45; }
+  .led-what strong { font-weight: 620; }
+  .led-dec { margin-top: var(--s-2); color: var(--fg-soft); }
+  .led-dec code { color: var(--live); }
+  .tag { font-family: var(--font-mono); font-size: var(--step--1); color: var(--brand); background: var(--brand-wash); padding: 2px 8px; border-radius: 999px; }
+
+  /* ---------- learn ---------- */
+  .learn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-4); }
+  @media (max-width: 980px) { .learn-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .learn-grid { grid-template-columns: 1fr; } }
+  .learn-card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-3);
+    padding: var(--s-5); display: flex; flex-direction: column; gap: var(--s-2); color: var(--fg);
+    transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
+  }
+  .learn-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); border-color: var(--line-strong); }
+  .learn-card .mono-label { color: var(--live); }
+  .learn-card h3, .learn-card h4 { margin-top: 2px; }
+  .learn-card p { font-size: var(--step--1); color: var(--fg-soft); }
+  .learn-card code { color: var(--brand); }
+  .learn-lead { grid-row: span 2; grid-column: span 2; background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .learn-lead .mono-label { color: var(--live-bright); }
+  .learn-lead h3 { color: var(--paper); font-size: var(--step-2); }
+  .learn-lead p { color: color-mix(in oklab, var(--paper) 78%, transparent); font-size: var(--step-0); }
+  .learn-lead code { color: var(--live-bright); }
+  .learn-go { margin-top: auto; color: var(--live-bright); font-weight: 550; font-size: var(--step-0); }
+  @media (max-width: 560px) { .learn-lead { grid-column: span 1; grid-row: auto; } }
+
+  /* ---------- honest + run ---------- */
+  .honest-wrap { display: grid; grid-template-columns: 1fr 0.9fr; gap: var(--s-8); align-items: start; }
+  @media (max-width: 860px) { .honest-wrap { grid-template-columns: 1fr; } }
+  .band-close h2 { color: var(--paper); }
+  .honest-list { list-style: none; padding: 0; margin: var(--s-6) 0 0; display: grid; gap: var(--s-3); }
+  .honest-list li { padding-left: var(--s-5); position: relative; color: color-mix(in oklab, var(--paper) 80%, transparent); }
+  .honest-list.is li::before { content: "✓"; position: absolute; left: 0; color: var(--live-bright); }
+  .honest-list.isnt li::before { content: "—"; position: absolute; left: 0; color: var(--brand-bright); }
+  .honest-list em { font-style: normal; color: var(--paper); font-weight: 560; }
+  .honest-list strong { color: var(--live-bright); }
+  .run-col { background: var(--paper-raised); border: 1px solid var(--rule); border-radius: var(--r-3); padding: var(--s-6); }
+  .run-col .mono-label { color: var(--live); }
+  .run-block { margin: var(--s-4) 0 var(--s-5); overflow-x: auto; }
+  .run-block code { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.85; color: var(--ink); white-space: pre; }
+  .run-block .c { color: var(--ink-55); }
+
+  /* ---------- footer ---------- */
+  .foot-wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--s-4); }
+  .foot-links { display: flex; gap: var(--s-5); }
+  .foot-links a { color: var(--fg-soft); }
+  .foot-links a:hover { color: var(--brand); }
 </style>
