@@ -1,14 +1,20 @@
 import SwiftUI
 
-/// Colors and typography matching the browser playground's visual language.
-/// The web side uses these as CSS variables; we mirror them here as `Color`
-/// extensions so SwiftUI views reach for them by name.
+/// The native app is the "instrument" mode of the one posttrainllm design
+/// system. These values mirror the `[data-theme="instrument"]` scope of
+/// `browser/src/styles/system.css` exactly, so the Mac app and the website read
+/// as one product: teal is the shared "live data" signal across both surfaces;
+/// oxblood (`brand`) is the shared brand accent.
 enum Theme {
-    /// Mint accent — the "this is alive" color used for the loss curve,
-    /// active controls, and the GPU-active dot.
-    static let accent = Color(red: 72/255, green: 229/255, blue: 194/255)
+    /// Teal — the shared "this is alive" signal (web `--live` in instrument
+    /// mode). Loss curve, active controls, the GPU-active dot.
+    static let accent = Color(red: 72/255, green: 229/255, blue: 194/255)   // #48e5c2
     static let accentDim = Color(red: 31/255, green: 111/255, blue: 95/255)
     static let accentGlow = Color(red: 72/255, green: 229/255, blue: 194/255, opacity: 0.20)
+
+    /// Oxblood — the shared brand accent (web `--brand`, brightened for dark).
+    static let brand = Color(red: 255/255, green: 122/255, blue: 106/255)    // #ff7a6a
+    static let brandBright = Color(red: 255/255, green: 145/255, blue: 132/255)
 
     /// Surface colors — three depths matching the browser's `--base`, `--panel`,
     /// `--panel-2`.
