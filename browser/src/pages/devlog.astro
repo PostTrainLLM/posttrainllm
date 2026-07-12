@@ -32,10 +32,14 @@ const pageStyle = `
         --accent-dim: #2a8a78;
         --accent-glow: rgba(72, 229, 194, 0.12);
         --warn: #f5b14a;
-        --danger: #ff6868;
-        --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        --font-mono: ui-monospace, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", monospace;
+        --danger: #ff6f5c;
+        --brand: #ff6f5c;
+        --font-display: "Bricolage Grotesque Variable", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+        --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, sans-serif;
+        --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", Monaco, monospace;
       }
+      h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.02em; }
+      h1 { letter-spacing: -0.035em; }
       * { box-sizing: border-box; }
       html, body {
         background: var(--bg);
@@ -172,28 +176,126 @@ const pageBody = `
     <div class="wrap">
       <header>
         <div class="crumb"><a href="/">← posttrainllm</a> · <a href="/roadmap">roadmap</a> · devlog · <a href="/docs">docs</a></div>
-        <h1>Devlog — building posttrainllm while pair-programming with AI</h1>
+        <h1>Devlog — how the lab got built</h1>
         <p class="sub">
-          Decisions made, measurements taken, things that didn't work. Most of this came out of
-          live AI-pair-programming sessions; the dialogue is condensed but the numbers are
-          verbatim from runs on this codebase.
+          Decisions made, measurements taken, things that didn't work — the whole build, from a
+          from-scratch GPT in a browser tab to a Mac-local specialist factory. The dialogue from
+          the AI-pairing sessions is condensed; the numbers are verbatim from runs on this codebase.
+        </p>
+        <p class="sub" style="margin-top:10px">
+          Two threads run through it: the <strong>browser / WebGPU</strong> learning track (the
+          kernel work below) and the <strong>Mac factory</strong> (post-training, evals,
+          packaging — the newer entries). Every "measured" value is run-on-this-machine, not
+          extrapolation. Companion logs: the
+          <a href="/docs/attempt-ledger">attempt ledger</a> (every experiment + decision), the
+          <a href="/docs/learn/curriculum">learning log</a>, and the
+          <a href="/recipes">recipes</a>.
         </p>
       </header>
 
+      <!-- ================= FACTORY / POST-TRAINING THREAD (recent) ================= -->
+
+      <h2>The site you're reading — a dark research-lab redesign <span class="tag">shipped</span></h2>
       <p>
-        posttrainllm started as a teaching project — a GPT-2-shaped model implemented from scratch
-        in Python, then ported to C++/WASM for the browser, then to WebGPU. Somewhere along
-        the way it became a speed-optimization project too. The interesting part isn't the
-        final number; it's <em>which optimizations worked, which didn't, and why</em>. That's
-        what this page captures.
+        The site had drifted into "clean editorial SaaS" — cohesive but AI-looking, and split
+        across a bright web and a dark app. This pass unified everything into one
+        <em>instrument</em>: a single dark design system (crafted deep-ink palette with a faint
+        grain, teal as the live signal, Bricolage Grotesque for display), the loss-curve logo as
+        the universal mark, a manifesto, machine-transparent claims, and structured-data SEO.
+      </p>
+      <div class="block lesson">
+        <p><strong>Lesson.</strong> A design token system earns its keep at redesign time: flipping
+        <code>system.css</code> from light to dark reskinned ~100 doc pages, the artifacts pages,
+        and the homepage at once, because every surface read its color from the same variables.
+        The disconnection wasn't taste — it was two palettes (<code>#8db4ff</code> blue on the
+        web, <code>#48e5c2</code> teal in the app). One accent fixed it.</p>
+      </div>
+
+      <h2>The factory loop closed — and the first ship-decision was "retry" <span class="tag">measured</span></h2>
+      <p>
+        The north star stopped being "another surface" and became one canonical run:
+        <code>target → data → post-train → eval → package → report</code>, ending in a documented
+        ship/reject/retry decision. On 2026-07-04 it executed end-to-end for the first time on a
+        real candidate — the frozen <code>qwen06-sql-hygiene-dpo</code> target — and produced a
+        schema-valid run folder that <code>factory-run validate</code> accepts.
+      </p>
+      <div class="block">
+        <p>Every run now assembles a folder — <code>config · dataset · eval-baseline ·
+        eval-candidate · decision · report</code> — via <code>scripts/assemble_factory_run.py</code>,
+        which computes the eval delta and hashes the real dataset into provenance. The one proof
+        still missing from the whole project is a run whose decision is <strong>ship</strong>.</p>
+      </div>
+
+      <h2>The DPO saga — a policy collapse, then a base-model prior <span class="tag fail">honest miss</span></h2>
+      <p>
+        The SQL specialist generated correct queries wrapped in prose ("Answer: SELECT …;
+        Explanation: …"). The goal: strip the wrapper without losing execution accuracy. Three runs,
+        each teaching the next:
+      </p>
+      <div class="block win">
+        <pre>2026-07-04  ref-free SimPO          exec 0.860 → 0.080   COLLAPSE
+2026-07-11  reference-anchored DPO   exec 0.860 → 0.900   no collapse
+2026-07-11  higher-pressure DPO      exec 0.860 → 0.920   loss → 0.007</pre>
+      </div>
+      <p>
+        Reference anchoring cured the collapse (the DPO sanity check — step-1 loss ≈ log&nbsp;2 —
+        confirmed it), and execution actually <em>improved</em>. But clean-SQL rate stayed
+        <strong>0.000</strong> across every pressure regime. The diagnosis, corrected in the open:
+        the 108 SFT targets were <em>already</em> bare SELECT — the wrapper is a base-model prose
+        prior a rank-4 adapter can't override. So it's a generation-strength problem
+        (constrained decoding), not a preference-tuning one. A clean negative result: composed DPO
+        is ruled out for output hygiene.
+      </p>
+      <div class="block lesson">
+        <p><strong>Lesson.</strong> Record the binary provenance. The 2026-06-25 release build scored
+        the same predictions at 0.000 where the debug build scored 0.860 — it composed multi-LoRA
+        differently. Every eval now reproduces the frozen baseline with the exact binary before
+        trusting a candidate number.</p>
+      </div>
+
+      <h2>Frontier parity at 4B — the distillation that worked <span class="tag">measured win</span></h2>
+      <p>
+        The clearest win in the repo: a Qwen3-4B distilled on multi-turn file-ops trajectories
+        reached <strong>100%</strong> on the BFCL hard gate, up from 58%. The honest cost is on the
+        same page: out-of-domain breadth dropped <strong>59.6% → 42.3%</strong> — real catastrophic
+        forgetting. So it ships as a <em>routed</em> specialist, never a general planner. A number
+        without its regression would have been marketing.
       </p>
 
+      <h2>The eval that was broken <span class="tag fail">honest miss</span></h2>
       <p>
-        The benchmarks below are run-on-this-machine, not extrapolation. Every "kernel
-        measured" or "end-to-end measured" value can be reproduced with the WebGPU benchmark
-        button on <a href="/playground">the playground</a> or the
-        <code>tests/test_webgpu_train.mjs</code> parity script.
+        Early on, a fine-tune looked like it beat its baseline — until the baseline turned out to be
+        non-reproducible and the v1 fixture set was measuring the wrong thing. The whole factory's
+        eval discipline came out of that miss: frozen baselines stamped before training, exact-match
+        vs execution-accuracy treated as different metrics, contamination checks, slice metrics, and
+        gates that exit non-zero on regression. Bad evals create fake progress; that's the most
+        expensive bug in the project.
       </p>
+
+      <h2>The Mac runtime — MLX-Swift, OpenAI-compatible, on one machine <span class="tag">shipped</span></h2>
+      <p>
+        The factory is a native Swift/MLX CLI — 100+ subcommands, one binary. It serves an
+        OpenAI- and Ollama-compatible endpoint on one socket (Continue.dev and any OpenAI client
+        plug in unchanged), runs an agent loop with FSM-constrained JSON, and packages to MLX,
+        safetensors, and CoreML. Building it surfaced a real toolchain wall: MLX's Metal shaders
+        need the full Xcode Metal Toolchain, not CommandLineTools — a scoped <code>DEVELOPER_DIR</code>
+        override builds it without a global system change.
+      </p>
+
+      <h2>Learning from <code>y = mx + b</code> up <span class="tag">shipped</span></h2>
+      <p>
+        Running alongside the build is a ground-up curriculum: ten modules from "a model is a
+        parameterized function" to a self-improving factory, each with a toy exercise, a repo anchor,
+        and a mastery gate. A coverage map ties every subsystem in the codebase to a learning anchor
+        so nothing is a black box. The point isn't to finish a course — it's to know when a
+        post-training result is real. Read it as the <a href="/docs/learn/curriculum">learning log</a>.
+      </p>
+
+      <hr style="border:0;border-top:1px solid var(--line);margin:52px 0 44px" />
+      <p class="sub" style="margin-bottom:8px"><strong>Earlier chapters — the browser / WebGPU learning track.</strong>
+      Where it started: a GPT-2-shaped model from scratch in Python → C++/WASM → WebGPU, and the
+      speed work that followed. The interesting part is <em>which optimizations worked, which
+      didn't, and why</em>.</p>
 
       <!-- ================================================================ -->
       <h2>Memory64 — breaking the 4 GB tab ceiling <span class="tag">measured win</span></h2>
