@@ -205,7 +205,7 @@ def gen_gateway(system, user):
                        "messages": [{"role": "system", "content": system},
                                     {"role": "user", "content": user}]}).encode()
     req = urllib.request.Request(
-        "https://free-ai-gateway.sarthakagrawal927.workers.dev/v1/chat/completions",
+        "https://ai-gateway.sassmaker.com/v1/chat/completions",
         data=body, method="POST",
         headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json",
                  "User-Agent": "curl/8.4.0"})   # urllib's default UA hits Cloudflare 1010
