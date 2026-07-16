@@ -1,6 +1,6 @@
 # I built a GPT-2 in the browser, then made it 2.6×–12.1× faster
 
-I started [posttrainllm](https://github.com/sarthak-fleet/posttrainllm) as a
+I started [posttrainllm](https://github.com/PostTrainLLM/tinygpt) as a
 teaching project. I wanted to understand the modern LLM stack at a size where
 nothing stays a black box — every backward pass derived by hand, every kernel
 parity-checked, no autograd engine hiding the maths on the C++ and GPU side.
@@ -250,7 +250,7 @@ Most of the easy wins are done. What's left:
 - **Native macOS app** — MLX-Swift + SwiftUI, same `.tinygpt` file format
   both ways, lifts the ceiling into the 7B–30B range on Apple Silicon.
 
-Code, devlog, and roadmap: [github.com/sarthak-fleet/posttrainllm](https://github.com/sarthak-fleet/posttrainllm).
+Code, devlog, and roadmap: [github.com/PostTrainLLM/tinygpt](https://github.com/PostTrainLLM/tinygpt).
 Playground: [posttrainllm.com](https://posttrainllm.com).
 
 — Sarthak Agrawal
