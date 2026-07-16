@@ -158,8 +158,8 @@ export const artifacts: ArtifactEntry[] = [
     evidence: [
       { label: "SQL POC report", href: "/docs/specialists/b1-sql-poc" },
       { label: "Public artifact registry", href: "/docs/factory/public-artifacts" },
-      { label: "Router smoke", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/evals/sql-routed-router-smoke.sh" },
-      { label: "Router implementation", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/scripts/run_sql_routed_generate.py" },
+      { label: "Router smoke", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/sql-routed-router-smoke.sh" },
+      { label: "Router implementation", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/scripts/run_sql_routed_generate.py" },
     ],
     blockers: [
       {
@@ -264,11 +264,11 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     evidence: [
-      { label: "Model card", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/specialists/qwen3-4b-file-ops-distilled/model_card.md" },
+      { label: "Model card", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/model_card.md" },
       { label: "Hugging Face model", href: "https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled" },
-      { label: "Eval report", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/specialists/qwen3-4b-file-ops-distilled/eval_report.json" },
+      { label: "Eval report", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/eval_report.json" },
       { label: "Frontier parity writeup", href: "/docs/learn/tool-calling-frontier-parity" },
-      { label: "Specialist registry", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/specialists/registry.json" },
+      { label: "Specialist registry", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/registry.json" },
     ],
     blockers: [
       {
@@ -336,11 +336,11 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     evidence: [
-      { label: "Model card", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/specialists/qwen3-4b-rest-fused/model_card.md" },
+      { label: "Model card", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-rest-fused/model_card.md" },
       { label: "Hugging Face model", href: "https://huggingface.co/sarthakagrawal927/qwen3-4b-rest-fused" },
-      { label: "Eval report", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/specialists/qwen3-4b-rest-fused/eval_report.json" },
+      { label: "Eval report", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-rest-fused/eval_report.json" },
       { label: "ReST inventory", href: "/docs/sessions/2026-06-17-stepback-inventory-roi" },
-      { label: "Specialist registry", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/specialists/registry.json" },
+      { label: "Specialist registry", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/registry.json" },
     ],
     blockers: [
       {
@@ -720,7 +720,7 @@ export const artifacts: ArtifactEntry[] = [
     evidence: [
       { label: "ANE/CoreML parked lane", href: "/docs/parked/ane-coreml" },
       { label: "Apple on-device model notes", href: "/docs/learn/apple-on-device-foundation-models" },
-      { label: "Project status", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/PROJECT_STATUS.md" },
+      { label: "Project status", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/PROJECT_STATUS.md" },
     ],
     blockers: [
       {
@@ -787,7 +787,7 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     evidence: [
-      { label: "README headline metrics", href: "https://github.com/PostTrainLLM/tinygpt#headline-results" },
+      { label: "README headline metrics", href: "https://github.com/PostTrainLLM/posttrainllm#headline-results" },
       { label: "Performance docs", href: "/docs/performance" },
     ],
     blockers: [
