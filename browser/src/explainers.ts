@@ -13,7 +13,7 @@ export interface Explainer {
 }
 
 const docsLink = (path: string, label: string) => ({
-  href: `https://github.com/PostTrainLLM/tinygpt/blob/main/${path}`,
+  href: `https://github.com/PostTrainLLM/posttrainllm/blob/main/${path}`,
   label,
 });
 
