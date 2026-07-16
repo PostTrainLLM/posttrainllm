@@ -250,7 +250,7 @@ Most of the easy wins are done. What's left:
 - **Native macOS app** — MLX-Swift + SwiftUI, same `.tinygpt` file format
   both ways, lifts the ceiling into the 7B–30B range on Apple Silicon.
 
-Code, devlog, and roadmap: [github.com/PostTrainLLM/tinygpt](https://github.com/PostTrainLLM/posttrainllm).
+Code, devlog, and roadmap: [github.com/PostTrainLLM/posttrainllm](https://github.com/PostTrainLLM/posttrainllm).
 Playground: [posttrainllm.com](https://posttrainllm.com).
 
 — Sarthak Agrawal
