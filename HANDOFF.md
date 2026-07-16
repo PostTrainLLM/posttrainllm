@@ -187,8 +187,8 @@ either pretend or eval-blocked.
 ### Anomalies the next session should know about
 
 - **Remote URL outdated**: pushes work but redirect from
-  `sarthakagrawal927/posttrainllm` → `sarthak-fleet/posttrainllm`. Update with
-  `git remote set-url origin https://github.com/sarthak-fleet/posttrainllm.git`
+  `sarthakagrawal927/posttrainllm` → `PostTrainLLM/tinygpt`. Update with
+  `git remote set-url origin https://github.com/PostTrainLLM/tinygpt.git`
 - **v6.1 four-way SFT collapse** (10 → 8 → 2 → 0 of 19) — almost
   certainly an eval-methodology artifact. Don't retry SFT.
 - **190 uncommitted files** caught up in 5 commits on 2026-06-08
