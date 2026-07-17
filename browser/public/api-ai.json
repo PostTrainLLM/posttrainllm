@@ -3,8 +3,9 @@
   "version": "1",
   "url": "https://posttrainllm.com",
   "llms": "https://posttrainllm.com/llms.txt",
-  "llmsFull": null,
+  "llmsFull": "https://posttrainllm.com/llms-full.txt",
   "sitemap": "https://posttrainllm.com/sitemap.xml",
+  "robots": "https://posttrainllm.com/robots.txt",
   "markdown": {
     "suffix": ".md",
     "negotiation": true
