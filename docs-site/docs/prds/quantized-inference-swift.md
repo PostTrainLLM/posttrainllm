@@ -50,7 +50,7 @@ Result: v9-LoRA baked-hf is 1.4 GB fp16. Quantized to Q4 is 331 MB (4.2× smalle
 
 ## Target outcome
 
-Tinygpt serve loads `mlx_lm convert -q` output natively. Pace bundles 331 MB instead of 1.4 GB. Inference uses MLX's `quantized_matmul` ops directly on packed weights — no dequant-at-load.
+PostTrainLLM serve loads `mlx_lm convert -q` output natively. Pace bundles 331 MB instead of 1.4 GB. Inference uses MLX's `quantized_matmul` ops directly on packed weights — no dequant-at-load.
 
 Estimated formula payoff:
 - **cost**: 4× lower disk + RAM
@@ -134,7 +134,7 @@ mlx_lm has its own serving with native quantized model support. But Pace's plan 
 
 ## Done when
 
-- Tinygpt serve loads `mlx_lm convert -q --q-bits 4` output without error
+- PostTrainLLM serve loads `mlx_lm convert -q --q-bits 4` output without error
 - Forward pass produces sensible output (smoke test: "open my email" → valid JSON)
 - fm-fixtures-v2 score within 2pp of fp16 baseline
 - Formula score for Q4 > formula score for fp16 by ≥20%

@@ -6,7 +6,7 @@ title: "PRD — Batched eval-runtime: steal oMLX's batching + prefix-KV cache fo
 
 ## Goal
 
-Make tinyGPT's **eval harness** fast and scalable by stealing the two oMLX
+Make PostTrainLLM's **eval harness** fast and scalable by stealing the two oMLX
 techniques that fit eval's workload — **continuous batching** and a
 **persistent shared-prefix KV cache** — and by making the harness drive a
 **pluggable fast MLX backend** instead of the in-house single-stream serve.
@@ -18,7 +18,7 @@ how fast it runs. Pace consumes the same qualified backend.
 - **The turnaround makes eval the product.** B32 (eval-gate), the
   mac-assistant-judgment benchmark, BFCL/τ-bench/lm-eval — all gate on serve
   throughput. Faster eval = the differentiated layer actually ships.
-- **Diagnosed bottleneck (2026-06-14):** tinyGPT's HF `serve` path runs ~**7
+- **Diagnosed bottleneck (2026-06-14):** PostTrainLLM's HF `serve` path runs ~**7
   tok/s** on a 4B (M5 Pro) and is **single-stream**, so a BFCL suite of
   hundreds of requests runs sequentially through a slow engine. The A1 eval
   (120 examples × 2 models) took ~tens of minutes for this reason.
@@ -31,7 +31,7 @@ how fast it runs. Pace consumes the same qualified backend.
 
 ## What we steal (and what we don't)
 
-| oMLX feature | Steal for tinyGPT? | Why |
+| oMLX feature | Steal for PostTrainLLM? | Why |
 |---|---|---|
 | Continuous / iteration-level batching | **Yes — top priority** | eval = many concurrent requests; biggest throughput lever |
 | Persistent shared-prefix KV cache | **Yes** | eval requests share the system+tools prefix verbatim |
@@ -60,7 +60,7 @@ how fast it runs. Pace consumes the same qualified backend.
 
 ## Scope — out
 
-- **Rebuilding tinyGPT's `serve` into a production server** (KV-SSD paging,
+- **Rebuilding PostTrainLLM's `serve` into a production server** (KV-SSD paging,
   multi-tenant). That's oMLX/LM Studio's commoditized lane — adopt, don't
   rebuild. The native from-scratch `.tinygpt` decode path (already fast, 293–767
   tok/s) is untouched.
@@ -107,7 +107,7 @@ how fast it runs. Pace consumes the same qualified backend.
 ## Open questions
 
 - **Build vs adopt the backend.** Recommendation: **adopt** (`mlx_lm.server`
-  has batching today; oMLX is more capable) and keep tinyGPT's value at the
+  has batching today; oMLX is more capable) and keep PostTrainLLM's value at the
   *harness* layer (concurrency + prefix exploitation + scoring). Building
   native batching into `serve` is a larger, lower-ROI rebuild — only if backend
   licensing/control becomes a blocker.
