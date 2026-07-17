@@ -45,13 +45,22 @@
 /gallery/manifest.json
   Cache-Control: public, max-age=60, s-maxage=300, stale-while-revalidate=3600
 
-# Per-page static HTML — hashed bundles in /_astro/ already cache forever;
-# keep the HTML envelope revalidating so branding/content deploys are visible
-# immediately instead of being pinned at the edge for a day.
+# Marketing HTML — short browser TTL, day-long edge cache (stale-while-revalidate).
+# Deploy busts edge via new deploy IDs; content pages stay fast for crawlers.
 /
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: public, max-age=300, s-maxage=86400, stale-while-revalidate=604800
 /*.html
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: public, max-age=300, s-maxage=86400, stale-while-revalidate=604800
+/docs/*
+  Cache-Control: public, max-age=300, s-maxage=86400, stale-while-revalidate=604800
+/learn/*
+  Cache-Control: public, max-age=300, s-maxage=86400, stale-while-revalidate=604800
+/artifacts/*
+  Cache-Control: public, max-age=300, s-maxage=86400, stale-while-revalidate=604800
+/sitemap.xml
+  Cache-Control: public, max-age=3600, s-maxage=86400
+/llms.txt
+  Cache-Control: public, max-age=3600, s-maxage=86400
 
 # Immutable hashed Astro chunks.
 /_astro/*

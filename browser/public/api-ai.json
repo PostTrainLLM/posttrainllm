@@ -1,0 +1,33 @@
+{
+  "name": "PostTrainLLM",
+  "version": "1",
+  "url": "https://posttrainllm.com",
+  "llms": "https://posttrainllm.com/llms.txt",
+  "llmsFull": "https://posttrainllm.com/llms-full.txt",
+  "sitemap": "https://posttrainllm.com/sitemap.xml",
+  "robots": "https://posttrainllm.com/robots.txt",
+  "markdown": {
+    "suffix": ".md",
+    "negotiation": true
+  },
+  "surfaces": [
+    {
+      "id": "home",
+      "url": "https://posttrainllm.com/",
+      "md": "https://posttrainllm.com/index.md",
+      "kind": "static",
+      "description": "Product home"
+    },
+    {
+      "id": "devlog",
+      "url": "https://posttrainllm.com/devlog.html",
+      "md": null,
+      "kind": "static",
+      "description": "Build log"
+    }
+  ],
+  "auth": {
+    "public": true,
+    "notes": "Auth-walled app routes are not agent-indexed unless listed here."
+  }
+}
