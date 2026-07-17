@@ -263,7 +263,7 @@ Approaches tried that didn't help:
    This is what makes "Pace on ANE" not just "Qwen3 on ANE."
 4. **Longer max_seq** — current export caps at 128. For real
    contexts (256-2048), re-export with bigger MLState slots.
-5. **Tinygpt CLI wrapping** — `posttrainllm serve --coreml-chunked <dir>`
+5. **PostTrainLLM CLI wrapping** — `posttrainllm serve --coreml-chunked <dir>`
    surface, alongside the existing `coreml-serve` sibling.
 
 ### Artifacts (kept on disk)

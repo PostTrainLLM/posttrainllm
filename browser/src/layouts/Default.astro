@@ -108,6 +108,32 @@ const structuredData = {
     },
   ],
 };
+
+// Clamp meta description to 70–160 chars for SEO best practice.
+const DEFAULT_DESC = "Mac-local LLM specialist factory — post-training and runtime that fits on one Mac, plus WebGPU playground.";
+function clampDescription(desc: string, fallback: string = DEFAULT_DESC): string {
+  let d = (desc ?? "").trim();
+  if (d.length === 0) return fallback;
+  if (d.length > 160) {
+    d = d.slice(0, 157).replace(/\s+\S*$/, "").trim();
+    if (d.length > 0) d += "…";
+    return d;
+  }
+  if (d.length < 70) {
+    const f = fallback.trim();
+    if (f.length >= 70 && f.length <= 160) return f;
+    if (d.length > 0 && f.length > 0) {
+      const combined = `${d}. ${f}`;
+      if (combined.length <= 160) return combined;
+      return combined.slice(0, 157).replace(/\s+\S*$/, "").trim() + "…";
+    }
+    return f || d;
+  }
+  return d;
+}
+const clampedDescription = clampDescription(description);
+const clampedOgDescription = clampDescription(ogDescription ?? description);
+const clampedTwitterDescription = clampDescription(twitterDescription ?? ogDescription ?? description);
 ---
 
 <!doctype html>
@@ -117,7 +143,7 @@ const structuredData = {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content={themeColor} />
-    <meta name="description" content={description} />
+    <meta name="description" content={clampedDescription} />
     <title>{title}</title>
 
     <!-- Canonical + robots -->
@@ -132,18 +158,19 @@ const structuredData = {
     <meta property="og:locale" content="en_US" />
     <meta property="og:url" content={ogUrl ?? canonical} />
     <meta property="og:title" content={ogTitle ?? title} />
-    <meta property="og:description" content={ogDescription ?? description} />
+    <meta property="og:description" content={clampedOgDescription} />
     <meta property="og:image" content={`${ORIGIN}/og-image.png`} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="posttrainllm — a Mac-local LLM specialist factory" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={twitterTitle ?? ogTitle ?? title} />
-    <meta name="twitter:description" content={twitterDescription ?? ogDescription ?? description} />
+    <meta name="twitter:description" content={clampedTwitterDescription} />
     <meta name="twitter:image" content={`${ORIGIN}/og-image.png`} />
 
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} is:inline />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="application/rss+xml" title="PostTrainLLM — Devlog" href="/devlog/rss.xml" />
 
     <!-- Preload the gallery manifest so the demo banner doesn't pop in
          late on a cold load (was waiting for the JS bundle to evaluate

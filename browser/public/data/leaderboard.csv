@@ -1,0 +1,18 @@
+rank,model_id,model_name,params,param_count,corpus,browser_trained,featured,benchmark,benchmark_name,score,unit,lower_is_better,train_wall_ms
+4,shakespeare,Shakespeare,9.6M,9608704,tinyshakespeare (Karpathy),true,true,tinystories-ppl,TinyStories PPL,7.8643341682876375,perplexity,true,
+1,shakespeare,Shakespeare,9.6M,9608704,tinyshakespeare (Karpathy),true,true,sort-6,Sort-6,0,accuracy,false,
+1,shakespeare,Shakespeare,9.6M,9608704,tinyshakespeare (Karpathy),true,true,reverse-16,Reverse-16,0,accuracy,false,
+1,tinystories,TinyStories,9.6M,9608704,roneneldan/TinyStories,true,true,tinystories-ppl,TinyStories PPL,2.152068139374971,perplexity,true,2850278
+2,tinystories,TinyStories,9.6M,9608704,roneneldan/TinyStories,true,true,sort-6,Sort-6,0,accuracy,false,2850278
+2,tinystories,TinyStories,9.6M,9608704,roneneldan/TinyStories,true,true,reverse-16,Reverse-16,0,accuracy,false,2850278
+5,code,Python code,9.6M,9608704,codeparrot/github-code-clean (Python),true,true,tinystories-ppl,TinyStories PPL,11.221931628820712,perplexity,true,2820673
+3,code,Python code,9.6M,9608704,codeparrot/github-code-clean (Python),true,true,sort-6,Sort-6,0,accuracy,false,2820673
+3,code,Python code,9.6M,9608704,codeparrot/github-code-clean (Python),true,true,reverse-16,Reverse-16,0,accuracy,false,2820673
+2,chat,Q&A chat,9.6M,9608704,databricks/databricks-dolly-15k,true,true,tinystories-ppl,TinyStories PPL,5.345929627164713,perplexity,true,3000378
+4,chat,Q&A chat,9.6M,9608704,databricks/databricks-dolly-15k,true,true,sort-6,Sort-6,0,accuracy,false,3000378
+4,chat,Q&A chat,9.6M,9608704,databricks/databricks-dolly-15k,true,true,reverse-16,Reverse-16,0,accuracy,false,3000378
+3,seatales,Sea Tales,9.6M,9608704,Moby-Dick (first 800K) + Heart of Darkness — both public domain,true,true,tinystories-ppl,TinyStories PPL,7.311166017769345,perplexity,true,2880809
+5,seatales,Sea Tales,9.6M,9608704,Moby-Dick (first 800K) + Heart of Darkness — both public domain,true,true,sort-6,Sort-6,0,accuracy,false,2880809
+5,seatales,Sea Tales,9.6M,9608704,Moby-Dick (first 800K) + Heart of Darkness — both public domain,true,true,reverse-16,Reverse-16,0,accuracy,false,2880809
+6,flagship-huge,flagship-huge,34.6M,34615552,BPE-trained (vocab 49152),false,false,tinystories-ppl,TinyStories PPL,85.924,perplexity,true,
+1,flagship-huge,flagship-huge,34.6M,34615552,BPE-trained (vocab 49152),false,false,fineweb-ppl-bpe,FineWeb PPL (BPE),110.392,perplexity,true,
