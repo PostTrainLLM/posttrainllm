@@ -47,6 +47,14 @@ a:hover { text-decoration: underline; }
   background: none; border-left: none; border-right: none; border-top: none;
   cursor: pointer; }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.dl-links { margin-left: auto; display: flex; gap: 10px; align-self: center; }
+.dl-links a {
+  font: 500 11px/1 var(--font-mono, monospace);
+  color: var(--faint); padding: 5px 10px;
+  border: 1px solid var(--line); border-radius: 6px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.dl-links a:hover { color: var(--accent); border-color: var(--accent-dim); text-decoration: none; }
 .benchInfo { color: var(--faint); font-size: 12px; margin: 16px 0 20px;
   padding: 16px; background: var(--panel); border: 1px solid var(--line);
   border-radius: 8px; line-height: 1.5; }
@@ -94,6 +102,35 @@ table.board td.params { font-family: monospace; color: var(--muted); }
   <SiteHeader mode="instrument" />
   <style set:html={pageStyle}></style>
 
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "PostTrainLLM Browser Leaderboard",
+    "description": "Browser-trained and Mac-trained small LLMs ranked on TinyStories perplexity, Sort-6, Reverse-16, and FineWeb PPL benchmarks. Each row is a .tinygpt checkpoint with measured scores.",
+    "url": "https://posttrainllm.com/leaderboard",
+    "creator": {
+      "@type": "Organization",
+      "name": "PostTrainLLM",
+      "url": "https://posttrainllm.com"
+    },
+    "distribution": [
+      {
+        "@type": "DataDownload",
+        "encodingFormat": "application/json",
+        "contentUrl": "https://posttrainllm.com/data/leaderboard.json",
+        "name": "leaderboard.json"
+      },
+      {
+        "@type": "DataDownload",
+        "encodingFormat": "text/csv",
+        "contentUrl": "https://posttrainllm.com/data/leaderboard.csv",
+        "name": "leaderboard.csv"
+      }
+    ],
+    "license": "https://github.com/PostTrainLLM/tinygpt/blob/main/LICENSE",
+    "isAccessibleForFree": true
+  })}></script>
+
   <div class="wrap">
     <div class="nav">
       <a href="/playground">← playground</a>
@@ -120,6 +157,10 @@ table.board td.params { font-family: monospace; color: var(--muted); }
       <button class="tab" data-bench="sort-6">Sort-6</button>
       <button class="tab" data-bench="reverse-16">Reverse-16</button>
       <button class="tab" data-bench="fineweb-ppl-bpe">FineWeb PPL (BPE)</button>
+      <span class="dl-links">
+        <a href="/data/leaderboard.json" download>JSON</a>
+        <a href="/data/leaderboard.csv" download>CSV</a>
+      </span>
     </div>
 
     <div id="benchInfo" class="benchInfo">

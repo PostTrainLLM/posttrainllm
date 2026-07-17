@@ -152,7 +152,7 @@ Adding a new entry is a one-line addition to
 
 - Root: `~/.cache/posttrainllm/datasets/<owner>/<name>/`
 - Override: set `TINYGPT_DATASET_CACHE=/path/to/cache`
-- Tinygpt's cache is **separate** from HuggingFace's
+- PostTrainLLM's cache is **separate** from HuggingFace's
   `~/.cache/huggingface/` so users can blow it away independently.
 - Resume: existing files whose byte size matches the HF-reported
   `size` are skipped. If the HF API doesn't report a size (some
