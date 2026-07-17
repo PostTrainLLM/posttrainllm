@@ -1,0 +1,18 @@
+# PostTrainLLM
+
+> Mac-local LLM specialist factory — post-training and runtime that fits on one Mac, plus WebGPU playground.
+
+## Product
+
+- [Home](https://posttrainllm.com/): Product
+- [Devlog](https://posttrainllm.com/devlog.html): Build log
+
+## Machine surfaces
+
+- [Agent catalog](https://posttrainllm.com/api/ai): JSON inventory of public surfaces
+- [Homepage markdown](https://posttrainllm.com/index.md): Product brief without JS
+- [This index](https://posttrainllm.com/llms.txt)
+
+## Optional
+
+- [Foundry](https://sassmaker.com): Parent fleet showcase

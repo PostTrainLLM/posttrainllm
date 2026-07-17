@@ -1,0 +1,40 @@
+# PostTrainLLM — full agent brief
+
+Mac-local LLM specialist factory — post-training and runtime that fits on one Mac, plus WebGPU playground.
+
+## Index
+
+# PostTrainLLM
+
+Mac-local LLM factory + runtime (MLX) and WebGPU playground.
+
+## What it is
+
+- Local post-training workflows on Mac
+- Specialist model factory narrative
+- Browser playground surfaces
+
+## Agent entrypoints
+
+- https://posttrainllm.com/llms.txt
+- https://posttrainllm.com/api/ai
+- https://posttrainllm.com/index.md
+
+## Product links
+
+- Home: https://posttrainllm.com/ — Product
+- Devlog: https://posttrainllm.com/devlog.html — Build log
+
+## Machine surfaces
+
+- https://posttrainllm.com/llms.txt
+- https://posttrainllm.com/llms-full.txt
+- https://posttrainllm.com/api/ai
+- https://posttrainllm.com/index.md
+- https://posttrainllm.com/sitemap.xml
+- https://posttrainllm.com/robots.txt
+
+## Contact / fleet
+
+- Fleet: https://sassmaker.com
+- Agent email for directory verification: sarthakagrawal@agentmail.to

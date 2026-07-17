@@ -13,3 +13,8 @@ User-agent: Google-Extended
 Allow: /
 
 Sitemap: https://posttrainllm.com/sitemap-index.xml
+# Agent indexing
+Allow: /llms.txt
+Allow: /index.md
+Allow: /api/ai
+Allow: /llms-full.txt
