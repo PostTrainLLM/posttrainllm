@@ -186,6 +186,10 @@ enum TrainExtractor {
         // Build the model.
         var (cfg, numClasses): (ModelConfig, Int) = {
             switch preset.lowercased() {
+            case "medium":
+                return ToolRouterModel.mediumPreset(
+                    vocabSize: vocabSize, contextLength: contextLength,
+                    numClasses: labelNames.count)
             case "small":
                 return ToolRouterModel.smallPreset(
                     vocabSize: vocabSize, contextLength: contextLength,

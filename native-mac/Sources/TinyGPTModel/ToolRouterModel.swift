@@ -230,6 +230,26 @@ public extension ToolRouterModel {
         )
         return (cfg, numClasses)
     }
+
+    /// Medium preset — ~50M params with byte-level vocab. 10 layers,
+    /// d_model=640, dMlp=2560. Use this for larger tool catalogs or
+    /// when higher accuracy is needed on fuzzy class boundaries.
+    static func mediumPreset(vocabSize: Int, contextLength: Int = 256,
+                             numClasses: Int) -> (ModelConfig, Int) {
+        let cfg = ModelConfig(
+            modelName: "tool-router-medium",
+            vocabSize: vocabSize,
+            contextLength: contextLength,
+            nLayers: 10,
+            nHeads: 10,
+            dModel: 640,
+            dMlp: 2560,
+            dropout: 0.0,
+            tieEmbeddings: false,
+            dtype: "float32"
+        )
+        return (cfg, numClasses)
+    }
 }
 
 // MARK: - Label table (paired with the .tinygpt checkpoint)

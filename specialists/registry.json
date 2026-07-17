@@ -1,7 +1,45 @@
 {
   "version": 1,
-  "updated": "2026-07-13",
+  "updated": "2026-07-18",
   "packages": [
+    {
+      "id": "pace-intent-router-v8",
+      "name": "Pace Intent Router v8",
+      "kind": "tinygpt-checkpoint",
+      "package_path": "specialists/pace-intent-router-v8",
+      "artifact_path": "runs/pace-intent-router-v8.tinygpt",
+      "storage": {
+        "primary": "local_runs_directory",
+        "status": "local-only",
+        "large_weights_published": false
+      },
+      "base": "posttrainllm-ToolRouterModel-small",
+      "base_precision": "float32",
+      "training": "train-extractor cross-entropy classification on 127K synthetic Pace intent examples (18000 steps)",
+      "status": "trained-specialist",
+      "use_for": [
+        "Pace 7-class intent classification (chitchat, pureKnowledge, screenDescription, screenAction, research, phoneLargeModel, unknown)",
+        "Fallback intent classifier when Apple Foundation Models unavailable",
+        "On-device intent routing on Macs without Apple Intelligence"
+      ],
+      "do_not_use_for": [
+        "Response generation (this is a classifier, not a planner)",
+        "General NLP tasks beyond Pace's 7-class taxonomy",
+        "Production Pace deployment where Apple FM is available"
+      ],
+      "headline": {
+        "overall_accuracy": "95.5%",
+        "unknown_class_accuracy": "79.6%",
+        "latency_p50_ms": 3.1,
+        "params": "49.5M",
+        "vs_qwen3_4b_accuracy_pp": 10.77,
+        "vs_qwen3_4b_latency_speedup": "77x"
+      },
+      "model_card": "specialists/pace-intent-router-v8/model_card.md",
+      "eval_report": "specialists/pace-intent-router-v8/eval_report.json",
+      "prompt": "specialists/pace-intent-router-v8/prompt.md",
+      "lock": "specialists/pace-intent-router-v8/tinygpt.lock.json"
+    },
     {
       "id": "qwen3-4b-file-ops-distilled",
       "name": "Qwen3-4B File-Ops Distilled",
