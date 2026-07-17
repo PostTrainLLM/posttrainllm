@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://posttrainllm.com</loc></url>
   <url><loc>https://posttrainllm.com/</loc></url>
-  <url><loc>https://posttrainllm.com/index.md</loc></url>
-  <url><loc>https://posttrainllm.com/llms.txt</loc></url>
   <url><loc>https://posttrainllm.com/api/ai</loc></url>
+  <url><loc>https://posttrainllm.com/artifacts</loc></url>
+  <url><loc>https://posttrainllm.com/artifacts/[slug]</loc></url>
+  <url><loc>https://posttrainllm.com/devlog</loc></url>
   <url><loc>https://posttrainllm.com/devlog.html</loc></url>
+  <url><loc>https://posttrainllm.com/docs</loc></url>
+  <url><loc>https://posttrainllm.com/docs/[...slug]</loc></url>
+  <url><loc>https://posttrainllm.com/eval-leaderboard</loc></url>
+  <url><loc>https://posttrainllm.com/index.md</loc></url>
+  <url><loc>https://posttrainllm.com/inference</loc></url>
+  <url><loc>https://posttrainllm.com/leaderboard</loc></url>
+  <url><loc>https://posttrainllm.com/llms.txt</loc></url>
+  <url><loc>https://posttrainllm.com/playground</loc></url>
+  <url><loc>https://posttrainllm.com/recipes</loc></url>
+  <url><loc>https://posttrainllm.com/roadmap</loc></url>
+  <url><loc>https://posttrainllm.com/sae-timeline</loc></url>
+  <url><loc>https://posttrainllm.com/speedup</loc></url>
+  <url><loc>https://posttrainllm.com/training-dashboard</loc></url>
+  <url><loc>https://posttrainllm.com/webgpu-test</loc></url>
 </urlset>
