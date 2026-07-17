@@ -61,7 +61,17 @@ const {
 } = Astro.props;
 
 const ORIGIN = "https://posttrainllm.com";
-const canonical = new URL(Astro.url.pathname, ORIGIN).href;
+/** Extensionless, stable canonical (never …/page.html which 308s). */
+function normalizeCanonicalPath(pathname: string): string {
+  let p = pathname || "/";
+  p = p.replace(/\/index\.html?$/i, "/");
+  p = p.replace(/\.html?$/i, "");
+  if (!p.startsWith("/")) p = `/${p}`;
+  // collapse trailing slash except root
+  if (p.length > 1 && p.endsWith("/")) p = p.slice(0, -1);
+  return p || "/";
+}
+const canonical = new URL(normalizeCanonicalPath(Astro.url.pathname), ORIGIN).href;
 const structuredData = {
   "@context": "https://schema.org",
   "@graph": [
