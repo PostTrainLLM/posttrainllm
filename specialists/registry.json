@@ -24,14 +24,15 @@
       ],
       "do_not_use_for": [
         "Response generation (this is a classifier, not a planner)",
-        "General NLP tasks beyond Pace's 7-class taxonomy",
-        "Production Pace deployment where Apple FM is available"
+        "General NLP tasks beyond Pace's 7-class taxonomy"
       ],
       "headline": {
         "overall_accuracy": "95.5%",
         "unknown_class_accuracy": "79.6%",
         "latency_p50_ms": 3.1,
         "params": "49.5M",
+        "vs_apple_fm_accuracy_pp": 19.0,
+        "vs_apple_fm_latency_speedup": "515x",
         "vs_qwen3_4b_accuracy_pp": 10.77,
         "vs_qwen3_4b_latency_speedup": "77x"
       },

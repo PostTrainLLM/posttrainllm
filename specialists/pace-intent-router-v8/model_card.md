@@ -146,12 +146,30 @@ Do not use this model for response generation. It only classifies.
 The Pace intent classifier was originally rule-based (hand-written
 phrase lists). This model was trained to test whether a learned
 classifier could beat the rules. It can — 95.5% vs the rules' ~95% on
-the synthetic eval — but Apple Foundation Models (3B, in-process, free)
-are even better and ship with the OS. The model is most useful as:
+the synthetic eval — and it also beats Apple Foundation Models (3B,
+in-process) on the same task: 95.5% vs 76.5% on a 200-example
+stratified sample. The model is most useful as:
 
-1. A fallback when Apple FM is unavailable (older Macs)
-2. A training pipeline validation (the corpus and pipeline are assets)
-3. A baseline for future on-device classifiers
+1. **The production intent classifier** — it's faster (3ms vs 1600ms),
+   more accurate (95.5% vs 76.5%), and has calibrated confidence
+   (real softmax vs hardcoded 0.95)
+2. A fallback when Apple FM is unavailable (older Macs)
+3. A training pipeline validation (the corpus and pipeline are assets)
+4. A baseline for future on-device classifiers
+
+### Measured head-to-head (200 stratified examples, 1s delay)
+
+| Model | Accuracy | Latency | Error rate |
+|---|---|---|---|
+| **TinyGPT v8 (49.5M)** | **95.5%** | **3.1ms p50** | 0% |
+| Qwen3-4B-Instruct (4-bit) | 84.75% | 240ms p50 | 0% |
+| Apple FM (3B, in-process) | 76.5% | 1597ms mean | 0.5% |
+
+FM's main weakness: it conflates `research` with `pureKnowledge`
+(33.3% vs 93.4% — a 60pp gap) because it doesn't understand the
+Pace-specific distinction between "research X" (multi-step) and
+"what is X" (single answer). FM also refused to answer one query
+("model refused to answer").
 
 ## References
 

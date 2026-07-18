@@ -118,7 +118,7 @@ multi-GPU, no cloud, no asterisk.
 | Largest browser-trainable model | **960M params** via Memory64 | [`browser/devlog.html`](browser/devlog.html) |
 | Loss drift, WebGPU vs WASM reference | **1.1% – 2.5%** across the curve | `tests/test_webgpu_train.mjs` |
 | First end-to-end Mac LoRA fine-tune | **−32% held-out PPL**, 788 KB adapter | [`WHILE_YOU_SLEPT.md`](WHILE_YOU_SLEPT.md) |
-| **Pace intent router, 49.5M from-scratch** | **95.5% accuracy** vs Qwen3-4B 84.75% (+10.8 pp), **3ms** vs 240ms (77x), 7-class routing | [`specialists/pace-intent-router-v8/model_card.md`](specialists/pace-intent-router-v8/model_card.md) |
+| **Pace intent router, 49.5M from-scratch** | **95.5% accuracy** vs Apple FM 76.5% (+19 pp) vs Qwen3-4B 84.75% (+10.8 pp), **3ms** vs 1597ms vs 240ms, 7-class routing | [`specialists/pace-intent-router-v8/model_card.md`](specialists/pace-intent-router-v8/model_card.md) |
 
 ---
 

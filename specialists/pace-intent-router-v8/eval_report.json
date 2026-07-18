@@ -39,6 +39,14 @@
     }
   },
   "baselines": {
+    "apple-fm-3b": {
+      "overall_accuracy": 0.765,
+      "eval_size": 200,
+      "latency_mean_ms": 1597,
+      "error_rate": 0.005,
+      "source": "pace/leanring-buddyTests/PaceFMIntentClassifierBenchmarkTests.swift",
+      "notes": "200 stratified examples, 1s delay between calls, fresh session per call. FM conflates research with pureKnowledge (33.3% vs 93.4%). One refusal."
+    },
     "qwen3-4b-instruct-4bit": {
       "overall_accuracy": 0.847542627883651,
       "eval_size": 997,
@@ -53,6 +61,11 @@
     }
   },
   "head_to_head": {
+    "vs_apple_fm": {
+      "accuracy_delta_pp": 19.0,
+      "latency_speedup": "515x",
+      "note": "FM is 3B in-process but beats it on every class. FM conflates research with pureKnowledge."
+    },
     "vs_qwen3_4b": {
       "accuracy_delta_pp": 10.77,
       "latency_speedup": "77x",
@@ -67,7 +80,7 @@
   "caveats": [
     "All eval data is synthetic — real-world distribution will differ",
     "Unknown class accuracy (79.6%) is measured on synthetic unknowns",
-    "Not wired into shipping Pace app — Apple FM is the production classifier",
+    "Not wired into shipping Pace app yet — Apple FM is the current production classifier despite lower measured accuracy (76.5% vs 95.5%)",
     "Byte-level vocab truncates queries at 128 bytes"
   ]
 }
