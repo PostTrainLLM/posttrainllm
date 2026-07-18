@@ -25,9 +25,22 @@ const DOCS_SITE_DIR = resolve(BROWSER_ROOT, "..", "docs-site");
 const DOCS_SITE_DIST = resolve(DOCS_SITE_DIR, "dist");
 const DEST_DIR = resolve(BROWSER_ROOT, "dist", "docs");
 
-// 1. Build the Blume docs project.
-console.log("build-docs.mjs: building Blume docs in ../docs-site …");
+// 1. Install and build the standalone Blume project. It is intentionally not
+// part of the browser workspace, so CI must install its own frozen lockfile.
 const pnpmCmd = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+console.log("build-docs.mjs: installing docs-site dependencies …");
+const install = spawnSync(pnpmCmd, ["install", "--frozen-lockfile"], {
+  cwd: DOCS_SITE_DIR,
+  stdio: "inherit",
+});
+if (install.status !== 0) {
+  console.error(
+    `build-docs.mjs: docs-site install failed (exit ${install.status ?? "signal"}).`,
+  );
+  process.exit(install.status ?? 1);
+}
+
+console.log("build-docs.mjs: building Blume docs in ../docs-site …");
 const build = spawnSync(pnpmCmd, ["run", "build"], {
   cwd: DOCS_SITE_DIR,
   stdio: "inherit",
