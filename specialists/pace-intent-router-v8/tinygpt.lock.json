@@ -3,12 +3,14 @@
   "id": "pace-intent-router-v8",
   "artifact_type": "tinygpt_checkpoint",
   "local_path": "runs/pace-intent-router-v8.tinygpt",
-  "public_uri": null,
+  "public_uri": "hf://models/posttrainllm/pace-intent-router-v8",
   "storage": {
-    "primary": "local_runs_directory",
-    "status": "local-only",
-    "large_weights_published": false,
-    "r2": "not-applicable"
+    "primary": "huggingface_hub",
+    "repo_type": "model",
+    "repo_id": "posttrainllm/pace-intent-router-v8",
+    "status": "weights-published",
+    "large_weights_published": true,
+    "local_copy": "runs/pace-intent-router-v8.tinygpt"
   },
   "base_model": {
     "id": "posttrainllm-ToolRouterModel-small",

@@ -7,11 +7,13 @@
       "name": "Pace Intent Router v8",
       "kind": "tinygpt-checkpoint",
       "package_path": "specialists/pace-intent-router-v8",
-      "artifact_path": "runs/pace-intent-router-v8.tinygpt",
+      "artifact_path": "hf://models/posttrainllm/pace-intent-router-v8",
       "storage": {
-        "primary": "local_runs_directory",
-        "status": "local-only",
-        "large_weights_published": false
+        "primary": "huggingface_hub",
+        "repo_type": "model",
+        "repo_id": "posttrainllm/pace-intent-router-v8",
+        "status": "weights-published",
+        "large_weights_published": true
       },
       "base": "posttrainllm-ToolRouterModel-small",
       "base_precision": "float32",
