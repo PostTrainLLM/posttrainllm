@@ -115,7 +115,7 @@ function encodeFile(cfg, stateBuffer, history, sampleText) {
       : null,
     sample: sampleText.slice(0, 320),
     bestVal,
-    project: "https://github.com/sarthak-fleet/posttrainllm",
+    project: "https://github.com/PostTrainLLM/posttrainllm",
   };
   const headerJson = Buffer.from(JSON.stringify(header), "utf8");
   const prefix = Buffer.alloc(12);
