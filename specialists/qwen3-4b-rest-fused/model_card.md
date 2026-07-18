@@ -30,7 +30,7 @@ requires its own ship gate.
 ## Artifact
 
 - Package id: `qwen3-4b-rest-fused`
-- Public artifact: `sarthakagrawal927/qwen3-4b-rest-fused`
+- Public artifact: `posttrainllm/qwen3-4b-rest-fused`
 - Format: fused bf16 HF/MLX safetensors directory
 - Base: `Qwen/Qwen3-4B-Instruct-2507`
 - Training method: teacher-free ReST iteration over checker-passing,

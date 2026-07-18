@@ -74,9 +74,9 @@ Committed surface:
 - `specialists/qwen3-4b-file-ops-distilled/tinygpt.lock.json`
 - `specialists/qwen3-4b-file-ops-distilled/prompt.md`
 - `specialists/registry.json`
-- HF repo: `https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled`
+- HF repo: `https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled`
 - HF staging command:
-  `python3 scripts/plan_hf_artifact_upload.py specialists/qwen3-4b-file-ops-distilled --repo-id sarthakagrawal927/qwen3-4b-file-ops-distilled`
+  `python3 scripts/plan_hf_artifact_upload.py specialists/qwen3-4b-file-ops-distilled --repo-id posttrainllm/qwen3-4b-file-ops-distilled`
 
 Measured evidence:
 
@@ -104,7 +104,7 @@ Committed surface:
 - `specialists/qwen3-4b-rest-fused/tinygpt.lock.json`
 - `specialists/qwen3-4b-rest-fused/prompt.md`
 - `specialists/registry.json`
-- HF repo: `https://huggingface.co/sarthakagrawal927/qwen3-4b-rest-fused`
+- HF repo: `https://huggingface.co/posttrainllm/qwen3-4b-rest-fused`
 
 Recorded evidence:
 
@@ -133,11 +133,11 @@ Uploaded posttrainllm artifacts:
 
 | Local cache | HF repo | Status | Evidence / readout |
 |---|---|---|---|
-| `mt4b_fused` | `https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled` | Release-ready specialist | File-ops hard gate 58% -> 100%; breadth regression disclosed. |
-| `mt4b_rest_fused` | `https://huggingface.co/sarthakagrawal927/qwen3-4b-rest-fused` | Release-ready research specialist | ReST breadth recovery variant: depth 100%, breadth 65% vs stock breadth 59.6%; missing historical performance evidence disclosed. |
-| `mt4b_mb_fused` | `https://huggingface.co/sarthakagrawal927/qwen3-4b-multibackend-distilled` | Archive / failed attempt | Negative-transfer artifact: depth 100%, breadth 31%. |
-| `vibethinker-3b-mlx` | `https://huggingface.co/sarthakagrawal927/vibethinker-3b-mlx` | Archive / conversion | Local MLX conversion of `WeiboAI/VibeThinker-3B`. |
-| `vibe_distill_fused` | `https://huggingface.co/sarthakagrawal927/vibethinker-3b-agentic-distilled` | Archive / needs eval promotion | posttrainllm distilled VibeThinker variant; do not treat as a shipped specialist until a current eval report exists. |
+| `mt4b_fused` | `https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled` | Release-ready specialist | File-ops hard gate 58% -> 100%; breadth regression disclosed. |
+| `mt4b_rest_fused` | `https://huggingface.co/posttrainllm/qwen3-4b-rest-fused` | Release-ready research specialist | ReST breadth recovery variant: depth 100%, breadth 65% vs stock breadth 59.6%; missing historical performance evidence disclosed. |
+| `mt4b_mb_fused` | `https://huggingface.co/posttrainllm/qwen3-4b-multibackend-distilled` | Archive / failed attempt | Negative-transfer artifact: depth 100%, breadth 31%. |
+| `vibethinker-3b-mlx` | `https://huggingface.co/posttrainllm/vibethinker-3b-mlx` | Archive / conversion | Local MLX conversion of `WeiboAI/VibeThinker-3B`. |
+| `vibe_distill_fused` | `https://huggingface.co/posttrainllm/vibethinker-3b-agentic-distilled` | Archive / needs eval promotion | posttrainllm distilled VibeThinker variant; do not treat as a shipped specialist until a current eval report exists. |
 
 Deleted upstream caches:
 

@@ -3,11 +3,11 @@
   "id": "qwen3-4b-rest-fused",
   "artifact_type": "hf_safetensors_directory",
   "local_path": null,
-  "public_uri": "hf://models/sarthakagrawal927/qwen3-4b-rest-fused",
+  "public_uri": "hf://models/posttrainllm/qwen3-4b-rest-fused",
   "storage": {
     "primary": "huggingface_hub",
     "repo_type": "model",
-    "repo_id": "sarthakagrawal927/qwen3-4b-rest-fused",
+    "repo_id": "posttrainllm/qwen3-4b-rest-fused",
     "status": "weights-published",
     "large_weights_published": true,
     "weights_commit": "b332dfe437dc201922d50b28eddf0c99ebcc79a7",

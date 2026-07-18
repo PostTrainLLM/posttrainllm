@@ -3,11 +3,11 @@
   "id": "qwen3-4b-file-ops-distilled",
   "artifact_type": "hf_safetensors_directory",
   "local_path": null,
-  "public_uri": "hf://models/sarthakagrawal927/qwen3-4b-file-ops-distilled",
+  "public_uri": "hf://models/posttrainllm/qwen3-4b-file-ops-distilled",
   "storage": {
     "primary": "huggingface_hub",
     "repo_type": "model",
-    "repo_id": "sarthakagrawal927/qwen3-4b-file-ops-distilled",
+    "repo_id": "posttrainllm/qwen3-4b-file-ops-distilled",
     "status": "weights-published",
     "large_weights_published": true,
     "weights_commit": "33a7244854f797e35b34ce05a6d5184f0949ada7",

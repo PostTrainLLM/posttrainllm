@@ -2,7 +2,7 @@
   "id": "qwen3-4b-rest-fused",
   "updated": "2026-07-13",
   "evaluation_date": "2026-06-17",
-  "artifact": "hf://models/sarthakagrawal927/qwen3-4b-rest-fused",
+  "artifact": "hf://models/posttrainllm/qwen3-4b-rest-fused",
   "artifact_revision": "b332dfe437dc201922d50b28eddf0c99ebcc79a7",
   "base": "Qwen/Qwen3-4B-Instruct-2507",
   "precision": "bf16",

@@ -27,7 +27,7 @@ It is a **routed specialist**, not the general Pace planner.
 ## Artifact
 
 - Package id: `qwen3-4b-file-ops-distilled`
-- Public artifact: `sarthakagrawal927/qwen3-4b-file-ops-distilled`
+- Public artifact: `posttrainllm/qwen3-4b-file-ops-distilled`
 - Public storage target: Hugging Face Hub model repo
 - Format: HF/MLX safetensors directory
 - Base: `Qwen/Qwen3-4B-Instruct-2507`

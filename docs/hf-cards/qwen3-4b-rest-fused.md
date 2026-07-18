@@ -39,7 +39,7 @@ envelope and requires its own ship gate.
 ## Eval results
 
 All numbers are historical results recorded on 2026-06-17. Source:
-[`specialists/qwen3-4b-rest-fused/eval_report.json`](https://huggingface.co/sarthakagrawal927/qwen3-4b-rest-fused/blob/main/eval_report.json).
+[`specialists/qwen3-4b-rest-fused/eval_report.json`](https://huggingface.co/posttrainllm/qwen3-4b-rest-fused/blob/main/eval_report.json).
 
 | Suite | Stock 4B | ReST 4B | Delta | n |
 |---|---:|---:|---:|---:|
@@ -108,7 +108,7 @@ Or load with `mlx_lm`:
 
 ```python
 from mlx_lm import load, generate
-model, tokenizer = load("sarthakagrawal927/qwen3-4b-rest-fused")
+model, tokenizer = load("posttrainllm/qwen3-4b-rest-fused")
 ```
 
 ## Upload command
@@ -119,10 +119,10 @@ This model is already published. To re-upload or update metadata:
 # Stage the public metadata surface (no token needed)
 python3 scripts/plan_hf_artifact_upload.py \
   specialists/qwen3-4b-rest-fused \
-  --repo-id sarthakagrawal927/qwen3-4b-rest-fused
+  --repo-id posttrainllm/qwen3-4b-rest-fused
 
 # Upload to Hugging Face Hub (requires HF login)
-huggingface-cli upload sarthakagrawal927/qwen3-4b-rest-fused \
+huggingface-cli upload posttrainllm/qwen3-4b-rest-fused \
   dist/hf-artifacts/qwen3-4b-rest-fused \
   --repo-type model
 ```
@@ -130,7 +130,7 @@ huggingface-cli upload sarthakagrawal927/qwen3-4b-rest-fused \
 ## Links
 
 - **Project:** [posttrainllm.com](https://posttrainllm.com)
-- **Hugging Face repo:** [sarthakagrawal927/qwen3-4b-rest-fused](https://huggingface.co/sarthakagrawal927/qwen3-4b-rest-fused)
+- **Hugging Face repo:** [posttrainllm/qwen3-4b-rest-fused](https://huggingface.co/posttrainllm/qwen3-4b-rest-fused)
 - **Public artifact page:** [posttrainllm.com/artifacts/qwen3-4b-rest-fused](https://posttrainllm.com/artifacts/qwen3-4b-rest-fused)
 - **Eval report:** `eval_report.json` (included in this repo)
 - **Lock file:** `tinygpt.lock.json` (included in this repo)

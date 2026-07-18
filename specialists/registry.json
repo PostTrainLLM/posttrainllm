@@ -48,11 +48,11 @@
       "name": "Qwen3-4B File-Ops Distilled",
       "kind": "mac-safetensors-hf",
       "package_path": "specialists/qwen3-4b-file-ops-distilled",
-      "artifact_path": "hf://models/sarthakagrawal927/qwen3-4b-file-ops-distilled",
+      "artifact_path": "hf://models/posttrainllm/qwen3-4b-file-ops-distilled",
       "storage": {
         "primary": "huggingface_hub",
         "repo_type": "model",
-        "repo_id": "sarthakagrawal927/qwen3-4b-file-ops-distilled",
+        "repo_id": "posttrainllm/qwen3-4b-file-ops-distilled",
         "status": "weights-published",
         "r2": "legacy-optional-cache"
       },
@@ -84,11 +84,11 @@
       "name": "Qwen3-4B ReST Fused",
       "kind": "mac-safetensors-hf",
       "package_path": "specialists/qwen3-4b-rest-fused",
-      "artifact_path": "hf://models/sarthakagrawal927/qwen3-4b-rest-fused",
+      "artifact_path": "hf://models/posttrainllm/qwen3-4b-rest-fused",
       "storage": {
         "primary": "huggingface_hub",
         "repo_type": "model",
-        "repo_id": "sarthakagrawal927/qwen3-4b-rest-fused",
+        "repo_id": "posttrainllm/qwen3-4b-rest-fused",
         "status": "weights-published",
         "r2": "legacy-optional-cache"
       },
