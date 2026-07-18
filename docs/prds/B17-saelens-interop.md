@@ -1,11 +1,13 @@
 ---
-name: B17 SAE Lens interop / Neuronpedia format export
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B17)
-related_prds: B13-interp-on-checkpoints.md, B19-group-sae.md
+title: "B17 SAE Lens interop / Neuronpedia format export"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B17)  
+**related_prds:** B13-interp-on-checkpoints.md, B19-group-sae.md
 
 # PRD — Export posttrainllm SAEs in SAELens / Neuronpedia format
 

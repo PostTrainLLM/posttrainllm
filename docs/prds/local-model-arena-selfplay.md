@@ -1,11 +1,13 @@
 ---
-title: Local-model arena — turn-based strategy, self-play RLVR (PRD)
+title: "Local-model arena — turn-based strategy, self-play RLVR (PRD)"
 description: Pit Mac-local models against each other and against frontier models in
   turn-based strategy games, then self-play-RL a local model until it beats a frontier
   model playing zero-shot. The match win/lose IS a verifiable reward — RLVR with no
   hand-authored golds or checker.
-status: proposed
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** proposed
 
 # Local-model arena (self-play RLVR on turn-based strategy games)
 
@@ -15,7 +17,7 @@ frontier model that plays the same game **zero-shot**.
 
 ## Why this is the sharpest version of the north star
 
-- It collapses the whole thesis (see [AGENTS.md](../../AGENTS.md) "Eval philosophy")
+- It collapses the whole thesis (see [AGENTS.md](https://github.com/PostTrainLLM/posttrainllm/blob/main/AGENTS.md) "Eval philosophy")
   into one demoable claim: **a 4B RL'd inside a game beats a frontier model playing
   that game cold.** The frontier model is smarter in general but never *specialized*
   here — that asymmetry is the entire point, and it's reachable on a Mac.

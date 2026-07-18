@@ -1,12 +1,14 @@
 ---
-name: Planner v7 — tools-in-prompt (generalizable function calling)
-status: implementation-v0-2026-06-07-long-sft-and-external-evals-pending
-owner: unassigned (parallel-agent task — Swift training + serve + Python eval)
-created: 2026-06-08
-priority: P1 — unblocks Pace tool churn without retrain; foundation for any multi-app planner consumer
-depends-on: v6 ANE arc landing (#263), BFCL eval shipping (#231)
-authorized-by: maintainer 2026-06-08 (architectural direction confirmed — implementation gated on owner go-ahead after ANE arc completes)
+title: "Planner v7 — tools-in-prompt (generalizable function calling)"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** implementation-v0-2026-06-07-long-sft-and-external-evals-pending  
+**owner:** unassigned (parallel-agent task — Swift training + serve + Python eval)  
+**created:** 2026-06-08  
+**priority:** P1 — unblocks Pace tool churn without retrain; foundation for any multi-app planner consumer  
+**depends-on:** v6 ANE arc landing (#263), BFCL eval shipping (#231)  
+**authorized-by:** maintainer 2026-06-08 (architectural direction confirmed — implementation gated on owner go-ahead after ANE arc completes)
 
 # PRD — Planner v7: tools-in-prompt architecture
 

@@ -1,11 +1,13 @@
 ---
-name: C10 training-run dashboard
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier C (C10)
-related_prds: train-controls-gap-closure.md, app-train-controls-thermal.md
+title: "C10 training-run dashboard"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier C (C10)  
+**related_prds:** train-controls-gap-closure.md, app-train-controls-thermal.md
 
 # PRD — Live-streaming training-run dashboard (browser viewer)
 

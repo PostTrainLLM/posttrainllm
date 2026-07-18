@@ -1,4 +1,12 @@
 ---
+title: "Qwen3-4B File-Ops Distilled — model card"
+---
+
+<!-- HuggingFace model-card metadata (the YAML below is the canonical HF card
+     header; kept in-body for Blume schema compatibility — paste it back into
+     frontmatter when uploading to the Hub). -->
+
+```yaml
 base_model: Qwen/Qwen3-4B-Instruct-2507
 language:
   - en
@@ -13,7 +21,7 @@ tags:
   - agentic
   - file-ops
   - routed-specialist
----
+```
 
 # Qwen3-4B File-Ops Distilled
 

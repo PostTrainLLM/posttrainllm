@@ -1,12 +1,13 @@
 ---
-name: B6 Mac app demo
-status: not-started (blocked-by A1)
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B6)
-related_prds: app-eval-tab.md, app-train-controls-thermal.md, app-ux-polish-batch1.md
-              (existing Mac app PRDs; B6 ties them into the user-facing demo flow)
+title: "B6 Mac app demo"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started (blocked-by A1)  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B6)  
+**related_prds:** app-eval-tab.md, app-train-controls-thermal.md, app-ux-polish-batch1.md (existing Mac app PRDs; B6 ties them into the user-facing demo flow)
 
 # PRD — End-to-end Mac app demo with A1 specialist
 

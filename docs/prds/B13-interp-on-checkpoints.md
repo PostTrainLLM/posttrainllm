@@ -1,11 +1,13 @@
 ---
-name: B13 interp-on-checkpoints methodology
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B13)
-related_prds: sae-timeline-viewer.md (visualization sibling — ships the chart, this PRD ships the infra producing the data)
+title: "B13 interp-on-checkpoints methodology"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B13)  
+**related_prds:** sae-timeline-viewer.md (visualization sibling — ships the chart, this PRD ships the infra producing the data)
 
 # PRD — Interpretability across a training-run timeline
 

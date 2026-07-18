@@ -1,11 +1,13 @@
 ---
-name: B11 WSD (warmup-stable-decay) schedule
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B11)
-related_prds: B10-quality-classifier.md, B12 (loss-spike recovery, partly covered by adam-state-persistence.md)
+title: "B11 WSD (warmup-stable-decay) schedule"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B11)  
+**related_prds:** B10-quality-classifier.md, B12 (loss-spike recovery, partly covered by adam-state-persistence.md)
 
 # PRD — WSD learning-rate schedule (warmup → stable → decay)
 

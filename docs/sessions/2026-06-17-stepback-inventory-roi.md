@@ -2,7 +2,7 @@
 
 Date: 2026-06-17. A deliberate pause to inventory the assets, name the wall, and
 rank what's next by ROI — *before* committing to another build. Narrative of the
-arc lives in [the 2026-06-16 session doc](./2026-06-16-distill-to-self-improvement.md)
+arc lives in [the 2026-06-16 session doc](./06-16-distill-to-self-improvement)
 and [journey §8](../learn/tool-calling-frontier-parity.md); this is the ledger + the fork.
 
 ## The arc that led here

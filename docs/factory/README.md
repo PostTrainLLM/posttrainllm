@@ -35,7 +35,7 @@ target -> data -> post-training -> eval -> package -> report
 - [`reports.md`](reports.md) — before/after report template.
 - [`public-artifacts.md`](public-artifacts.md) — public artifact registry,
   release states, and blockers.
-- [`../techniques/`](../techniques/) — method-vs-recipe registry. Use this
+- [`../techniques/README`](../techniques/README) — method-vs-recipe registry. Use this
   before selecting a post-training run so "try DPO/RLVR/LoRA" becomes a concrete
   recipe with data, eval, slices, and stop rule.
 

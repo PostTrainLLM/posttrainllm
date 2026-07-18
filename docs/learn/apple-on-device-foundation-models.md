@@ -33,7 +33,7 @@ for the single-turn Pace *planner* gate.)
 |---|---|---|
 | BFCL agentic breadth, **full catalog** (n=8 VehicleControl) | **25%** | schemas present but ~3–4.4k-token catalog nearly overflows context |
 | BFCL agentic breadth, **compact catalog** (52 tasks) | **~0%** | fits context, but stripping param schemas → wrong args |
-| Pace **planner** gate (action-grounding) | **13%** | can pick intents, can't ground actions — see [benchmark README](../../benchmarks/mac-assistant-judgment/README.md) |
+| Pace **planner** gate (action-grounding) | **13%** | can pick intents, can't ground actions — see [benchmark README](https://github.com/PostTrainLLM/posttrainllm/blob/main/benchmarks/mac-assistant-judgment/README.md) |
 | Pace planner gate (OOS-refusal) | **~95%** | judgment-light classification is its strength |
 
 Three findings worth keeping:
@@ -52,7 +52,7 @@ Three findings worth keeping:
 
 - **Adapter-tune Apple's model** (`SystemLanguageModel(adapter:)`, `.fmadapter`): cleanest
   battery+integration win, but **locks us to Apple's model/format/OS**. **Decision: ruled out**
-  — we own the model (see [AGENTS.md](../../AGENTS.md)).
+  — we own the model (see [AGENTS.md](https://github.com/PostTrainLLM/posttrainllm/blob/main/AGENTS.md)).
 - **Core ML–compile *our own* weights to the ANE**: keeps ownership (Core ML is a deploy
   target, not a model dependency), but the ANE fights autoregressive decode (dynamic KV
   shapes, layout/dtype pickiness, partition+fallback). Possible later as a pure battery
@@ -69,5 +69,5 @@ battery-sensitive turns (classification, refusal, short answers) → escalate to
 
 ## Related
 - [Mac mastery map §3 (serving) + §7 (agents)](./mac-mastery-map.md)
-- [mac-assistant-judgment benchmark](../../benchmarks/mac-assistant-judgment/README.md) — full planner-gate table
-- [Step-back inventory + ROI](../sessions/2026-06-17-stepback-inventory-roi.md)
+- [mac-assistant-judgment benchmark](https://github.com/PostTrainLLM/posttrainllm/blob/main/benchmarks/mac-assistant-judgment/README.md) — full planner-gate table
+- [Step-back inventory + ROI](../sessions/06-17-stepback-inventory-roi)

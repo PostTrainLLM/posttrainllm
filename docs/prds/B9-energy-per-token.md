@@ -1,11 +1,13 @@
 ---
-name: B9 energy J/token measurement
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B9)
-related_prds: C5-decode-jitter-thermal.md (powermetrics infra; energy sits next to thermals)
+title: "B9 energy J/token measurement"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B9)  
+**related_prds:** C5-decode-jitter-thermal.md (powermetrics infra; energy sits next to thermals)
 
 # PRD — J/token instrumentation via powermetrics
 

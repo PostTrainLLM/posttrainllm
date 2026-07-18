@@ -1,15 +1,14 @@
 ---
-name: B35 local-agent vertical PoC — code reviewer on a Mac
-status: not-started
-owner: unassigned
-created: 2026-06-17
-parent_plan: docs/PLAN.md §3 Tier B (B35 — future)
-related_prds: B22-token-preserving-agent-trajectory.md, B26-deferred-tools.md,
-              B28-composite-reward-framework.md, B29-trace-to-training-data.md,
-              B30-prompt-reasoning-classifier.md, B31-gallery-and-project-pins.md,
-              B32-eval-ci-gate.md
-context: docs/sessions/2026-06-17-vercel-eve-and-local-agents.md
+title: "B35 local-agent vertical PoC — code reviewer on a Mac"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-17  
+**parent_plan:** docs/PLAN.md §3 Tier B (B35 — future)  
+**related_prds:** B22-token-preserving-agent-trajectory.md, B26-deferred-tools.md, B28-composite-reward-framework.md, B29-trace-to-training-data.md, B30-prompt-reasoning-classifier.md, B31-gallery-and-project-pins.md, B32-eval-ci-gate.md  
+**context:** docs/sessions/2026-06-17-vercel-eve-and-local-agents.md
 
 # PRD — Local-agent vertical PoC (code reviewer on a Mac)
 

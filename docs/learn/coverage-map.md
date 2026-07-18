@@ -159,8 +159,8 @@ is the concept.
 |---|---|
 | Mac-local mastery map (living agenda) | [`mac-mastery-map.md`](mac-mastery-map.md) |
 | Apple on-device Foundation Models — where they fit | [`apple-on-device-foundation-models.md`](apple-on-device-foundation-models.md), [`app-intents-comparison.md`](app-intents-comparison.md) |
-| ANE / CoreML research (negative results) | [`ane-research/`](ane-research/) |
-| Native runtime architecture | [`../../native-mac/ARCHITECTURE.md`](../../native-mac/ARCHITECTURE.md) |
+| ANE / CoreML research (negative results) | [`ane-research/`](ane-research/dossier) |
+| Native runtime architecture | [`../../native-mac/ARCHITECTURE.md`](https://github.com/PostTrainLLM/posttrainllm/blob/main/native-mac/ARCHITECTURE.md) |
 
 ---
 

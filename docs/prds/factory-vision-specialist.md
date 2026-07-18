@@ -1,12 +1,14 @@
 ---
-name: Vision-language specialist for Pace screen reading
-status: m1-m3-shipped-m4-qwen3vl-scaffold-shipped-2026-06-07
-owner: elf
-created: 2026-06-08
-priority: P0 — Pace's screen-reading currently uses Qwen3-VL-8B (~6 GB Q4). Replace with a 1-2B distilled specialist for ~3× RAM win + same/better screen-reading quality.
-size: 3-4 weeks (real architecture work)
-authorized-by: maintainer 2026-06-08 ("Well I want the best option and I want you to start now.")
+title: "Vision-language specialist for Pace screen reading"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** m1-m3-shipped-m4-qwen3vl-scaffold-shipped-2026-06-07  
+**owner:** elf  
+**created:** 2026-06-08  
+**priority:** P0 — Pace's screen-reading currently uses Qwen3-VL-8B (~6 GB Q4). Replace with a 1-2B distilled specialist for ~3× RAM win + same/better screen-reading quality.  
+**size:** 3-4 weeks (real architecture work)  
+**authorized-by:** maintainer 2026-06-08 ("Well I want the best option and I want you to start now.")
 
 # PRD — VLM specialist for Pace screen reading
 

@@ -1,11 +1,13 @@
 ---
-name: B18 nanochat-style `--depth` single-knob HP derivation
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B18)
-related_prds: B11-wsd-schedule.md (the LR-schedule half; --depth derives that too)
+title: "B18 nanochat-style `--depth` single-knob HP derivation"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B18)  
+**related_prds:** B11-wsd-schedule.md (the LR-schedule half; --depth derives that too)
 
 # PRD — Single `--depth N` knob auto-derives every pretrain HP
 

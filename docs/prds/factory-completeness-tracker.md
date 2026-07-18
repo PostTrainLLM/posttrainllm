@@ -1,10 +1,12 @@
 ---
-name: Factory completeness tracker — meta-PRD
-status: tracking
-owner: maintainer
-created: 2026-06-07
-parent_plan: docs/sessions/2026-06-06-mac-specialist-platform.md
+title: "Factory completeness tracker — meta-PRD"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** tracking  
+**owner:** maintainer  
+**created:** 2026-06-07  
+**parent_plan:** docs/sessions/2026-06-06-mac-specialist-platform.md
 
 # Factory completeness — meta-PRD
 

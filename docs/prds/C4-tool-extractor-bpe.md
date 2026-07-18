@@ -1,11 +1,13 @@
 ---
-name: C4 tool-call extractor — BPE tokenizer support
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier C (C4)
-related_prds: factory-planner-v7-tools-in-prompt.md (the planner this extractor sits behind)
+title: "C4 tool-call extractor — BPE tokenizer support"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier C (C4)  
+**related_prds:** factory-planner-v7-tools-in-prompt.md (the planner this extractor sits behind)
 
 # PRD — Extend `posttrainllm train-extractor` to BPE tokenizers
 

@@ -1,12 +1,14 @@
 ---
-name: B31 unified model gallery + project-level model pins
-status: scaffolding-shipped-2026-06-13 (browser gallery extension + CLI pull pending)
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B31)
-related_prds: A1-first-specialist-tool-caller.md (the first specialist to publish), B6-mac-app-demo.md (Factory tab consumes the gallery), B25-scaledown-specialist.md, B8-multilingual-specialist.md (siblings that need to ship via the gallery)
-related_existing: browser/src/gallery-schema.ts (the browser-side schema we extend), docs/gallery_v2_plan.md (v1.5 + v2 roadmap to fold into this)
+title: "B31 unified model gallery + project-level model pins"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** scaffolding-shipped-2026-06-13 (browser gallery extension + CLI pull pending)  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B31)  
+**related_prds:** A1-first-specialist-tool-caller.md (the first specialist to publish), B6-mac-app-demo.md (Factory tab consumes the gallery), B25-scaledown-specialist.md, B8-multilingual-specialist.md (siblings that need to ship via the gallery)  
+**related_existing:** browser/src/gallery-schema.ts (the browser-side schema we extend), docs/gallery_v2_plan.md (v1.5 + v2 roadmap to fold into this)
 
 # PRD — Unify the gallery (browser + Mac) + project-level model pins
 

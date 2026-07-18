@@ -1,10 +1,12 @@
 ---
-title: Capability retention under fine-tuning (PRD — backlog)
+title: "Capability retention under fine-tuning (PRD — backlog)"
 description: Measure and preserve a small model's GENERAL intelligence when we specialize it
   (tool-calling, style, persona). This session proved specialization erodes breadth — a retention
   eval battery + retention techniques, run on every fine-tune. Future work; captured for later.
-status: backlog
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** backlog
 
 # Capability retention under fine-tuning
 

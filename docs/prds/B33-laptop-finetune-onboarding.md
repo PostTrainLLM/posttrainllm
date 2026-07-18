@@ -1,12 +1,14 @@
 ---
-name: B33 one-command laptop-finetune onboarding
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B33)
-parent_strategy: docs/sessions/2026-06-13-market-landscape-mac-first.md (move #3)
-related_prds: A1-first-specialist-tool-caller.md (the recipe this wraps), B6-mac-app-demo.md (the GUI version), B31-gallery-and-project-pins.md (resolves the base model)
+title: "B33 one-command laptop-finetune onboarding"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B33)  
+**parent_strategy:** docs/sessions/2026-06-13-market-landscape-mac-first.md (move #3)  
+**related_prds:** A1-first-specialist-tool-caller.md (the recipe this wraps), B6-mac-app-demo.md (the GUI version), B31-gallery-and-project-pins.md (resolves the base model)
 
 # PRD — `posttrainllm quickstart`: data → trained specialist in one command
 

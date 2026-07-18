@@ -1,7 +1,7 @@
 # Project status — 2026 update
 
 > Archived snapshot (browser/perf era). The live status board is the root
-> [`PROJECT_STATUS.md`](../../PROJECT_STATUS.md).
+> [`PROJECT_STATUS.md`](https://github.com/PostTrainLLM/posttrainllm/blob/main/PROJECT_STATUS.md).
 
 A review-oriented snapshot of where posttrainllm stands. The detailed docs are linked
 at the bottom; this page is the map.

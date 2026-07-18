@@ -31,7 +31,7 @@ in one sitting — the parts are self-contained.
 - [2. Language modeling](#2-language-modeling--what-the-model-is-doing)
 - [3. The transformer](#3-the-transformer)
 - [4. LoRA — cheap fine-tuning](#4-lora--cheap-fine-tuning)
-- [5. Running it in the browser](#5-running-it-in-the-browser-the-systems-half)
+- [5. Running it in the browser](#5-running-it-in-the-browser--the-systems-half)
 - [6. See the whole thing run](#6-see-the-whole-thing-run)
 - [Going deeper](#going-deeper)
 

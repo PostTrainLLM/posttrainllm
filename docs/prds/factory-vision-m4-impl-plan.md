@@ -1,12 +1,14 @@
 ---
-name: VLM M4 — Qwen3-VL implementation plan
-status: drafted-2026-06-08-ready-for-elf
-owner: unassigned (parallel-agent task — Swift + MLX-Swift)
-created: 2026-06-08
-priority: P0 — gates the entire VLM specialist arc
-depends-on: VLM M1-M3 already shipped + scaffold types in Qwen3VLScaffold.swift
-estimated-effort: 1-2 weeks of focused Swift + MLX work
+title: "VLM M4 — Qwen3-VL implementation plan"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** drafted-2026-06-08-ready-for-elf  
+**owner:** unassigned (parallel-agent task — Swift + MLX-Swift)  
+**created:** 2026-06-08  
+**priority:** P0 — gates the entire VLM specialist arc  
+**depends-on:** VLM M1-M3 already shipped + scaffold types in Qwen3VLScaffold.swift  
+**estimated-effort:** 1-2 weeks of focused Swift + MLX work
 
 # VLM M4 implementation plan — file-by-file
 

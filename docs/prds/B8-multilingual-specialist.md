@@ -1,12 +1,13 @@
 ---
-name: B8 multilingual specialist (Indic-focus first)
-status: not-started (blocked-by A7)
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B8)
-related_prds: A1-first-specialist-tool-caller.md (A1's recipe template),
-              docs/research/indic_evals.md (eval surface)
+title: "B8 multilingual specialist (Indic-focus first)"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started (blocked-by A7)  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B8)  
+**related_prds:** A1-first-specialist-tool-caller.md (A1's recipe template), docs/research/indic_evals.md (eval surface)
 
 # PRD — Multilingual specialist on top of Sarvam-Edge / Airavata base
 

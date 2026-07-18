@@ -1,12 +1,13 @@
 ---
-name: E6 `posttrainllm eval-scaledown` harness
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier E (E6)
-related_prds: B25-scaledown-specialist.md (consumes this harness for ship gate),
-              E1-bfcl-eval.md (subprocess-via-serve template)
+title: "E6 `posttrainllm eval-scaledown` harness"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier E (E6)  
+**related_prds:** B25-scaledown-specialist.md (consumes this harness for ship gate), E1-bfcl-eval.md (subprocess-via-serve template)
 
 # PRD — Wire ScaleBench (extractive-compression eval) into a `posttrainllm eval-*` subcommand
 

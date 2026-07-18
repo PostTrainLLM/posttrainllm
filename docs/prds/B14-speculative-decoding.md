@@ -1,12 +1,13 @@
 ---
-name: B14 speculative decoding (Mini-Llama draft for Mega target)
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B14)
-related_prds: factory-serve-mlx-compile-specdec.md (existing serve-side spec-dec wiring),
-              factory-ane-inference-pace.md (ANE routing context for the Mini-Llama draft)
+title: "B14 speculative decoding (Mini-Llama draft for Mega target)"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B14)  
+**related_prds:** factory-serve-mlx-compile-specdec.md (existing serve-side spec-dec wiring), factory-ane-inference-pace.md (ANE routing context for the Mini-Llama draft)
 
 # PRD — Vanilla speculative decoding with a Mini-Llama draft
 

@@ -1,12 +1,14 @@
 ---
-name: B32 `posttrainllm eval` as a CI / pre-commit gate
-status: scaffolding-shipped
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B32)
-parent_strategy: docs/sessions/2026-06-13-market-landscape-mac-first.md (move #4)
-related_prds: E1-bfcl-eval.md, E2-tau-bench-eval.md (the shipped harnesses this reframes), B23-agent-eval-protocol.md (the rigor B32 invokes)
+title: "B32 `posttrainllm eval` as a CI / pre-commit gate"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** scaffolding-shipped  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B32)  
+**parent_strategy:** docs/sessions/2026-06-13-market-landscape-mac-first.md (move #4)  
+**related_prds:** E1-bfcl-eval.md, E2-tau-bench-eval.md (the shipped harnesses this reframes), B23-agent-eval-protocol.md (the rigor B32 invokes)
 
 # PRD — Reframe the eval harnesses as a developer-workflow gate
 

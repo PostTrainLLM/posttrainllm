@@ -116,7 +116,7 @@ compute), which is exactly why it survives the roll-up.
 
 - The north-star (the 3-axis Pareto win — quality ≥90%, speed ≥10×,
   memory ≤1/100 — from
-  [`2026-06-06-mac-specialist-platform.md`](2026-06-06-mac-specialist-platform.md))
+  [`06-06-mac-specialist-platform`](06-06-mac-specialist-platform))
   is unchanged. This doc is *positioning*, not *strategy pivot*.
 - A1 specialist is still the unlock. The market analysis sharpens *how we
   talk about it*, not *what we build next*. Without one shipped specialist

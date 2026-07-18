@@ -1,11 +1,13 @@
 ---
-name: B16 M5 Neural Accelerator prefill benchmark
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B16)
-related_prds: docs/research/mac_decode_baseline_m5pro.md (decode baseline; this PRD is the prefill counterpart)
+title: "B16 M5 Neural Accelerator prefill benchmark"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B16)  
+**related_prds:** docs/research/mac_decode_baseline_m5pro.md (decode baseline; this PRD is the prefill counterpart)
 
 # PRD — Verify Apple's claimed 3.5–4× M5-vs-M4 prefill speedup
 

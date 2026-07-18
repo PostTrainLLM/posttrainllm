@@ -13,9 +13,9 @@ you need exact acceptance criteria for a deferred lane.
 
 ## Start Here
 
-1. Read [`../../PROJECT_STATUS.md`](../../PROJECT_STATUS.md).
+1. Read [`../../PROJECT_STATUS.md`](https://github.com/PostTrainLLM/posttrainllm/blob/main/PROJECT_STATUS.md).
 2. Read [`../NEXT.md`](../NEXT.md).
-3. Read [`../factory/`](../factory/).
+3. Read [`../factory/README`](../factory/README).
 4. Use [`PRIORITY.md`](PRIORITY.md) to find the relevant PRD.
 5. Open the PRD file only if it is P0/P1 for the current target or explicitly
    named by the task.

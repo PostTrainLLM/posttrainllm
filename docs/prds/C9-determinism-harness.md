@@ -1,11 +1,13 @@
 ---
-name: C9 determinism harness — bit-exact replay of step N
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier C (C9)
-related_prds: B12 loss-spike recovery (covered partly by adam-state-persistence.md) — this is the debug counterpart
+title: "C9 determinism harness — bit-exact replay of step N"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier C (C9)  
+**related_prds:** B12 loss-spike recovery (covered partly by adam-state-persistence.md) — this is the debug counterpart
 
 # PRD — Bit-exact replay of `posttrainllm train` step N
 

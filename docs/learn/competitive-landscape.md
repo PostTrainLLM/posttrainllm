@@ -7,7 +7,7 @@ description: A 2026 map of the products around "make a model good at your task" 
 
 Factual map of the players a Mac-first SLM toolkit competes with or
 positions against. The *strategy* derived from this lives in
-[`docs/sessions/2026-06-13-market-landscape-mac-first.md`](../sessions/2026-06-13-market-landscape-mac-first.md);
+[`docs/sessions/2026-06-13-market-landscape-mac-first.md`](../sessions/06-13-market-landscape-mac-first);
 this page is the citable evidence. Researched 2026-06-13; numbers move,
 re-verify before quoting externally.
 

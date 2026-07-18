@@ -5,7 +5,7 @@ description: The learning + build agenda for mastering Mac-local AI. Every capab
 
 # Mac-local AI mastery map
 
-The north-star ([`AGENTS.md`](../../AGENTS.md)): be best-in-class at Mac-local
+The north-star ([`AGENTS.md`](https://github.com/PostTrainLLM/posttrainllm/blob/main/AGENTS.md)): be best-in-class at Mac-local
 AI, learn the whole space like a sponge (including the single-machine ↔
 distributed boundary), build everything buildable on a Mac, and position for
 future scale. This is the living agenda — the checklist of what to learn/build
@@ -137,7 +137,7 @@ Diminishing *product* returns there → pivoting for *breadth of learning*. Four
 4. **Mac-local serving systems** — §3; continuous batching + KV-cache + speculative decoding (also
    ~10× the ReST rollouts — fixes the throughput bottleneck this session hit).
 
-**Step-back taken 2026-06-17** ([inventory + ROI menu](../sessions/2026-06-17-stepback-inventory-roi.md)):
+**Step-back taken 2026-06-17** ([inventory + ROI menu](../sessions/06-17-stepback-inventory-roi)):
 the agentic-tool-calling lane is mined deep — file-ops saturated at frontier, breadth is a long-tail
 grind (+5pp from ReST), and shipping into Pace needs *re-distillation* on its action surface, not a
 wire-up. Verified this session: ReST self-improvement (breadth 65%), Apple on-device floor

@@ -246,7 +246,7 @@ into training you can stay in FP4.
 simulate). bf16 → FP4 is a ~3-4× memory savings on top of bf16's 2×.
 But the dependency on hardware FP4 means this is **parked** for
 posttrainllm until Apple silicon supports it. Listed in
-[`blockers.md`](blockers.md).
+[`blockers.md`](../roadmap/blockers).
 
 ## 2026 small-model landscape (relevant peers)
 

@@ -1,11 +1,13 @@
 ---
-name: B15 layer-wise LR decay for SFT
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B15)
-related_prds: B11-wsd-schedule.md (sibling — LR-schedule family)
+title: "B15 layer-wise LR decay for SFT"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B15)  
+**related_prds:** B11-wsd-schedule.md (sibling — LR-schedule family)
 
 # PRD — Layer-wise LR decay (`--llrd γ`) for `posttrainllm sft`
 
