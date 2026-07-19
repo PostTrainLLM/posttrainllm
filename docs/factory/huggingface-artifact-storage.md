@@ -50,18 +50,18 @@ Stage the current file-ops specialist metadata without copying weights:
 ```bash
 python3 scripts/plan_hf_artifact_upload.py \
   specialists/qwen3-4b-file-ops-distilled \
-  --repo-id sarthakagrawal927/qwen3-4b-file-ops-distilled
+  --repo-id posttrainllm/qwen3-4b-file-ops-distilled
 ```
 
 Then authenticate and upload:
 
 ```bash
 hf auth login
-hf repos create sarthakagrawal927/qwen3-4b-file-ops-distilled \
+hf repos create posttrainllm/qwen3-4b-file-ops-distilled \
   --repo-type model \
   --public \
   --exist-ok
-hf upload sarthakagrawal927/qwen3-4b-file-ops-distilled \
+hf upload posttrainllm/qwen3-4b-file-ops-distilled \
   dist/hf-artifacts/qwen3-4b-file-ops-distilled . \
   --repo-type model
 ```
@@ -72,7 +72,7 @@ lock no longer points to a local cache, pass `--weights-source`:
 ```bash
 python3 scripts/plan_hf_artifact_upload.py \
   specialists/qwen3-4b-file-ops-distilled \
-  --repo-id sarthakagrawal927/qwen3-4b-file-ops-distilled \
+  --repo-id posttrainllm/qwen3-4b-file-ops-distilled \
   --weights-source ~/.cache/posttrainllm/models/mt4b_fused \
   --include-weights
 ```
@@ -82,7 +82,7 @@ python3 scripts/plan_hf_artifact_upload.py \
 The CLI is authenticated, and the first specialist repo is live at:
 
 ```text
-https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled
+https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled
 ```
 
 The fused model files were uploaded in commit

@@ -1,13 +1,13 @@
 ---
-name: B2/B2b/B3/B7 mini-router family (bundled)
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B2, B2b, B3, B7)
-related_prds: factory-pace-fast-router-100ms.md, factory-planner-v7-tools-in-prompt.md
-              (the existing planner-v7 + fast-router PRDs are the building blocks
-              this PRD ties together with real BFCL data and a bake-off)
+title: "B2/B2b/B3/B7 mini-router family (bundled)"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B2, B2b, B3, B7)  
+**related_prds:** factory-pace-fast-router-100ms.md, factory-planner-v7-tools-in-prompt.md (the existing planner-v7 + fast-router PRDs are the building blocks this PRD ties together with real BFCL data and a bake-off)
 
 # PRD — Mini-router on real BFCL data + bake-off + FSM-injection (B2-B3-B7)
 

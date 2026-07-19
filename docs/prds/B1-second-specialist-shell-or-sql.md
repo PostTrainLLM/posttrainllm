@@ -1,11 +1,13 @@
 ---
-name: B1 second specialist (SQL POC)
-status: expanded-qwen06-poc-complete; retry-data
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B1)
-related_prds: A1-first-specialist-tool-caller.md (the template; B1 cookie-cuts off it)
+title: "B1 second specialist (SQL POC)"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** expanded-qwen06-poc-complete; retry-data  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B1)  
+**related_prds:** A1-first-specialist-tool-caller.md (the template; B1 cookie-cuts off it)
 
 # PRD — Second specialist after A1 ships
 

@@ -1,11 +1,13 @@
 ---
-name: B26 server-side deferred tools
-status: scaffolding-shipped-2026-06-13 (BFCL parity gate pending)
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B26)
-parent_learn: docs/learn/agent-context-hierarchy.md (Steal #3)
+title: "B26 server-side deferred tools"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** scaffolding-shipped-2026-06-13 (BFCL parity gate pending)  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B26)  
+**parent_learn:** docs/learn/agent-context-hierarchy.md (Steal #3)
 
 # PRD — `posttrainllm serve --tool-mode deferred`
 

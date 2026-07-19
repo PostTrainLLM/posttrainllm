@@ -1,12 +1,13 @@
 ---
-name: C5 decode jitter under thermal load
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier C (C5)
-related_prds: app-train-controls-thermal.md (training-side thermal companion),
-              docs/research/mac_decode_baseline_m5pro.md (steady-state baseline this PRD stress-tests)
+title: "C5 decode jitter under thermal load"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier C (C5)  
+**related_prds:** app-train-controls-thermal.md (training-side thermal companion), docs/research/mac_decode_baseline_m5pro.md (steady-state baseline this PRD stress-tests)
 
 # PRD — Measure decode tok/s degradation under sustained thermal load
 

@@ -74,7 +74,7 @@ Captured-in-the-moment notes from real training sessions and decision points.
 
 - [Eval matrix (2026-06-08)](./eval-matrix-2026-06-08.md) — every Pace LoRA's score against fm-fixtures-v2 (annotated 2026-06-09: v8 baseline non-reproducible mystery)
 - [Eval methodology (2026-06-08)](./eval-methodology-2026-06-08.md) — the gate finding that the v1 fixture set was broken; how v2 fixes it
-- [ANE research notes](./ane-research/) — M5/M6/M7/M8 bisects, ANE precision drift, chunked inference findings
+- [ANE research notes](./ane-research/dossier) — M5/M6/M7/M8 bisects, ANE precision drift, chunked inference findings
 - [Learning journal](./journal.md) — running log of questions, hunches, tangents while doing the work
 
 ## Conventions

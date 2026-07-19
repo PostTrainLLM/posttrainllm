@@ -43,7 +43,7 @@ absolute terms.
    `Block.callAsFunction`.
 2. **One extra learnable parameter per block** (the gate's α, β
    coefficients). Negligible param count overhead at our scale.
-3. **A numerics gate** per the [no-quality-regression rule](../../memory/feedback_no_quality_regression.md)
+3. **A numerics gate** per the no-quality-regression rule
    — show no degradation on at least the byte-level Shakespeare smoke
    AND one of the trained gallery preset configurations before the
    default flips.

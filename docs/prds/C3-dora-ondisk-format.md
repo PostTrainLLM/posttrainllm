@@ -1,11 +1,13 @@
 ---
-name: C3 DoRA on-disk adapter format
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier C (C3)
-related_prds: factory-dora-serialization.md (incomplete sibling — covers the protobuf-vs-safetensors choice)
+title: "C3 DoRA on-disk adapter format"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier C (C3)  
+**related_prds:** factory-dora-serialization.md (incomplete sibling — covers the protobuf-vs-safetensors choice)
 
 # PRD — DoRA on-disk adapter format
 

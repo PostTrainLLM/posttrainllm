@@ -1,4 +1,12 @@
 ---
+title: "Qwen3-4B File-Ops Distilled — model card"
+---
+
+<!-- HuggingFace model-card metadata (the YAML below is the canonical HF card
+     header; kept in-body for Blume schema compatibility — paste it back into
+     frontmatter when uploading to the Hub). -->
+
+```yaml
 base_model: Qwen/Qwen3-4B-Instruct-2507
 language:
   - en
@@ -13,7 +21,7 @@ tags:
   - agentic
   - file-ops
   - routed-specialist
----
+```
 
 # Qwen3-4B File-Ops Distilled
 
@@ -39,7 +47,7 @@ regression — is disclosed below and in every public artifact page.
 
 All numbers are from the PostTrainLLM factory eval gate — frozen baselines
 stamped before training, same prompt, same scorer. Source:
-[`specialists/qwen3-4b-file-ops-distilled/eval_report.json`](https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled/blob/main/eval_report.json).
+[`specialists/qwen3-4b-file-ops-distilled/eval_report.json`](https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled/blob/main/eval_report.json).
 
 | Suite | Stock 4B | Distilled 4B | Frontier (Claude) | n |
 |---|---:|---:|---:|---:|
@@ -108,7 +116,7 @@ Or load with `mlx_lm`:
 
 ```python
 from mlx_lm import load, generate
-model, tokenizer = load("sarthakagrawal927/qwen3-4b-file-ops-distilled")
+model, tokenizer = load("posttrainllm/qwen3-4b-file-ops-distilled")
 ```
 
 ## Upload command
@@ -119,10 +127,10 @@ This model is already published. To re-upload or update metadata:
 # Stage the public metadata surface (no token needed)
 python3 scripts/plan_hf_artifact_upload.py \
   specialists/qwen3-4b-file-ops-distilled \
-  --repo-id sarthakagrawal927/qwen3-4b-file-ops-distilled
+  --repo-id posttrainllm/qwen3-4b-file-ops-distilled
 
 # Upload to Hugging Face Hub (requires HF login)
-huggingface-cli upload sarthakagrawal927/qwen3-4b-file-ops-distilled \
+huggingface-cli upload posttrainllm/qwen3-4b-file-ops-distilled \
   dist/hf-artifacts/qwen3-4b-file-ops-distilled \
   --repo-type model
 ```
@@ -130,7 +138,7 @@ huggingface-cli upload sarthakagrawal927/qwen3-4b-file-ops-distilled \
 ## Links
 
 - **Project:** [posttrainllm.com](https://posttrainllm.com)
-- **Hugging Face repo:** [sarthakagrawal927/qwen3-4b-file-ops-distilled](https://huggingface.co/sarthakagrawal927/qwen3-4b-file-ops-distilled)
+- **Hugging Face repo:** [posttrainllm/qwen3-4b-file-ops-distilled](https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled)
 - **Public artifact page:** [posttrainllm.com/artifacts/qwen3-4b-file-ops-distilled](https://posttrainllm.com/artifacts/qwen3-4b-file-ops-distilled)
 - **Eval report:** `eval_report.json` (included in this repo)
 - **Lock file:** `tinygpt.lock.json` (included in this repo)

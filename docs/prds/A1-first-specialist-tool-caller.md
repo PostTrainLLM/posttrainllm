@@ -1,15 +1,13 @@
 ---
-name: A1 first specialist end-to-end (tool-caller)
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier A (A1)
-related_prds: E1-bfcl-eval.md (gates the score), E2-tau-bench-eval.md (multi-turn score),
-              E8-train-time-eval-hook.md (in-loop scoring), B23-agent-eval-protocol.md (eval rigor),
-              factory-pace-planner-v6_1.md (Pace planner companion;
-              this PRD is the more general tool-caller north-star),
-              B22-trajectory-recorder.md (substrate for off-policy refinement)
+title: "A1 first specialist end-to-end (tool-caller)"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier A (A1)  
+**related_prds:** E1-bfcl-eval.md (gates the score), E2-tau-bench-eval.md (multi-turn score), E8-train-time-eval-hook.md (in-loop scoring), B23-agent-eval-protocol.md (eval rigor), factory-pace-planner-v6_1.md (Pace planner companion; this PRD is the more general tool-caller north-star), B22-trajectory-recorder.md (substrate for off-policy refinement)
 
 # PRD — Train the first specialist end-to-end (tool-caller)
 

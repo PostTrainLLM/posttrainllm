@@ -1,11 +1,13 @@
 ---
-name: B19 Group-SAE (layer-group SAE training)
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B19)
-related_prds: B13-interp-on-checkpoints.md, B17-saelens-interop.md
+title: "B19 Group-SAE (layer-group SAE training)"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B19)  
+**related_prds:** B13-interp-on-checkpoints.md, B17-saelens-interop.md
 
 # PRD — Train one SAE per layer-group instead of per-layer
 

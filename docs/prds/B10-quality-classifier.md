@@ -1,11 +1,13 @@
 ---
-name: B10 quality classifier on pretrain data
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B10)
-related_prds: B11-wsd-schedule.md (paired training-quality win)
+title: "B10 quality classifier on pretrain data"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B10)  
+**related_prds:** B11-wsd-schedule.md (paired training-quality win)
 
 # PRD — FineWeb-Edu-style quality classifier + corpus filter
 

@@ -151,12 +151,12 @@ Keep these for learning/future expansion. Do not open during the factory proof.
 
 | PRD | Priority | Park reason |
 |---|---|---|
-| [5.1 reasoning-on-22M](5.1-reasoning-on-22M.md) | P3 | Tier 5 research; not current factory proof. |
-| [5.2 testtime-compute-scaling](5.2-testtime-compute-scaling.md) | P3 | Tier 5 research. |
-| [5.3 vision-language-toy](5.3-vision-language-toy.md) | P3 | VLM/toy research. |
-| [5.4 diffusion-lm-micro](5.4-diffusion-lm-micro.md) | P3 | Diffusion LM research. |
-| [5.6 tts-toy](5.6-tts-toy.md) | P3 | Audio/TTS research. |
-| [5.7 explainer-video-model](5.7-explainer-video-model.md) | P3 | Far-future multimodal/product research. |
+| [5.1 reasoning-on-22M](1-reasoning-on-22M) | P3 | Tier 5 research; not current factory proof. |
+| [5.2 testtime-compute-scaling](2-testtime-compute-scaling) | P3 | Tier 5 research. |
+| [5.3 vision-language-toy](3-vision-language-toy) | P3 | VLM/toy research. |
+| [5.4 diffusion-lm-micro](4-diffusion-lm-micro) | P3 | Diffusion LM research. |
+| [5.6 tts-toy](6-tts-toy) | P3 | Audio/TTS research. |
+| [5.7 explainer-video-model](7-explainer-video-model) | P3 | Far-future multimodal/product research. |
 | [factory-vision-m4-impl-plan](factory-vision-m4-impl-plan.md) | P3 | VLM porting parked. |
 | [factory-vision-specialist](factory-vision-specialist.md) | P3 | VLM specialist parked. |
 | [vlm-ab-uivenus-vs-qwen3vl](vlm-ab-uivenus-vs-qwen3vl.md) | P3 | VLM decision parked. |
@@ -181,9 +181,9 @@ future cleanup physically moves them into an archive directory and updates links
 | [specialist-pace-planner](specialist-pace-planner.md) | Track closed; pivoted to stock 4B/general planner lock. |
 | [factory-completeness-tracker](factory-completeness-tracker.md) | Tracking document; primitives mostly hold up in code. |
 | [factory-vision-m4-architecture-decision](factory-vision-m4-architecture-decision.md) | Decision made; downstream VLM work parked. |
-| [posttrainllm-product-thesis](posttrainllm-product-thesis.md) | Historical positioning; superseded by factory-first cleanup. |
+| [posttrainllm-product-thesis](tinygpt-product-thesis) | Historical positioning; superseded by factory-first cleanup. |
 | [macos26-int8-ane-handoff-port](macos26-int8-ane-handoff-port.md) | Negative result; parked/closed. |
-| [5.5 sparse-moe-kernels](5.5-sparse-moe-kernels.md) | Blocked upstream; design note only. |
+| [5.5 sparse-moe-kernels](5-sparse-moe-kernels) | Blocked upstream; design note only. |
 
 ## Archive Policy
 

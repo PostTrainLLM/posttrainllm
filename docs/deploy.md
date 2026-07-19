@@ -64,7 +64,7 @@ If you want every `git push` to auto-deploy, connect Git provider in the
 Cloudflare dashboard:
 
 1. **Workers & Pages → posttrainllm → Settings → Builds & deployments → Connect to Git**
-2. Select `PostTrainLLM/posttrainllm`.
+2. Select `PostTrainLLM/tinygpt`.
 3. **Build configuration:**
    - Production branch: `main`
    - Framework preset: *None* (Astro auto-detected; Vite isn't in the preset list)

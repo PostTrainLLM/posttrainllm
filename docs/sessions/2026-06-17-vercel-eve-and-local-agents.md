@@ -1,7 +1,7 @@
 # Vercel Eve and the local-agent wedge
 
 Date: 2026-06-17 (afternoon).
-Companion to [the morning's step-back](./2026-06-17-stepback-inventory-roi.md).
+Companion to [the morning's step-back](./06-17-stepback-inventory-roi).
 Captures the strategic decision triggered by Vercel's Eve launch
 ([blog](https://vercel.com/blog/introducing-eve), public preview June 2026).
 

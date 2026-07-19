@@ -1,12 +1,14 @@
 ---
-name: VLM M4 architecture decision — Qwen3-VL port vs LLaVA fallback
-status: decided-2026-06-08-option-A-full-Qwen3VL-port
-owner: VLM elf (next session)
-created: 2026-06-08
-decided: 2026-06-08 — Option A (full Qwen3-VL port, base = UI-Venus-1.5-2B)
-blocks: factory-vision-specialist.md M4 onwards
-priority: P0 — DECIDED. VLM elf may proceed.
+title: "VLM M4 architecture decision — Qwen3-VL port vs LLaVA fallback"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** decided-2026-06-08-option-A-full-Qwen3VL-port  
+**owner:** VLM elf (next session)  
+**created:** 2026-06-08  
+**decided:** 2026-06-08 — Option A (full Qwen3-VL port, base = UI-Venus-1.5-2B)  
+**blocks:** factory-vision-specialist.md M4 onwards  
+**priority:** P0 — DECIDED. VLM elf may proceed.
 
 ## DECISION (2026-06-08)
 

@@ -1,0 +1,79 @@
+{
+  "schema": "posttrainllm.specialist.lock.v1",
+  "id": "pace-intent-router-v8",
+  "artifact_type": "tinygpt_checkpoint",
+  "local_path": "runs/pace-intent-router-v8.tinygpt",
+  "public_uri": "hf://models/posttrainllm/pace-intent-router-v8",
+  "storage": {
+    "primary": "huggingface_hub",
+    "repo_type": "model",
+    "repo_id": "posttrainllm/pace-intent-router-v8",
+    "status": "weights-published",
+    "large_weights_published": true,
+    "local_copy": "runs/pace-intent-router-v8.tinygpt"
+  },
+  "base_model": {
+    "id": "posttrainllm-ToolRouterModel-small",
+    "preset": "small",
+    "architecture": "ToolRouterModel",
+    "precision": "float32",
+    "layers": 6,
+    "d_model": 384,
+    "vocab_size": 256,
+    "context_length": 128
+  },
+  "compatibility": {
+    "posttrainllm_serve": true,
+    "posttrainllm_sample": true,
+    "mlx_lm": false,
+    "browser_playground": false,
+    "pace_app_integration": false
+  },
+  "files": [
+    {
+      "path": "runs/pace-intent-router-v8.tinygpt",
+      "bytes": 593498112,
+      "role": "model_checkpoint"
+    },
+    {
+      "path": "runs/pace-intent-router-v8.tinygpt.labels.json",
+      "bytes": 200,
+      "role": "label_map"
+    }
+  ],
+  "training": {
+    "method": "train-extractor",
+    "steps": 18000,
+    "batch_size": 32,
+    "learning_rate": 0.0003,
+    "warmup_steps": 100,
+    "val_split": 0.05,
+    "val_every": 100,
+    "seed": 42,
+    "train_rows": 112061,
+    "heldout_rows": 14995,
+    "classes": [
+      "chitchat",
+      "phoneLargeModel",
+      "pureKnowledge",
+      "research",
+      "screenAction",
+      "screenDescription",
+      "unknown"
+    ],
+    "data_source": "pace/scripts/generate-intent-corpus-v2.py + generate-intent-supplement-v2.py",
+    "data_type": "fully_synthetic"
+  },
+  "package_files": {
+    "model_card": "model_card.md",
+    "prompt": "prompt.md",
+    "eval_report": "eval_report.json",
+    "loader": "mlx_load.py"
+  },
+  "notes": [
+    "Local-only artifact — not published to Hugging Face Hub.",
+    "Use posttrainllm serve or posttrainllm sample to run inference.",
+    "Not wired into the Pace shipping app — Apple FM is the production classifier.",
+    "The v5 checkpoint (12000 steps) slightly outperforms v8 on overall accuracy but v8 has better unknown-class recall."
+  ]
+}

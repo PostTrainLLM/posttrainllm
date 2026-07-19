@@ -7,7 +7,7 @@ description: Single source of truth for what's shipped, skipped, and still to bu
 
 > **Status: reference / historical inventory.**
 >
-> This is not the active queue. Start with [`PROJECT_STATUS.md`](../PROJECT_STATUS.md)
+> This is not the active queue. Start with [`PROJECT_STATUS.md`](https://github.com/PostTrainLLM/posttrainllm/blob/main/PROJECT_STATUS.md)
 > and [`docs/NEXT.md`](NEXT.md). Use this file for historical shipped/skipped/TODO
 > context only, then verify active work through [`docs/README.md`](README.md),
 > [`docs/factory/`](factory/README.md), and [`docs/techniques/`](techniques/README.md).
@@ -15,7 +15,7 @@ description: Single source of truth for what's shipped, skipped, and still to bu
 **Last verified against codebase**: 2026-06-06 (eval-pipeline + serve fix + elf PRDs landed; product framing clarified to "Mac platform for building/upgrading specialists")
 **Sources merged**: `docs/roadmap/*` · `docs/progress.md` · `docs/backlog.md` · `docs/feature_audit_2026_05_31.md` · `docs/roadmap/recent_research.md` (paper catalogue → §4)
 
-**Product framing** (clarified 2026-06-06): posttrainllm is a **Mac platform for individuals to build and upgrade specialist models for their specific tasks** — bring data, pick a local teacher, ship a fast/cheap specialist. Distillation + LoRA + QLoRA + constrained decoding are the toolkit. Local teacher = no API spend. Comprehensive multimodal roadmap (text/code/vision/voice/image-gen) under disciplined "one canonical best per slot" principle. **Canonical strategy doc**: [`docs/sessions/2026-06-06-mac-specialist-platform.md`](sessions/2026-06-06-mac-specialist-platform.md) — covers Tier 1-4 backlog, multi-model architectures (phone-a-friend / cascade / LoRA hot-swap / etc.), structured-output formats beyond JSON (incl. Protobuf / SQL / GraphQL via grammar), and flagship example apps (browser agent, per-language code specialist, voice command, etc.).
+**Product framing** (clarified 2026-06-06): posttrainllm is a **Mac platform for individuals to build and upgrade specialist models for their specific tasks** — bring data, pick a local teacher, ship a fast/cheap specialist. Distillation + LoRA + QLoRA + constrained decoding are the toolkit. Local teacher = no API spend. Comprehensive multimodal roadmap (text/code/vision/voice/image-gen) under disciplined "one canonical best per slot" principle. **Canonical strategy doc**: [`docs/sessions/06-06-mac-specialist-platform`](sessions/06-06-mac-specialist-platform) — covers Tier 1-4 backlog, multi-model architectures (phone-a-friend / cascade / LoRA hot-swap / etc.), structured-output formats beyond JSON (incl. Protobuf / SQL / GraphQL via grammar), and flagship example apps (browser agent, per-language code specialist, voice command, etc.).
 
 Three sections — **shipped**, **skipped**, **TODO**. Every claim verified
 against the code. The first audit caught Lion/Sophia/Muon/PEFT-bundle/

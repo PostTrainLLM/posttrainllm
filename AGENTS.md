@@ -39,6 +39,21 @@ How this shapes the work:
 
 > Owner preference: durable goal/context like this lives **here in AGENTS.md**
 > (owner-readable, version-controlled), not in agent-private memory.
+> When the owner explicitly says to remember something, record it in this
+> repo-owned wrapper (normally `AGENTS.md`, or the nearest appropriate tracked
+> project document), never only in Codex's external/private memory.
+
+### External autoresearch products to retain
+
+- Keep Aster AI Labs and Weco AI on the radar for future factory work.
+- Weco is the more directly applicable product: consider a bounded trial of its
+  traceable, steerable autoresearch loop only after a concrete target, frozen
+  eval, held-out gate, regression metric, and fixed cost budget exist.
+- Use Aster primarily to learn distributed research-search techniques and map
+  the single-Mac-to-cluster boundary; do not reproduce its massive compute
+  pattern locally.
+- Adopt useful ideas from either when an active target justifies them, without
+  speculative installation or adoption.
 
 ## Eval philosophy (owner's call — recorded 2026-06-14)
 

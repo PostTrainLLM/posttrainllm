@@ -1,12 +1,13 @@
 ---
-name: B21 Micro-AutoMixer for specialist data mixes
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B21)
-related_prds: B22-trajectory-recorder.md, B23-agent-eval-protocol.md (Poolside-discipline sibling PRDs),
-              factory-synthesize.md (synthetic data pipeline)
+title: "B21 Micro-AutoMixer for specialist data mixes"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B21)  
+**related_prds:** B22-trajectory-recorder.md, B23-agent-eval-protocol.md (Poolside-discipline sibling PRDs), factory-synthesize.md (synthetic data pipeline)
 
 # PRD — Micro-AutoMixer for specialist pretrain ratios
 

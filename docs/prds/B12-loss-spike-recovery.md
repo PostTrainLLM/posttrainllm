@@ -1,12 +1,13 @@
 ---
-name: B12 loss-spike recovery + replay
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B12)
-related_prds: adam-state-persistence.md (state-persistence half — shipped sibling),
-              C9-determinism-harness.md (debug-replay sibling)
+title: "B12 loss-spike recovery + replay"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B12)  
+**related_prds:** adam-state-persistence.md (state-persistence half — shipped sibling), C9-determinism-harness.md (debug-replay sibling)
 
 # PRD — Auto-rollback on training spikes (the controller half of B12)
 

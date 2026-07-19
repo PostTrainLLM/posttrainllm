@@ -1,0 +1,86 @@
+{
+  "model": "pace-intent-router-v8",
+  "eval_date": "2026-07-13",
+  "eval_split": "pace-intent-heldout-v5",
+  "eval_size": 14995,
+  "overall_accuracy": 0.9552517505835278,
+  "latency_ms": {
+    "p50": 3.1020641326904297,
+    "mean": 3.2842456757843435
+  },
+  "per_class": {
+    "chitchat": {
+      "accuracy": 0.9381672597864769,
+      "count": 2248
+    },
+    "phoneLargeModel": {
+      "accuracy": 0.9844444444444445,
+      "count": 450
+    },
+    "pureKnowledge": {
+      "accuracy": 0.964,
+      "count": 3000
+    },
+    "research": {
+      "accuracy": 0.9344444444444444,
+      "count": 900
+    },
+    "screenAction": {
+      "accuracy": 0.9678279713285548,
+      "count": 5999
+    },
+    "screenDescription": {
+      "accuracy": 0.9760978321289605,
+      "count": 1799
+    },
+    "unknown": {
+      "accuracy": 0.7963272120200334,
+      "count": 599
+    }
+  },
+  "baselines": {
+    "apple-fm-3b": {
+      "overall_accuracy": 0.765,
+      "eval_size": 200,
+      "latency_mean_ms": 1597,
+      "error_rate": 0.005,
+      "source": "pace/leanring-buddyTests/PaceFMIntentClassifierBenchmarkTests.swift",
+      "notes": "200 stratified examples, 1s delay between calls, fresh session per call. FM conflates research with pureKnowledge (33.3% vs 93.4%). One refusal."
+    },
+    "qwen3-4b-instruct-4bit": {
+      "overall_accuracy": 0.847542627883651,
+      "eval_size": 997,
+      "latency_p50_ms": 240,
+      "source": "runs/2026-07-13-pace-intent-router-v1/eval-qwen-baseline.json"
+    },
+    "pace-intent-router-v5": {
+      "overall_accuracy": 0.9590530176725576,
+      "eval_size": 14995,
+      "latency_p50_ms": 4.642009735107422,
+      "source": "runs/2026-07-13-pace-intent-router-v1/eval-candidate-v5.json"
+    }
+  },
+  "head_to_head": {
+    "vs_apple_fm": {
+      "accuracy_delta_pp": 19.0,
+      "latency_speedup": "515x",
+      "note": "FM is 3B in-process but beats it on every class. FM conflates research with pureKnowledge."
+    },
+    "vs_qwen3_4b": {
+      "accuracy_delta_pp": 10.77,
+      "latency_speedup": "77x",
+      "size_ratio": "4x smaller"
+    },
+    "vs_v5": {
+      "accuracy_delta_pp": -0.38,
+      "unknown_class_delta_pp": 9.35,
+      "note": "v8 trades slight overall accuracy for significantly better unknown-class recall"
+    }
+  },
+  "caveats": [
+    "All eval data is synthetic — real-world distribution will differ",
+    "Unknown class accuracy (79.6%) is measured on synthetic unknowns",
+    "Not wired into shipping Pace app yet — Apple FM is the current production classifier despite lower measured accuracy (76.5% vs 95.5%)",
+    "Byte-level vocab truncates queries at 128 bytes"
+  ]
+}

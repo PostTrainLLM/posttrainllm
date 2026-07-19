@@ -1,11 +1,13 @@
 ---
-title: Multi-turn / agentic tool-calling eval (PRD)
+title: "Multi-turn / agentic tool-calling eval (PRD)"
 description: A Mac-local, frontier-gated, STATEFUL multi-turn eval — the single
   biggest blind spot in our tool-calling work. Single-turn numbers (88.7 for our
   best 4B) overstate agentic ability; small models are known to cliff hard on
   multi-turn. This is the prerequisite for judging any model as an agent/planner.
-status: proposed
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** proposed
 
 # Multi-turn / agentic tool-calling eval
 

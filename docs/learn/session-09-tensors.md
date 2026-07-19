@@ -103,7 +103,7 @@ stack of big matrix multiplies, the one thing GPUs do fastest.
 
 **The oracle in this repo:** [`python_ref/model.py`](../../python_ref/model.py)
 is the from-scratch reference model. Every `@` (Python matmul) in it is exactly
-this operation. The WGSL kernels under [`webgpu/`](../../webgpu/) —
+this operation. The WGSL kernels under [`webgpu/`](https://github.com/PostTrainLLM/posttrainllm/blob/main/webgpu) —
 `matmul.wgsl`, `matmul_tiled.wgsl`, `matmul_blocked_vec4.wgsl` — are that *same*
 matmul, hand-optimized for the GPU. The math is fixed; the kernels only change
 how fast it runs. That split is the whole point of
@@ -219,7 +219,7 @@ Don't peek:
   cancellation rule from this session.
 - **Repo anchors:** posttrainllm's math oracle is
   [`python_ref/model.py`](../../python_ref/model.py);
-  [`webgpu/matmul*.wgsl`](../../webgpu/) is the same math optimized;
+  [`webgpu/matmul*.wgsl`](https://github.com/PostTrainLLM/posttrainllm/blob/main/webgpu) is the same math optimized;
   [`llm-mechanics-fundamentals.md`](llm-mechanics-fundamentals.md) covers the
   attention/MoE shapes that build on this;
   [`essential-vs-optimization.md`](essential-vs-optimization.md) is the doctrine

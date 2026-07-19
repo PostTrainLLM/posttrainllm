@@ -1,11 +1,13 @@
 ---
-title: Game-as-RL-environment PoC (PRD)
+title: "Game-as-RL-environment PoC (PRD)"
 description: Turn the fleet's AI game (autonomous characters in a world) into a
   Mac-local RL environment and train a self-improving NPC with GRPO. Environments
   are the scarcest RL ingredient — we own a live one. The parked trigger
   (distillation closed + a working GRPO loop) is now MET.
-status: proposed
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** proposed
 
 # Game-as-RL-environment PoC
 

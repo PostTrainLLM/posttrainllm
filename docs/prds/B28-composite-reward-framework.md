@@ -1,12 +1,14 @@
 ---
-name: B28 composite reward framework
-status: scaffolding-shipped-2026-06-13 (training-loop integration pending)
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B28)
-parent_learn: docs/learn/castform-rl-finetune.md (Steal #1)
-related_prds: 5.1-reasoning-on-22M.md (GRPO consumer), B22-trajectory-recorder.md (the rollouts each Reward scores)
+title: "B28 composite reward framework"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** scaffolding-shipped-2026-06-13 (training-loop integration pending)  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B28)  
+**parent_learn:** docs/learn/castform-rl-finetune.md (Steal #1)  
+**related_prds:** 5.1-reasoning-on-22M.md (GRPO consumer), B22-trajectory-recorder.md (the rollouts each Reward scores)
 
 # PRD — Composite reward with named dimensions
 

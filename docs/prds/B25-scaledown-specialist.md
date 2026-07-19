@@ -1,12 +1,13 @@
 ---
-name: B25 ScaleDown Challenge specialist
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B25)
-related_prds: A1-first-specialist-tool-caller.md (sibling specialist; different domain),
-              E6 `posttrainllm eval-scaledown` (the harness — still ⬜, doc-only at docs/recipes/b25-scaledown.md)
+title: "B25 ScaleDown Challenge specialist"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B25)  
+**related_prds:** A1-first-specialist-tool-caller.md (sibling specialist; different domain), E6 `posttrainllm eval-scaledown` (the harness — still ⬜, doc-only at docs/recipes/b25-scaledown.md)
 
 # PRD — Extractive context-compression specialist for ScaleDown leaderboard
 

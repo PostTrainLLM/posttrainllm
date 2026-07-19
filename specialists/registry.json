@@ -1,17 +1,58 @@
 {
   "version": 1,
-  "updated": "2026-07-13",
+  "updated": "2026-07-18",
   "packages": [
+    {
+      "id": "pace-intent-router-v8",
+      "name": "Pace Intent Router v8",
+      "kind": "tinygpt-checkpoint",
+      "package_path": "specialists/pace-intent-router-v8",
+      "artifact_path": "hf://models/posttrainllm/pace-intent-router-v8",
+      "storage": {
+        "primary": "huggingface_hub",
+        "repo_type": "model",
+        "repo_id": "posttrainllm/pace-intent-router-v8",
+        "status": "weights-published",
+        "large_weights_published": true
+      },
+      "base": "posttrainllm-ToolRouterModel-small",
+      "base_precision": "float32",
+      "training": "train-extractor cross-entropy classification on 127K synthetic Pace intent examples (18000 steps)",
+      "status": "trained-specialist",
+      "use_for": [
+        "Pace 7-class intent classification (chitchat, pureKnowledge, screenDescription, screenAction, research, phoneLargeModel, unknown)",
+        "Fallback intent classifier when Apple Foundation Models unavailable",
+        "On-device intent routing on Macs without Apple Intelligence"
+      ],
+      "do_not_use_for": [
+        "Response generation (this is a classifier, not a planner)",
+        "General NLP tasks beyond Pace's 7-class taxonomy"
+      ],
+      "headline": {
+        "overall_accuracy": "95.5%",
+        "unknown_class_accuracy": "79.6%",
+        "latency_p50_ms": 3.1,
+        "params": "49.5M",
+        "vs_apple_fm_accuracy_pp": 19.0,
+        "vs_apple_fm_latency_speedup": "515x",
+        "vs_qwen3_4b_accuracy_pp": 10.77,
+        "vs_qwen3_4b_latency_speedup": "77x"
+      },
+      "model_card": "specialists/pace-intent-router-v8/model_card.md",
+      "eval_report": "specialists/pace-intent-router-v8/eval_report.json",
+      "prompt": "specialists/pace-intent-router-v8/prompt.md",
+      "lock": "specialists/pace-intent-router-v8/tinygpt.lock.json"
+    },
     {
       "id": "qwen3-4b-file-ops-distilled",
       "name": "Qwen3-4B File-Ops Distilled",
       "kind": "mac-safetensors-hf",
       "package_path": "specialists/qwen3-4b-file-ops-distilled",
-      "artifact_path": "hf://models/sarthakagrawal927/qwen3-4b-file-ops-distilled",
+      "artifact_path": "hf://models/posttrainllm/qwen3-4b-file-ops-distilled",
       "storage": {
         "primary": "huggingface_hub",
         "repo_type": "model",
-        "repo_id": "sarthakagrawal927/qwen3-4b-file-ops-distilled",
+        "repo_id": "posttrainllm/qwen3-4b-file-ops-distilled",
         "status": "weights-published",
         "r2": "legacy-optional-cache"
       },
@@ -43,11 +84,11 @@
       "name": "Qwen3-4B ReST Fused",
       "kind": "mac-safetensors-hf",
       "package_path": "specialists/qwen3-4b-rest-fused",
-      "artifact_path": "hf://models/sarthakagrawal927/qwen3-4b-rest-fused",
+      "artifact_path": "hf://models/posttrainllm/qwen3-4b-rest-fused",
       "storage": {
         "primary": "huggingface_hub",
         "repo_type": "model",
-        "repo_id": "sarthakagrawal927/qwen3-4b-rest-fused",
+        "repo_id": "posttrainllm/qwen3-4b-rest-fused",
         "status": "weights-published",
         "r2": "legacy-optional-cache"
       },

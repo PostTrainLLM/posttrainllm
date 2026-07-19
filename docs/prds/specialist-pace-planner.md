@@ -1,11 +1,13 @@
 ---
-name: Pace planner specialist — first factory customer
-status: active-2026-06-08-v6_1-fixture-gate-unblocked-specialist-still-pending
-owner: maintainer (manual recipe, drives factory verification)
-created: 2026-06-07
-parent_plan: docs/sessions/2026-06-06-mac-specialist-platform.md (first validating customer)
-upstream_product: /Users/sarthak/Desktop/fleet/clickyLocal (Pace)
+title: "Pace planner specialist — first factory customer"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** active-2026-06-08-v6_1-fixture-gate-unblocked-specialist-still-pending  
+**owner:** maintainer (manual recipe, drives factory verification)  
+**created:** 2026-06-07  
+**parent_plan:** docs/sessions/2026-06-06-mac-specialist-platform.md (first validating customer)  
+**upstream_product:** /Users/sarthak/Desktop/fleet/clickyLocal (Pace)
 
 # PRD — Pace planner specialist
 

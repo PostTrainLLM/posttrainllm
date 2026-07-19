@@ -1,12 +1,13 @@
 ---
-name: B5 cloud-escalation training signal
-status: not-started
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B5)
-related_prds: A1-first-specialist-tool-caller.md (V1 specialist doesn't yet learn to escalate),
-              B22-trajectory-recorder.md (substrate for the labeled rollouts this PRD trains on)
+title: "B5 cloud-escalation training signal"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B5)  
+**related_prds:** A1-first-specialist-tool-caller.md (V1 specialist doesn't yet learn to escalate), B22-trajectory-recorder.md (substrate for the labeled rollouts this PRD trains on)
 
 # PRD — Teach the specialist when to defer to cloud
 

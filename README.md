@@ -29,6 +29,7 @@ on. The full writeup, methodology, and head-to-head table is
 | **Eval moat** | E0 shared schema · BFCL · τ-bench · lm-eval (MLX-routed) · HumanEval (sandbox-exec) · eval-gate (CI). | [`docs/leaderboard.md`](docs/leaderboard.md), [`docs/research/mac_slm_leaderboard_v0.md`](docs/research/mac_slm_leaderboard_v0.md) |
 | **Agent runtime** | OpenAI + Ollama-compatible local serve · multi-turn loop · FSM-constrained JSON · cloud-escalate · token-preserving `.atraj` trajectories. | [`docs/agent_runtime.md`](docs/agent_runtime.md) |
 | **Interp** | SAE (per-layer + group) · SAELens export · MEMIT · ROME · tuned/logit lens · activation patching. | [`docs/interpretability.md`](docs/interpretability.md) |
+| **Trained specialists** | From-scratch classifiers + distilled/fused LLMs. Pace intent router (49.5M, 95.5%, 3ms) · file-ops distilled (4B, 100% hard gate) · ReST fused (4B, 65% OOD). | [`specialists/`](specialists/), [`specialists/registry.json`](specialists/registry.json) |
 | **Browser playground** | The original surface: GPT-2 trained from scratch in a browser tab via hand-written WebGPU. Parked for active factory work. | [`browser/`](browser/), [live](https://posttrainllm.com), [`docs/parked/browser.md`](docs/parked/browser.md) |
 | **ANE M8** | Layer-chunked Core ML chain running Qwen3-28-block on the Apple Neural Engine at ~17 tok/s. Parked until a shipped specialist needs runtime optimization. | [`docs/parked/ane-coreml.md`](docs/parked/ane-coreml.md) |
 
@@ -117,6 +118,7 @@ multi-GPU, no cloud, no asterisk.
 | Largest browser-trainable model | **960M params** via Memory64 | [`browser/devlog.html`](browser/devlog.html) |
 | Loss drift, WebGPU vs WASM reference | **1.1% – 2.5%** across the curve | `tests/test_webgpu_train.mjs` |
 | First end-to-end Mac LoRA fine-tune | **−32% held-out PPL**, 788 KB adapter | [`WHILE_YOU_SLEPT.md`](WHILE_YOU_SLEPT.md) |
+| **Pace intent router, 49.5M from-scratch** | **95.5% accuracy** vs Apple FM 76.5% (+19 pp) vs Qwen3-4B 84.75% (+10.8 pp), **3ms** vs 1597ms vs 240ms, 7-class routing | [`specialists/pace-intent-router-v8/model_card.md`](specialists/pace-intent-router-v8/model_card.md) |
 
 ---
 
@@ -222,4 +224,4 @@ Author: **Sarthak Agrawal** ([@sarthakagrawal927](https://github.com/sarthakagra
 If posttrainllm is useful to your work or you want to chat about
 Mac-first ML training: open an issue, or reach out on
 [LinkedIn](https://www.linkedin.com/in/sarthakagrawal927/) /
-[Twitter](https://twitter.com/sarthakai).
+[Twitter](https://twitter.com/sarthakcodes).

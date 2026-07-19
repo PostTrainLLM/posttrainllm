@@ -1,12 +1,14 @@
 ---
-name: B34 batched eval-runtime + pluggable MLX backend (oMLX steals)
-status: not-started
-owner: unassigned
-created: 2026-06-14
-parent_plan: docs/PLAN.md §Market-landscape positioning (Tier B)
-parent_strategy: docs/learn/competitive-landscape.md (serving is commoditizing → consume it; differentiate on eval)
-related_prds: B32-eval-ci-gate.md (the gate this speeds up), B26-deferred-tools.md (eval-mode parity)
+title: "B34 batched eval-runtime + pluggable MLX backend (oMLX steals)"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** not-started  
+**owner:** unassigned  
+**created:** 2026-06-14  
+**parent_plan:** docs/PLAN.md §Market-landscape positioning (Tier B)  
+**parent_strategy:** docs/learn/competitive-landscape.md (serving is commoditizing → consume it; differentiate on eval)  
+**related_prds:** B32-eval-ci-gate.md (the gate this speeds up), B26-deferred-tools.md (eval-mode parity)
 
 # PRD — Batched eval-runtime: steal oMLX's batching + prefix-KV cache for the eval harness
 

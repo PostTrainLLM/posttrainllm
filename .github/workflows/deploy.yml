@@ -28,6 +28,10 @@
 
 name: Deploy to Cloudflare Pages
 
+# Rollback: Cloudflare Pages preserves every deployment. Roll back via
+# dash.cloudflare.com → Pages → tinygpt → Deployments → "Rollback to this
+# deployment". The canonical domain is posttrainllm.com (the CF project name
+# stays 'tinygpt' for cosmetic reasons — see projects.json notes).
 on:
   workflow_dispatch:
 concurrency:
@@ -37,6 +41,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
       deployments: write
@@ -60,7 +65,11 @@ jobs:
         working-directory: browser
         run: pnpm install --frozen-lockfile
 
-      - name: Build (copy docs + tsc + astro build)
+      - name: Install docs-site dependencies
+        working-directory: docs-site
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (tsc + astro build + Blume docs → dist/docs)
         working-directory: browser
         env:
           # Vite reads VITE_*-prefixed env vars at build time and inlines
@@ -77,3 +86,6 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy browser/dist --project-name=tinygpt --commit-dirty=true --branch=main
+
+      - name: Smoke production
+        run: curl --fail --silent --show-error --location --output /dev/null --retry 5 --retry-delay 5 --max-time 20 https://posttrainllm.com/

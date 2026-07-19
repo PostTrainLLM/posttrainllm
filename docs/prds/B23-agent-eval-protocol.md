@@ -1,12 +1,13 @@
 ---
-name: B23 agent eval protocol hardening
-status: partial-2026-06-18
-owner: unassigned
-created: 2026-06-13
-parent_plan: docs/PLAN.md §3 Tier B (B23)
-related_prds: B22-trajectory-recorder.md, B21-micro-automixer.md (Poolside-discipline siblings),
-              E1-bfcl-eval.md, E2-tau-bench-eval.md (the harnesses this PRD hardens)
+title: "B23 agent eval protocol hardening"
 ---
+
+<!-- PRD metadata (moved from frontmatter for Blume schema compatibility) -->
+**status:** partial-2026-06-18  
+**owner:** unassigned  
+**created:** 2026-06-13  
+**parent_plan:** docs/PLAN.md §3 Tier B (B23)  
+**related_prds:** B22-trajectory-recorder.md, B21-micro-automixer.md (Poolside-discipline siblings), E1-bfcl-eval.md, E2-tau-bench-eval.md (the harnesses this PRD hardens)
 
 # PRD — Repeated-pass@1 + fixed resource budgets for agent evals
 

@@ -17,7 +17,7 @@ Read in this order:
 
 | Step | Doc | Purpose |
 |---:|---|---|
-| 1 | [`../PROJECT_STATUS.md`](../PROJECT_STATUS.md) | Current state, active product thesis, shipped/parked surfaces, active gaps |
+| 1 | [`../PROJECT_STATUS.md`](https://github.com/PostTrainLLM/posttrainllm/blob/main/PROJECT_STATUS.md) | Current state, active product thesis, shipped/parked surfaces, active gaps |
 | 2 | [`NEXT.md`](NEXT.md) | Active queue only; what to do next and what not to touch |
 | 3 | [`factory/README.md`](factory/README.md) | Factory contract: run schema, reports, evals, packaging, public artifacts |
 | 4 | [`techniques/README.md`](techniques/README.md) | Method-vs-recipe registry; how we choose model-improvement tactics |
