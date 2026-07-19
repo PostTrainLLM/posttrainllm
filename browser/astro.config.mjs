@@ -53,7 +53,10 @@ export default defineConfig({
     "/docs/training_phases": "/docs/training",
   },
 
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    sitemap({ customPages: ['https://posttrainllm.com/docs/'] }),
+  ],
 
   server: {
     // Dev-server COOP/COEP mirror of public/_headers for production parity.
