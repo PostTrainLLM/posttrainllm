@@ -1,0 +1,5 @@
+/* Blume renders the frontmatter title as the page H1. Markdown remains the
+ * canonical source, so hide its repeated leading H1 in the visual document. */
+article.prose > h1[id] {
+  display: none;
+}
