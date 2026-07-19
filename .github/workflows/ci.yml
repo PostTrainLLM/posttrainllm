@@ -330,3 +330,6 @@ jobs:
 
       - name: Run common smoke test
         run: bash evals/common-smoke.sh
+
+      - name: Run Foundry receipt smoke test
+        run: bash evals/foundry-receipt-smoke.sh
