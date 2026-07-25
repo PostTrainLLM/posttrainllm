@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "recipe_id": "autocorrect-flan-t5-small-lora-v1",
+  "freeze_date": "2026-07-25",
+  "movement_policy": "Any change to this recipe requires a new version before candidate outputs are inspected. A frozen run is never re-planned mid-flight.",
+  "authorization": {
+    "implementation_and_offline_tests": "authorized",
+    "tiny_overfit_run": "requires explicit owner approval and the GPU lock",
+    "pilot_run": "requires explicit owner approval and the GPU lock",
+    "edit_aware_objective": "forbidden until task 5.5 records a measured copy-bias or missed-edit justification"
+  },
+  "base": {
+    "model_id": "google/flan-t5-small",
+    "revision": "0fc9ddf78a1e988dac52e2dac162b0ede4fd74ab",
+    "selected_by": "evals/autocorrect/base-bakeoff-v1.json",
+    "local_dir": "/Users/sarthak/.cache/posttrainllm/autocorrect-bases/flan-t5-small-0fc9ddf",
+    "local_dir_policy": "Weights stay local and ignored. No download is authorized by this recipe; the bake-off already fetched this revision.",
+    "architecture": "encoder-decoder (T5)",
+    "parameter_count": 76961152,
+    "prompt_template": "Correct only the typing errors in the following text. Return only the corrected text:\n{text}",
+    "prompt_template_source": "frozen by the base bake-off selection record"
+  },
+  "geometry": {
+    "method": "lora",
+    "rank": 8,
+    "alpha": 16,
+    "scaling": "alpha / rank = 2.0",
+    "dropout": 0.0,
+    "dropout_rationale": "Zero keeps the one-step and parity tests exactly reproducible; the pilot is far too small for dropout to be the useful regularizer.",
+    "target_module_suffixes": [
+      "SelfAttention.q",
+      "SelfAttention.v",
+      "EncDecAttention.q",
+      "EncDecAttention.v"
+    ],
+    "target_rationale": "Query/value projections only, per the original LoRA ablation. Encoder self-attention, decoder self-attention, and decoder cross-attention are all adapted because the task rewrites the source span rather than continuing it.",
+    "excluded_modules": [
+      "SelfAttention.k",
+      "SelfAttention.o",
+      "EncDecAttention.k",
+      "EncDecAttention.o",
+      "DenseReluDense.wi_0",
+      "DenseReluDense.wi_1",
+      "DenseReluDense.wo",
+      "shared",
+      "lm_head",
+      "relative_attention_bias",
+      "layer_norm"
+    ],
+    "init_policy": {
+      "a": "kaiming-uniform on the (rank, in_features) matrix, seeded",
+      "b": "exact zeros",
+      "consequence": "delta_W is exactly zero at step 0, so an untrained adapted model must produce bit-identical logits to the frozen base."
+    },
+    "expected_adapted_modules": 48,
+    "expected_trainable_parameters": 344064,
+    "expected_trainable_fraction": 0.00447,
+    "base_requires_grad": false
+  },
+  "data": {
+    "tiny_overfit": {
+      "manifest": "evals/autocorrect/tiny-overfit-manifest-v1.json",
+      "rows": 8,
+      "utf8_bytes": 3321,
+      "dataset_sha256": "6ae085d715f0596b8cd9bd764d99c7f8bf525eb06ba74177156fdcf5ef78bcb7"
+    },
+    "pilot": {
+      "manifest": "evals/autocorrect/pilot-manifest-v1.json",
+      "rows": 16,
+      "utf8_bytes": 6981,
+      "dataset_sha256": "e18fac8d1b78ce527ece7b4eec83e31d4192e821d4ce88cfa295ce41a50d5e71"
+    },
+    "materialized_by": "scripts/autocorrect_foundation.py materialize_manifest",
+    "split_policy": "Every derivative retains its source document split. No test source is eligible for either manifest.",
+    "max_source_tokens": 256,
+    "max_target_tokens": 96,
+    "measured_token_lengths": {
+      "note": "Measured offline with the pinned FLAN-T5-small tokenizer on 2026-07-25.",
+      "tiny_overfit_max_source_tokens": 29,
+      "tiny_overfit_max_target_tokens": 8,
+      "pilot_max_source_tokens": 32,
+      "pilot_max_target_tokens": 11,
+      "eval_v1_max_source_tokens": 38,
+      "eval_v1_max_target_tokens": 20
+    },
+    "truncation_policy": "error",
+    "truncation_rationale": "The protocol caps input at 512 UTF-8 bytes and the correction contract is byte-preserving. Silent truncation would fabricate a deletion, so an over-length row is a recorded drop, never a shortened example.",
+    "label_padding_ignore_index": -100
+  },
+  "optimizer": {
+    "name": "adamw",
+    "learning_rate": 0.001,
+    "learning_rate_rationale": "LoRA-on-small-T5 convention; the tiny-overfit gate is the empirical check that it is not too low to memorize.",
+    "betas": [0.9, 0.999],
+    "eps": 1e-08,
+    "weight_decay": 0.0,
+    "max_grad_norm": 1.0,
+    "schedule": "linear_warmup_then_constant",
+    "warmup_ratio": 0.1
+  },
+  "training": {
+    "precision": "float32",
+    "precision_rationale": "T5 is known to overflow in float16, and the bake-off measured this base in float32. Mixed precision is not part of the frozen identity.",
+    "device_preference": ["mps", "cpu"],
+    "seed": 20260725,
+    "batch_size": 4,
+    "tiny_overfit_max_steps": 200,
+    "pilot_max_steps": 300,
+    "checkpoint_every_steps": 50,
+    "checkpoint_retention": ["last", "best"],
+    "eval_every_steps": 50,
+    "log_every_steps": 10,
+    "determinism": "Seed torch, shuffle with a seeded generator, and record the resolved device. Exact cross-device bit-reproducibility is not claimed."
+  },
+  "gates": {
+    "thresholds_source": "evals/autocorrect/thresholds-v1.json",
+    "tiny_overfit": {
+      "dataset_utf8_bytes_max": 10240,
+      "exact_match_min": 1.0,
+      "evaluated_on": "its own 8 training rows, greedy decoding",
+      "finite_loss_required": true,
+      "failure_decision": "retry-training"
+    },
+    "pilot": {
+      "rows_max": 256,
+      "steps_max": 1000,
+      "wall_time_minutes_max": 120,
+      "evaluated_on": "evals/autocorrect/eval-v1.jsonl via scripts/autocorrect_foundation.py evaluate",
+      "reported_metrics": [
+        "error_reduction_rate",
+        "exact_match_rate",
+        "residual_character_error_rate",
+        "clean_byte_exact_preservation_rate",
+        "unnecessary_edit_rate",
+        "protected_span_preservation_rate"
+      ],
+      "comparator": "the frozen zero-shot FLAN-T5-small row in evals/autocorrect/base-bakeoff-v1.json"
+    }
+  },
+  "stop_rules": [
+    {
+      "id": "non-finite-loss",
+      "condition": "any training loss is NaN or infinite",
+      "action": "stop immediately and record retry-training"
+    },
+    {
+      "id": "tiny-overfit-failure",
+      "condition": "tiny-overfit exact match < 1.0 at the step budget",
+      "action": "stop the lane and record retry-training; do not start the pilot"
+    },
+    {
+      "id": "clean-preservation-collapse",
+      "condition": "pilot clean_byte_exact_preservation_rate < 0.995 at any scheduled eval",
+      "action": "stop and record the checkpoint that regressed"
+    },
+    {
+      "id": "wall-time",
+      "condition": "pilot wall time exceeds 120 minutes",
+      "action": "stop at the next checkpoint boundary and report partial evidence as partial"
+    },
+    {
+      "id": "step-budget",
+      "condition": "step budget reached",
+      "action": "stop; a budget increase requires a new recipe version"
+    }
+  ],
+  "not_authorized_by_this_recipe": [
+    "downloading any model, dataset, or package",
+    "adding torch, transformers, or peft to the project dependency surface",
+    "hyperparameter sweeps or a second concurrent candidate",
+    "edit-aware loss, beam search, streaming, packaging, or any ship claim"
+  ]
+}

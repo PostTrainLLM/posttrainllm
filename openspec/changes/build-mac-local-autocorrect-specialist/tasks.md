@@ -31,8 +31,8 @@
 
 ## 5. Train one staged candidate
 
-- [ ] 5.1 Verify or implement the minimum encoder-decoder adapter/training path needed by the selected base, with load parity, frozen-base, finite-gradient, save/load, and no-GPU or one-step tests before broader work.
-- [ ] 5.2 Freeze an ordinary supervised adapter recipe with data, geometry, optimizer, precision, seed, step budget, checkpoint cadence, eval gate, and stop rule.
+- [x] 5.1 Verify or implement the minimum encoder-decoder adapter/training path needed by the selected base, with load parity, frozen-base, finite-gradient, save/load, and no-GPU or one-step tests before broader work.
+- [x] 5.2 Freeze an ordinary supervised adapter recipe with data, geometry, optimizer, precision, seed, step budget, checkpoint cadence, eval gate, and stop rule.
 - [ ] 5.3 With explicit approval and the GPU lock, run the 1-10 KB repeated-data overfit gate; stop with `retry-training` if it cannot memorize the fixture.
 - [ ] 5.4 With explicit approval, train one bounded ordinary-loss pilot, capture loss/RSS/time/artifact metadata, and verify that every spawned process stops.
 - [ ] 5.5 Evaluate the ordinary-loss pilot on the unchanged complete suite and record whether copy bias or missed-edit slices justify an edit-aware objective.
@@ -59,6 +59,7 @@
 
 - **2.5 complete:** Codex CLI 0.145.0 with `gpt-5.6-sol` scored all 18 rows perfectly on 2026-07-25; no rows needed repair or removal, and no candidate output had been inspected.
 - **4.2-4.5 complete:** the approved three-candidate bake-off selected FLAN-T5-small as the smallest plausibly trainable base. Complete predictions, tokenizer fragmentation, strict quality slices, RSS, TTFT, latency, throughput, runtime pins, and selection rationale are in `evals/autocorrect/base-bakeoff-v1.json`; no model was trained.
-- **5.1-5.7:** require immediate operator approval for adapter implementation, compilation, GPU-lock acquisition, the repeated-data overfit run, or pilot training.
+- **5.1-5.2 complete (2026-07-25):** the ordinary supervised recipe is frozen in `evals/autocorrect/adapter-recipe-v1.json` and the encoder-decoder LoRA path is implemented in `scripts/autocorrect_adapter.py`, documented in `docs/factory/autocorrect-adapter-recipe.md`. Measured on the real pinned FLAN-T5-small, forward-only on CPU with zero optimizer steps: 48 adapted modules, 344,064 trainable parameters (0.4471%), logits bit-identical after injection (max absolute delta 0.0), no base tensor modified. 19 offline tests pass via `bash evals/autocorrect-adapter-smoke.sh`; the 10 torch-backed tests use a tiny randomly-initialized T5 and skip cleanly where torch is absent, so CI reports 9/19 passed with 10 skipped rather than a false green. LoRA is hand-rolled: torch, transformers, and peft remain outside the project dependency surface. No adapter was trained and `train` refuses without an explicit operator-approval flag.
+- **5.3-5.7:** require immediate operator approval and the GPU lock for the repeated-data overfit run or pilot training. 5.6-5.7 additionally require a measured 5.5 justification before any edit-aware objective is specified.
 - **6.1-6.4:** require real model decoding plus sustained latency, RSS, throughput, and energy measurement; no decoding claim can be verified without those runs.
 - **7.1-7.6:** require trained candidate/comparator outputs, measured Mac performance, and a canonical decision. Packaging, public-artifact updates, and OpenSpec archive remain invalid until then.

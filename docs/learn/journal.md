@@ -929,3 +929,44 @@ through this audit, explaining what each optimization does and why
 modern small models use most of them. The journal entry is the
 short-form reference; the session would be the long-form teaching
 version. Adding to the curriculum backlog.
+
+---
+
+## 2026-07-25 — Entry 15: The gradient that *should* be zero
+
+**During autocorrect task 5.1** (wiring LoRA onto FLAN-T5-small). While
+writing the tests, a question that felt like a bug report:
+
+> *Why is `dL/dA` exactly zero after the first backward pass? Did I detach
+> the branch by accident?*
+
+**No — it is forced by the math.** LoRA computes `ΔW = BA` with `B`
+initialized to zeros. Then `dL/dA = scaling · Bᵀ · dL/dy · xᵀ`, and every
+term is multiplied by `B = 0`. Meanwhile `dL/dB = scaling · dL/dy · (Ax)ᵀ`
+is perfectly non-zero. So at step 0, `B` learns and `A` waits; once `B`
+moves off zero, `A` wakes up.
+
+**Why this is worth writing down:** it inverts into a test. A LoRA branch
+that is genuinely broken — detached from the graph, or wrapped so the
+forward pass never touches it — gives zero gradient on *both* matrices. So
+"A is zero AND B is not" is a signature that distinguishes correct wiring
+from a plausible-looking bug. A loss-goes-down smoke test would pass in
+both cases.
+
+The general shape: **an initialization chosen for one reason (start at the
+base model) hands you a second, free property (a falsifiable assertion
+about the gradients).** Worth looking for elsewhere — the same trick
+should apply to any zero-initialized residual branch, e.g. adapters with
+zero-init output projections or the gate in a zero-init attention variant.
+
+### Tangent that did not graduate
+
+ByT5 is architecturally the *right* model for typo repair — typos are
+byte-level events, and SentencePiece fragments misspellings badly. It lost
+the bake-off anyway: 899 ms median end-to-end against a 250 ms gate, ~7×
+the latency of FLAN-T5-small.
+
+The instinct was to argue the gate was too strict. The discipline was to
+record it as a **resource loss with the theory intact**: byte-level was not
+disproven, it was priced. If a future target has a looser latency envelope,
+ByT5 goes back on the shortlist unchanged. Filed rather than chased.

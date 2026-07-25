@@ -61,10 +61,24 @@ plausibly trainable base: it stayed within the resource envelope but reached
 only 6.25% zero-shot error reduction, 66.67% clean preservation, and 86.67%
 protected-span preservation. Exact commands and measured evidence are in
 [`factory/autocorrect-model-shortlist.md`](factory/autocorrect-model-shortlist.md)
-and `evals/autocorrect/base-bakeoff-v1.json`. Adapter implementation,
-compilation, overfit/pilot training, packaging, and the final factory decision
-remain pending immediate approval. The queue still has no authorized training
-run.
+and `evals/autocorrect/base-bakeoff-v1.json`.
+
+Tasks 5.1-5.2 completed 2026-07-25 without training. The ordinary supervised
+recipe is frozen in `evals/autocorrect/adapter-recipe-v1.json` and the
+encoder-decoder LoRA path is implemented in `scripts/autocorrect_adapter.py`;
+both are documented in
+[`factory/autocorrect-adapter-recipe.md`](factory/autocorrect-adapter-recipe.md).
+Measured forward-only on CPU against the real pinned base: 48 adapted modules,
+344,064 trainable parameters (0.4471%), and logits bit-identical after injection
+(max absolute delta 0.0). 19 offline tests pass via
+`bash evals/autocorrect-adapter-smoke.sh`. LoRA is hand-rolled so torch,
+transformers, and peft stay off the project dependency surface.
+
+Overfit/pilot training (5.3-5.4), decoding gates (6.x), packaging, and the final
+factory decision remain pending immediate approval. **The queue still has no
+authorized training run, and no adapter has been trained.** The next authorized
+step is the 1-10 KB repeated-data overfit gate on the 8-row, 3,321-byte
+tiny-overfit manifest, which needs owner approval and the GPU lock.
 
 ## Active Sequence
 
@@ -315,6 +329,9 @@ Exit criteria:
    `bash evals/factory-run-lifecycle-smoke.sh`.
 0.4. Run the fine-tune report card smoke:
    `bash evals/fine-tune-report-card-smoke.sh`.
+0.5. Run the autocorrect no-model smokes:
+   `bash evals/autocorrect-foundation-smoke.sh` and
+   `bash evals/autocorrect-adapter-smoke.sh`. Both are now in the CI evals job.
 1. Wire real train/eval commands to emit the run schema automatically.
    **Bridge half done (2026-07-11):** `scripts/assemble_factory_run.py` is the
    generic report-artifact bridge. It turns the emitted fragments (`config`,
