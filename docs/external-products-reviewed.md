@@ -30,6 +30,7 @@ Every external review should answer:
 | Apple on-device Foundation Models | Useful as a free routing floor, not a capability dependency | Documented measured limitations and ruled out adapter dependency | `rejected-for-core` | Keep our own model/eval gate as differentiation |
 | Castform RL fine-tune platform | Composite rewards and trace-driven data loops | Mapped into composite reward, trace-to-data, reasoning-depth classification | `partially-adopted` | Integrate reward framework with training loops before RLVR |
 | Cline / agent context hierarchy research | Structured-output enforcement and context hierarchy patterns | Added deferred tools/context hierarchy learnings | `partially-adopted` | Revisit only when coding-agent product returns |
+| Gigatoken | SIMD, cache-heavy bulk BPE can make first-pass tokenization dramatically faster on large corpora, including Qwen on Apple Silicon | No current blocker solved; keep as an optional offline data-prep accelerator, not a core/default tokenizer | `parked` | Revisit only for multi-GB corpora or measured tokenization above 10% of run time; require exact token-ID parity and bounded peak-RSS checks on the real tokenizer/corpus |
 
 ## Gaps Exposed By Reviews
 
@@ -52,4 +53,3 @@ Before picking a new factory target, do a short teardown:
 5. One cheapest local recipe selected for the first run.
 
 Store the result here or in a target-specific file under `docs/techniques/`.
-
