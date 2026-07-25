@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fine-Tune Report Card — Qwen3-4B File-Ops Distilled</title>
+<meta name="description" content="Shipped: ship only as a routed file-ops specialist; do not use as the general planner">
+<style>:root{--bg:#0a0c0f;--panel:#12161c;--line:#242c36;--ink:#e8edf4;--muted:#9aa7b8;
+--ok:#5ad19b;--warn:#ffb454;--bad:#ff7b72;--chip:#1b2430}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:64rem;margin:0 auto;padding:2rem 1.25rem 4rem}
+.skip-link{position:absolute;left:-9999px}
+.skip-link:focus{left:1rem;top:1rem;z-index:9;background:var(--panel);
+padding:.5rem .75rem;border:1px solid var(--line);border-radius:.375rem}
+a{color:#8ab4ff}
+a:focus-visible,[tabindex]:focus-visible{outline:2px solid #8ab4ff;outline-offset:2px}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.2;margin:.25rem 0 .75rem}
+h2{font-size:1.3rem;margin:2.5rem 0 .75rem;padding-bottom:.35rem;
+border-bottom:1px solid var(--line)}
+h3{font-size:1.02rem;margin:1.5rem 0 .5rem;color:var(--muted);
+text-transform:uppercase;letter-spacing:.06em}
+.eyebrow{color:var(--muted);font-size:.8rem;text-transform:uppercase;
+letter-spacing:.1em;margin:0}
+.lede{font-size:1.08rem;color:#c9d4e2}
+.ident{display:grid;gap:.5rem 1.5rem;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));
+margin:1.25rem 0;padding:0}
+.ident div{border-top:1px solid var(--line);padding-top:.5rem}
+.ident dt{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+.ident dd{margin:.15rem 0 0}
+.verdict{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;font-size:1.2rem;
+background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--muted);
+border-radius:.5rem;padding:.85rem 1rem}
+.verdict[data-decision="ship"]{border-left-color:var(--ok)}
+.verdict[data-decision="reject"]{border-left-color:var(--bad)}
+.verdict[data-decision^="retry"],.verdict[data-decision="park"]{border-left-color:var(--warn)}
+.chip{background:var(--chip);border:1px solid var(--line);border-radius:999px;
+padding:.15rem .6rem;font-size:.82rem;color:#c9d4e2}
+.callout,.warn{background:var(--panel);border:1px solid var(--line);
+border-left:4px solid var(--warn);border-radius:.5rem;padding:.75rem 1rem;margin:1.25rem 0}
+.callout h3{margin-top:0}
+.verified[data-verified="false"]{color:var(--warn)}
+.verified[data-verified="true"]{color:var(--ok)}
+.blockers li{margin:.3rem 0}
+.next-action{background:var(--panel);border:1px solid var(--line);
+border-radius:.5rem;padding:.75rem 1rem}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:.5rem;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+caption{caption-side:top;text-align:left;color:var(--muted);font-size:.82rem;
+padding:.6rem .75rem;border-bottom:1px solid var(--line)}
+th,td{padding:.5rem .75rem;text-align:left;vertical-align:top;
+border-bottom:1px solid var(--line)}
+thead th{background:var(--panel);color:var(--muted);font-size:.78rem;
+text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+tbody th[scope=row]{font-weight:600}
+code{font:.86em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--chip);
+border-radius:.25rem;padding:.05rem .3rem;word-break:break-word}
+.v-value{font-variant-numeric:tabular-nums;font-weight:600}
+.v-absent,.v-missing{color:var(--muted)}
+.state{display:inline-block;font-size:.72rem;text-transform:uppercase;
+letter-spacing:.05em;border:1px solid var(--line);border-radius:999px;
+padding:.05rem .45rem;color:var(--muted);white-space:nowrap}
+.state[data-state="historical"],.state[data-state="skipped"]{color:var(--warn);
+border-color:#4a3a1e}
+.state[data-state="missing"]{color:var(--bad);border-color:#4a2422}
+.note{display:block;color:var(--muted);font-size:.8rem;margin-top:.2rem}
+.evidence{list-style:none;padding:0}
+.evidence li{border-top:1px solid var(--line);padding:.6rem 0}
+.detail{display:block;color:var(--muted);font-size:.82rem;margin-top:.2rem}
+.legend{display:grid;gap:.6rem;padding:0;margin:1rem 0}
+.legend div{display:grid;grid-template-columns:9rem 1fr;gap:.75rem;
+border-top:1px solid var(--line);padding-top:.6rem}
+.legend dd{margin:0;color:#c9d4e2}
+footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);
+color:var(--muted);font-size:.86rem}
+@media (max-width:34rem){.legend div{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main">
+<header>
+<p class="eyebrow">posttrainllm fine-tune report card · schema v1 · compiler 1.0.0</p>
+<h1>Qwen3-4B File-Ops Distilled</h1>
+<p class="lede"><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package format does not record the owner goal that framed the run.</span></p>
+<dl class="ident">
+<div><dt>Target</dt><dd><span class="v-value">Qwen3-4B File-Ops Distilled</span></dd></div>
+<div><dt>Base model</dt><dd><span class="v-value">Qwen/Qwen3-4B-Instruct-2507 (bf16)</span></dd></div>
+<div><dt>Candidate</dt><dd><span class="v-value">qwen3-4b-file-ops-distilled</span></dd></div>
+<div><dt>Method</dt><dd><span class="v-value">frontier/gold trajectory distillation on GorillaFileSystem multi-turn tasks</span></dd></div>
+<div><dt>Compiled from</dt><dd><code>specialists/qwen3-4b-file-ops-distilled</code> (specialist-package)</dd></div>
+</dl>
+</header>
+<section id="decision" aria-labelledby="decision-h">
+<h2 id="decision-h">Decision</h2>
+<p class="verdict" data-decision="ship">
+<strong>Shipped</strong> <span class="chip">Shipped for a named route only</span>
+</p>
+<p>ship only as a routed file-ops specialist; do not use as the general planner</p>
+<div class="callout" role="note">
+<h3>Routing constraint</h3>
+<p><span class="v-value">ship only as a routed file-ops specialist; do not use as the general planner. Do not use for: general Pace planner; multi-domain agentic planning without routing.</span></p>
+<p>This candidate is safe only inside that envelope. It is not a general replacement for the base model.</p>
+</div>
+<h3 id="verification-h">Verification status</h3>
+<p class="verified" data-verified="false">Not fully verified. This report does not claim a verified ship. Reasons:</p>
+<ul class="blockers">
+<li>Primary gate `file_ops_hard_gate` baseline is `historical`, not a current measurement.</li>
+<li>Primary gate `file_ops_hard_gate` candidate is `historical`, not a current measurement.</li>
+<li>Primary gate `file_ops_hard_gate` has no threshold value (state `missing`).</li>
+<li>Primary gate `file_ops_hard_gate` has no passed value (state `missing`).</li>
+<li>Frozen-eval identity is not recorded as a current measurement.</li>
+<li>Train/eval overlap (leakage) was not checked with current evidence.</li>
+</ul>
+<dl class="ident">
+<div><dt>Failure reason</dt><dd>Not applicable</dd></div>
+<div><dt>Failure-reason confidence</dt><dd>not-applicable</dd></div>
+<div><dt>Lesson</dt><dd>Not recorded</dd></div>
+</dl>
+<h3>Next action</h3>
+<p class="next-action"><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package format records no machine-readable next action. The release action lives in the public artifact registry (docs/factory/public-artifacts.md) as prose.</span></p>
+</section>
+<section id="gates" aria-labelledby="gates-h">
+<h2 id="gates-h">Before and after</h2>
+<p class="warn" role="note">
+This candidate does not present an unconditional win: out_of_domain_breadth failed. Target and regression gates are reported independently below.
+</p>
+<div class="table-wrap">
+<table>
+<caption>Every gate with baseline, candidate, derived delta, threshold, result, sample size, and frontier-ceiling evidence.</caption>
+<thead><tr>
+<th scope="col">Gate</th>
+<th scope="col">Role</th>
+<th scope="col">Metric</th>
+<th scope="col">Baseline</th>
+<th scope="col">Candidate</th>
+<th scope="col">Delta</th>
+<th scope="col">Threshold</th>
+<th scope="col">Result</th>
+<th scope="col">n</th>
+<th scope="col">Frontier ceiling</th>
+</tr></thead>
+<tbody>
+<tr>
+<th scope="row">file_ops_hard_gate</th>
+<td>primary</td>
+<td>file_ops_hard_gate</td>
+<td><span class="v-value">0.5800</span> <span class="state" data-state="historical">historical</span><span class="note">Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).</span></td>
+<td><span class="v-value">1.0000</span> <span class="state" data-state="historical">historical</span><span class="note">Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).</span></td>
+<td><span class="v-value">0.4200</span> <span class="state" data-state="derived">derived</span><span class="note">Derived from at least one non-current value; inherits the weaker provenance of its inputs.</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package format records no per-gate threshold.</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package records no ship threshold for the primary gate, so a pass/fail result cannot be derived.</span></td>
+<td><span class="v-value">12</span> <span class="state" data-state="historical">historical</span><span class="note">Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).</span></td>
+<td><span class="v-value">1.0000</span> <span class="state" data-state="historical">historical</span><span class="note">Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).</span></td>
+</tr>
+<tr>
+<th scope="row">file_ops_hardgen_heldout</th>
+<td>regression</td>
+<td>file_ops_hardgen_heldout</td>
+<td><span class="v-value">0.6000</span> <span class="state" data-state="historical">historical</span><span class="note">Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).</span></td>
+<td><span class="v-value">0.9500</span> <span class="state" data-state="historical">historical</span><span class="note">Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).</span></td>
+<td><span class="v-value">0.3500</span> <span class="state" data-state="derived">derived</span><span class="note">Derived from at least one non-current value; inherits the weaker provenance of its inputs.</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package format records no per-gate threshold.</span></td>
+<td><span class="v-value">yes</span> <span class="state" data-state="derived">derived</span><span class="note">No threshold was recorded. Derived as passing because the candidate did not score below the baseline.</span></td>
+<td><span class="v-value">40</span> <span class="state" data-state="historical">historical</span><span class="note">Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">No frontier-ceiling score is recorded for this benchmark, so it is unverified as a ruler for absolute capability.</span></td>
+</tr>
+<tr>
+<th scope="row">out_of_domain_breadth</th>
+<td>breadth</td>
+<td>out_of_domain_breadth</td>
+<td><span class="v-value">0.5960</span> <span class="state" data-state="historical">historical</span><span class="note">Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).</span></td>
+<td><span class="v-value">0.4230</span> <span class="state" data-state="historical">historical</span><span class="note">Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).</span></td>
+<td><span class="v-value">-0.1730</span> <span class="state" data-state="derived">derived</span><span class="note">Derived from at least one non-current value; inherits the weaker provenance of its inputs.</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package format records no per-gate threshold.</span></td>
+<td><span class="v-value">no</span> <span class="state" data-state="derived">derived</span><span class="note">No threshold was recorded. Derived as failing because the candidate scored below the baseline on a non-primary gate.</span></td>
+<td><span class="v-value">52</span> <span class="state" data-state="historical">historical</span><span class="note">Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">No frontier-ceiling score is recorded for this benchmark, so it is unverified as a ruler for absolute capability.</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3>Eval identity</h3>
+<div class="table-wrap">
+<table>
+<caption>Which suite produced each gate, how it was invoked, and whether it is frozen.</caption>
+<thead><tr>
+<th scope="col">Gate</th>
+<th scope="col">Suite</th>
+<th scope="col">Command</th>
+<th scope="col">Date</th>
+<th scope="col">Frozen</th>
+</tr></thead>
+<tbody>
+<tr>
+<th scope="row">file_ops_hard_gate</th>
+<td>file_ops_hard_gate</td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package format records no eval command, so this gate cannot be replayed from the report card alone.</span></td>
+<td><span class="v-value">2026-06-19</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The package does not record whether this suite is frozen.</span></td>
+</tr>
+<tr>
+<th scope="row">file_ops_hardgen_heldout</th>
+<td>file_ops_hardgen_heldout</td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package format records no eval command, so this gate cannot be replayed from the report card alone.</span></td>
+<td><span class="v-value">2026-06-19</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The package does not record whether this suite is frozen.</span></td>
+</tr>
+<tr>
+<th scope="row">out_of_domain_breadth</th>
+<td>out_of_domain_breadth</td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package format records no eval command, so this gate cannot be replayed from the report card alone.</span></td>
+<td><span class="v-value">2026-06-19</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The package does not record whether this suite is frozen.</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="slices" aria-labelledby="slices-h">
+<h2 id="slices-h">Per-slice evidence</h2>
+<p>No slice evidence was recorded for this candidate.</p>
+</section>
+<section id="performance" aria-labelledby="performance-h">
+<h2 id="performance-h">Cost and performance</h2>
+<div class="table-wrap">
+<table>
+<caption>Latency, memory, throughput, and training cost/time. Absent evidence is reported as not measured, never as zero.</caption>
+<thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Source</th></tr></thead>
+<tbody>
+<tr>
+<th scope="row">Latency</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package records no value for this metric. It is reported as not measured rather than as zero.</span></td>
+<td><code>specialists/qwen3-4b-file-ops-distilled/eval_report.json#performance.latency_ms</code></td>
+</tr>
+<tr>
+<th scope="row">RAM / peak RSS</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package records no value for this metric. It is reported as not measured rather than as zero.</span></td>
+<td><code>specialists/qwen3-4b-file-ops-distilled/eval_report.json#performance.peak_rss_mb</code></td>
+</tr>
+<tr>
+<th scope="row">Decode throughput</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package records no value for this metric. It is reported as not measured rather than as zero.</span></td>
+<td><code>specialists/qwen3-4b-file-ops-distilled/eval_report.json#performance.tokens_per_second</code></td>
+</tr>
+<tr>
+<th scope="row">Training time</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package records no value for this metric. It is reported as not measured rather than as zero.</span></td>
+<td><code>specialists/qwen3-4b-file-ops-distilled/eval_report.json#performance.training_time_seconds</code></td>
+</tr>
+<tr>
+<th scope="row">Training cost</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package records no value for this metric. It is reported as not measured rather than as zero.</span></td>
+<td><code>specialists/qwen3-4b-file-ops-distilled/eval_report.json#performance.training_cost_usd</code></td>
+</tr>
+<tr>
+<th scope="row">Eval time</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The specialist package records no value for this metric. It is reported as not measured rather than as zero.</span></td>
+<td><code>specialists/qwen3-4b-file-ops-distilled/eval_report.json#performance.eval_time_seconds</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="eval-validity" aria-labelledby="validity-h">
+<h2 id="validity-h">Eval validity and leakage</h2>
+<div class="table-wrap">
+<table>
+<caption>Whether the benchmark is a trustworthy ruler: frontier ceiling, frozen-eval identity, and train/eval overlap.</caption>
+<thead><tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Source</th></tr></thead>
+<tbody>
+<tr>
+<th scope="row">Frontier ceiling</th>
+<td><span class="v-value">1.0000</span> <span class="state" data-state="historical">historical</span><span class="note">Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).</span></td>
+<td><code>specialists/qwen3-4b-file-ops-distilled/eval_report.json#scores[0].frontier</code></td>
+</tr>
+<tr>
+<th scope="row">Frozen eval</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The package records no frozen held-out split identity.</span></td>
+<td><code>specialists/qwen3-4b-file-ops-distilled/eval_report.json</code></td>
+</tr>
+<tr>
+<th scope="row">Train/eval overlap</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">No train/eval overlap check is recorded for this package.</span></td>
+<td><code>specialists/qwen3-4b-file-ops-distilled/eval_report.json</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3>Known eval limitations</h3>
+<ul>
+<li>Gate `file_ops_hardgen_heldout` has no frontier-ceiling evidence, so its absolute score is not calibrated against frontier capability.</li>
+<li>Gate `out_of_domain_breadth` has no frontier-ceiling evidence, so its absolute score is not calibrated against frontier capability.</li>
+<li>Values come from a committed specialist package, not a canonical factory-run folder: eval commands, dataset hashes, and raw predictions are unavailable for independent replay.</li>
+</ul>
+</section>
+<section id="caveats" aria-labelledby="caveats-h">
+<h2 id="caveats-h">Caveats</h2>
+<ul>
+<li>The out-of-domain breadth ceiling is not frontier-validated yet.</li>
+<li>The negative-transfer result is relative and directly comparable: same 52 tasks, same prompt, stock vs distilled.</li>
+<li>The model is a fused full HF/MLX directory, not a small adapter package.</li>
+<li>Do not use for: general Pace planner</li>
+<li>Do not use for: multi-domain agentic planning without routing</li>
+</ul>
+</section>
+<section id="evidence" aria-labelledby="evidence-h">
+<h2 id="evidence-h">Source evidence</h2>
+<p>Every number above traces to one of these artifacts. Content hashes are recorded where the source file is committed.</p>
+<ul class="evidence">
+<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/model_card.md">model card</a><span class="detail"><code>specialists/qwen3-4b-file-ops-distilled/model_card.md</code> · committed-package-file · sha256 <code>d26f8cff8f6b5dbf…</code></span></li>
+<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/eval_report.json">eval report</a><span class="detail"><code>specialists/qwen3-4b-file-ops-distilled/eval_report.json</code> · committed-package-file · sha256 <code>56e73eeb14a0f4c3…</code></span></li>
+<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/tinygpt.lock.json">reproducibility lock</a><span class="detail"><code>specialists/qwen3-4b-file-ops-distilled/tinygpt.lock.json</code> · committed-package-file · sha256 <code>e28380d3b483cc88…</code></span></li>
+<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/prompt.md">prompt contract</a><span class="detail"><code>specialists/qwen3-4b-file-ops-distilled/prompt.md</code> · committed-package-file · sha256 <code>1507e58e65e50604…</code></span></li>
+<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/registry.json">specialist registry entry</a><span class="detail"><code>specialists/registry.json</code> · committed-registry · sha256 <code>97a78c4c1783fad0…</code></span></li>
+<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/learn/tool-calling-frontier-parity.md#81-climbing-the-cliff--frontier-trajectory-distillation-2026-06-16">recorded result source</a><span class="detail"><code>docs/learn/tool-calling-frontier-parity.md#81-climbing-the-cliff--frontier-trajectory-distillation-2026-06-16</code> · historical-record · sha256 <code>b3e2ac1d4d4d53dd…</code> · The document the legacy score was recorded in.</span></li>
+<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/learn/tool-calling-frontier-parity.md#84-breadth--narrow-distillation-causes-negative-transfer-2026-06-16">recorded result source</a><span class="detail"><code>docs/learn/tool-calling-frontier-parity.md#84-breadth--narrow-distillation-causes-negative-transfer-2026-06-16</code> · historical-record · sha256 <code>b3e2ac1d4d4d53dd…</code> · The document the legacy score was recorded in.</span></li>
+<li><a href="https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled">published weights</a><span class="detail"><code>hf://models/posttrainllm/qwen3-4b-file-ops-distilled</code> · external-artifact · Public weight location; not hashed by this compiler.</span></li>
+</ul>
+</section>
+<section id="legend" aria-labelledby="legend-h">
+<h2 id="legend-h">How to read the evidence states</h2>
+<dl class="legend">
+<div><dt><span class="state" data-state="measured">measured</span></dt><dd>Read directly from a source artifact for this candidate.</dd></div>
+<div><dt><span class="state" data-state="derived">derived</span></dt><dd>Computed from other recorded values (for example a delta).</dd></div>
+<div><dt><span class="state" data-state="historical">historical</span></dt><dd>Imported from a legacy record without current canonical provenance. Treat as weaker than a measurement.</dd></div>
+<div><dt><span class="state" data-state="skipped">skipped</span></dt><dd>Deliberately not run for this candidate.</dd></div>
+<div><dt><span class="state" data-state="missing">not recorded</span></dt><dd>Evidence should exist but does not. No number is implied.</dd></div>
+<div><dt><span class="state" data-state="not-applicable">not applicable</span></dt><dd>The check does not apply to this candidate.</dd></div>
+</dl>
+</section>
+<footer>
+<p>Compiled offline by <code>scripts/build_fine_tune_report_card.py</code> from recorded factory evidence. No model was loaded, trained, or evaluated to produce this page. Reproduce the factory loop with the <a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/factory/report-card.md">report-card docs</a>.</p>
+</footer>
+</main>
+</body>
+</html>

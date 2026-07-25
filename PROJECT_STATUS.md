@@ -1,6 +1,6 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-07-19
+Last updated: 2026-07-25
 
 ## Why / What
 
@@ -74,6 +74,7 @@ Important constraints:
 
 | Date / phase | Status |
 |---|---|
+| 2026-07-25 Fine-Tune Report Card | Shipped `add-fine-tune-report-card`: a portable, versioned before/after proof contract compiled offline from evidence that already exists in the repo. `scripts/build_fine_tune_report_card.py` ingests either a canonical run folder or a committed specialist package and emits `report-card.json` plus a self-contained static page from one validated payload; `scripts/check_fine_tune_report_card.py` is the publication gate; `native-mac/Sources/TinyGPTIO/FineTuneReportCard.swift` is the typed schema boundary, decoded against real compiler output by `evals/fine-tune-report-card-smoke.sh`. Every value carries an explicit measurement state (measured/derived/historical/skipped/missing/not-applicable), so absent latency/RAM/cost renders as *not recorded* rather than zero and a one-sided delta stays missing. Three real cards published to `/report-cards` and linked from `/artifacts` with outcome labels: file-ops distilled and ReST fused (`routed-ship`, historical evidence) and the SQL routed POC (`report-only`, measured). **No published card claims a verified ship** — that is the honest result, and each card lists its own blockers. Added optional run fragments `eval-validity.json` and `cost.json` (absent-tolerant) plus optional `artifact.routing_constraint`; before them a verified ship was unreachable by construction. Fails closed: leakage, an incomplete ship claim, or a regressing ship without a disclosed routing constraint exits non-zero and writes no artifact. 166 unit checks + 9 fixture outcome classes + a drift guard, wired into the CI evals job. No training, model load, GPU eval, upload, or release-policy change. |
 | 2026-07-19 Foundry evidence receipts | Shipped `automate-posttrainllm` (fleet-automation-closure Store): privacy-safe evidence contract + receipt pipeline for the Foundry control plane. `docs/factory/foundry-evidence.md` is the canonical per-surface contract; `scripts/foundry_receipt.py` emits sanitized receipts (git, registry, run folders, nightly markers, CI); `scripts/check_foundry_receipt.py` validates shape, provenance completeness, manual publication authority, and absence of private payloads; `evals/foundry-receipt-smoke.sh` + `tests/test_foundry_receipt.py` (11 tests) prove private datasets/prompts/checkpoints/outputs cannot enter receipts. Existing public artifacts' quality claims are correctly blocked because their `eval_report.json` lack explicit `source_revision` — surfaced as a blocked gap, not papered over. No new production dependency, no auto-publication, no deploy. |
 | 2026-07-16 Fine-Tune Report Card OpenSpec | Drafted `add-fine-tune-report-card`: compile existing factory-run evidence into versioned JSON and a static public before/after report with explicit regressions, leakage/eval validity, performance, missing/historical values, and ship/retry/reject semantics. The draft performs no training, model loading, GPU eval, upload, implementation, or release. |
 | 2026-07-13 ReST candidate promotion | Promoted public `qwen3-4b-rest-fused` weights into the second registered specialist package. Canonical metadata run passes the strict publish check with a narrow research-specialist ship decision: file-ops depth 100%, breadth 65% vs stock 59.6%. Added BFCL standalone/monorepo path resolution. Historical timing/RAM/tok-s and raw traces remain explicitly unavailable; no heavy rerun or Pace wiring was performed. |
@@ -103,6 +104,7 @@ Important constraints:
 | Factory run artifacts | Target shape defined in `docs/factory/run-schema.md`; `runs/` is local-output and gitignored. |
 | Specialist packages | Two public-weight packages are registered: routed file-ops distillation and the breadth-recovering ReST research specialist. |
 | Public artifact registry | First-class release list lives in `docs/factory/public-artifacts.md`; website surface is `/artifacts`; every artifact carries blockers beside evidence. |
+| Fine-tune report cards | Portable before/after proof per artifact: versioned JSON plus a self-contained static page at `/report-cards/<slug>.html`, compiled offline from recorded evidence with explicit measurement states. Contract in `docs/factory/report-card.md`. |
 | Eval gates | Strong fixture/no-GPU layer exists. Live GPU/full-suite gates remain operator-dependent. |
 | Browser playground | Live demo and proof of from-scratch/browser track. Parked for active factory work. |
 | PostTrainLLM app | GUI shell over the CLI. Now covers the factory-loop experiment commands: Factory tab runs pretrain/finetune/**DPO**/**distill**; new **Runs** tab runs **factory-run** (validate/publish-check), **eval-gate**, **eval-compare**, **eval-sql**, and **generate** — all via a shared `CLICommandRunner` shell-out. Data-prep, quantization/export, and most interpretability commands remain CLI-only by design (batch/one-off, not interactive). |
@@ -127,6 +129,18 @@ Factory primitives:
   inference paths, GGUF/AWQ/GPTQ readers, HQQ/GPTQ tools, merge/bake-lora.
 - Reporting/readouts: eval result JSON, browser eval leaderboard, SAE
   timeline, benchmark scripts, specialist package model-card pattern.
+- Fine-Tune Report Card: `scripts/build_fine_tune_report_card.py` compiles a
+  canonical run folder or a committed specialist package into a versioned
+  `report-card.json` plus a deterministic self-contained public page;
+  `scripts/check_fine_tune_report_card.py` is the publication gate;
+  `scripts/publish_report_cards.py` regenerates the committed cohort and
+  detects drift. Typed mirror in
+  `native-mac/Sources/TinyGPTIO/FineTuneReportCard.swift`. Contract in
+  `docs/factory/report-card.md`, cohort review in
+  `docs/factory/report-card-cohort.md`; covered by
+  `evals/fine-tune-report-card-smoke.sh`,
+  `tests/test_fine_tune_report_card.py`, and
+  `tests/report_card_fixtures.py`.
 - Foundry evidence receipts: `scripts/foundry_receipt.py` emits sanitized
   receipts (git, registry, run folders, nightly markers, CI) and
   `scripts/check_foundry_receipt.py` validates shape, provenance
@@ -162,7 +176,7 @@ If a task does not answer one of those, park it.
 
 ### Active gaps
 
-- The Fine-Tune Report Card is specified in `openspec/changes/add-fine-tune-report-card` as the public, machine-readable proof layer over canonical factory-run evidence. It should be implemented and dogfooded across successful, routed, retry, reject, and historical cases without triggering new GPU work.
+- ~~The Fine-Tune Report Card is specified in `openspec/changes/add-fine-tune-report-card`.~~ Implemented 2026-07-25 (see Timeline). Remaining, operator-owned: no candidate can reach a **fully verified** ship until a run emits `eval-validity.json` (frontier ceiling, frozen-eval identity, overlap check) and `cost.json`. Every published card lists that as a blocker. The `reject` outcome class has no real published card because `qwen3-4b-multibackend-distilled` has no committed `eval_report.json`.
 - No single canonical factory command/readout yet. Existing commands are real,
   but orchestration is still spread across scripts and docs. Partially closed
   2026-07-11: `scripts/assemble_factory_run.py` is the generic report-artifact

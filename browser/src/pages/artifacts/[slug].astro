@@ -1,7 +1,7 @@
 ---
 import Default from "../../layouts/Default.astro";
 import "../../styles/system.css";
-import { artifacts, getArtifact, stateLabel } from "../../artifacts";
+import { artifacts, getArtifact, outcomeLabel, stateLabel } from "../../artifacts";
 import Logo from "../../components/Logo.astro";
 
 export function getStaticPaths() {
@@ -128,6 +128,33 @@ const layoutProps = {
       </div>
     </section>
 
+    {artifact.reportCard && (
+      <section class="report-card" aria-labelledby="report-card">
+        <h2 id="report-card">Fine-Tune Report Card</h2>
+        <p>
+          The portable before/after proof for this artifact: baseline, candidate,
+          deltas, regressions, slices, performance, eval validity, and the
+          ship/retry/reject decision — with every value labeled measured,
+          derived, historical, skipped, or not recorded. Compiled offline from
+          the recorded factory evidence; no model was run to produce it.
+        </p>
+        <p class="report-card-meta">
+          <span class="outcome" data-outcome={artifact.reportCard.outcome}>
+            {outcomeLabel[artifact.reportCard.outcome]}
+          </span>
+          <span class="verified" data-verified={String(artifact.reportCard.verified)}>
+            {artifact.reportCard.verified
+              ? "Fully verified"
+              : "Not fully verified — see the report card for why"}
+          </span>
+        </p>
+        <p class="report-card-links">
+          <a href={artifact.reportCard.href}>Read the report card →</a>
+          <a href={artifact.reportCard.jsonHref}>Machine-readable JSON</a>
+        </p>
+      </section>
+    )}
+
     <section aria-labelledby="evidence">
       <h2 id="evidence">Evidence</h2>
       <ul class="evidence-list">
@@ -180,4 +207,11 @@ const layoutProps = {
   .evidence-list { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--s-2); }
   .evidence-list a { color: var(--brand); font-weight: 500; }
   .next-action p { font-size: var(--step-1); color: var(--ink); line-height: 1.55; max-width: 68ch; }
+  .report-card p { color: var(--fg-soft); line-height: 1.55; max-width: 68ch; margin: 0 0 var(--s-4); }
+  .report-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); font-family: var(--font-mono); font-size: var(--step--1); }
+  .report-card-meta .outcome { border: 1px solid var(--line-strong); border-radius: 999px; padding: 3px 10px; color: var(--ink); }
+  .report-card-meta .verified[data-verified="false"] { color: var(--fg-quiet); }
+  .report-card-meta .verified[data-verified="true"] { color: var(--live); }
+  .report-card-links { display: flex; flex-wrap: wrap; gap: var(--s-4); }
+  .report-card-links a { color: var(--brand); font-weight: 500; }
 </style>

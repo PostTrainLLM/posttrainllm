@@ -1,7 +1,7 @@
 ---
 import Default from "../../layouts/Default.astro";
 import "../../styles/system.css";
-import { artifacts, stateLabel } from "../../artifacts";
+import { artifacts, outcomeLabel, stateLabel } from "../../artifacts";
 import Logo from "../../components/Logo.astro";
 
 const layoutProps = {
@@ -66,6 +66,17 @@ const parkedArtifacts = artifacts.filter((entry) => entry.state === "parked");
               {`${entry.comparisons[0]?.name ?? "None"}${entry.comparisons[1] ? ` vs ${entry.comparisons[1].name}` : ""}`}
             </p>
             <p class="next"><strong>Next:</strong> {entry.nextAction}</p>
+            {entry.reportCard && (
+              <p class="report-card">
+                <span class="outcome" data-outcome={entry.reportCard.outcome}>
+                  {outcomeLabel[entry.reportCard.outcome]}
+                </span>
+                <span class="verified" data-verified={String(entry.reportCard.verified)}>
+                  {entry.reportCard.verified ? "fully verified" : "not fully verified"}
+                </span>
+                <a href={entry.reportCard.href}>Report card →</a>
+              </p>
+            )}
           </article>
         ))}
       </div>
@@ -125,6 +136,10 @@ const parkedArtifacts = artifacts.filter((entry) => entry.state === "parked");
   .competition { color: var(--fg-quiet); font-family: var(--font-mono); font-size: var(--step--1); margin: 0 0 var(--s-4); }
   .competition strong { color: var(--fg-soft); }
   .next { border-top: 1px solid var(--line); color: var(--fg-soft); padding-top: var(--s-4); margin: 0; line-height: 1.5; font-size: var(--step-0); }
+  .report-card { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); margin: var(--s-4) 0 0; font-family: var(--font-mono); font-size: var(--step--1); }
+  .report-card .outcome { border: 1px solid var(--line-strong); border-radius: 999px; padding: 2px 8px; color: var(--ink); }
+  .report-card .verified[data-verified="false"] { color: var(--fg-quiet); }
+  .report-card .verified[data-verified="true"] { color: var(--live); }
   .next strong { color: var(--ink); }
   @media (max-width: 760px) {
     .summary-grid, .cards, .cards.compact { grid-template-columns: 1fr; }

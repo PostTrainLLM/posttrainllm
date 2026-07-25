@@ -28,6 +28,10 @@ target -> data -> post-training -> eval -> package -> report
 - [`lora-geometry.md`](lora-geometry.md) — adapter effective-update diagnostics
   for rank and module targeting.
 - [`run-schema.md`](run-schema.md) — local run directory contract.
+- [`report-card.md`](report-card.md) — portable before/after proof contract:
+  measurement states, decision semantics, JSON + static report, publication gate.
+- [`report-card-cohort.md`](report-card-cohort.md) — the published report-card
+  cohort, documented absences, and the mapping gaps the review found.
 - [`enforcement.md`](enforcement.md) — native validation plus stricter
   publish-check requirements.
 - [`eval-protocol.md`](eval-protocol.md) — baseline, regression, and ship/reject rules.

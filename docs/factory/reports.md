@@ -2,6 +2,11 @@
 
 Every factory run should end with a report, even if the decision is reject.
 
+This page is the **local** `report.md` template — prose for the operator. The
+portable, validated, public-facing proof for the same run is its
+[report card](report-card.md), compiled from the run fragments rather than
+written by hand.
+
 ## Template
 
 ```markdown

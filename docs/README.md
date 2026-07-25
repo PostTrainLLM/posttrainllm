@@ -71,7 +71,7 @@ For every external product or paper that changes the plan, the docs must record:
 | Category | Meaning | Where |
 |---|---|---|
 | Active | Current work queue and gates | `PROJECT_STATUS.md`, `docs/NEXT.md`, `docs/factory/`, `docs/techniques/` |
-| Evidence | Attempt results, reports, artifact status | `docs/attempt-ledger.md`, `docs/specialists/`, `docs/factory/public-artifacts.md`, `runs/*/report.md` |
+| Evidence | Attempt results, reports, artifact status | `docs/attempt-ledger.md`, `docs/specialists/`, `docs/factory/public-artifacts.md`, `docs/factory/report-card.md`, `runs/*/report.md` |
 | Learning | Owner curriculum and concept explanations | `docs/learn/`, `docs/learning-pipeline.md`, `docs/training/` |
 | Reference | Broad mechanics, recipes, historical plans | `docs/recipes/`, `docs/roadmap/`, `docs/prds/`, `docs/PLAN.md` |
 | Archive | Superseded or moved material | `docs/archive/`, `docs/parked/` |

@@ -29,6 +29,33 @@ export type ArtifactComparison = {
   sourceHref?: string;
 };
 
+/// Outcome labels emitted by the report-card compiler. Only the two ship
+/// labels may appear on a `ship` decision, so a report-only or rejected
+/// artifact can never read as shipped. Mirrors
+/// `fine_tune_report_card.OUTCOME_LABELS`.
+export type ReportCardOutcome =
+  | "shipped-specialist"
+  | "routed-ship"
+  | "report-only"
+  | "rejected";
+
+/// A published Fine-Tune Report Card for this artifact. Compiled offline from
+/// recorded factory evidence by `scripts/build_fine_tune_report_card.py` and
+/// served as a static page from `browser/public/report-cards/`.
+///
+/// This is a *link plus label* only: the report card itself is the source of
+/// truth for its numbers, and duplicating them here would let the two surfaces
+/// drift. It does not change weight-release policy — `state` still governs
+/// what may be released.
+export type ArtifactReportCard = {
+  outcome: ReportCardOutcome;
+  /// False whenever the ship decision cannot be traced end to end (historical
+  /// values, unvalidated benchmark, unchecked leakage, open blockers).
+  verified: boolean;
+  href: string;
+  jsonHref: string;
+};
+
 export type ArtifactEntry = {
   slug: string;
   title: string;
@@ -45,6 +72,7 @@ export type ArtifactEntry = {
   evidence: { label: string; href: string }[];
   blockers: { blocker: string; why: string; unblock: string }[];
   nextAction: string;
+  reportCard?: ArtifactReportCard;
 };
 
 export const stateLabel: Record<ArtifactState, string> = {
@@ -56,6 +84,26 @@ export const stateLabel: Record<ArtifactState, string> = {
   blocked: "Blocked",
   parked: "Parked",
 };
+
+export const outcomeLabel: Record<ReportCardOutcome, string> = {
+  "shipped-specialist": "Shipped specialist",
+  "routed-ship": "Shipped — routed only",
+  "report-only": "Report only — no model to use",
+  rejected: "Rejected candidate",
+};
+
+function reportCard(
+  slug: string,
+  outcome: ReportCardOutcome,
+  verified: boolean,
+): ArtifactReportCard {
+  return {
+    outcome,
+    verified,
+    href: `/report-cards/${slug}.html`,
+    jsonHref: `/report-cards/${slug}.json`,
+  };
+}
 
 export const artifacts: ArtifactEntry[] = [
   {
@@ -180,6 +228,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     nextAction:
       "Publish as a report artifact. Two hygiene DPO retries proved reference anchoring cures the SimPO collapse and even lifts execution to 0.920, but output hygiene needs a generation-strength fix (stronger SFT or constrained SELECT-prefix decoding), not more preference tuning. Do not present as a shipped SQL model until a public execution gate and clean-output gate pass.",
+    reportCard: reportCard("qwen06-sql-routed-v1", "report-only", false),
   },
   {
     slug: "qwen3-4b-file-ops-distilled",
@@ -279,6 +328,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     nextAction:
       "Keep routed-only warnings attached and add a consumer pull/load smoke before wiring this into any app.",
+    reportCard: reportCard("qwen3-4b-file-ops-distilled", "routed-ship", false),
   },
   {
     slug: "qwen3-4b-rest-fused",
@@ -356,6 +406,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     nextAction:
       "Keep this package research-only. Freeze a product-specific target before spending compute on another eval or training run.",
+    reportCard: reportCard("qwen3-4b-rest-fused", "routed-ship", false),
   },
   {
     slug: "hf-specialist-model-archive-v1",
