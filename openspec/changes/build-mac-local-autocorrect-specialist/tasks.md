@@ -24,10 +24,10 @@
 ## 4. Select and prove the smallest base
 
 - [x] 4.1 Research a bounded shortlist of current Mac-runnable encoder-decoder or byte/character-aware bases and pin identifiers, revisions, licenses, parameter counts, artifact sizes, tokenizer behavior, and MLX/adaptation paths.
-- [ ] 4.2 Prepare exact download/load commands plus disk, RAM, time, and cleanup estimates; obtain explicit approval before downloading weights, installing packages, compiling, or loading a substantial model.
-- [ ] 4.3 Run bounded zero-shot and greedy-decoding smokes for approved candidates, measuring correction score, noisy-text fragmentation, load success, peak RSS, TTFT, latency, and throughput on the same fixtures.
-- [ ] 4.4 Select the smallest plausibly capable base and freeze its prompt/template, precision, generation configuration, host, and baseline command; record `park` if none fits the envelope.
-- [ ] 4.5 Evaluate the selected frozen base on the complete held-out suite before training and name the exact trainable failure slices.
+- [x] 4.2 Prepare exact download/load commands plus disk, RAM, time, and cleanup estimates; obtain explicit approval before downloading weights, installing packages, compiling, or loading a substantial model.
+- [x] 4.3 Run bounded zero-shot and greedy-decoding smokes for approved candidates, measuring correction score, noisy-text fragmentation, load success, peak RSS, TTFT, latency, and throughput on the same fixtures.
+- [x] 4.4 Select the smallest plausibly capable base and freeze its prompt/template, precision, generation configuration, host, and baseline command; record `park` if none fits the envelope.
+- [x] 4.5 Evaluate the selected frozen base on the complete held-out suite before training and name the exact trainable failure slices.
 
 ## 5. Train one staged candidate
 
@@ -58,7 +58,7 @@
 ## Pending blockers (recorded 2026-07-25)
 
 - **2.5 complete:** Codex CLI 0.145.0 with `gpt-5.6-sol` scored all 18 rows perfectly on 2026-07-25; no rows needed repair or removal, and no candidate output had been inspected.
-- **4.2-4.5:** the three-candidate Apache-2.0 shortlist, revisions, exact commands, and conservative resource/cleanup estimates are frozen in `docs/factory/autocorrect-model-shortlist.md`. Immediate approval is still required before downloads, dependency installation, compilation, model loading, or GPU work.
-- **5.1-5.7:** require a selected base and immediate operator approval for any dependency installation, compilation, model load, GPU-lock acquisition, overfit run, or pilot training.
+- **4.2-4.5 complete:** the approved three-candidate bake-off selected FLAN-T5-small as the smallest plausibly trainable base. Complete predictions, tokenizer fragmentation, strict quality slices, RSS, TTFT, latency, throughput, runtime pins, and selection rationale are in `evals/autocorrect/base-bakeoff-v1.json`; no model was trained.
+- **5.1-5.7:** require immediate operator approval for adapter implementation, compilation, GPU-lock acquisition, the repeated-data overfit run, or pilot training.
 - **6.1-6.4:** require real model decoding plus sustained latency, RSS, throughput, and energy measurement; no decoding claim can be verified without those runs.
 - **7.1-7.6:** require trained candidate/comparator outputs, measured Mac performance, and a canonical decision. Packaging, public-artifact updates, and OpenSpec archive remain invalid until then.

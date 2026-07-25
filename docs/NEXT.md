@@ -54,13 +54,17 @@ fixtures, strict evaluator, source-first leakage/provenance checks, Mac keyboard
 simulator with edit traces, bounded tiny-overfit/pilot manifests, distribution
 report, and an Apple protocol assessment.
 
-Codex/frontier calibration (task 2.5) and the pinned base-model research (task
-4.1) are complete. The 18-row smoke ruler scored perfectly and required no row
-changes. The exact three-candidate download/load gate is recorded in
-[`factory/autocorrect-model-shortlist.md`](factory/autocorrect-model-shortlist.md).
-Downloads, model loading, compilation, GPU/training, decoding benchmarks,
-packaging, and the final factory decision remain pending immediate approval.
-The queue still has no active training target.
+Codex/frontier calibration (task 2.5), pinned base-model research, and the
+approved three-candidate offline bake-off (tasks 4.1-4.5) are complete. The
+18-row smoke ruler required no repair. FLAN-T5-small is frozen as the smallest
+plausibly trainable base: it stayed within the resource envelope but reached
+only 6.25% zero-shot error reduction, 66.67% clean preservation, and 86.67%
+protected-span preservation. Exact commands and measured evidence are in
+[`factory/autocorrect-model-shortlist.md`](factory/autocorrect-model-shortlist.md)
+and `evals/autocorrect/base-bakeoff-v1.json`. Adapter implementation,
+compilation, overfit/pilot training, packaging, and the final factory decision
+remain pending immediate approval. The queue still has no authorized training
+run.
 
 ## Active Sequence
 

@@ -244,6 +244,27 @@ def test_distribution_report_is_reproducible_and_test_fixture_is_frozen():
     assert report["synthetic_sample"]["rows"] == 256
 
 
+def test_base_bakeoff_preserves_complete_measured_evidence():
+    report = ac.load_json(FIXTURES / "base-bakeoff-v1.json")
+    assert report["fixture"]["sha256"] == ac.sha256_file(
+        FIXTURES / "eval-v1.jsonl"
+    )
+    assert report["selection"]["model_key"] == "flan-t5-small"
+    assert report["selection"]["decision"] == "advance-to-training-feasibility"
+    assert len(report["candidates"]) == 3
+    fixture_ids = [row["id"] for row in ac.load_jsonl(FIXTURES / "eval-v1.jsonl")]
+    for candidate in report["candidates"]:
+        assert [row["id"] for row in candidate["predictions"]] == fixture_ids
+        assert [row["id"] for row in candidate["timing_rows"]] == fixture_ids
+        assert [row["id"] for row in candidate["tokenizer_rows"]] == fixture_ids
+        rerun = ac.evaluate(
+            ac.load_jsonl(FIXTURES / "eval-v1.jsonl"),
+            candidate["predictions"],
+        )
+        assert rerun["overall"] == candidate["evaluation"]["overall"]
+        assert rerun["slices"] == candidate["evaluation"]["slices"]
+
+
 def main() -> int:
     tests = [
         test_repository_artifacts_validate,
@@ -259,6 +280,7 @@ def main() -> int:
         test_incomplete_provenance_and_manifest_hash_drift_are_detected,
         test_lexical_holdout_is_absent_from_train_and_present_in_test,
         test_distribution_report_is_reproducible_and_test_fixture_is_frozen,
+        test_base_bakeoff_preserves_complete_measured_evidence,
     ]
     failures = 0
     for test in tests:

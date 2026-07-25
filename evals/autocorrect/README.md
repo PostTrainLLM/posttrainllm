@@ -30,6 +30,9 @@ This directory is the committed, no-model foundation for
   `frontier-calibration-v1.json` — the approved-text-scope Codex calibration,
   including immutable fixture/prediction hashes, invocation provenance, and
   measured perfect preservation on this smoke ruler.
+- `base-bakeoff-v1.json` — complete offline predictions, tokenizer and timing
+  rows, strict slice metrics, runtime pins, and the measured FLAN-T5-small
+  base-selection decision.
 
 ## No-model checks
 
