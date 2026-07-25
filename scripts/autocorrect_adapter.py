@@ -592,6 +592,246 @@ def make_optimizer(model: Any, recipe: dict[str, Any]) -> Any:
 # ---------------------------------------------------------------------------
 
 
+class GPULock:
+    """Cooperative cross-process GPU lock, compatible with TinyGPTIO/GPULock.swift.
+
+    Same path and JSON shape as the Swift implementation so the two coordinate.
+    Acquisition uses O_CREAT|O_EXCL, which is atomic, and a lock whose PID is
+    no longer alive is cleared rather than inherited.
+    """
+
+    def __init__(self, command: str):
+        self.command = command
+        self.path = Path.home() / ".cache" / "posttrainllm" / "gpu.lock"
+        self.acquired = False
+
+    @staticmethod
+    def _alive(pid: int) -> bool:
+        import os  # noqa: PLC0415
+
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            return True
+        return True
+
+    def __enter__(self) -> "GPULock":
+        import datetime as _dt  # noqa: PLC0415
+        import os  # noqa: PLC0415
+
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        if self.path.exists():
+            try:
+                held = json.loads(self.path.read_text(encoding="utf-8"))
+            except (json.JSONDecodeError, OSError):
+                held = None
+            if held and self._alive(int(held.get("pid", -1))):
+                raise AdapterError(
+                    f"GPU lock held by PID {held.get('pid')} running "
+                    f"{held.get('command')!r} since {held.get('startedAt')}"
+                )
+            self.path.unlink(missing_ok=True)
+
+        try:
+            fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644)
+        except FileExistsError as exc:
+            raise AdapterError(f"GPU lock raced at {self.path}") from exc
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(
+                {
+                    "pid": os.getpid(),
+                    "command": self.command,
+                    "startedAt": _dt.datetime.now(_dt.timezone.utc)
+                    .isoformat()
+                    .replace("+00:00", "Z"),
+                },
+                handle,
+            )
+        self.acquired = True
+        return self
+
+    def __exit__(self, *exc_info: object) -> None:
+        if self.acquired:
+            self.path.unlink(missing_ok=True)
+            self.acquired = False
+
+
+def resolve_device(recipe: dict[str, Any]) -> str:
+    torch = _torch()
+    for preference in recipe["training"]["device_preference"]:
+        if preference == "mps" and torch.backends.mps.is_available():
+            return "mps"
+        if preference == "cuda" and torch.cuda.is_available():
+            return "cuda"
+        if preference == "cpu":
+            return "cpu"
+    return "cpu"
+
+
+def greedy_predict(
+    model: Any,
+    tokenizer: Any,
+    examples: Sequence[dict[str, Any]],
+    recipe: dict[str, Any],
+    device: str,
+) -> list[str]:
+    """Greedy decode with the frozen generation settings from the bake-off."""
+    torch = _torch()
+    bakeoff = json.loads((FIXTURE_DIR / "base-bakeoff-v1.json").read_text(encoding="utf-8"))
+    generation = bakeoff["selection"]["frozen_generation"]
+
+    model.eval()
+    predictions: list[str] = []
+    with torch.no_grad():
+        for example in examples:
+            encoded = tokenizer([example["source"]], return_tensors="pt").to(device)
+            output = model.generate(
+                **encoded,
+                do_sample=generation["do_sample"],
+                num_beams=generation["num_beams"],
+                max_new_tokens=generation["max_new_tokens"],
+            )
+            predictions.append(tokenizer.decode(output[0], skip_special_tokens=True))
+    return predictions
+
+
+def run_stage(
+    stage: str,
+    recipe: dict[str, Any] | None = None,
+    output_dir: Path | None = None,
+) -> dict[str, Any]:
+    """Execute one frozen training stage. Callers must already hold the GPU lock."""
+    import resource as _resource  # noqa: PLC0415
+    import time as _time  # noqa: PLC0415
+
+    torch = _torch()
+    recipe = recipe if recipe is not None else load_recipe()
+    from transformers import AutoTokenizer, T5ForConditionalGeneration  # noqa: PLC0415
+
+    plan = build_plan(stage, recipe)
+    examples = build_examples(stage, recipe)
+    training = recipe["training"]
+    device = resolve_device(recipe)
+    output_dir = Path(output_dir or ROOT / "runs" / f"autocorrect-{stage.replace('_', '-')}-v1")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    local_dir = str(Path(recipe["base"]["local_dir"]))
+    tokenizer = AutoTokenizer.from_pretrained(local_dir)
+    torch.manual_seed(training["seed"])
+    model = T5ForConditionalGeneration.from_pretrained(local_dir, dtype=torch.float32)
+    inject_lora(model, recipe)
+    model.to(device)
+    optimizer = make_optimizer(model, recipe)
+
+    stop = StopRuleState(recipe, stage)
+    generator = torch.Generator().manual_seed(training["seed"])
+    batch_size = training["batch_size"]
+    total_steps = plan["total_steps"]
+    checkpoints = set(plan["checkpoint_steps"])
+
+    history: list[dict[str, Any]] = []
+    evaluations: list[dict[str, Any]] = []
+    best = {"step": 0, "exact_match": -1.0}
+    started = _time.time()
+    order: list[int] = []
+    step = 0
+
+    while step < total_steps and not stop.stopped:
+        if len(order) < batch_size:
+            order += torch.randperm(len(examples), generator=generator).tolist()
+        picked = [examples[i] for i in order[:batch_size]]
+        order = order[batch_size:]
+
+        batch = encode_batch(tokenizer, picked, recipe)
+        batch = {key: value.to(device) for key, value in batch.items()}
+        for group in optimizer.param_groups:
+            group["lr"] = learning_rate_at(step, total_steps, recipe)
+
+        loss = training_step(model, batch, optimizer, recipe)
+        step += 1
+        if step % training["log_every_steps"] == 0 or step == 1:
+            history.append({"step": step, "loss": loss, "lr": optimizer.param_groups[0]["lr"]})
+        if stop.observe_loss(step, loss):
+            break
+        if stop.observe_wall_time((_time.time() - started) / 60.0):
+            break
+
+        if step % training["eval_every_steps"] == 0 or step in checkpoints:
+            predictions = greedy_predict(model, tokenizer, examples, recipe, device)
+            exact = sum(
+                prediction == example["target"]
+                for prediction, example in zip(predictions, examples)
+            ) / len(examples)
+            evaluations.append({"step": step, "exact_match": exact, "loss": loss})
+            print(f"  step {step:>3}  loss {loss:.4f}  exact_match {exact:.3f}", flush=True)
+            if exact > best["exact_match"]:
+                best = {"step": step, "exact_match": exact}
+                save_adapter(model, output_dir / "adapter-best.pt", recipe,
+                             extra={"stage": stage, "step": step, "exact_match": exact})
+            if stage == "tiny_overfit" and exact >= recipe["gates"]["tiny_overfit"]["exact_match_min"]:
+                break
+
+    predictions = greedy_predict(model, tokenizer, examples, recipe, device)
+    final_exact = sum(
+        prediction == example["target"] for prediction, example in zip(predictions, examples)
+    ) / len(examples)
+    save_adapter(model, output_dir / "adapter-last.pt", recipe,
+                 extra={"stage": stage, "step": step, "exact_match": final_exact})
+
+    if stage == "tiny_overfit":
+        stop.finish_tiny_overfit(final_exact)
+
+    elapsed_minutes = (_time.time() - started) / 60.0
+    report = {
+        "schema_version": 1,
+        "stage": stage,
+        "recipe_id": recipe["recipe_id"],
+        "base_model_id": recipe["base"]["model_id"],
+        "base_revision": recipe["base"]["revision"],
+        "dataset_sha256": recipe["data"][stage]["dataset_sha256"],
+        "rows": len(examples),
+        "device": device,
+        "torch": torch.__version__,
+        "steps_taken": step,
+        "step_budget": total_steps,
+        "wall_time_minutes": round(elapsed_minutes, 3),
+        "peak_rss_mib": round(
+            _resource.getrusage(_resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024), 3
+        ),
+        "trainable_parameters": sum(p.numel() for _, p in trainable_parameters(model)),
+        "first_loss": history[0]["loss"] if history else None,
+        "final_loss": history[-1]["loss"] if history else None,
+        "loss_history": history,
+        "evaluations": evaluations,
+        "best": best,
+        "final_exact_match": final_exact,
+        "gate": {
+            "exact_match_min": recipe["gates"]["tiny_overfit"]["exact_match_min"],
+            "passed": final_exact >= recipe["gates"]["tiny_overfit"]["exact_match_min"],
+        },
+        "stop_rule_triggered": stop.triggered,
+        "stop_rule_detail": stop.detail,
+        "decision": stop.decision(),
+        "predictions": [
+            {
+                "id": example["id"],
+                "error_family": example["error_family"],
+                "noisy_source": example["source"],
+                "target": example["target"],
+                "prediction": prediction,
+                "exact_match": prediction == example["target"],
+            }
+            for example, prediction in zip(examples, predictions)
+        ],
+    }
+    (output_dir / "report.json").write_text(
+        json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    return report
+
+
 def verify_base(recipe: dict[str, Any] | None = None) -> dict[str, Any]:
     """Load-parity check against the real selected base, on CPU, forward only.
 
@@ -664,6 +904,7 @@ def main(argv: list[str] | None = None) -> int:
     train_parser = sub.add_parser("train", help="refuses without explicit operator approval")
     train_parser.add_argument("--stage", choices=STAGES, default="tiny_overfit")
     train_parser.add_argument("--i-have-operator-approval", action="store_true")
+    train_parser.add_argument("--output-dir", type=Path, default=None)
 
     args = parser.parse_args(argv)
 
@@ -709,12 +950,18 @@ def main(argv: list[str] | None = None) -> int:
                 "Re-run with --i-have-operator-approval once approval is recorded."
             )
             return 2
-        print(
-            "Training entry point is deliberately not implemented in task 5.1.\n"
-            "Task 5.3 (tiny-overfit gate) is the next authorized step and must land with its "
-            "own run folder and decision."
-        )
-        return 3
+
+        problems = validate_recipe()
+        if problems:
+            for problem in problems:
+                print(f"FAIL {problem}")
+            return 1
+
+        with GPULock(f"autocorrect_adapter train --stage {args.stage}"):
+            report = run_stage(args.stage, output_dir=args.output_dir)
+
+        print(json.dumps({k: v for k, v in report.items() if k != "loss_history"}, indent=2))
+        return 0 if report["gate"]["passed"] else 4
 
     return 1  # pragma: no cover - argparse enforces a command
 

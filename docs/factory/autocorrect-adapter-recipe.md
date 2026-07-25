@@ -132,9 +132,59 @@ What the suite actually proves:
   LoRA target — but a future full-model or embedding-touching recipe must
   revisit it.
 
+## Task 5.3 — the tiny-overfit gate (run 2026-07-25, passed)
+
+Owner-approved; GPU lock acquired and released. Evidence:
+[`evals/autocorrect/tiny-overfit-result-v1.json`](../../evals/autocorrect/tiny-overfit-result-v1.json).
+Adapters stay in gitignored `runs/autocorrect-tiny-overfit-v1/`.
+
+```bash
+python3 scripts/autocorrect_adapter.py train --stage tiny_overfit --i-have-operator-approval
+```
+
+| Measure | Value |
+|---|---|
+| Exact match | **1.0** at step 50 (budget 200) |
+| Loss | 1.585 → 0.030, no non-finite step |
+| Wall time | 0.28 min |
+| Peak RSS | 1,135 MiB, device `mps` |
+| Stop rule fired | none |
+
+### Read this before quoting "8/8"
+
+**The fixture has exactly one unique target.** All 8 rows derive from a single
+source document, so every target is the identical string `Please review the
+draft before lunch.` Exact match 1.0 is therefore reachable by memorizing one
+sentence. The gate proves the training path runs end to end and that 344 K
+trainable parameters suffice to fit the fixture. It is **not** evidence of
+correction ability, and it must never be quoted as a quality result.
+
+A forward-only diagnostic probe on three unseen inputs (not a scored eval)
+tested whether the adapter had degenerated into a constant emitter. It had not —
+outputs vary with input — but all three predicted failure modes are visible:
+
+| Input | Output | Failure |
+|---|---|---|
+| `The meetign is at nine tomorrow.` | identical | copy bias — the typo survived |
+| `Send the invoice to https://…` | `Please send the invoice to https://…` | memorization leakage — spurious `Please` |
+| `quokka sightings rose by 12 percent.` | `Correct only the typing errors in the following text.` | instruction echo |
+
+This is useful, not disappointing: §3 of
+[`../learn/encoder-decoder-adapters.md`](../learn/encoder-decoder-adapters.md)
+predicted copy bias as the dominant risk, and the pilot's job is to move it.
+
 ## Next authorized step
 
-Task 5.3: the 1–10 KB repeated-data overfit gate on the 8-row, 3,321-byte
-tiny-overfit manifest. It needs owner approval and the GPU lock. If it cannot
-reach exact match 1.0 within 200 steps, the recipe's stop rule records
-`retry-training` and the pilot does not start.
+Task 5.4: one bounded ordinary-loss pilot on the 16-row pilot manifest, capped
+at 300 steps and 120 minutes. It needs its own owner approval and the GPU lock.
+Task 5.5 then decides — from measured copy-bias and missed-edit slices — whether
+an edit-aware objective is justified at all.
+
+Two things the 5.3 probe suggests for 5.4 planning, neither yet tested:
+
+- The pilot fixture has 8 distinct source documents against the tiny gate's one,
+  so memorization pressure drops sharply. Whether 16 rows is enough signal to
+  overcome the copy prior is the open question.
+- Instruction echo on out-of-distribution input suggests the prompt template may
+  need to appear in training with more source variety, or that decoding needs a
+  guard. Recording it now so it is not rediscovered as a surprise.

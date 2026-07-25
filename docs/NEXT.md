@@ -74,11 +74,19 @@ Measured forward-only on CPU against the real pinned base: 48 adapted modules,
 `bash evals/autocorrect-adapter-smoke.sh`. LoRA is hand-rolled so torch,
 transformers, and peft stay off the project dependency surface.
 
-Overfit/pilot training (5.3-5.4), decoding gates (6.x), packaging, and the final
-factory decision remain pending immediate approval. **The queue still has no
-authorized training run, and no adapter has been trained.** The next authorized
-step is the 1-10 KB repeated-data overfit gate on the 8-row, 3,321-byte
-tiny-overfit manifest, which needs owner approval and the GPU lock.
+Task 5.3, the repeated-data overfit gate, ran 2026-07-25 with owner approval and
+**passed**: exact match 1.0 at step 50 of 200, loss 1.585 -> 0.030, 0.28 min,
+1,135 MiB peak RSS on MPS. Evidence:
+`evals/autocorrect/tiny-overfit-result-v1.json`. Read the caveat before quoting
+it — the fixture has one unique target, so the score measures capacity and
+wiring, not correction, and the diagnostic probe showed copy bias, memorization
+leakage, and instruction echo on unseen input.
+
+Pilot training (5.4), decoding gates (6.x), packaging, and the final factory
+decision remain pending immediate approval. **No candidate has been evaluated on
+the frozen suite and no ship claim exists.** The next authorized step is the
+bounded ordinary-loss pilot on the 16-row manifest (300 steps, 120 min cap),
+which needs its own owner approval and the GPU lock.
 
 ## Active Sequence
 

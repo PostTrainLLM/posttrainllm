@@ -970,3 +970,40 @@ The instinct was to argue the gate was too strict. The discipline was to
 record it as a **resource loss with the theory intact**: byte-level was not
 disproven, it was priced. If a future target has a looser latency envelope,
 ByT5 goes back on the shortlist unchanged. Filed rather than chased.
+
+---
+
+## 2026-07-25 — Entry 16: A gate that passes for the wrong reason
+
+**During autocorrect task 5.3.** The tiny-overfit gate passed cleanly —
+exact match 1.0 at step 50 of a 200-step budget, loss 1.585 → 0.030. The
+instinct was to write "gate passed" and move on.
+
+Then a fixture detail: **all 8 rows derive from one source sentence**, so
+all 8 targets are the identical string. Which means the pass condition,
+"reproduce every target exactly," is satisfiable by a model that learned
+to emit one constant and ignore its input entirely.
+
+Not a bug in the run. A **weakness in the gate's discriminating power** —
+and one that only shows up if you ask what *else* could produce this
+number.
+
+The check that resolved it was cheap: run the trained adapter on three
+inputs it had never seen. It had *not* collapsed to a constant (outputs
+varied), but it copied an unseen typo through uncorrected, prefixed an
+unrelated sentence with a spurious `Please` bled from the training
+sentence, and echoed the prompt instruction on the third. All three are
+predicted failure modes — but none of them were visible in the metric
+that "passed."
+
+**The generalizable move:** for any gate, ask *what degenerate policy also
+clears this bar?* If one exists, the gate needs either a harder fixture or
+a companion probe that the degenerate policy would fail. A pass whose
+alternative explanations you have not enumerated is a number, not
+evidence.
+
+Corollary for fixture design: a memorization gate with one unique target
+conflates "memorized the data" with "emitted a constant." More than one
+distinct target separates them for free. Filed as a v2 fixture
+improvement rather than fixed mid-lane — the thresholds are frozen and
+this run's evidence is already recorded.

@@ -37,6 +37,10 @@ This directory is the committed, no-model foundation for
   geometry, optimizer, precision, seed, step budget, checkpoint cadence, eval
   gates, and stop rules. Explained in
   [`../../docs/factory/autocorrect-adapter-recipe.md`](../../docs/factory/autocorrect-adapter-recipe.md).
+- `tiny-overfit-result-v1.json` — the measured 5.3 memorization gate: loss
+  curve, timing, RSS, per-row predictions, and a diagnostic probe. Its
+  `fixture_limitation` field states why exact match 1.0 here is **not** a
+  quality result: the fixture has one unique target.
 
 ## No-model checks
 

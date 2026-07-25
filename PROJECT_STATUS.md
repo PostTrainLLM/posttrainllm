@@ -74,6 +74,7 @@ Important constraints:
 
 | Date / phase | Status |
 |---|---|
+| 2026-07-25 Autocorrect tiny-overfit gate | Completed task 5.3 with owner approval; GPU lock acquired and released. The gate **passed**: exact match 1.0 at step 50 of a 200-step budget, loss 1.585 -> 0.030 with no non-finite step, 0.28 min wall time, 1,135 MiB peak RSS on MPS. Evidence in `evals/autocorrect/tiny-overfit-result-v1.json`; adapters stay in gitignored `runs/`. **The headline number is weaker than it looks:** all 8 fixture rows derive from one source document, so every target is the identical string and exact match 1.0 is reachable by memorizing one sentence. The gate proves the training path runs end to end and has capacity to fit the fixture; it is not evidence of correction ability. A forward-only diagnostic probe on unseen inputs confirmed the adapter did not collapse to a constant emitter, but showed copy bias (unseen typo copied through), memorization leakage (spurious `Please` prefix), and one instruction echo. No stop rule fired; no decision recorded, because a precondition gate is not a candidate outcome. First trained autocorrect adapter exists locally; no quality, packaging, or ship claim. |
 | 2026-07-25 Autocorrect adapter recipe and training path | Completed tasks 5.1-5.2 of `build-mac-local-autocorrect-specialist` with no training. `evals/autocorrect/adapter-recipe-v1.json` freezes the ordinary supervised recipe (FLAN-T5-small, LoRA r8/alpha16 on `q`/`v` across encoder self-, decoder self-, and decoder cross-attention, AdamW 1e-3, float32, seed 20260725, batch 4, 200/300 steps, checkpoints every 50, and five stop rules). `scripts/autocorrect_adapter.py` implements the encoder-decoder path with a dependency-free stdlib layer and a lazily imported torch layer; LoRA is hand-rolled so torch, transformers, and peft stay off the project dependency surface. Measured forward-only on CPU against the real pinned base with zero optimizer steps: 48 adapted modules, 344,064 trainable parameters (0.4471%), logits bit-identical after injection (max absolute delta 0.0), no base tensor modified. 19 offline tests pass (`bash evals/autocorrect-adapter-smoke.sh`); the 10 torch-backed tests build a tiny randomly-initialized T5 and skip visibly where torch is absent, so CI reports 9/19 passed with 10 skipped rather than a false green. The suite proves load parity, frozen base, the `dL/dA == 0 while dL/dB != 0` gradient signature, save/load round-trip and fail-closed drift detection, padding masked to -100, refusal to truncate, and detection of twelve recipe mutations. Both autocorrect smokes added to the CI evals job. **No adapter was trained; `train` refuses without an explicit operator-approval flag.** Contract in `docs/factory/autocorrect-adapter-recipe.md`; concepts in `docs/learn/encoder-decoder-adapters.md`. |
 | 2026-07-25 Autocorrect foundation and base bake-off | Completed tasks 1.1-4.5 of `build-mac-local-autocorrect-specialist`: correction contract and gates, 18-row original MIT smoke ruler, strict evaluator, leakage/provenance checks, Mac keyboard simulator, tiny/pilot manifests, Codex frontier calibration, and the owner-approved three-base offline bake-off. On an M5 Pro / 48 GB Mac, T5-small rewrote/translated text and ByT5-small repeated input while breaching both latency gates. FLAN-T5-small was selected only as the smallest plausibly trainable base: 6.25% zero-shot error reduction, 66.67% clean preservation, 86.67% protected-span preservation, 584 MiB peak RSS, 29.1 ms median one-token TTFT, and 124.5 ms median greedy end-to-end. Complete predictions, per-row timing/tokenization, strict slices, and runtime pins are committed in `evals/autocorrect/base-bakeoff-v1.json`. The 14-test foundation suite and strict OpenSpec validation pass. No training, adapter, package, or ship claim exists. |
 | 2026-07-25 Durable factory-run lifecycle | Implemented `add-durable-factory-run-lifecycle`: new lifecycle-v1 runs emit authoritative `run-status.json` with legal phases, monotonic revisions, bounded transition/failure provenance, expected-revision CAS, short-lived locks, and atomic replacement. Verified advisory `current-run.json` / `latest-run.json` pointers are rebuilt from status scans; current automatically selects the most recently updated valid non-terminal run. `factory-run init/status/transition/list/reconcile` stay metadata-only, reconciliation defaults dry-run, and stale active runs remain active-with-warning until explicit operator action. Native render/validation, Python assembly success/failure, manual Mac app discovery, and privacy-safe Foundry receipts consume the shared contract. Legacy folders remain compatible and imports record only proven evidence. `decision.json` and explicit human publication/deployment authority are unchanged. No model load, GPU work, training, network operation, dependency, deploy, commit, or push. |
@@ -202,17 +203,20 @@ If a task does not answer one of those, park it.
 
 - The foundation, base-selection, and adapter-path tranches of
   `openspec/changes/build-mac-local-autocorrect-specialist` are complete
-  (tasks 1-4 and 5.1-5.2), documented in
+  (tasks 1-4, 5.1-5.2, and the 5.3 tiny-overfit gate), documented in
   `docs/factory/autocorrect-foundation.md`,
   `docs/factory/autocorrect-model-shortlist.md`, and
-  `docs/factory/autocorrect-adapter-recipe.md`. The LoRA path is implemented and
-  its wiring is proven offline, but **nothing has been trained**: there is no
-  quality, latency, RAM, or throughput claim for any adapted model, and the
-  one-step loss-decrease test runs on an 11 K-parameter random T5, so it says
-  nothing about whether FLAN-T5-small can learn this task. Tasks 5.3-7 remain
-  gated on immediate approval plus the GPU lock for the overfit gate, pilot
-  training, decoding comparisons, final evaluation, and packaging. The next
-  authorized step is the 1-10 KB repeated-data overfit gate. The committed
+  `docs/factory/autocorrect-adapter-recipe.md`. One adapter has now been trained
+  — the 5.3 memorization gate — but **there is still no quality claim**: that
+  fixture has a single unique target, so its exact match 1.0 measures capacity
+  and wiring, not correction, and the diagnostic probe showed copy bias,
+  memorization leakage, and instruction echo on unseen input. No latency, RAM,
+  or throughput claim exists for any adapted model on the real eval suite. Tasks
+  5.4-7 remain gated on immediate approval plus the GPU lock for pilot training,
+  decoding comparisons, final evaluation, and packaging. The next authorized
+  step is the bounded ordinary-loss pilot (16 rows, 300 steps, 120 min cap),
+  after which 5.5 decides whether an edit-aware objective is justified at all.
+  The committed
   18-row fixture is an unambiguous smoke ruler, not representative
   natural-error evidence, and no trained candidate or ship claim exists.
 - ~~The Fine-Tune Report Card is specified in `openspec/changes/add-fine-tune-report-card`.~~ Implemented 2026-07-25 (see Timeline). Remaining, operator-owned: no candidate can reach a **fully verified** ship until a run emits `eval-validity.json` (frontier ceiling, frozen-eval identity, overlap check) and `cost.json`. Every published card lists that as a blocker. The `reject` outcome class has no real published card because `qwen3-4b-multibackend-distilled` has no committed `eval_report.json`.

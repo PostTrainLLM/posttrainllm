@@ -90,6 +90,12 @@ before deciding whether an edit-aware objective is justified. If ordinary
 sequence loss already fixes the target slices, the edit-aware stage never runs —
 that is a success, not a skipped feature.
 
+**Observed, 2026-07-25.** The tiny-overfit adapter, probed on unseen input,
+copied `The meetign is at nine tomorrow.` through *unchanged* — the typo
+survived intact. Copy bias is not a hypothetical for this lane; it is the
+measured starting behavior. Full evidence:
+[`../factory/autocorrect-adapter-recipe.md`](../factory/autocorrect-adapter-recipe.md#task-53--the-tiny-overfit-gate-run-2026-07-25-passed).
+
 ## 4. Edit-aware loss, and why it is gated behind an ablation
 
 **What:** an edit-aware objective up-weights the decoder positions that
@@ -119,6 +125,20 @@ found late. The autocorrect lane makes it a *gate*: 3,321 bytes, exact match
 1.0 required, and a hard `retry-training` stop rule if it fails.
 [Karpathy, *A Recipe for Training Neural Networks*](http://karpathy.github.io/2019/04/25/recipe/) ·
 where: `evals/autocorrect/tiny-overfit-manifest-v1.json`
+
+**The trap this fixture walked into.** Our tiny-overfit set derives all 8 rows
+from *one* source sentence, so all 8 targets are identical — and the gate passed
+at exact match 1.0 in 50 steps. That number is nearly free: a model that learns
+to emit one memorized sentence scores 1.0 without correcting anything.
+
+The gate is still worth having; it caught nothing only because nothing was
+broken, and it would have caught a detached optimizer, a NaN, or a
+capacity shortfall. But it teaches a sharper lesson than intended:
+**a memorization gate should have more than one unique target**, or its pass
+condition is satisfiable by a degenerate policy. Ours needed a separate
+diagnostic probe on unseen input to find out which had happened. A stronger v2
+fixture would draw from several source documents so that "memorize the data" and
+"emit one constant" stop being the same behavior.
 
 ## 6. Decoding: greedy first, beam only if traces justify it
 
