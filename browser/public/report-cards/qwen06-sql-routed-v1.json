@@ -1,0 +1,653 @@
+{
+  "caveats": [
+    "Baseline eval note: Synthetic SQLite execution baseline on 50 heldout rows; exact match was 0.140.",
+    "Candidate eval note: Routed public-v4 + synthetic-expanded adapters: public b-mc2 exact 0.531 on 64 rows, synthetic exact 0.840 on 50 rows, router smoke 64/50 high-confidence."
+  ],
+  "compiled_from": {
+    "compiler": "scripts/build_fine_tune_report_card.py",
+    "compiler_version": "1.0.0",
+    "dataset_hashes": [
+      {
+        "path": "evals/sql-poc-expanded/train.jsonl",
+        "rows": 108,
+        "sha256": "b82c44eed469340e967d7c8eb593a73e16ac1b8d3bfac4747bdcfbe879f6fd44"
+      },
+      {
+        "path": "evals/sql-poc-expanded/dev.jsonl",
+        "rows": 50,
+        "sha256": "01ad0f5136324507f229e3302e8be53621b7462896db8c60854932df91018c93"
+      },
+      {
+        "path": "evals/sql-poc-expanded/preferences.jsonl",
+        "rows": 108,
+        "sha256": "0dc7d074683a97eadabd6d6eb45eb8c84f1a9bf48df9f7024a7382abfbf75ca8"
+      },
+      {
+        "path": "evals/sql-public-bmc2-train-v4-joinweighted/train.jsonl",
+        "rows": 5567,
+        "sha256": "749332268f66756625a563c5fb54b6157acc07ef1ab21c39ddab86b1317a318b"
+      },
+      {
+        "path": "evals/sql-public-bmc2-train-v4-joinweighted/dev.jsonl",
+        "rows": 64,
+        "sha256": "d5b374d646e348dfb751a321d5701d06cc4f20c6734735c59771215037349f6c"
+      },
+      {
+        "path": "evals/sql-public-bmc2-train-v4-joinweighted/preferences.jsonl",
+        "rows": 2048,
+        "sha256": "4a9d12703eb6cd2ca4ff56cb2a79d4fe942b8e41c0ad322a7085c3342c267186"
+      },
+      {
+        "path": "evals/sql-routed-mixed-v1/mixed114.jsonl",
+        "rows": 114,
+        "sha256": "c2ba6579df56c3ef2d39827fd54ec8d51c01df1cdf307e1954ffeaf70ab6b183"
+      }
+    ],
+    "source_id": "2026-07-02-sql-routed-qwen06-v1",
+    "source_kind": "factory-run"
+  },
+  "decision": {
+    "blocked_by": [
+      "public execution DB bundle not local",
+      "latency/RAM/tok-s not measured",
+      "clean-SQL output hygiene gate missing"
+    ],
+    "decision": "retry-eval",
+    "evidence_sources": [
+      "docs/factory/public-artifacts.md",
+      "docs/specialists/b1-sql-poc.md",
+      "runs/2026-07-02-sql-routed-qwen06-v1/report.md"
+    ],
+    "failure_reason": "The routed artifact lacks public execution benchmarking, performance measurements, and a clean-SQL package gate.",
+    "failure_reason_confidence": "exact",
+    "lesson": "Routing preserves both measured SQL slices, but artifact status still depends on public execution and performance evidence.",
+    "next_action": {
+      "sources": [
+        "decision.json#next_action"
+      ],
+      "state": "measured",
+      "value": "Run scripts/build_sql_spider_execution_gate.py against a local Spider DB bundle, score the routed candidate, then re-render this report with latency/RAM/tok-s."
+    },
+    "outcome_label": "report-only",
+    "reason": "The routed setup is the current best SQL candidate and passes the current public exact plus synthetic execution gates, but it is not a shipped specialist until a public execution benchmark and performance measurements exist.",
+    "verification_blockers": [
+      "Decision is `retry-eval`, not `ship`; verification applies to ship claims only.",
+      "Primary gate `sql-poc-expanded-synthetic-execution` has no frontier-ceiling evidence, so the eval is unverified as a ruler.",
+      "Train/eval overlap (leakage) was not checked with current evidence.",
+      "Open blocker: public execution DB bundle not local",
+      "Open blocker: latency/RAM/tok-s not measured",
+      "Open blocker: clean-SQL output hygiene gate missing"
+    ],
+    "verified": false
+  },
+  "eval_validity": {
+    "frontier_ceiling": {
+      "note": "No frontier-ceiling score is recorded for this benchmark. Per docs/factory/eval-protocol.md an unvalidated benchmark cannot certify a verified ship.",
+      "sources": [
+        "eval-validity.json#frontier.by_suite.sql-poc-expanded-synthetic-execution"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "frozen_eval": {
+      "note": "Identity comes from the dataset manifest's locked-split label; no eval-validity.json records a hashed frozen-eval identity.",
+      "sources": [
+        "dataset.json#processing.heldout_split"
+      ],
+      "state": "measured",
+      "value": "locked public64 + synthetic50"
+    },
+    "known_limitations": [
+      "Routed report combines two metric families: public b-mc2 exact match and synthetic SQLite execution. Do not collapse this into one public SQL quality score.",
+      "Gate `sql-poc-expanded-synthetic-execution` has no frontier-ceiling evidence, so its absolute score is not calibrated against frontier capability.",
+      "Gate `sql-public-bmc2-exact-and-router-smoke` has no frontier-ceiling evidence, so its absolute score is not calibrated against frontier capability."
+    ],
+    "leakage": {
+      "note": "No train/eval overlap check is recorded. Publication cannot certify the held-out set is uncontaminated.",
+      "sources": [
+        "eval-validity.json#overlap_check.result"
+      ],
+      "state": "missing",
+      "value": null
+    }
+  },
+  "evidence": [
+    {
+      "kind": "local-run-fragment",
+      "label": "run config",
+      "note": "Local run folder (gitignored); regenerate to inspect.",
+      "path": "runs/2026-07-02-sql-routed-qwen06-v1/config.json"
+    },
+    {
+      "kind": "local-run-fragment",
+      "label": "dataset manifest",
+      "note": "Local run folder (gitignored); regenerate to inspect.",
+      "path": "runs/2026-07-02-sql-routed-qwen06-v1/dataset.json"
+    },
+    {
+      "kind": "local-run-fragment",
+      "label": "frozen baseline eval",
+      "note": "Local run folder (gitignored); regenerate to inspect.",
+      "path": "runs/2026-07-02-sql-routed-qwen06-v1/eval-baseline.json"
+    },
+    {
+      "kind": "local-run-fragment",
+      "label": "candidate eval",
+      "note": "Local run folder (gitignored); regenerate to inspect.",
+      "path": "runs/2026-07-02-sql-routed-qwen06-v1/eval-candidate.json"
+    },
+    {
+      "kind": "local-run-fragment",
+      "label": "decision record",
+      "note": "Local run folder (gitignored); regenerate to inspect.",
+      "path": "runs/2026-07-02-sql-routed-qwen06-v1/decision.json"
+    },
+    {
+      "kind": "local-run-fragment",
+      "label": "per-slice metrics",
+      "note": "Local run folder (gitignored); regenerate to inspect.",
+      "path": "runs/2026-07-02-sql-routed-qwen06-v1/slice-metrics.json"
+    },
+    {
+      "kind": "local-run-fragment",
+      "label": "reproducibility provenance",
+      "note": "Local run folder (gitignored); regenerate to inspect.",
+      "path": "runs/2026-07-02-sql-routed-qwen06-v1/provenance.json"
+    },
+    {
+      "kind": "local-run-fragment",
+      "label": "human report",
+      "note": "Local run folder (gitignored); regenerate to inspect.",
+      "path": "runs/2026-07-02-sql-routed-qwen06-v1/report.md"
+    },
+    {
+      "kind": "local-run-fragment",
+      "label": "qualitative trace review",
+      "note": "Local run folder (gitignored); regenerate to inspect.",
+      "path": "runs/2026-07-02-sql-routed-qwen06-v1/trace_review.md"
+    },
+    {
+      "kind": "local-run-fragment",
+      "label": "artifact metadata",
+      "note": "Local run folder (gitignored); regenerate to inspect.",
+      "path": "runs/2026-07-02-sql-routed-qwen06-v1/artifact.json"
+    },
+    {
+      "kind": "local-run-fragment",
+      "label": "training log",
+      "note": "Local run folder (gitignored); regenerate to inspect.",
+      "path": "runs/2026-07-02-sql-routed-qwen06-v1/train.log"
+    },
+    {
+      "kind": "cited-evidence",
+      "label": "docs/factory/public-artifacts.md",
+      "path": "docs/factory/public-artifacts.md",
+      "sha256": "7213abbd01e45a89a6d106e7f83449542bea1500d8388fb7fa486ea7bb534ee0"
+    },
+    {
+      "kind": "cited-evidence",
+      "label": "docs/specialists/b1-sql-poc.md",
+      "path": "docs/specialists/b1-sql-poc.md",
+      "sha256": "a93eb5f0ca73ef2e41f39bb544d375cf489014ccac6ade498f4ca79463faf308"
+    }
+  ],
+  "gates": [
+    {
+      "baseline": {
+        "sources": [
+          "eval-baseline.json#score"
+        ],
+        "state": "measured",
+        "value": 0.16
+      },
+      "candidate": {
+        "sources": [
+          "eval-candidate.json#score"
+        ],
+        "state": "measured",
+        "value": 0.86
+      },
+      "delta": {
+        "derived_from": [
+          "eval-baseline.json#score",
+          "eval-candidate.json#score"
+        ],
+        "sources": [
+          "eval-baseline.json#score",
+          "eval-candidate.json#score"
+        ],
+        "state": "derived",
+        "value": 0.7
+      },
+      "eval_identity": {
+        "command": {
+          "sources": [
+            "eval-candidate.json#command"
+          ],
+          "state": "measured",
+          "value": "scripts/run_sql_routed_generate.py + eval-sql/score_sql_public_exact"
+        },
+        "date": {
+          "sources": [
+            "eval-candidate.json#date"
+          ],
+          "state": "measured",
+          "value": "2026-07-02"
+        },
+        "frozen": {
+          "note": "Identity comes from the dataset manifest's locked-split label; no eval-validity.json records a hashed frozen-eval identity.",
+          "sources": [
+            "dataset.json#processing.heldout_split"
+          ],
+          "state": "measured",
+          "value": "locked public64 + synthetic50"
+        },
+        "suite": "sql-poc-expanded-synthetic-execution"
+      },
+      "frontier_ceiling": {
+        "note": "No frontier-ceiling score is recorded for this benchmark. Per docs/factory/eval-protocol.md an unvalidated benchmark cannot certify a verified ship.",
+        "sources": [
+          "eval-validity.json#frontier.by_suite.sql-poc-expanded-synthetic-execution"
+        ],
+        "state": "missing",
+        "value": null
+      },
+      "metric": "sql-poc-expanded-synthetic-execution",
+      "name": "sql-poc-expanded-synthetic-execution",
+      "passed": {
+        "sources": [
+          "eval-candidate.json#passed"
+        ],
+        "state": "measured",
+        "value": true
+      },
+      "role": "primary",
+      "sample_size": {
+        "note": "Sample size taken from slice `synthetic_sqlite_execution`, the only slice whose baseline and candidate match this gate.",
+        "sources": [
+          "slice-metrics.json#slices.synthetic_sqlite_execution.rows"
+        ],
+        "state": "measured",
+        "value": 50
+      },
+      "threshold": {
+        "sources": [
+          "config.json#eval.threshold.primary_min"
+        ],
+        "state": "measured",
+        "value": 0.86
+      }
+    },
+    {
+      "baseline": {
+        "note": "Mapped to slice `public_bmc2_exact`: every token of the slice name appears in regression suite `sql-public-bmc2-exact-and-router-smoke`.",
+        "sources": [
+          "slice-metrics.json#slices.public_bmc2_exact.baseline"
+        ],
+        "state": "measured",
+        "value": 0.484
+      },
+      "candidate": {
+        "note": "Mapped to slice `public_bmc2_exact`: every token of the slice name appears in regression suite `sql-public-bmc2-exact-and-router-smoke`.",
+        "sources": [
+          "slice-metrics.json#slices.public_bmc2_exact.candidate"
+        ],
+        "state": "measured",
+        "value": 0.531
+      },
+      "delta": {
+        "derived_from": [
+          "slice-metrics.json#slices.public_bmc2_exact.baseline",
+          "slice-metrics.json#slices.public_bmc2_exact.candidate"
+        ],
+        "sources": [
+          "slice-metrics.json#slices.public_bmc2_exact.baseline",
+          "slice-metrics.json#slices.public_bmc2_exact.candidate"
+        ],
+        "state": "derived",
+        "value": 0.047
+      },
+      "eval_identity": {
+        "command": {
+          "note": "No eval command is recorded for this gate.",
+          "sources": [
+            "eval-candidate.json#command"
+          ],
+          "state": "missing",
+          "value": null
+        },
+        "date": {
+          "sources": [
+            "eval-candidate.json#date"
+          ],
+          "state": "measured",
+          "value": "2026-07-02"
+        },
+        "frozen": {
+          "note": "The run folder does not record whether the regression suite is frozen.",
+          "sources": [
+            "dataset.json"
+          ],
+          "state": "missing",
+          "value": null
+        },
+        "suite": "sql-public-bmc2-exact-and-router-smoke"
+      },
+      "frontier_ceiling": {
+        "note": "No frontier-ceiling score is recorded for this benchmark. Per docs/factory/eval-protocol.md an unvalidated benchmark cannot certify a verified ship.",
+        "sources": [
+          "eval-validity.json#frontier.by_suite.sql-public-bmc2-exact-and-router-smoke"
+        ],
+        "state": "missing",
+        "value": null
+      },
+      "metric": "normalized_exact_match",
+      "name": "sql-public-bmc2-exact-and-router-smoke",
+      "passed": {
+        "sources": [
+          "slice-metrics.json#slices.public_bmc2_exact.pass"
+        ],
+        "state": "measured",
+        "value": true
+      },
+      "role": "regression",
+      "sample_size": {
+        "sources": [
+          "slice-metrics.json#slices.public_bmc2_exact.rows"
+        ],
+        "state": "measured",
+        "value": 64
+      },
+      "threshold": {
+        "sources": [
+          "config.json#eval.threshold.breadth_drop_max_pp"
+        ],
+        "state": "measured",
+        "unit": "pp max drop",
+        "value": 0
+      }
+    }
+  ],
+  "performance": {
+    "eval_time_seconds": {
+      "note": "No cost.json fragment records this field, so no timing or cost measurement exists for this run.",
+      "sources": [
+        "cost.json#eval_time_seconds"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "latency_ms": {
+      "note": "The candidate eval recorded no latency_ms. It is reported as not measured rather than as zero.",
+      "sources": [
+        "eval-candidate.json#latency_ms"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "peak_rss_mb": {
+      "note": "The candidate eval recorded no peak_rss_mb. It is reported as not measured rather than as zero.",
+      "sources": [
+        "eval-candidate.json#peak_rss_mb"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "tokens_per_second": {
+      "note": "The candidate eval recorded no tokens_per_second. It is reported as not measured rather than as zero.",
+      "sources": [
+        "eval-candidate.json#tokens_per_second"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "training_cost_usd": {
+      "note": "No cost.json fragment records this field, so no timing or cost measurement exists for this run.",
+      "sources": [
+        "cost.json#training_cost_usd"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "training_time_seconds": {
+      "note": "No cost.json fragment records this field, so no timing or cost measurement exists for this run.",
+      "sources": [
+        "cost.json#training_time_seconds"
+      ],
+      "state": "missing",
+      "value": null
+    }
+  },
+  "report_card_id": "2026-07-02-sql-routed-qwen06-v1",
+  "schema_version": 1,
+  "slices": [
+    {
+      "baseline": {
+        "note": "This slice records no baseline score.",
+        "sources": [
+          "slice-metrics.json#slices.known_hard_slice_join.baseline"
+        ],
+        "state": "missing",
+        "value": null
+      },
+      "candidate": {
+        "sources": [
+          "slice-metrics.json#slices.known_hard_slice_join.candidate"
+        ],
+        "state": "measured",
+        "value": 0.6875
+      },
+      "delta": {
+        "note": "Delta cannot be derived: baseline has no recorded value. No change is implied.",
+        "sources": [
+          "slice-metrics.json#slices.known_hard_slice_join.baseline",
+          "slice-metrics.json#slices.known_hard_slice_join.candidate"
+        ],
+        "state": "missing",
+        "value": null
+      },
+      "metric": "synthetic_execution_accuracy",
+      "name": "known_hard_slice_join",
+      "passed": {
+        "note": "This slice records no gate result.",
+        "sources": [
+          "slice-metrics.json#slices.known_hard_slice_join.pass"
+        ],
+        "state": "missing",
+        "value": null
+      },
+      "sample_size": {
+        "sources": [
+          "slice-metrics.json#slices.known_hard_slice_join.rows"
+        ],
+        "state": "measured",
+        "value": 16
+      }
+    },
+    {
+      "baseline": {
+        "sources": [
+          "slice-metrics.json#slices.public_bmc2_exact.baseline"
+        ],
+        "state": "measured",
+        "value": 0.484
+      },
+      "candidate": {
+        "sources": [
+          "slice-metrics.json#slices.public_bmc2_exact.candidate"
+        ],
+        "state": "measured",
+        "value": 0.531
+      },
+      "delta": {
+        "derived_from": [
+          "slice-metrics.json#slices.public_bmc2_exact.baseline",
+          "slice-metrics.json#slices.public_bmc2_exact.candidate"
+        ],
+        "sources": [
+          "slice-metrics.json#slices.public_bmc2_exact.baseline",
+          "slice-metrics.json#slices.public_bmc2_exact.candidate"
+        ],
+        "state": "derived",
+        "value": 0.047
+      },
+      "metric": "normalized_exact_match",
+      "name": "public_bmc2_exact",
+      "passed": {
+        "sources": [
+          "slice-metrics.json#slices.public_bmc2_exact.pass"
+        ],
+        "state": "measured",
+        "value": true
+      },
+      "sample_size": {
+        "sources": [
+          "slice-metrics.json#slices.public_bmc2_exact.rows"
+        ],
+        "state": "measured",
+        "value": 64
+      }
+    },
+    {
+      "baseline": {
+        "sources": [
+          "slice-metrics.json#slices.synthetic_sqlite_exact.baseline"
+        ],
+        "state": "measured",
+        "value": 0.14
+      },
+      "candidate": {
+        "sources": [
+          "slice-metrics.json#slices.synthetic_sqlite_exact.candidate"
+        ],
+        "state": "measured",
+        "value": 0.84
+      },
+      "delta": {
+        "derived_from": [
+          "slice-metrics.json#slices.synthetic_sqlite_exact.baseline",
+          "slice-metrics.json#slices.synthetic_sqlite_exact.candidate"
+        ],
+        "sources": [
+          "slice-metrics.json#slices.synthetic_sqlite_exact.baseline",
+          "slice-metrics.json#slices.synthetic_sqlite_exact.candidate"
+        ],
+        "state": "derived",
+        "value": 0.7
+      },
+      "metric": "normalized_exact_match",
+      "name": "synthetic_sqlite_exact",
+      "passed": {
+        "sources": [
+          "slice-metrics.json#slices.synthetic_sqlite_exact.pass"
+        ],
+        "state": "measured",
+        "value": true
+      },
+      "sample_size": {
+        "sources": [
+          "slice-metrics.json#slices.synthetic_sqlite_exact.rows"
+        ],
+        "state": "measured",
+        "value": 50
+      }
+    },
+    {
+      "baseline": {
+        "sources": [
+          "slice-metrics.json#slices.synthetic_sqlite_execution.baseline"
+        ],
+        "state": "measured",
+        "value": 0.16
+      },
+      "candidate": {
+        "sources": [
+          "slice-metrics.json#slices.synthetic_sqlite_execution.candidate"
+        ],
+        "state": "measured",
+        "value": 0.86
+      },
+      "delta": {
+        "derived_from": [
+          "slice-metrics.json#slices.synthetic_sqlite_execution.baseline",
+          "slice-metrics.json#slices.synthetic_sqlite_execution.candidate"
+        ],
+        "sources": [
+          "slice-metrics.json#slices.synthetic_sqlite_execution.baseline",
+          "slice-metrics.json#slices.synthetic_sqlite_execution.candidate"
+        ],
+        "state": "derived",
+        "value": 0.7
+      },
+      "metric": "execution_accuracy",
+      "name": "synthetic_sqlite_execution",
+      "passed": {
+        "sources": [
+          "slice-metrics.json#slices.synthetic_sqlite_execution.pass"
+        ],
+        "state": "measured",
+        "value": true
+      },
+      "sample_size": {
+        "sources": [
+          "slice-metrics.json#slices.synthetic_sqlite_execution.rows"
+        ],
+        "state": "measured",
+        "value": 50
+      }
+    }
+  ],
+  "subject": {
+    "artifact": {
+      "artifact_id": "qwen06-sql-routed-v1",
+      "kind": "report-routed-adapter",
+      "package_dir": null,
+      "path": "docs/factory/public-artifacts.md#qwen06-sql-routed-v1",
+      "routing_constraint": {
+        "note": "The run folder records no routing constraint for this artifact.",
+        "sources": [
+          "artifact.json#routing_constraint"
+        ],
+        "state": "missing",
+        "value": null
+      },
+      "shipped": false
+    },
+    "base_model": {
+      "sources": [
+        "config.json#base_model"
+      ],
+      "state": "measured",
+      "value": "Qwen/Qwen3-0.6B (bf16, c1899de289a04d12100db370d81485cdf75e47ca)"
+    },
+    "candidate_model": {
+      "sources": [
+        "eval-candidate.json#model_id"
+      ],
+      "state": "measured",
+      "value": "qwen06-sql-routed-v1"
+    },
+    "method": {
+      "sources": [
+        "config.json#candidate.method"
+      ],
+      "state": "measured",
+      "value": "routed-sft-lora"
+    },
+    "owner_goal": {
+      "sources": [
+        "config.json#owner_goal"
+      ],
+      "state": "measured",
+      "value": "Publish the current SQL routed POC as a transparent factory report artifact with measured blockers before packaging."
+    },
+    "target": {
+      "sources": [
+        "config.json#target"
+      ],
+      "state": "measured",
+      "value": "sql-routed-specialist-poc"
+    }
+  },
+  "title": "sql-routed-specialist-poc \u2014 routed-sft-lora"
+}

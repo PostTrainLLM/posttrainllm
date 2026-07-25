@@ -46,13 +46,28 @@ rule.
 
 ### 0. Keep Public Artifacts First-Class
 
-Public artifact inventory lives in `docs/factory/public-artifacts.md`.
+Public artifact inventory lives in `docs/factory/public-artifacts.md`. The
+portable before/after proof for an artifact is its
+[report card](factory/report-card.md); the published cohort and its documented
+absences are in `docs/factory/report-card-cohort.md`.
 
 Before starting a new run or release push, update the artifact entry with:
 
 - measured evidence
 - blockers
 - next release action
+
+Then recompile the report cards and confirm no drift:
+
+```bash
+python3 scripts/publish_report_cards.py
+python3 scripts/publish_report_cards.py --check
+```
+
+New runs should emit the optional `eval-validity.json` and `cost.json`
+fragments. Without them no candidate can reach a **fully verified** ship —
+frontier-ceiling, frozen-eval identity, leakage, and cost/time have nowhere to
+live, and every current card lists that as a blocker.
 
 Current shipped research artifact: `qwen3-4b-rest-fused`, with package metadata,
 public weights, a narrow routing decision, and historical-evidence caveats.
@@ -272,6 +287,8 @@ Exit criteria:
    `bash evals/docs-world-class-smoke.sh`.
 0.3. Run the factory-run assembler bridge smoke:
    `bash evals/factory-run-assemble-smoke.sh`.
+0.4. Run the fine-tune report card smoke:
+   `bash evals/fine-tune-report-card-smoke.sh`.
 1. Wire real train/eval commands to emit the run schema automatically.
    **Bridge half done (2026-07-11):** `scripts/assemble_factory_run.py` is the
    generic report-artifact bridge. It turns the emitted fragments (`config`,

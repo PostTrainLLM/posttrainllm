@@ -1,0 +1,422 @@
+{
+  "caveats": [
+    "The 65% breadth score is the rounded historical result recorded in project docs.",
+    "The breadth slice was directly compared with stock but not frontier-ceiling validated.",
+    "Raw prediction traces are unavailable for a current qualitative failure review.",
+    "Pace requires a different intent envelope and product-specific ship gate.",
+    "Do not use for: Pace default planner without re-distillation and its product ship gate",
+    "Do not use for: unqualified broad general-agent claims"
+  ],
+  "compiled_from": {
+    "compiler": "scripts/build_fine_tune_report_card.py",
+    "compiler_version": "1.0.0",
+    "dataset_hashes": [],
+    "source_id": "specialists/qwen3-4b-rest-fused",
+    "source_kind": "specialist-package"
+  },
+  "decision": {
+    "blocked_by": [],
+    "decision": "ship",
+    "evidence_sources": [
+      "specialists/qwen3-4b-rest-fused/eval_report.json"
+    ],
+    "failure_reason": null,
+    "failure_reason_confidence": "not-applicable",
+    "lesson": null,
+    "next_action": {
+      "note": "The specialist package format records no machine-readable next action. The release action lives in the public artifact registry (docs/factory/public-artifacts.md) as prose.",
+      "sources": [
+        "specialists/registry.json"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "outcome_label": "routed-ship",
+    "reason": "ship as a research specialist package; do not use as the Pace default planner",
+    "verification_blockers": [
+      "Primary gate `file_ops_hard_gate` baseline is `historical`, not a current measurement.",
+      "Primary gate `file_ops_hard_gate` candidate is `historical`, not a current measurement.",
+      "Primary gate `file_ops_hard_gate` has no threshold value (state `missing`).",
+      "Primary gate `file_ops_hard_gate` has no passed value (state `missing`).",
+      "Primary gate `file_ops_hard_gate` has no frontier-ceiling evidence, so the eval is unverified as a ruler.",
+      "Frozen-eval identity is not recorded as a current measurement.",
+      "Train/eval overlap (leakage) was not checked with current evidence."
+    ],
+    "verified": false
+  },
+  "eval_validity": {
+    "frontier_ceiling": {
+      "note": "No frontier-ceiling score is recorded for this benchmark, so it is unverified as a ruler for absolute capability.",
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0]"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "frozen_eval": {
+      "note": "The package records no frozen held-out split identity.",
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "known_limitations": [
+      "Gate `file_ops_hard_gate` has no frontier-ceiling evidence, so its absolute score is not calibrated against frontier capability.",
+      "Gate `out_of_domain_breadth` has no frontier-ceiling evidence, so its absolute score is not calibrated against frontier capability.",
+      "Values come from a committed specialist package, not a canonical factory-run folder: eval commands, dataset hashes, and raw predictions are unavailable for independent replay."
+    ],
+    "leakage": {
+      "note": "No train/eval overlap check is recorded for this package.",
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json"
+      ],
+      "state": "missing",
+      "value": null
+    }
+  },
+  "evidence": [
+    {
+      "kind": "committed-package-file",
+      "label": "model card",
+      "path": "specialists/qwen3-4b-rest-fused/model_card.md",
+      "sha256": "2d48e93229b806c2fa9dfd149c980bf08b14584ff04d79d27f2b6103e1075f8d"
+    },
+    {
+      "kind": "committed-package-file",
+      "label": "eval report",
+      "path": "specialists/qwen3-4b-rest-fused/eval_report.json",
+      "sha256": "ed87abf262e7e52c6fa6d1d8bf702ad30482e1e9499fd97b0e48f3adc7b96150"
+    },
+    {
+      "kind": "committed-package-file",
+      "label": "reproducibility lock",
+      "path": "specialists/qwen3-4b-rest-fused/tinygpt.lock.json",
+      "sha256": "9a699a938a99ac6f923958b770b7fcc800f3baeb047e69c65c5290cb80318edc"
+    },
+    {
+      "kind": "committed-package-file",
+      "label": "prompt contract",
+      "path": "specialists/qwen3-4b-rest-fused/prompt.md",
+      "sha256": "1571ecc23b1327131d633dfbfbe65db047a4d09d71597994f2050360891e07b6"
+    },
+    {
+      "kind": "committed-registry",
+      "label": "specialist registry entry",
+      "path": "specialists/registry.json",
+      "sha256": "97a78c4c1783fad075659fdbc49c22d55d0a34434ffcf7a274853037ec04f15a"
+    },
+    {
+      "kind": "historical-record",
+      "label": "recorded result source",
+      "note": "The document the legacy score was recorded in.",
+      "path": "docs/sessions/2026-06-17-stepback-inventory-roi.md",
+      "sha256": "41f8f210371eb7aaba7cdaa0a0a4b299d220ff6b5579e96191f791aa5c08e0b7"
+    },
+    {
+      "kind": "external-artifact",
+      "label": "published weights",
+      "note": "Public weight location; not hashed by this compiler.",
+      "path": "hf://models/posttrainllm/qwen3-4b-rest-fused"
+    }
+  ],
+  "gates": [
+    {
+      "baseline": {
+        "note": "Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].stock_4b"
+        ],
+        "state": "historical",
+        "value": 0.58
+      },
+      "candidate": {
+        "note": "Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].rest_4b"
+        ],
+        "state": "historical",
+        "value": 1.0
+      },
+      "delta": {
+        "derived_from": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].stock_4b",
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].rest_4b"
+        ],
+        "note": "Derived from at least one non-current value; inherits the weaker provenance of its inputs.",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].stock_4b",
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].rest_4b"
+        ],
+        "state": "derived",
+        "value": 0.42
+      },
+      "eval_identity": {
+        "command": {
+          "note": "The specialist package format records no eval command, so this gate cannot be replayed from the report card alone.",
+          "sources": [
+            "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0]"
+          ],
+          "state": "missing",
+          "value": null
+        },
+        "date": {
+          "sources": [
+            "specialists/qwen3-4b-rest-fused/eval_report.json#evaluation_date"
+          ],
+          "state": "measured",
+          "value": "2026-06-17"
+        },
+        "frozen": {
+          "note": "The package does not record whether this suite is frozen.",
+          "sources": [
+            "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0]"
+          ],
+          "state": "missing",
+          "value": null
+        },
+        "suite": "file_ops_hard_gate"
+      },
+      "frontier_ceiling": {
+        "note": "No frontier-ceiling score is recorded for this benchmark, so it is unverified as a ruler for absolute capability.",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0]"
+        ],
+        "state": "missing",
+        "value": null
+      },
+      "metric": "file_ops_hard_gate",
+      "name": "file_ops_hard_gate",
+      "passed": {
+        "note": "The specialist package records no ship threshold for the primary gate, so a pass/fail result cannot be derived.",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0]"
+        ],
+        "state": "missing",
+        "value": null
+      },
+      "role": "primary",
+      "sample_size": {
+        "note": "Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].n"
+        ],
+        "state": "historical",
+        "value": 12
+      },
+      "threshold": {
+        "note": "The specialist package format records no per-gate threshold.",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0]"
+        ],
+        "state": "missing",
+        "value": null
+      }
+    },
+    {
+      "baseline": {
+        "note": "Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].stock_4b"
+        ],
+        "state": "historical",
+        "value": 0.596
+      },
+      "candidate": {
+        "note": "Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].rest_4b"
+        ],
+        "state": "historical",
+        "value": 0.65
+      },
+      "delta": {
+        "derived_from": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].stock_4b",
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].rest_4b"
+        ],
+        "note": "Derived from at least one non-current value; inherits the weaker provenance of its inputs.",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].stock_4b",
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].rest_4b"
+        ],
+        "state": "derived",
+        "value": 0.054
+      },
+      "eval_identity": {
+        "command": {
+          "note": "The specialist package format records no eval command, so this gate cannot be replayed from the report card alone.",
+          "sources": [
+            "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1]"
+          ],
+          "state": "missing",
+          "value": null
+        },
+        "date": {
+          "sources": [
+            "specialists/qwen3-4b-rest-fused/eval_report.json#evaluation_date"
+          ],
+          "state": "measured",
+          "value": "2026-06-17"
+        },
+        "frozen": {
+          "note": "The package does not record whether this suite is frozen.",
+          "sources": [
+            "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1]"
+          ],
+          "state": "missing",
+          "value": null
+        },
+        "suite": "out_of_domain_breadth"
+      },
+      "frontier_ceiling": {
+        "note": "No frontier-ceiling score is recorded for this benchmark, so it is unverified as a ruler for absolute capability.",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1]"
+        ],
+        "state": "missing",
+        "value": null
+      },
+      "metric": "out_of_domain_breadth",
+      "name": "out_of_domain_breadth",
+      "passed": {
+        "derived_from": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].stock_4b",
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].rest_4b"
+        ],
+        "note": "No threshold was recorded. Derived as passing because the candidate did not score below the baseline.",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].stock_4b",
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].rest_4b"
+        ],
+        "state": "derived",
+        "value": true
+      },
+      "role": "breadth",
+      "sample_size": {
+        "note": "Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].n"
+        ],
+        "state": "historical",
+        "value": 52
+      },
+      "threshold": {
+        "note": "The specialist package format records no per-gate threshold.",
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1]"
+        ],
+        "state": "missing",
+        "value": null
+      }
+    }
+  ],
+  "performance": {
+    "eval_time_seconds": {
+      "note": "Historical timing, memory, throughput, and raw trace artifacts were not preserved. A rerun is intentionally not implied by this metadata promotion.",
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json#performance.eval_time_seconds"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "latency_ms": {
+      "note": "Historical timing, memory, throughput, and raw trace artifacts were not preserved. A rerun is intentionally not implied by this metadata promotion.",
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json#performance.latency_ms"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "peak_rss_mb": {
+      "note": "Historical timing, memory, throughput, and raw trace artifacts were not preserved. A rerun is intentionally not implied by this metadata promotion.",
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json#performance.peak_rss_mb"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "tokens_per_second": {
+      "note": "Historical timing, memory, throughput, and raw trace artifacts were not preserved. A rerun is intentionally not implied by this metadata promotion.",
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json#performance.tokens_per_second"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "training_cost_usd": {
+      "note": "Teacher-free local ReST iteration; no paid model API was used. Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json#performance.training_cost_usd"
+      ],
+      "state": "historical",
+      "unit": "USD",
+      "value": 0
+    },
+    "training_time_seconds": {
+      "note": "Historical timing, memory, throughput, and raw trace artifacts were not preserved. A rerun is intentionally not implied by this metadata promotion.",
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json#performance.training_time_seconds"
+      ],
+      "state": "missing",
+      "value": null
+    }
+  },
+  "report_card_id": "qwen3-4b-rest-fused",
+  "schema_version": 1,
+  "slices": [],
+  "subject": {
+    "artifact": {
+      "artifact_id": "qwen3-4b-rest-fused",
+      "kind": "mac-safetensors-hf",
+      "package_dir": "specialists/qwen3-4b-rest-fused",
+      "path": "hf://models/posttrainllm/qwen3-4b-rest-fused",
+      "routing_constraint": {
+        "sources": [
+          "specialists/qwen3-4b-rest-fused/eval_report.json#verdict",
+          "specialists/registry.json#do_not_use_for"
+        ],
+        "state": "measured",
+        "value": "ship as a research specialist package; do not use as the Pace default planner. Do not use for: Pace default planner without re-distillation and its product ship gate; unqualified broad general-agent claims."
+      },
+      "shipped": true
+    },
+    "base_model": {
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json#base"
+      ],
+      "state": "measured",
+      "value": "Qwen/Qwen3-4B-Instruct-2507 (bf16)"
+    },
+    "candidate_model": {
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json#id"
+      ],
+      "state": "measured",
+      "value": "qwen3-4b-rest-fused"
+    },
+    "method": {
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json#training_method"
+      ],
+      "state": "measured",
+      "value": "teacher-free ReST over checker-passing interleaved trajectories with a file-ops gold depth anchor"
+    },
+    "owner_goal": {
+      "note": "The specialist package format does not record the owner goal that framed the run.",
+      "sources": [
+        "specialists/qwen3-4b-rest-fused/eval_report.json"
+      ],
+      "state": "missing",
+      "value": null
+    },
+    "target": {
+      "sources": [
+        "specialists/registry.json#name"
+      ],
+      "state": "measured",
+      "value": "Qwen3-4B ReST Fused"
+    }
+  },
+  "title": "Qwen3-4B ReST Fused"
+}

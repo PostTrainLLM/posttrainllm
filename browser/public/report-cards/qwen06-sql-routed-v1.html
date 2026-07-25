@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fine-Tune Report Card — sql-routed-specialist-poc — routed-sft-lora</title>
+<meta name="description" content="Retry — eval: The routed setup is the current best SQL candidate and passes the current public exact plus synthetic execution gates, but it is not a shipped specialist until a public execution benchmark and performance measurements exist.">
+<style>:root{--bg:#0a0c0f;--panel:#12161c;--line:#242c36;--ink:#e8edf4;--muted:#9aa7b8;
+--ok:#5ad19b;--warn:#ffb454;--bad:#ff7b72;--chip:#1b2430}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+font:16px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:64rem;margin:0 auto;padding:2rem 1.25rem 4rem}
+.skip-link{position:absolute;left:-9999px}
+.skip-link:focus{left:1rem;top:1rem;z-index:9;background:var(--panel);
+padding:.5rem .75rem;border:1px solid var(--line);border-radius:.375rem}
+a{color:#8ab4ff}
+a:focus-visible,[tabindex]:focus-visible{outline:2px solid #8ab4ff;outline-offset:2px}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);line-height:1.2;margin:.25rem 0 .75rem}
+h2{font-size:1.3rem;margin:2.5rem 0 .75rem;padding-bottom:.35rem;
+border-bottom:1px solid var(--line)}
+h3{font-size:1.02rem;margin:1.5rem 0 .5rem;color:var(--muted);
+text-transform:uppercase;letter-spacing:.06em}
+.eyebrow{color:var(--muted);font-size:.8rem;text-transform:uppercase;
+letter-spacing:.1em;margin:0}
+.lede{font-size:1.08rem;color:#c9d4e2}
+.ident{display:grid;gap:.5rem 1.5rem;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));
+margin:1.25rem 0;padding:0}
+.ident div{border-top:1px solid var(--line);padding-top:.5rem}
+.ident dt{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+.ident dd{margin:.15rem 0 0}
+.verdict{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;font-size:1.2rem;
+background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--muted);
+border-radius:.5rem;padding:.85rem 1rem}
+.verdict[data-decision="ship"]{border-left-color:var(--ok)}
+.verdict[data-decision="reject"]{border-left-color:var(--bad)}
+.verdict[data-decision^="retry"],.verdict[data-decision="park"]{border-left-color:var(--warn)}
+.chip{background:var(--chip);border:1px solid var(--line);border-radius:999px;
+padding:.15rem .6rem;font-size:.82rem;color:#c9d4e2}
+.callout,.warn{background:var(--panel);border:1px solid var(--line);
+border-left:4px solid var(--warn);border-radius:.5rem;padding:.75rem 1rem;margin:1.25rem 0}
+.callout h3{margin-top:0}
+.verified[data-verified="false"]{color:var(--warn)}
+.verified[data-verified="true"]{color:var(--ok)}
+.blockers li{margin:.3rem 0}
+.next-action{background:var(--panel);border:1px solid var(--line);
+border-radius:.5rem;padding:.75rem 1rem}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:.5rem;margin:1rem 0}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+caption{caption-side:top;text-align:left;color:var(--muted);font-size:.82rem;
+padding:.6rem .75rem;border-bottom:1px solid var(--line)}
+th,td{padding:.5rem .75rem;text-align:left;vertical-align:top;
+border-bottom:1px solid var(--line)}
+thead th{background:var(--panel);color:var(--muted);font-size:.78rem;
+text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+tbody th[scope=row]{font-weight:600}
+code{font:.86em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--chip);
+border-radius:.25rem;padding:.05rem .3rem;word-break:break-word}
+.v-value{font-variant-numeric:tabular-nums;font-weight:600}
+.v-absent,.v-missing{color:var(--muted)}
+.state{display:inline-block;font-size:.72rem;text-transform:uppercase;
+letter-spacing:.05em;border:1px solid var(--line);border-radius:999px;
+padding:.05rem .45rem;color:var(--muted);white-space:nowrap}
+.state[data-state="historical"],.state[data-state="skipped"]{color:var(--warn);
+border-color:#4a3a1e}
+.state[data-state="missing"]{color:var(--bad);border-color:#4a2422}
+.note{display:block;color:var(--muted);font-size:.8rem;margin-top:.2rem}
+.evidence{list-style:none;padding:0}
+.evidence li{border-top:1px solid var(--line);padding:.6rem 0}
+.detail{display:block;color:var(--muted);font-size:.82rem;margin-top:.2rem}
+.legend{display:grid;gap:.6rem;padding:0;margin:1rem 0}
+.legend div{display:grid;grid-template-columns:9rem 1fr;gap:.75rem;
+border-top:1px solid var(--line);padding-top:.6rem}
+.legend dd{margin:0;color:#c9d4e2}
+footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);
+color:var(--muted);font-size:.86rem}
+@media (max-width:34rem){.legend div{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main">
+<header>
+<p class="eyebrow">posttrainllm fine-tune report card · schema v1 · compiler 1.0.0</p>
+<h1>sql-routed-specialist-poc — routed-sft-lora</h1>
+<p class="lede"><span class="v-value">Publish the current SQL routed POC as a transparent factory report artifact with measured blockers before packaging.</span></p>
+<dl class="ident">
+<div><dt>Target</dt><dd><span class="v-value">sql-routed-specialist-poc</span></dd></div>
+<div><dt>Base model</dt><dd><span class="v-value">Qwen/Qwen3-0.6B (bf16, c1899de289a04d12100db370d81485cdf75e47ca)</span></dd></div>
+<div><dt>Candidate</dt><dd><span class="v-value">qwen06-sql-routed-v1</span></dd></div>
+<div><dt>Method</dt><dd><span class="v-value">routed-sft-lora</span></dd></div>
+<div><dt>Compiled from</dt><dd><code>2026-07-02-sql-routed-qwen06-v1</code> (factory-run)</dd></div>
+</dl>
+</header>
+<section id="decision" aria-labelledby="decision-h">
+<h2 id="decision-h">Decision</h2>
+<p class="verdict" data-decision="retry-eval">
+<strong>Retry — eval</strong> <span class="chip">Report-only artifact — no model to use</span>
+</p>
+<p>The routed setup is the current best SQL candidate and passes the current public exact plus synthetic execution gates, but it is not a shipped specialist until a public execution benchmark and performance measurements exist.</p>
+<h3 id="verification-h">Verification status</h3>
+<p class="verified" data-verified="false">Not fully verified. This report does not claim a verified ship. Reasons:</p>
+<ul class="blockers">
+<li>Decision is `retry-eval`, not `ship`; verification applies to ship claims only.</li>
+<li>Primary gate `sql-poc-expanded-synthetic-execution` has no frontier-ceiling evidence, so the eval is unverified as a ruler.</li>
+<li>Train/eval overlap (leakage) was not checked with current evidence.</li>
+<li>Open blocker: public execution DB bundle not local</li>
+<li>Open blocker: latency/RAM/tok-s not measured</li>
+<li>Open blocker: clean-SQL output hygiene gate missing</li>
+</ul>
+<dl class="ident">
+<div><dt>Failure reason</dt><dd>The routed artifact lacks public execution benchmarking, performance measurements, and a clean-SQL package gate.</dd></div>
+<div><dt>Failure-reason confidence</dt><dd>exact</dd></div>
+<div><dt>Lesson</dt><dd>Routing preserves both measured SQL slices, but artifact status still depends on public execution and performance evidence.</dd></div>
+</dl>
+<h3>Open blockers</h3>
+<ul>
+<li>public execution DB bundle not local</li>
+<li>latency/RAM/tok-s not measured</li>
+<li>clean-SQL output hygiene gate missing</li>
+</ul>
+<h3>Next action</h3>
+<p class="next-action"><span class="v-value">Run scripts/build_sql_spider_execution_gate.py against a local Spider DB bundle, score the routed candidate, then re-render this report with latency/RAM/tok-s.</span></p>
+</section>
+<section id="gates" aria-labelledby="gates-h">
+<h2 id="gates-h">Before and after</h2>
+<div class="table-wrap">
+<table>
+<caption>Every gate with baseline, candidate, derived delta, threshold, result, sample size, and frontier-ceiling evidence.</caption>
+<thead><tr>
+<th scope="col">Gate</th>
+<th scope="col">Role</th>
+<th scope="col">Metric</th>
+<th scope="col">Baseline</th>
+<th scope="col">Candidate</th>
+<th scope="col">Delta</th>
+<th scope="col">Threshold</th>
+<th scope="col">Result</th>
+<th scope="col">n</th>
+<th scope="col">Frontier ceiling</th>
+</tr></thead>
+<tbody>
+<tr>
+<th scope="row">sql-poc-expanded-synthetic-execution</th>
+<td>primary</td>
+<td>sql-poc-expanded-synthetic-execution</td>
+<td><span class="v-value">0.1600</span></td>
+<td><span class="v-value">0.8600</span></td>
+<td><span class="v-value">0.7000</span> <span class="state" data-state="derived">derived</span></td>
+<td><span class="v-value">0.8600</span></td>
+<td><span class="v-value">yes</span></td>
+<td><span class="v-value">50</span><span class="note">Sample size taken from slice `synthetic_sqlite_execution`, the only slice whose baseline and candidate match this gate.</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">No frontier-ceiling score is recorded for this benchmark. Per docs/factory/eval-protocol.md an unvalidated benchmark cannot certify a verified ship.</span></td>
+</tr>
+<tr>
+<th scope="row">sql-public-bmc2-exact-and-router-smoke</th>
+<td>regression</td>
+<td>normalized_exact_match</td>
+<td><span class="v-value">0.4840</span><span class="note">Mapped to slice `public_bmc2_exact`: every token of the slice name appears in regression suite `sql-public-bmc2-exact-and-router-smoke`.</span></td>
+<td><span class="v-value">0.5310</span><span class="note">Mapped to slice `public_bmc2_exact`: every token of the slice name appears in regression suite `sql-public-bmc2-exact-and-router-smoke`.</span></td>
+<td><span class="v-value">0.0470</span> <span class="state" data-state="derived">derived</span></td>
+<td><span class="v-value">0 pp max drop</span></td>
+<td><span class="v-value">yes</span></td>
+<td><span class="v-value">64</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">No frontier-ceiling score is recorded for this benchmark. Per docs/factory/eval-protocol.md an unvalidated benchmark cannot certify a verified ship.</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3>Eval identity</h3>
+<div class="table-wrap">
+<table>
+<caption>Which suite produced each gate, how it was invoked, and whether it is frozen.</caption>
+<thead><tr>
+<th scope="col">Gate</th>
+<th scope="col">Suite</th>
+<th scope="col">Command</th>
+<th scope="col">Date</th>
+<th scope="col">Frozen</th>
+</tr></thead>
+<tbody>
+<tr>
+<th scope="row">sql-poc-expanded-synthetic-execution</th>
+<td>sql-poc-expanded-synthetic-execution</td>
+<td><span class="v-value">scripts/run_sql_routed_generate.py + eval-sql/score_sql_public_exact</span></td>
+<td><span class="v-value">2026-07-02</span></td>
+<td><span class="v-value">locked public64 + synthetic50</span><span class="note">Identity comes from the dataset manifest&#x27;s locked-split label; no eval-validity.json records a hashed frozen-eval identity.</span></td>
+</tr>
+<tr>
+<th scope="row">sql-public-bmc2-exact-and-router-smoke</th>
+<td>sql-public-bmc2-exact-and-router-smoke</td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">No eval command is recorded for this gate.</span></td>
+<td><span class="v-value">2026-07-02</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The run folder does not record whether the regression suite is frozen.</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="slices" aria-labelledby="slices-h">
+<h2 id="slices-h">Per-slice evidence</h2>
+<div class="table-wrap">
+<table>
+<caption>Primary metric broken down by task slice, so an overall win cannot hide a weak slice.</caption>
+<thead><tr>
+<th scope="col">Slice</th>
+<th scope="col">Metric</th>
+<th scope="col">Baseline</th>
+<th scope="col">Candidate</th>
+<th scope="col">Delta</th>
+<th scope="col">Result</th>
+<th scope="col">n</th>
+</tr></thead>
+<tbody>
+<tr>
+<th scope="row">known_hard_slice_join</th>
+<td>synthetic_execution_accuracy</td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">This slice records no baseline score.</span></td>
+<td><span class="v-value">0.6875</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">Delta cannot be derived: baseline has no recorded value. No change is implied.</span></td>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">This slice records no gate result.</span></td>
+<td><span class="v-value">16</span></td>
+</tr>
+<tr>
+<th scope="row">public_bmc2_exact</th>
+<td>normalized_exact_match</td>
+<td><span class="v-value">0.4840</span></td>
+<td><span class="v-value">0.5310</span></td>
+<td><span class="v-value">0.0470</span> <span class="state" data-state="derived">derived</span></td>
+<td><span class="v-value">yes</span></td>
+<td><span class="v-value">64</span></td>
+</tr>
+<tr>
+<th scope="row">synthetic_sqlite_exact</th>
+<td>normalized_exact_match</td>
+<td><span class="v-value">0.1400</span></td>
+<td><span class="v-value">0.8400</span></td>
+<td><span class="v-value">0.7000</span> <span class="state" data-state="derived">derived</span></td>
+<td><span class="v-value">yes</span></td>
+<td><span class="v-value">50</span></td>
+</tr>
+<tr>
+<th scope="row">synthetic_sqlite_execution</th>
+<td>execution_accuracy</td>
+<td><span class="v-value">0.1600</span></td>
+<td><span class="v-value">0.8600</span></td>
+<td><span class="v-value">0.7000</span> <span class="state" data-state="derived">derived</span></td>
+<td><span class="v-value">yes</span></td>
+<td><span class="v-value">50</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="performance" aria-labelledby="performance-h">
+<h2 id="performance-h">Cost and performance</h2>
+<div class="table-wrap">
+<table>
+<caption>Latency, memory, throughput, and training cost/time. Absent evidence is reported as not measured, never as zero.</caption>
+<thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Source</th></tr></thead>
+<tbody>
+<tr>
+<th scope="row">Latency</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The candidate eval recorded no latency_ms. It is reported as not measured rather than as zero.</span></td>
+<td><code>eval-candidate.json#latency_ms</code></td>
+</tr>
+<tr>
+<th scope="row">RAM / peak RSS</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The candidate eval recorded no peak_rss_mb. It is reported as not measured rather than as zero.</span></td>
+<td><code>eval-candidate.json#peak_rss_mb</code></td>
+</tr>
+<tr>
+<th scope="row">Decode throughput</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">The candidate eval recorded no tokens_per_second. It is reported as not measured rather than as zero.</span></td>
+<td><code>eval-candidate.json#tokens_per_second</code></td>
+</tr>
+<tr>
+<th scope="row">Training time</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">No cost.json fragment records this field, so no timing or cost measurement exists for this run.</span></td>
+<td><code>cost.json#training_time_seconds</code></td>
+</tr>
+<tr>
+<th scope="row">Training cost</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">No cost.json fragment records this field, so no timing or cost measurement exists for this run.</span></td>
+<td><code>cost.json#training_cost_usd</code></td>
+</tr>
+<tr>
+<th scope="row">Eval time</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">No cost.json fragment records this field, so no timing or cost measurement exists for this run.</span></td>
+<td><code>cost.json#eval_time_seconds</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="eval-validity" aria-labelledby="validity-h">
+<h2 id="validity-h">Eval validity and leakage</h2>
+<div class="table-wrap">
+<table>
+<caption>Whether the benchmark is a trustworthy ruler: frontier ceiling, frozen-eval identity, and train/eval overlap.</caption>
+<thead><tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Source</th></tr></thead>
+<tbody>
+<tr>
+<th scope="row">Frontier ceiling</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">No frontier-ceiling score is recorded for this benchmark. Per docs/factory/eval-protocol.md an unvalidated benchmark cannot certify a verified ship.</span></td>
+<td><code>eval-validity.json#frontier.by_suite.sql-poc-expanded-synthetic-execution</code></td>
+</tr>
+<tr>
+<th scope="row">Frozen eval</th>
+<td><span class="v-value">locked public64 + synthetic50</span><span class="note">Identity comes from the dataset manifest&#x27;s locked-split label; no eval-validity.json records a hashed frozen-eval identity.</span></td>
+<td><code>dataset.json#processing.heldout_split</code></td>
+</tr>
+<tr>
+<th scope="row">Train/eval overlap</th>
+<td><span class="v-absent">—</span> <span class="state" data-state="missing">not recorded</span><span class="note">No train/eval overlap check is recorded. Publication cannot certify the held-out set is uncontaminated.</span></td>
+<td><code>eval-validity.json#overlap_check.result</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3>Known eval limitations</h3>
+<ul>
+<li>Routed report combines two metric families: public b-mc2 exact match and synthetic SQLite execution. Do not collapse this into one public SQL quality score.</li>
+<li>Gate `sql-poc-expanded-synthetic-execution` has no frontier-ceiling evidence, so its absolute score is not calibrated against frontier capability.</li>
+<li>Gate `sql-public-bmc2-exact-and-router-smoke` has no frontier-ceiling evidence, so its absolute score is not calibrated against frontier capability.</li>
+</ul>
+</section>
+<section id="caveats" aria-labelledby="caveats-h">
+<h2 id="caveats-h">Caveats</h2>
+<ul>
+<li>Baseline eval note: Synthetic SQLite execution baseline on 50 heldout rows; exact match was 0.140.</li>
+<li>Candidate eval note: Routed public-v4 + synthetic-expanded adapters: public b-mc2 exact 0.531 on 64 rows, synthetic exact 0.840 on 50 rows, router smoke 64/50 high-confidence.</li>
+</ul>
+</section>
+<section id="evidence" aria-labelledby="evidence-h">
+<h2 id="evidence-h">Source evidence</h2>
+<p>Every number above traces to one of these artifacts. Content hashes are recorded where the source file is committed.</p>
+<ul class="evidence">
+<li>run config<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/config.json</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
+<li>dataset manifest<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/dataset.json</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
+<li>frozen baseline eval<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/eval-baseline.json</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
+<li>candidate eval<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/eval-candidate.json</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
+<li>decision record<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/decision.json</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
+<li>per-slice metrics<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/slice-metrics.json</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
+<li>reproducibility provenance<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/provenance.json</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
+<li>human report<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/report.md</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
+<li>qualitative trace review<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/trace_review.md</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
+<li>artifact metadata<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/artifact.json</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
+<li>training log<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/train.log</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
+<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/factory/public-artifacts.md">docs/factory/public-artifacts.md</a><span class="detail"><code>docs/factory/public-artifacts.md</code> · cited-evidence · sha256 <code>7213abbd01e45a89…</code></span></li>
+<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/specialists/b1-sql-poc.md">docs/specialists/b1-sql-poc.md</a><span class="detail"><code>docs/specialists/b1-sql-poc.md</code> · cited-evidence · sha256 <code>a93eb5f0ca73ef2e…</code></span></li>
+</ul>
+<h3>Dataset hashes</h3>
+<div class="table-wrap">
+<table>
+<caption>SHA-256 of each dataset the run recorded, for independent reproduction.</caption>
+<thead><tr><th scope="col">Dataset</th><th scope="col">Rows</th><th scope="col">SHA-256</th></tr></thead>
+<tbody>
+<tr>
+<th scope="row"><code>evals/sql-poc-expanded/train.jsonl</code></th>
+<td>108</td>
+<td><code>b82c44eed469340e967d7c8eb593a73e16ac1b8d3bfac4747bdcfbe879f6fd44</code></td>
+</tr>
+<tr>
+<th scope="row"><code>evals/sql-poc-expanded/dev.jsonl</code></th>
+<td>50</td>
+<td><code>01ad0f5136324507f229e3302e8be53621b7462896db8c60854932df91018c93</code></td>
+</tr>
+<tr>
+<th scope="row"><code>evals/sql-poc-expanded/preferences.jsonl</code></th>
+<td>108</td>
+<td><code>0dc7d074683a97eadabd6d6eb45eb8c84f1a9bf48df9f7024a7382abfbf75ca8</code></td>
+</tr>
+<tr>
+<th scope="row"><code>evals/sql-public-bmc2-train-v4-joinweighted/train.jsonl</code></th>
+<td>5567</td>
+<td><code>749332268f66756625a563c5fb54b6157acc07ef1ab21c39ddab86b1317a318b</code></td>
+</tr>
+<tr>
+<th scope="row"><code>evals/sql-public-bmc2-train-v4-joinweighted/dev.jsonl</code></th>
+<td>64</td>
+<td><code>d5b374d646e348dfb751a321d5701d06cc4f20c6734735c59771215037349f6c</code></td>
+</tr>
+<tr>
+<th scope="row"><code>evals/sql-public-bmc2-train-v4-joinweighted/preferences.jsonl</code></th>
+<td>2048</td>
+<td><code>4a9d12703eb6cd2ca4ff56cb2a79d4fe942b8e41c0ad322a7085c3342c267186</code></td>
+</tr>
+<tr>
+<th scope="row"><code>evals/sql-routed-mixed-v1/mixed114.jsonl</code></th>
+<td>114</td>
+<td><code>c2ba6579df56c3ef2d39827fd54ec8d51c01df1cdf307e1954ffeaf70ab6b183</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="legend" aria-labelledby="legend-h">
+<h2 id="legend-h">How to read the evidence states</h2>
+<dl class="legend">
+<div><dt><span class="state" data-state="measured">measured</span></dt><dd>Read directly from a source artifact for this candidate.</dd></div>
+<div><dt><span class="state" data-state="derived">derived</span></dt><dd>Computed from other recorded values (for example a delta).</dd></div>
+<div><dt><span class="state" data-state="historical">historical</span></dt><dd>Imported from a legacy record without current canonical provenance. Treat as weaker than a measurement.</dd></div>
+<div><dt><span class="state" data-state="skipped">skipped</span></dt><dd>Deliberately not run for this candidate.</dd></div>
+<div><dt><span class="state" data-state="missing">not recorded</span></dt><dd>Evidence should exist but does not. No number is implied.</dd></div>
+<div><dt><span class="state" data-state="not-applicable">not applicable</span></dt><dd>The check does not apply to this candidate.</dd></div>
+</dl>
+</section>
+<footer>
+<p>Compiled offline by <code>scripts/build_fine_tune_report_card.py</code> from recorded factory evidence. No model was loaded, trained, or evaluated to produce this page. Reproduce the factory loop with the <a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/factory/report-card.md">report-card docs</a>.</p>
+</footer>
+</main>
+</body>
+</html>

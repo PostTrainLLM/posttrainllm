@@ -24,6 +24,13 @@ Weights, adapters, and large run outputs do not need to live in git, but the
 public artifact must explain where they came from, how they were evaluated, and
 why it is or is not ready to package.
 
+Where an artifact has a compiled [Fine-Tune Report Card](report-card.md), that
+card is the canonical before/after proof surface: it carries the numbers, their
+measurement states, and the verification blockers. This registry entry stays the
+release-state record. A report card never changes release policy — the `State`
+column below still governs what may be released. Published cards and what the
+dogfood review found: [`report-card-cohort.md`](report-card-cohort.md).
+
 Public artifact storage target: Hugging Face Hub. Use Cloudflare R2 only as an
 optional private cache or legacy mirror. See
 `docs/factory/huggingface-artifact-storage.md`.
@@ -67,6 +74,10 @@ Public copy should prefer "we beat X on this exact local gate" only for
 
 Status: `release-ready-weights`
 
+Report card: `/report-cards/qwen3-4b-file-ops-distilled.html` — outcome
+`routed-ship`, not fully verified (historical values; the breadth gate is derived
+as failing).
+
 Committed surface:
 
 - `specialists/qwen3-4b-file-ops-distilled/model_card.md`
@@ -96,6 +107,10 @@ Release blockers:
 ### `qwen3-4b-rest-fused`
 
 Status: `release-ready-weights`
+
+Report card: `/report-cards/qwen3-4b-rest-fused.html` — outcome `routed-ship`,
+not fully verified (historical values; latency, RAM, throughput, and timing are
+reported as not recorded).
 
 Committed surface:
 
@@ -157,6 +172,9 @@ Release blockers:
 ### `qwen06-sql-routed-v1`
 
 Status: `report-ready-candidate`
+
+Report card: `/report-cards/qwen06-sql-routed-v1.html` — outcome `report-only`
+(`retry-eval`), measured baseline/candidate with three open blockers.
 
 Current artifact shape:
 

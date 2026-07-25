@@ -15,6 +15,8 @@ runs/<YYYY-MM-DD>-<target-slug>/
   report.md
   artifact.json
   decision.json
+  eval-validity.json   (optional)
+  cost.json            (optional)
 ```
 
 `runs/` is ignored by git. Commit only small fixtures or final specialist
@@ -162,6 +164,60 @@ Required checks:
 - format collapse
 - incorrect-but-plausible answers
 
+## Optional report-card fragments
+
+These two fragments record evidence the base schema has no home for. Both are
+optional and absent-tolerant: without them the matching
+[report-card](report-card.md) fields stay `missing` rather than being zero-filled,
+so existing run folders keep validating and compiling unchanged.
+
+### `eval-validity.json`
+
+Required for a report card to present a **fully verified** ship.
+
+```json
+{
+  "frontier": {
+    "model": "gpt-5.5 via codex exec",
+    "command": "python3 scripts/bfcl_multiturn_codex.py ...",
+    "date": "2026-07-20",
+    "by_suite": { "pace-v11-ship-gate": 1.0 }
+  },
+  "frozen_eval": {
+    "id": "pace-v11-heldout",
+    "rows": 120,
+    "sha256": "<hash>",
+    "note": "Locked before training."
+  },
+  "overlap_check": {
+    "result": "no-overlap",
+    "command": "python3 scripts/<overlap checker>.py",
+    "note": "0/120 held-out prompts appear in train."
+  },
+  "known_limitations": ["Single-reference exact match on 8 rows."]
+}
+```
+
+`frontier.by_suite` keys are eval suite names, so the primary and regression
+gates can carry different ceilings. `overlap_check.result` must be exactly
+`no-overlap` or `overlap-detected`; the latter blocks publication. Per
+[`eval-protocol.md`](eval-protocol.md), a benchmark a frontier model cannot ~ace
+is a broken ruler — record the score honestly rather than omitting it.
+
+### `cost.json`
+
+```json
+{
+  "training_time_seconds": 1840,
+  "training_cost_usd": 0,
+  "training_cost_usd_note": "Local run; no paid model API was used.",
+  "eval_time_seconds": 260
+}
+```
+
+Any `<field>_note` is carried into the report card beside the value. Omit a field
+entirely rather than writing `0` for "not measured".
+
 ## Publish Check
 
 Before publishing or releasing a run report, run:
@@ -177,6 +233,9 @@ posttrainllm factory-run publish-check runs/<id>
 ```
 
 See [`enforcement.md`](enforcement.md) for the exact enforcement layers.
+
+To compile the run into a portable public proof artifact, use
+[`report-card.md`](report-card.md).
 
 ## `provenance.json`
 
@@ -225,9 +284,15 @@ Required fields:
   "base_model": "Qwen/Qwen3-4B-Instruct-2507",
   "format": "tgla",
   "package_dir": "specialists/pace-planner-sft-v1",
-  "shipped": false
+  "shipped": false,
+  "routing_constraint": null
 }
 ```
+
+`routing_constraint` is optional. Set it to the named route or task envelope the
+artifact is safe inside. A shipped candidate whose regression or breadth gate
+failed may only publish a report card with this set — see
+[`report-card.md`](report-card.md#publication-gate).
 
 ## `decision.json`
 
