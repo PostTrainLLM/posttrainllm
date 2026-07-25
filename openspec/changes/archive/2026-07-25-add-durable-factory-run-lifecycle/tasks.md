@@ -40,5 +40,5 @@
 - [x] 5.3 Add legacy complete, report-only, partial, and invalid run fixtures proving migration does not fabricate history
 - [x] 5.4 Update factory run schema, enforcement, overview, Foundry evidence, and operator documentation with lifecycle and recovery rules
 - [x] 5.5 Run the smallest relevant Swift tests, lifecycle smokes, docs checks, OpenSpec validation, and `git diff --check`
-- [ ] 5.6 After implementation ships, archive this change and update `PROJECT_STATUS.md` with the delivered lifecycle capability and remaining limitations
-  - `PROJECT_STATUS.md` is updated. Archive remains deferred until the implementation is committed/shipped; this task explicitly forbids commit or push.
+- [x] 5.6 After implementation ships, archive this change and update `PROJECT_STATUS.md` with the delivered lifecycle capability and remaining limitations
+  - Shipped to `main` on 2026-07-25; `PROJECT_STATUS.md` records the capability and remaining limitations.
