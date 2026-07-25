@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "run_id": "fixture-imported",
+  "revision": 1,
+  "phase": "decided",
+  "updated_at": "2026-07-25T01:03:00Z",
+  "last_transition": {
+    "source": "fixture",
+    "command": "factory-run init --import-legacy",
+    "reason": "legacy-evidence-import"
+  },
+  "parent_run_id": null,
+  "successor_run_id": null,
+  "failure": null,
+  "imported": true,
+  "import_evidence": ["config.json", "decision.json"]
+}

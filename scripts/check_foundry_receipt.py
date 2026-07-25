@@ -12,7 +12,10 @@ Reads a receipt from a file path or stdin (``-``) and asserts:
    update a public quality claim: source_revision, model, eval_config,
    dataset_version, observed_at, artifact_location, retention.
 6. ``publication_authority`` is ``manual`` (no auto-publish drift).
-7. Every ``local_runs`` entry has ``publication == "pending-approval"``.
+7. Every ``local_runs`` entry has ``publication == "pending-approval"``;
+   completed decision evidence requires source revision, while active lifecycle
+   discovery may honestly omit it.
+8. Any projected lifecycle state is schema-v1, bounded, and operational only.
 
 Exit code 0 = clean, 1 = validation failure, 2 = IO/usage error.
 
@@ -144,8 +147,27 @@ def validate(receipt: dict[str, Any], raw_bytes: int, errors: list[str]) -> None
                 f"local_runs[{i}].publication must be 'pending-approval', got {run.get('publication')!r}",
                 errors,
             )
-        if not run.get("source_revision"):
+        lifecycle = run.get("lifecycle") or {}
+        if run.get("decision") and not run.get("source_revision"):
             fail(f"local_runs[{i}].source_revision missing", errors)
+        if lifecycle:
+            if lifecycle.get("schema_version") != 1:
+                fail(f"local_runs[{i}].lifecycle.schema_version must be 1", errors)
+            if lifecycle.get("phase") not in (
+                "created", "data-ready", "training", "trained", "evaluating",
+                "evaluated", "packaging", "packaged", "reporting", "decided", "failed",
+            ):
+                fail(f"local_runs[{i}].lifecycle.phase invalid", errors)
+            if not isinstance(lifecycle.get("revision"), int) or lifecycle["revision"] < 1:
+                fail(f"local_runs[{i}].lifecycle.revision invalid", errors)
+            failure = lifecycle.get("failure")
+            if failure:
+                if lifecycle.get("phase") != "failed":
+                    fail(f"local_runs[{i}].lifecycle.failure requires failed phase", errors)
+                if len(str(failure.get("code", ""))) > 64:
+                    fail(f"local_runs[{i}].lifecycle.failure.code oversized", errors)
+                if len(str(failure.get("summary", ""))) > 240:
+                    fail(f"local_runs[{i}].lifecycle.failure.summary oversized", errors)
 
 
 def main() -> int:

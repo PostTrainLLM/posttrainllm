@@ -5,6 +5,7 @@ Each real factory run should write a local run directory:
 ```text
 runs/<YYYY-MM-DD>-<target-slug>/
   config.json
+  run-status.json      (required for newly created lifecycle-v1 runs)
   dataset.json
   train.log
   eval-baseline.json
@@ -27,6 +28,12 @@ The typed Swift representation lives in
 type in sync; it is intentionally in the pure IO target so report/dashboard
 code can parse run metadata without loading MLX or a checkpoint.
 
+Operational phase state lives in the separate
+[`run-lifecycle.md`](run-lifecycle.md) contract. `run-status.json` records
+progress and recovery metadata only; `decision.json` remains the quality and
+product-outcome authority. Existing folders without lifecycle metadata remain
+valid legacy folders.
+
 Use the CLI wrapper to render or validate a folder:
 
 ```bash
@@ -40,6 +47,8 @@ posttrainllm factory-run render \
   --out runs/<id>
 
 posttrainllm factory-run validate runs/<id>
+posttrainllm factory-run status --json runs/<id>
+posttrainllm factory-run list --active runs/
 ```
 
 ## Assembling a folder from emitted fragments
@@ -60,6 +69,25 @@ delta, hashes the real dataset sources into `provenance.json`, renders the
 `check_factory_run_publish.py --allow-report-only`. The output validates against
 the typed Swift `FactoryRunFolder`. `scripts/render_sql_factory_run.py` remains
 the SQL-specific one-shot renderer for the routed POC.
+
+The assembler initializes lifecycle metadata when absent, advances to
+`reporting` only after derived artifacts are durably written, then advances to
+`decided` only after `decision.json` is present. A post-initialization assembly
+failure records only the bounded `assembly-failed` code and generic sanitized
+summary.
+
+## `run-status.json` and discovery pointers
+
+New native renders and Python assemblies are lifecycle-v1 writers. They emit
+`run-status.json` and atomically refresh advisory `current-run.json` /
+`latest-run.json` files in the run root. Readers always verify a pointer against
+the target status; scanning status files is the repairable source for discovery.
+
+Lifecycle metadata is intentionally optional during reads so historical run
+folders keep the same validation and publication semantics. Use
+`factory-run init --import-legacy`, never ordinary validation, to create an
+honest imported snapshot. See [`run-lifecycle.md`](run-lifecycle.md) for the
+schema, transition graph, CAS rules, stale-active policy, and recovery commands.
 
 ## `config.json`
 

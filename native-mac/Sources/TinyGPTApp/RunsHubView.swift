@@ -1,4 +1,5 @@
 import SwiftUI
+import TinyGPTIO
 
 /// "Runs" workspace — the factory orchestration surfaces that were CLI-only:
 /// validate/publish-check a run folder, SQL execution eval, and batch generate.
@@ -62,8 +63,11 @@ struct RunsHubView: View {
 struct FactoryRunView: View {
     @StateObject private var runner = CLICommandRunner()
     @State private var runDir = ""
+    @State private var runRoot = "runs"
     @State private var action = "validate"
     @State private var reportOnly = true
+    @State private var discovered: [FactoryRunLifecycle.RunRecord] = []
+    @State private var discoveryError = ""
 
     private let actions = ["validate", "publish-check"]
 
@@ -79,6 +83,40 @@ struct FactoryRunView: View {
         VStack(alignment: .leading, spacing: 14) {
             CommandHeader(title: "Factory run — validate / publish-check",
                           subtitle: "Point at a runs/<id> folder. validate = typed schema; publish-check = full evidence gates (report-only allows unshipped candidates).")
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .bottom, spacing: 8) {
+                    CLIPathField(label: "Run root", placeholder: "runs", path: $runRoot,
+                                 chooseDirectories: true)
+                    Button("Refresh") { refreshDiscovery() }
+                        .buttonStyle(.bordered)
+                }
+                if !discoveryError.isEmpty {
+                    Text(discoveryError)
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(.red)
+                }
+                if !discovered.isEmpty {
+                    ScrollView(.horizontal) {
+                        HStack(spacing: 8) {
+                            ForEach(discovered) { record in
+                                Button {
+                                    runDir = URL(fileURLWithPath: runRoot)
+                                        .appendingPathComponent(record.relativeRunPath).path
+                                } label: {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(record.status.runId)
+                                        Text("\(record.status.phase.rawValue) · r\(record.status.revision)"
+                                             + (record.isStale ? " · stale" : ""))
+                                            .foregroundStyle(record.isStale ? .orange : Theme.muted)
+                                    }
+                                    .font(.system(size: 10, design: .monospaced))
+                                }
+                                .buttonStyle(.bordered)
+                            }
+                        }
+                    }
+                }
+            }
             CLIPathField(label: "Run folder (runs/<id>)", placeholder: "path to run directory", path: $runDir, chooseDirectories: true)
             HStack(alignment: .bottom, spacing: 14) {
                 VStack(alignment: .leading, spacing: 3) {
@@ -99,6 +137,18 @@ struct FactoryRunView: View {
         }
         .padding(20)
         .background(Theme.base)
+    }
+
+    private func refreshDiscovery() {
+        do {
+            discovered = try FactoryRunLifecycle.list(
+                root: URL(fileURLWithPath: runRoot)
+            )
+            discoveryError = ""
+        } catch {
+            discovered = []
+            discoveryError = "Run discovery failed: \(error)"
+        }
     }
 }
 

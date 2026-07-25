@@ -74,6 +74,7 @@ Important constraints:
 
 | Date / phase | Status |
 |---|---|
+| 2026-07-25 Durable factory-run lifecycle | Implemented `add-durable-factory-run-lifecycle`: new lifecycle-v1 runs emit authoritative `run-status.json` with legal phases, monotonic revisions, bounded transition/failure provenance, expected-revision CAS, short-lived locks, and atomic replacement. Verified advisory `current-run.json` / `latest-run.json` pointers are rebuilt from status scans; current automatically selects the most recently updated valid non-terminal run. `factory-run init/status/transition/list/reconcile` stay metadata-only, reconciliation defaults dry-run, and stale active runs remain active-with-warning until explicit operator action. Native render/validation, Python assembly success/failure, manual Mac app discovery, and privacy-safe Foundry receipts consume the shared contract. Legacy folders remain compatible and imports record only proven evidence. `decision.json` and explicit human publication/deployment authority are unchanged. No model load, GPU work, training, network operation, dependency, deploy, commit, or push. |
 | 2026-07-25 Fine-Tune Report Card | Shipped `add-fine-tune-report-card`: a portable, versioned before/after proof contract compiled offline from evidence that already exists in the repo. `scripts/build_fine_tune_report_card.py` ingests either a canonical run folder or a committed specialist package and emits `report-card.json` plus a self-contained static page from one validated payload; `scripts/check_fine_tune_report_card.py` is the publication gate; `native-mac/Sources/TinyGPTIO/FineTuneReportCard.swift` is the typed schema boundary, decoded against real compiler output by `evals/fine-tune-report-card-smoke.sh`. Every value carries an explicit measurement state (measured/derived/historical/skipped/missing/not-applicable), so absent latency/RAM/cost renders as *not recorded* rather than zero and a one-sided delta stays missing. Three real cards published to `/report-cards` and linked from `/artifacts` with outcome labels: file-ops distilled and ReST fused (`routed-ship`, historical evidence) and the SQL routed POC (`report-only`, measured). **No published card claims a verified ship** — that is the honest result, and each card lists its own blockers. Added optional run fragments `eval-validity.json` and `cost.json` (absent-tolerant) plus optional `artifact.routing_constraint`; before them a verified ship was unreachable by construction. Fails closed: leakage, an incomplete ship claim, or a regressing ship without a disclosed routing constraint exits non-zero and writes no artifact. 166 unit checks + 9 fixture outcome classes + a drift guard, wired into the CI evals job. No training, model load, GPU eval, upload, or release-policy change. |
 | 2026-07-19 Foundry evidence receipts | Shipped `automate-posttrainllm` (fleet-automation-closure Store): privacy-safe evidence contract + receipt pipeline for the Foundry control plane. `docs/factory/foundry-evidence.md` is the canonical per-surface contract; `scripts/foundry_receipt.py` emits sanitized receipts (git, registry, run folders, nightly markers, CI); `scripts/check_foundry_receipt.py` validates shape, provenance completeness, manual publication authority, and absence of private payloads; `evals/foundry-receipt-smoke.sh` + `tests/test_foundry_receipt.py` (11 tests) prove private datasets/prompts/checkpoints/outputs cannot enter receipts. Existing public artifacts' quality claims are correctly blocked because their `eval_report.json` lack explicit `source_revision` — surfaced as a blocked gap, not papered over. No new production dependency, no auto-publication, no deploy. |
 | 2026-07-16 Fine-Tune Report Card OpenSpec | Drafted `add-fine-tune-report-card`: compile existing factory-run evidence into versioned JSON and a static public before/after report with explicit regressions, leakage/eval validity, performance, missing/historical values, and ship/retry/reject semantics. The draft performs no training, model loading, GPU eval, upload, implementation, or release. |
@@ -100,8 +101,8 @@ Important constraints:
 
 | Product / artifact | State |
 |---|---|
-| Factory CLI | Main product surface. It has commands for data prep, post-training, eval, traces, packaging, reporting, and canonical factory-run render/validate/publish checks. |
-| Factory run artifacts | Target shape defined in `docs/factory/run-schema.md`; `runs/` is local-output and gitignored. |
+| Factory CLI | Main product surface. It has commands for data prep, post-training, eval, traces, packaging, reporting, canonical factory-run render/validate/publish checks, and metadata-only lifecycle init/status/transition/list/reconcile. |
+| Factory run artifacts | Target shape defined in `docs/factory/run-schema.md`; new lifecycle-v1 runs carry durable `run-status.json` plus repairable current/latest pointers, while legacy folders remain compatible. `runs/` is local-output and gitignored. |
 | Specialist packages | Two public-weight packages are registered: routed file-ops distillation and the breadth-recovering ReST research specialist. |
 | Public artifact registry | First-class release list lives in `docs/factory/public-artifacts.md`; website surface is `/artifacts`; every artifact carries blockers beside evidence. |
 | Fine-tune report cards | Portable before/after proof per artifact: versioned JSON plus a self-contained static page at `/report-cards/<slug>.html`, compiled offline from recorded evidence with explicit measurement states. Contract in `docs/factory/report-card.md`. |
@@ -147,6 +148,15 @@ Factory primitives:
   completeness, manual publication authority, and absence of private
   payloads. Contract in `docs/factory/foundry-evidence.md`; covered by
   `evals/foundry-receipt-smoke.sh` and `tests/test_foundry_receipt.py`.
+- Durable factory-run lifecycle: pure-IO
+  `native-mac/Sources/TinyGPTIO/FactoryRunLifecycle.swift` owns lifecycle-v1
+  status, legal/alternate transitions, expected-revision CAS, metadata locks,
+  atomic snapshots, advisory discovery pointers, stale-active warnings,
+  reconciliation, and honest legacy import. The metadata-only CLI, native
+  render/folder validation, Python assembler, manual Mac app discovery, and
+  Foundry receipt projection share that boundary. Contract and recovery guide
+  in `docs/factory/run-lifecycle.md`; no automatic resume, publication,
+  deployment, or replacement of `decision.json`.
 
 Completed/parked learning tracks:
 
@@ -187,8 +197,9 @@ If a task does not answer one of those, park it.
 - Public artifacts are now tracked, but only one model package has committed
   package metadata and the SQL routed candidate is still report-only until a
   public execution SQL gate is added.
-- Run artifacts are not standardized in code yet. The target schema is in
-  `docs/factory/run-schema.md`.
+- ~~In-progress run lifecycle state and current/latest discovery were not
+  standardized in code.~~ Implemented 2026-07-25 for new lifecycle-v1 runs;
+  historical folders remain optional/compatible and import is explicit.
 - The next specialist target is not frozen in this cleanup. `docs/NEXT.md`
   keeps the sequence target-first.
 - Live GPU/full-model evals remain operator-dependent and must respect the

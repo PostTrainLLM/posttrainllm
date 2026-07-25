@@ -7,7 +7,8 @@ refuse weak artifacts.
 
 | Layer | Tool | What It Checks |
 |---|---|---|
-| Run bundle schema | `posttrainllm factory-run validate runs/<id>` | Core typed JSON bundle: config, dataset, baseline, candidate, decision, optional artifact |
+| Run bundle schema | `posttrainllm factory-run validate runs/<id>` | Core typed JSON bundle plus identity/decision validation when optional lifecycle-v1 metadata is present; legacy folders remain compatible |
+| Lifecycle state | `posttrainllm factory-run status/list/reconcile` | Pure-metadata schema, legal CAS transitions, verified advisory pointers, stale-active warnings, locks, and interrupted temporary files |
 | Publish evidence | `posttrainllm factory-run publish-check runs/<id>` | Required evidence files, report sections, slice metrics, trace review, decision, ship/package constraints |
 | Portable publish smoke | `python3 scripts/check_factory_run_publish.py runs/<id>` | Same policy in a no-build Python checker for CI/smokes |
 | Report-card publication | `python3 scripts/check_fine_tune_report_card.py <card>.json` | Derived-artifact layer: schema version, measurement states and provenance, decision/label consistency, frontier-ceiling and frozen-eval disclosure, leakage policy, routed-use disclosure, public safety, static-page accessibility |
@@ -47,6 +48,17 @@ For every run, the check requires:
 - `provenance.json`
 - report sections for decision, target, data, eval, performance, failures, and
   next action
+
+For newly created lifecycle-v1 runs, the native writer also requires a valid
+`run-status.json`. Historical folders without it remain publish-compatible.
+Lifecycle phase never substitutes for these evidence checks:
+`phase=decided` means only that a valid `decision.json` was durably observed.
+It does not mean `decision=ship`, publication approval, or deployment approval.
+
+Recovery is explicit and metadata-only. `factory-run reconcile` defaults to
+dry-run; `--write` repairs advisory pointers, abandoned lifecycle temporary
+files, and stale metadata locks without changing phases. A stale active run is
+reported with a warning and remains active until an operator acts.
 
 ## Report Card Layer
 

@@ -259,6 +259,7 @@ def test_build_receipt_sanitizes_private_run_folder():
         assert lr["decision"] == "retry-training"
         assert lr["baseline_score"] == 0.5
         assert lr["candidate_score"] == 0.9
+        assert lr["lifecycle"] is None  # legacy folders remain receipt-compatible
 
         # Validator accepts it
         errors: list[str] = []
@@ -266,6 +267,64 @@ def test_build_receipt_sanitizes_private_run_folder():
         assert not errors, f"validator rejected clean sanitized receipt: {errors}"
 
     print("  ok: build_receipt sanitizes a private run folder end-to-end")
+
+
+def test_active_lifecycle_receipt_is_read_only_and_sanitized():
+    with tempfile.TemporaryDirectory() as tmp:
+        runs = Path(tmp) / "runs"
+        active = runs / "active"
+        active.mkdir(parents=True)
+        (active / "config.json").write_text(json.dumps({
+            "run_id": "active", "target": "fixture",
+            "candidate": {"method": "metadata-only"},
+        }))
+        active_status = {
+            "schema_version": 1,
+            "run_id": "active",
+            "revision": 3,
+            "phase": "training",
+            "updated_at": "2026-07-20T00:00:00+00:00",
+            "last_transition": {
+                "source": "fixture",
+                "command": "factory-run transition",
+                "reason": None,
+            },
+            "failure": None,
+            "imported": False,
+            "import_evidence": [],
+        }
+        (active / "run-status.json").write_text(json.dumps(active_status))
+
+        failed = runs / "failed"
+        failed.mkdir()
+        (failed / "config.json").write_text(json.dumps({
+            "run_id": "failed", "target": "fixture",
+            "candidate": {"method": "metadata-only"},
+        }))
+        failed_status = {
+            **active_status,
+            "run_id": "failed",
+            "phase": "failed",
+            "failure": {
+                "code": "should-not-project",
+                "summary": "PRIVATE PROMPT must never enter a receipt",
+            },
+        }
+        (failed / "run-status.json").write_text(json.dumps(failed_status))
+
+        receipt = receipt_mod.build_receipt(include_ci=False, runs_dir=runs)
+        assert len(receipt["local_runs"]) == 2
+        by_id = {run["run_id"]: run for run in receipt["local_runs"]}
+        assert by_id["active"]["decision"] is None
+        assert by_id["active"]["source_revision"] is None
+        assert by_id["active"]["publish_check"] == "not-applicable"
+        assert by_id["active"]["lifecycle"]["phase"] == "training"
+        assert by_id["failed"]["lifecycle"]["failure"]["summary"] == "<redacted:unsafe-summary>"
+        assert "PRIVATE PROMPT" not in json.dumps(receipt)
+        errors: list[str] = []
+        check_mod.validate(receipt, len(json.dumps(receipt).encode()), errors)
+        assert not errors, errors
+    print("  ok: active lifecycle receipt stays read-only and sanitizes failure metadata")
 
 
 def test_build_receipt_blocks_quality_claims_without_source_revision():
@@ -327,6 +386,7 @@ def main() -> int:
         test_validator_rejects_local_run_without_pending_approval,
         test_validator_rejects_quality_claim_missing_provenance,
         test_build_receipt_sanitizes_private_run_folder,
+        test_active_lifecycle_receipt_is_read_only_and_sanitized,
         test_build_receipt_blocks_quality_claims_without_source_revision,
     ]
     failures = 0

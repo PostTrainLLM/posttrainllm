@@ -49,6 +49,7 @@ happened:
 ```text
 runs/<date>-<target>/
   config.json
+  run-status.json
   dataset.json
   train.log
   eval-baseline.json
@@ -57,6 +58,12 @@ runs/<date>-<target>/
   artifact.json
   decision.json
 ```
+
+For new lifecycle-v1 runs, `run-status.json` makes in-progress phase, revision,
+and last durable transition explicit. It is operational metadata only:
+`decision.json` remains the outcome authority and the publish gate remains
+independent. Existing folders without status remain valid legacy evidence.
+See [`run-lifecycle.md`](run-lifecycle.md).
 
 `runs/` is local output and is gitignored. Commit schemas, fixtures, and shipped
 specialist package metadata instead.
@@ -69,6 +76,7 @@ surface yet.
 Minimum useful readout:
 
 - runs
+- active/terminal lifecycle phase, revision, update time, and stale warning
 - target
 - dataset version
 - base model
@@ -81,3 +89,7 @@ Minimum useful readout:
 - decision
 
 CLI first. UI second.
+
+The Mac app reads the shared pure-IO lifecycle contract only when the operator
+presses Refresh. It does not run a background scheduler, transition runs, resume
+training, or gain publication authority.

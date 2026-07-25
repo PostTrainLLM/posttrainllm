@@ -85,8 +85,9 @@ assertTrue(configJSON.contains("\"run_id\""), "snake_case config JSON")
 print("SMOKE OK: factory run folder write/read/report")
 SWIFT
 
-swiftc \
+CLANG_MODULE_CACHE_PATH="$WORK/clang-module-cache" swiftc \
   "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRun.swift" \
+  "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRunLifecycle.swift" \
   "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRunFolder.swift" \
   "$WORK/main.swift" \
   -o "$WORK/factory-run-folder-smoke"

@@ -114,7 +114,37 @@ assert ds[0]["rows"] == 10 and ds[1]["rows"] == 3, "dataset rows"
 print("provenance ok")
 PY
 
-# 5. Prove the fragments are valid against the typed Swift schema.
+# 5. A failure after lifecycle creation records only a bounded sanitized state.
+FAIL_RUN="$WORK/failing-run"
+python3 - "$RUN" "$FAIL_RUN" <<'PY'
+import json, pathlib, shutil, sys
+source, target = map(pathlib.Path, sys.argv[1:])
+shutil.copytree(source, target)
+for name in ("run-status.json", "provenance.json", "report.md", "train.log"):
+    (target / name).unlink(missing_ok=True)
+config = json.load(open(target / "config.json"))
+config["run_id"] = "2026-07-11-smoke-assembly-failure-v1"
+json.dump(config, open(target / "config.json", "w"), indent=2)
+dataset = json.load(open(target / "dataset.json"))
+dataset["sources"][0]["path"] = "/private/path/that-must-not-leak/train.jsonl"
+dataset["sources"][0].pop("sha256", None)
+json.dump(dataset, open(target / "dataset.json", "w"), indent=2)
+PY
+
+if python3 "$ROOT/scripts/assemble_factory_run.py" "$FAIL_RUN" >/dev/null 2>&1; then
+  echo "SMOKE FAIL: invalid assembly unexpectedly succeeded" >&2
+  exit 1
+fi
+python3 - "$FAIL_RUN/run-status.json" <<'PY'
+import json, sys
+status = json.load(open(sys.argv[1]))
+assert status["phase"] == "failed"
+assert status["failure"]["code"] == "assembly-failed"
+assert "/private/path" not in status["failure"]["summary"]
+print("sanitized assembly failure ok")
+PY
+
+# 6. Prove the fragments are valid against the typed Swift schema.
 cat >"$WORK/main.swift" <<'SWIFT'
 import Foundation
 
@@ -127,15 +157,19 @@ func assertTrue(_ condition: @autoclosure () -> Bool, _ msg: String) {
 
 let run = URL(fileURLWithPath: CommandLine.arguments[1])
 let bundle = try FactoryRunFolder.validate(directory: run)
+let lifecycle = try FactoryRunLifecycle.readStatus(directory: run)
 assertTrue(bundle.config.runId == "2026-07-11-smoke-assemble-v1", "run id")
 assertTrue(bundle.baseline.score == 0.70, "baseline score")
 assertTrue(bundle.candidate.score == 0.93, "candidate score")
 assertTrue(bundle.decision.decision == .retryTraining, "decision")
+assertTrue(lifecycle.phase == .decided, "lifecycle decided")
+assertTrue(lifecycle.lastTransition.source == "python-assembler", "bridge source")
 print("SMOKE OK: assembled folder validates against typed Swift schema")
 SWIFT
 
-swiftc \
+CLANG_MODULE_CACHE_PATH="$WORK/clang-module-cache" swiftc \
   "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRun.swift" \
+  "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRunLifecycle.swift" \
   "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRunFolder.swift" \
   "$WORK/main.swift" \
   -o "$WORK/factory-run-assemble-smoke"

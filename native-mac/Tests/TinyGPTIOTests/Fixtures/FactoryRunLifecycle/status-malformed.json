@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "run_id": "fixture-malformed",
+  "revision": 0,
+  "phase": "not-a-phase",
+  "updated_at": "not-a-time",
+  "last_transition": {
+    "source": "fixture",
+    "command": "factory-run transition",
+    "reason": null
+  },
+  "imported": false,
+  "import_evidence": []
+}

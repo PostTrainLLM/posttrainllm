@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "run_id": "fixture-failed",
+  "revision": 4,
+  "phase": "failed",
+  "updated_at": "2026-07-25T01:04:00Z",
+  "last_transition": {
+    "source": "fixture",
+    "command": "factory-run transition",
+    "reason": null
+  },
+  "parent_run_id": null,
+  "successor_run_id": null,
+  "failure": {
+    "code": "metadata-write-failed",
+    "summary": "Factory metadata validation failed."
+  },
+  "imported": false,
+  "import_evidence": []
+}
