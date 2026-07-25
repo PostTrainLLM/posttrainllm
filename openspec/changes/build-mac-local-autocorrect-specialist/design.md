@@ -6,7 +6,7 @@ The motivating account describes a small encoder-decoder autocorrect model train
 target -> data -> post-training -> eval -> package -> report
 ```
 
-The target user is the owner typing ordinary prose on a Mac. The desired behavior is post-composition repair: accept a complete text span, correct genuine typing errors, preserve intent and style, and run without a network. The current active SQL proof remains ahead of this work.
+The target user is the owner typing ordinary prose on a Mac. The desired behavior is post-composition repair: accept a complete text span, correct genuine typing errors, preserve intent and style, and run without a network. On 2026-07-25 the owner explicitly reprioritized completing OpenSpecs, so the no-model contract/eval/data foundation may proceed while model, frontier, GPU, compilation, and benchmark work stays gated.
 
 ## Goals / Non-Goals
 
@@ -98,7 +98,12 @@ Every attempted candidate produces the existing run folder with frozen config, d
 
 ## Migration Plan
 
-There is no deployed system to migrate. Implementation proceeds as a parked factory run: freeze eval, build tiny fixtures and simulator, run the base bake-off, prove tiny overfit, train one pilot, evaluate, and either stop or package. Rollback is deletion of local ignored run/model artifacts; committed fixtures and planning records remain as evidence.
+There is no deployed system to migrate. Implementation proceeds in two
+boundaries: first the committed no-model contract/eval/data foundation, then a
+separately approved model run covering the base bake-off, tiny overfit, one
+pilot, evaluation, and stop-or-package decision. Rollback of future model work
+is deletion of local ignored run/model artifacts; committed fixtures and
+planning records remain as evidence.
 
 ## Open Questions
 

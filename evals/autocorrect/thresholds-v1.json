@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "threshold_id": "mac-local-autocorrect-thresholds-v1",
+  "quality": {
+    "natural_error_reduction_rate_min": 0.9,
+    "candidate_minus_frontier_error_reduction_ci95_lower_min": -0.02,
+    "candidate_minus_local_incumbent_error_reduction_min": 0.05,
+    "exact_match_reported": true,
+    "residual_character_error_rate_reported": true
+  },
+  "regression": {
+    "clean_byte_exact_preservation_min": 0.995,
+    "protected_span_preservation_min": 0.995,
+    "unnecessary_edit_rate_max": 0.005,
+    "unresolved_meaning_change_count_max": 0
+  },
+  "resource": {
+    "parameter_count_max": 2000000000,
+    "peak_inference_rss_mib_max": 4096,
+    "median_time_to_first_stable_text_ms_max": 50,
+    "median_end_to_end_latency_ms_max": 250,
+    "median_energy_joules_per_short_span_max": 1.0
+  },
+  "training_stop": {
+    "tiny_overfit_utf8_bytes_max": 10240,
+    "tiny_overfit_exact_match_min": 1.0,
+    "tiny_overfit_finite_loss_required": true,
+    "pilot_rows_max": 256,
+    "pilot_steps_max": 1000,
+    "pilot_wall_time_minutes_max": 120,
+    "stop_on_non_finite_loss": true,
+    "stop_on_clean_preservation_below": 0.995
+  },
+  "lexical_holdout_tokens": [
+    "quokka",
+    "sesquipedalian",
+    "zyzzyva"
+  ],
+  "freeze_date": "2026-07-25",
+  "movement_policy": "Any threshold change requires a new version before candidate outputs are inspected."
+}

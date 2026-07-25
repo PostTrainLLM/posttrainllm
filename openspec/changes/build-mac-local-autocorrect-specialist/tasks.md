@@ -1,25 +1,25 @@
 ## 1. Keep the target parked and freeze the contract
 
-- [ ] 1.1 Start this change only after the active factory target is complete or the owner explicitly reprioritizes it; record the decision in `docs/NEXT.md` before implementation.
-- [ ] 1.2 Write the versioned noisy-text-to-corrected-text protocol, protected-span rules, supported language/domain, maximum input length, and non-goals as committed fixtures.
-- [ ] 1.3 Define the error taxonomy and qualitative failure taxonomy, including missed edit, wrong edit, overcorrection, meaning change, formatting damage, and protected-span damage.
-- [ ] 1.4 Freeze numeric quality, regression, model-size, RSS, TTFT, end-to-end latency, energy, and stop thresholds before any training.
+- [x] 1.1 Start this change only after the active factory target is complete or the owner explicitly reprioritizes it; record the decision in `docs/NEXT.md` before implementation.
+- [x] 1.2 Write the versioned noisy-text-to-corrected-text protocol, protected-span rules, supported language/domain, maximum input length, and non-goals as committed fixtures.
+- [x] 1.3 Define the error taxonomy and qualitative failure taxonomy, including missed edit, wrong edit, overcorrection, meaning change, formatting damage, and protected-span damage.
+- [x] 1.4 Freeze numeric quality, regression, model-size, RSS, TTFT, end-to-end latency, energy, and stop thresholds before any training.
 
 ## 2. Build the honest evaluation first
 
-- [ ] 2.1 Identify a permissively licensed or consented natural typo/correction source; record its exact revision, terms, retrieval method, and exclusions before downloading or committing data.
-- [ ] 2.2 Create a tiny reviewed fixture set with natural errors, clean controls, rare words, names, numbers, URLs, Unicode, whitespace, casing, punctuation, and code-like spans.
-- [ ] 2.3 Implement the strict evaluator for error reduction rate, exact match, residual character error, clean preservation, unnecessary edits, protected-span preservation, and slice metrics, with unit tests for zero-error and negative-error-reduction cases.
-- [ ] 2.4 Implement source-first split, normalized overlap detection, lexical holdout, manifest hashing, and a no-model validation smoke that fails on leakage or incomplete provenance.
+- [x] 2.1 Identify a permissively licensed or consented natural typo/correction source; record its exact revision, terms, retrieval method, and exclusions before downloading or committing data.
+- [x] 2.2 Create a tiny reviewed fixture set with natural errors, clean controls, rare words, names, numbers, URLs, Unicode, whitespace, casing, punctuation, and code-like spans.
+- [x] 2.3 Implement the strict evaluator for error reduction rate, exact match, residual character error, clean preservation, unnecessary edits, protected-span preservation, and slice metrics, with unit tests for zero-error and negative-error-reduction cases.
+- [x] 2.4 Implement source-first split, normalized overlap detection, lexical holdout, manifest hashing, and a no-model validation smoke that fails on leakage or incomplete provenance.
 - [ ] 2.5 Calibrate the frozen unambiguous test rows with the preferred free Codex CLI frontier backend available at execution time; fix or drop broken rows before candidate outputs are inspected.
-- [ ] 2.6 Determine whether Apple autocorrect can be invoked on the same full-span protocol; otherwise document it as a non-equivalent observational baseline rather than fabricating a direct comparison.
+- [x] 2.6 Determine whether Apple autocorrect can be invoked on the same full-span protocol; otherwise document it as a non-equivalent observational baseline rather than fabricating a direct comparison.
 
 ## 3. Build the corruption data path
 
-- [ ] 3.1 Implement a versioned Mac keyboard layout and deterministic corruption simulator for substitution, insertion, omission, transposition, repetition, spaces, and shift/case errors.
-- [ ] 3.2 Emit a machine-readable edit trace for every corrupted row and add fixtures covering each error family, seeded reproduction, disabled families, and clean controls.
-- [ ] 3.3 Build only tiny-overfit and pilot manifests first; validate licenses, source-first split isolation, hashes, row counts, drop reasons, error-family rates, and reproducibility.
-- [ ] 3.4 Compare simulator error distributions with the natural held-out set and tune only training-side simulator configuration without changing the frozen natural test.
+- [x] 3.1 Implement a versioned Mac keyboard layout and deterministic corruption simulator for substitution, insertion, omission, transposition, repetition, spaces, and shift/case errors.
+- [x] 3.2 Emit a machine-readable edit trace for every corrupted row and add fixtures covering each error family, seeded reproduction, disabled families, and clean controls.
+- [x] 3.3 Build only tiny-overfit and pilot manifests first; validate licenses, source-first split isolation, hashes, row counts, drop reasons, error-family rates, and reproducibility.
+- [x] 3.4 Compare simulator error distributions with the natural held-out set and tune only training-side simulator configuration without changing the frozen natural test.
 
 ## 4. Select and prove the smallest base
 
@@ -54,3 +54,11 @@
 - [ ] 7.4 Run the smallest schema validation first, then the report-only publish check; record `ship`, `reject`, `retry-data`, `retry-training`, `retry-eval`, or `park` without moving the frozen bars.
 - [ ] 7.5 Only for `ship`, create the specialist package with model card, lock, correction contract, tokenizer/template, decoding mode, eval report, Mac resource measurements, routing limits, known failures, and resolvable local artifact path.
 - [ ] 7.6 Update `PROJECT_STATUS.md`, `docs/NEXT.md`, the attempt ledger, and public artifact inventory with measured evidence; archive this OpenSpec change only after all accepted tasks and checks are complete.
+
+## Pending blockers (recorded 2026-07-25)
+
+- **2.5:** requires a Codex/frontier model call and network-backed calibration. Both were explicitly prohibited in the no-model tranche; no candidate output has been inspected.
+- **4.1-4.5:** require current model/revision/license research, then explicit approval for any weight download or model load. No base shortlist or baseline is frozen from stale offline knowledge.
+- **5.1-5.7:** require a selected base and immediate operator approval for any dependency installation, compilation, model load, GPU-lock acquisition, overfit run, or pilot training.
+- **6.1-6.4:** require real model decoding plus sustained latency, RSS, throughput, and energy measurement; no decoding claim can be verified without those runs.
+- **7.1-7.6:** require task 2.5, trained candidate/comparator outputs, measured Mac performance, and a canonical decision. Packaging, public-artifact updates, and OpenSpec archive remain invalid until then.

@@ -1,0 +1,26 @@
+{"id":"train-001","source_id":"posttrainllm-original-autocorrect-v1","split":"train","text":"Please review the draft before lunch."}
+{"id":"train-002","source_id":"posttrainllm-original-autocorrect-v1","split":"train","text":"The package arrives beside the front desk."}
+{"id":"train-003","source_id":"posttrainllm-original-autocorrect-v1","split":"train","text":"Record the meeting notes in the shared folder."}
+{"id":"train-004","source_id":"posttrainllm-original-autocorrect-v1","split":"train","text":"We can discuss the budget after coffee."}
+{"id":"train-005","source_id":"posttrainllm-original-autocorrect-v1","split":"train","text":"Save a local copy before editing the file."}
+{"id":"train-006","source_id":"posttrainllm-original-autocorrect-v1","split":"train","text":"The quiet library closes at eight."}
+{"id":"development-001","source_id":"posttrainllm-original-autocorrect-v1","split":"development","text":"Send the summary when the call ends."}
+{"id":"development-002","source_id":"posttrainllm-original-autocorrect-v1","split":"development","text":"Keep the receipt with the travel notes."}
+{"id":"test-001","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"Please check the calendar before lunch."}
+{"id":"test-002","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"I will remember to bring the charger."}
+{"id":"test-003","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"Meet the team beside the station."}
+{"id":"test-004","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"The café opens tomorrow."}
+{"id":"test-005","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"The report is ready."}
+{"id":"test-006","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"We need a lot of paper."}
+{"id":"test-007","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"Monday works for me."}
+{"id":"test-008","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"Amrita will receive 2 files at https://example.com/v2."}
+{"id":"test-009","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"A zyzzyva rested near the window."}
+{"id":"test-010","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"Use `python3 app.py`, then check the output."}
+{"id":"test-011","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"The quokka looked remarkably calm."}
+{"id":"test-012","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"That sesquipedalian phrase was intentional."}
+{"id":"test-clean-001","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"Keep 42.5% in the \"Other\" bucket."}
+{"id":"test-clean-002","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"Email Jo at https://example.org/a?b=2."}
+{"id":"test-clean-003","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"Run `git diff --check` before review."}
+{"id":"test-clean-004","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"A quokka is not a typo."}
+{"id":"test-clean-005","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"Spacing  stays exactly like this."}
+{"id":"test-clean-006","source_id":"posttrainllm-original-autocorrect-v1","split":"test","text":"Café déjà vu — keep the accents."}

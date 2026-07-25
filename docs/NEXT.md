@@ -42,6 +42,23 @@ Post-training tasks must also name a **recipe**, not only a method. Use
 The recipe must name the failure mode, data, eval gate, slice gate, and stop
 rule.
 
+## OpenSpec completion reprioritization (2026-07-25)
+
+The owner explicitly reprioritized finishing all OpenSpecs. That decision
+started the **no-model foundation tranche** of
+`build-mac-local-autocorrect-specialist` without selecting or training a new
+model target. The verified foundation is documented in
+[`factory/autocorrect-foundation.md`](factory/autocorrect-foundation.md):
+versioned contract/taxonomy/threshold fixtures, tiny consented original
+fixtures, strict evaluator, source-first leakage/provenance checks, Mac keyboard
+simulator with edit traces, bounded tiny-overfit/pilot manifests, distribution
+report, and an Apple protocol assessment.
+
+The boundary remains: Codex/frontier calibration (task 2.5), model research and
+downloads, model loading, compilation, GPU/training, decoding benchmarks,
+packaging, and final factory decision are pending their recorded blockers. The
+queue still has no active training target.
+
 ## Active Sequence
 
 ### 0. Keep Public Artifacts First-Class

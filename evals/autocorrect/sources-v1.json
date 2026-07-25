@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "posttrainllm-original-autocorrect-v1",
+      "title": "PostTrainLLM original reviewed autocorrect smoke fixtures",
+      "source_type": "original-consented-tiny-fixture",
+      "license_spdx": "MIT",
+      "license_path": "LICENSE",
+      "revision_kind": "sha256",
+      "revision": "f34a63b9e086d4d694eebfc06de681890739df83d9627e524f7228bfc7aa0adc",
+      "retrieval_method": "Read evals/autocorrect/source-documents-v1.jsonl from this repository; no download or network access.",
+      "allowed_uses": [
+        "training smoke",
+        "evaluation smoke",
+        "modification",
+        "redistribution"
+      ],
+      "exclusions": [
+        "private typing logs",
+        "copied proprietary text",
+        "ambiguous grammar or style rewrites",
+        "population-prevalence claims"
+      ],
+      "consent_record": "The owner explicitly authorized original tiny fixtures for this no-model foundation tranche on 2026-07-25.",
+      "limitations": "The error rows are manually constructed and reviewed examples of ordinary typing mistakes, not a representative natural corpus. A larger permissively licensed natural source remains required before a headline model evaluation."
+    }
+  ],
+  "rejected_sources": [
+    {
+      "id": "unverified-external-typo-corpora",
+      "reason": "No network calls were permitted, so external revisions, licenses, and redistribution terms could not be independently verified in this tranche.",
+      "rows_rejected": 0
+    },
+    {
+      "id": "private-owner-typing-logs",
+      "reason": "Private text is unnecessary and prohibited for the first proof.",
+      "rows_rejected": 0
+    }
+  ]
+}

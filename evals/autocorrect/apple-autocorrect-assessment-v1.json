@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "assessment_id": "apple-autocorrect-protocol-v1",
+  "assessed_on": "2026-07-25",
+  "host": {
+    "macos_version": "27.0",
+    "macos_build": "26A5388g",
+    "sdk": "macosx27.0",
+    "sdk_display_name": "macOS 27.0"
+  },
+  "method": "Read-only inspection of locally installed public AppKit SDK headers; no compilation, execution, network request, or text submission.",
+  "evidence": [
+    {
+      "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSSpellChecker.h",
+      "sha256": "64a00c7e6de7c3d6ab5e53ffba5cf79ce80b7b9c31410ca1c8d52632eabf1dea",
+      "finding": "NSSpellChecker exposes unified checking results and correctionForWordRange, which proposes one correction for an explicit word range."
+    },
+    {
+      "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/AppKit.framework/Headers/NSTextView.h",
+      "sha256": "0439338b63785006f7a44b83d235b785a0e365823963439b3a52a4390520fe18",
+      "finding": "NSTextView exposes automaticSpellingCorrectionEnabled and applies checking results inside an interactive text-view lifecycle."
+    },
+    {
+      "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/SDKSettings.json",
+      "sha256": "855868bc51c250cee55cccff0a6e5f6e7ef17856e921b44837dfec8c003f0693",
+      "finding": "The inspected local base SDK identifies itself as macosx27.0."
+    }
+  ],
+  "full_span_protocol_equivalent": false,
+  "classification": "observational-non-equivalent",
+  "reasons": [
+    "No inspected public API accepts one complete prose span and returns the final whole-span autocorrect result used by interactive NSTextView typing.",
+    "The direct correction API is word-range based; a caller-authored loop that applies results would be a new protocol, not Apple's interactive autocorrect protocol.",
+    "Interactive behavior can depend on language selection, global preferences, learned spellings, document tag, typing order, and user response state.",
+    "The frozen specialist protocol requires deterministic whole-span minimal correction and byte-exact preservation of protected spans."
+  ],
+  "allowed_reporting": "Report an NSSpellChecker word-candidate or NSTextView observational result in a separately labelled slice with exact host, language, preferences, and invocation.",
+  "forbidden_reporting": "Do not place Apple autocorrect in the direct full-span error-reduction or frontier-parity table unless a new version proves protocol equivalence.",
+  "future_probe": "A separately approved lightweight AppKit harness may record observational results, but it must not be described as protocol-equivalent and was not compiled or run in this tranche."
+}

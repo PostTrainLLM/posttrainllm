@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "taxonomy_id": "mac-local-autocorrect-taxonomy-v1",
+  "supported_error_families": {
+    "substitution": "A key is replaced by an adjacent physical key.",
+    "insertion": "An unintended adjacent key is inserted.",
+    "omission": "An intended key is omitted.",
+    "transposition": "Two adjacent typed characters are reversed.",
+    "repetition": "A key is emitted more than once.",
+    "space": "A word boundary is inserted or removed.",
+    "shift_case": "Shift state or letter casing is wrong."
+  },
+  "qualitative_failure_families": {
+    "missed_edit": "A required correction is absent or incomplete.",
+    "wrong_edit": "The output edits the corrupted span to something other than the reviewed target.",
+    "overcorrection": "The output changes text that was already valid.",
+    "meaning_change": "The output changes the intended fact, wording, tone, or semantic relation.",
+    "formatting_damage": "Whitespace, punctuation, casing, or line structure changes outside a reviewed correction.",
+    "protected_span_damage": "An uncorrupted name, number, URL, rare word, or code-like span changes."
+  },
+  "review_priority": [
+    "meaning_change",
+    "protected_span_damage",
+    "overcorrection",
+    "formatting_damage",
+    "wrong_edit",
+    "missed_edit"
+  ]
+}
