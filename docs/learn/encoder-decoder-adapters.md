@@ -90,11 +90,40 @@ before deciding whether an edit-aware objective is justified. If ordinary
 sequence loss already fixes the target slices, the edit-aware stage never runs —
 that is a success, not a skipped feature.
 
-**Observed, 2026-07-25.** The tiny-overfit adapter, probed on unseen input,
-copied `The meetign is at nine tomorrow.` through *unchanged* — the typo
-survived intact. Copy bias is not a hypothetical for this lane; it is the
-measured starting behavior. Full evidence:
-[`../factory/autocorrect-adapter-recipe.md`](../factory/autocorrect-adapter-recipe.md#task-53--the-tiny-overfit-gate-run-2026-07-25-passed).
+**Observed, 2026-07-25 — and then inverted.** The tiny-overfit adapter, probed
+on unseen input, copied `The meetign is at nine tomorrow.` through *unchanged*:
+copy bias, exactly as predicted.
+
+Then the pilot trained for 50 steps on 12 rows and blew straight past the
+target in the opposite direction. It became a **paraphraser** — `remeber` →
+`remind you`, `teh team` → `your team`, `tomorroww` → `tomorrow morning` — with
+an unnecessary-edit rate of 0.839 against a 0.005 bar, and an error reduction of
+**−0.8125**, meaning the output is further from the clean text than the typo'd
+input was.
+
+So the real dynamic is not "copy bias, which training must overcome." It is a
+**narrow band between two failure modes**: copy everything (zero repair) and
+rewrite everything (negative repair). Ordinary sequence loss on a tiny dataset
+does not find that band — it slid from one wall to the other in fifty steps.
+Full evidence:
+[`../factory/autocorrect-adapter-recipe.md`](../factory/autocorrect-adapter-recipe.md#tasks-5455--the-pilot-run-2026-07-25-regressed).
+
+That is also why the edit-aware objective was *rejected* rather than tried: it
+up-weights edit positions, which pushes toward the wall the model had already
+hit.
+
+### Designing a stop rule that can actually be satisfied
+
+A related trap, found the same day. The pilot's stop rule was
+`clean_preservation < 0.995 → stop`. Sensible as a *ship* bar. But the base
+model's own zero-shot clean preservation is 0.667, so the rule fired at the
+first evaluation regardless of what training did — the pilot could never run
+past step 50 by construction.
+
+**The general rule: a training stop rule must be satisfiable by the model you
+are starting from.** Reusing a ship-grade bar as a training guard silently
+converts "stop if we regress" into "stop always." Check every stop rule against
+the *baseline's* measured value, not against the target.
 
 ## 4. Edit-aware loss, and why it is gated behind an ablation
 
@@ -181,5 +210,11 @@ post-training concepts), [`session-11-evals-rewards.md`](session-11-evals-reward
    property rather than a problem?
 3. A candidate scores 0% error reduction and 100% clean preservation. What
    happened, and which gate catches it?
-4. Why is the byte-to-token offset mapping the risky part of edit-aware loss?
-5. ByT5 is better matched to typo repair than FLAN-T5. Why did it lose?
+4. A candidate scores **−0.81** error reduction. What does a *negative* error
+   reduction mean, and which failure mode produces it?
+5. Why is the byte-to-token offset mapping the risky part of edit-aware loss?
+6. Our pilot overcorrected. Explain why an edit-aware objective was rejected
+   rather than tried as the fix.
+7. A stop rule reads `clean_preservation < 0.995 → stop`. What must you check
+   before accepting it as a *training* guard?
+8. ByT5 is better matched to typo repair than FLAN-T5. Why did it lose?

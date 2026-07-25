@@ -697,6 +697,56 @@ def greedy_predict(
     return predictions
 
 
+def evaluate_stage(
+    model: Any,
+    tokenizer: Any,
+    stage: str,
+    recipe: dict[str, Any],
+    device: str,
+    examples: Sequence[dict[str, Any]],
+) -> dict[str, Any]:
+    """Score a stage the way its frozen gate says it must be scored.
+
+    `tiny_overfit` is a memorization gate, so it is scored on its own rows.
+    `pilot` is scored on the untouched frozen eval fixture through the shared
+    foundation evaluator -- the same code path the base bake-off used.
+    """
+    if stage == "tiny_overfit":
+        predictions = greedy_predict(model, tokenizer, examples, recipe, device)
+        exact = sum(
+            prediction == example["target"]
+            for prediction, example in zip(predictions, examples)
+        ) / len(examples)
+        return {"exact_match": exact, "predictions": predictions}
+
+    foundation = _foundation()
+    fixture_rows = foundation.load_jsonl(FIXTURE_DIR / "eval-v1.jsonl")
+    template = recipe["base"]["prompt_template"]
+    prompted = [
+        {"source": template.format(text=row["noisy"]), "target": row["clean"]}
+        for row in fixture_rows
+    ]
+    predictions = greedy_predict(model, tokenizer, prompted, recipe, device)
+    report = foundation.evaluate(
+        fixture_rows,
+        [
+            {"id": row["id"], "prediction": prediction}
+            for row, prediction in zip(fixture_rows, predictions)
+        ],
+    )
+    overall = report["overall"]
+    return {
+        "exact_match": overall["exact_match_rate"],
+        "error_reduction_rate": overall["error_reduction_rate"],
+        "clean_byte_exact_preservation_rate": overall["clean_byte_exact_preservation_rate"],
+        "unnecessary_edit_rate": overall["unnecessary_edit_rate"],
+        "protected_span_preservation_rate": overall["protected_span_preservation_rate"],
+        "residual_character_error_rate": overall["residual_character_error_rate"],
+        "foundation_report": report,
+        "predictions": predictions,
+    }
+
+
 def run_stage(
     stage: str,
     recipe: dict[str, Any] | None = None,
@@ -712,6 +762,16 @@ def run_stage(
 
     plan = build_plan(stage, recipe)
     examples = build_examples(stage, recipe)
+    # The pilot manifest records a train/development split on purpose; honour it
+    # rather than training on the monitoring rows.
+    train_rows = (
+        [row for row in examples if row["split"] == "train"]
+        if stage == "pilot"
+        else examples
+    )
+    dev_rows = [row for row in examples if row["split"] == "development"]
+    if not train_rows:
+        raise AdapterError(f"{stage}: no train-split rows to train on")
     training = recipe["training"]
     device = resolve_device(recipe)
     output_dir = Path(output_dir or ROOT / "runs" / f"autocorrect-{stage.replace('_', '-')}-v1")
@@ -740,8 +800,8 @@ def run_stage(
 
     while step < total_steps and not stop.stopped:
         if len(order) < batch_size:
-            order += torch.randperm(len(examples), generator=generator).tolist()
-        picked = [examples[i] for i in order[:batch_size]]
+            order += torch.randperm(len(train_rows), generator=generator).tolist()
+        picked = [train_rows[i] for i in order[:batch_size]]
         order = order[batch_size:]
 
         batch = encode_batch(tokenizer, picked, recipe)
@@ -759,24 +819,40 @@ def run_stage(
             break
 
         if step % training["eval_every_steps"] == 0 or step in checkpoints:
-            predictions = greedy_predict(model, tokenizer, examples, recipe, device)
-            exact = sum(
-                prediction == example["target"]
-                for prediction, example in zip(predictions, examples)
-            ) / len(examples)
-            evaluations.append({"step": step, "exact_match": exact, "loss": loss})
-            print(f"  step {step:>3}  loss {loss:.4f}  exact_match {exact:.3f}", flush=True)
+            scored = evaluate_stage(model, tokenizer, stage, recipe, device, examples)
+            exact = scored["exact_match"]
+            entry = {
+                "step": step,
+                "loss": loss,
+                **{k: v for k, v in scored.items()
+                   if k not in ("predictions", "foundation_report")},
+            }
+            if stage == "pilot" and dev_rows:
+                dev_predictions = greedy_predict(model, tokenizer, dev_rows, recipe, device)
+                entry["development_exact_match"] = sum(
+                    prediction == row["target"]
+                    for prediction, row in zip(dev_predictions, dev_rows)
+                ) / len(dev_rows)
+            evaluations.append(entry)
+            summary = "  ".join(
+                f"{key} {value:.3f}"
+                for key, value in entry.items()
+                if isinstance(value, (int, float)) and key not in ("step",)
+            )
+            print(f"  step {step:>3}  {summary}", flush=True)
+
             if exact > best["exact_match"]:
                 best = {"step": step, "exact_match": exact}
                 save_adapter(model, output_dir / "adapter-best.pt", recipe,
                              extra={"stage": stage, "step": step, "exact_match": exact})
+            if stop.observe_eval(step, entry):
+                break
             if stage == "tiny_overfit" and exact >= recipe["gates"]["tiny_overfit"]["exact_match_min"]:
                 break
 
-    predictions = greedy_predict(model, tokenizer, examples, recipe, device)
-    final_exact = sum(
-        prediction == example["target"] for prediction, example in zip(predictions, examples)
-    ) / len(examples)
+    final = evaluate_stage(model, tokenizer, stage, recipe, device, examples)
+    predictions = final["predictions"]
+    final_exact = final["exact_match"]
     save_adapter(model, output_dir / "adapter-last.pt", recipe,
                  extra={"stage": stage, "step": step, "exact_match": final_exact})
 
@@ -807,14 +883,21 @@ def run_stage(
         "evaluations": evaluations,
         "best": best,
         "final_exact_match": final_exact,
-        "gate": {
-            "exact_match_min": recipe["gates"]["tiny_overfit"]["exact_match_min"],
-            "passed": final_exact >= recipe["gates"]["tiny_overfit"]["exact_match_min"],
+        "final_metrics": {
+            key: value
+            for key, value in final.items()
+            if key not in ("predictions", "foundation_report")
         },
         "stop_rule_triggered": stop.triggered,
         "stop_rule_detail": stop.detail,
         "decision": stop.decision(),
-        "predictions": [
+    }
+
+    if stage == "tiny_overfit":
+        bar = recipe["gates"]["tiny_overfit"]["exact_match_min"]
+        report["evaluated_on"] = "its own training rows (memorization gate)"
+        report["gate"] = {"exact_match_min": bar, "passed": final_exact >= bar}
+        report["predictions"] = [
             {
                 "id": example["id"],
                 "error_family": example["error_family"],
@@ -824,8 +907,64 @@ def run_stage(
                 "exact_match": prediction == example["target"],
             }
             for example, prediction in zip(examples, predictions)
-        ],
-    }
+        ]
+    else:
+        foundation = _foundation()
+        fixture_rows = foundation.load_jsonl(FIXTURE_DIR / "eval-v1.jsonl")
+        bakeoff = json.loads(
+            (FIXTURE_DIR / "base-bakeoff-v1.json").read_text(encoding="utf-8")
+        )
+        zero_shot = bakeoff["selection"]["baseline_quality"]
+        thresholds = json.loads(THRESHOLDS_PATH.read_text(encoding="utf-8"))
+        report["evaluated_on"] = "evals/autocorrect/eval-v1.jsonl (frozen, unchanged)"
+        report["train_rows"] = len(train_rows)
+        report["development_rows"] = len(dev_rows)
+        report["split_note"] = (
+            "Trained on the manifest's train split only; the development rows were "
+            "monitored, never trained on."
+        )
+        report["foundation_report"] = final["foundation_report"]
+        report["comparator_zero_shot"] = zero_shot
+        report["delta_vs_zero_shot"] = {
+            key: round(report["final_metrics"][key] - zero_shot[key], 6)
+            for key in (
+                "error_reduction_rate",
+                "exact_match_rate" if "exact_match_rate" in report["final_metrics"] else "exact_match",
+                "clean_byte_exact_preservation_rate",
+                "protected_span_preservation_rate",
+            )
+            if key in report["final_metrics"] and key in zero_shot
+        }
+        report["threshold_comparison"] = {
+            "natural_error_reduction_rate_min": thresholds["quality"][
+                "natural_error_reduction_rate_min"
+            ],
+            "clean_byte_exact_preservation_min": thresholds["regression"][
+                "clean_byte_exact_preservation_min"
+            ],
+            "protected_span_preservation_min": thresholds["regression"][
+                "protected_span_preservation_min"
+            ],
+            "unnecessary_edit_rate_max": thresholds["regression"]["unnecessary_edit_rate_max"],
+        }
+        report["gate"] = {
+            "passed": None,
+            "note": (
+                "A pilot has no single pass bar. Task 5.5 reads these slices to decide "
+                "whether an edit-aware objective is justified; ship gates are 7.x."
+            ),
+        }
+        report["predictions"] = [
+            {
+                "id": row["id"],
+                "slices": row["slices"],
+                "noisy": row["noisy"],
+                "clean": row["clean"],
+                "prediction": prediction,
+                "exact_match": prediction == row["clean"],
+            }
+            for row, prediction in zip(fixture_rows, predictions)
+        ]
     (output_dir / "report.json").write_text(
         json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
@@ -960,8 +1099,10 @@ def main(argv: list[str] | None = None) -> int:
         with GPULock(f"autocorrect_adapter train --stage {args.stage}"):
             report = run_stage(args.stage, output_dir=args.output_dir)
 
-        print(json.dumps({k: v for k, v in report.items() if k != "loss_history"}, indent=2))
-        return 0 if report["gate"]["passed"] else 4
+        skip = {"loss_history", "predictions", "foundation_report"}
+        print(json.dumps({k: v for k, v in report.items() if k not in skip}, indent=2))
+        passed = report["gate"]["passed"]
+        return 0 if passed is not False else 4
 
     return 1  # pragma: no cover - argparse enforces a command
 

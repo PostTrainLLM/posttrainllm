@@ -173,18 +173,79 @@ This is useful, not disappointing: §3 of
 [`../learn/encoder-decoder-adapters.md`](../learn/encoder-decoder-adapters.md)
 predicted copy bias as the dominant risk, and the pilot's job is to move it.
 
-## Next authorized step
+## Tasks 5.4–5.5 — the pilot (run 2026-07-25, regressed)
 
-Task 5.4: one bounded ordinary-loss pilot on the 16-row pilot manifest, capped
-at 300 steps and 120 minutes. It needs its own owner approval and the GPU lock.
-Task 5.5 then decides — from measured copy-bias and missed-edit slices — whether
-an edit-aware objective is justified at all.
+Owner-approved; GPU lock acquired and released; no lingering process. Trained on
+the manifest's 12 train-split rows only — the 4 development rows were monitored,
+never trained on. Scored on the unchanged frozen `eval-v1.jsonl` through the
+same foundation evaluator the bake-off used. Evidence:
+[`evals/autocorrect/pilot-result-v1.json`](../../evals/autocorrect/pilot-result-v1.json).
 
-Two things the 5.3 probe suggests for 5.4 planning, neither yet tested:
+| Metric | Zero-shot base | Pilot | Delta |
+|---|---:|---:|---:|
+| Error reduction | +0.0625 | **−0.8125** | **−0.875** |
+| Exact match | 0.389 | 0.444 | +0.056 |
+| Clean preservation | 0.667 | 0.667 | 0.000 |
+| Protected spans | 0.867 | 0.800 | −0.067 |
+| Unnecessary edit rate | — | 0.839 | bar is ≤ 0.005 |
 
-- The pilot fixture has 8 distinct source documents against the tiny gate's one,
-  so memorization pressure drops sharply. Whether 16 rows is enough signal to
-  overcome the copy prior is the open question.
-- Instruction echo on out-of-distribution input suggests the prompt template may
-  need to appear in training with more source variety, or that decoding needs a
-  guard. Recording it now so it is not rediscovered as a surprise.
+Negative error reduction means the output is *further* from the clean reference
+than the noisy input was. The pilot made text worse.
+
+### The failure is overcorrection, not copy bias
+
+The model became a paraphraser:
+
+| Noisy | Clean | Prediction |
+|---|---|---|
+| `I will remeber to bring the charger.` | `…remember…` | `I will **remind you** to bring the charger.` |
+| `Meet teh team beside the station.` | `…the team…` | `Meet **your** team beside the station.` |
+| `The café opens tomorroww.` | `…tomorrow.` | `The café opens tomorrow **morning**.` |
+| `The repourt is ready.` | `…report…` | `The repourt is ready.` *(unfixed)* |
+
+Structural slices are genuinely clean — casing, name, number, and url all score
+1.0 error reduction with zero unnecessary edits. The damage is concentrated in
+lexical repair, which turned into semantic rewriting: exactly the behaviour the
+design's non-goals forbid.
+
+This *inverts* the prediction from the tiny gate, where the untrained-ish
+adapter copied typos through. Fifty steps on twelve rows took the model straight
+past "repair" into "rewrite" without stopping at the target.
+
+### Recipe defect: the stop rule was unsatisfiable
+
+The run stopped at step 50 of 300 on `clean-preservation-collapse`. But
+`thresholds-v1.stop_on_clean_preservation_below` is **0.995** while the base
+model's own zero-shot clean preservation is **0.667** — so the rule fires at the
+first scheduled evaluation no matter what training does. A ship-grade regression
+bar is being used as a training stop rule.
+
+The regression above is real and measured, but it is **truncated evidence**:
+50 of 300 steps, forced by construction rather than by the model. A fair test of
+this recipe needs a new thresholds version that separates training stop rules
+from ship bars.
+
+### 5.5 answer: an edit-aware objective is not justified
+
+An edit-aware loss up-weights the positions that need correcting. The measured
+failure is that this model edits far too *much*, not too little — unnecessary
+edit rate 0.839 against a 0.005 bar. Weighting edit positions harder would very
+likely push overcorrection higher, which is task 5.7's explicit reject
+condition. Tasks 5.6–5.7 are therefore **not** proceeding.
+
+The real blockers, none of which an edit-aware loss addresses:
+
+1. Twelve training rows is too little signal for lexical repair.
+2. The unsatisfiable stop rule truncates every pilot at its first evaluation.
+3. Nothing in the objective or the decoding path guards against meaning change.
+
+## Next step — needs a new recipe version, not another run
+
+The frozen recipe has reached its stop rule, and its `movement_policy` forbids
+moving bars inside a live run. A `v2` should address, in this order:
+
+1. **Separate training stop rules from ship bars** so a pilot can run its budget.
+2. **More data** — the 26 source documents already exist; the pilot uses 8.
+3. **A meaning-change guard**, since overcorrection is now the measured enemy.
+
+No further training should run under `adapter-recipe-v1`.

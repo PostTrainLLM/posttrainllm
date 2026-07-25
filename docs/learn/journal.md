@@ -1007,3 +1007,49 @@ conflates "memorized the data" with "emitted a constant." More than one
 distinct target separates them for free. Filed as a v2 fixture
 improvement rather than fixed mid-lane — the thresholds are frozen and
 this run's evidence is already recorded.
+
+---
+
+## 2026-07-25 — Entry 17: Two walls and no floor between them
+
+**During autocorrect tasks 5.4–5.5.** The tiny gate's probe showed copy
+bias: the adapter passed a typo through untouched. The obvious next
+sentence to write was "training will fix this."
+
+Fifty steps on twelve rows later, the pilot scored **−0.8125** error
+reduction. Negative. The output was *further* from the clean reference
+than the typo'd input had been. `remeber` became `remind you`. `teh team`
+became `your team`. `tomorroww` became `tomorrow morning`. Meanwhile
+`repourt` sat there unrepaired.
+
+It did not travel from "copies too much" toward "repairs correctly." It
+travelled from one wall to the opposite wall and kept going.
+
+**The reframe:** minimum-edit repair is not a point you approach from the
+copy side. It is a **narrow band between two failure modes** — copy
+everything (zero repair) and rewrite everything (negative repair) — and
+plain sequence loss on a small dataset has no reason to stop in the
+middle. Nothing in the objective says "prefer the smallest edit that
+works." The model is only asked to match a target string, and
+paraphrasing matches it *approximately* in a way the loss tolerates.
+
+That is what killed the edit-aware objective before it was written. It
+up-weights the positions that need correcting — pressure toward *more*
+editing, aimed at a model that had already overshot. The technique was
+not wrong; it was pointed at the wrong wall.
+
+### Second finding: a stop rule that could not be satisfied
+
+The pilot halted at step 50 of 300 on `clean_preservation < 0.995`. Then:
+the *base* model's zero-shot clean preservation is 0.667. So the rule
+fired at the first evaluation no matter what training did. The pilot was
+never able to run its budget.
+
+A ship bar had been reused as a training guard, which silently turns
+"stop if we regress" into "stop always." **Check every stop rule against
+the baseline's measured value, not against the target.** Obvious in
+hindsight; invisible when the threshold file and the baseline file are
+written weeks apart and never compared.
+
+Both findings are cheap only because the run was 21 seconds. The same two
+mistakes on a 6-hour job would have cost a day each.

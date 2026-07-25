@@ -82,11 +82,27 @@ it — the fixture has one unique target, so the score measures capacity and
 wiring, not correction, and the diagnostic probe showed copy bias, memorization
 leakage, and instruction echo on unseen input.
 
-Pilot training (5.4), decoding gates (6.x), packaging, and the final factory
-decision remain pending immediate approval. **No candidate has been evaluated on
-the frozen suite and no ship claim exists.** The next authorized step is the
-bounded ordinary-loss pilot on the 16-row manifest (300 steps, 120 min cap),
-which needs its own owner approval and the GPU lock.
+Tasks 5.4-5.5 ran 2026-07-25 with owner approval and the **pilot regressed**:
+error reduction `+0.0625 -> -0.8125` on the unchanged frozen suite, unnecessary
+edit rate 0.839 against a 0.005 bar. The failure mode is overcorrection, not
+copy bias — the model became a paraphraser. Evidence:
+`evals/autocorrect/pilot-result-v1.json`.
+
+Two blockers came out of it:
+
+1. **The pilot was truncated by construction.** It stopped at step 50 of 300 on
+   `stop_on_clean_preservation_below: 0.995`, but the base's own zero-shot clean
+   preservation is 0.667, so that ship-grade bar fires at the first evaluation
+   regardless of training.
+2. **Tasks 5.6-5.7 are rejected, not pending.** An edit-aware objective
+   up-weights edit positions, which targets the opposite of the measured failure
+   and would push overcorrection past 5.7's own reject condition.
+
+**Do not run further training under `adapter-recipe-v1`** — it has reached its
+stop rule and its movement policy forbids moving bars inside a live run. The
+next step is a `v2` recipe that separates training stop rules from ship bars,
+draws on more of the 26 available source documents, and adds a meaning-change
+guard. That is a spec change, not a training run.
 
 ## Active Sequence
 

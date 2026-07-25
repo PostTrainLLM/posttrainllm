@@ -41,6 +41,11 @@ This directory is the committed, no-model foundation for
   curve, timing, RSS, per-row predictions, and a diagnostic probe. Its
   `fixture_limitation` field states why exact match 1.0 here is **not** a
   quality result: the fixture has one unique target.
+- `pilot-result-v1.json` — the measured 5.4 pilot and its 5.5 reading. The
+  pilot **regressed** (error reduction `-0.8125`) by overcorrecting into
+  paraphrase; its `recipe_defect` field records that the run was truncated by a
+  stop rule the base model already violates, and `edit_aware_justification`
+  records why tasks 5.6-5.7 are rejected rather than pending.
 
 ## No-model checks
 

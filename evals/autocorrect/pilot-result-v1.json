@@ -1,0 +1,770 @@
+{
+  "schema_version": 1,
+  "result_id": "autocorrect-pilot-v1",
+  "observed_on": "2026-07-25",
+  "task": "5.4 bounded ordinary-loss pilot; 5.5 evaluation and edit-aware justification",
+  "host": {
+    "model": "Apple M5 Pro",
+    "memory_gib": 48
+  },
+  "recipe_id": "autocorrect-flan-t5-small-lora-v1",
+  "base_model_id": "google/flan-t5-small",
+  "base_revision": "0fc9ddf78a1e988dac52e2dac162b0ede4fd74ab",
+  "dataset_sha256": "e18fac8d1b78ce527ece7b4eec83e31d4192e821d4ce88cfa295ce41a50d5e71",
+  "rows": 16,
+  "train_rows": 12,
+  "development_rows": 4,
+  "split_note": "Trained on the manifest's train split only; the development rows were monitored, never trained on.",
+  "device": "mps",
+  "torch": "2.7.1",
+  "steps_taken": 50,
+  "step_budget": 300,
+  "wall_time_minutes": 0.357,
+  "peak_rss_mib": 1834.859,
+  "trainable_parameters": 344064,
+  "first_loss": 1.3686202764511108,
+  "final_loss": 0.17329324781894684,
+  "loss_history": [
+    {
+      "step": 1,
+      "loss": 1.3686202764511108,
+      "lr": 3.3333333333333335e-05
+    },
+    {
+      "step": 10,
+      "loss": 1.1824491024017334,
+      "lr": 0.0003333333333333333
+    },
+    {
+      "step": 20,
+      "loss": 1.4568532705307007,
+      "lr": 0.0006666666666666666
+    },
+    {
+      "step": 30,
+      "loss": 0.7597762942314148,
+      "lr": 0.001
+    },
+    {
+      "step": 40,
+      "loss": 0.5708596706390381,
+      "lr": 0.001
+    },
+    {
+      "step": 50,
+      "loss": 0.17329324781894684,
+      "lr": 0.001
+    }
+  ],
+  "evaluations": [
+    {
+      "step": 50,
+      "loss": 0.17329324781894684,
+      "exact_match": 0.4444444444444444,
+      "error_reduction_rate": -0.8125,
+      "clean_byte_exact_preservation_rate": 0.6666666666666666,
+      "unnecessary_edit_rate": 0.8387096774193549,
+      "protected_span_preservation_rate": 0.8,
+      "residual_character_error_rate": 0.055,
+      "development_exact_match": 0.25
+    }
+  ],
+  "evaluated_on": "evals/autocorrect/eval-v1.jsonl (frozen, unchanged)",
+  "final_metrics": {
+    "exact_match": 0.4444444444444444,
+    "error_reduction_rate": -0.8125,
+    "clean_byte_exact_preservation_rate": 0.6666666666666666,
+    "unnecessary_edit_rate": 0.8387096774193549,
+    "protected_span_preservation_rate": 0.8,
+    "residual_character_error_rate": 0.055
+  },
+  "comparator_zero_shot": {
+    "error_reduction_rate": 0.0625,
+    "exact_match_rate": 0.3888888888888889,
+    "clean_byte_exact_preservation_rate": 0.6666666666666666,
+    "protected_span_preservation_rate": 0.8666666666666667
+  },
+  "delta_vs_zero_shot": {
+    "error_reduction_rate": -0.875,
+    "clean_byte_exact_preservation_rate": 0.0,
+    "protected_span_preservation_rate": -0.066667
+  },
+  "threshold_comparison": {
+    "natural_error_reduction_rate_min": 0.9,
+    "clean_byte_exact_preservation_min": 0.995,
+    "protected_span_preservation_min": 0.995,
+    "unnecessary_edit_rate_max": 0.005
+  },
+  "stop_rule_triggered": "clean-preservation-collapse",
+  "stop_rule_detail": "clean preservation 0.6666666666666666 < 0.995 at step 50",
+  "predictions": [
+    {
+      "id": "natural-001",
+      "slices": [
+        "natural",
+        "substitution",
+        "punctuation"
+      ],
+      "noisy": "Please chevk the calendar before lunch.",
+      "clean": "Please check the calendar before lunch.",
+      "prediction": "Please check the calendar before lunch.",
+      "exact_match": true
+    },
+    {
+      "id": "natural-002",
+      "slices": [
+        "natural",
+        "omission"
+      ],
+      "noisy": "I will remeber to bring the charger.",
+      "clean": "I will remember to bring the charger.",
+      "prediction": "I will remind you to bring the charger.",
+      "exact_match": false
+    },
+    {
+      "id": "natural-003",
+      "slices": [
+        "natural",
+        "transposition"
+      ],
+      "noisy": "Meet teh team beside the station.",
+      "clean": "Meet the team beside the station.",
+      "prediction": "Meet your team beside the station.",
+      "exact_match": false
+    },
+    {
+      "id": "natural-004",
+      "slices": [
+        "natural",
+        "repetition",
+        "unicode",
+        "punctuation"
+      ],
+      "noisy": "The café opens tomorroww.",
+      "clean": "The café opens tomorrow.",
+      "prediction": "The café opens tomorrow morning.",
+      "exact_match": false
+    },
+    {
+      "id": "natural-005",
+      "slices": [
+        "natural",
+        "insertion",
+        "punctuation"
+      ],
+      "noisy": "The repourt is ready.",
+      "clean": "The report is ready.",
+      "prediction": "The repourt is ready.",
+      "exact_match": false
+    },
+    {
+      "id": "natural-006",
+      "slices": [
+        "natural",
+        "space",
+        "whitespace"
+      ],
+      "noisy": "We need alot of paper.",
+      "clean": "We need a lot of paper.",
+      "prediction": "We need a lot of paper.",
+      "exact_match": true
+    },
+    {
+      "id": "natural-007",
+      "slices": [
+        "natural",
+        "shift_case",
+        "casing",
+        "punctuation"
+      ],
+      "noisy": "monday works for me.",
+      "clean": "Monday works for me.",
+      "prediction": "Monday works for me.",
+      "exact_match": true
+    },
+    {
+      "id": "natural-008",
+      "slices": [
+        "natural",
+        "transposition",
+        "name",
+        "number",
+        "url"
+      ],
+      "noisy": "Amrita will recieve 2 files at https://example.com/v2.",
+      "clean": "Amrita will receive 2 files at https://example.com/v2.",
+      "prediction": "Amrita will receive 2 files at https://example.com/v2.",
+      "exact_match": true
+    },
+    {
+      "id": "natural-009",
+      "slices": [
+        "natural",
+        "transposition",
+        "rare_word",
+        "lexical_holdout"
+      ],
+      "noisy": "A zyzzyva restde near the window.",
+      "clean": "A zyzzyva rested near the window.",
+      "prediction": "A zyzzyva restde near the window.",
+      "exact_match": false
+    },
+    {
+      "id": "natural-010",
+      "slices": [
+        "natural",
+        "substitution",
+        "code_like",
+        "punctuation"
+      ],
+      "noisy": "Use `python3 app.py`, then chevk the output.",
+      "clean": "Use `python3 app.py`, then check the output.",
+      "prediction": "Use python3 app.py, then chevk the output.",
+      "exact_match": false
+    },
+    {
+      "id": "natural-011",
+      "slices": [
+        "natural",
+        "space",
+        "whitespace",
+        "rare_word",
+        "lexical_holdout"
+      ],
+      "noisy": "The quokka looked remark ably calm.",
+      "clean": "The quokka looked remarkably calm.",
+      "prediction": "The quokka looked remark ably calm.",
+      "exact_match": false
+    },
+    {
+      "id": "natural-012",
+      "slices": [
+        "natural",
+        "transposition",
+        "rare_word",
+        "lexical_holdout",
+        "punctuation"
+      ],
+      "noisy": "That sesquipedalian phrase was intentioanl.",
+      "clean": "That sesquipedalian phrase was intentional.",
+      "prediction": "That sesquipedlian phrase was intentioanl.",
+      "exact_match": false
+    },
+    {
+      "id": "clean-001",
+      "slices": [
+        "clean",
+        "number",
+        "casing",
+        "punctuation"
+      ],
+      "noisy": "Keep 42.5% in the \"Other\" bucket.",
+      "clean": "Keep 42.5% in the \"Other\" bucket.",
+      "prediction": "Keep 42.5% in the \"Other\" bucket.",
+      "exact_match": true
+    },
+    {
+      "id": "clean-002",
+      "slices": [
+        "clean",
+        "name",
+        "url",
+        "number"
+      ],
+      "noisy": "Email Jo at https://example.org/a?b=2.",
+      "clean": "Email Jo at https://example.org/a?b=2.",
+      "prediction": "Email Jo at https://example.org/a?b=2.",
+      "exact_match": true
+    },
+    {
+      "id": "clean-003",
+      "slices": [
+        "clean",
+        "code_like",
+        "punctuation"
+      ],
+      "noisy": "Run `git diff --check` before review.",
+      "clean": "Run `git diff --check` before review.",
+      "prediction": "Run git diff -- check before review.",
+      "exact_match": false
+    },
+    {
+      "id": "clean-004",
+      "slices": [
+        "clean",
+        "rare_word",
+        "lexical_holdout",
+        "punctuation"
+      ],
+      "noisy": "A quokka is not a typo.",
+      "clean": "A quokka is not a typo.",
+      "prediction": "A quokka is not a typo.",
+      "exact_match": true
+    },
+    {
+      "id": "clean-005",
+      "slices": [
+        "clean",
+        "whitespace",
+        "punctuation"
+      ],
+      "noisy": "Spacing  stays exactly like this.",
+      "clean": "Spacing  stays exactly like this.",
+      "prediction": "Spacing stays exactly like this.",
+      "exact_match": false
+    },
+    {
+      "id": "clean-006",
+      "slices": [
+        "clean",
+        "unicode",
+        "punctuation"
+      ],
+      "noisy": "Café déjà vu — keep the accents.",
+      "clean": "Café déjà vu — keep the accents.",
+      "prediction": "Café déjà vu — keep the accents.",
+      "exact_match": true
+    }
+  ],
+  "slices": {
+    "casing": {
+      "rows": 2,
+      "error_rows": 1,
+      "baseline_edit_distance": 1,
+      "candidate_edit_distance": 0,
+      "error_reduction_rate": 1.0,
+      "exact_match_rate": 1.0,
+      "residual_character_error_rate": 0.0,
+      "clean_byte_exact_preservation_rate": 1.0,
+      "unnecessary_edit_rate": 0.0,
+      "protected_span_preservation_rate": 1.0,
+      "counts": {
+        "clean_rows": 1,
+        "clean_rows_preserved": 1,
+        "candidate_edits": 1,
+        "unnecessary_edits": 0,
+        "protected_spans": 2,
+        "protected_spans_preserved": 2
+      }
+    },
+    "clean": {
+      "rows": 6,
+      "error_rows": 0,
+      "baseline_edit_distance": 0,
+      "candidate_edit_distance": 0,
+      "error_reduction_rate": null,
+      "exact_match_rate": 0.6666666666666666,
+      "residual_character_error_rate": 0.02040816326530612,
+      "clean_byte_exact_preservation_rate": 0.6666666666666666,
+      "unnecessary_edit_rate": 1.0,
+      "protected_span_preservation_rate": 0.875,
+      "counts": {
+        "clean_rows": 6,
+        "clean_rows_preserved": 4,
+        "candidate_edits": 4,
+        "unnecessary_edits": 4,
+        "protected_spans": 8,
+        "protected_spans_preserved": 7
+      }
+    },
+    "code_like": {
+      "rows": 2,
+      "error_rows": 1,
+      "baseline_edit_distance": 1,
+      "candidate_edit_distance": 3,
+      "error_reduction_rate": -2.0,
+      "exact_match_rate": 0.0,
+      "residual_character_error_rate": 0.07407407407407407,
+      "clean_byte_exact_preservation_rate": 0.0,
+      "unnecessary_edit_rate": 1.0,
+      "protected_span_preservation_rate": 0.0,
+      "counts": {
+        "clean_rows": 1,
+        "clean_rows_preserved": 0,
+        "candidate_edits": 5,
+        "unnecessary_edits": 5,
+        "protected_spans": 2,
+        "protected_spans_preserved": 0
+      }
+    },
+    "insertion": {
+      "rows": 1,
+      "error_rows": 1,
+      "baseline_edit_distance": 1,
+      "candidate_edit_distance": 1,
+      "error_reduction_rate": 0.0,
+      "exact_match_rate": 0.0,
+      "residual_character_error_rate": 0.05,
+      "clean_byte_exact_preservation_rate": null,
+      "unnecessary_edit_rate": 0.0,
+      "protected_span_preservation_rate": null,
+      "counts": {
+        "clean_rows": 0,
+        "clean_rows_preserved": 0,
+        "candidate_edits": 0,
+        "unnecessary_edits": 0,
+        "protected_spans": 0,
+        "protected_spans_preserved": 0
+      }
+    },
+    "lexical_holdout": {
+      "rows": 4,
+      "error_rows": 3,
+      "baseline_edit_distance": 5,
+      "candidate_edit_distance": 6,
+      "error_reduction_rate": -0.19999999999999996,
+      "exact_match_rate": 0.25,
+      "residual_character_error_rate": 0.045112781954887216,
+      "clean_byte_exact_preservation_rate": 1.0,
+      "unnecessary_edit_rate": 1.0,
+      "protected_span_preservation_rate": 0.75,
+      "counts": {
+        "clean_rows": 1,
+        "clean_rows_preserved": 1,
+        "candidate_edits": 1,
+        "unnecessary_edits": 1,
+        "protected_spans": 4,
+        "protected_spans_preserved": 3
+      }
+    },
+    "name": {
+      "rows": 2,
+      "error_rows": 1,
+      "baseline_edit_distance": 2,
+      "candidate_edit_distance": 0,
+      "error_reduction_rate": 1.0,
+      "exact_match_rate": 1.0,
+      "residual_character_error_rate": 0.0,
+      "clean_byte_exact_preservation_rate": 1.0,
+      "unnecessary_edit_rate": 0.0,
+      "protected_span_preservation_rate": 1.0,
+      "counts": {
+        "clean_rows": 1,
+        "clean_rows_preserved": 1,
+        "candidate_edits": 2,
+        "unnecessary_edits": 0,
+        "protected_spans": 6,
+        "protected_spans_preserved": 6
+      }
+    },
+    "natural": {
+      "rows": 12,
+      "error_rows": 12,
+      "baseline_edit_distance": 16,
+      "candidate_edit_distance": 29,
+      "error_reduction_rate": -0.8125,
+      "exact_match_rate": 0.3333333333333333,
+      "residual_character_error_rate": 0.07178217821782178,
+      "clean_byte_exact_preservation_rate": null,
+      "unnecessary_edit_rate": 0.8148148148148148,
+      "protected_span_preservation_rate": 0.7142857142857143,
+      "counts": {
+        "clean_rows": 0,
+        "clean_rows_preserved": 0,
+        "candidate_edits": 27,
+        "unnecessary_edits": 22,
+        "protected_spans": 7,
+        "protected_spans_preserved": 5
+      }
+    },
+    "number": {
+      "rows": 3,
+      "error_rows": 1,
+      "baseline_edit_distance": 2,
+      "candidate_edit_distance": 0,
+      "error_reduction_rate": 1.0,
+      "exact_match_rate": 1.0,
+      "residual_character_error_rate": 0.0,
+      "clean_byte_exact_preservation_rate": 1.0,
+      "unnecessary_edit_rate": 0.0,
+      "protected_span_preservation_rate": 1.0,
+      "counts": {
+        "clean_rows": 2,
+        "clean_rows_preserved": 2,
+        "candidate_edits": 2,
+        "unnecessary_edits": 0,
+        "protected_spans": 8,
+        "protected_spans_preserved": 8
+      }
+    },
+    "omission": {
+      "rows": 1,
+      "error_rows": 1,
+      "baseline_edit_distance": 1,
+      "candidate_edit_distance": 7,
+      "error_reduction_rate": -6.0,
+      "exact_match_rate": 0.0,
+      "residual_character_error_rate": 0.1891891891891892,
+      "clean_byte_exact_preservation_rate": null,
+      "unnecessary_edit_rate": 1.0,
+      "protected_span_preservation_rate": null,
+      "counts": {
+        "clean_rows": 0,
+        "clean_rows_preserved": 0,
+        "candidate_edits": 7,
+        "unnecessary_edits": 7,
+        "protected_spans": 0,
+        "protected_spans_preserved": 0
+      }
+    },
+    "punctuation": {
+      "rows": 11,
+      "error_rows": 6,
+      "baseline_edit_distance": 7,
+      "candidate_edit_distance": 15,
+      "error_reduction_rate": -1.1428571428571428,
+      "exact_match_rate": 0.45454545454545453,
+      "residual_character_error_rate": 0.05459770114942529,
+      "clean_byte_exact_preservation_rate": 0.6,
+      "unnecessary_edit_rate": 0.8823529411764706,
+      "protected_span_preservation_rate": 0.5714285714285714,
+      "counts": {
+        "clean_rows": 5,
+        "clean_rows_preserved": 3,
+        "candidate_edits": 17,
+        "unnecessary_edits": 15,
+        "protected_spans": 7,
+        "protected_spans_preserved": 4
+      }
+    },
+    "rare_word": {
+      "rows": 4,
+      "error_rows": 3,
+      "baseline_edit_distance": 5,
+      "candidate_edit_distance": 6,
+      "error_reduction_rate": -0.19999999999999996,
+      "exact_match_rate": 0.25,
+      "residual_character_error_rate": 0.045112781954887216,
+      "clean_byte_exact_preservation_rate": 1.0,
+      "unnecessary_edit_rate": 1.0,
+      "protected_span_preservation_rate": 0.75,
+      "counts": {
+        "clean_rows": 1,
+        "clean_rows_preserved": 1,
+        "candidate_edits": 1,
+        "unnecessary_edits": 1,
+        "protected_spans": 4,
+        "protected_spans_preserved": 3
+      }
+    },
+    "repetition": {
+      "rows": 1,
+      "error_rows": 1,
+      "baseline_edit_distance": 1,
+      "candidate_edit_distance": 8,
+      "error_reduction_rate": -7.0,
+      "exact_match_rate": 0.0,
+      "residual_character_error_rate": 0.3333333333333333,
+      "clean_byte_exact_preservation_rate": null,
+      "unnecessary_edit_rate": 1.0,
+      "protected_span_preservation_rate": null,
+      "counts": {
+        "clean_rows": 0,
+        "clean_rows_preserved": 0,
+        "candidate_edits": 8,
+        "unnecessary_edits": 8,
+        "protected_spans": 0,
+        "protected_spans_preserved": 0
+      }
+    },
+    "shift_case": {
+      "rows": 1,
+      "error_rows": 1,
+      "baseline_edit_distance": 1,
+      "candidate_edit_distance": 0,
+      "error_reduction_rate": 1.0,
+      "exact_match_rate": 1.0,
+      "residual_character_error_rate": 0.0,
+      "clean_byte_exact_preservation_rate": null,
+      "unnecessary_edit_rate": 0.0,
+      "protected_span_preservation_rate": null,
+      "counts": {
+        "clean_rows": 0,
+        "clean_rows_preserved": 0,
+        "candidate_edits": 1,
+        "unnecessary_edits": 0,
+        "protected_spans": 0,
+        "protected_spans_preserved": 0
+      }
+    },
+    "space": {
+      "rows": 2,
+      "error_rows": 2,
+      "baseline_edit_distance": 2,
+      "candidate_edit_distance": 1,
+      "error_reduction_rate": 0.5,
+      "exact_match_rate": 0.5,
+      "residual_character_error_rate": 0.017543859649122806,
+      "clean_byte_exact_preservation_rate": null,
+      "unnecessary_edit_rate": 0.0,
+      "protected_span_preservation_rate": 1.0,
+      "counts": {
+        "clean_rows": 0,
+        "clean_rows_preserved": 0,
+        "candidate_edits": 1,
+        "unnecessary_edits": 0,
+        "protected_spans": 1,
+        "protected_spans_preserved": 1
+      }
+    },
+    "substitution": {
+      "rows": 2,
+      "error_rows": 2,
+      "baseline_edit_distance": 2,
+      "candidate_edit_distance": 3,
+      "error_reduction_rate": -0.5,
+      "exact_match_rate": 0.5,
+      "residual_character_error_rate": 0.03614457831325301,
+      "clean_byte_exact_preservation_rate": null,
+      "unnecessary_edit_rate": 0.6666666666666666,
+      "protected_span_preservation_rate": 0.0,
+      "counts": {
+        "clean_rows": 0,
+        "clean_rows_preserved": 0,
+        "candidate_edits": 3,
+        "unnecessary_edits": 2,
+        "protected_spans": 1,
+        "protected_spans_preserved": 0
+      }
+    },
+    "transposition": {
+      "rows": 4,
+      "error_rows": 4,
+      "baseline_edit_distance": 8,
+      "candidate_edit_distance": 9,
+      "error_reduction_rate": -0.125,
+      "exact_match_rate": 0.25,
+      "residual_character_error_rate": 0.05521472392638037,
+      "clean_byte_exact_preservation_rate": null,
+      "unnecessary_edit_rate": 0.7142857142857143,
+      "protected_span_preservation_rate": 0.8,
+      "counts": {
+        "clean_rows": 0,
+        "clean_rows_preserved": 0,
+        "candidate_edits": 7,
+        "unnecessary_edits": 5,
+        "protected_spans": 5,
+        "protected_spans_preserved": 4
+      }
+    },
+    "unicode": {
+      "rows": 2,
+      "error_rows": 1,
+      "baseline_edit_distance": 1,
+      "candidate_edit_distance": 8,
+      "error_reduction_rate": -7.0,
+      "exact_match_rate": 0.5,
+      "residual_character_error_rate": 0.14285714285714285,
+      "clean_byte_exact_preservation_rate": 1.0,
+      "unnecessary_edit_rate": 1.0,
+      "protected_span_preservation_rate": 1.0,
+      "counts": {
+        "clean_rows": 1,
+        "clean_rows_preserved": 1,
+        "candidate_edits": 8,
+        "unnecessary_edits": 8,
+        "protected_spans": 1,
+        "protected_spans_preserved": 1
+      }
+    },
+    "url": {
+      "rows": 2,
+      "error_rows": 1,
+      "baseline_edit_distance": 2,
+      "candidate_edit_distance": 0,
+      "error_reduction_rate": 1.0,
+      "exact_match_rate": 1.0,
+      "residual_character_error_rate": 0.0,
+      "clean_byte_exact_preservation_rate": 1.0,
+      "unnecessary_edit_rate": 0.0,
+      "protected_span_preservation_rate": 1.0,
+      "counts": {
+        "clean_rows": 1,
+        "clean_rows_preserved": 1,
+        "candidate_edits": 2,
+        "unnecessary_edits": 0,
+        "protected_spans": 6,
+        "protected_spans_preserved": 6
+      }
+    },
+    "whitespace": {
+      "rows": 3,
+      "error_rows": 2,
+      "baseline_edit_distance": 2,
+      "candidate_edit_distance": 1,
+      "error_reduction_rate": 0.5,
+      "exact_match_rate": 0.3333333333333333,
+      "residual_character_error_rate": 0.022222222222222223,
+      "clean_byte_exact_preservation_rate": 0.0,
+      "unnecessary_edit_rate": 0.5,
+      "protected_span_preservation_rate": 1.0,
+      "counts": {
+        "clean_rows": 1,
+        "clean_rows_preserved": 0,
+        "candidate_edits": 2,
+        "unnecessary_edits": 1,
+        "protected_spans": 1,
+        "protected_spans_preserved": 1
+      }
+    }
+  },
+  "outcome": "regressed",
+  "headline": "The pilot made output WORSE than the noisy input: error reduction -0.8125 against a +0.0625 zero-shot baseline, a -0.875 delta. It stopped at step 50 of 300 on the frozen clean-preservation stop rule.",
+  "failure_mode": {
+    "dominant": "overcorrection / semantic rewriting, NOT copy bias",
+    "unnecessary_edit_rate": 0.8387096774193549,
+    "unnecessary_edit_rate_max": 0.005,
+    "meaning_changes": [
+      {
+        "noisy": "I will remeber to bring the charger.",
+        "clean": "I will remember to bring the charger.",
+        "prediction": "I will remind you to bring the charger.",
+        "note": "verb replaced; meaning changed"
+      },
+      {
+        "noisy": "Meet teh team beside the station.",
+        "clean": "Meet the team beside the station.",
+        "prediction": "Meet your team beside the station.",
+        "note": "determiner replaced; meaning changed"
+      },
+      {
+        "noisy": "The café opens tomorroww.",
+        "clean": "The café opens tomorrow.",
+        "prediction": "The café opens tomorrow morning.",
+        "note": "word added; meaning changed"
+      },
+      {
+        "noisy": "The repourt is ready.",
+        "clean": "The report is ready.",
+        "prediction": "The repourt is ready.",
+        "note": "typo left unrepaired"
+      }
+    ],
+    "what_worked": "Structural slices are clean: casing, name, number and url all score 1.0 error reduction with zero unnecessary edits. The regression is concentrated in lexical repair, which became paraphrasing."
+  },
+  "recipe_defect": {
+    "id": "unsatisfiable-stop-rule",
+    "statement": "thresholds-v1 stop_on_clean_preservation_below is 0.995, but the base model's own zero-shot clean preservation is 0.6667. The stop rule therefore fires at the first scheduled evaluation regardless of what training does, so the pilot can never run past step 50 by construction. This is a ship-grade regression bar being used as a training stop rule.",
+    "consequence": "This pilot is truncated evidence: 50 of 300 steps. Its regression is real and measured, but it is not a fair test of the 300-step recipe.",
+    "fix_requires": "a new thresholds/recipe version separating training stop rules from ship bars"
+  },
+  "edit_aware_justification": {
+    "question": "Do copy bias or missed-edit slices justify an edit-aware objective (tasks 5.6-5.7)?",
+    "answer": "no",
+    "reasoning": "An edit-aware objective up-weights decoder positions that correspond to real corrections. The measured failure is the opposite of the one it fixes: this pilot edits far too much (unnecessary edit rate 0.839 against a 0.005 bar) rather than too little. Weighting edit positions harder would very likely push overcorrection higher, which is the explicit reject condition in task 5.7. Copy bias was the pre-training behaviour, not the post-training one.",
+    "blocking_problems_instead": [
+      "12 training rows is too little signal for lexical repair",
+      "the unsatisfiable stop rule truncates every pilot at its first evaluation",
+      "no meaning-change guard exists in the objective or the decoding path"
+    ]
+  },
+  "process_hygiene": {
+    "lingering_training_processes": 0,
+    "gpu_lock_released": true
+  },
+  "not_authorized": [
+    "edit-aware objective (5.6-5.7) - explicitly not justified by this evidence",
+    "decoding gates (6.x)",
+    "packaging or any ship claim (7.x)"
+  ]
+}

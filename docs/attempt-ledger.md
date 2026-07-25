@@ -217,6 +217,27 @@ SQL is the current factory POC and the best-documented attempt family.
 
 ## Non-SQL Model / Artifact Attempts
 
+### Autocorrect FLAN-T5-small tiny-overfit gate (2026-07-25)
+
+- Recipe: `adapter-recipe-v1`, FLAN-T5-small + LoRA r8 on q/v across all three attention sites, 8 rows / 3,321 bytes, batch 4.
+- Evidence: exact match `1.0` at step 50 of 200; loss `1.585 -> 0.030`; 0.28 min; 1,135 MiB peak RSS. `evals/autocorrect/tiny-overfit-result-v1.json`.
+- Status: `worked-with-caveat`.
+- Failure reason: The fixture has one unique target, so exact match 1.0 is reachable by memorizing a single sentence; it measures capacity and wiring, not correction.
+- Lesson: A memorization gate needs more than one distinct target, or "memorized the data" and "emitted a constant" are the same behaviour. A separate probe on unseen input was needed to tell them apart.
+- Next action: Keep as a precondition check only; never quote as a quality result.
+- Confidence: `exact`.
+
+### Autocorrect FLAN-T5-small ordinary-loss pilot (2026-07-25)
+
+- Recipe: same recipe, 12 train-split rows (4 development rows monitored, not trained on), scored on the unchanged frozen `eval-v1.jsonl`.
+- Evidence: error reduction `+0.0625 -> -0.8125` (delta `-0.875`); unnecessary edit rate `0.839` against a `0.005` bar; protected spans `0.867 -> 0.800`; exact match `0.389 -> 0.444`. `evals/autocorrect/pilot-result-v1.json`.
+- Status: `regressed`.
+- Failure reason: The model became a paraphraser rather than a repairer -- `remeber` -> `remind you`, `teh team` -> `your team`, `tomorroww` -> `tomorrow morning` -- while leaving `repourt` unfixed. Negative error reduction means output moved further from the clean reference than the noisy input was. Structural slices (casing, name, number, url) stayed clean at 1.0.
+- Lesson: Minimum-edit repair is a narrow band between copying everything and rewriting everything, and plain sequence loss on 12 rows crossed it entirely in 50 steps. Separately, the run stopped at step 50 of 300 on a stop rule the *base model already violates* (clean preservation bar 0.995 vs base 0.667) -- a ship bar reused as a training guard, which makes the pilot untrainable past its first eval by construction.
+- Next action: No further training under `adapter-recipe-v1`. A v2 must separate training stop rules from ship bars, add data, and add a meaning-change guard. The edit-aware objective (5.6-5.7) is explicitly **rejected** by this evidence: it up-weights edit positions, which pushes toward the wall this model already hit.
+- Confidence: `exact` for the measured numbers; the run is truncated evidence (50 of 300 steps) and is not a fair test of the full recipe.
+
+
 ### Qwen3-4B file-ops distilled specialist
 
 - Evidence: file-ops hard gate `0.58 -> 1.00`; breadth `0.596 -> 0.423`.
