@@ -897,6 +897,42 @@ def validate_repository() -> list[str]:
             errors.append("oracle clean preservation is not 1.0")
     except ValidationError as exc:
         errors.append(f"oracle predictions: {exc}")
+
+    frontier_path = FIXTURE_DIR / "frontier-predictions-codex-v1.jsonl"
+    calibration_path = FIXTURE_DIR / "frontier-calibration-v1.json"
+    calibration = load_json(calibration_path)
+    try:
+        frontier_report = evaluate(eval_rows, load_jsonl(frontier_path))
+        expected_result = {
+            "rows": frontier_report["overall"]["rows"],
+            "error_rows": frontier_report["overall"]["error_rows"],
+            "exact_match_rate": frontier_report["overall"]["exact_match_rate"],
+            "error_reduction_rate": frontier_report["overall"]["error_reduction_rate"],
+            "clean_byte_exact_preservation_rate": frontier_report["overall"][
+                "clean_byte_exact_preservation_rate"
+            ],
+            "protected_span_preservation_rate": frontier_report["overall"][
+                "protected_span_preservation_rate"
+            ],
+            "unnecessary_edit_rate": frontier_report["overall"][
+                "unnecessary_edit_rate"
+            ],
+            "rows_fixed_or_dropped": 0,
+        }
+        if calibration.get("fixture_sha256") != sha256_file(
+            FIXTURE_DIR / "eval-v1.jsonl"
+        ):
+            errors.append("frontier calibration fixture hash drift")
+        if calibration.get("predictions_sha256") != sha256_file(frontier_path):
+            errors.append("frontier calibration prediction hash drift")
+        if calibration.get("result") != expected_result:
+            errors.append("frontier calibration result drift")
+        if calibration.get("run", {}).get("approved_text_scope") != (
+            "evals/autocorrect/eval-v1.jsonl only"
+        ):
+            errors.append("frontier calibration approved text scope drift")
+    except ValidationError as exc:
+        errors.append(f"frontier predictions: {exc}")
     return errors
 
 

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "protocol_id": "mac-local-autocorrect-v1",
+  "fixture_sha256": "498382a047d79b8015fe0e3c8ca9d386cfa4dc34db329411afdf7653248db876",
+  "predictions_sha256": "36a05698ac8f800526d2b31e927d41f627380d11e4075fa02f95a5b6939d5074",
+  "run": {
+    "date": "2026-07-25",
+    "backend": "OpenAI Codex CLI",
+    "model": "gpt-5.6-sol",
+    "codex_cli_version": "0.145.0",
+    "sandbox": "read-only",
+    "billing": "Codex subscription; no incremental API charge recorded",
+    "approved_text_scope": "evals/autocorrect/eval-v1.jsonl only"
+  },
+  "result": {
+    "rows": 18,
+    "error_rows": 12,
+    "exact_match_rate": 1.0,
+    "error_reduction_rate": 1.0,
+    "clean_byte_exact_preservation_rate": 1.0,
+    "protected_span_preservation_rate": 1.0,
+    "unnecessary_edit_rate": 0.0,
+    "rows_fixed_or_dropped": 0
+  },
+  "command": "python3 scripts/autocorrect_foundation.py evaluate --predictions evals/autocorrect/frontier-predictions-codex-v1.jsonl",
+  "limitations": [
+    "The 18-row fixture is an original smoke ruler, not a representative population benchmark.",
+    "Frontier calibration establishes fixture clarity only and is not evidence for any local candidate."
+  ]
+}

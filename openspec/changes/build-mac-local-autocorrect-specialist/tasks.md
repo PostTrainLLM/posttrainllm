@@ -11,7 +11,7 @@
 - [x] 2.2 Create a tiny reviewed fixture set with natural errors, clean controls, rare words, names, numbers, URLs, Unicode, whitespace, casing, punctuation, and code-like spans.
 - [x] 2.3 Implement the strict evaluator for error reduction rate, exact match, residual character error, clean preservation, unnecessary edits, protected-span preservation, and slice metrics, with unit tests for zero-error and negative-error-reduction cases.
 - [x] 2.4 Implement source-first split, normalized overlap detection, lexical holdout, manifest hashing, and a no-model validation smoke that fails on leakage or incomplete provenance.
-- [ ] 2.5 Calibrate the frozen unambiguous test rows with the preferred free Codex CLI frontier backend available at execution time; fix or drop broken rows before candidate outputs are inspected.
+- [x] 2.5 Calibrate the frozen unambiguous test rows with the preferred free Codex CLI frontier backend available at execution time; fix or drop broken rows before candidate outputs are inspected.
 - [x] 2.6 Determine whether Apple autocorrect can be invoked on the same full-span protocol; otherwise document it as a non-equivalent observational baseline rather than fabricating a direct comparison.
 
 ## 3. Build the corruption data path
@@ -23,7 +23,7 @@
 
 ## 4. Select and prove the smallest base
 
-- [ ] 4.1 Research a bounded shortlist of current Mac-runnable encoder-decoder or byte/character-aware bases and pin identifiers, revisions, licenses, parameter counts, artifact sizes, tokenizer behavior, and MLX/adaptation paths.
+- [x] 4.1 Research a bounded shortlist of current Mac-runnable encoder-decoder or byte/character-aware bases and pin identifiers, revisions, licenses, parameter counts, artifact sizes, tokenizer behavior, and MLX/adaptation paths.
 - [ ] 4.2 Prepare exact download/load commands plus disk, RAM, time, and cleanup estimates; obtain explicit approval before downloading weights, installing packages, compiling, or loading a substantial model.
 - [ ] 4.3 Run bounded zero-shot and greedy-decoding smokes for approved candidates, measuring correction score, noisy-text fragmentation, load success, peak RSS, TTFT, latency, and throughput on the same fixtures.
 - [ ] 4.4 Select the smallest plausibly capable base and freeze its prompt/template, precision, generation configuration, host, and baseline command; record `park` if none fits the envelope.
@@ -57,8 +57,8 @@
 
 ## Pending blockers (recorded 2026-07-25)
 
-- **2.5:** requires a Codex/frontier model call and network-backed calibration. Both were explicitly prohibited in the no-model tranche; no candidate output has been inspected.
-- **4.1-4.5:** require current model/revision/license research, then explicit approval for any weight download or model load. No base shortlist or baseline is frozen from stale offline knowledge.
+- **2.5 complete:** Codex CLI 0.145.0 with `gpt-5.6-sol` scored all 18 rows perfectly on 2026-07-25; no rows needed repair or removal, and no candidate output had been inspected.
+- **4.2-4.5:** the three-candidate Apache-2.0 shortlist, revisions, exact commands, and conservative resource/cleanup estimates are frozen in `docs/factory/autocorrect-model-shortlist.md`. Immediate approval is still required before downloads, dependency installation, compilation, model loading, or GPU work.
 - **5.1-5.7:** require a selected base and immediate operator approval for any dependency installation, compilation, model load, GPU-lock acquisition, overfit run, or pilot training.
 - **6.1-6.4:** require real model decoding plus sustained latency, RSS, throughput, and energy measurement; no decoding claim can be verified without those runs.
-- **7.1-7.6:** require task 2.5, trained candidate/comparator outputs, measured Mac performance, and a canonical decision. Packaging, public-artifact updates, and OpenSpec archive remain invalid until then.
+- **7.1-7.6:** require trained candidate/comparator outputs, measured Mac performance, and a canonical decision. Packaging, public-artifact updates, and OpenSpec archive remain invalid until then.

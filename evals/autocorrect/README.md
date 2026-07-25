@@ -26,6 +26,10 @@ This directory is the committed, no-model foundation for
   with 256 deterministic weighted simulator rows.
 - `apple-autocorrect-assessment-v1.json` — local SDK evidence that Apple
   autocorrect is an observational, non-equivalent comparator for v1.
+- `frontier-predictions-codex-v1.jsonl` +
+  `frontier-calibration-v1.json` — the approved-text-scope Codex calibration,
+  including immutable fixture/prediction hashes, invocation provenance, and
+  measured perfect preservation on this smoke ruler.
 
 ## No-model checks
 

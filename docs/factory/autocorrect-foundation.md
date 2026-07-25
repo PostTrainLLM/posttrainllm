@@ -11,7 +11,8 @@ of a model run. The boundary is deliberate:
 
 - complete the correction contract, evaluator, provenance/split validation,
   keyboard simulator, tiny manifests, and comparator assessment;
-- leave Codex/frontier calibration and every model/GPU stage pending;
+- calibrate the frozen fixture with Codex while leaving every local model/GPU
+  stage pending;
 - do not claim that the 18-row smoke fixture is a production benchmark.
 
 The machine-readable source of truth is
@@ -126,13 +127,19 @@ state, and typing order. Apple autocorrect is therefore frozen as an
 error-reduction or frontier-parity table. Exact SDK paths and hashes are in
 `apple-autocorrect-assessment-v1.json`.
 
-## Pending blockers
+## Calibration and pending blockers
 
-- OpenSpec task 2.5: requires the preferred Codex frontier backend and an
-  approved network/model call. Both were explicitly prohibited in this
-  tranche, so no row was calibrated or dropped.
-- Tasks 4.1-4.5: require current online model/revision/license research, then
-  approved downloads and model loading for a bounded bake-off.
+Task 2.5 is complete. Codex CLI 0.145.0 with `gpt-5.6-sol` received only the
+committed fixture, matched all 18 rows exactly, preserved every clean/protected
+span, and required no fixture repair or removal. Invocation provenance and
+hashes are in `evals/autocorrect/frontier-calibration-v1.json`. This establishes
+that the tiny smoke ruler is unambiguous; it does not make it representative.
+
+Task 4.1 is also complete. The pinned three-candidate shortlist and exact
+resource gate are in `autocorrect-model-shortlist.md`.
+
+- Tasks 4.2-4.5 require immediate approval before the recorded downloads,
+  dependency installation, model loads, or bounded bake-off.
 - Tasks 5.1-5.7: require a selected base and explicit approval for any
   dependency, compilation, model load, GPU lock, overfit, or pilot training.
 - Tasks 6.1-6.4: require real greedy/beam decoding and resource/energy

@@ -44,6 +44,23 @@ def test_oracle_scores_perfectly_without_unnecessary_edits():
     assert report["overall"]["protected_span_preservation_rate"] == 1.0
 
 
+def test_frontier_calibration_is_hash_linked_and_reproducible():
+    calibration = ac.load_json(FIXTURES / "frontier-calibration-v1.json")
+    predictions_path = FIXTURES / "frontier-predictions-codex-v1.jsonl"
+    report = ac.evaluate(
+        ac.load_jsonl(FIXTURES / "eval-v1.jsonl"),
+        ac.load_jsonl(predictions_path),
+    )
+    assert calibration["fixture_sha256"] == ac.sha256_file(
+        FIXTURES / "eval-v1.jsonl"
+    )
+    assert calibration["predictions_sha256"] == ac.sha256_file(predictions_path)
+    assert calibration["result"]["rows"] == report["overall"]["rows"] == 18
+    assert calibration["result"]["exact_match_rate"] == 1.0
+    assert calibration["result"]["clean_byte_exact_preservation_rate"] == 1.0
+    assert calibration["result"]["rows_fixed_or_dropped"] == 0
+
+
 def test_negative_error_reduction_is_not_clamped():
     fixture = [
         {
@@ -231,6 +248,7 @@ def main() -> int:
     tests = [
         test_repository_artifacts_validate,
         test_oracle_scores_perfectly_without_unnecessary_edits,
+        test_frontier_calibration_is_hash_linked_and_reproducible,
         test_negative_error_reduction_is_not_clamped,
         test_zero_error_control_has_null_error_reduction_and_counts_damage,
         test_prediction_schema_fails_closed,

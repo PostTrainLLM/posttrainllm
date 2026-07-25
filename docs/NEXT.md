@@ -54,10 +54,13 @@ fixtures, strict evaluator, source-first leakage/provenance checks, Mac keyboard
 simulator with edit traces, bounded tiny-overfit/pilot manifests, distribution
 report, and an Apple protocol assessment.
 
-The boundary remains: Codex/frontier calibration (task 2.5), model research and
-downloads, model loading, compilation, GPU/training, decoding benchmarks,
-packaging, and final factory decision are pending their recorded blockers. The
-queue still has no active training target.
+Codex/frontier calibration (task 2.5) and the pinned base-model research (task
+4.1) are complete. The 18-row smoke ruler scored perfectly and required no row
+changes. The exact three-candidate download/load gate is recorded in
+[`factory/autocorrect-model-shortlist.md`](factory/autocorrect-model-shortlist.md).
+Downloads, model loading, compilation, GPU/training, decoding benchmarks,
+packaging, and the final factory decision remain pending immediate approval.
+The queue still has no active training target.
 
 ## Active Sequence
 
