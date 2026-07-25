@@ -301,6 +301,13 @@ def verification_blockers(card: dict[str, Any]) -> list[str]:
                     f"Primary gate `{primary.get('name')}` {key} is "
                     f"`{field.get('state')}`, not a current measurement."
                 )
+        # Recording the failure as *measured* is not the same as passing it. A
+        # candidate that missed its own target gate can never be a verified ship.
+        if has_value(primary.get("passed")) and field_value(primary["passed"]) is False:
+            blockers.append(
+                f"Primary gate `{primary.get('name')}` did not pass; the "
+                "candidate missed its own target."
+            )
         ceiling = primary.get("frontier_ceiling")
         if not has_value(ceiling):
             blockers.append(
@@ -352,6 +359,7 @@ def primary_gate(card: dict[str, Any]) -> dict[str, Any] | None:
 
 
 def failing_gates(card: dict[str, Any], roles: Iterable[str]) -> list[dict[str, Any]]:
+    """Gates in `roles` recorded as failing. A `missing` result is not a pass."""
     roles = tuple(roles)
     out = []
     for gate in card.get("gates") or []:
@@ -395,6 +403,13 @@ def validate_field(field: Any, path: str, errors: list[str]) -> None:
     if state in VALUED_STATES:
         if field.get("value") is None:
             errors.append(f"{path}: state `{state}` requires a non-null value")
+        elif not isinstance(field["value"], (int, float, str, bool)):
+            # The Swift mirror decodes this as number | string | bool. A list or
+            # object here would emit a card the typed contract cannot read.
+            errors.append(
+                f"{path}.value must be a number, string, or boolean, not "
+                f"{type(field['value']).__name__}"
+            )
         if not sources:
             errors.append(f"{path}: state `{state}` requires at least one source")
         if state == "historical" and not (note and str(note).strip()):
@@ -432,6 +447,41 @@ def _denylist_scan(node: Any, path: str, errors: list[str]) -> None:
 def _require(condition: bool, message: str, errors: list[str]) -> None:
     if not condition:
         errors.append(message)
+
+
+def _as_number(value: Any) -> float | None:
+    """Coerce a JSON number, refusing bools and numeric-looking strings."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return float(value)
+
+
+def _check_delta(holder: dict[str, Any], path: str, errors: list[str]) -> None:
+    """A recorded delta must equal `candidate - baseline`.
+
+    Applies to gates and slices alike: this is what blocks a hand-typed number
+    that contradicts the measurements it claims to summarize.
+    """
+    delta, base, cand = holder.get("delta"), holder.get("baseline"), holder.get("candidate")
+    if not (has_value(delta) and has_value(base) and has_value(cand)):
+        return
+    delta_n, base_n, cand_n = (
+        _as_number(field_value(delta)),
+        _as_number(field_value(base)),
+        _as_number(field_value(cand)),
+    )
+    if delta_n is None or base_n is None or cand_n is None:
+        errors.append(
+            f"{path}: baseline, candidate, and delta must be numbers to be "
+            "comparable"
+        )
+        return
+    expected = round(cand_n - base_n, 6)
+    if abs(delta_n - expected) > 1e-6:
+        errors.append(
+            f"{path}.delta {field_value(delta)} does not equal candidate - "
+            f"baseline ({expected})"
+        )
 
 
 def _nonempty(value: Any) -> bool:
@@ -482,6 +532,14 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
         _require(
             len(str(entry.get("sha256") or "")) == 64,
             f"compiled_from.dataset_hashes[{idx}].sha256 must be a sha256 hex digest",
+            errors,
+        )
+        # The Swift mirror types this as `Int?`. Letting a string through here
+        # would emit a card the typed contract cannot decode.
+        rows = entry.get("rows")
+        _require(
+            rows is None or (isinstance(rows, int) and not isinstance(rows, bool)),
+            f"compiled_from.dataset_hashes[{idx}].rows must be an integer or null",
             errors,
         )
 
@@ -578,6 +636,25 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
         errors.append("decision.verified=true contradicts a non-empty verification_blockers")
     if decision.get("verified") is False and not blockers:
         errors.append("decision.verified=false requires at least one verification blocker")
+    # Self-consistency is not enough: a hand-edited or third-party payload could
+    # claim `verified: true` with an empty blocker list. Recompute from the
+    # evidence and reject any disagreement, so the gate never takes the
+    # payload's word for its own verification status.
+    gates_well_formed = isinstance(card.get("gates"), list) and all(
+        isinstance(gate, dict) for gate in card["gates"]
+    )
+    if gates_well_formed and isinstance(card.get("eval_validity"), dict):
+        recomputed = verification_blockers(card)
+        if bool(decision.get("verified")) != (not recomputed):
+            errors.append(
+                "decision.verified does not match the evidence: recomputing gives "
+                f"verified={not recomputed} with {len(recomputed)} blocker(s)"
+            )
+        elif set(recomputed) != set(blockers or []):
+            errors.append(
+                "decision.verification_blockers does not match the evidence; "
+                f"recomputing gives: {sorted(recomputed)}"
+            )
 
     # --- gates -------------------------------------------------------------
     gates = card.get("gates")
@@ -611,17 +688,7 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
             _require(_nonempty(identity.get("suite")), f"{path}.eval_identity.suite is required", errors)
             for key in ("command", "date", "frozen"):
                 validate_field(identity.get(key), f"{path}.eval_identity.{key}", errors)
-        # A derived delta must actually match its inputs — a report card may
-        # not carry a hand-typed delta that disagrees with the measurements.
-        delta = gate.get("delta")
-        base, cand = gate.get("baseline"), gate.get("candidate")
-        if has_value(delta) and has_value(base) and has_value(cand):
-            expected = round(float(cand["value"]) - float(base["value"]), 6)
-            if abs(float(delta["value"]) - expected) > 1e-6:
-                errors.append(
-                    f"{path}.delta {delta['value']} does not equal candidate - "
-                    f"baseline ({expected})"
-                )
+        _check_delta(gate, path, errors)
 
     # --- slices ------------------------------------------------------------
     slices = card.get("slices")
@@ -637,6 +704,9 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
         _require(_nonempty(item.get("metric")), f"{path}.metric is required", errors)
         for key in ("baseline", "candidate", "delta", "passed", "sample_size"):
             validate_field(item.get(key), f"{path}.{key}", errors)
+        # Slices get the same delta consistency check as gates: a per-slice
+        # number is just as publishable, so it is just as fabricable.
+        _check_delta(item, path, errors)
 
     # --- performance -------------------------------------------------------
     performance = card.get("performance")
@@ -718,6 +788,12 @@ def _publication_errors(card: dict[str, Any], allow_report_only: bool) -> list[s
             errors.append(
                 "ship decision requires a primary gate with baseline and candidate "
                 "values; an incomplete ship claim fails closed"
+            )
+        elif failing_gates(card, ("primary",)):
+            errors.append(
+                f"ship decision whose primary gate `{primary.get('name')}` is "
+                "recorded as failing cannot publish: the candidate missed its own "
+                "target"
             )
         # A ship whose regression/breadth gate fails is not an unconditional
         # win: it may only publish with an explicit routing constraint.

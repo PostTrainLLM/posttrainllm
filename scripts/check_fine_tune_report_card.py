@@ -130,10 +130,13 @@ def check_path(path: Path, allow_report_only: bool) -> list[str]:
 
     errors = rc.validate(card, allow_report_only=allow_report_only)
 
-    html_path = path.with_name("report-card.html")
-    if path.name.endswith(".json") and not html_path.is_file():
-        # Published cards are named <slug>.json alongside <slug>.html.
-        html_path = path.with_suffix(".html")
+    # Prefer the same-stem sibling (published cards are `<slug>.json` next to
+    # `<slug>.html`) and only then the compiler's default `report-card.html`.
+    # Checking the default first would validate a slug's payload against an
+    # unrelated page that happened to share the directory.
+    html_path = path.with_suffix(".html")
+    if not html_path.is_file():
+        html_path = path.with_name("report-card.html")
     if html_path.is_file() and not errors:
         errors.extend(check_html(html_path.read_text(encoding="utf-8"), card))
     return errors

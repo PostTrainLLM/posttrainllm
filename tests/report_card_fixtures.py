@@ -84,6 +84,9 @@ def _config(run_id: str, primary_min: float = 0.9, drop_max: float = 3.0) -> dic
         "eval": {
             "primary": "fixture-gate",
             "regression": "fixture-breadth",
+            # Explicit gate -> slice pointers; the compiler never infers these.
+            "primary_slice": "fixture_gate_rows",
+            "regression_slice": "fixture_breadth",
             "threshold": {"primary_min": primary_min, "breadth_drop_max_pp": drop_max},
         },
     }

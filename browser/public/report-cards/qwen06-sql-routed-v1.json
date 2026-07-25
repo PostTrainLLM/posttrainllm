@@ -263,7 +263,7 @@
       },
       "role": "primary",
       "sample_size": {
-        "note": "Sample size taken from slice `synthetic_sqlite_execution`, the only slice whose baseline and candidate match this gate.",
+        "note": "Sample size from slice `synthetic_sqlite_execution`, named by config.eval.primary_slice.",
         "sources": [
           "slice-metrics.json#slices.synthetic_sqlite_execution.rows"
         ],
@@ -280,7 +280,7 @@
     },
     {
       "baseline": {
-        "note": "Mapped to slice `public_bmc2_exact`: every token of the slice name appears in regression suite `sql-public-bmc2-exact-and-router-smoke`.",
+        "note": "From slice `public_bmc2_exact`, named by config.eval.regression_slice.",
         "sources": [
           "slice-metrics.json#slices.public_bmc2_exact.baseline"
         ],
@@ -288,7 +288,7 @@
         "value": 0.484
       },
       "candidate": {
-        "note": "Mapped to slice `public_bmc2_exact`: every token of the slice name appears in regression suite `sql-public-bmc2-exact-and-router-smoke`.",
+        "note": "From slice `public_bmc2_exact`, named by config.eval.regression_slice.",
         "sources": [
           "slice-metrics.json#slices.public_bmc2_exact.candidate"
         ],

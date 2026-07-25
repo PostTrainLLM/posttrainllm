@@ -631,6 +631,145 @@ if PUBLISHED.is_dir():
 else:  # pragma: no cover - published cohort is committed alongside this test
     FAILURES.append("browser/public/report-cards is missing")
 
+# ---------------------------------------------------------------------------
+# Regressions found by adversarial review. Each of these once produced a
+# confidently mislabeled card, which is the exact failure this format exists to
+# prevent — so each keeps a test.
+# ---------------------------------------------------------------------------
+
+section("review regressions")
+
+# (1) A ship whose PRIMARY gate is recorded as failing was labeled
+# `shipped-specialist` and rendered "Fully verified". Recording a failure as
+# *measured* is not the same as passing it.
+failed_primary_src = ws.root / "src" / "failed-primary"
+shutil.copytree(ws.source("ship-verified"), failed_primary_src, dirs_exist_ok=True)
+cand = json.loads((failed_primary_src / "eval-candidate.json").read_text(encoding="utf-8"))
+cand["passed"], cand["score"] = False, 0.10
+(failed_primary_src / "eval-candidate.json").write_text(json.dumps(cand), encoding="utf-8")
+failed_primary = build.compile_from_run(failed_primary_src)
+check_that(
+    failed_primary["decision"]["verified"] is False,
+    "a ship whose primary gate failed is not verified",
+)
+check_that(
+    any("missed its own target" in b for b in failed_primary["decision"]["verification_blockers"]),
+    "the failed primary gate is named as a verification blocker",
+)
+check_that(
+    any("missed its own target" in e for e in rc.validate(failed_primary)),
+    "a ship whose primary gate failed cannot publish",
+)
+
+# (2) Gate -> slice mapping is explicit only. Name-token containment used to
+# pick a coincidental short slice name over the correct specific one, turning a
+# breadth regression into a reported pass.
+mismap_src = ws.root / "src" / "mismap"
+shutil.copytree(ws.source("routed-ship"), mismap_src, dirs_exist_ok=True)
+cfg = json.loads((mismap_src / "config.json").read_text(encoding="utf-8"))
+cfg["eval"]["regression"] = "fixture-breadth-suite"
+del cfg["eval"]["regression_slice"]
+(mismap_src / "config.json").write_text(json.dumps(cfg), encoding="utf-8")
+mismapped = build.compile_from_run(mismap_src)
+reg = [g for g in mismapped["gates"] if g["role"] == "regression"][0]
+check_that(
+    reg["baseline"]["state"] == "missing" and reg["candidate"]["state"] == "missing",
+    "without an explicit regression_slice a gate borrows no before/after pair",
+)
+check_that(
+    reg["passed"]["state"] == "missing",
+    "an unmapped regression gate reports no pass/fail rather than a pass",
+)
+# ...and a wrong pointer is a loud error, not a silent downgrade.
+cfg["eval"]["regression_slice"] = "no_such_slice"
+(mismap_src / "config.json").write_text(json.dumps(cfg), encoding="utf-8")
+try:
+    build.compile_from_run(mismap_src)
+    check_that(False, "a regression_slice naming a missing slice must raise")
+except rc.ReportCardError as exc:
+    check_that("not present in slice-metrics.json" in str(exc), "the bad pointer is named")
+
+# (3) `validate` recomputes verified/blockers instead of trusting the payload.
+forged = ws.card("historical")
+check_that(forged["decision"]["verified"] is False, "the forgery fixture starts unverified")
+forged["decision"]["verified"] = True
+forged["decision"]["verification_blockers"] = []
+check_that(
+    any("does not match the evidence" in e for e in rc.validate(forged, allow_report_only=True)),
+    "a forged verified=true is rejected by recomputation",
+)
+tampered_blockers = ws.card("historical")
+tampered_blockers["decision"]["verification_blockers"] = ["a made-up blocker"]
+check_that(
+    any("does not match the evidence" in e for e in rc.validate(tampered_blockers, allow_report_only=True)),
+    "a tampered blocker list is rejected by recomputation",
+)
+
+# (4) A gate's sample size comes only from the slice config names.
+no_pointer_src = ws.root / "src" / "no-pointer"
+shutil.copytree(ws.source("ship-verified"), no_pointer_src, dirs_exist_ok=True)
+cfg = json.loads((no_pointer_src / "config.json").read_text(encoding="utf-8"))
+del cfg["eval"]["primary_slice"]
+(no_pointer_src / "config.json").write_text(json.dumps(cfg), encoding="utf-8")
+no_pointer = build.compile_from_run(no_pointer_src)
+check_that(
+    rc.primary_gate(no_pointer)["sample_size"]["state"] == "missing",
+    "without primary_slice the gate reports no sample size",
+)
+
+# (5) Slice deltas are cross-checked like gate deltas.
+bad_slice = ws.card("ship-verified")
+target = next(s for s in bad_slice["slices"] if rc.has_value(s["delta"]))
+target["delta"]["value"] = 99.0
+check_that(
+    any("does not equal candidate" in e for e in rc.validate(bad_slice)),
+    "a fabricated slice delta is rejected",
+)
+
+# (6) A frontier ceiling is per-suite; one global score is not spread across gates.
+global_frontier_src = ws.root / "src" / "global-frontier"
+shutil.copytree(ws.source("ship-verified"), global_frontier_src, dirs_exist_ok=True)
+(global_frontier_src / "eval-validity.json").write_text(
+    json.dumps({"frontier": {"model": "fixture-frontier", "score": 1.0}}), encoding="utf-8"
+)
+global_frontier = build.compile_from_run(global_frontier_src)
+check_that(
+    all(g["frontier_ceiling"]["state"] == "missing" for g in global_frontier["gates"]),
+    "a frontier score with no by_suite entry is not attributed to any gate",
+)
+check_that(
+    global_frontier["decision"]["verified"] is False,
+    "an unattributed frontier score cannot verify a ship",
+)
+
+# (7) The payload can never carry a value shape the Swift mirror cannot decode.
+bad_rows = ws.card("ship-verified")
+if bad_rows["compiled_from"]["dataset_hashes"]:
+    bad_rows["compiled_from"]["dataset_hashes"][0]["rows"] = "40"
+    check_that(
+        any("must be an integer" in e for e in rc.validate(bad_rows)),
+        "a string row count is rejected (Swift types it as Int?)",
+    )
+bad_value = ws.card("ship-verified")
+bad_value["subject"]["target"] = rc.measured(["a", "list"], ["config.json#target"])
+check_that(
+    any("must be a number, string, or boolean" in e for e in rc.validate(bad_value)),
+    "a list-valued field is rejected (Swift types it as number|string|bool)",
+)
+
+# (8) Baseline/candidate score keys match on whole tokens, so a candidate whose
+# name merely contains "base" cannot be read as the baseline and invert a delta.
+check_that(
+    build._score_keys({"suite": "x", "stock_4b": 0.58, "distilled_4b": 1.0}, "x")
+    == ("stock_4b", "distilled_4b"),
+    "a conventional stock/candidate pair is classified correctly",
+)
+try:
+    build._score_keys({"suite": "x", "model_v1": 0.30, "database_expert": 0.90}, "x")
+    check_that(False, "`database_expert` must not be read as a baseline")
+except rc.ReportCardError:
+    check_that(True, "an unidentifiable score pair fails closed instead of inverting")
+
 # The `/artifacts` inventory must link real published cards. This guard runs
 # without node, so a renamed slug is caught even where the site is not built.
 ARTIFACTS_TS = ROOT / "browser/src/artifacts.ts"

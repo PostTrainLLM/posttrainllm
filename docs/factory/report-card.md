@@ -149,6 +149,8 @@ Beyond schema and per-field state rules:
 |---|---|
 | Detected train/eval overlap blocks publication outright | A contaminated score is not evidence. The candidate measurements stay in the payload rather than being hidden. |
 | A `ship` needs `shipped=true`, a `package_dir`, no blockers, and a primary gate with values | An incomplete ship claim fails closed. |
+| A `ship` whose **primary** gate is recorded as failing cannot publish | Recording a failure as *measured* is not the same as passing it: the candidate missed its own target. |
+| `verified` and `verification_blockers` are recomputed from the evidence and must agree with the payload | The gate is where an untrusted or hand-edited card arrives; it must not take the payload's word for its own verification status. |
 | A `ship` with a failing regression/breadth gate needs a `routing_constraint` | A regressing candidate may not be published as a general win. |
 | A non-ship card must not be marked shipped and needs exactly one next action | Report-only artifacts stay honestly labeled. |
 | A recorded delta must equal `candidate - baseline` | Blocks a hand-typed number that contradicts the measurements. |

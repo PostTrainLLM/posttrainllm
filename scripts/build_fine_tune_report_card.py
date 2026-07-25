@@ -108,54 +108,42 @@ RUN_FRAGMENTS = (
 )
 
 
-def _slice_rows_for_scores(
-    slices: dict[str, Any], baseline: float | None, candidate: float | None
-) -> tuple[str, int] | None:
-    """Find the unique slice whose baseline/candidate equal the gate's scores.
+def named_slice(
+    slices: dict[str, Any], eval_spec: dict[str, Any], key: str
+) -> str | None:
+    """Resolve `config.eval.<key>` to a slice name, or None.
 
-    This is how a gate learns its own sample size without guessing: the run
-    schema records `n` per slice, not per gate. A match is only used when
-    exactly one slice agrees on both numbers.
+    A gate's sample size and (for regression gates) its before/after pair live in
+    `slice-metrics.json`, which is keyed by slice rather than by gate. The run
+    config must say **explicitly** which slice carries a gate:
+
+        "eval": { "primary_slice": "...", "regression_slice": "..." }
+
+    Earlier revisions inferred this — by matching a slice whose scores equalled
+    the gate's, and by name-token containment. Both were wrong in ways that
+    produced confidently mislabeled evidence: score equality attached an
+    unrelated 3-row router slice's `n` to a 400-row gate, and token containment
+    picked a coincidental short slice name over the correctly-named specific one,
+    turning a 19-point breadth regression into a reported +50-point pass. The
+    spec requires that a missing measurement is never inferred, so the heuristics
+    are gone: without an explicit pointer the field stays `missing`.
     """
-    if baseline is None or candidate is None:
+    name = (eval_spec or {}).get(key)
+    if not name:
         return None
-    hits = []
-    for name, payload in sorted(slices.items()):
-        if not isinstance(payload, dict):
-            continue
-        rows = payload.get("rows")
-        if not isinstance(rows, int):
-            continue
-        if _close(payload.get("baseline"), baseline) and _close(
-            payload.get("candidate"), candidate
-        ):
-            hits.append((name, rows))
-    return hits[0] if len(hits) == 1 else None
-
-
-def _close(a: Any, b: Any) -> bool:
-    return _numeric(a) and _numeric(b) and abs(float(a) - float(b)) < 1e-9
-
-
-def _slice_for_gate_name(slices: dict[str, Any], gate_name: str) -> str | None:
-    """Match a named gate to a slice by token containment.
-
-    A slice matches when every token of its name appears in the gate name (for
-    example slice `public_bmc2_exact` inside gate
-    `sql-public-bmc2-exact-and-router-smoke`). Ambiguous or absent matches
-    return None so the gate stays `missing` instead of borrowing a number.
-    """
-    gate_tokens = set(_tokens(gate_name))
-    hits = [
-        name
-        for name in sorted(slices)
-        if isinstance(slices[name], dict) and set(_tokens(name)) <= gate_tokens
-    ]
-    return hits[0] if len(hits) == 1 else None
-
-
-def _tokens(text: str) -> list[str]:
-    return [t for t in text.replace("-", " ").replace("_", " ").lower().split() if t]
+    if not slices:
+        # No slice-metrics.json at all: degrade to `missing` rather than abort,
+        # so an incomplete run still compiles into an honest card.
+        return None
+    if not isinstance(slices.get(name), dict):
+        # The fragment exists but the named slice does not — that is a config
+        # error, not absent evidence, so fail loudly instead of silently
+        # downgrading a gate the operator believes is populated.
+        raise rc.ReportCardError(
+            f"config.eval.{key} names slice `{name}`, which is not present in "
+            f"slice-metrics.json (available: {sorted(slices)})"
+        )
+    return name
 
 
 def compile_from_run(run_dir: Path) -> dict[str, Any]:
@@ -231,22 +219,22 @@ def compile_from_run(run_dir: Path) -> dict[str, Any]:
             [src("eval-candidate.json", "passed")],
         )
 
-    matched = _slice_rows_for_scores(slices, base_score, cand_score)
-    if matched:
-        name, rows = matched
+    primary_slice = named_slice(slices, eval_spec, "primary_slice")
+    if primary_slice is not None and _numeric(slices[primary_slice].get("rows")):
         n_field = rc.measured(
-            rows,
-            [src("slice-metrics.json", f"slices.{name}.rows")],
+            slices[primary_slice]["rows"],
+            [src("slice-metrics.json", f"slices.{primary_slice}.rows")],
             note=(
-                f"Sample size taken from slice `{name}`, the only slice whose "
-                "baseline and candidate match this gate."
+                f"Sample size from slice `{primary_slice}`, named by "
+                "config.eval.primary_slice."
             ),
         )
     else:
         n_field = rc.missing(
-            "No slice records a sample size matching this gate's scores; the run "
-            "schema does not carry a per-gate row count.",
-            [src("slice-metrics.json")],
+            "No sample size is available: the run schema carries no per-gate row "
+            "count, and config.eval.primary_slice does not name a slice that has "
+            "one.",
+            [src("config.json", "eval.primary_slice"), src("slice-metrics.json")],
         )
 
     frozen_field = _frozen_field(validity_src, dataset, src)
@@ -276,7 +264,7 @@ def compile_from_run(run_dir: Path) -> dict[str, Any]:
     if regression_name:
         gates.append(
             _regression_gate_from_slices(
-                regression_name, slices, threshold, src, candidate, validity_src
+                regression_name, slices, eval_spec, src, candidate, validity_src
             )
         )
 
@@ -506,8 +494,12 @@ def _frontier_field(validity_src: dict[str, Any], suite: str, src) -> dict[str, 
     `missing` and the ship decision cannot read as verified.
     """
     frontier = validity_src.get("frontier") or {}
+    # Per-suite only. A single global `score` used to fall through to every
+    # gate, which attributed one probe of the primary benchmark to unrelated
+    # suites — and cited a `by_suite` path that was not in the source file.
+    # Frontier ceilings are a property of a benchmark, not of a run.
     by_suite = frontier.get("by_suite") or {}
-    score = by_suite.get(suite, frontier.get("score") if not by_suite else None)
+    score = by_suite.get(suite)
     pointer = src("eval-validity.json", f"frontier.by_suite.{suite}")
     if not _numeric(score):
         return rc.missing(
@@ -647,14 +639,14 @@ def _gate(
 def _regression_gate_from_slices(
     regression_name: str,
     slices: dict[str, Any],
-    threshold: dict[str, Any],
+    eval_spec: dict[str, Any],
     src,
     candidate: dict[str, Any],
     validity_src: dict[str, Any],
 ) -> dict[str, Any]:
-    """Build the regression gate, borrowing a slice only on an unambiguous match."""
-    match = _slice_for_gate_name(slices, regression_name)
-    drop_max = threshold.get("breadth_drop_max_pp")
+    """Build the regression gate from the slice `config.eval.regression_slice` names."""
+    match = named_slice(slices, eval_spec, "regression_slice")
+    drop_max = (eval_spec.get("threshold") or {}).get("breadth_drop_max_pp")
     threshold_field = (
         rc.measured(
             drop_max,
@@ -672,10 +664,11 @@ def _regression_gate_from_slices(
         # it) would alias the nested `sources` list across five fields.
         def absent() -> dict[str, Any]:
             return rc.missing(
-                f"No slice in slice-metrics.json maps unambiguously to regression "
-                f"suite `{regression_name}`; its before/after evidence is not "
-                "recorded in this run folder.",
-                [src("slice-metrics.json")],
+                f"No before/after evidence is recorded for regression suite "
+                f"`{regression_name}`: the run folder carries one baseline/candidate "
+                "pair (the primary gate), and config.eval.regression_slice does not "
+                "name the slice that holds this gate's scores.",
+                [src("config.json", "eval.regression_slice"), src("slice-metrics.json")],
             )
 
         return _gate(
@@ -698,10 +691,7 @@ def _regression_gate_from_slices(
 
     payload = slices[match]
     pointer = f"slices.{match}"
-    note = (
-        f"Mapped to slice `{match}`: every token of the slice name appears in "
-        f"regression suite `{regression_name}`."
-    )
+    note = f"From slice `{match}`, named by config.eval.regression_slice."
     baseline = _num_field(
         payload.get("baseline"),
         src("slice-metrics.json", f"{pointer}.baseline"),
@@ -1157,7 +1147,14 @@ def _score_keys(score: dict[str, Any], suite: str) -> tuple[str, str]:
     not something to infer.
     """
     numeric = [k for k, v in score.items() if k not in SCORE_META_KEYS and _numeric(v)]
-    baselines = [k for k in numeric if any(h in k.lower() for h in BASELINE_KEY_HINTS)]
+    # Whole-token matching, not substring: `database_expert` contains "base" but
+    # is a candidate, and misreading it as the baseline would silently invert the
+    # delta's sign.
+    baselines = [
+        k
+        for k in numeric
+        if set(k.replace("-", "_").lower().split("_")) & set(BASELINE_KEY_HINTS)
+    ]
     candidates = [k for k in numeric if k not in baselines]
     if len(baselines) != 1 or len(candidates) != 1:
         raise rc.ReportCardError(

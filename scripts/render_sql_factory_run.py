@@ -279,6 +279,11 @@ def build_payloads(run_id: str) -> dict[str, dict[str, Any]]:
         "eval": {
             "primary": "sql-poc-expanded-synthetic-execution",
             "regression": "sql-public-bmc2-exact-and-router-smoke",
+            # Which slice in slice-metrics.json carries each gate's rows and
+            # before/after pair. Stated explicitly so the report-card compiler
+            # never has to guess — see docs/factory/run-schema.md.
+            "primary_slice": "synthetic_sqlite_execution",
+            "regression_slice": "public_bmc2_exact",
             "threshold": {
                 "primary_min": 0.86,
                 "breadth_drop_max_pp": 0,

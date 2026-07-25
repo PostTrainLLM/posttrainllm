@@ -366,6 +366,38 @@ public enum FineTuneReportCard {
             gates.filter { $0.role != .primary && $0.didFail }
         }
 
+        /// True when the candidate is recorded as missing its own target gate.
+        /// Recording that failure as *measured* is not the same as passing it.
+        public var primaryGateFailed: Bool {
+            primaryGate?.didFail ?? false
+        }
+
+        /// Whether the evidence actually supports `decision.verified == true`.
+        ///
+        /// Recomputed from the payload rather than trusted, because the gate is
+        /// exactly where a hand-edited or third-party card arrives. Mirrors
+        /// `fine_tune_report_card.verification_blockers`; the substance, not the
+        /// blocker wording, is the contract.
+        public var verificationChainHolds: Bool {
+            guard decision.decision == .ship, decision.blockedBy.isEmpty else { return false }
+            guard let primary = primaryGate, !primary.didFail else { return false }
+            for field in [primary.baseline, primary.candidate, primary.threshold, primary.passed] {
+                guard field.hasValue, !field.isWeak else { return false }
+            }
+            guard let ceiling = primary.frontierCeiling.value?.double,
+                  primary.frontierCeiling.hasValue,
+                  !primary.frontierCeiling.isWeak,
+                  ceiling >= 0.99 else { return false }
+            guard evalValidity.frozenEval.hasValue, !evalValidity.frozenEval.isWeak else {
+                return false
+            }
+            guard evalValidity.leakage.hasValue, !evalValidity.leakage.isWeak,
+                  evalValidity.leakage.value?.text == EvalValidity.noOverlap else {
+                return false
+            }
+            return true
+        }
+
         /// Validate the schema, the per-field provenance rules, and the
         /// decision/publication policy.
         ///
@@ -409,6 +441,13 @@ public enum FineTuneReportCard {
                 try slice.delta.validate("\(path).delta")
                 try slice.passed.validate("\(path).passed")
                 try slice.sampleSize.validate("\(path).sample_size")
+                // A per-slice number is as publishable as a gate's, so it gets
+                // the same consistency check.
+                try requireConsistentDelta(
+                    delta: slice.delta,
+                    baseline: slice.baseline,
+                    candidate: slice.candidate,
+                    label: slice.name)
             }
 
             for (name, field) in performance.allFields {
@@ -487,6 +526,11 @@ public enum FineTuneReportCard {
                 throw ValidationError.invalidField(
                     "decision.verified=false requires at least one verification blocker")
             }
+            // Self-consistency is not enough: recompute from the evidence so a
+            // payload cannot assert its own verification status.
+            if decision.verified != verificationChainHolds {
+                throw ValidationError.verificationMismatch(claimed: decision.verified)
+            }
         }
 
         private func validateGates() throws {
@@ -513,14 +557,29 @@ public enum FineTuneReportCard {
                 try gate.evalIdentity.date.validate("\(path).eval_identity.date")
                 try gate.evalIdentity.frozen.validate("\(path).eval_identity.frozen")
 
-                // A recorded delta must agree with its inputs: a report card may
-                // not carry a hand-typed delta that contradicts the measurements.
-                if let delta = gate.delta.value?.double,
-                   let baseline = gate.baseline.value?.double,
-                   let candidate = gate.candidate.value?.double,
-                   abs(delta - (candidate - baseline)) > 1e-6 {
-                    throw ValidationError.deltaMismatch(gate: gate.name)
-                }
+                try requireConsistentDelta(
+                    delta: gate.delta,
+                    baseline: gate.baseline,
+                    candidate: gate.candidate,
+                    label: gate.name)
+            }
+        }
+
+        /// A recorded delta must agree with its inputs: a report card may not
+        /// carry a hand-typed delta that contradicts the measurements.
+        private func requireConsistentDelta(delta: Field,
+                                            baseline: Field,
+                                            candidate: Field,
+                                            label: String) throws {
+            guard delta.hasValue, baseline.hasValue, candidate.hasValue else { return }
+            guard let d = delta.value?.double,
+                  let b = baseline.value?.double,
+                  let c = candidate.value?.double else {
+                throw ValidationError.invalidField(
+                    "`\(label)`: baseline, candidate, and delta must be numbers to be comparable")
+            }
+            if abs(d - (c - b)) > 1e-6 {
+                throw ValidationError.deltaMismatch(gate: label)
             }
         }
 
@@ -542,6 +601,9 @@ public enum FineTuneReportCard {
                 }
                 guard let primary = primaryGate, primary.baseline.hasValue, primary.candidate.hasValue else {
                     throw ValidationError.incompleteShipClaim
+                }
+                if primary.didFail {
+                    throw ValidationError.shipWithFailedPrimaryGate(gate: primary.name)
                 }
                 let regressed = regressedGates
                 if !regressed.isEmpty && !subject.artifact.routingConstraint.hasValue {
@@ -575,9 +637,12 @@ public enum FineTuneReportCard {
         case verifiedWithBlockers
         case deltaMismatch(gate: String)
         case incompleteShipClaim
+        case shipWithFailedPrimaryGate(gate: String)
         case undisclosedRoutedShip(gates: [String])
         case leakageDetected(note: String?)
         case blockersWithoutReportOnly(decision: String)
+        case verificationMismatch(claimed: Bool)
+        case denylistedField(path: String)
 
         public var description: String {
             switch self {
@@ -603,6 +668,13 @@ public enum FineTuneReportCard {
                 return "gate `\(gate)` delta does not equal candidate - baseline"
             case .incompleteShipClaim:
                 return "ship decision requires a primary gate with baseline and candidate values"
+            case .shipWithFailedPrimaryGate(let gate):
+                return "ship decision whose primary gate `\(gate)` is recorded as failing "
+                    + "cannot publish: the candidate missed its own target"
+            case .verificationMismatch(let claimed):
+                return "decision.verified=\(claimed) does not match the evidence"
+            case .denylistedField(let path):
+                return "\(path): denylisted private field name"
             case .undisclosedRoutedShip(let gates):
                 return "ship decision with failing gate(s) [\(gates.joined(separator: ", "))] requires a routing constraint"
             case .leakageDetected(let note):
@@ -616,6 +688,19 @@ public enum FineTuneReportCard {
 
     // MARK: - Coding
 
+    /// Field names that must never appear in a public report card. Mirrors
+    /// `fine_tune_report_card.DENYLISTED_KEYS`.
+    ///
+    /// A report card is a proof surface, not a data dump: prompts, completions,
+    /// golds, predictions, weights, and credentials stay in the private run
+    /// folder.
+    public static let denylistedKeys: Set<String> = [
+        "prompt", "prompts", "completion", "completions", "gold", "golds",
+        "prediction", "predictions", "weights", "weights_bytes", "adapter_bytes",
+        "optimizer_state", "checkpoint", "api_key", "secret", "password",
+        "credential",
+    ]
+
     /// Shares `FactoryRun`'s snake_case strategy so both contracts read and
     /// write the same JSON conventions.
     public static func decode(_ data: Data) throws -> Card {
@@ -626,10 +711,40 @@ public enum FineTuneReportCard {
         try decode(try Data(contentsOf: url))
     }
 
-    /// Read and validate a published report card in one step.
+    /// Reject a payload carrying a denylisted field name.
+    ///
+    /// This walks the raw JSON rather than the typed `Card`, because the typed
+    /// decoder silently drops unknown keys — a private payload smuggled into an
+    /// undeclared field would otherwise decode cleanly.
+    public static func checkPublicSafety(_ data: Data) throws {
+        let root = try JSONSerialization.jsonObject(with: data)
+        try scanForDenylistedKeys(root, path: "report_card")
+    }
+
+    private static func scanForDenylistedKeys(_ node: Any, path: String) throws {
+        if let object = node as? [String: Any] {
+            for key in object.keys.sorted() {
+                let lowered = key.lowercased()
+                let isDenylisted = denylistedKeys.contains(lowered)
+                    || denylistedKeys.contains(where: { lowered.hasSuffix("_" + $0) })
+                if isDenylisted {
+                    throw ValidationError.denylistedField(path: "\(path).\(key)")
+                }
+                try scanForDenylistedKeys(object[key] as Any, path: "\(path).\(key)")
+            }
+        } else if let array = node as? [Any] {
+            for (index, value) in array.enumerated() {
+                try scanForDenylistedKeys(value, path: "\(path)[\(index)]")
+            }
+        }
+    }
+
+    /// Read, public-safety scan, and validate a published report card.
     @discardableResult
     public static func validate(at url: URL, allowReportOnly: Bool = false) throws -> Card {
-        let card = try read(from: url)
+        let data = try Data(contentsOf: url)
+        try checkPublicSafety(data)
+        let card = try decode(data)
         try card.validate(allowReportOnly: allowReportOnly)
         return card
     }

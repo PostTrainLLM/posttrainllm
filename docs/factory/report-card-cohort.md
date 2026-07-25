@@ -79,8 +79,8 @@ not in the report card. They are recorded rather than papered over.
 
 | Gap | How the compiler handles it |
 |---|---|
-| No per-gate sample size (only per-slice) | Uses the row count of the single slice whose baseline and candidate both equal the gate's scores; `missing` if there is no unique match. |
-| Regression gate has no before/after pair | Matched to a slice when every token of the slice name appears in the regression suite name, and the mapping is recorded in the field note; `missing` when ambiguous. |
+| No per-gate sample size (only per-slice) | Read from the slice `config.eval.primary_slice` names; `missing` without that pointer. |
+| Regression gate has no before/after pair | Read from the slice `config.eval.regression_slice` names; `missing` without that pointer. |
 | No frontier-ceiling, overlap, or frozen-eval identity fields | Added as the optional `eval-validity.json` fragment. |
 | No training time / cost / eval time | Added as the optional `cost.json` fragment. |
 | No artifact routing constraint | Added as optional `artifact.routing_constraint`. |
@@ -104,6 +104,21 @@ Refinements made *because* the cohort exposed them:
 - A `park` decision from an unregistered package now **derives** its next action
   from the registry check that produced the decision, instead of leaving it
   `missing` and failing the "non-ship needs one next action" rule.
+
+An adversarial review pass then found eight ways a card could still be
+confidently mislabeled. All are fixed, and each has a regression test in
+`tests/test_fine_tune_report_card.py` under "review regressions":
+
+| Was | Now |
+|---|---|
+| A ship whose **primary** gate was recorded as failing published as `shipped-specialist` and rendered "Fully verified" — the chain checked that pass/fail was *measured*, not that it *passed*. | A failed primary gate is a verification blocker and a hard publication failure. |
+| Gate→slice mapping was inferred. Score-equality matching could attach an unrelated 3-row slice's `n` to a 400-row gate; name-token containment could pick a coincidental short slice name over the correct specific one, turning a 19-point breadth regression into a reported +50-point pass. | Both heuristics deleted. Mapping is explicit via `config.eval.primary_slice` / `regression_slice`, else `missing`. |
+| `validate` only cross-checked `verified` against `verification_blockers`, so a payload could assert both. | Both validators recompute the chain from the evidence and reject any disagreement. |
+| Slice deltas were never checked against their own baseline/candidate. | Slices get the same consistency check as gates, in Python and Swift. |
+| A single global `frontier.score` was attributed to every suite, citing a `by_suite` path absent from the source. | Frontier ceilings are per-suite only; an unattributed score verifies nothing. |
+| The denylist scan was Python-only; Swift's typed decoder silently dropped a smuggled `eval_prompt`. | `FineTuneReportCard.checkPublicSafety` walks the raw JSON before decoding. |
+| `dataset_hashes[].rows` was untyped in Python but `Int?` in Swift, so the compiler could emit a card its own mirror could not decode. | Row counts and field value shapes are type-checked to match the Swift contract. |
+| `BASELINE_KEY_HINTS` matched substrings, so a candidate key containing `base` (e.g. `database_expert`) could be read as the baseline and invert a delta's sign. | Whole-token matching; an unidentifiable pair fails closed. |
 
 ## Next actions
 

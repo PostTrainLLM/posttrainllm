@@ -115,6 +115,29 @@ assertTrue(historical.primaryGate?.baseline.state == .historical, "historical: s
 assertTrue(historical.primaryGate?.baseline.isWeak == true, "historical: weak provenance")
 assertTrue(historical.primaryGate?.baseline.note?.isEmpty == false, "historical: caveat note")
 
+// Regressions found by adversarial review — the Swift mirror must reject the
+// same payloads the Python gate does.
+
+// A ship whose primary gate is recorded as failing must not publish, and must
+// not read as verified.
+assertTrue(!verified.primaryGateFailed, "verified: primary gate did not fail")
+assertTrue(verified.verificationChainHolds, "verified: chain recomputes as holding")
+assertTrue(!reportOnly.verificationChainHolds, "report-only: chain does not hold")
+assertTrue(!historical.verificationChainHolds, "historical: chain does not hold")
+
+// A denylisted private field name is rejected even though the typed decoder
+// would silently drop it.
+let smuggled = #"{"schema_version":1,"subject":{"eval_prompt":"PRIVATE"}}"#
+do {
+    try FineTuneReportCard.checkPublicSafety(Data(smuggled.utf8))
+    fputs("SMOKE FAIL: denylisted field name passed the public-safety scan\n", stderr)
+    exit(1)
+} catch {}
+// The real published cards must pass that same scan.
+for path in paths {
+    try FineTuneReportCard.checkPublicSafety(try Data(contentsOf: path))
+}
+
 // Field-level rules mirror the Python validator.
 do {
     try FineTuneReportCard.Field(state: .measured, value: .number(1)).validate("f")

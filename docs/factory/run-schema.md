@@ -81,6 +81,8 @@ the SQL-specific one-shot renderer for the routed POC.
   "eval": {
     "primary": "pace-v11-ship-gate",
     "regression": "bfcl-heldout-breadth",
+    "primary_slice": "pace_v11_heldout",
+    "regression_slice": "bfcl_breadth",
     "threshold": {
       "primary_min": 0.95,
       "breadth_drop_max_pp": 3
@@ -88,6 +90,15 @@ the SQL-specific one-shot renderer for the routed POC.
   }
 }
 ```
+
+`primary_slice` and `regression_slice` are optional and name the entry in
+`slice-metrics.json` that carries each gate's row count and — for the regression
+gate, which has no `eval-*.json` pair of its own — its baseline/candidate scores.
+
+State them whenever the slices exist. The [report card](report-card.md) will not
+guess: without a pointer the gate's sample size and before/after evidence are
+reported as `missing`. Naming a slice that is absent from a present
+`slice-metrics.json` is a hard error, not a silent downgrade.
 
 ## `dataset.json`
 
@@ -197,6 +208,10 @@ Required for a report card to present a **fully verified** ship.
   "known_limitations": ["Single-reference exact match on 8 rows."]
 }
 ```
+
+Attribution is **per suite only**: a frontier ceiling is a property of a
+benchmark, not of a run, so a suite with no `by_suite` entry has no recorded
+ceiling and cannot contribute to a verified ship.
 
 `frontier.by_suite` keys are eval suite names, so the primary and regression
 gates can carry different ceilings. `overlap_check.result` must be exactly
