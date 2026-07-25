@@ -299,14 +299,27 @@ def local_runs_block(runs_dir: Path, blocked: list[str]) -> list[dict[str, Any]]
         return []
     out: list[dict[str, Any]] = []
     for run_dir in sorted(p for p in runs_dir.iterdir() if p.is_dir()):
+        lifecycle_path = run_dir / "run-status.json"
         decision_path = run_dir / "decision.json"
         config_path = run_dir / "config.json"
         baseline_path = run_dir / "eval-baseline.json"
         candidate_path = run_dir / "eval-candidate.json"
         provenance_path = run_dir / "provenance.json"
-        if not (decision_path.is_file() and config_path.is_file()):
+        if not config_path.is_file() or not (decision_path.is_file() or lifecycle_path.is_file()):
             continue
-        decision = read_json(decision_path)
+        decision = read_json(decision_path) if decision_path.is_file() else {}
+        lifecycle: dict[str, Any] = {}
+        if lifecycle_path.is_file():
+            try:
+                candidate_lifecycle = read_json(lifecycle_path)
+                if isinstance(candidate_lifecycle, dict):
+                    lifecycle = candidate_lifecycle
+                else:
+                    blocked.append(
+                        f"{run_dir.name}: run-status.json must be an object"
+                    )
+            except (OSError, ValueError):
+                blocked.append(f"{run_dir.name}: invalid run-status.json")
         config = read_json(config_path)
         baseline = read_json(baseline_path) if baseline_path.is_file() else {}
         candidate = read_json(candidate_path) if candidate_path.is_file() else {}
@@ -317,19 +330,51 @@ def local_runs_block(runs_dir: Path, blocked: list[str]) -> list[dict[str, Any]]
             dataset_sha = d.get("sha256")
             dataset_rows = d.get("rows")
             break
-        # publish-check verdict: re-derive by invoking the no-build checker.
-        publish_check = "not-applicable"
-        try:
-            res = subprocess.run(
-                ["python3", "scripts/check_factory_run_publish.py", "--allow-report-only", str(run_dir)],
-                cwd=ROOT,
-                capture_output=True,
-                text=True,
-                timeout=15,
+        lifecycle_failure = lifecycle.get("failure")
+        if not isinstance(lifecycle_failure, dict):
+            lifecycle_failure = None
+        elif lifecycle.get("phase") != "failed":
+            blocked.append(
+                f"{config.get('run_id') or run_dir.name}: lifecycle failure outside failed phase"
             )
-            publish_check = "pass" if res.returncode == 0 else "fail"
-        except Exception:
-            publish_check = "not-applicable"
+            lifecycle_failure = None
+        else:
+            failure_summary = str(lifecycle_failure.get("summary", ""))[:240]
+            if any(marker in failure_summary.lower() for marker in (
+                "prompt", "completion", "gold", "prediction", "checkpoint",
+                "secret", "password", "api_key", "token",
+            )):
+                failure_summary = "<redacted:unsafe-summary>"
+            lifecycle_failure = {
+                "code": str(lifecycle_failure.get("code", ""))[:64],
+                "summary": failure_summary,
+            }
+        lifecycle_updated = lifecycle.get("updated_at")
+        lifecycle_stale = False
+        if lifecycle_updated and lifecycle.get("phase") not in ("decided", "failed"):
+            try:
+                updated = _dt.datetime.fromisoformat(lifecycle_updated.replace("Z", "+00:00"))
+                lifecycle_stale = (
+                    _dt.datetime.now(_dt.timezone.utc) - updated
+                ).total_seconds() > 24 * 60 * 60
+            except (TypeError, ValueError):
+                blocked.append(f"{config.get('run_id') or run_dir.name}: invalid lifecycle updated_at")
+
+        # publish-check verdict: re-derive by invoking the no-build checker
+        # only for completed evidence folders.
+        publish_check = "not-applicable"
+        if decision_path.is_file():
+            try:
+                res = subprocess.run(
+                    ["python3", "scripts/check_factory_run_publish.py", "--allow-report-only", str(run_dir)],
+                    cwd=ROOT,
+                    capture_output=True,
+                    text=True,
+                    timeout=15,
+                )
+                publish_check = "pass" if res.returncode == 0 else "fail"
+            except Exception:
+                publish_check = "not-applicable"
         out.append(
             {
                 "run_id": config.get("run_id") or run_dir.name,
@@ -348,6 +393,15 @@ def local_runs_block(runs_dir: Path, blocked: list[str]) -> list[dict[str, Any]]
                 "dataset_sha256": dataset_sha,
                 "dataset_rows": dataset_rows,
                 "publish_check": publish_check,
+                "lifecycle": {
+                    "schema_version": lifecycle.get("schema_version"),
+                    "phase": lifecycle.get("phase"),
+                    "revision": lifecycle.get("revision"),
+                    "updated_at": lifecycle_updated,
+                    "imported": lifecycle.get("imported", False),
+                    "stale_active": lifecycle_stale,
+                    "failure": lifecycle_failure,
+                } if lifecycle else None,
                 "publication": "pending-approval",  # never auto-publish
             }
         )

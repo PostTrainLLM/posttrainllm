@@ -187,12 +187,12 @@ Rollback stops emitting lifecycle files and removes advisory pointers. Existing
 canonical run fragments, decisions, specialist packages, and reports remain
 valid and unchanged.
 
-## Open Questions
+## Resolved Questions
 
-- Should `current-run.json` be operator-selected only, or automatically follow
-  the most recently updated non-terminal run?
-- Should stale active runs remain active-with-warning until an operator marks
-  them failed, or should reconciliation support an explicit `--mark-stale`
-  action?
-- At which schema version should lifecycle metadata become mandatory for newly
-  published runs?
+- `current-run.json` automatically follows the most recently updated valid
+  non-terminal run. It remains advisory and does not imply exclusivity.
+- Stale non-terminal runs remain active-with-warning until an explicit operator
+  transition. Reconciliation never marks a run failed.
+- Lifecycle metadata is required only for runs newly created by lifecycle
+  schema v1 writers. Legacy folders remain readable and publish-compatible
+  without status until explicitly imported.

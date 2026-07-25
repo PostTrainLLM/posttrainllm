@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "run_id": "fixture-evaluation-only",
+  "revision": 3,
+  "phase": "evaluated",
+  "updated_at": "2026-07-25T01:02:00Z",
+  "last_transition": {
+    "source": "fixture",
+    "command": "factory-run transition",
+    "reason": null
+  },
+  "parent_run_id": null,
+  "successor_run_id": null,
+  "failure": null,
+  "imported": false,
+  "import_evidence": []
+}

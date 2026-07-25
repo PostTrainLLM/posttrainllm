@@ -148,7 +148,8 @@ let package = Package(
         ),
         .testTarget(
             name: "TinyGPTIOTests",
-            dependencies: ["TinyGPTIO"]
+            dependencies: ["TinyGPTIO"],
+            resources: [.copy("Fixtures")]
         ),
         .testTarget(
             name: "TinyGPTModelTests",

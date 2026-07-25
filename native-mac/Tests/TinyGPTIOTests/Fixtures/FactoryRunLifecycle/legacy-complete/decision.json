@@ -1,0 +1,6 @@
+{
+  "decision": "retry-training",
+  "reason": "Fixture remains retry-only.",
+  "evidence_sources": [],
+  "blocked_by": []
+}

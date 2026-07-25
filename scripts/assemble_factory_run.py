@@ -10,11 +10,15 @@ be hand-authored:
 - `report.md`        — the `docs/factory/reports.md` template, filled from the
                        fragments with the eval delta computed, not typed.
 - `train.log`        — a placeholder only if the training step left none.
+- `run-status.json`  — lifecycle-v1 operational state, advanced only after
+                       durable derived artifacts and decision validation.
 
 It is metadata-only: it never starts a server, trains an adapter, or reruns a
 GPU eval. It only reads fragments and writes the derived files back into the run
 directory, so the output passes both `FactoryRunFolder.validate` (the typed
 Swift schema) and `check_factory_run_publish.py` (the publish gate).
+Failures after lifecycle initialization record only a bounded generic failure;
+raw exception text and private paths are never copied into status.
 
 Usage:
 
@@ -35,6 +39,8 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+
+import factory_run_lifecycle as lifecycle
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -287,33 +293,60 @@ def assemble(run_dir: Path, force: bool) -> dict[str, Any]:
         if (run_dir / "slice-metrics.json").is_file()
         else None
     )
-
-    # Derive provenance from git + real dataset hashes.
     provenance_path = run_dir / "provenance.json"
+    report_path = run_dir / "report.md"
     if provenance_path.is_file() and not force:
         raise SystemExit(f"{provenance_path} already exists; pass --force to overwrite")
-    write_json(provenance_path, build_provenance(run_dir, payloads))
-
-    # Derive the report from the fragments (delta computed, not typed).
-    report_path = run_dir / "report.md"
     if report_path.is_file() and not force:
         raise SystemExit(f"{report_path} already exists; pass --force to overwrite")
-    report_path.write_text(render_report(payloads, slice_metrics), encoding="utf-8")
 
-    # Only fill train.log if the training step left none.
-    train_log = run_dir / "train.log"
-    if not train_log.is_file():
-        train_log.write_text(
-            "No train log recorded by the training command; assembled metadata-only.\n",
-            encoding="utf-8",
+    status = lifecycle.initialize(run_dir)
+    if status["phase"] == "failed":
+        raise SystemExit(
+            f"{run_dir}: lifecycle is terminal failed; create a new linked retry run"
         )
+    if status["phase"] in {"training", "evaluating", "packaging"}:
+        raise SystemExit(
+            f"{run_dir}: lifecycle phase {status['phase']} has not reached a durable boundary"
+        )
+    try:
+        # Derive provenance from git + real dataset hashes.
+        write_json(provenance_path, build_provenance(run_dir, payloads))
 
-    warnings: list[str] = []
-    if slice_metrics is None:
-        warnings.append("slice-metrics.json absent (required by publish-check; run score_sql_slices.py)")
-    if not (run_dir / "trace_review.md").is_file():
-        warnings.append("trace_review.md absent (required by publish-check; run review_sql_trace.py)")
-    return {"warnings": warnings}
+        # Derive the report from the fragments (delta computed, not typed).
+        report_path.write_text(render_report(payloads, slice_metrics), encoding="utf-8")
+
+        # Only fill train.log if the training step left none.
+        train_log = run_dir / "train.log"
+        if not train_log.is_file():
+            train_log.write_text(
+                "No train log recorded by the training command; assembled metadata-only.\n",
+                encoding="utf-8",
+            )
+
+        if status["phase"] != "decided":
+            if status["phase"] != "reporting":
+                status = lifecycle.transition(
+                    run_dir,
+                    "reporting",
+                    status["revision"],
+                    reason=None if status["phase"] == "packaged" else "metadata-only-assembly",
+                )
+            status = lifecycle.transition(
+                run_dir,
+                "decided",
+                status["revision"],
+            )
+
+        warnings: list[str] = []
+        if slice_metrics is None:
+            warnings.append("slice-metrics.json absent (required by publish-check; run score_sql_slices.py)")
+        if not (run_dir / "trace_review.md").is_file():
+            warnings.append("trace_review.md absent (required by publish-check; run review_sql_trace.py)")
+        return {"warnings": warnings, "lifecycle": status}
+    except BaseException:
+        lifecycle.fail_sanitized(run_dir, status)
+        raise
 
 
 def main() -> int:

@@ -28,6 +28,8 @@ target -> data -> post-training -> eval -> package -> report
 - [`lora-geometry.md`](lora-geometry.md) — adapter effective-update diagnostics
   for rank and module targeting.
 - [`run-schema.md`](run-schema.md) — local run directory contract.
+- [`run-lifecycle.md`](run-lifecycle.md) — durable phase/revision state,
+  metadata-only operator commands, advisory discovery, and recovery.
 - [`report-card.md`](report-card.md) — portable before/after proof contract:
   measurement states, decision semantics, JSON + static report, publication gate.
 - [`report-card-cohort.md`](report-card-cohort.md) — the published report-card

@@ -146,6 +146,14 @@ sys.exit(1 if walk(r) else 0)
   echo "  FAIL: denylisted field name leaked into receipt" >&2
   exit 1
 fi
+python3 - "$WORK/run-receipt.json" <<'PY'
+import json, sys
+receipt = json.load(open(sys.argv[1]))
+run = receipt["local_runs"][0]
+assert run["lifecycle"]["schema_version"] == 1
+assert run["lifecycle"]["phase"] == "decided"
+assert run["publication"] == "pending-approval"
+PY
 echo "  ok: fixture run receipt is sanitized and valid"
 
 echo "== [4/4] validator rejects a receipt with a denylisted field =="

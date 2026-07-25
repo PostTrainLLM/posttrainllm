@@ -302,7 +302,7 @@ struct posttrainllm {
           posttrainllm infer-heatmap <trace.json> render an inference latency heatmap
           posttrainllm bench-train [flags] training-throughput benchmark vs. WebGPU baseline
           posttrainllm synthesize [flags] label prompt JSONL via an OpenAI-compatible teacher
-          posttrainllm factory-run <sub>  render/validate a canonical factory run folder
+posttrainllm factory-run <sub>  render/validate and manage durable run lifecycle metadata
           posttrainllm tokenize-train [flags] train a domain BPE tokenizer.json
           posttrainllm export-mlx <artifact> export .tinygpt/.lora/HF dir for MLX use
           posttrainllm rerank-train [flags] train a lightweight reranker artifact

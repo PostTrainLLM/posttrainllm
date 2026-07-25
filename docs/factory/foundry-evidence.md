@@ -103,9 +103,19 @@ window, evidence reference, and next action. The Foundry receipt emitted by
   `run-schema.md`. `scripts/assemble_factory_run.py` derives
   `provenance.json` and `report.md`. The Foundry receipt carries only:
   run_id, target slug, method, decision, baseline/candidate scores, delta,
-  git revision, dataset sha256 + row count, and the publish-check verdict.
+  git revision, dataset sha256 + row count, the publish-check verdict, and
+  bounded lifecycle fields (schema version, phase, revision, update time,
+  imported/stale flags, and optional sanitized failure code/summary).
   It MUST NOT carry prompts, completions, raw predictions, training logs
   beyond the file path, or any checkpoint bytes.
+- **Active-run discovery**: lifecycle-managed partial folders may appear in a
+  receipt before `decision.json` or `provenance.json` exists. Their lifecycle
+  state is read-only operational evidence, `publish_check` is
+  `not-applicable`, source revision may be absent, and publication remains
+  `pending-approval`. The receipt never transitions or reconciles a run.
+- **Lifecycle authority**: `phase=decided` does not assert ship/reject/retry and
+  never grants publication. `decision.json`, the publish checks, and explicit
+  human approval retain their existing authority.
 - **Eval evidence**: any automated benchmark or quality claim MUST identify
   source revision, model, configuration, dataset/version, time, result, and
   artifact location or retention status. Receipts that omit any of these
@@ -203,7 +213,11 @@ Emitted by `scripts/foundry_receipt.py`:
     { "run_id": "<id>", "target": "<slug>", "method": "<method>", "decision": "<decision>",
       "baseline_score": 0.58, "candidate_score": 1.00, "delta": 0.42,
       "source_revision": "<sha>", "dataset_sha256": "<sha>", "dataset_rows": 10,
-      "publish_check": "pass", "publication": "pending-approval" }
+      "publish_check": "pass",
+      "lifecycle": { "schema_version": 1, "phase": "decided", "revision": 4,
+        "updated_at": "<ISO8601>", "imported": false, "stale_active": false,
+        "failure": null },
+      "publication": "pending-approval" }
   ],
   "nightly": [
     { "job": "N01-pull-datasets", "state": "pass|stale|fail|not-applicable",

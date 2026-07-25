@@ -1,0 +1,6 @@
+{
+  "dataset_id": "fixture-data",
+  "sources": [{"kind": "fixture", "path": "fixture.jsonl", "rows": 1}],
+  "processing": {"dedupe": false, "quality_filter": false},
+  "counts": {"train_rows": 1, "heldout_rows": 0, "dropped_rows": 0}
+}

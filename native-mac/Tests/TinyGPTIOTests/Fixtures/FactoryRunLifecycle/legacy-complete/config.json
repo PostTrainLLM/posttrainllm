@@ -1,0 +1,8 @@
+{
+  "run_id": "legacy-complete",
+  "target": "fixture",
+  "owner_goal": "Prove complete legacy import.",
+  "base_model": {"id": "fixture-base"},
+  "candidate": {"method": "metadata-only"},
+  "eval": {"primary": "fixture-gate"}
+}

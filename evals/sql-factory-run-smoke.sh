@@ -36,8 +36,9 @@ assertTrue(report.contains("build_sql_spider_execution_gate.py"), "next gate")
 print("SMOKE OK: SQL routed factory run artifact")
 SWIFT
 
-swiftc \
+CLANG_MODULE_CACHE_PATH="$WORK/clang-module-cache" swiftc \
   "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRun.swift" \
+  "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRunLifecycle.swift" \
   "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRunFolder.swift" \
   "$WORK/main.swift" \
   -o "$WORK/sql-factory-run-smoke"

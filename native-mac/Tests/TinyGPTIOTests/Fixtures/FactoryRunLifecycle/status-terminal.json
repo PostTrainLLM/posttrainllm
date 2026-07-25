@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "run_id": "fixture-terminal",
+  "revision": 9,
+  "phase": "decided",
+  "updated_at": "2026-07-25T01:05:00Z",
+  "last_transition": {
+    "source": "fixture",
+    "command": "factory-run transition",
+    "reason": null
+  },
+  "parent_run_id": "fixture-parent",
+  "successor_run_id": null,
+  "failure": null,
+  "imported": false,
+  "import_evidence": []
+}

@@ -287,6 +287,8 @@ Exit criteria:
    `bash evals/docs-world-class-smoke.sh`.
 0.3. Run the factory-run assembler bridge smoke:
    `bash evals/factory-run-assemble-smoke.sh`.
+0.3.1. Run the durable lifecycle smoke:
+   `bash evals/factory-run-lifecycle-smoke.sh`.
 0.4. Run the fine-tune report card smoke:
    `bash evals/fine-tune-report-card-smoke.sh`.
 1. Wire real train/eval commands to emit the run schema automatically.
@@ -299,6 +301,14 @@ Exit criteria:
    `scripts/check_factory_run_publish.py` and the typed Swift `FactoryRunFolder`
    validator (smoke: `bash evals/factory-run-assemble-smoke.sh`).
    `scripts/render_sql_factory_run.py` remains the SQL-specific one-shot renderer.
+   **Lifecycle metadata done (2026-07-25):** new native renders and generic
+   assemblies emit versioned `run-status.json`, update verified advisory
+   current/latest pointers, and record boundary transitions only after durable
+   metadata writes. `factory-run init/status/transition/list/reconcile` are
+   metadata-only; stale active runs remain active-with-warning until explicit
+   operator action. Legacy folders remain valid and can be imported explicitly
+   without invented history. This does not resume training or alter
+   `decision.json`/publication authority.
    **Remaining (operator-verify-gated):** have the live Swift `sft` / `eval-gate`
    / `eval-compare` commands drop those fragments during a real run — that half
    is only end-to-end verifiable with a GPU train/eval pass.

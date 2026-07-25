@@ -1,0 +1,8 @@
+{
+  "run_id": "legacy-report-only",
+  "target": "fixture",
+  "owner_goal": "Prove report-only legacy import.",
+  "base_model": {"id": "fixture-base"},
+  "candidate": {"method": "metadata-only"},
+  "eval": {"primary": "fixture-gate"}
+}

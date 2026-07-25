@@ -117,6 +117,16 @@ REQUIRED = {
         "posttrainllm factory-run publish-check",
         "scripts/check_factory_run_publish.py",
     ],
+    "docs/factory/run-lifecycle.md": [
+        "run-status.json",
+        "decision.json",
+        "expected-revision",
+        "current-run.json",
+        "latest-run.json",
+        "active-with-warning",
+        "--import-legacy",
+        "reconcile --write",
+    ],
     "docs/techniques/README.md": [
         "method -> recipe -> experiment -> result -> next recipe",
         "audit-inventory.md",
