@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "report_id": "autocorrect-natural-vs-synthetic-v1",
+  "natural_fixture": {
+    "path": "evals/autocorrect/eval-v1.jsonl",
+    "sha256": "498382a047d79b8015fe0e3c8ca9d386cfa4dc34db329411afdf7653248db876",
+    "rows": 12,
+    "error_events": 12,
+    "counts": {
+      "substitution": 2,
+      "insertion": 1,
+      "omission": 1,
+      "transposition": 4,
+      "repetition": 1,
+      "space": 2,
+      "shift_case": 1
+    },
+    "rates": {
+      "substitution": 0.16666666666666666,
+      "insertion": 0.08333333333333333,
+      "omission": 0.08333333333333333,
+      "transposition": 0.3333333333333333,
+      "repetition": 0.08333333333333333,
+      "space": 0.16666666666666666,
+      "shift_case": 0.08333333333333333
+    },
+    "limitation": "Tiny manually reviewed original fixture; useful for smoke calibration, not population prevalence."
+  },
+  "synthetic_sample": {
+    "config_path": "evals/autocorrect/corruption-config-v1.json",
+    "config_sha256": "dab9236bafe3a4b52b52e2c3046e3c21ce0422558f5acdac45b4017447781a55",
+    "rows": 256,
+    "counts": {
+      "substitution": 53,
+      "insertion": 17,
+      "omission": 25,
+      "transposition": 83,
+      "repetition": 18,
+      "space": 41,
+      "shift_case": 19
+    },
+    "rates": {
+      "substitution": 0.20703125,
+      "insertion": 0.06640625,
+      "omission": 0.09765625,
+      "transposition": 0.32421875,
+      "repetition": 0.0703125,
+      "space": 0.16015625,
+      "shift_case": 0.07421875
+    }
+  },
+  "comparison": {
+    "absolute_rate_delta": {
+      "substitution": 0.04036458333333334,
+      "insertion": 0.01692708333333333,
+      "omission": 0.014322916666666671,
+      "transposition": 0.009114583333333315,
+      "repetition": 0.013020833333333329,
+      "space": 0.006510416666666657,
+      "shift_case": 0.009114583333333329
+    },
+    "total_variation_distance": 0.054687499999999986
+  },
+  "tuning": {
+    "changed_surface": "training-side family_weights only",
+    "frozen_surface": "evals/autocorrect/eval-v1.jsonl",
+    "action": "Use the committed weights as the pilot prior; retune in a new config version when a larger licensed natural sample exists."
+  }
+}

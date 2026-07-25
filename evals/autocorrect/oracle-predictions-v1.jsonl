@@ -1,0 +1,18 @@
+{"id":"natural-001","prediction":"Please check the calendar before lunch."}
+{"id":"natural-002","prediction":"I will remember to bring the charger."}
+{"id":"natural-003","prediction":"Meet the team beside the station."}
+{"id":"natural-004","prediction":"The café opens tomorrow."}
+{"id":"natural-005","prediction":"The report is ready."}
+{"id":"natural-006","prediction":"We need a lot of paper."}
+{"id":"natural-007","prediction":"Monday works for me."}
+{"id":"natural-008","prediction":"Amrita will receive 2 files at https://example.com/v2."}
+{"id":"natural-009","prediction":"A zyzzyva rested near the window."}
+{"id":"natural-010","prediction":"Use `python3 app.py`, then check the output."}
+{"id":"natural-011","prediction":"The quokka looked remarkably calm."}
+{"id":"natural-012","prediction":"That sesquipedalian phrase was intentional."}
+{"id":"clean-001","prediction":"Keep 42.5% in the \"Other\" bucket."}
+{"id":"clean-002","prediction":"Email Jo at https://example.org/a?b=2."}
+{"id":"clean-003","prediction":"Run `git diff --check` before review."}
+{"id":"clean-004","prediction":"A quokka is not a typo."}
+{"id":"clean-005","prediction":"Spacing  stays exactly like this."}
+{"id":"clean-006","prediction":"Café déjà vu — keep the accents."}

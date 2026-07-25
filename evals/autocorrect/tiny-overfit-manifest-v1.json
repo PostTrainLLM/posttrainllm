@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "manifest_id": "autocorrect-tiny-overfit-v1",
+  "purpose": "The only dataset authorized for the future 1-10 KB repeated-data memorization gate.",
+  "source_path": "evals/autocorrect/source-documents-v1.jsonl",
+  "source_document_ids": [
+    "train-001"
+  ],
+  "allowed_splits": [
+    "train"
+  ],
+  "examples_per_source": 8,
+  "family_schedule": [
+    "substitution",
+    "insertion",
+    "omission",
+    "transposition",
+    "repetition",
+    "space",
+    "shift_case",
+    "clean"
+  ],
+  "layout_path": "evals/autocorrect/keyboard-mac-us-ansi-v1.json",
+  "corruption_config_path": "evals/autocorrect/corruption-config-v1.json",
+  "input_hashes": {
+    "sources_sha256": "6ac20ed429dd35dbfa814fa76f2830f7e9baadcba59003dbb93c47ed61b71fc9",
+    "source_documents_sha256": "f34a63b9e086d4d694eebfc06de681890739df83d9627e524f7228bfc7aa0adc",
+    "layout_sha256": "4215d0a1630fb2e97c3236fac25bf393c17237720af9c8c69963edd7597207e6",
+    "corruption_config_sha256": "dab9236bafe3a4b52b52e2c3046e3c21ce0422558f5acdac45b4017447781a55"
+  },
+  "seed": 20260725,
+  "license_policy": "All source rows must resolve to a complete MIT provenance entry in sources-v1.json.",
+  "split_policy": "Every derivative retains the source document split.",
+  "drop_reasons": {},
+  "expected": {
+    "rows": 8,
+    "utf8_bytes": 3321,
+    "split_rows": {
+      "train": 8
+    },
+    "family_counts": {
+      "clean": 1,
+      "insertion": 1,
+      "omission": 1,
+      "repetition": 1,
+      "shift_case": 1,
+      "space": 1,
+      "substitution": 1,
+      "transposition": 1
+    },
+    "family_rates": {
+      "clean": 0.125,
+      "insertion": 0.125,
+      "omission": 0.125,
+      "repetition": 0.125,
+      "shift_case": 0.125,
+      "space": 0.125,
+      "substitution": 0.125,
+      "transposition": 0.125
+    },
+    "dataset_sha256": "6ae085d715f0596b8cd9bd764d99c7f8bf525eb06ba74177156fdcf5ef78bcb7"
+  }
+}

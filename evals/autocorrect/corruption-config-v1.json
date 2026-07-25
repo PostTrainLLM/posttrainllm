@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "config_id": "mac-keyboard-corruption-v1",
+  "layout_id": "mac-us-ansi-v1",
+  "seed": 20260725,
+  "max_edits_per_row": 1,
+  "family_weights": {
+    "substitution": 2,
+    "insertion": 1,
+    "omission": 1,
+    "transposition": 4,
+    "repetition": 1,
+    "space": 2,
+    "shift_case": 1
+  },
+  "selection_policy": "SHA-256 counter stream over config seed, row id, and operation label",
+  "scope": "training-side simulation only; frozen natural evaluation rows never change"
+}

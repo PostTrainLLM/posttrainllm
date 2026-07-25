@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "protocol_id": "mac-local-autocorrect-v1",
+  "task": {
+    "input": "one UTF-8 prose span",
+    "output": "only the minimally corrected UTF-8 prose span",
+    "language": [
+      "en-US"
+    ],
+    "domain": [
+      "ordinary personal and workplace prose"
+    ],
+    "maximum_input_utf8_bytes": 512,
+    "normalization": "none; preserve the input byte representation outside reviewed corrections"
+  },
+  "protected_span_rules": {
+    "automatic": [
+      "URL",
+      "number",
+      "backtick-delimited code"
+    ],
+    "fixture_declared": [
+      "person name",
+      "place or organization name",
+      "rare word",
+      "other code-like span"
+    ],
+    "rule": "Every uncorrupted protected span must occur byte-for-byte the same number of times in the output as in the clean reference."
+  },
+  "required_behavior": [
+    "repair only reviewed typing errors",
+    "preserve wording and word order",
+    "preserve whitespace, casing, and punctuation unless explicitly corrupted",
+    "preserve protected spans",
+    "emit no explanation, prefix, suffix, or markup"
+  ],
+  "non_goals": [
+    "grammar or style rewriting",
+    "tone changes",
+    "fact correction",
+    "translation",
+    "next-word prediction",
+    "cursor-aware completion",
+    "keyboard, editor, or input-method integration",
+    "cloud inference"
+  ]
+}

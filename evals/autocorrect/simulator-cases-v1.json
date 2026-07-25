@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "layout_id": "mac-us-ansi-v1",
+  "cases": [
+    {
+      "id": "sim-substitution",
+      "clean": "Please check this line.",
+      "family": "substitution",
+      "seed": 101,
+      "expected": {
+        "clean": "Please check this line.",
+        "noisy": "Please check yhis line.",
+        "family": "substitution",
+        "trace": [
+          {
+            "family": "substitution",
+            "mode": "substitution",
+            "source_start": 13,
+            "source_end": 14,
+            "source_text": "t",
+            "replacement_text": "y",
+            "noisy_start": 13,
+            "noisy_end": 14
+          }
+        ]
+      }
+    },
+    {
+      "id": "sim-insertion",
+      "clean": "Please check this line.",
+      "family": "insertion",
+      "seed": 102,
+      "expected": {
+        "clean": "Please check this line.",
+        "noisy": "Please check this l7ine.",
+        "family": "insertion",
+        "trace": [
+          {
+            "family": "insertion",
+            "mode": "insertion",
+            "source_start": 19,
+            "source_end": 19,
+            "source_text": "",
+            "replacement_text": "7",
+            "noisy_start": 19,
+            "noisy_end": 20
+          }
+        ]
+      }
+    },
+    {
+      "id": "sim-omission",
+      "clean": "Please check this line.",
+      "family": "omission",
+      "seed": 103,
+      "expected": {
+        "clean": "Please check this line.",
+        "noisy": "Please check this lne.",
+        "family": "omission",
+        "trace": [
+          {
+            "family": "omission",
+            "mode": "omission",
+            "source_start": 19,
+            "source_end": 20,
+            "source_text": "i",
+            "replacement_text": "",
+            "noisy_start": 19,
+            "noisy_end": 19
+          }
+        ]
+      }
+    },
+    {
+      "id": "sim-transposition",
+      "clean": "Please check this line.",
+      "family": "transposition",
+      "seed": 104,
+      "expected": {
+        "clean": "Please check this line.",
+        "noisy": "Plaese check this line.",
+        "family": "transposition",
+        "trace": [
+          {
+            "family": "transposition",
+            "mode": "transposition",
+            "source_start": 2,
+            "source_end": 4,
+            "source_text": "ea",
+            "replacement_text": "ae",
+            "noisy_start": 2,
+            "noisy_end": 4
+          }
+        ]
+      }
+    },
+    {
+      "id": "sim-repetition",
+      "clean": "Please check this line.",
+      "family": "repetition",
+      "seed": 105,
+      "expected": {
+        "clean": "Please check this line.",
+        "noisy": "Please checkk this line.",
+        "family": "repetition",
+        "trace": [
+          {
+            "family": "repetition",
+            "mode": "repetition",
+            "source_start": 11,
+            "source_end": 12,
+            "source_text": "k",
+            "replacement_text": "kk",
+            "noisy_start": 11,
+            "noisy_end": 13
+          }
+        ]
+      }
+    },
+    {
+      "id": "sim-space",
+      "clean": "Please check this line.",
+      "family": "space",
+      "seed": 106,
+      "expected": {
+        "clean": "Please check this line.",
+        "noisy": "Pleas e check this line.",
+        "family": "space",
+        "trace": [
+          {
+            "family": "space",
+            "mode": "space_insertion",
+            "source_start": 5,
+            "source_end": 5,
+            "source_text": "",
+            "replacement_text": " ",
+            "noisy_start": 5,
+            "noisy_end": 6
+          }
+        ]
+      }
+    },
+    {
+      "id": "sim-shift-case",
+      "clean": "Please check this line.",
+      "family": "shift_case",
+      "seed": 107,
+      "expected": {
+        "clean": "Please check this line.",
+        "noisy": "Please checK this line.",
+        "family": "shift_case",
+        "trace": [
+          {
+            "family": "shift_case",
+            "mode": "shift_case",
+            "source_start": 11,
+            "source_end": 12,
+            "source_text": "k",
+            "replacement_text": "K",
+            "noisy_start": 11,
+            "noisy_end": 12
+          }
+        ]
+      }
+    },
+    {
+      "id": "sim-clean",
+      "clean": "Please check this line.",
+      "family": "clean",
+      "seed": 108,
+      "expected": {
+        "clean": "Please check this line.",
+        "noisy": "Please check this line.",
+        "family": "clean",
+        "trace": []
+      }
+    }
+  ],
+  "disabled_family_cases": [
+    {
+      "id": "only-omission-enabled",
+      "seed": 109,
+      "samples": 16,
+      "family_weights": {
+        "substitution": 0,
+        "insertion": 0,
+        "omission": 1,
+        "transposition": 0,
+        "repetition": 0,
+        "space": 0,
+        "shift_case": 0
+      },
+      "expected_counts": {
+        "omission": 16
+      }
+    },
+    {
+      "id": "all-families-disabled",
+      "seed": 110,
+      "samples": 16,
+      "family_weights": {
+        "substitution": 0,
+        "insertion": 0,
+        "omission": 0,
+        "transposition": 0,
+        "repetition": 0,
+        "space": 0,
+        "shift_case": 0
+      },
+      "expected_counts": {
+        "clean": 16
+      }
+    }
+  ]
+}

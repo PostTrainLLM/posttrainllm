@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "manifest_id": "autocorrect-pilot-v1",
+  "purpose": "Bounded train/development pilot only; no test source is eligible.",
+  "source_path": "evals/autocorrect/source-documents-v1.jsonl",
+  "source_document_ids": [
+    "train-001",
+    "train-002",
+    "train-003",
+    "train-004",
+    "train-005",
+    "train-006",
+    "development-001",
+    "development-002"
+  ],
+  "allowed_splits": [
+    "train",
+    "development"
+  ],
+  "examples_per_source": 2,
+  "family_schedule": [
+    "substitution",
+    "omission",
+    "space",
+    "transposition",
+    "insertion",
+    "repetition",
+    "shift_case"
+  ],
+  "layout_path": "evals/autocorrect/keyboard-mac-us-ansi-v1.json",
+  "corruption_config_path": "evals/autocorrect/corruption-config-v1.json",
+  "input_hashes": {
+    "sources_sha256": "6ac20ed429dd35dbfa814fa76f2830f7e9baadcba59003dbb93c47ed61b71fc9",
+    "source_documents_sha256": "f34a63b9e086d4d694eebfc06de681890739df83d9627e524f7228bfc7aa0adc",
+    "layout_sha256": "4215d0a1630fb2e97c3236fac25bf393c17237720af9c8c69963edd7597207e6",
+    "corruption_config_sha256": "dab9236bafe3a4b52b52e2c3046e3c21ce0422558f5acdac45b4017447781a55"
+  },
+  "seed": 20260725,
+  "license_policy": "All source rows must resolve to a complete MIT provenance entry in sources-v1.json.",
+  "split_policy": "Every derivative retains the source document split; test sources are forbidden.",
+  "drop_reasons": {},
+  "expected": {
+    "rows": 16,
+    "utf8_bytes": 6981,
+    "split_rows": {
+      "development": 4,
+      "train": 12
+    },
+    "family_counts": {
+      "insertion": 2,
+      "omission": 3,
+      "repetition": 2,
+      "shift_case": 2,
+      "space": 2,
+      "substitution": 3,
+      "transposition": 2
+    },
+    "family_rates": {
+      "insertion": 0.125,
+      "omission": 0.1875,
+      "repetition": 0.125,
+      "shift_case": 0.125,
+      "space": 0.125,
+      "substitution": 0.1875,
+      "transposition": 0.125
+    },
+    "dataset_sha256": "e18fac8d1b78ce527ece7b4eec83e31d4192e821d4ce88cfa295ce41a50d5e71"
+  }
+}
