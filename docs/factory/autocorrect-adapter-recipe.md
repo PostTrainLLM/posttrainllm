@@ -93,11 +93,10 @@ python3 scripts/autocorrect_adapter.py verify-base
 bash evals/autocorrect-adapter-smoke.sh
 ```
 
-19 tests, all passing (2026-07-25, torch 2.7.1 / transformers 5.10.2). The ten
+26 tests, all passing (torch 2.7.1 / transformers 5.10.2). The ten
 torch-backed tests build a **tiny randomly-initialized T5** — no checkpoint is
 downloaded or loaded — and skip with a visible marker when torch is absent, so
-CI runs the nine stdlib tests and reports `9/19 passed (10 skipped)` rather than
-a false green.
+CI runs the stdlib tests and reports skips explicitly rather than a false green.
 
 What the suite actually proves:
 
@@ -246,6 +245,7 @@ mechanically:
 
 | Defect | Invariant enforced |
 |---|---|
+| `zero-shot-capacity-gap` | the base must be measurably near every quality bar **before** training |
 | `unsatisfiable-stop-rule` | every training stop rule must be satisfiable by the **baseline's measured value** |
 | `degenerate-memorization-gate` | a memorization gate must have more than one unique target |
 
@@ -258,6 +258,22 @@ reached its stop rule.
 
 Run against `v1` at freeze time, both checks would have failed before a single
 step of training.
+
+### The defect that mattered most was visible on day one
+
+`check_zero_shot_gap` measures the selected base against all three frozen
+quality bars. Every one fails:
+
+| Bar | Target | Base zero-shot | Training must supply |
+|---|---:|---:|---|
+| Error reduction | 0.90 | 0.0625 | **14.4x** |
+| Clean preservation | 0.995 | 0.667 | **98.5%** of remaining headroom |
+| Protected spans | 0.995 | 0.867 | 96.2% of remaining headroom |
+
+The bake-off selected on "smallest plausibly trainable" and never subtracted
+these. Every number was already committed the day the base was chosen. This is
+now `v1`'s first recorded defect, and it would have ended the lane before the
+adapter path was written.
 
 ## Next step — needs a new recipe version, not another run
 

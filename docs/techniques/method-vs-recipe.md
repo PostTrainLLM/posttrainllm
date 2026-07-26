@@ -133,4 +133,32 @@ Two rules recovered this way, now enforced:
 |---|---|
 | A training stop rule must be satisfiable by the baseline's measured value, not the target | `check_recipe_defects` |
 | A memorization gate needs more than one unique target, or it cannot tell memorization from a constant | `check_recipe_defects` |
+| A base must be measurably near its bars before training; no recipe closes a capacity gap | `check_zero_shot_gap` |
+
+## Before Freezing A Base: Subtract
+
+The most expensive rule of the three, recovered last. Before freezing a base,
+subtract its measured zero-shot score from every quality bar it must eventually
+clear. Two numbers, because a bar near the ceiling and a bar near zero fail
+differently and neither catches both:
+
+```text
+required closure    = (target - baseline) / (ceiling - baseline)
+required multiplier =  target / baseline
+```
+
+Flag at **closure >= 0.9** or **multiplier >= 3**. Either means training must
+supply essentially all of the capability, which is a bet on the base, not a
+tuning problem a recipe can fix.
+
+Why both: FLAN-T5-small needed error reduction `0.0625 -> 0.9`, a **14.4x** jump
+that reads as only 89.3% closure because the headroom is nearly the whole range
+-- closure alone silently passes the worst gap in the recipe. It also needed
+clean preservation `0.6667 -> 0.995`, only 1.5x but **98.5%** of the remaining
+headroom. One lens misses each case.
+
+This lane and the Pace planner both discovered their capacity ceiling *after*
+training -- eleven versions in the planner's case. In both, the zero-shot number
+was already committed on the day the base was chosen. Nobody did the
+subtraction.
 

@@ -295,6 +295,97 @@ def print_prior_attempts(recipe: dict[str, Any], limit: int = 5) -> None:
         print(f"  ... {len(related) - limit} more: python3 scripts/query_attempts.py --help")
 
 
+# Ship bars paired with the baseline metric that must eventually clear them, and
+# the ceiling that metric can reach. Used to ask the question the base bake-off
+# did not: how much of the remaining headroom must training close?
+GATE_BASELINE_KEYS = (
+    ("quality", "natural_error_reduction_rate_min", "error_reduction_rate", 1.0),
+    ("regression", "clean_byte_exact_preservation_min",
+     "clean_byte_exact_preservation_rate", 1.0),
+    ("regression", "protected_span_preservation_min",
+     "protected_span_preservation_rate", 1.0),
+)
+
+# Two lenses, because a bar near the ceiling and a bar near zero fail in
+# different ways and neither number catches both.
+#
+# Closure catches near-ceiling bars: preservation 0.667 -> 0.995 is only a 1.5x
+# multiplier but leaves the base 98.5% short of the headroom it must cover.
+#
+# Multiplier catches near-zero bars: error reduction 0.0625 -> 0.9 is a 14x
+# jump, yet reads as only 89.3% closure because the headroom is nearly the whole
+# range. Closure alone silently passes the single worst gap in this recipe.
+CLOSURE_CAPACITY_BET = 0.9
+MULTIPLIER_CAPACITY_BET = 3.0
+
+
+def required_closure(target: float, baseline: float, ceiling: float) -> float | None:
+    """Fraction of the *remaining* headroom that training must deliver.
+
+    `(target - baseline) / (ceiling - baseline)`. Expressing it this way makes a
+    quality bar and a near-ceiling preservation bar comparable: 0.2 means the
+    base is most of the way there, 0.99 means the base is essentially at zero
+    relative to the bar no matter how good the absolute number looks.
+    """
+    headroom = ceiling - baseline
+    if headroom <= 0:
+        return None if baseline >= target else 1.0
+    return (target - baseline) / headroom
+
+
+def check_zero_shot_gap(recipe: dict[str, Any]) -> list[dict[str, Any]]:
+    """Measure the selected base against the frozen bars before any training.
+
+    Recovered from two lanes that each discovered their capacity ceiling only
+    after training: eleven Pace planner versions on a 0.6B, and this one. In
+    both cases the zero-shot number was already recorded and already far from
+    the bar at freeze time. Nobody did the subtraction.
+    """
+    bakeoff_path = FIXTURE_DIR / "base-bakeoff-v1.json"
+    if not bakeoff_path.exists():
+        return []
+    baseline = json.loads(bakeoff_path.read_text(encoding="utf-8"))["selection"][
+        "baseline_quality"
+    ]
+    thresholds = json.loads(THRESHOLDS_PATH.read_text(encoding="utf-8"))
+
+    findings: list[dict[str, Any]] = []
+    for section, bar_key, metric_key, ceiling in GATE_BASELINE_KEYS:
+        target = thresholds.get(section, {}).get(bar_key)
+        measured = baseline.get(metric_key)
+        if target is None or measured is None:
+            continue
+        closure = required_closure(target, measured, ceiling)
+        if closure is None:
+            continue
+        multiplier = target / measured if measured > 0 else float("inf")
+
+        reasons = []
+        if closure >= CLOSURE_CAPACITY_BET:
+            reasons.append(f"must close {closure:.1%} of the remaining headroom")
+        if multiplier >= MULTIPLIER_CAPACITY_BET:
+            reasons.append(
+                "must improve "
+                + ("from zero or below" if measured <= 0 else f"{multiplier:.1f}x")
+            )
+        if not reasons:
+            continue
+
+        findings.append({
+            "bar": f"{section}.{bar_key}",
+            "target": target,
+            "baseline_metric": metric_key,
+            "baseline": measured,
+            "required_closure": round(closure, 4),
+            "required_multiplier": None if measured <= 0 else round(multiplier, 3),
+            "statement": (
+                f"{bar_key} is {target} but the selected base scores {measured:g} "
+                f"zero-shot on {metric_key}: training " + " and ".join(reasons)
+            ),
+        })
+    return findings
+
+
 def check_recipe_defects(recipe: dict[str, Any]) -> list[dict[str, str]]:
     """Design defects that make a recipe unrunnable or its gates meaningless.
 
@@ -325,6 +416,20 @@ def check_recipe_defects(recipe: dict[str, Any]) -> list[dict[str, str]]:
                         ),
                     }
                 )
+
+    gap = check_zero_shot_gap(recipe)
+    if gap:
+        worst = max(gap, key=lambda finding: finding["required_closure"])
+        bars = ", ".join(finding["bar"] for finding in gap)
+        defects.append({
+            "id": "zero-shot-capacity-gap",
+            "statement": (
+                f"the selected base is not near {len(gap)} of its frozen bars before "
+                f"training ({bars}); worst case, {worst['statement']}. Training is being "
+                "asked to supply essentially all of the capability, which is a capacity "
+                "bet on the base, not a tuning problem a recipe can fix"
+            ),
+        })
 
     # A memorization gate whose rows all share one target cannot distinguish
     # "memorized the data" from "emitted a constant".

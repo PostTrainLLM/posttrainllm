@@ -88,6 +88,75 @@ def test_known_design_defects_are_detected_not_just_documented():
     defects = {d["id"] for d in aa.check_recipe_defects(RECIPE)}
     assert "unsatisfiable-stop-rule" in defects
     assert "degenerate-memorization-gate" in defects
+    assert "zero-shot-capacity-gap" in defects
+
+
+def test_zero_shot_gap_is_measured_against_every_frozen_bar():
+    """The check that would have killed this lane at base-selection time."""
+    findings = {f["bar"]: f for f in aa.check_zero_shot_gap(RECIPE)}
+    assert set(findings) == {
+        "quality.natural_error_reduction_rate_min",
+        "regression.clean_byte_exact_preservation_min",
+        "regression.protected_span_preservation_min",
+    }, sorted(findings)
+    # Error reduction is caught by the multiplier lens, not closure: 0.0625 ->
+    # 0.9 is 14.4x but only 89.3% closure, which slips under the closure bar.
+    quality = findings["quality.natural_error_reduction_rate_min"]
+    assert quality["required_multiplier"] > 14
+    assert quality["required_closure"] < aa.CLOSURE_CAPACITY_BET
+    # Preservation is the mirror case: only 1.5x but 98.5% of the headroom.
+    clean = findings["regression.clean_byte_exact_preservation_min"]
+    assert clean["required_multiplier"] < aa.MULTIPLIER_CAPACITY_BET
+    assert clean["required_closure"] > 0.98
+
+
+def test_required_closure_handles_the_edge_cases():
+    assert aa.required_closure(0.9, 0.0625, 1.0) == pytest_approx(0.8933)
+    assert aa.required_closure(0.5, 0.5, 1.0) == 0.0
+    # Already at or past the bar with no headroom left is not a gap.
+    assert aa.required_closure(0.9, 1.0, 1.0) is None
+    # Below the bar with no headroom is a total gap, not a division by zero.
+    assert aa.required_closure(1.0, 1.0, 1.0) is None
+
+
+def pytest_approx(expected: float, tol: float = 1e-3):
+    class _Approx:
+        def __eq__(self, other: object) -> bool:
+            return abs(float(other) - expected) < tol  # type: ignore[arg-type]
+
+    return _Approx()
+
+
+def test_a_base_already_near_its_bars_does_not_flag():
+    """The check must stay silent for a genuinely plausible base."""
+    import json as _json
+    import tempfile
+
+    strong = copy.deepcopy(RECIPE)
+    with tempfile.TemporaryDirectory() as tmp:
+        # Point the recipe at a bake-off whose base nearly clears every bar.
+        bakeoff = _json.loads((FIXTURES / "base-bakeoff-v1.json").read_text(encoding="utf-8"))
+        bakeoff["selection"]["baseline_quality"] = {
+            "error_reduction_rate": 0.80,
+            "exact_match_rate": 0.9,
+            "clean_byte_exact_preservation_rate": 0.99,
+            "protected_span_preservation_rate": 0.99,
+        }
+        original = aa.FIXTURE_DIR
+        try:
+            staged = Path(tmp)
+            (staged / "base-bakeoff-v1.json").write_text(
+                _json.dumps(bakeoff), encoding="utf-8"
+            )
+            (staged / "thresholds-v1.json").write_text(
+                (original / "thresholds-v1.json").read_text(encoding="utf-8"), encoding="utf-8"
+            )
+            aa.FIXTURE_DIR = staged
+            aa.THRESHOLDS_PATH = staged / "thresholds-v1.json"
+            assert aa.check_zero_shot_gap(strong) == []
+        finally:
+            aa.FIXTURE_DIR = original
+            aa.THRESHOLDS_PATH = original / "thresholds-v1.json"
 
 
 def test_an_active_recipe_may_not_carry_a_design_defect():
@@ -541,6 +610,9 @@ def main() -> int:
         test_recipe_is_internally_consistent,
         test_recipe_drift_is_detected,
         test_known_design_defects_are_detected_not_just_documented,
+        test_zero_shot_gap_is_measured_against_every_frozen_bar,
+        test_required_closure_handles_the_edge_cases,
+        test_a_base_already_near_its_bars_does_not_flag,
         test_an_active_recipe_may_not_carry_a_design_defect,
         test_a_retired_recipe_must_name_every_defect_it_has,
         test_a_stale_defect_record_is_flagged,

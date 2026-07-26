@@ -5,8 +5,14 @@
   "movement_policy": "Any change to this recipe requires a new version before candidate outputs are inspected. A frozen run is never re-planned mid-flight.",
   "status": "retired",
   "retired_on": "2026-07-25",
-  "retired_reason": "Reached its stop rule. The pilot regressed to -0.8125 error reduction by overcorrecting into paraphrase, and the run was truncated at step 50 of 300 by a stop rule the base model already violates. Two design defects were found only after training; both are now checked mechanically by scripts/autocorrect_adapter.py::check_recipe_defects so a v2 cannot inherit them. Evidence: evals/autocorrect/pilot-result-v1.json.",
+  "retired_reason": "Reached its stop rule. The pilot regressed to -0.8125 error reduction by overcorrecting into paraphrase, and the run was truncated at step 50 of 300 by a stop rule the base model already violates. Three design defects were found only after training, the largest of them visible in committed files on the day the base was selected; all three are now checked mechanically by scripts/autocorrect_adapter.py::check_recipe_defects so a v2 cannot inherit them. Evidence: evals/autocorrect/pilot-result-v1.json.",
   "known_defects": [
+    {
+      "id": "zero-shot-capacity-gap",
+      "statement": "The selected base was not near any of its three frozen quality bars before training. Error reduction needed 0.9 against a 0.0625 zero-shot measurement (14.4x); clean preservation needed 0.995 against 0.6667 (98.5% of remaining headroom); protected-span preservation needed 0.995 against 0.8667 (96.2%).",
+      "root_cause": "The bake-off selected on 'smallest plausibly trainable' and never subtracted the measured zero-shot scores from the frozen bars. Every number needed for that subtraction was already committed on the day the base was chosen.",
+      "fix_for_v2": "Before freezing a base, compute required closure and required multiplier against every quality bar. If training must supply essentially all of the capability, change the base or the envelope -- no recipe closes a capacity gap."
+    },
     {
       "id": "unsatisfiable-stop-rule",
       "statement": "training_stop.stop_on_clean_preservation_below is 0.995 while the selected base's own zero-shot clean_byte_exact_preservation_rate is 0.6667, so the rule fires at the first scheduled evaluation regardless of training.",
