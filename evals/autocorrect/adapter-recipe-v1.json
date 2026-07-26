@@ -3,6 +3,23 @@
   "recipe_id": "autocorrect-flan-t5-small-lora-v1",
   "freeze_date": "2026-07-25",
   "movement_policy": "Any change to this recipe requires a new version before candidate outputs are inspected. A frozen run is never re-planned mid-flight.",
+  "status": "retired",
+  "retired_on": "2026-07-25",
+  "retired_reason": "Reached its stop rule. The pilot regressed to -0.8125 error reduction by overcorrecting into paraphrase, and the run was truncated at step 50 of 300 by a stop rule the base model already violates. Two design defects were found only after training; both are now checked mechanically by scripts/autocorrect_adapter.py::check_recipe_defects so a v2 cannot inherit them. Evidence: evals/autocorrect/pilot-result-v1.json.",
+  "known_defects": [
+    {
+      "id": "unsatisfiable-stop-rule",
+      "statement": "training_stop.stop_on_clean_preservation_below is 0.995 while the selected base's own zero-shot clean_byte_exact_preservation_rate is 0.6667, so the rule fires at the first scheduled evaluation regardless of training.",
+      "root_cause": "A ship-grade regression bar was reused as a training stop rule. The threshold file and the measured baseline were written at different times and never compared.",
+      "fix_for_v2": "Separate training stop rules from ship bars. Every training stop rule must be satisfiable by the baseline's measured value at freeze time."
+    },
+    {
+      "id": "degenerate-memorization-gate",
+      "statement": "The tiny-overfit manifest derives all 8 rows from one source document, so every target is the identical string and exact match 1.0 is reachable by emitting one constant.",
+      "root_cause": "The fixture optimized for the frozen byte budget without checking that its pass condition discriminates between memorizing the data and emitting a constant.",
+      "fix_for_v2": "Draw the memorization gate from at least two source documents so the two behaviours are distinguishable without a separate probe."
+    }
+  ],
   "authorization": {
     "implementation_and_offline_tests": "authorized",
     "tiny_overfit_run": "requires explicit owner approval and the GPU lock",

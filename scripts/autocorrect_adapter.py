@@ -195,7 +195,97 @@ def validate_recipe(recipe: dict[str, Any] | None = None) -> list[str]:
     if not recipe.get("stop_rules"):
         problems.append("stop_rules: at least one stop rule is required")
 
+    # Design defects are fatal for an active recipe. A retired one must name
+    # every defect it actually has -- that is what stops the next recipe from
+    # inheriting them.
+    status = recipe.get("status", "active")
+    if status not in ("active", "retired"):
+        problems.append(f"status: must be 'active' or 'retired', got {status!r}")
+    defects = check_recipe_defects(recipe)
+    found = {defect["id"] for defect in defects}
+    documented = {entry["id"] for entry in recipe.get("known_defects", [])}
+
+    if status == "active":
+        problems += [f"design defect [{d['id']}]: {d['statement']}" for d in defects]
+    else:
+        if not recipe.get("retired_reason"):
+            problems.append("retired recipe: retired_reason is required")
+        for defect in defects:
+            if defect["id"] not in documented:
+                problems.append(
+                    f"retired recipe: undocumented design defect [{defect['id']}]: "
+                    f"{defect['statement']}"
+                )
+    for stale in sorted(documented - found):
+        problems.append(
+            f"known_defects lists [{stale}], which no longer reproduces; remove it "
+            "or fix the check so the record stays truthful"
+        )
+
     return problems
+
+
+# Training stop rules that compare a metric to a bar. Each maps the threshold
+# key to the baseline metric it must be satisfiable against. A stop rule the
+# BASE model already violates fires at the first evaluation regardless of what
+# training does, which silently turns "stop if we regress" into "stop always".
+# Learned the hard way: see docs/factory/autocorrect-adapter-recipe.md.
+STOP_RULE_BASELINE_KEYS = {
+    "stop_on_clean_preservation_below": "clean_byte_exact_preservation_rate",
+}
+
+
+def check_recipe_defects(recipe: dict[str, Any]) -> list[dict[str, str]]:
+    """Design defects that make a recipe unrunnable or its gates meaningless.
+
+    These are invariants recovered from real failed runs. They are checked
+    mechanically because prose in a post-mortem does not stop a repeat.
+    """
+    defects: list[dict[str, str]] = []
+
+    bakeoff_path = FIXTURE_DIR / "base-bakeoff-v1.json"
+    thresholds = json.loads(THRESHOLDS_PATH.read_text(encoding="utf-8"))
+    if bakeoff_path.exists():
+        baseline = json.loads(bakeoff_path.read_text(encoding="utf-8"))["selection"][
+            "baseline_quality"
+        ]
+        for threshold_key, metric_key in STOP_RULE_BASELINE_KEYS.items():
+            bar = thresholds["training_stop"].get(threshold_key)
+            measured = baseline.get(metric_key)
+            if bar is None or measured is None:
+                continue
+            if measured < bar:
+                defects.append(
+                    {
+                        "id": "unsatisfiable-stop-rule",
+                        "statement": (
+                            f"training stop rule {threshold_key}={bar} is violated by the "
+                            f"base model's own zero-shot {metric_key}={measured}, so it "
+                            f"fires at the first evaluation regardless of training"
+                        ),
+                    }
+                )
+
+    # A memorization gate whose rows all share one target cannot distinguish
+    # "memorized the data" from "emitted a constant".
+    try:
+        tiny_rows = build_examples("tiny_overfit", recipe)
+    except AdapterError:
+        tiny_rows = []
+    if tiny_rows:
+        unique_targets = len({row["target"] for row in tiny_rows})
+        if unique_targets <= 1:
+            defects.append(
+                {
+                    "id": "degenerate-memorization-gate",
+                    "statement": (
+                        f"the tiny-overfit gate has {unique_targets} unique target(s), so "
+                        "exact match 1.0 is reachable by emitting one constant and is not "
+                        "evidence of memorizing the data"
+                    ),
+                }
+            )
+    return defects
 
 
 def expected_lora_size(config: dict[str, Any], rank: int) -> tuple[int, int]:
@@ -1095,6 +1185,18 @@ def main(argv: list[str] | None = None) -> int:
             for problem in problems:
                 print(f"FAIL {problem}")
             return 1
+
+        recipe = load_recipe()
+        if recipe.get("status") == "retired":
+            print(
+                f"REFUSED: recipe {recipe['recipe_id']} is retired.\n"
+                f"  {recipe.get('retired_reason', '')}\n"
+                "Known defects that a successor must fix first:"
+            )
+            for defect in recipe.get("known_defects", []):
+                print(f"  - [{defect['id']}] {defect.get('fix_for_v2', defect['statement'])}")
+            print("Freeze a new recipe version instead of training under this one.")
+            return 5
 
         with GPULock(f"autocorrect_adapter train --stage {args.stage}"):
             report = run_stage(args.stage, output_dir=args.output_dir)

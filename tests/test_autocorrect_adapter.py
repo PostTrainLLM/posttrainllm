@@ -80,6 +80,49 @@ def test_recipe_drift_is_detected():
         assert problems, f"{name}: drift was not detected"
 
 
+def test_known_design_defects_are_detected_not_just_documented():
+    """Both defects that cost a real run must be caught mechanically.
+
+    Prose in a post-mortem does not stop a repeat; this check does.
+    """
+    defects = {d["id"] for d in aa.check_recipe_defects(RECIPE)}
+    assert "unsatisfiable-stop-rule" in defects
+    assert "degenerate-memorization-gate" in defects
+
+
+def test_an_active_recipe_may_not_carry_a_design_defect():
+    """The guard that would have failed v1 at freeze time, before any training."""
+    active = copy.deepcopy(RECIPE)
+    active["status"] = "active"
+    active.pop("known_defects", None)
+    active.pop("retired_reason", None)
+    problems = aa.validate_recipe(active)
+    assert any("unsatisfiable-stop-rule" in p for p in problems), problems
+    assert any("degenerate-memorization-gate" in p for p in problems), problems
+
+
+def test_a_retired_recipe_must_name_every_defect_it_has():
+    hidden = copy.deepcopy(RECIPE)
+    hidden["known_defects"] = [
+        entry for entry in hidden["known_defects"] if entry["id"] != "unsatisfiable-stop-rule"
+    ]
+    problems = aa.validate_recipe(hidden)
+    assert any("undocumented design defect [unsatisfiable-stop-rule]" in p for p in problems)
+
+    unexplained = copy.deepcopy(RECIPE)
+    unexplained.pop("retired_reason")
+    assert any("retired_reason is required" in p for p in aa.validate_recipe(unexplained))
+
+
+def test_a_stale_defect_record_is_flagged():
+    """A defect list that outlives the defect quietly becomes a lie."""
+    stale = copy.deepcopy(RECIPE)
+    stale["known_defects"] = stale["known_defects"] + [
+        {"id": "invented-defect", "statement": "does not reproduce"}
+    ]
+    assert any("no longer reproduces" in p for p in aa.validate_recipe(stale))
+
+
 def test_target_resolution_is_exact_suffix_matching():
     names = [
         "encoder.block.0.layer.0.SelfAttention.q",
@@ -497,6 +540,10 @@ def main() -> int:
     tests = [
         test_recipe_is_internally_consistent,
         test_recipe_drift_is_detected,
+        test_known_design_defects_are_detected_not_just_documented,
+        test_an_active_recipe_may_not_carry_a_design_defect,
+        test_a_retired_recipe_must_name_every_defect_it_has,
+        test_a_stale_defect_record_is_flagged,
         test_target_resolution_is_exact_suffix_matching,
         test_expected_lora_size_matches_the_real_base_config,
         test_examples_are_prompted_frozen_and_split_safe,

@@ -239,6 +239,26 @@ The real blockers, none of which an edit-aware loss addresses:
 2. The unsatisfiable stop rule truncates every pilot at its first evaluation.
 3. Nothing in the objective or the decoding path guards against meaning change.
 
+### Both defects are now checked, not just written down
+
+`scripts/autocorrect_adapter.py::check_recipe_defects` asserts both invariants
+mechanically:
+
+| Defect | Invariant enforced |
+|---|---|
+| `unsatisfiable-stop-rule` | every training stop rule must be satisfiable by the **baseline's measured value** |
+| `degenerate-memorization-gate` | a memorization gate must have more than one unique target |
+
+An **active** recipe carrying either defect fails `validate`. A **retired** one
+must name every defect it actually has, and a `known_defects` entry that stops
+reproducing is flagged as stale so the record cannot quietly become a lie.
+`v1` is now marked retired, and `train` refuses to run under it **even with
+operator approval** — approval is not a licence to train under a recipe that has
+reached its stop rule.
+
+Run against `v1` at freeze time, both checks would have failed before a single
+step of training.
+
 ## Next step — needs a new recipe version, not another run
 
 The frozen recipe has reached its stop rule, and its `movement_policy` forbids
