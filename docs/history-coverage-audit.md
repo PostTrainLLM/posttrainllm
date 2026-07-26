@@ -14,10 +14,10 @@ Source of truth: [`attempts.json`](attempts.json).
 
 | Dimension | Count |
 |---|---:|
-| Total structured attempts | 57 |
+| Total structured attempts | 65 |
 | Autocorrect | 2 |
 | SQL | 17 |
-| Pace planner | 6 |
+| Pace planner | 14 |
 | Browser product | 6 |
 | Runtime/perf | 14 |
 | File-ops | 3 |
@@ -31,10 +31,10 @@ Source of truth: [`attempts.json`](attempts.json).
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 43 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 48 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 5 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
-| `not-applicable` | 9 | No failure reason is expected for worked/not-tried status. |
-| `missing-evidence` | 0 | No structured entry currently uses this label. |
+| `not-applicable` | 10 | No failure reason is expected for worked/not-tried status. |
+| `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |
 
 ## Normalized Families
 

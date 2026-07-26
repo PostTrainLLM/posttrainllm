@@ -186,14 +186,14 @@ def main() -> int:
         errors.append("history coverage audit has stale total structured attempt count")
     if f"| Total attempts | {len(attempts)} |" not in completion:
         errors.append("exactness completion audit has stale total attempt count")
-    for family, count in sorted(family_counts.items()):
+    for family, count in sorted(family_counts.items(), key=lambda kv: kv[0] or ""):
         label = family_labels.get(family)
         if not label:
             errors.append(f"missing history coverage label for family {family!r}")
             continue
         if f"| {label} | {count} |" not in history:
             errors.append(f"history coverage audit has stale count for {family!r}")
-    for confidence, count in sorted(confidence_counts.items()):
+    for confidence, count in sorted(confidence_counts.items(), key=lambda kv: kv[0] or ""):
         row = f"| `{confidence}` | {count} |"
         if row not in ledger:
             errors.append(f"attempt ledger has stale confidence count for {confidence!r}")

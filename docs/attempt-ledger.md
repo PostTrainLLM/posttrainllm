@@ -311,15 +311,97 @@ SQL is the current factory POC and the best-documented attempt family.
 
 ## Pace Planner / Clarify Attempts
 
-### Pace Qwen3-0.6B planner specialists v1-v11
+**The v1-v11 series, split as far as the evidence allows.**
 
-- Evidence: v11 reached train loss `0.001` but refused `0/30` held-out OOS prompts; drilldown shows Pace v9-LoRA `0%/22%/3%` and v11-LoRA `0%/15%/17%` on ambig/oos/destructive.
-- Status: `failed`.
-- Failure reason: The 0.6B specialists memorized surface behaviors but did not learn the planner judgment rules needed for held-out refusal and clarification.
-- Lesson: A tiny local specialist can memorize a corpus without acquiring the product judgment capability.
-- Next action: Do not train v12; use larger base models or a different premise when the missing skill is judgment.
+Eleven versions were claimed; **six have a recorded per-version score** (v5, v6, v6.1, v8, v9, v11), v7 was never trained, v10 was never scored, and v1-v4 left no result behind. The entries below split the series only as far as the evidence supports.
+
+Two cross-cutting findings the collapsed entry hid:
+
+- **One axis was varied for five straight versions.** v5, v6, v8, v9, v10, and v11 all held rank 32 / alpha 64 / 3000 steps / lr 1e-4 / batch 4 constant and changed only the training corpus. Rank, learning rate, step count, and base model were never ablated across the whole series. The single step-count comparison that exists is inside v6.1, in a file that was later deleted.
+- **The corpus compounded unmeasured.** 248 -> 307 -> 404 -> 709 rows, each version appending to the last, so any defect in the v5 base propagated through every successor. One such defect is recorded: the teacher used for v10 multiplication reflexively produced `AX.press` regardless of input.
+
+### Pace planner v1-v4 early versions
+
+- Evidence: datasets, builder scripts, and planned recipes survive; no per-version score was recorded.
+- Status: `inconclusive`.
+- Failure reason: No per-version result was kept. The v11 ship gate names this directly: v1 through v10 cycled because there was no fixed bar, no fixed eval, and no immutable record of pass criteria.
+- Lesson: An unmeasured version is indistinguishable from a version that never ran. Four consecutive attempts left no score behind.
+- Next action: Do not attempt to reconstruct scores for v1-v4; treat the series as starting at v5, the first version with a recorded number.
+- Confidence: `missing-evidence`.
+### Pace planner v5 hand-crafted gold + teacher paraphrase
+
+- Data: 248 rows.
+- Evidence: 17/19 (89%) on fm-fixtures v1 and 6/15 (40.0%) on fm-fixtures-v2.
+- Status: `worked-with-caveat`.
+- Failure reason: The 17/19 was measuring format compliance, not capability: a rule-based FakePace endpoint scored 19/19 on the same fixture set.
+- Lesson: A high score on a fixture a deterministic endpoint can also ace is a measurement of the harness, not the model.
+- Next action: Treat fm-fixtures v1 as retired; only fm-fixtures-v2 numbers are comparable.
 - Confidence: `exact`.
+### Pace planner v6 label-based output
 
+- Varied from `pace-planner-v5`: output representation changed from element IDs to labels with a deterministic label-to-ID lookup; hyperparameters held constant.
+- Evidence: 14/19 (74%) on fm-fixtures v1 and 3/15 (20.0%) on fm-fixtures-v2, 20pp below v5.
+- Status: `regressed`.
+- Failure reason: The label-based SFT destroyed capability, not just output format.
+- Lesson: Changing the output representation is a capability change, not a formatting change.
+- Next action: Revert to the v5 corpus for further augmentation work.
+- Confidence: `exact`.
+### Pace planner v6.1 four-adapter repair sweep
+
+- Varied from `pace-planner-v6`: six adapters over corpus shape and step count: 276 rows/2000 steps, JSON-shaped/1000, fixture-gold/500, then 760 system-prompt-aligned rows at 100 and 300 steps.
+- Data: 760 rows.
+- Evidence: 10/19, 8/19, 2/19, 0/19, then 14/19 at 100 steps and 17/19 at 300 steps, reaching 19/19 after a serving-side minLength fix; 4/15 (26.7%) on fm-fixtures-v2.
+- Status: `worked-with-caveat`.
+- Failure reason: The apparent collapse was two harness bugs, not training: SFT rows omitted the Pace system prompt that serve and eval both included, and a brace-counting JSON extractor was faulty.
+- Lesson: A four-way score collapse traced to prompt mismatch between training and serving. Pin the prompt, schema, and grammar triple across train, serve, and eval before believing any comparison.
+- Next action: Recover the full sweep with `git show d1efcb8^:docs/prds/factory-pace-planner-v6_1.md` before repeating any step-count ablation; it is the only one in the series.
+- Confidence: `exact`.
+### Pace planner v7 tools-in-prompt
+
+- Evidence: tools-in-prompt serve, verb-enum grammar, and data/eval harnesses shipped; the SFT was never run.
+- Status: `not-tried`.
+- Lesson: v7 is a numbering gap, not a training version. The eleven-version count includes a version that was never trained.
+- Next action: Do not cite v7 as evidence about model capability.
+- Confidence: `not-applicable`.
+### Pace planner v8 augmented corpus
+
+- Varied from `pace-planner-v5`: returned to the v5 corpus after the v6 label experiment regressed and added 59 rows of semantic disambiguation, multi-element reasoning, and abstract reference (248 to 307); hyperparameters unchanged.
+- Data: 307 rows.
+- Evidence: reported 11/15 (73.3%) on fm-fixtures-v2, later re-measured at 5/15 (33.3%) from the same weights and same fixtures.
+- Status: `inconclusive`.
+- Failure reason: The headline score did not reproduce. Re-running the same eval against the same baked weights yielded 33.3%, and the gap was root-caused as prompt and schema config drift rather than any model change.
+- Lesson: The 73% phantom. A score is only a score if the prompt, schema, and grammar it was measured under are recorded with it.
+- Next action: Treat 33.3% as the working v8 baseline and never compare across versions without pinning the harness config.
+- Confidence: `exact`.
+### Pace planner v9 compose
+
+- Varied from `pace-planner-v8`: backfilled a fourth schema field bodyText and added about 50 compose and draft rows.
+- Evidence: 70% on new compose fixtures with non-compose held at the v8 level; as-shipped re-measurement 9/15 (60.0%); unhappy-path n=130 gave 0/40 ambiguous, 13/60 out-of-scope, 1/30 destructive.
+- Status: `worked-with-caveat`.
+- Failure reason: It shipped as the specialist but never became Pace's runtime planner, and the unhappy-path drill put it at a capacity wall: 0% ambiguous and 3% destructive.
+- Lesson: Winning the happy-path fixture says nothing about ambiguous, out-of-scope, or destructive inputs, which is where the product actually needed the planner.
+- Next action: Keep as the last shipped specialist; Pace runs qwen3-30b-a3b instead.
+- Confidence: `exact`.
+### Pace planner v10 parameterized actions
+
+- Varied from `pace-planner-v9`: output representation changed again, from labels to a parameterized intent and payload schema, with a 404-row corpus built by 10x teacher multiplication.
+- Data: 404 rows.
+- Evidence: full recipe, action registry, schema, and eval plan are committed; no score was ever recorded and it is not established that training completed.
+- Status: `inconclusive`.
+- Failure reason: No v10 score exists anywhere in the repository. The last status recorded is that training was pending, while the v10 corpus went on to become the base of v11.
+- Lesson: v10 repeated v6's move of changing the output representation, and because it was never measured the v6 regression could not be checked for recurrence. Its unmeasured corpus was then inherited by v11.
+- Next action: Do not reuse a v10-derived corpus without first measuring the representation change in isolation.
+- Confidence: `missing-evidence`.
+### Pace planner v11 ship-gate run
+
+- Varied from `pace-planner-v10`: 404 v10 rows plus 93 seeds plus amplification to 709 rows, a 7-intent grammar, and plain LoRA because the DoRA inference path was broken end to end.
+- Data: 709 rows.
+- Evidence: failed all six gate dimensions: BFCL pace-12 27.1% against a 40% bar, out-of-scope 0/30 against 80%, ambiguous 0/20 against 50%, destructive 5/10 against 90%, with train loss 0.001.
+- Status: `failed`.
+- Failure reason: A 0.6B planner did not reach the fixed bar on any dimension despite the lowest training loss in the series, and the first v11 attempt was voided outright by the DoRA infrastructure failure.
+- Lesson: Train loss 0.001 alongside 0% on out-of-scope and ambiguous inputs is the capacity ceiling stated plainly. The one-shot fixed gate was what finally ended the cycle.
+- Next action: Do not train v12. The specialist planner track is closed and Pace ships qwen3-30b-a3b.
+- Confidence: `exact`.
 ### Pace clarify-v1 Qwen3-4B LoRA
 
 - Evidence: 38 contrastive rows moved ambig only `0% -> 5%` while OOS regressed `80% -> 33%` in the retrospective; drilldown records the same attempt as `2%/40%/50%` on ambig/oos/destructive.
@@ -639,10 +721,10 @@ Current structured coverage:
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 43 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 48 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 5 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
-| `not-applicable` | 9 | No failure reason is expected for worked/not-tried status. |
-| `missing-evidence` | 0 | No structured entry currently uses this label. |
+| `not-applicable` | 10 | No failure reason is expected for worked/not-tried status. |
+| `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |
 
 This is also not a claim that every scratch experiment in the repo's older
 archive has been normalized. Older archive/session docs still contain

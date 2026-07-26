@@ -492,21 +492,11 @@
       "objective": "action-grounding"
     },
     {
-      "id": "pace-qwen06-v1-v11-specialists",
-      "name": "Pace Qwen3-0.6B planner specialists v1-v11",
+      "id": "pace-planner-v1-v4-early",
+      "name": "Pace planner v1-v4 early versions",
       "family": "pace-planner",
-      "status": "failed",
-      "evidence": "v11 reached train loss `0.001` but refused `0/30` held-out OOS prompts; drilldown shows Pace v9-LoRA `0%/22%/3%` and v11-LoRA `0%/15%/17%` on ambig/oos/destructive",
-      "failure_reason": "The 0.6B specialists memorized surface behaviors but did not learn the planner judgment rules needed for held-out refusal and clarification.",
-      "failure_reason_confidence": "exact",
-      "lesson": "A tiny local specialist can memorize a corpus without acquiring the product judgment capability.",
-      "next_action": "Do not train v12; use larger base models or a different premise when the missing skill is judgment.",
-      "evidence_sources": [
-        "docs/RETROSPECTIVE.md",
-        "docs/DRILLDOWN.md",
-        "docs/pace-handoff-2026-06-10.md"
-      ],
-      "source": "docs/RETROSPECTIVE.md",
+      "status": "inconclusive",
+      "failure_reason_confidence": "missing-evidence",
       "kind": "training-run",
       "methods": [
         "sft",
@@ -515,7 +505,239 @@
       "bases": [
         "qwen3-0.6b"
       ],
-      "objective": "planner-oos-refusal"
+      "objective": "planner-oos-refusal",
+      "evidence": "datasets, builder scripts, and planned recipes survive; no per-version score was recorded",
+      "failure_reason": "No per-version result was kept. The v11 ship gate names this directly: v1 through v10 cycled because there was no fixed bar, no fixed eval, and no immutable record of pass criteria.",
+      "lesson": "An unmeasured version is indistinguishable from a version that never ran. Four consecutive attempts left no score behind.",
+      "next_action": "Do not attempt to reconstruct scores for v1-v4; treat the series as starting at v5, the first version with a recorded number.",
+      "evidence_sources": [
+        "docs/prds/pace-planner-v11-ship-gate.md",
+        "docs/recipes/pace-planner.md",
+        "docs/prds/specialist-pace-planner.md"
+      ],
+      "source": "docs/prds/pace-planner-v11-ship-gate.md"
+    },
+    {
+      "id": "pace-planner-v5",
+      "name": "Pace planner v5 hand-crafted gold + teacher paraphrase",
+      "family": "pace-planner",
+      "status": "worked-with-caveat",
+      "failure_reason_confidence": "exact",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "planner-oos-refusal",
+      "data_rows": 248,
+      "evidence": "17/19 (89%) on fm-fixtures v1 and 6/15 (40.0%) on fm-fixtures-v2",
+      "failure_reason": "The 17/19 was measuring format compliance, not capability: a rule-based FakePace endpoint scored 19/19 on the same fixture set.",
+      "lesson": "A high score on a fixture a deterministic endpoint can also ace is a measurement of the harness, not the model.",
+      "next_action": "Treat fm-fixtures v1 as retired; only fm-fixtures-v2 numbers are comparable.",
+      "evidence_sources": [
+        "docs/learn/eval-matrix-2026-06-08.md",
+        "docs/learn/eval-methodology-2026-06-08.md"
+      ],
+      "source": "docs/learn/eval-matrix-2026-06-08.md"
+    },
+    {
+      "id": "pace-planner-v6",
+      "name": "Pace planner v6 label-based output",
+      "family": "pace-planner",
+      "status": "regressed",
+      "failure_reason_confidence": "exact",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "planner-oos-refusal",
+      "varied_from": "pace-planner-v5",
+      "varied": "output representation changed from element IDs to labels with a deterministic label-to-ID lookup; hyperparameters held constant",
+      "evidence": "14/19 (74%) on fm-fixtures v1 and 3/15 (20.0%) on fm-fixtures-v2, 20pp below v5",
+      "failure_reason": "The label-based SFT destroyed capability, not just output format.",
+      "lesson": "Changing the output representation is a capability change, not a formatting change.",
+      "next_action": "Revert to the v5 corpus for further augmentation work.",
+      "evidence_sources": [
+        "docs/learn/eval-matrix-2026-06-08.md",
+        "docs/learn/eval-methodology-2026-06-08.md"
+      ],
+      "source": "docs/learn/eval-matrix-2026-06-08.md"
+    },
+    {
+      "id": "pace-planner-v6-1",
+      "name": "Pace planner v6.1 four-adapter repair sweep",
+      "family": "pace-planner",
+      "status": "worked-with-caveat",
+      "failure_reason_confidence": "exact",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "planner-oos-refusal",
+      "data_rows": 760,
+      "varied_from": "pace-planner-v6",
+      "varied": "six adapters over corpus shape and step count: 276 rows/2000 steps, JSON-shaped/1000, fixture-gold/500, then 760 system-prompt-aligned rows at 100 and 300 steps",
+      "evidence": "10/19, 8/19, 2/19, 0/19, then 14/19 at 100 steps and 17/19 at 300 steps, reaching 19/19 after a serving-side minLength fix; 4/15 (26.7%) on fm-fixtures-v2",
+      "failure_reason": "The apparent collapse was two harness bugs, not training: SFT rows omitted the Pace system prompt that serve and eval both included, and a brace-counting JSON extractor was faulty.",
+      "lesson": "A four-way score collapse traced to prompt mismatch between training and serving. Pin the prompt, schema, and grammar triple across train, serve, and eval before believing any comparison.",
+      "next_action": "Recover the full sweep with `git show d1efcb8^:docs/prds/factory-pace-planner-v6_1.md` before repeating any step-count ablation; it is the only one in the series.",
+      "evidence_sources": [
+        "docs/prds/specialist-pace-planner.md",
+        "docs/learn/eval-matrix-2026-06-08.md",
+        "docs/learn/eval-methodology-2026-06-08.md"
+      ],
+      "source": "docs/prds/specialist-pace-planner.md"
+    },
+    {
+      "id": "pace-planner-v7",
+      "name": "Pace planner v7 tools-in-prompt",
+      "family": "pace-planner",
+      "status": "not-tried",
+      "failure_reason_confidence": "not-applicable",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "planner-oos-refusal",
+      "evidence": "tools-in-prompt serve, verb-enum grammar, and data/eval harnesses shipped; the SFT was never run",
+      "lesson": "v7 is a numbering gap, not a training version. The eleven-version count includes a version that was never trained.",
+      "next_action": "Do not cite v7 as evidence about model capability.",
+      "evidence_sources": [
+        "docs/prds/factory-planner-v7-tools-in-prompt.md",
+        "HANDOFF.md"
+      ],
+      "source": "docs/prds/factory-planner-v7-tools-in-prompt.md"
+    },
+    {
+      "id": "pace-planner-v8",
+      "name": "Pace planner v8 augmented corpus",
+      "family": "pace-planner",
+      "status": "inconclusive",
+      "failure_reason_confidence": "exact",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "planner-oos-refusal",
+      "data_rows": 307,
+      "varied_from": "pace-planner-v5",
+      "varied": "returned to the v5 corpus after the v6 label experiment regressed and added 59 rows of semantic disambiguation, multi-element reasoning, and abstract reference (248 to 307); hyperparameters unchanged",
+      "evidence": "reported 11/15 (73.3%) on fm-fixtures-v2, later re-measured at 5/15 (33.3%) from the same weights and same fixtures",
+      "failure_reason": "The headline score did not reproduce. Re-running the same eval against the same baked weights yielded 33.3%, and the gap was root-caused as prompt and schema config drift rather than any model change.",
+      "lesson": "The 73% phantom. A score is only a score if the prompt, schema, and grammar it was measured under are recorded with it.",
+      "next_action": "Treat 33.3% as the working v8 baseline and never compare across versions without pinning the harness config.",
+      "evidence_sources": [
+        "docs/learn/eval-matrix-2026-06-08.md",
+        "docs/v11-baselines-2026-06-09.md",
+        "docs/RETROSPECTIVE.md"
+      ],
+      "source": "docs/learn/eval-matrix-2026-06-08.md"
+    },
+    {
+      "id": "pace-planner-v9",
+      "name": "Pace planner v9 compose",
+      "family": "pace-planner",
+      "status": "worked-with-caveat",
+      "failure_reason_confidence": "exact",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "planner-oos-refusal",
+      "varied_from": "pace-planner-v8",
+      "varied": "backfilled a fourth schema field bodyText and added about 50 compose and draft rows",
+      "evidence": "70% on new compose fixtures with non-compose held at the v8 level; as-shipped re-measurement 9/15 (60.0%); unhappy-path n=130 gave 0/40 ambiguous, 13/60 out-of-scope, 1/30 destructive",
+      "failure_reason": "It shipped as the specialist but never became Pace's runtime planner, and the unhappy-path drill put it at a capacity wall: 0% ambiguous and 3% destructive.",
+      "lesson": "Winning the happy-path fixture says nothing about ambiguous, out-of-scope, or destructive inputs, which is where the product actually needed the planner.",
+      "next_action": "Keep as the last shipped specialist; Pace runs qwen3-30b-a3b instead.",
+      "evidence_sources": [
+        "docs/v11-baselines-2026-06-09.md",
+        "docs/DRILLDOWN.md",
+        "docs/pace-handoff-2026-06-10.md"
+      ],
+      "source": "docs/v11-baselines-2026-06-09.md"
+    },
+    {
+      "id": "pace-planner-v10",
+      "name": "Pace planner v10 parameterized actions",
+      "family": "pace-planner",
+      "status": "inconclusive",
+      "failure_reason_confidence": "missing-evidence",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "planner-oos-refusal",
+      "data_rows": 404,
+      "varied_from": "pace-planner-v9",
+      "varied": "output representation changed again, from labels to a parameterized intent and payload schema, with a 404-row corpus built by 10x teacher multiplication",
+      "evidence": "full recipe, action registry, schema, and eval plan are committed; no score was ever recorded and it is not established that training completed",
+      "failure_reason": "No v10 score exists anywhere in the repository. The last status recorded is that training was pending, while the v10 corpus went on to become the base of v11.",
+      "lesson": "v10 repeated v6's move of changing the output representation, and because it was never measured the v6 regression could not be checked for recurrence. Its unmeasured corpus was then inherited by v11.",
+      "next_action": "Do not reuse a v10-derived corpus without first measuring the representation change in isolation.",
+      "evidence_sources": [
+        "scripts/v10_pipeline.sh",
+        "docs/prds/pace-planner-v11-training-data.md",
+        "HANDOFF.md"
+      ],
+      "source": "scripts/v10_pipeline.sh"
+    },
+    {
+      "id": "pace-planner-v11",
+      "name": "Pace planner v11 ship-gate run",
+      "family": "pace-planner",
+      "status": "failed",
+      "failure_reason_confidence": "exact",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "planner-oos-refusal",
+      "data_rows": 709,
+      "varied_from": "pace-planner-v10",
+      "varied": "404 v10 rows plus 93 seeds plus amplification to 709 rows, a 7-intent grammar, and plain LoRA because the DoRA inference path was broken end to end",
+      "evidence": "failed all six gate dimensions: BFCL pace-12 27.1% against a 40% bar, out-of-scope 0/30 against 80%, ambiguous 0/20 against 50%, destructive 5/10 against 90%, with train loss 0.001",
+      "failure_reason": "A 0.6B planner did not reach the fixed bar on any dimension despite the lowest training loss in the series, and the first v11 attempt was voided outright by the DoRA infrastructure failure.",
+      "lesson": "Train loss 0.001 alongside 0% on out-of-scope and ambiguous inputs is the capacity ceiling stated plainly. The one-shot fixed gate was what finally ended the cycle.",
+      "next_action": "Do not train v12. The specialist planner track is closed and Pace ships qwen3-30b-a3b.",
+      "evidence_sources": [
+        "docs/v11-baselines-2026-06-09.md",
+        "docs/prds/pace-planner-v11-ship-gate.md",
+        "docs/DRILLDOWN.md",
+        "docs/RETROSPECTIVE.md"
+      ],
+      "source": "docs/v11-baselines-2026-06-09.md"
     },
     {
       "id": "pace-clarify-v1-qwen4b-lora",
