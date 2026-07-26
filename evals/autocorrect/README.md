@@ -33,6 +33,19 @@ This directory is the committed, no-model foundation for
 - `base-bakeoff-v1.json` — complete offline predictions, tokenizer and timing
   rows, strict slice metrics, runtime pins, and the measured FLAN-T5-small
   base-selection decision.
+- `adapter-recipe-v1.json` — the frozen ordinary supervised LoRA recipe: base,
+  geometry, optimizer, precision, seed, step budget, checkpoint cadence, eval
+  gates, and stop rules. Explained in
+  [`../../docs/factory/autocorrect-adapter-recipe.md`](../../docs/factory/autocorrect-adapter-recipe.md).
+- `tiny-overfit-result-v1.json` — the measured 5.3 memorization gate: loss
+  curve, timing, RSS, per-row predictions, and a diagnostic probe. Its
+  `fixture_limitation` field states why exact match 1.0 here is **not** a
+  quality result: the fixture has one unique target.
+- `pilot-result-v1.json` — the measured 5.4 pilot and its 5.5 reading. The
+  pilot **regressed** (error reduction `-0.8125`) by overcorrecting into
+  paraphrase; its `recipe_defect` field records that the run was truncated by a
+  stop rule the base model already violates, and `edit_aware_justification`
+  records why tasks 5.6-5.7 are rejected rather than pending.
 
 ## No-model checks
 
@@ -40,6 +53,18 @@ This directory is the committed, no-model foundation for
 python3 scripts/autocorrect_foundation.py validate
 python3 tests/test_autocorrect_foundation.py
 bash evals/autocorrect-foundation-smoke.sh
+
+# Adapter path: recipe consistency, resolved plans, refusal to train, 19 tests.
+bash evals/autocorrect-adapter-smoke.sh
+```
+
+The adapter smoke loads no checkpoint. Its torch-backed tests build a tiny
+randomly-initialized T5 and skip visibly when torch is absent, because torch is
+not a dependency of this repository. To check load parity against the real
+pinned base (forward-only, CPU, zero optimizer steps):
+
+```bash
+HF_HUB_OFFLINE=1 python3 scripts/autocorrect_adapter.py verify-base
 ```
 
 Score a strict prediction file containing exactly one

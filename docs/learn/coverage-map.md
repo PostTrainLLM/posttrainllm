@@ -50,6 +50,7 @@ Everything under `PROJECT_STATUS.md` → "Training and post-training."
 | SFT | [`../training/sft.md`](../training/sft.md), Module 9 |
 | Pretraining | [`../training/pretrain.md`](../training/pretrain.md), Session 8 |
 | LoRA / DoRA / QLoRA | [`../lora_guide.md`](../lora_guide.md), [`../peft_variants.md`](../peft_variants.md), [`../factory/lora-geometry.md`](../factory/lora-geometry.md), Session 9 |
+| Encoder-decoder (seq2seq) adapters, copy bias, edit-aware loss | [`encoder-decoder-adapters.md`](encoder-decoder-adapters.md), [`../factory/autocorrect-adapter-recipe.md`](../factory/autocorrect-adapter-recipe.md) |
 | DPO / SimPO / preference tuning | [`../training/dpo.md`](../training/dpo.md), Module 9 + 10 |
 | Distillation | [`../distillation.md`](../distillation.md), [`diversity-driven-small-model-reasoning.md`](diversity-driven-small-model-reasoning.md) |
 | Evolution strategies (ES) | [`../evolution_strategies.md`](../evolution_strategies.md), [`castform-rl-finetune.md`](castform-rl-finetune.md) |

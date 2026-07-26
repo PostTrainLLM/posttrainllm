@@ -339,3 +339,11 @@ jobs:
       # sources, so it needs no MLX package resolve.
       - name: Run fine-tune report card smoke test
         run: bash evals/fine-tune-report-card-smoke.sh
+
+      - name: Run autocorrect foundation smoke test
+        run: bash evals/autocorrect-foundation-smoke.sh
+
+      # Stdlib-only here: the torch-backed adapter tests skip cleanly because
+      # torch is deliberately not a dependency of this repository.
+      - name: Run autocorrect adapter smoke test
+        run: bash evals/autocorrect-adapter-smoke.sh

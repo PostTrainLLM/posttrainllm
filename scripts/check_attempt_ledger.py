@@ -101,10 +101,77 @@ def main() -> int:
         if evidence and evidence not in ledger:
             errors.append(f"{attempt_id}: ledger missing evidence {evidence!r}")
 
+    # Shape fields are what make the index queryable. They are optional per
+    # attempt -- old entries may not have derivable shape without inventing
+    # history -- but anything present must be valid and resolvable.
+    kind_vocab = payload.get("kind_vocabulary") or {}
+    method_vocab = payload.get("method_vocabulary") or {}
+    objective_vocab = payload.get("objective_vocabulary") or {}
+    for vocab_name, vocab in (
+        ("kind_vocabulary", kind_vocab),
+        ("method_vocabulary", method_vocab),
+        ("objective_vocabulary", objective_vocab),
+    ):
+        if not vocab:
+            errors.append(f"docs/attempts.json missing {vocab_name}")
+
+    ids = {attempt.get("id") for attempt in attempts}
+    for attempt in attempts:
+        attempt_id = attempt.get("id")
+        kind = attempt.get("kind")
+        if kind not in kind_vocab:
+            errors.append(f"{attempt_id}: invalid or missing kind {kind!r}")
+        for method in attempt.get("methods") or []:
+            if method not in method_vocab:
+                errors.append(f"{attempt_id}: method {method!r} is not in method_vocabulary")
+        objective = attempt.get("objective")
+        if objective and objective not in objective_vocab:
+            errors.append(
+                f"{attempt_id}: objective {objective!r} is not in objective_vocabulary"
+            )
+        parent = attempt.get("varied_from")
+        if parent:
+            if parent not in ids:
+                errors.append(f"{attempt_id}: varied_from {parent!r} does not resolve")
+            if not attempt.get("varied"):
+                errors.append(f"{attempt_id}: varied_from without a 'varied' description")
+        if kind == "infrastructure":
+            stray = [
+                field
+                for field in ("methods", "bases", "objective", "data_rows", "varied_from")
+                if attempt.get(field)
+            ]
+            if stray:
+                errors.append(f"{attempt_id}: infrastructure attempt carries shape {stray}")
+
+    # A varied_from cycle would make lineage walks non-terminating.
+    for attempt in attempts:
+        seen_chain, cursor = set(), attempt.get("id")
+        by_id = {a.get("id"): a for a in attempts}
+        while cursor and cursor not in seen_chain:
+            seen_chain.add(cursor)
+            cursor = (by_id.get(cursor) or {}).get("varied_from")
+        if cursor:
+            errors.append(f"{attempt.get('id')}: varied_from chain contains a cycle")
+
+    # The structured index is the queryable source, so the prose ledger must not
+    # run ahead of it. Checking only json -> markdown let four attempts live in
+    # the ledger with no structured entry, which is invisible to every query.
+    import re
+
+    ledger_titles = {title.strip() for title in re.findall(r"^### (.+)$", ledger, re.M)}
+    structured_titles = {attempt.get("name", "").strip() for attempt in attempts}
+    for orphan in sorted(ledger_titles - structured_titles):
+        errors.append(
+            f"attempt-ledger.md has section {orphan!r} with no docs/attempts.json entry; "
+            "the structured index is what queries read"
+        )
+
     family_labels = {
         "apple-fm": "Apple FM",
         "architecture": "Architecture",
         "archive-model": "Archive model",
+        "autocorrect": "Autocorrect",
         "browser-product": "Browser product",
         "factory-docs": "Factory/docs",
         "file-ops": "File-ops",
@@ -119,14 +186,14 @@ def main() -> int:
         errors.append("history coverage audit has stale total structured attempt count")
     if f"| Total attempts | {len(attempts)} |" not in completion:
         errors.append("exactness completion audit has stale total attempt count")
-    for family, count in sorted(family_counts.items()):
+    for family, count in sorted(family_counts.items(), key=lambda kv: kv[0] or ""):
         label = family_labels.get(family)
         if not label:
             errors.append(f"missing history coverage label for family {family!r}")
             continue
         if f"| {label} | {count} |" not in history:
             errors.append(f"history coverage audit has stale count for {family!r}")
-    for confidence, count in sorted(confidence_counts.items()):
+    for confidence, count in sorted(confidence_counts.items(), key=lambda kv: kv[0] or ""):
         row = f"| `{confidence}` | {count} |"
         if row not in ledger:
             errors.append(f"attempt ledger has stale confidence count for {confidence!r}")

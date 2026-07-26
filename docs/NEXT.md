@@ -61,10 +61,48 @@ plausibly trainable base: it stayed within the resource envelope but reached
 only 6.25% zero-shot error reduction, 66.67% clean preservation, and 86.67%
 protected-span preservation. Exact commands and measured evidence are in
 [`factory/autocorrect-model-shortlist.md`](factory/autocorrect-model-shortlist.md)
-and `evals/autocorrect/base-bakeoff-v1.json`. Adapter implementation,
-compilation, overfit/pilot training, packaging, and the final factory decision
-remain pending immediate approval. The queue still has no authorized training
-run.
+and `evals/autocorrect/base-bakeoff-v1.json`.
+
+Tasks 5.1-5.2 completed 2026-07-25 without training. The ordinary supervised
+recipe is frozen in `evals/autocorrect/adapter-recipe-v1.json` and the
+encoder-decoder LoRA path is implemented in `scripts/autocorrect_adapter.py`;
+both are documented in
+[`factory/autocorrect-adapter-recipe.md`](factory/autocorrect-adapter-recipe.md).
+Measured forward-only on CPU against the real pinned base: 48 adapted modules,
+344,064 trainable parameters (0.4471%), and logits bit-identical after injection
+(max absolute delta 0.0). 19 offline tests pass via
+`bash evals/autocorrect-adapter-smoke.sh`. LoRA is hand-rolled so torch,
+transformers, and peft stay off the project dependency surface.
+
+Task 5.3, the repeated-data overfit gate, ran 2026-07-25 with owner approval and
+**passed**: exact match 1.0 at step 50 of 200, loss 1.585 -> 0.030, 0.28 min,
+1,135 MiB peak RSS on MPS. Evidence:
+`evals/autocorrect/tiny-overfit-result-v1.json`. Read the caveat before quoting
+it — the fixture has one unique target, so the score measures capacity and
+wiring, not correction, and the diagnostic probe showed copy bias, memorization
+leakage, and instruction echo on unseen input.
+
+Tasks 5.4-5.5 ran 2026-07-25 with owner approval and the **pilot regressed**:
+error reduction `+0.0625 -> -0.8125` on the unchanged frozen suite, unnecessary
+edit rate 0.839 against a 0.005 bar. The failure mode is overcorrection, not
+copy bias — the model became a paraphraser. Evidence:
+`evals/autocorrect/pilot-result-v1.json`.
+
+Two blockers came out of it:
+
+1. **The pilot was truncated by construction.** It stopped at step 50 of 300 on
+   `stop_on_clean_preservation_below: 0.995`, but the base's own zero-shot clean
+   preservation is 0.667, so that ship-grade bar fires at the first evaluation
+   regardless of training.
+2. **Tasks 5.6-5.7 are rejected, not pending.** An edit-aware objective
+   up-weights edit positions, which targets the opposite of the measured failure
+   and would push overcorrection past 5.7's own reject condition.
+
+**Do not run further training under `adapter-recipe-v1`** — it has reached its
+stop rule and its movement policy forbids moving bars inside a live run. The
+next step is a `v2` recipe that separates training stop rules from ship bars,
+draws on more of the 26 available source documents, and adds a meaning-change
+guard. That is a spec change, not a training run.
 
 ## Active Sequence
 
@@ -315,6 +353,9 @@ Exit criteria:
    `bash evals/factory-run-lifecycle-smoke.sh`.
 0.4. Run the fine-tune report card smoke:
    `bash evals/fine-tune-report-card-smoke.sh`.
+0.5. Run the autocorrect no-model smokes:
+   `bash evals/autocorrect-foundation-smoke.sh` and
+   `bash evals/autocorrect-adapter-smoke.sh`. Both are now in the CI evals job.
 1. Wire real train/eval commands to emit the run schema automatically.
    **Bridge half done (2026-07-11):** `scripts/assemble_factory_run.py` is the
    generic report-artifact bridge. It turns the emitted fragments (`config`,

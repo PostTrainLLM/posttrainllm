@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "result_id": "autocorrect-tiny-overfit-v1",
+  "observed_on": "2026-07-25",
+  "task": "5.3 repeated-data memorization gate",
+  "host": {
+    "model": "Apple M5 Pro",
+    "memory_gib": 48
+  },
+  "recipe_id": "autocorrect-flan-t5-small-lora-v1",
+  "base_model_id": "google/flan-t5-small",
+  "base_revision": "0fc9ddf78a1e988dac52e2dac162b0ede4fd74ab",
+  "dataset_sha256": "6ae085d715f0596b8cd9bd764d99c7f8bf525eb06ba74177156fdcf5ef78bcb7",
+  "rows": 8,
+  "device": "mps",
+  "torch": "2.7.1",
+  "steps_taken": 50,
+  "step_budget": 200,
+  "wall_time_minutes": 0.281,
+  "peak_rss_mib": 1134.859,
+  "trainable_parameters": 344064,
+  "first_loss": 1.5853238105773926,
+  "final_loss": 0.030344629660248756,
+  "loss_history": [
+    {
+      "step": 1,
+      "loss": 1.5853238105773926,
+      "lr": 5e-05
+    },
+    {
+      "step": 10,
+      "loss": 0.9688298106193542,
+      "lr": 0.0005
+    },
+    {
+      "step": 20,
+      "loss": 0.4279769957065582,
+      "lr": 0.001
+    },
+    {
+      "step": 30,
+      "loss": 0.24560043215751648,
+      "lr": 0.001
+    },
+    {
+      "step": 40,
+      "loss": 0.008554618805646896,
+      "lr": 0.001
+    },
+    {
+      "step": 50,
+      "loss": 0.030344629660248756,
+      "lr": 0.001
+    }
+  ],
+  "evaluations": [
+    {
+      "step": 50,
+      "exact_match": 1.0,
+      "loss": 0.030344629660248756
+    }
+  ],
+  "final_exact_match": 1.0,
+  "gate": {
+    "exact_match_min": 1.0,
+    "passed": true
+  },
+  "stop_rule_triggered": null,
+  "decision": null,
+  "predictions": [
+    {
+      "id": "autocorrect-tiny-overfit-v1:train-001:00",
+      "error_family": "substitution",
+      "noisy_source": "Correct only the typing errors in the following text. Return only the corrected text:\nPlease review the d4aft before lunch.",
+      "target": "Please review the draft before lunch.",
+      "prediction": "Please review the draft before lunch.",
+      "exact_match": true
+    },
+    {
+      "id": "autocorrect-tiny-overfit-v1:train-001:01",
+      "error_family": "insertion",
+      "noisy_source": "Correct only the typing errors in the following text. Return only the corrected text:\nPlease review the draft befdore lunch.",
+      "target": "Please review the draft before lunch.",
+      "prediction": "Please review the draft before lunch.",
+      "exact_match": true
+    },
+    {
+      "id": "autocorrect-tiny-overfit-v1:train-001:02",
+      "error_family": "omission",
+      "noisy_source": "Correct only the typing errors in the following text. Return only the corrected text:\nPlease review the draft efore lunch.",
+      "target": "Please review the draft before lunch.",
+      "prediction": "Please review the draft before lunch.",
+      "exact_match": true
+    },
+    {
+      "id": "autocorrect-tiny-overfit-v1:train-001:03",
+      "error_family": "transposition",
+      "noisy_source": "Correct only the typing errors in the following text. Return only the corrected text:\nPlease review the drfat before lunch.",
+      "target": "Please review the draft before lunch.",
+      "prediction": "Please review the draft before lunch.",
+      "exact_match": true
+    },
+    {
+      "id": "autocorrect-tiny-overfit-v1:train-001:04",
+      "error_family": "repetition",
+      "noisy_source": "Correct only the typing errors in the following text. Return only the corrected text:\nPleaase review the draft before lunch.",
+      "target": "Please review the draft before lunch.",
+      "prediction": "Please review the draft before lunch.",
+      "exact_match": true
+    },
+    {
+      "id": "autocorrect-tiny-overfit-v1:train-001:05",
+      "error_family": "space",
+      "noisy_source": "Correct only the typing errors in the following text. Return only the corrected text:\nPlease review thedraft before lunch.",
+      "target": "Please review the draft before lunch.",
+      "prediction": "Please review the draft before lunch.",
+      "exact_match": true
+    },
+    {
+      "id": "autocorrect-tiny-overfit-v1:train-001:06",
+      "error_family": "shift_case",
+      "noisy_source": "Correct only the typing errors in the following text. Return only the corrected text:\nPlease review the draft before lunch>",
+      "target": "Please review the draft before lunch.",
+      "prediction": "Please review the draft before lunch.",
+      "exact_match": true
+    },
+    {
+      "id": "autocorrect-tiny-overfit-v1:train-001:07",
+      "error_family": "clean",
+      "noisy_source": "Correct only the typing errors in the following text. Return only the corrected text:\nPlease review the draft before lunch.",
+      "target": "Please review the draft before lunch.",
+      "prediction": "Please review the draft before lunch.",
+      "exact_match": true
+    }
+  ],
+  "fixture_limitation": {
+    "unique_targets_in_fixture": 1,
+    "statement": "The tiny-overfit manifest derives all 8 rows from one source document, so every target is the identical string. Exact match 1.0 is therefore reachable by memorizing a single sentence and is NOT evidence of correction ability. This gate proves only that the training path runs end to end and that the adapter has capacity to fit the fixture."
+  },
+  "diagnostic_probe": {
+    "purpose": "Forward-only check on unseen inputs to test whether the adapter collapsed to a constant emitter. Diagnostic only: not a scored evaluation and not a candidate result.",
+    "rows": [
+      {
+        "input": "The meetign is at nine tomorrow.",
+        "output": "The meetign is at nine tomorrow."
+      },
+      {
+        "input": "Send the invoice to https://acme.example/pay before Friday.",
+        "output": "Please send the invoice to https://acme.example/pay before Friday."
+      },
+      {
+        "input": "quokka sightings rose by 12 percent.",
+        "output": "Correct only the typing errors in the following text."
+      }
+    ],
+    "findings": [
+      "Did not collapse to a constant: outputs vary with input.",
+      "Copy bias: 'meetign' was copied through uncorrected.",
+      "Memorization leakage: a spurious 'Please' prefix appeared, echoing the single training sentence.",
+      "Instruction echo: one probe returned the prompt instruction instead of the span."
+    ]
+  },
+  "not_authorized": [
+    "pilot training (5.4)",
+    "edit-aware objective (5.6-5.7)",
+    "decoding gates (6.x)",
+    "packaging or any ship claim (7.x)"
+  ]
+}

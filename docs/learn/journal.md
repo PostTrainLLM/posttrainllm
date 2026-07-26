@@ -929,3 +929,127 @@ through this audit, explaining what each optimization does and why
 modern small models use most of them. The journal entry is the
 short-form reference; the session would be the long-form teaching
 version. Adding to the curriculum backlog.
+
+---
+
+## 2026-07-25 — Entry 15: The gradient that *should* be zero
+
+**During autocorrect task 5.1** (wiring LoRA onto FLAN-T5-small). While
+writing the tests, a question that felt like a bug report:
+
+> *Why is `dL/dA` exactly zero after the first backward pass? Did I detach
+> the branch by accident?*
+
+**No — it is forced by the math.** LoRA computes `ΔW = BA` with `B`
+initialized to zeros. Then `dL/dA = scaling · Bᵀ · dL/dy · xᵀ`, and every
+term is multiplied by `B = 0`. Meanwhile `dL/dB = scaling · dL/dy · (Ax)ᵀ`
+is perfectly non-zero. So at step 0, `B` learns and `A` waits; once `B`
+moves off zero, `A` wakes up.
+
+**Why this is worth writing down:** it inverts into a test. A LoRA branch
+that is genuinely broken — detached from the graph, or wrapped so the
+forward pass never touches it — gives zero gradient on *both* matrices. So
+"A is zero AND B is not" is a signature that distinguishes correct wiring
+from a plausible-looking bug. A loss-goes-down smoke test would pass in
+both cases.
+
+The general shape: **an initialization chosen for one reason (start at the
+base model) hands you a second, free property (a falsifiable assertion
+about the gradients).** Worth looking for elsewhere — the same trick
+should apply to any zero-initialized residual branch, e.g. adapters with
+zero-init output projections or the gate in a zero-init attention variant.
+
+### Tangent that did not graduate
+
+ByT5 is architecturally the *right* model for typo repair — typos are
+byte-level events, and SentencePiece fragments misspellings badly. It lost
+the bake-off anyway: 899 ms median end-to-end against a 250 ms gate, ~7×
+the latency of FLAN-T5-small.
+
+The instinct was to argue the gate was too strict. The discipline was to
+record it as a **resource loss with the theory intact**: byte-level was not
+disproven, it was priced. If a future target has a looser latency envelope,
+ByT5 goes back on the shortlist unchanged. Filed rather than chased.
+
+---
+
+## 2026-07-25 — Entry 16: A gate that passes for the wrong reason
+
+**During autocorrect task 5.3.** The tiny-overfit gate passed cleanly —
+exact match 1.0 at step 50 of a 200-step budget, loss 1.585 → 0.030. The
+instinct was to write "gate passed" and move on.
+
+Then a fixture detail: **all 8 rows derive from one source sentence**, so
+all 8 targets are the identical string. Which means the pass condition,
+"reproduce every target exactly," is satisfiable by a model that learned
+to emit one constant and ignore its input entirely.
+
+Not a bug in the run. A **weakness in the gate's discriminating power** —
+and one that only shows up if you ask what *else* could produce this
+number.
+
+The check that resolved it was cheap: run the trained adapter on three
+inputs it had never seen. It had *not* collapsed to a constant (outputs
+varied), but it copied an unseen typo through uncorrected, prefixed an
+unrelated sentence with a spurious `Please` bled from the training
+sentence, and echoed the prompt instruction on the third. All three are
+predicted failure modes — but none of them were visible in the metric
+that "passed."
+
+**The generalizable move:** for any gate, ask *what degenerate policy also
+clears this bar?* If one exists, the gate needs either a harder fixture or
+a companion probe that the degenerate policy would fail. A pass whose
+alternative explanations you have not enumerated is a number, not
+evidence.
+
+Corollary for fixture design: a memorization gate with one unique target
+conflates "memorized the data" with "emitted a constant." More than one
+distinct target separates them for free. Filed as a v2 fixture
+improvement rather than fixed mid-lane — the thresholds are frozen and
+this run's evidence is already recorded.
+
+---
+
+## 2026-07-25 — Entry 17: Two walls and no floor between them
+
+**During autocorrect tasks 5.4–5.5.** The tiny gate's probe showed copy
+bias: the adapter passed a typo through untouched. The obvious next
+sentence to write was "training will fix this."
+
+Fifty steps on twelve rows later, the pilot scored **−0.8125** error
+reduction. Negative. The output was *further* from the clean reference
+than the typo'd input had been. `remeber` became `remind you`. `teh team`
+became `your team`. `tomorroww` became `tomorrow morning`. Meanwhile
+`repourt` sat there unrepaired.
+
+It did not travel from "copies too much" toward "repairs correctly." It
+travelled from one wall to the opposite wall and kept going.
+
+**The reframe:** minimum-edit repair is not a point you approach from the
+copy side. It is a **narrow band between two failure modes** — copy
+everything (zero repair) and rewrite everything (negative repair) — and
+plain sequence loss on a small dataset has no reason to stop in the
+middle. Nothing in the objective says "prefer the smallest edit that
+works." The model is only asked to match a target string, and
+paraphrasing matches it *approximately* in a way the loss tolerates.
+
+That is what killed the edit-aware objective before it was written. It
+up-weights the positions that need correcting — pressure toward *more*
+editing, aimed at a model that had already overshot. The technique was
+not wrong; it was pointed at the wrong wall.
+
+### Second finding: a stop rule that could not be satisfied
+
+The pilot halted at step 50 of 300 on `clean_preservation < 0.995`. Then:
+the *base* model's zero-shot clean preservation is 0.667. So the rule
+fired at the first evaluation no matter what training did. The pilot was
+never able to run its budget.
+
+A ship bar had been reused as a training guard, which silently turns
+"stop if we regress" into "stop always." **Check every stop rule against
+the baseline's measured value, not against the target.** Obvious in
+hindsight; invisible when the threshold file and the baseline file are
+written weeks apart and never compared.
+
+Both findings are cheap only because the run was 21 seconds. The same two
+mistakes on a 6-hour job would have cost a day each.

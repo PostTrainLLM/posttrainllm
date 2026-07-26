@@ -27,6 +27,13 @@ target -> data -> post-training -> eval -> package -> report
   scoring, compact adapter update, eval, and decision loop.
 - [`lora-geometry.md`](lora-geometry.md) — adapter effective-update diagnostics
   for rank and module targeting.
+- Autocorrect specialist lane (in progress, untrained):
+  [`autocorrect-foundation.md`](autocorrect-foundation.md) — contract,
+  evaluator, simulator, and manifests;
+  [`autocorrect-model-shortlist.md`](autocorrect-model-shortlist.md) — the
+  measured base bake-off and selection;
+  [`autocorrect-adapter-recipe.md`](autocorrect-adapter-recipe.md) — the frozen
+  LoRA recipe, the encoder-decoder training path, and its load-parity evidence.
 - [`run-schema.md`](run-schema.md) — local run directory contract.
 - [`run-lifecycle.md`](run-lifecycle.md) — durable phase/revision state,
   metadata-only operator commands, advisory discovery, and recovery.
