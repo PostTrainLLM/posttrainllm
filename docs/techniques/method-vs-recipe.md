@@ -84,3 +84,47 @@ Before a new post-training run, write or update a card with this shape:
 
 If the card cannot name the failure mode and eval gate, the run is not ready.
 
+## Before Freezing: Check History By Shape
+
+`Prior evidence:` above is the anti-repeat field, and filling it from memory is
+how repeats happen. Query the ledger by the *shape* of what you are about to
+try, not by reading it chronologically:
+
+```bash
+python3 scripts/query_attempts.py --method dpo --objective output-format
+python3 scripts/query_attempts.py --base qwen3-0.6b --failures-only
+python3 scripts/query_attempts.py --lineage <attempt-id>   # what this extends
+```
+
+`docs/attempts.json` carries `methods`, `bases`, `objective`, `data_rows`, and
+`varied_from` for every model attempt, so the question "has anything shaped like
+this been tried?" is a query rather than a re-read. `--lineage` walks the
+`varied_from` chain and is the fastest way to see that three prior attempts
+already varied the axis you were about to vary a fourth time.
+
+A recipe with a `shape` block gets this lookup automatically at validate time —
+see `scripts/autocorrect_adapter.py::print_prior_attempts` for the pattern.
+
+## Closing An Attempt: Triage The Lesson
+
+Writing the lesson down is not what prevents the repeat. When you close an
+attempt, put its lesson in one of two places:
+
+1. **Mechanizable → write a check.** Anything comparing two recorded numbers,
+   validating a fixture, or asserting a threshold is satisfiable belongs in a
+   guard script. Both defects that ended the autocorrect lane were visible in
+   committed files at freeze time; nobody ran the comparison. They are now
+   `scripts/autocorrect_adapter.py::check_recipe_defects`, and they fail the
+   recipe before any training starts.
+2. **Judgment → a ledger entry with full shape.** Set `methods`, `bases`,
+   `objective`, and `varied_from` so the lesson is *reachable by query* from a
+   future recipe that shares the shape. A lesson only in prose is a lesson only
+   findable by someone who already remembers it.
+
+Two rules recovered this way, now enforced:
+
+| Rule | Enforced by |
+|---|---|
+| A training stop rule must be satisfiable by the baseline's measured value, not the target | `check_recipe_defects` |
+| A memorization gate needs more than one unique target, or it cannot tell memorization from a constant | `check_recipe_defects` |
+

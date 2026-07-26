@@ -235,6 +235,55 @@ STOP_RULE_BASELINE_KEYS = {
 }
 
 
+def recipe_shape(recipe: dict[str, Any]) -> dict[str, Any]:
+    """The shape fields a recipe shares with the attempt ledger's vocabulary."""
+    shape = recipe.get("shape") or {}
+    return {
+        "methods": shape.get("methods") or [recipe["geometry"]["method"]],
+        "bases": shape.get("bases") or [],
+        "objective": shape.get("objective"),
+    }
+
+
+def prior_attempts(recipe: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    """Prior attempts a proposed recipe should be read against.
+
+    Freezing a recipe without checking history is how the same axis gets varied
+    a fourth time. This makes the lookup automatic instead of remembered.
+    """
+    recipe = recipe if recipe is not None else load_recipe()
+    query_path = ROOT / "scripts" / "query_attempts.py"
+    spec = importlib.util.spec_from_file_location("query_attempts", query_path)
+    if not spec or not spec.loader:  # pragma: no cover - import plumbing
+        return []
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    shape = recipe_shape(recipe)
+    return module.related_to_recipe(
+        module.load_attempts(),
+        methods=shape["methods"],
+        bases=shape["bases"],
+        objective=shape["objective"],
+    )
+
+
+def print_prior_attempts(recipe: dict[str, Any], limit: int = 5) -> None:
+    related = prior_attempts(recipe)
+    if not related:
+        return
+    negative = [a for a in related if a["status"] in {"failed", "regressed", "inconclusive"}]
+    print(
+        f"\nPrior attempts sharing this recipe's shape: {len(related)} "
+        f"({len(negative)} did not achieve their goal). Read before freezing a successor:"
+    )
+    for attempt in related[:limit]:
+        print(f"  [{attempt['status']}] {attempt['name']}")
+        if attempt.get("lesson"):
+            print(f"      {attempt['lesson']}")
+    if len(related) > limit:
+        print(f"  ... {len(related) - limit} more: python3 scripts/query_attempts.py --help")
+
+
 def check_recipe_defects(recipe: dict[str, Any]) -> list[dict[str, str]]:
     """Design defects that make a recipe unrunnable or its gates meaningless.
 
@@ -1141,6 +1190,7 @@ def main(argv: list[str] | None = None) -> int:
         problems = validate_recipe()
         for problem in problems:
             print(f"FAIL {problem}")
+        print_prior_attempts(load_recipe())
         if problems:
             print(f"\n{len(problems)} problem(s)")
             return 1

@@ -13,6 +13,32 @@ Structured index: [`docs/attempts.json`](attempts.json). Check sync with:
 bash evals/attempt-ledger-smoke.sh
 ```
 
+## Read It By Shape, Not By Scrolling
+
+This page is written one attempt at a time but read one *question* at a time,
+and the question is almost always "has anything shaped like this been tried?"
+Do not scroll — query:
+
+```bash
+python3 scripts/query_attempts.py --method dpo --objective output-format
+python3 scripts/query_attempts.py --base flan-t5-small --failures-only
+python3 scripts/query_attempts.py --lineage sql-hygiene-dpo-higher-pressure
+python3 scripts/query_attempts.py --coverage
+```
+
+Every model attempt carries `kind`, `methods`, `bases`, `objective`,
+`data_rows`, and `varied_from`. `--lineage` walks the `varied_from` chain so a
+series of retries reads as one story instead of scattered entries.
+
+Coverage is honest rather than complete: shape is filled in only where it is
+derivable from an attempt's own recorded evidence. `--coverage` reports the
+gaps. Do not backfill shape by guessing — see
+[Historical Coverage Limits](#historical-coverage-limits).
+
+The lookup is wired into recipe validation, so a recipe with a `shape` block
+surfaces its precedents automatically. The workflow around it lives in
+[`techniques/method-vs-recipe.md`](techniques/method-vs-recipe.md).
+
 ## Evidence Standard
 
 `docs/attempts.json` is the machine-readable source for this ledger. Every

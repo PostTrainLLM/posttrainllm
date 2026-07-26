@@ -74,6 +74,17 @@
     "expected_trainable_fraction": 0.00447,
     "base_requires_grad": false
   },
+  "shape": {
+    "_comment": "Vocabulary shared with docs/attempts.json so prior attempts can be matched automatically.",
+    "methods": [
+      "sft",
+      "lora"
+    ],
+    "bases": [
+      "flan-t5-small"
+    ],
+    "objective": "typo-repair"
+  },
   "data": {
     "tiny_overfit": {
       "manifest": "evals/autocorrect/tiny-overfit-manifest-v1.json",
@@ -108,7 +119,10 @@
     "name": "adamw",
     "learning_rate": 0.001,
     "learning_rate_rationale": "LoRA-on-small-T5 convention; the tiny-overfit gate is the empirical check that it is not too low to memorize.",
-    "betas": [0.9, 0.999],
+    "betas": [
+      0.9,
+      0.999
+    ],
     "eps": 1e-08,
     "weight_decay": 0.0,
     "max_grad_norm": 1.0,
@@ -118,13 +132,19 @@
   "training": {
     "precision": "float32",
     "precision_rationale": "T5 is known to overflow in float16, and the bake-off measured this base in float32. Mixed precision is not part of the frozen identity.",
-    "device_preference": ["mps", "cpu"],
+    "device_preference": [
+      "mps",
+      "cpu"
+    ],
     "seed": 20260725,
     "batch_size": 4,
     "tiny_overfit_max_steps": 200,
     "pilot_max_steps": 300,
     "checkpoint_every_steps": 50,
-    "checkpoint_retention": ["last", "best"],
+    "checkpoint_retention": [
+      "last",
+      "best"
+    ],
     "eval_every_steps": 50,
     "log_every_steps": 10,
     "determinism": "Seed torch, shuffle with a seeded generator, and record the resolved device. Exact cross-device bit-reproducibility is not claimed."

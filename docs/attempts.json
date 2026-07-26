@@ -20,7 +20,18 @@
       "evidence_sources": [
         "docs/specialists/b1-sql-poc.md"
       ],
-      "source": "docs/specialists/b1-sql-poc.md"
+      "source": "docs/specialists/b1-sql-poc.md",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora",
+        "dora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "sql-execution",
+      "data_rows": 12
     },
     {
       "id": "sql-expanded-synthetic-sft-r4",
@@ -35,7 +46,20 @@
         "docs/specialists/b1-sql-poc.md",
         "docs/factory/public-artifacts.md"
       ],
-      "source": "docs/factory/public-artifacts.md"
+      "source": "docs/factory/public-artifacts.md",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora",
+        "dora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "sql-execution",
+      "data_rows": 108,
+      "varied_from": "sql-toy-sft-r4",
+      "varied": "12 -> 108 train rows; frozen 50-row heldout"
     },
     {
       "id": "sql-public-bmc2-v1",
@@ -50,7 +74,17 @@
       "evidence_sources": [
         "docs/specialists/b1-sql-poc.md"
       ],
-      "source": "docs/specialists/b1-sql-poc.md"
+      "source": "docs/specialists/b1-sql-poc.md",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "sql-exact-match",
+      "data_rows": 512
     },
     {
       "id": "sql-public-bmc2-v2",
@@ -65,7 +99,19 @@
       "evidence_sources": [
         "docs/specialists/b1-sql-poc.md"
       ],
-      "source": "docs/specialists/b1-sql-poc.md"
+      "source": "docs/specialists/b1-sql-poc.md",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "sql-exact-match",
+      "data_rows": 2048,
+      "varied_from": "sql-public-bmc2-v1",
+      "varied": "4x data, rank 8 -> 16, 300 -> 1200 steps"
     },
     {
       "id": "sql-public-bmc2-v3",
@@ -80,7 +126,19 @@
       "evidence_sources": [
         "docs/specialists/b1-sql-poc.md"
       ],
-      "source": "docs/specialists/b1-sql-poc.md"
+      "source": "docs/specialists/b1-sql-poc.md",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "sql-exact-match",
+      "data_rows": 2048,
+      "varied_from": "sql-public-bmc2-v2",
+      "varied": "rank 16 -> 8, lower LR, 1200 -> 600 steps"
     },
     {
       "id": "sql-public-bmc2-v4",
@@ -96,7 +154,18 @@
         "docs/specialists/b1-sql-poc.md",
         "docs/factory/public-artifacts.md"
       ],
-      "source": "docs/specialists/b1-sql-poc.md"
+      "source": "docs/specialists/b1-sql-poc.md",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "sql-exact-match",
+      "varied_from": "sql-public-bmc2-v3",
+      "varied": "join/group weighted rows, 600 -> 700 steps"
     },
     {
       "id": "sql-public-v4-synthetic-regression",
@@ -112,7 +181,17 @@
         "docs/specialists/b1-sql-poc.md",
         "docs/factory/public-artifacts.md"
       ],
-      "source": "docs/specialists/b1-sql-poc.md"
+      "source": "docs/specialists/b1-sql-poc.md",
+      "kind": "model-evaluation",
+      "methods": [
+        "evaluation"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "sql-execution",
+      "varied_from": "sql-public-bmc2-v4",
+      "varied": "scored the public adapter on the synthetic fixture"
     },
     {
       "id": "sql-blended-public-synthetic-v1",
@@ -128,7 +207,18 @@
         "docs/specialists/b1-sql-poc.md",
         "docs/factory/public-artifacts.md"
       ],
-      "source": "docs/specialists/b1-sql-poc.md"
+      "source": "docs/specialists/b1-sql-poc.md",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "sql-exact-match",
+      "varied_from": "sql-public-bmc2-v4",
+      "varied": "public and synthetic rows mixed into one adapter"
     },
     {
       "id": "sql-static-multilora-composition",
@@ -144,7 +234,17 @@
         "docs/specialists/b1-sql-poc.md",
         "docs/factory/public-artifacts.md"
       ],
-      "source": "docs/specialists/b1-sql-poc.md"
+      "source": "docs/specialists/b1-sql-poc.md",
+      "kind": "model-evaluation",
+      "methods": [
+        "multi-lora-composition"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "sql-exact-match",
+      "varied_from": "sql-blended-public-synthetic-v1",
+      "varied": "two adapters composed at fixed weights instead of one blended adapter"
     },
     {
       "id": "sql-routed-v1",
@@ -159,7 +259,17 @@
       "evidence_sources": [
         "docs/factory/public-artifacts.md"
       ],
-      "source": "docs/factory/public-artifacts.md"
+      "source": "docs/factory/public-artifacts.md",
+      "kind": "model-evaluation",
+      "methods": [
+        "routing"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "sql-exact-match",
+      "varied_from": "sql-static-multilora-composition",
+      "varied": "schema-based routing instead of static composition"
     },
     {
       "id": "sql-hygiene-simpo-dpo",
@@ -175,7 +285,17 @@
         "PROJECT_STATUS.md",
         "docs/NEXT.md"
       ],
-      "source": "PROJECT_STATUS.md"
+      "source": "PROJECT_STATUS.md",
+      "kind": "training-run",
+      "methods": [
+        "simpo",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "output-format",
+      "data_rows": 108
     },
     {
       "id": "sql-candidate-selection",
@@ -191,7 +311,15 @@
         "scripts/build_sql_candidate_choice.py",
         "scripts/score_sql_candidate_choice.py"
       ],
-      "source": "docs/techniques/sql-technique-backlog.md"
+      "source": "docs/techniques/sql-technique-backlog.md",
+      "kind": "training-run",
+      "methods": [
+        "candidate-selection"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "sql-execution"
     },
     {
       "id": "sql-offline-rollout-oapl",
@@ -206,7 +334,15 @@
         "docs/techniques/sql-technique-backlog.md",
         "scripts/render_batch_posttrain_plan.py"
       ],
-      "source": "docs/techniques/sql-technique-backlog.md"
+      "source": "docs/techniques/sql-technique-backlog.md",
+      "kind": "training-run",
+      "methods": [
+        "rlvr"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "sql-execution"
     },
     {
       "id": "sql-controlled-lora-rank-sweep",
@@ -220,7 +356,15 @@
       "evidence_sources": [
         "docs/techniques/sql-technique-backlog.md"
       ],
-      "source": "docs/techniques/sql-technique-backlog.md"
+      "source": "docs/techniques/sql-technique-backlog.md",
+      "kind": "training-run",
+      "methods": [
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "rank-sensitivity"
     },
     {
       "id": "fileops-qwen3-4b-distilled",
@@ -237,7 +381,15 @@
         "specialists/qwen3-4b-file-ops-distilled/eval_report.json",
         "specialists/qwen3-4b-file-ops-distilled/model_card.md"
       ],
-      "source": "docs/factory/public-artifacts.md"
+      "source": "docs/factory/public-artifacts.md",
+      "kind": "training-run",
+      "methods": [
+        "distill"
+      ],
+      "bases": [
+        "qwen3-4b"
+      ],
+      "objective": "file-ops-depth"
     },
     {
       "id": "fileops-qwen3-4b-rest-fused",
@@ -254,7 +406,18 @@
         "specialists/qwen3-4b-rest-fused/eval_report.json",
         "specialists/qwen3-4b-rest-fused/model_card.md"
       ],
-      "source": "docs/factory/public-artifacts.md"
+      "source": "docs/factory/public-artifacts.md",
+      "kind": "training-run",
+      "methods": [
+        "rest",
+        "distill"
+      ],
+      "bases": [
+        "qwen3-4b"
+      ],
+      "objective": "breadth-retention",
+      "varied_from": "fileops-qwen3-4b-distilled",
+      "varied": "teacher-free ReST fusion to recover the breadth the distill lost"
     },
     {
       "id": "fileops-qwen3-4b-multibackend-distilled",
@@ -269,7 +432,17 @@
       "evidence_sources": [
         "docs/factory/public-artifacts.md"
       ],
-      "source": "docs/factory/public-artifacts.md"
+      "source": "docs/factory/public-artifacts.md",
+      "kind": "training-run",
+      "methods": [
+        "distill"
+      ],
+      "bases": [
+        "qwen3-4b"
+      ],
+      "objective": "file-ops-depth",
+      "varied_from": "fileops-qwen3-4b-distilled",
+      "varied": "multi-backend teacher data"
     },
     {
       "id": "vibethinker-3b-agentic-distilled",
@@ -284,7 +457,15 @@
       "evidence_sources": [
         "docs/factory/public-artifacts.md"
       ],
-      "source": "docs/factory/public-artifacts.md"
+      "source": "docs/factory/public-artifacts.md",
+      "kind": "training-run",
+      "methods": [
+        "distill"
+      ],
+      "bases": [
+        "vibethinker-3b"
+      ],
+      "objective": "agentic-reasoning"
     },
     {
       "id": "apple-foundation-models-action-grounding",
@@ -300,7 +481,15 @@
         "docs/learn/apple-on-device-foundation-models.md",
         "AGENTS.md"
       ],
-      "source": "docs/learn/apple-on-device-foundation-models.md"
+      "source": "docs/learn/apple-on-device-foundation-models.md",
+      "kind": "model-evaluation",
+      "methods": [
+        "evaluation"
+      ],
+      "bases": [
+        "apple-foundation-models"
+      ],
+      "objective": "action-grounding"
     },
     {
       "id": "pace-qwen06-v1-v11-specialists",
@@ -317,7 +506,16 @@
         "docs/DRILLDOWN.md",
         "docs/pace-handoff-2026-06-10.md"
       ],
-      "source": "docs/RETROSPECTIVE.md"
+      "source": "docs/RETROSPECTIVE.md",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "planner-oos-refusal"
     },
     {
       "id": "pace-clarify-v1-qwen4b-lora",
@@ -333,7 +531,16 @@
         "docs/RETROSPECTIVE.md",
         "docs/DRILLDOWN.md"
       ],
-      "source": "docs/RETROSPECTIVE.md"
+      "source": "docs/RETROSPECTIVE.md",
+      "kind": "training-run",
+      "methods": [
+        "lora"
+      ],
+      "bases": [
+        "qwen3-4b"
+      ],
+      "objective": "ambiguity-detection",
+      "data_rows": 38
     },
     {
       "id": "pace-two-stage-ambiguity-shim-v2",
@@ -348,7 +555,17 @@
       "evidence_sources": [
         "docs/DRILLDOWN.md"
       ],
-      "source": "docs/DRILLDOWN.md"
+      "source": "docs/DRILLDOWN.md",
+      "kind": "model-evaluation",
+      "methods": [
+        "two-stage-shim"
+      ],
+      "bases": [
+        "qwen3-4b"
+      ],
+      "objective": "ambiguity-detection",
+      "varied_from": "pace-clarify-v1-qwen4b-lora",
+      "varied": "inference-time two-stage shim instead of a trained adapter"
     },
     {
       "id": "pace-thinking-models-unhappy-path",
@@ -363,7 +580,16 @@
       "evidence_sources": [
         "docs/DRILLDOWN.md"
       ],
-      "source": "docs/DRILLDOWN.md"
+      "source": "docs/DRILLDOWN.md",
+      "kind": "model-evaluation",
+      "methods": [
+        "evaluation"
+      ],
+      "bases": [
+        "qwen3-4b-thinking",
+        "deepseek-r1-distill-qwen-7b"
+      ],
+      "objective": "unhappy-path-handling"
     },
     {
       "id": "pace-gemma-3-12b-drill-winner",
@@ -378,7 +604,17 @@
       "evidence_sources": [
         "docs/DRILLDOWN.md"
       ],
-      "source": "docs/DRILLDOWN.md"
+      "source": "docs/DRILLDOWN.md",
+      "kind": "model-evaluation",
+      "methods": [
+        "evaluation"
+      ],
+      "bases": [
+        "gemma-3-12b"
+      ],
+      "objective": "unhappy-path-handling",
+      "varied_from": "pace-thinking-models-unhappy-path",
+      "varied": "non-reasoning larger base"
     },
     {
       "id": "pace-qwen35-challenger-round",
@@ -393,7 +629,18 @@
       "evidence_sources": [
         "docs/DRILLDOWN.md"
       ],
-      "source": "docs/DRILLDOWN.md"
+      "source": "docs/DRILLDOWN.md",
+      "kind": "model-evaluation",
+      "methods": [
+        "evaluation"
+      ],
+      "bases": [
+        "qwen3.5-9b",
+        "qwen3.5-4b"
+      ],
+      "objective": "unhappy-path-handling",
+      "varied_from": "pace-gemma-3-12b-drill-winner",
+      "varied": "newer Qwen generation as challenger"
     },
     {
       "id": "browser-memory64-large-presets",
@@ -409,7 +656,8 @@
         "docs/qa_log.md",
         "docs/archive/lessons.md"
       ],
-      "source": "docs/archive/lessons.md"
+      "source": "docs/archive/lessons.md",
+      "kind": "infrastructure"
     },
     {
       "id": "browser-speedup-headline-curve",
@@ -425,7 +673,8 @@
         "docs/qa_log.md",
         "docs/archive/lessons.md"
       ],
-      "source": "docs/archive/lessons.md"
+      "source": "docs/archive/lessons.md",
+      "kind": "infrastructure"
     },
     {
       "id": "browser-default-corpus-fix",
@@ -441,7 +690,8 @@
         "docs/qa_log.md",
         "docs/archive/lessons.md"
       ],
-      "source": "docs/archive/lessons.md"
+      "source": "docs/archive/lessons.md",
+      "kind": "infrastructure"
     },
     {
       "id": "browser-lr-default-drift",
@@ -457,7 +707,8 @@
         "docs/qa_log.md",
         "docs/archive/lessons.md"
       ],
-      "source": "docs/archive/lessons.md"
+      "source": "docs/archive/lessons.md",
+      "kind": "infrastructure"
     },
     {
       "id": "browser-webgpu-export-serialization",
@@ -472,7 +723,8 @@
       "evidence_sources": [
         "docs/qa_log.md"
       ],
-      "source": "docs/qa_log.md"
+      "source": "docs/qa_log.md",
+      "kind": "infrastructure"
     },
     {
       "id": "browser-generation-streaming-kv-cache",
@@ -486,7 +738,8 @@
       "evidence_sources": [
         "docs/qa_log.md"
       ],
-      "source": "docs/qa_log.md"
+      "source": "docs/qa_log.md",
+      "kind": "infrastructure"
     },
     {
       "id": "wasm-backward-scratch-reuse",
@@ -501,7 +754,8 @@
       "evidence_sources": [
         "docs/performance.md"
       ],
-      "source": "docs/performance.md"
+      "source": "docs/performance.md",
+      "kind": "infrastructure"
     },
     {
       "id": "wasm-simd-training-speedup",
@@ -516,7 +770,8 @@
         "docs/performance.md",
         "tests/smoke_wasm_node.mjs"
       ],
-      "source": "docs/performance.md"
+      "source": "docs/performance.md",
+      "kind": "infrastructure"
     },
     {
       "id": "browser-webgpu-training-loop",
@@ -531,7 +786,8 @@
       "evidence_sources": [
         "docs/performance.md"
       ],
-      "source": "docs/performance.md"
+      "source": "docs/performance.md",
+      "kind": "infrastructure"
     },
     {
       "id": "wasm-register-cache-blocked-matmul",
@@ -546,7 +802,8 @@
       "evidence_sources": [
         "docs/performance.md"
       ],
-      "source": "docs/performance.md"
+      "source": "docs/performance.md",
+      "kind": "infrastructure"
     },
     {
       "id": "wasm-backward-da-blocking",
@@ -561,7 +818,8 @@
       "evidence_sources": [
         "docs/performance.md"
       ],
-      "source": "docs/performance.md"
+      "source": "docs/performance.md",
+      "kind": "infrastructure"
     },
     {
       "id": "speculative-heads-medusa-eagle-smoke",
@@ -576,7 +834,8 @@
       "evidence_sources": [
         "docs/speculative_heads.md"
       ],
-      "source": "docs/speculative_heads.md"
+      "source": "docs/speculative_heads.md",
+      "kind": "infrastructure"
     },
     {
       "id": "moe-dense-compute-smoke",
@@ -591,7 +850,8 @@
       "evidence_sources": [
         "docs/moe.md"
       ],
-      "source": "docs/moe.md"
+      "source": "docs/moe.md",
+      "kind": "infrastructure"
     },
     {
       "id": "cpu-speedup-bundle",
@@ -606,7 +866,8 @@
       "evidence_sources": [
         "docs/cpu_speedup_results.md"
       ],
-      "source": "docs/cpu_speedup_results.md"
+      "source": "docs/cpu_speedup_results.md",
+      "kind": "infrastructure"
     },
     {
       "id": "cold-start-bundle",
@@ -621,7 +882,8 @@
       "evidence_sources": [
         "docs/cold_start_results.md"
       ],
-      "source": "docs/cold_start_results.md"
+      "source": "docs/cold_start_results.md",
+      "kind": "infrastructure"
     },
     {
       "id": "gradient-checkpointing-mac-training",
@@ -636,7 +898,8 @@
       "evidence_sources": [
         "docs/gradient_checkpointing_results.md"
       ],
-      "source": "docs/gradient_checkpointing_results.md"
+      "source": "docs/gradient_checkpointing_results.md",
+      "kind": "infrastructure"
     },
     {
       "id": "kv-cache-optimization-bundle",
@@ -651,7 +914,8 @@
       "evidence_sources": [
         "docs/kv_cache_optimization.md"
       ],
-      "source": "docs/kv_cache_optimization.md"
+      "source": "docs/kv_cache_optimization.md",
+      "kind": "infrastructure"
     },
     {
       "id": "yoco-cache-halving-smoke",
@@ -666,7 +930,8 @@
       "evidence_sources": [
         "docs/yoco_results.md"
       ],
-      "source": "docs/yoco_results.md"
+      "source": "docs/yoco_results.md",
+      "kind": "infrastructure"
     },
     {
       "id": "streamingllm-kivi-cache-compression",
@@ -681,7 +946,8 @@
       "evidence_sources": [
         "docs/streaming_llm_kivi.md"
       ],
-      "source": "docs/streaming_llm_kivi.md"
+      "source": "docs/streaming_llm_kivi.md",
+      "kind": "infrastructure"
     },
     {
       "id": "data-perf-sample-packing-bpe-dropout",
@@ -696,7 +962,8 @@
       "evidence_sources": [
         "docs/data_perf.md"
       ],
-      "source": "docs/data_perf.md"
+      "source": "docs/data_perf.md",
+      "kind": "infrastructure"
     },
     {
       "id": "mlxfast-sdpa-tied-embedding-audit",
@@ -710,7 +977,8 @@
       "evidence_sources": [
         "docs/perf_audit_mlxfast_tied.md"
       ],
-      "source": "docs/perf_audit_mlxfast_tied.md"
+      "source": "docs/perf_audit_mlxfast_tied.md",
+      "kind": "infrastructure"
     },
     {
       "id": "a1-tool-caller-harness",
@@ -724,7 +992,8 @@
       "evidence_sources": [
         "docs/specialists/a1-tool-caller.md"
       ],
-      "source": "docs/specialists/a1-tool-caller.md"
+      "source": "docs/specialists/a1-tool-caller.md",
+      "kind": "infrastructure"
     },
     {
       "id": "b1-sql-eval-infra",
@@ -740,7 +1009,8 @@
         "docs/specialists/b1-sql.md",
         "evals/eval-sql-smoke.sh"
       ],
-      "source": "docs/specialists/b1-sql.md"
+      "source": "docs/specialists/b1-sql.md",
+      "kind": "infrastructure"
     },
     {
       "id": "factory-run-schema",
@@ -756,7 +1026,8 @@
         "docs/factory/run-schema.md",
         "docs/factory/enforcement.md"
       ],
-      "source": "docs/factory/run-schema.md"
+      "source": "docs/factory/run-schema.md",
+      "kind": "infrastructure"
     },
     {
       "id": "sql-factory-run-renderer",
@@ -773,7 +1044,8 @@
         "evals/factory-publish-check-smoke.sh",
         "docs/factory/reports.md"
       ],
-      "source": "scripts/render_sql_factory_run.py"
+      "source": "scripts/render_sql_factory_run.py",
+      "kind": "infrastructure"
     },
     {
       "id": "public-artifact-registry",
@@ -787,7 +1059,8 @@
       "evidence_sources": [
         "docs/factory/public-artifacts.md"
       ],
-      "source": "docs/factory/public-artifacts.md"
+      "source": "docs/factory/public-artifacts.md",
+      "kind": "infrastructure"
     },
     {
       "id": "technique-registry",
@@ -804,7 +1077,8 @@
         "docs/techniques/method-vs-recipe.md",
         "docs/techniques/sql-technique-backlog.md"
       ],
-      "source": "docs/techniques/README.md"
+      "source": "docs/techniques/README.md",
+      "kind": "infrastructure"
     },
     {
       "id": "trainloop-style-tooling",
@@ -822,7 +1096,8 @@
         "evals/sql-trace-review-smoke.sh",
         "evals/lora-geometry-smoke.sh"
       ],
-      "source": "docs/NEXT.md"
+      "source": "docs/NEXT.md",
+      "kind": "infrastructure"
     },
     {
       "id": "sql-hygiene-dpo-refanchored",
@@ -838,7 +1113,19 @@
         "docs/NEXT.md",
         "docs/attempt-ledger.md"
       ],
-      "source": "docs/NEXT.md"
+      "source": "docs/NEXT.md",
+      "kind": "training-run",
+      "methods": [
+        "dpo",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "output-format",
+      "data_rows": 108,
+      "varied_from": "sql-hygiene-simpo-dpo",
+      "varied": "ref-free SimPO -> reference-anchored DPO; beta 0.1, 50 steps, lr 5e-6"
     },
     {
       "id": "sql-hygiene-dpo-higher-pressure",
@@ -854,7 +1141,19 @@
         "docs/NEXT.md",
         "docs/attempt-ledger.md"
       ],
-      "source": "docs/NEXT.md"
+      "source": "docs/NEXT.md",
+      "kind": "training-run",
+      "methods": [
+        "dpo",
+        "lora"
+      ],
+      "bases": [
+        "qwen3-0.6b"
+      ],
+      "objective": "output-format",
+      "data_rows": 108,
+      "varied_from": "sql-hygiene-dpo-refanchored",
+      "varied": "beta 0.1 -> 0.3, 50 -> 200 steps, lr 5e-6 -> 1e-5"
     },
     {
       "id": "autocorrect-tiny-overfit-gate",
@@ -870,7 +1169,17 @@
         "evals/autocorrect/tiny-overfit-result-v1.json",
         "docs/factory/autocorrect-adapter-recipe.md"
       ],
-      "source": "evals/autocorrect/tiny-overfit-result-v1.json"
+      "source": "evals/autocorrect/tiny-overfit-result-v1.json",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "flan-t5-small"
+      ],
+      "objective": "typo-repair",
+      "data_rows": 8
     },
     {
       "id": "autocorrect-ordinary-loss-pilot",
@@ -886,7 +1195,54 @@
         "evals/autocorrect/pilot-result-v1.json",
         "docs/factory/autocorrect-adapter-recipe.md"
       ],
-      "source": "evals/autocorrect/pilot-result-v1.json"
+      "source": "evals/autocorrect/pilot-result-v1.json",
+      "kind": "training-run",
+      "methods": [
+        "sft",
+        "lora"
+      ],
+      "bases": [
+        "flan-t5-small"
+      ],
+      "objective": "typo-repair",
+      "data_rows": 12,
+      "varied_from": "autocorrect-tiny-overfit-gate",
+      "varied": "8 single-source rows -> 12 rows across 8 sources; scored on the frozen eval suite instead of its own training rows"
     }
-  ]
+  ],
+  "method_vocabulary": {
+    "sft": "Supervised fine-tuning on input/output pairs.",
+    "lora": "Low-rank adapter on frozen base weights.",
+    "dora": "Weight-decomposed low-rank adaptation.",
+    "qlora": "LoRA over a quantized base.",
+    "dpo": "Direct preference optimization against a reference model.",
+    "simpo": "Reference-free preference optimization.",
+    "distill": "Train a student on teacher outputs.",
+    "rest": "Self-training on the model's own filtered samples.",
+    "rlvr": "Reinforcement learning from a verifiable reward.",
+    "routing": "Dispatch inputs between models or adapters at inference.",
+    "multi-lora-composition": "Compose several adapters at inference.",
+    "two-stage-shim": "An inference-time pipeline stage, not a trained change.",
+    "candidate-selection": "Generate several candidates and pick among them.",
+    "evaluation": "Measure an existing model; no training performed."
+  },
+  "objective_vocabulary": {
+    "sql-execution": "SQL that runs and returns the right rows.",
+    "sql-exact-match": "SQL that matches the gold string.",
+    "output-format": "Shape of the output, independent of its content.",
+    "file-ops-depth": "Accuracy on the narrow file-operations gate.",
+    "breadth-retention": "Keeping out-of-domain ability while specializing.",
+    "agentic-reasoning": "Multi-step tool-using reasoning.",
+    "action-grounding": "Mapping intent onto concrete available actions.",
+    "planner-oos-refusal": "Refusing out-of-scope planner requests.",
+    "ambiguity-detection": "Noticing an underspecified request.",
+    "unhappy-path-handling": "Ambiguous, out-of-scope, and destructive inputs.",
+    "typo-repair": "Minimum-edit correction of typing errors.",
+    "rank-sensitivity": "How much adapter rank changes the result."
+  },
+  "kind_vocabulary": {
+    "training-run": "Weights or an adapter were trained.",
+    "model-evaluation": "An existing model or composition was measured; nothing trained.",
+    "infrastructure": "Tooling, harness, docs, or runtime work; no model shape applies."
+  }
 }
