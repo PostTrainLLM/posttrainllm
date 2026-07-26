@@ -23,12 +23,16 @@ Do not scroll — query:
 python3 scripts/query_attempts.py --method dpo --objective output-format
 python3 scripts/query_attempts.py --base flan-t5-small --failures-only
 python3 scripts/query_attempts.py --lineage sql-hygiene-dpo-higher-pressure
+python3 scripts/query_attempts.py --streaks
 python3 scripts/query_attempts.py --coverage
 ```
 
 Every model attempt carries `kind`, `methods`, `bases`, `objective`,
 `data_rows`, and `varied_from`. `--lineage` walks the `varied_from` chain so a
-series of retries reads as one story instead of scattered entries.
+series of retries reads as one story instead of scattered entries. `--streaks`
+reports objectives whose chain **ends** in consecutive failures -- the signal to
+change axis rather than apply more pressure. A chain that failed three times and
+then found something that worked does not warn; only trailing failures count.
 
 Coverage is honest rather than complete: shape is filled in only where it is
 derivable from an attempt's own recorded evidence. `--coverage` reports the

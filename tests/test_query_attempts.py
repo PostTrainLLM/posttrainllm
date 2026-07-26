@@ -101,6 +101,57 @@ def test_empty_query_returns_nothing():
     assert qa.match(ATTEMPTS) == []
 
 
+def test_trailing_failures_fire_on_the_output_format_axis():
+    """Three straight failures on one objective is the signal to change axis."""
+    record = qa.negative_streaks(ATTEMPTS)["output-format"]
+    assert record["streak"] == 3
+    assert record["tip"] == "sql-hygiene-dpo-higher-pressure"
+    warning = qa.streak_warning(ATTEMPTS, "output-format")
+    assert "STOP AND RETHINK" in warning
+    assert "Composed DPO cannot fix output-format hygiene" in warning
+
+
+def test_a_solved_axis_does_not_warn():
+    """sql-exact-match failed 3 times early, then routing worked. Not a dead axis."""
+    record = qa.negative_streaks(ATTEMPTS)["sql-exact-match"]
+    assert record["streak"] == 0, "a chain ending in success must not warn"
+    assert record["chain_length"] == 7
+    assert qa.streak_warning(ATTEMPTS, "sql-exact-match") is None
+
+
+def test_a_single_failure_is_not_yet_a_pattern():
+    assert qa.negative_streaks(ATTEMPTS)["typo-repair"]["streak"] == 1
+    assert qa.streak_warning(ATTEMPTS, "typo-repair") is None
+
+
+def test_two_trailing_failures_caution_three_stop():
+    def streak_of(statuses):
+        chain = [
+            {"id": f"n{i}", "status": s, "objective": "x",
+             "varied_from": f"n{i-1}" if i else None, "lesson": "l"}
+            for i, s in enumerate(statuses)
+        ]
+        return qa.streak_warning(chain, "x")
+
+    assert streak_of(["worked"]) is None
+    assert streak_of(["worked", "failed"]) is None
+    assert "CAUTION" in streak_of(["worked", "failed", "regressed"])
+    assert "STOP AND RETHINK" in streak_of(["failed", "failed", "inconclusive"])
+    # A success at the tip resets the streak even after many failures.
+    assert streak_of(["failed", "failed", "failed", "worked"]) is None
+
+
+def test_streak_warning_needs_an_objective():
+    assert qa.streak_warning(ATTEMPTS, None) is None
+    assert qa.streak_warning(ATTEMPTS, "not-a-real-objective") is None
+
+
+def test_chains_cover_every_shaped_attempt():
+    shaped = [a for a in ATTEMPTS if a.get("kind") != "infrastructure"]
+    covered = {a["id"] for path in qa.chains(shaped) for a in path}
+    assert covered == {a["id"] for a in shaped}
+
+
 def test_varied_from_targets_all_resolve():
     ids = {a["id"] for a in ATTEMPTS}
     for attempt in ATTEMPTS:
@@ -120,6 +171,12 @@ def main() -> int:
         test_infrastructure_attempts_are_excluded_from_recipe_lookup,
         test_an_unmatched_shape_returns_nothing_rather_than_everything,
         test_empty_query_returns_nothing,
+        test_trailing_failures_fire_on_the_output_format_axis,
+        test_a_solved_axis_does_not_warn,
+        test_a_single_failure_is_not_yet_a_pattern,
+        test_two_trailing_failures_caution_three_stop,
+        test_streak_warning_needs_an_objective,
+        test_chains_cover_every_shaped_attempt,
         test_varied_from_targets_all_resolve,
     ]
     failures = 0

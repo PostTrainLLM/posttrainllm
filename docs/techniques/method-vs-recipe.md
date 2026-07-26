@@ -94,6 +94,7 @@ try, not by reading it chronologically:
 python3 scripts/query_attempts.py --method dpo --objective output-format
 python3 scripts/query_attempts.py --base qwen3-0.6b --failures-only
 python3 scripts/query_attempts.py --lineage <attempt-id>   # what this extends
+python3 scripts/query_attempts.py --streaks                # axes that stopped paying
 ```
 
 `docs/attempts.json` carries `methods`, `bases`, `objective`, `data_rows`, and
@@ -101,6 +102,11 @@ python3 scripts/query_attempts.py --lineage <attempt-id>   # what this extends
 this been tried?" is a query rather than a re-read. `--lineage` walks the
 `varied_from` chain and is the fastest way to see that three prior attempts
 already varied the axis you were about to vary a fourth time.
+
+Two consecutive trailing failures on an objective print `CAUTION`; three print
+`STOP AND RETHINK`. That is not a veto -- it is the point at which the next
+attempt needs to change *axis*, not pressure. The SQL output-format lane hit
+three and the honest conclusion was that preference tuning was the wrong tool.
 
 A recipe with a `shape` block gets this lookup automatically at validate time —
 see `scripts/autocorrect_adapter.py::print_prior_attempts` for the pattern.

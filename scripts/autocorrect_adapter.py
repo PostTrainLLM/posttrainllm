@@ -252,12 +252,7 @@ def prior_attempts(recipe: dict[str, Any] | None = None) -> list[dict[str, Any]]
     a fourth time. This makes the lookup automatic instead of remembered.
     """
     recipe = recipe if recipe is not None else load_recipe()
-    query_path = ROOT / "scripts" / "query_attempts.py"
-    spec = importlib.util.spec_from_file_location("query_attempts", query_path)
-    if not spec or not spec.loader:  # pragma: no cover - import plumbing
-        return []
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    module = _query_module()
     shape = recipe_shape(recipe)
     return module.related_to_recipe(
         module.load_attempts(),
@@ -267,7 +262,23 @@ def prior_attempts(recipe: dict[str, Any] | None = None) -> list[dict[str, Any]]
     )
 
 
+def _query_module() -> Any:
+    query_path = ROOT / "scripts" / "query_attempts.py"
+    spec = importlib.util.spec_from_file_location("query_attempts", query_path)
+    if not spec or not spec.loader:  # pragma: no cover - import plumbing
+        raise AdapterError(f"cannot load {query_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def print_prior_attempts(recipe: dict[str, Any], limit: int = 5) -> None:
+    module = _query_module()
+    warning = module.streak_warning(
+        module.load_attempts(), recipe_shape(recipe)["objective"]
+    )
+    if warning:
+        print(f"\n{warning}")
     related = prior_attempts(recipe)
     if not related:
         return

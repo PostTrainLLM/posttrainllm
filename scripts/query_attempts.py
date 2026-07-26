@@ -9,6 +9,7 @@ Usage:
     python3 scripts/query_attempts.py --method dpo --objective output-format
     python3 scripts/query_attempts.py --base flan-t5-small --failures-only
     python3 scripts/query_attempts.py --lineage sql-hygiene-dpo-higher-pressure
+    python3 scripts/query_attempts.py --streaks
     python3 scripts/query_attempts.py --coverage
 """
 
@@ -16,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -92,6 +94,80 @@ def descendants(attempts: list[dict[str, Any]], attempt_id: str) -> list[dict[st
     return [a for a in attempts if a.get("varied_from") == attempt_id]
 
 
+def chains(attempts: list[dict[str, Any]]) -> list[list[dict[str, Any]]]:
+    """Every root-to-tip `varied_from` path, oldest first within each path."""
+    by_id = {a["id"]: a for a in attempts}
+    children: dict[str, list[str]] = defaultdict(list)
+    for attempt in attempts:
+        parent = attempt.get("varied_from")
+        if parent in by_id:
+            children[parent].append(attempt["id"])
+    roots = [a for a in attempts if a.get("varied_from") not in by_id]
+
+    paths: list[list[dict[str, Any]]] = []
+
+    def walk(node_id: str, acc: list[str], seen: set[str]) -> None:
+        if node_id in seen:  # defensive; the ledger guard rejects cycles
+            paths.append([by_id[i] for i in acc])
+            return
+        acc, seen = acc + [node_id], seen | {node_id}
+        if not children[node_id]:
+            paths.append([by_id[i] for i in acc])
+            return
+        for child in children[node_id]:
+            walk(child, acc, seen)
+
+    for root in roots:
+        walk(root["id"], [], set())
+    return paths
+
+
+def negative_streaks(attempts: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Per objective, the run of negatives at the *tip* of its deepest chain.
+
+    Trailing is the useful measure, not the total. A chain that failed three
+    times and then found something that worked is a solved problem; a chain
+    whose last three attempts all failed is an axis that has stopped paying.
+    """
+    worst: dict[str, dict[str, Any]] = {}
+    for path in chains(attempts):
+        objective = path[-1].get("objective")
+        if not objective:
+            continue
+        streak = 0
+        for attempt in reversed(path):
+            if attempt["status"] in NEGATIVE_STATUSES:
+                streak += 1
+            else:
+                break
+        current = worst.get(objective)
+        if current is None or streak > current["streak"]:
+            worst[objective] = {
+                "objective": objective,
+                "streak": streak,
+                "chain_length": len(path),
+                "chain": [a["id"] for a in path],
+                "tip": path[-1]["id"],
+                "tip_lesson": path[-1].get("lesson"),
+            }
+    return worst
+
+
+def streak_warning(attempts: list[dict[str, Any]], objective: str | None) -> str | None:
+    """A one-line warning when an objective's chain ends in repeated negatives."""
+    if not objective:
+        return None
+    record = negative_streaks(attempts).get(objective)
+    if not record or record["streak"] < 2:
+        return None
+    severity = "STOP AND RETHINK" if record["streak"] >= 3 else "CAUTION"
+    return (
+        f"{severity}: the last {record['streak']} attempts on {objective!r} all failed "
+        f"({' -> '.join(record['chain'][-record['streak']:])}). "
+        f"Last lesson: {record['tip_lesson']}"
+    )
+
+
 def format_attempt(attempt: dict[str, Any], *, verbose: bool = True) -> str:
     shape = []
     if attempt.get("methods"):
@@ -153,6 +229,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--failures-only", action="store_true")
     parser.add_argument("--lineage", metavar="ATTEMPT_ID")
     parser.add_argument("--coverage", action="store_true")
+    parser.add_argument("--streaks", action="store_true",
+                        help="objectives whose chain ends in consecutive failures")
     parser.add_argument("--json", action="store_true", help="emit raw JSON")
     args = parser.parse_args(argv)
 
@@ -173,6 +251,25 @@ def main(argv: list[str] | None = None) -> int:
                 value = attempt.get(key)
                 values.update(value if isinstance(value, list) else [value] if value else [])
             print(f"  {key:12} {', '.join(sorted(values))}")
+        return 0
+
+    if args.streaks:
+        records = sorted(
+            negative_streaks(attempts).values(),
+            key=lambda r: (r["streak"], r["chain_length"]),
+            reverse=True,
+        )
+        if args.json:
+            print(json.dumps(records, indent=2, ensure_ascii=False))
+            return 0
+        print("trailing failures per objective (chain tip backwards):\n")
+        for record in records:
+            mark = "  <-- " + ("STOP AND RETHINK" if record["streak"] >= 3
+                               else "CAUTION") if record["streak"] >= 2 else ""
+            print(f"  {record['objective']:24} {record['streak']} of "
+                  f"{record['chain_length']} in chain{mark}")
+            if record["streak"] >= 2:
+                print(f"       {' -> '.join(record['chain'][-record['streak']:])}")
         return 0
 
     if args.lineage:
