@@ -613,7 +613,7 @@ Current structured coverage:
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 39 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 43 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 5 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
 | `not-applicable` | 9 | No failure reason is expected for worked/not-tried status. |
 | `missing-evidence` | 0 | No structured entry currently uses this label. |

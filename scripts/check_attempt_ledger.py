@@ -101,10 +101,24 @@ def main() -> int:
         if evidence and evidence not in ledger:
             errors.append(f"{attempt_id}: ledger missing evidence {evidence!r}")
 
+    # The structured index is the queryable source, so the prose ledger must not
+    # run ahead of it. Checking only json -> markdown let four attempts live in
+    # the ledger with no structured entry, which is invisible to every query.
+    import re
+
+    ledger_titles = {title.strip() for title in re.findall(r"^### (.+)$", ledger, re.M)}
+    structured_titles = {attempt.get("name", "").strip() for attempt in attempts}
+    for orphan in sorted(ledger_titles - structured_titles):
+        errors.append(
+            f"attempt-ledger.md has section {orphan!r} with no docs/attempts.json entry; "
+            "the structured index is what queries read"
+        )
+
     family_labels = {
         "apple-fm": "Apple FM",
         "architecture": "Architecture",
         "archive-model": "Archive model",
+        "autocorrect": "Autocorrect",
         "browser-product": "Browser product",
         "factory-docs": "Factory/docs",
         "file-ops": "File-ops",

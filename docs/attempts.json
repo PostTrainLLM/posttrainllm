@@ -823,6 +823,70 @@
         "evals/lora-geometry-smoke.sh"
       ],
       "source": "docs/NEXT.md"
+    },
+    {
+      "id": "sql-hygiene-dpo-refanchored",
+      "name": "Hygiene DPO reference-anchored retry (2026-07-11)",
+      "family": "sql",
+      "status": "failed",
+      "evidence": "composed execution `0.860 -> 0.900` (+0.040, exact `0.840 -> 0.860`)",
+      "failure_reason": "DPO pressure too low to change output FORMAT — 41/50 raw",
+      "failure_reason_confidence": "exact",
+      "lesson": "Reference-anchored DPO is the correct fix for the SimPO collapse",
+      "next_action": "~~Higher-pressure reference-anchored DPO...~~ Done 2026-07-11 (next entry).",
+      "evidence_sources": [
+        "docs/NEXT.md",
+        "docs/attempt-ledger.md"
+      ],
+      "source": "docs/NEXT.md"
+    },
+    {
+      "id": "sql-hygiene-dpo-higher-pressure",
+      "name": "Hygiene DPO higher-pressure retry (2026-07-11)",
+      "family": "sql",
+      "status": "failed",
+      "evidence": "DPO loss `0.6931 -> 0.0073` (strong preference separation). Composed",
+      "failure_reason": "Output format is SFT/base-controlled and not reachable by a",
+      "failure_reason_confidence": "exact",
+      "lesson": "Composed DPO cannot fix output-format hygiene here",
+      "next_action": "fix the format at generation strength, not data content",
+      "evidence_sources": [
+        "docs/NEXT.md",
+        "docs/attempt-ledger.md"
+      ],
+      "source": "docs/NEXT.md"
+    },
+    {
+      "id": "autocorrect-tiny-overfit-gate",
+      "name": "Autocorrect FLAN-T5-small tiny-overfit gate (2026-07-25)",
+      "family": "autocorrect",
+      "status": "worked-with-caveat",
+      "evidence": "exact match `1.0` at step 50 of 200; loss `1.585 -> 0.030`",
+      "failure_reason": "The fixture has one unique target, so exact match 1.0 is reachable by memorizing a single sentence",
+      "failure_reason_confidence": "exact",
+      "lesson": "A memorization gate needs more than one distinct target",
+      "next_action": "Keep as a precondition check only; never quote as a quality result.",
+      "evidence_sources": [
+        "evals/autocorrect/tiny-overfit-result-v1.json",
+        "docs/factory/autocorrect-adapter-recipe.md"
+      ],
+      "source": "evals/autocorrect/tiny-overfit-result-v1.json"
+    },
+    {
+      "id": "autocorrect-ordinary-loss-pilot",
+      "name": "Autocorrect FLAN-T5-small ordinary-loss pilot (2026-07-25)",
+      "family": "autocorrect",
+      "status": "regressed",
+      "evidence": "error reduction `+0.0625 -> -0.8125` (delta `-0.875`)",
+      "failure_reason": "The model became a paraphraser rather than a repairer",
+      "failure_reason_confidence": "exact",
+      "lesson": "Minimum-edit repair is a narrow band between copying everything and rewriting everything",
+      "next_action": "No further training under `adapter-recipe-v1`.",
+      "evidence_sources": [
+        "evals/autocorrect/pilot-result-v1.json",
+        "docs/factory/autocorrect-adapter-recipe.md"
+      ],
+      "source": "evals/autocorrect/pilot-result-v1.json"
     }
   ]
 }

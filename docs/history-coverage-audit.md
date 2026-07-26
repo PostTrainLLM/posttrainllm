@@ -14,8 +14,9 @@ Source of truth: [`attempts.json`](attempts.json).
 
 | Dimension | Count |
 |---|---:|
-| Total structured attempts | 53 |
-| SQL | 15 |
+| Total structured attempts | 57 |
+| Autocorrect | 2 |
+| SQL | 17 |
 | Pace planner | 6 |
 | Browser product | 6 |
 | Runtime/perf | 14 |
@@ -30,7 +31,7 @@ Source of truth: [`attempts.json`](attempts.json).
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 39 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 43 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 5 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
 | `not-applicable` | 9 | No failure reason is expected for worked/not-tried status. |
 | `missing-evidence` | 0 | No structured entry currently uses this label. |
