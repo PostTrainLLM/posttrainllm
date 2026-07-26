@@ -137,6 +137,19 @@ def validate_recipe(recipe: dict[str, Any] | None = None) -> list[str]:
                 f"geometry: expected_trainable_parameters {expected_params} != {params} "
                 "derived from the base config"
             )
+    else:
+        measured_params = {
+            result.get("trainable_parameters")
+            for name in ("tiny-overfit-result-v1.json", "pilot-result-v1.json")
+            if (result_path := FIXTURE_DIR / name).exists()
+            for result in [json.loads(result_path.read_text(encoding="utf-8"))]
+            if result.get("recipe_id") == recipe.get("recipe_id")
+        }
+        if len(measured_params) == 1 and expected_params not in measured_params:
+            problems.append(
+                f"geometry: expected_trainable_parameters {expected_params} != "
+                f"{next(iter(measured_params))} measured in the committed run evidence"
+            )
 
     thresholds = json.loads(THRESHOLDS_PATH.read_text(encoding="utf-8"))
     stop = thresholds["training_stop"]
