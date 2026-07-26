@@ -104,8 +104,9 @@ REQUIRED = {
         "## Completion Standard",
         "## Evidence",
         "## Current Counts",
-        "| Total attempts | 53 |",
-        "| Exact confidence | 39 |",
+        # Attempt counts are derived from docs/attempts.json below, not pinned
+        # here -- three copies of the same number is three places to go stale.
+        # check_attempt_ledger.py owns validating the audit tables themselves.
         "| Tracked audit rows | 83 |",
         "## Non-Blocking Future Hardening",
         "## Verification",
@@ -176,6 +177,23 @@ def main() -> int:
         for needle in needles:
             if needle not in text:
                 errors.append(f"{rel}: missing {needle!r}")
+
+    # Derive attempt counts from the structured index so they cannot go stale.
+    import json
+    from collections import Counter
+
+    attempts = json.loads(
+        (ROOT / "docs/attempts.json").read_text(encoding="utf-8")
+    )["attempts"]
+    completion_rel = "docs/exactness-completion-audit.md"
+    completion = (ROOT / completion_rel).read_text(encoding="utf-8")
+    exact = Counter(a["failure_reason_confidence"] for a in attempts)["exact"]
+    for row in (
+        f"| Total attempts | {len(attempts)} |",
+        f"| Exact confidence | {exact} |",
+    ):
+        if row not in completion:
+            errors.append(f"{completion_rel}: missing {row!r} (derived from attempts.json)")
 
     if errors:
         for err in errors:
