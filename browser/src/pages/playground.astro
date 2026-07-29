@@ -1808,7 +1808,7 @@ const pageStyle = `
         height: 100%;
         width: 0%;
         background: linear-gradient(90deg, var(--accent-dim), var(--accent));
-        transition: width 0.4s var(--ease-out-expo, ease-out);
+        transition: width 0.4s var(--ease-out-expo, ease-out); /* impeccable-disable-line layout-transition: progress width is the completion value */
         position: relative;
         box-shadow: 0 0 12px -2px var(--accent);
       }
@@ -3044,13 +3044,13 @@ const pageBody = `
         <section class="card hero-config">
           <h2 class="card-title hero-title">
             Train
-            <button class="info" data-explain="whatIsTraining">?</button>
+            <button class="info" type="button" data-explain="whatIsTraining" aria-label="Explain training">?</button>
           </h2>
 
           <div class="corpus-head">
             <span class="corpus-head-label">
               Corpus
-              <button class="info" data-explain="corpus">?</button>
+              <button class="info" type="button" data-explain="corpus" aria-label="Explain the training corpus">?</button>
             </span>
             <div class="corpus-head-controls">
               <label class="fetch-size-label" for="fetchSize">Fetch</label>
@@ -3134,7 +3134,7 @@ const pageBody = `
             <label for="sizePreset">
               <span class="label-main">Model size</span>
               <span class="label-jargon">preset</span>
-              <button class="info" data-explain="sizePreset">?</button>
+              <button class="info" type="button" data-explain="sizePreset" aria-label="Explain model size presets">?</button>
             </label>
             <select id="sizePreset">
               <option value="custom">Custom</option>
@@ -3152,7 +3152,7 @@ const pageBody = `
               <label for="layers">
                 <span class="label-main">Model depth</span>
                 <span class="label-jargon">layers</span>
-                <button class="info" data-explain="layers">?</button>
+                <button class="info" type="button" data-explain="layers" aria-label="Explain model depth">?</button>
               </label>
               <input id="layers" type="number" value="3" min="1" max="16" />
             </div>
@@ -3160,7 +3160,7 @@ const pageBody = `
               <label for="dModel">
                 <span class="label-main">Model width</span>
                 <span class="label-jargon">d_model</span>
-                <button class="info" data-explain="dModel">?</button>
+                <button class="info" type="button" data-explain="dModel" aria-label="Explain model width">?</button>
               </label>
               <select id="dModel">
                 <option value="48">48</option>
@@ -3175,7 +3175,7 @@ const pageBody = `
               <label for="ctx">
                 <span class="label-main">Bytes the model sees at once</span>
                 <span class="label-jargon">context</span>
-                <button class="info" data-explain="ctx">?</button>
+                <button class="info" type="button" data-explain="ctx" aria-label="Explain context size">?</button>
               </label>
               <input id="ctx" type="number" value="64" min="16" max="512" />
             </div>
@@ -3183,7 +3183,7 @@ const pageBody = `
               <label for="maxSteps">
                 <span class="label-main">Training steps</span>
                 <span class="label-jargon">max_steps</span>
-                <button class="info" data-explain="maxSteps">?</button>
+                <button class="info" type="button" data-explain="maxSteps" aria-label="Explain training steps">?</button>
               </label>
               <input id="maxSteps" type="number" value="1500" min="50" max="20000" step="50" />
             </div>
@@ -3191,7 +3191,7 @@ const pageBody = `
               <label for="backend">
                 <span class="label-main">Where it runs</span>
                 <span class="label-jargon">backend</span>
-                <button class="info" data-explain="backend">?</button>
+                <button class="info" type="button" data-explain="backend" aria-label="Explain training backends">?</button>
               </label>
               <select id="backend">
                 <option value="wasm" selected>WASM (CPU)</option>
@@ -3202,7 +3202,7 @@ const pageBody = `
               <label for="batch">
                 <span class="label-main">Examples per step</span>
                 <span class="label-jargon">batch_size</span>
-                <button class="info" data-explain="batch">?</button>
+                <button class="info" type="button" data-explain="batch" aria-label="Explain batch size">?</button>
               </label>
               <input id="batch" type="number" value="16" min="1" max="64" />
             </div>
@@ -3227,7 +3227,7 @@ const pageBody = `
                 <label for="lr">
                   <span class="label-main">How fast it learns</span>
                   <span class="label-jargon">learning_rate</span>
-                  <button class="info" data-explain="lr">?</button>
+                  <button class="info" type="button" data-explain="lr" aria-label="Explain learning rate">?</button>
                 </label>
                 <input id="lr" type="number" value="0.0003" min="0.0001" max="0.02" step="0.0001" />
               </div>
@@ -3295,7 +3295,7 @@ const pageBody = `
         <section class="card loss-card hero-loss">
           <h2 class="card-title hero-title">
             Loss curve
-            <button class="info" data-explain="whatIsLoss">?</button>
+            <button class="info" type="button" data-explain="whatIsLoss" aria-label="Explain the loss curve">?</button>
             <span class="backend-chip">
               <span id="stBackend">wasm</span>
             </span>
@@ -3314,7 +3314,7 @@ const pageBody = `
               <span class="stat-big-value" id="stStep">0</span>
             </div>
             <div class="stat-big">
-              <span class="stat-big-label">Loss<button class="info" data-explain="lossMeaning">?</button></span>
+              <span class="stat-big-label">Loss<button class="info" type="button" data-explain="lossMeaning" aria-label="Explain loss">?</button></span>
               <span class="stat-big-value" id="stTrain">–</span>
               <span class="stat-big-tag" id="stLossMeaning"></span>
             </div>
@@ -3331,11 +3331,11 @@ const pageBody = `
           <details class="stats-more">
             <summary><span class="more-label">More metrics</span><span class="more-chev" aria-hidden="true">▸</span></summary>
             <div class="stats stats-secondary">
-              <div class="stat"><span class="k">Perplexity<button class="info" data-explain="perplexity">?</button></span><span class="v" id="stPpl">–</span></div>
-              <div class="stat"><span class="k">Holdout error<button class="info" data-explain="valLoss">?</button></span><span class="v" id="stVal">–</span></div>
-              <div class="stat"><span class="k">Best holdout<button class="info" data-explain="bestVal">?</button></span><span class="v" id="stBestVal">–</span></div>
-              <div class="stat"><span class="k">Bytes / sec<button class="info" data-explain="tokensPerSec">?</button></span><span class="v" id="stToks">0</span></div>
-              <div class="stat"><span class="k">Train ↔ val gap<button class="info" data-explain="trainValGap">?</button></span><span class="v" id="stGap">–</span></div>
+              <div class="stat"><span class="k">Perplexity<button class="info" type="button" data-explain="perplexity" aria-label="Explain perplexity">?</button></span><span class="v" id="stPpl">–</span></div>
+              <div class="stat"><span class="k">Holdout error<button class="info" type="button" data-explain="valLoss" aria-label="Explain holdout error">?</button></span><span class="v" id="stVal">–</span></div>
+              <div class="stat"><span class="k">Best holdout<button class="info" type="button" data-explain="bestVal" aria-label="Explain best holdout">?</button></span><span class="v" id="stBestVal">–</span></div>
+              <div class="stat"><span class="k">Bytes / sec<button class="info" type="button" data-explain="tokensPerSec" aria-label="Explain training throughput">?</button></span><span class="v" id="stToks">0</span></div>
+              <div class="stat"><span class="k">Train ↔ val gap<button class="info" type="button" data-explain="trainValGap" aria-label="Explain the training and validation gap">?</button></span><span class="v" id="stGap">–</span></div>
             </div>
           </details>
           <div class="milestone" id="milestone" hidden>
@@ -3364,7 +3364,7 @@ const pageBody = `
       <section class="card" style="margin-top: 18px">
         <h2 class="card-title hero-title">
           Sample
-          <button class="info" data-explain="whatIsSampling">?</button>
+          <button class="info" type="button" data-explain="whatIsSampling" aria-label="Explain sampling">?</button>
           <span class="live-badge" id="liveBadge" hidden>
             <span class="live-dot"></span>
             live
@@ -3376,14 +3376,14 @@ const pageBody = `
           Generate runs a forward pass against the same weights training is
           mutating, between steps. Sample twice during a run to watch what the
           model has picked up.
-          <button class="info" data-explain="liveInference">?</button>
+          <button class="info" type="button" data-explain="liveInference" aria-label="Explain live inference">?</button>
         </p>
         <div class="sample-controls">
           <div class="field grow">
             <label for="prompt">
               <span class="label-main">Starting text</span>
               <span class="label-jargon">prompt</span>
-              <button class="info" data-explain="prompt">?</button>
+              <button class="info" type="button" data-explain="prompt" aria-label="Explain the prompt">?</button>
             </label>
             <input id="prompt" type="text" value="The model " />
           </div>
@@ -3391,7 +3391,7 @@ const pageBody = `
             <label for="temp">
               <span class="label-main">Randomness</span>
               <span class="label-jargon">temperature</span>
-              <button class="info" data-explain="temp">?</button>
+              <button class="info" type="button" data-explain="temp" aria-label="Explain temperature">?</button>
             </label>
             <input id="temp" type="number" value="0.8" min="0" max="2" step="0.1" />
           </div>
@@ -3399,7 +3399,7 @@ const pageBody = `
             <label for="genTokens">
               <span class="label-main">How many bytes</span>
               <span class="label-jargon">tokens</span>
-              <button class="info" data-explain="genTokens">?</button>
+              <button class="info" type="button" data-explain="genTokens" aria-label="Explain generated token count">?</button>
             </label>
             <input id="genTokens" type="number" value="300" min="16" max="512" />
           </div>

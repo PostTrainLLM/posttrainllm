@@ -2,7 +2,7 @@
   "$schema": "fleet.design-review.v1",
   "version": 1,
   "project": "posttrainllm",
-  "target": "/changelog owned product history",
+  "target": "/playground explanatory controls",
   "mode": "preserve",
   "register": "product",
   "context": {
@@ -14,33 +14,33 @@
     "probes": [],
     "selected": "existing-design",
     "approval": "not-required",
-    "before": ".fleet/evidence/changelog/before-1440.png"
+    "before": ".fleet/evidence/playground-accessibility/before-1440.png"
   },
   "evidence": {
     "screenshots": [
       {
         "width": 390,
-        "path": ".fleet/evidence/changelog/after-390.png"
+        "path": ".fleet/evidence/playground-accessibility/after-390.png"
       },
       {
         "width": 768,
-        "path": ".fleet/evidence/changelog/after-768.png"
+        "path": ".fleet/evidence/playground-accessibility/after-768.png"
       },
       {
         "width": 1440,
-        "path": ".fleet/evidence/changelog/after-1440.png"
+        "path": ".fleet/evidence/playground-accessibility/after-1440.png"
       }
     ],
     "projectCheck": {
-      "command": "pnpm -C browser build",
+      "command": "pnpm run typecheck",
       "status": "pass"
     },
     "critique": {
-      "score": 36,
+      "score": 35,
       "maximum": 40
     },
     "audit": {
-      "score": 19,
+      "score": 18,
       "maximum": 20
     },
     "unresolved": {
@@ -50,10 +50,17 @@
     "detector": {
       "posture": "advisory",
       "findings": []
+    },
+    "browserReview": {
+      "tool": "Browser control",
+      "viewports": [390, 768, 1440],
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "note": "All 22 explanatory controls expose specific accessible names; the playground remains contained at 390px."
     }
   },
   "ownerFeedback": {
     "decision": "delegated",
-    "note": "The owner delegated the cross-project changelog implementation while preserving each product's established visual system."
+    "note": "The owner explicitly delegated final judgment for the responsive remediation wave; the existing playground visual language was preserved."
   }
 }
