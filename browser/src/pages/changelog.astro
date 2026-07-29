@@ -1,0 +1,169 @@
+---
+import Default from "../layouts/Default.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+
+const entries = [
+  {
+    date: "2026-07-25",
+    title: "Factory runs became durable and inspectable",
+    outcomes: [
+      "Factory runs now keep authoritative lifecycle state, safe transitions, recoverable current/latest pointers, and explicit failure history without pretending that an interrupted run completed.",
+      "Fine-tune report cards turn recorded before/after evidence into portable public pages while labeling missing measurements and blockers instead of filling them with zeros.",
+    ],
+  },
+  {
+    date: "2026-07-13",
+    title: "A second specialist package with broader coverage",
+    outcomes: [
+      "The public qwen3-4b-rest-fused package retained the 100% file-operations gate and improved the recorded breadth score from the stock model’s 59.6% to 65%.",
+      "The package is presented as a narrow research specialist, with historical performance and trace gaps disclosed rather than reconstructed.",
+    ],
+  },
+  {
+    date: "2026-07-04",
+    title: "The full factory loop produced its first honest decision",
+    outcomes: [
+      "A frozen SQL-hygiene candidate completed training, evaluation, packaging, and reporting end to end.",
+      "The candidate regressed, so the factory recorded a retry-training decision instead of promoting a weaker model.",
+    ],
+  },
+  {
+    date: "2026-05-31",
+    title: "Mac-local training and serving moved into a native runtime",
+    outcomes: [
+      "The Swift and MLX command-line runtime added local training, serving, and agent surfaces that work with the project’s existing evaluation and packaging assets.",
+    ],
+  },
+] as const;
+---
+
+<Default
+  title="posttrainllm — changelog"
+  description="Verified product improvements shipped by the posttrainllm Mac-local specialist factory."
+  ogTitle="posttrainllm changelog"
+  ogDescription="A concise record of verified factory, specialist, evaluation, and reporting improvements."
+  themeColor="#0a0c0f"
+>
+  <SiteHeader mode="instrument" active="changelog" />
+
+  <main class="changelog-shell">
+    <header class="changelog-hero">
+      <p class="eyebrow">Product changelog</p>
+      <h1>What changed</h1>
+      <p>
+        Verified outcomes from the Mac-local specialist factory, newest first.
+        Future work belongs in GitHub Issues; this page records shipped product
+        capability and measured results.
+      </p>
+    </header>
+
+    <section class="timeline" aria-label="Shipped changes">
+      {entries.map((entry) => (
+        <article>
+          <time datetime={entry.date}>{entry.date}</time>
+          <div>
+            <h2>{entry.title}</h2>
+            <ul>
+              {entry.outcomes.map((outcome) => <li>{outcome}</li>)}
+            </ul>
+          </div>
+        </article>
+      ))}
+    </section>
+
+    <nav class="project-links" aria-label="Project links">
+      <a href="https://github.com/PostTrainLLM/posttrainllm/issues">Roadmap ↗</a>
+      <a href="https://github.com/PostTrainLLM/posttrainllm">Source ↗</a>
+      <a href="/devlog">Engineering devlog →</a>
+    </nav>
+  </main>
+
+  <style>
+    :global(*) { box-sizing: border-box; }
+    :global(html), :global(body) {
+      margin: 0;
+      min-height: 100%;
+      background: #0a0c0f;
+      color: #e7e8ea;
+      font-family: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+    }
+    .changelog-shell {
+      width: min(100% - 40px, 860px);
+      margin: 0 auto;
+      padding: clamp(56px, 8vw, 96px) 0 96px;
+    }
+    .changelog-hero {
+      padding-bottom: 36px;
+      border-bottom: 1px solid #232733;
+    }
+    .eyebrow, time {
+      margin: 0;
+      color: #48e5c2;
+      font: 600 0.72rem/1.3 "Geist Mono Variable", ui-monospace, monospace;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 14px 0 16px;
+      font: 560 clamp(2.5rem, 7vw, 4.8rem)/0.98 "Bricolage Grotesque Variable", sans-serif;
+      letter-spacing: -0.045em;
+    }
+    .changelog-hero > p:last-child {
+      max-width: 650px;
+      margin: 0;
+      color: #b3b9c4;
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+    .timeline article {
+      display: grid;
+      grid-template-columns: 8.5rem minmax(0, 1fr);
+      gap: 32px;
+      padding: 34px 0;
+      border-bottom: 1px solid #232733;
+    }
+    time { padding-top: 5px; }
+    h2 {
+      margin: 0;
+      font: 560 clamp(1.25rem, 3vw, 1.55rem)/1.25 "Bricolage Grotesque Variable", sans-serif;
+      letter-spacing: -0.02em;
+    }
+    ul {
+      margin: 16px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    li {
+      position: relative;
+      margin-top: 10px;
+      padding-left: 18px;
+      color: #b3b9c4;
+      line-height: 1.65;
+    }
+    li::before {
+      content: "";
+      position: absolute;
+      top: 0.72em;
+      left: 0;
+      width: 5px;
+      height: 5px;
+      background: #48e5c2;
+    }
+    .project-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px 28px;
+      margin-top: 30px;
+      font: 600 0.76rem/1.4 "Geist Mono Variable", ui-monospace, monospace;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .project-links a { color: #b3b9c4; text-underline-offset: 4px; }
+    .project-links a:hover { color: #48e5c2; }
+    @media (max-width: 620px) {
+      .changelog-shell { width: min(100% - 32px, 860px); padding-top: 42px; }
+      .timeline article { grid-template-columns: 1fr; gap: 12px; padding: 28px 0; }
+      time { padding-top: 0; }
+    }
+  </style>
+</Default>

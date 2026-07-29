@@ -1,0 +1,59 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "/changelog owned product history",
+  "mode": "preserve",
+  "register": "product",
+  "context": {
+    "product": "PROJECT_STATUS.md",
+    "design": "browser/src/styles/system.css"
+  },
+  "direction": {
+    "references": [],
+    "probes": [],
+    "selected": "existing-design",
+    "approval": "not-required",
+    "before": ".fleet/evidence/changelog/before-1440.png"
+  },
+  "evidence": {
+    "screenshots": [
+      {
+        "width": 390,
+        "path": ".fleet/evidence/changelog/after-390.png"
+      },
+      {
+        "width": 768,
+        "path": ".fleet/evidence/changelog/after-768.png"
+      },
+      {
+        "width": 1440,
+        "path": ".fleet/evidence/changelog/after-1440.png"
+      }
+    ],
+    "projectCheck": {
+      "command": "pnpm -C browser build",
+      "status": "pass"
+    },
+    "critique": {
+      "score": 36,
+      "maximum": 40
+    },
+    "audit": {
+      "score": 19,
+      "maximum": 20
+    },
+    "unresolved": {
+      "p0": 0,
+      "p1": 0
+    },
+    "detector": {
+      "posture": "advisory",
+      "findings": []
+    }
+  },
+  "ownerFeedback": {
+    "decision": "delegated",
+    "note": "The owner delegated the cross-project changelog implementation while preserving each product's established visual system."
+  }
+}
