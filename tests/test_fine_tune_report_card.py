@@ -513,8 +513,33 @@ check_that(
     "<script" not in page and "<link" not in page,
     "the public report is self-contained: no script or external stylesheet",
 )
+published_url = "https://posttrainllm.com/report-cards/example.html"
+published_page = rc.render_html(verified, canonical_url=published_url)
+check_that(
+    f'<link rel="canonical" href="{published_url}">' in published_page,
+    "a published report identifies its exact canonical URL",
+)
+check_that(
+    '<meta property="og:type" content="article">' in published_page
+    and '<script type="application/ld+json">' in published_page,
+    "a published report includes social and structured discovery metadata",
+)
+published_description = published_page.split('<meta name="description" content="', 1)[1].split('">', 1)[0]
+check_that(
+    70 <= len(published_description) <= 160,
+    "a published report keeps its search description within the supported range",
+)
+check_that(
+    verified["decision"]["reason"] in published_page,
+    "discovery metadata does not replace the canonical decision evidence",
+)
 html_errors = check.check_html(page, verified)
 check_that(not html_errors, f"the rendered page passes accessibility checks: {html_errors[:3]}")
+published_html_errors = check.check_html(published_page, verified)
+check_that(
+    not published_html_errors,
+    f"the published page metadata preserves structural checks: {published_html_errors[:3]}",
+)
 
 for case in fixtures.GOOD_CASES + fixtures.SPECIALIST_CASES:
     payload = ws.card(case)

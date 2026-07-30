@@ -968,11 +968,11 @@ def _sources_cell(field: Any) -> str:
     return ", ".join(f"<code>{_esc(s)}</code>" for s in sources)
 
 
-def render_html(card: dict[str, Any]) -> str:
+def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
     """Render the deterministic, self-contained public report page.
 
-    The page is rendered from the same validated payload as the JSON, carries
-    no external asset reference, and stays readable without repository access.
+    The page is rendered from the same validated payload as the JSON, has no
+    runtime dependency, and stays readable without repository access.
     """
     decision = card["decision"]
     subject = card["subject"]
@@ -988,6 +988,9 @@ def render_html(card: dict[str, Any]) -> str:
         f"{DECISION_HEADLINE.get(decision['decision'], decision['decision'])}: "
         f"{decision['reason']}"
     )
+    meta_summary = summary
+    if len(meta_summary) > 160:
+        meta_summary = meta_summary[:157].rsplit(" ", 1)[0].rstrip() + "…"
 
     w("<!doctype html>")
     w('<html lang="en">')
@@ -995,7 +998,42 @@ def render_html(card: dict[str, Any]) -> str:
     w('<meta charset="utf-8">')
     w('<meta name="viewport" content="width=device-width, initial-scale=1">')
     w(f"<title>{_esc(title)}</title>")
-    w(f'<meta name="description" content="{_esc(summary)}">')
+    w(f'<meta name="description" content="{_esc(meta_summary)}">')
+    if canonical_url:
+        structured_data = json.dumps(
+            {
+                "@context": "https://schema.org",
+                "@type": "Article",
+                "headline": title,
+                "description": meta_summary,
+                "url": canonical_url,
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "name": "posttrainllm",
+                    "url": "https://posttrainllm.com",
+                },
+                "about": {
+                    "@type": "SoftwareSourceCode",
+                    "name": card["title"],
+                    "codeRepository": "https://github.com/PostTrainLLM/posttrainllm",
+                },
+            },
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ).replace("<", "\\u003c")
+        w(f'<link rel="canonical" href="{_esc(canonical_url)}">')
+        w('<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">')
+        w('<meta property="og:type" content="article">')
+        w('<meta property="og:site_name" content="posttrainllm">')
+        w(f'<meta property="og:url" content="{_esc(canonical_url)}">')
+        w(f'<meta property="og:title" content="{_esc(title)}">')
+        w(f'<meta property="og:description" content="{_esc(meta_summary)}">')
+        w('<meta property="og:image" content="https://posttrainllm.com/og-image.png">')
+        w('<meta name="twitter:card" content="summary_large_image">')
+        w(f'<meta name="twitter:title" content="{_esc(title)}">')
+        w(f'<meta name="twitter:description" content="{_esc(meta_summary)}">')
+        w('<meta name="twitter:image" content="https://posttrainllm.com/og-image.png">')
+        w(f'<script type="application/ld+json">{structured_data}</script>')
     w(f"<style>{_CSS}</style>")
     w("</head>")
     w("<body>")

@@ -12,7 +12,7 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://posttrainllm.com/sitemap-index.xml
+Sitemap: https://posttrainllm.com/sitemap.xml
 # Agent indexing
 Allow: /llms.txt
 Allow: /index.md
