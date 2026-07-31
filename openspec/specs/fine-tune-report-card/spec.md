@@ -5,9 +5,7 @@
 Define the canonical, portable proof surface for a fine-tune decision: one
 deterministic machine-readable report and static public rendering compiled from
 existing factory-run evidence without loading or rerunning a model.
-
 ## Requirements
-
 ### Requirement: Canonical factory-run ingestion
 The report-card compiler SHALL consume an existing factory-run directory and MUST NOT require model loading, training, generation, or GPU execution.
 
@@ -73,7 +71,10 @@ The report card SHALL preserve the canonical `ship`, `reject`, `retry-data`, `re
 - **AND** does not describe the model as a general replacement
 
 ### Requirement: Stable machine and public outputs
-The compiler SHALL emit versioned JSON and a deterministic static public report from the same validated payload.
+The compiler SHALL emit versioned JSON and a deterministic static public report
+from the same validated payload, and the public report SHALL include a canonical
+URL, indexability directives, social-preview metadata, and structured data
+without changing the validated decision semantics.
 
 #### Scenario: Output is rebuilt
 - **WHEN** the same source artifacts and compiler version are processed twice
@@ -81,8 +82,14 @@ The compiler SHALL emit versioned JSON and a deterministic static public report 
 
 #### Scenario: Third party reads the report
 - **WHEN** a visitor opens a published report without the repository or a GPU
-- **THEN** the visitor can inspect the decision, measurements, caveats, and source evidence links
+- **THEN** the visitor can inspect the decision, measurements, caveats, and
+  source evidence links
 
+#### Scenario: Search or social crawler reads the report
+- **WHEN** a published report page is fetched
+- **THEN** its metadata identifies the stable canonical report URL and accurately
+  summarizes the same validated payload
+- **AND** no metadata upgrades or reinterprets the canonical decision
 ### Requirement: Publication gate
 A report card MUST pass schema, provenance, evidence, leakage, decision, and public-safety validation before it is added to the public artifact registry.
 
