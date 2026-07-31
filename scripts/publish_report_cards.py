@@ -74,7 +74,8 @@ def build_all(workdir: Path) -> dict[str, tuple[str, str]]:
             for err in errors:
                 print(f"  - {err}", file=sys.stderr)
             raise SystemExit(1)
-        out[slug] = (rc.dumps(card), rc.render_html(card))
+        canonical_url = f"https://posttrainllm.com/report-cards/{slug}.html"
+        out[slug] = (rc.dumps(card), rc.render_html(card, canonical_url=canonical_url))
     return out
 
 
