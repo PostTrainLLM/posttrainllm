@@ -32,11 +32,11 @@
       }
     ],
     "projectCheck": {
-      "command": "pnpm run typecheck",
+      "command": "pnpm --dir browser typecheck && pnpm --dir browser test && pnpm --dir browser build",
       "status": "pass"
     },
     "critique": {
-      "score": 35,
+      "score": 36,
       "maximum": 40
     },
     "audit": {
@@ -56,7 +56,7 @@
       "viewports": [390, 768, 1440],
       "horizontalOverflow": false,
       "consoleErrors": 0,
-      "note": "All 22 explanatory controls expose specific accessible names; the playground remains contained at 390px."
+      "note": "All 22 explanatory controls expose unique names and programmatic dialog relationships. Keyboard focus has a visible 2px accent ring, Escape closes the tested popover and restores focus, and the 390px source tabs render as a fully visible 3-column grid with 44px rows. No console errors, failed network requests, or horizontal overflow appeared at 390, 768, or 1440px."
     }
   },
   "ownerFeedback": {

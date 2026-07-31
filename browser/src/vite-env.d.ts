@@ -12,6 +12,7 @@ interface ImportMetaEnv {
   readonly VITE_POSTHOG_KEY?: string;
   readonly VITE_POSTHOG_HOST?: string;
   readonly VITE_PROJECT_SLUG?: string;
+  readonly VITE_WEB_VITALS_ENDPOINT?: string;
 }
 
 interface ImportMeta {
