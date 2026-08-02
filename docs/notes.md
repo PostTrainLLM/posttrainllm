@@ -449,9 +449,9 @@ bash wasm/build_native.sh
 
 # Browser app (Phases 4-5) — needs Emscripten + Node
 bash wasm/build_wasm.sh
-cd browser && npm install && npm run dev      # then "Start training"
+cd browser && pnpm install && pnpm run dev      # then "Start training"
 node ../tests/smoke_wasm_node.mjs             # verify the compiled module
-npm run build && npm run preview & npm run e2e # full headless end-to-end
+pnpm run build && pnpm run preview & pnpm run e2e # full headless end-to-end
 ```
 
 ---

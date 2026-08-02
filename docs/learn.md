@@ -403,7 +403,7 @@ bash wasm/build_native.sh            # the C++ kernels + model, all verified
 
 # --- the browser app -------------------------------------------------
 bash wasm/build_wasm.sh              # compile C++ -> WebAssembly (needs Emscripten)
-cd browser && npm install && npm run dev
+cd browser && pnpm install && pnpm run dev
 # open the printed URL, click "Start training" — a GPT trains in your tab
 ```
 

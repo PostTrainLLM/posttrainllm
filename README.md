@@ -95,7 +95,7 @@ To build it locally:
 
 ```bash
 bash wasm/build_wasm.sh          # needs Emscripten SDK
-cd browser && npm install && npm run dev
+cd browser && pnpm install && pnpm run dev
 ```
 
 ---

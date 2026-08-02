@@ -45,11 +45,11 @@ Training must never run on the main thread — the UI has to stay responsive.
 bash ../wasm/build_wasm.sh           # -> browser/public/posttrainllm.{js,wasm}
 
 # 2. install deps and start the dev server
-npm install
-npm run dev                          # open the printed localhost URL
+pnpm install
+pnpm run dev                          # open the printed localhost URL
 ```
 
-`npm run build` type-checks (`tsc --noEmit`) then bundles to `dist/`.
+`pnpm run build` type-checks (`tsc --noEmit`) then bundles to `dist/`.
 
 ## Status
 

@@ -11,7 +11,7 @@ Target: **`posttrainllm.com`**, on Cloudflare Pages.
 `browser/public/tinygpt.js`, `tinygpt.wasm`, `tinygpt64.js`, and `tinygpt64.wasm`
 are produced by Emscripten (`bash wasm/build_wasm.sh` + `bash wasm/build_wasm64.sh`)
 and are listed in `.gitignore` by default. Cloudflare Pages does a fresh
-`git clone` + `npm run build`; if these files aren't in the cloned tree, the
+`git clone` + `pnpm run build`; if these files aren't in the cloned tree, the
 production site 404s on them and the playground fails to initialize.
 
 Three resolutions, ranked:
@@ -29,7 +29,7 @@ Three resolutions, ranked:
    rebuild and commit the new artifacts as part of the same commit.
 
 2. **Install Emscripten in Pages build environment.** CF Pages allows custom
-   build commands; you'd `npm install && bash wasm/install_emsdk.sh && bash wasm/build_wasm.sh && bash wasm/build_wasm64.sh && npm run build`.
+   build commands; you'd `pnpm install && bash wasm/install_emsdk.sh && bash wasm/build_wasm.sh && bash wasm/build_wasm64.sh && pnpm run build`.
    Multiplies build time by ~3-5× and the emsdk install is finicky in CI.
    Not recommended unless option 1 becomes painful.
 
@@ -48,7 +48,7 @@ deploys need an explicit `wrangler pages deploy`.
 
 ```bash
 cd browser
-npm run build
+pnpm run build
 npx wrangler pages deploy dist --project-name=posttrainllm --commit-dirty=true
 ```
 
@@ -69,7 +69,7 @@ Cloudflare dashboard:
    - Production branch: `main`
    - Framework preset: *None* (Astro auto-detected; Vite isn't in the preset list)
    - Root directory: `browser`
-   - Build command: `npm install && npm run build`
+   - Build command: `pnpm install && pnpm run build`
    - Build output directory: `dist`
 4. **Environment variables:** none required.
 5. Save. Next push triggers an auto-deploy.
@@ -145,10 +145,10 @@ and the case-study header will render a `live demo ↗` link.
 
 ```sh
 cd browser
-npm install
-npm run build      # produces browser/dist/
-npm run preview    # serves dist/ on http://localhost:4173
+pnpm install
+pnpm run build      # produces browser/dist/
+pnpm run preview    # serves dist/ on http://localhost:4173
 ```
 
-If `npm run e2e` passes (which it does on `main`), the production build will
+If `pnpm run e2e` passes (which it does on `main`), the production build will
 behave the same — the e2e drives the built bundle, not the dev server.
