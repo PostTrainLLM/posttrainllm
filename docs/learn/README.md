@@ -54,7 +54,7 @@ current LLMs. They're for someone who knows the basics and wants the
 **Interview-grade topic maps** (what / why-it-matters-here / external source / repo anchor — for senior/staff prep):
 - [Speech & systems topics](./speech-and-systems-topics.md) — voice-pipeline latency, WER, speech-to-speech, fine-tune debugging, feature selection, queues vs websockets, FSDP2
 - [Advanced LLM training & post-training](./advanced-llm-training.md) — ZeRO/FSDP2 depth, precision (bf16/fp8), gradient checkpointing, MoE training, data curation, RLHF/DPO/GRPO/reward-modeling/distillation
-- [Advanced LLM inference & serving](./advanced-llm-inference.md) — roofline, KV cache + paging, batching, speculative decoding, quantization, FlashAttention, attention variants, long context, serving architecture
+- [Advanced LLM inference & serving](./advanced-llm-inference.md) — roofline, KV cache + paging, batching, speculative decoding, quantization, FlashAttention, attention variants, long context, serving architecture, an ordered systems deep-reading path, and worked Blackwell/FLUX performance-engineering case studies
 - [Advanced architecture, RAG/agents, eval & system design](./advanced-ml-systems-eval.md) — modern decoder block, attention-as-matmuls whiteboard, RAG, agents, LLM-as-judge, perplexity, contamination, ML system-design rounds, classic-ML depth
 - [Qwen3-VL mRoPE + DeepStack](./qwen3-vl-mrope-deepstack.md) — vision-language attention specifics; relevant to Pace's VLM pillar
 - [App Intents comparison](./app-intents-comparison.md) — how Pace's action surface relates to macOS App Intents

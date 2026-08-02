@@ -9,7 +9,8 @@ interface VitalMetric {
 }
 
 function sendToAnalytics(metric: VitalMetric) {
-  // Send to PostHog if available, otherwise beacon to a fleet endpoint
+  // Send to PostHog if available, otherwise use an explicitly configured
+  // endpoint. A public static build must not emit failing cross-origin beacons.
   const posthog = (window as any).posthog;
   if (posthog && typeof posthog.capture === "function") {
     posthog.capture("web_vital", {
@@ -20,12 +21,13 @@ function sendToAnalytics(metric: VitalMetric) {
       navigation_type: metric.navigationType,
     });
   } else {
-    // Fallback: beacon to fleet analytics endpoint
+    const endpoint = import.meta.env.VITE_WEB_VITALS_ENDPOINT?.trim();
+    if (!endpoint) return;
     const body = JSON.stringify({
       project: import.meta.env.VITE_PROJECT_SLUG ?? "posttrainllm",
       ...metric,
     });
-    navigator.sendBeacon("https://vitals.fleet.workers.dev/collect", body);
+    navigator.sendBeacon(endpoint, body);
   }
 }
 

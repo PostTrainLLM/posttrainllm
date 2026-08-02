@@ -29,17 +29,22 @@ export function initPopovers(root: ParentNode = document): void {
     }
 
     const id = `explain-${key}-${counter++}`;
+    const titleId = `${id}-title`;
+    const descriptionId = `${id}-description`;
     const pop = document.createElement("div");
     pop.id = id;
     pop.setAttribute("popover", "auto");
+    pop.setAttribute("role", "dialog");
+    pop.setAttribute("aria-labelledby", titleId);
+    pop.setAttribute("aria-describedby", descriptionId);
     pop.className = "explain-pop";
 
     const linkHtml = explainer.link
       ? `<a href="${escapeAttr(explainer.link.href)}" target="_blank" rel="noopener noreferrer">${escapeText(explainer.link.label)} ↗</a>`
       : "";
     pop.innerHTML = `
-      <h4>${escapeText(explainer.title)}</h4>
-      <p>${escapeText(explainer.body)}</p>
+      <h4 id="${titleId}">${escapeText(explainer.title)}</h4>
+      <p id="${descriptionId}">${escapeText(explainer.body)}</p>
       ${linkHtml}
     `;
     document.body.appendChild(pop);
@@ -47,6 +52,8 @@ export function initPopovers(root: ParentNode = document): void {
     trigger.setAttribute("popovertarget", id);
     trigger.setAttribute("aria-label", `Explain: ${explainer.title}`);
     trigger.setAttribute("aria-haspopup", "dialog");
+    trigger.setAttribute("aria-controls", id);
+    trigger.setAttribute("aria-expanded", "false");
     trigger.type = "button";
     // Only style as a "?" info circle when the trigger has no text of its own
     // (so pre-styled pills and other custom triggers are left alone).

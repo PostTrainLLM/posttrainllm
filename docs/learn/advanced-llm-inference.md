@@ -112,8 +112,96 @@ a 671B MoE on 8 GPUs — TP vs EP vs hybrid?" *Learn:* [Inference Handbook: para
 *In repo:* `serve --lora` is single-base adapter stacking — the seed of
 multi-LoRA serving.
 
+## Curated deep-reading path
+
+Use this sequence after the numbered topic map. It moves from the universal
+bottleneck model to one-GPU kernels, fused attention, production serving,
+quantization quality, and finally multi-accelerator scaling. Papers and books
+are mixed deliberately with implementation worklogs: learn the governing idea,
+then see it survive contact with code and measurements.
+
+1. **Build the bottleneck model.** [Making Deep Learning Go Brrrr From First
+   Principles](https://horace.io/brrr_intro.html) separates compute,
+   memory-bandwidth, and framework/launch-overhead regimes. Use that diagnosis
+   before reaching for an optimization.
+2. **Optimize one foundational kernel.** [How to Optimize a CUDA Matmul Kernel
+   for cuBLAS-like Performance](https://quatricmorph.github.io/posts/gpu/)
+   progresses through coalescing, shared-memory tiling, block/warp tiling,
+   vectorized access, occupancy, and autotuning.
+3. **Learn the attention algorithm.** [FlashAttention: Fast and
+   Memory-Efficient Exact Attention with
+   IO-Awareness](https://arxiv.org/abs/2205.14135) derives why reducing HBM
+   traffic changes the algorithm, not just its implementation.
+4. **Study the advanced fused kernel.** [A Case Study in CUDA Kernel Fusion:
+   FlashAttention-2 on Hopper](https://research.colfax-intl.com/nvidia-hopper-flashattention-2/)
+   applies CUTLASS layouts, TMA, WGMMA, asynchronous pipelines, and tile-size
+   tradeoffs. Read this after steps 2–3.
+5. **Follow kernels through the compiler.** [Triton Kernel Compilation
+   Stages](https://pytorch.org/blog/triton-kernel-compilation-stages/) follows
+   a kernel from Python AST through Triton IR, GPU IR, LLVM IR, and device code.
+6. **Move from a model to a serving scheduler.** [Continuous Batching From
+   First Principles](https://huggingface.co/blog/continuous_batching) derives
+   ragged batching and dynamic request scheduling from attention and KV-cache
+   behavior.
+7. **Quantify inference economics.** [All About Transformer
+   Inference](https://jax-ml.github.io/scaling-book/inference/) connects TTFT,
+   per-token latency, batching, KV memory, arithmetic intensity, and model
+   parallelism.
+8. **Read a real engine end to end.** [SGLang Deep
+   Dive](https://blog.frankzhwei.me/posts/sglang_deep_dive/) tours scheduling,
+   RadixAttention, paged KV, CUDA graphs, speculative decoding, kernels,
+   distributed execution, and observability.
+9. **Measure quantization as distribution drift.** [How Fireworks Evaluates
+   Quantization](https://fireworks.ai/blog/fireworks-quantization) explains
+   prefill/generation KL divergence and token rejection rate alongside noisy
+   task metrics and use-case gates.
+10. **Derive the single-chip-to-cluster boundary.** [How to Scale Your
+    Model](https://jax-ml.github.io/scaling-book/) develops rooflines,
+    Transformer FLOPs, communication collectives, accelerator topology,
+    training parallelism, and inference scaling from first principles.
+11. **Apply the distributed-training toolbox.** [The Ultra-Scale
+    Playbook](https://huggingface.co/spaces/nanotron/ultrascale-playbook)
+    combines educational implementations, production Nanotron anchors, and
+    measured scaling experiments across data, tensor, pipeline, and context
+    parallelism plus ZeRO and communication overlap. It is also indexed in
+    [`advanced-llm-training.md`](advanced-llm-training.md).
+
+## Worked performance-engineering case studies
+
+Ali Taha's writing is a useful bridge from the concepts above to measured
+kernel and model work. Read the long, code-backed pieces as the durable path;
+use the shorter X threads as supplementary field notes.
+
+**Blackwell matmul, from naive kernel to cuBLAS-class performance.** This
+four-part series builds the optimization stack incrementally: tiling and the
+memory hierarchy, Tensor Cores and TMA, 2-SM MMA and pipelining, then a
+persistent CLC scheduler. Keep the result's scope in view: performance claims
+are tied to particular Blackwell shapes and configurations.
+
+1. [Introduction](https://www.modular.com/blog/matrix-multiplication-on-nvidias-blackwell-part-1-introduction)
+2. [Using the hardware](https://www.modular.com/blog/matrix-multiplication-on-nvidias-blackwell-part-2-using-hardware-features-to-optimize-matmul)
+3. [The optimizations behind 85% of SOTA](https://www.modular.com/blog/matrix-multiplication-on-nvidias-blackwell-part-3-the-optimizations-behind-85-of-sota-performance)
+4. [Breaking SOTA](https://www.modular.com/blog/matrix-multiplication-on-blackwell-part-4---breaking-sota)
+
+**Quantized inference, end to end.** [Four Bits: 4-bit quantization for
+FLUX.2](https://www.baseten.co/blog/four-bits/) connects profiling, NVFP4
+blockwise scaling, kernel overhead, calibration, output quality, and
+end-to-end latency rather than stopping at a microbenchmark.
+
+**Supplementary field notes.** These are useful snapshots of current model
+and kernel work, but their short-form format makes them starting points for
+follow-up rather than standalone references:
+
+- [22580: From GPT-2 to Kimi K3, explained](https://x.com/waterloo_intern/status/2081762065392541951?s=20)
+- [Notes on writing the fastest video kernel in the world](https://x.com/waterloo_intern/status/2070643039668974060?s=20)
+- [TurboQuant](https://x.com/AliesTaha/status/2037272772305707405)
+- [Quantization-aware distillation for Qwen 2512](https://x.com/AliesTaha/status/2030074784894308770)
+- [Optimizing FLUX.2 on B200](https://x.com/AliesTaha/status/2024493443905683859)
+
 ## Suggested order
 
-1–3 first (the mental model). 4–6 + 12–13 are the highest-leverage for a
-serving role; 7/9 you can read against the repo anchors. The roofline
-survey (§1) covers 1, 11, and parts of 9 in one read.
+For targeted interview review, use topics 1–3 first, then 4–6 and 12–13;
+read 7 and 9 against the repo implementations. For durable systems learning,
+follow the curated deep-reading path in order, then read the Ali Taha case
+studies. That makes the Blackwell and FLUX results applications of an existing
+mental model rather than isolated performance tricks.
