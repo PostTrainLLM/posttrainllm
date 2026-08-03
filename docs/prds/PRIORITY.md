@@ -1,6 +1,6 @@
 # PRD Priority Triage
 
-Last updated: 2026-07-02
+Last updated: 2026-08-03
 
 This file is the working priority map for every PRD currently on disk.
 
@@ -110,9 +110,11 @@ reveals the matching failure mode.
 | [B28 composite-reward-framework](B28-composite-reward-framework.md) | P1 | Candidate has verifiable failures and needs DPO/RLVR/ReST-style reward integration. |
 | [self-improving-agents](self-improving-agents.md) | P1 | First candidate produces traces and the reward is stable enough for a second round. |
 | [continual-learning-loop](continual-learning-loop.md) | P1 | Factory needs repeated correction -> data -> train cycles. |
+| [everyday-specialist-benchmark](everyday-specialist-benchmark.md) | P1 | A specialist needs a fair same-instance public proof against generalists and routed systems; infrastructure starts no-model and does not authorize training. |
 | [B2-B7 router-family](B2-B7-router-family.md) | P1 | Specialist wins narrowly but damages breadth; route instead of forcing one general model. |
 | [B26 deferred-tools](B26-deferred-tools.md) | P1 | Tool catalog size becomes a real eval/runtime bottleneck. |
 | [B5 cloud-escalate-training](B5-cloud-escalate-training.md) | P1 | Candidate must learn when local model should defer/escalate. |
+| [specialist-capability-graph](specialist-capability-graph.md) | P1 | At least two measured specialists need one validated directory, verifier contract, and bounded local-to-larger fallback path; benchmark integration is the ship gate. |
 | [B34 batched-eval-runtime](B34-batched-eval-runtime.md) | P1 | Eval runtime blocks iteration speed. |
 | [C5 decode-jitter-thermal](C5-decode-jitter-thermal.md) | P1 | Candidate is good enough that sustained decode/thermal behavior matters. |
 | [B9 energy-per-token](B9-energy-per-token.md) | P1 | Candidate is good enough for power/energy comparison. |
