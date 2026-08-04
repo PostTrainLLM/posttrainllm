@@ -168,7 +168,11 @@ const clampedTwitterDescription = clampDescription(twitterDescription ?? ogDescr
       import { initVitals } from "../lib/vitals";
       import { initApiTiming } from "../lib/api-timing";
       initVitals();
-      initApiTiming();
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(() => initApiTiming(), { timeout: 5_000 });
+      } else {
+        window.setTimeout(() => initApiTiming(), 1_000);
+      }
     </script>
   </body>
 </html>
