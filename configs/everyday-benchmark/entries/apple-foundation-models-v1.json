@@ -1,0 +1,25 @@
+{
+  "artifact_type": "entry",
+  "contract_version": "everyday-benchmark/v1",
+  "entry_id": "apple-foundation-models",
+  "revision": "1",
+  "title": "Apple on-device FoundationModels",
+  "track": "generalist",
+  "adapter": {"kind": "local-package", "package_id": "macOS-FoundationModels@27.0", "command": "fm_intent_bridge.swift with a fresh guided-generation session per instance"},
+  "resources": [
+    {"name": "latency_cold_end_to_end_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
+    {"name": "latency_warm_end_to_end_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
+    {"name": "latency_model_only_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
+    {"name": "active_parameters", "state": "missing", "value": null, "unit": "parameters", "source": null},
+    {"name": "resident_bytes_peak", "state": "missing", "value": null, "unit": "bytes", "source": null},
+    {"name": "installed_artifact_bytes", "state": "not-applicable", "value": null, "unit": "bytes", "source": "OS-owned model asset"},
+    {"name": "shared_base_bytes", "state": "not-applicable", "value": null, "unit": "bytes", "source": null},
+    {"name": "adapter_bytes", "state": "not-applicable", "value": null, "unit": "bytes", "source": null},
+    {"name": "energy_joules", "state": "missing", "value": null, "unit": "joules", "source": null},
+    {"name": "training_time_seconds", "state": "not-applicable", "value": null, "unit": "seconds", "source": null},
+    {"name": "evaluation_time_seconds", "state": "missing", "value": null, "unit": "seconds", "source": null},
+    {"name": "local_cost_usd", "state": "not-applicable", "value": null, "unit": "usd", "source": null},
+    {"name": "external_cost_usd", "state": "not-applicable", "value": null, "unit": "usd", "source": null}
+  ],
+  "disclosure": {"base_model": "Apple SystemLanguageModel.default on macOS 27.0", "benchmark_data_access": "sealed instances provided only to fresh local sessions at evaluation time"}
+}

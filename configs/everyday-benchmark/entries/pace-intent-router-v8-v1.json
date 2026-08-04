@@ -1,0 +1,33 @@
+{
+  "artifact_type": "entry",
+  "contract_version": "everyday-benchmark/v1",
+  "entry_id": "pace-intent-router-v8",
+  "revision": "1",
+  "title": "Pace Intent Router v8",
+  "track": "adapted",
+  "adapter": {"kind": "local-package", "package_id": "pace-intent-router-v8@ee6c673d405694e42859a889a348cad73e106886", "command": "posttrainllm extract --stdin --json --top-k 1"},
+  "resources": [
+    {"name": "latency_cold_end_to_end_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
+    {"name": "latency_warm_end_to_end_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
+    {"name": "latency_model_only_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
+    {"name": "active_parameters", "state": "measured", "value": 49486727, "unit": "parameters", "source": "posttrainllm inspect on the pinned checkpoint"},
+    {"name": "resident_bytes_peak", "state": "missing", "value": null, "unit": "bytes", "source": null},
+    {"name": "installed_artifact_bytes", "state": "measured", "value": 593849732, "unit": "bytes", "source": "checkpoint plus label sidecar file sizes"},
+    {"name": "shared_base_bytes", "state": "not-applicable", "value": null, "unit": "bytes", "source": null},
+    {"name": "adapter_bytes", "state": "not-applicable", "value": null, "unit": "bytes", "source": null},
+    {"name": "energy_joules", "state": "missing", "value": null, "unit": "joules", "source": null},
+    {"name": "training_time_seconds", "state": "historical", "value": 1800, "unit": "seconds", "source": "specialists/pace-intent-router-v8/model_card.md"},
+    {"name": "evaluation_time_seconds", "state": "missing", "value": null, "unit": "seconds", "source": null},
+    {"name": "local_cost_usd", "state": "missing", "value": null, "unit": "usd", "source": null},
+    {"name": "external_cost_usd", "state": "not-applicable", "value": null, "unit": "usd", "source": null}
+  ],
+  "disclosure": {
+    "base": "posttrainllm-ToolRouterModel-medium@from-scratch",
+    "training_sources": ["pace-intent-corpus-v2 fully synthetic"],
+    "permitted_benchmark_split": "training corpus predates sealed-official-v1; sealed instances prohibited",
+    "row_count": 112061,
+    "method": "train-extractor cross-entropy classification",
+    "training_time": "historical 1800 seconds",
+    "compute_cost": "missing"
+  }
+}

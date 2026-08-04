@@ -69,13 +69,17 @@ def assert_identity(
         raise ValueError("prediction entry_ref does not match the selected entry")
     if predictions["instance_set_ref"] != expected_instance_ref:
         raise ValueError("prediction instance_set_ref does not match the selected instance set")
-    task_instance = task["instance_set"]
+    task_instance = task["instance_set"] if instances["layer"] == "public-development" else task["official_instance_set"]
     if (task_instance["id"], task_instance["revision"], task_instance["layer"]) != (
         instances["instance_set_id"],
         instances["revision"],
         instances["layer"],
     ):
         raise ValueError("task and instance-set identity are incompatible")
+    if instances["layer"] == "sealed-official":
+        actual_hash = sha256_json(instances)
+        if task_instance["sha256"] != actual_hash or task_instance["count"] != len(instances["instances"]):
+            raise ValueError("sealed instance set does not match the task's frozen hash/count")
 
 
 def assert_complete_predictions(task: dict[str, Any], instances: dict[str, Any], predictions: dict[str, Any]) -> None:
@@ -195,6 +199,7 @@ def score(
     predictions: dict[str, Any],
     run_id: str,
     timestamp: str,
+    official_metadata: dict[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     instance_hash = sha256_json(instances)
     instance_identity = {
@@ -310,6 +315,32 @@ def score(
         "errors": output_errors,
     }
     result_hash = sha256_json(result)
+    if instances["layer"] == "sealed-official":
+        if official_metadata is None:
+            raise ValueError("sealed official scoring requires --official-metadata")
+        leakage = {
+            "permitted_training_cutoff": official_metadata["permitted_training_cutoff"],
+            "overlap_check": official_metadata["overlap_check"],
+            "overlap_count": official_metadata["overlap_count"],
+        }
+        custody = {
+            "holder": official_metadata["holder"],
+            "instance_material_committed": False,
+            "replay_authority": official_metadata["replay_authority"],
+        }
+        attestation = official_metadata["attestation"]
+    else:
+        leakage = {
+            "permitted_training_cutoff": "public-development fixtures are visible",
+            "overlap_check": "not-applicable-public-development",
+            "overlap_count": 0,
+        }
+        custody = {
+            "holder": "repository-public-fixture",
+            "instance_material_committed": True,
+            "replay_authority": "maintainer",
+        }
+        attestation = {"kind": "none-public-development", "value": None}
     receipt = {
         "artifact_type": "receipt",
         "contract_version": task["contract_version"],
@@ -325,16 +356,8 @@ def score(
         "runner": RUNNER_REF,
         "scorer": scorer_ref,
         "frontier_qualification": task["frontier_qualification"],
-        "leakage": {
-            "permitted_training_cutoff": "public-development fixtures are visible",
-            "overlap_check": "not-applicable-public-development",
-            "overlap_count": 0,
-        },
-        "custody": {
-            "holder": "repository-public-fixture",
-            "instance_material_committed": True,
-            "replay_authority": "maintainer",
-        },
+        "leakage": leakage,
+        "custody": custody,
         "aggregate": {
             "exact_accuracy": result["scores"]["exact_accuracy"],
             "unknown_recall": result["scores"]["unknown_recall"],
@@ -343,7 +366,7 @@ def score(
             "error_count": counts["errors"],
             "result_sha256": result_hash,
         },
-        "attestation": {"kind": "none-public-development", "value": None},
+        "attestation": attestation,
         "publication_authority": "manual",
     }
     return run, result, receipt
@@ -358,6 +381,39 @@ def write_outputs(out_dir: Path, artifacts: tuple[dict[str, Any], ...]) -> None:
         path.write_text(json.dumps(artifact, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def load_official_metadata(path: Path | None, layer: str) -> dict[str, Any] | None:
+    if layer != "sealed-official":
+        if path is not None:
+            raise ValueError("--official-metadata is only valid for sealed-official runs")
+        return None
+    if path is None:
+        raise ValueError("sealed-official runs require --official-metadata")
+    value = checker.load_json(path)
+    required = {
+        "permitted_training_cutoff",
+        "overlap_check",
+        "overlap_count",
+        "holder",
+        "replay_authority",
+        "attestation",
+    }
+    if not isinstance(value, dict) or set(value) != required:
+        raise ValueError(f"{path}: official metadata must contain exactly {sorted(required)}")
+    for field in required - {"overlap_count", "attestation"}:
+        if not isinstance(value[field], str) or not value[field].strip():
+            raise ValueError(f"{path}: {field} must be a non-empty string")
+    if not isinstance(value["overlap_count"], int) or isinstance(value["overlap_count"], bool) or value["overlap_count"] < 0:
+        raise ValueError(f"{path}: overlap_count must be a non-negative integer")
+    attestation = value["attestation"]
+    if not isinstance(attestation, dict) or set(attestation) != {"kind", "value"}:
+        raise ValueError(f"{path}: attestation must contain exactly kind and value")
+    if not isinstance(attestation["kind"], str) or not attestation["kind"].strip():
+        raise ValueError(f"{path}: attestation.kind must be a non-empty string")
+    if attestation["value"] is not None and (not isinstance(attestation["value"], str) or not attestation["value"].strip()):
+        raise ValueError(f"{path}: attestation.value must be null or a non-empty string")
+    return value
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", required=True, type=Path)
@@ -368,6 +424,7 @@ def main() -> int:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--timestamp", required=True, help="Caller-supplied ISO timestamp for reproducible fixtures")
     parser.add_argument("--out-dir", required=True, type=Path)
+    parser.add_argument("--official-metadata", type=Path, help="Private custody/leakage metadata for sealed-official runs")
     parser.add_argument("--dry-run", action="store_true", help="Validate and score without writing artifacts")
     args = parser.parse_args()
     try:
@@ -377,13 +434,14 @@ def main() -> int:
         entry = load_and_validate(args.entry, "entry", contract)
         instances = load_and_validate(args.instances, "instance_set", contract)
         predictions = load_and_validate(args.predictions, "prediction_set", contract)
+        official_metadata = load_official_metadata(args.official_metadata, instances["layer"])
         bundle_errors: list[str] = []
         checker.validate_bundle([suite, task, entry, instances, predictions], contract, bundle_errors)
         if bundle_errors:
             raise ValueError("bundle validation failed: " + "; ".join(bundle_errors))
         assert_identity(suite, task, entry, instances, predictions)
         assert_complete_predictions(task, instances, predictions)
-        artifacts = score(suite, task, entry, instances, predictions, args.run_id, args.timestamp)
+        artifacts = score(suite, task, entry, instances, predictions, args.run_id, args.timestamp, official_metadata)
         errors: list[str] = []
         for artifact in artifacts:
             checker.validate_artifact(artifact, contract, errors)

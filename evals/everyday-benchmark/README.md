@@ -3,8 +3,9 @@
 This directory contains the no-model foundation for the benchmark proposed in
 OpenSpec change `add-everyday-specialist-benchmark` and GitHub issue #77.
 
-Current status: **public development infrastructure only**. Nothing here is a
-sealed evaluation, a frontier-qualified task, or an official model ranking.
+Current status: **Pace intent routing is frontier-qualified on sealed V1**.
+Two more qualified task families and the general cohort renderer are still
+required before the benchmark suite itself is ready to launch.
 
 ## What exists
 
@@ -24,6 +25,10 @@ sealed evaluation, a frontier-qualified task, or an official model ranking.
   including cross-artifact identity, resource math, and receipt privacy.
 - `scripts/run_everyday_benchmark.py` scores caller-supplied predictions and
   emits validated `run.json`, `result.json`, and aggregate-only `receipt.json`.
+- `pace-intent-sealed-v1.md` is the privacy-safe first official comparison.
+  Its four receipts disclose instance identity, frontier qualification,
+  leakage/custody evidence, aggregate scores, and result hashes without raw
+  sealed prompts or outputs.
 
 The no-model runner understands all four adapter identities—local package,
 OpenAI-compatible endpoint, imported predictions, and capability graph—but it
@@ -42,7 +47,6 @@ same-instance comparison, exact/confusion/slice scoring, system selective-risk
 metrics, resource derivation, receipt privacy, determinism, and overwrite
 protection.
 
-Local cohort outputs belong under ignored `benchmark-runs/`. A future official
-cohort still requires a sealed shared instance set, frontier qualification on
-the same scorer, leakage/custody evidence, two more task families, and the
-deterministic cohort renderer.
+Local cohort outputs belong under ignored `runs/` or `benchmark-runs/`. The
+remaining launch blockers are two more frontier-qualified task families and
+the deterministic cross-task cohort renderer.

@@ -4,7 +4,7 @@
   "task_id": "pace-intent-routing",
   "revision": "1",
   "title": "Pace seven-class intent routing",
-  "status": "development",
+  "status": "qualified",
   "adapter": {
     "id": "pace-intent-routing-adapter",
     "revision": "1",
@@ -25,6 +25,14 @@
     "path": "evals/everyday-benchmark/fixtures/pace-intent-public-dev-v1.json",
     "layer": "public-development"
   },
+  "official_instance_set": {
+    "id": "pace-intent-sealed-v1",
+    "revision": "1",
+    "layer": "sealed-official",
+    "sha256": "dff793a012ce50944861aca6bafbe812e5c346f59710536e07ab90099022be6a",
+    "count": 63,
+    "custody_receipt_ref": "evals/everyday-benchmark/receipts/pace-intent-frontier-v1.json"
+  },
   "labels": ["chitchat", "pureKnowledge", "screenDescription", "screenAction", "research", "phoneLargeModel", "unknown"],
   "slices": {
     "primary": ["core"],
@@ -39,16 +47,16 @@
   },
   "repetitions": 2,
   "frontier_qualification": {
-    "state": "missing",
+    "state": "passed",
     "threshold": 0.99,
-    "model": null,
-    "score": null,
-    "receipt_ref": null
+    "model": "codex-gpt-5.5",
+    "score": 1.0,
+    "receipt_ref": "evals/everyday-benchmark/receipts/pace-intent-frontier-v1.json"
   },
   "publication_policy": {
     "raw_public_development_instances_allowed": true,
     "raw_sealed_instances_allowed": false,
     "raw_model_outputs_in_receipt_allowed": false,
-    "official_ranking_allowed": false
+    "official_ranking_allowed": true
   }
 }
