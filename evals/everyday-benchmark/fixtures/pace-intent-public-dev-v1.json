@@ -1,0 +1,212 @@
+{
+  "artifact_type": "instance_set",
+  "contract_version": "everyday-benchmark/v1",
+  "instance_set_id": "pace-intent-public-dev-v1",
+  "revision": "1",
+  "task_ref": {"id": "pace-intent-routing", "revision": "1"},
+  "layer": "public-development",
+  "provenance": {
+    "kind": "synthetic",
+    "generator": "devin-glm-5.2; selected against specialists/pace-intent-router-v8/prompt.md",
+    "generated_at": "2026-08-04",
+    "review_status": "reviewed"
+  },
+  "instances": [
+    {
+      "id": "chitchat-01",
+      "input_text": "hi pace",
+      "expected_label": "chitchat",
+      "slices": ["core", "chitchat"],
+      "boundary_rationale": "Canonical greeting with no actionable content."
+    },
+    {
+      "id": "chitchat-05",
+      "input_text": "yo",
+      "expected_label": "chitchat",
+      "slices": ["core", "chitchat", "boundary"],
+      "boundary_rationale": "Single-token greeting that should not be mistaken for unknown gibberish."
+    },
+    {
+      "id": "chitchat-06",
+      "input_text": "good morning pace, ready to work?",
+      "expected_label": "chitchat",
+      "slices": ["core", "chitchat", "boundary"],
+      "boundary_rationale": "Greeting plus rhetorical readiness, not an action request."
+    },
+    {
+      "id": "chitchat-08",
+      "input_text": "later",
+      "expected_label": "chitchat",
+      "slices": ["core", "chitchat", "boundary"],
+      "boundary_rationale": "Terse but conventional farewell."
+    },
+    {
+      "id": "pureKnowledge-01",
+      "input_text": "what is HTML",
+      "expected_label": "pureKnowledge",
+      "slices": ["core", "pureKnowledge"],
+      "boundary_rationale": "Closed factual question requiring no screen context."
+    },
+    {
+      "id": "pureKnowledge-03",
+      "input_text": "what can you do",
+      "expected_label": "pureKnowledge",
+      "slices": ["core", "pureKnowledge", "boundary"],
+      "boundary_rationale": "Documented Pace boundary: a question about Pace itself is knowledge, not unknown."
+    },
+    {
+      "id": "pureKnowledge-04",
+      "input_text": "I researched HTML yesterday",
+      "expected_label": "pureKnowledge",
+      "slices": ["core", "pureKnowledge", "boundary", "past-tense"],
+      "boundary_rationale": "Past-tense mention is not a new research request."
+    },
+    {
+      "id": "pureKnowledge-07",
+      "input_text": "researched that already, just remind me what DNS is",
+      "expected_label": "pureKnowledge",
+      "slices": ["core", "pureKnowledge", "boundary", "past-tense"],
+      "boundary_rationale": "The live request is a single knowledge reminder despite a past-tense research mention."
+    },
+    {
+      "id": "screenDescription-01",
+      "input_text": "what am I looking at",
+      "expected_label": "screenDescription",
+      "slices": ["core", "screenDescription"],
+      "boundary_rationale": "Canonical screen-description request."
+    },
+    {
+      "id": "screenDescription-04",
+      "input_text": "read the page",
+      "expected_label": "screenDescription",
+      "slices": ["core", "screenDescription", "boundary"],
+      "boundary_rationale": "Requests the content of the visible page rather than a state-changing action."
+    },
+    {
+      "id": "screenDescription-05",
+      "input_text": "what's this here",
+      "expected_label": "screenDescription",
+      "slices": ["core", "screenDescription", "boundary"],
+      "boundary_rationale": "Deictic wording assumes screen context and asks for identification."
+    },
+    {
+      "id": "screenDescription-08",
+      "input_text": "is there an error on screen?",
+      "expected_label": "screenDescription",
+      "slices": ["core", "screenDescription", "boundary"],
+      "boundary_rationale": "A yes-no question about visible content, not an action request."
+    },
+    {
+      "id": "screenAction-01",
+      "input_text": "click the save button",
+      "expected_label": "screenAction",
+      "slices": ["core", "screenAction"],
+      "boundary_rationale": "Canonical action-layer request."
+    },
+    {
+      "id": "screenAction-03",
+      "input_text": "turn on volume",
+      "expected_label": "screenAction",
+      "slices": ["core", "screenAction", "boundary"],
+      "boundary_rationale": "Documented Pace boundary: Mac volume is controllable, unlike smart-home lights."
+    },
+    {
+      "id": "screenAction-04",
+      "input_text": "scroll down",
+      "expected_label": "screenAction",
+      "slices": ["core", "screenAction", "boundary"],
+      "boundary_rationale": "Terse imperative for a supported UI action."
+    },
+    {
+      "id": "screenAction-05",
+      "input_text": "close this tab",
+      "expected_label": "screenAction",
+      "slices": ["core", "screenAction", "boundary"],
+      "boundary_rationale": "Deictic imperative for a supported UI action."
+    },
+    {
+      "id": "research-01",
+      "input_text": "research quantum computing",
+      "expected_label": "research",
+      "slices": ["core", "research"],
+      "boundary_rationale": "Canonical research-lane request."
+    },
+    {
+      "id": "research-03",
+      "input_text": "research HTML",
+      "expected_label": "research",
+      "slices": ["core", "research", "boundary"],
+      "boundary_rationale": "Documented Pace boundary: imperative research wording selects the research lane."
+    },
+    {
+      "id": "research-04",
+      "input_text": "look up the latest on fusion and summarize three sources",
+      "expected_label": "research",
+      "slices": ["core", "research", "boundary"],
+      "boundary_rationale": "A multi-source lookup and synthesis request without the literal word research."
+    },
+    {
+      "id": "research-05",
+      "input_text": "find me papers on RLHF then write a brief",
+      "expected_label": "research",
+      "slices": ["core", "research", "boundary"],
+      "boundary_rationale": "Two-step discovery and synthesis request."
+    },
+    {
+      "id": "phoneLargeModel-01",
+      "input_text": "use the big model",
+      "expected_label": "phoneLargeModel",
+      "slices": ["core", "phoneLargeModel"],
+      "boundary_rationale": "Canonical explicit escalation request."
+    },
+    {
+      "id": "phoneLargeModel-03",
+      "input_text": "ask a smarter model",
+      "expected_label": "phoneLargeModel",
+      "slices": ["core", "phoneLargeModel", "boundary"],
+      "boundary_rationale": "Indirect but explicit request for a more capable model."
+    },
+    {
+      "id": "phoneLargeModel-04",
+      "input_text": "escalate this to something more capable",
+      "expected_label": "phoneLargeModel",
+      "slices": ["core", "phoneLargeModel", "boundary"],
+      "boundary_rationale": "Escalation phrased without the canonical big-model wording."
+    },
+    {
+      "id": "phoneLargeModel-07",
+      "input_text": "hand this to the cloud model",
+      "expected_label": "phoneLargeModel",
+      "slices": ["core", "phoneLargeModel", "boundary"],
+      "boundary_rationale": "Paraphrases the documented cloud-bridge route."
+    },
+    {
+      "id": "unknown-01",
+      "input_text": "turn on lights",
+      "expected_label": "unknown",
+      "slices": ["core", "unknown", "boundary", "unknown-ood", "unsupported-device"],
+      "boundary_rationale": "Documented Pace boundary: smart-home lights are outside the Mac action surface."
+    },
+    {
+      "id": "unknown-02",
+      "input_text": "set my thermostat to 72",
+      "expected_label": "unknown",
+      "slices": ["core", "unknown", "boundary", "unknown-ood", "unsupported-device"],
+      "boundary_rationale": "Unsupported smart-home device action should abstain instead of misroute."
+    },
+    {
+      "id": "unknown-06",
+      "input_text": "asdf jkl",
+      "expected_label": "unknown",
+      "slices": ["core", "unknown", "boundary", "unknown-ood"],
+      "boundary_rationale": "No parseable intent."
+    },
+    {
+      "id": "unknown-07",
+      "input_text": "play music on the living room speaker",
+      "expected_label": "unknown",
+      "slices": ["core", "unknown", "boundary", "unknown-ood", "unsupported-device"],
+      "boundary_rationale": "Targets an external smart speaker rather than the Mac action surface."
+    }
+  ]
+}

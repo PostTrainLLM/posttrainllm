@@ -347,3 +347,6 @@ jobs:
       # torch is deliberately not a dependency of this repository.
       - name: Run autocorrect adapter smoke test
         run: bash evals/autocorrect-adapter-smoke.sh
+
+      - name: Run everyday specialist benchmark smoke test
+        run: bash evals/everyday-benchmark-smoke.sh

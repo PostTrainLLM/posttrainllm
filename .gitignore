@@ -56,6 +56,10 @@ data/*.jsonl
 # Commit schemas/fixtures/reports under docs/ or specialists/, not raw runs.
 runs/
 
+# Local cohort outputs from the Everyday Specialist Benchmark. Commit only
+# reviewed public fixtures and privacy-safe receipts under evals/ or docs/.
+benchmark-runs/
+
 # Generated SQL fixture databases are reproducible from
 # scripts/build_sql_poc_dataset.py; keep the JSONL + schema sources.
 evals/sql-poc-expanded/dbs/*.db

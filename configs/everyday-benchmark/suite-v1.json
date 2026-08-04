@@ -1,0 +1,20 @@
+{
+  "artifact_type": "suite",
+  "contract_version": "everyday-benchmark/v1",
+  "suite_id": "everyday-specialist-v1",
+  "revision": "1",
+  "title": "Everyday Specialist Benchmark V1",
+  "task_refs": [
+    {
+      "task_id": "pace-intent-routing",
+      "revision": "1",
+      "path": "configs/everyday-benchmark/tasks/pace-intent-routing-v1.json"
+    }
+  ],
+  "publication": {
+    "minimum_qualified_task_families": 3,
+    "headline_requires_same_instance_set": true,
+    "default_view": "pareto",
+    "composite_score_authoritative": false
+  }
+}
