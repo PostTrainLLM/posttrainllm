@@ -1,0 +1,54 @@
+{
+  "artifact_type": "task",
+  "contract_version": "everyday-benchmark/v1",
+  "task_id": "pace-intent-routing",
+  "revision": "1",
+  "title": "Pace seven-class intent routing",
+  "status": "development",
+  "adapter": {
+    "id": "pace-intent-routing-adapter",
+    "revision": "1",
+    "instruction_ref": "specialists/pace-intent-router-v8/prompt.md",
+    "input_field": "input_text",
+    "output_field": "predicted_label"
+  },
+  "scorer": {
+    "id": "exact-intent-class",
+    "revision": "1",
+    "authority": "deterministic-exact-match",
+    "primary_metric": "exact_accuracy",
+    "unknown_label": "unknown"
+  },
+  "instance_set": {
+    "id": "pace-intent-public-dev-v1",
+    "revision": "1",
+    "path": "evals/everyday-benchmark/fixtures/pace-intent-public-dev-v1.json",
+    "layer": "public-development"
+  },
+  "labels": ["chitchat", "pureKnowledge", "screenDescription", "screenAction", "research", "phoneLargeModel", "unknown"],
+  "slices": {
+    "primary": ["core"],
+    "protected": ["boundary", "unknown-ood", "negation", "past-tense", "unsupported-device"]
+  },
+  "budgets": {
+    "timeout_ms_per_instance": 5000,
+    "max_input_bytes": 128,
+    "max_output_labels": 1,
+    "tool_surface": "none",
+    "environment": "text-classification"
+  },
+  "repetitions": 2,
+  "frontier_qualification": {
+    "state": "missing",
+    "threshold": 0.99,
+    "model": null,
+    "score": null,
+    "receipt_ref": null
+  },
+  "publication_policy": {
+    "raw_public_development_instances_allowed": true,
+    "raw_sealed_instances_allowed": false,
+    "raw_model_outputs_in_receipt_allowed": false,
+    "official_ranking_allowed": false
+  }
+}

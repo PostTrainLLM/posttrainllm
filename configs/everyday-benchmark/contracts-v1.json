@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "contract_version": "everyday-benchmark/v1",
+  "artifact_types": {
+    "suite": {
+      "required_fields": ["artifact_type", "contract_version", "suite_id", "revision", "title", "task_refs", "publication"]
+    },
+    "task": {
+      "required_fields": ["artifact_type", "contract_version", "task_id", "revision", "title", "status", "adapter", "scorer", "instance_set", "labels", "slices", "budgets", "repetitions", "frontier_qualification", "publication_policy"]
+    },
+    "entry": {
+      "required_fields": ["artifact_type", "contract_version", "entry_id", "revision", "title", "track", "adapter", "resources", "disclosure"]
+    },
+    "instance_set": {
+      "required_fields": ["artifact_type", "contract_version", "instance_set_id", "revision", "task_ref", "layer", "provenance", "instances"]
+    },
+    "prediction_set": {
+      "required_fields": ["artifact_type", "contract_version", "prediction_set_id", "revision", "task_ref", "entry_ref", "instance_set_ref", "outputs"]
+    },
+    "run": {
+      "required_fields": ["artifact_type", "contract_version", "run_id", "revision", "suite_ref", "task_ref", "entry_ref", "instance_set", "runner", "scorer", "budgets", "repetitions", "started_at", "completed_at", "status"]
+    },
+    "result": {
+      "required_fields": ["artifact_type", "contract_version", "result_id", "revision", "run_ref", "suite_ref", "task_ref", "entry_ref", "track", "instance_set", "runner", "scorer", "counts", "scores", "slices", "reliability", "resources", "system_metrics", "errors"]
+    },
+    "receipt": {
+      "required_fields": ["artifact_type", "contract_version", "receipt_id", "revision", "evaluation_layer", "suite_ref", "task_ref", "entry_ref", "run_ref", "result_ref", "instance_set", "runner", "scorer", "frontier_qualification", "leakage", "custody", "aggregate", "attestation", "publication_authority"]
+    }
+  },
+  "enums": {
+    "track": ["generalist", "adapted", "system"],
+    "task_status": ["development", "training-only", "qualified"],
+    "evaluation_layer": ["public-development", "sealed-official"],
+    "adapter_kind": ["local-package", "openai-compatible", "imported-predictions", "capability-graph"],
+    "measurement_state": ["measured", "derived", "historical", "skipped", "missing", "not-applicable"],
+    "run_status": ["completed", "failed"],
+    "frontier_state": ["missing", "failed", "passed"],
+    "publication_authority": ["manual"],
+    "pace_intent_label": ["chitchat", "pureKnowledge", "screenDescription", "screenAction", "research", "phoneLargeModel", "unknown"]
+  },
+  "required_resource_measurements": [
+    "latency_cold_end_to_end_ms",
+    "latency_warm_end_to_end_ms",
+    "latency_model_only_ms",
+    "active_parameters",
+    "resident_bytes_peak",
+    "installed_artifact_bytes",
+    "shared_base_bytes",
+    "adapter_bytes",
+    "energy_joules",
+    "training_time_seconds",
+    "evaluation_time_seconds",
+    "local_cost_usd",
+    "external_cost_usd"
+  ],
+  "receipt_denylisted_field_fragments": [
+    "api_key",
+    "authorization",
+    "completion",
+    "credential",
+    "input_text",
+    "model_output",
+    "password",
+    "prediction",
+    "private_prompt",
+    "prompt_text",
+    "raw_output",
+    "secret",
+    "token"
+  ],
+  "limits": {
+    "receipt_bytes": 262144,
+    "receipt_string_bytes": 4096
+  }
+}
