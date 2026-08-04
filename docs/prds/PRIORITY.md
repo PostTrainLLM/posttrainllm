@@ -1,6 +1,6 @@
 # PRD Priority Triage
 
-Last updated: 2026-08-03
+Last updated: 2026-08-04
 
 This file is the working priority map for every PRD currently on disk.
 
@@ -22,8 +22,10 @@ These are the real gaps before building the next candidate:
    preference tuning or a public benchmark slice.
 2. **Canonical run command/readout** — `FactoryRun` and
    `FactoryRunFolder` define the schema/readout and `posttrainllm factory-run`
-   renders/validates a complete run folder. The next missing piece is wiring
-   real eval/train commands to emit those files automatically.
+   renders/validates a complete run folder. Opt-in live evidence emission is
+   implemented for `sft`, `eval-gate`, and `eval-compare`; the remaining gate
+   is one bounded verification during the next owner-approved factory run, not
+   a speculative training target.
 3. **Live baseline eval** — done for expanded SQL POC on Qwen3-0.6B.
 4. **Dataset manifest** — expanded manifest exists with 108 train, 50 heldout,
    108 preference rows across five SQLite domains.

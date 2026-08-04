@@ -1,4 +1,5 @@
 import Foundation
+import TinyGPTIO
 import TinyGPTModel
 
 /// Shared schema for every `posttrainllm eval-*` subcommand + a comparison
@@ -93,11 +94,13 @@ public enum EvalCompare {
         var paths: [String] = []
         var groupBy: String = "model"   // model | step | task
         var sortBy: String = "score"
+        var factoryRunPath: String?
         var i = 0
         while i < args.count {
             switch args[i] {
             case "--by":       groupBy = args[i+1]; i += 2
             case "--sort":     sortBy = args[i+1]; i += 2
+            case "--factory-run": factoryRunPath = args[i+1]; i += 2
             case "-h", "--help": exitUsage(0)
             default:
                 if args[i].hasPrefix("-") {
@@ -111,21 +114,75 @@ public enum EvalCompare {
         var rows: [Row] = []
         for p in paths {
             guard let data = try? Data(contentsOf: URL(fileURLWithPath: p)) else {
+                if factoryRunPath != nil {
+                    fputs("factory-run evidence requires every input file; could not read \(p)\n",
+                          stderr)
+                    exit(2)
+                }
                 fputs("could not read \(p)\n", stderr); continue
             }
-            guard let text = String(data: data, encoding: .utf8) else { continue }
+            guard let text = String(data: data, encoding: .utf8) else {
+                if factoryRunPath != nil {
+                    fputs("factory-run evidence requires UTF-8 E0 rows in \(p)\n", stderr)
+                    exit(2)
+                }
+                continue
+            }
             let dec = JSONDecoder()
             for line in text.split(separator: "\n") {
                 let trimmed = line.trimmingCharacters(in: .whitespaces)
                 guard !trimmed.isEmpty else { continue }
                 guard let lineData = trimmed.data(using: .utf8),
-                      let row = try? dec.decode(Row.self, from: lineData)
-                else { continue }
+                      let row = try? dec.decode(Row.self, from: lineData) else {
+                    if factoryRunPath != nil {
+                        fputs("factory-run evidence rejects an invalid E0 row in \(p)\n", stderr)
+                        exit(2)
+                    }
+                    continue
+                }
                 rows.append(row)
             }
         }
         guard !rows.isEmpty else {
             fputs("no valid eval rows found across \(paths.count) file(s)\n", stderr); exit(1)
+        }
+
+        if let factoryRunPath {
+            do {
+                let baselineModels = Set(rows.filter(\.baseline).map(\.model_name))
+                let candidateModels = Set(rows.filter { !$0.baseline }.map(\.model_name))
+                guard baselineModels.count == 1 else {
+                    throw FactoryRunEvidence.EvidenceError.invalidSlice(
+                        "E0 rows must name exactly one baseline model"
+                    )
+                }
+                guard candidateModels.count == 1 else {
+                    throw FactoryRunEvidence.EvidenceError.invalidSlice(
+                        "E0 rows must name exactly one candidate model"
+                    )
+                }
+                let inputs = rows.map { row in
+                    FactoryRunEvidence.SliceInput(
+                        name: sliceName(task: row.task,
+                                        subtask: row.subtask,
+                                        metric: row.metric),
+                        metric: row.metric,
+                        score: row.score,
+                        rows: row.n_examples,
+                        baseline: row.baseline,
+                        higherIsBetter: EvalGate.direction(for: row.metric) == .higherIsBetter
+                    )
+                }
+                let metrics = try FactoryRunEvidence.makeSliceMetrics(inputs)
+                try FactoryRunEvidence.writeSliceMetrics(
+                    metrics,
+                    directory: URL(fileURLWithPath: factoryRunPath)
+                )
+                print("✓ recorded canonical slice evidence in \(factoryRunPath)")
+            } catch {
+                fputs("eval-compare could not record factory-run evidence: \(error)\n", stderr)
+                exit(1)
+            }
         }
 
         switch groupBy {
@@ -138,6 +195,16 @@ public enum EvalCompare {
     }
 
     // MARK: - render
+
+    private static func sliceName(task: String, subtask: String?, metric: String) -> String {
+        let raw = [task, subtask, metric].compactMap { value in
+            value?.trimmingCharacters(in: .whitespacesAndNewlines)
+        }.filter { !$0.isEmpty }.joined(separator: "_")
+        let mapped = raw.lowercased().map { character -> Character in
+            character.isLetter || character.isNumber ? character : "_"
+        }
+        return String(mapped).split(separator: "_").joined(separator: "_")
+    }
 
     /// Group by task × model; one row per task with one column per model.
     /// The canonical "did we beat the baseline" view.
@@ -314,6 +381,9 @@ public enum EvalCompare {
         --by step    pin to one model, show task × training step.
                      "When did this capability emerge?"
         --by task    for each task, all models ranked best-to-worst.
+        --factory-run <dir>
+                     write deterministic slice-metrics.json in a prepared run;
+                     lifecycle phase and decision state are unchanged.
 
         Example:
           posttrainllm eval-compare ~/eval/run-*.jsonl --by model

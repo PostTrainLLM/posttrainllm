@@ -24,6 +24,7 @@ enum SFT {
         var basePath: String?
         var dataPath: String?
         var outPath: String?
+        var factoryRunPath: String?
         var templateName = "chatml"
         var rank = 4
         var alpha: Float = 8.0
@@ -72,6 +73,7 @@ enum SFT {
             switch args[i] {
             case "--data":          dataPath = args[i+1]; i += 2
             case "--out":           outPath = args[i+1]; i += 2
+            case "--factory-run":   factoryRunPath = args[i+1]; i += 2
             case "--template":      templateName = args[i+1]; i += 2
             case "--rank":          rank = Int(args[i+1]) ?? rank; i += 2
             case "--alpha":         alpha = Float(args[i+1]) ?? alpha; i += 2
@@ -136,6 +138,35 @@ enum SFT {
         if qlora && qloraBits != 4 && qloraBits != 8 {
             fputs("--qlora-bits must be 4 or 8\n", stderr)
             exit(2)
+        }
+        if packSequences && packMode == "none" { packMode = "sequence" }
+        switch packMode {
+        case "none", "sequence", "sample", "bucket": break
+        default:
+            fputs("unknown --pack-mode '\(packMode)'. Options: none, sequence, sample, bucket\n", stderr)
+            exit(2)
+        }
+        if packMode == "bucket" && lengthBuckets < 1 { lengthBuckets = 4 }
+
+        var factoryConfig: FactoryRun.Config?
+        if let factoryRunPath {
+            let directory = URL(fileURLWithPath: factoryRunPath)
+            do {
+                let context = try FactoryRunEvidence.inspect(
+                    directory: directory,
+                    expectedPhase: .dataReady
+                )
+                guard context.config.candidate.method.lowercased().contains("sft") else {
+                    throw FactoryRunEvidence.EvidenceError.invalidSlice(
+                        "run candidate method must identify SFT"
+                    )
+                }
+                factoryConfig = context.config
+                _ = try FactoryRunEvidence.beginTraining(directory: directory)
+            } catch {
+                fputs("sft factory-run preflight failed: \(error)\n", stderr)
+                exit(2)
+            }
         }
         if metalCacheGB > 0 {
             Memory.cacheLimit = Int(metalCacheGB * 1_073_741_824)
@@ -213,17 +244,6 @@ enum SFT {
             fputs("no usable SFT examples after tokenization\n", stderr); exit(1)
         }
         let corpus = SFTCorpus(examples, vocabSize: cfg.vocabSize)
-
-        // Resolve pack-mode: legacy --pack wins if --pack-mode is left at
-        // default. Sanity-check unknown modes.
-        if packSequences && packMode == "none" { packMode = "sequence" }
-        switch packMode {
-        case "none", "sequence", "sample", "bucket": break
-        default:
-            fputs("unknown --pack-mode '\(packMode)'. Options: none, sequence, sample, bucket\n", stderr)
-            exit(2)
-        }
-        if packMode == "bucket" && lengthBuckets < 1 { lengthBuckets = 4 }
 
         let B = batchSize ?? defaultBatch(cfg)
         let T = effectiveMax
@@ -317,6 +337,33 @@ enum SFT {
         } catch {
             fputs("save failed: \(error)\n", stderr); exit(1)
         }
+        if !stoppedEarly, let factoryRunPath, let factoryConfig {
+            let artifact = FactoryRun.Artifact(
+                artifactId: URL(fileURLWithPath: outPath).deletingPathExtension().lastPathComponent,
+                kind: "adapter",
+                path: outPath,
+                baseModel: factoryConfig.baseModel.id,
+                format: "lora",
+                shipped: false
+            )
+            let summary = String(
+                format: "SFT completed %d/%d steps in %.3fs with final loss %.6f; adapter saved.",
+                lastStep, steps, elapsed, lastLoss
+            )
+            do {
+                _ = try FactoryRunEvidence.finishTraining(
+                    directory: URL(fileURLWithPath: factoryRunPath),
+                    artifact: artifact,
+                    summary: summary,
+                    trainingTimeSeconds: elapsed
+                )
+                print("✓ recorded canonical training evidence in \(factoryRunPath)")
+            } catch {
+                fputs("sft saved the adapter but could not record factory-run evidence: \(error)\n",
+                      stderr)
+                exit(1)
+            }
+        }
         if stoppedEarly { exit(130) }
     }
 
@@ -403,6 +450,8 @@ enum SFT {
 
         --data path.jsonl        JSONL of {instruction,input?,response} records (required)
         --out path.lora          Where to save the adapter (required)
+        --factory-run <dir>      Record successful training evidence in a prepared
+                                 lifecycle run (requires phase data-ready).
         --template chatml|alpaca|llama|plain   (default: chatml)
         --rank N                 LoRA rank (default 4)
         --alpha F                LoRA scale (default 8.0)

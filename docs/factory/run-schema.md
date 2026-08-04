@@ -76,6 +76,46 @@ The assembler initializes lifecycle metadata when absent, advances to
 failure records only the bounded `assembly-failed` code and generic sanitized
 summary.
 
+## Live command evidence
+
+For a new lifecycle run, freeze and validate `config.json` and `dataset.json`,
+initialize the lifecycle, and advance it to `data-ready` before model work.
+The following opt-in flags then record evidence at the command boundary:
+
+```bash
+posttrainllm sft <base> --data <train.jsonl> --out <adapter.lora> \
+  --factory-run runs/<id>
+
+posttrainllm eval-gate --spec <eval-gate.json> \
+  --candidate <candidate.jsonl> --factory-run runs/<id>
+
+posttrainllm eval-compare <baseline-and-candidate.jsonl> \
+  --factory-run runs/<id>
+```
+
+`sft` requires `data-ready`, marks `training` before model loading, and writes a
+bounded `train.log`, measured local training time in `cost.json`, and an
+unshipped adapter `artifact.json` before marking `trained`. An interrupted or
+failed command remains in the last honest active phase for explicit operator
+reconciliation; a partial adapter is not promoted as trained evidence.
+
+`eval-gate` requires `trained`, verifies that the frozen primary suite and
+baseline E0 rows exist before suite execution, and writes the same gate's
+typed `eval-baseline.json` and `eval-candidate.json` before marking
+`evaluated`. A quality-gate failure is still a completed evaluation and is
+recorded honestly with `passed: false`.
+
+`eval-compare` derives `slice-metrics.json` only when its E0 inputs name exactly
+one baseline and one candidate with compatible metrics and instance counts. It
+does not change lifecycle or decision state. None of these commands creates
+`decision.json`, assembles a report, packages, publishes, or deploys.
+
+The no-model contract smoke is:
+
+```bash
+bash evals/factory-run-live-evidence-smoke.sh
+```
+
 ## `run-status.json` and discovery pointers
 
 New native renders and Python assemblies are lifecycle-v1 writers. They emit
