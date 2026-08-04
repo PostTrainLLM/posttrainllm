@@ -356,7 +356,7 @@ Exit criteria:
 0.5. Run the autocorrect no-model smokes:
    `bash evals/autocorrect-foundation-smoke.sh` and
    `bash evals/autocorrect-adapter-smoke.sh`. Both are now in the CI evals job.
-1. Wire real train/eval commands to emit the run schema automatically.
+1. Verify live command evidence emission on the next approved factory run.
    **Bridge half done (2026-07-11):** `scripts/assemble_factory_run.py` is the
    generic report-artifact bridge. It turns the emitted fragments (`config`,
    `dataset`, `eval-baseline`, `eval-candidate`, `decision`, optional
@@ -374,9 +374,15 @@ Exit criteria:
    operator action. Legacy folders remain valid and can be imported explicitly
    without invented history. This does not resume training or alter
    `decision.json`/publication authority.
-   **Remaining (operator-verify-gated):** have the live Swift `sft` / `eval-gate`
-   / `eval-compare` commands drop those fragments during a real run — that half
-   is only end-to-end verifiable with a GPU train/eval pass.
+   **Implemented without model work (2026-08-04):** opt-in `--factory-run`
+   integration now has Swift `sft` record bounded training/cost/artifact
+   evidence, `eval-gate` record the frozen primary suite's canonical
+   baseline/candidate pair, and `eval-compare` derive compatible slice metrics.
+   Typed writes cross lifecycle boundaries only after durable validation, and
+   `bash evals/factory-run-live-evidence-smoke.sh` proves the full metadata path
+   without loading MLX. **Remaining (operator-verify-gated):** exercise the
+   flags during the next already-justified GPU train/eval run; do not create a
+   speculative target solely for plumbing verification.
 2. Run `scripts/build_sql_spider_execution_gate.py` against a local Spider DB
    bundle and score the current routed candidate on execution accuracy.
 3. Measure routed SQL latency, RAM/peak RSS, and tok/s

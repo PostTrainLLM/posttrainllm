@@ -1,4 +1,5 @@
 import Foundation
+import TinyGPTIO
 import TinyGPTModel
 
 /// `posttrainllm eval-gate` (B32) — run a project's declared eval suites against
@@ -16,6 +17,7 @@ enum EvalGateCommand {
         var outPath: String? = nil
         var thresholdOverride: Double? = nil
         var budgetPath: String? = nil
+        var factoryRunPath: String? = nil
         var passes = 1
         var updateBaseline = false
 
@@ -28,6 +30,7 @@ enum EvalGateCommand {
             case "--out": outPath = value(args, &i)
             case "--threshold": thresholdOverride = Double(value(args, &i) ?? "")
             case "--budget": budgetPath = value(args, &i)
+            case "--factory-run": factoryRunPath = value(args, &i)
             case "--passes": passes = Int(value(args, &i) ?? "") ?? 1
             case "--update-baseline": updateBaseline = true; i += 1
             case "-h", "--help": exitUsage(0)
@@ -45,6 +48,41 @@ enum EvalGateCommand {
             suites: baseSpec.suites)
         let budget = loadBudget(budgetPath)
         let protocolBlock = EvalGate.AgentEvalProtocol(passes: passes, budget: budget)
+        if factoryRunPath != nil && updateBaseline {
+            fputs("--factory-run cannot be combined with --update-baseline\n", stderr)
+            exit(2)
+        }
+
+        var factoryContext: FactoryRunEvidence.Context?
+        let evaluationStartedAt = Date()
+        if let factoryRunPath {
+            do {
+                // Fail before a suite can load a model when frozen run context
+                // or the declared baseline is unavailable.
+                _ = try EvalGate.loadRows(fromJSONLAt: baselinePath)
+                let directory = URL(fileURLWithPath: factoryRunPath)
+                factoryContext = try FactoryRunEvidence.inspect(
+                    directory: directory,
+                    expectedPhase: .trained
+                )
+                let declaredPrimary = factoryContext!.config.eval.primary
+                let declaredMatches = spec.suites.filter {
+                    $0.name == declaredPrimary || $0.resolvedTask == declaredPrimary
+                }
+                guard declaredMatches.count == 1 else {
+                    throw FactoryRunEvidence.EvidenceError.invalidSlice(
+                        "frozen primary suite '\(declaredPrimary)' must match one eval-gate suite"
+                    )
+                }
+                if let candidatePath {
+                    _ = try EvalGate.loadRows(fromJSONLAt: candidatePath)
+                }
+                _ = try FactoryRunEvidence.beginEvaluation(directory: directory)
+            } catch {
+                fputs("eval-gate factory-run preflight failed: \(error)\n", stderr)
+                exit(2)
+            }
+        }
 
         // 2. Obtain candidate rows + the JSONL file they came from (so
         //    --update-baseline can copy full EvalCompare.Row fidelity).
@@ -86,6 +124,59 @@ enum EvalGateCommand {
             candidateStats: summarized.stats,
             spec: spec,
             evalProtocol: protocolBlock)
+
+        if let factoryRunPath, let factoryContext {
+            do {
+                let primary = try primarySuite(
+                    report,
+                    named: factoryContext.config.eval.primary
+                )
+                guard let baselineScore = primary.baselineScore,
+                      let candidateScore = primary.candidateScore else {
+                    throw FactoryRunEvidence.EvidenceError.invalidSlice(
+                        "primary suite is missing baseline or candidate score"
+                    )
+                }
+                guard let candidateFile else {
+                    throw FactoryRunEvidence.EvidenceError.invalidSlice(
+                        "candidate E0 source is unavailable"
+                    )
+                }
+                let baselineId = try uniqueModelId(at: baselinePath, baseline: true)
+                let candidateId = try uniqueCandidateModelId(at: candidateFile)
+                let command = "posttrainllm eval-gate --factory-run"
+                let date = ISO8601DateFormatter().string(from: Date())
+                let baseline = FactoryRun.EvalResult(
+                    modelId: baselineId,
+                    command: command,
+                    suite: factoryContext.config.eval.primary,
+                    score: baselineScore,
+                    date: date,
+                    notes: "Recorded from the frozen eval-gate baseline row."
+                )
+                let candidate = FactoryRun.EvalResult(
+                    modelId: candidateId,
+                    command: command,
+                    suite: factoryContext.config.eval.primary,
+                    score: candidateScore,
+                    passed: primary.verdict == .pass,
+                    date: date,
+                    notes: "Recorded from the same eval-gate invocation as the baseline."
+                )
+                _ = try FactoryRunEvidence.finishEvaluation(
+                    directory: URL(fileURLWithPath: factoryRunPath),
+                    baseline: baseline,
+                    candidate: candidate,
+                    evalTimeSeconds: -evaluationStartedAt.timeIntervalSinceNow,
+                    command: command
+                )
+                print("✓ recorded canonical evaluation evidence in \(factoryRunPath)")
+            } catch {
+                fputs("eval-gate completed but could not record factory-run evidence: \(error)\n",
+                      stderr)
+                exit(1)
+            }
+        }
 
         // 5. Print + persist + exit code.
         printReport(report, spec: spec, passes: passes)
@@ -237,6 +328,50 @@ enum EvalGateCommand {
         try? data.write(to: URL(fileURLWithPath: path), options: .atomic)
     }
 
+    private static func primarySuite(_ report: EvalGate.Report,
+                                     named primary: String) throws -> EvalGate.SuiteResult {
+        let matches = report.suites.filter { suite in
+            suite.name == primary || suite.task == primary
+                || [suite.task, suite.subtask].compactMap { $0 }.joined(separator: "/") == primary
+        }
+        guard matches.count == 1, let match = matches.first else {
+            throw FactoryRunEvidence.EvidenceError.invalidSlice(
+                "primary suite '\(primary)' matched \(matches.count) gate rows"
+            )
+        }
+        return match
+    }
+
+    private struct ModelIdentityRow: Decodable {
+        let modelName: String
+        let baseline: Bool
+
+        enum CodingKeys: String, CodingKey {
+            case modelName = "model_name"
+            case baseline
+        }
+    }
+
+    private static func uniqueCandidateModelId(at path: String) throws -> String {
+        try uniqueModelId(at: path, baseline: false)
+    }
+
+    private static func uniqueModelId(at path: String, baseline: Bool) throws -> String {
+        let text = try String(contentsOfFile: path, encoding: .utf8)
+        let decoder = JSONDecoder()
+        let names = try Set(text.split(separator: "\n").compactMap { line -> String? in
+            let row = try decoder.decode(ModelIdentityRow.self, from: Data(line.utf8))
+            return row.baseline == baseline ? row.modelName : nil
+        })
+        guard names.count == 1, let name = names.first,
+              !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw FactoryRunEvidence.EvidenceError.invalidSlice(
+                "E0 rows must name exactly one \(baseline ? "baseline" : "candidate") model"
+            )
+        }
+        return name
+    }
+
     // MARK: - arg helper
 
     private static func value(_ args: [String], _ i: inout Int) -> String? {
@@ -267,6 +402,8 @@ enum EvalGateCommand {
                                    to gate-result.json and expose it to suite
                                    commands as TINYGPT_EVAL_BUDGET
           --passes <K>             run each suite K times, gate on the mean
+          --factory-run <dir>      write canonical before/after fragments and
+                                   advance a prepared run from trained to evaluated
           --update-baseline        re-stamp the baseline from this run, exit 0
           --out <path>             gate-result.json location (default: ./)
 
