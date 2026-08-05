@@ -1,0 +1,30 @@
+{
+  "schema_version": "game-2048/frontier-screening-attempt/v1",
+  "observed_at": "2026-08-04",
+  "status": "invalid-provider-budget-and-identity-failure",
+  "model": {
+    "requested": "claude-sonnet-5",
+    "resolved": ["claude-sonnet-5", "claude-opus-4-8"],
+    "cli_version": "2.1.212 (Claude Code)"
+  },
+  "track": "legal-constrained-diagnostic",
+  "seeds": [2048000000, 2048000001, 2048000002, 2048000003],
+  "move_budget_per_game": 32,
+  "completed_games": [
+    {"seed": 2048000000, "model_score": 200, "random_legal_score": 180},
+    {"seed": 2048000001, "model_score": 204, "random_legal_score": 176}
+  ],
+  "provider_budget_failures": 2,
+  "identity_drift_observed": true,
+  "total_observed_cost_usd": 2.4697352,
+  "score": null,
+  "random_legal_comparison": null,
+  "decision": "retry-harness-budget-and-fallback",
+  "why": "Two games completed above their paired random scores, but two games terminated on provider budget errors and one failed call used an Opus fallback. The cohort therefore violates both completeness and immutable-identity requirements.",
+  "follow_up": "Force the fallback to the exact requested model, raise the per-decision cap above observed outliers, and rerun the full development screen. Partial wins remain directional evidence only.",
+  "limitations": [
+    "The two completed games are not enough to pass the development screen or benchmark-admission gate.",
+    "No aggregate score, paired win rate, ratio, or uncertainty interval is valid for this attempt.",
+    "No specialist data or training run is authorized by this attempt."
+  ]
+}

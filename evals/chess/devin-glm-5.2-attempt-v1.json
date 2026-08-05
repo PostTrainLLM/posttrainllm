@@ -1,0 +1,13 @@
+{
+  "schema_version": "chess/devin-attempt/v1",
+  "status": "failed-incomplete-retained",
+  "suite_id": "chess-tactics-candidate-verification-v1",
+  "requested_model": "glm-5.2",
+  "backend": "devin-cli",
+  "positions_requested": 40,
+  "cost_usd": 0.0,
+  "failure": "response-truncated-max-output-token-limit",
+  "usable_decisions": 0,
+  "next_attempt": "four ordered ten-position batches with identical prompt contract",
+  "worktree_changed": false
+}

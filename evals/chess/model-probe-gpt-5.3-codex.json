@@ -1,0 +1,102 @@
+{
+  "aggregate": {
+    "constraint_applied_rate": 1.0,
+    "exact": 0,
+    "exact_move_accuracy": 0.0,
+    "executed_legal_rate": 0.0,
+    "legal": 0,
+    "legal_rate": 0.0,
+    "mean_latency_ms": 6280.522375,
+    "provider_failure_rate": 1.0,
+    "provider_failures": 1,
+    "puzzles": 1,
+    "total_cost_usd": null
+  },
+  "decisions": [
+    {
+      "best_moves": [
+        "h4g2"
+      ],
+      "exact": false,
+      "failure": "ProviderFailure: Codex CLI failed with exit 1: Reading additional input from stdin...",
+      "fen": "rn1qk2r/3pbp1p/p3pn2/1P6/3N2pN/P5P1/1P2PPbP/R1BQK2R w KQkq - 0 12",
+      "index": 0,
+      "input": "FEN=rn1qk2r/3pbp1p/p3pn2/1P6/3N2pN/P5P1/1P2PPbP/R1BQK2R w KQkq - 0 12;PLY=22;LEGAL=a1a2,a1b1,a3a4,b2b3,b2b4,b5a6,b5b6,c1d2,c1e3,c1f4,c1g5,c1h6,d1a4,d1b3,d1c2,d1d2,d1d3,d4b3,d4c2,d4c6,d4e6,d4f3,d4f5,e1d2,e2e3,e2e4,f2f3,f2f4,h1f1,h1g1,h2h3,h4f3,h4f5,h4g2,h4g6",
+      "latency_ms": 6280.522375,
+      "legal": false,
+      "legal_moves": [
+        "a1a2",
+        "a1b1",
+        "a3a4",
+        "b2b3",
+        "b2b4",
+        "b5a6",
+        "b5b6",
+        "c1d2",
+        "c1e3",
+        "c1f4",
+        "c1g5",
+        "c1h6",
+        "d1a4",
+        "d1b3",
+        "d1c2",
+        "d1d2",
+        "d1d3",
+        "d4b3",
+        "d4c2",
+        "d4c6",
+        "d4e6",
+        "d4f3",
+        "d4f5",
+        "e1d2",
+        "e2e3",
+        "e2e4",
+        "f2f3",
+        "f2f4",
+        "h1f1",
+        "h1g1",
+        "h2h3",
+        "h4f3",
+        "h4f5",
+        "h4g2",
+        "h4g6"
+      ],
+      "parsed_move": null,
+      "puzzle_id": "chess-candidate-073",
+      "raw_output": null,
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    }
+  ],
+  "model": {
+    "backend": "codex-cli",
+    "command_timeout_seconds": 180,
+    "max_budget_usd_per_decision": 0.0,
+    "maximum_positions": 40,
+    "policy_id": "codex-gpt-5.3-codex-candidate-v1",
+    "reasoning_effort": "medium",
+    "requested_model": "gpt-5.3-codex",
+    "resolved_models": [],
+    "role": "lower-gpt"
+  },
+  "provider_calls": [
+    {
+      "adapter_wall_time_ms": 6280.332375,
+      "cost_usd": null,
+      "provider_error": "codex-cli-exit-1",
+      "resolved_models": []
+    }
+  ],
+  "runtime": {
+    "claude_cli": "2.1.212 (Claude Code)",
+    "codex_cli": "codex-cli 0.146.0",
+    "python": "3.12.13"
+  },
+  "schema_version": "chess/cloud-matrix-result/v1",
+  "status": "candidate-verification-only-not-frozen-evidence",
+  "suite_id": "chess-tactics-candidate-verification-v1",
+  "trace_hash": "50a3859990e1ce68afc178a505c3370a375fb94737d1324f3852cd15167832ae",
+  "track": "legal-constrained-diagnostic"
+}

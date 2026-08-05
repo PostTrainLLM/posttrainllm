@@ -1,0 +1,88 @@
+{
+  "checks": {
+    "complete_puzzle_count": true,
+    "frontier_exact_accuracy": true,
+    "frontier_margin_over_calibrated_random": true,
+    "frontier_margin_over_strongest_local": true,
+    "strict_legal_rate": true
+  },
+  "decision": "admit-for-frozen-suite-design",
+  "frontier": {
+    "exact": 13,
+    "exact_move_accuracy": 0.65,
+    "identity_state": "mutable-alias-development-only",
+    "legal": 20,
+    "legal_rate": 1.0,
+    "margin_over_calibrated_random": 0.5826250000000001,
+    "margin_over_strongest_local": 0.55,
+    "mean_latency_ms": 23688.49687925,
+    "policy_id": "codex-gpt-5.5-development",
+    "puzzles": 20,
+    "requested_model": "gpt-5.5",
+    "total_wall_time_ms": 473769.937585,
+    "trace_hash": "798fafff11f8715ab753e7835b004fe38614bb2d24fb2bf528c561bce12b7474"
+  },
+  "gate_id": "chess-capability-gradient-development-v1",
+  "limitations": [
+    "This is a 20-position development gate, not the future frozen benchmark.",
+    "The frontier identity is a mutable Codex model alias and cannot support a frozen public ceiling claim yet.",
+    "Engine-generated tactical-gap positions test move selection but do not yet provide broad human-authored theme coverage.",
+    "The paired local games are demonstrative only: notation forfeits and short repetitions make them unsuitable for Elo or capability ranking.",
+    "No 30–50M specialist has been trained or evaluated."
+  ],
+  "locals": [
+    {
+      "exact": 0,
+      "exact_move_accuracy": 0.0,
+      "legal": 19,
+      "legal_rate": 0.95,
+      "mean_latency_ms": 293.5025501,
+      "model_ref": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+      "policy_id": "qwen3-4b-instruct-2507-4bit",
+      "puzzles": 20,
+      "total_wall_time_ms": 5870.051002,
+      "trace_hash": "c89ae0e2375898a7b64a72a670e3dfad6f2483a67f95161a85a661b6421f12ad"
+    },
+    {
+      "exact": 2,
+      "exact_move_accuracy": 0.1,
+      "legal": 18,
+      "legal_rate": 0.9,
+      "mean_latency_ms": 577.10190825,
+      "model_ref": "lmstudio-community/Qwen3.5-9B-MLX-4bit",
+      "policy_id": "qwen3.5-9b-mlx-4bit",
+      "puzzles": 20,
+      "total_wall_time_ms": 11542.038165,
+      "trace_hash": "9eb42f52209e1e3ac571f09be02a12ea79f7a2348544bf0ed06d0f5faaa49369"
+    }
+  ],
+  "match_demonstration": {
+    "draws": 2,
+    "games": 4,
+    "invalid_forfeits": 2,
+    "wins": {
+      "qwen3-4b-instruct-2507-4bit": 2,
+      "qwen3.5-9b-mlx-4bit": 0
+    }
+  },
+  "passed": true,
+  "random": {
+    "analytic_expected_accuracy": 0.06737372174628911,
+    "calibrated_mean_accuracy": 0.067375,
+    "calibration_seeds": 2000,
+    "representative_accuracy": 0.15,
+    "trace_hash": "5d463a57201cfbc9c462755c75c2ff3e1078eed26f8c3486d4c0e2ef342d8b44"
+  },
+  "schema_version": "chess/gate-0-decision/v1",
+  "specialist_training_status": "still-requires-frozen-suite-and-recipe",
+  "status": "valid-development-gate-pass",
+  "strongest_local_policy_id": "qwen3.5-9b-mlx-4bit",
+  "suite_id": "chess-tactics-development-v1",
+  "thresholds": {
+    "accuracy_margin_over_random_minimum": 0.35,
+    "accuracy_margin_over_strongest_local_general_minimum": 0.1,
+    "exact_move_accuracy_minimum": 0.5,
+    "strict_legal_rate_minimum": 1.0
+  },
+  "trace_hash": "7fb3fde5971af613a8d8c4d8ac10fe4fb78175730625ae9dec7f37f0c809e03b"
+}

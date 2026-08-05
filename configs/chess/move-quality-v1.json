@@ -1,0 +1,17 @@
+{
+  "schema_version": "chess/move-quality-config/v1",
+  "config_id": "character-chess-move-quality-v1",
+  "status": "frozen-before-guarded-policy-evaluation",
+  "engine": {
+    "binary": "stockfish",
+    "required_name_prefix": "Stockfish 18",
+    "threads": 1,
+    "hash_mb": 16,
+    "depth": 12,
+    "mate_score_cp": 100000
+  },
+  "thresholds_cp": {
+    "blunder": 100,
+    "severe_blunder": 300
+  }
+}

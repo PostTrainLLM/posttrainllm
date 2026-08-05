@@ -1,0 +1,82 @@
+{
+  "schema_version": "chess/strength-ladder/v1",
+  "ladder_id": "character-chess-strength-ladder-v1",
+  "status": "candidate-unmeasured-rungs",
+  "engine": {
+    "binary": "stockfish",
+    "required_name_prefix": "Stockfish 18",
+    "threads": 1,
+    "hash_mb": 16
+  },
+  "openings_ref": "configs/chess/openings-development-v1.json",
+  "maximum_plies": 160,
+  "bootstrap": {
+    "seed": 20260805,
+    "samples": 2000,
+    "confidence": 0.95
+  },
+  "qualification": {
+    "minimum_completed_games": 30,
+    "minimum_games_per_rung": 6,
+    "minimum_calibrated_rungs": 3,
+    "maximum_color_imbalance": 1,
+    "maximum_invalid_forfeit_rate": 0.1
+  },
+  "rungs": [
+    {
+      "rung_id": "random-legal",
+      "kind": "random-legal",
+      "random_probability": 1.0,
+      "seed": 2026080501,
+      "skill_level": null,
+      "nodes": null,
+      "uci_elo": null,
+      "calibrated_rating": null,
+      "rating_state": "unmeasured"
+    },
+    {
+      "rung_id": "sfmix-50-n16",
+      "kind": "blunder-mix",
+      "random_probability": 0.5,
+      "seed": 2026080502,
+      "skill_level": 0,
+      "nodes": 16,
+      "uci_elo": null,
+      "calibrated_rating": null,
+      "rating_state": "unmeasured"
+    },
+    {
+      "rung_id": "sfmix-25-n16",
+      "kind": "blunder-mix",
+      "random_probability": 0.25,
+      "seed": 2026080503,
+      "skill_level": 0,
+      "nodes": 16,
+      "uci_elo": null,
+      "calibrated_rating": null,
+      "rating_state": "unmeasured"
+    },
+    {
+      "rung_id": "sfmix-10-n16",
+      "kind": "blunder-mix",
+      "random_probability": 0.1,
+      "seed": 2026080504,
+      "skill_level": 0,
+      "nodes": 16,
+      "uci_elo": null,
+      "calibrated_rating": null,
+      "rating_state": "unmeasured"
+    },
+    {
+      "rung_id": "stockfish-uci-1320",
+      "kind": "uci-elo",
+      "random_probability": 0.0,
+      "seed": 2026080505,
+      "skill_level": null,
+      "nodes": null,
+      "uci_elo": 1320,
+      "calibrated_rating": 1320,
+      "rating_state": "protocol-anchor-not-human-equivalence"
+    }
+  ]
+}

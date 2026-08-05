@@ -1,0 +1,71 @@
+{
+  "schema_version": "game-2048/frontier-screening-attempt/v1",
+  "observed_at": "2026-08-04",
+  "status": "invalid-provider-failure-directionally-below-gate",
+  "model": {
+    "requested": "claude-opus-4-8",
+    "resolved": [
+      "claude-opus-4-8"
+    ],
+    "cli_version": "2.1.212 (Claude Code)",
+    "reasoning_effort": "medium"
+  },
+  "track": "legal-constrained-diagnostic",
+  "seeds": [
+    2048000000,
+    2048000001,
+    2048000002,
+    2048000003
+  ],
+  "move_budget_per_game": 32,
+  "completed_games": [
+    {
+      "seed": 2048000000,
+      "model_score": 192,
+      "random_legal_score": 180
+    },
+    {
+      "seed": 2048000001,
+      "model_score": 204,
+      "random_legal_score": 176
+    },
+    {
+      "seed": 2048000003,
+      "model_score": 192,
+      "random_legal_score": 200
+    }
+  ],
+  "interrupted_games": [
+    {
+      "seed": 2048000002,
+      "score_before_failure": 80,
+      "moves_before_failure": 17,
+      "failure": "Claude API connection closed mid-response"
+    }
+  ],
+  "completed_games_directional_summary": {
+    "model_mean_score": 196,
+    "random_legal_mean_score": 185.3333333333,
+    "model_to_random_mean_score_ratio": 1.0575539568,
+    "paired_mean_score_delta": 10.6666666667,
+    "paired_win_rate": 0.6666666667
+  },
+  "provider_failures": 1,
+  "identity_drift_observed": false,
+  "total_observed_cost_usd": 7.7371425,
+  "score": null,
+  "random_legal_comparison": null,
+  "admission_thresholds": {
+    "paired_win_rate_minimum": 0.6,
+    "mean_score_ratio_minimum": 1.1,
+    "bootstrap_lower_bound_minimum": 1
+  },
+  "decision": "fail-development-screen-and-reject-current-character-benchmark",
+  "why": "One transient provider failure makes the four-game cohort invalid. The three completed, identity-pinned games beat random legal play by only 5.8% on mean score, below the 10% development threshold and without enough games for a meaningful positive uncertainty bound. Together with Sonnet's valid four-game failure, this does not prove that extra language-model capability improves the character-only task.",
+  "next": "Do not run the 30-seed admission suite and do not train a 30–50M 2048 specialist. Preserve these traces as negative evidence and move the capability-gradient experiment to a benchmark with a verifiable intelligence advantage over its legal random baseline.",
+  "limitations": [
+    "The Opus cohort is incomplete, so its partial comparison is directional evidence rather than a valid score.",
+    "The 32-move cap is a screening ruler, not a full game or frozen admission suite.",
+    "This rejects the current character-only formulation, not every possible textual or visual formulation of 2048."
+  ]
+}

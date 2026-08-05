@@ -1,0 +1,57 @@
+{
+  "schema_version": "game-2048/board-transition-fixtures/v1",
+  "environment_revision": "deterministic-2048/v1",
+  "cases": [
+    {
+      "id": "four-equal-left-merges-once",
+      "action": "left",
+      "board": [
+        2, 2, 2, 2,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "expected_board_before_spawn": [
+        4, 4, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "expected_score_delta": 8
+    },
+    {
+      "id": "gap-compression-right",
+      "action": "right",
+      "board": [
+        2, 0, 2, 4,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "expected_board_before_spawn": [
+        0, 0, 4, 4,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "expected_score_delta": 4
+    },
+    {
+      "id": "vertical-no-double-merge",
+      "action": "up",
+      "board": [
+        4, 0, 0, 0,
+        4, 0, 0, 0,
+        8, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "expected_board_before_spawn": [
+        8, 0, 0, 0,
+        8, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      "expected_score_delta": 8
+    }
+  ]
+}

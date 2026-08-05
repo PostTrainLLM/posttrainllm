@@ -1,0 +1,138 @@
+---
+import Default from "../../layouts/Default.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import replay from "../../data/benchmarks/game-2048-pilot-v1.json";
+import chess from "../../data/benchmarks/chess-development-v1.json";
+
+const measured = replay.models.filter((model) => model.aggregate);
+const strongest = measured.reduce((best, model) =>
+  model.aggregate.mean_score > best.aggregate.mean_score ? model : best
+);
+---
+
+<Default
+  title="Reproducible LLM benchmarks — posttrainllm"
+  description="Browse reproducible language-model benchmarks with frozen protocols, prerecorded outputs, local replay commands, and specialist comparisons."
+>
+  <SiteHeader mode="instrument" active="benchmarks" />
+  <main>
+    <header class="intro">
+      <p class="kicker">Benchmark archive</p>
+      <h1>Every score should have a replay.</h1>
+      <p>
+        Protocol, raw decisions, local command, and the specialist beside its larger opponent.
+        Successful and failed attempts both belong here when their evidence can be inspected and replayed.
+      </p>
+    </header>
+
+    <section class="catalog" aria-labelledby="catalog-title">
+      <div class="section-heading">
+        <h2 id="catalog-title">Available now</h2>
+        <span>3 evidence surfaces · 0 qualified ratings</span>
+      </div>
+      <a class="benchmark-row arena-row" href="/benchmarks/arena">
+        <div class="mark arena-mark" aria-hidden="true">±</div>
+        <div class="identity">
+          <div class="title-line">
+            <h3>Cross-game Arena</h3>
+            <span class="status pending-status">candidate · ratings unqualified</span>
+          </div>
+          <p>Head-to-head Arena Elo and paired-score evidence, with uncertainty and qualification shown before rank.</p>
+          <div class="tags" aria-label="Arena properties">
+            <span>extensible adapters</span><span>95% intervals</span><span>forfeit-aware</span><span>no FIDE claim</span>
+          </div>
+        </div>
+        <dl class="result">
+          <div><dt>Chess sample</dt><dd>4 games</dd></div>
+          <div><dt>Provisional gap</dt><dd>170 Arena Elo</dd></div>
+          <div><dt>Qualified</dt><dd class="pending">no</dd></div>
+        </dl>
+        <span class="open" aria-hidden="true">Enter →</span>
+      </a>
+      <a class="benchmark-row" href="/benchmarks/chess">
+        <div class="mark chess-mark" aria-hidden="true">♞</div>
+        <div class="identity">
+          <div class="title-line">
+            <h3>{chess.benchmark.name}</h3>
+            <span class="status">development gate passed</span>
+          </div>
+          <p>{chess.benchmark.claim}</p>
+          <div class="tags" aria-label="Benchmark properties">
+            <span>FEN + UCI</span><span>20 tactics</span><span>full games</span><span>no tools</span>
+          </div>
+        </div>
+        <dl class="result">
+          <div><dt>Frontier</dt><dd>65% exact</dd></div>
+          <div><dt>Strongest local</dt><dd>9B · 10%</dd></div>
+          <div><dt>Our SLM</dt><dd class="pending">not trained</dd></div>
+        </dl>
+        <span class="open" aria-hidden="true">Watch →</span>
+      </a>
+      <a class="benchmark-row" href="/benchmarks/game-2048">
+        <div class="mark" aria-hidden="true">2048</div>
+        <div class="identity">
+          <div class="title-line">
+            <h3>{replay.benchmark.name}</h3>
+            <span class="status failed-status">failed · advantage not reproduced</span>
+          </div>
+          <p>{replay.benchmark.claim}</p>
+          <div class="tags" aria-label="Benchmark properties">
+            <span>character input</span><span>strict + constrained</span><span>no tools</span><span>full replays</span>
+          </div>
+        </div>
+        <dl class="result">
+          <div><dt>Best general LLM</dt><dd>{strongest.name}</dd></div>
+          <div><dt>Mean score</dt><dd>{Math.round(strongest.aggregate.mean_score)}</dd></div>
+          <div><dt>Our SLM</dt><dd class="failed">not trained</dd></div>
+        </dl>
+        <span class="open" aria-hidden="true">Watch →</span>
+      </a>
+    </section>
+
+    <aside class="rule">
+      <strong>The admission rule</strong>
+      <p>A game is admitted only when a pinned frontier model clearly beats random legal play and the strongest measured local general model. Chess passed that development screen; Character 2048 failed and remains visible as negative evidence.</p>
+    </aside>
+  </main>
+</Default>
+
+<style is:global>
+  :root { color-scheme: dark; --bg:#0a0c0f; --panel:#111419; --panel2:#171b22; --line:#2a3039; --fg:#eaedf2; --soft:#a6adb9; --quiet:#737b88; --live:#48e5c2; --coral:#ff6f5c; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.55 "Geist Variable",system-ui,sans-serif; }
+  main { width:min(1180px,calc(100% - 40px)); margin:0 auto; padding:clamp(64px,9vw,120px) 0 100px; }
+  .intro { max-width:850px; margin-bottom:72px; }
+  .kicker { color:var(--live); font:600 13px/1 "Geist Mono Variable",monospace; margin:0 0 18px; }
+  h1,h2,h3 { font-family:"Bricolage Grotesque Variable","Geist Variable",sans-serif; letter-spacing:-.025em; margin:0; }
+  h1 { font-size:clamp(48px,8vw,92px); line-height:.92; max-width:900px; }
+  .intro > p:last-child { color:var(--soft); font-size:clamp(17px,2vw,21px); max-width:66ch; margin:28px 0 0; }
+  .section-heading { display:flex; justify-content:space-between; align-items:end; gap:20px; padding-bottom:14px; border-bottom:1px solid var(--line); }
+  .section-heading h2 { font-size:24px; }
+  .section-heading span { color:var(--quiet); font:13px "Geist Mono Variable",monospace; }
+  .benchmark-row { display:grid; grid-template-columns:112px minmax(260px,1fr) minmax(220px,.65fr) auto; gap:28px; align-items:center; color:inherit; text-decoration:none; padding:30px 0; border-bottom:1px solid var(--line); transition:background .2s ease,transform .2s ease; }
+  .benchmark-row:hover { background:var(--panel); transform:translateX(8px); }
+  .benchmark-row:focus-visible { outline:2px solid var(--live); outline-offset:5px; }
+  .mark { display:grid; place-items:center; aspect-ratio:1; background:var(--live); color:#06110e; font:700 22px "Geist Mono Variable",monospace; border-radius:14px; box-shadow:0 18px 45px -24px rgba(72,229,194,.7); }
+  .chess-mark { font-size:42px; }
+  .arena-mark { background:var(--amber,#ffb454); font-size:38px; }
+  .title-line { display:flex; align-items:center; gap:12px; }
+  .title-line h3 { font-size:29px; }
+  .status { border:1px solid #315d54; color:var(--live); border-radius:999px; padding:3px 8px; font:11px "Geist Mono Variable",monospace; }
+  .pending-status { border-color:#72532d; color:#ffb454; }
+  .failed-status { border-color:#713c38; color:#ff8a79; }
+  .identity p { color:var(--soft); margin:8px 0 14px; }
+  .tags { display:flex; flex-wrap:wrap; gap:7px; }
+  .tags span { color:var(--quiet); background:var(--panel2); border-radius:5px; padding:4px 7px; font:11px "Geist Mono Variable",monospace; }
+  .result { margin:0; display:grid; gap:9px; }
+  .result div { display:flex; justify-content:space-between; gap:18px; }
+  .result dt { color:var(--quiet); font-size:13px; }
+  .result dd { margin:0; font:13px "Geist Mono Variable",monospace; text-align:right; }
+  .result .pending { color:#ffb454; }
+  .result .failed { color:#ff8a79; }
+  .open { color:var(--live); font-weight:600; white-space:nowrap; }
+  .rule { display:grid; grid-template-columns:180px 1fr; gap:30px; margin-top:70px; padding:26px 0; border-block:1px solid var(--line); }
+  .rule strong { color:var(--live); }
+  .rule p { color:var(--soft); margin:0; max-width:72ch; }
+  @media(max-width:820px){ .benchmark-row{grid-template-columns:76px 1fr}.mark{grid-row:1 / span 2}.result{grid-column:2}.open{display:none} }
+  @media(max-width:520px){ main{width:min(100% - 32px,1180px);padding-top:52px}.intro{margin-bottom:52px}.benchmark-row{grid-template-columns:1fr}.mark{width:64px;grid-row:auto}.result{grid-column:auto}.rule{grid-template-columns:1fr}.section-heading span{display:none} }
+</style>

@@ -1,0 +1,66 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "Character 2048 benchmark catalog and replay",
+  "mode": "preserve",
+  "register": "product",
+  "context": {
+    "product": "PROJECT_STATUS.md",
+    "design": "browser/src/styles/system.css"
+  },
+  "direction": {
+    "references": [],
+    "probes": [],
+    "selected": "existing-design",
+    "approval": "not-required",
+    "before": ".fleet/evidence/playground-accessibility/before-1440.png"
+  },
+  "evidence": {
+    "screenshots": [
+      {
+        "width": 390,
+        "path": ".fleet/evidence/game-2048-benchmark/after-390.png"
+      },
+      {
+        "width": 768,
+        "path": ".fleet/evidence/game-2048-benchmark/after-768.png"
+      },
+      {
+        "width": 1440,
+        "path": ".fleet/evidence/game-2048-benchmark/after-1440.png"
+      }
+    ],
+    "projectCheck": {
+      "command": "pnpm --dir browser typecheck && pnpm --dir browser build",
+      "status": "pass"
+    },
+    "critique": {
+      "score": 35,
+      "maximum": 40
+    },
+    "audit": {
+      "score": 18,
+      "maximum": 20
+    },
+    "unresolved": {
+      "p0": 0,
+      "p1": 0
+    },
+    "detector": {
+      "posture": "advisory",
+      "findings": []
+    },
+    "browserReview": {
+      "tool": "Browser control",
+      "viewports": [390, 768, 1440],
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "note": "Playback, pause, model selection, exact input/output trace, catalog route, and responsive stacking were verified. The shared navigation breakpoint was moved to 900px after the 768px pass exposed overflow."
+    }
+  },
+  "ownerFeedback": {
+    "decision": "pending",
+    "note": "Awaiting owner keep, close, or wrong-lane decision on the new benchmark surface."
+  }
+}

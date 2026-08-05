@@ -1,0 +1,39 @@
+{
+  "schema_version": "game-2048/frontier-screening-result/v1",
+  "observed_at": "2026-08-04",
+  "status": "valid-development-screen-not-frozen-evidence",
+  "model": {
+    "requested": "claude-sonnet-5",
+    "resolved": "claude-sonnet-5",
+    "cli_version": "2.1.212 (Claude Code)",
+    "reasoning_effort": "medium"
+  },
+  "track": "legal-constrained-diagnostic",
+  "seeds": [2048000000, 2048000001, 2048000002, 2048000003],
+  "move_budget_per_game": 32,
+  "model_scores": [200, 180, 164, 192],
+  "random_legal_scores": [180, 176, 184, 200],
+  "model_mean_score": 184,
+  "random_legal_mean_score": 185,
+  "model_to_random_mean_score_ratio": 0.9945945946,
+  "paired_mean_score_delta": -1,
+  "paired_win_rate": 0.5,
+  "paired_bootstrap_95_ci": {"lower": -14, "upper": 12.625, "samples": 256},
+  "invalid_decisions": 0,
+  "provider_failures": 0,
+  "decision_latency_ms": {"p50": 15499.9518125, "p95": 28369.931875},
+  "total_cost_usd": 2.7165987,
+  "admission_thresholds": {
+    "paired_win_rate_minimum": 0.6,
+    "mean_score_ratio_minimum": 1.1,
+    "bootstrap_lower_bound_minimum": 1
+  },
+  "decision": "fail-development-intelligence-gradient",
+  "why": "Pinned Sonnet completed every paired game but matched random legal play within uncertainty. Extra model capability did not produce a measurable game advantage on this short character-policy screen.",
+  "next": "Do not run the 30-seed admission suite or train the 30–50M specialist from this result. Run one identically bounded pinned Opus screen; reject or redesign the benchmark if Opus also fails.",
+  "limitations": [
+    "Four development seeds and a 32-move cap are a screening ruler, not the 30-seed admission suite.",
+    "The legal-constrained track isolates planning but does not measure raw action compliance.",
+    "This result does not establish that all representations of 2048 are unsuitable for language models."
+  ]
+}

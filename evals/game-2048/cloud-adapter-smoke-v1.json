@@ -1,0 +1,53 @@
+{
+  "schema_version": "game-2048/cloud-adapter-smoke-report/v1",
+  "observed_at": "2026-08-04",
+  "status": "adapter-smoke-only-not-benchmark-evidence",
+  "seed": 2048000000,
+  "moves_per_run": 1,
+  "prompt_revision": "cloud-cli-character-policy/v1",
+  "observation_revision": "game-2048/character-observation/v1",
+  "entries": [
+    {
+      "policy_id": "codex-gpt-5.5-development",
+      "requested_model": "gpt-5.5",
+      "resolved_model": null,
+      "cli_version": "codex-cli 0.146.0",
+      "strict": {"raw_output": "U", "action": "up", "valid": true, "latency_ms": 14252.041333, "cost_usd": 0},
+      "legal_constrained_diagnostic": {"raw_output": "{\"action\":\"L\"}", "action": "left", "valid": true, "latency_ms": 20780.585625, "cost_usd": 0},
+      "frozen_identity_eligible": false
+    },
+    {
+      "policy_id": "claude-sonnet-development",
+      "requested_model": "sonnet",
+      "resolved_model": "claude-sonnet-5",
+      "cli_version": "2.1.212 (Claude Code)",
+      "strict": {"raw_output": "L", "action": "left", "valid": true, "latency_ms": 10803.124833, "cost_usd": 0.02142},
+      "legal_constrained_diagnostic": {"raw_output": "{\"action\": \"L\"}", "action": "left", "valid": true, "latency_ms": 11130.227334, "cost_usd": 0.025392},
+      "frozen_identity_eligible": true
+    },
+    {
+      "policy_id": "claude-opus-development",
+      "requested_model": "opus",
+      "resolved_model": "claude-opus-4-8",
+      "cli_version": "2.1.212 (Claude Code)",
+      "strict": {"raw_output": "D", "action": "down", "valid": true, "latency_ms": 7932.867542, "cost_usd": 0.0105005},
+      "legal_constrained_diagnostic": {"raw_output": "{\"action\": \"D\"}", "action": "down", "valid": true, "latency_ms": 19722.788583, "cost_usd": 0.039165},
+      "frozen_identity_eligible": true
+    }
+  ],
+  "failed_attempts": [
+    {
+      "policy_id": "claude-opus-development",
+      "track": "strict",
+      "failure": "transient CLI exit 1 with no diagnostic output",
+      "cost_usd": 0
+    }
+  ],
+  "limitations": [
+    "The initial board exposed all four legal actions, so these runs prove adapter wiring and output parsing only.",
+    "One move cannot measure game intelligence, score quality, action grounding under restricted legal sets, or benchmark admission.",
+    "Codex did not expose a provider-resolved immutable model identifier and cannot be frozen from this evidence.",
+    "Claude aliases were resolved in usage metadata, but the frozen suite must request those exact resolved identifiers directly.",
+    "No specialist data or training run is authorized by this smoke report."
+  ]
+}

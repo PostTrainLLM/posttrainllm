@@ -1,0 +1,139 @@
+{
+  "schema_version": "chess/character-chess-pilot-result/v1",
+  "run_id": "chess-44m-pilot-10k-2026-08-05",
+  "status": "failed-drop-current-chess-lane",
+  "decision": "reject",
+  "candidate": {
+    "model_ref": "byte-character-chess-44m-v0",
+    "parameter_count": 44527616,
+    "checkpoint_step": 2000,
+    "checkpoint_bytes": 549286640,
+    "checkpoint_sha256": "815e6246dcf6d83f446e0bbf8363a824d4271037b618465f7c35db0e2e212f42"
+  },
+  "data": {
+    "source": "Lichess evaluation database partial stream",
+    "source_license": "CC0-1.0",
+    "accepted_rows": 12000,
+    "lines_read": 18274,
+    "rejected_rows": 6274,
+    "available_split_rows": {
+      "train": 10812,
+      "validation": 588,
+      "test": 600
+    },
+    "training_rows_used": 10000,
+    "split_identity_overlap": 0,
+    "corpus_sha256": "4c47078589862dda2fabdb27c18f2acd6f973e22baee1d0a93a1db3e9c6a3ce2",
+    "composition": "general-position terse move targets only",
+    "declared_deviation": "This bounded learning-signal pilot did not assemble the later frozen 2% Syzygy endgame and 8% licensed-commentary arms. Those costlier sources were deliberately gated on the terse pilot first showing enough signal to justify them."
+  },
+  "correctness_fixes": [
+    {
+      "issue": "The generic byte trainer optimized prompt bytes as well as the answer.",
+      "fix": "The pilot used target-masked completion-only SFT: only the canonical UCI move plus newline contributed to loss."
+    },
+    {
+      "issue": "Some ordinary castling moves in the source used Chess960-style king-to-rook UCI notation.",
+      "fix": "Source moves are parsed through python-chess and stored in canonical UCI form before legality comparison."
+    }
+  ],
+  "training": {
+    "device": "mps",
+    "objective": "target-masked completion-only next-byte SFT",
+    "batch_size": 16,
+    "learning_rate": 0.0003,
+    "steps": 2000,
+    "supervised_target_bytes": 160083,
+    "validation_loss": {
+      "step_0": 5.817083024978638,
+      "step_500": 1.5220509946346283,
+      "step_1000": 1.4707648754119873,
+      "step_1400": 1.4270329654216767,
+      "step_1800": 1.3944549679756164,
+      "step_2000": 1.38314288854599
+    },
+    "wall_time_sec": 467.52,
+    "maximum_rss_bytes": 1061240832,
+    "gpu_lock_released": true
+  },
+  "held_out_move_quality": {
+    "validation": {
+      "rows": 588,
+      "exact_target_rate": 0.1054421768707483,
+      "analytic_random_exact_rate": 0.06164783371420554,
+      "exact_gain_over_random": 0.043794343156542765,
+      "top_3_target_rate": 0.22789115646258504,
+      "mean_target_rank": 13.760204081632653,
+      "executed_legal_rate": 1.0,
+      "trace_hash": "ef5ea3a677942617307cedd4bc89f40f4aae13e635cbeeeaf9ce71c04cc2f9be"
+    },
+    "test": {
+      "rows": 600,
+      "exact_target_rate": 0.10333333333333333,
+      "analytic_random_exact_rate": 0.06230080012900154,
+      "exact_gain_over_random": 0.04103253320433179,
+      "top_3_target_rate": 0.23,
+      "mean_target_rank": 13.383333333333333,
+      "executed_legal_rate": 1.0,
+      "trace_hash": "ac9abd25bb3b17b3fa8918862bdad85f6e4a997bed13462a36a461d0304fc725"
+    },
+    "required_validation_exact_gain": 0.1,
+    "gate_passed": false
+  },
+  "random_floor_screen": {
+    "scope_warning": "This is a six-game, single-rung stop screen, not a qualified full-ladder rating or a human Elo estimate.",
+    "raw": {
+      "games": 6,
+      "wins": 0,
+      "draws": 6,
+      "losses": 0,
+      "score": 0.5,
+      "natural_completion_rate": 0.16666666666666666,
+      "candidate_decisions": 462,
+      "executed_legal_rate": 1.0,
+      "displayed_floor_equivalence": 536,
+      "trace_hash": "b6ea3671bfe40ea87c92d4836c9173c35c277f69e3f0c5758c3c4ee44faa4a64"
+    },
+    "guarded": {
+      "games": 6,
+      "wins": 0,
+      "draws": 6,
+      "losses": 0,
+      "score": 0.5,
+      "natural_completion_rate": 0.0,
+      "candidate_decisions": 480,
+      "executed_legal_rate": 1.0,
+      "guard_fires": 22,
+      "guard_fire_rate": 0.04583333333333333,
+      "changed_moves": 8,
+      "intervention_rate": 0.016666666666666666,
+      "converted_wins": 0,
+      "displayed_floor_equivalence": 536,
+      "trace_hash": "9a51e703c314127df3fe2b76a53053e31820598bfe1ecb97446451efa4ac6736"
+    }
+  },
+  "raw_local_evidence": [
+    {
+      "path": "runs/chess-44m-pilot-10k-2026-08-05/evals/validation-step2000-full.json",
+      "sha256": "57cc3d2afa2acf038d0c8feb3e04f7342be958aca67b0c6d5f9511c552de1bf3"
+    },
+    {
+      "path": "runs/chess-44m-pilot-10k-2026-08-05/evals/test-step2000-full.json",
+      "sha256": "dee7386c8d6c4d8dd1ae0bc8f5f8ad43a8af11797fd8379a01b1a58f4680f3aa"
+    },
+    {
+      "path": "runs/chess-44m-pilot-10k-2026-08-05/evals/random-floor-screen-step2000.json",
+      "sha256": "14d36da6a512e270cc0a8bd921cb66bca5342f422a914af62c31568a85613811"
+    },
+    {
+      "path": "runs/chess-44m-pilot-10k-2026-08-05/evals/random-floor-screen-step2000-guarded.json",
+      "sha256": "500b27d30b5673a9232a288d5820e534cb224781840011d043d0ccd57d88cfd2"
+    }
+  ],
+  "interpretation": {
+    "what_improved": "The masked objective learned a stable held-out local move preference: validation and test both finished about 4.1-4.4 percentage points above analytic random.",
+    "why_it_failed": "The improvement missed the predeclared +10-point pilot gate and did not transfer into a single win against random legal play. Engine-free finishing guards changed eight choices but created no wins.",
+    "not_claimed": "The model did not become worse than its eight-position checkpoint; the experiments differ in purpose and sample. The result also does not establish a human, FIDE, Lichess, Chess.com, or qualified full-ladder Elo.",
+    "next_action": "Do not run the 100k, 1M, or 2M Character Chess stages under this recipe. Preserve the failed artifact and reusable masked-SFT, canonical-move, legal-selection, guard, ladder, and replay infrastructure; select a different bounded specialist target before more training."
+  }
+}

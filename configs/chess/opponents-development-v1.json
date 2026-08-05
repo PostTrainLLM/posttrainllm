@@ -1,0 +1,31 @@
+{
+  "schema_version": "chess/opponents/v1",
+  "config_id": "chess-opponents-development-v1",
+  "status": "development-identities",
+  "opponents": [
+    {
+      "policy_id": "qwen3-4b-instruct-2507-4bit",
+      "backend": "mlx",
+      "model_ref": "mlx-community/Qwen3-4B-Instruct-2507-4bit",
+      "size_class": "4B",
+      "reasoning_effort": null,
+      "identity_state": "immutable-revision-required-at-run"
+    },
+    {
+      "policy_id": "qwen3.5-9b-mlx-4bit",
+      "backend": "mlx",
+      "model_ref": "lmstudio-community/Qwen3.5-9B-MLX-4bit",
+      "size_class": "9B",
+      "reasoning_effort": null,
+      "identity_state": "immutable-revision-required-at-run"
+    },
+    {
+      "policy_id": "codex-gpt-5.5-development",
+      "backend": "codex-cli",
+      "model_ref": "gpt-5.5",
+      "size_class": "frontier",
+      "reasoning_effort": "medium",
+      "identity_state": "mutable-alias-development-only"
+    }
+  ]
+}

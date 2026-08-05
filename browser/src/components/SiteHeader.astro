@@ -15,7 +15,8 @@ const { mode = "instrument", active } = Astro.props;
 const links = [
   { href: "/artifacts", label: "specialists", key: "specialists" },
   { href: "/docs/attempt-ledger", label: "experiments", key: "experiments" },
-  { href: "/docs/learn/curriculum", label: "learn", key: "learn" },
+  { href: "/learn", label: "learn", key: "learn" },
+  { href: "/benchmarks", label: "benchmarks", key: "benchmarks" },
   { href: "/leaderboard", label: "evals", key: "evals" },
   { href: "/playground", label: "playground", key: "playground" },
   { href: "/changelog", label: "changelog", key: "changelog" },
@@ -73,5 +74,5 @@ const links = [
   }
   .sh-nav a:hover, .sh-nav a.current { color: var(--sh-fg); }
   .sh-nav a:hover::after, .sh-nav a.current::after { right: 0; }
-  @media (max-width: 720px) { .sh-nav { display: none; } }
+  @media (max-width: 900px) { .sh-nav { display: none; } }
 </style>

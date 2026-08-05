@@ -1,0 +1,54 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "Specialist factory walkthrough",
+  "mode": "preserve",
+  "register": "product",
+  "context": {
+    "product": "PRODUCT.md",
+    "design": "DESIGN.md"
+  },
+  "direction": {
+    "references": [
+      "browser/src/pages/index.astro",
+      "browser/src/pages/benchmarks/index.astro",
+      "browser/src/pages/benchmarks/game-2048.astro"
+    ],
+    "probes": [],
+    "selected": "existing-dark-evidence-instrument",
+    "approval": "not-required",
+    "before": ".fleet/evidence/game-arena/after-1440.png"
+  },
+  "evidence": {
+    "screenshots": [
+      { "width": 390, "path": ".fleet/evidence/factory-walkthrough/after-390.png" },
+      { "width": 768, "path": ".fleet/evidence/factory-walkthrough/after-768.png" },
+      { "width": 1440, "path": ".fleet/evidence/factory-walkthrough/after-1440.png" }
+    ],
+    "projectCheck": {
+      "command": "pnpm --dir browser typecheck && pnpm --dir browser build && pnpm --dir browser agent:check",
+      "status": "pass"
+    },
+    "critique": { "score": 35, "maximum": 40 },
+    "audit": { "score": 19, "maximum": 20 },
+    "unresolved": { "p0": 0, "p1": 0 },
+    "detector": {
+      "posture": "advisory",
+      "findings": [
+        "Three overused-font warnings in the shared SiteHeader for Geist and Geist Mono; retained because these are documented incumbent body/evidence faces and the page uses Bricolage for display specificity. No finding originated in learn.astro."
+      ]
+    },
+    "browserReview": {
+      "tool": "Playwright with system Chrome",
+      "viewports": [390, 768, 1440],
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "note": "The built static page was inspected at all three widths. Six chapters, 45 in-page links, two JSON-LD graphs, readable case-state labels, and the complete source index render without horizontal overflow or console errors. The mobile header follows the incumbent collapsed-nav behavior; all walkthrough destinations remain available through in-page actions."
+    }
+  },
+  "ownerFeedback": {
+    "decision": "delegated",
+    "note": "Owner asked to steal the strongest useful patterns from the Qwen Chess learning surface and delegated the implementation."
+  }
+}

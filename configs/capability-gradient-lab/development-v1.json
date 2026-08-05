@@ -1,0 +1,24 @@
+{
+  "schema_version": "capability-gradient-lab/development/v1",
+  "development_seed_start": 0,
+  "baseline_sample_size": 2000,
+  "specialist_max_parameters": 50000000,
+  "connect4": {
+    "random_x_win_rate_accepted_range": [0.5, 0.6]
+  },
+  "calendar": {
+    "days": ["mon", "tue", "wed", "thu", "fri"],
+    "business_start_hour": 9,
+    "business_end_hour": 17,
+    "slot_granularity_minutes": 30,
+    "event_count_range": [8, 12],
+    "event_duration_minutes": [30, 60, 90],
+    "participant_pool": ["alice", "bob", "carol", "dave", "erin", "frank"],
+    "request_participant_count_range": [3, 4],
+    "request_date_count": 2,
+    "request_duration_minutes": [90, 120],
+    "unavailability_probability": 0.85,
+    "unavailability_duration_minutes": [120, 180],
+    "random_valid_rate_accepted_range": [0.2, 0.35]
+  }
+}

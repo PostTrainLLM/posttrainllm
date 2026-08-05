@@ -1,0 +1,33 @@
+{
+  "schema_version": "chess/lichess-eval-corpus-config/v1",
+  "config_id": "character-chess-lichess-eval-pilot-10k-v1",
+  "status": "owner-approved-bounded-general-only-learning-signal",
+  "source": {
+    "url": "https://database.lichess.org/lichess_db_eval.jsonl.zst",
+    "snapshot_date": "2026-07-05",
+    "license": "CC0-1.0",
+    "expected_sha256": null,
+    "input_contract": "decompressed-jsonl-file-or-stdin"
+  },
+  "selection": {
+    "minimum_depth": 20,
+    "minimum_knodes": 10000,
+    "maximum_rows": 12000,
+    "evaluation_choice": "highest-depth-then-knodes",
+    "label_choice": "first-move-of-first-pv"
+  },
+  "split": {
+    "seed": 20260805,
+    "modulus": 1000,
+    "validation_bucket_start": 0,
+    "validation_bucket_end": 49,
+    "test_bucket_start": 50,
+    "test_bucket_end": 99
+  },
+  "encoding": {
+    "schema_version": "chess/character-sft-row/v1",
+    "observation_revision": "chess/compact-character-observation/v1",
+    "target": "one-legal-uci-move",
+    "vocabulary": "bytes-0-through-255"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "Chess puzzle and full-match benchmark replay",
+  "mode": "preserve",
+  "register": "product",
+  "context": {
+    "product": "PRODUCT.md",
+    "design": "browser/src/pages/benchmarks/game-2048.astro"
+  },
+  "direction": {
+    "references": [
+      "browser/src/pages/benchmarks/game-2048.astro"
+    ],
+    "probes": [],
+    "selected": "existing-2048-instrument",
+    "approval": "not-required",
+    "before": ".fleet/evidence/game-2048-benchmark/after-1440.png"
+  },
+  "evidence": {
+    "screenshots": [
+      {
+        "width": 390,
+        "path": ".fleet/evidence/chess-benchmark/after-390.png"
+      },
+      {
+        "width": 768,
+        "path": ".fleet/evidence/chess-benchmark/after-768.png"
+      },
+      {
+        "width": 1440,
+        "path": ".fleet/evidence/chess-benchmark/after-1440.png"
+      }
+    ],
+    "projectCheck": {
+      "command": "pnpm typecheck; pnpm build; bash evals/chess-smoke.sh; openspec validate add-chess-specialist-benchmark --strict",
+      "status": "pass"
+    },
+    "critique": {
+      "score": 33,
+      "maximum": 40
+    },
+    "audit": {
+      "score": 16,
+      "maximum": 20
+    },
+    "unresolved": {
+      "p0": 0,
+      "p1": 0
+    },
+    "detector": {
+      "posture": "advisory",
+      "findings": [
+        {
+          "id": "overused-font",
+          "severity": "warning",
+          "decision": "accepted",
+          "note": "Geist is intentionally preserved from the existing 2048 benchmark so the archive remains one visual system."
+        }
+      ]
+    },
+    "browserReview": {
+      "tool": "in-app-browser",
+      "viewports": [390, 768, 1440],
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "note": "Puzzle/model switching, match selection, move-history buttons, next-decision playback, arrow-key tabs, prompt-to-board FEN parity, responsive layouts, and downloadable evidence were reviewed."
+    }
+  },
+  "ownerFeedback": {
+    "decision": "delegated",
+    "note": "Owner explicitly asked for a chess surface similar to the 2048 version and delegated the build-and-test pass."
+  }
+}

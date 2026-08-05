@@ -1,0 +1,49 @@
+{
+  "schema_version": "game-arena/config/v1",
+  "arena_id": "character-game-arena-candidate-v1",
+  "status": "candidate-only-not-a-public-rating",
+  "frozen_before_scoring": "2026-08-05T02:31:00+05:30",
+  "rating": {
+    "base": 1500,
+    "scale": 400,
+    "prior_standard_deviation": 400,
+    "bootstrap_samples": 1000,
+    "bootstrap_seed": 20260805
+  },
+  "qualification": {
+    "head_to_head": {
+      "minimum_total_matches": 30,
+      "minimum_matches_per_policy": 10,
+      "maximum_forfeit_rate": 0.1,
+      "require_connected_pool": true,
+      "require_color_balance": true
+    },
+    "paired_score": {
+      "minimum_complete_pairs_per_policy": 30,
+      "require_complete_source": true
+    }
+  },
+  "games": [
+    {
+      "game_id": "character-chess",
+      "name": "Character Chess",
+      "competition_family": "head-to-head",
+      "adapter": "chess-mlx-paired-match-v1",
+      "sources": [
+        "evals/chess/qwen4b-v-qwen9b-paired-games-v1.json"
+      ],
+      "replay_path": "/benchmarks/chess"
+    },
+    {
+      "game_id": "character-2048",
+      "name": "Character 2048",
+      "competition_family": "paired-score",
+      "adapter": "game-2048-frontier-screen-v1",
+      "sources": [
+        "evals/game-2048/frontier-screening-sonnet-v1.json",
+        "evals/game-2048/frontier-screening-opus-v1.json"
+      ],
+      "replay_path": "/benchmarks/game-2048"
+    }
+  ]
+}

@@ -1,0 +1,495 @@
+{
+  "artifact_type": "candidate_scorecard",
+  "scorecard_id": "capability-gradient-lab-v1",
+  "revision": "1",
+  "created": "2026-08-04",
+  "specialist_band": {
+    "min_parameters": 30000000,
+    "max_parameters": 50000000,
+    "notes": "Smaller than T5-small (~60M). Character or simple-token input. Tasks must be learnable at this scale."
+  },
+  "gradient_gate": {
+    "definition": "A pinned frontier LLM must materially beat a valid random/legal executor on the same task, scorer, and instance set before any specialist training is allowed.",
+    "default_margin": 0.15,
+    "default_sample_size": 100,
+    "frontier_model": "to-be-pinned",
+    "notes": "Frontier model identity, version, and API endpoint are recorded at gate-run time. The gate is run once per task before specialist training. If the gate fails, the task is marked gate-failed and alternatives are used."
+  },
+  "constraints": {
+    "input_mode": "character_or_text_only",
+    "excluded": [
+      "screenshots",
+      "vision",
+      "ocr",
+      "browser_automation",
+      "tools",
+      "search",
+      "code_execution",
+      "hidden_state",
+      "algorithmic_solver_available_to_model"
+    ],
+    "baseline_policy": "random_legal",
+    "baseline_policy_rule": "Algorithmic policies may validate an environment but may not be the headline opponent or specialist label source."
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "candidate_id": "calendar_scheduling",
+      "title": "Calendar Scheduling",
+      "type": "everyday_action",
+      "reasoning_mode": "temporal_constraint_satisfaction",
+      "gradient_likelihood": "high",
+      "fit_30_50m": "high",
+      "selected": true,
+      "public_proof_role": "frontier-gradient-candidate-not-specialist-qualified",
+      "baseline_evidence": {
+        "status": "measured",
+        "sample_size": 2000,
+        "seed_range": "0-1999",
+        "metric": "random well-formed proposal valid rate",
+        "value": 0.2805,
+        "accepted_development_range": [
+          0.2,
+          0.35
+        ],
+        "none_correct_rate": 0.0245,
+        "why": "Dense shared blocks and attendee unavailability make random in-range proposals weak while preserving a deterministic, mechanically checked solution space."
+      },
+      "specialist_vs_larger_llm": {
+        "prospect": "low-medium",
+        "evidence_status": "hypothesis-only",
+        "why": "Bounded temporal constraints are plausible for a 30-50M specialist, but no training result yet shows it can beat a larger LLM. Passing the frontier-vs-random gate is necessary but not sufficient."
+      },
+      "state_action_protocol": {
+        "state_representation": "Text listing: existing events (day, start_time, end_time, title), new meeting request (duration_minutes, participant list, date range), constraints (business hours, participant unavailability blocks).",
+        "actions": "Proposed slot as 'DAY HH:MM' (e.g., 'mon 14:00') or 'NONE' if no valid slot exists.",
+        "turn_protocol": "Model sees calendar state and constraints. Outputs one proposed slot. Environment verifies the slot against all constraints. Single-turn task.",
+        "state_size_chars": "~200-500",
+        "action_size_chars": "~8-12",
+        "max_turns": 1
+      },
+      "legal_random_executor": "Pick a uniformly random well-formed start whose full duration fits business hours and whose day is in range. It does not reason about shared blocks or participant unavailability; those determine task success.",
+      "success_metric": {
+        "primary": "valid_schedule_rate: fraction of instances where proposed slot satisfies all constraints (no overlap, within business hours, respects unavailability)",
+        "graduated": "constraint_satisfaction_score: fraction of individual constraints satisfied (0.0 to 1.0)",
+        "secondary": "correct_none_rate: fraction of no-valid-slot instances where model correctly outputs NONE",
+        "intelligence_sensitive": "Measured random well-formed proposals succeed 28.05% over seeds 0-1999. A frontier must materially exceed that rate by resolving shared blocks, duration, date-range, and attendee-unavailability constraints."
+      },
+      "deterministic_verifier": "Check: (1) slot within business hours, (2) slot within date range, (3) no time overlap with any existing event for any participant, (4) slot does not fall in any participant unavailability block, (5) slot duration fits before end of business hours, (6) if no valid slot exists, NONE is correct.",
+      "leakage_plan": {
+        "method": "Procedural generation with seeded RNG. Calendars generated from disjoint seed ranges.",
+        "train_seed_range": "0-999999",
+        "eval_seed_range": "1000000-1999999",
+        "dev_probes": "Public, marked development-only, not held-out. No frozen eval material exists yet."
+      },
+      "fit_30_50m_estimate": {
+        "input_tokens": "~50-120 tokens for calendar state",
+        "output_tokens": "~3-5 tokens for slot",
+        "learnability": "High — constraint checking (no overlap, within hours) is a pattern a small model can learn. Temporal reasoning is bounded (single day, 30-min slots). A 30-50M model can learn to avoid overlaps and respect hours.",
+        "data_volume_estimate": "~5K-20K instances for reliable constraint satisfaction"
+      },
+      "frontier_eval_cost": {
+        "estimated_tokens": "~50K (100 instances x ~500 tokens per instance)",
+        "estimated_api_calls": "~100",
+        "cost_tier": "low"
+      },
+      "reject_condition": "If frontier valid-schedule rate < 50% over 100 instances, the task is too hard for text reasoning. If random-legal valid-schedule rate > 35%, the task is too easy (gradient too small).",
+      "why_better_than_2048": "Single-turn task — no compounding errors. Constraint reasoning (no time overlap, within hours) is text-native and does not require spatial visualization. Random-legal will frequently violate constraints (overlaps, wrong hours), creating a clear gradient. Everyday-action type provides diversity vs game-like Connect-4."
+    },
+    {
+      "rank": 2,
+      "candidate_id": "connect4",
+      "title": "Connect-4",
+      "type": "game",
+      "reasoning_mode": "tactical_lookahead_spatial_board",
+      "gradient_likelihood": "high",
+      "fit_30_50m": "high",
+      "selected": true,
+      "public_proof_role": "internal-calibration-only",
+      "baseline_evidence": {
+        "status": "measured",
+        "sample_size": 2000,
+        "seed_range": "0-1999",
+        "metric": "random-X win rate versus random-O",
+        "value": 0.5475,
+        "accepted_development_range": [
+          0.5,
+          0.6
+        ],
+        "why": "The first player has a real advantage even under random play; this baseline validates the harness but is not weak enough to justify a public specialist claim."
+      },
+      "specialist_vs_larger_llm": {
+        "prospect": "low",
+        "evidence_status": "hypothesis-with-negative-risk",
+        "why": "A 30-50M policy may learn local tactics, but Connect-4 is solved and competent policies can saturate. No evidence shows a small learned policy can beat a larger LLM, so this environment is calibration-only."
+      },
+      "state_action_protocol": {
+        "state_representation": "6 rows x 7 columns grid as text. Each cell is '.', 'X', or 'O'. Rows listed top to bottom, separated by newlines. Column labels 1-7 on a final line.",
+        "actions": "Single integer 1-7 (column to drop piece). Invalid if column is full.",
+        "turn_protocol": "Model sees current board as player X. Outputs a column number. Environment applies move (gravity), checks win/draw. Random-legal opponent O responds. Repeat until game over.",
+        "state_size_chars": "~60-80",
+        "action_size_chars": "1",
+        "max_turns": 42
+      },
+      "legal_random_executor": "Pick a uniformly random non-full column from 1-7. If all columns full, game is a draw.",
+      "success_metric": {
+        "primary": "win_rate_vs_random_legal over N seeded games as player X",
+        "graduated": "win=1.0, draw=0.5, loss=0.0 averaged over N games",
+        "secondary": "blunder_rate: fraction of model moves that miss an immediate win or allow opponent immediate win on next turn",
+        "intelligence_sensitive": "Development hypothesis only: a frontier policy should exceed the measured 54.75% random-X baseline by avoiding one-ply blunders. First-mover bias must remain visible in reporting."
+      },
+      "deterministic_verifier": "Check 4 consecutive same-player pieces in any direction (horizontal, vertical, both diagonals) after each move. Draw if board full with no winner.",
+      "leakage_plan": {
+        "method": "Procedural generation with seeded RNG. Game positions generated from disjoint seed ranges.",
+        "train_seed_range": "0-999999",
+        "eval_seed_range": "1000000-1999999",
+        "dev_probes": "Public, marked development-only, not held-out. No frozen eval material exists yet."
+      },
+      "fit_30_50m_estimate": {
+        "input_tokens": "~20-30 tokens for board representation",
+        "output_tokens": "1 token per move",
+        "learnability": "High — Connect-4 patterns (threats, blocks, forks) are local and learnable by a small model. Board is compact (42 cells). A 30-50M character/token model can memorize common tactical patterns.",
+        "data_volume_estimate": "~10K-50K games for basic tactical competence"
+      },
+      "frontier_eval_cost": {
+        "estimated_tokens": "~100K (100 games x ~10 moves x ~100 tokens per turn including board + response)",
+        "estimated_api_calls": "~1000 (100 games x ~10 moves)",
+        "cost_tier": "low"
+      },
+      "reject_condition": "Keep this task internal unless a side-balanced protocol shows both a frontier-vs-random margin of at least 0.20 and a non-saturated specialist-vs-larger-LLM signal. Do not train from the current first-player-only screen.",
+      "why_better_than_2048": "Short games bound compounding errors and the state is compact, but measured first-player noise and solver saturation prevent promotion beyond internal calibration."
+    },
+    {
+      "rank": 3,
+      "candidate_id": "mastermind",
+      "title": "Mastermind",
+      "type": "game",
+      "reasoning_mode": "deductive_reasoning_from_feedback",
+      "gradient_likelihood": "high",
+      "fit_30_50m": "medium",
+      "selected": false,
+      "public_proof_role": "unimplemented-candidate",
+      "baseline_evidence": {
+        "status": "unverified-projection",
+        "why": "No reference environment or measured baseline exists."
+      },
+      "specialist_vs_larger_llm": {
+        "prospect": "low",
+        "evidence_status": "hypothesis-only",
+        "why": "Feedback deduction likely favors the larger LLM; no 30-50M result exists."
+      },
+      "state_action_protocol": {
+        "state_representation": "Previous guesses and feedback (black/white pegs) as text. E.g., 'Guess 1: R G B Y -> 1 black 1 white'. Current guess number.",
+        "actions": "4-peg guess from 6 colors (e.g., 'R G B Y').",
+        "turn_protocol": "Model sees guess history and feedback. Outputs next guess. Environment computes feedback. Repeat until correct or max guesses (8).",
+        "state_size_chars": "~100-300 (grows with guesses)",
+        "action_size_chars": "~7",
+        "max_turns": 8
+      },
+      "legal_random_executor": "Pick a uniformly random valid 4-peg sequence from 6 colors, optionally consistent with previous feedback (naive random does not use feedback).",
+      "success_metric": {
+        "primary": "solve_rate: fraction of games solved within 8 guesses",
+        "graduated": "avg_guesses_to_solve (lower is better, 9 if not solved)",
+        "intelligence_sensitive": "Unverified projection: using feedback should outperform blind guessing, but neither baseline nor frontier performance has been measured in this repository."
+      },
+      "deterministic_verifier": "Compare final guess to secret code. Exact match = solved. Feedback computed deterministically: black = correct color and position, white = correct color wrong position.",
+      "leakage_plan": {
+        "method": "Procedural generation with seeded RNG. Secret codes from disjoint seed ranges.",
+        "train_seed_range": "0-999999",
+        "eval_seed_range": "1000000-1999999",
+        "dev_probes": "Public, marked development-only."
+      },
+      "fit_30_50m_estimate": {
+        "input_tokens": "~30-80 tokens for guess history",
+        "output_tokens": "~3-5 tokens per guess",
+        "learnability": "Medium — deductive reasoning from feedback is harder to learn by SFT than pattern matching. May require RL or chain-of-thought. A 30-50M model may struggle with multi-step deduction.",
+        "data_volume_estimate": "~20K-100K games"
+      },
+      "frontier_eval_cost": {
+        "estimated_tokens": "~80K (100 games x ~8 guesses x ~100 tokens)",
+        "estimated_api_calls": "~800",
+        "cost_tier": "low"
+      },
+      "reject_condition": "If frontier solve rate < 40% over 100 games, the task is too hard for text-mode reasoning. If random-legal solve rate > 20%, gradient too small.",
+      "why_not_selected": "Unimplemented and baseline claims are projections; feedback deduction may favor the larger LLM, so specialist superiority is low-confidence."
+    },
+    {
+      "rank": 4,
+      "candidate_id": "sokoban_small",
+      "title": "Sokoban (Small Grids)",
+      "type": "game",
+      "reasoning_mode": "spatial_planning_with_irreversible_actions",
+      "gradient_likelihood": "medium",
+      "fit_30_50m": "medium",
+      "selected": false,
+      "public_proof_role": "unimplemented-candidate",
+      "baseline_evidence": {
+        "status": "unverified-projection",
+        "why": "No reference environment or measured baseline exists."
+      },
+      "specialist_vs_larger_llm": {
+        "prospect": "low-medium",
+        "evidence_status": "hypothesis-only",
+        "why": "Small-grid patterns may be learnable, but irreversible planning may favor the larger LLM; no result exists."
+      },
+      "state_action_protocol": {
+        "state_representation": "5x5 grid as text. '#'=wall, '.'=floor, '$'=box, '*'=target, '@'=player, '+'=player_on_target, 'B'=box_on_target.",
+        "actions": "U/D/L/R (move or push). Invalid if wall or would push box into wall.",
+        "turn_protocol": "Model sees grid. Outputs direction. Environment applies move/push. Repeat until all boxes on targets or max moves (50).",
+        "state_size_chars": "~30-40",
+        "action_size_chars": "1",
+        "max_turns": 50
+      },
+      "legal_random_executor": "Pick a uniformly random valid direction (move or push that doesn't hit a wall). Does not plan.",
+      "success_metric": {
+        "primary": "solve_rate: fraction of puzzles solved (all boxes on targets) within 50 moves",
+        "graduated": "boxes_placed: fraction of boxes on targets (0.0 to 1.0)",
+        "intelligence_sensitive": "Unverified projection: planning should outperform random movement on deadlock-prone puzzles, but no generator or baseline has been measured."
+      },
+      "deterministic_verifier": "Check all box positions match target positions. Irreversible deadlocks (box in corner not on target) can be detected for early termination.",
+      "leakage_plan": {
+        "method": "Procedural generation with seeded RNG. Small grids (5x5, 2 boxes) from disjoint seed ranges.",
+        "train_seed_range": "0-999999",
+        "eval_seed_range": "1000000-1999999",
+        "dev_probes": "Public, marked development-only."
+      },
+      "fit_30_50m_estimate": {
+        "input_tokens": "~15-20 tokens for grid",
+        "output_tokens": "1 token per move",
+        "learnability": "Medium — spatial planning with irreversible actions is hard. Deadlock avoidance requires lookahead. A 30-50M model may learn simple 1-box puzzles but struggle with 2-box.",
+        "data_volume_estimate": "~20K-50K puzzles"
+      },
+      "frontier_eval_cost": {
+        "estimated_tokens": "~150K (100 puzzles x ~20 moves x ~75 tokens)",
+        "estimated_api_calls": "~2000",
+        "cost_tier": "medium"
+      },
+      "reject_condition": "If frontier solve rate < 25% over 100 puzzles, too hard for text reasoning. If random-legal solve rate > 10%, gradient too small.",
+      "why_not_selected": "Unimplemented; irreversible planning is risky for a 30-50M model and no baseline or frontier gradient is measured."
+    },
+    {
+      "rank": 5,
+      "candidate_id": "2048",
+      "title": "2048 (Character-Only)",
+      "type": "game",
+      "reasoning_mode": "long_horizon_spatial_strategy",
+      "gradient_likelihood": "low_at_risk",
+      "fit_30_50m": "low",
+      "selected": false,
+      "public_proof_role": "rejected-current-character-form",
+      "baseline_evidence": {
+        "status": "measured-in-separate-2048-screen",
+        "why": "Pinned Sonnet matched random legal play and partial pinned Opus remained below the admission margin; see the 2048 screening reports."
+      },
+      "specialist_vs_larger_llm": {
+        "prospect": "low",
+        "evidence_status": "blocked-by-frontier-gate",
+        "why": "The benchmark failed before specialist training, so no 30-50M comparison is justified."
+      },
+      "state_action_protocol": {
+        "state_representation": "4x4 grid as text. Each cell is a power-of-2 number or 0 for empty. Rows separated by newlines.",
+        "actions": "U/D/L/R (swipe direction). Invalid if no tiles move.",
+        "turn_protocol": "Model sees grid. Outputs direction. Environment applies swipe, adds random tile. Repeat until no valid moves (game over).",
+        "state_size_chars": "~30-50",
+        "action_size_chars": "1",
+        "max_turns": 500
+      },
+      "legal_random_executor": "Pick a uniformly random valid direction (one that moves at least one tile). Does not strategize.",
+      "success_metric": {
+        "primary": "max_tile_reached: highest tile achieved at game over",
+        "graduated": "log2(max_tile) normalized, or final score",
+        "intelligence_sensitive": "Uncertain — random-legal typically reaches 512-1024. Frontier text-mode play requires consistent corner strategy over hundreds of moves with compounding errors."
+      },
+      "deterministic_verifier": "Apply swipe mechanics deterministically. Add random tile from seeded RNG. Game over when no valid moves. Max tile and score computed from final board.",
+      "leakage_plan": {
+        "method": "Procedural generation with seeded RNG for random tile placement. Disjoint seed ranges.",
+        "train_seed_range": "0-999999",
+        "eval_seed_range": "1000000-1999999",
+        "dev_probes": "Public, marked development-only."
+      },
+      "fit_30_50m_estimate": {
+        "input_tokens": "~15-25 tokens for grid",
+        "output_tokens": "1 token per move",
+        "learnability": "Low — long-horizon strategy (keep largest tile in corner, build snake pattern) requires consistent planning over 100+ moves. A 30-50M model will struggle with this temporal credit assignment.",
+        "data_volume_estimate": "~50K-200K games (high due to long games)"
+      },
+      "frontier_eval_cost": {
+        "estimated_tokens": "~500K-2M (100 games x ~200 moves x ~50 tokens per turn). Expensive due to long games.",
+        "estimated_api_calls": "~20000",
+        "cost_tier": "high"
+      },
+      "reject_condition": "If frontier max-tile (median) does not exceed random-legal max-tile (median) by at least 2 doublings (e.g., frontier 2048 vs random 512), the gradient gate fails. This is the primary at-risk candidate.",
+      "why_not_selected": "Rejected in the separate character-only frontier screen before training; do not revive it from projected arguments."
+    },
+    {
+      "rank": 6,
+      "candidate_id": "task_dependency_ordering",
+      "title": "Task Dependency Ordering",
+      "type": "everyday_action",
+      "reasoning_mode": "topological_reasoning",
+      "gradient_likelihood": "medium",
+      "fit_30_50m": "medium",
+      "selected": false,
+      "public_proof_role": "unimplemented-candidate",
+      "baseline_evidence": {
+        "status": "unverified-projection",
+        "why": "No reference environment or measured baseline exists."
+      },
+      "specialist_vs_larger_llm": {
+        "prospect": "low",
+        "evidence_status": "hypothesis-only",
+        "why": "Topological ordering has a direct algorithmic solution and may saturate; no learned-policy result exists."
+      },
+      "state_action_protocol": {
+        "state_representation": "List of tasks with dependencies as text. E.g., 'Task A depends on: B, C. Task B depends on: none. Task C depends on: D.'",
+        "actions": "Ordered list of task IDs (comma-separated). Must be a valid topological order.",
+        "turn_protocol": "Model sees task list and dependencies. Outputs one ordering. Environment verifies validity. Single-turn task.",
+        "state_size_chars": "~100-300",
+        "action_size_chars": "~50-200",
+        "max_turns": 1
+      },
+      "legal_random_executor": "Output a uniformly random permutation of all task IDs. Does not respect dependencies.",
+      "success_metric": {
+        "primary": "valid_order_rate: fraction of instances where output is a valid topological order (all dependencies satisfied)",
+        "graduated": "dependency_satisfaction_rate: fraction of dependencies respected (0.0 to 1.0)",
+        "intelligence_sensitive": "Unverified projection: dependency-aware ordering should outperform a random permutation, but the margin depends on an unimplemented DAG generator."
+      },
+      "deterministic_verifier": "Check every dependency edge (A depends on B) is satisfied (B appears before A in the output). All tasks must appear exactly once.",
+      "leakage_plan": {
+        "method": "Procedural generation with seeded RNG. DAGs from disjoint seed ranges.",
+        "train_seed_range": "0-999999",
+        "eval_seed_range": "1000000-1999999",
+        "dev_probes": "Public, marked development-only."
+      },
+      "fit_30_50m_estimate": {
+        "input_tokens": "~30-80 tokens for task list",
+        "output_tokens": "~15-50 tokens for ordering",
+        "learnability": "Medium — topological reasoning is algorithmic but a small model can learn common patterns. Larger DAGs (10+ tasks) may exceed 30-50M capacity.",
+        "data_volume_estimate": "~10K-30K instances"
+      },
+      "frontier_eval_cost": {
+        "estimated_tokens": "~40K (100 instances x ~400 tokens)",
+        "estimated_api_calls": "~100",
+        "cost_tier": "low"
+      },
+      "reject_condition": "If frontier valid-order rate < 60% over 100 instances, too hard. If random-legal dependency-satisfaction > 70%, gradient too small (too few dependencies).",
+      "why_not_selected": "Unimplemented and directly solvable by topological sort; saturation risks violating the specialist-versus-larger-LLM goal."
+    },
+    {
+      "rank": 7,
+      "candidate_id": "maze_nav_small",
+      "title": "Maze Navigation (Small Grids)",
+      "type": "game",
+      "reasoning_mode": "pathfinding",
+      "gradient_likelihood": "medium",
+      "fit_30_50m": "high",
+      "selected": false,
+      "public_proof_role": "unimplemented-candidate",
+      "baseline_evidence": {
+        "status": "unverified-projection",
+        "why": "No reference environment or measured baseline exists."
+      },
+      "specialist_vs_larger_llm": {
+        "prospect": "low",
+        "evidence_status": "hypothesis-only",
+        "why": "Pathfinding has a direct algorithmic solution and may saturate; no learned-policy result exists."
+      },
+      "state_action_protocol": {
+        "state_representation": "NxN grid as text. '#'=wall, '.'=path, 'S'=start, 'E'=exit. Rows separated by newlines.",
+        "actions": "U/D/L/R (move one cell). Invalid if wall.",
+        "turn_protocol": "Model sees grid with current position marked. Outputs direction. Environment applies move. Repeat until exit reached or max moves (2*N*N).",
+        "state_size_chars": "~25-100 (depends on N, 5-10)",
+        "action_size_chars": "1",
+        "max_turns": 200
+      },
+      "legal_random_executor": "Pick a uniformly random valid direction (not into wall). Random walk.",
+      "success_metric": {
+        "primary": "solve_rate: fraction of mazes solved (exit reached) within max moves",
+        "graduated": "path_efficiency: optimal_path_length / actual_path_length (0.0 to 1.0)",
+        "intelligence_sensitive": "Moderate — random walk solves small mazes eventually but inefficiently. Frontier can trace paths in text. But small mazes may saturate (both solve)."
+      },
+      "deterministic_verifier": "Check current position equals exit position. Path length counted.",
+      "leakage_plan": {
+        "method": "Procedural generation with seeded RNG. Mazes from disjoint seed ranges.",
+        "train_seed_range": "0-999999",
+        "eval_seed_range": "1000000-1999999",
+        "dev_probes": "Public, marked development-only."
+      },
+      "fit_30_50m_estimate": {
+        "input_tokens": "~10-30 tokens for grid",
+        "output_tokens": "1 token per move",
+        "learnability": "High — path following is a learnable pattern. But larger mazes require global planning.",
+        "data_volume_estimate": "~10K-30K mazes"
+      },
+      "frontier_eval_cost": {
+        "estimated_tokens": "~100K (100 mazes x ~20 moves x ~50 tokens)",
+        "estimated_api_calls": "~2000",
+        "cost_tier": "low"
+      },
+      "reject_condition": "If frontier solve rate < 80% and random-legal > 50%, gradient too small. If both solve >90%, task saturates.",
+      "why_not_selected": "Unimplemented and directly solvable by pathfinding; saturation risks violating the specialist-versus-larger-LLM goal."
+    },
+    {
+      "rank": 8,
+      "candidate_id": "minesweeper_small",
+      "title": "Minesweeper (Small Grids)",
+      "type": "game",
+      "reasoning_mode": "logical_deduction_from_constraints",
+      "gradient_likelihood": "high",
+      "fit_30_50m": "low",
+      "selected": false,
+      "public_proof_role": "unimplemented-candidate",
+      "baseline_evidence": {
+        "status": "unverified-projection",
+        "why": "No reference environment or measured baseline exists."
+      },
+      "specialist_vs_larger_llm": {
+        "prospect": "low",
+        "evidence_status": "hypothesis-only",
+        "why": "Constraint propagation and spatial state are risky for 30-50M; no learned-policy result exists."
+      },
+      "state_action_protocol": {
+        "state_representation": "5x5 grid as text. Each cell is '.', a number 0-8, or 'F' (flagged). Revealed cells show mine count. Unrevealed cells show '.'.",
+        "actions": "Cell coordinate 'R C' to reveal, or 'F R C' to flag. Invalid if already revealed.",
+        "turn_protocol": "Model sees grid. Outputs cell to reveal or flag. Environment applies, reveals cell (or game over if mine). Repeat until all non-mine cells revealed or mine hit.",
+        "state_size_chars": "~30-50",
+        "action_size_chars": "~3-5",
+        "max_turns": 25
+      },
+      "legal_random_executor": "Pick a uniformly random unrevealed, unflagged cell to reveal. Does not use number constraints.",
+      "success_metric": {
+        "primary": "solve_rate: fraction of boards solved (all non-mine cells revealed) without hitting a mine",
+        "graduated": "cells_safely_revealed / total_non_mine_cells (0.0 to 1.0)",
+        "intelligence_sensitive": "Unverified projection: number-guided deduction should outperform random reveals, but mine density, baseline performance, and frontier performance are not measured."
+      },
+      "deterministic_verifier": "Check all non-mine cells are revealed. Mine positions from seeded RNG. Number constraints computed deterministically.",
+      "leakage_plan": {
+        "method": "Procedural generation with seeded RNG. Mine layouts from disjoint seed ranges.",
+        "train_seed_range": "0-999999",
+        "eval_seed_range": "1000000-1999999",
+        "dev_probes": "Public, marked development-only."
+      },
+      "fit_30_50m_estimate": {
+        "input_tokens": "~15-25 tokens for grid",
+        "output_tokens": "~2-3 tokens per action",
+        "learnability": "Low — logical deduction from numbered constraints requires multi-step reasoning that is hard for a 30-50M model to learn via SFT. Constraint propagation is algorithmic.",
+        "data_volume_estimate": "~30K-100K boards"
+      },
+      "frontier_eval_cost": {
+        "estimated_tokens": "~75K (100 boards x ~15 moves x ~50 tokens)",
+        "estimated_api_calls": "~1500",
+        "cost_tier": "low"
+      },
+      "reject_condition": "If frontier solve rate < 50% over 100 boards, too hard for text reasoning. If random-legal solve rate > 50%, gradient too small.",
+      "why_not_selected": "Unimplemented; baseline and frontier claims are projections, and constraint propagation is risky for 30-50M fit."
+    }
+  ],
+  "selection_rationale": {
+    "selected": [
+      "calendar_scheduling",
+      "connect4"
+    ],
+    "non_overlapping_reason": "Connect-4 tests tactical lookahead on a fixed 6x7 spatial board with adversarial play. Calendar scheduling tests temporal constraint satisfaction with variable inputs in a single-turn setting. They exercise different reasoning modes (spatial-tactical vs temporal-constraint), different turn structures (multi-turn adversarial vs single-turn), and different input domains (game board vs everyday calendar). A specialist trained on one should not trivially transfer to the other.",
+    "why_better_than_2048": "Both implementations have shorter horizons and compact text state. Calendar now has a measured 28.05% random baseline and is the only current frontier-gradient candidate. Connect-4 has a measured 54.75% first-player random baseline and remains internal calibration only. Neither has evidence that a 30-50M specialist beats a larger LLM, so no public benchmark is admitted."
+  }
+}

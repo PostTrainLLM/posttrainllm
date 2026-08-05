@@ -1,0 +1,69 @@
+{
+  "schema_version": "chess/model-verification-matrix/v1",
+  "suite_id": "chess-tactics-candidate-verification-v1",
+  "track": "legal-constrained-diagnostic",
+  "strict_raw_diagnostic_positions": 10,
+  "frozen_before_scoring": "2026-08-05T00:00:00+05:30",
+  "models": [
+    {
+      "policy_id": "codex-gpt-5.5-candidate-v1",
+      "backend": "codex-cli",
+      "requested_model": "gpt-5.5",
+      "role": "development-anchor",
+      "reasoning_effort": "medium",
+      "maximum_positions": 40,
+      "command_timeout_seconds": 180,
+      "max_budget_usd_per_decision": 0.0
+    },
+    {
+      "policy_id": "codex-gpt-5.4-candidate-v1",
+      "backend": "codex-cli",
+      "requested_model": "gpt-5.4",
+      "role": "lower-gpt",
+      "reasoning_effort": "medium",
+      "maximum_positions": 40,
+      "command_timeout_seconds": 180,
+      "max_budget_usd_per_decision": 0.0
+    },
+    {
+      "policy_id": "codex-gpt-5.3-codex-candidate-v1",
+      "backend": "codex-cli",
+      "requested_model": "gpt-5.3-codex",
+      "role": "lower-gpt",
+      "reasoning_effort": "medium",
+      "maximum_positions": 40,
+      "command_timeout_seconds": 180,
+      "max_budget_usd_per_decision": 0.0
+    },
+    {
+      "policy_id": "codex-gpt-5.2-codex-candidate-v1",
+      "backend": "codex-cli",
+      "requested_model": "gpt-5.2-codex",
+      "role": "lower-gpt",
+      "reasoning_effort": "medium",
+      "maximum_positions": 40,
+      "command_timeout_seconds": 180,
+      "max_budget_usd_per_decision": 0.0
+    },
+    {
+      "policy_id": "claude-sonnet-5-candidate-v1",
+      "backend": "claude-cli",
+      "requested_model": "claude-sonnet-5",
+      "role": "independent-family-review",
+      "reasoning_effort": "medium",
+      "maximum_positions": 20,
+      "command_timeout_seconds": 180,
+      "max_budget_usd_per_decision": 0.1
+    },
+    {
+      "policy_id": "claude-opus-4-8-candidate-v1",
+      "backend": "claude-cli",
+      "requested_model": "claude-opus-4-8",
+      "role": "independent-family-review",
+      "reasoning_effort": "medium",
+      "maximum_positions": 10,
+      "command_timeout_seconds": 240,
+      "max_budget_usd_per_decision": 0.25
+    }
+  ]
+}

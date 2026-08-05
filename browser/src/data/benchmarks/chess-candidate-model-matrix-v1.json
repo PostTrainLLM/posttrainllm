@@ -1,0 +1,704 @@
+{
+  "cross_model_disagreements": [
+    {
+      "model_moves": {
+        "claude-opus-4-8-candidate-v1": null,
+        "claude-sonnet-5-candidate-v1": "b4a5",
+        "codex-gpt-5.4-candidate-v1": "b4a5",
+        "codex-gpt-5.4-mini-candidate-v1": "e3d4",
+        "codex-gpt-5.5-candidate-v1": "e3d4",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "c3b5",
+        "devin-glm-5.2-candidate-v1": "b4b5",
+        "random-legal": "d1d4"
+      },
+      "puzzle_id": "chess-candidate-095",
+      "stockfish_best_moves": [
+        "b4a5"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-opus-4-8-candidate-v1": "g3f4",
+        "claude-sonnet-5-candidate-v1": "b1c3",
+        "codex-gpt-5.4-candidate-v1": "g3f4",
+        "codex-gpt-5.4-mini-candidate-v1": "g3f4",
+        "codex-gpt-5.5-candidate-v1": "g3f4",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "g3f4",
+        "devin-glm-5.2-candidate-v1": "g3f4",
+        "random-legal": "e2e4"
+      },
+      "puzzle_id": "chess-candidate-079",
+      "stockfish_best_moves": [
+        "g3f4"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-opus-4-8-candidate-v1": "e5f6",
+        "claude-sonnet-5-candidate-v1": "e5f6",
+        "codex-gpt-5.4-candidate-v1": "e1g1",
+        "codex-gpt-5.4-mini-candidate-v1": "e5f6",
+        "codex-gpt-5.5-candidate-v1": "e5f6",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "e5f6",
+        "devin-glm-5.2-candidate-v1": "e5f6",
+        "random-legal": "e1g1"
+      },
+      "puzzle_id": "chess-candidate-018",
+      "stockfish_best_moves": [
+        "e5f6"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-opus-4-8-candidate-v1": "c7c6",
+        "claude-sonnet-5-candidate-v1": "c7c6",
+        "codex-gpt-5.4-candidate-v1": "c7c6",
+        "codex-gpt-5.4-mini-candidate-v1": "c7c6",
+        "codex-gpt-5.5-candidate-v1": "c7c6",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "c7c6",
+        "devin-glm-5.2-candidate-v1": "c7c6",
+        "random-legal": "c7e7"
+      },
+      "puzzle_id": "chess-candidate-009",
+      "stockfish_best_moves": [
+        "c7c6"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-opus-4-8-candidate-v1": "b4c5",
+        "claude-sonnet-5-candidate-v1": "b4c5",
+        "codex-gpt-5.4-candidate-v1": "b4c5",
+        "codex-gpt-5.4-mini-candidate-v1": "b4c5",
+        "codex-gpt-5.5-candidate-v1": "b4c5",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "b4c5",
+        "devin-glm-5.2-candidate-v1": "b4c5",
+        "random-legal": "f3h4"
+      },
+      "puzzle_id": "chess-candidate-068",
+      "stockfish_best_moves": [
+        "b4c5"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-opus-4-8-candidate-v1": "h6g5",
+        "claude-sonnet-5-candidate-v1": null,
+        "codex-gpt-5.4-candidate-v1": "h6g5",
+        "codex-gpt-5.4-mini-candidate-v1": "h6g5",
+        "codex-gpt-5.5-candidate-v1": "e7e2",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "h6g5",
+        "devin-glm-5.2-candidate-v1": "h6g5",
+        "random-legal": "h6h5"
+      },
+      "puzzle_id": "chess-candidate-078",
+      "stockfish_best_moves": [
+        "h6g5"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-opus-4-8-candidate-v1": "g2c6",
+        "claude-sonnet-5-candidate-v1": "a3b5",
+        "codex-gpt-5.4-candidate-v1": "g2c6",
+        "codex-gpt-5.4-mini-candidate-v1": "g2c6",
+        "codex-gpt-5.5-candidate-v1": "g2c6",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "g2c6",
+        "devin-glm-5.2-candidate-v1": "d2h6",
+        "random-legal": "g3g4"
+      },
+      "puzzle_id": "chess-candidate-082",
+      "stockfish_best_moves": [
+        "g2c6"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-opus-4-8-candidate-v1": null,
+        "claude-sonnet-5-candidate-v1": "d1d3",
+        "codex-gpt-5.4-candidate-v1": "d1d3",
+        "codex-gpt-5.4-mini-candidate-v1": "d1d3",
+        "codex-gpt-5.5-candidate-v1": "e1f1",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "d1d3",
+        "devin-glm-5.2-candidate-v1": "d1d3",
+        "random-legal": "e1e2"
+      },
+      "puzzle_id": "chess-candidate-039",
+      "stockfish_best_moves": [
+        "e1f1"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-sonnet-5-candidate-v1": null,
+        "codex-gpt-5.4-candidate-v1": "d5e4",
+        "codex-gpt-5.5-candidate-v1": "d5e4",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "d5e4",
+        "devin-glm-5.2-candidate-v1": "d8d7",
+        "random-legal": "c8e6"
+      },
+      "puzzle_id": "chess-candidate-057",
+      "stockfish_best_moves": [
+        "d5e4"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-sonnet-5-candidate-v1": "b7c6",
+        "codex-gpt-5.4-candidate-v1": "b7c6",
+        "codex-gpt-5.5-candidate-v1": "b7c6",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "b7c6",
+        "devin-glm-5.2-candidate-v1": "d8d5",
+        "random-legal": "a7a6"
+      },
+      "puzzle_id": "chess-candidate-064",
+      "stockfish_best_moves": [
+        "b7c6"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-sonnet-5-candidate-v1": "c3d3",
+        "codex-gpt-5.4-candidate-v1": "c3d3",
+        "codex-gpt-5.5-candidate-v1": "g7g2",
+        "codex-gpt-5.5-high-ceiling-audit-v1": null,
+        "devin-glm-5.2-candidate-v1": "c3d3",
+        "random-legal": "c3b2"
+      },
+      "puzzle_id": "chess-candidate-015",
+      "stockfish_best_moves": [
+        "c3d3"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-sonnet-5-candidate-v1": "e3d4",
+        "codex-gpt-5.4-candidate-v1": "e3d4",
+        "codex-gpt-5.5-candidate-v1": "e3d4",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "b1c3",
+        "devin-glm-5.2-candidate-v1": "e3d4",
+        "random-legal": "e3g5"
+      },
+      "puzzle_id": "chess-candidate-042",
+      "stockfish_best_moves": [
+        "e3d4"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-sonnet-5-candidate-v1": "b4a3",
+        "codex-gpt-5.4-candidate-v1": "b4a3",
+        "codex-gpt-5.5-candidate-v1": "c8h3",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "c8h3",
+        "devin-glm-5.2-candidate-v1": "b4a3",
+        "random-legal": "e7d6"
+      },
+      "puzzle_id": "chess-candidate-040",
+      "stockfish_best_moves": [
+        "b4a3"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-sonnet-5-candidate-v1": "b7a8",
+        "codex-gpt-5.4-candidate-v1": "f2e3",
+        "codex-gpt-5.5-candidate-v1": "f2e3",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "f2e3",
+        "devin-glm-5.2-candidate-v1": "b7g7",
+        "random-legal": "b7c8"
+      },
+      "puzzle_id": "chess-candidate-031",
+      "stockfish_best_moves": [
+        "f2e3"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-sonnet-5-candidate-v1": "c8d8",
+        "codex-gpt-5.4-candidate-v1": "c8d8",
+        "codex-gpt-5.5-candidate-v1": "c8d8",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "c8d8",
+        "devin-glm-5.2-candidate-v1": "c8d8",
+        "random-legal": "g8h7"
+      },
+      "puzzle_id": "chess-candidate-043",
+      "stockfish_best_moves": [
+        "c8d8"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-sonnet-5-candidate-v1": "d5c6",
+        "codex-gpt-5.4-candidate-v1": "d5c6",
+        "codex-gpt-5.5-candidate-v1": "d5c6",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "d5c6",
+        "devin-glm-5.2-candidate-v1": "d5c6",
+        "random-legal": "d2b1"
+      },
+      "puzzle_id": "chess-candidate-071",
+      "stockfish_best_moves": [
+        "d5c6"
+      ]
+    },
+    {
+      "model_moves": {
+        "claude-sonnet-5-candidate-v1": "b8c6",
+        "codex-gpt-5.4-candidate-v1": "b5e2",
+        "codex-gpt-5.5-candidate-v1": "b5e2",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "d5f4",
+        "devin-glm-5.2-candidate-v1": "b5e2",
+        "random-legal": "f8b4"
+      },
+      "puzzle_id": "chess-candidate-008",
+      "stockfish_best_moves": [
+        "b5e2"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "d1g4",
+        "codex-gpt-5.5-candidate-v1": "d1g4",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "d1g4",
+        "random-legal": "c3b1"
+      },
+      "puzzle_id": "chess-candidate-051",
+      "stockfish_best_moves": [
+        "d1g4"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "d5c4",
+        "codex-gpt-5.5-candidate-v1": "d5c4",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "d5c4",
+        "random-legal": "d7c5"
+      },
+      "puzzle_id": "chess-candidate-001",
+      "stockfish_best_moves": [
+        "d5c4"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": null,
+        "codex-gpt-5.5-candidate-v1": "d6d1",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "d6d1",
+        "random-legal": "d6c7"
+      },
+      "puzzle_id": "chess-candidate-058",
+      "stockfish_best_moves": [
+        "d6c5"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "d4e6",
+        "codex-gpt-5.5-candidate-v1": "d4c6",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "d4e6",
+        "random-legal": "g1h2"
+      },
+      "puzzle_id": "chess-candidate-041",
+      "stockfish_best_moves": [
+        "d4c6"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "a5c5",
+        "codex-gpt-5.5-candidate-v1": "a5c5",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "a5c5",
+        "random-legal": "h8f8"
+      },
+      "puzzle_id": "chess-candidate-002",
+      "stockfish_best_moves": [
+        "a5c5"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "b3d5",
+        "codex-gpt-5.5-candidate-v1": "b5d6",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "b5c7",
+        "random-legal": "b3d5"
+      },
+      "puzzle_id": "chess-candidate-029",
+      "stockfish_best_moves": [
+        "b3d5"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "g5e5",
+        "codex-gpt-5.5-candidate-v1": "g5c1",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "g5c1",
+        "random-legal": "g5e3"
+      },
+      "puzzle_id": "chess-candidate-096",
+      "stockfish_best_moves": [
+        "g5d5"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "f6h5",
+        "codex-gpt-5.5-candidate-v1": "d4b3",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "d4b3",
+        "random-legal": "f6h5"
+      },
+      "puzzle_id": "chess-candidate-012",
+      "stockfish_best_moves": [
+        "d4b3"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "c3d4",
+        "codex-gpt-5.5-candidate-v1": "c3d4",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "c3d4",
+        "random-legal": "d2c1"
+      },
+      "puzzle_id": "chess-candidate-093",
+      "stockfish_best_moves": [
+        "c3d4"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "e8e7",
+        "codex-gpt-5.5-candidate-v1": "e8e7",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "e4d3",
+        "random-legal": "b8a6"
+      },
+      "puzzle_id": "chess-candidate-076",
+      "stockfish_best_moves": [
+        "h6c1"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "g6h5",
+        "codex-gpt-5.5-candidate-v1": "g6h5",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "g6h5",
+        "random-legal": "c7d6"
+      },
+      "puzzle_id": "chess-candidate-091",
+      "stockfish_best_moves": [
+        "g6h5"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "c4f7",
+        "codex-gpt-5.5-candidate-v1": "c4f7",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "c4f7",
+        "random-legal": "e5g4"
+      },
+      "puzzle_id": "chess-candidate-022",
+      "stockfish_best_moves": [
+        "e5f7"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "e5e2",
+        "codex-gpt-5.5-candidate-v1": "e5e4",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "e5g3",
+        "random-legal": "c8c2"
+      },
+      "puzzle_id": "chess-candidate-080",
+      "stockfish_best_moves": [
+        "e5e2"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "d2d4",
+        "codex-gpt-5.5-candidate-v1": "e1g1",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "e1g1",
+        "random-legal": "h1g1"
+      },
+      "puzzle_id": "chess-candidate-049",
+      "stockfish_best_moves": [
+        "a4b3"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "b2c3",
+        "codex-gpt-5.5-candidate-v1": "e5f7",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "e5f7",
+        "random-legal": "g2g4"
+      },
+      "puzzle_id": "chess-candidate-007",
+      "stockfish_best_moves": [
+        "b2c3"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "e1g1",
+        "codex-gpt-5.5-candidate-v1": "g2h3",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "e1g1",
+        "random-legal": "e2f3"
+      },
+      "puzzle_id": "chess-candidate-006",
+      "stockfish_best_moves": [
+        "g2h3"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "d7f8",
+        "codex-gpt-5.5-candidate-v1": "d7f8",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "d7f8",
+        "random-legal": "h2h4"
+      },
+      "puzzle_id": "chess-candidate-016",
+      "stockfish_best_moves": [
+        "d7f8"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "f4e2",
+        "codex-gpt-5.5-candidate-v1": "f4e2",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "f4e2",
+        "random-legal": "d7c6"
+      },
+      "puzzle_id": "chess-candidate-036",
+      "stockfish_best_moves": [
+        "f4e2"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "d8b6",
+        "codex-gpt-5.5-candidate-v1": "d8b6",
+        "codex-gpt-5.5-high-ceiling-audit-v1": "d8b6",
+        "random-legal": "f6h5"
+      },
+      "puzzle_id": "chess-candidate-013",
+      "stockfish_best_moves": [
+        "d8b6"
+      ]
+    }
+  ],
+  "label_authority": {
+    "deep_verification": {
+      "admission_rate": 0.86,
+      "admitted": 86,
+      "candidates": 100,
+      "stability_rate": 1.0,
+      "stable_top_move": 100
+    },
+    "models_are_secondary_reviewers_not_label_authorities": true,
+    "source": "Stockfish"
+  },
+  "legality_contract": {
+    "executed_moves_must_be_legal": true,
+    "execution_membership_check_required": true,
+    "illegal_missing_or_failed_outputs": "abstain-or-redirect",
+    "raw_legal_rate_measures_model_or_provider_output": true
+  },
+  "runs": [
+    {
+      "backend": "local-baseline",
+      "calibration": {
+        "analytic_expected_accuracy": 0.06481628966659961,
+        "mean_exact_move_accuracy": 0.06682500000000001,
+        "median_exact_move_accuracy": 0.075,
+        "p95_exact_move_accuracy": 0.125,
+        "seeds": 2000
+      },
+      "exact": 5,
+      "exact_given_execution": 0.125,
+      "exact_move_accuracy": 0.125,
+      "executed": 40,
+      "executed_legal_rate": 1.0,
+      "execution_rate": 1.0,
+      "mean_latency_ms": 0.005364675,
+      "policy_id": "random-legal",
+      "provider_failures": 0,
+      "puzzles": 40,
+      "raw_legal": 40,
+      "raw_legal_rate": 1.0,
+      "redirect_rate": 0.0,
+      "redirect_required": 0,
+      "requested_model": "random-legal",
+      "source_artifacts": [
+        "evals/chess/random-legal-candidate-v1.json"
+      ],
+      "total_cost_usd": null,
+      "track": "candidate-baseline"
+    },
+    {
+      "backend": "codex-cli",
+      "exact": 28,
+      "exact_given_execution": 0.7,
+      "exact_move_accuracy": 0.7,
+      "executed": 40,
+      "executed_legal_rate": 1.0,
+      "execution_rate": 1.0,
+      "mean_latency_ms": 18938.449868724998,
+      "policy_id": "codex-gpt-5.5-candidate-v1",
+      "provider_failures": 0,
+      "puzzles": 40,
+      "raw_legal": 40,
+      "raw_legal_rate": 1.0,
+      "redirect_rate": 0.0,
+      "redirect_required": 0,
+      "requested_model": "gpt-5.5",
+      "source_artifacts": [
+        "evals/chess/codex-gpt-5.5-candidate-constrained-v1.json"
+      ],
+      "total_cost_usd": null,
+      "track": "legal-constrained-diagnostic"
+    },
+    {
+      "backend": "codex-cli",
+      "exact": 24,
+      "exact_given_execution": 0.6153846153846154,
+      "exact_move_accuracy": 0.6,
+      "executed": 39,
+      "executed_legal_rate": 1.0,
+      "execution_rate": 0.975,
+      "mean_latency_ms": 26920.413262575,
+      "policy_id": "codex-gpt-5.5-high-ceiling-audit-v1",
+      "provider_failures": 1,
+      "puzzles": 40,
+      "raw_legal": 39,
+      "raw_legal_rate": 0.975,
+      "redirect_rate": 0.025,
+      "redirect_required": 1,
+      "requested_model": "gpt-5.5",
+      "source_artifacts": [
+        "evals/chess/codex-gpt-5.5-high-candidate-constrained-v1.json"
+      ],
+      "total_cost_usd": null,
+      "track": "legal-constrained-diagnostic"
+    },
+    {
+      "backend": "codex-cli",
+      "exact": 30,
+      "exact_given_execution": 0.7692307692307693,
+      "exact_move_accuracy": 0.75,
+      "executed": 39,
+      "executed_legal_rate": 1.0,
+      "execution_rate": 0.975,
+      "mean_latency_ms": 44696.6686386,
+      "policy_id": "codex-gpt-5.4-candidate-v1",
+      "provider_failures": 1,
+      "puzzles": 40,
+      "raw_legal": 39,
+      "raw_legal_rate": 0.975,
+      "redirect_rate": 0.025,
+      "redirect_required": 1,
+      "requested_model": "gpt-5.4",
+      "source_artifacts": [
+        "evals/chess/codex-gpt-5.4-candidate-constrained-v1.json"
+      ],
+      "total_cost_usd": null,
+      "track": "legal-constrained-diagnostic"
+    },
+    {
+      "backend": "codex-cli",
+      "exact": 8,
+      "exact_given_execution": 0.8,
+      "exact_move_accuracy": 0.8,
+      "executed": 10,
+      "executed_legal_rate": 1.0,
+      "execution_rate": 1.0,
+      "mean_latency_ms": 70474.0210375,
+      "policy_id": "codex-gpt-5.4-mini-candidate-v1",
+      "provider_failures": 0,
+      "puzzles": 10,
+      "raw_legal": 10,
+      "raw_legal_rate": 1.0,
+      "redirect_rate": 0.0,
+      "redirect_required": 0,
+      "requested_model": "gpt-5.4-mini",
+      "source_artifacts": [
+        "evals/chess/codex-gpt-5.4-mini-candidate-constrained-v1.json"
+      ],
+      "total_cost_usd": null,
+      "track": "legal-constrained-diagnostic"
+    },
+    {
+      "backend": "claude-cli",
+      "exact": 13,
+      "exact_given_execution": 0.7222222222222222,
+      "exact_move_accuracy": 0.65,
+      "executed": 18,
+      "executed_legal_rate": 1.0,
+      "execution_rate": 0.9,
+      "mean_latency_ms": 30091.085562599998,
+      "policy_id": "claude-sonnet-5-candidate-v1",
+      "provider_failures": 2,
+      "puzzles": 20,
+      "raw_legal": 18,
+      "raw_legal_rate": 0.9,
+      "redirect_rate": 0.1,
+      "redirect_required": 2,
+      "requested_model": "claude-sonnet-5",
+      "source_artifacts": [
+        "evals/chess/claude-sonnet-5-candidate-constrained-v1.json"
+      ],
+      "total_cost_usd": 0.4939845,
+      "track": "legal-constrained-diagnostic"
+    },
+    {
+      "backend": "claude-cli",
+      "exact": 7,
+      "exact_given_execution": 1.0,
+      "exact_move_accuracy": 0.7,
+      "executed": 7,
+      "executed_legal_rate": 1.0,
+      "execution_rate": 0.7,
+      "mean_latency_ms": 86801.03891239999,
+      "policy_id": "claude-opus-4-8-candidate-v1",
+      "provider_failures": 3,
+      "puzzles": 10,
+      "raw_legal": 7,
+      "raw_legal_rate": 0.7,
+      "redirect_rate": 0.3,
+      "redirect_required": 3,
+      "requested_model": "claude-opus-4-8",
+      "source_artifacts": [
+        "evals/chess/claude-opus-4-8-candidate-constrained-v1.json"
+      ],
+      "total_cost_usd": 1.36108275,
+      "track": "legal-constrained-diagnostic"
+    },
+    {
+      "backend": "devin-cli",
+      "exact": 14,
+      "exact_given_execution": 0.7,
+      "exact_move_accuracy": 0.7,
+      "executed": 20,
+      "executed_legal_rate": 1.0,
+      "execution_rate": 1.0,
+      "mean_latency_ms": null,
+      "policy_id": "devin-glm-5.2-candidate-v1",
+      "provider_failures": 0,
+      "puzzles": 20,
+      "raw_legal": 20,
+      "raw_legal_rate": 1.0,
+      "redirect_rate": 0.0,
+      "redirect_required": 0,
+      "requested_model": "glm-5.2",
+      "source_artifacts": [
+        "evals/chess/devin-glm-5.2-candidate-four-position-v1.json",
+        "evals/chess/devin-glm-5.2-candidate-offset-04-v1.json",
+        "evals/chess/devin-glm-5.2-candidate-offset-08-v1.json",
+        "evals/chess/devin-glm-5.2-candidate-offset-12-v1.json",
+        "evals/chess/devin-glm-5.2-candidate-offset-16-v1.json"
+      ],
+      "total_cost_usd": 0.0,
+      "track": "strict-batch-with-legal-membership-validator"
+    }
+  ],
+  "schema_version": "chess/candidate-model-matrix/v1",
+  "status": "candidate-only-not-a-frozen-benchmark",
+  "suite_id": "chess-tactics-candidate-verification-v1",
+  "trace_hash": "4a0c80105ba18b425ddd4e1ba8a4786192804639b067debbd0477c6b89d17004"
+}

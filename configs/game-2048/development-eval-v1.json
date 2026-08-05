@@ -1,0 +1,81 @@
+{
+  "schema_version": "game-2048/evaluation-config/v1",
+  "config_id": "game-2048-development-v1",
+  "revision": "1",
+  "environment_revision": "deterministic-2048/v1",
+  "seed_namespaces": {
+    "development": {
+      "range_start": 2048000000,
+      "range_end": 2048000999,
+      "fixture_seeds": [
+        2048000000,
+        2048000001,
+        2048000002,
+        2048000003
+      ]
+    },
+    "trajectory_training": {
+      "range_start": 2048100000,
+      "range_end": 2048199999,
+      "fixture_seeds": []
+    },
+    "algorithmic_diagnostic": {
+      "range_start": 2048200000,
+      "range_end": 2048200999,
+      "fixture_seeds": []
+    },
+    "frozen_evaluation": {
+      "range_start": 2048300000,
+      "range_end": 2048300999,
+      "fixture_seeds": [],
+      "seed_material": "maintainer-local-not-tracked"
+    }
+  },
+  "budgets": {
+    "max_games": 4,
+    "max_moves_per_game": 2500,
+    "per_move_milliseconds": 25
+  },
+  "baselines": [
+    {
+      "policy_id": "random-legal",
+      "revision": "1"
+    },
+    {
+      "policy_id": "greedy-one-ply",
+      "revision": "1",
+      "action_order": [
+        "up",
+        "left",
+        "right",
+        "down"
+      ],
+      "weights": {
+        "immediate_score": 1,
+        "empty_cells": 280,
+        "monotonicity": 12,
+        "maximum_tile_corner": 160
+      }
+    }
+  ],
+  "uncertainty": {
+    "paired_bootstrap_revision": "1",
+    "bootstrap_samples": 256,
+    "confidence": 0.95,
+    "seed": 2048999001
+  },
+  "benchmark_admission": {
+    "frontier_strict_invalid_decisions_maximum": 0,
+    "frontier_constrained_paired_mean_score_delta_over_random_minimum": 1,
+    "frontier_constrained_paired_bootstrap_lower_bound_minimum": 1,
+    "frontier_constrained_paired_win_rate_minimum": 0.6,
+    "frontier_constrained_mean_score_ratio_over_random_minimum": 1.1
+  },
+  "proof_thresholds": {
+    "candidate_parameter_count_maximum": 50000000,
+    "larger_llm_paired_mean_score_delta_minimum": 1,
+    "larger_llm_paired_win_rate_minimum": 0.51,
+    "larger_llm_paired_bootstrap_lower_bound_minimum": 1,
+    "invalid_decisions_maximum": 0
+  }
+}

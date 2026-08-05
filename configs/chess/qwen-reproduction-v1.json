@@ -1,0 +1,93 @@
+{
+  "schema_version": "chess/qwen-reproduction-recipe/v1",
+  "recipe_id": "character-chess-44m-qwen-reproduction-v1",
+  "status": "frozen-training-not-authorized",
+  "model_config": "configs/model.chess-44m-v0.json",
+  "source_recipe": {
+    "reference": "https://qwen-chess.replit.app/learn/",
+    "independent_reimplementation": true,
+    "external_base": "Qwen/Qwen3-8B",
+    "owned_base": "byte-character-chess-44m-v0",
+    "external_result_is_not_reproduced_yet": true
+  },
+  "sources": {
+    "general": {
+      "contract": "configs/chess/lichess-eval-corpus-v1.json",
+      "license": "CC0-1.0",
+      "target": "stockfish-first-pv-uci"
+    },
+    "endgame": {
+      "contract": "syzygy-wdl-dtz-five-man-to-be-implemented",
+      "license": "must-be-recorded-before-compilation",
+      "target": "tablebase-verified-uci"
+    },
+    "grounded_commentary": {
+      "contract": "licensed-commentary-plus-stockfish-verified-uci-to-be-implemented",
+      "license": "must-be-compatible-and-recorded-before-compilation",
+      "target": "grounded-rationale-then-uci",
+      "admission": [
+        "commentary-source-provenance-present",
+        "selected-move-legal",
+        "selected-move-stockfish-grounded",
+        "held-out-fen-not-present"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "stage_id": "pilot-10k",
+      "total_rows": 10000,
+      "training_authorized": false,
+      "arms": {
+        "terse": {"general": 9800, "endgame": 200, "grounded_commentary": 0},
+        "commentary-8pct": {"general": 9000, "endgame": 200, "grounded_commentary": 800}
+      },
+      "promotion_gate": "positive-held-out-cp-loss-or-blunder-signal-with-100pct-executed-legality"
+    },
+    {
+      "stage_id": "signal-100k",
+      "total_rows": 100000,
+      "training_authorized": false,
+      "arms": {
+        "terse": {"general": 98000, "endgame": 2000, "grounded_commentary": 0},
+        "commentary-8pct": {"general": 90000, "endgame": 2000, "grounded_commentary": 8000}
+      },
+      "promotion_gate": "commentary-arm-must-beat-or-match-terse-on-raw-policy-without-regression"
+    },
+    {
+      "stage_id": "scale-1m",
+      "total_rows": 1000000,
+      "training_authorized": false,
+      "arms": {
+        "terse": {"general": 980000, "endgame": 20000, "grounded_commentary": 0},
+        "commentary-8pct": {"general": 900000, "endgame": 20000, "grounded_commentary": 80000}
+      },
+      "promotion_gate": "raw-policy-learning-curve-remains-positive-on-frozen-wide-bench"
+    },
+    {
+      "stage_id": "reproduction-2m",
+      "total_rows": 2000000,
+      "training_authorized": false,
+      "arms": {
+        "terse": {"general": 1960000, "endgame": 40000, "grounded_commentary": 0},
+        "commentary-8pct": {"general": 1800000, "endgame": 40000, "grounded_commentary": 160000}
+      },
+      "promotion_gate": "at-least-200-raw-games-plus-separately-rated-guarded-policy"
+    }
+  ],
+  "evaluation": {
+    "raw_serving_policy": "always-score-legal-argmax/v1",
+    "guarded_serving_policy": "always-score-finishing-guards/v1",
+    "move_quality_config": "configs/chess/move-quality-v1.json",
+    "minimum_rating_games": 200,
+    "report_guard_fire_rate": true,
+    "rerate_after_any_policy_change": true
+  },
+  "stop_rules": [
+    "non-finite-loss",
+    "executed-legal-rate-below-1.0",
+    "held-out-centipawn-loss-regresses-two-consecutive-stages",
+    "severe-blunder-rate-regresses-two-consecutive-stages",
+    "resource-envelope-exceeded"
+  ]
+}

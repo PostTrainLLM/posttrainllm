@@ -1,0 +1,38 @@
+{
+  "schema_version": "chess/strength-ladder/v1",
+  "ladder_id": "character-chess-stockfish-uci1320-screen-v1",
+  "status": "owner-approved-rating-floor-screen",
+  "engine": {
+    "binary": "stockfish",
+    "required_name_prefix": "Stockfish 18",
+    "threads": 1,
+    "hash_mb": 16
+  },
+  "openings_ref": "configs/chess/openings-rating-screen-v1.json",
+  "maximum_plies": 160,
+  "bootstrap": {
+    "seed": 20260805,
+    "samples": 2000,
+    "confidence": 0.95
+  },
+  "qualification": {
+    "minimum_completed_games": 6,
+    "minimum_games_per_rung": 6,
+    "minimum_calibrated_rungs": 1,
+    "maximum_color_imbalance": 0,
+    "maximum_invalid_forfeit_rate": 0.0
+  },
+  "rungs": [
+    {
+      "rung_id": "stockfish-uci-1320",
+      "kind": "uci-elo",
+      "random_probability": 0.0,
+      "seed": 202608051320,
+      "skill_level": null,
+      "nodes": null,
+      "uci_elo": 1320,
+      "calibrated_rating": 1320,
+      "rating_state": "stockfish-uci-protocol-anchor-not-human-equivalence"
+    }
+  ]
+}

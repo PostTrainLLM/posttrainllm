@@ -247,6 +247,16 @@ SQL is the current factory POC and the best-documented attempt family.
 
 ## Non-SQL Model / Artifact Attempts
 
+### Character Chess 44.53M masked 10k pilot (2026-08-05)
+
+- Recipe: owned 44,527,616-parameter byte model, 10,000 CC0 Lichess-eval general-position rows, completion-only move loss, batch 16, learning rate 3e-4, 2,000 MPS steps.
+- Evidence: validation exact `6.16% random -> 10.54%` (+4.38 points), test `6.23% -> 10.33%` (+4.10); raw and guarded policies each won 0/6 games against random legal play. `evals/chess/character-chess-44m-pilot-10k-v1.json`.
+- Status: `failed`.
+- Failure reason: Completion-only SFT learned a small held-out move preference but missed the frozen +10-point promotion gate and produced no full-game win advantage over random legal play; eight guard interventions converted no wins.
+- Lesson: Legal constrained decoding and lower move-prediction loss are not game intelligence; require full-game transfer before scaling a tiny specialist.
+- Next action: Do not run the 100k, 1M, or 2M stages under this recipe. Preserve the failed artifact and select a different bounded specialist target.
+- Confidence: `exact`.
+
 ### Autocorrect FLAN-T5-small tiny-overfit gate (2026-07-25)
 
 - Recipe: `adapter-recipe-v1`, FLAN-T5-small + LoRA r8 on q/v across all three attention sites, 8 rows / 3,321 bytes, batch 4.
@@ -725,7 +735,7 @@ Current structured coverage:
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 48 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 49 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 5 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
 | `not-applicable` | 10 | No failure reason is expected for worked/not-tried status. |
 | `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |

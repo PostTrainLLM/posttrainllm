@@ -1,0 +1,22 @@
+{
+  "schema_version": "game-2048/environment-config/v1",
+  "environment_revision": "deterministic-2048/v1",
+  "board_size": 4,
+  "initial_tiles": 2,
+  "actions": [
+    "up",
+    "down",
+    "left",
+    "right"
+  ],
+  "spawn_distribution": {
+    "2": 9,
+    "4": 1
+  },
+  "prng": {
+    "algorithm": "splitmix64",
+    "revision": "1",
+    "environment_stream": "environment/v1",
+    "policy_stream": "policy/{policy_id}/v1"
+  }
+}

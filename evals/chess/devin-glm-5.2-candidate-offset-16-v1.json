@@ -1,0 +1,182 @@
+{
+  "aggregate": {
+    "abstention_or_redirect_rate": 0.0,
+    "abstention_or_redirect_required": 0,
+    "exact": 4,
+    "exact_move_accuracy": 1.0,
+    "executed_legal_rate": 1.0,
+    "puzzles": 4,
+    "raw_legal": 4,
+    "raw_legal_rate": 1.0
+  },
+  "batch": {
+    "limit": 4,
+    "offset": 16
+  },
+  "decisions": [
+    {
+      "best_moves": [
+        "e1f2"
+      ],
+      "exact": true,
+      "execution": "validated-legal",
+      "failure": null,
+      "fen": "r1bq1k1r/pppp1ppp/2n2N2/4p3/2B1P3/P7/1PPPNbPP/R1BQK2R w KQ - 0 8",
+      "index": 0,
+      "legal_moves": [
+        "e1f1",
+        "e1f2"
+      ],
+      "parsed_move": "e1f2",
+      "puzzle_id": "chess-candidate-026",
+      "raw_legal": true,
+      "raw_output": "e1f2"
+    },
+    {
+      "best_moves": [
+        "c8d8"
+      ],
+      "exact": true,
+      "execution": "validated-legal",
+      "failure": null,
+      "fen": "r1qR2k1/5pp1/8/PN2n2p/1B2p3/2P1P2P/P1Q1BPP1/2K3R1 b - - 0 24",
+      "index": 1,
+      "legal_moves": [
+        "c8d8",
+        "g8h7"
+      ],
+      "parsed_move": "c8d8",
+      "puzzle_id": "chess-candidate-043",
+      "raw_legal": true,
+      "raw_output": "c8d8"
+    },
+    {
+      "best_moves": [
+        "d5c6"
+      ],
+      "exact": true,
+      "execution": "validated-legal",
+      "failure": null,
+      "fen": "r2qk2r/1p2npbp/2n1p1p1/p1PP4/P7/5P2/1PPN1P1P/R1BQKBR1 w Qkq - 1 13",
+      "index": 2,
+      "legal_moves": [
+        "a1a2",
+        "a1a3",
+        "a1b1",
+        "b2b3",
+        "b2b4",
+        "c2c3",
+        "c2c4",
+        "d1e2",
+        "d2b1",
+        "d2b3",
+        "d2c4",
+        "d2e4",
+        "d5c6",
+        "d5d6",
+        "d5e6",
+        "e1e2",
+        "f1a6",
+        "f1b5",
+        "f1c4",
+        "f1d3",
+        "f1e2",
+        "f1g2",
+        "f1h3",
+        "f3f4",
+        "g1g2",
+        "g1g3",
+        "g1g4",
+        "g1g5",
+        "g1g6",
+        "g1h1",
+        "h2h3",
+        "h2h4"
+      ],
+      "parsed_move": "d5c6",
+      "puzzle_id": "chess-candidate-071",
+      "raw_legal": true,
+      "raw_output": "d5c6"
+    },
+    {
+      "best_moves": [
+        "b5e2"
+      ],
+      "exact": true,
+      "execution": "validated-legal",
+      "failure": null,
+      "fen": "rn1qkb1r/ppp2ppp/4p3/1b1n4/3P4/2P2N2/PP2QPPP/RNB1K2R b KQkq - 0 7",
+      "index": 3,
+      "legal_moves": [
+        "a7a5",
+        "a7a6",
+        "b5a4",
+        "b5a6",
+        "b5c4",
+        "b5c6",
+        "b5d3",
+        "b5d7",
+        "b5e2",
+        "b7b6",
+        "b8a6",
+        "b8c6",
+        "b8d7",
+        "c7c5",
+        "c7c6",
+        "d5b4",
+        "d5b6",
+        "d5c3",
+        "d5e3",
+        "d5e7",
+        "d5f4",
+        "d5f6",
+        "d8c8",
+        "d8d6",
+        "d8d7",
+        "d8e7",
+        "d8f6",
+        "d8g5",
+        "d8h4",
+        "e6e5",
+        "e8d7",
+        "e8e7",
+        "f7f5",
+        "f7f6",
+        "f8a3",
+        "f8b4",
+        "f8c5",
+        "f8d6",
+        "f8e7",
+        "g7g5",
+        "g7g6",
+        "h7h5",
+        "h7h6",
+        "h8g8"
+      ],
+      "parsed_move": "b5e2",
+      "puzzle_id": "chess-candidate-008",
+      "raw_legal": true,
+      "raw_output": "b5e2"
+    }
+  ],
+  "model": {
+    "backend": "devin-cli",
+    "constraint_state": "prompted-legal-set-not-logit-constrained",
+    "cost_usd": 0.0,
+    "policy_id": "devin-glm-5.2-candidate-v1",
+    "requested_model": "glm-5.2",
+    "resolved_model": "glm-5.2"
+  },
+  "response_validation": {
+    "batch_failure": null,
+    "duplicate_ids": [],
+    "malformed_rows": 0,
+    "returned_rows": 4,
+    "unexpected_ids": []
+  },
+  "schema_version": "chess/devin-batch-result/v1",
+  "status": "candidate-verification-only-not-frozen-evidence",
+  "suite_id": "chess-tactics-candidate-verification-v1",
+  "trace_hash": "b3a16b5c83a8a6be2873a5ab7dd493e5337ae45dcb1161b1c10624c449382d94",
+  "track": "strict-batch-with-legal-membership-validator"
+}

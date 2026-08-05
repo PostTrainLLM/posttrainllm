@@ -1,0 +1,178 @@
+---
+import Default from "../../layouts/Default.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import arena from "../../data/benchmarks/game-arena-candidate-v1.json";
+
+const chess = arena.games.find((game) => game.competition_family === "head-to-head")!;
+const score = arena.games.find((game) => game.competition_family === "paired-score")!;
+const chessResult = chess.result;
+const scoreResult = score.result;
+const policyNames: Record<string, string> = {
+  "qwen3-4b-instruct-2507-4bit": "Qwen3 4B",
+  "qwen3.5-9b-mlx-4bit": "Qwen3.5 9B",
+  "claude-sonnet-5": "Claude Sonnet 5",
+  "claude-opus-4-8": "Claude Opus 4.8",
+};
+const eloFloor = 1200;
+const eloCeiling = 1800;
+const eloPosition = (rating: number) => `${Math.max(0, Math.min(100, ((rating - eloFloor) / (eloCeiling - eloFloor)) * 100))}%`;
+const deltaFloor = -20;
+const deltaCeiling = 30;
+const deltaPosition = (value: number) => `${Math.max(0, Math.min(100, ((value - deltaFloor) / (deltaCeiling - deltaFloor)) * 100))}%`;
+const clientData = JSON.stringify(arena).replaceAll("<", "\\u003c");
+---
+
+<Default
+  title="Cross-game model arena — posttrainllm"
+  description="Inspect provisional Arena Elo for head-to-head games and paired score evidence for single-player games without conflating the two."
+>
+  <SiteHeader mode="instrument" active="benchmarks" />
+  <!--
+    THESIS: Rating quality sits in front of rank; this refuses the leaderboard that hides its sample.
+    OWN-WORLD: Extend the deep-ink evidence console with ruled scales, teal live state, coral failures, and amber provisional status.
+    STORY: Choose a game, read its correct rating language, inspect qualification, then open the underlying replay.
+    FIRST VIEWPORT: A wide measurement field owns the left while the qualification console owns the right; the switch sits above both.
+    FORM: Preserve the established benchmark instrument as an arena control room; no alternate visual direction is introduced.
+  -->
+  <main>
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/benchmarks">Benchmarks</a><span>/</span><span>Game Arena</span></nav>
+
+    <header class="hero">
+      <div>
+        <p class="kicker">Candidate arena · 2 rating families · 0 hidden conversions</p>
+        <h1>Rate the match.<br /><em>Show the doubt.</em></h1>
+      </div>
+      <p>Head-to-head games earn Arena Elo. Independent games earn paired score evidence. Neither becomes a universal intelligence number.</p>
+    </header>
+
+    <section class="arena-shell" aria-labelledby="arena-title">
+      <div class="arena-head">
+        <div><p class="section-label">Rating console</p><h2 id="arena-title">One arena, honest vocabularies.</h2></div>
+        <div class="game-switch" role="tablist" aria-label="Choose game evidence">
+          <button type="button" role="tab" aria-selected="true" aria-controls="chess-panel" id="chess-tab" data-game="chess" tabindex="0">Chess</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="score-panel" id="score-tab" data-game="score" tabindex="-1">2048</button>
+        </div>
+      </div>
+
+      <div class="game-panel" id="chess-panel" role="tabpanel" aria-labelledby="chess-tab" data-panel="chess">
+        <div class="measurement">
+          <div class="measurement-title">
+            <div><span>Competition family</span><strong>Head-to-head</strong></div>
+            <div><span>Rating</span><strong>{chessResult.rating_name}</strong></div>
+            <div><span>Evidence</span><strong>{chessResult.matches} games · {chessResult.forfeits} forfeits</strong></div>
+          </div>
+          <div class="elo-field" aria-label="Provisional Arena Elo scale from 1200 to 1800">
+            <div class="axis"><span>1200</span><span>1300</span><span>1400</span><span>1500</span><span>1600</span><span>1700</span><span>1800</span></div>
+            {chessResult.ratings.map((row, index) => <div class:list={["rating-marker", index % 2 ? "lower" : "upper"]} style={`--position:${eloPosition(row.rating)};--interval-start:${eloPosition(row.rating_interval_95.lower)};--interval-end:${eloPosition(row.rating_interval_95.upper)}`}>
+              <div class="interval" aria-hidden="true"></div>
+              <span class="pin" aria-hidden="true"></span>
+              <div class="marker-label"><strong>{row.rating.toFixed(0)}</strong><span>{policyNames[row.policy_id] ?? row.policy_id}</span><small>{row.status}</small></div>
+            </div>)}
+          </div>
+          <p class="measurement-note">The 170-point gap is a regularized diagnostic from four games—not a qualified rank. Two 4B wins came from 9B notation forfeits. This pool-specific Arena Elo is not FIDE, human, engine, Chess.com, or Lichess Elo.</p>
+        </div>
+
+        <aside class="qualification" aria-label="Chess rating qualification">
+          <div class="qualification-head"><span>Qualification</span><strong data-state="failed">UNRATED</strong></div>
+          <ul>
+            <li data-pass={chessResult.qualification.checks.minimum_total_matches}><span>Total games</span><strong>{chessResult.matches} / {arena.config.qualification.head_to_head.minimum_total_matches}</strong></li>
+            <li data-pass={chessResult.qualification.checks.minimum_matches_per_policy}><span>Per policy</span><strong>4 / {arena.config.qualification.head_to_head.minimum_matches_per_policy}</strong></li>
+            <li data-pass={chessResult.qualification.checks.maximum_forfeit_rate}><span>Forfeit rate</span><strong>{Math.round(chessResult.forfeit_rate * 100)}% / ≤10%</strong></li>
+            <li data-pass={chessResult.qualification.checks.color_balance}><span>Color balance</span><strong>2 white · 2 black</strong></li>
+            <li data-pass={chessResult.qualification.checks.connected_pool}><span>Connected pool</span><strong>yes</strong></li>
+          </ul>
+          <a class="inspect" href={chess.replay_path}>Inspect every chess move →</a>
+        </aside>
+      </div>
+
+      <div class="game-panel" id="score-panel" role="tabpanel" aria-labelledby="score-tab" data-panel="score" hidden>
+        <div class="measurement">
+          <div class="measurement-title">
+            <div><span>Competition family</span><strong>Independent episodes</strong></div>
+            <div><span>Rating</span><strong>{scoreResult.rating_name}</strong></div>
+            <div><span>Why not Elo</span><strong>No interacting opponent</strong></div>
+          </div>
+          <div class="delta-field" aria-label="Paired mean score difference from minus 20 to plus 30">
+            <div class="zero" style={`--zero:${deltaPosition(0)}`} aria-hidden="true"></div>
+            <div class="axis"><span>−20</span><span>−10</span><span>0</span><span>+10</span><span>+20</span><span>+30</span></div>
+            {scoreResult.entries.map((row, index) => <div class:list={["rating-marker", index % 2 ? "lower" : "upper"]} style={`--position:${deltaPosition(row.paired_mean_delta)};--interval-start:${deltaPosition(row.paired_delta_interval_95.lower)};--interval-end:${deltaPosition(row.paired_delta_interval_95.upper)}`}>
+              <div class="interval" aria-hidden="true"></div><span class="pin" aria-hidden="true"></span>
+              <div class="marker-label"><strong>{row.paired_mean_delta > 0 ? "+" : ""}{row.paired_mean_delta.toFixed(1)}</strong><span>{policyNames[row.policy_id] ?? row.policy_id}</span><small>{row.status}</small></div>
+            </div>)}
+          </div>
+          <p class="measurement-note">Paired delta compares each model with random legal play on the same seed. The interval crossing zero means no demonstrated advantage.</p>
+        </div>
+
+        <aside class="qualification" aria-label="2048 score qualification">
+          <div class="qualification-head"><span>Qualification</span><strong data-state="failed">UNQUALIFIED</strong></div>
+          <ul>
+            {scoreResult.entries.map((row) => <li data-pass={row.qualification.qualified}><span>{policyNames[row.policy_id] ?? row.policy_id}</span><strong>{row.pairs} / {arena.config.qualification.paired_score.minimum_complete_pairs_per_policy} pairs</strong></li>)}
+            <li data-pass="false"><span>Universal Elo</span><strong>not applicable</strong></li>
+          </ul>
+          <a class="inspect" href={score.replay_path}>Inspect every 2048 run →</a>
+        </aside>
+      </div>
+    </section>
+
+    <section class="ledger" aria-labelledby="ledger-title">
+      <div class="section-heading"><div><p class="section-label">Evidence ledger</p><h2 id="ledger-title">A number is the last column, not the first.</h2></div><span>{arena.status}</span></div>
+      <div class="ledger-grid">
+        <article><span>01 · Match evidence</span><h3>Arena Elo</h3><p>Only two interacting policies, win/draw/loss outcomes, one frozen pool, and match-level uncertainty.</p></article>
+        <article><span>02 · Score evidence</span><h3>Paired delta</h3><p>Single-player policies share seeds with a baseline. Mean score and uncertainty stay in the game’s own units.</p></article>
+        <article><span>03 · Qualification</span><h3>Estimate ≠ rating</h3><p>The math can produce a diagnostic before the sample can support a public rank. We show both states.</p></article>
+      </div>
+    </section>
+
+    <section class="protocol" aria-labelledby="protocol-title">
+      <div><p class="section-label">Extension contract</p><h2 id="protocol-title">Add a game without rewriting the arena.</h2></div>
+      <ol>
+        <li><span>1</span><p><strong>Choose a family.</strong> Head-to-head result or independent paired score.</p></li>
+        <li><span>2</span><p><strong>Normalize evidence.</strong> Participant identity, outcomes, failures, trace hashes, and source paths.</p></li>
+        <li><span>3</span><p><strong>Freeze qualification.</strong> Sample, balance, connectivity, and failure limits before scoring.</p></li>
+        <li><span>4</span><p><strong>Reuse the report.</strong> The validator, uncertainty engine, and dashboard remain unchanged.</p></li>
+      </ol>
+      <div class="actions"><button id="download-arena" type="button">Download arena evidence</button><a href="/benchmarks">Browse benchmark archive</a></div>
+    </section>
+  </main>
+  <script is:inline type="application/json" id="arena-data" set:html={clientData}></script>
+</Default>
+
+<script>
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-game]"));
+  const panels = Array.from(document.querySelectorAll<HTMLElement>("[data-panel]"));
+  const selectGame = (game:string) => {
+    tabs.forEach((tab) => {
+      const selected = tab.dataset.game === game;
+      tab.setAttribute("aria-selected", String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+    });
+    panels.forEach((panel) => { panel.hidden = panel.dataset.panel !== game; });
+  };
+  tabs.forEach((tab,index) => {
+    tab.addEventListener("click",()=>selectGame(tab.dataset.game!));
+    tab.addEventListener("keydown",(event)=>{
+      if (!["ArrowLeft","ArrowRight"].includes(event.key)) return;
+      event.preventDefault();
+      const next = event.key === "ArrowRight" ? (index + 1) % tabs.length : (index - 1 + tabs.length) % tabs.length;
+      tabs[next].focus(); selectGame(tabs[next].dataset.game!);
+    });
+  });
+  document.querySelector<HTMLButtonElement>("#download-arena")?.addEventListener("click",()=>{
+    const data = document.querySelector<HTMLScriptElement>("#arena-data")!.textContent!;
+    const url = URL.createObjectURL(new Blob([data],{type:"application/json"}));
+    const link = document.createElement("a"); link.href=url; link.download="character-game-arena-candidate-v1.json"; link.click(); URL.revokeObjectURL(url);
+  });
+</script>
+
+<style is:global>
+  :root{color-scheme:dark;--bg:#0a0c0f;--panel:#111419;--panel2:#171b22;--line:#2a3039;--fg:#eaedf2;--soft:#a6adb9;--quiet:#737b88;--live:#48e5c2;--coral:#ff6f5c;--amber:#ffb454}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 "Geist Variable",system-ui,sans-serif}main{width:min(1240px,calc(100% - 40px));margin:0 auto;padding:36px 0 110px}.crumbs{display:flex;gap:9px;color:var(--quiet);font:12px "Geist Mono Variable",monospace}.crumbs a{color:var(--soft)}
+  .hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(300px,.75fr);gap:64px;align-items:end;padding:clamp(56px,8vw,100px) 0 64px}.kicker,.section-label{margin:0 0 16px;color:var(--live);font:600 12px "Geist Mono Variable",monospace}.hero h1,.arena-head h2,.section-heading h2,.protocol h2{margin:0;font-family:"Bricolage Grotesque Variable","Geist Variable",sans-serif;letter-spacing:-.025em}.hero h1{font-size:clamp(48px,7vw,88px);line-height:.94}.hero h1 em{color:var(--amber);font-style:normal}.hero>p{max-width:40ch;margin:0 0 6px;color:var(--soft);font-size:19px}
+  .arena-shell{border-block:1px solid var(--line)}.arena-head{display:flex;align-items:end;justify-content:space-between;gap:24px;padding:26px 0;border-bottom:1px solid var(--line)}.arena-head h2,.section-heading h2,.protocol h2{font-size:clamp(26px,3.5vw,42px);line-height:1.05}.game-switch{display:flex;padding:4px;background:var(--panel);border-radius:10px}.game-switch button{min-width:92px;min-height:44px;border:0;border-radius:7px;padding:10px 16px;background:transparent;color:var(--quiet);font:600 13px "Geist Mono Variable",monospace;cursor:pointer}.game-switch button[aria-selected="true"]{background:var(--live);color:#06110e}.game-switch button:focus-visible,.actions :is(button,a):focus-visible,.inspect:focus-visible{outline:2px solid var(--live);outline-offset:3px}
+  .game-panel{display:grid;grid-template-columns:minmax(0,1fr) 330px;min-height:520px}.game-panel[hidden]{display:none!important}.measurement{padding:34px 44px 34px 0;border-right:1px solid var(--line)}.measurement-title{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.measurement-title div{display:grid;gap:4px}.measurement-title span,.qualification-head span,.ledger article>span{color:var(--quiet);font:11px "Geist Mono Variable",monospace}.measurement-title strong{font-size:15px}.elo-field,.delta-field{position:relative;height:300px;margin-top:32px;border-block:1px solid var(--line);background:linear-gradient(90deg,transparent calc(16.666% - 1px),var(--line) 16.666%,transparent calc(16.666% + 1px),transparent calc(33.333% - 1px),var(--line) 33.333%,transparent calc(33.333% + 1px),transparent calc(50% - 1px),#3c454f 50%,transparent calc(50% + 1px),transparent calc(66.666% - 1px),var(--line) 66.666%,transparent calc(66.666% + 1px),transparent calc(83.333% - 1px),var(--line) 83.333%,transparent calc(83.333% + 1px))}.axis{position:absolute;inset:auto 0 10px;display:flex;justify-content:space-between;color:var(--quiet);font:11px "Geist Mono Variable",monospace}.rating-marker{position:absolute;left:var(--position);top:50%;width:0}.rating-marker.upper{transform:translateY(-74px)}.rating-marker.lower{transform:translateY(36px)}.pin{position:absolute;left:-5px;top:-5px;width:10px;height:10px;border-radius:50%;background:var(--live);box-shadow:0 7px 20px rgba(72,229,194,.35)}.interval{position:absolute;left:calc(var(--interval-start) - var(--position));width:calc(var(--interval-end) - var(--interval-start));height:2px;top:-1px;background:color-mix(in srgb,var(--live) 55%,transparent)}.marker-label{position:absolute;left:0;display:grid;min-width:140px;transform:translateX(-50%);text-align:center}.upper .marker-label{bottom:16px}.lower .marker-label{top:16px}.marker-label strong{font:700 28px "Geist Mono Variable",monospace}.marker-label span{font-size:13px;white-space:nowrap}.marker-label small{color:var(--amber);font:10px "Geist Mono Variable",monospace}.measurement-note{max-width:68ch;margin:22px 0 0;color:var(--soft);font-size:14px}.zero{position:absolute;left:var(--zero);inset-block:0;border-left:1px dashed var(--amber)}
+  .qualification{padding:34px 0 34px 32px;background:var(--panel)}.qualification-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:20px;border-bottom:1px solid var(--line)}.qualification-head strong{color:var(--amber);font:700 12px "Geist Mono Variable",monospace}.qualification ul{list-style:none;padding:0;margin:0}.qualification li{display:flex;justify-content:space-between;gap:16px;padding:15px 0;border-bottom:1px solid var(--line);font-size:13px}.qualification li span{color:var(--soft)}.qualification li strong{font:12px "Geist Mono Variable",monospace;text-align:right}.qualification li::before{content:"×";color:var(--coral);font-weight:800}.qualification li[data-pass="true"]::before{content:"✓";color:var(--live)}.inspect{display:inline-block;margin-top:24px;color:var(--live);font-weight:650;text-decoration:none}
+  .ledger{padding:92px 0}.section-heading{display:flex;align-items:end;justify-content:space-between;gap:20px;padding-bottom:20px;border-bottom:1px solid var(--line)}.section-heading>span{color:var(--quiet);font:11px "Geist Mono Variable",monospace}.ledger-grid{display:grid;grid-template-columns:repeat(3,1fr)}.ledger article{padding:28px 28px 28px 0;border-bottom:1px solid var(--line)}.ledger article+article{padding-left:28px;border-left:1px solid var(--line)}.ledger h3{margin:8px 0 10px;font-size:24px}.ledger p{max-width:38ch;margin:0;color:var(--soft)}
+  .protocol{display:grid;grid-template-columns:.8fr 1.2fr;gap:70px;padding:56px 0;border-block:1px solid var(--line)}.protocol ol{list-style:none;margin:0;padding:0}.protocol li{display:grid;grid-template-columns:34px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}.protocol li>span{color:var(--live);font:12px "Geist Mono Variable",monospace}.protocol li p{margin:0;color:var(--soft)}.protocol li strong{color:var(--fg)}.actions{grid-column:2;display:flex;gap:12px;align-items:center}.actions button,.actions a{display:inline-flex;min-height:44px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:11px 15px;background:var(--panel);color:var(--fg);font:600 12px "Geist Mono Variable",monospace;text-decoration:none;cursor:pointer}.actions button{border-color:#347568;color:var(--live)}
+  @media(max-width:900px){.hero{grid-template-columns:1fr;gap:24px}.game-panel{grid-template-columns:1fr}.measurement{padding-right:0;border-right:0}.qualification{padding:28px;margin-bottom:24px}.protocol{grid-template-columns:1fr;gap:28px}.actions{grid-column:auto}.ledger-grid{grid-template-columns:1fr}.ledger article+article{padding-left:0;border-left:0}.marker-label{min-width:110px}.marker-label span{white-space:normal}}
+  @media(max-width:560px){main{width:min(100% - 28px,1240px);padding-top:24px}.hero{padding:44px 0}.arena-head{align-items:stretch;flex-direction:column}.game-switch button{flex:1}.measurement{padding-top:24px}.measurement-title{grid-template-columns:1fr 1fr}.measurement-title div:last-child{grid-column:1 / -1}.elo-field,.delta-field{height:340px}.rating-marker.upper{transform:translateY(-50px)}.rating-marker.lower{transform:translateY(50px)}.marker-label strong{font-size:22px}.qualification{margin-inline:-14px;padding-inline:18px}.section-heading{align-items:start;flex-direction:column}.section-heading>span{overflow-wrap:anywhere}.ledger{padding:66px 0}.protocol{padding:44px 0}.actions{align-items:stretch;flex-direction:column}.actions :is(button,a){text-align:center}}
+</style>

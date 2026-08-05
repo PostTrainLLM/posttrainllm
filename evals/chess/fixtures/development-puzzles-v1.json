@@ -1,0 +1,715 @@
+{
+  "generator": {
+    "attempts": 33,
+    "engine": "Stockfish 18",
+    "label_depth": 12,
+    "minimum_gap_cp": 220,
+    "play_depth": 8,
+    "revision": "build-chess-development-suite/v1",
+    "seed": 20260805
+  },
+  "puzzles": [
+    {
+      "best_moves": [
+        "a1a8"
+      ],
+      "fen": "r1bqr1k1/3n1ppp/4pn2/1ppp4/3P4/1PN1P1Q1/2PN1PPP/R1B1K2R w K - 0 16",
+      "id": "chess-dev-001",
+      "label": {
+        "best_score_cp": 365,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 531,
+        "legal_move_count": 48,
+        "principal_variation": [
+          "a1a8",
+          "e6e5",
+          "c3b5",
+          "e5d4",
+          "e1g1",
+          "d7e5"
+        ],
+        "second_score_cp": -166,
+        "source_ply": 30
+      },
+      "provenance": {
+        "attempt": 1,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "g3g7"
+      ],
+      "fen": "2b3nr/1pk2pp1/2nbP2p/1p6/4r3/5NQ1/PPPK1PPP/R1B4R w - - 1 16",
+      "id": "chess-dev-002",
+      "label": {
+        "best_score_cp": 476,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 522,
+        "legal_move_count": 33,
+        "principal_variation": [
+          "g3g7",
+          "c8e6",
+          "d2d1",
+          "c6e5",
+          "g7h8",
+          "e5f3"
+        ],
+        "second_score_cp": -46,
+        "source_ply": 30
+      },
+      "provenance": {
+        "attempt": 2,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e2e1"
+      ],
+      "fen": "r3k2r/p3b1pp/3p1n2/1p1N4/1np1P1q1/P7/BPP1K1PP/R1BQ3R w kq - 1 17",
+      "id": "chess-dev-003",
+      "label": {
+        "best_score_cp": -493,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 253,
+        "legal_move_count": 5,
+        "principal_variation": [
+          "e2e1",
+          "g4h4",
+          "g2g3",
+          "h4e4",
+          "e1f2",
+          "b4d5"
+        ],
+        "second_score_cp": -746,
+        "source_ply": 32
+      },
+      "provenance": {
+        "attempt": 3,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e8f7"
+      ],
+      "fen": "r1b1kb1r/pp3Qpp/3pp3/2pn4/1P4N1/3p4/P1PP1PPP/RNB2RK1 b kq - 0 13",
+      "id": "chess-dev-004",
+      "label": {
+        "best_score_cp": 207,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 776,
+        "legal_move_count": 2,
+        "principal_variation": [
+          "e8f7",
+          "b4c5",
+          "d3c2",
+          "b1a3",
+          "h7h5",
+          "g4e3"
+        ],
+        "second_score_cp": -569,
+        "source_ply": 25
+      },
+      "provenance": {
+        "attempt": 5,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "h5g3"
+      ],
+      "fen": "rBbnr1k1/pp1q1p2/6pp/2bN3n/8/P1N2BQP/1PP2PP1/2KR3R b - - 2 18",
+      "id": "chess-dev-005",
+      "label": {
+        "best_score_cp": -27,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 351,
+        "legal_move_count": 46,
+        "principal_variation": [
+          "h5g3",
+          "b8g3",
+          "e8e6",
+          "d5c7",
+          "d7e7",
+          "c3d5"
+        ],
+        "second_score_cp": -378,
+        "source_ply": 35
+      },
+      "provenance": {
+        "attempt": 10,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d4c3"
+      ],
+      "fen": "rnb1kb1r/pppq1ppp/3p1n2/6N1/2BpP2P/2N5/PPP2PP1/R1BQK2R b KQkq h3 0 9",
+      "id": "chess-dev-006",
+      "label": {
+        "best_score_cp": 199,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 342,
+        "legal_move_count": 32,
+        "principal_variation": [
+          "d4c3",
+          "c4f7",
+          "e8e7",
+          "f7b3",
+          "h7h6",
+          "g5f7"
+        ],
+        "second_score_cp": -143,
+        "source_ply": 17
+      },
+      "provenance": {
+        "attempt": 13,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "c1b2"
+      ],
+      "fen": "r1bqk2r/pp2bppp/2n1pn2/2p5/4PQ1P/3P1N2/PpP1BPP1/R1BK3R w kq - 0 10",
+      "id": "chess-dev-007",
+      "label": {
+        "best_score_cp": -430,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 264,
+        "legal_move_count": 41,
+        "principal_variation": [
+          "c1b2",
+          "c6d4",
+          "f4g3",
+          "e8g8",
+          "h4h5",
+          "h7h6"
+        ],
+        "second_score_cp": -694,
+        "source_ply": 18
+      },
+      "provenance": {
+        "attempt": 14,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e8f7"
+      ],
+      "fen": "rnbqkb1r/2p2Npp/p3pn2/1p6/2pP4/P3P3/1P3PPP/RNBQKB1R b KQkq - 0 7",
+      "id": "chess-dev-008",
+      "label": {
+        "best_score_cp": 350,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 438,
+        "legal_move_count": 35,
+        "principal_variation": [
+          "e8f7",
+          "f1e2",
+          "c8b7",
+          "e1g1",
+          "b8d7",
+          "b2b3"
+        ],
+        "second_score_cp": -88,
+        "source_ply": 13
+      },
+      "provenance": {
+        "attempt": 15,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e2g4"
+      ],
+      "fen": "rn1q1b1r/ppk1pNpp/2p5/3p4/3P1nb1/4P3/PPPNQPPP/R3KB1R w KQ - 0 9",
+      "id": "chess-dev-009",
+      "label": {
+        "best_score_cp": 609,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 498,
+        "legal_move_count": 36,
+        "principal_variation": [
+          "e2g4",
+          "d8e8",
+          "g4f4",
+          "e7e5",
+          "d4e5",
+          "g7g5"
+        ],
+        "second_score_cp": 111,
+        "source_ply": 16
+      },
+      "provenance": {
+        "attempt": 16,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "f7e6"
+      ],
+      "fen": "r4r1k/pp3pnp/4N1p1/3p4/2P1P3/1P2p2P/P3B1PR/RK6 b - - 0 26",
+      "id": "chess-dev-010",
+      "label": {
+        "best_score_cp": 300,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 286,
+        "legal_move_count": 27,
+        "principal_variation": [
+          "f7e6",
+          "e4d5",
+          "f8f2",
+          "e2f3",
+          "e6d5",
+          "f3d5"
+        ],
+        "second_score_cp": 14,
+        "source_ply": 51
+      },
+      "provenance": {
+        "attempt": 17,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d2b4"
+      ],
+      "fen": "r1bq1rk1/p4pp1/3p1b1p/1p2p3/1n1pP3/1B3N2/PPPQNPPP/R3K2R w KQ - 0 14",
+      "id": "chess-dev-011",
+      "label": {
+        "best_score_cp": 213,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 278,
+        "legal_move_count": 43,
+        "principal_variation": [
+          "d2b4",
+          "a7a5",
+          "b4d2",
+          "c8b7",
+          "b3d5",
+          "b7d5"
+        ],
+        "second_score_cp": -65,
+        "source_ply": 26
+      },
+      "provenance": {
+        "attempt": 19,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "f4c7"
+      ],
+      "fen": "r1b1kb1r/ppq1pppp/2n5/3p3n/3p1B2/4PN2/PPPNBPPP/R2Q1RK1 w kq - 2 8",
+      "id": "chess-dev-012",
+      "label": {
+        "best_score_cp": 746,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 747,
+        "legal_move_count": 38,
+        "principal_variation": [
+          "f4c7",
+          "e8d7",
+          "f3d4",
+          "c6d4",
+          "e3d4",
+          "e7e6"
+        ],
+        "second_score_cp": -1,
+        "source_ply": 14
+      },
+      "provenance": {
+        "attempt": 21,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e6f5"
+      ],
+      "fen": "N3k3/8/p3p2r/q3nQpp/7P/P1PR3R/3P1KP1/2B2B2 b - - 2 22",
+      "id": "chess-dev-013",
+      "label": {
+        "best_score_cp": -25,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 271,
+        "legal_move_count": 26,
+        "principal_variation": [
+          "e6f5",
+          "d3d4",
+          "e5g4",
+          "f2g1",
+          "a5c5",
+          "h4g5"
+        ],
+        "second_score_cp": -296,
+        "source_ply": 43
+      },
+      "provenance": {
+        "attempt": 22,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "c7c6"
+      ],
+      "fen": "r1b1kbnr/ppp2ppp/1n6/1Q2N3/3qp3/8/PPPN1PPP/R1B1KB1R b KQkq - 1 7",
+      "id": "chess-dev-014",
+      "label": {
+        "best_score_cp": 240,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 260,
+        "legal_move_count": 6,
+        "principal_variation": [
+          "c7c6",
+          "e5c6",
+          "b7c6",
+          "b5c6",
+          "c8d7",
+          "c6e4"
+        ],
+        "second_score_cp": -20,
+        "source_ply": 13
+      },
+      "provenance": {
+        "attempt": 25,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "c1g5"
+      ],
+      "fen": "r2k2nr/pppb2pp/3b4/4p1q1/P1B1P3/8/1PP2PPP/RNB1K2R w KQ - 0 9",
+      "id": "chess-dev-015",
+      "label": {
+        "best_score_cp": 199,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 771,
+        "legal_move_count": 36,
+        "principal_variation": [
+          "c1g5",
+          "g8f6",
+          "f2f3",
+          "h7h6",
+          "g5e3",
+          "g7g5"
+        ],
+        "second_score_cp": -572,
+        "source_ply": 16
+      },
+      "provenance": {
+        "attempt": 26,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e7e4"
+      ],
+      "fen": "rn2k2r/pp2qppp/1bp2n2/3p4/4P1B1/1N6/PPPB1PPP/RN1QK2R b KQkq - 0 11",
+      "id": "chess-dev-016",
+      "label": {
+        "best_score_cp": 45,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 331,
+        "legal_move_count": 39,
+        "principal_variation": [
+          "e7e4",
+          "g4e2",
+          "e4g2",
+          "h1f1",
+          "f6e4",
+          "d2e3"
+        ],
+        "second_score_cp": -286,
+        "source_ply": 21
+      },
+      "provenance": {
+        "attempt": 27,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "b5d4"
+      ],
+      "fen": "r3qrk1/pppb1ppp/n2p4/1N1P4/2Pb1P2/6P1/PP2Q1BP/R1B1K2R w KQ - 5 15",
+      "id": "chess-dev-017",
+      "label": {
+        "best_score_cp": 394,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 510,
+        "legal_move_count": 33,
+        "principal_variation": [
+          "b5d4",
+          "e8e2",
+          "d4e2",
+          "a8e8",
+          "e1f2"
+        ],
+        "second_score_cp": -116,
+        "source_ply": 28
+      },
+      "provenance": {
+        "attempt": 28,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d5e6"
+      ],
+      "fen": "rn1qkb1r/1p3p1p/p2pbnp1/2pP4/8/4PN1P/PP2BPP1/RNBQK2R w KQkq - 2 9",
+      "id": "chess-dev-018",
+      "label": {
+        "best_score_cp": 415,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 290,
+        "legal_move_count": 37,
+        "principal_variation": [
+          "d5e6",
+          "f7e6",
+          "b2b3",
+          "d8e7",
+          "e1g1",
+          "d6d5"
+        ],
+        "second_score_cp": 125,
+        "source_ply": 16
+      },
+      "provenance": {
+        "attempt": 29,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d3e4"
+      ],
+      "fen": "r1bqkb1r/pp1n1ppp/4p3/8/3Nn3/3B4/PPP1KPPP/R1BQ3R w kq - 0 9",
+      "id": "chess-dev-019",
+      "label": {
+        "best_score_cp": -99,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 332,
+        "legal_move_count": 39,
+        "principal_variation": [
+          "d3e4",
+          "d8h4",
+          "e4f3",
+          "f8c5",
+          "c1e3",
+          "e8g8"
+        ],
+        "second_score_cp": -431,
+        "source_ply": 16
+      },
+      "provenance": {
+        "attempt": 30,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "a6b5"
+      ],
+      "fen": "rnb2rk1/1ppqbp1p/p4npP/1N1p4/3P4/5N2/PPP1BPP1/R1BQK2R b KQ - 1 10",
+      "id": "chess-dev-020",
+      "label": {
+        "best_score_cp": 418,
+        "depth": 12,
+        "engine": "Stockfish 18",
+        "gap_cp": 370,
+        "legal_move_count": 29,
+        "principal_variation": [
+          "a6b5",
+          "f3e5",
+          "d7e6",
+          "e1g1",
+          "b8d7",
+          "c2c4"
+        ],
+        "second_score_cp": 48,
+        "source_ply": 19
+      },
+      "provenance": {
+        "attempt": 33,
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260805,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "development-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    }
+  ],
+  "schema_version": "chess/puzzle-suite/v1",
+  "status": "development-only-not-frozen-evidence",
+  "suite_id": "chess-tactics-development-v1"
+}

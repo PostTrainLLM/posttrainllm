@@ -1,0 +1,162 @@
+{
+  "schema_version": "game-2048/tiny-cohort-fixture/v1",
+  "config_id": "game-2048-development-v1",
+  "environment_revision": "deterministic-2048/v1",
+  "runner_revision": "paired-seed-runner/v1",
+  "policy_adapter_revision": "game-2048/policy-adapter/v1",
+  "quality_hash": "841df768f940d3ff52c45317b11f2e26558a894a2f3028cb356ef0a40721ba5a",
+  "policies": [
+    {
+      "policy": {
+        "policy_id": "random-legal",
+        "revision": "1"
+      },
+      "mean_score": 1309.0,
+      "reach_2048_rate": 0.0,
+      "invalid_decisions": 0,
+      "terminal_completion_rate": 1.0,
+      "games": [
+        {
+          "seed": 2048000000,
+          "score": 1168,
+          "maximum_tile": 128,
+          "reached_2048": false,
+          "legal_move_rate": 1.0,
+          "move_count": 119,
+          "terminal_completion": true,
+          "terminal_reason": "no-legal-actions",
+          "trace_hash": "724a92d1e6a0481ba2fdcc5a820105cb4623f9a321a498f1598f4c4644e20d5c"
+        },
+        {
+          "seed": 2048000001,
+          "score": 680,
+          "maximum_tile": 64,
+          "reached_2048": false,
+          "legal_move_rate": 1.0,
+          "move_count": 95,
+          "terminal_completion": true,
+          "terminal_reason": "no-legal-actions",
+          "trace_hash": "571002dc01dc07b3c47b211b666d723d280633dd1b9a752a2a4a8dc148e0ad0d"
+        },
+        {
+          "seed": 2048000002,
+          "score": 2668,
+          "maximum_tile": 256,
+          "reached_2048": false,
+          "legal_move_rate": 1.0,
+          "move_count": 228,
+          "terminal_completion": true,
+          "terminal_reason": "no-legal-actions",
+          "trace_hash": "7744a13340a1dbabd3c1d3c6dfc0965198a04802684b97242b412c009338d8d6"
+        },
+        {
+          "seed": 2048000003,
+          "score": 720,
+          "maximum_tile": 64,
+          "reached_2048": false,
+          "legal_move_rate": 1.0,
+          "move_count": 94,
+          "terminal_completion": true,
+          "terminal_reason": "no-legal-actions",
+          "trace_hash": "35c19b014a403b24599638872403d7a7401a60f05c3c351fdf299c2229dc421a"
+        }
+      ]
+    },
+    {
+      "policy": {
+        "policy_id": "greedy-one-ply",
+        "revision": "1"
+      },
+      "mean_score": 8203.0,
+      "reach_2048_rate": 0.0,
+      "invalid_decisions": 0,
+      "terminal_completion_rate": 1.0,
+      "games": [
+        {
+          "seed": 2048000000,
+          "score": 12092,
+          "maximum_tile": 1024,
+          "reached_2048": false,
+          "legal_move_rate": 1.0,
+          "move_count": 715,
+          "terminal_completion": true,
+          "terminal_reason": "no-legal-actions",
+          "trace_hash": "b0b5606cf4842e22515ba21d900f825d169623e4d4a4ac4aa3c05fb43175aa58"
+        },
+        {
+          "seed": 2048000001,
+          "score": 6712,
+          "maximum_tile": 512,
+          "reached_2048": false,
+          "legal_move_rate": 1.0,
+          "move_count": 468,
+          "terminal_completion": true,
+          "terminal_reason": "no-legal-actions",
+          "trace_hash": "05aa8cf22d2ebc5451d69670c7ddbeddeab6de0a6dae66c096c1564b68fac5d3"
+        },
+        {
+          "seed": 2048000002,
+          "score": 8216,
+          "maximum_tile": 512,
+          "reached_2048": false,
+          "legal_move_rate": 1.0,
+          "move_count": 576,
+          "terminal_completion": true,
+          "terminal_reason": "no-legal-actions",
+          "trace_hash": "224ab413ce5550d75ad1038b45c382c37a675ccae6caa96c4b548c84db5043fa"
+        },
+        {
+          "seed": 2048000003,
+          "score": 5792,
+          "maximum_tile": 512,
+          "reached_2048": false,
+          "legal_move_rate": 1.0,
+          "move_count": 414,
+          "terminal_completion": true,
+          "terminal_reason": "no-legal-actions",
+          "trace_hash": "11fc64fb63c99bd5b903d92280c1da94a06d1e58d6d3630ec668dba20401820a"
+        }
+      ]
+    }
+  ],
+  "paired_comparisons": [
+    {
+      "baseline": {
+        "policy_id": "random-legal",
+        "revision": "1"
+      },
+      "candidate": {
+        "policy_id": "greedy-one-ply",
+        "revision": "1"
+      },
+      "score_deltas_by_seed": [
+        {
+          "seed": 2048000000,
+          "delta": 10924
+        },
+        {
+          "seed": 2048000001,
+          "delta": 6032
+        },
+        {
+          "seed": 2048000002,
+          "delta": 5548
+        },
+        {
+          "seed": 2048000003,
+          "delta": 5072
+        }
+      ],
+      "paired_mean_score_delta": 6894.0,
+      "paired_win_rate": 1.0,
+      "paired_tie_rate": 0.0,
+      "paired_bootstrap_95_ci": {
+        "revision": "1",
+        "samples": 256,
+        "confidence": 0.95,
+        "lower": 5310.75,
+        "upper": 9580.0
+      }
+    }
+  ]
+}

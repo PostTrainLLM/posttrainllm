@@ -1,0 +1,101 @@
+{
+  "cross_model_disagreements": [
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "f6g5",
+        "codex-gpt-5.5-candidate-v1": "c7c6"
+      },
+      "puzzle_id": "chess-candidate-009",
+      "stockfish_best_moves": [
+        "c7c6"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "h6g5",
+        "codex-gpt-5.5-candidate-v1": "f6g4"
+      },
+      "puzzle_id": "chess-candidate-078",
+      "stockfish_best_moves": [
+        "h6g5"
+      ]
+    },
+    {
+      "model_moves": {
+        "codex-gpt-5.4-candidate-v1": "e1e2",
+        "codex-gpt-5.5-candidate-v1": "e1d2"
+      },
+      "puzzle_id": "chess-candidate-039",
+      "stockfish_best_moves": [
+        "e1f1"
+      ]
+    }
+  ],
+  "label_authority": {
+    "deep_verification": {
+      "admission_rate": 0.86,
+      "admitted": 86,
+      "candidates": 100,
+      "stability_rate": 1.0,
+      "stable_top_move": 100
+    },
+    "models_are_secondary_reviewers_not_label_authorities": true,
+    "source": "Stockfish"
+  },
+  "legality_contract": {
+    "executed_moves_must_be_legal": true,
+    "execution_membership_check_required": true,
+    "illegal_missing_or_failed_outputs": "abstain-or-redirect",
+    "raw_legal_rate_measures_model_or_provider_output": true
+  },
+  "runs": [
+    {
+      "backend": "codex-cli",
+      "exact": 8,
+      "exact_move_accuracy": 0.8,
+      "executed": 10,
+      "executed_legal_rate": 1.0,
+      "execution_rate": 1.0,
+      "mean_latency_ms": 20539.1130834,
+      "policy_id": "codex-gpt-5.5-candidate-v1",
+      "provider_failures": 0,
+      "puzzles": 10,
+      "raw_legal": 10,
+      "raw_legal_rate": 1.0,
+      "redirect_rate": 0.0,
+      "redirect_required": 0,
+      "requested_model": "gpt-5.5",
+      "source_artifacts": [
+        "evals/chess/codex-gpt-5.5-candidate-strict-v1.json"
+      ],
+      "total_cost_usd": null,
+      "track": "strict"
+    },
+    {
+      "backend": "codex-cli",
+      "exact": 8,
+      "exact_move_accuracy": 0.8,
+      "executed": 10,
+      "executed_legal_rate": 1.0,
+      "execution_rate": 1.0,
+      "mean_latency_ms": 47024.8326958,
+      "policy_id": "codex-gpt-5.4-candidate-v1",
+      "provider_failures": 0,
+      "puzzles": 10,
+      "raw_legal": 10,
+      "raw_legal_rate": 1.0,
+      "redirect_rate": 0.0,
+      "redirect_required": 0,
+      "requested_model": "gpt-5.4",
+      "source_artifacts": [
+        "evals/chess/codex-gpt-5.4-candidate-strict-v1.json"
+      ],
+      "total_cost_usd": null,
+      "track": "strict"
+    }
+  ],
+  "schema_version": "chess/candidate-model-matrix/v1",
+  "status": "candidate-only-not-a-frozen-benchmark",
+  "suite_id": "chess-tactics-candidate-verification-v1",
+  "trace_hash": "1be507a30ec5c5049d50ad8e732f8637d7ef7e74b0df32547ba7c2034c7c4fe5"
+}
