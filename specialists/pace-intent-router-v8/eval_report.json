@@ -3,6 +3,18 @@
   "eval_date": "2026-07-13",
   "eval_split": "pace-intent-heldout-v5",
   "eval_size": 14995,
+  "official_sealed_v1": {
+    "date": "2026-08-04",
+    "instance_set": "pace-intent-sealed-v1@1",
+    "instance_count": 63,
+    "repetitions": 2,
+    "frontier_score": 1.0,
+    "overall_accuracy": 0.5714285714285714,
+    "unknown_recall": 0.5555555555555556,
+    "latency_mean_ms": 3.8020923024132136,
+    "decision": "reject-production-winner",
+    "receipt": "evals/everyday-benchmark/receipts/pace-intent-router-v8-sealed-v1.json"
+  },
   "overall_accuracy": 0.9552517505835278,
   "latency_ms": {
     "p50": 3.1020641326904297,

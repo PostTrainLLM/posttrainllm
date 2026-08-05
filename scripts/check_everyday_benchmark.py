@@ -182,6 +182,22 @@ def validate_task(value: dict[str, Any], contract: dict[str, Any], errors: list[
         for field in ("id", "revision", "path"):
             expect_string(instance_set.get(field), f"$.instance_set.{field}", errors)
         expect_enum(instance_set.get("layer"), enums["evaluation_layer"], "$.instance_set.layer", errors)
+    official = expect_fields(
+        value.get("official_instance_set"),
+        "$.official_instance_set",
+        ("id", "revision", "layer", "sha256", "count", "custody_receipt_ref"),
+        errors,
+    )
+    if official:
+        for field in ("id", "revision", "sha256", "custody_receipt_ref"):
+            expect_string(official.get(field), f"$.official_instance_set.{field}", errors)
+        if official.get("layer") != "sealed-official":
+            add(errors, "$.official_instance_set.layer", "must be sealed-official")
+        count = official.get("count")
+        if not isinstance(count, int) or isinstance(count, bool) or count < 1:
+            add(errors, "$.official_instance_set.count", "must be a positive integer")
+        if value.get("status") == "qualified" and not re.fullmatch(r"[0-9a-f]{64}", str(official.get("sha256", ""))):
+            add(errors, "$.official_instance_set.sha256", "must be a lowercase SHA-256 when the task is qualified")
     labels = value.get("labels")
     if not isinstance(labels, list) or not labels or any(not isinstance(item, str) for item in labels):
         add(errors, "$.labels", "must be a non-empty string array")

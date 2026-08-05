@@ -112,6 +112,41 @@ def test_committed_contracts_and_all_tracks_validate():
     assert Counter(item["expected_label"] for item in instances["instances"]) == Counter({label: 4 for label in task["labels"]})
 
 
+def test_sealed_identity_and_privacy_safe_receipt():
+    suite, task, public_instances, _, adapted, _ = fixtures()
+    instances = copy.deepcopy(public_instances)
+    instances["instance_set_id"] = task["official_instance_set"]["id"]
+    instances["revision"] = task["official_instance_set"]["revision"]
+    instances["layer"] = "sealed-official"
+    task["official_instance_set"]["sha256"] = runner.sha256_json(instances)
+    task["official_instance_set"]["count"] = len(instances["instances"])
+    predictions = prediction_set(adapted, instances)
+    runner.assert_identity(suite, task, adapted, instances, predictions)
+    metadata = {
+        "permitted_training_cutoff": "before sealed-set generation",
+        "overlap_check": "normalized exact match against training corpus",
+        "overlap_count": 0,
+        "holder": "maintainer-local-custody",
+        "replay_authority": "maintainer",
+        "attestation": {"kind": "maintainer-review-v1", "value": "reviewed"},
+    }
+    _, _, receipt = runner.score(
+        suite, task, adapted, instances, predictions, "sealed-fixture-run", "2026-08-04T00:00:00Z", metadata
+    )
+    assert receipt["evaluation_layer"] == "sealed-official"
+    assert receipt["custody"]["instance_material_committed"] is False
+    assert receipt["leakage"]["overlap_count"] == 0
+    assert not validate(receipt), validate(receipt)
+    task["official_instance_set"]["sha256"] = "wrong"
+    assert any("lowercase SHA-256" in error for error in validate(task))
+    try:
+        runner.assert_identity(suite, task, adapted, instances, predictions)
+    except ValueError as exc:
+        assert "frozen hash/count" in str(exc)
+    else:
+        raise AssertionError("mismatched sealed instance set was accepted")
+
+
 def test_fail_closed_unknown_field_and_missing_adapted_disclosure():
     _, _, _, generalist, adapted, _ = fixtures()
     generalist["surprise"] = True

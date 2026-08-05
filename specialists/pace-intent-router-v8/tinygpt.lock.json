@@ -10,15 +10,16 @@
     "repo_id": "posttrainllm/pace-intent-router-v8",
     "status": "weights-published",
     "large_weights_published": true,
-    "local_copy": "runs/pace-intent-router-v8.tinygpt"
+    "local_copy": "runs/pace-intent-router-v8.tinygpt",
+    "revision": "ee6c673d405694e42859a889a348cad73e106886"
   },
   "base_model": {
-    "id": "posttrainllm-ToolRouterModel-small",
-    "preset": "small",
+    "id": "posttrainllm-ToolRouterModel-medium",
+    "preset": "medium",
     "architecture": "ToolRouterModel",
     "precision": "float32",
-    "layers": 6,
-    "d_model": 384,
+    "layers": 10,
+    "d_model": 640,
     "vocab_size": 256,
     "context_length": 128
   },
@@ -32,12 +33,14 @@
   "files": [
     {
       "path": "runs/pace-intent-router-v8.tinygpt",
-      "bytes": 593498112,
+      "bytes": 593849532,
+      "sha256": "adf28f05f3e93960989f7b2417c0dda62210be775b2d517a4b99b59966a98a9e",
       "role": "model_checkpoint"
     },
     {
       "path": "runs/pace-intent-router-v8.tinygpt.labels.json",
       "bytes": 200,
+      "sha256": "edf583da140b7428a755c6a2e51c8843a33586d3fa741707854f320c198d8144",
       "role": "label_map"
     }
   ],
@@ -71,7 +74,7 @@
     "loader": "mlx_load.py"
   },
   "notes": [
-    "Local-only artifact — not published to Hugging Face Hub.",
+    "Public weights are pinned to Hugging Face revision ee6c673d405694e42859a889a348cad73e106886.",
     "Use posttrainllm serve or posttrainllm sample to run inference.",
     "Not wired into the Pace shipping app — Apple FM is the production classifier.",
     "The v5 checkpoint (12000 steps) slightly outperforms v8 on overall accuracy but v8 has better unknown-class recall."

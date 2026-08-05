@@ -6,7 +6,7 @@
       "required_fields": ["artifact_type", "contract_version", "suite_id", "revision", "title", "task_refs", "publication"]
     },
     "task": {
-      "required_fields": ["artifact_type", "contract_version", "task_id", "revision", "title", "status", "adapter", "scorer", "instance_set", "labels", "slices", "budgets", "repetitions", "frontier_qualification", "publication_policy"]
+      "required_fields": ["artifact_type", "contract_version", "task_id", "revision", "title", "status", "adapter", "scorer", "instance_set", "official_instance_set", "labels", "slices", "budgets", "repetitions", "frontier_qualification", "publication_policy"]
     },
     "entry": {
       "required_fields": ["artifact_type", "contract_version", "entry_id", "revision", "title", "track", "adapter", "resources", "disclosure"]

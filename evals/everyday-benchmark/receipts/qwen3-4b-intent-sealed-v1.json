@@ -1,0 +1,21 @@
+{
+  "aggregate": {"error_count": 0, "exact_accuracy": 0.9365079365079365, "instance_count": 63, "output_count": 126, "result_sha256": "956ed66fed588403b55083fa3c617d686674ecbac5aa16880bb097d4b4082bc8", "unknown_recall": 0.7777777777777778},
+  "artifact_type": "receipt",
+  "attestation": {"kind": "maintainer-adjudication-v1", "value": "instance-set-sha256:dff793a012ce50944861aca6bafbe812e5c346f59710536e07ab90099022be6a"},
+  "contract_version": "everyday-benchmark/v1",
+  "custody": {"holder": "posttrainllm-maintainer-local-custody", "instance_material_committed": false, "replay_authority": "repository maintainer with the local sealed artifact"},
+  "entry_ref": {"id": "qwen3-4b-instruct-2507-4bit", "revision": "1"},
+  "evaluation_layer": "sealed-official",
+  "frontier_qualification": {"model": "codex-gpt-5.5", "receipt_ref": "evals/everyday-benchmark/receipts/pace-intent-frontier-v1.json", "score": 1.0, "state": "passed", "threshold": 0.99},
+  "instance_set": {"count": 63, "id": "pace-intent-sealed-v1", "revision": "1", "sha256": "dff793a012ce50944861aca6bafbe812e5c346f59710536e07ab90099022be6a"},
+  "leakage": {"overlap_check": "normalized lowercase-alphanumeric exact match against data/pace-intent-train-v5.jsonl@sha256:dcf17b140d93cde8e096fff4226264c51808824fec228daf09fffa1c8b65951b and data/pace-intent-eval.jsonl@sha256:85c2ae2ef87f158d49d394654a70fb1e9a91f299a29837a28965591a77b87ad2; exact raw prompt scan against all tracked repository text", "overlap_count": 0, "permitted_training_cutoff": "2026-08-04T00:00:00Z; sealed instances are prohibited from training"},
+  "publication_authority": "manual",
+  "receipt_id": "qwen3-4b-intent-sealed-v1-receipt",
+  "result_ref": {"id": "qwen3-4b-intent-sealed-v1-result", "revision": "1"},
+  "revision": "1",
+  "run_ref": {"id": "qwen3-4b-intent-sealed-v1", "revision": "1"},
+  "runner": {"id": "everyday-benchmark-no-model-runner", "revision": "1"},
+  "scorer": {"id": "exact-intent-class", "revision": "1"},
+  "suite_ref": {"id": "everyday-specialist-v1", "revision": "1"},
+  "task_ref": {"id": "pace-intent-routing", "revision": "1"}
+}

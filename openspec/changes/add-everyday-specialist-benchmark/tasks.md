@@ -26,7 +26,7 @@
 - [x] 3.1 Add explicit measurement-state fields for cold/warm end-to-end
   latency, active parameters, resident bytes, installed bytes, energy,
   training/eval time, and local/external cost
-- [ ] 3.2 Emit privacy-safe official receipts with instance-set hashes,
+- [x] 3.2 Emit privacy-safe official receipts with instance-set hashes,
   frontier qualification, leakage checks, custody, provenance, and bounded
   aggregate evidence
 - [x] 3.3 Reject receipts containing credentials, private prompts, prohibited raw
@@ -34,7 +34,7 @@
 
 ## 4. Qualification and cohort report
 
-- [ ] 4.1 Freeze and frontier-qualify a shared Pace intent task using identical
+- [x] 4.1 Freeze and frontier-qualify a shared Pace intent task using identical
   sealed instances for every headline model before publishing a win/loss claim
 - [ ] 4.2 Qualify two additional V1 everyday families using existing
   deterministic scorers where possible; keep any frontier-failing ruler
