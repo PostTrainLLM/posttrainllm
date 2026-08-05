@@ -98,9 +98,23 @@ evaluation identity explicit and auditable.
 
 System entries must record route candidates, selected node, verification,
 escalation, and final acceptance per instance. Aggregate results include false
-acceptance, escalation precision/recall, over-escalation, hop distribution, and
-route regret against the per-instance best eligible node. A system cannot hide
-a wrong cheap answer behind low average cost.
+acceptance, first-hop acceptance coverage and accuracy, escalation rate,
+escalation precision/recall, over-escalation, hop distribution, and route regret
+against the per-instance best eligible node. A system cannot hide a wrong cheap
+answer behind low average cost.
+
+Decision signals such as maximum probability, class margin, normalized entropy,
+OOD score, or a separate verifier are private prediction metadata rather than
+proof of correctness. A deterministic calibration tool may select a bounded
+policy only on a declared public-development/calibration set, records that set's
+identity in its report, and refuses the sealed layer. The chosen policy is then
+frozen before an official run.
+
+The Pace cascade is the first two-tier executable instance of the specialist
+capability graph: a small specialist is the first hop, a broader local model is
+the next hop, and an external frontier tier remains separately authorized. The
+trace contract stays multi-hop so this work does not collapse the larger
+specialist directory into a one-off confidence threshold.
 
 ### Record resources with explicit measurement state
 
