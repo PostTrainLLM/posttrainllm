@@ -1,0 +1,53 @@
+{
+  "schema_version": "game-2048/cloud-opponents/v1",
+  "config_id": "game-2048-cloud-opponents-development-v1",
+  "revision": "1",
+  "status": "development-aliases-not-frozen",
+  "opponents": [
+    {
+      "policy_id": "codex-gpt-5.5-development",
+      "backend": "codex-cli",
+      "requested_model": "gpt-5.5",
+      "identity_state": "mutable-alias",
+      "reasoning_effort": "medium",
+      "max_budget_usd_per_decision": 0,
+      "command_timeout_seconds": 180
+    },
+    {
+      "policy_id": "claude-sonnet-development",
+      "backend": "claude-cli",
+      "requested_model": "sonnet",
+      "identity_state": "mutable-alias",
+      "reasoning_effort": "medium",
+      "max_budget_usd_per_decision": 0.25,
+      "command_timeout_seconds": 180
+    },
+    {
+      "policy_id": "claude-opus-development",
+      "backend": "claude-cli",
+      "requested_model": "opus",
+      "identity_state": "mutable-alias",
+      "reasoning_effort": "medium",
+      "max_budget_usd_per_decision": 0.35,
+      "command_timeout_seconds": 180
+    },
+    {
+      "policy_id": "claude-sonnet-5-pinned-development",
+      "backend": "claude-cli",
+      "requested_model": "claude-sonnet-5",
+      "identity_state": "immutable",
+      "reasoning_effort": "medium",
+      "max_budget_usd_per_decision": 0.25,
+      "command_timeout_seconds": 180
+    },
+    {
+      "policy_id": "claude-opus-4-8-pinned-development",
+      "backend": "claude-cli",
+      "requested_model": "claude-opus-4-8",
+      "identity_state": "immutable",
+      "reasoning_effort": "medium",
+      "max_budget_usd_per_decision": 0.35,
+      "command_timeout_seconds": 180
+    }
+  ]
+}

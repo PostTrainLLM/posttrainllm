@@ -1,0 +1,13 @@
+{
+  "schema_version": "chess/candidate-generation/v1",
+  "suite_id": "chess-tactics-candidate-pool-v2",
+  "status": "candidate-only-not-frozen-evidence",
+  "count": 100,
+  "seed": 20260806,
+  "id_prefix": "chess-candidate",
+  "engine": "Stockfish 18",
+  "play_depth": 8,
+  "provisional_label_depth": 12,
+  "provisional_minimum_gap_cp": 150,
+  "exclude_suite": "evals/chess/fixtures/development-puzzles-v1.json"
+}

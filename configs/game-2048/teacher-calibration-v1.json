@@ -1,0 +1,47 @@
+{
+  "schema_version": "game-2048/teacher-calibration-config/v1",
+  "config_id": "game-2048-teacher-calibration-v1",
+  "revision": "1",
+  "environment_revision": "deterministic-2048/v1",
+  "benchmark_role": "algorithmic-diagnostic-only",
+  "development_config_ref": {
+    "config_id": "game-2048-development-v1",
+    "revision": "1",
+    "sha256": "ba511617d7692a4c5a027b95fb3fd018444befeeac30e511b1be2f673cbb8db5"
+  },
+  "budgets": {
+    "max_games": 4,
+    "max_moves_per_game": 2500,
+    "per_move_milliseconds": 100
+  },
+  "teacher": {
+    "policy_id": "expectimax-bounded",
+    "revision": "1",
+    "search_depth": 2,
+    "max_nodes_per_decision": 768,
+    "chance_cell_limit": 3,
+    "action_order": [
+      "up",
+      "left",
+      "right",
+      "down"
+    ],
+    "weights": {
+      "immediate_score": 1,
+      "empty_cells": 280,
+      "monotonicity": 12,
+      "maximum_tile_corner": 160
+    },
+    "spawn_distribution": {
+      "2": 0.9,
+      "4": 0.1
+    }
+  },
+  "scope": {
+    "seed_namespace": "development",
+    "frozen_evaluation_allowed": false,
+    "trajectory_generation_allowed": false,
+    "model_loading_allowed": false,
+    "training_allowed": false
+  }
+}

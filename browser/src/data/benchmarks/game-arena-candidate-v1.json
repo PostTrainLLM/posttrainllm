@@ -1,0 +1,330 @@
+{
+  "arena_id": "character-game-arena-candidate-v1",
+  "claims": {
+    "cross_game_universal_rating": false,
+    "human_elo_equivalence": false,
+    "model_calls_performed": 0,
+    "specialist_win": false
+  },
+  "config": {
+    "arena_id": "character-game-arena-candidate-v1",
+    "frozen_before_scoring": "2026-08-05T02:31:00+05:30",
+    "games": [
+      {
+        "adapter": "chess-mlx-paired-match-v1",
+        "competition_family": "head-to-head",
+        "game_id": "character-chess",
+        "name": "Character Chess",
+        "replay_path": "/benchmarks/chess",
+        "sources": [
+          "evals/chess/qwen4b-v-qwen9b-paired-games-v1.json"
+        ]
+      },
+      {
+        "adapter": "game-2048-frontier-screen-v1",
+        "competition_family": "paired-score",
+        "game_id": "character-2048",
+        "name": "Character 2048",
+        "replay_path": "/benchmarks/game-2048",
+        "sources": [
+          "evals/game-2048/frontier-screening-sonnet-v1.json",
+          "evals/game-2048/frontier-screening-opus-v1.json"
+        ]
+      }
+    ],
+    "qualification": {
+      "head_to_head": {
+        "maximum_forfeit_rate": 0.1,
+        "minimum_matches_per_policy": 10,
+        "minimum_total_matches": 30,
+        "require_color_balance": true,
+        "require_connected_pool": true
+      },
+      "paired_score": {
+        "minimum_complete_pairs_per_policy": 30,
+        "require_complete_source": true
+      }
+    },
+    "rating": {
+      "base": 1500,
+      "bootstrap_samples": 1000,
+      "bootstrap_seed": 20260805,
+      "prior_standard_deviation": 400,
+      "scale": 400
+    },
+    "schema_version": "game-arena/config/v1",
+    "status": "candidate-only-not-a-public-rating"
+  },
+  "games": [
+    {
+      "adapter": "chess-mlx-paired-match-v1",
+      "competition_family": "head-to-head",
+      "evidence": {
+        "matches": [
+          {
+            "black_policy_id": "qwen3.5-9b-mlx-4bit",
+            "forfeit": false,
+            "match_id": "qwen4b-v-qwen9b-paired-games-v1.json:initial-position:a-white:0",
+            "opening_id": "initial-position",
+            "source_trace_hash": "ff257613763fcdd8d607eea20f0cdbbd13437552d135d6959b013c6744320a77",
+            "termination": "threefold-repetition",
+            "white_policy_id": "qwen3-4b-instruct-2507-4bit",
+            "white_score": 0.5
+          },
+          {
+            "black_policy_id": "qwen3-4b-instruct-2507-4bit",
+            "forfeit": true,
+            "match_id": "qwen4b-v-qwen9b-paired-games-v1.json:initial-position:b-white:1",
+            "opening_id": "initial-position",
+            "source_trace_hash": "4c44b7edb6a456c86ad2dcebb0df4e101bd3472a37863ccbeb6a916b1c852456",
+            "termination": "invalid-decision-forfeit",
+            "white_policy_id": "qwen3.5-9b-mlx-4bit",
+            "white_score": 0.0
+          },
+          {
+            "black_policy_id": "qwen3.5-9b-mlx-4bit",
+            "forfeit": false,
+            "match_id": "qwen4b-v-qwen9b-paired-games-v1.json:open-sicilian-after-4:a-white:2",
+            "opening_id": "open-sicilian-after-4",
+            "source_trace_hash": "97c8bb46fc6ade63c87ff5ded4bfd4f7eaa25d2c5473035ebee5a54864b3246e",
+            "termination": "threefold-repetition",
+            "white_policy_id": "qwen3-4b-instruct-2507-4bit",
+            "white_score": 0.5
+          },
+          {
+            "black_policy_id": "qwen3-4b-instruct-2507-4bit",
+            "forfeit": true,
+            "match_id": "qwen4b-v-qwen9b-paired-games-v1.json:open-sicilian-after-4:b-white:3",
+            "opening_id": "open-sicilian-after-4",
+            "source_trace_hash": "f8b7aae088c7480b040373852bfc9e30e01788d22ec8250cc8e659b9416d466b",
+            "termination": "invalid-decision-forfeit",
+            "white_policy_id": "qwen3.5-9b-mlx-4bit",
+            "white_score": 0.0
+          }
+        ],
+        "participants": [
+          "qwen3-4b-instruct-2507-4bit",
+          "qwen3.5-9b-mlx-4bit"
+        ],
+        "sources": [
+          {
+            "games": 4,
+            "path": "evals/chess/qwen4b-v-qwen9b-paired-games-v1.json",
+            "status": "development-only-not-elo-evidence",
+            "trace_hash": "3008144befdd0d9e8a72e53cc5fa4194a4bd1bfa89d18b384aeaf780578f829c"
+          }
+        ]
+      },
+      "game_id": "character-chess",
+      "name": "Character Chess",
+      "replay_path": "/benchmarks/chess",
+      "result": {
+        "color_balanced": true,
+        "connected_pool": true,
+        "forfeit_rate": 0.5,
+        "forfeits": 2,
+        "human_elo_equivalence": "unknown-and-not-claimed",
+        "matches": 4,
+        "method": "regularized-bradley-terry-match-bootstrap",
+        "qualification": {
+          "checks": {
+            "color_balance": true,
+            "connected_pool": true,
+            "maximum_forfeit_rate": false,
+            "minimum_matches_per_policy": false,
+            "minimum_total_matches": false
+          },
+          "qualified": false,
+          "unmet": [
+            "minimum_total_matches",
+            "minimum_matches_per_policy",
+            "maximum_forfeit_rate"
+          ]
+        },
+        "rating_name": "Arena Elo",
+        "ratings": [
+          {
+            "black_matches": 2,
+            "draws": 2,
+            "losses": 0,
+            "matches": 4,
+            "policy_id": "qwen3-4b-instruct-2507-4bit",
+            "rating": 1585.0,
+            "rating_interval_95": {
+              "lower": 1500.0,
+              "upper": 1733.8
+            },
+            "status": "unrated",
+            "white_matches": 2,
+            "wins": 2
+          },
+          {
+            "black_matches": 2,
+            "draws": 2,
+            "losses": 2,
+            "matches": 4,
+            "policy_id": "qwen3.5-9b-mlx-4bit",
+            "rating": 1415.0,
+            "rating_interval_95": {
+              "lower": 1266.2,
+              "upper": 1500.0
+            },
+            "status": "unrated",
+            "white_matches": 2,
+            "wins": 0
+          }
+        ]
+      }
+    },
+    {
+      "adapter": "game-2048-frontier-screen-v1",
+      "competition_family": "paired-score",
+      "evidence": {
+        "sources": [
+          {
+            "complete": true,
+            "decision": "fail-development-intelligence-gradient",
+            "observed_cost_usd": 2.7165987,
+            "path": "evals/game-2048/frontier-screening-sonnet-v1.json",
+            "provider_failures": 0,
+            "status": "valid-development-screen-not-frozen-evidence",
+            "trace_hash": null
+          },
+          {
+            "complete": false,
+            "decision": "fail-development-screen-and-reject-current-character-benchmark",
+            "observed_cost_usd": 7.7371425,
+            "path": "evals/game-2048/frontier-screening-opus-v1.json",
+            "provider_failures": 1,
+            "status": "invalid-provider-failure-directionally-below-gate",
+            "trace_hash": null
+          }
+        ],
+        "trials": [
+          {
+            "baseline_policy_id": "random-legal",
+            "baseline_score": 180,
+            "instance_id": "2048000000",
+            "policy_id": "claude-sonnet-5",
+            "policy_score": 200,
+            "trial_id": "frontier-screening-sonnet-v1.json:2048000000"
+          },
+          {
+            "baseline_policy_id": "random-legal",
+            "baseline_score": 176,
+            "instance_id": "2048000001",
+            "policy_id": "claude-sonnet-5",
+            "policy_score": 180,
+            "trial_id": "frontier-screening-sonnet-v1.json:2048000001"
+          },
+          {
+            "baseline_policy_id": "random-legal",
+            "baseline_score": 184,
+            "instance_id": "2048000002",
+            "policy_id": "claude-sonnet-5",
+            "policy_score": 164,
+            "trial_id": "frontier-screening-sonnet-v1.json:2048000002"
+          },
+          {
+            "baseline_policy_id": "random-legal",
+            "baseline_score": 200,
+            "instance_id": "2048000003",
+            "policy_id": "claude-sonnet-5",
+            "policy_score": 192,
+            "trial_id": "frontier-screening-sonnet-v1.json:2048000003"
+          },
+          {
+            "baseline_policy_id": "random-legal",
+            "baseline_score": 180,
+            "instance_id": "2048000000",
+            "policy_id": "claude-opus-4-8",
+            "policy_score": 192,
+            "trial_id": "frontier-screening-opus-v1.json:2048000000"
+          },
+          {
+            "baseline_policy_id": "random-legal",
+            "baseline_score": 176,
+            "instance_id": "2048000001",
+            "policy_id": "claude-opus-4-8",
+            "policy_score": 204,
+            "trial_id": "frontier-screening-opus-v1.json:2048000001"
+          },
+          {
+            "baseline_policy_id": "random-legal",
+            "baseline_score": 200,
+            "instance_id": "2048000003",
+            "policy_id": "claude-opus-4-8",
+            "policy_score": 192,
+            "trial_id": "frontier-screening-opus-v1.json:2048000003"
+          }
+        ]
+      },
+      "game_id": "character-2048",
+      "name": "Character 2048",
+      "replay_path": "/benchmarks/game-2048",
+      "result": {
+        "elo": null,
+        "entries": [
+          {
+            "baseline_mean_score": 185.33333333333334,
+            "baseline_policy_id": "random-legal",
+            "paired_delta_interval_95": {
+              "lower": -8.0,
+              "upper": 28.0
+            },
+            "paired_mean_delta": 10.666666666666666,
+            "paired_win_rate": 0.6666666666666666,
+            "pairs": 3,
+            "policy_id": "claude-opus-4-8",
+            "policy_mean_score": 196.0,
+            "provider_failures": 1,
+            "qualification": {
+              "checks": {
+                "complete_source": false,
+                "minimum_complete_pairs": false
+              },
+              "qualified": false,
+              "unmet": [
+                "minimum_complete_pairs",
+                "complete_source"
+              ]
+            },
+            "source_status": "invalid-provider-failure-directionally-below-gate",
+            "status": "unqualified"
+          },
+          {
+            "baseline_mean_score": 185.0,
+            "baseline_policy_id": "random-legal",
+            "paired_delta_interval_95": {
+              "lower": -14.0,
+              "upper": 13.0
+            },
+            "paired_mean_delta": -1.0,
+            "paired_win_rate": 0.5,
+            "pairs": 4,
+            "policy_id": "claude-sonnet-5",
+            "policy_mean_score": 184.0,
+            "provider_failures": 0,
+            "qualification": {
+              "checks": {
+                "complete_source": true,
+                "minimum_complete_pairs": false
+              },
+              "qualified": false,
+              "unmet": [
+                "minimum_complete_pairs"
+              ]
+            },
+            "source_status": "valid-development-screen-not-frozen-evidence",
+            "status": "unqualified"
+          }
+        ],
+        "rating_name": "Paired score",
+        "why_no_elo": "Independent single-player episodes do not produce head-to-head win probabilities."
+      }
+    }
+  ],
+  "schema_version": "game-arena/report/v1",
+  "status": "candidate-only-not-a-public-rating",
+  "trace_hash": "84805e076716c9753a913aee9297cdec18433cf6196bc21e378e98a74eb76fd0"
+}

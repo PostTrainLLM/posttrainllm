@@ -350,3 +350,9 @@ jobs:
 
       - name: Run everyday specialist benchmark smoke test
         run: bash evals/everyday-benchmark-smoke.sh
+
+      - name: Run capability-gradient benchmark lab smoke test
+        run: bash evals/capability-gradient-lab-smoke.sh
+
+      - name: Run cross-game arena smoke test
+        run: bash evals/game-arena-smoke.sh

@@ -1,0 +1,79 @@
+{
+  "schema_version": "chess/tiny-overfit-result/v1",
+  "status": "passed-correctness-gate-not-strength-evidence",
+  "run_id": "chess-44m-tiny-overfit-2026-08-05",
+  "model": {
+    "config": "configs/model.chess-44m-v0.json",
+    "parameters": 44527616,
+    "device": "mps",
+    "checkpoint_step": 150,
+    "checkpoint_bytes": 549286640,
+    "checkpoint_sha256": "9a4abd8c809a59a910817e9677b8ea950e1fdfc3ccd57c1b9912a4a497cd97fd",
+    "checkpoint_storage": "local-run-only-gitignored"
+  },
+  "data": {
+    "source": "https://database.lichess.org/lichess_db_eval.jsonl.zst",
+    "license": "CC0-1.0",
+    "bounded_stream_lines_read": 9,
+    "accepted_unique_rows": 8,
+    "rejected_rows": 1,
+    "rejection_reasons": {
+      "below-minimum-knodes": 1
+    },
+    "compiled_jsonl_bytes": 4801,
+    "compiled_jsonl_sha256": "29c2c49918238403d05fb4b8090fd2c0ddc38e896bfff823e32bff07fc729b95",
+    "repeat_factor": 64,
+    "rendered_sequences": 512,
+    "training_text_bytes": 33408,
+    "training_text_sha256": "8e6a98de576c4fb2582ebed0debe4aa7a511c3a9ff6b8729fa585d550f359818"
+  },
+  "training": {
+    "maximum_authorized_steps": 200,
+    "stopped_at_step": 150,
+    "stop_reason": "tiny-overfit-exact-target-gate-passed",
+    "tokens_seen": 307200,
+    "initial_train_loss": 5.574623107910156,
+    "best_recorded_validation_loss": 0.48838257789611816,
+    "last_loss_measurement_step": 140,
+    "staged_training_wall_seconds": 81.31,
+    "maximum_resident_set_bytes": 608665600,
+    "gpu_lock_released": true
+  },
+  "evaluation_path": [
+    {
+      "step": 50,
+      "rows": 8,
+      "exact_target_rate": 0.875,
+      "executed_legal_rate": 1.0,
+      "trace_hash": "8c7877744f8bec4f3ab13ded77e190230cb9a6541a7277130da27f5f670f494b"
+    },
+    {
+      "step": 100,
+      "rows": 8,
+      "exact_target_rate": 0.75,
+      "executed_legal_rate": 1.0,
+      "trace_hash": "d6745130651b0dc920191ed169d19a91884795987e3170c4b1aa616cd8accac6"
+    },
+    {
+      "step": 150,
+      "rows": 8,
+      "exact_target_rate": 1.0,
+      "executed_legal_rate": 1.0,
+      "minimum_target_log_score_margin": 0.9763178825378418,
+      "trace_hash": "2c251c4030a7256b5048e0243b578ea4029bf8d99db13661f8b103a2faa9e531"
+    }
+  ],
+  "interpretation": {
+    "gate": "pass",
+    "why_accuracy_was_non_monotonic": "Token cross-entropy optimizes every next byte, not the discrete rank of the labelled move among legal candidates. Aggregate loss can fall while a close legal-move margin temporarily changes sign.",
+    "claim": "The 44.53M reference model, corpus path, checkpoint loader, and constrained legal-candidate evaluator can memorize eight labelled positions.",
+    "not_claimed": [
+      "held-out chess strength",
+      "generalization",
+      "internal or human Elo",
+      "Qwen Chess reproduction",
+      "superiority to a 4B or 9B model"
+    ],
+    "next_gate": "owner-approved 10000-row pilot with disjoint validation and test positions"
+  }
+}

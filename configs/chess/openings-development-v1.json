@@ -1,0 +1,15 @@
+{
+  "schema_version": "chess/openings/v1",
+  "opening_set_id": "chess-paired-openings-development-v1",
+  "status": "development-only",
+  "openings": [
+    {
+      "id": "initial-position",
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    },
+    {
+      "id": "open-sicilian-after-4",
+      "fen": "rnbqkbnr/pp2pppp/2p5/3p4/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 0 3"
+    }
+  ]
+}

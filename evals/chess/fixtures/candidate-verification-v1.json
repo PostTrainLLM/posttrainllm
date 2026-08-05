@@ -1,0 +1,6421 @@
+{
+  "generator": {
+    "revision": "verify-chess-candidate-labels/v1",
+    "seed": 20260806,
+    "selection": "legal-move-count-stratified-four-bucket",
+    "source_suite_id": "chess-tactics-deep-admitted-v1"
+  },
+  "puzzles": [
+    {
+      "best_moves": [
+        "h4g2"
+      ],
+      "fen": "rn1qk2r/3pbp1p/p3pn2/1P6/3N2pN/P5P1/1P2PPbP/R1BQK2R w KQkq - 0 12",
+      "id": "chess-candidate-073",
+      "label": {
+        "best_score_cp": 122,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 341,
+        "legal_move_count": 35,
+        "principal_variation": [
+          "h4g2",
+          "a6b5",
+          "e1g1",
+          "d8b6",
+          "c1e3",
+          "e8g8",
+          "a1c1",
+          "b6a5"
+        ],
+        "second_score_cp": -219,
+        "source_ply": 22,
+        "verification": [
+          {
+            "best_score_cp": 118,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 373,
+            "second_score_cp": -255,
+            "top_move": "h4g2",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "h4g2",
+                "pv": [
+                  "h4g2",
+                  "a6b5",
+                  "e1g1",
+                  "d8b6",
+                  "c1e3",
+                  "b6b7",
+                  "a1c1",
+                  "e8g8"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 118
+              },
+              {
+                "mate_in": null,
+                "move": "d4f5",
+                "pv": [
+                  "d4f5",
+                  "g2h1",
+                  "f5g7",
+                  "e8f8",
+                  "c1h6",
+                  "f8g8",
+                  "d1d2",
+                  "f6e4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -255
+              },
+              {
+                "mate_in": null,
+                "move": "h4f5",
+                "pv": [
+                  "h4f5",
+                  "e6f5",
+                  "d4f5",
+                  "h8g8",
+                  "c1f4",
+                  "g2h1",
+                  "a1c1",
+                  "g8g6"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -314
+              }
+            ]
+          },
+          {
+            "best_score_cp": 122,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 341,
+            "second_score_cp": -219,
+            "top_move": "h4g2",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "h4g2",
+                "pv": [
+                  "h4g2",
+                  "a6b5",
+                  "e1g1",
+                  "d8b6",
+                  "c1e3",
+                  "e8g8",
+                  "a1c1",
+                  "b6a5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 122
+              },
+              {
+                "mate_in": null,
+                "move": "d4f5",
+                "pv": [
+                  "d4f5",
+                  "g2h1",
+                  "f5g7",
+                  "e8f8",
+                  "c1h6",
+                  "f8g8",
+                  "d1d4",
+                  "h1e4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -219
+              },
+              {
+                "mate_in": null,
+                "move": "d4e6",
+                "pv": [
+                  "d4e6",
+                  "d7e6",
+                  "d1d8",
+                  "e7d8",
+                  "h4g2",
+                  "a6b5",
+                  "h2h3",
+                  "g4h3"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -322
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 110,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e5d7"
+      ],
+      "fen": "r4r1k/pp1b1ppp/2n1p3/3nN3/Pb6/4PN2/1P3PPP/R1BB1RK1 w - - 0 17",
+      "id": "chess-candidate-011",
+      "label": {
+        "best_score_cp": 462,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 420,
+        "legal_move_count": 28,
+        "principal_variation": [
+          "e5d7",
+          "f8d8",
+          "d7e5",
+          "c6e5",
+          "f3e5",
+          "h8g8",
+          "d1h5",
+          "g7g6"
+        ],
+        "second_score_cp": 42,
+        "source_ply": 32,
+        "verification": [
+          {
+            "best_score_cp": 468,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 433,
+            "second_score_cp": 35,
+            "top_move": "e5d7",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e5d7",
+                "pv": [
+                  "e5d7",
+                  "f8d8",
+                  "d7e5",
+                  "c6e5",
+                  "f3e5",
+                  "h8g8",
+                  "e3e4",
+                  "d5e7"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 468
+              },
+              {
+                "mate_in": null,
+                "move": "d1e2",
+                "pv": [
+                  "d1e2",
+                  "d7e8",
+                  "e5c6",
+                  "e8c6",
+                  "f1d1",
+                  "f8c8",
+                  "f3e5",
+                  "c6e8"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 35
+              },
+              {
+                "mate_in": null,
+                "move": "d1b3",
+                "pv": [
+                  "d1b3",
+                  "d5f6",
+                  "f1d1",
+                  "c6a5",
+                  "b3a2",
+                  "d7e8",
+                  "d1d4",
+                  "b4c5"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 33
+              }
+            ]
+          },
+          {
+            "best_score_cp": 462,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 420,
+            "second_score_cp": 42,
+            "top_move": "e5d7",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e5d7",
+                "pv": [
+                  "e5d7",
+                  "f8d8",
+                  "d7e5",
+                  "c6e5",
+                  "f3e5",
+                  "h8g8",
+                  "d1h5",
+                  "g7g6"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 462
+              },
+              {
+                "mate_in": null,
+                "move": "d1e2",
+                "pv": [
+                  "d1e2",
+                  "d5b6",
+                  "e5d3",
+                  "b4e7",
+                  "c1d2",
+                  "b6c4",
+                  "d2e1",
+                  "c4b6"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 42
+              },
+              {
+                "mate_in": null,
+                "move": "d1b3",
+                "pv": [
+                  "d1b3",
+                  "d7e8",
+                  "f1d1",
+                  "b4e7",
+                  "b3d5",
+                  "e6d5",
+                  "d1d5",
+                  "c6b4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 42
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 19,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "b4a5"
+      ],
+      "fen": "r1b1kb1r/pp1p1pp1/2n2n2/q1p4p/PPPp4/2N1PN2/5PPP/R1BQKB1R w KQkq h6 0 8",
+      "id": "chess-candidate-095",
+      "label": {
+        "best_score_cp": 474,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 536,
+        "legal_move_count": 38,
+        "principal_variation": [
+          "b4a5",
+          "d4c3",
+          "a1a3",
+          "b7b6",
+          "a3c3",
+          "f6e4",
+          "c3a3",
+          "c8b7"
+        ],
+        "second_score_cp": -62,
+        "source_ply": 14,
+        "verification": [
+          {
+            "best_score_cp": 474,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 551,
+            "second_score_cp": -77,
+            "top_move": "b4a5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b4a5",
+                "pv": [
+                  "b4a5",
+                  "d4c3",
+                  "a1a3",
+                  "h5h4",
+                  "a3c3",
+                  "h4h3",
+                  "g2h3",
+                  "f6e4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 474
+              },
+              {
+                "mate_in": null,
+                "move": "f3d4",
+                "pv": [
+                  "f3d4",
+                  "c5b4",
+                  "d4b3",
+                  "a5e5",
+                  "c3b5",
+                  "a7a6",
+                  "f2f4",
+                  "e5b8"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -77
+              },
+              {
+                "mate_in": null,
+                "move": "e3d4",
+                "pv": [
+                  "e3d4",
+                  "c5b4",
+                  "c3a2",
+                  "d7d5",
+                  "c4c5",
+                  "f6e4",
+                  "d1b3",
+                  "a7a6"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -136
+              }
+            ]
+          },
+          {
+            "best_score_cp": 474,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 536,
+            "second_score_cp": -62,
+            "top_move": "b4a5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b4a5",
+                "pv": [
+                  "b4a5",
+                  "d4c3",
+                  "a1a3",
+                  "b7b6",
+                  "a3c3",
+                  "f6e4",
+                  "c3a3",
+                  "c8b7"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 474
+              },
+              {
+                "mate_in": null,
+                "move": "f3d4",
+                "pv": [
+                  "f3d4",
+                  "c6b4",
+                  "d4b3",
+                  "a5c7",
+                  "c1b2",
+                  "a7a6",
+                  "b3d2",
+                  "d7d5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -62
+              },
+              {
+                "mate_in": null,
+                "move": "e3d4",
+                "pv": [
+                  "e3d4",
+                  "c5b4",
+                  "c3d5",
+                  "f6d5",
+                  "c4d5",
+                  "b4b3",
+                  "c1d2",
+                  "a5d5"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -73
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 141,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "g3f4"
+      ],
+      "fen": "1rbqk2r/p1pn1pp1/1p3n1p/3p4/3P1b2/PP4P1/2QNPP1P/RNB1KB1R w KQk - 3 13",
+      "id": "chess-candidate-079",
+      "label": {
+        "best_score_cp": 348,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 319,
+        "legal_move_count": 32,
+        "principal_variation": [
+          "g3f4",
+          "e8g8",
+          "c1b2",
+          "f8e8",
+          "h1g1",
+          "d7f8",
+          "d2f3",
+          "f6e4"
+        ],
+        "second_score_cp": 29,
+        "source_ply": 24,
+        "verification": [
+          {
+            "best_score_cp": 386,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 347,
+            "second_score_cp": 39,
+            "top_move": "g3f4",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "g3f4",
+                "pv": [
+                  "g3f4",
+                  "e8g8",
+                  "h1g1",
+                  "f8e8",
+                  "b1c3",
+                  "c8b7",
+                  "c1b2",
+                  "c7c5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 386
+              },
+              {
+                "mate_in": null,
+                "move": "b1c3",
+                "pv": [
+                  "b1c3",
+                  "f4d2",
+                  "c1d2",
+                  "e8g8",
+                  "d2f4",
+                  "c8b7",
+                  "a1c1",
+                  "a7a6"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 39
+              },
+              {
+                "mate_in": null,
+                "move": "e2e3",
+                "pv": [
+                  "e2e3",
+                  "f4d6",
+                  "b1c3",
+                  "c7c6",
+                  "f1d3",
+                  "e8g8",
+                  "e1g1",
+                  "c8b7"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 18
+              }
+            ]
+          },
+          {
+            "best_score_cp": 348,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 319,
+            "second_score_cp": 29,
+            "top_move": "g3f4",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "g3f4",
+                "pv": [
+                  "g3f4",
+                  "e8g8",
+                  "c1b2",
+                  "f8e8",
+                  "h1g1",
+                  "d7f8",
+                  "d2f3",
+                  "f6e4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 348
+              },
+              {
+                "mate_in": null,
+                "move": "f1g2",
+                "pv": [
+                  "f1g2",
+                  "f4d2",
+                  "b1d2",
+                  "e8g8",
+                  "e1g1",
+                  "f8e8",
+                  "f1e1",
+                  "c8b7"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 29
+              },
+              {
+                "mate_in": null,
+                "move": "b1c3",
+                "pv": [
+                  "b1c3",
+                  "f4d2",
+                  "c1d2",
+                  "e8g8",
+                  "c3b5",
+                  "c7c5",
+                  "b5a7",
+                  "b8a8"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 28
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 116,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e5f6"
+      ],
+      "fen": "r1b1kb1r/ppp1qppp/3p1n2/4P3/5n2/3PN3/PPP2PPP/RNBQK2R w KQkq - 1 9",
+      "id": "chess-candidate-018",
+      "label": {
+        "best_score_cp": -42,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 391,
+        "legal_move_count": 34,
+        "principal_variation": [
+          "e5f6",
+          "e7f6",
+          "b1c3",
+          "c7c6",
+          "c3e4",
+          "f6g6",
+          "d1f3",
+          "f4e6"
+        ],
+        "second_score_cp": -433,
+        "source_ply": 16,
+        "verification": [
+          {
+            "best_score_cp": -31,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 406,
+            "second_score_cp": -437,
+            "top_move": "e5f6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e5f6",
+                "pv": [
+                  "e5f6",
+                  "e7f6",
+                  "b1c3",
+                  "c7c6",
+                  "c3e4",
+                  "f6g6",
+                  "d1f3",
+                  "f4e6"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -31
+              },
+              {
+                "mate_in": null,
+                "move": "e5d6",
+                "pv": [
+                  "e5d6",
+                  "e7e5",
+                  "e1g1",
+                  "f8d6",
+                  "g2g3",
+                  "e8g8",
+                  "b1c3",
+                  "f4h3"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -437
+              },
+              {
+                "mate_in": null,
+                "move": "e1g1",
+                "pv": [
+                  "e1g1",
+                  "d6e5",
+                  "b1c3",
+                  "c8e6",
+                  "d1f3",
+                  "c7c6",
+                  "d3d4",
+                  "f4g6"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -457
+              }
+            ]
+          },
+          {
+            "best_score_cp": -42,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 391,
+            "second_score_cp": -433,
+            "top_move": "e5f6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e5f6",
+                "pv": [
+                  "e5f6",
+                  "e7f6",
+                  "b1c3",
+                  "c7c6",
+                  "c3e4",
+                  "f6g6",
+                  "d1f3",
+                  "f4e6"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -42
+              },
+              {
+                "mate_in": null,
+                "move": "e1g1",
+                "pv": [
+                  "e1g1",
+                  "d6e5",
+                  "f1e1",
+                  "c8e6",
+                  "e3c4",
+                  "f4g6",
+                  "b1c3",
+                  "e6c4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -433
+              },
+              {
+                "mate_in": null,
+                "move": "e5d6",
+                "pv": [
+                  "e5d6",
+                  "e7e5",
+                  "e1g1",
+                  "f8d6",
+                  "g2g3",
+                  "e8g8",
+                  "b1c3",
+                  "f8e8"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -439
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 27,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "c7c6"
+      ],
+      "fen": "2b1k1nr/r1q2ppp/ppN2b2/3p2B1/8/2N2B2/PPP2PPP/R2Q1RK1 b k - 1 13",
+      "id": "chess-candidate-009",
+      "label": {
+        "best_score_cp": -370,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 198,
+        "legal_move_count": 35,
+        "principal_variation": [
+          "c7c6",
+          "f1e1",
+          "e8f8",
+          "f3d5",
+          "c6c7",
+          "g5e3",
+          "g8e7",
+          "d5f3"
+        ],
+        "second_score_cp": -568,
+        "source_ply": 25,
+        "verification": [
+          {
+            "best_score_cp": -386,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 125,
+            "second_score_cp": -511,
+            "top_move": "c7c6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "c7c6",
+                "pv": [
+                  "c7c6",
+                  "f1e1",
+                  "e8f8",
+                  "f3d5",
+                  "c6c7",
+                  "d1e2",
+                  "f6e7",
+                  "g5e7"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -386
+              },
+              {
+                "mate_in": null,
+                "move": "f6g5",
+                "pv": [
+                  "f6g5",
+                  "f1e1",
+                  "c8e6",
+                  "c6a7",
+                  "g8e7",
+                  "c3d5",
+                  "c7a7",
+                  "d5e7"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -511
+              },
+              {
+                "mate_in": null,
+                "move": "f6c3",
+                "pv": [
+                  "f6c3",
+                  "c6a7",
+                  "c3e5",
+                  "a7c8",
+                  "e5h2",
+                  "g1h1",
+                  "h7h6",
+                  "f1e1"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -583
+              }
+            ]
+          },
+          {
+            "best_score_cp": -370,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 198,
+            "second_score_cp": -568,
+            "top_move": "c7c6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "c7c6",
+                "pv": [
+                  "c7c6",
+                  "f1e1",
+                  "e8f8",
+                  "f3d5",
+                  "c6c7",
+                  "g5e3",
+                  "g8e7",
+                  "d5f3"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -370
+              },
+              {
+                "mate_in": null,
+                "move": "f6g5",
+                "pv": [
+                  "f6g5",
+                  "d1d5",
+                  "g5e7",
+                  "c6a7",
+                  "c7a7",
+                  "d5e5",
+                  "g8f6",
+                  "c3d5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -568
+              },
+              {
+                "mate_in": null,
+                "move": "f6c3",
+                "pv": [
+                  "f6c3",
+                  "c6a7",
+                  "h7h6",
+                  "g5h4",
+                  "c7a7",
+                  "b2c3",
+                  "g8e7",
+                  "h4e7"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -622
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 14,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "b4c5"
+      ],
+      "fen": "r1bqk2r/ppp2ppp/2nb4/2n5/1P6/5N2/P1PN1PPP/R1BQKB1R w KQkq - 0 8",
+      "id": "chess-candidate-068",
+      "label": {
+        "best_score_cp": 309,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 309,
+        "legal_move_count": 30,
+        "principal_variation": [
+          "b4c5",
+          "d6c5",
+          "f1e2",
+          "d8f6",
+          "d2b3",
+          "c5b4",
+          "c1d2",
+          "c8f5"
+        ],
+        "second_score_cp": 0,
+        "source_ply": 14,
+        "verification": [
+          {
+            "best_score_cp": 308,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 359,
+            "second_score_cp": -51,
+            "top_move": "b4c5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b4c5",
+                "pv": [
+                  "b4c5",
+                  "d6c5",
+                  "f1b5",
+                  "d8e7",
+                  "d1e2",
+                  "e7e2",
+                  "e1e2",
+                  "e8g8"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 308
+              },
+              {
+                "mate_in": null,
+                "move": "f1b5",
+                "pv": [
+                  "f1b5",
+                  "d8e7",
+                  "d1e2",
+                  "e7e2",
+                  "e1e2",
+                  "c5e6",
+                  "c2c3",
+                  "a7a5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -51
+              },
+              {
+                "mate_in": null,
+                "move": "d1e2",
+                "pv": [
+                  "d1e2",
+                  "c5e6",
+                  "b4b5",
+                  "c6b4",
+                  "d2e4",
+                  "e8g8",
+                  "a2a3",
+                  "b4d5"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -59
+              }
+            ]
+          },
+          {
+            "best_score_cp": 309,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 309,
+            "second_score_cp": 0,
+            "top_move": "b4c5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b4c5",
+                "pv": [
+                  "b4c5",
+                  "d6c5",
+                  "f1e2",
+                  "d8f6",
+                  "d2b3",
+                  "c5b4",
+                  "c1d2",
+                  "c8f5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 309
+              },
+              {
+                "mate_in": null,
+                "move": "d1e2",
+                "pv": [
+                  "d1e2",
+                  "c5e6",
+                  "c1b2",
+                  "e8g8",
+                  "e1c1",
+                  "d6b4",
+                  "e2e3",
+                  "b4c5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 0
+              },
+              {
+                "mate_in": null,
+                "move": "f1b5",
+                "pv": [
+                  "f1b5",
+                  "d8e7",
+                  "d1e2",
+                  "e7e2",
+                  "e1e2",
+                  "c5e6",
+                  "c2c3",
+                  "e6f4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -49
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 104,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "h6g5"
+      ],
+      "fen": "rnb1kb1r/1p1pqp2/p4npp/2pP2B1/2P5/3B4/PPQ1NPPP/RN2K2R b KQkq - 1 9",
+      "id": "chess-candidate-078",
+      "label": {
+        "best_score_cp": 311,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 388,
+        "legal_move_count": 25,
+        "principal_variation": [
+          "h6g5",
+          "e1g1",
+          "d7d6",
+          "b1d2",
+          "b8d7",
+          "a1e1",
+          "d7e5",
+          "f2f4"
+        ],
+        "second_score_cp": -77,
+        "source_ply": 17,
+        "verification": [
+          {
+            "best_score_cp": 325,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 365,
+            "second_score_cp": -40,
+            "top_move": "h6g5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "h6g5",
+                "pv": [
+                  "h6g5",
+                  "b1d2",
+                  "d7d6",
+                  "e1g1",
+                  "b8d7",
+                  "a1e1",
+                  "d7e5",
+                  "f2f4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 325
+              },
+              {
+                "mate_in": null,
+                "move": "d7d6",
+                "pv": [
+                  "d7d6",
+                  "g5h4",
+                  "b8d7",
+                  "f2f4",
+                  "g6g5",
+                  "h4f2",
+                  "f6g4",
+                  "e1g1"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -40
+              },
+              {
+                "mate_in": null,
+                "move": "f8g7",
+                "pv": [
+                  "f8g7",
+                  "g5h4",
+                  "d7d6",
+                  "e1g1",
+                  "b8d7",
+                  "f2f4",
+                  "g6g5",
+                  "h4f2"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -88
+              }
+            ]
+          },
+          {
+            "best_score_cp": 311,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 388,
+            "second_score_cp": -77,
+            "top_move": "h6g5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "h6g5",
+                "pv": [
+                  "h6g5",
+                  "e1g1",
+                  "d7d6",
+                  "b1d2",
+                  "b8d7",
+                  "a1e1",
+                  "d7e5",
+                  "f2f4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 311
+              },
+              {
+                "mate_in": null,
+                "move": "f8g7",
+                "pv": [
+                  "f8g7",
+                  "g5h4",
+                  "d7d6",
+                  "e1g1",
+                  "b8d7",
+                  "b1d2",
+                  "d7e5",
+                  "a1e1"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -77
+              },
+              {
+                "mate_in": null,
+                "move": "d7d6",
+                "pv": [
+                  "d7d6",
+                  "g5h4",
+                  "b8d7",
+                  "b1d2",
+                  "d7e5",
+                  "e1g1",
+                  "f8g7",
+                  "f2f4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -80
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 115,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "g2c6"
+      ],
+      "fen": "2b1r2k/r1P1b1pp/2q1p3/1p2p3/p2p4/N5PP/PP1BPPB1/R4RK1 w - - 0 22",
+      "id": "chess-candidate-082",
+      "label": {
+        "best_score_cp": 534,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 916,
+        "legal_move_count": 36,
+        "principal_variation": [
+          "g2c6",
+          "e7a3",
+          "c6e8",
+          "a3b2",
+          "a1c1",
+          "h8g8",
+          "e8b5",
+          "e5e4"
+        ],
+        "second_score_cp": -382,
+        "source_ply": 42,
+        "verification": [
+          {
+            "best_score_cp": 522,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 793,
+            "second_score_cp": -271,
+            "top_move": "g2c6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "g2c6",
+                "pv": [
+                  "g2c6",
+                  "e7a3",
+                  "c6e8",
+                  "a3b2",
+                  "a1c1",
+                  "b2c1",
+                  "f1c1",
+                  "b5b4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 522
+              },
+              {
+                "mate_in": null,
+                "move": "a1c1",
+                "pv": [
+                  "a1c1",
+                  "c6b6",
+                  "c1c6",
+                  "b6b7",
+                  "f1a1",
+                  "e7a3",
+                  "b2a3",
+                  "b7c7"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -271
+              },
+              {
+                "mate_in": null,
+                "move": "f1c1",
+                "pv": [
+                  "f1c1",
+                  "c6b6",
+                  "c1c6",
+                  "b6b7",
+                  "a1c1",
+                  "c8d7",
+                  "c7c8q",
+                  "b7c8"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -311
+              }
+            ]
+          },
+          {
+            "best_score_cp": 534,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 916,
+            "second_score_cp": -382,
+            "top_move": "g2c6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "g2c6",
+                "pv": [
+                  "g2c6",
+                  "e7a3",
+                  "c6e8",
+                  "a3b2",
+                  "a1c1",
+                  "h8g8",
+                  "e8b5",
+                  "e5e4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 534
+              },
+              {
+                "mate_in": null,
+                "move": "f1c1",
+                "pv": [
+                  "f1c1",
+                  "c6b6",
+                  "g2c6",
+                  "e8f8",
+                  "a3b5",
+                  "a7c7",
+                  "b5c7",
+                  "b6c7"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -382
+              },
+              {
+                "mate_in": null,
+                "move": "a1c1",
+                "pv": [
+                  "a1c1",
+                  "c6b6",
+                  "g2c6",
+                  "e8f8",
+                  "a3b5",
+                  "a7c7",
+                  "b5c7",
+                  "b6c7"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -402
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 119,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e1f1"
+      ],
+      "fen": "r1b2rk1/p2q1ppp/3b1P2/8/2pPN3/3n1N2/PP3PPP/R1BQK2R w KQ - 2 20",
+      "id": "chess-candidate-039",
+      "label": {
+        "best_score_cp": -191,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 276,
+        "legal_move_count": 4,
+        "principal_variation": [
+          "e1f1",
+          "f8e8",
+          "e4d6",
+          "d7d6",
+          "f1g1",
+          "d6f6",
+          "c1e3",
+          "d3b2"
+        ],
+        "second_score_cp": -467,
+        "source_ply": 38,
+        "verification": [
+          {
+            "best_score_cp": -174,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 233,
+            "second_score_cp": -407,
+            "top_move": "e1f1",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e1f1",
+                "pv": [
+                  "e1f1",
+                  "f8e8",
+                  "e4d6",
+                  "d7d6",
+                  "c1e3",
+                  "d6f6",
+                  "f3e5",
+                  "d3b2"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -174
+              },
+              {
+                "mate_in": null,
+                "move": "e1d2",
+                "pv": [
+                  "e1d2",
+                  "d6b4",
+                  "d2c2",
+                  "c8b7",
+                  "f3g5",
+                  "f8e8",
+                  "f2f3",
+                  "d7d4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -407
+              },
+              {
+                "mate_in": null,
+                "move": "d1d3",
+                "pv": [
+                  "d1d3",
+                  "c4d3",
+                  "e1g1",
+                  "f8e8",
+                  "f3e5",
+                  "d6e5",
+                  "d4e5",
+                  "e8e5"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -466
+              }
+            ]
+          },
+          {
+            "best_score_cp": -191,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 276,
+            "second_score_cp": -467,
+            "top_move": "e1f1",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e1f1",
+                "pv": [
+                  "e1f1",
+                  "f8e8",
+                  "e4d6",
+                  "d7d6",
+                  "f1g1",
+                  "d6f6",
+                  "c1e3",
+                  "d3b2"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -191
+              },
+              {
+                "mate_in": null,
+                "move": "d1d3",
+                "pv": [
+                  "d1d3",
+                  "c4d3",
+                  "e1g1",
+                  "f8e8",
+                  "f3g5",
+                  "h7h6",
+                  "f2f3",
+                  "d6b4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -467
+              },
+              {
+                "mate_in": null,
+                "move": "e1d2",
+                "pv": [
+                  "e1d2",
+                  "f8e8",
+                  "f3g5",
+                  "d6b4",
+                  "d2c2",
+                  "d7d4",
+                  "d1e2",
+                  "h7h6"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -483
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 59,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d5e4"
+      ],
+      "fen": "r1bq1r2/1p3pkp/5bp1/p2p4/3NQp2/1B4P1/PPP2P1P/2KRR3 b - - 3 23",
+      "id": "chess-candidate-057",
+      "label": {
+        "best_score_cp": 713,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 329,
+        "legal_move_count": 34,
+        "principal_variation": [
+          "d5e4",
+          "e1e4",
+          "f4g3",
+          "f2g3",
+          "a8a6",
+          "c2c3",
+          "a5a4",
+          "b3c2"
+        ],
+        "second_score_cp": 384,
+        "source_ply": 45,
+        "verification": [
+          {
+            "best_score_cp": 649,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 310,
+            "second_score_cp": 339,
+            "top_move": "d5e4",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d5e4",
+                "pv": [
+                  "d5e4",
+                  "e1e4",
+                  "a5a4",
+                  "b3c4",
+                  "h7h6",
+                  "e4f4",
+                  "f6g5",
+                  "c1b1"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 649
+              },
+              {
+                "mate_in": null,
+                "move": "f4g3",
+                "pv": [
+                  "f4g3",
+                  "b3d5",
+                  "g3f2",
+                  "e1e2",
+                  "f6g5",
+                  "c1b1",
+                  "d8f6",
+                  "e4g2"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 339
+              },
+              {
+                "mate_in": null,
+                "move": "c8g4",
+                "pv": [
+                  "c8g4",
+                  "b3d5",
+                  "g4d1",
+                  "e1d1",
+                  "f8e8",
+                  "d4e6",
+                  "f7e6",
+                  "d5b7"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 334
+              }
+            ]
+          },
+          {
+            "best_score_cp": 713,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 329,
+            "second_score_cp": 384,
+            "top_move": "d5e4",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d5e4",
+                "pv": [
+                  "d5e4",
+                  "e1e4",
+                  "f4g3",
+                  "f2g3",
+                  "a8a6",
+                  "c2c3",
+                  "a5a4",
+                  "b3c2"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 713
+              },
+              {
+                "mate_in": null,
+                "move": "f4g3",
+                "pv": [
+                  "f4g3",
+                  "b3d5",
+                  "g3h2",
+                  "e4g2",
+                  "d8c7",
+                  "c1b1",
+                  "a8a6",
+                  "c2c4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 384
+              },
+              {
+                "mate_in": null,
+                "move": "c8g4",
+                "pv": [
+                  "c8g4",
+                  "b3d5",
+                  "g4d1",
+                  "e1d1",
+                  "f8e8",
+                  "e4f3",
+                  "f4g3",
+                  "h2g3"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 352
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 83,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "b7c6"
+      ],
+      "fen": "r1bqk2r/pp2bppp/2N1pn2/2p5/2pP4/2N1P3/PP2BPPP/R1BQK2R b KQkq - 0 8",
+      "id": "chess-candidate-064",
+      "label": {
+        "best_score_cp": -10,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 441,
+        "legal_move_count": 33,
+        "principal_variation": [
+          "b7c6",
+          "d4c5",
+          "d8d1",
+          "c3d1",
+          "f6d7",
+          "e2c4",
+          "a7a5",
+          "c1d2"
+        ],
+        "second_score_cp": -451,
+        "source_ply": 15,
+        "verification": [
+          {
+            "best_score_cp": -1,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 472,
+            "second_score_cp": -473,
+            "top_move": "b7c6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b7c6",
+                "pv": [
+                  "b7c6",
+                  "d4c5",
+                  "d8d1",
+                  "c3d1",
+                  "e7c5",
+                  "e2c4",
+                  "c8b7",
+                  "e1g1"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -1
+              },
+              {
+                "mate_in": null,
+                "move": "d8c7",
+                "pv": [
+                  "d8c7",
+                  "c6e7",
+                  "c7e7",
+                  "d4c5",
+                  "e7c5",
+                  "a2a4",
+                  "e8g8",
+                  "e1g1"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -473
+              },
+              {
+                "mate_in": null,
+                "move": "d8d6",
+                "pv": [
+                  "d8d6",
+                  "c6e7",
+                  "c8d7",
+                  "e1g1",
+                  "d6e7",
+                  "d4c5",
+                  "e8g8",
+                  "d1c2"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -483
+              }
+            ]
+          },
+          {
+            "best_score_cp": -10,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 441,
+            "second_score_cp": -451,
+            "top_move": "b7c6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b7c6",
+                "pv": [
+                  "b7c6",
+                  "d4c5",
+                  "d8d1",
+                  "c3d1",
+                  "f6d7",
+                  "e2c4",
+                  "a7a5",
+                  "c1d2"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -10
+              },
+              {
+                "mate_in": null,
+                "move": "d8c7",
+                "pv": [
+                  "d8c7",
+                  "c6e7",
+                  "c7e7",
+                  "d4c5",
+                  "b7b5",
+                  "e2f3",
+                  "a8b8",
+                  "b2b4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -451
+              },
+              {
+                "mate_in": null,
+                "move": "d8d6",
+                "pv": [
+                  "d8d6",
+                  "c6e7",
+                  "d6e7",
+                  "d4c5",
+                  "b7b5",
+                  "d1d6",
+                  "e7d6",
+                  "c5d6"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -454
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 98,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "c3d3"
+      ],
+      "fen": "7k/1p2bpr1/r4n1p/4p3/1pN5/N1qB3P/5n1K/R5R1 b - - 1 27",
+      "id": "chess-candidate-015",
+      "label": {
+        "best_score_cp": 99994,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 98664,
+        "legal_move_count": 53,
+        "principal_variation": [
+          "c3d3",
+          "c4e3",
+          "d3e3",
+          "g1g7",
+          "e3h3",
+          "h2g1",
+          "e7c5",
+          "g7h7"
+        ],
+        "second_score_cp": 1330,
+        "source_ply": 53,
+        "verification": [
+          {
+            "best_score_cp": 99992,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 98925,
+            "second_score_cp": 1067,
+            "top_move": "c3d3",
+            "variations": [
+              {
+                "mate_in": 8,
+                "move": "c3d3",
+                "pv": [
+                  "c3d3",
+                  "c4e3",
+                  "d3e3",
+                  "g1g7",
+                  "e3h3",
+                  "h2g1",
+                  "f2g4",
+                  "g7g8"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 99992
+              },
+              {
+                "mate_in": null,
+                "move": "f6g4",
+                "pv": [
+                  "f6g4",
+                  "g1g4",
+                  "f2g4",
+                  "h3g4",
+                  "c3d3",
+                  "c4e5",
+                  "d3e2",
+                  "h2h3"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 1067
+              },
+              {
+                "mate_in": null,
+                "move": "g7g1",
+                "pv": [
+                  "g7g1",
+                  "c4d6",
+                  "c3a1",
+                  "a3c2",
+                  "f2g4",
+                  "h3g4",
+                  "f6g4",
+                  "h2h3"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 1009
+              }
+            ]
+          },
+          {
+            "best_score_cp": 99994,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 98664,
+            "second_score_cp": 1330,
+            "top_move": "c3d3",
+            "variations": [
+              {
+                "mate_in": 6,
+                "move": "c3d3",
+                "pv": [
+                  "c3d3",
+                  "c4e3",
+                  "d3e3",
+                  "g1g7",
+                  "e3h3",
+                  "h2g1",
+                  "e7c5",
+                  "g7h7"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 99994
+              },
+              {
+                "mate_in": null,
+                "move": "f6g4",
+                "pv": [
+                  "f6g4",
+                  "g1g4",
+                  "f2g4",
+                  "h3g4",
+                  "c3d3",
+                  "a1g1",
+                  "b4a3",
+                  "c4a5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 1330
+              },
+              {
+                "mate_in": null,
+                "move": "g7g1",
+                "pv": [
+                  "g7g1",
+                  "h2g1",
+                  "f2d3",
+                  "a1f1",
+                  "h8h7",
+                  "c4b6",
+                  "a6b6",
+                  "a3c4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 1179
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 23,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e3d4"
+      ],
+      "fen": "r1bq1rk1/1pp1bppp/3p1n2/p7/2PnP3/3BB2P/PP3PP1/RN1Q1RK1 w - - 0 10",
+      "id": "chess-candidate-042",
+      "label": {
+        "best_score_cp": 73,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 416,
+        "legal_move_count": 35,
+        "principal_variation": [
+          "e3d4",
+          "f6d7",
+          "b1c3",
+          "d7e5",
+          "c3d5",
+          "c8e6",
+          "d3e2",
+          "e6d5"
+        ],
+        "second_score_cp": -343,
+        "source_ply": 18,
+        "verification": [
+          {
+            "best_score_cp": 69,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 383,
+            "second_score_cp": -314,
+            "top_move": "e3d4",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e3d4",
+                "pv": [
+                  "e3d4",
+                  "f6d7",
+                  "b1c3",
+                  "d7e5",
+                  "f2f4",
+                  "e5d3",
+                  "d1d3",
+                  "f7f5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 69
+              },
+              {
+                "mate_in": null,
+                "move": "b1c3",
+                "pv": [
+                  "b1c3",
+                  "d4c6",
+                  "d1e2",
+                  "g7g6",
+                  "a1d1",
+                  "f8e8",
+                  "f2f4",
+                  "f6h5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -314
+              },
+              {
+                "mate_in": null,
+                "move": "f2f4",
+                "pv": [
+                  "f2f4",
+                  "c7c5",
+                  "b1c3",
+                  "g7g6",
+                  "d1d2",
+                  "c8d7",
+                  "f4f5",
+                  "d7c6"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -329
+              }
+            ]
+          },
+          {
+            "best_score_cp": 73,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 416,
+            "second_score_cp": -343,
+            "top_move": "e3d4",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e3d4",
+                "pv": [
+                  "e3d4",
+                  "f6d7",
+                  "b1c3",
+                  "d7e5",
+                  "c3d5",
+                  "c8e6",
+                  "d3e2",
+                  "e6d5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 73
+              },
+              {
+                "mate_in": null,
+                "move": "f2f4",
+                "pv": [
+                  "f2f4",
+                  "c7c5",
+                  "b1c3",
+                  "g8h8",
+                  "e4e5",
+                  "d6e5",
+                  "f4e5",
+                  "f6g8"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -343
+              },
+              {
+                "mate_in": null,
+                "move": "b1c3",
+                "pv": [
+                  "b1c3",
+                  "c7c5",
+                  "f2f4",
+                  "g8h8",
+                  "e4e5",
+                  "d6e5",
+                  "f4e5",
+                  "f6g8"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -344
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 62,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "b4a3"
+      ],
+      "fen": "r1b1k2r/pp2q1p1/2p3p1/4n2p/Pb1NP3/B6P/B1P2PP1/R2Q1RK1 b - - 2 20",
+      "id": "chess-candidate-040",
+      "label": {
+        "best_score_cp": 166,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 239,
+        "legal_move_count": 44,
+        "principal_variation": [
+          "b4a3",
+          "f2f4",
+          "e5d7",
+          "a1b1",
+          "a3c5",
+          "c2c3",
+          "h8f8",
+          "a4a5"
+        ],
+        "second_score_cp": -73,
+        "source_ply": 39,
+        "verification": [
+          {
+            "best_score_cp": 161,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 260,
+            "second_score_cp": -99,
+            "top_move": "b4a3",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b4a3",
+                "pv": [
+                  "b4a3",
+                  "f2f4",
+                  "e5f7",
+                  "d1d3",
+                  "a3c5",
+                  "g1h1",
+                  "c8g4",
+                  "c2c3"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 161
+              },
+              {
+                "mate_in": null,
+                "move": "c8h3",
+                "pv": [
+                  "c8h3",
+                  "g2h3",
+                  "b4a3",
+                  "d4e6",
+                  "g6g5",
+                  "f2f4",
+                  "g5f4",
+                  "f1f4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -99
+              },
+              {
+                "mate_in": null,
+                "move": "h8f8",
+                "pv": [
+                  "h8f8",
+                  "a3b4",
+                  "e7b4",
+                  "f2f4",
+                  "c8h3",
+                  "f4e5",
+                  "f8f1",
+                  "g1f1"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -230
+              }
+            ]
+          },
+          {
+            "best_score_cp": 166,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 239,
+            "second_score_cp": -73,
+            "top_move": "b4a3",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b4a3",
+                "pv": [
+                  "b4a3",
+                  "f2f4",
+                  "e5d7",
+                  "a1b1",
+                  "a3c5",
+                  "c2c3",
+                  "h8f8",
+                  "a4a5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 166
+              },
+              {
+                "mate_in": null,
+                "move": "c8h3",
+                "pv": [
+                  "c8h3",
+                  "g2h3",
+                  "b4a3",
+                  "d4e6",
+                  "g6g5",
+                  "g1h1",
+                  "a3d6",
+                  "a1b1"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -73
+              },
+              {
+                "mate_in": null,
+                "move": "a7a5",
+                "pv": [
+                  "a7a5",
+                  "a3b4",
+                  "a5b4",
+                  "f2f4",
+                  "e5d7",
+                  "d1d2",
+                  "a8a4",
+                  "f4f5"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -228
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 60,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "f2e3"
+      ],
+      "fen": "rn2k1nr/pQ4pp/2pb1p2/5b2/2P1p1P1/P2Pq3/1P2BP1P/RN2K1NR w KQkq - 0 12",
+      "id": "chess-candidate-031",
+      "label": {
+        "best_score_cp": 671,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 367,
+        "legal_move_count": 35,
+        "principal_variation": [
+          "f2e3",
+          "f5g6",
+          "c4c5",
+          "g8h6",
+          "c5d6",
+          "e8g8",
+          "d3e4",
+          "g6e4"
+        ],
+        "second_score_cp": 304,
+        "source_ply": 22,
+        "verification": [
+          {
+            "best_score_cp": 656,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 393,
+            "second_score_cp": 263,
+            "top_move": "f2e3",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "f2e3",
+                "pv": [
+                  "f2e3",
+                  "g8e7",
+                  "g4f5",
+                  "e8g8",
+                  "c4c5",
+                  "b8d7",
+                  "c5d6",
+                  "e4d3"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 656
+              },
+              {
+                "mate_in": null,
+                "move": "g4f5",
+                "pv": [
+                  "g4f5",
+                  "e3c1",
+                  "e2d1",
+                  "g8e7",
+                  "g1e2",
+                  "c1h6",
+                  "d3e4",
+                  "e8g8"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 263
+              },
+              {
+                "mate_in": null,
+                "move": "b1d2",
+                "pv": [
+                  "b1d2",
+                  "e3b6",
+                  "b7g7",
+                  "f5g6",
+                  "d2e4",
+                  "g6e4",
+                  "d3e4",
+                  "b8d7"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 247
+              }
+            ]
+          },
+          {
+            "best_score_cp": 671,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 367,
+            "second_score_cp": 304,
+            "top_move": "f2e3",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "f2e3",
+                "pv": [
+                  "f2e3",
+                  "f5g6",
+                  "c4c5",
+                  "g8h6",
+                  "c5d6",
+                  "e8g8",
+                  "d3e4",
+                  "g6e4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 671
+              },
+              {
+                "mate_in": null,
+                "move": "g4f5",
+                "pv": [
+                  "g4f5",
+                  "e3c1",
+                  "e2d1",
+                  "g8e7",
+                  "g1e2",
+                  "c1h6",
+                  "d3e4",
+                  "h6h4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 304
+              },
+              {
+                "mate_in": null,
+                "move": "b1d2",
+                "pv": [
+                  "b1d2",
+                  "e3b6",
+                  "b7g7",
+                  "f5e6",
+                  "d2e4",
+                  "d6c7",
+                  "g7h8",
+                  "b8d7"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 268
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 45,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e1f2"
+      ],
+      "fen": "r1bq1k1r/pppp1ppp/2n2N2/4p3/2B1P3/P7/1PPPNbPP/R1BQK2R w KQ - 0 8",
+      "id": "chess-candidate-026",
+      "label": {
+        "best_score_cp": 420,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 553,
+        "legal_move_count": 2,
+        "principal_variation": [
+          "e1f2",
+          "d8f6",
+          "f2g1",
+          "f6e7",
+          "d2d4",
+          "e5d4",
+          "c4d5",
+          "h7h5"
+        ],
+        "second_score_cp": -133,
+        "source_ply": 14,
+        "verification": [
+          {
+            "best_score_cp": 403,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 557,
+            "second_score_cp": -154,
+            "top_move": "e1f2",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e1f2",
+                "pv": [
+                  "e1f2",
+                  "d8f6",
+                  "f2g1",
+                  "f6e7",
+                  "d2d3",
+                  "f7f5",
+                  "h2h4",
+                  "f5f4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 403
+              },
+              {
+                "mate_in": null,
+                "move": "e1f1",
+                "pv": [
+                  "e1f1",
+                  "d8f6",
+                  "e2g1",
+                  "f2b6",
+                  "g1f3",
+                  "d7d6",
+                  "d2d3",
+                  "c6d4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -154
+              }
+            ]
+          },
+          {
+            "best_score_cp": 420,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 553,
+            "second_score_cp": -133,
+            "top_move": "e1f2",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e1f2",
+                "pv": [
+                  "e1f2",
+                  "d8f6",
+                  "f2g1",
+                  "f6e7",
+                  "d2d4",
+                  "e5d4",
+                  "c4d5",
+                  "h7h5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 420
+              },
+              {
+                "mate_in": null,
+                "move": "e1f1",
+                "pv": [
+                  "e1f1",
+                  "d8f6",
+                  "e2g1",
+                  "f2b6",
+                  "g1f3",
+                  "d7d6",
+                  "f1e1",
+                  "c6d4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -133
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 39,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "c8d8"
+      ],
+      "fen": "r1qR2k1/5pp1/8/PN2n2p/1B2p3/2P1P2P/P1Q1BPP1/2K3R1 b - - 0 24",
+      "id": "chess-candidate-043",
+      "label": {
+        "best_score_cp": -852,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 509,
+        "legal_move_count": 2,
+        "principal_variation": [
+          "c8d8",
+          "c2e4",
+          "a8a5",
+          "b4a5",
+          "d8a5",
+          "g1d1",
+          "e5g6",
+          "c1b2"
+        ],
+        "second_score_cp": -1361,
+        "source_ply": 47,
+        "verification": [
+          {
+            "best_score_cp": -766,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 309,
+            "second_score_cp": -1075,
+            "top_move": "c8d8",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "c8d8",
+                "pv": [
+                  "c8d8",
+                  "g1d1",
+                  "d8h4",
+                  "g2g3",
+                  "h4f6",
+                  "c2e4",
+                  "a8e8",
+                  "e4f4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -766
+              },
+              {
+                "mate_in": null,
+                "move": "g8h7",
+                "pv": [
+                  "g8h7",
+                  "d8c8",
+                  "a8c8",
+                  "c2e4",
+                  "e5g6",
+                  "e4b7",
+                  "c8d8",
+                  "b7f7"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -1075
+              }
+            ]
+          },
+          {
+            "best_score_cp": -852,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 509,
+            "second_score_cp": -1361,
+            "top_move": "c8d8",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "c8d8",
+                "pv": [
+                  "c8d8",
+                  "c2e4",
+                  "a8a5",
+                  "b4a5",
+                  "d8a5",
+                  "g1d1",
+                  "e5g6",
+                  "c1b2"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -852
+              },
+              {
+                "mate_in": null,
+                "move": "g8h7",
+                "pv": [
+                  "g8h7",
+                  "d8c8",
+                  "e5g4",
+                  "c8a8",
+                  "g4f2",
+                  "c2b3",
+                  "f2d3",
+                  "c1b1"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -1361
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 63,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d5c6"
+      ],
+      "fen": "r2qk2r/1p2npbp/2n1p1p1/p1PP4/P7/5P2/1PPN1P1P/R1BQKBR1 w Qkq - 1 13",
+      "id": "chess-candidate-071",
+      "label": {
+        "best_score_cp": 430,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 217,
+        "legal_move_count": 32,
+        "principal_variation": [
+          "d5c6",
+          "b7c6",
+          "d2c4",
+          "d8c7",
+          "c4d6",
+          "e8f8",
+          "a1a3",
+          "e7d5"
+        ],
+        "second_score_cp": 213,
+        "source_ply": 24,
+        "verification": [
+          {
+            "best_score_cp": 404,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 178,
+            "second_score_cp": 226,
+            "top_move": "d5c6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d5c6",
+                "pv": [
+                  "d5c6",
+                  "e7c6",
+                  "c2c3",
+                  "e8g8",
+                  "g1g3",
+                  "d8c7",
+                  "d2e4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 404
+              },
+              {
+                "mate_in": null,
+                "move": "d5d6",
+                "pv": [
+                  "d5d6",
+                  "e7d5",
+                  "g1g3",
+                  "e8g8",
+                  "d2b3",
+                  "d8f6",
+                  "c2c3",
+                  "b7b6"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 226
+              },
+              {
+                "mate_in": null,
+                "move": "d5e6",
+                "pv": [
+                  "d5e6",
+                  "f7e6",
+                  "c2c3",
+                  "e8g8",
+                  "d2e4",
+                  "e7d5",
+                  "f1h3",
+                  "d8e7"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 208
+              }
+            ]
+          },
+          {
+            "best_score_cp": 430,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 217,
+            "second_score_cp": 213,
+            "top_move": "d5c6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d5c6",
+                "pv": [
+                  "d5c6",
+                  "b7c6",
+                  "d2c4",
+                  "d8c7",
+                  "c4d6",
+                  "e8f8",
+                  "a1a3",
+                  "e7d5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 430
+              },
+              {
+                "mate_in": null,
+                "move": "d5d6",
+                "pv": [
+                  "d5d6",
+                  "e7d5",
+                  "c2c3",
+                  "e8g8",
+                  "d2c4",
+                  "d8c8",
+                  "g1g5",
+                  "f7f5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 213
+              },
+              {
+                "mate_in": null,
+                "move": "d5e6",
+                "pv": [
+                  "d5e6",
+                  "f7e6",
+                  "c2c3",
+                  "e8g8",
+                  "d2e4",
+                  "d8d5",
+                  "c1e3",
+                  "e7f5"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 201
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 108,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "b5e2"
+      ],
+      "fen": "rn1qkb1r/ppp2ppp/4p3/1b1n4/3P4/2P2N2/PP2QPPP/RNB1K2R b KQkq - 0 7",
+      "id": "chess-candidate-008",
+      "label": {
+        "best_score_cp": 745,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 199,
+        "legal_move_count": 44,
+        "principal_variation": [
+          "b5e2",
+          "e1e2",
+          "b8c6",
+          "h1d1",
+          "d5f6",
+          "e2f1",
+          "h7h6",
+          "c3c4"
+        ],
+        "second_score_cp": 546,
+        "source_ply": 13,
+        "verification": [
+          {
+            "best_score_cp": 775,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 245,
+            "second_score_cp": 530,
+            "top_move": "b5e2",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b5e2",
+                "pv": [
+                  "b5e2",
+                  "e1e2",
+                  "f8e7",
+                  "c3c4",
+                  "d5b6",
+                  "c4c5",
+                  "b6d5",
+                  "b1c3"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 775
+              },
+              {
+                "mate_in": null,
+                "move": "d5c3",
+                "pv": [
+                  "d5c3",
+                  "e2e5",
+                  "b8c6",
+                  "e5h5",
+                  "g7g6",
+                  "c1g5",
+                  "c3b1",
+                  "g5d8"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 530
+              },
+              {
+                "mate_in": null,
+                "move": "b5a6",
+                "pv": [
+                  "b5a6",
+                  "c3c4",
+                  "f8b4",
+                  "c1d2",
+                  "b4e7",
+                  "e1g1",
+                  "e8g8",
+                  "b2b3"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 405
+              }
+            ]
+          },
+          {
+            "best_score_cp": 745,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 199,
+            "second_score_cp": 546,
+            "top_move": "b5e2",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b5e2",
+                "pv": [
+                  "b5e2",
+                  "e1e2",
+                  "b8c6",
+                  "h1d1",
+                  "d5f6",
+                  "e2f1",
+                  "h7h6",
+                  "c3c4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 745
+              },
+              {
+                "mate_in": null,
+                "move": "d5c3",
+                "pv": [
+                  "d5c3",
+                  "e2c2",
+                  "c3b1",
+                  "a1b1",
+                  "f8e7",
+                  "b2b4",
+                  "b8c6",
+                  "a2a3"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 546
+              },
+              {
+                "mate_in": null,
+                "move": "b5a6",
+                "pv": [
+                  "b5a6",
+                  "c3c4",
+                  "f8b4",
+                  "c1d2",
+                  "b8c6",
+                  "e1g1",
+                  "b4d2",
+                  "b1d2"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 406
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 11,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "b7c6"
+      ],
+      "fen": "r1b2b1r/pp2k1pp/2N1pp2/q1p5/2p2B2/2n3P1/PP1QPPBP/R4RK1 b - - 0 14",
+      "id": "chess-candidate-077",
+      "label": {
+        "best_score_cp": -288,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 439,
+        "legal_move_count": 3,
+        "principal_variation": [
+          "b7c6",
+          "g2c6",
+          "a5b6",
+          "c6a8",
+          "c3b5",
+          "f1d1",
+          "e6e5",
+          "f4e3"
+        ],
+        "second_score_cp": -727,
+        "source_ply": 27,
+        "verification": [
+          {
+            "best_score_cp": -225,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 483,
+            "second_score_cp": -708,
+            "top_move": "b7c6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b7c6",
+                "pv": [
+                  "b7c6",
+                  "g2c6",
+                  "a5b6",
+                  "c6a8",
+                  "c3b5",
+                  "a1d1",
+                  "e7e8",
+                  "f4e3"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -225
+              },
+              {
+                "mate_in": null,
+                "move": "e7e8",
+                "pv": [
+                  "e7e8",
+                  "c6a5",
+                  "c3d5",
+                  "a5c4",
+                  "h7h5",
+                  "g1h1",
+                  "h5h4",
+                  "g2e4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -708
+              },
+              {
+                "mate_in": null,
+                "move": "e7f7",
+                "pv": [
+                  "e7f7",
+                  "c6a5",
+                  "c3b5",
+                  "a5c4",
+                  "h7h5",
+                  "g1h1",
+                  "h5h4",
+                  "g3g4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -720
+              }
+            ]
+          },
+          {
+            "best_score_cp": -288,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 439,
+            "second_score_cp": -727,
+            "top_move": "b7c6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b7c6",
+                "pv": [
+                  "b7c6",
+                  "g2c6",
+                  "a5b6",
+                  "c6a8",
+                  "c3b5",
+                  "f1d1",
+                  "e6e5",
+                  "f4e3"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -288
+              },
+              {
+                "mate_in": null,
+                "move": "e7f7",
+                "pv": [
+                  "e7f7",
+                  "c6a5",
+                  "c3b5",
+                  "a5c4",
+                  "f8e7",
+                  "g1h1",
+                  "e6e5",
+                  "a2a4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -727
+              },
+              {
+                "mate_in": null,
+                "move": "e7e8",
+                "pv": [
+                  "e7e8",
+                  "c6a5",
+                  "c3b5",
+                  "a5b7",
+                  "b5d4",
+                  "g1h1",
+                  "e6e5",
+                  "e2e3"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -742
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 114,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d1g4"
+      ],
+      "fen": "r2qk2r/ppp2pp1/6np/2bpp3/3NPPb1/2NP2P1/PPP4P/R1BQK2R w KQkq - 0 10",
+      "id": "chess-candidate-051",
+      "label": {
+        "best_score_cp": 52,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 328,
+        "legal_move_count": 34,
+        "principal_variation": [
+          "d1g4",
+          "e5d4",
+          "c3d5",
+          "c7c6",
+          "f4f5",
+          "h6h5",
+          "g4g5",
+          "c6d5"
+        ],
+        "second_score_cp": -276,
+        "source_ply": 18,
+        "verification": [
+          {
+            "best_score_cp": 79,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 282,
+            "second_score_cp": -203,
+            "top_move": "d1g4",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d1g4",
+                "pv": [
+                  "d1g4",
+                  "e5d4",
+                  "c3d5",
+                  "c7c6",
+                  "f4f5",
+                  "h6h5",
+                  "g4h3",
+                  "g6e5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 79
+              },
+              {
+                "mate_in": null,
+                "move": "d4f3",
+                "pv": [
+                  "d4f3",
+                  "d5d4",
+                  "c3b1",
+                  "e5f4",
+                  "h2h3",
+                  "g4f3",
+                  "d1f3",
+                  "f4g3"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -203
+              },
+              {
+                "mate_in": null,
+                "move": "d4e6",
+                "pv": [
+                  "d4e6",
+                  "g4e6",
+                  "f4f5",
+                  "e6c8",
+                  "f5g6",
+                  "f7g6",
+                  "c3d5",
+                  "e8g8"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -222
+              }
+            ]
+          },
+          {
+            "best_score_cp": 52,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 328,
+            "second_score_cp": -276,
+            "top_move": "d1g4",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d1g4",
+                "pv": [
+                  "d1g4",
+                  "e5d4",
+                  "c3d5",
+                  "c7c6",
+                  "f4f5",
+                  "h6h5",
+                  "g4g5",
+                  "c6d5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 52
+              },
+              {
+                "mate_in": null,
+                "move": "d4f3",
+                "pv": [
+                  "d4f3",
+                  "e5f4",
+                  "c1f4",
+                  "d5e4",
+                  "c3e4",
+                  "d8e7",
+                  "e1d2",
+                  "e8c8"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -276
+              },
+              {
+                "mate_in": null,
+                "move": "d4e6",
+                "pv": [
+                  "d4e6",
+                  "g4e6",
+                  "f4f5",
+                  "d5d4",
+                  "c3a4",
+                  "c5e7",
+                  "f5e6",
+                  "b7b5"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -288
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 73,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d5c4"
+      ],
+      "fen": "r1q1kb1r/1ppnppp1/p4n2/3p1b1p/2NP1B2/1QP5/PP2PPPP/R3KBNR b KQkq - 1 8",
+      "id": "chess-candidate-001",
+      "label": {
+        "best_score_cp": 441,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 282,
+        "legal_move_count": 36,
+        "principal_variation": [
+          "d5c4",
+          "b3c4",
+          "c7c5",
+          "a1c1",
+          "c5d4",
+          "c4c8",
+          "a8c8",
+          "c3d4"
+        ],
+        "second_score_cp": 159,
+        "source_ply": 15,
+        "verification": [
+          {
+            "best_score_cp": 451,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 284,
+            "second_score_cp": 167,
+            "top_move": "d5c4",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d5c4",
+                "pv": [
+                  "d5c4",
+                  "b3c4",
+                  "c7c5",
+                  "a2a3",
+                  "e7e6",
+                  "f2f3",
+                  "b7b5",
+                  "c4a2"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 451
+              },
+              {
+                "mate_in": null,
+                "move": "g7g5",
+                "pv": [
+                  "g7g5",
+                  "c4e3",
+                  "g5f4",
+                  "e3f5",
+                  "e7e6",
+                  "f5h4",
+                  "c7c5",
+                  "a2a3"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 167
+              },
+              {
+                "mate_in": null,
+                "move": "e7e6",
+                "pv": [
+                  "e7e6",
+                  "c4d2",
+                  "c7c5",
+                  "g1f3",
+                  "b7b5",
+                  "b3d1",
+                  "f8e7"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 93
+              }
+            ]
+          },
+          {
+            "best_score_cp": 441,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 282,
+            "second_score_cp": 159,
+            "top_move": "d5c4",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d5c4",
+                "pv": [
+                  "d5c4",
+                  "b3c4",
+                  "c7c5",
+                  "a1c1",
+                  "c5d4",
+                  "c4c8",
+                  "a8c8",
+                  "c3d4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 441
+              },
+              {
+                "mate_in": null,
+                "move": "g7g5",
+                "pv": [
+                  "g7g5",
+                  "c4e3",
+                  "g5f4",
+                  "e3f5",
+                  "c7c5",
+                  "g2g3",
+                  "e7e6",
+                  "f5h4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 159
+              },
+              {
+                "mate_in": null,
+                "move": "e7e6",
+                "pv": [
+                  "e7e6",
+                  "c4d2",
+                  "c7c5",
+                  "g1f3",
+                  "c5d4",
+                  "f3d4",
+                  "f5h7",
+                  "d4f3"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 120
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 1,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d6c5"
+      ],
+      "fen": "r1b1k2r/p2nbppp/2pq4/4nN2/1p2P1P1/6QP/PPP2PB1/R1B1K1NR b KQkq - 5 14",
+      "id": "chess-candidate-058",
+      "label": {
+        "best_score_cp": -205,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 151,
+        "legal_move_count": 44,
+        "principal_variation": [
+          "d6c5",
+          "g1f3",
+          "c8a6",
+          "f3d4",
+          "e7f6",
+          "c1e3",
+          "g7g6",
+          "e1c1"
+        ],
+        "second_score_cp": -356,
+        "source_ply": 27,
+        "verification": [
+          {
+            "best_score_cp": -196,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 138,
+            "second_score_cp": -334,
+            "top_move": "d6c5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d6c5",
+                "pv": [
+                  "d6c5",
+                  "g1f3",
+                  "c8a6",
+                  "f3d4",
+                  "e7f6",
+                  "c1e3",
+                  "g7g6",
+                  "e1c1"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -196
+              },
+              {
+                "mate_in": null,
+                "move": "d6c7",
+                "pv": [
+                  "d6c7",
+                  "f5g7",
+                  "e8d8",
+                  "g1f3",
+                  "e5g6",
+                  "g7f5",
+                  "e7c5",
+                  "e1g1"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -334
+              },
+              {
+                "mate_in": null,
+                "move": "d6g6",
+                "pv": [
+                  "d6g6",
+                  "f2f4",
+                  "e5c4",
+                  "f5e7",
+                  "e8e7",
+                  "b2b3",
+                  "h8e8",
+                  "b3c4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -363
+              }
+            ]
+          },
+          {
+            "best_score_cp": -205,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 151,
+            "second_score_cp": -356,
+            "top_move": "d6c5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d6c5",
+                "pv": [
+                  "d6c5",
+                  "g1f3",
+                  "c8a6",
+                  "f3d4",
+                  "e7f6",
+                  "c1e3",
+                  "g7g6",
+                  "e1c1"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -205
+              },
+              {
+                "mate_in": null,
+                "move": "d6c7",
+                "pv": [
+                  "d6c7",
+                  "f5g7",
+                  "e8d8",
+                  "g7f5",
+                  "c8a6",
+                  "f2f4",
+                  "e5c4",
+                  "f5e7"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -356
+              },
+              {
+                "mate_in": null,
+                "move": "d6g6",
+                "pv": [
+                  "d6g6",
+                  "g1e2",
+                  "h7h5",
+                  "f5e7",
+                  "e8e7",
+                  "f2f4",
+                  "e5c4",
+                  "b2b3"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -395
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 84,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d4c6"
+      ],
+      "fen": "r2k3r/1pp1bpp1/2npb3/pB5p/P2N4/2P1B2P/1PP2PP1/R3R1K1 w - - 0 18",
+      "id": "chess-candidate-041",
+      "label": {
+        "best_score_cp": 270,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 188,
+        "legal_move_count": 38,
+        "principal_variation": [
+          "d4c6",
+          "b7c6",
+          "b5c6",
+          "a8c8",
+          "e3a7",
+          "e7f6",
+          "a1d1",
+          "g7g5"
+        ],
+        "second_score_cp": 82,
+        "source_ply": 34,
+        "verification": [
+          {
+            "best_score_cp": 260,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 174,
+            "second_score_cp": 86,
+            "top_move": "d4c6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d4c6",
+                "pv": [
+                  "d4c6",
+                  "b7c6",
+                  "b5c6",
+                  "a8b8",
+                  "b2b4",
+                  "e7f6",
+                  "e3a7",
+                  "b8b6"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 260
+              },
+              {
+                "mate_in": null,
+                "move": "b5c6",
+                "pv": [
+                  "b5c6",
+                  "b7c6",
+                  "d4c6",
+                  "d8d7",
+                  "c6e7",
+                  "d7e7",
+                  "b2b3",
+                  "e6f5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 86
+              },
+              {
+                "mate_in": null,
+                "move": "d4e6",
+                "pv": [
+                  "d4e6",
+                  "f7e6",
+                  "e3d2",
+                  "e6e5",
+                  "a1d1",
+                  "h5h4",
+                  "b5d3",
+                  "c6b8"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 81
+              }
+            ]
+          },
+          {
+            "best_score_cp": 270,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 188,
+            "second_score_cp": 82,
+            "top_move": "d4c6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d4c6",
+                "pv": [
+                  "d4c6",
+                  "b7c6",
+                  "b5c6",
+                  "a8c8",
+                  "e3a7",
+                  "e7f6",
+                  "a1d1",
+                  "g7g5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 270
+              },
+              {
+                "mate_in": null,
+                "move": "b5c6",
+                "pv": [
+                  "b5c6",
+                  "b7c6",
+                  "d4c6",
+                  "d8d7",
+                  "c6e7",
+                  "d7e7",
+                  "b2b3",
+                  "e7d7"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 82
+              },
+              {
+                "mate_in": null,
+                "move": "d4e6",
+                "pv": [
+                  "d4e6",
+                  "f7e6",
+                  "e3d2",
+                  "d8d7",
+                  "g2g3",
+                  "g7g5",
+                  "e1e2",
+                  "e7f6"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 80
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 61,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "a5c5"
+      ],
+      "fen": "rnb1k2r/pp1n1ppp/4p3/q1Np4/2P5/4PN2/PP1B1PPP/R2QKB1R b KQkq - 2 9",
+      "id": "chess-candidate-002",
+      "label": {
+        "best_score_cp": -141,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 390,
+        "legal_move_count": 37,
+        "principal_variation": [
+          "a5c5",
+          "c4d5",
+          "c5d5",
+          "d2b4",
+          "b8c6",
+          "b4a3",
+          "d7e5",
+          "f3e5"
+        ],
+        "second_score_cp": -531,
+        "source_ply": 17,
+        "verification": [
+          {
+            "best_score_cp": -130,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 401,
+            "second_score_cp": -531,
+            "top_move": "a5c5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "a5c5",
+                "pv": [
+                  "a5c5",
+                  "c4d5",
+                  "c5d5",
+                  "f1c4",
+                  "d5h5",
+                  "e1g1",
+                  "e8g8",
+                  "a1c1"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -130
+              },
+              {
+                "mate_in": null,
+                "move": "a5d8",
+                "pv": [
+                  "a5d8",
+                  "c5d7",
+                  "b8d7",
+                  "f1e2",
+                  "d5c4",
+                  "e2c4",
+                  "e6e5",
+                  "e3e4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -531
+              },
+              {
+                "mate_in": null,
+                "move": "a5b6",
+                "pv": [
+                  "a5b6",
+                  "c5a4",
+                  "b6d8",
+                  "c4d5",
+                  "e6d5",
+                  "f1e2",
+                  "e8g8",
+                  "b2b4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -559
+              }
+            ]
+          },
+          {
+            "best_score_cp": -141,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 390,
+            "second_score_cp": -531,
+            "top_move": "a5c5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "a5c5",
+                "pv": [
+                  "a5c5",
+                  "c4d5",
+                  "c5d5",
+                  "d2b4",
+                  "b8c6",
+                  "b4a3",
+                  "d7e5",
+                  "f3e5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -141
+              },
+              {
+                "mate_in": null,
+                "move": "a5d8",
+                "pv": [
+                  "a5d8",
+                  "c5d7",
+                  "b8d7",
+                  "d2b4",
+                  "d7f6",
+                  "d1d4",
+                  "c8d7",
+                  "f3e5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -531
+              },
+              {
+                "mate_in": null,
+                "move": "a5b6",
+                "pv": [
+                  "a5b6",
+                  "c5a4",
+                  "b6d8",
+                  "c4d5",
+                  "e8g8",
+                  "g2g3",
+                  "e6d5",
+                  "f1g2"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -545
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 2,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "b3d5"
+      ],
+      "fen": "r1bqkb1r/pp3pp1/2n5/1N1np2p/3p4/1Q3N2/PP1BPPPP/R3KB1R w KQkq h6 0 10",
+      "id": "chess-candidate-029",
+      "label": {
+        "best_score_cp": 215,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 217,
+        "legal_move_count": 43,
+        "principal_variation": [
+          "b3d5",
+          "d8e7",
+          "a1c1",
+          "c8e6",
+          "d5e4",
+          "f7f5",
+          "e4h4",
+          "a8c8"
+        ],
+        "second_score_cp": -2,
+        "source_ply": 18,
+        "verification": [
+          {
+            "best_score_cp": 191,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 188,
+            "second_score_cp": 3,
+            "top_move": "b3d5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b3d5",
+                "pv": [
+                  "b3d5",
+                  "d8e7",
+                  "f3g5",
+                  "a7a6",
+                  "b5d6",
+                  "e7d6",
+                  "d5f7",
+                  "e8d8"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 191
+              },
+              {
+                "mate_in": null,
+                "move": "f3e5",
+                "pv": [
+                  "f3e5",
+                  "c6e5",
+                  "b3d5",
+                  "d8d5",
+                  "b5c7",
+                  "e8d8",
+                  "c7d5",
+                  "c8e6"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 3
+              },
+              {
+                "mate_in": null,
+                "move": "g2g3",
+                "pv": [
+                  "g2g3",
+                  "c8e6",
+                  "f3g5",
+                  "f8b4",
+                  "d2b4",
+                  "c6b4",
+                  "g5e6",
+                  "f7e6"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -110
+              }
+            ]
+          },
+          {
+            "best_score_cp": 215,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 217,
+            "second_score_cp": -2,
+            "top_move": "b3d5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b3d5",
+                "pv": [
+                  "b3d5",
+                  "d8e7",
+                  "a1c1",
+                  "c8e6",
+                  "d5e4",
+                  "f7f5",
+                  "e4h4",
+                  "a8c8"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 215
+              },
+              {
+                "mate_in": null,
+                "move": "f3e5",
+                "pv": [
+                  "f3e5",
+                  "c6e5",
+                  "b3d5",
+                  "d8d5",
+                  "b5c7",
+                  "e8d8",
+                  "c7d5",
+                  "c8e6"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -2
+              },
+              {
+                "mate_in": null,
+                "move": "g2g3",
+                "pv": [
+                  "g2g3",
+                  "d5c7",
+                  "b5c7",
+                  "d8c7",
+                  "f1g2",
+                  "f8e7",
+                  "e1g1",
+                  "h5h4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -113
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 43,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "g5d5"
+      ],
+      "fen": "rnb1kb1r/1p2npp1/p3p3/6qp/2N5/1N3B2/PPP2P1P/R1BQK2R b KQkq - 3 12",
+      "id": "chess-candidate-096",
+      "label": {
+        "best_score_cp": -494,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 208,
+        "legal_move_count": 38,
+        "principal_variation": [
+          "g5d5",
+          "c4d6",
+          "d5d6",
+          "d1d6",
+          "b8c6",
+          "d6c7",
+          "e7d5",
+          "f3d5"
+        ],
+        "second_score_cp": -702,
+        "source_ply": 23,
+        "verification": [
+          {
+            "best_score_cp": -466,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 216,
+            "second_score_cp": -682,
+            "top_move": "g5d5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "g5d5",
+                "pv": [
+                  "g5d5",
+                  "f3d5",
+                  "e7d5",
+                  "c2c3",
+                  "b8c6",
+                  "b3d4",
+                  "c6d4",
+                  "d1d4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -466
+              },
+              {
+                "mate_in": null,
+                "move": "g5e5",
+                "pv": [
+                  "g5e5",
+                  "c4e5",
+                  "b8d7",
+                  "e5c4",
+                  "e7f5",
+                  "c2c3",
+                  "h5h4",
+                  "h1g1"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -682
+              },
+              {
+                "mate_in": null,
+                "move": "g5c1",
+                "pv": [
+                  "g5c1",
+                  "c4d6",
+                  "e8d7",
+                  "a1c1",
+                  "e7d5",
+                  "d6f7",
+                  "b8c6",
+                  "f7h8"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -699
+              }
+            ]
+          },
+          {
+            "best_score_cp": -494,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 208,
+            "second_score_cp": -702,
+            "top_move": "g5d5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "g5d5",
+                "pv": [
+                  "g5d5",
+                  "c4d6",
+                  "d5d6",
+                  "d1d6",
+                  "b8c6",
+                  "d6c7",
+                  "e7d5",
+                  "f3d5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -494
+              },
+              {
+                "mate_in": null,
+                "move": "g5e5",
+                "pv": [
+                  "g5e5",
+                  "c4e5",
+                  "b8d7",
+                  "e5c4",
+                  "e7d5",
+                  "c1g5",
+                  "d7f6",
+                  "c2c3"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -702
+              },
+              {
+                "mate_in": null,
+                "move": "g5c1",
+                "pv": [
+                  "g5c1",
+                  "c4d6",
+                  "e8d7",
+                  "a1c1",
+                  "b8c6",
+                  "d6f7",
+                  "e7d5",
+                  "f7h8"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -716
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 143,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d4b3"
+      ],
+      "fen": "r4rk1/1b2qpp1/4pn2/1p1p3B/3n1PN1/1RP1P3/3N2PP/3Q1RK1 b - - 1 18",
+      "id": "chess-candidate-012",
+      "label": {
+        "best_score_cp": 372,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 274,
+        "legal_move_count": 44,
+        "principal_variation": [
+          "d4b3",
+          "g4f6",
+          "e7f6",
+          "d1b3",
+          "g7g6",
+          "h2h3",
+          "g6h5",
+          "f1f3"
+        ],
+        "second_score_cp": 98,
+        "source_ply": 35,
+        "verification": [
+          {
+            "best_score_cp": 347,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 211,
+            "second_score_cp": 136,
+            "top_move": "d4b3",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d4b3",
+                "pv": [
+                  "d4b3",
+                  "d2b3",
+                  "f6h5",
+                  "f4f5",
+                  "h5f6",
+                  "g4f6",
+                  "e7f6",
+                  "f1f3"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 347
+              },
+              {
+                "mate_in": null,
+                "move": "d4f5",
+                "pv": [
+                  "d4f5",
+                  "g4f6",
+                  "e7f6",
+                  "f1e1",
+                  "a8a2",
+                  "d2f3",
+                  "f5d6",
+                  "e1e2"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 136
+              },
+              {
+                "mate_in": null,
+                "move": "d4c6",
+                "pv": [
+                  "d4c6",
+                  "g4f6",
+                  "e7f6",
+                  "f1e1",
+                  "f8c8",
+                  "d2f3",
+                  "g7g6",
+                  "h5g4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 33
+              }
+            ]
+          },
+          {
+            "best_score_cp": 372,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 274,
+            "second_score_cp": 98,
+            "top_move": "d4b3",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d4b3",
+                "pv": [
+                  "d4b3",
+                  "g4f6",
+                  "e7f6",
+                  "d1b3",
+                  "g7g6",
+                  "h2h3",
+                  "g6h5",
+                  "f1f3"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 372
+              },
+              {
+                "mate_in": null,
+                "move": "d4f5",
+                "pv": [
+                  "d4f5",
+                  "g4f6",
+                  "e7f6",
+                  "d1e1",
+                  "a8a2",
+                  "f1f2",
+                  "f8a8",
+                  "d2f1"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 98
+              },
+              {
+                "mate_in": null,
+                "move": "d4c6",
+                "pv": [
+                  "d4c6",
+                  "g4f6",
+                  "e7f6",
+                  "d2f3",
+                  "b7a6",
+                  "f1e1",
+                  "c6a5",
+                  "b3a3"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 29
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 20,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "c3d4"
+      ],
+      "fen": "1r1qkb1r/1pp1n1pp/p3b3/4p3/3n4/2PQ4/PP1B1PPP/RN2KB1R w KQk - 0 13",
+      "id": "chess-candidate-093",
+      "label": {
+        "best_score_cp": -171,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 259,
+        "legal_move_count": 35,
+        "principal_variation": [
+          "c3d4",
+          "e5d4",
+          "f1e2",
+          "e7g6",
+          "e1g1",
+          "f8c5",
+          "f1c1",
+          "c5e7"
+        ],
+        "second_score_cp": -430,
+        "source_ply": 24,
+        "verification": [
+          {
+            "best_score_cp": -162,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 264,
+            "second_score_cp": -426,
+            "top_move": "c3d4",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "c3d4",
+                "pv": [
+                  "c3d4",
+                  "e5d4",
+                  "f1e2",
+                  "e7g6",
+                  "f2f4",
+                  "g6h4",
+                  "e1g1",
+                  "d8d5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -162
+              },
+              {
+                "mate_in": null,
+                "move": "b1a3",
+                "pv": [
+                  "b1a3",
+                  "d4c6",
+                  "e1c1",
+                  "d8d3",
+                  "f1d3",
+                  "e7g6",
+                  "a3c4",
+                  "b8d8"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -426
+              },
+              {
+                "mate_in": null,
+                "move": "g2g4",
+                "pv": [
+                  "g2g4",
+                  "d4c6",
+                  "d3g3",
+                  "e7g6",
+                  "f2f4",
+                  "e6d5"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -522
+              }
+            ]
+          },
+          {
+            "best_score_cp": -171,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 259,
+            "second_score_cp": -430,
+            "top_move": "c3d4",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "c3d4",
+                "pv": [
+                  "c3d4",
+                  "e5d4",
+                  "f1e2",
+                  "e7g6",
+                  "e1g1",
+                  "f8c5",
+                  "f1c1",
+                  "c5e7"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -171
+              },
+              {
+                "mate_in": null,
+                "move": "b1a3",
+                "pv": [
+                  "b1a3",
+                  "d4c6",
+                  "d3c2",
+                  "e6f5",
+                  "c2b3",
+                  "b7b5",
+                  "a3b5",
+                  "a6b5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -430
+              },
+              {
+                "mate_in": null,
+                "move": "g2g4",
+                "pv": [
+                  "g2g4",
+                  "d4c6",
+                  "d3c2",
+                  "e7d5",
+                  "h2h4",
+                  "d8d7",
+                  "d2e3",
+                  "d5e3"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -447
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 138,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "h6c1"
+      ],
+      "fen": "rnq1k2r/pp2Pp1p/2p2npb/8/3Pb2N/2N2PP1/PP2P2P/R1BQKB1R b KQkq - 0 10",
+      "id": "chess-candidate-076",
+      "label": {
+        "best_score_cp": -358,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 194,
+        "legal_move_count": 37,
+        "principal_variation": [
+          "h6c1",
+          "a1c1",
+          "e4d5",
+          "e2e4",
+          "c8e6",
+          "f1e2",
+          "d5a2",
+          "d1a4"
+        ],
+        "second_score_cp": -552,
+        "source_ply": 19,
+        "verification": [
+          {
+            "best_score_cp": -400,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 167,
+            "second_score_cp": -567,
+            "top_move": "h6c1",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "h6c1",
+                "pv": [
+                  "h6c1",
+                  "a1c1",
+                  "e4d5",
+                  "e2e4",
+                  "c8e6",
+                  "f1e2",
+                  "d5a2",
+                  "d4d5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -400
+              },
+              {
+                "mate_in": null,
+                "move": "e4f3",
+                "pv": [
+                  "e4f3",
+                  "h4f3",
+                  "h6c1",
+                  "d1c1",
+                  "c8e6",
+                  "f1g2",
+                  "e6e7",
+                  "e1g1"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -567
+              },
+              {
+                "mate_in": null,
+                "move": "h6g7",
+                "pv": [
+                  "h6g7",
+                  "f3e4",
+                  "c8e6",
+                  "e4e5",
+                  "f6g4",
+                  "f1h3",
+                  "b8a6",
+                  "e1g1"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -578
+              }
+            ]
+          },
+          {
+            "best_score_cp": -358,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 194,
+            "second_score_cp": -552,
+            "top_move": "h6c1",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "h6c1",
+                "pv": [
+                  "h6c1",
+                  "a1c1",
+                  "e4d5",
+                  "e2e4",
+                  "c8e6",
+                  "f1e2",
+                  "d5a2",
+                  "d1a4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -358
+              },
+              {
+                "mate_in": null,
+                "move": "e4f3",
+                "pv": [
+                  "e4f3",
+                  "h4f3",
+                  "h6c1",
+                  "d1c1",
+                  "h7h5",
+                  "f1g2",
+                  "h5h4",
+                  "g3h4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -552
+              },
+              {
+                "mate_in": null,
+                "move": "g6g5",
+                "pv": [
+                  "g6g5",
+                  "f3e4",
+                  "g5h4",
+                  "c1h6",
+                  "h8g8",
+                  "e4e5",
+                  "h4g3",
+                  "h2g3"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -553
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 113,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "g6h5"
+      ],
+      "fen": "3r2k1/1rqb1pb1/2P1p1pp/pP1pP2Q/8/BPP3P1/3N1PBP/R3R1K1 b - - 2 23",
+      "id": "chess-candidate-091",
+      "label": {
+        "best_score_cp": -71,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 347,
+        "legal_move_count": 30,
+        "principal_variation": [
+          "g6h5",
+          "a3d6",
+          "c7b6",
+          "c6b7",
+          "b6b7",
+          "c3c4",
+          "g7f8",
+          "a1a5"
+        ],
+        "second_score_cp": -418,
+        "source_ply": 45,
+        "verification": [
+          {
+            "best_score_cp": -85,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 361,
+            "second_score_cp": -446,
+            "top_move": "g6h5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "g6h5",
+                "pv": [
+                  "g6h5",
+                  "a3d6",
+                  "c7b6",
+                  "c6b7",
+                  "b6b7",
+                  "c3c4",
+                  "g7f8",
+                  "d6f8"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -85
+              },
+              {
+                "mate_in": null,
+                "move": "d7c6",
+                "pv": [
+                  "d7c6",
+                  "h5e2",
+                  "b7b5",
+                  "a1c1",
+                  "b5b7",
+                  "h2h4",
+                  "c7b8",
+                  "c3c4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -446
+              },
+              {
+                "mate_in": null,
+                "move": "b7b5",
+                "pv": [
+                  "b7b5",
+                  "h5e2",
+                  "d7c6",
+                  "a1c1",
+                  "c7b6",
+                  "a3d6",
+                  "d8d6",
+                  "e5d6"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -449
+              }
+            ]
+          },
+          {
+            "best_score_cp": -71,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 347,
+            "second_score_cp": -418,
+            "top_move": "g6h5",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "g6h5",
+                "pv": [
+                  "g6h5",
+                  "a3d6",
+                  "c7b6",
+                  "c6b7",
+                  "b6b7",
+                  "c3c4",
+                  "g7f8",
+                  "a1a5"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -71
+              },
+              {
+                "mate_in": null,
+                "move": "d7c6",
+                "pv": [
+                  "d7c6",
+                  "h5e2",
+                  "c6b5",
+                  "e2e3",
+                  "a5a4",
+                  "a1c1",
+                  "c7b8",
+                  "h2h4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -418
+              },
+              {
+                "mate_in": null,
+                "move": "b7b5",
+                "pv": [
+                  "b7b5",
+                  "h5g4",
+                  "d7c6",
+                  "g4d4",
+                  "d8b8",
+                  "a1b1",
+                  "b5b7",
+                  "h2h4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -429
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 135,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e5f7"
+      ],
+      "fen": "rnb1k2r/ppp1qppp/3p1n2/b3N3/2B1P3/8/PPPP1PPP/R1BQ1RK1 w kq - 0 8",
+      "id": "chess-candidate-022",
+      "label": {
+        "best_score_cp": -160,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 163,
+        "legal_move_count": 36,
+        "principal_variation": [
+          "e5f7",
+          "b7b5",
+          "c4b3",
+          "h8f8",
+          "f7g5",
+          "b8c6",
+          "c2c3",
+          "h7h6"
+        ],
+        "second_score_cp": -323,
+        "source_ply": 14,
+        "verification": [
+          {
+            "best_score_cp": -133,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 167,
+            "second_score_cp": -300,
+            "top_move": "e5f7",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e5f7",
+                "pv": [
+                  "e5f7",
+                  "b7b5",
+                  "c4b3",
+                  "h8f8",
+                  "f7g5",
+                  "c8g4",
+                  "f2f3",
+                  "g4d7"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -133
+              },
+              {
+                "mate_in": null,
+                "move": "c4f7",
+                "pv": [
+                  "c4f7",
+                  "e8f8",
+                  "f2f4",
+                  "a5b6",
+                  "g1h1",
+                  "d6e5",
+                  "f4e5",
+                  "e7e5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -300
+              },
+              {
+                "mate_in": null,
+                "move": "e5f3",
+                "pv": [
+                  "e5f3",
+                  "c8e6",
+                  "c4e6",
+                  "f7e6",
+                  "d2d4",
+                  "e6e5",
+                  "d4e5",
+                  "d6e5"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -344
+              }
+            ]
+          },
+          {
+            "best_score_cp": -160,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 163,
+            "second_score_cp": -323,
+            "top_move": "e5f7",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e5f7",
+                "pv": [
+                  "e5f7",
+                  "b7b5",
+                  "c4b3",
+                  "h8f8",
+                  "f7g5",
+                  "b8c6",
+                  "c2c3",
+                  "h7h6"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": -160
+              },
+              {
+                "mate_in": null,
+                "move": "c4f7",
+                "pv": [
+                  "c4f7",
+                  "e8f8",
+                  "f2f4",
+                  "d6e5",
+                  "f4e5",
+                  "e7e5",
+                  "f7b3",
+                  "a5b6"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -323
+              },
+              {
+                "mate_in": null,
+                "move": "e5f3",
+                "pv": [
+                  "e5f3",
+                  "e8g8",
+                  "b2b4",
+                  "a5b4",
+                  "a1b1",
+                  "b8c6",
+                  "c2c3",
+                  "b4a5"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -336
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 34,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e5e2"
+      ],
+      "fen": "2rr2k1/1p2bpp1/p4n2/4q1Bp/7Q/P5P1/1PP1BPK1/2R1N2R b - - 0 24",
+      "id": "chess-candidate-080",
+      "label": {
+        "best_score_cp": 27,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 421,
+        "legal_move_count": 53,
+        "principal_variation": [
+          "e5e2",
+          "g5f6",
+          "e7f6",
+          "h4h5",
+          "e2h5",
+          "h1h5",
+          "f6b2",
+          "c1b1"
+        ],
+        "second_score_cp": -394,
+        "source_ply": 47,
+        "verification": [
+          {
+            "best_score_cp": 30,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 352,
+            "second_score_cp": -322,
+            "top_move": "e5e2",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e5e2",
+                "pv": [
+                  "e5e2",
+                  "g5f6",
+                  "e7f6",
+                  "h4h5",
+                  "e2h5",
+                  "h1h5",
+                  "f6b2",
+                  "c1b1"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 30
+              },
+              {
+                "mate_in": null,
+                "move": "c8c5",
+                "pv": [
+                  "c8c5",
+                  "e1f3",
+                  "e5e2",
+                  "h1e1",
+                  "e2b5",
+                  "e1e7",
+                  "c5c4",
+                  "h4h1"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -322
+              },
+              {
+                "mate_in": null,
+                "move": "d8d2",
+                "pv": [
+                  "d8d2",
+                  "g5d2",
+                  "e5e2",
+                  "h4f4",
+                  "f6g4",
+                  "e1d3",
+                  "e2e6",
+                  "h1e1"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -374
+              }
+            ]
+          },
+          {
+            "best_score_cp": 27,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 421,
+            "second_score_cp": -394,
+            "top_move": "e5e2",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "e5e2",
+                "pv": [
+                  "e5e2",
+                  "g5f6",
+                  "e7f6",
+                  "h4h5",
+                  "e2h5",
+                  "h1h5",
+                  "f6b2",
+                  "c1b1"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 27
+              },
+              {
+                "mate_in": null,
+                "move": "c8c5",
+                "pv": [
+                  "c8c5",
+                  "e1f3",
+                  "e5e2",
+                  "h1e1",
+                  "e2b5",
+                  "e1e7",
+                  "c5c4",
+                  "h4h1"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -394
+              },
+              {
+                "mate_in": null,
+                "move": "d8d5",
+                "pv": [
+                  "d8d5",
+                  "e1f3",
+                  "e5b2",
+                  "e2d3",
+                  "g7g6",
+                  "c1b1",
+                  "b2a2",
+                  "b1a1"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -423
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 117,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "a4b3"
+      ],
+      "fen": "r1b1kb1r/2pn1ppp/p2q1n2/1p1Pp3/B7/2N2Q2/PPPPNPPP/R1B1K2R w KQkq b6 0 10",
+      "id": "chess-candidate-049",
+      "label": {
+        "best_score_cp": 35,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 217,
+        "legal_move_count": 35,
+        "principal_variation": [
+          "a4b3",
+          "d7c5",
+          "d2d4",
+          "e5d4",
+          "e2d4",
+          "d6e5",
+          "c3e2",
+          "c8g4"
+        ],
+        "second_score_cp": -182,
+        "source_ply": 18,
+        "verification": [
+          {
+            "best_score_cp": 65,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 301,
+            "second_score_cp": -236,
+            "top_move": "a4b3",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "a4b3",
+                "pv": [
+                  "a4b3",
+                  "d7c5",
+                  "d2d4",
+                  "e5d4",
+                  "e2d4",
+                  "d6e5",
+                  "d4e2",
+                  "c8g4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 65
+              },
+              {
+                "mate_in": null,
+                "move": "a4b5",
+                "pv": [
+                  "a4b5",
+                  "a6b5",
+                  "c3b5",
+                  "d6b6",
+                  "c2c4",
+                  "c8a6",
+                  "e2c3",
+                  "f8b4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -236
+              },
+              {
+                "mate_in": null,
+                "move": "d2d4",
+                "pv": [
+                  "d2d4",
+                  "b5a4",
+                  "f3g3",
+                  "e5d4",
+                  "c1f4",
+                  "f6h5",
+                  "f4d6",
+                  "h5g3"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -289
+              }
+            ]
+          },
+          {
+            "best_score_cp": 35,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 217,
+            "second_score_cp": -182,
+            "top_move": "a4b3",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "a4b3",
+                "pv": [
+                  "a4b3",
+                  "d7c5",
+                  "d2d4",
+                  "e5d4",
+                  "e2d4",
+                  "d6e5",
+                  "c3e2",
+                  "c8g4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 35
+              },
+              {
+                "mate_in": null,
+                "move": "a4b5",
+                "pv": [
+                  "a4b5",
+                  "a6b5",
+                  "c3b5",
+                  "d6b6",
+                  "c2c4",
+                  "f8b4",
+                  "a2a3",
+                  "e8g8"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -182
+              },
+              {
+                "mate_in": null,
+                "move": "c3b5",
+                "pv": [
+                  "c3b5",
+                  "a6b5",
+                  "a4b5",
+                  "f6d5",
+                  "e1g1",
+                  "c7c6",
+                  "b5c4",
+                  "f8e7"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -274
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 70,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "b2c3"
+      ],
+      "fen": "r1b4r/pp2kp2/4pn2/4N1pp/2B1P3/2b5/PP3PPP/R1BK3R w - - 0 14",
+      "id": "chess-candidate-007",
+      "label": {
+        "best_score_cp": 419,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 285,
+        "legal_move_count": 36,
+        "principal_variation": [
+          "b2c3",
+          "f6e4",
+          "h1e1",
+          "h8d8",
+          "d1c2",
+          "e4d6",
+          "c4b3",
+          "f7f6"
+        ],
+        "second_score_cp": 134,
+        "source_ply": 26,
+        "verification": [
+          {
+            "best_score_cp": 401,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 282,
+            "second_score_cp": 119,
+            "top_move": "b2c3",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b2c3",
+                "pv": [
+                  "b2c3",
+                  "h8d8",
+                  "d1c2",
+                  "f6e4",
+                  "h1e1",
+                  "e4d6",
+                  "c1a3",
+                  "f7f6"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 401
+              },
+              {
+                "mate_in": null,
+                "move": "e5f3",
+                "pv": [
+                  "e5f3",
+                  "f6e4",
+                  "b2c3",
+                  "e4f2",
+                  "d1c2",
+                  "f2h1",
+                  "c1a3",
+                  "e7f6"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 119
+              },
+              {
+                "mate_in": null,
+                "move": "e5d3",
+                "pv": [
+                  "e5d3",
+                  "c3d4",
+                  "c1g5",
+                  "h8g8",
+                  "h2h4",
+                  "e7e8",
+                  "h1e1",
+                  "f6h7"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 107
+              }
+            ]
+          },
+          {
+            "best_score_cp": 419,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 285,
+            "second_score_cp": 134,
+            "top_move": "b2c3",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "b2c3",
+                "pv": [
+                  "b2c3",
+                  "f6e4",
+                  "h1e1",
+                  "h8d8",
+                  "d1c2",
+                  "e4d6",
+                  "c4b3",
+                  "f7f6"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 419
+              },
+              {
+                "mate_in": null,
+                "move": "e5f3",
+                "pv": [
+                  "e5f3",
+                  "f6e4",
+                  "b2c3",
+                  "e4f2",
+                  "d1d2",
+                  "f2h1",
+                  "c1a3",
+                  "e7f6"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 134
+              },
+              {
+                "mate_in": null,
+                "move": "e5d3",
+                "pv": [
+                  "e5d3",
+                  "c3d4",
+                  "c1g5",
+                  "h8g8",
+                  "h2h4",
+                  "e7e8",
+                  "c4b5",
+                  "e8f8"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 88
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 10,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "g2h3"
+      ],
+      "fen": "rn1qk2r/ppp2ppp/5n2/2Pp4/4p3/P3P2b/1PPBBPPP/RN1QK2R w KQkq - 0 8",
+      "id": "chess-candidate-006",
+      "label": {
+        "best_score_cp": 360,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 281,
+        "legal_move_count": 30,
+        "principal_variation": [
+          "g2h3",
+          "d8e7",
+          "d2c3",
+          "b8c6",
+          "e2b5",
+          "e7c5",
+          "b5c6",
+          "c5c6"
+        ],
+        "second_score_cp": 79,
+        "source_ply": 14,
+        "verification": [
+          {
+            "best_score_cp": 351,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 264,
+            "second_score_cp": 87,
+            "top_move": "g2h3",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "g2h3",
+                "pv": [
+                  "g2h3",
+                  "e8g8",
+                  "d2c3",
+                  "b8c6",
+                  "c3d4",
+                  "d8e7",
+                  "b1c3",
+                  "c6d4"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 351
+              },
+              {
+                "mate_in": null,
+                "move": "d2c3",
+                "pv": [
+                  "d2c3",
+                  "h3e6",
+                  "b2b4",
+                  "f6d7",
+                  "d1d4",
+                  "d8g5",
+                  "d4g7",
+                  "g5g7"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 87
+              },
+              {
+                "mate_in": null,
+                "move": "b2b4",
+                "pv": [
+                  "b2b4",
+                  "h3g2",
+                  "h1g1",
+                  "g2h3",
+                  "g1g7",
+                  "h8g8",
+                  "g7g3",
+                  "g8g3"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 74
+              }
+            ]
+          },
+          {
+            "best_score_cp": 360,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 281,
+            "second_score_cp": 79,
+            "top_move": "g2h3",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "g2h3",
+                "pv": [
+                  "g2h3",
+                  "d8e7",
+                  "d2c3",
+                  "b8c6",
+                  "e2b5",
+                  "e7c5",
+                  "b5c6",
+                  "c5c6"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 360
+              },
+              {
+                "mate_in": null,
+                "move": "c5c6",
+                "pv": [
+                  "c5c6",
+                  "h3c8",
+                  "c6b7",
+                  "c8b7",
+                  "d2c3",
+                  "e8g8",
+                  "b2b4",
+                  "c7c5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 79
+              },
+              {
+                "mate_in": null,
+                "move": "d2c3",
+                "pv": [
+                  "d2c3",
+                  "h3e6",
+                  "b1d2",
+                  "f6d7",
+                  "d2b3",
+                  "e8g8",
+                  "d1d4",
+                  "f7f6"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 69
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 9,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d7f8"
+      ],
+      "fen": "r1br1qk1/3N1pp1/p2b3p/1p1p4/3P2P1/1PP1P1P1/4BK1P/RN1Q3R w - - 1 19",
+      "id": "chess-candidate-016",
+      "label": {
+        "best_score_cp": 656,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 292,
+        "legal_move_count": 39,
+        "principal_variation": [
+          "d7f8",
+          "d6f8",
+          "h1f1",
+          "d8d6",
+          "f2g1",
+          "d6e6",
+          "d1d2",
+          "c8d7"
+        ],
+        "second_score_cp": 364,
+        "source_ply": 36,
+        "verification": [
+          {
+            "best_score_cp": 693,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 337,
+            "second_score_cp": 356,
+            "top_move": "d7f8",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d7f8",
+                "pv": [
+                  "d7f8",
+                  "d8f8",
+                  "h1f1",
+                  "f8e8",
+                  "e2f3",
+                  "e8e6",
+                  "b1d2",
+                  "c8d7"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 693
+              },
+              {
+                "mate_in": null,
+                "move": "d7b6",
+                "pv": [
+                  "d7b6",
+                  "a8b8",
+                  "b6c8",
+                  "b8c8",
+                  "h1f1",
+                  "f8e7",
+                  "e2f3",
+                  "b5b4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 356
+              },
+              {
+                "mate_in": null,
+                "move": "d7e5",
+                "pv": [
+                  "d7e5",
+                  "d6e5",
+                  "d4e5",
+                  "c8b7",
+                  "b1d2",
+                  "a8c8",
+                  "d2f3",
+                  "d5d4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 352
+              }
+            ]
+          },
+          {
+            "best_score_cp": 656,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 292,
+            "second_score_cp": 364,
+            "top_move": "d7f8",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d7f8",
+                "pv": [
+                  "d7f8",
+                  "d6f8",
+                  "h1f1",
+                  "d8d6",
+                  "f2g1",
+                  "d6e6",
+                  "d1d2",
+                  "c8d7"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 656
+              },
+              {
+                "mate_in": null,
+                "move": "d7b6",
+                "pv": [
+                  "d7b6",
+                  "a8a7",
+                  "b6c8",
+                  "d8c8",
+                  "h1f1",
+                  "c8e8",
+                  "b1d2",
+                  "f8e7"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 364
+              },
+              {
+                "mate_in": null,
+                "move": "d7c5",
+                "pv": [
+                  "d7c5",
+                  "d8e8",
+                  "b1a3",
+                  "d6c5",
+                  "d4c5",
+                  "f8c5",
+                  "d1d4",
+                  "c5c6"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 334
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 24,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "f4e2"
+      ],
+      "fen": "r2q1rk1/1ppbnpbp/p2p2p1/P2Pp3/2P1Pn1P/R2B1N2/1P2QPP1/1NB2RK1 b - h3 0 13",
+      "id": "chess-candidate-036",
+      "label": {
+        "best_score_cp": 514,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 352,
+        "legal_move_count": 40,
+        "principal_variation": [
+          "f4e2",
+          "d3e2",
+          "g8h8",
+          "b2b4",
+          "d7g4",
+          "b1c3",
+          "g4f3",
+          "e2f3"
+        ],
+        "second_score_cp": 162,
+        "source_ply": 25,
+        "verification": [
+          {
+            "best_score_cp": 546,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 396,
+            "second_score_cp": 150,
+            "top_move": "f4e2",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "f4e2",
+                "pv": [
+                  "f4e2",
+                  "d3e2",
+                  "h7h6",
+                  "b2b4",
+                  "c7c6",
+                  "c4c5",
+                  "c6d5",
+                  "c5d6"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 546
+              },
+              {
+                "mate_in": null,
+                "move": "e7d5",
+                "pv": [
+                  "e7d5",
+                  "e2d2",
+                  "d5f6",
+                  "b1c3",
+                  "c7c6",
+                  "f1e1",
+                  "h7h6",
+                  "d3c2"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 150
+              },
+              {
+                "mate_in": null,
+                "move": "f4d3",
+                "pv": [
+                  "f4d3",
+                  "e2d3",
+                  "h7h6",
+                  "b1c3",
+                  "f7f5",
+                  "f1d1",
+                  "f5f4",
+                  "c4c5"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 32
+              }
+            ]
+          },
+          {
+            "best_score_cp": 514,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 352,
+            "second_score_cp": 162,
+            "top_move": "f4e2",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "f4e2",
+                "pv": [
+                  "f4e2",
+                  "d3e2",
+                  "g8h8",
+                  "b2b4",
+                  "d7g4",
+                  "b1c3",
+                  "g4f3",
+                  "e2f3"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 514
+              },
+              {
+                "mate_in": null,
+                "move": "e7d5",
+                "pv": [
+                  "e7d5",
+                  "e2d2",
+                  "d5f6",
+                  "b1c3",
+                  "d7g4",
+                  "f3h2",
+                  "g4e6",
+                  "c3d5"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": 162
+              },
+              {
+                "mate_in": null,
+                "move": "f4d3",
+                "pv": [
+                  "f4d3",
+                  "e2d3",
+                  "h7h6",
+                  "b1c3",
+                  "f7f5",
+                  "f1e1",
+                  "f8f7",
+                  "d3d1"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": 40
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 55,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "d8b6"
+      ],
+      "fen": "r1bq1rk1/1p2ppbp/1B1p1np1/8/p3P1P1/2N2P2/PPPQ3P/R3KB1R b KQ - 1 12",
+      "id": "chess-candidate-013",
+      "label": {
+        "best_score_cp": 516,
+        "depth": 20,
+        "engine": "Stockfish 18",
+        "gap_cp": 591,
+        "legal_move_count": 29,
+        "principal_variation": [
+          "d8b6",
+          "h2h4",
+          "f6g4",
+          "c3d5",
+          "b6b2",
+          "a1d1",
+          "b2e5",
+          "d2g2"
+        ],
+        "second_score_cp": -75,
+        "source_ply": 23,
+        "verification": [
+          {
+            "best_score_cp": 498,
+            "depth": 16,
+            "equivalent_forced_mates": false,
+            "gap_cp": 567,
+            "second_score_cp": -69,
+            "top_move": "d8b6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d8b6",
+                "pv": [
+                  "d8b6",
+                  "h2h4",
+                  "c8e6",
+                  "h4h5",
+                  "f8c8",
+                  "e4e5",
+                  "b6b2",
+                  "a1b1"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 498
+              },
+              {
+                "mate_in": null,
+                "move": "d8e8",
+                "pv": [
+                  "d8e8",
+                  "a2a3",
+                  "f6d7",
+                  "b6d4",
+                  "d7e5",
+                  "f1e2",
+                  "c8e6",
+                  "e1c1"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -69
+              },
+              {
+                "mate_in": null,
+                "move": "g7h6",
+                "pv": [
+                  "g7h6",
+                  "d2f2",
+                  "d8e8",
+                  "a2a3",
+                  "c8e6",
+                  "h2h4",
+                  "f6d7",
+                  "b6d4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -105
+              }
+            ]
+          },
+          {
+            "best_score_cp": 516,
+            "depth": 20,
+            "equivalent_forced_mates": false,
+            "gap_cp": 591,
+            "second_score_cp": -75,
+            "top_move": "d8b6",
+            "variations": [
+              {
+                "mate_in": null,
+                "move": "d8b6",
+                "pv": [
+                  "d8b6",
+                  "h2h4",
+                  "f6g4",
+                  "c3d5",
+                  "b6b2",
+                  "a1d1",
+                  "b2e5",
+                  "d2g2"
+                ],
+                "pv_legal": true,
+                "rank": 1,
+                "score_cp": 516
+              },
+              {
+                "mate_in": null,
+                "move": "f6e4",
+                "pv": [
+                  "f6e4",
+                  "d2e3",
+                  "d8d7",
+                  "f3e4",
+                  "a4a3",
+                  "b6d4",
+                  "g7d4",
+                  "e3d4"
+                ],
+                "pv_legal": true,
+                "rank": 2,
+                "score_cp": -75
+              },
+              {
+                "mate_in": null,
+                "move": "d8e8",
+                "pv": [
+                  "d8e8",
+                  "a2a3",
+                  "f6d7",
+                  "b6d4",
+                  "d7e5",
+                  "f1e2",
+                  "a8b8",
+                  "h2h4"
+                ],
+                "pv_legal": true,
+                "rank": 3,
+                "score_cp": -96
+              }
+            ]
+          }
+        ]
+      },
+      "provenance": {
+        "attempt": 21,
+        "deep_verifier_revision": "verify-chess-candidate-labels/v1",
+        "generator_revision": "build-chess-development-suite/v1",
+        "generator_seed": 20260806,
+        "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
+      },
+      "split": "candidate-only",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    }
+  ],
+  "schema_version": "chess/puzzle-suite/v1",
+  "status": "candidate-verification-only-not-frozen-evidence",
+  "suite_id": "chess-tactics-candidate-verification-v1"
+}

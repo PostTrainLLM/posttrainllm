@@ -1,0 +1,17 @@
+{
+  "schema_version": "chess/development-gate/v1",
+  "gate_id": "chess-capability-gradient-development-v1",
+  "status": "thresholds-frozen-before-model-screen",
+  "primary_metric": "tactical_exact_move_accuracy",
+  "required_puzzles": 20,
+  "random_reference": "2000-seed calibrated mean exact accuracy",
+  "frontier": {
+    "strict_legal_rate_minimum": 1.0,
+    "exact_move_accuracy_minimum": 0.5,
+    "accuracy_margin_over_random_minimum": 0.35,
+    "accuracy_margin_over_strongest_local_general_minimum": 0.1
+  },
+  "specialist_training_blocked_until_pass": true,
+  "specialist_parameter_count_maximum": 50000000,
+  "failed_screen_disposition": "retain-negative-artifact"
+}

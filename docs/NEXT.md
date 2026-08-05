@@ -15,9 +15,16 @@ posttrainllm is a Mac-local specialist factory:
 target -> data -> post-training -> eval -> package -> report
 ```
 
-The canonical loop now has both retry and ship examples. The next milestone is
-not preselected: freeze a new target only when a concrete owner goal justifies
-another run. Do not keep a speculative training task alive between targets.
+The canonical loop now has both retry and ship examples. Character Chess is now
+a documented failed lane, not the active target. Its owned 44.53M model passed
+the eight-position wiring gate, then the owner-approved target-masked 10k pilot
+reached 10.54% validation exact versus 6.16% analytic random (+4.38 points) and
+10.33% test exact versus 6.23% (+4.10). That missed the frozen +10-point gate.
+More importantly, both raw and guarded policies won 0/6 games against random
+legal play; eight guard interventions produced no wins. Do not run the 100k,
+1M, or 2M stages under this recipe. Preserve the failed artifact and its
+reusable masked-SFT, legal-candidate, guard, ladder, and replay infrastructure.
+No new training target is selected; choose one before another model run.
 
 ## Operating Rule
 
@@ -145,10 +152,11 @@ python3 scripts/render_sql_factory_run.py --out runs/2026-07-02-sql-routed-qwen0
 
 Choose exactly one target before training.
 
-**Queue state (2026-07-13): no active training target.** The ReST candidate was
-promoted through the canonical metadata/package/publish path and the prior SQL
-hygiene recipe reached its stop rule. Start another run only after freezing a
-new owner goal, baseline, candidate recipe, eval, and stop rule.
+**Queue state (2026-08-05): no active training target is selected.** Character
+Chess stopped at the 10k gate: it learned a small, repeatable held-out move
+signal but no demonstrable advantage over random legal play in the bounded
+full-game screen. Its 100k/1M/2M stages are rejected under the current recipe;
+the earlier SQL and ReST lanes remain closed or report-only.
 
 Current POC target: SQL specialist. The low-compute fixture is
 `evals/sql-poc/`; the brief is `docs/specialists/b1-sql-poc.md`.

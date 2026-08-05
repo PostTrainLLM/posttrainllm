@@ -1,0 +1,21 @@
+{
+  "model_name": "byte-character-chess-44m-v0",
+  "vocab_size": 256,
+  "context_length": 512,
+  "n_layers": 14,
+  "n_heads": 8,
+  "d_model": 512,
+  "d_mlp": 2048,
+  "dropout": 0.0,
+  "tie_embeddings": true,
+  "dtype": "float32",
+  "_notes": {
+    "expected_params_canonical_estimator": 44527616,
+    "parameter_ceiling": 50000000,
+    "tokenizer": "byte-level, 1 byte = 1 token, vocab fixed at 256",
+    "purpose": "candidate-only Character Chess policy; no trained checkpoint exists",
+    "observation": "compact FEN + ply; legal candidates are scored externally rather than copied into context",
+    "execution": "score only legal UCI candidates, then revalidate before push",
+    "build_order": "prove in the Python reference path before native MLX optimization"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "schema_version": "chess/model-verification-matrix/v1",
+  "suite_id": "chess-tactics-candidate-verification-v1",
+  "track": "legal-constrained-diagnostic",
+  "strict_raw_diagnostic_positions": 10,
+  "frozen_before_scoring": "2026-08-05T01:20:29+05:30",
+  "supersedes": "configs/chess/model-verification-matrix-v1.json",
+  "supersession_reason": "Availability probes showed the historical gpt-5.3-codex and gpt-5.2-codex aliases unavailable; official current lower tiers are gpt-5.4-mini and gpt-5.4-nano.",
+  "models": [
+    {
+      "policy_id": "codex-gpt-5.5-candidate-v1",
+      "backend": "codex-cli",
+      "requested_model": "gpt-5.5",
+      "role": "development-anchor",
+      "reasoning_effort": "medium",
+      "maximum_positions": 40,
+      "command_timeout_seconds": 180,
+      "max_budget_usd_per_decision": 0.0
+    },
+    {
+      "policy_id": "codex-gpt-5.4-candidate-v1",
+      "backend": "codex-cli",
+      "requested_model": "gpt-5.4",
+      "role": "lower-gpt",
+      "reasoning_effort": "medium",
+      "maximum_positions": 40,
+      "command_timeout_seconds": 180,
+      "max_budget_usd_per_decision": 0.0
+    },
+    {
+      "policy_id": "codex-gpt-5.4-mini-candidate-v1",
+      "backend": "codex-cli",
+      "requested_model": "gpt-5.4-mini",
+      "role": "lower-gpt",
+      "reasoning_effort": "medium",
+      "maximum_positions": 40,
+      "command_timeout_seconds": 180,
+      "max_budget_usd_per_decision": 0.0
+    },
+    {
+      "policy_id": "codex-gpt-5.4-nano-candidate-v1",
+      "backend": "codex-cli",
+      "requested_model": "gpt-5.4-nano",
+      "role": "lower-gpt",
+      "reasoning_effort": "medium",
+      "maximum_positions": 40,
+      "command_timeout_seconds": 180,
+      "max_budget_usd_per_decision": 0.0
+    },
+    {
+      "policy_id": "claude-sonnet-5-candidate-v1",
+      "backend": "claude-cli",
+      "requested_model": "claude-sonnet-5",
+      "role": "independent-family-review",
+      "reasoning_effort": "medium",
+      "maximum_positions": 20,
+      "command_timeout_seconds": 180,
+      "max_budget_usd_per_decision": 0.1
+    },
+    {
+      "policy_id": "claude-opus-4-8-candidate-v1",
+      "backend": "claude-cli",
+      "requested_model": "claude-opus-4-8",
+      "role": "independent-family-review",
+      "reasoning_effort": "medium",
+      "maximum_positions": 10,
+      "command_timeout_seconds": 240,
+      "max_budget_usd_per_decision": 0.25
+    }
+  ]
+}

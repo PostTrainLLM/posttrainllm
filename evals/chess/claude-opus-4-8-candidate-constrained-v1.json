@@ -1,0 +1,711 @@
+{
+  "aggregate": {
+    "abstention_or_redirect_rate": 0.3,
+    "abstention_or_redirect_required": 3,
+    "constraint_applied_rate": 1.0,
+    "exact": 7,
+    "exact_move_accuracy": 0.7,
+    "executed_legal": 7,
+    "executed_legal_rate": 1.0,
+    "execution_rate": 0.7,
+    "legal": 7,
+    "legal_rate": 0.7,
+    "mean_latency_ms": 86801.03891239999,
+    "provider_failure_rate": 0.3,
+    "provider_failures": 3,
+    "puzzles": 10,
+    "total_cost_usd": 1.36108275
+  },
+  "decisions": [
+    {
+      "best_moves": [
+        "h4g2"
+      ],
+      "exact": true,
+      "failure": null,
+      "fen": "rn1qk2r/3pbp1p/p3pn2/1P6/3N2pN/P5P1/1P2PPbP/R1BQK2R w KQkq - 0 12",
+      "index": 0,
+      "input": "FEN=rn1qk2r/3pbp1p/p3pn2/1P6/3N2pN/P5P1/1P2PPbP/R1BQK2R w KQkq - 0 12;PLY=22;LEGAL=a1a2,a1b1,a3a4,b2b3,b2b4,b5a6,b5b6,c1d2,c1e3,c1f4,c1g5,c1h6,d1a4,d1b3,d1c2,d1d2,d1d3,d4b3,d4c2,d4c6,d4e6,d4f3,d4f5,e1d2,e2e3,e2e4,f2f3,f2f4,h1f1,h1g1,h2h3,h4f3,h4f5,h4g2,h4g6",
+      "latency_ms": 31072.470041,
+      "legal": true,
+      "legal_moves": [
+        "a1a2",
+        "a1b1",
+        "a3a4",
+        "b2b3",
+        "b2b4",
+        "b5a6",
+        "b5b6",
+        "c1d2",
+        "c1e3",
+        "c1f4",
+        "c1g5",
+        "c1h6",
+        "d1a4",
+        "d1b3",
+        "d1c2",
+        "d1d2",
+        "d1d3",
+        "d4b3",
+        "d4c2",
+        "d4c6",
+        "d4e6",
+        "d4f3",
+        "d4f5",
+        "e1d2",
+        "e2e3",
+        "e2e4",
+        "f2f3",
+        "f2f4",
+        "h1f1",
+        "h1g1",
+        "h2h3",
+        "h4f3",
+        "h4f5",
+        "h4g2",
+        "h4g6"
+      ],
+      "parsed_move": "h4g2",
+      "puzzle_id": "chess-candidate-073",
+      "raw_output": "h4g2",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e5d7"
+      ],
+      "exact": false,
+      "failure": "ProviderFailure: Claude CLI failed with exit 1: {\"type\":\"result\",\"subtype\":\"error_max_budget_usd\",\"duration_ms\":109590,\"duration_api_ms\":0,\"is_error\":true,\"num_turns\":2,\"stop_reason\":\"tool_use\",\"session_id\":\"7f41d163-579a-44c9-b27a-d81bb4ca79fd\",\"total_cost_usd\":0.258158,\"usage\":{\"input_tokens\":0,\"cache_creation_input_tokens\":0,\"cache_read_input_",
+      "fen": "r4r1k/pp1b1ppp/2n1p3/3nN3/Pb6/4PN2/1P3PPP/R1BB1RK1 w - - 0 17",
+      "index": 0,
+      "input": "FEN=r4r1k/pp1b1ppp/2n1p3/3nN3/Pb6/4PN2/1P3PPP/R1BB1RK1 w - - 0 17;PLY=32;LEGAL=a1a2,a1a3,a1b1,a4a5,b2b3,c1d2,d1b3,d1c2,d1e2,e3e4,e5c4,e5c6,e5d3,e5d7,e5f7,e5g4,e5g6,f1e1,f3d2,f3d4,f3e1,f3g5,f3h4,g1h1,g2g3,g2g4,h2h3,h2h4",
+      "latency_ms": 111075.31675,
+      "legal": false,
+      "legal_moves": [
+        "a1a2",
+        "a1a3",
+        "a1b1",
+        "a4a5",
+        "b2b3",
+        "c1d2",
+        "d1b3",
+        "d1c2",
+        "d1e2",
+        "e3e4",
+        "e5c4",
+        "e5c6",
+        "e5d3",
+        "e5d7",
+        "e5f7",
+        "e5g4",
+        "e5g6",
+        "f1e1",
+        "f3d2",
+        "f3d4",
+        "f3e1",
+        "f3g5",
+        "f3h4",
+        "g1h1",
+        "g2g3",
+        "g2g4",
+        "h2h3",
+        "h2h4"
+      ],
+      "parsed_move": null,
+      "puzzle_id": "chess-candidate-011",
+      "raw_output": null,
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "b4a5"
+      ],
+      "exact": false,
+      "failure": "TimeoutExpired: Command '['claude', '--print', '--safe-mode', '--tools', '', '--no-session-persistence', '--model', 'claude-opus-4-8', '--fallback-model', 'claude-opus-4-8', '--effort', 'medium', '--output-format', 'json', '--max-budget-usd', '0.25', '--system-prompt', 'You are a chess policy. You receive one character-only state.\\nFEN is the complete six-field chess position, PLY is the zero-based move index,\\nand LEGAL is the complete comma-separated set of currently legal UCI moves.\\nChoose the move that maximizes your chance of winning. Reply with exactly one\\nmove from LEGAL and nothing else. Do not use tools, engines, code, search,\\nrollouts, opening books, or hidden state from earlier decisions.', '--json-schema', '{\"type\": \"object\", \"properties\": {\"move\": {\"type\": \"string\", \"enum\": [\"a1a2\", \"a1a3\", \"a1b1\", \"b4a5\", \"b4b5\", \"b4c5\", \"c1a3\", \"c1b2\", \"c1d2\", \"c3a2\", \"c3b1\", \"c3b5\", \"c3d5\", \"c3e2\", \"c3e4\", \"d1b3\", \"d1c2\", \"d1d2\", \"d1d3\", \"d1d4\", \"d1e2\", \"e1d2\", \"e1e2\", \"e3d4\", \"e3e4\", \"f1d3\", \"f1e2\", \"f3d2\", \"f3d4\", \"f3e5\", \"f3g1\", \"f3g5\", \"f3h4\", \"g2g3\", \"g2g4\", \"h1g1\", \"h2h3\", \"h2h4\"]}}, \"required\": [\"move\"], \"additionalProperties\": false}', 'FEN=r1b1kb1r/pp1p1pp1/2n2n2/q1p4p/PPPp4/2N1PN2/5PPP/R1BQKB1R w KQkq h6 0 8;PLY=14;LEGAL=a1a2,a1a3,a1b1,b4a5,b4b5,b4c5,c1a3,c1b2,c1d2,c3a2,c3b1,c3b5,c3d5,c3e2,c3e4,d1b3,d1c2,d1d2,d1d3,d1d4,d1e2,e1d2,e1e2,e3d4,e3e4,f1d3,f1e2,f3d2,f3d4,f3e5,f3g1,f3g5,f3h4,g2g3,g2g4,h1g1,h2h3,h2h4']' timed out after 240 seconds",
+      "fen": "r1b1kb1r/pp1p1pp1/2n2n2/q1p4p/PPPp4/2N1PN2/5PPP/R1BQKB1R w KQkq h6 0 8",
+      "index": 0,
+      "input": "FEN=r1b1kb1r/pp1p1pp1/2n2n2/q1p4p/PPPp4/2N1PN2/5PPP/R1BQKB1R w KQkq h6 0 8;PLY=14;LEGAL=a1a2,a1a3,a1b1,b4a5,b4b5,b4c5,c1a3,c1b2,c1d2,c3a2,c3b1,c3b5,c3d5,c3e2,c3e4,d1b3,d1c2,d1d2,d1d3,d1d4,d1e2,e1d2,e1e2,e3d4,e3e4,f1d3,f1e2,f3d2,f3d4,f3e5,f3g1,f3g5,f3h4,g2g3,g2g4,h1g1,h2h3,h2h4",
+      "latency_ms": 240018.243875,
+      "legal": false,
+      "legal_moves": [
+        "a1a2",
+        "a1a3",
+        "a1b1",
+        "b4a5",
+        "b4b5",
+        "b4c5",
+        "c1a3",
+        "c1b2",
+        "c1d2",
+        "c3a2",
+        "c3b1",
+        "c3b5",
+        "c3d5",
+        "c3e2",
+        "c3e4",
+        "d1b3",
+        "d1c2",
+        "d1d2",
+        "d1d3",
+        "d1d4",
+        "d1e2",
+        "e1d2",
+        "e1e2",
+        "e3d4",
+        "e3e4",
+        "f1d3",
+        "f1e2",
+        "f3d2",
+        "f3d4",
+        "f3e5",
+        "f3g1",
+        "f3g5",
+        "f3h4",
+        "g2g3",
+        "g2g4",
+        "h1g1",
+        "h2h3",
+        "h2h4"
+      ],
+      "parsed_move": null,
+      "puzzle_id": "chess-candidate-095",
+      "raw_output": null,
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "g3f4"
+      ],
+      "exact": true,
+      "failure": null,
+      "fen": "1rbqk2r/p1pn1pp1/1p3n1p/3p4/3P1b2/PP4P1/2QNPP1P/RNB1KB1R w KQk - 3 13",
+      "index": 0,
+      "input": "FEN=1rbqk2r/p1pn1pp1/1p3n1p/3p4/3P1b2/PP4P1/2QNPP1P/RNB1KB1R w KQk - 3 13;PLY=24;LEGAL=a1a2,a3a4,b1c3,b3b4,c1b2,c2a2,c2b2,c2c3,c2c4,c2c5,c2c6,c2c7,c2d1,c2d3,c2e4,c2f5,c2g6,c2h7,d2c4,d2e4,d2f3,e1d1,e2e3,e2e4,f1g2,f1h3,f2f3,g3f4,g3g4,h1g1,h2h3,h2h4",
+      "latency_ms": 13286.172917,
+      "legal": true,
+      "legal_moves": [
+        "a1a2",
+        "a3a4",
+        "b1c3",
+        "b3b4",
+        "c1b2",
+        "c2a2",
+        "c2b2",
+        "c2c3",
+        "c2c4",
+        "c2c5",
+        "c2c6",
+        "c2c7",
+        "c2d1",
+        "c2d3",
+        "c2e4",
+        "c2f5",
+        "c2g6",
+        "c2h7",
+        "d2c4",
+        "d2e4",
+        "d2f3",
+        "e1d1",
+        "e2e3",
+        "e2e4",
+        "f1g2",
+        "f1h3",
+        "f2f3",
+        "g3f4",
+        "g3g4",
+        "h1g1",
+        "h2h3",
+        "h2h4"
+      ],
+      "parsed_move": "g3f4",
+      "puzzle_id": "chess-candidate-079",
+      "raw_output": "g3f4",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e5f6"
+      ],
+      "exact": true,
+      "failure": null,
+      "fen": "r1b1kb1r/ppp1qppp/3p1n2/4P3/5n2/3PN3/PPP2PPP/RNBQK2R w KQkq - 1 9",
+      "index": 0,
+      "input": "FEN=r1b1kb1r/ppp1qppp/3p1n2/4P3/5n2/3PN3/PPP2PPP/RNBQK2R w KQkq - 1 9;PLY=16;LEGAL=a2a3,a2a4,b1a3,b1c3,b1d2,b2b3,b2b4,c1d2,c2c3,c2c4,d1d2,d1e2,d1f3,d1g4,d1h5,d3d4,e1d2,e1f1,e1g1,e3c4,e3d5,e3f1,e3f5,e3g4,e5d6,e5e6,e5f6,f2f3,g2g3,g2g4,h1f1,h1g1,h2h3,h2h4",
+      "latency_ms": 110526.356166,
+      "legal": true,
+      "legal_moves": [
+        "a2a3",
+        "a2a4",
+        "b1a3",
+        "b1c3",
+        "b1d2",
+        "b2b3",
+        "b2b4",
+        "c1d2",
+        "c2c3",
+        "c2c4",
+        "d1d2",
+        "d1e2",
+        "d1f3",
+        "d1g4",
+        "d1h5",
+        "d3d4",
+        "e1d2",
+        "e1f1",
+        "e1g1",
+        "e3c4",
+        "e3d5",
+        "e3f1",
+        "e3f5",
+        "e3g4",
+        "e5d6",
+        "e5e6",
+        "e5f6",
+        "f2f3",
+        "g2g3",
+        "g2g4",
+        "h1f1",
+        "h1g1",
+        "h2h3",
+        "h2h4"
+      ],
+      "parsed_move": "e5f6",
+      "puzzle_id": "chess-candidate-018",
+      "raw_output": "e5f6",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "c7c6"
+      ],
+      "exact": true,
+      "failure": null,
+      "fen": "2b1k1nr/r1q2ppp/ppN2b2/3p2B1/8/2N2B2/PPP2PPP/R2Q1RK1 b k - 1 13",
+      "index": 0,
+      "input": "FEN=2b1k1nr/r1q2ppp/ppN2b2/3p2B1/8/2N2B2/PPP2PPP/R2Q1RK1 b k - 1 13;PLY=25;LEGAL=a6a5,a7a8,a7b7,b6b5,c7b7,c7b8,c7c6,c7d6,c7d7,c7d8,c7e5,c7e7,c7f4,c7g3,c7h2,c8b7,c8d7,c8e6,c8f5,c8g4,c8h3,d5d4,e8d7,e8f8,f6c3,f6d4,f6d8,f6e5,f6e7,f6g5,g7g6,g8e7,g8h6,h7h5,h7h6",
+      "latency_ms": 81904.187667,
+      "legal": true,
+      "legal_moves": [
+        "a6a5",
+        "a7a8",
+        "a7b7",
+        "b6b5",
+        "c7b7",
+        "c7b8",
+        "c7c6",
+        "c7d6",
+        "c7d7",
+        "c7d8",
+        "c7e5",
+        "c7e7",
+        "c7f4",
+        "c7g3",
+        "c7h2",
+        "c8b7",
+        "c8d7",
+        "c8e6",
+        "c8f5",
+        "c8g4",
+        "c8h3",
+        "d5d4",
+        "e8d7",
+        "e8f8",
+        "f6c3",
+        "f6d4",
+        "f6d8",
+        "f6e5",
+        "f6e7",
+        "f6g5",
+        "g7g6",
+        "g8e7",
+        "g8h6",
+        "h7h5",
+        "h7h6"
+      ],
+      "parsed_move": "c7c6",
+      "puzzle_id": "chess-candidate-009",
+      "raw_output": "c7c6",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "b4c5"
+      ],
+      "exact": true,
+      "failure": null,
+      "fen": "r1bqk2r/ppp2ppp/2nb4/2n5/1P6/5N2/P1PN1PPP/R1BQKB1R w KQkq - 0 8",
+      "index": 0,
+      "input": "FEN=r1bqk2r/ppp2ppp/2nb4/2n5/1P6/5N2/P1PN1PPP/R1BQKB1R w KQkq - 0 8;PLY=14;LEGAL=a1b1,a2a3,a2a4,b4b5,b4c5,c1a3,c1b2,c2c3,c2c4,d1e2,d2b1,d2b3,d2c4,d2e4,e1e2,f1a6,f1b5,f1c4,f1d3,f1e2,f3d4,f3e5,f3g1,f3g5,f3h4,g2g3,g2g4,h1g1,h2h3,h2h4",
+      "latency_ms": 27892.748708,
+      "legal": true,
+      "legal_moves": [
+        "a1b1",
+        "a2a3",
+        "a2a4",
+        "b4b5",
+        "b4c5",
+        "c1a3",
+        "c1b2",
+        "c2c3",
+        "c2c4",
+        "d1e2",
+        "d2b1",
+        "d2b3",
+        "d2c4",
+        "d2e4",
+        "e1e2",
+        "f1a6",
+        "f1b5",
+        "f1c4",
+        "f1d3",
+        "f1e2",
+        "f3d4",
+        "f3e5",
+        "f3g1",
+        "f3g5",
+        "f3h4",
+        "g2g3",
+        "g2g4",
+        "h1g1",
+        "h2h3",
+        "h2h4"
+      ],
+      "parsed_move": "b4c5",
+      "puzzle_id": "chess-candidate-068",
+      "raw_output": "b4c5",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "h6g5"
+      ],
+      "exact": true,
+      "failure": null,
+      "fen": "rnb1kb1r/1p1pqp2/p4npp/2pP2B1/2P5/3B4/PPQ1NPPP/RN2K2R b KQkq - 1 9",
+      "index": 0,
+      "input": "FEN=rnb1kb1r/1p1pqp2/p4npp/2pP2B1/2P5/3B4/PPQ1NPPP/RN2K2R b KQkq - 1 9;PLY=17;LEGAL=a6a5,a8a7,b7b5,b7b6,b8c6,d7d6,e7d6,e7d8,e7e2,e7e3,e7e4,e7e5,e7e6,e8d8,f6d5,f6e4,f6g4,f6g8,f6h5,f6h7,f8g7,h6g5,h6h5,h8g8,h8h7",
+      "latency_ms": 38675.433417,
+      "legal": true,
+      "legal_moves": [
+        "a6a5",
+        "a8a7",
+        "b7b5",
+        "b7b6",
+        "b8c6",
+        "d7d6",
+        "e7d6",
+        "e7d8",
+        "e7e2",
+        "e7e3",
+        "e7e4",
+        "e7e5",
+        "e7e6",
+        "e8d8",
+        "f6d5",
+        "f6e4",
+        "f6g4",
+        "f6g8",
+        "f6h5",
+        "f6h7",
+        "f8g7",
+        "h6g5",
+        "h6h5",
+        "h8g8",
+        "h8h7"
+      ],
+      "parsed_move": "h6g5",
+      "puzzle_id": "chess-candidate-078",
+      "raw_output": "h6g5",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "g2c6"
+      ],
+      "exact": true,
+      "failure": null,
+      "fen": "2b1r2k/r1P1b1pp/2q1p3/1p2p3/p2p4/N5PP/PP1BPPB1/R4RK1 w - - 0 22",
+      "index": 0,
+      "input": "FEN=2b1r2k/r1P1b1pp/2q1p3/1p2p3/p2p4/N5PP/PP1BPPB1/R4RK1 w - - 0 22;PLY=42;LEGAL=a1b1,a1c1,a1d1,a1e1,a3b1,a3b5,a3c2,a3c4,b2b3,b2b4,d2a5,d2b4,d2c1,d2c3,d2e1,d2e3,d2f4,d2g5,d2h6,e2e3,e2e4,f1b1,f1c1,f1d1,f1e1,f2f3,f2f4,g1h1,g1h2,g2c6,g2d5,g2e4,g2f3,g2h1,g3g4,h3h4",
+      "latency_ms": 21303.056583,
+      "legal": true,
+      "legal_moves": [
+        "a1b1",
+        "a1c1",
+        "a1d1",
+        "a1e1",
+        "a3b1",
+        "a3b5",
+        "a3c2",
+        "a3c4",
+        "b2b3",
+        "b2b4",
+        "d2a5",
+        "d2b4",
+        "d2c1",
+        "d2c3",
+        "d2e1",
+        "d2e3",
+        "d2f4",
+        "d2g5",
+        "d2h6",
+        "e2e3",
+        "e2e4",
+        "f1b1",
+        "f1c1",
+        "f1d1",
+        "f1e1",
+        "f2f3",
+        "f2f4",
+        "g1h1",
+        "g1h2",
+        "g2c6",
+        "g2d5",
+        "g2e4",
+        "g2f3",
+        "g2h1",
+        "g3g4",
+        "h3h4"
+      ],
+      "parsed_move": "g2c6",
+      "puzzle_id": "chess-candidate-082",
+      "raw_output": "g2c6",
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    },
+    {
+      "best_moves": [
+        "e1f1"
+      ],
+      "exact": false,
+      "failure": "ProviderFailure: Claude CLI failed with exit 1: {\"type\":\"result\",\"subtype\":\"error_max_budget_usd\",\"duration_ms\":191044,\"duration_api_ms\":0,\"is_error\":true,\"num_turns\":2,\"stop_reason\":\"tool_use\",\"session_id\":\"a0c5c2ae-aa1b-4a12-a09b-a164ffdd6b15\",\"total_cost_usd\":0.41935724999999996,\"usage\":{\"input_tokens\":0,\"cache_creation_input_tokens\":0,\"cache_",
+      "fen": "r1b2rk1/p2q1ppp/3b1P2/8/2pPN3/3n1N2/PP3PPP/R1BQK2R w KQ - 2 20",
+      "index": 0,
+      "input": "FEN=r1b2rk1/p2q1ppp/3b1P2/8/2pPN3/3n1N2/PP3PPP/R1BQK2R w KQ - 2 20;PLY=38;LEGAL=d1d3,e1d2,e1e2,e1f1",
+      "latency_ms": 192256.403,
+      "legal": false,
+      "legal_moves": [
+        "d1d3",
+        "e1d2",
+        "e1e2",
+        "e1f1"
+      ],
+      "parsed_move": null,
+      "puzzle_id": "chess-candidate-039",
+      "raw_output": null,
+      "themes": [
+        "engine-generated",
+        "tactical-gap"
+      ]
+    }
+  ],
+  "model": {
+    "backend": "claude-cli",
+    "command_timeout_seconds": 240,
+    "max_budget_usd_per_decision": 0.25,
+    "maximum_positions": 10,
+    "policy_id": "claude-opus-4-8-candidate-v1",
+    "reasoning_effort": "medium",
+    "requested_model": "claude-opus-4-8",
+    "resolved_models": [
+      "claude-opus-4-8"
+    ],
+    "role": "independent-family-review"
+  },
+  "provider_calls": [
+    {
+      "adapter_wall_time_ms": 31071.820708,
+      "cost_usd": 0.044672500000000004,
+      "resolved_models": [
+        "claude-opus-4-8"
+      ],
+      "turns": 2,
+      "usage": {
+        "claude-opus-4-8": {
+          "cacheCreationInputTokens": 0,
+          "cacheReadInputTokens": 2525,
+          "contextWindow": 1000000,
+          "costUSD": 0.044672500000000004,
+          "inputTokens": 2,
+          "maxOutputTokens": 64000,
+          "outputTokens": 1736,
+          "webSearchRequests": 0
+        }
+      }
+    },
+    {
+      "adapter_wall_time_ms": 111075.111208,
+      "cost_usd": 0.258158,
+      "provider_error": "error_max_budget_usd",
+      "resolved_models": [
+        "claude-opus-4-8"
+      ],
+      "turns": 2
+    },
+    {
+      "adapter_wall_time_ms": 13285.654708,
+      "cost_usd": 0.042395,
+      "resolved_models": [
+        "claude-opus-4-8"
+      ],
+      "turns": 2,
+      "usage": {
+        "claude-opus-4-8": {
+          "cacheCreationInputTokens": 2496,
+          "cacheReadInputTokens": 0,
+          "contextWindow": 1000000,
+          "costUSD": 0.042395,
+          "inputTokens": 2,
+          "maxOutputTokens": 64000,
+          "outputTokens": 697,
+          "webSearchRequests": 0
+        }
+      }
+    },
+    {
+      "adapter_wall_time_ms": 110526.07225,
+      "cost_usd": 0.207475,
+      "resolved_models": [
+        "claude-opus-4-8"
+      ],
+      "turns": 2,
+      "usage": {
+        "claude-opus-4-8": {
+          "cacheCreationInputTokens": 2514,
+          "cacheReadInputTokens": 0,
+          "contextWindow": 1000000,
+          "costUSD": 0.207475,
+          "inputTokens": 2,
+          "maxOutputTokens": 64000,
+          "outputTokens": 7293,
+          "webSearchRequests": 0
+        }
+      }
+    },
+    {
+      "adapter_wall_time_ms": 81903.918875,
+      "cost_usd": 0.172685,
+      "resolved_models": [
+        "claude-opus-4-8"
+      ],
+      "turns": 2,
+      "usage": {
+        "claude-opus-4-8": {
+          "cacheCreationInputTokens": 2525,
+          "cacheReadInputTokens": 0,
+          "contextWindow": 1000000,
+          "costUSD": 0.172685,
+          "inputTokens": 2,
+          "maxOutputTokens": 64000,
+          "outputTokens": 5897,
+          "webSearchRequests": 0
+        }
+      }
+    },
+    {
+      "adapter_wall_time_ms": 27892.039375,
+      "cost_usd": 0.07075000000000001,
+      "resolved_models": [
+        "claude-opus-4-8"
+      ],
+      "turns": 2,
+      "usage": {
+        "claude-opus-4-8": {
+          "cacheCreationInputTokens": 2469,
+          "cacheReadInputTokens": 0,
+          "contextWindow": 1000000,
+          "costUSD": 0.07075000000000001,
+          "inputTokens": 2,
+          "maxOutputTokens": 64000,
+          "outputTokens": 1842,
+          "webSearchRequests": 0
+        }
+      }
+    },
+    {
+      "adapter_wall_time_ms": 38675.109041,
+      "cost_usd": 0.08538000000000001,
+      "resolved_models": [
+        "claude-opus-4-8"
+      ],
+      "turns": 2,
+      "usage": {
+        "claude-opus-4-8": {
+          "cacheCreationInputTokens": 2417,
+          "cacheReadInputTokens": 0,
+          "contextWindow": 1000000,
+          "costUSD": 0.08538000000000001,
+          "inputTokens": 2,
+          "maxOutputTokens": 64000,
+          "outputTokens": 2448,
+          "webSearchRequests": 0
+        }
+      }
+    },
+    {
+      "adapter_wall_time_ms": 21302.78825,
+      "cost_usd": 0.06021,
+      "resolved_models": [
+        "claude-opus-4-8"
+      ],
+      "turns": 2,
+      "usage": {
+        "claude-opus-4-8": {
+          "cacheCreationInputTokens": 2535,
+          "cacheReadInputTokens": 0,
+          "contextWindow": 1000000,
+          "costUSD": 0.06021,
+          "inputTokens": 2,
+          "maxOutputTokens": 64000,
+          "outputTokens": 1394,
+          "webSearchRequests": 0
+        }
+      }
+    },
+    {
+      "adapter_wall_time_ms": 192256.185333,
+      "cost_usd": 0.41935724999999996,
+      "provider_error": "error_max_budget_usd",
+      "resolved_models": [
+        "claude-opus-4-8"
+      ],
+      "turns": 2
+    }
+  ],
+  "runtime": {
+    "claude_cli": "2.1.212 (Claude Code)",
+    "codex_cli": "codex-cli 0.146.0",
+    "python": "3.12.13"
+  },
+  "schema_version": "chess/cloud-matrix-result/v1",
+  "status": "candidate-verification-only-not-frozen-evidence",
+  "suite_id": "chess-tactics-candidate-verification-v1",
+  "trace_hash": "c36e23012102baa0ef5cb07e33b1200a5b59991120cbd64d93fc3dc1796c2c59",
+  "track": "legal-constrained-diagnostic"
+}

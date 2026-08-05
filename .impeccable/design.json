@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-05T00:00:00.000Z",
+  "title": "Design System: posttrainllm",
+  "extensions": {
+    "colorMeta": {
+      "deep-ink": { "role": "neutral", "displayName": "Deep Ink", "canonical": "#0a0c0f" },
+      "panel": { "role": "neutral", "displayName": "Evidence Panel", "canonical": "#111419" },
+      "live-teal": { "role": "primary", "displayName": "Live Teal", "canonical": "#48e5c2" },
+      "failure-coral": { "role": "semantic", "displayName": "Failure Coral", "canonical": "#ff6f5c" },
+      "candidate-amber": { "role": "semantic", "displayName": "Candidate Amber", "canonical": "#ffb454" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Editorial Display", "purpose": "Thesis and section hierarchy." },
+      "body": { "displayName": "Readable Interface", "purpose": "Explanation and navigation." },
+      "mono": { "displayName": "Evidence Type", "purpose": "Metrics, paths, commands, and states." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "state-fast", "value": "140ms cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Focus, hover, and active-state feedback." }
+    ],
+    "breakpoints": [
+      { "name": "compact", "value": "520px" },
+      { "name": "tablet", "value": "768px" },
+      { "name": "wide", "value": "1180px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Evidence Panel",
+      "kind": "card",
+      "refersTo": "evidence-panel",
+      "description": "A bounded claim with explicit state and provenance.",
+      "html": "<article class=\"evidence-panel\"><p class=\"state\">candidate</p><h3>Claim</h3><a href=\"/evidence\">Inspect evidence</a></article>",
+      "css": ".evidence-panel{background:#111419;color:#eaedf2;border:1px solid #2a3039;border-radius:14px;padding:24px}.evidence-panel a{color:#48e5c2}.state{font-family:'Geist Mono Variable',monospace;color:#ffb454}"
+    },
+    {
+      "name": "Primary Action",
+      "kind": "button",
+      "refersTo": "primary-action",
+      "description": "The single strongest next action on a surface.",
+      "html": "<a class=\"primary-action\" href=\"/learn\">Open the walkthrough</a>",
+      "css": ".primary-action{display:inline-flex;background:#48e5c2;color:#06110e;border-radius:9px;padding:11px 20px;font:600 16px 'Geist Variable',sans-serif}.primary-action:focus-visible{outline:2px solid #48e5c2;outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Evidence Instrument",
+    "overview": "A dark, ruled research surface that pairs editorial explanation with inspectable model evidence and explicit qualification states.",
+    "keyCharacteristics": [
+      "Deep ink surfaces with tonal panels and precise rules.",
+      "Bricolage display type, Geist body type, and Geist Mono evidence labels.",
+      "Teal live states, coral failures, and amber candidates.",
+      "Source-linked claims and failure-visible reports."
+    ],
+    "rules": [
+      { "name": "State colors carry meaning", "body": "Use teal, coral, and amber only for their established evidence states.", "section": "colors" }
+    ],
+    "dos": [
+      "Show qualification and provenance beside claims.",
+      "Keep long explanations within a readable measure."
+    ],
+    "donts": [
+      "Do not fabricate capability or efficiency claims.",
+      "Do not replace evidence with generic AI imagery or decorative gradients."
+    ]
+  }
+}

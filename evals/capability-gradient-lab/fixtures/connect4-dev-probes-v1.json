@@ -1,0 +1,54 @@
+{
+  "artifact_type": "development_probes",
+  "probe_set_id": "connect4-dev-probes-v1",
+  "revision": "1",
+  "env": "connect4",
+  "development_only": true,
+  "no_training_labels": true,
+  "no_frozen_eval_material": true,
+  "provenance": {
+    "author": "Devin using GLM-5.2",
+    "content_origin": "Devin manually constructed tactical positions and verified them mechanically",
+    "date": "2026-08-04",
+    "method": "Manually constructed board positions via setup_moves. Each probe reaches a position where the expected action is mechanically verifiable by the Connect4Env.would_win() check. Positions were verified by replaying setup_moves and checking the claim against the environment's own verifier.",
+    "note": "These probes exercise the verifier and harness only. They are not training labels, not held-out evaluation data, and not a frontier model's output. They exist to prove the environment correctly detects immediate wins and blocks."
+  },
+  "probes": [
+    {
+      "id": "c4-win-horizontal",
+      "seed": 0,
+      "setup_moves": [1, 7, 2, 7, 3, 7],
+      "expected_action": 4,
+      "claim": "immediate_win",
+      "description": "X has three in a row horizontally at the bottom (columns 1-3). Playing column 4 completes four in a row.",
+      "board_before": ". . . . . . .\n. . . . . . .\n. . . . . . .\n. . . . . . O\n. . . . . . O\nX X X . . . O\n1 2 3 4 5 6 7"
+    },
+    {
+      "id": "c4-win-vertical",
+      "seed": 0,
+      "setup_moves": [1, 7, 1, 7, 1, 7],
+      "expected_action": 1,
+      "claim": "immediate_win",
+      "description": "X has three vertical pieces in column 1. Playing column 1 again completes four in a column.",
+      "board_before": ". . . . . . .\n. . . . . . .\n. . . . . . .\nX . . . . . O\nX . . . . . O\nX . . . . . O\n1 2 3 4 5 6 7"
+    },
+    {
+      "id": "c4-block-horizontal",
+      "seed": 0,
+      "setup_moves": [7, 1, 7, 2, 7, 3],
+      "expected_action": 4,
+      "claim": "immediate_block",
+      "description": "O has three in a row horizontally at the bottom (columns 1-3). X must play column 4 to block O's immediate win.",
+      "board_before": ". . . . . . .\n. . . . . . .\n. . . . . . .\n. . . . . . X\n. . . . . . X\nO O O . . . X\n1 2 3 4 5 6 7"
+    },
+    {
+      "id": "c4-block-vertical",
+      "seed": 0,
+      "setup_moves": [7, 1, 7, 1, 7, 1],
+      "expected_action": 1,
+      "claim": "immediate_block",
+      "description": "O has three vertical pieces in column 1. X must play column 1 to block O's immediate vertical win.",
+      "board_before": ". . . . . . .\n. . . . . . .\n. . . . . . .\nO . . . . . X\nO . . . . . X\nO . . . . . X\n1 2 3 4 5 6 7"
+    }
+  ]
+}

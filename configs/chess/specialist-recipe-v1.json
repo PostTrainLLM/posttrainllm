@@ -1,0 +1,57 @@
+{
+  "schema_version": "chess/specialist-recipe/v1",
+  "recipe_id": "character-chess-44m-sft-v1",
+  "status": "pilot-failed-drop-current-lane",
+  "model_config": "configs/model.chess-44m-v0.json",
+  "data_config": "configs/chess/lichess-eval-corpus-v1.json",
+  "ladder_config": "configs/chess/strength-ladder-v1.json",
+  "qwen_reproduction_config": "configs/chess/qwen-reproduction-v1.json",
+  "training_configs": {
+    "tiny_overfit": "configs/chess/training-tiny-overfit-v1.json",
+    "pilot_superseded_generic": "configs/chess/training-pilot-v1.json",
+    "pilot_masked": "configs/chess/training-pilot-masked-v1.json"
+  },
+  "parameter_count": {
+    "estimator": "v*c + ctx*c + 2*c + layers*(4*(c*c+c) + 4*c + (c*mlp+mlp) + (mlp*c+c))",
+    "expected": 44527616,
+    "minimum": 30000000,
+    "maximum": 50000000
+  },
+  "training": {
+    "objective": "target-masked-completion-only-next-byte-policy",
+    "optimizer": "adamw",
+    "learning_rate": 0.0003,
+    "betas": [0.9, 0.95],
+    "weight_decay": 0.1,
+    "gradient_clip": 1.0,
+    "seed": 20260805,
+    "large_run_requires_owner_approval": true,
+    "current_recipe_scale_up_authorized": false,
+    "current_recipe_scale_up_stop_reason": "10k validation exact gain was 0.0438 against a required 0.1, and raw plus guarded policies won 0/12 random-floor games"
+  },
+  "gates": {
+    "tiny_overfit": {
+      "unique_rows": 8,
+      "repeat_factor": 64,
+      "maximum_steps": 200,
+      "required_exact_target_rate": 1.0,
+      "require_finite_loss": true
+    },
+    "pilot": {
+      "maximum_training_rows": 10000,
+      "maximum_steps": 2000,
+      "required_validation_exact_gain": 0.1,
+      "required_validation_legal_candidate_rate": 1.0,
+      "stop_on_non_finite_loss": true
+    },
+    "qualification": {
+      "minimum_games_per_policy": 30,
+      "required_ladder_rungs": 3,
+      "required_executed_legal_rate": 1.0,
+      "maximum_invalid_forfeit_rate": 0.1,
+      "required_specialist_rating_lower_bound_above_strongest_4b_9b_upper_bound": true,
+      "frontier_is_calibration_anchor_not_required_opponent_win": true,
+      "decision_options": ["ship", "retry-data", "retry-training", "redirect", "reject"]
+    }
+  }
+}

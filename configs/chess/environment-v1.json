@@ -1,0 +1,31 @@
+{
+  "schema_version": "chess/environment/v1",
+  "environment_id": "character-chess-v1",
+  "rules_runtime": {
+    "package": "python-chess",
+    "package_version": "1.999",
+    "module_version": "1.11.2"
+  },
+  "engine_label_runtime": {
+    "name": "Stockfish",
+    "version": "18",
+    "development_depth": 12
+  },
+  "observation_revision": "chess/character-observation/v1",
+  "action_notation": "uci",
+  "strict_output": "exactly one legal UCI move and no other text",
+  "model_forbidden_capabilities": [
+    "engine",
+    "tool-use",
+    "code-execution",
+    "search",
+    "rollouts",
+    "opening-book",
+    "hidden-state-between-decisions"
+  ],
+  "full_game": {
+    "claim_draw": true,
+    "maximum_plies": 160,
+    "move_cap_outcome": "draw"
+  }
+}

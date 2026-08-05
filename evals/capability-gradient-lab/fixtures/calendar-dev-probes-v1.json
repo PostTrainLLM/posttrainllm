@@ -1,0 +1,67 @@
+{
+  "artifact_type": "development_probes",
+  "probe_set_id": "calendar-dev-probes-v1",
+  "revision": "1",
+  "env": "calendar",
+  "development_only": true,
+  "no_training_labels": true,
+  "no_frozen_eval_material": true,
+  "provenance": {
+    "author": "Devin using GLM-5.2",
+    "content_origin": "Environment-generated seeded calendars; Devin selected and described probe actions",
+    "date": "2026-08-04",
+    "method": "Seeds were selected by running CalendarEnv.reset(seed) and checking specific slots against the environment's own verifier. Each probe's claim (valid_slot, invalid_slot) was confirmed by the verifier before committing. No probe depends on a frontier model output.",
+    "note": "These probes exercise the verifier and harness only. They are not training labels, not held-out evaluation data, and not a frontier model's output. They exist to prove the environment correctly accepts valid slots and rejects invalid ones."
+  },
+  "probes": [
+    {
+      "id": "cal-valid-seed0",
+      "seed": 0,
+      "expected_action": "tue 12:00",
+      "claim": "valid_slot",
+      "description": "Seed 0: a 120-minute meeting at tue 12:00 fits business hours and avoids the shared tue 10:30-12:00 block. Slot is valid."
+    },
+    {
+      "id": "cal-valid-seed7",
+      "seed": 7,
+      "expected_action": "thu 09:00",
+      "claim": "valid_slot",
+      "description": "Seed 7: a 90-minute meeting at thu 09:00 fits business hours and avoids all shared blocks and attendee unavailability. Slot is valid."
+    },
+    {
+      "id": "cal-invalid-event-overlap",
+      "seed": 0,
+      "expected_action": "tue 09:00",
+      "claim": "invalid_slot",
+      "description": "Seed 0: a 120-minute meeting at tue 09:00 overlaps the shared tue 10:30-12:00 block. Slot is invalid."
+    },
+    {
+      "id": "cal-invalid-unavailability",
+      "seed": 7,
+      "expected_action": "thu 13:00",
+      "claim": "invalid_slot",
+      "description": "Seed 7: a 90-minute meeting at thu 13:00 overlaps alice's thu 14:00-16:00 unavailability. Slot is invalid."
+    },
+    {
+      "id": "cal-invalid-outside-hours",
+      "seed": 0,
+      "expected_action": "tue 08:00",
+      "claim": "invalid_slot",
+      "description": "Seed 0: business hours start at 09:00. A meeting at tue 08:00 starts too early. Slot is invalid."
+    },
+    {
+      "id": "cal-invalid-day-out-of-range",
+      "seed": 7,
+      "expected_action": "wed 10:00",
+      "claim": "invalid_slot",
+      "description": "Seed 7 date range is thu, fri. wed is outside the date range. Slot is invalid."
+    },
+    {
+      "id": "cal-none-seed3",
+      "seed": 3,
+      "expected_action": "NONE",
+      "claim": "valid_slot",
+      "description": "Seed 3 has no 120-minute slot satisfying all shared blocks and attendee unavailability, so NONE is correct."
+    }
+  ]
+}

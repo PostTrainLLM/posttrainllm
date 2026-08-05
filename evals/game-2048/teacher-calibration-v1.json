@@ -1,0 +1,382 @@
+{
+  "config_ref": {
+    "config_id": "game-2048-teacher-calibration-v1",
+    "revision": "1",
+    "sha256": "d84f73c1cccae46e3e8e2cdc74f248fb2bf38a8944eddeb38a261934425eb645"
+  },
+  "limitations": [
+    "Four tracked development seeds only; this is not frozen-evaluation evidence.",
+    "Chance nodes use the configured deterministic cell limit, so the teacher is bounded rather than exact full-width expectimax.",
+    "Performance is one local CPU observation and is not a sustained thermal benchmark.",
+    "No trajectories, model, or training artifacts were produced.",
+    "This algorithmic policy is diagnostic only: it is not a benchmark opponent, capability anchor, or training-label source."
+  ],
+  "measured_performance": {
+    "policies": [
+      {
+        "decisions_per_second": 33104.36763339037,
+        "evaluation_wall_time_ms": 118.443,
+        "mean_score": 1309.0,
+        "model_load_time_ms": 0,
+        "policy": {
+          "policy_id": "random-legal",
+          "revision": "1"
+        },
+        "warm_decision_latency_ms": {
+          "p50": 0.0296045,
+          "p95": 0.03427075
+        }
+      },
+      {
+        "decisions_per_second": 8596.05285234637,
+        "evaluation_wall_time_ms": 659.807625,
+        "mean_score": 8203.0,
+        "model_load_time_ms": 0,
+        "policy": {
+          "policy_id": "greedy-one-ply",
+          "revision": "1"
+        },
+        "warm_decision_latency_ms": {
+          "p50": 0.122416,
+          "p95": 0.1355168
+        }
+      },
+      {
+        "decisions_per_second": 114.01497851144971,
+        "evaluation_wall_time_ms": 30971.055583,
+        "mean_score": 15191.0,
+        "model_load_time_ms": 0,
+        "policy": {
+          "configuration_sha256": "0a11b53aea679fc38b85b34ad2c7acf768051f4b660f34bbde466f02d134e582",
+          "policy_id": "expectimax-bounded",
+          "revision": "1"
+        },
+        "warm_decision_latency_ms": {
+          "p50": 9.692792,
+          "p95": 11.106450599999997
+        }
+      }
+    ],
+    "runtime": {
+      "implementation": "CPython",
+      "machine": "arm64",
+      "platform": "macOS-27.0-arm64-arm-64bit",
+      "python": "3.9.6"
+    }
+  },
+  "observed_at": "2026-08-04T19:28:00+05:30",
+  "quality": {
+    "config_id": "game-2048-teacher-calibration-v1",
+    "environment_revision": "deterministic-2048/v1",
+    "paired_comparisons": [
+      {
+        "baseline": {
+          "policy_id": "random-legal",
+          "revision": "1"
+        },
+        "candidate": {
+          "policy_id": "greedy-one-ply",
+          "revision": "1"
+        },
+        "paired_bootstrap_95_ci": {
+          "confidence": 0.95,
+          "lower": 5310.75,
+          "revision": "1",
+          "samples": 256,
+          "upper": 9580.0
+        },
+        "paired_mean_score_delta": 6894.0,
+        "paired_tie_rate": 0.0,
+        "paired_win_rate": 1.0,
+        "score_deltas_by_seed": [
+          {
+            "delta": 10924,
+            "seed": 2048000000
+          },
+          {
+            "delta": 6032,
+            "seed": 2048000001
+          },
+          {
+            "delta": 5548,
+            "seed": 2048000002
+          },
+          {
+            "delta": 5072,
+            "seed": 2048000003
+          }
+        ]
+      },
+      {
+        "baseline": {
+          "policy_id": "random-legal",
+          "revision": "1"
+        },
+        "candidate": {
+          "configuration_sha256": "0a11b53aea679fc38b85b34ad2c7acf768051f4b660f34bbde466f02d134e582",
+          "policy_id": "expectimax-bounded",
+          "revision": "1"
+        },
+        "paired_bootstrap_95_ci": {
+          "confidence": 0.95,
+          "lower": 8886.0,
+          "revision": "1",
+          "samples": 256,
+          "upper": 19923.0
+        },
+        "paired_mean_score_delta": 13882.0,
+        "paired_tie_rate": 0.0,
+        "paired_win_rate": 1.0,
+        "score_deltas_by_seed": [
+          {
+            "delta": 5832,
+            "seed": 2048000000
+          },
+          {
+            "delta": 22584,
+            "seed": 2048000001
+          },
+          {
+            "delta": 11940,
+            "seed": 2048000002
+          },
+          {
+            "delta": 15172,
+            "seed": 2048000003
+          }
+        ]
+      },
+      {
+        "baseline": {
+          "policy_id": "greedy-one-ply",
+          "revision": "1"
+        },
+        "candidate": {
+          "configuration_sha256": "0a11b53aea679fc38b85b34ad2c7acf768051f4b660f34bbde466f02d134e582",
+          "policy_id": "expectimax-bounded",
+          "revision": "1"
+        },
+        "paired_bootstrap_95_ci": {
+          "confidence": 0.95,
+          "lower": 319.0,
+          "revision": "1",
+          "samples": 256,
+          "upper": 14012.0
+        },
+        "paired_mean_score_delta": 6988.0,
+        "paired_tie_rate": 0.0,
+        "paired_win_rate": 0.75,
+        "score_deltas_by_seed": [
+          {
+            "delta": -5092,
+            "seed": 2048000000
+          },
+          {
+            "delta": 16552,
+            "seed": 2048000001
+          },
+          {
+            "delta": 6392,
+            "seed": 2048000002
+          },
+          {
+            "delta": 10100,
+            "seed": 2048000003
+          }
+        ]
+      }
+    ],
+    "policies": [
+      {
+        "games": [
+          {
+            "legal_move_rate": 1.0,
+            "maximum_tile": 128,
+            "move_count": 119,
+            "reached_2048": false,
+            "score": 1168,
+            "seed": 2048000000,
+            "terminal_completion": true,
+            "terminal_reason": "no-legal-actions",
+            "trace_hash": "724a92d1e6a0481ba2fdcc5a820105cb4623f9a321a498f1598f4c4644e20d5c"
+          },
+          {
+            "legal_move_rate": 1.0,
+            "maximum_tile": 64,
+            "move_count": 95,
+            "reached_2048": false,
+            "score": 680,
+            "seed": 2048000001,
+            "terminal_completion": true,
+            "terminal_reason": "no-legal-actions",
+            "trace_hash": "571002dc01dc07b3c47b211b666d723d280633dd1b9a752a2a4a8dc148e0ad0d"
+          },
+          {
+            "legal_move_rate": 1.0,
+            "maximum_tile": 256,
+            "move_count": 228,
+            "reached_2048": false,
+            "score": 2668,
+            "seed": 2048000002,
+            "terminal_completion": true,
+            "terminal_reason": "no-legal-actions",
+            "trace_hash": "7744a13340a1dbabd3c1d3c6dfc0965198a04802684b97242b412c009338d8d6"
+          },
+          {
+            "legal_move_rate": 1.0,
+            "maximum_tile": 64,
+            "move_count": 94,
+            "reached_2048": false,
+            "score": 720,
+            "seed": 2048000003,
+            "terminal_completion": true,
+            "terminal_reason": "no-legal-actions",
+            "trace_hash": "35c19b014a403b24599638872403d7a7401a60f05c3c351fdf299c2229dc421a"
+          }
+        ],
+        "invalid_decisions": 0,
+        "mean_score": 1309.0,
+        "policy": {
+          "policy_id": "random-legal",
+          "revision": "1"
+        },
+        "reach_2048_rate": 0.0,
+        "terminal_completion_rate": 1.0
+      },
+      {
+        "games": [
+          {
+            "legal_move_rate": 1.0,
+            "maximum_tile": 1024,
+            "move_count": 715,
+            "reached_2048": false,
+            "score": 12092,
+            "seed": 2048000000,
+            "terminal_completion": true,
+            "terminal_reason": "no-legal-actions",
+            "trace_hash": "b0b5606cf4842e22515ba21d900f825d169623e4d4a4ac4aa3c05fb43175aa58"
+          },
+          {
+            "legal_move_rate": 1.0,
+            "maximum_tile": 512,
+            "move_count": 468,
+            "reached_2048": false,
+            "score": 6712,
+            "seed": 2048000001,
+            "terminal_completion": true,
+            "terminal_reason": "no-legal-actions",
+            "trace_hash": "05aa8cf22d2ebc5451d69670c7ddbeddeab6de0a6dae66c096c1564b68fac5d3"
+          },
+          {
+            "legal_move_rate": 1.0,
+            "maximum_tile": 512,
+            "move_count": 576,
+            "reached_2048": false,
+            "score": 8216,
+            "seed": 2048000002,
+            "terminal_completion": true,
+            "terminal_reason": "no-legal-actions",
+            "trace_hash": "224ab413ce5550d75ad1038b45c382c37a675ccae6caa96c4b548c84db5043fa"
+          },
+          {
+            "legal_move_rate": 1.0,
+            "maximum_tile": 512,
+            "move_count": 414,
+            "reached_2048": false,
+            "score": 5792,
+            "seed": 2048000003,
+            "terminal_completion": true,
+            "terminal_reason": "no-legal-actions",
+            "trace_hash": "11fc64fb63c99bd5b903d92280c1da94a06d1e58d6d3630ec668dba20401820a"
+          }
+        ],
+        "invalid_decisions": 0,
+        "mean_score": 8203.0,
+        "policy": {
+          "policy_id": "greedy-one-ply",
+          "revision": "1"
+        },
+        "reach_2048_rate": 0.0,
+        "terminal_completion_rate": 1.0
+      },
+      {
+        "games": [
+          {
+            "legal_move_rate": 1.0,
+            "maximum_tile": 512,
+            "move_count": 482,
+            "reached_2048": false,
+            "score": 7000,
+            "seed": 2048000000,
+            "terminal_completion": true,
+            "terminal_reason": "no-legal-actions",
+            "trace_hash": "bce782ce22c7f10355b448e8be54c1e40fe925010ab0e1e3b346efaf523ca5ea"
+          },
+          {
+            "legal_move_rate": 1.0,
+            "maximum_tile": 2048,
+            "move_count": 1195,
+            "reached_2048": true,
+            "score": 23264,
+            "seed": 2048000001,
+            "terminal_completion": true,
+            "terminal_reason": "no-legal-actions",
+            "trace_hash": "292c1d7b62c6e58797777fd45b5b157a996adb923975b5265bd71d885f3cc626"
+          },
+          {
+            "legal_move_rate": 1.0,
+            "maximum_tile": 1024,
+            "move_count": 851,
+            "reached_2048": false,
+            "score": 14608,
+            "seed": 2048000002,
+            "terminal_completion": true,
+            "terminal_reason": "no-legal-actions",
+            "trace_hash": "088450513a304ce1dc16fa5aa48f870c1da43b37e3c50d28160131a0e6f0d61a"
+          },
+          {
+            "legal_move_rate": 1.0,
+            "maximum_tile": 1024,
+            "move_count": 917,
+            "reached_2048": false,
+            "score": 15892,
+            "seed": 2048000003,
+            "terminal_completion": true,
+            "terminal_reason": "no-legal-actions",
+            "trace_hash": "1071c3cc5ec00a599d3018884e7a6586c1be6ced6e525868117aa9b4c88a6bed"
+          }
+        ],
+        "invalid_decisions": 0,
+        "mean_score": 15191.0,
+        "policy": {
+          "configuration_sha256": "0a11b53aea679fc38b85b34ad2c7acf768051f4b660f34bbde466f02d134e582",
+          "policy_id": "expectimax-bounded",
+          "revision": "1"
+        },
+        "reach_2048_rate": 0.25,
+        "terminal_completion_rate": 1.0
+      }
+    ],
+    "policy_adapter_revision": "game-2048/policy-adapter/v1",
+    "quality_hash": "33af72075267e3f5f0a401e716bb250e2393b349643c477009fc6beceac1adb4",
+    "runner_revision": "paired-seed-runner/v1",
+    "schema_version": "game-2048/teacher-calibration-fixture/v1"
+  },
+  "schema_version": "game-2048/teacher-calibration-report/v1",
+  "tradeoffs": [
+    {
+      "baseline_policy_id": "random-legal",
+      "paired_mean_score_delta": 13882.0,
+      "paired_win_rate": 1.0,
+      "score_ratio": 11.605042016806722,
+      "throughput_ratio": 0.003444106825241081
+    },
+    {
+      "baseline_policy_id": "greedy-one-ply",
+      "paired_mean_score_delta": 6988.0,
+      "paired_win_rate": 0.75,
+      "score_ratio": 1.8518834572717298,
+      "throughput_ratio": 0.013263643263934597
+    }
+  ]
+}

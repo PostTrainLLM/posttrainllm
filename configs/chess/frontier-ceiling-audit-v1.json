@@ -1,0 +1,19 @@
+{
+  "schema_version": "chess/model-verification-matrix/v1",
+  "suite_id": "chess-tactics-candidate-verification-v1",
+  "track": "legal-constrained-diagnostic",
+  "strict_raw_diagnostic_positions": 10,
+  "frozen_before_scoring": "2026-08-05T02:02:00+05:30",
+  "models": [
+    {
+      "policy_id": "codex-gpt-5.5-high-ceiling-audit-v1",
+      "backend": "codex-cli",
+      "requested_model": "gpt-5.5",
+      "role": "frontier-ceiling-audit",
+      "reasoning_effort": "high",
+      "maximum_positions": 40,
+      "command_timeout_seconds": 240,
+      "max_budget_usd_per_decision": 0.0
+    }
+  ]
+}

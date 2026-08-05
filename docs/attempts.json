@@ -1430,6 +1430,31 @@
       "data_rows": 12,
       "varied_from": "autocorrect-tiny-overfit-gate",
       "varied": "8 single-source rows -> 12 rows across 8 sources; scored on the frozen eval suite instead of its own training rows"
+    },
+    {
+      "id": "character-chess-44m-masked-10k-pilot",
+      "name": "Character Chess 44.53M masked 10k pilot (2026-08-05)",
+      "family": "chess",
+      "status": "failed",
+      "evidence": "validation exact `6.16% random -> 10.54%` (+4.38 points), test `6.23% -> 10.33%` (+4.10); raw and guarded policies each won 0/6 games against random legal play",
+      "failure_reason": "Completion-only SFT learned a small held-out move preference but missed the frozen +10-point promotion gate and produced no full-game win advantage over random legal play; eight guard interventions converted no wins.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Legal constrained decoding and lower move-prediction loss are not game intelligence; require full-game transfer before scaling a tiny specialist.",
+      "next_action": "Do not run the 100k, 1M, or 2M stages under this recipe. Preserve the failed artifact and select a different bounded specialist target.",
+      "evidence_sources": [
+        "evals/chess/character-chess-44m-pilot-10k-v1.json",
+        "docs/learn/reproducing-qwen-chess-under-50m.md"
+      ],
+      "source": "evals/chess/character-chess-44m-pilot-10k-v1.json",
+      "kind": "training-run",
+      "methods": [
+        "sft"
+      ],
+      "bases": [
+        "byte-character-chess-44m"
+      ],
+      "objective": "chess-move-selection",
+      "data_rows": 10000
     }
   ],
   "method_vocabulary": {
@@ -1460,6 +1485,7 @@
     "ambiguity-detection": "Noticing an underspecified request.",
     "unhappy-path-handling": "Ambiguous, out-of-scope, and destructive inputs.",
     "typo-repair": "Minimum-edit correction of typing errors.",
+    "chess-move-selection": "Select a strong legal chess move from a characterwise board prompt.",
     "rank-sensitivity": "How much adapter rank changes the result."
   },
   "kind_vocabulary": {

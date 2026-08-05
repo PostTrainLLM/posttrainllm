@@ -1,0 +1,382 @@
+---
+import Default from "../../layouts/Default.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import replay from "../../data/benchmarks/game-2048-pilot-v1.json";
+
+const clientData = JSON.stringify(replay).replaceAll("<", "\\u003c");
+const measuredModels = replay.models.filter((model) => model.aggregate);
+const specialist = replay.models.find((model) => model.role === "specialist-candidate");
+const actionCharacter = { up: "U", down: "D", left: "L", right: "R" };
+---
+
+<Default
+  title="Character 2048 LLM benchmark — posttrainllm"
+  description="Inspect the retained Character 2048 benchmark failure, replay every local model move, and see why the expected intelligence advantage did not reproduce."
+>
+  <SiteHeader mode="instrument" active="benchmarks" />
+  <!--
+    THESIS: Watch the policy break, not a summary score; refuse the static leaderboard.
+    OWN-WORLD: Deep-ink lab instrument, teal live state, coral failures, solid tile fields.
+    STORY: Pick a model and seed, replay each decision, inspect exact input/output, reproduce it.
+    FIRST VIEWPORT: Board dominates left; live decision trace and controls occupy the right rail.
+    FORM: Existing posttrainllm instrument surface, preserve lane, replay console staging.
+  -->
+  <main>
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/benchmarks">Benchmarks</a><span>/</span><span>Character 2048</span></nav>
+    <header class="hero">
+      <div>
+        <p class="kicker">Development pilot · 3 paired seeds · no tools</p>
+        <h1>Watch the policy break.</h1>
+      </div>
+      <p>{replay.benchmark.claim} Every frame below is a prerecorded model decision—not an animation of algorithmic play.</p>
+    </header>
+
+    <section class="evidence-note" aria-label="Evidence status">
+      <span class="pulse" aria-hidden="true"></span>
+      <p id="evidence-copy"><strong>Failed benchmark artifact—retained.</strong> The expected intelligence advantage did not reproduce: Sonnet matched random legal play, while the Opus cohort remained incomplete.</p>
+    </section>
+
+    <section class="admission" aria-labelledby="admission-title">
+      <div>
+        <p class="section-label">Gate 0 · before training</p>
+        <h2 id="admission-title">First prove intelligence helps.</h2>
+        <p>If a pinned frontier model cannot outperform random legal moves, we stop and choose a different game. No 30–50M specialist is trained merely to beat a broken ruler.</p>
+      </div>
+      <div class="gate-card" data-state="failed">
+        <div class="gate-status"><span aria-hidden="true"></span><strong>Failed · artifact retained</strong></div>
+        <ul>
+          <li><span>Strict invalid decisions</span><strong>must be 0</strong></li>
+          <li><span>Paired win rate vs random</span><strong>must be ≥60%</strong></li>
+          <li><span>Mean score vs random</span><strong>must be ≥1.10×</strong></li>
+          <li><span>Bootstrap lower bound</span><strong>must be positive</strong></li>
+          <li><span>Frozen paired games</span><strong>30 seeds</strong></li>
+        </ul>
+        <p class="gate-result">Sonnet: 0.995× random over four complete games. Opus: 1.058× over three complete games—below the 1.10× bar—then one provider disconnect. No 30-seed run; no specialist training.</p>
+      </div>
+    </section>
+
+    <section class="replay" aria-labelledby="replay-title">
+      <div class="replay-heading">
+        <div><p class="section-label">Recorded output</p><h2 id="replay-title">Decision replay</h2></div>
+        <label class="file-control">Load replay JSON<input id="file-input" type="file" accept="application/json,.json" /></label>
+      </div>
+
+      <div class="run-strip" id="run-strip" aria-label="Choose a recorded model run"></div>
+
+      <div class="stage">
+        <div class="board-panel">
+          <div class="scoreline">
+            <div><span>Score</span><strong id="score">0</strong></div>
+            <div><span>Max tile</span><strong id="max-tile">2</strong></div>
+            <div><span>Move</span><strong id="move-count">0</strong></div>
+          </div>
+          <div class="board" id="board" role="img" aria-label="2048 board">
+            {Array.from({ length: 16 }, (_, index) => <div class="tile" data-index={index}><span></span></div>)}
+          </div>
+          <div class="transport">
+            <button id="previous" type="button" aria-label="Previous decision">←</button>
+            <button id="play" class="play" type="button">Play</button>
+            <button id="next" type="button" aria-label="Next decision">→</button>
+            <input id="timeline" type="range" min="0" max="1" value="0" aria-label="Replay position" />
+            <label>Speed <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+          </div>
+        </div>
+
+        <aside class="trace">
+          <div class="trace-top">
+            <div><span class="trace-label">Model</span><strong id="model-name">—</strong></div>
+            <div><span class="trace-label">Seed</span><strong id="seed">—</strong></div>
+          </div>
+          <div class="decision">
+            <p class="trace-label">Exact character input</p>
+            <code id="character-input">—</code>
+          </div>
+          <div class="choice-grid">
+            <div><span class="trace-label">Legal</span><strong id="legal-actions">—</strong></div>
+            <div><span class="trace-label">Raw output</span><strong id="raw-output" class="raw">—</strong></div>
+            <div><span class="trace-label">Parsed move</span><strong id="parsed-action">—</strong></div>
+          </div>
+          <div class="verdict" id="decision-verdict" data-state="waiting">
+            <span id="verdict-mark">•</span><p id="verdict-copy">Choose a run to inspect its first decision.</p>
+          </div>
+          <dl class="episode-result">
+            <div><dt>Episode score</dt><dd id="episode-score">—</dd></div>
+            <div><dt>Terminal reason</dt><dd id="terminal-reason">—</dd></div>
+            <div><dt>Trace</dt><dd id="trace-hash">—</dd></div>
+          </dl>
+        </aside>
+      </div>
+      <p class="load-error" id="load-error" role="alert" hidden></p>
+    </section>
+
+    <section class="results" aria-labelledby="results-title">
+      <div class="section-heading"><div><p class="section-label">Paired development slice</p><h2 id="results-title">What happened</h2></div><span>128-move cap</span></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Policy</th><th>Role</th><th>Mean score</th><th>Mean max tile</th><th>Moves</th><th>Invalid</th><th>Median decision</th></tr></thead>
+        <tbody id="results-body">
+          {measuredModels.map((model) => <tr>
+            <th scope="row"><span class="model-dot"></span>{model.name}<small>{model.size}</small></th>
+            <td>{model.role === "small-base" ? "small base" : "general LLM"}</td>
+            <td class="number">{Math.round(model.aggregate.mean_score)}</td>
+            <td class="number">{Math.round(model.aggregate.mean_maximum_tile)}</td>
+            <td class="number">{model.aggregate.mean_moves.toFixed(1)}</td>
+            <td class:list={["number", { bad: model.aggregate.invalid_decisions > 0 }]}>{model.aggregate.invalid_decisions}</td>
+            <td class="number">{Math.round(model.aggregate.median_decision_latency_ms)} ms</td>
+          </tr>)}
+          <tr class="specialist-row">
+            <th scope="row"><span class="model-dot"></span>{specialist?.name}<small>{specialist?.size}</small></th>
+            <td>specialist</td><td colspan="5"><span class="pending">Not trained — benchmark rejected at Gate 0</span></td>
+          </tr>
+        </tbody>
+      </table></div>
+      <p class="finding" id="finding"><strong>Decision:</strong> do not train on this benchmark. Sonnet matched random legal play; Opus showed only a small, incomplete advantage below the admission threshold. Keep this artifact as a documented failure, then require the next candidate to demonstrate a robust frontier-versus-random capability gradient.</p>
+    </section>
+
+    <section class="diagnostics" aria-labelledby="diagnostics-title">
+      <div class="section-heading"><div><p class="section-label">Engine sanity checks</p><h2 id="diagnostics-title">Not model competitors.</h2></div><span>Never training labels</span></div>
+      <div class="diagnostic-grid">
+        {replay.diagnostics.map((diagnostic) => <article>
+          <div><span>{diagnostic.policy_id}</span><strong>{Math.round(diagnostic.mean_score)} mean score</strong></div>
+          <h3>{diagnostic.name}</h3>
+          <p>{diagnostic.explanation}</p>
+          <p class="advantage"><strong>Built-in advantage:</strong> {diagnostic.structural_advantage}</p>
+        </article>)}
+      </div>
+    </section>
+
+    <section class="protocol" aria-labelledby="protocol-title">
+      <div><p class="section-label">Reproduce locally</p><h2 id="protocol-title">Same state. Same parser. Your Mac.</h2><p>{replay.reproduce.protocol}</p></div>
+      <div class="command-block"><code id="command">{replay.reproduce.command_template}</code><button id="copy-command" type="button">Copy command</button></div>
+      <div class="protocol-grid">
+        <div><span>Observation</span><strong><code>B=&lt;16 chars&gt;;S=…;M=…;L=UDLR</code></strong></div>
+        <div><span>Strict output</span><strong>Raw one character: U, D, L, or R</strong></div>
+        <div><span>Runtime</span><strong>{replay.reproduce.runtime}</strong></div>
+        <div><span>Constrained diagnostic</span><strong>Model chooses only among currently legal character tokens</strong></div>
+      </div>
+      <button class="download" id="download-replay" type="button">Download prerecorded outputs</button>
+    </section>
+
+    <section class="limitations" aria-labelledby="limitations-title">
+      <h2 id="limitations-title">What this does not prove</h2>
+      <ul>{replay.benchmark.limitations.map((limitation) => <li>{limitation}</li>)}</ul>
+    </section>
+  </main>
+  <script is:inline type="application/json" id="replay-data" set:html={clientData}></script>
+</Default>
+
+<script>
+  type Decision = { input:string; board:number[]; score:number; move_count:number; legal_actions:string[]; raw_output:string; action:string|null; valid:boolean; failure:string|null };
+  type Episode = { seed:number; score:number; maximum_tile:number; moves:number; terminal_reason:string; trace_hash:string; final_board:number[]; decisions:Decision[] };
+  type Aggregate = { mean_score:number; mean_maximum_tile:number; mean_moves:number; invalid_decisions:number; median_decision_latency_ms:number };
+  type Model = { policy_id:string; name:string; size:string; status:string; role:string; model_ref:string|null; aggregate:Aggregate|null; episodes:Episode[] };
+  type ReplayData = { schema_version:string; benchmark:{ status:string }; models:Model[]; diagnostics:{ policy_id:string; mean_score:number }[] };
+
+  const byId = <T extends HTMLElement>(id:string) => document.getElementById(id) as T;
+  let replayData = JSON.parse(byId<HTMLScriptElement>("replay-data").textContent || "{}") as ReplayData;
+  let runs: { model:Model; episode:Episode }[] = [];
+  let selected = 0;
+  let position = 0;
+  let timer:number | undefined;
+  const actionChars:Record<string,string> = { up:"U", down:"D", left:"L", right:"R" };
+
+  function rebuildRuns() {
+    runs = replayData.models.flatMap((model) => model.episodes.map((episode) => ({ model, episode })));
+    const preferred = runs.findIndex((run) => run.model.policy_id.includes("4b") && run.episode.seed === 2048000000);
+    selected = preferred >= 0 ? preferred : 0;
+    position = 0;
+    const strip = byId<HTMLDivElement>("run-strip");
+    strip.replaceChildren(...runs.map((run, index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.index = String(index);
+      const name = document.createElement("span");
+      name.textContent = run.model.name;
+      const summary = document.createElement("small");
+      summary.textContent = `seed ${run.episode.seed} · ${run.episode.score} pts`;
+      button.append(name, summary);
+      button.addEventListener("click", () => { selected = index; position = 0; stop(); render(); });
+      return button;
+    }));
+    renderResults();
+    render();
+  }
+
+  function appendCell(row:HTMLTableRowElement, value:string, className?:string) {
+    const cell = document.createElement("td");
+    cell.textContent = value;
+    if (className) cell.className = className;
+    row.append(cell);
+    return cell;
+  }
+
+  function renderResults() {
+    const body = byId<HTMLTableSectionElement>("results-body");
+    body.replaceChildren(...replayData.models.map((model) => {
+      const row = document.createElement("tr");
+      if (model.role === "specialist-candidate") row.className = "specialist-row";
+
+      const heading = document.createElement("th");
+      heading.scope = "row";
+      const dot = document.createElement("span");
+      dot.className = "model-dot";
+      const size = document.createElement("small");
+      size.textContent = model.size;
+      heading.append(dot, document.createTextNode(model.name), size);
+      row.append(heading);
+
+      const role = model.role === "small-base" ? "small base" : model.role === "specialist-candidate" ? "specialist" : "general LLM";
+      appendCell(row, role);
+      if (!model.aggregate) {
+        const pending = appendCell(row, model.status === "awaiting-trained-candidate" ? "Awaiting trained candidate and frozen run" : model.status === "blocked-benchmark-rejected" ? "Not trained — benchmark rejected at Gate 0" : model.status, "pending");
+        pending.colSpan = 5;
+        return row;
+      }
+
+      appendCell(row, String(Math.round(model.aggregate.mean_score)), "number");
+      appendCell(row, String(Math.round(model.aggregate.mean_maximum_tile)), "number");
+      appendCell(row, model.aggregate.mean_moves.toFixed(1), "number");
+      appendCell(row, String(model.aggregate.invalid_decisions), `number${model.aggregate.invalid_decisions > 0 ? " bad" : ""}`);
+      appendCell(row, `${Math.round(model.aggregate.median_decision_latency_ms)} ms`, "number");
+      return row;
+    }));
+
+    const frozen = replayData.benchmark?.status === "frozen";
+    const rejected = replayData.benchmark?.status === "rejected-current-character-form";
+    byId("evidence-copy").textContent = frozen
+      ? "Frozen benchmark replay. Every result below comes from the loaded artifact."
+      : rejected
+        ? "Failed benchmark artifact—retained. The expected intelligence advantage did not reproduce: Sonnet matched random legal play, while the Opus cohort remained incomplete."
+        : "Measured, not yet frozen. These runs test whether the task has headroom; they are not a final specialist win claim.";
+
+    const general = replayData.models
+      .filter((model) => model.role === "larger-general-llm" && model.aggregate)
+      .sort((a, b) => (b.aggregate?.mean_score ?? 0) - (a.aggregate?.mean_score ?? 0))[0];
+    const specialistModel = replayData.models.find((model) => model.role === "specialist-candidate" && model.aggregate);
+    const random = replayData.diagnostics?.find((row) => row.policy_id === "random-legal");
+    const finding = byId("finding");
+    if (rejected) {
+      finding.textContent = "Decision: do not train on this benchmark. Retain it as a documented failure: frontier screening did not reproduce a robust intelligence advantage over random legal play.";
+    } else if (specialistModel?.aggregate && general?.aggregate) {
+      finding.textContent = `${specialistModel.name} averaged ${Math.round(specialistModel.aggregate.mean_score)} points versus ${Math.round(general.aggregate.mean_score)} for the strongest larger general LLM, ${general.name}.`;
+    } else if (general?.aggregate) {
+      finding.textContent = `${general.name} was the strongest larger general LLM at ${Math.round(general.aggregate.mean_score)} mean points${random ? `; the paired random diagnostic averaged ${Math.round(random.mean_score)}` : ""}. The custom specialist is still awaiting a measured run.`;
+    } else {
+      finding.textContent = "Load a replay artifact containing measured general-model and specialist runs to compare them here.";
+    }
+  }
+
+  function tileLevel(value:number) { return value ? Math.min(11, Math.log2(value)) : 0; }
+  function render() {
+    const run = runs[selected];
+    if (!run) return;
+    const { model, episode } = run;
+    const decision = position < episode.decisions.length ? episode.decisions[position] : null;
+    const board = decision?.board ?? episode.final_board;
+    const score = decision?.score ?? episode.score;
+    const move = decision?.move_count ?? episode.moves;
+    const cells = [...document.querySelectorAll<HTMLElement>(".tile")];
+    cells.forEach((cell,index) => {
+      const value = board[index];
+      const previous = cell.dataset.value;
+      cell.dataset.level = String(tileLevel(value));
+      cell.dataset.value = String(value);
+      cell.querySelector("span")!.textContent = value ? String(value) : "";
+      if (previous !== undefined && previous !== String(value)) {
+        cell.classList.remove("changed"); void cell.offsetWidth; cell.classList.add("changed");
+      }
+    });
+    byId("board").setAttribute("aria-label", `2048 board at move ${move}, score ${score}: ${board.join(", ")}`);
+    byId("score").textContent = String(score);
+    byId("max-tile").textContent = String(Math.max(...board));
+    byId("move-count").textContent = `${move}/${episode.moves}`;
+    byId("model-name").textContent = `${model.name} · ${model.size}`;
+    byId("seed").textContent = String(episode.seed);
+    byId("character-input").textContent = decision?.input ?? "Episode complete";
+    byId("legal-actions").textContent = decision ? decision.legal_actions.map((action) => actionChars[action]).join(" ") : "—";
+    byId("raw-output").textContent = decision ? JSON.stringify(decision.raw_output) : "—";
+    byId("parsed-action").textContent = decision?.action ? `${actionChars[decision.action]} · ${decision.action}` : "—";
+    const verdict = byId("decision-verdict");
+    if (!decision) {
+      verdict.dataset.state = "complete"; byId("verdict-mark").textContent = "✓"; byId("verdict-copy").textContent = "Episode complete.";
+    } else if (!decision.valid) {
+      verdict.dataset.state = "failed"; byId("verdict-mark").textContent = "×"; byId("verdict-copy").textContent = `Decision failed: ${decision.failure}.`;
+    } else {
+      verdict.dataset.state = "valid"; byId("verdict-mark").textContent = "→"; byId("verdict-copy").textContent = "Legal decision accepted by the environment.";
+    }
+    byId("episode-score").textContent = `${episode.score} points · max ${episode.maximum_tile}`;
+    byId("terminal-reason").textContent = episode.terminal_reason;
+    byId("trace-hash").textContent = episode.trace_hash.slice(0,12) + "…";
+    if (model.model_ref) {
+      byId("command").textContent = `python3.12 scripts/game_2048_mlx_pilot.py --model ${model.model_ref} --policy-id ${model.policy_id} --track strict --seed 2048000000 --seed 2048000001 --seed 2048000002 --max-moves 128 --output runs/game-2048/model-pilot/${model.policy_id}.json`;
+    }
+    const timeline = byId<HTMLInputElement>("timeline"); timeline.max = String(episode.decisions.length); timeline.value = String(position);
+    byId<HTMLButtonElement>("previous").disabled = position === 0;
+    byId<HTMLButtonElement>("next").disabled = position >= episode.decisions.length;
+    [...byId("run-strip").querySelectorAll("button")].forEach((button,index) => {
+      const active = index === selected;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+  }
+
+  function step(delta:number) {
+    const episode = runs[selected]?.episode; if (!episode) return;
+    position = Math.max(0, Math.min(episode.decisions.length, position + delta)); render();
+    if (position >= episode.decisions.length) stop();
+  }
+  function stop() { if (timer) window.clearInterval(timer); timer = undefined; byId<HTMLButtonElement>("play").textContent = "Play"; }
+  function togglePlay() {
+    if (timer) { stop(); return; }
+    if (position >= runs[selected].episode.decisions.length) position = 0;
+    const speed = Number(byId<HTMLSelectElement>("speed").value);
+    timer = window.setInterval(() => step(1), 700 / speed);
+    byId<HTMLButtonElement>("play").textContent = "Pause";
+  }
+  byId("play").addEventListener("click", togglePlay);
+  byId("previous").addEventListener("click", () => step(-1));
+  byId("next").addEventListener("click", () => step(1));
+  byId("timeline").addEventListener("input", (event) => { position = Number((event.target as HTMLInputElement).value); stop(); render(); });
+  byId("speed").addEventListener("change", () => { if (timer) { stop(); togglePlay(); } });
+  document.addEventListener("keydown", (event) => {
+    if ((event.target as HTMLElement).matches("input,select,button")) return;
+    if (event.key === " ") { event.preventDefault(); togglePlay(); }
+    if (event.key === "ArrowLeft") step(-1);
+    if (event.key === "ArrowRight") step(1);
+  });
+  byId("copy-command").addEventListener("click", async () => {
+    await navigator.clipboard.writeText(byId("command").textContent || "");
+    byId("copy-command").textContent = "Copied"; window.setTimeout(() => byId("copy-command").textContent = "Copy command", 1400);
+  });
+  byId("download-replay").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(replayData,null,2)], { type:"application/json" });
+    const anchor = document.createElement("a"); anchor.href = URL.createObjectURL(blob); anchor.download = "game-2048-prerecorded-outputs.json"; anchor.click(); URL.revokeObjectURL(anchor.href);
+  });
+  byId<HTMLInputElement>("file-input").addEventListener("change", async (event) => {
+    const file = (event.target as HTMLInputElement).files?.[0]; if (!file) return;
+    try {
+      const loaded = JSON.parse(await file.text()) as ReplayData;
+      if (loaded.schema_version !== "game-2048/site-replay/v1") throw new Error("Expected game-2048/site-replay/v1");
+      replayData = loaded; byId("load-error").hidden = true; stop(); rebuildRuns();
+    } catch (error) {
+      byId("load-error").hidden = false; byId("load-error").textContent = `Could not load replay: ${error instanceof Error ? error.message : String(error)}`;
+    }
+  });
+  rebuildRuns();
+</script>
+
+<style is:global>
+  :root{color-scheme:dark;--bg:#0a0c0f;--panel:#111419;--panel2:#171b22;--sunken:#06080a;--line:#2a3039;--fg:#eaedf2;--soft:#a6adb9;--quiet:#737b88;--live:#48e5c2;--coral:#ff6f5c;--warn:#ffb454}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 "Geist Variable",system-ui,sans-serif}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.35}a{color:var(--live)}
+  main{width:min(1240px,calc(100% - 40px));margin:0 auto;padding:46px 0 110px}.crumbs{display:flex;gap:9px;color:var(--quiet);font:12px "Geist Mono Variable",monospace}.crumbs a{text-decoration:none}.hero{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.7fr);gap:50px;align-items:end;padding:58px 0 44px}.kicker,.section-label{color:var(--live);font:600 12px "Geist Mono Variable",monospace;margin:0 0 14px}.hero h1,.admission h2,.replay h2,.results h2,.diagnostics h2,.protocol h2,.limitations h2{font-family:"Bricolage Grotesque Variable","Geist Variable",sans-serif;letter-spacing:-.03em;margin:0}.hero h1{font-size:clamp(50px,7vw,90px);line-height:.92}.hero>p{color:var(--soft);font-size:18px;margin:0;max-width:50ch}.evidence-note{display:flex;align-items:center;gap:12px;border-block:1px solid var(--line);padding:16px 0;color:var(--soft)}.evidence-note p{margin:0}.pulse{width:9px;height:9px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 5px rgba(255,180,84,.1)}
+  .admission{display:grid;grid-template-columns:minmax(0,.8fr) minmax(360px,1.2fr);gap:clamp(32px,6vw,90px);padding:70px 0 0}.admission h2{font-size:clamp(32px,4vw,48px);line-height:1}.admission>div:first-child>p:last-child{color:var(--soft);font-size:17px;max-width:48ch}.gate-card{background:var(--panel);border:1px solid #713c38;border-radius:14px;padding:22px}.gate-status{display:flex;align-items:center;gap:10px;padding-bottom:16px;border-bottom:1px solid var(--line);color:#ff8a79}.gate-status span{width:9px;height:9px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 5px rgba(255,111,92,.1)}.gate-card ul{list-style:none;margin:0;padding:10px 0 0}.gate-card li{display:flex;justify-content:space-between;gap:20px;padding:9px 0;color:var(--quiet)}.gate-card li strong{color:var(--fg);font:12px "Geist Mono Variable",monospace;text-align:right}.gate-result{border-top:1px solid var(--line);padding-top:16px;margin:10px 0 0;color:var(--soft);font-size:13px}
+  .replay{padding-top:70px}.replay-heading,.section-heading{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:22px}.replay h2,.results h2,.protocol h2{font-size:34px}.file-control{border:1px solid var(--line);border-radius:9px;padding:9px 12px;color:var(--soft);cursor:pointer}.file-control:hover,.file-control:focus-within{border-color:var(--live);color:var(--live)}.file-control input{position:absolute;inline-size:1px;block-size:1px;opacity:0}.run-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px}.run-strip button{flex:0 0 auto;text-align:left;border:1px solid var(--line);border-radius:10px;padding:10px 13px;background:var(--panel);color:var(--soft)}.run-strip button span,.run-strip button small{display:block}.run-strip button small{color:var(--quiet);font:11px "Geist Mono Variable",monospace;margin-top:3px}.run-strip button.active{border-color:var(--live);color:var(--fg);box-shadow:0 0 0 1px rgba(72,229,194,.15)}
+  .stage{display:grid;grid-template-columns:minmax(380px,1.12fr) minmax(310px,.88fr);background:var(--panel);border-radius:16px;overflow:hidden;box-shadow:0 35px 90px -44px #000}.board-panel{padding:clamp(18px,3vw,36px);border-right:1px solid var(--line)}.scoreline{display:flex;gap:clamp(20px,5vw,72px);margin-bottom:22px}.scoreline div{display:grid}.scoreline span,.trace-label{color:var(--quiet);font:11px "Geist Mono Variable",monospace}.scoreline strong{font:650 26px "Bricolage Grotesque Variable",sans-serif}.board{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;background:var(--sunken);padding:10px;border-radius:14px;aspect-ratio:1;max-width:590px}.tile{display:grid;place-items:center;border-radius:10px;background:#171b22;color:var(--fg);font:700 clamp(18px,4vw,42px) "Bricolage Grotesque Variable",sans-serif;box-shadow:inset 0 0 0 1px rgba(255,255,255,.035)}.tile[data-level="1"]{background:#202831}.tile[data-level="2"]{background:#27343a}.tile[data-level="3"]{background:#2c4544}.tile[data-level="4"]{background:#285a52}.tile[data-level="5"]{background:#236f62}.tile[data-level="6"]{background:#238978;color:#06110e}.tile[data-level="7"]{background:#48e5c2;color:#06110e}.tile[data-level="8"]{background:#80efd7;color:#06110e}.tile[data-level="9"]{background:#ffb454;color:#1a0f04}.tile[data-level="10"]{background:#ff8a79;color:#200704}.tile[data-level="11"]{background:#ff6f5c;color:#200704}.tile.changed{animation:tile-pop .28s cubic-bezier(.16,1,.3,1)}@keyframes tile-pop{0%{transform:scale(.88);filter:brightness(1.45)}100%{transform:none;filter:none}}
+  .transport{display:grid;grid-template-columns:42px 72px 42px minmax(100px,1fr) auto;gap:9px;align-items:center;margin-top:18px}.transport button,.transport select{height:40px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:var(--fg)}.transport .play{background:var(--live);color:#06110e;border-color:var(--live);font-weight:650}.transport input{accent-color:var(--live);min-width:0}.transport label{display:flex;align-items:center;gap:8px;color:var(--quiet);font-size:12px}.transport select{padding:0 8px}
+  .trace{display:flex;flex-direction:column;padding:clamp(22px,3vw,38px);background:#0e1115}.trace-top{display:grid;grid-template-columns:1fr auto;gap:20px;padding-bottom:24px;border-bottom:1px solid var(--line)}.trace-top div{display:grid;gap:5px}.trace-top strong{font-size:15px}.decision{padding:28px 0 22px}.decision code{display:block;color:var(--live);font:clamp(12px,1.4vw,15px)/1.7 "Geist Mono Variable",monospace;overflow-wrap:anywhere;margin-top:8px}.choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 0 24px}.choice-grid div{display:grid;gap:5px}.choice-grid strong{font:14px "Geist Mono Variable",monospace}.choice-grid .raw{color:var(--warn)}.verdict{display:flex;gap:12px;align-items:center;border-block:1px solid var(--line);padding:17px 0}.verdict span{display:grid;place-items:center;width:29px;height:29px;border-radius:50%;background:var(--panel2);font-weight:700}.verdict p{margin:0;color:var(--soft)}.verdict[data-state="failed"] span{background:var(--coral);color:#210605}.verdict[data-state="failed"] p{color:#ff9b8f}.verdict[data-state="valid"] span,.verdict[data-state="complete"] span{background:var(--live);color:#06110e}.episode-result{display:grid;gap:9px;margin:auto 0 0;padding-top:30px}.episode-result div{display:flex;justify-content:space-between;gap:20px}.episode-result dt{color:var(--quiet)}.episode-result dd{margin:0;text-align:right;font:12px "Geist Mono Variable",monospace}.load-error{color:#ff9b8f;margin:12px 0 0}
+  .results,.diagnostics,.protocol,.limitations{padding-top:90px}.section-heading{padding-bottom:15px;border-bottom:1px solid var(--line)}.section-heading span{color:var(--quiet);font:12px "Geist Mono Variable",monospace}.table-wrap{overflow:auto}.results table{width:100%;border-collapse:collapse}.results th,.results td{text-align:left;padding:16px 12px;border-bottom:1px solid var(--line);white-space:nowrap}.results thead th{color:var(--quiet);font:11px "Geist Mono Variable",monospace}.results tbody th{font-size:15px}.results tbody th small{display:block;color:var(--quiet);font:11px "Geist Mono Variable",monospace}.model-dot{display:inline-block;width:7px;height:7px;background:var(--live);border-radius:50%;margin-right:9px}.number{font:13px "Geist Mono Variable",monospace}.bad{color:#ff8a79}.specialist-row{background:rgba(72,229,194,.035)}.specialist-row .model-dot{background:var(--warn)}.pending{color:var(--warn);font:12px "Geist Mono Variable",monospace}.finding{max-width:80ch;color:var(--soft);font-size:17px;margin:28px 0 0}.finding strong{color:var(--fg)}
+  .diagnostic-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.diagnostic-grid article{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px}.diagnostic-grid article>div{display:flex;justify-content:space-between;gap:18px;color:var(--quiet);font:11px "Geist Mono Variable",monospace}.diagnostic-grid article>div strong{color:var(--fg)}.diagnostic-grid h3{font:650 24px "Bricolage Grotesque Variable",sans-serif;margin:30px 0 8px}.diagnostic-grid p{color:var(--soft);margin:0}.diagnostic-grid .advantage{border-top:1px solid var(--line);padding-top:14px;margin-top:18px;font-size:13px}.diagnostic-grid .advantage strong{color:var(--warn)}
+  .protocol{display:grid;grid-template-columns:.7fr 1.3fr;gap:28px 50px}.protocol>div:first-child p:last-child{color:var(--soft);max-width:50ch}.command-block{align-self:end;background:var(--sunken);border-radius:12px;padding:17px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}.command-block code{overflow-wrap:anywhere;color:var(--live);font:12px/1.65 "Geist Mono Variable",monospace}.command-block button,.download{border:1px solid var(--line);background:var(--panel2);color:var(--fg);border-radius:8px;padding:9px 12px}.command-block button:hover,.download:hover{border-color:var(--live);color:var(--live)}.protocol-grid{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,1fr);border-block:1px solid var(--line)}.protocol-grid div{display:grid;gap:7px;padding:18px 0}.protocol-grid div:nth-child(odd){border-right:1px solid var(--line)}.protocol-grid div:nth-child(even){padding-left:24px}.protocol-grid span{color:var(--quiet);font-size:12px}.protocol-grid strong{font-weight:520}.download{justify-self:start}.limitations{display:grid;grid-template-columns:.7fr 1.3fr;gap:50px;border-top:1px solid var(--line);margin-top:90px}.limitations h2{font-size:28px}.limitations ul{margin:0;padding-left:19px;color:var(--soft)}.limitations li+li{margin-top:10px}
+  @media(max-width:850px){.hero,.admission{grid-template-columns:1fr}.stage{grid-template-columns:1fr}.board-panel{border-right:0;border-bottom:1px solid var(--line)}.board{margin-inline:auto}.protocol,.limitations{grid-template-columns:1fr}.command-block{align-self:auto}.protocol-grid{grid-column:auto}}
+  @media(max-width:560px){main{width:calc(100% - 28px);padding-top:30px}.hero{padding-top:42px}.replay{padding-top:55px}.replay-heading{align-items:start;flex-direction:column}.board-panel{padding:14px}.board{gap:6px;padding:6px}.tile{border-radius:7px}.transport{grid-template-columns:40px 1fr 40px}.transport input{grid-column:1/-1;grid-row:2}.transport label{grid-column:1/-1}.choice-grid{grid-template-columns:1fr 1fr}.choice-grid div:last-child{grid-column:1/-1}.diagnostic-grid,.protocol-grid{grid-template-columns:1fr}.protocol-grid div:nth-child(odd){border-right:0}.protocol-grid div:nth-child(even){padding-left:0}.command-block{grid-template-columns:1fr}.scoreline{justify-content:space-between}.results,.diagnostics,.protocol,.limitations{padding-top:68px}.limitations{margin-top:68px}.gate-card li{align-items:start}}
+  @media(prefers-reduced-motion:reduce){.tile.changed{animation:none}}
+</style>

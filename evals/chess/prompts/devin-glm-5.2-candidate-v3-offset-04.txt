@@ -1,0 +1,26 @@
+GOAL:
+Choose one chess move for each independent position below.
+
+SCOPE:
+Return exactly 4 decisions, in the supplied order.
+Each state contains a six-field FEN, a zero-based PLY, and the complete sorted legal UCI move set.
+
+CONSTRAINTS:
+Do not use tools, files, code, an engine, search, an opening book, hidden state, or subagents.
+Reason only from the characters in this prompt.
+Choose exactly one move from that position's LEGAL list.
+Return only one JSON object with this shape:
+{"moves":[{"puzzle_id":"...","move":"e2e4"}]}
+No markdown, prose, analysis, or additional fields.
+
+VERIFY:
+Before returning, check that every puzzle_id appears exactly once and every move is copied exactly from its LEGAL list.
+
+RETURN:
+Return only the JSON object now. Do not reveal reasoning.
+
+POSITIONS:
+ID=chess-candidate-018;FEN=r1b1kb1r/ppp1qppp/3p1n2/4P3/5n2/3PN3/PPP2PPP/RNBQK2R w KQkq - 1 9;PLY=16;LEGAL=a2a3,a2a4,b1a3,b1c3,b1d2,b2b3,b2b4,c1d2,c2c3,c2c4,d1d2,d1e2,d1f3,d1g4,d1h5,d3d4,e1d2,e1f1,e1g1,e3c4,e3d5,e3f1,e3f5,e3g4,e5d6,e5e6,e5f6,f2f3,g2g3,g2g4,h1f1,h1g1,h2h3,h2h4
+ID=chess-candidate-009;FEN=2b1k1nr/r1q2ppp/ppN2b2/3p2B1/8/2N2B2/PPP2PPP/R2Q1RK1 b k - 1 13;PLY=25;LEGAL=a6a5,a7a8,a7b7,b6b5,c7b7,c7b8,c7c6,c7d6,c7d7,c7d8,c7e5,c7e7,c7f4,c7g3,c7h2,c8b7,c8d7,c8e6,c8f5,c8g4,c8h3,d5d4,e8d7,e8f8,f6c3,f6d4,f6d8,f6e5,f6e7,f6g5,g7g6,g8e7,g8h6,h7h5,h7h6
+ID=chess-candidate-068;FEN=r1bqk2r/ppp2ppp/2nb4/2n5/1P6/5N2/P1PN1PPP/R1BQKB1R w KQkq - 0 8;PLY=14;LEGAL=a1b1,a2a3,a2a4,b4b5,b4c5,c1a3,c1b2,c2c3,c2c4,d1e2,d2b1,d2b3,d2c4,d2e4,e1e2,f1a6,f1b5,f1c4,f1d3,f1e2,f3d4,f3e5,f3g1,f3g5,f3h4,g2g3,g2g4,h1g1,h2h3,h2h4
+ID=chess-candidate-078;FEN=rnb1kb1r/1p1pqp2/p4npp/2pP2B1/2P5/3B4/PPQ1NPPP/RN2K2R b KQkq - 1 9;PLY=17;LEGAL=a6a5,a8a7,b7b5,b7b6,b8c6,d7d6,e7d6,e7d8,e7e2,e7e3,e7e4,e7e5,e7e6,e8d8,f6d5,f6e4,f6g4,f6g8,f6h5,f6h7,f8g7,h6g5,h6h5,h8g8,h8h7

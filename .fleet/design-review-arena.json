@@ -1,0 +1,70 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "Extensible cross-game arena and rating dashboard",
+  "mode": "preserve",
+  "register": "product",
+  "context": {
+    "product": "PRODUCT.md",
+    "design": "browser/src/pages/benchmarks/chess.astro"
+  },
+  "direction": {
+    "references": [
+      "browser/src/pages/benchmarks/index.astro",
+      "browser/src/pages/benchmarks/chess.astro",
+      "browser/src/pages/benchmarks/game-2048.astro"
+    ],
+    "probes": [],
+    "selected": "existing-dark-evidence-instrument",
+    "approval": "not-required",
+    "before": ".fleet/evidence/game-arena/before-1440.png"
+  },
+  "evidence": {
+    "screenshots": [
+      {
+        "width": 390,
+        "path": ".fleet/evidence/game-arena/after-390.png"
+      },
+      {
+        "width": 768,
+        "path": ".fleet/evidence/game-arena/after-768.png"
+      },
+      {
+        "width": 1440,
+        "path": ".fleet/evidence/game-arena/after-1440.png"
+      }
+    ],
+    "projectCheck": {
+      "command": "bash evals/game-arena-smoke.sh && pnpm --dir browser typecheck && pnpm --dir browser build",
+      "status": "pass"
+    },
+    "critique": {
+      "score": 34,
+      "maximum": 40
+    },
+    "audit": {
+      "score": 19,
+      "maximum": 20
+    },
+    "unresolved": {
+      "p0": 0,
+      "p1": 0
+    },
+    "detector": {
+      "posture": "advisory",
+      "findings": []
+    },
+    "browserReview": {
+      "tool": "in-app-browser",
+      "viewports": [390, 768, 1440],
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "note": "Chess and 2048 panels switch exclusively by click and ArrowLeft/ArrowRight; roving tabindex, qualification labels, drill-through links, and responsive layouts were inspected. One hidden-panel CSS defect was found in the first pass, fixed, and recaptured."
+    }
+  },
+  "ownerFeedback": {
+    "decision": "delegated",
+    "note": "Owner asked to build an extensible arena and delegated the initial implementation and trial across games."
+  }
+}

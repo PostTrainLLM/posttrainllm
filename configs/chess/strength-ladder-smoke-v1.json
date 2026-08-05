@@ -1,0 +1,38 @@
+{
+  "schema_version": "chess/strength-ladder/v1",
+  "ladder_id": "character-chess-strength-ladder-smoke-v1",
+  "status": "smoke-only",
+  "engine": {
+    "binary": "stockfish",
+    "required_name_prefix": "Stockfish 18",
+    "threads": 1,
+    "hash_mb": 16
+  },
+  "openings_ref": "configs/chess/openings-development-v1.json",
+  "maximum_plies": 8,
+  "bootstrap": {
+    "seed": 7,
+    "samples": 200,
+    "confidence": 0.95
+  },
+  "qualification": {
+    "minimum_completed_games": 30,
+    "minimum_games_per_rung": 6,
+    "minimum_calibrated_rungs": 3,
+    "maximum_color_imbalance": 1,
+    "maximum_invalid_forfeit_rate": 0.1
+  },
+  "rungs": [
+    {
+      "rung_id": "stockfish-nodes-16-smoke",
+      "kind": "blunder-mix",
+      "random_probability": 0.0,
+      "seed": 9,
+      "skill_level": 0,
+      "nodes": 16,
+      "uci_elo": null,
+      "calibrated_rating": null,
+      "rating_state": "smoke-unmeasured"
+    }
+  ]
+}

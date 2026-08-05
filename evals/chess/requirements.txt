@@ -1,0 +1,2 @@
+# Evaluation-only rules dependency. Not part of the browser or production runtime.
+python-chess==1.999

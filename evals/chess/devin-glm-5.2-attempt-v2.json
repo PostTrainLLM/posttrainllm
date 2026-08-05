@@ -1,0 +1,15 @@
+{
+  "schema_version": "chess/devin-attempt/v1",
+  "status": "failed-incomplete-retained",
+  "suite_id": "chess-tactics-candidate-verification-v1",
+  "requested_model": "glm-5.2",
+  "backend": "devin-cli",
+  "batches": 2,
+  "positions_per_batch": 10,
+  "positions_requested": 20,
+  "cost_usd": 0.0,
+  "failure": "both-responses-truncated-max-output-token-limit",
+  "usable_decisions": 0,
+  "next_attempt": "one four-position bounded interface probe with explicit RETURN boundary",
+  "worktrees_changed": false
+}

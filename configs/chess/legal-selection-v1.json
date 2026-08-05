@@ -1,0 +1,15 @@
+{
+  "schema_version": "chess/legal-selection/v1",
+  "action_space": "canonical-sorted-legal-uci",
+  "cloud_constraint": "per-position-json-schema-enum",
+  "local_constraint": "score-only-legal-candidates-or-mask-illegal-logits",
+  "executor_membership_check": true,
+  "on_invalid_or_provider_failure": "abstain-or-explicit-redirect",
+  "reported_metrics": [
+    "raw_legal_rate",
+    "constraint_intervention_rate",
+    "executed_legal_rate",
+    "abstention_rate",
+    "redirect_rate"
+  ]
+}

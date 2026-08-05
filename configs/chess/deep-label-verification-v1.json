@@ -1,0 +1,12 @@
+{
+  "schema_version": "chess/deep-label-verification/v1",
+  "engine": "Stockfish 18",
+  "verification_depths": [16, 20],
+  "multipv": 3,
+  "minimum_final_gap_cp": 150,
+  "mate_score_cp": 100000,
+  "minimum_stability_rate": 0.9,
+  "verification_slice_count": 40,
+  "verification_slice_seed": 20260806,
+  "maximum_provider_failure_rate": 0.1
+}

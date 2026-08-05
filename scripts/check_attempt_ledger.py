@@ -173,6 +173,7 @@ def main() -> int:
         "archive-model": "Archive model",
         "autocorrect": "Autocorrect",
         "browser-product": "Browser product",
+        "chess": "Chess",
         "factory-docs": "Factory/docs",
         "file-ops": "File-ops",
         "pace-planner": "Pace planner",

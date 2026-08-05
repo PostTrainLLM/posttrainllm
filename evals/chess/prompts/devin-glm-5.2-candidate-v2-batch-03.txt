@@ -1,0 +1,29 @@
+GOAL:
+Choose one chess move for each independent position below.
+
+SCOPE:
+Return exactly 10 decisions, in the supplied order.
+Each state contains a six-field FEN, a zero-based PLY, and the complete sorted legal UCI move set.
+
+CONSTRAINTS:
+Do not use tools, files, code, an engine, search, an opening book, hidden state, or subagents.
+Reason only from the characters in this prompt.
+Choose exactly one move from that position's LEGAL list.
+Return only one JSON object with this shape:
+{"moves":[{"puzzle_id":"...","move":"e2e4"}]}
+No markdown, prose, analysis, or additional fields.
+
+VERIFY:
+Before returning, check that every puzzle_id appears exactly once and every move is copied exactly from its LEGAL list.
+
+POSITIONS:
+ID=chess-candidate-077;FEN=r1b2b1r/pp2k1pp/2N1pp2/q1p5/2p2B2/2n3P1/PP1QPPBP/R4RK1 b - - 0 14;PLY=27;LEGAL=b7c6,e7e8,e7f7
+ID=chess-candidate-051;FEN=r2qk2r/ppp2pp1/6np/2bpp3/3NPPb1/2NP2P1/PPP4P/R1BQK2R w KQkq - 0 10;PLY=18;LEGAL=a1b1,a2a3,a2a4,b2b3,b2b4,c1d2,c1e3,c3a4,c3b1,c3b5,c3d5,c3e2,d1d2,d1e2,d1f3,d1g4,d4b3,d4b5,d4c6,d4e2,d4e6,d4f3,d4f5,e1d2,e1f1,e1f2,e1g1,e4d5,f4e5,f4f5,h1f1,h1g1,h2h3,h2h4
+ID=chess-candidate-001;FEN=r1q1kb1r/1ppnppp1/p4n2/3p1b1p/2NP1B2/1QP5/PP2PPPP/R3KBNR b KQkq - 1 8;PLY=15;LEGAL=a6a5,a8a7,a8b8,b7b5,b7b6,c7c5,c7c6,c8b8,c8d8,d5c4,d7b6,d7b8,d7c5,d7e5,e7e5,e7e6,e8d8,f5b1,f5c2,f5d3,f5e4,f5e6,f5g4,f5g6,f5h3,f5h7,f6e4,f6g4,f6g8,f6h7,g7g5,g7g6,h5h4,h8g8,h8h6,h8h7
+ID=chess-candidate-058;FEN=r1b1k2r/p2nbppp/2pq4/4nN2/1p2P1P1/6QP/PPP2PB1/R1B1K1NR b KQkq - 5 14;PLY=27;LEGAL=a7a5,a7a6,a8b8,b4b3,c6c5,c8a6,c8b7,d6b8,d6c5,d6c7,d6d1,d6d2,d6d3,d6d4,d6d5,d6e6,d6f6,d6g6,d6h6,d7b6,d7b8,d7c5,d7f6,d7f8,e5c4,e5d3,e5f3,e5g4,e5g6,e7d8,e7f6,e7f8,e7g5,e7h4,e8d8,e8f8,e8g8,f7f6,g7g5,g7g6,h7h5,h7h6,h8f8,h8g8
+ID=chess-candidate-041;FEN=r2k3r/1pp1bpp1/2npb3/pB5p/P2N4/2P1B2P/1PP2PP1/R3R1K1 w - - 0 18;PLY=34;LEGAL=a1a2,a1a3,a1b1,a1c1,a1d1,b2b3,b2b4,b5a6,b5c4,b5c6,b5d3,b5e2,b5f1,c3c4,d4b3,d4c6,d4e2,d4e6,d4f3,d4f5,e1b1,e1c1,e1d1,e1e2,e1f1,e3c1,e3d2,e3f4,e3g5,e3h6,f2f3,f2f4,g1f1,g1h1,g1h2,g2g3,g2g4,h3h4
+ID=chess-candidate-002;FEN=rnb1k2r/pp1n1ppp/4p3/q1Np4/2P5/4PN2/PP1B1PPP/R2QKB1R b KQkq - 2 9;PLY=17;LEGAL=a5a2,a5a3,a5a4,a5a6,a5b4,a5b5,a5b6,a5c3,a5c5,a5c7,a5d2,a5d8,a7a6,b7b5,b7b6,b8a6,b8c6,d5c4,d5d4,d7b6,d7c5,d7e5,d7f6,d7f8,e6e5,e8d8,e8e7,e8f8,e8g8,f7f5,f7f6,g7g5,g7g6,h7h5,h7h6,h8f8,h8g8
+ID=chess-candidate-029;FEN=r1bqkb1r/pp3pp1/2n5/1N1np2p/3p4/1Q3N2/PP1BPPPP/R3KB1R w KQkq h6 0 10;PLY=18;LEGAL=a1b1,a1c1,a1d1,a2a3,a2a4,b3a3,b3a4,b3b4,b3c2,b3c3,b3c4,b3d1,b3d3,b3d5,b3e3,b5a3,b5a7,b5c3,b5c7,b5d4,b5d6,d2a5,d2b4,d2c1,d2c3,d2e3,d2f4,d2g5,d2h6,e1c1,e1d1,e2e3,e2e4,f3d4,f3e5,f3g1,f3g5,f3h4,g2g3,g2g4,h1g1,h2h3,h2h4
+ID=chess-candidate-096;FEN=rnb1kb1r/1p2npp1/p3p3/6qp/2N5/1N3B2/PPP2P1P/R1BQK2R b KQkq - 3 12;PLY=23;LEGAL=a6a5,a8a7,b7b5,b7b6,b8c6,b8d7,c8d7,e6e5,e7c6,e7d5,e7f5,e7g6,e7g8,f7f5,f7f6,g5a5,g5b5,g5c1,g5c5,g5d2,g5d5,g5e3,g5e5,g5f4,g5f5,g5f6,g5g1,g5g2,g5g3,g5g4,g5g6,g5h4,g5h6,g7g6,h5h4,h8g8,h8h6,h8h7
+ID=chess-candidate-012;FEN=r4rk1/1b2qpp1/4pn2/1p1p3B/3n1PN1/1RP1P3/3N2PP/3Q1RK1 b - - 1 18;PLY=35;LEGAL=a8a1,a8a2,a8a3,a8a4,a8a5,a8a6,a8a7,a8b8,a8c8,a8d8,a8e8,b5b4,b7a6,b7c6,b7c8,d4b3,d4c2,d4c6,d4e2,d4f3,d4f5,e6e5,e7a3,e7b4,e7c5,e7c7,e7d6,e7d7,e7d8,e7e8,f6d7,f6e4,f6e8,f6g4,f6h5,f6h7,f8b8,f8c8,f8d8,f8e8,g7g5,g7g6,g8h7,g8h8
+ID=chess-candidate-093;FEN=1r1qkb1r/1pp1n1pp/p3b3/4p3/3n4/2PQ4/PP1B1PPP/RN2KB1R w KQk - 0 13;PLY=24;LEGAL=a2a3,a2a4,b1a3,b2b3,b2b4,c3c4,c3d4,d2c1,d2e3,d2f4,d2g5,d2h6,d3a6,d3b5,d3c2,d3c4,d3d4,d3e2,d3e3,d3e4,d3f3,d3f5,d3g3,d3g6,d3h3,d3h7,e1d1,f1e2,f2f3,f2f4,g2g3,g2g4,h1g1,h2h3,h2h4

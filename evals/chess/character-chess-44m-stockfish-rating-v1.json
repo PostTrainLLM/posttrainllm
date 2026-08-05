@@ -1,0 +1,132 @@
+{
+  "schema_version": "chess/internal-stockfish-rating-result/v1",
+  "status": "below-calibrated-floor-diagnostic-extrapolation",
+  "run_id": "chess-44m-stockfish-rating-2026-08-05",
+  "candidate": {
+    "policy_id": "chess-44m-v0-step150",
+    "model_ref": "byte-character-chess-44m-v0-step150",
+    "parameters": 44527616,
+    "checkpoint_sha256": "9a4abd8c809a59a910817e9677b8ea950e1fdfc3ccd57c1b9912a4a497cd97fd",
+    "selection": "score-only-current-legal-uci-continuations",
+    "device": "mps"
+  },
+  "engine": {
+    "name": "Stockfish 18",
+    "binary_sha256": "ae4c93fa9676ca7750d0714342fd8a5b1d018000fc6e0f6cedf112067b5ef374",
+    "threads_per_engine": 1,
+    "hash_mb": 16,
+    "uci_elo_floor": 1320
+  },
+  "calibration": {
+    "method": "regularized-bradley-terry",
+    "anchor": {
+      "rung_id": "stockfish-uci-1320",
+      "rating": 1320
+    },
+    "games": 60,
+    "paired_openings": 3,
+    "natural_completion_rate": 0.8166666666666667,
+    "prior_standard_deviation": 800,
+    "rungs": [
+      {
+        "rung_id": "random-legal",
+        "internal_rating": 536.3611231466995
+      },
+      {
+        "rung_id": "sfmix-50-n16",
+        "internal_rating": 731.8392030979666
+      },
+      {
+        "rung_id": "sfmix-25-n16",
+        "internal_rating": 851.2878012832352
+      },
+      {
+        "rung_id": "sfmix-10-n16",
+        "internal_rating": 1027.3356058152276
+      },
+      {
+        "rung_id": "stockfish-uci-1320",
+        "internal_rating": 1320
+      }
+    ],
+    "trace_hash": "90b864b49b783c55e7fa8679ae8c35533ba4577255d13750c255a828f2b1ffd9"
+  },
+  "candidate_matches": {
+    "games": 30,
+    "games_per_rung": 6,
+    "white_games": 15,
+    "black_games": 15,
+    "wins": 0,
+    "draws": 9,
+    "losses": 21,
+    "score": 0.15,
+    "score_interval_95": [
+      0.06666666666666667,
+      0.23333333333333334
+    ],
+    "executed_legal_rate": 1.0,
+    "invalid_forfeits": 0,
+    "natural_completion_rate": 0.9,
+    "terminations": {
+      "checkmate": 21,
+      "threefold_repetition": 6,
+      "move_cap_draw": 3
+    },
+    "scores_by_rung": {
+      "random-legal": 0.5,
+      "sfmix-50-n16": 0.08333333333333333,
+      "sfmix-25-n16": 0.08333333333333333,
+      "sfmix-10-n16": 0.08333333333333333,
+      "stockfish-uci-1320": 0.0
+    }
+  },
+  "rating": {
+    "name": "Internal Stockfish-ladder Elo",
+    "display": "<536",
+    "estimate": 475.4250177173751,
+    "diagnostic_extrapolation": 475.4250177173751,
+    "range_state": "below-calibrated-floor",
+    "calibrated_range": [
+      536.3611231466995,
+      1320
+    ],
+    "paired_opening_bootstrap_interval_95": [
+      416.2254535557097,
+      549.6027360884545
+    ],
+    "sample_size": 30,
+    "fit": "logistic-maximum-likelihood-against-fixed-calibrated-rungs",
+    "bootstrap": "resample-paired-color-opening-blocks-within-each-rung",
+    "qualification_failures": [],
+    "natural_completion_sensitivity": {
+      "games": 27,
+      "estimate": 456.5079137706052,
+      "purpose": "exclude the three artificial 160-ply draws"
+    },
+    "disclaimer": "Headline strength is below the calibrated ladder floor: <536 Internal Stockfish-ladder Elo. The 475 estimate and 416-550 interval are diagnostic extrapolations, not a qualified on-ladder rating. Not FIDE, human, engine, Lichess, or Chess.com Elo. The interval treats rung calibrations as fixed and does not propagate their uncertainty."
+  },
+  "resources": {
+    "calibration_wall_seconds": 24.54,
+    "candidate_match_wall_seconds": 123.3,
+    "candidate_match_maximum_resident_set_bytes": 1985118208,
+    "gpu_lock_released": true
+  },
+  "raw_local_evidence": {
+    "storage": "gitignored-run-directory",
+    "calibration_path": "runs/chess-44m-stockfish-rating-2026-08-05/weak-ladder-calibration-v1.json",
+    "candidate_path": "runs/chess-44m-stockfish-rating-2026-08-05/chess-44m-full-ladder-v2.json",
+    "candidate_trace_hash": "c1a00bc68a0e34f1666a93b56c0a99212523b3d9b2d14bb333ce9e5d5ecac17b"
+  },
+  "interpretation": {
+    "result": "The eight-position memorization checkpoint plays legal chess but falls below the weakest calibrated rung. Report <536 Internal Stockfish-ladder Elo; retain 475 only as a diagnostic extrapolation.",
+    "why": "The checkpoint learned eight labelled positions, not general chess. Constraint selection guarantees legal moves but does not supply strategy, tactics, planning, or mating ability.",
+    "not_claimed": [
+      "human chess skill",
+      "FIDE Elo",
+      "held-out specialist success",
+      "superiority to 4B or 9B language models",
+      "Qwen Chess reproduction"
+    ],
+    "next_gate": "Train the frozen 10000-row pilot and rerun this unchanged ladder only after separate owner approval."
+  }
+}

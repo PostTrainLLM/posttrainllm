@@ -1,0 +1,28 @@
+{
+  "schema_version": "game-2048/frontier-screening-attempt/v1",
+  "observed_at": "2026-08-04",
+  "status": "invalid-provider-budget-failure",
+  "model": {
+    "requested": "claude-opus-4-8",
+    "resolved": "claude-opus-4-8",
+    "cli_version": "2.1.212 (Claude Code)"
+  },
+  "track": "legal-constrained-diagnostic",
+  "seeds": [2048000000, 2048000001, 2048000002, 2048000003],
+  "move_budget_per_game": 32,
+  "successful_decisions": 10,
+  "provider_budget_failures": 4,
+  "recorded_successful_call_cost_usd": 0.4174205,
+  "provider_reported_failed_call_cost_usd": 0.66456,
+  "total_observed_cost_usd": 1.0819805,
+  "score": null,
+  "random_legal_comparison": null,
+  "decision": "retry-harness-budget",
+  "why": "Every episode ended when Claude CLI exceeded the per-decision USD cap. The environment converted those exceptions into terminal policy failures, so the apparent 8-point mean was infrastructure failure rather than model capability.",
+  "follow_up": "The runner now records provider failures and their cost separately, returns a failed run, and refuses to calculate a model-vs-random result. The next screen uses an explicit reasoning effort and a sufficient per-decision cap.",
+  "limitations": [
+    "No claim about Opus 2048 ability is valid from this attempt.",
+    "The local ignored raw artifact predates the provider-failure accounting fix and must not enter the benchmark gallery.",
+    "This attempt does not authorize specialist training or the 30-seed admission run."
+  ]
+}

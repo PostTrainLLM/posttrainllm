@@ -14,8 +14,9 @@ Source of truth: [`attempts.json`](attempts.json).
 
 | Dimension | Count |
 |---|---:|
-| Total structured attempts | 65 |
+| Total structured attempts | 66 |
 | Autocorrect | 2 |
+| Chess | 1 |
 | SQL | 17 |
 | Pace planner | 14 |
 | Browser product | 6 |
@@ -31,7 +32,7 @@ Source of truth: [`attempts.json`](attempts.json).
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 48 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 49 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 5 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
 | `not-applicable` | 10 | No failure reason is expected for worked/not-tried status. |
 | `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |
@@ -40,6 +41,7 @@ Source of truth: [`attempts.json`](attempts.json).
 
 | Family | Status | Primary evidence |
 |---|---|---|
+| Character Chess specialist | normalized | `evals/chess/character-chess-44m-pilot-10k-v1.json`, `docs/learn/reproducing-qwen-chess-under-50m.md` |
 | SQL factory POC and retries | normalized | `runs/2026-07-02-*`, `runs/2026-07-03-*`, `docs/specialists/b1-sql-poc.md` |
 | Pace planner unhappy-path drill | normalized | `docs/DRILLDOWN.md`, `docs/RETROSPECTIVE.md`, `docs/pace-handoff-2026-06-10.md` |
 | Browser product/demo failures | partially normalized | `docs/qa_log.md`, `docs/archive/lessons.md` |
