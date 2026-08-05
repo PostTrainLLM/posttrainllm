@@ -20,6 +20,12 @@
   per-instance timing, errors, and scorer outputs for every entry
 - [x] 2.4 Add system-trace aggregation for false accepts, escalation
   precision/recall, over-escalation, route regret, hops, and final tier
+- [x] 2.5 Add optional graph-compatible specialist decision signals without
+  invalidating existing prediction artifacts
+- [x] 2.6 Add public-development-only selective-policy calibration and
+  deterministic specialist/fallback prediction composition
+- [x] 2.7 Report first-hop acceptance coverage/accuracy and escalation rate
+  separately from final cascade success
 
 ## 3. Resources and receipts
 
@@ -50,6 +56,9 @@
 - [ ] 5.1 Add focused unit and no-model smoke coverage for good runs, track
   disclosure, same-instance comparison, scorer failures, resource math,
   privacy, and deterministic rendering
+- [x] 5.4 Add focused no-model coverage for feasible/infeasible selective
+  policies, sealed-calibration refusal, signal validation, and multi-hop-safe
+  system metrics
 - [x] 5.2 Run the smallest relevant offline checks and strict OpenSpec
   validation; do not run training, heavy model evals, network providers, or
   deployment without separate operator approval

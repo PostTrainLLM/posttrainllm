@@ -245,6 +245,9 @@ def test_system_trace_metrics_are_aggregated_and_validated():
     _, _, _, _, _, (_, result, _) = valid_artifacts("system")
     metrics = result["system_metrics"]
     assert metrics["false_accept_rate"] == 0.0
+    assert metrics["first_hop_acceptance_rate"] == 48 / 56
+    assert metrics["first_hop_accuracy"] == 1.0
+    assert metrics["escalation_rate"] == 8 / 56
     assert metrics["route_accuracy"] == 1.0
     assert metrics["route_regret"] == 0.0
     assert metrics["escalation_precision"] == 1.0

@@ -32,8 +32,11 @@ screenAction, research, phoneLargeModel, unknown>
   computing", "compare AWS vs GCP"
 - **phoneLargeModel**: Explicit escalation request. e.g. "use the big
   model", "phone a large model"
-- **unknown**: Classifier could not confidently assign a class. The
-  caller must run the full pipeline.
+- **unknown**: The request is semantically unsupported by Pace's declared
+  routes, is gibberish, or is genuinely uncategorizable. Examples include
+  smart-home or physical-world actions Pace cannot perform. Model uncertainty
+  is not this label; a separate selective-routing policy decides whether to
+  escalate an uncertain prediction.
 
 ## Decision boundaries (Pace-specific)
 
@@ -44,7 +47,7 @@ what the model learns. A general LLM does not know these:
 - "turn on volume" = **screenAction** (Pace can control volume)
 - "what can you do" = **pureKnowledge** (not unknown — it's a question
   about Pace itself)
-- "research HTML" = **research** (not pureKnowledge — the word
-  "research" triggers the research lane)
+- "research HTML" = **research** (not pureKnowledge — it is an imperative
+  request to investigate, not because one keyword mechanically triggers a lane)
 - "I researched HTML yesterday" = **pureKnowledge** (past tense — not
   a research request)

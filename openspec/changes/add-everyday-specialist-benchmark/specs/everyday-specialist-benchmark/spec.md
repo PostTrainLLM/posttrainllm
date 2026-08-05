@@ -88,15 +88,28 @@ missing checks.
 - **AND** the benchmark does not collapse them into an unqualified overall win
 
 ### Requirement: Selective-risk system metrics
-Every `system` entry SHALL report false acceptance, route accuracy or regret,
-escalation precision and recall, over-escalation, hop distribution, final tier,
-and typed exhaustion in addition to final task success.
+Every `system` entry SHALL report false acceptance, first-hop acceptance rate
+and accuracy, escalation rate, route accuracy or regret, escalation precision
+and recall, over-escalation, hop distribution, final tier, and typed exhaustion
+in addition to final task success. Threshold or learned-policy selection SHALL
+use only a declared public-development or calibration layer and SHALL never fit
+against the sealed official layer.
 
 #### Scenario: A small specialist returns an incorrect result without fallback
 - **WHEN** the primary scorer rejects the result but the system marks it accepted
 - **THEN** the run records a false accept
 - **AND** that instance cannot be counted as successful even if it avoided a
   larger-model call
+
+#### Scenario: A selective policy is calibrated
+- **WHEN** confidence, margin, entropy, OOD, or verifier signals choose whether the first node is accepted or escalated
+- **THEN** the policy records its calibration instance-set identity, targets, signal contract, and revision
+- **AND** calibration refuses a sealed-official instance set
+
+#### Scenario: A specialist tree escalates through several tiers
+- **WHEN** a system traverses one or more ordered fallback nodes
+- **THEN** every eligible and selected node, hop, final tier, exhaustion state, and graph/policy revision remains attributable
+- **AND** the first-hop metrics remain distinct from final cascade accuracy
 
 ### Requirement: Complete end-to-end resource accounting
 The benchmark SHALL distinguish cold and warm end-to-end latency, active

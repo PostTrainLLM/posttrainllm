@@ -366,7 +366,13 @@ def validate_prediction_set(value: dict[str, Any], contract: dict[str, Any], err
     seen: set[tuple[str, int]] = set()
     for index, raw in enumerate(outputs):
         path = f"$.outputs[{index}]"
-        item = expect_fields(raw, path, ("instance_id", "pass_index", "predicted_label", "latency_ms", "error", "routing"), errors)
+        item = expect_fields(
+            raw,
+            path,
+            ("instance_id", "pass_index", "predicted_label", "latency_ms", "error", "routing"),
+            errors,
+            optional=("decision_signals",),
+        )
         if not item:
             continue
         expect_string(item.get("instance_id"), f"{path}.instance_id", errors)
@@ -390,6 +396,28 @@ def validate_prediction_set(value: dict[str, Any], contract: dict[str, Any], err
             add(errors, f"{path}.latency_ms", "must be a finite non-negative number")
         if item.get("routing") is not None and not isinstance(item.get("routing"), dict):
             add(errors, f"{path}.routing", "must be an object or null")
+        if "decision_signals" in item:
+            signals = expect_fields(
+                item.get("decision_signals"),
+                f"{path}.decision_signals",
+                ("revision", "max_probability", "margin", "normalized_entropy", "ood_score"),
+                errors,
+            )
+            if signals:
+                expect_string(signals.get("revision"), f"{path}.decision_signals.revision", errors)
+                for field in ("max_probability", "margin", "normalized_entropy"):
+                    signal = signals.get(field)
+                    if not is_number(signal) or not 0 <= signal <= 1:
+                        add(errors, f"{path}.decision_signals.{field}", "must be between 0 and 1")
+                if (
+                    is_number(signals.get("margin"))
+                    and is_number(signals.get("max_probability"))
+                    and signals["margin"] > signals["max_probability"]
+                ):
+                    add(errors, f"{path}.decision_signals.margin", "cannot exceed max_probability")
+                ood_score = signals.get("ood_score")
+                if ood_score is not None and (not is_number(ood_score) or ood_score < 0):
+                    add(errors, f"{path}.decision_signals.ood_score", "must be null or non-negative")
 
 
 def validate_run(value: dict[str, Any], contract: dict[str, Any], errors: list[str]) -> None:
@@ -499,11 +527,33 @@ def validate_result(value: dict[str, Any], contract: dict[str, Any], errors: lis
         metrics = expect_fields(
             value.get("system_metrics"),
             "$.system_metrics",
-            ("false_accept_rate", "route_accuracy", "route_regret", "escalation_precision", "escalation_recall", "over_escalation_rate", "hop_distribution", "final_tier_distribution", "typed_exhaustion"),
+            (
+                "false_accept_rate",
+                "first_hop_acceptance_rate",
+                "first_hop_accuracy",
+                "escalation_rate",
+                "route_accuracy",
+                "route_regret",
+                "escalation_precision",
+                "escalation_recall",
+                "over_escalation_rate",
+                "hop_distribution",
+                "final_tier_distribution",
+                "typed_exhaustion",
+            ),
             errors,
         )
         if metrics:
-            for field in ("false_accept_rate", "route_accuracy", "escalation_precision", "escalation_recall", "over_escalation_rate"):
+            for field in (
+                "false_accept_rate",
+                "first_hop_acceptance_rate",
+                "first_hop_accuracy",
+                "escalation_rate",
+                "route_accuracy",
+                "escalation_precision",
+                "escalation_recall",
+                "over_escalation_rate",
+            ):
                 item = metrics.get(field)
                 if item is not None and (not is_number(item) or not 0 <= item <= 1):
                     add(errors, f"$.system_metrics.{field}", "must be null or between 0 and 1")

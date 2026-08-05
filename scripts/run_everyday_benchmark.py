@@ -130,6 +130,8 @@ def safe_ratio(numerator: int, denominator: int) -> float | None:
 def system_metrics(outputs: list[dict[str, Any]], expected_by_id: dict[str, str]) -> dict[str, Any]:
     false_accepts = 0
     accepted = 0
+    first_hop_accepted = 0
+    first_hop_correct = 0
     route_matches = 0
     regrets: list[float] = []
     escalated = 0
@@ -168,6 +170,8 @@ def system_metrics(outputs: list[dict[str, Any]], expected_by_id: dict[str, str]
         correct = output["error"] is None and output["predicted_label"] == expected_by_id[output["instance_id"]]
         accepted += int(routing["accepted"])
         false_accepts += int(routing["accepted"] and not correct)
+        first_hop_accepted += int(not routing["escalated"] and routing["accepted"])
+        first_hop_correct += int(not routing["escalated"] and routing["accepted"] and correct)
         route_matches += int(routing["selected_node"] == routing["best_eligible_node"])
         regrets.append(float(routing["route_regret"]))
         escalated += int(routing["escalated"])
@@ -180,6 +184,9 @@ def system_metrics(outputs: list[dict[str, Any]], expected_by_id: dict[str, str]
             exhaustion[str(routing["exhaustion"])] += 1
     return {
         "false_accept_rate": safe_ratio(false_accepts, accepted),
+        "first_hop_acceptance_rate": safe_ratio(first_hop_accepted, len(outputs)),
+        "first_hop_accuracy": safe_ratio(first_hop_correct, first_hop_accepted),
+        "escalation_rate": safe_ratio(escalated, len(outputs)),
         "route_accuracy": safe_ratio(route_matches, len(outputs)),
         "route_regret": statistics.fmean(regrets) if regrets else None,
         "escalation_precision": safe_ratio(escalation_true_positive, escalated),

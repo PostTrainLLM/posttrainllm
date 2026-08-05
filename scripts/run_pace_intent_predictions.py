@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import subprocess
 import tempfile
@@ -65,10 +66,43 @@ def normalize_label(raw: str) -> str | None:
     return matches[0] if len(matches) == 1 else None
 
 
-def run_specialist(args: argparse.Namespace, instances: list[dict[str, Any]]) -> list[tuple[str | None, float, str | None]]:
+def summarize_specialist_predictions(predictions: list[dict[str, Any]]) -> dict[str, Any]:
+    if len(predictions) != len(LABELS):
+        raise ValueError(f"specialist must emit all {len(LABELS)} class probabilities")
+    tools = [item.get("tool") for item in predictions]
+    if set(tools) != set(LABELS):
+        raise ValueError("specialist probabilities must cover every Pace label exactly once")
+    raw_probabilities = [item.get("prob") for item in predictions]
+    if any(
+        not isinstance(probability, (int, float)) or isinstance(probability, bool)
+        for probability in raw_probabilities
+    ):
+        raise ValueError("specialist probabilities must be numeric")
+    probabilities = [float(probability) for probability in raw_probabilities]
+    if any(not math.isfinite(probability) or probability < 0 for probability in probabilities):
+        raise ValueError("specialist probabilities must be finite and non-negative")
+    total = sum(probabilities)
+    if total <= 0:
+        raise ValueError("specialist probabilities must have positive mass")
+    normalized = [probability / total for probability in probabilities]
+    ordered = sorted(normalized, reverse=True)
+    entropy = -sum(probability * math.log(probability) for probability in normalized if probability > 0)
+    return {
+        "revision": "pace-softmax-summary-v1",
+        "max_probability": ordered[0],
+        "margin": ordered[0] - ordered[1],
+        "normalized_entropy": entropy / math.log(len(LABELS)),
+        "ood_score": None,
+    }
+
+
+def run_specialist(
+    args: argparse.Namespace,
+    instances: list[dict[str, Any]],
+) -> list[tuple[str | None, float, str | None, dict[str, Any] | None]]:
     started = time.perf_counter()
     completed = subprocess.run(
-        [str(args.binary), "extract", str(args.model), "--stdin", "--json", "--top-k", "1"],
+        [str(args.binary), "extract", str(args.model), "--stdin", "--json", "--top-k", str(len(LABELS))],
         input="\n".join(item["input_text"] for item in instances) + "\n",
         capture_output=True,
         text=True,
@@ -87,11 +121,15 @@ def run_specialist(args: argparse.Namespace, instances: list[dict[str, Any]]) ->
         predictions = row.get("predictions") or []
         label = predictions[0].get("tool") if predictions else None
         error = None if label in LABELS else "backend returned no valid label"
-        output.append((label if error is None else None, float(row.get("latency_ms", fallback_ms)), error))
+        signals = summarize_specialist_predictions(predictions) if error is None else None
+        output.append((label if error is None else None, float(row.get("latency_ms", fallback_ms)), error, signals))
     return output
 
 
-def run_qwen(args: argparse.Namespace, instances: list[dict[str, Any]]) -> list[tuple[str | None, float, str | None]]:
+def run_qwen(
+    args: argparse.Namespace,
+    instances: list[dict[str, Any]],
+) -> list[tuple[str | None, float, str | None, dict[str, Any] | None]]:
     import mlx_lm  # Imported only for the explicitly selected local backend.
 
     model, tokenizer = mlx_lm.load(str(args.model))
@@ -107,7 +145,7 @@ def run_qwen(args: argparse.Namespace, instances: list[dict[str, Any]]) -> list[
         latency_ms = (time.perf_counter() - started) * 1000
         label = normalize_label(raw)
         error = None if label is not None else "backend returned no valid label"
-        output.append((label, latency_ms, error))
+        output.append((label, latency_ms, error, None))
     return output
 
 
@@ -133,7 +171,10 @@ def codex_schema() -> dict[str, Any]:
     }
 
 
-def run_codex(args: argparse.Namespace, instances: list[dict[str, Any]]) -> list[tuple[str | None, float, str | None]]:
+def run_codex(
+    args: argparse.Namespace,
+    instances: list[dict[str, Any]],
+) -> list[tuple[str | None, float, str | None, dict[str, Any] | None]]:
     payload = [{"id": item["id"], "text": item["input_text"]} for item in instances]
     prompt = (
         INSTRUCTIONS
@@ -164,10 +205,13 @@ def run_codex(args: argparse.Namespace, instances: list[dict[str, Any]]) -> list
     if set(by_id) != {item["id"] for item in instances}:
         raise RuntimeError("Codex prediction ids do not exactly match the sealed instances")
     amortized_ms = latency_ms / len(instances)
-    return [(by_id[item["id"]], amortized_ms, None) for item in instances]
+    return [(by_id[item["id"]], amortized_ms, None, None) for item in instances]
 
 
-def run_apple_fm(args: argparse.Namespace, instances: list[dict[str, Any]]) -> list[tuple[str | None, float, str | None]]:
+def run_apple_fm(
+    args: argparse.Namespace,
+    instances: list[dict[str, Any]],
+) -> list[tuple[str | None, float, str | None, dict[str, Any] | None]]:
     completed = subprocess.run(
         [str(args.bridge)],
         input="\n".join(json.dumps({"id": item["id"], "text": item["input_text"]}) for item in instances) + "\n",
@@ -187,7 +231,7 @@ def run_apple_fm(args: argparse.Namespace, instances: list[dict[str, Any]]) -> l
         row = by_id.get(item["id"], {})
         label = row.get("label") if row.get("label") in LABELS else None
         error = row.get("error") or (None if label is not None else "backend returned no valid label")
-        output.append((label if error is None else None, float(row.get("latency_ms", 0)), error))
+        output.append((label if error is None else None, float(row.get("latency_ms", 0)), error, None))
     return output
 
 
@@ -222,15 +266,18 @@ def main() -> int:
         outputs = []
         for pass_index in range(1, args.repetitions + 1):
             rows = backend(args, instances["instances"])
-            for item, (label, latency_ms, error) in zip(instances["instances"], rows):
-                outputs.append({
+            for item, (label, latency_ms, error, decision_signals) in zip(instances["instances"], rows):
+                output = {
                     "instance_id": item["id"],
                     "pass_index": pass_index,
                     "predicted_label": label,
                     "latency_ms": latency_ms,
                     "error": error,
                     "routing": None,
-                })
+                }
+                if decision_signals is not None:
+                    output["decision_signals"] = decision_signals
+                outputs.append(output)
         artifact = {
             "artifact_type": "prediction_set",
             "contract_version": "everyday-benchmark/v1",
