@@ -98,6 +98,10 @@ const registry: Recipe[] = [
         </div>
       </section>
     </div>
+    <aside class="guide-link">
+      <span>Need the full training loop?</span>
+      <a href="/mlx-lora-fine-tuning">Read the MLX LoRA and QLoRA field guide →</a>
+    </aside>
   </main>
 
   <footer class="site-footer">
@@ -111,6 +115,10 @@ const registry: Recipe[] = [
     </div>
   </footer>
 </Default>
+
+<style>
+  .guide-link { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s-3); margin-top: var(--s-7); padding-block: var(--s-5); border-block: 1px solid var(--line); color: var(--fg-quiet); font-family: var(--font-mono); font-size: var(--step--1); }
+</style>
 
 <style>
   .rec { padding-bottom: var(--s-9); }

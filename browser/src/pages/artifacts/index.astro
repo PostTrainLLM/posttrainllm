@@ -97,6 +97,10 @@ const parkedArtifacts = artifacts.filter((entry) => entry.state === "parked");
         ))}
       </div>
     </section>
+    <aside class="guide-link">
+      <span>From package to decision</span>
+      <a href="/evaluate-local-llm">Use the local-model evaluation workflow →</a>
+    </aside>
   </main>
 </Default>
 
@@ -146,4 +150,5 @@ const parkedArtifacts = artifacts.filter((entry) => entry.state === "parked");
     .metric-strip { grid-template-columns: 1fr; gap: var(--s-3); }
     .card-head { align-items: flex-start; flex-direction: column; }
   }
+  .guide-link { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s-3); margin-top: var(--s-8); padding-block: var(--s-5); border-block: 1px solid var(--line); color: var(--fg-quiet); font-family: var(--font-mono); font-size: var(--step--1); }
 </style>

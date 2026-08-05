@@ -74,6 +74,7 @@ Important constraints:
 
 | Date / phase | Status |
 |---|---|
+| 2026-08-05 Mac-local specialist field guides | Added five public evidence-first guides for Mac fine-tuning, MLX LoRA/QLoRA, local evaluation, trajectory datasets, and routed small-model specialists. They preserve the research-bench visual system, connect home/recipes/artifacts to the factory loop, and enter the generated sitemap, Markdown, and agent catalog from the same public build. The full build now verifies 331 public HTML/Markdown pairs. |
 | 2026-08-04 Canonical live run evidence | Added opt-in lifecycle integration for the next real factory target: Swift `sft --factory-run` records a bounded train summary, local time, and unshipped adapter only after a successful save; `eval-gate --factory-run` records one frozen primary suite's same-invocation baseline/candidate pair; `eval-compare --factory-run` derives compatible slice metrics without changing decision state. A pure `TinyGPTIO` boundary and no-model smoke prove `data-ready -> training -> trained -> evaluating -> evaluated` with no invented `decision.json`. Existing invocations are unchanged. No model was loaded or trained; one bounded live verification remains gated on the next owner-approved run. |
 | 2026-07-31 Public agent indexing | Completed the source-level public discovery contract without deploying it: one post-build inventory now merges 24 application/research pages, 297 documentation pages, and 3 deterministic report cards. The shared inventory generates a 324-route sitemap, substantive Markdown counterparts, compact agent catalogs, and `llms.txt` indexes while keeping feeds, JSON evidence, local runs, models, private artifacts, and unpublished evidence outside the page sitemap. Report cards now carry canonical, social, robots, and structured metadata without changing `decision.json` authority. The 324-page build/check, 188 report-card checks, deterministic publication gate, and strict archived OpenSpec validation pass; no training, model loading, release, or deployment occurred. |
 | 2026-07-29 Owned product changelog | Added a same-origin `/changelog` with concise, newest-first outcomes drawn only from verified factory milestones. The shared site header now exposes the page, while Roadmap routes to GitHub Issues and Source to the canonical repository. No model, training, runtime, or deployment behavior changed. |
@@ -114,7 +115,7 @@ Important constraints:
 | Public artifact registry | First-class release list lives in `docs/factory/public-artifacts.md`; website surface is `/artifacts`; every artifact carries blockers beside evidence. |
 | Fine-tune report cards | Portable before/after proof per artifact: versioned JSON plus a self-contained static page at `/report-cards/<slug>.html`, compiled offline from recorded evidence with explicit measurement states. Contract in `docs/factory/report-card.md`. |
 | Eval gates | Strong fixture/no-GPU layer exists. Live GPU/full-suite gates remain operator-dependent. |
-| Browser playground | Live demo and proof of from-scratch/browser track. Its 324 public application, documentation, and report-card pages share generated sitemap, Markdown, and agent-catalog coverage. Explanatory controls now have visible keyboard focus and programmatic dialog relationships, while all data-source tabs remain discoverable on narrow screens. Product work remains parked behind the active factory loop. |
+| Browser playground | Live demo and proof of from-scratch/browser track. Its 331 public application, documentation, and report-card pages share generated sitemap, Markdown, and agent-catalog coverage, including five Mac-local specialist field guides. Explanatory controls now have visible keyboard focus and programmatic dialog relationships, while all data-source tabs remain discoverable on narrow screens. Product work remains parked behind the active factory loop. |
 | PostTrainLLM app | GUI shell over the CLI. Now covers the factory-loop experiment commands: Factory tab runs pretrain/finetune/**DPO**/**distill**; new **Runs** tab runs **factory-run** (validate/publish-check), **eval-gate**, **eval-compare**, **eval-sql**, and **generate** — all via a shared `CLICommandRunner` shell-out. Data-prep, quantization/export, and most interpretability commands remain CLI-only by design (batch/one-off, not interactive). |
 | Pace outputs | Dev-time artifacts only: data, grammar/eval assets, adapter/model package metadata, reports. |
 
@@ -122,6 +123,10 @@ Important constraints:
 
 Factory primitives:
 
+- Public specialist education: five canonical guides connect fine-tuning,
+  MLX adaptation, evaluation, trajectory data, and routed-specialist decisions
+  to the existing factory artifacts; each build emits matching HTML, Markdown,
+  sitemap, and agent-catalog entries.
 - Training and post-training: `train`, `finetune`, `sft`, `dpo`, `distill`,
   `es`, PEFT variants, LoRA/DoRA/QLoRA scaffolding, sequence packing,
   gradient checkpointing, NEFTune, z-loss, WSD, LLRD, spike recovery.
