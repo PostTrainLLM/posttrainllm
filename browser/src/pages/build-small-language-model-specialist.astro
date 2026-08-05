@@ -1,0 +1,9 @@
+---
+import EditorialPage from '../components/content/EditorialPage.astro';
+import { educationContent } from '../data/education-content';
+
+const content = educationContent["/build-small-language-model-specialist"];
+---
+
+<EditorialPage content={content} />
+

@@ -248,6 +248,18 @@ posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code
         </div>
       </div>
     </section>
+    <section class="education-directory" aria-labelledby="education-title">
+      <p class="section-label">FIELD GUIDES / MAC-LOCAL PRACTICE</p>
+      <h2 id="education-title">Build the specialist, then prove it.</h2>
+      <p>Five evidence-first guides connect the public factory to concrete Apple Silicon workflows.</p>
+      <div>
+        <a href="/fine-tune-llm-on-mac">Fine-tune an LLM on Mac <span>→</span></a>
+        <a href="/mlx-lora-fine-tuning">MLX LoRA and QLoRA <span>→</span></a>
+        <a href="/evaluate-local-llm">Evaluate a local LLM <span>→</span></a>
+        <a href="/agent-trajectory-dataset">Build a trajectory dataset <span>→</span></a>
+        <a href="/build-small-language-model-specialist">Build a routed specialist <span>→</span></a>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -273,6 +285,18 @@ posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code
     </div>
   </footer>
 </Default>
+
+<style>
+  .education-directory { max-width: 1040px; margin: var(--s-9) auto 0; padding: var(--s-7) var(--gutter); border-block: 1px solid var(--line); }
+  .education-directory h2 { max-width: 18ch; margin-top: var(--s-3); }
+  .education-directory > p:not(.section-label) { max-width: 60ch; margin-top: var(--s-4); color: var(--fg-soft); }
+  .education-directory > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: var(--s-6); border-top: 1px solid var(--line); }
+  .education-directory a { display: flex; justify-content: space-between; gap: var(--s-4); padding: var(--s-4) 0; border-bottom: 1px solid var(--line); color: var(--fg); }
+  .education-directory a:nth-child(odd) { padding-right: var(--s-5); }
+  .education-directory a:nth-child(even) { padding-left: var(--s-5); border-left: 1px solid var(--line); }
+  .education-directory a:hover { color: var(--live); }
+  @media (max-width: 700px) { .education-directory > div { grid-template-columns: 1fr; } .education-directory a:nth-child(n) { padding-inline: 0; border-left: 0; } }
+</style>
 
 <style is:global>
   .landing { padding-bottom: 0; }
