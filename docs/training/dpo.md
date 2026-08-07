@@ -1,4 +1,4 @@
-# Direct preference optimization (DPO)
+# DPO training: direct preference optimization for LLMs
 
 The third of three training phases. See [`pretrain.md`](pretrain.md)
 and [`sft.md`](sft.md) for what comes before.
