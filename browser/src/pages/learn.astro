@@ -6,6 +6,13 @@ import "../styles/system.css";
 const REPO = "https://github.com/PostTrainLLM/posttrainllm";
 const source = (path: string) => `${REPO}/blob/main/${path}`;
 
+const fieldGuides = [
+  { href: "/how-to-train-your-own-llm", label: "How to train your own LLM" },
+  { href: "/fine-tune-llm-on-mac", label: "Fine-tune an LLM on a Mac" },
+  { href: "/mlx-lora-fine-tuning", label: "MLX LoRA fine-tuning" },
+  { href: "/docs/learn/competitive-landscape", label: "Competitive landscape" },
+];
+
 const chapters = [
   {
     number: "01",
@@ -191,6 +198,15 @@ const structuredData = {
         ))}
       </ol>
     </header>
+
+  <section class="field-guides wrap" style="padding:2rem 0;border-bottom:1px solid var(--line);">
+    <p class="mono-label" style="margin-bottom:0.75rem;">Field guides</p>
+    <ul style="display:flex;flex-wrap:wrap;gap:1rem;list-style:none;padding:0;margin:0;">
+      {fieldGuides.map((g) => (
+        <li><a href={g.href}>{g.label} →</a></li>
+      ))}
+    </ul>
+  </section>
 
     <section class="principle" aria-labelledby="principle-title">
       <p class="section-index">00 / admission rule</p>
