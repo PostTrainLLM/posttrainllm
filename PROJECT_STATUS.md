@@ -74,6 +74,7 @@ Important constraints:
 
 | Date / phase | Status |
 |---|---|
+| 2026-08-08 Complete published-model case studies | Reconciled the live PostTrainLLM Hugging Face inventory to six public model repositories and gave every model a first-class evidence page under `/artifacts`: Pace v8's sealed-eval rejection, the routed file-ops win, the ReST breadth recovery, the multibackend negative-transfer failure, the VibeThinker MLX conversion, and the unevaluated agentic distillation. The pages distinguish public weights from ship decisions and explicitly reject Hub request counts as proof of users or successful runs. The production build emits all six as static HTML, Markdown counterparts, sitemap entries, and agent-catalog records. |
 | 2026-08-07 Apple Silicon comparison coverage | Added source-complete PostTrainLLM comparisons for Unsloth and Axolotl through the existing editorial, sitemap, canonical, and agent-readable surfaces. Each page cites current primary documentation, distinguishes Mac-native training from partial or in-progress support, and explicitly avoids unsupported speed, memory, or quality claims. Production remains unchanged pending the normal manual deployment path. |
 | 2026-08-05 Mac-local specialist field guides | Added five public evidence-first guides for Mac fine-tuning, MLX LoRA/QLoRA, local evaluation, trajectory datasets, and routed small-model specialists. They preserve the research-bench visual system, connect home/recipes/artifacts to the factory loop, and enter the generated sitemap, Markdown, and agent catalog from the same public build. The full build now verifies 331 public HTML/Markdown pairs. |
 | 2026-08-05 Character Chess 44.53M masked 10k pilot | **Failed; current Character Chess training lane dropped before 100k.** The owner-approved bounded pilot compiled 12,000 CC0 Lichess-eval rows with zero split overlap and trained on 10,000 general-position terse examples for 2,000 MPS steps using completion-only loss. Validation loss fell `5.8171 -> 1.3831`, and the model learned a real but weak held-out move signal: validation exact was 10.54% versus 6.16% analytic random (+4.38 points); test was 10.33% versus 6.23% (+4.10). That missed the frozen +10-point promotion gate. The decisive transfer screen produced 0 wins, 6 draws, 0 losses against random legal play for the raw policy and the same 0/6/0 for the guarded policy. Guards fired 22 times and changed eight moves, but converted no wins. The displayed 536 is only equality with the single random-floor rung over six games, not a qualified full-ladder or human Elo. Therefore no 100k/1M/2M stage or 4B/9B comparison is justified under this recipe. The failed artifact preserves the why: prompt masking and canonical castling fixed real pipeline bugs; local move prediction improved, but it did not become game-playing strength. Evidence: `evals/chess/character-chess-44m-pilot-10k-v1.json`; raw checkpoint and traces remain gitignored under `runs/chess-44m-pilot-10k-2026-08-05/`. |
@@ -154,6 +155,11 @@ Factory primitives:
   inference paths, GGUF/AWQ/GPTQ readers, HQQ/GPTQ tools, merge/bake-lora.
 - Reporting/readouts: eval result JSON, browser eval leaderboard, SAE
   timeline, benchmark scripts, specialist package model-card pattern.
+- Complete published-model case studies: all six public PostTrainLLM Hugging
+  Face model repositories have dedicated `/artifacts/<slug>` pages. Routed
+  wins, rejected/regressed models, conversion-only releases, and missing-eval
+  checkpoints use the same evidence/blocker/next-action structure; Hub request
+  counters are not treated as adoption.
 - Fine-Tune Report Card: `scripts/build_fine_tune_report_card.py` compiles a
   canonical run folder or a committed specialist package into a versioned
   `report-card.json` plus a deterministic self-contained public page;
