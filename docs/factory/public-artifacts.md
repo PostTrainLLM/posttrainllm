@@ -46,6 +46,11 @@ Competition rows must be labeled as:
 Public copy should prefer "we beat X on this exact local gate" only for
 `Direct` rows. Everything else is context until the same benchmark is run.
 
+Hugging Face's public request counter is not an adoption metric. It is not
+deduplicated into known people and does not prove a full weight download,
+successful load, or useful run. Case studies may link the public repository but
+must not turn its request count into a user claim.
+
 ## Artifact States
 
 | State | Meaning |
@@ -61,14 +66,52 @@ Public copy should prefer "we beat X on this exact local gate" only for
 
 | Artifact | Type | State | Public value | Next release action |
 |---|---|---|---|---|
+| `pace-intent-router-v8` | From-scratch intent classifier | `release-ready-weights` | Shows why sealed distribution gates matter: 95.5% source-matched synthetic accuracy fell to 57.1% on sealed V1, despite 3.8ms mean latency. | Keep as the latency floor and generator-overfit case; train only on public failure themes and judge a successor on a new sealed V2. |
 | `qwen3-4b-file-ops-distilled` | Specialist package | `release-ready-weights` | Shows a real posttrainllm-built routed specialist: 58% -> 100% on file-ops hard gate, with breadth regression disclosed. | Keep routed-only warnings prominent; add a loader/pull smoke when wiring consumers. |
 | `qwen3-4b-rest-fused` | Research specialist package | `release-ready-weights` | Teacher-free ReST preserved 100% file-ops depth and recovered breadth to 65% vs stock 59.6%. | Keep research-only; run a fresh product-specific gate before any runtime wiring. |
+| `qwen3-4b-multibackend-distilled` | Rejected specialist weights | `report-only` | Preserves the failed negative-transfer result: 100% file-ops depth with breadth collapsed to 31%. | Keep as a failed comparison artifact; do not promote without a new breadth-preserving recipe. |
+| `vibethinker-3b-mlx` | MLX conversion | `report-only` | Makes the upstream VibeThinker-3B reasoning model available as a public Mac-local conversion; historical GSM8K sanity slice was 40/40. | Add a pinned loader and conversion-parity receipt only if a real consumer adopts it. |
+| `vibethinker-3b-agentic-distilled` | Unqualified distilled weights | `blocked` | Preserves an agentic distillation checkpoint while making the missing before/after eval explicit. | Run a frozen baseline/candidate agentic and reasoning-regression gate before any promotion. |
 | `hf-specialist-model-archive-v1` | Model archive index | `report-only` | Links every unique local specialist/conversion artifact moved to Hugging Face, and records which plain upstream caches were deleted. | Use as the storage index; promote individual models only after eval/report/package evidence exists. |
 | `qwen06-sql-routed-v1` | Routed SQL specialist POC | `report-ready-candidate` | Shows the factory/router pattern on SQL: public exact 0.531 and synthetic execution 0.860 using separate routed adapters. | Publish as report-only; package only after a public execution benchmark gate exists. |
 | `factory-run-schema-v1` | Process artifact | `report-only` | Explains the repeatable `target -> data -> post-training -> eval -> package -> report` contract. | Use the SQL routed rendered run as the canonical example. |
 | `browser-playground` | Demo artifact | `parked` | Public proof of the earlier browser/WASM/WebGPU learning track. | Keep parked unless it directly presents factory reports or artifacts. |
 
 ## Artifact Details
+
+### `pace-intent-router-v8`
+
+Status: `release-ready-weights`; production decision: `reject-production-winner`
+
+Committed surface:
+
+- `specialists/pace-intent-router-v8/model_card.md`
+- `specialists/pace-intent-router-v8/eval_report.json`
+- `specialists/pace-intent-router-v8/tinygpt.lock.json`
+- `specialists/pace-intent-router-v8/prompt.md`
+- `specialists/registry.json`
+- HF repo: `https://huggingface.co/posttrainllm/pace-intent-router-v8`
+
+Measured evidence:
+
+| Gate | Pace v8 | Qwen3 4B | Apple FM | Frontier |
+|---|---:|---:|---:|---:|
+| Source-matched synthetic holdout | 95.5% | not run | 76.5% on a separate 200-row source-matched slice | not run |
+| Sealed V1 exact accuracy | 57.1% | 93.7% | 92.1% | 100% |
+| Sealed V1 unknown recall | 55.6% | 77.8% | 77.8% | 100% |
+| Mean warm latency | 3.8ms | 211ms | 522ms | batch timing not comparable |
+
+The 63-instance sealed set was run twice per entry, passed the frontier-ceiling
+gate, and had zero normalized exact overlap with the recorded training and
+held-out corpora. The earlier 95.5% result remains valid only for the
+source-matched generator distribution. It is not the production result.
+
+Release blockers:
+
+| Blocker | Why it matters | Unblock action |
+|---|---|---|
+| Fresh-distribution generalization failed | The source-matched score overstated readiness by 38.4 points. | Generate public development rows from failure themes, never sealed prompts. |
+| Rejected as production winner | Both local generalists exceeded 92% on the same sealed ruler. | Require a successor to pass a newly generated sealed V2 before promotion. |
 
 ### `qwen3-4b-file-ops-distilled`
 
@@ -134,6 +177,67 @@ gate. The historical run did not preserve latency, RAM, tok/s, training time,
 or raw predictions; the package reports those fields as unavailable rather
 than estimating them.
 
+### `qwen3-4b-multibackend-distilled`
+
+Status: `report-only`; model decision: `reject`
+
+HF repo: `https://huggingface.co/posttrainllm/qwen3-4b-multibackend-distilled`
+
+Recorded evidence:
+
+| Attempt | File-ops depth | Out-of-domain breadth | Decision |
+|---|---:|---:|---|
+| Stock Qwen3-4B | 58% | 59.6% | baseline |
+| File-ops distillation | 100% | 42.3% | route only |
+| Multibackend distillation | 100% | 31% | reject |
+| Teacher-free ReST | 100% | 65% | research-only routed ship |
+
+This is a negative-transfer case study. The additional multibackend teacher
+data did not broaden the model; breadth fell another 11.3 points below the
+already narrow file-ops distillation and 28.6 points below stock. The historical
+result is exact in the attempt ledger, but raw predictions and a package-level
+`eval_report.json` were not committed. Preserve the weights as failed evidence;
+do not promote them.
+
+### `vibethinker-3b-mlx`
+
+Status: `report-only`; artifact decision: `conversion-only`
+
+HF repo: `https://huggingface.co/posttrainllm/vibethinker-3b-mlx`
+
+This is an MLX conversion of `WeiboAI/VibeThinker-3B`, not a model trained by
+PostTrainLLM. A historical local GSM8K sanity screen scored 40/40, confirming a
+useful reasoning signal on that small slice. No controlled upstream-vs-MLX
+parity report was preserved, and the model has no validated native tool-calling
+behavior. The case study therefore claims public Mac-local packaging, not a
+quality improvement.
+
+Release blockers:
+
+| Blocker | Why it matters | Unblock action |
+|---|---|---|
+| Conversion parity not recorded | A 40-row sanity screen is not a numerical or broad benchmark parity proof. | Run paired upstream-vs-MLX checks only if a consumer adopts this artifact. |
+| No native tool-calling gate | Reasoning strength does not make it a drop-in agent. | Treat it as a reasoning/runtime artifact until an adapted candidate clears an agentic gate. |
+
+### `vibethinker-3b-agentic-distilled`
+
+Status: `blocked`; model decision: `inconclusive`
+
+HF repo: `https://huggingface.co/posttrainllm/vibethinker-3b-agentic-distilled`
+
+The intended experiment was to distill agentic behavior into a reasoning-strong
+3B base. The fused weights are public, but the repository does not preserve a
+current matched baseline, candidate eval, reasoning/breadth regression result,
+or ship decision. Public weights establish artifact existence, not success.
+
+Release blockers:
+
+| Blocker | Why it matters | Unblock action |
+|---|---|---|
+| Before/after agentic eval missing | There is no defensible tool-calling delta. | Freeze and run the same baseline/candidate gate before any new training. |
+| Reasoning retention missing | Agentic adaptation may have damaged the base's reason for being. | Add a reasoning/breadth regression gate to the same evaluation. |
+| No routing/package decision | There is no recorded safe-use envelope. | Package only after the frozen eval produces a ship, route, or reject decision. |
+
 ### `hf-specialist-model-archive-v1`
 
 Status: `report-only`
@@ -148,6 +252,7 @@ Uploaded posttrainllm artifacts:
 
 | Local cache | HF repo | Status | Evidence / readout |
 |---|---|---|---|
+| `pace-intent-router-v8` | `https://huggingface.co/posttrainllm/pace-intent-router-v8` | Public weights / rejected production winner | 57.1% sealed V1 accuracy at 3.8ms mean; the earlier 95.5% source-matched result did not generalize. |
 | `mt4b_fused` | `https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled` | Release-ready specialist | File-ops hard gate 58% -> 100%; breadth regression disclosed. |
 | `mt4b_rest_fused` | `https://huggingface.co/posttrainllm/qwen3-4b-rest-fused` | Release-ready research specialist | ReST breadth recovery variant: depth 100%, breadth 65% vs stock breadth 59.6%; missing historical performance evidence disclosed. |
 | `mt4b_mb_fused` | `https://huggingface.co/posttrainllm/qwen3-4b-multibackend-distilled` | Archive / failed attempt | Negative-transfer artifact: depth 100%, breadth 31%. |

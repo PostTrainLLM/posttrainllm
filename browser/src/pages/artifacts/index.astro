@@ -16,6 +16,7 @@ const layoutProps = {
 
 const primaryArtifacts = artifacts.filter((entry) => entry.state !== "parked");
 const parkedArtifacts = artifacts.filter((entry) => entry.state === "parked");
+const publishedModelArtifacts = artifacts.filter((entry) => entry.modelRepoId);
 ---
 
 <Default {...layoutProps}>
@@ -27,17 +28,18 @@ const parkedArtifacts = artifacts.filter((entry) => entry.state === "parked");
   <main class="artifact-page">
     <header class="hero">
       <nav class="crumb"><a href="/">posttrainllm</a> / artifacts</nav>
-      <p class="kicker">Built-in artifact log</p>
-      <h1>Public artifacts, with the numbers and the blockers.</h1>
+      <p class="kicker">Six published models · six case studies</p>
+      <h1>Every public model, with the result and the failure mode.</h1>
       <p class="lede">
-        These are the publishable units of the posttrainllm factory: model packages,
-        routed candidates, benchmark reports, and process artifacts. Each entry
-        carries measured evidence, competitive context, and the exact reason it
-        is ready, blocked, or parked.
+        Every PostTrainLLM model on Hugging Face now has a first-class case study,
+        including routed wins, a sealed-eval rejection, a negative-transfer
+        failure, a conversion-only release, and an unevaluated checkpoint. Hub
+        request counters are not treated as users or adoption. The rest of the
+        registry preserves benchmark reports and process artifacts.
       </p>
       <div class="summary-grid" aria-label="Artifact summary">
-        <div><span>{artifacts.length}</span><small>tracked artifacts</small></div>
-        <div><span>{primaryArtifacts.length}</span><small>active/reportable</small></div>
+        <div><span>{publishedModelArtifacts.length}</span><small>published model case studies</small></div>
+        <div><span>{artifacts.length}</span><small>tracked public artifacts</small></div>
         <div><span>{parkedArtifacts.length}</span><small>parked but public</small></div>
       </div>
     </header>
@@ -53,6 +55,11 @@ const parkedArtifacts = artifacts.filter((entry) => entry.state === "parked");
             </div>
             <h3><a href={`/artifacts/${entry.slug}`}>{entry.title}</a></h3>
             <p class="summary">{entry.summary}</p>
+            {entry.modelRepoId && (
+              <p class="model-link">
+                <a href={`https://huggingface.co/${entry.modelRepoId}`}>Hugging Face model ↗</a>
+              </p>
+            )}
             <dl class="metric-strip">
               {entry.metrics.slice(0, 3).map((metric) => (
                 <div>
@@ -111,6 +118,8 @@ const parkedArtifacts = artifacts.filter((entry) => entry.state === "parked");
   .kicker { color: var(--live); font-family: var(--font-mono); font-size: var(--step--1); margin: 0 0 var(--s-4); }
   .artifact-page h1 { max-width: 18ch; font-size: var(--step-4); line-height: 1.04; letter-spacing: -0.035em; color: var(--ink); margin: 0 0 var(--s-5); }
   .lede { max-width: 62ch; color: var(--fg-soft); font-size: var(--step-1); line-height: 1.55; margin: 0; }
+  .model-link { margin: calc(var(--s-3) * -1) 0 var(--s-4); font-family: var(--font-mono); font-size: var(--step--1); }
+  .model-link a { color: var(--brand); }
   .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-5); margin-top: var(--s-7); }
   .summary-grid div { padding-top: var(--s-4); border-top: 2px solid var(--ink); }
   .summary-grid span { display: block; font-family: var(--font-display); font-size: var(--step-3); font-weight: 620; letter-spacing: -0.03em; color: var(--ink); }

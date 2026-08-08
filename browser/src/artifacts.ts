@@ -65,6 +65,7 @@ export type ArtifactEntry = {
   summary: string;
   lede: string;
   kind: string;
+  modelRepoId?: string;
   tags: string[];
   metrics: ArtifactMetric[];
   comparisons: ArtifactComparison[];
@@ -206,8 +207,8 @@ export const artifacts: ArtifactEntry[] = [
     evidence: [
       { label: "SQL POC report", href: "/docs/specialists/b1-sql-poc" },
       { label: "Public artifact registry", href: "/docs/factory/public-artifacts" },
-      { label: "Router smoke", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/evals/sql-routed-router-smoke.sh" },
-      { label: "Router implementation", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/scripts/run_sql_routed_generate.py" },
+      { label: "Router smoke", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/sql-routed-router-smoke.sh" },
+      { label: "Router implementation", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/scripts/run_sql_routed_generate.py" },
     ],
     blockers: [
       {
@@ -231,12 +232,108 @@ export const artifacts: ArtifactEntry[] = [
     reportCard: reportCard("qwen06-sql-routed-v1", "report-only", false),
   },
   {
+    slug: "pace-intent-router-v8",
+    title: "Pace Intent Router v8",
+    eyebrow: "49.5M on-device classifier",
+    state: "release-ready-weights",
+    date: "2026-07-18",
+    kind: "From-scratch intent classifier",
+    modelRepoId: "posttrainllm/pace-intent-router-v8",
+    tags: ["classification", "routing", "from scratch", "Mac local"],
+    summary:
+      "A 49.5M intent classifier that was extremely fast and strong on its source-matched synthetic holdout, then failed the first leakage-checked sealed distribution gate.",
+    lede:
+      "This is the most important rejection in the published model set. Pace v8 scored 95.5% on 14,995 source-matched synthetic examples at roughly 3ms, but only 57.1% on a new 63-instance sealed suite that frontier aced. The weights remain useful as a latency floor and as proof that the synthetic generator overfit its template families—not as the production winner.",
+    metrics: [
+      { label: "Sealed accuracy", value: "57.1%", context: "63 held-out instances, two passes" },
+      { label: "Frontier retained", value: "57.1%", context: "Codex gpt-5.5 scored 100% on the same ruler" },
+      { label: "Warm latency", value: "3.8ms", context: "mean local sealed-eval latency" },
+      { label: "Source-matched holdout", value: "95.5%", context: "14,995 synthetic rows; did not generalize" },
+    ],
+    comparisons: [
+      {
+        name: "Pace Intent Router v8",
+        metric: "sealed exact intent accuracy",
+        score: "57.1%",
+        size: "49.5M",
+        comparability: "Direct",
+        note: "Fastest local entry, but rejected because fresh phrasing exposed distribution overfit.",
+      },
+      {
+        name: "Qwen3-4B-Instruct-2507 4-bit",
+        metric: "same sealed exact intent accuracy",
+        score: "93.7%",
+        size: "4B",
+        comparability: "Direct",
+        note: "Capability winner among local entries at 211ms mean warm latency.",
+      },
+      {
+        name: "Apple FoundationModels",
+        metric: "same sealed exact intent accuracy",
+        score: "92.1%",
+        size: "on-device system model",
+        comparability: "Direct",
+        note: "522ms mean warm latency; much slower than Pace v8 but materially more accurate on fresh phrasing.",
+      },
+      {
+        name: "Codex gpt-5.5",
+        metric: "same sealed exact intent accuracy",
+        score: "100%",
+        size: "frontier anchor",
+        comparability: "Direct",
+        note: "Passed the frozen 99% frontier-ceiling gate. Its amortized batch latency is not comparable with per-instance local timing.",
+      },
+    ],
+    tables: [
+      {
+        title: "Attempts and decisions",
+        columns: ["Evidence stage", "Accuracy", "Latency", "Decision", "Lesson"],
+        rows: [
+          ["Source-matched synthetic holdout", "95.5%", "3.1ms p50", "promising", "The pipeline learned its generator distribution"],
+          ["Sealed V1", "57.1%", "3.8ms mean", "reject-production-winner", "Fresh user-like phrasing broke the apparent win"],
+        ],
+      },
+      {
+        title: "Sealed V1 result",
+        columns: ["Entry", "Accuracy", "Unknown recall", "Warm latency", "Readout"],
+        rows: [
+          ["Codex gpt-5.5", "100.0%", "100.0%", "519ms amortized batch", "Frontier ruler passed"],
+          ["Qwen3 4B 4-bit", "93.7%", "77.8%", "211ms", "Local capability winner"],
+          ["Apple FoundationModels", "92.1%", "77.8%", "522ms", "Accurate, slower"],
+          ["Pace v8", "57.1%", "55.6%", "3.8ms", "Latency floor; rejected"],
+        ],
+      },
+    ],
+    evidence: [
+      { label: "Hugging Face model", href: "https://huggingface.co/posttrainllm/pace-intent-router-v8" },
+      { label: "Model card", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/pace-intent-router-v8/model_card.md" },
+      { label: "Eval report", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/pace-intent-router-v8/eval_report.json" },
+      { label: "Sealed V1 report", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/everyday-benchmark/pace-intent-sealed-v1.md" },
+      { label: "Sealed result receipt", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/everyday-benchmark/receipts/pace-intent-router-v8-sealed-v1.json" },
+    ],
+    blockers: [
+      {
+        blocker: "Fresh-distribution generalization failed",
+        why: "The earlier 95.5% result was source-matched to the synthetic generator. Accuracy fell to 57.1% on leakage-checked sealed V1.",
+        unblock: "Generate public-development examples from failure themes—not sealed prompts—and require a newly generated sealed V2 for any successor claim.",
+      },
+      {
+        blocker: "Rejected as the production winner",
+        why: "Qwen3 4B and Apple FoundationModels both exceeded 92% on the same sealed suite.",
+        unblock: "Keep v8 only as a latency floor and training-pipeline artifact until a successor clears the sealed gate.",
+      },
+    ],
+    nextAction:
+      "Do not tune on sealed V1. Build a broader public-development corpus from the failure themes, train a successor, and judge it once on a newly generated sealed V2.",
+  },
+  {
     slug: "qwen3-4b-file-ops-distilled",
     title: "Qwen3-4B File-Ops Distilled",
     eyebrow: "First specialist package",
     state: "release-ready-weights",
     date: "2026-06-19",
     kind: "Specialist package",
+    modelRepoId: "posttrainllm/qwen3-4b-file-ops-distilled",
     tags: ["agentic", "distillation", "file ops", "BFCL"],
     summary:
       "A routed 4B file-operation specialist distilled from frontier/gold trajectories, with the breadth regression disclosed in the package.",
@@ -313,11 +410,11 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     evidence: [
-      { label: "Model card", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/specialists/qwen3-4b-file-ops-distilled/model_card.md" },
+      { label: "Model card", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/model_card.md" },
       { label: "Hugging Face model", href: "https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled" },
-      { label: "Eval report", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/specialists/qwen3-4b-file-ops-distilled/eval_report.json" },
+      { label: "Eval report", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/eval_report.json" },
       { label: "Frontier parity writeup", href: "/docs/learn/tool-calling-frontier-parity" },
-      { label: "Specialist registry", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/specialists/registry.json" },
+      { label: "Specialist registry", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/registry.json" },
     ],
     blockers: [
       {
@@ -337,6 +434,7 @@ export const artifacts: ArtifactEntry[] = [
     state: "release-ready-weights",
     date: "2026-07-13",
     kind: "Research specialist package",
+    modelRepoId: "posttrainllm/qwen3-4b-rest-fused",
     tags: ["agentic", "ReST", "tool calling", "BFCL"],
     summary:
       "A teacher-free ReST candidate that preserves the 100% file-ops gate while recovering out-of-domain breadth above the stock 4B baseline.",
@@ -386,11 +484,11 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     evidence: [
-      { label: "Model card", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/specialists/qwen3-4b-rest-fused/model_card.md" },
+      { label: "Model card", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-rest-fused/model_card.md" },
       { label: "Hugging Face model", href: "https://huggingface.co/posttrainllm/qwen3-4b-rest-fused" },
-      { label: "Eval report", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/specialists/qwen3-4b-rest-fused/eval_report.json" },
+      { label: "Eval report", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-rest-fused/eval_report.json" },
       { label: "ReST inventory", href: "/docs/sessions/2026-06-17-stepback-inventory-roi" },
-      { label: "Specialist registry", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/specialists/registry.json" },
+      { label: "Specialist registry", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/registry.json" },
     ],
     blockers: [
       {
@@ -409,6 +507,253 @@ export const artifacts: ArtifactEntry[] = [
     reportCard: reportCard("qwen3-4b-rest-fused", "routed-ship", false),
   },
   {
+    slug: "qwen3-4b-multibackend-distilled",
+    title: "Qwen3-4B Multibackend Distilled",
+    eyebrow: "Negative-transfer case study",
+    state: "report-only",
+    date: "2026-07-03",
+    kind: "Rejected specialist weights",
+    modelRepoId: "posttrainllm/qwen3-4b-multibackend-distilled",
+    tags: ["distillation", "tool calling", "negative transfer", "rejected"],
+    summary:
+      "A public failed attempt that retained 100% file-ops depth but drove the recorded breadth score down to 31%.",
+    lede:
+      "Adding multibackend teacher data did not create a broader agent. It preserved the saturated file-ops score while producing the worst breadth result in the recorded Qwen3-4B lineage. The public weights are useful as a reproducible warning: breadth gates must be frozen before specialist distillation.",
+    metrics: [
+      { label: "File-ops depth", value: "100%", context: "saturated narrow gate" },
+      { label: "Breadth", value: "31%", context: "down from 59.6% stock" },
+      { label: "Breadth delta", value: "-28.6pp", context: "recorded stock-to-candidate change" },
+      { label: "Decision", value: "Reject", context: "failed negative-transfer artifact" },
+    ],
+    comparisons: [
+      {
+        name: "Multibackend-distilled 4B",
+        metric: "recorded depth / breadth",
+        score: "100% / 31%",
+        size: "4B",
+        comparability: "Direct",
+        note: "The target gate stayed saturated while breadth collapsed.",
+      },
+      {
+        name: "Stock Qwen3-4B",
+        metric: "same recorded depth / breadth family",
+        score: "58% / 59.6%",
+        size: "4B",
+        comparability: "Direct",
+        note: "The candidate gained depth but lost 28.6 breadth points.",
+      },
+      {
+        name: "File-ops-distilled 4B",
+        metric: "same recorded depth / breadth family",
+        score: "100% / 42.3%",
+        size: "4B",
+        comparability: "Direct",
+        note: "Already showed negative transfer; multibackend distillation made breadth worse.",
+      },
+      {
+        name: "ReST-fused 4B",
+        metric: "same recorded depth / breadth family",
+        score: "100% / 65%",
+        size: "4B",
+        comparability: "Direct",
+        note: "The later teacher-free ReST attempt is the breadth-preserving research candidate.",
+      },
+    ],
+    tables: [
+      {
+        title: "Attempts and decisions",
+        columns: ["Attempt", "Method", "Depth", "Breadth", "Decision"],
+        rows: [
+          ["A0", "Stock Qwen3-4B", "58%", "59.6%", "Baseline"],
+          ["A1", "File-ops distillation", "100%", "42.3%", "Route only"],
+          ["A2", "Multibackend distillation", "100%", "31%", "Reject"],
+          ["A3", "Teacher-free ReST", "100%", "65%", "Research-only routed ship"],
+        ],
+      },
+    ],
+    evidence: [
+      { label: "Hugging Face model", href: "https://huggingface.co/posttrainllm/qwen3-4b-multibackend-distilled" },
+      { label: "Attempt ledger", href: "/docs/attempt-ledger" },
+      { label: "Historical model inventory", href: "/docs/sessions/2026-06-17-stepback-inventory-roi" },
+      { label: "Public artifact registry", href: "/docs/factory/public-artifacts" },
+    ],
+    blockers: [
+      {
+        blocker: "Breadth collapsed",
+        why: "The recorded 31% breadth result is 28.6 points below stock and 11.3 points below the narrower file-ops distillation.",
+        unblock: "Do not promote this checkpoint. Start from a breadth-preserving recipe with a frozen regression gate.",
+      },
+      {
+        blocker: "No committed machine-readable eval package",
+        why: "The exact historical result is preserved in the attempt ledger and session record, but raw predictions and a package-level eval report were not committed.",
+        unblock: "Retain the result as historical evidence; only rerun if a new recipe needs the same checkpoint as a controlled baseline.",
+      },
+    ],
+    nextAction:
+      "Keep the weights public as a failed comparison artifact. Do not spend compute revalidating them unless a new breadth-preserving recipe explicitly needs this checkpoint as its baseline.",
+  },
+  {
+    slug: "vibethinker-3b-mlx",
+    title: "VibeThinker-3B MLX Conversion",
+    eyebrow: "Conversion case study",
+    state: "report-only",
+    date: "2026-07-03",
+    kind: "MLX conversion artifact",
+    modelRepoId: "posttrainllm/vibethinker-3b-mlx",
+    tags: ["MLX", "conversion", "reasoning", "archive"],
+    summary:
+      "A public Apple-Silicon-friendly conversion of WeiboAI/VibeThinker-3B, preserved as a runtime artifact rather than claimed as a PostTrainLLM-trained model.",
+    lede:
+      "This release answers a packaging question, not a training question: can the reasoning model be preserved in a local MLX-compatible form? A small local GSM8K screen scored 40/40, but no conversion-parity suite was recorded and the base has no native tool-calling behavior. The case study therefore reports a useful conversion without inventing a model-quality delta.",
+    metrics: [
+      { label: "Model class", value: "3B", context: "converted WeiboAI/VibeThinker-3B" },
+      { label: "Local GSM8K screen", value: "40/40", context: "small historical slice; reasoning sanity check" },
+      { label: "Training delta", value: "None", context: "format conversion, not post-training" },
+      { label: "Native tool calling", value: "No", context: "not a drop-in agent" },
+    ],
+    comparisons: [
+      {
+        name: "PostTrainLLM VibeThinker-3B MLX",
+        metric: "local GSM8K sanity slice",
+        score: "40/40",
+        size: "3B MLX conversion",
+        comparability: "Direct",
+        note: "Historical local verification of reasoning behavior on a small slice; not a broad benchmark claim.",
+      },
+      {
+        name: "WeiboAI/VibeThinker-3B",
+        metric: "upstream reasoning model",
+        score: "source weights",
+        size: "3B",
+        comparability: "Not comparable",
+        note: "The conversion derives from this public model, but no controlled pre/post conversion parity table was preserved.",
+        sourceHref: "https://huggingface.co/WeiboAI/VibeThinker-3B",
+      },
+      {
+        name: "Agentic distilled descendant",
+        metric: "current tool-calling eval",
+        score: "not recorded",
+        size: "3B",
+        comparability: "Not comparable",
+        note: "Public descendant weights exist, but they have no current eval promotion.",
+      },
+    ],
+    tables: [
+      {
+        title: "What this release proves",
+        columns: ["Question", "Evidence", "Decision"],
+        rows: [
+          ["Are unique converted weights public?", "Yes", "Preserve on Hugging Face"],
+          ["Did a local reasoning sanity screen run?", "GSM8K 40/40", "Useful, small historical slice"],
+          ["Was conversion parity measured?", "Not recorded", "No parity claim"],
+          ["Was the model post-trained by PostTrainLLM?", "No", "Conversion-only artifact"],
+          ["Does it natively call tools?", "No", "Not an agentic specialist"],
+        ],
+      },
+    ],
+    evidence: [
+      { label: "Hugging Face model", href: "https://huggingface.co/posttrainllm/vibethinker-3b-mlx" },
+      { label: "Upstream VibeThinker-3B", href: "https://huggingface.co/WeiboAI/VibeThinker-3B" },
+      { label: "Local reasoning-method review", href: "/docs/learn/diversity-driven-small-model-reasoning" },
+      { label: "Historical model inventory", href: "/docs/sessions/2026-06-17-stepback-inventory-roi" },
+      { label: "GSM8K evaluator", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/scripts/gsm8k_eval.py" },
+    ],
+    blockers: [
+      {
+        blocker: "No controlled conversion-parity report",
+        why: "The local sanity result does not prove numerical or benchmark parity with the upstream runtime.",
+        unblock: "Run paired upstream-vs-MLX checks only if a consumer needs this conversion as an active dependency.",
+      },
+      {
+        blocker: "No native agentic behavior",
+        why: "The reasoning base does not provide a validated tool-calling interface.",
+        unblock: "Treat it as a reasoning/runtime artifact; evaluate a separately adapted candidate before agent use.",
+      },
+    ],
+    nextAction:
+      "Keep this as a conversion and runtime artifact. Add a pinned loader plus parity receipt only when a real Mac-local consumer justifies maintaining it.",
+  },
+  {
+    slug: "vibethinker-3b-agentic-distilled",
+    title: "VibeThinker-3B Agentic Distilled",
+    eyebrow: "Missing-evidence case study",
+    state: "blocked",
+    date: "2026-07-03",
+    kind: "Unqualified distilled weights",
+    modelRepoId: "posttrainllm/vibethinker-3b-agentic-distilled",
+    tags: ["distillation", "agentic", "VibeThinker", "inconclusive"],
+    summary:
+      "A preserved agentic distillation checkpoint whose public weights outlived its evaluation evidence; no current win can be claimed.",
+    lede:
+      "The experiment asked whether a reasoning-strong 3B base could become a better tool-calling student than Qwen3-4B. The fused weights were published, but the repository does not preserve a current before/after eval, regression review, or ship decision. This page is the honest case study of an unfinished proof: the artifact exists; the conclusion does not.",
+    metrics: [
+      { label: "Public weights", value: "Yes", context: "Hugging Face model repository" },
+      { label: "Current agentic eval", value: "Missing", context: "no promoted before/after result" },
+      { label: "Reasoning retention", value: "Unknown", context: "no post-distillation regression gate" },
+      { label: "Decision", value: "Inconclusive", context: "weights are not a ship decision" },
+    ],
+    comparisons: [
+      {
+        name: "VibeThinker-3B agentic distilled",
+        metric: "current tool-calling gate",
+        score: "not recorded",
+        size: "3B",
+        comparability: "Direct",
+        note: "The intended candidate exists, but the required result is absent.",
+      },
+      {
+        name: "VibeThinker-3B MLX base",
+        metric: "historical GSM8K sanity slice",
+        score: "40/40",
+        size: "3B",
+        comparability: "Directional",
+        note: "Shows the source base's reasoning signal, not retained reasoning after agentic distillation.",
+      },
+      {
+        name: "Qwen3-4B ReST",
+        metric: "recorded file-ops depth / breadth",
+        score: "100% / 65%",
+        size: "4B",
+        comparability: "Not comparable",
+        note: "The measured incumbent research candidate; no matched VibeThinker result exists.",
+      },
+    ],
+    tables: [
+      {
+        title: "Evidence audit",
+        columns: ["Required case-study element", "State", "What can be said"],
+        rows: [
+          ["Base identity", "Recorded", "VibeThinker-3B MLX reasoning base"],
+          ["Distilled fused weights", "Public", "Artifact is preserved"],
+          ["Frozen baseline", "Missing", "No before number"],
+          ["Current candidate eval", "Missing", "No after number"],
+          ["Breadth/reasoning regression", "Missing", "Retention unknown"],
+          ["Ship decision", "Absent", "Inconclusive archive only"],
+        ],
+      },
+    ],
+    evidence: [
+      { label: "Hugging Face model", href: "https://huggingface.co/posttrainllm/vibethinker-3b-agentic-distilled" },
+      { label: "Attempt ledger", href: "/docs/attempt-ledger" },
+      { label: "VibeThinker method review", href: "/docs/learn/diversity-driven-small-model-reasoning" },
+      { label: "Public artifact registry", href: "/docs/factory/public-artifacts" },
+    ],
+    blockers: [
+      {
+        blocker: "No current before/after eval",
+        why: "Public weights alone cannot establish whether tool-calling improved or whether reasoning regressed.",
+        unblock: "Freeze a matched baseline, agentic primary gate, and reasoning/breadth regression gate; then run both once under the same harness.",
+      },
+      {
+        blocker: "No specialist package or routing decision",
+        why: "The repository has no canonical package metadata that defines safe use or a ship/reject outcome.",
+        unblock: "Only package after the frozen eval produces a defensible decision.",
+      },
+    ],
+    nextAction:
+      "Leave the weights public but unpromoted. If this lineage becomes active again, start with an evidence-only baseline/candidate evaluation—not more training.",
+  },
+  {
     slug: "hf-specialist-model-archive-v1",
     title: "Hugging Face Specialist Model Archive v1",
     eyebrow: "Artifact storage cleanup",
@@ -421,7 +766,7 @@ export const artifacts: ArtifactEntry[] = [
     lede:
       "This archive makes artifact storage explicit: unique posttrainllm model outputs live on Hugging Face, while plain upstream base-model caches are removed locally instead of being mirrored under posttrainllm.",
     metrics: [
-      { label: "posttrainllm HF repos", value: "5", context: "unique specialist or converted model artifacts" },
+      { label: "posttrainllm HF repos", value: "6", context: "all have first-class case studies" },
       { label: "Local model cache", value: "cleared", context: "after upload/remote-size verification" },
       { label: "Storage policy", value: "HF first", context: "R2 remains optional private cache or legacy mirror" },
     ],
@@ -433,7 +778,7 @@ export const artifacts: ArtifactEntry[] = [
         size: "model repos",
         comparability: "Direct",
         note: "Current target for public weights, adapters, and large specialist artifacts.",
-        sourceHref: "https://huggingface.co/sarthakagrawal927",
+        sourceHref: "https://huggingface.co/posttrainllm",
       },
       {
         name: "Local Mac cache",
@@ -457,6 +802,12 @@ export const artifacts: ArtifactEntry[] = [
         title: "Uploaded posttrainllm artifacts",
         columns: ["Artifact", "HF repo", "Status", "Readout"],
         rows: [
+          [
+            "pace-intent-router-v8",
+            "pace-intent-router-v8",
+            "release-ready / rejected winner",
+            "57.1% sealed accuracy at 3.8ms mean; source-matched 95.5% did not generalize",
+          ],
           [
             "mt4b_fused",
             "qwen3-4b-file-ops-distilled",
@@ -500,6 +851,7 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     evidence: [
+      { label: "Pace router HF model", href: "https://huggingface.co/posttrainllm/pace-intent-router-v8" },
       { label: "File-ops HF model", href: "https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled" },
       { label: "ReST HF model", href: "https://huggingface.co/posttrainllm/qwen3-4b-rest-fused" },
       { label: "Multibackend HF model", href: "https://huggingface.co/posttrainllm/qwen3-4b-multibackend-distilled" },
@@ -521,7 +873,7 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     nextAction:
-      "Use this as the public storage index. Future specialist pages should link to specific HF repos and keep failed variants visible as comparison evidence.",
+      "Use this as the storage index; use the six dedicated model case studies for quality and decision evidence.",
   },
   {
     slug: "factory-run-schema-v1",
@@ -771,7 +1123,7 @@ export const artifacts: ArtifactEntry[] = [
     evidence: [
       { label: "ANE/CoreML parked lane", href: "/docs/parked/ane-coreml" },
       { label: "Apple on-device model notes", href: "/docs/learn/apple-on-device-foundation-models" },
-      { label: "Project status", href: "https://github.com/PostTrainLLM/tinygpt/blob/main/PROJECT_STATUS.md" },
+      { label: "Project status", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/PROJECT_STATUS.md" },
     ],
     blockers: [
       {
@@ -838,7 +1190,7 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     evidence: [
-      { label: "README headline metrics", href: "https://github.com/PostTrainLLM/tinygpt#headline-results" },
+      { label: "README headline metrics", href: "https://github.com/PostTrainLLM/posttrainllm#headline-results" },
       { label: "Performance docs", href: "/docs/performance" },
     ],
     blockers: [

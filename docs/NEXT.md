@@ -141,6 +141,11 @@ live, and every current card lists that as a blocker.
 Current shipped research artifact: `qwen3-4b-rest-fused`, with package metadata,
 public weights, a narrow routing decision, and historical-evidence caveats.
 
+All six public Hugging Face models now have dedicated case studies under
+`/artifacts`, including the rejected and missing-evidence releases. Use those
+pages—not Hub request counts—as the public explanation of model quality,
+limitations, and next evidence action.
+
 Current report-only priority remains `qwen06-sql-routed-v1`. Render its canonical
 report run with:
 
