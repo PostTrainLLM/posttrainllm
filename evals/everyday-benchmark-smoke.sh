@@ -20,6 +20,10 @@ python3 "$ROOT/scripts/check_everyday_benchmark.py" \
 python3 "$ROOT/tests/test_everyday_benchmark.py"
 python3 "$ROOT/tests/test_selective_cascade.py"
 python3 "$ROOT/scripts/render_everyday_benchmark_report.py" --check
-openspec validate everyday-specialist-benchmark --type spec --strict
+if command -v openspec >/dev/null 2>&1; then
+  openspec validate everyday-specialist-benchmark --type spec --strict
+else
+  echo "openspec not installed; skipping authoring-only spec validation"
+fi
 
 echo "everyday-benchmark-smoke: all checks passed"

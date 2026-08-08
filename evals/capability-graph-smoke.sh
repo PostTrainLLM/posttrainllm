@@ -17,6 +17,10 @@ python3 "$ROOT/scripts/capability_graph.py" cascade \
   --router-output "$FIXTURES/router-file-ops-v1.json" \
   --outcomes "$FIXTURES/outcomes-accept-v1.json" >/dev/null
 python3 -m unittest tests.test_capability_graph
-openspec validate specialist-capability-graph --type spec --strict
+if command -v openspec >/dev/null 2>&1; then
+  openspec validate specialist-capability-graph --type spec --strict
+else
+  echo "openspec not installed; skipping authoring-only spec validation"
+fi
 
 echo "capability-graph-smoke: all checks passed"
