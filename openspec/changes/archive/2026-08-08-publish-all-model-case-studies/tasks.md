@@ -22,6 +22,6 @@
 
 ## 4. Publish
 
-- [ ] 4.1 Archive the OpenSpec change and update `PROJECT_STATUS.md`.
-- [ ] 4.2 Commit, push, merge, and trigger the established deployment workflow.
-- [ ] 4.3 Smoke-test all six live case-study URLs.
+- [x] 4.1 Archive the OpenSpec change and update `PROJECT_STATUS.md`.
+- [x] 4.2 Commit, push, merge, and trigger the established deployment workflow.
+- [x] 4.3 Smoke-test all six live case-study URLs.
