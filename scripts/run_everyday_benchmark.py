@@ -141,6 +141,7 @@ def system_metrics(outputs: list[dict[str, Any]], expected_by_id: dict[str, str]
     hops: Counter[str] = Counter()
     tiers: Counter[str] = Counter()
     exhaustion: Counter[str] = Counter()
+    resource_rows: list[dict[str, Any]] = []
     for output in outputs:
         routing = output.get("routing")
         required = {
@@ -155,7 +156,8 @@ def system_metrics(outputs: list[dict[str, Any]], expected_by_id: dict[str, str]
             "final_tier",
             "exhaustion",
         }
-        if not isinstance(routing, dict) or set(routing) != required:
+        optional = {"binding", "resource_evidence"}
+        if not isinstance(routing, dict) or not required.issubset(routing) or set(routing) - required - optional:
             raise ValueError(f"system output {output['instance_id']} must provide the exact routing trace contract")
         if not isinstance(routing["eligible_nodes"], list) or not routing["eligible_nodes"]:
             raise ValueError(f"system output {output['instance_id']} eligible_nodes must be non-empty")
@@ -167,7 +169,51 @@ def system_metrics(outputs: list[dict[str, Any]], expected_by_id: dict[str, str]
             raise ValueError(f"system output {output['instance_id']} hops must be positive")
         if not all(isinstance(routing[field], bool) for field in ("accepted", "escalated", "should_escalate")):
             raise ValueError(f"system output {output['instance_id']} routing flags must be booleans")
-        correct = output["error"] is None and output["predicted_label"] == expected_by_id[output["instance_id"]]
+        if "binding" in routing:
+            binding = routing["binding"]
+            required_binding = {
+                "graph_id", "graph_revision", "graph_sha256", "policy_id",
+                "policy_revision", "policy_sha256", "trace_contract_version",
+                "invoked_node_ids", "invoked_package_ids", "verifier_ids",
+            }
+            if not isinstance(binding, dict) or set(binding) != required_binding:
+                raise ValueError(f"system output {output['instance_id']} graph binding is invalid")
+            if not isinstance(binding["invoked_node_ids"], list) or not binding["invoked_node_ids"]:
+                raise ValueError(f"system output {output['instance_id']} invoked_node_ids must be non-empty")
+            if not isinstance(binding["invoked_package_ids"], list) or len(binding["invoked_package_ids"]) != len(binding["invoked_node_ids"]):
+                raise ValueError(f"system output {output['instance_id']} invoked_package_ids must align with invoked_node_ids")
+            if not isinstance(binding["verifier_ids"], list):
+                raise ValueError(f"system output {output['instance_id']} verifier_ids must be an array")
+        if "resource_evidence" in routing:
+            resource_evidence = routing["resource_evidence"]
+            required_resources = {
+                "latency_end_to_end_ms", "latency_mode", "loaded_bytes", "peak_resident_bytes",
+                "max_active_parameters", "installed_bytes_touched", "shared_base_bytes_touched",
+                "adapter_bytes_touched", "external_calls", "external_cost_usd",
+            }
+            if not isinstance(resource_evidence, dict) or set(resource_evidence) != required_resources:
+                raise ValueError(f"system output {output['instance_id']} resource_evidence is invalid")
+            if resource_evidence["latency_mode"] not in {"cold", "warm"}:
+                raise ValueError(f"system output {output['instance_id']} resource_evidence.latency_mode must be cold or warm")
+            nullable_resources = {"loaded_bytes", "peak_resident_bytes", "max_active_parameters", "shared_base_bytes_touched"}
+            for field in required_resources - {"latency_mode"} - nullable_resources:
+                if not checker.is_number(resource_evidence[field]) or resource_evidence[field] < 0:
+                    raise ValueError(f"system output {output['instance_id']} resource_evidence.{field} must be non-negative")
+            for field in nullable_resources:
+                if resource_evidence[field] is not None and (
+                    not checker.is_number(resource_evidence[field]) or resource_evidence[field] < 0
+                ):
+                    raise ValueError(f"system output {output['instance_id']} resource_evidence.{field} must be null or non-negative")
+            resource_rows.append(resource_evidence)
+        prediction_field = next(
+            (field for field in ("predicted_label", "predicted_text", "predicted_verdict") if field in output),
+            None,
+        )
+        correct = (
+            output["error"] is None
+            and prediction_field is not None
+            and output[prediction_field] == expected_by_id[output["instance_id"]]
+        )
         accepted += int(routing["accepted"])
         false_accepts += int(routing["accepted"] and not correct)
         first_hop_accepted += int(not routing["escalated"] and routing["accepted"])
@@ -182,6 +228,24 @@ def system_metrics(outputs: list[dict[str, Any]], expected_by_id: dict[str, str]
         tiers[str(routing["final_tier"])] += 1
         if routing["exhaustion"] is not None:
             exhaustion[str(routing["exhaustion"])] += 1
+    resource_metrics = None
+    if resource_rows:
+        cold_latencies = [row["latency_end_to_end_ms"] for row in resource_rows if row["latency_mode"] == "cold"]
+        warm_latencies = [row["latency_end_to_end_ms"] for row in resource_rows if row["latency_mode"] == "warm"]
+        resource_metrics = {
+            "latency_end_to_end_ms_mean": statistics.fmean(row["latency_end_to_end_ms"] for row in resource_rows),
+            "latency_end_to_end_ms_max": max(row["latency_end_to_end_ms"] for row in resource_rows),
+            "latency_cold_end_to_end_ms_mean": statistics.fmean(cold_latencies) if cold_latencies else None,
+            "latency_warm_end_to_end_ms_mean": statistics.fmean(warm_latencies) if warm_latencies else None,
+            "peak_resident_bytes": max((row["peak_resident_bytes"] for row in resource_rows if row["peak_resident_bytes"] is not None), default=None),
+            "max_active_parameters": max((row["max_active_parameters"] for row in resource_rows if row["max_active_parameters"] is not None), default=None),
+            "loaded_bytes_max": max((row["loaded_bytes"] for row in resource_rows if row["loaded_bytes"] is not None), default=None),
+            "installed_bytes_touched_max": max(row["installed_bytes_touched"] for row in resource_rows),
+            "shared_base_bytes_touched_max": max((row["shared_base_bytes_touched"] for row in resource_rows if row["shared_base_bytes_touched"] is not None), default=None),
+            "adapter_bytes_touched_max": max(row["adapter_bytes_touched"] for row in resource_rows),
+            "external_calls": sum(row["external_calls"] for row in resource_rows),
+            "external_cost_usd": sum(row["external_cost_usd"] for row in resource_rows),
+        }
     return {
         "false_accept_rate": safe_ratio(false_accepts, accepted),
         "first_hop_acceptance_rate": safe_ratio(first_hop_accepted, len(outputs)),
@@ -195,6 +259,7 @@ def system_metrics(outputs: list[dict[str, Any]], expected_by_id: dict[str, str]
         "hop_distribution": dict(sorted(hops.items())),
         "final_tier_distribution": dict(sorted(tiers.items())),
         "typed_exhaustion": dict(sorted(exhaustion.items())),
+        "resource_metrics": resource_metrics,
     }
 
 
@@ -219,7 +284,9 @@ def score(
     task_ref = ref(task["task_id"], task["revision"])
     entry_ref = ref(entry["entry_id"], entry["revision"])
     scorer_ref = ref(task["scorer"]["id"], task["scorer"]["revision"])
-    expected_by_id = {instance["id"]: instance["expected_label"] for instance in instances["instances"]}
+    expected_field = task["scorer"]["expected_field"]
+    prediction_field = task["scorer"]["prediction_field"]
+    expected_by_id = {instance["id"]: instance[expected_field] for instance in instances["instances"]}
     slices_by_id = {instance["id"]: instance["slices"] for instance in instances["instances"]}
 
     correct = 0
@@ -233,10 +300,13 @@ def score(
     for output in predictions["outputs"]:
         instance_id = output["instance_id"]
         expected = expected_by_id[instance_id]
-        predicted = output["predicted_label"]
+        predicted = output.get(prediction_field)
         failed = output["error"] is not None
         is_correct = not failed and predicted == expected
-        confusion[expected][predicted if not failed else "__error__"] += 1
+        if task["labels"]:
+            confusion[expected][predicted if not failed else "__error__"] += 1
+        else:
+            confusion["expected-output"]["__error__" if failed else ("match" if is_correct else "mismatch")] += 1
         correct += int(is_correct)
         incorrect += int(not failed and not is_correct)
         predictions_by_instance[instance_id].append(predicted if not failed else None)
@@ -250,7 +320,7 @@ def score(
         for slice_name in slices_by_id[instance_id]:
             slice_counts[slice_name][0] += 1
             slice_counts[slice_name][1] += int(is_correct)
-        if expected == task["scorer"]["unknown_label"]:
+        if task["scorer"].get("unknown_label") is not None and expected == task["scorer"]["unknown_label"]:
             unknown_total += 1
             unknown_correct += int(is_correct)
 

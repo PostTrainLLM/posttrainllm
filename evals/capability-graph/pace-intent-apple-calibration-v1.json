@@ -1,0 +1,111 @@
+{
+  "artifact_type": "selective-routing-calibration",
+  "best_observed": {
+    "counts": {
+      "escalated": 0,
+      "final_correct": 17,
+      "first_hop_accepted": 28,
+      "instances": 28,
+      "specialist_correct": 17,
+      "specialist_errors": 11
+    },
+    "gate_failures": [
+      "specialist_accuracy_min",
+      "first_hop_accuracy_min",
+      "escalation_recall_min",
+      "final_accuracy_min"
+    ],
+    "metrics": {
+      "escalation_rate": 0.0,
+      "escalation_recall": 0.0,
+      "final_accuracy": 0.6071428571428571,
+      "first_hop_acceptance_rate": 1.0,
+      "first_hop_accuracy": 0.6071428571428571,
+      "specialist_accuracy": 0.6071428571428571
+    },
+    "thresholds": {
+      "margin_min": 0.0,
+      "max_probability_min": 0.0,
+      "normalized_entropy_max": 1.0
+    }
+  },
+  "calibration_instance_set": {
+    "count": 28,
+    "id": "pace-intent-public-dev-v1",
+    "layer": "public-development",
+    "revision": "1",
+    "sha256": "d47a40662a318b8d781cc22313535d26600f3d619adf7cf51cfb111360708ecd"
+  },
+  "candidate_count": 1560,
+  "component_metrics": {
+    "fallback": {
+      "accuracy": 0.8571428571428571,
+      "correct": 24,
+      "count": 28,
+      "latency_ms_mean": 570.8038891785715
+    },
+    "perfect_router_oracle_accuracy": 0.9642857142857143,
+    "perfect_router_oracle_correct": 27,
+    "specialist": {
+      "accuracy": 0.6071428571428571,
+      "correct": 17,
+      "count": 28,
+      "latency_ms_mean": 26.39394998550415
+    }
+  },
+  "contract_version": "everyday-benchmark/v1",
+  "decision": "no-feasible-policy",
+  "feasible_candidate_count": 0,
+  "official": false,
+  "ordered_nodes": [
+    {
+      "enabled": true,
+      "id": "pace-intent-router-v8",
+      "tier": "specialist"
+    },
+    {
+      "enabled": true,
+      "id": "apple-foundation-models",
+      "tier": "local-generalist"
+    },
+    {
+      "enabled": false,
+      "id": "codex-gpt-5.5",
+      "tier": "external-frontier"
+    }
+  ],
+  "policy_ref": {
+    "id": "pace-intent-apple-selective-v1",
+    "revision": "1"
+  },
+  "prediction_inputs": [
+    {
+      "output_count": 56,
+      "prediction_set_id": "pace-intent-router-v8-pace-intent-public-dev-v1-predictions",
+      "revision": "1",
+      "sha256": "c4dc7fcd1b1f3b9ba7ce8510ae36a24cad09250efbeebb7a08925b3cee982f79"
+    },
+    {
+      "output_count": 56,
+      "prediction_set_id": "apple-foundation-models-pace-intent-public-dev-v1-predictions",
+      "revision": "1",
+      "sha256": "4efc3cc56807261a5d8cff4b41feace0d2332355eed52ef15e5a9947435e1ed6"
+    }
+  ],
+  "selected_policy": null,
+  "selective_gate_candidate_count": 0,
+  "signal_revisions": [
+    "pace-softmax-summary-v1"
+  ],
+  "targets": {
+    "escalation_recall_min": 0.95,
+    "final_accuracy_min": 0.99,
+    "first_hop_acceptance_rate_min": 0.9,
+    "first_hop_accuracy_min": 0.99,
+    "specialist_accuracy_min": 0.9
+  },
+  "task_ref": {
+    "id": "pace-intent-routing",
+    "revision": "1"
+  }
+}

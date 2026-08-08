@@ -1,0 +1,10 @@
+{
+  "ranked_node_ids": [
+    "file-ops-distilled",
+    "file-ops-rest",
+    "local-generalist-placeholder",
+    "external-frontier-disabled"
+  ],
+  "confidence": 0.95,
+  "ood_score": 0.05
+}

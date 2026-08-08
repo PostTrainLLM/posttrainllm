@@ -1,0 +1,64 @@
+{
+  "artifact_type": "task",
+  "contract_version": "everyday-benchmark/v1",
+  "task_id": "local-file-operations",
+  "revision": "1",
+  "title": "Bounded local file-operation plans",
+  "status": "qualified",
+  "adapter": {
+    "id": "bfcl-filesystem-final-state-adapter",
+    "revision": "1",
+    "instruction_ref": "specialists/qwen3-4b-file-ops-distilled/prompt.md",
+    "input_field": "input_text",
+    "output_field": "predicted_verdict"
+  },
+  "scorer": {
+    "id": "bfcl-multiturn-final-state",
+    "revision": "1",
+    "authority": "scripts/bfcl_multiturn_eval.py using BFCL multi_turn_checker",
+    "primary_metric": "exact_accuracy",
+    "expected_field": "expected_verdict",
+    "prediction_field": "predicted_verdict",
+    "unknown_label": null
+  },
+  "instance_set": {
+    "id": "file-ops-public-dev-v1",
+    "revision": "1",
+    "path": "evals/everyday-benchmark/fixtures/file-ops-public-dev-v1.json",
+    "layer": "public-development"
+  },
+  "official_instance_set": {
+    "id": "file-ops-veryhard-published-v1",
+    "revision": "1",
+    "layer": "sealed-official",
+    "sha256": "3762e2d6220ae2ab08756fb1d7440478fc35361653ccae5d38ead480e822f447",
+    "count": 12,
+    "custody_receipt_ref": "docs/learn/tool-calling-frontier-parity.md#83-domain-saturated-at-4b--a-free-frontier-backend-2026-06-16"
+  },
+  "labels": ["pass", "fail"],
+  "slices": {
+    "primary": ["multi-turn", "filesystem"],
+    "protected": ["deep-navigation", "move-copy", "delete-cleanup", "multi-directory"]
+  },
+  "budgets": {
+    "timeout_ms_per_instance": 120000,
+    "max_input_bytes": 2048,
+    "max_output_labels": 1,
+    "tool_surface": "GorillaFileSystem",
+    "environment": "BFCL deterministic stateful filesystem"
+  },
+  "repetitions": 1,
+  "frontier_qualification": {
+    "state": "passed",
+    "threshold": 0.99,
+    "model": "codex-cli/gpt-5.5",
+    "score": 1.0,
+    "receipt_ref": "docs/learn/tool-calling-frontier-parity.md#83-domain-saturated-at-4b--a-free-frontier-backend-2026-06-16"
+  },
+  "publication_policy": {
+    "raw_public_development_instances_allowed": true,
+    "raw_sealed_instances_allowed": false,
+    "raw_model_outputs_in_receipt_allowed": false,
+    "official_ranking_allowed": false
+  }
+}

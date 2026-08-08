@@ -1,0 +1,64 @@
+{
+  "artifact_type": "task",
+  "contract_version": "everyday-benchmark/v1",
+  "task_id": "text-correction-preservation",
+  "revision": "1",
+  "title": "Text correction with exact preservation",
+  "status": "qualified",
+  "adapter": {
+    "id": "autocorrect-text-adapter",
+    "revision": "1",
+    "instruction_ref": "evals/autocorrect/protocol-v1.json",
+    "input_field": "input_text",
+    "output_field": "predicted_text"
+  },
+  "scorer": {
+    "id": "autocorrect-preservation",
+    "revision": "1",
+    "authority": "scripts/autocorrect_foundation.py evaluate",
+    "primary_metric": "exact_accuracy",
+    "expected_field": "expected_text",
+    "prediction_field": "predicted_text",
+    "unknown_label": null
+  },
+  "instance_set": {
+    "id": "autocorrect-public-dev-v1",
+    "revision": "1",
+    "path": "evals/everyday-benchmark/fixtures/autocorrect-public-dev-v1.json",
+    "layer": "public-development"
+  },
+  "official_instance_set": {
+    "id": "autocorrect-frontier-calibration-v1",
+    "revision": "1",
+    "layer": "sealed-official",
+    "sha256": "498382a047d79b8015fe0e3c8ca9d386cfa4dc34db329411afdf7653248db876",
+    "count": 18,
+    "custody_receipt_ref": "evals/autocorrect/frontier-calibration-v1.json"
+  },
+  "labels": [],
+  "slices": {
+    "primary": ["natural"],
+    "protected": ["clean", "name", "number", "url", "code_like", "unicode", "whitespace"]
+  },
+  "budgets": {
+    "timeout_ms_per_instance": 5000,
+    "max_input_bytes": 256,
+    "max_output_labels": 1,
+    "tool_surface": "none",
+    "environment": "text-to-text-correction"
+  },
+  "repetitions": 1,
+  "frontier_qualification": {
+    "state": "passed",
+    "threshold": 0.99,
+    "model": "codex-cli/gpt-5.6-sol",
+    "score": 1.0,
+    "receipt_ref": "evals/autocorrect/frontier-calibration-v1.json"
+  },
+  "publication_policy": {
+    "raw_public_development_instances_allowed": true,
+    "raw_sealed_instances_allowed": false,
+    "raw_model_outputs_in_receipt_allowed": false,
+    "official_ranking_allowed": false
+  }
+}

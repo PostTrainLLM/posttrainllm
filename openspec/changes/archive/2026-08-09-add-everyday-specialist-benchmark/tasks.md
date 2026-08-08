@@ -42,18 +42,18 @@
 
 - [x] 4.1 Freeze and frontier-qualify a shared Pace intent task using identical
   sealed instances for every headline model before publishing a win/loss claim
-- [ ] 4.2 Qualify two additional V1 everyday families using existing
+- [x] 4.2 Qualify two additional V1 everyday families using existing
   deterministic scorers where possible; keep any frontier-failing ruler
   development/training-only
-- [ ] 4.3 Compile validated results into deterministic JSON and a static report
+- [x] 4.3 Compile validated results into deterministic JSON and a static report
   with task/track filters, slices, reliability, selective risk, and
   quality/resource Pareto views
-- [ ] 4.4 Link benchmark entries to package model cards, report cards, and
+- [x] 4.4 Link benchmark entries to package model cards, report cards, and
   privacy-safe evidence without changing `decision.json` authority
 
 ## 5. Verification and handoff
 
-- [ ] 5.1 Add focused unit and no-model smoke coverage for good runs, track
+- [x] 5.1 Add focused unit and no-model smoke coverage for good runs, track
   disclosure, same-instance comparison, scorer failures, resource math,
   privacy, and deterministic rendering
 - [x] 5.4 Add focused no-model coverage for feasible/infeasible selective
@@ -62,6 +62,6 @@
 - [x] 5.2 Run the smallest relevant offline checks and strict OpenSpec
   validation; do not run training, heavy model evals, network providers, or
   deployment without separate operator approval
-- [ ] 5.3 Update active navigation/status only after a qualified cohort ships,
+- [x] 5.3 Update active navigation/status only after a qualified cohort ships,
   archive this change, and close the linked GitHub issue through the normal PR
   lifecycle

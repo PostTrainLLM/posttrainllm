@@ -1,0 +1,22 @@
+{
+  "artifact_type": "instance_set",
+  "contract_version": "everyday-benchmark/v1",
+  "instance_set_id": "autocorrect-public-dev-v1",
+  "revision": "1",
+  "task_ref": {"id": "text-correction-preservation", "revision": "1"},
+  "layer": "public-development",
+  "provenance": {
+    "kind": "reviewed-subset",
+    "generator": "evals/autocorrect/eval-v1.jsonl@498382a047d79b8015fe0e3c8ca9d386cfa4dc34db329411afdf7653248db876",
+    "generated_at": "2026-08-09",
+    "review_status": "reviewed"
+  },
+  "instances": [
+    {"id": "natural-001", "input_text": "Please chevk the calendar before lunch.", "expected_text": "Please check the calendar before lunch.", "slices": ["natural", "substitution", "punctuation"], "boundary_rationale": "Adjacent-key substitution with no rewrite."},
+    {"id": "natural-003", "input_text": "Meet teh team beside the station.", "expected_text": "Meet the team beside the station.", "slices": ["natural", "transposition"], "boundary_rationale": "Single adjacent transposition."},
+    {"id": "natural-008", "input_text": "Amrita will recieve 2 files at https://example.com/v2.", "expected_text": "Amrita will receive 2 files at https://example.com/v2.", "slices": ["natural", "name", "number", "url"], "boundary_rationale": "The name, number, and URL must stay byte-exact."},
+    {"id": "clean-001", "input_text": "Keep 42.5% in the \"Other\" bucket.", "expected_text": "Keep 42.5% in the \"Other\" bucket.", "slices": ["clean", "number", "casing"], "boundary_rationale": "Clean control with number and casing preservation."},
+    {"id": "clean-003", "input_text": "Run `git diff --check` before review.", "expected_text": "Run `git diff --check` before review.", "slices": ["clean", "code_like"], "boundary_rationale": "Code-like content must stay byte-exact."},
+    {"id": "clean-006", "input_text": "Café déjà vu — keep the accents.", "expected_text": "Café déjà vu — keep the accents.", "slices": ["clean", "unicode"], "boundary_rationale": "Composed accents and punctuation must be preserved."}
+  ]
+}

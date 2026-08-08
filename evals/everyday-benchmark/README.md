@@ -3,9 +3,17 @@
 This directory contains the no-model foundation for the benchmark proposed in
 OpenSpec change `add-everyday-specialist-benchmark` and GitHub issue #77.
 
-Current status: **Pace intent routing is frontier-qualified on sealed V1**.
-Two more qualified task families and the general cohort renderer are still
-required before the benchmark suite itself is ready to launch.
+Current status: **three V1 rulers are frontier-qualified**: Pace intent routing,
+text correction with preservation, and bounded local file operations. Pace is
+the only shared sealed cross-model cohort; the other two remain
+qualification-only until same-instance model receipts exist.
+
+The first measured `system` attempt is also recorded, and it is a rejection:
+the Pace v8 specialist plus Apple on-device fallback produced no feasible
+selective policy on the public-development set. The specialist scored 60.7%,
+the fallback 85.7%, and even a perfect-router oracle over both leaves reached
+only 96.4%, below the frozen 99% final-accuracy target. This is system evidence,
+not a qualified or sealed headline.
 
 ## What exists
 
@@ -36,6 +44,14 @@ required before the benchmark suite itself is ready to launch.
   Its four receipts disclose instance identity, frontier qualification,
   leakage/custody evidence, aggregate scores, and result hashes without raw
   sealed prompts or outputs.
+- `cohort-v1.json` and `cohort-v1.html` are deterministic cross-task report
+  outputs. `scripts/render_everyday_benchmark_report.py --check` rejects drift,
+  missing evidence links, invalid receipts, or fewer than three qualified task
+  families.
+- `../capability-graph/pace-intent-apple-calibration-v1.json` is the measured
+  `no-feasible-policy` system result. It records all 1,560 threshold candidates,
+  component accuracy/latency, the perfect-router oracle ceiling, and the frozen
+  gate failures without publishing raw model outputs.
 
 The no-model runner understands all four adapter identities—local package,
 OpenAI-compatible endpoint, imported predictions, and capability graph—but it
@@ -60,6 +76,7 @@ generator-independent public development set is reviewed. A selected policy is
 then frozen before any newly generated sealed evaluation; sealed V1 is never a
 threshold-fitting input.
 
-Local cohort outputs belong under ignored `runs/` or `benchmark-runs/`. The
-remaining launch blockers are two more frontier-qualified task families and
-the deterministic cross-task cohort renderer.
+Local run outputs belong under ignored `runs/` or `benchmark-runs/`. The
+committed cohort report does not upgrade qualification-only tasks into public
+cross-model headlines, and it keeps missing selective-risk and resource
+measurements explicit.

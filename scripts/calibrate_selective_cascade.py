@@ -348,6 +348,39 @@ def calibrate(
     feasible = [candidate for candidate in candidates if not candidate["gate_failures"]]
     selected = max(feasible, key=candidate_rank) if feasible else None
     best_observed = max(candidates, key=lambda candidate: fallback_rank(candidate, policy["targets"]))
+    selective_feasible = [
+        candidate
+        for candidate in candidates
+        if candidate["metrics"]["first_hop_accuracy"] is not None
+        and candidate["metrics"]["first_hop_accuracy"] >= policy["targets"]["first_hop_accuracy_min"]
+        and candidate["metrics"]["escalation_recall"] is not None
+        and candidate["metrics"]["escalation_recall"] >= policy["targets"]["escalation_recall_min"]
+    ]
+    expected_by_id = {item["id"]: item["expected_label"] for item in instances["instances"]}
+
+    def component_summary(rows: dict[str, dict[str, Any]]) -> dict[str, Any]:
+        correct = sum(
+            row["error"] is None and row["predicted_label"] == expected_by_id[instance_id]
+            for instance_id, row in rows.items()
+        )
+        return {
+            "accuracy": ratio(correct, len(expected_by_id)),
+            "correct": correct,
+            "count": len(expected_by_id),
+            "latency_ms_mean": statistics.fmean(row["latency_ms"] for row in rows.values()),
+        }
+
+    oracle_correct = sum(
+        (
+            specialist[instance_id]["error"] is None
+            and specialist[instance_id]["predicted_label"] == expected
+        )
+        or (
+            fallback[instance_id]["error"] is None
+            and fallback[instance_id]["predicted_label"] == expected
+        )
+        for instance_id, expected in expected_by_id.items()
+    )
     signal_revisions = sorted(
         {
             row["decision_signals"]["revision"]
@@ -372,8 +405,15 @@ def calibrate(
         "targets": policy["targets"],
         "candidate_count": len(candidates),
         "feasible_candidate_count": len(feasible),
+        "selective_gate_candidate_count": len(selective_feasible),
         "selected_policy": selected,
         "best_observed": best_observed,
+        "component_metrics": {
+            "specialist": component_summary(specialist),
+            "fallback": component_summary(fallback),
+            "perfect_router_oracle_accuracy": ratio(oracle_correct, len(expected_by_id)),
+            "perfect_router_oracle_correct": oracle_correct,
+        },
         "decision": "calibrated" if selected is not None else "no-feasible-policy",
         "official": False,
     }
@@ -484,6 +524,15 @@ def main() -> int:
         specialist = collapse_predictions(specialist_predictions, require_signals=True)
         fallback = collapse_predictions(fallback_predictions, require_signals=False)
         report = calibrate(policy, instances, specialist, fallback)
+        report["prediction_inputs"] = [
+            {
+                "prediction_set_id": value["prediction_set_id"],
+                "revision": value["revision"],
+                "sha256": sha256_json(value),
+                "output_count": len(value["outputs"]),
+            }
+            for value in (specialist_predictions, fallback_predictions)
+        ]
         write_json(args.out_report, report)
         if args.out_predictions is not None:
             predictions = compose_system_predictions(

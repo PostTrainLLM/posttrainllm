@@ -8,7 +8,7 @@
   "adapter": {"kind": "imported-predictions", "format": "codex-cli structured output via everyday-benchmark/predictions-v1"},
   "resources": [
     {"name": "latency_cold_end_to_end_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
-    {"name": "latency_warm_end_to_end_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
+    {"name": "latency_warm_end_to_end_ms", "state": "historical", "value": 519, "unit": "ms", "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md; amortized batch and not directly comparable"},
     {"name": "latency_model_only_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
     {"name": "active_parameters", "state": "missing", "value": null, "unit": "parameters", "source": null},
     {"name": "resident_bytes_peak", "state": "not-applicable", "value": null, "unit": "bytes", "source": null},
@@ -21,5 +21,9 @@
     {"name": "local_cost_usd", "state": "not-applicable", "value": null, "unit": "usd", "source": null},
     {"name": "external_cost_usd", "state": "not-applicable", "value": null, "unit": "usd", "source": "owner-preferred free Codex CLI path; no paid API invoked"}
   ],
-  "disclosure": {"base_model": "codex-cli/gpt-5.5", "benchmark_data_access": "sealed instances provided only at evaluation time; ephemeral structured-output session"}
+  "disclosure": {"base_model": "codex-cli/gpt-5.5", "benchmark_data_access": "sealed instances provided only at evaluation time; ephemeral structured-output session"},
+  "evidence": [
+    {"kind": "receipt", "ref": "evals/everyday-benchmark/receipts/pace-intent-frontier-v1.json"},
+    {"kind": "source", "ref": "scripts/bfcl_multiturn_codex.py"}
+  ]
 }

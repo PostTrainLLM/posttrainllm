@@ -1,0 +1,12 @@
+{
+  "file-ops-distilled": {
+    "status": "success",
+    "value": "pass",
+    "latency_ms": 12,
+    "external_cost_usd": 0,
+    "verifier": {
+      "accepted": true,
+      "reason": "final-state-match"
+    }
+  }
+}

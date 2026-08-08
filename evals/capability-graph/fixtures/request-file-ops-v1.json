@@ -1,0 +1,9 @@
+{
+  "request_id": "fixture-file-ops-1",
+  "capability": "file-ops",
+  "request_schema": "request/text-v1",
+  "response_schema": "file-plan/v1",
+  "privacy_class": "local-private",
+  "external_authorized": false,
+  "content_sha256": "a21aa71af32d16864c188b8a0e2db5c9aeb5df0fb8d5da69adf2f4f96b653f46"
+}

@@ -7,7 +7,11 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 python3 "$ROOT/scripts/check_everyday_benchmark.py" \
   "$ROOT/configs/everyday-benchmark/suite-v1.json" \
   "$ROOT/configs/everyday-benchmark/tasks/pace-intent-routing-v1.json" \
+  "$ROOT/configs/everyday-benchmark/tasks/text-correction-preservation-v1.json" \
+  "$ROOT/configs/everyday-benchmark/tasks/local-file-operations-v1.json" \
   "$ROOT/evals/everyday-benchmark/fixtures/pace-intent-public-dev-v1.json" \
+  "$ROOT/evals/everyday-benchmark/fixtures/autocorrect-public-dev-v1.json" \
+  "$ROOT/evals/everyday-benchmark/fixtures/file-ops-public-dev-v1.json" \
   "$ROOT/evals/everyday-benchmark/fixtures/entries/generalist-fixture-v1.json" \
   "$ROOT/evals/everyday-benchmark/fixtures/entries/adapted-fixture-v1.json" \
   "$ROOT/evals/everyday-benchmark/fixtures/entries/system-fixture-v1.json" \
@@ -15,5 +19,7 @@ python3 "$ROOT/scripts/check_everyday_benchmark.py" \
 
 python3 "$ROOT/tests/test_everyday_benchmark.py"
 python3 "$ROOT/tests/test_selective_cascade.py"
+python3 "$ROOT/scripts/render_everyday_benchmark_report.py" --check
+openspec validate everyday-specialist-benchmark --type spec --strict
 
 echo "everyday-benchmark-smoke: all checks passed"
