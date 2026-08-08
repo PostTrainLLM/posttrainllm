@@ -26,6 +26,14 @@ legal play; eight guard interventions produced no wins. Do not run the 100k,
 reusable masked-SFT, legal-candidate, guard, ladder, and replay infrastructure.
 No new training target is selected; choose one before another model run.
 
+The Everyday Specialist Benchmark and specialist capability graph are now
+completed infrastructure. Their first measured routed-system attempt is a
+useful negative result: Pace v8 plus Apple on-device fallback cannot meet the
+frozen selective gates (perfect-router oracle 96.4% versus a 99% final bar).
+Do not tune those gates or present the development cascade as qualified. A
+future routed candidate needs better leaves and a newly frozen evaluation, not
+more threshold search on this public set.
+
 ## Operating Rule
 
 Every active task must answer one of these:

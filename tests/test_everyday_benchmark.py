@@ -21,6 +21,10 @@ CONTRACT = checker.load_contract()
 SUITE_PATH = ROOT / "configs/everyday-benchmark/suite-v1.json"
 TASK_PATH = ROOT / "configs/everyday-benchmark/tasks/pace-intent-routing-v1.json"
 INSTANCES_PATH = ROOT / "evals/everyday-benchmark/fixtures/pace-intent-public-dev-v1.json"
+AUTOCORRECT_TASK_PATH = ROOT / "configs/everyday-benchmark/tasks/text-correction-preservation-v1.json"
+AUTOCORRECT_INSTANCES_PATH = ROOT / "evals/everyday-benchmark/fixtures/autocorrect-public-dev-v1.json"
+FILE_OPS_TASK_PATH = ROOT / "configs/everyday-benchmark/tasks/local-file-operations-v1.json"
+FILE_OPS_INSTANCES_PATH = ROOT / "evals/everyday-benchmark/fixtures/file-ops-public-dev-v1.json"
 ENTRY_DIR = ROOT / "evals/everyday-benchmark/fixtures/entries"
 
 
@@ -110,6 +114,72 @@ def test_committed_contracts_and_all_tracks_validate():
         assert not validate(artifact), (artifact.get("artifact_type"), validate(artifact))
     assert {generalist["track"], adapted["track"], system["track"]} == {"generalist", "adapted", "system"}
     assert Counter(item["expected_label"] for item in instances["instances"]) == Counter({label: 4 for label in task["labels"]})
+
+
+def test_three_qualified_task_families_validate():
+    suite = load(SUITE_PATH)
+    pairs = [
+        (load(TASK_PATH), load(INSTANCES_PATH)),
+        (load(AUTOCORRECT_TASK_PATH), load(AUTOCORRECT_INSTANCES_PATH)),
+        (load(FILE_OPS_TASK_PATH), load(FILE_OPS_INSTANCES_PATH)),
+    ]
+    assert len(suite["task_refs"]) == suite["publication"]["minimum_qualified_task_families"] == 3
+    for task, instances in pairs:
+        assert task["status"] == "qualified"
+        assert task["frontier_qualification"]["state"] == "passed"
+        assert not validate(task), validate(task)
+        assert not validate(instances), validate(instances)
+
+
+def test_generic_text_and_verdict_outputs_use_the_declared_scorer_fields():
+    suite = load(SUITE_PATH)
+    entry = load(ENTRY_DIR / "generalist-fixture-v1.json")
+    for task_path, instances_path in (
+        (AUTOCORRECT_TASK_PATH, AUTOCORRECT_INSTANCES_PATH),
+        (FILE_OPS_TASK_PATH, FILE_OPS_INSTANCES_PATH),
+    ):
+        task = load(task_path)
+        instances = load(instances_path)
+        expected_field = task["scorer"]["expected_field"]
+        prediction_field = task["scorer"]["prediction_field"]
+        predictions = {
+            "artifact_type": "prediction_set",
+            "contract_version": "everyday-benchmark/v1",
+            "prediction_set_id": f"{task['task_id']}-fixture-predictions",
+            "revision": "1",
+            "task_ref": {"id": task["task_id"], "revision": task["revision"]},
+            "entry_ref": {"id": entry["entry_id"], "revision": entry["revision"]},
+            "instance_set_ref": {"id": instances["instance_set_id"], "revision": instances["revision"]},
+            "outputs": [
+                {
+                    "instance_id": instance["id"],
+                    "pass_index": 1,
+                    prediction_field: instance[expected_field],
+                    "latency_ms": 1.0,
+                    "error": None,
+                    "routing": None,
+                }
+                for instance in instances["instances"]
+            ],
+        }
+        assert not validate(predictions), validate(predictions)
+        runner.assert_identity(suite, task, entry, instances, predictions)
+        runner.assert_complete_predictions(task, instances, predictions)
+        _, result, receipt = runner.score(
+            suite,
+            task,
+            entry,
+            instances,
+            predictions,
+            f"{task['task_id']}-fixture-run",
+            "2026-08-09T00:00:00Z",
+        )
+        assert result["scores"]["exact_accuracy"] == 1.0
+        assert result["scores"]["unknown_recall"] is None
+        assert receipt["aggregate"]["exact_accuracy"] == 1.0
+        errors: list[str] = []
+        checker.validate_bundle([suite, task, entry, instances, predictions], CONTRACT, errors)
+        assert not errors, errors
 
 
 def test_sealed_identity_and_privacy_safe_receipt():

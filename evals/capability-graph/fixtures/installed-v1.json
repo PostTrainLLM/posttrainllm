@@ -1,0 +1,16 @@
+{
+  "installed_node_ids": [
+    "pace-intent-router",
+    "file-ops-distilled",
+    "file-ops-rest",
+    "local-generalist-placeholder"
+  ],
+  "capacity_bytes": 8589934592,
+  "resident": [
+    {
+      "node_id": "file-ops-distilled",
+      "bytes": 8044981893,
+      "last_used": 2
+    }
+  ]
+}

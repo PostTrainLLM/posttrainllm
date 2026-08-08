@@ -1,0 +1,22 @@
+{
+  "artifact_type": "instance_set",
+  "contract_version": "everyday-benchmark/v1",
+  "instance_set_id": "file-ops-public-dev-v1",
+  "revision": "1",
+  "task_ref": {"id": "local-file-operations", "revision": "1"},
+  "layer": "public-development",
+  "provenance": {
+    "kind": "reviewed-subset",
+    "generator": "scripts/fixtures/multi_turn_hard_data.jsonl plus multi_turn_hard_gold.jsonl",
+    "generated_at": "2026-08-09",
+    "review_status": "reviewed"
+  },
+  "instances": [
+    {"id": "multi_turn_base_6001", "input_text": "Create l1/l2/l3 and deep.txt inside the deepest directory.", "expected_verdict": "pass", "slices": ["multi-turn", "filesystem", "deep-navigation"], "boundary_rationale": "Final state requires nested creation and navigation."},
+    {"id": "multi_turn_base_6003", "input_text": "Create project/src and project/docs, then place two source files and one README in the requested directories.", "expected_verdict": "pass", "slices": ["multi-turn", "filesystem", "multi-directory"], "boundary_rationale": "Several turns must preserve working-directory state."},
+    {"id": "multi_turn_base_6004", "input_text": "Create archive and move d1.txt, d2.txt, and d3.txt into it.", "expected_verdict": "pass", "slices": ["multi-turn", "filesystem", "move-copy"], "boundary_rationale": "All three existing files must move without loss."},
+    {"id": "multi_turn_base_6007", "input_text": "Copy a.txt and b.txt into backup, then create logs/run.log.", "expected_verdict": "pass", "slices": ["multi-turn", "filesystem", "move-copy", "multi-directory"], "boundary_rationale": "Copies must preserve sources while creating a separate log tree."},
+    {"id": "multi_turn_base_6010", "input_text": "Move report.txt and data.csv into final, then copy report.txt to report_v2.txt.", "expected_verdict": "pass", "slices": ["multi-turn", "filesystem", "move-copy"], "boundary_rationale": "Move and copy semantics must both be correct."},
+    {"id": "multi_turn_base_6012", "input_text": "Delete tmp/a.log and tmp/b.log, then remove the empty tmp directory.", "expected_verdict": "pass", "slices": ["multi-turn", "filesystem", "delete-cleanup"], "boundary_rationale": "The directory can be removed only after both files are deleted."}
+  ]
+}

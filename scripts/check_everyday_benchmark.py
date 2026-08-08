@@ -173,10 +173,16 @@ def validate_task(value: dict[str, Any], contract: dict[str, Any], errors: list[
     if adapter:
         for field in adapter:
             expect_string(adapter[field], f"$.adapter.{field}", errors)
-    scorer = expect_fields(value.get("scorer"), "$.scorer", ("id", "revision", "authority", "primary_metric", "unknown_label"), errors)
+    scorer = expect_fields(
+        value.get("scorer"),
+        "$.scorer",
+        ("id", "revision", "authority", "primary_metric", "expected_field", "prediction_field"),
+        errors,
+        optional=("unknown_label",),
+    )
     if scorer:
-        for field in scorer:
-            expect_string(scorer[field], f"$.scorer.{field}", errors)
+        for field, item in scorer.items():
+            expect_string(item, f"$.scorer.{field}", errors, nullable=field == "unknown_label")
     instance_set = expect_fields(value.get("instance_set"), "$.instance_set", ("id", "revision", "path", "layer"), errors)
     if instance_set:
         for field in ("id", "revision", "path"):
@@ -199,8 +205,8 @@ def validate_task(value: dict[str, Any], contract: dict[str, Any], errors: list[
         if value.get("status") == "qualified" and not re.fullmatch(r"[0-9a-f]{64}", str(official.get("sha256", ""))):
             add(errors, "$.official_instance_set.sha256", "must be a lowercase SHA-256 when the task is qualified")
     labels = value.get("labels")
-    if not isinstance(labels, list) or not labels or any(not isinstance(item, str) for item in labels):
-        add(errors, "$.labels", "must be a non-empty string array")
+    if not isinstance(labels, list) or any(not isinstance(item, str) for item in labels):
+        add(errors, "$.labels", "must be a string array")
     elif len(labels) != len(set(labels)):
         add(errors, "$.labels", "must not contain duplicates")
     if value.get("task_id") == "pace-intent-routing" and set(labels or []) != set(enums["pace_intent_label"]):
@@ -315,6 +321,21 @@ def validate_entry(value: dict[str, Any], contract: dict[str, Any], errors: list
                         add(errors, f"$.disclosure.{field}", "must be a non-empty string array")
                 else:
                     expect_string(item, f"$.disclosure.{field}", errors)
+    evidence = value.get("evidence")
+    if not isinstance(evidence, list) or not evidence:
+        add(errors, "$.evidence", "must be a non-empty array")
+    else:
+        for index, raw in enumerate(evidence):
+            path = f"$.evidence[{index}]"
+            item = expect_fields(raw, path, ("kind", "ref"), errors)
+            if item:
+                expect_enum(
+                    item.get("kind"),
+                    ("model-card", "report-card", "receipt", "package", "source"),
+                    f"{path}.kind",
+                    errors,
+                )
+                expect_string(item.get("ref"), f"{path}.ref", errors)
 
 
 def validate_instance_set(value: dict[str, Any], contract: dict[str, Any], errors: list[str]) -> None:
@@ -332,11 +353,18 @@ def validate_instance_set(value: dict[str, Any], contract: dict[str, Any], error
     if not isinstance(instances, list) or not instances:
         add(errors, "$.instances", "must be a non-empty array")
         return
+    expected_fields = ("expected_label", "expected_text", "expected_verdict")
     labels = set(contract["enums"]["pace_intent_label"])
     seen: set[str] = set()
     for index, raw in enumerate(instances):
         path = f"$.instances[{index}]"
-        item = expect_fields(raw, path, ("id", "input_text", "expected_label", "slices", "boundary_rationale"), errors)
+        item = expect_fields(
+            raw,
+            path,
+            ("id", "input_text", "slices", "boundary_rationale"),
+            errors,
+            optional=expected_fields,
+        )
         if not item:
             continue
         instance_id = item.get("id")
@@ -346,7 +374,13 @@ def validate_instance_set(value: dict[str, Any], contract: dict[str, Any], error
                 add(errors, f"{path}.id", "is duplicated")
             seen.add(instance_id)
         expect_string(item.get("input_text"), f"{path}.input_text", errors)
-        expect_enum(item.get("expected_label"), labels, f"{path}.expected_label", errors)
+        present = [field for field in expected_fields if field in item]
+        if len(present) != 1:
+            add(errors, path, f"must contain exactly one expected output field from {list(expected_fields)}")
+        elif present[0] == "expected_label":
+            expect_enum(item.get("expected_label"), labels, f"{path}.expected_label", errors)
+        else:
+            expect_string(item.get(present[0]), f"{path}.{present[0]}", errors)
         slices = item.get("slices")
         if not isinstance(slices, list) or not slices or any(not isinstance(part, str) or not part for part in slices):
             add(errors, f"{path}.slices", "must be a non-empty string array")
@@ -363,15 +397,16 @@ def validate_prediction_set(value: dict[str, Any], contract: dict[str, Any], err
         add(errors, "$.outputs", "must be a non-empty array")
         return
     labels = contract["enums"]["pace_intent_label"]
+    prediction_fields = ("predicted_label", "predicted_text", "predicted_verdict")
     seen: set[tuple[str, int]] = set()
     for index, raw in enumerate(outputs):
         path = f"$.outputs[{index}]"
         item = expect_fields(
             raw,
             path,
-            ("instance_id", "pass_index", "predicted_label", "latency_ms", "error", "routing"),
+            ("instance_id", "pass_index", "latency_ms", "error", "routing"),
             errors,
-            optional=("decision_signals",),
+            optional=("decision_signals", *prediction_fields),
         )
         if not item:
             continue
@@ -383,14 +418,19 @@ def validate_prediction_set(value: dict[str, Any], contract: dict[str, Any], err
         if key in seen:
             add(errors, path, "duplicates instance_id/pass_index")
         seen.add(key)
-        predicted = item.get("predicted_label")
         error = item.get("error")
+        present = [field for field in prediction_fields if field in item]
         if error is None:
-            expect_enum(predicted, labels, f"{path}.predicted_label", errors)
+            if len(present) != 1:
+                add(errors, path, f"must contain exactly one predicted output field from {list(prediction_fields)}")
+            elif present[0] == "predicted_label":
+                expect_enum(item.get("predicted_label"), labels, f"{path}.predicted_label", errors)
+            else:
+                expect_string(item.get(present[0]), f"{path}.{present[0]}", errors)
         else:
             expect_string(error, f"{path}.error", errors)
-            if predicted is not None:
-                add(errors, f"{path}.predicted_label", "must be null when error is present")
+            if any(item.get(field) is not None for field in present):
+                add(errors, path, "predicted output must be null or omitted when error is present")
         latency = item.get("latency_ms")
         if not is_number(latency) or latency < 0:
             add(errors, f"{path}.latency_ms", "must be a finite non-negative number")
@@ -540,6 +580,7 @@ def validate_result(value: dict[str, Any], contract: dict[str, Any], errors: lis
                 "hop_distribution",
                 "final_tier_distribution",
                 "typed_exhaustion",
+                "resource_metrics",
             ),
             errors,
         )
@@ -563,6 +604,24 @@ def validate_result(value: dict[str, Any], contract: dict[str, Any], errors: lis
             for field in ("hop_distribution", "final_tier_distribution", "typed_exhaustion"):
                 if not isinstance(metrics.get(field), dict):
                     add(errors, f"$.system_metrics.{field}", "must be an object")
+            resource_metrics = metrics.get("resource_metrics")
+            if resource_metrics is not None:
+                resource_metrics = expect_fields(
+                    resource_metrics,
+                    "$.system_metrics.resource_metrics",
+                    (
+                        "latency_end_to_end_ms_mean", "latency_end_to_end_ms_max",
+                        "latency_cold_end_to_end_ms_mean", "latency_warm_end_to_end_ms_mean",
+                        "loaded_bytes_max", "peak_resident_bytes", "max_active_parameters",
+                        "installed_bytes_touched_max", "shared_base_bytes_touched_max",
+                        "adapter_bytes_touched_max", "external_calls", "external_cost_usd",
+                    ),
+                    errors,
+                )
+                if resource_metrics:
+                    for field, item in resource_metrics.items():
+                        if item is not None and (not is_number(item) or item < 0):
+                            add(errors, f"$.system_metrics.resource_metrics.{field}", "must be null or non-negative")
     elif value.get("system_metrics") is not None:
         add(errors, "$.system_metrics", "must be null outside the system track")
     if not isinstance(value.get("errors"), list) or any(not isinstance(item, dict) for item in value.get("errors", [])):
@@ -702,6 +761,18 @@ def validate_bundle(values: list[dict[str, Any]], contract: dict[str, Any], erro
             unknown_ids = sorted(output_ids - expected_ids)
             if unknown_ids:
                 add(errors, f"prediction_set:{prediction.get('prediction_set_id')}.outputs", f"unknown instance ids: {', '.join(unknown_ids)}")
+        task_ref = prediction.get("task_ref", {})
+        task = tasks.get((task_ref.get("id"), task_ref.get("revision")))
+        if task and instance_set:
+            expected_field = task.get("scorer", {}).get("expected_field")
+            prediction_field = task.get("scorer", {}).get("prediction_field")
+            if any(expected_field not in item for item in instance_set.get("instances", [])):
+                add(errors, f"instance_set:{instance_set.get('instance_set_id')}.instances", f"missing task expected field {expected_field!r}")
+            if any(
+                output.get("error") is None and prediction_field not in output
+                for output in prediction.get("outputs", [])
+            ):
+                add(errors, f"prediction_set:{prediction.get('prediction_set_id')}.outputs", f"missing task prediction field {prediction_field!r}")
 
     result_groups: dict[tuple[str, str], set[tuple[str, str, str, int]]] = {}
     for result in by_type.get("result", []):

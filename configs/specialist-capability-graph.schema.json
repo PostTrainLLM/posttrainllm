@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "contract_version": "specialist-capability-graph/v1",
+  "node_kinds": ["router", "specialist", "generalist", "verifier", "external-fallback"],
+  "edge_kinds": ["routes-to", "fallback-to", "verified-by", "composes-with"],
+  "verifier_kinds": ["structural", "executable", "calibrated-learned"],
+  "measurement_states": ["measured", "derived", "historical", "missing", "not-applicable"],
+  "required_resources": [
+    "active_parameters",
+    "loaded_bytes",
+    "resident_bytes_peak",
+    "installed_artifact_bytes",
+    "shared_base_bytes",
+    "adapter_bytes",
+    "latency_cold_ms",
+    "latency_warm_ms",
+    "external_cost_usd"
+  ],
+  "failure_classes": [
+    "route-low-confidence",
+    "route-out-of-distribution",
+    "node-not-installed",
+    "node-load-failed",
+    "node-timeout",
+    "node-output-invalid",
+    "verifier-rejected",
+    "verifier-unavailable",
+    "privacy-policy-blocked",
+    "network-not-authorized",
+    "hop-budget-exhausted",
+    "latency-budget-exhausted",
+    "resource-budget-exhausted",
+    "external-cost-budget-exhausted",
+    "no-eligible-node",
+    "no-accepted-result"
+  ],
+  "denylisted_field_fragments": ["api_key", "authorization", "credential", "password", "private_prompt", "raw_output", "secret", "token"]
+}

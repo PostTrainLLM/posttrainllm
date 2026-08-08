@@ -35,5 +35,9 @@
     ],
     "graph_revision": "pace-intent-development-cascade@1",
     "policy_revision": "pace-intent-selective-v1@1"
-  }
+  },
+  "evidence": [
+    {"kind": "source", "ref": "configs/everyday-benchmark/policies/pace-intent-selective-v1.json"},
+    {"kind": "source", "ref": "tests/test_selective_cascade.py"}
+  ]
 }

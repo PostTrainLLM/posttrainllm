@@ -1,18 +1,24 @@
 {
   "artifact_type": "entry",
   "contract_version": "everyday-benchmark/v1",
-  "entry_id": "apple-foundation-models",
+  "entry_id": "pace-intent-v8-apple-cascade",
   "revision": "1",
-  "title": "Apple on-device FoundationModels",
-  "track": "generalist",
-  "adapter": {"kind": "local-package", "package_id": "macOS-FoundationModels@27.0", "command": "fm_intent_bridge.swift with a fresh guided-generation session per instance"},
+  "title": "Development Pace v8 to Apple on-device selective cascade",
+  "track": "system",
+  "adapter": {
+    "kind": "capability-graph",
+    "graph_id": "pace-intent-development-cascade",
+    "graph_revision": "1",
+    "policy_revision": "pace-intent-apple-selective-v1@1",
+    "format": "everyday-benchmark/predictions-v1"
+  },
   "resources": [
     {"name": "latency_cold_end_to_end_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
-    {"name": "latency_warm_end_to_end_ms", "state": "measured", "value": 522, "unit": "ms", "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md"},
+    {"name": "latency_warm_end_to_end_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
     {"name": "latency_model_only_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
     {"name": "active_parameters", "state": "missing", "value": null, "unit": "parameters", "source": null},
     {"name": "resident_bytes_peak", "state": "missing", "value": null, "unit": "bytes", "source": null},
-    {"name": "installed_artifact_bytes", "state": "not-applicable", "value": null, "unit": "bytes", "source": "OS-owned model asset"},
+    {"name": "installed_artifact_bytes", "state": "measured", "value": 593849732, "unit": "bytes", "source": "specialists/pace-intent-router-v8/tinygpt.lock.json; Apple model is system-provided"},
     {"name": "shared_base_bytes", "state": "not-applicable", "value": null, "unit": "bytes", "source": null},
     {"name": "adapter_bytes", "state": "not-applicable", "value": null, "unit": "bytes", "source": null},
     {"name": "energy_joules", "state": "missing", "value": null, "unit": "joules", "source": null},
@@ -21,9 +27,18 @@
     {"name": "local_cost_usd", "state": "not-applicable", "value": null, "unit": "usd", "source": null},
     {"name": "external_cost_usd", "state": "not-applicable", "value": null, "unit": "usd", "source": null}
   ],
-  "disclosure": {"base_model": "Apple SystemLanguageModel.default on macOS 27.0", "benchmark_data_access": "sealed instances provided only to fresh local sessions at evaluation time"},
+  "disclosure": {
+    "components": [
+      "pace-intent-router-v8@ee6c673d405694e42859a889a348cad73e106886",
+      "apple-foundation-models@macOS-27.0",
+      "codex-gpt-5.5@1-disabled"
+    ],
+    "graph_revision": "pace-intent-development-cascade@1",
+    "policy_revision": "pace-intent-apple-selective-v1@1"
+  },
   "evidence": [
-    {"kind": "receipt", "ref": "evals/everyday-benchmark/receipts/apple-foundation-models-intent-sealed-v1.json"},
-    {"kind": "source", "ref": "docs/learn/apple-on-device-foundation-models.md"}
+    {"kind": "source", "ref": "configs/everyday-benchmark/policies/pace-intent-apple-selective-v1.json"},
+    {"kind": "source", "ref": "evals/capability-graph/pace-intent-apple-calibration-v1.json"},
+    {"kind": "source", "ref": "evals/capability-graph/pace-intent-router-resource-v1.json"}
   ]
 }

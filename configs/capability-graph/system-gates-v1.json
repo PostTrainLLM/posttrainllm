@@ -1,0 +1,13 @@
+{
+  "contract_version": "capability-graph-system-gates/v1",
+  "gate_id": "everyday-system-qualification-v1",
+  "revision": "1",
+  "min_final_accuracy": 0.99,
+  "max_false_accept_rate": 0.01,
+  "min_route_accuracy": 0.95,
+  "min_escalation_recall": 0.95,
+  "max_over_escalation_rate": 0.1,
+  "max_latency_end_to_end_ms_mean": 1000,
+  "max_external_calls": 0,
+  "max_external_cost_usd": 0
+}

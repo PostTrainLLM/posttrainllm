@@ -29,5 +29,6 @@
     "method": "synthetic-fixture",
     "training_time": "missing",
     "compute_cost": "missing"
-  }
+  },
+  "evidence": [{"kind": "source", "ref": "tests/test_everyday_benchmark.py"}]
 }

@@ -17,6 +17,8 @@
     "revision": "1",
     "authority": "deterministic-exact-match",
     "primary_metric": "exact_accuracy",
+    "expected_field": "expected_label",
+    "prediction_field": "predicted_label",
     "unknown_label": "unknown"
   },
   "instance_set": {

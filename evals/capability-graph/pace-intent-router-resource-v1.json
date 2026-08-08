@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "measurement_id": "pace-intent-router-public-dev-resource-v1",
+  "measured_at": "2026-08-09T00:38:53+05:30",
+  "scope": "One warm 28-instance public-development classification pass; no training or model download.",
+  "model_ref": "pace-intent-router-v8@ee6c673d405694e42859a889a348cad73e106886",
+  "instance_set_ref": {"id": "pace-intent-public-dev-v1", "revision": "1", "count": 28},
+  "command": "jq public input_text rows | posttrainllm extract --stdin --json --top-k 7 under /usr/bin/time -l",
+  "wall_time_seconds": 0.58,
+  "maximum_resident_set_bytes": 434241536,
+  "peak_memory_footprint_bytes": 370410504,
+  "installed_artifact_bytes": 593849732,
+  "active_parameters": 49486727,
+  "external_calls": 0,
+  "external_cost_usd": 0,
+  "limitations": [
+    "The measurement covers the first-hop specialist only because no cascade policy qualified.",
+    "Apple FoundationModels parameters, resident bytes, and energy are not exposed and remain missing rather than estimated.",
+    "Public-development data is calibration evidence, not a sealed headline result."
+  ]
+}

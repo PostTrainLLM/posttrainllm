@@ -24,5 +24,6 @@
   "disclosure": {
     "base_model": "fixture-generalist",
     "benchmark_data_access": "public-development-only"
-  }
+  },
+  "evidence": [{"kind": "source", "ref": "tests/test_everyday_benchmark.py"}]
 }

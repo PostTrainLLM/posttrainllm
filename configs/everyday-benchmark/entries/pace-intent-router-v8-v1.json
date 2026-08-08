@@ -8,7 +8,7 @@
   "adapter": {"kind": "local-package", "package_id": "pace-intent-router-v8@ee6c673d405694e42859a889a348cad73e106886", "command": "posttrainllm extract --stdin --json --top-k 1"},
   "resources": [
     {"name": "latency_cold_end_to_end_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
-    {"name": "latency_warm_end_to_end_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
+    {"name": "latency_warm_end_to_end_ms", "state": "measured", "value": 3.8, "unit": "ms", "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md"},
     {"name": "latency_model_only_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
     {"name": "active_parameters", "state": "measured", "value": 49486727, "unit": "parameters", "source": "posttrainllm inspect on the pinned checkpoint"},
     {"name": "resident_bytes_peak", "state": "missing", "value": null, "unit": "bytes", "source": null},
@@ -29,5 +29,9 @@
     "method": "train-extractor cross-entropy classification",
     "training_time": "historical 1800 seconds",
     "compute_cost": "missing"
-  }
+  },
+  "evidence": [
+    {"kind": "model-card", "ref": "specialists/pace-intent-router-v8/model_card.md"},
+    {"kind": "receipt", "ref": "evals/everyday-benchmark/receipts/pace-intent-router-v8-sealed-v1.json"}
+  ]
 }

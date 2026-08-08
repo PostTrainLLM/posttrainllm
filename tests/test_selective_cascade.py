@@ -151,6 +151,9 @@ def test_feasible_policy_composes_graph_compatible_system_predictions():
     assert selected_metrics["first_hop_accuracy"] == 1.0
     assert selected_metrics["escalation_recall"] == 1.0
     assert selected_metrics["final_accuracy"] == 1.0
+    assert report["component_metrics"]["specialist"]["accuracy"] == 26 / 28
+    assert report["component_metrics"]["fallback"]["accuracy"] == 1.0
+    assert report["component_metrics"]["perfect_router_oracle_accuracy"] == 1.0
     predictions = cascade.compose_system_predictions(
         policy, report, instances, specialist, fallback, system_entry
     )
@@ -182,6 +185,7 @@ def test_infeasible_policy_reports_reject_and_emits_no_composition():
     )
     assert report["decision"] == "no-feasible-policy"
     assert report["selected_policy"] is None
+    assert report["selective_gate_candidate_count"] == 0
     assert "specialist_accuracy_min" in report["best_observed"]["gate_failures"]
     try:
         cascade.compose_system_predictions(policy, report, instances, specialist, fallback, system_entry)
@@ -234,7 +238,10 @@ def test_cli_writes_report_and_predictions_without_models():
         ]
         completed = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
         assert completed.returncode == 0, completed.stderr
-        assert load(report_path)["decision"] == "calibrated"
+        report = load(report_path)
+        assert report["decision"] == "calibrated"
+        assert len(report["prediction_inputs"]) == 2
+        assert all(len(item["sha256"]) == 64 for item in report["prediction_inputs"])
         assert not validate(load(predictions_path)), validate(load(predictions_path))
 
 

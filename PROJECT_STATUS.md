@@ -1,6 +1,6 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-08-07
+Last updated: 2026-08-09
 
 ## Why / What
 
@@ -74,6 +74,7 @@ Important constraints:
 
 | Date / phase | Status |
 |---|---|
+| 2026-08-09 Everyday benchmark + capability graph | Shipped the dependency-free Everyday Specialist Benchmark contract, three frontier-qualified deterministic task rulers, evidence-linked static cohort report, and additive validated specialist capability graph with policy filtering, verified fallback, privacy-safe traces, residency/resource accounting, and system adapters. The first approved measured system calibration is an explicit rejection: Pace v8 scored 60.7%, Apple on-device fallback 85.7%, no threshold passed the frozen selective gates, and even the perfect-router oracle reached only 96.4% versus the 99% final target. No model was trained, downloaded, deployed, or promoted; the negative result prevents strong standalone leaves from hiding a weak routed system. |
 | 2026-08-08 Complete published-model case studies | Reconciled the live PostTrainLLM Hugging Face inventory to six public model repositories and gave every model a first-class evidence page under `/artifacts`: Pace v8's sealed-eval rejection, the routed file-ops win, the ReST breadth recovery, the multibackend negative-transfer failure, the VibeThinker MLX conversion, and the unevaluated agentic distillation. The pages distinguish public weights from ship decisions and explicitly reject Hub request counts as proof of users or successful runs. The production build emits all six as static HTML, Markdown counterparts, sitemap entries, and agent-catalog records. |
 | 2026-08-07 Apple Silicon comparison coverage | Added source-complete PostTrainLLM comparisons for Unsloth and Axolotl through the existing editorial, sitemap, canonical, and agent-readable surfaces. Each page cites current primary documentation, distinguishes Mac-native training from partial or in-progress support, and explicitly avoids unsupported speed, memory, or quality claims. Production remains unchanged pending the normal manual deployment path. |
 | 2026-08-05 Mac-local specialist field guides | Added five public evidence-first guides for Mac fine-tuning, MLX LoRA/QLoRA, local evaluation, trajectory datasets, and routed small-model specialists. They preserve the research-bench visual system, connect home/recipes/artifacts to the factory loop, and enter the generated sitemap, Markdown, and agent catalog from the same public build. The full build now verifies 331 public HTML/Markdown pairs. |
@@ -136,6 +137,11 @@ Important constraints:
 
 Factory primitives:
 
+- Everyday specialist evaluation and routing: a versioned three-task benchmark
+  with generalist/adapted/system tracks, frontier qualification, privacy-safe
+  receipts, deterministic reporting, and a validated development capability
+  graph. The first measured selective cascade is retained as a
+  `no-feasible-policy` result, not promoted as a win.
 - Public specialist education: five canonical guides connect fine-tuning,
   MLX adaptation, evaluation, trajectory data, and routed-specialist decisions
   to the existing factory artifacts; each build emits matching HTML, Markdown,

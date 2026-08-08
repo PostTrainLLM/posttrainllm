@@ -281,7 +281,7 @@ def main() -> int:
         artifact = {
             "artifact_type": "prediction_set",
             "contract_version": "everyday-benchmark/v1",
-            "prediction_set_id": f"{entry['entry_id']}-pace-intent-sealed-v1-predictions",
+            "prediction_set_id": f"{entry['entry_id']}-{instances['instance_set_id']}-predictions",
             "revision": "1",
             "task_ref": instances["task_ref"],
             "entry_ref": {"id": entry["entry_id"], "revision": entry["revision"]},

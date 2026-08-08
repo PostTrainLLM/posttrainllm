@@ -1,0 +1,21 @@
+{
+  "contract_version": "specialist-capability-policy/v1",
+  "policy_id": "local-only-v1",
+  "revision": "1",
+  "quality_floor": 0.8,
+  "resident_quality_tolerance": 0.02,
+  "max_route_ood_score": 0.35,
+  "min_route_confidence": 0.65,
+  "max_hops": 4,
+  "max_total_latency_ms": 300000,
+  "max_resident_bytes": 8589934592,
+  "max_active_parameters": 5000000000,
+  "max_installed_bytes": 12884901888,
+  "max_external_calls": 0,
+  "max_external_cost_usd": 0,
+  "allowed_privacy_classes": ["local-public", "local-private"],
+  "allow_network": false,
+  "allow_external": false,
+  "trace_content": "redacted",
+  "safe_failure": "no-accepted-result"
+}

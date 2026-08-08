@@ -31,5 +31,6 @@
     "components": ["fixture-router@1", "fixture-specialist@1", "fixture-generalist@1", "fixture-verifier@1"],
     "graph_revision": "fixture-capability-graph@1",
     "policy_revision": "fixture-routing-policy@1"
-  }
+  },
+  "evidence": [{"kind": "source", "ref": "tests/test_everyday_benchmark.py"}]
 }

@@ -9,6 +9,16 @@
       "task_id": "pace-intent-routing",
       "revision": "1",
       "path": "configs/everyday-benchmark/tasks/pace-intent-routing-v1.json"
+    },
+    {
+      "task_id": "text-correction-preservation",
+      "revision": "1",
+      "path": "configs/everyday-benchmark/tasks/text-correction-preservation-v1.json"
+    },
+    {
+      "task_id": "local-file-operations",
+      "revision": "1",
+      "path": "configs/everyday-benchmark/tasks/local-file-operations-v1.json"
     }
   ],
   "publication": {

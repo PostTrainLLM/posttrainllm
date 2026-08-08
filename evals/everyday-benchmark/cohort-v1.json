@@ -1,0 +1,498 @@
+{
+  "as_of": "2026-08-09",
+  "filters": {
+    "task_ids": [
+      "local-file-operations",
+      "pace-intent-routing",
+      "text-correction-preservation"
+    ],
+    "tracks": [
+      "adapted",
+      "generalist",
+      "system"
+    ]
+  },
+  "limitations": [
+    "Only Pace intent has a shared sealed cohort; autocorrect and file operations qualify their rulers but are not cross-model headlines.",
+    "Selective-risk metrics remain missing until a graph/system entry has a sealed receipt.",
+    "Missing resource measurements are excluded from Pareto views, never treated as zero.",
+    "decision.json and specialist package decisions remain authoritative outside this benchmark report."
+  ],
+  "pareto_views": [
+    {
+      "direction": "minimize resource, maximize exact accuracy",
+      "excluded": [],
+      "frontier_entry_ids": [
+        "codex-gpt-5.5",
+        "pace-intent-router-v8",
+        "qwen3-4b-instruct-2507-4bit"
+      ],
+      "resource": "latency_warm_end_to_end_ms"
+    },
+    {
+      "direction": "minimize resource, maximize exact accuracy",
+      "excluded": [
+        {
+          "entry_id": "apple-foundation-models",
+          "reason": "active_parameters is missing"
+        },
+        {
+          "entry_id": "codex-gpt-5.5",
+          "reason": "active_parameters is missing"
+        }
+      ],
+      "frontier_entry_ids": [
+        "pace-intent-router-v8",
+        "qwen3-4b-instruct-2507-4bit"
+      ],
+      "resource": "active_parameters"
+    },
+    {
+      "direction": "minimize resource, maximize exact accuracy",
+      "excluded": [
+        {
+          "entry_id": "apple-foundation-models",
+          "reason": "installed_artifact_bytes is not-applicable"
+        },
+        {
+          "entry_id": "codex-gpt-5.5",
+          "reason": "installed_artifact_bytes is not-applicable"
+        }
+      ],
+      "frontier_entry_ids": [
+        "pace-intent-router-v8",
+        "qwen3-4b-instruct-2507-4bit"
+      ],
+      "resource": "installed_artifact_bytes"
+    },
+    {
+      "direction": "minimize resource, maximize exact accuracy",
+      "excluded": [
+        {
+          "entry_id": "apple-foundation-models",
+          "reason": "resident_bytes_peak is missing"
+        },
+        {
+          "entry_id": "codex-gpt-5.5",
+          "reason": "resident_bytes_peak is not-applicable"
+        },
+        {
+          "entry_id": "pace-intent-router-v8",
+          "reason": "resident_bytes_peak is missing"
+        },
+        {
+          "entry_id": "qwen3-4b-instruct-2507-4bit",
+          "reason": "resident_bytes_peak is missing"
+        }
+      ],
+      "frontier_entry_ids": [],
+      "resource": "resident_bytes_peak"
+    },
+    {
+      "direction": "minimize resource, maximize exact accuracy",
+      "excluded": [
+        {
+          "entry_id": "apple-foundation-models",
+          "reason": "energy_joules is missing"
+        },
+        {
+          "entry_id": "codex-gpt-5.5",
+          "reason": "energy_joules is missing"
+        },
+        {
+          "entry_id": "pace-intent-router-v8",
+          "reason": "energy_joules is missing"
+        },
+        {
+          "entry_id": "qwen3-4b-instruct-2507-4bit",
+          "reason": "energy_joules is missing"
+        }
+      ],
+      "frontier_entry_ids": [],
+      "resource": "energy_joules"
+    }
+  ],
+  "qualification": {
+    "minimum_task_families": 3,
+    "qualified_task_families": 3,
+    "tasks": [
+      {
+        "frontier_qualification": {
+          "model": "codex-gpt-5.5",
+          "receipt_ref": "evals/everyday-benchmark/receipts/pace-intent-frontier-v1.json",
+          "score": 1.0,
+          "state": "passed",
+          "threshold": 0.99
+        },
+        "official_ranking_allowed": true,
+        "public_fixture_ref": "evals/everyday-benchmark/fixtures/pace-intent-public-dev-v1.json",
+        "scorer": {
+          "authority": "deterministic-exact-match",
+          "expected_field": "expected_label",
+          "id": "exact-intent-class",
+          "prediction_field": "predicted_label",
+          "primary_metric": "exact_accuracy",
+          "revision": "1",
+          "unknown_label": "unknown"
+        },
+        "status": "qualified",
+        "task_id": "pace-intent-routing",
+        "title": "Pace seven-class intent routing"
+      },
+      {
+        "frontier_qualification": {
+          "model": "codex-cli/gpt-5.6-sol",
+          "receipt_ref": "evals/autocorrect/frontier-calibration-v1.json",
+          "score": 1.0,
+          "state": "passed",
+          "threshold": 0.99
+        },
+        "official_ranking_allowed": false,
+        "public_fixture_ref": "evals/everyday-benchmark/fixtures/autocorrect-public-dev-v1.json",
+        "scorer": {
+          "authority": "scripts/autocorrect_foundation.py evaluate",
+          "expected_field": "expected_text",
+          "id": "autocorrect-preservation",
+          "prediction_field": "predicted_text",
+          "primary_metric": "exact_accuracy",
+          "revision": "1",
+          "unknown_label": null
+        },
+        "status": "qualified",
+        "task_id": "text-correction-preservation",
+        "title": "Text correction with exact preservation"
+      },
+      {
+        "frontier_qualification": {
+          "model": "codex-cli/gpt-5.5",
+          "receipt_ref": "docs/learn/tool-calling-frontier-parity.md#83-domain-saturated-at-4b--a-free-frontier-backend-2026-06-16",
+          "score": 1.0,
+          "state": "passed",
+          "threshold": 0.99
+        },
+        "official_ranking_allowed": false,
+        "public_fixture_ref": "evals/everyday-benchmark/fixtures/file-ops-public-dev-v1.json",
+        "scorer": {
+          "authority": "scripts/bfcl_multiturn_eval.py using BFCL multi_turn_checker",
+          "expected_field": "expected_verdict",
+          "id": "bfcl-multiturn-final-state",
+          "prediction_field": "predicted_verdict",
+          "primary_metric": "exact_accuracy",
+          "revision": "1",
+          "unknown_label": null
+        },
+        "status": "qualified",
+        "task_id": "local-file-operations",
+        "title": "Bounded local file-operation plans"
+      }
+    ]
+  },
+  "report_id": "everyday-specialist-cohort-v1",
+  "results": [
+    {
+      "accuracy": 0.5714285714285714,
+      "entry_id": "pace-intent-router-v8",
+      "evidence": [
+        {
+          "kind": "model-card",
+          "ref": "specialists/pace-intent-router-v8/model_card.md"
+        },
+        {
+          "kind": "receipt",
+          "ref": "evals/everyday-benchmark/receipts/pace-intent-router-v8-sealed-v1.json"
+        }
+      ],
+      "frontier_capability_retained": 0.5714285714285714,
+      "receipt_ref": "evals/everyday-benchmark/receipts/pace-intent-router-v8-sealed-v1.json",
+      "reliability": {
+        "consistency_rate": 1.0,
+        "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md",
+        "state": "historical"
+      },
+      "resources": {
+        "active_parameters": {
+          "name": "active_parameters",
+          "source": "posttrainllm inspect on the pinned checkpoint",
+          "state": "measured",
+          "unit": "parameters",
+          "value": 49486727
+        },
+        "energy_joules": {
+          "name": "energy_joules",
+          "source": null,
+          "state": "missing",
+          "unit": "joules",
+          "value": null
+        },
+        "external_cost_usd": {
+          "name": "external_cost_usd",
+          "source": null,
+          "state": "not-applicable",
+          "unit": "usd",
+          "value": null
+        },
+        "installed_artifact_bytes": {
+          "name": "installed_artifact_bytes",
+          "source": "checkpoint plus label sidecar file sizes",
+          "state": "measured",
+          "unit": "bytes",
+          "value": 593849732
+        },
+        "latency_warm_end_to_end_ms": {
+          "name": "latency_warm_end_to_end_ms",
+          "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md",
+          "state": "measured",
+          "unit": "ms",
+          "value": 3.8
+        },
+        "resident_bytes_peak": {
+          "name": "resident_bytes_peak",
+          "source": null,
+          "state": "missing",
+          "unit": "bytes",
+          "value": null
+        }
+      },
+      "selective_risk": {
+        "reason": "No sealed system-track receipt is committed for this entry.",
+        "state": "missing"
+      },
+      "slices": {
+        "unknown_recall": 0.5555555555555556
+      },
+      "task_id": "pace-intent-routing",
+      "title": "Pace Intent Router v8",
+      "track": "adapted"
+    },
+    {
+      "accuracy": 0.9206349206349206,
+      "entry_id": "apple-foundation-models",
+      "evidence": [
+        {
+          "kind": "receipt",
+          "ref": "evals/everyday-benchmark/receipts/apple-foundation-models-intent-sealed-v1.json"
+        },
+        {
+          "kind": "source",
+          "ref": "docs/learn/apple-on-device-foundation-models.md"
+        }
+      ],
+      "frontier_capability_retained": 0.9206349206349206,
+      "receipt_ref": "evals/everyday-benchmark/receipts/apple-foundation-models-intent-sealed-v1.json",
+      "reliability": {
+        "consistency_rate": 1.0,
+        "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md",
+        "state": "historical"
+      },
+      "resources": {
+        "active_parameters": {
+          "name": "active_parameters",
+          "source": null,
+          "state": "missing",
+          "unit": "parameters",
+          "value": null
+        },
+        "energy_joules": {
+          "name": "energy_joules",
+          "source": null,
+          "state": "missing",
+          "unit": "joules",
+          "value": null
+        },
+        "external_cost_usd": {
+          "name": "external_cost_usd",
+          "source": null,
+          "state": "not-applicable",
+          "unit": "usd",
+          "value": null
+        },
+        "installed_artifact_bytes": {
+          "name": "installed_artifact_bytes",
+          "source": "OS-owned model asset",
+          "state": "not-applicable",
+          "unit": "bytes",
+          "value": null
+        },
+        "latency_warm_end_to_end_ms": {
+          "name": "latency_warm_end_to_end_ms",
+          "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md",
+          "state": "measured",
+          "unit": "ms",
+          "value": 522
+        },
+        "resident_bytes_peak": {
+          "name": "resident_bytes_peak",
+          "source": null,
+          "state": "missing",
+          "unit": "bytes",
+          "value": null
+        }
+      },
+      "selective_risk": {
+        "reason": "No sealed system-track receipt is committed for this entry.",
+        "state": "missing"
+      },
+      "slices": {
+        "unknown_recall": 0.7777777777777778
+      },
+      "task_id": "pace-intent-routing",
+      "title": "Apple on-device FoundationModels",
+      "track": "generalist"
+    },
+    {
+      "accuracy": 1.0,
+      "entry_id": "codex-gpt-5.5",
+      "evidence": [
+        {
+          "kind": "receipt",
+          "ref": "evals/everyday-benchmark/receipts/pace-intent-frontier-v1.json"
+        },
+        {
+          "kind": "source",
+          "ref": "scripts/bfcl_multiturn_codex.py"
+        }
+      ],
+      "frontier_capability_retained": 1.0,
+      "receipt_ref": "evals/everyday-benchmark/receipts/pace-intent-frontier-v1.json",
+      "reliability": {
+        "consistency_rate": 1.0,
+        "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md",
+        "state": "historical"
+      },
+      "resources": {
+        "active_parameters": {
+          "name": "active_parameters",
+          "source": null,
+          "state": "missing",
+          "unit": "parameters",
+          "value": null
+        },
+        "energy_joules": {
+          "name": "energy_joules",
+          "source": null,
+          "state": "missing",
+          "unit": "joules",
+          "value": null
+        },
+        "external_cost_usd": {
+          "name": "external_cost_usd",
+          "source": "owner-preferred free Codex CLI path; no paid API invoked",
+          "state": "not-applicable",
+          "unit": "usd",
+          "value": null
+        },
+        "installed_artifact_bytes": {
+          "name": "installed_artifact_bytes",
+          "source": null,
+          "state": "not-applicable",
+          "unit": "bytes",
+          "value": null
+        },
+        "latency_warm_end_to_end_ms": {
+          "name": "latency_warm_end_to_end_ms",
+          "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md; amortized batch and not directly comparable",
+          "state": "historical",
+          "unit": "ms",
+          "value": 519
+        },
+        "resident_bytes_peak": {
+          "name": "resident_bytes_peak",
+          "source": null,
+          "state": "not-applicable",
+          "unit": "bytes",
+          "value": null
+        }
+      },
+      "selective_risk": {
+        "reason": "No sealed system-track receipt is committed for this entry.",
+        "state": "missing"
+      },
+      "slices": {
+        "unknown_recall": 1.0
+      },
+      "task_id": "pace-intent-routing",
+      "title": "Codex gpt-5.5 frontier anchor",
+      "track": "generalist"
+    },
+    {
+      "accuracy": 0.9365079365079365,
+      "entry_id": "qwen3-4b-instruct-2507-4bit",
+      "evidence": [
+        {
+          "kind": "receipt",
+          "ref": "evals/everyday-benchmark/receipts/qwen3-4b-intent-sealed-v1.json"
+        },
+        {
+          "kind": "source",
+          "ref": "docs/planner-lock-2026-06-19.md"
+        }
+      ],
+      "frontier_capability_retained": 0.9365079365079365,
+      "receipt_ref": "evals/everyday-benchmark/receipts/qwen3-4b-intent-sealed-v1.json",
+      "reliability": {
+        "consistency_rate": 1.0,
+        "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md",
+        "state": "historical"
+      },
+      "resources": {
+        "active_parameters": {
+          "name": "active_parameters",
+          "source": "Qwen3-4B model family designation",
+          "state": "historical",
+          "unit": "parameters",
+          "value": 4000000000
+        },
+        "energy_joules": {
+          "name": "energy_joules",
+          "source": null,
+          "state": "missing",
+          "unit": "joules",
+          "value": null
+        },
+        "external_cost_usd": {
+          "name": "external_cost_usd",
+          "source": null,
+          "state": "not-applicable",
+          "unit": "usd",
+          "value": null
+        },
+        "installed_artifact_bytes": {
+          "name": "installed_artifact_bytes",
+          "source": "dereferenced pinned Hugging Face snapshot disk usage",
+          "state": "measured",
+          "unit": "bytes",
+          "value": 2279002112
+        },
+        "latency_warm_end_to_end_ms": {
+          "name": "latency_warm_end_to_end_ms",
+          "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md",
+          "state": "measured",
+          "unit": "ms",
+          "value": 211
+        },
+        "resident_bytes_peak": {
+          "name": "resident_bytes_peak",
+          "source": null,
+          "state": "missing",
+          "unit": "bytes",
+          "value": null
+        }
+      },
+      "selective_risk": {
+        "reason": "No sealed system-track receipt is committed for this entry.",
+        "state": "missing"
+      },
+      "slices": {
+        "unknown_recall": 0.7777777777777778
+      },
+      "task_id": "pace-intent-routing",
+      "title": "Qwen3 4B Instruct 2507 4-bit",
+      "track": "generalist"
+    }
+  ],
+  "schema_version": 1,
+  "suite_ref": {
+    "id": "everyday-specialist-v1",
+    "revision": "1"
+  }
+}
