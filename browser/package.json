@@ -22,26 +22,26 @@
     "size:check": "size-limit --json"
   },
   "devDependencies": {
-    "@astrojs/mdx": "^4.0.0",
-    "@fontsource-variable/geist": "^5.2.9",
-    "@fontsource-variable/geist-mono": "^5.2.8",
+    "@astrojs/mdx": "^4.3.14",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
     "@size-limit/file": "^11.2.0",
-    "@types/node": "^25.9.1",
-    "@vitest/coverage-v8": "^4.1.9",
-    "@webgpu/types": "^0.1.70",
-    "astro": "^5.0.0",
-    "lightningcss": "^1.32.0",
-    "playwright": "^1.60.0",
+    "@types/node": "^25.9.5",
+    "@vitest/coverage-v8": "^4.1.10",
+    "@webgpu/types": "^0.1.71",
+    "astro": "^5.18.2",
+    "lightningcss": "^1.33.0",
+    "playwright": "^1.62.1",
     "sharp": "^0.34.5",
     "size-limit": "^11.2.0",
-    "typescript": "^5.6.3",
-    "vitest": "^4.1.9"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
-    "@floating-ui/dom": "^1.7.6",
-    "@fontsource-variable/bricolage-grotesque": "^5.2.10",
-    "posthog-js": "^1.376.2",
+    "@floating-ui/dom": "^1.8.0",
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "posthog-js": "^1.415.5",
     "web-vitals": "^4.2.4"
   }
 }

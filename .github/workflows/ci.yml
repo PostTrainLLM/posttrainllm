@@ -58,9 +58,9 @@ jobs:
         working-directory: browser
         run: pnpm run typecheck
 
-      - name: Unit tests (vitest)
+      - name: Unit tests with coverage ratchet (vitest)
         working-directory: browser
-        run: pnpm test
+        run: pnpm run test:coverage
 
       - name: Production build (copy_docs + tsc + astro build)
         working-directory: browser
@@ -111,31 +111,24 @@ jobs:
             -scheme posttrainllm-Package \
             -destination 'platform=macOS' \
             -resultBundlePath /tmp/test-result.xcresult \
+            -enableCodeCoverage YES \
             CLANG_ENABLE_CODE_COVERAGE=YES \
           | xcbeautify --renderer github-actions || \
           xcodebuild test \
             -scheme posttrainllm-Package \
             -destination 'platform=macOS' \
             -resultBundlePath /tmp/test-result.xcresult \
+            -enableCodeCoverage YES \
             CLANG_ENABLE_CODE_COVERAGE=YES
 
       - name: Extract coverage report
         working-directory: native-mac
-        # Extract per-target line coverage from the xcresult bundle.
-        # Wrapped in `|| true` so xccov issues never fail the build.
+        # Extract per-target line coverage and fail closed when Xcode does not
+        # emit readable evidence. The production aggregate is ratcheted from
+        # the measured 2026-08-12 baseline.
         run: |
-          xcrun xccov view --report --json /tmp/test-result.xcresult > /tmp/coverage.json 2>/dev/null || true
-          if [ -f /tmp/coverage.json ]; then
-            python3 -c "
-          import json
-          with open('/tmp/coverage.json') as f:
-              data = json.load(f)
-              for target in data.get('targets', []):
-                  name = target.get('name', 'unknown')
-                  line_cov = target.get('lineCoverage', 0) * 100
-                  print(f'{name}: {line_cov:.1f}% line coverage')
-            " || true
-          fi
+          xcrun xccov view --report --json /tmp/test-result.xcresult > /tmp/coverage.json
+          python3 scripts/check-swift-coverage.py /tmp/coverage.json
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v7.0.1
@@ -308,7 +301,7 @@ jobs:
           coverage run --source=python_ref -m pytest tests/ -v || \
           (coverage run --source=python_ref tests/test_phase1.py && \
            coverage run --source=python_ref --append tests/test_lora.py)
-          coverage report -m
+          coverage report -m --fail-under=29
           coverage xml -o /tmp/python-coverage.xml
 
       - name: Upload coverage
@@ -318,6 +311,68 @@ jobs:
           name: python-coverage-report
           path: /tmp/python-coverage.xml
           if-no-files-found: ignore
+
+  code-health:
+    name: code-health (static ratchets)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: "22"
+          cache: "pnpm"
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            browser/pnpm-lock.yaml
+
+      - name: Setup Python
+        uses: actions/setup-python@v6.3.0
+        with:
+          python-version: "3.11"
+
+      - name: Install static-analysis tooling
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --dir browser install --frozen-lockfile
+          pip install lizard==1.23.0 pycycle==0.0.8 ruff==0.16.2 vulture==2.16
+
+      - name: Check changed formatting
+        env:
+          CODE_HEALTH_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          CODE_HEALTH_SKIP_SWIFT: "1"
+        run: pnpm run format:check
+
+      - name: Lint and type-check
+        env:
+          CODE_HEALTH_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: pnpm run lint
+
+      - name: Check unused code
+        run: pnpm run quality:unused
+
+      - name: Check complexity
+        run: pnpm run quality:complexity
+
+      - name: Check duplication
+        run: pnpm run quality:duplication
+
+      - name: Check dependency cycles
+        env:
+          CODE_HEALTH_SKIP_SWIFT: "1"
+        run: pnpm run quality:cycles
+
+      - name: Audit JavaScript dependencies
+        run: pnpm run quality:dependencies
 
   evals:
     name: evals (smoke tests)
