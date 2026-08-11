@@ -18,9 +18,9 @@
 #   open ./build/posttrainllm.app                        # standard Mac launch
 #   cp -r ./build/posttrainllm.app /Applications/        # install
 #
-# Not codesigned / notarized — Gatekeeper will warn on first launch.
-# That's a separate, account-required step; for solo dev use, right-
-# click → Open dismisses the warning permanently for this build.
+# The default bundle is ad-hoc signed for local use. Set
+# POSTTRAINLLM_SIGNING_IDENTITY to a complete Developer ID Application
+# identity to produce a hardened, timestamped direct-distribution candidate.
 
 set -euo pipefail
 
@@ -41,19 +41,24 @@ done
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PKG="$REPO_ROOT/native-mac"
-BUILD_DIR="$PKG/.build/arm64-apple-macosx/$CONFIG"
-APP="$OUT_DIR/posttrainllm.app"
+FINAL_APP="$OUT_DIR/posttrainllm.app"
+BUNDLE_ID="${POSTTRAINLLM_BUNDLE_ID:-com.sassmaker.posttrainllm}"
+SHORT_VERSION="${POSTTRAINLLM_VERSION:-0.1.0}"
+BUILD_VERSION="${POSTTRAINLLM_BUILD_NUMBER:-1}"
+SIGNING_IDENTITY="${POSTTRAINLLM_SIGNING_IDENTITY:--}"
 
 echo "== build (swift build -c $CONFIG --product TinyGPTApp)"
 ( cd "$PKG" && swift build -c "$CONFIG" --product TinyGPTApp )
+BUILD_DIR="$(cd "$PKG" && swift build -c "$CONFIG" --show-bin-path)"
 
 if [[ ! -x "$BUILD_DIR/TinyGPTApp" ]]; then
     echo "build did not produce $BUILD_DIR/TinyGPTApp" >&2
     exit 1
 fi
 
-echo "== assemble bundle → $APP"
-rm -rf "$APP"
+STAGE_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/posttrainllm-package.XXXXXX")"
+APP="$STAGE_ROOT/posttrainllm.app"
+echo "== assemble bundle → $FINAL_APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
 cp "$BUILD_DIR/TinyGPTApp" "$APP/Contents/MacOS/posttrainllm"
@@ -135,15 +140,14 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 </dict>
 </plist>
 PLIST
+plutil -replace CFBundleIdentifier -string "$BUNDLE_ID" "$APP/Contents/Info.plist"
+plutil -replace CFBundleVersion -string "$BUILD_VERSION" "$APP/Contents/Info.plist"
+plutil -replace CFBundleShortVersionString -string "$SHORT_VERSION" "$APP/Contents/Info.plist"
 
 # PkgInfo — legacy but some macOS code paths still check for it.
 echo -n "APPL????" > "$APP/Contents/PkgInfo"
 
-# Ad-hoc sign so the binary at least has a valid signature for Gatekeeper
-# to evaluate. This is NOT a Developer ID signature; first launch still
-# prompts the user to confirm. A real distribution build would replace
-# this with `codesign --options runtime --sign "Developer ID Application: …"`.
-echo "== ad-hoc codesign"
+echo "== codesign"
 # Make every file in the bundle writable so codesign can write its
 # extended-attribute signatures. SwiftPM hands the metallib over as
 # read-only which trips codesign --force.
@@ -151,8 +155,26 @@ chmod -R u+w "$APP"
 # Strip any inherited signatures on payload binaries before re-signing
 # the whole bundle. Cleanest path.
 codesign --remove-signature "$APP/Contents/MacOS/posttrainllm" 2>/dev/null || true
-codesign --force --deep --sign - "$APP" 2>&1 | sed 's/^/  /' || \
-    echo "  (codesign failed — app should still launch via right-click → Open)"
+if [[ -x "$APP/Contents/MacOS/posttrainllm-cli" ]]; then
+    codesign --remove-signature "$APP/Contents/MacOS/posttrainllm-cli" 2>/dev/null || true
+fi
+if [[ "$SIGNING_IDENTITY" == "-" ]]; then
+    codesign --force --deep --options runtime --sign - "$APP" 2>&1 | sed 's/^/  /'
+else
+    codesign --force --deep --options runtime --timestamp --sign "$SIGNING_IDENTITY" "$APP" 2>&1 | sed 's/^/  /'
+fi
+codesign --verify --deep --strict --verbose=2 "$APP"
+
+mkdir -p "$OUT_DIR"
+if [[ -e "$FINAL_APP" ]]; then
+    PREVIOUS_DIR="$OUT_DIR/previous-builds"
+    PREVIOUS_NAME="posttrainllm-$(date +%Y%m%d-%H%M%S)-$$.app"
+    mkdir -p "$PREVIOUS_DIR"
+    mv "$FINAL_APP" "$PREVIOUS_DIR/$PREVIOUS_NAME"
+fi
+mv "$APP" "$FINAL_APP"
+rmdir "$STAGE_ROOT"
+APP="$FINAL_APP"
 
 echo ""
 echo "✓ wrote $APP"
