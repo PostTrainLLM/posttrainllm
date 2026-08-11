@@ -14,7 +14,7 @@ Same architecture, same `.tinygpt` file format, runs on Metal via MLX-Swift.
 | Benchmark CLI | ✅ ships | `posttrainllm bench` — measures real GPU throughput vs WebGPU baseline |
 | Sample CLI | ✅ ships | `posttrainllm sample` — load checkpoint + generate Shakespeare-quality text at ~130 tok/s |
 | SwiftUI app | ✅ ships | `TinyGPTApp` — single window, Sample + Train tabs, gallery sidebar, live loss chart |
-| Notarized DMG | ⏳ blocked | needs Apple Developer account |
+| Notarized direct build | ⏳ blocked | needs an installed Developer ID Application identity |
 
 ## Build
 
@@ -42,6 +42,15 @@ xcodebuild -scheme TinyGPTApp -destination 'platform=macOS,arch=arm64' \
   -derivedDataPath .xcode-build build
 .xcode-build/Build/Products/Debug/TinyGPTApp
 ```
+
+For a Finder-launchable Release bundle, run `./scripts/build_macapp.sh` from
+the repository root. It embeds SwiftPM resources and the MLX Metal library,
+then verifies an ad-hoc signature by default. Supplying the complete personal
+certificate name through `POSTTRAINLLM_SIGNING_IDENTITY` enables hardened
+runtime and trusted timestamp signing. `scripts/notarize-macapp.sh` fails
+closed unless that Developer ID signature is present and
+`POSTTRAINLLM_NOTARY_PROFILE` names an existing `notarytool` Keychain profile.
+Neither helper publishes a release.
 
 ## CLI
 
