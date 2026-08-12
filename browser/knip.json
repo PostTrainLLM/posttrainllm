@@ -1,0 +1,22 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "functions/**/*.ts",
+    "*.{ts,mjs}",
+    "scripts/*.mjs",
+    "src/main.ts",
+    "src/webgpu-test.ts",
+    "src/worker.ts",
+    "src/benchmarks/types.ts",
+    "src/lib/api-timing.ts",
+    "src/lib/vitals.ts"
+  ],
+  "project": [
+    "src/**/*.{astro,ts}",
+    "functions/**/*.ts",
+    "*.{ts,mjs}",
+    "scripts/*.mjs"
+  ],
+  "ignoreDependencies": ["lightningcss"],
+  "ignoreUnresolved": ["/src/main.ts", "/src/webgpu-test.ts"]
+}

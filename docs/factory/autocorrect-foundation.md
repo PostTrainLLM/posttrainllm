@@ -16,7 +16,7 @@ of a model run. The boundary is deliberate:
 - do not claim that the 18-row smoke fixture is a production benchmark.
 
 The machine-readable source of truth is
-[`evals/autocorrect/`](../../evals/autocorrect/). The protocol accepts one
+`evals/autocorrect/`. The protocol accepts one
 English UTF-8 prose span of at most 512 bytes and returns only the minimally
 corrected span. URLs, numbers, backtick code, and fixture-declared names or rare
 words are protected. Grammar rewriting, style changes, translation, next-word

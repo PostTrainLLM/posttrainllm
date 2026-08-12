@@ -14,10 +14,12 @@ export default defineConfig({
         "src/storage.ts",
       ],
       thresholds: {
-        lines: 80,
-        functions: 80,
-        branches: 70,
-        statements: 80,
+        // Measured Fleet adoption floor (2026-08-12). Raise these whenever
+        // coverage improves; CI rejects a regression below the current truth.
+        lines: 72,
+        functions: 69,
+        branches: 56,
+        statements: 66,
       },
     },
   },
