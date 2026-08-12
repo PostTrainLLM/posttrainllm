@@ -1,9 +1,13 @@
 ---
 import Default from "../layouts/Default.astro";
 import Logo from "../components/Logo.astro";
+import { macReleaseRecord } from "../data/mac-release";
+import { evaluateMacRelease, macReleaseStatusLabel } from "../lib/mac-release";
 import "../styles/system.css";
 
 const REPO = "https://github.com/PostTrainLLM/posttrainllm";
+const macRelease = evaluateMacRelease(macReleaseRecord);
+const macReleaseLabel = macReleaseStatusLabel(macRelease);
 ---
 
 <Default
@@ -60,6 +64,12 @@ const REPO = "https://github.com/PostTrainLLM/posttrainllm";
           <a class="btn btn-primary" href="/artifacts">See the specialists</a>
           <a class="btn btn-ghost" href="/playground">Train one in your browser →</a>
         </div>
+        <a class="mac-release-entry reveal" href="/download">
+          <span>Native Mac app</span>
+          <span class:list={["mac-release-dot", { ready: macRelease.downloadable }]} aria-hidden="true"></span>
+          <strong>{macReleaseLabel}</strong>
+          <span aria-hidden="true">→</span>
+        </a>
         <p class="hero-curve-cap mono-label" aria-hidden="true">loss · huge-base-v1 · 200k steps · 0 spikes · 4.16</p>
       </div>
 
@@ -329,6 +339,21 @@ posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code
   .hero-lede { max-width: 56ch; margin-top: var(--s-5); font-size: var(--step-1); line-height: 1.55; color: var(--fg-soft); }
   .hero-lede em { color: var(--fg); font-style: normal; font-weight: 560; }
   .hero-cta { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-6); }
+  .mac-release-entry {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: var(--s-5);
+    color: var(--fg-quiet);
+    font: 540 var(--step--1)/1.4 var(--font-mono);
+  }
+  .mac-release-entry > span:first-child { color: var(--fg-soft); }
+  .mac-release-entry strong { color: var(--brand-bright); font-weight: 560; }
+  .mac-release-entry:hover, .mac-release-entry:hover > span:first-child { color: var(--fg); }
+  .mac-release-entry:hover strong { color: var(--brand-bright); }
+  .mac-release-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); }
+  .mac-release-dot.ready { background: var(--live); }
+  .mac-release-dot.ready + strong { color: var(--live); }
   .hero-curve-cap { position: absolute; right: 0; bottom: var(--s-5); color: var(--live); opacity: 0.85; }
 
   .hero-stats { list-style: none; padding: var(--s-6) 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-5); border-top: 1px solid var(--line); position: relative; background: color-mix(in oklab, var(--paper) 55%, transparent); backdrop-filter: blur(4px); }
@@ -432,9 +457,10 @@ posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code
 
   /* ---------- honest + run ---------- */
   .honest-wrap { display: grid; grid-template-columns: 1fr 0.95fr; gap: var(--s-8); align-items: start; }
+  .honest-wrap > * { min-width: 0; }
   @media (max-width: 860px) { .honest-wrap { grid-template-columns: 1fr; } }
   .honest-list { list-style: none; padding: 0; margin: var(--s-6) 0 0; display: grid; gap: var(--s-3); }
-  .honest-list li { padding-left: var(--s-5); position: relative; color: var(--fg-soft); }
+  .honest-list li { min-width: 0; padding-left: var(--s-5); position: relative; color: var(--fg-soft); overflow-wrap: anywhere; }
   .honest-list.is li::before { content: "→"; position: absolute; left: 0; color: var(--live); }
   .honest-list.isnt li::before { content: "×"; position: absolute; left: 0; color: var(--brand); }
   .honest-list em { font-style: normal; color: var(--fg); font-weight: 560; } .honest-list strong { color: var(--live); }

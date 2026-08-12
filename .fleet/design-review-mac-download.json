@@ -1,0 +1,66 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "PostTrainLLM Mac download readiness",
+  "mode": "preserve",
+  "register": "product",
+  "context": {
+    "product": "PRODUCT.md",
+    "design": "DESIGN.md"
+  },
+  "direction": {
+    "references": [],
+    "probes": [],
+    "selected": "existing-design",
+    "approval": "not-required",
+    "before": ".fleet/evidence/mac-download-readiness/before/home-1440.png"
+  },
+  "evidence": {
+    "screenshots": [
+      {
+        "width": 390,
+        "path": ".fleet/evidence/mac-download-readiness/after/download-390.png"
+      },
+      {
+        "width": 768,
+        "path": ".fleet/evidence/mac-download-readiness/after/download-768.png"
+      },
+      {
+        "width": 1440,
+        "path": ".fleet/evidence/mac-download-readiness/after/download-1440.png"
+      }
+    ],
+    "projectCheck": {
+      "command": "pnpm --dir browser test && pnpm --dir browser typecheck && pnpm --dir browser build && pnpm --dir browser agent:check",
+      "status": "pass"
+    },
+    "critique": {
+      "score": 34,
+      "maximum": 40
+    },
+    "audit": {
+      "score": 18,
+      "maximum": 20
+    },
+    "unresolved": {
+      "p0": 0,
+      "p1": 0
+    },
+    "detector": {
+      "posture": "advisory",
+      "findings": []
+    },
+    "browserReview": {
+      "tool": "Headless Chromium and Playwright",
+      "viewports": [390, 768, 1440],
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "note": "The pending release renders with no active DMG link at all required widths. The metadata endpoint returns downloadable=false with null artifactURL and sha256. The independent review's mobile evidence, dead-end, contrast, and homepage overflow findings were corrected; final headless checks report zero horizontal overflow and zero console errors at 390, 768, and 1440 pixels."
+    }
+  },
+  "ownerFeedback": {
+    "decision": "pending",
+    "note": "Awaiting owner keep/close/wrong-lane feedback after implementation review."
+  }
+}

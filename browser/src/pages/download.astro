@@ -1,0 +1,368 @@
+---
+import Default from "../layouts/Default.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import { macReleaseRecord } from "../data/mac-release";
+import { evaluateMacRelease, macReleaseStatusLabel } from "../lib/mac-release";
+import "../styles/system.css";
+
+const release = evaluateMacRelease(macReleaseRecord);
+const statusLabel = macReleaseStatusLabel(release);
+const completedChecks = Object.values(release.verification).filter(Boolean).length;
+const recordUpdated = release.recordUpdated === "unknown"
+  ? "Unknown"
+  : new Intl.DateTimeFormat("en", { dateStyle: "medium", timeZone: "UTC" }).format(
+      new Date(`${release.recordUpdated}T00:00:00Z`),
+    );
+const checks = [
+  { label: "Developer ID signature", detail: "Personal distribution identity", complete: release.verification.developerIdSigned },
+  { label: "Apple notarization", detail: "Apple trust service", complete: release.verification.notarized },
+  { label: "Stapled ticket", detail: "Offline trust receipt", complete: release.verification.stapled },
+  { label: "Gatekeeper assessment", detail: "Clean-machine launch policy", complete: release.verification.gatekeeperAccepted },
+  { label: "Artifact checksum", detail: "Published DMG integrity", complete: release.verification.checksumVerified },
+] as const;
+---
+
+<Default
+  title="PostTrainLLM for Mac — release status"
+  description="Verified release status for the native PostTrainLLM app on Apple Silicon. Downloads remain closed until every macOS trust check passes."
+  ogTitle="PostTrainLLM for Mac"
+  ogDescription="The signed native Mac app is being prepared for trusted direct distribution."
+  themeColor="#0a0c0f"
+>
+  <a class="skip-link" href="#release">Skip to release status</a>
+  <SiteHeader mode="instrument" />
+
+  <!--
+    THESIS: Release truth is the interface; no promotional download hero outranks verification.
+    OWN-WORLD: Deep ink bench, teal pass signal, coral pending signal, compact evidence rails.
+    STORY: See the candidate, inspect every trust gate, download only after all five pass.
+    FIRST VIEWPORT: State and platform lead left; the verification ledger anchors right.
+    FORM: Existing research instrument extended as a two-column release gate, preserve mode.
+  -->
+  <main class="release-shell" id="release">
+    <section class="release-lead" aria-labelledby="release-title">
+      <div class="release-copy">
+        <p class:list={["release-state", { ready: release.downloadable }]}>
+          <span aria-hidden="true"></span>{statusLabel}
+        </p>
+        <p class="release-progress">
+          <strong>{completedChecks} of 5 checks passed</strong>
+          <span>Next: {release.downloadable ? "publish verified release" : "Apple notarization"}</span>
+          <time datetime={release.recordUpdated}>Record updated {recordUpdated}</time>
+        </p>
+        <h1 id="release-title">
+          Signed for Mac.<br />
+          <span>Awaiting Apple notarization.</span>
+        </h1>
+        <p class="release-summary">
+          PostTrainLLM packages the local specialist factory into a native Apple
+          Silicon app. The current candidate is not downloadable yet: the site
+          stays closed until notarization, stapling, Gatekeeper, and checksum
+          verification all agree on the exact DMG.
+        </p>
+
+        <dl class="release-facts" aria-label="Release details">
+          <div><dt>Version</dt><dd>{release.version} <small>({release.build})</small></dd></div>
+          <div><dt>System</dt><dd>macOS {release.minimumMacOS}+</dd></div>
+          <div><dt>Architecture</dt><dd>{release.architecture}</dd></div>
+        </dl>
+
+        <div class="release-action">
+          {release.downloadable && release.artifactURL ? (
+            <a class="download-button" href={release.artifactURL}>Download verified DMG <span>↓</span></a>
+          ) : (
+            <button class="download-button is-disabled" type="button" disabled>
+              Download after verification <span aria-hidden="true">⌁</span>
+            </button>
+          )}
+          <p>
+            {release.downloadable
+              ? "Verified for direct distribution. Compare the SHA-256 below after download."
+              : "No hidden or provisional artifact URL is present on this page."}
+          </p>
+          {!release.downloadable && (
+            <a class="follow-release" href="https://github.com/PostTrainLLM/posttrainllm/releases">
+              Follow GitHub Releases ↗
+            </a>
+          )}
+        </div>
+      </div>
+
+      <aside class="verification-bench" aria-labelledby="verification-title">
+        <header>
+          <div>
+            <p>Distribution gate</p>
+            <h2 id="verification-title">Trust ledger</h2>
+          </div>
+          <span class:list={["ledger-state", { ready: release.downloadable }]}>
+            {release.downloadable ? "5 / 5" : `${completedChecks} / 5`}
+          </span>
+        </header>
+
+        <ol class="verification-list">
+          {checks.map((check) => (
+            <li class:list={[{ complete: check.complete }]}>
+              <span class="check-mark" aria-hidden="true">{check.complete ? "✓" : "·"}</span>
+              <div><strong>{check.label}</strong><small>{check.detail}</small></div>
+              <span class="check-state">{check.complete ? "verified" : "pending"}</span>
+            </li>
+          ))}
+        </ol>
+
+        <footer>
+          <span>Release record</span>
+          <a href="/releases/mac.json">JSON ↗</a>
+        </footer>
+      </aside>
+    </section>
+
+    <section class="release-method" aria-labelledby="method-title">
+      <p class="method-label">Why the gate stays closed</p>
+      <div>
+        <h2 id="method-title">One build. Five independent checks.</h2>
+        <p>
+          A Developer ID signature identifies the publisher. Apple notarization
+          scans the submitted build. Stapling binds that result to the DMG for
+          offline verification. Gatekeeper checks the installed experience, and
+          the published SHA-256 proves the hosted bytes did not change.
+        </p>
+      </div>
+      <nav aria-label="Release resources">
+        <a href="https://github.com/PostTrainLLM/posttrainllm">Inspect the source ↗</a>
+        <a href="/docs/factory/packaging">Read the packaging contract →</a>
+      </nav>
+    </section>
+
+    {release.downloadable && release.sha256 && (
+      <section class="checksum" aria-labelledby="checksum-title">
+        <p id="checksum-title">SHA-256</p>
+        <code>{release.sha256}</code>
+      </section>
+    )}
+  </main>
+
+  <style>
+    .release-shell {
+      width: min(100% - 40px, 1180px);
+      margin: 0 auto;
+      padding: clamp(52px, 8vw, 108px) 0 88px;
+    }
+    .release-lead {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.72fr);
+      gap: clamp(48px, 7vw, 104px);
+      align-items: start;
+    }
+    .release-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 24px;
+      color: var(--brand-bright);
+      font: 600 var(--step--1)/1.4 var(--font-mono);
+      letter-spacing: 0.03em;
+    }
+    .release-state span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 0 5px var(--brand-wash);
+    }
+    .release-state.ready { color: var(--live); }
+    .release-state.ready span { box-shadow: 0 0 0 5px var(--live-wash); }
+    .release-progress {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 15px;
+      max-width: 66ch;
+      margin: -8px 0 24px;
+      color: var(--ink-70);
+      font: 540 0.74rem/1.5 var(--font-mono);
+    }
+    .release-progress strong { color: var(--ink); font-weight: 620; }
+    .release-progress time { color: var(--ink-70); }
+    h1 {
+      max-width: 13ch;
+      margin: 0;
+      font-size: clamp(3rem, 6.2vw, 5.75rem);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+    }
+    h1 span { color: var(--ink-70); }
+    .release-summary {
+      max-width: 66ch;
+      margin: 30px 0 0;
+      color: var(--ink-70);
+      font-size: var(--step-1);
+      line-height: 1.65;
+    }
+    .release-facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin: 42px 0 0;
+      border-block: 1px solid var(--rule-2);
+    }
+    .release-facts div { padding: 18px 20px 18px 0; }
+    .release-facts div + div { padding-left: 20px; border-left: 1px solid var(--rule); }
+    .release-facts dt,
+    .method-label,
+    .checksum p {
+      color: var(--ink-70);
+      font: 550 0.7rem/1.3 var(--font-mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .release-facts dd {
+      margin: 7px 0 0;
+      color: var(--ink);
+      font: 580 var(--step-0)/1.3 var(--font-mono);
+    }
+    .release-facts small { color: var(--ink-55); font-size: 0.76em; }
+    .release-action { display: flex; align-items: center; flex-wrap: wrap; gap: 14px 18px; margin-top: 28px; }
+    .download-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-width: 260px;
+      padding: 14px 16px;
+      border-radius: var(--r-2);
+      background: var(--live);
+      color: #06110e;
+      font-weight: 650;
+      font-family: inherit;
+      font-size: inherit;
+      text-align: left;
+      box-shadow: var(--shadow-1);
+      transition: background var(--dur-1) var(--ease-out), transform var(--dur-1) var(--ease-out);
+    }
+    a.download-button:hover { background: var(--live-bright); transform: translateY(-1px); }
+    .download-button.is-disabled {
+      border: 1px solid var(--rule-2);
+      background: var(--paper-raised);
+      color: var(--ink-55);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .release-action p {
+      max-width: 31ch;
+      color: var(--ink-55);
+      font-size: var(--step--1);
+      line-height: 1.5;
+    }
+    .follow-release {
+      color: var(--ink-70);
+      font: 560 var(--step--1)/1.4 var(--font-mono);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+    .follow-release:hover { color: var(--live); }
+    .verification-bench {
+      overflow: hidden;
+      margin-top: 14px;
+      border: 1px solid var(--rule-2);
+      border-radius: var(--r-3);
+      background: var(--paper-raised);
+      box-shadow: var(--shadow-2);
+    }
+    .verification-bench > header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 24px;
+      border-bottom: 1px solid var(--rule-2);
+    }
+    .verification-bench header p {
+      margin: 0 0 5px;
+      color: var(--ink-70);
+      font: 550 0.7rem/1.3 var(--font-mono);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .verification-bench h2 { margin: 0; font-size: var(--step-2); }
+    .ledger-state {
+      padding: 6px 9px;
+      border: 1px solid color-mix(in oklab, var(--brand) 42%, var(--rule-2));
+      border-radius: var(--r-1);
+      color: var(--brand-bright);
+      background: var(--brand-wash);
+      font: 600 0.72rem/1 var(--font-mono);
+    }
+    .ledger-state.ready { border-color: var(--live-dim); color: var(--live); background: var(--live-wash); }
+    .verification-list { margin: 0; padding: 0; list-style: none; }
+    .verification-list li {
+      display: grid;
+      grid-template-columns: 24px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .check-mark {
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      border: 1px solid var(--rule-2);
+      border-radius: 50%;
+      color: var(--ink-55);
+      font: 600 0.76rem/1 var(--font-mono);
+    }
+    .complete .check-mark { border-color: var(--live-dim); background: var(--live-wash); color: var(--live); }
+    .verification-list strong { display: block; font-size: var(--step--1); font-weight: 600; }
+    .verification-list small { display: block; margin-top: 2px; color: var(--ink-70); font-size: 0.76rem; }
+    .check-state { color: var(--brand-bright); font: 550 0.68rem/1 var(--font-mono); }
+    .complete .check-state { color: var(--live); }
+    .verification-bench footer {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px 24px;
+      color: var(--ink-55);
+      font: 550 0.7rem/1.3 var(--font-mono);
+    }
+    .verification-bench footer a { color: var(--ink-70); text-decoration: underline; text-underline-offset: 4px; }
+    .verification-bench footer a:hover { color: var(--live); }
+    .release-method {
+      display: grid;
+      grid-template-columns: 0.55fr 1.2fr 0.7fr;
+      gap: clamp(28px, 5vw, 72px);
+      margin-top: clamp(72px, 10vw, 132px);
+      padding-top: 32px;
+      border-top: 1px solid var(--rule-2);
+    }
+    .release-method h2 { margin: 0; font-size: clamp(1.8rem, 3vw, 2.5rem); }
+    .release-method div p { max-width: 61ch; margin: 18px 0 0; color: var(--ink-70); line-height: 1.7; }
+    .release-method nav { display: flex; flex-direction: column; align-items: flex-start; gap: 15px; }
+    .release-method nav a { color: var(--ink-70); font-weight: 560; text-decoration: underline; text-underline-offset: 5px; }
+    .release-method nav a:hover { color: var(--live); }
+    .checksum { margin-top: 48px; padding: 22px 0; border-block: 1px solid var(--rule-2); }
+    .checksum code { display: block; overflow-wrap: anywhere; margin-top: 10px; color: var(--live); }
+    @media (max-width: 900px) {
+      .release-lead { grid-template-columns: 1fr; }
+      .verification-bench { margin-top: 0; }
+      .release-method { grid-template-columns: 1fr 1.6fr; }
+      .release-method nav { grid-column: 2; }
+    }
+    @media (max-width: 620px) {
+      .release-shell { width: min(100% - 32px, 1180px); padding-top: 42px; }
+      h1 { font-size: clamp(2.65rem, 14vw, 4rem); }
+      .release-progress { margin-bottom: 20px; }
+      .release-summary { margin-top: 20px; font-size: var(--step-0); line-height: 1.6; }
+      .release-facts { grid-template-columns: 1fr; }
+      .release-facts div { padding: 15px 0; }
+      .release-facts div + div { padding-left: 0; border-top: 1px solid var(--rule); border-left: 0; }
+      .release-action { align-items: stretch; flex-direction: column; }
+      .download-button { min-width: 0; width: 100%; }
+      .release-action p { max-width: none; }
+      .follow-release { display: inline-flex; align-items: center; min-height: 44px; }
+      .verification-bench > header, .verification-list li { padding-inline: 18px; }
+      .verification-list li { grid-template-columns: 24px minmax(0, 1fr); }
+      .check-state { grid-column: 2; }
+      .verification-bench footer { padding-inline: 18px; }
+      .release-method { grid-template-columns: 1fr; gap: 20px; }
+      .release-method nav { grid-column: 1; margin-top: 10px; }
+    }
+  </style>
+</Default>
