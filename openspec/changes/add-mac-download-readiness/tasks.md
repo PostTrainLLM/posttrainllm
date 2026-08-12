@@ -21,4 +21,4 @@
 - [x] 4.1 Run the focused release tests, browser typecheck, site build, agent-surface check, and the smallest existing relevant project checks.
 - [x] 4.2 Review the built page at 390, 768, and 1440 pixels, complete critique and audit passes, and resolve every P0/P1 issue.
 - [x] 4.3 Update durable shipped-product documentation only after the checks pass, validate the OpenSpec change strictly, and prepare the reviewed branch for merge.
-- [ ] 4.4 Obtain owner `keep` or delegated design feedback before declaring the visual work complete; keep production deployment and binary promotion as explicit follow-up actions.
+- [x] 4.4 Obtain owner `keep` or delegated design feedback before declaring the visual work complete; keep production deployment and binary promotion as explicit follow-up actions.
