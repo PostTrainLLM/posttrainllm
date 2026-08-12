@@ -1,6 +1,6 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-08-09
+Last updated: 2026-08-12
 
 ## Why / What
 
@@ -74,6 +74,7 @@ Important constraints:
 
 | Date / phase | Status |
 |---|---|
+| 2026-08-12 Native Mac release readiness | Prepared a fail-closed public distribution surface for version 0.1.0 (build 1): the homepage and canonical `/download` page share a typed release record with `/releases/mac.json` and agent-readable indexes, while a pure evaluator with focused tests refuses to expose any artifact unless the reviewed GitHub Release URL, SHA-256, Developer ID signature, notarization, stapling, Gatekeeper, and checksum gates all pass. The current state remains honestly pending with no DMG URL; production deployment and binary promotion remain manual follow-ups. |
 | 2026-08-11 Native Mac distribution preparation | Added repeatable arm64 Release app assembly with the branded icon, versioned bundle metadata, hardened-runtime Developer ID signing support, strict signature verification, and a fail-closed notarization helper. The locally verified build remains ad-hoc signed until the personal Developer ID identity and notary profile are installed; no public release was created. |
 | 2026-08-09 Everyday benchmark + capability graph | Shipped the dependency-free Everyday Specialist Benchmark contract, three frontier-qualified deterministic task rulers, evidence-linked static cohort report, and additive validated specialist capability graph with policy filtering, verified fallback, privacy-safe traces, residency/resource accounting, and system adapters. The first approved measured system calibration is an explicit rejection: Pace v8 scored 60.7%, Apple on-device fallback 85.7%, no threshold passed the frozen selective gates, and even the perfect-router oracle reached only 96.4% versus the 99% final target. No model was trained, downloaded, deployed, or promoted; the negative result prevents strong standalone leaves from hiding a weak routed system. |
 | 2026-08-08 Complete published-model case studies | Reconciled the live PostTrainLLM Hugging Face inventory to six public model repositories and gave every model a first-class evidence page under `/artifacts`: Pace v8's sealed-eval rejection, the routed file-ops win, the ReST breadth recovery, the multibackend negative-transfer failure, the VibeThinker MLX conversion, and the unevaluated agentic distillation. The pages distinguish public weights from ship decisions and explicitly reject Hub request counts as proof of users or successful runs. The production build emits all six as static HTML, Markdown counterparts, sitemap entries, and agent-catalog records. |
@@ -130,14 +131,19 @@ Important constraints:
 | Public artifact registry | First-class release list lives in `docs/factory/public-artifacts.md`; website surface is `/artifacts`; every artifact carries blockers beside evidence. |
 | Fine-tune report cards | Portable before/after proof per artifact: versioned JSON plus a self-contained static page at `/report-cards/<slug>.html`, compiled offline from recorded evidence with explicit measurement states. Contract in `docs/factory/report-card.md`. |
 | Eval gates | Strong fixture/no-GPU layer exists. Live GPU/full-suite gates remain operator-dependent. |
-| Browser playground | Live demo and proof of from-scratch/browser track. Its 331 public application, documentation, and report-card pages share generated sitemap, Markdown, and agent-catalog coverage, including five Mac-local specialist field guides. Explanatory controls now have visible keyboard focus and programmatic dialog relationships, while all data-source tabs remain discoverable on narrow screens. Product work remains parked behind the active factory loop. |
-| PostTrainLLM app | GUI shell over the CLI. Now covers the factory-loop experiment commands: Factory tab runs pretrain/finetune/**DPO**/**distill**; new **Runs** tab runs **factory-run** (validate/publish-check), **eval-gate**, **eval-compare**, **eval-sql**, and **generate** — all via a shared `CLICommandRunner` shell-out. Data-prep, quantization/export, and most interpretability commands remain CLI-only by design (batch/one-off, not interactive). A local arm64 Release bundle can be assembled under `build/`; trusted direct distribution still requires the personal Developer ID and notarization credentials. |
+| Browser playground | Live demo and proof of from-scratch/browser track. Its public application, documentation, and report-card pages share generated sitemap, Markdown, and agent-catalog coverage, including five Mac-local specialist field guides and the fail-closed native Mac release record. Explanatory controls now have visible keyboard focus and programmatic dialog relationships, while all data-source tabs remain discoverable on narrow screens. Product work remains parked behind the active factory loop. |
+| PostTrainLLM app | GUI shell over the CLI. Now covers the factory-loop experiment commands: Factory tab runs pretrain/finetune/**DPO**/**distill**; new **Runs** tab runs **factory-run** (validate/publish-check), **eval-gate**, **eval-compare**, **eval-sql**, and **generate** — all via a shared `CLICommandRunner` shell-out. Data-prep, quantization/export, and most interpretability commands remain CLI-only by design (batch/one-off, not interactive). A local arm64 Release bundle can be assembled under `build/`; the public `/download` and `/releases/mac.json` surfaces remain pending and expose no artifact until personal-account notarization and every distribution gate pass. |
 | Pace outputs | Dev-time artifacts only: data, grammar/eval assets, adapter/model package metadata, reports. |
 
 ## Features (shipped)
 
 Factory primitives:
 
+- Native Mac public release gate: one typed release record drives the homepage,
+  canonical `/download` page, `/releases/mac.json`, and agent indexes. A pure
+  evaluator accepts only the reviewed PostTrainLLM GitHub Releases path and
+  fails closed on any missing field, malformed checksum or URL, false trust
+  gate, or non-HTTPS/unapproved host; the current candidate exposes no DMG.
 - Native Mac app packaging: repeatable Release bundle assembly embeds the
   SwiftPM resources, CLI, MLX Metal library, and branded icon; supports
   versioned metadata and hardened-runtime Developer ID signing; and refuses

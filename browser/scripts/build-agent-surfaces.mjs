@@ -15,6 +15,7 @@ const ORIGIN = "https://posttrainllm.com";
 const here = dirname(fileURLToPath(import.meta.url));
 const DIST = resolve(here, "..", "dist");
 const CHECK_ONLY = process.argv.includes("--check");
+const MAC_RELEASE_PATH = "/releases/mac.json";
 
 const decodeEntities = (value) =>
   value
@@ -188,6 +189,9 @@ async function buildOutputs() {
   const urls = await buildInventory();
   const surfaces = [];
   const generatedMarkdown = new Map();
+  const macRelease = JSON.parse(
+    await fs.readFile(resolve(DIST, MAC_RELEASE_PATH.slice(1)), "utf8"),
+  );
 
   for (const url of urls) {
     const { html, md } = outputPaths(url);
@@ -214,6 +218,13 @@ async function buildOutputs() {
 
   const machineResources = [
     { kind: "feed", url: `${ORIGIN}/devlog/rss.xml`, description: "Devlog RSS feed" },
+    {
+      kind: "mac-release-json",
+      url: `${ORIGIN}${MAC_RELEASE_PATH}`,
+      description: `Native Mac release record — ${
+        macRelease.downloadable ? "verified and downloadable" : "notarization pending"
+      }`,
+    },
     ...(
       await fs.readdir(resolve(DIST, "report-cards"))
     )
@@ -243,6 +254,11 @@ async function buildOutputs() {
 - [Home](${ORIGIN}/): Product and research-lab overview
 - [Documentation](${ORIGIN}/docs): ${counts.documentation} source documents
 - [Artifacts](${ORIGIN}/artifacts): Public packages, evidence, and blockers
+- [Mac app](${ORIGIN}/download): ${
+    macRelease.downloadable
+      ? `Verified release ${macRelease.version} (${macRelease.build})`
+      : `Release ${macRelease.version} (${macRelease.build}) — notarization pending, not yet downloadable`
+  }
 - [Devlog](${ORIGIN}/devlog): Build history
 - [Agent catalog](${ORIGIN}/api/ai): Complete page-to-Markdown inventory
 - [Sitemap](${ORIGIN}/sitemap.xml): Canonical public HTML routes
@@ -299,7 +315,7 @@ factory runs, models, private artifacts, and unpublished evidence are excluded.
       2,
     ) + "\n";
 
-  return { urls, surfaces, generatedMarkdown, sitemap, llms, llmsFull, catalog };
+  return { urls, surfaces, generatedMarkdown, sitemap, llms, llmsFull, catalog, macRelease };
 }
 
 async function verify(outputs) {
@@ -322,6 +338,25 @@ async function verify(outputs) {
     const path = new URL(url).pathname;
     if (/\.(json|xml|rss|txt|md)$/i.test(path) || path === "/api/ai") {
       throw new Error(`machine resource entered page sitemap: ${url}`);
+    }
+  }
+
+  const releaseResource = `${ORIGIN}${MAC_RELEASE_PATH}`;
+  if (!outputs.surfaces.some((surface) => surface.url === `${ORIGIN}/download`)) {
+    throw new Error("Mac download page missing from public page inventory");
+  }
+  if (outputs.surfaces.some((surface) => surface.url === releaseResource)) {
+    throw new Error("Mac release JSON entered the HTML page inventory");
+  }
+  if (!outputs.catalog.includes(`\"url\": \"${releaseResource}\"`)) {
+    throw new Error("Mac release JSON missing from machine resources");
+  }
+  if (outputs.macRelease.downloadable !== true) {
+    if (outputs.macRelease.artifactURL !== null || outputs.macRelease.sha256 !== null) {
+      throw new Error("ineligible Mac release exposed artifact metadata");
+    }
+    if (!outputs.llms.includes("notarization pending, not yet downloadable")) {
+      throw new Error("agent index overstated pending Mac release");
     }
   }
 }
