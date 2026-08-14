@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Publish the Fine-Tune Report Card cohort into the public site.
 
     python3 scripts/publish_report_cards.py            # regenerate committed cards
@@ -15,7 +14,7 @@ model, or a network call:
   specialist-package adapter, which marks their legacy scores `historical`.
 
 Published output lands in `browser/public/report-cards/<slug>.{json,html}`,
-served by Astro as `/report-cards/<slug>.html`. `--check` recompiles into a
+served by Cloudflare Pages as `/report-cards/<slug>`. `--check` recompiles into a
 temp directory and compares, so a stale committed card cannot ship silently
 (the same guard idea as `browser/scripts/check_gallery_drift.mjs`).
 
@@ -33,15 +32,20 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import build_fine_tune_report_card as builder  # noqa: E402
-import fine_tune_report_card as rc  # noqa: E402
+import build_fine_tune_report_card as builder
+import fine_tune_report_card as rc
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLISH_DIR = ROOT / "browser/public/report-cards"
 
 #: (published slug, source kind, source locator, allow_report_only)
 COHORT = (
-    ("qwen3-4b-file-ops-distilled", "specialist", "specialists/qwen3-4b-file-ops-distilled", False),
+    (
+        "qwen3-4b-file-ops-distilled",
+        "specialist",
+        "specialists/qwen3-4b-file-ops-distilled",
+        False,
+    ),
     ("qwen3-4b-rest-fused", "specialist", "specialists/qwen3-4b-rest-fused", False),
     ("qwen06-sql-routed-v1", "sql-run", "scripts/render_sql_factory_run.py", True),
 )
@@ -74,13 +78,15 @@ def build_all(workdir: Path) -> dict[str, tuple[str, str]]:
             for err in errors:
                 print(f"  - {err}", file=sys.stderr)
             raise SystemExit(1)
-        canonical_url = f"https://posttrainllm.com/report-cards/{slug}.html"
+        canonical_url = f"https://posttrainllm.com/report-cards/{slug}"
         out[slug] = (rc.dumps(card), rc.render_html(card, canonical_url=canonical_url))
     return out
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     p.add_argument(
         "--check",
         action="store_true",

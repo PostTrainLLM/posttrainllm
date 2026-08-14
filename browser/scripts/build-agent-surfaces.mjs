@@ -174,7 +174,9 @@ async function reportCardUrls() {
   const entries = await fs.readdir(directory, { withFileTypes: true });
   return entries
     .filter((entry) => entry.isFile() && entry.name.endsWith(".html"))
-    .map((entry) => canonicalize(`/report-cards/${entry.name}`))
+    .map((entry) =>
+      canonicalize(`/report-cards/${entry.name.slice(0, -".html".length)}`),
+    )
     .sort();
 }
 
