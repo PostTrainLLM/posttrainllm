@@ -39,43 +39,59 @@ function htmlToMarkdown(html, canonicalUrl) {
   const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
   const title = stripTags(titleMatch?.[1] ?? new URL(canonicalUrl).pathname);
   const mainMatch = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i);
-  let body = mainMatch?.[1] ?? html.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i)?.[1] ?? html;
+  let body =
+    mainMatch?.[1] ??
+    html.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i)?.[1] ??
+    html;
 
   body = body
     .replace(/<(script|style|svg|noscript)\b[\s\S]*?<\/\1>/gi, "")
     .replace(/<(nav|footer|form)\b[\s\S]*?<\/\1>/gi, "")
-    .replace(/<a\b[^>]*href=(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a>/gi, (_, _q, href, text) => {
-      const label = stripTags(text);
-      if (!label) return "";
-      try {
-        const absolute = new URL(href, canonicalUrl);
-        return `[${label}](${absolute.href})`;
-      } catch {
-        return label;
-      }
-    })
+    .replace(
+      /<a\b[^>]*href=(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a>/gi,
+      (_, _q, href, text) => {
+        const label = stripTags(text);
+        if (!label) return "";
+        try {
+          const absolute = new URL(href, canonicalUrl);
+          return `[${label}](${absolute.href})`;
+        } catch {
+          return label;
+        }
+      },
+    )
     .replace(/<img\b[^>]*alt=(["'])(.*?)\1[^>]*>/gi, (_, _q, alt) =>
       alt.trim() ? ` ${alt.trim()} ` : "",
     )
-    .replace(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi, (_, level, text) =>
-      `\n\n${"#".repeat(Number(level))} ${stripTags(text)}\n\n`,
+    .replace(
+      /<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi,
+      (_, level, text) =>
+        `\n\n${"#".repeat(Number(level))} ${stripTags(text)}\n\n`,
     )
-    .replace(/<li\b[^>]*>([\s\S]*?)<\/li>/gi, (_, text) => `\n- ${stripTags(text)}`)
+    .replace(
+      /<li\b[^>]*>([\s\S]*?)<\/li>/gi,
+      (_, text) => `\n- ${stripTags(text)}`,
+    )
     .replace(/<(pre|blockquote)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_, tag, text) => {
       const content = decodeEntities(text.replace(/<[^>]+>/g, "")).trim();
       if (!content) return "";
       return tag.toLowerCase() === "pre"
         ? `\n\n\`\`\`\n${content}\n\`\`\`\n\n`
-        : `\n\n${content.split("\n").map((line) => `> ${line}`).join("\n")}\n\n`;
+        : `\n\n${content
+            .split("\n")
+            .map((line) => `> ${line}`)
+            .join("\n")}\n\n`;
     })
     .replace(/<(p|div|section|article|header|dl|table|tr)\b[^>]*>/gi, "\n\n")
     .replace(/<\/(p|div|section|article|header|dl|table|tr)>/gi, "\n\n")
     .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<(dt|th)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_, _tag, text) =>
-      `\n\n**${stripTags(text)}**\n`,
+    .replace(
+      /<(dt|th)\b[^>]*>([\s\S]*?)<\/\1>/gi,
+      (_, _tag, text) => `\n\n**${stripTags(text)}**\n`,
     )
-    .replace(/<(dd|td)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_, _tag, text) =>
-      ` ${stripTags(text)} `,
+    .replace(
+      /<(dd|td)\b[^>]*>([\s\S]*?)<\/\1>/gi,
+      (_, _tag, text) => ` ${stripTags(text)} `,
     )
     .replace(/<[^>]+>/g, " ");
 
@@ -164,7 +180,8 @@ async function reportCardUrls() {
 
 function surfaceKind(canonicalUrl) {
   const pathname = routePath(canonicalUrl);
-  if (pathname === "/docs" || pathname.startsWith("/docs/")) return "documentation";
+  if (pathname === "/docs" || pathname.startsWith("/docs/"))
+    return "documentation";
   if (pathname.startsWith("/report-cards/")) return "report-card";
   return "application";
 }
@@ -183,7 +200,9 @@ async function buildInventory() {
       (url) => routePath(url) !== "/docs",
     );
     if (unexpected.length > 0 || urls.length - unique.length !== 1) {
-      throw new Error(`unexpected duplicate canonical routes: ${duplicates.join(", ")}`);
+      throw new Error(
+        `unexpected duplicate canonical routes: ${duplicates.join(", ")}`,
+      );
     }
   }
   return unique;
@@ -210,13 +229,22 @@ async function buildOutputs() {
     const { html, md } = outputPaths(url);
     await fs.access(html);
     if (!new URL(url).pathname.startsWith("/docs")) {
-      generatedMarkdown.set(md, htmlToMarkdown(await fs.readFile(html, "utf8"), url));
+      generatedMarkdown.set(
+        md,
+        htmlToMarkdown(await fs.readFile(html, "utf8"), url),
+      );
     }
     const page = await fs.readFile(html, "utf8");
-    const title = stripTags(page.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? url);
+    const title = stripTags(
+      page.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] ?? url,
+    );
     const description = stripTags(
-      page.match(/<meta[^>]+name=(["'])description\1[^>]+content=(["'])(.*?)\2/i)?.[3] ??
-        page.match(/<meta[^>]+content=(["'])(.*?)\1[^>]+name=(["'])description\3/i)?.[2] ??
+      page.match(
+        /<meta[^>]+name=(["'])description\1[^>]+content=(["'])(.*?)\2/i,
+      )?.[3] ??
+        page.match(
+          /<meta[^>]+content=(["'])(.*?)\1[^>]+name=(["'])description\3/i,
+        )?.[2] ??
         "",
     );
     surfaces.push({
@@ -230,17 +258,21 @@ async function buildOutputs() {
   }
 
   const machineResources = [
-    { kind: "feed", url: `${ORIGIN}/devlog/rss.xml`, description: "Devlog RSS feed" },
+    {
+      kind: "feed",
+      url: `${ORIGIN}/devlog/rss.xml`,
+      description: "Devlog RSS feed",
+    },
     {
       kind: "mac-release-json",
       url: `${ORIGIN}${MAC_RELEASE_PATH}`,
       description: `Native Mac release record — ${
-        macRelease.downloadable ? "verified and downloadable" : "notarization pending"
+        macRelease.downloadable
+          ? "verified and downloadable"
+          : "notarization pending"
       }`,
     },
-    ...(
-      await fs.readdir(resolve(DIST, "report-cards"))
-    )
+    ...(await fs.readdir(resolve(DIST, "report-cards")))
       .filter((name) => name.endsWith(".json"))
       .sort()
       .map((name) => ({
@@ -328,17 +360,30 @@ factory runs, models, private artifacts, and unpublished evidence are excluded.
       2,
     ) + "\n";
 
-  return { urls, surfaces, generatedMarkdown, sitemap, llms, llmsFull, catalog, macRelease };
+  return {
+    urls,
+    surfaces,
+    generatedMarkdown,
+    sitemap,
+    llms,
+    llmsFull,
+    catalog,
+    macRelease,
+  };
 }
 
 async function verify(outputs) {
   const sitemapSet = new Set(outputs.urls);
-  if (sitemapSet.size !== outputs.urls.length) throw new Error("duplicate sitemap URLs");
-  if (outputs.surfaces.length !== outputs.urls.length) throw new Error("catalog/page mismatch");
+  if (sitemapSet.size !== outputs.urls.length)
+    throw new Error("duplicate sitemap URLs");
+  if (outputs.surfaces.length !== outputs.urls.length)
+    throw new Error("catalog/page mismatch");
 
   for (const surface of outputs.surfaces) {
-    if (!sitemapSet.has(surface.url)) throw new Error(`catalog orphan: ${surface.url}`);
-    if (!surface.md.startsWith(`${ORIGIN}/`)) throw new Error(`cross-origin Markdown: ${surface.md}`);
+    if (!sitemapSet.has(surface.url))
+      throw new Error(`catalog orphan: ${surface.url}`);
+    if (!surface.md.startsWith(`${ORIGIN}/`))
+      throw new Error(`cross-origin Markdown: ${surface.md}`);
     const mdPath = resolve(DIST, new URL(surface.md).pathname.slice(1));
     const expected = outputs.generatedMarkdown.get(mdPath);
     const markdown = expected ?? (await fs.readFile(mdPath, "utf8"));
@@ -355,7 +400,9 @@ async function verify(outputs) {
   }
 
   const releaseResource = `${ORIGIN}${MAC_RELEASE_PATH}`;
-  if (!outputs.surfaces.some((surface) => surface.url === `${ORIGIN}/download`)) {
+  if (
+    !outputs.surfaces.some((surface) => surface.url === `${ORIGIN}/download`)
+  ) {
     throw new Error("Mac download page missing from public page inventory");
   }
   if (outputs.surfaces.some((surface) => surface.url === releaseResource)) {
@@ -365,7 +412,10 @@ async function verify(outputs) {
     throw new Error("Mac release JSON missing from machine resources");
   }
   if (outputs.macRelease.downloadable !== true) {
-    if (outputs.macRelease.artifactURL !== null || outputs.macRelease.sha256 !== null) {
+    if (
+      outputs.macRelease.artifactURL !== null ||
+      outputs.macRelease.sha256 !== null
+    ) {
       throw new Error("ineligible Mac release exposed artifact metadata");
     }
     if (!outputs.llms.includes("notarization pending, not yet downloadable")) {
@@ -386,7 +436,10 @@ if (CHECK_ONLY) {
   ]);
   for (const [path, expected] of expectedFiles) {
     const actual = await fs.readFile(path, "utf8");
-    if (actual !== expected) throw new Error(`generated agent surface drifted: ${relative(DIST, path)}`);
+    if (actual !== expected)
+      throw new Error(
+        `generated agent surface drifted: ${relative(DIST, path)}`,
+      );
   }
 } else {
   for (const [path, markdown] of outputs.generatedMarkdown) {
