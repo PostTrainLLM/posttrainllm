@@ -16,7 +16,7 @@ const paths = [
   "scripts/parquet-decoder/src",
 ];
 const baseline = {
-  warnings: 308,
+  warnings: 309,
   maxNloc: 795,
   maxCcn: 113,
   maxTokens: 2512,

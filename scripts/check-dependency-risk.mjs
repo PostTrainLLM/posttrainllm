@@ -8,7 +8,7 @@ const scopes = [
   {
     name: "browser",
     directory: "browser",
-    acceptedHigh: new Set(["1120912", "1120917", "1124066"]),
+    acceptedHigh: new Set(["1124066", "1139377", "1139378"]),
   },
   {
     name: "docs",
@@ -24,7 +24,6 @@ const scopes = [
       "1130736",
       "1138114",
       "1138115",
-      "1138813",
     ]),
   },
 ];

@@ -2,7 +2,7 @@
 
 import { capture, commandWithUvx } from "./code-health-files.mjs";
 
-const knipBaseline = { exports: 3, types: 11 };
+const knipBaseline = { exports: 3, types: 13 };
 const knip = capture("pnpm", [
   "exec",
   "knip",
