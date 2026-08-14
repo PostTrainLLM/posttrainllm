@@ -98,9 +98,22 @@ function canonicalize(rawUrl) {
   url.hash = "";
   url.search = "";
   let path = url.pathname.replace(/\/+/g, "/");
-  if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);
+  if (
+    (path === "/docs" || path.startsWith("/docs/")) &&
+    !path.endsWith("/") &&
+    extname(path) === ""
+  ) {
+    path += "/";
+  }
   url.pathname = path || "/";
   return url.href;
+}
+
+function routePath(canonicalUrl) {
+  const pathname = new URL(canonicalUrl).pathname;
+  return pathname.length > 1 && pathname.endsWith("/")
+    ? pathname.slice(0, -1)
+    : pathname;
 }
 
 async function sitemapUrls(path) {
@@ -111,7 +124,7 @@ async function sitemapUrls(path) {
 }
 
 function outputPaths(canonicalUrl) {
-  const pathname = new URL(canonicalUrl).pathname;
+  const pathname = routePath(canonicalUrl);
   if (pathname === "/") {
     return { html: resolve(DIST, "index.html"), md: resolve(DIST, "index.md") };
   }
@@ -150,7 +163,7 @@ async function reportCardUrls() {
 }
 
 function surfaceKind(canonicalUrl) {
-  const pathname = new URL(canonicalUrl).pathname;
+  const pathname = routePath(canonicalUrl);
   if (pathname === "/docs" || pathname.startsWith("/docs/")) return "documentation";
   if (pathname.startsWith("/report-cards/")) return "report-card";
   return "application";
@@ -167,7 +180,7 @@ async function buildInventory() {
     // is an ambiguous route owner.
     const duplicates = urls.filter((url, index) => urls.indexOf(url) !== index);
     const unexpected = [...new Set(duplicates)].filter(
-      (url) => new URL(url).pathname !== "/docs",
+      (url) => routePath(url) !== "/docs",
     );
     if (unexpected.length > 0 || urls.length - unique.length !== 1) {
       throw new Error(`unexpected duplicate canonical routes: ${duplicates.join(", ")}`);
@@ -207,7 +220,7 @@ async function buildOutputs() {
         "",
     );
     surfaces.push({
-      id: new URL(url).pathname === "/" ? "home" : new URL(url).pathname.slice(1),
+      id: routePath(url) === "/" ? "home" : routePath(url).slice(1),
       url,
       md: `${ORIGIN}/${relative(DIST, md).split("\\").join("/")}`,
       kind: surfaceKind(url),
@@ -252,7 +265,7 @@ async function buildOutputs() {
 ## Public surface
 
 - [Home](${ORIGIN}/): Product and research-lab overview
-- [Documentation](${ORIGIN}/docs): ${counts.documentation} source documents
+- [Documentation](${ORIGIN}/docs/): ${counts.documentation} source documents
 - [Artifacts](${ORIGIN}/artifacts): Public packages, evidence, and blockers
 - [Mac app](${ORIGIN}/download): ${
     macRelease.downloadable
