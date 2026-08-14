@@ -16,7 +16,7 @@
 
 import { spawnSync } from "node:child_process";
 import { promises as fs } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -24,6 +24,49 @@ const BROWSER_ROOT = resolve(here, "..");
 const DOCS_SITE_DIR = resolve(BROWSER_ROOT, "..", "docs-site");
 const DOCS_SITE_DIST = resolve(DOCS_SITE_DIR, "dist");
 const DEST_DIR = resolve(BROWSER_ROOT, "dist", "docs");
+const ORIGIN = "https://posttrainllm.com";
+
+async function findHtmlFiles(directory) {
+  const entries = await fs.readdir(directory, { withFileTypes: true });
+  const paths = await Promise.all(
+    entries.map(async (entry) => {
+      const path = resolve(directory, entry.name);
+      if (entry.isDirectory()) return findHtmlFiles(path);
+      return entry.isFile() && entry.name === "index.html" ? [path] : [];
+    }),
+  );
+  return paths.flat();
+}
+
+async function alignCanonicalUrls() {
+  const htmlFiles = await findHtmlFiles(DEST_DIR);
+  for (const path of htmlFiles) {
+    const outputPath = relative(DEST_DIR, path).replaceAll("\\", "/");
+    const route =
+      outputPath === "index.html"
+        ? ""
+        : outputPath.slice(0, -"index.html".length);
+    const canonicalUrl = `${ORIGIN}/docs/${route}`;
+    const html = await fs.readFile(path, "utf8");
+    const canonicalTag = html.match(
+      /<link\b(?=[^>]*\brel=["']canonical["'])[^>]*>/iu,
+    )?.[0];
+    const currentCanonical = canonicalTag?.match(
+      /\bhref=["']([^"']+)["']/iu,
+    )?.[1];
+    if (!currentCanonical) {
+      throw new Error(`missing canonical URL in ${outputPath}`);
+    }
+    if (currentCanonical !== canonicalUrl) {
+      await fs.writeFile(
+        path,
+        html.replaceAll(currentCanonical, canonicalUrl),
+        "utf8",
+      );
+    }
+  }
+  return htmlFiles.length;
+}
 
 // 1. Install and build the standalone Blume project. It is intentionally not
 // part of the browser workspace, so CI must install its own frozen lockfile.
@@ -66,5 +109,8 @@ try {
 await fs.rm(DEST_DIR, { recursive: true, force: true });
 await fs.mkdir(DEST_DIR, { recursive: true });
 await fs.cp(DOCS_SITE_DIST, DEST_DIR, { recursive: true });
+const canonicalCount = await alignCanonicalUrls();
 
-console.log(`build-docs.mjs: copied docs-site/dist → dist/docs/`);
+console.log(
+  `build-docs.mjs: copied docs-site/dist → dist/docs/ and aligned ${canonicalCount} canonicals`,
+);

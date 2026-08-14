@@ -34,10 +34,7 @@ export type ArtifactComparison = {
 /// artifact can never read as shipped. Mirrors
 /// `fine_tune_report_card.OUTCOME_LABELS`.
 export type ReportCardOutcome =
-  | "shipped-specialist"
-  | "routed-ship"
-  | "report-only"
-  | "rejected";
+  "shipped-specialist" | "routed-ship" | "report-only" | "rejected";
 
 /// A published Fine-Tune Report Card for this artifact. Compiled offline from
 /// recorded factory evidence by `scripts/build_fine_tune_report_card.py` and
@@ -101,7 +98,7 @@ function reportCard(
   return {
     outcome,
     verified,
-    href: `/report-cards/${slug}.html`,
+    href: `/report-cards/${slug}`,
     jsonHref: `/report-cards/${slug}.json`,
   };
 }
@@ -117,13 +114,28 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["SQL", "routing", "LoRA", "evals"],
     summary:
       "A two-adapter routed SQL artifact: public schema-only SQL routes to a b-mc2 adapter; local SQLite execution routes to a synthetic execution adapter.",
-    lede:
-      "This is the cleanest current proof of the factory thesis: a tiny 0.6B model can beat a small public SQL baseline on a frozen exact-match slice, but only the routed artifact survives both public and execution-style gates.",
+    lede: "This is the cleanest current proof of the factory thesis: a tiny 0.6B model can beat a small public SQL baseline on a frozen exact-match slice, but only the routed artifact survives both public and execution-style gates.",
     metrics: [
-      { label: "Public exact", value: "0.531", context: "64-row b-mc2/sql-create-context slice" },
-      { label: "T5-small baseline", value: "0.484", context: "same 64 public rows" },
-      { label: "Synthetic execution", value: "0.860", context: "50 heldout SQLite rows" },
-      { label: "Synthetic exact", value: "0.840", context: "same 50 heldout rows" },
+      {
+        label: "Public exact",
+        value: "0.531",
+        context: "64-row b-mc2/sql-create-context slice",
+      },
+      {
+        label: "T5-small baseline",
+        value: "0.484",
+        context: "same 64 public rows",
+      },
+      {
+        label: "Synthetic execution",
+        value: "0.860",
+        context: "50 heldout SQLite rows",
+      },
+      {
+        label: "Synthetic exact",
+        value: "0.840",
+        context: "same 50 heldout rows",
+      },
     ],
     comparisons: [
       {
@@ -141,7 +153,8 @@ export const artifacts: ArtifactEntry[] = [
         size: "~60M",
         comparability: "Direct",
         note: "Same 64-row public slice; posttrainllm is +4.7 points exact on this narrow gate.",
-        sourceHref: "https://huggingface.co/cssupport/t5-small-awesome-text-to-sql",
+        sourceHref:
+          "https://huggingface.co/cssupport/t5-small-awesome-text-to-sql",
       },
       {
         name: "Defog SQLCoder-7B-2",
@@ -159,7 +172,8 @@ export const artifacts: ArtifactEntry[] = [
         size: "7B",
         comparability: "Not comparable",
         note: "Useful target class for public SQL execution; posttrainllm must add a BIRD/Spider execution gate before claiming this lane.",
-        sourceHref: "https://www.snowflake.com/en/blog/engineering/arctic-text2sql-r1-sql-generation-benchmark/",
+        sourceHref:
+          "https://www.snowflake.com/en/blog/engineering/arctic-text2sql-r1-sql-generation-benchmark/",
       },
       {
         name: "Snowflake Arctic-Text2SQL-R1-14B / 32B",
@@ -168,7 +182,8 @@ export const artifacts: ArtifactEntry[] = [
         size: "14B / 32B",
         comparability: "Not comparable",
         note: "Shows the current public high bar: execution accuracy, not exact string match.",
-        sourceHref: "https://www.snowflake.com/en/blog/engineering/arctic-text2sql-r1-sql-generation-benchmark/",
+        sourceHref:
+          "https://www.snowflake.com/en/blog/engineering/arctic-text2sql-r1-sql-generation-benchmark/",
       },
     ],
     tables: [
@@ -198,7 +213,12 @@ export const artifacts: ArtifactEntry[] = [
         columns: ["Run", "Execution", "Clean-SQL", "Decision"],
         rows: [
           ["Frozen baseline (SFT)", "0.860", "0.000", "reference"],
-          ["2026-07-04 ref-free SimPO", "0.080", "0.000", "retry-training (collapse)"],
+          [
+            "2026-07-04 ref-free SimPO",
+            "0.080",
+            "0.000",
+            "retry-training (collapse)",
+          ],
           ["2026-07-11 ref-anchored DPO", "0.900", "0.000", "retry-training"],
           ["2026-07-11 higher-pressure DPO", "0.920", "0.000", "retry-data"],
         ],
@@ -206,25 +226,38 @@ export const artifacts: ArtifactEntry[] = [
     ],
     evidence: [
       { label: "SQL POC report", href: "/docs/specialists/b1-sql-poc" },
-      { label: "Public artifact registry", href: "/docs/factory/public-artifacts" },
-      { label: "Router smoke", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/sql-routed-router-smoke.sh" },
-      { label: "Router implementation", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/scripts/run_sql_routed_generate.py" },
+      {
+        label: "Public artifact registry",
+        href: "/docs/factory/public-artifacts",
+      },
+      {
+        label: "Router smoke",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/sql-routed-router-smoke.sh",
+      },
+      {
+        label: "Router implementation",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/scripts/run_sql_routed_generate.py",
+      },
     ],
     blockers: [
       {
         blocker: "Public execution benchmark missing",
         why: "b-mc2 exact match is useful, but serious SQL claims need execution accuracy on public DBs.",
-        unblock: "Add BIRD Mini-Dev SQLite or Spider SQLite execution fixtures once the DB bundle is local.",
+        unblock:
+          "Add BIRD Mini-Dev SQLite or Spider SQLite execution fixtures once the DB bundle is local.",
       },
       {
-        blocker: "Output hygiene (raw completions carry an Answer:/Explanation: wrapper)",
+        blocker:
+          "Output hygiene (raw completions carry an Answer:/Explanation: wrapper)",
         why: "Two reference-anchored DPO retries (2026-07-04 SimPO collapse → fixed; 2026-07-11 gentle + higher-pressure) improved execution 0.860 → 0.900 → 0.920 but left the clean-SQL raw rate at 0.000. The wrapper is a base-model prose prior a rank-4 preference adapter can't strip — the 108 SFT targets are already bare SELECT. Composed DPO is ruled out for hygiene.",
-        unblock: "Generation-strength fix, not more DPO: stronger SFT (higher rank / more examples) or inference-time steering (constrained SELECT-prefix decoding / stop sequence). Execution is not the problem; only the wrapper is.",
+        unblock:
+          "Generation-strength fix, not more DPO: stronger SFT (higher rank / more examples) or inference-time steering (constrained SELECT-prefix decoding / stop sequence). Execution is not the problem; only the wrapper is.",
       },
       {
         blocker: "Not a specialist package yet",
         why: "The adapters currently live under gitignored run folders, not package metadata.",
-        unblock: "Package under specialists/ only after a ship decision on a public execution gate.",
+        unblock:
+          "Package under specialists/ only after a ship decision on a public execution gate.",
       },
     ],
     nextAction:
@@ -242,13 +275,28 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["classification", "routing", "from scratch", "Mac local"],
     summary:
       "A 49.5M intent classifier that was extremely fast and strong on its source-matched synthetic holdout, then failed the first leakage-checked sealed distribution gate.",
-    lede:
-      "This is the most important rejection in the published model set. Pace v8 scored 95.5% on 14,995 source-matched synthetic examples at roughly 3ms, but only 57.1% on a new 63-instance sealed suite that frontier aced. The weights remain useful as a latency floor and as proof that the synthetic generator overfit its template families—not as the production winner.",
+    lede: "This is the most important rejection in the published model set. Pace v8 scored 95.5% on 14,995 source-matched synthetic examples at roughly 3ms, but only 57.1% on a new 63-instance sealed suite that frontier aced. The weights remain useful as a latency floor and as proof that the synthetic generator overfit its template families—not as the production winner.",
     metrics: [
-      { label: "Sealed accuracy", value: "57.1%", context: "63 held-out instances, two passes" },
-      { label: "Frontier retained", value: "57.1%", context: "Codex gpt-5.5 scored 100% on the same ruler" },
-      { label: "Warm latency", value: "3.8ms", context: "mean local sealed-eval latency" },
-      { label: "Source-matched holdout", value: "95.5%", context: "14,995 synthetic rows; did not generalize" },
+      {
+        label: "Sealed accuracy",
+        value: "57.1%",
+        context: "63 held-out instances, two passes",
+      },
+      {
+        label: "Frontier retained",
+        value: "57.1%",
+        context: "Codex gpt-5.5 scored 100% on the same ruler",
+      },
+      {
+        label: "Warm latency",
+        value: "3.8ms",
+        context: "mean local sealed-eval latency",
+      },
+      {
+        label: "Source-matched holdout",
+        value: "95.5%",
+        context: "14,995 synthetic rows; did not generalize",
+      },
     ],
     comparisons: [
       {
@@ -287,40 +335,99 @@ export const artifacts: ArtifactEntry[] = [
     tables: [
       {
         title: "Attempts and decisions",
-        columns: ["Evidence stage", "Accuracy", "Latency", "Decision", "Lesson"],
+        columns: [
+          "Evidence stage",
+          "Accuracy",
+          "Latency",
+          "Decision",
+          "Lesson",
+        ],
         rows: [
-          ["Source-matched synthetic holdout", "95.5%", "3.1ms p50", "promising", "The pipeline learned its generator distribution"],
-          ["Sealed V1", "57.1%", "3.8ms mean", "reject-production-winner", "Fresh user-like phrasing broke the apparent win"],
+          [
+            "Source-matched synthetic holdout",
+            "95.5%",
+            "3.1ms p50",
+            "promising",
+            "The pipeline learned its generator distribution",
+          ],
+          [
+            "Sealed V1",
+            "57.1%",
+            "3.8ms mean",
+            "reject-production-winner",
+            "Fresh user-like phrasing broke the apparent win",
+          ],
         ],
       },
       {
         title: "Sealed V1 result",
-        columns: ["Entry", "Accuracy", "Unknown recall", "Warm latency", "Readout"],
+        columns: [
+          "Entry",
+          "Accuracy",
+          "Unknown recall",
+          "Warm latency",
+          "Readout",
+        ],
         rows: [
-          ["Codex gpt-5.5", "100.0%", "100.0%", "519ms amortized batch", "Frontier ruler passed"],
-          ["Qwen3 4B 4-bit", "93.7%", "77.8%", "211ms", "Local capability winner"],
-          ["Apple FoundationModels", "92.1%", "77.8%", "522ms", "Accurate, slower"],
+          [
+            "Codex gpt-5.5",
+            "100.0%",
+            "100.0%",
+            "519ms amortized batch",
+            "Frontier ruler passed",
+          ],
+          [
+            "Qwen3 4B 4-bit",
+            "93.7%",
+            "77.8%",
+            "211ms",
+            "Local capability winner",
+          ],
+          [
+            "Apple FoundationModels",
+            "92.1%",
+            "77.8%",
+            "522ms",
+            "Accurate, slower",
+          ],
           ["Pace v8", "57.1%", "55.6%", "3.8ms", "Latency floor; rejected"],
         ],
       },
     ],
     evidence: [
-      { label: "Hugging Face model", href: "https://huggingface.co/posttrainllm/pace-intent-router-v8" },
-      { label: "Model card", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/pace-intent-router-v8/model_card.md" },
-      { label: "Eval report", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/pace-intent-router-v8/eval_report.json" },
-      { label: "Sealed V1 report", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/everyday-benchmark/pace-intent-sealed-v1.md" },
-      { label: "Sealed result receipt", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/everyday-benchmark/receipts/pace-intent-router-v8-sealed-v1.json" },
+      {
+        label: "Hugging Face model",
+        href: "https://huggingface.co/posttrainllm/pace-intent-router-v8",
+      },
+      {
+        label: "Model card",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/pace-intent-router-v8/model_card.md",
+      },
+      {
+        label: "Eval report",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/pace-intent-router-v8/eval_report.json",
+      },
+      {
+        label: "Sealed V1 report",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/everyday-benchmark/pace-intent-sealed-v1.md",
+      },
+      {
+        label: "Sealed result receipt",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/everyday-benchmark/receipts/pace-intent-router-v8-sealed-v1.json",
+      },
     ],
     blockers: [
       {
         blocker: "Fresh-distribution generalization failed",
         why: "The earlier 95.5% result was source-matched to the synthetic generator. Accuracy fell to 57.1% on leakage-checked sealed V1.",
-        unblock: "Generate public-development examples from failure themes—not sealed prompts—and require a newly generated sealed V2 for any successor claim.",
+        unblock:
+          "Generate public-development examples from failure themes—not sealed prompts—and require a newly generated sealed V2 for any successor claim.",
       },
       {
         blocker: "Rejected as the production winner",
         why: "Qwen3 4B and Apple FoundationModels both exceeded 92% on the same sealed suite.",
-        unblock: "Keep v8 only as a latency floor and training-pipeline artifact until a successor clears the sealed gate.",
+        unblock:
+          "Keep v8 only as a latency floor and training-pipeline artifact until a successor clears the sealed gate.",
       },
     ],
     nextAction:
@@ -337,13 +444,28 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["agentic", "distillation", "file ops", "BFCL"],
     summary:
       "A routed 4B file-operation specialist distilled from frontier/gold trajectories, with the breadth regression disclosed in the package.",
-    lede:
-      "This is the strongest model win in the repo: a Mac-built specialist reaches 100% on the file-ops hard gate. It is also the clearest example of why routing is mandatory, because breadth drops outside the trained domain.",
+    lede: "This is the strongest model win in the repo: a Mac-built specialist reaches 100% on the file-ops hard gate. It is also the clearest example of why routing is mandatory, because breadth drops outside the trained domain.",
     metrics: [
-      { label: "File-ops hard gate", value: "100%", context: "up from 58% stock 4B" },
-      { label: "Heldout file-ops", value: "95%", context: "hardgen heldout suite" },
-      { label: "Breadth after tuning", value: "42.3%", context: "down from 59.6% stock" },
-      { label: "Artifact size", value: "7.5GB", context: "local HF/MLX safetensors directory" },
+      {
+        label: "File-ops hard gate",
+        value: "100%",
+        context: "up from 58% stock 4B",
+      },
+      {
+        label: "Heldout file-ops",
+        value: "95%",
+        context: "hardgen heldout suite",
+      },
+      {
+        label: "Breadth after tuning",
+        value: "42.3%",
+        context: "down from 59.6% stock",
+      },
+      {
+        label: "Artifact size",
+        value: "7.5GB",
+        context: "local HF/MLX safetensors directory",
+      },
     ],
     comparisons: [
       {
@@ -404,23 +526,44 @@ export const artifacts: ArtifactEntry[] = [
         columns: ["Gate", "Stock", "Specialist", "Readout"],
         rows: [
           ["File-ops hard gate", "0.58", "1.00", "Domain win"],
-          ["File-ops hardgen heldout", "-", "0.95", "Generalizes within file ops"],
+          [
+            "File-ops hardgen heldout",
+            "-",
+            "0.95",
+            "Generalizes within file ops",
+          ],
           ["Out-of-domain breadth", "0.596", "0.423", "Regression; route only"],
         ],
       },
     ],
     evidence: [
-      { label: "Model card", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/model_card.md" },
-      { label: "Hugging Face model", href: "https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled" },
-      { label: "Eval report", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/eval_report.json" },
-      { label: "Frontier parity writeup", href: "/docs/learn/tool-calling-frontier-parity" },
-      { label: "Specialist registry", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/registry.json" },
+      {
+        label: "Model card",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/model_card.md",
+      },
+      {
+        label: "Hugging Face model",
+        href: "https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled",
+      },
+      {
+        label: "Eval report",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/eval_report.json",
+      },
+      {
+        label: "Frontier parity writeup",
+        href: "/docs/learn/tool-calling-frontier-parity",
+      },
+      {
+        label: "Specialist registry",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/registry.json",
+      },
     ],
     blockers: [
       {
         blocker: "Breadth regression",
         why: "The tuned model is wrong to use as a general planner.",
-        unblock: "Keep all public copy routed-only and include the negative-transfer table.",
+        unblock:
+          "Keep all public copy routed-only and include the negative-transfer table.",
       },
     ],
     nextAction:
@@ -438,13 +581,28 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["agentic", "ReST", "tool calling", "BFCL"],
     summary:
       "A teacher-free ReST candidate that preserves the 100% file-ops gate while recovering out-of-domain breadth above the stock 4B baseline.",
-    lede:
-      "This is the factory's first narrow ship decision from an existing measured candidate: the public weights, frozen fixtures, package, and routing boundary are preserved, while missing historical performance and trace evidence stays visible.",
+    lede: "This is the factory's first narrow ship decision from an existing measured candidate: the public weights, frozen fixtures, package, and routing boundary are preserved, while missing historical performance and trace evidence stays visible.",
     metrics: [
-      { label: "File-ops hard gate", value: "100%", context: "held from the distilled depth anchor" },
-      { label: "Breadth after ReST", value: "65%", context: "up from 59.6% stock 4B" },
-      { label: "Breadth delta", value: "+5.4pp", context: "52 held-out non-file-ops tasks" },
-      { label: "Paid API cost", value: "$0", context: "teacher-free local ReST iteration" },
+      {
+        label: "File-ops hard gate",
+        value: "100%",
+        context: "held from the distilled depth anchor",
+      },
+      {
+        label: "Breadth after ReST",
+        value: "65%",
+        context: "up from 59.6% stock 4B",
+      },
+      {
+        label: "Breadth delta",
+        value: "+5.4pp",
+        context: "52 held-out non-file-ops tasks",
+      },
+      {
+        label: "Paid API cost",
+        value: "$0",
+        context: "teacher-free local ReST iteration",
+      },
     ],
     comparisons: [
       {
@@ -479,27 +637,49 @@ export const artifacts: ArtifactEntry[] = [
         rows: [
           ["File-ops hard gate", "0.58", "1.00", "Depth preserved"],
           ["Out-of-domain breadth", "0.596", "0.65", "+5.4 points over stock"],
-          ["Latency / RAM / tok-s", "not preserved", "not preserved", "No estimated values"],
+          [
+            "Latency / RAM / tok-s",
+            "not preserved",
+            "not preserved",
+            "No estimated values",
+          ],
         ],
       },
     ],
     evidence: [
-      { label: "Model card", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-rest-fused/model_card.md" },
-      { label: "Hugging Face model", href: "https://huggingface.co/posttrainllm/qwen3-4b-rest-fused" },
-      { label: "Eval report", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-rest-fused/eval_report.json" },
-      { label: "ReST inventory", href: "/docs/sessions/2026-06-17-stepback-inventory-roi" },
-      { label: "Specialist registry", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/registry.json" },
+      {
+        label: "Model card",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-rest-fused/model_card.md",
+      },
+      {
+        label: "Hugging Face model",
+        href: "https://huggingface.co/posttrainllm/qwen3-4b-rest-fused",
+      },
+      {
+        label: "Eval report",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-rest-fused/eval_report.json",
+      },
+      {
+        label: "ReST inventory",
+        href: "/docs/sessions/2026-06-17-stepback-inventory-roi",
+      },
+      {
+        label: "Specialist registry",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/registry.json",
+      },
     ],
     blockers: [
       {
         blocker: "Historical performance evidence missing",
         why: "The original run did not preserve latency, RAM, tok-s, elapsed time, or raw predictions.",
-        unblock: "Run a fresh product-specific gate only when a downstream integration justifies the heavy model work.",
+        unblock:
+          "Run a fresh product-specific gate only when a downstream integration justifies the heavy model work.",
       },
       {
         blocker: "Not a Pace planner",
         why: "Pace uses a different intent envelope and its own six-dimension ship gate.",
-        unblock: "Re-distill on Pace's action surface and clear the Pace gate before runtime wiring.",
+        unblock:
+          "Re-distill on Pace's action surface and clear the Pace gate before runtime wiring.",
       },
     ],
     nextAction:
@@ -517,13 +697,24 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["distillation", "tool calling", "negative transfer", "rejected"],
     summary:
       "A public failed attempt that retained 100% file-ops depth but drove the recorded breadth score down to 31%.",
-    lede:
-      "Adding multibackend teacher data did not create a broader agent. It preserved the saturated file-ops score while producing the worst breadth result in the recorded Qwen3-4B lineage. The public weights are useful as a reproducible warning: breadth gates must be frozen before specialist distillation.",
+    lede: "Adding multibackend teacher data did not create a broader agent. It preserved the saturated file-ops score while producing the worst breadth result in the recorded Qwen3-4B lineage. The public weights are useful as a reproducible warning: breadth gates must be frozen before specialist distillation.",
     metrics: [
-      { label: "File-ops depth", value: "100%", context: "saturated narrow gate" },
+      {
+        label: "File-ops depth",
+        value: "100%",
+        context: "saturated narrow gate",
+      },
       { label: "Breadth", value: "31%", context: "down from 59.6% stock" },
-      { label: "Breadth delta", value: "-28.6pp", context: "recorded stock-to-candidate change" },
-      { label: "Decision", value: "Reject", context: "failed negative-transfer artifact" },
+      {
+        label: "Breadth delta",
+        value: "-28.6pp",
+        context: "recorded stock-to-candidate change",
+      },
+      {
+        label: "Decision",
+        value: "Reject",
+        context: "failed negative-transfer artifact",
+      },
     ],
     comparisons: [
       {
@@ -567,26 +758,43 @@ export const artifacts: ArtifactEntry[] = [
           ["A0", "Stock Qwen3-4B", "58%", "59.6%", "Baseline"],
           ["A1", "File-ops distillation", "100%", "42.3%", "Route only"],
           ["A2", "Multibackend distillation", "100%", "31%", "Reject"],
-          ["A3", "Teacher-free ReST", "100%", "65%", "Research-only routed ship"],
+          [
+            "A3",
+            "Teacher-free ReST",
+            "100%",
+            "65%",
+            "Research-only routed ship",
+          ],
         ],
       },
     ],
     evidence: [
-      { label: "Hugging Face model", href: "https://huggingface.co/posttrainllm/qwen3-4b-multibackend-distilled" },
+      {
+        label: "Hugging Face model",
+        href: "https://huggingface.co/posttrainllm/qwen3-4b-multibackend-distilled",
+      },
       { label: "Attempt ledger", href: "/docs/attempt-ledger" },
-      { label: "Historical model inventory", href: "/docs/sessions/2026-06-17-stepback-inventory-roi" },
-      { label: "Public artifact registry", href: "/docs/factory/public-artifacts" },
+      {
+        label: "Historical model inventory",
+        href: "/docs/sessions/2026-06-17-stepback-inventory-roi",
+      },
+      {
+        label: "Public artifact registry",
+        href: "/docs/factory/public-artifacts",
+      },
     ],
     blockers: [
       {
         blocker: "Breadth collapsed",
         why: "The recorded 31% breadth result is 28.6 points below stock and 11.3 points below the narrower file-ops distillation.",
-        unblock: "Do not promote this checkpoint. Start from a breadth-preserving recipe with a frozen regression gate.",
+        unblock:
+          "Do not promote this checkpoint. Start from a breadth-preserving recipe with a frozen regression gate.",
       },
       {
         blocker: "No committed machine-readable eval package",
         why: "The exact historical result is preserved in the attempt ledger and session record, but raw predictions and a package-level eval report were not committed.",
-        unblock: "Retain the result as historical evidence; only rerun if a new recipe needs the same checkpoint as a controlled baseline.",
+        unblock:
+          "Retain the result as historical evidence; only rerun if a new recipe needs the same checkpoint as a controlled baseline.",
       },
     ],
     nextAction:
@@ -603,13 +811,28 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["MLX", "conversion", "reasoning", "archive"],
     summary:
       "A public Apple-Silicon-friendly conversion of WeiboAI/VibeThinker-3B, preserved as a runtime artifact rather than claimed as a PostTrainLLM-trained model.",
-    lede:
-      "This release answers a packaging question, not a training question: can the reasoning model be preserved in a local MLX-compatible form? A small local GSM8K screen scored 40/40, but no conversion-parity suite was recorded and the base has no native tool-calling behavior. The case study therefore reports a useful conversion without inventing a model-quality delta.",
+    lede: "This release answers a packaging question, not a training question: can the reasoning model be preserved in a local MLX-compatible form? A small local GSM8K screen scored 40/40, but no conversion-parity suite was recorded and the base has no native tool-calling behavior. The case study therefore reports a useful conversion without inventing a model-quality delta.",
     metrics: [
-      { label: "Model class", value: "3B", context: "converted WeiboAI/VibeThinker-3B" },
-      { label: "Local GSM8K screen", value: "40/40", context: "small historical slice; reasoning sanity check" },
-      { label: "Training delta", value: "None", context: "format conversion, not post-training" },
-      { label: "Native tool calling", value: "No", context: "not a drop-in agent" },
+      {
+        label: "Model class",
+        value: "3B",
+        context: "converted WeiboAI/VibeThinker-3B",
+      },
+      {
+        label: "Local GSM8K screen",
+        value: "40/40",
+        context: "small historical slice; reasoning sanity check",
+      },
+      {
+        label: "Training delta",
+        value: "None",
+        context: "format conversion, not post-training",
+      },
+      {
+        label: "Native tool calling",
+        value: "No",
+        context: "not a drop-in agent",
+      },
     ],
     comparisons: [
       {
@@ -643,31 +866,64 @@ export const artifacts: ArtifactEntry[] = [
         title: "What this release proves",
         columns: ["Question", "Evidence", "Decision"],
         rows: [
-          ["Are unique converted weights public?", "Yes", "Preserve on Hugging Face"],
-          ["Did a local reasoning sanity screen run?", "GSM8K 40/40", "Useful, small historical slice"],
-          ["Was conversion parity measured?", "Not recorded", "No parity claim"],
-          ["Was the model post-trained by PostTrainLLM?", "No", "Conversion-only artifact"],
+          [
+            "Are unique converted weights public?",
+            "Yes",
+            "Preserve on Hugging Face",
+          ],
+          [
+            "Did a local reasoning sanity screen run?",
+            "GSM8K 40/40",
+            "Useful, small historical slice",
+          ],
+          [
+            "Was conversion parity measured?",
+            "Not recorded",
+            "No parity claim",
+          ],
+          [
+            "Was the model post-trained by PostTrainLLM?",
+            "No",
+            "Conversion-only artifact",
+          ],
           ["Does it natively call tools?", "No", "Not an agentic specialist"],
         ],
       },
     ],
     evidence: [
-      { label: "Hugging Face model", href: "https://huggingface.co/posttrainllm/vibethinker-3b-mlx" },
-      { label: "Upstream VibeThinker-3B", href: "https://huggingface.co/WeiboAI/VibeThinker-3B" },
-      { label: "Local reasoning-method review", href: "/docs/learn/diversity-driven-small-model-reasoning" },
-      { label: "Historical model inventory", href: "/docs/sessions/2026-06-17-stepback-inventory-roi" },
-      { label: "GSM8K evaluator", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/scripts/gsm8k_eval.py" },
+      {
+        label: "Hugging Face model",
+        href: "https://huggingface.co/posttrainllm/vibethinker-3b-mlx",
+      },
+      {
+        label: "Upstream VibeThinker-3B",
+        href: "https://huggingface.co/WeiboAI/VibeThinker-3B",
+      },
+      {
+        label: "Local reasoning-method review",
+        href: "/docs/learn/diversity-driven-small-model-reasoning",
+      },
+      {
+        label: "Historical model inventory",
+        href: "/docs/sessions/2026-06-17-stepback-inventory-roi",
+      },
+      {
+        label: "GSM8K evaluator",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/scripts/gsm8k_eval.py",
+      },
     ],
     blockers: [
       {
         blocker: "No controlled conversion-parity report",
         why: "The local sanity result does not prove numerical or benchmark parity with the upstream runtime.",
-        unblock: "Run paired upstream-vs-MLX checks only if a consumer needs this conversion as an active dependency.",
+        unblock:
+          "Run paired upstream-vs-MLX checks only if a consumer needs this conversion as an active dependency.",
       },
       {
         blocker: "No native agentic behavior",
         why: "The reasoning base does not provide a validated tool-calling interface.",
-        unblock: "Treat it as a reasoning/runtime artifact; evaluate a separately adapted candidate before agent use.",
+        unblock:
+          "Treat it as a reasoning/runtime artifact; evaluate a separately adapted candidate before agent use.",
       },
     ],
     nextAction:
@@ -684,13 +940,28 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["distillation", "agentic", "VibeThinker", "inconclusive"],
     summary:
       "A preserved agentic distillation checkpoint whose public weights outlived its evaluation evidence; no current win can be claimed.",
-    lede:
-      "The experiment asked whether a reasoning-strong 3B base could become a better tool-calling student than Qwen3-4B. The fused weights were published, but the repository does not preserve a current before/after eval, regression review, or ship decision. This page is the honest case study of an unfinished proof: the artifact exists; the conclusion does not.",
+    lede: "The experiment asked whether a reasoning-strong 3B base could become a better tool-calling student than Qwen3-4B. The fused weights were published, but the repository does not preserve a current before/after eval, regression review, or ship decision. This page is the honest case study of an unfinished proof: the artifact exists; the conclusion does not.",
     metrics: [
-      { label: "Public weights", value: "Yes", context: "Hugging Face model repository" },
-      { label: "Current agentic eval", value: "Missing", context: "no promoted before/after result" },
-      { label: "Reasoning retention", value: "Unknown", context: "no post-distillation regression gate" },
-      { label: "Decision", value: "Inconclusive", context: "weights are not a ship decision" },
+      {
+        label: "Public weights",
+        value: "Yes",
+        context: "Hugging Face model repository",
+      },
+      {
+        label: "Current agentic eval",
+        value: "Missing",
+        context: "no promoted before/after result",
+      },
+      {
+        label: "Reasoning retention",
+        value: "Unknown",
+        context: "no post-distillation regression gate",
+      },
+      {
+        label: "Decision",
+        value: "Inconclusive",
+        context: "weights are not a ship decision",
+      },
     ],
     comparisons: [
       {
@@ -733,21 +1004,32 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     evidence: [
-      { label: "Hugging Face model", href: "https://huggingface.co/posttrainllm/vibethinker-3b-agentic-distilled" },
+      {
+        label: "Hugging Face model",
+        href: "https://huggingface.co/posttrainllm/vibethinker-3b-agentic-distilled",
+      },
       { label: "Attempt ledger", href: "/docs/attempt-ledger" },
-      { label: "VibeThinker method review", href: "/docs/learn/diversity-driven-small-model-reasoning" },
-      { label: "Public artifact registry", href: "/docs/factory/public-artifacts" },
+      {
+        label: "VibeThinker method review",
+        href: "/docs/learn/diversity-driven-small-model-reasoning",
+      },
+      {
+        label: "Public artifact registry",
+        href: "/docs/factory/public-artifacts",
+      },
     ],
     blockers: [
       {
         blocker: "No current before/after eval",
         why: "Public weights alone cannot establish whether tool-calling improved or whether reasoning regressed.",
-        unblock: "Freeze a matched baseline, agentic primary gate, and reasoning/breadth regression gate; then run both once under the same harness.",
+        unblock:
+          "Freeze a matched baseline, agentic primary gate, and reasoning/breadth regression gate; then run both once under the same harness.",
       },
       {
         blocker: "No specialist package or routing decision",
         why: "The repository has no canonical package metadata that defines safe use or a ship/reject outcome.",
-        unblock: "Only package after the frozen eval produces a defensible decision.",
+        unblock:
+          "Only package after the frozen eval produces a defensible decision.",
       },
     ],
     nextAction:
@@ -763,12 +1045,23 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["Hugging Face", "artifacts", "specialists", "cleanup"],
     summary:
       "The local specialist model cache was promoted to Hugging Face or deleted when safely re-downloadable from upstream repos.",
-    lede:
-      "This archive makes artifact storage explicit: unique posttrainllm model outputs live on Hugging Face, while plain upstream base-model caches are removed locally instead of being mirrored under posttrainllm.",
+    lede: "This archive makes artifact storage explicit: unique posttrainllm model outputs live on Hugging Face, while plain upstream base-model caches are removed locally instead of being mirrored under posttrainllm.",
     metrics: [
-      { label: "posttrainllm HF repos", value: "6", context: "all have first-class case studies" },
-      { label: "Local model cache", value: "cleared", context: "after upload/remote-size verification" },
-      { label: "Storage policy", value: "HF first", context: "R2 remains optional private cache or legacy mirror" },
+      {
+        label: "posttrainllm HF repos",
+        value: "6",
+        context: "all have first-class case studies",
+      },
+      {
+        label: "Local model cache",
+        value: "cleared",
+        context: "after upload/remote-size verification",
+      },
+      {
+        label: "Storage policy",
+        value: "HF first",
+        context: "R2 remains optional private cache or legacy mirror",
+      },
     ],
     comparisons: [
       {
@@ -844,32 +1137,70 @@ export const artifacts: ArtifactEntry[] = [
         title: "Deleted upstream caches",
         columns: ["Local cache", "Upstream repo", "Reason"],
         rows: [
-          ["mxbai-embed-large-v1", "mixedbread-ai/mxbai-embed-large-v1", "Public upstream cache; no posttrainllm delta"],
-          ["qwen3-embedding-0.6b", "Qwen/Qwen3-Embedding-0.6B", "Public upstream cache; no posttrainllm delta"],
-          ["qwen3-vl-2b-instruct", "Qwen/Qwen3-VL-2B-Instruct", "Public upstream cache; no posttrainllm delta"],
+          [
+            "mxbai-embed-large-v1",
+            "mixedbread-ai/mxbai-embed-large-v1",
+            "Public upstream cache; no posttrainllm delta",
+          ],
+          [
+            "qwen3-embedding-0.6b",
+            "Qwen/Qwen3-Embedding-0.6B",
+            "Public upstream cache; no posttrainllm delta",
+          ],
+          [
+            "qwen3-vl-2b-instruct",
+            "Qwen/Qwen3-VL-2B-Instruct",
+            "Public upstream cache; no posttrainllm delta",
+          ],
         ],
       },
     ],
     evidence: [
-      { label: "Pace router HF model", href: "https://huggingface.co/posttrainllm/pace-intent-router-v8" },
-      { label: "File-ops HF model", href: "https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled" },
-      { label: "ReST HF model", href: "https://huggingface.co/posttrainllm/qwen3-4b-rest-fused" },
-      { label: "Multibackend HF model", href: "https://huggingface.co/posttrainllm/qwen3-4b-multibackend-distilled" },
-      { label: "VibeThinker MLX HF model", href: "https://huggingface.co/posttrainllm/vibethinker-3b-mlx" },
-      { label: "VibeThinker distilled HF model", href: "https://huggingface.co/posttrainllm/vibethinker-3b-agentic-distilled" },
-      { label: "HF storage policy", href: "/docs/factory/huggingface-artifact-storage" },
-      { label: "Public artifacts policy", href: "/docs/factory/public-artifacts" },
+      {
+        label: "Pace router HF model",
+        href: "https://huggingface.co/posttrainllm/pace-intent-router-v8",
+      },
+      {
+        label: "File-ops HF model",
+        href: "https://huggingface.co/posttrainllm/qwen3-4b-file-ops-distilled",
+      },
+      {
+        label: "ReST HF model",
+        href: "https://huggingface.co/posttrainllm/qwen3-4b-rest-fused",
+      },
+      {
+        label: "Multibackend HF model",
+        href: "https://huggingface.co/posttrainllm/qwen3-4b-multibackend-distilled",
+      },
+      {
+        label: "VibeThinker MLX HF model",
+        href: "https://huggingface.co/posttrainllm/vibethinker-3b-mlx",
+      },
+      {
+        label: "VibeThinker distilled HF model",
+        href: "https://huggingface.co/posttrainllm/vibethinker-3b-agentic-distilled",
+      },
+      {
+        label: "HF storage policy",
+        href: "/docs/factory/huggingface-artifact-storage",
+      },
+      {
+        label: "Public artifacts policy",
+        href: "/docs/factory/public-artifacts",
+      },
     ],
     blockers: [
       {
         blocker: "Archive entries are not ship decisions",
         why: "Public weights can be useful as evidence without being the selected model for Pace or any product lane.",
-        unblock: "Promote only candidates with a current factory run, eval report, package metadata, and routed-use decision.",
+        unblock:
+          "Promote only candidates with a current factory run, eval report, package metadata, and routed-use decision.",
       },
       {
         blocker: "VibeThinker distilled eval needs promotion",
         why: "The weights are preserved, but the public artifact should not imply a measured win until the eval evidence is attached.",
-        unblock: "Run the factory eval gate and publish a before/after report before using it as a specialist package.",
+        unblock:
+          "Run the factory eval gate and publish a before/after report before using it as a specialist package.",
       },
     ],
     nextAction:
@@ -885,12 +1216,24 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["factory", "evals", "reports"],
     summary:
       "The canonical target -> data -> post-training -> eval -> package -> report shape for posttrainllm runs.",
-    lede:
-      "A specialist factory needs proof folders, not vibes. This schema defines the local run directory, required metrics, and decision vocabulary that every public artifact should eventually satisfy.",
+    lede: "A specialist factory needs proof folders, not vibes. This schema defines the local run directory, required metrics, and decision vocabulary that every public artifact should eventually satisfy.",
     metrics: [
-      { label: "Required files", value: "8", context: "config, dataset, train log, evals, report, artifact, decision" },
-      { label: "Decisions", value: "6", context: "ship, reject, retry-data, retry-training, retry-eval, park" },
-      { label: "First-class outputs", value: "5", context: "data, training, eval, package, report" },
+      {
+        label: "Required files",
+        value: "8",
+        context:
+          "config, dataset, train log, evals, report, artifact, decision",
+      },
+      {
+        label: "Decisions",
+        value: "6",
+        context: "ship, reject, retry-data, retry-training, retry-eval, park",
+      },
+      {
+        label: "First-class outputs",
+        value: "5",
+        context: "data, training, eval, package, report",
+      },
     ],
     comparisons: [
       {
@@ -915,7 +1258,11 @@ export const artifacts: ArtifactEntry[] = [
         title: "Run folder contract",
         columns: ["File", "Purpose", "Public relevance"],
         rows: [
-          ["config.json", "Target, base, method, thresholds", "Explains what was attempted"],
+          [
+            "config.json",
+            "Target, base, method, thresholds",
+            "Explains what was attempted",
+          ],
           ["dataset.json", "Sources, rows, filtering, heldout", "Provenance"],
           ["eval-baseline.json", "Frozen baseline result", "Before number"],
           ["eval-candidate.json", "Candidate result", "After number"],
@@ -932,7 +1279,8 @@ export const artifacts: ArtifactEntry[] = [
       {
         blocker: "Needs a canonical rendered example",
         why: "The schema is real, but the website should show one complete run folder as the public example.",
-        unblock: "Promote the SQL routed result into a small report-only rendered artifact.",
+        unblock:
+          "Promote the SQL routed result into a small report-only rendered artifact.",
       },
     ],
     nextAction:
@@ -948,12 +1296,19 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["WebGPU", "WASM", "browser", "performance"],
     summary:
       "The original browser posttrainllm track: hand-written WebGPU kernels beat WASM SIMD more as model width grows.",
-    lede:
-      "This is the public proof that the browser playground was not just a demo. The same GPT-2-shaped training path runs through a benchmark harness and reports measured end-to-end speedups.",
+    lede: "This is the public proof that the browser playground was not just a demo. The same GPT-2-shaped training path runs through a benchmark harness and reports measured end-to-end speedups.",
     metrics: [
-      { label: "WebGPU speedup", value: "12.1x", context: "vs WASM SIMD at d_model=256" },
+      {
+        label: "WebGPU speedup",
+        value: "12.1x",
+        context: "vs WASM SIMD at d_model=256",
+      },
       { label: "Small-width speedup", value: "2.6x", context: "d_model=96" },
-      { label: "Browser track", value: "shipped", context: "WASM, SIMD, OPFS, WebGPU fast path" },
+      {
+        label: "Browser track",
+        value: "shipped",
+        context: "WASM, SIMD, OPFS, WebGPU fast path",
+      },
     ],
     comparisons: [
       {
@@ -1001,7 +1356,8 @@ export const artifacts: ArtifactEntry[] = [
       {
         blocker: "Not active factory center",
         why: "The browser track is valuable, but current active work is the Mac-local specialist factory.",
-        unblock: "Use browser pages to present factory reports instead of expanding playground scope.",
+        unblock:
+          "Use browser pages to present factory reports instead of expanding playground scope.",
       },
     ],
     nextAction:
@@ -1017,12 +1373,23 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["Memory64", "browser", "WASM"],
     summary:
       "A WebAssembly Memory64 build lifted the browser model allocation ceiling past the old 4GB tab limit.",
-    lede:
-      "The Memory64 work is a useful public artifact because it has a crisp blocker, a measurable unlock, and a compatibility lesson: browsers can train larger local models, but feature detection matters.",
+    lede: "The Memory64 work is a useful public artifact because it has a crisp blocker, a measurable unlock, and a compatibility lesson: browsers can train larger local models, but feature detection matters.",
     metrics: [
-      { label: "Allocated params", value: "473M", context: "browser tab, Memory64 build" },
-      { label: "Allocation time", value: "3.7s", context: "measured Behemoth allocation" },
-      { label: "Train step", value: "82.2s", context: "single sanity step after allocation" },
+      {
+        label: "Allocated params",
+        value: "473M",
+        context: "browser tab, Memory64 build",
+      },
+      {
+        label: "Allocation time",
+        value: "3.7s",
+        context: "measured Behemoth allocation",
+      },
+      {
+        label: "Train step",
+        value: "82.2s",
+        context: "single sanity step after allocation",
+      },
     ],
     comparisons: [
       {
@@ -1048,7 +1415,11 @@ export const artifacts: ArtifactEntry[] = [
         columns: ["Build", "Outcome", "Why"],
         rows: [
           ["WASM32", "OOM around 4GB heap", "32-bit pointer ceiling"],
-          ["WASM Memory64", "473M params allocated", "64-bit memory address path"],
+          [
+            "WASM Memory64",
+            "473M params allocated",
+            "64-bit memory address path",
+          ],
         ],
       },
     ],
@@ -1076,12 +1447,23 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["ANE", "Core ML", "Qwen3", "Mac"],
     summary:
       "A layer-chunked Core ML chain ran a Qwen3 28-block path on the Apple Neural Engine at about 17 tok/s.",
-    lede:
-      "This artifact maps the boundary between owning the model and using Apple’s acceleration stack. It is parked because capability comes from our model/eval loop; Core ML is a deployment target, not the product center.",
+    lede: "This artifact maps the boundary between owning the model and using Apple’s acceleration stack. It is parked because capability comes from our model/eval loop; Core ML is a deployment target, not the product center.",
     metrics: [
-      { label: "ANE decode", value: "17 tok/s", context: "Qwen3 28-block layer-chunked chain" },
-      { label: "FoundationModels context", value: "4096", context: "too small for real tool catalogs" },
-      { label: "Action grounding", value: "25%", context: "FoundationModels BFCL agentic full catalog" },
+      {
+        label: "ANE decode",
+        value: "17 tok/s",
+        context: "Qwen3 28-block layer-chunked chain",
+      },
+      {
+        label: "FoundationModels context",
+        value: "4096",
+        context: "too small for real tool catalogs",
+      },
+      {
+        label: "Action grounding",
+        value: "25%",
+        context: "FoundationModels BFCL agentic full catalog",
+      },
     ],
     comparisons: [
       {
@@ -1114,22 +1496,37 @@ export const artifacts: ArtifactEntry[] = [
         title: "Platform stance",
         columns: ["Path", "Decision", "Reason"],
         rows: [
-          ["Apple FoundationModels", "Routing floor only", "Weak action grounding and short context"],
-          ["Our weights -> Core ML", "Optional future", "Battery/perf optimization if capability is already solved"],
+          [
+            "Apple FoundationModels",
+            "Routing floor only",
+            "Weak action grounding and short context",
+          ],
+          [
+            "Our weights -> Core ML",
+            "Optional future",
+            "Battery/perf optimization if capability is already solved",
+          ],
           ["MLX/posttrainllm runtime", "Active", "Own the model and eval gate"],
         ],
       },
     ],
     evidence: [
       { label: "ANE/CoreML parked lane", href: "/docs/parked/ane-coreml" },
-      { label: "Apple on-device model notes", href: "/docs/learn/apple-on-device-foundation-models" },
-      { label: "Project status", href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/PROJECT_STATUS.md" },
+      {
+        label: "Apple on-device model notes",
+        href: "/docs/learn/apple-on-device-foundation-models",
+      },
+      {
+        label: "Project status",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/PROJECT_STATUS.md",
+      },
     ],
     blockers: [
       {
         blocker: "Capability dependency rejected",
         why: "Apple's model cannot be the differentiator; it is a free local floor at best.",
-        unblock: "Only revive Core ML when a shipped posttrainllm specialist needs a battery/runtime optimization.",
+        unblock:
+          "Only revive Core ML when a shipped posttrainllm specialist needs a battery/runtime optimization.",
       },
     ],
     nextAction:
@@ -1145,12 +1542,19 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["MLX", "decode", "Mac", "throughput"],
     summary:
       "The native Mac runtime reached high local decode throughput on the Huge preset, showing the serving path is viable for local eval loops.",
-    lede:
-      "This is a runtime artifact, not a model-quality claim. Its value is operational: local eval loops need throughput, stable serving, and cheap repeated generation.",
+    lede: "This is a runtime artifact, not a model-quality claim. Its value is operational: local eval loops need throughput, stable serving, and cheap repeated generation.",
     metrics: [
-      { label: "Huge decode", value: "696 tok/s", context: "96M/Huge preset, ctx 1024" },
+      {
+        label: "Huge decode",
+        value: "696 tok/s",
+        context: "96M/Huge preset, ctx 1024",
+      },
       { label: "Mega pilot", value: "293 tok/s", context: "960M pilot" },
-      { label: "Warm TTFT p99", value: "5.8ms", context: "reported runtime metric" },
+      {
+        label: "Warm TTFT p99",
+        value: "5.8ms",
+        context: "reported runtime metric",
+      },
     ],
     comparisons: [
       {
@@ -1184,20 +1588,28 @@ export const artifacts: ArtifactEntry[] = [
         columns: ["Metric", "Value", "Use"],
         rows: [
           ["Decode throughput", "696 tok/s", "Fast local eval/smoke loops"],
-          ["Mega pilot throughput", "293 tok/s", "Boundary mapping for larger local models"],
+          [
+            "Mega pilot throughput",
+            "293 tok/s",
+            "Boundary mapping for larger local models",
+          ],
           ["Warm TTFT p99", "5.8ms", "Interactive serving viability"],
         ],
       },
     ],
     evidence: [
-      { label: "README headline metrics", href: "https://github.com/PostTrainLLM/posttrainllm#headline-results" },
+      {
+        label: "README headline metrics",
+        href: "https://github.com/PostTrainLLM/posttrainllm#headline-results",
+      },
       { label: "Performance docs", href: "/docs/performance" },
     ],
     blockers: [
       {
         blocker: "Preset-specific",
         why: "The headline number is not a blanket claim for all HF models or specialists.",
-        unblock: "Attach latency/RAM/tok-s numbers to each future specialist artifact.",
+        unblock:
+          "Attach latency/RAM/tok-s numbers to each future specialist artifact.",
       },
     ],
     nextAction:
@@ -1213,12 +1625,23 @@ export const artifacts: ArtifactEntry[] = [
     tags: ["gallery", "quantization", "browser"],
     summary:
       "The browser gallery ships fp16 and int4 variants so model downloads are smaller and cold-start is cheaper.",
-    lede:
-      "This artifact is less glamorous than the model work, but it is exactly the kind of public detail users care about: what ships, how big it is, and what tradeoff it makes.",
+    lede: "This artifact is less glamorous than the model work, but it is exactly the kind of public detail users care about: what ships, how big it is, and what tradeoff it makes.",
     metrics: [
-      { label: "Gallery download", value: "~75MB -> ~20MB", context: "4-bit storage-side variants" },
-      { label: "Compression", value: "~4x", context: "int4 gallery files vs fp16" },
-      { label: "Browser-loadable", value: "yes", context: "unlike Mac-side multi-GB specialists" },
+      {
+        label: "Gallery download",
+        value: "~75MB -> ~20MB",
+        context: "4-bit storage-side variants",
+      },
+      {
+        label: "Compression",
+        value: "~4x",
+        context: "int4 gallery files vs fp16",
+      },
+      {
+        label: "Browser-loadable",
+        value: "yes",
+        context: "unlike Mac-side multi-GB specialists",
+      },
     ],
     comparisons: [
       {
@@ -1264,7 +1687,8 @@ export const artifacts: ArtifactEntry[] = [
       {
         blocker: "Not the active artifact channel",
         why: "Browser gallery models are not the same as Mac-side specialist packages.",
-        unblock: "Keep separate from specialist registry; only connect through public reports.",
+        unblock:
+          "Keep separate from specialist registry; only connect through public reports.",
       },
     ],
     nextAction:
