@@ -28,12 +28,16 @@ let enabled = false;
 function userHasOptedOut(): boolean {
   // navigator.doNotTrack is the spec; some engines also stash it on window.
   try {
-    if (typeof navigator !== "undefined" && navigator.doNotTrack === "1") return true;
+    if (typeof navigator !== "undefined" && navigator.doNotTrack === "1")
+      return true;
   } catch {
     // ignore
   }
   try {
-    if (typeof localStorage !== "undefined" && localStorage.getItem(OPT_OUT_KEY) === "1") {
+    if (
+      typeof localStorage !== "undefined" &&
+      localStorage.getItem(OPT_OUT_KEY) === "1"
+    ) {
       return true;
     }
   } catch {
@@ -97,7 +101,10 @@ export function initAnalytics(): boolean {
   }
 }
 
-export function trackEvent(event: string, properties: Record<string, unknown> = {}): void {
+function trackEvent(
+  event: string,
+  properties: Record<string, unknown> = {},
+): void {
   if (!enabled) return;
   try {
     posthog.capture(event, { project_id: PROJECT_SLUG, ...properties });
@@ -176,7 +183,7 @@ function messageFrom(error: unknown): string {
   return String(error);
 }
 
-export function capturePageCrash(
+function capturePageCrash(
   error: unknown,
   source: "window_error" | "unhandled_rejection",
 ): void {

@@ -30,56 +30,88 @@ export const PRESETS: Preset[] = [
   {
     id: "tiny",
     label: "Tiny (~70k params)",
-    layers: 2, dModel: 48, ctx: 32, batch: 16, maxSteps: 2000,
+    layers: 2,
+    dModel: 48,
+    ctx: 32,
+    batch: 16,
+    maxSteps: 2000,
     recommendedBackend: "wasm",
     note: "finishes in well under a minute — best for kicking the tyres",
   },
   {
     id: "small",
     label: "Small (~360k params)",
-    layers: 3, dModel: 96, ctx: 64, batch: 16, maxSteps: 1500,
+    layers: 3,
+    dModel: 96,
+    ctx: 64,
+    batch: 16,
+    maxSteps: 1500,
     recommendedBackend: "wasm",
     note: "the default — a real GPT, comfortable on any laptop",
   },
   {
     id: "medium",
     label: "Medium (~830k params)",
-    layers: 4, dModel: 128, ctx: 96, batch: 16, maxSteps: 1000,
+    layers: 4,
+    dModel: 128,
+    ctx: 96,
+    batch: 16,
+    maxSteps: 1000,
     recommendedBackend: "wasm",
     note: "loss curve is more interesting; a few minutes",
   },
   {
     id: "large",
     label: "Large (~2.7M params)",
-    layers: 6, dModel: 192, ctx: 128, batch: 12, maxSteps: 600,
+    layers: 6,
+    dModel: 192,
+    ctx: 128,
+    batch: 12,
+    maxSteps: 600,
     recommendedBackend: "wasm",
     note: "WASM is slow here — switch to WebGPU if your browser supports it",
   },
   {
     id: "xl",
     label: "XL (~6.4M params, GPU)",
-    layers: 8, dModel: 256, ctx: 128, batch: 8, maxSteps: 400,
+    layers: 8,
+    dModel: 256,
+    ctx: 128,
+    batch: 8,
+    maxSteps: 400,
     recommendedBackend: "webgpu",
     note: "WebGPU recommended — WASM will take a long time at this size",
   },
   {
     id: "huge",
     label: "Huge (~10M params, GPU only)",
-    layers: 12, dModel: 256, ctx: 256, batch: 8, maxSteps: 1500,
+    layers: 12,
+    dModel: 256,
+    ctx: 256,
+    batch: 8,
+    maxSteps: 1500,
     recommendedBackend: "webgpu",
     note: "~15 minutes on M-series WebGPU — first preset where you can see word-shaped output",
   },
   {
     id: "massive",
     label: "Massive (~25M params, GPU only, ~40 min)",
-    layers: 14, dModel: 384, ctx: 256, batch: 4, maxSteps: 1000,
+    layers: 14,
+    dModel: 384,
+    ctx: 256,
+    batch: 4,
+    maxSteps: 1000,
     recommendedBackend: "webgpu",
     note: "the wow moment — locally grammatical output on a real dataset. Plan ~40 minutes",
   },
   {
     id: "mega",
     label: "Mega (~25M, ctx 512, ~1.5 h)",
-    layers: 14, dModel: 384, ctx: 512, batch: 2, maxSteps: 800,
+    layers: 14,
+    dModel: 384,
+    ctx: 512,
+    batch: 2,
+    maxSteps: 800,
     recommendedBackend: "webgpu",
     note: "ctx 512 — the regime where attention dominates compute and Flash Attention would matter. Long-range coherence becomes possible. Plan ~1.5 h",
   },
@@ -91,7 +123,11 @@ export const PRESETS: Preset[] = [
     // exists to prove the ceiling-break, not to train Shakespeare to fluency.
     id: "behemoth",
     label: "Behemoth (~470M params, Memory64)",
-    layers: 24, dModel: 1280, ctx: 512, batch: 1, maxSteps: 50,
+    layers: 24,
+    dModel: 1280,
+    ctx: 512,
+    batch: 1,
+    maxSteps: 50,
     recommendedBackend: "wasm",
     requiresMemory64: true,
     note: "the ceiling-break demo — needs Memory64 (Chromium 133+). Shows the loss curve start to fall on a half-billion-param model in your browser tab. Not meant to finish training; meant to prove the allocator works at this scale. A 473M-param model needs ~10 GB of text to learn anything beyond memorization — point the Python CLI at a real corpus for that.",
@@ -104,7 +140,15 @@ export const PRESETS: Preset[] = [
  * d_model values that aren't divisible by 32.
  */
 const HEADS_BY_D: Record<number, number> = {
-  48: 3, 64: 2, 96: 3, 128: 4, 144: 3, 192: 6, 256: 8, 384: 12, 1280: 20,
+  48: 3,
+  64: 2,
+  96: 3,
+  128: 4,
+  144: 3,
+  192: 6,
+  256: 8,
+  384: 12,
+  1280: 20,
 };
 export function headsFor(dModel: number): number {
   if (HEADS_BY_D[dModel]) return HEADS_BY_D[dModel];
@@ -114,7 +158,11 @@ export function headsFor(dModel: number): number {
 }
 
 /** Total params: byte embeddings + position embeddings + ~12·d² per layer. */
-export function estimateParams(layers: number, dModel: number, ctx: number): number {
+export function estimateParams(
+  layers: number,
+  dModel: number,
+  ctx: number,
+): number {
   return 256 * dModel + ctx * dModel + layers * 12 * dModel * dModel;
 }
 
@@ -123,7 +171,7 @@ export function estimateParams(layers: number, dModel: number, ctx: number): num
  * See header — derived from two empirical data points; expect ±2× accuracy.
  */
 const CALIBRATION = 1.7e10; // K · ms · params for the reference machine
-export function estimateTokensPerSec(params: number, cpuProbeMs: number): number {
+function estimateTokensPerSec(params: number, cpuProbeMs: number): number {
   return CALIBRATION / (cpuProbeMs * Math.max(params, 1));
 }
 
@@ -147,7 +195,8 @@ export function estimateTrainSeconds(
 }
 
 export function formatParams(p: number): string {
-  if (p >= 1_000_000) return `${(p / 1_000_000).toFixed(p < 10_000_000 ? 1 : 0)}M`;
+  if (p >= 1_000_000)
+    return `${(p / 1_000_000).toFixed(p < 10_000_000 ? 1 : 0)}M`;
   if (p >= 1000) return `${(p / 1000).toFixed(p < 10_000 ? 1 : 0)}k`;
   return `${p}`;
 }
