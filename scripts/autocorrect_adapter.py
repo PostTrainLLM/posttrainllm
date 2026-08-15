@@ -30,8 +30,9 @@ import argparse
 import importlib.util
 import json
 import math
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any, Self
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_DIR = ROOT / "evals" / "autocorrect"
@@ -92,7 +93,9 @@ def validate_recipe(recipe: dict[str, Any] | None = None) -> list[str]:
         geometry.get("excluded_modules", [])
     )
     if overlap:
-        problems.append(f"geometry: modules both targeted and excluded: {sorted(overlap)}")
+        problems.append(
+            f"geometry: modules both targeted and excluded: {sorted(overlap)}"
+        )
 
     # The frozen base must be the one the bake-off actually selected.
     bakeoff_path = FIXTURE_DIR / "base-bakeoff-v1.json"
@@ -114,11 +117,19 @@ def validate_recipe(recipe: dict[str, Any] | None = None) -> list[str]:
                 f"base {selected.get('model_id')!r}"
             )
         if base.get("revision") != selected.get("revision"):
-            problems.append("base: revision does not match the selected bake-off revision")
+            problems.append(
+                "base: revision does not match the selected bake-off revision"
+            )
         if base.get("prompt_template") != selection.get("frozen_prompt_template"):
-            problems.append("base: prompt_template drifted from the frozen bake-off prompt")
-        if recipe.get("training", {}).get("precision") != selection.get("frozen_precision"):
-            problems.append("training: precision drifted from the frozen bake-off precision")
+            problems.append(
+                "base: prompt_template drifted from the frozen bake-off prompt"
+            )
+        if recipe.get("training", {}).get("precision") != selection.get(
+            "frozen_precision"
+        ):
+            problems.append(
+                "training: precision drifted from the frozen bake-off precision"
+            )
 
     # Trainable-parameter expectations must match the real base architecture.
     expected_params = geometry.get("expected_trainable_parameters")
@@ -160,7 +171,9 @@ def validate_recipe(recipe: dict[str, Any] | None = None) -> list[str]:
     if tiny_gate.get("dataset_utf8_bytes_max") != stop["tiny_overfit_utf8_bytes_max"]:
         problems.append("gates.tiny_overfit: byte budget disagrees with thresholds-v1")
     if tiny_gate.get("exact_match_min") != stop["tiny_overfit_exact_match_min"]:
-        problems.append("gates.tiny_overfit: exact-match bar disagrees with thresholds-v1")
+        problems.append(
+            "gates.tiny_overfit: exact-match bar disagrees with thresholds-v1"
+        )
 
     pilot_gate = gates.get("pilot", {})
     if pilot_gate.get("rows_max") != stop["pilot_rows_max"]:
@@ -295,7 +308,9 @@ def print_prior_attempts(recipe: dict[str, Any], limit: int = 5) -> None:
     related = prior_attempts(recipe)
     if not related:
         return
-    negative = [a for a in related if a["status"] in {"failed", "regressed", "inconclusive"}]
+    negative = [
+        a for a in related if a["status"] in {"failed", "regressed", "inconclusive"}
+    ]
     print(
         f"\nPrior attempts sharing this recipe's shape: {len(related)} "
         f"({len(negative)} did not achieve their goal). Read before freezing a successor:"
@@ -305,7 +320,9 @@ def print_prior_attempts(recipe: dict[str, Any], limit: int = 5) -> None:
         if attempt.get("lesson"):
             print(f"      {attempt['lesson']}")
     if len(related) > limit:
-        print(f"  ... {len(related) - limit} more: python3 scripts/query_attempts.py --help")
+        print(
+            f"  ... {len(related) - limit} more: python3 scripts/query_attempts.py --help"
+        )
 
 
 # Ship bars paired with the baseline metric that must eventually clear them, and
@@ -313,10 +330,18 @@ def print_prior_attempts(recipe: dict[str, Any], limit: int = 5) -> None:
 # did not: how much of the remaining headroom must training close?
 GATE_BASELINE_KEYS = (
     ("quality", "natural_error_reduction_rate_min", "error_reduction_rate", 1.0),
-    ("regression", "clean_byte_exact_preservation_min",
-     "clean_byte_exact_preservation_rate", 1.0),
-    ("regression", "protected_span_preservation_min",
-     "protected_span_preservation_rate", 1.0),
+    (
+        "regression",
+        "clean_byte_exact_preservation_min",
+        "clean_byte_exact_preservation_rate",
+        1.0,
+    ),
+    (
+        "regression",
+        "protected_span_preservation_min",
+        "protected_span_preservation_rate",
+        1.0,
+    ),
 )
 
 # Two lenses, because a bar near the ceiling and a bar near zero fail in
@@ -384,18 +409,20 @@ def check_zero_shot_gap(recipe: dict[str, Any]) -> list[dict[str, Any]]:
         if not reasons:
             continue
 
-        findings.append({
-            "bar": f"{section}.{bar_key}",
-            "target": target,
-            "baseline_metric": metric_key,
-            "baseline": measured,
-            "required_closure": round(closure, 4),
-            "required_multiplier": None if measured <= 0 else round(multiplier, 3),
-            "statement": (
-                f"{bar_key} is {target} but the selected base scores {measured:g} "
-                f"zero-shot on {metric_key}: training " + " and ".join(reasons)
-            ),
-        })
+        findings.append(
+            {
+                "bar": f"{section}.{bar_key}",
+                "target": target,
+                "baseline_metric": metric_key,
+                "baseline": measured,
+                "required_closure": round(closure, 4),
+                "required_multiplier": None if measured <= 0 else round(multiplier, 3),
+                "statement": (
+                    f"{bar_key} is {target} but the selected base scores {measured:g} "
+                    f"zero-shot on {metric_key}: training " + " and ".join(reasons)
+                ),
+            }
+        )
     return findings
 
 
@@ -434,15 +461,17 @@ def check_recipe_defects(recipe: dict[str, Any]) -> list[dict[str, str]]:
     if gap:
         worst = max(gap, key=lambda finding: finding["required_closure"])
         bars = ", ".join(finding["bar"] for finding in gap)
-        defects.append({
-            "id": "zero-shot-capacity-gap",
-            "statement": (
-                f"the selected base is not near {len(gap)} of its frozen bars before "
-                f"training ({bars}); worst case, {worst['statement']}. Training is being "
-                "asked to supply essentially all of the capability, which is a capacity "
-                "bet on the base, not a tuning problem a recipe can fix"
-            ),
-        })
+        defects.append(
+            {
+                "id": "zero-shot-capacity-gap",
+                "statement": (
+                    f"the selected base is not near {len(gap)} of its frozen bars before "
+                    f"training ({bars}); worst case, {worst['statement']}. Training is being "
+                    "asked to supply essentially all of the capability, which is a capacity "
+                    "bet on the base, not a tuning problem a recipe can fix"
+                ),
+            }
+        )
 
     # A memorization gate whose rows all share one target cannot distinguish
     # "memorized the data" from "emitted a constant".
@@ -482,7 +511,9 @@ def expected_lora_size(config: dict[str, Any], rank: int) -> tuple[int, int]:
     return modules, modules * per_module
 
 
-def resolve_target_names(module_names: Iterable[str], suffixes: Sequence[str]) -> list[str]:
+def resolve_target_names(
+    module_names: Iterable[str], suffixes: Sequence[str]
+) -> list[str]:
     """Select module names whose dotted path ends with a targeted suffix."""
     selected = [
         name
@@ -492,7 +523,9 @@ def resolve_target_names(module_names: Iterable[str], suffixes: Sequence[str]) -
     return sorted(selected)
 
 
-def build_examples(stage: str, recipe: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+def build_examples(
+    stage: str, recipe: dict[str, Any] | None = None
+) -> list[dict[str, Any]]:
     """Materialize one stage's manifest into prompted source/target pairs."""
     if stage not in STAGES:
         raise AdapterError(f"unknown stage {stage!r}; expected one of {STAGES}")
@@ -501,7 +534,9 @@ def build_examples(stage: str, recipe: dict[str, Any] | None = None) -> list[dic
     spec = recipe["data"][stage]
     manifest = foundation.load_json(ROOT / spec["manifest"])
     sources = foundation.load_jsonl(FIXTURE_DIR / "source-documents-v1.jsonl")
-    rows, summary = foundation.materialize_manifest(manifest, sources, foundation.load_layout())
+    rows, summary = foundation.materialize_manifest(
+        manifest, sources, foundation.load_layout()
+    )
     if summary["dataset_sha256"] != spec["dataset_sha256"]:
         raise AdapterError(
             f"{stage}: materialized dataset {summary['dataset_sha256']} does not match the "
@@ -640,7 +675,9 @@ def build_plan(stage: str, recipe: dict[str, Any] | None = None) -> dict[str, An
         "first_step_learning_rate": learning_rate_at(0, total_steps, recipe),
         "peak_learning_rate": recipe["optimizer"]["learning_rate"],
         "checkpoint_steps": checkpoint_steps(total_steps, recipe),
-        "expected_trainable_parameters": recipe["geometry"]["expected_trainable_parameters"],
+        "expected_trainable_parameters": recipe["geometry"][
+            "expected_trainable_parameters"
+        ],
         "authorized": False,
         "authorization_note": (
             "Executing this plan requires explicit owner approval and the GPU lock."
@@ -655,7 +692,7 @@ def build_plan(stage: str, recipe: dict[str, Any] | None = None) -> dict[str, An
 
 def _torch():
     try:
-        import torch  # noqa: PLC0415
+        import torch
     except ImportError as exc:  # pragma: no cover - environment dependent
         raise AdapterError(
             "torch is not importable. The adapter layer is intentionally not a project "
@@ -664,7 +701,9 @@ def _torch():
     return torch
 
 
-def make_lora_linear(base: Any, rank: int, alpha: float, dropout: float, seed: int) -> Any:
+def make_lora_linear(
+    base: Any, rank: int, alpha: float, dropout: float, seed: int
+) -> Any:
     """Wrap one frozen `nn.Linear` with a zero-initialized LoRA branch."""
     torch = _torch()
     nn = torch.nn
@@ -676,7 +715,9 @@ def make_lora_linear(base: Any, rank: int, alpha: float, dropout: float, seed: i
             self.rank = rank
             self.scaling = alpha / rank
             in_features, out_features = base.in_features, base.out_features
-            self.lora_a = nn.Parameter(torch.empty(rank, in_features, dtype=base.weight.dtype))
+            self.lora_a = nn.Parameter(
+                torch.empty(rank, in_features, dtype=base.weight.dtype)
+            )
             self.lora_b = nn.Parameter(
                 torch.zeros(out_features, rank, dtype=base.weight.dtype)
             )
@@ -688,7 +729,7 @@ def make_lora_linear(base: Any, rank: int, alpha: float, dropout: float, seed: i
             for parameter in self.base.parameters():
                 parameter.requires_grad_(False)
 
-        def forward(self, x):  # noqa: ANN001, ANN202 - torch signature
+        def forward(self, x):
             delta = self.dropout(x) @ self.lora_a.T @ self.lora_b.T
             return self.base(x) + delta * self.scaling
 
@@ -753,7 +794,9 @@ def adapter_state_dict(model: Any) -> dict[str, Any]:
     }
 
 
-def save_adapter(model: Any, path: Path, recipe: dict[str, Any], extra: dict[str, Any] | None = None) -> Path:
+def save_adapter(
+    model: Any, path: Path, recipe: dict[str, Any], extra: dict[str, Any] | None = None
+) -> Path:
     torch = _torch()
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -771,13 +814,17 @@ def save_adapter(model: Any, path: Path, recipe: dict[str, Any], extra: dict[str
     return path
 
 
-def load_adapter(model: Any, path: Path, recipe: dict[str, Any] | None = None) -> dict[str, Any]:
+def load_adapter(
+    model: Any, path: Path, recipe: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Load LoRA tensors into an already-injected model, failing closed on drift."""
     torch = _torch()
     recipe = recipe if recipe is not None else load_recipe()
     payload = torch.load(Path(path), map_location="cpu", weights_only=False)
     if payload.get("format") != "autocorrect-lora-v1":
-        raise AdapterError(f"{path}: unexpected adapter format {payload.get('format')!r}")
+        raise AdapterError(
+            f"{path}: unexpected adapter format {payload.get('format')!r}"
+        )
     if payload.get("recipe_id") != recipe["recipe_id"]:
         raise AdapterError(
             f"{path}: adapter was trained under recipe {payload.get('recipe_id')!r}, "
@@ -797,9 +844,11 @@ def load_adapter(model: Any, path: Path, recipe: dict[str, Any] | None = None) -
     return payload.get("meta", {})
 
 
-def encode_batch(tokenizer: Any, examples: Sequence[dict[str, Any]], recipe: dict[str, Any]) -> dict[str, Any]:
+def encode_batch(
+    tokenizer: Any, examples: Sequence[dict[str, Any]], recipe: dict[str, Any]
+) -> dict[str, Any]:
     """Tokenize one batch, refusing to silently truncate an over-length row."""
-    torch = _torch()
+    _torch()
     data = recipe["data"]
     max_source, max_target = data["max_source_tokens"], data["max_target_tokens"]
 
@@ -826,7 +875,9 @@ def encode_batch(tokenizer: Any, examples: Sequence[dict[str, Any]], recipe: dic
     }
 
 
-def training_step(model: Any, batch: dict[str, Any], optimizer: Any, recipe: dict[str, Any]) -> float:
+def training_step(
+    model: Any, batch: dict[str, Any], optimizer: Any, recipe: dict[str, Any]
+) -> float:
     """One forward/backward/clip/step. Returns the scalar loss."""
     torch = _torch()
     model.train()
@@ -835,7 +886,8 @@ def training_step(model: Any, batch: dict[str, Any], optimizer: Any, recipe: dic
     loss = output.loss
     loss.backward()
     torch.nn.utils.clip_grad_norm_(
-        [p for _, p in trainable_parameters(model)], recipe["optimizer"]["max_grad_norm"]
+        [p for _, p in trainable_parameters(model)],
+        recipe["optimizer"]["max_grad_norm"],
     )
     optimizer.step()
     return float(loss.detach())
@@ -875,7 +927,7 @@ class GPULock:
 
     @staticmethod
     def _alive(pid: int) -> bool:
-        import os  # noqa: PLC0415
+        import os
 
         try:
             os.kill(pid, 0)
@@ -885,9 +937,9 @@ class GPULock:
             return True
         return True
 
-    def __enter__(self) -> "GPULock":
-        import datetime as _dt  # noqa: PLC0415
-        import os  # noqa: PLC0415
+    def __enter__(self) -> Self:
+        import datetime as _dt
+        import os
 
         self.path.parent.mkdir(parents=True, exist_ok=True)
         if self.path.exists():
@@ -920,7 +972,7 @@ class GPULock:
         self.acquired = True
         return self
 
-    def __exit__(self, *exc_info: object) -> None:
+    def __exit__(self, *_exc_info: object) -> None:
         if self.acquired:
             self.path.unlink(missing_ok=True)
             self.acquired = False
@@ -947,7 +999,9 @@ def greedy_predict(
 ) -> list[str]:
     """Greedy decode with the frozen generation settings from the bake-off."""
     torch = _torch()
-    bakeoff = json.loads((FIXTURE_DIR / "base-bakeoff-v1.json").read_text(encoding="utf-8"))
+    bakeoff = json.loads(
+        (FIXTURE_DIR / "base-bakeoff-v1.json").read_text(encoding="utf-8")
+    )
     generation = bakeoff["selection"]["frozen_generation"]
 
     model.eval()
@@ -1006,7 +1060,9 @@ def evaluate_stage(
     return {
         "exact_match": overall["exact_match_rate"],
         "error_reduction_rate": overall["error_reduction_rate"],
-        "clean_byte_exact_preservation_rate": overall["clean_byte_exact_preservation_rate"],
+        "clean_byte_exact_preservation_rate": overall[
+            "clean_byte_exact_preservation_rate"
+        ],
         "unnecessary_edit_rate": overall["unnecessary_edit_rate"],
         "protected_span_preservation_rate": overall["protected_span_preservation_rate"],
         "residual_character_error_rate": overall["residual_character_error_rate"],
@@ -1021,12 +1077,12 @@ def run_stage(
     output_dir: Path | None = None,
 ) -> dict[str, Any]:
     """Execute one frozen training stage. Callers must already hold the GPU lock."""
-    import resource as _resource  # noqa: PLC0415
-    import time as _time  # noqa: PLC0415
+    import resource as _resource
+    import time as _time
 
     torch = _torch()
     recipe = recipe if recipe is not None else load_recipe()
-    from transformers import AutoTokenizer, T5ForConditionalGeneration  # noqa: PLC0415
+    from transformers import AutoTokenizer, T5ForConditionalGeneration
 
     plan = build_plan(stage, recipe)
     examples = build_examples(stage, recipe)
@@ -1042,7 +1098,9 @@ def run_stage(
         raise AdapterError(f"{stage}: no train-split rows to train on")
     training = recipe["training"]
     device = resolve_device(recipe)
-    output_dir = Path(output_dir or ROOT / "runs" / f"autocorrect-{stage.replace('_', '-')}-v1")
+    output_dir = Path(
+        output_dir or ROOT / "runs" / f"autocorrect-{stage.replace('_', '-')}-v1"
+    )
     output_dir.mkdir(parents=True, exist_ok=True)
 
     local_dir = str(Path(recipe["base"]["local_dir"]))
@@ -1080,7 +1138,9 @@ def run_stage(
         loss = training_step(model, batch, optimizer, recipe)
         step += 1
         if step % training["log_every_steps"] == 0 or step == 1:
-            history.append({"step": step, "loss": loss, "lr": optimizer.param_groups[0]["lr"]})
+            history.append(
+                {"step": step, "loss": loss, "lr": optimizer.param_groups[0]["lr"]}
+            )
         if stop.observe_loss(step, loss):
             break
         if stop.observe_wall_time((_time.time() - started) / 60.0):
@@ -1092,11 +1152,16 @@ def run_stage(
             entry = {
                 "step": step,
                 "loss": loss,
-                **{k: v for k, v in scored.items()
-                   if k not in ("predictions", "foundation_report")},
+                **{
+                    k: v
+                    for k, v in scored.items()
+                    if k not in ("predictions", "foundation_report")
+                },
             }
             if stage == "pilot" and dev_rows:
-                dev_predictions = greedy_predict(model, tokenizer, dev_rows, recipe, device)
+                dev_predictions = greedy_predict(
+                    model, tokenizer, dev_rows, recipe, device
+                )
                 entry["development_exact_match"] = sum(
                     prediction == row["target"]
                     for prediction, row in zip(dev_predictions, dev_rows)
@@ -1111,18 +1176,29 @@ def run_stage(
 
             if exact > best["exact_match"]:
                 best = {"step": step, "exact_match": exact}
-                save_adapter(model, output_dir / "adapter-best.pt", recipe,
-                             extra={"stage": stage, "step": step, "exact_match": exact})
+                save_adapter(
+                    model,
+                    output_dir / "adapter-best.pt",
+                    recipe,
+                    extra={"stage": stage, "step": step, "exact_match": exact},
+                )
             if stop.observe_eval(step, entry):
                 break
-            if stage == "tiny_overfit" and exact >= recipe["gates"]["tiny_overfit"]["exact_match_min"]:
+            if (
+                stage == "tiny_overfit"
+                and exact >= recipe["gates"]["tiny_overfit"]["exact_match_min"]
+            ):
                 break
 
     final = evaluate_stage(model, tokenizer, stage, recipe, device, examples)
     predictions = final["predictions"]
     final_exact = final["exact_match"]
-    save_adapter(model, output_dir / "adapter-last.pt", recipe,
-                 extra={"stage": stage, "step": step, "exact_match": final_exact})
+    save_adapter(
+        model,
+        output_dir / "adapter-last.pt",
+        recipe,
+        extra={"stage": stage, "step": step, "exact_match": final_exact},
+    )
 
     if stage == "tiny_overfit":
         stop.finish_tiny_overfit(final_exact)
@@ -1197,7 +1273,9 @@ def run_stage(
             key: round(report["final_metrics"][key] - zero_shot[key], 6)
             for key in (
                 "error_reduction_rate",
-                "exact_match_rate" if "exact_match_rate" in report["final_metrics"] else "exact_match",
+                "exact_match_rate"
+                if "exact_match_rate" in report["final_metrics"]
+                else "exact_match",
                 "clean_byte_exact_preservation_rate",
                 "protected_span_preservation_rate",
             )
@@ -1213,7 +1291,9 @@ def run_stage(
             "protected_span_preservation_min": thresholds["regression"][
                 "protected_span_preservation_min"
             ],
-            "unnecessary_edit_rate_max": thresholds["regression"]["unnecessary_edit_rate_max"],
+            "unnecessary_edit_rate_max": thresholds["regression"][
+                "unnecessary_edit_rate_max"
+            ],
         }
         report["gate"] = {
             "passed": None,
@@ -1252,7 +1332,7 @@ def verify_base(recipe: dict[str, Any] | None = None) -> dict[str, Any]:
     if not local_dir.exists():
         raise AdapterError(f"the pinned base is not present at {local_dir}")
 
-    from transformers import AutoTokenizer, T5ForConditionalGeneration  # noqa: PLC0415
+    from transformers import AutoTokenizer, T5ForConditionalGeneration
 
     tokenizer = AutoTokenizer.from_pretrained(str(local_dir))
     model = T5ForConditionalGeneration.from_pretrained(
@@ -1301,14 +1381,21 @@ def verify_base(recipe: dict[str, Any] | None = None) -> dict[str, Any]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
-    sub.add_parser("validate", help="check the frozen recipe against every other artifact")
     sub.add_parser(
-        "verify-base", help="forward-only load parity against the real pinned base (needs torch)"
+        "validate", help="check the frozen recipe against every other artifact"
     )
-    plan_parser = sub.add_parser("plan", help="print the resolved, unexecuted training plan")
+    sub.add_parser(
+        "verify-base",
+        help="forward-only load parity against the real pinned base (needs torch)",
+    )
+    plan_parser = sub.add_parser(
+        "plan", help="print the resolved, unexecuted training plan"
+    )
     plan_parser.add_argument("--stage", choices=STAGES, default="tiny_overfit")
     sub.add_parser("selftest", help="run the offline adapter checks (needs torch)")
-    train_parser = sub.add_parser("train", help="refuses without explicit operator approval")
+    train_parser = sub.add_parser(
+        "train", help="refuses without explicit operator approval"
+    )
     train_parser.add_argument("--stage", choices=STAGES, default="tiny_overfit")
     train_parser.add_argument("--i-have-operator-approval", action="store_true")
     train_parser.add_argument("--output-dir", type=Path, default=None)
@@ -1342,7 +1429,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "selftest":
         test_path = ROOT / "tests" / "test_autocorrect_adapter.py"
-        spec = importlib.util.spec_from_file_location("test_autocorrect_adapter", test_path)
+        spec = importlib.util.spec_from_file_location(
+            "test_autocorrect_adapter", test_path
+        )
         if not spec or not spec.loader:
             raise AdapterError(f"cannot load {test_path}")
         module = importlib.util.module_from_spec(spec)
@@ -1373,7 +1462,9 @@ def main(argv: list[str] | None = None) -> int:
                 "Known defects that a successor must fix first:"
             )
             for defect in recipe.get("known_defects", []):
-                print(f"  - [{defect['id']}] {defect.get('fix_for_v2', defect['statement'])}")
+                print(
+                    f"  - [{defect['id']}] {defect.get('fix_for_v2', defect['statement'])}"
+                )
             print("Freeze a new recipe version instead of training under this one.")
             return 5
 

@@ -1,6 +1,6 @@
-export type MacReleaseState = "pending-notarization" | "available";
+type MacReleaseState = "pending-notarization" | "available";
 
-export interface MacReleaseVerification {
+interface MacReleaseVerification {
   developerIdSigned: boolean;
   notarized: boolean;
   stapled: boolean;

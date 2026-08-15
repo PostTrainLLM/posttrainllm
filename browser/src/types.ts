@@ -41,7 +41,7 @@ export const DEFAULT_CONFIG: RunConfig = {
 };
 
 /** Posted to the UI on every eval interval — see docs/browser_notes.md. */
-export interface TrainingProgress {
+interface TrainingProgress {
   step: number;
   maxSteps: number;
   trainLoss: number;
@@ -79,7 +79,10 @@ export type ToWorker =
   // out, returning the resulting text. Used to study "what does this
   // layer's attention contribute?" or "is this block load-bearing?".
   | {
-      type: "ablate"; prompt: string; tokens: number; temperature: number;
+      type: "ablate";
+      prompt: string;
+      tokens: number;
+      temperature: number;
       ablations: { layer: number; target: "attn" | "mlp" | "all" }[];
     }
   // Activation patching — re-runs generation with the residual stream
@@ -89,7 +92,10 @@ export type ToWorker =
   // state at (donor.layer, donor.position) into the recipient's
   // residual stream (full Meng et al. 2022 donor → recipient swap).
   | {
-      type: "patch"; prompt: string; tokens: number; temperature: number;
+      type: "patch";
+      prompt: string;
+      tokens: number;
+      temperature: number;
       patches: {
         layer: number;
         position: number;
@@ -144,7 +150,13 @@ export type FromWorker =
   | { type: "sample"; text: string }
   | { type: "sample_begin"; prompt: string }
   | { type: "sample_chunk"; chunk: string; count: number }
-  | { type: "sample_done"; text: string; tokensPerSecond: number; firstTokenMs: number; totalMs: number }
+  | {
+      type: "sample_done";
+      text: string;
+      tokensPerSecond: number;
+      firstTokenMs: number;
+      totalMs: number;
+    }
   | { type: "checkpoint"; state: ArrayBuffer } // serialized model state for OPFS
   | { type: "restored" } // a saved model was reloaded into the worker
   | { type: "done"; reason: "finished" | "stopped" }
@@ -157,7 +169,17 @@ export type FromWorker =
   // multiplies + f32 accumulators) also passes its numerics gate.
   // cooperativeMatrix will land here when #92 ships. Sent at most once
   // per loaded model.
-  | { type: "gpu_caps"; caps: { f16Storage?: boolean; shaderF16?: boolean; cooperativeMatrix?: boolean; coopMatrixActive?: boolean; webnnPassed?: boolean; webnnDevice?: string } }
+  | {
+      type: "gpu_caps";
+      caps: {
+        f16Storage?: boolean;
+        shaderF16?: boolean;
+        cooperativeMatrix?: boolean;
+        coopMatrixActive?: boolean;
+        webnnPassed?: boolean;
+        webnnDevice?: string;
+      };
+    }
   // Fires when the worker has destroyed its loaded model (auto-offload).
   // Main thread hides the GPU-mem pill + disables Generate + shows a small
   // "model freed after idle" toast with a "reload" affordance.
@@ -166,16 +188,35 @@ export type FromWorker =
   // ranking metric; interpret against the benchmark's `lowerIsBetter`.
   // `kind: "incompatible"` covers vocab/architecture mismatch (skip,
   // don't penalize); `kind: "failed"` is a real failure (show red).
-  | { type: "benchmark_done"; id: string; score: number; details?: Record<string, unknown>; wallSeconds: number }
+  | {
+      type: "benchmark_done";
+      id: string;
+      score: number;
+      details?: Record<string, unknown>;
+      wallSeconds: number;
+    }
   | { type: "benchmark_skipped"; id: string; reason: string }
   | { type: "benchmark_failed"; id: string; message: string }
   // Logit lens result. One entry per layer; each entry has the top-K
   // (token, prob) predictions per input position. nLayers = entries.length.
   | { type: "lens"; result: LensResult }
-  | { type: "ablate_done"; text: string; ablations: { layer: number; target: string }[] }
+  | {
+      type: "ablate_done";
+      text: string;
+      ablations: { layer: number; target: string }[];
+    }
   | { type: "ablate_failed"; message: string }
-  | { type: "patch_done"; text: string; patches: { layer: number; position: number }[] }
+  | {
+      type: "patch_done";
+      text: string;
+      patches: { layer: number; position: number }[];
+    }
   | { type: "patch_failed"; message: string }
   /** Tuned-lens upload result. `nLayers > 0` = loaded successfully; `error` = failure mode. */
-  | { type: "tuned_lenses_loaded"; nLayers: number; vocabSize: number; dModel: number }
+  | {
+      type: "tuned_lenses_loaded";
+      nLayers: number;
+      vocabSize: number;
+      dModel: number;
+    }
   | { type: "tuned_lenses_failed"; message: string };

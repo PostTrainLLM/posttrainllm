@@ -7,19 +7,19 @@ export type ArtifactState =
   | "blocked"
   | "parked";
 
-export type ArtifactMetric = {
+type ArtifactMetric = {
   label: string;
   value: string;
   context: string;
 };
 
-export type ArtifactTable = {
+type ArtifactTable = {
   title: string;
   columns: string[];
   rows: string[][];
 };
 
-export type ArtifactComparison = {
+type ArtifactComparison = {
   name: string;
   metric: string;
   score: string;
@@ -44,7 +44,7 @@ export type ReportCardOutcome =
 /// truth for its numbers, and duplicating them here would let the two surfaces
 /// drift. It does not change weight-release policy — `state` still governs
 /// what may be released.
-export type ArtifactReportCard = {
+type ArtifactReportCard = {
   outcome: ReportCardOutcome;
   /// False whenever the ship decision cannot be traced end to end (historical
   /// values, unvalidated benchmark, unchecked leakage, open blockers).

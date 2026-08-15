@@ -7,7 +7,7 @@ import { capture } from "./code-health-files.mjs";
 
 const baseline = {
   duplicatedLines: 4093,
-  percentage: 3.1866771513768968,
+  percentage: 3.1596418094796976,
   clones: 262,
 };
 const outputDirectory = mkdtempSync(join(tmpdir(), "posttrainllm-jscpd-"));

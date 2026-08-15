@@ -2,7 +2,7 @@
 
 import { capture, commandWithUvx } from "./code-health-files.mjs";
 
-const knipBaseline = { exports: 3, types: 13 };
+const knipBaseline = { exports: 0, types: 3 };
 const knip = capture("pnpm", [
   "exec",
   "knip",
@@ -57,11 +57,9 @@ console.log(
   `Unused code: Knip exports=${counts.exports ?? 0}, types=${counts.types ?? 0}; ` +
     `Vulture high-confidence findings=${vultureFindings.length}.`,
 );
-if (vultureFindings.length > 2) {
+if (vultureFindings.length > 0) {
   process.stdout.write(vulture.stdout);
-  console.error("Vulture findings exceed the accepted baseline of 2.");
+  console.error("Vulture findings exceed the accepted baseline of 0.");
   failed = true;
-} else if (vultureFindings.length < 2) {
-  console.log("Vulture findings improved; lower the checked-in baseline.");
 }
 if (failed) process.exit(1);

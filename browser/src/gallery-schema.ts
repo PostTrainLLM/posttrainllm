@@ -6,8 +6,6 @@
 /// loads it once at boot; the Node tooling rewrites it after every
 /// gallery refresh. Schema changes here ripple to both halves.
 
-import type { Benchmark } from "./benchmarks/types";
-
 /** One entry in the manifest's `models` array — a single gallery model.
  *  The lifecycle: `train_gallery_one` produces the raw artefacts +
  *  initial entry; `finalize_gallery` packs the .bin file and stamps
@@ -62,7 +60,12 @@ export interface GalleryModel {
    *  models with Mac-side HF/safetensors specialists. Values mirror the Swift
    *  `GalleryModelKind` raw values EXACTLY (one schema, two readers). Absent ⇒
    *  `browser-bin` (the historical default, a browser-loadable `.bin`). */
-  kind?: 'browser-bin' | 'mac-posttrainllm' | 'mac-adapter' | 'mac-gguf' | 'mac-safetensors-hf';
+  kind?:
+    | "browser-bin"
+    | "mac-posttrainllm"
+    | "mac-adapter"
+    | "mac-gguf"
+    | "mac-safetensors-hf";
   /** B31 — for adapter kinds (`mac-adapter`): the `id` of the base model it
    *  applies to. Should match another entry's `id` in the same manifest. */
   parent?: string;
@@ -75,7 +78,7 @@ export interface GalleryModel {
 
 /** Submission metadata for a single model. The `featured` flag marks
  *  manually-curated entries for the leaderboard front page. */
-export interface GallerySubmission {
+interface GallerySubmission {
   /** Display name of the submitter. */
   author: string;
   /** ISO 8601 timestamp of submission. */
@@ -97,10 +100,3 @@ export interface GalleryManifest {
   /** All published models, in display order. */
   models: GalleryModel[];
 }
-
-/** Convenience: cross-link benchmark metadata into the per-model
- *  score table when rendering. The benchmark module is the source
- *  of truth for direction (`lowerIsBetter`) and human name. */
-export type BenchmarkWithScore = Benchmark & {
-  score: number | null;
-};

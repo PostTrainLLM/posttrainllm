@@ -20,7 +20,7 @@ import type { Backend } from "./types";
  *  device — just adapter feature flags. Cooperative-matrix needs a real shader
  *  probe and is filled in later (by the worker after device creation).
  */
-export interface GpuSubFeatures {
+interface GpuSubFeatures {
   /** `shader-f16` extension — WGSL `enable f16;` + the `f16` scalar type.
    *  Stable in Chrome 121+. */
   shaderF16: boolean;
@@ -77,7 +77,9 @@ interface AdapterShape {
   requestAdapterInfo?: () => Promise<AdapterShape["info"]>;
 }
 
-interface AdapterFeatures { has(name: string): boolean }
+interface AdapterFeatures {
+  has(name: string): boolean;
+}
 
 async function probeWebGpu(): Promise<{
   available: boolean;
@@ -85,23 +87,39 @@ async function probeWebGpu(): Promise<{
   gpuFeatures: GpuSubFeatures;
 }> {
   const empty: GpuSubFeatures = {
-    shaderF16: false, subgroups: false, timestampQuery: false,
-    vendor: "", architecture: "", device: "", description: "",
+    shaderF16: false,
+    subgroups: false,
+    timestampQuery: false,
+    vendor: "",
+    architecture: "",
+    device: "",
+    description: "",
   };
-  const gpu = (navigator as unknown as {
-    gpu?: { requestAdapter(): Promise<(AdapterShape & { features?: AdapterFeatures }) | null> };
-  }).gpu;
+  const gpu = (
+    navigator as unknown as {
+      gpu?: {
+        requestAdapter(): Promise<
+          (AdapterShape & { features?: AdapterFeatures }) | null
+        >;
+      };
+    }
+  ).gpu;
   if (!gpu) return { available: false, gpuName: null, gpuFeatures: empty };
   try {
     const adapter = await gpu.requestAdapter();
-    if (!adapter) return { available: false, gpuName: null, gpuFeatures: empty };
+    if (!adapter)
+      return { available: false, gpuName: null, gpuFeatures: empty };
 
     let info = adapter.info;
     if (!info && typeof adapter.requestAdapterInfo === "function") {
       info = await adapter.requestAdapterInfo();
     }
-    const parts = [info?.vendor, info?.architecture, info?.device, info?.description]
-      .filter((s): s is string => typeof s === "string" && s.length > 0);
+    const parts = [
+      info?.vendor,
+      info?.architecture,
+      info?.device,
+      info?.description,
+    ].filter((s): s is string => typeof s === "string" && s.length > 0);
     const gpuName = parts.length ? parts.join(" · ") : null;
 
     // Adapter features — cheap to probe, no device creation needed.
@@ -131,7 +149,8 @@ export async function detectCapabilities(): Promise<Capabilities> {
   const wasmSimd = hasWasmSimd();
   // WebNN: just check if `navigator.ml` is a thing. The expensive context
   // probe (gpu vs npu) happens later, opportunistically.
-  const webnnPresent = typeof (navigator as unknown as { ml?: unknown }).ml === "object" &&
+  const webnnPresent =
+    typeof (navigator as unknown as { ml?: unknown }).ml === "object" &&
     (navigator as unknown as { ml?: unknown }).ml !== null;
   return {
     webgpu: probe.available,
@@ -200,7 +219,8 @@ export function detectHardware(): Hardware {
   const nav = navigator as Navigator & { deviceMemory?: number };
   return {
     cores: nav.hardwareConcurrency || 1,
-    deviceMemoryGB: typeof nav.deviceMemory === "number" ? nav.deviceMemory : null,
+    deviceMemoryGB:
+      typeof nav.deviceMemory === "number" ? nav.deviceMemory : null,
     cpuProbeMs: probeCpuSpeed(),
   };
 }
@@ -210,15 +230,38 @@ export function detectHardware(): Hardware {
 // training is single-threaded WASM and genuinely slow: measured on a fast
 // laptop, a 0.36M model is ~0.4s/step and a 1.3M model is ~2.6s/step. The notes
 // stay vague on time on purpose — the live ETA in the stats is the real number.
-const TIERS: Record<MachineTier, Omit<ModelRecommendation, "tier" | "approxParams">> = {
-  modest: { ctx: 32, layers: 2, dModel: 48, maxSteps: 1500,
-    note: "tiny and quick — the loss curve falls within a few minutes" },
-  standard: { ctx: 64, layers: 3, dModel: 96, maxSteps: 600,
-    note: "a small model; a full run is several minutes — watch the ETA" },
-  capable: { ctx: 96, layers: 4, dModel: 96, maxSteps: 400,
-    note: "slower per step; a run takes a good few minutes" },
-  strong: { ctx: 128, layers: 4, dModel: 144, maxSteps: 200,
-    note: "near the in-browser ceiling and slow — for real runs, train locally" },
+const TIERS: Record<
+  MachineTier,
+  Omit<ModelRecommendation, "tier" | "approxParams">
+> = {
+  modest: {
+    ctx: 32,
+    layers: 2,
+    dModel: 48,
+    maxSteps: 1500,
+    note: "tiny and quick — the loss curve falls within a few minutes",
+  },
+  standard: {
+    ctx: 64,
+    layers: 3,
+    dModel: 96,
+    maxSteps: 600,
+    note: "a small model; a full run is several minutes — watch the ETA",
+  },
+  capable: {
+    ctx: 96,
+    layers: 4,
+    dModel: 96,
+    maxSteps: 400,
+    note: "slower per step; a run takes a good few minutes",
+  },
+  strong: {
+    ctx: 128,
+    layers: 4,
+    dModel: 144,
+    maxSteps: 200,
+    note: "near the in-browser ceiling and slow — for real runs, train locally",
+  },
 };
 
 /** Rough parameter count: embeddings + ~12·d² per transformer layer. */
@@ -234,11 +277,16 @@ export function recommendModel(hw: Hardware): ModelRecommendation {
 
   // Conservative downgrades on weak secondary signals.
   if (hw.cores <= 4 && tier === "strong") tier = "capable";
-  if (hw.cores <= 2 && (tier === "strong" || tier === "capable")) tier = "standard";
+  if (hw.cores <= 2 && (tier === "strong" || tier === "capable"))
+    tier = "standard";
   if (hw.deviceMemoryGB != null && hw.deviceMemoryGB <= 2) tier = "modest";
 
   const t = TIERS[tier];
-  return { tier, ...t, approxParams: estimateParams(t.ctx, t.layers, t.dModel) };
+  return {
+    tier,
+    ...t,
+    approxParams: estimateParams(t.ctx, t.layers, t.dModel),
+  };
 }
 
 // ===========================================================================
@@ -264,18 +312,30 @@ export function detectBrowser(): BrowserInfo {
     "training (WebAssembly) is identical here; the RAM hint is Chromium-only, " +
     `so the model suggestion uses the CPU-speed probe instead, and ${webgpu}`;
 
-  if (/\bEdg\//.test(ua)) return { name: "Edge", chromium: true, note: chromiumNote };
-  if (/\bOPR\//.test(ua)) return { name: "Opera", chromium: true, note: chromiumNote };
+  if (/\bEdg\//.test(ua))
+    return { name: "Edge", chromium: true, note: chromiumNote };
+  if (/\bOPR\//.test(ua))
+    return { name: "Opera", chromium: true, note: chromiumNote };
   if (/\bFirefox\//.test(ua))
-    return { name: "Firefox", chromium: false,
-      note: nonChromium("WebGPU is still rolling out.") };
+    return {
+      name: "Firefox",
+      chromium: false,
+      note: nonChromium("WebGPU is still rolling out."),
+    };
   // `Chrome/` and `HeadlessChrome/` (Playwright, Puppeteer): both are
   // Chromium. We need the looser substring match because "HeadlessChrome"
   // has no word boundary before "Chrome".
-  if (/Chrome\//.test(ua)) return { name: "Chrome", chromium: true, note: chromiumNote };
+  if (/Chrome\//.test(ua))
+    return { name: "Chrome", chromium: true, note: chromiumNote };
   if (/\bSafari\//.test(ua))
-    return { name: "Safari", chromium: false,
-      note: nonChromium("WebGPU needs Safari 18+ and OPFS needs Safari 17+.") };
-  return { name: "this browser", chromium: false,
-    note: "training runs on WebAssembly, which every modern browser supports." };
+    return {
+      name: "Safari",
+      chromium: false,
+      note: nonChromium("WebGPU needs Safari 18+ and OPFS needs Safari 17+."),
+    };
+  return {
+    name: "this browser",
+    chromium: false,
+    note: "training runs on WebAssembly, which every modern browser supports.",
+  };
 }
