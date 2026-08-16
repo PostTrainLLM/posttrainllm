@@ -204,6 +204,27 @@ Currently parked unless directly needed by the active factory run:
 - Tier 5 research
 - broad Mac app polish
 - new PRD expansion
+- unused experiment CLIs (ROME, MEMIT, SAE, LASER, GPTQ, and siblings)
+
+### Parked experimental CLI group
+
+The default `posttrainllm` command surface is the factory loop
+(train / eval / package / report / decide). Research experiment
+commands stay in-tree under `native-mac/Sources/TinyGPT/` as learning
+assets — do not delete the implementations — but they are dispatched
+only through:
+
+```text
+posttrainllm experimental <command>
+posttrainllm experimental --help
+```
+
+Parked names: `rome`, `memit`, `patch`, `sae`, `sae-explore`,
+`sae-to-saelens`, `interp-replay`, `tuned-lens`, `linear-probe`,
+`causal-trace`, `laser`, `gptq`, `hqq`, `prune-unstructured`,
+`prune-structured`, `magpie`, `automix`, `compress`, `bon`,
+`train-heads`. Hidden top-level aliases still work so existing scripts
+keep running; they are omitted from default `--help`.
 
 The old polish-first launch sequence is superseded. Preserve the idea that
 polish matters, but apply it narrowly to the **Factory Run Center** and

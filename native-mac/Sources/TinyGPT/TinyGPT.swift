@@ -3,14 +3,9 @@ import TinyGPTIO
 import TinyGPTBench
 import TinyGPTServe
 
-/// CLI entry point. Mirrors `python_ref/load_tinygpt.py --inspect`.
-/// Subcommands:
-///   posttrainllm inspect <path>     — print the file's manifest + metadata
-///   posttrainllm validate <path>    — read and re-encode, exit 0 iff round-trips
-///                                bit-identically (sanity check for writers)
-///
-/// Once the model + training milestones land, this entry point grows
-/// `train` and `sample` subcommands. For M1 it's read-only.
+/// CLI entry point. Default surface is the factory loop
+/// (train / eval / package / report / decide). Parked research commands
+/// live under `posttrainllm experimental`.
 @main
 struct posttrainllm {
     static func main() {
@@ -81,49 +76,17 @@ struct posttrainllm {
             RerankEval.run(args: Array(args.dropFirst()))
         case "es":
             ES.run(args: Array(args.dropFirst()))
-        case "laser":
-            LASER.run(args: Array(args.dropFirst()))
-        case "hqq":
-            HQQ.run(args: Array(args.dropFirst()))
-        case "gptq":
-            GPTQWorker.run(args: Array(args.dropFirst()))
-        case "prune-unstructured":
-            PruneUnstructured.run(args: Array(args.dropFirst()))
-        case "prune-structured":
-            PruneStructured.run(args: Array(args.dropFirst()))
         case "score-bench":
             fputs("[deprecated] score-bench is now run-bench; please migrate\n", stderr)
             RunBench.run(args: Array(args.dropFirst()))
         case "run-bench":
             RunBench.run(args: Array(args.dropFirst()))
-        case "magpie":
-            Magpie.run(args: Array(args.dropFirst()))
-        case "tuned-lens":
-            TunedLens.run(args: Array(args.dropFirst()))
-        case "linear-probe":
-            LinearProbe.run(args: Array(args.dropFirst()))
         case "dedupe":
             Dedupe.run(args: Array(args.dropFirst()))
-        case "rome":
-            ROME.run(args: Array(args.dropFirst()))
-        case "memit":
-            MEMIT.run(args: Array(args.dropFirst()))
-        case "bon":
-            BestOfN.run(args: Array(args.dropFirst()))
-        case "sae":
-            SAE.run(args: Array(args.dropFirst()))
-        case "sae-explore":
-            SaeExplore.run(args: Array(args.dropFirst()))
-        case "sae-to-saelens":
-            SaeToSaelens.run(args: Array(args.dropFirst()))
         case "train-quality-classifier":
             QualityClassifier.runTrain(args: Array(args.dropFirst()))
         case "quality-filter":
             QualityClassifier.runFilter(args: Array(args.dropFirst()))
-        case "automix":
-            AutoMix.run(args: Array(args.dropFirst()))
-        case "compress":
-            Compress.run(args: Array(args.dropFirst()))
         case "build-escalate-data":
             BuildEscalateData.run(args: Array(args.dropFirst()))
         case "eval-escalate":
@@ -138,8 +101,6 @@ struct posttrainllm {
             EvalMilu.run(args: Array(args.dropFirst()))
         case "eval-review":
             EvalReview.run(args: Array(args.dropFirst()))
-        case "interp-replay":
-            InterpReplay.run(args: Array(args.dropFirst()))
         case "validate-project":
             ValidateProject.run(args: Array(args.dropFirst()))
         case "generate":
@@ -203,10 +164,6 @@ struct posttrainllm {
             EvalHumanEval.run(args: Array(args.dropFirst()))
         case "judge":
             JudgeShim.run(args: Array(args.dropFirst()))
-        case "patch":
-            Patch.run(args: Array(args.dropFirst()))
-        case "causal-trace":
-            CausalTrace.run(args: Array(args.dropFirst()))
         case "gguf-inspect":
             GGUFInspect.run(args: Array(args.dropFirst()))
         case "gguf-load":
@@ -219,8 +176,6 @@ struct posttrainllm {
             ToSafetensors.run(args: Array(args.dropFirst()))
         case "export-mlx":
             ExportMLX.run(args: Array(args.dropFirst()))
-        case "train-heads":
-            TrainHeads.run(args: Array(args.dropFirst()))
         case "compare":
             Compare.run(args: Array(args.dropFirst()))
         case "hf-inspect":
@@ -273,9 +228,15 @@ struct posttrainllm {
             // VLM specialist — Milestone 1 smoke (vision encoder load +
             // forward). See docs/prds/factory-vision-specialist.md.
             VLMSmoke.run(args: Array(args.dropFirst()))
+        case "experimental":
+            ExperimentalCommands.run(args: Array(args.dropFirst()))
         case "-h", "--help":
             printUsage()
         default:
+            if ExperimentalCommands.names.contains(cmd) {
+                ExperimentalCommands.dispatch(cmd, args: Array(args.dropFirst()))
+                return
+            }
             fputs("unknown subcommand: \(cmd)\n\n", stderr)
             printUsage()
             exit(2)
@@ -293,28 +254,34 @@ struct posttrainllm {
 
     private static func printUsage() {
         print("""
-        posttrainllm — native-side CLI for the .tinygpt file format and training
+        posttrainllm — Mac-local specialist factory
+
+        Active loop: target -> data -> post-training -> eval -> package -> report
 
         usage:
-          posttrainllm inspect <path>     print manifest + metadata for a .tinygpt file
-          posttrainllm validate <path>    round-trip check: read → encode → byte-compare
-          posttrainllm bench [flags]      inference-side LLM benchmark harness (Bench360-modelled)
-          posttrainllm infer-heatmap <trace.json> render an inference latency heatmap
-          posttrainllm bench-train [flags] training-throughput benchmark vs. WebGPU baseline
-          posttrainllm synthesize [flags] label prompt JSONL via an OpenAI-compatible teacher
-          posttrainllm factory-run <sub>  render/validate and manage durable run lifecycle metadata
-          posttrainllm tokenize-train [flags] train a domain BPE tokenizer.json
-          posttrainllm export-mlx <artifact> export .tinygpt/.lora/HF dir for MLX use
-          posttrainllm rerank-train [flags] train a lightweight reranker artifact
-          posttrainllm rerank-eval [flags]  evaluate a reranker and emit E0 rows
-          posttrainllm screen <sub> ...   Mac screen-reading scaffold (Wave 2.6)
-                                     subs: capture | tree | both
-                                     see `posttrainllm screen --help` for flags
-          posttrainllm ax-capture [flags] capture PNG + AX JSON pairs for VLM data
+          posttrainllm factory-run <sub>  render/validate and manage run lifecycle
+          posttrainllm train [flags]      train from scratch
+          posttrainllm sft [flags]        supervised fine-tune (LoRA)
+          posttrainllm dpo [flags]        preference post-training
+          posttrainllm distill [flags]    distillation
+          posttrainllm finetune [flags]   adapter fine-tune
+          posttrainllm eval [flags]       run an eval harness
+          posttrainllm eval-gate [flags]  frozen-suite gate vs a baseline
+          posttrainllm eval-compare [flags]
+                                          compare baseline/candidate E0 rows
+          posttrainllm bake-lora [flags]  fold a .lora adapter into base weights
+          posttrainllm merge [flags]      merge checkpoints / adapters
+          posttrainllm export-mlx <artifact>
+                                          package .tinygpt/.lora/HF for MLX
+          posttrainllm inspect <path>     print manifest + metadata
+          posttrainllm validate <path>    round-trip check a .tinygpt file
 
-        file format documented in Sources/TinyGPTIO/TinyGPTFile.swift.
-        bench flags documented in `posttrainllm bench --help`.
-        bench harness design documented in docs/benchmark_harness_design.md.
+        See `posttrainllm <command> --help` for flags. Factory contract:
+        docs/factory/run-schema.md.
+
+        Parked research CLIs (ROME, MEMIT, SAE, LASER, GPTQ, …) live under:
+          posttrainllm experimental <command>
+          posttrainllm experimental --help
         """)
     }
 
