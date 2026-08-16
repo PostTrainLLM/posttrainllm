@@ -7,14 +7,7 @@ import Foundation
 /// Hidden top-level aliases still dispatch here so existing scripts keep
 /// working; they are omitted from default `--help`.
 enum ExperimentalCommands {
-    static let names: Set<String> = [
-        "rome", "memit", "patch",
-        "sae", "sae-explore", "sae-to-saelens", "interp-replay",
-        "tuned-lens", "linear-probe", "causal-trace",
-        "laser", "gptq", "hqq",
-        "prune-unstructured", "prune-structured",
-        "magpie", "automix", "compress", "bon", "train-heads",
-    ]
+    static var names: Set<String> { Set(runners.keys) }
 
     static func run(args: [String]) {
         guard let cmd = args.first else {
@@ -28,55 +21,40 @@ enum ExperimentalCommands {
         dispatch(cmd, args: Array(args.dropFirst()))
     }
 
+    private static let runners: [String: ([String]) -> Void] = [
+        "rome": { ROME.run(args: $0) },
+        "memit": { MEMIT.run(args: $0) },
+        "patch": { Patch.run(args: $0) },
+        "sae": { SAE.run(args: $0) },
+        "sae-explore": { SaeExplore.run(args: $0) },
+        "sae-to-saelens": { SaeToSaelens.run(args: $0) },
+        "interp-replay": { InterpReplay.run(args: $0) },
+        "tuned-lens": { TunedLens.run(args: $0) },
+        "linear-probe": { LinearProbe.run(args: $0) },
+        "causal-trace": { CausalTrace.run(args: $0) },
+        "laser": { LASER.run(args: $0) },
+        "gptq": { GPTQWorker.run(args: $0) },
+        "hqq": { HQQ.run(args: $0) },
+        "prune-unstructured": { PruneUnstructured.run(args: $0) },
+        "prune-structured": { PruneStructured.run(args: $0) },
+        "magpie": { Magpie.run(args: $0) },
+        "automix": { AutoMix.run(args: $0) },
+        "compress": { Compress.run(args: $0) },
+        "bon": { BestOfN.run(args: $0) },
+        "train-heads": { TrainHeads.run(args: $0) },
+    ]
+
     static func dispatch(_ cmd: String, args: [String]) {
-        switch cmd {
-        case "rome":
-            ROME.run(args: args)
-        case "memit":
-            MEMIT.run(args: args)
-        case "patch":
-            Patch.run(args: args)
-        case "sae":
-            SAE.run(args: args)
-        case "sae-explore":
-            SaeExplore.run(args: args)
-        case "sae-to-saelens":
-            SaeToSaelens.run(args: args)
-        case "interp-replay":
-            InterpReplay.run(args: args)
-        case "tuned-lens":
-            TunedLens.run(args: args)
-        case "linear-probe":
-            LinearProbe.run(args: args)
-        case "causal-trace":
-            CausalTrace.run(args: args)
-        case "laser":
-            LASER.run(args: args)
-        case "gptq":
-            GPTQWorker.run(args: args)
-        case "hqq":
-            HQQ.run(args: args)
-        case "prune-unstructured":
-            PruneUnstructured.run(args: args)
-        case "prune-structured":
-            PruneStructured.run(args: args)
-        case "magpie":
-            Magpie.run(args: args)
-        case "automix":
-            AutoMix.run(args: args)
-        case "compress":
-            Compress.run(args: args)
-        case "bon":
-            BestOfN.run(args: args)
-        case "train-heads":
-            TrainHeads.run(args: args)
-        case "-h", "--help":
+        if cmd == "-h" || cmd == "--help" {
             printUsage()
-        default:
+            return
+        }
+        guard let run = runners[cmd] else {
             fputs("experimental: unknown command \(cmd)\n\n", stderr)
             printUsage()
             exit(2)
         }
+        run(args)
     }
 
     static func printUsage() {
