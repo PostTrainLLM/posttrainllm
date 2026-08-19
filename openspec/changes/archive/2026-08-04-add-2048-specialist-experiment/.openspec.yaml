@@ -1,4 +1,0 @@
-schema: spec-driven
-created: 2026-08-04
-goal: Measure whether a tiny Mac-local policy can retain strong 2048 play while
-  substantially reducing decision latency.
