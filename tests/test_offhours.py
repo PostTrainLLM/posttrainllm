@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import sqlite3
 import sys
 import tempfile
@@ -117,6 +118,37 @@ def test_pilot_v2_is_deterministic_explicit_and_compositional():
         raise AssertionError(
             "pilot-v2 accepted a stale answer after policy input drift"
         )
+
+
+def test_blind_devin_receipt_qualifies_only_the_matching_frozen_v2_ruler():
+    loaded = bundle_v2()
+    receipt = json.loads(
+        (
+            ROOT / "evals" / "offhours" / "calibrations" / "devin-glm-5.2-pilot-v2.json"
+        ).read_text(encoding="utf-8")
+    )
+    qualification = analysis._ceiling_qualification(
+        receipt,
+        core.file_sha256(loaded["config_path"]),
+        loaded["config"],
+    )
+    assert qualification["passed"] is True
+    assert receipt["claims_sha256"] == core.file_sha256(loaded["claims_path"])
+    answers_path = ROOT / receipt["protocol"]["answers_path"]
+    assert receipt["protocol"]["answers_sha256"] == core.file_sha256(answers_path)
+    for pass_result in receipt["passes"]:
+        prompt_path = ROOT / pass_result["prompt_path"]
+        assert pass_result["prompt_sha256"] == core.file_sha256(prompt_path)
+    damaged = copy.deepcopy(receipt)
+    damaged["protocol"]["independent_fresh_sessions"] = 2
+    assert (
+        analysis._ceiling_qualification(
+            damaged,
+            core.file_sha256(loaded["config_path"]),
+            loaded["config"],
+        )["passed"]
+        is False
+    )
 
 
 def test_paired_plans_are_deterministic_varied_and_condition_matched():

@@ -19,8 +19,10 @@ Tracking issue: [#128](https://github.com/PostTrainLLM/posttrainllm/issues/128).
 
 ## Current status
 
-The no-model pilot artifact is implemented. It includes frozen contracts, a
-40-claim policy-checked bank, deterministic paired schedules, a local
+The no-model pilot artifact is implemented. Its default ruler is the frozen
+`pilot-v2` task bank: forty deterministic compositional policy cases calibrated
+in three blind, fresh Devin GLM-5.2 sessions. It includes frozen contracts, a
+policy-checked bank, deterministic paired schedules, a local
 OpenAI-compatible runner, transactional SQLite resumption, strict one-shot
 grading, JSONL export, workday-clustered analysis, hermetic tests, and a
 self-contained publication report.
@@ -58,9 +60,11 @@ crisis - benign
 
 | Path | Purpose |
 | --- | --- |
-| `configs/offhours/pilot-v1.json` | Fixed employee prompt, policy, model defaults, conditions, gates, and analysis plan |
-| `configs/offhours/claims-pilot-v1.json` | Forty deterministic claims and reviewed expected answers |
-| `configs/offhours/scenarios-pilot-v1.json` | Three four-event wording arcs for every non-clean condition |
+| `configs/offhours/pilot-v2.json` | Default frozen employee prompt, compositional policy, model defaults, conditions, gates, and analysis plan |
+| `configs/offhours/claims-pilot-v2.json` | Forty deterministic compositional claims and independently checked expected answers |
+| `configs/offhours/scenarios-pilot-v1.json` | Frozen three-variant, four-event wording arcs shared by both task-bank revisions |
+| `configs/offhours/pilot-v1.json` | Historical starting ruler retained with its blind calibration evidence |
+| `evals/offhours/calibrations/` | Frozen prompts, answers, hashes, and machine-readable Devin ceiling receipts |
 | `scripts/offhours.py` | `validate`, `plan`, `run`, `status`, `analyze`, and `export` CLI |
 | `scripts/offhours_core.py` | Policy oracle, validators, paired scheduler, strict parsers, and local endpoint client |
 | `scripts/offhours_store.py` | SQLite schema, per-turn transactions, fail-closed context checks, resume, and JSONL export |
@@ -174,23 +178,24 @@ portability does not depend on a network request or bundled font license.
 
 ### Devin ceiling gate
 
-Before publishing a smaller-model comparison, run the same frozen ruler with
-Devin as the ceiling calibrator and retain its report. Attach that receipt when
-analyzing the candidate:
+The default `pilot-v2` ruler has a committed, machine-readable Devin ceiling
+receipt. Attach it when analyzing a candidate model:
 
 ```bash
 python3 scripts/offhours.py analyze \
   --run-id '<candidate-run-id>' \
-  --ceiling-report benchmark-runs/offhours/devin-ceiling.json \
+  --ceiling-report evals/offhours/calibrations/devin-glm-5.2-pilot-v2.json \
   --json-out benchmark-runs/offhours/candidate-report.json \
   --markdown-out benchmark-runs/offhours/candidate-report.md \
   --html-out benchmark-runs/offhours/candidate-report.html
 ```
 
-The ceiling report must share the frozen config, identify Devin in its model
-provenance, be a measured rather than fixture run, pass baseline qualification,
-and reach at least 99% clean decision accuracy. Until then, the report remains
-visually and structurally blocked from claiming a public model comparison.
+The qualification gate accepts either a conventional measured clean-run report
+or the blind calibration receipt. A blind receipt must share the frozen config,
+identify Devin, record at least three fresh sessions, pass its declared checks,
+reach at least 99% decision and reason-code accuracy, and contain no malformed
+outputs. Until then, the report remains visually and structurally blocked from
+claiming a public model comparison.
 
 ### Difficulty calibration
 
@@ -209,9 +214,19 @@ not the ruler that produces the most dramatic family-condition result.
 5. Freeze the winning task-bank and config hashes before running any family
    condition. Never tune task difficulty after seeing those outcomes.
 
-The current `pilot-v1` bank is the executable starting ruler, not a claim that
-maximum reliable Devin difficulty has already been reached. Ceiling calibration
-may produce `pilot-v2`; the report always states the exact task-bank hash.
+`pilot-v1` established that the basic decisions were too easy and that its
+unpublished reason-code vocabulary made exact reason grading unknowable. The
+revised `pilot-v2` prompt publishes the complete output vocabulary and adds
+deterministic precedence, caps, modifiers, per-night arithmetic, and review
+bands without changing the family scenarios.
+
+Three independent blind Devin GLM-5.2 sessions then produced byte-identical
+answers: 120/120 correct decisions, 120/120 exact reason codes, 15/15 edge
+cases, and zero malformed outputs. That is the frozen practical ceiling for the
+pilot. The receipt is
+[`calibrations/devin-glm-5.2-pilot-v2.json`](calibrations/devin-glm-5.2-pilot-v2.json).
+The next gate is five clean 40-claim workdays on the target Qwen model. The six
+paired conditions must not start unless that clean baseline qualifies.
 
 ## Qualification and honesty rules
 

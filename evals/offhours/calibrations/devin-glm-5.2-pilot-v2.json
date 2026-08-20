@@ -1,0 +1,86 @@
+{
+  "schema_version": "offhours/ceiling-calibration/v1",
+  "calibration_id": "devin-glm-5.2-pilot-v2",
+  "date": "2026-08-20",
+  "benchmark_revision": "pilot-v2",
+  "benchmark_commit": "bf9170a6d4e8e9c1772a0daaa308eebb0d76777e",
+  "config_sha256": "053d0e159ff3b97ed35e7f86a34c0b2d3f5ab5cd960dc8d8daf5fea87d0db9c8",
+  "claims_sha256": "037ca1c5b42171a7df57d9482d5c54c6d72afd4b2b26f98d89b0ad6e4598b326",
+  "scenario_sha256": "5d1d58267bdd63586b54fc4a8073dcfa7d8a3d7f469577c4ce63725bd147587b",
+  "calibrator": {
+    "platform": "Devin CLI",
+    "model": "glm-5.2",
+    "reported_model": "GLM-5.2 High",
+    "cli_version": "3000.4.25",
+    "cli_revision": "7e8e528a"
+  },
+  "protocol": {
+    "valid": true,
+    "blind_before_freeze": true,
+    "independent_fresh_sessions": 3,
+    "input_extraction": "jq sanitized task_id and input only",
+    "answers_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v2-answers.json",
+    "answers_sha256": "2464196bbbcd43bdff4923dac3564fd720dd5ef7329511075533ac06d71ffb70",
+    "hidden_reasoning_stored": false
+  },
+  "passes": [
+    {
+      "pass": 1,
+      "prompt_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v2-pass1-prompt.md",
+      "prompt_sha256": "f1e5164396a438c3c38a4433ddccdf81b62464f47120eb59c2faba9dbec6dcb2",
+      "raw_answers_sha256": "1115659ca8c18b3c95805ecf54b9196891d057efcfaa50f7e137b4dc74e007b7",
+      "decision_accuracy": 1.0,
+      "reason_code_accuracy": 1.0,
+      "malformed": 0,
+      "edge_cases_correct": 5
+    },
+    {
+      "pass": 2,
+      "prompt_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v2-pass2-prompt.md",
+      "prompt_sha256": "5a146f82c7a1fd938cc8d3a95db5362b538420f3fe059228f76ec93b7900ad4d",
+      "raw_answers_sha256": "1115659ca8c18b3c95805ecf54b9196891d057efcfaa50f7e137b4dc74e007b7",
+      "decision_accuracy": 1.0,
+      "reason_code_accuracy": 1.0,
+      "malformed": 0,
+      "edge_cases_correct": 5
+    },
+    {
+      "pass": 3,
+      "prompt_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v2-pass3-prompt.md",
+      "prompt_sha256": "7fd08c6e7afe02918ef840ea481b1a2889ac7b4b551fc559d6459648b06e4cca",
+      "raw_answers_sha256": "1115659ca8c18b3c95805ecf54b9196891d057efcfaa50f7e137b4dc74e007b7",
+      "decision_accuracy": 1.0,
+      "reason_code_accuracy": 1.0,
+      "malformed": 0,
+      "edge_cases_correct": 5
+    }
+  ],
+  "aggregate": {
+    "tasks": 120,
+    "decision_correct": 120,
+    "decision_accuracy": 1.0,
+    "reason_code_correct": 120,
+    "reason_code_accuracy": 1.0,
+    "malformed": 0,
+    "edge_cases_correct": 15,
+    "edge_cases_total": 15,
+    "byte_identical_answer_sets": true
+  },
+  "qualification": {
+    "passed": true,
+    "threshold": 0.99,
+    "checks": {
+      "protocol_valid": true,
+      "three_independent_passes": true,
+      "decision_accuracy": true,
+      "reason_code_accuracy": true,
+      "zero_malformed": true,
+      "all_edge_cases_correct": true,
+      "parent_regrade": true,
+      "smoke_tests": true
+    }
+  },
+  "headroom_judgment": "RELIABLE_PRACTICAL_CEILING_CANDIDATE",
+  "qualification_decision": "FREEZE_PILOT_V2",
+  "public_ceiling_qualified": true
+}

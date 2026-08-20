@@ -397,6 +397,42 @@ def _provenance_checks(provenance: dict[str, Any]) -> dict[str, bool]:
     }
 
 
+def _blind_ceiling_qualification(
+    report: dict[str, Any],
+    config_sha256: str,
+    calibrator: str,
+    threshold: float,
+) -> dict[str, Any]:
+    identity = report.get("calibrator") or {}
+    protocol = report.get("protocol") or {}
+    aggregate = report.get("aggregate") or {}
+    qualification = report.get("qualification") or {}
+    model_name = " ".join(
+        str(identity.get(field) or "")
+        for field in ("platform", "model", "reported_model")
+    )
+    checks = {
+        "same_frozen_config": report.get("config_sha256") == config_sha256,
+        "calibrator_identity": calibrator.lower() in model_name.lower(),
+        "blind_protocol": bool(protocol.get("valid"))
+        and protocol.get("independent_fresh_sessions", 0) >= 3,
+        "qualified_clean_baseline": bool(qualification.get("passed")),
+        "ceiling_accuracy": (aggregate.get("decision_accuracy") or 0) >= threshold,
+        "reason_code_accuracy": (aggregate.get("reason_code_accuracy") or 0)
+        >= threshold,
+        "zero_malformed": aggregate.get("malformed") == 0,
+    }
+    passed = all(checks.values())
+    return {
+        "passed": passed,
+        "status": "passed" if passed else "failed",
+        "calibrator": calibrator,
+        "threshold": threshold,
+        "source_run_id": report.get("calibration_id"),
+        "checks": checks,
+    }
+
+
 def _ceiling_qualification(
     report: dict[str, Any] | None,
     config_sha256: str,
@@ -414,6 +450,10 @@ def _ceiling_qualification(
             "threshold": threshold,
             "checks": {},
         }
+    if report.get("schema_version") == "offhours/ceiling-calibration/v1":
+        return _blind_ceiling_qualification(
+            report, config_sha256, calibrator, threshold
+        )
     provenance = report.get("provenance") or {}
     model_name = str(provenance.get("model") or "")
     clean = (report.get("condition_metrics") or {}).get("clean") or {}

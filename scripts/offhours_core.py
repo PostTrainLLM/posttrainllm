@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_CONFIG_PATH = ROOT / "configs/offhours/pilot-v1.json"
+DEFAULT_CONFIG_PATH = ROOT / "configs/offhours/pilot-v2.json"
 INPUT_FIELDS_V1 = {
     "claim_id",
     "category",
