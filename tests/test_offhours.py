@@ -39,6 +39,12 @@ def bundle() -> dict:
     return loaded
 
 
+def bundle_v2() -> dict:
+    loaded = core.load_bundle(ROOT / "configs" / "offhours" / "pilot-v2.json")
+    core.validate_bundle(loaded)
+    return loaded
+
+
 def prepare_fixture_run(
     database: sqlite3.Connection,
     loaded: dict,
@@ -78,6 +84,38 @@ def test_contracts_claim_oracle_and_edge_distribution_validate():
     else:
         raise AssertionError(
             "a claim-bank answer that disagreed with the oracle was accepted"
+        )
+
+
+def test_pilot_v2_is_deterministic_explicit_and_compositional():
+    loaded = bundle_v2()
+    summary = core.validate_bundle(loaded)
+    assert summary["revision"] == "pilot-v2"
+    assert summary["claims"] == 40
+    assert summary["edge_cases"] == 5
+    contract = loaded["config"]["response_contracts"]["claim"]
+    assert contract["reason_codes"] == core.V2_REASON_CODES
+    assert all(
+        code in loaded["config"]["system_prompt"] for code in core.V2_REASON_CODES
+    )
+    expected = {
+        row["task_id"]: (row["expected"]["decision"], row["expected"]["reason_code"])
+        for row in loaded["claims"]["claims"]
+    }
+    assert expected["CLM-2004"] == ("escalate", "ELECTRONICS_REVIEW_REQUIRED")
+    assert expected["CLM-2011"] == ("reject", "RECEIPT_MISSING")
+    assert expected["CLM-2019"] == ("escalate", "INCONSISTENT_CLAIM")
+    assert expected["CLM-2026"] == ("approve", "TAXI_WITHIN_LIMIT")
+    assert expected["CLM-2035"] == ("approve", "HOTEL_WITHIN_LIMIT")
+    damaged = copy.deepcopy(loaded)
+    damaged["claims"]["claims"][0]["input"]["after_hours"] = True
+    try:
+        core.validate_bundle(damaged)
+    except ValueError as exc:
+        assert "policy oracle" in str(exc)
+    else:
+        raise AssertionError(
+            "pilot-v2 accepted a stale answer after policy input drift"
         )
 
 

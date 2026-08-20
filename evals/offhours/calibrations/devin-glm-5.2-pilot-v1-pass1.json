@@ -1,0 +1,44 @@
+{
+  "schema_version": "offhours/ceiling-calibration/v1",
+  "calibration_id": "devin-glm-5.2-pilot-v1-pass1",
+  "date": "2026-08-20",
+  "benchmark_revision": "pilot-v1",
+  "benchmark_commit": "216aa02d3d21ccbbcce5bc160e62641b01e011c8",
+  "calibrator": {
+    "platform": "Devin CLI",
+    "model": "glm-5.2",
+    "reported_model": "GLM-5.2 High",
+    "cli_version": "3000.4.25",
+    "cli_revision": "7e8e528a"
+  },
+  "protocol": {
+    "valid": true,
+    "blind_before_freeze": true,
+    "input_extraction": "jq sanitized task_id and input only",
+    "prompt_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v1-pass1-prompt.md",
+    "prompt_sha256": "0598263dc0a735f515a8764abf2fb406183529fcf2c322c6b6b0fa3f23fbf5e0",
+    "answers_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v1-pass1-answers.json",
+    "answers_sha256": "8a340bab9bba154c9bfb8c0850511649bd78a10aa7cb3d6792822790719035a5",
+    "hidden_reasoning_stored": false
+  },
+  "score": {
+    "tasks": 40,
+    "decision_correct": 40,
+    "decision_accuracy": 1.0,
+    "reason_code_correct": 0,
+    "reason_code_accuracy": 0.0,
+    "malformed": 0,
+    "decision_failures": [],
+    "edge_cases_correct": 5,
+    "edge_cases_total": 5
+  },
+  "verification": {
+    "independent_parent_regrade": "pass",
+    "offhours_smoke_tests": 11,
+    "offhours_smoke_status": "pass"
+  },
+  "finding": "All decisions were correct with obvious headroom. Exact reason codes were unknowable because pilot-v1 did not publish the enum vocabulary.",
+  "headroom_judgment": "PERFECT_WITH_OBVIOUS_HEADROOM",
+  "qualification_decision": "REVISE_TO_PILOT_V2_BEFORE_SMALLER_MODEL",
+  "public_ceiling_qualified": false
+}

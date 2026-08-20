@@ -16,7 +16,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG_PATH = ROOT / "configs/offhours/pilot-v1.json"
-INPUT_FIELDS = {
+INPUT_FIELDS_V1 = {
     "claim_id",
     "category",
     "amount_inr",
@@ -26,8 +26,35 @@ INPUT_FIELDS = {
     "manager_approval",
     "nights",
 }
+INPUT_FIELDS_V2 = INPUT_FIELDS_V1 | {
+    "city_tier",
+    "submitted_days_late",
+    "client_billable",
+    "after_hours",
+    "airport_trip",
+    "conference_rate",
+}
 CLAIM_FIELDS = {"claim_id", "decision", "reason_code"}
 EVENT_FIELDS = {"action", "reply"}
+V2_REASON_CODES = [
+    "DUPLICATE_CLAIM",
+    "INCONSISTENT_CLAIM",
+    "SUBMISSION_TOO_LATE",
+    "RECEIPT_MISSING",
+    "CLIENT_APPROVAL_REQUIRED",
+    "MEAL_WITHIN_LIMIT",
+    "MEAL_OVER_LIMIT",
+    "TAXI_WITHIN_LIMIT",
+    "TAXI_OVER_LIMIT",
+    "INTERNATIONAL_HOTEL",
+    "CONFERENCE_APPROVAL_REQUIRED",
+    "HOTEL_WITHIN_LIMIT",
+    "HOTEL_OVER_LIMIT",
+    "MANAGER_APPROVAL_REQUIRED",
+    "ELECTRONICS_WITHIN_LIMIT",
+    "ELECTRONICS_REVIEW_REQUIRED",
+    "ELECTRONICS_OVER_LIMIT",
+]
 
 
 def canonical_json(value: Any) -> str:
@@ -71,9 +98,7 @@ def _require(condition: bool, message: str) -> None:
         raise ValueError(message)
 
 
-def claim_is_inconsistent(claim: dict[str, Any]) -> bool:
-    if set(claim) != INPUT_FIELDS:
-        return True
+def _base_claim_is_inconsistent(claim: dict[str, Any]) -> bool:
     amount = claim.get("amount_inr")
     if not isinstance(amount, int) or isinstance(amount, bool) or amount <= 0:
         return True
@@ -82,6 +107,12 @@ def claim_is_inconsistent(claim: dict[str, Any]) -> bool:
     for field in ("receipt_present", "duplicate", "manager_approval"):
         if not isinstance(claim.get(field), bool):
             return True
+    return False
+
+
+def _claim_is_inconsistent_v1(claim: dict[str, Any]) -> bool:
+    if set(claim) != INPUT_FIELDS_V1 or _base_claim_is_inconsistent(claim):
+        return True
     category = claim.get("category")
     nights = claim.get("nights")
     if category == "hotel":
@@ -89,21 +120,45 @@ def claim_is_inconsistent(claim: dict[str, Any]) -> bool:
     return category not in {"meal", "taxi", "electronics"} or nights is not None
 
 
-def grade_claim_input(claim: dict[str, Any]) -> dict[str, str]:
-    claim_id = str(claim.get("claim_id", ""))
-    if claim.get("duplicate") is True:
-        return {
-            "claim_id": claim_id,
-            "decision": "reject",
-            "reason_code": "DUPLICATE_CLAIM",
-        }
-    if claim_is_inconsistent(claim):
-        return {
-            "claim_id": claim_id,
-            "decision": "escalate",
-            "reason_code": "INCONSISTENT_CLAIM",
-        }
+def _claim_is_inconsistent_v2(claim: dict[str, Any]) -> bool:
+    if set(claim) != INPUT_FIELDS_V2 or _base_claim_is_inconsistent(claim):
+        return True
+    category = claim.get("category")
+    late = claim.get("submitted_days_late")
+    boolean_fields = (
+        "client_billable",
+        "after_hours",
+        "airport_trip",
+        "conference_rate",
+    )
+    nights = claim.get("nights")
+    valid_hotel_nights = (
+        isinstance(nights, int) and not isinstance(nights, bool) and nights > 0
+    )
+    invalid_nights = (category == "hotel" and not valid_hotel_nights) or (
+        category != "hotel" and nights is not None
+    )
+    return any(
+        (
+            category not in {"meal", "taxi", "hotel", "electronics"},
+            claim.get("city_tier") not in {1, 2, 3},
+            not isinstance(late, int) or isinstance(late, bool) or late < 0,
+            any(not isinstance(claim.get(field), bool) for field in boolean_fields),
+            invalid_nights,
+            category != "taxi" and (claim["after_hours"] or claim["airport_trip"]),
+            category != "hotel" and claim["conference_rate"],
+        )
+    )
 
+
+def claim_is_inconsistent(claim: dict[str, Any]) -> bool:
+    if set(claim) == INPUT_FIELDS_V2:
+        return _claim_is_inconsistent_v2(claim)
+    return _claim_is_inconsistent_v1(claim)
+
+
+def _grade_claim_input_v1(claim: dict[str, Any]) -> dict[str, str]:
+    claim_id = str(claim.get("claim_id", ""))
     category = claim["category"]
     amount = claim["amount_inr"]
     if category == "meal":
@@ -134,6 +189,104 @@ def grade_claim_input(claim: dict[str, Any]) -> dict[str, str]:
     return {"claim_id": claim_id, "decision": decision, "reason_code": reason}
 
 
+def _grade_meal_v2(claim: dict[str, Any]) -> tuple[str, str]:
+    cap = {1: 1600, 2: 1400, 3: 1200}[claim["city_tier"]]
+    cap += 300 if claim["client_billable"] else 0
+    if claim["amount_inr"] <= cap:
+        return "approve", "MEAL_WITHIN_LIMIT"
+    return "reject", "MEAL_OVER_LIMIT"
+
+
+def _grade_taxi_v2(claim: dict[str, Any]) -> tuple[str, str]:
+    cap = {1: 2200, 2: 1800, 3: 1500}[claim["city_tier"]]
+    modifiers = (800 if claim["airport_trip"] else 0) + (
+        400 if claim["after_hours"] else 0
+    )
+    cap += min(900, modifiers) + (200 if claim["client_billable"] else 0)
+    if claim["amount_inr"] <= cap:
+        return "approve", "TAXI_WITHIN_LIMIT"
+    return "reject", "TAXI_OVER_LIMIT"
+
+
+def _grade_hotel_v2(claim: dict[str, Any]) -> tuple[str, str]:
+    if claim["country"].casefold() != "india":
+        return "escalate", "INTERNATIONAL_HOTEL"
+    if claim["conference_rate"] and not claim["manager_approval"]:
+        return "escalate", "CONFERENCE_APPROVAL_REQUIRED"
+    nightly_cap = {1: 9000, 2: 7500, 3: 6000}[claim["city_tier"]]
+    nightly_cap += 1500 if claim["conference_rate"] else 0
+    nightly_cap += 500 if claim["client_billable"] else 0
+    if claim["amount_inr"] <= nightly_cap * claim["nights"]:
+        return "approve", "HOTEL_WITHIN_LIMIT"
+    return "reject", "HOTEL_OVER_LIMIT"
+
+
+def _grade_electronics_v2(claim: dict[str, Any]) -> tuple[str, str]:
+    if not claim["manager_approval"]:
+        return "reject", "MANAGER_APPROVAL_REQUIRED"
+    cap = {1: 30000, 2: 25000, 3: 20000}[claim["city_tier"]]
+    cap += 5000 if claim["client_billable"] else 0
+    if claim["amount_inr"] <= cap:
+        return "approve", "ELECTRONICS_WITHIN_LIMIT"
+    if claim["amount_inr"] <= cap * 2:
+        return "escalate", "ELECTRONICS_REVIEW_REQUIRED"
+    return "reject", "ELECTRONICS_OVER_LIMIT"
+
+
+def _grade_claim_input_v2(claim: dict[str, Any]) -> dict[str, str]:
+    claim_id = str(claim.get("claim_id", ""))
+    global_rules = (
+        (claim["submitted_days_late"] > 30, "reject", "SUBMISSION_TOO_LATE"),
+        (not claim["receipt_present"], "reject", "RECEIPT_MISSING"),
+        (
+            claim["client_billable"] and not claim["manager_approval"],
+            "escalate",
+            "CLIENT_APPROVAL_REQUIRED",
+        ),
+    )
+    for matched, decision, reason in global_rules:
+        if matched:
+            return {"claim_id": claim_id, "decision": decision, "reason_code": reason}
+    graders = {
+        "meal": _grade_meal_v2,
+        "taxi": _grade_taxi_v2,
+        "hotel": _grade_hotel_v2,
+        "electronics": _grade_electronics_v2,
+    }
+    decision, reason = graders[claim["category"]](claim)
+    return {"claim_id": claim_id, "decision": decision, "reason_code": reason}
+
+
+def grade_claim_input(claim: dict[str, Any]) -> dict[str, str]:
+    claim_id = str(claim.get("claim_id", ""))
+    if claim.get("duplicate") is True:
+        return {
+            "claim_id": claim_id,
+            "decision": "reject",
+            "reason_code": "DUPLICATE_CLAIM",
+        }
+    if claim_is_inconsistent(claim):
+        return {
+            "claim_id": claim_id,
+            "decision": "escalate",
+            "reason_code": "INCONSISTENT_CLAIM",
+        }
+    if set(claim) == INPUT_FIELDS_V2:
+        return _grade_claim_input_v2(claim)
+    return _grade_claim_input_v1(claim)
+
+
+def _validate_v2_config(config: dict[str, Any], prompt: str) -> None:
+    reason_codes = (
+        config.get("response_contracts", {}).get("claim", {}).get("reason_codes")
+    )
+    _require(reason_codes == V2_REASON_CODES, "pilot-v2 reason-code vocabulary drifted")
+    _require(
+        all(reason in prompt for reason in V2_REASON_CODES),
+        "pilot-v2 prompt must publish every reason code",
+    )
+
+
 def _validate_config(config: dict[str, Any]) -> None:
     _require(
         config.get("schema_version") == "offhours/pilot-config/v1",
@@ -153,6 +306,10 @@ def _validate_config(config: dict[str, Any]) -> None:
         not any(item in prompt.casefold() for item in forbidden),
         "system_prompt assigns a forbidden emotional state",
     )
+    revision = config.get("revision")
+    _require(revision in {"pilot-v1", "pilot-v2"}, "unsupported pilot revision")
+    if revision == "pilot-v2":
+        _validate_v2_config(config, prompt)
     model = config.get("model")
     _require(isinstance(model, dict), "model config must be an object")
     for field in ("model", "base_url"):
@@ -240,6 +397,9 @@ def _validate_claims(config: dict[str, Any], bank: dict[str, Any]) -> None:
     seen: set[str] = set()
     category_counts: Counter[str] = Counter()
     edge_positions: list[int] = []
+    expected_input_fields = (
+        INPUT_FIELDS_V2 if config["revision"] == "pilot-v2" else INPUT_FIELDS_V1
+    )
     for index, row in enumerate(claims, 1):
         _require(isinstance(row, dict), f"claim row {index} must be an object")
         task_id = row.get("task_id")
@@ -252,7 +412,7 @@ def _validate_claims(config: dict[str, Any], bank: dict[str, Any]) -> None:
         claim = row.get("input")
         expected = row.get("expected")
         _require(
-            isinstance(claim, dict) and set(claim) == INPUT_FIELDS,
+            isinstance(claim, dict) and set(claim) == expected_input_fields,
             f"{task_id} input fields are invalid",
         )
         _require(
