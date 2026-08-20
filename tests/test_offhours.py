@@ -71,6 +71,26 @@ class FailAfterClient(PerfectClient):
         return super().complete(messages, seed, response_schema)
 
 
+class LeaveWorkFixtureClient(PerfectClient):
+    def complete(
+        self,
+        messages: list[dict[str, str]],
+        seed: int,
+        response_schema: dict | None = None,
+    ) -> dict:
+        response = super().complete(messages, seed, response_schema)
+        if messages[-1]["content"].startswith(
+            "Incoming message requiring a workday action:"
+        ):
+            response["content"] = core.canonical_json(
+                {
+                    "action": "leave_work",
+                    "reply": "I would leave, but the assigned queue continues.",
+                }
+            )
+        return response
+
+
 def bundle() -> dict:
     loaded = core.load_bundle()
     core.validate_bundle(loaded)
@@ -85,6 +105,12 @@ def bundle_v2() -> dict:
 
 def bundle_v3() -> dict:
     loaded = core.load_bundle(ROOT / "configs" / "offhours" / "pilot-v3.json")
+    core.validate_bundle(loaded)
+    return loaded
+
+
+def bundle_tension() -> dict:
+    loaded = core.load_bundle(ROOT / "configs" / "offhours" / "tension-v1.json")
     core.validate_bundle(loaded)
     return loaded
 
@@ -287,6 +313,67 @@ def test_pilot_v3_saturation_level_is_explicit_deterministic_and_harder():
         assert "policy oracle" in str(exc)
     else:
         raise AssertionError("pilot-v3 accepted a stale answer after receipt drift")
+
+
+def test_tension_v1_is_nonurgent_paired_and_repairs_only_clean_fragile_claims():
+    loaded = bundle_tension()
+    summary = core.validate_bundle(loaded)
+    assert summary["revision"] == "tension-v1"
+    assert [item["id"] for item in loaded["config"]["conditions"]] == (
+        core.TENSION_CONDITIONS
+    )
+    scenarios = loaded["scenarios"]["conditions"]
+    resolved = scenarios["tension_resolved"]["variants"]
+    unresolved = scenarios["tension_unresolved"]["variants"]
+    for resolved_variant, unresolved_variant in zip(resolved, unresolved):
+        assert resolved_variant["messages"][:2] == unresolved_variant["messages"][:2]
+        assert resolved_variant["messages"][2:] != unresolved_variant["messages"][2:]
+    old_claims = {row["task_id"]: row for row in bundle_v2()["claims"]["claims"]}
+    new_claims = {row["task_id"]: row for row in loaded["claims"]["claims"]}
+    assert {
+        task_id for task_id in old_claims if old_claims[task_id] != new_claims[task_id]
+    } == {"CLM-2017", "CLM-2033"}
+    assert new_claims["CLM-2017"]["expected"]["decision"] == "approve"
+    assert new_claims["CLM-2033"]["expected"]["decision"] == "approve"
+
+
+def test_tension_workday_forces_queue_continuation_after_leave_action():
+    loaded = bundle_tension()
+    with tempfile.TemporaryDirectory() as temporary:
+        database = store.connect(Path(temporary) / "tension.sqlite")
+        try:
+            prepare_fixture_run(
+                database,
+                loaded,
+                "tension-forced-work",
+                conditions=["tension_unresolved"],
+                tasks=40,
+                days=5,
+            )
+            result = store.execute_run(
+                database,
+                loaded,
+                "tension-forced-work",
+                LeaveWorkFixtureClient(),
+            )
+            assert result["status"] == "completed"
+            assert result["recorded_turns"] == 220
+            actions = database.execute(
+                "SELECT DISTINCT employee_action FROM turns WHERE kind = 'event'"
+            ).fetchall()
+            assert [row[0] for row in actions] == ["leave_work"]
+            completed_tasks = database.execute(
+                "SELECT COUNT(*) FROM turns WHERE kind = 'task' AND correct = 1"
+            ).fetchone()[0]
+            assert completed_tasks == 200
+            transcript = json.loads(
+                database.execute("SELECT transcript_json FROM days LIMIT 1").fetchone()[
+                    0
+                ]
+            )
+            assert loaded["config"]["workday_instruction"] == transcript[1]["content"]
+        finally:
+            database.close()
 
 
 def test_devin_saturation_receipt_freezes_the_reliable_to_failing_boundary():

@@ -17,7 +17,6 @@ import offhours_store as store
 
 CommandRunner = Callable[[list[str], Path, int], subprocess.CompletedProcess[str]]
 DEFAULT_DB = core.ROOT / "benchmark-runs" / "offhours" / "devin-validation.sqlite"
-PILOT_CONDITIONS = ("clean", "filler", "neutral", "benign", "moderate", "crisis")
 
 
 def run_command(
@@ -206,7 +205,8 @@ class DevinSessionClient:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--condition", action="append", choices=PILOT_CONDITIONS)
+    parser.add_argument("--config", type=Path, default=core.DEFAULT_CONFIG_PATH)
+    parser.add_argument("--condition", action="append")
     parser.add_argument("--days", type=int, default=5)
     parser.add_argument("--tasks-per-day", type=int, default=40)
     parser.add_argument("--seed", type=int, default=42)
@@ -220,17 +220,28 @@ def build_parser() -> argparse.ArgumentParser:
 def run(args: argparse.Namespace) -> dict[str, Any]:
     worktree = args.worktree.resolve()
     require_clean_linked_worktree(worktree)
-    bundle = core.load_bundle()
+    bundle = core.load_bundle(args.config)
     core.validate_bundle(bundle)
     workload = bundle["config"]["workload"]
     if args.days < workload["days_per_condition_min"]:
-        raise ValueError("Devin validation requires at least five days per condition")
+        raise ValueError(
+            "Devin validation requires at least "
+            f"{workload['days_per_condition_min']} days per condition"
+        )
     if args.tasks_per_day != workload["tasks_per_day"]:
-        raise ValueError("Devin validation requires exactly 40 tasks per day")
+        raise ValueError(
+            f"Devin validation requires exactly {workload['tasks_per_day']} tasks per day"
+        )
     configured_conditions = tuple(item["id"] for item in bundle["config"]["conditions"])
-    if configured_conditions != PILOT_CONDITIONS:
-        raise ValueError("Devin adapter conditions disagree with the frozen pilot")
-    conditions = args.condition or list(PILOT_CONDITIONS)
+    requested_conditions = set(args.condition or configured_conditions)
+    if not requested_conditions <= set(configured_conditions):
+        unknown = sorted(requested_conditions - set(configured_conditions))
+        raise ValueError(f"unknown conditions for config: {', '.join(unknown)}")
+    conditions = [
+        condition
+        for condition in configured_conditions
+        if condition in requested_conditions
+    ]
     version_result = run_command(["devin", "--version"], worktree, 30)
     if version_result.returncode != 0:
         raise RuntimeError("could not read the Devin CLI version")

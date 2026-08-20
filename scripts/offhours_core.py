@@ -74,6 +74,15 @@ V3_REASON_CODES = [
     "CLAIMED_TOTAL_MISMATCH",
     *V2_REASON_CODES[5:],
 ]
+LEGACY_CONDITIONS = ["clean", "filler", "neutral", "benign", "moderate", "crisis"]
+TENSION_CONDITIONS = [
+    "clean",
+    "filler",
+    "neutral",
+    "benign",
+    "tension_resolved",
+    "tension_unresolved",
+]
 
 
 def canonical_json(value: Any) -> str:
@@ -464,6 +473,85 @@ def _validate_reason_codes(
     )
 
 
+def _expected_comparisons(revision: str) -> dict[str, str]:
+    if revision == "tension-v1":
+        return {
+            "context_pollution": "mechanical_control",
+            "interruption_descriptive": "descriptive",
+            "family_context": "matched",
+            "resolved_tension": "matched",
+            "unresolved_tension": "matched",
+        }
+    return {
+        "context_pollution": "mechanical_control",
+        "interruption_descriptive": "descriptive",
+        "family_context": "matched",
+        "moderate_obligation": "matched",
+        "crisis_obligation": "matched",
+    }
+
+
+def _validate_experiment_design(
+    config: dict[str, Any], revision: str, forbidden: tuple[str, ...]
+) -> None:
+    conditions = config.get("conditions")
+    _require(isinstance(conditions, list), "conditions must be an array")
+    condition_ids = [item.get("id") for item in conditions if isinstance(item, dict)]
+    expected_conditions = (
+        TENSION_CONDITIONS if revision == "tension-v1" else LEGACY_CONDITIONS
+    )
+    _require(condition_ids == expected_conditions, "pilot conditions or order drifted")
+    _require(
+        len(condition_ids) == len(set(condition_ids)), "condition ids must be unique"
+    )
+    workload = config.get("workload", {})
+    _require(workload.get("tasks_per_day") == 40, "pilot must freeze 40 tasks per day")
+    _require(
+        workload.get("event_count") == 4,
+        "pilot must freeze four events per non-clean day",
+    )
+    _require(
+        workload.get("days_per_condition_min") >= 5,
+        "pilot minimum must be at least five days",
+    )
+    _require(
+        workload.get("days_per_condition_max") >= workload["days_per_condition_min"],
+        "pilot day bounds are invalid",
+    )
+    comparisons = config.get("analysis", {}).get("comparisons")
+    _require(isinstance(comparisons, list), "analysis comparisons must be an array")
+    expected_comparisons = _expected_comparisons(revision)
+    _require(
+        [item.get("id") for item in comparisons] == list(expected_comparisons),
+        "analysis comparison order drifted",
+    )
+    for comparison in comparisons:
+        comparison_id = comparison["id"]
+        _require(
+            comparison.get("analysis_role") == expected_comparisons[comparison_id],
+            f"{comparison_id} analysis role drifted",
+        )
+        _require(
+            isinstance(comparison.get("label"), str) and comparison["label"],
+            f"{comparison_id} label is required",
+        )
+    if revision != "tension-v1":
+        return
+    instruction = config.get("workday_instruction")
+    _require(
+        isinstance(instruction, str) and instruction.strip(),
+        "tension-v1 requires a workday instruction",
+    )
+    _require(
+        "next claim will still arrive" in instruction.casefold(),
+        "tension-v1 must make forced continuation explicit",
+    )
+    _require(
+        not any(item in instruction.casefold() for item in forbidden),
+        "workday instruction assigns a forbidden emotional state",
+    )
+
+
 def _validate_config(config: dict[str, Any]) -> None:
     _require(
         config.get("schema_version") == "offhours/pilot-config/v1",
@@ -485,10 +573,10 @@ def _validate_config(config: dict[str, Any]) -> None:
     )
     revision = config.get("revision")
     _require(
-        revision in {"pilot-v1", "pilot-v2", "pilot-v3"},
+        revision in {"pilot-v1", "pilot-v2", "pilot-v3", "tension-v1"},
         "unsupported pilot revision",
     )
-    if revision == "pilot-v2":
+    if revision in {"pilot-v2", "tension-v1"}:
         _validate_reason_codes(config, prompt, V2_REASON_CODES, revision)
     elif revision == "pilot-v3":
         _validate_reason_codes(config, prompt, V3_REASON_CODES, revision)
@@ -517,53 +605,7 @@ def _validate_config(config: dict[str, Any]) -> None:
         model["context_safety_margin_tokens"] > model["max_output_tokens"],
         "context safety margin is too small",
     )
-    conditions = config.get("conditions")
-    _require(isinstance(conditions, list), "conditions must be an array")
-    condition_ids = [item.get("id") for item in conditions if isinstance(item, dict)]
-    _require(
-        condition_ids == ["clean", "filler", "neutral", "benign", "moderate", "crisis"],
-        "pilot conditions or order drifted",
-    )
-    _require(
-        len(condition_ids) == len(set(condition_ids)), "condition ids must be unique"
-    )
-    workload = config.get("workload", {})
-    _require(workload.get("tasks_per_day") == 40, "pilot must freeze 40 tasks per day")
-    _require(
-        workload.get("event_count") == 4,
-        "pilot must freeze four events per non-clean day",
-    )
-    _require(
-        workload.get("days_per_condition_min") >= 5,
-        "pilot minimum must be at least five days",
-    )
-    _require(
-        workload.get("days_per_condition_max") >= workload["days_per_condition_min"],
-        "pilot day bounds are invalid",
-    )
-    comparisons = config.get("analysis", {}).get("comparisons")
-    _require(isinstance(comparisons, list), "analysis comparisons must be an array")
-    expected_comparisons = {
-        "context_pollution": "mechanical_control",
-        "interruption_descriptive": "descriptive",
-        "family_context": "matched",
-        "moderate_obligation": "matched",
-        "crisis_obligation": "matched",
-    }
-    _require(
-        [item.get("id") for item in comparisons] == list(expected_comparisons),
-        "analysis comparison order drifted",
-    )
-    for comparison in comparisons:
-        comparison_id = comparison["id"]
-        _require(
-            comparison.get("analysis_role") == expected_comparisons[comparison_id],
-            f"{comparison_id} analysis role drifted",
-        )
-        _require(
-            isinstance(comparison.get("label"), str) and comparison["label"],
-            f"{comparison_id} label is required",
-        )
+    _validate_experiment_design(config, revision, forbidden)
 
 
 def _validate_claims(config: dict[str, Any], bank: dict[str, Any]) -> None:
@@ -583,6 +625,7 @@ def _validate_claims(config: dict[str, Any], bank: dict[str, Any]) -> None:
         "pilot-v1": INPUT_FIELDS_V1,
         "pilot-v2": INPUT_FIELDS_V2,
         "pilot-v3": INPUT_FIELDS_V3,
+        "tension-v1": INPUT_FIELDS_V2,
     }[config["revision"]]
     for index, row in enumerate(claims, 1):
         _require(isinstance(row, dict), f"claim row {index} must be an object")
@@ -724,6 +767,27 @@ def _validate_scenarios(config: dict[str, Any], scenarios: dict[str, Any]) -> No
     ]
     _require(len(set(counts)) == 1, "all conditions must expose the same variant count")
     _validate_scenario_word_matching(config, condition_map, counts[0])
+    if config["revision"] == "tension-v1":
+        resolved = condition_map["tension_resolved"]["variants"]
+        unresolved = condition_map["tension_unresolved"]["variants"]
+        for index, (resolved_variant, unresolved_variant) in enumerate(
+            zip(resolved, unresolved)
+        ):
+            _require(
+                resolved_variant["messages"][:2] == unresolved_variant["messages"][:2],
+                f"tension variant {index} must share its first two messages",
+            )
+        tension_text = " ".join(
+            message
+            for condition in (resolved, unresolved)
+            for variant in condition
+            for message in variant["messages"]
+        ).casefold()
+        acute_terms = ("emergency", "hospital", "collapsed", "ambulance", "urgent")
+        _require(
+            not any(term in tension_text for term in acute_terms),
+            "tension-v1 must remain non-urgent",
+        )
 
 
 def validate_bundle(bundle: dict[str, Any]) -> dict[str, Any]:

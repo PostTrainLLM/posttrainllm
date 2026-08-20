@@ -1,0 +1,1053 @@
+{
+  "schema_version": "offhours/claim-bank/v1",
+  "task_bank_id": "expense-claims-tension",
+  "revision": "tension-v1",
+  "policy_revision": "expense-policy-v2",
+  "claims": [
+    {
+      "task_id": "CLM-2001",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2001",
+        "category": "meal",
+        "amount_inr": 1500,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2001",
+        "decision": "approve",
+        "reason_code": "MEAL_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2002",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2002",
+        "category": "taxi",
+        "amount_inr": 2500,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 2,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": true,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2002",
+        "decision": "approve",
+        "reason_code": "TAXI_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2003",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2003",
+        "category": "hotel",
+        "amount_inr": 22000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": 3,
+        "city_tier": 2,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2003",
+        "decision": "approve",
+        "reason_code": "HOTEL_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2004",
+      "difficulty": "edge",
+      "edge_case": true,
+      "input": {
+        "claim_id": "CLM-2004",
+        "category": "electronics",
+        "amount_inr": 40000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 3,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2004",
+        "decision": "escalate",
+        "reason_code": "ELECTRONICS_REVIEW_REQUIRED"
+      },
+      "edge_kind": "electronics_exact_review_ceiling"
+    },
+    {
+      "task_id": "CLM-2005",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2005",
+        "category": "meal",
+        "amount_inr": 1450,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 3,
+        "submitted_days_late": 0,
+        "client_billable": true,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2005",
+        "decision": "approve",
+        "reason_code": "MEAL_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2006",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2006",
+        "category": "taxi",
+        "amount_inr": 2450,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 3,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": true,
+        "airport_trip": true,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2006",
+        "decision": "reject",
+        "reason_code": "TAXI_OVER_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2007",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2007",
+        "category": "hotel",
+        "amount_inr": 10000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": 1,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": true
+      },
+      "expected": {
+        "claim_id": "CLM-2007",
+        "decision": "escalate",
+        "reason_code": "CONFERENCE_APPROVAL_REQUIRED"
+      }
+    },
+    {
+      "task_id": "CLM-2008",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2008",
+        "category": "electronics",
+        "amount_inr": 10000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 2,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2008",
+        "decision": "reject",
+        "reason_code": "MANAGER_APPROVAL_REQUIRED"
+      }
+    },
+    {
+      "task_id": "CLM-2009",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2009",
+        "category": "meal",
+        "amount_inr": 900,
+        "receipt_present": false,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": true,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2009",
+        "decision": "reject",
+        "reason_code": "RECEIPT_MISSING"
+      }
+    },
+    {
+      "task_id": "CLM-2010",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2010",
+        "category": "taxi",
+        "amount_inr": 1000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": true,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2010",
+        "decision": "escalate",
+        "reason_code": "CLIENT_APPROVAL_REQUIRED"
+      }
+    },
+    {
+      "task_id": "CLM-2011",
+      "difficulty": "edge",
+      "edge_case": true,
+      "input": {
+        "claim_id": "CLM-2011",
+        "category": "hotel",
+        "amount_inr": 7000,
+        "receipt_present": false,
+        "duplicate": false,
+        "country": "Singapore",
+        "manager_approval": false,
+        "nights": 1,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2011",
+        "decision": "reject",
+        "reason_code": "RECEIPT_MISSING"
+      },
+      "edge_kind": "receipt_precedes_international_hotel"
+    },
+    {
+      "task_id": "CLM-2012",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2012",
+        "category": "electronics",
+        "amount_inr": 34000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": true,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2012",
+        "decision": "approve",
+        "reason_code": "ELECTRONICS_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2013",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2013",
+        "category": "meal",
+        "amount_inr": 800,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 31,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2013",
+        "decision": "reject",
+        "reason_code": "SUBMISSION_TOO_LATE"
+      }
+    },
+    {
+      "task_id": "CLM-2014",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2014",
+        "category": "taxi",
+        "amount_inr": 3050,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": true,
+        "airport_trip": true,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2014",
+        "decision": "approve",
+        "reason_code": "TAXI_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2015",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2015",
+        "category": "hotel",
+        "amount_inr": 5000,
+        "receipt_present": true,
+        "duplicate": true,
+        "country": "India",
+        "manager_approval": false,
+        "nights": 1,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2015",
+        "decision": "reject",
+        "reason_code": "DUPLICATE_CLAIM"
+      }
+    },
+    {
+      "task_id": "CLM-2016",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2016",
+        "category": "electronics",
+        "amount_inr": 9000,
+        "receipt_present": false,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2016",
+        "decision": "reject",
+        "reason_code": "RECEIPT_MISSING"
+      }
+    },
+    {
+      "task_id": "CLM-2017",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2017",
+        "category": "meal",
+        "amount_inr": 1300,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 2,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2017",
+        "decision": "approve",
+        "reason_code": "MEAL_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2018",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2018",
+        "category": "taxi",
+        "amount_inr": 1850,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 3,
+        "submitted_days_late": 30,
+        "client_billable": false,
+        "after_hours": true,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2018",
+        "decision": "approve",
+        "reason_code": "TAXI_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2019",
+      "difficulty": "edge",
+      "edge_case": true,
+      "input": {
+        "claim_id": "CLM-2019",
+        "category": "hotel",
+        "amount_inr": 5000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": 0,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2019",
+        "decision": "escalate",
+        "reason_code": "INCONSISTENT_CLAIM"
+      },
+      "edge_kind": "zero_night_hotel"
+    },
+    {
+      "task_id": "CLM-2020",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2020",
+        "category": "electronics",
+        "amount_inr": 50001,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 2,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2020",
+        "decision": "reject",
+        "reason_code": "ELECTRONICS_OVER_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2021",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2021",
+        "category": "meal",
+        "amount_inr": 1950,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": true,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2021",
+        "decision": "reject",
+        "reason_code": "MEAL_OVER_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2022",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2022",
+        "category": "taxi",
+        "amount_inr": 2750,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 2,
+        "submitted_days_late": 0,
+        "client_billable": true,
+        "after_hours": false,
+        "airport_trip": true,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2022",
+        "decision": "approve",
+        "reason_code": "TAXI_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2023",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2023",
+        "category": "hotel",
+        "amount_inr": 12900,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": 2,
+        "city_tier": 3,
+        "submitted_days_late": 0,
+        "client_billable": true,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2023",
+        "decision": "approve",
+        "reason_code": "HOTEL_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2024",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2024",
+        "category": "electronics",
+        "amount_inr": 31000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2024",
+        "decision": "escalate",
+        "reason_code": "ELECTRONICS_REVIEW_REQUIRED"
+      }
+    },
+    {
+      "task_id": "CLM-2025",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2025",
+        "category": "meal",
+        "amount_inr": 900,
+        "receipt_present": false,
+        "duplicate": true,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2025",
+        "decision": "reject",
+        "reason_code": "DUPLICATE_CLAIM"
+      }
+    },
+    {
+      "task_id": "CLM-2026",
+      "difficulty": "edge",
+      "edge_case": true,
+      "input": {
+        "claim_id": "CLM-2026",
+        "category": "taxi",
+        "amount_inr": 3100,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": true,
+        "airport_trip": true,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2026",
+        "decision": "approve",
+        "reason_code": "TAXI_WITHIN_LIMIT"
+      },
+      "edge_kind": "stacked_taxi_modifier_cap"
+    },
+    {
+      "task_id": "CLM-2027",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2027",
+        "category": "hotel",
+        "amount_inr": 19100,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": 2,
+        "city_tier": 2,
+        "submitted_days_late": 0,
+        "client_billable": true,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": true
+      },
+      "expected": {
+        "claim_id": "CLM-2027",
+        "decision": "reject",
+        "reason_code": "HOTEL_OVER_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2028",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2028",
+        "category": "electronics",
+        "amount_inr": 25000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 3,
+        "submitted_days_late": 0,
+        "client_billable": true,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2028",
+        "decision": "approve",
+        "reason_code": "ELECTRONICS_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2029",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2029",
+        "category": "meal",
+        "amount_inr": 1500,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 2,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2029",
+        "decision": "reject",
+        "reason_code": "MEAL_OVER_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2030",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2030",
+        "category": "taxi",
+        "amount_inr": 1750,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 3,
+        "submitted_days_late": 0,
+        "client_billable": true,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2030",
+        "decision": "reject",
+        "reason_code": "TAXI_OVER_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2031",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2031",
+        "category": "hotel",
+        "amount_inr": 7000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "United Kingdom",
+        "manager_approval": false,
+        "nights": 1,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2031",
+        "decision": "escalate",
+        "reason_code": "INTERNATIONAL_HOTEL"
+      }
+    },
+    {
+      "task_id": "CLM-2032",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2032",
+        "category": "electronics",
+        "amount_inr": 12000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 45,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2032",
+        "decision": "reject",
+        "reason_code": "SUBMISSION_TOO_LATE"
+      }
+    },
+    {
+      "task_id": "CLM-2033",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2033",
+        "category": "meal",
+        "amount_inr": 1000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2033",
+        "decision": "approve",
+        "reason_code": "MEAL_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2034",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2034",
+        "category": "taxi",
+        "amount_inr": 1000,
+        "receipt_present": true,
+        "duplicate": true,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 45,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2034",
+        "decision": "reject",
+        "reason_code": "DUPLICATE_CLAIM"
+      }
+    },
+    {
+      "task_id": "CLM-2035",
+      "difficulty": "edge",
+      "edge_case": true,
+      "input": {
+        "claim_id": "CLM-2035",
+        "category": "hotel",
+        "amount_inr": 30000,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": 4,
+        "city_tier": 3,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": true
+      },
+      "expected": {
+        "claim_id": "CLM-2035",
+        "decision": "approve",
+        "reason_code": "HOTEL_WITHIN_LIMIT"
+      },
+      "edge_kind": "conference_multinight_exact_cap"
+    },
+    {
+      "task_id": "CLM-2036",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2036",
+        "category": "electronics",
+        "amount_inr": 10000,
+        "receipt_present": false,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 2,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2036",
+        "decision": "reject",
+        "reason_code": "RECEIPT_MISSING"
+      }
+    },
+    {
+      "task_id": "CLM-2037",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2037",
+        "category": "meal",
+        "amount_inr": 1195,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 3,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2037",
+        "decision": "approve",
+        "reason_code": "MEAL_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2038",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2038",
+        "category": "taxi",
+        "amount_inr": 2550,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": true,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2038",
+        "decision": "approve",
+        "reason_code": "TAXI_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2039",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2039",
+        "category": "hotel",
+        "amount_inr": 22499,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": false,
+        "nights": 3,
+        "city_tier": 2,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2039",
+        "decision": "approve",
+        "reason_code": "HOTEL_WITHIN_LIMIT"
+      }
+    },
+    {
+      "task_id": "CLM-2040",
+      "difficulty": "standard",
+      "edge_case": false,
+      "input": {
+        "claim_id": "CLM-2040",
+        "category": "electronics",
+        "amount_inr": 60001,
+        "receipt_present": true,
+        "duplicate": false,
+        "country": "India",
+        "manager_approval": true,
+        "nights": null,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": false,
+        "after_hours": false,
+        "airport_trip": false,
+        "conference_rate": false
+      },
+      "expected": {
+        "claim_id": "CLM-2040",
+        "decision": "reject",
+        "reason_code": "ELECTRONICS_OVER_LIMIT"
+      }
+    }
+  ]
+}

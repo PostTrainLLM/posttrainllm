@@ -247,6 +247,9 @@ def prepare_run(
         system_transcript = [
             {"role": "system", "content": bundle["config"]["system_prompt"]}
         ]
+        workday_instruction = bundle["config"].get("workday_instruction")
+        if workday_instruction:
+            system_transcript.append({"role": "user", "content": workday_instruction})
         for day in plan:
             selected_order = [
                 name for name in day["condition_order"] if name in spec.conditions

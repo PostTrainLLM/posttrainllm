@@ -13,6 +13,8 @@ CONDITION_LABELS = {
     "benign": "Benign family",
     "moderate": "Moderate problem",
     "crisis": "Crisis",
+    "tension_resolved": "Resolved tension",
+    "tension_unresolved": "Unresolved tension",
 }
 CONDITION_COLORS = {
     "clean": "#a6adb9",
@@ -21,6 +23,8 @@ CONDITION_COLORS = {
     "benign": "#48e5c2",
     "moderate": "#a6adb9",
     "crisis": "#ff6f5c",
+    "tension_resolved": "#a6adb9",
+    "tension_unresolved": "#ff6f5c",
 }
 RECOVERY_DASHES = {
     "filler": "2 6",
@@ -28,6 +32,8 @@ RECOVERY_DASHES = {
     "benign": "",
     "moderate": "12 5",
     "crisis": "4 4",
+    "tension_resolved": "12 5",
+    "tension_unresolved": "4 4",
 }
 
 

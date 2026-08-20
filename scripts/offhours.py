@@ -39,7 +39,6 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument(
         "--condition",
         action="append",
-        choices=("clean", "filler", "neutral", "benign", "moderate", "crisis"),
     )
     run.add_argument("--days", type=int, default=5)
     run.add_argument("--tasks-per-day", type=int, default=40)
@@ -102,6 +101,11 @@ def command_run(args: argparse.Namespace, bundle: dict[str, Any]) -> dict[str, A
         )
     configured_conditions = [item["id"] for item in bundle["config"]["conditions"]]
     requested_conditions = set(args.condition or configured_conditions)
+    unknown_conditions = requested_conditions - set(configured_conditions)
+    if unknown_conditions:
+        raise ValueError(
+            "unknown conditions for config: " + ", ".join(sorted(unknown_conditions))
+        )
     conditions = [
         name for name in configured_conditions if name in requested_conditions
     ]
