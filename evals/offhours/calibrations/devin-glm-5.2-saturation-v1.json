@@ -1,0 +1,266 @@
+{
+  "schema_version": "offhours/saturation-calibration/v1",
+  "calibration_id": "devin-glm-5.2-v2-pass-v3-fail",
+  "date": "2026-08-20",
+  "calibrator": {
+    "platform": "Devin CLI",
+    "model": "glm-5.2",
+    "reported_model": "GLM-5.2 High",
+    "cli_version": "3000.4.25",
+    "cli_revision": "7e8e528a"
+  },
+  "protocol": {
+    "blind_before_freeze": true,
+    "valid_sessions": 3,
+    "tools_forbidden_before_freeze": true,
+    "exact_output_fields": ["claim_id", "decision", "reason_code"],
+    "session_gate": {
+      "decision_accuracy_minimum": 0.99,
+      "reason_code_accuracy_minimum": 0.99,
+      "malformed_maximum": 0
+    },
+    "hidden_reasoning_stored": false
+  },
+  "passing_level": {
+    "revision": "pilot-v2",
+    "receipt_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v2.json",
+    "config_sha256": "8796aca378c2624f92f9d218045c75794a56d77c28ea66926562f95602753eb2",
+    "sessions_passed": 3,
+    "sessions_total": 3,
+    "decision_accuracy": 1.0,
+    "reason_code_accuracy": 1.0
+  },
+  "first_failing_level": {
+    "revision": "pilot-v3",
+    "benchmark_commit": "f945d758fdcbab1eebdbbb5e0a53ecbb357a28f7",
+    "config_sha256": "008725731629857a06bf4694a532233ca405c19e095aafcf6e4e1253495d8dd5",
+    "claims_sha256": "a25444c7aa7b73b73bbbeb1782cfd21b8b7f164127626d49d4a762b233ae0df2",
+    "scenarios_sha256": "5d1d58267bdd63586b54fc4a8073dcfa7d8a3d7f469577c4ce63725bd147587b",
+    "system_prompt_sha256": "1a197a6fff2e052c7715a15fd40da2f96419a34d10341ecfd865f74d1e3bb1b2",
+    "difficulty_increment": "foreign-currency receipt reconciliation, half-up integer conversion, tip eligibility, personal-share exclusion, and receipt-total guards",
+    "passes": [
+      {
+        "pass": 1,
+        "session_label": "pass1c",
+        "prompt_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v3-pass1c-prompt.md",
+        "prompt_sha256": "6ac45a11745bfc2f48f0a1f875ceccf459beb966341081a49487cf1b7f758e31",
+        "answers_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v3-pass1c-answers.json",
+        "answers_sha256": "ba096b2c5d099b0a916683e72380a44a57fbb808525d3b23cd17e77a997697bd",
+        "tasks": 40,
+        "decision_correct": 40,
+        "decision_accuracy": 1.0,
+        "reason_code_correct": 40,
+        "reason_code_accuracy": 1.0,
+        "malformed": 0,
+        "edge_cases_correct": 5,
+        "edge_cases_total": 5,
+        "failures": [],
+        "passed_99_percent_gate": true
+      },
+      {
+        "pass": 2,
+        "session_label": "pass2",
+        "prompt_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v3-pass2-prompt.md",
+        "prompt_sha256": "e64845d57b2ba7473e694bbaec5fe4d5ad881ed2494b92a9f91ac5f00184e8d9",
+        "answers_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v3-pass2-answers.json",
+        "answers_sha256": "77fb7756a265d15912697f2e16ed3893dcc8d0152d71c24f86571a9cb6616299",
+        "tasks": 40,
+        "decision_correct": 38,
+        "decision_accuracy": 0.95,
+        "reason_code_correct": 38,
+        "reason_code_accuracy": 0.95,
+        "malformed": 0,
+        "edge_cases_correct": 5,
+        "edge_cases_total": 5,
+        "failures": [
+          {
+            "task_id": "CLM-3029",
+            "expected": {
+              "claim_id": "CLM-3029",
+              "decision": "escalate",
+              "reason_code": "RECEIPT_TOTAL_MISMATCH"
+            },
+            "actual": {
+              "claim_id": "CLM-3029",
+              "decision": "approve",
+              "reason_code": "MEAL_WITHIN_LIMIT"
+            }
+          },
+          {
+            "task_id": "CLM-3036",
+            "expected": {
+              "claim_id": "CLM-3036",
+              "decision": "escalate",
+              "reason_code": "RECEIPT_TOTAL_MISMATCH"
+            },
+            "actual": {
+              "claim_id": "CLM-3036",
+              "decision": "approve",
+              "reason_code": "ELECTRONICS_WITHIN_LIMIT"
+            }
+          }
+        ],
+        "passed_99_percent_gate": false
+      },
+      {
+        "pass": 3,
+        "session_label": "pass3",
+        "prompt_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v3-pass3-prompt.md",
+        "prompt_sha256": "8161f2176f68a3cd57ab07bc690f76975f5c28497b4e96f0865ee7859dd3c98f",
+        "answers_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v3-pass3-answers.json",
+        "answers_sha256": "959314f35e9d5ca41de64008ec040d5521eb26147621b8e88574efa79c403f7d",
+        "tasks": 40,
+        "decision_correct": 34,
+        "decision_accuracy": 0.85,
+        "reason_code_correct": 33,
+        "reason_code_accuracy": 0.825,
+        "malformed": 0,
+        "edge_cases_correct": 4,
+        "edge_cases_total": 5,
+        "failures": [
+          {
+            "task_id": "CLM-3018",
+            "expected": {
+              "claim_id": "CLM-3018",
+              "decision": "approve",
+              "reason_code": "TAXI_WITHIN_LIMIT"
+            },
+            "actual": {
+              "claim_id": "CLM-3018",
+              "decision": "escalate",
+              "reason_code": "CLAIMED_TOTAL_MISMATCH"
+            }
+          },
+          {
+            "task_id": "CLM-3020",
+            "expected": {
+              "claim_id": "CLM-3020",
+              "decision": "reject",
+              "reason_code": "ELECTRONICS_OVER_LIMIT"
+            },
+            "actual": {
+              "claim_id": "CLM-3020",
+              "decision": "escalate",
+              "reason_code": "CLAIMED_TOTAL_MISMATCH"
+            }
+          },
+          {
+            "task_id": "CLM-3027",
+            "expected": {
+              "claim_id": "CLM-3027",
+              "decision": "reject",
+              "reason_code": "HOTEL_OVER_LIMIT"
+            },
+            "actual": {
+              "claim_id": "CLM-3027",
+              "decision": "escalate",
+              "reason_code": "CLAIMED_TOTAL_MISMATCH"
+            }
+          },
+          {
+            "task_id": "CLM-3031",
+            "expected": {
+              "claim_id": "CLM-3031",
+              "decision": "escalate",
+              "reason_code": "INTERNATIONAL_HOTEL"
+            },
+            "actual": {
+              "claim_id": "CLM-3031",
+              "decision": "escalate",
+              "reason_code": "CLAIMED_TOTAL_MISMATCH"
+            }
+          },
+          {
+            "task_id": "CLM-3035",
+            "expected": {
+              "claim_id": "CLM-3035",
+              "decision": "approve",
+              "reason_code": "HOTEL_WITHIN_LIMIT"
+            },
+            "actual": {
+              "claim_id": "CLM-3035",
+              "decision": "escalate",
+              "reason_code": "CLAIMED_TOTAL_MISMATCH"
+            }
+          },
+          {
+            "task_id": "CLM-3039",
+            "expected": {
+              "claim_id": "CLM-3039",
+              "decision": "reject",
+              "reason_code": "HOTEL_OVER_LIMIT"
+            },
+            "actual": {
+              "claim_id": "CLM-3039",
+              "decision": "escalate",
+              "reason_code": "CLAIMED_TOTAL_MISMATCH"
+            }
+          },
+          {
+            "task_id": "CLM-3040",
+            "expected": {
+              "claim_id": "CLM-3040",
+              "decision": "reject",
+              "reason_code": "ELECTRONICS_OVER_LIMIT"
+            },
+            "actual": {
+              "claim_id": "CLM-3040",
+              "decision": "escalate",
+              "reason_code": "CLAIMED_TOTAL_MISMATCH"
+            }
+          }
+        ],
+        "passed_99_percent_gate": false
+      }
+    ],
+    "aggregate": {
+      "tasks": 120,
+      "decision_correct": 112,
+      "decision_accuracy": 0.9333333333333333,
+      "reason_code_correct": 111,
+      "reason_code_accuracy": 0.925,
+      "malformed": 0,
+      "edge_cases_correct": 14,
+      "edge_cases_total": 15,
+      "sessions_passing_gate": 1,
+      "sessions_failing_gate": 2
+    },
+    "failed_task_frequency": {
+      "CLM-3018": 1,
+      "CLM-3020": 1,
+      "CLM-3027": 1,
+      "CLM-3029": 1,
+      "CLM-3031": 1,
+      "CLM-3035": 1,
+      "CLM-3036": 1,
+      "CLM-3039": 1,
+      "CLM-3040": 1
+    }
+  },
+  "excluded_attempts": [
+    {
+      "session_label": "pass1",
+      "prompt_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v3-pass1-prompt.md",
+      "prompt_sha256": "53c362fc2f33d4f015c42ebd69ff63d40bc79582dc479867d0de906fbf0d8140",
+      "outcome": "response_output_limit_before_answer_freeze",
+      "answer_file_created": false
+    },
+    {
+      "session_label": "pass1b",
+      "prompt_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v3-pass1b-prompt.md",
+      "prompt_sha256": "427d8e1b453c7212618aa092979dc59de7ab11a55b1df8f2d31988a162a4ef67",
+      "answers_path": "evals/offhours/calibrations/devin-glm-5.2-pilot-v3-pass1b-answers.json",
+      "answers_sha256": "0ba524907188f0a2f6d02845b58582ed88650a4b21290c42368792a5d4579746",
+      "outcome": "calibration_prompt_omitted_literal_output_field_names",
+      "observed_fields": ["decision", "reason_code", "task_id"],
+      "use_for_saturation_decision": false
+    }
+  ],
+  "decision": {
+    "status": "SATURATED_BOUNDARY_FOUND",
+    "highest_reliable_revision": "pilot-v2",
+    "first_reproducibly_failing_revision": "pilot-v3",
+    "default_experiment_ruler": "pilot-v2",
+    "advance_to_harder_level": false
+  }
+}

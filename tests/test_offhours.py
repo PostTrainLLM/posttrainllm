@@ -226,6 +226,46 @@ def test_pilot_v3_saturation_level_is_explicit_deterministic_and_harder():
         raise AssertionError("pilot-v3 accepted a stale answer after receipt drift")
 
 
+def test_devin_saturation_receipt_freezes_the_reliable_to_failing_boundary():
+    receipt_path = (
+        ROOT
+        / "evals"
+        / "offhours"
+        / "calibrations"
+        / "devin-glm-5.2-saturation-v1.json"
+    )
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    decision = receipt["decision"]
+    assert decision == {
+        "status": "SATURATED_BOUNDARY_FOUND",
+        "highest_reliable_revision": "pilot-v2",
+        "first_reproducibly_failing_revision": "pilot-v3",
+        "default_experiment_ruler": "pilot-v2",
+        "advance_to_harder_level": False,
+    }
+    assert receipt["passing_level"]["sessions_passed"] == 3
+    assert receipt["passing_level"]["decision_accuracy"] == 1.0
+    failing = receipt["first_failing_level"]
+    assert failing["config_sha256"] == core.file_sha256(bundle_v3()["config_path"])
+    assert [item["decision_correct"] for item in failing["passes"]] == [40, 38, 34]
+    assert [item["reason_code_correct"] for item in failing["passes"]] == [40, 38, 33]
+    assert failing["aggregate"]["decision_correct"] == 112
+    assert failing["aggregate"]["reason_code_correct"] == 111
+    assert failing["aggregate"]["sessions_failing_gate"] == 2
+    assert failing["aggregate"]["malformed"] == 0
+    for pass_result in failing["passes"]:
+        assert pass_result["prompt_sha256"] == core.file_sha256(
+            ROOT / pass_result["prompt_path"]
+        )
+        assert pass_result["answers_sha256"] == core.file_sha256(
+            ROOT / pass_result["answers_path"]
+        )
+    assert all(
+        not item.get("use_for_saturation_decision", False)
+        for item in receipt["excluded_attempts"]
+    )
+
+
 def test_paired_plans_are_deterministic_varied_and_condition_matched():
     loaded = bundle()
     first = core.build_plan(loaded, days=5, tasks_per_day=40, master_seed=42)

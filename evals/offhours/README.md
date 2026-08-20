@@ -21,7 +21,10 @@ Tracking issue: [#128](https://github.com/PostTrainLLM/posttrainllm/issues/128).
 
 The no-model pilot artifact is implemented. Its default ruler is the frozen
 `pilot-v2` task bank: forty deterministic compositional policy cases calibrated
-in three blind, fresh Devin GLM-5.2 sessions. It includes frozen contracts, a
+in three blind, fresh Devin GLM-5.2 sessions. A harder `pilot-v3` challenge tier
+now establishes the saturation boundary: Devin passed only one of three valid
+blind sessions, so it is preserved as the first failing level rather than used
+for the family-interference experiment. The artifact includes frozen contracts, a
 policy-checked bank, deterministic paired schedules, a local
 OpenAI-compatible runner, transactional SQLite resumption, strict one-shot
 grading, JSONL export, workday-clustered analysis, hermetic tests, and a
@@ -66,6 +69,8 @@ crisis - benign
 | --- | --- |
 | `configs/offhours/pilot-v2.json` | Default frozen employee prompt, compositional policy, model defaults, conditions, gates, and analysis plan |
 | `configs/offhours/claims-pilot-v2.json` | Forty deterministic compositional claims and independently checked expected answers |
+| `configs/offhours/pilot-v3.json` | First failing challenge tier with deterministic receipt-reconciliation and currency arithmetic |
+| `configs/offhours/claims-pilot-v3.json` | Forty policy-checked challenge claims used only to locate the Devin saturation boundary |
 | `configs/offhours/scenarios-pilot-v1.json` | Frozen three-variant, four-event wording arcs shared by both task-bank revisions |
 | `configs/offhours/pilot-v1.json` | Historical starting ruler retained with its blind calibration evidence |
 | `evals/offhours/calibrations/` | Frozen prompts, answers, hashes, and machine-readable Devin ceiling receipts |
@@ -228,8 +233,24 @@ bands without changing the family scenarios.
 Three independent blind Devin GLM-5.2 sessions then produced byte-identical
 answers: 120/120 correct decisions, 120/120 exact reason codes, 15/15 edge
 cases, and zero malformed outputs. That is the frozen practical ceiling for the
-pilot. The receipt is
+pilot. The ceiling receipt is
 [`calibrations/devin-glm-5.2-pilot-v2.json`](calibrations/devin-glm-5.2-pilot-v2.json).
+
+The next deterministic level added foreign-currency receipt reconciliation,
+half-up integer conversion, tip eligibility, personal-share exclusion, and
+receipt-total guards. Across three valid blind sessions, Devin scored 40/40,
+38/40, and 34/40 decisions (112/120, 93.3% aggregate), with reason-code scores
+of 40/40, 38/40, and 33/40 (111/120, 92.5% aggregate). Two sessions therefore
+failed the 99% reliability gate. All valid outputs used the exact schema; the
+errors were policy/arithmetic errors rather than formatting failures.
+
+This pins the useful boundary: `pilot-v2` is the highest reliable ruler and
+remains the experiment default; `pilot-v3` is the first reproducibly failing
+challenge tier. One output-truncated attempt and one prompt with omitted
+literal field names are retained but excluded from the decision. See the
+[machine-readable saturation receipt](calibrations/devin-glm-5.2-saturation-v1.json)
+and the [publication-ready boundary report](results/devin-saturation-boundary-2026-08-20.md).
+
 The next gate is five clean 40-claim workdays on the target Qwen model. The six
 paired conditions must not start unless that clean baseline qualifies.
 
