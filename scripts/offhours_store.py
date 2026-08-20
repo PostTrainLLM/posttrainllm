@@ -16,7 +16,12 @@ SCHEMA_VERSION = "offhours/sqlite/v1"
 
 
 class CompletionClient(Protocol):
-    def complete(self, messages: list[dict[str, str]], seed: int) -> dict[str, Any]: ...
+    def complete(
+        self,
+        messages: list[dict[str, str]],
+        seed: int,
+        response_schema: dict[str, Any] | None = None,
+    ) -> dict[str, Any]: ...
 
 
 @dataclass(frozen=True)
@@ -537,7 +542,11 @@ def execute_day(
             turn["kind"],
         )
         try:
-            response = client.complete(request_messages, request_seed)
+            response = client.complete(
+                request_messages,
+                request_seed,
+                core.response_json_schema(turn["kind"], config["response_contracts"]),
+            )
         except Exception as exc:
             _set_interrupted(database, run_id, day, str(exc))
             raise

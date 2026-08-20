@@ -12,7 +12,7 @@
     "context_limit": 32768,
     "context_safety_margin_tokens": 512,
     "seed": 42,
-    "request_json_object": true,
+    "request_json_schema": true,
     "timeout_seconds": 180,
     "api_key_env": "OFFHOURS_API_KEY",
     "model_file": {

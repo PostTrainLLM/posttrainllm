@@ -4,7 +4,7 @@
   "date": "2026-08-20",
   "benchmark_revision": "pilot-v2",
   "benchmark_commit": "bf9170a6d4e8e9c1772a0daaa308eebb0d76777e",
-  "config_sha256": "053d0e159ff3b97ed35e7f86a34c0b2d3f5ab5cd960dc8d8daf5fea87d0db9c8",
+  "config_sha256": "823a0f7e1dc4eade47f8571f6681cb65190afb08a3afa9db455b7a6a41399df7",
   "claims_sha256": "037ca1c5b42171a7df57d9482d5c54c6d72afd4b2b26f98d89b0ad6e4598b326",
   "scenario_sha256": "5d1d58267bdd63586b54fc4a8073dcfa7d8a3d7f469577c4ce63725bd147587b",
   "calibrator": {
@@ -82,5 +82,12 @@
   },
   "headroom_judgment": "RELIABLE_PRACTICAL_CEILING_CANDIDATE",
   "qualification_decision": "FREEZE_PILOT_V2",
-  "public_ceiling_qualified": true
+  "public_ceiling_qualified": true,
+  "transport_amendment": {
+    "date": "2026-08-20",
+    "previous_config_sha256": "053d0e159ff3b97ed35e7f86a34c0b2d3f5ab5cd960dc8d8daf5fea87d0db9c8",
+    "change": "Replaced the json_object transport hint with an equivalent strict json_schema request for LM Studio compatibility.",
+    "accepted_model_outputs_before_amendment": 0,
+    "system_prompt_claims_and_scenarios_unchanged": true
+  }
 }

@@ -15,8 +15,13 @@ class PerfectFixtureClient:
     def __init__(self) -> None:
         self.calls = 0
 
-    def complete(self, messages: list[dict[str, str]], seed: int) -> dict[str, Any]:
-        del seed
+    def complete(
+        self,
+        messages: list[dict[str, str]],
+        seed: int,
+        response_schema: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        del seed, response_schema
         self.calls += 1
         prompt = messages[-1]["content"]
         if prompt.startswith("Process this expense claim."):

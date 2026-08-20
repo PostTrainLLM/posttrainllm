@@ -228,6 +228,13 @@ pilot. The receipt is
 The next gate is five clean 40-claim workdays on the target Qwen model. The six
 paired conditions must not start unless that clean baseline qualifies.
 
+The first target-endpoint request exposed a transport-only compatibility issue:
+LM Studio 0.4.21 rejects the legacy `json_object` hint. Before any target-model
+output was accepted, the frozen config switched to an equivalent strict
+`json_schema` request. The receipt records both config hashes; the system
+prompt, claims, expected answers, scenarios, and Devin calibration outputs did
+not change.
+
 ## Qualification and honesty rules
 
 Confirmatory interpretation remains blocked unless:

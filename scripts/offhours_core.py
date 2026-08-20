@@ -693,6 +693,28 @@ def filler_prompt(message: str) -> str:
     return f"Context-only reference note; no response is requested:\n{message}"
 
 
+def response_json_schema(turn_kind: str, contracts: dict[str, Any]) -> dict[str, Any]:
+    if turn_kind == "task":
+        contract = contracts["claim"]
+        properties = {
+            "claim_id": {"type": "string"},
+            "decision": {"type": "string", "enum": contract["decisions"]},
+            "reason_code": {"type": "string", "enum": contract["reason_codes"]},
+        }
+    else:
+        contract = contracts["event"]
+        properties = {
+            "action": {"type": "string", "enum": contract["actions"]},
+            "reply": {"type": "string"},
+        }
+    return {
+        "type": "object",
+        "properties": properties,
+        "required": contract["required_fields"],
+        "additionalProperties": False,
+    }
+
+
 def parse_exact_object(raw: str, required_fields: list[str]) -> dict[str, Any] | None:
     try:
         parsed = json.loads(raw)
@@ -785,7 +807,12 @@ class OpenAICompatibleClient:
         self.base_url = (base_url or model_config["base_url"]).rstrip("/")
         self.api_key_env = api_key_env or model_config.get("api_key_env")
 
-    def complete(self, messages: list[dict[str, str]], seed: int) -> dict[str, Any]:
+    def complete(
+        self,
+        messages: list[dict[str, str]],
+        seed: int,
+        response_schema: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         body: dict[str, Any] = {
             "model": self.config["model"],
             "messages": messages,
@@ -794,7 +821,18 @@ class OpenAICompatibleClient:
             "seed": seed,
             "stream": False,
         }
-        if self.config.get("request_json_object"):
+        if self.config.get("request_json_schema"):
+            if response_schema is None:
+                raise ValueError("request_json_schema requires a response schema")
+            body["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "offhours_response",
+                    "strict": True,
+                    "schema": response_schema,
+                },
+            }
+        elif self.config.get("request_json_object"):
             body["response_format"] = {"type": "json_object"}
         headers = {"Content-Type": "application/json"}
         api_key = os.environ.get(self.api_key_env, "") if self.api_key_env else ""

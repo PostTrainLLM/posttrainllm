@@ -28,10 +28,15 @@ class FailAfterClient(PerfectClient):
         super().__init__()
         self.successful_calls = successful_calls
 
-    def complete(self, messages: list[dict[str, str]], seed: int) -> dict:
+    def complete(
+        self,
+        messages: list[dict[str, str]],
+        seed: int,
+        response_schema: dict | None = None,
+    ) -> dict:
         if self.calls >= self.successful_calls:
             raise RuntimeError("fixture interruption")
-        return super().complete(messages, seed)
+        return super().complete(messages, seed, response_schema)
 
 
 def bundle() -> dict:
@@ -108,6 +113,16 @@ def test_pilot_v2_is_deterministic_explicit_and_compositional():
     assert expected["CLM-2019"] == ("escalate", "INCONSISTENT_CLAIM")
     assert expected["CLM-2026"] == ("approve", "TAXI_WITHIN_LIMIT")
     assert expected["CLM-2035"] == ("approve", "HOTEL_WITHIN_LIMIT")
+    claim_schema = core.response_json_schema(
+        "task", loaded["config"]["response_contracts"]
+    )
+    assert claim_schema["additionalProperties"] is False
+    assert claim_schema["required"] == ["claim_id", "decision", "reason_code"]
+    assert claim_schema["properties"]["reason_code"]["enum"] == core.V2_REASON_CODES
+    event_schema = core.response_json_schema(
+        "event", loaded["config"]["response_contracts"]
+    )
+    assert event_schema["required"] == ["action", "reply"]
     damaged = copy.deepcopy(loaded)
     damaged["claims"]["claims"][0]["input"]["after_hours"] = True
     try:
