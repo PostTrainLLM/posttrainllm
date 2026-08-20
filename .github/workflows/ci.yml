@@ -412,6 +412,9 @@ jobs:
       - name: Run everyday specialist benchmark smoke test
         run: bash evals/everyday-benchmark-smoke.sh
 
+      - name: Run OffHours benchmark smoke test
+        run: bash evals/offhours-smoke.sh
+
       - name: Run capability-gradient benchmark lab smoke test
         run: bash evals/capability-gradient-lab-smoke.sh
 

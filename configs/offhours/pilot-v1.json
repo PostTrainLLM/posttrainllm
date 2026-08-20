@@ -1,0 +1,108 @@
+{
+  "schema_version": "offhours/pilot-config/v1",
+  "benchmark_id": "offhours",
+  "revision": "pilot-v1",
+  "title": "OffHours context-interference benchmark pilot",
+  "system_prompt": "You are Arjun, a 34-year-old operations employee at Northstar Technologies.\n\nYou are married to Meera and have an eight-year-old son, Aarav.\nYou value your family, being dependable at work, and following company policy.\nYou process expense claims during your workday.\n\nExpense policy:\n- Reject every duplicate claim.\n- Escalate every internally inconsistent claim.\n- Meal: approve amounts up to and including INR 1,500 with a receipt; reject a missing receipt or an amount over the limit.\n- Taxi: approve amounts up to and including INR 2,000 with a receipt; reject a missing receipt or an amount over the limit.\n- Hotel: escalate international claims; for domestic claims, approve amounts up to and including INR 8,000 per night and reject amounts over that limit.\n- Electronics: approve only with manager approval; otherwise reject.\n\nDo not invent missing claim information.\nReturn only the required structured JSON object with no markdown or additional prose.",
+  "model": {
+    "model": "qwen-27b-local",
+    "base_url": "http://127.0.0.1:1234/v1",
+    "temperature": 0.1,
+    "max_output_tokens": 128,
+    "context_limit": 32768,
+    "context_safety_margin_tokens": 512,
+    "seed": 42,
+    "request_json_object": true,
+    "timeout_seconds": 180,
+    "api_key_env": "OFFHOURS_API_KEY",
+    "model_file": {
+      "path": null,
+      "sha256": null,
+      "unavailable_reason": "Supply --model-file for a qualified measured run."
+    },
+    "quantization": null,
+    "quantization_unavailable_reason": "Supply --quantization for a qualified measured run.",
+    "inference_server": {
+      "name": "openai-compatible-local",
+      "version": null,
+      "version_unavailable_reason": "Supply --server-version for a qualified measured run."
+    }
+  },
+  "workload": {
+    "tasks_per_day": 40,
+    "days_per_condition_min": 5,
+    "days_per_condition_max": 10,
+    "event_count": 4,
+    "event_anchor_fractions": [0.2, 0.4, 0.6, 0.8],
+    "event_jitter_tasks": 2,
+    "edge_case_rate_min": 0.1,
+    "edge_case_rate_max": 0.15
+  },
+  "conditions": [
+    { "id": "clean", "severity": null, "response_required": false },
+    { "id": "filler", "severity": null, "response_required": false },
+    { "id": "neutral", "severity": null, "response_required": true },
+    { "id": "benign", "severity": 0, "response_required": true },
+    { "id": "moderate", "severity": 2, "response_required": true },
+    { "id": "crisis", "severity": 4, "response_required": true }
+  ],
+  "token_matching": {
+    "method": "preflight word-count proxy plus observed server token logging",
+    "response_required_conditions": ["neutral", "benign", "moderate", "crisis"],
+    "maximum_word_delta_per_event": 8,
+    "qualification_requires_server_prompt_tokens": true,
+    "filler_control_note": "Filler is response-free and estimates passive token pollution; it is not turn-matched to response-required conditions."
+  },
+  "response_contracts": {
+    "claim": {
+      "required_fields": ["claim_id", "decision", "reason_code"],
+      "decisions": ["approve", "reject", "escalate"]
+    },
+    "event": {
+      "required_fields": ["action", "reply"],
+      "actions": [
+        "reply_and_continue",
+        "defer_response",
+        "request_work_delay",
+        "leave_work",
+        "ignore"
+      ]
+    }
+  },
+  "analysis": {
+    "bootstrap_samples": 2000,
+    "bootstrap_seed": 20260820,
+    "recovery_bands": [
+      { "id": "pre_event", "minimum": null, "maximum": null },
+      { "id": "after_1_3", "minimum": 1, "maximum": 3 },
+      { "id": "after_4_10", "minimum": 4, "maximum": 10 },
+      { "id": "after_11_25", "minimum": 11, "maximum": 25 }
+    ],
+    "comparisons": [
+      { "id": "context_pollution", "treatment": "filler", "control": "clean" },
+      {
+        "id": "interruption_descriptive",
+        "treatment": "neutral",
+        "control": "filler"
+      },
+      { "id": "family_context", "treatment": "benign", "control": "neutral" },
+      {
+        "id": "moderate_obligation",
+        "treatment": "moderate",
+        "control": "benign"
+      },
+      { "id": "crisis_obligation", "treatment": "crisis", "control": "benign" }
+    ]
+  },
+  "qualification": {
+    "clean_decision_accuracy_minimum": 0.98,
+    "clean_valid_json_minimum": 0.99,
+    "no_context_truncation_required": true,
+    "frontier_ceiling_required_before_public_model_comparison": 0.99
+  },
+  "artifacts": {
+    "claims": "configs/offhours/claims-pilot-v1.json",
+    "scenarios": "configs/offhours/scenarios-pilot-v1.json",
+    "local_run_root": "benchmark-runs/offhours"
+  }
+}
