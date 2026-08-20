@@ -634,6 +634,13 @@ def test_export_and_reports_are_deterministic_and_refuse_overwrite():
             assert document.count("Synthetic fixture · not model evidence") == 4
             assert "A fixture is not a result." in document
             assert "A null result is still a result." not in document
+            condition_arc = document.split('<div class="condition-arc">', 1)[1].split(
+                "</div>", 1
+            )[0]
+            assert condition_arc.count("<span") == len(report["workload"]["conditions"])
+            assert "repeat(4,minmax(0,1fr))" in document
+            assert ".two-up table { min-width:640px; }" in document
+            assert ".scroll-cue { display:none; }" in document
             assert "Accessible values for paired error-rate effects." in document
             assert "Accessible error rates for each recovery window." in document
             assert "When context becomes a competing objective." in document
@@ -642,11 +649,27 @@ def test_export_and_reports_are_deterministic_and_refuse_overwrite():
             unqualified["artifact_kind"] = "measured_run"
             unqualified["confirmatory_interpretation_allowed"] = False
             unqualified["public_model_comparison_allowed"] = False
+            matched_effect = copy.deepcopy(unqualified["paired_effects"][0])
+            matched_effect["analysis_role"] = "matched"
+            matched_effect["label"] = "Test matched estimate"
+            unqualified["paired_effects"].append(matched_effect)
+            unqualified["provenance"]["quantization"] = None
+            unqualified["provenance"]["model_file_sha256"] = None
+            unqualified["baseline_qualification"]["checks"]["complete_provenance"] = (
+                False
+            )
             unqualified_document = report_renderer.render_html(unqualified)
             assert (
                 '<li class="active" aria-current="step"><i aria-hidden="true"></i>'
                 "Unqualified measured run</li>" in unqualified_document
             )
+            assert "Unqualified run — descriptive signal only" in unqualified_document
+            assert (
+                "A signal is not a result until the ruler passes."
+                in unqualified_document
+            )
+            assert "Required evidence missing" in unqualified_document
+            assert "Largest matched effect:" not in unqualified_document
             try:
                 store.export_jsonl(database, "fixture-artifact", first_export)
             except FileExistsError:

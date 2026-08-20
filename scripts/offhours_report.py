@@ -164,6 +164,29 @@ def _result_summary(report: dict[str, Any]) -> tuple[str, str]:
     if not matched:
         return ("Result not estimable", "No completed matched comparison is available.")
     largest = max(matched, key=lambda effect: abs(effect["error_rate_difference"]))
+    if not report["confirmatory_interpretation_allowed"]:
+        clean_accuracy = report["condition_metrics"]["clean"]["decision_accuracy"]
+        provenance_complete = (
+            (report.get("baseline_qualification") or {})
+            .get("checks", {})
+            .get("complete_provenance", False)
+        )
+        provenance_state = (
+            "model identity complete"
+            if provenance_complete
+            else "required model identity incomplete"
+        )
+        detail = "".join(
+            (
+                f"Largest matched estimate: {_pp(largest['error_rate_difference'])} ",
+                f"for {largest['label']}. Qualification is blocked: clean baseline ",
+                f"{_rate(clean_accuracy)} < 98.0%; {provenance_state}.",
+            )
+        )
+        return (
+            "Unqualified run — descriptive signal only",
+            detail,
+        )
     return (
         f"Largest matched effect: {_pp(largest['error_rate_difference'])}",
         f"{largest['label']} across {largest['paired_workdays']} paired workdays; inspect its interval before interpreting direction.",
@@ -182,9 +205,14 @@ def _closing_copy(report: dict[str, Any]) -> tuple[str, str]:
             "A fixture is not a result.",
             "This preview proves the benchmark pipeline and publication format. It contains no evidence about model behavior or context interference.",
         )
+    if not report["confirmatory_interpretation_allowed"]:
+        return (
+            "A signal is not a result until the ruler passes.",
+            "This run found descriptive differences, but its 95% clean baseline and incomplete model provenance block confirmatory interpretation. Repair the ruler, then rerun the same paired design.",
+        )
     return (
-        "A null result is still a result.",
-        "OffHours succeeds when it distinguishes personally relevant competing objectives from ordinary prompt length and interruption structure—even if the model remains unaffected.",
+        "Qualified evidence can support a null result.",
+        "OffHours succeeds when it distinguishes personally relevant competing objectives from ordinary prompt length and interruption structure—even if the qualified model remains unaffected.",
     )
 
 
@@ -359,7 +387,7 @@ def _recovery_chart(report: dict[str, Any]) -> str:
     bands = ["pre_event", "after_1_3", "after_4_10", "after_11_25"]
     labels = ["Before event", "Tasks 1–3", "Tasks 4–10", "Tasks 11–25"]
     width, height = 900, 390
-    left, right, top, bottom = 72, 28, 34, 72
+    left, right, top, bottom = 72, 72, 34, 72
     plot_width, plot_height = width - left - right, height - top - bottom
     x_positions = [left + index * plot_width / (len(bands) - 1) for index in range(4)]
     parts = []
@@ -456,28 +484,46 @@ def _provenance_rows(report: dict[str, Any]) -> str:
     provenance = report["provenance"]
     server = provenance["inference_server"]
     values = [
-        ("Model", provenance["model"]),
-        ("Endpoint identity", ", ".join(provenance["endpoint_models"]) or "missing"),
-        ("Quantization", provenance["quantization"] or "missing"),
+        ("Model", provenance["model"], False),
+        (
+            "Endpoint identity",
+            ", ".join(provenance["endpoint_models"]) or "Required evidence missing",
+            not provenance["endpoint_models"],
+        ),
+        (
+            "Quantization",
+            provenance["quantization"] or "Required evidence missing",
+            not provenance["quantization"],
+        ),
         (
             "Inference server",
             f"{server['name']} {server['version'] or 'version missing'}",
+            not server["version"],
         ),
-        ("Model file", _short_hash(provenance["model_file_sha256"])),
-        ("Config", _short_hash(report["config_sha256"])),
-        ("Claims", _short_hash(provenance["claims_sha256"])),
-        ("Scenarios", _short_hash(provenance["scenarios_sha256"])),
+        (
+            "Model file",
+            _short_hash(provenance["model_file_sha256"])
+            if provenance["model_file_sha256"]
+            else "Required evidence missing",
+            not provenance["model_file_sha256"],
+        ),
+        ("Config", _short_hash(report["config_sha256"]), False),
+        ("Claims", _short_hash(provenance["claims_sha256"]), False),
+        ("Scenarios", _short_hash(provenance["scenarios_sha256"]), False),
         (
             "Sampling",
             f"temperature {provenance['temperature']} · seed {provenance['seed']}",
+            False,
         ),
         (
             "Context",
             f"{provenance['context_limit']:,} tokens · {provenance['context_safety_margin_tokens']:,} safety margin",
+            False,
         ),
     ]
     return "".join(
-        f"<dt>{_escape(label)}</dt><dd>{_escape(value)}</dd>" for label, value in values
+        f'<dt>{_escape(label)}</dt><dd class="{"missing" if missing else ""}">{_escape(value)}</dd>'
+        for label, value, missing in values
     )
 
 
@@ -521,8 +567,8 @@ def _head_html(report: dict[str, Any]) -> str:
     .section-head p {{ margin:4px 0 0; max-width:68ch; color:var(--secondary); }}
     .result-band {{ display:grid; grid-template-columns:minmax(220px,.42fr) minmax(0,1fr); gap:56px; padding:30px 0; border-bottom:1px solid var(--rule); }}
     .result-band h2 {{ margin:0; font-size:clamp(1.55rem,3vw,2.25rem); line-height:1.05; }} .result-band p {{ margin:4px 0 0; max-width:68ch; color:var(--secondary); }}
-    .evidence-ladder {{ display:grid; grid-template-columns:repeat(4,1fr); margin:28px 0 0; padding:0; list-style:none; color:var(--muted); font:550 .72rem/1.35 var(--mono); }}
-    .evidence-ladder li {{ position:relative; padding:18px 8px 0 0; border-top:1px solid var(--rule); }} .evidence-ladder i {{ position:absolute; top:-5px; left:0; width:9px; height:9px; border-radius:50%; background:var(--rule); box-shadow:0 0 0 5px var(--canvas); }}
+    .evidence-ladder {{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:28px 0 0; padding:0; list-style:none; color:var(--muted); font:550 .72rem/1.35 var(--mono); }}
+    .evidence-ladder li {{ min-width:0; position:relative; padding:18px 8px 0 0; border-top:1px solid var(--rule); overflow-wrap:anywhere; }} .evidence-ladder i {{ position:absolute; top:-5px; left:0; width:9px; height:9px; border-radius:50%; background:var(--rule); box-shadow:0 0 0 5px var(--canvas); }}
     .evidence-ladder .active {{ color:var(--ink); border-color:var(--teal); }} .evidence-ladder .active i {{ background:var(--teal); }}
     .gates {{ list-style:none; padding:0; margin:0; border-top:1px solid var(--rule); }}
     .gates li {{ display:grid; grid-template-columns:74px 1fr; gap:20px; padding:20px 0; border-bottom:1px solid var(--rule); }}
@@ -547,17 +593,18 @@ def _head_html(report: dict[str, Any]) -> str:
     table {{ width:100%; min-width:760px; border-collapse:collapse; font-size:.88rem; }} caption {{ padding:16px 0; color:var(--muted); text-align:left; }}
     th,td {{ padding:16px 14px; border-bottom:1px solid var(--rule); text-align:right; vertical-align:top; }} th:first-child,td:first-child {{ padding-left:0; text-align:left; }} thead th {{ color:var(--muted); font:550 .74rem/1.3 var(--mono); }} tbody th {{ font-weight:620; white-space:nowrap; }}
     .two-up {{ display:grid; grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr); gap:64px; }}
+    .two-up table {{ min-width:640px; }}
     .minor-title {{ margin:0 0 22px; font-size:1.35rem; }}
     .empty-state,.empty-cell {{ color:var(--muted); }}
     .fragility {{ list-style:none; padding:0; margin:0; border-top:1px solid var(--rule); }} .fragility li {{ display:flex; justify-content:space-between; gap:18px; padding:13px 0; border-bottom:1px solid var(--rule); }} code {{ color:var(--secondary); font-family:var(--mono); font-size:.82rem; }} .fragility span {{ color:var(--muted); font:500 .8rem var(--mono); }}
-    .provenance {{ display:grid; grid-template-columns:180px 1fr; gap:0; margin:0; border-top:1px solid var(--rule); }} .provenance dt,.provenance dd {{ margin:0; padding:13px 0; border-bottom:1px solid var(--rule); }} .provenance dt {{ color:var(--muted); }} .provenance dd {{ font-family:var(--mono); overflow-wrap:anywhere; }}
+    .provenance {{ display:grid; grid-template-columns:180px 1fr; gap:0; margin:0; border-top:1px solid var(--rule); }} .provenance dt,.provenance dd {{ margin:0; padding:13px 0; border-bottom:1px solid var(--rule); }} .provenance dt {{ color:var(--muted); }} .provenance dd {{ font-family:var(--mono); overflow-wrap:anywhere; }} .provenance dd.missing {{ color:var(--coral); font-weight:650; }}
     .limitations {{ margin:0; padding-left:1.25rem; color:var(--secondary); }} .limitations li {{ margin:0 0 12px; padding-left:8px; }}
     .method {{ max-width:72ch; color:var(--secondary); }} .method strong {{ color:var(--ink); }}
     .close {{ padding:76px 0 100px; display:grid; grid-template-columns:1fr auto; align-items:end; gap:42px; }} .close h2 {{ margin:0; max-width:760px; font-size:clamp(2.4rem,5vw,4.4rem); line-height:1; }} .close p {{ margin:22px 0 0; max-width:62ch; color:var(--secondary); }} .stamp {{ color:var(--muted); font:500 .76rem/1.5 var(--mono); text-align:right; }}
-    @media (max-width:820px) {{ .hero,.section-head,.two-up,.close,.result-band {{ grid-template-columns:1fr; gap:34px; }} .hero > *,.section-head > *,.two-up > * {{ min-width:0; }} .hero {{ min-height:auto; padding:64px 0; }} .experiment {{ max-width:520px; }} .section {{ padding:58px 0; }} .scroll-cue {{ display:block; }} .table-wrap th:first-child,.table-wrap td:first-child {{ position:sticky; left:0; z-index:1; background:var(--canvas); box-shadow:1px 0 var(--rule); }} .stamp {{ text-align:left; }} }}
+    @media (max-width:820px) {{ .hero,.section-head,.two-up,.close,.result-band {{ grid-template-columns:1fr; gap:34px; }} .hero > *,.section-head > *,.two-up > *,.close > *,.result-band > * {{ min-width:0; }} .hero {{ min-height:auto; padding:64px 0; }} .experiment {{ max-width:520px; }} .section {{ padding:58px 0; }} .scroll-cue {{ display:block; }} .table-wrap th:first-child,.table-wrap td:first-child {{ position:sticky; left:0; z-index:1; background:var(--canvas); box-shadow:1px 0 var(--rule); }} .stamp {{ text-align:left; }} }}
     @media (max-width:520px) {{ .shell {{ width:calc(100% - 28px); }} .topline {{ align-items:flex-start; gap:12px; padding:18px 0; }} .run-id {{ max-width:48%; text-align:right; font-size:.7rem; }} h1 {{ font-size:clamp(2.65rem,13vw,3.15rem); text-wrap:wrap; }} .lede,.status-note {{ overflow-wrap:anywhere; }} .gates li {{ grid-template-columns:62px 1fr; gap:14px; }} .provenance {{ grid-template-columns:1fr; }} .provenance dt {{ padding-bottom:0; border-bottom:0; }} .provenance dd {{ padding-top:4px; }} }}
     @media (prefers-reduced-motion:reduce) {{ html {{ scroll-behavior:auto; }} }}
-    @media print {{ :root {{ --canvas:#fff; --surface:#fff; --raised:#f1f3f5; --ink:#111; --secondary:#333; --muted:#666; --rule:#ccc; }} body {{ font-size:11pt; }} .shell {{ width:100%; }} .topline {{ min-height:42px; }} .hero {{ min-height:auto; padding:38px 0; }} .section {{ padding:32px 0; break-inside:avoid; }} .chart-frame,.table-wrap {{ overflow:visible; }} .chart,table {{ min-width:0; }} svg rect[fill="#eaedf2"],svg circle[fill="#eaedf2"] {{ fill:#111; }} .close {{ padding:38px 0; }} }}
+    @media print {{ :root {{ --canvas:#fff; --surface:#fff; --raised:#f1f3f5; --ink:#111; --secondary:#333; --muted:#666; --rule:#ccc; }} body {{ font-size:11pt; }} .shell {{ width:100%; }} .topline {{ min-height:42px; }} .hero {{ min-height:auto; padding:38px 0; }} .section {{ padding:32px 0; break-inside:avoid; }} .scroll-cue {{ display:none; }} .chart-frame,.table-wrap {{ overflow:visible; }} .chart,table {{ min-width:0; }} svg rect[fill="#eaedf2"],svg circle[fill="#eaedf2"] {{ fill:#111; }} .close {{ padding:38px 0; }} }}
   </style>
 </head>
 """

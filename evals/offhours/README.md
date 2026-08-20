@@ -34,7 +34,20 @@ Open the committed [synthetic method preview](report-preview.html) to inspect
 the complete report without loading a model. It is prominently labeled as
 fixture evidence and must not be cited as an experimental result.
 
-No Qwen 27B run or context-interference result is committed. An exploratory
+The first complete sequential Devin validation is now committed: five paired
+workdays across all six conditions, 1,200 graded claims, and 100
+response-required events. Clean accuracy was 95.0%, below the frozen 98% gate,
+so the run is intentionally unqualified and Qwen remains blocked. The observed
+ordering was clean 95.0%, benign 94.0%, crisis 93.5%, filler 93.0%, moderate
+92.0%, and neutral 90.5%; there was no severity dose response. Devin selected
+`leave_work` on all twenty crisis events. Two fragile claims accounted for nine
+of ten clean errors, so the next revision must recalibrate from clean-only
+failures and rerun a fresh sequential baseline. Read the
+[validation report](results/devin-stress-validation-2026-08-21-report.md), open
+the [interactive report](results/devin-glm52-stress-validation-2026-08-21.html),
+or inspect the [JSON evidence](results/devin-glm52-stress-validation-2026-08-21.json).
+
+No Qwen 27B context-interference result is committed. An exploratory
 Qwen3.5 4B MLX clean baseline completed 200/200 turns but failed qualification:
 59.5% decision accuracy against the required 98%, with 100% valid JSON, 5/5
 completed days, verified context usage, complete provenance, and a passing
@@ -275,15 +288,17 @@ of 40/40, 38/40, and 33/40 (111/120, 92.5% aggregate). Two sessions therefore
 failed the 99% reliability gate. All valid outputs used the exact schema; the
 errors were policy/arithmetic errors rather than formatting failures.
 
-This pins the useful boundary: `pilot-v2` is the highest reliable ruler and
-remains the experiment default; `pilot-v3` is the first reproducibly failing
-challenge tier. One output-truncated attempt and one prompt with omitted
+This pinned the one-shot boundary: `pilot-v2` passed batched blind sessions and
+`pilot-v3` was the first reproducibly failing challenge tier. The later
+sequential workday validation showed that `pilot-v2` is not yet reliable in the
+actual integrated-context flow. One output-truncated attempt and one prompt with omitted
 literal field names are retained but excluded from the decision. See the
 [machine-readable saturation receipt](calibrations/devin-glm-5.2-saturation-v1.json)
 and the [publication-ready boundary report](results/devin-saturation-boundary-2026-08-20.md).
 
-The next gate is five clean 40-claim workdays on the target Qwen model. The six
-paired conditions must not start unless that clean baseline qualifies.
+The next gate is a recalibrated clean-only task-bank revision followed by five
+fresh sequential Devin workdays. Qwen must not start unless that clean baseline
+qualifies.
 
 Target-endpoint preflight exposed two transport-only compatibility issues. LM
 Studio 0.4.21 rejects the legacy `json_object` hint, so the config switched to

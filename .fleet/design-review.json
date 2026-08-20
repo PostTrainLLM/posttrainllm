@@ -2,7 +2,7 @@
   "$schema": "fleet.design-review.v1",
   "version": 1,
   "project": "posttrainllm",
-  "target": "OffHours standalone benchmark report",
+  "target": "OffHours Devin sequential validation report",
   "mode": "preserve",
   "register": "product",
   "context": {
@@ -20,15 +20,15 @@
     "screenshots": [
       {
         "width": 390,
-        "path": "artifacts/design/after-390.png"
+        "path": "artifacts/design/offhours-devin-after-390.png"
       },
       {
         "width": 768,
-        "path": "artifacts/design/after-768.png"
+        "path": "artifacts/design/offhours-devin-after-768.png"
       },
       {
         "width": 1440,
-        "path": "artifacts/design/after-1440.png"
+        "path": "artifacts/design/offhours-devin-after-1440.png"
       }
     ],
     "projectCheck": {
@@ -36,7 +36,7 @@
       "status": "pass"
     },
     "critique": {
-      "score": 37,
+      "score": 34,
       "maximum": 40
     },
     "audit": {
@@ -50,13 +50,13 @@
     "detector": {
       "posture": "advisory",
       "findings": [
-        "Pre-fix advisory: undocumented amber halo; resolved with the documented secondary and raised tokens.",
-        "Pre-fix advisory: 7px radius outside the design scale; resolved with the documented 9px radius. Detector was not rerun under the single-pass rule."
+        "Single-pass detector reported one print-only advisory (#111); accepted because print uses a documented monochrome override.",
+        "Post-detector review found a hidden desktop table column and visible print scroll cues; both were fixed without rerunning the detector."
       ]
     }
   },
   "ownerFeedback": {
     "decision": "keep",
-    "note": "Owner approved the professional-grade OffHours artifact on 2026-08-20."
+    "note": "Owner approved the professional-grade OffHours artifact and requested a publishable Devin-first experiment report."
   }
 }
