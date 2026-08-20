@@ -66,9 +66,7 @@
     "claims_sha256": "037ca1c5b42171a7df57d9482d5c54c6d72afd4b2b26f98d89b0ad6e4598b326",
     "context_limit": 32768,
     "context_safety_margin_tokens": 512,
-    "endpoint_models": [
-      "qwen3.5-4b-offhours"
-    ],
+    "endpoint_models": ["qwen3.5-4b-offhours"],
     "hidden_chain_of_thought_stored": false,
     "inference_server": {
       "name": "LM Studio",
@@ -83,9 +81,7 @@
     "scenario_version": "pilot-v1",
     "scenarios_sha256": "5d1d58267bdd63586b54fc4a8073dcfa7d8a3d7f469577c4ce63725bd147587b",
     "seed": 42,
-    "system_fingerprints": [
-      "qwen3.5-4b-offhours"
-    ],
+    "system_fingerprints": ["qwen3.5-4b-offhours"],
     "system_prompt_sha256": "a11a3c60b176c1d25cf60b1e4366fc5a076dafeaf88d05ae805055e1750c26a0",
     "task_bank_version": "pilot-v2",
     "temperature": 0.1
@@ -477,9 +473,7 @@
     }
   ],
   "workload": {
-    "conditions": [
-      "clean"
-    ],
+    "conditions": ["clean"],
     "days_per_condition": 5,
     "tasks_per_day": 40
   }

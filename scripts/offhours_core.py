@@ -34,6 +34,15 @@ INPUT_FIELDS_V2 = INPUT_FIELDS_V1 | {
     "airport_trip",
     "conference_rate",
 }
+INPUT_FIELDS_V3 = INPUT_FIELDS_V2 | {
+    "currency",
+    "fx_rate_micros_inr",
+    "receipt_subtotal_minor",
+    "receipt_tax_minor",
+    "receipt_tip_minor",
+    "personal_minor",
+    "receipt_total_minor",
+}
 CLAIM_FIELDS = {"claim_id", "decision", "reason_code"}
 EVENT_FIELDS = {"action", "reply"}
 V2_REASON_CODES = [
@@ -54,6 +63,16 @@ V2_REASON_CODES = [
     "ELECTRONICS_WITHIN_LIMIT",
     "ELECTRONICS_REVIEW_REQUIRED",
     "ELECTRONICS_OVER_LIMIT",
+]
+V3_REASON_CODES = [
+    "DUPLICATE_CLAIM",
+    "INCONSISTENT_CLAIM",
+    "SUBMISSION_TOO_LATE",
+    "RECEIPT_MISSING",
+    "RECEIPT_TOTAL_MISMATCH",
+    "CLIENT_APPROVAL_REQUIRED",
+    "CLAIMED_TOTAL_MISMATCH",
+    *V2_REASON_CODES[5:],
 ]
 
 
@@ -151,7 +170,68 @@ def _claim_is_inconsistent_v2(claim: dict[str, Any]) -> bool:
     )
 
 
+def _eligible_receipt_minor(claim: dict[str, Any]) -> int:
+    eligible_tip = (
+        min(
+            claim["receipt_tip_minor"],
+            claim["receipt_subtotal_minor"] * 12 // 100,
+        )
+        if claim["category"] == "meal"
+        else 0
+    )
+    return (
+        claim["receipt_subtotal_minor"]
+        + claim["receipt_tax_minor"]
+        + eligible_tip
+        - claim["personal_minor"]
+    )
+
+
+def _reconstructed_amount_inr(claim: dict[str, Any]) -> int:
+    numerator = _eligible_receipt_minor(claim) * claim["fx_rate_micros_inr"]
+    return (numerator + 50_000_000) // 100_000_000
+
+
+def _claim_is_inconsistent_v3(claim: dict[str, Any]) -> bool:
+    if set(claim) != INPUT_FIELDS_V3:
+        return True
+    v2_claim = {field: claim[field] for field in INPUT_FIELDS_V2}
+    if _claim_is_inconsistent_v2(v2_claim):
+        return True
+    integer_fields = (
+        "fx_rate_micros_inr",
+        "receipt_subtotal_minor",
+        "receipt_tax_minor",
+        "receipt_tip_minor",
+        "personal_minor",
+        "receipt_total_minor",
+    )
+    values_are_integers = all(
+        isinstance(claim.get(field), int) and not isinstance(claim[field], bool)
+        for field in integer_fields
+    )
+    if not values_are_integers:
+        return True
+    if claim["currency"] not in {"INR", "USD", "EUR", "GBP", "SGD"}:
+        return True
+    if claim["currency"] == "INR" and claim["fx_rate_micros_inr"] != 1_000_000:
+        return True
+    return any(
+        (
+            claim["fx_rate_micros_inr"] <= 0,
+            claim["receipt_subtotal_minor"] <= 0,
+            claim["receipt_tax_minor"] < 0,
+            claim["receipt_tip_minor"] < 0,
+            claim["personal_minor"] < 0,
+            claim["receipt_total_minor"] <= 0,
+            _eligible_receipt_minor(claim) <= 0,
+        )
+    )
+
+
 def claim_is_inconsistent(claim: dict[str, Any]) -> bool:
+    if set(claim) == INPUT_FIELDS_V3:
+        return _claim_is_inconsistent_v3(claim)
     if set(claim) == INPUT_FIELDS_V2:
         return _claim_is_inconsistent_v2(claim)
     return _claim_is_inconsistent_v1(claim)
@@ -233,6 +313,44 @@ def _grade_electronics_v2(claim: dict[str, Any]) -> tuple[str, str]:
     return "reject", "ELECTRONICS_OVER_LIMIT"
 
 
+def base_claim_v2(task_id: str, category: str, amount_inr: int) -> dict[str, Any]:
+    return {
+        "claim_id": task_id,
+        "category": category,
+        "amount_inr": amount_inr,
+        "receipt_present": True,
+        "duplicate": False,
+        "country": "India",
+        "manager_approval": False,
+        "nights": 1 if category == "hotel" else None,
+        "city_tier": 1,
+        "submitted_days_late": 0,
+        "client_billable": False,
+        "after_hours": False,
+        "airport_trip": False,
+        "conference_rate": False,
+    }
+
+
+def _matched_rule(
+    claim_id: str, rules: tuple[tuple[bool, str, str], ...]
+) -> dict[str, str] | None:
+    for matched, decision, reason in rules:
+        if matched:
+            return {"claim_id": claim_id, "decision": decision, "reason_code": reason}
+    return None
+
+
+def _grade_category_v2(claim: dict[str, Any]) -> tuple[str, str]:
+    graders = {
+        "meal": _grade_meal_v2,
+        "taxi": _grade_taxi_v2,
+        "hotel": _grade_hotel_v2,
+        "electronics": _grade_electronics_v2,
+    }
+    return graders[claim["category"]](claim)
+
+
 def _grade_claim_input_v2(claim: dict[str, Any]) -> dict[str, str]:
     claim_id = str(claim.get("claim_id", ""))
     global_rules = (
@@ -244,16 +362,43 @@ def _grade_claim_input_v2(claim: dict[str, Any]) -> dict[str, str]:
             "CLIENT_APPROVAL_REQUIRED",
         ),
     )
-    for matched, decision, reason in global_rules:
-        if matched:
-            return {"claim_id": claim_id, "decision": decision, "reason_code": reason}
-    graders = {
-        "meal": _grade_meal_v2,
-        "taxi": _grade_taxi_v2,
-        "hotel": _grade_hotel_v2,
-        "electronics": _grade_electronics_v2,
-    }
-    decision, reason = graders[claim["category"]](claim)
+    if outcome := _matched_rule(claim_id, global_rules):
+        return outcome
+    decision, reason = _grade_category_v2(claim)
+    return {"claim_id": claim_id, "decision": decision, "reason_code": reason}
+
+
+def _grade_claim_input_v3(claim: dict[str, Any]) -> dict[str, str]:
+    claim_id = claim["claim_id"]
+    global_rules = (
+        (claim["submitted_days_late"] > 30, "reject", "SUBMISSION_TOO_LATE"),
+        (not claim["receipt_present"], "reject", "RECEIPT_MISSING"),
+        (
+            claim["receipt_total_minor"]
+            != claim["receipt_subtotal_minor"]
+            + claim["receipt_tax_minor"]
+            + claim["receipt_tip_minor"],
+            "escalate",
+            "RECEIPT_TOTAL_MISMATCH",
+        ),
+        (
+            claim["client_billable"] and not claim["manager_approval"],
+            "escalate",
+            "CLIENT_APPROVAL_REQUIRED",
+        ),
+    )
+    if outcome := _matched_rule(claim_id, global_rules):
+        return outcome
+    reconstructed = _reconstructed_amount_inr(claim)
+    if abs(claim["amount_inr"] - reconstructed) > 2:
+        return {
+            "claim_id": claim_id,
+            "decision": "escalate",
+            "reason_code": "CLAIMED_TOTAL_MISMATCH",
+        }
+    normalized = {field: claim[field] for field in INPUT_FIELDS_V2}
+    normalized["amount_inr"] = reconstructed
+    decision, reason = _grade_category_v2(normalized)
     return {"claim_id": claim_id, "decision": decision, "reason_code": reason}
 
 
@@ -271,19 +416,51 @@ def grade_claim_input(claim: dict[str, Any]) -> dict[str, str]:
             "decision": "escalate",
             "reason_code": "INCONSISTENT_CLAIM",
         }
+    if set(claim) == INPUT_FIELDS_V3:
+        return _grade_claim_input_v3(claim)
     if set(claim) == INPUT_FIELDS_V2:
         return _grade_claim_input_v2(claim)
     return _grade_claim_input_v1(claim)
 
 
-def _validate_v2_config(config: dict[str, Any], prompt: str) -> None:
+def validated_claim_row(
+    task_id: str,
+    claim: dict[str, Any],
+    decision: str,
+    reason_code: str,
+    edge_kind: str | None = None,
+) -> dict[str, Any]:
+    expected = {
+        "claim_id": task_id,
+        "decision": decision,
+        "reason_code": reason_code,
+    }
+    actual = grade_claim_input(claim)
+    if actual != expected:
+        raise ValueError(f"{task_id} manual answer {expected} disagrees with {actual}")
+    edge = edge_kind is not None
+    row = {
+        "task_id": task_id,
+        "difficulty": "edge" if edge else "standard",
+        "edge_case": edge,
+        "input": claim,
+        "expected": expected,
+    }
+    if edge_kind:
+        row["edge_kind"] = edge_kind
+    return row
+
+
+def _validate_reason_codes(
+    config: dict[str, Any], prompt: str, expected: list[str], revision: str
+) -> None:
     reason_codes = (
         config.get("response_contracts", {}).get("claim", {}).get("reason_codes")
     )
-    _require(reason_codes == V2_REASON_CODES, "pilot-v2 reason-code vocabulary drifted")
+    _require(reason_codes == expected, f"{revision} reason-code vocabulary drifted")
     _require(
-        all(reason in prompt for reason in V2_REASON_CODES),
-        "pilot-v2 prompt must publish every reason code",
+        all(reason in prompt for reason in expected),
+        f"{revision} prompt must publish every reason code",
     )
 
 
@@ -307,9 +484,14 @@ def _validate_config(config: dict[str, Any]) -> None:
         "system_prompt assigns a forbidden emotional state",
     )
     revision = config.get("revision")
-    _require(revision in {"pilot-v1", "pilot-v2"}, "unsupported pilot revision")
+    _require(
+        revision in {"pilot-v1", "pilot-v2", "pilot-v3"},
+        "unsupported pilot revision",
+    )
     if revision == "pilot-v2":
-        _validate_v2_config(config, prompt)
+        _validate_reason_codes(config, prompt, V2_REASON_CODES, revision)
+    elif revision == "pilot-v3":
+        _validate_reason_codes(config, prompt, V3_REASON_CODES, revision)
     model = config.get("model")
     _require(isinstance(model, dict), "model config must be an object")
     for field in ("model", "base_url"):
@@ -397,9 +579,11 @@ def _validate_claims(config: dict[str, Any], bank: dict[str, Any]) -> None:
     seen: set[str] = set()
     category_counts: Counter[str] = Counter()
     edge_positions: list[int] = []
-    expected_input_fields = (
-        INPUT_FIELDS_V2 if config["revision"] == "pilot-v2" else INPUT_FIELDS_V1
-    )
+    expected_input_fields = {
+        "pilot-v1": INPUT_FIELDS_V1,
+        "pilot-v2": INPUT_FIELDS_V2,
+        "pilot-v3": INPUT_FIELDS_V3,
+    }[config["revision"]]
     for index, row in enumerate(claims, 1):
         _require(isinstance(row, dict), f"claim row {index} must be an object")
         task_id = row.get("task_id")

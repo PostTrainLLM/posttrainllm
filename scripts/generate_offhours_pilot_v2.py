@@ -23,42 +23,8 @@ def claim_row(
     **overrides: Any,
 ) -> dict[str, Any]:
     task_id = f"CLM-{2000 + number:04d}"
-    claim = {
-        "claim_id": task_id,
-        "category": category,
-        "amount_inr": amount_inr,
-        "receipt_present": True,
-        "duplicate": False,
-        "country": "India",
-        "manager_approval": False,
-        "nights": 1 if category == "hotel" else None,
-        "city_tier": 1,
-        "submitted_days_late": 0,
-        "client_billable": False,
-        "after_hours": False,
-        "airport_trip": False,
-        "conference_rate": False,
-        **overrides,
-    }
-    expected = {
-        "claim_id": task_id,
-        "decision": decision,
-        "reason_code": reason_code,
-    }
-    actual = core.grade_claim_input(claim)
-    if actual != expected:
-        raise ValueError(f"{task_id} manual answer {expected} disagrees with {actual}")
-    edge = edge_kind is not None
-    row = {
-        "task_id": task_id,
-        "difficulty": "edge" if edge else "standard",
-        "edge_case": edge,
-        "input": claim,
-        "expected": expected,
-    }
-    if edge_kind:
-        row["edge_kind"] = edge_kind
-    return row
+    claim = {**core.base_claim_v2(task_id, category, amount_inr), **overrides}
+    return core.validated_claim_row(task_id, claim, decision, reason_code, edge_kind)
 
 
 CLAIM_ROWS = [

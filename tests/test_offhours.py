@@ -51,6 +51,12 @@ def bundle_v2() -> dict:
     return loaded
 
 
+def bundle_v3() -> dict:
+    loaded = core.load_bundle(ROOT / "configs" / "offhours" / "pilot-v3.json")
+    core.validate_bundle(loaded)
+    return loaded
+
+
 def prepare_fixture_run(
     database: sqlite3.Connection,
     loaded: dict,
@@ -173,6 +179,51 @@ def test_blind_devin_receipt_qualifies_only_the_matching_frozen_v2_ruler():
         )["passed"]
         is False
     )
+
+
+def test_pilot_v3_saturation_level_is_explicit_deterministic_and_harder():
+    loaded = bundle_v3()
+    summary = core.validate_bundle(loaded)
+    assert summary["revision"] == "pilot-v3"
+    assert summary["claims"] == 40
+    assert summary["edge_cases"] == 5
+    assert loaded["config"]["response_contracts"]["claim"]["reason_codes"] == (
+        core.V3_REASON_CODES
+    )
+    assert all(
+        code in loaded["config"]["system_prompt"] for code in core.V3_REASON_CODES
+    )
+    expected = {
+        row["task_id"]: (row["expected"]["decision"], row["expected"]["reason_code"])
+        for row in loaded["claims"]["claims"]
+    }
+    assert expected["CLM-3004"] == (
+        "escalate",
+        "ELECTRONICS_REVIEW_REQUIRED",
+    )
+    assert expected["CLM-3012"] == ("escalate", "CLAIMED_TOTAL_MISMATCH")
+    assert expected["CLM-3029"] == ("escalate", "RECEIPT_TOTAL_MISMATCH")
+    assert expected["CLM-3035"] == ("approve", "HOTEL_WITHIN_LIMIT")
+    for row in loaded["claims"]["claims"]:
+        claim = row["input"]
+        if row["expected"]["reason_code"] not in {
+            "DUPLICATE_CLAIM",
+            "INCONSISTENT_CLAIM",
+            "SUBMISSION_TOO_LATE",
+            "RECEIPT_MISSING",
+            "RECEIPT_TOTAL_MISMATCH",
+            "CLIENT_APPROVAL_REQUIRED",
+            "CLAIMED_TOTAL_MISMATCH",
+        }:
+            assert abs(claim["amount_inr"] - core._reconstructed_amount_inr(claim)) <= 2
+    damaged = copy.deepcopy(loaded)
+    damaged["claims"]["claims"][0]["input"]["receipt_tax_minor"] += 37
+    try:
+        core.validate_bundle(damaged)
+    except ValueError as exc:
+        assert "policy oracle" in str(exc)
+    else:
+        raise AssertionError("pilot-v3 accepted a stale answer after receipt drift")
 
 
 def test_paired_plans_are_deterministic_varied_and_condition_matched():
