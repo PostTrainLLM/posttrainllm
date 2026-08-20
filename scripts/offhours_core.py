@@ -813,27 +813,7 @@ class OpenAICompatibleClient:
         seed: int,
         response_schema: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        body: dict[str, Any] = {
-            "model": self.config["model"],
-            "messages": messages,
-            "temperature": self.config["temperature"],
-            "max_tokens": self.config["max_output_tokens"],
-            "seed": seed,
-            "stream": False,
-        }
-        if self.config.get("request_json_schema"):
-            if response_schema is None:
-                raise ValueError("request_json_schema requires a response schema")
-            body["response_format"] = {
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "offhours_response",
-                    "strict": True,
-                    "schema": response_schema,
-                },
-            }
-        elif self.config.get("request_json_object"):
-            body["response_format"] = {"type": "json_object"}
+        body = chat_completion_body(self.config, messages, seed, response_schema)
         headers = {"Content-Type": "application/json"}
         api_key = os.environ.get(self.api_key_env, "") if self.api_key_env else ""
         if api_key:
@@ -875,3 +855,35 @@ class OpenAICompatibleClient:
             "endpoint_model": payload.get("model"),
             "system_fingerprint": payload.get("system_fingerprint"),
         }
+
+
+def chat_completion_body(
+    config: dict[str, Any],
+    messages: list[dict[str, str]],
+    seed: int,
+    response_schema: dict[str, Any] | None,
+) -> dict[str, Any]:
+    body: dict[str, Any] = {
+        "model": config["model"],
+        "messages": messages,
+        "temperature": config["temperature"],
+        "max_tokens": config["max_output_tokens"],
+        "seed": seed,
+        "stream": False,
+    }
+    if config.get("reasoning_effort"):
+        body["reasoning_effort"] = config["reasoning_effort"]
+    if config.get("request_json_schema"):
+        if response_schema is None:
+            raise ValueError("request_json_schema requires a response schema")
+        body["response_format"] = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "offhours_response",
+                "strict": True,
+                "schema": response_schema,
+            },
+        }
+    elif config.get("request_json_object"):
+        body["response_format"] = {"type": "json_object"}
+    return body

@@ -228,12 +228,15 @@ pilot. The receipt is
 The next gate is five clean 40-claim workdays on the target Qwen model. The six
 paired conditions must not start unless that clean baseline qualifies.
 
-The first target-endpoint request exposed a transport-only compatibility issue:
-LM Studio 0.4.21 rejects the legacy `json_object` hint. Before any target-model
-output was accepted, the frozen config switched to an equivalent strict
-`json_schema` request. The receipt records both config hashes; the system
-prompt, claims, expected answers, scenarios, and Devin calibration outputs did
-not change.
+Target-endpoint preflight exposed two transport-only compatibility issues. LM
+Studio 0.4.21 rejects the legacy `json_object` hint, so the config switched to
+an equivalent strict `json_schema` request before inference. A subsequent
+diagnostic run returned 200 empty visible outputs because Qwen's default
+reasoning mode consumed the bounded completion; those turns are retained
+locally but excluded from research results. The final config sends
+`reasoning_effort: none`, which a live schema probe verified with zero reasoning
+tokens. The receipt records every config hash; the system prompt, claims,
+expected answers, scenarios, and Devin calibration outputs did not change.
 
 ## Qualification and honesty rules
 

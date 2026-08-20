@@ -123,6 +123,15 @@ def test_pilot_v2_is_deterministic_explicit_and_compositional():
         "event", loaded["config"]["response_contracts"]
     )
     assert event_schema["required"] == ["action", "reply"]
+    request_body = core.chat_completion_body(
+        loaded["config"]["model"],
+        [{"role": "user", "content": "probe"}],
+        42,
+        claim_schema,
+    )
+    assert request_body["reasoning_effort"] == "none"
+    assert request_body["response_format"]["type"] == "json_schema"
+    assert request_body["response_format"]["json_schema"]["strict"] is True
     damaged = copy.deepcopy(loaded)
     damaged["claims"]["claims"][0]["input"]["after_hours"] = True
     try:
