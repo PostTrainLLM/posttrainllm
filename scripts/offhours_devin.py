@@ -184,7 +184,9 @@ class DevinSessionClient:
         """Return Devin's next visible response with unavailable usage left null."""
         del request_seed
         started = time.perf_counter_ns()
-        starts_workday = len(conversation) == 2 or self.session_id is None
+        starts_workday = self.session_id is None or not any(
+            message["role"] == "assistant" for message in conversation
+        )
         if starts_workday:
             output = self._new_session(initial_prompt(conversation, schema))
         else:

@@ -144,6 +144,17 @@ def test_devin_adapter_preserves_visible_workday_context_and_rotates_sessions():
     client.complete([system, first_task], 44, {"type": "object"})
     assert len(fake.sessions) == 2
     assert "--resume" not in fake.commands[-2]
+    workday_constraint = {
+        "role": "user",
+        "content": "The queue continues for the entire shift.",
+    }
+    client.complete(
+        [system, workday_constraint, first_task],
+        45,
+        {"type": "object"},
+    )
+    assert len(fake.sessions) == 3
+    assert "--resume" not in fake.commands[-2]
 
 
 def prepare_fixture_run(
