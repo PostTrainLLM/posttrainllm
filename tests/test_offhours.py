@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import copy
-import json
 import sqlite3
 import sys
 import tempfile
@@ -13,37 +12,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import offhours
 import offhours_analysis as analysis
 import offhours_core as core
+import offhours_fixture as fixture
+import offhours_report as report_renderer
 import offhours_store as store
 
-
-class PerfectClient:
-    def __init__(self) -> None:
-        self.calls = 0
-
-    def complete(self, messages: list[dict[str, str]], seed: int) -> dict:
-        del seed
-        self.calls += 1
-        prompt = messages[-1]["content"]
-        if prompt.startswith("Process this expense claim."):
-            claim = json.loads(prompt.splitlines()[1])
-            output = core.grade_claim_input(claim)
-        else:
-            output = {
-                "action": "reply_and_continue",
-                "reply": "Acknowledged. I will continue the current batch.",
-            }
-        content = core.canonical_json(output)
-        prompt_tokens = sum(len(message["content"].split()) + 4 for message in messages)
-        return {
-            "content": content,
-            "latency_ms": 1.25,
-            "context_tokens": prompt_tokens,
-            "output_tokens": len(content.split()),
-            "endpoint_model": "fixture-perfect",
-            "system_fingerprint": "fixture-v1",
-        }
+PerfectClient = fixture.PerfectFixtureClient
 
 
 class FailAfterClient(PerfectClient):
@@ -72,6 +48,7 @@ def prepare_fixture_run(
     tasks: int = 8,
     days: int = 1,
 ) -> None:
+    provenance = fixture.build_fixture_provenance(loaded)
     store.prepare_run(
         database,
         loaded,
@@ -81,7 +58,7 @@ def prepare_fixture_run(
             tasks_per_day=tasks,
             seed=42,
             conditions=conditions,
-            provenance=store.build_provenance(loaded),
+            provenance=provenance,
         ),
     )
 
@@ -236,7 +213,7 @@ def test_interrupted_run_resumes_without_replaying_committed_turns():
             database.close()
 
 
-def test_minimum_clean_day_gate_allows_a_qualified_fixture_baseline():
+def test_reduced_workload_never_qualifies_as_the_frozen_pilot():
     loaded = bundle()
     with tempfile.TemporaryDirectory() as temporary:
         database = store.connect(Path(temporary) / "qualified.sqlite")
@@ -254,10 +231,95 @@ def test_minimum_clean_day_gate_allows_a_qualified_fixture_baseline():
             )
             assert summary["status"] == "completed"
             report = analysis.analyze(database, loaded, "fixture-qualified")
-            assert report["baseline_qualification"]["passed"] is True
-            assert report["confirmatory_interpretation_allowed"] is True
+            assert (
+                report["baseline_qualification"]["checks"]["frozen_tasks_per_day"]
+                is False
+            )
+            assert report["baseline_qualification"]["passed"] is False
+            assert report["confirmatory_interpretation_allowed"] is False
         finally:
             database.close()
+
+
+def test_full_scale_fixture_qualifies_the_ruler_but_not_model_evidence():
+    loaded = bundle()
+    with tempfile.TemporaryDirectory() as temporary:
+        database = store.connect(Path(temporary) / "full-scale.sqlite")
+        try:
+            prepare_fixture_run(
+                database,
+                loaded,
+                "fixture-full-scale",
+                conditions=["clean"],
+                tasks=40,
+                days=5,
+            )
+            summary = store.execute_run(
+                database, loaded, "fixture-full-scale", PerfectClient()
+            )
+            assert summary["status"] == "completed"
+            report = analysis.analyze(database, loaded, "fixture-full-scale")
+            assert report["condition_metrics"]["clean"]["planned_tasks"] == 200
+            assert report["baseline_qualification"]["passed"] is True
+            assert report["artifact_kind"] == "synthetic_fixture"
+            assert report["confirmatory_interpretation_allowed"] is False
+            ceiling_report = copy.deepcopy(report)
+            ceiling_report["artifact_kind"] = "measured_run"
+            ceiling_report["provenance"]["model"] = "Devin GLM-5.2"
+            with_ceiling = analysis.analyze(
+                database,
+                loaded,
+                "fixture-full-scale",
+                ceiling_report=ceiling_report,
+            )
+            assert with_ceiling["ceiling_qualification"]["passed"] is True
+            assert with_ceiling["public_model_comparison_allowed"] is False
+        finally:
+            database.close()
+
+
+def test_missing_provenance_blocks_full_scale_qualification():
+    loaded = bundle()
+    with tempfile.TemporaryDirectory() as temporary:
+        database = store.connect(Path(temporary) / "missing-provenance.sqlite")
+        try:
+            store.prepare_run(
+                database,
+                loaded,
+                store.RunSpec(
+                    run_id="fixture-missing-provenance",
+                    days=5,
+                    tasks_per_day=40,
+                    seed=42,
+                    conditions=["clean"],
+                    provenance=store.build_provenance(loaded),
+                ),
+            )
+            store.execute_run(
+                database,
+                loaded,
+                "fixture-missing-provenance",
+                PerfectClient(),
+            )
+            report = analysis.analyze(database, loaded, "fixture-missing-provenance")
+            assert (
+                report["baseline_qualification"]["checks"]["complete_provenance"]
+                is False
+            )
+            assert report["baseline_qualification"]["passed"] is False
+        finally:
+            database.close()
+
+
+def test_cli_refuses_a_reduced_measured_workload_before_model_setup():
+    loaded = bundle()
+    args = type("Args", (), {"days": 5, "tasks_per_day": 8})()
+    try:
+        offhours.command_run(args, loaded)
+    except ValueError as exc:
+        assert "exactly 40 tasks" in str(exc)
+    else:
+        raise AssertionError("measured CLI accepted a reduced workload")
 
 
 def test_context_limit_fails_closed_before_model_call():
@@ -298,12 +360,45 @@ def test_export_and_reports_are_deterministic_and_refuse_overwrite():
             assert store.export_jsonl(database, "fixture-artifact", second_export) == 20
             assert first_export.read_bytes() == second_export.read_bytes()
             report = analysis.analyze(database, loaded, "fixture-artifact")
-            first_json, first_md = root / "first.json", root / "first.md"
-            second_json, second_md = root / "second.json", root / "second.md"
-            analysis.write_report(report, first_json, first_md)
-            analysis.write_report(report, second_json, second_md)
+            first_json, first_md, first_html = (
+                root / "first.json",
+                root / "first.md",
+                root / "first.html",
+            )
+            second_json, second_md, second_html = (
+                root / "second.json",
+                root / "second.md",
+                root / "second.html",
+            )
+            analysis.write_report(report, first_json, first_md, first_html)
+            analysis.write_report(report, second_json, second_md, second_html)
             assert first_json.read_bytes() == second_json.read_bytes()
             assert first_md.read_bytes() == second_md.read_bytes()
+            assert first_html.read_bytes() == second_html.read_bytes()
+            document = first_html.read_text(encoding="utf-8")
+            report_renderer.validate_html(document)
+            assert "Synthetic method preview" in document
+            assert "No model result yet" in document
+            assert document.count(">DEMO</span>") == 3
+            assert ">PASS</span>" not in document
+            assert "Fixture preview" in document
+            assert 'aria-current="step"' in document
+            assert document.count("Synthetic fixture · not model evidence") == 4
+            assert "A fixture is not a result." in document
+            assert "A null result is still a result." not in document
+            assert "Accessible values for paired error-rate effects." in document
+            assert "Accessible error rates for each recovery window." in document
+            assert "When context becomes a competing objective." in document
+            assert "https://" not in document
+            unqualified = copy.deepcopy(report)
+            unqualified["artifact_kind"] = "measured_run"
+            unqualified["confirmatory_interpretation_allowed"] = False
+            unqualified["public_model_comparison_allowed"] = False
+            unqualified_document = report_renderer.render_html(unqualified)
+            assert (
+                '<li class="active" aria-current="step"><i aria-hidden="true"></i>'
+                "Unqualified measured run</li>" in unqualified_document
+            )
             try:
                 store.export_jsonl(database, "fixture-artifact", first_export)
             except FileExistsError:

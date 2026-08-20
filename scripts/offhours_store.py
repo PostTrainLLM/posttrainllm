@@ -139,6 +139,8 @@ def build_provenance(
     overrides = overrides or {}
     if overrides.get("base_url"):
         model["base_url"] = overrides["base_url"]
+    if overrides.get("model"):
+        model["model"] = overrides["model"]
     if overrides.get("api_key_env"):
         model["api_key_env"] = overrides["api_key_env"]
     model_file = overrides.get("model_file")

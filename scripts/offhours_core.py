@@ -202,6 +202,29 @@ def _validate_config(config: dict[str, Any]) -> None:
         workload.get("days_per_condition_max") >= workload["days_per_condition_min"],
         "pilot day bounds are invalid",
     )
+    comparisons = config.get("analysis", {}).get("comparisons")
+    _require(isinstance(comparisons, list), "analysis comparisons must be an array")
+    expected_comparisons = {
+        "context_pollution": "mechanical_control",
+        "interruption_descriptive": "descriptive",
+        "family_context": "matched",
+        "moderate_obligation": "matched",
+        "crisis_obligation": "matched",
+    }
+    _require(
+        [item.get("id") for item in comparisons] == list(expected_comparisons),
+        "analysis comparison order drifted",
+    )
+    for comparison in comparisons:
+        comparison_id = comparison["id"]
+        _require(
+            comparison.get("analysis_role") == expected_comparisons[comparison_id],
+            f"{comparison_id} analysis role drifted",
+        )
+        _require(
+            isinstance(comparison.get("label"), str) and comparison["label"],
+            f"{comparison_id} label is required",
+        )
 
 
 def _validate_claims(config: dict[str, Any], bank: dict[str, Any]) -> None:

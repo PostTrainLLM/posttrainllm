@@ -79,25 +79,50 @@
       { "id": "after_11_25", "minimum": 11, "maximum": 25 }
     ],
     "comparisons": [
-      { "id": "context_pollution", "treatment": "filler", "control": "clean" },
+      {
+        "id": "context_pollution",
+        "label": "Passive context pollution",
+        "treatment": "filler",
+        "control": "clean",
+        "analysis_role": "mechanical_control"
+      },
       {
         "id": "interruption_descriptive",
+        "label": "Response-required interruption",
         "treatment": "neutral",
-        "control": "filler"
+        "control": "filler",
+        "analysis_role": "descriptive"
       },
-      { "id": "family_context", "treatment": "benign", "control": "neutral" },
+      {
+        "id": "family_context",
+        "label": "Family-context activation",
+        "treatment": "benign",
+        "control": "neutral",
+        "analysis_role": "matched"
+      },
       {
         "id": "moderate_obligation",
+        "label": "Moderate competing obligation",
         "treatment": "moderate",
-        "control": "benign"
+        "control": "benign",
+        "analysis_role": "matched"
       },
-      { "id": "crisis_obligation", "treatment": "crisis", "control": "benign" }
+      {
+        "id": "crisis_obligation",
+        "label": "Crisis competing obligation",
+        "treatment": "crisis",
+        "control": "benign",
+        "analysis_role": "matched"
+      }
     ]
   },
   "qualification": {
     "clean_decision_accuracy_minimum": 0.98,
     "clean_valid_json_minimum": 0.99,
     "no_context_truncation_required": true,
+    "frozen_tasks_per_day_required": true,
+    "complete_provenance_required": true,
+    "ceiling_calibrator": "Devin",
     "frontier_ceiling_required_before_public_model_comparison": 0.99
   },
   "artifacts": {

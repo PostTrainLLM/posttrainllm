@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 import offhours_core as core
+import offhours_report
 
 
 def _mean(values: list[float]) -> float | None:
@@ -144,6 +145,8 @@ def _paired_effect(
     adjusted = _context_adjusted_effect(database, run_id, comparison)
     return {
         "id": comparison["id"],
+        "label": comparison["label"],
+        "analysis_role": comparison["analysis_role"],
         "treatment": comparison["treatment"],
         "control": comparison["control"],
         "paired_workdays": len(paired_days),
@@ -154,6 +157,7 @@ def _paired_effect(
             _percentile(bootstrap, 0.975),
         ],
         "context_adjusted_error_difference": adjusted,
+        "context_adjusted_unit": "task turn; descriptive only",
         "interpretation": "positive means more work errors in treatment",
     }
 
@@ -341,8 +345,137 @@ def _verify_contract_identity(run: sqlite3.Row, bundle: dict[str, Any]) -> None:
         )
 
 
+def _public_provenance(
+    database: sqlite3.Connection, run_id: str, provenance: dict[str, Any]
+) -> dict[str, Any]:
+    model = provenance["model"]
+    endpoint_models = [
+        row["endpoint_model"]
+        for row in database.execute(
+            "SELECT DISTINCT endpoint_model FROM turns WHERE run_id = ? AND endpoint_model IS NOT NULL ORDER BY endpoint_model",
+            (run_id,),
+        ).fetchall()
+    ]
+    fingerprints = [
+        row["system_fingerprint"]
+        for row in database.execute(
+            "SELECT DISTINCT system_fingerprint FROM turns WHERE run_id = ? AND system_fingerprint IS NOT NULL ORDER BY system_fingerprint",
+            (run_id,),
+        ).fetchall()
+    ]
+    return {
+        "model": model["model"],
+        "model_file_sha256": model["model_file"]["sha256"],
+        "quantization": model["quantization"],
+        "inference_server": model["inference_server"],
+        "endpoint_models": endpoint_models,
+        "system_fingerprints": fingerprints,
+        "temperature": model["temperature"],
+        "max_output_tokens": model["max_output_tokens"],
+        "context_limit": model["context_limit"],
+        "context_safety_margin_tokens": model["context_safety_margin_tokens"],
+        "seed": model["seed"],
+        "system_prompt_sha256": provenance["system_prompt_sha256"],
+        "policy_version": provenance["policy_version"],
+        "task_bank_version": provenance["task_bank_version"],
+        "scenario_version": provenance["scenario_version"],
+        "claims_sha256": provenance["claims_sha256"],
+        "scenarios_sha256": provenance["scenarios_sha256"],
+        "hidden_chain_of_thought_stored": False,
+    }
+
+
+def _provenance_checks(provenance: dict[str, Any]) -> dict[str, bool]:
+    server = provenance["inference_server"]
+    return {
+        "model_identity": bool(provenance["model"]),
+        "model_file_hash": bool(provenance["model_file_sha256"]),
+        "quantization": bool(provenance["quantization"]),
+        "server_name": bool(server["name"]),
+        "server_version": bool(server["version"]),
+        "endpoint_model_identity": bool(provenance["endpoint_models"]),
+    }
+
+
+def _ceiling_qualification(
+    report: dict[str, Any] | None,
+    config_sha256: str,
+    config: dict[str, Any],
+) -> dict[str, Any]:
+    threshold = config["qualification"][
+        "frontier_ceiling_required_before_public_model_comparison"
+    ]
+    calibrator = config["qualification"]["ceiling_calibrator"]
+    if report is None:
+        return {
+            "passed": False,
+            "status": "not_attached",
+            "calibrator": calibrator,
+            "threshold": threshold,
+            "checks": {},
+        }
+    provenance = report.get("provenance") or {}
+    model_name = str(provenance.get("model") or "")
+    clean = (report.get("condition_metrics") or {}).get("clean") or {}
+    checks = {
+        "same_frozen_config": report.get("config_sha256") == config_sha256,
+        "calibrator_identity": calibrator.lower() in model_name.lower(),
+        "measured_not_fixture": report.get("artifact_kind") == "measured_run",
+        "qualified_clean_baseline": bool(
+            (report.get("baseline_qualification") or {}).get("passed")
+        ),
+        "ceiling_accuracy": (clean.get("decision_accuracy") or 0) >= threshold,
+    }
+    return {
+        "passed": all(checks.values()),
+        "status": "passed" if all(checks.values()) else "failed",
+        "calibrator": calibrator,
+        "threshold": threshold,
+        "source_run_id": report.get("run_id"),
+        "checks": checks,
+    }
+
+
+def _baseline_qualification(
+    clean: dict[str, Any] | None,
+    run: sqlite3.Row,
+    config: dict[str, Any],
+    provenance_checks: dict[str, bool],
+) -> dict[str, Any] | None:
+    if clean is None:
+        return None
+    gates = config["qualification"]
+    checks = {
+        "frozen_tasks_per_day": run["tasks_per_day"]
+        == config["workload"]["tasks_per_day"],
+        "minimum_paired_days": clean["planned_days"]
+        >= config["workload"]["days_per_condition_min"],
+        "decision_accuracy": (clean["decision_accuracy"] or 0)
+        >= gates["clean_decision_accuracy_minimum"],
+        "valid_json": (clean["valid_json_rate"] or 0)
+        >= gates["clean_valid_json_minimum"],
+        "no_context_truncation": clean["context_verified_days"]
+        == clean["planned_days"],
+        "all_clean_days_completed": clean["completed_days"] == clean["planned_days"],
+        "complete_provenance": all(provenance_checks.values()),
+    }
+    return {"passed": all(checks.values()), "checks": checks}
+
+
+def _artifact_kind(provenance: dict[str, Any]) -> str:
+    endpoint_models = provenance["endpoint_models"]
+    fixture = bool(endpoint_models) and all(
+        model.startswith("fixture-") for model in endpoint_models
+    )
+    return "synthetic_fixture" if fixture else "measured_run"
+
+
 def analyze(
-    database: sqlite3.Connection, bundle: dict[str, Any], run_id: str
+    database: sqlite3.Connection,
+    bundle: dict[str, Any],
+    run_id: str,
+    *,
+    ceiling_report: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     database.row_factory = sqlite3.Row
     run = database.execute("SELECT * FROM runs WHERE run_id = ?", (run_id,)).fetchone()
@@ -350,6 +483,9 @@ def analyze(
         raise ValueError(f"unknown run_id: {run_id}")
     _verify_contract_identity(run, bundle)
     config = bundle["config"]
+    stored_provenance = json.loads(run["provenance_json"])
+    provenance = _public_provenance(database, run_id, stored_provenance)
+    provenance_checks = _provenance_checks(provenance)
     conditions = json.loads(run["conditions_json"])
     metrics = {
         condition: _condition_metrics(database, run_id, condition, run["tasks_per_day"])
@@ -367,28 +503,31 @@ def analyze(
         for comparison in config["analysis"]["comparisons"]
         if comparison["treatment"] in conditions and comparison["control"] in conditions
     ]
-    clean = metrics.get("clean")
-    qualification = None
-    if clean:
-        gates = config["qualification"]
-        checks = {
-            "minimum_paired_days": clean["planned_days"]
-            >= config["workload"]["days_per_condition_min"],
-            "decision_accuracy": (clean["decision_accuracy"] or 0)
-            >= gates["clean_decision_accuracy_minimum"],
-            "valid_json": (clean["valid_json_rate"] or 0)
-            >= gates["clean_valid_json_minimum"],
-            "no_context_truncation": clean["context_verified_days"]
-            == clean["planned_days"],
-            "all_clean_days_completed": clean["completed_days"]
-            == clean["planned_days"],
-        }
-        qualification = {"passed": all(checks.values()), "checks": checks}
+    qualification = _baseline_qualification(
+        metrics.get("clean"), run, config, provenance_checks
+    )
+    artifact_kind = _artifact_kind(provenance)
+    ceiling = _ceiling_qualification(ceiling_report, run["config_sha256"], config)
+    confirmatory = bool(
+        qualification
+        and qualification["passed"]
+        and run["status"] == "completed"
+        and artifact_kind == "measured_run"
+    )
+    publication_allowed = confirmatory and ceiling["passed"]
     return {
-        "schema_version": "offhours/analysis/v1",
+        "schema_version": "offhours/analysis/v2",
         "run_id": run_id,
         "run_status": run["status"],
+        "artifact_kind": artifact_kind,
         "config_sha256": run["config_sha256"],
+        "workload": {
+            "days_per_condition": run["days"],
+            "tasks_per_day": run["tasks_per_day"],
+            "conditions": conditions,
+        },
+        "provenance": provenance,
+        "provenance_checks": provenance_checks,
         "primary_uncertainty_unit": "paired workday",
         "condition_metrics": metrics,
         "paired_effects": effects,
@@ -396,10 +535,17 @@ def analyze(
         "behavior": _behavior_metrics(database, run_id),
         "task_fragility": _task_fragility(database, run_id),
         "baseline_qualification": qualification,
-        "confirmatory_interpretation_allowed": bool(
-            qualification and qualification["passed"] and run["status"] == "completed"
-        ),
+        "ceiling_qualification": ceiling,
+        "confirmatory_interpretation_allowed": confirmatory,
+        "public_model_comparison_allowed": publication_allowed,
         "control_caveat": config["token_matching"]["filler_control_note"],
+        "limitations": [
+            "The benchmark measures model behavior, not felt stress or emotion.",
+            "Neutral minus filler is descriptive because filler has no generated response turn.",
+            "Context-adjusted effects pool task turns and are descriptive; paired workdays remain the uncertainty unit.",
+            "Latency is secondary because local load and thermal throttling can create false effects.",
+            "A null result is valid and scenarios must not be tuned after confirmatory outcomes are inspected.",
+        ],
     }
 
 
@@ -409,8 +555,11 @@ def render_markdown(report: dict[str, Any]) -> str:
         "",
         "## Interpretation status",
         "",
+        f"- Artifact kind: `{report['artifact_kind']}`",
         f"- Run status: `{report['run_status']}`",
         f"- Confirmatory interpretation allowed: `{str(report['confirmatory_interpretation_allowed']).lower()}`",
+        f"- Public model comparison allowed: `{str(report['public_model_comparison_allowed']).lower()}`",
+        f"- Ceiling calibrator: `{report['ceiling_qualification']['calibrator']}` ({report['ceiling_qualification']['status']})",
         f"- Control caveat: {report['control_caveat']}",
         "",
         "## Work quality",
@@ -434,14 +583,14 @@ def render_markdown(report: dict[str, Any]) -> str:
     )
     lines.extend(
         [
-            "| Comparison | Treatment - control | Paired days | 95% paired bootstrap CI | Context-adjusted |",
-            "| --- | ---: | ---: | ---: | ---: |",
+            "| Comparison | Role | Treatment - control | Paired days | 95% paired bootstrap CI | Context-adjusted descriptive |",
+            "| --- | --- | ---: | ---: | ---: | ---: |",
         ]
     )
     for effect in report["paired_effects"]:
         interval = effect["bootstrap_95_ci"]
         lines.append(
-            f"| {effect['id']} | {_format_pp(effect['error_rate_difference'])} | {effect['paired_workdays']} | "
+            f"| {effect['label']} | {effect['analysis_role']} | {_format_pp(effect['error_rate_difference'])} | {effect['paired_workdays']} | "
             f"{_format_pp(interval[0])} to {_format_pp(interval[1])} | {_format_pp(effect['context_adjusted_error_difference'])} |"
         )
     lines.extend(
@@ -459,6 +608,17 @@ def render_markdown(report: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
+            "## Provenance",
+            "",
+            f"- Model: `{report['provenance']['model']}`",
+            f"- Quantization: `{report['provenance']['quantization'] or 'missing'}`",
+            f"- Server: `{report['provenance']['inference_server']['name']}` `{report['provenance']['inference_server']['version'] or 'missing'}`",
+            f"- Model file SHA-256: `{report['provenance']['model_file_sha256'] or 'missing'}`",
+            "",
+            "## Limitations",
+            "",
+            *[f"- {item}" for item in report["limitations"]],
+            "",
             "A null result is valid; do not tune scenarios after inspecting confirmatory outcomes.",
             "",
         ]
@@ -467,9 +627,15 @@ def render_markdown(report: dict[str, Any]) -> str:
 
 
 def write_report(
-    report: dict[str, Any], json_path: Path, markdown_path: Path, *, force: bool = False
+    report: dict[str, Any],
+    json_path: Path,
+    markdown_path: Path,
+    html_path: Path | None = None,
+    *,
+    force: bool = False,
 ) -> None:
-    for path in (json_path, markdown_path):
+    paths = [json_path, markdown_path, *([html_path] if html_path else [])]
+    for path in paths:
         if path.exists() and not force:
             raise FileExistsError(f"refusing to overwrite: {path}")
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -478,6 +644,10 @@ def write_report(
         encoding="utf-8",
     )
     markdown_path.write_text(render_markdown(report), encoding="utf-8")
+    if html_path:
+        html_document = offhours_report.render_html(report)
+        offhours_report.validate_html(html_document)
+        html_path.write_text(html_document, encoding="utf-8")
 
 
 def _format_rate(value: float | None) -> str:

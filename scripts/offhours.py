@@ -47,6 +47,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--run-id")
     run.add_argument("--db", type=Path)
     run.add_argument("--endpoint")
+    run.add_argument("--model")
     run.add_argument("--api-key-env")
     run.add_argument("--model-file")
     run.add_argument("--quantization")
@@ -64,6 +65,12 @@ def build_parser() -> argparse.ArgumentParser:
     analyze.add_argument("--db", type=Path)
     analyze.add_argument("--json-out", type=Path, required=True)
     analyze.add_argument("--markdown-out", type=Path, required=True)
+    analyze.add_argument("--html-out", type=Path)
+    analyze.add_argument(
+        "--ceiling-report",
+        type=Path,
+        help="qualified Devin ceiling report used to unlock public comparison",
+    )
     analyze.add_argument("--force", action="store_true")
 
     export = subparsers.add_parser(
@@ -82,10 +89,16 @@ def generated_run_id(seed: int) -> str:
 
 
 def command_run(args: argparse.Namespace, bundle: dict[str, Any]) -> dict[str, Any]:
-    minimum = bundle["config"]["workload"]["days_per_condition_min"]
+    workload = bundle["config"]["workload"]
+    minimum = workload["days_per_condition_min"]
     if args.days < minimum:
         raise ValueError(
             f"measured pilot runs require at least {minimum} days per condition"
+        )
+    if args.tasks_per_day != workload["tasks_per_day"]:
+        raise ValueError(
+            "measured pilot runs require exactly "
+            f"{workload['tasks_per_day']} tasks per day"
         )
     configured_conditions = [item["id"] for item in bundle["config"]["conditions"]]
     requested_conditions = set(args.condition or configured_conditions)
@@ -96,6 +109,7 @@ def command_run(args: argparse.Namespace, bundle: dict[str, Any]) -> dict[str, A
     database_path = (args.db or default_database(bundle)).resolve()
     overrides = {
         "base_url": args.endpoint,
+        "model": args.model,
         "api_key_env": args.api_key_env,
         "model_file": args.model_file,
         "quantization": args.quantization,
@@ -106,6 +120,8 @@ def command_run(args: argparse.Namespace, bundle: dict[str, Any]) -> dict[str, A
     model_config = json.loads(json.dumps(bundle["config"]["model"]))
     if args.endpoint:
         model_config["base_url"] = args.endpoint
+    if args.model:
+        model_config["model"] = args.model
     client = core.OpenAICompatibleClient(
         model_config, base_url=args.endpoint, api_key_env=args.api_key_env
     )
@@ -147,14 +163,26 @@ def main(argv: list[str] | None = None) -> int:
                 if args.command == "status":
                     result = store.run_summary(database, args.run_id)
                 elif args.command == "analyze":
-                    result = analysis.analyze(database, bundle, args.run_id)
+                    ceiling_report = None
+                    if args.ceiling_report:
+                        ceiling_report = json.loads(
+                            args.ceiling_report.read_text(encoding="utf-8")
+                        )
+                    result = analysis.analyze(
+                        database, bundle, args.run_id, ceiling_report=ceiling_report
+                    )
                     analysis.write_report(
-                        result, args.json_out, args.markdown_out, force=args.force
+                        result,
+                        args.json_out,
+                        args.markdown_out,
+                        args.html_out,
+                        force=args.force,
                     )
                     result = {
                         "run_id": args.run_id,
                         "json": str(args.json_out),
                         "markdown": str(args.markdown_out),
+                        "html": str(args.html_out) if args.html_out else None,
                     }
                 else:
                     rows = store.export_jsonl(

@@ -1,0 +1,66 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "/playground explanatory controls",
+  "mode": "preserve",
+  "register": "product",
+  "context": {
+    "product": "PROJECT_STATUS.md",
+    "design": "browser/src/styles/system.css"
+  },
+  "direction": {
+    "references": [],
+    "probes": [],
+    "selected": "existing-design",
+    "approval": "not-required",
+    "before": ".fleet/evidence/playground-accessibility/before-1440.png"
+  },
+  "evidence": {
+    "screenshots": [
+      {
+        "width": 390,
+        "path": ".fleet/evidence/playground-accessibility/after-390.png"
+      },
+      {
+        "width": 768,
+        "path": ".fleet/evidence/playground-accessibility/after-768.png"
+      },
+      {
+        "width": 1440,
+        "path": ".fleet/evidence/playground-accessibility/after-1440.png"
+      }
+    ],
+    "projectCheck": {
+      "command": "pnpm --dir browser typecheck && pnpm --dir browser test && pnpm --dir browser build",
+      "status": "pass"
+    },
+    "critique": {
+      "score": 36,
+      "maximum": 40
+    },
+    "audit": {
+      "score": 18,
+      "maximum": 20
+    },
+    "unresolved": {
+      "p0": 0,
+      "p1": 0
+    },
+    "detector": {
+      "posture": "advisory",
+      "findings": []
+    },
+    "browserReview": {
+      "tool": "Browser control",
+      "viewports": [390, 768, 1440],
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "note": "All 22 explanatory controls expose unique names and programmatic dialog relationships. Keyboard focus has a visible 2px accent ring, Escape closes the tested popover and restores focus, and the 390px source tabs render as a fully visible 3-column grid with 44px rows. No console errors, failed network requests, or horizontal overflow appeared at 390, 768, or 1440px."
+    }
+  },
+  "ownerFeedback": {
+    "decision": "delegated",
+    "note": "The owner explicitly delegated final judgment for the responsive remediation wave; the existing playground visual language was preserved."
+  }
+}
