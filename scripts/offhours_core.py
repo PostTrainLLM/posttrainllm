@@ -41,7 +41,7 @@ def canonical_hash(value: Any) -> str:
 def file_sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+        while chunk := handle.read(4 * 1024 * 1024):
             digest.update(chunk)
     return digest.hexdigest()
 
@@ -510,6 +510,16 @@ def filler_prompt(message: str) -> str:
     return f"Context-only reference note; no response is requested:\n{message}"
 
 
+def parse_exact_object(raw: str, required_fields: list[str]) -> dict[str, Any] | None:
+    try:
+        parsed = json.loads(raw)
+    except (TypeError, json.JSONDecodeError):
+        return None
+    if not isinstance(parsed, dict) or set(parsed) != set(required_fields):
+        return None
+    return parsed
+
+
 def parse_claim_response(
     raw: str, expected: dict[str, str], contract: dict[str, Any]
 ) -> dict[str, Any]:
@@ -522,11 +532,8 @@ def parse_claim_response(
         "actual_reason_code": None,
         "parsed": None,
     }
-    try:
-        parsed = json.loads(raw)
-    except (TypeError, json.JSONDecodeError):
-        return base
-    if not isinstance(parsed, dict) or set(parsed) != set(contract["required_fields"]):
+    parsed = parse_exact_object(raw, contract["required_fields"])
+    if parsed is None:
         return base
     if not all(
         isinstance(parsed[field], str) and parsed[field]
@@ -558,11 +565,8 @@ def parse_event_response(raw: str, contract: dict[str, Any]) -> dict[str, Any]:
         "reply": None,
         "parsed": None,
     }
-    try:
-        parsed = json.loads(raw)
-    except (TypeError, json.JSONDecodeError):
-        return base
-    if not isinstance(parsed, dict) or set(parsed) != set(contract["required_fields"]):
+    parsed = parse_exact_object(raw, contract["required_fields"])
+    if parsed is None:
         return base
     if parsed.get("action") not in contract["actions"] or not isinstance(
         parsed.get("reply"), str

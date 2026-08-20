@@ -281,6 +281,29 @@ def _set_interrupted(
         )
 
 
+def _turn_identity_values(
+    run_id: str,
+    day: sqlite3.Row,
+    plan_index: int,
+    turn: dict[str, Any],
+    input_text: str,
+) -> tuple[Any, ...]:
+    return (
+        run_id,
+        day["day_id"],
+        day["condition"],
+        plan_index,
+        turn["kind"],
+        turn.get("task_id"),
+        turn.get("task_index"),
+        turn.get("last_event_id") or turn.get("event_id"),
+        turn.get("severity"),
+        turn.get("distance_from_last_event"),
+        input_text,
+        len(input_text.split()),
+    )
+
+
 def _record_context_failure(
     database: sqlite3.Connection,
     run_id: str,
@@ -301,18 +324,7 @@ def _record_context_failure(
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, 'context-limit', ?)
             """,
             (
-                run_id,
-                day["day_id"],
-                day["condition"],
-                plan_index,
-                turn["kind"],
-                turn.get("task_id"),
-                turn.get("task_index"),
-                turn.get("last_event_id") or turn.get("event_id"),
-                turn.get("severity"),
-                turn.get("distance_from_last_event"),
-                input_text,
-                len(input_text.split()),
+                *_turn_identity_values(run_id, day, plan_index, turn, input_text),
                 turn.get("claim", {}).get("expected", {}).get("decision"),
                 turn.get("claim", {}).get("expected", {}).get("reason_code"),
                 upper_bound,
@@ -442,18 +454,7 @@ def _record_model_turn(
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                run_id,
-                day["day_id"],
-                day["condition"],
-                plan_index,
-                turn["kind"],
-                turn.get("task_id"),
-                turn.get("task_index"),
-                turn.get("last_event_id") or turn.get("event_id"),
-                turn.get("severity"),
-                turn.get("distance_from_last_event"),
-                input_text,
-                len(input_text.split()),
+                *_turn_identity_values(run_id, day, plan_index, turn, input_text),
                 core.canonical_hash(transcript[:-1]),
                 response["content"],
                 core.canonical_json(graded["parsed"])
