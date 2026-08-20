@@ -31,9 +31,13 @@ Open the committed [synthetic method preview](report-preview.html) to inspect
 the complete report without loading a model. It is prominently labeled as
 fixture evidence and must not be cited as an experimental result.
 
-No Qwen 27B run or research result is committed. The bounded model workload is
-a separately approved step after the artifact passes its no-model checks and a
-local endpoint is ready.
+No Qwen 27B run or context-interference result is committed. An exploratory
+Qwen3.5 4B MLX clean baseline completed 200/200 turns but failed qualification:
+59.5% decision accuracy against the required 98%, with 100% valid JSON, 5/5
+completed days, verified context usage, complete provenance, and a passing
+Devin ceiling. The six interruption conditions were therefore not run. Open
+the [measured baseline report](results/qwen3.5-4b-mlx4-pilot-v2-clean-2026-08-20.html)
+or inspect its [JSON evidence](results/qwen3.5-4b-mlx4-pilot-v2-clean-2026-08-20.json).
 
 ## Control design
 
@@ -65,6 +69,7 @@ crisis - benign
 | `configs/offhours/scenarios-pilot-v1.json` | Frozen three-variant, four-event wording arcs shared by both task-bank revisions |
 | `configs/offhours/pilot-v1.json` | Historical starting ruler retained with its blind calibration evidence |
 | `evals/offhours/calibrations/` | Frozen prompts, answers, hashes, and machine-readable Devin ceiling receipts |
+| `evals/offhours/results/` | Reviewable aggregate measured reports; raw transcripts and SQLite remain local and ignored |
 | `scripts/offhours.py` | `validate`, `plan`, `run`, `status`, `analyze`, and `export` CLI |
 | `scripts/offhours_core.py` | Policy oracle, validators, paired scheduler, strict parsers, and local endpoint client |
 | `scripts/offhours_store.py` | SQLite schema, per-turn transactions, fail-closed context checks, resume, and JSONL export |

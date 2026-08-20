@@ -568,6 +568,7 @@ def _body_html(report: dict[str, Any]) -> str:
     result_title, result_note = _result_summary(report)
     close_title, close_note = _closing_copy(report)
     fixture_label = _fixture_label(report)
+    fixture_block = f"      {fixture_label}\n" if fixture_label else ""
     limitations = "".join(f"<li>{_escape(item)}</li>" for item in report["limitations"])
     conditions = "".join(
         f'<span style="--condition:{CONDITION_COLORS[name]}"><i></i>{_escape(CONDITION_LABELS[name])}</span>'
@@ -603,8 +604,7 @@ def _body_html(report: dict[str, Any]) -> str:
 
     <section class="shell section" aria-labelledby="quality-title">
       <div class="section-head"><h2 id="quality-title">Routine work quality</h2><p>Accuracy is scored against a deterministic policy oracle. Malformed JSON receives no retry; skipped work remains in the denominator.</p></div>
-      {fixture_label}
-      <div class="condition-arc">{conditions}</div>
+{fixture_block}      <div class="condition-arc">{conditions}</div>
       <p class="scroll-cue">Swipe horizontally to inspect the full chart →</p>
       <div class="chart-frame">{_accuracy_chart(report)}</div>
       <p class="scroll-cue">Swipe horizontally to inspect all columns →</p>
@@ -613,8 +613,7 @@ def _body_html(report: dict[str, Any]) -> str:
 
     <section class="shell section" aria-labelledby="effects-title">
       <div class="section-head"><h2 id="effects-title">What changed after context?</h2><p>Treatment minus control error rate, paired by simulated workday. Positive values indicate worse work in the treatment condition. Dashed intervals are explicitly descriptive.</p></div>
-      {fixture_label}
-      <p class="scroll-cue">Swipe horizontally to inspect the full interval plot →</p>
+{fixture_block}      <p class="scroll-cue">Swipe horizontally to inspect the full interval plot →</p>
       <div class="chart-frame">{_effect_chart(report)}</div>
       <p class="scroll-cue">Swipe horizontally to inspect all columns →</p>
       <div class="table-wrap"><table><caption>Accessible values for paired error-rate effects.</caption><thead><tr><th scope="col">Comparison</th><th scope="col">Role</th><th scope="col">Effect</th><th scope="col">95% interval</th><th scope="col">Paired days</th></tr></thead><tbody>{_effect_table(report)}</tbody></table></div>
@@ -622,8 +621,7 @@ def _body_html(report: dict[str, Any]) -> str:
 
     <section class="shell section" aria-labelledby="recovery-section-title">
       <div class="section-head"><h2 id="recovery-section-title">Does the effect persist?</h2><p>Error probability is sliced by distance from the latest interruption. The expected signature is strongest immediately after an event, then recovery across later claims.</p></div>
-      {fixture_label}
-      <p class="scroll-cue">Swipe horizontally to inspect the full recovery plot →</p>
+{fixture_block}      <p class="scroll-cue">Swipe horizontally to inspect the full recovery plot →</p>
       <div class="chart-frame">{_recovery_chart(report)}</div>
       <p class="scroll-cue">Swipe horizontally to inspect all columns →</p>
       <div class="table-wrap"><table><caption>Accessible error rates for each recovery window.</caption><thead><tr><th scope="col">Condition</th><th scope="col">Before event</th><th scope="col">Tasks 1–3</th><th scope="col">Tasks 4–10</th><th scope="col">Tasks 11–25</th></tr></thead><tbody>{_recovery_table(report)}</tbody></table></div>
@@ -631,8 +629,7 @@ def _body_html(report: dict[str, Any]) -> str:
 
     <section class="shell section" aria-labelledby="behavior-title">
       <div class="section-head"><h2 id="behavior-title">Behavior around the work</h2><p>Family messages can change more than claim accuracy. The benchmark retains visible action choices and reply length while excluding hidden chain-of-thought.</p></div>
-      {fixture_label}
-      <div class="two-up">
+{fixture_block}      <div class="two-up">
         <div><h3 class="minor-title">Event actions</h3><p class="scroll-cue">Swipe horizontally to inspect all columns →</p><div class="table-wrap"><table><caption>Structured responses to response-required events.</caption><thead><tr><th scope="col">Condition</th><th scope="col">Events</th><th scope="col">Valid</th><th scope="col">Actions</th><th scope="col">Reply length</th></tr></thead><tbody>{_behavior_rows(report)}</tbody></table></div></div>
         <div><h3 class="minor-title">Fragile claims</h3>{_fragile_claims(report)}</div>
       </div>
