@@ -6,6 +6,7 @@ from __future__ import annotations
 import copy
 import json
 import sqlite3
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -16,11 +17,42 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import offhours
 import offhours_analysis as analysis
 import offhours_core as core
+import offhours_devin as devin_adapter
 import offhours_fixture as fixture
 import offhours_report as report_renderer
 import offhours_store as store
 
 PerfectClient = fixture.PerfectFixtureClient
+
+
+class FakeDevinRunner:
+    def __init__(self) -> None:
+        self.sessions: list[dict[str, str]] = []
+        self.prompts: list[str] = []
+        self.commands: list[list[str]] = []
+
+    def __call__(
+        self, command: list[str], working_directory: Path, timeout: int
+    ) -> subprocess.CompletedProcess[str]:
+        del working_directory, timeout
+        self.commands.append(command)
+        if command[:2] == ["devin", "list"]:
+            return subprocess.CompletedProcess(
+                command, 0, json.dumps(self.sessions), ""
+            )
+        prompt_path = Path(command[command.index("--prompt-file") + 1])
+        self.prompts.append(prompt_path.read_text(encoding="utf-8"))
+        if "--resume" not in command:
+            self.sessions.append({"id": f"session-{len(self.sessions) + 1}"})
+        claim_id = "CLM-2002" if "CLM-2002" in self.prompts[-1] else "CLM-2001"
+        output = json.dumps(
+            {
+                "claim_id": claim_id,
+                "decision": "approve",
+                "reason_code": "MEAL_WITHIN_LIMIT",
+            }
+        )
+        return subprocess.CompletedProcess(command, 0, output, "")
 
 
 class FailAfterClient(PerfectClient):
@@ -55,6 +87,37 @@ def bundle_v3() -> dict:
     loaded = core.load_bundle(ROOT / "configs" / "offhours" / "pilot-v3.json")
     core.validate_bundle(loaded)
     return loaded
+
+
+def test_devin_adapter_preserves_visible_workday_context_and_rotates_sessions():
+    fake = FakeDevinRunner()
+    client = devin_adapter.DevinSessionClient(
+        ROOT,
+        cli_version="test-version",
+        command_runner=fake,
+    )
+    system = {"role": "system", "content": "Fixed employee prompt"}
+    first_task = {"role": "user", "content": '{"claim_id":"CLM-2001"}'}
+    first = client.complete([system, first_task], 42, {"type": "object"})
+    assert json.loads(first["content"])["claim_id"] == "CLM-2001"
+    assert first["context_tokens"] is None
+    assert first["system_fingerprint"] == "devin-cli-test-version"
+    first_reply = {"role": "assistant", "content": first["content"]}
+    filler = {"role": "user", "content": "Passive filler message"}
+    second_task = {"role": "user", "content": '{"claim_id":"CLM-2002"}'}
+    second = client.complete(
+        [system, first_task, first_reply, filler, second_task],
+        43,
+        {"type": "object"},
+    )
+    assert json.loads(second["content"])["claim_id"] == "CLM-2002"
+    assert "--resume" in fake.commands[-1]
+    assert "Passive filler message" in fake.prompts[-1]
+    assert "CLM-2002" in fake.prompts[-1]
+    assert "Fixed employee prompt" not in fake.prompts[-1]
+    client.complete([system, first_task], 44, {"type": "object"})
+    assert len(fake.sessions) == 2
+    assert "--resume" not in fake.commands[-2]
 
 
 def prepare_fixture_run(

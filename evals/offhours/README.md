@@ -76,6 +76,7 @@ crisis - benign
 | `evals/offhours/calibrations/` | Frozen prompts, answers, hashes, and machine-readable Devin ceiling receipts |
 | `evals/offhours/results/` | Reviewable aggregate measured reports; raw transcripts and SQLite remain local and ignored |
 | `scripts/offhours.py` | `validate`, `plan`, `run`, `status`, `analyze`, and `export` CLI |
+| `scripts/offhours_devin.py` | Validation-only adapter that maps each workday to one sequential Devin CLI session |
 | `scripts/offhours_core.py` | Policy oracle, validators, paired scheduler, strict parsers, and local endpoint client |
 | `scripts/offhours_store.py` | SQLite schema, per-turn transactions, fail-closed context checks, resume, and JSONL export |
 | `scripts/offhours_analysis.py` | Paired workday bootstrap, recovery bands, behavior metrics, task fragility, and reports |
@@ -102,6 +103,36 @@ python3 scripts/offhours.py plan --days 5 --tasks-per-day 40 --seed 42
 ```
 
 ## Run the pilot
+
+### Devin-first validation run
+
+Before testing Qwen, run the frozen six-condition pilot through Devin GLM-5.2
+from a clean linked worktree:
+
+```bash
+python3 scripts/offhours_devin.py \
+  --days 5 \
+  --tasks-per-day 40 \
+  --seed 42 \
+  --run-id devin-glm52-offhours-validation-v1 \
+  --db /absolute/path/to/devin-glm52-offhours-validation-v1.sqlite \
+  --worktree "$PWD"
+```
+
+Each paired workday-condition starts a fresh Devin session. Claims and
+response-required events resume that same session so the visible workday
+context accumulates normally; passive filler is included with the next claim.
+If the process is restarted partway through a workday, the adapter starts a new
+session with the complete saved visible transcript and never replays committed
+turns.
+
+This is a validation experiment, not a qualified local-model comparison. The
+Devin CLI exposes its model and client identity but not server prompt-token
+counts, quantization, or a model-file hash. The report therefore preserves the
+scores and paired condition effects while correctly blocking confirmatory
+claims that require those provenance fields.
+
+### OpenAI-compatible local model
 
 Start an OpenAI-compatible local endpoint first. Then record the real model and
 server identity rather than relying on the placeholder configuration:
