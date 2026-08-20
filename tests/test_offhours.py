@@ -115,6 +115,12 @@ def bundle_tension() -> dict:
     return loaded
 
 
+def bundle_tension_v2() -> dict:
+    loaded = core.load_bundle(ROOT / "configs" / "offhours" / "tension-v2.json")
+    core.validate_bundle(loaded)
+    return loaded
+
+
 def test_devin_adapter_preserves_visible_workday_context_and_rotates_sessions():
     fake = FakeDevinRunner()
     client = devin_adapter.DevinSessionClient(
@@ -385,6 +391,19 @@ def test_tension_workday_forces_queue_continuation_after_leave_action():
             assert loaded["config"]["workday_instruction"] == transcript[1]["content"]
         finally:
             database.close()
+
+
+def test_tension_v2_repairs_only_failed_clean_cap_claims():
+    previous = {row["task_id"]: row for row in bundle_tension()["claims"]["claims"]}
+    calibrated = bundle_tension_v2()
+    current = {row["task_id"]: row for row in calibrated["claims"]["claims"]}
+    assert {
+        task_id for task_id in previous if previous[task_id] != current[task_id]
+    } == {"CLM-2028", "CLM-2030", "CLM-2035", "CLM-2039"}
+    assert all(
+        current[task_id]["expected"]["decision"] == "approve"
+        for task_id in ("CLM-2028", "CLM-2030", "CLM-2035", "CLM-2039")
+    )
 
 
 def test_devin_saturation_receipt_freezes_the_reliable_to_failing_boundary():

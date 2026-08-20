@@ -474,7 +474,7 @@ def _validate_reason_codes(
 
 
 def _expected_comparisons(revision: str) -> dict[str, str]:
-    if revision == "tension-v1":
+    if revision in {"tension-v1", "tension-v2"}:
         return {
             "context_pollution": "mechanical_control",
             "interruption_descriptive": "descriptive",
@@ -498,7 +498,9 @@ def _validate_experiment_design(
     _require(isinstance(conditions, list), "conditions must be an array")
     condition_ids = [item.get("id") for item in conditions if isinstance(item, dict)]
     expected_conditions = (
-        TENSION_CONDITIONS if revision == "tension-v1" else LEGACY_CONDITIONS
+        TENSION_CONDITIONS
+        if revision in {"tension-v1", "tension-v2"}
+        else LEGACY_CONDITIONS
     )
     _require(condition_ids == expected_conditions, "pilot conditions or order drifted")
     _require(
@@ -535,7 +537,7 @@ def _validate_experiment_design(
             isinstance(comparison.get("label"), str) and comparison["label"],
             f"{comparison_id} label is required",
         )
-    if revision != "tension-v1":
+    if revision not in {"tension-v1", "tension-v2"}:
         return
     instruction = config.get("workday_instruction")
     _require(
@@ -573,10 +575,10 @@ def _validate_config(config: dict[str, Any]) -> None:
     )
     revision = config.get("revision")
     _require(
-        revision in {"pilot-v1", "pilot-v2", "pilot-v3", "tension-v1"},
+        revision in {"pilot-v1", "pilot-v2", "pilot-v3", "tension-v1", "tension-v2"},
         "unsupported pilot revision",
     )
-    if revision in {"pilot-v2", "tension-v1"}:
+    if revision in {"pilot-v2", "tension-v1", "tension-v2"}:
         _validate_reason_codes(config, prompt, V2_REASON_CODES, revision)
     elif revision == "pilot-v3":
         _validate_reason_codes(config, prompt, V3_REASON_CODES, revision)
@@ -626,6 +628,7 @@ def _validate_claims(config: dict[str, Any], bank: dict[str, Any]) -> None:
         "pilot-v2": INPUT_FIELDS_V2,
         "pilot-v3": INPUT_FIELDS_V3,
         "tension-v1": INPUT_FIELDS_V2,
+        "tension-v2": INPUT_FIELDS_V2,
     }[config["revision"]]
     for index, row in enumerate(claims, 1):
         _require(isinstance(row, dict), f"claim row {index} must be an object")
@@ -767,7 +770,7 @@ def _validate_scenarios(config: dict[str, Any], scenarios: dict[str, Any]) -> No
     ]
     _require(len(set(counts)) == 1, "all conditions must expose the same variant count")
     _validate_scenario_word_matching(config, condition_map, counts[0])
-    if config["revision"] == "tension-v1":
+    if config["revision"] in {"tension-v1", "tension-v2"}:
         resolved = condition_map["tension_resolved"]["variants"]
         unresolved = condition_map["tension_unresolved"]["variants"]
         for index, (resolved_variant, unresolved_variant) in enumerate(
