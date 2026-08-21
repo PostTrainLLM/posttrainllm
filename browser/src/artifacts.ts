@@ -105,6 +105,154 @@ function reportCard(
 
 export const artifacts: ArtifactEntry[] = [
   {
+    slug: "offhours-context-interference",
+    title: "OffHours Context-Interference Benchmark",
+    eyebrow: "Agent-behaviour experiment",
+    state: "report-only",
+    date: "2026-08-21",
+    kind: "Benchmark and negative-result artifact",
+    tags: ["agents", "context", "benchmark", "Devin", "negative result"],
+    summary:
+      "A paired office-work benchmark that separates unresolved personal context from interruption and raw context volume. Devin showed no mental-toll penalty, but reached a reproducible context-volume boundary.",
+    lede: "OffHours asks whether routine work quality changes when an AI employee must continue working while unresolved family tension remains in context. The Devin-first study found no adverse semantic-tension effect. It did find the first repeatable operational failure at 2,000 neutral words per interruption, showing that the benchmark can distinguish a context-management limit from the proposed personal-obligation mechanism.",
+    metrics: [
+      {
+        label: "Clean accuracy",
+        value: "99.0%",
+        context: "198/200 decisions; 200/200 valid JSON",
+      },
+      {
+        label: "Mental-toll effect",
+        value: "not detected",
+        context: "unresolved tension did not reduce work quality",
+      },
+      {
+        label: "Volume boundary",
+        value: "8,000 words/day",
+        context: "2,000 neutral words at each of four interruptions",
+      },
+    ],
+    comparisons: [
+      {
+        name: "Clean workday",
+        metric: "decision accuracy",
+        score: "99.0%",
+        size: "5 days / 200 claims",
+        comparability: "Direct",
+        note: "Independent clean qualification for the fixed expense-claim ruler.",
+      },
+      {
+        name: "Resolved family context",
+        metric: "decision accuracy",
+        score: "99.3%",
+        size: "20/50/80% occupancy",
+        comparability: "Direct",
+        note: "Fixed-volume control where the personal obligation gains a credible resolution.",
+      },
+      {
+        name: "Unresolved family context",
+        metric: "decision accuracy",
+        score: "99.7%",
+        size: "20/50/80% occupancy",
+        comparability: "Direct",
+        note: "No adverse penalty relative to the matched resolved context.",
+      },
+      {
+        name: "Neutral raw-volume arm",
+        metric: "per-day accuracy",
+        score: "97.5% twice",
+        size: "2,000 words/event",
+        comparability: "Direct",
+        note: "First reproducible failure of the preregistered 98% per-day gate.",
+      },
+    ],
+    tables: [
+      {
+        title: "Fixed-volume semantic dose",
+        columns: [
+          "Narrative occupancy",
+          "Resolved",
+          "Unresolved",
+          "Unresolved - resolved",
+        ],
+        rows: [
+          ["20%", "100.0%", "99.5%", "+0.5 pp error"],
+          ["50%", "99.0%", "99.5%", "-0.5 pp error"],
+          ["80%", "99.0%", "100.0%", "-1.0 pp error"],
+        ],
+      },
+      {
+        title: "Raw-volume ladder",
+        columns: [
+          "Words per event",
+          "Words per day",
+          "Outcome",
+          "Interpretation",
+        ],
+        rows: [
+          [
+            "500",
+            "2,000",
+            "Cleared after day-3 adjudication",
+            "Below boundary",
+          ],
+          [
+            "2,000",
+            "8,000",
+            "Neutral failed on days 2 and 3",
+            "First reproducible boundary",
+          ],
+          [
+            "5,000",
+            "20,000",
+            "Completed before adjudication correction",
+            "Disclosed overshoot",
+          ],
+        ],
+      },
+    ],
+    evidence: [
+      {
+        label: "Final publication report",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/offhours/results/devin-context-saturation-2026-08-21-report.md",
+      },
+      {
+        label: "Machine-readable result",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/offhours/results/devin-context-saturation-2026-08-21.json",
+      },
+      {
+        label: "Interactive semantic-occupancy report",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/offhours/results/devin-glm52-semantic-occupancy-2026-08-21.html",
+      },
+      {
+        label: "Benchmark protocol and replay guide",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/offhours/README.md",
+      },
+    ],
+    blockers: [
+      {
+        blocker: "No semantic mental-toll effect detected",
+        why: "At matched context volume, unresolved family tension did not reduce Devin's work accuracy relative to resolved tension.",
+        unblock:
+          "Treat this as the reported result. Do not tune wording until a dramatic effect appears.",
+      },
+      {
+        blocker: "Incomplete raw-model provenance",
+        why: "The regular Devin workflow did not expose server prompt-token counts, quantization, or a model-file hash.",
+        unblock:
+          "Run the unchanged protocol against a local OpenAI-compatible Qwen endpoint with tokenizer and model provenance enabled.",
+      },
+      {
+        blocker: "Boundary is operational, not psychological",
+        why: "The first repeated failure occurred in the neutral high-volume arm.",
+        unblock:
+          "Attribute it to raw volume or agent context management unless a future matched study isolates another mechanism.",
+      },
+    ],
+    nextAction:
+      "Freeze this Devin result and run the same benchmark against local Qwen with exact prompt-token counts and model-file provenance; do not revise the treatments after seeing this null.",
+  },
+  {
     slug: "qwen06-sql-routed-v1",
     title: "Qwen3-0.6B Routed SQL Specialist",
     eyebrow: "SQL factory POC",
