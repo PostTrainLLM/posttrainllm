@@ -127,6 +127,64 @@ def bundle_occupancy() -> dict:
     return loaded
 
 
+def bundle_volume() -> dict:
+    loaded = core.load_bundle(ROOT / "configs" / "offhours" / "volume-v1.json")
+    core.validate_bundle(loaded)
+    return loaded
+
+
+def assert_volume_event_contract(
+    rendered: dict[str, list[str]], words: int, event_index: int
+) -> None:
+    assert {len(messages[event_index].split()) for messages in rendered.values()} == {
+        words
+    }
+    units = {
+        arm: messages[event_index].split(". ") for arm, messages in rendered.items()
+    }
+    assert {len(values) for values in units.values()} == {words // 10}
+    expected_family_units = words // 10 * 8 // 10
+    assert (
+        sum(unit.startswith("Meera:") for unit in units["resolved"])
+        == expected_family_units
+    )
+    assert (
+        sum(unit.startswith("Meera:") for unit in units["unresolved"])
+        == expected_family_units
+    )
+    assert all(
+        left.split()[:6] == right.split()[:6]
+        for left, right in zip(units["resolved"], units["unresolved"])
+    )
+
+
+def test_volume_v1_freezes_exact_rungs_and_matched_high_occupancy_arms():
+    loaded = bundle_volume()
+    assert loaded["config"]["revision"] == "volume-v1"
+    assert loaded["config"]["workload"]["days_per_condition_min"] == 2
+    for variant_index in range(3):
+        for words in core.VOLUME_EVENT_WORDS:
+            rendered = {
+                arm: core.volume_messages(
+                    loaded["scenarios"], f"volume_{arm}_{words}", variant_index
+                )
+                for arm in core.VOLUME_ARMS
+            }
+            for event_index in range(4):
+                assert_volume_event_contract(rendered, words, event_index)
+    plan = core.build_plan(loaded, 2, 40, 79)
+    selected = [f"volume_{arm}_5000" for arm in core.VOLUME_ARMS]
+    for day in plan:
+        turns = {
+            condition: core.build_turn_plan(loaded, day, condition)
+            for condition in selected
+        }
+        assert {
+            tuple(turn["after_task_index"] for turn in rows if turn["kind"] == "event")
+            for rows in turns.values()
+        } == {tuple(day["event_positions"])}
+
+
 def test_occupancy_v1_freezes_nested_exact_word_doses_and_matched_resolution():
     loaded = bundle_occupancy()
     scenarios = loaded["scenarios"]

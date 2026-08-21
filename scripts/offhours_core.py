@@ -94,6 +94,12 @@ OCCUPANCY_CONDITIONS = [
     "occupancy_unresolved_80",
 ]
 OCCUPANCY_FAMILY_UNITS = {20: 2, 50: 5, 80: 8}
+VOLUME_EVENT_WORDS = (500, 2000, 5000)
+VOLUME_ARMS = ("neutral", "resolved", "unresolved")
+VOLUME_CONDITIONS = [
+    "clean",
+    *[f"volume_{arm}_{words}" for words in VOLUME_EVENT_WORDS for arm in VOLUME_ARMS],
+]
 
 
 def canonical_json(value: Any) -> str:
@@ -509,6 +515,15 @@ def _validate_reason_codes(
 
 
 def _expected_comparisons(revision: str) -> dict[str, str]:
+    if revision == "volume-v1":
+        return {
+            comparison: "matched"
+            for words in VOLUME_EVENT_WORDS
+            for comparison in (
+                f"resolved_volume_{words}",
+                f"unresolved_volume_{words}",
+            )
+        }
     if revision == "occupancy-v1":
         return {
             "family_occupancy_20": "matched",
@@ -539,7 +554,9 @@ def _validate_experiment_design(
     conditions = config.get("conditions")
     _require(isinstance(conditions, list), "conditions must be an array")
     condition_ids = [item.get("id") for item in conditions if isinstance(item, dict)]
-    if revision == "occupancy-v1":
+    if revision == "volume-v1":
+        expected_conditions = VOLUME_CONDITIONS
+    elif revision == "occupancy-v1":
         expected_conditions = OCCUPANCY_CONDITIONS
     elif revision in {"tension-v1", "tension-v2"}:
         expected_conditions = TENSION_CONDITIONS
@@ -555,9 +572,10 @@ def _validate_experiment_design(
         workload.get("event_count") == 4,
         "pilot must freeze four events per non-clean day",
     )
+    minimum_days = 2 if revision == "volume-v1" else 5
     _require(
-        workload.get("days_per_condition_min") >= 5,
-        "pilot minimum must be at least five days",
+        workload.get("days_per_condition_min") >= minimum_days,
+        f"{revision} minimum must be at least {minimum_days} days",
     )
     _require(
         workload.get("days_per_condition_max") >= workload["days_per_condition_min"],
@@ -580,7 +598,7 @@ def _validate_experiment_design(
             isinstance(comparison.get("label"), str) and comparison["label"],
             f"{comparison_id} label is required",
         )
-    if revision not in {"tension-v1", "tension-v2", "occupancy-v1"}:
+    if revision not in {"tension-v1", "tension-v2", "occupancy-v1", "volume-v1"}:
         return
     instruction = config.get("workday_instruction")
     _require(
@@ -626,10 +644,17 @@ def _validate_config(config: dict[str, Any]) -> None:
             "tension-v1",
             "tension-v2",
             "occupancy-v1",
+            "volume-v1",
         },
         "unsupported pilot revision",
     )
-    if revision in {"pilot-v2", "tension-v1", "tension-v2", "occupancy-v1"}:
+    if revision in {
+        "pilot-v2",
+        "tension-v1",
+        "tension-v2",
+        "occupancy-v1",
+        "volume-v1",
+    }:
         _validate_reason_codes(config, prompt, V2_REASON_CODES, revision)
     elif revision == "pilot-v3":
         _validate_reason_codes(config, prompt, V3_REASON_CODES, revision)
@@ -659,16 +684,16 @@ def _validate_config(config: dict[str, Any]) -> None:
         "context safety margin is too small",
     )
     _validate_experiment_design(config, revision, forbidden)
-    if revision == "occupancy-v1":
+    if revision in {"occupancy-v1", "volume-v1"}:
         event = config.get("response_contracts", {}).get("event", {})
         _require(
             event.get("actions") == ["reply_and_continue"],
-            "occupancy-v1 must freeze the event action",
+            f"{revision} must freeze the event action",
         )
         _require(
             event.get("exact_reply")
             == "Acknowledged. I will continue the claim queue.",
-            "occupancy-v1 must freeze the event reply",
+            f"{revision} must freeze the event reply",
         )
 
 
@@ -692,6 +717,7 @@ def _validate_claims(config: dict[str, Any], bank: dict[str, Any]) -> None:
         "tension-v1": INPUT_FIELDS_V2,
         "tension-v2": INPUT_FIELDS_V2,
         "occupancy-v1": INPUT_FIELDS_V2,
+        "volume-v1": INPUT_FIELDS_V2,
     }[config["revision"]]
     for index, row in enumerate(claims, 1):
         _require(isinstance(row, dict), f"claim row {index} must be an object")
@@ -877,6 +903,74 @@ def occupancy_messages(
     return messages
 
 
+def volume_messages(
+    scenarios: dict[str, Any], condition: str, variant_index: int
+) -> list[str]:
+    """Render four deterministic high-volume events from occupancy lexical units."""
+    _, arm, words_text = condition.rsplit("_", 2)
+    words_per_event = int(words_text)
+    _require(words_per_event in VOLUME_EVENT_WORDS, "unknown volume event budget")
+    _require(arm in VOLUME_ARMS, "unknown volume arm")
+    units_per_event = words_per_event // scenarios["lexical_unit_words"]
+    variant = scenarios["variants"][variant_index]
+    neutral_facts = _occupancy_facts(scenarios["neutral_facts"])
+    family_facts = _occupancy_facts(variant["family_facts"])
+    family_slots = set(scenarios["family_slot_order"][:8])
+    resolution = arm if arm != "neutral" else None
+    messages: list[str] = []
+    for event_index in range(4):
+        units = []
+        for unit_index in range(units_per_event):
+            fact_index = (event_index * units_per_event + unit_index) % len(
+                neutral_facts
+            )
+            family_unit = arm != "neutral" and unit_index % 10 in family_slots
+            units.append(
+                _occupancy_unit(
+                    family_facts[fact_index]
+                    if family_unit
+                    else neutral_facts[fact_index],
+                    resolution if family_unit else None,
+                    variant["resolved_actor"] if family_unit else None,
+                )
+            )
+        messages.append(" ".join(units))
+    return messages
+
+
+def _validate_volume_scenarios(
+    config: dict[str, Any], scenarios: dict[str, Any]
+) -> None:
+    _occupancy_facts(scenarios.get("neutral_facts", {}))
+    variants = _validate_occupancy_variants(scenarios.get("variants"))
+    for variant_index in range(len(variants)):
+        for words in VOLUME_EVENT_WORDS:
+            rendered = {
+                arm: volume_messages(scenarios, f"volume_{arm}_{words}", variant_index)
+                for arm in VOLUME_ARMS
+            }
+            for event_index in range(config["workload"]["event_count"]):
+                _require(
+                    {
+                        len(messages[event_index].split())
+                        for messages in rendered.values()
+                    }
+                    == {words},
+                    f"volume event budget drifted at {words} words",
+                )
+                resolved = rendered["resolved"][event_index].split(". ")
+                unresolved = rendered["unresolved"][event_index].split(". ")
+                _require(
+                    len(resolved) == len(unresolved) == words // 10,
+                    f"volume lexical units drifted at {words} words",
+                )
+                for left, right in zip(resolved, unresolved):
+                    _require(
+                        left.split()[:6] == right.split()[:6],
+                        "volume resolved/unresolved facts drifted",
+                    )
+
+
 def _validate_occupancy_variants(variants: Any) -> list[dict[str, Any]]:
     _require(
         isinstance(variants, list) and len(variants) >= 3,
@@ -975,10 +1069,13 @@ def _scenario_variant_count(scenarios: dict[str, Any]) -> int:
 def _validate_scenarios(config: dict[str, Any], scenarios: dict[str, Any]) -> None:
     if scenarios.get("schema_version") == "offhours/scenarios/v2":
         _require(
-            config["revision"] == "occupancy-v1",
-            "scenario v2 is reserved for occupancy-v1",
+            config["revision"] in {"occupancy-v1", "volume-v1"},
+            "scenario v2 is reserved for occupancy and volume experiments",
         )
-        _validate_occupancy_scenarios(config, scenarios)
+        if config["revision"] == "volume-v1":
+            _validate_volume_scenarios(config, scenarios)
+        else:
+            _validate_occupancy_scenarios(config, scenarios)
         return
     _require(
         scenarios.get("schema_version") == "offhours/scenarios/v1",
@@ -1111,6 +1208,8 @@ def build_turn_plan(
     _require(condition in conditions, f"unknown condition: {condition}")
     if condition == "clean":
         messages = []
+    elif bundle["config"]["revision"] == "volume-v1":
+        messages = volume_messages(bundle["scenarios"], condition, day["variant_index"])
     elif bundle["scenarios"].get("schema_version") == "offhours/scenarios/v2":
         messages = occupancy_messages(
             bundle["scenarios"], condition, day["variant_index"]

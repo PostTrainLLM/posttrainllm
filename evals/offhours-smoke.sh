@@ -11,6 +11,8 @@ python3 "$ROOT/scripts/offhours.py" \
   --config "$ROOT/configs/offhours/tension-v2.json" validate
 python3 "$ROOT/scripts/offhours.py" \
   --config "$ROOT/configs/offhours/occupancy-v1.json" validate
+python3 "$ROOT/scripts/offhours.py" \
+  --config "$ROOT/configs/offhours/volume-v1.json" validate
 python3 "$ROOT/scripts/generate_offhours_pilot_v2.py" --check
 python3 "$ROOT/scripts/generate_offhours_pilot_v3.py" --check
 python3 "$ROOT/scripts/package_offhours_saturation.py" --check
