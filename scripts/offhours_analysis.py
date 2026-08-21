@@ -349,6 +349,9 @@ def _public_provenance(
     database: sqlite3.Connection, run_id: str, provenance: dict[str, Any]
 ) -> dict[str, Any]:
     model = provenance["model"]
+    schedule_seed = database.execute(
+        "SELECT seed FROM runs WHERE run_id = ?", (run_id,)
+    ).fetchone()["seed"]
     endpoint_models = [
         row["endpoint_model"]
         for row in database.execute(
@@ -374,7 +377,11 @@ def _public_provenance(
         "max_output_tokens": model["max_output_tokens"],
         "context_limit": model["context_limit"],
         "context_safety_margin_tokens": model["context_safety_margin_tokens"],
+        # Retain the historical field for report-schema compatibility while
+        # naming both independent sources of randomness explicitly.
         "seed": model["seed"],
+        "model_seed": model["seed"],
+        "schedule_seed": schedule_seed,
         "system_prompt_sha256": provenance["system_prompt_sha256"],
         "policy_version": provenance["policy_version"],
         "task_bank_version": provenance["task_bank_version"],

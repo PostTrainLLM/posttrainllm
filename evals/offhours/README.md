@@ -34,18 +34,27 @@ Open the committed [synthetic method preview](report-preview.html) to inspect
 the complete report without loading a model. It is prominently labeled as
 fixture evidence and must not be cited as an experimental result.
 
-The first complete sequential Devin validation is now committed: five paired
-workdays across all six conditions, 1,200 graded claims, and 100
-response-required events. Clean accuracy was 95.0%, below the frozen 98% gate,
-so the run is intentionally unqualified and Qwen remains blocked. The observed
-ordering was clean 95.0%, benign 94.0%, crisis 93.5%, filler 93.0%, moderate
-92.0%, and neutral 90.5%; there was no severity dose response. Devin selected
-`leave_work` on all twenty crisis events. Two fragile claims accounted for nine
-of ten clean errors, so the next revision must recalibrate from clean-only
-failures and rerun a fresh sequential baseline. Read the
-[validation report](results/devin-stress-validation-2026-08-21-report.md), open
-the [interactive report](results/devin-glm52-stress-validation-2026-08-21.html),
-or inspect the [JSON evidence](results/devin-glm52-stress-validation-2026-08-21.json).
+The current Devin-first artifact replaces the acute crisis with a nonurgent,
+persistent family-health tension and forces every queued claim to continue.
+The revised `tension-v2` ruler passed an independent clean gate at 199/200
+(99.5%) with 100% valid JSON, then completed a fresh six-condition paired run:
+thirty condition-days, 1,200 claims, and 100 scheduled events. Unresolved
+tension scored 198/200 (99.0%) versus 197/200 (98.5%) when the same problem was
+resolved, a paired error effect of -0.5 percentage points (95% workday-bootstrap
+interval -3.0 to +1.5). All eighty response-required family/tension events used
+`reply_and_continue`; unresolved replies were longer, but no work-accuracy
+penalty was detected. This is a publishable Devin validation null, not a
+provenance-complete confirmatory model result because the CLI does not expose
+prompt-token counts, quantization, or a model-file hash. Read the
+[polished report](results/devin-persistent-tension-2026-08-21-report.md), open
+the [interactive report](results/devin-glm52-persistent-tension-2026-08-21.html),
+or inspect the [JSON evidence](results/devin-glm52-persistent-tension-2026-08-21.json).
+
+The earlier acute-crisis run is retained as historical validation evidence. It
+failed the old clean gate at 95.0% and drove `leave_work` on every crisis event,
+which motivated the forced-work, resolved-versus-unresolved redesign. Its
+[historical report](results/devin-stress-validation-2026-08-21-report.md)
+documents that failure rather than silently replacing it.
 
 No Qwen 27B context-interference result is committed. An exploratory
 Qwen3.5 4B MLX clean baseline completed 200/200 turns but failed qualification:
@@ -61,9 +70,12 @@ The passive filler arm deliberately receives no model response. Its note enters
 the transcript as an incoming user message, then the next claim follows. This
 is the token-volume control.
 
-Neutral, benign, moderate, and crisis events all require the same two-field
-action response and share paired event positions, scenario-variant indices,
-and approximate word budgets. Those are the response-required controls.
+Neutral, benign, resolved-tension, and unresolved-tension events all require
+the same two-field action response and share paired event positions,
+scenario-variant indices, and approximate word budgets. Those are the
+response-required controls. The resolved and unresolved conditions additionally
+share their first two messages byte-for-byte before their practical status
+diverges.
 
 This resolves an otherwise impossible requirement: filler cannot both isolate
 passive context volume and add the same generated response turn as an
@@ -72,8 +84,8 @@ than perfectly isolated. The primary matched family comparisons are:
 
 ```text
 benign - neutral
-moderate - benign
-crisis - benign
+resolved tension - benign
+unresolved tension - resolved tension
 ```
 
 ## Artifact layout
@@ -84,6 +96,9 @@ crisis - benign
 | `configs/offhours/claims-pilot-v2.json` | Forty deterministic compositional claims and independently checked expected answers |
 | `configs/offhours/pilot-v3.json` | First failing challenge tier with deterministic receipt-reconciliation and currency arithmetic |
 | `configs/offhours/claims-pilot-v3.json` | Forty policy-checked challenge claims used only to locate the Devin saturation boundary |
+| `configs/offhours/tension-v2.json` | Current forced-work experiment contract and resolved-versus-unresolved primary comparison |
+| `configs/offhours/claims-tension-v2.json` | Clean-qualified forty-claim ruler frozen before the paired tension run |
+| `configs/offhours/scenarios-tension-v1.json` | Three matched nonurgent family-health wording variants with byte-identical shared openings |
 | `configs/offhours/scenarios-pilot-v1.json` | Frozen three-variant, four-event wording arcs shared by both task-bank revisions |
 | `configs/offhours/pilot-v1.json` | Historical starting ruler retained with its blind calibration evidence |
 | `evals/offhours/calibrations/` | Frozen prompts, answers, hashes, and machine-readable Devin ceiling receipts |
@@ -144,6 +159,23 @@ Devin CLI exposes its model and client identity but not server prompt-token
 counts, quantization, or a model-file hash. The report therefore preserves the
 scores and paired condition effects while correctly blocking confirmatory
 claims that require those provenance fields.
+
+For the current persistent-tension design, select its frozen config explicitly:
+
+```bash
+python3 scripts/offhours_devin.py \
+  --config configs/offhours/tension-v2.json \
+  --days 5 \
+  --tasks-per-day 40 \
+  --seed 62 \
+  --run-id '<new-run-id>' \
+  --db /absolute/path/to/new-run.sqlite \
+  --worktree "$PWD"
+```
+
+Do not revise the scenario wording or task ruler in response to the committed
+treatment outcomes. A new hypothesis requires a versioned config and a fresh
+clean-only qualification before any treatment run.
 
 ### OpenAI-compatible local model
 

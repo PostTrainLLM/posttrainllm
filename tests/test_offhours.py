@@ -171,6 +171,7 @@ def prepare_fixture_run(
     conditions: list[str],
     tasks: int = 8,
     days: int = 1,
+    seed: int = 42,
 ) -> None:
     provenance = fixture.build_fixture_provenance(loaded)
     store.prepare_run(
@@ -180,7 +181,7 @@ def prepare_fixture_run(
             run_id=run_id,
             days=days,
             tasks_per_day=tasks,
-            seed=42,
+            seed=seed,
             conditions=conditions,
             provenance=provenance,
         ),
@@ -495,7 +496,9 @@ def test_full_fixture_run_preserves_control_structure_and_reports_null_effects()
         database = store.connect(Path(temporary) / "run.sqlite")
         try:
             conditions = [item["id"] for item in loaded["config"]["conditions"]]
-            prepare_fixture_run(database, loaded, "fixture-all", conditions=conditions)
+            prepare_fixture_run(
+                database, loaded, "fixture-all", conditions=conditions, seed=62
+            )
             summary = store.execute_run(
                 database, loaded, "fixture-all", PerfectClient()
             )
@@ -510,6 +513,8 @@ def test_full_fixture_run_preserves_control_structure_and_reports_null_effects()
             assert all(row["raw_output"] is None for row in filler_events)
             assert all(row["raw_output"] is not None for row in neutral_events)
             report = analysis.analyze(database, loaded, "fixture-all")
+            assert report["provenance"]["model_seed"] == 42
+            assert report["provenance"]["schedule_seed"] == 62
             assert all(
                 effect["error_rate_difference"] == 0
                 for effect in report["paired_effects"]
@@ -522,6 +527,76 @@ def test_full_fixture_run_preserves_control_structure_and_reports_null_effects()
             assert report["confirmatory_interpretation_allowed"] is False
         finally:
             database.close()
+
+
+def test_persistent_tension_report_leads_with_primary_null_and_honest_gate():
+    measured = {
+        "artifact_kind": "measured_run",
+        "public_model_comparison_allowed": False,
+        "confirmatory_interpretation_allowed": False,
+        "workload": {
+            "conditions": [
+                "clean",
+                "filler",
+                "neutral",
+                "benign",
+                "tension_resolved",
+                "tension_unresolved",
+            ]
+        },
+        "condition_metrics": {"clean": {"decision_accuracy": 0.99}},
+        "baseline_qualification": {
+            "checks": {
+                "frozen_tasks_per_day": True,
+                "minimum_paired_days": True,
+                "decision_accuracy": True,
+                "valid_json": True,
+                "all_clean_days_completed": True,
+                "no_context_truncation": False,
+                "complete_provenance": False,
+            }
+        },
+        "paired_effects": [
+            {
+                "id": "unresolved_tension",
+                "label": "Persistent unresolved tension",
+                "analysis_role": "matched",
+                "error_rate_difference": -0.005,
+                "bootstrap_95_ci": [-0.03, 0.015],
+                "paired_workdays": 5,
+            }
+        ],
+    }
+    status = report_renderer._status_copy(measured)
+    result = report_renderer._result_summary(measured)
+    close = report_renderer._closing_copy(measured)
+    hero = report_renderer._hero_copy(measured)
+    assert status[1] == "Measured validation · provenance limited"
+    assert result[0] == "No unresolved-tension penalty detected"
+    assert "-0.50 pp" in result[1]
+    assert "99.0% < 98.0%" not in result[1]
+    assert close[0] == "Behavior changed; no work-quality penalty was detected."
+    gates = report_renderer._qualification_rows(
+        {
+            **measured,
+            "artifact_kind": "measured_run",
+            "ceiling_qualification": {
+                "calibrator": "Devin",
+                "passed": False,
+                "status": "not_attached",
+                "threshold": 0.99,
+            },
+            "workload": {
+                **measured["workload"],
+                "tasks_per_day": 40,
+                "days_per_condition": 5,
+            },
+        }
+    )
+    assert "Clean work quality" in gates
+    assert "Context integrity" in gates
+    assert "NOT ATTACHED" in gates
+    assert "stays unresolved" in hero[0]
 
 
 def test_interrupted_run_resumes_without_replaying_committed_turns():
@@ -756,7 +831,7 @@ def test_export_and_reports_are_deterministic_and_refuse_overwrite():
             )[0]
             assert condition_arc.count("<span") == len(report["workload"]["conditions"])
             assert "repeat(4,minmax(0,1fr))" in document
-            assert ".two-up table { min-width:640px; }" in document
+            assert ".two-up table { min-width:0; }" in document
             assert ".scroll-cue { display:none; }" in document
             assert "Accessible values for paired error-rate effects." in document
             assert "Accessible error rates for each recovery window." in document

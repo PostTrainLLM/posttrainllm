@@ -59,6 +59,27 @@ def _short_hash(value: str | None) -> str:
     return "missing" if not value else f"{value[:12]}…{value[-8:]}"
 
 
+def _is_persistent_tension(report: dict[str, Any]) -> bool:
+    conditions = set((report.get("workload") or {}).get("conditions") or [])
+    return {"tension_resolved", "tension_unresolved"} <= conditions
+
+
+def _hero_copy(report: dict[str, Any]) -> tuple[str, str, str, str]:
+    if _is_persistent_tension(report):
+        return (
+            "What happens when a problem stays unresolved?",
+            "OffHours measures whether routine claim work changes when the same nonurgent family-health problem either gains a credible plan or remains open—and every assigned claim still has to be processed.",
+            "Matched life tension",
+            "Identical opening → resolved or unresolved responsibility",
+        )
+    return (
+        "When context becomes a competing objective.",
+        "OffHours measures whether one model’s routine expense-claim work changes after passive context, ordinary interruptions, and increasingly consequential family obligations.",
+        "Six controlled conditions",
+        "Token volume → interruption → family obligation",
+    )
+
+
 def _status_copy(report: dict[str, Any]) -> tuple[str, str, str]:
     if report["artifact_kind"] == "synthetic_fixture":
         return (
@@ -78,6 +99,22 @@ def _status_copy(report: dict[str, Any]) -> tuple[str, str, str]:
             "Measured run; ceiling required",
             "The run qualifies for internal interpretation, but public model comparison remains locked until the Devin ceiling passes.",
         )
+    checks = (report.get("baseline_qualification") or {}).get("checks", {})
+    if _is_persistent_tension(report) and all(
+        checks.get(name, False)
+        for name in (
+            "frozen_tasks_per_day",
+            "minimum_paired_days",
+            "decision_accuracy",
+            "valid_json",
+            "all_clean_days_completed",
+        )
+    ):
+        return (
+            "validation",
+            "Measured validation · provenance limited",
+            "Workload, clean accuracy, valid JSON, and paired-workday gates passed. Baseline qualification remains held because Devin CLI cannot verify prompt-token context usage or complete model provenance.",
+        )
     return (
         "blocked",
         "Qualification incomplete",
@@ -85,17 +122,22 @@ def _status_copy(report: dict[str, Any]) -> tuple[str, str, str]:
     )
 
 
+def _gate_presentation(
+    *, is_fixture: bool, fixture_demo: bool, passed: bool, override: str | None
+) -> tuple[str, str]:
+    if fixture_demo:
+        return "demo", "DEMO"
+    if is_fixture:
+        return "hold", "HOLD"
+    if override:
+        return "hold", override
+    return ("pass", "PASS") if passed else ("hold", "HOLD")
+
+
 def _qualification_rows(report: dict[str, Any]) -> str:
     qualification = report.get("baseline_qualification") or {"checks": {}}
     checks = qualification["checks"]
     ceiling = report["ceiling_qualification"]
-    baseline_checks = (
-        "minimum_paired_days",
-        "decision_accuracy",
-        "valid_json",
-        "no_context_truncation",
-        "all_clean_days_completed",
-    )
     rows = [
         (
             "Frozen workload",
@@ -103,26 +145,53 @@ def _qualification_rows(report: dict[str, Any]) -> str:
             f"{report['workload']['tasks_per_day']} claims × {report['workload']['days_per_condition']} paired days",
         ),
         (
-            "Clean baseline",
-            all(checks.get(name, False) for name in baseline_checks),
+            "Clean work quality",
+            all(
+                checks.get(name, False)
+                for name in (
+                    "minimum_paired_days",
+                    "decision_accuracy",
+                    "valid_json",
+                    "all_clean_days_completed",
+                )
+            ),
             "≥98% decisions · ≥99% valid JSON · every clean day complete",
+            None,
+        ),
+        (
+            "Context integrity",
+            checks.get("no_context_truncation", False),
+            (
+                "Prompt-token counts verify no truncation"
+                if checks.get("no_context_truncation", False)
+                else "Devin CLI does not expose prompt-token counts; no-truncation verification is unavailable"
+            ),
+            None,
         ),
         (
             "Complete provenance",
             checks.get("complete_provenance", False),
             "Model hash · quantization · server version · endpoint identity",
+            None,
         ),
         (
             f"Frontier-ceiling calibration — {ceiling['calibrator']}",
             ceiling["passed"],
             f"≥{ceiling['threshold']:.0%} clean accuracy on the same frozen ruler",
+            "NOT ATTACHED" if ceiling.get("status") == "not_attached" else None,
         ),
     ]
     rendered = []
-    for index, (label, passed, detail) in enumerate(rows):
-        fixture_demo = report["artifact_kind"] == "synthetic_fixture" and index < 3
-        state = "demo" if fixture_demo else ("pass" if passed else "hold")
-        word = "DEMO" if fixture_demo else ("PASS" if passed else "HOLD")
+    for index, row in enumerate(rows):
+        label, passed, detail, *state_override = row
+        is_fixture = report["artifact_kind"] == "synthetic_fixture"
+        fixture_demo = is_fixture and index < 3
+        state, word = _gate_presentation(
+            is_fixture=is_fixture,
+            fixture_demo=fixture_demo,
+            passed=passed,
+            override=state_override[0] if state_override else None,
+        )
         rendered.append(
             f'<li><span class="gate-mark {state}">{word}</span>'
             f"<div><strong>{_escape(label)}</strong><span>{_escape(detail)}</span></div></li>"
@@ -155,6 +224,33 @@ def _evidence_ladder(report: dict[str, Any]) -> str:
     )
 
 
+def _persistent_tension_result_summary(
+    report: dict[str, Any], matched: list[dict[str, Any]]
+) -> tuple[str, str] | None:
+    primary = next(
+        (effect for effect in matched if effect["id"] == "unresolved_tension"),
+        None,
+    )
+    if primary is None:
+        return None
+    low, high = primary["bootstrap_95_ci"]
+    result = primary["error_rate_difference"]
+    direction = (
+        "No unresolved-tension penalty detected"
+        if result is not None and result <= 0
+        else "Unresolved-tension penalty remains uncertain"
+    )
+    suffix = (
+        " Devin provenance remains incomplete, so this is validation evidence rather than a confirmatory local-model result."
+        if not report["confirmatory_interpretation_allowed"]
+        else ""
+    )
+    return (
+        direction,
+        f"Unresolved minus resolved error rate: {_pp(result)}; 95% paired-workday interval {_pp(low)} to {_pp(high)}.{suffix}",
+    )
+
+
 def _result_summary(report: dict[str, Any]) -> tuple[str, str]:
     if report["artifact_kind"] == "synthetic_fixture":
         return (
@@ -169,6 +265,9 @@ def _result_summary(report: dict[str, Any]) -> tuple[str, str]:
     ]
     if not matched:
         return ("Result not estimable", "No completed matched comparison is available.")
+    primary_summary = _persistent_tension_result_summary(report, matched)
+    if primary_summary is not None:
+        return primary_summary
     largest = max(matched, key=lambda effect: abs(effect["error_rate_difference"]))
     if not report["confirmatory_interpretation_allowed"]:
         clean_accuracy = report["condition_metrics"]["clean"]["decision_accuracy"]
@@ -182,11 +281,17 @@ def _result_summary(report: dict[str, Any]) -> tuple[str, str]:
             if provenance_complete
             else "required model identity incomplete"
         )
+        clean_gate_passed = clean_accuracy is not None and clean_accuracy >= 0.98
+        clean_state = (
+            f"clean baseline {_rate(clean_accuracy)} passed"
+            if clean_gate_passed
+            else f"clean baseline {_rate(clean_accuracy)} < 98.0%"
+        )
         detail = "".join(
             (
                 f"Largest matched estimate: {_pp(largest['error_rate_difference'])} ",
-                f"for {largest['label']}. Qualification is blocked: clean baseline ",
-                f"{_rate(clean_accuracy)} < 98.0%; {provenance_state}.",
+                f"for {largest['label']}. Qualification is blocked: {clean_state}; ",
+                f"{provenance_state}.",
             )
         )
         return (
@@ -212,6 +317,40 @@ def _closing_copy(report: dict[str, Any]) -> tuple[str, str]:
             "This preview proves the benchmark pipeline and publication format. It contains no evidence about model behavior or context interference.",
         )
     if not report["confirmatory_interpretation_allowed"]:
+        if _is_persistent_tension(report):
+            primary = next(
+                (
+                    effect
+                    for effect in report.get("paired_effects", [])
+                    if effect.get("id") == "unresolved_tension"
+                ),
+                None,
+            )
+            behavior = report.get("behavior") or {}
+            resolved_reply = (behavior.get("tension_resolved") or {}).get(
+                "reply_length_mean_characters"
+            )
+            unresolved_reply = (behavior.get("tension_unresolved") or {}).get(
+                "reply_length_mean_characters"
+            )
+            reply_detail = "Unresolved tension produced longer replies."
+            if resolved_reply is not None and unresolved_reply is not None:
+                reply_detail = (
+                    f"Unresolved replies averaged {unresolved_reply - resolved_reply:+.0f} characters "
+                    "longer than resolved replies."
+                )
+            effect_detail = "The work-quality effect was not estimable."
+            if primary is not None:
+                low, high = primary["bootstrap_95_ci"]
+                effect_detail = (
+                    f"Its error-rate difference was {_pp(primary['error_rate_difference'])} "
+                    f"(95% paired-workday interval {_pp(low)} to {_pp(high)}; "
+                    f"{primary['paired_workdays']} paired days)."
+                )
+            return (
+                "Behavior changed; no work-quality penalty was detected.",
+                f"{reply_detail} {effect_detail} Devin provenance remains incomplete.",
+            )
         return (
             "A signal is not a result until the ruler passes.",
             "This run found descriptive differences, but its 95% clean baseline and incomplete model provenance block confirmatory interpretation. Repair the ruler, then rerun the same paired design.",
@@ -277,7 +416,8 @@ def _effect_chart(report: dict[str, Any]) -> str:
             for value in [effect["error_rate_difference"], *effect["bootstrap_95_ci"]]
             if value is not None
         )
-    extent = max([0.05, *(abs(value) for value in values)]) * 1.2
+    raw_extent = max([0.05, *(abs(value) for value in values)])
+    extent = max(0.06, (int(raw_extent * 50 + 0.9999) / 50))
     plot_width = width - left - right
     mid = left + plot_width / 2
 
@@ -286,6 +426,13 @@ def _effect_chart(report: dict[str, Any]) -> str:
 
     height = 54 + row_height * len(effects)
     rows = []
+    ticks = []
+    for tick_value in (-extent, -extent / 2, 0.0, extent / 2, extent):
+        tick_x = x(tick_value)
+        ticks.append(
+            f'<line x1="{tick_x:.2f}" y1="24" x2="{tick_x:.2f}" y2="{height - 10}" class="grid-line"/>'
+            f'<text x="{tick_x:.2f}" y="{height - 1}" text-anchor="middle" class="svg-note">{_pp(tick_value)}</text>'
+        )
     for index, effect in enumerate(effects):
         y = 52 + index * row_height
         value = effect["error_rate_difference"]
@@ -309,7 +456,8 @@ def _effect_chart(report: dict[str, Any]) -> str:
     return (
         f'<svg class="chart" viewBox="0 0 {width} {height}" role="img" aria-labelledby="effect-title effect-desc">'
         '<title id="effect-title">Paired change in error rate</title>'
-        '<desc id="effect-desc">Dots show treatment minus control error rate. Lines show 95 percent paired-workday bootstrap confidence intervals. Positive values mean more treatment errors.</desc>'
+        f'<desc id="effect-desc">Dots show treatment minus control error rate on a {-extent * 100:.2f} to +{extent * 100:.2f} percentage-point axis. Lines show 95 percent paired-workday bootstrap confidence intervals. Positive values mean more treatment errors.</desc>'
+        f"{''.join(ticks)}"
         f'<line x1="{mid:.2f}" y1="24" x2="{mid:.2f}" y2="{height - 10}" class="zero-line"/>'
         f'<text x="{mid - 8:.2f}" y="16" text-anchor="end" class="svg-note">fewer errors</text>'
         f'<text x="{mid + 8:.2f}" y="16" class="svg-note">more errors</text>'
@@ -338,12 +486,37 @@ def _effect_table(report: dict[str, Any]) -> str:
     return "".join(rows)
 
 
+def _primary_effect_block(report: dict[str, Any]) -> str:
+    primary = next(
+        (
+            effect
+            for effect in report.get("paired_effects", [])
+            if effect.get("id") == "unresolved_tension"
+        ),
+        None,
+    )
+    if primary is None:
+        return ""
+    low, high = primary["bootstrap_95_ci"]
+    return (
+        '<aside class="primary-effect" aria-label="Primary benchmark comparison">'
+        "<span>Primary comparison</span>"
+        "<div><strong>Unresolved minus resolved</strong>"
+        "<p>"
+        f"{_pp(primary['error_rate_difference'])} error rate · "
+        f"95% interval {_pp(low)} to {_pp(high)} · "
+        f"{primary['paired_workdays']} paired days"
+        "</p></div></aside>"
+    )
+
+
 def _recovery_series(
     recovery: dict[str, Any],
     bands: list[str],
     x_positions: list[float],
     top: int,
     plot_height: int,
+    y_max: float,
 ) -> tuple[list[str], list[str], bool]:
     series = {
         condition: tuple(values[band]["error_rate"] for band in bands)
@@ -366,7 +539,7 @@ def _recovery_series(
                     current_segment = []
                 continue
             x_value = x_positions[index]
-            y_value = top + plot_height * (1 - rate)
+            y_value = top + plot_height * (1 - rate / y_max)
             current_segment.append(f"{x_value:.2f},{y_value:.2f}")
             markers.append(
                 f'<circle cx="{x_value:.2f}" cy="{y_value:.2f}" r="6" fill="{CONDITION_COLORS[condition]}" stroke="#0a0c0f" stroke-width="3"/>'
@@ -396,10 +569,22 @@ def _recovery_chart(report: dict[str, Any]) -> str:
     left, right, top, bottom = 72, 72, 34, 72
     plot_width, plot_height = width - left - right, height - top - bottom
     x_positions = [left + index * plot_width / (len(bands) - 1) for index in range(4)]
+    observed_rates = [
+        values[band]["error_rate"]
+        for values in recovery.values()
+        for band in bands
+        if values[band]["error_rate"] is not None
+    ]
+    observed_max = max(observed_rates, default=0.0)
+    y_max = (
+        0.10
+        if observed_max <= 0.10
+        else min(1.0, (int(observed_max * 10 + 0.9999) / 10))
+    )
     parts = []
     for tick in range(5):
-        rate = tick / 4
-        y = top + plot_height * (1 - rate)
+        rate = y_max * tick / 4
+        y = top + plot_height * (1 - rate / y_max)
         parts.append(
             f'<line x1="{left}" y1="{y:.2f}" x2="{width - right}" y2="{y:.2f}" class="grid-line"/>'
             f'<text x="{left - 12}" y="{y + 5:.2f}" text-anchor="end" class="svg-note">{rate:.0%}</text>'
@@ -409,7 +594,7 @@ def _recovery_chart(report: dict[str, Any]) -> str:
             f'<text x="{x_positions[index]:.2f}" y="{height - 28}" text-anchor="middle" class="svg-note">{_escape(label)}</text>'
         )
     series_parts, legend, composite = _recovery_series(
-        recovery, bands, x_positions, top, plot_height
+        recovery, bands, x_positions, top, plot_height, y_max
     )
     parts.extend(series_parts)
     overlap_note = (
@@ -422,9 +607,10 @@ def _recovery_chart(report: dict[str, Any]) -> str:
         + "".join(legend)
         + "</div>"
         + overlap_note
+        + f'<p class="chart-note">Vertical scale: 0–{y_max:.0%} error; all observations shown.</p>'
         + f'<svg class="chart" viewBox="0 0 {width} {height}" role="img" aria-labelledby="recovery-title recovery-desc">'
         + '<title id="recovery-title">Error rate by distance from the latest interruption</title>'
-        + '<desc id="recovery-desc">Lines compare error rates before an event and across three recovery windows. Missing measurements are left blank.</desc>'
+        + f'<desc id="recovery-desc">Lines compare error rates from zero to {y_max:.0%} before an event and across three recovery windows. Missing measurements are left blank.</desc>'
         + "".join(parts)
         + "</svg>"
     )
@@ -518,7 +704,7 @@ def _provenance_rows(report: dict[str, Any]) -> str:
         ("Scenarios", _short_hash(provenance["scenarios_sha256"]), False),
         (
             "Sampling",
-            f"temperature {provenance['temperature']} · seed {provenance['seed']}",
+            f"temperature {provenance['temperature']} · model seed {provenance['model_seed']} · schedule seed {provenance['schedule_seed']}",
             False,
         ),
         (
@@ -544,20 +730,21 @@ def _head_html(report: dict[str, Any]) -> str:
   <style>
     :root {{ --canvas:#0a0c0f; --surface:#111419; --raised:#171b22; --ink:#eaedf2; --secondary:#a6adb9; --muted:#737b88; --rule:#252b34; --teal:#48e5c2; --coral:#ff6f5c; --display:"Bricolage Grotesque",Inter,system-ui,sans-serif; --body:Geist,Inter,system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,SFMono-Regular,monospace; }}
     * {{ box-sizing:border-box; }}
-    html {{ background:var(--canvas); color:var(--ink); scroll-behavior:smooth; }}
-    body {{ margin:0; font:400 16px/1.62 var(--body); background:var(--canvas); }}
+    html {{ max-width:100%; background:var(--canvas); color:var(--ink); scroll-behavior:smooth; }}
+    body {{ max-width:100%; margin:0; overflow-x:clip; font:400 16px/1.62 var(--body); background:var(--canvas); }}
     a {{ color:var(--teal); }}
     .shell {{ width:min(1180px,calc(100% - 40px)); margin:0 auto; }}
-    .topline {{ display:flex; justify-content:space-between; align-items:center; min-height:64px; border-bottom:1px solid var(--rule); color:var(--secondary); font-size:.86rem; }}
+    .topline {{ display:flex; justify-content:space-between; align-items:center; gap:24px; min-height:64px; border-bottom:1px solid var(--rule); color:var(--secondary); font-size:.86rem; }} .topline > * {{ min-width:0; }}
     .brand {{ color:var(--ink); font:650 1rem/1 var(--display); letter-spacing:-.02em; }}
     .run-id {{ font-family:var(--mono); color:var(--muted); overflow-wrap:anywhere; }}
     .hero {{ min-height:670px; display:grid; grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr); gap:72px; align-items:center; padding:88px 0 72px; border-bottom:1px solid var(--rule); }}
     .status {{ display:inline-flex; align-items:center; gap:10px; margin-bottom:30px; font:650 .75rem/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; }}
     .status::before {{ content:""; width:9px; height:9px; border-radius:50%; background:var(--secondary); box-shadow:0 0 0 5px var(--raised); }}
     .status.verified::before {{ background:var(--teal); box-shadow:0 0 0 5px rgba(72,229,194,.12); }}
+    .status.validation::before {{ background:var(--coral); box-shadow:0 0 0 5px rgba(255,111,92,.12); }}
     .status.blocked::before {{ background:var(--coral); box-shadow:0 0 0 5px rgba(255,111,92,.12); }}
     h1,h2,h3 {{ font-family:var(--display); letter-spacing:-.03em; text-wrap:balance; }}
-    h1 {{ margin:0; max-width:790px; font-size:clamp(3.6rem,8vw,6rem); line-height:.93; font-weight:620; }}
+    h1 {{ margin:0; max-width:790px; overflow-wrap:normal; font-size:clamp(3.6rem,8vw,6rem); line-height:.93; font-weight:620; }}
     .lede {{ max-width:66ch; margin:32px 0 0; color:var(--secondary); font-size:clamp(1.05rem,2vw,1.3rem); line-height:1.55; }}
     .status-note {{ max-width:60ch; margin:18px 0 0; color:var(--muted); }}
     .experiment {{ position:relative; padding:28px 0 20px; margin:0; list-style:none; }}
@@ -573,6 +760,7 @@ def _head_html(report: dict[str, Any]) -> str:
     .section-head p {{ margin:4px 0 0; max-width:68ch; color:var(--secondary); }}
     .result-band {{ display:grid; grid-template-columns:minmax(220px,.42fr) minmax(0,1fr); gap:56px; padding:30px 0; border-bottom:1px solid var(--rule); }}
     .result-band h2 {{ margin:0; font-size:clamp(1.55rem,3vw,2.25rem); line-height:1.05; }} .result-band p {{ margin:4px 0 0; max-width:68ch; color:var(--secondary); }}
+    .mobile-result {{ display:none; margin:30px 0 0; padding:20px 0 0; border-top:1px solid var(--rule); }} .mobile-result strong {{ display:block; font-family:var(--display); font-size:1.25rem; line-height:1.15; }} .mobile-result span {{ display:block; margin-top:8px; color:var(--secondary); font-size:.9rem; }}
     .evidence-ladder {{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:28px 0 0; padding:0; list-style:none; color:var(--muted); font:550 .72rem/1.35 var(--mono); }}
     .evidence-ladder li {{ min-width:0; position:relative; padding:18px 8px 0 0; border-top:1px solid var(--rule); overflow-wrap:anywhere; }} .evidence-ladder i {{ position:absolute; top:-5px; left:0; width:9px; height:9px; border-radius:50%; background:var(--rule); box-shadow:0 0 0 5px var(--canvas); }}
     .evidence-ladder .active {{ color:var(--ink); border-color:var(--teal); }} .evidence-ladder .active i {{ background:var(--teal); }}
@@ -594,12 +782,13 @@ def _head_html(report: dict[str, Any]) -> str:
     .effect-ci {{ stroke:var(--secondary); stroke-width:3; stroke-linecap:round; }} .effect-dot {{ stroke:var(--canvas); stroke-width:3; }} .effect-dot.matched {{ fill:var(--teal); }} .effect-dot.descriptive {{ fill:var(--secondary); }}
     .chart-legend {{ display:flex; flex-wrap:wrap; gap:12px 22px; margin:0 0 6px; color:var(--secondary); font-size:.82rem; }} .chart-legend span {{ display:inline-flex; align-items:center; gap:8px; }}
     .chart-note {{ margin:8px 0 0; color:var(--muted); font:550 .76rem/1.4 var(--mono); }}
+    .primary-effect {{ display:grid; grid-template-columns:180px 1fr; gap:28px; margin:0 0 28px; padding:22px 0; border-top:1px solid var(--coral); border-bottom:1px solid var(--rule); }} .primary-effect > span {{ color:var(--coral); font:650 .72rem/1.4 var(--mono); letter-spacing:.06em; text-transform:uppercase; }} .primary-effect strong {{ display:block; font-family:var(--display); font-size:1.2rem; }} .primary-effect p {{ margin:4px 0 0; color:var(--secondary); }}
     .fixture-label {{ margin:-18px 0 26px; color:var(--secondary); font:650 .7rem/1.4 var(--mono); letter-spacing:.06em; text-transform:uppercase; }}
     .table-wrap {{ overflow-x:auto; border-top:1px solid var(--rule); }}
     table {{ width:100%; min-width:760px; border-collapse:collapse; font-size:.88rem; }} caption {{ padding:16px 0; color:var(--muted); text-align:left; }}
     th,td {{ padding:16px 14px; border-bottom:1px solid var(--rule); text-align:right; vertical-align:top; }} th:first-child,td:first-child {{ padding-left:0; text-align:left; }} thead th {{ color:var(--muted); font:550 .74rem/1.3 var(--mono); }} tbody th {{ font-weight:620; white-space:nowrap; }}
     .two-up {{ display:grid; grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr); gap:64px; }}
-    .two-up table {{ min-width:640px; }}
+    .two-up table {{ min-width:0; }}
     .minor-title {{ margin:0 0 22px; font-size:1.35rem; }}
     .empty-state,.empty-cell {{ color:var(--muted); }}
     .fragility {{ list-style:none; padding:0; margin:0; border-top:1px solid var(--rule); }} .fragility li {{ display:flex; justify-content:space-between; gap:18px; padding:13px 0; border-bottom:1px solid var(--rule); }} code {{ color:var(--secondary); font-family:var(--mono); font-size:.82rem; }} .fragility span {{ color:var(--muted); font:500 .8rem var(--mono); }}
@@ -608,7 +797,7 @@ def _head_html(report: dict[str, Any]) -> str:
     .method {{ max-width:72ch; color:var(--secondary); }} .method strong {{ color:var(--ink); }}
     .close {{ padding:76px 0 100px; display:grid; grid-template-columns:1fr auto; align-items:end; gap:42px; }} .close h2 {{ margin:0; max-width:760px; font-size:clamp(2.4rem,5vw,4.4rem); line-height:1; }} .close p {{ margin:22px 0 0; max-width:62ch; color:var(--secondary); }} .stamp {{ color:var(--muted); font:500 .76rem/1.5 var(--mono); text-align:right; }}
     @media (max-width:820px) {{ .hero,.section-head,.two-up,.close,.result-band {{ grid-template-columns:1fr; gap:34px; }} .hero > *,.section-head > *,.two-up > *,.close > *,.result-band > * {{ min-width:0; }} .hero {{ min-height:auto; padding:64px 0; }} .experiment {{ max-width:520px; }} .section {{ padding:58px 0; }} .scroll-cue {{ display:block; }} .table-wrap th:first-child,.table-wrap td:first-child {{ position:sticky; left:0; z-index:1; background:var(--canvas); box-shadow:1px 0 var(--rule); }} .stamp {{ text-align:left; }} }}
-    @media (max-width:520px) {{ .shell {{ width:calc(100% - 28px); }} .topline {{ align-items:flex-start; gap:12px; padding:18px 0; }} .run-id {{ max-width:48%; text-align:right; font-size:.7rem; }} h1 {{ font-size:clamp(2.65rem,13vw,3.15rem); text-wrap:wrap; }} .lede,.status-note {{ overflow-wrap:anywhere; }} .gates li {{ grid-template-columns:62px 1fr; gap:14px; }} .provenance {{ grid-template-columns:1fr; }} .provenance dt {{ padding-bottom:0; border-bottom:0; }} .provenance dd {{ padding-top:4px; }} }}
+    @media (max-width:520px) {{ .shell {{ width:calc(100% - 28px); }} .topline {{ display:grid; grid-template-columns:1fr; align-items:start; gap:10px; padding:18px 0; }} .run-id {{ max-width:100%; text-align:left; font-size:.68rem; }} .hero {{ padding:52px 0; }} .status {{ margin-bottom:24px; }} h1 {{ max-width:100%; font-size:clamp(2.5rem,12vw,3rem); line-height:.96; text-wrap:balance; }} .lede,.status-note {{ overflow-wrap:anywhere; }} .mobile-result {{ display:block; }} .desktop-result {{ display:none; }} .evidence-ladder {{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px 12px; }} .gates li {{ grid-template-columns:62px 1fr; gap:14px; }} .primary-effect {{ grid-template-columns:1fr; gap:8px; }} .provenance {{ grid-template-columns:1fr; }} .provenance dt {{ padding-bottom:0; border-bottom:0; }} .provenance dd {{ padding-top:4px; }} }}
     @media (prefers-reduced-motion:reduce) {{ html {{ scroll-behavior:auto; }} }}
     @media print {{ :root {{ --canvas:#fff; --surface:#fff; --raised:#f1f3f5; --ink:#111; --secondary:#333; --muted:#666; --rule:#ccc; }} body {{ font-size:11pt; }} .shell {{ width:100%; }} .topline {{ min-height:42px; }} .hero {{ min-height:auto; padding:38px 0; }} .section {{ padding:32px 0; break-inside:avoid; }} .scroll-cue {{ display:none; }} .chart-frame,.table-wrap {{ overflow:visible; }} .chart,table {{ min-width:0; }} svg rect[fill="#eaedf2"],svg circle[fill="#eaedf2"] {{ fill:#111; }} .close {{ padding:38px 0; }} }}
   </style>
@@ -620,6 +809,7 @@ def _body_html(report: dict[str, Any]) -> str:
     status_class, status_title, status_note = _status_copy(report)
     result_title, result_note = _result_summary(report)
     close_title, close_note = _closing_copy(report)
+    hero_title, hero_lede, condition_title, condition_note = _hero_copy(report)
     fixture_label = _fixture_label(report)
     fixture_block = f"      {fixture_label}\n" if fixture_label else ""
     limitations = "".join(f"<li>{_escape(item)}</li>" for item in report["limitations"])
@@ -633,19 +823,20 @@ def _body_html(report: dict[str, Any]) -> str:
     <section class="shell hero" aria-labelledby="report-title">
       <div>
         <div class="status {status_class}">{_escape(status_title)}</div>
-        <h1 id="report-title">When context becomes a competing objective.</h1>
-        <p class="lede">OffHours measures whether one model’s routine expense-claim work changes after passive context, ordinary interruptions, and increasingly consequential family obligations.</p>
+        <h1 id="report-title">{_escape(hero_title)}</h1>
+        <p class="lede">{_escape(hero_lede)}</p>
         <p class="status-note">{_escape(status_note)}</p>
+        <aside class="mobile-result"><strong>{_escape(result_title)}</strong><span>{_escape(result_note)}</span></aside>
       </div>
       <ol class="experiment" aria-label="Benchmark sequence">
         <li class="experiment-step"><i aria-hidden="true"></i><div><strong>One employee</strong><span>Byte-identical Arjun persona and policy</span></div></li>
         <li class="experiment-step"><i aria-hidden="true"></i><div><strong>Paired workdays</strong><span>{report["workload"]["tasks_per_day"]} claims · four interruption positions</span></div></li>
-        <li class="experiment-step"><i aria-hidden="true"></i><div><strong>Six controlled conditions</strong><span>Token volume → interruption → family obligation</span></div></li>
+        <li class="experiment-step"><i aria-hidden="true"></i><div><strong>{_escape(condition_title)}</strong><span>{_escape(condition_note)}</span></div></li>
         <li class="experiment-step"><i aria-hidden="true"></i><div><strong>Workday-level inference</strong><span>Paired bootstrap intervals, not claim-level certainty</span></div></li>
       </ol>
     </section>
 
-    <aside class="shell result-band" aria-labelledby="result-title">
+    <aside class="shell result-band desktop-result" aria-labelledby="result-title">
       <div><h2 id="result-title">{_escape(result_title)}</h2></div>
       <div><p>{_escape(result_note)}</p><ol class="evidence-ladder" aria-label="Evidence maturity">{_evidence_ladder(report)}</ol></div>
     </aside>
@@ -666,7 +857,8 @@ def _body_html(report: dict[str, Any]) -> str:
 
     <section class="shell section" aria-labelledby="effects-title">
       <div class="section-head"><h2 id="effects-title">What changed after context?</h2><p>Treatment minus control error rate, paired by simulated workday. Positive values indicate worse work in the treatment condition. Dashed intervals are explicitly descriptive.</p></div>
-{fixture_block}      <p class="scroll-cue">Swipe horizontally to inspect the full interval plot →</p>
+{fixture_block}{_primary_effect_block(report)}
+      <p class="scroll-cue">Swipe horizontally to inspect the full interval plot →</p>
       <div class="chart-frame">{_effect_chart(report)}</div>
       <p class="scroll-cue">Swipe horizontally to inspect all columns →</p>
       <div class="table-wrap"><table><caption>Accessible values for paired error-rate effects.</caption><thead><tr><th scope="col">Comparison</th><th scope="col">Role</th><th scope="col">Effect</th><th scope="col">95% interval</th><th scope="col">Paired days</th></tr></thead><tbody>{_effect_table(report)}</tbody></table></div>

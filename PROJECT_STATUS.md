@@ -1,6 +1,6 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-08-12
+Last updated: 2026-08-21
 
 ## Why / What
 
@@ -74,6 +74,7 @@ Important constraints:
 
 | Date / phase | Status |
 |---|---|
+| 2026-08-21 OffHours persistent-tension pilot | **Devin-first forced-work experiment completed with a clean null.** The `tension-v2` ruler passed an independent five-day clean gate at 199/200 (99.5%) with 100% valid JSON, then a fresh randomized six-condition run completed 30/30 condition-days, 1,200/1,200 claims, and 100/100 scheduled events. Unresolved nonurgent family-health tension scored 198/200 (99.0%) versus 197/200 (98.5%) when the same problem became resolved: paired error-rate difference -0.5 pp, 95% paired-workday bootstrap -3.0 to +1.5 pp. All 80 response-required family/tension events chose `reply_and_continue`; unresolved replies were 22% longer, but no work-quality penalty was detected. This fixes the earlier acute-crisis action artifact by forcing the queue to continue and matching the first two narrative messages byte-for-byte. Devin CLI lacks prompt-token counts, quantization, and a model-file hash, so the artifact is publishable validation evidence rather than a provenance-complete confirmatory model comparison. Evidence: `evals/offhours/results/devin-persistent-tension-2026-08-21-report.md`, interactive `.html`, machine-readable `.json`; raw SQLite remains local and ignored. |
 | 2026-08-21 OffHours Devin-first sequential validation | **Execution loop passed; benchmark calibration failed, so Qwen is blocked.** A clean-worktree Devin GLM-5.2 adapter mapped every paired condition-day to a fresh CLI session and resumed all claims and response-required events inside that workday. The full run completed 30/30 workday-conditions, 1,200/1,200 graded claims, and 100/100 interruption replies with zero malformed claim outputs, skips, or runner failures. Accuracy was clean 95.0%, filler 93.0%, neutral 90.5%, benign 94.0%, moderate 92.0%, and crisis 93.5%. Paired error effects were filler-clean +2.0 pp (95% workday bootstrap +1.0 to +2.5), neutral-filler +2.5 pp (+1.0 to +4.0, descriptive), benign-neutral -3.5 pp (-4.5 to -2.5), moderate-benign +2.0 pp (0.0 to +5.0), and crisis-benign +0.5 pp (-1.5 to +3.0): no severity dose response. Behavior changed sharply—20/20 crisis events produced `leave_work`—without a corresponding accuracy collapse. Clean missed the frozen 98% gate; two fragile claims caused nine of ten clean errors, and Devin CLI token/model-file provenance is unavailable. This is publication-quality validation evidence, not a confirmatory stress result. Evidence: `evals/offhours/results/devin-stress-validation-2026-08-21-report.md`, `.html`, and `.json`; raw SQLite remains local and ignored. |
 | 2026-08-12 Native Mac release readiness | Prepared a fail-closed public distribution surface for version 0.1.0 (build 1): the homepage and canonical `/download` page share a typed release record with `/releases/mac.json` and agent-readable indexes, while a pure evaluator with focused tests refuses to expose any artifact unless the reviewed GitHub Release URL, SHA-256, Developer ID signature, notarization, stapling, Gatekeeper, and checksum gates all pass. The current state remains honestly pending with no DMG URL; production deployment and binary promotion remain manual follow-ups. |
 | 2026-08-11 Native Mac distribution preparation | Added repeatable arm64 Release app assembly with the branded icon, versioned bundle metadata, hardened-runtime Developer ID signing support, strict signature verification, and a fail-closed notarization helper. The locally verified build remains ad-hoc signed until the personal Developer ID identity and notary profile are installed; no public release was created. |
@@ -140,6 +141,13 @@ Important constraints:
 
 Factory primitives:
 
+- OffHours persistent-tension benchmark: a forced-work, paired
+  resolved-versus-unresolved family-health design with clean-only ruler
+  qualification, deterministic schedules, sequential Devin validation,
+  workday-clustered uncertainty, behavioral actions, recovery bands, strict
+  no-retry grading, and self-contained publication reports. The first measured
+  Devin pilot is a null for work-quality degradation and remains explicitly
+  non-confirmatory where CLI provenance is unavailable.
 - Native Mac public release gate: one typed release record drives the homepage,
   canonical `/download` page, `/releases/mac.json`, and agent indexes. A pure
   evaluator accepts only the reviewed PostTrainLLM GitHub Releases path and
