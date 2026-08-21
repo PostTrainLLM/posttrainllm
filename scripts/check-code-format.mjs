@@ -12,6 +12,9 @@ if (pythonFiles.length > 0) {
   run(ruff.command, [...ruff.prefix, "format", "--check", ...pythonFiles]);
 }
 
+// Report-card JSON/HTML are compiler outputs guarded byte-for-byte by the
+// fine-tune report-card drift smoke. Reformatting them would make the two
+// publication gates contradict each other.
 const prettierFiles = changedFiles([
   ".js",
   ".mjs",
@@ -20,7 +23,7 @@ const prettierFiles = changedFiles([
   ".tsx",
   ".astro",
   ".json",
-]);
+]).filter((file) => !file.startsWith("browser/public/report-cards/"));
 if (prettierFiles.length > 0) {
   run("pnpm", [
     "exec",
