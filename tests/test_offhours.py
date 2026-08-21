@@ -185,6 +185,35 @@ def test_volume_v1_freezes_exact_rungs_and_matched_high_occupancy_arms():
         } == {tuple(day["event_positions"])}
 
 
+def test_volume_subset_report_does_not_invent_an_embedded_clean_gate():
+    loaded = bundle_volume()
+    conditions = [f"volume_{arm}_500" for arm in core.VOLUME_ARMS]
+    with tempfile.TemporaryDirectory() as temporary:
+        database = store.connect(Path(temporary) / "volume.sqlite")
+        try:
+            prepare_fixture_run(
+                database,
+                loaded,
+                "fixture-volume-subset",
+                conditions=conditions,
+                tasks=40,
+                days=2,
+                seed=83,
+            )
+            summary = store.execute_run(
+                database, loaded, "fixture-volume-subset", PerfectClient()
+            )
+            assert summary["status"] == "completed"
+            measured = analysis.analyze(database, loaded, "fixture-volume-subset")
+            measured["artifact_kind"] = "measured_run"
+            measured["confirmatory_interpretation_allowed"] = False
+            html = report_renderer.render_html(measured)
+            assert "clean baseline not included in this selected-condition run" in html
+            assert "Unqualified run" in html
+        finally:
+            database.close()
+
+
 def test_occupancy_v1_freezes_nested_exact_word_doses_and_matched_resolution():
     loaded = bundle_occupancy()
     scenarios = loaded["scenarios"]

@@ -58,6 +58,31 @@ RECOVERY_DASHES = {
 }
 
 
+def _condition_label(condition: str) -> str:
+    if condition.startswith("volume_"):
+        _, arm, words = condition.rsplit("_", 2)
+        return f"{arm.title()} · {int(words):,} words/event"
+    return CONDITION_LABELS[condition]
+
+
+def _condition_color(condition: str) -> str:
+    if condition.startswith("volume_"):
+        arm = condition.rsplit("_", 2)[1]
+        return {
+            "neutral": "#737b88",
+            "resolved": "#a6adb9",
+            "unresolved": "#ff6f5c",
+        }[arm]
+    return CONDITION_COLORS[condition]
+
+
+def _recovery_dash(condition: str) -> str:
+    if condition.startswith("volume_"):
+        arm = condition.rsplit("_", 2)[1]
+        return {"neutral": "2 6", "resolved": "12 5", "unresolved": "4 4"}[arm]
+    return RECOVERY_DASHES.get(condition, "")
+
+
 def _escape(value: Any) -> str:
     return html.escape(str(value), quote=True)
 
@@ -324,7 +349,10 @@ def _result_summary(report: dict[str, Any]) -> tuple[str, str]:
         return primary_summary
     largest = max(matched, key=lambda effect: abs(effect["error_rate_difference"]))
     if not report["confirmatory_interpretation_allowed"]:
-        clean_accuracy = report["condition_metrics"]["clean"]["decision_accuracy"]
+        clean_metrics = report["condition_metrics"].get("clean")
+        clean_accuracy = (
+            clean_metrics.get("decision_accuracy") if clean_metrics else None
+        )
         provenance_complete = (
             (report.get("baseline_qualification") or {})
             .get("checks", {})
@@ -335,12 +363,15 @@ def _result_summary(report: dict[str, Any]) -> tuple[str, str]:
             if provenance_complete
             else "required model identity incomplete"
         )
-        clean_gate_passed = clean_accuracy is not None and clean_accuracy >= 0.98
-        clean_state = (
-            f"clean baseline {_rate(clean_accuracy)} passed"
-            if clean_gate_passed
-            else f"clean baseline {_rate(clean_accuracy)} < 98.0%"
-        )
+        if clean_metrics is None:
+            clean_state = "clean baseline not included in this selected-condition run"
+        else:
+            clean_gate_passed = clean_accuracy is not None and clean_accuracy >= 0.98
+            clean_state = (
+                f"clean baseline {_rate(clean_accuracy)} passed"
+                if clean_gate_passed
+                else f"clean baseline {_rate(clean_accuracy)} < 98.0%"
+            )
         detail = "".join(
             (
                 f"Largest matched estimate: {_pp(largest['error_rate_difference'])} ",
@@ -425,7 +456,7 @@ def _condition_table(report: dict[str, Any]) -> str:
     for condition, metrics in report["condition_metrics"].items():
         rows.append(
             "<tr>"
-            f'<th scope="row"><span class="condition-dot" style="--condition:{CONDITION_COLORS[condition]}"></span>{_escape(CONDITION_LABELS[condition])}</th>'
+            f'<th scope="row"><span class="condition-dot" style="--condition:{_condition_color(condition)}"></span>{_escape(_condition_label(condition))}</th>'
             f"<td>{_rate(metrics['decision_accuracy'])}</td>"
             f"<td>{_rate(metrics['valid_json_rate'])}</td>"
             f"<td>{_rate(metrics['skipped_task_rate'])}</td>"
@@ -448,9 +479,9 @@ def _accuracy_chart(report: dict[str, Any]) -> str:
         accuracy = values["decision_accuracy"]
         bar_width = 0 if accuracy is None else plot_width * accuracy
         rows.append(
-            f'<text x="0" y="{y + 16}" class="svg-label">{_escape(CONDITION_LABELS[condition])}</text>'
+            f'<text x="0" y="{y + 16}" class="svg-label">{_escape(_condition_label(condition))}</text>'
             f'<rect x="{left}" y="{y}" width="{plot_width}" height="22" rx="6" class="svg-track"/>'
-            f'<rect x="{left}" y="{y}" width="{bar_width:.2f}" height="22" rx="6" fill="{CONDITION_COLORS[condition]}"/>'
+            f'<rect x="{left}" y="{y}" width="{bar_width:.2f}" height="22" rx="6" fill="{_condition_color(condition)}"/>'
             f'<text x="{width}" y="{y + 16}" text-anchor="end" class="svg-value">{_rate(accuracy)}</text>'
         )
     threshold_x = left + plot_width * 0.98
@@ -614,20 +645,20 @@ def _recovery_series(
             y_value = top + plot_height * (1 - rate / y_max)
             current_segment.append(f"{x_value:.2f},{y_value:.2f}")
             markers.append(
-                f'<circle cx="{x_value:.2f}" cy="{y_value:.2f}" r="6" fill="{CONDITION_COLORS[condition]}" stroke="#0a0c0f" stroke-width="3"/>'
+                f'<circle cx="{x_value:.2f}" cy="{y_value:.2f}" r="6" fill="{_condition_color(condition)}" stroke="#0a0c0f" stroke-width="3"/>'
             )
         if current_segment:
             segments.append(current_segment)
-        dash = RECOVERY_DASHES.get(condition, "")
+        dash = _recovery_dash(condition)
         dash_attr = f' stroke-dasharray="{dash}"' if dash else ""
         parts.extend(
-            f'<polyline points="{" ".join(points)}" fill="none" stroke="{CONDITION_COLORS[condition]}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"{dash_attr}/>'
+            f'<polyline points="{" ".join(points)}" fill="none" stroke="{_condition_color(condition)}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"{dash_attr}/>'
             for points in segments
             if len(points) > 1
         )
         parts.extend(markers)
     legend = [
-        f'<span><i style="--condition:{CONDITION_COLORS[condition]}"></i>{_escape(CONDITION_LABELS[condition])}</span>'
+        f'<span><i style="--condition:{_condition_color(condition)}"></i>{_escape(_condition_label(condition))}</span>'
         for condition in recovery
     ]
     return parts, legend, composite
@@ -694,7 +725,7 @@ def _recovery_table(report: dict[str, Any]) -> str:
     for condition, values in report["recovery"].items():
         cells = "".join(f"<td>{_rate(values[key]['error_rate'])}</td>" for key in bands)
         rows.append(
-            f'<tr><th scope="row">{_escape(CONDITION_LABELS[condition])}</th>{cells}</tr>'
+            f'<tr><th scope="row">{_escape(_condition_label(condition))}</th>{cells}</tr>'
         )
     return "".join(rows)
 
@@ -708,7 +739,7 @@ def _behavior_rows(report: dict[str, Any]) -> str:
         )
         rows.append(
             "<tr>"
-            f'<th scope="row">{_escape(CONDITION_LABELS[condition])}</th>'
+            f'<th scope="row">{_escape(_condition_label(condition))}</th>'
             f"<td>{metrics['events']}</td>"
             f"<td>{_rate(metrics['valid_action_rate'])}</td>"
             f"<td>{_escape(action or 'No recorded actions')}</td>"
@@ -886,7 +917,7 @@ def _body_html(report: dict[str, Any]) -> str:
     fixture_block = f"      {fixture_label}\n" if fixture_label else ""
     limitations = "".join(f"<li>{_escape(item)}</li>" for item in report["limitations"])
     conditions = "".join(
-        f'<span style="--condition:{CONDITION_COLORS[name]}"><i></i>{_escape(CONDITION_LABELS[name])}</span>'
+        f'<span style="--condition:{_condition_color(name)}"><i></i>{_escape(_condition_label(name))}</span>'
         for name in report["workload"]["conditions"]
     )
     return f"""<body>
