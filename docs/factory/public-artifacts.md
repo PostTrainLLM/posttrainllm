@@ -66,6 +66,7 @@ must not turn its request count into a user claim.
 
 | Artifact | Type | State | Public value | Next release action |
 |---|---|---|---|---|
+| `offhours-context-interference` | Agent-behaviour benchmark | `report-only` | Separates unresolved personal context from matched interruptions and raw volume. Devin showed no mental-toll penalty; the first repeatable failure occurred in the neutral arm at 8,000 submitted words/day. | Freeze the Devin result and run the unchanged protocol against local Qwen with exact prompt-token and model provenance. |
 | `pace-intent-router-v8` | From-scratch intent classifier | `release-ready-weights` | Shows why sealed distribution gates matter: 95.5% source-matched synthetic accuracy fell to 57.1% on sealed V1, despite 3.8ms mean latency. | Keep as the latency floor and generator-overfit case; train only on public failure themes and judge a successor on a new sealed V2. |
 | `qwen3-4b-file-ops-distilled` | Specialist package | `release-ready-weights` | Shows a real posttrainllm-built routed specialist: 58% -> 100% on file-ops hard gate, with breadth regression disclosed. | Keep routed-only warnings prominent; add a loader/pull smoke when wiring consumers. |
 | `qwen3-4b-rest-fused` | Research specialist package | `release-ready-weights` | Teacher-free ReST preserved 100% file-ops depth and recovered breadth to 65% vs stock 59.6%. | Keep research-only; run a fresh product-specific gate before any runtime wiring. |
@@ -78,6 +79,40 @@ must not turn its request count into a user claim.
 | `browser-playground` | Demo artifact | `parked` | Public proof of the earlier browser/WASM/WebGPU learning track. | Keep parked unless it directly presents factory reports or artifacts. |
 
 ## Artifact Details
+
+### `offhours-context-interference`
+
+Status: `report-only`; experiment decision: `semantic-tension-null`
+
+OffHours tests whether routine office-work quality changes when unresolved family
+tension remains in an AI employee's context. The paired Devin study kept the
+employee, work claims, event positions, response structure, and semantic payload
+volume fixed. Clean qualification scored 198/200 decisions (99.0%) with 200/200
+valid JSON outputs. Across 20%, 50%, and 80% narrative occupancy, unresolved
+context did not reduce accuracy relative to matched resolved context.
+
+The separate exact-word ladder found a reproducible operational boundary at
+2,000 neutral words per event, or 8,000 submitted words across four workday
+interruptions. The neutral arm scored 39/40 on both day 2 and its preregistered
+day-3 adjudication, below the 98% per-day gate. This is evidence of raw-volume or
+regular Devin context-management cost, not a family-obligation effect.
+
+Public page: `/artifacts/offhours-context-interference`
+
+Committed evidence:
+
+- `evals/offhours/results/devin-context-saturation-2026-08-21-report.md`
+- `evals/offhours/results/devin-context-saturation-2026-08-21.json`
+- `evals/offhours/results/devin-glm52-semantic-occupancy-2026-08-21.html`
+- `evals/offhours/README.md`
+
+Release limitations:
+
+| Limitation | Why it matters | Next action |
+|---|---|---|
+| No semantic mental-toll effect detected | The matched unresolved treatments did not degrade work quality. | Report the null; do not optimize treatment wording after seeing the result. |
+| Devin raw-model provenance is incomplete | The regular workflow did not expose prompt-token counts, quantization, or a model-file hash. | Run the frozen protocol on local Qwen with complete provenance. |
+| Saturation appeared in neutral context | The repeated boundary cannot be attributed to personal obligation. | Treat it as operational context-volume evidence unless a future matched design isolates another mechanism. |
 
 ### `pace-intent-router-v8`
 
