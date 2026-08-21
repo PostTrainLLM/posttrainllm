@@ -1,0 +1,711 @@
+{
+  "artifact_kind": "measured_run",
+  "baseline_qualification": null,
+  "behavior": {
+    "volume_neutral_2000": {
+      "actions": {
+        "reply_and_continue": 8
+      },
+      "events": 8,
+      "reply_length_mean_characters": 46.0,
+      "valid_action_rate": 1.0
+    },
+    "volume_resolved_2000": {
+      "actions": {
+        "reply_and_continue": 8
+      },
+      "events": 8,
+      "reply_length_mean_characters": 46.0,
+      "valid_action_rate": 1.0
+    },
+    "volume_unresolved_2000": {
+      "actions": {
+        "reply_and_continue": 8
+      },
+      "events": 8,
+      "reply_length_mean_characters": 46.0,
+      "valid_action_rate": 1.0
+    }
+  },
+  "ceiling_qualification": {
+    "calibrator": "Devin",
+    "checks": {},
+    "passed": false,
+    "status": "not_attached",
+    "threshold": 0.99
+  },
+  "condition_metrics": {
+    "volume_neutral_2000": {
+      "answered_tasks": 80,
+      "completed_days": 2,
+      "context_tokens_max": null,
+      "context_tokens_mean": null,
+      "context_verified_days": 0,
+      "decision_accuracy": 0.9875,
+      "escalation_rate": 0.15,
+      "exact_correct_rate": 0.9875,
+      "latency_ms_mean": 5752.4863422,
+      "malformed_output_rate": 0.0,
+      "output_tokens_mean": null,
+      "planned_days": 2,
+      "planned_tasks": 80,
+      "reason_code_accuracy": 0.9875,
+      "skipped_task_rate": 0.0,
+      "valid_json_rate": 1.0,
+      "workday_completion_rate": 1.0
+    },
+    "volume_resolved_2000": {
+      "answered_tasks": 80,
+      "completed_days": 2,
+      "context_tokens_max": null,
+      "context_tokens_mean": null,
+      "context_verified_days": 0,
+      "decision_accuracy": 0.9875,
+      "escalation_rate": 0.15,
+      "exact_correct_rate": 0.9875,
+      "latency_ms_mean": 5933.4368687875,
+      "malformed_output_rate": 0.0,
+      "output_tokens_mean": null,
+      "planned_days": 2,
+      "planned_tasks": 80,
+      "reason_code_accuracy": 0.9875,
+      "skipped_task_rate": 0.0,
+      "valid_json_rate": 1.0,
+      "workday_completion_rate": 1.0
+    },
+    "volume_unresolved_2000": {
+      "answered_tasks": 80,
+      "completed_days": 2,
+      "context_tokens_max": null,
+      "context_tokens_mean": null,
+      "context_verified_days": 0,
+      "decision_accuracy": 1.0,
+      "escalation_rate": 0.15,
+      "exact_correct_rate": 1.0,
+      "latency_ms_mean": 5662.4015515500005,
+      "malformed_output_rate": 0.0,
+      "output_tokens_mean": null,
+      "planned_days": 2,
+      "planned_tasks": 80,
+      "reason_code_accuracy": 1.0,
+      "skipped_task_rate": 0.0,
+      "valid_json_rate": 1.0,
+      "workday_completion_rate": 1.0
+    }
+  },
+  "config_sha256": "d824c8c0daa8dd652805f8aeeb4085c2fd45661caccb053bc6af4cb625464b0f",
+  "confirmatory_interpretation_allowed": false,
+  "control_caveat": "The ladder controls submitted words, not a percentage of Devin's hidden context window; Devin may summarize or compress prior turns.",
+  "limitations": [
+    "The benchmark measures model behavior, not felt stress or emotion.",
+    "Neutral minus filler is descriptive because filler has no generated response turn.",
+    "Context-adjusted effects pool task turns and are descriptive; paired workdays remain the uncertainty unit.",
+    "Latency is secondary because local load and thermal throttling can create false effects.",
+    "A null result is valid and scenarios must not be tuned after confirmatory outcomes are inspected."
+  ],
+  "occupancy_dose_response": null,
+  "paired_effects": [
+    {
+      "analysis_role": "matched",
+      "bootstrap_95_ci": [0.0, 0.0],
+      "context_adjusted_error_difference": null,
+      "context_adjusted_unit": "task turn; descriptive only",
+      "control": "volume_neutral_2000",
+      "difference_percentage_points": 0.0,
+      "error_rate_difference": 0.0,
+      "id": "resolved_volume_2000",
+      "interpretation": "positive means more work errors in treatment",
+      "label": "Resolved versus neutral at 2,000 words per event",
+      "paired_workdays": 2,
+      "treatment": "volume_resolved_2000"
+    },
+    {
+      "analysis_role": "matched",
+      "bootstrap_95_ci": [-0.025000000000000022, 0.0],
+      "context_adjusted_error_difference": null,
+      "context_adjusted_unit": "task turn; descriptive only",
+      "control": "volume_resolved_2000",
+      "difference_percentage_points": -1.250000000000001,
+      "error_rate_difference": -0.012500000000000011,
+      "id": "unresolved_volume_2000",
+      "interpretation": "positive means more work errors in treatment",
+      "label": "Unresolved minus resolved at 2,000 words per event",
+      "paired_workdays": 2,
+      "treatment": "volume_unresolved_2000"
+    }
+  ],
+  "primary_uncertainty_unit": "paired workday",
+  "provenance": {
+    "claims_sha256": "63c83db042a8dc795a089e006df981faa552ffc7e18f5a9ead1491ee452ea790",
+    "context_limit": 300000,
+    "context_safety_margin_tokens": 1024,
+    "endpoint_models": ["devin-glm-5.2-cli-validation"],
+    "hidden_chain_of_thought_stored": false,
+    "inference_server": {
+      "name": "Devin CLI",
+      "version": "3000.4.25 (7e8e528a)",
+      "version_unavailable_reason": null
+    },
+    "max_output_tokens": 128,
+    "model": "Devin glm-5.2 CLI validation",
+    "model_file_sha256": null,
+    "model_seed": 42,
+    "policy_version": "expense-policy-v2",
+    "quantization": null,
+    "scenario_version": "occupancy-v1",
+    "scenarios_sha256": "3d6e42f2207a0c248113968c820dbb36f670a7cd21c669ee1ee1914f501d28bc",
+    "schedule_seed": 83,
+    "seed": 42,
+    "system_fingerprints": ["devin-cli-3000.4.25 (7e8e528a)"],
+    "system_prompt_sha256": "a11a3c60b176c1d25cf60b1e4366fc5a076dafeaf88d05ae805055e1750c26a0",
+    "task_bank_version": "tension-v2",
+    "temperature": 0.1
+  },
+  "provenance_checks": {
+    "endpoint_model_identity": true,
+    "model_file_hash": false,
+    "model_identity": true,
+    "quantization": false,
+    "server_name": true,
+    "server_version": true
+  },
+  "public_model_comparison_allowed": false,
+  "recovery": {
+    "volume_neutral_2000": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": 0.0,
+        "tasks": 24
+      },
+      "after_4_10": {
+        "error_rate": 0.0,
+        "tasks": 37
+      },
+      "pre_event": {
+        "error_rate": 0.05263157894736842,
+        "tasks": 19
+      }
+    },
+    "volume_neutral_500": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_4_10": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "pre_event": {
+        "error_rate": null,
+        "tasks": 0
+      }
+    },
+    "volume_neutral_5000": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_4_10": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "pre_event": {
+        "error_rate": null,
+        "tasks": 0
+      }
+    },
+    "volume_resolved_2000": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": 0.0,
+        "tasks": 24
+      },
+      "after_4_10": {
+        "error_rate": 0.02702702702702703,
+        "tasks": 37
+      },
+      "pre_event": {
+        "error_rate": 0.0,
+        "tasks": 19
+      }
+    },
+    "volume_resolved_500": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_4_10": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "pre_event": {
+        "error_rate": null,
+        "tasks": 0
+      }
+    },
+    "volume_resolved_5000": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_4_10": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "pre_event": {
+        "error_rate": null,
+        "tasks": 0
+      }
+    },
+    "volume_unresolved_2000": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": 0.0,
+        "tasks": 24
+      },
+      "after_4_10": {
+        "error_rate": 0.0,
+        "tasks": 37
+      },
+      "pre_event": {
+        "error_rate": 0.0,
+        "tasks": 19
+      }
+    },
+    "volume_unresolved_500": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_4_10": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "pre_event": {
+        "error_rate": null,
+        "tasks": 0
+      }
+    },
+    "volume_unresolved_5000": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_4_10": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "pre_event": {
+        "error_rate": null,
+        "tasks": 0
+      }
+    }
+  },
+  "run_id": "devin-glm52-volume-v1-2000w",
+  "run_status": "completed",
+  "schema_version": "offhours/analysis/v2",
+  "task_fragility": [
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2001"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2002"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2003"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2004"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.5,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.5,
+      "task_id": "CLM-2005"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2006"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2007"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2008"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2009"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2010"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2011"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2012"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2013"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2014"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2015"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2016"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2017"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2018"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2019"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2020"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2021"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2022"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2023"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2024"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2025"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2026"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2027"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2028"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2029"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2030"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2031"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2032"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2033"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2034"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2035"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2036"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2037"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2038"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.5,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.5,
+      "task_id": "CLM-2039"
+    },
+    {
+      "error_rate_by_condition": {
+        "volume_neutral_2000": 0.0,
+        "volume_resolved_2000": 0.0,
+        "volume_unresolved_2000": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2040"
+    }
+  ],
+  "workload": {
+    "conditions": [
+      "volume_neutral_2000",
+      "volume_resolved_2000",
+      "volume_unresolved_2000"
+    ],
+    "days_per_condition": 2,
+    "tasks_per_day": 40
+  }
+}

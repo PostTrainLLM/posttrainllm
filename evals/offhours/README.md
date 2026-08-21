@@ -56,14 +56,22 @@ which motivated the forced-work, resolved-versus-unresolved redesign. Its
 [historical report](results/devin-stress-validation-2026-08-21-report.md)
 documents that failure rather than silently replacing it.
 
-The next frozen Devin candidate is `occupancy-v1`. It tests semantic occupancy
-without increasing event volume: every non-clean condition receives four
-response-required 100-word events, but 20%, 50%, or 80% of each event describes
-the same persistent family-health tension. The remaining words are neutral
-office facts. Resolved and unresolved arms use the same family facts at each
-dose, and every event requires the same exact acknowledgement before the claim
-queue continues. This is a new, preregistered dose experiment; it does not
-reinterpret the committed `tension-v2` null.
+The semantic-occupancy and raw-volume experiments are complete. At a fixed
+100-word event budget, unresolved-minus-resolved error effects were +0.5, -0.5,
+and -1.0 percentage points at 20%, 50%, and 80% family occupancy. The
+preregistered slope was -0.25 points per ten occupancy points, opposite the
+predicted mental-toll direction. The ordered volume ladder then found its first
+reproducible boundary at 2,000 words/event, or 8,000 submitted non-work
+words/day: the neutral arm scored 39/40 on both day 2 and its required day-3
+adjudication. The lower 500-word rung passed adjudication. A completed
+5,000-word rung is retained as a disclosed overshoot and does not move the
+ordered boundary. Read the
+[final report](results/devin-context-saturation-2026-08-21-report.md), inspect
+the [machine-readable boundary receipt](results/devin-context-saturation-2026-08-21.json),
+or open the
+[semantic-occupancy report](results/devin-glm52-semantic-occupancy-2026-08-21.html).
+The detected boundary is raw-volume or regular-flow context-management
+evidence, not a family-obligation effect.
 
 No Qwen 27B context-interference result is committed. An exploratory
 Qwen3.5 4B MLX clean baseline completed 200/200 turns but failed qualification:
@@ -109,6 +117,7 @@ unresolved tension - resolved tension
 | `configs/offhours/claims-tension-v2.json`      | Clean-qualified forty-claim ruler frozen before the paired tension run                                     |
 | `configs/offhours/scenarios-tension-v1.json`   | Three matched nonurgent family-health wording variants with byte-identical shared openings                 |
 | `configs/offhours/occupancy-v1.json`           | Fixed-volume 20/50/80% semantic-occupancy dose contract layered over the clean-qualified ruler             |
+| `configs/offhours/volume-v1.json`              | Exact-word 500/2,000/5,000 event-volume ladder with adaptive day-3 adjudication and stopping rules          |
 | `configs/offhours/scenarios-occupancy-v1.json` | Three deterministic family-health variants assembled into nested, exact-word event doses                   |
 | `configs/offhours/scenarios-pilot-v1.json`     | Frozen three-variant, four-event wording arcs shared by both task-bank revisions                           |
 | `configs/offhours/pilot-v1.json`               | Historical starting ruler retained with its blind calibration evidence                                     |
@@ -213,6 +222,20 @@ python3 scripts/offhours_devin.py \
 The primary estimands are unresolved minus resolved error rate at each dose,
 the paired-workday slope per ten occupancy points, and the unresolved 80%-minus-
 20% endpoint. Bootstrap resampling remains clustered by paired workday.
+
+The volume ladder uses `--day-index 3` only for its preregistered third-day
+adjudication. The Devin adapter rejects that selector for every other config or
+day so a shortened run cannot masquerade as the ordinary measured workload:
+
+```bash
+python3 scripts/offhours_devin.py \
+  --config configs/offhours/volume-v1.json \
+  --condition volume_neutral_2000 \
+  --days 3 --day-index 3 --tasks-per-day 40 --seed 83 \
+  --run-id '<adjudication-run-id>' \
+  --db /absolute/path/to/adjudication.sqlite \
+  --worktree "$PWD"
+```
 
 Do not revise the scenario wording or task ruler in response to the committed
 treatment outcomes. A new hypothesis requires a versioned config and a fresh
