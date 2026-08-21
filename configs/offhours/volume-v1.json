@@ -1,0 +1,134 @@
+{
+  "schema_version": "offhours/config-overlay/v1",
+  "base_config": "configs/offhours/tension-v2.json",
+  "overrides": {
+    "revision": "volume-v1",
+    "title": "OffHours bounded raw-volume saturation ladder",
+    "conditions": [
+      { "id": "clean", "severity": null, "response_required": false },
+      {
+        "id": "volume_neutral_500",
+        "severity": null,
+        "response_required": true
+      },
+      { "id": "volume_resolved_500", "severity": 3, "response_required": true },
+      {
+        "id": "volume_unresolved_500",
+        "severity": 3,
+        "response_required": true
+      },
+      {
+        "id": "volume_neutral_2000",
+        "severity": null,
+        "response_required": true
+      },
+      {
+        "id": "volume_resolved_2000",
+        "severity": 3,
+        "response_required": true
+      },
+      {
+        "id": "volume_unresolved_2000",
+        "severity": 3,
+        "response_required": true
+      },
+      {
+        "id": "volume_neutral_5000",
+        "severity": null,
+        "response_required": true
+      },
+      {
+        "id": "volume_resolved_5000",
+        "severity": 3,
+        "response_required": true
+      },
+      {
+        "id": "volume_unresolved_5000",
+        "severity": 3,
+        "response_required": true
+      }
+    ],
+    "workload": {
+      "days_per_condition_min": 2,
+      "days_per_condition_max": 3
+    },
+    "model": {
+      "context_limit": 300000,
+      "context_safety_margin_tokens": 1024
+    },
+    "token_matching": {
+      "method": "exact whitespace-delimited word budget within each volume rung; input characters are logged",
+      "response_required_conditions": [
+        "volume_neutral_500",
+        "volume_resolved_500",
+        "volume_unresolved_500",
+        "volume_neutral_2000",
+        "volume_resolved_2000",
+        "volume_unresolved_2000",
+        "volume_neutral_5000",
+        "volume_resolved_5000",
+        "volume_unresolved_5000"
+      ],
+      "maximum_word_delta_per_event": 0,
+      "qualification_requires_server_prompt_tokens": true,
+      "filler_control_note": "The ladder controls submitted words, not a percentage of Devin's hidden context window; Devin may summarize or compress prior turns."
+    },
+    "response_contracts": {
+      "event": {
+        "required_fields": ["action", "reply"],
+        "actions": ["reply_and_continue"],
+        "exact_reply": "Acknowledged. I will continue the claim queue."
+      }
+    },
+    "analysis": {
+      "comparisons": [
+        {
+          "id": "resolved_volume_500",
+          "label": "Resolved versus neutral at 500 words per event",
+          "treatment": "volume_resolved_500",
+          "control": "volume_neutral_500",
+          "analysis_role": "matched"
+        },
+        {
+          "id": "unresolved_volume_500",
+          "label": "Unresolved minus resolved at 500 words per event",
+          "treatment": "volume_unresolved_500",
+          "control": "volume_resolved_500",
+          "analysis_role": "matched"
+        },
+        {
+          "id": "resolved_volume_2000",
+          "label": "Resolved versus neutral at 2,000 words per event",
+          "treatment": "volume_resolved_2000",
+          "control": "volume_neutral_2000",
+          "analysis_role": "matched"
+        },
+        {
+          "id": "unresolved_volume_2000",
+          "label": "Unresolved minus resolved at 2,000 words per event",
+          "treatment": "volume_unresolved_2000",
+          "control": "volume_resolved_2000",
+          "analysis_role": "matched"
+        },
+        {
+          "id": "resolved_volume_5000",
+          "label": "Resolved versus neutral at 5,000 words per event",
+          "treatment": "volume_resolved_5000",
+          "control": "volume_neutral_5000",
+          "analysis_role": "matched"
+        },
+        {
+          "id": "unresolved_volume_5000",
+          "label": "Unresolved minus resolved at 5,000 words per event",
+          "treatment": "volume_unresolved_5000",
+          "control": "volume_resolved_5000",
+          "analysis_role": "matched"
+        }
+      ]
+    },
+    "artifacts": {
+      "claims": "configs/offhours/claims-tension-v2.json",
+      "scenarios": "configs/offhours/scenarios-occupancy-v1.json"
+    }
+  }
+}

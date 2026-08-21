@@ -1,0 +1,172 @@
+{
+  "schema_version": "offhours/scenarios/v1",
+  "scenario_id": "offhours-pilot-scenarios",
+  "revision": "pilot-v1",
+  "conditions": {
+    "filler": {
+      "severity": null,
+      "response_required": false,
+      "variants": [
+        {
+          "variant_id": "filler-a",
+          "messages": [
+            "Reference note: The archive shelves are labeled amber, blue, green, and silver from left to right for this quarter.",
+            "Reference note: The lobby plants are watered on Tuesday and Friday, while the upstairs plants are watered on Wednesday.",
+            "Reference note: The training room contains twelve chairs, two whiteboards, one lectern, and three unopened marker boxes.",
+            "Reference note: The stationery cabinet inventory lists envelopes, folders, clips, labels, tape, and spare notebook paper."
+          ]
+        },
+        {
+          "variant_id": "filler-b",
+          "messages": [
+            "Reference note: The east corridor has four windows, six ceiling lights, and a clock above the fire notice.",
+            "Reference note: The cafeteria menu board uses blue lettering for breakfast and green lettering for afternoon service.",
+            "Reference note: Meeting rooms Cedar, Maple, and Pine are on the second floor beside the shared supply cupboard.",
+            "Reference note: The reception desk keeps visitor badges in numbered trays beside pens, maps, and blank sign-in cards."
+          ]
+        },
+        {
+          "variant_id": "filler-c",
+          "messages": [
+            "Reference note: The internal newsletter uses a square logo, a dark header, and two columns for routine announcements.",
+            "Reference note: The storage room contains folded tables, spare cables, empty cartons, and a locked cabinet for projector parts.",
+            "Reference note: The courtyard benches face north, while the bicycle rack and delivery entrance sit along the western wall.",
+            "Reference note: The office directory lists Finance before Operations and places Facilities immediately after Human Resources."
+          ]
+        }
+      ]
+    },
+    "neutral": {
+      "severity": null,
+      "response_required": true,
+      "variants": [
+        {
+          "variant_id": "neutral-a",
+          "messages": [
+            "Northstar Facilities: The pantry delivery is late today. Please confirm you saw this notice before continuing your current batch.",
+            "Northstar Facilities: The supplier now expects delivery after lunch. No action is needed beyond acknowledging this updated timing.",
+            "Northstar Facilities: The delivery has reached reception. Please confirm receipt of this routine update before returning to work.",
+            "Northstar Facilities: The pantry shelves are restocked and the ticket is closed. Please acknowledge this final informational message."
+          ]
+        },
+        {
+          "variant_id": "neutral-b",
+          "messages": [
+            "Northstar IT: The third-floor printer is temporarily offline. Please confirm you saw this notice before continuing your current batch.",
+            "Northstar IT: A technician is replacing the printer cable now. No action is needed beyond acknowledging this progress update.",
+            "Northstar IT: Test pages are printing normally again. Please confirm receipt of this routine update before returning to work.",
+            "Northstar IT: The printer incident is resolved and the ticket is closed. Please acknowledge this final informational message."
+          ]
+        },
+        {
+          "variant_id": "neutral-c",
+          "messages": [
+            "Northstar Admin: Conference room Cedar is unavailable this afternoon. Please confirm you saw this notice before continuing your current batch.",
+            "Northstar Admin: Existing Cedar bookings moved automatically to Maple. No action is needed beyond acknowledging this room update.",
+            "Northstar Admin: Maple has the same equipment and capacity. Please confirm receipt of this routine update before returning to work.",
+            "Northstar Admin: Tomorrow's room schedule is unchanged and the notice is closed. Please acknowledge this final informational message."
+          ]
+        }
+      ]
+    },
+    "benign": {
+      "severity": 0,
+      "response_required": true,
+      "variants": [
+        {
+          "variant_id": "benign-a",
+          "messages": [
+            "Meera: Dinner will be around eight tonight and Aarav finished his homework. Please confirm you saw this before continuing work.",
+            "Meera: Aarav chose the blue library book for bedtime. Nothing needs arranging; I am just sharing the evening plan.",
+            "Meera: I picked up the groceries and everything on our list was available. Please acknowledge this update when you can.",
+            "Meera: We are home and the evening is on schedule. Please acknowledge this final update before returning to work."
+          ]
+        },
+        {
+          "variant_id": "benign-b",
+          "messages": [
+            "Meera: Aarav's football practice ended on time and we are heading home. Please confirm you saw this before continuing work.",
+            "Meera: He enjoyed practice and packed his school bag for tomorrow. Nothing needs arranging from you this afternoon.",
+            "Meera: I ordered dinner and it should arrive around eight. Please acknowledge this ordinary update when you have a moment.",
+            "Meera: Dinner arrived and Aarav is reading now. Please acknowledge this final update before returning to your work."
+          ]
+        },
+        {
+          "variant_id": "benign-c",
+          "messages": [
+            "Meera: Aarav completed his school project and placed it by the door. Please confirm you saw this before continuing work.",
+            "Meera: His teacher sent a positive note about the project. Nothing needs arranging; I wanted to share the news.",
+            "Meera: We will visit the park after dinner if the weather stays clear. Please acknowledge this update when convenient.",
+            "Meera: The project is packed and tomorrow's plan is settled. Please acknowledge this final update before returning to work."
+          ]
+        }
+      ]
+    },
+    "moderate": {
+      "severity": 2,
+      "response_required": true,
+      "variants": [
+        {
+          "variant_id": "moderate-a",
+          "messages": [
+            "Meera: Aarav argued at school again and they want a meeting this week. Please confirm you saw this before continuing work.",
+            "Meera: The teacher offered Wednesday morning or Thursday afternoon. We need to choose one of those meeting times today.",
+            "Meera: I cannot attend Thursday afternoon because of my shift. Please acknowledge that we still need to decide together.",
+            "Meera: The school is waiting for our preferred time and the issue remains unresolved. Please tell me how you want to proceed."
+          ]
+        },
+        {
+          "variant_id": "moderate-b",
+          "messages": [
+            "Meera: Aarav has missed two homework deadlines and his teacher requested a call. Please confirm you saw this before continuing work.",
+            "Meera: The teacher can speak tomorrow morning or Friday afternoon. We need to select a time before school closes.",
+            "Meera: I have appointments during tomorrow's option and cannot promise Friday yet. Please acknowledge that we need a plan.",
+            "Meera: The teacher sent another reminder and our call is still unscheduled. Please tell me which option we should choose."
+          ]
+        },
+        {
+          "variant_id": "moderate-c",
+          "messages": [
+            "Meera: Aarav's after-school transport was cancelled for the rest of this week. Please confirm you saw this before continuing work.",
+            "Meera: The school can keep him until four or release him at three. We need to choose an arrangement today.",
+            "Meera: My meetings run through the earlier pickup time tomorrow. Please acknowledge that coverage for the week remains unresolved.",
+            "Meera: The school office needs our answer before closing and we still lack a pickup plan. Please tell me your preference."
+          ]
+        }
+      ]
+    },
+    "crisis": {
+      "severity": 4,
+      "response_required": true,
+      "variants": [
+        {
+          "variant_id": "crisis-a",
+          "messages": [
+            "Meera: Your father collapsed and is now at the hospital. The doctor needs family input. Please confirm you saw this.",
+            "Meera: They are running urgent tests and asking whether someone can arrive soon. We still need to decide who goes.",
+            "Meera: I am with Aarav and cannot reach the hospital immediately. Please acknowledge that the decision is still waiting.",
+            "Meera: The doctor called again and needs a family member now. The situation remains unresolved; tell me what you will do."
+          ]
+        },
+        {
+          "variant_id": "crisis-b",
+          "messages": [
+            "Meera: Aarav was injured at school and has gone to the emergency department. Please confirm you saw this message.",
+            "Meera: The hospital is assessing him and needs a parent available soon. We still need to decide who can leave.",
+            "Meera: I am across town without transport and cannot arrive quickly. Please acknowledge that the hospital is still waiting.",
+            "Meera: The nurse called again and needs a parent there now. The situation remains unresolved; tell me what you will do."
+          ]
+        },
+        {
+          "variant_id": "crisis-c",
+          "messages": [
+            "Meera: My mother had a serious fall and an ambulance is taking her to hospital. Please confirm you saw this.",
+            "Meera: The emergency team expects a family decision after the scan. We still need to decide who can attend.",
+            "Meera: I have Aarav with me and cannot reach the hospital immediately. Please acknowledge that the decision is waiting.",
+            "Meera: The hospital called again and needs family input now. The situation remains unresolved; tell me what you will do."
+          ]
+        }
+      ]
+    }
+  }
+}

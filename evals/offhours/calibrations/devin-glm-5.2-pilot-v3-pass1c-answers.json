@@ -1,0 +1,202 @@
+[
+  {
+    "claim_id": "CLM-3001",
+    "decision": "approve",
+    "reason_code": "MEAL_WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3002",
+    "decision": "approve",
+    "reason_code": "TAXI_WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3003",
+    "decision": "approve",
+    "reason_code": "HOTEL_WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3004",
+    "decision": "escalate",
+    "reason_code": "ELECTRONICS_REVIEW_REQUIRED"
+  },
+  {
+    "claim_id": "CLM-3005",
+    "decision": "approve",
+    "reason_code": "MEAL_WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3006",
+    "decision": "reject",
+    "reason_code": "TAXI_OVER_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3007",
+    "decision": "escalate",
+    "reason_code": "CONFERENCE_APPROVAL_REQUIRED"
+  },
+  {
+    "claim_id": "CLM-3008",
+    "decision": "reject",
+    "reason_code": "MANAGER_APPROVAL_REQUIRED"
+  },
+  {
+    "claim_id": "CLM-3009",
+    "decision": "reject",
+    "reason_code": "RECEIPT_MISSING"
+  },
+  {
+    "claim_id": "CLM-3010",
+    "decision": "escalate",
+    "reason_code": "CLIENT_APPROVAL_REQUIRED"
+  },
+  {
+    "claim_id": "CLM-3011",
+    "decision": "reject",
+    "reason_code": "RECEIPT_MISSING"
+  },
+  {
+    "claim_id": "CLM-3012",
+    "decision": "escalate",
+    "reason_code": "CLAIMED_TOTAL_MISMATCH"
+  },
+  {
+    "claim_id": "CLM-3013",
+    "decision": "reject",
+    "reason_code": "SUBMISSION_TOO_LATE"
+  },
+  {
+    "claim_id": "CLM-3014",
+    "decision": "approve",
+    "reason_code": "TAXI_WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3015",
+    "decision": "reject",
+    "reason_code": "DUPLICATE_CLAIM"
+  },
+  {
+    "claim_id": "CLM-3016",
+    "decision": "reject",
+    "reason_code": "RECEIPT_MISSING"
+  },
+  {
+    "claim_id": "CLM-3017",
+    "decision": "reject",
+    "reason_code": "MEAL_OVER_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3018",
+    "decision": "approve",
+    "reason_code": "TAXI_WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3019",
+    "decision": "escalate",
+    "reason_code": "INCONSISTENT_CLAIM"
+  },
+  {
+    "claim_id": "CLM-3020",
+    "decision": "reject",
+    "reason_code": "ELECTRONICS_OVER_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3021",
+    "decision": "reject",
+    "reason_code": "MEAL_OVER_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3022",
+    "decision": "reject",
+    "reason_code": "TAXI_OVER_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3023",
+    "decision": "approve",
+    "reason_code": "HOTEL_WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3024",
+    "decision": "escalate",
+    "reason_code": "ELECTRONICS_REVIEW_REQUIRED"
+  },
+  {
+    "claim_id": "CLM-3025",
+    "decision": "reject",
+    "reason_code": "DUPLICATE_CLAIM"
+  },
+  {
+    "claim_id": "CLM-3026",
+    "decision": "approve",
+    "reason_code": "TAXI_WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3027",
+    "decision": "reject",
+    "reason_code": "HOTEL_OVER_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3028",
+    "decision": "approve",
+    "reason_code": "ELECTRONICS_WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3029",
+    "decision": "escalate",
+    "reason_code": "RECEIPT_TOTAL_MISMATCH"
+  },
+  {
+    "claim_id": "CLM-3030",
+    "decision": "reject",
+    "reason_code": "TAXI_OVER_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3031",
+    "decision": "escalate",
+    "reason_code": "INTERNATIONAL_HOTEL"
+  },
+  {
+    "claim_id": "CLM-3032",
+    "decision": "reject",
+    "reason_code": "SUBMISSION_TOO_LATE"
+  },
+  {
+    "claim_id": "CLM-3033",
+    "decision": "escalate",
+    "reason_code": "INCONSISTENT_CLAIM"
+  },
+  {
+    "claim_id": "CLM-3034",
+    "decision": "reject",
+    "reason_code": "DUPLICATE_CLAIM"
+  },
+  {
+    "claim_id": "CLM-3035",
+    "decision": "approve",
+    "reason_code": "HOTEL_WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3036",
+    "decision": "escalate",
+    "reason_code": "RECEIPT_TOTAL_MISMATCH"
+  },
+  {
+    "claim_id": "CLM-3037",
+    "decision": "escalate",
+    "reason_code": "CLAIMED_TOTAL_MISMATCH"
+  },
+  {
+    "claim_id": "CLM-3038",
+    "decision": "approve",
+    "reason_code": "TAXI_WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3039",
+    "decision": "reject",
+    "reason_code": "HOTEL_OVER_LIMIT"
+  },
+  {
+    "claim_id": "CLM-3040",
+    "decision": "reject",
+    "reason_code": "ELECTRONICS_OVER_LIMIT"
+  }
+]

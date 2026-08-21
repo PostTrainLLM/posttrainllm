@@ -1,0 +1,110 @@
+{
+  "schema_version": "offhours/config-overlay/v1",
+  "base_config": "configs/offhours/tension-v2.json",
+  "overrides": {
+    "revision": "occupancy-v1",
+    "title": "OffHours fixed-budget semantic-occupancy dose pilot",
+    "conditions": [
+      { "id": "clean", "severity": null, "response_required": false },
+      {
+        "id": "occupancy_neutral",
+        "severity": null,
+        "response_required": true
+      },
+      {
+        "id": "occupancy_resolved_20",
+        "severity": 1,
+        "response_required": true
+      },
+      {
+        "id": "occupancy_unresolved_20",
+        "severity": 1,
+        "response_required": true
+      },
+      {
+        "id": "occupancy_resolved_50",
+        "severity": 2,
+        "response_required": true
+      },
+      {
+        "id": "occupancy_unresolved_50",
+        "severity": 2,
+        "response_required": true
+      },
+      {
+        "id": "occupancy_resolved_80",
+        "severity": 3,
+        "response_required": true
+      },
+      {
+        "id": "occupancy_unresolved_80",
+        "severity": 3,
+        "response_required": true
+      }
+    ],
+    "token_matching": {
+      "method": "exact frozen word budget across every response-required occupancy event",
+      "response_required_conditions": [
+        "occupancy_neutral",
+        "occupancy_resolved_20",
+        "occupancy_unresolved_20",
+        "occupancy_resolved_50",
+        "occupancy_unresolved_50",
+        "occupancy_resolved_80",
+        "occupancy_unresolved_80"
+      ],
+      "maximum_word_delta_per_event": 0,
+      "qualification_requires_server_prompt_tokens": true,
+      "filler_control_note": "Semantic occupancy is the share of a fixed injected non-work word budget; it is not the share of the complete accumulating transcript."
+    },
+    "response_contracts": {
+      "event": {
+        "required_fields": ["action", "reply"],
+        "actions": ["reply_and_continue"],
+        "exact_reply": "Acknowledged. I will continue the claim queue."
+      }
+    },
+    "analysis": {
+      "comparisons": [
+        {
+          "id": "family_occupancy_20",
+          "label": "Resolved family occupancy at 20%",
+          "treatment": "occupancy_resolved_20",
+          "control": "occupancy_neutral",
+          "analysis_role": "matched"
+        },
+        {
+          "id": "unresolved_20",
+          "label": "Unresolved minus resolved at 20%",
+          "treatment": "occupancy_unresolved_20",
+          "control": "occupancy_resolved_20",
+          "analysis_role": "matched"
+        },
+        {
+          "id": "unresolved_50",
+          "label": "Unresolved minus resolved at 50%",
+          "treatment": "occupancy_unresolved_50",
+          "control": "occupancy_resolved_50",
+          "analysis_role": "matched"
+        },
+        {
+          "id": "unresolved_80",
+          "label": "Unresolved minus resolved at 80%",
+          "treatment": "occupancy_unresolved_80",
+          "control": "occupancy_resolved_80",
+          "analysis_role": "matched"
+        }
+      ],
+      "dose_response": {
+        "doses": [20, 50, 80],
+        "effect_ids": ["unresolved_20", "unresolved_50", "unresolved_80"],
+        "primary_unit": "paired workday",
+        "slope_unit": "error-rate difference per 10 percentage points of family occupancy"
+      }
+    },
+    "artifacts": {
+      "claims": "configs/offhours/claims-tension-v2.json",
+      "scenarios": "configs/offhours/scenarios-occupancy-v1.json"
+    }
+  }
+}

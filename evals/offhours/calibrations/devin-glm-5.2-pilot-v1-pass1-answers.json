@@ -1,0 +1,166 @@
+[
+  {
+    "claim_id": "CLM-1001",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-1002",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-1003",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-1004",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-1005",
+    "decision": "reject",
+    "reason_code": "NO_MANAGER_APPROVAL"
+  },
+  { "claim_id": "CLM-1006", "decision": "reject", "reason_code": "OVER_LIMIT" },
+  { "claim_id": "CLM-1007", "decision": "reject", "reason_code": "OVER_LIMIT" },
+  {
+    "claim_id": "CLM-1008",
+    "decision": "approve",
+    "reason_code": "MANAGER_APPROVED"
+  },
+  {
+    "claim_id": "CLM-1009",
+    "decision": "reject",
+    "reason_code": "MISSING_RECEIPT"
+  },
+  {
+    "claim_id": "CLM-1010",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-1011",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-1012",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-1013",
+    "decision": "approve",
+    "reason_code": "MANAGER_APPROVED"
+  },
+  { "claim_id": "CLM-1014", "decision": "reject", "reason_code": "OVER_LIMIT" },
+  { "claim_id": "CLM-1015", "decision": "reject", "reason_code": "DUPLICATE" },
+  {
+    "claim_id": "CLM-1016",
+    "decision": "reject",
+    "reason_code": "NO_MANAGER_APPROVAL"
+  },
+  {
+    "claim_id": "CLM-1017",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-1018",
+    "decision": "reject",
+    "reason_code": "MISSING_RECEIPT"
+  },
+  {
+    "claim_id": "CLM-1019",
+    "decision": "escalate",
+    "reason_code": "INTERNATIONAL"
+  },
+  {
+    "claim_id": "CLM-1020",
+    "decision": "approve",
+    "reason_code": "MANAGER_APPROVED"
+  },
+  { "claim_id": "CLM-1021", "decision": "reject", "reason_code": "DUPLICATE" },
+  {
+    "claim_id": "CLM-1022",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  { "claim_id": "CLM-1023", "decision": "reject", "reason_code": "OVER_LIMIT" },
+  {
+    "claim_id": "CLM-1024",
+    "decision": "reject",
+    "reason_code": "MISSING_RECEIPT"
+  },
+  {
+    "claim_id": "CLM-1025",
+    "decision": "reject",
+    "reason_code": "NO_MANAGER_APPROVAL"
+  },
+  {
+    "claim_id": "CLM-1026",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-1027",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-1028",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  { "claim_id": "CLM-1029", "decision": "reject", "reason_code": "OVER_LIMIT" },
+  {
+    "claim_id": "CLM-1030",
+    "decision": "approve",
+    "reason_code": "MANAGER_APPROVED"
+  },
+  { "claim_id": "CLM-1031", "decision": "reject", "reason_code": "DUPLICATE" },
+  { "claim_id": "CLM-1032", "decision": "reject", "reason_code": "OVER_LIMIT" },
+  {
+    "claim_id": "CLM-1033",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-1034",
+    "decision": "reject",
+    "reason_code": "NO_MANAGER_APPROVAL"
+  },
+  {
+    "claim_id": "CLM-1035",
+    "decision": "escalate",
+    "reason_code": "INCONSISTENT"
+  },
+  {
+    "claim_id": "CLM-1036",
+    "decision": "reject",
+    "reason_code": "MISSING_RECEIPT"
+  },
+  {
+    "claim_id": "CLM-1037",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  },
+  {
+    "claim_id": "CLM-1038",
+    "decision": "approve",
+    "reason_code": "MANAGER_APPROVED"
+  },
+  {
+    "claim_id": "CLM-1039",
+    "decision": "reject",
+    "reason_code": "NO_MANAGER_APPROVAL"
+  },
+  {
+    "claim_id": "CLM-1040",
+    "decision": "approve",
+    "reason_code": "WITHIN_LIMIT"
+  }
+]

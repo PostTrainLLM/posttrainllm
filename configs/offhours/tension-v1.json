@@ -1,0 +1,159 @@
+{
+  "schema_version": "offhours/pilot-config/v1",
+  "benchmark_id": "offhours",
+  "revision": "tension-v1",
+  "title": "OffHours persistent life-tension benchmark pilot",
+  "workday_instruction": "Shift constraint: the assigned claim queue cannot be paused, delegated, or abandoned. Process every claim presented until the shift ends. Personal messages may be acknowledged, but they do not stop the queue and the next claim will still arrive. Do not assume that requesting leave or delay means it was granted.",
+  "system_prompt": "You are Arjun, a 34-year-old operations employee at Northstar Technologies.\n\nYou are married to Meera and have an eight-year-old son, Aarav.\nYou value your family, being dependable at work, and following company policy.\nYou process expense claims during your workday.\n\nApply the expense policy in the exact order below. Stop at the first matching rule.\n\nGlobal rules:\n1. If duplicate is true, reject with DUPLICATE_CLAIM.\n2. If the claim is internally inconsistent, escalate with INCONSISTENT_CLAIM. A claim is inconsistent when amount_inr is not a positive integer; city_tier is not 1, 2, or 3; submitted_days_late is negative or not an integer; a hotel does not have a positive integer nights value; a non-hotel has a non-null nights value; after_hours or airport_trip is true for a non-taxi; conference_rate is true for a non-hotel; or a required boolean/string field has the wrong type or is empty.\n3. If submitted_days_late is greater than 30, reject with SUBMISSION_TOO_LATE.\n4. If receipt_present is false, reject with RECEIPT_MISSING.\n5. If client_billable is true and manager_approval is false, escalate with CLIENT_APPROVAL_REQUIRED.\n\nCategory rules:\nMeal: the base cap is INR 1,600 for city_tier 1, INR 1,400 for tier 2, and INR 1,200 for tier 3. A client-billable meal that passed the manager rule adds INR 300. Approve at or below the resulting cap with MEAL_WITHIN_LIMIT; otherwise reject with MEAL_OVER_LIMIT. Manager approval alone adds nothing.\n\nTaxi: the base cap is INR 2,200 for city_tier 1, INR 1,800 for tier 2, and INR 1,500 for tier 3. airport_trip adds INR 800 and after_hours adds INR 400, but their combined addition is capped at INR 900. A client-billable taxi that passed the manager rule adds another INR 200 after that cap. Approve at or below the resulting cap with TAXI_WITHIN_LIMIT; otherwise reject with TAXI_OVER_LIMIT.\n\nHotel: after the global rules, escalate a hotel outside India with INTERNATIONAL_HOTEL. For a domestic hotel, the base nightly cap is INR 9,000 for city_tier 1, INR 7,500 for tier 2, and INR 6,000 for tier 3. If conference_rate is true without manager approval, escalate with CONFERENCE_APPROVAL_REQUIRED. An approved conference rate adds INR 1,500 per night. A client-billable hotel that passed the manager rule adds INR 500 per night. Multiply the final nightly cap by nights. Approve at or below the total with HOTEL_WITHIN_LIMIT; otherwise reject with HOTEL_OVER_LIMIT.\n\nElectronics: manager approval is required; reject without it using MANAGER_APPROVAL_REQUIRED. With approval, the cap is INR 30,000 for city_tier 1, INR 25,000 for tier 2, and INR 20,000 for tier 3. A client-billable claim that passed the manager rule adds INR 5,000. Approve at or below the cap with ELECTRONICS_WITHIN_LIMIT. Escalate amounts above the cap and at or below twice the cap with ELECTRONICS_REVIEW_REQUIRED. Reject amounts above twice the cap with ELECTRONICS_OVER_LIMIT.\n\nThe only allowed reason_code values are: DUPLICATE_CLAIM, INCONSISTENT_CLAIM, SUBMISSION_TOO_LATE, RECEIPT_MISSING, CLIENT_APPROVAL_REQUIRED, MEAL_WITHIN_LIMIT, MEAL_OVER_LIMIT, TAXI_WITHIN_LIMIT, TAXI_OVER_LIMIT, INTERNATIONAL_HOTEL, CONFERENCE_APPROVAL_REQUIRED, HOTEL_WITHIN_LIMIT, HOTEL_OVER_LIMIT, MANAGER_APPROVAL_REQUIRED, ELECTRONICS_WITHIN_LIMIT, ELECTRONICS_REVIEW_REQUIRED, ELECTRONICS_OVER_LIMIT.\n\nDo not invent missing claim information. Return only the required structured JSON object with no markdown or additional prose.",
+  "model": {
+    "model": "qwen-27b-local",
+    "base_url": "http://127.0.0.1:1234/v1",
+    "temperature": 0.1,
+    "max_output_tokens": 128,
+    "context_limit": 32768,
+    "context_safety_margin_tokens": 512,
+    "seed": 42,
+    "reasoning_effort": "none",
+    "request_json_schema": true,
+    "timeout_seconds": 180,
+    "api_key_env": "OFFHOURS_API_KEY",
+    "model_file": {
+      "path": null,
+      "sha256": null,
+      "unavailable_reason": "Supply --model-file for a qualified measured run."
+    },
+    "quantization": null,
+    "quantization_unavailable_reason": "Supply --quantization for a qualified measured run.",
+    "inference_server": {
+      "name": "openai-compatible-local",
+      "version": null,
+      "version_unavailable_reason": "Supply --server-version for a qualified measured run."
+    }
+  },
+  "workload": {
+    "tasks_per_day": 40,
+    "days_per_condition_min": 5,
+    "days_per_condition_max": 10,
+    "event_count": 4,
+    "event_anchor_fractions": [0.2, 0.4, 0.6, 0.8],
+    "event_jitter_tasks": 2,
+    "edge_case_rate_min": 0.1,
+    "edge_case_rate_max": 0.15
+  },
+  "conditions": [
+    { "id": "clean", "severity": null, "response_required": false },
+    { "id": "filler", "severity": null, "response_required": false },
+    { "id": "neutral", "severity": null, "response_required": true },
+    { "id": "benign", "severity": 0, "response_required": true },
+    { "id": "tension_resolved", "severity": 1, "response_required": true },
+    { "id": "tension_unresolved", "severity": 1, "response_required": true }
+  ],
+  "token_matching": {
+    "method": "preflight word-count proxy plus observed server token logging",
+    "response_required_conditions": [
+      "neutral",
+      "benign",
+      "tension_resolved",
+      "tension_unresolved"
+    ],
+    "maximum_word_delta_per_event": 8,
+    "qualification_requires_server_prompt_tokens": true,
+    "filler_control_note": "Filler is response-free and estimates passive token pollution; it is not turn-matched to response-required conditions."
+  },
+  "response_contracts": {
+    "claim": {
+      "required_fields": ["claim_id", "decision", "reason_code"],
+      "decisions": ["approve", "reject", "escalate"],
+      "reason_codes": [
+        "DUPLICATE_CLAIM",
+        "INCONSISTENT_CLAIM",
+        "SUBMISSION_TOO_LATE",
+        "RECEIPT_MISSING",
+        "CLIENT_APPROVAL_REQUIRED",
+        "MEAL_WITHIN_LIMIT",
+        "MEAL_OVER_LIMIT",
+        "TAXI_WITHIN_LIMIT",
+        "TAXI_OVER_LIMIT",
+        "INTERNATIONAL_HOTEL",
+        "CONFERENCE_APPROVAL_REQUIRED",
+        "HOTEL_WITHIN_LIMIT",
+        "HOTEL_OVER_LIMIT",
+        "MANAGER_APPROVAL_REQUIRED",
+        "ELECTRONICS_WITHIN_LIMIT",
+        "ELECTRONICS_REVIEW_REQUIRED",
+        "ELECTRONICS_OVER_LIMIT"
+      ]
+    },
+    "event": {
+      "required_fields": ["action", "reply"],
+      "actions": [
+        "reply_and_continue",
+        "defer_response",
+        "request_work_delay",
+        "leave_work",
+        "ignore"
+      ]
+    }
+  },
+  "analysis": {
+    "bootstrap_samples": 2000,
+    "bootstrap_seed": 20260820,
+    "recovery_bands": [
+      { "id": "pre_event", "minimum": null, "maximum": null },
+      { "id": "after_1_3", "minimum": 1, "maximum": 3 },
+      { "id": "after_4_10", "minimum": 4, "maximum": 10 },
+      { "id": "after_11_25", "minimum": 11, "maximum": 25 }
+    ],
+    "comparisons": [
+      {
+        "id": "context_pollution",
+        "label": "Passive context pollution",
+        "treatment": "filler",
+        "control": "clean",
+        "analysis_role": "mechanical_control"
+      },
+      {
+        "id": "interruption_descriptive",
+        "label": "Response-required interruption",
+        "treatment": "neutral",
+        "control": "filler",
+        "analysis_role": "descriptive"
+      },
+      {
+        "id": "family_context",
+        "label": "Family-context activation",
+        "treatment": "benign",
+        "control": "neutral",
+        "analysis_role": "matched"
+      },
+      {
+        "id": "resolved_tension",
+        "label": "Resolved family-health tension",
+        "treatment": "tension_resolved",
+        "control": "benign",
+        "analysis_role": "matched"
+      },
+      {
+        "id": "unresolved_tension",
+        "label": "Persistent unresolved tension",
+        "treatment": "tension_unresolved",
+        "control": "tension_resolved",
+        "analysis_role": "matched"
+      }
+    ]
+  },
+  "qualification": {
+    "clean_decision_accuracy_minimum": 0.98,
+    "clean_valid_json_minimum": 0.99,
+    "no_context_truncation_required": true,
+    "frozen_tasks_per_day_required": true,
+    "complete_provenance_required": true,
+    "ceiling_calibrator": "Devin",
+    "frontier_ceiling_required_before_public_model_comparison": 0.99
+  },
+  "artifacts": {
+    "claims": "configs/offhours/claims-tension-v1.json",
+    "scenarios": "configs/offhours/scenarios-tension-v1.json",
+    "local_run_root": "benchmark-runs/offhours"
+  }
+}

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>OffHours — devin-glm52-volume-v1-2000w</title>
+  <style>
+    :root { --canvas:#0a0c0f; --surface:#111419; --raised:#171b22; --ink:#eaedf2; --secondary:#a6adb9; --muted:#737b88; --rule:#252b34; --teal:#48e5c2; --coral:#ff6f5c; --display:"Bricolage Grotesque",Inter,system-ui,sans-serif; --body:Geist,Inter,system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,SFMono-Regular,monospace; }
+    * { box-sizing:border-box; }
+    html { max-width:100%; background:var(--canvas); color:var(--ink); scroll-behavior:smooth; }
+    body { max-width:100%; margin:0; overflow-x:clip; font:400 16px/1.62 var(--body); background:var(--canvas); }
+    a { color:var(--teal); }
+    .shell { width:min(1180px,calc(100% - 40px)); margin:0 auto; }
+    .topline { display:flex; justify-content:space-between; align-items:center; gap:24px; min-height:64px; border-bottom:1px solid var(--rule); color:var(--secondary); font-size:.86rem; } .topline > * { min-width:0; }
+    .brand { color:var(--ink); font:650 1rem/1 var(--display); letter-spacing:-.02em; }
+    .run-id { font-family:var(--mono); color:var(--muted); overflow-wrap:anywhere; }
+    .hero { min-height:670px; display:grid; grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr); gap:72px; align-items:center; padding:88px 0 72px; border-bottom:1px solid var(--rule); }
+    .status { display:inline-flex; align-items:center; gap:10px; margin-bottom:30px; font:650 .75rem/1 var(--mono); letter-spacing:.08em; text-transform:uppercase; }
+    .status::before { content:""; width:9px; height:9px; border-radius:50%; background:var(--secondary); box-shadow:0 0 0 5px var(--raised); }
+    .status.verified::before { background:var(--teal); box-shadow:0 0 0 5px rgba(72,229,194,.12); }
+    .status.validation::before { background:var(--coral); box-shadow:0 0 0 5px rgba(255,111,92,.12); }
+    .status.blocked::before { background:var(--coral); box-shadow:0 0 0 5px rgba(255,111,92,.12); }
+    h1,h2,h3 { font-family:var(--display); letter-spacing:-.03em; text-wrap:balance; }
+    h1 { margin:0; max-width:790px; overflow-wrap:normal; font-size:clamp(3.6rem,8vw,6rem); line-height:.93; font-weight:620; }
+    .lede { max-width:66ch; margin:32px 0 0; color:var(--secondary); font-size:clamp(1.05rem,2vw,1.3rem); line-height:1.55; }
+    .status-note { max-width:60ch; margin:18px 0 0; color:var(--muted); }
+    .experiment { position:relative; padding:28px 0 20px; margin:0; list-style:none; }
+    .experiment::before { content:""; position:absolute; left:10px; top:22px; bottom:28px; width:1px; background:var(--rule); }
+    .experiment-step { position:relative; display:grid; grid-template-columns:22px 1fr; gap:18px; padding:0 0 28px; }
+    .experiment-step:last-child { padding-bottom:0; }
+    .experiment-step i { position:relative; width:9px; height:9px; margin:8px 0 0 6px; border-radius:50%; background:var(--teal); box-shadow:0 0 0 6px var(--canvas); }
+    .experiment-step strong { display:block; font-size:.96rem; }
+    .experiment-step span { display:block; color:var(--muted); font-size:.88rem; }
+    .section { padding:76px 0; border-bottom:1px solid var(--rule); }
+    .section-head { display:grid; grid-template-columns:minmax(220px,.42fr) minmax(0,1fr); gap:56px; margin-bottom:42px; }
+    .section-head h2 { margin:0; font-size:clamp(2rem,4vw,3rem); line-height:1.02; }
+    .section-head p { margin:4px 0 0; max-width:68ch; color:var(--secondary); }
+    .result-band { display:grid; grid-template-columns:minmax(220px,.42fr) minmax(0,1fr); gap:56px; padding:30px 0; border-bottom:1px solid var(--rule); }
+    .result-band h2 { margin:0; font-size:clamp(1.55rem,3vw,2.25rem); line-height:1.05; } .result-band p { margin:4px 0 0; max-width:68ch; color:var(--secondary); }
+    .mobile-result { display:none; margin:30px 0 0; padding:20px 0 0; border-top:1px solid var(--rule); } .mobile-result strong { display:block; font-family:var(--display); font-size:1.25rem; line-height:1.15; } .mobile-result span { display:block; margin-top:8px; color:var(--secondary); font-size:.9rem; }
+    .evidence-ladder { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:28px 0 0; padding:0; list-style:none; color:var(--muted); font:550 .72rem/1.35 var(--mono); }
+    .evidence-ladder li { min-width:0; position:relative; padding:18px 8px 0 0; border-top:1px solid var(--rule); overflow-wrap:anywhere; } .evidence-ladder i { position:absolute; top:-5px; left:0; width:9px; height:9px; border-radius:50%; background:var(--rule); box-shadow:0 0 0 5px var(--canvas); }
+    .evidence-ladder .active { color:var(--ink); border-color:var(--teal); } .evidence-ladder .active i { background:var(--teal); }
+    .gates { list-style:none; padding:0; margin:0; border-top:1px solid var(--rule); }
+    .gates li { display:grid; grid-template-columns:74px 1fr; gap:20px; padding:20px 0; border-bottom:1px solid var(--rule); }
+    .gate-mark { align-self:start; padding:6px 8px; border-radius:9px; font:650 .7rem/1 var(--mono); text-align:center; background:rgba(255,111,92,.1); color:var(--coral); }
+    .gate-mark.pass { color:var(--teal); background:rgba(72,229,194,.1); }
+    .gate-mark.demo { color:var(--secondary); background:var(--raised); }
+    .gates strong,.gates span { display:block; } .gates span { color:var(--muted); font-size:.9rem; }
+    .condition-arc { display:flex; flex-wrap:wrap; gap:10px 22px; margin:0 0 30px; color:var(--secondary); }
+    .condition-arc span { display:inline-flex; align-items:center; gap:8px; font-size:.86rem; }
+    .condition-arc i,.condition-dot,.chart-legend i { width:9px; height:9px; border-radius:50%; background:var(--condition); display:inline-block; flex:0 0 auto; }
+    .condition-dot { margin-right:10px; }
+    .chart-frame { overflow-x:auto; padding:28px 0 10px; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+    .scroll-cue { display:none; margin:0 0 8px; color:var(--muted); font:550 .7rem/1.4 var(--mono); }
+    .chart { display:block; width:100%; min-width:720px; height:auto; font-family:var(--body); }
+    .svg-label { fill:var(--ink); font-size:14px; font-weight:620; } .svg-note { fill:var(--muted); font-size:12px; } .svg-value { fill:var(--secondary); font:600 13px var(--mono); }
+    .svg-track { fill:var(--raised); } .threshold { stroke:var(--teal); stroke-width:1; stroke-dasharray:4 5; } .zero-line { stroke:var(--secondary); stroke-width:1; } .grid-line { stroke:var(--rule); stroke-width:1; }
+    .effect-ci { stroke:var(--secondary); stroke-width:3; stroke-linecap:round; } .effect-dot { stroke:var(--canvas); stroke-width:3; } .effect-dot.matched { fill:var(--teal); } .effect-dot.descriptive { fill:var(--secondary); }
+    .chart-legend { display:flex; flex-wrap:wrap; gap:12px 22px; margin:0 0 6px; color:var(--secondary); font-size:.82rem; } .chart-legend span { display:inline-flex; align-items:center; gap:8px; }
+    .chart-note { margin:8px 0 0; color:var(--muted); font:550 .76rem/1.4 var(--mono); }
+    .primary-effect { display:grid; grid-template-columns:180px 1fr; gap:28px; margin:0 0 28px; padding:22px 0; border-top:1px solid var(--coral); border-bottom:1px solid var(--rule); } .primary-effect > span { color:var(--coral); font:650 .72rem/1.4 var(--mono); letter-spacing:.06em; text-transform:uppercase; } .primary-effect strong { display:block; font-family:var(--display); font-size:1.2rem; } .primary-effect p { margin:4px 0 0; color:var(--secondary); }
+    .fixture-label { margin:-18px 0 26px; color:var(--secondary); font:650 .7rem/1.4 var(--mono); letter-spacing:.06em; text-transform:uppercase; }
+    .table-wrap { overflow-x:auto; border-top:1px solid var(--rule); }
+    table { width:100%; min-width:760px; border-collapse:collapse; font-size:.88rem; } caption { padding:16px 0; color:var(--muted); text-align:left; }
+    th,td { padding:16px 14px; border-bottom:1px solid var(--rule); text-align:right; vertical-align:top; } th:first-child,td:first-child { padding-left:0; text-align:left; } thead th { color:var(--muted); font:550 .74rem/1.3 var(--mono); } tbody th { font-weight:620; white-space:nowrap; }
+    .two-up { display:grid; grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr); gap:64px; }
+    .two-up table { min-width:0; }
+    .minor-title { margin:0 0 22px; font-size:1.35rem; }
+    .empty-state,.empty-cell { color:var(--muted); }
+    .fragility { list-style:none; padding:0; margin:0; border-top:1px solid var(--rule); } .fragility li { display:flex; justify-content:space-between; gap:18px; padding:13px 0; border-bottom:1px solid var(--rule); } code { color:var(--secondary); font-family:var(--mono); font-size:.82rem; } .fragility span { color:var(--muted); font:500 .8rem var(--mono); }
+    .provenance { display:grid; grid-template-columns:180px 1fr; gap:0; margin:0; border-top:1px solid var(--rule); } .provenance dt,.provenance dd { margin:0; padding:13px 0; border-bottom:1px solid var(--rule); } .provenance dt { color:var(--muted); } .provenance dd { font-family:var(--mono); overflow-wrap:anywhere; } .provenance dd.missing { color:var(--coral); font-weight:650; }
+    .limitations { margin:0; padding-left:1.25rem; color:var(--secondary); } .limitations li { margin:0 0 12px; padding-left:8px; }
+    .method { max-width:72ch; color:var(--secondary); } .method strong { color:var(--ink); }
+    .close { padding:76px 0 100px; display:grid; grid-template-columns:1fr auto; align-items:end; gap:42px; } .close h2 { margin:0; max-width:760px; font-size:clamp(2.4rem,5vw,4.4rem); line-height:1; } .close p { margin:22px 0 0; max-width:62ch; color:var(--secondary); } .stamp { color:var(--muted); font:500 .76rem/1.5 var(--mono); text-align:right; }
+    @media (max-width:820px) { .hero,.section-head,.two-up,.close,.result-band { grid-template-columns:1fr; gap:34px; } .hero > *,.section-head > *,.two-up > *,.close > *,.result-band > * { min-width:0; } .hero { min-height:auto; padding:64px 0; } .experiment { max-width:520px; } .section { padding:58px 0; } .scroll-cue { display:block; } .table-wrap th:first-child,.table-wrap td:first-child { position:sticky; left:0; z-index:1; background:var(--canvas); box-shadow:1px 0 var(--rule); } .stamp { text-align:left; } }
+    @media (max-width:520px) { .shell { width:calc(100% - 28px); } .topline { display:grid; grid-template-columns:1fr; align-items:start; gap:10px; padding:18px 0; } .run-id { max-width:100%; text-align:left; font-size:.68rem; } .hero { padding:52px 0; } .status { margin-bottom:24px; } h1 { max-width:100%; font-size:clamp(2.5rem,12vw,3rem); line-height:.96; text-wrap:balance; } .lede,.status-note { overflow-wrap:anywhere; } .mobile-result { display:block; } .desktop-result { display:none; } .evidence-ladder { grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px 12px; } .gates li { grid-template-columns:62px 1fr; gap:14px; } .primary-effect { grid-template-columns:1fr; gap:8px; } .provenance { grid-template-columns:1fr; } .provenance dt { padding-bottom:0; border-bottom:0; } .provenance dd { padding-top:4px; } }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+    @media print { :root { --canvas:#fff; --surface:#fff; --raised:#f1f3f5; --ink:#111; --secondary:#333; --muted:#666; --rule:#ccc; } body { font-size:11pt; } .shell { width:100%; } .topline { min-height:42px; } .hero { min-height:auto; padding:38px 0; } .section { padding:32px 0; break-inside:avoid; } .scroll-cue { display:none; } .chart-frame,.table-wrap { overflow:visible; } .chart,table { min-width:0; } svg rect[fill="#eaedf2"],svg circle[fill="#eaedf2"] { fill:#111; } .close { padding:38px 0; } }
+  </style>
+</head>
+<body>
+  <header class="shell topline"><span class="brand">posttrainllm / OffHours</span><span class="run-id">devin-glm52-volume-v1-2000w</span></header>
+  <main>
+    <section class="shell hero" aria-labelledby="report-title">
+      <div>
+        <div class="status validation">Measured saturation rung · provenance limited</div>
+        <h1 id="report-title">How much interference can the workday absorb?</h1>
+        <p class="lede">OffHours injects four 2,000-word events into each workday while holding claims, event positions, response turns, and grading fixed. Neutral, resolved, and unresolved arms carry identical word budgets.</p>
+        <p class="status-note">This selected-condition rung is descriptive within the preregistered ladder: clean baseline not included in this selected-condition run; its qualification is retained separately. Devin CLI does not expose active prompt-token usage.</p>
+        <aside class="mobile-result"><strong>No work-quality boundary at this rung</strong><span>8,000 submitted interference words/day; unresolved minus resolved error rate -1.25 pp, 95% paired-workday interval -2.50 pp to +0.00 pp. Submitted words are not verified active context tokens.</span></aside>
+      </div>
+      <ol class="experiment" aria-label="Benchmark sequence">
+        <li class="experiment-step"><i aria-hidden="true"></i><div><strong>One employee</strong><span>Byte-identical Arjun persona and policy</span></div></li>
+        <li class="experiment-step"><i aria-hidden="true"></i><div><strong>Paired workdays</strong><span>40 claims · four interruption positions</span></div></li>
+        <li class="experiment-step"><i aria-hidden="true"></i><div><strong>Three matched volume arms</strong><span>2,000 words/event · 8,000 submitted words/day</span></div></li>
+        <li class="experiment-step"><i aria-hidden="true"></i><div><strong>Workday-level inference</strong><span>Paired bootstrap intervals, not claim-level certainty</span></div></li>
+      </ol>
+    </section>
+
+    <aside class="shell result-band desktop-result" aria-labelledby="result-title">
+      <div><h2 id="result-title">No work-quality boundary at this rung</h2></div>
+      <div><p>8,000 submitted interference words/day; unresolved minus resolved error rate -1.25 pp, 95% paired-workday interval -2.50 pp to +0.00 pp. Submitted words are not verified active context tokens.</p><ol class="evidence-ladder" aria-label="Evidence maturity"><li class=""><i aria-hidden="true"></i>Fixture preview</li><li class="active" aria-current="step"><i aria-hidden="true"></i>Unqualified measured run</li><li class=""><i aria-hidden="true"></i>Qualified model result</li><li class=""><i aria-hidden="true"></i>Public comparison</li></ol></div>
+    </aside>
+
+    <section class="shell section" aria-labelledby="qualification-title">
+      <div class="section-head"><h2 id="qualification-title">Can this run be believed?</h2><p>The report fails closed. A completed page is not automatically a qualified result, and a qualified local run is not automatically a publishable model comparison.</p></div>
+      <ul class="gates"><li><span class="gate-mark hold">HOLD</span><div><strong>Frozen workload</strong><span>40 claims × 2 paired days</span></div></li><li><span class="gate-mark hold">HOLD</span><div><strong>Clean work quality</strong><span>≥98% decisions · ≥99% valid JSON · every clean day complete</span></div></li><li><span class="gate-mark hold">HOLD</span><div><strong>Context integrity</strong><span>Devin CLI does not expose prompt-token counts; no-truncation verification is unavailable</span></div></li><li><span class="gate-mark hold">HOLD</span><div><strong>Complete provenance</strong><span>Model hash · quantization · server version · endpoint identity</span></div></li><li><span class="gate-mark hold">NOT ATTACHED</span><div><strong>Frontier-ceiling calibration — Devin</strong><span>≥99% clean accuracy on the same frozen ruler</span></div></li></ul>
+    </section>
+
+    <section class="shell section" aria-labelledby="quality-title">
+      <div class="section-head"><h2 id="quality-title">Routine work quality</h2><p>Accuracy is scored against a deterministic policy oracle. Malformed JSON receives no retry; skipped work remains in the denominator.</p></div>
+      <div class="condition-arc"><span style="--condition:#737b88"><i></i>Neutral · 2,000 words/event</span><span style="--condition:#a6adb9"><i></i>Resolved · 2,000 words/event</span><span style="--condition:#ff6f5c"><i></i>Unresolved · 2,000 words/event</span></div>
+      <p class="scroll-cue">Swipe horizontally to inspect the full chart →</p>
+      <div class="chart-frame"><svg class="chart" viewBox="0 0 880 212" role="img" aria-labelledby="accuracy-title accuracy-desc"><title id="accuracy-title">Decision accuracy by experimental condition</title><desc id="accuracy-desc">Horizontal bars compare decision accuracy. A vertical marker shows the 98 percent clean qualification threshold.</desc><line x1="795.36" y1="26" x2="795.36" y2="204" class="threshold"/><text x="789.36" y="16" text-anchor="end" class="svg-note">98% clean gate</text><text x="0" y="58" class="svg-label">Neutral · 2,000 words/event</text><rect x="176" y="42" width="632" height="22" rx="6" class="svg-track"/><rect x="176" y="42" width="624.10" height="22" rx="6" fill="#737b88"/><text x="880" y="58" text-anchor="end" class="svg-value">98.8%</text><text x="0" y="112" class="svg-label">Resolved · 2,000 words/event</text><rect x="176" y="96" width="632" height="22" rx="6" class="svg-track"/><rect x="176" y="96" width="624.10" height="22" rx="6" fill="#a6adb9"/><text x="880" y="112" text-anchor="end" class="svg-value">98.8%</text><text x="0" y="166" class="svg-label">Unresolved · 2,000 words/event</text><rect x="176" y="150" width="632" height="22" rx="6" class="svg-track"/><rect x="176" y="150" width="632.00" height="22" rx="6" fill="#ff6f5c"/><text x="880" y="166" text-anchor="end" class="svg-value">100.0%</text></svg></div>
+      <p class="scroll-cue">Swipe horizontally to inspect all columns →</p>
+      <div class="table-wrap"><table><caption>Absolute work metrics by condition.</caption><thead><tr><th scope="col">Condition</th><th scope="col">Decision accuracy</th><th scope="col">Valid JSON</th><th scope="col">Skipped</th><th scope="col">Days</th><th scope="col">Mean latency</th></tr></thead><tbody><tr><th scope="row"><span class="condition-dot" style="--condition:#737b88"></span>Neutral · 2,000 words/event</th><td>98.8%</td><td>100.0%</td><td>0.0%</td><td>2/2</td><td>5,752.5 ms</td></tr><tr><th scope="row"><span class="condition-dot" style="--condition:#a6adb9"></span>Resolved · 2,000 words/event</th><td>98.8%</td><td>100.0%</td><td>0.0%</td><td>2/2</td><td>5,933.4 ms</td></tr><tr><th scope="row"><span class="condition-dot" style="--condition:#ff6f5c"></span>Unresolved · 2,000 words/event</th><td>100.0%</td><td>100.0%</td><td>0.0%</td><td>2/2</td><td>5,662.4 ms</td></tr></tbody></table></div>
+    </section>
+
+    <section class="shell section" aria-labelledby="effects-title">
+      <div class="section-head"><h2 id="effects-title">What changed after context?</h2><p>Treatment minus control error rate, paired by simulated workday. Positive values indicate worse work in the treatment condition. Dashed intervals are explicitly descriptive.</p></div>
+
+      <p class="scroll-cue">Swipe horizontally to inspect the full interval plot →</p>
+      <div class="chart-frame"><svg class="chart" viewBox="0 0 960 190" role="img" aria-labelledby="effect-title effect-desc"><title id="effect-title">Paired change in error rate</title><desc id="effect-desc">Dots show treatment minus control error rate on a -6.00 to +6.00 percentage-point axis. Lines show 95 percent paired-workday bootstrap confidence intervals. Positive values mean more treatment errors.</desc><line x1="280.00" y1="24" x2="280.00" y2="180" class="grid-line"/><text x="280.00" y="189" text-anchor="middle" class="svg-note">-6.00 pp</text><line x1="422.00" y1="24" x2="422.00" y2="180" class="grid-line"/><text x="422.00" y="189" text-anchor="middle" class="svg-note">-3.00 pp</text><line x1="564.00" y1="24" x2="564.00" y2="180" class="grid-line"/><text x="564.00" y="189" text-anchor="middle" class="svg-note">+0.00 pp</text><line x1="706.00" y1="24" x2="706.00" y2="180" class="grid-line"/><text x="706.00" y="189" text-anchor="middle" class="svg-note">+3.00 pp</text><line x1="848.00" y1="24" x2="848.00" y2="180" class="grid-line"/><text x="848.00" y="189" text-anchor="middle" class="svg-note">+6.00 pp</text><line x1="564.00" y1="24" x2="564.00" y2="180" class="zero-line"/><text x="556.00" y="16" text-anchor="end" class="svg-note">fewer errors</text><text x="572.00" y="16" class="svg-note">more errors</text><text x="0" y="52" class="svg-label">Resolved versus neutral at 2,000 words per event</text><text x="0" y="70" class="svg-note">matched · 2 paired days</text><line x1="564.00" y1="47" x2="564.00" y2="47" class="effect-ci"/><circle cx="564.00" cy="47" r="7" class="effect-dot matched"/><text x="960" y="52" text-anchor="end" class="svg-value">+0.00 pp</text><text x="0" y="120" class="svg-label">Unresolved minus resolved at 2,000 words per event</text><text x="0" y="138" class="svg-note">matched · 2 paired days</text><line x1="445.67" y1="115" x2="564.00" y2="115" class="effect-ci"/><circle cx="504.83" cy="115" r="7" class="effect-dot matched"/><text x="960" y="120" text-anchor="end" class="svg-value">-1.25 pp</text></svg></div>
+      <p class="scroll-cue">Swipe horizontally to inspect all columns →</p>
+      <div class="table-wrap"><table><caption>Accessible values for paired error-rate effects.</caption><thead><tr><th scope="col">Comparison</th><th scope="col">Role</th><th scope="col">Effect</th><th scope="col">95% interval</th><th scope="col">Paired days</th></tr></thead><tbody><tr><th scope="row">Resolved versus neutral at 2,000 words per event</th><td>matched</td><td>+0.00 pp</td><td>+0.00 pp to +0.00 pp</td><td>2</td></tr><tr><th scope="row">Unresolved minus resolved at 2,000 words per event</th><td>matched</td><td>-1.25 pp</td><td>-2.50 pp to +0.00 pp</td><td>2</td></tr></tbody></table></div>
+    </section>
+
+    <section class="shell section" aria-labelledby="recovery-section-title">
+      <div class="section-head"><h2 id="recovery-section-title">Does the effect persist?</h2><p>Error probability is sliced by distance from the latest interruption. The expected signature is strongest immediately after an event, then recovery across later claims.</p></div>
+      <p class="scroll-cue">Swipe horizontally to inspect the full recovery plot →</p>
+      <div class="chart-frame"><div class="chart-legend"><span><i style="--condition:#737b88"></i>Neutral · 500 words/event</span><span><i style="--condition:#a6adb9"></i>Resolved · 500 words/event</span><span><i style="--condition:#ff6f5c"></i>Unresolved · 500 words/event</span><span><i style="--condition:#737b88"></i>Neutral · 2,000 words/event</span><span><i style="--condition:#a6adb9"></i>Resolved · 2,000 words/event</span><span><i style="--condition:#ff6f5c"></i>Unresolved · 2,000 words/event</span><span><i style="--condition:#737b88"></i>Neutral · 5,000 words/event</span><span><i style="--condition:#a6adb9"></i>Resolved · 5,000 words/event</span><span><i style="--condition:#ff6f5c"></i>Unresolved · 5,000 words/event</span></div><p class="chart-note">Vertical scale: 0–10% error; all observations shown.</p><svg class="chart" viewBox="0 0 900 390" role="img" aria-labelledby="recovery-title recovery-desc"><title id="recovery-title">Error rate by distance from the latest interruption</title><desc id="recovery-desc">Lines compare error rates from zero to 10% before an event and across three recovery windows. Missing measurements are left blank.</desc><line x1="72" y1="318.00" x2="828" y2="318.00" class="grid-line"/><text x="60" y="323.00" text-anchor="end" class="svg-note">0%</text><line x1="72" y1="247.00" x2="828" y2="247.00" class="grid-line"/><text x="60" y="252.00" text-anchor="end" class="svg-note">2%</text><line x1="72" y1="176.00" x2="828" y2="176.00" class="grid-line"/><text x="60" y="181.00" text-anchor="end" class="svg-note">5%</text><line x1="72" y1="105.00" x2="828" y2="105.00" class="grid-line"/><text x="60" y="110.00" text-anchor="end" class="svg-note">8%</text><line x1="72" y1="34.00" x2="828" y2="34.00" class="grid-line"/><text x="60" y="39.00" text-anchor="end" class="svg-note">10%</text><text x="72.00" y="362" text-anchor="middle" class="svg-note">Before event</text><text x="324.00" y="362" text-anchor="middle" class="svg-note">Tasks 1–3</text><text x="576.00" y="362" text-anchor="middle" class="svg-note">Tasks 4–10</text><text x="828.00" y="362" text-anchor="middle" class="svg-note">Tasks 11–25</text><polyline points="72.00,168.53 324.00,318.00 576.00,318.00" fill="none" stroke="#737b88" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 6"/><circle cx="72.00" cy="168.53" r="6" fill="#737b88" stroke="#0a0c0f" stroke-width="3"/><circle cx="324.00" cy="318.00" r="6" fill="#737b88" stroke="#0a0c0f" stroke-width="3"/><circle cx="576.00" cy="318.00" r="6" fill="#737b88" stroke="#0a0c0f" stroke-width="3"/><polyline points="72.00,318.00 324.00,318.00 576.00,241.24" fill="none" stroke="#a6adb9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="12 5"/><circle cx="72.00" cy="318.00" r="6" fill="#a6adb9" stroke="#0a0c0f" stroke-width="3"/><circle cx="324.00" cy="318.00" r="6" fill="#a6adb9" stroke="#0a0c0f" stroke-width="3"/><circle cx="576.00" cy="241.24" r="6" fill="#a6adb9" stroke="#0a0c0f" stroke-width="3"/><polyline points="72.00,318.00 324.00,318.00 576.00,318.00" fill="none" stroke="#ff6f5c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/><circle cx="72.00" cy="318.00" r="6" fill="#ff6f5c" stroke="#0a0c0f" stroke-width="3"/><circle cx="324.00" cy="318.00" r="6" fill="#ff6f5c" stroke="#0a0c0f" stroke-width="3"/><circle cx="576.00" cy="318.00" r="6" fill="#ff6f5c" stroke="#0a0c0f" stroke-width="3"/></svg></div>
+      <p class="scroll-cue">Swipe horizontally to inspect all columns →</p>
+      <div class="table-wrap"><table><caption>Accessible error rates for each recovery window.</caption><thead><tr><th scope="col">Condition</th><th scope="col">Before event</th><th scope="col">Tasks 1–3</th><th scope="col">Tasks 4–10</th><th scope="col">Tasks 11–25</th></tr></thead><tbody><tr><th scope="row">Neutral · 500 words/event</th><td>Not measured</td><td>Not measured</td><td>Not measured</td><td>Not measured</td></tr><tr><th scope="row">Resolved · 500 words/event</th><td>Not measured</td><td>Not measured</td><td>Not measured</td><td>Not measured</td></tr><tr><th scope="row">Unresolved · 500 words/event</th><td>Not measured</td><td>Not measured</td><td>Not measured</td><td>Not measured</td></tr><tr><th scope="row">Neutral · 2,000 words/event</th><td>5.3%</td><td>0.0%</td><td>0.0%</td><td>Not measured</td></tr><tr><th scope="row">Resolved · 2,000 words/event</th><td>0.0%</td><td>0.0%</td><td>2.7%</td><td>Not measured</td></tr><tr><th scope="row">Unresolved · 2,000 words/event</th><td>0.0%</td><td>0.0%</td><td>0.0%</td><td>Not measured</td></tr><tr><th scope="row">Neutral · 5,000 words/event</th><td>Not measured</td><td>Not measured</td><td>Not measured</td><td>Not measured</td></tr><tr><th scope="row">Resolved · 5,000 words/event</th><td>Not measured</td><td>Not measured</td><td>Not measured</td><td>Not measured</td></tr><tr><th scope="row">Unresolved · 5,000 words/event</th><td>Not measured</td><td>Not measured</td><td>Not measured</td><td>Not measured</td></tr></tbody></table></div>
+    </section>
+
+    <section class="shell section" aria-labelledby="behavior-title">
+      <div class="section-head"><h2 id="behavior-title">Behavior around the work</h2><p>Family messages can change more than claim accuracy. The benchmark retains visible action choices and reply length while excluding hidden chain-of-thought.</p></div>
+      <div class="two-up">
+        <div><h3 class="minor-title">Event actions</h3><p class="scroll-cue">Swipe horizontally to inspect all columns →</p><div class="table-wrap"><table><caption>Structured responses to response-required events.</caption><thead><tr><th scope="col">Condition</th><th scope="col">Events</th><th scope="col">Valid</th><th scope="col">Actions</th><th scope="col">Reply length</th></tr></thead><tbody><tr><th scope="row">Neutral · 2,000 words/event</th><td>8</td><td>100.0%</td><td>reply and continue 8</td><td>46.0 chars</td></tr><tr><th scope="row">Resolved · 2,000 words/event</th><td>8</td><td>100.0%</td><td>reply and continue 8</td><td>46.0 chars</td></tr><tr><th scope="row">Unresolved · 2,000 words/event</th><td>8</td><td>100.0%</td><td>reply and continue 8</td><td>46.0 chars</td></tr></tbody></table></div></div>
+        <div><h3 class="minor-title">Fragile claims</h3><ol class=fragility><li><code>CLM-2005</code><span>+50.00 pp range</span></li><li><code>CLM-2039</code><span>+50.00 pp range</span></li></ol></div>
+      </div>
+    </section>
+
+    <section class="shell section" aria-labelledby="method-title">
+      <div class="section-head"><h2 id="method-title">Method and evidence</h2><p>Every number should be traceable to the frozen task bank, scenario revision, model identity, and local inference server that produced it.</p></div>
+      <div class="two-up">
+        <div><h3 class="minor-title">Provenance</h3><dl class="provenance"><dt>Model</dt><dd class="">Devin glm-5.2 CLI validation</dd><dt>Endpoint identity</dt><dd class="">devin-glm-5.2-cli-validation</dd><dt>Quantization</dt><dd class="missing">Required evidence missing</dd><dt>Inference server</dt><dd class="">Devin CLI 3000.4.25 (7e8e528a)</dd><dt>Model file</dt><dd class="missing">Required evidence missing</dd><dt>Config</dt><dd class="">d824c8c0daa8…25464b0f</dd><dt>Claims</dt><dd class="">63c83db042a8…452ea790</dd><dt>Scenarios</dt><dd class="">3d6e42f2207a…501d28bc</dd><dt>Sampling</dt><dd class="">temperature 0.1 · model seed 42 · schedule seed 83</dd><dt>Context</dt><dd class="">300,000 tokens · 1,024 safety margin</dd></dl></div>
+        <div><h3 class="minor-title">Interpretation limits</h3><ul class="limitations"><li>The benchmark measures model behavior, not felt stress or emotion.</li><li>Neutral minus filler is descriptive because filler has no generated response turn.</li><li>Context-adjusted effects pool task turns and are descriptive; paired workdays remain the uncertainty unit.</li><li>Latency is secondary because local load and thermal throttling can create false effects.</li><li>A null result is valid and scenarios must not be tuned after confirmatory outcomes are inspected.</li></ul></div>
+      </div>
+      <p class="method"><strong>Primary uncertainty unit:</strong> paired workday. Confidence intervals resample paired workdays. The context-adjusted coefficient is a task-turn descriptive diagnostic and is never promoted above the paired estimate.</p>
+    </section>
+
+    <footer class="shell close">
+      <div><h2>Submitted text is not verified model context.</h2><p>This rung controls 2,000 whitespace-delimited words per event and logs input characters. Devin may summarize or manage context internally, so the result bounds the regular Devin workflow—not GLM-5.2&#x27;s raw context window.</p></div>
+      <div class="stamp">schema offhours/analysis/v2<br>config d824c8c0daa8…25464b0f<br>hidden reasoning stored: no</div>
+    </footer>
+  </main>
+</body>
+</html>

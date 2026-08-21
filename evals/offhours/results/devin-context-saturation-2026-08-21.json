@@ -1,0 +1,118 @@
+{
+  "schema_version": "offhours/saturation-receipt/v1",
+  "artifact_kind": "measured_validation",
+  "benchmark": "OffHours",
+  "subject_surface": "Devin CLI with GLM-5.2",
+  "date": "2026-08-21",
+  "decision": "first_reproducible_boundary",
+  "mental_toll_hypothesis_supported": false,
+  "earliest_boundary": {
+    "arm": "neutral",
+    "event_words": 2000,
+    "events_per_workday": 4,
+    "submitted_words_per_workday": 8000,
+    "gate": "at least 98% decision accuracy on each 40-claim workday",
+    "failed_days": [
+      {
+        "day_id": "day_002",
+        "correct": 39,
+        "claims": 40,
+        "accuracy": 0.975
+      },
+      {
+        "day_id": "day_003",
+        "correct": 39,
+        "claims": 40,
+        "accuracy": 0.975
+      }
+    ],
+    "attribution": "raw submitted-volume or regular-flow context-management effect; not a family-obligation effect"
+  },
+  "semantic_occupancy": {
+    "event_words": 100,
+    "paired_workdays": 5,
+    "claims_per_condition": 200,
+    "unresolved_minus_resolved_error_percentage_points": {
+      "20_percent": 0.5,
+      "50_percent": -0.5,
+      "80_percent": -1.0
+    },
+    "slope_per_10_occupancy_points_percentage_points": -0.25,
+    "slope_95_percent_paired_workday_interval_percentage_points": [
+      -0.4166666667, -0.0833333333
+    ],
+    "monotonic_adverse": false
+  },
+  "volume_rungs": [
+    {
+      "event_words": 500,
+      "submitted_words_per_workday": 2000,
+      "initial_days": {
+        "neutral": [40, 39],
+        "resolved": [39, 40],
+        "unresolved": [40, 40]
+      },
+      "adjudication_day_003": {
+        "neutral": 40,
+        "resolved": 40
+      },
+      "claims_per_day": 40,
+      "decision": "pass"
+    },
+    {
+      "event_words": 2000,
+      "submitted_words_per_workday": 8000,
+      "initial_days": {
+        "neutral": [40, 39],
+        "resolved": [40, 39],
+        "unresolved": [40, 40]
+      },
+      "adjudication_day_003": {
+        "neutral": 39,
+        "resolved": null
+      },
+      "claims_per_day": 40,
+      "decision": "first_reproducible_boundary",
+      "stop_note": "Resolved day_003 was stopped after two correct claims had committed because the neutral arm had already triggered the preregistered boundary. Those two turns are excluded from the decision."
+    },
+    {
+      "event_words": 5000,
+      "submitted_words_per_workday": 20000,
+      "initial_days": {
+        "neutral": [40, 40],
+        "resolved": [39, 39],
+        "unresolved": [40, 40]
+      },
+      "claims_per_day": 40,
+      "decision": "overshoot_not_used_for_boundary",
+      "note": "This rung completed before the lower-rung adjudication omission was detected. It is retained transparently but cannot move the ordered boundary above 2,000 words per event."
+    }
+  ],
+  "protocol_audit": {
+    "adjudication_commit": "171fdb1f64d50f22f700a36d20a4492764a7cdba",
+    "independent_devin_verdict": "ADJUDICATION_AUTHORIZATION: YES",
+    "python_tests": "26 passed",
+    "full_quality_suite": "passed in the primary worktree"
+  },
+  "provenance": {
+    "config_revision": "volume-v1",
+    "resolved_config_sha256": "d824c8c0daa8dd652805f8aeeb4085c2fd45661caccb053bc6af4cb625464b0f",
+    "claims_sha256": "63c83db042a8dc795a089e006df981faa552ffc7e18f5a9ead1491ee452ea790",
+    "scenarios_sha256": "3d6e42f2207a0c248113968c820dbb36f670a7cd21c669ee1ee1914f501d28bc",
+    "system_prompt_sha256": "a11a3c60b176c1d25cf60b1e4366fc5a076dafeaf88d05ae805055e1750c26a0",
+    "schedule_seed": 83,
+    "model_seed": 42,
+    "devin_cli_version": "3000.4.25 (7e8e528a)",
+    "model_file_sha256": null,
+    "quantization": null,
+    "server_prompt_tokens": null,
+    "hidden_chain_of_thought_stored": false
+  },
+  "interpretation_limits": [
+    "This benchmark measures model and agent-workflow behavior, not felt stress or emotion.",
+    "Controlled whitespace-delimited input words are not verified active model-context tokens.",
+    "Devin may summarize or otherwise manage visible history internally.",
+    "The two-day and one-day adjudication rungs locate an operational gate boundary; they are not high-powered causal estimates.",
+    "The first boundary occurred in the neutral arm, so it cannot be attributed to unresolved personal obligation."
+  ]
+}

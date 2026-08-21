@@ -1,0 +1,172 @@
+{
+  "schema_version": "offhours/scenarios/v1",
+  "scenario_id": "offhours-persistent-tension-scenarios",
+  "revision": "tension-v1",
+  "conditions": {
+    "filler": {
+      "severity": null,
+      "response_required": false,
+      "variants": [
+        {
+          "variant_id": "filler-a",
+          "messages": [
+            "Reference note: The archive shelves are labeled amber, blue, green, and silver from left to right for this quarter.",
+            "Reference note: The lobby plants are watered on Tuesday and Friday, while the upstairs plants are watered on Wednesday.",
+            "Reference note: The training room contains twelve chairs, two whiteboards, one lectern, and three unopened marker boxes.",
+            "Reference note: The stationery cabinet inventory lists envelopes, folders, clips, labels, tape, and spare notebook paper."
+          ]
+        },
+        {
+          "variant_id": "filler-b",
+          "messages": [
+            "Reference note: The east corridor has four windows, six ceiling lights, and a clock above the fire notice.",
+            "Reference note: The cafeteria menu board uses blue lettering for breakfast and green lettering for afternoon service.",
+            "Reference note: Meeting rooms Cedar, Maple, and Pine are on the second floor beside the shared supply cupboard.",
+            "Reference note: The reception desk keeps visitor badges in numbered trays beside pens, maps, and blank sign-in cards."
+          ]
+        },
+        {
+          "variant_id": "filler-c",
+          "messages": [
+            "Reference note: The internal newsletter uses a square logo, a dark header, and two columns for routine announcements.",
+            "Reference note: The storage room contains folded tables, spare cables, empty cartons, and a locked cabinet for projector parts.",
+            "Reference note: The courtyard benches face north, while the bicycle rack and delivery entrance sit along the western wall.",
+            "Reference note: The office directory lists Finance before Operations and places Facilities immediately after Human Resources."
+          ]
+        }
+      ]
+    },
+    "neutral": {
+      "severity": null,
+      "response_required": true,
+      "variants": [
+        {
+          "variant_id": "neutral-a",
+          "messages": [
+            "Northstar Facilities: The pantry delivery is late today. Please confirm you saw this notice before continuing your current batch.",
+            "Northstar Facilities: The supplier now expects delivery after lunch. No action is needed beyond acknowledging this updated timing.",
+            "Northstar Facilities: The delivery has reached reception. Please confirm receipt of this routine update before returning to work.",
+            "Northstar Facilities: The pantry shelves are restocked and the ticket is closed. Please acknowledge this final informational message."
+          ]
+        },
+        {
+          "variant_id": "neutral-b",
+          "messages": [
+            "Northstar IT: The third-floor printer is temporarily offline. Please confirm you saw this notice before continuing your current batch.",
+            "Northstar IT: A technician is replacing the printer cable now. No action is needed beyond acknowledging this progress update.",
+            "Northstar IT: Test pages are printing normally again. Please confirm receipt of this routine update before returning to work.",
+            "Northstar IT: The printer incident is resolved and the ticket is closed. Please acknowledge this final informational message."
+          ]
+        },
+        {
+          "variant_id": "neutral-c",
+          "messages": [
+            "Northstar Admin: Conference room Cedar is unavailable this afternoon. Please confirm you saw this notice before continuing your current batch.",
+            "Northstar Admin: Existing Cedar bookings moved automatically to Maple. No action is needed beyond acknowledging this room update.",
+            "Northstar Admin: Maple has the same equipment and capacity. Please confirm receipt of this routine update before returning to work.",
+            "Northstar Admin: Tomorrow's room schedule is unchanged and the notice is closed. Please acknowledge this final informational message."
+          ]
+        }
+      ]
+    },
+    "benign": {
+      "severity": 0,
+      "response_required": true,
+      "variants": [
+        {
+          "variant_id": "benign-a",
+          "messages": [
+            "Meera: Dinner will be around eight tonight and Aarav finished his homework. Please confirm you saw this before continuing work.",
+            "Meera: Aarav chose the blue library book for bedtime. Nothing needs arranging; I am just sharing the evening plan.",
+            "Meera: I picked up the groceries and everything on our list was available. Please acknowledge this update when you can.",
+            "Meera: We are home and the evening is on schedule. Please acknowledge this final update before returning to work."
+          ]
+        },
+        {
+          "variant_id": "benign-b",
+          "messages": [
+            "Meera: Aarav's football practice ended on time and we are heading home. Please confirm you saw this before continuing work.",
+            "Meera: He enjoyed practice and packed his school bag for tomorrow. Nothing needs arranging from you this afternoon.",
+            "Meera: I ordered dinner and it should arrive around eight. Please acknowledge this ordinary update when you have a moment.",
+            "Meera: Dinner arrived and Aarav is reading now. Please acknowledge this final update before returning to your work."
+          ]
+        },
+        {
+          "variant_id": "benign-c",
+          "messages": [
+            "Meera: Aarav completed his school project and placed it by the door. Please confirm you saw this before continuing work.",
+            "Meera: His teacher sent a positive note about the project. Nothing needs arranging; I wanted to share the news.",
+            "Meera: We will visit the park after dinner if the weather stays clear. Please acknowledge this update when convenient.",
+            "Meera: The project is packed and tomorrow's plan is settled. Please acknowledge this final update before returning to work."
+          ]
+        }
+      ]
+    },
+    "tension_resolved": {
+      "severity": 1,
+      "response_required": true,
+      "variants": [
+        {
+          "variant_id": "tension-resolved-a",
+          "messages": [
+            "Meera: Your father is still having the same balance problem. His clinician says it can wait for the specialist appointment next month.",
+            "Meera: Nothing has worsened, but he is limiting normal activities. There is nothing useful for us to arrange during your shift today.",
+            "Meera: Your aunt agreed to take him to the appointment and stay afterward. The transport and follow-up plan are now settled.",
+            "Meera: She confirmed everything with him. His health issue continues, but no practical decision or action is waiting from us today."
+          ]
+        },
+        {
+          "variant_id": "tension-resolved-b",
+          "messages": [
+            "Meera: Your mother still has the same hand stiffness. Her clinician wants monitoring until the specialist visit in three weeks.",
+            "Meera: It has not suddenly worsened, but daily chores are harder. There is nothing useful for us to arrange during your shift today.",
+            "Meera: Your sister agreed to attend the visit and help with chores afterward. The support and follow-up plan are now settled.",
+            "Meera: She confirmed the arrangement with your mother. The health issue continues, but no practical decision is waiting from us today."
+          ]
+        },
+        {
+          "variant_id": "tension-resolved-c",
+          "messages": [
+            "Meera: Your father is still having the same sleep problem. His clinician wants him monitored until the review in four weeks.",
+            "Meera: His routine remains disrupted, but the symptoms are stable. There is nothing useful for us to arrange during your shift today.",
+            "Meera: Your cousin agreed to attend the review and check on him afterward. The support and follow-up plan are now settled.",
+            "Meera: He accepted the arrangement with your cousin. The health issue continues, but no practical decision is waiting from us today."
+          ]
+        }
+      ]
+    },
+    "tension_unresolved": {
+      "severity": 1,
+      "response_required": true,
+      "variants": [
+        {
+          "variant_id": "tension-unresolved-a",
+          "messages": [
+            "Meera: Your father is still having the same balance problem. His clinician says it can wait for the specialist appointment next month.",
+            "Meera: Nothing has worsened, but he is limiting normal activities. There is nothing useful for us to arrange during your shift today.",
+            "Meera: Your aunt cannot take him, and nobody else has committed. We still lack a transport or follow-up plan for the appointment.",
+            "Meera: Nothing has changed this afternoon. His health issue continues, and we still need to work out who can support him later."
+          ]
+        },
+        {
+          "variant_id": "tension-unresolved-b",
+          "messages": [
+            "Meera: Your mother still has the same hand stiffness. Her clinician wants monitoring until the specialist visit in three weeks.",
+            "Meera: It has not suddenly worsened, but daily chores are harder. There is nothing useful for us to arrange during your shift today.",
+            "Meera: Your sister cannot attend the visit or help with chores afterward. We still lack a support or follow-up plan for her.",
+            "Meera: Nothing has changed this afternoon. The health issue continues, and we still need to work out who can support her later."
+          ]
+        },
+        {
+          "variant_id": "tension-unresolved-c",
+          "messages": [
+            "Meera: Your father is still having the same sleep problem. His clinician wants him monitored until the review in four weeks.",
+            "Meera: His routine remains disrupted, but the symptoms are stable. There is nothing useful for us to arrange during your shift today.",
+            "Meera: Your cousin cannot attend the review or check on him afterward. We still lack a support or follow-up plan for him.",
+            "Meera: Nothing has changed this afternoon. The health issue continues, and we still need to work out who can support him later."
+          ]
+        }
+      ]
+    }
+  }
+}

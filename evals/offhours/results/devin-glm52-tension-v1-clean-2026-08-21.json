@@ -1,0 +1,471 @@
+{
+  "artifact_kind": "measured_run",
+  "baseline_qualification": {
+    "checks": {
+      "all_clean_days_completed": true,
+      "complete_provenance": false,
+      "decision_accuracy": false,
+      "frozen_tasks_per_day": true,
+      "minimum_paired_days": true,
+      "no_context_truncation": false,
+      "valid_json": true
+    },
+    "passed": false
+  },
+  "behavior": {},
+  "ceiling_qualification": {
+    "calibrator": "Devin",
+    "checks": {},
+    "passed": false,
+    "status": "not_attached",
+    "threshold": 0.99
+  },
+  "condition_metrics": {
+    "clean": {
+      "answered_tasks": 200,
+      "completed_days": 5,
+      "context_tokens_max": null,
+      "context_tokens_mean": null,
+      "context_verified_days": 0,
+      "decision_accuracy": 0.965,
+      "escalation_rate": 0.16,
+      "exact_correct_rate": 0.965,
+      "latency_ms_mean": 4599.909648575,
+      "malformed_output_rate": 0.0,
+      "output_tokens_mean": null,
+      "planned_days": 5,
+      "planned_tasks": 200,
+      "reason_code_accuracy": 0.965,
+      "skipped_task_rate": 0.0,
+      "valid_json_rate": 1.0,
+      "workday_completion_rate": 1.0
+    }
+  },
+  "config_sha256": "b803a60bf08899fc8f2d76e87e41038c6e31c7cd02d299720d6a500b65d3d9d6",
+  "confirmatory_interpretation_allowed": false,
+  "control_caveat": "Filler is response-free and estimates passive token pollution; it is not turn-matched to response-required conditions.",
+  "limitations": [
+    "The benchmark measures model behavior, not felt stress or emotion.",
+    "Neutral minus filler is descriptive because filler has no generated response turn.",
+    "Context-adjusted effects pool task turns and are descriptive; paired workdays remain the uncertainty unit.",
+    "Latency is secondary because local load and thermal throttling can create false effects.",
+    "A null result is valid and scenarios must not be tuned after confirmatory outcomes are inspected."
+  ],
+  "paired_effects": [],
+  "primary_uncertainty_unit": "paired workday",
+  "provenance": {
+    "claims_sha256": "b2f8c14917d052aedc4d86c6e6a47f3f595a28a7831c476e3ef8c416842c500f",
+    "context_limit": 32768,
+    "context_safety_margin_tokens": 512,
+    "endpoint_models": ["devin-glm-5.2-cli-validation"],
+    "hidden_chain_of_thought_stored": false,
+    "inference_server": {
+      "name": "Devin CLI",
+      "version": "3000.4.25 (7e8e528a)",
+      "version_unavailable_reason": null
+    },
+    "max_output_tokens": 128,
+    "model": "Devin glm-5.2 CLI validation",
+    "model_file_sha256": null,
+    "policy_version": "expense-policy-v2",
+    "quantization": null,
+    "scenario_version": "tension-v1",
+    "scenarios_sha256": "12e89ea1283c2ca7161d2283b094ca411cfe08b24bc4307eedf4ad1f67def716",
+    "seed": 42,
+    "system_fingerprints": ["devin-cli-3000.4.25 (7e8e528a)"],
+    "system_prompt_sha256": "a11a3c60b176c1d25cf60b1e4366fc5a076dafeaf88d05ae805055e1750c26a0",
+    "task_bank_version": "tension-v1",
+    "temperature": 0.1
+  },
+  "provenance_checks": {
+    "endpoint_model_identity": true,
+    "model_file_hash": false,
+    "model_identity": true,
+    "quantization": false,
+    "server_name": true,
+    "server_version": true
+  },
+  "public_model_comparison_allowed": false,
+  "recovery": {
+    "benign": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_4_10": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "pre_event": {
+        "error_rate": null,
+        "tasks": 0
+      }
+    },
+    "filler": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_4_10": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "pre_event": {
+        "error_rate": null,
+        "tasks": 0
+      }
+    },
+    "neutral": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_4_10": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "pre_event": {
+        "error_rate": null,
+        "tasks": 0
+      }
+    },
+    "tension_resolved": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_4_10": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "pre_event": {
+        "error_rate": null,
+        "tasks": 0
+      }
+    },
+    "tension_unresolved": {
+      "after_11_25": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_1_3": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "after_4_10": {
+        "error_rate": null,
+        "tasks": 0
+      },
+      "pre_event": {
+        "error_rate": null,
+        "tasks": 0
+      }
+    }
+  },
+  "run_id": "devin-glm52-tension-v1-clean-gate",
+  "run_status": "completed",
+  "schema_version": "offhours/analysis/v2",
+  "task_fragility": [
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2001"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2002"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2003"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2004"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2005"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2006"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2007"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2008"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2009"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2010"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2011"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2012"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2013"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2014"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2015"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2016"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2017"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2018"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2019"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2020"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2021"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2022"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2023"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2024"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2025"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2026"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2027"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.4
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2028"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2029"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.4
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2030"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2031"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2032"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2033"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2034"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.2
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2035"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2036"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2037"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2038"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.4
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2039"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2040"
+    }
+  ],
+  "workload": {
+    "conditions": ["clean"],
+    "days_per_condition": 5,
+    "tasks_per_day": 40
+  }
+}

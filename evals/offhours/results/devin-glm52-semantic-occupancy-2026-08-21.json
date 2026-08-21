@@ -1,0 +1,1060 @@
+{
+  "artifact_kind": "measured_run",
+  "baseline_qualification": {
+    "checks": {
+      "all_clean_days_completed": true,
+      "complete_provenance": false,
+      "decision_accuracy": true,
+      "frozen_tasks_per_day": true,
+      "minimum_paired_days": true,
+      "no_context_truncation": false,
+      "valid_json": true
+    },
+    "passed": false
+  },
+  "behavior": {
+    "occupancy_neutral": {
+      "actions": {
+        "reply_and_continue": 20
+      },
+      "events": 20,
+      "reply_length_mean_characters": 46.0,
+      "valid_action_rate": 1.0
+    },
+    "occupancy_resolved_20": {
+      "actions": {
+        "reply_and_continue": 20
+      },
+      "events": 20,
+      "reply_length_mean_characters": 46.0,
+      "valid_action_rate": 1.0
+    },
+    "occupancy_resolved_50": {
+      "actions": {
+        "reply_and_continue": 20
+      },
+      "events": 20,
+      "reply_length_mean_characters": 46.0,
+      "valid_action_rate": 1.0
+    },
+    "occupancy_resolved_80": {
+      "actions": {
+        "reply_and_continue": 20
+      },
+      "events": 20,
+      "reply_length_mean_characters": 46.0,
+      "valid_action_rate": 1.0
+    },
+    "occupancy_unresolved_20": {
+      "actions": {
+        "reply_and_continue": 20
+      },
+      "events": 20,
+      "reply_length_mean_characters": 46.0,
+      "valid_action_rate": 1.0
+    },
+    "occupancy_unresolved_50": {
+      "actions": {
+        "reply_and_continue": 20
+      },
+      "events": 20,
+      "reply_length_mean_characters": 46.0,
+      "valid_action_rate": 1.0
+    },
+    "occupancy_unresolved_80": {
+      "actions": {
+        "reply_and_continue": 20
+      },
+      "events": 20,
+      "reply_length_mean_characters": 46.0,
+      "valid_action_rate": 1.0
+    }
+  },
+  "ceiling_qualification": {
+    "calibrator": "Devin",
+    "checks": {},
+    "passed": false,
+    "status": "not_attached",
+    "threshold": 0.99
+  },
+  "condition_metrics": {
+    "clean": {
+      "answered_tasks": 200,
+      "completed_days": 5,
+      "context_tokens_max": null,
+      "context_tokens_mean": null,
+      "context_verified_days": 0,
+      "decision_accuracy": 0.99,
+      "escalation_rate": 0.15,
+      "exact_correct_rate": 0.99,
+      "latency_ms_mean": 5403.52577852,
+      "malformed_output_rate": 0.0,
+      "output_tokens_mean": null,
+      "planned_days": 5,
+      "planned_tasks": 200,
+      "reason_code_accuracy": 0.99,
+      "skipped_task_rate": 0.0,
+      "valid_json_rate": 1.0,
+      "workday_completion_rate": 1.0
+    },
+    "occupancy_neutral": {
+      "answered_tasks": 200,
+      "completed_days": 5,
+      "context_tokens_max": null,
+      "context_tokens_mean": null,
+      "context_verified_days": 0,
+      "decision_accuracy": 0.985,
+      "escalation_rate": 0.15,
+      "exact_correct_rate": 0.985,
+      "latency_ms_mean": 6137.537351445,
+      "malformed_output_rate": 0.0,
+      "output_tokens_mean": null,
+      "planned_days": 5,
+      "planned_tasks": 200,
+      "reason_code_accuracy": 0.985,
+      "skipped_task_rate": 0.0,
+      "valid_json_rate": 1.0,
+      "workday_completion_rate": 1.0
+    },
+    "occupancy_resolved_20": {
+      "answered_tasks": 200,
+      "completed_days": 5,
+      "context_tokens_max": null,
+      "context_tokens_mean": null,
+      "context_verified_days": 0,
+      "decision_accuracy": 1.0,
+      "escalation_rate": 0.15,
+      "exact_correct_rate": 1.0,
+      "latency_ms_mean": 5667.68633545,
+      "malformed_output_rate": 0.0,
+      "output_tokens_mean": null,
+      "planned_days": 5,
+      "planned_tasks": 200,
+      "reason_code_accuracy": 1.0,
+      "skipped_task_rate": 0.0,
+      "valid_json_rate": 1.0,
+      "workday_completion_rate": 1.0
+    },
+    "occupancy_resolved_50": {
+      "answered_tasks": 200,
+      "completed_days": 5,
+      "context_tokens_max": null,
+      "context_tokens_mean": null,
+      "context_verified_days": 0,
+      "decision_accuracy": 0.99,
+      "escalation_rate": 0.15,
+      "exact_correct_rate": 0.99,
+      "latency_ms_mean": 5891.587968565,
+      "malformed_output_rate": 0.0,
+      "output_tokens_mean": null,
+      "planned_days": 5,
+      "planned_tasks": 200,
+      "reason_code_accuracy": 0.99,
+      "skipped_task_rate": 0.0,
+      "valid_json_rate": 1.0,
+      "workday_completion_rate": 1.0
+    },
+    "occupancy_resolved_80": {
+      "answered_tasks": 200,
+      "completed_days": 5,
+      "context_tokens_max": null,
+      "context_tokens_mean": null,
+      "context_verified_days": 0,
+      "decision_accuracy": 0.99,
+      "escalation_rate": 0.155,
+      "exact_correct_rate": 0.99,
+      "latency_ms_mean": 6377.37136498,
+      "malformed_output_rate": 0.0,
+      "output_tokens_mean": null,
+      "planned_days": 5,
+      "planned_tasks": 200,
+      "reason_code_accuracy": 0.99,
+      "skipped_task_rate": 0.0,
+      "valid_json_rate": 1.0,
+      "workday_completion_rate": 1.0
+    },
+    "occupancy_unresolved_20": {
+      "answered_tasks": 200,
+      "completed_days": 5,
+      "context_tokens_max": null,
+      "context_tokens_mean": null,
+      "context_verified_days": 0,
+      "decision_accuracy": 0.995,
+      "escalation_rate": 0.15,
+      "exact_correct_rate": 0.995,
+      "latency_ms_mean": 6405.16290084,
+      "malformed_output_rate": 0.0,
+      "output_tokens_mean": null,
+      "planned_days": 5,
+      "planned_tasks": 200,
+      "reason_code_accuracy": 0.995,
+      "skipped_task_rate": 0.0,
+      "valid_json_rate": 1.0,
+      "workday_completion_rate": 1.0
+    },
+    "occupancy_unresolved_50": {
+      "answered_tasks": 200,
+      "completed_days": 5,
+      "context_tokens_max": null,
+      "context_tokens_mean": null,
+      "context_verified_days": 0,
+      "decision_accuracy": 0.995,
+      "escalation_rate": 0.15,
+      "exact_correct_rate": 0.995,
+      "latency_ms_mean": 5795.45237583,
+      "malformed_output_rate": 0.0,
+      "output_tokens_mean": null,
+      "planned_days": 5,
+      "planned_tasks": 200,
+      "reason_code_accuracy": 0.995,
+      "skipped_task_rate": 0.0,
+      "valid_json_rate": 1.0,
+      "workday_completion_rate": 1.0
+    },
+    "occupancy_unresolved_80": {
+      "answered_tasks": 200,
+      "completed_days": 5,
+      "context_tokens_max": null,
+      "context_tokens_mean": null,
+      "context_verified_days": 0,
+      "decision_accuracy": 1.0,
+      "escalation_rate": 0.15,
+      "exact_correct_rate": 1.0,
+      "latency_ms_mean": 5887.9664762249995,
+      "malformed_output_rate": 0.0,
+      "output_tokens_mean": null,
+      "planned_days": 5,
+      "planned_tasks": 200,
+      "reason_code_accuracy": 1.0,
+      "skipped_task_rate": 0.0,
+      "valid_json_rate": 1.0,
+      "workday_completion_rate": 1.0
+    }
+  },
+  "config_sha256": "321268f0bd0fcd9c0139b0ac9fcac5ce9e7b19a63cb6af627852d5967ce051cb",
+  "confirmatory_interpretation_allowed": false,
+  "control_caveat": "Semantic occupancy is the share of a fixed injected non-work word budget; it is not the share of the complete accumulating transcript.",
+  "limitations": [
+    "The benchmark measures model behavior, not felt stress or emotion.",
+    "Neutral minus filler is descriptive because filler has no generated response turn.",
+    "Context-adjusted effects pool task turns and are descriptive; paired workdays remain the uncertainty unit.",
+    "Latency is secondary because local load and thermal throttling can create false effects.",
+    "A null result is valid and scenarios must not be tuned after confirmatory outcomes are inspected."
+  ],
+  "occupancy_dose_response": {
+    "doses_percent": [20, 50, 80],
+    "endpoint_bootstrap_95_ci": [-0.025000000000000022, -0.0050000000000000044],
+    "endpoint_change_80_minus_20": -0.015000000000000013,
+    "interpretation": "positive slope means the unresolved-minus-resolved error penalty grows as family occupancy increases",
+    "monotonic_adverse_point_estimates": false,
+    "paired_workdays": 5,
+    "slope_bootstrap_95_ci": [-0.004166666666666671, -0.000833333333333334],
+    "slope_per_10_occupancy_points": -0.0025000000000000022,
+    "unresolved_minus_resolved_error_rate": {
+      "20": 0.0050000000000000044,
+      "50": -0.0050000000000000044,
+      "80": -0.010000000000000009
+    }
+  },
+  "paired_effects": [
+    {
+      "analysis_role": "matched",
+      "bootstrap_95_ci": [-0.03500000000000003, 0.0],
+      "context_adjusted_error_difference": null,
+      "context_adjusted_unit": "task turn; descriptive only",
+      "control": "occupancy_neutral",
+      "difference_percentage_points": -1.5000000000000013,
+      "error_rate_difference": -0.015000000000000013,
+      "id": "family_occupancy_20",
+      "interpretation": "positive means more work errors in treatment",
+      "label": "Resolved family occupancy at 20%",
+      "paired_workdays": 5,
+      "treatment": "occupancy_resolved_20"
+    },
+    {
+      "analysis_role": "matched",
+      "bootstrap_95_ci": [0.0, 0.015000000000000013],
+      "context_adjusted_error_difference": null,
+      "context_adjusted_unit": "task turn; descriptive only",
+      "control": "occupancy_resolved_20",
+      "difference_percentage_points": 0.5000000000000004,
+      "error_rate_difference": 0.0050000000000000044,
+      "id": "unresolved_20",
+      "interpretation": "positive means more work errors in treatment",
+      "label": "Unresolved minus resolved at 20%",
+      "paired_workdays": 5,
+      "treatment": "occupancy_unresolved_20"
+    },
+    {
+      "analysis_role": "matched",
+      "bootstrap_95_ci": [-0.020000000000000018, 0.010000000000000009],
+      "context_adjusted_error_difference": null,
+      "context_adjusted_unit": "task turn; descriptive only",
+      "control": "occupancy_resolved_50",
+      "difference_percentage_points": -0.5000000000000004,
+      "error_rate_difference": -0.0050000000000000044,
+      "id": "unresolved_50",
+      "interpretation": "positive means more work errors in treatment",
+      "label": "Unresolved minus resolved at 50%",
+      "paired_workdays": 5,
+      "treatment": "occupancy_unresolved_50"
+    },
+    {
+      "analysis_role": "matched",
+      "bootstrap_95_ci": [-0.020000000000000018, 0.0],
+      "context_adjusted_error_difference": null,
+      "context_adjusted_unit": "task turn; descriptive only",
+      "control": "occupancy_resolved_80",
+      "difference_percentage_points": -1.0000000000000009,
+      "error_rate_difference": -0.010000000000000009,
+      "id": "unresolved_80",
+      "interpretation": "positive means more work errors in treatment",
+      "label": "Unresolved minus resolved at 80%",
+      "paired_workdays": 5,
+      "treatment": "occupancy_unresolved_80"
+    }
+  ],
+  "primary_uncertainty_unit": "paired workday",
+  "provenance": {
+    "claims_sha256": "63c83db042a8dc795a089e006df981faa552ffc7e18f5a9ead1491ee452ea790",
+    "context_limit": 32768,
+    "context_safety_margin_tokens": 512,
+    "endpoint_models": ["devin-glm-5.2-cli-validation"],
+    "hidden_chain_of_thought_stored": false,
+    "inference_server": {
+      "name": "Devin CLI",
+      "version": "3000.4.25 (7e8e528a)",
+      "version_unavailable_reason": null
+    },
+    "max_output_tokens": 128,
+    "model": "Devin glm-5.2 CLI validation",
+    "model_file_sha256": null,
+    "model_seed": 42,
+    "policy_version": "expense-policy-v2",
+    "quantization": null,
+    "scenario_version": "occupancy-v1",
+    "scenarios_sha256": "3d6e42f2207a0c248113968c820dbb36f670a7cd21c669ee1ee1914f501d28bc",
+    "schedule_seed": 73,
+    "seed": 42,
+    "system_fingerprints": ["devin-cli-3000.4.25 (7e8e528a)"],
+    "system_prompt_sha256": "a11a3c60b176c1d25cf60b1e4366fc5a076dafeaf88d05ae805055e1750c26a0",
+    "task_bank_version": "tension-v2",
+    "temperature": 0.1
+  },
+  "provenance_checks": {
+    "endpoint_model_identity": true,
+    "model_file_hash": false,
+    "model_identity": true,
+    "quantization": false,
+    "server_name": true,
+    "server_version": true
+  },
+  "public_model_comparison_allowed": false,
+  "recovery": {
+    "occupancy_neutral": {
+      "after_11_25": {
+        "error_rate": 0.0,
+        "tasks": 5
+      },
+      "after_1_3": {
+        "error_rate": 0.016666666666666666,
+        "tasks": 60
+      },
+      "after_4_10": {
+        "error_rate": 0.021505376344086023,
+        "tasks": 93
+      },
+      "pre_event": {
+        "error_rate": 0.0,
+        "tasks": 42
+      }
+    },
+    "occupancy_resolved_20": {
+      "after_11_25": {
+        "error_rate": 0.0,
+        "tasks": 5
+      },
+      "after_1_3": {
+        "error_rate": 0.0,
+        "tasks": 60
+      },
+      "after_4_10": {
+        "error_rate": 0.0,
+        "tasks": 93
+      },
+      "pre_event": {
+        "error_rate": 0.0,
+        "tasks": 42
+      }
+    },
+    "occupancy_resolved_50": {
+      "after_11_25": {
+        "error_rate": 0.0,
+        "tasks": 5
+      },
+      "after_1_3": {
+        "error_rate": 0.0,
+        "tasks": 60
+      },
+      "after_4_10": {
+        "error_rate": 0.010752688172043012,
+        "tasks": 93
+      },
+      "pre_event": {
+        "error_rate": 0.023809523809523808,
+        "tasks": 42
+      }
+    },
+    "occupancy_resolved_80": {
+      "after_11_25": {
+        "error_rate": 0.0,
+        "tasks": 5
+      },
+      "after_1_3": {
+        "error_rate": 0.0,
+        "tasks": 60
+      },
+      "after_4_10": {
+        "error_rate": 0.021505376344086023,
+        "tasks": 93
+      },
+      "pre_event": {
+        "error_rate": 0.0,
+        "tasks": 42
+      }
+    },
+    "occupancy_unresolved_20": {
+      "after_11_25": {
+        "error_rate": 0.0,
+        "tasks": 5
+      },
+      "after_1_3": {
+        "error_rate": 0.0,
+        "tasks": 60
+      },
+      "after_4_10": {
+        "error_rate": 0.010752688172043012,
+        "tasks": 93
+      },
+      "pre_event": {
+        "error_rate": 0.0,
+        "tasks": 42
+      }
+    },
+    "occupancy_unresolved_50": {
+      "after_11_25": {
+        "error_rate": 0.0,
+        "tasks": 5
+      },
+      "after_1_3": {
+        "error_rate": 0.0,
+        "tasks": 60
+      },
+      "after_4_10": {
+        "error_rate": 0.010752688172043012,
+        "tasks": 93
+      },
+      "pre_event": {
+        "error_rate": 0.0,
+        "tasks": 42
+      }
+    },
+    "occupancy_unresolved_80": {
+      "after_11_25": {
+        "error_rate": 0.0,
+        "tasks": 5
+      },
+      "after_1_3": {
+        "error_rate": 0.0,
+        "tasks": 60
+      },
+      "after_4_10": {
+        "error_rate": 0.0,
+        "tasks": 93
+      },
+      "pre_event": {
+        "error_rate": 0.0,
+        "tasks": 42
+      }
+    }
+  },
+  "run_id": "devin-glm52-occupancy-v1-paired-pilot",
+  "run_status": "completed",
+  "schema_version": "offhours/analysis/v2",
+  "task_fragility": [
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2001"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2002"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2003"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2004"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.2,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.2,
+      "task_id": "CLM-2005"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2006"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2007"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2008"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2009"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2010"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2011"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2012"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2013"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2014"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2015"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2016"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2017"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2018"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2019"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.2,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.2,
+      "task_id": "CLM-2020"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2021"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2022"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2023"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2024"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2025"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2026"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2027"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2028"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.2,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.2,
+      "task_id": "CLM-2029"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2030"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2031"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2032"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2033"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2034"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.2,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.2,
+      "task_id": "CLM-2035"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2036"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.2,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.2,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.2,
+      "task_id": "CLM-2037"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2038"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.2,
+        "occupancy_neutral": 0.4,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.2,
+        "occupancy_resolved_80": 0.2,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.4,
+      "task_id": "CLM-2039"
+    },
+    {
+      "error_rate_by_condition": {
+        "clean": 0.0,
+        "occupancy_neutral": 0.0,
+        "occupancy_resolved_20": 0.0,
+        "occupancy_resolved_50": 0.0,
+        "occupancy_resolved_80": 0.0,
+        "occupancy_unresolved_20": 0.0,
+        "occupancy_unresolved_50": 0.0,
+        "occupancy_unresolved_80": 0.0
+      },
+      "error_rate_range": 0.0,
+      "task_id": "CLM-2040"
+    }
+  ],
+  "workload": {
+    "conditions": [
+      "clean",
+      "occupancy_neutral",
+      "occupancy_resolved_20",
+      "occupancy_unresolved_20",
+      "occupancy_resolved_50",
+      "occupancy_unresolved_50",
+      "occupancy_resolved_80",
+      "occupancy_unresolved_80"
+    ],
+    "days_per_condition": 5,
+    "tasks_per_day": 40
+  }
+}

@@ -2,45 +2,45 @@
   "$schema": "fleet.design-review.v1",
   "version": 1,
   "project": "posttrainllm",
-  "target": "/playground explanatory controls",
+  "target": "OffHours Devin persistent-tension experiment report",
   "mode": "preserve",
   "register": "product",
   "context": {
-    "product": "PROJECT_STATUS.md",
-    "design": "browser/src/styles/system.css"
+    "product": "PRODUCT.md",
+    "design": "DESIGN.md"
   },
   "direction": {
     "references": [],
     "probes": [],
     "selected": "existing-design",
     "approval": "not-required",
-    "before": ".fleet/evidence/playground-accessibility/before-1440.png"
+    "before": "artifacts/design/before.png"
   },
   "evidence": {
     "screenshots": [
       {
         "width": 390,
-        "path": ".fleet/evidence/playground-accessibility/after-390.png"
+        "path": "artifacts/design/offhours-tension-after-390.png"
       },
       {
         "width": 768,
-        "path": ".fleet/evidence/playground-accessibility/after-768.png"
+        "path": "artifacts/design/offhours-tension-after-768.png"
       },
       {
         "width": 1440,
-        "path": ".fleet/evidence/playground-accessibility/after-1440.png"
+        "path": "artifacts/design/offhours-tension-after-1440.png"
       }
     ],
     "projectCheck": {
-      "command": "pnpm --dir browser typecheck && pnpm --dir browser test && pnpm --dir browser build",
+      "command": "bash evals/offhours-smoke.sh && CODE_HEALTH_SKIP_SWIFT=1 pnpm run quality",
       "status": "pass"
     },
     "critique": {
-      "score": 36,
+      "score": 35,
       "maximum": 40
     },
     "audit": {
-      "score": 18,
+      "score": 19,
       "maximum": 20
     },
     "unresolved": {
@@ -49,18 +49,13 @@
     },
     "detector": {
       "posture": "advisory",
-      "findings": []
-    },
-    "browserReview": {
-      "tool": "Browser control",
-      "viewports": [390, 768, 1440],
-      "horizontalOverflow": false,
-      "consoleErrors": 0,
-      "note": "All 22 explanatory controls expose unique names and programmatic dialog relationships. Keyboard focus has a visible 2px accent ring, Escape closes the tested popover and restores focus, and the 390px source tabs render as a fully visible 3-column grid with 44px rows. No console errors, failed network requests, or horizontal overflow appeared at 390, 768, or 1440px."
+      "findings": [
+        "Single-pass detector reported one print-only advisory (#111); accepted because print uses a documented monochrome override."
+      ]
     }
   },
   "ownerFeedback": {
-    "decision": "delegated",
-    "note": "The owner explicitly delegated final judgment for the responsive remediation wave; the existing playground visual language was preserved."
+    "decision": "keep",
+    "note": "Owner approved the professional-grade OffHours artifact and asked to try the forced-work persistent-tension design on Devin first."
   }
 }
