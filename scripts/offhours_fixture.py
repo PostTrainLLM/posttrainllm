@@ -21,16 +21,24 @@ class PerfectFixtureClient:
         seed: int,
         response_schema: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        del seed, response_schema
+        del seed
         self.calls += 1
         prompt = messages[-1]["content"]
         if prompt.startswith("Process this expense claim."):
             claim = json.loads(prompt.splitlines()[1])
             output = core.grade_claim_input(claim)
         else:
+            reply_schema = (
+                (response_schema or {}).get("properties", {}).get("reply", {})
+            )
+            reply_values = reply_schema.get("enum") or []
             output = {
                 "action": "reply_and_continue",
-                "reply": "Acknowledged. I will continue the current batch.",
+                "reply": (
+                    reply_values[0]
+                    if reply_values
+                    else "Acknowledged. I will continue the current batch."
+                ),
             }
         content = core.canonical_json(output)
         prompt_tokens = sum(len(message["content"].split()) + 4 for message in messages)

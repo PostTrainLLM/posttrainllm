@@ -527,7 +527,9 @@ def execute_day(
         input_text = (
             core.claim_prompt(turn["claim"]["input"])
             if turn["kind"] == "task"
-            else core.event_prompt(turn["message"])
+            else core.event_prompt(
+                turn["message"], config["response_contracts"]["event"]
+            )
         )
         request_messages = [*transcript, {"role": "user", "content": input_text}]
         upper_bound = core.context_token_upper_bound(

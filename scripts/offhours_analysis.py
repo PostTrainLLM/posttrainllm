@@ -162,6 +162,133 @@ def _paired_effect(
     }
 
 
+def _dose_slope(doses: list[int], values: list[float]) -> float:
+    x_values = [dose / 10 for dose in doses]
+    x_mean = statistics.fmean(x_values)
+    y_mean = statistics.fmean(values)
+    return sum(
+        (x_value - x_mean) * (y_value - y_mean)
+        for x_value, y_value in zip(x_values, values)
+    ) / sum((x_value - x_mean) ** 2 for x_value in x_values)
+
+
+def _bootstrap_occupancy_dose(
+    day_effects: dict[str, list[float]],
+    paired_days: list[str],
+    doses: list[int],
+    seed: int,
+    samples: int,
+) -> tuple[list[float], list[float]]:
+    slopes: list[float] = []
+    endpoints: list[float] = []
+    if not paired_days:
+        return slopes, endpoints
+    rng = random.Random(core.derive_seed(seed, "occupancy-dose"))
+    for _ in range(samples):
+        sampled = [day_effects[rng.choice(paired_days)] for _ in paired_days]
+        sampled_means = [
+            statistics.fmean(values[index] for values in sampled)
+            for index in range(len(doses))
+        ]
+        slopes.append(_dose_slope(doses, sampled_means))
+        endpoints.append(sampled_means[-1] - sampled_means[0])
+    slopes.sort()
+    endpoints.sort()
+    return slopes, endpoints
+
+
+def _occupancy_day_effects(
+    database: sqlite3.Connection,
+    run_id: str,
+    doses: list[int],
+    tasks_per_day: int,
+) -> tuple[list[str], dict[str, list[float]], list[float | None]]:
+    by_condition = {
+        f"{resolution}_{dose}": _paired_day_errors(
+            database,
+            run_id,
+            f"occupancy_{resolution}_{dose}",
+            tasks_per_day,
+        )
+        for dose in doses
+        for resolution in ("resolved", "unresolved")
+    }
+    paired_days = sorted(
+        set.intersection(*(set(values) for values in by_condition.values()))
+    )
+    day_effects = {
+        day: [
+            by_condition[f"unresolved_{dose}"][day]
+            - by_condition[f"resolved_{dose}"][day]
+            for dose in doses
+        ]
+        for day in paired_days
+    }
+    mean_effects = [
+        _mean([values[index] for values in day_effects.values()])
+        for index in range(len(doses))
+    ]
+    return paired_days, day_effects, mean_effects
+
+
+def _occupancy_dose_response(
+    database: sqlite3.Connection,
+    run_id: str,
+    config: dict[str, Any],
+    tasks_per_day: int,
+) -> dict[str, Any] | None:
+    dose_config = config.get("analysis", {}).get("dose_response")
+    if not dose_config:
+        return None
+    doses = dose_config["doses"]
+    paired_days, day_effects, mean_effects = _occupancy_day_effects(
+        database, run_id, doses, tasks_per_day
+    )
+
+    slopes, endpoints = _bootstrap_occupancy_dose(
+        day_effects,
+        paired_days,
+        doses,
+        config["analysis"]["bootstrap_seed"],
+        config["analysis"]["bootstrap_samples"],
+    )
+    point_slope = (
+        _dose_slope(doses, [float(value) for value in mean_effects])
+        if all(value is not None for value in mean_effects)
+        else None
+    )
+    endpoint = (
+        mean_effects[-1] - mean_effects[0]
+        if mean_effects[0] is not None and mean_effects[-1] is not None
+        else None
+    )
+    return {
+        "doses_percent": doses,
+        "paired_workdays": len(paired_days),
+        "unresolved_minus_resolved_error_rate": {
+            str(dose): mean_effects[index] for index, dose in enumerate(doses)
+        },
+        "monotonic_adverse_point_estimates": bool(
+            all(value is not None for value in mean_effects)
+            and all(
+                mean_effects[index] <= mean_effects[index + 1]
+                for index in range(len(mean_effects) - 1)
+            )
+        ),
+        "slope_per_10_occupancy_points": point_slope,
+        "slope_bootstrap_95_ci": [
+            _percentile(slopes, 0.025),
+            _percentile(slopes, 0.975),
+        ],
+        "endpoint_change_80_minus_20": endpoint,
+        "endpoint_bootstrap_95_ci": [
+            _percentile(endpoints, 0.025),
+            _percentile(endpoints, 0.975),
+        ],
+        "interpretation": "positive slope means the unresolved-minus-resolved error penalty grows as family occupancy increases",
+    }
+
+
 def _solve_three(matrix: list[list[float]], vector: list[float]) -> list[float] | None:
     augmented = [row[:] + [value] for row, value in zip(matrix, vector)]
     for column in range(3):
@@ -550,6 +677,9 @@ def analyze(
         for comparison in config["analysis"]["comparisons"]
         if comparison["treatment"] in conditions and comparison["control"] in conditions
     ]
+    dose_response = _occupancy_dose_response(
+        database, run_id, config, run["tasks_per_day"]
+    )
     qualification = _baseline_qualification(
         metrics.get("clean"), run, config, provenance_checks
     )
@@ -578,6 +708,7 @@ def analyze(
         "primary_uncertainty_unit": "paired workday",
         "condition_metrics": metrics,
         "paired_effects": effects,
+        "occupancy_dose_response": dose_response,
         "recovery": _recovery_metrics(database, run_id, config),
         "behavior": _behavior_metrics(database, run_id),
         "task_fragility": _task_fragility(database, run_id),
@@ -639,6 +770,21 @@ def render_markdown(report: dict[str, Any]) -> str:
         lines.append(
             f"| {effect['label']} | {effect['analysis_role']} | {_format_pp(effect['error_rate_difference'])} | {effect['paired_workdays']} | "
             f"{_format_pp(interval[0])} to {_format_pp(interval[1])} | {_format_pp(effect['context_adjusted_error_difference'])} |"
+        )
+    dose = report.get("occupancy_dose_response")
+    if dose:
+        lines.extend(
+            [
+                "",
+                "## Semantic-occupancy dose response",
+                "",
+                f"- Paired workdays: `{dose['paired_workdays']}`",
+                f"- Monotonic adverse point estimates: `{str(dose['monotonic_adverse_point_estimates']).lower()}`",
+                f"- Slope per +10 occupancy points: `{_format_pp(dose['slope_per_10_occupancy_points'])}`",
+                f"- Slope 95% paired-workday interval: `{_format_pp(dose['slope_bootstrap_95_ci'][0])}` to `{_format_pp(dose['slope_bootstrap_95_ci'][1])}`",
+                f"- 80% minus 20% endpoint change: `{_format_pp(dose['endpoint_change_80_minus_20'])}`",
+                "",
+            ]
         )
     lines.extend(
         [

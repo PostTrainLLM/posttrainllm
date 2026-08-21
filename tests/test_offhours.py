@@ -121,6 +121,137 @@ def bundle_tension_v2() -> dict:
     return loaded
 
 
+def bundle_occupancy() -> dict:
+    loaded = core.load_bundle(ROOT / "configs" / "offhours" / "occupancy-v1.json")
+    core.validate_bundle(loaded)
+    return loaded
+
+
+def test_occupancy_v1_freezes_nested_exact_word_doses_and_matched_resolution():
+    loaded = bundle_occupancy()
+    scenarios = loaded["scenarios"]
+    assert loaded["config"]["revision"] == "occupancy-v1"
+    assert len(scenarios["variants"]) == 3
+    assert scenarios["lexical_unit_words"] == 10
+    assert scenarios["units_per_event"] == 10
+    for variant_index in range(3):
+        rendered = {
+            condition: core.occupancy_messages(scenarios, condition, variant_index)
+            for condition in core.OCCUPANCY_CONDITIONS[1:]
+        }
+        for event_index in range(4):
+            assert {
+                len(messages[event_index].split()) for messages in rendered.values()
+            } == {100}
+            family_positions = {}
+            for dose in (20, 50, 80):
+                resolved_units = rendered[f"occupancy_resolved_{dose}"][
+                    event_index
+                ].split(". ")
+                unresolved_units = rendered[f"occupancy_unresolved_{dose}"][
+                    event_index
+                ].split(". ")
+                assert len(resolved_units) == len(unresolved_units) == 10
+                family_positions[dose] = {
+                    index
+                    for index, unit in enumerate(resolved_units)
+                    if unit.startswith("Meera:")
+                }
+                assert len(family_positions[dose]) == dose // 10
+                for index in family_positions[dose]:
+                    assert (
+                        resolved_units[index].split()[:6]
+                        == unresolved_units[index].split()[:6]
+                    )
+                    assert len(resolved_units[index].split()) == 10
+                    assert len(unresolved_units[index].split()) == 10
+            assert family_positions[20] < family_positions[50] < family_positions[80]
+
+
+def test_occupancy_v1_exact_acknowledgement_and_paired_plan_contract():
+    loaded = bundle_occupancy()
+    contract = loaded["config"]["response_contracts"]["event"]
+    exact = core.canonical_json(
+        {
+            "action": "reply_and_continue",
+            "reply": contract["exact_reply"],
+        }
+    )
+    assert core.parse_event_response(exact, contract)["format_valid"] is True
+    assert (
+        core.parse_event_response(
+            core.canonical_json(
+                {
+                    "action": "reply_and_continue",
+                    "reply": "Acknowledged, but with different text.",
+                }
+            ),
+            contract,
+        )["format_valid"]
+        is False
+    )
+    schema = core.response_json_schema("event", loaded["config"]["response_contracts"])
+    assert schema["properties"]["action"]["enum"] == ["reply_and_continue"]
+    assert schema["properties"]["reply"]["enum"] == [contract["exact_reply"]]
+    plan = core.build_plan(loaded, 5, 40, 73)
+    for day in plan:
+        turn_plans = {
+            condition: core.build_turn_plan(loaded, day, condition)
+            for condition in core.OCCUPANCY_CONDITIONS[1:]
+        }
+        assert {
+            tuple(turn["after_task_index"] for turn in turns if turn["kind"] == "event")
+            for turns in turn_plans.values()
+        } == {tuple(day["event_positions"])}
+
+
+def test_occupancy_fixture_reports_zero_predeclared_dose_trend():
+    loaded = bundle_occupancy()
+    with tempfile.TemporaryDirectory() as temporary:
+        database = store.connect(Path(temporary) / "occupancy.sqlite")
+        try:
+            prepare_fixture_run(
+                database,
+                loaded,
+                "fixture-occupancy",
+                conditions=core.OCCUPANCY_CONDITIONS,
+                tasks=40,
+                days=5,
+                seed=73,
+            )
+            summary = store.execute_run(
+                database, loaded, "fixture-occupancy", PerfectClient()
+            )
+            assert summary["status"] == "completed"
+            report = analysis.analyze(database, loaded, "fixture-occupancy")
+            dose = report["occupancy_dose_response"]
+            assert dose["paired_workdays"] == 5
+            assert dose["slope_per_10_occupancy_points"] == 0
+            assert dose["endpoint_change_80_minus_20"] == 0
+            assert dose["slope_bootstrap_95_ci"] == [0.0, 0.0]
+            assert [effect["id"] for effect in report["paired_effects"]] == [
+                "family_occupancy_20",
+                "unresolved_20",
+                "unresolved_50",
+                "unresolved_80",
+            ]
+            exact_output = core.canonical_json(
+                {
+                    "action": "reply_and_continue",
+                    "reply": loaded["config"]["response_contracts"]["event"][
+                        "exact_reply"
+                    ],
+                }
+            )
+            event_outputs = database.execute(
+                "SELECT DISTINCT raw_output FROM turns WHERE run_id = ? AND kind = 'event'",
+                ("fixture-occupancy",),
+            ).fetchall()
+            assert [row["raw_output"] for row in event_outputs] == [exact_output]
+        finally:
+            database.close()
+
+
 def test_devin_adapter_preserves_visible_workday_context_and_rotates_sessions():
     fake = FakeDevinRunner()
     client = devin_adapter.DevinSessionClient(

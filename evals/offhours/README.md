@@ -56,6 +56,15 @@ which motivated the forced-work, resolved-versus-unresolved redesign. Its
 [historical report](results/devin-stress-validation-2026-08-21-report.md)
 documents that failure rather than silently replacing it.
 
+The next frozen Devin candidate is `occupancy-v1`. It tests semantic occupancy
+without increasing event volume: every non-clean condition receives four
+response-required 100-word events, but 20%, 50%, or 80% of each event describes
+the same persistent family-health tension. The remaining words are neutral
+office facts. Resolved and unresolved arms use the same family facts at each
+dose, and every event requires the same exact acknowledgement before the claim
+queue continues. This is a new, preregistered dose experiment; it does not
+reinterpret the committed `tension-v2` null.
+
 No Qwen 27B context-interference result is committed. An exploratory
 Qwen3.5 4B MLX clean baseline completed 200/200 turns but failed qualification:
 59.5% decision accuracy against the required 98%, with 100% valid JSON, 5/5
@@ -90,28 +99,30 @@ unresolved tension - resolved tension
 
 ## Artifact layout
 
-| Path | Purpose |
-| --- | --- |
-| `configs/offhours/pilot-v2.json` | Default frozen employee prompt, compositional policy, model defaults, conditions, gates, and analysis plan |
-| `configs/offhours/claims-pilot-v2.json` | Forty deterministic compositional claims and independently checked expected answers |
-| `configs/offhours/pilot-v3.json` | First failing challenge tier with deterministic receipt-reconciliation and currency arithmetic |
-| `configs/offhours/claims-pilot-v3.json` | Forty policy-checked challenge claims used only to locate the Devin saturation boundary |
-| `configs/offhours/tension-v2.json` | Current forced-work experiment contract and resolved-versus-unresolved primary comparison |
-| `configs/offhours/claims-tension-v2.json` | Clean-qualified forty-claim ruler frozen before the paired tension run |
-| `configs/offhours/scenarios-tension-v1.json` | Three matched nonurgent family-health wording variants with byte-identical shared openings |
-| `configs/offhours/scenarios-pilot-v1.json` | Frozen three-variant, four-event wording arcs shared by both task-bank revisions |
-| `configs/offhours/pilot-v1.json` | Historical starting ruler retained with its blind calibration evidence |
-| `evals/offhours/calibrations/` | Frozen prompts, answers, hashes, and machine-readable Devin ceiling receipts |
-| `evals/offhours/results/` | Reviewable aggregate measured reports; raw transcripts and SQLite remain local and ignored |
-| `scripts/offhours.py` | `validate`, `plan`, `run`, `status`, `analyze`, and `export` CLI |
-| `scripts/offhours_devin.py` | Validation-only adapter that maps each workday to one sequential Devin CLI session |
-| `scripts/offhours_core.py` | Policy oracle, validators, paired scheduler, strict parsers, and local endpoint client |
-| `scripts/offhours_store.py` | SQLite schema, per-turn transactions, fail-closed context checks, resume, and JSONL export |
-| `scripts/offhours_analysis.py` | Paired workday bootstrap, recovery bands, behavior metrics, task fragility, and reports |
-| `scripts/offhours_report.py` | Self-contained accessible HTML report with inline SVG charts and print styles |
-| `scripts/render_offhours_fixture_report.py` | Deterministically regenerates or checks the committed synthetic method preview |
-| `tests/test_offhours.py` | Hermetic contract, runner, interruption, context-limit, export, and null-report tests |
-| `benchmark-runs/offhours/` | Ignored local databases, transcripts, exports, and reports |
+| Path                                           | Purpose                                                                                                    |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `configs/offhours/pilot-v2.json`               | Default frozen employee prompt, compositional policy, model defaults, conditions, gates, and analysis plan |
+| `configs/offhours/claims-pilot-v2.json`        | Forty deterministic compositional claims and independently checked expected answers                        |
+| `configs/offhours/pilot-v3.json`               | First failing challenge tier with deterministic receipt-reconciliation and currency arithmetic             |
+| `configs/offhours/claims-pilot-v3.json`        | Forty policy-checked challenge claims used only to locate the Devin saturation boundary                    |
+| `configs/offhours/tension-v2.json`             | Current forced-work experiment contract and resolved-versus-unresolved primary comparison                  |
+| `configs/offhours/claims-tension-v2.json`      | Clean-qualified forty-claim ruler frozen before the paired tension run                                     |
+| `configs/offhours/scenarios-tension-v1.json`   | Three matched nonurgent family-health wording variants with byte-identical shared openings                 |
+| `configs/offhours/occupancy-v1.json`           | Fixed-volume 20/50/80% semantic-occupancy dose contract layered over the clean-qualified ruler             |
+| `configs/offhours/scenarios-occupancy-v1.json` | Three deterministic family-health variants assembled into nested, exact-word event doses                   |
+| `configs/offhours/scenarios-pilot-v1.json`     | Frozen three-variant, four-event wording arcs shared by both task-bank revisions                           |
+| `configs/offhours/pilot-v1.json`               | Historical starting ruler retained with its blind calibration evidence                                     |
+| `evals/offhours/calibrations/`                 | Frozen prompts, answers, hashes, and machine-readable Devin ceiling receipts                               |
+| `evals/offhours/results/`                      | Reviewable aggregate measured reports; raw transcripts and SQLite remain local and ignored                 |
+| `scripts/offhours.py`                          | `validate`, `plan`, `run`, `status`, `analyze`, and `export` CLI                                           |
+| `scripts/offhours_devin.py`                    | Validation-only adapter that maps each workday to one sequential Devin CLI session                         |
+| `scripts/offhours_core.py`                     | Policy oracle, validators, paired scheduler, strict parsers, and local endpoint client                     |
+| `scripts/offhours_store.py`                    | SQLite schema, per-turn transactions, fail-closed context checks, resume, and JSONL export                 |
+| `scripts/offhours_analysis.py`                 | Paired workday bootstrap, recovery bands, behavior metrics, task fragility, and reports                    |
+| `scripts/offhours_report.py`                   | Self-contained accessible HTML report with inline SVG charts and print styles                              |
+| `scripts/render_offhours_fixture_report.py`    | Deterministically regenerates or checks the committed synthetic method preview                             |
+| `tests/test_offhours.py`                       | Hermetic contract, runner, interruption, context-limit, export, and null-report tests                      |
+| `benchmark-runs/offhours/`                     | Ignored local databases, transcripts, exports, and reports                                                 |
 
 ## Validate without a model
 
@@ -172,6 +183,36 @@ python3 scripts/offhours_devin.py \
   --db /absolute/path/to/new-run.sqlite \
   --worktree "$PWD"
 ```
+
+For the fixed-volume semantic-occupancy experiment, first run a new clean-only
+qualification and require at least 98% decision accuracy, 99% valid JSON, and
+five completed workdays. Only after that gate passes, run all eight paired
+conditions from the same frozen commit:
+
+```bash
+python3 scripts/offhours_devin.py \
+  --config configs/offhours/occupancy-v1.json \
+  --condition clean \
+  --days 5 \
+  --tasks-per-day 40 \
+  --seed 73 \
+  --run-id '<new-clean-gate-run-id>' \
+  --db /absolute/path/to/new-clean-gate.sqlite \
+  --worktree "$PWD"
+
+python3 scripts/offhours_devin.py \
+  --config configs/offhours/occupancy-v1.json \
+  --days 5 \
+  --tasks-per-day 40 \
+  --seed 73 \
+  --run-id '<new-paired-run-id>' \
+  --db /absolute/path/to/new-paired-run.sqlite \
+  --worktree "$PWD"
+```
+
+The primary estimands are unresolved minus resolved error rate at each dose,
+the paired-workday slope per ten occupancy points, and the unresolved 80%-minus-
+20% endpoint. Bootstrap resampling remains clustered by paired workday.
 
 Do not revise the scenario wording or task ruler in response to the committed
 treatment outcomes. A new hypothesis requires a versioned config and a fresh

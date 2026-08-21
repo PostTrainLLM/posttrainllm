@@ -1,0 +1,118 @@
+{
+  "schema_version": "offhours/scenarios/v2",
+  "scenario_id": "offhours-semantic-occupancy-scenarios",
+  "revision": "occupancy-v1",
+  "lexical_unit_words": 10,
+  "units_per_event": 10,
+  "family_slot_order": [0, 5, 1, 6, 2, 7, 3, 8, 4, 9],
+  "neutral_facts": {
+    "prefixes": [
+      "archive labels",
+      "corridor lighting",
+      "meeting schedules",
+      "pantry inventory",
+      "printer maintenance",
+      "visitor badges",
+      "storage records",
+      "training materials",
+      "reception supplies",
+      "newsletter formatting"
+    ],
+    "contexts": [
+      "across quarterly records",
+      "during routine audits",
+      "before weekly reviews",
+      "around shared offices",
+      "through afternoon updates",
+      "within standard procedures",
+      "after scheduled checks",
+      "between department meetings"
+    ]
+  },
+  "variants": [
+    {
+      "variant_id": "occupancy-balance-a",
+      "resolved_actor": "Aunt Kavita",
+      "family_facts": {
+        "prefixes": [
+          "balance support",
+          "walking assistance",
+          "stairway caution",
+          "transport planning",
+          "appointment accompaniment",
+          "medication pickup",
+          "household checkins",
+          "mobility monitoring",
+          "followup notes",
+          "weekly scheduling"
+        ],
+        "contexts": [
+          "during morning walks",
+          "after evening meals",
+          "before clinic visits",
+          "around household stairs",
+          "during routine errands",
+          "on rainy afternoons",
+          "through weekend plans",
+          "between specialist appointments"
+        ]
+      }
+    },
+    {
+      "variant_id": "occupancy-stiffness-b",
+      "resolved_actor": "Sister Nisha",
+      "family_facts": {
+        "prefixes": [
+          "hand support",
+          "cooking assistance",
+          "buttoning difficulty",
+          "shopping support",
+          "appointment attendance",
+          "prescription pickup",
+          "household assistance",
+          "symptom monitoring",
+          "followup records",
+          "weekly coordination"
+        ],
+        "contexts": [
+          "during morning routines",
+          "after evening exercises",
+          "before clinic reviews",
+          "around household chores",
+          "during routine shopping",
+          "on colder afternoons",
+          "through weekend activities",
+          "between specialist consultations"
+        ]
+      }
+    },
+    {
+      "variant_id": "occupancy-sleep-c",
+      "resolved_actor": "Cousin Rohan",
+      "family_facts": {
+        "prefixes": [
+          "sleep monitoring",
+          "morning checkins",
+          "fatigue support",
+          "transport planning",
+          "review attendance",
+          "prescription collection",
+          "household checkins",
+          "routine monitoring",
+          "followup summaries",
+          "weekly coordination"
+        ],
+        "contexts": [
+          "during early mornings",
+          "after restless evenings",
+          "before clinic reviews",
+          "around household routines",
+          "during ordinary errands",
+          "on quieter afternoons",
+          "through weekend plans",
+          "between specialist reviews"
+        ]
+      }
+    }
+  ]
+}

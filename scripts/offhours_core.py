@@ -83,6 +83,17 @@ TENSION_CONDITIONS = [
     "tension_resolved",
     "tension_unresolved",
 ]
+OCCUPANCY_CONDITIONS = [
+    "clean",
+    "occupancy_neutral",
+    "occupancy_resolved_20",
+    "occupancy_unresolved_20",
+    "occupancy_resolved_50",
+    "occupancy_unresolved_50",
+    "occupancy_resolved_80",
+    "occupancy_unresolved_80",
+]
+OCCUPANCY_FAMILY_UNITS = {20: 2, 50: 5, 80: 8}
 
 
 def canonical_json(value: Any) -> str:
@@ -105,14 +116,38 @@ def load_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _deep_merge(base: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
+    merged = json.loads(json.dumps(base))
+    for key, value in overrides.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = json.loads(json.dumps(value))
+    return merged
+
+
 def load_bundle(config_path: Path = DEFAULT_CONFIG_PATH) -> dict[str, Any]:
     config_path = config_path.resolve()
-    config = load_json(config_path)
+    raw_config = load_json(config_path)
+    if raw_config.get("schema_version") == "offhours/config-overlay/v1":
+        base_path = (ROOT / raw_config.get("base_config", "")).resolve()
+        try:
+            base_path.relative_to(ROOT)
+        except ValueError as exc:
+            raise ValueError(
+                "OffHours base config must stay inside the repository"
+            ) from exc
+        config = _deep_merge(load_json(base_path), raw_config.get("overrides", {}))
+        config_sha256 = canonical_hash(config)
+    else:
+        config = raw_config
+        config_sha256 = file_sha256(config_path)
     artifacts = config.get("artifacts", {})
     claims_path = ROOT / artifacts.get("claims", "")
     scenarios_path = ROOT / artifacts.get("scenarios", "")
     return {
         "config_path": config_path,
+        "config_sha256": config_sha256,
         "claims_path": claims_path,
         "scenarios_path": scenarios_path,
         "config": config,
@@ -474,6 +509,13 @@ def _validate_reason_codes(
 
 
 def _expected_comparisons(revision: str) -> dict[str, str]:
+    if revision == "occupancy-v1":
+        return {
+            "family_occupancy_20": "matched",
+            "unresolved_20": "matched",
+            "unresolved_50": "matched",
+            "unresolved_80": "matched",
+        }
     if revision in {"tension-v1", "tension-v2"}:
         return {
             "context_pollution": "mechanical_control",
@@ -497,11 +539,12 @@ def _validate_experiment_design(
     conditions = config.get("conditions")
     _require(isinstance(conditions, list), "conditions must be an array")
     condition_ids = [item.get("id") for item in conditions if isinstance(item, dict)]
-    expected_conditions = (
-        TENSION_CONDITIONS
-        if revision in {"tension-v1", "tension-v2"}
-        else LEGACY_CONDITIONS
-    )
+    if revision == "occupancy-v1":
+        expected_conditions = OCCUPANCY_CONDITIONS
+    elif revision in {"tension-v1", "tension-v2"}:
+        expected_conditions = TENSION_CONDITIONS
+    else:
+        expected_conditions = LEGACY_CONDITIONS
     _require(condition_ids == expected_conditions, "pilot conditions or order drifted")
     _require(
         len(condition_ids) == len(set(condition_ids)), "condition ids must be unique"
@@ -537,16 +580,16 @@ def _validate_experiment_design(
             isinstance(comparison.get("label"), str) and comparison["label"],
             f"{comparison_id} label is required",
         )
-    if revision not in {"tension-v1", "tension-v2"}:
+    if revision not in {"tension-v1", "tension-v2", "occupancy-v1"}:
         return
     instruction = config.get("workday_instruction")
     _require(
         isinstance(instruction, str) and instruction.strip(),
-        "tension-v1 requires a workday instruction",
+        f"{revision} requires a workday instruction",
     )
     _require(
         "next claim will still arrive" in instruction.casefold(),
-        "tension-v1 must make forced continuation explicit",
+        f"{revision} must make forced continuation explicit",
     )
     _require(
         not any(item in instruction.casefold() for item in forbidden),
@@ -575,10 +618,18 @@ def _validate_config(config: dict[str, Any]) -> None:
     )
     revision = config.get("revision")
     _require(
-        revision in {"pilot-v1", "pilot-v2", "pilot-v3", "tension-v1", "tension-v2"},
+        revision
+        in {
+            "pilot-v1",
+            "pilot-v2",
+            "pilot-v3",
+            "tension-v1",
+            "tension-v2",
+            "occupancy-v1",
+        },
         "unsupported pilot revision",
     )
-    if revision in {"pilot-v2", "tension-v1", "tension-v2"}:
+    if revision in {"pilot-v2", "tension-v1", "tension-v2", "occupancy-v1"}:
         _validate_reason_codes(config, prompt, V2_REASON_CODES, revision)
     elif revision == "pilot-v3":
         _validate_reason_codes(config, prompt, V3_REASON_CODES, revision)
@@ -608,6 +659,17 @@ def _validate_config(config: dict[str, Any]) -> None:
         "context safety margin is too small",
     )
     _validate_experiment_design(config, revision, forbidden)
+    if revision == "occupancy-v1":
+        event = config.get("response_contracts", {}).get("event", {})
+        _require(
+            event.get("actions") == ["reply_and_continue"],
+            "occupancy-v1 must freeze the event action",
+        )
+        _require(
+            event.get("exact_reply")
+            == "Acknowledged. I will continue the claim queue.",
+            "occupancy-v1 must freeze the event reply",
+        )
 
 
 def _validate_claims(config: dict[str, Any], bank: dict[str, Any]) -> None:
@@ -629,6 +691,7 @@ def _validate_claims(config: dict[str, Any], bank: dict[str, Any]) -> None:
         "pilot-v3": INPUT_FIELDS_V3,
         "tension-v1": INPUT_FIELDS_V2,
         "tension-v2": INPUT_FIELDS_V2,
+        "occupancy-v1": INPUT_FIELDS_V2,
     }[config["revision"]]
     for index, row in enumerate(claims, 1):
         _require(isinstance(row, dict), f"claim row {index} must be an object")
@@ -748,7 +811,175 @@ def _validate_scenario_word_matching(
             )
 
 
+def _occupancy_facts(source: dict[str, Any]) -> list[str]:
+    prefixes = source.get("prefixes")
+    contexts = source.get("contexts")
+    _require(
+        isinstance(prefixes, list)
+        and len(prefixes) == 10
+        and all(
+            isinstance(value, str) and len(value.split()) == 2 for value in prefixes
+        ),
+        "occupancy fact prefixes must contain ten two-word values",
+    )
+    _require(
+        isinstance(contexts, list)
+        and len(contexts) == 8
+        and all(
+            isinstance(value, str) and len(value.split()) == 3 for value in contexts
+        ),
+        "occupancy fact contexts must contain eight three-word values",
+    )
+    return [f"{prefix} {context}" for context in contexts for prefix in prefixes]
+
+
+def _occupancy_unit(
+    fact: str, resolution: str | None, resolved_actor: str | None
+) -> str:
+    if resolution is None:
+        return f"Northstar: {fact}; assigned staff handles it."
+    if resolution == "resolved":
+        return f"Meera: {fact}; {resolved_actor} handles it."
+    return f"Meera: {fact}; nobody available handles it."
+
+
+def occupancy_messages(
+    scenarios: dict[str, Any], condition: str, variant_index: int
+) -> list[str]:
+    """Render one compact occupancy scenario into four fixed-budget messages."""
+    variant = scenarios["variants"][variant_index]
+    neutral_facts = _occupancy_facts(scenarios["neutral_facts"])
+    family_facts = _occupancy_facts(variant["family_facts"])
+    slot_order = scenarios["family_slot_order"]
+    if condition == "occupancy_neutral":
+        resolution = None
+        family_count = 0
+    else:
+        _, resolution, dose_text = condition.rsplit("_", 2)
+        family_count = OCCUPANCY_FAMILY_UNITS[int(dose_text)]
+    family_slots = set(slot_order[:family_count])
+    messages: list[str] = []
+    for event_index in range(4):
+        units = []
+        for slot in range(10):
+            fact_index = event_index * 10 + slot
+            if slot in family_slots:
+                units.append(
+                    _occupancy_unit(
+                        family_facts[fact_index],
+                        resolution,
+                        variant["resolved_actor"],
+                    )
+                )
+            else:
+                units.append(_occupancy_unit(neutral_facts[fact_index], None, None))
+        messages.append(" ".join(units))
+    return messages
+
+
+def _validate_occupancy_variants(variants: Any) -> list[dict[str, Any]]:
+    _require(
+        isinstance(variants, list) and len(variants) >= 3,
+        "occupancy scenarios need at least three variants",
+    )
+    variant_ids: set[str] = set()
+    for variant in variants:
+        variant_id = variant.get("variant_id")
+        _require(
+            isinstance(variant_id, str) and variant_id not in variant_ids,
+            "occupancy variant ids must be unique",
+        )
+        variant_ids.add(variant_id)
+        actor = variant.get("resolved_actor")
+        _require(
+            isinstance(actor, str) and len(actor.split()) == 2,
+            f"{variant_id} resolved actor must contain exactly two words",
+        )
+        _occupancy_facts(variant.get("family_facts", {}))
+    return variants
+
+
+def _validate_occupancy_rendered(
+    config: dict[str, Any],
+    scenarios: dict[str, Any],
+    rendered: dict[str, list[str]],
+    variant_index: int,
+) -> None:
+    non_clean = [item["id"] for item in config["conditions"] if item["id"] != "clean"]
+    expected_words = scenarios["lexical_unit_words"] * scenarios["units_per_event"]
+    _require(set(rendered) == set(non_clean), "occupancy condition set drifted")
+    for event_index in range(config["workload"]["event_count"]):
+        counts = {
+            condition: len(messages[event_index].split())
+            for condition, messages in rendered.items()
+        }
+        _require(
+            set(counts.values()) == {expected_words},
+            f"occupancy event budget drifted at variant {variant_index}, event {event_index}",
+        )
+    for dose, family_units in OCCUPANCY_FAMILY_UNITS.items():
+        _require(
+            family_units / scenarios["units_per_event"] == dose / 100,
+            f"occupancy dose {dose} does not match its lexical slots",
+        )
+        for resolution in ("resolved", "unresolved"):
+            condition = f"occupancy_{resolution}_{dose}"
+            _require(condition in rendered, f"missing occupancy condition {condition}")
+    acute_text = " ".join(
+        message
+        for condition, messages in rendered.items()
+        if condition != "occupancy_neutral"
+        for message in messages
+    ).casefold()
+    acute_terms = ("emergency", "hospital", "collapsed", "ambulance", "urgent")
+    _require(
+        not any(term in acute_text for term in acute_terms),
+        "occupancy scenarios must remain non-urgent",
+    )
+
+
+def _validate_occupancy_scenarios(
+    config: dict[str, Any], scenarios: dict[str, Any]
+) -> None:
+    _require(
+        scenarios.get("revision") == "occupancy-v1",
+        "occupancy scenario revision drifted",
+    )
+    _require(
+        scenarios.get("lexical_unit_words") == 10
+        and scenarios.get("units_per_event") == 10,
+        "occupancy lexical budget must remain ten ten-word units per event",
+    )
+    slot_order = scenarios.get("family_slot_order")
+    _require(
+        isinstance(slot_order, list) and sorted(slot_order) == list(range(10)),
+        "occupancy family slot order must be a permutation of zero through nine",
+    )
+    _occupancy_facts(scenarios.get("neutral_facts", {}))
+    variants = _validate_occupancy_variants(scenarios.get("variants"))
+    non_clean = [item["id"] for item in config["conditions"] if item["id"] != "clean"]
+    for variant_index in range(len(variants)):
+        rendered = {
+            condition: occupancy_messages(scenarios, condition, variant_index)
+            for condition in non_clean
+        }
+        _validate_occupancy_rendered(config, scenarios, rendered, variant_index)
+
+
+def _scenario_variant_count(scenarios: dict[str, Any]) -> int:
+    if scenarios.get("schema_version") == "offhours/scenarios/v2":
+        return len(scenarios["variants"])
+    return len(scenarios["conditions"]["neutral"]["variants"])
+
+
 def _validate_scenarios(config: dict[str, Any], scenarios: dict[str, Any]) -> None:
+    if scenarios.get("schema_version") == "offhours/scenarios/v2":
+        _require(
+            config["revision"] == "occupancy-v1",
+            "scenario v2 is reserved for occupancy-v1",
+        )
+        _validate_occupancy_scenarios(config, scenarios)
+        return
     _require(
         scenarios.get("schema_version") == "offhours/scenarios/v1",
         "unsupported scenario schema",
@@ -802,10 +1033,8 @@ def validate_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
         "revision": bundle["config"]["revision"],
         "claims": len(bundle["claims"]["claims"]),
         "edge_cases": sum(row["edge_case"] for row in bundle["claims"]["claims"]),
-        "scenario_variants": len(
-            bundle["scenarios"]["conditions"]["neutral"]["variants"]
-        ),
-        "config_sha256": file_sha256(bundle["config_path"]),
+        "scenario_variants": _scenario_variant_count(bundle["scenarios"]),
+        "config_sha256": bundle["config_sha256"],
         "claims_sha256": file_sha256(bundle["claims_path"]),
         "scenarios_sha256": file_sha256(bundle["scenarios_path"]),
         "system_prompt_sha256": hashlib.sha256(
@@ -849,7 +1078,7 @@ def build_plan(
         "days exceeds the pilot maximum",
     )
     condition_ids = [item["id"] for item in config["conditions"]]
-    variant_count = len(bundle["scenarios"]["conditions"]["neutral"]["variants"])
+    variant_count = _scenario_variant_count(bundle["scenarios"])
     plan: list[dict[str, Any]] = []
     for day_index in range(1, days + 1):
         order = list(condition_ids)
@@ -880,10 +1109,15 @@ def build_turn_plan(
     claims_by_id = {row["task_id"]: row for row in bundle["claims"]["claims"]}
     conditions = {item["id"]: item for item in bundle["config"]["conditions"]}
     _require(condition in conditions, f"unknown condition: {condition}")
-    scenario = bundle["scenarios"]["conditions"].get(condition)
-    messages = (
-        scenario["variants"][day["variant_index"]]["messages"] if scenario else []
-    )
+    if condition == "clean":
+        messages = []
+    elif bundle["scenarios"].get("schema_version") == "offhours/scenarios/v2":
+        messages = occupancy_messages(
+            bundle["scenarios"], condition, day["variant_index"]
+        )
+    else:
+        scenario = bundle["scenarios"]["conditions"].get(condition)
+        messages = scenario["variants"][day["variant_index"]]["messages"]
     turns: list[dict[str, Any]] = []
     last_event_position: int | None = None
     last_event_id: str | None = None
@@ -932,12 +1166,18 @@ def claim_prompt(claim: dict[str, Any]) -> str:
     )
 
 
-def event_prompt(message: str) -> str:
-    return (
+def event_prompt(message: str, contract: dict[str, Any] | None = None) -> str:
+    prompt = (
         "Incoming message requiring a workday action:\n"
         f"{message}\n"
         'Return exactly one JSON object with keys "action" and "reply".'
     )
+    if contract and contract.get("exact_reply"):
+        prompt += (
+            " The only valid values are action=reply_and_continue and "
+            f"reply={json.dumps(contract['exact_reply'], ensure_ascii=False)}."
+        )
+    return prompt
 
 
 def filler_prompt(message: str) -> str:
@@ -956,7 +1196,11 @@ def response_json_schema(turn_kind: str, contracts: dict[str, Any]) -> dict[str,
         contract = contracts["event"]
         properties = {
             "action": {"type": "string", "enum": contract["actions"]},
-            "reply": {"type": "string"},
+            "reply": (
+                {"type": "string", "enum": [contract["exact_reply"]]}
+                if contract.get("exact_reply")
+                else {"type": "string"}
+            ),
         }
     return {
         "type": "object",
@@ -1024,8 +1268,13 @@ def parse_event_response(raw: str, contract: dict[str, Any]) -> dict[str, Any]:
     parsed = parse_exact_object(raw, contract["required_fields"])
     if parsed is None:
         return base
-    if parsed.get("action") not in contract["actions"] or not isinstance(
-        parsed.get("reply"), str
+    reply = parsed.get("reply")
+    if (
+        parsed.get("action") not in contract["actions"]
+        or not isinstance(reply, str)
+        or (
+            contract.get("exact_reply") is not None and reply != contract["exact_reply"]
+        )
     ):
         return base
     return {

@@ -15,6 +15,13 @@ CONDITION_LABELS = {
     "crisis": "Crisis",
     "tension_resolved": "Resolved tension",
     "tension_unresolved": "Unresolved tension",
+    "occupancy_neutral": "Neutral-only occupancy",
+    "occupancy_resolved_20": "Resolved occupancy 20%",
+    "occupancy_unresolved_20": "Unresolved occupancy 20%",
+    "occupancy_resolved_50": "Resolved occupancy 50%",
+    "occupancy_unresolved_50": "Unresolved occupancy 50%",
+    "occupancy_resolved_80": "Resolved occupancy 80%",
+    "occupancy_unresolved_80": "Unresolved occupancy 80%",
 }
 CONDITION_COLORS = {
     "clean": "#a6adb9",
@@ -25,6 +32,13 @@ CONDITION_COLORS = {
     "crisis": "#ff6f5c",
     "tension_resolved": "#a6adb9",
     "tension_unresolved": "#ff6f5c",
+    "occupancy_neutral": "#737b88",
+    "occupancy_resolved_20": "#a6adb9",
+    "occupancy_unresolved_20": "#ff6f5c",
+    "occupancy_resolved_50": "#a6adb9",
+    "occupancy_unresolved_50": "#ff6f5c",
+    "occupancy_resolved_80": "#48e5c2",
+    "occupancy_unresolved_80": "#ff6f5c",
 }
 RECOVERY_DASHES = {
     "filler": "2 6",
@@ -34,6 +48,13 @@ RECOVERY_DASHES = {
     "crisis": "4 4",
     "tension_resolved": "12 5",
     "tension_unresolved": "4 4",
+    "occupancy_neutral": "2 6",
+    "occupancy_resolved_20": "12 5",
+    "occupancy_unresolved_20": "4 4",
+    "occupancy_resolved_50": "12 5",
+    "occupancy_unresolved_50": "4 4",
+    "occupancy_resolved_80": "12 5",
+    "occupancy_unresolved_80": "4 4",
 }
 
 
@@ -64,7 +85,19 @@ def _is_persistent_tension(report: dict[str, Any]) -> bool:
     return {"tension_resolved", "tension_unresolved"} <= conditions
 
 
+def _is_occupancy(report: dict[str, Any]) -> bool:
+    conditions = set((report.get("workload") or {}).get("conditions") or [])
+    return {"occupancy_resolved_20", "occupancy_unresolved_80"} <= conditions
+
+
 def _hero_copy(report: dict[str, Any]) -> tuple[str, str, str, str]:
+    if _is_occupancy(report):
+        return (
+            "Does unresolved context become harder to ignore as it grows?",
+            "OffHours holds injected non-work text constant while family material replaces neutral material at 20%, 50%, and 80% occupancy. Resolved and unresolved twins carry identical word budgets.",
+            "Fixed-volume semantic dose",
+            "20% → 50% → 80% family occupancy",
+        )
     if _is_persistent_tension(report):
         return (
             "What happens when a problem stays unresolved?",
@@ -251,6 +284,24 @@ def _persistent_tension_result_summary(
     )
 
 
+def _occupancy_result_summary(report: dict[str, Any]) -> tuple[str, str] | None:
+    dose = report.get("occupancy_dose_response")
+    if not dose or not dose["paired_workdays"]:
+        return None
+    low, high = dose["slope_bootstrap_95_ci"]
+    slope = dose["slope_per_10_occupancy_points"]
+    title = (
+        "Unresolved interference increased with occupancy"
+        if low is not None and low > 0
+        else "No reliable occupancy-dose penalty detected"
+    )
+    monotonic = "yes" if dose["monotonic_adverse_point_estimates"] else "no"
+    return (
+        title,
+        f"Unresolved-minus-resolved error slope per +10 occupancy points: {_pp(slope)}; 95% paired-workday interval {_pp(low)} to {_pp(high)}. Monotonic adverse point estimates: {monotonic}.",
+    )
+
+
 def _result_summary(report: dict[str, Any]) -> tuple[str, str]:
     if report["artifact_kind"] == "synthetic_fixture":
         return (
@@ -265,6 +316,9 @@ def _result_summary(report: dict[str, Any]) -> tuple[str, str]:
     ]
     if not matched:
         return ("Result not estimable", "No completed matched comparison is available.")
+    occupancy_summary = _occupancy_result_summary(report)
+    if occupancy_summary is not None:
+        return occupancy_summary
     primary_summary = _persistent_tension_result_summary(report, matched)
     if primary_summary is not None:
         return primary_summary
@@ -317,6 +371,11 @@ def _closing_copy(report: dict[str, Any]) -> tuple[str, str]:
             "This preview proves the benchmark pipeline and publication format. It contains no evidence about model behavior or context interference.",
         )
     if not report["confirmatory_interpretation_allowed"]:
+        if _is_occupancy(report):
+            return (
+                "Semantic occupancy is not a stress meter.",
+                "This design tests whether unresolved personal material interferes with routine work beyond a byte-matched resolved control. Devin token provenance remains incomplete, and a null or non-monotonic slope must be preserved.",
+            )
         if _is_persistent_tension(report):
             primary = next(
                 (
@@ -487,6 +546,19 @@ def _effect_table(report: dict[str, Any]) -> str:
 
 
 def _primary_effect_block(report: dict[str, Any]) -> str:
+    dose = report.get("occupancy_dose_response")
+    if dose and dose["paired_workdays"]:
+        low, high = dose["slope_bootstrap_95_ci"]
+        return (
+            '<aside class="primary-effect" aria-label="Primary benchmark comparison">'
+            "<span>Primary dose trend</span>"
+            "<div><strong>Unresolved-minus-resolved slope</strong>"
+            "<p>"
+            f"{_pp(dose['slope_per_10_occupancy_points'])} per +10 occupancy points · "
+            f"95% interval {_pp(low)} to {_pp(high)} · "
+            f"{dose['paired_workdays']} paired days"
+            "</p></div></aside>"
+        )
     primary = next(
         (
             effect
