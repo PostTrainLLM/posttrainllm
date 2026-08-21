@@ -210,6 +210,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--config", type=Path, default=core.DEFAULT_CONFIG_PATH)
     parser.add_argument("--condition", action="append")
     parser.add_argument("--days", type=int, default=5)
+    parser.add_argument(
+        "--day-index",
+        type=int,
+        action="append",
+        help="run only this planned day; volume-v1 adjudication supports day 3 only",
+    )
     parser.add_argument("--tasks-per-day", type=int, default=40)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--run-id", default="devin-glm52-offhours-validation-v1")
@@ -229,6 +235,15 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError(
             "Devin validation requires at least "
             f"{workload['days_per_condition_min']} days per condition"
+        )
+    selected_day_indices = tuple(args.day_index) if args.day_index else None
+    if selected_day_indices is not None and (
+        bundle["config"]["revision"] != "volume-v1"
+        or selected_day_indices != (3,)
+        or args.days < 3
+    ):
+        raise ValueError(
+            "selective Devin workdays are restricted to volume-v1 day 3 adjudication"
         )
     if args.tasks_per_day != workload["tasks_per_day"]:
         raise ValueError(
@@ -268,6 +283,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
                 seed=args.seed,
                 conditions=conditions,
                 provenance=provenance,
+                selected_day_indices=selected_day_indices,
             ),
         )
         return store.execute_run(

@@ -32,6 +32,7 @@ class RunSpec:
     seed: int
     conditions: list[str]
     provenance: dict[str, Any]
+    selected_day_indices: tuple[int, ...] | None = None
 
 
 @dataclass(frozen=True)
@@ -180,13 +181,31 @@ def build_provenance(
     }
 
 
+def _selected_plan(bundle: dict[str, Any], spec: RunSpec) -> list[dict[str, Any]]:
+    plan = core.build_plan(bundle, spec.days, spec.tasks_per_day, spec.seed)
+    if spec.selected_day_indices is None:
+        return plan
+    selected = spec.selected_day_indices
+    available = {day["day_index"] for day in plan}
+    if (
+        not selected
+        or len(selected) != len(set(selected))
+        or not set(selected) <= available
+    ):
+        raise ValueError("selected day indices must be unique planned workdays")
+    selected_set = set(selected)
+    return [day for day in plan if day["day_index"] in selected_set]
+
+
 def prepare_run(
     database: sqlite3.Connection,
     bundle: dict[str, Any],
     spec: RunSpec,
 ) -> None:
     run_id = spec.run_id
-    plan = core.build_plan(bundle, spec.days, spec.tasks_per_day, spec.seed)
+    plan = _selected_plan(bundle, spec)
+    planned_days = len(plan)
+    plan_json = core.canonical_json(plan)
     valid_conditions = {item["id"] for item in bundle["config"]["conditions"]}
     if (
         not spec.conditions
@@ -204,9 +223,10 @@ def prepare_run(
         expected = (
             config_hash,
             spec.seed,
-            spec.days,
+            planned_days,
             spec.tasks_per_day,
             core.canonical_json(spec.conditions),
+            plan_json,
             core.canonical_json(spec.provenance),
         )
         actual = (
@@ -215,6 +235,7 @@ def prepare_run(
             existing["days"],
             existing["tasks_per_day"],
             existing["conditions_json"],
+            existing["plan_json"],
             existing["provenance_json"],
         )
         if actual != expected:
@@ -236,10 +257,10 @@ def prepare_run(
                 created_at,
                 config_hash,
                 spec.seed,
-                spec.days,
+                planned_days,
                 spec.tasks_per_day,
                 core.canonical_json(spec.conditions),
-                core.canonical_json(plan),
+                plan_json,
                 core.canonical_json(spec.provenance),
             ),
         )

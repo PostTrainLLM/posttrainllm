@@ -115,7 +115,26 @@ def _is_occupancy(report: dict[str, Any]) -> bool:
     return {"occupancy_resolved_20", "occupancy_unresolved_80"} <= conditions
 
 
+def _volume_rung(report: dict[str, Any]) -> int | None:
+    conditions = (report.get("workload") or {}).get("conditions") or []
+    if not conditions or not all(name.startswith("volume_") for name in conditions):
+        return None
+    try:
+        rungs = {int(name.rsplit("_", 1)[1]) for name in conditions}
+    except ValueError:
+        return None
+    return next(iter(rungs)) if len(rungs) == 1 else None
+
+
 def _hero_copy(report: dict[str, Any]) -> tuple[str, str, str, str]:
+    volume_rung = _volume_rung(report)
+    if volume_rung is not None:
+        return (
+            "How much interference can the workday absorb?",
+            f"OffHours injects four {volume_rung:,}-word events into each workday while holding claims, event positions, response turns, and grading fixed. Neutral, resolved, and unresolved arms carry identical word budgets.",
+            "Three matched volume arms",
+            f"{volume_rung:,} words/event · {volume_rung * 4:,} submitted words/day",
+        )
     if _is_occupancy(report):
         return (
             "Does unresolved context become harder to ignore as it grows?",
@@ -156,6 +175,12 @@ def _status_copy(report: dict[str, Any]) -> tuple[str, str, str]:
             "caution",
             "Measured run; ceiling required",
             "The run qualifies for internal interpretation, but public model comparison remains locked until the Devin ceiling passes.",
+        )
+    if _volume_rung(report) is not None:
+        return (
+            "validation",
+            "Measured saturation rung · provenance limited",
+            "This selected-condition rung is descriptive within the preregistered ladder: clean baseline not included in this selected-condition run; its qualification is retained separately. Devin CLI does not expose active prompt-token usage.",
         )
     checks = (report.get("baseline_qualification") or {}).get("checks", {})
     if _is_persistent_tension(report) and all(
@@ -327,6 +352,74 @@ def _occupancy_result_summary(report: dict[str, Any]) -> tuple[str, str] | None:
     )
 
 
+def _volume_result_summary(
+    report: dict[str, Any], matched: list[dict[str, Any]], volume_rung: int
+) -> tuple[str, str]:
+    primary = next(
+        (
+            effect
+            for effect in matched
+            if effect["id"] == f"unresolved_volume_{volume_rung}"
+        ),
+        None,
+    )
+    metrics = report["condition_metrics"].values()
+    rung_passed = all(
+        item["decision_accuracy"] >= 0.98
+        and item["valid_json_rate"] >= 0.99
+        and item["workday_completion_rate"] == 1
+        for item in metrics
+    )
+    if primary is None:
+        return (
+            "Result not estimable",
+            "The matched resolution contrast is missing.",
+        )
+    low, high = primary["bootstrap_95_ci"]
+    title = (
+        "No work-quality boundary at this rung"
+        if rung_passed
+        else "This rung crossed a work-quality gate"
+    )
+    return (
+        title,
+        f"{volume_rung * 4:,} submitted interference words/day; unresolved minus resolved error rate {_pp(primary['error_rate_difference'])}, 95% paired-workday interval {_pp(low)} to {_pp(high)}. Submitted words are not verified active context tokens.",
+    )
+
+
+def _unqualified_result_summary(
+    report: dict[str, Any], largest: dict[str, Any]
+) -> tuple[str, str]:
+    clean_metrics = report["condition_metrics"].get("clean")
+    clean_accuracy = clean_metrics.get("decision_accuracy") if clean_metrics else None
+    provenance_complete = (
+        (report.get("baseline_qualification") or {})
+        .get("checks", {})
+        .get("complete_provenance", False)
+    )
+    provenance_state = (
+        "model identity complete"
+        if provenance_complete
+        else "required model identity incomplete"
+    )
+    if clean_metrics is None:
+        clean_state = "clean baseline not included in this selected-condition run"
+    else:
+        clean_state = (
+            f"clean baseline {_rate(clean_accuracy)} passed"
+            if clean_accuracy is not None and clean_accuracy >= 0.98
+            else f"clean baseline {_rate(clean_accuracy)} < 98.0%"
+        )
+    detail = "".join(
+        (
+            f"Largest matched estimate: {_pp(largest['error_rate_difference'])} ",
+            f"for {largest['label']}. Qualification is blocked: {clean_state}; ",
+            f"{provenance_state}.",
+        )
+    )
+    return ("Unqualified run — descriptive signal only", detail)
+
+
 def _result_summary(report: dict[str, Any]) -> tuple[str, str]:
     if report["artifact_kind"] == "synthetic_fixture":
         return (
@@ -341,6 +434,9 @@ def _result_summary(report: dict[str, Any]) -> tuple[str, str]:
     ]
     if not matched:
         return ("Result not estimable", "No completed matched comparison is available.")
+    volume_rung = _volume_rung(report)
+    if volume_rung is not None:
+        return _volume_result_summary(report, matched, volume_rung)
     occupancy_summary = _occupancy_result_summary(report)
     if occupancy_summary is not None:
         return occupancy_summary
@@ -349,40 +445,7 @@ def _result_summary(report: dict[str, Any]) -> tuple[str, str]:
         return primary_summary
     largest = max(matched, key=lambda effect: abs(effect["error_rate_difference"]))
     if not report["confirmatory_interpretation_allowed"]:
-        clean_metrics = report["condition_metrics"].get("clean")
-        clean_accuracy = (
-            clean_metrics.get("decision_accuracy") if clean_metrics else None
-        )
-        provenance_complete = (
-            (report.get("baseline_qualification") or {})
-            .get("checks", {})
-            .get("complete_provenance", False)
-        )
-        provenance_state = (
-            "model identity complete"
-            if provenance_complete
-            else "required model identity incomplete"
-        )
-        if clean_metrics is None:
-            clean_state = "clean baseline not included in this selected-condition run"
-        else:
-            clean_gate_passed = clean_accuracy is not None and clean_accuracy >= 0.98
-            clean_state = (
-                f"clean baseline {_rate(clean_accuracy)} passed"
-                if clean_gate_passed
-                else f"clean baseline {_rate(clean_accuracy)} < 98.0%"
-            )
-        detail = "".join(
-            (
-                f"Largest matched estimate: {_pp(largest['error_rate_difference'])} ",
-                f"for {largest['label']}. Qualification is blocked: {clean_state}; ",
-                f"{provenance_state}.",
-            )
-        )
-        return (
-            "Unqualified run — descriptive signal only",
-            detail,
-        )
+        return _unqualified_result_summary(report, largest)
     return (
         f"Largest matched effect: {_pp(largest['error_rate_difference'])}",
         f"{largest['label']} across {largest['paired_workdays']} paired workdays; inspect its interval before interpreting direction.",
@@ -402,6 +465,12 @@ def _closing_copy(report: dict[str, Any]) -> tuple[str, str]:
             "This preview proves the benchmark pipeline and publication format. It contains no evidence about model behavior or context interference.",
         )
     if not report["confirmatory_interpretation_allowed"]:
+        volume_rung = _volume_rung(report)
+        if volume_rung is not None:
+            return (
+                "Submitted text is not verified model context.",
+                f"This rung controls {volume_rung:,} whitespace-delimited words per event and logs input characters. Devin may summarize or manage context internally, so the result bounds the regular Devin workflow—not GLM-5.2's raw context window.",
+            )
         if _is_occupancy(report):
             return (
                 "Semantic occupancy is not a stress meter.",

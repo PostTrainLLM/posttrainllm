@@ -185,6 +185,44 @@ def test_volume_v1_freezes_exact_rungs_and_matched_high_occupancy_arms():
         } == {tuple(day["event_positions"])}
 
 
+def test_volume_adjudication_selects_only_the_frozen_third_day():
+    loaded = bundle_volume()
+    conditions = ["volume_neutral_500", "volume_resolved_500"]
+    with tempfile.TemporaryDirectory() as temporary:
+        database = store.connect(Path(temporary) / "adjudication.sqlite")
+        try:
+            provenance = store.build_provenance(loaded)
+            store.prepare_run(
+                database,
+                loaded,
+                store.RunSpec(
+                    run_id="fixture-volume-adjudication",
+                    days=3,
+                    tasks_per_day=40,
+                    seed=83,
+                    conditions=conditions,
+                    provenance=provenance,
+                    selected_day_indices=(3,),
+                ),
+            )
+            run = database.execute(
+                "SELECT days, plan_json FROM runs WHERE run_id = ?",
+                ("fixture-volume-adjudication",),
+            ).fetchone()
+            assert run["days"] == 1
+            plan = json.loads(run["plan_json"])
+            assert [day["day_id"] for day in plan] == ["day_003"]
+            rows = database.execute(
+                "SELECT day_id, condition FROM days ORDER BY condition"
+            ).fetchall()
+            assert [(row["day_id"], row["condition"]) for row in rows] == [
+                ("day_003", "volume_neutral_500"),
+                ("day_003", "volume_resolved_500"),
+            ]
+        finally:
+            database.close()
+
+
 def test_volume_subset_report_does_not_invent_an_embedded_clean_gate():
     loaded = bundle_volume()
     conditions = [f"volume_{arm}_500" for arm in core.VOLUME_ARMS]
@@ -209,7 +247,12 @@ def test_volume_subset_report_does_not_invent_an_embedded_clean_gate():
             measured["confirmatory_interpretation_allowed"] = False
             html = report_renderer.render_html(measured)
             assert "clean baseline not included in this selected-condition run" in html
-            assert "Unqualified run" in html
+            assert "How much interference can the workday absorb?" in html
+            assert "500 words/event · 2,000 submitted words/day" in html
+            assert "No work-quality boundary at this rung" in html
+            assert (
+                "regular Devin workflow—not GLM-5.2&#x27;s raw context window" in html
+            )
         finally:
             database.close()
 
