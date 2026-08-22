@@ -244,6 +244,15 @@ const clampedTwitterDescription = clampDescription(
     </script>
     <!-- fleet-jsonld:end -->
     <script is:inline async src="/scripts/posthog.js"></script>
+    <!-- Microsoft Clarity — session replay + heatmaps (additive; PostHog stays) -->
+    <script is:inline>
+      (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/y6br5d0ds7";
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window,document,"clarity","script","y6br5d0ds7");
+      window.clarity("set","project_id","posttrainllm");
+    </script>
   </head>
   <body>
     <slot />
