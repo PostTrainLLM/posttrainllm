@@ -296,6 +296,18 @@ async function buildOutputs() {
 > A Mac-local LLM specialist factory: post-training, evidence-gated packaging,
 > MLX runtime work, and a WebGPU playground.
 
+## When to use this
+
+Reach for PostTrainLLM when you need to train, fine-tune, evaluate, or package a specialist LLM on a single Apple Silicon Mac — without cloud compute. Best-fit jobs:
+
+- Fine-tuning an open model with LoRA/QLoRA on a Mac (MLX)
+- Evaluating a local model against frozen benchmarks (BFCL, tool-calling, perplexity)
+- Packaging a trained specialist for MLX or on-device inference
+- Comparing Mac-local training approaches (distillation, GRPO, SFT)
+- Running the WebGPU inference playground in a browser
+
+Do not use PostTrainLLM for: large-scale distributed training, frontier-scale pretraining, or anything that requires a GPU cluster — it is designed for one Mac.
+
 ## Public surface
 
 - [Home](${ORIGIN}/): Product and research-lab overview
@@ -308,6 +320,7 @@ async function buildOutputs() {
   }
 - [Devlog](${ORIGIN}/devlog): Build history
 - [Agent catalog](${ORIGIN}/api/ai): Complete page-to-Markdown inventory
+- [OpenAPI spec](${ORIGIN}/openapi.json): Machine-readable API description
 - [Sitemap](${ORIGIN}/sitemap.xml): Canonical public HTML routes
 - [Full agent index](${ORIGIN}/llms-full.txt): Every public page grouped by kind
 
@@ -349,7 +362,8 @@ factory runs, models, private artifacts, and unpublished evidence are excluded.
         llmsFull: `${ORIGIN}/llms-full.txt`,
         sitemap: `${ORIGIN}/sitemap.xml`,
         robots: `${ORIGIN}/robots.txt`,
-        markdown: { suffix: ".md", negotiation: false },
+        markdown: { suffix: ".md", negotiation: true },
+        openapi: `${ORIGIN}/openapi.json`,
         surfaces,
         machineResources,
         auth: {
