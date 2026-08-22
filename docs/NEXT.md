@@ -377,8 +377,11 @@ Exit criteria:
 0.5. Run the autocorrect no-model smokes:
    `bash evals/autocorrect-foundation-smoke.sh` and
    `bash evals/autocorrect-adapter-smoke.sh`. Both are now in the CI evals job.
-1. Verify live command evidence emission on the next approved factory run.
-   **Bridge half done (2026-07-11):** `scripts/assemble_factory_run.py` is the
+1. ~~Verify live command evidence emission on the next approved factory run.~~
+   **Done (2026-08-22):** closed as superseded (#69). The infrastructure is
+   merged and smoke-verified; live-run verification is now implicit in the next
+   real factory run rather than a standalone ticket.
+   **Bridge (2026-07-11):** `scripts/assemble_factory_run.py` is the
    generic report-artifact bridge. It turns the emitted fragments (`config`,
    `dataset`, `eval-baseline`, `eval-candidate`, `decision`, optional
    `artifact`/`slice-metrics`/`trace_review`) into a canonical run folder with
@@ -387,7 +390,7 @@ Exit criteria:
    `scripts/check_factory_run_publish.py` and the typed Swift `FactoryRunFolder`
    validator (smoke: `bash evals/factory-run-assemble-smoke.sh`).
    `scripts/render_sql_factory_run.py` remains the SQL-specific one-shot renderer.
-   **Lifecycle metadata done (2026-07-25):** new native renders and generic
+   **Lifecycle metadata (2026-07-25):** new native renders and generic
    assemblies emit versioned `run-status.json`, update verified advisory
    current/latest pointers, and record boundary transitions only after durable
    metadata writes. `factory-run init/status/transition/list/reconcile` are
@@ -395,15 +398,14 @@ Exit criteria:
    operator action. Legacy folders remain valid and can be imported explicitly
    without invented history. This does not resume training or alter
    `decision.json`/publication authority.
-   **Implemented without model work (2026-08-04):** opt-in `--factory-run`
-   integration now has Swift `sft` record bounded training/cost/artifact
-   evidence, `eval-gate` record the frozen primary suite's canonical
-   baseline/candidate pair, and `eval-compare` derive compatible slice metrics.
-   Typed writes cross lifecycle boundaries only after durable validation, and
-   `bash evals/factory-run-live-evidence-smoke.sh` proves the full metadata path
-   without loading MLX. **Remaining (operator-verify-gated):** exercise the
-   flags during the next already-justified GPU train/eval run; do not create a
-   speculative target solely for plumbing verification.
+   **`--factory-run` flags (2026-08-04):** opt-in integration has Swift `sft`
+   record bounded training/cost/artifact evidence, `eval-gate` record the frozen
+   primary suite's canonical baseline/candidate pair, and `eval-compare` derive
+   compatible slice metrics. Typed writes cross lifecycle boundaries only after
+   durable validation, and `bash evals/factory-run-live-evidence-smoke.sh`
+   proves the full metadata path without loading MLX. The next owner-approved
+   factory run exercises these flags as part of its normal flow; any
+   command-integration defect found then gets its own focused issue.
 2. Run `scripts/build_sql_spider_execution_gate.py` against a local Spider DB
    bundle and score the current routed candidate on execution accuracy.
 3. Measure routed SQL latency, RAM/peak RSS, and tok/s
