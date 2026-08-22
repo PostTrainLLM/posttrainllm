@@ -85,7 +85,12 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy browser/dist --project-name=tinygpt --commit-dirty=true --branch=main
+          # Run from browser/ so wrangler finds browser/functions/_middleware.ts.
+          # Wrangler looks for functions/ relative to the CWD, not the deploy
+          # directory — deploying from the repo root with `pages deploy browser/dist`
+          # silently skips the functions directory.
+          workingDirectory: browser
+          command: pages deploy dist --project-name=tinygpt --commit-dirty=true --branch=main
 
       - name: Smoke production
         run: curl --fail --silent --show-error --location --output /dev/null --retry 5 --retry-delay 5 --max-time 20 https://posttrainllm.com/
