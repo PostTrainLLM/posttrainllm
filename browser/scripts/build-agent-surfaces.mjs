@@ -329,6 +329,24 @@ Do not use PostTrainLLM for: large-scale distributed training, frontier-scale pr
 Public machine resources are catalogued separately from HTML pages. Local
 factory runs, models, private artifacts, and unpublished evidence are excluded.
 \`decision.json\` remains the terminal quality and product authority.
+
+## CLI
+
+PostTrainLLM ships a native Mac CLI for the full factory loop:
+
+\`\`\`bash
+# build the native factory CLI
+git clone https://github.com/PostTrainLLM/posttrainllm && cd native-mac
+swift build --product posttrainllm
+
+# distill a specialist, gate it, serve it
+posttrainllm distill --teacher qwen3 --student …
+posttrainllm eval-gate --spec sql.json --candidate …
+posttrainllm serve --port 8080  # OpenAI-compatible
+\`\`\`
+
+The CLI exposes 100+ subcommands covering train, eval, package, serve, and
+inspect. See \`posttrainllm --help\` for the full command surface.
 `;
   const llmsFull =
     `${llms}\n` +

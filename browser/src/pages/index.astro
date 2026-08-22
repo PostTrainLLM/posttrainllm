@@ -35,42 +35,67 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
   </header>
 
   <main class="landing" id="main">
-
     <!-- ================= HERO ================= -->
     <section class="hero">
       <!-- the identity IS the composition: the loss curve draws across the whole fold -->
-      <svg class="hero-curve" viewBox="0 0 1440 560" preserveAspectRatio="none" aria-hidden="true">
+      <svg
+        class="hero-curve"
+        viewBox="0 0 1440 560"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
         <defs>
           <linearGradient id="lcv" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#48e5c2" stop-opacity="0.14" />
-            <stop offset="1" stop-color="#48e5c2" stop-opacity="0" />
+            <stop offset="0" stop-color="#48e5c2" stop-opacity="0.14"></stop>
+            <stop offset="1" stop-color="#48e5c2" stop-opacity="0"></stop>
           </linearGradient>
         </defs>
-        <path class="hc-fill" d="M0,60 C240,72 380,360 700,440 C980,508 1240,516 1440,522 L1440,560 L0,560 Z" fill="url(#lcv)" />
-        <path class="hc-line" d="M0,60 C240,72 380,360 700,440 C980,508 1240,516 1440,522" fill="none" stroke="#48e5c2" stroke-width="2" stroke-linecap="round" />
-        <circle class="hc-dot" cx="1440" cy="522" r="5" fill="#48e5c2" />
+        <path
+          class="hc-fill"
+          d="M0,60 C240,72 380,360 700,440 C980,508 1240,516 1440,522 L1440,560 L0,560 Z"
+          fill="url(#lcv)"></path>
+        <path
+          class="hc-line"
+          d="M0,60 C240,72 380,360 700,440 C980,508 1240,516 1440,522"
+          fill="none"
+          stroke="#48e5c2"
+          stroke-width="2"
+          stroke-linecap="round"></path>
+        <circle class="hc-dot" cx="1440" cy="522" r="5" fill="#48e5c2"></circle>
       </svg>
 
       <div class="wrap hero-inner">
-        <p class="hero-kicker mono-label reveal"><span class="pulse"></span> a one-machine research lab · MIT</p>
-        <h1 class="hero-h1">Train specialist LLMs<br />on <span class="tl">one Mac</span>.</h1>
+        <p class="hero-kicker mono-label reveal">
+          <span class="pulse"></span> a one-machine research lab · MIT
+        </p>
+        <h1 class="hero-h1">
+          PostTrainLLM: Train specialist LLMs<br />on <span class="tl"
+            >one Mac</span
+          >.
+        </h1>
         <p class="hero-lede reveal">
-          PostTrainLLM turns a stock open model into a <em>routed specialist</em> that
-          earns its keep — then shows you exactly where it fails. Distill, fine-tune,
-          gate on real evals, package for MLX, and open the model up with
+          PostTrainLLM turns a stock open model into a <em>routed specialist</em
+          > that earns its keep — then shows you exactly where it fails. Distill,
+          fine-tune, gate on real evals, package for MLX, and open the model up with
           interpretability. One Apple&nbsp;Silicon machine. No cloud. No hand-waving.
         </p>
         <div class="hero-cta reveal">
           <a class="btn btn-primary" href="/artifacts">See the specialists</a>
-          <a class="btn btn-ghost" href="/playground">Train one in your browser →</a>
+          <a class="btn btn-ghost" href="/playground"
+            >Train one in your browser →</a
+          >
         </div>
         <a class="mac-release-entry reveal" href="/download">
           <span>Native Mac app</span>
-          <span class:list={["mac-release-dot", { ready: macRelease.downloadable }]} aria-hidden="true"></span>
+          <span
+            class:list={["mac-release-dot", { ready: macRelease.downloadable }]}
+            aria-hidden="true"></span>
           <strong>{macReleaseLabel}</strong>
           <span aria-hidden="true">→</span>
         </a>
-        <p class="hero-curve-cap mono-label" aria-hidden="true">loss · huge-base-v1 · 200k steps · 0 spikes · 4.16</p>
+        <p class="hero-curve-cap mono-label" aria-hidden="true">
+          loss · huge-base-v1 · 200k steps · 0 spikes · 4.16
+        </p>
       </div>
 
       <div class="wrap">
@@ -93,10 +118,26 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
           understand the whole machine while doing it.
         </h2>
         <div class="man-grid">
-          <p><b>Win on the Mac.</b> Be best-in-class at what one Apple&nbsp;Silicon machine can actually do — train, post-train, evaluate, serve, inspect — with no cluster and no cloud dependency.</p>
-          <p><b>Learn the whole space.</b> From <code>y = mx + b</code> to a self-improving factory. Every technique is built from scratch, anchored to the paper, and mapped to the file where it lives.</p>
-          <p><b>Show the scars.</b> Failed runs are first-class. Every attempt is logged with the decision it forced. A number without its regression is marketing, not a result.</p>
-          <p><b>Build everything buildable here.</b> If it fits on this Mac, it gets built — and packaged so that when compute arrives, the lab scales from a running start.</p>
+          <p>
+            <b>Win on the Mac.</b> Be best-in-class at what one Apple&nbsp;Silicon
+            machine can actually do — train, post-train, evaluate, serve, inspect
+            — with no cluster and no cloud dependency.
+          </p>
+          <p>
+            <b>Learn the whole space.</b> From <code>y = mx + b</code> to a self-improving
+            factory. Every technique is built from scratch, anchored to the paper,
+            and mapped to the file where it lives.
+          </p>
+          <p>
+            <b>Show the scars.</b> Failed runs are first-class. Every attempt is logged
+            with the decision it forced. A number without its regression is marketing,
+            not a result.
+          </p>
+          <p>
+            <b>Build everything buildable here.</b> If it fits on this Mac, it gets
+            built — and packaged so that when compute arrives, the lab scales from
+            a running start.
+          </p>
         </div>
       </div>
     </section>
@@ -106,18 +147,47 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
       <div class="wrap">
         <header class="band-head">
           <h2>The loop the runtime closes.</h2>
-          <p class="band-sub">Each surface emits the input the next one needs. Every run ends in a schema-valid folder — config, dataset, eval, decision, report — that <code>factory-run</code> validates.</p>
+          <p class="band-sub">
+            Each surface emits the input the next one needs. Every run ends in a
+            schema-valid folder — config, dataset, eval, decision, report — that <code
+              >factory-run</code
+            > validates.
+          </p>
         </header>
         <ol class="loop-steps" role="list">
-          <li><span class="ls-n">01</span><span class="ls-k">target</span><code>frozen</code></li>
-          <li><span class="ls-n">02</span><span class="ls-k">data</span><code>5,675 rows</code></li>
-          <li><span class="ls-n">03</span><span class="ls-k">post-train</span><code>dpo · 200 steps</code></li>
-          <li><span class="ls-n">04</span><span class="ls-k">eval</span><code class="ok">exec 0.920</code></li>
-          <li><span class="ls-n">05</span><span class="ls-k">package</span><code>tgla · mlx</code></li>
-          <li class="dec"><span class="ls-n">06</span><span class="ls-k">decide</span><code>retry-data</code></li>
+          <li>
+            <span class="ls-n">01</span><span class="ls-k">target</span><code
+              >frozen</code>
+          </li>
+          <li>
+            <span class="ls-n">02</span><span class="ls-k">data</span><code
+              >5,675 rows</code>
+          </li>
+          <li>
+            <span class="ls-n">03</span><span class="ls-k">post-train</span
+            ><code>dpo · 200 steps</code>
+          </li>
+          <li>
+            <span class="ls-n">04</span><span class="ls-k">eval</span><code
+              class="ok">exec 0.920</code>
+          </li>
+          <li>
+            <span class="ls-n">05</span><span class="ls-k">package</span><code
+              >tgla · mlx</code>
+          </li>
+          <li class="dec">
+            <span class="ls-n">06</span><span class="ls-k">decide</span><code
+              >retry-data</code>
+          </li>
         </ol>
         <p class="loop-latest mono-label">
-          latest · 2026-07-11 · qwen06-sql-hygiene-dpo · reference-anchored DPO fixed an earlier collapse, execution 0.860→0.920 with no regression — but output hygiene is a base-model prior, so the decision is <span class="dec-t">retry-data</span>. the one proof still missing is a run whose decision is <span class="ship">ship</span>.
+          latest · 2026-07-11 · qwen06-sql-hygiene-dpo · reference-anchored DPO
+          fixed an earlier collapse, execution 0.860→0.920 with no regression —
+          but output hygiene is a base-model prior, so the decision is <span
+            class="dec-t">retry-data</span
+          >. the one proof still missing is a run whose decision is <span
+            class="ship">ship</span
+          >.
         </p>
       </div>
     </section>
@@ -127,31 +197,58 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
       <div class="wrap">
         <header class="band-head">
           <h2>Specialists, honest by design.</h2>
-          <p class="band-sub">A specialist beats a generalist on its target and routes away when it shouldn't answer. Every result ships with the regression it costs.</p>
+          <p class="band-sub">
+            A specialist beats a generalist on its target and routes away when
+            it shouldn't answer. Every result ships with the regression it
+            costs.
+          </p>
         </header>
         <div class="spec-grid">
           <article class="spec">
-            <div class="spec-top"><span class="mono-label live">released · weights</span><span class="spec-badge">4B · MLX</span></div>
+            <div class="spec-top">
+              <span class="mono-label live">released · weights</span><span
+                class="spec-badge">4B · MLX</span>
+            </div>
             <h3>Qwen3-4B, file-ops distilled</h3>
-            <p class="spec-body">Distilled to <strong>100%</strong> on the multi-turn file-ops hard gate (BFCL), up from 58%. The honest cost: out-of-domain breadth dropped <strong>59.6% → 42.3%</strong> — real catastrophic forgetting. It ships <em>routed</em>, never as a general planner.</p>
+            <p class="spec-body">
+              Distilled to <strong>100%</strong> on the multi-turn file-ops hard gate
+              (BFCL), up from 58%. The honest cost: out-of-domain breadth dropped
+              <strong>59.6% → 42.3%</strong> — real catastrophic forgetting. It ships
+              <em>routed</em>, never as a general planner.
+            </p>
             <dl class="spec-metrics">
               <div><dt>file-ops gate</dt><dd>58 → <b>100%</b></dd></div>
               <div><dt>OOD breadth</dt><dd class="down">59.6 → 42.3%</dd></div>
             </dl>
-            <a class="spec-link" href="/docs/learn/tool-calling-frontier-parity">The distillation write-up →</a>
+            <a class="spec-link" href="/docs/learn/tool-calling-frontier-parity"
+              >The distillation write-up →</a
+            >
           </article>
           <article class="spec">
-            <div class="spec-top"><span class="mono-label brand">report-only candidate</span><span class="spec-badge">0.6B · routed</span></div>
+            <div class="spec-top">
+              <span class="mono-label brand">report-only candidate</span><span
+                class="spec-badge">0.6B · routed</span>
+            </div>
             <h3>Qwen3-0.6B, routed SQL</h3>
-            <p class="spec-body">Two adapters behind a router. Two reference-anchored DPO retries cured a policy collapse and pushed execution to <strong>0.920</strong> — but output hygiene is a base-model prior a small adapter can't strip. Decision: <em>retry-data</em>.</p>
+            <p class="spec-body">
+              Two adapters behind a router. Two reference-anchored DPO retries
+              cured a policy collapse and pushed execution to <strong
+                >0.920</strong
+              > — but output hygiene is a base-model prior a small adapter can't strip.
+              Decision: <em>retry-data</em>.
+            </p>
             <dl class="spec-metrics">
               <div><dt>synthetic exec</dt><dd>0.860 → <b>0.920</b></dd></div>
               <div><dt>clean-SQL</dt><dd class="down">0.000</dd></div>
             </dl>
-            <a class="spec-link" href="/artifacts/qwen06-sql-routed-v1">Full artifact + blockers →</a>
+            <a class="spec-link" href="/artifacts/qwen06-sql-routed-v1"
+              >Full artifact + blockers →</a
+            >
           </article>
         </div>
-        <a class="band-more" href="/artifacts">Every artifact, with evidence and blockers →</a>
+        <a class="band-more" href="/artifacts"
+          >Every artifact, with evidence and blockers →</a
+        >
       </div>
     </section>
 
@@ -160,14 +257,31 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
       <div class="wrap">
         <header class="band-head">
           <h2>Measured, on one machine.</h2>
-          <p class="band-sub">Every figure below was recorded on a single Apple <strong>M5&nbsp;Pro / 48&nbsp;GB</strong>. No estimates, no extrapolation.</p>
+          <p class="band-sub">
+            Every figure below was recorded on a single Apple <strong
+              >M5&nbsp;Pro / 48&nbsp;GB</strong
+            >. No estimates, no extrapolation.
+          </p>
         </header>
         <div class="metric-row" role="list">
-          <div role="listitem"><b>76</b><span class="mu">tok/s</span><small>4B decode, MLX</small></div>
-          <div role="listitem"><b>12.1×</b><span class="mu">speedup</span><small>WebGPU vs WASM, XL</small></div>
-          <div role="listitem"><b>&lt;45s</b><span class="mu">per pass</span><small>50-row SQL eval</small></div>
-          <div role="listitem"><b>0</b><span class="mu">spikes</span><small>200k pretrain steps</small></div>
-          <div role="listitem"><b>½</b><span class="mu">memory</span><small>ref-free vs DPO</small></div>
+          <div role="listitem">
+            <b>76</b><span class="mu">tok/s</span><small>4B decode, MLX</small>
+          </div>
+          <div role="listitem">
+            <b>12.1×</b><span class="mu">speedup</span><small
+              >WebGPU vs WASM, XL</small>
+          </div>
+          <div role="listitem">
+            <b>&lt;45s</b><span class="mu">per pass</span><small
+              >50-row SQL eval</small>
+          </div>
+          <div role="listitem">
+            <b>0</b><span class="mu">spikes</span><small
+              >200k pretrain steps</small>
+          </div>
+          <div role="listitem">
+            <b>½</b><span class="mu">memory</span><small>ref-free vs DPO</small>
+          </div>
         </div>
       </div>
     </section>
@@ -177,15 +291,54 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
       <div class="wrap">
         <header class="band-head">
           <h2>The whole stack — audited against the code.</h2>
-          <p class="band-sub">Not a wrapper. Every capability is a real subcommand with tests behind it.</p>
+          <p class="band-sub">
+            Not a wrapper. Every capability is a real subcommand with tests
+            behind it.
+          </p>
         </header>
         <div class="pillars">
-          <div class="pillar"><span class="pillar-i mono-label">train</span><p>Pretrain, SFT, DPO / SimPO / KTO / ORPO, distillation, ES. Full PEFT — LoRA, LoRA+, DoRA, VeRA, LoftQ, AdaLoRA, PISSA. WSD schedules, spike recovery, z-loss.</p></div>
-          <div class="pillar"><span class="pillar-i mono-label">eval</span><p>BFCL, τ-bench, lm-eval (MLX adapter), HumanEval + sandbox, SQL execution, router, MILU, MTEB. Frozen baselines, slice metrics, non-zero-exit gates.</p></div>
-          <div class="pillar"><span class="pillar-i mono-label">serve</span><p>OpenAI- and Ollama-compatible on one socket. Agent loop, tool dispatch, FSM-constrained JSON, persistent KV cache, speculative decoding, optional cloud escalation.</p></div>
-          <div class="pillar"><span class="pillar-i mono-label">package</span><p>Export to MLX, safetensors, CoreML. Quantize (GGUF / AWQ / GPTQ / HQQ), prune, merge, bake-LoRA with DoRA magnitudes. Specialist model cards.</p></div>
-          <div class="pillar"><span class="pillar-i mono-label">inspect</span><p>SAE features, ROME, MEMIT, tuned / logit lens, activation patching, linear probes, attention heatmaps. Know <em>where</em> the model decides.</p></div>
-          <div class="pillar"><span class="pillar-i mono-label">browser</span><p>The same model trains in a browser tab via hand-written WebGPU kernels — Memory64, FlashAttention-2, blocked matmul. A from-scratch learning track, honest negative results included.</p></div>
+          <div class="pillar">
+            <span class="pillar-i mono-label">train</span><p>
+              Pretrain, SFT, DPO / SimPO / KTO / ORPO, distillation, ES. Full
+              PEFT — LoRA, LoRA+, DoRA, VeRA, LoftQ, AdaLoRA, PISSA. WSD
+              schedules, spike recovery, z-loss.
+            </p>
+          </div>
+          <div class="pillar">
+            <span class="pillar-i mono-label">eval</span><p>
+              BFCL, τ-bench, lm-eval (MLX adapter), HumanEval + sandbox, SQL
+              execution, router, MILU, MTEB. Frozen baselines, slice metrics,
+              non-zero-exit gates.
+            </p>
+          </div>
+          <div class="pillar">
+            <span class="pillar-i mono-label">serve</span><p>
+              OpenAI- and Ollama-compatible on one socket. Agent loop, tool
+              dispatch, FSM-constrained JSON, persistent KV cache, speculative
+              decoding, optional cloud escalation.
+            </p>
+          </div>
+          <div class="pillar">
+            <span class="pillar-i mono-label">package</span><p>
+              Export to MLX, safetensors, CoreML. Quantize (GGUF / AWQ / GPTQ /
+              HQQ), prune, merge, bake-LoRA with DoRA magnitudes. Specialist
+              model cards.
+            </p>
+          </div>
+          <div class="pillar">
+            <span class="pillar-i mono-label">inspect</span><p>
+              SAE features, ROME, MEMIT, tuned / logit lens, activation
+              patching, linear probes, attention heatmaps. Know <em>where</em> the
+              model decides.
+            </p>
+          </div>
+          <div class="pillar">
+            <span class="pillar-i mono-label">browser</span><p>
+              The same model trains in a browser tab via hand-written WebGPU
+              kernels — Memory64, FlashAttention-2, blocked matmul. A
+              from-scratch learning track, honest negative results included.
+            </p>
+          </div>
         </div>
       </div>
     </section>
@@ -195,19 +348,43 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
       <div class="wrap">
         <header class="band-head">
           <h2>The lab keeps a paper trail.</h2>
-          <p class="band-sub">Every experiment, lesson, and recipe is written down — with the decision it forced and the file it lives in.</p>
+          <p class="band-sub">
+            Every experiment, lesson, and recipe is written down — with the
+            decision it forced and the file it lives in.
+          </p>
         </header>
         <div class="logs">
           <a class="log log-lead" href="/learn">
             <span class="mono-label live">learning log</span>
             <h3>Ground-up, in 10 modules</h3>
-            <p>From <code>y = mx + b</code> to a self-improving factory. Every subsystem maps to an anchor in the coverage map — nothing is a black box.</p>
+            <p>
+              From <code>y = mx + b</code> to a self-improving factory. Every subsystem
+              maps to an anchor in the coverage map — nothing is a black box.
+            </p>
             <span class="log-go">Open the curriculum →</span>
           </a>
-          <a class="log" href="/docs/attempt-ledger"><span class="mono-label">attempt ledger</span><h4>What we tried</h4><p>Worked · failed · regressed · retried — each with a decision.</p></a>
-          <a class="log" href="/devlog"><span class="mono-label">devlog</span><h4>How it was built</h4><p>Kernels, bugs, and the surprises worth more than the code.</p></a>
-          <a class="log" href="/recipes"><span class="mono-label">recipes</span><h4>Method → recipe</h4><p>Not "try DPO" — a named failure mode, data, gate, and stop rule.</p></a>
-          <a class="log" href="/docs/interpretability"><span class="mono-label">interpretability</span><h4>Where it decides</h4><p>Lens, patching, SAE, ROME, MEMIT.</p></a>
+          <a class="log" href="/docs/attempt-ledger"
+            ><span class="mono-label">attempt ledger</span><h4>
+              What we tried
+            </h4><p>
+              Worked · failed · regressed · retried — each with a decision.
+            </p></a
+          >
+          <a class="log" href="/devlog"
+            ><span class="mono-label">devlog</span><h4>How it was built</h4><p>
+              Kernels, bugs, and the surprises worth more than the code.
+            </p></a
+          >
+          <a class="log" href="/recipes"
+            ><span class="mono-label">recipes</span><h4>Method → recipe</h4><p>
+              Not "try DPO" — a named failure mode, data, gate, and stop rule.
+            </p></a
+          >
+          <a class="log" href="/docs/interpretability"
+            ><span class="mono-label">interpretability</span><h4>
+              Where it decides
+            </h4><p>Lens, patching, SAE, ROME, MEMIT.</p></a
+          >
         </div>
       </div>
     </section>
@@ -220,18 +397,26 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
           <ul class="honest-list is">
             <li>A single-developer project, shipping in public, MIT.</li>
             <li>Mac-first — M-series, unified memory, MLX-Swift.</li>
-            <li>A factory for <em>specialists</em>, not a general assistant.</li>
+            <li>
+              A factory for <em>specialists</em>, not a general assistant.
+            </li>
             <li>An OpenAI-compatible runtime any client already speaks.</li>
           </ul>
           <ul class="honest-list isnt">
-            <li>Not a proven ship loop yet — the missing proof is a run that decides <strong>ship</strong>.</li>
+            <li>
+              Not a proven ship loop yet — the missing proof is a run that
+              decides <strong>ship</strong>.
+            </li>
             <li>Not multi-GPU or distributed. One device, one Mac.</li>
-            <li>Not a cloud product. Nothing leaves the laptop unless you ask.</li>
+            <li>
+              Not a cloud product. Nothing leaves the laptop unless you ask.
+            </li>
           </ul>
         </div>
         <aside class="run-col">
           <span class="mono-label live">run it — one Mac, from source</span>
-          <pre class="run-block"><code><span class="c"># build the native factory</span>
+          <pre
+            class="run-block"><code><span class="c"># build the native factory</span>
 git clone …/posttrainllm && cd native-mac
 swift build --product posttrainllm
 
@@ -239,36 +424,65 @@ swift build --product posttrainllm
 posttrainllm distill --teacher qwen3 --student …
 posttrainllm eval-gate --spec sql.json --candidate …
 posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code></pre>
-          <a class="btn btn-primary" href="/docs/quickstart">Full quickstart →</a>
+          <a class="btn btn-primary" href="/docs/quickstart"
+            >Full quickstart →</a
+          >
         </aside>
       </div>
     </section>
 
     <!-- ================= CLOSING ================= -->
     <section class="closer" aria-labelledby="closer-h2">
-      <svg class="closer-curve" viewBox="0 0 1440 300" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0,30 C240,38 380,190 700,232 C980,268 1240,274 1440,278" fill="none" stroke="#48e5c2" stroke-opacity="0.25" stroke-width="1.5" />
+      <svg
+        class="closer-curve"
+        viewBox="0 0 1440 300"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M0,30 C240,38 380,190 700,232 C980,268 1240,274 1440,278"
+          fill="none"
+          stroke="#48e5c2"
+          stroke-opacity="0.25"
+          stroke-width="1.5"></path>
       </svg>
       <div class="wrap closer-inner">
-        <h2 id="closer-h2">Watch a loss curve fall.<br /><span class="tl">Yours.</span></h2>
-        <p>Train a tiny GPT in this browser tab right now, or clone the repo and run the full factory on your Mac.</p>
+        <h2 id="closer-h2">
+          Watch a loss curve fall.<br /><span class="tl">Yours.</span>
+        </h2>
+        <p>
+          Train a tiny GPT in this browser tab right now, or clone the repo and
+          run the full factory on your Mac.
+        </p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="/playground">Open the playground</a>
-          <a class="btn btn-ghost" href={REPO} rel="noopener">Clone the lab ↗</a>
+          <a class="btn btn-ghost" href={REPO} rel="noopener">Clone the lab ↗</a
+          >
         </div>
       </div>
     </section>
     <section class="education-directory" aria-labelledby="education-title">
       <p class="section-label">FIELD GUIDES / MAC-LOCAL PRACTICE</p>
       <h2 id="education-title">Build the specialist, then prove it.</h2>
-      <p>Five evidence-first guides connect the public factory to concrete Apple Silicon workflows.</p>
+      <p>
+        Five evidence-first guides connect the public factory to concrete Apple
+        Silicon workflows.
+      </p>
       <div>
-        <a href="/how-to-train-your-own-llm">How to train your own LLM <span>→</span></a>
-        <a href="/fine-tune-llm-on-mac">Fine-tune an LLM on Mac <span>→</span></a>
+        <a href="/how-to-train-your-own-llm"
+          >How to train your own LLM <span>→</span></a
+        >
+        <a href="/fine-tune-llm-on-mac"
+          >Fine-tune an LLM on Mac <span>→</span></a
+        >
         <a href="/mlx-lora-fine-tuning">MLX LoRA and QLoRA <span>→</span></a>
         <a href="/evaluate-local-llm">Evaluate a local LLM <span>→</span></a>
-        <a href="/agent-trajectory-dataset">Build a trajectory dataset <span>→</span></a>
-        <a href="/build-small-language-model-specialist">Build a routed specialist <span>→</span></a>
+        <a href="/agent-trajectory-dataset"
+          >Build a trajectory dataset <span>→</span></a
+        >
+        <a href="/build-small-language-model-specialist"
+          >Build a routed specialist <span>→</span></a
+        >
       </div>
     </section>
   </main>
@@ -276,7 +490,9 @@ posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code
   <footer class="site-footer">
     <div class="wrap">
       <div class="foot-top">
-        <a class="brand-lockup" href="/"><Logo size={26} /><span class="brand-name">posttrainllm</span></a>
+        <a class="brand-lockup" href="/"
+          ><Logo size={26} /><span class="brand-name">posttrainllm</span></a
+        >
         <nav class="foot-links" aria-label="Footer">
           <a href="/artifacts">specialists</a>
           <a href="/devlog">devlog</a>
@@ -288,8 +504,8 @@ posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code
       </div>
       <p class="foot-disclaimer">
         Every performance figure on this site was measured on a single Apple
-        <strong>M5&nbsp;Pro (18-core GPU) with 48&nbsp;GB unified memory</strong> —
-        one machine, no cluster, no cloud. Model-quality numbers are on frozen,
+        <strong>M5&nbsp;Pro (18-core GPU) with 48&nbsp;GB unified memory</strong
+        > — one machine, no cluster, no cloud. Model-quality numbers are on frozen,
         documented evals; where a result is a candidate and not shipped, the page
         says so. Built in the open by one developer. MIT-licensed.
       </p>
@@ -298,47 +514,170 @@ posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code
 </Default>
 
 <style>
-  .education-directory { max-width: 1040px; margin: var(--s-9) auto 0; padding: var(--s-7) var(--gutter); border-block: 1px solid var(--line); }
-  .education-directory h2 { max-width: 18ch; margin-top: var(--s-3); }
-  .education-directory > p:not(.section-label) { max-width: 60ch; margin-top: var(--s-4); color: var(--fg-soft); }
-  .education-directory > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: var(--s-6); border-top: 1px solid var(--line); }
-  .education-directory a { display: flex; justify-content: space-between; gap: var(--s-4); padding: var(--s-4) 0; border-bottom: 1px solid var(--line); color: var(--fg); }
-  .education-directory a:nth-child(odd) { padding-right: var(--s-5); }
-  .education-directory a:nth-child(even) { padding-left: var(--s-5); border-left: 1px solid var(--line); }
-  .education-directory a:hover { color: var(--live); }
-  @media (max-width: 700px) { .education-directory > div { grid-template-columns: 1fr; } .education-directory a:nth-child(n) { padding-inline: 0; border-left: 0; } }
+  .education-directory {
+    max-width: 1040px;
+    margin: var(--s-9) auto 0;
+    padding: var(--s-7) var(--gutter);
+    border-block: 1px solid var(--line);
+  }
+  .education-directory h2 {
+    max-width: 18ch;
+    margin-top: var(--s-3);
+  }
+  .education-directory > p:not(.section-label) {
+    max-width: 60ch;
+    margin-top: var(--s-4);
+    color: var(--fg-soft);
+  }
+  .education-directory > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: var(--s-6);
+    border-top: 1px solid var(--line);
+  }
+  .education-directory a {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-4);
+    padding: var(--s-4) 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--fg);
+  }
+  .education-directory a:nth-child(odd) {
+    padding-right: var(--s-5);
+  }
+  .education-directory a:nth-child(even) {
+    padding-left: var(--s-5);
+    border-left: 1px solid var(--line);
+  }
+  .education-directory a:hover {
+    color: var(--live);
+  }
+  @media (max-width: 700px) {
+    .education-directory > div {
+      grid-template-columns: 1fr;
+    }
+    .education-directory a:nth-child(n) {
+      padding-inline: 0;
+      border-left: 0;
+    }
+  }
 </style>
 
 <style is:global>
-  .landing { padding-bottom: 0; }
+  .landing {
+    padding-bottom: 0;
+  }
 
   /* ---------- hero ---------- */
   .hero {
-    position: relative; overflow: hidden;
+    position: relative;
+    overflow: hidden;
     padding-top: clamp(56px, 9vw, 128px);
-    background: radial-gradient(110% 70% at 18% 0%, rgba(72,229,194,0.07), transparent 55%);
+    background: radial-gradient(
+      110% 70% at 18% 0%,
+      rgba(72, 229, 194, 0.07),
+      transparent 55%
+    );
   }
   .hero-curve {
-    position: absolute; left: 0; right: 0; bottom: 84px; width: 100%;
-    height: clamp(220px, 42vw, 480px); pointer-events: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 84px;
+    width: 100%;
+    height: clamp(220px, 42vw, 480px);
+    pointer-events: none;
   }
   @media (prefers-reduced-motion: no-preference) {
-    .hc-line { stroke-dasharray: 2200; stroke-dashoffset: 2200; animation: draw 2.6s var(--ease-out-expo) 0.3s forwards; }
-    .hc-fill { opacity: 0; animation: fadein 1.6s var(--ease-out) 1.6s forwards; }
-    .hc-dot { opacity: 0; animation: fadein 0.5s ease 2.6s forwards; filter: drop-shadow(0 0 8px rgba(72,229,194,0.8)); }
-    @keyframes draw { to { stroke-dashoffset: 0; } }
-    @keyframes fadein { to { opacity: 1; } }
+    .hc-line {
+      stroke-dasharray: 2200;
+      stroke-dashoffset: 2200;
+      animation: draw 2.6s var(--ease-out-expo) 0.3s forwards;
+    }
+    .hc-fill {
+      opacity: 0;
+      animation: fadein 1.6s var(--ease-out) 1.6s forwards;
+    }
+    .hc-dot {
+      opacity: 0;
+      animation: fadein 0.5s ease 2.6s forwards;
+      filter: drop-shadow(0 0 8px rgba(72, 229, 194, 0.8));
+    }
+    @keyframes draw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+    @keyframes fadein {
+      to {
+        opacity: 1;
+      }
+    }
   }
-  @media (prefers-reduced-motion: reduce) { .hc-dot { filter: drop-shadow(0 0 8px rgba(72,229,194,0.8)); } }
-  .hero-inner { position: relative; padding-bottom: clamp(120px, 16vw, 220px); }
-  .hero-kicker { display: inline-flex; align-items: center; gap: 9px; margin-bottom: var(--s-5); color: var(--fg-soft); }
-  .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--live); box-shadow: 0 0 0 0 var(--live); animation: pulse 2.6s var(--ease-out) infinite; }
-  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(72,229,194,0.5); } 70% { box-shadow: 0 0 0 8px rgba(72,229,194,0); } 100% { box-shadow: 0 0 0 0 rgba(72,229,194,0); } }
-  .hero-h1 { font-size: var(--step-5); font-weight: 700; letter-spacing: -0.04em; max-width: 14ch; }
-  .hero-h1 .tl { color: var(--live); text-shadow: 0 0 34px rgba(72,229,194,0.35); }
-  .hero-lede { max-width: 56ch; margin-top: var(--s-5); font-size: var(--step-1); line-height: 1.55; color: var(--fg-soft); }
-  .hero-lede em { color: var(--fg); font-style: normal; font-weight: 560; }
-  .hero-cta { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-6); }
+  @media (prefers-reduced-motion: reduce) {
+    .hc-dot {
+      filter: drop-shadow(0 0 8px rgba(72, 229, 194, 0.8));
+    }
+  }
+  .hero-inner {
+    position: relative;
+    padding-bottom: clamp(120px, 16vw, 220px);
+  }
+  .hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: var(--s-5);
+    color: var(--fg-soft);
+  }
+  .pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--live);
+    box-shadow: 0 0 0 0 var(--live);
+    animation: pulse 2.6s var(--ease-out) infinite;
+  }
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(72, 229, 194, 0.5);
+    }
+    70% {
+      box-shadow: 0 0 0 8px rgba(72, 229, 194, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(72, 229, 194, 0);
+    }
+  }
+  .hero-h1 {
+    font-size: var(--step-5);
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    max-width: 14ch;
+  }
+  .hero-h1 .tl {
+    color: var(--live);
+    text-shadow: 0 0 34px rgba(72, 229, 194, 0.35);
+  }
+  .hero-lede {
+    max-width: 56ch;
+    margin-top: var(--s-5);
+    font-size: var(--step-1);
+    line-height: 1.55;
+    color: var(--fg-soft);
+  }
+  .hero-lede em {
+    color: var(--fg);
+    font-style: normal;
+    font-weight: 560;
+  }
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-6);
+  }
   .mac-release-entry {
     display: inline-flex;
     align-items: center;
@@ -347,146 +686,636 @@ posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code
     color: var(--fg-quiet);
     font: 540 var(--step--1)/1.4 var(--font-mono);
   }
-  .mac-release-entry > span:first-child { color: var(--fg-soft); }
-  .mac-release-entry strong { color: var(--brand-bright); font-weight: 560; }
-  .mac-release-entry:hover, .mac-release-entry:hover > span:first-child { color: var(--fg); }
-  .mac-release-entry:hover strong { color: var(--brand-bright); }
-  .mac-release-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); }
-  .mac-release-dot.ready { background: var(--live); }
-  .mac-release-dot.ready + strong { color: var(--live); }
-  .hero-curve-cap { position: absolute; right: 0; bottom: var(--s-5); color: var(--live); opacity: 0.85; }
+  .mac-release-entry > span:first-child {
+    color: var(--fg-soft);
+  }
+  .mac-release-entry strong {
+    color: var(--brand-bright);
+    font-weight: 560;
+  }
+  .mac-release-entry:hover,
+  .mac-release-entry:hover > span:first-child {
+    color: var(--fg);
+  }
+  .mac-release-entry:hover strong {
+    color: var(--brand-bright);
+  }
+  .mac-release-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--brand);
+  }
+  .mac-release-dot.ready {
+    background: var(--live);
+  }
+  .mac-release-dot.ready + strong {
+    color: var(--live);
+  }
+  .hero-curve-cap {
+    position: absolute;
+    right: 0;
+    bottom: var(--s-5);
+    color: var(--live);
+    opacity: 0.85;
+  }
 
-  .hero-stats { list-style: none; padding: var(--s-6) 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-5); border-top: 1px solid var(--line); position: relative; background: color-mix(in oklab, var(--paper) 55%, transparent); backdrop-filter: blur(4px); }
-  .hero-stats b { display: block; font-family: var(--font-display); font-size: var(--step-3); font-weight: 680; letter-spacing: -0.03em; color: var(--ink); }
-  .hero-stats b i { font-style: normal; color: var(--live); font-size: 0.7em; }
-  .hero-stats span { display: block; margin-top: 5px; font-size: var(--step--1); color: var(--fg-quiet); }
-  @media (max-width: 720px) { .hero-stats { grid-template-columns: repeat(2, 1fr); } }
+  .hero-stats {
+    list-style: none;
+    padding: var(--s-6) 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--s-5);
+    border-top: 1px solid var(--line);
+    position: relative;
+    background: color-mix(in oklab, var(--paper) 55%, transparent);
+    backdrop-filter: blur(4px);
+  }
+  .hero-stats b {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 680;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+  .hero-stats b i {
+    font-style: normal;
+    color: var(--live);
+    font-size: 0.7em;
+  }
+  .hero-stats span {
+    display: block;
+    margin-top: 5px;
+    font-size: var(--step--1);
+    color: var(--fg-quiet);
+  }
+  @media (max-width: 720px) {
+    .hero-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
 
   /* ---------- manifesto ---------- */
   .manifesto {
-    position: relative; padding: var(--s-10) 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    position: relative;
+    padding: var(--s-10) 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
     background:
-      radial-gradient(80% 90% at 82% 8%, rgba(72,229,194,0.09), transparent 58%),
+      radial-gradient(
+        80% 90% at 82% 8%,
+        rgba(72, 229, 194, 0.09),
+        transparent 58%
+      ),
       linear-gradient(180deg, var(--paper-sunken), var(--paper));
   }
-  .man-eyebrow { color: var(--live); margin-bottom: var(--s-5); }
-  .man-h2 { font-size: var(--step-3); font-weight: 640; line-height: 1.12; letter-spacing: -0.025em; max-width: 24ch; }
-  .man-h2 .tl { color: var(--live); }
-  .man-grid { margin-top: var(--s-7); display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-6) var(--s-8); max-width: 1000px; }
-  @media (max-width: 760px) { .man-grid { grid-template-columns: 1fr; } }
-  .man-grid p { color: var(--fg-soft); font-size: var(--step-0); line-height: 1.6; }
-  .man-grid b { color: var(--ink); font-weight: 620; display: block; margin-bottom: 4px; font-family: var(--font-display); font-size: var(--step-1); letter-spacing: -0.01em; }
-  .man-grid code { color: var(--live); }
+  .man-eyebrow {
+    color: var(--live);
+    margin-bottom: var(--s-5);
+  }
+  .man-h2 {
+    font-size: var(--step-3);
+    font-weight: 640;
+    line-height: 1.12;
+    letter-spacing: -0.025em;
+    max-width: 24ch;
+  }
+  .man-h2 .tl {
+    color: var(--live);
+  }
+  .man-grid {
+    margin-top: var(--s-7);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--s-6) var(--s-8);
+    max-width: 1000px;
+  }
+  @media (max-width: 760px) {
+    .man-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .man-grid p {
+    color: var(--fg-soft);
+    font-size: var(--step-0);
+    line-height: 1.6;
+  }
+  .man-grid b {
+    color: var(--ink);
+    font-weight: 620;
+    display: block;
+    margin-bottom: 4px;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    letter-spacing: -0.01em;
+  }
+  .man-grid code {
+    color: var(--live);
+  }
 
   /* ---------- bands ---------- */
-  .band { padding: var(--s-9) 0; border-top: 1px solid var(--line); }
-  .band-alt { background: var(--paper-sunken); }
-  .band-head { max-width: 60ch; margin-bottom: var(--s-7); }
-  .band-head h2 { margin-bottom: var(--s-3); }
-  .band-sub { font-size: var(--step-1); color: var(--fg-soft); line-height: 1.5; }
-  .band-sub code, .band-sub strong { color: var(--ink); }
-  .band-sub code { color: var(--live); font-size: 0.92em; }
-  .band-more { display: inline-block; margin-top: var(--s-6); font-weight: 550; color: var(--live); }
-  .band-more:hover { color: var(--live-bright); }
+  .band {
+    padding: var(--s-9) 0;
+    border-top: 1px solid var(--line);
+  }
+  .band-alt {
+    background: var(--paper-sunken);
+  }
+  .band-head {
+    max-width: 60ch;
+    margin-bottom: var(--s-7);
+  }
+  .band-head h2 {
+    margin-bottom: var(--s-3);
+  }
+  .band-sub {
+    font-size: var(--step-1);
+    color: var(--fg-soft);
+    line-height: 1.5;
+  }
+  .band-sub code,
+  .band-sub strong {
+    color: var(--ink);
+  }
+  .band-sub code {
+    color: var(--live);
+    font-size: 0.92em;
+  }
+  .band-more {
+    display: inline-block;
+    margin-top: var(--s-6);
+    font-weight: 550;
+    color: var(--live);
+  }
+  .band-more:hover {
+    color: var(--live-bright);
+  }
 
   /* ---------- loop ---------- */
-  .loop-steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(6, 1fr); border: 1px solid var(--line); border-radius: var(--r-3); overflow: hidden; background: var(--paper-raised); }
-  .loop-steps li { padding: var(--s-5) var(--s-4); display: flex; flex-direction: column; gap: 8px; border-right: 1px solid var(--line); position: relative; }
-  .loop-steps li:last-child { border-right: 0; }
-  .loop-steps li.dec { background: var(--brand-wash); }
-  .ls-n { font-family: var(--font-mono); font-size: 11px; color: var(--live-dim); }
-  .ls-k { font-size: var(--step--1); color: var(--fg-soft); font-weight: 500; }
-  .loop-steps code { font-family: var(--font-mono); font-size: 12.5px; color: var(--fg); }
-  .loop-steps code.ok { color: var(--live); }
-  .loop-steps li.dec code { color: var(--brand); }
-  @media (max-width: 760px) { .loop-steps { grid-template-columns: repeat(2, 1fr); } .loop-steps li { border-bottom: 1px solid var(--line); } }
-  .loop-latest { margin-top: var(--s-5); line-height: 1.7; color: var(--fg-soft); max-width: 96ch; }
-  .loop-latest .dec-t { color: var(--brand); } .loop-latest .ship { color: var(--live); }
+  .loop-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    overflow: hidden;
+    background: var(--paper-raised);
+  }
+  .loop-steps li {
+    padding: var(--s-5) var(--s-4);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-right: 1px solid var(--line);
+    position: relative;
+  }
+  .loop-steps li:last-child {
+    border-right: 0;
+  }
+  .loop-steps li.dec {
+    background: var(--brand-wash);
+  }
+  .ls-n {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--live-dim);
+  }
+  .ls-k {
+    font-size: var(--step--1);
+    color: var(--fg-soft);
+    font-weight: 500;
+  }
+  .loop-steps code {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--fg);
+  }
+  .loop-steps code.ok {
+    color: var(--live);
+  }
+  .loop-steps li.dec code {
+    color: var(--brand);
+  }
+  @media (max-width: 760px) {
+    .loop-steps {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .loop-steps li {
+      border-bottom: 1px solid var(--line);
+    }
+  }
+  .loop-latest {
+    margin-top: var(--s-5);
+    line-height: 1.7;
+    color: var(--fg-soft);
+    max-width: 96ch;
+  }
+  .loop-latest .dec-t {
+    color: var(--brand);
+  }
+  .loop-latest .ship {
+    color: var(--live);
+  }
 
   /* ---------- specialists ---------- */
-  .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-5); }
-  @media (max-width: 860px) { .spec-grid { grid-template-columns: 1fr; } }
-  .spec {
-    position: relative; background: linear-gradient(180deg, var(--paper-2), var(--surface) 42%);
-    border: 1px solid var(--line); border-radius: var(--r-4);
-    padding: clamp(var(--s-5), 3vw, var(--s-6)); display: flex; flex-direction: column;
-    transition: border-color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+  .spec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-5);
   }
-  .spec::before { content: ""; position: absolute; top: 0; left: var(--r-4); right: var(--r-4); height: 1px; background: linear-gradient(90deg, transparent, rgba(72,229,194,0.35), transparent); }
-  .spec:hover { border-color: var(--live-dim); transform: translateY(-3px); box-shadow: var(--shadow-2); }
-  .spec-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s-4); }
-  .mono-label.live { color: var(--live); } .mono-label.brand { color: var(--brand); }
-  .spec-badge { font-family: var(--font-mono); font-size: var(--step--1); color: var(--fg-quiet); border: 1px solid var(--line-strong); border-radius: 999px; padding: 3px 10px; }
-  .spec-body { color: var(--fg-soft); margin: var(--s-2) 0 var(--s-5); }
-  .spec-body strong { color: var(--ink); } .spec-body em { font-style: normal; color: var(--brand); font-weight: 560; }
-  .spec-metrics { display: flex; gap: var(--s-6); margin: 0 0 var(--s-5); padding-top: var(--s-5); border-top: 1px solid var(--line); }
-  .spec-metrics dt { font-size: var(--step--1); color: var(--fg-quiet); margin-bottom: 3px; }
-  .spec-metrics dd { font-family: var(--font-mono); font-size: var(--step-0); color: var(--fg); }
-  .spec-metrics dd b { color: var(--live); } .spec-metrics dd.down { color: var(--brand); }
-  .spec-link { margin-top: auto; font-weight: 550; color: var(--ink); }
-  .spec-link:hover { color: var(--live); }
+  @media (max-width: 860px) {
+    .spec-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .spec {
+    position: relative;
+    background: linear-gradient(180deg, var(--paper-2), var(--surface) 42%);
+    border: 1px solid var(--line);
+    border-radius: var(--r-4);
+    padding: clamp(var(--s-5), 3vw, var(--s-6));
+    display: flex;
+    flex-direction: column;
+    transition:
+      border-color var(--dur-2) var(--ease-out),
+      transform var(--dur-2) var(--ease-out),
+      box-shadow var(--dur-2) var(--ease-out);
+  }
+  .spec::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: var(--r-4);
+    right: var(--r-4);
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(72, 229, 194, 0.35),
+      transparent
+    );
+  }
+  .spec:hover {
+    border-color: var(--live-dim);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-2);
+  }
+  .spec-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--s-4);
+  }
+  .mono-label.live {
+    color: var(--live);
+  }
+  .mono-label.brand {
+    color: var(--brand);
+  }
+  .spec-badge {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--fg-quiet);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+  .spec-body {
+    color: var(--fg-soft);
+    margin: var(--s-2) 0 var(--s-5);
+  }
+  .spec-body strong {
+    color: var(--ink);
+  }
+  .spec-body em {
+    font-style: normal;
+    color: var(--brand);
+    font-weight: 560;
+  }
+  .spec-metrics {
+    display: flex;
+    gap: var(--s-6);
+    margin: 0 0 var(--s-5);
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--line);
+  }
+  .spec-metrics dt {
+    font-size: var(--step--1);
+    color: var(--fg-quiet);
+    margin-bottom: 3px;
+  }
+  .spec-metrics dd {
+    font-family: var(--font-mono);
+    font-size: var(--step-0);
+    color: var(--fg);
+  }
+  .spec-metrics dd b {
+    color: var(--live);
+  }
+  .spec-metrics dd.down {
+    color: var(--brand);
+  }
+  .spec-link {
+    margin-top: auto;
+    font-weight: 550;
+    color: var(--ink);
+  }
+  .spec-link:hover {
+    color: var(--live);
+  }
 
   /* ---------- metrics ---------- */
-  .metric-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s-4); }
-  @media (max-width: 860px) { .metric-row { grid-template-columns: repeat(2, 1fr); } }
-  .metric-row > div { padding: var(--s-5) 0; border-top: 2px solid var(--live); }
-  .metric-row b { font-family: var(--font-display); font-size: var(--step-4); font-weight: 680; letter-spacing: -0.03em; display: block; }
-  .metric-row .mu { font-family: var(--font-mono); font-size: var(--step--1); color: var(--live); display: block; margin-top: 2px; }
-  .metric-row small { display: block; margin-top: var(--s-3); font-size: var(--step--1); color: var(--fg-quiet); }
+  .metric-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--s-4);
+  }
+  @media (max-width: 860px) {
+    .metric-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .metric-row > div {
+    padding: var(--s-5) 0;
+    border-top: 2px solid var(--live);
+  }
+  .metric-row b {
+    font-family: var(--font-display);
+    font-size: var(--step-4);
+    font-weight: 680;
+    letter-spacing: -0.03em;
+    display: block;
+  }
+  .metric-row .mu {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--live);
+    display: block;
+    margin-top: 2px;
+  }
+  .metric-row small {
+    display: block;
+    margin-top: var(--s-3);
+    font-size: var(--step--1);
+    color: var(--fg-quiet);
+  }
 
   /* ---------- pillars ---------- */
-  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-6) var(--s-7); }
-  @media (max-width: 860px) { .pillars { grid-template-columns: 1fr; } }
-  .pillar { border-top: 1px solid var(--line-strong); padding-top: var(--s-4); }
-  .pillar-i { display: block; color: var(--live); font-weight: 600; margin-bottom: var(--s-3); font-size: var(--step-0); letter-spacing: 0; }
-  .pillar p { color: var(--fg-soft); font-size: var(--step-0); }
-  .pillar em { font-style: normal; color: var(--ink); font-weight: 560; }
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-6) var(--s-7);
+  }
+  @media (max-width: 860px) {
+    .pillars {
+      grid-template-columns: 1fr;
+    }
+  }
+  .pillar {
+    border-top: 1px solid var(--line-strong);
+    padding-top: var(--s-4);
+  }
+  .pillar-i {
+    display: block;
+    color: var(--live);
+    font-weight: 600;
+    margin-bottom: var(--s-3);
+    font-size: var(--step-0);
+    letter-spacing: 0;
+  }
+  .pillar p {
+    color: var(--fg-soft);
+    font-size: var(--step-0);
+  }
+  .pillar em {
+    font-style: normal;
+    color: var(--ink);
+    font-weight: 560;
+  }
 
   /* ---------- logs ---------- */
-  .logs { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-4); }
-  @media (max-width: 980px) { .logs { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 560px) { .logs { grid-template-columns: 1fr; } }
-  .log { position: relative; background: linear-gradient(180deg, var(--paper-2), var(--surface) 46%); border: 1px solid var(--line); border-radius: var(--r-3); padding: var(--s-5); display: flex; flex-direction: column; gap: 6px; color: var(--fg); transition: border-color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out); }
-  .log:hover { border-color: var(--live-dim); transform: translateY(-2px); box-shadow: var(--shadow-2); }
-  .log h4 { font-size: var(--step-1); } .log p { font-size: var(--step--1); color: var(--fg-soft); }
-  .log code { color: var(--live); }
-  .log-lead { grid-row: span 2; grid-column: span 2; background: linear-gradient(160deg, var(--paper-2), var(--paper-raised)); box-shadow: var(--glow-live); }
-  .log-lead h3 { font-size: var(--step-2); } .log-lead p { font-size: var(--step-0); }
-  .log-go { margin-top: auto; color: var(--live); font-weight: 550; }
-  @media (max-width: 560px) { .log-lead { grid-column: span 1; grid-row: auto; } }
+  .logs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--s-4);
+  }
+  @media (max-width: 980px) {
+    .logs {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 560px) {
+    .logs {
+      grid-template-columns: 1fr;
+    }
+  }
+  .log {
+    position: relative;
+    background: linear-gradient(180deg, var(--paper-2), var(--surface) 46%);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    padding: var(--s-5);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--fg);
+    transition:
+      border-color var(--dur-2) var(--ease-out),
+      transform var(--dur-2) var(--ease-out),
+      box-shadow var(--dur-2) var(--ease-out);
+  }
+  .log:hover {
+    border-color: var(--live-dim);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+  }
+  .log h4 {
+    font-size: var(--step-1);
+  }
+  .log p {
+    font-size: var(--step--1);
+    color: var(--fg-soft);
+  }
+  .log code {
+    color: var(--live);
+  }
+  .log-lead {
+    grid-row: span 2;
+    grid-column: span 2;
+    background: linear-gradient(160deg, var(--paper-2), var(--paper-raised));
+    box-shadow: var(--glow-live);
+  }
+  .log-lead h3 {
+    font-size: var(--step-2);
+  }
+  .log-lead p {
+    font-size: var(--step-0);
+  }
+  .log-go {
+    margin-top: auto;
+    color: var(--live);
+    font-weight: 550;
+  }
+  @media (max-width: 560px) {
+    .log-lead {
+      grid-column: span 1;
+      grid-row: auto;
+    }
+  }
 
   /* ---------- honest + run ---------- */
-  .honest-wrap { display: grid; grid-template-columns: 1fr 0.95fr; gap: var(--s-8); align-items: start; }
-  .honest-wrap > * { min-width: 0; }
-  @media (max-width: 860px) { .honest-wrap { grid-template-columns: 1fr; } }
-  .honest-list { list-style: none; padding: 0; margin: var(--s-6) 0 0; display: grid; gap: var(--s-3); }
-  .honest-list li { min-width: 0; padding-left: var(--s-5); position: relative; color: var(--fg-soft); overflow-wrap: anywhere; }
-  .honest-list.is li::before { content: "→"; position: absolute; left: 0; color: var(--live); }
-  .honest-list.isnt li::before { content: "×"; position: absolute; left: 0; color: var(--brand); }
-  .honest-list em { font-style: normal; color: var(--fg); font-weight: 560; } .honest-list strong { color: var(--live); }
-  .run-col { background: var(--paper-sunken); border: 1px solid var(--line); border-radius: var(--r-3); padding: var(--s-6); }
-  .run-col .mono-label { color: var(--live); }
-  .run-block { margin: var(--s-4) 0 var(--s-5); overflow-x: auto; }
-  .run-block code { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.85; color: var(--fg); white-space: pre; }
-  .run-block .c { color: var(--fg-quiet); }
+  .honest-wrap {
+    display: grid;
+    grid-template-columns: 1fr 0.95fr;
+    gap: var(--s-8);
+    align-items: start;
+  }
+  .honest-wrap > * {
+    min-width: 0;
+  }
+  @media (max-width: 860px) {
+    .honest-wrap {
+      grid-template-columns: 1fr;
+    }
+  }
+  .honest-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--s-6) 0 0;
+    display: grid;
+    gap: var(--s-3);
+  }
+  .honest-list li {
+    min-width: 0;
+    padding-left: var(--s-5);
+    position: relative;
+    color: var(--fg-soft);
+    overflow-wrap: anywhere;
+  }
+  .honest-list.is li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--live);
+  }
+  .honest-list.isnt li::before {
+    content: "×";
+    position: absolute;
+    left: 0;
+    color: var(--brand);
+  }
+  .honest-list em {
+    font-style: normal;
+    color: var(--fg);
+    font-weight: 560;
+  }
+  .honest-list strong {
+    color: var(--live);
+  }
+  .run-col {
+    background: var(--paper-sunken);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    padding: var(--s-6);
+  }
+  .run-col .mono-label {
+    color: var(--live);
+  }
+  .run-block {
+    margin: var(--s-4) 0 var(--s-5);
+    overflow-x: auto;
+  }
+  .run-block code {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.85;
+    color: var(--fg);
+    white-space: pre;
+  }
+  .run-block .c {
+    color: var(--fg-quiet);
+  }
 
   /* ---------- closer ---------- */
   .closer {
-    position: relative; overflow: hidden; text-align: left;
-    padding: var(--s-10) 0; border-top: 1px solid var(--line);
-    background: radial-gradient(90% 110% at 50% 118%, rgba(72,229,194,0.16), transparent 62%);
+    position: relative;
+    overflow: hidden;
+    text-align: left;
+    padding: var(--s-10) 0;
+    border-top: 1px solid var(--line);
+    background: radial-gradient(
+      90% 110% at 50% 118%,
+      rgba(72, 229, 194, 0.16),
+      transparent 62%
+    );
   }
-  .closer-curve { position: absolute; inset: auto 0 0 0; width: 100%; height: 52%; pointer-events: none; }
-  .closer-inner { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--s-5); }
-  .closer h2 { font-size: var(--step-4); font-weight: 700; letter-spacing: -0.035em; line-height: 1.04; }
-  .closer .tl { color: var(--live); text-shadow: 0 0 34px rgba(72,229,194,0.4); }
-  .closer p { color: var(--fg-soft); font-size: var(--step-1); max-width: 46ch; }
-  .closer .hero-cta { margin-top: var(--s-2); justify-content: center; }
+  .closer-curve {
+    position: absolute;
+    inset: auto 0 0 0;
+    width: 100%;
+    height: 52%;
+    pointer-events: none;
+  }
+  .closer-inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--s-5);
+  }
+  .closer h2 {
+    font-size: var(--step-4);
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1.04;
+  }
+  .closer .tl {
+    color: var(--live);
+    text-shadow: 0 0 34px rgba(72, 229, 194, 0.4);
+  }
+  .closer p {
+    color: var(--fg-soft);
+    font-size: var(--step-1);
+    max-width: 46ch;
+  }
+  .closer .hero-cta {
+    margin-top: var(--s-2);
+    justify-content: center;
+  }
 
   /* ---------- footer ---------- */
-  .foot-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--s-4); padding-bottom: var(--s-5); border-bottom: 1px solid var(--line); }
-  .foot-links { display: flex; flex-wrap: wrap; gap: var(--s-5); }
-  .foot-links a { color: var(--fg-soft); } .foot-links a:hover { color: var(--live); }
-  .foot-disclaimer { margin-top: var(--s-5); max-width: 92ch; line-height: 1.7; color: var(--fg-quiet); }
-  .foot-disclaimer strong { color: var(--fg-soft); }
+  .foot-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--s-4);
+    padding-bottom: var(--s-5);
+    border-bottom: 1px solid var(--line);
+  }
+  .foot-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-5);
+  }
+  .foot-links a {
+    color: var(--fg-soft);
+  }
+  .foot-links a:hover {
+    color: var(--live);
+  }
+  .foot-disclaimer {
+    margin-top: var(--s-5);
+    max-width: 92ch;
+    line-height: 1.7;
+    color: var(--fg-quiet);
+  }
+  .foot-disclaimer strong {
+    color: var(--fg-soft);
+  }
 </style>
