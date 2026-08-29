@@ -1,7 +1,12 @@
 ---
 import Default from "../../layouts/Default.astro";
 import "../../styles/system.css";
-import { artifacts, getArtifact, outcomeLabel, stateLabel } from "../../artifacts";
+import {
+  artifacts,
+  getArtifact,
+  outcomeLabel,
+  stateLabel,
+} from "../../artifacts";
 import Logo from "../../components/Logo.astro";
 
 export function getStaticPaths() {
@@ -14,7 +19,7 @@ if (!artifact) {
 }
 
 const layoutProps = {
-  title: `posttrainllm Artifact — ${artifact.title}`,
+  title: `Artifact: ${artifact.title} | PTLLM`,
   description: artifact.summary,
   ogType: "article" as const,
   ogTitle: `posttrainllm Artifact — ${artifact.title}`,
@@ -26,12 +31,26 @@ const layoutProps = {
 <Default {...layoutProps}>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar" role="banner">
-    <a class="brand-lockup" href="/" aria-label="posttrainllm home"><Logo size={26} /><span class="brand-name">posttrainllm</span></a>
-    <nav class="topnav" aria-label="Primary"><a href="/artifacts">specialists</a><a href="/docs/attempt-ledger">experiments</a><a href="/docs/learn/curriculum">learn</a><a href="/leaderboard">evals</a><a href="/playground">playground</a><a href="https://github.com/PostTrainLLM/posttrainllm" rel="noopener">github ↗</a></nav>
+    <a class="brand-lockup" href="/" aria-label="posttrainllm home"
+      ><Logo size={26} /><span class="brand-name">posttrainllm</span></a
+    >
+    <nav class="topnav" aria-label="Primary">
+      <a href="/artifacts">specialists</a><a href="/docs/attempt-ledger"
+        >experiments</a
+      ><a href="/docs/learn/curriculum">learn</a><a href="/leaderboard">evals</a
+      ><a href="/playground">playground</a><a
+        href="https://github.com/PostTrainLLM/posttrainllm"
+        rel="noopener">github ↗</a
+      >
+    </nav>
   </header>
   <main class="artifact-detail">
     <header class="hero">
-      <nav class="crumb"><a href="/">posttrainllm</a> / <a href="/artifacts">artifacts</a> / {artifact.slug}</nav>
+      <nav class="crumb">
+        <a href="/">posttrainllm</a> / <a href="/artifacts">artifacts</a> / {
+          artifact.slug
+        }
+      </nav>
       <div class="meta-row">
         <span>{artifact.eyebrow}</span>
         <span data-state={artifact.state}>{stateLabel[artifact.state]}</span>
@@ -47,13 +66,15 @@ const layoutProps = {
     <section aria-labelledby="metrics">
       <h2 id="metrics">Headline Numbers</h2>
       <div class="metric-grid">
-        {artifact.metrics.map((metric) => (
-          <article>
-            <p>{metric.label}</p>
-            <strong>{metric.value}</strong>
-            <span>{metric.context}</span>
-          </article>
-        ))}
+        {
+          artifact.metrics.map((metric) => (
+            <article>
+              <p>{metric.label}</p>
+              <strong>{metric.value}</strong>
+              <span>{metric.context}</span>
+            </article>
+          ))
+        }
       </div>
     </section>
 
@@ -72,95 +93,129 @@ const layoutProps = {
             </tr>
           </thead>
           <tbody>
-            {artifact.comparisons.map((comparison) => (
-              <tr>
-                <td>
-                  {comparison.sourceHref ? (
-                    <a href={comparison.sourceHref}>{comparison.name}</a>
-                  ) : (
-                    comparison.name
-                  )}
-                </td>
-                <td>{comparison.metric}</td>
-                <td>{comparison.score}</td>
-                <td>{comparison.size}</td>
-                <td><span class="compare-chip">{comparison.comparability}</span></td>
-                <td>{comparison.note}</td>
-              </tr>
-            ))}
+            {
+              artifact.comparisons.map((comparison) => (
+                <tr>
+                  <td>
+                    {comparison.sourceHref ? (
+                      <a href={comparison.sourceHref}>{comparison.name}</a>
+                    ) : (
+                      comparison.name
+                    )}
+                  </td>
+                  <td>{comparison.metric}</td>
+                  <td>{comparison.score}</td>
+                  <td>{comparison.size}</td>
+                  <td>
+                    <span class="compare-chip">{comparison.comparability}</span>
+                  </td>
+                  <td>{comparison.note}</td>
+                </tr>
+              ))
+            }
           </tbody>
         </table>
       </div>
       <p class="comparison-note">
-        Direct rows share this artifact's eval setup. Directional rows are useful
-        market context but should not be read as leaderboard claims.
+        Direct rows share this artifact's eval setup. Directional rows are
+        useful market context but should not be read as leaderboard claims.
       </p>
     </section>
 
-    {artifact.tables.map((table) => (
-      <section aria-labelledby={`${artifact.slug}-${table.title.replace(/\W+/g, "-").toLowerCase()}`}>
-        <h2 id={`${artifact.slug}-${table.title.replace(/\W+/g, "-").toLowerCase()}`}>{table.title}</h2>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>{table.columns.map((col) => <th>{col}</th>)}</tr>
-            </thead>
-            <tbody>
-              {table.rows.map((row) => (
-                <tr>{row.map((cell) => <td>{cell}</td>)}</tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    ))}
+    {
+      artifact.tables.map((table) => (
+        <section
+          aria-labelledby={`${artifact.slug}-${table.title.replace(/\W+/g, "-").toLowerCase()}`}
+        >
+          <h2
+            id={`${artifact.slug}-${table.title.replace(/\W+/g, "-").toLowerCase()}`}
+          >
+            {table.title}
+          </h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  {table.columns.map((col) => (
+                    <th>{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {table.rows.map((row) => (
+                  <tr>
+                    {row.map((cell) => (
+                      <td>{cell}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ))
+    }
 
     <section aria-labelledby="blockers">
       <h2 id="blockers">Release Blockers</h2>
       <div class="blockers">
-        {artifact.blockers.map((item) => (
-          <article>
-            <h3>{item.blocker}</h3>
-            <p>{item.why}</p>
-            <p><strong>Unblock:</strong> {item.unblock}</p>
-          </article>
-        ))}
+        {
+          artifact.blockers.map((item) => (
+            <article>
+              <h3>{item.blocker}</h3>
+              <p>{item.why}</p>
+              <p>
+                <strong>Unblock:</strong> {item.unblock}
+              </p>
+            </article>
+          ))
+        }
       </div>
     </section>
 
-    {artifact.reportCard && (
-      <section class="report-card" aria-labelledby="report-card">
-        <h2 id="report-card">Fine-Tune Report Card</h2>
-        <p>
-          The portable before/after proof for this artifact: baseline, candidate,
-          deltas, regressions, slices, performance, eval validity, and the
-          ship/retry/reject decision — with every value labeled measured,
-          derived, historical, skipped, or not recorded. Compiled offline from
-          the recorded factory evidence; no model was run to produce it.
-        </p>
-        <p class="report-card-meta">
-          <span class="outcome" data-outcome={artifact.reportCard.outcome}>
-            {outcomeLabel[artifact.reportCard.outcome]}
-          </span>
-          <span class="verified" data-verified={String(artifact.reportCard.verified)}>
-            {artifact.reportCard.verified
-              ? "Fully verified"
-              : "Not fully verified — see the report card for why"}
-          </span>
-        </p>
-        <p class="report-card-links">
-          <a href={artifact.reportCard.href}>Read the report card →</a>
-          <a href={artifact.reportCard.jsonHref}>Machine-readable JSON</a>
-        </p>
-      </section>
-    )}
+    {
+      artifact.reportCard && (
+        <section class="report-card" aria-labelledby="report-card">
+          <h2 id="report-card">Fine-Tune Report Card</h2>
+          <p>
+            The portable before/after proof for this artifact: baseline,
+            candidate, deltas, regressions, slices, performance, eval validity,
+            and the ship/retry/reject decision — with every value labeled
+            measured, derived, historical, skipped, or not recorded. Compiled
+            offline from the recorded factory evidence; no model was run to
+            produce it.
+          </p>
+          <p class="report-card-meta">
+            <span class="outcome" data-outcome={artifact.reportCard.outcome}>
+              {outcomeLabel[artifact.reportCard.outcome]}
+            </span>
+            <span
+              class="verified"
+              data-verified={String(artifact.reportCard.verified)}
+            >
+              {artifact.reportCard.verified
+                ? "Fully verified"
+                : "Not fully verified — see the report card for why"}
+            </span>
+          </p>
+          <p class="report-card-links">
+            <a href={artifact.reportCard.href}>Read the report card →</a>
+            <a href={artifact.reportCard.jsonHref}>Machine-readable JSON</a>
+          </p>
+        </section>
+      )
+    }
 
     <section aria-labelledby="evidence">
       <h2 id="evidence">Evidence</h2>
       <ul class="evidence-list">
-        {artifact.evidence.map((link) => (
-          <li><a href={link.href}>{link.label}</a></li>
-        ))}
+        {
+          artifact.evidence.map((link) => (
+            <li>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))
+        }
       </ul>
     </section>
 
@@ -172,46 +227,241 @@ const layoutProps = {
 </Default>
 
 <style>
-  .artifact-detail { max-width: 900px; margin: 0 auto; padding: clamp(32px, 5vw, 60px) var(--gutter) var(--s-10); }
-  .artifact-detail .crumb { display: none; }
-  .hero { border-bottom: 1px solid var(--line); padding-bottom: var(--s-6); margin-bottom: var(--s-7); }
-  .meta-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); font-family: var(--font-mono); font-size: var(--step--1); color: var(--fg-quiet); margin-bottom: var(--s-5); }
-  .meta-row span[data-state] { border: 1px solid var(--line-strong); border-radius: 999px; padding: 3px 10px; color: var(--fg-soft); }
-  .meta-row span[data-state="report-ready-candidate"], .meta-row span[data-state="candidate-current-best"] { color: var(--brand); border-color: color-mix(in oklab, var(--brand) 38%, var(--line)); background: var(--brand-wash); }
-  .meta-row span[data-state="release-ready-weights"], .meta-row span[data-state="release-ready-metadata"] { color: var(--live); border-color: color-mix(in oklab, var(--live) 38%, var(--line)); background: var(--live-wash); }
-  .artifact-detail h1 { font-size: var(--step-4); line-height: 1.04; letter-spacing: -0.035em; color: var(--ink); margin: 0 0 var(--s-5); }
-  .artifact-detail .lede { max-width: 64ch; color: var(--fg-soft); font-size: var(--step-1); line-height: 1.55; margin: 0 0 var(--s-5); }
-  .tags { list-style: none; display: flex; flex-wrap: wrap; gap: var(--s-2); padding: 0; margin: 0; }
-  .tags li { font-family: var(--font-mono); font-size: var(--step--1); color: var(--fg-quiet); background: var(--sunken); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; }
-  .artifact-detail section { margin-top: var(--s-8); }
-  .artifact-detail h2 { font-size: var(--step-2); letter-spacing: -0.02em; color: var(--ink); margin: 0 0 var(--s-5); padding-top: var(--s-5); border-top: 1px solid var(--line); }
-  .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--s-5); }
-  .metric-grid article { padding-top: var(--s-4); border-top: 2px solid var(--ink); }
-  .metric-grid p { color: var(--fg-quiet); font-family: var(--font-mono); font-size: var(--step--1); margin: 0 0 var(--s-2); }
-  .metric-grid strong { display: block; font-family: var(--font-display); font-size: var(--step-3); font-weight: 620; letter-spacing: -0.03em; color: var(--live); }
-  .metric-grid span { display: block; color: var(--fg-quiet); font-size: var(--step--1); margin-top: 6px; }
-  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-2); }
-  .artifact-detail table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  .artifact-detail thead th { text-align: left; padding: 10px 14px; color: var(--ink); font-weight: 600; border-bottom: 2px solid var(--ink); white-space: nowrap; background: var(--sunken); }
-  .artifact-detail td { padding: 10px 14px; border-bottom: 1px solid var(--line); color: var(--fg-soft); vertical-align: top; font-variant-numeric: tabular-nums; }
-  .artifact-detail tbody tr:last-child td { border-bottom: 0; }
-  .artifact-detail tbody tr:hover { background: var(--sunken); }
-  .artifact-detail td a { color: var(--brand); }
-  .compare-chip { font-family: var(--font-mono); font-size: var(--step--1); color: var(--fg-soft); border: 1px solid var(--line-strong); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
-  .comparison-note { color: var(--fg-quiet); font-size: var(--step--1); margin-top: var(--s-4); max-width: 66ch; }
-  .blockers { display: grid; gap: var(--s-4); }
-  .blockers article { border: 1px solid var(--line); border-radius: var(--r-2); padding: var(--s-5); background: var(--surface); }
-  .blockers h3 { font-size: var(--step-1); color: var(--ink); margin: 0 0 var(--s-3); }
-  .blockers p { color: var(--fg-soft); margin: 0 0 var(--s-2); font-size: var(--step-0); }
-  .blockers p strong { color: var(--live); }
-  .evidence-list { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--s-2); }
-  .evidence-list a { color: var(--brand); font-weight: 500; }
-  .next-action p { font-size: var(--step-1); color: var(--ink); line-height: 1.55; max-width: 68ch; }
-  .report-card p { color: var(--fg-soft); line-height: 1.55; max-width: 68ch; margin: 0 0 var(--s-4); }
-  .report-card-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); font-family: var(--font-mono); font-size: var(--step--1); }
-  .report-card-meta .outcome { border: 1px solid var(--line-strong); border-radius: 999px; padding: 3px 10px; color: var(--ink); }
-  .report-card-meta .verified[data-verified="false"] { color: var(--fg-quiet); }
-  .report-card-meta .verified[data-verified="true"] { color: var(--live); }
-  .report-card-links { display: flex; flex-wrap: wrap; gap: var(--s-4); }
-  .report-card-links a { color: var(--brand); font-weight: 500; }
+  .artifact-detail {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: clamp(32px, 5vw, 60px) var(--gutter) var(--s-10);
+  }
+  .artifact-detail .crumb {
+    display: none;
+  }
+  .hero {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: var(--s-6);
+    margin-bottom: var(--s-7);
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--fg-quiet);
+    margin-bottom: var(--s-5);
+  }
+  .meta-row span[data-state] {
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 3px 10px;
+    color: var(--fg-soft);
+  }
+  .meta-row span[data-state="report-ready-candidate"],
+  .meta-row span[data-state="candidate-current-best"] {
+    color: var(--brand);
+    border-color: color-mix(in oklab, var(--brand) 38%, var(--line));
+    background: var(--brand-wash);
+  }
+  .meta-row span[data-state="release-ready-weights"],
+  .meta-row span[data-state="release-ready-metadata"] {
+    color: var(--live);
+    border-color: color-mix(in oklab, var(--live) 38%, var(--line));
+    background: var(--live-wash);
+  }
+  .artifact-detail h1 {
+    font-size: var(--step-4);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+    margin: 0 0 var(--s-5);
+  }
+  .artifact-detail .lede {
+    max-width: 64ch;
+    color: var(--fg-soft);
+    font-size: var(--step-1);
+    line-height: 1.55;
+    margin: 0 0 var(--s-5);
+  }
+  .tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    padding: 0;
+    margin: 0;
+  }
+  .tags li {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--fg-quiet);
+    background: var(--sunken);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+  .artifact-detail section {
+    margin-top: var(--s-8);
+  }
+  .artifact-detail h2 {
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin: 0 0 var(--s-5);
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--line);
+  }
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--s-5);
+  }
+  .metric-grid article {
+    padding-top: var(--s-4);
+    border-top: 2px solid var(--ink);
+  }
+  .metric-grid p {
+    color: var(--fg-quiet);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    margin: 0 0 var(--s-2);
+  }
+  .metric-grid strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--step-3);
+    font-weight: 620;
+    letter-spacing: -0.03em;
+    color: var(--live);
+  }
+  .metric-grid span {
+    display: block;
+    color: var(--fg-quiet);
+    font-size: var(--step--1);
+    margin-top: 6px;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--r-2);
+  }
+  .artifact-detail table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .artifact-detail thead th {
+    text-align: left;
+    padding: 10px 14px;
+    color: var(--ink);
+    font-weight: 600;
+    border-bottom: 2px solid var(--ink);
+    white-space: nowrap;
+    background: var(--sunken);
+  }
+  .artifact-detail td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    color: var(--fg-soft);
+    vertical-align: top;
+    font-variant-numeric: tabular-nums;
+  }
+  .artifact-detail tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .artifact-detail tbody tr:hover {
+    background: var(--sunken);
+  }
+  .artifact-detail td a {
+    color: var(--brand);
+  }
+  .compare-chip {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--fg-soft);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+  .comparison-note {
+    color: var(--fg-quiet);
+    font-size: var(--step--1);
+    margin-top: var(--s-4);
+    max-width: 66ch;
+  }
+  .blockers {
+    display: grid;
+    gap: var(--s-4);
+  }
+  .blockers article {
+    border: 1px solid var(--line);
+    border-radius: var(--r-2);
+    padding: var(--s-5);
+    background: var(--surface);
+  }
+  .blockers h3 {
+    font-size: var(--step-1);
+    color: var(--ink);
+    margin: 0 0 var(--s-3);
+  }
+  .blockers p {
+    color: var(--fg-soft);
+    margin: 0 0 var(--s-2);
+    font-size: var(--step-0);
+  }
+  .blockers p strong {
+    color: var(--live);
+  }
+  .evidence-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--s-2);
+  }
+  .evidence-list a {
+    color: var(--brand);
+    font-weight: 500;
+  }
+  .next-action p {
+    font-size: var(--step-1);
+    color: var(--ink);
+    line-height: 1.55;
+    max-width: 68ch;
+  }
+  .report-card p {
+    color: var(--fg-soft);
+    line-height: 1.55;
+    max-width: 68ch;
+    margin: 0 0 var(--s-4);
+  }
+  .report-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-3);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+  .report-card-meta .outcome {
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 3px 10px;
+    color: var(--ink);
+  }
+  .report-card-meta .verified[data-verified="false"] {
+    color: var(--fg-quiet);
+  }
+  .report-card-meta .verified[data-verified="true"] {
+    color: var(--live);
+  }
+  .report-card-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-4);
+  }
+  .report-card-links a {
+    color: var(--brand);
+    font-weight: 500;
+  }
 </style>
