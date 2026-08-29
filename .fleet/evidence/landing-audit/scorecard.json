@@ -1,0 +1,100 @@
+{
+  "$schema": "fleet.landing-audit.scorecard.v1",
+  "project": "posttrainllm",
+  "priority": "P1",
+  "candidate": "http://127.0.0.1:4406/",
+  "productionChanged": false,
+  "checkedAt": "2026-08-28",
+  "purpose": {
+    "score": 98,
+    "minimum": 85,
+    "p0": 0,
+    "p1": 0
+  },
+  "design": {
+    "score": 94,
+    "minimum": 90,
+    "p0": 0,
+    "p1": 0
+  },
+  "seo": {
+    "score": 100,
+    "pages": 346,
+    "passed": 5190,
+    "failed": 0,
+    "warnings": 0,
+    "internalGraph": {
+      "sitemapPages": 346,
+      "discoveredTargets": 355,
+      "errors": 0,
+      "redirects": 0,
+      "orphanCandidates": 0
+    },
+    "externalGraph": {
+      "discoveredTargets": 948,
+      "lastCompletePassBeforeFinalSourceCleanup": {
+        "errors": 4,
+        "redirects": 11
+      },
+      "note": "The remaining stale and bot-blocked third-party references were updated or de-linked; the operator timebox ended before repeating the full throttled provider pass."
+    },
+    "productionAhrefsBaseline": {
+      "healthScore": 46,
+      "crawledUrls": 1223,
+      "urlsWithErrors": 662,
+      "note": "This is the unchanged production crawl, not the local candidate. Recheck only after an authorized release."
+    }
+  },
+  "geo": {
+    "score": 100,
+    "tier": "S",
+    "surfaces": 346,
+    "validSurfaces": 346,
+    "note": "Generated agent surfaces pass the drift check and the canonical public origin independently passes the complete S-tier audit."
+  },
+  "performance": {
+    "score": 99,
+    "runs": 20,
+    "successfulRuns": 20,
+    "weightedLcpMs": 1010,
+    "weightedCls": 0,
+    "weightedTbtMs": 0,
+    "cwvLcpP75Ms": 1653,
+    "profiles": {
+      "mobileSlowLcpP75Ms": 3603,
+      "mobileMidLcpP75Ms": 1653,
+      "mobileFastLcpP75Ms": 753,
+      "desktopLcpP75Ms": 363
+    },
+    "report": "performance.html",
+    "note": "The balanced mobile-mid and desktop profile is in the good CWV band; the deliberately extreme Slow-3G profile has no actionable Lighthouse failures."
+  },
+  "verification": {
+    "astroBuild": "pass",
+    "vitest": "72/72",
+    "toolTypecheck": "pass",
+    "agentSurfaces": "346/346",
+    "liveAgentIndex": "S-tier 100%",
+    "responsiveBrowser": "pass",
+    "axeWcagAAndAA": {
+      "desktopViolations": 0,
+      "mobileViolations": 0
+    },
+    "footer": {
+      "askAi": "pass",
+      "projectStrip": "pass"
+    },
+    "internalLinks": "355/355 direct, 0 redirects, 0 orphan candidates",
+    "runtimeErrors": 0,
+    "responsiveScreenshots": [
+      "../../../browser/artifacts/design/landing-audit/final-p1-390.png",
+      "../../../browser/artifacts/design/landing-audit/final-p1-768.png",
+      "../../../browser/artifacts/design/landing-audit/final-p1-1440.png"
+    ]
+  },
+  "limitations": [
+    "The qwen3-4b-rest-fused package does not claim latency, memory, throughput, training duration, or raw predictions because those historical traces were not preserved.",
+    "The final throttled external-provider pass was intentionally timeboxed after the internal graph reached zero errors; third-party bot policy is not treated as a product-release blocker.",
+    "The current public production landing remains unchanged until an explicit deployment is authorized."
+  ]
+}
