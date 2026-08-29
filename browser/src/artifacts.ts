@@ -809,7 +809,7 @@ export const artifacts: ArtifactEntry[] = [
       },
       {
         label: "ReST inventory",
-        href: "/docs/sessions/2026-06-17-stepback-inventory-roi",
+        href: "/docs/sessions/06-17-stepback-inventory-roi/",
       },
       {
         label: "Specialist registry",
@@ -924,7 +924,7 @@ export const artifacts: ArtifactEntry[] = [
       { label: "Attempt ledger", href: "/docs/attempt-ledger" },
       {
         label: "Historical model inventory",
-        href: "/docs/sessions/2026-06-17-stepback-inventory-roi",
+        href: "/docs/sessions/06-17-stepback-inventory-roi/",
       },
       {
         label: "Public artifact registry",
@@ -1053,7 +1053,7 @@ export const artifacts: ArtifactEntry[] = [
       },
       {
         label: "Historical model inventory",
-        href: "/docs/sessions/2026-06-17-stepback-inventory-roi",
+        href: "/docs/sessions/06-17-stepback-inventory-roi/",
       },
       {
         label: "GSM8K evaluator",
@@ -1363,7 +1363,7 @@ export const artifacts: ArtifactEntry[] = [
     kind: "Factory contract",
     tags: ["factory", "evals", "reports"],
     summary:
-      "The canonical target -> data -> post-training -> eval -> package -> report shape for posttrainllm runs.",
+      "The canonical target, data, post-training, evaluation, package, and report shape for PostTrainLLM runs.",
     lede: "A specialist factory needs proof folders, not vibes. This schema defines the local run directory, required metrics, and decision vocabulary that every public artifact should eventually satisfy.",
     metrics: [
       {

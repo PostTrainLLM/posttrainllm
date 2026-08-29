@@ -3,6 +3,8 @@
 Broad Mac app polish is parked. The app should not become the center before the
 factory loop is proven.
 
+## Current boundary
+
 Allowed near-term UI work:
 
 - a minimal Factory Run Center

@@ -21,10 +21,26 @@ const layoutProps = {
 // onnx/ folder. The A1 entry is wired but disabled until the trained
 // tool-caller is exported to ONNX (Phase 2 — gated on the eval verdict).
 const CURATED = [
-  { id: "onnx-community/Qwen2.5-0.5B-Instruct", label: "Qwen2.5-0.5B-Instruct (~0.5 GB q4) — fast", dtype: "q4f16" },
-  { id: "HuggingFaceTB/SmolLM2-1.7B-Instruct", label: "SmolLM2-1.7B-Instruct (~1.1 GB q4)", dtype: "q4f16" },
-  { id: "onnx-community/Qwen2.5-1.5B-Instruct", label: "Qwen2.5-1.5B-Instruct (~1 GB q4)", dtype: "q4f16" },
-  { id: "onnx-community/Llama-3.2-1B-Instruct-ONNX", label: "Llama-3.2-1B-Instruct (~0.9 GB q4)", dtype: "q4f16" },
+  {
+    id: "onnx-community/Qwen2.5-0.5B-Instruct",
+    label: "Qwen2.5-0.5B-Instruct (~0.5 GB q4) — fast",
+    dtype: "q4f16",
+  },
+  {
+    id: "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+    label: "SmolLM2-1.7B-Instruct (~1.1 GB q4)",
+    dtype: "q4f16",
+  },
+  {
+    id: "onnx-community/Qwen2.5-1.5B-Instruct",
+    label: "Qwen2.5-1.5B-Instruct (~1 GB q4)",
+    dtype: "q4f16",
+  },
+  {
+    id: "onnx-community/Llama-3.2-1B-Instruct-ONNX",
+    label: "Llama-3.2-1B-Instruct (~0.9 GB q4)",
+    dtype: "q4f16",
+  },
 ];
 
 const pageStyle = `
@@ -62,19 +78,30 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
   <div class="wrap">
     <h1>Run an LLM in your browser</h1>
     <p class="sub">
-      Fully client-side inference via <strong>WebGPU</strong> (transformers.js).
-      Pick a model or pull any Hugging Face repo that ships an <code>onnx/</code>
-      folder. Weights download to your machine and run locally — no server, no
-      upload. First load downloads the model (cached after).
+      Fully client-side inference via <strong>WebGPU</strong> (transformers.js). Pick
+      a model or pull any Hugging Face repo that ships an <code>onnx/</code>
+      folder. Weights download to your machine and run locally — no server, no upload.
+      First load downloads the model (cached after).
     </p>
 
+    <h2>Choose a model and runtime</h2>
     <div class="panel">
       <label for="model">Model</label>
       <div class="row">
         <select id="model">
-          {CURATED.map((m) => <option value={m.id} data-dtype={m.dtype}>{m.label}</option>)}
-          <option value="__a1__" disabled>A1 tool-caller — available after training + ONNX export</option>
-          <option value="__custom__">Custom: pull from Hugging Face by id…</option>
+          {
+            CURATED.map((m) => (
+              <option value={m.id} data-dtype={m.dtype}>
+                {m.label}
+              </option>
+            ))
+          }
+          <option value="__a1__" disabled
+            >A1 tool-caller — available after training + ONNX export</option
+          >
+          <option value="__custom__"
+            >Custom: pull from Hugging Face by id…</option
+          >
         </select>
         <select id="device">
           <option value="webgpu">WebGPU (GPU, fast)</option>
@@ -84,11 +111,18 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
       <details class="adv" id="customWrap">
         <summary>Custom Hugging Face model</summary>
         <div style="margin-top:10px">
-          <input id="customId" placeholder="e.g. onnx-community/gemma-3-1b-it-ONNX" />
+          <input
+            id="customId"
+            placeholder="e.g. onnx-community/gemma-3-1b-it-ONNX"
+          />
           <p class="note">
             Must be a repo with an <code>onnx/</code> folder (transformers.js format).
-            Browse <a href="https://huggingface.co/models?library=transformers.js" target="_blank" rel="noopener" style="color:var(--accent)">transformers.js models</a>.
-            Big models (&gt;~2 GB) may exhaust browser memory.
+            Browse <a
+              href="https://huggingface.co/models?library=transformers.js"
+              target="_blank"
+              rel="noopener"
+              style="color:var(--accent)">transformers.js models</a
+            >. Big models (&gt;~2 GB) may exhaust browser memory.
           </p>
         </div>
       </details>
@@ -101,15 +135,31 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
 
     <div class="panel">
       <label for="prompt">Prompt</label>
-      <textarea id="prompt" placeholder="Ask anything…">List three uses for a paperclip.</textarea>
+      <textarea id="prompt" placeholder="Ask anything…"
+        >List three uses for a paperclip.</textarea
+      >
       <div class="row" style="margin-top:12px">
         <div>
           <label for="temp">Temperature</label>
-          <input id="temp" type="number" min="0" max="2" step="0.1" value="0.7" />
+          <input
+            id="temp"
+            type="number"
+            min="0"
+            max="2"
+            step="0.1"
+            value="0.7"
+          />
         </div>
         <div>
           <label for="maxtok">Max new tokens</label>
-          <input id="maxtok" type="number" min="16" max="2048" step="16" value="256" />
+          <input
+            id="maxtok"
+            type="number"
+            min="16"
+            max="2048"
+            step="16"
+            value="256"
+          />
         </div>
       </div>
       <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
@@ -126,8 +176,8 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
 
     <p class="note">
       How it works: transformers.js loads ONNX weights from the Hugging Face hub
-      and runs them through the ONNX Runtime Web WebGPU backend, entirely in this
-      tab. The repo's own hand-written WebGPU kernels (the
+      and runs them through the ONNX Runtime Web WebGPU backend, entirely in
+      this tab. The repo's own hand-written WebGPU kernels (the
       <a href="/playground" style="color:var(--accent)">playground</a>) run the
       tiny from-scratch models; this page runs real pretrained LLMs.
     </p>
@@ -175,16 +225,27 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
 
     loadBtn.addEventListener("click", async () => {
       const { id, dtype } = resolveModel();
-      if (!id) { setLoadStatus("Enter a Hugging Face model id.", true); return; }
-      if (!(navigator as any).gpu && deviceSel.value === "webgpu") {
-        setLoadStatus("WebGPU unavailable in this browser — switch device to WASM.", true);
+      if (!id) {
+        setLoadStatus("Enter a Hugging Face model id.", true);
         return;
       }
-      loadBtn.disabled = true; genBtn.disabled = true;
+      if (!(navigator as any).gpu && deviceSel.value === "webgpu") {
+        setLoadStatus(
+          "WebGPU unavailable in this browser — switch device to WASM.",
+          true,
+        );
+        return;
+      }
+      loadBtn.disabled = true;
+      genBtn.disabled = true;
       setLoadStatus(`Loading ${id}… (first time downloads weights)`);
       loadBar.style.width = "0%";
       try {
-        const { pipeline, TextStreamer: TS, env } = await import(/* @vite-ignore */ TX);
+        const {
+          pipeline,
+          TextStreamer: TS,
+          env,
+        } = await import(/* @vite-ignore */ TX);
         TextStreamer = TS;
         env.allowLocalModels = false; // always pull from the HF hub
         generator = await pipeline("text-generation", id, {
@@ -194,7 +255,9 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
             if (p.status === "progress" && p.total) {
               const pct = Math.round((p.loaded / p.total) * 100);
               loadBar.style.width = pct + "%";
-              setLoadStatus(`Downloading ${p.file?.split("/").pop() ?? ""} — ${pct}%`);
+              setLoadStatus(
+                `Downloading ${p.file?.split("/").pop() ?? ""} — ${pct}%`,
+              );
             } else if (p.status === "ready") {
               setLoadStatus("");
             }
@@ -205,7 +268,10 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
         setLoadStatus(`Ready: ${id} on ${deviceSel.value.toUpperCase()}.`);
         genBtn.disabled = false;
       } catch (e: any) {
-        setLoadStatus(`Load failed: ${e?.message ?? e}. (If it's a CORS/COEP error, the model couldn't be fetched cross-origin.)`, true);
+        setLoadStatus(
+          `Load failed: ${e?.message ?? e}. (If it's a CORS/COEP error, the model couldn't be fetched cross-origin.)`,
+          true,
+        );
         generator = null;
       } finally {
         loadBtn.disabled = false;
@@ -215,13 +281,18 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
     genBtn.addEventListener("click", async () => {
       if (!generator) return;
       stopFlag = false;
-      genBtn.disabled = true; stopBtn.disabled = false;
-      out.textContent = ""; tpsEl.textContent = ""; ttftEl.textContent = "";
+      genBtn.disabled = true;
+      stopBtn.disabled = false;
+      out.textContent = "";
+      tpsEl.textContent = "";
+      ttftEl.textContent = "";
       genStatus.textContent = "Generating…";
 
       const prompt = ($("prompt") as HTMLTextAreaElement).value;
-      const temperature = parseFloat(($("temp") as HTMLInputElement).value) || 0.7;
-      const max_new_tokens = parseInt(($("maxtok") as HTMLInputElement).value) || 256;
+      const temperature =
+        parseFloat(($("temp") as HTMLInputElement).value) || 0.7;
+      const max_new_tokens =
+        parseInt(($("maxtok") as HTMLInputElement).value) || 256;
       const messages = [{ role: "user", content: prompt }];
 
       let nTokens = 0;
@@ -232,11 +303,15 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
         skip_special_tokens: true,
         callback_function: (text: string) => {
           if (stopFlag) return;
-          if (!tFirst) { tFirst = performance.now(); ttftEl.textContent = `TTFT ${Math.round(tFirst - t0)} ms`; }
+          if (!tFirst) {
+            tFirst = performance.now();
+            ttftEl.textContent = `TTFT ${Math.round(tFirst - t0)} ms`;
+          }
           out.textContent += text;
           nTokens++;
           const secs = (performance.now() - (tFirst || t0)) / 1000;
-          if (secs > 0) tpsEl.textContent = `${(nTokens / secs).toFixed(1)} tok/s`;
+          if (secs > 0)
+            tpsEl.textContent = `${(nTokens / secs).toFixed(1)} tok/s`;
         },
       });
 
@@ -251,13 +326,15 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
       } catch (e: any) {
         genStatus.textContent = `Error: ${e?.message ?? e}`;
       } finally {
-        genBtn.disabled = false; stopBtn.disabled = true;
+        genBtn.disabled = false;
+        stopBtn.disabled = true;
       }
     });
 
     stopBtn.addEventListener("click", () => {
       stopFlag = true;
-      genStatus.textContent = "Stopped (current request finishes in the background).";
+      genStatus.textContent =
+        "Stopped (current request finishes in the background).";
       stopBtn.disabled = true;
     });
   </script>

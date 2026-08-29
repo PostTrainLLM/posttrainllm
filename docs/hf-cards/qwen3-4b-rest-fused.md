@@ -47,12 +47,12 @@ envelope and requires its own ship gate.
 ## Eval results
 
 All numbers are historical results recorded on 2026-06-17. Source:
-[`specialists/qwen3-4b-rest-fused/eval_report.json`](https://huggingface.co/posttrainllm/qwen3-4b-rest-fused/blob/main/eval_report.json).
+[`qwen3-4b-rest-fused.json`](/report-cards/qwen3-4b-rest-fused.json).
 
-| Suite | Stock 4B | ReST 4B | Delta | n |
-|---|---:|---:|---:|---:|
-| File-ops hard gate | 0.58 | **1.00** | +0.42 | 12 |
-| Out-of-domain breadth | 0.596 | **0.65** | +0.054 | 52 |
+| Suite                 | Stock 4B |  ReST 4B |  Delta |   n |
+| --------------------- | -------: | -------: | -----: | --: |
+| File-ops hard gate    |     0.58 | **1.00** |  +0.42 |  12 |
+| Out-of-domain breadth |    0.596 | **0.65** | +0.054 |  52 |
 
 The breadth suite contains 52 held-out TradingBot, VehicleControlAPI, and
 TravelAPI tasks. The depth suite contains 12 file-ops tasks. ReST recovered

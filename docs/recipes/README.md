@@ -2,6 +2,8 @@
 
 Copy-paste workflows for using posttrainllm specialists outside the core CLI.
 
+## Available recipes
+
 | Recipe | Use it when |
 |---|---|
 | [Function-calling distillation](distillation-fc.md) | You want to distill a small tool-calling specialist and score it with BFCL. |

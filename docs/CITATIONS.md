@@ -5,14 +5,15 @@ primary source here. If a claim doesn't have a citation in this file,
 treat it as informed-opinion-not-evidence and challenge it.
 
 The bar: peer-reviewed paper > arXiv preprint > official model card
+
 > library README > blog post > vibes. Anything below "blog post" is
-labeled `[informal]`.
+> labeled `[informal]`.
 
 ## Transformer architecture pieces
 
 ### SwiGLU MLP
 
-**Primary**: Shazeer, Noam. *"GLU Variants Improve Transformer."*
+**Primary**: Shazeer, Noam. _"GLU Variants Improve Transformer."_
 arXiv:2002.05202 (2020). https://arxiv.org/abs/2002.05202
 
 Shows that gated linear units (GLU, ReGLU, GEGLU, SwiGLU) outperform
@@ -38,8 +39,8 @@ specific task + model size.
 
 ### RoPE (Rotary Position Embedding)
 
-**Primary**: Su, Jianlin, et al. *"RoFormer: Enhanced Transformer with
-Rotary Position Embedding."* arXiv:2104.09864 (2021).
+**Primary**: Su, Jianlin, et al. _"RoFormer: Enhanced Transformer with
+Rotary Position Embedding."_ arXiv:2104.09864 (2021).
 https://arxiv.org/abs/2104.09864
 
 Key property: relative position information is encoded via rotation,
@@ -61,8 +62,8 @@ Qwen, Gemma, LFM all use RoPE.
 
 ### Grouped Query Attention (GQA)
 
-**Primary**: Ainslie, Joshua, et al. *"GQA: Training Generalized
-Multi-Query Transformer Models from Multi-Head Checkpoints."*
+**Primary**: Ainslie, Joshua, et al. _"GQA: Training Generalized
+Multi-Query Transformer Models from Multi-Head Checkpoints."_
 arXiv:2305.13245 (2023). https://arxiv.org/abs/2305.13245
 
 Key claim from §4: GQA with 8 K/V heads matches MHA quality within
@@ -80,8 +81,8 @@ Our "KV cache shrinks 4×" claim is exact for Llama-3-8B's 32/8 ratio.
 
 ### RMSNorm
 
-**Primary**: Zhang, Biao, and Rico Sennrich. *"Root Mean Square Layer
-Normalization."* arXiv:1910.07467 (2019). https://arxiv.org/abs/1910.07467
+**Primary**: Zhang, Biao, and Rico Sennrich. _"Root Mean Square Layer
+Normalization."_ arXiv:1910.07467 (2019). https://arxiv.org/abs/1910.07467
 
 Key claim: RMSNorm = LayerNorm without mean centering, with no bias.
 Achieves equivalent perplexity to LayerNorm on transformer training
@@ -92,13 +93,13 @@ Gemma, Qwen, LFM all use it.
 
 ### BPE / SentencePiece tokenization
 
-**Primary (BPE)**: Sennrich, Rico, et al. *"Neural Machine Translation
-of Rare Words with Subword Units."* arXiv:1508.07909 (2015).
+**Primary (BPE)**: Sennrich, Rico, et al. _"Neural Machine Translation
+of Rare Words with Subword Units."_ arXiv:1508.07909 (2015).
 https://arxiv.org/abs/1508.07909
 
 **Primary (SentencePiece)**: Kudo, Taku, and John Richardson.
-*"SentencePiece: A simple and language independent subword tokenizer
-and detokenizer for Neural Text Processing."* EMNLP demo, 2018.
+_"SentencePiece: A simple and language independent subword tokenizer
+and detokenizer for Neural Text Processing."_ EMNLP demo, 2018.
 arXiv:1808.06226. https://arxiv.org/abs/1808.06226
 
 The "~4× more text per token vs byte-level" claim: depends on the
@@ -112,8 +113,8 @@ own statistics.
 
 ### LoRA (Low-Rank Adaptation)
 
-**Primary**: Hu, Edward J., et al. *"LoRA: Low-Rank Adaptation of
-Large Language Models."* arXiv:2106.09685 (2021).
+**Primary**: Hu, Edward J., et al. _"LoRA: Low-Rank Adaptation of
+Large Language Models."_ arXiv:2106.09685 (2021).
 https://arxiv.org/abs/2106.09685
 
 Key claims we cite:
@@ -137,10 +138,11 @@ Our "98K trainable params, 1% of model" number on the Huge preset:
 
 **Primary**: Implied by the original transformer decoder design in
 Vaswani et al. 2017 (arXiv:1706.03762) §3.2.3. First explicit naming
-+ description as "KV cache" is folklore; common reference is the
-original GPT-2 paper code (Radford et al., 2019) and HuggingFace's
-`transformers` library documentation:
-https://huggingface.co/docs/transformers/main/en/llm_optims#static-kv-cache-and-torchcompile
+
+- description as "KV cache" is folklore; common reference is the
+  original GPT-2 paper code (Radford et al., 2019) and HuggingFace's
+  `transformers` library documentation:
+  https://huggingface.co/docs/transformers/main/en/llm_optims#static-kv-cache-and-torchcompile
 
 Key claim: with KV-cache, per-token forward goes from O(T²) attention
 work to O(T). Compounding: total work for generating T tokens goes
@@ -156,8 +158,8 @@ overhead, faster eval()). Real component breakdown is in
 
 ### Flash Attention 2
 
-**Primary**: Dao, Tri. *"FlashAttention-2: Faster Attention with
-Better Parallelism and Work Partitioning."* arXiv:2307.08691 (2023).
+**Primary**: Dao, Tri. _"FlashAttention-2: Faster Attention with
+Better Parallelism and Work Partitioning."_ arXiv:2307.08691 (2023).
 https://arxiv.org/abs/2307.08691
 
 FA1 (Dao et al. 2022, arXiv:2205.14135) is the predecessor.
@@ -174,11 +176,12 @@ for the derivation.
 
 ### Mixture of Experts (parked)
 
-**Primary**: Shazeer, Noam, et al. *"Outrageously Large Neural
-Networks: The Sparsely-Gated Mixture-of-Experts Layer."*
+**Primary**: Shazeer, Noam, et al. _"Outrageously Large Neural
+Networks: The Sparsely-Gated Mixture-of-Experts Layer."_
 arXiv:1701.06538 (2017). https://arxiv.org/abs/1701.06538
 
 Recent + relevant adoption:
+
 - **Mixtral 8x7B** (Jiang et al., 2024, arXiv:2401.04088): the open-
   weight reference. 47B total, ~13B active per token.
 
@@ -189,12 +192,12 @@ Mixtral paper's headline result on their benchmark suite.
 
 ### Symmetric int8 / int4 weight-only quantization
 
-**Primary**: Lin, Ji, et al. *"AWQ: Activation-aware Weight Quantization
-for LLM Compression and Acceleration."* MLSys 2024, arXiv:2306.00978.
+**Primary**: Lin, Ji, et al. _"AWQ: Activation-aware Weight Quantization
+for LLM Compression and Acceleration."_ MLSys 2024, arXiv:2306.00978.
 https://arxiv.org/abs/2306.00978
 
-**Also**: Frantar, Elias, et al. *"GPTQ: Accurate Post-Training
-Quantization for Generative Pre-trained Transformers."* ICLR 2023,
+**Also**: Frantar, Elias, et al. _"GPTQ: Accurate Post-Training
+Quantization for Generative Pre-trained Transformers."_ ICLR 2023,
 arXiv:2210.17323. https://arxiv.org/abs/2210.17323
 
 Both show that 4-bit weight-only quantization with proper scaling
@@ -202,7 +205,7 @@ loses < 1 perplexity point on Llama-class models.
 
 Block-wise quantization (the variant we use): documented in
 **GGUF / GGML / Q4_0** in `ggerganov/llama.cpp`:
-https://github.com/ggerganov/llama.cpp/blob/master/docs/quantize.md
+https://github.com/ggml-org/llama.cpp/blob/master/tools/quantize/README.md
 
 Our block size 64 + symmetric ±7 range + per-block fp16 scale
 matches Q4_0 exactly. Source: llama.cpp's `quants/q4_0` implementation.
@@ -227,8 +230,8 @@ https://github.com/apple/coremltools/releases
 
 ### MLX framework
 
-**Primary**: Apple Machine Learning Research. *"MLX: An array
-framework for Apple silicon."* GitHub repository.
+**Primary**: Apple Machine Learning Research. _"MLX: An array
+framework for Apple silicon."_ GitHub repository.
 https://github.com/ml-explore/mlx
 
 Source code is the citation; there isn't a formal paper. The README
@@ -236,8 +239,8 @@ documents the design (unified memory, lazy eval, function transforms).
 
 ### Apple Neural Engine
 
-**Primary**: Apple's *Deploying Transformers on the Apple Neural
-Engine* whitepaper / blog post (June 2022).
+**Primary**: Apple's _Deploying Transformers on the Apple Neural
+Engine_ whitepaper / blog post (June 2022).
 https://machinelearning.apple.com/research/neural-engine-transformers
 
 Key numbers cited:
@@ -256,7 +259,7 @@ Stateful Models API + proper int-compute path.
 
 ### swift-transformers (BPE / tokenizer Swift port)
 
-**Primary**: HuggingFace. *swift-transformers* GitHub repository.
+**Primary**: HuggingFace. _swift-transformers_ GitHub repository.
 https://github.com/huggingface/swift-transformers
 
 This is the canonical Swift implementation of HF's `tokenizers`
@@ -268,7 +271,7 @@ to a specific version in `native-mac/Package.swift`.
 
 ### safetensors
 
-**Primary**: HuggingFace. *safetensors* GitHub repository + spec.
+**Primary**: HuggingFace. _safetensors_ GitHub repository + spec.
 https://github.com/huggingface/safetensors
 
 Key spec detail: u64-LE header size, JSON header with per-tensor
@@ -276,7 +279,7 @@ Key spec detail: u64-LE header size, JSON header with per-tensor
 
 ### GGUF (mentioned but not used)
 
-**Primary**: Gerganov, Georgi. *GGUF specification.* llama.cpp
+**Primary**: Gerganov, Georgi. _GGUF specification._ llama.cpp
 documentation. https://github.com/ggerganov/ggml/blob/master/docs/gguf.md
 
 The format used by llama.cpp for distributing quantized models.
@@ -295,30 +298,30 @@ All texts used in `scripts/fetch_corpora.sh` are public domain
 
 ### TinyStories
 
-**Primary**: Eldan, Ronen, and Yuanzhi Li. *"TinyStories: How Small
-Can Language Models Be and Still Speak Coherent English?"*
+**Primary**: Eldan, Ronen, and Yuanzhi Li. _"TinyStories: How Small
+Can Language Models Be and Still Speak Coherent English?"_
 arXiv:2305.07759 (2023). https://arxiv.org/abs/2305.07759
 
 The dataset: https://huggingface.co/datasets/roneneldan/TinyStories
 
 ### codeparrot/github-code-clean
 
-**Primary**: BigCode project, *github-code-clean.*
+**Primary**: BigCode project, _github-code-clean._
 https://huggingface.co/datasets/codeparrot/github-code-clean
 
 A filtered subset of GitHub code from The Stack.
 
 ### databricks/databricks-dolly-15k
 
-**Primary**: Databricks, *Free Dolly: Introducing the World's First
-Truly Open Instruction-Tuned LLM.* Blog post (April 2023).
-https://www.databricks.com/blog/2023/04/12/dolly-first-open-commercially-viable-instruction-tuned-llm.html
+**Primary**: Databricks, _Free Dolly: Introducing the World's First
+Truly Open Instruction-Tuned LLM._ Blog post (April 2023).
+https://www.databricks.com/blog/2023/04/12/dolly-first-open-commercially-viable-instruction-tuned-llm
 
 Dataset: https://huggingface.co/datasets/databricks/databricks-dolly-15k
 
 ### tinyshakespeare
 
-**Primary**: Karpathy, Andrej. *char-rnn* GitHub repository.
+**Primary**: Karpathy, Andrej. _char-rnn_ GitHub repository.
 https://github.com/karpathy/char-rnn
 
 The `data/tinyshakespeare/input.txt` file from this repo is the

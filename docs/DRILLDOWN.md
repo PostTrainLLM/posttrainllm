@@ -26,20 +26,20 @@ Qwen3-4B-Instruct-2507 bf16 with the plan-then-execute prompt.
 All scored with `scripts/eval_pace_unhappy.py` against
 `grammars/pace-system-prompt-v11.txt`, temperature 0, max_tokens 300.
 
-| Model                            |   ambig   |    oos    | destructive | Notes |
-|---|---|---|---|---|
-| Qwen3-4B-Instruct (ship floor)   |  0/40 ( 0%) | 47/60 (78%) | 20/30 (67%) | reference |
-| Qwen3-14B                        |  8/40 (20%) | 43/60 (72%) |  7/30 (23%) | gives back destructive |
-| Apple FM (guided)                |  1/40 ( 2%) | 57/60 (95%) | 11/30 (37%) | refusal champ, can't ask |
-| clarify-v1 LoRA (4B + 38 rows)   |  1/40 ( 2%) | 24/60 (40%) | 15/30 (50%) | 47pp interference |
-| Pace v9-LoRA (0.6B)              |  0/40 ( 0%) | 13/60 (22%) |  1/30 ( 3%) | capacity wall |
-| Pace v11-LoRA (0.6B)             |  0/40 ( 0%) |  9/60 (15%) |  5/30 (17%) | capacity wall |
-| two-stage shim **v1**            |  0/40 ( 0%) | 34/60 (57%) | 21/30 (70%) | rules detect but scorer rejects |
-| two-stage shim **v2** (topic fix)|  8/40 (20%) | 33/60 (55%) | 20/30 (67%) | topic-aware questions, over-triggers a bit |
-| Qwen3-4B-Thinking                |  0/40 ( 0%) |  6/60 (10%) |  0/30 ( 0%) | think trace consumes 300-tok cap |
-| DeepSeek-R1-Distill-Qwen-7B      |  0/40 ( 0%) |  2/60 ( 3%) |  0/30 ( 0%) | same — thinking-model token wall |
-| Llama-3.1-8B-Instruct            |  1/40 ( 2%) | 17/60 (28%) | 20/30 (67%) | over-compliant on OOS |
-| **Gemma-3-12B-it (qat-4bit)**    | **9/40 (22%)** | **49/60 (82%)** | **23/30 (77%)** | **wins all three dims** |
+| Model                             | ambig          | oos             | destructive     | Notes                                      |
+| --------------------------------- | -------------- | --------------- | --------------- | ------------------------------------------ |
+| Qwen3-4B-Instruct (ship floor)    | 0/40 ( 0%)     | 47/60 (78%)     | 20/30 (67%)     | reference                                  |
+| Qwen3-14B                         | 8/40 (20%)     | 43/60 (72%)     | 7/30 (23%)      | gives back destructive                     |
+| Apple FM (guided)                 | 1/40 ( 2%)     | 57/60 (95%)     | 11/30 (37%)     | refusal champ, can't ask                   |
+| clarify-v1 LoRA (4B + 38 rows)    | 1/40 ( 2%)     | 24/60 (40%)     | 15/30 (50%)     | 47pp interference                          |
+| Pace v9-LoRA (0.6B)               | 0/40 ( 0%)     | 13/60 (22%)     | 1/30 ( 3%)      | capacity wall                              |
+| Pace v11-LoRA (0.6B)              | 0/40 ( 0%)     | 9/60 (15%)      | 5/30 (17%)      | capacity wall                              |
+| two-stage shim **v1**             | 0/40 ( 0%)     | 34/60 (57%)     | 21/30 (70%)     | rules detect but scorer rejects            |
+| two-stage shim **v2** (topic fix) | 8/40 (20%)     | 33/60 (55%)     | 20/30 (67%)     | topic-aware questions, over-triggers a bit |
+| Qwen3-4B-Thinking                 | 0/40 ( 0%)     | 6/60 (10%)      | 0/30 ( 0%)      | think trace consumes 300-tok cap           |
+| DeepSeek-R1-Distill-Qwen-7B       | 0/40 ( 0%)     | 2/60 ( 3%)      | 0/30 ( 0%)      | same — thinking-model token wall           |
+| Llama-3.1-8B-Instruct             | 1/40 ( 2%)     | 17/60 (28%)     | 20/30 (67%)     | over-compliant on OOS                      |
+| **Gemma-3-12B-it (qat-4bit)**     | **9/40 (22%)** | **49/60 (82%)** | **23/30 (77%)** | **wins all three dims**                    |
 
 ## Verdicts per diamond
 
@@ -74,6 +74,7 @@ All scored with `scripts/eval_pace_unhappy.py` against
 **Pace ships on Gemma-3-12B-it (mlx-community/gemma-3-12b-it-qat-4bit, ~8 GB).**
 
 Reasons:
+
 - Only model in this drill that beats the 4B baseline on ALL three
   unhappy-path dimensions while staying ≤14B.
 - 82% OOS clears the "doesn't make stuff up" bar.
@@ -101,18 +102,18 @@ verdict. ~30 min for a 12B on M5 Pro.
 Same-day test of the post-drill model generation, run via
 `scripts/eval_planner.sh`:
 
-| Challenger | ambig | oos | destructive | verdict |
-|---|---|---|---|---|
-| Gemma-4-12B Unified (qat) | — | — | — | **blocked**: LM Studio MLX engine lacks `gemma4_unified` (mlx-engine#301); no GGUF published. Weights on disk; re-try each LM Studio update |
-| Qwen3.5-9B (no-think) | 18% | **97%** | 63% | champion stands, but 97% oos is best-in-matrix (beats Apple FM's 95%), ~1.8s/turn, 6 GB |
-| Qwen3.5-4B (no-think) | 15% | 55% | 70% | loses all dims; ambig 15% vs old floor's 0% shows gen-3.5 clarify emergence, but oos regressed hard |
+| Challenger                | ambig | oos     | destructive | verdict                                                                                                                                     |
+| ------------------------- | ----- | ------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Gemma-4-12B Unified (qat) | —     | —       | —           | **blocked**: LM Studio MLX engine lacks `gemma4_unified` (mlx-engine#301); no GGUF published. Weights on disk; re-try each LM Studio update |
+| Qwen3.5-9B (no-think)     | 18%   | **97%** | 63%         | champion stands, but 97% oos is best-in-matrix (beats Apple FM's 95%), ~1.8s/turn, 6 GB                                                     |
+| Qwen3.5-4B (no-think)     | 15%   | 55%     | 70%         | loses all dims; ambig 15% vs old floor's 0% shows gen-3.5 clarify emergence, but oos regressed hard                                         |
 
 **Qwen3.5 thinking trap** (cost ~3 wasted hours): the small Qwen3.5
-models think by default *under LM Studio's template* with unbounded
+models think by default _under LM Studio's template_ with unbounded
 traces (>1024 tok on "open music"); content arrives empty and a naive
 eval scores a fake 0%. LM Studio's REST layer silently drops
 `chat_template_kwargs.enable_thinking`
-([bug #1559](https://github.com/lmstudio-ai/lmstudio-bug-tracker/issues/1559)).
+([related feature request #483](https://github.com/lmstudio-ai/lms/issues/483)).
 Working fix: assistant-prefill `{"role":"assistant","content":"<think></think>\n"}` —
 wired into the scorer as `EVAL_NO_THINK=1`. 25.5s/turn → 1.0s/turn.
 

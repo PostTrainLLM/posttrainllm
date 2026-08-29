@@ -3,6 +3,8 @@
 The browser playground and WebGPU path are successful completed assets. They
 are parked for active factory work.
 
+## Current boundary
+
 Do not spend near-term time on:
 
 - Astro migration

@@ -306,7 +306,7 @@ If you want to follow specific threads further, here are the most useful entry p
 
 - **WebGPU.** The [WebGPU spec](https://www.w3.org/TR/webgpu/) is dense but readable. The [WebGPU Fundamentals](https://webgpufundamentals.org/) tutorials are a much friendlier introduction. For WGSL specifically, the [WGSL spec](https://www.w3.org/TR/WGSL/) is more usable than most language specs.
 
-- **The Web platform pieces.** [SharedArrayBuffer and cross-origin isolation](https://web.dev/articles/coop-coep) on web.dev covers the COOP/COEP machinery in §11. The [Compute Pressure API explainer](https://developer.chrome.com/docs/web-platform/compute-pressure) covers §13. The [Hugging Face datasets-server docs](https://huggingface.co/docs/datasets-server) cover the API in §14, including the rate limits you'll hit on heavier pulls.
+- **The Web platform pieces.** [SharedArrayBuffer and cross-origin isolation](https://web.dev/articles/coop-coep?hl=en) on web.dev covers the COOP/COEP machinery in §11. The [Compute Pressure API explainer](https://developer.chrome.com/docs/web-platform/compute-pressure?hl=en) covers §13. The [Hugging Face Dataset Viewer docs](https://huggingface.co/docs/dataset-viewer/index) cover the API in §14, including the rate limits you'll hit on heavier pulls.
 
 Read in this order if you're starting fresh: Karpathy's makemore →
 `python_ref/model.py` → `docs/learn/README.md` → the relevant kernel notes

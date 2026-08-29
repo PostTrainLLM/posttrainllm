@@ -289,6 +289,12 @@ async function buildOutputs() {
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
     urls.map((url) => `  <url><loc>${xmlEscape(url)}</loc></url>`).join("\n") +
     "\n</urlset>\n";
+  const sitemapIndex =
+    '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    `  <sitemap><loc>${ORIGIN}/sitemap-0.xml</loc></sitemap>\n` +
+    `  <sitemap><loc>${ORIGIN}/docs/sitemap.xml</loc></sitemap>\n` +
+    "</sitemapindex>\n";
   const counts = { application: 0, documentation: 0, "report-card": 0 };
   for (const surface of surfaces) counts[surface.kind] += 1;
   const llms = `# posttrainllm
@@ -399,6 +405,7 @@ inspect. See \`posttrainllm --help\` for the full command surface.
     surfaces,
     generatedMarkdown,
     sitemap,
+    sitemapIndex,
     llms,
     llmsFull,
     catalog,
@@ -463,6 +470,7 @@ const outputs = await buildOutputs();
 if (CHECK_ONLY) {
   const expectedFiles = new Map([
     [resolve(DIST, "sitemap.xml"), outputs.sitemap],
+    [resolve(DIST, "sitemap-index.xml"), outputs.sitemapIndex],
     [resolve(DIST, "api-ai.json"), outputs.catalog],
     [resolve(DIST, "llms.txt"), outputs.llms],
     [resolve(DIST, "llms-full.txt"), outputs.llmsFull],
@@ -481,6 +489,11 @@ if (CHECK_ONLY) {
     await fs.writeFile(path, markdown, "utf8");
   }
   await fs.writeFile(resolve(DIST, "sitemap.xml"), outputs.sitemap, "utf8");
+  await fs.writeFile(
+    resolve(DIST, "sitemap-index.xml"),
+    outputs.sitemapIndex,
+    "utf8",
+  );
   await fs.writeFile(resolve(DIST, "api-ai.json"), outputs.catalog, "utf8");
   await fs.writeFile(resolve(DIST, "llms.txt"), outputs.llms, "utf8");
   await fs.writeFile(resolve(DIST, "llms-full.txt"), outputs.llmsFull, "utf8");

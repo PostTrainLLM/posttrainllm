@@ -67,11 +67,11 @@ Output lands at `~/.cache/posttrainllm/datasets/<owner>/<name>/corpus.jsonl`
 
 The adapter looks at one row and ranks three target formats:
 
-| Format | Output schema | Trigger |
-|--------|---------------|---------|
+| Format  | Output schema                     | Trigger                                                                               |
+| ------- | --------------------------------- | ------------------------------------------------------------------------------------- |
 | `sft`   | `{instruction, input?, response}` | row has `instruction`/`prompt`/`question` + `response`/`completion`/`answer`/`output` |
-| `dpo`   | `{prompt, chosen, rejected}` | row has `chosen` + `rejected` (string OR chat-array) |
-| `plain` | one example per line | row has `text`/`content`/`document` |
+| `dpo`   | `{prompt, chosen, rejected}`      | row has `chosen` + `rejected` (string OR chat-array)                                  |
+| `plain` | one example per line              | row has `text`/`content`/`document`                                                   |
 
 ### Detection order
 
@@ -91,15 +91,15 @@ The adapter looks at one row and ranks three target formats:
 
 ### Field aliases (case-insensitive)
 
-| Canonical | Aliases tried |
-|-----------|---------------|
-| `instruction` | `instruction`, `prompt`, `question`, `query`, `input_text` |
-| `input` | `input`, `context`, `background` |
-| `response` | `response`, `completion`, `answer`, `output`, `target`, `label`, `responses` |
-| `prompt` (dpo) | `prompt`, `question`, `instruction`, `query` |
-| `chosen` | `chosen`, `chosen_response`, `preferred`, `win`, `winner` |
-| `rejected` | `rejected`, `rejected_response`, `dispreferred`, `loss`, `loser` |
-| `text` | `text`, `content`, `document`, `raw_text`, `body` |
+| Canonical      | Aliases tried                                                                |
+| -------------- | ---------------------------------------------------------------------------- |
+| `instruction`  | `instruction`, `prompt`, `question`, `query`, `input_text`                   |
+| `input`        | `input`, `context`, `background`                                             |
+| `response`     | `response`, `completion`, `answer`, `output`, `target`, `label`, `responses` |
+| `prompt` (dpo) | `prompt`, `question`, `instruction`, `query`                                 |
+| `chosen`       | `chosen`, `chosen_response`, `preferred`, `win`, `winner`                    |
+| `rejected`     | `rejected`, `rejected_response`, `dispreferred`, `loss`, `loser`             |
+| `text`         | `text`, `content`, `document`, `raw_text`, `body`                            |
 
 When the detector picks the wrong column (rare, but happens with
 unusual schemas), pass `--map src_field:canonical_field,...`. For
@@ -126,16 +126,16 @@ The registry lives in
 `native-mac/Sources/TinyGPTData/DatasetRegistry.swift`. Today it has
 22 entries across 8 specialist categories.
 
-| Specialist | Datasets |
-|-----------|----------|
+| Specialist     | Datasets                                                                                                          |
+| -------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `tool-calling` | Salesforce/xlam-function-calling-60k, NousResearch/hermes-function-calling-v1, Locutusque/function-calling-chatml |
-| `debugger` | princeton-nlp/SWE-bench (+ Verified), bigcode/commitpack |
-| `code` | bigcode/the-stack-smol, open-r1/codeforces-cots, iamtarun/python_code_instructions_18k_alpaca |
-| `math` | nvidia/OpenMathReasoning, AI-MO/NuminaMath-CoT, meta-math/MetaMathQA |
-| `reasoning` | open-thoughts/OpenThoughts-114k, open-thoughts/OpenThoughts2-1M |
-| `instruct` | teknium/OpenHermes-2.5, HuggingFaceH4/ultrachat_200k, yahma/alpaca-cleaned |
-| `preference` | argilla/ultrafeedback-binarized-preferences-cleaned, HuggingFaceH4/ultrafeedback_binarized, Intel/orca_dpo_pairs |
-| `general` | roneneldan/TinyStories, HuggingFaceFW/fineweb-edu |
+| `debugger`     | princeton-nlp/SWE-bench (+ Verified), bigcode/commitpack                                                          |
+| `code`         | bigcode/the-stack-smol, open-r1/codeforces-cots, iamtarun/python_code_instructions_18k_alpaca                     |
+| `math`         | nvidia/OpenMathReasoning, AI-MO/NuminaMath-CoT, meta-math/MetaMathQA                                              |
+| `reasoning`    | open-thoughts/OpenThoughts-114k, open-thoughts/OpenThoughts2-1M                                                   |
+| `instruct`     | teknium/OpenHermes-2.5, HuggingFaceH4/ultrachat_200k, yahma/alpaca-cleaned                                        |
+| `preference`   | argilla/ultrafeedback-binarized-preferences-cleaned, HuggingFaceH4/ultrafeedback_binarized, Intel/orca_dpo_pairs  |
+| `general`      | roneneldan/TinyStories, HuggingFaceFW/fineweb-edu                                                                 |
 
 Adding a new entry is a one-line addition to
 `DatasetRegistry.all` — fill in `id`, `specialists`, `format`,
@@ -163,9 +163,10 @@ export HF_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxx
 ```
 
 The token is sent as `Authorization: Bearer $HF_TOKEN` on every
-request. Get one at <https://huggingface.co/settings/tokens>.
+request. Follow the [user access token guide](https://huggingface.co/docs/hub/security-tokens).
 
 Without `HF_TOKEN`:
+
 - **Public datasets** work normally.
 - **Gated datasets** (e.g. some Meta models' tokenisers, some preference data)
   return HTTP 401/403. The CLI prints a clear "gated or private" error.

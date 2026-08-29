@@ -25,6 +25,7 @@ const pageStyle = `
 
 const pageBody = `
     <h1>WebGPU kernel parity tests</h1>
+    <h2>Live parity results</h2>
     <pre id="results">running…</pre>`;
 ---
 
@@ -32,5 +33,7 @@ const pageBody = `
   <SiteHeader mode="instrument" />
   <style is:global slot="head" set:html={pageStyle}></style>
   <Fragment set:html={pageBody} />
-  <script>import "/src/webgpu-test.ts";</script>
+  <script>
+    import "/src/webgpu-test.ts";
+  </script>
 </Default>

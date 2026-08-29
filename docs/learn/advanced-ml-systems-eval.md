@@ -65,7 +65,7 @@ localize it." *Learn:* [RAGAS](https://arxiv.org/abs/2309.15217) · *senior/staf
 **8. When NOT to use RAG / query rewriting.** Adaptive transforms
 (multi-query, HyDE, decomposition) on weak retrieval; skip RAG for small
 stable corpora (fine-tune / long-context) or low-latency paths — the
-RAG-vs-long-context staff debate. *Learn:* [Contextual Retrieval](https://www.anthropic.com/news/contextual-retrieval) · *staff*
+RAG-vs-long-context staff debate. *Learn:* [Contextual Retrieval](https://www.anthropic.com/engineering/contextual-retrieval) · *staff*
 
 **9. Agents: ReAct, planning, memory, tools.** Agent = LLM + planning +
 memory + tools; reason↔act loop; short-term (context) vs long-term (vector)

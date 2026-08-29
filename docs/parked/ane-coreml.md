@@ -3,6 +3,8 @@
 ANE/CoreML work produced useful measurements and negative results. It is parked
 until a shipped specialist needs battery/perf optimization.
 
+## Current boundary
+
 Do not spend near-term time on:
 
 - new ANE conversion experiments

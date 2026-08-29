@@ -167,7 +167,7 @@ levels, a caption and scoped headers on every table, resolvable
 ## Public surface
 
 Published cards are committed to `browser/public/report-cards/<slug>.{json,html}`
-and served as `/report-cards/<slug>.html`. `/artifacts` links each one with its
+and served as `/report-cards/<slug>`. `/artifacts` links each one with its
 outcome label and verification status; the card itself remains the source of
 truth for its numbers, so the two surfaces cannot disagree.
 

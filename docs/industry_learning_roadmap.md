@@ -90,9 +90,9 @@ posttrainllm actions:
 
 Sources:
 
-- [Anthropic - Building effective agents](https://www.anthropic.com/research/building-effective-agents/)
-- [Mistral Agents docs](https://docs.mistral.ai/capabilities/agents/)
-- [Mistral handoffs docs](https://docs.mistral.ai/agents/handoffs/)
+- [Anthropic - Building effective agents](https://www.anthropic.com/engineering/building-effective-agents)
+- [Mistral Agents docs](https://docs.mistral.ai/studio/agents/introduction)
+- [Mistral handoffs docs](https://docs.mistral.ai/studio/agents/handoffs)
 
 Lesson: most useful agent systems are simple workflows with good tools. Multi-
 agent handoffs help only when the boundary is crisp.

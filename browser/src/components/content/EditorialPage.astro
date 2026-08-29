@@ -1,8 +1,8 @@
 ---
-import Logo from '../Logo.astro';
-import Default from '../../layouts/Default.astro';
-import '../../styles/system.css';
-import type { EditorialContent } from '../../data/education-content';
+import Logo from "../Logo.astro";
+import Default from "../../layouts/Default.astro";
+import "../../styles/system.css";
+import type { EditorialContent } from "../../data/education-content";
 
 interface Props {
   content: EditorialContent;
@@ -10,26 +10,56 @@ interface Props {
 
 const { content } = Astro.props;
 const canonical = `https://posttrainllm.com${content.path}`;
+const pageTitle = `${content.title} | PTLLM`;
 const jsonLd = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    { '@type': content.schema[0] ?? 'TechArticle', headline: content.title, description: content.description, url: canonical },
+  "@context": "https://schema.org",
+  "@graph": [
     {
-      '@type': 'BreadcrumbList',
+      "@type": content.schema[0] ?? "TechArticle",
+      headline: content.title,
+      description: content.description,
+      url: canonical,
+    },
+    {
+      "@type": "BreadcrumbList",
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'posttrainllm', item: 'https://posttrainllm.com/' },
-        { '@type': 'ListItem', position: 2, name: content.title, item: canonical },
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "posttrainllm",
+          item: "https://posttrainllm.com/",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: content.title,
+          item: canonical,
+        },
       ],
     },
   ],
 };
 ---
 
-<Default title={`${content.title} — posttrainllm`} description={content.description} ogType="article" ogUrl={canonical}>
+<Default
+  title={pageTitle}
+  description={content.description}
+  ogType="article"
+  ogUrl={canonical}
+>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar" role="banner">
-    <a class="brand-lockup" href="/" aria-label="posttrainllm home"><Logo size={28} /><span class="brand-name">posttrainllm</span></a>
-    <nav class="topnav" aria-label="Primary"><a href="/artifacts">specialists</a><a href="/recipes">recipes</a><a href="/leaderboard">evals</a><a href="/docs/">docs</a><a href="https://github.com/PostTrainLLM/posttrainllm" rel="noopener">github ↗</a></nav>
+    <a class="brand-lockup" href="/" aria-label="posttrainllm home"
+      ><Logo size={28} /><span class="brand-name">posttrainllm</span></a
+    >
+    <nav class="topnav" aria-label="Primary">
+      <a href="/artifacts">specialists</a><a href="/recipes">recipes</a><a
+        href="/leaderboard">evals</a
+      ><a href="/docs/">docs</a><a
+        href="https://github.com/PostTrainLLM/posttrainllm"
+        rel="noopener">github ↗</a
+      >
+    </nav>
   </header>
 
   <main id="main" class="education-page">
@@ -42,35 +72,129 @@ const jsonLd = {
     <article class="education-body" set:html={content.html} />
     <aside class="next-reading" aria-label="Continue reading">
       <p class="mono-label">Continue through the factory</p>
-      <div>{content.internalLinks.map((href) => <a href={href}>{href.replace(/^\//, '').replaceAll('-', ' ')}</a>)}</div>
+      <div>
+        {
+          content.internalLinks.map((href) => (
+            <a href={href}>{href.replace(/^\//, "").replaceAll("-", " ")}</a>
+          ))
+        }
+      </div>
     </aside>
   </main>
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 </Default>
 
 <style>
-  .education-page { width: min(100%, 900px); margin: 0 auto; padding: clamp(48px, 7vw, 96px) var(--gutter) var(--s-10); }
-  .education-hero { border-bottom: 1px solid var(--line); padding-bottom: var(--s-7); }
-  .back-link { display: inline-block; margin-bottom: var(--s-6); color: var(--fg-quiet); font-family: var(--font-mono); font-size: var(--step--1); }
-  .back-link:hover { color: var(--live); }
-  .education-hero .mono-label { color: var(--live); margin-bottom: var(--s-4); }
-  .education-hero h1 { max-width: 17ch; }
-  .lede { max-width: 63ch; margin-top: var(--s-5); color: var(--fg-soft); font-size: var(--step-1); }
-  .education-body { max-width: 72ch; margin-top: var(--s-7); }
-  .education-body :global(h2) { margin-top: var(--s-8); font-size: var(--step-2); }
-  .education-body :global(h3) { margin-top: var(--s-6); font-size: var(--step-1); }
-  .education-body :global(p), .education-body :global(li) { color: var(--fg-soft); line-height: 1.78; }
-  .education-body :global(p), .education-body :global(ul), .education-body :global(ol), .education-body :global(table) { margin-top: var(--s-4); }
-  .education-body :global(ul), .education-body :global(ol) { padding-left: 1.5rem; }
-  .education-body :global(li + li) { margin-top: var(--s-2); }
-  .education-body :global(strong) { color: var(--fg); }
-  .education-body :global(code) { color: var(--live-bright); }
-  .education-body :global(table) { width: 100%; border-collapse: collapse; font-size: var(--step--1); }
-  .education-body :global(th), .education-body :global(td) { border-bottom: 1px solid var(--line); padding: 12px; text-align: left; vertical-align: top; }
-  .education-body :global(th) { color: var(--fg); }
-  .education-body :global(td) { color: var(--fg-soft); }
-  .next-reading { margin-top: var(--s-8); padding-block: var(--s-6); border-block: 1px solid var(--line); }
-  .next-reading div { display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); margin-top: var(--s-4); }
-  .next-reading a { font-size: var(--step--1); }
-  @media (max-width: 760px) { .topnav a:nth-child(-n+3) { display: none; } .education-body { overflow-wrap: anywhere; } .education-body :global(table) { display: block; overflow-x: auto; } }
+  .education-page {
+    width: min(100%, 900px);
+    margin: 0 auto;
+    padding: clamp(48px, 7vw, 96px) var(--gutter) var(--s-10);
+  }
+  .education-hero {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: var(--s-7);
+  }
+  .back-link {
+    display: inline-block;
+    margin-bottom: var(--s-6);
+    color: var(--fg-quiet);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+  .back-link:hover {
+    color: var(--live);
+  }
+  .education-hero .mono-label {
+    color: var(--live);
+    margin-bottom: var(--s-4);
+  }
+  .education-hero h1 {
+    max-width: 17ch;
+  }
+  .lede {
+    max-width: 63ch;
+    margin-top: var(--s-5);
+    color: var(--fg-soft);
+    font-size: var(--step-1);
+  }
+  .education-body {
+    max-width: 72ch;
+    margin-top: var(--s-7);
+  }
+  .education-body :global(h2) {
+    margin-top: var(--s-8);
+    font-size: var(--step-2);
+  }
+  .education-body :global(h3) {
+    margin-top: var(--s-6);
+    font-size: var(--step-1);
+  }
+  .education-body :global(p),
+  .education-body :global(li) {
+    color: var(--fg-soft);
+    line-height: 1.78;
+  }
+  .education-body :global(p),
+  .education-body :global(ul),
+  .education-body :global(ol),
+  .education-body :global(table) {
+    margin-top: var(--s-4);
+  }
+  .education-body :global(ul),
+  .education-body :global(ol) {
+    padding-left: 1.5rem;
+  }
+  .education-body :global(li + li) {
+    margin-top: var(--s-2);
+  }
+  .education-body :global(strong) {
+    color: var(--fg);
+  }
+  .education-body :global(code) {
+    color: var(--live-bright);
+  }
+  .education-body :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+  }
+  .education-body :global(th),
+  .education-body :global(td) {
+    border-bottom: 1px solid var(--line);
+    padding: 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .education-body :global(th) {
+    color: var(--fg);
+  }
+  .education-body :global(td) {
+    color: var(--fg-soft);
+  }
+  .next-reading {
+    margin-top: var(--s-8);
+    padding-block: var(--s-6);
+    border-block: 1px solid var(--line);
+  }
+  .next-reading div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3) var(--s-5);
+    margin-top: var(--s-4);
+  }
+  .next-reading a {
+    font-size: var(--step--1);
+  }
+  @media (max-width: 760px) {
+    .topnav a:nth-child(-n + 3) {
+      display: none;
+    }
+    .education-body {
+      overflow-wrap: anywhere;
+    }
+    .education-body :global(table) {
+      display: block;
+      overflow-x: auto;
+    }
+  }
 </style>

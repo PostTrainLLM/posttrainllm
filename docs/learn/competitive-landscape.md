@@ -18,7 +18,7 @@ re-verify before quoting externally.
 | OpenAI fine-tuning | cloud | best base models, zero infra; SFT/DPO + RFT | no |
 | [Together AI](https://www.together.ai/fine-tuning) | cloud | broad open-model menu, cheap LoRA/full-FT | no |
 | [Fireworks AI](https://fireworks.ai/blog/reinforcement-fine-tuning) | cloud | managed RFT, PyTorch pedigree | no |
-| Predibase → [Rubrik](https://www.rubrik.com/blog/company/25/rubrik-predibase-bipul-sinha) | cloud/VPC | first to productize RFT (acquired Jun 2025) | no |
+| Predibase → Rubrik | cloud/VPC | first to productize RFT (acquired Jun 2025) | no |
 | [Lamini](https://www.lamini.ai/pricing) | cloud + on-prem/air-gap | Memory Tuning; enterprise privacy | no |
 | Modal / Replicate | cloud | serverless GPU infra (where FT jobs run) | no |
 | [Castform](https://castform.com/) | cloud | RL on agent-trace/RAG envs; export weights | no |
@@ -44,7 +44,7 @@ it, and Kiln's local UX delegates the actual training elsewhere.
 | [Arize Phoenix](https://arize.com/phoenix/) | OSS + SaaS | OTel-based, self-hostable | strong |
 | [Galileo](https://galileo.ai/) | cloud | guardrail models + "Insights" root-cause | no |
 | [Patronus AI](https://www.patronus.ai/) | cloud | proprietary eval models (Lynx/GLIDER/Percival) | no |
-| Humanloop → [Anthropic](https://techcrunch.com/2025/08/13/anthropic-nabs-humanloop-team-as-competition-for-enterprise-ai-talent-heats-up) | — | dead as standalone (acqui-hire Aug 2025) | — |
+| Humanloop → [Anthropic](https://techcrunch.com/2025/08/13/anthropic-nabs-humanloop-team-as-competition-for-enterprise-ai-talent-heats-up/) | — | dead as standalone (acqui-hire Aug 2025) | — |
 | [Promptfoo](https://www.promptfoo.dev/) → OpenAI | OSS CLI | eval + red-team, local by default (acquired Mar 2026) | strong |
 | [Comet Opik](https://github.com/comet-ml/opik) | OSS + cloud | Apache-2.0 tracing/eval | solid (self-host) |
 | [W&B Weave](https://wandb.ai/site/evaluations/) → CoreWeave | cloud | one-line tracing + eval dashboards | limited |

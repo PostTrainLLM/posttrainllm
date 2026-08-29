@@ -243,7 +243,23 @@ const clampedTwitterDescription = clampDescription(
       }
     </script>
     <!-- fleet-jsonld:end -->
-    <script is:inline async src="/scripts/posthog.js"></script>
+    <script is:inline>
+      // Analytics must not compete with the product explanation on constrained
+      // devices. Load it after the critical rendering window; PostHog still
+      // records the page view for sessions that remain on the page.
+      window.addEventListener(
+        "load",
+        () => {
+          window.setTimeout(() => {
+            const analytics = document.createElement("script");
+            analytics.src = "/scripts/posthog.js";
+            analytics.async = true;
+            document.head.append(analytics);
+          }, 5_000);
+        },
+        { once: true },
+      );
+    </script>
     <!-- Microsoft Clarity — session replay + heatmaps (additive; PostHog stays) -->
     <script is:inline>
       (function (c, l, a, r, i, t, y) {
@@ -276,12 +292,15 @@ const clampedTwitterDescription = clampDescription(
     <script
       is:inline
       src="https://sassmaker.com/project-strip.js"
+      crossorigin="anonymous"
       data-project="posttrainllm"
       defer></script>
     <script
       is:inline
       src="https://sassmaker.com/ai-chat-footer.js"
+      crossorigin="anonymous"
       data-name="PostTrainLLM"
+      data-compose="false"
       defer></script>
   </body>
 </html>

@@ -8,12 +8,15 @@ import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
   title: "posttrainllm — the performance journey",
-  description: "The performance journey of posttrainllm — every speed lever, what's shipped, what's blocked, and why.",
+  description:
+    "The performance journey of posttrainllm — every speed lever, what's shipped, what's blocked, and why.",
   ogType: "article",
   ogTitle: "posttrainllm — the performance journey",
-  ogDescription: "Every speed lever, what's shipped, what's blocked, and why. Scalar → SIMD → threads → WebGPU naive → blocked-4×4. End-to-end speedup grows from 2.6× at Small to 12.1× at XL — anchored to numbers you can reproduce.",
+  ogDescription:
+    "Every speed lever, what's shipped, what's blocked, and why. Scalar → SIMD → threads → WebGPU naive → blocked-4×4. End-to-end speedup grows from 2.6× at Small to 12.1× at XL — anchored to numbers you can reproduce.",
   twitterTitle: "posttrainllm — the performance journey",
-  twitterDescription: "Every speed lever in posttrainllm, what's shipped, what's blocked, and why — with reproducible numbers.",
+  twitterDescription:
+    "Every speed lever in posttrainllm, what's shipped, what's blocked, and why — with reproducible numbers.",
   themeColor: "#0a0c0f",
 };
 
@@ -1361,8 +1364,8 @@ const pageBody = `
           <p>
             <strong>The boundary</strong> between what belongs in-browser and
             what belongs native is in
-            <a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/shared_vs_native.md">
-              <code>docs/shared_vs_native.md</code></a>.
+            <a href="/docs/archive/shared_vs_native/">
+              <code>docs/archive/shared_vs_native.md</code></a>.
             Together with the gallery (lever 17), the diverse-data milestone
             (lever 18), and the quant + LoRA bundle (lever 19, which lands
             here), this is the remaining work.
@@ -1517,5 +1520,4 @@ const pageBody = `
   <SiteHeader mode="instrument" />
   <style is:global slot="head" set:html={pageStyle}></style>
   <Fragment set:html={pageBody} />
-
 </Default>

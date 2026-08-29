@@ -135,7 +135,7 @@ GitHub's REST API has two rate limits:
   for the PR).
 * **With a token**: 5000 requests per hour per user.
 
-Create a token at <https://github.com/settings/tokens> and set:
+Create a token using [GitHub's personal access token guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) and set:
 
 ```bash
 export GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx

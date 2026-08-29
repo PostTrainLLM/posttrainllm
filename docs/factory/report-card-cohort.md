@@ -10,9 +10,9 @@ compiled from files already in the repository.
 
 | Slug | Source | Outcome | Verified | Headline |
 |---|---|---|---|---|
-| [`qwen3-4b-file-ops-distilled`](/report-cards/qwen3-4b-file-ops-distilled.html) | specialist package | `routed-ship` | no | depth 0.58 → 1.00, breadth 0.596 → 0.423 |
-| [`qwen3-4b-rest-fused`](/report-cards/qwen3-4b-rest-fused.html) | specialist package | `routed-ship` | no | depth 0.58 → 1.00, breadth 0.596 → 0.65 |
-| [`qwen06-sql-routed-v1`](/report-cards/qwen06-sql-routed-v1.html) | canonical run folder | `report-only` | no | synthetic execution 0.16 → 0.86 |
+| [`qwen3-4b-file-ops-distilled`](https://posttrainllm.com/report-cards/qwen3-4b-file-ops-distilled) | specialist package | `routed-ship` | no | depth 0.58 → 1.00, breadth 0.596 → 0.423 |
+| [`qwen3-4b-rest-fused`](https://posttrainllm.com/report-cards/qwen3-4b-rest-fused) | specialist package | `routed-ship` | no | depth 0.58 → 1.00, breadth 0.596 → 0.65 |
+| [`qwen06-sql-routed-v1`](https://posttrainllm.com/report-cards/qwen06-sql-routed-v1) | canonical run folder | `report-only` | no | synthetic execution 0.16 → 0.86 |
 
 **No published card claims a verified ship**, and that is the honest result: the
 two shipped packages carry `historical` values with no eval command, frozen-eval

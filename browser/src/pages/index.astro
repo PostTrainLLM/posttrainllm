@@ -11,11 +11,11 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
 ---
 
 <Default
-  title="PostTrainLLM — Train your own specialist LLM on a Mac"
-  description="Train and fine-tune your own task specialist LLM on one Apple Silicon machine. LoRA/QLoRA, real eval gates, MLX packaging, and public report cards. Open source, MIT."
+  title="PostTrainLLM — Build and measure specialist LLMs on a Mac"
+  description="Build bounded specialist language models sized to one Apple Silicon machine, then distill, fine-tune, evaluate, package, and inspect them with reproducible evidence."
   themeColor="#0a0c0f"
-  ogTitle="PostTrainLLM — Train your own specialist LLM on a Mac"
-  ogDescription="Train your own specialist LLM locally: fine-tune with LoRA/QLoRA, evaluate honestly, package for MLX. One Mac. Open source."
+  ogTitle="PostTrainLLM — Build and measure specialist LLMs on a Mac"
+  ogDescription="A one-machine research lab for bounded specialists: fine-tune, evaluate honestly, package for MLX, and publish the evidence."
 >
   <a class="skip-link" href="#main">Skip to content</a>
 
@@ -69,20 +69,21 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
           <span class="pulse"></span> a one-machine research lab · MIT
         </p>
         <h1 class="hero-h1">
-          PostTrainLLM: Train specialist LLMs<br />on <span class="tl"
-            >one Mac</span
-          >.
+          Build a bounded specialist.<br /><span class="tl"
+            >Measure it on one Mac.</span
+          >
         </h1>
         <p class="hero-lede reveal">
           PostTrainLLM turns a stock open model into a <em>routed specialist</em
-          > that earns its keep — then shows you exactly where it fails. Distill,
+          > sized to local hardware — then shows you exactly where it fails. Distill,
           fine-tune, gate on real evals, package for MLX, and open the model up with
-          interpretability. One Apple&nbsp;Silicon machine. No cloud. No hand-waving.
+          interpretability. This is a measured specialist loop, not a claim that every
+          model can be trained on one Mac.
         </p>
         <div class="hero-cta reveal">
-          <a class="btn btn-primary" href="/artifacts">See the specialists</a>
-          <a class="btn btn-ghost" href="/playground"
-            >Train one in your browser →</a
+          <a class="btn btn-primary" href="/docs/quickstart">Run the factory</a>
+          <a class="btn btn-ghost" href="/artifacts"
+            >Inspect specialist proof →</a
           >
         </div>
         <a class="mac-release-entry reveal" href="/download">
@@ -94,16 +95,22 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
           <span aria-hidden="true">→</span>
         </a>
         <p class="hero-curve-cap mono-label" aria-hidden="true">
-          loss · huge-base-v1 · 200k steps · 0 spikes · 4.16
+          historical learning run · huge-base-v1 · 200k steps · loss 4.16
         </p>
       </div>
 
       <div class="wrap">
         <ul class="hero-stats reveal" role="list">
-          <li><b>0.920</b><span>SQL execution, on-device</span></li>
-          <li><b>100<i>%</i></b><span>file-ops hard gate — from 58%</span></li>
-          <li><b>100<i>+</i></b><span>CLI subcommands, one binary</span></li>
-          <li><b>0</b><span>data leaves the laptop</span></li>
+          <li>
+            <b>100<i>%</i></b><span>file-ops gate · n=12 · from 58%</span>
+          </li>
+          <li>
+            <b>65<i>%</i></b><span>held-out breadth · n=52 · from 59.6%</span>
+          </li>
+          <li><b>2</b><span>public routed specialist packages</span></li>
+          <li>
+            <b>1</b><span>research routed-ship · not a product default</span>
+          </li>
         </ul>
       </div>
     </section>
@@ -125,8 +132,9 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
           </p>
           <p>
             <b>Learn the whole space.</b> From <code>y = mx + b</code> to a self-improving
-            factory. Every technique is built from scratch, anchored to the paper,
-            and mapped to the file where it lives.
+            factory. Techniques are reproduced locally or integrated from the best
+            available tools, anchored to evidence, and mapped to the files where they
+            live.
           </p>
           <p>
             <b>Show the scars.</b> Failed runs are first-class. Every attempt is logged
@@ -157,37 +165,40 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
         <ol class="loop-steps" role="list">
           <li>
             <span class="ls-n">01</span><span class="ls-k">target</span><code
-              >frozen</code>
+              >file operations</code
+            >
           </li>
           <li>
             <span class="ls-n">02</span><span class="ls-k">data</span><code
-              >5,675 rows</code>
+              >interleaved + depth anchor</code
+            >
           </li>
           <li>
             <span class="ls-n">03</span><span class="ls-k">post-train</span
-            ><code>dpo · 200 steps</code>
+            ><code>teacher-free ReST</code>
           </li>
           <li>
             <span class="ls-n">04</span><span class="ls-k">eval</span><code
-              class="ok">exec 0.920</code>
+              class="ok">depth 100 · breadth 65</code
+            >
           </li>
           <li>
             <span class="ls-n">05</span><span class="ls-k">package</span><code
-              >tgla · mlx</code>
+              >fused bf16 · HF/MLX</code
+            >
           </li>
           <li class="dec">
             <span class="ls-n">06</span><span class="ls-k">decide</span><code
-              >retry-data</code>
+              class="ship">routed-ship</code
+            >
           </li>
         </ol>
         <p class="loop-latest mono-label">
-          latest · 2026-07-11 · qwen06-sql-hygiene-dpo · reference-anchored DPO
-          fixed an earlier collapse, execution 0.860→0.920 with no regression —
-          but output hygiene is a base-model prior, so the decision is <span
-            class="dec-t">retry-data</span
-          >. the one proof still missing is a run whose decision is <span
-            class="ship">ship</span
-          >.
+          routed-ship proof · evaluated 2026-06-17 · qwen3-4b-rest-fused kept
+          the 100% file-operations gate and recovered breadth from 59.6% to 65%.
+          the decision is <span class="ship">ship as a research specialist</span
+          >, not as the Pace default. historical latency, RAM, tok/s, and raw
+          traces were not preserved, so those claims stay missing.
         </p>
       </div>
     </section>
@@ -206,28 +217,34 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
         <div class="spec-grid">
           <article class="spec">
             <div class="spec-top">
-              <span class="mono-label live">released · weights</span><span
-                class="spec-badge">4B · MLX</span>
+              <span class="mono-label live">research routed-ship · weights</span
+              ><span class="spec-badge">4B · MLX</span>
             </div>
-            <h3>Qwen3-4B, file-ops distilled</h3>
+            <h3>Qwen3-4B, ReST fused</h3>
             <p class="spec-body">
-              Distilled to <strong>100%</strong> on the multi-turn file-ops hard gate
-              (BFCL), up from 58%. The honest cost: out-of-domain breadth dropped
-              <strong>59.6% → 42.3%</strong> — real catastrophic forgetting. It ships
-              <em>routed</em>, never as a general planner.
+              One teacher-free ReST iteration retained <strong>100%</strong> on the
+              file-operations hard gate, up from the stock model's 58%, and recovered
+              held-out breadth to <strong>65%</strong> versus the stock 59.6%. It
+              ships only as a research specialist behind an explicit route.
             </p>
             <dl class="spec-metrics">
               <div><dt>file-ops gate</dt><dd>58 → <b>100%</b></dd></div>
-              <div><dt>OOD breadth</dt><dd class="down">59.6 → 42.3%</dd></div>
+              <div><dt>OOD breadth</dt><dd>59.6 → <b>65%</b></dd></div>
             </dl>
-            <a class="spec-link" href="/docs/learn/tool-calling-frontier-parity"
-              >The distillation write-up →</a
+            <p class="spec-limit">
+              Historical runtime and raw prediction traces are missing; no
+              current latency, memory, or throughput claim is attached to this
+              package.
+            </p>
+            <a class="spec-link" href="/artifacts/qwen3-4b-rest-fused"
+              >Artifact, evidence, and limits →</a
             >
           </article>
           <article class="spec">
             <div class="spec-top">
               <span class="mono-label brand">report-only candidate</span><span
-                class="spec-badge">0.6B · routed</span>
+                class="spec-badge">0.6B · routed</span
+              >
             </div>
             <h3>Qwen3-0.6B, routed SQL</h3>
             <p class="spec-body">
@@ -252,37 +269,48 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
       </div>
     </section>
 
-    <!-- ================= MEASURED ================= -->
+    <!-- ================= CURRENT PROOF ================= -->
     <section class="band band-alt">
       <div class="wrap">
         <header class="band-head">
-          <h2>Measured, on one machine.</h2>
+          <h2>Current specialist evidence.</h2>
           <p class="band-sub">
-            Every figure below was recorded on a single Apple <strong
-              >M5&nbsp;Pro / 48&nbsp;GB</strong
-            >. No estimates, no extrapolation.
+            These figures belong to <code>qwen3-4b-rest-fused</code>. The
+            breadth set is a held-out project gate, not a frontier benchmark.
+            Historical runtime traces were not preserved, so no speed or memory
+            claim is presented as evidence for this package.
           </p>
         </header>
         <div class="metric-row" role="list">
           <div role="listitem">
-            <b>76</b><span class="mu">tok/s</span><small>4B decode, MLX</small>
+            <b>100%</b><span class="mu">file ops</span><small
+              >hard gate · n=12</small
+            >
           </div>
           <div role="listitem">
-            <b>12.1×</b><span class="mu">speedup</span><small
-              >WebGPU vs WASM, XL</small>
+            <b>65%</b><span class="mu">breadth</span><small
+              >held-out gate · n=52</small
+            >
           </div>
           <div role="listitem">
-            <b>&lt;45s</b><span class="mu">per pass</span><small
-              >50-row SQL eval</small>
+            <b>+5.4</b><span class="mu">points</span><small
+              >versus stock breadth</small
+            >
           </div>
           <div role="listitem">
-            <b>0</b><span class="mu">spikes</span><small
-              >200k pretrain steps</small>
+            <b>HF + MLX</b><span class="mu">package</span><small
+              >fused bf16 weights</small
+            >
           </div>
           <div role="listitem">
-            <b>½</b><span class="mu">memory</span><small>ref-free vs DPO</small>
+            <b>0</b><span class="mu">runtime claims</span><small
+              >traces were not preserved</small
+            >
           </div>
         </div>
+        <a class="band-more" href="/artifacts/qwen3-4b-rest-fused"
+          >Read the scorecard, evidence, and limits →</a
+        >
       </div>
     </section>
 
@@ -292,8 +320,8 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
         <header class="band-head">
           <h2>The whole stack — audited against the code.</h2>
           <p class="band-sub">
-            Not a wrapper. Every capability is a real subcommand with tests
-            behind it.
+            Not a landing-page inventory. The capabilities below map to real
+            subcommands and repository test or evaluation evidence.
           </p>
         </header>
         <div class="pillars">
@@ -349,8 +377,8 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
         <header class="band-head">
           <h2>The lab keeps a paper trail.</h2>
           <p class="band-sub">
-            Every experiment, lesson, and recipe is written down — with the
-            decision it forced and the file it lives in.
+            Material experiments, lessons, and recipes are written down — with
+            the decision they forced and the files where the evidence lives.
           </p>
         </header>
         <div class="logs">
@@ -358,8 +386,9 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
             <span class="mono-label live">learning log</span>
             <h3>Ground-up, in 10 modules</h3>
             <p>
-              From <code>y = mx + b</code> to a self-improving factory. Every subsystem
-              maps to an anchor in the coverage map — nothing is a black box.
+              From <code>y = mx + b</code> to a self-improving factory. Each curriculum
+              subsystem maps to an anchor in the coverage map so the learning path
+              stays inspectable.
             </p>
             <span class="log-go">Open the curriculum →</span>
           </a>
@@ -398,14 +427,21 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
             <li>A single-developer project, shipping in public, MIT.</li>
             <li>Mac-first — M-series, unified memory, MLX-Swift.</li>
             <li>
+              Models and runs are deliberately bounded to the available
+              hardware.
+            </li>
+            <li>
+              One research-only routed ship, with missing evidence disclosed.
+            </li>
+            <li>
               A factory for <em>specialists</em>, not a general assistant.
             </li>
             <li>An OpenAI-compatible runtime any client already speaks.</li>
           </ul>
           <ul class="honest-list isnt">
             <li>
-              Not a proven ship loop yet — the missing proof is a run that
-              decides <strong>ship</strong>.
+              Not a product-default proof. The ReST package still needs a fresh,
+              Pace-specific gate before any runtime promotion.
             </li>
             <li>Not multi-GPU or distributed. One device, one Mac.</li>
             <li>
@@ -416,14 +452,17 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
         <aside class="run-col">
           <span class="mono-label live">run it — one Mac, from source</span>
           <pre
-            class="run-block"><code><span class="c"># build the native factory</span>
-git clone …/posttrainllm && cd native-mac
-swift build --product posttrainllm
+            class="run-block"
+            tabindex="0"
+            aria-label="PostTrainLLM build and validation commands"><code><span class="c"># build the native factory</span>
+git clone https://github.com/PostTrainLLM/posttrainllm.git
+cd posttrainllm/native-mac
+xcrun swift build -c release
+BIN=.build/release/posttrainllm
 
-<span class="c"># distill a specialist, gate it, serve it</span>
-posttrainllm distill --teacher qwen3 --student …
-posttrainllm eval-gate --spec sql.json --candidate …
-posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code></pre>
+<span class="c"># inspect the current factory surface</span>
+$BIN --help
+$BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
           <a class="btn btn-primary" href="/docs/quickstart"
             >Full quickstart →</a
           >
@@ -448,16 +487,16 @@ posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code
       </svg>
       <div class="wrap closer-inner">
         <h2 id="closer-h2">
-          Watch a loss curve fall.<br /><span class="tl">Yours.</span>
+          See the training loop.<br /><span class="tl">On a tiny model.</span>
         </h2>
         <p>
-          Train a tiny GPT in this browser tab right now, or clone the repo and
-          run the full factory on your Mac.
+          The browser playground is a bounded learning demo, not the specialist
+          factory. Train a tiny GPT there, or use the native quickstart for a
+          real Mac-local factory run.
         </p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href="/playground">Open the playground</a>
-          <a class="btn btn-ghost" href={REPO} rel="noopener">Clone the lab ↗</a
-          >
+          <a class="btn btn-primary" href="/docs/quickstart">Run the factory</a>
+          <a class="btn btn-ghost" href="/playground">Open the tiny demo →</a>
         </div>
       </div>
     </section>
@@ -882,7 +921,7 @@ posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code
   .ls-n {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--live-dim);
+    color: var(--live);
   }
   .ls-k {
     font-size: var(--step--1);
@@ -995,6 +1034,12 @@ posttrainllm serve --port 8080  <span class="c"># OpenAI-compatible</span></code
     font-style: normal;
     color: var(--brand);
     font-weight: 560;
+  }
+  .spec-limit {
+    margin: 0 0 var(--s-5);
+    color: var(--fg-quiet);
+    font-size: var(--step--1);
+    line-height: 1.55;
   }
   .spec-metrics {
     display: flex;

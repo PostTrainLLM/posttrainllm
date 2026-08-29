@@ -21,6 +21,7 @@ a real code snippet flagged for SQL injection with a suggested patch. Not a
 video; a dense product screenshot that proves the thing exists and is real.
 
 **Body order**:
+
 1. "What the review looks for" — concrete list of 14 CWE/OWASP classes
 2. "Built for the way agents ship code" (feature grid)
 3. Six sub-feature blocks, each one verb-led headline: "Diff-aware review
@@ -49,7 +50,7 @@ round-trips your audio to their cloud. Their privacy story is policy-based,
 not architecture-based. Pace's counter: "Your audio never leaves the Mac.
 Not a policy — an architecture."
 
-### 3. Dottie — https://dottie.ai (403 on direct fetch; positioning via search)
+### 3. Dottie — `dottie.ai` (positioning captured from search)
 
 Headline pattern: "Your Private Voice Assistant for Mac." Positioning:
 "controls your Mac through voice", "134 system tools", "3,800+ local models
@@ -94,25 +95,30 @@ framing not automation theatre, narrative arc not feature dump.
 ## Part 2 — Pace landing draft
 
 > Template: CodeVetter (https://codevetter.com). Hero shape + trust-strip
-> + dense product screenshot + verb-led feature blocks + concrete numbers +
-> no email gate. Linear's narrative-module body where it fits.
+>
+> - dense product screenshot + verb-led feature blocks + concrete numbers +
+>   no email gate. Linear's narrative-module body where it fits.
 
 ### Nav
+
 Pace · Features · How it works · Skills · FAQ · Download
 
 ### Hero
+
 **Stop sending your voice to someone else's cloud.**
 
 Pace is a voice-first Mac assistant where every skill has its own brain.
 100% on-device. ANE-accelerated. Sees your screen and types in your apps —
 without sending a single pixel anywhere.
 
-**[Download for macOS]**   **[Watch the 12-second demo]**
+**[Download for macOS]** **[Watch the 12-second demo]**
 
 ### Trust strip (single line, directly under hero)
+
 No cloud · No Private Cloud Compute · No Gemini · No telemetry · Signed by Apple Developer ID · English + Mac only, by design
 
 ### Hero visual (placeholder)
+
 12-second muted autoplay loop, single take, no cuts. Push-to-talk fires →
 waveform pulses → Mail compose window opens at 159ms → email body streams
 into the field word-by-word → TTS reads the subject line out loud. Bottom
@@ -120,6 +126,7 @@ overlay timer: `119ms TTFW · 491ms first audible word · 17 tok/s on ANE`.
 Loops cleanly.
 
 ### By the numbers (strip, Linear-style placement)
+
 - **119 ms** — time to first planner token (warm)
 - **159 ms** — Mail compose window visible
 - **491 ms** — first audible word from TTS
@@ -158,6 +165,7 @@ opens Mail in 159 ms because we don't fight the OS, we ride it. Signed
 DMG, notarized, native macOS 26.
 
 ### How it works (3 steps, CodeVetter-style operating loop)
+
 1. **Hold the hotkey.** Speak. WhisperKit transcribes on-device.
 2. **The planner routes.** Picks the right skill LoRA, picks the right
    action (compose / search / open / dispatch), picks the right app.
@@ -165,6 +173,7 @@ DMG, notarized, native macOS 26.
    speech to your speakers. You can interrupt and revise mid-stream.
 
 ### Skills shipping in v1
+
 Compose mail · Reply mail · Calendar add · Calendar query · Reminders ·
 Notes capture · Open app · Screen read · Spotlight intent · Shortcuts
 dispatch · Voice edit · Voice search.
@@ -209,10 +218,12 @@ Free in v1. No account. No telemetry. No email required.
 Solo — Sarthak Agrawal ([sarthakagrawal.dev](https://sarthakagrawal.dev)).
 
 ### Final CTA
+
 **Download Pace for macOS** — 1.5 GB DMG, signed, notarized, no account.
 [Download] [GitHub]
 
 ### Footer
+
 Pace · Built on a Mac, for a Mac · No cloud, no account, no telemetry
 Product: Features · Skills · How it works · Download
 Project: GitHub · Changelog · Roadmap

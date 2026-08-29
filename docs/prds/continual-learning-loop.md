@@ -5,7 +5,7 @@
 promote it. The model gets better from real usage — and privacy isn't a compliance
 checkbox, it's the default.
 
-This is the **Trajectory steal** ([trajectory.ai](https://trajectory.ai),
+This is the **Trajectory steal** ([trajectory.ai](https://www.trajectory.ai/),
 [docs](https://docs.trajectory.ai/introduction)): "Instrument → Understand → Steer →
 Learn." Trajectory and Applied Compute both sell continual learning to enterprises and
 have to bolt on SOC 2 + "you approve every update" + audit trails to make it palatable.

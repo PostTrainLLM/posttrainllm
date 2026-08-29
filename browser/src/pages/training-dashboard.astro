@@ -4,12 +4,15 @@ import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
   title: "posttrainllm — training run dashboard",
-  description: "Drop a .jsonl training log to see loss, LR, val, step-rate, and spike markers — overlay multiple runs to compare.",
+  description:
+    "Drop a .jsonl training log to see loss, LR, val, step-rate, and spike markers — overlay multiple runs to compare.",
   ogType: "article",
   ogTitle: "posttrainllm — training dashboard",
-  ogDescription: "In-house, zero-dependency viewer for posttrainllm train --log-jsonl streams.",
+  ogDescription:
+    "In-house, zero-dependency viewer for posttrainllm train --log-jsonl streams.",
   twitterTitle: "posttrainllm — training dashboard",
-  twitterDescription: "Drop a .jsonl training log; see loss, LR, val, step-rate, and spike markers.",
+  twitterDescription:
+    "Drop a .jsonl training log; see loss, LR, val, step-rate, and spike markers.",
   themeColor: "#0a0c0f",
   loadFonts: false,
 };
@@ -82,34 +85,81 @@ const pageStyle = `
     <p class="sub">
       Drop one or more <code>.jsonl</code> files produced by
       <code>posttrainllm train --log-jsonl &lt;path&gt;</code>. Files are parsed
-      in your browser only — nothing leaves this tab. Multiple runs overlay
-      for side-by-side comparison.
+      in your browser only — nothing leaves this tab. Multiple runs overlay for
+      side-by-side comparison.
     </p>
 
+    <h2>Load training logs</h2>
     <label class="drop" id="drop">
-      <input type="file" id="file" multiple accept=".jsonl,application/jsonl,application/x-ndjson,text/plain" />
+      <input
+        type="file"
+        id="file"
+        multiple
+        accept=".jsonl,application/jsonl,application/x-ndjson,text/plain"
+      />
       <div class="big">Drop <code>.jsonl</code> here or click to choose</div>
-      <div class="small">Multiple files supported — each gets its own color.</div>
+      <div class="small">
+        Multiple files supported — each gets its own color.
+      </div>
     </label>
 
     <div class="runs" id="runs"></div>
 
     <div class="charts">
-      <div class="card"><h3>Training loss</h3><svg id="loss-svg"></svg><div class="empty" id="loss-empty">no runs loaded yet</div></div>
-      <div class="card"><h3>Learning rate</h3><svg id="lr-svg"></svg><div class="empty" id="lr-empty">no runs loaded yet</div></div>
-      <div class="card"><h3>Val loss (if logged)</h3><svg id="val-svg"></svg><div class="empty" id="val-empty">no val events yet</div></div>
-      <div class="card"><h3>Steps / second</h3><svg id="rate-svg"></svg><div class="empty" id="rate-empty">no step-rate samples yet</div></div>
+      <div class="card">
+        <h3>Training loss</h3><svg id="loss-svg"></svg><div
+          class="empty"
+          id="loss-empty"
+        >
+          no runs loaded yet
+        </div>
+      </div>
+      <div class="card">
+        <h3>Learning rate</h3><svg id="lr-svg"></svg><div
+          class="empty"
+          id="lr-empty"
+        >
+          no runs loaded yet
+        </div>
+      </div>
+      <div class="card">
+        <h3>Val loss (if logged)</h3><svg id="val-svg"></svg><div
+          class="empty"
+          id="val-empty"
+        >
+          no val events yet
+        </div>
+      </div>
+      <div class="card">
+        <h3>Steps / second</h3><svg id="rate-svg"></svg><div
+          class="empty"
+          id="rate-empty"
+        >
+          no step-rate samples yet
+        </div>
+      </div>
     </div>
 
     <div class="foot">
-      In-house, zero-dep viewer · <a href="/devlog">/devlog</a> · <a href="/roadmap">/roadmap</a>
+      In-house, zero-dep viewer · <a href="/devlog">/devlog</a> · <a
+        href="/roadmap">/roadmap</a
+      >
     </div>
   </div>
 
   <script type="module" is:inline>
     // Color palette per loaded run. Cycles for >8.
-    const COLORS = ["#48e5c2", "#7aa6ff", "#f5b14a", "#ec6a5c", "#c08eff", "#5cd178", "#ff8fb1", "#a7b4c7"];
-    const runs = new Map();  // id -> {name, color, meta, steps, vals, done}
+    const COLORS = [
+      "#48e5c2",
+      "#7aa6ff",
+      "#f5b14a",
+      "#ec6a5c",
+      "#c08eff",
+      "#5cd178",
+      "#ff8fb1",
+      "#a7b4c7",
+    ];
+    const runs = new Map(); // id -> {name, color, meta, steps, vals, done}
 
     // Robust JSONL parser — skips malformed lines silently. Last partial
     // line (no trailing \n) is also tolerated.
@@ -122,10 +172,16 @@ const pageStyle = `
         const line = raw.trim();
         if (!line) continue;
         let obj;
-        try { obj = JSON.parse(line); } catch { continue; }
+        try {
+          obj = JSON.parse(line);
+        } catch {
+          continue;
+        }
         if (obj.type === "meta") Object.assign(meta, obj);
-        else if (obj.type === "step" && typeof obj.step === "number") steps.push(obj);
-        else if (obj.type === "val"  && typeof obj.step === "number") vals.push(obj);
+        else if (obj.type === "step" && typeof obj.step === "number")
+          steps.push(obj);
+        else if (obj.type === "val" && typeof obj.step === "number")
+          vals.push(obj);
         else if (obj.type === "done") done = obj;
       }
       return { meta, steps, vals, done };
@@ -149,62 +205,86 @@ const pageStyle = `
     // coords (x0,y0,w,h) the line draws into.
     function makeAxes(svg, xs, ys, fmtX, fmtY) {
       svg.innerHTML = "";
-      const W = svg.clientWidth || 800, H = 260;
+      const W = svg.clientWidth || 800,
+        H = 260;
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-      const padL = 50, padR = 14, padT = 8, padB = 28;
-      const x0 = padL, y0 = padT, w = W - padL - padR, h = H - padT - padB;
-      const xMin = Math.min(...xs), xMax = Math.max(...xs);
-      const yMin = Math.min(...ys), yMax = Math.max(...ys);
-      const xRange = xMax - xMin || 1, yRange = yMax - yMin || 1;
-      const sx = v => x0 + ((v - xMin) / xRange) * w;
-      const sy = v => y0 + h - ((v - yMin) / yRange) * h;
+      const padL = 50,
+        padR = 14,
+        padT = 8,
+        padB = 28;
+      const x0 = padL,
+        y0 = padT,
+        w = W - padL - padR,
+        h = H - padT - padB;
+      const xMin = Math.min(...xs),
+        xMax = Math.max(...xs);
+      const yMin = Math.min(...ys),
+        yMax = Math.max(...ys);
+      const xRange = xMax - xMin || 1,
+        yRange = yMax - yMin || 1;
+      const sx = (v) => x0 + ((v - xMin) / xRange) * w;
+      const sy = (v) => y0 + h - ((v - yMin) / yRange) * h;
       // 5 y ticks, 5 x ticks.
       for (let i = 0; i <= 5; i++) {
         const t = i / 5;
-        const yV = yMin + t * yRange, yPx = sy(yV);
-        const xV = xMin + t * xRange, xPx = sx(xV);
-        svg.insertAdjacentHTML("beforeend",
+        const yV = yMin + t * yRange,
+          yPx = sy(yV);
+        const xV = xMin + t * xRange,
+          xPx = sx(xV);
+        svg.insertAdjacentHTML(
+          "beforeend",
           `<line class="grid" x1="${x0}" y1="${yPx.toFixed(1)}" x2="${x0 + w}" y2="${yPx.toFixed(1)}"/>` +
-          `<text class="tick" x="${x0 - 6}" y="${(yPx + 3).toFixed(1)}" text-anchor="end">${fmtY(yV)}</text>` +
-          `<text class="tick" x="${xPx.toFixed(1)}" y="${y0 + h + 16}" text-anchor="middle">${fmtX(xV)}</text>`);
+            `<text class="tick" x="${x0 - 6}" y="${(yPx + 3).toFixed(1)}" text-anchor="end">${fmtY(yV)}</text>` +
+            `<text class="tick" x="${xPx.toFixed(1)}" y="${y0 + h + 16}" text-anchor="middle">${fmtX(xV)}</text>`,
+        );
       }
-      svg.insertAdjacentHTML("beforeend",
+      svg.insertAdjacentHTML(
+        "beforeend",
         `<line class="axis" x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0 + h}"/>` +
-        `<line class="axis" x1="${x0}" y1="${y0 + h}" x2="${x0 + w}" y2="${y0 + h}"/>`);
+          `<line class="axis" x1="${x0}" y1="${y0 + h}" x2="${x0 + w}" y2="${y0 + h}"/>`,
+      );
       return { sx, sy, x0, y0, w, h };
     }
 
     function drawLine(svg, ax, xs, ys, color, klass = "line") {
-      const pts = xs.map((x, i) => {
-        const y = ys[i];
-        if (!Number.isFinite(y)) return null;
-        return `${ax.sx(x).toFixed(1)},${ax.sy(y).toFixed(1)}`;
-      }).filter(Boolean).join(" ");
-      svg.insertAdjacentHTML("beforeend",
-        `<polyline class="${klass}" stroke="${color}" points="${pts}"/>`);
+      const pts = xs
+        .map((x, i) => {
+          const y = ys[i];
+          if (!Number.isFinite(y)) return null;
+          return `${ax.sx(x).toFixed(1)},${ax.sy(y).toFixed(1)}`;
+        })
+        .filter(Boolean)
+        .join(" ");
+      svg.insertAdjacentHTML(
+        "beforeend",
+        `<polyline class="${klass}" stroke="${color}" points="${pts}"/>`,
+      );
     }
 
     function drawSpikes(svg, ax, steps, ys, color) {
       for (let i = 0; i < steps.length; i++) {
         if (steps[i].spike) {
-          const x = ax.sx(steps[i].step), y = ax.sy(ys[i]);
-          svg.insertAdjacentHTML("beforeend",
-            `<circle class="spike" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" stroke="${color}" stroke-width="1.5" fill="none"/>`);
+          const x = ax.sx(steps[i].step),
+            y = ax.sy(ys[i]);
+          svg.insertAdjacentHTML(
+            "beforeend",
+            `<circle class="spike" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" stroke="${color}" stroke-width="1.5" fill="none"/>`,
+          );
         }
       }
     }
 
-    const fmtNum = v => Math.abs(v) >= 1000 ? v.toFixed(0) : v.toFixed(3);
-    const fmtSci = v => v < 1e-3 ? v.toExponential(1) : v.toFixed(4);
-    const fmtInt = v => Math.round(v).toString();
+    const fmtNum = (v) => (Math.abs(v) >= 1000 ? v.toFixed(0) : v.toFixed(3));
+    const fmtSci = (v) => (v < 1e-3 ? v.toExponential(1) : v.toFixed(4));
+    const fmtInt = (v) => Math.round(v).toString();
 
     function rerender() {
       const lossEl = document.getElementById("loss-svg");
-      const lrEl   = document.getElementById("lr-svg");
-      const valEl  = document.getElementById("val-svg");
+      const lrEl = document.getElementById("lr-svg");
+      const valEl = document.getElementById("val-svg");
       const rateEl = document.getElementById("rate-svg");
       const showHide = (svg, empty) => {
-        const hasData = svg.children.length > 2;  // 2 axis lines minimum
+        const hasData = svg.children.length > 2; // 2 axis lines minimum
         empty.style.display = hasData ? "none" : "block";
         svg.style.display = hasData ? "block" : "none";
       };
@@ -213,31 +293,47 @@ const pageStyle = `
         for (const id of ["loss-svg", "lr-svg", "val-svg", "rate-svg"]) {
           document.getElementById(id).innerHTML = "";
           document.getElementById(id).style.display = "none";
-          document.getElementById(id.replace("-svg", "-empty")).style.display = "block";
+          document.getElementById(id.replace("-svg", "-empty")).style.display =
+            "block";
         }
         return;
       }
 
       // Build the combined x/y domains from every loaded run.
-      let allSteps = [], allLoss = [], allLR = [], allVals = [], allValSteps = [], allRate = [], allRateSteps = [];
+      let allSteps = [],
+        allLoss = [],
+        allLR = [],
+        allVals = [],
+        allValSteps = [],
+        allRate = [],
+        allRateSteps = [];
       for (const r of runs.values()) {
         for (const s of r.steps) {
           allSteps.push(s.step);
           if (Number.isFinite(s.loss)) allLoss.push(s.loss);
-          if (Number.isFinite(s.lr))   allLR.push(s.lr);
-          if (Number.isFinite(s.step_per_s)) { allRate.push(s.step_per_s); allRateSteps.push(s.step); }
+          if (Number.isFinite(s.lr)) allLR.push(s.lr);
+          if (Number.isFinite(s.step_per_s)) {
+            allRate.push(s.step_per_s);
+            allRateSteps.push(s.step);
+          }
         }
-        for (const v of r.vals) { allVals.push(v.val_loss); allValSteps.push(v.step); }
+        for (const v of r.vals) {
+          allVals.push(v.val_loss);
+          allValSteps.push(v.step);
+        }
       }
 
       // === LOSS CHART ===
       if (allLoss.length > 0) {
         const ax = makeAxes(lossEl, allSteps, allLoss, fmtInt, fmtNum);
         for (const r of runs.values()) {
-          const xs = r.steps.map(s => s.step);
-          const ys = r.steps.map(s => s.loss);
+          const xs = r.steps.map((s) => s.step);
+          const ys = r.steps.map((s) => s.loss);
           drawLine(lossEl, ax, xs, ys, r.color);
-          const ma = movingAvg(ys, Math.min(50, Math.max(5, Math.floor(ys.length / 10))));
+          const ma = movingAvg(
+            ys,
+            Math.min(50, Math.max(5, Math.floor(ys.length / 10))),
+          );
           drawLine(lossEl, ax, xs, ma, r.color, "ma");
           drawSpikes(lossEl, ax, r.steps, ys, r.color);
         }
@@ -247,7 +343,13 @@ const pageStyle = `
       if (allLR.length > 0) {
         const ax = makeAxes(lrEl, allSteps, allLR, fmtInt, fmtSci);
         for (const r of runs.values()) {
-          drawLine(lrEl, ax, r.steps.map(s => s.step), r.steps.map(s => s.lr), r.color);
+          drawLine(
+            lrEl,
+            ax,
+            r.steps.map((s) => s.step),
+            r.steps.map((s) => s.lr),
+            r.color,
+          );
         }
       }
 
@@ -256,12 +358,22 @@ const pageStyle = `
         const ax = makeAxes(valEl, allValSteps, allVals, fmtInt, fmtNum);
         for (const r of runs.values()) {
           if (r.vals.length === 0) continue;
-          drawLine(valEl, ax, r.vals.map(v => v.step), r.vals.map(v => v.val_loss), r.color, "val");
+          drawLine(
+            valEl,
+            ax,
+            r.vals.map((v) => v.step),
+            r.vals.map((v) => v.val_loss),
+            r.color,
+            "val",
+          );
           // Also add a point marker for each val sample.
           for (const v of r.vals) {
-            const cx = ax.sx(v.step), cy = ax.sy(v.val_loss);
-            valEl.insertAdjacentHTML("beforeend",
-              `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3" fill="${r.color}"/>`);
+            const cx = ax.sx(v.step),
+              cy = ax.sy(v.val_loss);
+            valEl.insertAdjacentHTML(
+              "beforeend",
+              `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3" fill="${r.color}"/>`,
+            );
           }
         }
       }
@@ -270,36 +382,47 @@ const pageStyle = `
       if (allRate.length > 0) {
         const ax = makeAxes(rateEl, allRateSteps, allRate, fmtInt, fmtNum);
         for (const r of runs.values()) {
-          const xs = r.steps.filter(s => Number.isFinite(s.step_per_s)).map(s => s.step);
-          const ys = r.steps.filter(s => Number.isFinite(s.step_per_s)).map(s => s.step_per_s);
+          const xs = r.steps
+            .filter((s) => Number.isFinite(s.step_per_s))
+            .map((s) => s.step);
+          const ys = r.steps
+            .filter((s) => Number.isFinite(s.step_per_s))
+            .map((s) => s.step_per_s);
           drawLine(rateEl, ax, xs, ys, r.color);
         }
       }
 
       showHide(lossEl, document.getElementById("loss-empty"));
-      showHide(lrEl,   document.getElementById("lr-empty"));
-      showHide(valEl,  document.getElementById("val-empty"));
+      showHide(lrEl, document.getElementById("lr-empty"));
+      showHide(valEl, document.getElementById("val-empty"));
       showHide(rateEl, document.getElementById("rate-empty"));
 
       // Refresh the run list cards.
       const list = document.getElementById("runs");
       list.innerHTML = "";
       for (const [id, r] of runs.entries()) {
-        const dur = r.done?.total_s != null ? `${r.done.total_s.toFixed(1)}s` : "running";
-        const final = r.steps.length > 0 ? r.steps[r.steps.length - 1].loss.toFixed(3) : "—";
+        const dur =
+          r.done?.total_s != null ? `${r.done.total_s.toFixed(1)}s` : "running";
+        const final =
+          r.steps.length > 0
+            ? r.steps[r.steps.length - 1].loss.toFixed(3)
+            : "—";
         const meta = `${r.meta.preset ?? "?"} · ${r.meta.params ?? "?"} params · ${r.meta.lr_schedule ?? "?"} · ${r.steps.length} steps · final ${final} · ${dur}`;
         const div = document.createElement("div");
         div.className = "run";
-        div.innerHTML = `<div class="dot" style="background:${r.color}"></div>` +
-                        `<div class="name">${r.name}</div>` +
-                        `<div class="meta">${meta}</div>` +
-                        `<div class="x" data-id="${id}" title="remove">×</div>`;
+        div.innerHTML =
+          `<div class="dot" style="background:${r.color}"></div>` +
+          `<div class="name">${r.name}</div>` +
+          `<div class="meta">${meta}</div>` +
+          `<div class="x" data-id="${id}" title="remove">×</div>`;
         list.appendChild(div);
       }
-      list.querySelectorAll(".x").forEach(x => x.addEventListener("click", e => {
-        runs.delete(e.target.dataset.id);
-        rerender();
-      }));
+      list.querySelectorAll(".x").forEach((x) =>
+        x.addEventListener("click", (e) => {
+          runs.delete(e.target.dataset.id);
+          rerender();
+        }),
+      );
     }
 
     async function addFile(f) {
@@ -312,16 +435,20 @@ const pageStyle = `
       rerender();
     }
 
-    document.getElementById("file").addEventListener("change", async e => {
+    document.getElementById("file").addEventListener("change", async (e) => {
       for (const f of e.target.files) await addFile(f);
-      e.target.value = "";  // allow re-selecting the same file
+      e.target.value = ""; // allow re-selecting the same file
     });
 
     const drop = document.getElementById("drop");
-    drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+    drop.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      drop.classList.add("over");
+    });
     drop.addEventListener("dragleave", () => drop.classList.remove("over"));
-    drop.addEventListener("drop", async e => {
-      e.preventDefault(); drop.classList.remove("over");
+    drop.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      drop.classList.remove("over");
       for (const f of e.dataTransfer.files) await addFile(f);
     });
 

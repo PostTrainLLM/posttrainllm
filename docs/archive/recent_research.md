@@ -59,7 +59,7 @@ See [`docs/lora_guide.md`](../lora_guide.md) for the mechanics.
 - **AWQ** — Lin et al., MLSys 2024.
   "[AWQ: Activation-aware Weight Quantization](https://arxiv.org/abs/2306.00978)."
 - **HQQ** — Badri & Shaji, 2024.
-  "[Half-Quadratic Quantization](https://mobiusml.github.io/hqq_blog/)."
+  "[Half-Quadratic Quantization](https://github.com/dropbox/hqq)."
   Calibration-free int4.
 - **KIVI** — Liu et al., 2024.
   "[KIVI: A Tuning-Free Asymmetric 2bit Quantization for KV Cache](https://arxiv.org/abs/2402.02750)."

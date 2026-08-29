@@ -152,7 +152,7 @@ Release blockers:
 
 Status: `release-ready-weights`
 
-Report card: `/report-cards/qwen3-4b-file-ops-distilled.html` — outcome
+Report card: `/report-cards/qwen3-4b-file-ops-distilled` — outcome
 `routed-ship`, not fully verified (historical values; the breadth gate is derived
 as failing).
 
@@ -186,7 +186,7 @@ Release blockers:
 
 Status: `release-ready-weights`
 
-Report card: `/report-cards/qwen3-4b-rest-fused.html` — outcome `routed-ship`,
+Report card: `/report-cards/qwen3-4b-rest-fused` — outcome `routed-ship`,
 not fully verified (historical values; latency, RAM, throughput, and timing are
 reported as not recorded).
 
@@ -313,7 +313,7 @@ Release blockers:
 
 Status: `report-ready-candidate`
 
-Report card: `/report-cards/qwen06-sql-routed-v1.html` — outcome `report-only`
+Report card: `/report-cards/qwen06-sql-routed-v1` — outcome `report-only`
 (`retry-eval`), measured baseline/candidate with three open blockers.
 
 Current artifact shape:

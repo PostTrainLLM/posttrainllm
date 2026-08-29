@@ -1,0 +1,148 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "PostTrainLLM flagship specialist-factory landing page",
+  "surfaceMode": "persuade",
+  "mode": "overhaul",
+  "register": "product",
+  "context": {
+    "product": "PRODUCT.md",
+    "design": "DESIGN.md"
+  },
+  "direction": {
+    "references": [
+      "Local Research Bench design language",
+      "factory target-data-post-train-eval-package-report loop",
+      "qwen3-4b-rest-fused public scorecard"
+    ],
+    "probes": [
+      {
+        "id": "initial-candidate",
+        "path": "artifacts/design/landing-audit/initial-1440.png"
+      },
+      {
+        "id": "purpose-and-proof-revision",
+        "path": "browser/artifacts/design/landing-audit/final-p1-1440.png"
+      }
+    ],
+    "selected": "purpose-and-proof-revision",
+    "approval": "delegated",
+    "before": "artifacts/design/landing-audit/initial-1440.png",
+    "library": {
+      "strategy": "upstream-first",
+      "primary": "existing-project-system",
+      "sources": [],
+      "runtime": "existing",
+      "customReplacement": {
+        "used": false,
+        "authorization": "not-required",
+        "reason": ""
+      }
+    },
+    "contract": {
+      "purpose": "PostTrainLLM turns bounded local model experiments into measured, reproducible specialist packages on one Apple Silicon Mac.",
+      "purposeSource": "Site Health dossier, AGENTS.md, PRODUCT.md, PROJECT_STATUS.md, factory public artifacts, and current model cards",
+      "canonicalPurpose": "A local research factory for training, evaluating, packaging, and understanding useful specialist language models.",
+      "purposeAlignment": "match",
+      "driftNote": "",
+      "audience": "Practitioners who want to build and evaluate bounded specialist language models on personal Apple hardware without a cloud training platform.",
+      "job": "Understand the native factory loop, inspect current specialist evidence and limitations, then run the source quickstart on a Mac.",
+      "thesis": "A specialist earns a routed ship decision only when target gains, breadth regressions, missing measurements, packaging, and reproducibility are reported together.",
+      "system": "The established dark teal-and-coral Local Research Bench system, with a loss-curve signature, technical typography, restrained cards, and evidence-first responsive document flow.",
+      "signature": "The target-data-post-train-eval-package-decision loop connects the hero promise to the current ReST package, exact scorecard, honest scope, and native factory action.",
+      "risk": "Historical browser, pretraining, and systems benchmarks could be mistaken for proof of the current specialist, so the page separates the tiny browser learning demo and presents only package-specific evidence in the current proof band."
+    }
+  },
+  "evidence": {
+    "screenshots": [
+      {
+        "width": 390,
+        "path": "browser/artifacts/design/landing-audit/final-p1-390.png"
+      },
+      {
+        "width": 768,
+        "path": "browser/artifacts/design/landing-audit/final-p1-768.png"
+      },
+      {
+        "width": 1440,
+        "path": "browser/artifacts/design/landing-audit/final-p1-1440.png"
+      }
+    ],
+    "projectCheck": {
+      "command": "cd browser && pnpm build && pnpm test && pnpm typecheck:tools && pnpm agent:check; Playwright responsive/footer/link/runtime/Axe acceptance against local Astro preview",
+      "status": "pass"
+    },
+    "critique": {
+      "score": 38,
+      "maximum": 40
+    },
+    "audit": {
+      "score": 20,
+      "maximum": 20
+    },
+    "unresolved": {
+      "p0": 0,
+      "p1": 0
+    },
+    "detector": {
+      "posture": "advisory",
+      "findings": []
+    },
+    "comprehension": {
+      "status": "pass",
+      "reviewer": "independent strict P1 source and responsive screenshot review",
+      "answers": {
+        "product": "PostTrainLLM is a Mac-local research factory for building, evaluating, packaging, and inspecting bounded specialist language models.",
+        "audience": "Practitioners who want reproducible specialist-model work on personal Apple Silicon hardware.",
+        "value": "It turns experiments into explicit routed ship, retry, redirect, or reject decisions with the regressions and missing evidence attached.",
+        "mechanism": "A target-data-post-train-eval-package-report loop emits a schema-valid factory run and public specialist scorecard.",
+        "proof": "The page presents the current qwen3-4b-rest-fused package with a 100 percent file-operations gate at n=12, 65 percent held-out breadth at n=52, published HF and MLX weights, and explicit missing runtime traces.",
+        "nextAction": "Run the native factory quickstart or inspect the current specialist scorecard and limits."
+      },
+      "purposeScore": {
+        "product": 25,
+        "audience": 14,
+        "value": 15,
+        "mechanism": 15,
+        "proof": 14,
+        "nextAction": 15,
+        "total": 98
+      },
+      "mismatches": []
+    },
+    "performance": {
+      "report": ".fleet/evidence/landing-audit/performance.html",
+      "runs": 20,
+      "successfulRuns": 20,
+      "weightedLcpMs": 1010,
+      "cls": 0,
+      "tbtMs": 0
+    },
+    "visualQuality": {
+      "priority": "P1",
+      "score": 94,
+      "minimum": 90
+    },
+    "browserReview": {
+      "tool": "Google Chrome, Playwright, and Axe",
+      "viewports": [390, 768, 1440],
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "axeViolations": 0,
+      "internalLinks": {
+        "checked": 21,
+        "broken": 0
+      },
+      "footer": {
+        "askAi": "pass",
+        "projectStrip": "pass"
+      },
+      "analytics": "PostHog loads after the critical rendering window without runtime errors."
+    }
+  },
+  "ownerFeedback": {
+    "decision": "delegated",
+    "note": "The owner delegated the Fleet landing-page overhaul and explicitly required P1 projects to meet the highest quality and code-quality tier without repeated feedback loops."
+  }
+}

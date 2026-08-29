@@ -2,6 +2,8 @@
 
 Vision-language work is parked for the factory proof.
 
+## Current boundary
+
 Do not spend near-term time on:
 
 - Qwen3-VL/UI-Venus porting

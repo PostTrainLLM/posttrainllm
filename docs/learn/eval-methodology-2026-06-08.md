@@ -140,7 +140,8 @@ first-match-wins on `reason-cheapest-plan` (element 0 happened to
 be the answer). The eval is calibrated correctly to require real
 model capability.
 
-PR: <https://github.com/sarthakagrawal927/clicky/pull/new/eval/fm-fixtures-v2>
+The implementation record lives in the private Pace repository on the
+`eval/fm-fixtures-v2` branch.
 
 ## What we should do next
 

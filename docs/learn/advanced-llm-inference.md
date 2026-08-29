@@ -108,7 +108,7 @@ or chunk?" *Learn:* [DistServe](https://arxiv.org/abs/2401.09670) · *staff*
 **16. Inference parallelism: TP / EP / multi-LoRA.** TP (split matmuls,
 all-reduce/layer, NVLink-bound); expert parallel for MoE (all-to-all, load
 imbalance); multi-LoRA serving (many adapters on one base, S-LoRA). "Serve
-a 671B MoE on 8 GPUs — TP vs EP vs hybrid?" *Learn:* [Inference Handbook: parallelism](https://bentoml.com/llm/inference-optimization/data-tensor-pipeline-expert-hybrid-parallelism) · *staff*
+a 671B MoE on 8 GPUs — TP vs EP vs hybrid?" *Learn:* [Inference Handbook: parallelism](https://handbook.modular.com/inference-optimization/data-tensor-pipeline-expert-hybrid-parallelism/) · *staff*
 *In repo:* `serve --lora` is single-base adapter stacking — the seed of
 multi-LoRA serving.
 

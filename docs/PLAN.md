@@ -26,14 +26,14 @@ all shipped, all previously marked ⬜.
 
 ### Status legend
 
-| Mark | Meaning |
-|---|---|
-| ✅ | shipped — verified against code today |
-| 🟡 | partial / in-session-only / verified-with-caveat |
-| ⬜ | TODO — in active backlog |
-| ⏸ | deferred — would build but waiting on external trigger |
-| ❌ | skipped — intentionally not built (better alternative exists) |
-| 🚧 | blocked — would build but cannot right now (hardware / upstream / budget) |
+| Mark | Meaning                                                                   |
+| ---- | ------------------------------------------------------------------------- |
+| ✅   | shipped — verified against code today                                     |
+| 🟡   | partial / in-session-only / verified-with-caveat                          |
+| ⬜   | TODO — in active backlog                                                  |
+| ⏸    | deferred — would build but waiting on external trigger                    |
+| ❌   | skipped — intentionally not built (better alternative exists)             |
+| 🚧   | blocked — would build but cannot right now (hardware / upstream / budget) |
 
 ---
 
@@ -130,7 +130,7 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, all gated through `
 - ✅ MoE (dense routing — sparse hard routing blocked, see §2)
 - ✅ Mixture of Depths (soft sigmoid gate — hard routing blocked, see §2)
 - ✅ Differential attention (`--diff-attn`)
-- ✅ YOCO cross-layer KV sharing (`--yoco`) — CrossAttention.swift module, second-half blocks reuse first-half K/V. See `docs/yoco_results.md`. *(Was marked "designed only" in older audit — actually shipped.)*
+- ✅ YOCO cross-layer KV sharing (`--yoco`) — CrossAttention.swift module, second-half blocks reuse first-half K/V. See `docs/yoco_results.md`. _(Was marked "designed only" in older audit — actually shipped.)_
 
 ## Tokenization
 
@@ -204,15 +204,15 @@ zero regression risk. See `docs/precision.md`.
 
 ## Headline metrics (Mac, M5 Pro / 48 GB)
 
-| | Value | Target | Headroom |
-|---|---|---|---|
-| TTFT (warm) | 5.8 ms p99 | < 50 ms | ✅ 10× under |
-| ITL p99 | 4.9 ms | < 30 ms | ✅ 6× under |
-| Decode tok/s | 293 (mega-pilot 960M) → 696 (huge 221M) | > 50 tok/s | ✅ 6× over |
-| Cold start TTFT | 24 ms (1B) | < 50 ms | ✅ 2× under |
-| Training Huge | 42 ms/step | (baseline) | — |
-| Speedup vs browser | 17.2× | (baseline) | — |
-| Largest model | 960 M params (1.1 GB) | — | — |
+|                    | Value                                   | Target     | Headroom     |
+| ------------------ | --------------------------------------- | ---------- | ------------ |
+| TTFT (warm)        | 5.8 ms p99                              | < 50 ms    | ✅ 10× under |
+| ITL p99            | 4.9 ms                                  | < 30 ms    | ✅ 6× under  |
+| Decode tok/s       | 293 (mega-pilot 960M) → 696 (huge 221M) | > 50 tok/s | ✅ 6× over   |
+| Cold start TTFT    | 24 ms (1B)                              | < 50 ms    | ✅ 2× under  |
+| Training Huge      | 42 ms/step                              | (baseline) | —            |
+| Speedup vs browser | 17.2×                                   | (baseline) | —            |
+| Largest model      | 960 M params (1.1 GB)                   | —          | —            |
 
 ## Recent product surfaces (Wave 2.6, shipped 2026-05-31)
 
@@ -255,17 +255,17 @@ zero regression risk. See `docs/precision.md`.
 
 ## ⏸ Deferred (waiting on external trigger)
 
-| Item | Trigger | Why deferred |
-|---|---|---|
-| cider W8A8 adoption | a 3B+ specialist ships | At ≤ 1B, Mac already 10× under realtime; cider's prefill win is immaterial |
-| ANE + GPU heterogeneous routing | Apple ships Stateful Models API (rumored late 2026) | Research-grade; current path uses private ANEMLL APIs |
-| WebGPU subgroup matmul redesign | browser focus returns | Current gate fails (1415% mean_rel); fallback works |
-| Vision encoder (ViT → posttrainllm decoder) | vision-specialist demand becomes concrete | 2-week research-grade work; not critical-path |
-| Audio I/O (Speech.framework + AVSpeechSynthesizer) | voice-mode demo becomes priority | Not in scope for Wave 3 |
-| Async tool-call dispatch | parallel-tool specialist ships | LM dominates 5-100× over subprocess at current scales |
-| ScreenCaptureKit raw image (CGS-init fix) | vision specialist needs raw bytes | AX tree sufficient for tool-calling specialists |
-| Public launch (HF + writeup + HN) | ≥ 1 specialist beats a fair baseline | Nothing to launch yet |
-| Phase 7 browser perf (subgroups / coop-matrix / WebNN) | post-HN v2 push | Current 12.1× lift is the launch story |
+| Item                                                   | Trigger                                             | Why deferred                                                               |
+| ------------------------------------------------------ | --------------------------------------------------- | -------------------------------------------------------------------------- |
+| cider W8A8 adoption                                    | a 3B+ specialist ships                              | At ≤ 1B, Mac already 10× under realtime; cider's prefill win is immaterial |
+| ANE + GPU heterogeneous routing                        | Apple ships Stateful Models API (rumored late 2026) | Research-grade; current path uses private ANEMLL APIs                      |
+| WebGPU subgroup matmul redesign                        | browser focus returns                               | Current gate fails (1415% mean_rel); fallback works                        |
+| Vision encoder (ViT → posttrainllm decoder)            | vision-specialist demand becomes concrete           | 2-week research-grade work; not critical-path                              |
+| Audio I/O (Speech.framework + AVSpeechSynthesizer)     | voice-mode demo becomes priority                    | Not in scope for Wave 3                                                    |
+| Async tool-call dispatch                               | parallel-tool specialist ships                      | LM dominates 5-100× over subprocess at current scales                      |
+| ScreenCaptureKit raw image (CGS-init fix)              | vision specialist needs raw bytes                   | AX tree sufficient for tool-calling specialists                            |
+| Public launch (HF + writeup + HN)                      | ≥ 1 specialist beats a fair baseline                | Nothing to launch yet                                                      |
+| Phase 7 browser perf (subgroups / coop-matrix / WebNN) | post-HN v2 push                                     | Current 12.1× lift is the launch story                                     |
 
 ## 🚧 Blocked by hardware
 
@@ -277,14 +277,14 @@ zero regression risk. See `docs/precision.md`.
 
 ## 🚧 Blocked by upstream library state
 
-| Item | Blocker | Workaround |
-|---|---|---|
-| QLoRA real-quantized base + LoRA | MLX-Swift quantized arrays don't autograd through | Manual fake-quant in fwd (pedagogical, no memory win) |
-| Sparse MoE hard routing | MLX-Swift no `scatter_add` | Soft (dense) routing shipped |
-| Mixture-of-Depths hard top-K | same | Soft sigmoid gate shipped |
-| Fast BPE encoding | swift-transformers single-threaded; 2 GB corpus = ~30 min | Rust-backed encoder via FFI (future) |
-| Native int4 / int8 WebGPU matmul | spec doesn't yet have quantized matmul extensions | Wait for subgroup / coop-matrix extensions |
-| GGUF safetensors reader | not yet written | Could write (~2 days); AWQ + GPTQ readers already ship |
+| Item                             | Blocker                                                   | Workaround                                             |
+| -------------------------------- | --------------------------------------------------------- | ------------------------------------------------------ |
+| QLoRA real-quantized base + LoRA | MLX-Swift quantized arrays don't autograd through         | Manual fake-quant in fwd (pedagogical, no memory win)  |
+| Sparse MoE hard routing          | MLX-Swift no `scatter_add`                                | Soft (dense) routing shipped                           |
+| Mixture-of-Depths hard top-K     | same                                                      | Soft sigmoid gate shipped                              |
+| Fast BPE encoding                | swift-transformers single-threaded; 2 GB corpus = ~30 min | Rust-backed encoder via FFI (future)                   |
+| Native int4 / int8 WebGPU matmul | spec doesn't yet have quantized matmul extensions         | Wait for subgroup / coop-matrix extensions             |
+| GGUF safetensors reader          | not yet written                                           | Could write (~2 days); AWQ + GPTQ readers already ship |
 
 ## 🚧 Blocked by budget
 
@@ -362,27 +362,27 @@ Both fall out for free if E0 + E8 are designed in, not retrofitted.
 
 ### Browser viewers shipped 2026-06-05
 
-| Page | Role |
-|---|---|
-| `/eval-leaderboard.astro` | drag-drop E0 JSONL → 3-view comparison (by step / model / task) |
-| `/sae-timeline.astro` | drag-drop B13 SAE timeline JSONL → MSE-over-step + L0-over-step charts |
+| Page                      | Role                                                                   |
+| ------------------------- | ---------------------------------------------------------------------- |
+| `/eval-leaderboard.astro` | drag-drop E0 JSONL → 3-view comparison (by step / model / task)        |
+| `/sae-timeline.astro`     | drag-drop B13 SAE timeline JSONL → MSE-over-step + L0-over-step charts |
 
 ### Rust performance tools shipped 2026-06-05
 
-| Crate | Role |
-|---|---|
-| `scripts/parquet-decoder/` | replaces `python3 scripts/parquet_to_txt.py`; static binary, no pyarrow |
-| `scripts/hf-downloader/` | parallel HF shard fetches with progress + retry + resume |
-| `scripts/humaneval-sandbox/` | E5 supporting sandbox runner (Rust + macOS sandbox-exec) |
+| Crate                        | Role                                                                    |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| `scripts/parquet-decoder/`   | replaces `python3 scripts/parquet_to_txt.py`; static binary, no pyarrow |
+| `scripts/hf-downloader/`     | parallel HF shard fetches with progress + retry + resume                |
+| `scripts/humaneval-sandbox/` | E5 supporting sandbox runner (Rust + macOS sandbox-exec)                |
 
 ### Eval — runbook artifacts shipped 2026-06-05
 
-| Script | Role |
-|---|---|
-| `scripts/score-checkpoint.sh` | one `.tinygpt` → E0 JSONL row(s) via lm-eval |
-| `scripts/score-run.sh` | every history checkpoint of a run + SmolLM2 baseline → JSONL + 3-view summary |
-| `scripts/sae-run.sh` | SAE-per-checkpoint sweep → JSONL timeline (B13 v2 input) |
-| `scripts/score-baselines.sh` | 5 HF baselines (SmolLM2-135/360M, Qwen3-0.6B, TinyLlama, Phi-3-mini) on the same task set |
+| Script                        | Role                                                                                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| `scripts/score-checkpoint.sh` | one `.tinygpt` → E0 JSONL row(s) via lm-eval                                              |
+| `scripts/score-run.sh`        | every history checkpoint of a run + SmolLM2 baseline → JSONL + 3-view summary             |
+| `scripts/sae-run.sh`          | SAE-per-checkpoint sweep → JSONL timeline (B13 v2 input)                                  |
+| `scripts/score-baselines.sh`  | 5 HF baselines (SmolLM2-135/360M, Qwen3-0.6B, TinyLlama, Phi-3-mini) on the same task set |
 
 **Total Tier E**: ~6-8 focused days. Do **E0 first** (schema is everyone's dependency), then E3 (highest harness leverage), then E1 (A1 ship-blocker), then E8 (multi-checkpoint), then the rest as nightly arcs.
 
@@ -434,7 +434,7 @@ Both fall out for free if E0 + E8 are designed in, not retrofitted.
 
 **Market-landscape positioning (added 2026-06-13 — see `docs/sessions/2026-06-13-market-landscape-mac-first.md`):**
 
-The competitive scan found the whole field monetizes the cost a Mac-first tool zeroes out (cloud GPU rent / trace ingestion) and is consolidating into infra + frontier-lab acquirers. Three whitespaces: Mac-first *training* as a product (B6 + B31), eval+interp+local fused (already shipped — the moat), and academic agent benchmarks as a local CI gate (B32). These two items reframe shipped infra as product surfaces.
+The competitive scan found the whole field monetizes the cost a Mac-first tool zeroes out (cloud GPU rent / trace ingestion) and is consolidating into infra + frontier-lab acquirers. Three whitespaces: Mac-first _training_ as a product (B6 + B31), eval+interp+local fused (already shipped — the moat), and academic agent benchmarks as a local CI gate (B32). These two items reframe shipped infra as product surfaces.
 
 - 🟡 **B32. `posttrainllm eval` as a CI / pre-commit gate** (shipped 2026-06-13; K-pass stats + budget metadata added 2026-06-18; live multi-suite GPU run pending a self-hosted runner) — `posttrainllm eval-gate` runs declared suites vs a baseline and exits non-zero on regression. Pure gate logic in `TinyGPTModel/EvalGate.swift` (direction heuristic, pp thresholds, per-suite override, missing-baseline handling, K-pass mean + stdev/stderr/95% CI + optional protocol budget) with unit tests; CLI orchestration in `Sources/TinyGPT/EvalGate.swift` (`--candidate` no-GPU path, `--update-baseline`, `--passes`, `--budget`, `gate-result.json`). Spec lives in `eval-gate.json` or the `posttrainllm.project.json` `eval` block (B31 schema add). GitHub Action `.github/actions/posttrainllm-eval-gate/` forwards `spec`, `candidate`, `passes`, and `budget`; recipe `docs/recipes/eval-gate.md`, smoke `evals/eval-gate-smoke.sh` (asserts exit 0 match, exit 1 regression, repeated-run stats, and budget metadata). **Flips to ✅** once a real specialist's suites run end-to-end through the gate on a self-hosted Mac runner.
 - ⬜ **B35. Local-agent vertical PoC — code reviewer on a Mac** — future-looking kill-or-validate experiment surfaced 2026-06-17 by the Vercel Eve launch. Eve validates the agent-platform thesis but is cloud-bound; posttrainllm already owns ~70% of a local-agent stack (B22 + B26 + B28 + B29 + B30 + B32 + QLoRA + serve) and can target the wedge Eve doesn't address: zero-cloud, specialist-distilled agents that run entirely on the user's Mac. Kill criterion: 4-week timebox, ≥5pp lift over zero-shot open baseline on the chosen code-review eval, else publish the negative result and keep posttrainllm narrow as a model factory.
@@ -464,7 +464,7 @@ The competitive scan found the whole field monetizes the cost a Mac-first tool z
 
 Pauses the "training at 2024 fundamentals" cadence; deliverable is a paper-shaped artifact + reproducible code + a scaling-curve point, NOT a polished UX feature.
 
-- ⬜ **5.1 Reasoning training on a 22M model** — 5-7 days; expected outcome is the *negative result* (CoT below emergence). Publishable.
+- ⬜ **5.1 Reasoning training on a 22M model** — 5-7 days; expected outcome is the _negative result_ (CoT below emergence). Publishable.
 - ⬜ **5.2 Test-time compute scaling** — 3-5 days; quality-vs-FLOPs plot at 22M-scale matching Snell et al. methodology. **Most cleanly publishable.**
 - ⬜ **5.3 Vision-language toy** — ~2 weeks; ViT + projector + LLaVA-style. Smallest from-scratch VL model on consumer hardware.
 - ⬜ **5.4 Diffusion LM micro-implementation** — 1-2 weeks; new paradigm via masked denoising loss.
@@ -476,25 +476,26 @@ Pauses the "training at 2024 fundamentals" cadence; deliverable is a paper-shape
 
 What carries over from current posttrainllm:
 
-| Piece | Reuse |
-|---|---|
-| Transformer decoder, KV cache, sampling, MTP heads (for K-codebook prediction) | direct |
-| Training loop (`posttrainllm train`) + PEFT bundle for downstream fine-tunes | direct |
-| `CrossAttention.swift` (currently used for YOCO) | adapt to text-encoder K/V source for conditioning |
+| Piece                                                                          | Reuse                                             |
+| ------------------------------------------------------------------------------ | ------------------------------------------------- |
+| Transformer decoder, KV cache, sampling, MTP heads (for K-codebook prediction) | direct                                            |
+| Training loop (`posttrainllm train`) + PEFT bundle for downstream fine-tunes   | direct                                            |
+| `CrossAttention.swift` (currently used for YOCO)                               | adapt to text-encoder K/V source for conditioning |
 
 New code surface (~2 weeks of focused engineering + 3-7 days training):
 
-| Piece | Effort |
-|---|---|
-| EnCodec encode/decode integration (Swift port of the HF EnCodec weights) | ~3-5 days |
-| Text → conditioning surface (text encoder + cross-attention into decoder, OR text-as-prefix-tokens) | ~2-3 days |
-| Audio data pipeline (LJSpeech / LibriTTS pre-tokenization to codec ids) | ~2-3 days |
-| Eval (WER via Whisper transcription, MOS estimator) | ~2 days |
-| First training run on LJSpeech single-speaker → intelligible speech | 2-4 days wall-clock |
+| Piece                                                                                               | Effort              |
+| --------------------------------------------------------------------------------------------------- | ------------------- |
+| EnCodec encode/decode integration (Swift port of the HF EnCodec weights)                            | ~3-5 days           |
+| Text → conditioning surface (text encoder + cross-attention into decoder, OR text-as-prefix-tokens) | ~2-3 days           |
+| Audio data pipeline (LJSpeech / LibriTTS pre-tokenization to codec ids)                             | ~2-3 days           |
+| Eval (WER via Whisper transcription, MOS estimator)                                                 | ~2 days             |
+| First training run on LJSpeech single-speaker → intelligible speech                                 | 2-4 days wall-clock |
 
 **Realistic outcome at this scale:** smallest-published audio-token GPT (MusicGen-small) is ~300M; from-scratch on LJSpeech you get recognizable but not natural-sounding speech. The publishable artifact is the same shape as 5.3 — "smallest from-scratch ___ on consumer hardware."
 
 **Why ordered after specialist + VL:**
+
 - Specialist track validates the north-star thesis (Wave 3 work the project is actually about). Until at least one specialist beats a baseline, modality experiments are noise on top of unproven foundations.
 - 5.3 vision-language toy is ahead because (a) it's the older Tier-5 item and (b) it stress-tests the same "external pretrained encoder + cross-attention into our decoder" pattern that TTS would reuse. Shipping VL first means TTS inherits a validated pattern instead of a speculative one.
 
@@ -519,15 +520,15 @@ source document / prompt
 
 What we would need:
 
-| Piece | Build | Why |
-|---|---|---|
-| Scene/storyboard schema | JSON DSL for concepts, equations, diagrams, timings, camera/stroke actions | Gives the model a constrained target instead of free-form pixels |
-| Renderer | Start with SVG/canvas frames; later Remotion/Manim export | Deterministic, debuggable, cheap to render |
-| Visual-planner specialist | SFT/LoRA model: prompt/doc → storyboard DSL | This is the first "specialized video model" worth training |
-| Asset/diagram library | Shapes, arrows, axes, code blocks, graph layouts, simple physics/math primitives | Explainers need reusable semantic primitives more than photorealism |
-| Data pipeline | Pair open lessons/transcripts/docs with generated or human-edited storyboards | The scarce asset is supervised storyboard data |
-| Eval set | Held-out concepts with rubric: factual correctness, visual grounding, pacing, label consistency, equation validity | Prevents "pretty but wrong" videos |
-| Editing loop | User can regenerate one scene, lock script, lock diagrams, export MP4 | Real workflows need partial repair, not one-shot magic |
+| Piece                     | Build                                                                                                              | Why                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| Scene/storyboard schema   | JSON DSL for concepts, equations, diagrams, timings, camera/stroke actions                                         | Gives the model a constrained target instead of free-form pixels    |
+| Renderer                  | Start with SVG/canvas frames; later Remotion/Manim export                                                          | Deterministic, debuggable, cheap to render                          |
+| Visual-planner specialist | SFT/LoRA model: prompt/doc → storyboard DSL                                                                        | This is the first "specialized video model" worth training          |
+| Asset/diagram library     | Shapes, arrows, axes, code blocks, graph layouts, simple physics/math primitives                                   | Explainers need reusable semantic primitives more than photorealism |
+| Data pipeline             | Pair open lessons/transcripts/docs with generated or human-edited storyboards                                      | The scarce asset is supervised storyboard data                      |
+| Eval set                  | Held-out concepts with rubric: factual correctness, visual grounding, pacing, label consistency, equation validity | Prevents "pretty but wrong" videos                                  |
+| Editing loop              | User can regenerate one scene, lock script, lock diagrams, export MP4                                              | Real workflows need partial repair, not one-shot magic              |
 
 Model ladder:
 
@@ -543,13 +544,13 @@ Model ladder:
 
 Good first eval tasks:
 
-| Eval | Metric |
-|---|---|
-| Concept-to-storyboard | JSON validity + human/LLM rubric on lesson coverage |
-| Equation/diagram correctness | Symbol/label exactness, graph/axis consistency |
-| Script-to-scene grounding | Every narrated claim maps to an on-screen object/action |
-| Pacing | Scene duration fits narration without overcrowding |
-| Editability | Regenerate one scene without changing locked scenes |
+| Eval                         | Metric                                                  |
+| ---------------------------- | ------------------------------------------------------- |
+| Concept-to-storyboard        | JSON validity + human/LLM rubric on lesson coverage     |
+| Equation/diagram correctness | Symbol/label exactness, graph/axis consistency          |
+| Script-to-scene grounding    | Every narrated claim maps to an on-screen object/action |
+| Pacing                       | Scene duration fits narration without overcrowding      |
+| Editability                  | Regenerate one scene without changing locked scenes     |
 
 Why this is plausible for posttrainllm:
 
@@ -615,47 +616,47 @@ After these: training-dependent (specialist Wave 3, Mini-Llama+ANE, Tier 5 modal
 
 **Stale ⬜ markers caught + corrected this session — now ✅:**
 
-| Item | Where it ships |
-|---|---|
-| Embedding RMSNorm | `--embedding-rmsnorm` flag, `RMSNorm` module on token-embed |
-| DeepNorm | `--deep-norm` flag, `cfg.useDeepNorm`/`deepNormAlpha`/`deepNormBeta` |
-| Layer-wise LR decay | `cfg.lrLayerDecay` |
-| Cosine warmup | `--lr-schedule cosine --warmup 500` (the curated default) |
-| BPE-dropout | `BPEDropout.swift` |
-| Real CI | `.github/workflows/ci.yml` + `deploy.yml` |
-| Persistent tokenized cache | `TokenCache.swift` wired into Train+Eval+Distill+Finetune |
-| Linear probes | `posttrainllm linear-probe` (this session, `6dbe15c`) |
-| YOCO cross-layer KV | `--yoco` flag, `CrossAttention.swift`, `docs/yoco_results.md` |
-| GPTQ safetensors reader | `GPTQReader.swift` (72 tensors quantised in 31s) |
+| Item                       | Where it ships                                                       |
+| -------------------------- | -------------------------------------------------------------------- |
+| Embedding RMSNorm          | `--embedding-rmsnorm` flag, `RMSNorm` module on token-embed          |
+| DeepNorm                   | `--deep-norm` flag, `cfg.useDeepNorm`/`deepNormAlpha`/`deepNormBeta` |
+| Layer-wise LR decay        | `cfg.lrLayerDecay`                                                   |
+| Cosine warmup              | `--lr-schedule cosine --warmup 500` (the curated default)            |
+| BPE-dropout                | `BPEDropout.swift`                                                   |
+| Real CI                    | `.github/workflows/ci.yml` + `deploy.yml`                            |
+| Persistent tokenized cache | `TokenCache.swift` wired into Train+Eval+Distill+Finetune            |
+| Linear probes              | `posttrainllm linear-probe` (this session, `6dbe15c`)                |
+| YOCO cross-layer KV        | `--yoco` flag, `CrossAttention.swift`, `docs/yoco_results.md`        |
+| GPTQ safetensors reader    | `GPTQReader.swift` (72 tensors quantised in 31s)                     |
 
 **Dropped under value-add filter (duplicate / inferior / niche):**
 
-| Dropped | Why |
-|---|---|
-| ReLoRA | GaLore already gives "full fine-tune at LoRA memory cost" |
-| Prefix tuning / soft prompts | LoRA covers the practical case |
-| IPO | DPO with high β covers tiny-pair regularization |
-| Token elimination | StreamingLLM + KIVI cover positional + per-entry-bits axes |
-| Tree decoding | Speculative decode (vanilla + Medusa + EAGLE-2) covers the niche |
-| Curriculum learning | Modest gains, scale-dependent; needs a difficulty metric we don't have |
-| Self-instruct / Evol-instruct | Magpie subsumes (uses model's own distribution, no seed needed) |
-| Hard example mining / Importance sampling | Marginal at our scale |
-| Data quality filtering | PPL-filtering needs a ref model; basic dedup covers most of the value |
-| BigBird / Longformer sparse attention | Only matters past ctx=8192 (we don't train at that length) |
-| Linear attention (Performer / Linformer / Reformer) | Quality usually worse than flash attention |
-| Hybrid attention/SSM (Jamba, Samba) | Different family; side-project |
-| Pre-norm vs post-norm toggle | Config knob, not a feature |
-| Tiktoken adoption | swift-transformers handles BPE-family tokenizers already |
-| Subword regularization | Marginal vs BPE-dropout |
-| Train own BPE on corpus | Modest gain (~5% PPL); blocked on Rust-FFI for speed |
-| posttrainllm-as-library API | User explicitly deferred until specialists beat a baseline |
+| Dropped                                             | Why                                                                    |
+| --------------------------------------------------- | ---------------------------------------------------------------------- |
+| ReLoRA                                              | GaLore already gives "full fine-tune at LoRA memory cost"              |
+| Prefix tuning / soft prompts                        | LoRA covers the practical case                                         |
+| IPO                                                 | DPO with high β covers tiny-pair regularization                        |
+| Token elimination                                   | StreamingLLM + KIVI cover positional + per-entry-bits axes             |
+| Tree decoding                                       | Speculative decode (vanilla + Medusa + EAGLE-2) covers the niche       |
+| Curriculum learning                                 | Modest gains, scale-dependent; needs a difficulty metric we don't have |
+| Self-instruct / Evol-instruct                       | Magpie subsumes (uses model's own distribution, no seed needed)        |
+| Hard example mining / Importance sampling           | Marginal at our scale                                                  |
+| Data quality filtering                              | PPL-filtering needs a ref model; basic dedup covers most of the value  |
+| BigBird / Longformer sparse attention               | Only matters past ctx=8192 (we don't train at that length)             |
+| Linear attention (Performer / Linformer / Reformer) | Quality usually worse than flash attention                             |
+| Hybrid attention/SSM (Jamba, Samba)                 | Different family; side-project                                         |
+| Pre-norm vs post-norm toggle                        | Config knob, not a feature                                             |
+| Tiktoken adoption                                   | swift-transformers handles BPE-family tokenizers already               |
+| Subword regularization                              | Marginal vs BPE-dropout                                                |
+| Train own BPE on corpus                             | Modest gain (~5% PPL); blocked on Rust-FFI for speed                   |
+| posttrainllm-as-library API                         | User explicitly deferred until specialists beat a baseline             |
 
 ---
 
 # Queued findings — ANE routing + Mac-vs-browser sampling
 
 Triggered by the question "how do we get to 170× instead of 17×?" The
-17.2× number is at Huge *training* — small bandwidth-bound model where
+17.2× number is at Huge _training_ — small bandwidth-bound model where
 kernel-launch overhead dominates. Several legitimate paths to a much
 larger ratio; each is queued with its honest cost.
 
@@ -682,7 +683,7 @@ headline from "17× training" to "30-80× sampling, 17× training."
 Apple Neural Engine routes only when the graph hits its preferred
 shapes. The published numbers (ANEMLL, perf-quest memory) are 2-3×
 sampling over the same model on Apple GPU when ANE engages cleanly,
-not 100×+ end-to-end. The big win is the *combined* ratio: bigger
+not 100×+ end-to-end. The big win is the _combined_ ratio: bigger
 ANE-friendly model × ANE-routing × already-unfit-for-browser size.
 
 ### Why posttrainllm doesn't route today
@@ -691,15 +692,15 @@ ANE prefers `head_dim ∈ {64, 128}`, tensor dims multiples of 64,
 fp16, RoPE-style attention, bias-free linears, RMSNorm. Our Huge
 default is the opposite of all of these:
 
-| Dimension | posttrainllm Huge | Llama 3.1 8B | ANE impact |
-|---|---|---|---|
-| `head_dim` | 32 | 128 | falls off ANE matrix engine |
-| `d_model` | 256 | 4,096 | tiny matmuls under-utilize ANE tiles |
-| `vocab` | 256 (byte) | 128,256 (BPE) | LM-head matmul too small to matter |
-| Norm | LayerNorm | RMSNorm | RMSNorm has better ANE op coverage |
-| Positional | learned absolute | RoPE | ANE's fused-attention paths assume RoPE |
-| MLP activation | GELU | SwiGLU | SwiGLU is the ANE-tuned default |
-| Linear bias | yes | no | bias-free fuses cleaner into matmul-add |
+| Dimension      | posttrainllm Huge | Llama 3.1 8B  | ANE impact                              |
+| -------------- | ----------------- | ------------- | --------------------------------------- |
+| `head_dim`     | 32                | 128           | falls off ANE matrix engine             |
+| `d_model`      | 256               | 4,096         | tiny matmuls under-utilize ANE tiles    |
+| `vocab`        | 256 (byte)        | 128,256 (BPE) | LM-head matmul too small to matter      |
+| Norm           | LayerNorm         | RMSNorm       | RMSNorm has better ANE op coverage      |
+| Positional     | learned absolute  | RoPE          | ANE's fused-attention paths assume RoPE |
+| MLP activation | GELU              | SwiGLU        | SwiGLU is the ANE-tuned default         |
+| Linear bias    | yes               | no            | bias-free fuses cleaner into matmul-add |
 
 ### What to build
 
@@ -729,13 +730,13 @@ profile to see whether ANE actually engages.
 
 ### Realistic speedup expectations
 
-| Path | Realistic tok/s |
-|---|---|
-| Current Huge on Mac GPU | 293-696 |
-| Mini-Llama (~600M) on Mac GPU | ~150-400 |
-| Mini-Llama on Mac ANE if it routes | ~400-1200 (~2-3× over its own GPU) |
-| Mini-Llama in browser | ~5-20 (probably can't load; 600M near browser ceiling) |
-| **Mac-ANE vs browser ratio** | **30-200×** depending on routing cleanliness |
+| Path                               | Realistic tok/s                                        |
+| ---------------------------------- | ------------------------------------------------------ |
+| Current Huge on Mac GPU            | 293-696                                                |
+| Mini-Llama (~600M) on Mac GPU      | ~150-400                                               |
+| Mini-Llama on Mac ANE if it routes | ~400-1200 (~2-3× over its own GPU)                     |
+| Mini-Llama in browser              | ~5-20 (probably can't load; 600M near browser ceiling) |
+| **Mac-ANE vs browser ratio**       | **30-200×** depending on routing cleanliness           |
 
 ### Probability analysis
 
@@ -756,11 +757,11 @@ ANEMLL on Llama works?
 
 ### Cost-benefit (honest)
 
-| Item | Cost | Outcome regardless of ANE result |
-|---|---|---|
-| Train Mini-Llama (200-600M) | 3-7 days mostly-background | Real Llama-architecture gallery model. Useful independently. |
-| `posttrainllm to-coreml` exporter | 1-2 days focused | Reusable for any future model. Useful independently. |
-| Profile + iterate | 1-3 days unpredictable | Empirical learning either way. |
+| Item                              | Cost                       | Outcome regardless of ANE result                             |
+| --------------------------------- | -------------------------- | ------------------------------------------------------------ |
+| Train Mini-Llama (200-600M)       | 3-7 days mostly-background | Real Llama-architecture gallery model. Useful independently. |
+| `posttrainllm to-coreml` exporter | 1-2 days focused           | Reusable for any future model. Useful independently.         |
+| Profile + iterate                 | 1-3 days unpredictable     | Empirical learning either way.                               |
 
 **Total**: 1-2 weeks calendar; dominated by training wall-clock.
 
@@ -804,159 +805,159 @@ or why it doesn't.
 
 ### Alignment / preference
 
-| Technique | Source | Where it lives |
-|---|---|---|
-| DPO | [Rafailov et al., NeurIPS 2023](https://arxiv.org/abs/2305.18290) | `posttrainllm dpo` |
-| KTO | [Ethayarajh et al., 2024](https://arxiv.org/abs/2402.01306) | `posttrainllm dpo --variant kto` |
-| ORPO | [Hong et al., 2024](https://arxiv.org/abs/2403.07691) | `posttrainllm dpo --variant orpo` |
-| SimPO | [Meng et al., 2024](https://arxiv.org/abs/2405.14734) | `posttrainllm dpo --variant simpo` |
-| NEFTune | [Jain et al., NeurIPS 2023](https://arxiv.org/abs/2310.05914) | `--neftune` |
+| Technique | Source                                                            | Where it lives                     |
+| --------- | ----------------------------------------------------------------- | ---------------------------------- |
+| DPO       | [Rafailov et al., NeurIPS 2023](https://arxiv.org/abs/2305.18290) | `posttrainllm dpo`                 |
+| KTO       | [Ethayarajh et al., 2024](https://arxiv.org/abs/2402.01306)       | `posttrainllm dpo --variant kto`   |
+| ORPO      | [Hong et al., 2024](https://arxiv.org/abs/2403.07691)             | `posttrainllm dpo --variant orpo`  |
+| SimPO     | [Meng et al., 2024](https://arxiv.org/abs/2405.14734)             | `posttrainllm dpo --variant simpo` |
+| NEFTune   | [Jain et al., NeurIPS 2023](https://arxiv.org/abs/2310.05914)     | `--neftune`                        |
 
 ### PEFT
 
 All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, surfaced via `posttrainllm sft`.
 
-| Technique | Source | Where it lives |
-|---|---|---|
-| DoRA | [Liu et al., 2024](https://arxiv.org/abs/2402.09353) | default in `sft` |
-| GaLore | [Zhao et al., 2024](https://arxiv.org/abs/2403.03507) | `Optimizers.swift` |
-| LoftQ | [Li et al., ICLR 2024](https://arxiv.org/abs/2310.08659) | `PeftVariants.swift` |
-| VeRA | [Kopiczko et al., ICLR 2024](https://arxiv.org/abs/2310.11454) | `PeftVariants.swift` |
-| PISSA | [Meng et al., 2024](https://arxiv.org/abs/2404.02948) | `PeftVariants.swift` |
-| LoRA+ | [Hayou et al., ICML 2024](https://arxiv.org/abs/2402.12354) | `PeftVariants.swift` |
-| rsLoRA | [Kalajdzievski, 2023](https://arxiv.org/abs/2312.03732) | `PeftVariants.swift` |
+| Technique | Source                                                         | Where it lives       |
+| --------- | -------------------------------------------------------------- | -------------------- |
+| DoRA      | [Liu et al., 2024](https://arxiv.org/abs/2402.09353)           | default in `sft`     |
+| GaLore    | [Zhao et al., 2024](https://arxiv.org/abs/2403.03507)          | `Optimizers.swift`   |
+| LoftQ     | [Li et al., ICLR 2024](https://arxiv.org/abs/2310.08659)       | `PeftVariants.swift` |
+| VeRA      | [Kopiczko et al., ICLR 2024](https://arxiv.org/abs/2310.11454) | `PeftVariants.swift` |
+| PISSA     | [Meng et al., 2024](https://arxiv.org/abs/2404.02948)          | `PeftVariants.swift` |
+| LoRA+     | [Hayou et al., ICML 2024](https://arxiv.org/abs/2402.12354)    | `PeftVariants.swift` |
+| rsLoRA    | [Kalajdzievski, 2023](https://arxiv.org/abs/2312.03732)        | `PeftVariants.swift` |
 
 ### Quantization
 
-| Technique | Source | Where it lives |
-|---|---|---|
-| GPTQ | [Frantar et al., ICLR 2023](https://arxiv.org/abs/2210.17323) | `posttrainllm gptq` + `GPTQReader.swift` |
-| AWQ | [Lin et al., MLSys 2024](https://arxiv.org/abs/2306.00978) | AWQ safetensors reader |
-| HQQ | [Badri & Shaji, 2024](https://mobiusml.github.io/hqq_blog/) | `posttrainllm hqq` |
-| KIVI | [Liu et al., 2024](https://arxiv.org/abs/2402.02750) | KV cache quantization path |
+| Technique | Source                                                        | Where it lives                           |
+| --------- | ------------------------------------------------------------- | ---------------------------------------- |
+| GPTQ      | [Frantar et al., ICLR 2023](https://arxiv.org/abs/2210.17323) | `posttrainllm gptq` + `GPTQReader.swift` |
+| AWQ       | [Lin et al., MLSys 2024](https://arxiv.org/abs/2306.00978)    | AWQ safetensors reader                   |
+| HQQ       | [Badri & Shaji, 2024](https://github.com/dropbox/hqq)         | `posttrainllm hqq`                       |
+| KIVI      | [Liu et al., 2024](https://arxiv.org/abs/2402.02750)          | KV cache quantization path               |
 
 ### Inference / efficiency
 
-| Technique | Source | Where it lives |
-|---|---|---|
+| Technique            | Source                                                          | Where it lives                                                |
+| -------------------- | --------------------------------------------------------------- | ------------------------------------------------------------- |
 | Speculative decoding | [Leviathan et al., ICML 2023](https://arxiv.org/abs/2211.17192) | `posttrainllm train-heads --type medusa\|eagle` + decode loop |
-| Medusa | [Cai et al., 2024](https://arxiv.org/abs/2401.10774) | same path, head type |
-| EAGLE-2 | [Li et al., 2024](https://arxiv.org/abs/2406.16858) | same path, head type |
-| StreamingLLM | [Xiao et al., ICLR 2024](https://arxiv.org/abs/2309.17453) | attention-sink path |
+| Medusa               | [Cai et al., 2024](https://arxiv.org/abs/2401.10774)            | same path, head type                                          |
+| EAGLE-2              | [Li et al., 2024](https://arxiv.org/abs/2406.16858)             | same path, head type                                          |
+| StreamingLLM         | [Xiao et al., ICLR 2024](https://arxiv.org/abs/2309.17453)      | attention-sink path                                           |
 
 ### Architecture variants
 
-| Technique | Source | Where it lives |
-|---|---|---|
-| MTP | [Gloeckle et al., ICML 2024](https://arxiv.org/abs/2404.19737) | `Train.swift`, `docs/mtp.md` |
-| Differential Transformer | [Microsoft 2024](https://arxiv.org/abs/2410.05258) | `DifferentialAttention.swift`, `--diff-attn` |
-| Mixture of Depths | [Raposo et al., 2024](https://arxiv.org/abs/2404.02258) | soft sigmoid gate (hard top-K upstream-blocked) |
-| LASER | [Sharma et al., ICLR 2024](https://arxiv.org/abs/2312.13558) | `posttrainllm laser` |
+| Technique                | Source                                                         | Where it lives                                  |
+| ------------------------ | -------------------------------------------------------------- | ----------------------------------------------- |
+| MTP                      | [Gloeckle et al., ICML 2024](https://arxiv.org/abs/2404.19737) | `Train.swift`, `docs/mtp.md`                    |
+| Differential Transformer | [Microsoft 2024](https://arxiv.org/abs/2410.05258)             | `DifferentialAttention.swift`, `--diff-attn`    |
+| Mixture of Depths        | [Raposo et al., 2024](https://arxiv.org/abs/2404.02258)        | soft sigmoid gate (hard top-K upstream-blocked) |
+| LASER                    | [Sharma et al., ICLR 2024](https://arxiv.org/abs/2312.13558)   | `posttrainllm laser`                            |
 
 ### Optimizers
 
-| Technique | Source | Where it lives |
-|---|---|---|
-| Sophia | [Liu et al., 2023](https://arxiv.org/abs/2305.14342) | `Optimizers.swift` |
-| Lion | [Chen et al., NeurIPS 2023](https://arxiv.org/abs/2302.06675) | `Optimizers.swift` |
-| Muon | [Jordan, 2024](https://kellerjordan.github.io/posts/muon/) | `Optimizers.swift` |
-| GaLore | (see PEFT) | `Optimizers.swift` |
+| Technique | Source                                                        | Where it lives     |
+| --------- | ------------------------------------------------------------- | ------------------ |
+| Sophia    | [Liu et al., 2023](https://arxiv.org/abs/2305.14342)          | `Optimizers.swift` |
+| Lion      | [Chen et al., NeurIPS 2023](https://arxiv.org/abs/2302.06675) | `Optimizers.swift` |
+| Muon      | [Jordan, 2024](https://kellerjordan.github.io/posts/muon/)    | `Optimizers.swift` |
+| GaLore    | (see PEFT)                                                    | `Optimizers.swift` |
 
 ### Distillation
 
-| Technique | Source | Where it lives |
-|---|---|---|
+| Technique                 | Source              | Where it lives         |
+| ------------------------- | ------------------- | ---------------------- |
 | Soft-targets distillation | Hinton et al., 2015 | `posttrainllm distill` |
 
 ### Synthetic data
 
-| Technique | Source | Where it lives |
-|---|---|---|
-| Magpie | [Xu et al., ICLR 2025](https://arxiv.org/abs/2406.08464) | `posttrainllm magpie` |
-| TinyStories | [Eldan & Li, 2023](https://arxiv.org/abs/2305.07759) | dataset source |
+| Technique   | Source                                                   | Where it lives        |
+| ----------- | -------------------------------------------------------- | --------------------- |
+| Magpie      | [Xu et al., ICLR 2025](https://arxiv.org/abs/2406.08464) | `posttrainllm magpie` |
+| TinyStories | [Eldan & Li, 2023](https://arxiv.org/abs/2305.07759)     | dataset source        |
 
 ### Test-time compute
 
-| Technique | Source | Where it lives |
-|---|---|---|
+| Technique | Source                                                 | Where it lives            |
+| --------- | ------------------------------------------------------ | ------------------------- |
 | Best-of-N | [Snell et al., 2024](https://arxiv.org/abs/2408.03314) | `posttrainllm bon --scan` |
 
 ### Evolution Strategies
 
-| Technique | Source | Where it lives |
-|---|---|---|
+| Technique   | Source                                                    | Where it lives                                    |
+| ----------- | --------------------------------------------------------- | ------------------------------------------------- |
 | ES at scale | [Qiu et al., Sept 2025](https://arxiv.org/abs/2509.24372) | `posttrainllm es`, `docs/evolution_strategies.md` |
 
 ## 4.2 Cannot — blocked, parked, or skipped
 
 ### 🚧 Blocked by hardware
 
-| Technique | Source | Why parked |
-|---|---|---|
-| BitNet b1.58 | [Ma et al., 2024](https://arxiv.org/abs/2402.17764) | Ternary from-scratch needs 100B+ tokens to validate; not differentiating at <1B params on our hardware. Park; revisit if a clear gallery-model use case appears. |
-| FP4 training (NVFP4 / Quartet) | [Wang Jan 2025](https://arxiv.org/abs/2501.17116) · [Quartet II Jan 2026](https://arxiv.org/abs/2601.22813) | Apple M-series has no native FP4 ops |
-| FP8 training | — | Needs H100 / Blackwell |
+| Technique                      | Source                                                                                                      | Why parked                                                                                                                                                       |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BitNet b1.58                   | [Ma et al., 2024](https://arxiv.org/abs/2402.17764)                                                         | Ternary from-scratch needs 100B+ tokens to validate; not differentiating at <1B params on our hardware. Park; revisit if a clear gallery-model use case appears. |
+| FP4 training (NVFP4 / Quartet) | [Wang Jan 2025](https://arxiv.org/abs/2501.17116) · [Quartet II Jan 2026](https://arxiv.org/abs/2601.22813) | Apple M-series has no native FP4 ops                                                                                                                             |
+| FP8 training                   | —                                                                                                           | Needs H100 / Blackwell                                                                                                                                           |
 
 ### 🚧 Blocked upstream
 
-| Technique | Source | Why parked |
-|---|---|---|
-| Hard sparse MoE routing | DeepSeek-V3 family | MLX-Swift no `scatter_add`; soft (dense) routing ships |
-| Real QLoRA | [Dettmers et al., 2023](https://arxiv.org/abs/2305.14314) | MLX-Swift quantized arrays don't autograd through; manual fake-quant shipped (pedagogical, no memory win) |
+| Technique               | Source                                                    | Why parked                                                                                                |
+| ----------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Hard sparse MoE routing | DeepSeek-V3 family                                        | MLX-Swift no `scatter_add`; soft (dense) routing ships                                                    |
+| Real QLoRA              | [Dettmers et al., 2023](https://arxiv.org/abs/2305.14314) | MLX-Swift quantized arrays don't autograd through; manual fake-quant shipped (pedagogical, no memory win) |
 
 ### ❌ Skipped — different family / not worth the seat
 
-| Technique | Source | Why skipped |
-|---|---|---|
+| Technique       | Source                                                  | Why skipped                                               |
+| --------------- | ------------------------------------------------------- | --------------------------------------------------------- |
 | Mamba / Mamba-2 | [Gu & Dao, 2023/2024](https://arxiv.org/abs/2312.00752) | Linear-time SSM, different family; better as side-project |
 
 ### ❌ Dropped — value-add filter (subsumed by what ships)
 
-| Technique | Source | Subsumed by |
-|---|---|---|
-| IPO | [Azar et al., 2023](https://arxiv.org/abs/2310.12036) | DPO with high β regularizes equivalently |
-| CPO | [Xu et al., 2024](https://arxiv.org/abs/2401.08417) | DPO + BC term marginal over SimPO at our scale |
-| Self-Instruct | [Wang et al., 2023](https://arxiv.org/abs/2212.10560) | Magpie (model's own distribution; no seed needed) |
-| Evol-Instruct | [Xu et al., 2024 (WizardLM)](https://arxiv.org/abs/2304.12244) | Magpie subsumes |
-| MiniPLM | [Gu et al., NeurIPS 2024](https://openreview.net/forum?id=tJHDw8XfeC) | Distill-for-pretraining — needs a teacher-student pair we don't have |
-| Distillation with Training Wheels | [Feb 2025](https://arxiv.org/abs/2502.17717) | `cloud-escalate` already provides the analogous "student asks teacher" deployment shape |
-| DEITA | [Liu et al., 2024](https://arxiv.org/abs/2312.15685) | Instruction-data quality framework — only matters once SFT corpus > 1M samples |
+| Technique                         | Source                                                                | Subsumed by                                                                             |
+| --------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| IPO                               | [Azar et al., 2023](https://arxiv.org/abs/2310.12036)                 | DPO with high β regularizes equivalently                                                |
+| CPO                               | [Xu et al., 2024](https://arxiv.org/abs/2401.08417)                   | DPO + BC term marginal over SimPO at our scale                                          |
+| Self-Instruct                     | [Wang et al., 2023](https://arxiv.org/abs/2212.10560)                 | Magpie (model's own distribution; no seed needed)                                       |
+| Evol-Instruct                     | [Xu et al., 2024 (WizardLM)](https://arxiv.org/abs/2304.12244)        | Magpie subsumes                                                                         |
+| MiniPLM                           | [Gu et al., NeurIPS 2024](https://openreview.net/forum?id=tJHDw8XfeC) | Distill-for-pretraining — needs a teacher-student pair we don't have                    |
+| Distillation with Training Wheels | [Feb 2025](https://arxiv.org/abs/2502.17717)                          | `cloud-escalate` already provides the analogous "student asks teacher" deployment shape |
+| DEITA                             | [Liu et al., 2024](https://arxiv.org/abs/2312.15685)                  | Instruction-data quality framework — only matters once SFT corpus > 1M samples          |
 
 ## 4.3 Planned — queued for a future training run
 
-| Item | Source | Where in §3 |
-|---|---|---|
-| GRPO / DAPO (RLVR pipeline) | [DeepSeek-R1, Jan 2025](https://arxiv.org/abs/2501.12948) · [DAPO, March 2025](https://arxiv.org/abs/2503.14476) | **Tier 5 §5.1** — Reasoning training on a 22M model. GRPO = mental model; DAPO = implementation. |
-| Reasoning-trace distillation | DeepSeek-R1-Distill series, OpenThoughts | Tier 5 §5.1 — SFT-on-traces is the first half of §5.1 before RLVR |
-| Snell test-time-compute scaling experiment | [Snell et al., 2024](https://arxiv.org/abs/2408.03314) | Tier 5 §5.2 — `bon` shipped; the scaling-curve experiment at 22M matches Snell methodology |
-| Vision-language toy | LLaVA family | Tier 5 §5.3 |
-| Diffusion LM micro | (multiple) | Tier 5 §5.4 |
-| Real sparse MoE kernels | DeepSeek-V3 style | Tier 5 §5.5 (also upstream-blocked on `scatter_add`) |
-| TTS toy | VALL-E / MusicGen family | Tier 5 §5.6 |
+| Item                                       | Source                                                                                                           | Where in §3                                                                                      |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| GRPO / DAPO (RLVR pipeline)                | [DeepSeek-R1, Jan 2025](https://arxiv.org/abs/2501.12948) · [DAPO, March 2025](https://arxiv.org/abs/2503.14476) | **Tier 5 §5.1** — Reasoning training on a 22M model. GRPO = mental model; DAPO = implementation. |
+| Reasoning-trace distillation               | DeepSeek-R1-Distill series, OpenThoughts                                                                         | Tier 5 §5.1 — SFT-on-traces is the first half of §5.1 before RLVR                                |
+| Snell test-time-compute scaling experiment | [Snell et al., 2024](https://arxiv.org/abs/2408.03314)                                                           | Tier 5 §5.2 — `bon` shipped; the scaling-curve experiment at 22M matches Snell methodology       |
+| Vision-language toy                        | LLaVA family                                                                                                     | Tier 5 §5.3                                                                                      |
+| Diffusion LM micro                         | (multiple)                                                                                                       | Tier 5 §5.4                                                                                      |
+| Real sparse MoE kernels                    | DeepSeek-V3 style                                                                                                | Tier 5 §5.5 (also upstream-blocked on `scatter_add`)                                             |
+| TTS toy                                    | VALL-E / MusicGen family                                                                                         | Tier 5 §5.6                                                                                      |
 
 **Small additions, no current owner — append when a slot opens:**
 
-| Item | Source | Effort |
-|---|---|---|
-| LISA optimizer | [Pan et al., 2024](https://arxiv.org/abs/2403.17919) | ~1 day; layerwise importance sampling, drop-in alongside Sophia/Muon |
-| MiniLLM KL variants | [Gu et al., ICLR 2024](https://arxiv.org/abs/2306.08543) | ~1-2 days; reverse-KL / skew-KL switches on top of existing `posttrainllm distill` |
-| Distilling Step-by-Step | [Hsieh et al., ACL 2023](https://arxiv.org/abs/2305.02301) | ~1-2 days; rationale-distillation recipe on top of `posttrainllm distill` |
-| DoReMi data-mixture optimization | [Xie et al., NeurIPS 2023](https://arxiv.org/abs/2305.10429) | Park until ≥3 distinct domains are mixed at non-trivial scale |
-| Quality classifier (FineWeb-Edu-style) | [Penedo et al., 2024 — FineWeb / FineWeb-Edu](https://arxiv.org/abs/2406.17557) | §3 B10 — ~2 days; tiny fastText scorer + top-X% filter |
-| WSD schedule (warmup-stable-decay) | [MiniCPM, Hu et al., 2024](https://arxiv.org/abs/2404.06395) · [SmolLM blog](https://huggingface.co/blog/smollm) | §3 B11 — ~half-day; decay phase doubles as annealing |
-| Interp-on-checkpoints methodology | [Pythia, Biderman et al., 2023](https://arxiv.org/abs/2304.01373) · [OLMo, Groeneveld et al., 2024](https://arxiv.org/abs/2402.00838) | §3 B13 — 1-2 days infra + ongoing analysis; replay SAE / MEMIT across the checkpoint timeline |
-| Speculative decoding | [Leviathan et al., ICML 2023](https://arxiv.org/abs/2211.17192) · [Chen et al., 2023](https://arxiv.org/abs/2302.01318) | §3 B14 — 2-3 days; Mini-Llama draft for Mega; numerics gate required |
-| Layer-wise LR decay (SFT) | [ULMFiT, Howard & Ruder, 2018](https://arxiv.org/abs/1801.06146) | §3 B15 — ~half-day flag add on existing optimizer |
-| M5 GPU Neural Accelerator prefill benchmark | [Apple ML Research, 2026](https://machinelearning.apple.com/research/exploring-llms-mlx-m5) | §3 B16 — ~half-day; verify the claimed 3.5× M5-vs-M4 prefill speedup is materializing on our path |
-| SAE Lens interop / Neuronpedia format export | [decoderesearch/SAELens](https://github.com/decoderesearch/SAELens) | §3 B17 — ~2 days for format-export option; compare-and-decide before building |
-| nanochat-style `--depth` single-knob HP derivation | [karpathy/nanochat](https://github.com/karpathy/nanochat) | §3 B18 — ~1 day; one knob auto-derives width / heads / LR / batch / steps; UX win |
-| Group-SAE (layer-group SAE training) | [Wang et al., 2024](https://arxiv.org/abs/2410.21508) | §3 B19 — 2-3 days; trains SAEs once per layer-group instead of per-layer; cuts SAE training cost |
-| Learnable cross-stream attention (modded-nanogpt speedrun trick) | [KellerJordan/modded-nanogpt](https://github.com/KellerJordan/modded-nanogpt) | §3 B20 — read-and-evaluate; speedrun-specific, not yet a paper |
-| ScaleDown extractive context compression SLM | [ScaleDown blog](https://tinyml.substack.com/p/how-we-train-small-language-models) · [Challenge leaderboard](https://main.d3hbeukddvrxcc.amplifyapp.com/leaderboard) · [scaledown.ai](https://scaledown.ai/) | §3 B25 — 3-5 days; token-level relevance head + sentence aggregation; submit to public leaderboard as a "specialist trained on a Mac" proof-point |
-| Micro-AutoMixer for specialist data mixes | [Poolside Laguna deep dive](https://poolside.ai/blog/laguna-a-deeper-dive) · RegMix/DoReMi-style mixture search | §3 B21 — small proxy-run version of Poolside's automixing; optimize specialist ratios before full training |
-| Token-preserving agent trajectory recorder | [Poolside Laguna deep dive](https://poolside.ai/blog/laguna-a-deeper-dive) | §3 B22 — preserve token IDs through rollout → training so agent traces cannot drift through retokenization |
-| Agent eval protocol hardening | [Poolside Laguna deep dive](https://poolside.ai/blog/laguna-a-deeper-dive) | §3 B23 — repeated pass@1, fixed step/resource/sampling budgets, and explicit infra-patch notes |
-| Muon large-scale re-benchmark | [Poolside Laguna deep dive](https://poolside.ai/blog/laguna-a-deeper-dive) · [Jordan, 2024](https://kellerjordan.github.io/posts/muon/) | §3 B24 — only revisit if large/proxy matmul-dominated runs amortize Newton-Schulz overhead |
+| Item                                                             | Source                                                                                                                                                                                                       | Effort                                                                                                                                            |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| LISA optimizer                                                   | [Pan et al., 2024](https://arxiv.org/abs/2403.17919)                                                                                                                                                         | ~1 day; layerwise importance sampling, drop-in alongside Sophia/Muon                                                                              |
+| MiniLLM KL variants                                              | [Gu et al., ICLR 2024](https://arxiv.org/abs/2306.08543)                                                                                                                                                     | ~1-2 days; reverse-KL / skew-KL switches on top of existing `posttrainllm distill`                                                                |
+| Distilling Step-by-Step                                          | [Hsieh et al., ACL 2023](https://arxiv.org/abs/2305.02301)                                                                                                                                                   | ~1-2 days; rationale-distillation recipe on top of `posttrainllm distill`                                                                         |
+| DoReMi data-mixture optimization                                 | [Xie et al., NeurIPS 2023](https://arxiv.org/abs/2305.10429)                                                                                                                                                 | Park until ≥3 distinct domains are mixed at non-trivial scale                                                                                     |
+| Quality classifier (FineWeb-Edu-style)                           | [Penedo et al., 2024 — FineWeb / FineWeb-Edu](https://arxiv.org/abs/2406.17557)                                                                                                                              | §3 B10 — ~2 days; tiny fastText scorer + top-X% filter                                                                                            |
+| WSD schedule (warmup-stable-decay)                               | [MiniCPM, Hu et al., 2024](https://arxiv.org/abs/2404.06395) · [SmolLM blog](https://huggingface.co/blog/smollm)                                                                                             | §3 B11 — ~half-day; decay phase doubles as annealing                                                                                              |
+| Interp-on-checkpoints methodology                                | [Pythia, Biderman et al., 2023](https://arxiv.org/abs/2304.01373) · [OLMo, Groeneveld et al., 2024](https://arxiv.org/abs/2402.00838)                                                                        | §3 B13 — 1-2 days infra + ongoing analysis; replay SAE / MEMIT across the checkpoint timeline                                                     |
+| Speculative decoding                                             | [Leviathan et al., ICML 2023](https://arxiv.org/abs/2211.17192) · [Chen et al., 2023](https://arxiv.org/abs/2302.01318)                                                                                      | §3 B14 — 2-3 days; Mini-Llama draft for Mega; numerics gate required                                                                              |
+| Layer-wise LR decay (SFT)                                        | [ULMFiT, Howard & Ruder, 2018](https://arxiv.org/abs/1801.06146)                                                                                                                                             | §3 B15 — ~half-day flag add on existing optimizer                                                                                                 |
+| M5 GPU Neural Accelerator prefill benchmark                      | [Apple ML Research, 2026](https://machinelearning.apple.com/research/exploring-llms-mlx-m5)                                                                                                                  | §3 B16 — ~half-day; verify the claimed 3.5× M5-vs-M4 prefill speedup is materializing on our path                                                 |
+| SAE Lens interop / Neuronpedia format export                     | [decoderesearch/SAELens](https://github.com/decoderesearch/SAELens)                                                                                                                                          | §3 B17 — ~2 days for format-export option; compare-and-decide before building                                                                     |
+| nanochat-style `--depth` single-knob HP derivation               | [karpathy/nanochat](https://github.com/karpathy/nanochat)                                                                                                                                                    | §3 B18 — ~1 day; one knob auto-derives width / heads / LR / batch / steps; UX win                                                                 |
+| Group-SAE (layer-group SAE training)                             | [Wang et al., 2024](https://arxiv.org/abs/2410.21508)                                                                                                                                                        | §3 B19 — 2-3 days; trains SAEs once per layer-group instead of per-layer; cuts SAE training cost                                                  |
+| Learnable cross-stream attention (modded-nanogpt speedrun trick) | [KellerJordan/modded-nanogpt](https://github.com/KellerJordan/modded-nanogpt)                                                                                                                                | §3 B20 — read-and-evaluate; speedrun-specific, not yet a paper                                                                                    |
+| ScaleDown extractive context compression SLM                     | [ScaleDown blog](https://tinyml.substack.com/p/how-we-train-small-language-models) · [Challenge leaderboard](https://main.d3hbeukddvrxcc.amplifyapp.com/leaderboard) · [scaledown.ai](https://scaledown.ai/) | §3 B25 — 3-5 days; token-level relevance head + sentence aggregation; submit to public leaderboard as a "specialist trained on a Mac" proof-point |
+| Micro-AutoMixer for specialist data mixes                        | [Poolside Laguna deep dive](https://poolside.ai/blog/laguna-a-deeper-dive) · RegMix/DoReMi-style mixture search                                                                                              | §3 B21 — small proxy-run version of Poolside's automixing; optimize specialist ratios before full training                                        |
+| Token-preserving agent trajectory recorder                       | [Poolside Laguna deep dive](https://poolside.ai/blog/laguna-a-deeper-dive)                                                                                                                                   | §3 B22 — preserve token IDs through rollout → training so agent traces cannot drift through retokenization                                        |
+| Agent eval protocol hardening                                    | [Poolside Laguna deep dive](https://poolside.ai/blog/laguna-a-deeper-dive)                                                                                                                                   | §3 B23 — repeated pass@1, fixed step/resource/sampling budgets, and explicit infra-patch notes                                                    |
+| Muon large-scale re-benchmark                                    | [Poolside Laguna deep dive](https://poolside.ai/blog/laguna-a-deeper-dive) · [Jordan, 2024](https://kellerjordan.github.io/posts/muon/)                                                                      | §3 B24 — only revisit if large/proxy matmul-dominated runs amortize Newton-Schulz overhead                                                        |
 
 ## 4.4 Reference reads (no verdict — context only)
 
@@ -972,11 +973,13 @@ For mental-model framing, not techniques to implement:
 **2026 small-model peers** (for positioning, not adoption): SmolLM3-3B · Qwen3.5-0.8B · Phi-4-mini-instruct · Gemma-3n-E2B-IT · [Gemma-4-12B Unified](https://huggingface.co/unsloth/gemma-4-12b-it-GGUF) (encoder-free multimodal, 256K ctx, MLX variants exist). Implication: the niche is "browser-trainable + every byte of training code is here," not "perf-competitive with Phi-4."
 
 **Direct from-scratch peers (full pipeline, not just pretrain):**
+
 - [karpathy/nanochat](https://github.com/karpathy/nanochat) — tokenizer → pretrain → SFT → RL → CLI/web chat in one repo. $48/2h on 8×H100. Apple Silicon mode exists via `runs/runcpu.sh` (degraded scale). **No interpretability story.** Single `--depth` knob auto-derives all HPs. Closest head-on competitor; differentiation = Mac-first + interp lab.
 - [KellerJordan/modded-nanogpt](https://github.com/KellerJordan/modded-nanogpt) — speedrun fork; April 2026 record 1.35 min to GPT-2 quality on 8×H100. Playbook: Muon (we have) · FA3 · FP8 head (HW-blocked) · learnable cross-stream attention · MTP (queued).
 - [Poolside Laguna XS.2 / M.1 deep dive](https://poolside.ai/blog/laguna-a-deeper-dive) — agentic coding models with open XS.2 weights, strong SWE/Terminal benchmark protocol, quality+diversity data curation, synthetic data throughout pretraining, automixed data ratios, Muon at scale, and async agent RL. **Steal the workflow discipline, not the scale:** data-mix proxy sweeps, token-preserved agent traces, repeated eval protocol, and Muon only after large-scale re-benchmark.
 
 **Tools worth knowing**:
+
 - [Unsloth](https://github.com/unslothai/unsloth) — Triton-kernel fine-tune framework; not Mac/MLX but study for technique transfer. **Feb 2026**: 12× faster MoE training + embedding model support + ultra-long-context RL.
 - [Axolotl](https://github.com/axolotl-ai-cloud/axolotl) — config-driven multi-GPU production fine-tuner; multimodal support landed 2026
 - [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) — web-UI fine-tuner (LlamaBoard); zero-config entry point
@@ -984,11 +987,13 @@ For mental-model framing, not techniques to implement:
 - [Argilla Distilabel](https://github.com/argilla-io/distilabel) — Python pipeline for synthetic SFT/DPO (wraps Magpie/DEITA)
 
 **Apple Silicon ecosystem (direct peers on our platform):**
+
 - [mlx-lm](https://github.com/ml-explore/mlx-lm) — Apple's official MLX inference + LoRA / DoRA / QLoRA / full fine-tune + OpenAI-compatible server. Direct overlap with our SFT/DPO LoRA path; differentiation = pretrain + interp + GGUF/CoreML export.
 - [Ollama + MLX backend (v0.19, March 2026)](https://markaicode.com/run-fine-tune-llms-mac-mlx-lm/) — prefill 1154→1810 tok/s, decode 58→112 tok/s on Apple Silicon. Direct competition for our GGUF runner.
 - [exo-explore/exo](https://github.com/exo-explore/exo) — multi-Mac P2P distributed inference. JACCL collectives over RDMA-on-Thunderbolt-5 on macOS 26.2 → 1.8×/3.2× speedup on 2/4 devices. Out of single-machine scope, but the infra is new.
 
 **Interpretability ecosystem (overlap with our interp lab):**
+
 - [SAELens](https://github.com/decoderesearch/SAELens) — established SAE training/analysis library; integrates with TransformerLens + HF + nnsight + [Neuronpedia](https://www.neuronpedia.org/). Our SAE may be reinventing; B18 task = compare + decide on interop format.
 - [TransformerLens](https://github.com/TransformerLensOrg/TransformerLens) · [nnsight (NDIF)](https://nnsight.net/) — PyTorch interp infra; complementary to SAELens. We have native Swift/MLX equivalents.
 
@@ -1003,12 +1008,13 @@ The catalogue was hand-curated up to assistant knowledge cutoff
 **2026-06-04 web sweep folded in** — five surfaces were checked
 (Apple Silicon training, nanoGPT successors, Mac inference runtimes,
 interpretability libraries, fine-tune frameworks). Results: nanochat
-+ modded-nanogpt added as direct from-scratch peers; mlx-lm +
-Ollama-MLX + EXO added as Apple Silicon ecosystem peers; SAELens
-added as interp peer; B16-B20 queued in §3 from surfaced gaps;
-Unsloth Feb-2026 release notes folded into tools row. Coverage of
-Feb-Jun 2026 papers is now meaningfully better but still not
-exhaustive.
+
+- modded-nanogpt added as direct from-scratch peers; mlx-lm +
+  Ollama-MLX + EXO added as Apple Silicon ecosystem peers; SAELens
+  added as interp peer; B16-B20 queued in §3 from surfaced gaps;
+  Unsloth Feb-2026 release notes folded into tools row. Coverage of
+  Feb-Jun 2026 papers is now meaningfully better but still not
+  exhaustive.
 
 Future papers append row-by-row into §4.1 / §4.2 / §4.3.
 
@@ -1018,25 +1024,25 @@ Future papers append row-by-row into §4.1 / §4.2 / §4.3.
 
 This doc replaces the multi-file roadmap split. The source docs are kept for context but should be treated as historical; **edit this file**, not them.
 
-| Old doc | What it covered | Status |
-|---|---|---|
-| `docs/roadmap/index.md` | TOC for the multi-file split | Superseded — point at this file |
-| `docs/roadmap/tier1.md` / `tier2.md` / `tier3.md` | ROI-tiered technique inventory | Absorbed; markers refreshed |
-| `docs/roadmap/tier4_skip.md` | Intentionally-not-built items | Absorbed into §2 |
-| `docs/roadmap/tier5_frontier_2026.md` | 2026 research frontier | Absorbed into §3 Tier 5 |
-| `docs/roadmap/categories.md` | Orthogonal technique taxonomy (had stale markers) | Absorbed; refreshed against code |
-| `docs/roadmap/blockers.md` | What we can't build + Phase 9/10 status appendix | Absorbed into §2 + §1 |
-| `docs/roadmap/phased_plan.md` | 7-week sequential plan | Mostly shipped; remainder in §3 |
-| `docs/roadmap/recommended_order.md` | Top-10 next | Superseded by Tier A/B ordering in §3 |
-| `docs/roadmap/honest_summary.md` | "CAN / CAN'T / SHOULDN'T" framing | Absorbed |
-| `docs/progress.md` | Mac+Web shipped dashboard | Absorbed into §1 |
-| `docs/backlog.md` | ROI-ordered "what's left" (Tier A/B/C/D) | Absorbed into §3 |
-| `docs/feature_audit_2026_05_31.md` | CLI smoke audit | Cross-referenced; was the verification baseline |
-| `docs/roadmap/recent_research.md` | Paper catalogue (2024-2026) | Absorbed into §4; archived at `docs/archive/recent_research.md` |
+| Old doc                                           | What it covered                                   | Status                                                          |
+| ------------------------------------------------- | ------------------------------------------------- | --------------------------------------------------------------- |
+| `docs/roadmap/index.md`                           | TOC for the multi-file split                      | Superseded — point at this file                                 |
+| `docs/roadmap/tier1.md` / `tier2.md` / `tier3.md` | ROI-tiered technique inventory                    | Absorbed; markers refreshed                                     |
+| `docs/roadmap/tier4_skip.md`                      | Intentionally-not-built items                     | Absorbed into §2                                                |
+| `docs/roadmap/tier5_frontier_2026.md`             | 2026 research frontier                            | Absorbed into §3 Tier 5                                         |
+| `docs/roadmap/categories.md`                      | Orthogonal technique taxonomy (had stale markers) | Absorbed; refreshed against code                                |
+| `docs/roadmap/blockers.md`                        | What we can't build + Phase 9/10 status appendix  | Absorbed into §2 + §1                                           |
+| `docs/roadmap/phased_plan.md`                     | 7-week sequential plan                            | Mostly shipped; remainder in §3                                 |
+| `docs/roadmap/recommended_order.md`               | Top-10 next                                       | Superseded by Tier A/B ordering in §3                           |
+| `docs/roadmap/honest_summary.md`                  | "CAN / CAN'T / SHOULDN'T" framing                 | Absorbed                                                        |
+| `docs/progress.md`                                | Mac+Web shipped dashboard                         | Absorbed into §1                                                |
+| `docs/backlog.md`                                 | ROI-ordered "what's left" (Tier A/B/C/D)          | Absorbed into §3                                                |
+| `docs/feature_audit_2026_05_31.md`                | CLI smoke audit                                   | Cross-referenced; was the verification baseline                 |
+| `docs/roadmap/recent_research.md`                 | Paper catalogue (2024-2026)                       | Absorbed into §4; archived at `docs/archive/recent_research.md` |
 
 **Still canonical (deep dives, not absorbed)**: `docs/roadmap/datasets.md`,
 `docs/roadmap/north_star_refined.md`, and the per-technique docs
 (`distillation.md`, `interpretability.md`,
 `moe.md`, `mtp.md`, `lora_guide.md`, `precision.md`, `memory_tradeoffs.md`,
 `perf_quest.md`, `decision_log.md`). Those don't duplicate planning — they
-explain *how* shipped pieces work.
+explain _how_ shipped pieces work.

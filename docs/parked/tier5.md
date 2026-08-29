@@ -1,5 +1,7 @@
 # Parked: Tier 5 Research
 
+## Current boundary
+
 Tier 5 research is paused:
 
 - reasoning on 22M
