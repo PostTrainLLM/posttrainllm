@@ -1,7 +1,7 @@
 # Learning roadmap
 
 > Archived curriculum scaffold. The active study queue is
-> [`docs/learning/new-things.md`](../learning/new-things.md).
+> [`docs/learn/new-things.md`](../learn/new-things.md).
 
 The path to learning the whole stack without drowning in complexity. This is the
 curriculum; `model_guide.md`, `lora_guide.md`, and `browser_notes.md` are the
@@ -82,7 +82,7 @@ External sources:
 - [LoRA — Hu et al. 2021](https://arxiv.org/abs/2106.09685) (the original)
 - [QLoRA — Dettmers et al. 2023](https://arxiv.org/abs/2305.14314) (int4 base + fp16 LoRA)
 - [DoRA — Liu et al. 2024](https://arxiv.org/abs/2402.09353) (magnitude + direction decomposition)
-- Implemented at: `python_ref/lora.py`; mechanics + maths in [`lora_guide.md`](../lora_guide.md).
+- Implemented at: `python_ref/lora.py`; mechanics + maths in [`lora_guide.md`](../techniques/lora_guide.md).
 Concepts: `ml-lora`
 
 ### Phase 6 — Data engineering for style adaptation
@@ -117,7 +117,7 @@ External sources:
 - [WebGPU spec (W3C)](https://www.w3.org/TR/webgpu/)
 - [WGSL spec](https://www.w3.org/TR/WGSL/)
 - [FlashAttention — Dao et al. 2022](https://arxiv.org/abs/2205.14135) and [FlashAttention-2 — Dao 2023](https://arxiv.org/abs/2307.08691) (the online-softmax + recomputation trick we use in WGSL)
-- Implemented at: `webgpu/matmul_blocked.wgsl`, `webgpu/attention_fa2.wgsl`; perf walk-through in [`perf_quest.md`](../perf_quest.md).
+- Implemented at: `webgpu/matmul_blocked.wgsl`, `webgpu/attention_fa2.wgsl`; perf walk-through in [`perf_quest.md`](../performance/perf_quest.md).
 Concepts: `ml-webgpu`
 
 ### Phase 9 — Evaluation & safety
@@ -125,7 +125,7 @@ Goal: know what the model is actually doing.
 Learn: validation loss, held-out prompts, qualitative evaluation, memorization
 testing, style similarity, hallucination, copying risk, data leakage.
 Do: a suite producing base / prompt-only / LoRA / LoRA+retrieval outputs.
-See [`validation_report.md`](../validation_report.md) (evaluation-and-safety appendix).
+See [`validation_report.md`](../audits/validation_report.md) (evaluation-and-safety appendix).
 Concepts: `ml-evaluation`
 
 ---
@@ -135,15 +135,15 @@ Concepts: `ml-evaluation`
 The roadmap works if you can answer these from first principles. Each links to where the
 answer lives; if a link doesn't make it click, that doc is the gap to fix.
 
-1. **Why does attention need the max-subtraction in softmax for numerical stability?** (and why is *online* softmax a structural, not numerical, win?) → [`online_softmax_in_attention.md`](../online_softmax_in_attention.md)
-2. **How does the backward pass for attention work?** (recompute `P` from the saved `L = m + log l`) → [`fa2_backward_notes.md`](../fa2_backward_notes.md), [`study_guide.md`](../study_guide.md) §7
-3. **Why does register blocking improve matmul until it hurts occupancy?** (4×4 vs 8×8 register spill) → [`study_guide.md`](../study_guide.md) §8
-4. **What caused the Memory64 ABI issue?** (`memory.grow` detaches SAB views mid-kernel; host plumbing differs) → [`study_guide.md`](../study_guide.md) §4
-5. **Why does parity testing matter more than standalone kernel benchmarks?** → [`study_guide.md`](../study_guide.md) §9
+1. **Why does attention need the max-subtraction in softmax for numerical stability?** (and why is *online* softmax a structural, not numerical, win?) → [`online_softmax_in_attention.md`](../performance/online_softmax_in_attention.md)
+2. **How does the backward pass for attention work?** (recompute `P` from the saved `L = m + log l`) → [`fa2_backward_notes.md`](../performance/fa2_backward_notes.md), [`study_guide.md`](../guides/study_guide.md) §7
+3. **Why does register blocking improve matmul until it hurts occupancy?** (4×4 vs 8×8 register spill) → [`study_guide.md`](../guides/study_guide.md) §8
+4. **What caused the Memory64 ABI issue?** (`memory.grow` detaches SAB views mid-kernel; host plumbing differs) → [`study_guide.md`](../guides/study_guide.md) §4
+5. **Why does parity testing matter more than standalone kernel benchmarks?** → [`study_guide.md`](../guides/study_guide.md) §9
 6. **What does 2.5% loss drift actually mean?** → [`learn/essential-vs-optimization.md`](../learn/essential-vs-optimization.md) (loss-drift section)
 7. **Which parts are mathematically essential vs engineering optimization?** → [`learn/essential-vs-optimization.md`](../learn/essential-vs-optimization.md)
 8. **Could you reimplement the core transformer training loop without AI?** → [`python_ref/model.py`](../../python_ref/model.py) + Phases 1–4 / sessions 1–8
-9. **Could you debug a wrong-gradient bug from first principles?** → [`study_guide.md`](../study_guide.md) §9 (worked example), §2
+9. **Could you debug a wrong-gradient bug from first principles?** → [`study_guide.md`](../guides/study_guide.md) §9 (worked example), §2
 10. **Could you explain the WebGPU execution model clearly to another engineer?** → [`learn/webgpu-execution-model.md`](../learn/webgpu-execution-model.md)
 
 ---

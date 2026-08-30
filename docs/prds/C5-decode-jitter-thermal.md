@@ -13,7 +13,7 @@ title: "C5 decode jitter under thermal load"
 
 ## Goal
 
-Add `scripts/bench_decode_thermal.py` that runs the existing decode
+Add `scripts/bench/bench_decode_thermal.py` that runs the existing decode
 bench in a sustained loop for N minutes (default 30), captures
 per-window p99 tok/s + die temperature + power draw via
 `powermetrics`, and reports the steady-state vs cold-start delta.
@@ -36,7 +36,7 @@ baseline can't answer because it warms up too briefly.
 
 ## Scope — in
 
-- `scripts/bench_decode_thermal.py` — wraps `bench_decode.py` in a
+- `scripts/bench/bench_decode_thermal.py` — wraps `bench_decode.py` in a
   per-minute loop:
   - Run a 60-second window of decode (5–10 requests).
   - Read `powermetrics --samplers thermal --interval 1000` for the
@@ -65,19 +65,19 @@ baseline can't answer because it warms up too briefly.
 
 | File | Change |
 |---|---|
-| `scripts/bench_decode_thermal.py` | new — the wrapper |
+| `scripts/bench/bench_decode_thermal.py` | new — the wrapper |
 | `docs/research/mac_decode_baseline_m5pro.md` | "Run 6 — sustained 30 min thermal" section + curve |
 | `docs/agent_runtime.md` | one-paragraph thermal note pointing at the curve |
 | `docs/research/data/decode-thermal-<model>.jsonl` | per-run artifact |
 
 ## Don't touch
 
-- `scripts/bench_decode.py` — the new script consumes it as a child
+- `scripts/bench/bench_decode.py` — the new script consumes it as a child
   process, no API changes.
 
 ## Acceptance criteria
 
-- [ ] `scripts/bench_decode_thermal.py --model google/gemma-3-12b
+- [ ] `scripts/bench/bench_decode_thermal.py --model google/gemma-3-12b
   --minutes 30 --rss-pid <pid>` runs 30 windows and produces a
   per-minute JSONL.
 - [ ] The summary JSON contains:
@@ -94,9 +94,9 @@ baseline can't answer because it warms up too briefly.
 
 ## Reference patterns
 
-- `scripts/bench_decode.py` — the inner harness (just shipped). The
+- `scripts/bench/bench_decode.py` — the inner harness (just shipped). The
   wrapper invokes it via `subprocess.run`.
-- `scripts/duty-cycle-throttle.sh` — existing throttling logic for
+- `scripts/bench/duty-cycle-throttle.sh` — existing throttling logic for
   training; the powermetrics invocation pattern is here.
 - `app-train-controls-thermal.md` — companion PRD on the training
   side.

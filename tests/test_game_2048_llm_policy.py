@@ -9,7 +9,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
+# scripts/ is grouped into topic subdirs; each is a flat import surface.
+for _d in [
+    ROOT / "scripts",
+    *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir()),
+]:
+    sys.path.insert(0, str(_d))
 
 import game_2048_cloud_pilot as cloud  # noqa: E402
 import game_2048_llm_policy as policy  # noqa: E402
@@ -17,7 +22,9 @@ import game_2048_llm_policy as policy  # noqa: E402
 CLOUD_CONFIG = ROOT / "configs/game-2048/cloud-opponents-development-v1.json"
 CLOUD_SMOKE_REPORT = ROOT / "evals/game-2048/cloud-adapter-smoke-v1.json"
 FRONTIER_SCREENING_ATTEMPT = ROOT / "evals/game-2048/frontier-screening-attempt-v1.json"
-FRONTIER_SCREENING_ATTEMPT_V2 = ROOT / "evals/game-2048/frontier-screening-attempt-v2.json"
+FRONTIER_SCREENING_ATTEMPT_V2 = (
+    ROOT / "evals/game-2048/frontier-screening-attempt-v2.json"
+)
 FRONTIER_SCREENING_SONNET = ROOT / "evals/game-2048/frontier-screening-sonnet-v1.json"
 
 
@@ -39,9 +46,19 @@ def test_shared_prompt_and_legal_schema_are_character_only():
 def test_cloud_config_is_development_only_and_fail_closed():
     config = cloud.load_config(CLOUD_CONFIG)
     assert config["status"] == "development-aliases-not-frozen"
-    assert {entry["backend"] for entry in config["opponents"]} == {"codex-cli", "claude-cli"}
-    assert {entry["identity_state"] for entry in config["opponents"]} == {"mutable-alias", "immutable"}
-    assert {entry["requested_model"] for entry in config["opponents"] if entry["identity_state"] == "immutable"} == {
+    assert {entry["backend"] for entry in config["opponents"]} == {
+        "codex-cli",
+        "claude-cli",
+    }
+    assert {entry["identity_state"] for entry in config["opponents"]} == {
+        "mutable-alias",
+        "immutable",
+    }
+    assert {
+        entry["requested_model"]
+        for entry in config["opponents"]
+        if entry["identity_state"] == "immutable"
+    } == {
         "claude-sonnet-5",
         "claude-opus-4-8",
     }
@@ -67,8 +84,17 @@ def test_cloud_smoke_report_cannot_be_mistaken_for_benchmark_evidence():
     assert report["moves_per_run"] == 1
     assert len(report["entries"]) == 3
     assert all(entry["strict"]["valid"] for entry in report["entries"])
-    assert all(entry["legal_constrained_diagnostic"]["valid"] for entry in report["entries"])
-    assert next(entry for entry in report["entries"] if entry["requested_model"] == "gpt-5.5")["resolved_model"] is None
+    assert all(
+        entry["legal_constrained_diagnostic"]["valid"] for entry in report["entries"]
+    )
+    assert (
+        next(
+            entry
+            for entry in report["entries"]
+            if entry["requested_model"] == "gpt-5.5"
+        )["resolved_model"]
+        is None
+    )
 
 
 def test_failed_frontier_screen_has_no_score_or_random_comparison():
@@ -92,7 +118,10 @@ def test_valid_sonnet_screen_fails_the_intelligence_gradient():
     assert report["provider_failures"] == 0
     assert report["invalid_decisions"] == 0
     assert report["model_mean_score"] < report["random_legal_mean_score"]
-    assert report["paired_win_rate"] < report["admission_thresholds"]["paired_win_rate_minimum"]
+    assert (
+        report["paired_win_rate"]
+        < report["admission_thresholds"]["paired_win_rate_minimum"]
+    )
     assert report["paired_bootstrap_95_ci"]["lower"] < 0
     assert report["decision"] == "fail-development-intelligence-gradient"
 
@@ -111,18 +140,31 @@ def test_claude_envelope_preserves_identity_cost_and_action():
         constrained=True,
     )
     assert policy.parse_constrained_output(raw) == "down"
-    assert metadata == {"resolved_models": ["claude-versioned-id"], "cost_usd": 0.004, "turns": 1}
+    assert metadata == {
+        "resolved_models": ["claude-versioned-id"],
+        "cost_usd": 0.004,
+        "turns": 1,
+    }
 
 
 def test_codex_event_parser_rejects_tool_use():
-    safe = '\n'.join(
+    safe = "\n".join(
         [
             json.dumps({"type": "thread.started", "thread_id": "test"}),
-            json.dumps({"type": "item.completed", "item": {"type": "agent_message", "text": "L"}}),
+            json.dumps(
+                {
+                    "type": "item.completed",
+                    "item": {"type": "agent_message", "text": "L"},
+                }
+            ),
         ]
     )
     assert cloud.parse_codex_events(safe)["event_count"] == 2
-    unsafe = safe + "\n" + json.dumps({"type": "item.started", "item": {"type": "command_execution"}})
+    unsafe = (
+        safe
+        + "\n"
+        + json.dumps({"type": "item.started", "item": {"type": "command_execution"}})
+    )
     try:
         cloud.parse_codex_events(unsafe)
     except ValueError as exc:
@@ -132,7 +174,11 @@ def test_codex_event_parser_rejects_tool_use():
 
 
 def main() -> int:
-    tests = [value for name, value in sorted(globals().items()) if name.startswith("test_") and callable(value)]
+    tests = [
+        value
+        for name, value in sorted(globals().items())
+        if name.startswith("test_") and callable(value)
+    ]
     for test in tests:
         test()
         print(f"  ok: {test.__name__}")

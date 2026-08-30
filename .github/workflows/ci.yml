@@ -44,19 +44,19 @@ jobs:
         uses: actions/checkout@v7.0.0
 
       - name: Setup pnpm
+        # Version comes from the root package.json "packageManager" field.
+        # Passing `version:` as well makes the action fail with "Multiple
+        # versions of pnpm specified".
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node
         uses: actions/setup-node@v6.4.0
         with:
           node-version: "22"
           cache: "pnpm"
-          cache-dependency-path: browser/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: browser
         run: pnpm install --frozen-lockfile
 
       - name: Type-check (tsc --noEmit)
@@ -133,7 +133,7 @@ jobs:
         # the measured 2026-08-12 baseline.
         run: |
           xcrun xccov view --report --json /tmp/test-result.xcresult > /tmp/coverage.json
-          python3 ../scripts/check-swift-coverage.py /tmp/coverage.json
+          python3 ../scripts/quality/check-swift-coverage.py /tmp/coverage.json
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v7.0.1
@@ -196,9 +196,10 @@ jobs:
         uses: actions/checkout@v7.0.0
 
       - name: Setup pnpm
+        # Version comes from the root package.json "packageManager" field.
+        # Passing `version:` as well makes the action fail with "Multiple
+        # versions of pnpm specified".
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node
         uses: actions/setup-node@v6.4.0
@@ -207,10 +208,9 @@ jobs:
           # stripping (the scripts are fully erasable TS). No tsx/ts-node dep.
           node-version: "22"
           cache: "pnpm"
-          cache-dependency-path: browser/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: browser
         run: pnpm install --frozen-lockfile
 
       - name: Check gallery artifacts match a fresh regenerate
@@ -327,18 +327,17 @@ jobs:
           fetch-depth: 0
 
       - name: Setup pnpm
+        # Version comes from the root package.json "packageManager" field.
+        # Passing `version:` as well makes the action fail with "Multiple
+        # versions of pnpm specified".
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node
         uses: actions/setup-node@v6.4.0
         with:
           node-version: "22"
           cache: "pnpm"
-          cache-dependency-path: |
-            pnpm-lock.yaml
-            browser/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Setup Python
         uses: actions/setup-python@v6.3.0
@@ -348,7 +347,6 @@ jobs:
       - name: Install static-analysis tooling
         run: |
           pnpm install --frozen-lockfile
-          pnpm --dir browser install --frozen-lockfile
           pip install lizard==1.23.0 pycycle==0.0.8 ruff==0.16.2 vulture==2.16
 
       - name: Check changed formatting

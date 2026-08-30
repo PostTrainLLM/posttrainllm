@@ -6,7 +6,7 @@ metric, an honest size curve, and a distillation result that closes most of the 
 frontier capability at a fraction of the cost*, measured on a ruler we trust.
 
 Recorded 2026-06-14. Companion principle: the **frontier-ceiling gate** in
-`AGENTS.md` ("Eval philosophy"). Distillation mechanics: [distillation.md](../distillation.md).
+`AGENTS.md` ("Eval philosophy"). Distillation mechanics: [distillation.md](../techniques/distillation.md).
 
 ## 1. The eval was broken before the models were
 
@@ -72,7 +72,7 @@ But SFT-distillation **plateaus short of frontier-parity**, and it **trades**:
 - It *regressed* single-call (92→80) — the same trade hermes showed. Fine-tuning on a
   tool-call corpus dilutes the base's already-strong single-call.
 
-This matches the validated thesis (see [distillation.md](../distillation.md)):
+This matches the validated thesis (see [distillation.md](../techniques/distillation.md)):
 **distillation can match but not exceed its data/teacher ceiling.** Remaining *distillation*
 levers we have NOT exhausted: (a) fix the data mix to recover single-call; (b) distill
 from our **local 30B** (already frontier-level on multi-call) instead of a generic
@@ -164,7 +164,7 @@ something more training of *this* base fixes.
 
 Single-turn (88.7) said nothing about *holding a conversation*. Built a stateful
 multi-turn harness reusing BFCL's machinery (`execute_multi_turn_func_call` +
-`multi_turn_checker` + the `involved_classes` backends); `scripts/bfcl_multiturn_eval.py`.
+`multi_turn_checker` + the `involved_classes` backends); `scripts/bfcl/bfcl_multiturn_eval.py`.
 
 **The build lesson:** the *inference side* is the eval. A hand-rolled text-transcript
 prompt under-elicited badly — the 30B-A3B scored **0/8 despite acing single-turn (96/96)**.
@@ -318,7 +318,7 @@ never trained on), not depth. (DeepSeek's 83% < gpt-5.5's 100% just means DeepSe
 less reliable frontier on fiddly 16-call navigation; the gate is sound — true frontier aces it.)
 
 **Free frontier backend (cost fix):** validation + teacher trajectories now run on the **Codex
-CLI (`gpt-5.5`), free under subscription** — `scripts/bfcl_multiturn_codex.py` drives it
+CLI (`gpt-5.5`), free under subscription** — `scripts/bfcl/bfcl_multiturn_codex.py` drives it
 single-shot per step via `codex exec --output-schema` (forced JSON tool-calls), reusing the same
 BFCL executor + checker. Gotcha: OpenAI strict structured-output requires `additionalProperties:
 false` on every object and forbids free-form objects, so `arguments` is passed as a JSON *string*
@@ -388,7 +388,7 @@ gold-distilled models win only on their narrow domain (file-ops 100%). Either *r
 specialist on its domain, or train breadth with *real interleaved* trajectories — not gold-clones.
 
 ## See also
-- [distillation.md](../distillation.md) — the distillation workflow + match-vs-from-scratch protocol.
+- [distillation.md](../techniques/distillation.md) — the distillation workflow + match-vs-from-scratch protocol.
 - [eval-methodology-2026-06-08.md](./eval-methodology-2026-06-08.md) — broader eval protocol.
-- [performance.md](../performance.md) — the WASM register/cache-blocked matmul finding (microbench vs real-workload).
+- [performance.md](../performance/performance.md) — the WASM register/cache-blocked matmul finding (microbench vs real-workload).
 - `AGENTS.md` → "Eval philosophy" — the frontier-ceiling gate + reach-frontier-at-lower-cost goal.

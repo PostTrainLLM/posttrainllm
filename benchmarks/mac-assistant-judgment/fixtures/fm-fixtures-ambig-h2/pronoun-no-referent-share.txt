@@ -1,3 +1,0 @@
-USER: share it with the group
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: target

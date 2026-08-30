@@ -10,7 +10,7 @@
  * The loop runs in small chunks and yields between them so pause / stop are
  * handled promptly. Single-threaded by design.
  *
- * Guide: docs/browser_notes.md, docs/performance.md
+ * Guide: docs/browser_notes.md, docs/performance/performance.md
  */
 
 import { GpuModel } from "../../webgpu/gpu_model";
@@ -63,10 +63,17 @@ function mix32(x: number): number {
   return x >>> 0;
 }
 
-function batchStart(seed: number, step: number, batchIndex: number, maxStart: number): number {
+function batchStart(
+  seed: number,
+  step: number,
+  batchIndex: number,
+  maxStart: number,
+): number {
   const span = maxStart + 1;
   const mixed = mix32(
-    seed ^ Math.imul(step + 1, 0x9e3779b9) ^ Math.imul(batchIndex + 1, 0x85ebca6b),
+    seed ^
+      Math.imul(step + 1, 0x9e3779b9) ^
+      Math.imul(batchIndex + 1, 0x85ebca6b),
   );
   return mixed % span;
 }
@@ -74,17 +81,39 @@ function batchStart(seed: number, step: number, batchIndex: number, maxStart: nu
 ctx.onmessage = (e: MessageEvent<ToWorker>) => {
   const msg = e.data;
   switch (msg.type) {
-    case "train": void runTraining(msg.text, msg.config); break;
-    case "continue": void runContinue(msg.extraSteps); break;
-    case "pause": paused = true; break;
-    case "resume": paused = false; break;
-    case "stop": stopped = true; break;
-    case "sample": void doSample(msg.prompt, msg.tokens, msg.temperature); break;
-    case "restore": void doRestore(msg.state, msg.config); break;
-    case "inspect": void doInspect(msg.prompt, msg.topK); break;
-    case "offload": offloadModel(); break;
-    case "benchmark": void doBenchmark(msg.id); break;
-    case "lens": void doLens(msg.prompt, msg.topK); break;
+    case "train":
+      void runTraining(msg.text, msg.config);
+      break;
+    case "continue":
+      void runContinue(msg.extraSteps);
+      break;
+    case "pause":
+      paused = true;
+      break;
+    case "resume":
+      paused = false;
+      break;
+    case "stop":
+      stopped = true;
+      break;
+    case "sample":
+      void doSample(msg.prompt, msg.tokens, msg.temperature);
+      break;
+    case "restore":
+      void doRestore(msg.state, msg.config);
+      break;
+    case "inspect":
+      void doInspect(msg.prompt, msg.topK);
+      break;
+    case "offload":
+      offloadModel();
+      break;
+    case "benchmark":
+      void doBenchmark(msg.id);
+      break;
+    case "lens":
+      void doLens(msg.prompt, msg.topK);
+      break;
     case "ablate":
       void doAblate(msg.prompt, msg.tokens, msg.temperature, msg.ablations);
       break;
@@ -137,7 +166,10 @@ async function runTraining(text: string, cfg: RunConfig): Promise<void> {
       await runWasm(text, cfg);
     }
   } catch (err) {
-    post({ type: "error", message: err instanceof Error ? err.message : String(err) });
+    post({
+      type: "error",
+      message: err instanceof Error ? err.message : String(err),
+    });
   } finally {
     training = false;
   }
@@ -150,30 +182,45 @@ async function runWasm(text: string, cfg: RunConfig): Promise<void> {
     post({ type: "status", message: "loading WASM backend…" });
     backend = await TinyGptBackend.load();
   }
-  if (model) { model.free(); model = null; }
+  if (model) {
+    model.free();
+    model = null;
+  }
 
   const tokens = encode(text);
   if (tokens.length < cfg.ctx + 1) {
-    post({ type: "error", message: `corpus is ${tokens.length} bytes — need at least ${cfg.ctx + 1}` });
+    post({
+      type: "error",
+      message: `corpus is ${tokens.length} bytes — need at least ${cfg.ctx + 1}`,
+    });
     return;
   }
   model = backend.createModel({
-    ctx: cfg.ctx, layers: cfg.layers, heads: cfg.heads,
-    dModel: cfg.dModel, dMlp: cfg.dMlp, seed: cfg.seed,
+    ctx: cfg.ctx,
+    layers: cfg.layers,
+    heads: cfg.heads,
+    dModel: cfg.dModel,
+    dMlp: cfg.dMlp,
+    seed: cfg.seed,
   });
   model.setData(tokens, 0.9);
   post({
     type: "status",
     message: `${tokens.length.toLocaleString()} tokens · ${model
-      .numParams().toLocaleString()} params · training on WASM`,
+      .numParams()
+      .toLocaleString()} params · training on WASM`,
   });
 
   const evalFor = (split: 0 | 1) => model!.evalLoss(split, cfg.batchSize, 5);
   post({
     type: "progress",
     progress: {
-      step: 0, maxSteps: cfg.maxSteps, trainLoss: evalFor(0),
-      valLoss: evalFor(1), tokensPerSecond: 0, backend: "wasm",
+      step: 0,
+      maxSteps: cfg.maxSteps,
+      trainLoss: evalFor(0),
+      valLoss: evalFor(1),
+      tokensPerSecond: 0,
+      backend: "wasm",
     },
   });
 
@@ -183,10 +230,17 @@ async function runWasm(text: string, cfg: RunConfig): Promise<void> {
   const chunk = 8;
   let step = 0;
   while (step < cfg.maxSteps && !stopped) {
-    if (paused) { await sleep(60); continue; }
+    if (paused) {
+      await sleep(60);
+      continue;
+    }
     let trainLoss = 0;
     for (let i = 0; i < chunk && step < cfg.maxSteps; i++) {
-      trainLoss = model.trainStep(cfg.batchSize, cfg.learningRate, cfg.gradClip);
+      trainLoss = model.trainStep(
+        cfg.batchSize,
+        cfg.learningRate,
+        cfg.gradClip,
+      );
       tokensProcessed += cfg.batchSize * cfg.ctx;
       step++;
     }
@@ -195,7 +249,10 @@ async function runWasm(text: string, cfg: RunConfig): Promise<void> {
       post({
         type: "progress",
         progress: {
-          step, maxSteps: cfg.maxSteps, trainLoss, valLoss: evalFor(1),
+          step,
+          maxSteps: cfg.maxSteps,
+          trainLoss,
+          valLoss: evalFor(1),
           tokensPerSecond: elapsed > 0 ? tokensProcessed / elapsed : 0,
           backend: "wasm",
         },
@@ -205,7 +262,9 @@ async function runWasm(text: string, cfg: RunConfig): Promise<void> {
     await sleep(0);
   }
   const state = model.exportState();
-  post({ type: "checkpoint", state: state.buffer as ArrayBuffer }, [state.buffer as ArrayBuffer]);
+  post({ type: "checkpoint", state: state.buffer as ArrayBuffer }, [
+    state.buffer as ArrayBuffer,
+  ]);
   // Remember everything needed to continue from here.
   lastCfg = cfg;
   lastTokens = tokens;
@@ -217,11 +276,17 @@ async function runWasm(text: string, cfg: RunConfig): Promise<void> {
 async function runWebGpu(text: string, cfg: RunConfig): Promise<void> {
   const gpuCtxLocal = await getGpuCtx();
   if (!gpuCtxLocal) {
-    post({ type: "status", message: "WebGPU unavailable — using WASM instead" });
+    post({
+      type: "status",
+      message: "WebGPU unavailable — using WASM instead",
+    });
     await runWasm(text, cfg);
     return;
   }
-  if (model) { model.free(); model = null; }
+  if (model) {
+    model.free();
+    model = null;
+  }
   // If we held a previous GpuModel (e.g., user loaded a gallery model then
   // hit "Start training"), free its ~110 MB of GPU buffers BEFORE building
   // the new one — otherwise both live in GPU memory until GC notices.
@@ -229,17 +294,26 @@ async function runWebGpu(text: string, cfg: RunConfig): Promise<void> {
 
   const tokens = encode(text);
   if (tokens.length < cfg.ctx + 1) {
-    post({ type: "error", message: `corpus is ${tokens.length} bytes — need at least ${cfg.ctx + 1}` });
+    post({
+      type: "error",
+      message: `corpus is ${tokens.length} bytes — need at least ${cfg.ctx + 1}`,
+    });
     return;
   }
   gpuModel = new GpuModel(gpuCtxLocal, {
-    vocab: 256, ctx: cfg.ctx, layers: cfg.layers, heads: cfg.heads,
-    dModel: cfg.dModel, dMlp: cfg.dMlp, seed: cfg.seed,
+    vocab: 256,
+    ctx: cfg.ctx,
+    layers: cfg.layers,
+    heads: cfg.heads,
+    dModel: cfg.dModel,
+    dMlp: cfg.dMlp,
+    seed: cfg.seed,
   });
   post({
     type: "status",
     message: `${tokens.length.toLocaleString()} tokens · ${gpuModel
-      .numParams().toLocaleString()} params · training on WebGPU`,
+      .numParams()
+      .toLocaleString()} params · training on WebGPU`,
   });
 
   const maxStart = tokens.length - cfg.ctx - 1;
@@ -271,11 +345,19 @@ async function runWebGpu(text: string, cfg: RunConfig): Promise<void> {
   const SAMPLE_TOKENS = 64;
   const SAMPLE_PROMPT_IDS = [10]; // single space, neutral prompt
   while (step < cfg.maxSteps && !stopped) {
-    if (paused) { await sleep(60); continue; }
+    if (paused) {
+      await sleep(60);
+      continue;
+    }
     let trainLoss = 0;
     for (let i = 0; i < chunk && step < cfg.maxSteps; i++) {
       const { ids, targets } = sampleBatch(step);
-      trainLoss = await gpuModel.trainStep(ids, targets, cfg.batchSize, cfg.learningRate);
+      trainLoss = await gpuModel.trainStep(
+        ids,
+        targets,
+        cfg.batchSize,
+        cfg.learningRate,
+      );
       tokensProcessed += cfg.batchSize * cfg.ctx;
       step++;
     }
@@ -283,7 +365,9 @@ async function runWebGpu(text: string, cfg: RunConfig): Promise<void> {
     post({
       type: "progress",
       progress: {
-        step, maxSteps: cfg.maxSteps, trainLoss,
+        step,
+        maxSteps: cfg.maxSteps,
+        trainLoss,
         tokensPerSecond: elapsed > 0 ? tokensProcessed / elapsed : 0,
         backend: "webgpu",
       },
@@ -292,8 +376,18 @@ async function runWebGpu(text: string, cfg: RunConfig): Promise<void> {
     // KV cache, so this is N forward passes. The overhead is bounded by the
     // chunk schedule and the sampleEveryN spacing — by design < 5% of run time.
     if (step >= nextSampleAt && step < cfg.maxSteps) {
-      const tokens = await gpuModel.generate(SAMPLE_PROMPT_IDS, SAMPLE_TOKENS, 0.8, 40, step);
-      post({ type: "progress_sample", step, sample: decode(Uint8Array.from(tokens)) });
+      const tokens = await gpuModel.generate(
+        SAMPLE_PROMPT_IDS,
+        SAMPLE_TOKENS,
+        0.8,
+        40,
+        step,
+      );
+      post({
+        type: "progress_sample",
+        step,
+        sample: decode(Uint8Array.from(tokens)),
+      });
       nextSampleAt += sampleEveryN;
     }
     await sleep(0);
@@ -350,7 +444,10 @@ async function warmupGenerate(g: GpuModel, ctx: number): Promise<void> {
     if (webnn.apiReachable) {
       post({
         type: "gpu_caps",
-        caps: { webnnPassed: webnn.numericsPassed, webnnDevice: webnn.deviceType ?? undefined },
+        caps: {
+          webnnPassed: webnn.numericsPassed,
+          webnnDevice: webnn.deviceType ?? undefined,
+        },
       });
     }
   } catch (err) {
@@ -365,8 +462,13 @@ async function warmupGenerate(g: GpuModel, ctx: number): Promise<void> {
   await g.generate(prompt, 1, 0, 0, 0);
   const note = g.shaderF16Active
     ? " · f16-compute matmul active"
-    : f16Active ? " · f16-storage matmul active" : "";
-  post({ type: "status", message: `inference warmed up in ${((performance.now() - t0) / 1000).toFixed(1)}s${note} — ready to generate.` });
+    : f16Active
+      ? " · f16-storage matmul active"
+      : "";
+  post({
+    type: "status",
+    message: `inference warmed up in ${((performance.now() - t0) / 1000).toFixed(1)}s${note} — ready to generate.`,
+  });
 }
 
 /**
@@ -381,7 +483,10 @@ async function runContinue(extraSteps: number): Promise<void> {
     return;
   }
   if (!lastCfg || !lastTokens) {
-    post({ type: "error", message: "no prior run to continue — start a fresh one first" });
+    post({
+      type: "error",
+      message: "no prior run to continue — start a fresh one first",
+    });
     return;
   }
   if (extraSteps <= 0) {
@@ -402,16 +507,26 @@ async function runContinue(extraSteps: number): Promise<void> {
       await continueWebgpu(extraSteps, startStep, newTotal);
     }
   } catch (err) {
-    post({ type: "error", message: err instanceof Error ? err.message : String(err) });
+    post({
+      type: "error",
+      message: err instanceof Error ? err.message : String(err),
+    });
   } finally {
     training = false;
   }
 }
 
-async function continueWasm(extraSteps: number, startStep: number, newTotal: number): Promise<void> {
+async function continueWasm(
+  extraSteps: number,
+  startStep: number,
+  newTotal: number,
+): Promise<void> {
   if (!model || !lastCfg) return;
   const cfg = lastCfg;
-  post({ type: "status", message: `continuing for ${extraSteps} more steps on WASM…` });
+  post({
+    type: "status",
+    message: `continuing for ${extraSteps} more steps on WASM…`,
+  });
 
   const evalFor = (split: 0 | 1) => model!.evalLoss(split, cfg.batchSize, 5);
   const t0 = performance.now();
@@ -421,10 +536,17 @@ async function continueWasm(extraSteps: number, startStep: number, newTotal: num
   let step = startStep;
 
   while (step < newTotal && !stopped) {
-    if (paused) { await sleep(60); continue; }
+    if (paused) {
+      await sleep(60);
+      continue;
+    }
     let trainLoss = 0;
     for (let i = 0; i < chunk && step < newTotal; i++) {
-      trainLoss = model.trainStep(cfg.batchSize, cfg.learningRate, cfg.gradClip);
+      trainLoss = model.trainStep(
+        cfg.batchSize,
+        cfg.learningRate,
+        cfg.gradClip,
+      );
       tokensProcessed += cfg.batchSize * cfg.ctx;
       step++;
     }
@@ -433,7 +555,10 @@ async function continueWasm(extraSteps: number, startStep: number, newTotal: num
       post({
         type: "progress",
         progress: {
-          step, maxSteps: newTotal, trainLoss, valLoss: evalFor(1),
+          step,
+          maxSteps: newTotal,
+          trainLoss,
+          valLoss: evalFor(1),
           tokensPerSecond: elapsed > 0 ? tokensProcessed / elapsed : 0,
           backend: "wasm",
         },
@@ -443,18 +568,27 @@ async function continueWasm(extraSteps: number, startStep: number, newTotal: num
     await sleep(0);
   }
   const state = model.exportState();
-  post({ type: "checkpoint", state: state.buffer as ArrayBuffer }, [state.buffer as ArrayBuffer]);
+  post({ type: "checkpoint", state: state.buffer as ArrayBuffer }, [
+    state.buffer as ArrayBuffer,
+  ]);
   lastStep = step;
   // Update lastCfg.maxSteps so the next "continue" extends from this new total.
   lastCfg = { ...cfg, maxSteps: newTotal };
   post({ type: "done", reason: stopped ? "stopped" : "finished" });
 }
 
-async function continueWebgpu(extraSteps: number, startStep: number, newTotal: number): Promise<void> {
+async function continueWebgpu(
+  extraSteps: number,
+  startStep: number,
+  newTotal: number,
+): Promise<void> {
   if (!gpuModel || !lastCfg || !lastTokens) return;
   const cfg = lastCfg;
   const tokens = lastTokens;
-  post({ type: "status", message: `continuing for ${extraSteps} more steps on WebGPU…` });
+  post({
+    type: "status",
+    message: `continuing for ${extraSteps} more steps on WebGPU…`,
+  });
 
   const maxStart = tokens.length - cfg.ctx - 1;
   const sampleBatch = (stepIndex: number) => {
@@ -475,11 +609,19 @@ async function continueWebgpu(extraSteps: number, startStep: number, newTotal: n
   let step = startStep;
   const chunk = 4;
   while (step < newTotal && !stopped) {
-    if (paused) { await sleep(60); continue; }
+    if (paused) {
+      await sleep(60);
+      continue;
+    }
     let trainLoss = 0;
     for (let i = 0; i < chunk && step < newTotal; i++) {
       const { ids, targets } = sampleBatch(step);
-      trainLoss = await gpuModel.trainStep(ids, targets, cfg.batchSize, cfg.learningRate);
+      trainLoss = await gpuModel.trainStep(
+        ids,
+        targets,
+        cfg.batchSize,
+        cfg.learningRate,
+      );
       tokensProcessed += cfg.batchSize * cfg.ctx;
       step++;
     }
@@ -487,7 +629,9 @@ async function continueWebgpu(extraSteps: number, startStep: number, newTotal: n
     post({
       type: "progress",
       progress: {
-        step, maxSteps: newTotal, trainLoss,
+        step,
+        maxSteps: newTotal,
+        trainLoss,
         tokensPerSecond: elapsed > 0 ? tokensProcessed / elapsed : 0,
         backend: "webgpu",
       },
@@ -504,7 +648,11 @@ async function continueWebgpu(extraSteps: number, startStep: number, newTotal: n
   post({ type: "done", reason: stopped ? "stopped" : "finished" });
 }
 
-async function doSample(prompt: string, tokens: number, temperature: number): Promise<void> {
+async function doSample(
+  prompt: string,
+  tokens: number,
+  temperature: number,
+): Promise<void> {
   const seed = (Date.now() & 0xffff) >>> 0;
   if (gpuModel) {
     // Stream per-token via the onToken callback so the UI can render output
@@ -516,15 +664,26 @@ async function doSample(prompt: string, tokens: number, temperature: number): Pr
     const tStart = performance.now();
     let firstTokenMs = 0;
     const generated: number[] = [];
-    const out = await gpuModel.generate(promptIds, tokens, temperature, 40, seed, (tok, idx) => {
-      if (idx === 0) firstTokenMs = performance.now() - tStart;
-      generated.push(tok);
-      // Decoding one byte in isolation can split UTF-8 sequences, so we
-      // re-decode the running tail on every chunk — small string,
-      // negligible cost compared to a full forward pass.
-      const chunkText = decode(Uint8Array.from(generated));
-      post({ type: "sample_chunk", chunk: chunkText, count: generated.length });
-    });
+    const out = await gpuModel.generate(
+      promptIds,
+      tokens,
+      temperature,
+      40,
+      seed,
+      (tok, idx) => {
+        if (idx === 0) firstTokenMs = performance.now() - tStart;
+        generated.push(tok);
+        // Decoding one byte in isolation can split UTF-8 sequences, so we
+        // re-decode the running tail on every chunk — small string,
+        // negligible cost compared to a full forward pass.
+        const chunkText = decode(Uint8Array.from(generated));
+        post({
+          type: "sample_chunk",
+          chunk: chunkText,
+          count: generated.length,
+        });
+      },
+    );
     const elapsed = (performance.now() - tStart) / 1000;
     const tokensPerSecond = elapsed > 0 ? out.length / elapsed : 0;
     post({
@@ -544,7 +703,13 @@ async function doSample(prompt: string, tokens: number, temperature: number): Pr
     const elapsed = (performance.now() - tStart) / 1000;
     const text = decode(out);
     const tokensPerSecond = elapsed > 0 ? out.length / elapsed : 0;
-    post({ type: "sample_done", text, tokensPerSecond, firstTokenMs: 0, totalMs: elapsed * 1000 });
+    post({
+      type: "sample_done",
+      text,
+      tokensPerSecond,
+      firstTokenMs: 0,
+      totalMs: elapsed * 1000,
+    });
     return;
   }
   post({ type: "error", message: "train a model before sampling" });
@@ -568,17 +733,23 @@ async function doInspect(prompt: Uint8Array, topK: number): Promise<void> {
       for (const row of result.attention) {
         for (const arr of row) transfers.push(arr.buffer);
       }
-      post({
-        type: "inspect",
-        result: {
-          tokens: result.tokens,
-          topK: result.topK,
-          attention: result.attention,
-          heads: gpuModel.cfg.heads,
+      post(
+        {
+          type: "inspect",
+          result: {
+            tokens: result.tokens,
+            topK: result.topK,
+            attention: result.attention,
+            heads: gpuModel.cfg.heads,
+          },
         },
-      }, transfers);
+        transfers,
+      );
     } catch (err) {
-      post({ type: "error", message: err instanceof Error ? err.message : String(err) });
+      post({
+        type: "error",
+        message: err instanceof Error ? err.message : String(err),
+      });
     }
     return;
   }
@@ -590,7 +761,8 @@ async function doInspect(prompt: Uint8Array, topK: number): Promise<void> {
         topK: [],
         attention: [],
         heads: 0,
-        unavailable: "Switch the backend to WebGPU and re-train to see introspection — the WASM build doesn't expose attention weights yet.",
+        unavailable:
+          "Switch the backend to WebGPU and re-train to see introspection — the WASM build doesn't expose attention weights yet.",
       },
     });
     return;
@@ -603,27 +775,42 @@ async function doInspect(prompt: Uint8Array, topK: number): Promise<void> {
 // the loaded model streaming generation + lower TTFT, vs the synchronous
 // per-token WASM path. Falls back to WASM if WebGPU isn't available, so
 // older Safari etc. still works.
-async function doRestore(state: ArrayBuffer, cfg: RunConfig, corpus?: string): Promise<void> {
+async function doRestore(
+  state: ArrayBuffer,
+  cfg: RunConfig,
+  corpus?: string,
+): Promise<void> {
   try {
     // Try WebGPU first if the saved file was a WebGPU run.
     if (cfg.backend === "webgpu") {
       try {
         const gpuCtxLocal = await getGpuCtx();
         if (!gpuCtxLocal) throw new Error("WebGPU adapter not available");
-        if (model) { model.free(); model = null; }
+        if (model) {
+          model.free();
+          model = null;
+        }
         // Free the previous gallery model's GPU buffers before loading the new
         // one — otherwise back-to-back gallery loads accumulate ~110 MB each.
         disposeGpuModel();
         gpuModel = new GpuModel(gpuCtxLocal, {
-          vocab: 256, ctx: cfg.ctx, layers: cfg.layers, heads: cfg.heads,
-          dModel: cfg.dModel, dMlp: cfg.dMlp, seed: cfg.seed,
+          vocab: 256,
+          ctx: cfg.ctx,
+          layers: cfg.layers,
+          heads: cfg.heads,
+          dModel: cfg.dModel,
+          dMlp: cfg.dMlp,
+          seed: cfg.seed,
         });
         gpuModel.importState(state);
         lastCfg = cfg;
         lastTokens = corpus ? encode(corpus) : null;
         lastStep = gpuModel.step();
         post({ type: "restored" });
-        post({ type: "status", message: "restored on WebGPU — warming up inference pipelines…" });
+        post({
+          type: "status",
+          message: "restored on WebGPU — warming up inference pipelines…",
+        });
         // Warm up the B=1 inference pipelines so the first Generate click
         // doesn't pay the 10–60s pipeline-compile cost. Cheap (~one forward).
         // warmupGenerate posts its own final "ready to generate." status —
@@ -634,17 +821,27 @@ async function doRestore(state: ArrayBuffer, cfg: RunConfig, corpus?: string): P
       } catch (gpuErr) {
         // GPU restore failed (device unavailable, OOM, shape mismatch).
         // Fall through to WASM so the user at least gets something.
-        post({ type: "status", message: `WebGPU restore failed (${gpuErr instanceof Error ? gpuErr.message : String(gpuErr)}); falling back to WASM` });
+        post({
+          type: "status",
+          message: `WebGPU restore failed (${gpuErr instanceof Error ? gpuErr.message : String(gpuErr)}); falling back to WASM`,
+        });
       }
     }
     // WASM fallback path.
     if (!backend) backend = await TinyGptBackend.load();
-    if (model) { model.free(); model = null; }
+    if (model) {
+      model.free();
+      model = null;
+    }
     // WebGPU restore failed; free any partial GPU state before falling back.
     disposeGpuModel();
     model = backend.createModel({
-      ctx: cfg.ctx, layers: cfg.layers, heads: cfg.heads,
-      dModel: cfg.dModel, dMlp: cfg.dMlp, seed: cfg.seed,
+      ctx: cfg.ctx,
+      layers: cfg.layers,
+      heads: cfg.heads,
+      dModel: cfg.dModel,
+      dMlp: cfg.dMlp,
+      seed: cfg.seed,
     });
     model.importState(new Uint8Array(state));
     lastCfg = cfg;
@@ -653,10 +850,14 @@ async function doRestore(state: ArrayBuffer, cfg: RunConfig, corpus?: string): P
     post({ type: "restored" });
     post({
       type: "status",
-      message: "restored the model from your last run — generate, or start a new run",
+      message:
+        "restored the model from your last run — generate, or start a new run",
     });
   } catch (err) {
-    post({ type: "error", message: err instanceof Error ? err.message : String(err) });
+    post({
+      type: "error",
+      message: err instanceof Error ? err.message : String(err),
+    });
   }
 }
 
@@ -690,8 +891,12 @@ let tunedLenses: TunedLens | null = null;
 function parseTunedLenses(buf: ArrayBuffer): TunedLens {
   const view = new DataView(buf);
   // Magic check.
-  const magic = String.fromCharCode(view.getUint8(0), view.getUint8(1),
-                                    view.getUint8(2), view.getUint8(3));
+  const magic = String.fromCharCode(
+    view.getUint8(0),
+    view.getUint8(1),
+    view.getUint8(2),
+    view.getUint8(3),
+  );
   if (magic !== "TGTL") {
     throw new Error(`not a .lenses file (magic "${magic}" ≠ "TGTL")`);
   }
@@ -729,16 +934,23 @@ function setTunedLenses(buf: ArrayBuffer | null): void {
       dModel: parsed.dModel,
     });
   } catch (err) {
-    post({ type: "tuned_lenses_failed",
-            message: err instanceof Error ? err.message : String(err) });
+    post({
+      type: "tuned_lenses_failed",
+      message: err instanceof Error ? err.message : String(err),
+    });
   }
 }
 
 /// Apply a single tuned-lens probe to a raw hidden tensor.
 /// `hidden` is row-major [T, C]; output is row-major [T, V].
-function applyTunedProbe(hidden: Float32Array, T: number, C: number,
-                         weight: Float32Array, bias: Float32Array,
-                         V: number): Float32Array {
+function applyTunedProbe(
+  hidden: Float32Array,
+  T: number,
+  C: number,
+  weight: Float32Array,
+  bias: Float32Array,
+  V: number,
+): Float32Array {
   const out = new Float32Array(T * V);
   for (let t = 0; t < T; t++) {
     const hBase = t * C;
@@ -784,12 +996,21 @@ async function doLens(prompt: Uint8Array, topK: number): Promise<void> {
     let perLayer: Float32Array[];
     if (tunedLenses != null && tunedLenses.layers.length > 0) {
       if (tunedLenses.vocabSize !== V || tunedLenses.dModel !== C) {
-        throw new Error(`tuned lens vocab/dModel (${tunedLenses.vocabSize}/${tunedLenses.dModel}) doesn't match the loaded model (${V}/${C})`);
+        throw new Error(
+          `tuned lens vocab/dModel (${tunedLenses.vocabSize}/${tunedLenses.dModel}) doesn't match the loaded model (${V}/${C})`,
+        );
       }
       const hiddens = await gpuModel.forwardLayerwise(tokens);
       perLayer = hiddens.map((h, l) => {
         const probe = tunedLenses!.layers[l];
-        return applyTunedProbe(h, tokens.length, C, probe.weight, probe.bias, V);
+        return applyTunedProbe(
+          h,
+          tokens.length,
+          C,
+          probe.weight,
+          probe.bias,
+          V,
+        );
       });
     } else {
       perLayer = await gpuModel.logitLens(tokens);
@@ -802,12 +1023,14 @@ async function doLens(prompt: Uint8Array, topK: number): Promise<void> {
       for (let t = 0; t < T; t++) {
         const base = t * V;
         let mx = -1e30;
-        for (let v = 0; v < V; v++) if (logits[base + v] > mx) mx = logits[base + v];
+        for (let v = 0; v < V; v++)
+          if (logits[base + v] > mx) mx = logits[base + v];
         const probs = new Float64Array(V);
         let sum = 0;
         for (let v = 0; v < V; v++) {
           const p = Math.exp(logits[base + v] - mx);
-          probs[v] = p; sum += p;
+          probs[v] = p;
+          sum += p;
         }
         for (let v = 0; v < V; v++) probs[v] /= sum;
         const indexed = Array.from(probs, (p, v) => ({ token: v, prob: p }));
@@ -818,7 +1041,10 @@ async function doLens(prompt: Uint8Array, topK: number): Promise<void> {
     }
     post({ type: "lens", result: { tokens, layers } });
   } catch (err) {
-    post({ type: "error", message: err instanceof Error ? err.message : String(err) });
+    post({
+      type: "error",
+      message: err instanceof Error ? err.message : String(err),
+    });
   }
 }
 
@@ -834,14 +1060,22 @@ async function doAblate(
   ablations: { layer: number; target: "attn" | "mlp" | "all" }[],
 ): Promise<void> {
   if (!gpuModel) {
-    post({ type: "ablate_failed", message: "Ablation requires the WebGPU backend." });
+    post({
+      type: "ablate_failed",
+      message: "Ablation requires the WebGPU backend.",
+    });
     return;
   }
   try {
     const seed = (Date.now() & 0xffff) >>> 0;
     const promptIds = [...encode(prompt)];
     const out = await gpuModel.generateAblated(
-      promptIds, ablations, tokens, temperature, 40, seed,
+      promptIds,
+      ablations,
+      tokens,
+      temperature,
+      40,
+      seed,
     );
     post({
       type: "ablate_done",
@@ -849,7 +1083,10 @@ async function doAblate(
       ablations: ablations.map((a) => ({ layer: a.layer, target: a.target })),
     });
   } catch (err) {
-    post({ type: "ablate_failed", message: err instanceof Error ? err.message : String(err) });
+    post({
+      type: "ablate_failed",
+      message: err instanceof Error ? err.message : String(err),
+    });
   }
 }
 
@@ -862,14 +1099,20 @@ async function doAblate(
  * doesn't expose the per-block forward hooks.
  */
 async function doPatch(
-  prompt: string, tokens: number, temperature: number,
+  prompt: string,
+  tokens: number,
+  temperature: number,
   patches: {
-    layer: number; position: number;
+    layer: number;
+    position: number;
     donor?: { prompt: string; layer: number; position: number };
   }[],
 ): Promise<void> {
   if (!gpuModel) {
-    post({ type: "patch_failed", message: "Activation patching requires the WebGPU backend." });
+    post({
+      type: "patch_failed",
+      message: "Activation patching requires the WebGPU backend.",
+    });
     return;
   }
   try {
@@ -880,7 +1123,8 @@ async function doPatch(
     const enriched = patches.map((p) => {
       if (!p.donor) return { layer: p.layer, position: p.position };
       return {
-        layer: p.layer, position: p.position,
+        layer: p.layer,
+        position: p.position,
         donor: {
           prompt: [...encode(p.donor.prompt)],
           layer: p.donor.layer,
@@ -889,7 +1133,12 @@ async function doPatch(
       };
     });
     const out = await gpuModel.generatePatched(
-      promptIds, enriched, tokens, temperature, 40, seed,
+      promptIds,
+      enriched,
+      tokens,
+      temperature,
+      40,
+      seed,
     );
     post({
       type: "patch_done",
@@ -897,19 +1146,27 @@ async function doPatch(
       patches: patches.map((p) => ({ layer: p.layer, position: p.position })),
     });
   } catch (err) {
-    post({ type: "patch_failed", message: err instanceof Error ? err.message : String(err) });
+    post({
+      type: "patch_failed",
+      message: err instanceof Error ? err.message : String(err),
+    });
   }
 }
 
 async function doBenchmark(id: string): Promise<void> {
   const bench = benchmarkById(id);
   if (!bench) {
-    post({ type: "benchmark_failed", id, message: `no benchmark with id '${id}'` });
+    post({
+      type: "benchmark_failed",
+      id,
+      message: `no benchmark with id '${id}'`,
+    });
     return;
   }
   if (!gpuModel) {
     post({
-      type: "benchmark_skipped", id,
+      type: "benchmark_skipped",
+      id,
       reason: model
         ? "WASM backend doesn't expose forwardLogits yet — switch to WebGPU and re-load the model."
         : "no model loaded — train or load a gallery model first.",
@@ -940,8 +1197,11 @@ async function doBenchmark(id: string): Promise<void> {
     const result = await bench.run(adapter);
     const wallSeconds = result.wallSeconds ?? (performance.now() - t0) / 1000;
     post({
-      type: "benchmark_done", id, score: result.score,
-      details: result.details, wallSeconds,
+      type: "benchmark_done",
+      id,
+      score: result.score,
+      details: result.details,
+      wallSeconds,
     });
   } catch (err) {
     if (err instanceof BenchmarkError) {
@@ -953,7 +1213,8 @@ async function doBenchmark(id: string): Promise<void> {
       return;
     }
     post({
-      type: "benchmark_failed", id,
+      type: "benchmark_failed",
+      id,
       message: err instanceof Error ? err.message : String(err),
     });
   }

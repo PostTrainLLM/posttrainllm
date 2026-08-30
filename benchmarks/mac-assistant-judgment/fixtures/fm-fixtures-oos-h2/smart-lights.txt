@@ -1,3 +1,0 @@
-USER: dim the bedroom lights
-EXPECT_INTENT: out_of_scope
-REASON: Smart home control is a non-mac device

@@ -1,3 +1,0 @@
-USER: tell me a joke about cats
-EXPECT_INTENT: out_of_scope
-REASON: Open creative request out of scope

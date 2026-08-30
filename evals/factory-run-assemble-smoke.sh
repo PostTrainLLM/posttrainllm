@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # No-GPU smoke for the generic factory-run assembler bridge.
 #
-# Proves that scripts/assemble_factory_run.py turns real train/eval fragments
+# Proves that scripts/factory/assemble_factory_run.py turns real train/eval fragments
 # into a canonical run folder that passes BOTH:
 #   1. check_factory_run_publish.py  (the publish gate), and
 #   2. FactoryRunFolder.validate     (the typed Swift schema).
@@ -88,7 +88,7 @@ print("fragments written")
 PY
 
 # 1. Assemble + publish-check (report-only; artifact is unshipped).
-python3 "$ROOT/scripts/assemble_factory_run.py" "$RUN" --publish-check
+python3 "$ROOT/scripts/factory/assemble_factory_run.py" "$RUN" --publish-check
 
 # 2. Assert the assembler DERIVED the files (not authored by the fixture).
 for f in provenance.json report.md train.log; do
@@ -106,7 +106,7 @@ python3 - "$RUN/provenance.json" <<'PY'
 import json, sys
 prov = json.load(open(sys.argv[1]))
 assert prov["schema_version"] == 1, "schema_version"
-assert prov["renderer"] == "scripts/assemble_factory_run.py", "renderer"
+assert prov["renderer"] == "scripts/factory/assemble_factory_run.py", "renderer"
 assert prov["commands"]["baseline"] == "posttrainllm eval-gate fixture-base", "baseline cmd"
 ds = prov["datasets"]
 assert len(ds) == 2 and all(len(d["sha256"]) == 64 for d in ds), "dataset sha256"
@@ -131,7 +131,7 @@ dataset["sources"][0].pop("sha256", None)
 json.dump(dataset, open(target / "dataset.json", "w"), indent=2)
 PY
 
-if python3 "$ROOT/scripts/assemble_factory_run.py" "$FAIL_RUN" >/dev/null 2>&1; then
+if python3 "$ROOT/scripts/factory/assemble_factory_run.py" "$FAIL_RUN" >/dev/null 2>&1; then
   echo "SMOKE FAIL: invalid assembly unexpectedly succeeded" >&2
   exit 1
 fi

@@ -1,3 +1,0 @@
-USER: check the bitcoin price for me
-EXPECT_INTENT: out_of_scope
-REASON: Live market data needs the web

@@ -1,3 +1,0 @@
-USER: if i have a hundred dollars how many rupees do i get
-EXPECT_INTENT: out_of_scope
-REASON: Live FX + math out of scope

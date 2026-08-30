@@ -38,10 +38,10 @@ The essay's best artifact: after a bulk action, don't dump raw results —
 group them by pattern, sample a few, and pull anomalies into a flagged
 "needs review" section. We applied it to eval reporting:
 
-- `scripts/eval_pace_unhappy.py` now emits a `failure patterns` legend
+- `scripts/pace/eval_pace_unhappy.py` now emits a `failure patterns` legend
   (failures grouped by normalized reason, count + example fixtures) and
   writes `failure_patterns` into the suite JSON.
-- `scripts/eval_planner_report.py` prints the candidate's top 3 patterns
+- `scripts/pipelines/eval_planner_report.py` prints the candidate's top 3 patterns
   per suite under the champion verdict — the n=130 drilldown loop no
   longer requires mining 130 raw rows to learn *how* a model fails.
 

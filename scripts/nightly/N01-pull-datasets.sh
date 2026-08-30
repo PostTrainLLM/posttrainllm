@@ -11,7 +11,7 @@
 #   ❌ BFCL (cache present, flat-emit broken)                            — eval
 #
 # This script verifies the ✅ items are in place. The ❌ items are
-# tracked in NIGHTLY.md as "blocked by parquet support / HF_TOKEN /
+# tracked in docs/training/nightly.md as "blocked by parquet support / HF_TOKEN /
 # flat-emit bug" — they unblock more ambitious base + DPO + eval runs.
 
 set -euo pipefail
@@ -54,7 +54,7 @@ echo "=== [2/3] SmolLM2-135M tokenizer ==="
 if [[ -d "$TOKENIZER_DIR" ]] && find "$TOKENIZER_DIR/snapshots" -name "tokenizer.json" 2>/dev/null | grep -q .; then
     check ok "SmolLM2 tokenizer cached: $TOKENIZER_DIR"
 else
-    echo "  needs huggingface-cli login + download. See NIGHTLY.md for the one-time setup."
+    echo "  needs huggingface-cli login + download. See docs/training/nightly.md for the one-time setup."
     check fail "SmolLM2 tokenizer missing"
 fi
 
@@ -79,7 +79,7 @@ fi
 
 cat <<'NOTE'
 
-Known parquet/auth-blocked corpora (NIGHTLY.md tracks these as v2 work):
+Known parquet/auth-blocked corpora (docs/training/nightly.md tracks these as v2 work):
   - FineWeb-Edu  → 2.4 GB parquet on disk; needs a parquet→txt decoder
   - UltraFeedback → 5 parquet shards on disk; needs the same decoder
   - xlam-function-calling-60k → gated, needs HF_TOKEN (huggingface-cli login)

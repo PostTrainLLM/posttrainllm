@@ -29,11 +29,11 @@ not a qualified or sealed headline.
   must never be presented as held-out or sealed.
 - `fixtures/entries/` exercises the required `generalist`, `adapted`, and
   `system` disclosure tracks.
-- `scripts/check_everyday_benchmark.py` validates artifacts fail-closed,
+- `scripts/research/check_everyday_benchmark.py` validates artifacts fail-closed,
   including cross-artifact identity, resource math, and receipt privacy.
-- `scripts/run_everyday_benchmark.py` scores caller-supplied predictions and
+- `scripts/research/run_everyday_benchmark.py` scores caller-supplied predictions and
   emits validated `run.json`, `result.json`, and aggregate-only `receipt.json`.
-- `scripts/calibrate_selective_cascade.py` fits only a predeclared signal grid
+- `scripts/research/calibrate_selective_cascade.py` fits only a predeclared signal grid
   on public-development predictions, refuses sealed calibration, and composes a
   system prediction artifact only when all configured quality, coverage,
   escalation, and final-accuracy targets pass.
@@ -45,7 +45,7 @@ not a qualified or sealed headline.
   leakage/custody evidence, aggregate scores, and result hashes without raw
   sealed prompts or outputs.
 - `cohort-v1.json` and `cohort-v1.html` are deterministic cross-task report
-  outputs. `scripts/render_everyday_benchmark_report.py --check` rejects drift,
+  outputs. `scripts/research/render_everyday_benchmark_report.py --check` rejects drift,
   missing evidence links, invalid receipts, or fewer than three qualified task
   families.
 - `../capability-graph/pace-intent-apple-calibration-v1.json` is the measured

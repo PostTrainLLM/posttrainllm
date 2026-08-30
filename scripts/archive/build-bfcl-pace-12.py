@@ -5,7 +5,7 @@ Writes 96 prompts (8 per action × 12 actions) in BFCL v3 format:
   - prompts file:        BFCL_v3_pace12.json  (one JSONL row / line)
   - ground-truth file:   possible_answer/BFCL_v3_pace12.json
 
-Compatible with scripts/eval_bfcl.py existing runner.
+Compatible with scripts/bfcl/eval_bfcl.py existing runner.
 
 The BFCL "possible value list" idea:
 - Each arg gets a list of acceptable values. The model passes if its emitted

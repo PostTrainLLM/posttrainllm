@@ -45,7 +45,7 @@ frozen dataset is 38 tokens against a 256-token cap.
 
 ## The training path
 
-[`scripts/autocorrect_adapter.py`](../../scripts/autocorrect_adapter.py) is
+[`scripts/research/autocorrect_adapter.py`](../../scripts/research/autocorrect_adapter.py) is
 split so that the dependency-free half is always testable:
 
 - **Stdlib layer** — recipe validation, target-module resolution, example
@@ -63,7 +63,7 @@ implementation is about forty lines; a dependency would have cost more.
 `train` is present but refuses:
 
 ```console
-$ python3 scripts/autocorrect_adapter.py train --stage tiny_overfit
+$ python3 scripts/research/autocorrect_adapter.py train --stage tiny_overfit
 REFUSED: training the autocorrect adapter needs explicit owner approval and
 the GPU lock (~/.cache/posttrainllm/gpu.lock).
 ```
@@ -75,7 +75,7 @@ the GPU lock (~/.cache/posttrainllm/gpu.lock).
 Forward-only, CPU, zero optimizer steps, `HF_HUB_OFFLINE=1`:
 
 ```bash
-python3 scripts/autocorrect_adapter.py verify-base
+python3 scripts/research/autocorrect_adapter.py verify-base
 ```
 
 | Check | Result |
@@ -138,7 +138,7 @@ Owner-approved; GPU lock acquired and released. Evidence:
 Adapters stay in gitignored `runs/autocorrect-tiny-overfit-v1/`.
 
 ```bash
-python3 scripts/autocorrect_adapter.py train --stage tiny_overfit --i-have-operator-approval
+python3 scripts/research/autocorrect_adapter.py train --stage tiny_overfit --i-have-operator-approval
 ```
 
 | Measure | Value |
@@ -240,7 +240,7 @@ The real blockers, none of which an edit-aware loss addresses:
 
 ### Both defects are now checked, not just written down
 
-`scripts/autocorrect_adapter.py::check_recipe_defects` asserts both invariants
+`scripts/research/autocorrect_adapter.py::check_recipe_defects` asserts both invariants
 mechanically:
 
 | Defect | Invariant enforced |

@@ -1,3 +1,0 @@
-USER: will it rain in mumbai tomorrow
-EXPECT_INTENT: out_of_scope
-REASON: Live weather needs the web

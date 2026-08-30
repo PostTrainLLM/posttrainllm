@@ -1,3 +1,0 @@
-USER: order sushi for dinner
-EXPECT_INTENT: out_of_scope
-REASON: Food delivery is an unintegrated cloud service

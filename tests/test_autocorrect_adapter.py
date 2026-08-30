@@ -20,8 +20,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _script_path(filename):
+    """scripts/ is grouped into topic subdirs; find a script in any of them."""
+    direct = ROOT / "scripts" / filename
+    if direct.exists():
+        return direct
+    for sub in sorted((ROOT / "scripts").iterdir()):
+        if sub.is_dir() and (sub / filename).exists():
+            return sub / filename
+    raise FileNotFoundError(f"scripts/**/{filename}")
+
+
 def load_module(name: str):
-    path = ROOT / "scripts" / f"{name}.py"
+    path = _script_path(f"{name}.py")
     spec = importlib.util.spec_from_file_location(name, path)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
@@ -64,14 +75,22 @@ def test_recipe_drift_is_detected():
         "precision": lambda r: r["training"].__setitem__("precision", "float16"),
         "dataset": lambda r: r["data"]["pilot"].__setitem__("dataset_sha256", "0" * 64),
         "rows": lambda r: r["data"]["tiny_overfit"].__setitem__("rows", 99),
-        "truncation": lambda r: r["data"].__setitem__("truncation_policy", "longest_first"),
-        "unfrozen_base": lambda r: r["geometry"].__setitem__("base_requires_grad", True),
-        "nonzero_b": lambda r: r["geometry"]["init_policy"].__setitem__("b", "gaussian"),
+        "truncation": lambda r: r["data"].__setitem__(
+            "truncation_policy", "longest_first"
+        ),
+        "unfrozen_base": lambda r: r["geometry"].__setitem__(
+            "base_requires_grad", True
+        ),
+        "nonzero_b": lambda r: r["geometry"]["init_policy"].__setitem__(
+            "b", "gaussian"
+        ),
         "trainable_count": lambda r: r["geometry"].__setitem__(
             "expected_trainable_parameters", 1
         ),
         "step_cap": lambda r: r["training"].__setitem__("pilot_max_steps", 5000),
-        "gate_drift": lambda r: r["gates"]["tiny_overfit"].__setitem__("exact_match_min", 0.5),
+        "gate_drift": lambda r: r["gates"]["tiny_overfit"].__setitem__(
+            "exact_match_min", 0.5
+        ),
     }
     for name, mutate in cases.items():
         broken = copy.deepcopy(RECIPE)
@@ -135,7 +154,9 @@ def test_a_base_already_near_its_bars_does_not_flag():
     strong = copy.deepcopy(RECIPE)
     with tempfile.TemporaryDirectory() as tmp:
         # Point the recipe at a bake-off whose base nearly clears every bar.
-        bakeoff = _json.loads((FIXTURES / "base-bakeoff-v1.json").read_text(encoding="utf-8"))
+        bakeoff = _json.loads(
+            (FIXTURES / "base-bakeoff-v1.json").read_text(encoding="utf-8")
+        )
         bakeoff["selection"]["baseline_quality"] = {
             "error_reduction_rate": 0.80,
             "exact_match_rate": 0.9,
@@ -149,7 +170,8 @@ def test_a_base_already_near_its_bars_does_not_flag():
                 _json.dumps(bakeoff), encoding="utf-8"
             )
             (staged / "thresholds-v1.json").write_text(
-                (original / "thresholds-v1.json").read_text(encoding="utf-8"), encoding="utf-8"
+                (original / "thresholds-v1.json").read_text(encoding="utf-8"),
+                encoding="utf-8",
             )
             aa.FIXTURE_DIR = staged
             aa.THRESHOLDS_PATH = staged / "thresholds-v1.json"
@@ -173,14 +195,20 @@ def test_an_active_recipe_may_not_carry_a_design_defect():
 def test_a_retired_recipe_must_name_every_defect_it_has():
     hidden = copy.deepcopy(RECIPE)
     hidden["known_defects"] = [
-        entry for entry in hidden["known_defects"] if entry["id"] != "unsatisfiable-stop-rule"
+        entry
+        for entry in hidden["known_defects"]
+        if entry["id"] != "unsatisfiable-stop-rule"
     ]
     problems = aa.validate_recipe(hidden)
-    assert any("undocumented design defect [unsatisfiable-stop-rule]" in p for p in problems)
+    assert any(
+        "undocumented design defect [unsatisfiable-stop-rule]" in p for p in problems
+    )
 
     unexplained = copy.deepcopy(RECIPE)
     unexplained.pop("retired_reason")
-    assert any("retired_reason is required" in p for p in aa.validate_recipe(unexplained))
+    assert any(
+        "retired_reason is required" in p for p in aa.validate_recipe(unexplained)
+    )
 
 
 def test_a_stale_defect_record_is_flagged():
@@ -204,7 +232,9 @@ def test_target_resolution_is_exact_suffix_matching():
         "some.other.SelfAttention.qq",
         "lm_head",
     ]
-    resolved = aa.resolve_target_names(names, RECIPE["geometry"]["target_module_suffixes"])
+    resolved = aa.resolve_target_names(
+        names, RECIPE["geometry"]["target_module_suffixes"]
+    )
     assert resolved == sorted(
         [
             "encoder.block.0.layer.0.SelfAttention.q",
@@ -414,10 +444,14 @@ def test_gradients_are_finite_and_reach_a_after_the_first_step():
     grads = {name: p.grad for name, p in aa.trainable_parameters(model)}
     assert all(g is not None and torch.isfinite(g).all() for g in grads.values())
     assert all(
-        float(g.abs().sum()) == 0.0 for name, g in grads.items() if name.endswith("lora_a")
+        float(g.abs().sum()) == 0.0
+        for name, g in grads.items()
+        if name.endswith("lora_a")
     ), "dL/dA must be exactly zero while B is zero"
     assert any(
-        float(g.abs().sum()) > 0.0 for name, g in grads.items() if name.endswith("lora_b")
+        float(g.abs().sum()) > 0.0
+        for name, g in grads.items()
+        if name.endswith("lora_b")
     ), "dL/dB must be non-zero at step 0"
 
     loss = aa.training_step(model, batch, optimizer, RECIPE)
@@ -565,7 +599,9 @@ def test_encode_batch_masks_padding_and_refuses_to_truncate():
     ]
     batch = aa.encode_batch(tokenizer, examples, RECIPE)
     assert batch["labels"].shape == (2, 4)
-    assert int(batch["labels"][1][-1]) == ignore, "pad positions must be ignored in the loss"
+    assert int(batch["labels"][1][-1]) == ignore, (
+        "pad positions must be ignored in the loss"
+    )
     assert int(batch["labels"][0][-1]) != ignore
     assert torch.equal(batch["attention_mask"][1], torch.tensor([1, 1, 0]))
 

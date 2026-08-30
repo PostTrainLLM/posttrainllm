@@ -155,7 +155,7 @@ enum DownloadDataset {
         guard let sample = sampleRow, firstDecodable != nil else {
             fputs("\nerror: downloaded shards are not in a directly readable format (parquet/arrow not yet decoded).\n", stderr)
             fputs("       cached at: \(HFDatasets.cacheRoot().path)/\(info.id)/\n", stderr)
-            fputs("       convert manually or wait for parquet support — see docs/hf_datasets_integration.md.\n", stderr)
+            fputs("       convert manually or wait for parquet support — see docs/integrations/hf_datasets_integration.md.\n", stderr)
             exit(1)
         }
 

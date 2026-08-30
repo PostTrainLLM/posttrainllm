@@ -11,11 +11,11 @@ cat > "$TMP_DIR/rows.jsonl" <<'JSONL'
 {"id":"missing-join","domain":"hr","prompt":"Schema: employees(id, name, department_id); departments(id, name). Question: List employee names with department names.","question":"List employee names with department names.","gold_sql":"SELECT employees.name, departments.name FROM employees JOIN departments ON employees.department_id = departments.id;","predicted_sql":"SELECT employees.name FROM employees;","exec_match":false,"exact_match":false,"clean":true}
 JSONL
 
-python3 scripts/score_sql_slices.py \
+python3 scripts/sql/score_sql_slices.py \
   "$TMP_DIR/rows.jsonl" \
   --out "$TMP_DIR/slices.json" >/dev/null
 
-python3 scripts/review_sql_trace.py \
+python3 scripts/sql/review_sql_trace.py \
   --rows "$TMP_DIR/rows.jsonl" \
   --out "$TMP_DIR/trace_review.md" >/dev/null
 

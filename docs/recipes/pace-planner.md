@@ -78,7 +78,7 @@ python scripts/generate-intent-corpus.py --count 1000 --out ~/.cache/posttrainll
 Option B — start with the 4 fixtures and synth variants:
 ```bash
 # Parse fixtures, extract user messages, mutate variants
-python scripts/pace-prompts-from-fixtures.py \
+python scripts/pace/pace-prompts-from-fixtures.py \
     --fixtures /Users/sarthak/Desktop/fleet/clickyLocal/evals/fixtures/ \
     --variants-per 100 \
     --out ~/.cache/posttrainllm/datasets/pace-prompts.jsonl

@@ -1,3 +1,0 @@
-USER: reserve a table for two at eight
-EXPECT_INTENT: out_of_scope
-REASON: Restaurant booking is an unintegrated cloud service

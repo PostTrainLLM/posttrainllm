@@ -149,7 +149,7 @@ the O(T²) attention cost into O(T) per step.
 
 ### Why Pace must not depend on this repo's dev runtime
 
-For [Pace](../pace-handoff-2026-06-10.md), posttrainllm is a **development-time
+For [Pace](../sessions/pace-handoff-2026-06-10.md), posttrainllm is a **development-time
 factory and eval lab**: it prepares planner data, adapters, specialist packages,
 eval fixtures, and reports. But **Pace production must not depend on
 `posttrainllm serve`, on localhost, or on this repo's dev runtime**
@@ -157,7 +157,7 @@ eval fixtures, and reports. But **Pace production must not depend on
 The dev serving path is for evaluation and iteration; a shipped artifact is a
 package (weights + card + lock) that Pace bundles or loads on its own terms.
 This is why deliverables to Pace are *packages and fixtures*, not a running
-server (see the [Pace handoff](../pace-handoff-2026-06-10.md)).
+server (see the [Pace handoff](../sessions/pace-handoff-2026-06-10.md)).
 
 ## The browser / WASM / WebGPU training path
 

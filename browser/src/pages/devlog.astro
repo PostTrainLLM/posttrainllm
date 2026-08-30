@@ -8,12 +8,16 @@ import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
   title: "posttrainllm — devlog",
-  description: "Notes from building posttrainllm — kernel measurements, honest negative results, decisions made while AI-pairing.",
+  description:
+    "Notes from building posttrainllm — kernel measurements, honest negative results, decisions made while AI-pairing.",
   ogType: "article",
-  ogTitle: "posttrainllm — devlog: kernel measurements + honest negative results",
-  ogDescription: "What worked, what didn't. f16 doesn't compound on top of tiling. 8×8 register block lost to 4×4. vec4 wins standalone but a WGSL access-mode mismatch breaks integration — until you find it.",
+  ogTitle:
+    "posttrainllm — devlog: kernel measurements + honest negative results",
+  ogDescription:
+    "What worked, what didn't. f16 doesn't compound on top of tiling. 8×8 register block lost to 4×4. vec4 wins standalone but a WGSL access-mode mismatch breaks integration — until you find it.",
   twitterTitle: "posttrainllm — devlog",
-  twitterDescription: "Kernel measurements, honest negative results, decisions made while AI-pairing on a GPT-2 implementation.",
+  twitterDescription:
+    "Kernel measurements, honest negative results, decisions made while AI-pairing on a GPT-2 implementation.",
   themeColor: "#0a0c0f",
   loadFonts: false,
 };
@@ -221,7 +225,7 @@ const pageBody = `
       </p>
       <div class="block">
         <p>Every run now assembles a folder — <code>config · dataset · eval-baseline ·
-        eval-candidate · decision · report</code> — via <code>scripts/assemble_factory_run.py</code>,
+        eval-candidate · decision · report</code> — via <code>scripts/factory/assemble_factory_run.py</code>,
         which computes the eval delta and hashes the real dataset into provenance. The one proof
         still missing from the whole project is a run whose decision is <strong>ship</strong>.</p>
       </div>
@@ -667,5 +671,4 @@ WebGPU + FA2 fwd
   <SiteHeader mode="instrument" />
   <style is:global slot="head" set:html={pageStyle}></style>
   <Fragment set:html={pageBody} />
-
 </Default>

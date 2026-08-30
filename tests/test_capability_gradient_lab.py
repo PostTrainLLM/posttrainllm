@@ -8,15 +8,25 @@ Run:
 from __future__ import annotations
 
 import importlib.util
-import json
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _script_path(filename):
+    """scripts/ is grouped into topic subdirs; find a script in any of them."""
+    direct = ROOT / "scripts" / filename
+    if direct.exists():
+        return direct
+    for sub in sorted((ROOT / "scripts").iterdir()):
+        if sub.is_dir() and (sub / filename).exists():
+            return sub / filename
+    raise FileNotFoundError(f"scripts/**/{filename}")
+
+
 def load_module():
-    path = ROOT / "scripts" / "capability_gradient_lab.py"
+    path = _script_path("capability_gradient_lab.py")
     spec = importlib.util.spec_from_file_location("capability_gradient_lab", path)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
@@ -26,13 +36,16 @@ def load_module():
 
 lab = load_module()
 SCORECARD_PATH = ROOT / "configs" / "capability-gradient-lab" / "candidates-v1.json"
-DEVELOPMENT_CONFIG_PATH = ROOT / "configs" / "capability-gradient-lab" / "development-v1.json"
+DEVELOPMENT_CONFIG_PATH = (
+    ROOT / "configs" / "capability-gradient-lab" / "development-v1.json"
+)
 PROBE_DIR = ROOT / "evals" / "capability-gradient-lab" / "fixtures"
 
 
 # ---------------------------------------------------------------------------
 # Scorecard tests
 # ---------------------------------------------------------------------------
+
 
 def test_scorecard_validates():
     data = lab.load_json(SCORECARD_PATH)
@@ -49,7 +62,9 @@ def test_development_config_validates_and_freezes_50m_ceiling():
 
 def test_scorecard_has_at_least_six_candidates():
     data = lab.load_json(SCORECARD_PATH)
-    assert len(data["candidates"]) >= 6, f"need at least 6 candidates, got {len(data['candidates'])}"
+    assert len(data["candidates"]) >= 6, (
+        f"need at least 6 candidates, got {len(data['candidates'])}"
+    )
 
 
 def test_scorecard_has_both_types():
@@ -69,7 +84,9 @@ def test_selected_are_non_overlapping():
     data = lab.load_json(SCORECARD_PATH)
     selected = [c for c in data["candidates"] if c["selected"]]
     modes = [c["reasoning_mode"] for c in selected]
-    assert modes[0] != modes[1], f"selected candidates have same reasoning_mode: {modes}"
+    assert modes[0] != modes[1], (
+        f"selected candidates have same reasoning_mode: {modes}"
+    )
     types = [c["type"] for c in selected]
     assert types[0] != types[1], f"selected candidates have same type: {types}"
 
@@ -78,7 +95,9 @@ def test_scorecard_rejects_duplicate_ids():
     data = lab.load_json(SCORECARD_PATH)
     data["candidates"][1]["candidate_id"] = data["candidates"][0]["candidate_id"]
     errors = lab.validate_scorecard(data)
-    assert any("duplicate" in e for e in errors), f"should detect duplicate id: {errors}"
+    assert any("duplicate" in e for e in errors), (
+        f"should detect duplicate id: {errors}"
+    )
 
 
 def test_scorecard_rejects_overlapping_selections():
@@ -86,14 +105,18 @@ def test_scorecard_rejects_overlapping_selections():
     selected = [c for c in data["candidates"] if c["selected"]]
     selected[1]["reasoning_mode"] = selected[0]["reasoning_mode"]
     errors = lab.validate_scorecard(data)
-    assert any("same reasoning_mode" in e for e in errors), f"should detect overlap: {errors}"
+    assert any("same reasoning_mode" in e for e in errors), (
+        f"should detect overlap: {errors}"
+    )
 
 
 def test_scorecard_rejects_missing_fields():
     data = lab.load_json(SCORECARD_PATH)
     del data["candidates"][0]["reject_condition"]
     errors = lab.validate_scorecard(data)
-    assert any("reject_condition" in e for e in errors), f"should detect missing field: {errors}"
+    assert any("reject_condition" in e for e in errors), (
+        f"should detect missing field: {errors}"
+    )
 
 
 def test_scorecard_rejects_rank_gaps():
@@ -106,6 +129,7 @@ def test_scorecard_rejects_rank_gaps():
 # ---------------------------------------------------------------------------
 # Connect-4 environment tests
 # ---------------------------------------------------------------------------
+
 
 def test_connect4_reset_deterministic():
     env1 = lab.Connect4Env()
@@ -211,6 +235,7 @@ def test_connect4_parse_action():
 
 def test_connect4_random_legal_always_valid():
     import random
+
     env = lab.Connect4Env()
     env.reset(0)
     rng = random.Random(123)
@@ -255,6 +280,7 @@ def test_connect4_blunder_rate_detects_missed_win():
 # ---------------------------------------------------------------------------
 # Calendar scheduling environment tests
 # ---------------------------------------------------------------------------
+
 
 def test_calendar_reset_deterministic():
     env1 = lab.CalendarEnv()
@@ -328,6 +354,7 @@ def test_calendar_parse_action():
 
 def test_calendar_random_legal_returns_valid_slot():
     import random
+
     env = lab.CalendarEnv()
     env.reset(0)
     rng = random.Random(456)
@@ -348,8 +375,9 @@ def test_calendar_satisfaction_score_graduated():
     # A slot that's in date range and within hours but overlaps an event
     # should have a partial satisfaction score
     result = env.verify("tue 09:00")
-    assert 0 < result["satisfaction_score"] < 1.0, \
+    assert 0 < result["satisfaction_score"] < 1.0, (
         f"overlapping slot should have partial score, got {result['satisfaction_score']}"
+    )
 
 
 def test_calendar_generator_includes_unsatisfiable_instances():
@@ -362,6 +390,7 @@ def test_calendar_generator_includes_unsatisfiable_instances():
 # ---------------------------------------------------------------------------
 # Probe validation tests
 # ---------------------------------------------------------------------------
+
 
 def test_connect4_probes_validate():
     errors = lab.validate_probes()
@@ -408,6 +437,7 @@ def test_calendar_probes_have_provenance():
 # Random-legal baseline tests
 # ---------------------------------------------------------------------------
 
+
 def test_connect4_random_baseline_runs():
     result = lab.connect4_random_baseline(range(10))
     assert result["n_games"] == 10
@@ -427,7 +457,9 @@ def test_connect4_random_baseline_deterministic():
     r1 = lab.connect4_random_baseline(range(5))
     r2 = lab.connect4_random_baseline(range(5))
     assert r1["win_rate"] == r2["win_rate"]
-    assert [r["outcome"] for r in r1["results"]] == [r["outcome"] for r in r2["results"]]
+    assert [r["outcome"] for r in r1["results"]] == [
+        r["outcome"] for r in r2["results"]
+    ]
 
 
 def test_calendar_random_baseline_deterministic():
@@ -440,6 +472,7 @@ def test_calendar_random_baseline_deterministic():
 # ---------------------------------------------------------------------------
 # CLI tests
 # ---------------------------------------------------------------------------
+
 
 def test_cli_validate_scorecard():
     rc = lab.main(["validate-scorecard"])
@@ -467,7 +500,8 @@ def test_cli_canonical_trace_calendar():
 
 if __name__ == "__main__":
     tests = [
-        (name, obj) for name, obj in sorted(globals().items())
+        (name, obj)
+        for name, obj in sorted(globals().items())
         if name.startswith("test_") and callable(obj)
     ]
     passed = 0

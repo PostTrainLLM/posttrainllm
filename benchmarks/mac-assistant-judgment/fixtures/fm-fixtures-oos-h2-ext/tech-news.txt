@@ -1,3 +1,0 @@
-USER: any apple announcements this week
-EXPECT_INTENT: out_of_scope
-REASON: News from the web

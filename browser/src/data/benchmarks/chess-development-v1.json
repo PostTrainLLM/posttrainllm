@@ -1729,9 +1729,7 @@
       },
       "decisions": [
         {
-          "best_moves": [
-            "a1a8"
-          ],
+          "best_moves": ["a1a8"],
           "exact": false,
           "failure": null,
           "fen": "r1bqr1k1/3n1ppp/4pn2/1ppp4/3P4/1PN1P1Q1/2PN1PPP/R1B1K2R w K - 0 16",
@@ -1792,15 +1790,10 @@
           "parsed_move": "e1e2",
           "puzzle_id": "chess-dev-001",
           "raw_output": "e1e2",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "g3g7"
-          ],
+          "best_moves": ["g3g7"],
           "exact": false,
           "failure": null,
           "fen": "2b3nr/1pk2pp1/2nbP2p/1p6/4r3/5NQ1/PPPK1PPP/R1B4R w - - 1 16",
@@ -1846,15 +1839,10 @@
           "parsed_move": "f3e5",
           "puzzle_id": "chess-dev-002",
           "raw_output": "f3e5",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e2e1"
-          ],
+          "best_moves": ["e2e1"],
           "exact": false,
           "failure": null,
           "fen": "r3k2r/p3b1pp/3p1n2/1p1N4/1np1P1q1/P7/BPP1K1PP/R1BQ3R w kq - 1 17",
@@ -1862,25 +1850,14 @@
           "input": "FEN=r3k2r/p3b1pp/3p1n2/1p1N4/1np1P1q1/P7/BPP1K1PP/R1BQ3R w kq - 1 17;PLY=32;LEGAL=e2d2,e2e1,e2e3,e2f1,e2f2",
           "latency_ms": 228.998917,
           "legal": true,
-          "legal_moves": [
-            "e2d2",
-            "e2e1",
-            "e2e3",
-            "e2f1",
-            "e2f2"
-          ],
+          "legal_moves": ["e2d2", "e2e1", "e2e3", "e2f1", "e2f2"],
           "parsed_move": "e2d2",
           "puzzle_id": "chess-dev-003",
           "raw_output": "e2d2",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e8f7"
-          ],
+          "best_moves": ["e8f7"],
           "exact": false,
           "failure": null,
           "fen": "r1b1kb1r/pp3Qpp/3pp3/2pn4/1P4N1/3p4/P1PP1PPP/RNB2RK1 b kq - 0 13",
@@ -1888,22 +1865,14 @@
           "input": "FEN=r1b1kb1r/pp3Qpp/3pp3/2pn4/1P4N1/3p4/P1PP1PPP/RNB2RK1 b kq - 0 13;PLY=25;LEGAL=e8d8,e8f7",
           "latency_ms": 224.226875,
           "legal": true,
-          "legal_moves": [
-            "e8d8",
-            "e8f7"
-          ],
+          "legal_moves": ["e8d8", "e8f7"],
           "parsed_move": "e8d8",
           "puzzle_id": "chess-dev-004",
           "raw_output": "e8d8",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "h5g3"
-          ],
+          "best_moves": ["h5g3"],
           "exact": false,
           "failure": null,
           "fen": "rBbnr1k1/pp1q1p2/6pp/2bN3n/8/P1N2BQP/1PP2PP1/2KR3R b - - 2 18",
@@ -1962,15 +1931,10 @@
           "parsed_move": "d7d6",
           "puzzle_id": "chess-dev-005",
           "raw_output": "d7d6",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "d4c3"
-          ],
+          "best_moves": ["d4c3"],
           "exact": false,
           "failure": "ValueError: model output is not legal in the current position",
           "fen": "rnb1kb1r/pppq1ppp/3p1n2/6N1/2BpP2P/2N5/PPP2PP1/R1BQK2R b KQkq h3 0 9",
@@ -2015,15 +1979,10 @@
           "parsed_move": null,
           "puzzle_id": "chess-dev-006",
           "raw_output": "d7d5",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "c1b2"
-          ],
+          "best_moves": ["c1b2"],
           "exact": false,
           "failure": null,
           "fen": "r1bqk2r/pp2bppp/2n1pn2/2p5/4PQ1P/3P1N2/PpP1BPP1/R1BK3R w kq - 0 10",
@@ -2077,15 +2036,10 @@
           "parsed_move": "f4d6",
           "puzzle_id": "chess-dev-007",
           "raw_output": "f4d6",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e8f7"
-          ],
+          "best_moves": ["e8f7"],
           "exact": false,
           "failure": null,
           "fen": "rnbqkb1r/2p2Npp/p3pn2/1p6/2pP4/P3P3/1P3PPP/RNBQKB1R b KQkq - 0 7",
@@ -2133,15 +2087,10 @@
           "parsed_move": "d8d7",
           "puzzle_id": "chess-dev-008",
           "raw_output": "d8d7",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e2g4"
-          ],
+          "best_moves": ["e2g4"],
           "exact": false,
           "failure": null,
           "fen": "rn1q1b1r/ppk1pNpp/2p5/3p4/3P1nb1/4P3/PPPNQPPP/R3KB1R w KQ - 0 9",
@@ -2190,15 +2139,10 @@
           "parsed_move": "e2d3",
           "puzzle_id": "chess-dev-009",
           "raw_output": "e2d3",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "f7e6"
-          ],
+          "best_moves": ["f7e6"],
           "exact": false,
           "failure": null,
           "fen": "r4r1k/pp3pnp/4N1p1/3p4/2P1P3/1P2p2P/P3B1PR/RK6 b - - 0 26",
@@ -2238,15 +2182,10 @@
           "parsed_move": "f8d8",
           "puzzle_id": "chess-dev-010",
           "raw_output": "f8d8",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "d2b4"
-          ],
+          "best_moves": ["d2b4"],
           "exact": false,
           "failure": null,
           "fen": "r1bq1rk1/p4pp1/3p1b1p/1p2p3/1n1pP3/1B3N2/PPPQNPPP/R3K2R w KQ - 0 14",
@@ -2302,15 +2241,10 @@
           "parsed_move": "d2d4",
           "puzzle_id": "chess-dev-011",
           "raw_output": "d2d4",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "f4c7"
-          ],
+          "best_moves": ["f4c7"],
           "exact": false,
           "failure": null,
           "fen": "r1b1kb1r/ppq1pppp/2n5/3p3n/3p1B2/4PN2/PPPNBPPP/R2Q1RK1 w kq - 2 8",
@@ -2361,15 +2295,10 @@
           "parsed_move": "d2c4",
           "puzzle_id": "chess-dev-012",
           "raw_output": "d2c4",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e6f5"
-          ],
+          "best_moves": ["e6f5"],
           "exact": false,
           "failure": null,
           "fen": "N3k3/8/p3p2r/q3nQpp/7P/P1PR3R/3P1KP1/2B2B2 b - - 2 22",
@@ -2408,15 +2337,10 @@
           "parsed_move": "a5a4",
           "puzzle_id": "chess-dev-013",
           "raw_output": "a5a4",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "c7c6"
-          ],
+          "best_moves": ["c7c6"],
           "exact": false,
           "failure": null,
           "fen": "r1b1kbnr/ppp2ppp/1n6/1Q2N3/3qp3/8/PPPN1PPP/R1B1KB1R b KQkq - 1 7",
@@ -2424,26 +2348,14 @@
           "input": "FEN=r1b1kbnr/ppp2ppp/1n6/1Q2N3/3qp3/8/PPPN1PPP/R1B1KB1R b KQkq - 1 7;PLY=13;LEGAL=b6d7,c7c6,c8d7,d4d7,e8d8,e8e7",
           "latency_ms": 264.693292,
           "legal": true,
-          "legal_moves": [
-            "b6d7",
-            "c7c6",
-            "c8d7",
-            "d4d7",
-            "e8d8",
-            "e8e7"
-          ],
+          "legal_moves": ["b6d7", "c7c6", "c8d7", "d4d7", "e8d8", "e8e7"],
           "parsed_move": "d4d7",
           "puzzle_id": "chess-dev-014",
           "raw_output": "d4d7",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "c1g5"
-          ],
+          "best_moves": ["c1g5"],
           "exact": false,
           "failure": null,
           "fen": "r2k2nr/pppb2pp/3b4/4p1q1/P1B1P3/8/1PP2PPP/RNB1K2R w KQ - 0 9",
@@ -2492,15 +2404,10 @@
           "parsed_move": "c4d5",
           "puzzle_id": "chess-dev-015",
           "raw_output": "c4d5",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e7e4"
-          ],
+          "best_moves": ["e7e4"],
           "exact": false,
           "failure": null,
           "fen": "rn2k2r/pp2qppp/1bp2n2/3p4/4P1B1/1N6/PPPB1PPP/RN1QK2R b KQkq - 0 11",
@@ -2552,15 +2459,10 @@
           "parsed_move": "b6c5",
           "puzzle_id": "chess-dev-016",
           "raw_output": "b6c5",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "b5d4"
-          ],
+          "best_moves": ["b5d4"],
           "exact": false,
           "failure": null,
           "fen": "r3qrk1/pppb1ppp/n2p4/1N1P4/2Pb1P2/6P1/PP2Q1BP/R1B1K2R w KQ - 5 15",
@@ -2606,15 +2508,10 @@
           "parsed_move": "e1d1",
           "puzzle_id": "chess-dev-017",
           "raw_output": "e1d1",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "d5e6"
-          ],
+          "best_moves": ["d5e6"],
           "exact": false,
           "failure": null,
           "fen": "rn1qkb1r/1p3p1p/p2pbnp1/2pP4/8/4PN1P/PP2BPP1/RNBQK2R w KQkq - 2 9",
@@ -2664,15 +2561,10 @@
           "parsed_move": "d1d3",
           "puzzle_id": "chess-dev-018",
           "raw_output": "d1d3",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "d3e4"
-          ],
+          "best_moves": ["d3e4"],
           "exact": false,
           "failure": null,
           "fen": "r1bqkb1r/pp1n1ppp/4p3/8/3Nn3/3B4/PPP1KPPP/R1BQ3R w kq - 0 9",
@@ -2724,15 +2616,10 @@
           "parsed_move": "d1d2",
           "puzzle_id": "chess-dev-019",
           "raw_output": "d1d2",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "a6b5"
-          ],
+          "best_moves": ["a6b5"],
           "exact": false,
           "failure": null,
           "fen": "rnb2rk1/1ppqbp1p/p4npP/1N1p4/3P4/5N2/PPP1BPP1/R1BQK2R b KQ - 1 10",
@@ -2774,10 +2661,7 @@
           "parsed_move": "d7d6",
           "puzzle_id": "chess-dev-020",
           "raw_output": "d7d6",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         }
       ],
       "identity_state": "recorded-local-artifact",
@@ -2800,9 +2684,7 @@
       },
       "decisions": [
         {
-          "best_moves": [
-            "a1a8"
-          ],
+          "best_moves": ["a1a8"],
           "exact": false,
           "failure": null,
           "fen": "r1bqr1k1/3n1ppp/4pn2/1ppp4/3P4/1PN1P1Q1/2PN1PPP/R1B1K2R w K - 0 16",
@@ -2863,15 +2745,10 @@
           "parsed_move": "c3d5",
           "puzzle_id": "chess-dev-001",
           "raw_output": "c3d5",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "g3g7"
-          ],
+          "best_moves": ["g3g7"],
           "exact": false,
           "failure": null,
           "fen": "2b3nr/1pk2pp1/2nbP2p/1p6/4r3/5NQ1/PPPK1PPP/R1B4R w - - 1 16",
@@ -2917,15 +2794,10 @@
           "parsed_move": "f3g5",
           "puzzle_id": "chess-dev-002",
           "raw_output": "f3g5",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e2e1"
-          ],
+          "best_moves": ["e2e1"],
           "exact": true,
           "failure": null,
           "fen": "r3k2r/p3b1pp/3p1n2/1p1N4/1np1P1q1/P7/BPP1K1PP/R1BQ3R w kq - 1 17",
@@ -2933,25 +2805,14 @@
           "input": "FEN=r3k2r/p3b1pp/3p1n2/1p1N4/1np1P1q1/P7/BPP1K1PP/R1BQ3R w kq - 1 17;PLY=32;LEGAL=e2d2,e2e1,e2e3,e2f1,e2f2",
           "latency_ms": 527.47575,
           "legal": true,
-          "legal_moves": [
-            "e2d2",
-            "e2e1",
-            "e2e3",
-            "e2f1",
-            "e2f2"
-          ],
+          "legal_moves": ["e2d2", "e2e1", "e2e3", "e2f1", "e2f2"],
           "parsed_move": "e2e1",
           "puzzle_id": "chess-dev-003",
           "raw_output": "e2e1",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e8f7"
-          ],
+          "best_moves": ["e8f7"],
           "exact": false,
           "failure": null,
           "fen": "r1b1kb1r/pp3Qpp/3pp3/2pn4/1P4N1/3p4/P1PP1PPP/RNB2RK1 b kq - 0 13",
@@ -2959,22 +2820,14 @@
           "input": "FEN=r1b1kb1r/pp3Qpp/3pp3/2pn4/1P4N1/3p4/P1PP1PPP/RNB2RK1 b kq - 0 13;PLY=25;LEGAL=e8d8,e8f7",
           "latency_ms": 480.46075,
           "legal": true,
-          "legal_moves": [
-            "e8d8",
-            "e8f7"
-          ],
+          "legal_moves": ["e8d8", "e8f7"],
           "parsed_move": "e8d8",
           "puzzle_id": "chess-dev-004",
           "raw_output": "e8d8",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "h5g3"
-          ],
+          "best_moves": ["h5g3"],
           "exact": false,
           "failure": null,
           "fen": "rBbnr1k1/pp1q1p2/6pp/2bN3n/8/P1N2BQP/1PP2PP1/2KR3R b - - 2 18",
@@ -3033,15 +2886,10 @@
           "parsed_move": "d7d5",
           "puzzle_id": "chess-dev-005",
           "raw_output": "d7d5",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "d4c3"
-          ],
+          "best_moves": ["d4c3"],
           "exact": false,
           "failure": null,
           "fen": "rnb1kb1r/pppq1ppp/3p1n2/6N1/2BpP2P/2N5/PPP2PP1/R1BQK2R b KQkq h3 0 9",
@@ -3086,15 +2934,10 @@
           "parsed_move": "d7d8",
           "puzzle_id": "chess-dev-006",
           "raw_output": "d7d8",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "c1b2"
-          ],
+          "best_moves": ["c1b2"],
           "exact": false,
           "failure": null,
           "fen": "r1bqk2r/pp2bppp/2n1pn2/2p5/4PQ1P/3P1N2/PpP1BPP1/R1BK3R w kq - 0 10",
@@ -3148,15 +2991,10 @@
           "parsed_move": "f3g1",
           "puzzle_id": "chess-dev-007",
           "raw_output": "f3g1",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e8f7"
-          ],
+          "best_moves": ["e8f7"],
           "exact": false,
           "failure": null,
           "fen": "rnbqkb1r/2p2Npp/p3pn2/1p6/2pP4/P3P3/1P3PPP/RNBQKB1R b KQkq - 0 7",
@@ -3204,15 +3042,10 @@
           "parsed_move": "d8d4",
           "puzzle_id": "chess-dev-008",
           "raw_output": "d8d4",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e2g4"
-          ],
+          "best_moves": ["e2g4"],
           "exact": false,
           "failure": null,
           "fen": "rn1q1b1r/ppk1pNpp/2p5/3p4/3P1nb1/4P3/PPPNQPPP/R3KB1R w KQ - 0 9",
@@ -3261,15 +3094,10 @@
           "parsed_move": "e2d1",
           "puzzle_id": "chess-dev-009",
           "raw_output": "e2d1",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "f7e6"
-          ],
+          "best_moves": ["f7e6"],
           "exact": false,
           "failure": null,
           "fen": "r4r1k/pp3pnp/4N1p1/3p4/2P1P3/1P2p2P/P3B1PR/RK6 b - - 0 26",
@@ -3309,15 +3137,10 @@
           "parsed_move": "f7f5",
           "puzzle_id": "chess-dev-010",
           "raw_output": "f7f5",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "d2b4"
-          ],
+          "best_moves": ["d2b4"],
           "exact": false,
           "failure": null,
           "fen": "r1bq1rk1/p4pp1/3p1b1p/1p2p3/1n1pP3/1B3N2/PPPQNPPP/R3K2R w KQ - 0 14",
@@ -3373,15 +3196,10 @@
           "parsed_move": "d2d4",
           "puzzle_id": "chess-dev-011",
           "raw_output": "d2d4",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "f4c7"
-          ],
+          "best_moves": ["f4c7"],
           "exact": false,
           "failure": "ValueError: model output is not legal in the current position",
           "fen": "r1b1kb1r/ppq1pppp/2n5/3p3n/3p1B2/4PN2/PPPNBPPP/R2Q1RK1 w kq - 2 8",
@@ -3432,15 +3250,10 @@
           "parsed_move": null,
           "puzzle_id": "chess-dev-012",
           "raw_output": "d2d4",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e6f5"
-          ],
+          "best_moves": ["e6f5"],
           "exact": false,
           "failure": null,
           "fen": "N3k3/8/p3p2r/q3nQpp/7P/P1PR3R/3P1KP1/2B2B2 b - - 2 22",
@@ -3479,15 +3292,10 @@
           "parsed_move": "a5a3",
           "puzzle_id": "chess-dev-013",
           "raw_output": "a5a3",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "c7c6"
-          ],
+          "best_moves": ["c7c6"],
           "exact": false,
           "failure": null,
           "fen": "r1b1kbnr/ppp2ppp/1n6/1Q2N3/3qp3/8/PPPN1PPP/R1B1KB1R b KQkq - 1 7",
@@ -3495,26 +3303,14 @@
           "input": "FEN=r1b1kbnr/ppp2ppp/1n6/1Q2N3/3qp3/8/PPPN1PPP/R1B1KB1R b KQkq - 1 7;PLY=13;LEGAL=b6d7,c7c6,c8d7,d4d7,e8d8,e8e7",
           "latency_ms": 507.550125,
           "legal": true,
-          "legal_moves": [
-            "b6d7",
-            "c7c6",
-            "c8d7",
-            "d4d7",
-            "e8d8",
-            "e8e7"
-          ],
+          "legal_moves": ["b6d7", "c7c6", "c8d7", "d4d7", "e8d8", "e8e7"],
           "parsed_move": "e8d8",
           "puzzle_id": "chess-dev-014",
           "raw_output": "e8d8",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "c1g5"
-          ],
+          "best_moves": ["c1g5"],
           "exact": false,
           "failure": null,
           "fen": "r2k2nr/pppb2pp/3b4/4p1q1/P1B1P3/8/1PP2PPP/RNB1K2R w KQ - 0 9",
@@ -3563,15 +3359,10 @@
           "parsed_move": "c4d3",
           "puzzle_id": "chess-dev-015",
           "raw_output": "c4d3",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e7e4"
-          ],
+          "best_moves": ["e7e4"],
           "exact": false,
           "failure": null,
           "fen": "rn2k2r/pp2qppp/1bp2n2/3p4/4P1B1/1N6/PPPB1PPP/RN1QK2R b KQkq - 0 11",
@@ -3623,15 +3414,10 @@
           "parsed_move": "e7e5",
           "puzzle_id": "chess-dev-016",
           "raw_output": "e7e5",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "b5d4"
-          ],
+          "best_moves": ["b5d4"],
           "exact": false,
           "failure": null,
           "fen": "r3qrk1/pppb1ppp/n2p4/1N1P4/2Pb1P2/6P1/PP2Q1BP/R1B1K2R w KQ - 5 15",
@@ -3677,15 +3463,10 @@
           "parsed_move": "e2e4",
           "puzzle_id": "chess-dev-017",
           "raw_output": "e2e4",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "d5e6"
-          ],
+          "best_moves": ["d5e6"],
           "exact": false,
           "failure": null,
           "fen": "rn1qkb1r/1p3p1p/p2pbnp1/2pP4/8/4PN1P/PP2BPP1/RNBQK2R w KQkq - 2 9",
@@ -3735,15 +3516,10 @@
           "parsed_move": "d1d3",
           "puzzle_id": "chess-dev-018",
           "raw_output": "d1d3",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "d3e4"
-          ],
+          "best_moves": ["d3e4"],
           "exact": true,
           "failure": null,
           "fen": "r1bqkb1r/pp1n1ppp/4p3/8/3Nn3/3B4/PPP1KPPP/R1BQ3R w kq - 0 9",
@@ -3795,15 +3571,10 @@
           "parsed_move": "d3e4",
           "puzzle_id": "chess-dev-019",
           "raw_output": "d3e4",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "a6b5"
-          ],
+          "best_moves": ["a6b5"],
           "exact": false,
           "failure": "ValueError: model output is not legal in the current position",
           "fen": "rnb2rk1/1ppqbp1p/p4npP/1N1p4/3P4/5N2/PPP1BPP1/R1BQK2R b KQ - 1 10",
@@ -3845,10 +3616,7 @@
           "parsed_move": null,
           "puzzle_id": "chess-dev-020",
           "raw_output": "d7c5",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         }
       ],
       "identity_state": "recorded-local-artifact",
@@ -3871,9 +3639,7 @@
       },
       "decisions": [
         {
-          "best_moves": [
-            "a1a8"
-          ],
+          "best_moves": ["a1a8"],
           "exact": false,
           "failure": null,
           "fen": "r1bqr1k1/3n1ppp/4pn2/1ppp4/3P4/1PN1P1Q1/2PN1PPP/R1B1K2R w K - 0 16",
@@ -3934,15 +3700,10 @@
           "parsed_move": "e1g1",
           "puzzle_id": "chess-dev-001",
           "raw_output": "e1g1",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "g3g7"
-          ],
+          "best_moves": ["g3g7"],
           "exact": true,
           "failure": null,
           "fen": "2b3nr/1pk2pp1/2nbP2p/1p6/4r3/5NQ1/PPPK1PPP/R1B4R w - - 1 16",
@@ -3988,15 +3749,10 @@
           "parsed_move": "g3g7",
           "puzzle_id": "chess-dev-002",
           "raw_output": "g3g7",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e2e1"
-          ],
+          "best_moves": ["e2e1"],
           "exact": false,
           "failure": null,
           "fen": "r3k2r/p3b1pp/3p1n2/1p1N4/1np1P1q1/P7/BPP1K1PP/R1BQ3R w kq - 1 17",
@@ -4004,25 +3760,14 @@
           "input": "FEN=r3k2r/p3b1pp/3p1n2/1p1N4/1np1P1q1/P7/BPP1K1PP/R1BQ3R w kq - 1 17;PLY=32;LEGAL=e2d2,e2e1,e2e3,e2f1,e2f2",
           "latency_ms": 27914.159292,
           "legal": true,
-          "legal_moves": [
-            "e2d2",
-            "e2e1",
-            "e2e3",
-            "e2f1",
-            "e2f2"
-          ],
+          "legal_moves": ["e2d2", "e2e1", "e2e3", "e2f1", "e2f2"],
           "parsed_move": "e2f2",
           "puzzle_id": "chess-dev-003",
           "raw_output": "e2f2",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e8f7"
-          ],
+          "best_moves": ["e8f7"],
           "exact": true,
           "failure": null,
           "fen": "r1b1kb1r/pp3Qpp/3pp3/2pn4/1P4N1/3p4/P1PP1PPP/RNB2RK1 b kq - 0 13",
@@ -4030,22 +3775,14 @@
           "input": "FEN=r1b1kb1r/pp3Qpp/3pp3/2pn4/1P4N1/3p4/P1PP1PPP/RNB2RK1 b kq - 0 13;PLY=25;LEGAL=e8d8,e8f7",
           "latency_ms": 13921.619917,
           "legal": true,
-          "legal_moves": [
-            "e8d8",
-            "e8f7"
-          ],
+          "legal_moves": ["e8d8", "e8f7"],
           "parsed_move": "e8f7",
           "puzzle_id": "chess-dev-004",
           "raw_output": "e8f7",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "h5g3"
-          ],
+          "best_moves": ["h5g3"],
           "exact": true,
           "failure": null,
           "fen": "rBbnr1k1/pp1q1p2/6pp/2bN3n/8/P1N2BQP/1PP2PP1/2KR3R b - - 2 18",
@@ -4104,15 +3841,10 @@
           "parsed_move": "h5g3",
           "puzzle_id": "chess-dev-005",
           "raw_output": "h5g3",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "d4c3"
-          ],
+          "best_moves": ["d4c3"],
           "exact": false,
           "failure": null,
           "fen": "rnb1kb1r/pppq1ppp/3p1n2/6N1/2BpP2P/2N5/PPP2PP1/R1BQK2R b KQkq h3 0 9",
@@ -4157,15 +3889,10 @@
           "parsed_move": "d7g4",
           "puzzle_id": "chess-dev-006",
           "raw_output": "d7g4",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "c1b2"
-          ],
+          "best_moves": ["c1b2"],
           "exact": true,
           "failure": null,
           "fen": "r1bqk2r/pp2bppp/2n1pn2/2p5/4PQ1P/3P1N2/PpP1BPP1/R1BK3R w kq - 0 10",
@@ -4219,15 +3946,10 @@
           "parsed_move": "c1b2",
           "puzzle_id": "chess-dev-007",
           "raw_output": "c1b2",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e8f7"
-          ],
+          "best_moves": ["e8f7"],
           "exact": true,
           "failure": null,
           "fen": "rnbqkb1r/2p2Npp/p3pn2/1p6/2pP4/P3P3/1P3PPP/RNBQKB1R b KQkq - 0 7",
@@ -4275,15 +3997,10 @@
           "parsed_move": "e8f7",
           "puzzle_id": "chess-dev-008",
           "raw_output": "e8f7",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e2g4"
-          ],
+          "best_moves": ["e2g4"],
           "exact": false,
           "failure": null,
           "fen": "rn1q1b1r/ppk1pNpp/2p5/3p4/3P1nb1/4P3/PPPNQPPP/R3KB1R w KQ - 0 9",
@@ -4332,15 +4049,10 @@
           "parsed_move": "f7d8",
           "puzzle_id": "chess-dev-009",
           "raw_output": "f7d8",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "f7e6"
-          ],
+          "best_moves": ["f7e6"],
           "exact": false,
           "failure": null,
           "fen": "r4r1k/pp3pnp/4N1p1/3p4/2P1P3/1P2p2P/P3B1PR/RK6 b - - 0 26",
@@ -4380,15 +4092,10 @@
           "parsed_move": "g7e6",
           "puzzle_id": "chess-dev-010",
           "raw_output": "g7e6",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "d2b4"
-          ],
+          "best_moves": ["d2b4"],
           "exact": true,
           "failure": null,
           "fen": "r1bq1rk1/p4pp1/3p1b1p/1p2p3/1n1pP3/1B3N2/PPPQNPPP/R3K2R w KQ - 0 14",
@@ -4444,15 +4151,10 @@
           "parsed_move": "d2b4",
           "puzzle_id": "chess-dev-011",
           "raw_output": "d2b4",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "f4c7"
-          ],
+          "best_moves": ["f4c7"],
           "exact": true,
           "failure": null,
           "fen": "r1b1kb1r/ppq1pppp/2n5/3p3n/3p1B2/4PN2/PPPNBPPP/R2Q1RK1 w kq - 2 8",
@@ -4503,15 +4205,10 @@
           "parsed_move": "f4c7",
           "puzzle_id": "chess-dev-012",
           "raw_output": "f4c7",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e6f5"
-          ],
+          "best_moves": ["e6f5"],
           "exact": false,
           "failure": null,
           "fen": "N3k3/8/p3p2r/q3nQpp/7P/P1PR3R/3P1KP1/2B2B2 b - - 2 22",
@@ -4550,15 +4247,10 @@
           "parsed_move": "h6f6",
           "puzzle_id": "chess-dev-013",
           "raw_output": "h6f6",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "c7c6"
-          ],
+          "best_moves": ["c7c6"],
           "exact": true,
           "failure": null,
           "fen": "r1b1kbnr/ppp2ppp/1n6/1Q2N3/3qp3/8/PPPN1PPP/R1B1KB1R b KQkq - 1 7",
@@ -4566,26 +4258,14 @@
           "input": "FEN=r1b1kbnr/ppp2ppp/1n6/1Q2N3/3qp3/8/PPPN1PPP/R1B1KB1R b KQkq - 1 7;PLY=13;LEGAL=b6d7,c7c6,c8d7,d4d7,e8d8,e8e7",
           "latency_ms": 23753.161459,
           "legal": true,
-          "legal_moves": [
-            "b6d7",
-            "c7c6",
-            "c8d7",
-            "d4d7",
-            "e8d8",
-            "e8e7"
-          ],
+          "legal_moves": ["b6d7", "c7c6", "c8d7", "d4d7", "e8d8", "e8e7"],
           "parsed_move": "c7c6",
           "puzzle_id": "chess-dev-014",
           "raw_output": "c7c6",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "c1g5"
-          ],
+          "best_moves": ["c1g5"],
           "exact": true,
           "failure": null,
           "fen": "r2k2nr/pppb2pp/3b4/4p1q1/P1B1P3/8/1PP2PPP/RNB1K2R w KQ - 0 9",
@@ -4634,15 +4314,10 @@
           "parsed_move": "c1g5",
           "puzzle_id": "chess-dev-015",
           "raw_output": "c1g5",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "e7e4"
-          ],
+          "best_moves": ["e7e4"],
           "exact": true,
           "failure": null,
           "fen": "rn2k2r/pp2qppp/1bp2n2/3p4/4P1B1/1N6/PPPB1PPP/RN1QK2R b KQkq - 0 11",
@@ -4694,15 +4369,10 @@
           "parsed_move": "e7e4",
           "puzzle_id": "chess-dev-016",
           "raw_output": "e7e4",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "b5d4"
-          ],
+          "best_moves": ["b5d4"],
           "exact": false,
           "failure": null,
           "fen": "r3qrk1/pppb1ppp/n2p4/1N1P4/2Pb1P2/6P1/PP2Q1BP/R1B1K2R w KQ - 5 15",
@@ -4748,15 +4418,10 @@
           "parsed_move": "e2e7",
           "puzzle_id": "chess-dev-017",
           "raw_output": "e2e7",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "d5e6"
-          ],
+          "best_moves": ["d5e6"],
           "exact": true,
           "failure": null,
           "fen": "rn1qkb1r/1p3p1p/p2pbnp1/2pP4/8/4PN1P/PP2BPP1/RNBQK2R w KQkq - 2 9",
@@ -4806,15 +4471,10 @@
           "parsed_move": "d5e6",
           "puzzle_id": "chess-dev-018",
           "raw_output": "d5e6",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "d3e4"
-          ],
+          "best_moves": ["d3e4"],
           "exact": true,
           "failure": null,
           "fen": "r1bqkb1r/pp1n1ppp/4p3/8/3Nn3/3B4/PPP1KPPP/R1BQ3R w kq - 0 9",
@@ -4866,15 +4526,10 @@
           "parsed_move": "d3e4",
           "puzzle_id": "chess-dev-019",
           "raw_output": "d3e4",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         },
         {
-          "best_moves": [
-            "a6b5"
-          ],
+          "best_moves": ["a6b5"],
           "exact": true,
           "failure": null,
           "fen": "rnb2rk1/1ppqbp1p/p4npP/1N1p4/3P4/5N2/PPP1BPP1/R1BQK2R b KQ - 1 10",
@@ -4916,10 +4571,7 @@
           "parsed_move": "a6b5",
           "puzzle_id": "chess-dev-020",
           "raw_output": "a6b5",
-          "themes": [
-            "engine-generated",
-            "tactical-gap"
-          ]
+          "themes": ["engine-generated", "tactical-gap"]
         }
       ],
       "identity_state": "mutable-alias-development-only",
@@ -4944,9 +4596,7 @@
   ],
   "puzzles": [
     {
-      "best_moves": [
-        "a1a8"
-      ],
+      "best_moves": ["a1a8"],
       "fen": "r1bqr1k1/3n1ppp/4pn2/1ppp4/3P4/1PN1P1Q1/2PN1PPP/R1B1K2R w K - 0 16",
       "id": "chess-dev-001",
       "label": {
@@ -4955,14 +4605,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 531,
         "legal_move_count": 48,
-        "principal_variation": [
-          "a1a8",
-          "e6e5",
-          "c3b5",
-          "e5d4",
-          "e1g1",
-          "d7e5"
-        ],
+        "principal_variation": ["a1a8", "e6e5", "c3b5", "e5d4", "e1g1", "d7e5"],
         "second_score_cp": -166,
         "source_ply": 30
       },
@@ -4973,15 +4616,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "g3g7"
-      ],
+      "best_moves": ["g3g7"],
       "fen": "2b3nr/1pk2pp1/2nbP2p/1p6/4r3/5NQ1/PPPK1PPP/R1B4R w - - 1 16",
       "id": "chess-dev-002",
       "label": {
@@ -4990,14 +4628,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 522,
         "legal_move_count": 33,
-        "principal_variation": [
-          "g3g7",
-          "c8e6",
-          "d2d1",
-          "c6e5",
-          "g7h8",
-          "e5f3"
-        ],
+        "principal_variation": ["g3g7", "c8e6", "d2d1", "c6e5", "g7h8", "e5f3"],
         "second_score_cp": -46,
         "source_ply": 30
       },
@@ -5008,15 +4639,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "e2e1"
-      ],
+      "best_moves": ["e2e1"],
       "fen": "r3k2r/p3b1pp/3p1n2/1p1N4/1np1P1q1/P7/BPP1K1PP/R1BQ3R w kq - 1 17",
       "id": "chess-dev-003",
       "label": {
@@ -5025,14 +4651,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 253,
         "legal_move_count": 5,
-        "principal_variation": [
-          "e2e1",
-          "g4h4",
-          "g2g3",
-          "h4e4",
-          "e1f2",
-          "b4d5"
-        ],
+        "principal_variation": ["e2e1", "g4h4", "g2g3", "h4e4", "e1f2", "b4d5"],
         "second_score_cp": -746,
         "source_ply": 32
       },
@@ -5043,15 +4662,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "e8f7"
-      ],
+      "best_moves": ["e8f7"],
       "fen": "r1b1kb1r/pp3Qpp/3pp3/2pn4/1P4N1/3p4/P1PP1PPP/RNB2RK1 b kq - 0 13",
       "id": "chess-dev-004",
       "label": {
@@ -5060,14 +4674,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 776,
         "legal_move_count": 2,
-        "principal_variation": [
-          "e8f7",
-          "b4c5",
-          "d3c2",
-          "b1a3",
-          "h7h5",
-          "g4e3"
-        ],
+        "principal_variation": ["e8f7", "b4c5", "d3c2", "b1a3", "h7h5", "g4e3"],
         "second_score_cp": -569,
         "source_ply": 25
       },
@@ -5078,15 +4685,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "h5g3"
-      ],
+      "best_moves": ["h5g3"],
       "fen": "rBbnr1k1/pp1q1p2/6pp/2bN3n/8/P1N2BQP/1PP2PP1/2KR3R b - - 2 18",
       "id": "chess-dev-005",
       "label": {
@@ -5095,14 +4697,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 351,
         "legal_move_count": 46,
-        "principal_variation": [
-          "h5g3",
-          "b8g3",
-          "e8e6",
-          "d5c7",
-          "d7e7",
-          "c3d5"
-        ],
+        "principal_variation": ["h5g3", "b8g3", "e8e6", "d5c7", "d7e7", "c3d5"],
         "second_score_cp": -378,
         "source_ply": 35
       },
@@ -5113,15 +4708,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "d4c3"
-      ],
+      "best_moves": ["d4c3"],
       "fen": "rnb1kb1r/pppq1ppp/3p1n2/6N1/2BpP2P/2N5/PPP2PP1/R1BQK2R b KQkq h3 0 9",
       "id": "chess-dev-006",
       "label": {
@@ -5130,14 +4720,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 342,
         "legal_move_count": 32,
-        "principal_variation": [
-          "d4c3",
-          "c4f7",
-          "e8e7",
-          "f7b3",
-          "h7h6",
-          "g5f7"
-        ],
+        "principal_variation": ["d4c3", "c4f7", "e8e7", "f7b3", "h7h6", "g5f7"],
         "second_score_cp": -143,
         "source_ply": 17
       },
@@ -5148,15 +4731,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "c1b2"
-      ],
+      "best_moves": ["c1b2"],
       "fen": "r1bqk2r/pp2bppp/2n1pn2/2p5/4PQ1P/3P1N2/PpP1BPP1/R1BK3R w kq - 0 10",
       "id": "chess-dev-007",
       "label": {
@@ -5165,14 +4743,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 264,
         "legal_move_count": 41,
-        "principal_variation": [
-          "c1b2",
-          "c6d4",
-          "f4g3",
-          "e8g8",
-          "h4h5",
-          "h7h6"
-        ],
+        "principal_variation": ["c1b2", "c6d4", "f4g3", "e8g8", "h4h5", "h7h6"],
         "second_score_cp": -694,
         "source_ply": 18
       },
@@ -5183,15 +4754,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "e8f7"
-      ],
+      "best_moves": ["e8f7"],
       "fen": "rnbqkb1r/2p2Npp/p3pn2/1p6/2pP4/P3P3/1P3PPP/RNBQKB1R b KQkq - 0 7",
       "id": "chess-dev-008",
       "label": {
@@ -5200,14 +4766,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 438,
         "legal_move_count": 35,
-        "principal_variation": [
-          "e8f7",
-          "f1e2",
-          "c8b7",
-          "e1g1",
-          "b8d7",
-          "b2b3"
-        ],
+        "principal_variation": ["e8f7", "f1e2", "c8b7", "e1g1", "b8d7", "b2b3"],
         "second_score_cp": -88,
         "source_ply": 13
       },
@@ -5218,15 +4777,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "e2g4"
-      ],
+      "best_moves": ["e2g4"],
       "fen": "rn1q1b1r/ppk1pNpp/2p5/3p4/3P1nb1/4P3/PPPNQPPP/R3KB1R w KQ - 0 9",
       "id": "chess-dev-009",
       "label": {
@@ -5235,14 +4789,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 498,
         "legal_move_count": 36,
-        "principal_variation": [
-          "e2g4",
-          "d8e8",
-          "g4f4",
-          "e7e5",
-          "d4e5",
-          "g7g5"
-        ],
+        "principal_variation": ["e2g4", "d8e8", "g4f4", "e7e5", "d4e5", "g7g5"],
         "second_score_cp": 111,
         "source_ply": 16
       },
@@ -5253,15 +4800,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "f7e6"
-      ],
+      "best_moves": ["f7e6"],
       "fen": "r4r1k/pp3pnp/4N1p1/3p4/2P1P3/1P2p2P/P3B1PR/RK6 b - - 0 26",
       "id": "chess-dev-010",
       "label": {
@@ -5270,14 +4812,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 286,
         "legal_move_count": 27,
-        "principal_variation": [
-          "f7e6",
-          "e4d5",
-          "f8f2",
-          "e2f3",
-          "e6d5",
-          "f3d5"
-        ],
+        "principal_variation": ["f7e6", "e4d5", "f8f2", "e2f3", "e6d5", "f3d5"],
         "second_score_cp": 14,
         "source_ply": 51
       },
@@ -5288,15 +4823,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "d2b4"
-      ],
+      "best_moves": ["d2b4"],
       "fen": "r1bq1rk1/p4pp1/3p1b1p/1p2p3/1n1pP3/1B3N2/PPPQNPPP/R3K2R w KQ - 0 14",
       "id": "chess-dev-011",
       "label": {
@@ -5305,14 +4835,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 278,
         "legal_move_count": 43,
-        "principal_variation": [
-          "d2b4",
-          "a7a5",
-          "b4d2",
-          "c8b7",
-          "b3d5",
-          "b7d5"
-        ],
+        "principal_variation": ["d2b4", "a7a5", "b4d2", "c8b7", "b3d5", "b7d5"],
         "second_score_cp": -65,
         "source_ply": 26
       },
@@ -5323,15 +4846,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "f4c7"
-      ],
+      "best_moves": ["f4c7"],
       "fen": "r1b1kb1r/ppq1pppp/2n5/3p3n/3p1B2/4PN2/PPPNBPPP/R2Q1RK1 w kq - 2 8",
       "id": "chess-dev-012",
       "label": {
@@ -5340,14 +4858,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 747,
         "legal_move_count": 38,
-        "principal_variation": [
-          "f4c7",
-          "e8d7",
-          "f3d4",
-          "c6d4",
-          "e3d4",
-          "e7e6"
-        ],
+        "principal_variation": ["f4c7", "e8d7", "f3d4", "c6d4", "e3d4", "e7e6"],
         "second_score_cp": -1,
         "source_ply": 14
       },
@@ -5358,15 +4869,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "e6f5"
-      ],
+      "best_moves": ["e6f5"],
       "fen": "N3k3/8/p3p2r/q3nQpp/7P/P1PR3R/3P1KP1/2B2B2 b - - 2 22",
       "id": "chess-dev-013",
       "label": {
@@ -5375,14 +4881,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 271,
         "legal_move_count": 26,
-        "principal_variation": [
-          "e6f5",
-          "d3d4",
-          "e5g4",
-          "f2g1",
-          "a5c5",
-          "h4g5"
-        ],
+        "principal_variation": ["e6f5", "d3d4", "e5g4", "f2g1", "a5c5", "h4g5"],
         "second_score_cp": -296,
         "source_ply": 43
       },
@@ -5393,15 +4892,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "c7c6"
-      ],
+      "best_moves": ["c7c6"],
       "fen": "r1b1kbnr/ppp2ppp/1n6/1Q2N3/3qp3/8/PPPN1PPP/R1B1KB1R b KQkq - 1 7",
       "id": "chess-dev-014",
       "label": {
@@ -5410,14 +4904,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 260,
         "legal_move_count": 6,
-        "principal_variation": [
-          "c7c6",
-          "e5c6",
-          "b7c6",
-          "b5c6",
-          "c8d7",
-          "c6e4"
-        ],
+        "principal_variation": ["c7c6", "e5c6", "b7c6", "b5c6", "c8d7", "c6e4"],
         "second_score_cp": -20,
         "source_ply": 13
       },
@@ -5428,15 +4915,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "c1g5"
-      ],
+      "best_moves": ["c1g5"],
       "fen": "r2k2nr/pppb2pp/3b4/4p1q1/P1B1P3/8/1PP2PPP/RNB1K2R w KQ - 0 9",
       "id": "chess-dev-015",
       "label": {
@@ -5445,14 +4927,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 771,
         "legal_move_count": 36,
-        "principal_variation": [
-          "c1g5",
-          "g8f6",
-          "f2f3",
-          "h7h6",
-          "g5e3",
-          "g7g5"
-        ],
+        "principal_variation": ["c1g5", "g8f6", "f2f3", "h7h6", "g5e3", "g7g5"],
         "second_score_cp": -572,
         "source_ply": 16
       },
@@ -5463,15 +4938,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "e7e4"
-      ],
+      "best_moves": ["e7e4"],
       "fen": "rn2k2r/pp2qppp/1bp2n2/3p4/4P1B1/1N6/PPPB1PPP/RN1QK2R b KQkq - 0 11",
       "id": "chess-dev-016",
       "label": {
@@ -5480,14 +4950,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 331,
         "legal_move_count": 39,
-        "principal_variation": [
-          "e7e4",
-          "g4e2",
-          "e4g2",
-          "h1f1",
-          "f6e4",
-          "d2e3"
-        ],
+        "principal_variation": ["e7e4", "g4e2", "e4g2", "h1f1", "f6e4", "d2e3"],
         "second_score_cp": -286,
         "source_ply": 21
       },
@@ -5498,15 +4961,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "b5d4"
-      ],
+      "best_moves": ["b5d4"],
       "fen": "r3qrk1/pppb1ppp/n2p4/1N1P4/2Pb1P2/6P1/PP2Q1BP/R1B1K2R w KQ - 5 15",
       "id": "chess-dev-017",
       "label": {
@@ -5515,13 +4973,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 510,
         "legal_move_count": 33,
-        "principal_variation": [
-          "b5d4",
-          "e8e2",
-          "d4e2",
-          "a8e8",
-          "e1f2"
-        ],
+        "principal_variation": ["b5d4", "e8e2", "d4e2", "a8e8", "e1f2"],
         "second_score_cp": -116,
         "source_ply": 28
       },
@@ -5532,15 +4984,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "d5e6"
-      ],
+      "best_moves": ["d5e6"],
       "fen": "rn1qkb1r/1p3p1p/p2pbnp1/2pP4/8/4PN1P/PP2BPP1/RNBQK2R w KQkq - 2 9",
       "id": "chess-dev-018",
       "label": {
@@ -5549,14 +4996,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 290,
         "legal_move_count": 37,
-        "principal_variation": [
-          "d5e6",
-          "f7e6",
-          "b2b3",
-          "d8e7",
-          "e1g1",
-          "d6d5"
-        ],
+        "principal_variation": ["d5e6", "f7e6", "b2b3", "d8e7", "e1g1", "d6d5"],
         "second_score_cp": 125,
         "source_ply": 16
       },
@@ -5567,15 +5007,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "d3e4"
-      ],
+      "best_moves": ["d3e4"],
       "fen": "r1bqkb1r/pp1n1ppp/4p3/8/3Nn3/3B4/PPP1KPPP/R1BQ3R w kq - 0 9",
       "id": "chess-dev-019",
       "label": {
@@ -5584,14 +5019,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 332,
         "legal_move_count": 39,
-        "principal_variation": [
-          "d3e4",
-          "d8h4",
-          "e4f3",
-          "f8c5",
-          "c1e3",
-          "e8g8"
-        ],
+        "principal_variation": ["d3e4", "d8h4", "e4f3", "f8c5", "c1e3", "e8g8"],
         "second_score_cp": -431,
         "source_ply": 16
       },
@@ -5602,15 +5030,10 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     },
     {
-      "best_moves": [
-        "a6b5"
-      ],
+      "best_moves": ["a6b5"],
       "fen": "rnb2rk1/1ppqbp1p/p4npP/1N1p4/3P4/5N2/PPP1BPP1/R1BQK2R b KQ - 1 10",
       "id": "chess-dev-020",
       "label": {
@@ -5619,14 +5042,7 @@
         "engine": "Stockfish 18",
         "gap_cp": 370,
         "legal_move_count": 29,
-        "principal_variation": [
-          "a6b5",
-          "f3e5",
-          "d7e6",
-          "e1g1",
-          "b8d7",
-          "c2c4"
-        ],
+        "principal_variation": ["a6b5", "f3e5", "d7e6", "e1g1", "b8d7", "c2c4"],
         "second_score_cp": 48,
         "source_ply": 19
       },
@@ -5637,10 +5053,7 @@
         "origin": "deterministic Stockfish shallow self-play with injected non-best moves"
       },
       "split": "development-only",
-      "themes": [
-        "engine-generated",
-        "tactical-gap"
-      ]
+      "themes": ["engine-generated", "tactical-gap"]
     }
   ],
   "random": {
@@ -5653,9 +5066,7 @@
     },
     "decisions": [
       {
-        "best_moves": [
-          "a1a8"
-        ],
+        "best_moves": ["a1a8"],
         "exact": false,
         "failure": null,
         "fen": "r1bqr1k1/3n1ppp/4pn2/1ppp4/3P4/1PN1P1Q1/2PN1PPP/R1B1K2R w K - 0 16",
@@ -5716,15 +5127,10 @@
         "parsed_move": "g3b8",
         "puzzle_id": "chess-dev-001",
         "raw_output": "g3b8",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "g3g7"
-        ],
+        "best_moves": ["g3g7"],
         "exact": false,
         "failure": null,
         "fen": "2b3nr/1pk2pp1/2nbP2p/1p6/4r3/5NQ1/PPPK1PPP/R1B4R w - - 1 16",
@@ -5770,15 +5176,10 @@
         "parsed_move": "d2d1",
         "puzzle_id": "chess-dev-002",
         "raw_output": "d2d1",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "e2e1"
-        ],
+        "best_moves": ["e2e1"],
         "exact": true,
         "failure": null,
         "fen": "r3k2r/p3b1pp/3p1n2/1p1N4/1np1P1q1/P7/BPP1K1PP/R1BQ3R w kq - 1 17",
@@ -5786,25 +5187,14 @@
         "input": "FEN=r3k2r/p3b1pp/3p1n2/1p1N4/1np1P1q1/P7/BPP1K1PP/R1BQ3R w kq - 1 17;PLY=32;LEGAL=e2d2,e2e1,e2e3,e2f1,e2f2",
         "latency_ms": 0.011166,
         "legal": true,
-        "legal_moves": [
-          "e2d2",
-          "e2e1",
-          "e2e3",
-          "e2f1",
-          "e2f2"
-        ],
+        "legal_moves": ["e2d2", "e2e1", "e2e3", "e2f1", "e2f2"],
         "parsed_move": "e2e1",
         "puzzle_id": "chess-dev-003",
         "raw_output": "e2e1",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "e8f7"
-        ],
+        "best_moves": ["e8f7"],
         "exact": true,
         "failure": null,
         "fen": "r1b1kb1r/pp3Qpp/3pp3/2pn4/1P4N1/3p4/P1PP1PPP/RNB2RK1 b kq - 0 13",
@@ -5812,22 +5202,14 @@
         "input": "FEN=r1b1kb1r/pp3Qpp/3pp3/2pn4/1P4N1/3p4/P1PP1PPP/RNB2RK1 b kq - 0 13;PLY=25;LEGAL=e8d8,e8f7",
         "latency_ms": 0.013375,
         "legal": true,
-        "legal_moves": [
-          "e8d8",
-          "e8f7"
-        ],
+        "legal_moves": ["e8d8", "e8f7"],
         "parsed_move": "e8f7",
         "puzzle_id": "chess-dev-004",
         "raw_output": "e8f7",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "h5g3"
-        ],
+        "best_moves": ["h5g3"],
         "exact": false,
         "failure": null,
         "fen": "rBbnr1k1/pp1q1p2/6pp/2bN3n/8/P1N2BQP/1PP2PP1/2KR3R b - - 2 18",
@@ -5886,15 +5268,10 @@
         "parsed_move": "d7d5",
         "puzzle_id": "chess-dev-005",
         "raw_output": "d7d5",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "d4c3"
-        ],
+        "best_moves": ["d4c3"],
         "exact": false,
         "failure": null,
         "fen": "rnb1kb1r/pppq1ppp/3p1n2/6N1/2BpP2P/2N5/PPP2PP1/R1BQK2R b KQkq h3 0 9",
@@ -5939,15 +5316,10 @@
         "parsed_move": "d7a4",
         "puzzle_id": "chess-dev-006",
         "raw_output": "d7a4",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "c1b2"
-        ],
+        "best_moves": ["c1b2"],
         "exact": false,
         "failure": null,
         "fen": "r1bqk2r/pp2bppp/2n1pn2/2p5/4PQ1P/3P1N2/PpP1BPP1/R1BK3R w kq - 0 10",
@@ -6001,15 +5373,10 @@
         "parsed_move": "c1d2",
         "puzzle_id": "chess-dev-007",
         "raw_output": "c1d2",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "e8f7"
-        ],
+        "best_moves": ["e8f7"],
         "exact": false,
         "failure": null,
         "fen": "rnbqkb1r/2p2Npp/p3pn2/1p6/2pP4/P3P3/1P3PPP/RNBQKB1R b KQkq - 0 7",
@@ -6057,15 +5424,10 @@
         "parsed_move": "f8d6",
         "puzzle_id": "chess-dev-008",
         "raw_output": "f8d6",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "e2g4"
-        ],
+        "best_moves": ["e2g4"],
         "exact": false,
         "failure": null,
         "fen": "rn1q1b1r/ppk1pNpp/2p5/3p4/3P1nb1/4P3/PPPNQPPP/R3KB1R w KQ - 0 9",
@@ -6114,15 +5476,10 @@
         "parsed_move": "e3e4",
         "puzzle_id": "chess-dev-009",
         "raw_output": "e3e4",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "f7e6"
-        ],
+        "best_moves": ["f7e6"],
         "exact": false,
         "failure": null,
         "fen": "r4r1k/pp3pnp/4N1p1/3p4/2P1P3/1P2p2P/P3B1PR/RK6 b - - 0 26",
@@ -6162,15 +5519,10 @@
         "parsed_move": "g6g5",
         "puzzle_id": "chess-dev-010",
         "raw_output": "g6g5",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "d2b4"
-        ],
+        "best_moves": ["d2b4"],
         "exact": false,
         "failure": null,
         "fen": "r1bq1rk1/p4pp1/3p1b1p/1p2p3/1n1pP3/1B3N2/PPPQNPPP/R3K2R w KQ - 0 14",
@@ -6226,15 +5578,10 @@
         "parsed_move": "e1g1",
         "puzzle_id": "chess-dev-011",
         "raw_output": "e1g1",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "f4c7"
-        ],
+        "best_moves": ["f4c7"],
         "exact": false,
         "failure": null,
         "fen": "r1b1kb1r/ppq1pppp/2n5/3p3n/3p1B2/4PN2/PPPNBPPP/R2Q1RK1 w kq - 2 8",
@@ -6285,15 +5632,10 @@
         "parsed_move": "a2a4",
         "puzzle_id": "chess-dev-012",
         "raw_output": "a2a4",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "e6f5"
-        ],
+        "best_moves": ["e6f5"],
         "exact": false,
         "failure": null,
         "fen": "N3k3/8/p3p2r/q3nQpp/7P/P1PR3R/3P1KP1/2B2B2 b - - 2 22",
@@ -6332,15 +5674,10 @@
         "parsed_move": "a5a3",
         "puzzle_id": "chess-dev-013",
         "raw_output": "a5a3",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "c7c6"
-        ],
+        "best_moves": ["c7c6"],
         "exact": false,
         "failure": null,
         "fen": "r1b1kbnr/ppp2ppp/1n6/1Q2N3/3qp3/8/PPPN1PPP/R1B1KB1R b KQkq - 1 7",
@@ -6348,26 +5685,14 @@
         "input": "FEN=r1b1kbnr/ppp2ppp/1n6/1Q2N3/3qp3/8/PPPN1PPP/R1B1KB1R b KQkq - 1 7;PLY=13;LEGAL=b6d7,c7c6,c8d7,d4d7,e8d8,e8e7",
         "latency_ms": 0.00925,
         "legal": true,
-        "legal_moves": [
-          "b6d7",
-          "c7c6",
-          "c8d7",
-          "d4d7",
-          "e8d8",
-          "e8e7"
-        ],
+        "legal_moves": ["b6d7", "c7c6", "c8d7", "d4d7", "e8d8", "e8e7"],
         "parsed_move": "e8d8",
         "puzzle_id": "chess-dev-014",
         "raw_output": "e8d8",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "c1g5"
-        ],
+        "best_moves": ["c1g5"],
         "exact": false,
         "failure": null,
         "fen": "r2k2nr/pppb2pp/3b4/4p1q1/P1B1P3/8/1PP2PPP/RNB1K2R w KQ - 0 9",
@@ -6416,15 +5741,10 @@
         "parsed_move": "c4f1",
         "puzzle_id": "chess-dev-015",
         "raw_output": "c4f1",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "e7e4"
-        ],
+        "best_moves": ["e7e4"],
         "exact": false,
         "failure": null,
         "fen": "rn2k2r/pp2qppp/1bp2n2/3p4/4P1B1/1N6/PPPB1PPP/RN1QK2R b KQkq - 0 11",
@@ -6476,15 +5796,10 @@
         "parsed_move": "e7d8",
         "puzzle_id": "chess-dev-016",
         "raw_output": "e7d8",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "b5d4"
-        ],
+        "best_moves": ["b5d4"],
         "exact": true,
         "failure": null,
         "fen": "r3qrk1/pppb1ppp/n2p4/1N1P4/2Pb1P2/6P1/PP2Q1BP/R1B1K2R w KQ - 5 15",
@@ -6530,15 +5845,10 @@
         "parsed_move": "b5d4",
         "puzzle_id": "chess-dev-017",
         "raw_output": "b5d4",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "d5e6"
-        ],
+        "best_moves": ["d5e6"],
         "exact": false,
         "failure": null,
         "fen": "rn1qkb1r/1p3p1p/p2pbnp1/2pP4/8/4PN1P/PP2BPP1/RNBQK2R w KQkq - 2 9",
@@ -6588,15 +5898,10 @@
         "parsed_move": "g2g3",
         "puzzle_id": "chess-dev-018",
         "raw_output": "g2g3",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "d3e4"
-        ],
+        "best_moves": ["d3e4"],
         "exact": false,
         "failure": null,
         "fen": "r1bqkb1r/pp1n1ppp/4p3/8/3Nn3/3B4/PPP1KPPP/R1BQ3R w kq - 0 9",
@@ -6648,15 +5953,10 @@
         "parsed_move": "a2a3",
         "puzzle_id": "chess-dev-019",
         "raw_output": "a2a3",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       },
       {
-        "best_moves": [
-          "a6b5"
-        ],
+        "best_moves": ["a6b5"],
         "exact": false,
         "failure": null,
         "fen": "rnb2rk1/1ppqbp1p/p4npP/1N1p4/3P4/5N2/PPP1BPP1/R1BQK2R b KQ - 1 10",
@@ -6698,10 +5998,7 @@
         "parsed_move": "a8a7",
         "puzzle_id": "chess-dev-020",
         "raw_output": "a8a7",
-        "themes": [
-          "engine-generated",
-          "tactical-gap"
-        ]
+        "themes": ["engine-generated", "tactical-gap"]
       }
     ],
     "name": "Random legal",
@@ -6717,9 +6014,9 @@
     "trace_hash": "5d463a57201cfbc9c462755c75c2ff3e1078eed26f8c3486d4c0e2ef342d8b44"
   },
   "reproduce": {
-    "match_command": "python3.12 scripts/chess_mlx_match.py --openings configs/chess/openings-development-v1.json --model-a <PATH_A> --model-a-ref <REF_A> --policy-a <ID_A> --model-b <PATH_B> --model-b-ref <REF_B> --policy-b <ID_B> --output runs/chess/match.json",
+    "match_command": "python3.12 scripts/chess/chess_mlx_match.py --openings configs/chess/openings-development-v1.json --model-a <PATH_A> --model-a-ref <REF_A> --policy-a <ID_A> --model-b <PATH_B> --model-b-ref <REF_B> --policy-b <ID_B> --output runs/chess/match.json",
     "protocol": "Same FEN, sorted legal UCI set, greedy decoding, eight output tokens maximum, no engine/tools/search/code/rollouts.",
-    "puzzle_command": "python3.12 scripts/chess_mlx_pilot.py --suite evals/chess/fixtures/development-puzzles-v1.json --model <MODEL_PATH> --model-ref <MODEL_REF> --policy-id <ID> --output runs/chess/<ID>.json",
+    "puzzle_command": "python3.12 scripts/chess/chess_mlx_pilot.py --suite evals/chess/fixtures/development-puzzles-v1.json --model <MODEL_PATH> --model-ref <MODEL_REF> --policy-id <ID> --output runs/chess/<ID>.json",
     "runtime": "python-chess 1.999 / Stockfish 18 labels / MLX-LM 0.31.3 on Apple Silicon"
   },
   "schema_version": "chess/site-replay/v1"

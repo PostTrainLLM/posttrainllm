@@ -9,7 +9,7 @@
  *
  * Weights and optimizer moments are NOT pooled — they live for the whole run.
  *
- * Guide: docs/performance.md ("WebGPU training")
+ * Guide: docs/performance/performance.md ("WebGPU training")
  */
 
 /** Full set of opportunistic WebGPU capabilities we feature-detect at startup.
@@ -83,11 +83,7 @@ export async function createGpuContext(): Promise<GpuContext | null> {
     const adapter = await navigator.gpu.requestAdapter();
     if (!adapter) return null;
 
-    const wanted = [
-      "subgroups",
-      "shader-f16",
-      "timestamp-query",
-    ] as const;
+    const wanted = ["subgroups", "shader-f16", "timestamp-query"] as const;
     const requiredFeatures: GPUFeatureName[] = [];
     const supported = {
       subgroups: false,
@@ -109,27 +105,45 @@ export async function createGpuContext(): Promise<GpuContext | null> {
 
     // Adapter info — vendor/arch/device strings used by the UI. `adapter.info`
     // is the new (sync getter) shape; older Chrome had `requestAdapterInfo()`.
-    let vendor = "", architecture = "", deviceName = "", description = "";
+    let vendor = "",
+      architecture = "",
+      deviceName = "",
+      description = "";
     try {
       const adapterAny = adapter as unknown as {
-        info?: { vendor?: string; architecture?: string; device?: string; description?: string };
-        requestAdapterInfo?: () => Promise<{ vendor?: string; architecture?: string; device?: string; description?: string }>;
+        info?: {
+          vendor?: string;
+          architecture?: string;
+          device?: string;
+          description?: string;
+        };
+        requestAdapterInfo?: () => Promise<{
+          vendor?: string;
+          architecture?: string;
+          device?: string;
+          description?: string;
+        }>;
       };
-      const info = adapterAny.info ?? await adapterAny.requestAdapterInfo?.();
+      const info = adapterAny.info ?? (await adapterAny.requestAdapterInfo?.());
       if (info) {
         vendor = info.vendor ?? "";
         architecture = info.architecture ?? "";
         deviceName = info.device ?? "";
         description = info.description ?? "";
       }
-    } catch { /* info getters absent on older Chrome */ }
+    } catch {
+      /* info getters absent on older Chrome */
+    }
 
     const capabilities: GpuCapabilities = {
       subgroups: supported.subgroups,
       shaderF16: supported.shaderF16,
       cooperativeMatrix,
       timestampQuery: supported.timestampQuery,
-      vendor, architecture, device: deviceName, description,
+      vendor,
+      architecture,
+      device: deviceName,
+      description,
     };
     return { device, capabilities, subgroups: supported.subgroups };
   } catch {
@@ -150,18 +164,30 @@ export interface WebNNCapabilities {
 }
 
 export async function probeWebNN(): Promise<WebNNCapabilities> {
-  const result: WebNNCapabilities = { available: false, gpuContext: false, npuContext: false };
-  const ml = (navigator as unknown as { ml?: { createContext?: (opts?: object) => Promise<unknown> } }).ml;
+  const result: WebNNCapabilities = {
+    available: false,
+    gpuContext: false,
+    npuContext: false,
+  };
+  const ml = (
+    navigator as unknown as {
+      ml?: { createContext?: (opts?: object) => Promise<unknown> };
+    }
+  ).ml;
   if (!ml || typeof ml.createContext !== "function") return result;
   result.available = true;
   try {
     const ctx = await ml.createContext({ deviceType: "gpu" });
     if (ctx) result.gpuContext = true;
-  } catch { /* GPU device unavailable */ }
+  } catch {
+    /* GPU device unavailable */
+  }
   try {
     const ctx = await ml.createContext({ deviceType: "npu" });
     if (ctx) result.npuContext = true;
-  } catch { /* NPU device unavailable */ }
+  } catch {
+    /* NPU device unavailable */
+  }
   return result;
 }
 
@@ -177,7 +203,9 @@ export class BufferPool {
     return this.device.createBuffer({
       size: bytes,
       usage:
-        GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
     });
   }
 
@@ -220,12 +248,18 @@ export class GpuTensor {
           label: opts?.label,
           size: this.bytes,
           usage:
-            GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+            GPUBufferUsage.STORAGE |
+            GPUBufferUsage.COPY_SRC |
+            GPUBufferUsage.COPY_DST,
         });
   }
 
   upload(data: Float32Array): void {
-    this.device.queue.writeBuffer(this.buffer, 0, data as Float32Array<ArrayBuffer>);
+    this.device.queue.writeBuffer(
+      this.buffer,
+      0,
+      data as Float32Array<ArrayBuffer>,
+    );
   }
 
   /** Read the tensor back to the host (via a staging buffer). */
@@ -238,14 +272,20 @@ export class GpuTensor {
     encoder.copyBufferToBuffer(this.buffer, 0, staging, 0, this.bytes);
     this.device.queue.submit([encoder.finish()]);
     await staging.mapAsync(GPUMapMode.READ);
-    const out = new Float32Array(staging.getMappedRange().slice(0, this.size * 4));
+    const out = new Float32Array(
+      staging.getMappedRange().slice(0, this.size * 4),
+    );
     staging.unmap();
     staging.destroy();
     return out;
   }
 
   /** Allocate a (non-pooled) tensor and fill it — used for persistent weights. */
-  static fromData(device: GPUDevice, data: Float32Array, label?: string): GpuTensor {
+  static fromData(
+    device: GPUDevice,
+    data: Float32Array,
+    label?: string,
+  ): GpuTensor {
     const t = new GpuTensor(device, data.length, { label });
     t.upload(data);
     return t;

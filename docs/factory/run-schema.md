@@ -60,14 +60,14 @@ run directory, assemble the derived files (`provenance.json`, `report.md`,
 `train.log`) with the generic bridge:
 
 ```bash
-python3 scripts/assemble_factory_run.py runs/<id> --publish-check
+python3 scripts/factory/assemble_factory_run.py runs/<id> --publish-check
 ```
 
 It is metadata-only (no server, no training, no GPU eval): it computes the eval
 delta, hashes the real dataset sources into `provenance.json`, renders the
 `reports.md` template, and — with `--publish-check` — runs
 `check_factory_run_publish.py --allow-report-only`. The output validates against
-the typed Swift `FactoryRunFolder`. `scripts/render_sql_factory_run.py` remains
+the typed Swift `FactoryRunFolder`. `scripts/sql/render_sql_factory_run.py` remains
 the SQL-specific one-shot renderer for the routed POC.
 
 The assembler initializes lifecycle metadata when absent, advances to
@@ -215,7 +215,7 @@ Required fields:
 Reports the primary metric by meaningful task slice. For SQL, generate it with:
 
 ```bash
-python3 scripts/score_sql_slices.py <eval-row-trace.jsonl> --out slice-metrics.json
+python3 scripts/sql/score_sql_slices.py <eval-row-trace.jsonl> --out slice-metrics.json
 ```
 
 Required fields:
@@ -232,7 +232,7 @@ Do not publish an overall-only win if the artifact is meant to be a specialist.
 Qualitative failure review. For SQL, generate it with:
 
 ```bash
-python3 scripts/review_sql_trace.py --rows <rows-or-preds.jsonl> --out trace_review.md
+python3 scripts/sql/review_sql_trace.py --rows <rows-or-preds.jsonl> --out trace_review.md
 ```
 
 Required checks:
@@ -258,7 +258,7 @@ Required for a report card to present a **fully verified** ship.
 {
   "frontier": {
     "model": "gpt-5.5 via codex exec",
-    "command": "python3 scripts/bfcl_multiturn_codex.py ...",
+    "command": "python3 scripts/bfcl/bfcl_multiturn_codex.py ...",
     "date": "2026-07-20",
     "by_suite": { "pace-v11-ship-gate": 1.0 }
   },
@@ -327,8 +327,8 @@ Machine-readable reproducibility metadata:
 ```json
 {
   "schema_version": 1,
-  "renderer": "scripts/render_sql_factory_run.py",
-  "renderer_command": "python3 scripts/render_sql_factory_run.py --out <run-dir>",
+  "renderer": "scripts/sql/render_sql_factory_run.py",
+  "renderer_command": "python3 scripts/sql/render_sql_factory_run.py --out <run-dir>",
   "git": {
     "commit": "<sha>",
     "branch": "main",
@@ -336,7 +336,7 @@ Machine-readable reproducibility metadata:
   },
   "commands": {
     "baseline": "posttrainllm generate ...",
-    "candidate": "scripts/run_sql_routed_generate.py ...",
+    "candidate": "scripts/sql/run_sql_routed_generate.py ...",
     "training": "posttrainllm sft ...",
     "publish_check": "posttrainllm factory-run publish-check --allow-report-only <run-dir>"
   },

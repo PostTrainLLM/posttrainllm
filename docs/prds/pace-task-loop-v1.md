@@ -58,7 +58,7 @@ target ≈ **1.5–2 min** of decisions + download time; extension ≈ 10–20 m
 - **T0 (planner-level, runnable now):** step-latency bench on the
   `task-latency-download-v1` fixtures against the int8 v9/v11 serve — proves
   the per-decision budget without touching Swift. Runner:
-  `scripts/bench_task_latency.py`.
+  `scripts/bench/bench_task_latency.py`.
 - **T1 (loop):** `PaceTaskLoop.swift` + progress-state prompting + stall/
   budget guards. Unit tests with a scripted fake AX provider.
 - **T2 (live run):** the quaternius scenario end-to-end on the real browser,

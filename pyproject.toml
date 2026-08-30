@@ -1,0 +1,65 @@
+# Root Python tooling config.
+#
+# This file configures tools only — it does not declare a package. The one
+# installable Python project in this repo is scripts/data-prep/, which keeps
+# its own pyproject.toml.
+#
+# Before this existed, ruff ran on bare defaults and pytest had no config at
+# all (CI fell back to running two test files directly when collection failed).
+# The settings below are written to match what those tools already did, so
+# adding the file changes no results. Tighten deliberately, in its own change.
+
+[tool.ruff]
+# ruff's own default; stated so a future ruff release changing it is a visible
+# diff rather than a surprise lint failure.
+line-length = 88
+target-version = "py311"
+extend-exclude = [
+    "scripts/archive",
+    "python_ref/.venv",
+    "docs-site",
+    "browser",
+]
+
+[tool.ruff.lint]
+# ruff's default rule set, pinned explicitly: pycodestyle errors (E4/E7/E9)
+# and pyflakes (F). Everything else stays opt-in.
+#
+# Reasonable next steps when someone wants a stricter gate, roughly in order of
+# signal per unit of churn: "I" (import sorting), "UP" (pyupgrade),
+# "B" (bugbear). Each will touch many files, so land them one at a time.
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+# Several scripts do sys.path setup before importing sibling modules, which is
+# module-level-import-not-at-top. Those lines already carry `# noqa: E402`.
+"tests/*.py" = ["E402"]
+
+# Legacy exemptions, all pre-existing.
+#
+# These files were pulled into the lint gate by the 2026-08 scripts/ regrouping:
+# the gate is diff-scoped, so moving a file makes it "changed" and newly
+# checked. Their findings are not new debt and none were introduced by the
+# move, so they are exempted here rather than rewritten in a restructuring
+# commit. Fix and delete an entry when you next work on one of these files.
+#
+#   E402  sys.path is set up before importing a sibling or vendored module
+#   E741  ambiguous loop variable `l`
+#   F841  assigned-but-unused local
+"scripts/bench/bench_decode_thermal.py" = ["E741"]
+"scripts/bfcl/bfcl_ast_eval.py" = ["E741"]
+"scripts/bfcl/bfcl_multiturn_codex.py" = ["E402", "E741"]
+"scripts/bfcl/bfcl_multiturn_deepseek.py" = ["E402", "E741"]
+"scripts/bfcl/bfcl_multiturn_eval.py" = ["E402", "E741"]
+"scripts/pace/eval_pace_v2.py" = ["E402"]
+"scripts/research/capability_gradient_lab.py" = ["F841"]
+"scripts/rollout_fast.py" = ["E402", "E741"]
+"scripts/sql/build_sql_candidate_choice.py" = ["F841"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Most tests here are hand-rolled: they define main() and collect their own
+# test_* callables, rather than relying on pytest assertions. Keeping the
+# default python_files/python_functions discovery means pytest still finds the
+# ones written as plain test functions.
+addopts = "-ra"

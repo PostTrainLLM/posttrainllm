@@ -10,9 +10,9 @@ refuse weak artifacts.
 | Run bundle schema | `posttrainllm factory-run validate runs/<id>` | Core typed JSON bundle plus identity/decision validation when optional lifecycle-v1 metadata is present; legacy folders remain compatible |
 | Lifecycle state | `posttrainllm factory-run status/list/reconcile` | Pure-metadata schema, legal CAS transitions, verified advisory pointers, stale-active warnings, locks, and interrupted temporary files |
 | Publish evidence | `posttrainllm factory-run publish-check runs/<id>` | Required evidence files, report sections, slice metrics, trace review, decision, ship/package constraints |
-| Portable publish smoke | `python3 scripts/check_factory_run_publish.py runs/<id>` | Same policy in a no-build Python checker for CI/smokes |
-| Report-card publication | `python3 scripts/check_fine_tune_report_card.py <card>.json` | Derived-artifact layer: schema version, measurement states and provenance, decision/label consistency, frontier-ceiling and frozen-eval disclosure, leakage policy, routed-use disclosure, public safety, static-page accessibility |
-| Report-card drift | `python3 scripts/publish_report_cards.py --check` | Committed public cards still match a fresh offline compile |
+| Portable publish smoke | `python3 scripts/factory/check_factory_run_publish.py runs/<id>` | Same policy in a no-build Python checker for CI/smokes |
+| Report-card publication | `python3 scripts/factory/check_fine_tune_report_card.py <card>.json` | Derived-artifact layer: schema version, measurement states and provenance, decision/label consistency, frontier-ceiling and frozen-eval disclosure, leakage policy, routed-use disclosure, public safety, static-page accessibility |
+| Report-card drift | `python3 scripts/factory/publish_report_cards.py --check` | Committed public cards still match a fresh offline compile |
 | Target-specific smokes | `evals/*-smoke.sh` | No-GPU fixture checks for scripts and report helpers |
 | Public artifact review | `docs/factory/public-artifacts.md` | Human-readable release state, blockers, competition context |
 

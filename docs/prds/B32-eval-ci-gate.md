@@ -120,7 +120,7 @@ primitive — near-zero new model code, high product leverage.
 
 - `Sources/TinyGPT/EvalCompare.swift` — the baseline-vs-candidate diff
   logic; the gate adds the threshold + exit-code layer on top.
-- `scripts/eval_planner_report.py` — the existing champion-vs-candidate
+- `scripts/pipelines/eval_planner_report.py` — the existing champion-vs-candidate
   verdict pattern (the E9 gate's `PASS/HOLD` logic is the template for
   B32's per-suite verdict).
 - B23 agent-eval-protocol — the K-pass rigor the gate invokes.

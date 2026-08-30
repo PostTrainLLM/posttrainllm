@@ -74,7 +74,7 @@ terminal hoping you saw the right thing.
 | `web/src/pages/train-viewer.astro` | new — the page |
 | `web/src/lib/train-jsonl.ts` | new — parser for run-history files |
 | `web/src/lib/charts.ts` | extend if a shared chart helper exists; else inline (one page) |
-| `docs/training_guide.md` | "Watching a run" section pointing at the viewer |
+| `docs/guides/training_guide.md` | "Watching a run" section pointing at the viewer |
 | `docs/prds/README.md` | add row under "Browser viewers" |
 
 ## Don't touch

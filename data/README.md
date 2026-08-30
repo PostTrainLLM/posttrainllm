@@ -30,7 +30,7 @@ For LoRA, do not dump raw text — build task-style examples and write JSONL:
 ```
 
 Aim for 300–1,000 clean examples from one consistent author. Quality beats
-quantity. See `../docs/lora_guide.md` and `../docs/evaluation.md`.
+quantity. See `../docs/techniques/lora_guide.md` and `../docs/evaluation.md`.
 
 ## Files
 

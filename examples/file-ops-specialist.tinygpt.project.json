@@ -19,7 +19,7 @@
         "name": "file-ops-hard",
         "task": "multi-turn-file-ops",
         "command": [
-          "scripts/headtohead_multiturn.sh",
+          "scripts/pipelines/headtohead_multiturn.sh",
           "specialists/qwen3-4b-file-ops-distilled"
         ]
       }

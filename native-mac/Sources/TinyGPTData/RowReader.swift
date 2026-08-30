@@ -18,7 +18,7 @@ import Foundation
 ///
 /// JSONL covers a huge fraction of the registry (xLAM, Hermes, MetaMath,
 /// OpenHermes-2.5 in their JSON-shipped variants, etc.). Parquet support
-/// is the next deliverable — see docs/hf_datasets_integration.md.
+/// is the next deliverable — see docs/integrations/hf_datasets_integration.md.
 public enum RowReader {
 
     public enum ShardFormat: Sendable, Equatable {

@@ -1,3 +1,0 @@
-USER: what were the powerball numbers
-EXPECT_INTENT: out_of_scope
-REASON: Live web data

@@ -6,7 +6,7 @@ description: One artifact that cross-cuts decode speed, BFCL, τ-bench, and Pace
 # Mac SLM agentic leaderboard v0
 
 **Status:** scaffolding shipped 2026-06-13; populated as models are
-benchmarked locally via `scripts/eval_slm_full.sh`.
+benchmarked locally via `scripts/pipelines/eval_slm_full.sh`.
 
 **Why it exists.** Each suite already produces its own JSON, but no
 single view answers "which Mac-runnable SLM is the best agent for Pace
@@ -29,7 +29,7 @@ this doc inherit.
 
 ```
 # 1. Run all four suites against the model
-scripts/eval_slm_full.sh <lm-studio-model-id> <tag>
+scripts/pipelines/eval_slm_full.sh <lm-studio-model-id> <tag>
 
 # 2. Add a row to the manifest
 cat docs/research/data/leaderboard_manifest.json
@@ -42,7 +42,7 @@ cat docs/research/data/leaderboard_manifest.json
 # ]}
 
 # 3. Rebuild this page
-python3 scripts/build_slm_leaderboard.py \
+python3 scripts/bench/build_slm_leaderboard.py \
     --manifest docs/research/data/leaderboard_manifest.json
 ```
 
@@ -72,7 +72,7 @@ and protocol drift.
 
 - **decode tok/s** — median over 20 streamed runs at gen=128 against
   the model's OpenAI-compatible endpoint. From
-  `scripts/bench_decode.py`. The number that gates "is this realtime?"
+  `scripts/bench/bench_decode.py`. The number that gates "is this realtime?"
 - **TTFT p99 (ms)** — 99th-percentile time-to-first-token across the
   same 20 runs. Gates "does it feel responsive on the first reply?"
 - **RSS p99 (MB)** — peak resident memory of the serving process,

@@ -1,3 +1,0 @@
-USER: throw away every draft in mail
-EXPECT_INTENT: confirm_destructive
-EXPECT_CONFIRM_TARGET: drafts

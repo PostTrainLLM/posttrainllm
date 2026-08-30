@@ -152,7 +152,7 @@ canonical eval target.
    of that ends up in the user turn at training time. Test prompts
    at inference must match this shape, NOT the proper
    `<|im_start|>system\n...\n<|im_start|>user\n...\n<|im_start|>assistant`
-   you might expect. See `docs/specialist_v1_findings.md`.
+   you might expect. See `docs/sessions/specialist_v1_findings.md`.
 
 4. **macOS reaps `/tmp`**. Long-lived training caches should go
    to `~/.cache/posttrainllm/` or a stable project directory. `/tmp`

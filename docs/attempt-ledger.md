@@ -20,11 +20,11 @@ and the question is almost always "has anything shaped like this been tried?"
 Do not scroll — query:
 
 ```bash
-python3 scripts/query_attempts.py --method dpo --objective output-format
-python3 scripts/query_attempts.py --base flan-t5-small --failures-only
-python3 scripts/query_attempts.py --lineage sql-hygiene-dpo-higher-pressure
-python3 scripts/query_attempts.py --streaks
-python3 scripts/query_attempts.py --coverage
+python3 scripts/docs-checks/query_attempts.py --method dpo --objective output-format
+python3 scripts/docs-checks/query_attempts.py --base flan-t5-small --failures-only
+python3 scripts/docs-checks/query_attempts.py --lineage sql-hygiene-dpo-higher-pressure
+python3 scripts/docs-checks/query_attempts.py --streaks
+python3 scripts/docs-checks/query_attempts.py --coverage
 ```
 
 Every model attempt carries `kind`, `methods`, `bases`, `objective`,
@@ -458,7 +458,7 @@ Two cross-cutting findings the collapsed entry hid:
 - Status: `worked-with-caveat`.
 - Failure reason: Qwen3.5 improved some dimensions, especially OOS for 9B, but did not beat the stored champion across the full swap decision.
 - Lesson: Single-dimension wins do not justify a planner swap when another required dimension regresses.
-- Next action: Use `scripts/eval_planner.sh` for future challengers and keep swap/no-swap verdicts tied to all required dimensions.
+- Next action: Use `scripts/pipelines/eval_planner.sh` for future challengers and keep swap/no-swap verdicts tied to all required dimensions.
 - Confidence: `exact`.
 
 ## Browser Product / Demo Attempts
@@ -691,7 +691,7 @@ Primary SQL source docs:
 
 ### SQL factory run renderer
 
-- Evidence: `scripts/render_sql_factory_run.py` renders canonical SQL report artifacts.
+- Evidence: `scripts/sql/render_sql_factory_run.py` renders canonical SQL report artifacts.
 - Status: `worked-with-caveat`.
 - Failure reason: The renderer is a useful bridge but not yet one universal factory command.
 - Lesson: Rendered reports made SQL publishable, but the factory still needs command-level automation.
@@ -744,7 +744,7 @@ This is also not a claim that every scratch experiment in the repo's older
 archive has been normalized. Older archive/session docs still contain
 additional lessons, but they should enter this ledger only when we can attach a
 status, evidence, confidence, lesson, and next action without inventing history.
-See [`history-coverage-audit.md`](history-coverage-audit.md) for the current
+See [`history-coverage-audit.md`](audits/history-coverage-audit.md) for the current
 coverage boundary.
 
 ## Next Ledger Improvements

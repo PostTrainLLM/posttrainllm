@@ -6,9 +6,9 @@ Apple-Silicon additions no public benchmark currently publishes:
 `powermetrics`-derived **energy/token** and **ANE residency** during
 serving.
 
-Full design doc: [`../../../docs/benchmark_harness_design.md`](../../../docs/benchmark_harness_design.md).
+Full design doc: [`../../../docs/performance/benchmark_harness_design.md`](../../../docs/performance/benchmark_harness_design.md).
 First worked run with real numbers:
-[`../../../docs/benchmark_first_run.md`](../../../docs/benchmark_first_run.md).
+[`../../../docs/performance/benchmark_first_run.md`](../../../docs/performance/benchmark_first_run.md).
 
 ## Quick start
 

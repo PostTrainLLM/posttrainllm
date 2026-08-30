@@ -44,7 +44,7 @@ priority/archive map in `docs/prds/PRIORITY.md`.
   fails fast. E6-V1 (`eval-scaledown`) is the working path.
 - **B9**: token-count parsing fixed; full J/token still needs sudo powermetrics.
 
-Still pending sudo (run `sudo bash scripts/setup_powermetrics_sudoers.sh`):
+Still pending sudo (run `sudo bash scripts/bench/setup_powermetrics_sudoers.sh`):
 C5 die-temp + B9 J/token. Everything else needs a training GPU / M5 / weeks
 of model-building (see GPU-RESEARCH-BACKLOG.md).
 
@@ -94,8 +94,8 @@ achievable on this backend. B17 remains partial (sparsity = analysis-time).
 Harnesses written (core logic `--self-test`-verified; full runs need hardware):
 | PRD | Harness | Run needs |
 |---|---|---|
-| **C5** thermal | `scripts/bench_decode_thermal.py` (degradation self-test) | running serve + ~30 min + sudo powermetrics |
-| **B9** energy | `scripts/bench_energy.py` + `setup_powermetrics_sudoers.sh` (J/token self-test) | running serve + sudo powermetrics |
+| **C5** thermal | `scripts/bench/bench_decode_thermal.py` (degradation self-test) | running serve + ~30 min + sudo powermetrics |
+| **B9** energy | `scripts/bench/bench_energy.py` + `setup_powermetrics_sudoers.sh` (J/token self-test) | running serve + sudo powermetrics |
 
 **~41 PRDs still carry remaining work** (26 partial + 15 not-started). The
 partials are mostly V1-shipped-here with a V2/training gap; the not-started and
@@ -116,7 +116,7 @@ status disagree. For active work, start from `PROJECT_STATUS.md` and
 
 - **C3 dora-ondisk-format** — DoRA magnitudes persist + reload via `LoraIO.swift` (v2 back-compat); wired through `sft`. Only gap: no dedicated roundtrip test.
 - **quantized-inference-swift** — both phases ship: `serve --quantize int4|int8` + native packed `QuantizedLinear` load (`HFModel.swift`), covered by a logit-cosine parity test.
-- **multi-turn-agentic-eval** — `scripts/bfcl_multiturn_eval.py` real stateful executor; frontier backends (codex/deepseek); single→multi-turn cliff documented. (frontmatter wrongly says `proposed`.)
+- **multi-turn-agentic-eval** — `scripts/bfcl/bfcl_multiturn_eval.py` real stateful executor; frontier backends (codex/deepseek); single→multi-turn cliff documented. (frontmatter wrongly says `proposed`.)
 - **pace-planner-v11-training-data** — seed→amplify→judge pipeline built + run (709-row corpus trained); unhappy-class eval suites exist. Track later closed at the gate, but the data PRD itself shipped.
 
 ## 🟡 Partial (26) — shipped core, real gaps

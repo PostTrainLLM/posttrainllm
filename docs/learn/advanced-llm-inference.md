@@ -23,7 +23,7 @@ textbook bandwidth-bound-plus-unoptimized-kernel case.
 `2·n_layers·n_kv_heads·head_dim·seq·batch·bytes`; why KV (not weights) caps
 batch/context. "KV for Llama-3-70B @ 8k, batch 32 — what limits concurrency?"
 *Learn:* [PagedAttention/vLLM](https://arxiv.org/abs/2309.06180) · *senior*
-*In repo:* `docs/kv_cache_optimization.md`; `Sample.swift` exposes
+*In repo:* `docs/performance/kv_cache_optimization.md`; `Sample.swift` exposes
 `--kv-quantize` / `--kv-preallocate`.
 
 **3. TTFT vs ITL vs goodput.** TTFT (prefill-bound), ITL/TPOT

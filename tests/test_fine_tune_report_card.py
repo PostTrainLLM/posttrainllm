@@ -41,9 +41,17 @@ def _load_module(name: str, path: Path):
     return mod
 
 
-rc = _load_module("fine_tune_report_card", ROOT / "scripts/fine_tune_report_card.py")
-build = _load_module("build_fine_tune_report_card", ROOT / "scripts/build_fine_tune_report_card.py")
-check = _load_module("check_fine_tune_report_card", ROOT / "scripts/check_fine_tune_report_card.py")
+rc = _load_module(
+    "fine_tune_report_card", ROOT / "scripts/factory/fine_tune_report_card.py"
+)
+build = _load_module(
+    "build_fine_tune_report_card",
+    ROOT / "scripts/factory/build_fine_tune_report_card.py",
+)
+check = _load_module(
+    "check_fine_tune_report_card",
+    ROOT / "scripts/factory/check_fine_tune_report_card.py",
+)
 fixtures = _load_module("report_card_fixtures", ROOT / "tests/report_card_fixtures.py")
 
 FAILURES: list[str] = []
@@ -110,7 +118,9 @@ for state in rc.VALUED_STATES:
 
 for state in rc.UNVALUED_STATES:
     errors = []
-    rc.validate_field({"state": state, "value": 0, "sources": [], "note": "n"}, "f", errors)
+    rc.validate_field(
+        {"state": state, "value": 0, "sources": [], "note": "n"}, "f", errors
+    )
     check_that(errors, f"state `{state}` carrying a value must be rejected")
     errors = []
     rc.validate_field({"state": state, "value": None, "sources": []}, "f", errors)
@@ -147,7 +157,9 @@ check_that(
     "delta with an absent candidate must carry no value",
 )
 d = rc.delta_field(rc.measured(0.2, ["a"]), rc.measured(0.7, ["b"]), "a", "b")
-check_that(d["state"] == "derived" and abs(d["value"] - 0.5) < 1e-9, "delta must be derived")
+check_that(
+    d["state"] == "derived" and abs(d["value"] - 0.5) < 1e-9, "delta must be derived"
+)
 weak = rc.delta_field(
     rc.historical(0.2, ["a"], note="legacy"), rc.measured(0.7, ["b"]), "a", "b"
 )
@@ -163,7 +175,9 @@ check_that(
 section("factory-run ingestion")
 
 card = ws.card("ship-verified")
-check_that(card["compiled_from"]["source_kind"] == "factory-run", "source kind is recorded")
+check_that(
+    card["compiled_from"]["source_kind"] == "factory-run", "source kind is recorded"
+)
 check_that(
     card["compiled_from"]["compiler"] == rc.COMPILER,
     "the compiler records its own identity",
@@ -231,8 +245,13 @@ section("historical evidence")
 
 hist = ws.card("historical")
 hist_primary = rc.primary_gate(hist)
-check_that(hist["compiled_from"]["source_kind"] == "specialist-package", "specialist adapter used")
-check_that(hist_primary["baseline"]["state"] == "historical", "legacy scores are historical")
+check_that(
+    hist["compiled_from"]["source_kind"] == "specialist-package",
+    "specialist adapter used",
+)
+check_that(
+    hist_primary["baseline"]["state"] == "historical", "legacy scores are historical"
+)
 check_that(
     "current run provenance" in hist_primary["baseline"]["note"],
     "a historical value states why its provenance is weaker",
@@ -242,7 +261,9 @@ check_that(
     "historical counts as weaker than a measurement",
 )
 hist_html = rc.render_html(hist)
-check_that('data-state="historical"' in hist_html, "the public page labels historical values")
+check_that(
+    'data-state="historical"' in hist_html, "the public page labels historical values"
+)
 check_that(
     hist_primary["baseline"]["note"] in hist_html
     or hist_primary["baseline"]["note"].replace("&", "&amp;") in hist_html,
@@ -265,7 +286,8 @@ check_that(
     "target and regression gates are reported independently",
 )
 check_that(
-    [g["name"] for g in rc.failing_gates(routed, ("regression", "breadth"))] == ["fixture-breadth"],
+    [g["name"] for g in rc.failing_gates(routed, ("regression", "breadth"))]
+    == ["fixture-breadth"],
     "a failing regression gate is detectable",
 )
 for key in ("baseline", "candidate", "delta", "threshold", "passed", "sample_size"):
@@ -371,9 +393,13 @@ check_that(
 
 section("decision semantics")
 
-check_that(verified["decision"]["outcome_label"] == "shipped-specialist", "clean ship label")
+check_that(
+    verified["decision"]["outcome_label"] == "shipped-specialist", "clean ship label"
+)
 check_that(routed["decision"]["outcome_label"] == "routed-ship", "routed ship label")
-check_that(report_only["decision"]["outcome_label"] == "report-only", "report-only label")
+check_that(
+    report_only["decision"]["outcome_label"] == "report-only", "report-only label"
+)
 rejected = ws.card("reject")
 check_that(rejected["decision"]["outcome_label"] == "rejected", "reject label")
 check_that(
@@ -394,7 +420,7 @@ for decision in rc.DECISIONS:
     if decision == "ship":
         continue
     check_that(
-        not rc.outcome_label(decision, rc.missing("none", ["x"])) in rc.SHIP_LABELS,
+        rc.outcome_label(decision, rc.missing("none", ["x"])) not in rc.SHIP_LABELS,
         f"decision `{decision}` can never produce a ship label",
     )
 
@@ -508,7 +534,10 @@ for case in ("ship-verified", "routed-ship", "historical"):
     )
 
 page = rc.render_html(verified)
-check_that("http://" not in page.replace("http://www.w3.org", ""), "no plaintext external asset")
+check_that(
+    "http://" not in page.replace("http://www.w3.org", ""),
+    "no plaintext external asset",
+)
 check_that(
     "<script" not in page and "<link" not in page,
     "the public report is self-contained: no script or external stylesheet",
@@ -524,7 +553,9 @@ check_that(
     and '<script type="application/ld+json">' in published_page,
     "a published report includes social and structured discovery metadata",
 )
-published_description = published_page.split('<meta name="description" content="', 1)[1].split('">', 1)[0]
+published_description = published_page.split('<meta name="description" content="', 1)[
+    1
+].split('">', 1)[0]
 check_that(
     70 <= len(published_description) <= 160,
     "a published report keeps its search description within the supported range",
@@ -534,7 +565,9 @@ check_that(
     "discovery metadata does not replace the canonical decision evidence",
 )
 html_errors = check.check_html(page, verified)
-check_that(not html_errors, f"the rendered page passes accessibility checks: {html_errors[:3]}")
+check_that(
+    not html_errors, f"the rendered page passes accessibility checks: {html_errors[:3]}"
+)
 published_html_errors = check.check_html(published_page, verified)
 check_that(
     not published_html_errors,
@@ -549,8 +582,12 @@ for case in fixtures.GOOD_CASES + fixtures.SPECIALIST_CASES:
 # The page must not read better than the payload. `historical` is unverified,
 # so a page claiming otherwise has to fail the contract check.
 sneaky = ws.card("historical")
-check_that(sneaky["decision"]["verified"] is False, "the sneaky-page fixture is unverified")
-bad_page = rc.render_html(sneaky).replace('data-verified="false"', 'data-verified="true"')
+check_that(
+    sneaky["decision"]["verified"] is False, "the sneaky-page fixture is unverified"
+)
+bad_page = rc.render_html(sneaky).replace(
+    'data-verified="false"', 'data-verified="true"'
+)
 check_that(
     bool(check.check_html(bad_page, sneaky)),
     "a page that hides its unverified status fails the contract check",
@@ -573,7 +610,7 @@ section("CLI")
 out_dir = ws.root / "cli-out"
 proc = run_cli(
     [
-        "scripts/build_fine_tune_report_card.py",
+        "scripts/factory/build_fine_tune_report_card.py",
         "--run",
         str(ws.source("ship-verified")),
         "--out",
@@ -581,16 +618,27 @@ proc = run_cli(
     ]
 )
 check_that(proc.returncode == 0, f"build CLI succeeds: {proc.stderr[-400:]}")
-check_that((out_dir / "report-card.json").is_file(), "build CLI writes the JSON payload")
-check_that((out_dir / "report-card.html").is_file(), "build CLI writes the static report")
+check_that(
+    (out_dir / "report-card.json").is_file(), "build CLI writes the JSON payload"
+)
+check_that(
+    (out_dir / "report-card.html").is_file(), "build CLI writes the static report"
+)
 
-proc = run_cli(["scripts/check_fine_tune_report_card.py", str(out_dir / "report-card.json")])
-check_that(proc.returncode == 0, f"check CLI accepts a valid card: {proc.stderr[-400:]}")
+proc = run_cli(
+    [
+        "scripts/factory/check_fine_tune_report_card.py",
+        str(out_dir / "report-card.json"),
+    ]
+)
+check_that(
+    proc.returncode == 0, f"check CLI accepts a valid card: {proc.stderr[-400:]}"
+)
 
 bad_out = ws.root / "cli-bad"
 proc = run_cli(
     [
-        "scripts/build_fine_tune_report_card.py",
+        "scripts/factory/build_fine_tune_report_card.py",
         "--run",
         str(ws.source("bad-leakage")),
         "--out",
@@ -606,7 +654,7 @@ check_that("FAIL" in proc.stderr, "local diagnostic output is preserved on failu
 
 proc = run_cli(
     [
-        "scripts/build_fine_tune_report_card.py",
+        "scripts/factory/build_fine_tune_report_card.py",
         "--run",
         str(ws.source("report-only")),
         "--print",
@@ -615,7 +663,7 @@ proc = run_cli(
 check_that(proc.returncode != 0, "a blocked non-ship card is strict by default")
 proc = run_cli(
     [
-        "scripts/build_fine_tune_report_card.py",
+        "scripts/factory/build_fine_tune_report_card.py",
         "--run",
         str(ws.source("report-only")),
         "--allow-report-only",
@@ -669,16 +717,23 @@ section("review regressions")
 # *measured* is not the same as passing it.
 failed_primary_src = ws.root / "src" / "failed-primary"
 shutil.copytree(ws.source("ship-verified"), failed_primary_src, dirs_exist_ok=True)
-cand = json.loads((failed_primary_src / "eval-candidate.json").read_text(encoding="utf-8"))
+cand = json.loads(
+    (failed_primary_src / "eval-candidate.json").read_text(encoding="utf-8")
+)
 cand["passed"], cand["score"] = False, 0.10
-(failed_primary_src / "eval-candidate.json").write_text(json.dumps(cand), encoding="utf-8")
+(failed_primary_src / "eval-candidate.json").write_text(
+    json.dumps(cand), encoding="utf-8"
+)
 failed_primary = build.compile_from_run(failed_primary_src)
 check_that(
     failed_primary["decision"]["verified"] is False,
     "a ship whose primary gate failed is not verified",
 )
 check_that(
-    any("missed its own target" in b for b in failed_primary["decision"]["verification_blockers"]),
+    any(
+        "missed its own target" in b
+        for b in failed_primary["decision"]["verification_blockers"]
+    ),
     "the failed primary gate is named as a verification blocker",
 )
 check_that(
@@ -712,21 +767,31 @@ try:
     build.compile_from_run(mismap_src)
     check_that(False, "a regression_slice naming a missing slice must raise")
 except rc.ReportCardError as exc:
-    check_that("not present in slice-metrics.json" in str(exc), "the bad pointer is named")
+    check_that(
+        "not present in slice-metrics.json" in str(exc), "the bad pointer is named"
+    )
 
 # (3) `validate` recomputes verified/blockers instead of trusting the payload.
 forged = ws.card("historical")
-check_that(forged["decision"]["verified"] is False, "the forgery fixture starts unverified")
+check_that(
+    forged["decision"]["verified"] is False, "the forgery fixture starts unverified"
+)
 forged["decision"]["verified"] = True
 forged["decision"]["verification_blockers"] = []
 check_that(
-    any("does not match the evidence" in e for e in rc.validate(forged, allow_report_only=True)),
+    any(
+        "does not match the evidence" in e
+        for e in rc.validate(forged, allow_report_only=True)
+    ),
     "a forged verified=true is rejected by recomputation",
 )
 tampered_blockers = ws.card("historical")
 tampered_blockers["decision"]["verification_blockers"] = ["a made-up blocker"]
 check_that(
-    any("does not match the evidence" in e for e in rc.validate(tampered_blockers, allow_report_only=True)),
+    any(
+        "does not match the evidence" in e
+        for e in rc.validate(tampered_blockers, allow_report_only=True)
+    ),
     "a tampered blocker list is rejected by recomputation",
 )
 
@@ -755,7 +820,8 @@ check_that(
 global_frontier_src = ws.root / "src" / "global-frontier"
 shutil.copytree(ws.source("ship-verified"), global_frontier_src, dirs_exist_ok=True)
 (global_frontier_src / "eval-validity.json").write_text(
-    json.dumps({"frontier": {"model": "fixture-frontier", "score": 1.0}}), encoding="utf-8"
+    json.dumps({"frontier": {"model": "fixture-frontier", "score": 1.0}}),
+    encoding="utf-8",
 )
 global_frontier = build.compile_from_run(global_frontier_src)
 check_that(
@@ -806,7 +872,8 @@ if ARTIFACTS_TS.is_file():
     check_that(bool(linked), "the artifact inventory links at least one report card")
     for slug in sorted(linked):
         check_that(
-            (PUBLISHED / f"{slug}.html").is_file() and (PUBLISHED / f"{slug}.json").is_file(),
+            (PUBLISHED / f"{slug}.html").is_file()
+            and (PUBLISHED / f"{slug}.json").is_file(),
             f"/artifacts links report card `{slug}` but it is not published",
         )
     if PUBLISHED.is_dir():

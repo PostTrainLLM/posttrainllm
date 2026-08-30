@@ -1,3 +1,0 @@
-USER: where is my amazon package
-EXPECT_INTENT: out_of_scope
-REASON: Package tracking is an unintegrated cloud service

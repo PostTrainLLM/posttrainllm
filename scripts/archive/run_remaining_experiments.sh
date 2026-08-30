@@ -22,7 +22,7 @@ MODEL="$B4" MT_SYS="$GP" MT_BATCH=8 \
 
 echo "===== [3/3] VibeThinker as agentic-distill BASE (file-ops gold -> SFT -> eval hard+breadth) ====="
 if python3 -c "from transformers import AutoTokenizer; t=AutoTokenizer.from_pretrained('$VIBE'); raise SystemExit(0 if getattr(t,'chat_template',None) else 1)" 2>/dev/null; then
-  EVAL_SETS="hard breadth" bash scripts/distill_multiturn.sh \
+  EVAL_SETS="hard breadth" bash scripts/pipelines/distill_multiturn.sh \
     "$HOME/.cache/posttrainllm/rest_artifacts/gold_traj.jsonl" "$VIBE" vibe_distill 2>&1 \
     | grep -E "render|max-seq|n_train|Iter 360:|### |task-completion|fused model|Error|Traceback" || echo "  vibe distill failed"
 else

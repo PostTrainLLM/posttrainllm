@@ -28,9 +28,9 @@ Read in this order:
 | 9 | [`learning-progress.md`](learning-progress.md) | Measured progress through the owner learning pipeline |
 | 10 | [`learning-pipeline.md`](learning-pipeline.md) | How ground-up learning attaches to the factory lab |
 | 11 | [`factory/public-artifacts.md`](factory/public-artifacts.md) | Public artifact inventory, blockers, and release posture |
-| 12 | [`history-coverage-audit.md`](history-coverage-audit.md) | Exactness boundary for normalized vs unnormalized historical attempts |
-| 13 | [`exactness-completion-audit.md`](exactness-completion-audit.md) | Completion proof for the docs exactness pass |
-| 14 | [`docs-quality-audit.md`](docs-quality-audit.md) | Honest audit of what is world-class now and what still is not |
+| 12 | [`history-coverage-audit.md`](audits/history-coverage-audit.md) | Exactness boundary for normalized vs unnormalized historical attempts |
+| 13 | [`exactness-completion-audit.md`](audits/exactness-completion-audit.md) | Completion proof for the docs exactness pass |
+| 14 | [`docs-quality-audit.md`](audits/docs-quality-audit.md) | Honest audit of what is world-class now and what still is not |
 | 15 | [`doc-status.md`](doc-status.md) | Active/reference/parked/superseded labels for major docs |
 
 ## Current Project Loop

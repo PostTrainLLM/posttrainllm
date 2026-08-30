@@ -31,14 +31,14 @@ real users actually ask.
 
 ## Scope — in
 
-- `scripts/bench_energy.py` — wraps either `bench_decode.py` (decode)
+- `scripts/bench/bench_energy.py` — wraps either `bench_decode.py` (decode)
   or a `posttrainllm train --steps N` (training) in a powermetrics sidecar
   that samples package power at 1 Hz, integrates over the window,
   and divides by tokens generated (or steps run).
 - Output JSON gains `joules_total`, `joules_per_token`, `joules_per_step`.
 - Optional integration with the leaderboard aggregator — new
   optional `energy_json:` field on the manifest row.
-- One-time sudo helper: `scripts/setup_powermetrics_sudoers.sh`
+- One-time sudo helper: `scripts/bench/setup_powermetrics_sudoers.sh`
   walks the user through adding a passwordless sudo rule for
   `/usr/bin/powermetrics` only.
 
@@ -53,17 +53,17 @@ real users actually ask.
 
 | File | Change |
 |---|---|
-| `scripts/bench_energy.py` | new — sidecar wrapper |
-| `scripts/setup_powermetrics_sudoers.sh` | new — one-time auth helper |
-| `scripts/build_slm_leaderboard.py` | optional `energy_json` field in manifest reader |
+| `scripts/bench/bench_energy.py` | new — sidecar wrapper |
+| `scripts/bench/setup_powermetrics_sudoers.sh` | new — one-time auth helper |
+| `scripts/bench/build_slm_leaderboard.py` | optional `energy_json` field in manifest reader |
 | `docs/research/mac_decode_baseline_m5pro.md` | add energy column to Run 5/6 |
 | `docs/PLAN.md` | B9 ⬜ → ✅ on ship |
 
 ## Acceptance criteria
 
-- [ ] `scripts/bench_energy.py --decode --model google/gemma-3-12b
+- [ ] `scripts/bench/bench_energy.py --decode --model google/gemma-3-12b
   --n 20` produces a `joules_per_token` number ± 10% on rerun.
-- [ ] `scripts/bench_energy.py --train --steps 100
+- [ ] `scripts/bench/bench_energy.py --train --steps 100
   --base shakespeare.tinygpt` produces a `joules_per_step` number.
 - [ ] Without sudo set up, the script prints a clear "run
   `setup_powermetrics_sudoers.sh` once" error.
@@ -71,7 +71,7 @@ real users actually ask.
 
 ## Reference patterns
 
-- `scripts/duty-cycle-throttle.sh` — existing powermetrics
+- `scripts/bench/duty-cycle-throttle.sh` — existing powermetrics
   invocation; same auth pattern.
 - C5 decode-jitter-thermal — companion (thermal + energy are
   often co-measured).

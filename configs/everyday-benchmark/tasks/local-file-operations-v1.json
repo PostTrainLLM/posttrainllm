@@ -15,7 +15,7 @@
   "scorer": {
     "id": "bfcl-multiturn-final-state",
     "revision": "1",
-    "authority": "scripts/bfcl_multiturn_eval.py using BFCL multi_turn_checker",
+    "authority": "scripts/bfcl/bfcl_multiturn_eval.py using BFCL multi_turn_checker",
     "primary_metric": "exact_accuracy",
     "expected_field": "expected_verdict",
     "prediction_field": "predicted_verdict",
@@ -38,7 +38,12 @@
   "labels": ["pass", "fail"],
   "slices": {
     "primary": ["multi-turn", "filesystem"],
-    "protected": ["deep-navigation", "move-copy", "delete-cleanup", "multi-directory"]
+    "protected": [
+      "deep-navigation",
+      "move-copy",
+      "delete-cleanup",
+      "multi-directory"
+    ]
   },
   "budgets": {
     "timeout_ms_per_instance": 120000,

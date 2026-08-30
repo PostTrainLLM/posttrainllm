@@ -89,13 +89,13 @@ reported strength as reproduced.
 
 The independent reference path now consists of:
 
-- `scripts/chess_sft_corpus.py`: deterministic compiler from decompressed CC0
+- `scripts/chess/chess_sft_corpus.py`: deterministic compiler from decompressed CC0
   Lichess evaluation JSONL to character-policy rows and a provenance manifest;
 - `configs/model.chess-44m-v0.json`: an owned 44,527,616-parameter byte model;
-- `scripts/chess_sft_text.py` and `scripts/chess_python_checkpoint.py`: the
+- `scripts/chess/chess_sft_text.py` and `scripts/chess/chess_python_checkpoint.py`: the
   explicit bridge from compiled rows to the Python trainer and from its
   checkpoint back into legal-candidate evaluation;
-- `scripts/chess_strength_ladder.py`: paired-color full games against pinned
+- `scripts/chess/chess_strength_ladder.py`: paired-color full games against pinned
   random, weak Stockfish-mixture, and UCI-strength rungs;
 - `configs/chess/specialist-recipe-v1.json`: tiny-overfit, pilot, stop, and
   qualification gates, now closed after the bounded pilot failed promotion.
@@ -141,7 +141,7 @@ rejected before 100k. The checkpoint and detailed traces remain local and
 gitignored; their hashes are committed in the evidence summary.
 
 The Qwen-style reproduction contract adds separately rated raw always-score and
-engine-free finishing-guard policies. `scripts/chess_move_quality.py` grades
+engine-free finishing-guard policies. `scripts/chess/chess_move_quality.py` grades
 archived moves with Stockfish depth 12 for average cp loss plus 100/300 cp
 blunder rates; Stockfish is evaluation-only. Frozen 10k/100k/1M/2M composition
 stages live in `configs/chess/qwen-reproduction-v1.json`; the 10k stage ran

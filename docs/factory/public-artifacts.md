@@ -323,7 +323,7 @@ Current artifact shape:
 - Synthetic adapter:
   `runs/2026-07-02-sql-expanded-qwen06/qwen06-sql-expanded.lora`
 - Router:
-  `scripts/run_sql_routed_generate.py`
+  `scripts/sql/run_sql_routed_generate.py`
 - Router smoke:
   `evals/sql-routed-router-smoke.sh`
 - Eval fixture:
@@ -331,11 +331,11 @@ Current artifact shape:
 - Report:
   `docs/specialists/b1-sql-poc.md`
 - Canonical run renderer:
-  `scripts/render_sql_factory_run.py`
+  `scripts/sql/render_sql_factory_run.py`
 - Run smoke:
   `evals/sql-factory-run-smoke.sh`
 - Public execution gate builder:
-  `scripts/build_sql_spider_execution_gate.py`
+  `scripts/sql/build_sql_spider_execution_gate.py`
 - Public execution gate smoke:
   `evals/sql-spider-execution-smoke.sh`
 
@@ -387,8 +387,8 @@ Release blockers:
 |---|---|---|
 | Public execution benchmark missing | b-mc2 exact match is useful but not enough for a serious SQL model claim. | Add BIRD Mini-Dev SQLite or Spider SQLite execution gate once DBs are local. |
 | Not packaged under `specialists/` | Current adapter paths are local `runs/` outputs, not package metadata. | Create a package only after `decision.json` is `ship`; until then publish as report-only/candidate. |
-| Output hygiene is weak | Scorers extract the first `SELECT`; many completions still include prose after the query. | Clean-SQL metric exists (`scripts/score_sql_clean_output.py`); first hygiene candidate (ref-free SimPO) collapsed and was decided retry-training (`runs/2026-07-03-sql-hygiene-dpo-qwen06/`). Retry with reference-anchored DPO. |
-| Performance numbers missing | Public artifact should report latency, RAM, tok/s, and eval time. | Run `scripts/measure_sql_routed_perf.py` on the routed setup (offline smoke: `evals/sql-perf-smoke.sh`) and paste the report. |
+| Output hygiene is weak | Scorers extract the first `SELECT`; many completions still include prose after the query. | Clean-SQL metric exists (`scripts/sql/score_sql_clean_output.py`); first hygiene candidate (ref-free SimPO) collapsed and was decided retry-training (`runs/2026-07-03-sql-hygiene-dpo-qwen06/`). Retry with reference-anchored DPO. |
+| Performance numbers missing | Public artifact should report latency, RAM, tok/s, and eval time. | Run `scripts/sql/measure_sql_routed_perf.py` on the routed setup (offline smoke: `evals/sql-perf-smoke.sh`) and paste the report. |
 | Data provenance needs public copy | b-mc2 and BIRD-derived rows have different licenses/provenance surfaces. | Add dataset license/provenance notes to the public report. |
 
 Next release action:
@@ -401,13 +401,13 @@ router over two specialists, and public execution benchmarking is the next gate.
 Canonical local render:
 
 ```bash
-python3 scripts/render_sql_factory_run.py --out runs/2026-07-02-sql-routed-qwen06-v1
+python3 scripts/sql/render_sql_factory_run.py --out runs/2026-07-02-sql-routed-qwen06-v1
 ```
 
 Spider execution gate once a local Spider bundle exists:
 
 ```bash
-python3 scripts/build_sql_spider_execution_gate.py \
+python3 scripts/sql/build_sql_spider_execution_gate.py \
   --spider-root /path/to/spider \
   --out evals/sql-spider-execution
 ```

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-python3 "$ROOT/scripts/check_attempt_ledger.py"
+python3 "$ROOT/scripts/docs-checks/check_attempt_ledger.py"
 python3 "$ROOT/tests/test_query_attempts.py"
 
 echo "attempt-ledger-smoke ok"

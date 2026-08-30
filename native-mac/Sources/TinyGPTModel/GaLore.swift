@@ -51,7 +51,7 @@ import MLXRandom
 /// the "GaLore matches LoRA r=R memory" claim honest, we maintain a
 /// PARALLEL low-rank Adam-shaped budget counter (`memoryBudget`)
 /// that reports the size a fully GaLore-aware optimiser WOULD use.
-/// Worked example with the run summary in `docs/galore_and_stability.md`.
+/// Worked example with the run summary in `docs/techniques/galore_and_stability.md`.
 public final class GaLoreProjector {
     public let rank: Int
     public let updateEvery: Int

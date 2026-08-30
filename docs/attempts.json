@@ -17,19 +17,11 @@
       "failure_reason_confidence": "exact",
       "lesson": "The SFT loop mechanics work, but eval splits must be frozen before claiming quality.",
       "next_action": "Use only as a loop sanity check; rely on heldout SQL evals for real claims.",
-      "evidence_sources": [
-        "docs/specialists/b1-sql-poc.md"
-      ],
+      "evidence_sources": ["docs/specialists/b1-sql-poc.md"],
       "source": "docs/specialists/b1-sql-poc.md",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora",
-        "dora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora", "dora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "sql-execution",
       "data_rows": 12
     },
@@ -48,14 +40,8 @@
       ],
       "source": "docs/factory/public-artifacts.md",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora",
-        "dora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora", "dora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "sql-execution",
       "data_rows": 108,
       "varied_from": "sql-toy-sft-r4",
@@ -71,18 +57,11 @@
       "failure_reason_confidence": "inferred",
       "lesson": "Public benchmark adaptation needs more coverage before tuning knobs matter.",
       "next_action": "Scale public-style rows and re-evaluate against the same exact gate.",
-      "evidence_sources": [
-        "docs/specialists/b1-sql-poc.md"
-      ],
+      "evidence_sources": ["docs/specialists/b1-sql-poc.md"],
       "source": "docs/specialists/b1-sql-poc.md",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "sql-exact-match",
       "data_rows": 512
     },
@@ -96,18 +75,11 @@
       "failure_reason_confidence": "inferred",
       "lesson": "Do not change data volume, rank, and training length in one uncontrolled jump.",
       "next_action": "Use smaller controlled deltas with fixed eval and comparable training settings.",
-      "evidence_sources": [
-        "docs/specialists/b1-sql-poc.md"
-      ],
+      "evidence_sources": ["docs/specialists/b1-sql-poc.md"],
       "source": "docs/specialists/b1-sql-poc.md",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "sql-exact-match",
       "data_rows": 2048,
       "varied_from": "sql-public-bmc2-v1",
@@ -123,18 +95,11 @@
       "failure_reason_confidence": "inferred",
       "lesson": "The public recipe was directionally better, but not enough for a win.",
       "next_action": "Try targeted data weighting instead of only global hyperparameter changes.",
-      "evidence_sources": [
-        "docs/specialists/b1-sql-poc.md"
-      ],
+      "evidence_sources": ["docs/specialists/b1-sql-poc.md"],
       "source": "docs/specialists/b1-sql-poc.md",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "sql-exact-match",
       "data_rows": 2048,
       "varied_from": "sql-public-bmc2-v2",
@@ -156,13 +121,8 @@
       ],
       "source": "docs/specialists/b1-sql-poc.md",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "sql-exact-match",
       "varied_from": "sql-public-bmc2-v3",
       "varied": "join/group weighted rows, 600 -> 700 steps"
@@ -183,12 +143,8 @@
       ],
       "source": "docs/specialists/b1-sql-poc.md",
       "kind": "model-evaluation",
-      "methods": [
-        "evaluation"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["evaluation"],
+      "bases": ["qwen3-0.6b"],
       "objective": "sql-execution",
       "varied_from": "sql-public-bmc2-v4",
       "varied": "scored the public adapter on the synthetic fixture"
@@ -209,13 +165,8 @@
       ],
       "source": "docs/specialists/b1-sql-poc.md",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "sql-exact-match",
       "varied_from": "sql-public-bmc2-v4",
       "varied": "public and synthetic rows mixed into one adapter"
@@ -236,12 +187,8 @@
       ],
       "source": "docs/specialists/b1-sql-poc.md",
       "kind": "model-evaluation",
-      "methods": [
-        "multi-lora-composition"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["multi-lora-composition"],
+      "bases": ["qwen3-0.6b"],
       "objective": "sql-exact-match",
       "varied_from": "sql-blended-public-synthetic-v1",
       "varied": "two adapters composed at fixed weights instead of one blended adapter"
@@ -256,17 +203,11 @@
       "failure_reason_confidence": "exact",
       "lesson": "Routing preserves both measured slices, but artifact status still depends on public execution and performance evidence.",
       "next_action": "Add public execution gate, latency/RAM/tok-s measurement, and a package decision.",
-      "evidence_sources": [
-        "docs/factory/public-artifacts.md"
-      ],
+      "evidence_sources": ["docs/factory/public-artifacts.md"],
       "source": "docs/factory/public-artifacts.md",
       "kind": "model-evaluation",
-      "methods": [
-        "routing"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["routing"],
+      "bases": ["qwen3-0.6b"],
       "objective": "sql-exact-match",
       "varied_from": "sql-static-multilora-composition",
       "varied": "schema-based routing instead of static composition"
@@ -281,19 +222,11 @@
       "failure_reason_confidence": "exact",
       "lesson": "Preference tuning needs reference anchoring, smaller updates, and composed-eval checks.",
       "next_action": "Retry with reference-anchored DPO or much lower LR/step count on the same frozen pairs.",
-      "evidence_sources": [
-        "PROJECT_STATUS.md",
-        "docs/NEXT.md"
-      ],
+      "evidence_sources": ["PROJECT_STATUS.md", "docs/NEXT.md"],
       "source": "PROJECT_STATUS.md",
       "kind": "training-run",
-      "methods": [
-        "simpo",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["simpo", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "output-format",
       "data_rows": 108
     },
@@ -308,17 +241,13 @@
       "next_action": "Run only after candidate rows are generated without leakage.",
       "evidence_sources": [
         "docs/techniques/sql-technique-backlog.md",
-        "scripts/build_sql_candidate_choice.py",
-        "scripts/score_sql_candidate_choice.py"
+        "scripts/sql/build_sql_candidate_choice.py",
+        "scripts/sql/score_sql_candidate_choice.py"
       ],
       "source": "docs/techniques/sql-technique-backlog.md",
       "kind": "training-run",
-      "methods": [
-        "candidate-selection"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["candidate-selection"],
+      "bases": ["qwen3-0.6b"],
       "objective": "sql-execution"
     },
     {
@@ -336,12 +265,8 @@
       ],
       "source": "docs/techniques/sql-technique-backlog.md",
       "kind": "training-run",
-      "methods": [
-        "rlvr"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["rlvr"],
+      "bases": ["qwen3-0.6b"],
       "objective": "sql-execution"
     },
     {
@@ -353,17 +278,11 @@
       "failure_reason_confidence": "not-applicable",
       "lesson": "Needed to separate capacity from data/recipe confounds.",
       "next_action": "Run only after the next target/eval is frozen.",
-      "evidence_sources": [
-        "docs/techniques/sql-technique-backlog.md"
-      ],
+      "evidence_sources": ["docs/techniques/sql-technique-backlog.md"],
       "source": "docs/techniques/sql-technique-backlog.md",
       "kind": "training-run",
-      "methods": [
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "rank-sensitivity"
     },
     {
@@ -383,12 +302,8 @@
       ],
       "source": "docs/factory/public-artifacts.md",
       "kind": "training-run",
-      "methods": [
-        "distill"
-      ],
-      "bases": [
-        "qwen3-4b"
-      ],
+      "methods": ["distill"],
+      "bases": ["qwen3-4b"],
       "objective": "file-ops-depth"
     },
     {
@@ -408,13 +323,8 @@
       ],
       "source": "docs/factory/public-artifacts.md",
       "kind": "training-run",
-      "methods": [
-        "rest",
-        "distill"
-      ],
-      "bases": [
-        "qwen3-4b"
-      ],
+      "methods": ["rest", "distill"],
+      "bases": ["qwen3-4b"],
       "objective": "breadth-retention",
       "varied_from": "fileops-qwen3-4b-distilled",
       "varied": "teacher-free ReST fusion to recover the breadth the distill lost"
@@ -429,17 +339,11 @@
       "failure_reason_confidence": "exact",
       "lesson": "Multi-backend distillation can over-specialize and needs breadth gates by default.",
       "next_action": "Keep as failed comparison evidence; do not promote without a new breadth-preserving recipe.",
-      "evidence_sources": [
-        "docs/factory/public-artifacts.md"
-      ],
+      "evidence_sources": ["docs/factory/public-artifacts.md"],
       "source": "docs/factory/public-artifacts.md",
       "kind": "training-run",
-      "methods": [
-        "distill"
-      ],
-      "bases": [
-        "qwen3-4b"
-      ],
+      "methods": ["distill"],
+      "bases": ["qwen3-4b"],
       "objective": "file-ops-depth",
       "varied_from": "fileops-qwen3-4b-distilled",
       "varied": "multi-backend teacher data"
@@ -454,17 +358,11 @@
       "failure_reason_confidence": "exact",
       "lesson": "Preserved weights are not a ship decision.",
       "next_action": "Run the factory eval gate and publish a before/after report before using it as a specialist package.",
-      "evidence_sources": [
-        "docs/factory/public-artifacts.md"
-      ],
+      "evidence_sources": ["docs/factory/public-artifacts.md"],
       "source": "docs/factory/public-artifacts.md",
       "kind": "training-run",
-      "methods": [
-        "distill"
-      ],
-      "bases": [
-        "vibethinker-3b"
-      ],
+      "methods": ["distill"],
+      "bases": ["vibethinker-3b"],
       "objective": "agentic-reasoning"
     },
     {
@@ -483,12 +381,8 @@
       ],
       "source": "docs/learn/apple-on-device-foundation-models.md",
       "kind": "model-evaluation",
-      "methods": [
-        "evaluation"
-      ],
-      "bases": [
-        "apple-foundation-models"
-      ],
+      "methods": ["evaluation"],
+      "bases": ["apple-foundation-models"],
       "objective": "action-grounding"
     },
     {
@@ -498,13 +392,8 @@
       "status": "inconclusive",
       "failure_reason_confidence": "missing-evidence",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "planner-oos-refusal",
       "evidence": "datasets, builder scripts, and planned recipes survive; no per-version score was recorded",
       "failure_reason": "No per-version result was kept. The v11 ship gate names this directly: v1 through v10 cycled because there was no fixed bar, no fixed eval, and no immutable record of pass criteria.",
@@ -524,13 +413,8 @@
       "status": "worked-with-caveat",
       "failure_reason_confidence": "exact",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "planner-oos-refusal",
       "data_rows": 248,
       "evidence": "17/19 (89%) on fm-fixtures v1 and 6/15 (40.0%) on fm-fixtures-v2",
@@ -550,13 +434,8 @@
       "status": "regressed",
       "failure_reason_confidence": "exact",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "planner-oos-refusal",
       "varied_from": "pace-planner-v5",
       "varied": "output representation changed from element IDs to labels with a deterministic label-to-ID lookup; hyperparameters held constant",
@@ -577,13 +456,8 @@
       "status": "worked-with-caveat",
       "failure_reason_confidence": "exact",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "planner-oos-refusal",
       "data_rows": 760,
       "varied_from": "pace-planner-v6",
@@ -606,20 +480,15 @@
       "status": "not-tried",
       "failure_reason_confidence": "not-applicable",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "planner-oos-refusal",
       "evidence": "tools-in-prompt serve, verb-enum grammar, and data/eval harnesses shipped; the SFT was never run",
       "lesson": "v7 is a numbering gap, not a training version. The eleven-version count includes a version that was never trained.",
       "next_action": "Do not cite v7 as evidence about model capability.",
       "evidence_sources": [
         "docs/prds/factory-planner-v7-tools-in-prompt.md",
-        "HANDOFF.md"
+        "docs/archive/HANDOFF.md"
       ],
       "source": "docs/prds/factory-planner-v7-tools-in-prompt.md"
     },
@@ -630,13 +499,8 @@
       "status": "inconclusive",
       "failure_reason_confidence": "exact",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "planner-oos-refusal",
       "data_rows": 307,
       "varied_from": "pace-planner-v5",
@@ -647,8 +511,8 @@
       "next_action": "Treat 33.3% as the working v8 baseline and never compare across versions without pinning the harness config.",
       "evidence_sources": [
         "docs/learn/eval-matrix-2026-06-08.md",
-        "docs/v11-baselines-2026-06-09.md",
-        "docs/RETROSPECTIVE.md"
+        "docs/sessions/v11-baselines-2026-06-09.md",
+        "docs/sessions/RETROSPECTIVE.md"
       ],
       "source": "docs/learn/eval-matrix-2026-06-08.md"
     },
@@ -659,13 +523,8 @@
       "status": "worked-with-caveat",
       "failure_reason_confidence": "exact",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "planner-oos-refusal",
       "varied_from": "pace-planner-v8",
       "varied": "backfilled a fourth schema field bodyText and added about 50 compose and draft rows",
@@ -674,11 +533,11 @@
       "lesson": "Winning the happy-path fixture says nothing about ambiguous, out-of-scope, or destructive inputs, which is where the product actually needed the planner.",
       "next_action": "Keep as the last shipped specialist; Pace runs qwen3-30b-a3b instead.",
       "evidence_sources": [
-        "docs/v11-baselines-2026-06-09.md",
-        "docs/DRILLDOWN.md",
-        "docs/pace-handoff-2026-06-10.md"
+        "docs/sessions/v11-baselines-2026-06-09.md",
+        "docs/sessions/DRILLDOWN.md",
+        "docs/sessions/pace-handoff-2026-06-10.md"
       ],
-      "source": "docs/v11-baselines-2026-06-09.md"
+      "source": "docs/sessions/v11-baselines-2026-06-09.md"
     },
     {
       "id": "pace-planner-v10",
@@ -687,13 +546,8 @@
       "status": "inconclusive",
       "failure_reason_confidence": "missing-evidence",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "planner-oos-refusal",
       "data_rows": 404,
       "varied_from": "pace-planner-v9",
@@ -703,11 +557,11 @@
       "lesson": "v10 repeated v6's move of changing the output representation, and because it was never measured the v6 regression could not be checked for recurrence. Its unmeasured corpus was then inherited by v11.",
       "next_action": "Do not reuse a v10-derived corpus without first measuring the representation change in isolation.",
       "evidence_sources": [
-        "scripts/v10_pipeline.sh",
+        "scripts/pipelines/v10_pipeline.sh",
         "docs/prds/pace-planner-v11-training-data.md",
-        "HANDOFF.md"
+        "docs/archive/HANDOFF.md"
       ],
-      "source": "scripts/v10_pipeline.sh"
+      "source": "scripts/pipelines/v10_pipeline.sh"
     },
     {
       "id": "pace-planner-v11",
@@ -716,13 +570,8 @@
       "status": "failed",
       "failure_reason_confidence": "exact",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "planner-oos-refusal",
       "data_rows": 709,
       "varied_from": "pace-planner-v10",
@@ -732,12 +581,12 @@
       "lesson": "Train loss 0.001 alongside 0% on out-of-scope and ambiguous inputs is the capacity ceiling stated plainly. The one-shot fixed gate was what finally ended the cycle.",
       "next_action": "Do not train v12. The specialist planner track is closed and Pace ships qwen3-30b-a3b.",
       "evidence_sources": [
-        "docs/v11-baselines-2026-06-09.md",
+        "docs/sessions/v11-baselines-2026-06-09.md",
         "docs/prds/pace-planner-v11-ship-gate.md",
-        "docs/DRILLDOWN.md",
-        "docs/RETROSPECTIVE.md"
+        "docs/sessions/DRILLDOWN.md",
+        "docs/sessions/RETROSPECTIVE.md"
       ],
-      "source": "docs/v11-baselines-2026-06-09.md"
+      "source": "docs/sessions/v11-baselines-2026-06-09.md"
     },
     {
       "id": "pace-clarify-v1-qwen4b-lora",
@@ -750,17 +599,13 @@
       "lesson": "Fine-tuning a strong base on a thin behavior slice requires coverage for every dimension that must not regress.",
       "next_action": "Do not fine-tune the planner on narrow clarify rows unless the corpus also covers OOS, destructive, happy path, and breadth gates.",
       "evidence_sources": [
-        "docs/RETROSPECTIVE.md",
-        "docs/DRILLDOWN.md"
+        "docs/sessions/RETROSPECTIVE.md",
+        "docs/sessions/DRILLDOWN.md"
       ],
-      "source": "docs/RETROSPECTIVE.md",
+      "source": "docs/sessions/RETROSPECTIVE.md",
       "kind": "training-run",
-      "methods": [
-        "lora"
-      ],
-      "bases": [
-        "qwen3-4b"
-      ],
+      "methods": ["lora"],
+      "bases": ["qwen3-4b"],
       "objective": "ambiguity-detection",
       "data_rows": 38
     },
@@ -774,17 +619,11 @@
       "failure_reason_confidence": "exact",
       "lesson": "Rule wrappers can expose the missing behavior, but they still need the same regression gates as model updates.",
       "next_action": "Keep as an option only if shipping the 4B footprint floor; do not stack it on the stronger Gemma path.",
-      "evidence_sources": [
-        "docs/DRILLDOWN.md"
-      ],
-      "source": "docs/DRILLDOWN.md",
+      "evidence_sources": ["docs/sessions/DRILLDOWN.md"],
+      "source": "docs/sessions/DRILLDOWN.md",
       "kind": "model-evaluation",
-      "methods": [
-        "two-stage-shim"
-      ],
-      "bases": [
-        "qwen3-4b"
-      ],
+      "methods": ["two-stage-shim"],
+      "bases": ["qwen3-4b"],
       "objective": "ambiguity-detection",
       "varied_from": "pace-clarify-v1-qwen4b-lora",
       "varied": "inference-time two-stage shim instead of a trained adapter"
@@ -799,18 +638,11 @@
       "failure_reason_confidence": "exact",
       "lesson": "Reasoning models need adequate max tokens and a stop-on-think strategy before interpreting planner scores.",
       "next_action": "Re-run with max_tokens >= 1024 and stop on `</think>` only if Gemma or the locked planner fails in production.",
-      "evidence_sources": [
-        "docs/DRILLDOWN.md"
-      ],
-      "source": "docs/DRILLDOWN.md",
+      "evidence_sources": ["docs/sessions/DRILLDOWN.md"],
+      "source": "docs/sessions/DRILLDOWN.md",
       "kind": "model-evaluation",
-      "methods": [
-        "evaluation"
-      ],
-      "bases": [
-        "qwen3-4b-thinking",
-        "deepseek-r1-distill-qwen-7b"
-      ],
+      "methods": ["evaluation"],
+      "bases": ["qwen3-4b-thinking", "deepseek-r1-distill-qwen-7b"],
       "objective": "unhappy-path-handling"
     },
     {
@@ -823,17 +655,11 @@
       "failure_reason_confidence": "exact",
       "lesson": "A stronger zero-shot base beat the local fine-tunes, but model-selection evidence can be superseded by later broader gates.",
       "next_action": "Keep as historical unhappy-path evidence; prefer current `PROJECT_STATUS.md`/`docs/NEXT.md` for active planner decisions.",
-      "evidence_sources": [
-        "docs/DRILLDOWN.md"
-      ],
-      "source": "docs/DRILLDOWN.md",
+      "evidence_sources": ["docs/sessions/DRILLDOWN.md"],
+      "source": "docs/sessions/DRILLDOWN.md",
       "kind": "model-evaluation",
-      "methods": [
-        "evaluation"
-      ],
-      "bases": [
-        "gemma-3-12b"
-      ],
+      "methods": ["evaluation"],
+      "bases": ["gemma-3-12b"],
       "objective": "unhappy-path-handling",
       "varied_from": "pace-thinking-models-unhappy-path",
       "varied": "non-reasoning larger base"
@@ -847,19 +673,12 @@
       "failure_reason": "Qwen3.5 improved some dimensions, especially OOS for 9B, but did not beat the stored champion across the full swap decision.",
       "failure_reason_confidence": "exact",
       "lesson": "Single-dimension wins do not justify a planner swap when another required dimension regresses.",
-      "next_action": "Use `scripts/eval_planner.sh` for future challengers and keep swap/no-swap verdicts tied to all required dimensions.",
-      "evidence_sources": [
-        "docs/DRILLDOWN.md"
-      ],
-      "source": "docs/DRILLDOWN.md",
+      "next_action": "Use `scripts/pipelines/eval_planner.sh` for future challengers and keep swap/no-swap verdicts tied to all required dimensions.",
+      "evidence_sources": ["docs/sessions/DRILLDOWN.md"],
+      "source": "docs/sessions/DRILLDOWN.md",
       "kind": "model-evaluation",
-      "methods": [
-        "evaluation"
-      ],
-      "bases": [
-        "qwen3.5-9b",
-        "qwen3.5-4b"
-      ],
+      "methods": ["evaluation"],
+      "bases": ["qwen3.5-9b", "qwen3.5-4b"],
       "objective": "unhappy-path-handling",
       "varied_from": "pace-gemma-3-12b-drill-winner",
       "varied": "newer Qwen generation as challenger"
@@ -875,7 +694,7 @@
       "lesson": "A reproducer must match the production host and call path before it can explain a browser-only WASM failure.",
       "next_action": "Keep the higher initial memory for supported presets and only claim Behemoth after a SAB-view-aware growth path lands.",
       "evidence_sources": [
-        "docs/qa_log.md",
+        "docs/sessions/qa_log.md",
         "docs/archive/lessons.md"
       ],
       "source": "docs/archive/lessons.md",
@@ -892,7 +711,7 @@
       "lesson": "If a performance result depends on preset size, publish the curve rather than the most convenient point.",
       "next_action": "Keep future public performance artifacts tied to config-specific tables with reproduction context.",
       "evidence_sources": [
-        "docs/qa_log.md",
+        "docs/sessions/qa_log.md",
         "docs/archive/lessons.md"
       ],
       "source": "docs/archive/lessons.md",
@@ -909,7 +728,7 @@
       "lesson": "Default data is part of the product claim; a training demo's default corpus must produce non-memorized samples.",
       "next_action": "Keep corpus defaults in the same parity review as model and optimizer defaults.",
       "evidence_sources": [
-        "docs/qa_log.md",
+        "docs/sessions/qa_log.md",
         "docs/archive/lessons.md"
       ],
       "source": "docs/archive/lessons.md",
@@ -926,7 +745,7 @@
       "lesson": "Reference defaults are part of correctness, not just documentation.",
       "next_action": "Add or keep a config-default parity check whenever browser and reference paths share a training story.",
       "evidence_sources": [
-        "docs/qa_log.md",
+        "docs/sessions/qa_log.md",
         "docs/archive/lessons.md"
       ],
       "source": "docs/archive/lessons.md",
@@ -942,10 +761,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "Long-running browser training is not product-complete until the smallest export path is smoke-tested before the long run.",
       "next_action": "Smoke export on a short WebGPU run before any long browser training claim.",
-      "evidence_sources": [
-        "docs/qa_log.md"
-      ],
-      "source": "docs/qa_log.md",
+      "evidence_sources": ["docs/sessions/qa_log.md"],
+      "source": "docs/sessions/qa_log.md",
       "kind": "infrastructure"
     },
     {
@@ -957,10 +774,8 @@
       "failure_reason_confidence": "not-applicable",
       "lesson": "A typewriter animation over an already-complete response is not true streaming.",
       "next_action": "Add worker protocol support for intermediate tokens and KV-cached browser generation before claiming interactive decode latency.",
-      "evidence_sources": [
-        "docs/qa_log.md"
-      ],
-      "source": "docs/qa_log.md",
+      "evidence_sources": ["docs/sessions/qa_log.md"],
+      "source": "docs/sessions/qa_log.md",
       "kind": "infrastructure"
     },
     {
@@ -973,10 +788,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "Hot-path hygiene is not the same as a performance win; measure the real step time before claiming speedup.",
       "next_action": "Keep the allocation cleanup, but do not prioritize allocator work until profiling shows allocation cost again.",
-      "evidence_sources": [
-        "docs/performance.md"
-      ],
-      "source": "docs/performance.md",
+      "evidence_sources": ["docs/performance/performance.md"],
+      "source": "docs/performance/performance.md",
       "kind": "infrastructure"
     },
     {
@@ -989,10 +802,10 @@
       "lesson": "Emscripten/LLVM autovectorization was the right browser-training speed lever before hand-written kernels.",
       "next_action": "Keep SIMD enabled by default and use the WASM smoke gate to protect training correctness.",
       "evidence_sources": [
-        "docs/performance.md",
+        "docs/performance/performance.md",
         "tests/smoke_wasm_node.mjs"
       ],
-      "source": "docs/performance.md",
+      "source": "docs/performance/performance.md",
       "kind": "infrastructure"
     },
     {
@@ -1005,10 +818,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "GPU API correctness can be CI-proven, but performance claims require a hardware adapter measurement.",
       "next_action": "Collect the documented real-device WebGPU vs WASM-SIMD benchmark before quoting a browser GPU speedup.",
-      "evidence_sources": [
-        "docs/performance.md"
-      ],
-      "source": "docs/performance.md",
+      "evidence_sources": ["docs/performance/performance.md"],
+      "source": "docs/performance/performance.md",
       "kind": "infrastructure"
     },
     {
@@ -1021,10 +832,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "Optimize and report on the real workload, not only on isolated single-kernel microbenches.",
       "next_action": "Keep the bit-exact forward kernel for inference, but judge future perf work with end-to-end training and generation benches.",
-      "evidence_sources": [
-        "docs/performance.md"
-      ],
-      "source": "docs/performance.md",
+      "evidence_sources": ["docs/performance/performance.md"],
+      "source": "docs/performance/performance.md",
       "kind": "infrastructure"
     },
     {
@@ -1037,10 +846,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "Training speed follows the backward-pass bottleneck; forward-only wins are capped until dA and dB are addressed.",
       "next_action": "Only continue matmul blocking if backward_dB or generation benches show enough remaining headroom.",
-      "evidence_sources": [
-        "docs/performance.md"
-      ],
-      "source": "docs/performance.md",
+      "evidence_sources": ["docs/performance/performance.md"],
+      "source": "docs/performance/performance.md",
       "kind": "infrastructure"
     },
     {
@@ -1053,10 +860,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "Speculative heads are a valid local speed path, but the production recipe is data/training heavy rather than a quick sidecar smoke.",
       "next_action": "Revive only with self-generated data, logit-KL distillation, tree verification, and a real acceptance-rate gate.",
-      "evidence_sources": [
-        "docs/speculative_heads.md"
-      ],
-      "source": "docs/speculative_heads.md",
+      "evidence_sources": ["docs/techniques/speculative_heads.md"],
+      "source": "docs/techniques/speculative_heads.md",
       "kind": "infrastructure"
     },
     {
@@ -1069,10 +874,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "MoE is a capacity feature until sparse gather/scatter or grouped matmul lands; it should not be marketed as a compute-saving win yet.",
       "next_action": "Return to MoE only with MLX scatter_add/grouped matmul support or a scoped custom Metal sparse-dispatch kernel.",
-      "evidence_sources": [
-        "docs/moe.md"
-      ],
-      "source": "docs/moe.md",
+      "evidence_sources": ["docs/techniques/moe.md"],
+      "source": "docs/techniques/moe.md",
       "kind": "infrastructure"
     },
     {
@@ -1085,10 +888,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "The big win was fused accumulation inside the compiled trace; individual CPU tweaks need isolation before being credited.",
       "next_action": "Use the bundle as shipped, but keep Rust-FFI BPE, preallocated CPU buffers, and SVD-on-CPU AMX as separate future attempts.",
-      "evidence_sources": [
-        "docs/cpu_speedup_results.md"
-      ],
-      "source": "docs/cpu_speedup_results.md",
+      "evidence_sources": ["docs/performance/cpu_speedup_results.md"],
+      "source": "docs/performance/cpu_speedup_results.md",
       "kind": "infrastructure"
     },
     {
@@ -1101,10 +902,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "mmap and direct byte construction are good scaling levers, but large-model cold-start claims need large-model measurements.",
       "next_action": "Re-measure on a real 50-250 MB checkpoint and keep persistent Metal cache work parked unless MLX-Swift exposes pipeline descriptors.",
-      "evidence_sources": [
-        "docs/cold_start_results.md"
-      ],
-      "source": "docs/cold_start_results.md",
+      "evidence_sources": ["docs/performance/cold_start_results.md"],
+      "source": "docs/performance/cold_start_results.md",
       "kind": "infrastructure"
     },
     {
@@ -1118,9 +917,9 @@
       "lesson": "Activation recompute is a scale-dependent lever; it should stay opt-in for models where memory, not step time, is the blocker.",
       "next_action": "Update memory estimation for `--grad-checkpoint` and consider selective layer checkpointing before broad default use.",
       "evidence_sources": [
-        "docs/gradient_checkpointing_results.md"
+        "docs/performance/gradient_checkpointing_results.md"
       ],
-      "source": "docs/gradient_checkpointing_results.md",
+      "source": "docs/performance/gradient_checkpointing_results.md",
       "kind": "infrastructure"
     },
     {
@@ -1133,10 +932,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "Reuse of prefilled KV is the user-visible win; cache storage policy changes need composition gates before becoming defaults.",
       "next_action": "Keep prompt-cache as the main shipped path and revisit pre-alloc defaults only after KIVI/StreamingLLM interactions are designed.",
-      "evidence_sources": [
-        "docs/kv_cache_optimization.md"
-      ],
-      "source": "docs/kv_cache_optimization.md",
+      "evidence_sources": ["docs/performance/kv_cache_optimization.md"],
+      "source": "docs/performance/kv_cache_optimization.md",
       "kind": "infrastructure"
     },
     {
@@ -1149,10 +946,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "YOCO is a long-context memory lever, not an immediate short-context speedup.",
       "next_action": "Treat YOCO as a long-context experiment until anchor tuning, HF round-trip, and long-context quality gates exist.",
-      "evidence_sources": [
-        "docs/yoco_results.md"
-      ],
-      "source": "docs/yoco_results.md",
+      "evidence_sources": ["docs/performance/yoco_results.md"],
+      "source": "docs/performance/yoco_results.md",
       "kind": "infrastructure"
     },
     {
@@ -1165,10 +960,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "KV compression can preserve greedy decode locally, but storage format and quality gates matter before making long-context claims.",
       "next_action": "Add packed int4 storage or grouped KIVI scales only after a cached-forward perplexity or trajectory-match eval exists.",
-      "evidence_sources": [
-        "docs/streaming_llm_kivi.md"
-      ],
-      "source": "docs/streaming_llm_kivi.md",
+      "evidence_sources": ["docs/techniques/streaming_llm_kivi.md"],
+      "source": "docs/techniques/streaming_llm_kivi.md",
       "kind": "infrastructure"
     },
     {
@@ -1181,10 +974,8 @@
       "failure_reason_confidence": "exact",
       "lesson": "Data-pipeline regularizers need behavioral evals, not just stable loss curves, before being treated as quality improvements.",
       "next_action": "Use sample-packing where length bias matters, and evaluate BPE-dropout on rare-word or morphology-sensitive gates before promotion.",
-      "evidence_sources": [
-        "docs/data_perf.md"
-      ],
-      "source": "docs/data_perf.md",
+      "evidence_sources": ["docs/performance/data_perf.md"],
+      "source": "docs/performance/data_perf.md",
       "kind": "infrastructure"
     },
     {
@@ -1196,10 +987,8 @@
       "failure_reason_confidence": "not-applicable",
       "lesson": "The suspected SDPA mask/contiguity and tied-embedding duplication issues were not present.",
       "next_action": "Keep this as positive verification; only reopen if new SDPA call sites or untied embedding save paths are added.",
-      "evidence_sources": [
-        "docs/perf_audit_mlxfast_tied.md"
-      ],
-      "source": "docs/perf_audit_mlxfast_tied.md",
+      "evidence_sources": ["docs/performance/perf_audit_mlxfast_tied.md"],
+      "source": "docs/performance/perf_audit_mlxfast_tied.md",
       "kind": "infrastructure"
     },
     {
@@ -1211,9 +1000,7 @@
       "failure_reason_confidence": "not-applicable",
       "lesson": "The four-step specialist contract is reusable, but the model claim does not exist until BFCL training/eval runs.",
       "next_action": "Run BFCL baseline, SFT, adapter eval, and +3pp gate once GPU/BFCL prerequisites are available.",
-      "evidence_sources": [
-        "docs/specialists/a1-tool-caller.md"
-      ],
+      "evidence_sources": ["docs/specialists/a1-tool-caller.md"],
       "source": "docs/specialists/a1-tool-caller.md",
       "kind": "infrastructure"
     },
@@ -1256,17 +1043,17 @@
       "name": "SQL factory run renderer",
       "family": "factory-docs",
       "status": "worked-with-caveat",
-      "evidence": "`scripts/render_sql_factory_run.py` renders canonical SQL report artifacts",
+      "evidence": "`scripts/sql/render_sql_factory_run.py` renders canonical SQL report artifacts",
       "failure_reason": "The renderer is a useful bridge but not yet one universal factory command.",
       "failure_reason_confidence": "exact",
       "lesson": "Rendered reports made SQL publishable, but the factory still needs command-level automation.",
       "next_action": "Use the renderer until the canonical train/eval/report command can emit the same artifacts directly.",
       "evidence_sources": [
-        "scripts/render_sql_factory_run.py",
+        "scripts/sql/render_sql_factory_run.py",
         "evals/factory-publish-check-smoke.sh",
         "docs/factory/reports.md"
       ],
-      "source": "scripts/render_sql_factory_run.py",
+      "source": "scripts/sql/render_sql_factory_run.py",
       "kind": "infrastructure"
     },
     {
@@ -1278,9 +1065,7 @@
       "failure_reason_confidence": "not-applicable",
       "lesson": "Public artifacts and blockers are first-class.",
       "next_action": "Keep every artifact entry updated before a release push.",
-      "evidence_sources": [
-        "docs/factory/public-artifacts.md"
-      ],
+      "evidence_sources": ["docs/factory/public-artifacts.md"],
       "source": "docs/factory/public-artifacts.md",
       "kind": "infrastructure"
     },
@@ -1331,19 +1116,11 @@
       "failure_reason_confidence": "exact",
       "lesson": "Reference-anchored DPO is the correct fix for the SimPO collapse",
       "next_action": "~~Higher-pressure reference-anchored DPO...~~ Done 2026-07-11 (next entry).",
-      "evidence_sources": [
-        "docs/NEXT.md",
-        "docs/attempt-ledger.md"
-      ],
+      "evidence_sources": ["docs/NEXT.md", "docs/attempt-ledger.md"],
       "source": "docs/NEXT.md",
       "kind": "training-run",
-      "methods": [
-        "dpo",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["dpo", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "output-format",
       "data_rows": 108,
       "varied_from": "sql-hygiene-simpo-dpo",
@@ -1359,19 +1136,11 @@
       "failure_reason_confidence": "exact",
       "lesson": "Composed DPO cannot fix output-format hygiene here",
       "next_action": "fix the format at generation strength, not data content",
-      "evidence_sources": [
-        "docs/NEXT.md",
-        "docs/attempt-ledger.md"
-      ],
+      "evidence_sources": ["docs/NEXT.md", "docs/attempt-ledger.md"],
       "source": "docs/NEXT.md",
       "kind": "training-run",
-      "methods": [
-        "dpo",
-        "lora"
-      ],
-      "bases": [
-        "qwen3-0.6b"
-      ],
+      "methods": ["dpo", "lora"],
+      "bases": ["qwen3-0.6b"],
       "objective": "output-format",
       "data_rows": 108,
       "varied_from": "sql-hygiene-dpo-refanchored",
@@ -1393,13 +1162,8 @@
       ],
       "source": "evals/autocorrect/tiny-overfit-result-v1.json",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "flan-t5-small"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["flan-t5-small"],
       "objective": "typo-repair",
       "data_rows": 8
     },
@@ -1419,13 +1183,8 @@
       ],
       "source": "evals/autocorrect/pilot-result-v1.json",
       "kind": "training-run",
-      "methods": [
-        "sft",
-        "lora"
-      ],
-      "bases": [
-        "flan-t5-small"
-      ],
+      "methods": ["sft", "lora"],
+      "bases": ["flan-t5-small"],
       "objective": "typo-repair",
       "data_rows": 12,
       "varied_from": "autocorrect-tiny-overfit-gate",
@@ -1447,12 +1206,8 @@
       ],
       "source": "evals/chess/character-chess-44m-pilot-10k-v1.json",
       "kind": "training-run",
-      "methods": [
-        "sft"
-      ],
-      "bases": [
-        "byte-character-chess-44m"
-      ],
+      "methods": ["sft"],
+      "bases": ["byte-character-chess-44m"],
       "objective": "chess-move-selection",
       "data_rows": 10000
     }

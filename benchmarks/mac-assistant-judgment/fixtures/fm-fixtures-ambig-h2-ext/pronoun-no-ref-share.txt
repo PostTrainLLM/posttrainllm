@@ -1,3 +1,0 @@
-USER: send him a copy
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: recipient

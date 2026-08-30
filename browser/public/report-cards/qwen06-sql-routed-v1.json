@@ -4,7 +4,7 @@
     "Candidate eval note: Routed public-v4 + synthetic-expanded adapters: public b-mc2 exact 0.531 on 64 rows, synthetic exact 0.840 on 50 rows, router smoke 64/50 high-confidence."
   ],
   "compiled_from": {
-    "compiler": "scripts/build_fine_tune_report_card.py",
+    "compiler": "scripts/factory/build_fine_tune_report_card.py",
     "compiler_version": "1.0.0",
     "dataset_hashes": [
       {
@@ -66,7 +66,7 @@
         "decision.json#next_action"
       ],
       "state": "measured",
-      "value": "Run scripts/build_sql_spider_execution_gate.py against a local Spider DB bundle, score the routed candidate, then re-render this report with latency/RAM/tok-s."
+      "value": "Run scripts/sql/build_sql_spider_execution_gate.py against a local Spider DB bundle, score the routed candidate, then re-render this report with latency/RAM/tok-s."
     },
     "outcome_label": "report-only",
     "reason": "The routed setup is the current best SQL candidate and passes the current public exact plus synthetic execution gates, but it is not a shipped specialist until a public execution benchmark and performance measurements exist.",
@@ -182,13 +182,13 @@
       "kind": "cited-evidence",
       "label": "docs/factory/public-artifacts.md",
       "path": "docs/factory/public-artifacts.md",
-      "sha256": "bc4b022a0d23b84c88119845c82e66e6f0d7c9d75557b38573acd305d8cb6eac"
+      "sha256": "f711000c6acf264ac9a6582877bd96abd9b8e29d1dc3ba186694710607564249"
     },
     {
       "kind": "cited-evidence",
       "label": "docs/specialists/b1-sql-poc.md",
       "path": "docs/specialists/b1-sql-poc.md",
-      "sha256": "a93eb5f0ca73ef2e41f39bb544d375cf489014ccac6ade498f4ca79463faf308"
+      "sha256": "f862be06d44c97aae43fbdcf0a7c93b16888193fe14771ffc9895848e7b03b83"
     }
   ],
   "gates": [
@@ -225,7 +225,7 @@
             "eval-candidate.json#command"
           ],
           "state": "measured",
-          "value": "scripts/run_sql_routed_generate.py + eval-sql/score_sql_public_exact"
+          "value": "scripts/sql/run_sql_routed_generate.py + eval-sql/score_sql_public_exact"
         },
         "date": {
           "sources": [

@@ -2,9 +2,9 @@
 # No-GPU smoke for the Foundry evidence receipt pipeline.
 #
 # Proves:
-#   1. scripts/foundry_receipt.py emits a schema-valid receipt from the
+#   1. scripts/factory/foundry_receipt.py emits a schema-valid receipt from the
 #      real repo state (registry, git, public-site files, nightly markers).
-#   2. scripts/check_foundry_receipt.py accepts it.
+#   2. scripts/factory/check_foundry_receipt.py accepts it.
 #   3. A receipt built from a fixture factory run folder (with private
 #      fragments) is sanitized: the private fragments never appear in the
 #      receipt, and the validator still accepts it.
@@ -16,8 +16,8 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
 echo "== [1/4] emit receipt from real repo state (no CI) =="
-python3 "$ROOT/scripts/foundry_receipt.py" --no-ci --out "$WORK/receipt.json"
-python3 "$ROOT/scripts/check_foundry_receipt.py" "$WORK/receipt.json"
+python3 "$ROOT/scripts/factory/foundry_receipt.py" --no-ci --out "$WORK/receipt.json"
+python3 "$ROOT/scripts/factory/check_foundry_receipt.py" "$WORK/receipt.json"
 
 echo "== [2/4] receipt carries no private fields =="
 if python3 -c "
@@ -111,10 +111,10 @@ with open(f"{run}/train.log", "w") as f:
 PY
 
 # Assemble so provenance.json exists (required for the receipt's dataset hash).
-python3 "$ROOT/scripts/assemble_factory_run.py" "$RUN" --publish-check >/dev/null
+python3 "$ROOT/scripts/factory/assemble_factory_run.py" "$RUN" --publish-check >/dev/null
 
-python3 "$ROOT/scripts/foundry_receipt.py" --no-ci --runs "$RUNS" --out "$WORK/run-receipt.json"
-python3 "$ROOT/scripts/check_foundry_receipt.py" "$WORK/run-receipt.json"
+python3 "$ROOT/scripts/factory/foundry_receipt.py" --no-ci --runs "$RUNS" --out "$WORK/run-receipt.json"
+python3 "$ROOT/scripts/factory/check_foundry_receipt.py" "$WORK/run-receipt.json"
 
 if grep -E "PRIVATE (PROMPT|COMPLETION|CHECKPOINT|WEIGHTS|TRAINING LOG)" "$WORK/run-receipt.json"; then
   echo "  FAIL: private fixture text leaked into receipt" >&2
@@ -178,7 +178,7 @@ r = {
 print(json.dumps(r, indent=2))
 PY
 
-if python3 "$ROOT/scripts/check_foundry_receipt.py" "$WORK/bad-receipt.json" 2>/dev/null; then
+if python3 "$ROOT/scripts/factory/check_foundry_receipt.py" "$WORK/bad-receipt.json" 2>/dev/null; then
   echo "  FAIL: validator accepted a receipt with a denylisted field" >&2
   exit 1
 fi

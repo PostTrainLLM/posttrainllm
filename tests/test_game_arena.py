@@ -9,7 +9,12 @@ from copy import deepcopy
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
+# scripts/ is grouped into topic subdirs; each is a flat import surface.
+for _d in [
+    ROOT / "scripts",
+    *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir()),
+]:
+    sys.path.insert(0, str(_d))
 
 import game_arena as arena  # noqa: E402
 
@@ -36,10 +41,30 @@ def head_gate(minimum: int = 1) -> dict:
 
 def matches() -> list[dict]:
     return [
-        {"white_policy_id": "a", "black_policy_id": "b", "white_score": 1.0, "forfeit": False},
-        {"white_policy_id": "b", "black_policy_id": "a", "white_score": 0.0, "forfeit": False},
-        {"white_policy_id": "a", "black_policy_id": "b", "white_score": 0.5, "forfeit": False},
-        {"white_policy_id": "b", "black_policy_id": "a", "white_score": 0.5, "forfeit": False},
+        {
+            "white_policy_id": "a",
+            "black_policy_id": "b",
+            "white_score": 1.0,
+            "forfeit": False,
+        },
+        {
+            "white_policy_id": "b",
+            "black_policy_id": "a",
+            "white_score": 0.0,
+            "forfeit": False,
+        },
+        {
+            "white_policy_id": "a",
+            "black_policy_id": "b",
+            "white_score": 0.5,
+            "forfeit": False,
+        },
+        {
+            "white_policy_id": "b",
+            "black_policy_id": "a",
+            "white_score": 0.5,
+            "forfeit": False,
+        },
     ]
 
 
@@ -69,18 +94,40 @@ def test_forfeit_is_counted_and_blocks_quality_gate():
 
 def test_disconnected_pool_is_visible():
     rows = matches() + [
-        {"white_policy_id": "c", "black_policy_id": "d", "white_score": 1.0, "forfeit": False},
-        {"white_policy_id": "d", "black_policy_id": "c", "white_score": 0.0, "forfeit": False},
+        {
+            "white_policy_id": "c",
+            "black_policy_id": "d",
+            "white_score": 1.0,
+            "forfeit": False,
+        },
+        {
+            "white_policy_id": "d",
+            "black_policy_id": "c",
+            "white_score": 0.0,
+            "forfeit": False,
+        },
     ]
-    result = arena.fit_arena_elo(["a", "b", "c", "d"], rows, rating_config(), head_gate())
+    result = arena.fit_arena_elo(
+        ["a", "b", "c", "d"], rows, rating_config(), head_gate()
+    )
     assert result["connected_pool"] is False
     assert result["qualification"]["checks"]["connected_pool"] is False
 
 
 def test_paired_score_never_emits_elo():
     trials = [
-        {"policy_id": "model", "baseline_policy_id": "random", "policy_score": 20, "baseline_score": 10},
-        {"policy_id": "model", "baseline_policy_id": "random", "policy_score": 8, "baseline_score": 10},
+        {
+            "policy_id": "model",
+            "baseline_policy_id": "random",
+            "policy_score": 20,
+            "baseline_score": 10,
+        },
+        {
+            "policy_id": "model",
+            "baseline_policy_id": "random",
+            "policy_score": 8,
+            "baseline_score": 10,
+        },
     ]
     result = arena.score_paired_trials(
         trials,
@@ -98,7 +145,10 @@ def test_candidate_report_is_deterministic_and_honest():
     first = arena.build_report(config, ROOT)
     second = arena.build_report(config, ROOT)
     assert first == second
-    assert [game["competition_family"] for game in first["games"]] == ["head-to-head", "paired-score"]
+    assert [game["competition_family"] for game in first["games"]] == [
+        "head-to-head",
+        "paired-score",
+    ]
     chess = first["games"][0]["result"]
     assert chess["matches"] == 4
     assert chess["forfeits"] == 2
@@ -145,7 +195,9 @@ def test_invalid_match_result_is_rejected():
 
 
 def test_adapter_family_mismatch_is_rejected():
-    config = json.loads((ROOT / "configs/game-arena/candidate-v1.json").read_text(encoding="utf-8"))
+    config = json.loads(
+        (ROOT / "configs/game-arena/candidate-v1.json").read_text(encoding="utf-8")
+    )
     config["games"][0]["competition_family"] = "paired-score"
     try:
         arena.validate_config(config)
@@ -156,7 +208,11 @@ def test_adapter_family_mismatch_is_rejected():
 
 
 if __name__ == "__main__":
-    tests = [value for name, value in sorted(globals().items()) if name.startswith("test_") and callable(value)]
+    tests = [
+        value
+        for name, value in sorted(globals().items())
+        if name.startswith("test_") and callable(value)
+    ]
     for test in tests:
         test()
         print(f"  ok: {test.__name__}")

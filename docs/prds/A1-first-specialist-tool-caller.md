@@ -95,7 +95,7 @@ A single recipe-shaped artifact:
 | `docs/research/mac_slm_leaderboard_v0.md` | regenerate via `build_slm_leaderboard.py` after A1 evals |
 | `docs/PLAN.md` | A1 ⬜ → ✅ + the delta vs the 0-shot floor |
 | `evals/a1-acceptance.sh` | new — re-runs the gate check on a fresh checkout |
-| `HANDOFF.md` | bumped to "A1 shipped" milestone |
+| `../archive/HANDOFF.md` | bumped to "A1 shipped" milestone |
 
 ## Don't touch
 

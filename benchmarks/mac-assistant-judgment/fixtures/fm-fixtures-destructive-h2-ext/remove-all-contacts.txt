@@ -1,3 +1,0 @@
-USER: delete every contact
-EXPECT_INTENT: confirm_destructive
-EXPECT_CONFIRM_TARGET: contacts

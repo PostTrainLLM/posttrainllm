@@ -10,7 +10,7 @@ This is the meta-log: not the lessons learned, not the open questions, but the m
 **The trigger:** Sarthak's pushback — "Just 9.7×?" — calling out that a single number both undersold the bigger presets and overpromised the smaller ones.
 **The call:** Replace the flat number with a measured curve across four presets and publish the function, not the point.
 **Why it was right:** A curve is honest. A point estimate at one model size implies the speedup is constant; the curve reveals it grows monotonically with model dimension, which is the actual interesting finding (memory-bandwidth-bound kernels widen the WebGPU lead as tensors grow).
-**What it shipped:** Edits to `README.md`, `BLOG.md`, `docs/archive/status.md`, `browser/src/pages/speedup.astro`, `browser/src/pages/roadmap.astro`, `browser/src/pages/devlog.astro`. The published numbers became Small 2.6×, Medium 6.8×, Large 9.3×, XL 12.1×.
+**What it shipped:** Edits to `README.md`, `archive/BLOG.md`, `docs/archive/status.md`, `browser/src/pages/speedup.astro`, `browser/src/pages/roadmap.astro`, `browser/src/pages/devlog.astro`. The published numbers became Small 2.6×, Medium 6.8×, Large 9.3×, XL 12.1×.
 
 ---
 
@@ -180,7 +180,7 @@ This is the meta-log: not the lessons learned, not the open questions, but the m
 **The trigger:** Sarthak's response when asked which to prioritize — "I would say build them all and people can choose what they want to read."
 **The call:** Author all four in parallel rather than picking one and trimming the others.
 **Why it was right:** The four documents have genuinely different shapes. The README is scannable; the BLOG is narrative; the devlog is chronological; the status doc is structured. Forcing them into one doc would have served no audience well.
-**What it shipped:** Coordinated updates to `README.md`, `BLOG.md`, `browser/src/pages/devlog.astro`, and `docs/archive/status.md`. Plus the lessons file (`docs/archive/lessons.md`) as a fifth artefact for a fifth audience.
+**What it shipped:** Coordinated updates to `README.md`, `archive/BLOG.md`, `browser/src/pages/devlog.astro`, and `docs/archive/status.md`. Plus the lessons file (`docs/archive/lessons.md`) as a fifth artefact for a fifth audience.
 
 ---
 
@@ -217,7 +217,7 @@ These are not the unknowns. These are the known unknowns that have a decision wa
 **The trigger:** Sarthak's constraint — "I just want to ensure that the model quality does not drop and the speed is as fast as whatever flags that the user has enabled on their Chrome."
 **The call:** Bake a hard numerics gate into every fast path. Train Shakespeare for 500 steps on each enabled path at first use; require the loss curve to match the f32 reference within 1% at step 500. Paths that fail the gate disable themselves silently for the session and the user gets the slower correct path. No path activates if it can't pass the gate.
 **Why it was right:** Opportunistic optimization without a correctness gate is a bug factory. Each new accelerator has its own precision profile, and "it ran faster" is the easy thing to measure and observe — "it produced subtly worse output" is the hard thing to notice without instrumentation. The gate makes "speed" a derived property of "speed AND correctness," not a substitute for correctness.
-**What it shipped:** The constraint is encoded in task #94's title ("Numerics gate: no quality regression on ANY fast path") and described in `docs/perf_quest.md`. Implementation lands alongside #90-#93 (one verifier per fast path; the gate also gets its own page `docs/precision.md` capturing measured deltas).
+**What it shipped:** The constraint is encoded in task #94's title ("Numerics gate: no quality regression on ANY fast path") and described in `docs/performance/perf_quest.md`. Implementation lands alongside #90-#93 (one verifier per fast path; the gate also gets its own page `docs/techniques/precision.md` capturing measured deltas).
 
 ---
 

@@ -16,7 +16,7 @@ pkill -f "posttrainllm serve" 2>/dev/null || true
 sleep 2
 (python3 "$TGT/scripts/fm_shim.py" --port 8766 > /tmp/fm_shim.log 2>&1 &)
 sleep 4
-bash "$TGT/scripts/eval_combined.sh" apple-fm http://127.0.0.1:8766/v1/chat/completions apple-foundation-models "$SYSP" apple-fm
+bash "$TGT/scripts/pipelines/eval_combined.sh" apple-fm http://127.0.0.1:8766/v1/chat/completions apple-foundation-models "$SYSP" apple-fm
 pkill -f fm_shim 2>/dev/null || true
 sleep 2
 
@@ -24,7 +24,7 @@ sleep 2
 echo "=== clarify-v1 (4B fine-tune) ==="
 "$TINYGPT" serve "$HOME/.cache/posttrainllm/runs/clarify-v1/baked-hf" --grammar "$GRAMMAR" --port 8770 > /tmp/serve-cv1.log 2>&1 &
 for i in $(seq 1 90); do curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8770/v1/models 2>/dev/null | grep -q 200 && break; sleep 0.5; done
-bash "$TGT/scripts/eval_combined.sh" clarify-v1 http://127.0.0.1:8770/v1/chat/completions "" "$SYSP" clarify-v1
+bash "$TGT/scripts/pipelines/eval_combined.sh" clarify-v1 http://127.0.0.1:8770/v1/chat/completions "" "$SYSP" clarify-v1
 pkill -f "posttrainllm serve" 2>/dev/null || true
 sleep 2
 
@@ -32,7 +32,7 @@ sleep 2
 echo "=== v9-LoRA ==="
 "$TINYGPT" serve "$BASE_0_6B" --lora "$HOME/.cache/posttrainllm/runs/pace-planner-v9-lora/pace-planner-v9-lora.lora" --grammar "$GRAMMAR" --port 8771 > /tmp/serve-v9.log 2>&1 &
 for i in $(seq 1 90); do curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8771/v1/models 2>/dev/null | grep -q 200 && break; sleep 0.5; done
-bash "$TGT/scripts/eval_combined.sh" v9-lora http://127.0.0.1:8771/v1/chat/completions "" "$SYSP" v9-lora
+bash "$TGT/scripts/pipelines/eval_combined.sh" v9-lora http://127.0.0.1:8771/v1/chat/completions "" "$SYSP" v9-lora
 pkill -f "posttrainllm serve" 2>/dev/null || true
 sleep 2
 
@@ -40,7 +40,7 @@ sleep 2
 echo "=== v11-LoRA (the discarded specialist) ==="
 "$TINYGPT" serve "$BASE_0_6B" --lora "$HOME/.cache/posttrainllm/runs/pace-planner-v11/pace-planner-v11-plain.lora" --grammar "$GRAMMAR" --port 8772 > /tmp/serve-v11.log 2>&1 &
 for i in $(seq 1 90); do curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8772/v1/models 2>/dev/null | grep -q 200 && break; sleep 0.5; done
-bash "$TGT/scripts/eval_combined.sh" v11-lora http://127.0.0.1:8772/v1/chat/completions "" "$SYSP" v11-lora
+bash "$TGT/scripts/pipelines/eval_combined.sh" v11-lora http://127.0.0.1:8772/v1/chat/completions "" "$SYSP" v11-lora
 pkill -f "posttrainllm serve" 2>/dev/null || true
 
 echo "=== ALL DONE ==="

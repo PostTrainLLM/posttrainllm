@@ -15,7 +15,7 @@ import TinyGPTModel
 /// which engine they're driving.
 ///
 /// This matches the Bench360 "backend abstraction" component
-/// (arXiv 2511.16682) — see docs/benchmark_harness_design.md §3.1.
+/// (arXiv 2511.16682) — see docs/performance/benchmark_harness_design.md §3.1.
 public protocol EngineAdapter {
     /// Human-readable engine name reported in the output JSON.
     var name: String { get }
@@ -274,7 +274,7 @@ public final class TinyGPTEngine: EngineAdapter {
 
 // =============================================================================
 // Stubs for foreign engines. Protocol shape only — implementing these
-// is the next milestone (see docs/benchmark_harness_design.md §7).
+// is the next milestone (see docs/performance/benchmark_harness_design.md §7).
 // =============================================================================
 
 /// `mlx_lm.generate` subprocess wrapper. Stub.

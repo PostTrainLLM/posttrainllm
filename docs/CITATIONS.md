@@ -154,7 +154,7 @@ theoretical max KV-cache speedup is ~1.1× (saving 90% of 10%).
 Actual 2.2× includes the savings from MLX's lazy graph being smaller
 when only one new token is processed per step (less Python-side
 overhead, faster eval()). Real component breakdown is in
-`docs/perf_research.md`.
+`docs/performance/perf_research.md`.
 
 ### Flash Attention 2
 
@@ -171,7 +171,7 @@ source code, /opt/mlx-c/mlx/c/mlx_fast.cpp (see also the MLX
 release notes for 0.5+).
 
 Browser side: `webgpu/train_f16.wgsl` implements FA2 directly
-in WGSL. See `docs/fa2_forward_notes.md` and `docs/fa2_backward_notes.md`
+in WGSL. See `docs/performance/fa2_forward_notes.md` and `docs/performance/fa2_backward_notes.md`
 for the derivation.
 
 ### Mixture of Experts (parked)

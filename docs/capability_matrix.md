@@ -34,7 +34,7 @@ is roadmapped (Wave 2.6 ViT, Wave 4 audio) but not implemented.
 ## 2. Actions
 
 Every action below is a working CLI subcommand on M5 Pro
-(audit confirmed in `docs/feature_audit_2026_05_31.md`).
+(audit confirmed in `docs/audits/feature_audit_2026_05_31.md`).
 
 ### Training
 

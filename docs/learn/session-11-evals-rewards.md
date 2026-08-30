@@ -74,7 +74,7 @@ loop will exploit any gap between the reward and what you meant.
 |---|---|---|
 | Executable check | **Yes** — run it, get ground truth | SQL execution accuracy; unit-test pass |
 | Structural match | **Yes** — parse and compare | BFCL tool-call AST matching |
-| Format rule | **Yes** — deterministic scorer | clean-SQL raw-output metric (`scripts/score_sql_clean_output.py`) |
+| Format rule | **Yes** — deterministic scorer | clean-SQL raw-output metric (`scripts/sql/score_sql_clean_output.py`) |
 | Model-judged | **Partly** — a judge can be gamed | LLM-as-judge (use with care) |
 | Vibes | **No** | "it looks better" |
 
@@ -105,12 +105,12 @@ small model suddenly aces a public benchmark, suspect leakage first.
 **Aggregate accuracy hides where the model actually fails.** "0.74 overall" can
 be 0.95 on easy single-table queries and 0.20 on multi-table JOINs. **Slice
 metrics** break the score down by category so you can see the real weakness.
-This repo requires it: `scripts/score_sql_slices.py` emits `slice-metrics.json`,
+This repo requires it: `scripts/sql/score_sql_slices.py` emits `slice-metrics.json`,
 and `docs/NEXT.md` states *no SQL candidate is reported without
 `slice-metrics.json` and `trace_review.md`.*
 
 **Trace review** goes one level deeper — read the actual failing generations,
-not just the count. `scripts/review_sql_trace.py` surfaces them, and a
+not just the count. `scripts/sql/review_sql_trace.py` surfaces them, and a
 **failure taxonomy** groups them ("wrong JOIN key," "hallucinated column,"
 "fenced output") so the failures become a *shape*, not noise. That shape is what
 you turn into the next dataset.
@@ -169,7 +169,7 @@ instead of just churning.
 The current lab focus. Judging which of several candidate SQL queries is correct
 (**selection**) is an easier task than writing the correct one from scratch
 (**generation**) — and it has a cleaner reward (execution/gold equivalence).
-`scripts/build_sql_candidate_choice.py` and `score_sql_candidate_choice.py` build
+`scripts/sql/build_sql_candidate_choice.py` and `score_sql_candidate_choice.py` build
 and score selection rows. The open question — the thing the eval is being
 designed to answer — is *whether selection skill transfers back to generation.*
 That is a real research question posed as an eval, which is exactly the altitude

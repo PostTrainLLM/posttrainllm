@@ -122,7 +122,7 @@ measuring against. Better:
 - Skip the urge to add "pay electric bill" specifically — that's
   test-tuning, not generalization
 
-All v2 results from `python3 scripts/eval_pace_v2.py` against the
+All v2 results from `python3 scripts/pace/eval_pace_v2.py` against the
 same fixture set, same grammar config, same serve harness.
 
 ## What this rewrites about past work
@@ -223,18 +223,18 @@ real. Otherwise it's not.
 
 ```
 # FakePace baseline (no serve needed):
-python3 scripts/eval_pace_v2.py --skip-model
+python3 scripts/pace/eval_pace_v2.py --skip-model
 
 # Any LoRA — boot serve then run eval:
 posttrainllm serve <hf-dir> \
     --lora <lora-path>.lora \
     --grammar grammars/pace-fm-label-response.schema.json \
     --port 8765 &
-python3 scripts/eval_pace_v2.py \
+python3 scripts/pace/eval_pace_v2.py \
     --serve-url http://127.0.0.1:8765/v1/chat/completions
 
 # Qwen3-14B via LM Studio:
-python3 scripts/eval_pace_v2.py \
+python3 scripts/pace/eval_pace_v2.py \
     --serve-url http://127.0.0.1:1234/v1/chat/completions \
     --model "qwen/qwen3-14b"
 ```

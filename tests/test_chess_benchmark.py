@@ -12,7 +12,12 @@ from pathlib import Path
 import chess
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
+# scripts/ is grouped into topic subdirs; each is a flat import surface.
+for _d in [
+    ROOT / "scripts",
+    *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir()),
+]:
+    sys.path.insert(0, str(_d))
 
 import chess_benchmark as bench  # noqa: E402
 import aggregate_chess_candidate_matrix as candidate_matrix  # noqa: E402
@@ -90,7 +95,9 @@ def test_starting_observation_is_canonical():
     assert state["fen"] == chess.STARTING_FEN
     assert state["legal_moves"] == sorted(state["legal_moves"])
     assert len(state["legal_moves"]) == 20
-    assert bench.serialize_observation(state).startswith(f"FEN={chess.STARTING_FEN};PLY=0;LEGAL=")
+    assert bench.serialize_observation(state).startswith(
+        f"FEN={chess.STARTING_FEN};PLY=0;LEGAL="
+    )
 
 
 def test_strict_parser_rejects_prose_san_and_illegal_moves():
@@ -115,7 +122,9 @@ def test_special_rules_are_delegated_to_pinned_runtime():
 
 
 def test_lichess_chess960_castling_notation_is_canonicalized():
-    board = chess.Board("rn1qk2r/pbppppbp/1p3np1/8/2PP4/5NP1/PP2PPBP/RNBQ1RK1 b kq - 0 1")
+    board = chess.Board(
+        "rn1qk2r/pbppppbp/1p3np1/8/2PP4/5NP1/PP2PPBP/RNBQ1RK1 b kq - 0 1"
+    )
     assert bench.parse_strict_uci("e8h8", board).uci() == "e8g8"
     assert "e8g8" in bench.legal_uci(board)
 
@@ -130,7 +139,7 @@ def test_constrained_schema_and_parser_use_legal_uci():
 
 def test_constrained_parser_cannot_admit_an_illegal_move():
     board = chess.Board()
-    for raw in ('{"move":"e2e5"}', '{"move":"e4"}', '{"move":"e2e4","other":1}', '{}'):
+    for raw in ('{"move":"e2e5"}', '{"move":"e4"}', '{"move":"e2e4","other":1}', "{}"):
         try:
             policy.parse_constrained_output(raw, board)
         except (ValueError, json.JSONDecodeError):
@@ -154,13 +163,19 @@ def test_complete_fools_mate_trace_and_checkmate():
     white = FixedPolicy("white", ["f2f3", "g2g4"])
     black = FixedPolicy("black", ["e7e5", "d8h4"])
     result = bench.run_game(white, black, maximum_plies=8)
-    assert result["outcome"] == {"winner": "black", "result": "0-1", "termination": "checkmate"}
+    assert result["outcome"] == {
+        "winner": "black",
+        "result": "0-1",
+        "termination": "checkmate",
+    }
     assert len(result["decisions"]) == 4
     assert all(row["legal"] for row in result["decisions"])
 
 
 def test_illegal_move_forfeits_without_repair():
-    result = bench.run_game(FixedPolicy("white", ["e2e5"]), FirstLegalPolicy(), maximum_plies=4)
+    result = bench.run_game(
+        FixedPolicy("white", ["e2e5"]), FirstLegalPolicy(), maximum_plies=4
+    )
     assert result["outcome"]["termination"] == "invalid-decision-forfeit"
     assert result["outcome"]["winner"] == "black"
     assert result["decisions"][0]["parsed_move"] is None
@@ -168,15 +183,21 @@ def test_illegal_move_forfeits_without_repair():
 
 
 def test_gate_config_was_frozen_before_screen():
-    gate = json.loads((ROOT / "configs/chess/development-gate-v1.json").read_text(encoding="utf-8"))
+    gate = json.loads(
+        (ROOT / "configs/chess/development-gate-v1.json").read_text(encoding="utf-8")
+    )
     assert gate["status"] == "thresholds-frozen-before-model-screen"
     assert gate["required_puzzles"] == 20
-    assert gate["frontier"]["accuracy_margin_over_strongest_local_general_minimum"] == 0.1
+    assert (
+        gate["frontier"]["accuracy_margin_over_strongest_local_general_minimum"] == 0.1
+    )
     assert gate["specialist_parameter_count_maximum"] == 50_000_000
 
 
 def test_candidate_model_matrices_are_valid_and_frozen():
-    verification = matrix.load_config(ROOT / "configs/chess/model-verification-matrix-v3.json")
+    verification = matrix.load_config(
+        ROOT / "configs/chess/model-verification-matrix-v3.json"
+    )
     ceiling = matrix.load_config(ROOT / "configs/chess/frontier-ceiling-audit-v1.json")
     assert verification["suite_id"] == ceiling["suite_id"]
     assert any(row["requested_model"] == "glm-5.2" for row in verification["models"])
@@ -187,11 +208,20 @@ def test_codex_event_parser_rejects_tool_use():
     safe = "\n".join(
         [
             json.dumps({"type": "thread.started", "thread_id": "test"}),
-            json.dumps({"type": "item.completed", "item": {"type": "agent_message", "text": "e2e4"}}),
+            json.dumps(
+                {
+                    "type": "item.completed",
+                    "item": {"type": "agent_message", "text": "e2e4"},
+                }
+            ),
         ]
     )
     assert cloud.parse_codex_events(safe)["event_count"] == 2
-    unsafe = safe + "\n" + json.dumps({"type": "item.started", "item": {"type": "command_execution"}})
+    unsafe = (
+        safe
+        + "\n"
+        + json.dumps({"type": "item.started", "item": {"type": "command_execution"}})
+    )
     try:
         cloud.parse_codex_events(unsafe)
     except ValueError as exc:
@@ -224,7 +254,9 @@ def test_cloud_matrix_claude_envelope_and_tool_guard():
 
 
 def test_devin_batch_parser_extracts_only_complete_moves_object():
-    text = 'wrapper {"other":1}\nfinal {"moves":[{"puzzle_id":"p1","move":"e2e4"}]}\nend'
+    text = (
+        'wrapper {"other":1}\nfinal {"moves":[{"puzzle_id":"p1","move":"e2e4"}]}\nend'
+    )
     assert devin_batch.extract_moves_object(text) == {
         "moves": [{"puzzle_id": "p1", "move": "e2e4"}]
     }
@@ -243,19 +275,30 @@ def test_deep_label_admission_is_fail_closed():
         "equivalent_forced_mates": False,
         "variations": [{"pv_legal": True}, {"pv_legal": True}],
     }
-    assert verifier.admission_reasons(stable, stable, minimum_gap_cp=150, duplicate=False) == []
+    assert (
+        verifier.admission_reasons(stable, stable, minimum_gap_cp=150, duplicate=False)
+        == []
+    )
     changed = {**stable, "top_move": "d2d4"}
     assert "top-move-changed" in verifier.admission_reasons(
         stable, changed, minimum_gap_cp=150, duplicate=False
     )
     ambiguous = {**stable, "gap_cp": 12, "equivalent_forced_mates": True}
-    reasons = verifier.admission_reasons(stable, ambiguous, minimum_gap_cp=150, duplicate=True)
-    assert reasons == ["duplicate-position", "insufficient-final-gap", "multiple-forced-mate-moves"]
+    reasons = verifier.admission_reasons(
+        stable, ambiguous, minimum_gap_cp=150, duplicate=True
+    )
+    assert reasons == [
+        "duplicate-position",
+        "insufficient-final-gap",
+        "multiple-forced-mate-moves",
+    ]
 
 
 def test_principal_variation_legality_and_slice_selection():
     board = chess.Board()
-    assert verifier.pv_is_legal(board, [chess.Move.from_uci("e2e4"), chess.Move.from_uci("e7e5")])
+    assert verifier.pv_is_legal(
+        board, [chess.Move.from_uci("e2e4"), chess.Move.from_uci("e7e5")]
+    )
     assert not verifier.pv_is_legal(board, [chess.Move.from_uci("e2e5")])
     puzzles = [
         {"id": f"p-{index}", "label": {"legal_move_count": index + 2}}
@@ -270,11 +313,27 @@ def test_principal_variation_legality_and_slice_selection():
 def test_candidate_matrix_separates_raw_legality_execution_and_redirect():
     document = {
         "track": "legal-constrained-diagnostic",
-        "model": {"policy_id": "test-policy", "requested_model": "test-model", "backend": "test"},
+        "model": {
+            "policy_id": "test-policy",
+            "requested_model": "test-model",
+            "backend": "test",
+        },
         "aggregate": {"total_cost_usd": 0.25},
         "decisions": [
-            {"puzzle_id": "p1", "exact": True, "legal": True, "failure": None, "latency_ms": 10},
-            {"puzzle_id": "p2", "exact": False, "legal": False, "failure": "provider", "latency_ms": 20},
+            {
+                "puzzle_id": "p1",
+                "exact": True,
+                "legal": True,
+                "failure": None,
+                "latency_ms": 10,
+            },
+            {
+                "puzzle_id": "p2",
+                "exact": False,
+                "legal": False,
+                "failure": "provider",
+                "latency_ms": 20,
+            },
         ],
     }
     with tempfile.TemporaryDirectory() as directory:
@@ -289,10 +348,16 @@ def test_candidate_matrix_separates_raw_legality_execution_and_redirect():
 
 
 def test_recorded_development_results_preserve_the_gradient():
-    random_result = json.loads((ROOT / "evals/chess/random-legal-development-v2.json").read_text())
+    random_result = json.loads(
+        (ROOT / "evals/chess/random-legal-development-v2.json").read_text()
+    )
     qwen4 = json.loads((ROOT / "evals/chess/qwen3-4b-development-v2.json").read_text())
-    qwen9 = json.loads((ROOT / "evals/chess/qwen3.5-9b-development-v1.json").read_text())
-    codex = json.loads((ROOT / "evals/chess/codex-gpt-5.5-development-v1.json").read_text())
+    qwen9 = json.loads(
+        (ROOT / "evals/chess/qwen3.5-9b-development-v1.json").read_text()
+    )
+    codex = json.loads(
+        (ROOT / "evals/chess/codex-gpt-5.5-development-v1.json").read_text()
+    )
     assert random_result["calibration"]["seeds"] == 2000
     assert qwen4["aggregate"]["exact_move_accuracy"] == 0.0
     assert qwen9["aggregate"]["exact_move_accuracy"] == 0.1
@@ -366,7 +431,9 @@ def test_chess_sft_masks_every_prompt_byte_and_trains_only_the_move():
     inputs, targets = sft_train.encode_row(row)
     prompt_length = len(row["input"].encode("utf-8"))
     assert targets[: prompt_length - 1] == [-100] * (prompt_length - 1)
-    assert [target for target in targets if target != -100] == list(f"{row['target']}\n".encode("ascii"))
+    assert [target for target in targets if target != -100] == list(
+        f"{row['target']}\n".encode("ascii")
+    )
     assert inputs[prompt_length - 1] == ord("=")
 
 
@@ -398,8 +465,11 @@ def test_44m_chess_candidate_stays_inside_parameter_ceiling():
     context = config["context_length"]
     layers = config["n_layers"]
     mlp = config["d_mlp"]
-    estimated = v * c + context * c + 2 * c + layers * (
-        4 * (c * c + c) + 4 * c + (c * mlp + mlp) + (mlp * c + c)
+    estimated = (
+        v * c
+        + context * c
+        + 2 * c
+        + layers * (4 * (c * c + c) + 4 * c + (c * mlp + mlp) + (mlp * c + c))
     )
     assert estimated == 44_527_616
     assert config["_notes"]["expected_params_canonical_estimator"] == estimated
@@ -407,7 +477,9 @@ def test_44m_chess_candidate_stays_inside_parameter_ceiling():
 
 
 def test_44m_tiny_overfit_evidence_passes_only_the_correctness_gate():
-    result = json.loads((ROOT / "evals/chess/character-chess-44m-tiny-overfit-v1.json").read_text())
+    result = json.loads(
+        (ROOT / "evals/chess/character-chess-44m-tiny-overfit-v1.json").read_text()
+    )
     assert result["status"] == "passed-correctness-gate-not-strength-evidence"
     assert result["model"]["parameters"] == 44_527_616
     assert result["training"]["stopped_at_step"] == 150
@@ -420,7 +492,9 @@ def test_44m_tiny_overfit_evidence_passes_only_the_correctness_gate():
 
 
 def test_44m_stockfish_rating_is_honestly_below_the_ladder_floor():
-    result = json.loads((ROOT / "evals/chess/character-chess-44m-stockfish-rating-v1.json").read_text())
+    result = json.loads(
+        (ROOT / "evals/chess/character-chess-44m-stockfish-rating-v1.json").read_text()
+    )
     assert result["status"] == "below-calibrated-floor-diagnostic-extrapolation"
     assert result["candidate_matches"]["games"] == 30
     assert result["candidate_matches"]["white_games"] == 15
@@ -433,7 +507,9 @@ def test_44m_stockfish_rating_is_honestly_below_the_ladder_floor():
     low, high = result["rating"]["paired_opening_bootstrap_interval_95"]
     assert low < result["rating"]["estimate"] < high
     assert "Not FIDE" in result["rating"]["disclaimer"]
-    assert result["interpretation"]["next_gate"].startswith("Train the frozen 10000-row pilot")
+    assert result["interpretation"]["next_gate"].startswith(
+        "Train the frozen 10000-row pilot"
+    )
 
 
 def test_finishing_guards_deliver_mate_and_preserve_model_scores():
@@ -467,14 +543,18 @@ def test_finishing_guards_avoid_opponent_mate_when_a_safe_move_exists():
     board = chess.Board()
     for move in ("f2f3", "e7e5"):
         board.push_uci(move)
-    candidates, events = finishing_guards.finishing_guard_candidates(board, ["g2g4", "d2d3"])
+    candidates, events = finishing_guards.finishing_guard_candidates(
+        board, ["g2g4", "d2d3"]
+    )
     assert candidates == ["d2d3"]
     assert events[0]["guard"] == "avoid-opponent-mate-in-one"
 
 
 def test_finishing_guards_avoid_stalemating_a_won_position():
     board = chess.Board("k7/2Q5/2K5/8/8/8/8/8 w - - 0 1")
-    candidates, events = finishing_guards.finishing_guard_candidates(board, ["c7b6", "c7d8"])
+    candidates, events = finishing_guards.finishing_guard_candidates(
+        board, ["c7b6", "c7d8"]
+    )
     assert candidates == ["c7d8"]
     assert events[-1]["guard"] == "avoid-draw-while-winning"
     assert events[-1]["reason"] == "material-advantage"
@@ -527,19 +607,34 @@ def test_move_quality_uses_mover_perspective_and_frozen_thresholds():
 
 
 def test_qwen_reproduction_recipe_is_staged_and_operator_gated():
-    recipe = reproduction_recipe.load_recipe(ROOT / "configs/chess/qwen-reproduction-v1.json")
-    assert [stage["total_rows"] for stage in recipe["stages"]] == [10000, 100000, 1000000, 2000000]
+    recipe = reproduction_recipe.load_recipe(
+        ROOT / "configs/chess/qwen-reproduction-v1.json"
+    )
+    assert [stage["total_rows"] for stage in recipe["stages"]] == [
+        10000,
+        100000,
+        1000000,
+        2000000,
+    ]
     assert all(stage["training_authorized"] is False for stage in recipe["stages"])
     assert all(
-        stage["arms"]["commentary-8pct"]["grounded_commentary"] == stage["total_rows"] * 8 // 100
+        stage["arms"]["commentary-8pct"]["grounded_commentary"]
+        == stage["total_rows"] * 8 // 100
         for stage in recipe["stages"]
     )
-    assert recipe["evaluation"]["raw_serving_policy"] != recipe["evaluation"]["guarded_serving_policy"]
+    assert (
+        recipe["evaluation"]["raw_serving_policy"]
+        != recipe["evaluation"]["guarded_serving_policy"]
+    )
 
 
 def test_strength_ladder_smoke_is_paired_and_unrated():
-    config = strength_ladder.load_config(ROOT / "configs/chess/strength-ladder-smoke-v1.json")
-    openings = strength_ladder.load_openings(ROOT / "configs/chess/openings-development-v1.json")
+    config = strength_ladder.load_config(
+        ROOT / "configs/chess/strength-ladder-smoke-v1.json"
+    )
+    openings = strength_ladder.load_openings(
+        ROOT / "configs/chess/openings-development-v1.json"
+    )
     candidate = strength_ladder.FirstLegalPolicy("candidate-smoke")
     result = strength_ladder.run_ladder(
         candidate,
@@ -558,11 +653,15 @@ def test_strength_ladder_smoke_is_paired_and_unrated():
         "minimum-games-per-rung",
         "minimum-calibrated-rungs",
     }
-    assert all(game["outcome"]["termination"] == "move-cap-draw" for game in result["games"])
+    assert all(
+        game["outcome"]["termination"] == "move-cap-draw" for game in result["games"]
+    )
 
 
 def test_strength_ladder_marks_finite_estimate_below_floor_as_extrapolation():
-    config = strength_ladder.load_config(ROOT / "configs/chess/strength-ladder-smoke-v1.json")
+    config = strength_ladder.load_config(
+        ROOT / "configs/chess/strength-ladder-smoke-v1.json"
+    )
     config["rungs"] = [
         {
             **config["rungs"][0],
@@ -601,7 +700,9 @@ def test_strength_ladder_marks_finite_estimate_below_floor_as_extrapolation():
 
 
 def test_strength_ladder_treats_floating_point_floor_equality_as_on_ladder():
-    config = strength_ladder.load_config(ROOT / "configs/chess/strength-ladder-smoke-v1.json")
+    config = strength_ladder.load_config(
+        ROOT / "configs/chess/strength-ladder-smoke-v1.json"
+    )
     config["rungs"] = [
         {
             **config["rungs"][0],
@@ -641,7 +742,9 @@ def test_strength_ladder_treats_floating_point_floor_equality_as_on_ladder():
 
 
 def test_strength_ladder_does_not_configure_managed_uci_options():
-    config = strength_ladder.load_config(ROOT / "configs/chess/strength-ladder-smoke-v1.json")
+    config = strength_ladder.load_config(
+        ROOT / "configs/chess/strength-ladder-smoke-v1.json"
+    )
     options = strength_ladder.stockfish_options(config["rungs"][0], config["engine"])
 
     assert options == {
@@ -685,7 +788,11 @@ def test_connected_pool_keeps_the_disclosed_anchor_fixed():
 
 
 if __name__ == "__main__":
-    tests = [value for name, value in sorted(globals().items()) if name.startswith("test_") and callable(value)]
+    tests = [
+        value
+        for name, value in sorted(globals().items())
+        if name.startswith("test_") and callable(value)
+    ]
     for test in tests:
         test()
         print(f"  ok: {test.__name__}")

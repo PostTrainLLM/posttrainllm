@@ -37,7 +37,7 @@ export type ReportCardOutcome =
   "shipped-specialist" | "routed-ship" | "report-only" | "rejected";
 
 /// A published Fine-Tune Report Card for this artifact. Compiled offline from
-/// recorded factory evidence by `scripts/build_fine_tune_report_card.py` and
+/// recorded factory evidence by `scripts/factory/build_fine_tune_report_card.py` and
 /// served as a static page from `browser/public/report-cards/`.
 ///
 /// This is a *link plus label* only: the report card itself is the source of
@@ -384,7 +384,7 @@ export const artifacts: ArtifactEntry[] = [
       },
       {
         label: "Router implementation",
-        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/scripts/run_sql_routed_generate.py",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/scripts/sql/run_sql_routed_generate.py",
       },
     ],
     blockers: [
@@ -1497,7 +1497,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     evidence: [
       { label: "Performance journey", href: "/roadmap" },
-      { label: "Performance docs", href: "/docs/performance" },
+      { label: "Performance docs", href: "/docs/performance/performance" },
       { label: "Playground", href: "/playground" },
     ],
     blockers: [
@@ -1750,7 +1750,7 @@ export const artifacts: ArtifactEntry[] = [
         label: "README headline metrics",
         href: "https://github.com/PostTrainLLM/posttrainllm#headline-results",
       },
-      { label: "Performance docs", href: "/docs/performance" },
+      { label: "Performance docs", href: "/docs/performance/performance" },
     ],
     blockers: [
       {

@@ -167,7 +167,7 @@ with `W` exactly, so the sum is legal. Parameter count drops from `out·in`
 (4.2M) to `r·(out+in)` (~65K), ~1.5% of full fine-tuning. **The entire reason
 LoRA works is the shape arithmetic in this session:** a big matrix is
 approximated by the product of two skinny ones. See
-[`../lora_guide.md`](../lora_guide.md) and
+[`../lora_guide.md`](../techniques/lora_guide.md) and
 [`../factory/lora-geometry.md`](../factory/lora-geometry.md) — the "geometry" in
 that title is literally these matrix shapes and the rank between them.
 

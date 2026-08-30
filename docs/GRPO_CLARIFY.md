@@ -5,7 +5,7 @@ Status: PRD (pre-experiment). Owner: Sarthak. Date: 2026-06-12.
 ## Goal
 
 Break the 22% ambig ceiling. The historical 12-config drilldown
-([docs/DRILLDOWN.md](DRILLDOWN.md)) showed every local model — including
+([docs/sessions/DRILLDOWN.md](sessions/DRILLDOWN.md)) showed every local model — including
 the new champion Gemma-3-12B — tops out at ~22% on clarify fixtures while
 oos (82%) and destructive (77%) are workable. Clarify is the unsolved
 frontier and it's a *behavior* gap, not a knowledge gap: models guess
@@ -22,7 +22,7 @@ drill — passes 3/5 dims zero-shot, fits training + rollouts on M5 Pro
 
 ## Reward = strict scorer
 
-`scripts/eval_pace_unhappy.py --strict` is the reward function. The
+`scripts/pace/eval_pace_unhappy.py --strict` is the reward function. The
 lenient scorer is exploitable within minutes of GRPO (topic-word
 stuffing, prompt echo, target stuffed in payload, degenerate
 spokenText) — strict mode closes those holes and has an adversarial
@@ -120,7 +120,7 @@ first — one large model at a time.** Run under `caffeinate`.
 
 ## Ship gate
 
-1. Self-test green: `python3 scripts/eval_pace_unhappy.py --self-test`.
+1. Self-test green: `python3 scripts/pace/eval_pace_unhappy.py --self-test`.
 2. Ambig on held-out h2-ext (lenient scorer, for comparability with the
    drilldown numbers) **> 22%** (Gemma-3-12B champion).
 3. oos and destructive on h2-ext: **zero regression** vs the same

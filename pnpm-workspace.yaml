@@ -1,0 +1,11 @@
+# The three packages in this repo are one dependency graph, not three.
+#
+# browser/ builds docs-site/ during `pnpm run build` (see
+# browser/scripts/build-docs.mjs, which shells out to it and copies
+# docs-site/dist into browser/dist/docs). Before this file existed that
+# coupling was invisible: three package.json files, three lockfiles, three
+# node_modules trees, and a hand-mirrored extra install step in deploy.yml to
+# make the build work.
+packages:
+  - "browser"
+  - "docs-site"

@@ -10,7 +10,7 @@ import Darwin
 ///   2. `PowerSampler` — spawns a child `powermetrics` process. Requires
 ///      root; we degrade gracefully if not available.
 ///
-/// See docs/benchmark_harness_design.md §3.3.
+/// See docs/performance/benchmark_harness_design.md §3.3.
 public final class MetricsCollector {
     /// Per-run captured metrics.
     public struct RunMetrics {

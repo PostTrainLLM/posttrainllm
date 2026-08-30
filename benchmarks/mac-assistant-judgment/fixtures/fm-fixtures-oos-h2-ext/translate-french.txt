@@ -1,3 +1,0 @@
-USER: how do you say good evening in french
-EXPECT_INTENT: out_of_scope
-REASON: Translation out of scope

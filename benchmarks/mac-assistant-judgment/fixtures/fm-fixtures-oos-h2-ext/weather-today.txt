@@ -1,3 +1,0 @@
-USER: is it cold outside right now
-EXPECT_INTENT: out_of_scope
-REASON: Live weather needs the web

@@ -6,7 +6,7 @@ import TinyGPTModel
 /// CLI entry point. Parses args, builds the engine + workload, runs
 /// it, dumps JSON + markdown.
 ///
-/// Design doc: docs/benchmark_harness_design.md
+/// Design doc: docs/performance/benchmark_harness_design.md
 public enum Benchmark {
     public static func run(args: [String]) {
         var engineName = "posttrainllm"
@@ -209,7 +209,7 @@ public enum Benchmark {
         --no-energy                 Skip powermetrics (and the sudo it needs).
         --prompt "..."              Use this text as the prompt instead of synthetic.
 
-        Design doc: docs/benchmark_harness_design.md.
+        Design doc: docs/performance/benchmark_harness_design.md.
         """)
         exit(code)
     }

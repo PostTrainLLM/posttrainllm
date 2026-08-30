@@ -9,8 +9,8 @@ The point is to convert external evidence into local experiments.
 | External Technique | posttrainllm Translation | Status |
 |---|---|---|
 | Failed attempts are part of the artifact | Reports must include failed recipes and why they failed | Added to factory report template |
-| Slice metrics matter more than headline score | SQL reports need join/filter/group/format/clean-output slices | Tooling added with `scripts/score_sql_slices.py` |
-| Trace review should inspect actual outputs | SQL reports need qualitative labels like hallucinated schema and format collapse | Tooling added with `scripts/review_sql_trace.py` |
+| Slice metrics matter more than headline score | SQL reports need join/filter/group/format/clean-output slices | Tooling added with `scripts/sql/score_sql_slices.py` |
+| Trace review should inspect actual outputs | SQL reports need qualitative labels like hallucinated schema and format collapse | Tooling added with `scripts/sql/review_sql_trace.py` |
 | Candidate selection can unlock sparse tasks | Train SQL model to choose among candidate queries before open generation | Scaffolded, not trained yet |
 | Batch-first post-training reduces moving-target instability | Generate rollouts, score offline, train one update, eval heldout | Plan renderer added; no run yet |
 | Policy lag can regularize RL-style updates | Avoid constantly refreshing the reference/rollout policy | Not tried |

@@ -41,15 +41,15 @@ That makes the external result useful but different from our target:
 
 ## What is independently rebuilt
 
-- `scripts/chess_sft_corpus.py` compiles decompressed Lichess evaluation JSONL
+- `scripts/chess/chess_sft_corpus.py` compiles decompressed Lichess evaluation JSONL
   into deterministic, provenance-bearing character rows.
-- `scripts/chess_sft_text.py` renders a bounded split into the plain byte stream
+- `scripts/chess/chess_sft_text.py` renders a bounded split into the plain byte stream
   consumed by the Python reference trainer without leaking held-out rows.
 - `configs/model.chess-44m-v0.json` defines the owned 44.53M candidate.
-- `scripts/chess_python_checkpoint.py` scores only legal UCI continuations from
-  a Python-reference checkpoint; `scripts/chess_checkpoint_eval.py` measures
+- `scripts/chess/chess_python_checkpoint.py` scores only legal UCI continuations from
+  a Python-reference checkpoint; `scripts/chess/chess_checkpoint_eval.py` measures
   held-out exact target and executed legality before full games.
-- `scripts/chess_strength_ladder.py` runs paired-color games against pinned weak
+- `scripts/chess/chess_strength_ladder.py` runs paired-color games against pinned weak
   Stockfish policies and refuses to call smoke evidence a rating.
 - Existing python-chess membership checks remain the final legality boundary.
 
@@ -113,7 +113,7 @@ propagate calibration uncertainty.
 
 The final owner-approved shot corrected an important training mismatch before
 judging the model. The generic byte trainer optimized the entire serialized
-FEN-and-legal-list prompt; `scripts/chess_sft_train.py` instead masks every
+FEN-and-legal-list prompt; `scripts/chess/chess_sft_train.py` instead masks every
 prompt byte and computes loss only on the target move plus newline. The data
 compiler was also corrected to canonicalize legal castling notation through
 python-chess, because some normal-chess source records encode castling with the
@@ -157,7 +157,7 @@ checkpoint policy already follows that rule.
 The public implementation then re-ranks those same scored legal moves with
 one-ply `python-chess` finishing guards: play mate-in-one, avoid allowing
 opponent mate-in-one when a safe alternative exists, and avoid immediately
-drawing a clearly won position. `scripts/chess_finishing_guards.py`
+drawing a clearly won position. `scripts/chess/chess_finishing_guards.py`
 independently implements those board-only rules. It uses no Stockfish, opening
 book, or search, and steps aside if it cannot offer a safer alternative.
 
@@ -170,7 +170,7 @@ is a system improvement, not evidence that the weights became smarter.
 
 `configs/chess/move-quality-v1.json` freezes Stockfish 18 depth 12 as an offline
 referee for average centipawn loss, blunders at 100 cp, and severe blunders at
-300 cp. `scripts/chess_move_quality.py` consumes archived games, so the referee
+300 cp. `scripts/chess/chess_move_quality.py` consumes archived games, so the referee
 cannot leak into move selection.
 
 `configs/chess/qwen-reproduction-v1.json` freezes 10k, 100k, 1M, and 2M-row
@@ -188,7 +188,7 @@ is required:
 
 ```bash
 zstdcat /path/to/lichess_db_eval.jsonl.zst | \
-  python3.12 scripts/chess_sft_corpus.py \
+  python3.12 scripts/chess/chess_sft_corpus.py \
     --config configs/chess/lichess-eval-corpus-v1.json \
     --input - \
     --output runs/chess-44m/data/corpus.jsonl \
@@ -199,7 +199,7 @@ Then render the eight-row repeated correctness gate and train through the
 existing Python reference path:
 
 ```bash
-python3.12 scripts/chess_sft_text.py \
+python3.12 scripts/chess/chess_sft_text.py \
   --input runs/chess-44m/data/corpus.jsonl \
   --split train \
   --maximum-rows 8 \
@@ -213,7 +213,7 @@ python3.12 python_ref/train.py \
   --config configs/chess/training-tiny-overfit-v1.json \
   --out runs/chess-44m/checkpoints/tiny-overfit
 
-python3.12 scripts/chess_checkpoint_eval.py \
+python3.12 scripts/chess/chess_checkpoint_eval.py \
   --checkpoint runs/chess-44m/checkpoints/tiny-overfit \
   --model-ref byte-character-chess-44m-v0 \
   --policy-id chess-44m-tiny-overfit \
@@ -239,7 +239,7 @@ target—not the unchanged 100k stage.
 The eventual full-game command uses the same owned checkpoint directly:
 
 ```bash
-python3.12 scripts/chess_strength_ladder.py \
+python3.12 scripts/chess/chess_strength_ladder.py \
   --config configs/chess/strength-ladder-v1.json \
   --candidate-backend python-checkpoint \
   --checkpoint runs/chess-44m/checkpoints/candidate \

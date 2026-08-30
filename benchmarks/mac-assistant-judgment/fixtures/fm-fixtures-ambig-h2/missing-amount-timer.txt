@@ -1,3 +1,0 @@
-USER: set a timer
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: duration

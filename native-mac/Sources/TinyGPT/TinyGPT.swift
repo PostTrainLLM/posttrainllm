@@ -35,7 +35,7 @@ struct posttrainllm {
             run { try validate(path: path) }
         case "bench":
             // Inference-side LLM benchmark harness (Bench360-modelled).
-            // See docs/benchmark_harness_design.md.
+            // See docs/performance/benchmark_harness_design.md.
             Benchmark.run(args: Array(args.dropFirst()))
         case "infer-heatmap":
             InferHeatmap.run(args: Array(args.dropFirst()))

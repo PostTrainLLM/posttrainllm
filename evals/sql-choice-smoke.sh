@@ -19,7 +19,7 @@ cat > "$TMP_DIR/retry.jsonl" <<'JSONL'
 {"id":"q2","predicted_sql":"```sql\nSELECT count(*) FROM orders WHERE status = 'shipped';\n```"}
 JSONL
 
-python3 scripts/build_sql_candidate_choice.py \
+python3 scripts/sql/build_sql_candidate_choice.py \
   --prompts "$TMP_DIR/prompts.jsonl" \
   --candidate sft="$TMP_DIR/sft.jsonl" \
   --candidate retry="$TMP_DIR/retry.jsonl" \
@@ -34,7 +34,7 @@ with open(sys.argv[2], "w") as f:
         f.write(json.dumps({"id": row["id"], "selected_id": row["answer_id"]}) + "\n")
 PY
 
-python3 scripts/score_sql_candidate_choice.py \
+python3 scripts/sql/score_sql_candidate_choice.py \
   --choices "$TMP_DIR/choices.jsonl" \
   --preds "$TMP_DIR/preds.jsonl" \
   --out "$TMP_DIR/scored.jsonl" > "$TMP_DIR/summary.json"

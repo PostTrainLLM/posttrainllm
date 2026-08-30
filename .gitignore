@@ -11,7 +11,12 @@ dist/
 .vite/
 .wrangler/
 
-# Local environment files (PostHog keys, etc — never committed)
+# Local environment files (PostHog keys, etc — never committed).
+# The bare patterns cover any package that grows its own; the explicit browser
+# entries are kept so the intent stays obvious.
+.env
+.env.*
+!.env.example
 browser/.env
 browser/.env.local
 
@@ -110,3 +115,8 @@ default.profraw
 build/
 .claude/
 .playwright-mcp/
+
+# Python coverage output — the CI python job runs `coverage run` from the
+# repo root, which drops these here.
+.coverage
+.coverage.*

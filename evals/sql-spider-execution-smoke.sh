@@ -37,7 +37,7 @@ rows = [
 open(sys.argv[1], "w").write(json.dumps(rows))
 PY
 
-python3 "$ROOT/scripts/build_sql_spider_execution_gate.py" \
+python3 "$ROOT/scripts/sql/build_sql_spider_execution_gate.py" \
   --spider-root "$WORK/spider" \
   --out "$WORK/gate"
 

@@ -73,7 +73,7 @@ observation/action token cost.
 
 1. **Player adapter** — wrap `mlx_lm` generate as a TextArena agent (observation
    string → legal action string). Frontier agent reuses the OpenAI-style client from
-   [`scripts/bfcl_multiturn_deepseek.py`](../../scripts/bfcl_multiturn_deepseek.py).
+   [`scripts/bfcl/bfcl_multiturn_deepseek.py`](../../scripts/bfcl/bfcl_multiturn_deepseek.py).
 2. **Baseline tournament** ("before") — local-stock vs frontier-zero-shot vs
    scripted/random; record win rates (TrueSkill).
 3. **Self-play RLVR** — GRPO on the local policy; reward = game outcome (win +1 /

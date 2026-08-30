@@ -8,7 +8,7 @@
     "Do not use for: unqualified broad general-agent claims"
   ],
   "compiled_from": {
-    "compiler": "scripts/build_fine_tune_report_card.py",
+    "compiler": "scripts/factory/build_fine_tune_report_card.py",
     "compiler_version": "1.0.0",
     "dataset_hashes": [],
     "source_id": "specialists/qwen3-4b-rest-fused",

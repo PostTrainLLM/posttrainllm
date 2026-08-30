@@ -21,18 +21,18 @@ class state rather than a blank cell.
 
 ```bash
 # from a canonical run folder
-python3 scripts/build_fine_tune_report_card.py --run runs/<id> --out <dir>
+python3 scripts/factory/build_fine_tune_report_card.py --run runs/<id> --out <dir>
 
 # from a committed specialist package (legacy evidence)
-python3 scripts/build_fine_tune_report_card.py \
+python3 scripts/factory/build_fine_tune_report_card.py \
     --specialist specialists/qwen3-4b-rest-fused --out <dir>
 
 # validate a card before it reaches the public registry
-python3 scripts/check_fine_tune_report_card.py <dir>/report-card.json
+python3 scripts/factory/check_fine_tune_report_card.py <dir>/report-card.json
 
 # regenerate the published cohort / detect drift
-python3 scripts/publish_report_cards.py
-python3 scripts/publish_report_cards.py --check
+python3 scripts/factory/publish_report_cards.py
+python3 scripts/factory/publish_report_cards.py --check
 ```
 
 Output is `report-card.json` (machine contract) plus `report-card.html`
@@ -180,7 +180,7 @@ against the committed files, so a stale card cannot ship silently.
 A card records the SHA-256 of every committed file it cites, so **editing a cited
 document changes the card**. That coupling is deliberate — the hash pins which
 version of the evidence a claim rests on — but it means the drift check will fail
-after an evidence-doc edit. Rerun `python3 scripts/publish_report_cards.py` and
+after an evidence-doc edit. Rerun `python3 scripts/factory/publish_report_cards.py` and
 commit the regenerated cards alongside the doc change. Ephemeral run-folder
 fragments are deliberately *not* hashed; hashing them would make every re-render
 drift.

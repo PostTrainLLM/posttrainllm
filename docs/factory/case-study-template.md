@@ -50,7 +50,7 @@ Failed attempts are evidence. Do not collapse them into a footnote.
 | Format / parse | | | | |
 | Breadth regression | | | | |
 
-Required slices should come from `scripts/score_sql_slices.py` or an equivalent
+Required slices should come from `scripts/sql/score_sql_slices.py` or an equivalent
 domain scorer.
 
 ## Trace Review

@@ -109,13 +109,13 @@ Coordination rule in `docs/prds/README.md`.
 
 ### 8. Fire-and-forget runbooks for N02
 
-`scripts/score-run.sh` — when N02 finishes, scores every checkpoint +
+`scripts/pipelines/score-run.sh` — when N02 finishes, scores every checkpoint +
 SmolLM2 baseline + renders all 3 view modes. One command.
 
 `scripts/sae-run.sh` — same checkpoints, trains an SAE per checkpoint
 for the feature-emergence timeline.
 
-`scripts/score-checkpoint.sh` — single-ckpt primitive.
+`scripts/pipelines/score-checkpoint.sh` — single-ckpt primitive.
 
 ## Things we learned, by surprise
 
@@ -177,12 +177,12 @@ pip install 'lm-eval[api]' torch transformers safetensors accelerate
 
 ## Where N02 picks this up
 
-`scripts/nightly.sh` fires N02 (Huge bf16, FineWeb-Edu, 200K steps,
+`scripts/pipelines/nightly.sh` fires N02 (Huge bf16, FineWeb-Edu, 200K steps,
 ~11 hrs) with `--save-history --log-jsonl --val-every 500` already wired.
 When it finishes:
 
 ```bash
-./scripts/score-run.sh ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt    # full eval sweep
+./scripts/pipelines/score-run.sh ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt    # full eval sweep
 ./scripts/sae-run.sh   ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt    # SAE feature timeline
 ```
 

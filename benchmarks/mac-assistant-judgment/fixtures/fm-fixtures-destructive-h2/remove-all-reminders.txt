@@ -1,3 +1,0 @@
-USER: wipe all my reminders
-EXPECT_INTENT: confirm_destructive
-EXPECT_CONFIRM_TARGET: reminders

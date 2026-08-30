@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 OUT="$(mktemp -d /tmp/posttrainllm-sql-bird.XXXXXX)"
-python3 scripts/build_sql_bird_public_training.py \
+python3 scripts/sql/build_sql_bird_public_training.py \
   --out "$OUT" \
   --bird-limit 32 \
   --bmc2-limit 16 \

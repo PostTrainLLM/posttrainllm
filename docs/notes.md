@@ -349,7 +349,7 @@ loss curve smoothly rather than kink.
 ## 9. Evaluation — comparing honestly
 
 `python_ref/evaluate.py` produces, for every held-out prompt, the four
-conditions `docs/validation_report.md` requires (evaluation-and-safety appendix):
+conditions `docs/audits/validation_report.md` requires (evaluation-and-safety appendix):
 
 | Condition | What it isolates |
 | --- | --- |
@@ -479,7 +479,7 @@ line.
   an attention visualiser, a tokenizer playground, a semantic-zoom diagram of
   the forward pass.
 
-The scaffold is now a working system. Every box in `MILESTONES.md` that can be
+The scaffold is now a working system. Every box in `archive/MILESTONES.md` that can be
 ticked by code, is.
 
 ---

@@ -227,7 +227,7 @@ enum TrainSupport {
     ///   `powermetrics --samplers cpu_power -i 500` for ~10 s during a
     ///   training run; look for P-cluster utilisation rising relative
     ///   to the E-cluster compared to a baseline run without this call.
-    ///   See `docs/cpu_speedup_results.md` for the numbers we measured.
+    ///   See `docs/performance/cpu_speedup_results.md` for the numbers we measured.
     ///
     /// Best-effort: a non-zero return from `pthread_set_qos_class_self_np`
     /// is silently ignored (the run still works, just at default QoS).

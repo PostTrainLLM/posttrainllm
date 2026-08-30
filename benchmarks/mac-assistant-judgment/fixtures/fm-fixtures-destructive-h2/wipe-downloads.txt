@@ -1,3 +1,0 @@
-USER: clear out everything in my downloads folder
-EXPECT_INTENT: confirm_destructive
-EXPECT_CONFIRM_TARGET: downloads

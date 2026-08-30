@@ -12,7 +12,12 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
+# scripts/ is grouped into topic subdirs; each is a flat import surface.
+for _d in [
+    ROOT / "scripts",
+    *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir()),
+]:
+    sys.path.insert(0, str(_d))
 
 import check_everyday_benchmark as checker  # noqa: E402
 import run_everyday_benchmark as runner  # noqa: E402
@@ -20,11 +25,21 @@ import run_everyday_benchmark as runner  # noqa: E402
 CONTRACT = checker.load_contract()
 SUITE_PATH = ROOT / "configs/everyday-benchmark/suite-v1.json"
 TASK_PATH = ROOT / "configs/everyday-benchmark/tasks/pace-intent-routing-v1.json"
-INSTANCES_PATH = ROOT / "evals/everyday-benchmark/fixtures/pace-intent-public-dev-v1.json"
-AUTOCORRECT_TASK_PATH = ROOT / "configs/everyday-benchmark/tasks/text-correction-preservation-v1.json"
-AUTOCORRECT_INSTANCES_PATH = ROOT / "evals/everyday-benchmark/fixtures/autocorrect-public-dev-v1.json"
-FILE_OPS_TASK_PATH = ROOT / "configs/everyday-benchmark/tasks/local-file-operations-v1.json"
-FILE_OPS_INSTANCES_PATH = ROOT / "evals/everyday-benchmark/fixtures/file-ops-public-dev-v1.json"
+INSTANCES_PATH = (
+    ROOT / "evals/everyday-benchmark/fixtures/pace-intent-public-dev-v1.json"
+)
+AUTOCORRECT_TASK_PATH = (
+    ROOT / "configs/everyday-benchmark/tasks/text-correction-preservation-v1.json"
+)
+AUTOCORRECT_INSTANCES_PATH = (
+    ROOT / "evals/everyday-benchmark/fixtures/autocorrect-public-dev-v1.json"
+)
+FILE_OPS_TASK_PATH = (
+    ROOT / "configs/everyday-benchmark/tasks/local-file-operations-v1.json"
+)
+FILE_OPS_INSTANCES_PATH = (
+    ROOT / "evals/everyday-benchmark/fixtures/file-ops-public-dev-v1.json"
+)
 ENTRY_DIR = ROOT / "evals/everyday-benchmark/fixtures/entries"
 
 
@@ -52,8 +67,12 @@ def prediction_set(entry: dict, instances: dict, *, system: bool = False) -> dic
                 should_escalate = instance["expected_label"] == "unknown"
                 routing = {
                     "eligible_nodes": ["fixture-specialist@1", "fixture-generalist@1"],
-                    "selected_node": "fixture-generalist@1" if should_escalate else "fixture-specialist@1",
-                    "best_eligible_node": "fixture-generalist@1" if should_escalate else "fixture-specialist@1",
+                    "selected_node": "fixture-generalist@1"
+                    if should_escalate
+                    else "fixture-specialist@1",
+                    "best_eligible_node": "fixture-generalist@1"
+                    if should_escalate
+                    else "fixture-specialist@1",
                     "accepted": True,
                     "escalated": should_escalate,
                     "should_escalate": should_escalate,
@@ -79,7 +98,10 @@ def prediction_set(entry: dict, instances: dict, *, system: bool = False) -> dic
         "revision": "1",
         "task_ref": {"id": "pace-intent-routing", "revision": "1"},
         "entry_ref": {"id": entry["entry_id"], "revision": entry["revision"]},
-        "instance_set_ref": {"id": instances["instance_set_id"], "revision": instances["revision"]},
+        "instance_set_ref": {
+            "id": instances["instance_set_id"],
+            "revision": instances["revision"],
+        },
         "outputs": outputs,
     }
 
@@ -111,9 +133,18 @@ def valid_artifacts(entry_kind: str = "adapted"):
 def test_committed_contracts_and_all_tracks_validate():
     suite, task, instances, generalist, adapted, system = fixtures()
     for artifact in (suite, task, instances, generalist, adapted, system):
-        assert not validate(artifact), (artifact.get("artifact_type"), validate(artifact))
-    assert {generalist["track"], adapted["track"], system["track"]} == {"generalist", "adapted", "system"}
-    assert Counter(item["expected_label"] for item in instances["instances"]) == Counter({label: 4 for label in task["labels"]})
+        assert not validate(artifact), (
+            artifact.get("artifact_type"),
+            validate(artifact),
+        )
+    assert {generalist["track"], adapted["track"], system["track"]} == {
+        "generalist",
+        "adapted",
+        "system",
+    }
+    assert Counter(
+        item["expected_label"] for item in instances["instances"]
+    ) == Counter({label: 4 for label in task["labels"]})
 
 
 def test_three_qualified_task_families_validate():
@@ -123,7 +154,11 @@ def test_three_qualified_task_families_validate():
         (load(AUTOCORRECT_TASK_PATH), load(AUTOCORRECT_INSTANCES_PATH)),
         (load(FILE_OPS_TASK_PATH), load(FILE_OPS_INSTANCES_PATH)),
     ]
-    assert len(suite["task_refs"]) == suite["publication"]["minimum_qualified_task_families"] == 3
+    assert (
+        len(suite["task_refs"])
+        == suite["publication"]["minimum_qualified_task_families"]
+        == 3
+    )
     for task, instances in pairs:
         assert task["status"] == "qualified"
         assert task["frontier_qualification"]["state"] == "passed"
@@ -149,7 +184,10 @@ def test_generic_text_and_verdict_outputs_use_the_declared_scorer_fields():
             "revision": "1",
             "task_ref": {"id": task["task_id"], "revision": task["revision"]},
             "entry_ref": {"id": entry["entry_id"], "revision": entry["revision"]},
-            "instance_set_ref": {"id": instances["instance_set_id"], "revision": instances["revision"]},
+            "instance_set_ref": {
+                "id": instances["instance_set_id"],
+                "revision": instances["revision"],
+            },
             "outputs": [
                 {
                     "instance_id": instance["id"],
@@ -178,7 +216,9 @@ def test_generic_text_and_verdict_outputs_use_the_declared_scorer_fields():
         assert result["scores"]["unknown_recall"] is None
         assert receipt["aggregate"]["exact_accuracy"] == 1.0
         errors: list[str] = []
-        checker.validate_bundle([suite, task, entry, instances, predictions], CONTRACT, errors)
+        checker.validate_bundle(
+            [suite, task, entry, instances, predictions], CONTRACT, errors
+        )
         assert not errors, errors
 
 
@@ -201,7 +241,14 @@ def test_sealed_identity_and_privacy_safe_receipt():
         "attestation": {"kind": "maintainer-review-v1", "value": "reviewed"},
     }
     _, _, receipt = runner.score(
-        suite, task, adapted, instances, predictions, "sealed-fixture-run", "2026-08-04T00:00:00Z", metadata
+        suite,
+        task,
+        adapted,
+        instances,
+        predictions,
+        "sealed-fixture-run",
+        "2026-08-04T00:00:00Z",
+        metadata,
     )
     assert receipt["evaluation_layer"] == "sealed-official"
     assert receipt["custody"]["instance_material_committed"] is False
@@ -240,10 +287,25 @@ def test_adapter_contracts_reject_embedded_credentials():
 def test_all_four_adapter_interfaces_validate_without_invocation():
     suite, task, instances, generalist, _, _ = fixtures()
     adapters = [
-        {"kind": "local-package", "package_id": "fixture-local@1", "command": "fixture-local --json"},
-        {"kind": "openai-compatible", "base_url": "http://127.0.0.1:8080/v1", "model": "fixture-model", "credential_env": "BENCHMARK_API_KEY"},
+        {
+            "kind": "local-package",
+            "package_id": "fixture-local@1",
+            "command": "fixture-local --json",
+        },
+        {
+            "kind": "openai-compatible",
+            "base_url": "http://127.0.0.1:8080/v1",
+            "model": "fixture-model",
+            "credential_env": "BENCHMARK_API_KEY",
+        },
         {"kind": "imported-predictions", "format": "everyday-benchmark/predictions-v1"},
-        {"kind": "capability-graph", "graph_id": "fixture-graph", "graph_revision": "1", "policy_revision": "1", "format": "everyday-benchmark/predictions-v1"},
+        {
+            "kind": "capability-graph",
+            "graph_id": "fixture-graph",
+            "graph_revision": "1",
+            "policy_revision": "1",
+            "format": "everyday-benchmark/predictions-v1",
+        },
     ]
     for index, adapter in enumerate(adapters):
         entry = copy.deepcopy(generalist)
@@ -252,7 +314,15 @@ def test_all_four_adapter_interfaces_validate_without_invocation():
         assert not validate(entry), (adapter["kind"], validate(entry))
         predictions = prediction_set(entry, instances)
         runner.assert_identity(suite, task, entry, instances, predictions)
-        artifacts = runner.score(suite, task, entry, instances, predictions, f"adapter-run-{index}", "2026-08-04T00:00:00Z")
+        artifacts = runner.score(
+            suite,
+            task,
+            entry,
+            instances,
+            predictions,
+            f"adapter-run-{index}",
+            "2026-08-04T00:00:00Z",
+        )
         assert all(not validate(artifact) for artifact in artifacts)
 
 
@@ -265,13 +335,17 @@ def test_runner_requires_every_instance_and_repetition():
         assert "coverage mismatch" in str(exc)
     else:
         raise AssertionError("incomplete repeated-pass predictions were accepted")
-    runner.assert_identity(suite, task, entry, instances, prediction_set(entry, instances))
+    runner.assert_identity(
+        suite, task, entry, instances, prediction_set(entry, instances)
+    )
 
 
 def test_score_is_deterministic_and_records_resource_math():
     _, _, _, _, _, artifacts = valid_artifacts()
     _, _, _, _, _, second = valid_artifacts()
-    assert [runner.canonical_bytes(item) for item in artifacts] == [runner.canonical_bytes(item) for item in second]
+    assert [runner.canonical_bytes(item) for item in artifacts] == [
+        runner.canonical_bytes(item) for item in second
+    ]
     run, result, receipt = artifacts
     for artifact in artifacts:
         assert not validate(artifact), validate(artifact)
@@ -299,7 +373,9 @@ def test_receipt_rejects_private_or_credential_payloads():
     _, _, _, _, _, (_, _, receipt) = valid_artifacts()
     receipt["aggregate"]["raw_output"] = "private model material"
     errors = validate(receipt)
-    assert any("denylisted from privacy-safe receipts" in error for error in errors), errors
+    assert any("denylisted from privacy-safe receipts" in error for error in errors), (
+        errors
+    )
 
 
 def test_same_headline_rejects_incompatible_instance_sets():
@@ -335,28 +411,46 @@ def test_cli_writes_only_validated_no_model_artifacts():
         out_dir = tmp / "out"
         command = [
             sys.executable,
-            str(ROOT / "scripts/run_everyday_benchmark.py"),
-            "--suite", str(SUITE_PATH),
-            "--task", str(TASK_PATH),
-            "--entry", str(ENTRY_DIR / "adapted-fixture-v1.json"),
-            "--instances", str(INSTANCES_PATH),
-            "--predictions", str(predictions_path),
-            "--run-id", "fixture-cli-run",
-            "--timestamp", "2026-08-04T00:00:00Z",
-            "--out-dir", str(out_dir),
+            str(ROOT / "scripts/research/run_everyday_benchmark.py"),
+            "--suite",
+            str(SUITE_PATH),
+            "--task",
+            str(TASK_PATH),
+            "--entry",
+            str(ENTRY_DIR / "adapted-fixture-v1.json"),
+            "--instances",
+            str(INSTANCES_PATH),
+            "--predictions",
+            str(predictions_path),
+            "--run-id",
+            "fixture-cli-run",
+            "--timestamp",
+            "2026-08-04T00:00:00Z",
+            "--out-dir",
+            str(out_dir),
         ]
-        completed = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
+        completed = subprocess.run(
+            command, cwd=ROOT, capture_output=True, text=True, check=False
+        )
         assert completed.returncode == 0, completed.stderr
-        generated = [load(out_dir / name) for name in ("run.json", "result.json", "receipt.json")]
+        generated = [
+            load(out_dir / name) for name in ("run.json", "result.json", "receipt.json")
+        ]
         assert all(not validate(artifact) for artifact in generated)
-        second = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
+        second = subprocess.run(
+            command, cwd=ROOT, capture_output=True, text=True, check=False
+        )
         assert second.returncode == 1
         assert "refusing to overwrite" in second.stderr
         assert suite and task and instances and entry
 
 
 def main() -> int:
-    tests = [value for name, value in sorted(globals().items()) if name.startswith("test_") and callable(value)]
+    tests = [
+        value
+        for name, value in sorted(globals().items())
+        if name.startswith("test_") and callable(value)
+    ]
     for test in tests:
         test()
         print(f"  ok: {test.__name__}")

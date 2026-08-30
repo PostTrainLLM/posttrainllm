@@ -128,7 +128,7 @@ enum PruneUnstructured {
         // Load the model into MLX so we can fine-tune. We currently
         // only support from-scratch TinyGPTModel for IMP — HF models
         // would require a parallel mask-application path; documented
-        // in docs/pruning.md.
+        // in docs/techniques/pruning.md.
         let load: ModelLoader.LoadResult
         do { load = try ModelLoader.load(inPath) }
         catch { fputs("model load failed: \(error)\n", stderr); exit(1) }
@@ -469,7 +469,7 @@ enum PruneUnstructured {
         as the original PLUS the RLE mask in the header. The compression
         win only materialises when the file is then run through a
         general-purpose compressor (gzip/zstd) — which collapses runs of
-        zeros aggressively. See docs/pruning.md for measured numbers.
+        zeros aggressively. See docs/techniques/pruning.md for measured numbers.
         """)
         // Bonus: try gzipping both files and report the compressed
         // sizes — the realistic distribution-time number.

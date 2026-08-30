@@ -12,7 +12,7 @@ Batch construction (context_length C):
 The dataset manifest records a sha256 of the raw bytes; that hash is what makes
 checkpoint resume reproducible (a resumed run must see the same data).
 
-Guide: docs/model_guide.md  ("Data requirements", "Dataset pipeline")
+Guide: docs/guides/model_guide.md  ("Data requirements", "Dataset pipeline")
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ def dataset_id(raw_bytes: bytes) -> str:
 
 
 # --------------------------------------------------------------------------
-# Manifest — written alongside a token array; see docs/model_guide.md.
+# Manifest — written alongside a token array; see docs/guides/model_guide.md.
 # --------------------------------------------------------------------------
 @dataclass
 class DatasetManifest:
@@ -88,7 +88,9 @@ class ByteDataset:
             self.val = self.train
 
     @classmethod
-    def from_text(cls, text: str, name: str = "inline", **manifest_kwargs) -> "ByteDataset":
+    def from_text(
+        cls, text: str, name: str = "inline", **manifest_kwargs
+    ) -> "ByteDataset":
         raw = text.encode("utf-8")
         tokens = encode(text)
         manifest = DatasetManifest(
@@ -144,5 +146,7 @@ if __name__ == "__main__":
     ds = ByteDataset.from_text(sample, name="smoke")
     assert decode(encode(sample)) == sample, "tokenizer roundtrip failed"
     x, y = ds.get_batch("train", batch_size=4, context_length=32)
-    print(f"dataset_id={ds.manifest.dataset_id[:12]}…  tokens={ds.manifest.token_count}")
+    print(
+        f"dataset_id={ds.manifest.dataset_id[:12]}…  tokens={ds.manifest.token_count}"
+    )
     print(f"batch x={tuple(x.shape)} y={tuple(y.shape)} dtype={x.dtype}")

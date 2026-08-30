@@ -117,7 +117,7 @@ re-warming, distill-as-regularizer, LoRA isolation). "New domain via
 continued pretraining tanks general benchmarks — fix without re-pretraining."
 *Learn:* [Scalable Continued Pretraining](https://arxiv.org/abs/2403.08763) · *senior*
 *In repo:* `posttrainllm distill` (`Distill.swift`); the historical v1–v11 arc
-(`docs/RETROSPECTIVE.md`) is a documented catastrophic-forgetting case
+(`docs/sessions/RETROSPECTIVE.md`) is a documented catastrophic-forgetting case
 (47pp OOS regression from 38 rows).
 
 ## Suggested order

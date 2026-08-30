@@ -34,9 +34,9 @@ function more slowly?"* Different ⇒ essential. Same ⇒ optimization.
 
 | Engineering optimization (preserves the function) | What it speeds/shrinks | Must preserve |
 |---|---|---|
-| Matmul tiling + 4×4 register blocking ([study_guide §8](../study_guide.md)) | arithmetic intensity → compute-bound | bit-parity matmul |
-| `vec4<f32>` packed loads ([§9](../study_guide.md)) | 128-bit memory transactions | same result (the bug that wasn't) |
-| FlashAttention-2 ([online-softmax](../online_softmax_in_attention.md), §7) | O(T²)→O(T) memory; recompute on backward | **identical** attention math |
+| Matmul tiling + 4×4 register blocking ([study_guide §8](../guides/study_guide.md)) | arithmetic intensity → compute-bound | bit-parity matmul |
+| `vec4<f32>` packed loads ([§9](../guides/study_guide.md)) | 128-bit memory transactions | same result (the bug that wasn't) |
+| FlashAttention-2 ([online-softmax](../performance/online_softmax_in_attention.md), §7) | O(T²)→O(T) memory; recompute on backward | **identical** attention math |
 | KV cache | decode O(T²)→O(T) compute | same logits |
 | Quantization (4-bit/8-bit) | weights smaller | *approximately* same weights (lossy!) |
 | WASM / WebGPU backends | run on CPU-SIMD / GPU | parity with `python_ref` |
@@ -65,7 +65,7 @@ It is the single number that says "this optimization is still computing the righ
   associative, so a tiled GPU kernel sums partial products in a different order than the reference;
   that reorder produces small, *bounded* deviation. This is expected and benign.
 - **Larger drift = a real bug**, not "just precision." It means the optimization changed the
-  function — a wrong gradient, a transposed tile, a bad bind-group. Example ([study_guide §9](../study_guide.md)):
+  function — a wrong gradient, a transposed tile, a bad bind-group. Example ([study_guide §9](../guides/study_guide.md)):
   a `vec4` integration passed its standalone kernel test but drove training loss to **88.67** while
   the reference sat at **2.94** — a ~30× drift. The cause was a bind-group access-mode mismatch
   returning wrong data; the one-line fix dropped drift below 1%.
@@ -73,7 +73,7 @@ It is the single number that says "this optimization is still computing the righ
 This is also **why parity testing beats standalone kernel benchmarks**: a standalone benchmark
 checks the kernel in isolation (ideal shapes, fresh cache) and answers "is it fast + self-consistent?"
 Drift checks the kernel *inside the real pipeline* and answers "does it still compute the model's
-function?" Only the second question is the one that ships. (See [study_guide §9](../study_guide.md).)
+function?" Only the second question is the one that ships. (See [study_guide §9](../guides/study_guide.md).)
 
 ## Why this lens matters
 
@@ -90,7 +90,7 @@ function?" Only the second question is the one that ships. (See [study_guide §9
 ## References
 
 - Oracle for the essential column: [`python_ref/model.py`](../../python_ref/model.py).
-- Optimization-layer deep dives: [study_guide.md](../study_guide.md) §7 (FA2), §8 (register blocking),
-  §9 (parity + the drift bug); [online-softmax](../online_softmax_in_attention.md);
+- Optimization-layer deep dives: [study_guide.md](../guides/study_guide.md) §7 (FA2), §8 (register blocking),
+  §9 (parity + the drift bug); [online-softmax](../performance/online_softmax_in_attention.md);
   [WebGPU execution model](./webgpu-execution-model.md).
 - The math, taught from scratch: roadmap [Phases 1–4](../archive/learning_roadmap.md); sessions 1–8 in this dir.

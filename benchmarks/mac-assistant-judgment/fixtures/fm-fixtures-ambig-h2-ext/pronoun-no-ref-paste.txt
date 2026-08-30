@@ -1,3 +1,0 @@
-USER: paste it here
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: content

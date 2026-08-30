@@ -1,7 +1,7 @@
 # Lessons from building posttrainllm
 
 What didn't work, what surprised me, and what I'd carry forward. The kernel
-optimisations are documented in `docs/performance.md` and the milestones in
+optimisations are documented in `docs/performance/performance.md` and the milestones in
 `docs/archive/status.md`. This is the meta layer: the bugs that taught more than the
 features.
 
@@ -183,5 +183,5 @@ a problem-solving exercise, and you keep the JS as a permanent oracle.
 - BLOG.md (the longform post) folds the LR + corpus + curve stories into
   its narrative.
 - `browser/src/pages/devlog.astro` keeps the per-entry record.
-- `docs/performance.md` documents the *what* shipped; this file is the
+- `docs/performance/performance.md` documents the *what* shipped; this file is the
   *what didn't* and the *what I learned about the process*.

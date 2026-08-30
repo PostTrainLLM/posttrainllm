@@ -21,7 +21,7 @@ environments. It does not claim either is a public benchmark yet.
 - `configs/capability-gradient-lab/development-v1.json` freezes the 50M ceiling,
   generator parameters, deterministic 2,000-seed cohort, and accepted baseline
   bands used by code and CI.
-- `scripts/capability_gradient_lab.py` implements two dependency-free Python
+- `scripts/research/capability_gradient_lab.py` implements two dependency-free Python
   reference environments (Connect-4 and calendar scheduling), a random-legal
   baseline executor, a canonical-trace format, a deterministic verifier for
   each environment, scorecard/probe validators, and a 2,000-seed baseline

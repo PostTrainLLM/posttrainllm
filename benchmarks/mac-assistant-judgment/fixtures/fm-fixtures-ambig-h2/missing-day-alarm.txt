@@ -1,3 +1,0 @@
-USER: wake me up early
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: time

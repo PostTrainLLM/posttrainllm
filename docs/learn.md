@@ -243,7 +243,7 @@ pulls in a weighted blend of every token's "value" vector.
 - **Learn it:** [3Blue1Brown — "Attention in transformers"](https://www.3blue1brown.com/lessons/attention).
   Then play with Transformer Explainer.
 - **In the repo:** `CausalSelfAttention` in `python_ref/model.py`. The maths is
-  also spelled out in [`model_guide.md`](model_guide.md) §5. The *from-scratch*
+  also spelled out in [`model_guide.md`](guides/model_guide.md) §5. The *from-scratch*
   version — with the backward pass written by hand — is `wasm/src/attention.cpp`.
 - **See it work:** `python tests/test_phase1.py` — the "gradient check" test
   runs `torch.autograd.gradcheck` on the attention module.
@@ -272,7 +272,7 @@ scores with the **tied** output head (it reuses the embedding table). That is
 `posttrainllm`.
 
 - **In the repo:** `TransformerBlock` and `posttrainllm` in `python_ref/model.py`;
-  the design rationale is in [`model_guide.md`](model_guide.md).
+  the design rationale is in [`model_guide.md`](guides/model_guide.md).
 - **See it work:** `python tests/test_phase1.py` — the "param count" (842,496)
   and "layer shapes" tests confirm the assembled model is wired correctly.
 
@@ -283,7 +283,7 @@ a batch of text, predict next tokens, measure cross-entropy loss, backpropagate,
 AdamW step, repeat.
 
 - **In the repo:** `python_ref/train.py`. The deeper spec is in
-  [`model_guide.md`](model_guide.md) §7–8.
+  [`model_guide.md`](guides/model_guide.md) §7–8.
 - **See it work:** the most important test in the repo —
   `python tests/test_phase1.py`, the "tiny overfit" test: a tiny model is made
   to drive its loss from `5.5` to near `0` on a small text. If a model cannot do
@@ -305,7 +305,7 @@ alongside each chosen layer. Here the adapter is *0.96%* of the model's size.
   [LoRA: Low-Rank Adaptation](https://arxiv.org/abs/2106.09685) (read the
   abstract and Figure 1).
 - **In the repo:** `python_ref/lora.py` — `LoRALinear` is the whole idea in one
-  class. The spec with the gradient maths is [`lora_guide.md`](lora_guide.md).
+  class. The spec with the gradient maths is [`lora_guide.md`](techniques/lora_guide.md).
 - **The subtlety worth understanding:** freezing a layer does **not** stop
   gradients flowing *through* it to adapters below — see the long comment in
   `lora.py` and the `test_frozen_base_grads` test.

@@ -49,15 +49,15 @@ Everything under `PROJECT_STATUS.md` → "Training and post-training."
 |---|---|
 | SFT | [`../training/sft.md`](../training/sft.md), Module 9 |
 | Pretraining | [`../training/pretrain.md`](../training/pretrain.md), Session 8 |
-| LoRA / DoRA / QLoRA | [`../lora_guide.md`](../lora_guide.md), [`../peft_variants.md`](../peft_variants.md), [`../factory/lora-geometry.md`](../factory/lora-geometry.md), Session 9 |
+| LoRA / DoRA / QLoRA | [`../lora_guide.md`](../techniques/lora_guide.md), [`../peft_variants.md`](../techniques/peft_variants.md), [`../factory/lora-geometry.md`](../factory/lora-geometry.md), Session 9 |
 | Encoder-decoder (seq2seq) adapters, copy bias, edit-aware loss | [`encoder-decoder-adapters.md`](encoder-decoder-adapters.md), [`../factory/autocorrect-adapter-recipe.md`](../factory/autocorrect-adapter-recipe.md) |
 | DPO / SimPO / preference tuning | [`../training/dpo.md`](../training/dpo.md), Module 9 + 10 |
-| Distillation | [`../distillation.md`](../distillation.md), [`diversity-driven-small-model-reasoning.md`](diversity-driven-small-model-reasoning.md) |
-| Evolution strategies (ES) | [`../evolution_strategies.md`](../evolution_strategies.md), [`castform-rl-finetune.md`](castform-rl-finetune.md) |
+| Distillation | [`../distillation.md`](../techniques/distillation.md), [`diversity-driven-small-model-reasoning.md`](diversity-driven-small-model-reasoning.md) |
+| Evolution strategies (ES) | [`../evolution_strategies.md`](../techniques/evolution_strategies.md), [`castform-rl-finetune.md`](castform-rl-finetune.md) |
 | RLVR / ReST / GRPO | [`advanced-llm-training.md`](advanced-llm-training.md), [`../GRPO_CLARIFY.md`](../GRPO_CLARIFY.md) |
-| Optimizers, schedules, stability | [`../optimizers.md`](../optimizers.md), [`../galore_and_stability.md`](../galore_and_stability.md), Session 8 |
-| NEFTune, z-loss, WSD, LLRD, seq packing, grad checkpointing | [`../training_guide.md`](../training_guide.md), [`../gradient_checkpointing_results.md`](../gradient_checkpointing_results.md), Session 8 |
-| Precision (bf16 / fp8 / mixed) | [`../precision.md`](../precision.md), [`advanced-llm-training.md`](advanced-llm-training.md) |
+| Optimizers, schedules, stability | [`../optimizers.md`](../techniques/optimizers.md), [`../galore_and_stability.md`](../techniques/galore_and_stability.md), Session 8 |
+| NEFTune, z-loss, WSD, LLRD, seq packing, grad checkpointing | [`../training_guide.md`](../guides/training_guide.md), [`../gradient_checkpointing_results.md`](../performance/gradient_checkpointing_results.md), Session 8 |
+| Precision (bf16 / fp8 / mixed) | [`../precision.md`](../techniques/precision.md), [`advanced-llm-training.md`](advanced-llm-training.md) |
 | Method-vs-recipe discipline | [`../techniques/method-vs-recipe.md`](../techniques/method-vs-recipe.md) |
 
 ---
@@ -69,8 +69,8 @@ Everything under `PROJECT_STATUS.md` → "Training and post-training."
 | Capability | Anchor |
 |---|---|
 | Dataset registry / inventory | [`../dataset-inventory.md`](../dataset-inventory.md), [`../data_inventory.md`](../data_inventory.md) |
-| HF integration | [`../hf_datasets_integration.md`](../hf_datasets_integration.md) |
-| GitHub fetcher | [`../github_data_integration.md`](../github_data_integration.md) |
+| HF integration | [`../hf_datasets_integration.md`](../integrations/hf_datasets_integration.md) |
+| GitHub fetcher | [`../github_data_integration.md`](../integrations/github_data_integration.md) |
 | Magpie / synthesis | [`advanced-llm-training.md`](advanced-llm-training.md) (data curation), [`small-model-tool-calling-playbook.md`](small-model-tool-calling-playbook.md) |
 | Tokenizer training, extractor data | [`session-06-tokenization-embeddings.md`](session-06-tokenization-embeddings.md), [`../tool_call_extractor.md`](../tool_call_extractor.md) |
 | Traces → data, corrections → data | [`../recipes/from-traces.md`](../recipes/from-traces.md) |
@@ -89,8 +89,8 @@ surfaces.
 | Eval methodology / broken-eval lessons | [`eval-methodology-2026-06-08.md`](eval-methodology-2026-06-08.md), [`eval-matrix-2026-06-08.md`](eval-matrix-2026-06-08.md) |
 | BFCL / tool-calling eval | [`tool-calling-frontier-parity.md`](tool-calling-frontier-parity.md), [`small-model-tool-calling-playbook.md`](small-model-tool-calling-playbook.md) |
 | SQL execution / exact / slices / candidate-choice | [`../techniques/sql-technique-backlog.md`](../techniques/sql-technique-backlog.md), Module 10 |
-| lm-eval / HumanEval / MTEB / MILU / tau-bench | [`../lm_eval_integration.md`](../lm_eval_integration.md), [`advanced-ml-systems-eval.md`](advanced-ml-systems-eval.md) |
-| Router / routed-specialist eval, eval-gate, planner eval | [`../recipes/eval-gate.md`](../recipes/eval-gate.md), [`../recipes/eval_planner.md`](../recipes/eval_planner.md), [`../planner-lock-2026-06-19.md`](../planner-lock-2026-06-19.md) |
+| lm-eval / HumanEval / MTEB / MILU / tau-bench | [`../lm_eval_integration.md`](../integrations/lm_eval_integration.md), [`advanced-ml-systems-eval.md`](advanced-ml-systems-eval.md) |
+| Router / routed-specialist eval, eval-gate, planner eval | [`../recipes/eval-gate.md`](../recipes/eval-gate.md), [`../recipes/eval_planner.md`](../recipes/eval_planner.md), [`../planner-lock-2026-06-19.md`](../sessions/planner-lock-2026-06-19.md) |
 | LLM-as-judge, perplexity, contamination | [`advanced-ml-systems-eval.md`](advanced-ml-systems-eval.md), Module 10 |
 | Leaderboard / reporting | [`../leaderboard.md`](../leaderboard.md), [`../factory/reports.md`](../factory/reports.md) |
 
@@ -103,13 +103,13 @@ surfaces.
 | Capability | Anchor |
 |---|---|
 | Inference/serving architecture, batching, roofline | [`advanced-llm-inference.md`](advanced-llm-inference.md) |
-| KV cache + paging | [`../kv_cache_optimization.md`](../kv_cache_optimization.md), [`advanced-llm-inference.md`](advanced-llm-inference.md) |
-| OpenAI/Ollama-compatible serve, Continue provider | [`../agent_runtime.md`](../agent_runtime.md), [`../continue_provider.md`](../continue_provider.md) |
+| KV cache + paging | [`../kv_cache_optimization.md`](../performance/kv_cache_optimization.md), [`advanced-llm-inference.md`](advanced-llm-inference.md) |
+| OpenAI/Ollama-compatible serve, Continue provider | [`../agent_runtime.md`](../agent_runtime.md), [`../continue_provider.md`](../integrations/continue_provider.md) |
 | Agent loop, tool dispatch | [`model-vs-agent.md`](model-vs-agent.md), [`../async_tool_dispatch.md`](../async_tool_dispatch.md), [`agent-context-hierarchy.md`](agent-context-hierarchy.md) |
-| Constrained JSON / FSM generation | [`../constrained_generation.md`](../constrained_generation.md) |
-| Speculative decoding / MTP | [`../speculative_heads.md`](../speculative_heads.md), [`../mtp.md`](../mtp.md), [`advanced-llm-inference.md`](advanced-llm-inference.md) |
+| Constrained JSON / FSM generation | [`../constrained_generation.md`](../techniques/constrained_generation.md) |
+| Speculative decoding / MTP | [`../speculative_heads.md`](../techniques/speculative_heads.md), [`../mtp.md`](../techniques/mtp.md), [`advanced-llm-inference.md`](advanced-llm-inference.md) |
 | Cost routing / escalation / cascade (AutoMix, ScaleDown) | [`../recipes/automix.md`](../recipes/automix.md), [`../recipes/b25-scaledown.md`](../recipes/b25-scaledown.md), [`agent-context-hierarchy.md`](agent-context-hierarchy.md) |
-| Streaming / long context (StreamingLLM, KIVI) | [`../streaming_llm_kivi.md`](../streaming_llm_kivi.md) |
+| Streaming / long context (StreamingLLM, KIVI) | [`../streaming_llm_kivi.md`](../techniques/streaming_llm_kivi.md) |
 
 ---
 
@@ -119,10 +119,10 @@ surfaces.
 
 | Capability | Anchor |
 |---|---|
-| Quantization (GGUF / AWQ / GPTQ / HQQ), quant theory | [`../quantization_expansion.md`](../quantization_expansion.md), [`advanced-llm-inference.md`](advanced-llm-inference.md) |
+| Quantization (GGUF / AWQ / GPTQ / HQQ), quant theory | [`../quantization_expansion.md`](../techniques/quantization_expansion.md), [`advanced-llm-inference.md`](advanced-llm-inference.md) |
 | Export to MLX / safetensors / CoreML | [`../recipes/mlx-export.md`](../recipes/mlx-export.md), [`../factory/packaging.md`](../factory/packaging.md) |
-| merge / bake-lora | [`../factory/lora-geometry.md`](../factory/lora-geometry.md), [`../lora_guide.md`](../lora_guide.md) |
-| Pruning | [`../pruning.md`](../pruning.md) |
+| merge / bake-lora | [`../factory/lora-geometry.md`](../factory/lora-geometry.md), [`../lora_guide.md`](../techniques/lora_guide.md) |
+| Pruning | [`../pruning.md`](../techniques/pruning.md) |
 | Specialist packaging / model cards | [`../factory/packaging.md`](../factory/packaging.md), [`../factory/public-artifacts.md`](../factory/public-artifacts.md) |
 
 ---
@@ -135,9 +135,9 @@ is the concept.
 | Capability | Anchor |
 |---|---|
 | Attention math, transformer block | [`session-10-attention.md`](session-10-attention.md) |
-| FlashAttention-2 forward/backward | [`../fa2_forward_notes.md`](../fa2_forward_notes.md), [`../fa2_backward_notes.md`](../fa2_backward_notes.md) |
-| Online softmax | [`../online_softmax_in_attention.md`](../online_softmax_in_attention.md) |
-| MoE / expert routing | [`../moe.md`](../moe.md), [`llm-mechanics-fundamentals.md`](llm-mechanics-fundamentals.md) |
+| FlashAttention-2 forward/backward | [`../fa2_forward_notes.md`](../performance/fa2_forward_notes.md), [`../fa2_backward_notes.md`](../performance/fa2_backward_notes.md) |
+| Online softmax | [`../online_softmax_in_attention.md`](../performance/online_softmax_in_attention.md) |
+| MoE / expert routing | [`../moe.md`](../techniques/moe.md), [`llm-mechanics-fundamentals.md`](llm-mechanics-fundamentals.md) |
 
 ---
 
@@ -150,7 +150,7 @@ is the concept.
 | WebGPU execution model (read before the `.wgsl` files) | [`webgpu-execution-model.md`](webgpu-execution-model.md) |
 | Browser GPT training, WASM SIMD, OPFS | [`../browser_notes.md`](../browser_notes.md) |
 | BPE-in-browser scoring | [`../bpe_browser_scoring.md`](../bpe_browser_scoring.md) |
-| Numerics gates / precision drift | [`../precision.md`](../precision.md), [`../determinism.md`](../determinism.md) |
+| Numerics gates / precision drift | [`../precision.md`](../techniques/precision.md), [`../determinism.md`](../performance/determinism.md) |
 
 ---
 
@@ -169,8 +169,8 @@ is the concept.
 
 | Capability | Anchor |
 |---|---|
-| Attention heatmap + logit lens (browser) | [`../interpretability.md`](../interpretability.md), Session 10 |
-| SAE, ROME, MEMIT, tuned/logit lens, activation patching | [`../interpretability.md`](../interpretability.md), [`advanced-ml-systems-eval.md`](advanced-ml-systems-eval.md) |
+| Attention heatmap + logit lens (browser) | [`../interpretability.md`](../techniques/interpretability.md), Session 10 |
+| SAE, ROME, MEMIT, tuned/logit lens, activation patching | [`../interpretability.md`](../techniques/interpretability.md), [`advanced-ml-systems-eval.md`](advanced-ml-systems-eval.md) |
 
 ---
 
@@ -230,7 +230,7 @@ target -> data -> post-training -> eval -> package -> report
 ### Maintenance rule
 
 This map is guarded by
-[`../../scripts/check_learning_roadmap.py`](../../scripts/check_learning_roadmap.py)
+[`../../scripts/docs-checks/check_learning_roadmap.py`](../../scripts/docs-checks/check_learning_roadmap.py)
 (run via `bash evals/learning-roadmap-smoke.sh`). When a **new subsystem** ships
 in `PROJECT_STATUS.md`, add a row here pointing to its best explainer before
 calling the feature done — a capability with no learning anchor is an

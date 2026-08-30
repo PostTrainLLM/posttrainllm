@@ -277,7 +277,7 @@ public enum Serve {
           { "models": [{ "title": "posttrainllm", "provider": "ollama",
                           "model": "posttrainllm:latest",
                           "apiBase": "http://127.0.0.1:11434" }] }
-        See docs/continue_provider.md for the full walkthrough.
+        See docs/integrations/continue_provider.md for the full walkthrough.
         """)
         exit(code)
     }
@@ -782,7 +782,7 @@ extension Serve {
             // Ollama-compatible surface — Continue.dev / Cline / Aider
             // configured with `provider: ollama` talk to posttrainllm directly.
             // NDJSON streaming (not SSE); shared generation core with the
-            // OpenAI handlers above. See docs/continue_provider.md.
+            // OpenAI handlers above. See docs/integrations/continue_provider.md.
             if request.method == "GET" && request.path == "/api/tags" {
                 handleOllamaTags(clientFd: clientFd)
                 return

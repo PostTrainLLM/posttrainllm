@@ -44,7 +44,7 @@ struct RoadmapView: View {
 
                 roadmapSection(title: "IN FLIGHT — TINYGPT", items: [
                     .init(icon: "arrow.triangle.2.circlepath", name: "Pace planner v10",
-                          desc: "parameterized actions schema; v10 cascade ready (scripts/v10_pipeline.sh).",
+                          desc: "parameterized actions schema; v10 cascade ready (scripts/pipelines/v10_pipeline.sh).",
                           status: .inFlight),
                     .init(icon: "eye", name: "VLM A/B + port (#266, #308)",
                           desc: "UI-Venus-1.5-2B vs Qwen3-VL-2B for Pace vision pillar; both on disk.",

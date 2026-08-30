@@ -8,7 +8,7 @@
  * Stages 1-2: matmul fwd/bwd, the elementwise ops, GELU, and layernorm.
  * Later: attention, the optimizer, and a training orchestrator.
  *
- * Guide: docs/performance.md ("WebGPU — the real ceiling")
+ * Guide: docs/performance/performance.md ("WebGPU — the real ceiling")
  */
 
 import shader from "./train.wgsl?raw";
@@ -21,19 +21,45 @@ import fa2Shader from "./attention_fa2.wgsl?raw";
 import { BufferPool, GpuTensor, type GpuContext } from "./tensor";
 
 const ENTRIES = [
-  "matmul", "matmul_blocked", "matmul_abt", "matmul_abt_blocked",
-  "matmul_atb", "matmul_atb_blocked", "add", "bias_add",
-  "bias_grad", "patch_zero", "patch_replace", "gelu_forward", "gelu_backward", "layernorm_forward",
-  "layernorm_dx", "layernorm_dgb", "attn_softmax", "attn_value", "attn_fused_sv", "attn_dscores",
-  "attn_dscores_fa2", "attn_dv_fa2",
-  "attn_dq", "attn_dk", "attn_dv", "embed_forward", "embed_tok_grad",
-  "embed_pos_grad", "cross_entropy", "adamw",
+  "matmul",
+  "matmul_blocked",
+  "matmul_abt",
+  "matmul_abt_blocked",
+  "matmul_atb",
+  "matmul_atb_blocked",
+  "add",
+  "bias_add",
+  "bias_grad",
+  "patch_zero",
+  "patch_replace",
+  "gelu_forward",
+  "gelu_backward",
+  "layernorm_forward",
+  "layernorm_dx",
+  "layernorm_dgb",
+  "attn_softmax",
+  "attn_value",
+  "attn_fused_sv",
+  "attn_dscores",
+  "attn_dscores_fa2",
+  "attn_dv_fa2",
+  "attn_dq",
+  "attn_dk",
+  "attn_dv",
+  "embed_forward",
+  "embed_tok_grad",
+  "embed_pos_grad",
+  "cross_entropy",
+  "adamw",
 ] as const;
 /** Entry points that live in train_sg.wgsl and require the WebGPU
  *  `subgroups` feature on the adapter. */
 const SG_ENTRIES = [
-  "layernorm_forward_sg", "cross_entropy_sg", "bias_grad_sg",
-  "matmul_sg", "matmul_abt_sg",
+  "layernorm_forward_sg",
+  "cross_entropy_sg",
+  "bias_grad_sg",
+  "matmul_sg",
+  "matmul_abt_sg",
 ] as const;
 /** Entry points that live in train_vec4.wgsl — same g0-g5+p binding layout
  * from the host side, but g0/g1 are declared as array<vec4<f32>> on the
@@ -43,12 +69,19 @@ const VEC4_ENTRIES = ["matmul_blocked_vec4"] as const;
 /** Entry points that live in train_f16.wgsl — same bind layout, but g1 is
  *  declared as array<u32> for packed-f16 weight storage. K and N must be
  *  even. Gated on a startup numerics check (see verifyF16Storage). */
-const F16_ENTRIES = ["matmul_blocked_f16", "matmul_abt_blocked_f16", "pack_to_f16"] as const;
+const F16_ENTRIES = [
+  "matmul_blocked_f16",
+  "matmul_abt_blocked_f16",
+  "pack_to_f16",
+] as const;
 /** Entry points that live in train_f16_compute.wgsl — declares `enable f16;`
  *  so it only compiles on adapters that advertise the shader-f16 feature.
  *  Shared tiles are f16, the inner multiply is f16, the accumulator stays
  *  f32 for K-direction precision. Same bind layout as F16_ENTRIES. */
-const F16C_ENTRIES = ["matmul_blocked_f16_compute", "matmul_abt_blocked_f16_compute"] as const;
+const F16C_ENTRIES = [
+  "matmul_blocked_f16_compute",
+  "matmul_abt_blocked_f16_compute",
+] as const;
 /** Entry points that live in train_coopmat.wgsl — declare
  *  `enable chromium_experimental_subgroup_matrix;` so the module only
  *  parses on adapters that expose the cooperative-matrix primitives
@@ -77,8 +110,14 @@ type Entry =
 
 /** Params uniform: up to four u32 (dims) and four f32 (eps, scale, ...). */
 interface Params {
-  a?: number; b?: number; c?: number; d?: number;
-  fa?: number; fb?: number; fc?: number; fd?: number;
+  a?: number;
+  b?: number;
+  c?: number;
+  d?: number;
+  fa?: number;
+  fb?: number;
+  fc?: number;
+  fd?: number;
 }
 
 export class GpuOps {
@@ -156,9 +195,12 @@ export class GpuOps {
 
   private nextUniform(): GPUBuffer {
     if (this.uniformIdx >= this.uniforms.length) {
-      this.uniforms.push(this.device.createBuffer({
-        size: 32, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-      }));
+      this.uniforms.push(
+        this.device.createBuffer({
+          size: 32,
+          usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        }),
+      );
     }
     return this.uniforms[this.uniformIdx++];
   }
@@ -195,11 +237,22 @@ export class GpuOps {
     });
     const layout = device.createBindGroupLayout({
       entries: [
-        storage(0), storage(1), storage(2), storage(3), storage(4), storage(5),
-        { binding: 6, visibility: GPUShaderStage.COMPUTE, buffer: { type: "uniform" } },
+        storage(0),
+        storage(1),
+        storage(2),
+        storage(3),
+        storage(4),
+        storage(5),
+        {
+          binding: 6,
+          visibility: GPUShaderStage.COMPUTE,
+          buffer: { type: "uniform" },
+        },
       ],
     });
-    const pipelineLayout = device.createPipelineLayout({ bindGroupLayouts: [layout] });
+    const pipelineLayout = device.createPipelineLayout({
+      bindGroupLayouts: [layout],
+    });
 
     const pipelines: Partial<Record<Entry, GPUComputePipeline>> = {};
     for (const entryPoint of ENTRIES) {
@@ -274,7 +327,10 @@ export class GpuOps {
           });
         }
       } catch (err) {
-        console.info("[ops] coop-matrix kernel failed to compile against this Chrome's tint — falling back. Error:", err);
+        console.info(
+          "[ops] coop-matrix kernel failed to compile against this Chrome's tint — falling back. Error:",
+          err,
+        );
       }
     }
 
@@ -292,11 +348,18 @@ export class GpuOps {
     // A distinct 1-element buffer for each slot a kernel leaves unused.
     const dummies: GPUBuffer[] = [];
     for (let i = 0; i < 6; i++) {
-      dummies.push(device.createBuffer({ size: 4, usage: GPUBufferUsage.STORAGE }));
+      dummies.push(
+        device.createBuffer({ size: 4, usage: GPUBufferUsage.STORAGE }),
+      );
     }
     const ops = new GpuOps(
-      device, layout, pipelines, dummies, new BufferPool(device),
-      ctx.subgroups, /* f16StorageActive */ false,
+      device,
+      layout,
+      pipelines,
+      dummies,
+      new BufferPool(device),
+      ctx.subgroups,
+      /* f16StorageActive */ false,
       /* matmulSgActive */ false,
       /* shaderF16Active */ false,
       /* coopMatrixActive */ false,
@@ -331,7 +394,9 @@ export class GpuOps {
       ops.shaderF16Ready = (async () => {
         const storagePass = await ops.f16Ready;
         if (!storagePass) {
-          console.info("[ops] shader-f16 gate skipped — f16-storage gate failed first");
+          console.info(
+            "[ops] shader-f16 gate skipped — f16-storage gate failed first",
+          );
           return false;
         }
         return ops.verifyShaderF16Compute().catch((err) => {
@@ -347,12 +412,16 @@ export class GpuOps {
     // fails or the kernel didn't compile, the gate short-circuits to
     // false — coopMatrixActive stays inactive and matmul() picks the
     // next-best path down the preference list.
-    if (ctx.capabilities.cooperativeMatrix &&
-        pipelines["matmul_blocked_coopmat"]) {
+    if (
+      ctx.capabilities.cooperativeMatrix &&
+      pipelines["matmul_blocked_coopmat"]
+    ) {
       ops.coopMatrixReady = (async () => {
         const storagePass = await ops.f16Ready;
         if (!storagePass) {
-          console.info("[ops] coop-matrix gate skipped — f16-storage gate failed first");
+          console.info(
+            "[ops] coop-matrix gate skipped — f16-storage gate failed first",
+          );
           return false;
         }
         return ops.verifyCoopMatrix().catch((err) => {
@@ -388,8 +457,13 @@ export class GpuOps {
    *  at the theoretical edge — a path that fails this is likely a real
    *  bug, not normal f16 drift. */
   private async verifyF16Storage(): Promise<boolean> {
-    const M = 64, K = 128, N = 128;
-    if (!this.pipelines["matmul_blocked_f16"] || !this.pipelines["pack_to_f16"]) {
+    const M = 64,
+      K = 128,
+      N = 128;
+    if (
+      !this.pipelines["matmul_blocked_f16"] ||
+      !this.pipelines["pack_to_f16"]
+    ) {
       return false;
     }
 
@@ -414,10 +488,13 @@ export class GpuOps {
     const refOut = await cF32.download();
 
     // Pack B to f16 storage in a fresh GPU buffer.
-    const packedBytes = (K * N) * 2; // K*N/2 u32 = K*N halfs = K*N*2 bytes
+    const packedBytes = K * N * 2; // K*N/2 u32 = K*N halfs = K*N*2 bytes
     const bPackedBuf = this.device.createBuffer({
       size: packedBytes,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
     });
     this.packToF16(b.buffer, bPackedBuf, K, N);
 
@@ -434,7 +511,9 @@ export class GpuOps {
     // the forward matmul and matmulAbt variants — both index the same
     // packed-along-N storage, just with different row/col interpretations).
     // Build a fresh A_bwd to keep the gate independent of the forward run.
-    const Mb = 64, Kb = 128, Nb = 64; // matmulAbt: output [Mb, Nb], inner Kb
+    const Mb = 64,
+      Kb = 128,
+      Nb = 64; // matmulAbt: output [Mb, Nb], inner Kb
     // For matmulAbtF16Weight to share a packed B buffer, we need K (= Kb) to
     // match the packing axis of the original weight (= N of the [K, N] view).
     // So the "weight" we pack is shape [Nb, Kb] with Kb as the contiguous /
@@ -458,7 +537,10 @@ export class GpuOps {
     // kernel expects (it indexes packed by [bRow * halfK + bCol/2]).
     const wBwdPackedBuf = this.device.createBuffer({
       size: Nb * Kb * 2,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
     });
     this.packToF16(wBwd.buffer, wBwdPackedBuf, Nb, Kb);
 
@@ -473,12 +555,8 @@ export class GpuOps {
 
     // Both forward AND backward must pass for the f16 path to activate.
     const passed = fwdResult.passed && bwdResult.passed;
-    console.info(
-      `[ops] f16-storage gate (fwd): ${fwdResult.summary}`,
-    );
-    console.info(
-      `[ops] f16-storage gate (bwd): ${bwdResult.summary}`,
-    );
+    console.info(`[ops] f16-storage gate (fwd): ${fwdResult.summary}`);
+    console.info(`[ops] f16-storage gate (bwd): ${bwdResult.summary}`);
     console.info(
       `[ops] f16-storage gate verdict: ${passed ? "PASS — f16 path active" : "FAIL — staying on f32"}`,
     );
@@ -508,7 +586,9 @@ export class GpuOps {
       return false;
     }
 
-    const M = 128, K = 256, N = 128;
+    const M = 128,
+      K = 256,
+      N = 128;
     const aData = new Float32Array(M * K);
     const bData = new Float32Array(K * N);
     let seed = 7777;
@@ -526,14 +606,24 @@ export class GpuOps {
 
     // Forward reference: existing f32 vec4 path.
     const cRefT = this.newTensor(M * N, "sg.gate.fwd.ref");
-    this.dispatch("matmul_blocked_vec4", [a, b, cRefT], { a: M, b: K, c: N },
-      Math.ceil(M / 64), Math.ceil(N / 64));
+    this.dispatch(
+      "matmul_blocked_vec4",
+      [a, b, cRefT],
+      { a: M, b: K, c: N },
+      Math.ceil(M / 64),
+      Math.ceil(N / 64),
+    );
     const refFwd = await cRefT.download();
 
     // Forward subgroup.
     const cSgT = this.newTensor(M * N, "sg.gate.fwd.sg");
-    this.dispatch("matmul_sg", [a, b, cSgT], { a: M, b: K, c: N },
-      Math.ceil(M / 4), Math.ceil(N / 16));
+    this.dispatch(
+      "matmul_sg",
+      [a, b, cSgT],
+      { a: M, b: K, c: N },
+      Math.ceil(M / 4),
+      Math.ceil(N / 16),
+    );
     const sgFwd = await cSgT.download();
 
     const fwdResult = this.compareMatmulSgOutput(refFwd, sgFwd, "fwd");
@@ -545,13 +635,23 @@ export class GpuOps {
     bAbt.upload(bAbtData);
 
     const cAbtRefT = this.newTensor(M * N, "sg.gate.abt.ref");
-    this.dispatch("matmul_abt_blocked", [a, bAbt, cAbtRefT], { a: M, b: K, c: N },
-      Math.ceil(M / 64), Math.ceil(N / 64));
+    this.dispatch(
+      "matmul_abt_blocked",
+      [a, bAbt, cAbtRefT],
+      { a: M, b: K, c: N },
+      Math.ceil(M / 64),
+      Math.ceil(N / 64),
+    );
     const refAbt = await cAbtRefT.download();
 
     const cAbtSgT = this.newTensor(M * N, "sg.gate.abt.sg");
-    this.dispatch("matmul_abt_sg", [a, bAbt, cAbtSgT], { a: M, b: K, c: N },
-      Math.ceil(M / 4), Math.ceil(N / 16));
+    this.dispatch(
+      "matmul_abt_sg",
+      [a, bAbt, cAbtSgT],
+      { a: M, b: K, c: N },
+      Math.ceil(M / 4),
+      Math.ceil(N / 16),
+    );
     const sgAbt = await cAbtSgT.download();
 
     const abtResult = this.compareMatmulSgOutput(refAbt, sgAbt, "abt");
@@ -585,12 +685,16 @@ export class GpuOps {
    *  follow-up (forward dominates sampling latency, which is the primary
    *  user win). */
   private async verifyShaderF16Compute(): Promise<boolean> {
-    if (!this.pipelines["matmul_blocked_f16_compute"] ||
-        !this.pipelines["matmul_abt_blocked_f16_compute"] ||
-        !this.pipelines["pack_to_f16"]) {
+    if (
+      !this.pipelines["matmul_blocked_f16_compute"] ||
+      !this.pipelines["matmul_abt_blocked_f16_compute"] ||
+      !this.pipelines["pack_to_f16"]
+    ) {
       return false;
     }
-    const M = 64, K = 128, N = 128;
+    const M = 64,
+      K = 128,
+      N = 128;
     const aData = new Float32Array(M * K);
     const bData = new Float32Array(K * N);
     let seed = 54321;
@@ -610,8 +714,11 @@ export class GpuOps {
     const cF32 = this.matmul(a, b, M, K, N);
     const refOut = await cF32.download();
     const bPackedBuf = this.device.createBuffer({
-      size: (K * N) * 2,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+      size: K * N * 2,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
     });
     this.packToF16(b.buffer, bPackedBuf, K, N);
     const cF16c = this.matmulF16Compute(a, bPackedBuf, M, K, N);
@@ -621,7 +728,9 @@ export class GpuOps {
     // --- Backward check (matmulAbt: dA = dY @ W^T) ---
     // Same packing axis convention as verifyF16Storage's backward block:
     // W has shape [Nb, Kb] packed along Kb (matmulAbt's K axis).
-    const Mb = 64, Kb = 128, Nb = 64;
+    const Mb = 64,
+      Kb = 128,
+      Nb = 64;
     const aBwdData = new Float32Array(Mb * Kb);
     const wBwdData = new Float32Array(Nb * Kb);
     for (let i = 0; i < aBwdData.length; i++) aBwdData[i] = rand();
@@ -635,7 +744,10 @@ export class GpuOps {
     cAbtRef.recycle();
     const wBwdPacked = this.device.createBuffer({
       size: Nb * Kb * 2,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
     });
     this.packToF16(wBwd.buffer, wBwdPacked, Nb, Kb);
     const cAbtF16c = this.matmulAbtF16Compute(aBwd, wBwdPacked, Mb, Kb, Nb);
@@ -673,11 +785,15 @@ export class GpuOps {
    *       to MMA instructions has a bug.
    *  In both cases the right action is fallback — never breaks training. */
   private async verifyCoopMatrix(): Promise<boolean> {
-    if (!this.pipelines["matmul_blocked_coopmat"] ||
-        !this.pipelines["pack_to_f16"]) {
+    if (
+      !this.pipelines["matmul_blocked_coopmat"] ||
+      !this.pipelines["pack_to_f16"]
+    ) {
       return false;
     }
-    const M = 64, K = 128, N = 128;
+    const M = 64,
+      K = 128,
+      N = 128;
     const aData = new Float32Array(M * K);
     const bData = new Float32Array(K * N);
     let seed = 99887;
@@ -697,8 +813,11 @@ export class GpuOps {
     const refOut = await cF32.download();
 
     const bPackedBuf = this.device.createBuffer({
-      size: (K * N) * 2,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+      size: K * N * 2,
+      usage:
+        GPUBufferUsage.STORAGE |
+        GPUBufferUsage.COPY_SRC |
+        GPUBufferUsage.COPY_DST,
     });
     this.packToF16(b.buffer, bPackedBuf, K, N);
     const cCm = this.matmulCoopMat(a, bPackedBuf, M, K, N);
@@ -724,13 +843,17 @@ export class GpuOps {
    *  mean_rel < 0.1%, max_abs < 0.1% of mean|ref|. This is an order of
    *  magnitude tighter than the f16 gate. */
   private compareMatmulSgOutput(
-    refOut: Float32Array, sgOut: Float32Array, label: string,
+    refOut: Float32Array,
+    sgOut: Float32Array,
+    label: string,
   ): { passed: boolean; summary: string } {
     let sumAbsRef = 0;
     for (let i = 0; i < refOut.length; i++) sumAbsRef += Math.abs(refOut[i]);
     const meanAbsRef = sumAbsRef / refOut.length;
     const denomFloor = Math.max(meanAbsRef * 0.01, 1e-6);
-    let maxAbs = 0, maxRel = 0, sumRel = 0;
+    let maxAbs = 0,
+      maxRel = 0,
+      sumRel = 0;
     for (let i = 0; i < refOut.length; i++) {
       const r = refOut[i];
       const f = sgOut[i];
@@ -756,13 +879,17 @@ export class GpuOps {
   /** Shared comparison helper for the f16 gate. Magnitude-aware tolerance,
    *  same thresholds for both forward and backward. */
   private compareF16Output(
-    refOut: Float32Array, f16Out: Float32Array, label: string,
+    refOut: Float32Array,
+    f16Out: Float32Array,
+    label: string,
   ): { passed: boolean; summary: string } {
     let sumAbsRef = 0;
     for (let i = 0; i < refOut.length; i++) sumAbsRef += Math.abs(refOut[i]);
     const meanAbsRef = sumAbsRef / refOut.length;
     const denomFloor = Math.max(meanAbsRef * 0.01, 1e-6);
-    let maxAbs = 0, maxRel = 0, sumRel = 0;
+    let maxAbs = 0,
+      maxRel = 0,
+      sumRel = 0;
     for (let i = 0; i < refOut.length; i++) {
       const r = refOut[i];
       const f = f16Out[i];
@@ -837,7 +964,10 @@ export class GpuOps {
 
     const pass = this.pass as GPUComputePassEncoder;
     const pipeline = this.pipelines[entry];
-    if (!pipeline) throw new Error(`pipeline missing for ${entry} (subgroups not available?)`);
+    if (!pipeline)
+      throw new Error(
+        `pipeline missing for ${entry} (subgroups not available?)`,
+      );
     pass.setPipeline(pipeline);
     pass.setBindGroup(0, bind);
     pass.dispatchWorkgroups(wgX, wgY);
@@ -853,7 +983,13 @@ export class GpuOps {
    * each thread computes a 4×4 register block of output, so workgroup
    * dispatch is ceil(M/64) × ceil(N/64). The original naive `matmul` kernel
    * is kept in train.wgsl as a reference / fallback. */
-  matmul(a: GpuTensor, b: GpuTensor, M: number, K: number, N: number): GpuTensor {
+  matmul(
+    a: GpuTensor,
+    b: GpuTensor,
+    M: number,
+    K: number,
+    N: number,
+  ): GpuTensor {
     const c = this.newTensor(M * N, "matmul.C");
     // Subgroup-cooperative path: faster on devices that pass the numerics
     // gate (Apple Metal subgroups, recent Chromium-on-Vulkan). The kernel
@@ -862,8 +998,13 @@ export class GpuOps {
     // without subgroups (older Chrome, Firefox, Safari pre-26) or with
     // buggy subgroup drivers fall back to matmul_blocked_vec4 unchanged.
     if (this.matmulSgActive) {
-      this.dispatch("matmul_sg", [a, b, c], { a: M, b: K, c: N },
-        Math.ceil(M / 4), Math.ceil(N / 16));
+      this.dispatch(
+        "matmul_sg",
+        [a, b, c],
+        { a: M, b: K, c: N },
+        Math.ceil(M / 4),
+        Math.ceil(N / 16),
+      );
       return c;
     }
     // Prefer vec4-loaded variant when K and N are 4-aligned (always true
@@ -871,10 +1012,15 @@ export class GpuOps {
     // 2048³ standalone. (First integration attempt hit a WGSL access-mode
     // mismatch with the shared bind-group layout — see train_vec4.wgsl
     // comment block.)
-    const vec4Ok = (K % 4 === 0) && (N % 4 === 0);
+    const vec4Ok = K % 4 === 0 && N % 4 === 0;
     const entry = vec4Ok ? "matmul_blocked_vec4" : "matmul_blocked";
-    this.dispatch(entry, [a, b, c], { a: M, b: K, c: N },
-      Math.ceil(M / 64), Math.ceil(N / 64));
+    this.dispatch(
+      entry,
+      [a, b, c],
+      { a: M, b: K, c: N },
+      Math.ceil(M / 64),
+      Math.ceil(N / 64),
+    );
     return c;
   }
 
@@ -882,15 +1028,31 @@ export class GpuOps {
    *
    * Uses the thread-blocked variant — same 4×4-register + 64×64-workgroup tile
    * pattern as matmul, adapted to B's [N,K] layout. */
-  matmulAbt(a: GpuTensor, b: GpuTensor, M: number, K: number, N: number): GpuTensor {
+  matmulAbt(
+    a: GpuTensor,
+    b: GpuTensor,
+    M: number,
+    K: number,
+    N: number,
+  ): GpuTensor {
     const c = this.newTensor(M * N, "matmul.abt");
     if (this.matmulSgActive) {
-      this.dispatch("matmul_abt_sg", [a, b, c], { a: M, b: K, c: N },
-        Math.ceil(M / 4), Math.ceil(N / 16));
+      this.dispatch(
+        "matmul_abt_sg",
+        [a, b, c],
+        { a: M, b: K, c: N },
+        Math.ceil(M / 4),
+        Math.ceil(N / 16),
+      );
       return c;
     }
-    this.dispatch("matmul_abt_blocked", [a, b, c], { a: M, b: K, c: N },
-      Math.ceil(M / 64), Math.ceil(N / 64));
+    this.dispatch(
+      "matmul_abt_blocked",
+      [a, b, c],
+      { a: M, b: K, c: N },
+      Math.ceil(M / 64),
+      Math.ceil(N / 64),
+    );
     return c;
   }
 
@@ -898,16 +1060,32 @@ export class GpuOps {
    *
    * Uses the thread-blocked variant — same pattern, adapted to A's [K,M]
    * (transposed-row) access. */
-  matmulAtb(a: GpuTensor, b: GpuTensor, M: number, K: number, N: number): GpuTensor {
+  matmulAtb(
+    a: GpuTensor,
+    b: GpuTensor,
+    M: number,
+    K: number,
+    N: number,
+  ): GpuTensor {
     const c = this.newTensor(M * N, "matmul.atb");
-    this.dispatch("matmul_atb_blocked", [a, b, c], { a: M, b: K, c: N },
-      Math.ceil(M / 64), Math.ceil(N / 64));
+    this.dispatch(
+      "matmul_atb_blocked",
+      [a, b, c],
+      { a: M, b: K, c: N },
+      Math.ceil(M / 64),
+      Math.ceil(N / 64),
+    );
     return c;
   }
 
   /** Backward of C = A @ B:  dA = dC@Bᵀ [M,K],  dB = Aᵀ@dC [K,N]. */
   matmulBackward(
-    a: GpuTensor, b: GpuTensor, dC: GpuTensor, M: number, K: number, N: number,
+    a: GpuTensor,
+    b: GpuTensor,
+    dC: GpuTensor,
+    M: number,
+    K: number,
+    N: number,
   ): { dA: GpuTensor; dB: GpuTensor } {
     return {
       dA: this.matmulAbt(dC, b, M, N, K), // dC:[M,N] @ B:[K,N]ᵀ -> [M,K]
@@ -928,17 +1106,24 @@ export class GpuOps {
    *  with the f32 matmul — the pack-pass cost dominates the bandwidth win
    *  when B is single-use. */
   matmulF16Weight(
-    a: GpuTensor, bPackedF16: GPUBuffer, M: number, K: number, N: number,
+    a: GpuTensor,
+    bPackedF16: GPUBuffer,
+    M: number,
+    K: number,
+    N: number,
   ): GpuTensor {
     if (K % 2 !== 0 || N % 2 !== 0) {
-      throw new Error(`matmulF16Weight: K and N must be even (got K=${K}, N=${N})`);
+      throw new Error(
+        `matmulF16Weight: K and N must be even (got K=${K}, N=${N})`,
+      );
     }
     const c = this.newTensor(M * N, "matmul.f16.C");
     this.dispatchMixed(
       "matmul_blocked_f16",
       [a.buffer, bPackedF16, c.buffer],
       { a: M, b: K, c: N },
-      Math.ceil(M / 64), Math.ceil(N / 64),
+      Math.ceil(M / 64),
+      Math.ceil(N / 64),
     );
     return c;
   }
@@ -952,17 +1137,24 @@ export class GpuOps {
    *  before dispatching; falls back to `matmulF16Weight` or the f32 path
    *  when the gate hasn't passed. */
   matmulF16Compute(
-    a: GpuTensor, bPackedF16: GPUBuffer, M: number, K: number, N: number,
+    a: GpuTensor,
+    bPackedF16: GPUBuffer,
+    M: number,
+    K: number,
+    N: number,
   ): GpuTensor {
     if (K % 2 !== 0 || N % 2 !== 0) {
-      throw new Error(`matmulF16Compute: K and N must be even (got K=${K}, N=${N})`);
+      throw new Error(
+        `matmulF16Compute: K and N must be even (got K=${K}, N=${N})`,
+      );
     }
     const c = this.newTensor(M * N, "matmul.f16c.C");
     this.dispatchMixed(
       "matmul_blocked_f16_compute",
       [a.buffer, bPackedF16, c.buffer],
       { a: M, b: K, c: N },
-      Math.ceil(M / 64), Math.ceil(N / 64),
+      Math.ceil(M / 64),
+      Math.ceil(N / 64),
     );
     return c;
   }
@@ -981,7 +1173,11 @@ export class GpuOps {
    *  also passed (see verifyF16Storage). Callers should consult
    *  f16StorageActive before dispatching. */
   matmulAbtF16Weight(
-    a: GpuTensor, bPackedF16: GPUBuffer, M: number, K: number, N: number,
+    a: GpuTensor,
+    bPackedF16: GPUBuffer,
+    M: number,
+    K: number,
+    N: number,
   ): GpuTensor {
     if (K % 2 !== 0) {
       throw new Error(`matmulAbtF16Weight: K must be even (got K=${K})`);
@@ -991,7 +1187,8 @@ export class GpuOps {
       "matmul_abt_blocked_f16",
       [a.buffer, bPackedF16, c.buffer],
       { a: M, b: K, c: N },
-      Math.ceil(M / 64), Math.ceil(N / 64),
+      Math.ceil(M / 64),
+      Math.ceil(N / 64),
     );
     return c;
   }
@@ -1003,10 +1200,16 @@ export class GpuOps {
    *  before dispatching; falls back to f16-compute / f16-storage / f32
    *  when the gate didn't pass. */
   matmulCoopMat(
-    a: GpuTensor, bPackedF16: GPUBuffer, M: number, K: number, N: number,
+    a: GpuTensor,
+    bPackedF16: GPUBuffer,
+    M: number,
+    K: number,
+    N: number,
   ): GpuTensor {
     if (K % 2 !== 0 || N % 2 !== 0) {
-      throw new Error(`matmulCoopMat: K and N must be even (got K=${K}, N=${N})`);
+      throw new Error(
+        `matmulCoopMat: K and N must be even (got K=${K}, N=${N})`,
+      );
     }
     // Coop-matrix kernel uses 8×8 output tiles — dispatch one workgroup
     // per (M/8, N/8) tile. M and N should be multiples of 8 in practice;
@@ -1016,7 +1219,8 @@ export class GpuOps {
       "matmul_blocked_coopmat",
       [a.buffer, bPackedF16, c.buffer],
       { a: M, b: K, c: N },
-      Math.ceil(M / 8), Math.ceil(N / 8),
+      Math.ceil(M / 8),
+      Math.ceil(N / 8),
     );
     return c;
   }
@@ -1025,7 +1229,11 @@ export class GpuOps {
    *  shader-f16 compute kernel (f16 shared tiles + f16 multiply + f32
    *  accumulator). Mirror of matmulF16Compute for the dY @ W^T path. */
   matmulAbtF16Compute(
-    a: GpuTensor, bPackedF16: GPUBuffer, M: number, K: number, N: number,
+    a: GpuTensor,
+    bPackedF16: GPUBuffer,
+    M: number,
+    K: number,
+    N: number,
   ): GpuTensor {
     if (K % 2 !== 0) {
       throw new Error(`matmulAbtF16Compute: K must be even (got K=${K})`);
@@ -1035,7 +1243,8 @@ export class GpuOps {
       "matmul_abt_blocked_f16_compute",
       [a.buffer, bPackedF16, c.buffer],
       { a: M, b: K, c: N },
-      Math.ceil(M / 64), Math.ceil(N / 64),
+      Math.ceil(M / 64),
+      Math.ceil(N / 64),
     );
     return c;
   }
@@ -1120,8 +1329,12 @@ export class GpuOps {
 
   /** y += bias, broadcast over `rows` rows of width D. In place on y. */
   biasAdd(y: GpuTensor, bias: GpuTensor, rows: number, D: number): void {
-    this.dispatch("bias_add", [y, bias], { a: rows, b: D },
-      Math.ceil((rows * D) / 64));
+    this.dispatch(
+      "bias_add",
+      [y, bias],
+      { a: rows, b: D },
+      Math.ceil((rows * D) / 64),
+    );
   }
 
   /** Copy `x [N, C]` to a fresh tensor with row `row` zeroed.
@@ -1129,8 +1342,12 @@ export class GpuOps {
    *  position's representation at this layer were zero?" probe. */
   zeroRow(x: GpuTensor, row: number, N: number, C: number): GpuTensor {
     const out = this.newTensor(N * C, "patch.zero");
-    this.dispatch("patch_zero", [x, out], { a: N, b: row, c: C },
-                  Math.ceil((N * C) / 64));
+    this.dispatch(
+      "patch_zero",
+      [x, out],
+      { a: N, b: row, c: C },
+      Math.ceil((N * C) / 64),
+    );
     return out;
   }
 
@@ -1139,11 +1356,19 @@ export class GpuOps {
    *  patching — the donor row is a hidden-state slice captured from
    *  a different forward pass. */
   replaceRow(
-    x: GpuTensor, donorRow: GpuTensor, row: number, N: number, C: number,
+    x: GpuTensor,
+    donorRow: GpuTensor,
+    row: number,
+    N: number,
+    C: number,
   ): GpuTensor {
     const out = this.newTensor(N * C, "patch.replace");
-    this.dispatch("patch_replace", [x, donorRow, out], { a: N, b: row, c: C },
-                  Math.ceil((N * C) / 64));
+    this.dispatch(
+      "patch_replace",
+      [x, donorRow, out],
+      { a: N, b: row, c: C },
+      Math.ceil((N * C) / 64),
+    );
     return out;
   }
 
@@ -1159,7 +1384,12 @@ export class GpuOps {
     if (this.hasSubgroups) {
       this.dispatch("bias_grad_sg", [dy, db], { a: rows, b: D }, D);
     } else {
-      this.dispatch("bias_grad", [dy, db], { a: rows, b: D }, Math.ceil(D / 64));
+      this.dispatch(
+        "bias_grad",
+        [dy, db],
+        { a: rows, b: D },
+        Math.ceil(D / 64),
+      );
     }
     return db;
   }
@@ -1182,7 +1412,11 @@ export class GpuOps {
   /** LayerNorm over the last dim D, for N rows. Returns y and the cached
    *  mean/rstd the backward pass needs. */
   layernormForward(
-    x: GpuTensor, gamma: GpuTensor, beta: GpuTensor, N: number, D: number,
+    x: GpuTensor,
+    gamma: GpuTensor,
+    beta: GpuTensor,
+    N: number,
+    D: number,
     eps = 1e-5,
   ): { y: GpuTensor; mean: GpuTensor; rstd: GpuTensor } {
     const y = this.newTensor(N * D, "ln.y");
@@ -1193,27 +1427,48 @@ export class GpuOps {
     // base kernel) and uses subgroupAdd for the reductions — big win at
     // d_model ≥ 256 where the serial scan dominates.
     if (this.hasSubgroups) {
-      this.dispatch("layernorm_forward_sg", [x, gamma, beta, y, mean, rstd],
-        { a: N, b: D, fa: eps }, N);
+      this.dispatch(
+        "layernorm_forward_sg",
+        [x, gamma, beta, y, mean, rstd],
+        { a: N, b: D, fa: eps },
+        N,
+      );
     } else {
-      this.dispatch("layernorm_forward", [x, gamma, beta, y, mean, rstd],
-        { a: N, b: D, fa: eps }, Math.ceil(N / 64));
+      this.dispatch(
+        "layernorm_forward",
+        [x, gamma, beta, y, mean, rstd],
+        { a: N, b: D, fa: eps },
+        Math.ceil(N / 64),
+      );
     }
     return { y, mean, rstd };
   }
 
   /** LayerNorm backward: dx, plus dgamma/dbeta summed over rows. */
   layernormBackward(
-    x: GpuTensor, gamma: GpuTensor, mean: GpuTensor, rstd: GpuTensor,
-    dy: GpuTensor, N: number, D: number,
+    x: GpuTensor,
+    gamma: GpuTensor,
+    mean: GpuTensor,
+    rstd: GpuTensor,
+    dy: GpuTensor,
+    N: number,
+    D: number,
   ): { dx: GpuTensor; dgamma: GpuTensor; dbeta: GpuTensor } {
     const dx = this.newTensor(N * D, "ln.dx");
-    this.dispatch("layernorm_dx", [x, gamma, mean, rstd, dy, dx],
-      { a: N, b: D }, Math.ceil(N / 64));
+    this.dispatch(
+      "layernorm_dx",
+      [x, gamma, mean, rstd, dy, dx],
+      { a: N, b: D },
+      Math.ceil(N / 64),
+    );
     const dgamma = this.newTensor(D, "ln.dgamma");
     const dbeta = this.newTensor(D, "ln.dbeta");
-    this.dispatch("layernorm_dgb", [x, mean, rstd, dy, dgamma, dbeta],
-      { a: N, b: D }, Math.ceil(D / 64));
+    this.dispatch(
+      "layernorm_dgb",
+      [x, mean, rstd, dy, dgamma, dbeta],
+      { a: N, b: D },
+      Math.ceil(D / 64),
+    );
     return { dx, dgamma, dbeta };
   }
 
@@ -1221,8 +1476,13 @@ export class GpuOps {
   /** Scaled dot-product attention over q,k,v:[B,T,C], H heads. Returns the
    *  softmax weights attn:[B,H,T,T] and the context ctx:[B,T,C]. */
   attentionForward(
-    q: GpuTensor, k: GpuTensor, v: GpuTensor,
-    B: number, T: number, C: number, H: number,
+    q: GpuTensor,
+    k: GpuTensor,
+    v: GpuTensor,
+    B: number,
+    T: number,
+    C: number,
+    H: number,
   ): { attn: GpuTensor; ctx: GpuTensor; L: GpuTensor | null } {
     const params = { a: B, b: T, c: C, d: H, fa: 1 / Math.sqrt(C / H) };
     const attn = this.newTensor(B * H * T * T, "attn");
@@ -1241,8 +1501,13 @@ export class GpuOps {
       // kernels (attn_dscores_fa2, attn_dv_fa2) can reconstruct P from
       // q/k without reading the attn matrix.
       L = this.newTensor(B * H * T, "L");
-      this.dispatch("fa2_forward", [q, k, v, attn, ctx, L], params,
-        Math.ceil(T / 16), B * H);
+      this.dispatch(
+        "fa2_forward",
+        [q, k, v, attn, ctx, L],
+        params,
+        Math.ceil(T / 16),
+        B * H,
+      );
     } else {
       const wg = Math.ceil((B * H * T) / 64);
       this.dispatch("attn_fused_sv", [q, k, v, attn, ctx], params, wg);
@@ -1257,8 +1522,15 @@ export class GpuOps {
    *  instead. The attn matrix itself isn't read in that case — meaning
    *  the FA2 forward can drop its second-pass writeback. */
   attentionBackward(
-    q: GpuTensor, k: GpuTensor, v: GpuTensor, attn: GpuTensor, dctx: GpuTensor,
-    B: number, T: number, C: number, H: number,
+    q: GpuTensor,
+    k: GpuTensor,
+    v: GpuTensor,
+    attn: GpuTensor,
+    dctx: GpuTensor,
+    B: number,
+    T: number,
+    C: number,
+    H: number,
     L: GpuTensor | null = null,
   ): { dq: GpuTensor; dk: GpuTensor; dv: GpuTensor } {
     const params = { a: B, b: T, c: C, d: H, fa: 1 / Math.sqrt(C / H) };
@@ -1266,7 +1538,12 @@ export class GpuOps {
     const dscores = this.newTensor(B * H * T * T, "dscores");
     if (L !== null) {
       // FA2 path: recompute P from q/k/L; never touch the attn matrix.
-      this.dispatch("attn_dscores_fa2", [q, k, L, dctx, v, dscores], params, wg);
+      this.dispatch(
+        "attn_dscores_fa2",
+        [q, k, L, dctx, v, dscores],
+        params,
+        wg,
+      );
     } else {
       this.dispatch("attn_dscores", [dctx, v, attn, dscores], params, wg);
     }
@@ -1287,53 +1564,96 @@ export class GpuOps {
   // --- embeddings, cross-entropy, optimizer --------------------------------
   /** x[n] = tok_emb[id[n]] + pos_emb[n mod T].  ids holds int values as f32. */
   embedForward(
-    tokEmb: GpuTensor, posEmb: GpuTensor, ids: GpuTensor,
-    N: number, C: number, T: number,
+    tokEmb: GpuTensor,
+    posEmb: GpuTensor,
+    ids: GpuTensor,
+    N: number,
+    C: number,
+    T: number,
   ): GpuTensor {
     const x = this.newTensor(N * C, "embed.x");
-    this.dispatch("embed_forward", [tokEmb, posEmb, ids, x],
-      { a: N, b: C, c: T }, Math.ceil((N * C) / 64));
+    this.dispatch(
+      "embed_forward",
+      [tokEmb, posEmb, ids, x],
+      { a: N, b: C, c: T },
+      Math.ceil((N * C) / 64),
+    );
     return x;
   }
 
   /** Token-embedding gradient: dtok[v] = sum of dx over rows with that id. */
-  embedTokGrad(dx: GpuTensor, ids: GpuTensor, N: number, C: number, V: number): GpuTensor {
+  embedTokGrad(
+    dx: GpuTensor,
+    ids: GpuTensor,
+    N: number,
+    C: number,
+    V: number,
+  ): GpuTensor {
     const dtok = this.newTensor(V * C, "embed.dtok");
-    this.dispatch("embed_tok_grad", [dx, ids, dtok],
-      { a: N, b: C, c: V }, Math.ceil((V * C) / 64));
+    this.dispatch(
+      "embed_tok_grad",
+      [dx, ids, dtok],
+      { a: N, b: C, c: V },
+      Math.ceil((V * C) / 64),
+    );
     return dtok;
   }
 
   /** Position-embedding gradient: dpos[t] = sum of dx over the batch. */
   embedPosGrad(dx: GpuTensor, N: number, C: number, T: number): GpuTensor {
     const dpos = this.newTensor(T * C, "embed.dpos");
-    this.dispatch("embed_pos_grad", [dx, dpos],
-      { a: N, b: C, c: T }, Math.ceil((T * C) / 64));
+    this.dispatch(
+      "embed_pos_grad",
+      [dx, dpos],
+      { a: N, b: C, c: T },
+      Math.ceil((T * C) / 64),
+    );
     return dpos;
   }
 
   /** Cross-entropy. Returns dlogits:[N,V] and per-row loss:[N] (sum on host). */
   crossEntropy(
-    logits: GpuTensor, targets: GpuTensor, N: number, V: number,
+    logits: GpuTensor,
+    targets: GpuTensor,
+    N: number,
+    V: number,
   ): { dlogits: GpuTensor; loss: GpuTensor } {
     const dlogits = this.newTensor(N * V, "ce.dlogits");
     const loss = this.newTensor(N, "ce.loss");
     if (this.hasSubgroups) {
-      this.dispatch("cross_entropy_sg", [logits, targets, dlogits, loss],
-        { a: N, b: V }, N);
+      this.dispatch(
+        "cross_entropy_sg",
+        [logits, targets, dlogits, loss],
+        { a: N, b: V },
+        N,
+      );
     } else {
-      this.dispatch("cross_entropy", [logits, targets, dlogits, loss],
-        { a: N, b: V }, Math.ceil(N / 64));
+      this.dispatch(
+        "cross_entropy",
+        [logits, targets, dlogits, loss],
+        { a: N, b: V },
+        Math.ceil(N / 64),
+      );
     }
     return { dlogits, loss };
   }
 
   /** In-place AdamW step over one parameter buffer (betas/eps are fixed). */
   adamwStep(
-    param: GpuTensor, grad: GpuTensor, m: GpuTensor, v: GpuTensor,
-    count: number, step: number, lr: number, weightDecay: number,
+    param: GpuTensor,
+    grad: GpuTensor,
+    m: GpuTensor,
+    v: GpuTensor,
+    count: number,
+    step: number,
+    lr: number,
+    weightDecay: number,
   ): void {
-    this.dispatch("adamw", [param, grad, m, v],
-      { a: count, b: step, fa: lr, fb: weightDecay }, Math.ceil(count / 64));
+    this.dispatch(
+      "adamw",
+      [param, grad, m, v],
+      { a: count, b: step, fa: lr, fb: weightDecay },
+      Math.ceil(count / 64),
+    );
   }
 }

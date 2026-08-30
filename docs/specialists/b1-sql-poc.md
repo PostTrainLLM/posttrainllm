@@ -123,8 +123,8 @@ Public source:
 
 - `b-mc2/sql-create-context` on Hugging Face.
 - Slice: 24 single-table SELECT rows from `train[:2000]`.
-- Builder: `scripts/build_sql_public_benchmark.py`.
-- Scorer: `scripts/score_sql_public_exact.py`.
+- Builder: `scripts/sql/build_sql_public_benchmark.py`.
+- Scorer: `scripts/sql/score_sql_public_exact.py`.
 
 Metric: normalized exact SQL match. This is not execution accuracy because the
 HF dataset ships `CREATE TABLE` context and gold SQL, not populated SQLite DBs.
@@ -166,7 +166,7 @@ Prepared data:
 - `evals/sql-public-bmc2-train/dev.jsonl` — 64 heldout rows from source index 0.
 - `evals/sql-public-bmc2-train/preferences.jsonl` — 512 SQL-only preference
   pairs for a later DPO/RFT step.
-- Builder: `scripts/build_sql_public_training.py`.
+- Builder: `scripts/sql/build_sql_public_training.py`.
 - Smoke: `evals/sql-public-training-smoke.sh`.
 
 Curriculum mix:
@@ -274,7 +274,7 @@ the local synthetic execution style?
 
 Blend data:
 
-- Builder: `scripts/build_sql_blend_training.py`.
+- Builder: `scripts/sql/build_sql_blend_training.py`.
 - Dataset: `evals/sql-blend-public-synthetic-v1/train.jsonl`.
 - Public source: `evals/sql-public-bmc2-train-v4-joinweighted/train.jsonl`
   repeated 1x.
@@ -352,7 +352,7 @@ in its own distribution, and mixing them blurs both.
 
 ## Routed Adapter Result
 
-Implementation: `scripts/run_sql_routed_generate.py` routes each row to one
+Implementation: `scripts/sql/run_sql_routed_generate.py` routes each row to one
 specialist adapter and recombines predictions in original order.
 
 Route classifier:
@@ -397,7 +397,7 @@ fixtures once their DB bundles are local.
 
 Public execution gate scaffolding:
 
-- Builder: `scripts/build_sql_spider_execution_gate.py`.
+- Builder: `scripts/sql/build_sql_spider_execution_gate.py`.
 - Smoke: `evals/sql-spider-execution-smoke.sh`.
 - Input shape: local Spider bundle with `dev.json` and
   `database/<db_id>/<db_id>.sqlite`.
@@ -411,7 +411,7 @@ hard join/generalization misses without collapsing the current b-mc2 gate?
 
 Data:
 
-- Builder: `scripts/build_sql_bird_public_training.py`.
+- Builder: `scripts/sql/build_sql_bird_public_training.py`.
 - Dataset: `evals/sql-public-bird-bmc2-v5/train.jsonl`.
 - Sources:
   - 4,096 rows from `evals/sql-public-bmc2-train-v4-joinweighted/train.jsonl`.

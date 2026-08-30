@@ -1,3 +1,0 @@
-USER: add a meeting tomorrow
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: attendees-or-title

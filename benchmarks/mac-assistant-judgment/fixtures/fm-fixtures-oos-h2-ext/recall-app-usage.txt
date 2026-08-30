@@ -1,3 +1,0 @@
-USER: what apps did i use yesterday
-EXPECT_INTENT: out_of_scope
-REASON: Session/app history out of scope

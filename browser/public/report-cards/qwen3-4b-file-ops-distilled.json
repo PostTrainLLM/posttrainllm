@@ -7,7 +7,7 @@
     "Do not use for: multi-domain agentic planning without routing"
   ],
   "compiled_from": {
-    "compiler": "scripts/build_fine_tune_report_card.py",
+    "compiler": "scripts/factory/build_fine_tune_report_card.py",
     "compiler_version": "1.0.0",
     "dataset_hashes": [],
     "source_id": "specialists/qwen3-4b-file-ops-distilled",
@@ -78,7 +78,7 @@
       "kind": "committed-package-file",
       "label": "model card",
       "path": "specialists/qwen3-4b-file-ops-distilled/model_card.md",
-      "sha256": "d26f8cff8f6b5dbf4879c50306144d3256b56c68066eaef6c9e71c44ba606e86"
+      "sha256": "8c87f0a9861facbe07f16d126ebd2b64f54b0d409ee3b75bcb89918cde6d2f34"
     },
     {
       "kind": "committed-package-file",
@@ -109,14 +109,14 @@
       "label": "recorded result source",
       "note": "The document the legacy score was recorded in.",
       "path": "docs/learn/tool-calling-frontier-parity.md#81-climbing-the-cliff--frontier-trajectory-distillation-2026-06-16",
-      "sha256": "b3e2ac1d4d4d53ddbce29197b80bf8bb64cb94a37ea4cddbdea70bf0268d5eea"
+      "sha256": "9dd338035f67715ced672cda574555393763fab417f9667c27041af9c9543e2e"
     },
     {
       "kind": "historical-record",
       "label": "recorded result source",
       "note": "The document the legacy score was recorded in.",
       "path": "docs/learn/tool-calling-frontier-parity.md#84-breadth--narrow-distillation-causes-negative-transfer-2026-06-16",
-      "sha256": "b3e2ac1d4d4d53ddbce29197b80bf8bb64cb94a37ea4cddbdea70bf0268d5eea"
+      "sha256": "9dd338035f67715ced672cda574555393763fab417f9667c27041af9c9543e2e"
     },
     {
       "kind": "external-artifact",

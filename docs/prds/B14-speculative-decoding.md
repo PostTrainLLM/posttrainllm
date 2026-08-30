@@ -35,7 +35,7 @@ a small model trained on the same domain.
   generates `next_n_logits` for a given `prompt + draft` in one shot.
   Spec-dec is "compute the draft, batch-verify on target, accept
   prefix, fall back on first reject" — all primitives shipped.
-- The numerics-gate framework (`docs/precision.md`) is the no-quality-
+- The numerics-gate framework (`docs/techniques/precision.md`) is the no-quality-
   regression discipline this needs from day one. Spec-dec must yield
   byte-identical output to greedy target on T=0, within KL ε on T>0.
 
@@ -73,7 +73,7 @@ a small model trained on the same domain.
 | `Sources/TinyGPT/Sample.swift` | mirror flag for offline use |
 | `evals/specdec-numerics.swift` | new — T=0 byte-equality + T>0 KL ε gate |
 | `evals/specdec-throughput.sh` | new — measure tok/s ratio (spec / plain) on Tiny-draft + Mega-target |
-| `docs/precision.md` | append a "vanilla spec-dec" gate row |
+| `docs/techniques/precision.md` | append a "vanilla spec-dec" gate row |
 | `docs/PLAN.md` | flip B14 ⬜ → ✅ + measured tok/s lift |
 
 ## Don't touch

@@ -18,10 +18,5 @@
   },
   "devDependencies": {
     "astro": "7.2.2"
-  },
-  "pnpm": {
-    "overrides": {
-      "nanoid@<3.3.18": "3.3.18"
-    }
   }
 }

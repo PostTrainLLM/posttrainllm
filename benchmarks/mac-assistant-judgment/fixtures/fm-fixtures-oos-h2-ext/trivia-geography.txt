@@ -1,3 +1,0 @@
-USER: what continent is mongolia in
-EXPECT_INTENT: out_of_scope
-REASON: Pure knowledge query

@@ -10,7 +10,7 @@ re-derivation.
 
 Recorded 2026-07-25 alongside tasks 5.1/5.2. Implementation and measured parity:
 [`../factory/autocorrect-adapter-recipe.md`](../factory/autocorrect-adapter-recipe.md).
-General LoRA mechanics stay in [`../lora_guide.md`](../lora_guide.md) — this page
+General LoRA mechanics stay in [`../lora_guide.md`](../techniques/lora_guide.md) — this page
 only covers what is *different* for seq2seq.
 
 ## 1. Why encoder-decoder for this task
@@ -48,7 +48,7 @@ initialized to zero so the adapted model starts exactly at the base.
 *equality assertion* — inject, run a forward pass, and the logits must be
 bit-identical. Our check reports max absolute delta `0.0` on the real 77 M base.
 [LoRA (Hu et al., 2021)](https://arxiv.org/abs/2106.09685) ·
-where: `scripts/autocorrect_adapter.py::inject_lora`
+where: `scripts/research/autocorrect_adapter.py::inject_lora`
 
 Three seq2seq-specific consequences:
 
@@ -141,7 +141,7 @@ can straddle a token boundary. The spec requires this mapping be unit-tested on
 toy Unicode cases *before* any training, with ordinary sequence loss retained as
 the oracle ablation.
 Background: [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance) ·
-where: `scripts/autocorrect_foundation.py::edit_operations`
+where: `scripts/research/autocorrect_foundation.py::edit_operations`
 
 ## 5. Overfit a tiny batch first
 
@@ -192,13 +192,13 @@ retract" a unit test rather than a UX aspiration.
 | Concept | This project |
 |---|---|
 | Encoder-decoder text-to-text | `evals/autocorrect/protocol-v1.json` — the frozen span-in/span-out contract |
-| LoRA on three attention sites | `scripts/autocorrect_adapter.py`, [recipe](../factory/autocorrect-adapter-recipe.md) |
+| LoRA on three attention sites | `scripts/research/autocorrect_adapter.py`, [recipe](../factory/autocorrect-adapter-recipe.md) |
 | Copy bias vs error reduction | `evals/autocorrect/thresholds-v1.json` — separate quality and regression gates |
-| Edit alignment | `scripts/autocorrect_foundation.py::edit_operations` |
+| Edit alignment | `scripts/research/autocorrect_foundation.py::edit_operations` |
 | Tiny-overfit discipline | `evals/autocorrect/tiny-overfit-manifest-v1.json`, task 5.3 |
 | Decoding/latency trade | `evals/autocorrect/base-bakeoff-v1.json` measured TTFT and end-to-end |
 
-Sibling pages: [`../lora_guide.md`](../lora_guide.md) (general LoRA),
+Sibling pages: [`../lora_guide.md`](../techniques/lora_guide.md) (general LoRA),
 [`session-07-behavior-learning.md`](session-07-behavior-learning.md) (Module 9,
 post-training concepts), [`session-11-evals-rewards.md`](session-11-evals-rewards.md)
 (Module 10, why the gates are shaped this way).

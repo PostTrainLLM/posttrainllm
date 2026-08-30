@@ -23,7 +23,7 @@ FlashAttention-style Metal kernel: `do_causal` mode is built in, no
 host-side mask allocation, tiled, matches Apple MPSGraph.
 
 **Evidence**:
-- In-repo audit `docs/perf_audit_mlxfast_tied.md` confirms all 9 of
+- In-repo audit `docs/performance/perf_audit_mlxfast_tied.md` confirms all 9 of
   our call sites hit the fast path on head dims ∈ {64, 80, 96, 128, 256}.
 - The credible competitor [philipturner/metal-flash-attention](https://github.com/philipturner/metal-flash-attention)
   v2 is ~20% faster than MLX SDPA at 4096 ctx per [Liu Liu's benchmarks](https://x.com/liuliu/status/1877040179942146237) —
@@ -79,7 +79,7 @@ benchmarks all measure.
   `quantized_matmul`. Where it wins is KV-cache compression and SSD
   streaming, not matmul.
 - posttrainllm's quantization stack (HQQ/AWQ/GPTQ readers + QAT — see
-  `docs/quantization_expansion.md`) is already aimed at this kernel.
+  `docs/techniques/quantization_expansion.md`) is already aimed at this kernel.
   The algorithmic pieces are shipped; the matmul itself is MLX's.
 
 **Verdict**: Building a competing int4 kernel is pure-implementation
@@ -112,7 +112,7 @@ runtime + screen-watching specialist in Wave 2.6.
   weight duplication
 - Production path uses reverse-engineered private APIs (ANEMLL is
   "beta, one macOS update could break things")
-- Apple's Stateful Models API (rumored late 2026 per `docs/perf_research.md`)
+- Apple's Stateful Models API (rumored late 2026 per `docs/performance/perf_research.md`)
   is the gating prerequisite for int4 stateful ANE
 
 **Verdict**: posttrainllm already has a CoreML fp32 path (365 pass/s ANE
@@ -175,9 +175,9 @@ of the five.
 
 ## Sources
 
-- [MLXFast SDPA audit (in-repo)](../perf_audit_mlxfast_tied.md)
-- [posttrainllm perf_research notes (in-repo)](../perf_research.md)
-- [posttrainllm quantization_expansion notes (in-repo)](../quantization_expansion.md)
+- [MLXFast SDPA audit (in-repo)](../performance/perf_audit_mlxfast_tied.md)
+- [posttrainllm perf_research notes (in-repo)](../performance/perf_research.md)
+- [posttrainllm quantization_expansion notes (in-repo)](../techniques/quantization_expansion.md)
 - [posttrainllm train_sg.wgsl (in-repo)](../../webgpu/train_sg.wgsl)
 - [MLX PagedAttention proposal — ml-explore/mlx#2955](https://github.com/ml-explore/mlx/issues/2955)
 - [MLX inference benchmarks discussion — ml-explore/mlx#3209](https://github.com/ml-explore/mlx/discussions/3209)

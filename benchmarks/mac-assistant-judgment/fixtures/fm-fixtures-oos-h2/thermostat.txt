@@ -1,3 +1,0 @@
-USER: make it warmer in here
-EXPECT_INTENT: out_of_scope
-REASON: Climate control is a non-mac device

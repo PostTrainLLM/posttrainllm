@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
-python3 "$ROOT/scripts/build_sql_public_training.py" \
+python3 "$ROOT/scripts/sql/build_sql_public_training.py" \
   --out "$WORK/sql-public" \
   --scan 260 \
   --dev-limit 12 \

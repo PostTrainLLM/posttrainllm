@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
-python3 "$ROOT/scripts/build_sql_poc_dataset.py" --out "$WORK/sql" --seed 20260702 --dev-per-domain 18
+python3 "$ROOT/scripts/sql/build_sql_poc_dataset.py" --out "$WORK/sql" --seed 20260702 --dev-per-domain 18
 
 python3 - "$WORK/sql" <<'PY'
 import json

@@ -8,7 +8,7 @@ scores ≤ this baseline. The fixtures test framework, not model.
 
 ## What we ran
 
-`scripts/fake_pace.py` — a 300-line Python script using ONLY:
+`scripts/pace/fake_pace.py` — a 300-line Python script using ONLY:
 - regex over the user prompt to detect intent (click / type / scroll /
   key combo / open app / identity probe / QA)
 - substring matching against element labels for click targets
@@ -109,7 +109,7 @@ same template every time. A regex endpoint produces one template.
 
 ## The eval gate is now built
 
-`scripts/fake_pace.py` is the gate. To compare any LoRA against the
+`scripts/pace/fake_pace.py` is the gate. To compare any LoRA against the
 real-model-contribution standard:
 
 1. Run the LoRA via `posttrainllm serve` against fm-fixtures →

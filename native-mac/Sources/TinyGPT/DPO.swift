@@ -63,7 +63,7 @@ enum DPO {
         var simpoGamma: Float = 1.0
         // ORPO's preference-term weight λ (paper recommends 0.1).
         var orpoLambda: Float = 0.1
-        // PEFT variants — see Finetune.swift / docs/peft_variants.md.
+        // PEFT variants — see Finetune.swift / docs/techniques/peft_variants.md.
         var peftVariant: PeftVariant = .lora
         var adaLoraTargetRank = 0
         var layerDropProb: Float = 0
@@ -497,7 +497,7 @@ enum DPO {
         only one copy. Use --dtype bfloat16
         on the original `train` if memory is tight; the adapter itself is fp32.
 
-        PEFT variants (mutually exclusive — see docs/peft_variants.md):
+        PEFT variants (mutually exclusive — see docs/techniques/peft_variants.md):
         --vera                   VeRA — frozen random A/B, train per-rank scalars.
         --rs-lora                Rank-stabilized LoRA — scale = α/√r.
         --lora-fa                LoRA-FA — freeze A, train only B.

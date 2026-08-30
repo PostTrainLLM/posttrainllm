@@ -15,7 +15,7 @@
   "scorer": {
     "id": "autocorrect-preservation",
     "revision": "1",
-    "authority": "scripts/autocorrect_foundation.py evaluate",
+    "authority": "scripts/research/autocorrect_foundation.py evaluate",
     "primary_metric": "exact_accuracy",
     "expected_field": "expected_text",
     "prediction_field": "predicted_text",
@@ -38,7 +38,15 @@
   "labels": [],
   "slices": {
     "primary": ["natural"],
-    "protected": ["clean", "name", "number", "url", "code_like", "unicode", "whitespace"]
+    "protected": [
+      "clean",
+      "name",
+      "number",
+      "url",
+      "code_like",
+      "unicode",
+      "whitespace"
+    ]
   },
   "budgets": {
     "timeout_ms_per_instance": 5000,

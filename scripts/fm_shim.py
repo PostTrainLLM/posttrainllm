@@ -6,11 +6,12 @@ eval_bfcl) evaluate Apple's on-device model unchanged:
 
   swiftc -O scripts/fm_bridge.swift -o /tmp/fm_bridge
   python3 scripts/fm_shim.py --port 8766 &
-  python3 scripts/eval_pace_v2.py --serve-url http://127.0.0.1:8766/v1/chat/completions ...
+  python3 scripts/pace/eval_pace_v2.py --serve-url http://127.0.0.1:8766/v1/chat/completions ...
 
 Single-threaded by design: one persistent bridge subprocess, requests
 serialized (the FM session is per-request anyway). Logs per-call latency.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -56,17 +57,26 @@ class Handler(BaseHTTPRequestHandler):
         messages = body.get("messages", [])
         system = "\n".join(m["content"] for m in messages if m["role"] == "system")
         user = "\n".join(
-            m["content"] for m in messages
+            m["content"]
+            for m in messages
             if m["role"] == "user" and isinstance(m["content"], str)
         )
         try:
             text = bridge_call(system, user)
-            status, payload = 200, {
-                "choices": [{"index": 0, "finish_reason": "stop",
-                             "message": {"role": "assistant", "content": text}}],
-                "model": "apple-foundation-models",
-                "object": "chat.completion",
-            }
+            status, payload = (
+                200,
+                {
+                    "choices": [
+                        {
+                            "index": 0,
+                            "finish_reason": "stop",
+                            "message": {"role": "assistant", "content": text},
+                        }
+                    ],
+                    "model": "apple-foundation-models",
+                    "object": "chat.completion",
+                },
+            )
         except Exception as e:
             status, payload = 500, {"error": {"message": str(e)}}
         data = json.dumps(payload).encode()
@@ -93,8 +103,12 @@ def main() -> int:
     args = p.parse_args()
 
     BRIDGE = subprocess.Popen(
-        [args.bridge], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-        stderr=subprocess.DEVNULL, text=True, bufsize=1,
+        [args.bridge],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+        bufsize=1,
     )
     server = HTTPServer(("127.0.0.1", args.port), Handler)
     print(f"fm_shim on :{args.port} → {args.bridge}", file=sys.stderr)
@@ -103,7 +117,7 @@ def main() -> int:
     finally:
         if LATENCIES:
             lat = sorted(LATENCIES)
-            print(f"calls={len(lat)} p50={lat[len(lat)//2]:.0f}ms", file=sys.stderr)
+            print(f"calls={len(lat)} p50={lat[len(lat) // 2]:.0f}ms", file=sys.stderr)
         BRIDGE.terminate()
     return 0
 

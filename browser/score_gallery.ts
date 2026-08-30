@@ -30,7 +30,7 @@
 // those entries. Any NEW model goes through the Mac path.
 //
 // Usage:
-//   posttrainllm score-bench <model.tinygpt> --benchmarks bench/benchmarks.json
+//   posttrainllm score-bench <model.tinygpt> --benchmarks configs/benchmarks.json
 //   node browser/score_gallery.ts   # legacy byte-only refresh
 //
 // The legacy refresh below ignores any `.tinygpt` files that don't
@@ -46,7 +46,11 @@ import type { GalleryManifest, GalleryModel } from "./src/gallery-schema.ts";
 type WasmHandle = number;
 
 interface TinyGPTModule {
-  cwrap: (name: string, ret: string | null, args: (string | null)[]) => (...a: number[]) => number;
+  cwrap: (
+    name: string,
+    ret: string | null,
+    args: (string | null)[],
+  ) => (...a: number[]) => number;
   _malloc: (n: number) => number;
   _free: (ptr: number) => void;
   HEAPU8: Uint8Array;
@@ -57,16 +61,23 @@ const ROOT = resolve(here, "..");
 const WASM_JS = resolve(ROOT, "browser/public/tinygpt.js");
 const GALLERY_DIR = resolve(ROOT, "data/gallery");
 const MANIFEST_PATH = resolve(ROOT, "browser/public/gallery/manifest.json");
-const HOLDOUT_PATH = resolve(ROOT, "browser/public/benchmarks/tinystories-eval.json");
+const HOLDOUT_PATH = resolve(
+  ROOT,
+  "browser/public/benchmarks/tinystories-eval.json",
+);
 
 console.log("[score] DEPRECATED — see docs/bpe_browser_scoring.md.");
-console.log("[score] running legacy byte-only refresh for the original gallery cards…");
+console.log(
+  "[score] running legacy byte-only refresh for the original gallery cards…",
+);
 
 // We only try to load the WASM module if there's actually a byte-level
 // model directory to score — the BPE path doesn't need it at all.
 let candidates: string[] = [];
 try {
-  candidates = (await fs.readdir(GALLERY_DIR)).filter((f) => f.endsWith(".tinygpt"));
+  candidates = (await fs.readdir(GALLERY_DIR)).filter((f) =>
+    f.endsWith(".tinygpt"),
+  );
 } catch (e) {
   console.log(`[score] no gallery dir (${GALLERY_DIR}); nothing to refresh.`);
   process.exit(0);
@@ -95,11 +106,17 @@ interface HoldoutFile {
   stories: string[];
 }
 console.log("[score] reading TinyStories holdout…");
-const holdout: HoldoutFile = JSON.parse(await fs.readFile(HOLDOUT_PATH, "utf8"));
+const holdout: HoldoutFile = JSON.parse(
+  await fs.readFile(HOLDOUT_PATH, "utf8"),
+);
 const holdoutBytes = new TextEncoder().encode(holdout.stories.join("\n\n"));
-console.log(`[score] holdout: ${holdout.stories.length} stories, ${holdoutBytes.length} bytes`);
+console.log(
+  `[score] holdout: ${holdout.stories.length} stories, ${holdoutBytes.length} bytes`,
+);
 
-const manifest: GalleryManifest = JSON.parse(await fs.readFile(MANIFEST_PATH, "utf8"));
+const manifest: GalleryManifest = JSON.parse(
+  await fs.readFile(MANIFEST_PATH, "utf8"),
+);
 
 const MAGIC = "TGPT";
 
@@ -109,7 +126,7 @@ interface TinygptHeaderConfig {
   ctx?: number;
   heads?: number;
   dMlp?: number;
-  vocabSize?: number;       // present in BPE headers; absent ⇒ byte-level (256)
+  vocabSize?: number; // present in BPE headers; absent ⇒ byte-level (256)
   tokenizerSource?: string; // present in BPE headers
 }
 interface TinygptHeader {
@@ -133,21 +150,28 @@ function parseTinygpt(buf: ArrayBuffer): ParsedTinygpt {
   }
   const headerLen = dv.getUint32(8, true);
   if (12 + headerLen > buf.byteLength) throw new Error("malformed header");
-  const headerJson = new TextDecoder().decode(new Uint8Array(buf, 12, headerLen));
+  const headerJson = new TextDecoder().decode(
+    new Uint8Array(buf, 12, headerLen),
+  );
   const header: TinygptHeader = JSON.parse(headerJson);
   const stateBytes = new Uint8Array(buf.slice(12 + headerLen));
   if (header.weightDtype && header.weightDtype !== "fp32") {
     throw new Error(
       `score_gallery legacy path only handles fp32 .tinygpt files; ` +
-      `this one has weightDtype=${header.weightDtype}.`,
+        `this one has weightDtype=${header.weightDtype}.`,
     );
   }
-  const isBpe = (header.config.vocabSize !== undefined && header.config.vocabSize > 256)
-             || (header.config.tokenizerSource !== undefined);
+  const isBpe =
+    (header.config.vocabSize !== undefined && header.config.vocabSize > 256) ||
+    header.config.tokenizerSource !== undefined;
   return { config: header.config, stateBytes, isBpe };
 }
 
-function evalPerplexity(handle: WasmHandle, batchSize: number, nBatches: number) {
+function evalPerplexity(
+  handle: WasmHandle,
+  batchSize: number,
+  nBatches: number,
+) {
   const dataPtr = M._malloc(holdoutBytes.length);
   M.HEAPU8.set(holdoutBytes, dataPtr);
   tgSetData(handle, dataPtr, holdoutBytes.length, 0.0);
@@ -160,7 +184,14 @@ const benchId = "tinystories-ppl";
 interface ScoreUpdate {
   id: string;
   score: number | null;
-  details: { error?: string; skipped?: string; loss?: number; vocab?: number; batches?: number; tokens?: number };
+  details: {
+    error?: string;
+    skipped?: string;
+    loss?: number;
+    vocab?: number;
+    batches?: number;
+    tokens?: number;
+  };
 }
 const updated: ScoreUpdate[] = [];
 
@@ -172,17 +203,24 @@ for (const filename of candidates.sort()) {
     const buf = (await fs.readFile(path)).buffer as ArrayBuffer;
     const parsed = parseTinygpt(buf);
     if (parsed.isBpe) {
-      console.log(`[score] skipping ${id}: BPE model (vocab=${parsed.config.vocabSize}). ` +
-                  `Run \`posttrainllm score-bench ${path} --benchmarks bench/benchmarks.json\` ` +
-                  `from the worktree root to score it natively.`);
+      console.log(
+        `[score] skipping ${id}: BPE model (vocab=${parsed.config.vocabSize}). ` +
+          `Run \`posttrainllm score-bench ${path} --benchmarks configs/benchmarks.json\` ` +
+          `from the worktree root to score it natively.`,
+      );
       updated.push({
-        id, score: null,
-        details: { skipped: "BPE model — use Mac-side `posttrainllm score-bench`" },
+        id,
+        score: null,
+        details: {
+          skipped: "BPE model — use Mac-side `posttrainllm score-bench`",
+        },
       });
       continue;
     }
     const { config, stateBytes } = parsed;
-    console.log(`        config: ${config.layers}L · d=${config.dModel} · ctx=${config.ctx} · ${stateBytes.length} state bytes`);
+    console.log(
+      `        config: ${config.layers}L · d=${config.dModel} · ctx=${config.ctx} · ${stateBytes.length} state bytes`,
+    );
     const handle: WasmHandle = tgModelCreate(
       256,
       config.ctx ?? 256,
@@ -202,11 +240,19 @@ for (const filename of candidates.sort()) {
     const t0 = Date.now();
     const { loss, perplexity } = evalPerplexity(handle, 8, 32);
     const dt = ((Date.now() - t0) / 1000).toFixed(1);
-    console.log(`        eval: loss=${loss.toFixed(3)}  perplexity=${perplexity.toFixed(2)}  (${dt}s)`);
+    console.log(
+      `        eval: loss=${loss.toFixed(3)}  perplexity=${perplexity.toFixed(2)}  (${dt}s)`,
+    );
     tgModelFree(handle);
     updated.push({
-      id, score: perplexity,
-      details: { loss, vocab: 256, batches: 32, tokens: 32 * 8 * (config.ctx ?? 256) },
+      id,
+      score: perplexity,
+      details: {
+        loss,
+        vocab: 256,
+        batches: 32,
+        tokens: 32 * 8 * (config.ctx ?? 256),
+      },
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
@@ -220,15 +266,23 @@ for (const filename of candidates.sort()) {
 // a score from the Mac path we leave it alone unless we have a new
 // number to write.
 console.log("\n[score] merging legacy byte-only scores into manifest…");
-const byId = new Map<string, GalleryModel>((manifest.models || []).map((m) => [m.id, m]));
+const byId = new Map<string, GalleryModel>(
+  (manifest.models || []).map((m) => [m.id, m]),
+);
 for (const { id, score } of updated) {
-  if (score == null) continue;          // skipped or failed → no write
+  if (score == null) continue; // skipped or failed → no write
   let entry = byId.get(id);
   if (!entry) {
     entry = {
-      id, name: id, file: `${id}.bin`,
+      id,
+      name: id,
+      file: `${id}.bin`,
       benchmarks: {},
-      submission: { author: "posttrainllm", submittedAt: new Date().toISOString(), featured: false },
+      submission: {
+        author: "posttrainllm",
+        submittedAt: new Date().toISOString(),
+        featured: false,
+      },
     };
     manifest.models = manifest.models || [];
     manifest.models.push(entry);
@@ -248,6 +302,8 @@ for (const { id, score, details } of updated) {
     const reason = details.skipped ?? details.error ?? "—";
     console.log(`   ${id.padEnd(20)} —             ${reason}`);
   } else {
-    console.log(`   ${id.padEnd(20)} ${score.toFixed(2).padStart(10)}    ${details.loss?.toFixed(3) ?? "—"}`);
+    console.log(
+      `   ${id.padEnd(20)} ${score.toFixed(2).padStart(10)}    ${details.loss?.toFixed(3) ?? "—"}`,
+    );
   }
 }

@@ -7,7 +7,7 @@
  *
  * Roundtrip guarantee: decode(encode(text)) === text  (tests/README.md).
  *
- * Guide: docs/model_guide.md ("What you are building")
+ * Guide: docs/guides/model_guide.md ("What you are building")
  */
 
 export const VOCAB_SIZE = 256;

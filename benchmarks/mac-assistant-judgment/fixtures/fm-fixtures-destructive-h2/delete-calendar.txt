@@ -1,3 +1,0 @@
-USER: remove my whole work calendar
-EXPECT_INTENT: confirm_destructive
-EXPECT_CONFIRM_TARGET: calendar

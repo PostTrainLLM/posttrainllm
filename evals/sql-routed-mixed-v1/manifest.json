@@ -4,7 +4,7 @@
   "synthetic_rows": 50,
   "mixed_rows": 114,
   "router": {
-    "script": "scripts/run_sql_routed_generate.py",
+    "script": "scripts/sql/run_sql_routed_generate.py",
     "mode": "schema/eval-family classifier",
     "label_field_required": false,
     "rules": [
