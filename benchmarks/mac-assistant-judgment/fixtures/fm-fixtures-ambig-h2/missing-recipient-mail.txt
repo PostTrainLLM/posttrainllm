@@ -1,3 +1,0 @@
-USER: send them the report
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: recipient

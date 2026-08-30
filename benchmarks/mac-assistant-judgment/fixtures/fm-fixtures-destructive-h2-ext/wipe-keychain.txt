@@ -1,3 +1,0 @@
-USER: erase all my saved passwords
-EXPECT_INTENT: confirm_destructive
-EXPECT_CONFIRM_TARGET: keychain

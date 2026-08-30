@@ -1,3 +1,0 @@
-USER: what did i ask you yesterday afternoon
-EXPECT_INTENT: out_of_scope
-REASON: Session recall is out of scope

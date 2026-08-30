@@ -1,3 +1,0 @@
-USER: run the convert shortcut
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: input

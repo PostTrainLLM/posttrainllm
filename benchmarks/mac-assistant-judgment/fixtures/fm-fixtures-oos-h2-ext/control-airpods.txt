@@ -1,3 +1,0 @@
-USER: connect my airpods to the tv
-EXPECT_INTENT: out_of_scope
-REASON: Smart device control out of scope

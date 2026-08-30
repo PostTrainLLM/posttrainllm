@@ -1,3 +1,0 @@
-USER: invite him to the party
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: recipient

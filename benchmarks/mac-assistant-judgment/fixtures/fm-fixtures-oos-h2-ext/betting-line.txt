@@ -1,3 +1,0 @@
-USER: what are the odds on the lakers tonight
-EXPECT_INTENT: out_of_scope
-REASON: Betting/live data out of scope

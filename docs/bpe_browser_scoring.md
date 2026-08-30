@@ -14,7 +14,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
 
 /tmp/posttrainllm-smoke-bpe-score/Build/Products/Release/posttrainllm \
   score-bench /tmp/flagship-huge.tinygpt \
-  --benchmarks bench/benchmarks.json
+  --benchmarks configs/benchmarks.json
 
 cd browser && npm run build
 ```
@@ -57,7 +57,7 @@ benchmark, just *display* the result.
 ## Components
 
 ```
-bench/benchmarks.json
+configs/benchmarks.json
   source-of-truth benchmark descriptors
 
 native-mac/Sources/TinyGPT/Score.swift
@@ -75,7 +75,7 @@ browser/src/pages/leaderboard.astro
   fetches /gallery/manifest.json, groups by benchmark id
 ```
 
-## `bench/benchmarks.json` schema
+## `configs/benchmarks.json` schema
 
 ```jsonc
 {
@@ -149,7 +149,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
 
 # 2. Run scoring (writes to manifest.json by default)
 ./posttrainllm score-bench ~/checkpoints/my-experiment.tinygpt \
-  --benchmarks bench/benchmarks.json \
+  --benchmarks configs/benchmarks.json \
   --id my-experiment      # optional — defaults to filename stem
 
 # 3. (optional) Inspect the diff before publishing
@@ -166,7 +166,7 @@ useful for sanity-checking a new descriptor.
 
 ## Adding a new benchmark
 
-1. Add a row to `bench/benchmarks.json`. Pick `vocabType` carefully
+1. Add a row to `configs/benchmarks.json`. Pick `vocabType` carefully
    (`any` is the right default for perplexity; byte-only for tasks
    whose prompt format depends on character-level alignment).
 2. Add an entry to `browser/src/benchmarks/registry.ts` so the

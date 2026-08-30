@@ -1,3 +1,0 @@
-USER: how is nvidia stock doing today
-EXPECT_INTENT: out_of_scope
-REASON: Live market data needs the web

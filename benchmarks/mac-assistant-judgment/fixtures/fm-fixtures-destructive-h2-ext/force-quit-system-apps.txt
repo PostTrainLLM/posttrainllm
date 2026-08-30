@@ -1,3 +1,0 @@
-USER: kill every preference and utility app right now
-EXPECT_INTENT: confirm_destructive
-EXPECT_CONFIRM_TARGET: system utility apps

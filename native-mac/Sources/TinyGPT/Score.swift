@@ -19,7 +19,7 @@ import TinyGPTModel
 ///
 /// Inputs:
 ///   - <model.tinygpt> (or HF model directory) — the checkpoint to score.
-///   - --benchmarks bench/benchmarks.json — descriptor of which evals
+///   - --benchmarks configs/benchmarks.json — descriptor of which evals
 ///     to run (id, kind, vocabType, holdout path…).
 ///   - --manifest browser/public/gallery/manifest.json — leaderboard
 ///     manifest to update in place.
@@ -32,14 +32,14 @@ import TinyGPTModel
 ///
 enum Score {
 
-    // MARK: - Benchmark descriptors (mirrors bench/benchmarks.json)
+    // MARK: - Benchmark descriptors (mirrors configs/benchmarks.json)
 
     private struct BenchmarksFile: Codable {
         let version: Int
         let benchmarks: [BenchSpec]
     }
 
-    /// Source-of-truth shape for one row in `bench/benchmarks.json`.
+    /// Source-of-truth shape for one row in `configs/benchmarks.json`.
     /// The scorer dispatches on `kind` ("perplexity" vs "task-exact-match")
     /// and uses `vocabType` to decide compatibility ("byte-only",
     /// "bpe-only", "any").
@@ -65,7 +65,7 @@ enum Score {
 
     static func run(args: [String]) {
         var modelPath: String?
-        var benchPath = "bench/benchmarks.json"
+        var benchPath = "configs/benchmarks.json"
         var manifestPath = "browser/public/gallery/manifest.json"
         var modelId: String?              // override the manifest key
         var dryRun = false
@@ -760,7 +760,7 @@ enum Score {
         print("""
         usage: posttrainllm score-bench <model.tinygpt> [options]
 
-        --benchmarks <path>   Benchmark descriptor JSON (default: bench/benchmarks.json)
+        --benchmarks <path>   Benchmark descriptor JSON (default: configs/benchmarks.json)
         --manifest <path>     Gallery manifest to patch in place
                               (default: browser/public/gallery/manifest.json)
         --id <gallery-id>     Override the manifest key (default: model filename stem)

@@ -1,3 +1,0 @@
-USER: order more of those
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: item

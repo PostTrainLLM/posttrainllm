@@ -1,3 +1,0 @@
-USER: when did the berlin wall come down
-EXPECT_INTENT: out_of_scope
-REASON: Pure knowledge query

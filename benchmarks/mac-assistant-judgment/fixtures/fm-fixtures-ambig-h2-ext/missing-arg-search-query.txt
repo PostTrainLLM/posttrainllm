@@ -1,3 +1,0 @@
-USER: search for it
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: query

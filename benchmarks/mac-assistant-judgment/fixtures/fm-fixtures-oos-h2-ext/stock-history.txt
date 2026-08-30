@@ -1,3 +1,0 @@
-USER: how did tesla stock do this year
-EXPECT_INTENT: out_of_scope
-REASON: Live market data

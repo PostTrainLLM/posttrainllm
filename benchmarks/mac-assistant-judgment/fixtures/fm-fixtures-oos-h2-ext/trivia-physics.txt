@@ -1,3 +1,0 @@
-USER: what's the speed of light in vacuum
-EXPECT_INTENT: out_of_scope
-REASON: Pure knowledge query

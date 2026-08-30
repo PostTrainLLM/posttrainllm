@@ -1,3 +1,0 @@
-USER: show me everything we did together last week
-EXPECT_INTENT: out_of_scope
-REASON: Session recall is out of scope

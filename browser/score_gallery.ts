@@ -30,7 +30,7 @@
 // those entries. Any NEW model goes through the Mac path.
 //
 // Usage:
-//   posttrainllm score-bench <model.tinygpt> --benchmarks bench/benchmarks.json
+//   posttrainllm score-bench <model.tinygpt> --benchmarks configs/benchmarks.json
 //   node browser/score_gallery.ts   # legacy byte-only refresh
 //
 // The legacy refresh below ignores any `.tinygpt` files that don't
@@ -173,7 +173,7 @@ for (const filename of candidates.sort()) {
     const parsed = parseTinygpt(buf);
     if (parsed.isBpe) {
       console.log(`[score] skipping ${id}: BPE model (vocab=${parsed.config.vocabSize}). ` +
-                  `Run \`posttrainllm score-bench ${path} --benchmarks bench/benchmarks.json\` ` +
+                  `Run \`posttrainllm score-bench ${path} --benchmarks configs/benchmarks.json\` ` +
                   `from the worktree root to score it natively.`);
       updated.push({
         id, score: null,

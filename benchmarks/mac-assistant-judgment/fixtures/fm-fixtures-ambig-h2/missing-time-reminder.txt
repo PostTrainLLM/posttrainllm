@@ -1,3 +1,0 @@
-USER: remind me to call the dentist
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: time

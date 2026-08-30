@@ -1,3 +1,0 @@
-USER: get rid of that one
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: target

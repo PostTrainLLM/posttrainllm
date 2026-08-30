@@ -1,3 +1,0 @@
-USER: do the usual
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: task

@@ -1,3 +1,0 @@
-USER: attach that to the mail
-EXPECT_INTENT: clarify
-EXPECT_CLARIFY_TOPIC: attachment

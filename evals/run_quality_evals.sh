@@ -28,10 +28,10 @@
 #       AGENTS.md prohibits unsupervised installs. Run the install manually.)
 #
 # Usage:
-#   bench/run_quality_evals.sh                         # flagship + default task set
-#   bench/run_quality_evals.sh /path/to/model.tinygpt  # explicit checkpoint
-#   TASKS=hellaswag bench/run_quality_evals.sh         # only one task
-#   LIMIT=50 bench/run_quality_evals.sh                # smoke-test with 50 examples/task
+#   evals/run_quality_evals.sh                         # flagship + default task set
+#   evals/run_quality_evals.sh /path/to/model.tinygpt  # explicit checkpoint
+#   TASKS=hellaswag evals/run_quality_evals.sh         # only one task
+#   LIMIT=50 evals/run_quality_evals.sh                # smoke-test with 50 examples/task
 
 set -eo pipefail
 

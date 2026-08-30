@@ -64,7 +64,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
 ```
 
 This produces `/tmp/posttrainllm-smoke/Build/Products/Release/posttrainllm`. The
-`bench/run_quality_evals.sh` script auto-detects this path.
+`evals/run_quality_evals.sh` script auto-detects this path.
 
 ### 2. Wire `case "serve":` into TinyGPT.swift
 
@@ -112,7 +112,7 @@ exposes a `--lm-eval-extra` flag that you can use for this.
 The one-liner:
 
 ```bash
-bench/run_quality_evals.sh
+evals/run_quality_evals.sh
 ```
 
 Defaults to running HellaSwag + ARC-Easy on `/tmp/flagship-huge.tinygpt`.
@@ -164,7 +164,7 @@ each.
 
 ```bash
 # After wiring case "serve": into TinyGPT.swift and pip install lm-eval==0.4.10
-LIMIT=10 TASKS=hellaswag bench/run_quality_evals.sh
+LIMIT=10 TASKS=hellaswag evals/run_quality_evals.sh
 ```
 
 **Status as of this commit:** the HTTP server is wired, end-to-end
@@ -273,7 +273,7 @@ to published numbers.
   HTTP parser + live endpoints
 - `python_ref/lm_eval_tinygpt.py` — subprocess wrapper that spawns
   `posttrainllm serve`, waits for ready, runs `lm-eval`
-- `bench/run_quality_evals.sh` — one-liner driver writing to
+- `evals/run_quality_evals.sh` — one-liner driver writing to
   `bench/results/<model>-<timestamp>/`
 - `docs/research/quality_benchmarks_may_2026.md` — background research
   on the benchmark landscape

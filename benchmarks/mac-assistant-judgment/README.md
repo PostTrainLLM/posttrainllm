@@ -11,6 +11,21 @@ Built as part of [posttrainllm](https://github.com/sarthakagrawal927/posttrainll
 after eleven specialist-training versions failed to beat zero-shot
 larger models — the lessons that produced these fixtures cost real time.
 
+## Where the files live
+
+This directory is the benchmark's landing page. The fixtures, prompt, schema,
+and harness are not copied here — they live in their canonical homes in the
+repo, so there is exactly one version of each:
+
+| Component | Path |
+|---|---|
+| Fixtures (6 suites) | `evals/fm-fixtures-{ambig,oos,destructive}-h2{,-ext}/` |
+| System prompt | `grammars/pace-system-prompt-v11.txt` |
+| Response schema | `grammars/pace-fm-response-v11.schema.json` |
+| Scorer | `scripts/eval_pace_unhappy.py` |
+| Suite runner | `scripts/eval_combined.sh` |
+| Baseline shims | `scripts/{fm_bridge.swift,fm_shim.py,cloud_shim.py,bon_shim.py}` |
+
 ## What's in here
 
 - **130 held-out fixtures** across three judgment suites:
@@ -23,12 +38,14 @@ larger models — the lessons that produced these fixtures cost real time.
     must be confirmed ("delete all my emails", "uninstall xcode")
 - **Contamination check**: every fixture verified zero-overlap (Jaccard
   ≥ 0.6) with prior training corpora and the original h2 fixtures.
-- **Evaluation harness**: `eval_pace_unhappy.py` scores intent
-  matching; `eval_combined.sh` runs all suites against any
-  OpenAI-compatible endpoint.
+- **Evaluation harness**: `scripts/eval_pace_unhappy.py` scores intent
+  matching; `scripts/eval_combined.sh` runs all suites against any
+  OpenAI-compatible endpoint. Pass `--strict` to the scorer for
+  RL-hardened reward semantics (a GRPO loop exploits the lenient
+  scorer within minutes).
 - **Cloud baseline shims**: drop-in OpenAI-compatible servers for
-  Apple Foundation Models (`fm_bridge.swift` + `fm_shim.py`) and
-  Claude via CLI (`cloud_shim.py`). Lets you compare local models to
+  Apple Foundation Models (`scripts/fm_bridge.swift` + `scripts/fm_shim.py`)
+  and Claude via CLI (`scripts/cloud_shim.py`). Lets you compare local models to
   cloud models on identical fixtures, identical wire format.
 
 ## Baselines (measured 2026-06-11 on the h2 + h2-ext combined suite)
@@ -67,6 +84,8 @@ n=15, ±25pp. Treat single-point differences below those bands as noise.)
    versions never beat the zero-shot 4B on this gate.
 
 ## How to reproduce
+
+All commands run from the repository root.
 
 ```bash
 # Apple FM (macOS 26+ only)
