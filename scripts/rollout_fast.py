@@ -27,6 +27,9 @@ from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_utils import execute_mult
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_checker import multi_turn_checker
 from bfcl_eval.constants.executable_backend_config import CLASS_FILE_PATH_MAPPING
 _argv = sys.argv; sys.argv = ["bfcl_ast_eval"]
+from pathlib import Path
+# bfcl/ is a sibling group under scripts/; add it to the import path.
+sys.path.insert(0, str(Path(__file__).resolve().parent.joinpath("bfcl")))
 import bfcl_ast_eval as h            # reuse the validated call parser (extract_calls)
 sys.argv = _argv
 from mlx_lm import load, batch_generate

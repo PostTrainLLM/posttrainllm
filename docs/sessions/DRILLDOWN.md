@@ -23,7 +23,7 @@ Qwen3-4B-Instruct-2507 bf16 with the plan-then-execute prompt.
 
 ## Final results — h2 + h2-ext combined, n=130
 
-All scored with `scripts/eval_pace_unhappy.py` against
+All scored with `scripts/pace/eval_pace_unhappy.py` against
 `grammars/pace-system-prompt-v11.txt`, temperature 0, max_tokens 300.
 
 | Model                             | ambig          | oos             | destructive     | Notes                                      |
@@ -90,7 +90,7 @@ Update `LocalPlannerModelIdentifier` in Pace's `Info.plist` from
 One command (this is the productized form of this whole document):
 
 ```bash
-scripts/eval_planner.sh <lm-studio-model-id>
+scripts/pipelines/eval_planner.sh <lm-studio-model-id>
 ```
 
 JIT-loads the model, runs all three suites (n=130), prints the table vs
@@ -100,7 +100,7 @@ verdict. ~30 min for a 12B on M5 Pro.
 ## Challenger round — 2026-06-12 evening (first eval-planner outing)
 
 Same-day test of the post-drill model generation, run via
-`scripts/eval_planner.sh`:
+`scripts/pipelines/eval_planner.sh`:
 
 | Challenger                | ambig | oos     | destructive | verdict                                                                                                                                     |
 | ------------------------- | ----- | ------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------- |

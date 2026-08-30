@@ -32,8 +32,8 @@ def _load_module(name: str, path: Path):
     return mod
 
 
-receipt_mod = _load_module("foundry_receipt", ROOT / "scripts/foundry_receipt.py")
-check_mod = _load_module("check_foundry_receipt", ROOT / "scripts/check_foundry_receipt.py")
+receipt_mod = _load_module("foundry_receipt", ROOT / "scripts/factory/foundry_receipt.py")
+check_mod = _load_module("check_foundry_receipt", ROOT / "scripts/factory/check_foundry_receipt.py")
 
 
 # ---------------------------------------------------------------------------

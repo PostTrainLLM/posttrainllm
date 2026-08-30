@@ -6,7 +6,7 @@ eval_bfcl) evaluate Apple's on-device model unchanged:
 
   swiftc -O scripts/fm_bridge.swift -o /tmp/fm_bridge
   python3 scripts/fm_shim.py --port 8766 &
-  python3 scripts/eval_pace_v2.py --serve-url http://127.0.0.1:8766/v1/chat/completions ...
+  python3 scripts/pace/eval_pace_v2.py --serve-url http://127.0.0.1:8766/v1/chat/completions ...
 
 Single-threaded by design: one persistent bridge subprocess, requests
 serialized (the FM session is per-request anyway). Logs per-call latency.

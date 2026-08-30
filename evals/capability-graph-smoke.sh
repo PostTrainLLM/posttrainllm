@@ -5,13 +5,13 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FIXTURES="$ROOT/evals/capability-graph/fixtures"
 
-python3 "$ROOT/scripts/capability_graph.py" validate
-python3 "$ROOT/scripts/capability_graph.py" inspect --capability file-ops >/dev/null
-python3 "$ROOT/scripts/capability_graph.py" dry-run \
+python3 "$ROOT/scripts/research/capability_graph.py" validate
+python3 "$ROOT/scripts/research/capability_graph.py" inspect --capability file-ops >/dev/null
+python3 "$ROOT/scripts/research/capability_graph.py" dry-run \
   --request "$FIXTURES/request-file-ops-v1.json" \
   --installed "$FIXTURES/installed-v1.json" \
   --router-output "$FIXTURES/router-file-ops-v1.json" >/dev/null
-python3 "$ROOT/scripts/capability_graph.py" cascade \
+python3 "$ROOT/scripts/research/capability_graph.py" cascade \
   --request "$FIXTURES/request-file-ops-v1.json" \
   --installed "$FIXTURES/installed-v1.json" \
   --router-output "$FIXTURES/router-file-ops-v1.json" \

@@ -6717,9 +6717,9 @@
     "trace_hash": "5d463a57201cfbc9c462755c75c2ff3e1078eed26f8c3486d4c0e2ef342d8b44"
   },
   "reproduce": {
-    "match_command": "python3.12 scripts/chess_mlx_match.py --openings configs/chess/openings-development-v1.json --model-a <PATH_A> --model-a-ref <REF_A> --policy-a <ID_A> --model-b <PATH_B> --model-b-ref <REF_B> --policy-b <ID_B> --output runs/chess/match.json",
+    "match_command": "python3.12 scripts/chess/chess_mlx_match.py --openings configs/chess/openings-development-v1.json --model-a <PATH_A> --model-a-ref <REF_A> --policy-a <ID_A> --model-b <PATH_B> --model-b-ref <REF_B> --policy-b <ID_B> --output runs/chess/match.json",
     "protocol": "Same FEN, sorted legal UCI set, greedy decoding, eight output tokens maximum, no engine/tools/search/code/rollouts.",
-    "puzzle_command": "python3.12 scripts/chess_mlx_pilot.py --suite evals/chess/fixtures/development-puzzles-v1.json --model <MODEL_PATH> --model-ref <MODEL_REF> --policy-id <ID> --output runs/chess/<ID>.json",
+    "puzzle_command": "python3.12 scripts/chess/chess_mlx_pilot.py --suite evals/chess/fixtures/development-puzzles-v1.json --model <MODEL_PATH> --model-ref <MODEL_REF> --policy-id <ID> --output runs/chess/<ID>.json",
     "runtime": "python-chess 1.999 / Stockfish 18 labels / MLX-LM 0.31.3 on Apple Silicon"
   },
   "schema_version": "chess/site-replay/v1"

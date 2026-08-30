@@ -22,12 +22,12 @@ fidelity, 0.6B for max compression.
 ## Use it
 
 ```bash
-scripts/distill-specialist.sh <data-dir> <student-model> <out-dir> [iters]
+scripts/pipelines/distill-specialist.sh <data-dir> <student-model> <out-dir> [iters]
 
 # e.g. full-fidelity:
-scripts/distill-specialist.sh ./mydata Qwen/Qwen3-1.7B ./out/my-specialist 400
+scripts/pipelines/distill-specialist.sh ./mydata Qwen/Qwen3-1.7B ./out/my-specialist 400
 # e.g. max-compression:
-scripts/distill-specialist.sh ./mydata Qwen/Qwen3-0.6B ./out/my-specialist-tiny 400
+scripts/pipelines/distill-specialist.sh ./mydata Qwen/Qwen3-0.6B ./out/my-specialist-tiny 400
 ```
 
 Produces a **standalone fused model** (LoRA merged in) — serve it via

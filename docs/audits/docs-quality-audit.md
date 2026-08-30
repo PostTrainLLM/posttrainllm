@@ -27,14 +27,14 @@ Docs are world-class when an outsider can answer:
 | Factory pipeline | `docs/factory/` | strong |
 | Method vs recipe | `docs/techniques/method-vs-recipe.md` | strong |
 | Technique audit inventory | `docs/techniques/audit-inventory.md` | strong |
-| Attempt history | `docs/attempt-ledger.md`, `docs/attempts.json`, `docs/audits/history-coverage-audit.md`, `scripts/check_attempt_ledger.py` | strong |
+| Attempt history | `docs/attempt-ledger.md`, `docs/attempts.json`, `docs/audits/history-coverage-audit.md`, `scripts/docs-checks/check_attempt_ledger.py` | strong |
 | Exactness completion audit | `docs/audits/exactness-completion-audit.md` | complete |
 | External products reviewed | `docs/external-products-reviewed.md` | good, should grow with every teardown |
 | Learning pipeline | `docs/learning-pipeline.md` | strong, tied to current factory work |
 | Learning progress | `docs/learning-progress.md` | good, manually maintained |
 | Public artifacts | `docs/factory/public-artifacts.md` | strong |
-| Enforcement | `docs/factory/enforcement.md`, `posttrainllm factory-run publish-check`, `scripts/check_factory_run_publish.py` | strong |
-| Docs completeness check | `scripts/check_docs_world_class.py` | good, checks golden-path surfaces exist |
+| Enforcement | `docs/factory/enforcement.md`, `posttrainllm factory-run publish-check`, `scripts/factory/check_factory_run_publish.py` | strong |
+| Docs completeness check | `scripts/docs-checks/check_docs_world_class.py` | good, checks golden-path surfaces exist |
 | Old docs status | `docs/README.md`, `docs/MAP.md`, `docs/parked/` | acceptable, still noisy |
 
 ## What Improved In This Pass
@@ -74,7 +74,7 @@ The current docs meet the world-class baseline defined above:
 | What products/papers/blogs changed the plan? | `docs/external-products-reviewed.md`, `docs/techniques/trainloop-teardown.md` |
 | What is on the roadmap? | `docs/NEXT.md`, `docs/techniques/sql-technique-backlog.md`, `docs/factory/public-artifacts.md` |
 | What should the owner learn next? | `docs/learning-pipeline.md`, `docs/learning-progress.md` |
-| How is a public claim validated? | `docs/factory/enforcement.md`, `posttrainllm factory-run publish-check`, `scripts/check_factory_run_publish.py` |
+| How is a public claim validated? | `docs/factory/enforcement.md`, `posttrainllm factory-run publish-check`, `scripts/factory/check_factory_run_publish.py` |
 | How can the next run reproduce or improve the result? | `docs/factory/run-schema.md`, `provenance.json`, `docs/techniques/` |
 
 Verification commands:
@@ -98,7 +98,7 @@ improve:
 
 2. **Publish validation has two implementations.**
    `posttrainllm factory-run publish-check` is the canonical command, while
-   `scripts/check_factory_run_publish.py` remains as a portable smoke. This is
+   `scripts/factory/check_factory_run_publish.py` remains as a portable smoke. This is
    acceptable, but should eventually share one implementation.
 
 3. **Old docs are still noisy, but bounded.**

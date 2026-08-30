@@ -38,7 +38,7 @@ hf download google/byt5-small config.json generation_config.json pytorch_model.b
 The disposable runtime was Python 3.12, PyTorch 2.13.0, Transformers 5.14.1,
 and SentencePiece 0.2.2. Inference reran with `HF_HUB_OFFLINE=1` and
 `TRANSFORMERS_OFFLINE=1`; the committed runner is
-`scripts/autocorrect_base_bakeoff.py`.
+`scripts/research/autocorrect_base_bakeoff.py`.
 
 Planning estimates retained for comparison:
 
@@ -89,7 +89,7 @@ The selected frozen baseline is:
 Reproduce the selected offline baseline:
 
 ```bash
-HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false uv run --isolated --python 3.12 --with torch==2.13.0 --with transformers==5.14.1 --with sentencepiece==0.2.2 python scripts/autocorrect_base_bakeoff.py --model-key flan-t5-small --model-dir /Users/sarthak/.cache/posttrainllm/autocorrect-bases/flan-t5-small-0fc9ddf --output-dir runs/autocorrect-base-bakeoff-v1 --device mps
+HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false uv run --isolated --python 3.12 --with torch==2.13.0 --with transformers==5.14.1 --with sentencepiece==0.2.2 python scripts/research/autocorrect_base_bakeoff.py --model-key flan-t5-small --model-dir /Users/sarthak/.cache/posttrainllm/autocorrect-bases/flan-t5-small-0fc9ddf --output-dir runs/autocorrect-base-bakeoff-v1 --device mps
 ```
 
 Raw predictions, per-row timing/tokenization, complete slice metrics, runtime

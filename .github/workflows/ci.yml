@@ -133,7 +133,7 @@ jobs:
         # the measured 2026-08-12 baseline.
         run: |
           xcrun xccov view --report --json /tmp/test-result.xcresult > /tmp/coverage.json
-          python3 ../scripts/check-swift-coverage.py /tmp/coverage.json
+          python3 ../scripts/quality/check-swift-coverage.py /tmp/coverage.json
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v7.0.1

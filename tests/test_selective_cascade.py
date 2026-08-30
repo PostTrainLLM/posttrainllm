@@ -11,7 +11,9 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
+# scripts/ is grouped into topic subdirs; each is a flat import surface.
+for _d in [ROOT / "scripts", *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir())]:
+    sys.path.insert(0, str(_d))
 
 import calibrate_selective_cascade as cascade  # noqa: E402
 import check_everyday_benchmark as checker  # noqa: E402
@@ -226,7 +228,7 @@ def test_cli_writes_report_and_predictions_without_models():
         predictions_path = tmp / "predictions.json"
         command = [
             sys.executable,
-            str(ROOT / "scripts/calibrate_selective_cascade.py"),
+            str(ROOT / "scripts/research/calibrate_selective_cascade.py"),
             "--policy", str(paths["policy"]),
             "--task", str(paths["task"]),
             "--instances", str(paths["instances"]),

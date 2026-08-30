@@ -5,7 +5,7 @@ import Foundation
 ///
 /// The report card is a *derived* artifact: `FactoryRun` fragments and
 /// specialist packages stay canonical, and the compiler
-/// (`scripts/build_fine_tune_report_card.py`) joins them into one versioned
+/// (`scripts/factory/build_fine_tune_report_card.py`) joins them into one versioned
 /// payload where every value carries an explicit measurement state.
 ///
 /// This type lives in the pure IO target for the same reason `FactoryRun` does:

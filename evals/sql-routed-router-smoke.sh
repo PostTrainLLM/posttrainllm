@@ -18,7 +18,7 @@ for line in open("evals/sql-routed-mixed-v1/mixed114.jsonl"):
     out.write(json.dumps(row, separators=(",", ":")) + "\n")
 PY
 
-python3 scripts/run_sql_routed_generate.py \
+python3 scripts/sql/run_sql_routed_generate.py \
   --input "$TMP/unlabeled.jsonl" \
   --routes-out "$TMP/routes.jsonl" \
   --route-only

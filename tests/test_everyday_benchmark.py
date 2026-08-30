@@ -12,7 +12,9 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
+# scripts/ is grouped into topic subdirs; each is a flat import surface.
+for _d in [ROOT / "scripts", *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir())]:
+    sys.path.insert(0, str(_d))
 
 import check_everyday_benchmark as checker  # noqa: E402
 import run_everyday_benchmark as runner  # noqa: E402
@@ -335,7 +337,7 @@ def test_cli_writes_only_validated_no_model_artifacts():
         out_dir = tmp / "out"
         command = [
             sys.executable,
-            str(ROOT / "scripts/run_everyday_benchmark.py"),
+            str(ROOT / "scripts/research/run_everyday_benchmark.py"),
             "--suite", str(SUITE_PATH),
             "--task", str(TASK_PATH),
             "--entry", str(ENTRY_DIR / "adapted-fixture-v1.json"),

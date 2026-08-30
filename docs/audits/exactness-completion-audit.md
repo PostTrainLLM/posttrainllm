@@ -22,13 +22,13 @@ The docs pass is complete when the repository has:
 
 | Requirement | Evidence | Status |
 |---|---|---|
-| Docs golden path | `docs/README.md`, `scripts/check_docs_world_class.py` | complete |
-| Structured attempt ledger | `docs/attempts.json` schema v2, `scripts/check_attempt_ledger.py` | complete |
+| Docs golden path | `docs/README.md`, `scripts/docs-checks/check_docs_world_class.py` | complete |
+| Structured attempt ledger | `docs/attempts.json` schema v2, `scripts/docs-checks/check_attempt_ledger.py` | complete |
 | Human-readable attempt ledger | `docs/attempt-ledger.md` synced by `evals/attempt-ledger-smoke.sh` | complete |
 | Historical coverage boundary | `docs/audits/history-coverage-audit.md` | complete |
-| Technique audit treatment | `docs/techniques/audit-inventory.md`, `scripts/check_technique_inventory.py` | complete |
-| Factory exactness fields | `docs/factory/run-schema.md`, `docs/factory/reports.md`, `docs/factory/case-study-template.md`, `scripts/check_factory_run_publish.py`, native `factory-run publish-check` | complete |
-| Learning path | `docs/learn/curriculum.md`, `docs/learning-pipeline.md`, `docs/learning-progress.md`, `scripts/check_learning_roadmap.py` | complete |
+| Technique audit treatment | `docs/techniques/audit-inventory.md`, `scripts/docs-checks/check_technique_inventory.py` | complete |
+| Factory exactness fields | `docs/factory/run-schema.md`, `docs/factory/reports.md`, `docs/factory/case-study-template.md`, `scripts/factory/check_factory_run_publish.py`, native `factory-run publish-check` | complete |
+| Learning path | `docs/learn/curriculum.md`, `docs/learning-pipeline.md`, `docs/learning-progress.md`, `scripts/docs-checks/check_learning_roadmap.py` | complete |
 | Rendered public docs | `browser` Astro build renders docs including the new audit pages | complete |
 
 ## Current Counts
@@ -78,7 +78,7 @@ bash evals/technique-inventory-smoke.sh
 bash evals/docs-world-class-smoke.sh
 bash evals/factory-publish-check-smoke.sh
 bash evals/learning-roadmap-smoke.sh
-python3 -m py_compile scripts/check_attempt_ledger.py scripts/check_docs_world_class.py scripts/check_factory_run_publish.py scripts/check_learning_roadmap.py scripts/check_technique_inventory.py scripts/render_sql_factory_run.py
+python3 -m py_compile scripts/docs-checks/check_attempt_ledger.py scripts/docs-checks/check_docs_world_class.py scripts/factory/check_factory_run_publish.py scripts/docs-checks/check_learning_roadmap.py scripts/docs-checks/check_technique_inventory.py scripts/sql/render_sql_factory_run.py
 git diff --check
 cd browser && npm run build
 ```

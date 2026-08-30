@@ -6,6 +6,23 @@ journey and several docs reference them (paths now point here). Nothing in the
 active pipelines (`v11_pipeline.sh`, `eval_pace_v2.py`, etc.) imports or executes
 them; the only live references are prose/lineage comments.
 
+
+## 2026-08 sweep
+
+A second batch arrived when `scripts/` was grouped into topic folders. These 35
+had **no inbound reference anywhere** in the repo — not from docs, evals, tests,
+`package.json`, CI, or another script. They are kept for lineage; their own
+usage strings were repointed here.
+
+Notable groups: the remaining Pace v9/v10 builders and router experiments, the
+chess development-suite and Stockfish-ladder pilots, site-replay exporters for
+chess and 2048, external-dataset mergers (`merge_external_v6/v7.py`), and
+assorted one-off shells (`quantize-qwen3-0.6b.sh`, `spec-decode-verify.sh`,
+`specialist-smoke.sh`, `migrate-tmp-runs.sh`).
+
+If you need one again, move it back into the matching `scripts/<group>/` folder
+and bump its repo-root path depth if it computes one.
+
 | Group | Files | Superseded by |
 |-------|-------|---------------|
 | Pace planner data-gen, v3–v8 | `pace-v3-prep.py`, `pace-v4-gold-labels.py`, `pace-v5-*.py`, `pace-v6*.py`, `pace-v8-augment.py` | v9/v10/v11 corpus builders |

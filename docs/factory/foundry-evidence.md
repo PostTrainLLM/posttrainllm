@@ -15,7 +15,7 @@ Store) for the source PRD.
 - Automation MAY prepare local artifacts, reports, and PRs.
 - Automation MUST NOT publish a model, release, benchmark claim, or production
   deploy without explicit approval. Production deploys remain manual via
-  `scripts/manual-deploy.mjs`, which itself requires a green CI run on `main`.
+  `scripts/release/manual-deploy.mjs`, which itself requires a green CI run on `main`.
 - No new production dependency was added by this contract. Receipts reuse
   existing in-repo evidence (git, `specialists/registry.json`, factory-run
   folders, `docs/factory/public-artifacts.md`, GitHub Actions status via `gh`).
@@ -32,8 +32,8 @@ Store) for the source PRD.
 | Factory CLI | Native (Swift/MLX) | `native-mac/Sources/TinyGPT/` | local binary `posttrainllm` |
 | Factory run artifacts | Local filesystem (gitignored) | `runs/<id>/` per `run-schema.md` | local only |
 | Local training/eval | Native + Python | `native-mac/`, `python_ref/`, `evals/`, `scripts/` | local only |
-| Nightly dataset jobs | Local cron / manual | `scripts/nightly.sh`, `scripts/nightly/N*.sh` | `~/.cache/posttrainllm/nightly/` |
-| Releases / deploys | GitHub Actions + Cloudflare Pages | `.github/workflows/{ci,deploy}.yml`, `scripts/manual-deploy.mjs` | manual dispatch |
+| Nightly dataset jobs | Local cron / manual | `scripts/pipelines/nightly.sh`, `scripts/nightly/N*.sh` | `~/.cache/posttrainllm/nightly/` |
+| Releases / deploys | GitHub Actions + Cloudflare Pages | `.github/workflows/{ci,deploy}.yml`, `scripts/release/manual-deploy.mjs` | manual dispatch |
 | CI | GitHub Actions | `.github/workflows/ci.yml` | per-commit on `main` and PRs |
 
 ## Per-surface evidence contracts
@@ -41,14 +41,14 @@ Store) for the source PRD.
 Each contract resolves to one of: `pass`, `fail`, `stale`, `blocked`,
 `accepted-exception`, or `not-applicable`, with an observation time, freshness
 window, evidence reference, and next action. The Foundry receipt emitted by
-`scripts/foundry_receipt.py` carries the machine-readable form.
+`scripts/factory/foundry_receipt.py` carries the machine-readable form.
 
 ### Public site (Astro)
 
 - **Build**: `pnpm --dir browser run build` succeeds (tsc + astro build +
   docs). Source: CI `browser` job.
 - **Live**: `https://posttrainllm.com/` returns 200 and matches the deployed
-  git revision. Source: `scripts/manual-deploy.mjs` records the deployed SHA;
+  git revision. Source: `scripts/release/manual-deploy.mjs` records the deployed SHA;
   Foundry receipt records the latest `main` SHA and the CF Pages deployment
   alias when `gh` is available.
 - **Indexing**: `llms.txt`, `llms-full.txt`, `api-ai.json`, `robots.txt`,
@@ -82,7 +82,7 @@ window, evidence reference, and next action. The Foundry receipt emitted by
 - **Provenance**: every public quality claim (e.g. "file-ops hard gate
   58% → 100%") MUST link the exact source revision, model id, eval config,
   dataset/version, time, result, and artifact location or retention status.
-  `scripts/check_foundry_receipt.py` enforces this on any receipt that
+  `scripts/factory/check_foundry_receipt.py` enforces this on any receipt that
   carries a `quality_claim`.
 - **Release state**: each artifact declares one of `release-ready-metadata`,
   `release-ready-weights`, `candidate-current-best`, `report-only`,
@@ -100,7 +100,7 @@ window, evidence reference, and next action. The Foundry receipt emitted by
 
 - **Local workflow completion receipt**: when a factory run completes, the
   run folder (`runs/<id>/`) contains the fragments defined in
-  `run-schema.md`. `scripts/assemble_factory_run.py` derives
+  `run-schema.md`. `scripts/factory/assemble_factory_run.py` derives
   `provenance.json` and `report.md`. The Foundry receipt carries only:
   run_id, target slug, method, decision, baseline/candidate scores, delta,
   git revision, dataset sha256 + row count, the publish-check verdict, and
@@ -128,7 +128,7 @@ window, evidence reference, and next action. The Foundry receipt emitted by
 
 ### Scheduled data / feed freshness
 
-- **Nightly jobs**: `scripts/nightly.sh` runs `scripts/nightly/N*.sh` in lex
+- **Nightly jobs**: `scripts/pipelines/nightly.sh` runs `scripts/nightly/N*.sh` in lex
   order under `caffeinate -di`, logging to
   `~/.cache/posttrainllm/nightly/logs/` and touching
   `~/.cache/posttrainllm/nightly/done/<job>.done` on success.
@@ -152,7 +152,7 @@ window, evidence reference, and next action. The Foundry receipt emitted by
   --branch=main` for the latest run and records status, conclusion, head SHA,
   and URL.
 - **Deploy gate**: `.github/workflows/deploy.yml` is `workflow_dispatch`
-  only. `scripts/manual-deploy.mjs` refuses to dispatch unless the working
+  only. `scripts/release/manual-deploy.mjs` refuses to dispatch unless the working
   tree is clean, the branch is `main`, and the latest CI run on `main` is
   green at the current HEAD.
 - **Manual publication authority**: no automated receipt or script publishes
@@ -177,13 +177,13 @@ fleet report:
 - Anything covered by `~/.gitignore` or this repo's `.gitignore` that is not
   a committed metadata file.
 
-`scripts/check_foundry_receipt.py` enforces this with a denylist of field
+`scripts/factory/check_foundry_receipt.py` enforces this with a denylist of field
 names and a payload-bytes ceiling. `tests/test_foundry_receipt.py` proves
 private fixtures cannot leak through the sanitizer.
 
 ## Receipt shape
 
-Emitted by `scripts/foundry_receipt.py`:
+Emitted by `scripts/factory/foundry_receipt.py`:
 
 ```json
 {

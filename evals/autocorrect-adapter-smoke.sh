@@ -10,21 +10,21 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # The frozen recipe must still agree with the thresholds, the manifests, and the
 # measured base-selection record.
-python3 "$ROOT/scripts/autocorrect_adapter.py" validate
+python3 "$ROOT/scripts/research/autocorrect_adapter.py" validate
 
 # Both stage plans must resolve without executing anything.
-python3 "$ROOT/scripts/autocorrect_adapter.py" plan --stage tiny_overfit >/dev/null
-python3 "$ROOT/scripts/autocorrect_adapter.py" plan --stage pilot >/dev/null
+python3 "$ROOT/scripts/research/autocorrect_adapter.py" plan --stage tiny_overfit >/dev/null
+python3 "$ROOT/scripts/research/autocorrect_adapter.py" plan --stage pilot >/dev/null
 
 # Training must stay refused without operator approval...
-if python3 "$ROOT/scripts/autocorrect_adapter.py" train --stage tiny_overfit >/dev/null 2>&1; then
+if python3 "$ROOT/scripts/research/autocorrect_adapter.py" train --stage tiny_overfit >/dev/null 2>&1; then
   echo "autocorrect-adapter-smoke: FAIL train must refuse without operator approval" >&2
   exit 1
 fi
 
 # ...and must still refuse WITH approval while the recipe is retired. Approval
 # is not a licence to train under a recipe that reached its stop rule.
-if python3 "$ROOT/scripts/autocorrect_adapter.py" train --stage pilot \
+if python3 "$ROOT/scripts/research/autocorrect_adapter.py" train --stage pilot \
      --i-have-operator-approval >/dev/null 2>&1; then
   echo "autocorrect-adapter-smoke: FAIL train must refuse under a retired recipe" >&2
   exit 1

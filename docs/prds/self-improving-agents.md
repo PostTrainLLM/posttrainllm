@@ -29,10 +29,10 @@ _environments_ to run the loop in.
 
 | Loop step              | Existing artifact                                                                          |
 | ---------------------- | ------------------------------------------------------------------------------------------ |
-| Act / roll out         | `scripts/bfcl_multiturn_eval.py` (native tool-calling, MAX_STEPS agentic loop)             |
+| Act / roll out         | `scripts/bfcl/bfcl_multiturn_eval.py` (native tool-calling, MAX_STEPS agentic loop)             |
 | Verifiable reward      | BFCL `multi_turn_checker` (end-state) — already the reward in every gate                   |
 | Keep good experience   | rejection sampling (the RFT filter) — `bfcl_multiturn_*.py --dump` / `gold_to_sft_traj.py` |
-| Learn                  | `scripts/distill_multiturn.sh` (render → LoRA SFT → fuse) and the GRPO loop (§5)           |
+| Learn                  | `scripts/pipelines/distill_multiturn.sh` (render → LoRA SFT → fuse) and the GRPO loop (§5)           |
 | Choose what's next     | the cliff-finding methodology (easy→hard→veryhard→breadth) — to be **automated**           |
 | Keep the reward honest | frontier-ceiling gate + free `bfcl_multiturn_codex.py` (gpt-5.5)                           |
 

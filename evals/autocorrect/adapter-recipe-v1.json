@@ -5,7 +5,7 @@
   "movement_policy": "Any change to this recipe requires a new version before candidate outputs are inspected. A frozen run is never re-planned mid-flight.",
   "status": "retired",
   "retired_on": "2026-07-25",
-  "retired_reason": "Reached its stop rule. The pilot regressed to -0.8125 error reduction by overcorrecting into paraphrase, and the run was truncated at step 50 of 300 by a stop rule the base model already violates. Three design defects were found only after training, the largest of them visible in committed files on the day the base was selected; all three are now checked mechanically by scripts/autocorrect_adapter.py::check_recipe_defects so a v2 cannot inherit them. Evidence: evals/autocorrect/pilot-result-v1.json.",
+  "retired_reason": "Reached its stop rule. The pilot regressed to -0.8125 error reduction by overcorrecting into paraphrase, and the run was truncated at step 50 of 300 by a stop rule the base model already violates. Three design defects were found only after training, the largest of them visible in committed files on the day the base was selected; all three are now checked mechanically by scripts/research/autocorrect_adapter.py::check_recipe_defects so a v2 cannot inherit them. Evidence: evals/autocorrect/pilot-result-v1.json.",
   "known_defects": [
     {
       "id": "zero-shot-capacity-gap",
@@ -104,7 +104,7 @@
       "utf8_bytes": 6981,
       "dataset_sha256": "e18fac8d1b78ce527ece7b4eec83e31d4192e821d4ce88cfa295ce41a50d5e71"
     },
-    "materialized_by": "scripts/autocorrect_foundation.py materialize_manifest",
+    "materialized_by": "scripts/research/autocorrect_foundation.py materialize_manifest",
     "split_policy": "Every derivative retains its source document split. No test source is eligible for either manifest.",
     "max_source_tokens": 256,
     "max_target_tokens": 96,
@@ -168,7 +168,7 @@
       "rows_max": 256,
       "steps_max": 1000,
       "wall_time_minutes_max": 120,
-      "evaluated_on": "evals/autocorrect/eval-v1.jsonl via scripts/autocorrect_foundation.py evaluate",
+      "evaluated_on": "evals/autocorrect/eval-v1.jsonl via scripts/research/autocorrect_foundation.py evaluate",
       "reported_metrics": [
         "error_reduction_rate",
         "exact_match_rate",

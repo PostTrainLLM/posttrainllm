@@ -30,7 +30,7 @@ def rollout(policy, tok, env, max_turns):
 def grpo_step(policy, ref, opt, env, K, batch):
     """Reuse the validated loop: sample K rollouts/scenario-seed, group-normalize the
     advantage (skip zero-variance groups = dynamic sampling), KL-to-ref penalty, grad
-    accumulation. See scripts/bfcl_ast_eval.py's sibling GRPO for the exact mechanics."""
+    accumulation. See scripts/bfcl/bfcl_ast_eval.py's sibling GRPO for the exact mechanics."""
     raise NotImplementedError("port grpo loop with Env reward in place of AST reward")
 
 def main():

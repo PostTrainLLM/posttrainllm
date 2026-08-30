@@ -199,7 +199,7 @@ def _provenance(baseline_cmd: str, candidate_cmd: str) -> dict[str, Any]:
             "baseline": baseline_cmd,
             "candidate": candidate_cmd,
             "training": "posttrainllm sft fixture-base --data train.jsonl",
-            "publish_check": "python3 scripts/check_factory_run_publish.py <run-dir>",
+            "publish_check": "python3 scripts/factory/check_factory_run_publish.py <run-dir>",
         },
         "datasets": [
             {"path": "evals/fixture/train.jsonl", "rows": 40, "sha256": "a" * 64}

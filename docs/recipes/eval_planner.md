@@ -11,7 +11,7 @@ Start the candidate behind an OpenAI-compatible `/v1/chat/completions` endpoint,
 then run each unhappy-path dimension with the fixed B23 protocol:
 
 ```bash
-python3 scripts/eval_pace_unhappy.py \
+python3 scripts/pace/eval_pace_unhappy.py \
   --fixtures-dir evals/fm-fixtures-oos-h2 \
   --serve-url http://127.0.0.1:8765/v1/chat/completions \
   --model-id qwen3-4b-instruct-2507 \
@@ -40,7 +40,7 @@ the old one-pass fields for `--passes 1`; for `--passes K`, it adds:
 This exercises the aggregation path without a model:
 
 ```bash
-python3 scripts/eval_pace_unhappy.py \
+python3 scripts/pace/eval_pace_unhappy.py \
   --fixtures-dir evals/fm-fixtures-oos-h2 \
   --skip-model \
   --passes 3 \
@@ -51,5 +51,5 @@ python3 scripts/eval_pace_unhappy.py \
 Strict scorer audit:
 
 ```bash
-python3 scripts/eval_pace_unhappy.py --self-test
+python3 scripts/pace/eval_pace_unhappy.py --self-test
 ```

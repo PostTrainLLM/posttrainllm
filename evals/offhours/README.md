@@ -123,13 +123,13 @@ unresolved tension - resolved tension
 | `configs/offhours/pilot-v1.json`               | Historical starting ruler retained with its blind calibration evidence                                     |
 | `evals/offhours/calibrations/`                 | Frozen prompts, answers, hashes, and machine-readable Devin ceiling receipts                               |
 | `evals/offhours/results/`                      | Reviewable aggregate measured reports; raw transcripts and SQLite remain local and ignored                 |
-| `scripts/offhours.py`                          | `validate`, `plan`, `run`, `status`, `analyze`, and `export` CLI                                           |
-| `scripts/offhours_devin.py`                    | Validation-only adapter that maps each workday to one sequential Devin CLI session                         |
-| `scripts/offhours_core.py`                     | Policy oracle, validators, paired scheduler, strict parsers, and local endpoint client                     |
-| `scripts/offhours_store.py`                    | SQLite schema, per-turn transactions, fail-closed context checks, resume, and JSONL export                 |
-| `scripts/offhours_analysis.py`                 | Paired workday bootstrap, recovery bands, behavior metrics, task fragility, and reports                    |
-| `scripts/offhours_report.py`                   | Self-contained accessible HTML report with inline SVG charts and print styles                              |
-| `scripts/render_offhours_fixture_report.py`    | Deterministically regenerates or checks the committed synthetic method preview                             |
+| `scripts/offhours/offhours.py`                          | `validate`, `plan`, `run`, `status`, `analyze`, and `export` CLI                                           |
+| `scripts/offhours/offhours_devin.py`                    | Validation-only adapter that maps each workday to one sequential Devin CLI session                         |
+| `scripts/offhours/offhours_core.py`                     | Policy oracle, validators, paired scheduler, strict parsers, and local endpoint client                     |
+| `scripts/offhours/offhours_store.py`                    | SQLite schema, per-turn transactions, fail-closed context checks, resume, and JSONL export                 |
+| `scripts/offhours/offhours_analysis.py`                 | Paired workday bootstrap, recovery bands, behavior metrics, task fragility, and reports                    |
+| `scripts/offhours/offhours_report.py`                   | Self-contained accessible HTML report with inline SVG charts and print styles                              |
+| `scripts/offhours/render_offhours_fixture_report.py`    | Deterministically regenerates or checks the committed synthetic method preview                             |
 | `tests/test_offhours.py`                       | Hermetic contract, runner, interruption, context-limit, export, and null-report tests                      |
 | `benchmark-runs/offhours/`                     | Ignored local databases, transcripts, exports, and reports                                                 |
 
@@ -147,7 +147,7 @@ exports and reports.
 Inspect a paired plan:
 
 ```bash
-python3 scripts/offhours.py plan --days 5 --tasks-per-day 40 --seed 42
+python3 scripts/offhours/offhours.py plan --days 5 --tasks-per-day 40 --seed 42
 ```
 
 ## Run the pilot
@@ -158,7 +158,7 @@ Before testing Qwen, run the frozen six-condition pilot through Devin GLM-5.2
 from a clean linked worktree:
 
 ```bash
-python3 scripts/offhours_devin.py \
+python3 scripts/offhours/offhours_devin.py \
   --days 5 \
   --tasks-per-day 40 \
   --seed 42 \
@@ -183,7 +183,7 @@ claims that require those provenance fields.
 For the current persistent-tension design, select its frozen config explicitly:
 
 ```bash
-python3 scripts/offhours_devin.py \
+python3 scripts/offhours/offhours_devin.py \
   --config configs/offhours/tension-v2.json \
   --days 5 \
   --tasks-per-day 40 \
@@ -199,7 +199,7 @@ five completed workdays. Only after that gate passes, run all eight paired
 conditions from the same frozen commit:
 
 ```bash
-python3 scripts/offhours_devin.py \
+python3 scripts/offhours/offhours_devin.py \
   --config configs/offhours/occupancy-v1.json \
   --condition clean \
   --days 5 \
@@ -209,7 +209,7 @@ python3 scripts/offhours_devin.py \
   --db /absolute/path/to/new-clean-gate.sqlite \
   --worktree "$PWD"
 
-python3 scripts/offhours_devin.py \
+python3 scripts/offhours/offhours_devin.py \
   --config configs/offhours/occupancy-v1.json \
   --days 5 \
   --tasks-per-day 40 \
@@ -228,7 +228,7 @@ adjudication. The Devin adapter rejects that selector for every other config or
 day so a shortened run cannot masquerade as the ordinary measured workload:
 
 ```bash
-python3 scripts/offhours_devin.py \
+python3 scripts/offhours/offhours_devin.py \
   --config configs/offhours/volume-v1.json \
   --condition volume_neutral_2000 \
   --days 3 --day-index 3 --tasks-per-day 40 --seed 83 \
@@ -247,7 +247,7 @@ Start an OpenAI-compatible local endpoint first. Then record the real model and
 server identity rather than relying on the placeholder configuration:
 
 ```bash
-python3 scripts/offhours.py run \
+python3 scripts/offhours/offhours.py run \
   --days 5 \
   --tasks-per-day 40 \
   --seed 42 \
@@ -272,7 +272,7 @@ If the endpoint requires authentication, place it in a runtime environment
 variable and pass only the variable name:
 
 ```bash
-python3 scripts/offhours.py run --api-key-env OFFHOURS_API_KEY ...
+python3 scripts/offhours/offhours.py run --api-key-env OFFHOURS_API_KEY ...
 ```
 
 The key value is sent only in the request header. It is not written to SQLite,
@@ -284,11 +284,11 @@ Supply the same database and run identifier. Completed turns are never called
 again:
 
 ```bash
-python3 scripts/offhours.py status \
+python3 scripts/offhours/offhours.py status \
   --db benchmark-runs/offhours/offhours.sqlite \
   --run-id '<run-id>'
 
-python3 scripts/offhours.py run \
+python3 scripts/offhours/offhours.py run \
   --db benchmark-runs/offhours/offhours.sqlite \
   --run-id '<run-id>' \
   --days 5 --tasks-per-day 40 --seed 42 \
@@ -304,13 +304,13 @@ Resume arguments and provenance flags must match the stored run identity.
 ## Analyze and export
 
 ```bash
-python3 scripts/offhours.py analyze \
+python3 scripts/offhours/offhours.py analyze \
   --run-id '<run-id>' \
   --json-out benchmark-runs/offhours/report.json \
   --markdown-out benchmark-runs/offhours/report.md \
   --html-out benchmark-runs/offhours/report.html
 
-python3 scripts/offhours.py export \
+python3 scripts/offhours/offhours.py export \
   --run-id '<run-id>' \
   --out benchmark-runs/offhours/turns.jsonl
 ```
@@ -332,7 +332,7 @@ The default `pilot-v2` ruler has a committed, machine-readable Devin ceiling
 receipt. Attach it when analyzing a candidate model:
 
 ```bash
-python3 scripts/offhours.py analyze \
+python3 scripts/offhours/offhours.py analyze \
   --run-id '<candidate-run-id>' \
   --ceiling-report evals/offhours/calibrations/devin-glm-5.2-pilot-v2.json \
   --json-out benchmark-runs/offhours/candidate-report.json \

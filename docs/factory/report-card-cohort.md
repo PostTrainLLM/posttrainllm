@@ -19,7 +19,7 @@ two shipped packages carry `historical` values with no eval command, frozen-eval
 identity, or overlap check, and the SQL candidate is a `retry-eval` with three
 open blockers. Each card lists its own blockers.
 
-Regenerate the cohort with `python3 scripts/publish_report_cards.py`; check for
+Regenerate the cohort with `python3 scripts/factory/publish_report_cards.py`; check for
 drift with `--check` (also step 4 of `evals/fine-tune-report-card-smoke.sh`).
 
 ### What each card shows

@@ -48,7 +48,7 @@ candidate outputs exist.
 
 ## Strict evaluator
 
-`scripts/autocorrect_foundation.py evaluate` requires exactly one string
+`scripts/research/autocorrect_foundation.py evaluate` requires exactly one string
 prediction per frozen ID and rejects missing, duplicate, extra, or expanded
 records. It reports:
 

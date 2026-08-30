@@ -308,8 +308,8 @@
       "next_action": "Run only after candidate rows are generated without leakage.",
       "evidence_sources": [
         "docs/techniques/sql-technique-backlog.md",
-        "scripts/build_sql_candidate_choice.py",
-        "scripts/score_sql_candidate_choice.py"
+        "scripts/sql/build_sql_candidate_choice.py",
+        "scripts/sql/score_sql_candidate_choice.py"
       ],
       "source": "docs/techniques/sql-technique-backlog.md",
       "kind": "training-run",
@@ -703,11 +703,11 @@
       "lesson": "v10 repeated v6's move of changing the output representation, and because it was never measured the v6 regression could not be checked for recurrence. Its unmeasured corpus was then inherited by v11.",
       "next_action": "Do not reuse a v10-derived corpus without first measuring the representation change in isolation.",
       "evidence_sources": [
-        "scripts/v10_pipeline.sh",
+        "scripts/pipelines/v10_pipeline.sh",
         "docs/prds/pace-planner-v11-training-data.md",
         "docs/archive/HANDOFF.md"
       ],
-      "source": "scripts/v10_pipeline.sh"
+      "source": "scripts/pipelines/v10_pipeline.sh"
     },
     {
       "id": "pace-planner-v11",
@@ -847,7 +847,7 @@
       "failure_reason": "Qwen3.5 improved some dimensions, especially OOS for 9B, but did not beat the stored champion across the full swap decision.",
       "failure_reason_confidence": "exact",
       "lesson": "Single-dimension wins do not justify a planner swap when another required dimension regresses.",
-      "next_action": "Use `scripts/eval_planner.sh` for future challengers and keep swap/no-swap verdicts tied to all required dimensions.",
+      "next_action": "Use `scripts/pipelines/eval_planner.sh` for future challengers and keep swap/no-swap verdicts tied to all required dimensions.",
       "evidence_sources": [
         "docs/sessions/DRILLDOWN.md"
       ],
@@ -1256,17 +1256,17 @@
       "name": "SQL factory run renderer",
       "family": "factory-docs",
       "status": "worked-with-caveat",
-      "evidence": "`scripts/render_sql_factory_run.py` renders canonical SQL report artifacts",
+      "evidence": "`scripts/sql/render_sql_factory_run.py` renders canonical SQL report artifacts",
       "failure_reason": "The renderer is a useful bridge but not yet one universal factory command.",
       "failure_reason_confidence": "exact",
       "lesson": "Rendered reports made SQL publishable, but the factory still needs command-level automation.",
       "next_action": "Use the renderer until the canonical train/eval/report command can emit the same artifacts directly.",
       "evidence_sources": [
-        "scripts/render_sql_factory_run.py",
+        "scripts/sql/render_sql_factory_run.py",
         "evals/factory-publish-check-smoke.sh",
         "docs/factory/reports.md"
       ],
-      "source": "scripts/render_sql_factory_run.py",
+      "source": "scripts/sql/render_sql_factory_run.py",
       "kind": "infrastructure"
     },
     {

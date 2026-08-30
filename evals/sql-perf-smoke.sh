@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# No-model smoke for scripts/measure_sql_routed_perf.py.
+# No-model smoke for scripts/sql/measure_sql_routed_perf.py.
 #
 # Runs the harness in mock mode over the first 5 rows of
 # evals/sql-poc-expanded/dev.jsonl into a temp dir and asserts every
@@ -20,7 +20,7 @@ MOCK_CMD='python3 -c "import time; time.sleep(0.01); print(\"select 1 from t whe
 
 OUT="$WORK/report.json"
 
-python3 "$ROOT/scripts/measure_sql_routed_perf.py" \
+python3 "$ROOT/scripts/sql/measure_sql_routed_perf.py" \
   --data "$DATA" \
   --limit 5 \
   --mock \

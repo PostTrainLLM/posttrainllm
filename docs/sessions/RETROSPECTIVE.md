@@ -129,8 +129,8 @@ Apple FM, the contamination-checked h2 suites (60 fixtures).
 - Runtime: `native-mac/Sources/TinyGPTServe/`,
   `native-mac/Sources/TinyGPTModel/Qwen3ANEChunked.swift`,
   `scripts/ane/m8_*.py`, `scripts/ane/m8_numerics_gate.py`
-- Eval: `scripts/eval_pace_v2.py`, `scripts/eval_pace_unhappy.py`,
-  `scripts/eval_bfcl.py`, `scripts/score_formula.py`,
+- Eval: `scripts/pace/eval_pace_v2.py`, `scripts/pace/eval_pace_unhappy.py`,
+  `scripts/bfcl/eval_bfcl.py`, `scripts/score_formula.py`,
   `scripts/fm_bridge.swift`, `scripts/fm_shim.py`,
   `scripts/cloud_shim.py`
 - Held-out fixtures: `evals/fm-fixtures-{oos,ambig,destructive}-h2/`

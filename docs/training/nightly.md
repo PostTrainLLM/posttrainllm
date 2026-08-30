@@ -7,17 +7,17 @@ work fills the queue and polishes infrastructure; nighttime runs through it.
 
 1. Each job is a shell script under [`scripts/nightly/N*.sh`](../../scripts/nightly/),
    numbered lex-sortably.
-2. The runner [`scripts/nightly.sh`](../../scripts/nightly.sh) picks the
+2. The runner [`scripts/pipelines/nightly.sh`](../../scripts/pipelines/nightly.sh) picks the
    lowest-numbered job that doesn't have a matching `.done` file in
    `~/.cache/posttrainllm/nightly/done/`, runs it under `caffeinate -di`, logs
    to `~/.cache/posttrainllm/nightly/logs/<ts>-<name>.log`, and posts a
    completion notification.
-3. Before bed: `./scripts/nightly.sh &`. Wake up to a done job + a log
+3. Before bed: `./scripts/pipelines/nightly.sh &`. Wake up to a done job + a log
    + a `/training-dashboard` JSONL ready to drop.
 4. To add a job: copy an existing `scripts/nightly/N*.sh` to the next
    number, edit the commands, commit. To re-run a job: delete its
    `.done` marker.
-5. To pause the queue: just don't run `./scripts/nightly.sh` that night.
+5. To pause the queue: just don't run `./scripts/pipelines/nightly.sh` that night.
 
 ## Tonight (next job the runner will pick)
 

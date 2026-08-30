@@ -14,7 +14,7 @@
     "thermal_procedure": "single warm-up followed by one bounded greedy pass per candidate"
   },
   "runner": {
-    "script": "scripts/autocorrect_base_bakeoff.py",
+    "script": "scripts/research/autocorrect_base_bakeoff.py",
     "dependencies": {
       "python": "3.12",
       "torch": "2.13.0",
@@ -2275,7 +2275,7 @@
       "num_beams": 1,
       "max_new_tokens": 96
     },
-    "baseline_command": "HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false uv run --isolated --python 3.12 --with torch==2.13.0 --with transformers==5.14.1 --with sentencepiece==0.2.2 python scripts/autocorrect_base_bakeoff.py --model-key flan-t5-small --model-dir /Users/sarthak/.cache/posttrainllm/autocorrect-bases/flan-t5-small-0fc9ddf --output-dir runs/autocorrect-base-bakeoff-v1 --device mps",
+    "baseline_command": "HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 TOKENIZERS_PARALLELISM=false uv run --isolated --python 3.12 --with torch==2.13.0 --with transformers==5.14.1 --with sentencepiece==0.2.2 python scripts/research/autocorrect_base_bakeoff.py --model-key flan-t5-small --model-dir /Users/sarthak/.cache/posttrainllm/autocorrect-bases/flan-t5-small-0fc9ddf --output-dir runs/autocorrect-base-bakeoff-v1 --device mps",
     "trainable_failure_slices": [
       "missed edits across substitution, omission, transposition, insertion, and space errors",
       "code-like span formatting damage",

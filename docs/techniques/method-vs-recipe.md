@@ -91,10 +91,10 @@ how repeats happen. Query the ledger by the *shape* of what you are about to
 try, not by reading it chronologically:
 
 ```bash
-python3 scripts/query_attempts.py --method dpo --objective output-format
-python3 scripts/query_attempts.py --base qwen3-0.6b --failures-only
-python3 scripts/query_attempts.py --lineage <attempt-id>   # what this extends
-python3 scripts/query_attempts.py --streaks                # axes that stopped paying
+python3 scripts/docs-checks/query_attempts.py --method dpo --objective output-format
+python3 scripts/docs-checks/query_attempts.py --base qwen3-0.6b --failures-only
+python3 scripts/docs-checks/query_attempts.py --lineage <attempt-id>   # what this extends
+python3 scripts/docs-checks/query_attempts.py --streaks                # axes that stopped paying
 ```
 
 `docs/attempts.json` carries `methods`, `bases`, `objective`, `data_rows`, and
@@ -109,7 +109,7 @@ attempt needs to change *axis*, not pressure. The SQL output-format lane hit
 three and the honest conclusion was that preference tuning was the wrong tool.
 
 A recipe with a `shape` block gets this lookup automatically at validate time —
-see `scripts/autocorrect_adapter.py::print_prior_attempts` for the pattern.
+see `scripts/research/autocorrect_adapter.py::print_prior_attempts` for the pattern.
 
 ## Closing An Attempt: Triage The Lesson
 
@@ -120,7 +120,7 @@ attempt, put its lesson in one of two places:
    validating a fixture, or asserting a threshold is satisfiable belongs in a
    guard script. Both defects that ended the autocorrect lane were visible in
    committed files at freeze time; nobody ran the comparison. They are now
-   `scripts/autocorrect_adapter.py::check_recipe_defects`, and they fail the
+   `scripts/research/autocorrect_adapter.py::check_recipe_defects`, and they fail the
    recipe before any training starts.
 2. **Judgment → a ledger entry with full shape.** Set `methods`, `bases`,
    `objective`, and `varied_from` so the lesson is *reachable by query* from a

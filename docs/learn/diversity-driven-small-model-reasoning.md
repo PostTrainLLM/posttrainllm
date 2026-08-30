@@ -61,7 +61,7 @@ GRPO/RLVR basics (see [advanced-llm-training](./advanced-llm-training.md)).
   file-ops / vehicle / trading / travel specialists and **merge the weights**. We
   already do LoRA + fuse, so this is buildable now.
 - **Source:** VibeThinker §SFT (domain-specialist merging) — [arXiv:2606.16140](https://arxiv.org/abs/2606.16140).
-- **Repo anchor:** [`scripts/distill_multiturn.sh`](../../scripts/distill_multiturn.sh)
+- **Repo anchor:** [`scripts/pipelines/distill_multiturn.sh`](../../scripts/pipelines/distill_multiturn.sh)
   (LoRA SFT → fuse) is the per-specialist builder; merging multiple fused models is the
   missing step.
 

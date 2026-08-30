@@ -64,8 +64,8 @@ run bash "$ROOT/evals/sql-spider-execution-smoke.sh"
 run bash "$ROOT/evals/milu-smoke.sh"
 run bash "$ROOT/evals/review-smoke.sh"
 run bash "$ROOT/evals/reasoning-classifier-smoke.sh"
-run python3 "$ROOT/scripts/bench_energy.py" --self-test
-run python3 "$ROOT/scripts/bench_decode_thermal.py" --self-test
+run python3 "$ROOT/scripts/bench/bench_energy.py" --self-test
+run python3 "$ROOT/scripts/bench/bench_decode_thermal.py" --self-test
 
 if ensure_gpt2_tokenizer_fixture; then
   run bash "$ROOT/evals/extractor-bpe-smoke.sh"

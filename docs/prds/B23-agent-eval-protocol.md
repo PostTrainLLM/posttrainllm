@@ -21,7 +21,7 @@ title: "B23 agent eval protocol hardening"
 > attach the same protocol block when `--budget` or `TINYGPT_EVAL_BUDGET` is
 > present. `posttrainllm eval-compare` now renders repeated-run uncertainty as
 > `mean±ci95_half_width` either from row-level `pass_stats` or from repeated
-> rows with the same task/model/metric. `scripts/eval_pace_unhappy.py` now
+> rows with the same task/model/metric. `scripts/pace/eval_pace_unhappy.py` now
 > supports `--passes K` plus budget/protocol metadata in its JSON output.
 > Remaining B23 work: future SWE-mini / Terminal-mini rows and actual
 > sandbox/resource enforcement.
@@ -76,7 +76,7 @@ under (max_steps=8, T=0, sandbox=1cpu+512mb)".
   }
   ```
 - Add `--passes K --budget budget.json` to `posttrainllm eval-bfcl`,
-  `posttrainllm eval-tau-bench`, `scripts/eval_pace_unhappy.py`.
+  `posttrainllm eval-tau-bench`, `scripts/pace/eval_pace_unhappy.py`.
 - Output JSON gains the `protocol` block carrying the budget + the
   per-trial scores. Existing `passed`/`total` stays for back-compat.
 - `eval-compare` learns to render error bars (use ±1.96σ if `ci95`
@@ -104,7 +104,7 @@ under (max_steps=8, T=0, sandbox=1cpu+512mb)".
 | `evals/sample-budget.json` | shipped partial — example fixed budget config |
 | `Sources/TinyGPT/EvalBFCL.swift` | shipped partial — `--budget` row metadata wiring; K-pass repetition stays at `eval-gate` |
 | `Sources/TinyGPT/EvalTauBench.swift` | shipped partial — same |
-| `scripts/eval_pace_unhappy.py` | shipped partial — `--passes K`; aggregate per-trial via mean/stdev/ci95 and protocol budget |
+| `scripts/pace/eval_pace_unhappy.py` | shipped partial — `--passes K`; aggregate per-trial via mean/stdev/ci95 and protocol budget |
 | `Sources/TinyGPT/EvalCompare.swift` | shipped partial — renders `mean±ci95` for repeated rows / row-level `pass_stats` |
 | `evals/sample-budget.json` | new — fixture budget config |
 | `docs/research/mac_slm_leaderboard_v0.md` | "Protocol" subsection citing the budget format |

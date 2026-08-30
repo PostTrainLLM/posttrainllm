@@ -93,7 +93,7 @@ Reproduce:
 ```
 lms load google/gemma-3-12b --identifier google/gemma-3-12b
 WORKER=$(ps -axo pid,rss,comm | awk '/lmstudio.*node/ && $2>1000000 {print $1; exit}')
-python3 scripts/bench_decode.py \
+python3 scripts/bench/bench_decode.py \
   --url http://127.0.0.1:1234/v1/chat/completions \
   --model google/gemma-3-12b --rss-pid "$WORKER" \
   --jsonl docs/research/data/gemma-12b-decode.jsonl \

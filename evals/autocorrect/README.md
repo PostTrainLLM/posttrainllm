@@ -50,7 +50,7 @@ This directory is the committed, no-model foundation for
 ## No-model checks
 
 ```bash
-python3 scripts/autocorrect_foundation.py validate
+python3 scripts/research/autocorrect_foundation.py validate
 python3 tests/test_autocorrect_foundation.py
 bash evals/autocorrect-foundation-smoke.sh
 
@@ -64,14 +64,14 @@ not a dependency of this repository. To check load parity against the real
 pinned base (forward-only, CPU, zero optimizer steps):
 
 ```bash
-HF_HUB_OFFLINE=1 python3 scripts/autocorrect_adapter.py verify-base
+HF_HUB_OFFLINE=1 python3 scripts/research/autocorrect_adapter.py verify-base
 ```
 
 Score a strict prediction file containing exactly one
 `{"id": "...", "prediction": "..."}` object per row:
 
 ```bash
-python3 scripts/autocorrect_foundation.py evaluate \
+python3 scripts/research/autocorrect_foundation.py evaluate \
   --predictions evals/autocorrect/oracle-predictions-v1.jsonl
 ```
 

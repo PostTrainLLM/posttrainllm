@@ -164,7 +164,7 @@ something more training of *this* base fixes.
 
 Single-turn (88.7) said nothing about *holding a conversation*. Built a stateful
 multi-turn harness reusing BFCL's machinery (`execute_multi_turn_func_call` +
-`multi_turn_checker` + the `involved_classes` backends); `scripts/bfcl_multiturn_eval.py`.
+`multi_turn_checker` + the `involved_classes` backends); `scripts/bfcl/bfcl_multiturn_eval.py`.
 
 **The build lesson:** the *inference side* is the eval. A hand-rolled text-transcript
 prompt under-elicited badly — the 30B-A3B scored **0/8 despite acing single-turn (96/96)**.
@@ -318,7 +318,7 @@ never trained on), not depth. (DeepSeek's 83% < gpt-5.5's 100% just means DeepSe
 less reliable frontier on fiddly 16-call navigation; the gate is sound — true frontier aces it.)
 
 **Free frontier backend (cost fix):** validation + teacher trajectories now run on the **Codex
-CLI (`gpt-5.5`), free under subscription** — `scripts/bfcl_multiturn_codex.py` drives it
+CLI (`gpt-5.5`), free under subscription** — `scripts/bfcl/bfcl_multiturn_codex.py` drives it
 single-shot per step via `codex exec --output-schema` (forced JSON tool-calls), reusing the same
 BFCL executor + checker. Gotcha: OpenAI strict structured-output requires `additionalProperties:
 false` on every object and forbids free-form objects, so `arguments` is passed as a JSON *string*

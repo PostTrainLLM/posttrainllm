@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
-python3 "$ROOT/scripts/render_sql_factory_run.py" --out "$WORK/sql-run"
+python3 "$ROOT/scripts/sql/render_sql_factory_run.py" --out "$WORK/sql-run"
 
 cat >"$WORK/main.swift" <<'SWIFT'
 import Foundation

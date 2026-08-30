@@ -41,9 +41,9 @@ def _load_module(name: str, path: Path):
     return mod
 
 
-rc = _load_module("fine_tune_report_card", ROOT / "scripts/fine_tune_report_card.py")
-build = _load_module("build_fine_tune_report_card", ROOT / "scripts/build_fine_tune_report_card.py")
-check = _load_module("check_fine_tune_report_card", ROOT / "scripts/check_fine_tune_report_card.py")
+rc = _load_module("fine_tune_report_card", ROOT / "scripts/factory/fine_tune_report_card.py")
+build = _load_module("build_fine_tune_report_card", ROOT / "scripts/factory/build_fine_tune_report_card.py")
+check = _load_module("check_fine_tune_report_card", ROOT / "scripts/factory/check_fine_tune_report_card.py")
 fixtures = _load_module("report_card_fixtures", ROOT / "tests/report_card_fixtures.py")
 
 FAILURES: list[str] = []
@@ -573,7 +573,7 @@ section("CLI")
 out_dir = ws.root / "cli-out"
 proc = run_cli(
     [
-        "scripts/build_fine_tune_report_card.py",
+        "scripts/factory/build_fine_tune_report_card.py",
         "--run",
         str(ws.source("ship-verified")),
         "--out",
@@ -584,13 +584,13 @@ check_that(proc.returncode == 0, f"build CLI succeeds: {proc.stderr[-400:]}")
 check_that((out_dir / "report-card.json").is_file(), "build CLI writes the JSON payload")
 check_that((out_dir / "report-card.html").is_file(), "build CLI writes the static report")
 
-proc = run_cli(["scripts/check_fine_tune_report_card.py", str(out_dir / "report-card.json")])
+proc = run_cli(["scripts/factory/check_fine_tune_report_card.py", str(out_dir / "report-card.json")])
 check_that(proc.returncode == 0, f"check CLI accepts a valid card: {proc.stderr[-400:]}")
 
 bad_out = ws.root / "cli-bad"
 proc = run_cli(
     [
-        "scripts/build_fine_tune_report_card.py",
+        "scripts/factory/build_fine_tune_report_card.py",
         "--run",
         str(ws.source("bad-leakage")),
         "--out",
@@ -606,7 +606,7 @@ check_that("FAIL" in proc.stderr, "local diagnostic output is preserved on failu
 
 proc = run_cli(
     [
-        "scripts/build_fine_tune_report_card.py",
+        "scripts/factory/build_fine_tune_report_card.py",
         "--run",
         str(ws.source("report-only")),
         "--print",
@@ -615,7 +615,7 @@ proc = run_cli(
 check_that(proc.returncode != 0, "a blocked non-ship card is strict by default")
 proc = run_cli(
     [
-        "scripts/build_fine_tune_report_card.py",
+        "scripts/factory/build_fine_tune_report_card.py",
         "--run",
         str(ws.source("report-only")),
         "--allow-report-only",

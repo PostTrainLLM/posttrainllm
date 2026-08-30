@@ -307,7 +307,7 @@ const actionCharacter = { up: "U", down: "D", left: "L", right: "R" };
     byId("terminal-reason").textContent = episode.terminal_reason;
     byId("trace-hash").textContent = episode.trace_hash.slice(0,12) + "…";
     if (model.model_ref) {
-      byId("command").textContent = `python3.12 scripts/game_2048_mlx_pilot.py --model ${model.model_ref} --policy-id ${model.policy_id} --track strict --seed 2048000000 --seed 2048000001 --seed 2048000002 --max-moves 128 --output runs/game-2048/model-pilot/${model.policy_id}.json`;
+      byId("command").textContent = `python3.12 scripts/games/game_2048_mlx_pilot.py --model ${model.model_ref} --policy-id ${model.policy_id} --track strict --seed 2048000000 --seed 2048000001 --seed 2048000002 --max-moves 128 --output runs/game-2048/model-pilot/${model.policy_id}.json`;
     }
     const timeline = byId<HTMLInputElement>("timeline"); timeline.max = String(episode.decisions.length); timeline.value = String(position);
     byId<HTMLButtonElement>("previous").disabled = position === 0;

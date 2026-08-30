@@ -18,7 +18,7 @@ makes no new model-quality claim.
   resource, hop, latency, and external-use policy.
 - `configs/capability-graph/system-gates-v1.json`: fail-closed end-to-end
   qualification gates; strong leaf scores cannot qualify a weak routed system.
-- `scripts/capability_graph.py`: validate, inspect, dry-run, fixture cascade,
+- `scripts/research/capability_graph.py`: validate, inspect, dry-run, fixture cascade,
   and benchmark-adapter CLI.
 - `evals/capability-graph/fixtures/`: metadata-only request, install, router,
   and verifier outcome fixtures.
@@ -26,9 +26,9 @@ makes no new model-quality claim.
 ## Commands
 
 ```bash
-python3 scripts/capability_graph.py validate
-python3 scripts/capability_graph.py inspect --capability file-ops
-python3 scripts/capability_graph.py dry-run \
+python3 scripts/research/capability_graph.py validate
+python3 scripts/research/capability_graph.py inspect --capability file-ops
+python3 scripts/research/capability_graph.py dry-run \
   --request evals/capability-graph/fixtures/request-file-ops-v1.json \
   --installed evals/capability-graph/fixtures/installed-v1.json \
   --router-output evals/capability-graph/fixtures/router-file-ops-v1.json

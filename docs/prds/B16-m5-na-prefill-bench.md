@@ -35,7 +35,7 @@ Half-day. Free win if confirmed; the bump is reversible.
 
 ## Scope — in
 
-- Run `scripts/bench_decode.py` against a Mega-class model
+- Run `scripts/bench/bench_decode.py` against a Mega-class model
   (~960M) with `--prompt-tokens 2048` to make prefill dominate
   the wall-clock. Capture baseline numbers with current pin.
 - Bump `Package.swift` to the latest `mlx-swift` release. Rebuild;
@@ -72,7 +72,7 @@ Half-day. Free win if confirmed; the bump is reversible.
 
 ## Reference patterns
 
-- `scripts/bench_decode.py` — already supports per-run timing.
+- `scripts/bench/bench_decode.py` — already supports per-run timing.
 - [Apple ML Research M5 LLMs post](https://machinelearning.apple.com/research/exploring-llms-mlx-m5)
   — the source claim.
 

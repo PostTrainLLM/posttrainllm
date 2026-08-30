@@ -14,7 +14,7 @@ Canonical state doc: `docs/sessions/pace-handoff-2026-06-10.md`. Memory:
 qwen3-30b-a3b via LM Studio, not our specialist** — any future planner eval
 needs a 30B comparison row.
 
-**Planner freeze**: v11 is ONE command away (`bash scripts/v11_pipeline.sh
+**Planner freeze**: v11 is ONE command away (`bash scripts/pipelines/v11_pipeline.sh
 [--amplify]`, supersedes v10_pipeline.sh). One run, ship or fail, then the
 planner freezes for a month regardless. Gate: `docs/prds/pace-planner-v11-ship-gate.md`.
 
@@ -60,7 +60,7 @@ model/library.
 - Embedding swap to Qwen3-Embedding-0.6B (faster on batches, same family as planner)
 - `scripts/score_formula.py` — canonical (speed × accuracy / cost) measurement
 - Pace landing-page draft at `pace/docs/landing/v1-draft.md`
-- v10 cascade at `scripts/v10_pipeline.sh` (auto-runs train+bake+eval+score)
+- v10 cascade at `scripts/pipelines/v10_pipeline.sh` (auto-runs train+bake+eval+score)
 - PRDs: scope-narrowing, quantized-inference-swift, macos26-int8-ane-port
 
 **Models qualified**:
@@ -73,7 +73,7 @@ model/library.
 - Apple Foundation Models adapter — restricted to Apple's model, not Qwen
 
 **In-flight (next-steps if you pick this up cold)**:
-- v10 planner training pending — multiplier running OR ready to fire via `scripts/v10_pipeline.sh`
+- v10 planner training pending — multiplier running OR ready to fire via `scripts/pipelines/v10_pipeline.sh`
 - Qwen3-VL-2B downloaded (~2.8GB) for the UI-Venus A/B test on #266
 
 **Open eval mystery** (not blocking): v8 LoRA scores 33.3% reproducible on
@@ -200,7 +200,7 @@ either pretend or eval-blocked.
 ## 🌙 Nightly training cadence
 
 Project shape changed: every night the Mac produces a training artifact.
-Run `./scripts/nightly.sh` before bed; it picks the next pending job
+Run `./scripts/pipelines/nightly.sh` before bed; it picks the next pending job
 from `scripts/nightly/N*.sh`, wraps it in `caffeinate -di`, logs to
 `~/.cache/posttrainllm/nightly/logs/`, and posts a Mac notification on
 completion. See `../training/nightly.md` for the full plan and queue state.
@@ -213,7 +213,7 @@ completion. See `../training/nightly.md` for the full plan and queue state.
 - N02 ⏳ queued — repointed at FineWeb-Edu (241 MB educational text,
   decoded from parquet via the new `scripts/parquet_to_txt.py`). 200K
   steps, ~11 hrs. Smoke-tested at 100 steps: loss 11.4 → 7.4 → still
-  decreasing. **Fire `./scripts/nightly.sh` before bed to start it.**
+  decreasing. **Fire `./scripts/pipelines/nightly.sh` before bed to start it.**
 - N03-N05 — not scripted yet; written after N02 produces a base.
 
 **Parquet decoder unlocked**: FineWeb-Edu (50K rows = 241 MB text) and
@@ -276,11 +276,11 @@ Interp tab (unique — no other local-AI Mac app has this):
 - Reveal-in-Finder on the saved sidecar
 
 App-wide:
-- `.app` bundle via `scripts/build_macapp.sh` — proper
+- `.app` bundle via `scripts/release/build_macapp.sh` — proper
   Contents/{MacOS,Resources} layout, Info.plist, ad-hoc codesigned,
   bundled `posttrainllm-cli` next to the app binary so Interp works
   regardless of where the .app is installed
-- Branded icon via `scripts/make_icon.sh` — pipes
+- Branded icon via `scripts/release/make_icon.sh` — pipes
   `browser/public/favicon.svg` through qlmanage → sips → iconutil →
   `native-mac/Resources/posttrainllm.icns`
 - Welcome pane with Sample/Train/Fine-tune/Interp three-feature pitch
@@ -411,7 +411,7 @@ Should print the 5-row posttrainllm trajectory table above.
 
 **Training-day state (2026-06-05 PM):**
 
-- **N02 fired** — `./scripts/nightly.sh` started N02 (Huge bf16,
+- **N02 fired** — `./scripts/pipelines/nightly.sh` started N02 (Huge bf16,
   FineWeb-Edu, 200K steps, ~11 hrs). PID was 18877; `caffeinate -di`
   wrapping the job. Output goes to
   `~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt` +
@@ -429,7 +429,7 @@ Should print the 5-row posttrainllm trajectory table above.
 
 ```bash
 # Score every checkpoint against the eval suite + SmolLM2 baseline.
-./scripts/score-run.sh ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt
+./scripts/pipelines/score-run.sh ~/.cache/posttrainllm/runs/huge-base-v1/huge-base-v1.tinygpt
 #   → writes docs/artifacts/score-huge-base-v1-<date>.jsonl
 #   → prints --by step / --by model / --by task tables
 

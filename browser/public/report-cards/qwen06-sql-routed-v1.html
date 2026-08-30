@@ -134,7 +134,7 @@ color:var(--muted);font-size:.86rem}
 <li>clean-SQL output hygiene gate missing</li>
 </ul>
 <h3>Next action</h3>
-<p class="next-action"><span class="v-value">Run scripts/build_sql_spider_execution_gate.py against a local Spider DB bundle, score the routed candidate, then re-render this report with latency/RAM/tok-s.</span></p>
+<p class="next-action"><span class="v-value">Run scripts/sql/build_sql_spider_execution_gate.py against a local Spider DB bundle, score the routed candidate, then re-render this report with latency/RAM/tok-s.</span></p>
 </section>
 <section id="gates" aria-labelledby="gates-h">
 <h2 id="gates-h">Before and after</h2>
@@ -196,7 +196,7 @@ color:var(--muted);font-size:.86rem}
 <tr>
 <th scope="row">sql-poc-expanded-synthetic-execution</th>
 <td>sql-poc-expanded-synthetic-execution</td>
-<td><span class="v-value">scripts/run_sql_routed_generate.py + eval-sql/score_sql_public_exact</span></td>
+<td><span class="v-value">scripts/sql/run_sql_routed_generate.py + eval-sql/score_sql_public_exact</span></td>
 <td><span class="v-value">2026-07-02</span></td>
 <td><span class="v-value">locked public64 + synthetic50</span><span class="note">Identity comes from the dataset manifest&#x27;s locked-split label; no eval-validity.json records a hashed frozen-eval identity.</span></td>
 </tr>
@@ -361,8 +361,8 @@ color:var(--muted);font-size:.86rem}
 <li>qualitative trace review<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/trace_review.md</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
 <li>artifact metadata<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/artifact.json</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
 <li>training log<span class="detail"><code>runs/2026-07-02-sql-routed-qwen06-v1/train.log</code> · local-run-fragment · Local run folder (gitignored); regenerate to inspect.</span></li>
-<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/factory/public-artifacts.md">docs/factory/public-artifacts.md</a><span class="detail"><code>docs/factory/public-artifacts.md</code> · cited-evidence · sha256 <code>bc4b022a0d23b84c…</code></span></li>
-<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/specialists/b1-sql-poc.md">docs/specialists/b1-sql-poc.md</a><span class="detail"><code>docs/specialists/b1-sql-poc.md</code> · cited-evidence · sha256 <code>a93eb5f0ca73ef2e…</code></span></li>
+<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/factory/public-artifacts.md">docs/factory/public-artifacts.md</a><span class="detail"><code>docs/factory/public-artifacts.md</code> · cited-evidence · sha256 <code>f711000c6acf264a…</code></span></li>
+<li><a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/specialists/b1-sql-poc.md">docs/specialists/b1-sql-poc.md</a><span class="detail"><code>docs/specialists/b1-sql-poc.md</code> · cited-evidence · sha256 <code>f862be06d44c97aa…</code></span></li>
 </ul>
 <h3>Dataset hashes</h3>
 <div class="table-wrap">
@@ -421,7 +421,7 @@ color:var(--muted);font-size:.86rem}
 </dl>
 </section>
 <footer>
-<p>Compiled offline by <code>scripts/build_fine_tune_report_card.py</code> from recorded factory evidence. No model was loaded, trained, or evaluated to produce this page. Reproduce the factory loop with the <a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/factory/report-card.md">report-card docs</a>.</p>
+<p>Compiled offline by <code>scripts/factory/build_fine_tune_report_card.py</code> from recorded factory evidence. No model was loaded, trained, or evaluated to produce this page. Reproduce the factory loop with the <a href="https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/factory/report-card.md">report-card docs</a>.</p>
 </footer>
 </main>
 </body>

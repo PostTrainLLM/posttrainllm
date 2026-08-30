@@ -23,7 +23,7 @@ tools** API our harness already speaks. Tool-calling is done with guided generat
 request it builds a `DynamicGenerationSchema` (`{tool_calls:[{name(enum), arguments_json}], message}`)
 and reads `GeneratedContent.jsonString` back out. So Apple's model becomes "just another
 backend" — `DS_URL=…/v1/chat/completions` and our existing
-[`bfcl_multiturn_deepseek.py`](../../scripts/bfcl_multiturn_deepseek.py) scores it unchanged.
+[`bfcl_multiturn_deepseek.py`](../../scripts/bfcl/bfcl_multiturn_deepseek.py) scores it unchanged.
 (Distinct from [`fm_bridge.swift`](../../scripts/fm_bridge.swift), the stdin/stdout bridge
 for the single-turn Pace *planner* gate.)
 

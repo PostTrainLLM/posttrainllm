@@ -19,7 +19,7 @@ so either repo can pick up any thread without re-deriving context.
 
 ## Ready to fire — one command, needs GPU free
 
-**v11 planner train-and-gate**: `bash scripts/v11_pipeline.sh [--amplify]`
+**v11 planner train-and-gate**: `bash scripts/pipelines/v11_pipeline.sh [--amplify]`
 
 - Corpus: 492 rows merged now; `--amplify` adds ~150-180 judge-filtered rows (~90 min, needs LM Studio + Qwen3-14B)
 - Trains DoRA r32/a64, bakes, serves with v11 grammar (7 intents), runs all 6 ship-gate dimensions + non-regression + formula score

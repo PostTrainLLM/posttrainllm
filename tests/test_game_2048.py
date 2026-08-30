@@ -11,7 +11,9 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "scripts"))
+# scripts/ is grouped into topic subdirs; each is a flat import surface.
+for _d in [ROOT / "scripts", *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir())]:
+    sys.path.insert(0, str(_d))
 
 import game_2048 as game  # noqa: E402
 
@@ -307,7 +309,7 @@ def test_cli_qualifies_and_refuses_to_overwrite():
         output = Path(raw) / "cohort.json"
         command = [
             sys.executable,
-            str(ROOT / "scripts/game_2048.py"),
+            str(ROOT / "scripts/games/game_2048.py"),
             "qualify",
             "--environment-config",
             str(ENV_CONFIG_PATH),

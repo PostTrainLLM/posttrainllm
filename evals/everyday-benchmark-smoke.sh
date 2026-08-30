@@ -4,7 +4,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-python3 "$ROOT/scripts/check_everyday_benchmark.py" \
+python3 "$ROOT/scripts/research/check_everyday_benchmark.py" \
   "$ROOT/configs/everyday-benchmark/suite-v1.json" \
   "$ROOT/configs/everyday-benchmark/tasks/pace-intent-routing-v1.json" \
   "$ROOT/configs/everyday-benchmark/tasks/text-correction-preservation-v1.json" \
@@ -19,6 +19,6 @@ python3 "$ROOT/scripts/check_everyday_benchmark.py" \
 
 python3 "$ROOT/tests/test_everyday_benchmark.py"
 python3 "$ROOT/tests/test_selective_cascade.py"
-python3 "$ROOT/scripts/render_everyday_benchmark_report.py" --check
+python3 "$ROOT/scripts/research/render_everyday_benchmark_report.py" --check
 
 echo "everyday-benchmark-smoke: all checks passed"

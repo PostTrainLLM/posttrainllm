@@ -104,7 +104,7 @@ steps there's nothing to hide behind.
 
 ## Detailed benchmark
 
-`scripts/cpu_bundle_bench.sh` was used. Each cell is median of 3 runs.
+`scripts/bench/cpu_bundle_bench.sh` was used. Each cell is median of 3 runs.
 
 ### `small` preset · B=16 · 80 steps · cosine + accum=4
 
@@ -273,7 +273,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
 
 BIN=/tmp/posttrainllm-cpubundle/Build/Products/Release/posttrainllm \
   STEPS=80 BATCH=16 PRESET=small \
-  bash scripts/cpu_bundle_bench.sh
+  bash scripts/bench/cpu_bundle_bench.sh
 ```
 
 The harness toggles each item via env var (`TINYGPT_DISABLE_*=1`) and

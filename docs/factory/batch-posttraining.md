@@ -44,7 +44,7 @@ For sparse-reward SQL, first train/evaluate the model on selecting the best
 query among candidates:
 
 ```bash
-python3 scripts/build_sql_candidate_choice.py \
+python3 scripts/sql/build_sql_candidate_choice.py \
   --prompts evals/sql-poc-expanded/dev.jsonl \
   --candidate sft=runs/2026-07-02-sql-expanded-qwen06/candidate-preds.jsonl \
   --candidate failed-dpo=runs/2026-07-03-sql-hygiene-dpo-qwen06/candidate-preds.jsonl \

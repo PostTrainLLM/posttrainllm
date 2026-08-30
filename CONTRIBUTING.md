@@ -71,11 +71,11 @@ pnpm run quality   # everything below, in order
 
 Two things to know about these gates:
 
-1. **They are diff-scoped.** `scripts/code-health-files.mjs` limits the
+1. **They are diff-scoped.** `scripts/quality/code-health-files.mjs` limits the
    formatters and linters to files changed against `origin/main`, so the repo
    has never been formatted wholesale and untouched legacy files stay exempt.
 2. **The complexity and duplication gates are baselines, not thresholds.** They
-   compare against hardcoded numbers in `scripts/check-*.mjs`. When a change
+   compare against hardcoded numbers in `scripts/quality/check-*.mjs`. When a change
    improves a number, the script says so — lower the baseline in the same PR.
 
 Swift is formatted separately and is opt-in by rule:

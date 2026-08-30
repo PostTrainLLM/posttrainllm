@@ -230,7 +230,7 @@ target -> data -> post-training -> eval -> package -> report
 ### Maintenance rule
 
 This map is guarded by
-[`../../scripts/check_learning_roadmap.py`](../../scripts/check_learning_roadmap.py)
+[`../../scripts/docs-checks/check_learning_roadmap.py`](../../scripts/docs-checks/check_learning_roadmap.py)
 (run via `bash evals/learning-roadmap-smoke.sh`). When a **new subsystem** ships
 in `PROJECT_STATUS.md`, add a row here pointing to its best explainer before
 calling the feature done — a capability with no learning anchor is an

@@ -104,7 +104,7 @@ condition run. Until that gate passes, Qwen remains intentionally blocked.
 - [Interactive publication report](devin-glm52-stress-validation-2026-08-21.html)
 - [Machine-readable analysis](devin-glm52-stress-validation-2026-08-21.json)
 - [Generated compact report](devin-glm52-stress-validation-2026-08-21.md)
-- Runner: `scripts/offhours_devin.py`
+- Runner: `scripts/offhours/offhours_devin.py`
 - Frozen config SHA-256:
   `8796aca378c2624f92f9d218045c75794a56d77c28ea66926562f95602753eb2`
 - System prompt SHA-256:

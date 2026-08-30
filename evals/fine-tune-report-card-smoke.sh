@@ -21,8 +21,8 @@ source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
-BUILD="$ROOT/scripts/build_fine_tune_report_card.py"
-CHECK="$ROOT/scripts/check_fine_tune_report_card.py"
+BUILD="$ROOT/scripts/factory/build_fine_tune_report_card.py"
+CHECK="$ROOT/scripts/factory/check_fine_tune_report_card.py"
 FIXTURES="$ROOT/tests/report_card_fixtures.py"
 
 echo "== [1/5] python unit suite =="
@@ -176,7 +176,7 @@ swiftc \
 
 echo
 echo "== [4/5] committed public cohort has not drifted =="
-python3 "$ROOT/scripts/publish_report_cards.py" --check
+python3 "$ROOT/scripts/factory/publish_report_cards.py" --check
 
 echo
 echo "== [5/5] published cards pass the publication gate =="

@@ -22,7 +22,7 @@
     "unnecessary_edit_rate": 0.0,
     "rows_fixed_or_dropped": 0
   },
-  "command": "python3 scripts/autocorrect_foundation.py evaluate --predictions evals/autocorrect/frontier-predictions-codex-v1.jsonl",
+  "command": "python3 scripts/research/autocorrect_foundation.py evaluate --predictions evals/autocorrect/frontier-predictions-codex-v1.jsonl",
   "limitations": [
     "The 18-row fixture is an original smoke ruler, not a representative population benchmark.",
     "Frontier calibration establishes fixture clarity only and is not evidence for any local candidate."

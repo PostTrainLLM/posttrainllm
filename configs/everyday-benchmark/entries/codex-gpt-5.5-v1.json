@@ -24,6 +24,6 @@
   "disclosure": {"base_model": "codex-cli/gpt-5.5", "benchmark_data_access": "sealed instances provided only at evaluation time; ephemeral structured-output session"},
   "evidence": [
     {"kind": "receipt", "ref": "evals/everyday-benchmark/receipts/pace-intent-frontier-v1.json"},
-    {"kind": "source", "ref": "scripts/bfcl_multiturn_codex.py"}
+    {"kind": "source", "ref": "scripts/bfcl/bfcl_multiturn_codex.py"}
   ]
 }

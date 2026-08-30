@@ -150,7 +150,7 @@
         "official_ranking_allowed": false,
         "public_fixture_ref": "evals/everyday-benchmark/fixtures/autocorrect-public-dev-v1.json",
         "scorer": {
-          "authority": "scripts/autocorrect_foundation.py evaluate",
+          "authority": "scripts/research/autocorrect_foundation.py evaluate",
           "expected_field": "expected_text",
           "id": "autocorrect-preservation",
           "prediction_field": "predicted_text",
@@ -173,7 +173,7 @@
         "official_ranking_allowed": false,
         "public_fixture_ref": "evals/everyday-benchmark/fixtures/file-ops-public-dev-v1.json",
         "scorer": {
-          "authority": "scripts/bfcl_multiturn_eval.py using BFCL multi_turn_checker",
+          "authority": "scripts/bfcl/bfcl_multiturn_eval.py using BFCL multi_turn_checker",
           "expected_field": "expected_verdict",
           "id": "bfcl-multiturn-final-state",
           "prediction_field": "predicted_verdict",
@@ -349,7 +349,7 @@
         },
         {
           "kind": "source",
-          "ref": "scripts/bfcl_multiturn_codex.py"
+          "ref": "scripts/bfcl/bfcl_multiturn_codex.py"
         }
       ],
       "frontier_capability_retained": 1.0,

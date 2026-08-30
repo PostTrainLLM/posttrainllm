@@ -33,14 +33,14 @@ rebuild.
 
 `docs-site/docs/` is a gitignored scratch dir (kept only for local
 experimentation); never edit it, and never commit it. The old
-`scripts/sync-content.mjs` rsync step was removed when Blume was pointed at the
+old `sync-content.mjs` rsync step was removed when Blume was pointed at the
 canonical tree.
 
 ## Validation
 
 ```bash
 # From repo root — golden-path + structural checks
-python3 scripts/check_docs_world_class.py
+python3 scripts/docs-checks/check_docs_world_class.py
 ```
 
 Wrapped by `evals/docs-world-class-smoke.sh`. Note this check is **not** wired

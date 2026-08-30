@@ -12,9 +12,19 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
+def _script_path(filename):
+    """scripts/ is grouped into topic subdirs; find a script in any of them."""
+    direct = ROOT / "scripts" / filename
+    if direct.exists():
+        return direct
+    for sub in sorted((ROOT / "scripts").iterdir()):
+        if sub.is_dir() and (sub / filename).exists():
+            return sub / filename
+    raise FileNotFoundError(f"scripts/**/{filename}")
+
 
 def load_module(name: str):
-    spec = importlib.util.spec_from_file_location(name, ROOT / "scripts" / f"{name}.py")
+    spec = importlib.util.spec_from_file_location(name, _script_path(f"{name}.py"))
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

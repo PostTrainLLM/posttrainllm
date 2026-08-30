@@ -46,7 +46,7 @@ left is the GPU run + (for some) a domain parse step.
 
 ## Hardware / network runs (no new code)
 
-- **B16** M5 NA prefill bench — run `scripts/bench_decode.py` on M5, record the
+- **B16** M5 NA prefill bench — run `scripts/bench/bench_decode.py` on M5, record the
   before/after in `docs/research/mac_decode_baseline_m5pro.md`.
 - **C5 / B9 full** — run `bench_decode_thermal.py` (30 min) / `bench_energy.py`
   under `sudo` (see `setup_powermetrics_sudoers.sh`); the harnesses ship.

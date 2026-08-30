@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 python3.12 tests/test_game_arena.py
-python3.12 scripts/game_arena.py \
+python3.12 scripts/games/game_arena.py \
   --config configs/game-arena/candidate-v1.json \
   --root "$ROOT" \
   --check evals/game-arena/candidate-v1.json

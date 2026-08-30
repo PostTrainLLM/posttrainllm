@@ -91,7 +91,7 @@ generation.
 Do:
 
 - Read `docs/techniques/trainloop-teardown.md`.
-- Inspect `scripts/build_sql_candidate_choice.py`.
+- Inspect `scripts/sql/build_sql_candidate_choice.py`.
 - Generate candidate-choice rows from existing SQL predictions.
 - Train/eval a small candidate-selection adapter only after the recipe card is
   written.

@@ -7,7 +7,7 @@ Reference (task-completion): 30B-A3B 100/100/83 ; Qwen3-4B-2507 bf16 94/86/58 (e
 The MODERATE tier is the sound 95% gate (proxy aces, 4B clearly below); HARD maximally
 discriminates (true frontier should ~ace it; the 30B-A3B proxy gets 83%).
 Run: MT_DATA=scripts/fixtures/multi_turn_moderate_data.jsonl \
-     MT_GOLD=scripts/fixtures/multi_turn_moderate_gold.jsonl MODEL=<path> python3 scripts/bfcl_multiturn_eval.py 14
+     MT_GOLD=scripts/fixtures/multi_turn_moderate_gold.jsonl MODEL=<path> python3 scripts/bfcl/bfcl_multiturn_eval.py 14
 """
 import json, sys, os
 sys.path.insert(0,os.path.expanduser("~/.cache/posttrainllm/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"))

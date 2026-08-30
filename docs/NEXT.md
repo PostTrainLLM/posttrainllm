@@ -80,7 +80,7 @@ and `evals/autocorrect/base-bakeoff-v1.json`.
 
 Tasks 5.1-5.2 completed 2026-07-25 without training. The ordinary supervised
 recipe is frozen in `evals/autocorrect/adapter-recipe-v1.json` and the
-encoder-decoder LoRA path is implemented in `scripts/autocorrect_adapter.py`;
+encoder-decoder LoRA path is implemented in `scripts/research/autocorrect_adapter.py`;
 both are documented in
 [`factory/autocorrect-adapter-recipe.md`](factory/autocorrect-adapter-recipe.md).
 Measured forward-only on CPU against the real pinned base: 48 adapted modules,
@@ -137,8 +137,8 @@ Before starting a new run or release push, update the artifact entry with:
 Then recompile the report cards and confirm no drift:
 
 ```bash
-python3 scripts/publish_report_cards.py
-python3 scripts/publish_report_cards.py --check
+python3 scripts/factory/publish_report_cards.py
+python3 scripts/factory/publish_report_cards.py --check
 ```
 
 New runs should emit the optional `eval-validity.json` and `cost.json`
@@ -158,7 +158,7 @@ Current report-only priority remains `qwen06-sql-routed-v1`. Render its canonica
 report run with:
 
 ```bash
-python3 scripts/render_sql_factory_run.py --out runs/2026-07-02-sql-routed-qwen06-v1
+python3 scripts/sql/render_sql_factory_run.py --out runs/2026-07-02-sql-routed-qwen06-v1
 ```
 
 ### 1. Pick the Factory Target
@@ -208,7 +208,7 @@ training:
 the policy (composed execution 0.860 → 0.080, clean-SQL 0.000; the adapter
 alone generates fence spam). Full schema-valid run artifacts and report:
 `runs/2026-07-03-sql-hygiene-dpo-qwen06/`. Clean-SQL scorer now exists at
-`scripts/score_sql_clean_output.py`. Next candidate: reference-anchored DPO
+`scripts/sql/score_sql_clean_output.py`. Next candidate: reference-anchored DPO
 (or SimPO at ~10× lower lr / ≤50 steps) on the same frozen pairs, evaluated
 composed. Gotcha for future runs: record the posttrainllm binary provenance —
 the 2026-06-25 release build scores identical preds at 0.000 where the
@@ -224,7 +224,7 @@ clean-SQL raw rate stayed `0.000`: 41/50 outputs changed yet all keep the
 fails → not shipped. Reproduced the 0.860 baseline exactly first with a fresh
 swift-build DEBUG binary (git 74cb267). Full run:
 `runs/2026-07-11-sql-hygiene-dpo-refanchored-qwen06/` (assembled via
-`scripts/assemble_factory_run.py`; validates + publish-check passes). Next:
+`scripts/factory/assemble_factory_run.py`; validates + publish-check passes). Next:
 higher-pressure ref-anchored DPO (150-300 steps and/or beta 0.3, lr 1e-5),
 watching exec; else fix the SFT data to emit a bare SELECT. Takeaway:
 reference anchoring is the validated cure for the SimPO collapse; format
@@ -257,10 +257,10 @@ problem (0.860 → 0.920 across retries) — only the output wrapper is.
 1. Method-vs-recipe registry: `docs/techniques/`.
 2. Case-study report shape: `docs/factory/case-study-template.md`.
 3. Candidate-selection curriculum before another open-generation hygiene retry:
-   `scripts/build_sql_candidate_choice.py` and
-   `scripts/score_sql_candidate_choice.py`.
-4. Slice metrics: `scripts/score_sql_slices.py`.
-5. Trace review: `scripts/review_sql_trace.py`.
+   `scripts/sql/build_sql_candidate_choice.py` and
+   `scripts/sql/score_sql_candidate_choice.py`.
+4. Slice metrics: `scripts/sql/score_sql_slices.py`.
+5. Trace review: `scripts/sql/review_sql_trace.py`.
 6. Batch-first rollout plan: `scripts/render_batch_posttrain_plan.py`.
 7. LoRA diagnostics on every meaningful adapter: `scripts/lora_geometry.py`.
 
@@ -381,15 +381,15 @@ Exit criteria:
    **Done (2026-08-22):** closed as superseded (#69). The infrastructure is
    merged and smoke-verified; live-run verification is now implicit in the next
    real factory run rather than a standalone ticket.
-   **Bridge (2026-07-11):** `scripts/assemble_factory_run.py` is the
+   **Bridge (2026-07-11):** `scripts/factory/assemble_factory_run.py` is the
    generic report-artifact bridge. It turns the emitted fragments (`config`,
    `dataset`, `eval-baseline`, `eval-candidate`, `decision`, optional
    `artifact`/`slice-metrics`/`trace_review`) into a canonical run folder with
    derived `provenance.json` (git + real dataset SHA-256) and `report.md` (eval
    delta computed, not typed), and the output passes both
-   `scripts/check_factory_run_publish.py` and the typed Swift `FactoryRunFolder`
+   `scripts/factory/check_factory_run_publish.py` and the typed Swift `FactoryRunFolder`
    validator (smoke: `bash evals/factory-run-assemble-smoke.sh`).
-   `scripts/render_sql_factory_run.py` remains the SQL-specific one-shot renderer.
+   `scripts/sql/render_sql_factory_run.py` remains the SQL-specific one-shot renderer.
    **Lifecycle metadata (2026-07-25):** new native renders and generic
    assemblies emit versioned `run-status.json`, update verified advisory
    current/latest pointers, and record boundary transitions only after durable
@@ -406,10 +406,10 @@ Exit criteria:
    proves the full metadata path without loading MLX. The next owner-approved
    factory run exercises these flags as part of its normal flow; any
    command-integration defect found then gets its own focused issue.
-2. Run `scripts/build_sql_spider_execution_gate.py` against a local Spider DB
+2. Run `scripts/sql/build_sql_spider_execution_gate.py` against a local Spider DB
    bundle and score the current routed candidate on execution accuracy.
 3. Measure routed SQL latency, RAM/peak RSS, and tok/s
-   (harness ready: `scripts/measure_sql_routed_perf.py`).
+   (harness ready: `scripts/sql/measure_sql_routed_perf.py`).
 4. ~~Run exactly one preference-tuning/output-hygiene candidate.~~ Done
    2026-07-04 — decision retry-training (see frozen-target outcome above).
 5. ~~Report and decide package vs retry.~~ Done 2026-07-04 — schema-valid

@@ -56,7 +56,7 @@ A Mac-local, **stateful** multi-turn tool-calling eval that, for a given model:
 
 ## Design / scaffolding
 
-`scripts/bfcl_multiturn_eval.py` (skeleton in this PR):
+`scripts/bfcl/bfcl_multiturn_eval.py` (skeleton in this PR):
 1. Load example → instantiate `involved_classes` with `initial_config`.
 2. For each turn: render transcript (system tools + prior turns + tool results) →
    model emits call(s) → **execute** against the backend instances → append results

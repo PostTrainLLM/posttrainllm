@@ -72,7 +72,7 @@ This makes frontier models the **calibration anchor for every benchmark**:
   frontier model must score **~100%** on it. If frontier can't ace it, the benchmark
   is broken — **fix or drop it; never report Mac-model accuracy on it.**
   - **Teacher backend preference (owner, 2026-06-16): prefer the FREE
-    Codex CLI (`gpt-5.5`, `scripts/bfcl_multiturn_codex.py`, `codex exec
+    Codex CLI (`gpt-5.5`, `scripts/bfcl/bfcl_multiturn_codex.py`, `codex exec
     --output-schema`) for frontier validation + teacher trajectories.** DeepSeek-V4
     (`bfcl_multiturn_deepseek.py`) is a clean OpenAI-FC backend but **costs the owner
     money — use sparingly / only to cross-check.** `claude -p` editorializes (it's an

@@ -154,7 +154,7 @@
       "capabilities": ["verify-file-ops"],
       "request_schema": "file-plan/v1",
       "response_schema": "verifier-verdict/v1",
-      "operating_envelope": {"eval_ref": "scripts/bfcl_multiturn_eval.py", "quality": 1.0, "ood_behavior": "reject-outside-filesystem"},
+      "operating_envelope": {"eval_ref": "scripts/bfcl/bfcl_multiturn_eval.py", "quality": 1.0, "ood_behavior": "reject-outside-filesystem"},
       "verifier_policy": {"kind": "executable", "verifier_id": "file-state-verifier", "rule": "BFCL final-state check"},
       "privacy": {"class": "local-private", "network_allowed": false},
       "resources": {
