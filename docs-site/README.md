@@ -32,8 +32,8 @@ no copy step and no second docs tree to keep in sync — edit `../docs/*.md` and
 rebuild.
 
 `docs-site/docs/` is a gitignored scratch dir (kept only for local
-experimentation); never edit it, and never commit it. The previous
-`scripts/sync.mjs` rsync step was removed when Blume was pointed at the
+experimentation); never edit it, and never commit it. The old
+`scripts/sync-content.mjs` rsync step was removed when Blume was pointed at the
 canonical tree.
 
 ## Validation
@@ -41,11 +41,10 @@ canonical tree.
 ```bash
 # From repo root — golden-path + structural checks
 python3 scripts/check_docs_world_class.py
-# Broken internal-link check across docs/ and root *.md
-python3 scripts/check_docs_links.py
 ```
 
-Both run in CI (`.github/workflows/ci.yml`, `docs` job).
+Wrapped by `evals/docs-world-class-smoke.sh`. Note this check is **not** wired
+into CI today — run it locally before changing the docs tree.
 
 ## Deploy
 
