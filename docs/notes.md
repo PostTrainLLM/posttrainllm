@@ -479,7 +479,7 @@ line.
   an attention visualiser, a tokenizer playground, a semantic-zoom diagram of
   the forward pass.
 
-The scaffold is now a working system. Every box in `MILESTONES.md` that can be
+The scaffold is now a working system. Every box in `archive/MILESTONES.md` that can be
 ticked by code, is.
 
 ---

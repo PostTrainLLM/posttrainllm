@@ -14,8 +14,8 @@ fast can a GPT-2-shaped model actually train inside a Chrome tab, without
 lying about the numbers? That turned into a perf project. This post is what
 happened — what worked, what didn't, and what the negative results taught me.
 All measurements are on the same Apple M-series laptop. The full log lives
-in [`browser/devlog.html`](browser/devlog.html); the public roadmap is in
-[`browser/roadmap.html`](browser/roadmap.html).
+in [the devlog](https://posttrainllm.com/devlog), and the plans in
+[the public roadmap](https://posttrainllm.com/roadmap).
 
 ## The architecture in 60 seconds
 
@@ -238,7 +238,7 @@ not in the kernels. Tracked as task #66; in-browser XL/Massive/Mega/Behemoth
 currently fall back to the 32-bit module.
 
 The full write-up of these three lessons lives in
-[`docs/lessons.md`](docs/lessons.md).
+[`docs/archive/lessons.md`](lessons.md).
 
 ## What's next
 

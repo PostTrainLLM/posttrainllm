@@ -56,6 +56,19 @@ Moved as-is to `docs/archive/`:
 | `docs/parked_multi_model.md` | [`docs/archive/parked_multi_model.md`](archive/parked_multi_model.md) |
 | `docs/shared_vs_native.md` | [`docs/archive/shared_vs_native.md`](archive/shared_vs_native.md) |
 
+Root-level status and narrative docs, moved out of the repo root. None had
+been meaningfully updated since June; each is a historical record rather than
+current state, so they now sit with the other archived material:
+
+| Old path | New path |
+|---|---|
+| `HANDOFF.md` | [`docs/archive/HANDOFF.md`](archive/HANDOFF.md) |
+| `WHILE_YOU_SLEPT.md` | [`docs/archive/WHILE_YOU_SLEPT.md`](archive/WHILE_YOU_SLEPT.md) |
+| `MILESTONES.md` | [`docs/archive/MILESTONES.md`](archive/MILESTONES.md) |
+| `BLOG.md` | [`docs/archive/BLOG.md`](archive/BLOG.md) |
+| `NIGHTLY.md` | [`docs/training/nightly.md`](training/nightly.md) — a runner contract, not a status doc |
+| `STATUS.md` | deleted; it was a pointer stub. Current state is [`PROJECT_STATUS.md`](../PROJECT_STATUS.md) |
+
 ## URL redirects
 
 Old web URLs (`/docs/<old_slug>`) keep working via static redirects in

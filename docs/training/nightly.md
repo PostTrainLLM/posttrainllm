@@ -5,9 +5,9 @@ work fills the queue and polishes infrastructure; nighttime runs through it.
 
 ## How it works
 
-1. Each job is a shell script under [`scripts/nightly/N*.sh`](scripts/nightly/),
+1. Each job is a shell script under [`scripts/nightly/N*.sh`](../../scripts/nightly/),
    numbered lex-sortably.
-2. The runner [`scripts/nightly.sh`](scripts/nightly.sh) picks the
+2. The runner [`scripts/nightly.sh`](../../scripts/nightly.sh) picks the
    lowest-numbered job that doesn't have a matching `.done` file in
    `~/.cache/posttrainllm/nightly/done/`, runs it under `caffeinate -di`, logs
    to `~/.cache/posttrainllm/nightly/logs/<ts>-<name>.log`, and posts a

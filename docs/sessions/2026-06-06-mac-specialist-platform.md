@@ -898,7 +898,7 @@ Personalized for outsider-perspective + AI-augmented + shipping-while-learning c
 - `docs/recipes/b25-scaledown.md` — sibling specialist track
 - `docs/sessions/2026-06-05-eval-first.md` — yesterday's eval pipeline session
 - `docs/PLAN.md` — canonical roadmap
-- `HANDOFF.md` — pickup state for next session
+- `../archive/HANDOFF.md` — pickup state for next session
 
 ## 2026-06-07 morning addendum — post-mortem + carry-forward
 
@@ -944,7 +944,7 @@ Even though we lost the weights, the *recipe* and *learnings* are intact:
 - `docs/sessions/2026-06-05-eval-first.md` — eval pipeline session
 - `docs/prds/persistent-training-output.md` — 2026-06-07 post-mortem PRD
 - `docs/PLAN.md` — canonical roadmap
-- `HANDOFF.md` — pickup state for next session
+- `../archive/HANDOFF.md` — pickup state for next session
 
 ## TL;DR for myself in 3 months
 

@@ -1,6 +1,6 @@
 # Session handoff — pick this up cleanly
 
-A fresh-context agent should read this first, then `NIGHTLY.md` for the
+A fresh-context agent should read this first, then `../training/nightly.md` for the
 training cadence, then `docs/PLAN.md` for the long-term roadmap.
 
 ---
@@ -203,13 +203,13 @@ Project shape changed: every night the Mac produces a training artifact.
 Run `./scripts/nightly.sh` before bed; it picks the next pending job
 from `scripts/nightly/N*.sh`, wraps it in `caffeinate -di`, logs to
 `~/.cache/posttrainllm/nightly/logs/`, and posts a Mac notification on
-completion. See `NIGHTLY.md` for the full plan and queue state.
+completion. See `../training/nightly.md` for the full plan and queue state.
 
 **State as of 2026-06-05 PM (after daytime audit + parquet unblocking):**
 - N01 ✅ done — Gutenberg combined corpus + SmolLM2 tokenizer + hermes-fc
   (50 MB SFT data) verified. N01 is now a *verifier*, not a downloader;
   parquet/HF_TOKEN-gated stuff is tracked under "Known blockers" in
-  NIGHTLY.md.
+  ../training/nightly.md.
 - N02 ⏳ queued — repointed at FineWeb-Edu (241 MB educational text,
   decoded from parquet via the new `scripts/parquet_to_txt.py`). 200K
   steps, ~11 hrs. Smoke-tested at 100 steps: loss 11.4 → 7.4 → still

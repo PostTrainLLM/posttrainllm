@@ -117,7 +117,7 @@ multi-GPU, no cloud, no asterisk.
 | Browser WebGPU end-to-end vs WASM SIMD | **2.6× → 12.1×** (curve grows with `d_model` 96 → 256) | [`docs/performance.md`](docs/performance.md) |
 | Largest browser-trainable model | **960M params** via Memory64 | [`browser/devlog.html`](browser/devlog.html) |
 | Loss drift, WebGPU vs WASM reference | **1.1% – 2.5%** across the curve | `tests/test_webgpu_train.mjs` |
-| First end-to-end Mac LoRA fine-tune | **−32% held-out PPL**, 788 KB adapter | [`WHILE_YOU_SLEPT.md`](WHILE_YOU_SLEPT.md) |
+| First end-to-end Mac LoRA fine-tune | **−32% held-out PPL**, 788 KB adapter | [`docs/archive/WHILE_YOU_SLEPT.md`](docs/archive/WHILE_YOU_SLEPT.md) |
 | **Pace intent router, 49.5M from-scratch** | **95.5% accuracy** vs Apple FM 76.5% (+19 pp) vs Qwen3-4B 84.75% (+10.8 pp), **3ms** vs 1597ms vs 240ms, 7-class routing | [`specialists/pace-intent-router-v8/model_card.md`](specialists/pace-intent-router-v8/model_card.md) |
 
 ---
@@ -167,11 +167,22 @@ posttrainllm/
   python_ref/      PyTorch reference: model, train, sample, LoRA, bench
   evals/           Smoke tests + eval fixtures (BFCL, MATH-500, etc.)
   scripts/         BFCL drivers, mlx.distributed PoC, leaderboard builders
-  docs/            Plan + recipes + research + sessions + per-topic guides
-  configs/         Model / training / LoRA / PEFT settings as JSON
-  data/            Dataset builder + example corpora
   tests/           Correctness tests — finite-diff, overfit, parity
+  configs/         Model / training / LoRA / PEFT settings as JSON
+  grammars/        Pace system prompts + response JSON schemas
+  data/            Dataset builder + example corpora
+  specialists/     Trained-specialist registry + model cards
+  benchmarks/      Published benchmark landing pages
+  docs/            Plan + recipes + research + sessions + per-topic guides
+  docs-site/       Blume publisher for docs/ (owns no content of its own)
 ```
+
+Build, test, and lint entry points are in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+The three web packages (`browser/`, `webgpu/`, `wasm/`) are one application:
+`browser/` is the Astro shell and picks a backend at runtime, `webgpu/` is the
+GPU path and `wasm/` the CPU path. They are wired together by relative imports
+and `browser/tsconfig.json`, so they move together.
 
 ---
 

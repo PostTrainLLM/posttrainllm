@@ -132,8 +132,9 @@ This makes frontier models the **calibration anchor for every benchmark**:
   that first. See `tests/README.md`.
 - **Configs are the source of truth.** Exact specs live in `configs/*.json`. Code and
   docs should reference them rather than restating numbers.
-- **Stubs.** Code files are currently documented stubs. When implementing one, follow
-  the interface described in its header and the linked `docs/` section.
+- **File headers are the contract.** Most source files open with a header describing
+  their interface and linking the relevant `docs/` section. When changing one, keep the
+  header and the linked doc in step with the code.
 - **Steal first, improve where we can (standing policy, reaffirmed 2026-06-14).**
   Default to adopting the best existing tool / benchmark / kernel / library rather
   than rebuilding it; only hand-roll when nothing good exists or we can measurably
@@ -157,7 +158,9 @@ This makes frontier models the **calibration anchor for every benchmark**:
 
 ## Layout
 
-See `README.md`. Specs in `configs/`, guide in `docs/`, tests in `tests/`.
+See `README.md` for the directory map, and `CONTRIBUTING.md` for build, test, and
+lint entry points. Specs in `configs/`, guides in `docs/`, cross-cutting tests in
+`tests/` (Swift tests live in `native-mac/Tests/`, browser tests in `browser/src/`).
 
 ## Not in scope for the fleet tooling
 

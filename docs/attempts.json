@@ -619,7 +619,7 @@
       "next_action": "Do not cite v7 as evidence about model capability.",
       "evidence_sources": [
         "docs/prds/factory-planner-v7-tools-in-prompt.md",
-        "HANDOFF.md"
+        "docs/archive/HANDOFF.md"
       ],
       "source": "docs/prds/factory-planner-v7-tools-in-prompt.md"
     },
@@ -705,7 +705,7 @@
       "evidence_sources": [
         "scripts/v10_pipeline.sh",
         "docs/prds/pace-planner-v11-training-data.md",
-        "HANDOFF.md"
+        "docs/archive/HANDOFF.md"
       ],
       "source": "scripts/v10_pipeline.sh"
     },
