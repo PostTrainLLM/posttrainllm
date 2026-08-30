@@ -1,3 +1,11 @@
+
+# These modules moved to sibling group folders when scripts/ was grouped;
+# add those folders to the import path so this archived script still runs.
+import sys as _sys
+from pathlib import Path as _Path
+for _g in ["games"]:
+    _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent / _g))
+
 #!/usr/bin/env python3
 """Compile local 2048 pilot runs into a portable, path-scrubbed site artifact."""
 

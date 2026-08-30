@@ -116,7 +116,7 @@ evals/run_quality_evals.sh
 ```
 
 Defaults to running HellaSwag + ARC-Easy on `/tmp/flagship-huge.tinygpt`.
-Output lands in `bench/results/flagship-huge-<timestamp>/`.
+Output lands in `runs/quality-evals/flagship-huge-<timestamp>/`.
 
 Env knobs:
 
@@ -134,7 +134,7 @@ Or call the Python wrapper directly:
 python python_ref/lm_eval_tinygpt.py /tmp/flagship-huge.tinygpt \
     --tasks hellaswag,arc_easy,gsm8k \
     --limit 100 \
-    --output-path bench/results/smoke_run/
+    --output-path runs/quality-evals/smoke_run/
 ```
 
 ## Task cost (Mac M-series, 27M-param flagship)
@@ -173,7 +173,7 @@ script is staged. The actual lm-eval run is **NOT executed in this
 commit** because `pip install lm-eval` is gated by the project's
 "ask before installing" rule. Once the user installs lm-eval and merges
 `case "serve":`, the wrapper runs end-to-end and writes its score JSON
-into `bench/results/`.
+into `runs/quality-evals/`.
 
 ### HTTP smoke-test results
 
@@ -235,8 +235,8 @@ real numbers.
 - **Long-context:** `ruler_*` (needs a separate config), `loft_*`
 
 To add: pass the task name to `--tasks` / `$TASKS`. Custom YAML task
-definitions go in `bench/tasks/<name>.yaml` and are picked up by
-`--include_path bench/tasks` (pass via `--lm-eval-extra`).
+definitions go in `evals/tasks/<name>.yaml` and are picked up by
+`--include_path evals/tasks` (pass via `--lm-eval-extra`).
 
 For tasks that need a judge LLM (`mt_bench`, `arena_hard`, anything with
 `judge_model` in its config), expect to pay GPT-4 or Claude API costs.
@@ -274,7 +274,7 @@ to published numbers.
 - `python_ref/lm_eval_tinygpt.py` — subprocess wrapper that spawns
   `posttrainllm serve`, waits for ready, runs `lm-eval`
 - `evals/run_quality_evals.sh` — one-liner driver writing to
-  `bench/results/<model>-<timestamp>/`
+  `runs/quality-evals/<model>-<timestamp>/`
 - `docs/research/quality_benchmarks_may_2026.md` — background research
   on the benchmark landscape
 

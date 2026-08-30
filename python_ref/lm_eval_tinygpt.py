@@ -31,7 +31,7 @@ Build prerequisite:
 
 Usage:
   python lm_eval_tinygpt.py /tmp/flagship-huge.tinygpt \\
-      --tasks hellaswag,arc_easy --output-path bench/results/run1.json
+      --tasks hellaswag,arc_easy --output-path runs/quality-evals/run1.json
 
   # Reuse an already-running server (skip the spawn):
   python lm_eval_tinygpt.py --skip-spawn --base-url http://127.0.0.1:9000/v1/chat/completions \\
@@ -181,8 +181,8 @@ def main():
     )
     ap.add_argument(
         "--output-path",
-        default="bench/results",
-        help="directory to write lm-eval JSON results (default: bench/results)",
+        default="runs/quality-evals",
+        help="directory to write lm-eval JSON results (default: runs/quality-evals)",
     )
     ap.add_argument(
         "--num-fewshot",

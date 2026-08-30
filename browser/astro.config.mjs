@@ -53,6 +53,7 @@ export default defineConfig({
     "/docs/training_phases": "/docs/training",
 
     // Topic grouping of the flat docs/ top level.
+    "/docs/learning/new-things": "/docs/learn/new-things",
     "/docs/DRILLDOWN": "/docs/sessions/DRILLDOWN",
     "/docs/RETROSPECTIVE": "/docs/sessions/RETROSPECTIVE",
     "/docs/audit_2026": "/docs/audits/audit_2026",

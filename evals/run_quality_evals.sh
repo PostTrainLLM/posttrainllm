@@ -2,7 +2,7 @@
 #
 # run_quality_evals.sh — drive lm-evaluation-harness against the flagship
 # posttrainllm checkpoint. Wraps `python_ref/lm_eval_tinygpt.py` with sane
-# defaults; writes per-task JSON into `bench/results/<model-tag>-<date>/`.
+# defaults; writes per-task JSON into `runs/quality-evals/<model-tag>-<date>/`.
 #
 # Pre-reqs (one-time):
 #   1. Build the posttrainllm CLI:
@@ -81,7 +81,7 @@ fi
 # Output dir with date stamp.
 MODEL_TAG="$(basename "$MODEL_PATH" .tinygpt)"
 DATE_STAMP="$(date +%Y%m%d-%H%M%S)"
-OUT_DIR="$REPO_ROOT/bench/results/${MODEL_TAG}-${DATE_STAMP}"
+OUT_DIR="$REPO_ROOT/runs/quality-evals/${MODEL_TAG}-${DATE_STAMP}"
 mkdir -p "$OUT_DIR"
 
 # Extra args.

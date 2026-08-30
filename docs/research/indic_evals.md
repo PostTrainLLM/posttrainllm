@@ -216,7 +216,7 @@ In rough priority order:
    same language/subject before the test question. The MILU repo
    ships its few-shot exemplar set; pull it via the standard data
    loader.
-4. **lm-eval-harness task YAML** — write a `bench/tasks/milu_*.yaml`
+4. **lm-eval-harness task YAML** — write an `evals/tasks/milu_*.yaml`
    that drives MILU through the existing
    [lm-eval-harness integration](../integrations/lm_eval_integration.md). This
    would let MILU benefit from the harness's batching and few-shot

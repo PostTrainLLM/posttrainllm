@@ -20,7 +20,8 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, "..");
+// This file lives in scripts/archive/, so the repo root is two levels up.
+const ROOT = resolve(__dirname, "..", "..");
 const MANIFEST = resolve(ROOT, "browser/public/gallery/manifest.json");
 const OUT_JSON = resolve(ROOT, "browser/public/data/leaderboard.json");
 const OUT_CSV = resolve(ROOT, "browser/public/data/leaderboard.csv");
