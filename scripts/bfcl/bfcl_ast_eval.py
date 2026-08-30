@@ -307,16 +307,22 @@ def gen_frontier(system, user):
         return "__TIMEOUT__"
 
 
-# free-ai gateway: a CLEAN OpenAI-compatible completions endpoint (unlike `claude -p`,
-# which is an assistant agent CLI that editorializes). Model via GW_MODEL; key from /tmp/gw_key.
-def gen_gateway(system, user):
+# Direct OpenAI-compatible endpoint (unlike `claude -p`, which is an assistant
+# agent CLI that editorializes). The operator supplies endpoint, key, and model.
+def gen_direct(system, user):
     import urllib.request
 
-    key = open(os.environ.get("GW_KEY_FILE", "/tmp/gw_key")).read().strip()
+    base_url = os.environ.get("AI_BASE_URL", "").rstrip("/")
+    model = os.environ.get("AI_MODEL", "")
+    key = os.environ.get("AI_API_KEY", "")
+    key_file = os.environ.get("AI_KEY_FILE", "")
+    if not key and key_file:
+        key = open(key_file).read().strip()
+    if not base_url or not model or not key:
+        return "__AI_CONFIG_ERR__"
     body = json.dumps(
         {
-            "model": os.environ.get("GW_MODEL", "gh-gpt-5"),
-            "project_id": "posttrainllm",
+            "model": model,
             "temperature": 0,
             "max_tokens": 700,
             "messages": [
@@ -326,7 +332,7 @@ def gen_gateway(system, user):
         }
     ).encode()
     req = urllib.request.Request(
-        "https://ai-gateway.sassmaker.com/v1/chat/completions",
+        f"{base_url}/chat/completions",
         data=body,
         method="POST",
         headers={
@@ -343,10 +349,10 @@ def gen_gateway(system, user):
             import time
 
             time.sleep(3 * (attempt + 1))
-    return "__GW_ERR__"
+    return "__AI_ERR__"
 
 
-gen = {"frontier": gen_frontier, "gateway": gen_gateway}.get(BACKEND, gen_local)
+gen = {"frontier": gen_frontier, "direct": gen_direct}.get(BACKEND, gen_local)
 
 
 # ---------- run ----------
