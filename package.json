@@ -1,5 +1,6 @@
 {
   "private": true,
+  "packageManager": "pnpm@10.33.2",
   "scripts": {
     "deploy": "node scripts/release/manual-deploy.mjs deploy.yml ci.yml",
     "format:check": "node scripts/quality/check-code-format.mjs",
@@ -20,5 +21,10 @@
     "prettier": "3.9.6",
     "prettier-plugin-astro": "0.14.1",
     "wrangler": "^4.120.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "nanoid@<3.3.18": "3.3.18"
+    }
   }
 }

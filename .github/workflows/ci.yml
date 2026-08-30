@@ -53,10 +53,9 @@ jobs:
         with:
           node-version: "22"
           cache: "pnpm"
-          cache-dependency-path: browser/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: browser
         run: pnpm install --frozen-lockfile
 
       - name: Type-check (tsc --noEmit)
@@ -207,10 +206,9 @@ jobs:
           # stripping (the scripts are fully erasable TS). No tsx/ts-node dep.
           node-version: "22"
           cache: "pnpm"
-          cache-dependency-path: browser/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: browser
         run: pnpm install --frozen-lockfile
 
       - name: Check gallery artifacts match a fresh regenerate
@@ -336,9 +334,7 @@ jobs:
         with:
           node-version: "22"
           cache: "pnpm"
-          cache-dependency-path: |
-            pnpm-lock.yaml
-            browser/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Setup Python
         uses: actions/setup-python@v6.3.0
@@ -348,7 +344,6 @@ jobs:
       - name: Install static-analysis tooling
         run: |
           pnpm install --frozen-lockfile
-          pnpm --dir browser install --frozen-lockfile
           pip install lizard==1.23.0 pycycle==0.0.8 ruff==0.16.2 vulture==2.16
 
       - name: Check changed formatting

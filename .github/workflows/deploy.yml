@@ -59,14 +59,12 @@ jobs:
         with:
           node-version: "22"
           cache: "pnpm"
-          cache-dependency-path: browser/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
+      # One workspace install covers browser/ and docs-site/. The build below
+      # shells out to docs-site (browser/scripts/build-docs.mjs), which is why
+      # both must be installed before it runs.
       - name: Install dependencies
-        working-directory: browser
-        run: pnpm install --frozen-lockfile
-
-      - name: Install docs-site dependencies
-        working-directory: docs-site
         run: pnpm install --frozen-lockfile
 
       - name: Build (tsc + astro build + Blume docs → dist/docs)

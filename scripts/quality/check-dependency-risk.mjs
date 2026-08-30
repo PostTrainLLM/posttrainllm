@@ -3,28 +3,31 @@
 import { capture } from "./code-health-files.mjs";
 
 // Accepted legacy advisories are tracked in PostTrainLLM/posttrainllm#104.
+//
+// This is one workspace (pnpm-workspace.yaml), so there is one dependency
+// graph and one audit. Auditing per package directory would just re-report the
+// same workspace-wide graph three times.
+//
+// Moving to a workspace changed resolution: shared transitive deps now dedupe
+// to single versions instead of one copy per package. Net effect was 14 high
+// advisories down to 7. Ten of the old docs-site entries (brace-expansion,
+// fast-uri, js-yaml, tar, ip-address, undici 1130717) resolved themselves and
+// are gone. Four became newly visible and are accepted here pending #104:
+// path-to-regexp 1101846 and undici 1114638 / 1114640 / 1121245.
 const scopes = [
-  { name: "root", directory: ".", acceptedHigh: new Set() },
   {
-    name: "browser",
-    directory: "browser",
-    acceptedHigh: new Set(["1124066", "1139377", "1139378"]),
-  },
-  {
-    name: "docs",
-    directory: "docs-site",
+    name: "workspace",
+    directory: ".",
     acceptedHigh: new Set([
-      "1124064",
-      "1130589",
-      "1130591",
-      "1130717",
-      "1130720",
-      "1130722",
-      "1130734",
-      "1130736",
-      "1138114",
-      "1138115",
-      "1145647",
+      // carried over, still present
+      "1124066", // sharp
+      "1139377", // astro
+      "1139378", // astro
+      // surfaced by workspace dedupe, 2026-08
+      "1101846", // path-to-regexp
+      "1114638", // undici
+      "1114640", // undici
+      "1121245", // undici
     ]),
   },
 ];

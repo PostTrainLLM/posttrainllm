@@ -751,13 +751,11 @@ function alignCanonicalUrls(directory = DEST_DIR) {
 }
 
 const pnpmCommand = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-console.log("build-docs.mjs: installing docs-site dependencies …");
-const install = spawnSync(pnpmCommand, ["install", "--frozen-lockfile"], {
-  cwd: DOCS_SITE_DIR,
-  stdio: "inherit",
-});
-if (install.status !== 0) process.exit(install.status ?? 1);
 
+// No install step here: docs-site is a workspace package (pnpm-workspace.yaml),
+// so the single root `pnpm install` has already provisioned it. Installing
+// again from this subdirectory re-resolves the whole workspace and, without a
+// TTY, aborts on the modules-purge prompt.
 console.log("build-docs.mjs: building Blume docs in ../docs-site …");
 const build = spawnSync(pnpmCommand, ["run", "build"], {
   cwd: DOCS_SITE_DIR,
