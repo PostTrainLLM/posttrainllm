@@ -77,7 +77,7 @@ empty.
 | `Sources/TinyGPT/TinyGPT.swift` | `case "interp-replay"` |
 | `Sources/TinyGPTModel/CheckpointBatchLoader.swift` | new — iterate a history directory, yield `(step, modelHandle)` pairs efficiently (mmap-friendly) |
 | `evals/interp-replay-smoke.sh` | new — run an SAE replay across 3 checkpoints of a 200-step shakespeare run; assert MSE non-increasing |
-| `docs/interpretability.md` | "Timeline view" section + invocation example |
+| `docs/techniques/interpretability.md` | "Timeline view" section + invocation example |
 
 ## Don't touch
 
@@ -98,7 +98,7 @@ empty.
   MSE + L0 curves correctly.
 - [ ] Smoke script `interp-replay-smoke.sh` passes in CI on the
   shipped 22M-class checkpoint.
-- [ ] `docs/interpretability.md` invocation example reproduces.
+- [ ] `docs/techniques/interpretability.md` invocation example reproduces.
 
 ## Reference patterns
 

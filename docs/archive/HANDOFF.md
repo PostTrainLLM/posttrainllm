@@ -9,7 +9,7 @@ training cadence, then `docs/PLAN.md` for the long-term roadmap.
 
 **Pace handed off + released.** Pace v0.2.0 merged to main (PR #3) and tagged:
 agent loop, RAG layer, MCP, watch mode, voice pipeline, dictation Stage A.
-Canonical state doc: `docs/pace-handoff-2026-06-10.md`. Memory:
+Canonical state doc: `docs/sessions/pace-handoff-2026-06-10.md`. Memory:
 `project-pace-handoff-2026-06-10`. Key reframe: **Pace's runtime planner is
 qwen3-30b-a3b via LM Studio, not our specialist** — any future planner eval
 needs a 30B comparison row.
@@ -471,7 +471,7 @@ infrastructure that wasn't worth blocking the lane on:
   (init reproducible); batch sampling still uses Swift stdlib
   `Int.random`. Full coverage needs a seeded host RNG threaded
   through ByteCorpus/TokenizedCorpus.sampleBatchRaw. See
-  `docs/determinism.md` for the v2 plan.
+  `docs/performance/determinism.md` for the v2 plan.
 - **KV-cache for spec-dec path** — `posttrainllm sample --draft` (both
   greedy + new stochastic) bypasses the KV cache. Wiring KV
   through to target's parallel verification forward is a
@@ -509,12 +509,12 @@ In commit order, oldest → newest:
 5. **B20 cross-stream attention** — research only, folded into PLAN.md §4. Verdict: speedrun-empirical, modest 5ms gain, not worth porting at our scale.
 6. **B16 mlx-swift 0.31.3 → 0.31.4** — bumped, bench at small preset showed no signal (workload too small to be compute-bound). Real M5 NA verification deferred until a Mega/Huge checkpoint exists.
 7. **C10 training-run dashboard** — `--log-jsonl <path>` appends JSON-lines stream (meta/step/val/done events). Viewer at `/training-dashboard.astro` (zero-dep, multi-run overlay, drag-drop).
-8. **C9 v1 determinism** — `--seed UInt64` seeds MLXRandom before model construction. Init reproducible; batch sampling still uses non-seedable `Int.random` (v2 follow-up). See `docs/determinism.md`.
+8. **C9 v1 determinism** — `--seed UInt64` seeds MLXRandom before model construction. Init reproducible; batch sampling still uses non-seedable `Int.random` (v2 follow-up). See `docs/performance/determinism.md`.
 9. **B13 v1 interp-on-checkpoints** — `posttrainllm train --save-history` writes per-step `<stem>.step-N.tinygpt` copies; `posttrainllm sae --checkpoint-dir <dir> --timeline-out <jsonl>` trains an SAE per checkpoint and emits a JSONL timeline. Smoke: tiny preset · 5 ckpts · MSE 0.019→0.013 trajectory + L0 24%→37% — feature emergence visible. v2 = same pattern for memit/patch + browser viewer.
 
 **Files touched this session** (use `git diff 5143366..HEAD --stat`):
 
-- New: `Sources/TinyGPT/TrainLog.swift`, `Sources/TinyGPTModel/TrainSchedHelpers.swift`, `Tests/TinyGPTModelTests/TrainSchedHelpersTests.swift`, `browser/src/pages/training-dashboard.astro`, `docs/determinism.md`
+- New: `Sources/TinyGPT/TrainLog.swift`, `Sources/TinyGPTModel/TrainSchedHelpers.swift`, `Tests/TinyGPTModelTests/TrainSchedHelpersTests.swift`, `browser/src/pages/training-dashboard.astro`, `docs/performance/determinism.md`
 - Modified: `Sources/TinyGPT/Train.swift` (many flags + plumbing), `Sources/TinyGPT/TrainSupport.swift` (refactor: helpers moved to TinyGPTModel), `Package.swift` (mlx-swift bump), `docs/PLAN.md`
 
 ## Tests
@@ -557,7 +557,7 @@ All shipped today (2026-06-05). Nothing left on this tier.
 - **B12 v2 auto-rollback** — needs full Adam-state persistence first (currently restart-only on `--resume`)
 - **B15 layer-wise LR for SFT** — pretrain has it; SFT uses a different optimizer path (LoRA-tagged params); LoRA-aware port is bigger than half-day
 - **B16 v2 M5 NA verification** — meaningful only with a Mega/Huge checkpoint
-- **C9 v2 full bit-exact replay** — replace stdlib `Int.random` in `sampleBatchRaw` with a seeded host RNG (see `docs/determinism.md` for the plan)
+- **C9 v2 full bit-exact replay** — replace stdlib `Int.random` in `sampleBatchRaw` with a seeded host RNG (see `docs/performance/determinism.md` for the plan)
 
 ## How to verify nothing's broken before claiming a phase done
 
@@ -598,9 +598,9 @@ All shipped today (2026-06-05). Nothing left on this tier.
 
 - `docs/PLAN.md` — canonical roadmap (§1 shipped, §2 skipped, §3 TODO, §4 research catalogue, §5 appendix)
 - `docs/MAP.md` — old-path → new-path index, canonical-home list for shared concepts (LoRA, MoE, quantization, etc.)
-- `docs/determinism.md` — C9 contract + v2 roadmap (new this session)
+- `docs/performance/determinism.md` — C9 contract + v2 roadmap (new this session)
 - `docs/training/{pretrain,sft,dpo}.md` — phase-specific guides
-- `docs/interpretability.md` — SAE / MEMIT / patch / logit lens canonical home
+- `docs/techniques/interpretability.md` — SAE / MEMIT / patch / logit lens canonical home
 - `CLAUDE.md` and `AGENTS.md` at project root — global agent instructions
 
 Good luck. Read PLAN.md before doing anything substantive; this file just gets you oriented.

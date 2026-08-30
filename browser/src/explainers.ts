@@ -22,14 +22,14 @@ export const EXPLAINERS: Record<string, Explainer> = {
   loraOverview: {
     title: "LoRA — fine-tuning, cheaply",
     body: "Instead of nudging all 800k weights, freeze them all and slip in a few tiny new matrices (rank 4 here) into the attention layers. You train ONLY those — typically 1–10% of the base size. One base model can then host many swappable adapters: 'formal writer', 'children's stories', 'Shakespeare-style' — each adapter is a few KB.",
-    link: docsLink("docs/lora_guide.md", "docs/lora_guide.md — full LoRA walkthrough"),
+    link: docsLink("docs/techniques/lora_guide.md", "docs/techniques/lora_guide.md — full LoRA walkthrough"),
   },
 
   // --- size preset -------------------------------------------------------
   sizePreset: {
     title: "Model size presets",
     body: "Five curated sizes from Tiny (70k params, finishes in seconds) to XL (6.4M params, WebGPU recommended). Picking one auto-fills every knob; switching to Custom lets you tweak individually. The pre-flight estimate below updates live.",
-    link: docsLink("docs/performance.md", "docs/performance.md — perf work"),
+    link: docsLink("docs/performance/performance.md", "docs/performance/performance.md — perf work"),
   },
 
   // --- model config ------------------------------------------------------
@@ -52,7 +52,7 @@ export const EXPLAINERS: Record<string, Explainer> = {
   ctx: {
     title: "Context length",
     body: "How many tokens (bytes, here) the model can see at once. The attention matrix is ctx × ctx, so doubling context quadruples that cost. 64 is enough to learn short-range structure; longer needs more compute.",
-    link: docsLink("docs/model_guide.md", "model_guide.md in this repo"),
+    link: docsLink("docs/guides/model_guide.md", "model_guide.md in this repo"),
   },
   maxSteps: {
     title: "Max training steps",
@@ -148,7 +148,7 @@ export const EXPLAINERS: Record<string, Explainer> = {
   tokensPerSec: {
     title: "Throughput",
     body: "Tokens (bytes here) processed per second. WASM uses multi-threaded SIMD; WebGPU runs the whole training loop on the GPU. On a modern laptop expect roughly 10k–80k tok/s for a small model under WASM, and ~3× that under WebGPU on the smaller presets — growing to ~12× on XL.",
-    link: docsLink("docs/performance.md", "docs/performance.md — perf work"),
+    link: docsLink("docs/performance/performance.md", "docs/performance/performance.md — perf work"),
   },
   eta: {
     title: "Estimated time remaining",

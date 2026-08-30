@@ -88,7 +88,7 @@ posttrainllm train --preset mega --dtype bfloat16 ...
 
 Verified parity: a 100-step bf16 run on alice.txt lands within 0.04 nats
 of an fp32 run (1.6% drift) — within typical batch sampling noise. See
-`docs/precision.md` for the parity-test methodology.
+`docs/techniques/precision.md` for the parity-test methodology.
 
 ---
 
@@ -232,8 +232,8 @@ trains the model on shorter windows — but they ship today.
 
 ## Cross-reference
 
-- `docs/precision.md` — the fp32 vs fp16 vs bf16 numerics study
-- [`docs/training/`](training/index.md) — how these levers compose into the
+- `docs/techniques/precision.md` — the fp32 vs fp16 vs bf16 numerics study
+- [`docs/training/`](../training/index.md) — how these levers compose into the
   full pretrain → SFT → DPO pipeline
 - `native-mac/ARCHITECTURE.md` — where in the code each lever lives
 - Mac CLI source for the levers:

@@ -8,7 +8,7 @@
  * Stages 1-2: matmul fwd/bwd, the elementwise ops, GELU, and layernorm.
  * Later: attention, the optimizer, and a training orchestrator.
  *
- * Guide: docs/performance.md ("WebGPU — the real ceiling")
+ * Guide: docs/performance/performance.md ("WebGPU — the real ceiling")
  */
 
 import shader from "./train.wgsl?raw";

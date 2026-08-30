@@ -23,7 +23,7 @@
 #        pip install lm-eval==0.4.10
 #      ^ pin 0.4.10 because 0.4.11 has a stop-sequence bug that breaks
 #        generate-until tasks (GSM8K, HumanEval, IFEval). See
-#        docs/lm_eval_integration.md "Known issues" for details.
+#        docs/integrations/lm_eval_integration.md "Known issues" for details.
 #      (this script does NOT auto-install pip packages — the project's
 #       AGENTS.md prohibits unsupervised installs. Run the install manually.)
 #

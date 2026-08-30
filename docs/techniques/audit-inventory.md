@@ -1,6 +1,6 @@
 # Audit 2026 Technique Inventory
 
-This is the structured companion to [`../audit_2026.md`](../audit_2026.md).
+This is the structured companion to [`../audit_2026.md`](../audits/audit_2026.md).
 
 `audit_2026.md` is a prose audit. It mixes defaults, experimental features,
 flagged alternatives, and a few duplicate mentions where the same method is
@@ -19,7 +19,7 @@ An audit row is **not automatically an attempt**.
 
 ## Coverage Summary
 
-Source: `docs/audit_2026.md`.
+Source: `docs/audits/audit_2026.md`.
 
 | Bucket | Audit rows | Treatment |
 |---|---:|---|

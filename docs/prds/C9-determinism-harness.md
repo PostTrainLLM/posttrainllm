@@ -69,7 +69,7 @@ inspect the activations / gradients / Adam state directly.
 | `Sources/TinyGPT/Train.swift` | snapshot RNG + cursor every save; `--replay-step` / `--replay-from` flag handlers |
 | `Sources/TinyGPT/ReplayTrace.swift` | new — emit + reload trace JSON |
 | `Tests/TinyGPTModelTests/DeterminismTests.swift` | new — run 10 steps, replay step 5, assert byte-equality of weights at step 5 |
-| `docs/training_guide.md` | "Debugging a loss spike" runbook section |
+| `docs/guides/training_guide.md` | "Debugging a loss spike" runbook section |
 
 ## Acceptance criteria
 

@@ -2,7 +2,7 @@
 
 Implementation log for the second half of task #47. Forward landed last
 session (`webgpu/attention_fa2.wgsl` + `tests/test_fa2_parity.mjs` +
-`docs/fa2_forward_notes.md`); this is the runway for backward.
+`docs/performance/fa2_forward_notes.md`); this is the runway for backward.
 
 This delivery: **algorithm-level parity verified in Node**
 (`tests/test_fa2_backward_parity.mjs`). The WGSL kernel + ops.ts wiring
@@ -144,8 +144,8 @@ algorithm itself is verified.
 ## Where this lives in the codebase
 
 ```
-docs/fa2_forward_notes.md          — forward writeup (last session)
-docs/fa2_backward_notes.md         — this file
+docs/performance/fa2_forward_notes.md          — forward writeup (last session)
+docs/performance/fa2_backward_notes.md         — this file
 tests/test_fa2_parity.mjs          — forward parity (last session)
 tests/test_fa2_backward_parity.mjs — backward parity (this session)
 webgpu/attention_fa2.wgsl          — forward kernel (last session)

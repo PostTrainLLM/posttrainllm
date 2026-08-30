@@ -163,9 +163,9 @@ The options offered were roughly: (a) a flat chronological Q&A log like this fil
 **Outcome:** Sarthak picked (e) — see next.
 
 ### Q: Build them all and let people choose what to read
-Final directive of the session. The Q&A log (this file), the lessons distillation (`docs/archive/lessons.md`), the status snapshot (`docs/archive/status.md`), and the retrospective (`docs/session_retrospective.md`) are all in-tree. Readers pick their format: chronology, conclusions, current-state, or narrative.
+Final directive of the session. The Q&A log (this file), the lessons distillation (`docs/archive/lessons.md`), the status snapshot (`docs/archive/status.md`), and the retrospective (`docs/sessions/session_retrospective.md`) are all in-tree. Readers pick their format: chronology, conclusions, current-state, or narrative.
 
-**Outcome:** This file (`docs/qa_log.md`) is the chronology. The other three live alongside it.
+**Outcome:** This file (`docs/sessions/qa_log.md`) is the chronology. The other three live alongside it.
 
 ---
 

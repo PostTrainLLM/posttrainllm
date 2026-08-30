@@ -10,7 +10,7 @@
  * The loop runs in small chunks and yields between them so pause / stop are
  * handled promptly. Single-threaded by design.
  *
- * Guide: docs/browser_notes.md, docs/performance.md
+ * Guide: docs/browser_notes.md, docs/performance/performance.md
  */
 
 import { GpuModel } from "../../webgpu/gpu_model";

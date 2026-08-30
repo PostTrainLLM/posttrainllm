@@ -216,7 +216,7 @@ struct LearnDoc: Identifiable, Hashable {
             }
         }
         // Roadmap: top-level docs/PLAN.md + docs/archive/HANDOFF.md
-        for top in ["docs/PLAN.md", "docs/archive/HANDOFF.md", "docs/learning_roadmap.md"] {
+        for top in ["docs/PLAN.md", "docs/archive/HANDOFF.md", "docs/archive/learning_roadmap.md"] {
             let u = repo.appendingPathComponent(top)
             if fm.fileExists(atPath: u.path) {
                 docs.append(LearnDoc(id: u.path,

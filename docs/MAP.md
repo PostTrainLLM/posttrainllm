@@ -42,8 +42,8 @@ original moved to `docs/archive/`.
 
 | Old path | New home | Archived at |
 |---|---|---|
-| `docs/evaluation.md` | [`docs/validation_report.md`](validation_report.md) (appendix) | [`docs/archive/evaluation.md`](archive/evaluation.md) |
-| `docs/watch_the_model_think.md` | [`docs/interpretability.md`](interpretability.md) (appendix) | [`docs/archive/watch_the_model_think.md`](archive/watch_the_model_think.md) |
+| `docs/evaluation.md` | [`docs/audits/validation_report.md`](audits/validation_report.md) (appendix) | [`docs/archive/evaluation.md`](archive/evaluation.md) |
+| `docs/watch_the_model_think.md` | [`docs/techniques/interpretability.md`](techniques/interpretability.md) (appendix) | [`docs/archive/watch_the_model_think.md`](archive/watch_the_model_think.md) |
 | `docs/phase_9_10_status.md` | [`docs/roadmap/blockers.md`](roadmap/blockers.md) (appendix) | [`docs/archive/phase_9_10_status.md`](archive/phase_9_10_status.md) |
 
 ## Archived
@@ -69,6 +69,23 @@ current state, so they now sit with the other archived material:
 | `NIGHTLY.md` | [`docs/training/nightly.md`](training/nightly.md) — a runner contract, not a status doc |
 | `STATUS.md` | deleted; it was a pointer stub. Current state is [`PROJECT_STATUS.md`](../PROJECT_STATUS.md) |
 
+## Grouped (flat top level → topic folders)
+
+The `docs/` top level had grown to 94 loose files. Files that group
+unambiguously moved into topic folders; anything genuinely cross-cutting
+stayed at the top level. Old web URLs keep working — see below.
+
+| Moved into | What went there |
+|---|---|
+| [`docs/performance/`](performance/) | FA2 notes, online softmax, KV-cache, memory tradeoffs, CPU/cold-start/checkpointing/YOCO results, perf audits and research, benchmark harness design, determinism contract |
+| [`docs/techniques/`](techniques/README.md) | distillation, MoE, MTP, evolution strategies, pruning, quantization, precision, PEFT, LoRA guide, optimizers, GaLore, constrained generation, interpretability, speculative heads, StreamingLLM+KIVI |
+| [`docs/audits/`](audits/) | `audit_2026`, docs-quality, exactness-completion, feature audit, history-coverage, test-coverage, validation report |
+| [`docs/sessions/`](sessions/) | dated session notes, Q&A log, Pace handoff, planner lock, v11 baselines, retrospective, drilldown, WWDC impact, first specialist findings |
+| [`docs/integrations/`](integrations/) | HuggingFace datasets, GitHub data, lm-eval-harness, Continue.dev provider, deploy |
+| [`docs/guides/`](guides/) | model guide, training guide, study guide |
+
+`docs/learning/` (one file) merged into [`docs/learn/`](learn/README.md).
+
 ## URL redirects
 
 Old web URLs (`/docs/<old_slug>`) keep working via static redirects in
@@ -85,19 +102,19 @@ a full explanation.
 
 | Concept | Canonical home |
 |---|---|
-| bf16 / gradient accumulation / gradient checkpointing | [`docs/memory_tradeoffs.md`](memory_tradeoffs.md) |
-| LoRA mechanics | [`docs/lora_guide.md`](lora_guide.md) |
-| MoE (mixture of experts) | [`docs/moe.md`](moe.md) |
-| Distillation | [`docs/distillation.md`](distillation.md) |
-| MTP (multi-token prediction) | [`docs/mtp.md`](mtp.md) |
-| ES (evolution strategies) | [`docs/evolution_strategies.md`](evolution_strategies.md) |
-| Quantization (precision study) | [`docs/precision.md`](precision.md) |
+| bf16 / gradient accumulation / gradient checkpointing | [`docs/performance/memory_tradeoffs.md`](performance/memory_tradeoffs.md) |
+| LoRA mechanics | [`docs/techniques/lora_guide.md`](techniques/lora_guide.md) |
+| MoE (mixture of experts) | [`docs/techniques/moe.md`](techniques/moe.md) |
+| Distillation | [`docs/techniques/distillation.md`](techniques/distillation.md) |
+| MTP (multi-token prediction) | [`docs/techniques/mtp.md`](techniques/mtp.md) |
+| ES (evolution strategies) | [`docs/techniques/evolution_strategies.md`](techniques/evolution_strategies.md) |
+| Quantization (precision study) | [`docs/techniques/precision.md`](techniques/precision.md) |
 | Quantization (Phase 9 status appendix) | [`docs/roadmap/blockers.md`](roadmap/blockers.md) |
-| Interpretability (logit lens, attention vis, ablation) | [`docs/interpretability.md`](interpretability.md) |
+| Interpretability (logit lens, attention vis, ablation) | [`docs/techniques/interpretability.md`](techniques/interpretability.md) |
 | Training pipeline (pretrain → SFT → DPO) | [`docs/training/`](training/index.md) |
 | Post-training factory positioning | [`docs/factory/post-training-factory.md`](factory/post-training-factory.md) |
 | Docs golden path | [`docs/README.md`](README.md) |
-| Docs quality audit | [`docs/docs-quality-audit.md`](docs-quality-audit.md) |
+| Docs quality audit | [`docs/audits/docs-quality-audit.md`](audits/docs-quality-audit.md) |
 | Active/reference/archive status labels | [`docs/doc-status.md`](doc-status.md) |
 | Attempt history / worked vs failed | [`docs/attempt-ledger.md`](attempt-ledger.md) |
 | External products reviewed / steals | [`docs/external-products-reviewed.md`](external-products-reviewed.md) |

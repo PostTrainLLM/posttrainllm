@@ -10,7 +10,7 @@ be normalized without inventing history.
 
 ## Current Structured Coverage
 
-Source of truth: [`attempts.json`](attempts.json).
+Source of truth: [`attempts.json`](../attempts.json).
 
 | Dimension | Count |
 |---|---:|
@@ -43,13 +43,13 @@ Source of truth: [`attempts.json`](attempts.json).
 |---|---|---|
 | Character Chess specialist | normalized | `evals/chess/character-chess-44m-pilot-10k-v1.json`, `docs/learn/reproducing-qwen-chess-under-50m.md` |
 | SQL factory POC and retries | normalized | `runs/2026-07-02-*`, `runs/2026-07-03-*`, `docs/specialists/b1-sql-poc.md` |
-| Pace planner unhappy-path drill | normalized | `docs/DRILLDOWN.md`, `docs/RETROSPECTIVE.md`, `docs/pace-handoff-2026-06-10.md` |
-| Browser product/demo failures | partially normalized | `docs/qa_log.md`, `docs/archive/lessons.md` |
+| Pace planner unhappy-path drill | normalized | `docs/sessions/DRILLDOWN.md`, `docs/sessions/RETROSPECTIVE.md`, `docs/sessions/pace-handoff-2026-06-10.md` |
+| Browser product/demo failures | partially normalized | `docs/sessions/qa_log.md`, `docs/archive/lessons.md` |
 | File-ops specialist artifacts | normalized | `docs/factory/public-artifacts.md`, `specialists/qwen3-4b-file-ops-distilled/` |
 | Apple Foundation Models probe | normalized | `docs/learn/apple-on-device-foundation-models.md`, `AGENTS.md` |
-| Browser/runtime performance attempts | partially normalized | `docs/performance.md`, `docs/speculative_heads.md`, `docs/cpu_speedup_results.md`, `docs/cold_start_results.md`, `docs/gradient_checkpointing_results.md`, `docs/kv_cache_optimization.md`, `docs/yoco_results.md`, `docs/streaming_llm_kivi.md`, `docs/data_perf.md`, `docs/perf_audit_mlxfast_tied.md` |
-| MoE architecture smoke | normalized | `docs/moe.md` |
-| Audit 2026 technique rows | classified | `docs/audit_2026.md`, `docs/techniques/audit-inventory.md` |
+| Browser/runtime performance attempts | partially normalized | `docs/performance/performance.md`, `docs/techniques/speculative_heads.md`, `docs/performance/cpu_speedup_results.md`, `docs/performance/cold_start_results.md`, `docs/performance/gradient_checkpointing_results.md`, `docs/performance/kv_cache_optimization.md`, `docs/performance/yoco_results.md`, `docs/techniques/streaming_llm_kivi.md`, `docs/performance/data_perf.md`, `docs/performance/perf_audit_mlxfast_tied.md` |
+| MoE architecture smoke | normalized | `docs/techniques/moe.md` |
+| Audit 2026 technique rows | classified | `docs/audits/audit_2026.md`, `docs/techniques/audit-inventory.md` |
 | Factory/docs enforcement work | normalized | `docs/factory/`, `docs/techniques/`, smoke scripts |
 
 ## Classified Non-Ledger / Partial Surfaces
@@ -60,10 +60,10 @@ attempt ledger with implementation facts or learning notes.
 
 | Surface | Current treatment | Next action |
 |---|---|---|
-| `docs/audit_2026.md` | Large shipped/skipped technique inventory; now classified in `docs/techniques/audit-inventory.md` rather than forced into attempts. | Promote only rows that later gain target/eval/decision evidence into the attempt ledger. |
-| `docs/performance.md` and `docs/perf_*` | Core WASM/WebGPU/matmul, CPU, cold-start, checkpointing, KV, YOCO, KIVI/StreamingLLM, data regularizer, and audit attempts are normalized; smaller perf notes may still be implementation facts rather than attempts. | Add only additional entries with baseline/candidate/gate/lesson. |
-| `docs/speculative_heads.md` | The Medusa/EAGLE smoke is normalized; deeper paper-recipe ideas remain future techniques. | Keep future logit-KL/tree-attention work in the technique backlog until run. |
-| `docs/qa_log.md` and browser docs | Core demo failures are normalized; remaining entries are mostly chronology, product copy, or implementation handoff. | Add only entries with evidence, shipped outcome, and a reusable lesson. |
+| `docs/audits/audit_2026.md` | Large shipped/skipped technique inventory; now classified in `docs/techniques/audit-inventory.md` rather than forced into attempts. | Promote only rows that later gain target/eval/decision evidence into the attempt ledger. |
+| `docs/performance/performance.md` and `docs/perf_*` | Core WASM/WebGPU/matmul, CPU, cold-start, checkpointing, KV, YOCO, KIVI/StreamingLLM, data regularizer, and audit attempts are normalized; smaller perf notes may still be implementation facts rather than attempts. | Add only additional entries with baseline/candidate/gate/lesson. |
+| `docs/techniques/speculative_heads.md` | The Medusa/EAGLE smoke is normalized; deeper paper-recipe ideas remain future techniques. | Keep future logit-KL/tree-attention work in the technique backlog until run. |
+| `docs/sessions/qa_log.md` and browser docs | Core demo failures are normalized; remaining entries are mostly chronology, product copy, or implementation handoff. | Add only entries with evidence, shipped outcome, and a reusable lesson. |
 | `docs/archive/lessons.md` | Major concrete lessons are normalized; the rest is explanatory context for the browser/demo arc. | Keep as supporting narrative unless a new concrete run/eval source appears. |
 | `docs/learn/journal.md` | Broad learning journal with many technique notes. | Use as supporting evidence, not structured attempts, unless a section points to a run. |
 
@@ -71,8 +71,8 @@ attempt ledger with implementation facts or learning notes.
 
 | Source | Classification | Ledger treatment |
 |---|---|---|
-| `docs/audit_2026.md` | Technique inventory | Row-level treatment lives in `docs/techniques/audit-inventory.md`. Rows graduate only when a source doc preserves target, measurement, verdict, lesson, and next action. |
-| `docs/qa_log.md` | Chronological browser/product narrative | Six concrete browser-product attempts are normalized; the remaining entries stay as timeline context. |
+| `docs/audits/audit_2026.md` | Technique inventory | Row-level treatment lives in `docs/techniques/audit-inventory.md`. Rows graduate only when a source doc preserves target, measurement, verdict, lesson, and next action. |
+| `docs/sessions/qa_log.md` | Chronological browser/product narrative | Six concrete browser-product attempts are normalized; the remaining entries stay as timeline context. |
 | `docs/archive/lessons.md` | Lessons narrative with concrete failure examples | Concrete failures are normalized when they include evidence and an outcome; explanatory teaching text stays narrative. |
 | `docs/learn/journal.md` | Learning thought process | Not an attempt source by default. Promote only when an entry points to a real run, eval, artifact, or PRD decision. |
 | `docs/perf_*`, `docs/*_results.md` | Runtime result notes | Normalize measured before/after attempts; leave pure design notes as references. |

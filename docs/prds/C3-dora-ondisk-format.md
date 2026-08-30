@@ -67,7 +67,7 @@ parity with LoRA / LoRA+ / VeRA (all of which already roundtrip).
 | `Sources/TinyGPTModel/PeftVariants.swift` | expose the per-Linear magnitude tensor + the `peft_variant` tag for the writer |
 | `Sources/TinyGPT/SFT.swift` | delete the "not yet serializable" warning; on `--out`, write the DoRA adapter |
 | `Tests/TinyGPTModelTests/DoRARoundtripTests.swift` | new — train 50 steps DoRA on shakespeare, save, reload, assert output token-equal at T=0 vs in-memory adapter |
-| `docs/lora_guide.md` | one paragraph: DoRA now persists; format is `.lora` with `peft_variant: dora` |
+| `docs/techniques/lora_guide.md` | one paragraph: DoRA now persists; format is `.lora` with `peft_variant: dora` |
 
 ## Don't touch
 

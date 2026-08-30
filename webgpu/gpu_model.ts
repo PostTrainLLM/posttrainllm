@@ -10,7 +10,7 @@
  * Per-step intermediates are tracked and freed each step so a long run does not
  * exhaust GPU memory; weights / moments persist.
  *
- * Guide: docs/performance.md ("WebGPU — the real ceiling")
+ * Guide: docs/performance/performance.md ("WebGPU — the real ceiling")
  */
 
 import { GpuOps } from "./ops";

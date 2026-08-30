@@ -24,7 +24,7 @@ enum Finetune {
         var targetSuffixesArg = "q_proj,v_proj"
         var batchSize: Int? = nil
         var sampleEvery = 100
-        // PEFT variants (see docs/peft_variants.md). At most one of these
+        // PEFT variants (see docs/techniques/peft_variants.md). At most one of these
         // should be set; the parser picks the LAST seen if multiple flags
         // collide (no error — keeps debug runs ergonomic).
         var peftVariant: PeftVariant = .lora
@@ -244,7 +244,7 @@ enum Finetune {
         return 16
     }
     /// Short label for the active PEFT variant. Mirrors the table in
-    /// docs/peft_variants.md so the run-summary header stays grep-able.
+    /// docs/techniques/peft_variants.md so the run-summary header stays grep-able.
     static func describeVariant(_ v: PeftVariant, target: Int) -> String {
         switch v {
         case .lora:    return "LoRA (baseline)"

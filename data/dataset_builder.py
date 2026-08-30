@@ -18,7 +18,7 @@ The `hf` command pulls plain text from a Hugging Face dataset via the public
 datasets-server HTTP API — no API key and no `datasets` dependency — so you can
 train on an open dataset instead of supplying your own file.
 
-Guide: docs/model_guide.md ("Dataset pipeline"), docs/lora_guide.md
+Guide: docs/guides/model_guide.md ("Dataset pipeline"), docs/techniques/lora_guide.md
 """
 
 from __future__ import annotations

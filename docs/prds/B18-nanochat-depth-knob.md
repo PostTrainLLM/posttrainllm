@@ -40,7 +40,7 @@ exact pattern. We borrow the surface.
   optimal corner.
 - `posttrainllm train --depth N` flag — when set, overrides individual
   HP flags (with a warning if conflicting flags are also passed).
-- Documented table in `docs/training_guide.md` mapping depth →
+- Documented table in `docs/guides/training_guide.md` mapping depth →
   derived HPs, so users can verify what they're getting.
 
 ## Scope — out
@@ -59,7 +59,7 @@ exact pattern. We borrow the surface.
 | `Sources/TinyGPTModel/DepthDerivation.swift` | new — the derivation fn |
 | `Sources/TinyGPT/Train.swift` | parse `--depth`; warn on conflicts; resolve and log the derived HPs in the banner |
 | `Tests/TinyGPTModelTests/DepthDerivationTests.swift` | new — assert derived HPs match a hand-checked table for depth ∈ {4, 12, 24, 36} |
-| `docs/training_guide.md` | the depth-HP table |
+| `docs/guides/training_guide.md` | the depth-HP table |
 
 ## Acceptance criteria
 

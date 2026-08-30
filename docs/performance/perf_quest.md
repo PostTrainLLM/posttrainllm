@@ -48,7 +48,7 @@ just with different row/col interpretation.
 `webgpu/ops.ts:verifyF16Storage` runs at `GpuOps.create()` time. It
 checks BOTH forward and backward against the f32 reference; both must
 pass for the path to activate. Magnitude-aware tolerance:
-`max_abs < 1% of mean|ref|` AND `mean_rel < 0.5%`. See `docs/precision.md`
+`max_abs < 1% of mean|ref|` AND `mean_rel < 0.5%`. See `docs/techniques/precision.md`
 for the full framework.
 
 `GpuModel.prepareForInference()` packs every matmul-shaped weight to a
@@ -99,7 +99,7 @@ levers have diminishing returns."
 
 Decision: ship the gallery on this stack, treat #91/#92/#93 as a v2 perf
 drop devlog after the HN launch. Each carries an implementation sketch
-in this doc + the gate-framework pattern in `docs/precision.md`.
+in this doc + the gate-framework pattern in `docs/techniques/precision.md`.
 
 ## What landed in commit `28f2533`
 
@@ -183,7 +183,7 @@ in this doc + the gate-framework pattern in `docs/precision.md`.
 5. **#94 — The numerics gate itself.** A `verifyAcceleratorPath()` helper
    that runs the 500-step Shakespeare check on each enabled path at first
    use; caches the verdict; falls back automatically. Document measured
-   deltas in `docs/precision.md` (to be created).
+   deltas in `docs/techniques/precision.md` (to be created).
 6. **#85 — Retrain the gallery** (3 Huge models) sequentially under
    `caffeinate -i` on the now-faster path. ~2.5 hr expected at the new
    throughput.
@@ -248,7 +248,7 @@ That gates publishing on every lever working. Sequencing within that:
 
 ## Cross-references
 
-- `docs/precision.md` — the numerics gate framework. Read this before
+- `docs/techniques/precision.md` — the numerics gate framework. Read this before
   writing any new fast path.
 - `browser/src/pages/roadmap.astro` lever 21 documents the same frontier
   with public-facing framing (what users see).

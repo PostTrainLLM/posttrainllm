@@ -42,11 +42,11 @@ enum SFT {
         var qloraBits = 4
         // Curated-recipe default: DoRA on. 5-10% better than vanilla LoRA
         // at same rank for a modest compute cost. Pass `--no-dora` to fall
-        // back to vanilla LoRA. See docs/audit_2026.md "PEFT — KEEP".
+        // back to vanilla LoRA. See docs/audits/audit_2026.md "PEFT — KEEP".
         var useDora: Bool = true
         var packSequences = false
         var optimizerKind: OptimizerKind = .adamw
-        // PEFT variants — see Finetune.swift / docs/peft_variants.md.
+        // PEFT variants — see Finetune.swift / docs/techniques/peft_variants.md.
         var peftVariant: PeftVariant = .lora
         var adaLoraTargetRank = 0
         var layerDropProb: Float = 0
@@ -496,7 +496,7 @@ enum SFT {
                                    Persists to disk via the TGLA v2 adapter format
                                    (magnitudes captured per entry; LoadIO autodetects).
 
-        PEFT variants (mutually exclusive; pick at most one — see docs/peft_variants.md):
+        PEFT variants (mutually exclusive; pick at most one — see docs/techniques/peft_variants.md):
         --vera                   VeRA — frozen random A/B, train per-rank scalars (~10× fewer params).
         --rs-lora                Rank-stabilized LoRA — scale = α/√r.
         --lora-fa                LoRA-FA — freeze A, train only B (½ trainable params).

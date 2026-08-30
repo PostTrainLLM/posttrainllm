@@ -259,7 +259,7 @@ enum Sample {
         // Setup cost is O(vocab) decodes (~once per launch, < 1 sec
         // even for 128k vocab). Per-step cost is O(vocab × avg-tok-len)
         // byte-level FSM probes; on M-class silicon this adds ~5-10%
-        // overhead at vocab≤32k. See docs/constrained_generation.md.
+        // overhead at vocab≤32k. See docs/techniques/constrained_generation.md.
         // ──────────────────────────────────────────────────────────────
         var jsonFSM: JSONSchemaFSM? = nil
         var jsonMasker: LogitsMasker? = nil
@@ -893,7 +893,7 @@ enum Sample {
         --json-schema <path>  Constrained decoding against a JSON Schema
                               (Draft 7 subset). Every output is guaranteed
                               to be valid JSON matching the schema. See
-                              docs/constrained_generation.md.
+                              docs/techniques/constrained_generation.md.
         --no-json-stop-on-complete
                               Don't auto-stop when the JSON value closes;
                               keep generating until --tokens is reached

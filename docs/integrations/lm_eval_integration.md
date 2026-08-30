@@ -8,7 +8,7 @@ GSM8K, IFEval, MMLU-Pro, GPQA-Diamond, MATH-500, AIME, BBH, HumanEval, …**
 — anything the harness defines — against any posttrainllm-loaded model.
 
 For the *why* (benchmark landscape, leaderboard saturation, contamination
-issues), see [`docs/research/quality_benchmarks_may_2026.md`](research/quality_benchmarks_may_2026.md).
+issues), see [`docs/research/quality_benchmarks_may_2026.md`](../research/quality_benchmarks_may_2026.md).
 
 ## How it works
 
@@ -97,7 +97,7 @@ pip install lm-eval==0.4.10
 silently dropped for generate-until tasks (GSM8K, HumanEval, IFEval,
 BBH-cot). The model keeps generating until `max_tokens`, scores
 collapse, and you spend an hour wondering why your math accuracy is 0.
-See [`docs/research/quality_benchmarks_may_2026.md`](research/quality_benchmarks_may_2026.md)
+See [`docs/research/quality_benchmarks_may_2026.md`](../research/quality_benchmarks_may_2026.md)
 for the citation. Pin to 0.4.10 OR upgrade to whatever's current at the
 time of running and verify generate-until tasks against a known-good
 baseline.

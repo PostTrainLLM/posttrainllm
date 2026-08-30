@@ -1,7 +1,7 @@
 """
 model.py — byte-level posttrainllm model (Phase 1-2).
 
-The ~0.8M-parameter causal language model from docs/model_guide.md and
+The ~0.8M-parameter causal language model from docs/guides/model_guide.md and
 configs/model.byte-tinygpt-v0.json.
 
 Forward pass:
@@ -15,7 +15,7 @@ Forward pass:
 Sanity: a random model's loss should sit near ln(256) ~= 5.54.
 
 Spec:  configs/model.byte-tinygpt-v0.json
-Guide: docs/model_guide.md  ("Architecture details", "Output head", "Loss function")
+Guide: docs/guides/model_guide.md  ("Architecture details", "Output head", "Loss function")
 """
 
 from __future__ import annotations

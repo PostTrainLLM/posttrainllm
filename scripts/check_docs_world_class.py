@@ -49,20 +49,20 @@ REQUIRED = {
         "StreamingLLM + KIVI cache compression",
         "## Factory / Documentation Attempts",
     ],
-        "docs/history-coverage-audit.md": [
+        "docs/audits/history-coverage-audit.md": [
         "## Current Structured Coverage",
         "## Confidence Coverage",
         "## Classified Non-Ledger / Partial Surfaces",
         "## Classified Historical Sources",
         "## Backfill Rule",
         "Browser product",
-        "docs/qa_log.md",
+        "docs/sessions/qa_log.md",
         "Runtime/perf",
         "MoE architecture smoke",
-        "docs/cpu_speedup_results.md",
-        "docs/streaming_llm_kivi.md",
-        "docs/audit_2026.md",
-        "docs/speculative_heads.md",
+        "docs/performance/cpu_speedup_results.md",
+        "docs/techniques/streaming_llm_kivi.md",
+        "docs/audits/audit_2026.md",
+        "docs/techniques/speculative_heads.md",
     ],
     "docs/external-products-reviewed.md": [
         "## Review Standard",
@@ -93,14 +93,14 @@ REQUIRED = {
         "Mastery Gate",
         "self-improving factory",
     ],
-    "docs/docs-quality-audit.md": [
+    "docs/audits/docs-quality-audit.md": [
         "## Definition",
         "## Current State",
         "## Completion Audit",
         "## Future Hardening",
         "## Next Quality Gates",
     ],
-    "docs/exactness-completion-audit.md": [
+    "docs/audits/exactness-completion-audit.md": [
         "## Completion Standard",
         "## Evidence",
         "## Current Counts",
@@ -185,7 +185,7 @@ def main() -> int:
     attempts = json.loads(
         (ROOT / "docs/attempts.json").read_text(encoding="utf-8")
     )["attempts"]
-    completion_rel = "docs/exactness-completion-audit.md"
+    completion_rel = "docs/audits/exactness-completion-audit.md"
     completion = (ROOT / completion_rel).read_text(encoding="utf-8")
     exact = Counter(a["failure_reason_confidence"] for a in attempts)["exact"]
     for row in (

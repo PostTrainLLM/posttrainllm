@@ -10,8 +10,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 INVENTORY = ROOT / "docs/techniques/audit-inventory.md"
-AUDIT = ROOT / "docs/audit_2026.md"
-COMPLETION = ROOT / "docs/exactness-completion-audit.md"
+AUDIT = ROOT / "docs/audits/audit_2026.md"
+COMPLETION = ROOT / "docs/audits/exactness-completion-audit.md"
 
 EXPECTED = {
     "Keep / Default Rows": ("Keep/default", 45),
@@ -82,7 +82,7 @@ def main() -> int:
         "docs/attempt-ledger.md",
     ):
         if needle not in audit:
-            errors.append(f"docs/audit_2026.md missing exactness note needle {needle!r}")
+            errors.append(f"docs/audits/audit_2026.md missing exactness note needle {needle!r}")
 
     if errors:
         for err in errors:

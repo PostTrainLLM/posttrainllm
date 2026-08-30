@@ -24,6 +24,6 @@
   "disclosure": {"base_model": "mlx-community/Qwen3-4B-Instruct-2507-4bit@50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b", "benchmark_data_access": "sealed instances provided only at evaluation time"},
   "evidence": [
     {"kind": "receipt", "ref": "evals/everyday-benchmark/receipts/qwen3-4b-intent-sealed-v1.json"},
-    {"kind": "source", "ref": "docs/planner-lock-2026-06-19.md"}
+    {"kind": "source", "ref": "docs/sessions/planner-lock-2026-06-19.md"}
   ]
 }

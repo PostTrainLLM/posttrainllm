@@ -124,7 +124,7 @@ public struct PairState: Updatable {
 /// every k steps using a fresh logit sample, but on bf16/fp32
 /// transformer pre-training the EMA-of-squared-grads ("Sophia-light")
 /// behaves similarly while keeping the step strictly local — no extra
-/// forward passes. We document this in `docs/optimizers.md`.
+/// forward passes. We document this in `docs/techniques/optimizers.md`.
 ///
 /// Headline behaviour vs Adam: the per-coordinate clip `min(.., 1)`
 /// caps the per-step move at `lr` for any coordinate whose

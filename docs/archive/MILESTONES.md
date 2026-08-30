@@ -6,15 +6,15 @@ Interactive-feature backlog: `docs/feature_ideas.md`.
 
 - [x] **1. PyTorch posttrainllm baseline** — the ~0.8M byte-level model runs a correct
   forward pass and matches expected shapes at every layer.
-  Phase 1 · `python_ref/model.py` · `docs/model_guide.md`
+  Phase 1 · `python_ref/model.py` · `docs/guides/model_guide.md`
   _Done: 842,496 params; shape, loss-sanity (5.56 ≈ ln 256) and gradient-check tests pass._
 - [x] **2. Training from scratch** — AdamW training loop drives loss down,
   overfits a 1–10 KB file, and sampling works.
-  Phase 1 · `python_ref/train.py`, `sample.py` · `docs/model_guide.md`
+  Phase 1 · `python_ref/train.py`, `sample.py` · `docs/guides/model_guide.md`
   _Done: tiny-overfit drives loss 5.53 → 0.017; `train.py`/`sample.py` verified end-to-end._
 - [x] **3. LoRA fine-tuning** — frozen base + low-rank adapter trains, saves, and
   reloads; output differs from the base model.
-  Phase 3 · `python_ref/lora.py` · `docs/lora_guide.md`
+  Phase 3 · `python_ref/lora.py` · `docs/techniques/lora_guide.md`
   _Done: rank-4 adapter (8,192 params, 0.96% of total) trains (loss 4.71 → 2.25),
   saves adapter-only + reloads; base-vs-LoRA output differs. Verified on the 0.8M
   base — a 5–15M base (roadmap step 4) is still future work._

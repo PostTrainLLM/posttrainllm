@@ -49,7 +49,7 @@ Replaces cosine-warmup as the curated default for new pretrain runs.
 - `posttrainllm train --resume <ckpt> --lr-schedule wsd --warmup 0 ...` —
   the killer use case: resume from the end of a stable-phase checkpoint
   into a decay-shaped fine-tune.
-- One sentence in `docs/training_guide.md` flipping the curated default.
+- One sentence in `docs/guides/training_guide.md` flipping the curated default.
 - One smoke test in `evals/wsd-curve-smoke.swift` asserting the
   emitted LR-by-step matches the closed-form expression to ε=1e-6.
 
@@ -70,7 +70,7 @@ Replaces cosine-warmup as the curated default for new pretrain runs.
 | `Sources/TinyGPT/Train.swift` | parse `--stable-frac` + `--decay-shape`; pass to schedule constructor |
 | `Sources/TinyGPT/TinyGPT.swift` | NO change — `--lr-schedule` is already in `Train.swift` |
 | `evals/wsd-curve-smoke.swift` | new — closed-form LR check at warmup, mid-stable, mid-decay, end |
-| `docs/training_guide.md` | curated default flip |
+| `docs/guides/training_guide.md` | curated default flip |
 
 ## Acceptance criteria
 
@@ -84,7 +84,7 @@ Replaces cosine-warmup as the curated default for new pretrain runs.
   with `--stable-frac 0.9` (so the run ends mid-stable), then
   `--resume <ckpt> --lr-schedule wsd --warmup 0 --stable-frac 0.0
   --decay-shape 1-sqrt --steps 2000` decays cleanly to 0.
-- [ ] `docs/training_guide.md` curated invocation block updated.
+- [ ] `docs/guides/training_guide.md` curated invocation block updated.
 
 ## Reference patterns
 

@@ -5,9 +5,9 @@
 about that claim is credible without a reproducible measurement frame.*
 
 *Background research that drives every decision below lives at
-[`docs/research/inference_benchmarks_may_2026.md`](research/inference_benchmarks_may_2026.md).
+[`docs/research/inference_benchmarks_may_2026.md`](../research/inference_benchmarks_may_2026.md).
 Quality-benchmark survey at
-[`docs/research/quality_benchmarks_may_2026.md`](research/quality_benchmarks_may_2026.md).*
+[`docs/research/quality_benchmarks_may_2026.md`](../research/quality_benchmarks_may_2026.md).*
 
 ## 1. Goals
 
@@ -295,7 +295,7 @@ how a real user runs them.
   public benchmark publishes.
 
 Full survey, with URLs:
-[`docs/research/inference_benchmarks_may_2026.md`](research/inference_benchmarks_may_2026.md).
+[`docs/research/inference_benchmarks_may_2026.md`](../research/inference_benchmarks_may_2026.md).
 
 ## 9. Implementation status (2026-05-30)
 

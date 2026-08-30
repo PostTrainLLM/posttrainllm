@@ -15,7 +15,7 @@ so either repo can pick up any thread without re-deriving context.
 | WhisperKit qualification | memory + benchmarks | large-v3-turbo: 1.5GB, 9× realtime — Pace's provider scaffold awaits streaming wiring |
 | Qwen3-Embedding-0.6B qualification | memory | qualified for RAG; Pace's v1 retrieval shipped lexical instead — embedding upgrade is a future option |
 | Stage A dictation post-processor | `pace/leanring-buddy/PaceDictationPostProcessor.swift` + 26 tests | committed 2026-06-10 |
-| v11 eval suites (60 unhappy fixtures + 96 BFCL-12) | `pace/evals/fm-fixtures-{oos,ambig,destructive}` + `~/.cache/posttrainllm/datasets/bfcl/BFCL_v3_pace12.json` | held-out; baselines locked in `docs/v11-baselines-2026-06-09.md` |
+| v11 eval suites (60 unhappy fixtures + 96 BFCL-12) | `pace/evals/fm-fixtures-{oos,ambig,destructive}` + `~/.cache/posttrainllm/datasets/bfcl/BFCL_v3_pace12.json` | held-out; baselines locked in `docs/sessions/v11-baselines-2026-06-09.md` |
 
 ## Ready to fire — one command, needs GPU free
 
@@ -38,10 +38,10 @@ so either repo can pick up any thread without re-deriving context.
 
 ## Decisions frozen (do not re-litigate without new data)
 
-- Planner iteration FREEZES after one v11 run — ship or fail, no v11.1/v12 this month ([ship gate](prds/pace-planner-v11-ship-gate.md))
+- Planner iteration FREEZES after one v11 run — ship or fail, no v11.1/v12 this month ([ship gate](../prds/pace-planner-v11-ship-gate.md))
 - Nemotron is a full ASR replacement, not a dictation post-processor — Stage A is regex; Stage B (trained) only if telemetry shows formatting errors matter
 - APIGen-MT-5k is CC-BY-NC — commercial training data must come from Hermes-FC-v1 (Apache) or own synthesis
-- GEPA prompt evolution parked until after v11 ([PRD](prds/gepa-prompt-evolution.md))
+- GEPA prompt evolution parked until after v11 ([PRD](../prds/gepa-prompt-evolution.md))
 
 ## Coordination notes
 

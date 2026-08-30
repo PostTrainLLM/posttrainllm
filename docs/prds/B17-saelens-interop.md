@@ -72,7 +72,7 @@ This is the cheapest of the three interop options floated in PLAN B17:
 | `Sources/TinyGPT/TinyGPT.swift` | `case "sae-export"` (split from `sae` to keep the original tight) |
 | `Sources/TinyGPTModel/SaeReader.swift` | expose private `.sae` parsing fields needed for export (sparsity stats etc.) |
 | `Tests/TinyGPTTests/SaeExportRoundtripTest.swift` | new — see above |
-| `docs/interpretability.md` | "Publishing to SAELens / Neuronpedia" section |
+| `docs/techniques/interpretability.md` | "Publishing to SAELens / Neuronpedia" section |
 
 ## Acceptance criteria
 
@@ -84,7 +84,7 @@ This is the cheapest of the three interop options floated in PLAN B17:
 - [ ] Roundtrip test passes — exported encoder/decoder weights are
   numerically identical (modulo SAELens's column-vs-row convention)
   to the originals.
-- [ ] `docs/interpretability.md` has a worked example pointing at a
+- [ ] `docs/techniques/interpretability.md` has a worked example pointing at a
   fixture export.
 
 ## Reference patterns

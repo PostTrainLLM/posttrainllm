@@ -291,7 +291,7 @@ native-mac/Sources/TinyGPTData/GitHubCorpus.swift   issue→PR / reviews / commi
 native-mac/Sources/TinyGPTData/DatasetRegistry.swift  GitHubRecipes.all (added)
 native-mac/Sources/TinyGPT/FetchGitHub.swift        CLI subcommand
 native-mac/Sources/TinyGPT/TinyGPT.swift            pre-switch shim wires `fetch-github`
-docs/github_data_integration.md                     (this file)
+docs/integrations/github_data_integration.md                     (this file)
 ```
 
 The CLI is wired through the same pre-switch shim pattern as

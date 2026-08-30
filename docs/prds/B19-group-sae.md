@@ -70,7 +70,7 @@ just a different activation source.
 | `Sources/TinyGPTModel/SaeReader.swift` | add `group` field to `.sae` sidecar; reader keeps back-compat default |
 | `Sources/TinyGPT/SaeExplore.swift` | layer-attribution decomposition for group SAEs |
 | `Tests/TinyGPTTests/GroupSaeTests.swift` | new — train 100 steps on 4-layer group of a tiny model, assert MSE non-increasing |
-| `docs/interpretability.md` | "Group-SAE for cheaper timeline interp" subsection |
+| `docs/techniques/interpretability.md` | "Group-SAE for cheaper timeline interp" subsection |
 
 ## Acceptance criteria
 

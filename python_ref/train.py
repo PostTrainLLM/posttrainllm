@@ -23,7 +23,7 @@ Usage:
     python python_ref/train.py --data <file>.txt --resume checkpoints/run1
     python python_ref/train.py --overfit            # tiny built-in smoke corpus
 
-Spec:  configs/training.json   Guide: docs/model_guide.md  ("Training loop")
+Spec:  configs/training.json   Guide: docs/guides/model_guide.md  ("Training loop")
 """
 
 from __future__ import annotations
@@ -200,7 +200,7 @@ def train(args: argparse.Namespace) -> None:
 
         if not math.isfinite(loss.item()):
             raise SystemExit(f"loss became {loss.item()} at step {step} — see "
-                             "docs/model_guide.md §6 (lower LR / check init).")
+                             "docs/guides/model_guide.md §6 (lower LR / check init).")
 
     save_checkpoint(
         out_dir, model=model, optimizer=optimizer, model_config=model_cfg,

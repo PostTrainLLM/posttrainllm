@@ -4,7 +4,7 @@ import Foundation
 ///   1. A canonical JSON object (the source of truth).
 ///   2. A human-readable markdown table (derived from the JSON).
 ///
-/// JSON schema documented in docs/benchmark_harness_design.md §3.4.
+/// JSON schema documented in docs/performance/benchmark_harness_design.md §3.4.
 public enum Reporter {
     public struct Provenance {
         public let harnessVersion: String

@@ -15,7 +15,7 @@ import TinyGPTModel
 ///   - `--heads-to-drop N`: zeros N attention heads' worth of weights
 ///     in EVERY layer. Shape-preserving (still loads with the original
 ///     `nHeads`); inference contribution is zero. No wallclock win in
-///     this iteration — see docs/pruning.md for the rationale.
+///     this iteration — see docs/techniques/pruning.md for the rationale.
 ///
 /// Importance scoring:
 ///   - Heads: Frobenius-norm sum across each head's Q/K/V/O slabs.
@@ -492,7 +492,7 @@ enum PruneStructured {
         Heads are zeroed in place (shape-preserving, no wallclock speedup —
         Metal has no head-aware sparse matmul). Layers are PHYSICALLY removed,
         producing a smaller dense model with real wallclock + memory wins.
-        See docs/pruning.md for the design rationale.
+        See docs/techniques/pruning.md for the design rationale.
         """)
         exit(code)
     }

@@ -12,7 +12,7 @@ import Foundation
 ///   - sustained     — continuous decode for N seconds; thermal regression.
 ///                     **Placeholder** — also pending.
 ///
-/// See docs/benchmark_harness_design.md §3.2.
+/// See docs/performance/benchmark_harness_design.md §3.2.
 public final class WorkloadController {
     public enum Mode: String { case single, batch, server, sustained }
 

@@ -6,7 +6,7 @@ introduced the items. Comparison baseline is `main` HEAD prior to the bundle
 (`a9cac22`, pruning work), which is functionally equivalent to running the
 bundle binary with every item disabled via `TINYGPT_DISABLE_*=1`.
 
-Reference brief: `docs/cpu_utilization_research.md` §3a–§3f. This doc closes
+Reference brief: `docs/performance/cpu_utilization_research.md` §3a–§3f. This doc closes
 items #1–#4 from that list. Items #5 (Rust-FFI BPE), #6 (pre-allocated CPU
 buffers), and #7 (SVD-on-CPU AMX verification) are still open.
 
@@ -31,7 +31,7 @@ overhead removal; no math changed.
 
 ## What shipped
 
-Four items from `docs/cpu_utilization_research.md` §3:
+Four items from `docs/performance/cpu_utilization_research.md` §3:
 
   * **#1 Compile under cosine LR** — `useCompiledLR` path on `Trainer` /
     `TrainerHF`. The optimiser's learning rate is now an `MLXArray` scalar
@@ -286,7 +286,7 @@ macOS (first run after build is consistently 30-40% slower).
 
 ## Open items (not in this bundle)
 
-From `docs/cpu_utilization_research.md` §3:
+From `docs/performance/cpu_utilization_research.md` §3:
 
   * **#5 Rust-FFI BPE tokenizer** — only worth doing if BPE-dropout
     is on. Streaming-tokenized corpus with BPE-dropout is currently

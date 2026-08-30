@@ -5,7 +5,7 @@ unless explicitly called out as measured.
 
 The flagship `huge` training run (12L · d=256 · ctx=512, ~22M params, bf16,
 B=4 × accum=4, cosine LR) is currently observing ~0.07-0.1 step/s on an
-M5 Pro (48 GB). Earlier `huge`-preset numbers in `docs/perf_research.md`
+M5 Pro (48 GB). Earlier `huge`-preset numbers in `docs/performance/perf_research.md`
 recorded **47 ms/step ≈ 21 step/s** (no accumulation, no LR schedule,
 compile on). Even after correcting for accumulation (4× microbatches per
 step) and the slightly larger configs, we'd expect 1.5-3 step/s, not 0.1.
@@ -150,7 +150,7 @@ a big chunk.
 ### 2d. Optimizer step host overhead
 
 Adafactor (`optimizerKind = .adafactor`) is reported in
-`docs/optimizers.md` lines 96-102 as **7.8 step/s at huge** vs AdamW's
+`docs/techniques/optimizers.md` lines 96-102 as **7.8 step/s at huge** vs AdamW's
 **16.3** — about **2× slower per step**. That's documented and not a
 mystery. If v4 switched from AdamW to Adafactor (to fit Mega/Behemoth in
 memory), that compounds with the compile-off cost.
@@ -447,13 +447,13 @@ hypotheses ranked by my prior on which is real:
 
 1. **`compile=off` because of cosine LR + grad accumulation** (§2c).
    This single change can cost **2-3×** compared to a compile-on run.
-   The v3 47-ms/step number in `docs/perf_research.md` was measured
+   The v3 47-ms/step number in `docs/performance/perf_research.md` was measured
    with no schedule and no accum (the `Bench.swift` defaults). High
    confidence — backed by the explicit `canCompile` gating logic.
 
 2. **Adafactor vs AdamW** (§2d). If v4 switched optimizer to Adafactor
    to leave more memory for activations, that's **~2× per step**,
-   documented in `docs/optimizers.md:174` ("AdamW (5.2 vs 16.3
+   documented in `docs/techniques/optimizers.md:174` ("AdamW (5.2 vs 16.3
    step/s)"). High confidence if optimizer changed.
 
 3. **z-loss + embedding RMSNorm** add small constant-factor work:

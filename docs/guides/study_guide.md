@@ -27,7 +27,7 @@ At Small (d_model = 96), `fixed_overhead` is a meaningful fraction of step time 
 
 This pattern generalises far beyond posttrainllm: any time you publish a single "Nx faster" number for a workload whose cost is a function of a tuneable, you are implicitly claiming the value of that function at one point. Publish the function instead.
 
-**Reference**: `docs/archive/lessons.md` §3 (the curve story); `docs/session_retrospective.md` §1 for the longer arc; `browser/measure_curve.mjs` is the actual measurement harness.
+**Reference**: `docs/archive/lessons.md` §3 (the curve story); `docs/sessions/session_retrospective.md` §1 for the longer arc; `browser/measure_curve.mjs` is the actual measurement harness.
 
 ---
 
@@ -43,7 +43,7 @@ Fix: `browser/src/types.ts:35` and the `value="0.003"` on the `#lr` input at `br
 
 The deeper lesson is that "loss has plateaued" is not a fact — it's a hypothesis with two competing explanations: the model has run out of capacity, *or* the optimiser has run out of resolution. Cross-reference your hyperparameters against the reference path before committing to the capacity story.
 
-**Reference**: `browser/src/types.ts:28-41`; `docs/archive/lessons.md` §1; `docs/session_retrospective.md` §2.
+**Reference**: `browser/src/types.ts:28-41`; `docs/archive/lessons.md` §1; `docs/sessions/session_retrospective.md` §2.
 
 ---
 
@@ -57,7 +57,7 @@ At Small, the per-call overhead is comparable in magnitude to the per-call work.
 
 The honest takeaway is that you cannot use a Node-WASM benchmark to predict browser-WASM performance, particularly at small model sizes. Per-host, per-shape numbers are the only ones that mean anything. "WASM is fast" is incomplete; you have to name the host.
 
-**Reference**: `docs/performance.md` (the WASM section); `docs/archive/lessons.md` §7 / `docs/session_retrospective.md` §7.
+**Reference**: `docs/performance/performance.md` (the WASM section); `docs/archive/lessons.md` §7 / `docs/sessions/session_retrospective.md` §7.
 
 ---
 
@@ -113,7 +113,7 @@ A KV cache fixes this by saving the per-layer `K` and `V` tensors from prior dec
 
 The fix is split: `gpu_model.ts:generate` now accepts an optional `onToken` callback (in this session); wiring it through the worker as a `postMessage` stream and updating the DOM on each arrival is task #72; the KV cache itself is a bigger architectural change on the roadmap.
 
-**Reference**: `webgpu/gpu_model.ts:268-309`; `docs/session_retrospective.md` §6.
+**Reference**: `webgpu/gpu_model.ts:268-309`; `docs/sessions/session_retrospective.md` §6.
 
 ---
 
@@ -132,11 +132,11 @@ l_new = α · l_old + Σ exp(s_jj − m_new)
 
 After the loop, divide `O /= l` and write out.
 
-The backward kernel (the FA2 recomputation design — see `docs/fa2_backward_notes.md`; the currently shipped attention gradients are the non-fused `attn_dscores`/`attn_dvalue` in `webgpu/train.wgsl`) does the FA2 trick that's the actual reason to bother. The forward saves `L = m_final + log(l_final)` per Q row — one float per row, not a full matrix. The backward reconstructs `P[i,j] = exp(s[i,j] − L[i])` from raw `Q` and `K` instead of reading a cached attention matrix that no longer exists. Recomputing scores is cheap on a GPU; reading 67 MB from global memory is not.
+The backward kernel (the FA2 recomputation design — see `docs/performance/fa2_backward_notes.md`; the currently shipped attention gradients are the non-fused `attn_dscores`/`attn_dvalue` in `webgpu/train.wgsl`) does the FA2 trick that's the actual reason to bother. The forward saves `L = m_final + log(l_final)` per Q row — one float per row, not a full matrix. The backward reconstructs `P[i,j] = exp(s[i,j] − L[i])` from raw `Q` and `K` instead of reading a cached attention matrix that no longer exists. Recomputing scores is cheap on a GPU; reading 67 MB from global memory is not.
 
 The shipping forward also dropped its previous "compatibility second pass" that re-walked K to write the attention matrix for the old backward — once the FA2 backward shipped, nothing needed the materialised attention any more. That was the real memory win.
 
-**Reference**: `webgpu/attention_fa2.wgsl`; `docs/fa2_forward_notes.md`; `docs/fa2_backward_notes.md`; the FA2 paper (Dao 2023).
+**Reference**: `webgpu/attention_fa2.wgsl`; `docs/performance/fa2_forward_notes.md`; `docs/performance/fa2_backward_notes.md`; the FA2 paper (Dao 2023).
 
 ---
 
@@ -212,7 +212,7 @@ Important quirk for browser-driven training sessions: `astro dev` has hot-module
 
 The deploy path is fully static-first; if you want a server-rendered route (analytics endpoint, model upload form), you'd add a `functions/` directory for Cloudflare Pages Functions, which the current build does not need.
 
-**Reference**: `browser/public/_headers`; `browser/astro.config.mjs`; `docs/deploy.md`.
+**Reference**: `browser/public/_headers`; `browser/astro.config.mjs`; `docs/integrations/deploy.md`.
 
 ---
 
@@ -233,7 +233,7 @@ This is a sweet spot, not a coincidence. If you swapped in a 10 MB corpus, the m
 
 For larger corpora, the cure is more training time, not a bigger model. For smaller corpora, the cure is a hold-out validation split and early stopping.
 
-**Reference**: `docs/performance.md`; `docs/archive/lessons.md` §4.
+**Reference**: `docs/performance/performance.md`; `docs/archive/lessons.md` §4.
 
 ---
 
@@ -290,7 +290,7 @@ If you want to follow specific threads further, here are the most useful entry p
 
 - **Inside posttrainllm.** `docs/learn/README.md` is the active learning index;
   `docs/learn.md` is the legacy code walkthrough for the original
-  Python/WASM/WebGPU arc. `docs/performance.md` is the canonical perf doc,
+  Python/WASM/WebGPU arc. `docs/performance/performance.md` is the canonical perf doc,
   including the real-device benchmark protocol you'd use if you wanted to add a
   hardware datapoint. The root `PROJECT_STATUS.md` is the live "what's shipped,
   what's open" board (`docs/archive/status.md` is the 2026 browser/perf-era
@@ -300,7 +300,7 @@ If you want to follow specific threads further, here are the most useful entry p
 
 - **Transformers from scratch.** Andrej Karpathy's [nanoGPT](https://github.com/karpathy/nanoGPT) is the canonical 300-line PyTorch implementation; the architecture in `python_ref/model.py` is a direct descendant. His [makemore](https://github.com/karpathy/makemore) tutorial series builds up to a transformer one notebook at a time and is the gentlest path in.
 
-- **Flash Attention 2.** The [original paper (Dao 2023)](https://arxiv.org/abs/2307.08691). For pedagogical purposes, the [Triton tutorial implementation](https://triton-lang.org/main/getting-started/tutorials/06-fused-attention.html) is much easier to read than CUDA. The local notes at `docs/fa2_forward_notes.md` and `docs/fa2_backward_notes.md` are posttrainllm-specific commentary on the same algorithm.
+- **Flash Attention 2.** The [original paper (Dao 2023)](https://arxiv.org/abs/2307.08691). For pedagogical purposes, the [Triton tutorial implementation](https://triton-lang.org/main/getting-started/tutorials/06-fused-attention.html) is much easier to read than CUDA. The local notes at `docs/performance/fa2_forward_notes.md` and `docs/performance/fa2_backward_notes.md` are posttrainllm-specific commentary on the same algorithm.
 
 - **Matmul tiling and register blocking.** Goto & van de Geijn's "Anatomy of High-Performance Matrix Multiplication" (ACM TOMS, 2008) is the canonical explanation of the cache-blocking + register-blocking decomposition that every GPU matmul kernel rediscovers. For a modern GPU-oriented walkthrough, [Lei Mao's GEMM optimisation series](https://leimao.github.io/article/CUDA-Matrix-Multiplication-Optimization/) is excellent — it covers the exact 4×4 vs 8×8 register-pressure tradeoff you'll find in `matmul_blocked.wgsl`.
 

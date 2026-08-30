@@ -27,8 +27,8 @@ contiguous corpus makes loss directly comparable across runs.
 | **Large text corpus** | ~5-20× more tokens than the model has parameters (Hoffmann/Chinchilla) | Streamed from HuggingFace via `python_ref/fetch_hf_corpus.py` |
 | **BPE tokenizer** | Byte-level wastes ~4× the compute at the same coverage | `--tokenizer <hf-dir>` pointing at any HF model directory |
 | **Long-run infrastructure** | A crash at hour 22 of 26 shouldn't lose 22 hours | Tier 0 safety nets in `posttrainllm train`: resume, atomic save-every, SIGINT-flushes-final |
-| **bf16 training** | 2× memory savings → 2× larger effective batch. See [`docs/memory_tradeoffs.md`](../memory_tradeoffs.md). | `--dtype bfloat16` |
-| **Gradient accumulation** | Effective batch larger than memory budget. See [`docs/memory_tradeoffs.md`](../memory_tradeoffs.md). | `--accum N` |
+| **bf16 training** | 2× memory savings → 2× larger effective batch. See [`docs/performance/memory_tradeoffs.md`](../performance/memory_tradeoffs.md). | `--dtype bfloat16` |
+| **Gradient accumulation** | Effective batch larger than memory budget. See [`docs/performance/memory_tradeoffs.md`](../performance/memory_tradeoffs.md). | `--accum N` |
 
 ## Reproduce
 

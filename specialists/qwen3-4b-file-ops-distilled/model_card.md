@@ -54,7 +54,7 @@ with derivable arguments: paths, file names, directories, moves, creates,
 deletes, and navigation through a file-system backend.
 
 Do not use it as a general planner. For general multi-domain planning, use the
-planner lock in `docs/planner-lock-2026-06-19.md`: stock
+planner lock in `docs/sessions/planner-lock-2026-06-19.md`: stock
 Qwen3-4B-Instruct-2507 bf16 with the plan-then-execute prompt.
 
 ## Known Limits
@@ -69,4 +69,4 @@ Qwen3-4B-Instruct-2507 bf16 with the plan-then-execute prompt.
 ## References
 
 - `docs/learn/tool-calling-frontier-parity.md` sections 8.1-8.5
-- `docs/planner-lock-2026-06-19.md`
+- `docs/sessions/planner-lock-2026-06-19.md`

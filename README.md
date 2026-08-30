@@ -28,7 +28,7 @@ on. The full writeup, methodology, and head-to-head table is
 | **Mac app** (SwiftUI) | GUI shell over the CLI. Parked except for a future minimal Factory Run Center. | [`native-mac/Sources/TinyGPTApp/`](native-mac/Sources/TinyGPTApp/), [`docs/parked/app-polish.md`](docs/parked/app-polish.md) |
 | **Eval moat** | E0 shared schema · BFCL · τ-bench · lm-eval (MLX-routed) · HumanEval (sandbox-exec) · eval-gate (CI). | [`docs/leaderboard.md`](docs/leaderboard.md), [`docs/research/mac_slm_leaderboard_v0.md`](docs/research/mac_slm_leaderboard_v0.md) |
 | **Agent runtime** | OpenAI + Ollama-compatible local serve · multi-turn loop · FSM-constrained JSON · cloud-escalate · token-preserving `.atraj` trajectories. | [`docs/agent_runtime.md`](docs/agent_runtime.md) |
-| **Interp** | SAE (per-layer + group) · SAELens export · MEMIT · ROME · tuned/logit lens · activation patching. | [`docs/interpretability.md`](docs/interpretability.md) |
+| **Interp** | SAE (per-layer + group) · SAELens export · MEMIT · ROME · tuned/logit lens · activation patching. | [`docs/techniques/interpretability.md`](docs/techniques/interpretability.md) |
 | **Trained specialists** | From-scratch classifiers + distilled/fused LLMs. Pace intent router (49.5M, 95.5%, 3ms) · file-ops distilled (4B, 100% hard gate) · ReST fused (4B, 65% OOD). | [`specialists/`](specialists/), [`specialists/registry.json`](specialists/registry.json) |
 | **Browser playground** | The original surface: GPT-2 trained from scratch in a browser tab via hand-written WebGPU. Parked for active factory work. | [`browser/`](browser/), [live](https://posttrainllm.com), [`docs/parked/browser.md`](docs/parked/browser.md) |
 | **ANE M8** | Layer-chunked Core ML chain running Qwen3-28-block on the Apple Neural Engine at ~17 tok/s. Parked until a shipped specialist needs runtime optimization. | [`docs/parked/ane-coreml.md`](docs/parked/ane-coreml.md) |
@@ -114,7 +114,7 @@ multi-GPU, no cloud, no asterisk.
 | First-token latency (TTFT) | **5.8 ms p99** | same |
 | Training step (Huge, B=8) | **42 ms/step** | same |
 | ANE chain (Qwen3 28-block, layer-chunked Core ML) | **17 tok/s** | [`docs/PLAN.md`](docs/PLAN.md) §1 |
-| Browser WebGPU end-to-end vs WASM SIMD | **2.6× → 12.1×** (curve grows with `d_model` 96 → 256) | [`docs/performance.md`](docs/performance.md) |
+| Browser WebGPU end-to-end vs WASM SIMD | **2.6× → 12.1×** (curve grows with `d_model` 96 → 256) | [`docs/performance/performance.md`](docs/performance/performance.md) |
 | Largest browser-trainable model | **960M params** via Memory64 | [`browser/devlog.html`](browser/devlog.html) |
 | Loss drift, WebGPU vs WASM reference | **1.1% – 2.5%** across the curve | `tests/test_webgpu_train.mjs` |
 | First end-to-end Mac LoRA fine-tune | **−32% held-out PPL**, 788 KB adapter | [`docs/archive/WHILE_YOU_SLEPT.md`](docs/archive/WHILE_YOU_SLEPT.md) |
@@ -211,11 +211,11 @@ Start here:
 
 Deeper:
 
-- [`docs/performance.md`](docs/performance.md), [`docs/archive/lessons.md`](docs/archive/lessons.md),
+- [`docs/performance/performance.md`](docs/performance/performance.md), [`docs/archive/lessons.md`](docs/archive/lessons.md),
   [`docs/training/index.md`](docs/training/index.md),
-  [`docs/distillation.md`](docs/distillation.md),
-  [`docs/interpretability.md`](docs/interpretability.md),
-  [`docs/determinism.md`](docs/determinism.md),
+  [`docs/techniques/distillation.md`](docs/techniques/distillation.md),
+  [`docs/techniques/interpretability.md`](docs/techniques/interpretability.md),
+  [`docs/performance/determinism.md`](docs/performance/determinism.md),
   [`docs/CITATIONS.md`](docs/CITATIONS.md).
 
 Sessions + research:

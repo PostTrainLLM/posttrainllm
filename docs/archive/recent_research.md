@@ -29,7 +29,7 @@ just enough context to know whether to dig in.
 
 ## Parameter-efficient fine-tuning
 
-See [`docs/lora_guide.md`](../lora_guide.md) for the mechanics.
+See [`docs/techniques/lora_guide.md`](../techniques/lora_guide.md) for the mechanics.
 
 - **DoRA** — Liu et al., 2024.
   "[DoRA: Weight-Decomposed Low-Rank Adaptation](https://arxiv.org/abs/2402.09353)."
@@ -83,7 +83,7 @@ See [`docs/lora_guide.md`](../lora_guide.md) for the mechanics.
 - **Multi-Token Prediction (MTP)** — Gloeckle et al., ICML 2024.
   "[Better & Faster Large Language Models via Multi-token Prediction](https://arxiv.org/abs/2404.19737)."
   Used by DeepSeek-V3 and Meta. Predict K tokens per position. See
-  [`docs/mtp.md`](../mtp.md).
+  [`docs/techniques/mtp.md`](../techniques/mtp.md).
 - **Differential Transformer** — Microsoft 2024.
   "[Differential Transformer](https://arxiv.org/abs/2410.05258)."
   Subtract a noise attention pattern from the signal one.
@@ -112,7 +112,7 @@ See [`docs/lora_guide.md`](../lora_guide.md) for the mechanics.
 
 ## Distillation
 
-See [`docs/distillation.md`](../distillation.md) for what's shipped.
+See [`docs/techniques/distillation.md`](../techniques/distillation.md) for what's shipped.
 
 - **Soft targets distillation** — Hinton et al., 2015. The original.
 - **MiniLLM** — Gu et al., ICLR 2024.
@@ -224,7 +224,7 @@ per-step memory than PPO/GRPO. At our resource-constrained scale it
 could plausibly out-perform DPO/SimPO for instruction-following at
 the same wall-clock budget. Worth a real benchmark.
 
-See [`docs/evolution_strategies.md`](../evolution_strategies.md).
+See [`docs/techniques/evolution_strategies.md`](../techniques/evolution_strategies.md).
 
 ## FP4 training (parked — hardware-blocked)
 

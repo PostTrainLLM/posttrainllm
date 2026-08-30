@@ -3,7 +3,7 @@ import MLX
 import MLXNN
 import MLXRandom
 
-/// PEFT variant bundle — see `docs/peft_variants.md` for the full table.
+/// PEFT variant bundle — see `docs/techniques/peft_variants.md` for the full table.
 ///
 /// Each variant changes either how the LoRA-style `A`, `B` matrices are
 /// INITIALISED (PISSA, LoftQ), what fraction of them is TRAINABLE (LoRA-FA,

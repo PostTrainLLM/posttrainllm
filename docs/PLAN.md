@@ -1,6 +1,6 @@
 ---
 title: posttrainllm — master plan (shipped / skipped / TODO)
-description: Single source of truth for what's shipped, skipped, and still to build. Consolidated from docs/roadmap/*, docs/progress.md, docs/backlog.md, docs/feature_audit_2026_05_31.md, and docs/roadmap/recent_research.md (paper catalogue). Replaces them as the canonical reference; the older docs are now pointer stubs or archived under docs/archive/.
+description: Single source of truth for what's shipped, skipped, and still to build. Consolidated from docs/roadmap/*, docs/progress.md, docs/backlog.md, docs/audits/feature_audit_2026_05_31.md, and docs/roadmap/recent_research.md (paper catalogue). Replaces them as the canonical reference; the older docs are now pointer stubs or archived under docs/archive/.
 ---
 
 # posttrainllm — master plan
@@ -13,7 +13,7 @@ description: Single source of truth for what's shipped, skipped, and still to bu
 > [`docs/factory/`](factory/README.md), and [`docs/techniques/`](techniques/README.md).
 
 **Last verified against codebase**: 2026-06-06 (eval-pipeline + serve fix + elf PRDs landed; product framing clarified to "Mac platform for building/upgrading specialists")
-**Sources merged**: `docs/roadmap/*` · `docs/progress.md` · `docs/backlog.md` · `docs/feature_audit_2026_05_31.md` · `docs/roadmap/recent_research.md` (paper catalogue → §4)
+**Sources merged**: `docs/roadmap/*` · `docs/progress.md` · `docs/backlog.md` · `docs/audits/feature_audit_2026_05_31.md` · `docs/roadmap/recent_research.md` (paper catalogue → §4)
 
 **Product framing** (clarified 2026-06-06): posttrainllm is a **Mac platform for individuals to build and upgrade specialist models for their specific tasks** — bring data, pick a local teacher, ship a fast/cheap specialist. Distillation + LoRA + QLoRA + constrained decoding are the toolkit. Local teacher = no API spend. Comprehensive multimodal roadmap (text/code/vision/voice/image-gen) under disciplined "one canonical best per slot" principle. **Canonical strategy doc**: [`docs/sessions/06-06-mac-specialist-platform`](sessions/06-06-mac-specialist-platform) — covers Tier 1-4 backlog, multi-model architectures (phone-a-friend / cascade / LoRA hot-swap / etc.), structured-output formats beyond JSON (incl. Protobuf / SQL / GraphQL via grammar), and flagship example apps (browser agent, per-language code specialist, voice command, etc.).
 
@@ -130,7 +130,7 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, all gated through `
 - ✅ MoE (dense routing — sparse hard routing blocked, see §2)
 - ✅ Mixture of Depths (soft sigmoid gate — hard routing blocked, see §2)
 - ✅ Differential attention (`--diff-attn`)
-- ✅ YOCO cross-layer KV sharing (`--yoco`) — CrossAttention.swift module, second-half blocks reuse first-half K/V. See `docs/yoco_results.md`. _(Was marked "designed only" in older audit — actually shipped.)_
+- ✅ YOCO cross-layer KV sharing (`--yoco`) — CrossAttention.swift module, second-half blocks reuse first-half K/V. See `docs/performance/yoco_results.md`. _(Was marked "designed only" in older audit — actually shipped.)_
 
 ## Tokenization
 
@@ -179,7 +179,7 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, all gated through `
 **Numerics-gate framework** — every fast path (f16-storage, f16-compute,
 coop-matrix, subgroup) carries its own gate that compares against a f32
 reference with a magnitude-aware tolerance. Gate-fail → silent fallback,
-zero regression risk. See `docs/precision.md`.
+zero regression risk. See `docs/techniques/precision.md`.
 
 ## Datasets + data pipelines
 
@@ -457,7 +457,7 @@ The competitive scan found the whole field monetizes the cost a Mac-first tool z
 - ✅ **C6. ChatML template inline-system split** — `splitChatmlSystem` helper + 6 unit tests. Shipped in `49dead5`.
 - ✅ **C7. Save+reload XCTest for LoRA adapters** — roundtrip + arch-mismatch coverage. Shipped in `49dead5`.
 - ✅ **C8. Install-path discipline** — `~/.cache/posttrainllm/` for adapters + corpus discovery; off `/tmp`. Shipped in `49dead5`.
-- ✅ **C9. Determinism harness** (SHIPPED 2026-06-17) — `--seed N` now seeds both MLXRandom AND `BatchRng` (Splitmix64-backed host generator) in `Sources/TinyGPTModel/BatchRng.swift`. All 7 corpus-sampler `Int.random(in:)` call sites swapped to `BatchRng.randomInt(in:)` across `Trainer.swift`, `SFTCorpus.swift`, `PreferenceCorpus.swift`. Two runs with the same seed now produce identical batch sequence (modulo prefetcher scheduling caveat — see `docs/determinism.md`). 5 unit tests pin the contract: same-seed determinism, different-seed divergence, reset-then-reseed reproducibility, range bounds, Splitmix64 bit-pattern.
+- ✅ **C9. Determinism harness** (SHIPPED 2026-06-17) — `--seed N` now seeds both MLXRandom AND `BatchRng` (Splitmix64-backed host generator) in `Sources/TinyGPTModel/BatchRng.swift`. All 7 corpus-sampler `Int.random(in:)` call sites swapped to `BatchRng.randomInt(in:)` across `Trainer.swift`, `SFTCorpus.swift`, `PreferenceCorpus.swift`. Two runs with the same seed now produce identical batch sequence (modulo prefetcher scheduling caveat — see `docs/performance/determinism.md`). 5 unit tests pin the contract: same-seed determinism, different-seed divergence, reset-then-reseed reproducibility, range bounds, Splitmix64 bit-pattern.
 - ✅ **C10. Training-run dashboard** (SHIPPED) — `--log-jsonl <path>` in `posttrainllm train` emits append-only JSONL via `Sources/TinyGPT/TrainLog.swift`; consumed by `browser/src/pages/training-dashboard.astro` for live charts.
 
 ## Tier 5 — RESEARCH FRONTIER (2026 stretch goals)
@@ -626,7 +626,7 @@ After these: training-dependent (specialist Wave 3, Mini-Llama+ANE, Tier 5 modal
 | Real CI                    | `.github/workflows/ci.yml` + `deploy.yml`                            |
 | Persistent tokenized cache | `TokenCache.swift` wired into Train+Eval+Distill+Finetune            |
 | Linear probes              | `posttrainllm linear-probe` (this session, `6dbe15c`)                |
-| YOCO cross-layer KV        | `--yoco` flag, `CrossAttention.swift`, `docs/yoco_results.md`        |
+| YOCO cross-layer KV        | `--yoco` flag, `CrossAttention.swift`, `docs/performance/yoco_results.md`        |
 | GPTQ safetensors reader    | `GPTQReader.swift` (72 tensors quantised in 31s)                     |
 
 **Dropped under value-add filter (duplicate / inferior / niche):**
@@ -849,7 +849,7 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, surfaced via `postt
 
 | Technique                | Source                                                         | Where it lives                                  |
 | ------------------------ | -------------------------------------------------------------- | ----------------------------------------------- |
-| MTP                      | [Gloeckle et al., ICML 2024](https://arxiv.org/abs/2404.19737) | `Train.swift`, `docs/mtp.md`                    |
+| MTP                      | [Gloeckle et al., ICML 2024](https://arxiv.org/abs/2404.19737) | `Train.swift`, `docs/techniques/mtp.md`                    |
 | Differential Transformer | [Microsoft 2024](https://arxiv.org/abs/2410.05258)             | `DifferentialAttention.swift`, `--diff-attn`    |
 | Mixture of Depths        | [Raposo et al., 2024](https://arxiv.org/abs/2404.02258)        | soft sigmoid gate (hard top-K upstream-blocked) |
 | LASER                    | [Sharma et al., ICLR 2024](https://arxiv.org/abs/2312.13558)   | `posttrainllm laser`                            |
@@ -886,7 +886,7 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, surfaced via `postt
 
 | Technique   | Source                                                    | Where it lives                                    |
 | ----------- | --------------------------------------------------------- | ------------------------------------------------- |
-| ES at scale | [Qiu et al., Sept 2025](https://arxiv.org/abs/2509.24372) | `posttrainllm es`, `docs/evolution_strategies.md` |
+| ES at scale | [Qiu et al., Sept 2025](https://arxiv.org/abs/2509.24372) | `posttrainllm es`, `docs/techniques/evolution_strategies.md` |
 
 ## 4.2 Cannot — blocked, parked, or skipped
 
@@ -1037,7 +1037,7 @@ This doc replaces the multi-file roadmap split. The source docs are kept for con
 | `docs/roadmap/honest_summary.md`                  | "CAN / CAN'T / SHOULDN'T" framing                 | Absorbed                                                        |
 | `docs/progress.md`                                | Mac+Web shipped dashboard                         | Absorbed into §1                                                |
 | `docs/backlog.md`                                 | ROI-ordered "what's left" (Tier A/B/C/D)          | Absorbed into §3                                                |
-| `docs/feature_audit_2026_05_31.md`                | CLI smoke audit                                   | Cross-referenced; was the verification baseline                 |
+| `docs/audits/feature_audit_2026_05_31.md`                | CLI smoke audit                                   | Cross-referenced; was the verification baseline                 |
 | `docs/roadmap/recent_research.md`                 | Paper catalogue (2024-2026)                       | Absorbed into §4; archived at `docs/archive/recent_research.md` |
 
 **Still canonical (deep dives, not absorbed)**: `docs/roadmap/datasets.md`,

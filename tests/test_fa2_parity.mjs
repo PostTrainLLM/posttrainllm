@@ -14,7 +14,7 @@
 //     a follow-up session; that's where the live WGSL parity assertion
 //     belongs (one extra `check("fa2 forward ctx", ...)` in webgpu-test.ts).
 //   - This test pins the algorithm itself, which is the actual unit of
-//     work being delivered here. See docs/fa2_forward_notes.md.
+//     work being delivered here. See docs/performance/fa2_forward_notes.md.
 //
 // Run:  node tests/test_fa2_parity.mjs
 

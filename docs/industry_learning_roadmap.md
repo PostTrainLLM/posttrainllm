@@ -30,7 +30,7 @@ posttrainllm mapping:
 |---|---|
 | Assignment 1: basics | `python_ref/`, `tests/test_phase1.py` |
 | Assignment 2: systems | `wasm/`, `webgpu/`, FA2 notes |
-| Assignment 3: scaling | `configs/`, `bench/`, `docs/benchmark_harness_design.md` |
+| Assignment 3: scaling | `configs/`, `bench/`, `docs/performance/benchmark_harness_design.md` |
 | Assignment 4: data | `posttrainllm download-dataset`, `dedupe`, dataset registry |
 | Assignment 5: alignment/reasoning RL | `sft`, `dpo`, future RLVR/Tier 5 reasoning |
 

@@ -154,7 +154,7 @@ per token.
 
 **Shipped variant**: soft routing only. The hard-top-K + scatter
 variant (the version that ACTUALLY saves compute) is blocked on the
-same `scatter_add` upstream gap as sparse MoE — see `docs/moe.md`.
+same `scatter_add` upstream gap as sparse MoE — see `docs/techniques/moe.md`.
 Soft routing gives the architectural change + training signal
 without the compute saving. When `scatter_add` lands, swap the
 sigmoid gate for argTopK + STE and the compute saving lands too.
@@ -215,10 +215,10 @@ These items appear across multiple phases and share a root cause:
 
 1. **MLX-Swift doesn't expose `mlx_checkpoint`** — blocks gradient
    checkpointing (Phase 6). The C primitive exists; the Swift
-   wrapper doesn't. Workarounds in `docs/memory_tradeoffs.md`.
+   wrapper doesn't. Workarounds in `docs/performance/memory_tradeoffs.md`.
 2. **MLX-Swift doesn't expose `scatter_add`** — blocks sparse MoE
    compute and MoD compute savings (Phase 5, Phase 10). Workarounds
-   in `docs/moe.md` and above.
+   in `docs/techniques/moe.md` and above.
 3. **Cmlx is internal to MLX-Swift** — neither of the above
    primitives can be bridged from outside the package without
    forking MLX-Swift. The right resolution is upstream PRs.

@@ -24,7 +24,7 @@ let package = Package(
         // converters. Pure Foundation; deliberately depends on nothing
         // else so the CLI `download-dataset` subcommand boots fast and
         // we can unit-test the registry / format detector without
-        // pulling MLX. See docs/hf_datasets_integration.md.
+        // pulling MLX. See docs/integrations/hf_datasets_integration.md.
         .library(name: "TinyGPTData", targets: ["TinyGPTData"]),
         // TinyGPTScreen — Mac screen-reading scaffold (Wave 2.6).
         // ScreenCaptureKit window capture + macOS Accessibility (AX) tree
@@ -96,7 +96,7 @@ let package = Package(
         // evaluate any posttrainllm-loaded model. Lives in its own library so the
         // executable target stays a thin CLI shim AND so we can unit-test
         // the server by calling `Serve.start()` directly from XCTest.
-        // See docs/lm_eval_integration.md.
+        // See docs/integrations/lm_eval_integration.md.
         .target(
             name: "TinyGPTServe",
             dependencies: [

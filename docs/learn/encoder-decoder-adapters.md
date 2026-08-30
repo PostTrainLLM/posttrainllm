@@ -10,7 +10,7 @@ re-derivation.
 
 Recorded 2026-07-25 alongside tasks 5.1/5.2. Implementation and measured parity:
 [`../factory/autocorrect-adapter-recipe.md`](../factory/autocorrect-adapter-recipe.md).
-General LoRA mechanics stay in [`../lora_guide.md`](../lora_guide.md) — this page
+General LoRA mechanics stay in [`../lora_guide.md`](../techniques/lora_guide.md) — this page
 only covers what is *different* for seq2seq.
 
 ## 1. Why encoder-decoder for this task
@@ -198,7 +198,7 @@ retract" a unit test rather than a UX aspiration.
 | Tiny-overfit discipline | `evals/autocorrect/tiny-overfit-manifest-v1.json`, task 5.3 |
 | Decoding/latency trade | `evals/autocorrect/base-bakeoff-v1.json` measured TTFT and end-to-end |
 
-Sibling pages: [`../lora_guide.md`](../lora_guide.md) (general LoRA),
+Sibling pages: [`../lora_guide.md`](../techniques/lora_guide.md) (general LoRA),
 [`session-07-behavior-learning.md`](session-07-behavior-learning.md) (Module 9,
 post-training concepts), [`session-11-evals-rewards.md`](session-11-evals-rewards.md)
 (Module 10, why the gates are shaped this way).

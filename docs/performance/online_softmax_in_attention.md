@@ -4,7 +4,7 @@ Audience: an ML-curious engineer who can read C++/WGSL but hasn't derived
 the trick before. This doc walks through what "online softmax" means, why
 it matters for attention specifically, and where the idea shows up in the
 posttrainllm codebase. It builds toward the existing `attn_fused_sv` kernel in
-[`webgpu/train.wgsl`](../webgpu/train.wgsl) and gestures at where Flash
+[`webgpu/train.wgsl`](../../webgpu/train.wgsl) and gestures at where Flash
 Attention 2 takes the same idea further.
 
 ## The textbook softmax: stable, but two passes
@@ -41,7 +41,7 @@ for i in 0..T:
 ```
 
 Three passes, actually, if you separate out the divide. This is exactly
-what the C++ reference does in [`wasm/src/attention.cpp`](../wasm/src/attention.cpp):
+what the C++ reference does in [`wasm/src/attention.cpp`](../../wasm/src/attention.cpp):
 compute scores, find `maxv`, exponentiate, sum, divide.
 
 The two-pass structure is fine when the input vector fits in a register
@@ -126,7 +126,7 @@ That's two full round trips through the `[B,H,T,T]` attention tensor in
 global memory, which gets very expensive at long context — that buffer
 grows as O(T²).
 
-posttrainllm's [`attn_fused_sv`](../webgpu/train.wgsl) kernel fuses the second
+posttrainllm's [`attn_fused_sv`](../../webgpu/train.wgsl) kernel fuses the second
 and third pass into one. It's still two-pass *within* a query position
 (it has to materialise the scores into shared memory to find the max), but
 the second pass produces both the softmax weights *and* the context

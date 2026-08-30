@@ -2,7 +2,7 @@
 
 Use this when a Pace planner candidate needs an unhappy-path score that is
 publishable or comparable across runs. Model selection itself is locked in
-`docs/planner-lock-2026-06-19.md`; this recipe is for measuring concrete
+`docs/sessions/planner-lock-2026-06-19.md`; this recipe is for measuring concrete
 candidate changes, not reopening the base-model search.
 
 ## K=3 Unhappy-Path Run

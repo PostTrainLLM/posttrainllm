@@ -2,7 +2,7 @@
 
 How posttrainllm ensures every accelerated code path preserves model quality
 before it activates for the user. The non-negotiable rule from the
-opportunistic-acceleration scope (see `docs/perf_quest.md` and decision
+opportunistic-acceleration scope (see `docs/performance/perf_quest.md` and decision
 log entry 19): **speed only counts if it preserves loss.**
 
 ## The principle
@@ -173,7 +173,7 @@ gains a `+f16 storage` chip.
 - **Precision telemetry.** When the path activates, record the gate
   measurements via `trackPlaygroundLoaded` (PostHog) so we can spot
   systematic regressions across users / driver versions.
-- **`docs/precision.md` per-lever sections.** When #91 (shader-f16
+- **`docs/techniques/precision.md` per-lever sections.** When #91 (shader-f16
   compute) ships, add a section here with its measured numerics. Same for
   #92 (cooperative matrix) and #93 (WebNN). One file, all the precision
   truth, in one place.

@@ -11,7 +11,7 @@
 # bit-exact past step 0 — GPU gradient reductions sum in nondeterministic
 # order. So full bit-exact step-N replay is not achievable on this backend;
 # this harness instead guards against a determinism *regression* (a real bug
-# would diverge by O(1), not O(1e-5)). See docs/determinism.md.
+# would diverge by O(1), not O(1e-5)). See docs/performance/determinism.md.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"

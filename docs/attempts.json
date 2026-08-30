@@ -647,8 +647,8 @@
       "next_action": "Treat 33.3% as the working v8 baseline and never compare across versions without pinning the harness config.",
       "evidence_sources": [
         "docs/learn/eval-matrix-2026-06-08.md",
-        "docs/v11-baselines-2026-06-09.md",
-        "docs/RETROSPECTIVE.md"
+        "docs/sessions/v11-baselines-2026-06-09.md",
+        "docs/sessions/RETROSPECTIVE.md"
       ],
       "source": "docs/learn/eval-matrix-2026-06-08.md"
     },
@@ -674,11 +674,11 @@
       "lesson": "Winning the happy-path fixture says nothing about ambiguous, out-of-scope, or destructive inputs, which is where the product actually needed the planner.",
       "next_action": "Keep as the last shipped specialist; Pace runs qwen3-30b-a3b instead.",
       "evidence_sources": [
-        "docs/v11-baselines-2026-06-09.md",
-        "docs/DRILLDOWN.md",
-        "docs/pace-handoff-2026-06-10.md"
+        "docs/sessions/v11-baselines-2026-06-09.md",
+        "docs/sessions/DRILLDOWN.md",
+        "docs/sessions/pace-handoff-2026-06-10.md"
       ],
-      "source": "docs/v11-baselines-2026-06-09.md"
+      "source": "docs/sessions/v11-baselines-2026-06-09.md"
     },
     {
       "id": "pace-planner-v10",
@@ -732,12 +732,12 @@
       "lesson": "Train loss 0.001 alongside 0% on out-of-scope and ambiguous inputs is the capacity ceiling stated plainly. The one-shot fixed gate was what finally ended the cycle.",
       "next_action": "Do not train v12. The specialist planner track is closed and Pace ships qwen3-30b-a3b.",
       "evidence_sources": [
-        "docs/v11-baselines-2026-06-09.md",
+        "docs/sessions/v11-baselines-2026-06-09.md",
         "docs/prds/pace-planner-v11-ship-gate.md",
-        "docs/DRILLDOWN.md",
-        "docs/RETROSPECTIVE.md"
+        "docs/sessions/DRILLDOWN.md",
+        "docs/sessions/RETROSPECTIVE.md"
       ],
-      "source": "docs/v11-baselines-2026-06-09.md"
+      "source": "docs/sessions/v11-baselines-2026-06-09.md"
     },
     {
       "id": "pace-clarify-v1-qwen4b-lora",
@@ -750,10 +750,10 @@
       "lesson": "Fine-tuning a strong base on a thin behavior slice requires coverage for every dimension that must not regress.",
       "next_action": "Do not fine-tune the planner on narrow clarify rows unless the corpus also covers OOS, destructive, happy path, and breadth gates.",
       "evidence_sources": [
-        "docs/RETROSPECTIVE.md",
-        "docs/DRILLDOWN.md"
+        "docs/sessions/RETROSPECTIVE.md",
+        "docs/sessions/DRILLDOWN.md"
       ],
-      "source": "docs/RETROSPECTIVE.md",
+      "source": "docs/sessions/RETROSPECTIVE.md",
       "kind": "training-run",
       "methods": [
         "lora"
@@ -775,9 +775,9 @@
       "lesson": "Rule wrappers can expose the missing behavior, but they still need the same regression gates as model updates.",
       "next_action": "Keep as an option only if shipping the 4B footprint floor; do not stack it on the stronger Gemma path.",
       "evidence_sources": [
-        "docs/DRILLDOWN.md"
+        "docs/sessions/DRILLDOWN.md"
       ],
-      "source": "docs/DRILLDOWN.md",
+      "source": "docs/sessions/DRILLDOWN.md",
       "kind": "model-evaluation",
       "methods": [
         "two-stage-shim"
@@ -800,9 +800,9 @@
       "lesson": "Reasoning models need adequate max tokens and a stop-on-think strategy before interpreting planner scores.",
       "next_action": "Re-run with max_tokens >= 1024 and stop on `</think>` only if Gemma or the locked planner fails in production.",
       "evidence_sources": [
-        "docs/DRILLDOWN.md"
+        "docs/sessions/DRILLDOWN.md"
       ],
-      "source": "docs/DRILLDOWN.md",
+      "source": "docs/sessions/DRILLDOWN.md",
       "kind": "model-evaluation",
       "methods": [
         "evaluation"
@@ -824,9 +824,9 @@
       "lesson": "A stronger zero-shot base beat the local fine-tunes, but model-selection evidence can be superseded by later broader gates.",
       "next_action": "Keep as historical unhappy-path evidence; prefer current `PROJECT_STATUS.md`/`docs/NEXT.md` for active planner decisions.",
       "evidence_sources": [
-        "docs/DRILLDOWN.md"
+        "docs/sessions/DRILLDOWN.md"
       ],
-      "source": "docs/DRILLDOWN.md",
+      "source": "docs/sessions/DRILLDOWN.md",
       "kind": "model-evaluation",
       "methods": [
         "evaluation"
@@ -849,9 +849,9 @@
       "lesson": "Single-dimension wins do not justify a planner swap when another required dimension regresses.",
       "next_action": "Use `scripts/eval_planner.sh` for future challengers and keep swap/no-swap verdicts tied to all required dimensions.",
       "evidence_sources": [
-        "docs/DRILLDOWN.md"
+        "docs/sessions/DRILLDOWN.md"
       ],
-      "source": "docs/DRILLDOWN.md",
+      "source": "docs/sessions/DRILLDOWN.md",
       "kind": "model-evaluation",
       "methods": [
         "evaluation"
@@ -875,7 +875,7 @@
       "lesson": "A reproducer must match the production host and call path before it can explain a browser-only WASM failure.",
       "next_action": "Keep the higher initial memory for supported presets and only claim Behemoth after a SAB-view-aware growth path lands.",
       "evidence_sources": [
-        "docs/qa_log.md",
+        "docs/sessions/qa_log.md",
         "docs/archive/lessons.md"
       ],
       "source": "docs/archive/lessons.md",
@@ -892,7 +892,7 @@
       "lesson": "If a performance result depends on preset size, publish the curve rather than the most convenient point.",
       "next_action": "Keep future public performance artifacts tied to config-specific tables with reproduction context.",
       "evidence_sources": [
-        "docs/qa_log.md",
+        "docs/sessions/qa_log.md",
         "docs/archive/lessons.md"
       ],
       "source": "docs/archive/lessons.md",
@@ -909,7 +909,7 @@
       "lesson": "Default data is part of the product claim; a training demo's default corpus must produce non-memorized samples.",
       "next_action": "Keep corpus defaults in the same parity review as model and optimizer defaults.",
       "evidence_sources": [
-        "docs/qa_log.md",
+        "docs/sessions/qa_log.md",
         "docs/archive/lessons.md"
       ],
       "source": "docs/archive/lessons.md",
@@ -926,7 +926,7 @@
       "lesson": "Reference defaults are part of correctness, not just documentation.",
       "next_action": "Add or keep a config-default parity check whenever browser and reference paths share a training story.",
       "evidence_sources": [
-        "docs/qa_log.md",
+        "docs/sessions/qa_log.md",
         "docs/archive/lessons.md"
       ],
       "source": "docs/archive/lessons.md",
@@ -943,9 +943,9 @@
       "lesson": "Long-running browser training is not product-complete until the smallest export path is smoke-tested before the long run.",
       "next_action": "Smoke export on a short WebGPU run before any long browser training claim.",
       "evidence_sources": [
-        "docs/qa_log.md"
+        "docs/sessions/qa_log.md"
       ],
-      "source": "docs/qa_log.md",
+      "source": "docs/sessions/qa_log.md",
       "kind": "infrastructure"
     },
     {
@@ -958,9 +958,9 @@
       "lesson": "A typewriter animation over an already-complete response is not true streaming.",
       "next_action": "Add worker protocol support for intermediate tokens and KV-cached browser generation before claiming interactive decode latency.",
       "evidence_sources": [
-        "docs/qa_log.md"
+        "docs/sessions/qa_log.md"
       ],
-      "source": "docs/qa_log.md",
+      "source": "docs/sessions/qa_log.md",
       "kind": "infrastructure"
     },
     {
@@ -974,9 +974,9 @@
       "lesson": "Hot-path hygiene is not the same as a performance win; measure the real step time before claiming speedup.",
       "next_action": "Keep the allocation cleanup, but do not prioritize allocator work until profiling shows allocation cost again.",
       "evidence_sources": [
-        "docs/performance.md"
+        "docs/performance/performance.md"
       ],
-      "source": "docs/performance.md",
+      "source": "docs/performance/performance.md",
       "kind": "infrastructure"
     },
     {
@@ -989,10 +989,10 @@
       "lesson": "Emscripten/LLVM autovectorization was the right browser-training speed lever before hand-written kernels.",
       "next_action": "Keep SIMD enabled by default and use the WASM smoke gate to protect training correctness.",
       "evidence_sources": [
-        "docs/performance.md",
+        "docs/performance/performance.md",
         "tests/smoke_wasm_node.mjs"
       ],
-      "source": "docs/performance.md",
+      "source": "docs/performance/performance.md",
       "kind": "infrastructure"
     },
     {
@@ -1006,9 +1006,9 @@
       "lesson": "GPU API correctness can be CI-proven, but performance claims require a hardware adapter measurement.",
       "next_action": "Collect the documented real-device WebGPU vs WASM-SIMD benchmark before quoting a browser GPU speedup.",
       "evidence_sources": [
-        "docs/performance.md"
+        "docs/performance/performance.md"
       ],
-      "source": "docs/performance.md",
+      "source": "docs/performance/performance.md",
       "kind": "infrastructure"
     },
     {
@@ -1022,9 +1022,9 @@
       "lesson": "Optimize and report on the real workload, not only on isolated single-kernel microbenches.",
       "next_action": "Keep the bit-exact forward kernel for inference, but judge future perf work with end-to-end training and generation benches.",
       "evidence_sources": [
-        "docs/performance.md"
+        "docs/performance/performance.md"
       ],
-      "source": "docs/performance.md",
+      "source": "docs/performance/performance.md",
       "kind": "infrastructure"
     },
     {
@@ -1038,9 +1038,9 @@
       "lesson": "Training speed follows the backward-pass bottleneck; forward-only wins are capped until dA and dB are addressed.",
       "next_action": "Only continue matmul blocking if backward_dB or generation benches show enough remaining headroom.",
       "evidence_sources": [
-        "docs/performance.md"
+        "docs/performance/performance.md"
       ],
-      "source": "docs/performance.md",
+      "source": "docs/performance/performance.md",
       "kind": "infrastructure"
     },
     {
@@ -1054,9 +1054,9 @@
       "lesson": "Speculative heads are a valid local speed path, but the production recipe is data/training heavy rather than a quick sidecar smoke.",
       "next_action": "Revive only with self-generated data, logit-KL distillation, tree verification, and a real acceptance-rate gate.",
       "evidence_sources": [
-        "docs/speculative_heads.md"
+        "docs/techniques/speculative_heads.md"
       ],
-      "source": "docs/speculative_heads.md",
+      "source": "docs/techniques/speculative_heads.md",
       "kind": "infrastructure"
     },
     {
@@ -1070,9 +1070,9 @@
       "lesson": "MoE is a capacity feature until sparse gather/scatter or grouped matmul lands; it should not be marketed as a compute-saving win yet.",
       "next_action": "Return to MoE only with MLX scatter_add/grouped matmul support or a scoped custom Metal sparse-dispatch kernel.",
       "evidence_sources": [
-        "docs/moe.md"
+        "docs/techniques/moe.md"
       ],
-      "source": "docs/moe.md",
+      "source": "docs/techniques/moe.md",
       "kind": "infrastructure"
     },
     {
@@ -1086,9 +1086,9 @@
       "lesson": "The big win was fused accumulation inside the compiled trace; individual CPU tweaks need isolation before being credited.",
       "next_action": "Use the bundle as shipped, but keep Rust-FFI BPE, preallocated CPU buffers, and SVD-on-CPU AMX as separate future attempts.",
       "evidence_sources": [
-        "docs/cpu_speedup_results.md"
+        "docs/performance/cpu_speedup_results.md"
       ],
-      "source": "docs/cpu_speedup_results.md",
+      "source": "docs/performance/cpu_speedup_results.md",
       "kind": "infrastructure"
     },
     {
@@ -1102,9 +1102,9 @@
       "lesson": "mmap and direct byte construction are good scaling levers, but large-model cold-start claims need large-model measurements.",
       "next_action": "Re-measure on a real 50-250 MB checkpoint and keep persistent Metal cache work parked unless MLX-Swift exposes pipeline descriptors.",
       "evidence_sources": [
-        "docs/cold_start_results.md"
+        "docs/performance/cold_start_results.md"
       ],
-      "source": "docs/cold_start_results.md",
+      "source": "docs/performance/cold_start_results.md",
       "kind": "infrastructure"
     },
     {
@@ -1118,9 +1118,9 @@
       "lesson": "Activation recompute is a scale-dependent lever; it should stay opt-in for models where memory, not step time, is the blocker.",
       "next_action": "Update memory estimation for `--grad-checkpoint` and consider selective layer checkpointing before broad default use.",
       "evidence_sources": [
-        "docs/gradient_checkpointing_results.md"
+        "docs/performance/gradient_checkpointing_results.md"
       ],
-      "source": "docs/gradient_checkpointing_results.md",
+      "source": "docs/performance/gradient_checkpointing_results.md",
       "kind": "infrastructure"
     },
     {
@@ -1134,9 +1134,9 @@
       "lesson": "Reuse of prefilled KV is the user-visible win; cache storage policy changes need composition gates before becoming defaults.",
       "next_action": "Keep prompt-cache as the main shipped path and revisit pre-alloc defaults only after KIVI/StreamingLLM interactions are designed.",
       "evidence_sources": [
-        "docs/kv_cache_optimization.md"
+        "docs/performance/kv_cache_optimization.md"
       ],
-      "source": "docs/kv_cache_optimization.md",
+      "source": "docs/performance/kv_cache_optimization.md",
       "kind": "infrastructure"
     },
     {
@@ -1150,9 +1150,9 @@
       "lesson": "YOCO is a long-context memory lever, not an immediate short-context speedup.",
       "next_action": "Treat YOCO as a long-context experiment until anchor tuning, HF round-trip, and long-context quality gates exist.",
       "evidence_sources": [
-        "docs/yoco_results.md"
+        "docs/performance/yoco_results.md"
       ],
-      "source": "docs/yoco_results.md",
+      "source": "docs/performance/yoco_results.md",
       "kind": "infrastructure"
     },
     {
@@ -1166,9 +1166,9 @@
       "lesson": "KV compression can preserve greedy decode locally, but storage format and quality gates matter before making long-context claims.",
       "next_action": "Add packed int4 storage or grouped KIVI scales only after a cached-forward perplexity or trajectory-match eval exists.",
       "evidence_sources": [
-        "docs/streaming_llm_kivi.md"
+        "docs/techniques/streaming_llm_kivi.md"
       ],
-      "source": "docs/streaming_llm_kivi.md",
+      "source": "docs/techniques/streaming_llm_kivi.md",
       "kind": "infrastructure"
     },
     {
@@ -1182,9 +1182,9 @@
       "lesson": "Data-pipeline regularizers need behavioral evals, not just stable loss curves, before being treated as quality improvements.",
       "next_action": "Use sample-packing where length bias matters, and evaluate BPE-dropout on rare-word or morphology-sensitive gates before promotion.",
       "evidence_sources": [
-        "docs/data_perf.md"
+        "docs/performance/data_perf.md"
       ],
-      "source": "docs/data_perf.md",
+      "source": "docs/performance/data_perf.md",
       "kind": "infrastructure"
     },
     {
@@ -1197,9 +1197,9 @@
       "lesson": "The suspected SDPA mask/contiguity and tied-embedding duplication issues were not present.",
       "next_action": "Keep this as positive verification; only reopen if new SDPA call sites or untied embedding save paths are added.",
       "evidence_sources": [
-        "docs/perf_audit_mlxfast_tied.md"
+        "docs/performance/perf_audit_mlxfast_tied.md"
       ],
-      "source": "docs/perf_audit_mlxfast_tied.md",
+      "source": "docs/performance/perf_audit_mlxfast_tied.md",
       "kind": "infrastructure"
     },
     {

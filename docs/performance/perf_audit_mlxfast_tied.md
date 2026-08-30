@@ -361,7 +361,7 @@ HF-loaded models, where the upstream config.json drives the decision.
 
 None. Audit-only changes:
 
-- `docs/perf_audit_mlxfast_tied.md` (this file, new).
+- `docs/performance/perf_audit_mlxfast_tied.md` (this file, new).
 
 The five files the brief listed as candidate targets were all read and
 audited; no edits required:

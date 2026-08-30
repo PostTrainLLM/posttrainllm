@@ -203,7 +203,7 @@ The browser playground ships an **attention heatmap** — for any prompt it rend
 the per-head attention weights (the `softmax(Q·Kᵀ)` grid) from the last block.
 The **logit lens** projects each block's residual stream through the LM head to
 show when a prediction crystallizes across depth. Both are documented in
-[`../interpretability.md`](../interpretability.md). Reading that doc after this
+[`../interpretability.md`](../techniques/interpretability.md). Reading that doc after this
 session is the "inspect it" exercise: you will recognize the `(seq, seq)` grid
 and the residual stream as the exact objects defined here.
 
@@ -237,10 +237,10 @@ Don't peek:
 - **Repo anchors:** posttrainllm's math oracle
   [`python_ref/model.py`](../../python_ref/model.py),
   [`webgpu/attention_fa2.wgsl`](../../webgpu/attention_fa2.wgsl) +
-  [`../online_softmax_in_attention.md`](../online_softmax_in_attention.md) +
-  [`../fa2_forward_notes.md`](../fa2_forward_notes.md) (the same math, fused and
+  [`../online_softmax_in_attention.md`](../performance/online_softmax_in_attention.md) +
+  [`../fa2_forward_notes.md`](../performance/fa2_forward_notes.md) (the same math, fused and
   memory-safe), [`llm-mechanics-fundamentals.md`](llm-mechanics-fundamentals.md)
-  (RoPE/GQA/MoE), [`../interpretability.md`](../interpretability.md) (watch it).
+  (RoPE/GQA/MoE), [`../interpretability.md`](../techniques/interpretability.md) (watch it).
 - **Factory consequence:** when a SQL adapter learns to attend from a `JOIN`
   back to the right table, that is these attention weights shifting. When you
   choose which modules LoRA targets, you are choosing which of the matrices in

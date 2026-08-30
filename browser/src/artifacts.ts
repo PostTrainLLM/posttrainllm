@@ -1497,7 +1497,7 @@ export const artifacts: ArtifactEntry[] = [
     ],
     evidence: [
       { label: "Performance journey", href: "/roadmap" },
-      { label: "Performance docs", href: "/docs/performance" },
+      { label: "Performance docs", href: "/docs/performance/performance" },
       { label: "Playground", href: "/playground" },
     ],
     blockers: [
@@ -1750,7 +1750,7 @@ export const artifacts: ArtifactEntry[] = [
         label: "README headline metrics",
         href: "https://github.com/PostTrainLLM/posttrainllm#headline-results",
       },
-      { label: "Performance docs", href: "/docs/performance" },
+      { label: "Performance docs", href: "/docs/performance/performance" },
     ],
     blockers: [
       {

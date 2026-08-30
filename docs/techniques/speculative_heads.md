@@ -330,7 +330,7 @@ something like:
 * Leviathan, Y., Kalman, M., & Matias, Y. (2023). *Fast Inference from
   Transformers via Speculative Decoding*. ICML.
 * Existing posttrainllm prior art:
-  - `docs/interpretability.md` (tuned-lens, same closure-frozen-base
+  - `docs/techniques/interpretability.md` (tuned-lens, same closure-frozen-base
     training pattern)
   - `SpeculativeDecode.swift` (the small-draft variant this work
     complements)

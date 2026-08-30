@@ -5,7 +5,7 @@ the existing in-process MLX inference path. This is the "smoke test"
 that proves the scaffold produces real numbers; it is not a publishable
 benchmark (n=5, no energy metrics, tiny model).*
 
-Design doc: [`docs/benchmark_harness_design.md`](benchmark_harness_design.md).
+Design doc: [`docs/performance/benchmark_harness_design.md`](benchmark_harness_design.md).
 
 ## What I ran
 

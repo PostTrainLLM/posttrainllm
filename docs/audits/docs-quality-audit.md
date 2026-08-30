@@ -27,8 +27,8 @@ Docs are world-class when an outsider can answer:
 | Factory pipeline | `docs/factory/` | strong |
 | Method vs recipe | `docs/techniques/method-vs-recipe.md` | strong |
 | Technique audit inventory | `docs/techniques/audit-inventory.md` | strong |
-| Attempt history | `docs/attempt-ledger.md`, `docs/attempts.json`, `docs/history-coverage-audit.md`, `scripts/check_attempt_ledger.py` | strong |
-| Exactness completion audit | `docs/exactness-completion-audit.md` | complete |
+| Attempt history | `docs/attempt-ledger.md`, `docs/attempts.json`, `docs/audits/history-coverage-audit.md`, `scripts/check_attempt_ledger.py` | strong |
+| Exactness completion audit | `docs/audits/exactness-completion-audit.md` | complete |
 | External products reviewed | `docs/external-products-reviewed.md` | good, should grow with every teardown |
 | Learning pipeline | `docs/learning-pipeline.md` | strong, tied to current factory work |
 | Learning progress | `docs/learning-progress.md` | good, manually maintained |
@@ -48,7 +48,7 @@ Docs are world-class when an outsider can answer:
 - Added an external products/research review ledger.
 - Added a learning pipeline tied to the factory loop.
 - Added a method-vs-recipe registry and SQL technique backlog.
-- Added a row-level technique inventory for `docs/audit_2026.md`, so broad
+- Added a row-level technique inventory for `docs/audits/audit_2026.md`, so broad
   technique rows are classified without being misrepresented as run attempts.
 - Added an exactness completion audit that records the proof set and
   non-blocking future hardening.
@@ -69,8 +69,8 @@ The current docs meet the world-class baseline defined above:
 |---|---|
 | What is the project? | `PROJECT_STATUS.md`, `docs/README.md` |
 | What is active vs parked? | `docs/doc-status.md`, `docs/NEXT.md`, `docs/parked/` |
-| What did we try? | `docs/attempt-ledger.md`, `docs/attempts.json`, `docs/history-coverage-audit.md`, `docs/exactness-completion-audit.md` |
-| What worked, failed, or regressed? | `docs/attempt-ledger.md`, `docs/techniques/sql-technique-backlog.md`, `docs/techniques/audit-inventory.md`, `docs/history-coverage-audit.md` |
+| What did we try? | `docs/attempt-ledger.md`, `docs/attempts.json`, `docs/audits/history-coverage-audit.md`, `docs/audits/exactness-completion-audit.md` |
+| What worked, failed, or regressed? | `docs/attempt-ledger.md`, `docs/techniques/sql-technique-backlog.md`, `docs/techniques/audit-inventory.md`, `docs/audits/history-coverage-audit.md` |
 | What products/papers/blogs changed the plan? | `docs/external-products-reviewed.md`, `docs/techniques/trainloop-teardown.md` |
 | What is on the roadmap? | `docs/NEXT.md`, `docs/techniques/sql-technique-backlog.md`, `docs/factory/public-artifacts.md` |
 | What should the owner learn next? | `docs/learning-pipeline.md`, `docs/learning-progress.md` |
@@ -103,7 +103,7 @@ improve:
 
 3. **Old docs are still noisy, but bounded.**
    `docs/PLAN.md`, older PRDs, and session notes remain useful but can distract
-   readers. `docs/history-coverage-audit.md` now names which older surfaces are
+   readers. `docs/audits/history-coverage-audit.md` now names which older surfaces are
    normalized, classified, or narrative-only.
 
 4. **External teardown corpus is shallow.**

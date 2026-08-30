@@ -217,7 +217,7 @@ These are not the unknowns. These are the known unknowns that have a decision wa
 **The trigger:** Sarthak's constraint — "I just want to ensure that the model quality does not drop and the speed is as fast as whatever flags that the user has enabled on their Chrome."
 **The call:** Bake a hard numerics gate into every fast path. Train Shakespeare for 500 steps on each enabled path at first use; require the loss curve to match the f32 reference within 1% at step 500. Paths that fail the gate disable themselves silently for the session and the user gets the slower correct path. No path activates if it can't pass the gate.
 **Why it was right:** Opportunistic optimization without a correctness gate is a bug factory. Each new accelerator has its own precision profile, and "it ran faster" is the easy thing to measure and observe — "it produced subtly worse output" is the hard thing to notice without instrumentation. The gate makes "speed" a derived property of "speed AND correctness," not a substitute for correctness.
-**What it shipped:** The constraint is encoded in task #94's title ("Numerics gate: no quality regression on ANY fast path") and described in `docs/perf_quest.md`. Implementation lands alongside #90-#93 (one verifier per fast path; the gate also gets its own page `docs/precision.md` capturing measured deltas).
+**What it shipped:** The constraint is encoded in task #94's title ("Numerics gate: no quality regression on ANY fast path") and described in `docs/performance/perf_quest.md`. Implementation lands alongside #90-#93 (one verifier per fast path; the gate also gets its own page `docs/techniques/precision.md` capturing measured deltas).
 
 ---
 

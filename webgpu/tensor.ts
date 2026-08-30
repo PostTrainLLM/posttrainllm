@@ -9,7 +9,7 @@
  *
  * Weights and optimizer moments are NOT pooled — they live for the whole run.
  *
- * Guide: docs/performance.md ("WebGPU training")
+ * Guide: docs/performance/performance.md ("WebGPU training")
  */
 
 /** Full set of opportunistic WebGPU capabilities we feature-detect at startup.

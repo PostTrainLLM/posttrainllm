@@ -138,8 +138,8 @@ Apple FM, the contamination-checked h2 suites (60 fixtures).
 - Training runs (numbers in `~/.cache/posttrainllm/runs/`): v1 through v11
   (0.6B), clarify-v1 (4B), h2-{qwen3-4b,apple-fm,claude} (zero-shot
   baselines)
-- Docs that are still current: `docs/wwdc-2026-impact.md`,
-  `docs/v11-baselines-2026-06-09.md`,
+- Docs that are still current: `docs/sessions/wwdc-2026-impact.md`,
+  `docs/sessions/v11-baselines-2026-06-09.md`,
   `docs/prds/quantized-inference-swift.md`,
   `docs/prds/qlora-large-model-finetune.md`,
   `docs/prds/posttrainllm-product-thesis.md`. Read those alongside this one;

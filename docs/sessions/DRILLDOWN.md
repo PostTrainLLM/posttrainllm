@@ -11,7 +11,7 @@ check. Closed 2026-06-12 with the full table below.
 drill, where Gemma-3-12B-it won the n=130 matrix. It is no longer the active
 general-planner decision. The later multi-turn/breadth work in
 `docs/learn/tool-calling-frontier-parity.md` plus
-`docs/planner-lock-2026-06-19.md` locks the general Pace planner to stock
+`docs/sessions/planner-lock-2026-06-19.md` locks the general Pace planner to stock
 Qwen3-4B-Instruct-2507 bf16 with the plan-then-execute prompt.
 
 ## What had been mined to bedrock as of session start

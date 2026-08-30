@@ -24,10 +24,10 @@ does not compete with the active factory path.
 | `docs/NEXT.md` | `active` | current queue and sequencing | broad ideation |
 | `docs/factory/` | `active` | factory contracts, reports, evals, packaging, enforcement | generic ML theory |
 | `docs/techniques/` | `active` | method-vs-recipe cards and target-specific technique backlog | historical PRD status |
-| `docs/techniques/audit-inventory.md` | `evidence` | row-level treatment of `docs/audit_2026.md` technique rows | run-level success/failure claims |
+| `docs/techniques/audit-inventory.md` | `evidence` | row-level treatment of `docs/audits/audit_2026.md` technique rows | run-level success/failure claims |
 | `docs/attempt-ledger.md` | `evidence` | worked/failed/regressed/not-tried attempts | full per-run logs |
-| `docs/history-coverage-audit.md` | `evidence` | what historical work is normalized, classified, partial, or narrative-only | active task selection |
-| `docs/exactness-completion-audit.md` | `evidence` | proof that the docs exactness pass is complete and guarded | new roadmap scope |
+| `docs/audits/history-coverage-audit.md` | `evidence` | what historical work is normalized, classified, partial, or narrative-only | active task selection |
+| `docs/audits/exactness-completion-audit.md` | `evidence` | proof that the docs exactness pass is complete and guarded | new roadmap scope |
 | `docs/external-products-reviewed.md` | `evidence` | reviewed products, papers, and stolen techniques | exhaustive literature survey |
 | `docs/factory/public-artifacts.md` | `evidence` | public artifact release state and blockers | internal-only scratch notes |
 | `docs/learning-pipeline.md` | `learning` | current owner learning sequence tied to factory work | generic course catalog |
@@ -37,6 +37,12 @@ does not compete with the active factory path.
 | `docs/roadmap/` | `superseded` | old roadmap links and historical split | active roadmap |
 | `docs/parked/` | `parked` | paused lanes and why they are paused | active tasks |
 | `docs/archive/` | `archive` | historical snapshots | current claims |
+| `docs/performance/` | `evidence` | kernel, memory, and throughput results and their method notes | active task selection |
+| `docs/audits/` | `evidence` | coverage, feature, docs-quality and validation audits | current claims |
+| `docs/techniques/` folder pages | `reference` | per-method concept cards (LoRA, MoE, quantization, ...) | run-level results |
+| `docs/integrations/` | `reference` | wiring posttrainllm to external tools and data sources | internal contracts |
+| `docs/guides/` | `learning` | long-form model / training / study walkthroughs | current queue |
+| `docs/sessions/` | `archive` | dated session records and handoffs | current claims |
 
 ## Conflict Rule
 

@@ -20,7 +20,7 @@ Pre-reqs (one-time):
   pip install lm-eval==0.4.10
   # ^ pin 0.4.10 to dodge the stop-sequence bug in 0.4.11; alternatively
   # use whatever is latest at the time of running and check release notes.
-  # See docs/lm_eval_integration.md "Known issues" for the bug spec.
+  # See docs/integrations/lm_eval_integration.md "Known issues" for the bug spec.
 
 Build prerequisite:
   The `posttrainllm serve` subcommand requires the `case "serve":` to be wired
@@ -111,7 +111,7 @@ def find_posttrainllm_binary(explicit: str | None) -> str:
 
     If the located binary doesn't have the `serve` subcommand wired,
     we swap to `posttrainllm-serve-smoke` (the stand-in target — see
-    docs/lm_eval_integration.md for why it exists).
+    docs/integrations/lm_eval_integration.md for why it exists).
     """
     binary: str | None = None
     if explicit:

@@ -31,8 +31,8 @@ ALLOWED_CONFIDENCE = {
 def main() -> int:
     attempts_path = ROOT / "docs/attempts.json"
     ledger_path = ROOT / "docs/attempt-ledger.md"
-    history_path = ROOT / "docs/history-coverage-audit.md"
-    completion_path = ROOT / "docs/exactness-completion-audit.md"
+    history_path = ROOT / "docs/audits/history-coverage-audit.md"
+    completion_path = ROOT / "docs/audits/exactness-completion-audit.md"
     payload = json.loads(attempts_path.read_text(encoding="utf-8"))
     attempts = payload.get("attempts") or []
     ledger = ledger_path.read_text(encoding="utf-8")

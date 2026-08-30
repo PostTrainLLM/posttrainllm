@@ -218,7 +218,7 @@ In rough priority order:
    loader.
 4. **lm-eval-harness task YAML** — write a `bench/tasks/milu_*.yaml`
    that drives MILU through the existing
-   [lm-eval-harness integration](../lm_eval_integration.md). This
+   [lm-eval-harness integration](../integrations/lm_eval_integration.md). This
    would let MILU benefit from the harness's batching and few-shot
    plumbing for free, at the cost of an HTTP roundtrip per option.
 5. **Re-tokenization audit** — for each candidate base model, run a
@@ -249,5 +249,5 @@ In rough priority order:
 ## Related
 
 - [Wave 4 landscape — §4 Multilingual](wave_4_landscape.md#4-multilingual--india-focus) — Sarvam, Airavata, tokenizer choice
-- [lm-evaluation-harness integration](../lm_eval_integration.md) — English-track eval harness this is the Indic counterpart of
+- [lm-evaluation-harness integration](../integrations/lm_eval_integration.md) — English-track eval harness this is the Indic counterpart of
 - [Progress dashboard](../progress.md) — Wave 4 row tracking this work

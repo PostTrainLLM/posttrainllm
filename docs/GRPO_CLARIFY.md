@@ -5,7 +5,7 @@ Status: PRD (pre-experiment). Owner: Sarthak. Date: 2026-06-12.
 ## Goal
 
 Break the 22% ambig ceiling. The historical 12-config drilldown
-([docs/DRILLDOWN.md](DRILLDOWN.md)) showed every local model — including
+([docs/sessions/DRILLDOWN.md](sessions/DRILLDOWN.md)) showed every local model — including
 the new champion Gemma-3-12B — tops out at ~22% on clarify fixtures while
 oos (82%) and destructive (77%) are workable. Clarify is the unsolved
 frontier and it's a *behavior* gap, not a knowledge gap: models guess

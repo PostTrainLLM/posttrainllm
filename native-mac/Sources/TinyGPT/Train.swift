@@ -118,7 +118,7 @@ enum Train {
         // dropout/noise) AND BatchRng (Splitmix64 host-side generator
         // that backs every corpus sampler's window pick). Together, two
         // runs with the same seed produce identical INIT loss AND the
-        // same training batches. See banner footer + docs/determinism.md.
+        // same training batches. See banner footer + docs/performance/determinism.md.
         var rngSeed: UInt64? = nil
         var valSplit: Double = 0
         var valEvery: Int = 200
@@ -203,7 +203,7 @@ enum Train {
         // while the current step's forward/backward runs on the GPU.
         // Off by default — measured wins are 0-5% on tiny presets, up
         // to ~10% on huge with large micro-batches. See
-        // `docs/cpu_speedup_results.md`.
+        // `docs/performance/cpu_speedup_results.md`.
         var prefetchBatches: Bool = false
         // Sustained-load controls. `throttle=1` means no sleep; 0.5 means
         // sleep roughly one step-time after each step, halving average load.
@@ -697,7 +697,7 @@ enum Train {
         }
 
         // Trainer. The compile path is **the** biggest lever — see
-        // `docs/cpu_speedup_results.md` — so we lean into it whenever
+        // `docs/performance/cpu_speedup_results.md` — so we lean into it whenever
         // the optimiser kind supports it.
         //
         // The CPU-speedup bundle introduced two new compile sub-paths:
@@ -1697,7 +1697,7 @@ enum Train {
                                            in lieu of positional embeddings/RoPE. Better
                                            extrapolation beyond train context length.
           --optimizer K                   AdamW (default) | lion | sophia | muon | adafactor.
-                                           See docs/optimizers.md for memory + tradeoffs.
+                                           See docs/techniques/optimizers.md for memory + tradeoffs.
                                            Drop-in: same --max-lr / --weight-decay etc.
           --bpe-dropout F                 BPE-dropout (Provilkov et al., 2020): per-merge
                                            skip probability. 0 = off (default); 0.1 is

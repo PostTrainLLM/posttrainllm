@@ -744,7 +744,7 @@ This is also not a claim that every scratch experiment in the repo's older
 archive has been normalized. Older archive/session docs still contain
 additional lessons, but they should enter this ledger only when we can attach a
 status, evidence, confidence, lesson, and next action without inventing history.
-See [`history-coverage-audit.md`](history-coverage-audit.md) for the current
+See [`history-coverage-audit.md`](audits/history-coverage-audit.md) for the current
 coverage boundary.
 
 ## Next Ledger Improvements

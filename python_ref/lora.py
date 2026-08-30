@@ -10,7 +10,7 @@ matrices inside selected linear layers:
     B  [rank, d_out]  trainable, initialised to ZEROS  -> step 0 == base model
     base.weight       frozen (requires_grad=False)
 
-The subtle correctness point (docs/lora_guide.md §6): freezing W does NOT stop
+The subtle correctness point (docs/techniques/lora_guide.md §6): freezing W does NOT stop
 gradients flowing through the layer. base(x) stays in the autograd graph, so
 dx = dy @ W.T + scale * dy @ B.T @ A.T still reaches earlier layers — LoRA in
 lower blocks only learns because gradient passes THROUGH the frozen weights
@@ -28,7 +28,7 @@ Usage:
     python python_ref/lora.py --base checkpoints/base --adapter checkpoints/adapter \\
         --compare --prompt "The "
 
-Spec:  configs/lora.json   Guide: docs/lora_guide.md
+Spec:  configs/lora.json   Guide: docs/techniques/lora_guide.md
 """
 
 from __future__ import annotations

@@ -175,7 +175,7 @@ def main():
         ):
             print("VERDICT: NEW CHAMPION CANDIDATE — beats or ties the champion on all dims.")
             print("  Next: update evals/planner-champion.json and Pace's")
-            print("  Info.plist:LocalPlannerModelIdentifier (see docs/DRILLDOWN.md precedent).")
+            print("  Info.plist:LocalPlannerModelIdentifier (see docs/sessions/DRILLDOWN.md precedent).")
             print("  Caveat: n=130; dims at n=40 carry ~±15pp CI — re-run before swapping.")
         else:
             losses = [s for s in SUITES if s not in wins]

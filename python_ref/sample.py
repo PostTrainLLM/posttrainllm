@@ -19,7 +19,7 @@ Usage:
     python python_ref/sample.py --checkpoint checkpoints/run --prompt "the "
     python python_ref/sample.py --checkpoint checkpoints/run --temperature 0 --tokens 200
 
-Guide: docs/model_guide.md  Tests: tests/README.md ("Sampling fixed seed")
+Guide: docs/guides/model_guide.md  Tests: tests/README.md ("Sampling fixed seed")
 """
 
 from __future__ import annotations
