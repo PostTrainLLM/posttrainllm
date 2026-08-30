@@ -11,7 +11,7 @@ read the GPU-safety section of `AGENTS.md`.
 | Surface | Needs |
 |---|---|
 | `native-mac/` | macOS + Xcode 27+, Metal toolchain (`xcodebuild -downloadComponent MetalToolchain`) |
-| `browser/`, `docs-site/` | Node 22.12+, pnpm 10 |
+| `browser/`, `docs-site/` | Node 22.12+, pnpm 10.33.2 (pinned in the root `packageManager`) |
 | `python_ref/`, `tests/` | Python 3.11+ (`torch`, `numpy`; `python_ref/requirements.txt`) |
 | `wasm/` | Emscripten SDK, pinned to 5.0.7 in CI |
 | `scripts/*/` Rust crates | A stable Rust toolchain (edition 2024) |
@@ -24,8 +24,10 @@ cd native-mac
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swift build -c release
 # binary at native-mac/.build/release/posttrainllm
 
-# Browser playground (also builds docs-site and merges it in under /docs)
-cd browser && pnpm install && pnpm run build
+# Browser playground (also builds docs-site and merges it in under /docs).
+# One workspace install from the repo root covers browser/ and docs-site/.
+pnpm install
+pnpm --dir browser run build
 
 # WASM kernels — only when C++ under wasm/ changes. CI byte-compares the
 # committed browser/public/tinygpt*.{js,wasm}, so rebuild with the pinned emsdk.
@@ -67,7 +69,7 @@ pnpm run quality   # everything below, in order
 | `pnpm run quality:complexity` | lizard, against a fixed baseline |
 | `pnpm run quality:duplication` | jscpd, against a fixed baseline |
 | `pnpm run quality:cycles` | import cycles (knip, pycycle, cargo) |
-| `pnpm run quality:dependencies` | `pnpm audit` across all three packages |
+| `pnpm run quality:dependencies` | `pnpm audit` over the workspace |
 
 Two things to know about these gates:
 
@@ -92,7 +94,12 @@ swiftformat --lint native-mac/Sources native-mac/Tests
   browser path before the Python reference for that component is correct.
 - **Docs have one home.** Everything lives under `docs/`; `docs-site/` is only a
   presentation layer and owns no content. If you move a doc, add a row to
-  [`docs/MAP.md`](docs/MAP.md).
+  [`docs/MAP.md`](docs/MAP.md) and a redirect in `browser/astro.config.mjs` so
+  the published URL keeps working.
+- **`scripts/` is grouped by topic**, and each folder is a flat import surface.
+  See [`scripts/README.md`](scripts/README.md) before adding or moving one.
+- **One workspace.** `browser/` and `docs-site/` are pnpm workspace members, so
+  dependency changes and `pnpm.overrides` belong in the root `package.json`.
 - **Model weights are committed deliberately.** `browser/public/gallery/*.bin`
   and the compiled `tinygpt*.wasm` are shipped artifacts, un-ignored on purpose —
   Cloudflare Pages never rebuilds them. CI has drift jobs that police them.
