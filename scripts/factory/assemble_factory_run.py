@@ -63,7 +63,9 @@ def load_json(path: Path) -> Any:
 
 
 def write_json(path: Path, payload: Any) -> None:
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def line_count(path: Path) -> int:
@@ -152,7 +154,10 @@ def render_slice_table(slice_metrics: dict[str, Any] | None) -> str:
             "|---|---:|---:|---:|---|\n"
             "| Overall | n/a | n/a | n/a | see `slice-metrics.json` |\n"
         )
-    rows = ["| Slice | Baseline | Candidate | Delta | Rows |", "|---|---:|---:|---:|---:|"]
+    rows = [
+        "| Slice | Baseline | Candidate | Delta | Rows |",
+        "|---|---:|---:|---:|---:|",
+    ]
     for name, slc in (slice_metrics.get("slices") or {}).items():
         # Two shapes are supported: the explicit baseline/candidate/delta shape,
         # and the candidate-only score_sql_slices.py shape (execution_accuracy /
@@ -169,7 +174,9 @@ def render_slice_table(slice_metrics: dict[str, Any] | None) -> str:
     return "\n".join(rows) + "\n"
 
 
-def render_report(payloads: dict[str, Any], slice_metrics: dict[str, Any] | None) -> str:
+def render_report(
+    payloads: dict[str, Any], slice_metrics: dict[str, Any] | None
+) -> str:
     config = payloads["config"]
     dataset = payloads["dataset"]
     baseline = payloads["eval-baseline"]
@@ -189,18 +196,36 @@ def render_report(payloads: dict[str, Any], slice_metrics: dict[str, Any] | None
     counts = dataset.get("counts", {})
     processing = dataset.get("processing", {})
     passed_primary = "yes" if candidate.get("passed") else "no"
-    artifact_path = artifact.get("path") if artifact else "report-only (no shipped artifact)"
+    artifact_path = (
+        artifact.get("path") if artifact else "report-only (no shipped artifact)"
+    )
 
     evidence = "\n".join(
-        f"  - `{src}`" for src in (decision.get("evidence_sources") or ["eval-candidate.json"])
+        f"  - `{src}`"
+        for src in (decision.get("evidence_sources") or ["eval-candidate.json"])
     )
 
     perf_rows = [
         ("Train time", candidate.get("train_time", "n/a")),
         ("Eval time", candidate.get("eval_time", "n/a")),
-        ("Latency", f'{candidate["latency_ms"]} ms' if candidate.get("latency_ms") is not None else "n/a"),
-        ("tok/s", candidate.get("tokens_per_second") if candidate.get("tokens_per_second") is not None else "n/a"),
-        ("RAM / peak RSS", f'{candidate["peak_rss_mb"]} MB' if candidate.get("peak_rss_mb") is not None else "n/a"),
+        (
+            "Latency",
+            f"{candidate['latency_ms']} ms"
+            if candidate.get("latency_ms") is not None
+            else "n/a",
+        ),
+        (
+            "tok/s",
+            candidate.get("tokens_per_second")
+            if candidate.get("tokens_per_second") is not None
+            else "n/a",
+        ),
+        (
+            "RAM / peak RSS",
+            f"{candidate['peak_rss_mb']} MB"
+            if candidate.get("peak_rss_mb") is not None
+            else "n/a",
+        ),
     ]
     perf_table = "\n".join(f"| {name} | {value} |" for name, value in perf_rows)
 
@@ -330,7 +355,9 @@ def assemble(run_dir: Path, force: bool) -> dict[str, Any]:
                     run_dir,
                     "reporting",
                     status["revision"],
-                    reason=None if status["phase"] == "packaged" else "metadata-only-assembly",
+                    reason=None
+                    if status["phase"] == "packaged"
+                    else "metadata-only-assembly",
                 )
             status = lifecycle.transition(
                 run_dir,
@@ -340,9 +367,13 @@ def assemble(run_dir: Path, force: bool) -> dict[str, Any]:
 
         warnings: list[str] = []
         if slice_metrics is None:
-            warnings.append("slice-metrics.json absent (required by publish-check; run score_sql_slices.py)")
+            warnings.append(
+                "slice-metrics.json absent (required by publish-check; run score_sql_slices.py)"
+            )
         if not (run_dir / "trace_review.md").is_file():
-            warnings.append("trace_review.md absent (required by publish-check; run review_sql_trace.py)")
+            warnings.append(
+                "trace_review.md absent (required by publish-check; run review_sql_trace.py)"
+            )
         return {"warnings": warnings, "lifecycle": status}
     except BaseException:
         lifecycle.fail_sanitized(run_dir, status)
@@ -350,9 +381,15 @@ def assemble(run_dir: Path, force: bool) -> dict[str, Any]:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("run_dir", help="Run directory holding the emitted fragments.")
-    ap.add_argument("--force", action="store_true", help="Overwrite derived provenance.json/report.md.")
+    ap.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite derived provenance.json/report.md.",
+    )
     ap.add_argument(
         "--publish-check",
         action="store_true",

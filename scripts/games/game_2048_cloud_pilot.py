@@ -53,10 +53,17 @@ def load_config(path: Path) -> dict[str, Any]:
             raise ValueError("cloud identity state must be mutable-alias or immutable")
         if entry["reasoning_effort"] not in {"low", "medium", "high"}:
             raise ValueError("cloud reasoning effort must be low, medium, or high")
-        if not isinstance(entry["command_timeout_seconds"], int) or entry["command_timeout_seconds"] <= 0:
+        if (
+            not isinstance(entry["command_timeout_seconds"], int)
+            or entry["command_timeout_seconds"] <= 0
+        ):
             raise ValueError("cloud command timeout must be a positive integer")
         budget = entry["max_budget_usd_per_decision"]
-        if not isinstance(budget, (int, float)) or isinstance(budget, bool) or budget < 0:
+        if (
+            not isinstance(budget, (int, float))
+            or isinstance(budget, bool)
+            or budget < 0
+        ):
             raise ValueError("cloud decision budget must be non-negative")
         policy_ids.append(entry["policy_id"])
     if len(policy_ids) != len(set(policy_ids)):
@@ -65,9 +72,13 @@ def load_config(path: Path) -> dict[str, Any]:
 
 
 def select_opponent(config: dict[str, Any], policy_id: str) -> dict[str, Any]:
-    matches = [entry for entry in config["opponents"] if entry["policy_id"] == policy_id]
+    matches = [
+        entry for entry in config["opponents"] if entry["policy_id"] == policy_id
+    ]
     if len(matches) != 1:
-        raise ValueError(f"cloud opponent policy is not declared exactly once: {policy_id}")
+        raise ValueError(
+            f"cloud opponent policy is not declared exactly once: {policy_id}"
+        )
     return matches[0]
 
 
@@ -84,7 +95,11 @@ def parse_claude_envelope(stdout: str, constrained: bool) -> tuple[str, dict[str
         raw = envelope.get("result")
         if not isinstance(raw, str):
             raise ValueError("Claude strict output is missing result text")
-    usage = envelope.get("modelUsage") if isinstance(envelope.get("modelUsage"), dict) else {}
+    usage = (
+        envelope.get("modelUsage")
+        if isinstance(envelope.get("modelUsage"), dict)
+        else {}
+    )
     return raw, {
         "resolved_models": sorted(usage),
         "cost_usd": envelope.get("total_cost_usd"),
@@ -132,7 +147,9 @@ class CloudCliPolicy:
         self.raw_outputs: list[str] = []
         self.call_metadata: list[dict[str, Any]] = []
 
-    def _run_claude(self, observation: dict[str, Any], legal_actions: Sequence[str]) -> tuple[str, dict[str, Any]]:
+    def _run_claude(
+        self, observation: dict[str, Any], legal_actions: Sequence[str]
+    ) -> tuple[str, dict[str, Any]]:
         constrained = self.track == llm_policy.LEGAL_CONSTRAINED_TRACK
         command = [
             "claude",
@@ -155,7 +172,12 @@ class CloudCliPolicy:
             llm_policy.SYSTEM_PROMPT,
         ]
         if constrained:
-            command.extend(["--json-schema", json.dumps(llm_policy.constrained_action_schema(legal_actions))])
+            command.extend(
+                [
+                    "--json-schema",
+                    json.dumps(llm_policy.constrained_action_schema(legal_actions)),
+                ]
+            )
         command.append(game.serialize_character_observation(observation))
         with tempfile.TemporaryDirectory(prefix="game-2048-claude-") as directory:
             completed = subprocess.run(
@@ -176,23 +198,31 @@ class CloudCliPolicy:
             try:
                 envelope = json.loads(completed.stdout)
                 if isinstance(envelope, dict):
-                    usage = envelope.get("modelUsage") if isinstance(envelope.get("modelUsage"), dict) else {}
+                    usage = (
+                        envelope.get("modelUsage")
+                        if isinstance(envelope.get("modelUsage"), dict)
+                        else {}
+                    )
                     metadata.update(
                         {
                             "resolved_models": sorted(usage),
                             "cost_usd": envelope.get("total_cost_usd"),
                             "turns": envelope.get("num_turns"),
-                            "provider_error": envelope.get("subtype") or metadata["provider_error"],
+                            "provider_error": envelope.get("subtype")
+                            or metadata["provider_error"],
                         }
                     )
             except json.JSONDecodeError:
                 pass
             raise CloudProviderError(
-                f"Claude CLI failed with exit {completed.returncode}: {detail[:300]}", metadata
+                f"Claude CLI failed with exit {completed.returncode}: {detail[:300]}",
+                metadata,
             )
         return parse_claude_envelope(completed.stdout, constrained)
 
-    def _run_codex(self, observation: dict[str, Any], legal_actions: Sequence[str]) -> tuple[str, dict[str, Any]]:
+    def _run_codex(
+        self, observation: dict[str, Any], legal_actions: Sequence[str]
+    ) -> tuple[str, dict[str, Any]]:
         constrained = self.track == llm_policy.LEGAL_CONSTRAINED_TRACK
         with tempfile.TemporaryDirectory(prefix="game-2048-codex-") as directory:
             root = Path(directory)
@@ -219,7 +249,10 @@ class CloudCliPolicy:
             if constrained:
                 schema_path = root / "action-schema.json"
                 schema_path.write_text(
-                    json.dumps(llm_policy.constrained_action_schema(legal_actions), sort_keys=True),
+                    json.dumps(
+                        llm_policy.constrained_action_schema(legal_actions),
+                        sort_keys=True,
+                    ),
                     encoding="utf-8",
                 )
                 command.extend(["--output-schema", str(schema_path)])
@@ -257,10 +290,14 @@ class CloudCliPolicy:
             else:
                 raw, metadata = self._run_codex(observation, legal_actions)
         except CloudProviderError as exc:
-            exc.metadata["adapter_wall_time_ms"] = (time.perf_counter_ns() - started) / 1_000_000
+            exc.metadata["adapter_wall_time_ms"] = (
+                time.perf_counter_ns() - started
+            ) / 1_000_000
             self.call_metadata.append(exc.metadata)
             raise ValueError(str(exc)) from exc
-        metadata["adapter_wall_time_ms"] = (time.perf_counter_ns() - started) / 1_000_000
+        metadata["adapter_wall_time_ms"] = (
+            time.perf_counter_ns() - started
+        ) / 1_000_000
         self.raw_outputs.append(raw)
         self.call_metadata.append(metadata)
         if self.track == llm_policy.LEGAL_CONSTRAINED_TRACK:
@@ -272,7 +309,9 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--policy-id", required=True)
-    parser.add_argument("--track", choices=llm_policy.TRACKS, default=llm_policy.STRICT_TRACK)
+    parser.add_argument(
+        "--track", choices=llm_policy.TRACKS, default=llm_policy.STRICT_TRACK
+    )
     parser.add_argument("--seed", type=int, action="append", required=True)
     parser.add_argument("--max-moves", type=int, default=1)
     parser.add_argument("--parallel-games", type=int, default=1)
@@ -292,9 +331,16 @@ def main() -> int:
     if shutil.which(executable) is None:
         raise ValueError(f"cloud backend executable is unavailable: {executable}")
     version = subprocess.run(
-        [executable, "--version"], text=True, capture_output=True, timeout=10, check=False
+        [executable, "--version"],
+        text=True,
+        capture_output=True,
+        timeout=10,
+        check=False,
     )
-    def run_seed(seed: int) -> tuple[int, dict[str, Any], list[str], list[dict[str, Any]]]:
+
+    def run_seed(
+        seed: int,
+    ) -> tuple[int, dict[str, Any], list[str], list[dict[str, Any]]]:
         seed_policy = CloudCliPolicy(entry, args.track)
         episode = game.run_episode(
             seed_policy,
@@ -307,33 +353,52 @@ def main() -> int:
     if args.parallel_games == 1:
         completed_seeds = [run_seed(seed) for seed in args.seed]
     else:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=args.parallel_games) as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=args.parallel_games
+        ) as executor:
             completed_seeds = list(executor.map(run_seed, args.seed))
-    by_seed = {seed: (episode, raw, calls) for seed, episode, raw, calls in completed_seeds}
+    by_seed = {
+        seed: (episode, raw, calls) for seed, episode, raw, calls in completed_seeds
+    }
     episodes = [by_seed[seed][0] for seed in args.seed]
-    raw_outputs_by_seed = [{"seed": seed, "outputs": by_seed[seed][1]} for seed in args.seed]
-    provider_calls = [
-        {"seed": seed, **call}
-        for seed in args.seed
-        for call in by_seed[seed][2]
+    raw_outputs_by_seed = [
+        {"seed": seed, "outputs": by_seed[seed][1]} for seed in args.seed
     ]
-    resolved_models = sorted({model for call in provider_calls for model in call.get("resolved_models", [])})
+    provider_calls = [
+        {"seed": seed, **call} for seed in args.seed for call in by_seed[seed][2]
+    ]
+    resolved_models = sorted(
+        {model for call in provider_calls for model in call.get("resolved_models", [])}
+    )
     provider_failed = any(call.get("provider_error") for call in provider_calls)
-    identity_failed = entry["identity_state"] == "immutable" and resolved_models != [entry["requested_model"]]
+    identity_failed = entry["identity_state"] == "immutable" and resolved_models != [
+        entry["requested_model"]
+    ]
     run_failed = provider_failed or identity_failed
     total_cost = sum(
-        value for call in provider_calls if isinstance((value := call.get("cost_usd")), (int, float))
+        value
+        for call in provider_calls
+        if isinstance((value := call.get("cost_usd")), (int, float))
     )
     random_episodes = [
-        game.run_episode(game.RandomLegalPolicy(seed), seed, max_moves=args.max_moves, per_move_milliseconds=1_000)
+        game.run_episode(
+            game.RandomLegalPolicy(seed),
+            seed,
+            max_moves=args.max_moves,
+            per_move_milliseconds=1_000,
+        )
         for seed in args.seed
     ]
     score_deltas = [
         episode["metrics"]["score"] - baseline["metrics"]["score"]
         for episode, baseline in zip(episodes, random_episodes)
     ]
-    model_mean = sum(episode["metrics"]["score"] for episode in episodes) / len(episodes)
-    random_mean = sum(episode["metrics"]["score"] for episode in random_episodes) / len(random_episodes)
+    model_mean = sum(episode["metrics"]["score"] for episode in episodes) / len(
+        episodes
+    )
+    random_mean = sum(episode["metrics"]["score"] for episode in random_episodes) / len(
+        random_episodes
+    )
     result = {
         "schema_version": SCHEMA_VERSION,
         "status": (
@@ -353,29 +418,51 @@ def main() -> int:
         "provider_calls": provider_calls,
         "total_cost_usd": total_cost,
         "identity_error": (
-            {"requested": entry["requested_model"], "resolved": resolved_models} if identity_failed else None
+            {"requested": entry["requested_model"], "resolved": resolved_models}
+            if identity_failed
+            else None
         ),
-        "aggregate": None if run_failed else {
+        "aggregate": None
+        if run_failed
+        else {
             "games": len(episodes),
             "mean_score": model_mean,
-            "mean_moves": sum(episode["metrics"]["move_count"] for episode in episodes) / len(episodes),
+            "mean_moves": sum(episode["metrics"]["move_count"] for episode in episodes)
+            / len(episodes),
             "invalid_decisions": sum(
-                episode["metrics"]["decisions"] - episode["metrics"]["legal_decisions"] for episode in episodes
+                episode["metrics"]["decisions"] - episode["metrics"]["legal_decisions"]
+                for episode in episodes
             ),
         },
-        "random_legal_comparison": None if run_failed else {
+        "random_legal_comparison": None
+        if run_failed
+        else {
             "random_mean_score": random_mean,
-            "model_to_random_mean_score_ratio": model_mean / random_mean if random_mean else None,
+            "model_to_random_mean_score_ratio": model_mean / random_mean
+            if random_mean
+            else None,
             "paired_mean_score_delta": sum(score_deltas) / len(score_deltas),
-            "paired_win_rate": sum(delta > 0 for delta in score_deltas) / len(score_deltas),
-            "paired_bootstrap_95_ci": game.paired_bootstrap(score_deltas, 256, 2048999001),
+            "paired_win_rate": sum(delta > 0 for delta in score_deltas)
+            / len(score_deltas),
+            "paired_bootstrap_95_ci": game.paired_bootstrap(
+                score_deltas, 256, 2048999001
+            ),
             "score_deltas_by_seed": [
-                {"seed": seed, "delta": delta} for seed, delta in zip(args.seed, score_deltas)
+                {"seed": seed, "delta": delta}
+                for seed, delta in zip(args.seed, score_deltas)
             ],
         },
     }
     game.write_json_exclusive(args.output, result)
-    print(json.dumps({"output": str(args.output), "resolved_models": result["resolved_models"], "total_cost_usd": total_cost}))
+    print(
+        json.dumps(
+            {
+                "output": str(args.output),
+                "resolved_models": result["resolved_models"],
+                "total_cost_usd": total_cost,
+            }
+        )
+    )
     return 1 if run_failed else 0
 
 

@@ -96,58 +96,171 @@ def main() -> int:
 
     require(nonempty(config.get("run_id")), "config.run_id is required", errors)
     require(nonempty(config.get("target")), "config.target is required", errors)
-    require(nonempty(config.get("candidate", {}).get("method")), "config.candidate.method is required", errors)
-    require(nonempty(config.get("eval", {}).get("primary")), "config.eval.primary is required", errors)
+    require(
+        nonempty(config.get("candidate", {}).get("method")),
+        "config.candidate.method is required",
+        errors,
+    )
+    require(
+        nonempty(config.get("eval", {}).get("primary")),
+        "config.eval.primary is required",
+        errors,
+    )
 
     counts = dataset.get("counts", {})
-    require(counts.get("heldout_rows", 0) > 0, "dataset.counts.heldout_rows must be > 0", errors)
+    require(
+        counts.get("heldout_rows", 0) > 0,
+        "dataset.counts.heldout_rows must be > 0",
+        errors,
+    )
     require(dataset.get("sources"), "dataset.sources must not be empty", errors)
 
     for label, payload in (("baseline", baseline), ("candidate", candidate)):
-        require(nonempty(payload.get("model_id")), f"{label}.model_id is required", errors)
+        require(
+            nonempty(payload.get("model_id")), f"{label}.model_id is required", errors
+        )
         require(nonempty(payload.get("suite")), f"{label}.suite is required", errors)
-        require(isinstance(payload.get("score"), (int, float)), f"{label}.score must be numeric", errors)
-        require(nonempty(payload.get("command")), f"{label}.command is required", errors)
+        require(
+            isinstance(payload.get("score"), (int, float)),
+            f"{label}.score must be numeric",
+            errors,
+        )
+        require(
+            nonempty(payload.get("command")), f"{label}.command is required", errors
+        )
 
     decision_value = decision.get("decision")
-    require(decision_value in ALLOWED_DECISIONS, f"decision.decision must be one of {sorted(ALLOWED_DECISIONS)}", errors)
+    require(
+        decision_value in ALLOWED_DECISIONS,
+        f"decision.decision must be one of {sorted(ALLOWED_DECISIONS)}",
+        errors,
+    )
     require(nonempty(decision.get("reason")), "decision.reason is required", errors)
-    require(nonempty(decision.get("next_action")), "decision.next_action is required", errors)
+    require(
+        nonempty(decision.get("next_action")),
+        "decision.next_action is required",
+        errors,
+    )
     confidence = decision.get("failure_reason_confidence")
-    require(confidence in ALLOWED_CONFIDENCE, "decision.failure_reason_confidence must be exact, inferred, missing-evidence, or not-applicable", errors)
+    require(
+        confidence in ALLOWED_CONFIDENCE,
+        "decision.failure_reason_confidence must be exact, inferred, missing-evidence, or not-applicable",
+        errors,
+    )
     if decision_value == "ship":
-        require(confidence == "not-applicable", "ship decision must use decision.failure_reason_confidence=not-applicable", errors)
+        require(
+            confidence == "not-applicable",
+            "ship decision must use decision.failure_reason_confidence=not-applicable",
+            errors,
+        )
     else:
-        require(nonempty(decision.get("failure_reason")), "non-ship decision.failure_reason is required", errors)
-        require(nonempty(decision.get("lesson")), "non-ship decision.lesson is required", errors)
-        require(confidence != "not-applicable", "non-ship decision requires real failure_reason_confidence", errors)
+        require(
+            nonempty(decision.get("failure_reason")),
+            "non-ship decision.failure_reason is required",
+            errors,
+        )
+        require(
+            nonempty(decision.get("lesson")),
+            "non-ship decision.lesson is required",
+            errors,
+        )
+        require(
+            confidence != "not-applicable",
+            "non-ship decision requires real failure_reason_confidence",
+            errors,
+        )
     evidence_sources = decision.get("evidence_sources")
-    require(isinstance(evidence_sources, list) and bool(evidence_sources), "decision.evidence_sources must be a non-empty list", errors)
+    require(
+        isinstance(evidence_sources, list) and bool(evidence_sources),
+        "decision.evidence_sources must be a non-empty list",
+        errors,
+    )
 
-    require("overall" in slice_metrics, "slice-metrics.json must contain overall", errors)
+    require(
+        "overall" in slice_metrics, "slice-metrics.json must contain overall", errors
+    )
     require("slices" in slice_metrics, "slice-metrics.json must contain slices", errors)
-    require("Trace Review" in trace or "trace review" in trace.lower(), "trace_review.md must be a trace review", errors)
-    require(nonempty(provenance.get("schema_version")), "provenance.schema_version is required", errors)
-    require(nonempty(provenance.get("renderer")), "provenance.renderer is required", errors)
-    require(nonempty(provenance.get("git", {}).get("commit")), "provenance.git.commit is required", errors)
-    require(provenance.get("commands", {}).get("baseline") == baseline.get("command"), "provenance.commands.baseline must match eval-baseline.command", errors)
-    require(provenance.get("commands", {}).get("candidate") == candidate.get("command"), "provenance.commands.candidate must match eval-candidate.command", errors)
-    require(bool(provenance.get("datasets")), "provenance.datasets must not be empty", errors)
+    require(
+        "Trace Review" in trace or "trace review" in trace.lower(),
+        "trace_review.md must be a trace review",
+        errors,
+    )
+    require(
+        nonempty(provenance.get("schema_version")),
+        "provenance.schema_version is required",
+        errors,
+    )
+    require(
+        nonempty(provenance.get("renderer")), "provenance.renderer is required", errors
+    )
+    require(
+        nonempty(provenance.get("git", {}).get("commit")),
+        "provenance.git.commit is required",
+        errors,
+    )
+    require(
+        provenance.get("commands", {}).get("baseline") == baseline.get("command"),
+        "provenance.commands.baseline must match eval-baseline.command",
+        errors,
+    )
+    require(
+        provenance.get("commands", {}).get("candidate") == candidate.get("command"),
+        "provenance.commands.candidate must match eval-candidate.command",
+        errors,
+    )
+    require(
+        bool(provenance.get("datasets")),
+        "provenance.datasets must not be empty",
+        errors,
+    )
     for idx, item in enumerate(provenance.get("datasets") or []):
-        require(nonempty(item.get("path")), f"provenance.datasets[{idx}].path is required", errors)
-        require(nonempty(item.get("sha256")), f"provenance.datasets[{idx}].sha256 is required", errors)
+        require(
+            nonempty(item.get("path")),
+            f"provenance.datasets[{idx}].path is required",
+            errors,
+        )
+        require(
+            nonempty(item.get("sha256")),
+            f"provenance.datasets[{idx}].sha256 is required",
+            errors,
+        )
 
-    for section in ("## Decision", "## Evidence / Exactness", "## Target", "## Data", "## Eval", "## Performance", "## Failures", "## Next Action"):
+    for section in (
+        "## Decision",
+        "## Evidence / Exactness",
+        "## Target",
+        "## Data",
+        "## Eval",
+        "## Performance",
+        "## Failures",
+        "## Next Action",
+    ):
         require(section in report, f"report.md missing section: {section}", errors)
 
     if decision_value == "ship":
         require(artifact is not None, "ship decision requires artifact.json", errors)
         if artifact is not None:
-            require(bool(artifact.get("shipped")), "ship decision requires artifact.shipped=true", errors)
-            require(nonempty(artifact.get("package_dir")), "ship decision requires artifact.package_dir", errors)
-        require(not decision.get("blocked_by"), "ship decision must not have blockers", errors)
+            require(
+                bool(artifact.get("shipped")),
+                "ship decision requires artifact.shipped=true",
+                errors,
+            )
+            require(
+                nonempty(artifact.get("package_dir")),
+                "ship decision requires artifact.package_dir",
+                errors,
+            )
+        require(
+            not decision.get("blocked_by"),
+            "ship decision must not have blockers",
+            errors,
+        )
     elif not args.allow_report_only:
-        require(artifact is not None, "non-report-only publish requires artifact.json", errors)
+        require(
+            artifact is not None,
+            "non-report-only publish requires artifact.json",
+            errors,
+        )
 
     if errors:
         for err in errors:

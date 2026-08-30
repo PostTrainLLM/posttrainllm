@@ -41,7 +41,11 @@ def _validated_sequence(row: Any, split: str, context_length: int) -> str | None
     target = row.get("target")
     legal_moves = row.get("legal_moves")
     prompt = row.get("input")
-    if not isinstance(prompt, str) or not isinstance(target, str) or not isinstance(legal_moves, list):
+    if (
+        not isinstance(prompt, str)
+        or not isinstance(target, str)
+        or not isinstance(legal_moves, list)
+    ):
         raise ValueError("compiled chess row fields are incomplete")
     if target not in legal_moves:
         raise ValueError("compiled chess target is not legal")
@@ -67,7 +71,9 @@ def render_training_text(
     if repeat < 1:
         raise ValueError("repeat must be positive")
     if repeat > 1 and (maximum_rows is None or maximum_rows > 10_000):
-        raise ValueError("repeated rendering requires a bounded maximum_rows at most 10000")
+        raise ValueError(
+            "repeated rendering requires a bounded maximum_rows at most 10000"
+        )
     if context_length < 8:
         raise ValueError("context_length is too small")
 
@@ -121,8 +127,12 @@ def main() -> int:
         if target.exists():
             raise ValueError(f"refusing to overwrite {target}")
         target.parent.mkdir(parents=True, exist_ok=True)
-    output_tmp = tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=args.output.parent, delete=False)
-    manifest_tmp = tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=args.manifest.parent, delete=False)
+    output_tmp = tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=args.output.parent, delete=False
+    )
+    manifest_tmp = tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=args.manifest.parent, delete=False
+    )
     try:
         with output_tmp as handle:
             manifest = render_training_text(
@@ -145,7 +155,12 @@ def main() -> int:
             except FileNotFoundError:
                 pass
         raise
-    print(json.dumps({"output": str(args.output), "manifest": str(args.manifest), **manifest}, sort_keys=True))
+    print(
+        json.dumps(
+            {"output": str(args.output), "manifest": str(args.manifest), **manifest},
+            sort_keys=True,
+        )
+    )
     return 0
 
 

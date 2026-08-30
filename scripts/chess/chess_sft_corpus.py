@@ -26,7 +26,9 @@ MANIFEST_SCHEMA = "chess/character-sft-manifest/v1"
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, required=True)
-    parser.add_argument("--input", required=True, help="Decompressed JSONL path, or - for stdin")
+    parser.add_argument(
+        "--input", required=True, help="Decompressed JSONL path, or - for stdin"
+    )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, required=True)
     return parser.parse_args()
@@ -36,7 +38,15 @@ def load_config(path: Path) -> dict[str, Any]:
     config = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(config, dict) or config.get("schema_version") != CONFIG_SCHEMA:
         raise ValueError("unsupported chess corpus config")
-    if set(config) != {"schema_version", "config_id", "status", "source", "selection", "split", "encoding"}:
+    if set(config) != {
+        "schema_version",
+        "config_id",
+        "status",
+        "source",
+        "selection",
+        "split",
+        "encoding",
+    }:
         raise ValueError("chess corpus config fields are incomplete")
     source = config["source"]
     selection = config["selection"]
@@ -44,7 +54,10 @@ def load_config(path: Path) -> dict[str, Any]:
     encoding = config["encoding"]
     if source.get("license") != "CC0-1.0":
         raise ValueError("Lichess evaluation corpus must retain its CC0 declaration")
-    if encoding.get("schema_version") != ROW_SCHEMA or encoding.get("vocabulary") != "bytes-0-through-255":
+    if (
+        encoding.get("schema_version") != ROW_SCHEMA
+        or encoding.get("vocabulary") != "bytes-0-through-255"
+    ):
         raise ValueError("unsupported character corpus encoding")
     for key in ("minimum_depth", "minimum_knodes"):
         if not isinstance(selection.get(key), int) or selection[key] < 0:
@@ -60,7 +73,9 @@ def load_config(path: Path) -> dict[str, Any]:
         "test_bucket_start",
         "test_bucket_end",
     }
-    if set(split) != required_split or any(not isinstance(split[key], int) for key in required_split):
+    if set(split) != required_split or any(
+        not isinstance(split[key], int) for key in required_split
+    ):
         raise ValueError("split config fields are incomplete")
     modulus = split["modulus"]
     ranges = (
@@ -69,8 +84,12 @@ def load_config(path: Path) -> dict[str, Any]:
         split["test_bucket_start"],
         split["test_bucket_end"],
     )
-    if not (modulus > 1 and 0 <= ranges[0] <= ranges[1] < ranges[2] <= ranges[3] < modulus):
-        raise ValueError("split bucket ranges must be ordered, disjoint, and inside modulus")
+    if not (
+        modulus > 1 and 0 <= ranges[0] <= ranges[1] < ranges[2] <= ranges[3] < modulus
+    ):
+        raise ValueError(
+            "split bucket ranges must be ordered, disjoint, and inside modulus"
+        )
     expected = source.get("expected_sha256")
     if expected is not None and (not isinstance(expected, str) or len(expected) != 64):
         raise ValueError("source expected_sha256 must be null or a 64-character digest")
@@ -95,7 +114,10 @@ def choose_evaluation(raw: Any) -> dict[str, Any]:
     if not candidates:
         raise ValueError("malformed-evaluations")
     try:
-        return max(candidates, key=lambda row: (int(row.get("depth", -1)), int(row.get("knodes", -1))))
+        return max(
+            candidates,
+            key=lambda row: (int(row.get("depth", -1)), int(row.get("knodes", -1))),
+        )
     except (TypeError, ValueError) as exc:
         raise ValueError("malformed-evaluation-depth") from exc
 
@@ -176,7 +198,9 @@ def _input_context(input_path: str):
     return Path(input_path).open("r", encoding="utf-8")
 
 
-def compile_corpus(config: dict[str, Any], input_path: str, output: TextIO) -> dict[str, Any]:
+def compile_corpus(
+    config: dict[str, Any], input_path: str, output: TextIO
+) -> dict[str, Any]:
     source_hash = hashlib.sha256()
     output_hash = hashlib.sha256()
     counts: Counter[str] = Counter()
@@ -202,11 +226,20 @@ def compile_corpus(config: dict[str, Any], input_path: str, output: TextIO) -> d
                     raise ValueError("duplicate-position")
                 row = make_row(label, config)
             except (json.JSONDecodeError, ValueError, TypeError) as exc:
-                reason = "malformed-json" if isinstance(exc, json.JSONDecodeError) else str(exc)
+                reason = (
+                    "malformed-json"
+                    if isinstance(exc, json.JSONDecodeError)
+                    else str(exc)
+                )
                 rejected[reason] += 1
                 continue
             seen.add(label["fen"])
-            rendered = json.dumps(row, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n"
+            rendered = (
+                json.dumps(
+                    row, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+                )
+                + "\n"
+            )
             output.write(rendered)
             output_hash.update(rendered.encode("utf-8"))
             counts["accepted"] += 1
@@ -248,8 +281,12 @@ def main() -> int:
         if target.exists():
             raise ValueError(f"refusing to overwrite {target}")
         target.parent.mkdir(parents=True, exist_ok=True)
-    output_tmp = tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=args.output.parent, delete=False)
-    manifest_tmp = tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=args.manifest.parent, delete=False)
+    output_tmp = tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=args.output.parent, delete=False
+    )
+    manifest_tmp = tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=args.manifest.parent, delete=False
+    )
     try:
         with output_tmp as handle:
             manifest = compile_corpus(config, args.input, handle)
@@ -265,7 +302,16 @@ def main() -> int:
             except FileNotFoundError:
                 pass
         raise
-    print(json.dumps({"output": str(args.output), "manifest": str(args.manifest), **manifest["counts"]}, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "output": str(args.output),
+                "manifest": str(args.manifest),
+                **manifest["counts"],
+            },
+            sort_keys=True,
+        )
+    )
     return 0
 
 

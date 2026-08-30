@@ -31,6 +31,7 @@ Manifest schema (YAML or JSON, --manifest path):
 Any of bfcl_json / tau_json / decode_json / unhappy_tag can be omitted —
 missing columns render as "—" in the table.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -114,8 +115,7 @@ def load_bfcl(p: Path) -> dict | None:
     numbers = _collect_numbers(d)
     if not numbers:
         return None
-    return {"avg": statistics.mean(numbers),
-            "n_categories": len(numbers)}
+    return {"avg": statistics.mean(numbers), "n_categories": len(numbers)}
 
 
 def load_tau(p: Path) -> dict | None:
@@ -184,8 +184,9 @@ def _collect_numbers(d: Any) -> list[float]:
     return out
 
 
-def composite(accuracy: float | None, tok_s: float | None,
-              rss_mb: float | None) -> float | None:
+def composite(
+    accuracy: float | None, tok_s: float | None, rss_mb: float | None
+) -> float | None:
     """Mirrors scripts/score_formula.py §3 (speed × accuracy × cost).
     Returns None when any input is missing — composite is meaningless
     until all three legs are measured.
@@ -208,9 +209,12 @@ def build_table(rows: list[dict]) -> list[dict]:
         decode = load_decode(Path(r["decode_json"])) if r.get("decode_json") else None
 
         accuracy_parts = []
-        if bfcl: accuracy_parts.append(bfcl["avg"])
-        if tau: accuracy_parts.append(tau["avg"])
-        if unhappy: accuracy_parts.append(unhappy["avg"])
+        if bfcl:
+            accuracy_parts.append(bfcl["avg"])
+        if tau:
+            accuracy_parts.append(tau["avg"])
+        if unhappy:
+            accuracy_parts.append(unhappy["avg"])
         accuracy = statistics.mean(accuracy_parts) if accuracy_parts else None
 
         comp = composite(
@@ -219,19 +223,21 @@ def build_table(rows: list[dict]) -> list[dict]:
             decode["peak_rss_mb"] if decode else None,
         )
 
-        table.append({
-            "label": label,
-            "params": params,
-            "unhappy": unhappy,
-            "bfcl": bfcl,
-            "tau": tau,
-            "decode": decode,
-            "accuracy": accuracy,
-            "composite": comp,
-        })
-    table.sort(key=lambda r: (-(r["composite"] or -1),
-                              -(r["accuracy"] or -1),
-                              r["label"]))
+        table.append(
+            {
+                "label": label,
+                "params": params,
+                "unhappy": unhappy,
+                "bfcl": bfcl,
+                "tau": tau,
+                "decode": decode,
+                "accuracy": accuracy,
+                "composite": comp,
+            }
+        )
+    table.sort(
+        key=lambda r: (-(r["composite"] or -1), -(r["accuracy"] or -1), r["label"])
+    )
     return table
 
 
@@ -240,9 +246,11 @@ def _fmt(x: float | None, fmt: str = "{:.1f}", dash: str = "—") -> str:
 
 
 def render_markdown(table: list[dict]) -> str:
-    head = ("| rank | model | params | decode tok/s | TTFT p99 (ms) "
-            "| RSS p99 (MB) | BFCL avg | τ-bench avg | "
-            "unhappy avg | composite |")
+    head = (
+        "| rank | model | params | decode tok/s | TTFT p99 (ms) "
+        "| RSS p99 (MB) | BFCL avg | τ-bench avg | "
+        "unhappy avg | composite |"
+    )
     sep = "|---|---|---|---|---|---|---|---|---|---|"
     lines = [head, sep]
     for i, r in enumerate(table, start=1):
@@ -286,8 +294,7 @@ def write_doc(out_md: Path, table_md: str, n_rows: int):
         # Markers missing — re-stub and embed the table. Don't trash
         # whatever was there; keep an archive comment.
         new = LEADERBOARD_STUB.replace(
-            f"{start}\n\n{end}",
-            f"{start}\n\n{table_md}\n\n{end}"
+            f"{start}\n\n{end}", f"{start}\n\n{table_md}\n\n{end}"
         )
         new += f"\n\n<!-- archived prior content:\n{existing}\n-->\n"
     out_md.write_text(new)
@@ -386,9 +393,13 @@ python3 scripts/bench/build_slm_leaderboard.py \\
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--manifest", required=True, type=Path,
-                    help="path to the leaderboard manifest (JSON; see "
-                         "scripts/bench/build_slm_leaderboard.py docstring)")
+    ap.add_argument(
+        "--manifest",
+        required=True,
+        type=Path,
+        help="path to the leaderboard manifest (JSON; see "
+        "scripts/bench/build_slm_leaderboard.py docstring)",
+    )
     ap.add_argument("--out-md", type=Path, default=DEFAULT_OUT_MD)
     ap.add_argument("--out-json", type=Path, default=DEFAULT_OUT_JSON)
     args = ap.parse_args()
@@ -397,22 +408,27 @@ def main():
     table = build_table(rows)
 
     args.out_json.parent.mkdir(parents=True, exist_ok=True)
-    args.out_json.write_text(json.dumps({"rows": table}, indent=2,
-                                         default=str) + "\n")
+    args.out_json.write_text(json.dumps({"rows": table}, indent=2, default=str) + "\n")
 
     if not table:
         # Empty manifest is a legitimate state (just-scaffolded). Render
         # the stub-with-empty-table; downstream readers know how to
         # interpret the "(no rows yet)" sentinel.
-        write_doc(args.out_md, "(no rows yet — run `eval_slm_full.sh` "
-                  "against a model and re-run `build_slm_leaderboard.py`.)",
-                  0)
+        write_doc(
+            args.out_md,
+            "(no rows yet — run `eval_slm_full.sh` "
+            "against a model and re-run `build_slm_leaderboard.py`.)",
+            0,
+        )
         print(f"wrote empty leaderboard → {args.out_md}", file=sys.stderr)
         return
 
     write_doc(args.out_md, render_markdown(table), len(table))
-    print(f"wrote {len(table)}-row leaderboard → {args.out_md}\n"
-          f"machine view → {args.out_json}", file=sys.stderr)
+    print(
+        f"wrote {len(table)}-row leaderboard → {args.out_md}\n"
+        f"machine view → {args.out_json}",
+        file=sys.stderr,
+    )
 
 
 if __name__ == "__main__":

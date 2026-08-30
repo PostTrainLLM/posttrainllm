@@ -91,8 +91,9 @@ def _posttrainllm_has_serve(binary: str) -> bool:
     fallback transparent.
     """
     try:
-        result = subprocess.run([binary, "serve", "--help"],
-                                 capture_output=True, timeout=5)
+        result = subprocess.run(
+            [binary, "serve", "--help"], capture_output=True, timeout=5
+        )
         # serve --help exits 2 (usage), but only if the case is wired.
         # When unwired, the main dispatch prints "unknown subcommand:
         # serve" to stderr — that's the signal we want to detect.
@@ -142,16 +143,21 @@ def find_posttrainllm_binary(explicit: str | None) -> str:
         )
 
     # If serve isn't wired into this binary, look for the smoke target alongside.
-    if os.path.basename(binary) != "posttrainllm-serve-smoke" and not _posttrainllm_has_serve(binary):
+    if os.path.basename(
+        binary
+    ) != "posttrainllm-serve-smoke" and not _posttrainllm_has_serve(binary):
         smoke = str(Path(binary).parent / "posttrainllm-serve-smoke")
         if Path(smoke).exists():
-            print(f"[lm_eval_tinygpt] '{binary}' lacks the serve subcommand — "
-                  f"falling back to {smoke}", flush=True)
+            print(
+                f"[lm_eval_tinygpt] '{binary}' lacks the serve subcommand — "
+                f"falling back to {smoke}",
+                flush=True,
+            )
             binary = smoke
         else:
             raise SystemExit(
                 f"'{binary} serve' isn't callable and {smoke} doesn't exist. "
-                "Either wire case \"serve\": into Sources/TinyGPT/TinyGPT.swift, "
+                'Either wire case "serve": into Sources/TinyGPT/TinyGPT.swift, '
                 "OR build the smoke target:\n"
                 "  xcodebuild -scheme posttrainllm-serve-smoke -derivedDataPath /tmp/posttrainllm-smoke "
                 "-configuration Release build"
@@ -165,29 +171,68 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
-    ap.add_argument("model_path", nargs="?", help="path to .tinygpt file or HF model dir")
-    ap.add_argument("--tasks", default="hellaswag,arc_easy",
-                     help="comma-separated lm-eval tasks (default: hellaswag,arc_easy)")
-    ap.add_argument("--output-path", default="bench/results",
-                     help="directory to write lm-eval JSON results (default: bench/results)")
-    ap.add_argument("--num-fewshot", type=int, default=None,
-                     help="few-shot count override (task-dependent default otherwise)")
-    ap.add_argument("--limit", type=int, default=None,
-                     help="limit per task — useful for smoke runs (e.g. --limit 10)")
-    ap.add_argument("--batch-size", default="1",
-                     help="lm-eval batch size (default: 1; posttrainllm serves one at a time)")
-    ap.add_argument("--port", type=int, default=0,
-                     help="serve port (default: auto-pick a free port)")
-    ap.add_argument("--max-context", type=int, default=None,
-                     help="cap context length below the model's native limit")
-    ap.add_argument("--posttrainllm-bin", default=None,
-                     help="path to the `posttrainllm` binary (auto-detect by default)")
-    ap.add_argument("--skip-spawn", action="store_true",
-                     help="don't spawn `posttrainllm serve` — assume one is already running")
-    ap.add_argument("--base-url", default=None,
-                     help="explicit OpenAI base URL (default: auto from --port)")
-    ap.add_argument("--lm-eval-extra", default="",
-                     help="extra args appended verbatim to the lm-eval invocation")
+    ap.add_argument(
+        "model_path", nargs="?", help="path to .tinygpt file or HF model dir"
+    )
+    ap.add_argument(
+        "--tasks",
+        default="hellaswag,arc_easy",
+        help="comma-separated lm-eval tasks (default: hellaswag,arc_easy)",
+    )
+    ap.add_argument(
+        "--output-path",
+        default="bench/results",
+        help="directory to write lm-eval JSON results (default: bench/results)",
+    )
+    ap.add_argument(
+        "--num-fewshot",
+        type=int,
+        default=None,
+        help="few-shot count override (task-dependent default otherwise)",
+    )
+    ap.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="limit per task — useful for smoke runs (e.g. --limit 10)",
+    )
+    ap.add_argument(
+        "--batch-size",
+        default="1",
+        help="lm-eval batch size (default: 1; posttrainllm serves one at a time)",
+    )
+    ap.add_argument(
+        "--port",
+        type=int,
+        default=0,
+        help="serve port (default: auto-pick a free port)",
+    )
+    ap.add_argument(
+        "--max-context",
+        type=int,
+        default=None,
+        help="cap context length below the model's native limit",
+    )
+    ap.add_argument(
+        "--posttrainllm-bin",
+        default=None,
+        help="path to the `posttrainllm` binary (auto-detect by default)",
+    )
+    ap.add_argument(
+        "--skip-spawn",
+        action="store_true",
+        help="don't spawn `posttrainllm serve` — assume one is already running",
+    )
+    ap.add_argument(
+        "--base-url",
+        default=None,
+        help="explicit OpenAI base URL (default: auto from --port)",
+    )
+    ap.add_argument(
+        "--lm-eval-extra",
+        default="",
+        help="extra args appended verbatim to the lm-eval invocation",
+    )
     args = ap.parse_args()
 
     if not args.skip_spawn and not args.model_path:
@@ -242,11 +287,16 @@ def main():
         )
         lm_eval_cmd = [
             "lm-eval",
-            "--model", "local-chat-completions",
-            "--model_args", model_args,
-            "--tasks", args.tasks,
-            "--batch_size", args.batch_size,
-            "--output_path", str(out_dir),
+            "--model",
+            "local-chat-completions",
+            "--model_args",
+            model_args,
+            "--tasks",
+            args.tasks,
+            "--batch_size",
+            args.batch_size,
+            "--output_path",
+            str(out_dir),
         ]
         if args.num_fewshot is not None:
             lm_eval_cmd += ["--num_fewshot", str(args.num_fewshot)]
@@ -263,7 +313,11 @@ def main():
 
         # lm-eval writes one JSON per task plus a summary file in the
         # output dir; surface the headline numbers.
-        summary_path = sorted(out_dir.glob("results_*.json"))[-1] if list(out_dir.glob("results_*.json")) else None
+        summary_path = (
+            sorted(out_dir.glob("results_*.json"))[-1]
+            if list(out_dir.glob("results_*.json"))
+            else None
+        )
         if summary_path:
             with summary_path.open() as f:
                 data = json.load(f)

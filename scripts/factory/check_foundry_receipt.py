@@ -106,7 +106,9 @@ def walk_private(value: Any, path: str, errors: list[str]) -> None:
             walk_private(v, f"{path}[{i}]", errors)
     elif isinstance(value, str):
         if len(value) > STRING_CEILING:
-            fail(f"oversize string at {path} ({len(value)}b > {STRING_CEILING}b)", errors)
+            fail(
+                f"oversize string at {path} ({len(value)}b > {STRING_CEILING}b)", errors
+            )
 
 
 def validate(receipt: dict[str, Any], raw_bytes: int, errors: list[str]) -> None:
@@ -154,16 +156,31 @@ def validate(receipt: dict[str, Any], raw_bytes: int, errors: list[str]) -> None
             if lifecycle.get("schema_version") != 1:
                 fail(f"local_runs[{i}].lifecycle.schema_version must be 1", errors)
             if lifecycle.get("phase") not in (
-                "created", "data-ready", "training", "trained", "evaluating",
-                "evaluated", "packaging", "packaged", "reporting", "decided", "failed",
+                "created",
+                "data-ready",
+                "training",
+                "trained",
+                "evaluating",
+                "evaluated",
+                "packaging",
+                "packaged",
+                "reporting",
+                "decided",
+                "failed",
             ):
                 fail(f"local_runs[{i}].lifecycle.phase invalid", errors)
-            if not isinstance(lifecycle.get("revision"), int) or lifecycle["revision"] < 1:
+            if (
+                not isinstance(lifecycle.get("revision"), int)
+                or lifecycle["revision"] < 1
+            ):
                 fail(f"local_runs[{i}].lifecycle.revision invalid", errors)
             failure = lifecycle.get("failure")
             if failure:
                 if lifecycle.get("phase") != "failed":
-                    fail(f"local_runs[{i}].lifecycle.failure requires failed phase", errors)
+                    fail(
+                        f"local_runs[{i}].lifecycle.failure requires failed phase",
+                        errors,
+                    )
                 if len(str(failure.get("code", ""))) > 64:
                     fail(f"local_runs[{i}].lifecycle.failure.code oversized", errors)
                 if len(str(failure.get("summary", ""))) > 240:

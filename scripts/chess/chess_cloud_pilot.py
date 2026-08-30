@@ -44,7 +44,9 @@ def parse_codex_events(stdout: str) -> dict[str, Any]:
 class CodexChessPolicy:
     revision = "codex-cli-chess-policy/v1"
 
-    def __init__(self, requested_model: str, reasoning_effort: str, timeout_seconds: int):
+    def __init__(
+        self, requested_model: str, reasoning_effort: str, timeout_seconds: int
+    ):
         if shutil.which("codex") is None:
             raise ValueError("codex executable is unavailable")
         self.policy_id = f"codex-{requested_model}-development"
@@ -89,8 +91,12 @@ class CodexChessPolicy:
             wall_ms = (time.perf_counter_ns() - started) / 1_000_000
             if completed.returncode != 0:
                 detail = completed.stderr.strip() or completed.stdout.strip()
-                self.call_metadata.append({"wall_time_ms": wall_ms, "provider_error": detail[:300]})
-                raise ValueError(f"Codex CLI failed with exit {completed.returncode}: {detail[:300]}")
+                self.call_metadata.append(
+                    {"wall_time_ms": wall_ms, "provider_error": detail[:300]}
+                )
+                raise ValueError(
+                    f"Codex CLI failed with exit {completed.returncode}: {detail[:300]}"
+                )
             metadata = parse_codex_events(completed.stdout)
             metadata["wall_time_ms"] = wall_ms
             self.call_metadata.append(metadata)
@@ -101,7 +107,9 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--suite", type=Path, required=True)
     parser.add_argument("--model", default="gpt-5.5")
-    parser.add_argument("--reasoning-effort", choices=("low", "medium", "high"), default="medium")
+    parser.add_argument(
+        "--reasoning-effort", choices=("low", "medium", "high"), default="medium"
+    )
     parser.add_argument("--timeout-seconds", type=int, default=180)
     parser.add_argument("--parallel", type=int, default=4)
     parser.add_argument("--output", type=Path, required=True)
@@ -116,8 +124,12 @@ def main() -> int:
 
     def run_one(puzzle: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         one = {**suite, "puzzles": [puzzle]}
-        policy = CodexChessPolicy(args.model, args.reasoning_effort, args.timeout_seconds)
-        return benchmark.evaluate_puzzles(policy, one)["decisions"][0], policy.call_metadata
+        policy = CodexChessPolicy(
+            args.model, args.reasoning_effort, args.timeout_seconds
+        )
+        return benchmark.evaluate_puzzles(policy, one)["decisions"][
+            0
+        ], policy.call_metadata
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.parallel) as executor:
         completed = list(executor.map(run_one, suite["puzzles"]))
@@ -139,14 +151,20 @@ def main() -> int:
             "identity_state": "mutable-alias-development-only",
             "reasoning_effort": args.reasoning_effort,
         },
-        "runtime": {"python": platform.python_version(), "codex_cli": subprocess.run(["codex", "--version"], text=True, capture_output=True, timeout=10).stdout.strip()},
+        "runtime": {
+            "python": platform.python_version(),
+            "codex_cli": subprocess.run(
+                ["codex", "--version"], text=True, capture_output=True, timeout=10
+            ).stdout.strip(),
+        },
         "aggregate": {
             "puzzles": len(decisions),
             "exact": exact,
             "exact_move_accuracy": exact / len(decisions),
             "legal": legal,
             "legal_rate": legal / len(decisions),
-            "mean_latency_ms": sum(row["latency_ms"] for row in decisions) / len(decisions),
+            "mean_latency_ms": sum(row["latency_ms"] for row in decisions)
+            / len(decisions),
             "total_wall_time_ms": sum(row["latency_ms"] for row in decisions),
         },
         "provider_calls": provider_calls,
@@ -154,7 +172,9 @@ def main() -> int:
     }
     result["trace_hash"] = benchmark.sha256_json(result)
     benchmark.write_json_exclusive(args.output, result)
-    print(json.dumps({"output": str(args.output), **result["aggregate"]}, sort_keys=True))
+    print(
+        json.dumps({"output": str(args.output), **result["aggregate"]}, sort_keys=True)
+    )
     return 0
 
 

@@ -73,7 +73,8 @@ def load_jsonl(path: Path) -> list[dict[str, Any]]:
 
 def canonical_json_bytes(value: Any) -> bytes:
     return (
-        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
+        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        + "\n"
     ).encode("utf-8")
 
 
@@ -120,7 +121,9 @@ def load_layout(path: Path | None = None) -> dict[str, Any]:
     return load_json(path or FIXTURE_DIR / "keyboard-mac-us-ansi-v1.json")
 
 
-def _layout_maps(layout: dict[str, Any]) -> tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]]:
+def _layout_maps(
+    layout: dict[str, Any],
+) -> tuple[dict[str, dict[str, Any]], dict[str, list[dict[str, Any]]]]:
     by_character: dict[str, dict[str, Any]] = {}
     neighbors: dict[str, list[dict[str, Any]]] = {}
     keys = layout["keys"]
@@ -236,7 +239,9 @@ def simulate_corruption(
         replacement = clean[start + 1] + clean[start]
     elif family == "repetition":
         positions = [
-            index for index, char in enumerate(clean) if char in by_character and not char.isspace()
+            index
+            for index, char in enumerate(clean)
+            if char in by_character and not char.isspace()
         ]
         start = deterministic_choice(positions, seed, row_id, family, "position")
         end = start + 1
@@ -340,7 +345,12 @@ def edit_operations(source: str, target: str) -> list[tuple[str, int, int, str]]
     operations: list[tuple[str, int, int, str]] = []
     i, j = len(source), len(target)
     while i or j:
-        if i and j and source[i - 1] == target[j - 1] and matrix[i][j] == matrix[i - 1][j - 1]:
+        if (
+            i
+            and j
+            and source[i - 1] == target[j - 1]
+            and matrix[i][j] == matrix[i - 1][j - 1]
+        ):
             i -= 1
             j -= 1
             continue
@@ -381,9 +391,7 @@ def protected_spans(row: dict[str, Any]) -> list[dict[str, str]]:
     return list(unique.values())
 
 
-def _aggregate_metrics(
-    paired: list[tuple[dict[str, Any], str]]
-) -> dict[str, Any]:
+def _aggregate_metrics(paired: list[tuple[dict[str, Any], str]]) -> dict[str, Any]:
     baseline_distance = 0
     candidate_distance = 0
     clean_characters = 0
@@ -412,7 +420,9 @@ def _aggregate_metrics(
         reference_ops = set(edit_operations(noisy, clean))
         prediction_ops = edit_operations(noisy, prediction)
         candidate_edits += len(prediction_ops)
-        unnecessary_edits += sum(operation not in reference_ops for operation in prediction_ops)
+        unnecessary_edits += sum(
+            operation not in reference_ops for operation in prediction_ops
+        )
 
         for span in protected_spans(row):
             protected_total += 1
@@ -430,7 +440,10 @@ def _aggregate_metrics(
         ),
         "exact_match_rate": exact / rows if rows else None,
         "residual_character_error_rate": (
-            sum(levenshtein_distance(prediction, row["clean"]) for row, prediction in paired)
+            sum(
+                levenshtein_distance(prediction, row["clean"])
+                for row, prediction in paired
+            )
             / clean_characters
             if rows
             else None
@@ -471,13 +484,17 @@ def evaluate(
         if row["id"] in predictions:
             raise ValidationError(f"duplicate prediction id: {row['id']}")
         if not isinstance(row["prediction"], str):
-            raise ValidationError(f"prediction {row['id']}: prediction must be a string")
+            raise ValidationError(
+                f"prediction {row['id']}: prediction must be a string"
+            )
         predictions[row["id"]] = row["prediction"]
 
     missing = sorted(set(fixture_by_id) - set(predictions))
     extra = sorted(set(predictions) - set(fixture_by_id))
     if missing or extra:
-        raise ValidationError(f"prediction id mismatch: missing={missing}, extra={extra}")
+        raise ValidationError(
+            f"prediction id mismatch: missing={missing}, extra={extra}"
+        )
 
     paired = [(row, predictions[row["id"]]) for row in fixture_rows]
     slices: dict[str, list[tuple[dict[str, Any], str]]] = defaultdict(list)
@@ -494,7 +511,9 @@ def evaluate(
                 "id": row["id"],
                 "baseline_edit_distance": baseline,
                 "candidate_edit_distance": candidate,
-                "error_reduction_rate": 1.0 - candidate / baseline if baseline else None,
+                "error_reduction_rate": 1.0 - candidate / baseline
+                if baseline
+                else None,
                 "exact_match": prediction == row["clean"],
                 "protected_spans_preserved": all(
                     prediction.count(span["text"]) == row["clean"].count(span["text"])
@@ -525,7 +544,9 @@ def materialize_manifest(
     seed = manifest["seed"]
     for source_position, source_id in enumerate(manifest["source_document_ids"]):
         if source_id not in source_by_id:
-            raise ValidationError(f"{manifest['manifest_id']}: unknown source {source_id}")
+            raise ValidationError(
+                f"{manifest['manifest_id']}: unknown source {source_id}"
+            )
         source = source_by_id[source_id]
         if source["split"] not in manifest["allowed_splits"]:
             raise ValidationError(
@@ -625,9 +646,7 @@ def build_distribution_report(
         },
         "synthetic_sample": {
             "config_path": "evals/autocorrect/corruption-config-v1.json",
-            "config_sha256": sha256_file(
-                FIXTURE_DIR / "corruption-config-v1.json"
-            ),
+            "config_sha256": sha256_file(FIXTURE_DIR / "corruption-config-v1.json"),
             "rows": sample_rows,
             "counts": {family: synthetic[family] for family in ERROR_FAMILIES},
             "rates": synthetic_rates,
@@ -660,10 +679,14 @@ def _validate_source_and_eval(
     for source in source_entries:
         missing = [field for field in REQUIRED_SOURCE_FIELDS if field not in source]
         if missing:
-            errors.append(f"source {source.get('id')}: missing provenance fields {missing}")
+            errors.append(
+                f"source {source.get('id')}: missing provenance fields {missing}"
+            )
         license_path = source.get("license_path")
         if license_path and not (ROOT / license_path).is_file():
-            errors.append(f"source {source.get('id')}: missing license path {license_path}")
+            errors.append(
+                f"source {source.get('id')}: missing license path {license_path}"
+            )
 
     source_path = FIXTURE_DIR / "source-documents-v1.jsonl"
     if source_entries:
@@ -681,13 +704,17 @@ def _validate_source_and_eval(
     for row in source_rows:
         required = {"id", "source_id", "split", "text"}
         if set(row) != required:
-            errors.append(f"source document {row.get('id')}: fields must be {sorted(required)}")
+            errors.append(
+                f"source document {row.get('id')}: fields must be {sorted(required)}"
+            )
             continue
         if row["id"] in source_doc_by_id:
             errors.append(f"duplicate source document id: {row['id']}")
         source_doc_by_id[row["id"]] = row
         if row["source_id"] not in source_by_id:
-            errors.append(f"source document {row['id']}: unknown source {row['source_id']}")
+            errors.append(
+                f"source document {row['id']}: unknown source {row['source_id']}"
+            )
         if row["split"] not in {"train", "development", "test"}:
             errors.append(f"source document {row['id']}: invalid split {row['split']}")
 
@@ -708,7 +735,9 @@ def _validate_source_and_eval(
             "review",
         }
         if set(row) != required:
-            errors.append(f"eval row {row.get('id')}: fields must be {sorted(required)}")
+            errors.append(
+                f"eval row {row.get('id')}: fields must be {sorted(required)}"
+            )
             continue
         if row["id"] in eval_ids:
             errors.append(f"duplicate eval id: {row['id']}")
@@ -717,12 +746,19 @@ def _validate_source_and_eval(
         if source_doc is None:
             errors.append(f"eval row {row['id']}: unknown source document")
             continue
-        if row["source_id"] != source_doc["source_id"] or row["split"] != source_doc["split"]:
-            errors.append(f"eval row {row['id']}: source-first split/provenance mismatch")
+        if (
+            row["source_id"] != source_doc["source_id"]
+            or row["split"] != source_doc["split"]
+        ):
+            errors.append(
+                f"eval row {row['id']}: source-first split/provenance mismatch"
+            )
         if row["split"] != "test":
             errors.append(f"eval row {row['id']}: frozen eval rows must be test split")
         if row["clean"] != source_doc["text"]:
-            errors.append(f"eval row {row['id']}: clean text differs from source document")
+            errors.append(
+                f"eval row {row['id']}: clean text differs from source document"
+            )
         if row["kind"] not in {"natural", "clean"}:
             errors.append(f"eval row {row['id']}: invalid kind")
         if row["kind"] == "clean" and (
@@ -735,10 +771,15 @@ def _validate_source_and_eval(
             errors.append(f"eval row {row['id']}: natural row needs an error")
         unknown = set(row["error_types"]) - allowed_families
         if unknown:
-            errors.append(f"eval row {row['id']}: unknown error families {sorted(unknown)}")
+            errors.append(
+                f"eval row {row['id']}: unknown error families {sorted(unknown)}"
+            )
         if not row["review"].get("unambiguous") or not row["review"].get("reviewed"):
             errors.append(f"eval row {row['id']}: row is not reviewed and unambiguous")
-        if len(row["noisy"].encode("utf-8")) > protocol["task"]["maximum_input_utf8_bytes"]:
+        if (
+            len(row["noisy"].encode("utf-8"))
+            > protocol["task"]["maximum_input_utf8_bytes"]
+        ):
             errors.append(f"eval row {row['id']}: exceeds protocol maximum input bytes")
         for span in protected_spans(row):
             if span["text"] not in row["clean"]:
@@ -755,7 +796,9 @@ def _validate_source_and_eval(
         if token not in test_tokens:
             errors.append(f"lexical holdout token absent from test: {token}")
         if token in train_dev_tokens:
-            errors.append(f"lexical holdout token leaked into train/development: {token}")
+            errors.append(
+                f"lexical holdout token leaked into train/development: {token}"
+            )
 
 
 def _validate_overlap(
@@ -826,12 +869,14 @@ def validate_repository() -> list[str]:
                     errors.append(f"{filename}: {field} drift")
             drop_reasons = manifest.get("drop_reasons")
             if not isinstance(drop_reasons, dict) or any(
-                not isinstance(reason, str)
-                or not isinstance(count, int)
-                or count < 0
-                for reason, count in (drop_reasons.items() if isinstance(drop_reasons, dict) else [])
+                not isinstance(reason, str) or not isinstance(count, int) or count < 0
+                for reason, count in (
+                    drop_reasons.items() if isinstance(drop_reasons, dict) else []
+                )
             ):
-                errors.append(f"{filename}: drop_reasons must map strings to non-negative counts")
+                errors.append(
+                    f"{filename}: drop_reasons must map strings to non-negative counts"
+                )
             generated, summary = materialize_manifest(manifest, source_rows, layout)
             all_generated.extend(generated)
             if manifest.get("expected") != summary:
@@ -881,9 +926,7 @@ def validate_repository() -> list[str]:
                 f"{case['expected_counts']}, actual={dict(sorted(counts.items()))}"
             )
 
-    expected_report = build_distribution_report(
-        eval_rows, source_rows, config, layout
-    )
+    expected_report = build_distribution_report(eval_rows, source_rows, config, layout)
     committed_report = load_json(FIXTURE_DIR / "distribution-report-v1.json")
     if committed_report != expected_report:
         errors.append("distribution-report-v1.json drifted from frozen inputs")
@@ -893,7 +936,10 @@ def validate_repository() -> list[str]:
         oracle_report = evaluate(eval_rows, oracle)
         if oracle_report["slices"]["natural"]["error_reduction_rate"] != 1.0:
             errors.append("oracle natural error reduction is not 1.0")
-        if oracle_report["slices"]["clean"]["clean_byte_exact_preservation_rate"] != 1.0:
+        if (
+            oracle_report["slices"]["clean"]["clean_byte_exact_preservation_rate"]
+            != 1.0
+        ):
             errors.append("oracle clean preservation is not 1.0")
     except ValidationError as exc:
         errors.append(f"oracle predictions: {exc}")
@@ -976,7 +1022,9 @@ def inspect_payload() -> dict[str, Any]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
-    subparsers.add_parser("validate", help="validate every committed foundation artifact")
+    subparsers.add_parser(
+        "validate", help="validate every committed foundation artifact"
+    )
     evaluate_parser = subparsers.add_parser(
         "evaluate", help="strictly score predictions against the frozen fixture"
     )

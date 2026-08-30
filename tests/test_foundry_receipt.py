@@ -32,8 +32,12 @@ def _load_module(name: str, path: Path):
     return mod
 
 
-receipt_mod = _load_module("foundry_receipt", ROOT / "scripts/factory/foundry_receipt.py")
-check_mod = _load_module("check_foundry_receipt", ROOT / "scripts/factory/check_foundry_receipt.py")
+receipt_mod = _load_module(
+    "foundry_receipt", ROOT / "scripts/factory/foundry_receipt.py"
+)
+check_mod = _load_module(
+    "check_foundry_receipt", ROOT / "scripts/factory/check_foundry_receipt.py"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -104,8 +108,17 @@ def _valid_receipt_base() -> dict:
         "generated_at": "2026-07-19T00:00:00+00:00",
         "source_revision": {"commit": "abc123", "branch": "main", "dirty": False},
         "ci": {"status": "not-applicable"},
-        "public_site": {"build": "pass", "live": "pass", "indexing": "pass", "freshness_window_days": 14},
-        "playground": {"bundle": "pass", "activation_event": "playground_loaded", "failure_event": "foundry_page_crash"},
+        "public_site": {
+            "build": "pass",
+            "live": "pass",
+            "indexing": "pass",
+            "freshness_window_days": 14,
+        },
+        "playground": {
+            "bundle": "pass",
+            "activation_event": "playground_loaded",
+            "failure_event": "foundry_page_crash",
+        },
         "artifacts": [],
         "local_runs": [],
         "nightly": [],
@@ -128,7 +141,9 @@ def test_validator_rejects_denylisted_field():
         r[bad_field] = "PRIVATE"
         errors: list[str] = []
         check_mod.validate(r, 500, errors)
-        assert any("private field" in e for e in errors), f"{bad_field} not rejected: {errors}"
+        assert any("private field" in e for e in errors), (
+            f"{bad_field} not rejected: {errors}"
+        )
     print("  ok: validator rejects every denylisted field")
 
 
@@ -152,7 +167,9 @@ def test_validator_rejects_auto_publication_authority():
 
 def test_validator_rejects_local_run_without_pending_approval():
     r = _valid_receipt_base()
-    r["local_runs"] = [{"run_id": "x", "publication": "published", "source_revision": "abc"}]
+    r["local_runs"] = [
+        {"run_id": "x", "publication": "published", "source_revision": "abc"}
+    ]
     errors: list[str] = []
     check_mod.validate(r, 500, errors)
     assert any("pending-approval" in e for e in errors), errors
@@ -165,9 +182,16 @@ def test_validator_rejects_quality_claim_missing_provenance():
         {
             "id": "x",
             "quality_claims": [
-                {"metric": "m", "source_revision": None, "model": "m",
-                 "eval_config": "c", "dataset_version": "v", "observed_at": "t",
-                 "artifact_location": "loc", "retention": "r"}
+                {
+                    "metric": "m",
+                    "source_revision": None,
+                    "model": "m",
+                    "eval_config": "c",
+                    "dataset_version": "v",
+                    "observed_at": "t",
+                    "artifact_location": "loc",
+                    "retention": "r",
+                }
             ],
         }
     ]
@@ -196,41 +220,124 @@ def test_build_receipt_sanitizes_private_run_folder():
         def w(name, obj):
             (run / name).write_text(json.dumps(obj, indent=2))
 
-        w("config.json", {
-            "run_id": "2026-07-19-fixture-private", "target": "fixture-private",
-            "owner_goal": "x", "base_model": {"id": "fb", "revision": "a", "precision": "bf16"},
-            "candidate": {"method": "sft-lora", "adapter_format": "tgla", "training_command": "x"},
-            "eval": {"primary": "fg", "regression": "fb", "threshold": {"primary_min": 0.9, "breadth_drop_max_pp": 3}},
-        })
-        w("dataset.json", {
-            "sources": [{"kind": "sft", "path": str(train), "rows": 10},
-                        {"kind": "heldout", "path": str(dev), "rows": 3}],
-            "processing": {"dedupe": True, "quality_filter": True, "heldout_split": "locked"},
-            "counts": {"train_rows": 10, "heldout_rows": 3, "dropped_rows": 0},
-        })
-        w("eval-baseline.json", {"model_id": "fb", "command": "x", "suite": "fg", "score": 0.5, "passed": False, "date": "2026-07-19"})
-        w("eval-candidate.json", {"model_id": "fc", "command": "x", "suite": "fg", "score": 0.9, "passed": True, "date": "2026-07-19"})
-        w("decision.json", {"decision": "retry-training", "reason": "x", "failure_reason": "x", "failure_reason_confidence": "inferred", "lesson": "x", "next_action": "x", "evidence_sources": ["report.md"], "blocked_by": ["x"]})
-        w("slice-metrics.json", {"overall": {"rows": 10}, "slices": {"easy": {"rows": 5, "baseline": 0.8, "candidate": 0.95, "delta": 0.15, "pass": True}}})
+        w(
+            "config.json",
+            {
+                "run_id": "2026-07-19-fixture-private",
+                "target": "fixture-private",
+                "owner_goal": "x",
+                "base_model": {"id": "fb", "revision": "a", "precision": "bf16"},
+                "candidate": {
+                    "method": "sft-lora",
+                    "adapter_format": "tgla",
+                    "training_command": "x",
+                },
+                "eval": {
+                    "primary": "fg",
+                    "regression": "fb",
+                    "threshold": {"primary_min": 0.9, "breadth_drop_max_pp": 3},
+                },
+            },
+        )
+        w(
+            "dataset.json",
+            {
+                "sources": [
+                    {"kind": "sft", "path": str(train), "rows": 10},
+                    {"kind": "heldout", "path": str(dev), "rows": 3},
+                ],
+                "processing": {
+                    "dedupe": True,
+                    "quality_filter": True,
+                    "heldout_split": "locked",
+                },
+                "counts": {"train_rows": 10, "heldout_rows": 3, "dropped_rows": 0},
+            },
+        )
+        w(
+            "eval-baseline.json",
+            {
+                "model_id": "fb",
+                "command": "x",
+                "suite": "fg",
+                "score": 0.5,
+                "passed": False,
+                "date": "2026-07-19",
+            },
+        )
+        w(
+            "eval-candidate.json",
+            {
+                "model_id": "fc",
+                "command": "x",
+                "suite": "fg",
+                "score": 0.9,
+                "passed": True,
+                "date": "2026-07-19",
+            },
+        )
+        w(
+            "decision.json",
+            {
+                "decision": "retry-training",
+                "reason": "x",
+                "failure_reason": "x",
+                "failure_reason_confidence": "inferred",
+                "lesson": "x",
+                "next_action": "x",
+                "evidence_sources": ["report.md"],
+                "blocked_by": ["x"],
+            },
+        )
+        w(
+            "slice-metrics.json",
+            {
+                "overall": {"rows": 10},
+                "slices": {
+                    "easy": {
+                        "rows": 5,
+                        "baseline": 0.8,
+                        "candidate": 0.95,
+                        "delta": 0.15,
+                        "pass": True,
+                    }
+                },
+            },
+        )
         (run / "trace_review.md").write_text("# Trace review (fixture)\n")
         # Minimal provenance so the receipt can read source_revision + dataset hash.
-        w("provenance.json", {
-            "schema_version": 1, "renderer": "test-fixture",
-            "git": {"commit": "abc123", "branch": "main", "dirty": False},
-            "commands": {"baseline": "x", "candidate": "x", "training": "x"},
-            "datasets": [{"path": str(train), "rows": 10, "sha256": "deadbeef"}],
-        })
+        w(
+            "provenance.json",
+            {
+                "schema_version": 1,
+                "renderer": "test-fixture",
+                "git": {"commit": "abc123", "branch": "main", "dirty": False},
+                "commands": {"baseline": "x", "candidate": "x", "training": "x"},
+                "datasets": [{"path": str(train), "rows": 10, "sha256": "deadbeef"}],
+            },
+        )
         # Private fragments
         w("prompt.json", {"prompt": "PRIVATE PROMPT TEXT"})
         w("completion.json", {"completion": "PRIVATE COMPLETION TEXT"})
-        w("checkpoint.json", {"checkpoint_bytes": "PRIVATE CHECKPOINT", "weights": "PRIVATE WEIGHTS"})
-        (run / "train.log").write_text("PRIVATE LOG WITH prompt gold completion prediction\n")
+        w(
+            "checkpoint.json",
+            {"checkpoint_bytes": "PRIVATE CHECKPOINT", "weights": "PRIVATE WEIGHTS"},
+        )
+        (run / "train.log").write_text(
+            "PRIVATE LOG WITH prompt gold completion prediction\n"
+        )
 
         receipt = receipt_mod.build_receipt(include_ci=False, runs_dir=runs)
         blob = json.dumps(receipt)
 
         # No private fixture text leaks
-        for needle in ("PRIVATE PROMPT", "PRIVATE COMPLETION", "PRIVATE CHECKPOINT", "PRIVATE WEIGHTS", "PRIVATE LOG"):
+        for needle in (
+            "PRIVATE PROMPT",
+            "PRIVATE COMPLETION",
+            "PRIVATE CHECKPOINT",
+            "PRIVATE WEIGHTS",
+            "PRIVATE LOG",
+        ):
             assert needle not in blob, f"private text leaked: {needle}"
 
         # No denylisted keys
@@ -249,6 +356,7 @@ def test_build_receipt_sanitizes_private_run_folder():
                     if r:
                         return r
             return None
+
         assert find_bad(receipt) is None, f"denylisted key leaked: {find_bad(receipt)}"
 
         # The local run IS represented (metadata only)
@@ -274,10 +382,15 @@ def test_active_lifecycle_receipt_is_read_only_and_sanitized():
         runs = Path(tmp) / "runs"
         active = runs / "active"
         active.mkdir(parents=True)
-        (active / "config.json").write_text(json.dumps({
-            "run_id": "active", "target": "fixture",
-            "candidate": {"method": "metadata-only"},
-        }))
+        (active / "config.json").write_text(
+            json.dumps(
+                {
+                    "run_id": "active",
+                    "target": "fixture",
+                    "candidate": {"method": "metadata-only"},
+                }
+            )
+        )
         active_status = {
             "schema_version": 1,
             "run_id": "active",
@@ -297,10 +410,15 @@ def test_active_lifecycle_receipt_is_read_only_and_sanitized():
 
         failed = runs / "failed"
         failed.mkdir()
-        (failed / "config.json").write_text(json.dumps({
-            "run_id": "failed", "target": "fixture",
-            "candidate": {"method": "metadata-only"},
-        }))
+        (failed / "config.json").write_text(
+            json.dumps(
+                {
+                    "run_id": "failed",
+                    "target": "fixture",
+                    "candidate": {"method": "metadata-only"},
+                }
+            )
+        )
         failed_status = {
             **active_status,
             "run_id": "failed",
@@ -319,12 +437,17 @@ def test_active_lifecycle_receipt_is_read_only_and_sanitized():
         assert by_id["active"]["source_revision"] is None
         assert by_id["active"]["publish_check"] == "not-applicable"
         assert by_id["active"]["lifecycle"]["phase"] == "training"
-        assert by_id["failed"]["lifecycle"]["failure"]["summary"] == "<redacted:unsafe-summary>"
+        assert (
+            by_id["failed"]["lifecycle"]["failure"]["summary"]
+            == "<redacted:unsafe-summary>"
+        )
         assert "PRIVATE PROMPT" not in json.dumps(receipt)
         errors: list[str] = []
         check_mod.validate(receipt, len(json.dumps(receipt).encode()), errors)
         assert not errors, errors
-    print("  ok: active lifecycle receipt stays read-only and sanitizes failure metadata")
+    print(
+        "  ok: active lifecycle receipt stays read-only and sanitizes failure metadata"
+    )
 
 
 def test_build_receipt_blocks_quality_claims_without_source_revision():
@@ -338,37 +461,70 @@ def test_build_receipt_blocks_quality_claims_without_source_revision():
         receipt_mod.ROOT = tmp
         try:
             (tmp / "specialists").mkdir()
-            (tmp / "specialists/registry.json").write_text(json.dumps({
-                "version": 1, "updated": "2026-07-19",
-                "packages": [{
-                    "id": "test-pkg", "kind": "mac-safetensors-hf",
-                    "package_path": "specialists/test-pkg",
-                    "artifact_path": "hf://models/posttrainllm/test-pkg",
-                    "storage": {"primary": "huggingface_hub", "repo_id": "posttrainllm/test-pkg", "status": "weights-published"},
-                    "base": "Qwen/Qwen3-4B-Instruct-2507", "status": "release-ready-weights",
-                    "model_card": "specialists/test-pkg/model_card.md",
-                    "eval_report": "specialists/test-pkg/eval_report.json",
-                    "prompt": "specialists/test-pkg/prompt.md",
-                    "lock": "specialists/test-pkg/tinygpt.lock.json",
-                }],
-            }))
+            (tmp / "specialists/registry.json").write_text(
+                json.dumps(
+                    {
+                        "version": 1,
+                        "updated": "2026-07-19",
+                        "packages": [
+                            {
+                                "id": "test-pkg",
+                                "kind": "mac-safetensors-hf",
+                                "package_path": "specialists/test-pkg",
+                                "artifact_path": "hf://models/posttrainllm/test-pkg",
+                                "storage": {
+                                    "primary": "huggingface_hub",
+                                    "repo_id": "posttrainllm/test-pkg",
+                                    "status": "weights-published",
+                                },
+                                "base": "Qwen/Qwen3-4B-Instruct-2507",
+                                "status": "release-ready-weights",
+                                "model_card": "specialists/test-pkg/model_card.md",
+                                "eval_report": "specialists/test-pkg/eval_report.json",
+                                "prompt": "specialists/test-pkg/prompt.md",
+                                "lock": "specialists/test-pkg/tinygpt.lock.json",
+                            }
+                        ],
+                    }
+                )
+            )
             pkg_dir = tmp / "specialists/test-pkg"
             pkg_dir.mkdir()
-            (pkg_dir / "eval_report.json").write_text(json.dumps({
-                "id": "test-pkg", "updated": "2026-07-19",
-                "artifact": "hf://models/posttrainllm/test-pkg",
-                "base": "Qwen/Qwen3-4B-Instruct-2507", "precision": "bf16",
-                # NOTE: no source_revision field
-                "scores": [{"suite": "file_ops_hard_gate", "n": 12, "stock_4b": 0.58, "distilled_4b": 1.0, "source": "docs/x.md"}],
-                "verdict": "x", "caveats": [],
-            }))
+            (pkg_dir / "eval_report.json").write_text(
+                json.dumps(
+                    {
+                        "id": "test-pkg",
+                        "updated": "2026-07-19",
+                        "artifact": "hf://models/posttrainllm/test-pkg",
+                        "base": "Qwen/Qwen3-4B-Instruct-2507",
+                        "precision": "bf16",
+                        # NOTE: no source_revision field
+                        "scores": [
+                            {
+                                "suite": "file_ops_hard_gate",
+                                "n": 12,
+                                "stock_4b": 0.58,
+                                "distilled_4b": 1.0,
+                                "source": "docs/x.md",
+                            }
+                        ],
+                        "verdict": "x",
+                        "caveats": [],
+                    }
+                )
+            )
             (pkg_dir / "tinygpt.lock.json").write_text("{}")
 
             receipt = receipt_mod.build_receipt(include_ci=False, runs_dir=None)
             art = receipt["artifacts"][0]
             assert art["id"] == "test-pkg"
-            assert art["quality_claims"] == [], f"expected no claims, got {art['quality_claims']}"
-            assert any("test-pkg" in b and "provenance-complete" in b for b in receipt["blocked"]), receipt["blocked"]
+            assert art["quality_claims"] == [], (
+                f"expected no claims, got {art['quality_claims']}"
+            )
+            assert any(
+                "test-pkg" in b and "provenance-complete" in b
+                for b in receipt["blocked"]
+            ), receipt["blocked"]
         finally:
             receipt_mod.ROOT = orig_root
     print("  ok: build_receipt blocks quality_claims missing source_revision")

@@ -5,25 +5,113 @@
   "revision": "1",
   "title": "Qwen3 4B Instruct 2507 4-bit",
   "track": "generalist",
-  "adapter": {"kind": "local-package", "package_id": "mlx-community/Qwen3-4B-Instruct-2507-4bit@50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b", "command": "mlx_lm.generate with the frozen Pace classification instruction"},
+  "adapter": {
+    "kind": "local-package",
+    "package_id": "mlx-community/Qwen3-4B-Instruct-2507-4bit@50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b",
+    "command": "mlx_lm.generate with the frozen Pace classification instruction"
+  },
   "resources": [
-    {"name": "latency_cold_end_to_end_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
-    {"name": "latency_warm_end_to_end_ms", "state": "measured", "value": 211, "unit": "ms", "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md"},
-    {"name": "latency_model_only_ms", "state": "missing", "value": null, "unit": "ms", "source": null},
-    {"name": "active_parameters", "state": "historical", "value": 4000000000, "unit": "parameters", "source": "Qwen3-4B model family designation"},
-    {"name": "resident_bytes_peak", "state": "missing", "value": null, "unit": "bytes", "source": null},
-    {"name": "installed_artifact_bytes", "state": "measured", "value": 2279002112, "unit": "bytes", "source": "dereferenced pinned Hugging Face snapshot disk usage"},
-    {"name": "shared_base_bytes", "state": "not-applicable", "value": null, "unit": "bytes", "source": null},
-    {"name": "adapter_bytes", "state": "not-applicable", "value": null, "unit": "bytes", "source": null},
-    {"name": "energy_joules", "state": "missing", "value": null, "unit": "joules", "source": null},
-    {"name": "training_time_seconds", "state": "not-applicable", "value": null, "unit": "seconds", "source": null},
-    {"name": "evaluation_time_seconds", "state": "missing", "value": null, "unit": "seconds", "source": null},
-    {"name": "local_cost_usd", "state": "not-applicable", "value": null, "unit": "usd", "source": null},
-    {"name": "external_cost_usd", "state": "not-applicable", "value": null, "unit": "usd", "source": null}
+    {
+      "name": "latency_cold_end_to_end_ms",
+      "state": "missing",
+      "value": null,
+      "unit": "ms",
+      "source": null
+    },
+    {
+      "name": "latency_warm_end_to_end_ms",
+      "state": "measured",
+      "value": 211,
+      "unit": "ms",
+      "source": "evals/everyday-benchmark/pace-intent-sealed-v1.md"
+    },
+    {
+      "name": "latency_model_only_ms",
+      "state": "missing",
+      "value": null,
+      "unit": "ms",
+      "source": null
+    },
+    {
+      "name": "active_parameters",
+      "state": "historical",
+      "value": 4000000000,
+      "unit": "parameters",
+      "source": "Qwen3-4B model family designation"
+    },
+    {
+      "name": "resident_bytes_peak",
+      "state": "missing",
+      "value": null,
+      "unit": "bytes",
+      "source": null
+    },
+    {
+      "name": "installed_artifact_bytes",
+      "state": "measured",
+      "value": 2279002112,
+      "unit": "bytes",
+      "source": "dereferenced pinned Hugging Face snapshot disk usage"
+    },
+    {
+      "name": "shared_base_bytes",
+      "state": "not-applicable",
+      "value": null,
+      "unit": "bytes",
+      "source": null
+    },
+    {
+      "name": "adapter_bytes",
+      "state": "not-applicable",
+      "value": null,
+      "unit": "bytes",
+      "source": null
+    },
+    {
+      "name": "energy_joules",
+      "state": "missing",
+      "value": null,
+      "unit": "joules",
+      "source": null
+    },
+    {
+      "name": "training_time_seconds",
+      "state": "not-applicable",
+      "value": null,
+      "unit": "seconds",
+      "source": null
+    },
+    {
+      "name": "evaluation_time_seconds",
+      "state": "missing",
+      "value": null,
+      "unit": "seconds",
+      "source": null
+    },
+    {
+      "name": "local_cost_usd",
+      "state": "not-applicable",
+      "value": null,
+      "unit": "usd",
+      "source": null
+    },
+    {
+      "name": "external_cost_usd",
+      "state": "not-applicable",
+      "value": null,
+      "unit": "usd",
+      "source": null
+    }
   ],
-  "disclosure": {"base_model": "mlx-community/Qwen3-4B-Instruct-2507-4bit@50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b", "benchmark_data_access": "sealed instances provided only at evaluation time"},
+  "disclosure": {
+    "base_model": "mlx-community/Qwen3-4B-Instruct-2507-4bit@50d427756c6b1b2fe0c0a10f67fbda1fc8e82c1b",
+    "benchmark_data_access": "sealed instances provided only at evaluation time"
+  },
   "evidence": [
-    {"kind": "receipt", "ref": "evals/everyday-benchmark/receipts/qwen3-4b-intent-sealed-v1.json"},
-    {"kind": "source", "ref": "docs/sessions/planner-lock-2026-06-19.md"}
+    {
+      "kind": "receipt",
+      "ref": "evals/everyday-benchmark/receipts/qwen3-4b-intent-sealed-v1.json"
+    },
+    { "kind": "source", "ref": "docs/sessions/planner-lock-2026-06-19.md" }
   ]
 }

@@ -143,7 +143,9 @@ def check_path(path: Path, allow_report_only: bool) -> list[str]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     p.add_argument("paths", nargs="+", help="report-card.json file(s) to validate")
     p.add_argument(
         "--allow-report-only",

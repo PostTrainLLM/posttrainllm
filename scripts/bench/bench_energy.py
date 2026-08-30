@@ -17,6 +17,7 @@ Real run:
     sudo python3 scripts/bench/bench_energy.py --model <m> --label qwen3-4b \\
         --jsonl docs/research/data/energy.jsonl
 """
+
 import argparse
 import json
 import subprocess
@@ -51,8 +52,19 @@ def sample_power_mw():
     """One powermetrics read → combined package power in watts (or None)."""
     try:
         out = subprocess.run(
-            ["powermetrics", "-n", "1", "-i", "200", "--samplers", "cpu_power,gpu_power"],
-            capture_output=True, text=True, timeout=10).stdout
+            [
+                "powermetrics",
+                "-n",
+                "1",
+                "-i",
+                "200",
+                "--samplers",
+                "cpu_power,gpu_power",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        ).stdout
     except Exception:
         return None
     mw = 0.0
@@ -62,7 +74,8 @@ def sample_power_mw():
         if "combined power" in low or "package power" in low or "power:" in low:
             try:
                 val = float(line.split(":")[1].strip().split()[0])
-                mw += val; found = True
+                mw += val
+                found = True
             except Exception:
                 pass
     return mw / 1000.0 if found else None
@@ -79,28 +92,52 @@ def run(args):
                 samples.append({"t": time.time() - t0, "power_w": w})
             time.sleep(0.2)
 
-    th = threading.Thread(target=poll, daemon=True); th.start()
+    th = threading.Thread(target=poll, daemon=True)
+    th.start()
     # decode workload via bench_decode.py
     out = subprocess.run(
-        [sys.executable, str(HERE / "bench_decode.py"),
-         "--url", args.url, "--model", args.model,
-         "--n", str(args.n), "--warm", "1", "--max-tokens", str(args.max_tokens)],
-        capture_output=True, text=True, timeout=600).stdout
-    stop.set(); th.join(timeout=1)
+        [
+            sys.executable,
+            str(HERE / "bench_decode.py"),
+            "--url",
+            args.url,
+            "--model",
+            args.model,
+            "--n",
+            str(args.n),
+            "--warm",
+            "1",
+            "--max-tokens",
+            str(args.max_tokens),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=600,
+    ).stdout
+    stop.set()
+    th.join(timeout=1)
     rec = json.loads(out)
     # bench_decode.py emits inter-token-latency count (itl_ms.n = tokens − n_runs)
     # across n_runs; total generated tokens = itl_ms.n + n_runs.
     n_tokens = rec.get("itl_ms", {}).get("n", 0) + rec.get("n_runs", 0)
     jpt = energy_per_token(samples, n_tokens)
-    row = {"label": args.label or args.model, "metric": "j_per_token",
-           "j_per_token": jpt, "n_tokens": n_tokens,
-           "joules": joules(samples), "power_samples": len(samples)}
+    row = {
+        "label": args.label or args.model,
+        "metric": "j_per_token",
+        "j_per_token": jpt,
+        "n_tokens": n_tokens,
+        "joules": joules(samples),
+        "power_samples": len(samples),
+    }
     print(json.dumps(row, indent=2))
     if not samples:
-        print("warning: no power samples — run under sudo (see setup_powermetrics_sudoers.sh)",
-              file=sys.stderr)
+        print(
+            "warning: no power samples — run under sudo (see setup_powermetrics_sudoers.sh)",
+            file=sys.stderr,
+        )
     if args.jsonl:
-        p = Path(args.jsonl); p.parent.mkdir(parents=True, exist_ok=True)
+        p = Path(args.jsonl)
+        p.parent.mkdir(parents=True, exist_ok=True)
         with p.open("a") as f:
             f.write(json.dumps(row) + "\n")
     return 0
@@ -108,7 +145,11 @@ def run(args):
 
 def self_test():
     # constant 10 W for 2 s ⇒ 20 J; over 100 tokens ⇒ 0.2 J/tok
-    s = [{"t": 0.0, "power_w": 10.0}, {"t": 1.0, "power_w": 10.0}, {"t": 2.0, "power_w": 10.0}]
+    s = [
+        {"t": 0.0, "power_w": 10.0},
+        {"t": 1.0, "power_w": 10.0},
+        {"t": 2.0, "power_w": 10.0},
+    ]
     assert abs(joules(s) - 20.0) < 1e-9, joules(s)
     assert abs(energy_per_token(s, 100) - 0.2) < 1e-9
     # ramp 0→10 W over 1 s ⇒ trapezoid 5 J

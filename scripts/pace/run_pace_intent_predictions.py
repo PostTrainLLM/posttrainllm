@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 import sys
+
 # research/ is a sibling group under scripts/; add it to the import path.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.joinpath("research")))
 import check_everyday_benchmark as checker
@@ -69,12 +70,16 @@ def normalize_label(raw: str) -> str | None:
     return matches[0] if len(matches) == 1 else None
 
 
-def summarize_specialist_predictions(predictions: list[dict[str, Any]]) -> dict[str, Any]:
+def summarize_specialist_predictions(
+    predictions: list[dict[str, Any]],
+) -> dict[str, Any]:
     if len(predictions) != len(LABELS):
         raise ValueError(f"specialist must emit all {len(LABELS)} class probabilities")
     tools = [item.get("tool") for item in predictions]
     if set(tools) != set(LABELS):
-        raise ValueError("specialist probabilities must cover every Pace label exactly once")
+        raise ValueError(
+            "specialist probabilities must cover every Pace label exactly once"
+        )
     raw_probabilities = [item.get("prob") for item in predictions]
     if any(
         not isinstance(probability, (int, float)) or isinstance(probability, bool)
@@ -82,14 +87,21 @@ def summarize_specialist_predictions(predictions: list[dict[str, Any]]) -> dict[
     ):
         raise ValueError("specialist probabilities must be numeric")
     probabilities = [float(probability) for probability in raw_probabilities]
-    if any(not math.isfinite(probability) or probability < 0 for probability in probabilities):
+    if any(
+        not math.isfinite(probability) or probability < 0
+        for probability in probabilities
+    ):
         raise ValueError("specialist probabilities must be finite and non-negative")
     total = sum(probabilities)
     if total <= 0:
         raise ValueError("specialist probabilities must have positive mass")
     normalized = [probability / total for probability in probabilities]
     ordered = sorted(normalized, reverse=True)
-    entropy = -sum(probability * math.log(probability) for probability in normalized if probability > 0)
+    entropy = -sum(
+        probability * math.log(probability)
+        for probability in normalized
+        if probability > 0
+    )
     return {
         "revision": "pace-softmax-summary-v1",
         "max_probability": ordered[0],
@@ -105,7 +117,15 @@ def run_specialist(
 ) -> list[tuple[str | None, float, str | None, dict[str, Any] | None]]:
     started = time.perf_counter()
     completed = subprocess.run(
-        [str(args.binary), "extract", str(args.model), "--stdin", "--json", "--top-k", str(len(LABELS))],
+        [
+            str(args.binary),
+            "extract",
+            str(args.model),
+            "--stdin",
+            "--json",
+            "--top-k",
+            str(len(LABELS)),
+        ],
         input="\n".join(item["input_text"] for item in instances) + "\n",
         capture_output=True,
         text=True,
@@ -115,17 +135,32 @@ def run_specialist(
     elapsed_ms = (time.perf_counter() - started) * 1000
     if completed.returncode != 0:
         raise RuntimeError(f"specialist backend failed: {completed.stderr[-2000:]}")
-    rows = [json.loads(line) for line in completed.stdout.splitlines() if line.strip().startswith("{")]
+    rows = [
+        json.loads(line)
+        for line in completed.stdout.splitlines()
+        if line.strip().startswith("{")
+    ]
     if len(rows) != len(instances):
-        raise RuntimeError(f"specialist emitted {len(rows)} rows for {len(instances)} instances")
+        raise RuntimeError(
+            f"specialist emitted {len(rows)} rows for {len(instances)} instances"
+        )
     fallback_ms = elapsed_ms / len(instances)
     output = []
     for row in rows:
         predictions = row.get("predictions") or []
         label = predictions[0].get("tool") if predictions else None
         error = None if label in LABELS else "backend returned no valid label"
-        signals = summarize_specialist_predictions(predictions) if error is None else None
-        output.append((label if error is None else None, float(row.get("latency_ms", fallback_ms)), error, signals))
+        signals = (
+            summarize_specialist_predictions(predictions) if error is None else None
+        )
+        output.append(
+            (
+                label if error is None else None,
+                float(row.get("latency_ms", fallback_ms)),
+                error,
+                signals,
+            )
+        )
     return output
 
 
@@ -139,10 +174,15 @@ def run_qwen(
     output = []
     for item in instances:
         messages = [
-            {"role": "system", "content": INSTRUCTIONS + "\nRespond with only the label."},
+            {
+                "role": "system",
+                "content": INSTRUCTIONS + "\nRespond with only the label.",
+            },
             {"role": "user", "content": item["input_text"]},
         ]
-        prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        prompt = tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
         started = time.perf_counter()
         raw = mlx_lm.generate(model, tokenizer, prompt=prompt, max_tokens=12)
         latency_ms = (time.perf_counter() - started) * 1000
@@ -182,7 +222,7 @@ def run_codex(
     prompt = (
         INSTRUCTIONS
         + "\nClassify every item below independently. Return one prediction for every id, in the same order. "
-          "Do not inspect files, use tools, or explain.\n\n"
+        "Do not inspect files, use tools, or explain.\n\n"
         + json.dumps(payload, ensure_ascii=False)
     )
     with tempfile.TemporaryDirectory(prefix="pace-intent-codex-") as raw_tmp:
@@ -191,22 +231,45 @@ def run_codex(
         response_path = tmp / "response.json"
         schema_path.write_text(json.dumps(codex_schema()), encoding="utf-8")
         command = [
-            "codex", "exec", "-m", args.model, "-c", f"model_reasoning_effort={args.reasoning}",
-            "--skip-git-repo-check", "--ephemeral", "-s", "read-only",
-            "--output-schema", str(schema_path), "-o", str(response_path), "-",
+            "codex",
+            "exec",
+            "-m",
+            args.model,
+            "-c",
+            f"model_reasoning_effort={args.reasoning}",
+            "--skip-git-repo-check",
+            "--ephemeral",
+            "-s",
+            "read-only",
+            "--output-schema",
+            str(schema_path),
+            "-o",
+            str(response_path),
+            "-",
         ]
         started = time.perf_counter()
-        completed = subprocess.run(command, input=prompt, capture_output=True, text=True, timeout=args.timeout, check=False)
+        completed = subprocess.run(
+            command,
+            input=prompt,
+            capture_output=True,
+            text=True,
+            timeout=args.timeout,
+            check=False,
+        )
         latency_ms = (time.perf_counter() - started) * 1000
         if completed.returncode != 0:
             raise RuntimeError(f"Codex backend failed: {completed.stderr[-3000:]}")
         response = json.loads(response_path.read_text(encoding="utf-8"))
     rows = response.get("predictions")
     if not isinstance(rows, list) or len(rows) != len(instances):
-        raise RuntimeError(f"Codex returned {len(rows) if isinstance(rows, list) else 'invalid'} predictions")
+        raise RuntimeError(
+            f"Codex returned {len(rows) if isinstance(rows, list) else 'invalid'} predictions"
+        )
     by_id = {row.get("id"): row.get("label") for row in rows if isinstance(row, dict)}
     if set(by_id) != {item["id"] for item in instances}:
-        raise RuntimeError("Codex prediction ids do not exactly match the sealed instances")
+        raise RuntimeError(
+            "Codex prediction ids do not exactly match the sealed instances"
+        )
     amortized_ms = latency_ms / len(instances)
     return [(by_id[item["id"]], amortized_ms, None, None) for item in instances]
 
@@ -217,7 +280,11 @@ def run_apple_fm(
 ) -> list[tuple[str | None, float, str | None, dict[str, Any] | None]]:
     completed = subprocess.run(
         [str(args.bridge)],
-        input="\n".join(json.dumps({"id": item["id"], "text": item["input_text"]}) for item in instances) + "\n",
+        input="\n".join(
+            json.dumps({"id": item["id"], "text": item["input_text"]})
+            for item in instances
+        )
+        + "\n",
         capture_output=True,
         text=True,
         timeout=args.timeout,
@@ -227,26 +294,41 @@ def run_apple_fm(
         raise RuntimeError(f"Apple FM backend failed: {completed.stderr[-2000:]}")
     rows = [json.loads(line) for line in completed.stdout.splitlines() if line.strip()]
     if len(rows) != len(instances):
-        raise RuntimeError(f"Apple FM emitted {len(rows)} rows for {len(instances)} instances")
+        raise RuntimeError(
+            f"Apple FM emitted {len(rows)} rows for {len(instances)} instances"
+        )
     by_id = {row.get("id"): row for row in rows}
     output = []
     for item in instances:
         row = by_id.get(item["id"], {})
         label = row.get("label") if row.get("label") in LABELS else None
-        error = row.get("error") or (None if label is not None else "backend returned no valid label")
-        output.append((label if error is None else None, float(row.get("latency_ms", 0)), error, None))
+        error = row.get("error") or (
+            None if label is not None else "backend returned no valid label"
+        )
+        output.append(
+            (
+                label if error is None else None,
+                float(row.get("latency_ms", 0)),
+                error,
+                None,
+            )
+        )
     return output
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--backend", required=True, choices=("specialist", "qwen", "codex", "apple-fm"))
+    parser.add_argument(
+        "--backend", required=True, choices=("specialist", "qwen", "codex", "apple-fm")
+    )
     parser.add_argument("--instances", required=True, type=Path)
     parser.add_argument("--entry", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--repetitions", type=int, default=2)
     parser.add_argument("--model", type=str)
-    parser.add_argument("--binary", type=Path, default=Path("native-mac/.build/release/posttrainllm"))
+    parser.add_argument(
+        "--binary", type=Path, default=Path("native-mac/.build/release/posttrainllm")
+    )
     parser.add_argument("--bridge", type=Path)
     parser.add_argument("--reasoning", default="medium")
     parser.add_argument("--timeout", type=int, default=900)
@@ -269,7 +351,9 @@ def main() -> int:
         outputs = []
         for pass_index in range(1, args.repetitions + 1):
             rows = backend(args, instances["instances"])
-            for item, (label, latency_ms, error, decision_signals) in zip(instances["instances"], rows):
+            for item, (label, latency_ms, error, decision_signals) in zip(
+                instances["instances"], rows
+            ):
                 output = {
                     "instance_id": item["id"],
                     "pass_index": pass_index,
@@ -288,7 +372,10 @@ def main() -> int:
             "revision": "1",
             "task_ref": instances["task_ref"],
             "entry_ref": {"id": entry["entry_id"], "revision": entry["revision"]},
-            "instance_set_ref": {"id": instances["instance_set_id"], "revision": instances["revision"]},
+            "instance_set_ref": {
+                "id": instances["instance_set_id"],
+                "revision": instances["revision"],
+            },
             "outputs": outputs,
         }
         errors: list[str] = []
@@ -299,7 +386,13 @@ def main() -> int:
             raise ValueError(f"refusing to overwrite {args.out}")
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
-    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError, json.JSONDecodeError) as exc:
+    except (
+        OSError,
+        ValueError,
+        RuntimeError,
+        subprocess.SubprocessError,
+        json.JSONDecodeError,
+    ) as exc:
         print(f"pace-intent predictions failed: {exc}")
         return 1
     print(f"pace-intent predictions: wrote {args.out} ({len(outputs)} outputs)")

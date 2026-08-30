@@ -38,7 +38,11 @@ def normalize_sql(sql: str) -> str:
 
 def normalize_schema(schema: str, max_chars: int) -> str:
     schema = re.sub(r"\s+", " ", schema.strip())
-    return schema[:max_chars].rsplit(";", 1)[0] + ";" if len(schema) > max_chars else schema
+    return (
+        schema[:max_chars].rsplit(";", 1)[0] + ";"
+        if len(schema) > max_chars
+        else schema
+    )
 
 
 def prompt(schema: str, question: str, evidence: str = "") -> str:
@@ -98,7 +102,9 @@ def weighted_copy(row: dict, repeat: int, suffix: str) -> list[dict]:
     return out
 
 
-def load_bird_rows(limit: int, max_prompt_chars: int, max_schema_chars: int) -> list[dict]:
+def load_bird_rows(
+    limit: int, max_prompt_chars: int, max_schema_chars: int
+) -> list[dict]:
     ds = load_dataset("xu3kev/BIRD-SQL-data-train", split="train")
     rows: list[dict] = []
     for idx, row in enumerate(ds):
@@ -134,7 +140,10 @@ def load_bird_rows(limit: int, max_prompt_chars: int, max_schema_chars: int) -> 
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("--bmc2-train", default="evals/sql-public-bmc2-train-v4-joinweighted/train.jsonl")
+    p.add_argument(
+        "--bmc2-train",
+        default="evals/sql-public-bmc2-train-v4-joinweighted/train.jsonl",
+    )
     p.add_argument("--out", default="evals/sql-public-bird-bmc2-v5")
     p.add_argument("--bird-limit", type=int, default=4096)
     p.add_argument("--bmc2-limit", type=int, default=4096)
@@ -143,7 +152,9 @@ def main() -> None:
     args = p.parse_args()
 
     bmc2_rows = read_jsonl(Path(args.bmc2_train))[: args.bmc2_limit]
-    bird_rows = load_bird_rows(args.bird_limit, args.max_prompt_chars, args.max_schema_chars)
+    bird_rows = load_bird_rows(
+        args.bird_limit, args.max_prompt_chars, args.max_schema_chars
+    )
     rows = bmc2_rows + bird_rows
 
     out = Path(args.out)
@@ -167,7 +178,9 @@ def main() -> None:
             "routing_required": True,
         },
     }
-    (out / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    (out / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n"
+    )
     print(f"wrote {len(rows)} rows to {out / 'train.jsonl'}")
     print(json.dumps(manifest["source_counts"], sort_keys=True))
     print(json.dumps(manifest["curriculum_counts"], sort_keys=True))

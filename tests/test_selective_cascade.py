@@ -12,7 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 # scripts/ is grouped into topic subdirs; each is a flat import surface.
-for _d in [ROOT / "scripts", *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir())]:
+for _d in [
+    ROOT / "scripts",
+    *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir()),
+]:
     sys.path.insert(0, str(_d))
 
 import calibrate_selective_cascade as cascade  # noqa: E402
@@ -23,8 +26,12 @@ import run_pace_intent_predictions as pace_predictions  # noqa: E402
 POLICY_PATH = ROOT / "configs/everyday-benchmark/policies/pace-intent-selective-v1.json"
 TASK_PATH = ROOT / "configs/everyday-benchmark/tasks/pace-intent-routing-v1.json"
 SUITE_PATH = ROOT / "configs/everyday-benchmark/suite-v1.json"
-INSTANCES_PATH = ROOT / "evals/everyday-benchmark/fixtures/pace-intent-public-dev-v1.json"
-SYSTEM_ENTRY_PATH = ROOT / "configs/everyday-benchmark/entries/pace-intent-v8-qwen-cascade-v1.json"
+INSTANCES_PATH = (
+    ROOT / "evals/everyday-benchmark/fixtures/pace-intent-public-dev-v1.json"
+)
+SYSTEM_ENTRY_PATH = (
+    ROOT / "configs/everyday-benchmark/entries/pace-intent-v8-qwen-cascade-v1.json"
+)
 
 
 def load(path: Path) -> dict:
@@ -46,7 +53,11 @@ def prediction_set(
     outputs = []
     for index, instance in enumerate(instances["instances"]):
         is_correct = index < specialist_correct or entry_id != "pace-intent-router-v8"
-        predicted = instance["expected_label"] if is_correct else wrong_label(instance["expected_label"], labels)
+        predicted = (
+            instance["expected_label"]
+            if is_correct
+            else wrong_label(instance["expected_label"], labels)
+        )
         for pass_index in (1, 2):
             output = {
                 "instance_id": instance["id"],
@@ -73,7 +84,10 @@ def prediction_set(
         "revision": "1",
         "task_ref": instances["task_ref"],
         "entry_ref": {"id": entry_id, "revision": "1"},
-        "instance_set_ref": {"id": instances["instance_set_id"], "revision": instances["revision"]},
+        "instance_set_ref": {
+            "id": instances["instance_set_id"],
+            "revision": instances["revision"],
+        },
         "outputs": outputs,
     }
 
@@ -142,8 +156,8 @@ def test_prediction_signal_contract_is_optional_but_fail_closed_when_present():
 
 
 def test_feasible_policy_composes_graph_compatible_system_predictions():
-    policy, task, instances, specialist, fallback, system_entry, report = calibrate_fixture(
-        specialist_correct=26
+    policy, task, instances, specialist, fallback, system_entry, report = (
+        calibrate_fixture(specialist_correct=26)
     )
     assert report["decision"] == "calibrated"
     assert report["selected_policy"] is not None
@@ -181,16 +195,20 @@ def test_feasible_policy_composes_graph_compatible_system_predictions():
 
 
 def test_infeasible_policy_reports_reject_and_emits_no_composition():
-    policy, _, instances, specialist, fallback, system_entry, report = calibrate_fixture(
-        specialist_correct=14,
-        separable_signals=False,
+    policy, _, instances, specialist, fallback, system_entry, report = (
+        calibrate_fixture(
+            specialist_correct=14,
+            separable_signals=False,
+        )
     )
     assert report["decision"] == "no-feasible-policy"
     assert report["selected_policy"] is None
     assert report["selective_gate_candidate_count"] == 0
     assert "specialist_accuracy_min" in report["best_observed"]["gate_failures"]
     try:
-        cascade.compose_system_predictions(policy, report, instances, specialist, fallback, system_entry)
+        cascade.compose_system_predictions(
+            policy, report, instances, specialist, fallback, system_entry
+        )
     except ValueError as exc:
         assert "without a feasible policy" in str(exc)
     else:
@@ -198,10 +216,14 @@ def test_infeasible_policy_reports_reject_and_emits_no_composition():
 
 
 def test_calibration_refuses_sealed_layer():
-    policy, task, instances, specialist, fallback, system_entry = inputs(specialist_correct=26)
+    policy, task, instances, specialist, fallback, system_entry = inputs(
+        specialist_correct=26
+    )
     instances["layer"] = "sealed-official"
     try:
-        cascade.assert_identity(policy, task, instances, specialist, fallback, system_entry)
+        cascade.assert_identity(
+            policy, task, instances, specialist, fallback, system_entry
+        )
     except ValueError as exc:
         assert "refuses non-public" in str(exc)
     else:
@@ -209,7 +231,9 @@ def test_calibration_refuses_sealed_layer():
 
 
 def test_cli_writes_report_and_predictions_without_models():
-    policy, task, instances, specialist, fallback, system_entry = inputs(specialist_correct=26)
+    policy, task, instances, specialist, fallback, system_entry = inputs(
+        specialist_correct=26
+    )
     with tempfile.TemporaryDirectory() as raw_tmp:
         tmp = Path(raw_tmp)
         paths = {}
@@ -229,16 +253,26 @@ def test_cli_writes_report_and_predictions_without_models():
         command = [
             sys.executable,
             str(ROOT / "scripts/research/calibrate_selective_cascade.py"),
-            "--policy", str(paths["policy"]),
-            "--task", str(paths["task"]),
-            "--instances", str(paths["instances"]),
-            "--specialist-predictions", str(paths["specialist"]),
-            "--fallback-predictions", str(paths["fallback"]),
-            "--system-entry", str(paths["system"]),
-            "--out-report", str(report_path),
-            "--out-predictions", str(predictions_path),
+            "--policy",
+            str(paths["policy"]),
+            "--task",
+            str(paths["task"]),
+            "--instances",
+            str(paths["instances"]),
+            "--specialist-predictions",
+            str(paths["specialist"]),
+            "--fallback-predictions",
+            str(paths["fallback"]),
+            "--system-entry",
+            str(paths["system"]),
+            "--out-report",
+            str(report_path),
+            "--out-predictions",
+            str(predictions_path),
         ]
-        completed = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
+        completed = subprocess.run(
+            command, cwd=ROOT, capture_output=True, text=True, check=False
+        )
         assert completed.returncode == 0, completed.stderr
         report = load(report_path)
         assert report["decision"] == "calibrated"
@@ -248,7 +282,11 @@ def test_cli_writes_report_and_predictions_without_models():
 
 
 def main() -> int:
-    tests = [value for name, value in sorted(globals().items()) if name.startswith("test_") and callable(value)]
+    tests = [
+        value
+        for name, value in sorted(globals().items())
+        if name.startswith("test_") and callable(value)
+    ]
     for test in tests:
         test()
         print(f"  ok: {test.__name__}")

@@ -54,6 +54,7 @@ Usage:
     --fixtures-dir evals/fm-fixtures-oos-h2 \\
     --skip-model --passes 3 --budget evals/sample-budget.json --out /tmp/oos.json
 """
+
 from __future__ import annotations
 
 import argparse
@@ -67,7 +68,9 @@ import urllib.request
 from pathlib import Path
 
 PACE_EVAL = Path("/Users/sarthak/Desktop/fleet/pace/evals")
-DEFAULT_SYSP = Path("/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v10-actions.txt")
+DEFAULT_SYSP = Path(
+    "/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v10-actions.txt"
+)
 
 
 # ----- parser ---------------------------------------------------------------
@@ -86,18 +89,20 @@ def parse_fixture(text: str) -> dict:
         if not line:
             continue
         if line.startswith("USER:"):
-            fx["user"] = line[len("USER:"):].strip()
+            fx["user"] = line[len("USER:") :].strip()
         elif line.startswith("ELEMENT:"):
-            body = line[len("ELEMENT:"):].strip()
+            body = line[len("ELEMENT:") :].strip()
             m = re.match(r"\[(\d+)\]\s+([^|]+)\|([^|]+)\|([^|]+)\|(.*)", body)
             if m:
-                fx["elements"].append({
-                    "id": int(m.group(1)),
-                    "role": m.group(2).strip(),
-                    "pos":  m.group(3).strip(),
-                    "label": m.group(4).strip(),
-                    "text": m.group(5).strip(),
-                })
+                fx["elements"].append(
+                    {
+                        "id": int(m.group(1)),
+                        "role": m.group(2).strip(),
+                        "pos": m.group(3).strip(),
+                        "label": m.group(4).strip(),
+                        "text": m.group(5).strip(),
+                    }
+                )
         elif line.startswith("EXPECT_INTENT:"):
             fx["expect_intent"] = line.split(":", 1)[1].strip()
         elif line.startswith("EXPECT_CLARIFY_TOPIC:"):
@@ -115,15 +120,18 @@ def format_user(fx: dict) -> str:
     if fx["elements"]:
         parts.append("on-screen elements:")
         for el in fx["elements"]:
-            parts.append(f"[{el['id']}] {el['role']}|{el['pos']}|{el['label']}|{el['text']}")
+            parts.append(
+                f"[{el['id']}] {el['role']}|{el['pos']}|{el['label']}|{el['text']}"
+            )
         parts.append("")
     parts.append(f"user said: {fx['user']}")
     return "\n".join(parts)
 
 
 # ----- model query ----------------------------------------------------------
-def query_serve(url: str, model_id: str, sys_prompt: str, fx: dict,
-                timeout: int = 180) -> tuple[str, float, int]:
+def query_serve(
+    url: str, model_id: str, sys_prompt: str, fx: dict, timeout: int = 180
+) -> tuple[str, float, int]:
     """Call serve. No grammar constraint — we WANT to see whether the
     model spontaneously emits the right intent field."""
     body = {
@@ -149,10 +157,13 @@ def query_serve(url: str, model_id: str, sys_prompt: str, fx: dict,
         # template treat reasoning as already finished.
         body["chat_template_kwargs"] = {"enable_thinking": False}
         body["messages"] = body["messages"] + [
-            {"role": "assistant", "content": "<think></think>\n"}]
+            {"role": "assistant", "content": "<think></think>\n"}
+        ]
     req = urllib.request.Request(
-        url, data=json.dumps(body).encode(),
-        headers={"Content-Type": "application/json"}, method="POST",
+        url,
+        data=json.dumps(body).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
     )
     t0 = time.monotonic()
     r = urllib.request.urlopen(req, timeout=timeout).read()
@@ -182,7 +193,7 @@ def extract_json(content: str) -> dict | None:
             elif content[j] == "}":
                 depth -= 1
                 if depth == 0:
-                    cand = content[i:j+1]
+                    cand = content[i : j + 1]
                     break
     if cand is None:
         return None
@@ -193,24 +204,31 @@ def extract_json(content: str) -> dict | None:
 
 
 # ----- strict-mode constants (reward function — keep auditable) --------------
-VALID_INTENTS = {"action", "answer", "dictate", "edit",
-                 "out_of_scope", "clarify", "confirm_destructive"}
+VALID_INTENTS = {
+    "action",
+    "answer",
+    "dictate",
+    "edit",
+    "out_of_scope",
+    "clarify",
+    "confirm_destructive",
+}
 CLARIFY_TOPICS = {"recipient", "time", "target", "app", "content", "quantity"}
 # payload fields required per intent (from pace-system-prompt-v11.txt)
 PAYLOAD_REQUIRED: dict[str, dict[str, type]] = {
-    "action":              {"name": str, "args": dict},
-    "answer":              {"text": str},
-    "dictate":             {"text": str},
-    "edit":                {"reference": str, "transform": str},
-    "out_of_scope":        {"reason": str},
-    "clarify":             {"question": str, "topic": str},
+    "action": {"name": str, "args": dict},
+    "answer": {"text": str},
+    "dictate": {"text": str},
+    "edit": {"reference": str, "transform": str},
+    "out_of_scope": {"reason": str},
+    "clarify": {"question": str, "topic": str},
     "confirm_destructive": {"action": str, "target": str},
 }
-PAYLOAD_MAY_BE_EMPTY = {"text"}      # prompt: "payload.text can be empty"
-MIN_SPOKEN_WORDS = 3                 # rejects degenerate spokenText ("ok", "i'm pace")
-MAX_QUESTION_CHARS = 140             # "ask ONE short question"
+PAYLOAD_MAY_BE_EMPTY = {"text"}  # prompt: "payload.text can be empty"
+MIN_SPOKEN_WORDS = 3  # rejects degenerate spokenText ("ok", "i'm pace")
+MAX_QUESTION_CHARS = 140  # "ask ONE short question"
 MAX_QUESTION_WORDS = 25
-ECHO_JACCARD_MAX = 0.6               # near-verbatim prompt echo threshold
+ECHO_JACCARD_MAX = 0.6  # near-verbatim prompt echo threshold
 
 
 def _tokens(s: str) -> set[str]:
@@ -228,8 +246,7 @@ def is_single_question(q: str) -> bool:
     """Exactly one interrogative sentence: ends with the only '?', and no
     sentence break (. ! ;) before it."""
     q = q.strip()
-    return (q.endswith("?") and q.count("?") == 1
-            and not re.search(r"[.!;]\s+\S", q))
+    return q.endswith("?") and q.count("?") == 1 and not re.search(r"[.!;]\s+\S", q)
 
 
 def matched_topics(question: str, topic_pool: list[str]) -> list[str]:
@@ -237,8 +254,7 @@ def matched_topics(question: str, topic_pool: list[str]) -> list[str]:
     matches (so 'which draft' doesn't also count its substring 'draft')."""
     ql = question.lower()
     hits = [t for t in topic_pool if t and t.lower() in ql]
-    return [t for t in hits
-            if not any(t != o and t.lower() in o.lower() for o in hits)]
+    return [t for t in hits if not any(t != o and t.lower() in o.lower() for o in hits)]
 
 
 def validate_schema(doc: dict) -> list[str]:
@@ -265,14 +281,20 @@ def validate_schema(doc: dict) -> list[str]:
         if intent == "clarify":
             topic = payload.get("topic")
             if isinstance(topic, str) and topic not in CLARIFY_TOPICS:
-                errs.append(f"payload.topic {topic!r} not in canonical set "
-                            f"{sorted(CLARIFY_TOPICS)}")
+                errs.append(
+                    f"payload.topic {topic!r} not in canonical set "
+                    f"{sorted(CLARIFY_TOPICS)}"
+                )
     return errs
 
 
 # ----- scorer ---------------------------------------------------------------
-def score(fx: dict, response: str | None, strict: bool = False,
-          topic_pool: list[str] | None = None) -> tuple[bool, list[str]]:
+def score(
+    fx: dict,
+    response: str | None,
+    strict: bool = False,
+    topic_pool: list[str] | None = None,
+) -> tuple[bool, list[str]]:
     if response is None:
         return False, ["no model output"]
 
@@ -292,10 +314,15 @@ def score(fx: dict, response: str | None, strict: bool = False,
     # clarify needs a question that references the topic
     if fx["expect_intent"] == "clarify":
         if strict:
-            q = doc["payload"]["question"]      # schema-validated above
+            q = doc["payload"]["question"]  # schema-validated above
         else:
-            q = (doc.get("question") or doc.get("clarifying_question")
-                 or doc.get("ask") or doc.get("spokenText") or "")
+            q = (
+                doc.get("question")
+                or doc.get("clarifying_question")
+                or doc.get("ask")
+                or doc.get("spokenText")
+                or ""
+            )
             if not q:
                 return False, ["intent=clarify but no question/spokenText field"]
         topic = fx["expect_clarify_topic"] or ""
@@ -304,17 +331,22 @@ def score(fx: dict, response: str | None, strict: bool = False,
 
         if strict:
             if not is_single_question(q):
-                return False, [f"question is not a single interrogative sentence: {q!r}"]
+                return False, [
+                    f"question is not a single interrogative sentence: {q!r}"
+                ]
             if len(q) > MAX_QUESTION_CHARS or len(q.split()) > MAX_QUESTION_WORDS:
-                return False, [f"question too long ({len(q)} chars, "
-                               f"{len(q.split())} words): {q!r}"]
+                return False, [
+                    f"question too long ({len(q)} chars, {len(q.split())} words): {q!r}"
+                ]
             hits = matched_topics(q, topic_pool or [])
             if len(hits) > 1:
                 return False, [f"topic stuffing — question mentions {hits}"]
             ov = jaccard(q, fx["user"])
             if ov > ECHO_JACCARD_MAX:
-                return False, [f"question is a near-verbatim echo of the user "
-                               f"utterance (jaccard={ov:.2f})"]
+                return False, [
+                    f"question is a near-verbatim echo of the user "
+                    f"utterance (jaccard={ov:.2f})"
+                ]
 
     # confirm_destructive needs the target mentioned in the response
     if fx["expect_intent"] == "confirm_destructive":
@@ -357,8 +389,10 @@ def failure_patterns(rows: list[dict]) -> list[dict]:
             continue
         key = reason_pattern(row["reasons"][0]) if row["reasons"] else "(no reason)"
         groups.setdefault(key, []).append(row["fixture"])
-    return [{"pattern": k, "count": len(v), "fixtures": v}
-            for k, v in sorted(groups.items(), key=lambda kv: -len(kv[1]))]
+    return [
+        {"pattern": k, "count": len(v), "fixtures": v}
+        for k, v in sorted(groups.items(), key=lambda kv: -len(kv[1]))
+    ]
 
 
 def pass_stats(scores: list[float]) -> dict:
@@ -375,8 +409,7 @@ def pass_stats(scores: list[float]) -> dict:
             "ci95High": 0.0,
         }
     mean = sum(clean) / n
-    variance = (sum((s - mean) ** 2 for s in clean) / (n - 1)
-                if n > 1 else 0.0)
+    variance = sum((s - mean) ** 2 for s in clean) / (n - 1) if n > 1 else 0.0
     stdev = math.sqrt(variance)
     stderr = stdev / math.sqrt(n)
     ci = 1.96 * stderr
@@ -424,9 +457,9 @@ def aggregate_trials(trials: list[dict], protocol: dict | None) -> dict:
         "total": total,
         "pct": stats["mean"] * 100.0,
         "pass_stats": stats,
-        "failure_patterns": failure_patterns([
-            row for trial in trials for row in trial["rows"]
-        ]),
+        "failure_patterns": failure_patterns(
+            [row for trial in trials for row in trial["rows"]]
+        ),
         "trials": trials,
     }
     if protocol is not None:
@@ -435,19 +468,31 @@ def aggregate_trials(trials: list[dict], protocol: dict | None) -> dict:
 
 
 # ----- runner ---------------------------------------------------------------
-def run(fixtures_dir: Path, serve_url: str | None, model_id: str,
-        sys_prompt_path: Path, verbose: bool = False,
-        strict: bool = False, pass_index: int | None = None) -> dict:
+def run(
+    fixtures_dir: Path,
+    serve_url: str | None,
+    model_id: str,
+    sys_prompt_path: Path,
+    verbose: bool = False,
+    strict: bool = False,
+    pass_index: int | None = None,
+) -> dict:
     sysp = sys_prompt_path.read_text().strip()
     fxs = sorted(fixtures_dir.glob("*.txt"))
     # topic pool for anti-stuffing: every expected clarify topic in the suite
-    topic_pool = sorted({t for t in
-                         (parse_fixture(p.read_text())["expect_clarify_topic"]
-                          for p in fxs) if t})
+    topic_pool = sorted(
+        {
+            t
+            for t in (parse_fixture(p.read_text())["expect_clarify_topic"] for p in fxs)
+            if t
+        }
+    )
     mode = "STRICT" if strict else "lenient"
     pass_suffix = f" pass {pass_index}" if pass_index is not None else ""
-    print(f"=== eval_pace_unhappy ({mode}{pass_suffix}) against {len(fxs)} "
-          f"fixtures in {fixtures_dir.name} ===\n")
+    print(
+        f"=== eval_pace_unhappy ({mode}{pass_suffix}) against {len(fxs)} "
+        f"fixtures in {fixtures_dir.name} ===\n"
+    )
     if serve_url:
         print(f"Serve URL: {serve_url}")
         print(f"Model ID:  {model_id}\n")
@@ -473,7 +518,8 @@ def run(fixtures_dir: Path, serve_url: str | None, model_id: str,
         if serve_url:
             try:
                 content, latency_ms, out_toks = query_serve(
-                    serve_url, model_id, sysp, fx)
+                    serve_url, model_id, sysp, fx
+                )
             except Exception as e:
                 content = None
                 err = str(e)[:80]
@@ -485,11 +531,11 @@ def run(fixtures_dir: Path, serve_url: str | None, model_id: str,
                     sys.exit(
                         f"ABORT: {consecutive_transport_failures} consecutive empty/"
                         f"failed responses from {model_id} — endpoint is dead, not "
-                        f"scoring a fake 0%. Last error: {err}")
+                        f"scoring a fake 0%. Last error: {err}"
+                    )
             else:
                 consecutive_transport_failures = 0
-            ok, reasons = score(fx, content, strict=strict,
-                                topic_pool=topic_pool)
+            ok, reasons = score(fx, content, strict=strict, topic_pool=topic_pool)
         else:
             # baseline-skip mode: structural fail
             ok = False
@@ -508,22 +554,23 @@ def run(fixtures_dir: Path, serve_url: str | None, model_id: str,
             if content:
                 print(f"  got: {content[:160]}")
 
-        rows.append({
-            "fixture": fx_path.stem,
-            "expect": fx["expect_intent"],
-            "ok": ok,
-            "reasons": reasons,
-            "raw_response": content,
-            "latency_ms": latency_ms,
-            "completion_tokens": out_toks,
-        })
+        rows.append(
+            {
+                "fixture": fx_path.stem,
+                "expect": fx["expect_intent"],
+                "ok": ok,
+                "reasons": reasons,
+                "raw_response": content,
+                "latency_ms": latency_ms,
+                "completion_tokens": out_toks,
+            }
+        )
 
     total = passed + failed
     pct = (passed / total * 100.0) if total else 0.0
     patterns = failure_patterns(rows)
     if patterns:
-        print(f"\n--- failure patterns ({failed} fails, "
-              f"{len(patterns)} patterns) ---")
+        print(f"\n--- failure patterns ({failed} fails, {len(patterns)} patterns) ---")
         for p in patterns:
             sample = ", ".join(p["fixtures"][:3])
             more = f" +{p['count'] - 3} more" if p["count"] > 3 else ""
@@ -547,68 +594,100 @@ def self_test() -> None:
     """Pure-python reward-function audit: adversarial responses an RL policy
     would discover must FAIL strict; real passing responses (sampled from the
     gemma-3-12b h2-combined run) must PASS strict. No HTTP."""
-    pool = ["which app", "duration", "content", "time", "recipient",
-            "which draft", "which spreadsheet"]
+    pool = [
+        "which app",
+        "duration",
+        "content",
+        "time",
+        "recipient",
+        "which draft",
+        "which spreadsheet",
+    ]
 
     def fx(intent, user, topic=None, target=None):
-        return {"user": user, "elements": [], "expect_intent": intent,
-                "expect_clarify_topic": topic, "expect_confirm_target": target,
-                "reason": None}
+        return {
+            "user": user,
+            "elements": [],
+            "expect_intent": intent,
+            "expect_clarify_topic": topic,
+            "expect_confirm_target": target,
+            "reason": None,
+        }
 
     # --- legit (verbatim from gemma-3-12b run) — must PASS in BOTH modes ----
     legit = [
-        ("clarify/which-draft",
-         fx("clarify", "send the draft", topic="which draft"),
-         '```json\n{"spokenText": "which draft would you like to send?", '
-         '"intent": "clarify", "payload": {"question": "which draft would you '
-         'like to send?", "topic": "recipient"}}\n```'),
-        ("clarify/missing-time",
-         fx("clarify", "put lunch with nadia on my calendar", topic="time"),
-         '{"spokenText": "okay, what time should i put that on your calendar?", '
-         '"intent": "clarify", "payload": {"question": "what time should i put '
-         'that on your calendar?", "topic": "time"}}'),
-        ("destructive/empty-trash",
-         fx("confirm_destructive", "empty the trash right now", target="trash"),
-         '{"spokenText": "that will delete everything in your trash — say yes '
-         'to confirm.","intent":"confirm_destructive","payload":{"action":'
-         '"Finder.emptyTrash","target":"all items in Trash"}}'),
-        ("oos/weather",
-         fx("out_of_scope", "what's the weather like"),
-         '{"spokenText": "i can\'t check weather. you\'d want a weather app '
-         'for that.","intent":"out_of_scope","payload":{"reason":"weather '
-         'requires cloud query"}}'),
+        (
+            "clarify/which-draft",
+            fx("clarify", "send the draft", topic="which draft"),
+            '```json\n{"spokenText": "which draft would you like to send?", '
+            '"intent": "clarify", "payload": {"question": "which draft would you '
+            'like to send?", "topic": "recipient"}}\n```',
+        ),
+        (
+            "clarify/missing-time",
+            fx("clarify", "put lunch with nadia on my calendar", topic="time"),
+            '{"spokenText": "okay, what time should i put that on your calendar?", '
+            '"intent": "clarify", "payload": {"question": "what time should i put '
+            'that on your calendar?", "topic": "time"}}',
+        ),
+        (
+            "destructive/empty-trash",
+            fx("confirm_destructive", "empty the trash right now", target="trash"),
+            '{"spokenText": "that will delete everything in your trash — say yes '
+            'to confirm.","intent":"confirm_destructive","payload":{"action":'
+            '"Finder.emptyTrash","target":"all items in Trash"}}',
+        ),
+        (
+            "oos/weather",
+            fx("out_of_scope", "what's the weather like"),
+            '{"spokenText": "i can\'t check weather. you\'d want a weather app '
+            'for that.","intent":"out_of_scope","payload":{"reason":"weather '
+            'requires cloud query"}}',
+        ),
     ]
 
     # --- adversarial: lenient-PASS exploits that strict must FAIL ------------
     adversarial = [
-        ("topic stuffing — every pool keyword in one question",
-         fx("clarify", "set a timer", topic="duration"),
-         '{"spokenText": "is it about the time, duration, recipient, content, '
-         'or which app?", "intent": "clarify", "payload": {"question": "is it '
-         'about the time, duration, recipient, content, or which app?", '
-         '"topic": "time"}}'),
-        ("prompt echo as the question",
-         fx("clarify", "change the meeting time", topic="time"),
-         '{"spokenText": "change the meeting time?", "intent": "clarify", '
-         '"payload": {"question": "change the meeting time?", "topic": "time"}}'),
-        ("multi-sentence run-on question",
-         fx("clarify", "open it", topic="which app"),
-         '{"spokenText": "i need more information. which app do you want me '
-         'to open?", "intent": "clarify", "payload": {"question": "i need '
-         'more information. which app do you want me to open?", '
-         '"topic": "app"}}'),
-        ("target stuffed in payload, not spoken",
-         fx("confirm_destructive", "empty the trash", target="trash"),
-         '{"spokenText": "this action is irreversible, do you want to '
-         'proceed?", "intent": "confirm_destructive", "payload": {"action": '
-         '"Finder.emptyTrash", "target": "trash"}}'),
-        ("degenerate empty spokenText",
-         fx("out_of_scope", "what's the weather like"),
-         '{"spokenText": "", "intent": "out_of_scope", '
-         '"payload": {"reason": "weather"}}'),
-        ("schema bypass — top-level question, no spokenText/payload",
-         fx("clarify", "open it", topic="which app"),
-         '{"intent": "clarify", "question": "which app do you want?"}'),
+        (
+            "topic stuffing — every pool keyword in one question",
+            fx("clarify", "set a timer", topic="duration"),
+            '{"spokenText": "is it about the time, duration, recipient, content, '
+            'or which app?", "intent": "clarify", "payload": {"question": "is it '
+            'about the time, duration, recipient, content, or which app?", '
+            '"topic": "time"}}',
+        ),
+        (
+            "prompt echo as the question",
+            fx("clarify", "change the meeting time", topic="time"),
+            '{"spokenText": "change the meeting time?", "intent": "clarify", '
+            '"payload": {"question": "change the meeting time?", "topic": "time"}}',
+        ),
+        (
+            "multi-sentence run-on question",
+            fx("clarify", "open it", topic="which app"),
+            '{"spokenText": "i need more information. which app do you want me '
+            'to open?", "intent": "clarify", "payload": {"question": "i need '
+            'more information. which app do you want me to open?", '
+            '"topic": "app"}}',
+        ),
+        (
+            "target stuffed in payload, not spoken",
+            fx("confirm_destructive", "empty the trash", target="trash"),
+            '{"spokenText": "this action is irreversible, do you want to '
+            'proceed?", "intent": "confirm_destructive", "payload": {"action": '
+            '"Finder.emptyTrash", "target": "trash"}}',
+        ),
+        (
+            "degenerate empty spokenText",
+            fx("out_of_scope", "what's the weather like"),
+            '{"spokenText": "", "intent": "out_of_scope", '
+            '"payload": {"reason": "weather"}}',
+        ),
+        (
+            "schema bypass — top-level question, no spokenText/payload",
+            fx("clarify", "open it", topic="which app"),
+            '{"intent": "clarify", "question": "which app do you want?"}',
+        ),
     ]
 
     failures = 0
@@ -640,8 +719,10 @@ def self_test() -> None:
     if failures:
         print(f"=== self-test FAILED: {failures} assertion(s) ===")
         sys.exit(1)
-    print(f"=== self-test passed: {len(legit)} legit × 2 modes, "
-          f"{len(adversarial)} adversarial ===")
+    print(
+        f"=== self-test passed: {len(legit)} legit × 2 modes, "
+        f"{len(adversarial)} adversarial ==="
+    )
 
 
 def main() -> None:
@@ -651,21 +732,38 @@ def main() -> None:
     p.add_argument("--model-id", default="local")
     p.add_argument("--sys-prompt", type=Path, default=DEFAULT_SYSP)
     p.add_argument("--skip-model", action="store_true")
-    p.add_argument("--strict", action="store_true",
-                   help="Hardened RL-reward scoring (schema + anti-stuffing "
-                        "+ anti-echo). Default off — lenient results stay "
-                        "comparable with prior runs.")
-    p.add_argument("--passes", type=int, default=1,
-                   help="Repeat the suite K times and aggregate mean/stdev/ci95 "
-                        "(default: 1).")
-    p.add_argument("--budget", type=Path, default=None,
-                   help="Fixed eval budget JSON to attach under protocol. "
-                        "Defaults to TINYGPT_EVAL_BUDGET when set.")
-    p.add_argument("--self-test", action="store_true",
-                   help="Run the strict-scorer adversarial self-test and exit")
+    p.add_argument(
+        "--strict",
+        action="store_true",
+        help="Hardened RL-reward scoring (schema + anti-stuffing "
+        "+ anti-echo). Default off — lenient results stay "
+        "comparable with prior runs.",
+    )
+    p.add_argument(
+        "--passes",
+        type=int,
+        default=1,
+        help="Repeat the suite K times and aggregate mean/stdev/ci95 (default: 1).",
+    )
+    p.add_argument(
+        "--budget",
+        type=Path,
+        default=None,
+        help="Fixed eval budget JSON to attach under protocol. "
+        "Defaults to TINYGPT_EVAL_BUDGET when set.",
+    )
+    p.add_argument(
+        "--self-test",
+        action="store_true",
+        help="Run the strict-scorer adversarial self-test and exit",
+    )
     p.add_argument("--verbose", action="store_true")
-    p.add_argument("--out", type=Path, default=None,
-                   help="Optional JSON output for downstream tooling")
+    p.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="Optional JSON output for downstream tooling",
+    )
     args = p.parse_args()
 
     if args.self_test:
@@ -681,10 +779,17 @@ def main() -> None:
     protocol = protocol_block(args.passes, budget)
     trials = []
     for idx in range(args.passes):
-        trials.append(run(args.fixtures_dir, serve_url, args.model_id,
-                          args.sys_prompt, verbose=args.verbose,
-                          strict=args.strict,
-                          pass_index=(idx + 1 if args.passes > 1 else None)))
+        trials.append(
+            run(
+                args.fixtures_dir,
+                serve_url,
+                args.model_id,
+                args.sys_prompt,
+                verbose=args.verbose,
+                strict=args.strict,
+                pass_index=(idx + 1 if args.passes > 1 else None),
+            )
+        )
     result = aggregate_trials(trials, protocol)
 
     if args.out:

@@ -17,7 +17,9 @@ FAMILIES = {"head-to-head", "paired-score"}
 
 
 def canonical_hash(value: Any) -> str:
-    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    encoded = json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    )
     return hashlib.sha256(encoded.encode()).hexdigest()
 
 
@@ -100,7 +102,9 @@ def _fit_strengths(
     return dict(zip(ids, theta))
 
 
-def pool_is_connected(participants: Sequence[str], matches: Sequence[dict[str, Any]]) -> bool:
+def pool_is_connected(
+    participants: Sequence[str], matches: Sequence[dict[str, Any]]
+) -> bool:
     if not participants:
         return False
     graph = {policy_id: set() for policy_id in participants}
@@ -128,7 +132,9 @@ def fit_arena_elo(
 ) -> dict[str, Any]:
     ids = sorted(set(participants))
     if len(ids) < 2 or not matches:
-        raise ValueError("head-to-head ratings require at least two policies and one match")
+        raise ValueError(
+            "head-to-head ratings require at least two policies and one match"
+        )
     for match in matches:
         if match["white_policy_id"] not in ids or match["black_policy_id"] not in ids:
             raise ValueError("match names an unknown policy")
@@ -147,14 +153,19 @@ def fit_arena_elo(
     rng = random.Random(rating_config["bootstrap_seed"])
     for _ in range(rating_config["bootstrap_samples"]):
         resampled = [matches[rng.randrange(len(matches))] for _ in matches]
-        fitted = _fit_strengths(ids, resampled, rating_config["prior_standard_deviation"])
+        fitted = _fit_strengths(
+            ids, resampled, rating_config["prior_standard_deviation"]
+        )
         for policy_id in ids:
-            samples[policy_id].append(rating_config["base"] + conversion * fitted[policy_id])
+            samples[policy_id].append(
+                rating_config["base"] + conversion * fitted[policy_id]
+            )
 
     connected = pool_is_connected(ids, matches)
     match_counts = {
         policy_id: sum(
-            match["white_policy_id"] == policy_id or match["black_policy_id"] == policy_id
+            match["white_policy_id"] == policy_id
+            or match["black_policy_id"] == policy_id
             for match in matches
         )
         for policy_id in ids
@@ -166,17 +177,24 @@ def fit_arena_elo(
         }
         for policy_id in ids
     }
-    color_balanced = all(abs(counts["white"] - counts["black"]) <= 1 for counts in color_counts.values())
+    color_balanced = all(
+        abs(counts["white"] - counts["black"]) <= 1 for counts in color_counts.values()
+    )
     forfeit_count = sum(bool(match["forfeit"]) for match in matches)
     forfeit_rate = forfeit_count / len(matches)
     gate_checks = {
-        "minimum_total_matches": len(matches) >= qualification_config["minimum_total_matches"],
+        "minimum_total_matches": len(matches)
+        >= qualification_config["minimum_total_matches"],
         "minimum_matches_per_policy": all(
-            count >= qualification_config["minimum_matches_per_policy"] for count in match_counts.values()
+            count >= qualification_config["minimum_matches_per_policy"]
+            for count in match_counts.values()
         ),
-        "connected_pool": connected or not qualification_config["require_connected_pool"],
-        "color_balance": color_balanced or not qualification_config["require_color_balance"],
-        "maximum_forfeit_rate": forfeit_rate <= qualification_config["maximum_forfeit_rate"],
+        "connected_pool": connected
+        or not qualification_config["require_connected_pool"],
+        "color_balance": color_balanced
+        or not qualification_config["require_color_balance"],
+        "maximum_forfeit_rate": forfeit_rate
+        <= qualification_config["maximum_forfeit_rate"],
     }
     qualified = all(gate_checks.values())
 
@@ -186,7 +204,11 @@ def fit_arena_elo(
         for match in matches:
             if policy_id not in {match["white_policy_id"], match["black_policy_id"]}:
                 continue
-            score = match["white_score"] if match["white_policy_id"] == policy_id else 1 - match["white_score"]
+            score = (
+                match["white_score"]
+                if match["white_policy_id"] == policy_id
+                else 1 - match["white_score"]
+            )
             wins += score == 1
             draws += score == 0.5
             losses += score == 0
@@ -244,7 +266,9 @@ def score_paired_trials(
     rows = []
     for policy_index, policy_id in enumerate(sorted(by_policy)):
         policy_trials = by_policy[policy_id]
-        deltas = [trial["policy_score"] - trial["baseline_score"] for trial in policy_trials]
+        deltas = [
+            trial["policy_score"] - trial["baseline_score"] for trial in policy_trials
+        ]
         rng = random.Random(rating_config["bootstrap_seed"] + policy_index + 1)
         bootstrap = []
         for _ in range(rating_config["bootstrap_samples"]):
@@ -254,11 +278,14 @@ def score_paired_trials(
         checks = {
             "minimum_complete_pairs": len(policy_trials)
             >= qualification_config["minimum_complete_pairs_per_policy"],
-            "complete_source": complete_source or not qualification_config["require_complete_source"],
+            "complete_source": complete_source
+            or not qualification_config["require_complete_source"],
         }
         model_scores = [trial["policy_score"] for trial in policy_trials]
         baseline_scores = [trial["baseline_score"] for trial in policy_trials]
-        paired_points = [1 if delta > 0 else 0.5 if delta == 0 else 0 for delta in deltas]
+        paired_points = [
+            1 if delta > 0 else 0.5 if delta == 0 else 0 for delta in deltas
+        ]
         rows.append(
             {
                 "policy_id": policy_id,
@@ -291,7 +318,9 @@ def score_paired_trials(
     }
 
 
-def adapt_chess(source_path: Path, source: dict[str, Any]) -> tuple[list[str], list[dict[str, Any]], dict[str, Any]]:
+def adapt_chess(
+    source_path: Path, source: dict[str, Any]
+) -> tuple[list[str], list[dict[str, Any]], dict[str, Any]]:
     if source.get("schema_version") != "chess/mlx-paired-match/v1":
         raise ValueError("unsupported chess match artifact")
     participants = sorted(model["policy_id"] for model in source["models"])
@@ -300,7 +329,9 @@ def adapt_chess(source_path: Path, source: dict[str, Any]) -> tuple[list[str], l
     matches = []
     seen = set()
     for index, game in enumerate(source["games"]):
-        evidence_key = f"{source_path.name}:{game['opening_id']}:{game['color_assignment']}"
+        evidence_key = (
+            f"{source_path.name}:{game['opening_id']}:{game['color_assignment']}"
+        )
         if evidence_key in seen:
             raise ValueError(f"duplicate match id: {evidence_key}")
         seen.add(evidence_key)
@@ -325,12 +356,16 @@ def adapt_chess(source_path: Path, source: dict[str, Any]) -> tuple[list[str], l
                 "opening_id": game["opening_id"],
             }
         )
-    return participants, matches, {
-        "path": str(source_path),
-        "trace_hash": source.get("trace_hash"),
-        "status": source["status"],
-        "games": len(matches),
-    }
+    return (
+        participants,
+        matches,
+        {
+            "path": str(source_path),
+            "trace_hash": source.get("trace_hash"),
+            "status": source["status"],
+            "games": len(matches),
+        },
+    )
 
 
 def adapt_2048(
@@ -369,15 +404,21 @@ def adapt_2048(
         complete = not source.get("interrupted_games")
     else:
         raise ValueError("unsupported 2048 screening artifact")
-    return trials, policy_id, {
-        "path": str(source_path),
-        "trace_hash": source.get("trace_hash"),
-        "status": source["status"],
-        "complete": complete,
-        "provider_failures": source.get("provider_failures", 0),
-        "decision": source.get("decision"),
-        "observed_cost_usd": source.get("total_cost_usd", source.get("total_observed_cost_usd")),
-    }
+    return (
+        trials,
+        policy_id,
+        {
+            "path": str(source_path),
+            "trace_hash": source.get("trace_hash"),
+            "status": source["status"],
+            "complete": complete,
+            "provider_failures": source.get("provider_failures", 0),
+            "decision": source.get("decision"),
+            "observed_cost_usd": source.get(
+                "total_cost_usd", source.get("total_observed_cost_usd")
+            ),
+        },
+    )
 
 
 Adapter = Callable[..., Any]
@@ -410,10 +451,22 @@ def validate_config(config: dict[str, Any]) -> None:
     if len(ids) != len(set(ids)):
         raise ValueError("duplicate game id")
     rating = config.get("rating", {})
-    for field in ("base", "scale", "prior_standard_deviation", "bootstrap_samples", "bootstrap_seed"):
-        if not isinstance(rating.get(field), (int, float)) or isinstance(rating.get(field), bool):
+    for field in (
+        "base",
+        "scale",
+        "prior_standard_deviation",
+        "bootstrap_samples",
+        "bootstrap_seed",
+    ):
+        if not isinstance(rating.get(field), (int, float)) or isinstance(
+            rating.get(field), bool
+        ):
             raise ValueError(f"invalid rating field: {field}")
-    if rating["scale"] <= 0 or rating["prior_standard_deviation"] <= 0 or rating["bootstrap_samples"] < 1:
+    if (
+        rating["scale"] <= 0
+        or rating["prior_standard_deviation"] <= 0
+        or rating["bootstrap_samples"] < 1
+    ):
         raise ValueError("rating scale, prior, and samples must be positive")
 
 
@@ -428,7 +481,9 @@ def build_report(config_path: Path, root: Path) -> dict[str, Any]:
             matches = []
             provenance = []
             for path, source in sources:
-                source_participants, source_matches, source_provenance = ADAPTERS[game["adapter"]](path, source)
+                source_participants, source_matches, source_provenance = ADAPTERS[
+                    game["adapter"]
+                ](path, source)
                 participants.update(source_participants)
                 matches.extend(source_matches)
                 provenance.append(source_provenance)
@@ -440,15 +495,23 @@ def build_report(config_path: Path, root: Path) -> dict[str, Any]:
                 config["rating"],
                 config["qualification"]["head_to_head"],
             )
-            evidence = {"participants": sorted(participants), "matches": matches, "sources": provenance}
+            evidence = {
+                "participants": sorted(participants),
+                "matches": matches,
+                "sources": provenance,
+            }
         else:
             trials = []
             source_states = {}
             provenance = []
             for path, source in sources:
-                source_trials, policy_id, source_state = ADAPTERS[game["adapter"]](path, source)
+                source_trials, policy_id, source_state = ADAPTERS[game["adapter"]](
+                    path, source
+                )
                 if policy_id in source_states:
-                    raise ValueError(f"duplicate paired-score policy source: {policy_id}")
+                    raise ValueError(
+                        f"duplicate paired-score policy source: {policy_id}"
+                    )
                 trials.extend(source_trials)
                 source_states[policy_id] = source_state
                 provenance.append(source_state)
@@ -502,14 +565,30 @@ def main() -> int:
     if args.check:
         if args.check.read_text(encoding="utf-8") != rendered:
             raise ValueError(f"arena report drifted: {args.check}")
-        print(json.dumps({"check": str(args.check), "status": "pass", "trace_hash": report["trace_hash"]}))
+        print(
+            json.dumps(
+                {
+                    "check": str(args.check),
+                    "status": "pass",
+                    "trace_hash": report["trace_hash"],
+                }
+            )
+        )
     else:
         assert args.output is not None
         args.output.parent.mkdir(parents=True, exist_ok=True)
         if args.output.exists():
             raise FileExistsError(f"refusing to overwrite arena report: {args.output}")
         args.output.write_text(rendered, encoding="utf-8")
-        print(json.dumps({"output": str(args.output), "games": len(report["games"]), "trace_hash": report["trace_hash"]}))
+        print(
+            json.dumps(
+                {
+                    "output": str(args.output),
+                    "games": len(report["games"]),
+                    "trace_hash": report["trace_hash"],
+                }
+            )
+        )
     return 0
 
 

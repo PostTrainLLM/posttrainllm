@@ -12,6 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
+
 def _script_path(filename):
     """scripts/ is grouped into topic subdirs; find a script in any of them."""
     direct = ROOT / "scripts" / filename
@@ -43,12 +44,17 @@ def test_every_attempt_has_a_kind_from_the_vocabulary():
 
 
 def test_shape_values_stay_inside_the_declared_vocabulary():
-    methods, objectives = set(PAYLOAD["method_vocabulary"]), set(PAYLOAD["objective_vocabulary"])
+    methods, objectives = (
+        set(PAYLOAD["method_vocabulary"]),
+        set(PAYLOAD["objective_vocabulary"]),
+    )
     for attempt in ATTEMPTS:
         for method in attempt.get("methods") or []:
             assert method in methods, f"{attempt['id']}: {method}"
         objective = attempt.get("objective")
-        assert objective is None or objective in objectives, f"{attempt['id']}: {objective}"
+        assert objective is None or objective in objectives, (
+            f"{attempt['id']}: {objective}"
+        )
 
 
 def test_the_hygiene_repeat_is_findable_by_shape():
@@ -85,10 +91,16 @@ def test_lineage_terminates_on_a_cycle():
 def test_relevance_outranks_negativity():
     """A barely-related failure must not outrank the direct precedent."""
     ranked = qa.related_to_recipe(
-        ATTEMPTS, methods=["sft", "lora"], bases=["flan-t5-small"], objective="typo-repair"
+        ATTEMPTS,
+        methods=["sft", "lora"],
+        bases=["flan-t5-small"],
+        objective="typo-repair",
     )
     top_two = {a["id"] for a in ranked[:2]}
-    assert top_two == {"autocorrect-tiny-overfit-gate", "autocorrect-ordinary-loss-pilot"}, top_two
+    assert top_two == {
+        "autocorrect-tiny-overfit-gate",
+        "autocorrect-ordinary-loss-pilot",
+    }, top_two
     # Among equally-relevant attempts, the failure sorts first.
     same_shape = [a for a in ranked if a.get("objective") == "typo-repair"]
     assert same_shape[0]["status"] == "regressed"
@@ -96,7 +108,10 @@ def test_relevance_outranks_negativity():
 
 def test_infrastructure_attempts_are_excluded_from_recipe_lookup():
     ranked = qa.related_to_recipe(
-        ATTEMPTS, methods=["sft", "lora"], bases=["qwen3-0.6b"], objective="sql-execution"
+        ATTEMPTS,
+        methods=["sft", "lora"],
+        bases=["qwen3-0.6b"],
+        objective="sql-execution",
     )
     assert all(a.get("kind") != "infrastructure" for a in ranked)
 
@@ -137,8 +152,13 @@ def test_a_single_failure_is_not_yet_a_pattern():
 def test_two_trailing_failures_caution_three_stop():
     def streak_of(statuses):
         chain = [
-            {"id": f"n{i}", "status": s, "objective": "x",
-             "varied_from": f"n{i-1}" if i else None, "lesson": "l"}
+            {
+                "id": f"n{i}",
+                "status": s,
+                "objective": "x",
+                "varied_from": f"n{i - 1}" if i else None,
+                "lesson": "l",
+            }
             for i, s in enumerate(statuses)
         ]
         return qa.streak_warning(chain, "x")

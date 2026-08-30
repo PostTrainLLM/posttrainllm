@@ -16,7 +16,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-SYSTEM = "You are a text-to-SQL model. Return only one SQLite SELECT query, no markdown."
+SYSTEM = (
+    "You are a text-to-SQL model. Return only one SQLite SELECT query, no markdown."
+)
 
 
 @dataclass(frozen=True)
@@ -73,27 +75,53 @@ INSERT INTO projects VALUES
     company: list[Example] = []
     for dept in ["engineering", "sales", "support", "finance"]:
         company += [
-            Example("company", f"List employee names in {dept}.",
-                    f"select e.name from employees e join departments d on e.dept_id = d.id where d.name = '{dept}';"),
-            Example("company", f"Count employees in {dept}.",
-                    f"select count(*) from employees e join departments d on e.dept_id = d.id where d.name = '{dept}';"),
-            Example("company", f"What is the highest salary in {dept}?",
-                    f"select max(e.salary) from employees e join departments d on e.dept_id = d.id where d.name = '{dept}';"),
-            Example("company", f"List active projects owned by {dept}.",
-                    f"select p.name from projects p join departments d on p.owner_dept_id = d.id where d.name = '{dept}' and p.status = 'active';"),
+            Example(
+                "company",
+                f"List employee names in {dept}.",
+                f"select e.name from employees e join departments d on e.dept_id = d.id where d.name = '{dept}';",
+            ),
+            Example(
+                "company",
+                f"Count employees in {dept}.",
+                f"select count(*) from employees e join departments d on e.dept_id = d.id where d.name = '{dept}';",
+            ),
+            Example(
+                "company",
+                f"What is the highest salary in {dept}?",
+                f"select max(e.salary) from employees e join departments d on e.dept_id = d.id where d.name = '{dept}';",
+            ),
+            Example(
+                "company",
+                f"List active projects owned by {dept}.",
+                f"select p.name from projects p join departments d on p.owner_dept_id = d.id where d.name = '{dept}' and p.status = 'active';",
+            ),
         ]
     for threshold in [80000, 90000, 100000, 120000, 130000]:
         company += [
-            Example("company", f"List employee names with salary above {threshold}.",
-                    f"select name from employees where salary > {threshold};"),
-            Example("company", f"List employee names with salary below {threshold}.",
-                    f"select name from employees where salary < {threshold};"),
-            Example("company", f"Count projects with budget above {threshold}.",
-                    f"select count(*) from projects where budget > {threshold};"),
+            Example(
+                "company",
+                f"List employee names with salary above {threshold}.",
+                f"select name from employees where salary > {threshold};",
+            ),
+            Example(
+                "company",
+                f"List employee names with salary below {threshold}.",
+                f"select name from employees where salary < {threshold};",
+            ),
+            Example(
+                "company",
+                f"Count projects with budget above {threshold}.",
+                f"select count(*) from projects where budget > {threshold};",
+            ),
         ]
     for level in ["junior", "mid", "senior"]:
-        company.append(Example("company", f"Count {level} employees.",
-                               f"select count(*) from employees where level = '{level}';"))
+        company.append(
+            Example(
+                "company",
+                f"Count {level} employees.",
+                f"select count(*) from employees where level = '{level}';",
+            )
+        )
 
     retail_schema = """
 CREATE TABLE customers(id INTEGER PRIMARY KEY, name TEXT NOT NULL, city TEXT NOT NULL);
@@ -114,29 +142,55 @@ INSERT INTO orders VALUES
     retail: list[Example] = []
     for city in ["Austin", "Boston", "Denver"]:
         retail += [
-            Example("retail", f"List customers from {city}.",
-                    f"select name from customers where city = '{city}';"),
-            Example("retail", f"Count shipped orders from customers in {city}.",
-                    f"select count(*) from orders o join customers c on o.customer_id = c.id where c.city = '{city}' and o.status = 'shipped';"),
+            Example(
+                "retail",
+                f"List customers from {city}.",
+                f"select name from customers where city = '{city}';",
+            ),
+            Example(
+                "retail",
+                f"Count shipped orders from customers in {city}.",
+                f"select count(*) from orders o join customers c on o.customer_id = c.id where c.city = '{city}' and o.status = 'shipped';",
+            ),
         ]
     for category in ["electronics", "furniture", "stationery"]:
         retail += [
-            Example("retail", f"List product names in {category}.",
-                    f"select name from products where category = '{category}';"),
-            Example("retail", f"Average price for {category} products.",
-                    f"select avg(price) from products where category = '{category}';"),
-            Example("retail", f"Total quantity ordered for {category} products.",
-                    f"select sum(o.quantity) from orders o join products p on o.product_id = p.id where p.category = '{category}';"),
+            Example(
+                "retail",
+                f"List product names in {category}.",
+                f"select name from products where category = '{category}';",
+            ),
+            Example(
+                "retail",
+                f"Average price for {category} products.",
+                f"select avg(price) from products where category = '{category}';",
+            ),
+            Example(
+                "retail",
+                f"Total quantity ordered for {category} products.",
+                f"select sum(o.quantity) from orders o join products p on o.product_id = p.id where p.category = '{category}';",
+            ),
         ]
     for status in ["shipped", "pending", "cancelled"]:
-        retail.append(Example("retail", f"Count {status} orders.",
-                              f"select count(*) from orders where status = '{status}';"))
+        retail.append(
+            Example(
+                "retail",
+                f"Count {status} orders.",
+                f"select count(*) from orders where status = '{status}';",
+            )
+        )
     for price in [10, 50, 200, 1000]:
         retail += [
-            Example("retail", f"List products cheaper than {price}.",
-                    f"select name from products where price < {price};"),
-            Example("retail", f"List products more expensive than {price}.",
-                    f"select name from products where price > {price};"),
+            Example(
+                "retail",
+                f"List products cheaper than {price}.",
+                f"select name from products where price < {price};",
+            ),
+            Example(
+                "retail",
+                f"List products more expensive than {price}.",
+                f"select name from products where price > {price};",
+            ),
         ]
 
     library_schema = """
@@ -158,31 +212,55 @@ INSERT INTO loans VALUES (1,1,1,1),(2,2,2,0),(3,3,3,1),(4,4,1,0),(5,5,4,0),(6,6,
     library: list[Example] = []
     for country in ["USA", "Nigeria", "UK", "Japan"]:
         library += [
-            Example("library", f"List book titles by authors from {country}.",
-                    f"select b.title from books b join authors a on b.author_id = a.id where a.country = '{country}';"),
-            Example("library", f"Count authors from {country}.",
-                    f"select count(*) from authors where country = '{country}';"),
+            Example(
+                "library",
+                f"List book titles by authors from {country}.",
+                f"select b.title from books b join authors a on b.author_id = a.id where a.country = '{country}';",
+            ),
+            Example(
+                "library",
+                f"Count authors from {country}.",
+                f"select count(*) from authors where country = '{country}';",
+            ),
         ]
     for genre in ["fantasy", "sci-fi", "literary", "classic"]:
         library += [
-            Example("library", f"List {genre} book titles.",
-                    f"select title from books where genre = '{genre}';"),
-            Example("library", f"Average pages for {genre} books.",
-                    f"select avg(pages) from books where genre = '{genre}';"),
+            Example(
+                "library",
+                f"List {genre} book titles.",
+                f"select title from books where genre = '{genre}';",
+            ),
+            Example(
+                "library",
+                f"Average pages for {genre} books.",
+                f"select avg(pages) from books where genre = '{genre}';",
+            ),
         ]
     for tier in ["gold", "silver", "bronze"]:
         library += [
-            Example("library", f"Count {tier} members.",
-                    f"select count(*) from members where tier = '{tier}';"),
-            Example("library", f"List open loan book titles for {tier} members.",
-                    f"select b.title from loans l join books b on l.book_id = b.id join members m on l.member_id = m.id where m.tier = '{tier}' and l.returned = 0;"),
+            Example(
+                "library",
+                f"Count {tier} members.",
+                f"select count(*) from members where tier = '{tier}';",
+            ),
+            Example(
+                "library",
+                f"List open loan book titles for {tier} members.",
+                f"select b.title from loans l join books b on l.book_id = b.id join members m on l.member_id = m.id where m.tier = '{tier}' and l.returned = 0;",
+            ),
         ]
     for pages in [250, 300, 400]:
         library += [
-            Example("library", f"List books longer than {pages} pages.",
-                    f"select title from books where pages > {pages};"),
-            Example("library", f"Count books shorter than {pages} pages.",
-                    f"select count(*) from books where pages < {pages};"),
+            Example(
+                "library",
+                f"List books longer than {pages} pages.",
+                f"select title from books where pages > {pages};",
+            ),
+            Example(
+                "library",
+                f"Count books shorter than {pages} pages.",
+                f"select count(*) from books where pages < {pages};",
+            ),
         ]
 
     school_schema = """
@@ -206,35 +284,65 @@ INSERT INTO enrollments VALUES
     school: list[Example] = []
     for house in ["red", "blue", "green"]:
         school += [
-            Example("school", f"List student names in the {house} house.",
-                    f"select name from students where house = '{house}';"),
-            Example("school", f"Average enrollment score for {house} house students.",
-                    f"select avg(e.score) from enrollments e join students s on e.student_id = s.id where s.house = '{house}';"),
-            Example("school", f"Count students in the {house} house.",
-                    f"select count(*) from students where house = '{house}';"),
+            Example(
+                "school",
+                f"List student names in the {house} house.",
+                f"select name from students where house = '{house}';",
+            ),
+            Example(
+                "school",
+                f"Average enrollment score for {house} house students.",
+                f"select avg(e.score) from enrollments e join students s on e.student_id = s.id where s.house = '{house}';",
+            ),
+            Example(
+                "school",
+                f"Count students in the {house} house.",
+                f"select count(*) from students where house = '{house}';",
+            ),
         ]
     for subject in ["math", "science", "humanities", "arts"]:
         school += [
-            Example("school", f"List course names in {subject}.",
-                    f"select name from courses where subject = '{subject}';"),
-            Example("school", f"Total credits for {subject} courses.",
-                    f"select sum(credits) from courses where subject = '{subject}';"),
-            Example("school", f"Average score in {subject} courses.",
-                    f"select avg(e.score) from enrollments e join courses c on e.course_id = c.id where c.subject = '{subject}';"),
+            Example(
+                "school",
+                f"List course names in {subject}.",
+                f"select name from courses where subject = '{subject}';",
+            ),
+            Example(
+                "school",
+                f"Total credits for {subject} courses.",
+                f"select sum(credits) from courses where subject = '{subject}';",
+            ),
+            Example(
+                "school",
+                f"Average score in {subject} courses.",
+                f"select avg(e.score) from enrollments e join courses c on e.course_id = c.id where c.subject = '{subject}';",
+            ),
         ]
     for grade in [9, 10, 11, 12]:
         school += [
-            Example("school", f"List students in grade {grade}.",
-                    f"select name from students where grade = {grade};"),
-            Example("school", f"Count enrollments for grade {grade} students.",
-                    f"select count(*) from enrollments e join students s on e.student_id = s.id where s.grade = {grade};"),
+            Example(
+                "school",
+                f"List students in grade {grade}.",
+                f"select name from students where grade = {grade};",
+            ),
+            Example(
+                "school",
+                f"Count enrollments for grade {grade} students.",
+                f"select count(*) from enrollments e join students s on e.student_id = s.id where s.grade = {grade};",
+            ),
         ]
     for threshold in [80, 85, 90]:
         school += [
-            Example("school", f"List students with any score above {threshold}.",
-                    f"select distinct s.name from enrollments e join students s on e.student_id = s.id where e.score > {threshold};"),
-            Example("school", f"Count enrollments with score below {threshold}.",
-                    f"select count(*) from enrollments where score < {threshold};"),
+            Example(
+                "school",
+                f"List students with any score above {threshold}.",
+                f"select distinct s.name from enrollments e join students s on e.student_id = s.id where e.score > {threshold};",
+            ),
+            Example(
+                "school",
+                f"Count enrollments with score below {threshold}.",
+                f"select count(*) from enrollments where score < {threshold};",
+            ),
         ]
 
     clinic_schema = """
@@ -256,35 +364,65 @@ INSERT INTO visits VALUES
     clinic: list[Example] = []
     for specialty in ["cardiology", "pediatrics", "dermatology", "orthopedics"]:
         clinic += [
-            Example("clinic", f"List doctors in {specialty}.",
-                    f"select name from doctors where specialty = '{specialty}';"),
-            Example("clinic", f"Count visits handled by {specialty} doctors.",
-                    f"select count(*) from visits v join doctors d on v.doctor_id = d.id where d.specialty = '{specialty}';"),
-            Example("clinic", f"Average visit cost for {specialty}.",
-                    f"select avg(v.cost) from visits v join doctors d on v.doctor_id = d.id where d.specialty = '{specialty}';"),
+            Example(
+                "clinic",
+                f"List doctors in {specialty}.",
+                f"select name from doctors where specialty = '{specialty}';",
+            ),
+            Example(
+                "clinic",
+                f"Count visits handled by {specialty} doctors.",
+                f"select count(*) from visits v join doctors d on v.doctor_id = d.id where d.specialty = '{specialty}';",
+            ),
+            Example(
+                "clinic",
+                f"Average visit cost for {specialty}.",
+                f"select avg(v.cost) from visits v join doctors d on v.doctor_id = d.id where d.specialty = '{specialty}';",
+            ),
         ]
     for city in ["Austin", "Boston", "Denver"]:
         clinic += [
-            Example("clinic", f"List patient names in {city}.",
-                    f"select name from patients where city = '{city}';"),
-            Example("clinic", f"Total visit cost for patients in {city}.",
-                    f"select sum(v.cost) from visits v join patients p on v.patient_id = p.id where p.city = '{city}';"),
-            Example("clinic", f"Count visits for patients in {city}.",
-                    f"select count(*) from visits v join patients p on v.patient_id = p.id where p.city = '{city}';"),
+            Example(
+                "clinic",
+                f"List patient names in {city}.",
+                f"select name from patients where city = '{city}';",
+            ),
+            Example(
+                "clinic",
+                f"Total visit cost for patients in {city}.",
+                f"select sum(v.cost) from visits v join patients p on v.patient_id = p.id where p.city = '{city}';",
+            ),
+            Example(
+                "clinic",
+                f"Count visits for patients in {city}.",
+                f"select count(*) from visits v join patients p on v.patient_id = p.id where p.city = '{city}';",
+            ),
         ]
     for age in [18, 30, 50, 60]:
         clinic += [
-            Example("clinic", f"List patients older than {age}.",
-                    f"select name from patients where age > {age};"),
-            Example("clinic", f"Count patients younger than {age}.",
-                    f"select count(*) from patients where age < {age};"),
+            Example(
+                "clinic",
+                f"List patients older than {age}.",
+                f"select name from patients where age > {age};",
+            ),
+            Example(
+                "clinic",
+                f"Count patients younger than {age}.",
+                f"select count(*) from patients where age < {age};",
+            ),
         ]
     for cost in [150, 200, 300]:
         clinic += [
-            Example("clinic", f"List visit reasons costing more than {cost}.",
-                    f"select reason from visits where cost > {cost};"),
-            Example("clinic", f"Count visits costing less than {cost}.",
-                    f"select count(*) from visits where cost < {cost};"),
+            Example(
+                "clinic",
+                f"List visit reasons costing more than {cost}.",
+                f"select reason from visits where cost > {cost};",
+            ),
+            Example(
+                "clinic",
+                f"Count visits costing less than {cost}.",
+                f"select count(*) from visits where cost < {cost};",
+            ),
         ]
 
     return [
@@ -346,38 +484,46 @@ def main() -> None:
         for i, ex in enumerate(train):
             ensure_executes(db_path, ex.sql)
             p = prompt(domain.schema_prompt, ex.question)
-            train_rows.append({
-                "id": f"{domain.name}-train-{i:03d}",
-                "domain": domain.name,
-                "instruction": p,
-                "response": ex.sql,
-            })
+            train_rows.append(
+                {
+                    "id": f"{domain.name}-train-{i:03d}",
+                    "domain": domain.name,
+                    "instruction": p,
+                    "response": ex.sql,
+                }
+            )
             failure_type, rejected = bad_completion(ex.sql, i)
-            preference_rows.append({
-                "id": f"{domain.name}-pref-{i:03d}",
-                "domain": domain.name,
-                "failure_type": failure_type,
-                "prompt": p,
-                "chosen": ex.sql,
-                "rejected": rejected,
-            })
+            preference_rows.append(
+                {
+                    "id": f"{domain.name}-pref-{i:03d}",
+                    "domain": domain.name,
+                    "failure_type": failure_type,
+                    "prompt": p,
+                    "chosen": ex.sql,
+                    "rejected": rejected,
+                }
+            )
         for i, ex in enumerate(dev):
             ensure_executes(db_path, ex.sql)
-            dev_rows.append({
-                "id": f"{domain.name}-dev-{i:03d}",
-                "domain": domain.name,
-                "question": ex.question,
-                "prompt": prompt(domain.schema_prompt, ex.question),
-                "gold_sql": ex.sql,
-                "db": f"{domain.name}.db",
-            })
-        manifest["domains"].append({
-            "name": domain.name,
-            "schema": str(schema_path),
-            "db": str(db_path),
-            "train_rows": len(train),
-            "dev_rows": len(dev),
-        })
+            dev_rows.append(
+                {
+                    "id": f"{domain.name}-dev-{i:03d}",
+                    "domain": domain.name,
+                    "question": ex.question,
+                    "prompt": prompt(domain.schema_prompt, ex.question),
+                    "gold_sql": ex.sql,
+                    "db": f"{domain.name}.db",
+                }
+            )
+        manifest["domains"].append(
+            {
+                "name": domain.name,
+                "schema": str(schema_path),
+                "db": str(db_path),
+                "train_rows": len(train),
+                "dev_rows": len(dev),
+            }
+        )
 
     train_pairs = {(r["instruction"], r["response"]) for r in train_rows}
     dev_pairs = {(r["prompt"], r["gold_sql"]) for r in dev_rows}
@@ -387,21 +533,30 @@ def main() -> None:
     write_jsonl(out / "train.jsonl", train_rows)
     write_jsonl(out / "dev.jsonl", dev_rows)
     write_jsonl(out / "preferences.jsonl", preference_rows)
-    (out / "failure_taxonomy.json").write_text(jdump({
-        "sql_wrong_schema": "Uses a table or column that does not exist.",
-        "sql_wrong_filter": "Uses the wrong WHERE predicate or constant.",
-        "sql_wrong_join": "Joins on the wrong key or skips a required join.",
-        "sql_wrong_aggregation": "Uses the wrong aggregate or grouping.",
-        "sql_prose_wrapped": "Contains correct-looking SQL plus prose or test text.",
-        "sql_no_select": "Does not contain a SELECT statement.",
-    }) + "\n")
+    (out / "failure_taxonomy.json").write_text(
+        jdump(
+            {
+                "sql_wrong_schema": "Uses a table or column that does not exist.",
+                "sql_wrong_filter": "Uses the wrong WHERE predicate or constant.",
+                "sql_wrong_join": "Joins on the wrong key or skips a required join.",
+                "sql_wrong_aggregation": "Uses the wrong aggregate or grouping.",
+                "sql_prose_wrapped": "Contains correct-looking SQL plus prose or test text.",
+                "sql_no_select": "Does not contain a SELECT statement.",
+            }
+        )
+        + "\n"
+    )
     manifest["counts"] = {
         "train_rows": len(train_rows),
         "dev_rows": len(dev_rows),
         "preference_rows": len(preference_rows),
     }
-    (out / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
-    print(f"wrote {len(train_rows)} train, {len(dev_rows)} dev, {len(preference_rows)} preference rows to {out}")
+    (out / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n"
+    )
+    print(
+        f"wrote {len(train_rows)} train, {len(dev_rows)} dev, {len(preference_rows)} preference rows to {out}"
+    )
 
 
 if __name__ == "__main__":

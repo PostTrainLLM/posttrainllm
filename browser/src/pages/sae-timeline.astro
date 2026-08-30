@@ -4,12 +4,15 @@ import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
   title: "posttrainllm — SAE timeline",
-  description: "Drop a posttrainllm SAE timeline JSONL to see reconstruction error and sparse-feature activity over checkpoints.",
+  description:
+    "Drop a posttrainllm SAE timeline JSONL to see reconstruction error and sparse-feature activity over checkpoints.",
   ogType: "article",
   ogTitle: "posttrainllm — SAE timeline",
-  ogDescription: "Browser viewer for posttrainllm sae --checkpoint-dir --timeline-out JSONL files.",
+  ogDescription:
+    "Browser viewer for posttrainllm sae --checkpoint-dir --timeline-out JSONL files.",
   twitterTitle: "posttrainllm — SAE timeline",
-  twitterDescription: "Watch SAE reconstruction and L0 activity evolve over training checkpoints.",
+  twitterDescription:
+    "Watch SAE reconstruction and L0 activity evolve over training checkpoints.",
   themeColor: "#0a0c0f",
   loadFonts: false,
 };
@@ -123,9 +126,18 @@ const pageStyle = `
     </p>
 
     <label class="drop" id="drop">
-      <input type="file" id="file" accept=".jsonl,application/jsonl,application/x-ndjson,text/plain" />
-      <div class="big">Drop an SAE timeline <code>.jsonl</code> here or click to choose</div>
-      <div class="small">Expected row keys: step, layer/layers, d_model, d_features, mse, l0_per_sample, l0_frac, sae_path, ckpt_path.</div>
+      <input
+        type="file"
+        id="file"
+        accept=".jsonl,application/jsonl,application/x-ndjson,text/plain"
+      />
+      <div class="big">
+        Drop an SAE timeline <code>.jsonl</code> here or click to choose
+      </div>
+      <div class="small">
+        Expected row keys: step, layer/layers, d_model, d_features, mse,
+        l0_per_sample, l0_frac, sae_path, ckpt_path.
+      </div>
     </label>
     <div class="status">
       <div id="status">no file loaded</div>
@@ -162,35 +174,80 @@ const pageStyle = `
 
     <div class="empty" id="empty">
       no SAE timeline loaded yet
-      <div class="schema">Drop JSONL rows with step, mse, l0_per_sample, l0_frac, sae_path, ckpt_path.</div>
+      <div class="schema">
+        Drop JSONL rows with step, mse, l0_per_sample, l0_frac, sae_path,
+        ckpt_path.
+      </div>
     </div>
 
     <div class="foot">
-      B13 feature-emergence viewer · <a href="/training-dashboard">training dashboard</a> · <a href="/docs/techniques/interpretability">interp docs</a>
+      B13 feature-emergence viewer · <a href="/training-dashboard"
+        >training dashboard</a
+      > · <a href="/docs/techniques/interpretability">interp docs</a>
     </div>
   </div>
 
   <script type="module" is:inline>
-    const COLORS = ["#48e5c2", "#7aa6ff", "#f5b14a", "#ec6a5c", "#c08eff", "#5cd178", "#ff8fb1", "#a7b4c7"];
-    const required = ["step", "d_model", "d_features", "mse", "l0_per_sample", "l0_frac", "sae_path", "ckpt_path"];
+    const COLORS = [
+      "#48e5c2",
+      "#7aa6ff",
+      "#f5b14a",
+      "#ec6a5c",
+      "#c08eff",
+      "#5cd178",
+      "#ff8fb1",
+      "#a7b4c7",
+    ];
+    const required = [
+      "step",
+      "d_model",
+      "d_features",
+      "mse",
+      "l0_per_sample",
+      "l0_frac",
+      "sae_path",
+      "ckpt_path",
+    ];
     const state = { rows: [], fileName: "", skipped: 0, group: "" };
-    const $ = id => document.getElementById(id);
-    const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-    const fmt = v => Number.isFinite(v) ? (Math.abs(v) < 0.001 ? v.toExponential(2) : v.toFixed(4)) : "—";
-    const fmtPct = v => Number.isFinite(v) ? `${(v * 100).toFixed(1)}%` : "—";
+    const $ = (id) => document.getElementById(id);
+    const esc = (v) =>
+      String(v ?? "").replace(
+        /[&<>"']/g,
+        (c) =>
+          ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          })[c],
+      );
+    const fmt = (v) =>
+      Number.isFinite(v)
+        ? Math.abs(v) < 0.001
+          ? v.toExponential(2)
+          : v.toFixed(4)
+        : "—";
+    const fmtPct = (v) =>
+      Number.isFinite(v) ? `${(v * 100).toFixed(1)}%` : "—";
 
     function groupKey(row) {
-      const layers = Array.isArray(row.layers) && row.layers.length ? row.layers : [row.layer];
-      return layers.filter(v => v != null).join(",");
+      const layers =
+        Array.isArray(row.layers) && row.layers.length
+          ? row.layers
+          : [row.layer];
+      return layers.filter((v) => v != null).join(",");
     }
 
     function validRow(obj) {
       if (!obj || typeof obj !== "object") return false;
       for (const k of required) if (!(k in obj)) return false;
-      return Number.isFinite(Number(obj.step))
-        && Number.isFinite(Number(obj.mse))
-        && Number.isFinite(Number(obj.l0_per_sample))
-        && Number.isFinite(Number(obj.l0_frac));
+      return (
+        Number.isFinite(Number(obj.step)) &&
+        Number.isFinite(Number(obj.mse)) &&
+        Number.isFinite(Number(obj.l0_per_sample)) &&
+        Number.isFinite(Number(obj.l0_frac))
+      );
     }
 
     function parseJsonl(text) {
@@ -200,13 +257,25 @@ const pageStyle = `
         const line = raw.trim();
         if (!line) continue;
         let obj;
-        try { obj = JSON.parse(line); } catch { skipped++; continue; }
-        if (!validRow(obj)) { skipped++; continue; }
-        const layers = Array.isArray(obj.layers) ? obj.layers.map(Number).filter(Number.isFinite) : [];
+        try {
+          obj = JSON.parse(line);
+        } catch {
+          skipped++;
+          continue;
+        }
+        if (!validRow(obj)) {
+          skipped++;
+          continue;
+        }
+        const layers = Array.isArray(obj.layers)
+          ? obj.layers.map(Number).filter(Number.isFinite)
+          : [];
         rows.push({
           ...obj,
           step: Number(obj.step),
-          layer: Number.isFinite(Number(obj.layer)) ? Number(obj.layer) : (layers[0] ?? 0),
+          layer: Number.isFinite(Number(obj.layer))
+            ? Number(obj.layer)
+            : (layers[0] ?? 0),
           layers,
           d_model: Number(obj.d_model),
           d_features: Number(obj.d_features),
@@ -221,41 +290,69 @@ const pageStyle = `
 
     function makeAxes(svg, xs, ys, fmtX, fmtY) {
       svg.innerHTML = "";
-      const W = svg.clientWidth || 520, H = 270;
+      const W = svg.clientWidth || 520,
+        H = 270;
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-      const padL = 58, padR = 18, padT = 14, padB = 34;
-      const x0 = padL, y0 = padT, w = W - padL - padR, h = H - padT - padB;
-      const xMin = Math.min(...xs), xMax = Math.max(...xs);
-      const rawYMin = Math.min(...ys), rawYMax = Math.max(...ys);
+      const padL = 58,
+        padR = 18,
+        padT = 14,
+        padB = 34;
+      const x0 = padL,
+        y0 = padT,
+        w = W - padL - padR,
+        h = H - padT - padB;
+      const xMin = Math.min(...xs),
+        xMax = Math.max(...xs);
+      const rawYMin = Math.min(...ys),
+        rawYMax = Math.max(...ys);
       const yPad = Math.max(0.00001, (rawYMax - rawYMin) * 0.08);
-      const yMin = Math.max(0, rawYMin - yPad), yMax = rawYMax + yPad;
-      const xRange = xMax - xMin || 1, yRange = yMax - yMin || 1;
-      const sx = v => x0 + ((v - xMin) / xRange) * w;
-      const sy = v => y0 + h - ((v - yMin) / yRange) * h;
+      const yMin = Math.max(0, rawYMin - yPad),
+        yMax = rawYMax + yPad;
+      const xRange = xMax - xMin || 1,
+        yRange = yMax - yMin || 1;
+      const sx = (v) => x0 + ((v - xMin) / xRange) * w;
+      const sy = (v) => y0 + h - ((v - yMin) / yRange) * h;
       for (let i = 0; i <= 5; i++) {
         const t = i / 5;
-        const yV = yMin + t * yRange, yPx = sy(yV);
-        const xV = xMin + t * xRange, xPx = sx(xV);
-        svg.insertAdjacentHTML("beforeend",
+        const yV = yMin + t * yRange,
+          yPx = sy(yV);
+        const xV = xMin + t * xRange,
+          xPx = sx(xV);
+        svg.insertAdjacentHTML(
+          "beforeend",
           `<line class="grid" x1="${x0}" y1="${yPx.toFixed(1)}" x2="${x0 + w}" y2="${yPx.toFixed(1)}"/>` +
-          `<text class="tick" x="${x0 - 6}" y="${(yPx + 3).toFixed(1)}" text-anchor="end">${fmtY(yV)}</text>` +
-          `<text class="tick" x="${xPx.toFixed(1)}" y="${y0 + h + 18}" text-anchor="middle">${fmtX(xV)}</text>`);
+            `<text class="tick" x="${x0 - 6}" y="${(yPx + 3).toFixed(1)}" text-anchor="end">${fmtY(yV)}</text>` +
+            `<text class="tick" x="${xPx.toFixed(1)}" y="${y0 + h + 18}" text-anchor="middle">${fmtX(xV)}</text>`,
+        );
       }
-      svg.insertAdjacentHTML("beforeend",
+      svg.insertAdjacentHTML(
+        "beforeend",
         `<line class="axis" x1="${x0}" y1="${y0}" x2="${x0}" y2="${y0 + h}"/>` +
-        `<line class="axis" x1="${x0}" y1="${y0 + h}" x2="${x0 + w}" y2="${y0 + h}"/>`);
+          `<line class="axis" x1="${x0}" y1="${y0 + h}" x2="${x0 + w}" y2="${y0 + h}"/>`,
+      );
       return { sx, sy };
     }
 
     function drawLine(svg, rows, field, color, yFmt) {
-      if (rows.length === 0) { svg.innerHTML = ""; return; }
-      const xs = rows.map(r => r.step);
-      const ys = rows.map(r => r[field]);
-      const ax = makeAxes(svg, xs, ys, v => Math.round(v).toString(), yFmt);
-      const pts = rows.map(r => `${ax.sx(r.step).toFixed(1)},${ax.sy(r[field]).toFixed(1)}`).join(" ");
-      svg.insertAdjacentHTML("beforeend", `<polyline class="line" stroke="${color}" points="${pts}"/>`);
+      if (rows.length === 0) {
+        svg.innerHTML = "";
+        return;
+      }
+      const xs = rows.map((r) => r.step);
+      const ys = rows.map((r) => r[field]);
+      const ax = makeAxes(svg, xs, ys, (v) => Math.round(v).toString(), yFmt);
+      const pts = rows
+        .map((r) => `${ax.sx(r.step).toFixed(1)},${ax.sy(r[field]).toFixed(1)}`)
+        .join(" ");
+      svg.insertAdjacentHTML(
+        "beforeend",
+        `<polyline class="line" stroke="${color}" points="${pts}"/>`,
+      );
       for (const r of rows) {
-        svg.insertAdjacentHTML("beforeend", `<circle class="point" cx="${ax.sx(r.step).toFixed(1)}" cy="${ax.sy(r[field]).toFixed(1)}" r="3" fill="${color}"/>`);
+        svg.insertAdjacentHTML(
+          "beforeend",
+          `<circle class="point" cx="${ax.sx(r.step).toFixed(1)}" cy="${ax.sy(r[field]).toFixed(1)}" r="3" fill="${color}"/>`,
+        );
       }
     }
 
@@ -264,26 +361,48 @@ const pageStyle = `
       svg.innerHTML = "";
       if (rows.length === 0) return;
       const latest = rows[rows.length - 1];
-      const W = svg.clientWidth || 980, H = 270;
+      const W = svg.clientWidth || 980,
+        H = 270;
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
       const values = [
-        { label: "MSE", value: latest.mse, display: fmt(latest.mse), color: "#48e5c2" },
-        { label: "L0 frac", value: latest.l0_frac, display: fmtPct(latest.l0_frac), color: "#7aa6ff" },
-        { label: "L0 / sample", value: latest.l0_per_sample / Math.max(1, latest.d_features), display: latest.l0_per_sample.toFixed(1), color: "#f5b14a" },
+        {
+          label: "MSE",
+          value: latest.mse,
+          display: fmt(latest.mse),
+          color: "#48e5c2",
+        },
+        {
+          label: "L0 frac",
+          value: latest.l0_frac,
+          display: fmtPct(latest.l0_frac),
+          color: "#7aa6ff",
+        },
+        {
+          label: "L0 / sample",
+          value: latest.l0_per_sample / Math.max(1, latest.d_features),
+          display: latest.l0_per_sample.toFixed(1),
+          color: "#f5b14a",
+        },
       ];
-      const x0 = 58, y0 = 24, w = W - 90, h = H - 64;
-      const maxV = Math.max(...values.map(v => v.value), 0.001);
+      const x0 = 58,
+        y0 = 24,
+        w = W - 90,
+        h = H - 64;
+      const maxV = Math.max(...values.map((v) => v.value), 0.001);
       values.forEach((v, i) => {
         const bw = w / values.length - 36;
         const x = x0 + i * (w / values.length) + 18;
         const bh = Math.max(2, (v.value / maxV) * h);
         const y = y0 + h - bh;
-        svg.insertAdjacentHTML("beforeend",
+        svg.insertAdjacentHTML(
+          "beforeend",
           `<rect class="bar" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" fill="${v.color}"/>` +
-          `<text class="bar-label" x="${(x + bw / 2).toFixed(1)}" y="${(y - 8).toFixed(1)}" text-anchor="middle">${esc(v.display)}</text>` +
-          `<text class="tick" x="${(x + bw / 2).toFixed(1)}" y="${y0 + h + 20}" text-anchor="middle">${esc(v.label)}</text>`);
+            `<text class="bar-label" x="${(x + bw / 2).toFixed(1)}" y="${(y - 8).toFixed(1)}" text-anchor="middle">${esc(v.display)}</text>` +
+            `<text class="tick" x="${(x + bw / 2).toFixed(1)}" y="${y0 + h + 20}" text-anchor="middle">${esc(v.label)}</text>`,
+        );
       });
-      $("legend").innerHTML = `<span class="legend-item"><span class="swatch" style="background:#48e5c2"></span>latest step ${latest.step}</span>` +
+      $("legend").innerHTML =
+        `<span class="legend-item"><span class="swatch" style="background:#48e5c2"></span>latest step ${latest.step}</span>` +
         `<span class="legend-item"><span class="swatch" style="background:#7aa6ff"></span>${latest.d_features} features</span>` +
         `<span class="legend-item"><span class="swatch" style="background:#f5b14a"></span>${latest.sae_path}</span>`;
     }
@@ -292,23 +411,34 @@ const pageStyle = `
       if (rows.length === 0) return "";
       return `<div class="table-scroll"><table>
         <thead><tr><th class="num">step</th><th>layers</th><th class="num">mse</th><th class="num">l0</th><th class="num">l0 frac</th><th>sidecar</th></tr></thead>
-        <tbody>${rows.map(r => `<tr>
+        <tbody>${rows
+          .map(
+            (r) => `<tr>
           <td class="num">${r.step}</td>
           <td>${esc(groupKey(r))}</td>
           <td class="num">${fmt(r.mse)}</td>
           <td class="num">${r.l0_per_sample.toFixed(1)} / ${r.d_features}</td>
           <td class="num">${fmtPct(r.l0_frac)}</td>
           <td><div class="path">${esc(r.sae_path)}</div></td>
-        </tr>`).join("")}</tbody>
+        </tr>`,
+          )
+          .join("")}</tbody>
       </table></div>`;
     }
 
     function renderControls() {
-      const groups = [...new Set(state.rows.map(groupKey))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+      const groups = [...new Set(state.rows.map(groupKey))].sort((a, b) =>
+        a.localeCompare(b, undefined, { numeric: true }),
+      );
       const wrap = $("group-wrap");
       wrap.style.display = groups.length > 1 ? "flex" : "none";
       if (!groups.includes(state.group)) state.group = groups[0] || "";
-      $("group-select").innerHTML = groups.map(g => `<option value="${esc(g)}"${g === state.group ? " selected" : ""}>${esc(g)}</option>`).join("");
+      $("group-select").innerHTML = groups
+        .map(
+          (g) =>
+            `<option value="${esc(g)}"${g === state.group ? " selected" : ""}>${esc(g)}</option>`,
+        )
+        .join("");
       $("summary").innerHTML =
         `<span class="pill">${state.rows.length} rows</span>` +
         `<span class="pill">${groups.length} layer group${groups.length === 1 ? "" : "s"}</span>` +
@@ -318,7 +448,9 @@ const pageStyle = `
     }
 
     function render() {
-      const selected = state.rows.filter(r => !state.group || groupKey(r) === state.group);
+      const selected = state.rows.filter(
+        (r) => !state.group || groupKey(r) === state.group,
+      );
       $("charts").style.display = selected.length ? "grid" : "none";
       $("empty").style.display = selected.length ? "none" : "block";
       renderControls();
@@ -337,23 +469,34 @@ const pageStyle = `
       render();
     }
 
-    $("file").addEventListener("change", async e => {
+    $("file").addEventListener("change", async (e) => {
       const f = e.target.files?.[0];
       if (f) await addFile(f);
       e.target.value = "";
     });
     const drop = $("drop");
-    drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+    drop.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      drop.classList.add("over");
+    });
     drop.addEventListener("dragleave", () => drop.classList.remove("over"));
-    drop.addEventListener("drop", async e => {
-      e.preventDefault(); drop.classList.remove("over");
+    drop.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      drop.classList.remove("over");
       const f = e.dataTransfer.files?.[0];
       if (f) await addFile(f);
     });
     $("clear").addEventListener("click", () => {
-      state.rows = []; state.fileName = ""; state.skipped = 0; state.group = ""; render();
+      state.rows = [];
+      state.fileName = "";
+      state.skipped = 0;
+      state.group = "";
+      render();
     });
-    $("group-select").addEventListener("change", e => { state.group = e.target.value; render(); });
+    $("group-select").addEventListener("change", (e) => {
+      state.group = e.target.value;
+      render();
+    });
     render();
   </script>
 </Default>

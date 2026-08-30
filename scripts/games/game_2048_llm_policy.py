@@ -53,7 +53,9 @@ def flat_prompt(observation: dict[str, Any]) -> str:
 def constrained_action_schema(legal_actions: Sequence[str]) -> dict[str, Any]:
     return {
         "type": "object",
-        "properties": {"action": {"type": "string", "enum": list(legal_characters(legal_actions))}},
+        "properties": {
+            "action": {"type": "string", "enum": list(legal_characters(legal_actions))}
+        },
         "required": ["action"],
         "additionalProperties": False,
     }

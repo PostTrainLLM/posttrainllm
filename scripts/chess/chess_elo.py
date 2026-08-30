@@ -36,7 +36,9 @@ def fit_single_rating(observations: Sequence[tuple[float, float]]) -> tuple[floa
     low, high = LOWER_BOUND, UPPER_BOUND
     for _ in range(100):
         middle = (low + high) / 2
-        residual = sum(score - expected_score(middle, opponent) for opponent, score in observations)
+        residual = sum(
+            score - expected_score(middle, opponent) for opponent, score in observations
+        )
         if residual > 0:
             low = middle
         else:
@@ -101,7 +103,9 @@ def fit_connected_pool(
                 factor = augmented[row][column]
                 augmented[row] = [
                     current - factor * pivot_value
-                    for current, pivot_value in zip(augmented[row], augmented[column], strict=True)
+                    for current, pivot_value in zip(
+                        augmented[row], augmented[column], strict=True
+                    )
                 ]
         return [augmented[index][-1] for index in range(n)]
 

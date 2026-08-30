@@ -36,7 +36,9 @@ from model import ModelConfig, posttrainllm
 REPO = Path(__file__).resolve().parent.parent
 
 
-def load_model(ckpt_dir: str | Path, device: str | torch.device = "cpu") -> posttrainllm:
+def load_model(
+    ckpt_dir: str | Path, device: str | torch.device = "cpu"
+) -> posttrainllm:
     """Rebuild a posttrainllm from a checkpoint directory and load its weights."""
     ckpt = load_checkpoint(ckpt_dir, map_location=device)
     model = posttrainllm(ModelConfig(**ckpt["model_config"])).to(device)
@@ -61,8 +63,12 @@ def generate(
 
     generator = torch.Generator(device="cpu").manual_seed(seed)
     out = model.generate(
-        idx, max_new_tokens=max_new_tokens, temperature=temperature,
-        top_k=top_k, generator=generator)
+        idx,
+        max_new_tokens=max_new_tokens,
+        temperature=temperature,
+        top_k=top_k,
+        generator=generator,
+    )
     return decode(out[0].tolist())
 
 
@@ -79,9 +85,14 @@ def main(argv: list[str] | None = None) -> None:
 
     model = load_model(args.checkpoint, device=args.device)
     text = generate(
-        model, args.prompt, max_new_tokens=args.tokens,
-        temperature=args.temperature, top_k=args.top_k or None,
-        seed=args.seed, device=args.device)
+        model,
+        args.prompt,
+        max_new_tokens=args.tokens,
+        temperature=args.temperature,
+        top_k=args.top_k or None,
+        seed=args.seed,
+        device=args.device,
+    )
     print(text)
 
 

@@ -20,7 +20,9 @@ from pathlib import Path
 from datasets import load_dataset
 
 
-SYSTEM = "You are a text-to-SQL model. Return only one SQLite SELECT query, no markdown."
+SYSTEM = (
+    "You are a text-to-SQL model. Return only one SQLite SELECT query, no markdown."
+)
 
 
 def jdump(obj: object) -> str:
@@ -32,7 +34,9 @@ def simple_enough(sql: str, context: str) -> bool:
     s = sql.strip().lower()
     if not s.startswith("select "):
         return False
-    if any(tok in s for tok in [" join ", " union ", " intersect ", " except ", " over "]):
+    if any(
+        tok in s for tok in [" join ", " union ", " intersect ", " except ", " over "]
+    ):
         return False
     if s.count("select ") > 1:
         return False

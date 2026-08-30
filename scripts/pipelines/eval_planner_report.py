@@ -11,6 +11,7 @@ patterns that shrink under B get a ↓ marker and patterns new in B get a ⚠.
 
 Reads ~/.cache/posttrainllm/runs/h2-combined-<run-tag>/{ambig,oos,destructive}.json
 """
+
 import argparse
 import json
 import sys
@@ -57,19 +58,23 @@ def print_patterns(label, patterns):
     print(f"--- {label} failure patterns (top 3 per suite) ---")
     for suite in SUITES:
         for p in patterns[suite][:3]:
-            print(f"  {suite:<12} {p['count']:>3}×  {p['pattern']}"
-                  f"  (e.g. {p['fixtures'][0]})")
+            print(
+                f"  {suite:<12} {p['count']:>3}×  {p['pattern']}"
+                f"  (e.g. {p['fixtures'][0]})"
+            )
         rest = patterns[suite][3:]
         if rest:
-            print(f"  {suite:<12}      … and {sum(p['count'] for p in rest)}"
-                  f" more across {len(rest)} patterns")
+            print(
+                f"  {suite:<12}      … and {sum(p['count'] for p in rest)}"
+                f" more across {len(rest)} patterns"
+            )
 
 
 def print_pattern_diff(pat_a, pat_b):
     """↓ = pattern shrank under B (fewer failures of that kind).
-       ⚠ = pattern appeared only in B (new failure mode introduced by B).
-       Patterns identical or only in A are silent — the rule of thumb is
-       "tiering helped if ↓ outnumbers ⚠ in the OOS / ambig suites".
+    ⚠ = pattern appeared only in B (new failure mode introduced by B).
+    Patterns identical or only in A are silent — the rule of thumb is
+    "tiering helped if ↓ outnumbers ⚠ in the OOS / ambig suites".
     """
     if not any(pat_a.values()) and not any(pat_b.values()):
         return
@@ -88,11 +93,13 @@ def print_pattern_diff(pat_a, pat_b):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("run_tag")
-    ap.add_argument("--baseline",
-                    default=str(REPO / "evals" / "planner-champion.json"))
-    ap.add_argument("--candidate-b", default=None,
-                    help="optional second run-tag for A/B comparison; "
-                         "tag B is shown alongside A with an A-vs-B delta")
+    ap.add_argument("--baseline", default=str(REPO / "evals" / "planner-champion.json"))
+    ap.add_argument(
+        "--candidate-b",
+        default=None,
+        help="optional second run-tag for A/B comparison; "
+        "tag B is shown alongside A with an A-vs-B delta",
+    )
     args = ap.parse_args()
 
     base = json.loads(Path(args.baseline).read_text())
@@ -111,14 +118,13 @@ def main():
     title = f"\n=== eval-planner: {args.run_tag}"
     if args.candidate_b:
         title += f" vs {args.candidate_b} (A/B)"
-    title += f" vs champion ===\n"
+    title += " vs champion ===\n"
     print(title)
 
     rows = [
         ("floor", floor["model"], floor),
         ("champion", champ["model"], champ),
-        ("candidate-A" if args.candidate_b else "candidate",
-         args.run_tag, candidate),
+        ("candidate-A" if args.candidate_b else "candidate", args.run_tag, candidate),
     ]
     if args.candidate_b:
         rows.append(("candidate-B", args.candidate_b, candidate_b))
@@ -137,9 +143,11 @@ def main():
             delta_b_champ = pct(*candidate_b[suite]) - pct(*champ[suite])
             delta_ab = pct(*candidate_b[suite]) - pct(*candidate[suite])
             mark_ab = "+" if delta_ab > 0 else ""
-            line += (f" | B {('+' if delta_b_champ > 0 else '')}"
-                     f"{delta_b_champ:5.1f}pp vs champ"
-                     f" | B {mark_ab}{delta_ab:5.1f}pp vs A")
+            line += (
+                f" | B {('+' if delta_b_champ > 0 else '')}"
+                f"{delta_b_champ:5.1f}pp vs champ"
+                f" | B {mark_ab}{delta_ab:5.1f}pp vs A"
+            )
         print(line)
 
     if args.candidate_b:
@@ -153,14 +161,20 @@ def main():
         destr_reg = pct(*candidate["destructive"]) - pct(*candidate_b["destructive"])
         print()
         if ambig_oos_gain >= 5.0 and destr_reg < 3.0:
-            print(f"  E9 GATE: PASS — B beats A by {ambig_oos_gain:.1f}pp on "
-                  f"unhappy-path dims, destructive regressed {destr_reg:.1f}pp.")
-            print("  Action: tiered prompts become the default — bump v11 to "
-                  "v11-compact in Pace's Info.plist and eval_planner.sh.")
+            print(
+                f"  E9 GATE: PASS — B beats A by {ambig_oos_gain:.1f}pp on "
+                f"unhappy-path dims, destructive regressed {destr_reg:.1f}pp."
+            )
+            print(
+                "  Action: tiered prompts become the default — bump v11 to "
+                "v11-compact in Pace's Info.plist and eval_planner.sh."
+            )
         else:
-            print(f"  E9 GATE: HOLD — best unhappy-dim gain {ambig_oos_gain:.1f}pp "
-                  f"(needs ≥5pp), destructive regression {destr_reg:.1f}pp "
-                  f"(needs <3pp).")
+            print(
+                f"  E9 GATE: HOLD — best unhappy-dim gain {ambig_oos_gain:.1f}pp "
+                f"(needs ≥5pp), destructive regression {destr_reg:.1f}pp "
+                f"(needs <3pp)."
+            )
 
     print()
     if args.candidate_b:
@@ -173,18 +187,28 @@ def main():
         if len(wins) == len(SUITES) and any(
             pct(*candidate[s]) > pct(*champ[s]) for s in SUITES
         ):
-            print("VERDICT: NEW CHAMPION CANDIDATE — beats or ties the champion on all dims.")
+            print(
+                "VERDICT: NEW CHAMPION CANDIDATE — beats or ties the champion on all dims."
+            )
             print("  Next: update evals/planner-champion.json and Pace's")
-            print("  Info.plist:LocalPlannerModelIdentifier (see docs/sessions/DRILLDOWN.md precedent).")
-            print("  Caveat: n=130; dims at n=40 carry ~±15pp CI — re-run before swapping.")
+            print(
+                "  Info.plist:LocalPlannerModelIdentifier (see docs/sessions/DRILLDOWN.md precedent)."
+            )
+            print(
+                "  Caveat: n=130; dims at n=40 carry ~±15pp CI — re-run before swapping."
+            )
         else:
             losses = [s for s in SUITES if s not in wins]
             if losses:
-                print(f"VERDICT: champion stands ({champ['model']}). "
-                      f"Candidate loses on: {', '.join(losses)}.")
+                print(
+                    f"VERDICT: champion stands ({champ['model']}). "
+                    f"Candidate loses on: {', '.join(losses)}."
+                )
             else:
-                print(f"VERDICT: champion stands ({champ['model']}). "
-                      f"Candidate ties on every dim — no reason to swap.")
+                print(
+                    f"VERDICT: champion stands ({champ['model']}). "
+                    f"Candidate ties on every dim — no reason to swap."
+                )
     print()
 
 

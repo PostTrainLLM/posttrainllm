@@ -9,10 +9,10 @@ from __future__ import annotations
 
 import copy
 import importlib.util
-import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
 
 def _script_path(filename):
     """scripts/ is grouped into topic subdirs; find a script in any of them."""
@@ -61,9 +61,7 @@ def test_frontier_calibration_is_hash_linked_and_reproducible():
         ac.load_jsonl(FIXTURES / "eval-v1.jsonl"),
         ac.load_jsonl(predictions_path),
     )
-    assert calibration["fixture_sha256"] == ac.sha256_file(
-        FIXTURES / "eval-v1.jsonl"
-    )
+    assert calibration["fixture_sha256"] == ac.sha256_file(FIXTURES / "eval-v1.jsonl")
     assert calibration["predictions_sha256"] == ac.sha256_file(predictions_path)
     assert calibration["result"]["rows"] == report["overall"]["rows"] == 18
     assert calibration["result"]["exact_match_rate"] == 1.0
@@ -178,7 +176,10 @@ def test_manifests_are_deterministic_source_first_and_bounded():
         assert rows_a == rows_b
         assert summary_a == summary_b == manifest["expected"]
         assert summary_a["rows"] <= 256
-        assert all(row["split"] == source_by_id[row["source_document_id"]]["split"] for row in rows_a)
+        assert all(
+            row["split"] == source_by_id[row["source_document_id"]]["split"]
+            for row in rows_a
+        )
         assert all(row["split"] != "test" for row in rows_a)
     tiny = ac.load_json(FIXTURES / "tiny-overfit-manifest-v1.json")["expected"]
     assert tiny["utf8_bytes"] <= 10 * 1024
@@ -256,9 +257,7 @@ def test_distribution_report_is_reproducible_and_test_fixture_is_frozen():
 
 def test_base_bakeoff_preserves_complete_measured_evidence():
     report = ac.load_json(FIXTURES / "base-bakeoff-v1.json")
-    assert report["fixture"]["sha256"] == ac.sha256_file(
-        FIXTURES / "eval-v1.jsonl"
-    )
+    assert report["fixture"]["sha256"] == ac.sha256_file(FIXTURES / "eval-v1.jsonl")
     assert report["selection"]["model_key"] == "flan-t5-small"
     assert report["selection"]["decision"] == "advance-to-training-feasibility"
     assert len(report["candidates"]) == 3

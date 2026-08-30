@@ -19,7 +19,9 @@ from pathlib import Path
 from typing import Any
 
 
-SYSTEM = "You are a text-to-SQL model. Return only one SQLite SELECT query, no markdown."
+SYSTEM = (
+    "You are a text-to-SQL model. Return only one SQLite SELECT query, no markdown."
+)
 
 
 def jdump(obj: object) -> str:
@@ -61,11 +63,27 @@ def clean_sql(sql: str) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--spider-root", required=True, help="Directory containing dev.json and database/.")
-    ap.add_argument("--split", default="dev.json", help="Split JSON path relative to --spider-root.")
+    ap.add_argument(
+        "--spider-root",
+        required=True,
+        help="Directory containing dev.json and database/.",
+    )
+    ap.add_argument(
+        "--split", default="dev.json", help="Split JSON path relative to --spider-root."
+    )
     ap.add_argument("--out", required=True, help="Output directory.")
-    ap.add_argument("--limit", type=int, default=0, help="Maximum rows to emit; 0 means all usable rows.")
-    ap.add_argument("--select-only", action="store_true", default=True, help="Keep only SELECT gold queries.")
+    ap.add_argument(
+        "--limit",
+        type=int,
+        default=0,
+        help="Maximum rows to emit; 0 means all usable rows.",
+    )
+    ap.add_argument(
+        "--select-only",
+        action="store_true",
+        default=True,
+        help="Keep only SELECT gold queries.",
+    )
     ap.add_argument("--include-non-select", dest="select_only", action="store_false")
     args = ap.parse_args()
 
@@ -114,7 +132,9 @@ def main() -> None:
     if not rows:
         raise SystemExit(f"no usable Spider rows from {split_path}; skipped={skipped}")
 
-    (out / "dev.jsonl").write_text("\n".join(jdump(r) for r in rows) + "\n", encoding="utf-8")
+    (out / "dev.jsonl").write_text(
+        "\n".join(jdump(r) for r in rows) + "\n", encoding="utf-8"
+    )
     (out / "manifest.json").write_text(
         jdump(
             {

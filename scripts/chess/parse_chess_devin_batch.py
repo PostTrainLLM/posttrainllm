@@ -47,7 +47,11 @@ def extract_moves_object(text: str) -> dict[str, Any]:
 def main() -> int:
     args = parse_args()
     suite = benchmark.load_puzzle_suite(args.suite)
-    if args.offset < 0 or not 1 <= args.limit or args.offset + args.limit > len(suite["puzzles"]):
+    if (
+        args.offset < 0
+        or not 1 <= args.limit
+        or args.offset + args.limit > len(suite["puzzles"])
+    ):
         raise ValueError("batch bounds are outside suite")
     puzzles = suite["puzzles"][args.offset : args.offset + args.limit]
     raw_log = args.raw_log.read_text(encoding="utf-8")
@@ -93,9 +97,13 @@ def main() -> int:
                 "raw_output": raw,
                 "parsed_move": parsed,
                 "raw_legal": parsed is not None,
-                "exact": parsed in puzzle["best_moves"] if parsed is not None else False,
+                "exact": parsed in puzzle["best_moves"]
+                if parsed is not None
+                else False,
                 "failure": row_failure,
-                "execution": "validated-legal" if parsed is not None else "abstain-or-redirect-required",
+                "execution": "validated-legal"
+                if parsed is not None
+                else "abstain-or-redirect-required",
             }
         )
     legal = sum(row["raw_legal"] for row in decisions)
@@ -135,7 +143,9 @@ def main() -> int:
     }
     result["trace_hash"] = benchmark.sha256_json(result)
     benchmark.write_json_exclusive(args.output, result)
-    print(json.dumps({"output": str(args.output), **result["aggregate"]}, sort_keys=True))
+    print(
+        json.dumps({"output": str(args.output), **result["aggregate"]}, sort_keys=True)
+    )
     return 0
 
 

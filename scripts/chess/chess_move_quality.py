@@ -34,7 +34,13 @@ def load_config(path: Path) -> dict[str, Any]:
     config = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(config, dict) or config.get("schema_version") != CONFIG_SCHEMA:
         raise ValueError("unsupported chess move-quality config")
-    if set(config) != {"schema_version", "config_id", "status", "engine", "thresholds_cp"}:
+    if set(config) != {
+        "schema_version",
+        "config_id",
+        "status",
+        "engine",
+        "thresholds_cp",
+    }:
         raise ValueError("move-quality config fields are incomplete")
     engine = config["engine"]
     if set(engine) != {
@@ -79,8 +85,12 @@ def summarize_losses(losses: list[int], thresholds: dict[str, int]) -> dict[str,
         "scored_moves": len(losses),
         "average_centipawn_loss": sum(losses) / len(losses),
         "median_centipawn_loss": median,
-        "blunder_rate": sum(loss >= thresholds["blunder"] for loss in losses) / len(losses),
-        "severe_blunder_rate": sum(loss >= thresholds["severe_blunder"] for loss in losses) / len(losses),
+        "blunder_rate": sum(loss >= thresholds["blunder"] for loss in losses)
+        / len(losses),
+        "severe_blunder_rate": sum(
+            loss >= thresholds["severe_blunder"] for loss in losses
+        )
+        / len(losses),
     }
 
 
@@ -97,8 +107,12 @@ class StockfishReferee:
 
     def _score(self, board: chess.Board, root_move: chess.Move | None = None) -> int:
         kwargs = {"root_moves": [root_move]} if root_move is not None else {}
-        info = self.engine.analyse(board, chess.engine.Limit(depth=self.config["depth"]), **kwargs)
-        value = info["score"].pov(board.turn).score(mate_score=self.config["mate_score_cp"])
+        info = self.engine.analyse(
+            board, chess.engine.Limit(depth=self.config["depth"]), **kwargs
+        )
+        value = (
+            info["score"].pov(board.turn).score(mate_score=self.config["mate_score_cp"])
+        )
         if value is None:
             raise ValueError("Stockfish returned an unscorable position")
         return int(value)
@@ -126,14 +140,19 @@ def grade_trace(
         raise ValueError("move-quality input must contain full-game traces")
     for game in games:
         for decision in game.get("decisions", []):
-            if decision.get("policy_id") != candidate_policy_id or not decision.get("legal"):
+            if decision.get("policy_id") != candidate_policy_id or not decision.get(
+                "legal"
+            ):
                 continue
             board = chess.Board(decision["pre_fen"])
             move = chess.Move.from_uci(decision["parsed_move"])
             if move not in board.legal_moves:
                 raise ValueError("archived trace marks an illegal move as legal")
             best_cp, played_cp = score_move(board, move)
-            if not all(isinstance(value, int) and not isinstance(value, bool) for value in (best_cp, played_cp)):
+            if not all(
+                isinstance(value, int) and not isinstance(value, bool)
+                for value in (best_cp, played_cp)
+            ):
                 raise ValueError("move scorer must return integer centipawn values")
             loss = max(0, best_cp - played_cp)
             rows.append(
@@ -156,7 +175,9 @@ def main() -> int:
     args = parse_args()
     config = load_config(args.config)
     document = json.loads(args.input.read_text(encoding="utf-8"))
-    policy_id = args.candidate_policy_id or document.get("candidate", {}).get("policy_id")
+    policy_id = args.candidate_policy_id or document.get("candidate", {}).get(
+        "policy_id"
+    )
     if not isinstance(policy_id, str) or not policy_id:
         raise ValueError("candidate policy id is missing")
     requested_binary = args.stockfish or config["engine"]["binary"]
@@ -165,7 +186,9 @@ def main() -> int:
         raise ValueError(f"Stockfish binary not found: {requested_binary}")
     referee = StockfishReferee(binary, config["engine"])
     try:
-        aggregate, rows = grade_trace(document, policy_id, config["thresholds_cp"], referee.score_move)
+        aggregate, rows = grade_trace(
+            document, policy_id, config["thresholds_cp"], referee.score_move
+        )
     finally:
         referee.close()
     result = {
@@ -186,7 +209,10 @@ def main() -> int:
             "role": "offline-referee-never-available-at-inference",
         },
         "thresholds_cp": config["thresholds_cp"],
-        "runtime": {"python": platform.python_version(), "python_chess": chess.__version__},
+        "runtime": {
+            "python": platform.python_version(),
+            "python_chess": chess.__version__,
+        },
         "aggregate": aggregate,
         "decisions": rows,
     }

@@ -26,6 +26,7 @@ from train import TrainConfig, build_optimizer, pick_device  # noqa: E402
 
 import chess_benchmark as benchmark  # noqa: E402
 import chess_sft_corpus as corpus  # noqa: E402
+
 # research/ is a sibling group under scripts/; add it to the import path.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.joinpath("research")))
 from autocorrect_adapter import GPULock  # noqa: E402
@@ -52,7 +53,9 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def load_compiled_rows(path: Path, maximum_train_rows: int | None = None) -> dict[str, list[dict[str, Any]]]:
+def load_compiled_rows(
+    path: Path, maximum_train_rows: int | None = None
+) -> dict[str, list[dict[str, Any]]]:
     if maximum_train_rows is not None and maximum_train_rows < 1:
         raise ValueError("maximum_train_rows must be positive")
     splits = {"train": [], "validation": [], "test": []}
@@ -62,7 +65,10 @@ def load_compiled_rows(path: Path, maximum_train_rows: int | None = None) -> dic
             if not raw_line.strip():
                 continue
             row = json.loads(raw_line)
-            if not isinstance(row, dict) or row.get("schema_version") != corpus.ROW_SCHEMA:
+            if (
+                not isinstance(row, dict)
+                or row.get("schema_version") != corpus.ROW_SCHEMA
+            ):
                 raise ValueError(f"unsupported compiled row at line {line_number}")
             unhashed = {key: value for key, value in row.items() if key != "row_hash"}
             if row.get("row_hash") != benchmark.sha256_json(unhashed):
@@ -70,18 +76,28 @@ def load_compiled_rows(path: Path, maximum_train_rows: int | None = None) -> dic
             fen = row.get("fen")
             split = row.get("split")
             if not isinstance(fen, str) or split not in splits or fen in seen:
-                raise ValueError(f"invalid or duplicate compiled row at line {line_number}")
+                raise ValueError(
+                    f"invalid or duplicate compiled row at line {line_number}"
+                )
             if row.get("target") not in row.get("legal_moves", []):
                 raise ValueError(f"compiled target is not legal at line {line_number}")
             sequence = f"{row['input']}{row['target']}\n".encode("utf-8")
             prompt = row["input"].encode("utf-8")
             if len(sequence) > 512 or len(prompt) < 1:
-                raise ValueError(f"compiled sequence length is invalid at line {line_number}")
+                raise ValueError(
+                    f"compiled sequence length is invalid at line {line_number}"
+                )
             seen.add(fen)
-            if split != "train" or maximum_train_rows is None or len(splits["train"]) < maximum_train_rows:
+            if (
+                split != "train"
+                or maximum_train_rows is None
+                or len(splits["train"]) < maximum_train_rows
+            ):
                 splits[split].append(row)
     if not splits["train"] or not splits["validation"] or not splits["test"]:
-        raise ValueError("compiled pilot requires non-empty train, validation, and test splits")
+        raise ValueError(
+            "compiled pilot requires non-empty train, validation, and test splits"
+        )
     return splits
 
 
@@ -97,7 +113,9 @@ def encode_row(row: dict[str, Any]) -> tuple[list[int], list[int]]:
     return inputs, masked
 
 
-def collate_rows(rows: Sequence[dict[str, Any]], device: torch.device) -> tuple[torch.Tensor, torch.Tensor]:
+def collate_rows(
+    rows: Sequence[dict[str, Any]], device: torch.device
+) -> tuple[torch.Tensor, torch.Tensor]:
     encoded = [encode_row(row) for row in rows]
     maximum = max(len(inputs) for inputs, _ in encoded)
     inputs = [tokens + [0] * (maximum - len(tokens)) for tokens, _ in encoded]
@@ -108,7 +126,9 @@ def collate_rows(rows: Sequence[dict[str, Any]], device: torch.device) -> tuple[
     )
 
 
-def sample_rows(rows: Sequence[dict[str, Any]], batch_size: int, generator: torch.Generator) -> list[dict[str, Any]]:
+def sample_rows(
+    rows: Sequence[dict[str, Any]], batch_size: int, generator: torch.Generator
+) -> list[dict[str, Any]]:
     indices = torch.randint(0, len(rows), (batch_size,), generator=generator).tolist()
     return [rows[index] for index in indices]
 
@@ -137,7 +157,9 @@ def evaluate_loss(
 
 def train(args: argparse.Namespace) -> None:
     if args.out.exists() and args.resume is None:
-        raise ValueError(f"refusing to overwrite existing checkpoint directory: {args.out}")
+        raise ValueError(
+            f"refusing to overwrite existing checkpoint directory: {args.out}"
+        )
     model_cfg = ModelConfig.from_json(args.model_config)
     if model_cfg.vocab_size != 256:
         raise ValueError("Character Chess SFT requires the byte vocabulary")
@@ -189,7 +211,9 @@ def train(args: argparse.Namespace) -> None:
         f"dataset: train={len(rows['train']):,} validation={len(rows['validation']):,} "
         f"test={len(rows['test']):,} sha={manifest['dataset_sha256'][:12]}..."
     )
-    print(f"model: {model_cfg.model_name} {model.num_params():,} params device={device}")
+    print(
+        f"model: {model_cfg.model_name} {model.num_params():,} params device={device}"
+    )
     print("objective: completion-only loss; prompt bytes masked to -100")
     started = time.time()
     tokens_seen = prior_tokens_seen
@@ -197,14 +221,26 @@ def train(args: argparse.Namespace) -> None:
     for step in range(start_step, train_cfg.max_steps + 1):
         if step % train_cfg.eval_interval == 0:
             train_loss = evaluate_loss(
-                model, rows["train"], train_cfg.batch_size, device, seed=train_cfg.seed + step
+                model,
+                rows["train"],
+                train_cfg.batch_size,
+                device,
+                seed=train_cfg.seed + step,
             )
             val_loss = evaluate_loss(
-                model, rows["validation"], train_cfg.batch_size, device, seed=train_cfg.seed + 1_000_000 + step
+                model,
+                rows["validation"],
+                train_cfg.batch_size,
+                device,
+                seed=train_cfg.seed + 1_000_000 + step,
             )
             best_val = min(best_val, val_loss)
-            loss_history.append({"step": step, "train_loss": train_loss, "val_loss": val_loss})
-            print(f"step {step:>6} train {train_loss:.4f} val {val_loss:.4f}", flush=True)
+            loss_history.append(
+                {"step": step, "train_loss": train_loss, "val_loss": val_loss}
+            )
+            print(
+                f"step {step:>6} train {train_loss:.4f} val {val_loss:.4f}", flush=True
+            )
         if step > start_step and step % train_cfg.checkpoint_interval == 0:
             save_checkpoint(
                 args.out,

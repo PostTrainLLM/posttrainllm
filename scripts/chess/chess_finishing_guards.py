@@ -22,7 +22,11 @@ def board_from_state(state: dict[str, Any]) -> chess.Board:
     fen = state.get("fen")
     initial_fen = state.get("initial_fen")
     history = state.get("history_uci")
-    if isinstance(initial_fen, str) and isinstance(history, list) and all(isinstance(row, str) for row in history):
+    if (
+        isinstance(initial_fen, str)
+        and isinstance(history, list)
+        and all(isinstance(row, str) for row in history)
+    ):
         board = chess.Board(initial_fen)
         for move_text in history:
             move = chess.Move.from_uci(move_text)
@@ -140,12 +144,21 @@ def finishing_guard_candidates(
     mating = [text for text in ordered if move_is_mate(board, moves[text])]
     mate_available = bool(mating)
     if mating and len(mating) < len(ordered):
-        events.append(_event("deliver-mate-in-one", len(ordered), len(mating), "mate-available"))
+        events.append(
+            _event("deliver-mate-in-one", len(ordered), len(mating), "mate-available")
+        )
         return mating, events
 
     safe = [text for text in ordered if not move_allows_mate_in_one(board, moves[text])]
     if safe and len(safe) < len(ordered):
-        events.append(_event("avoid-opponent-mate-in-one", len(ordered), len(safe), "safe-alternative"))
+        events.append(
+            _event(
+                "avoid-opponent-mate-in-one",
+                len(ordered),
+                len(safe),
+                "safe-alternative",
+            )
+        )
         ordered = safe
 
     winning, winning_reason = winning_for_side_to_move(
@@ -155,13 +168,22 @@ def finishing_guard_candidates(
         confine_replies=confine_replies,
     )
     if winning:
-        non_drawing = [text for text in ordered if not move_gives_draw(board, moves[text])]
+        non_drawing = [
+            text for text in ordered if not move_gives_draw(board, moves[text])
+        ]
         non_drawing_safe = [
-            text for text in non_drawing if not move_allows_mate_in_one(board, moves[text])
+            text
+            for text in non_drawing
+            if not move_allows_mate_in_one(board, moves[text])
         ]
         if non_drawing_safe and len(non_drawing_safe) < len(ordered):
             events.append(
-                _event("avoid-draw-while-winning", len(ordered), len(non_drawing_safe), winning_reason or "winning")
+                _event(
+                    "avoid-draw-while-winning",
+                    len(ordered),
+                    len(non_drawing_safe),
+                    winning_reason or "winning",
+                )
             )
             ordered = non_drawing_safe
     return ordered, events

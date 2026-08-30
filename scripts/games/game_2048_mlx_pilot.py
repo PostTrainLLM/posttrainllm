@@ -41,7 +41,9 @@ class MlxCharacterPolicy:
                 enable_thinking=False,
             )
         except TypeError:
-            return self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            return self.tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
 
     def choose(self, observation: dict[str, Any], legal_actions: Sequence[str]) -> str:
         from mlx_lm import generate
@@ -84,7 +86,9 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True, help="Local MLX model directory")
     parser.add_argument("--policy-id", required=True)
-    parser.add_argument("--track", choices=llm_policy.TRACKS, default=llm_policy.STRICT_TRACK)
+    parser.add_argument(
+        "--track", choices=llm_policy.TRACKS, default=llm_policy.STRICT_TRACK
+    )
     parser.add_argument("--seed", type=int, action="append", required=True)
     parser.add_argument("--max-moves", type=int, default=128)
     parser.add_argument("--output", type=Path, required=True)
@@ -117,12 +121,22 @@ def main() -> int:
         "raw_outputs": policy.raw_outputs,
         "aggregate": {
             "games": len(episodes),
-            "mean_score": sum(episode["final_observation"]["score"] for episode in episodes) / len(episodes),
-            "mean_maximum_tile": sum(episode["metrics"]["maximum_tile"] for episode in episodes) / len(episodes),
+            "mean_score": sum(
+                episode["final_observation"]["score"] for episode in episodes
+            )
+            / len(episodes),
+            "mean_maximum_tile": sum(
+                episode["metrics"]["maximum_tile"] for episode in episodes
+            )
+            / len(episodes),
             "invalid_decisions": sum(
-                episode["metrics"]["decisions"] - episode["metrics"]["legal_decisions"] for episode in episodes
+                episode["metrics"]["decisions"] - episode["metrics"]["legal_decisions"]
+                for episode in episodes
             ),
-            "mean_moves": sum(episode["final_observation"]["move_count"] for episode in episodes) / len(episodes),
+            "mean_moves": sum(
+                episode["final_observation"]["move_count"] for episode in episodes
+            )
+            / len(episodes),
         },
     }
     game.write_json_exclusive(args.output, summary)

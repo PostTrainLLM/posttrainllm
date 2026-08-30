@@ -37,15 +37,25 @@ def load_config(path: Path) -> dict[str, Any]:
     if not isinstance(config, dict) or config.get("schema_version") != CONFIG_SCHEMA:
         raise ValueError("unsupported deep-label verification config")
     depths = config.get("verification_depths")
-    if not isinstance(depths, list) or len(depths) != 2 or any(not isinstance(value, int) for value in depths):
+    if (
+        not isinstance(depths, list)
+        or len(depths) != 2
+        or any(not isinstance(value, int) for value in depths)
+    ):
         raise ValueError("verification depths must contain exactly two integers")
     if depths != sorted(set(depths)) or depths[0] < 1:
         raise ValueError("verification depths must be unique and increasing")
     if not isinstance(config.get("multipv"), int) or config["multipv"] < 2:
         raise ValueError("multipv must be at least two")
-    if not isinstance(config.get("minimum_final_gap_cp"), int) or config["minimum_final_gap_cp"] < 0:
+    if (
+        not isinstance(config.get("minimum_final_gap_cp"), int)
+        or config["minimum_final_gap_cp"] < 0
+    ):
         raise ValueError("minimum final gap must be a non-negative integer")
-    if not isinstance(config.get("verification_slice_count"), int) or config["verification_slice_count"] < 1:
+    if (
+        not isinstance(config.get("verification_slice_count"), int)
+        or config["verification_slice_count"] < 1
+    ):
         raise ValueError("verification slice count must be positive")
     return config
 
@@ -79,7 +89,9 @@ def summarize_analysis(
     mate_score: int,
 ) -> dict[str, Any]:
     if len(infos) < 2:
-        raise ValueError("engine analysis must contain at least two principal variations")
+        raise ValueError(
+            "engine analysis must contain at least two principal variations"
+        )
     variations = []
     for rank, info in enumerate(infos, start=1):
         pv = list(info.get("pv", []))
@@ -102,7 +114,8 @@ def summarize_analysis(
         "best_score_cp": variations[0]["score_cp"],
         "second_score_cp": variations[1]["score_cp"],
         "gap_cp": variations[0]["score_cp"] - variations[1]["score_cp"],
-        "equivalent_forced_mates": variations[0]["mate_in"] is not None and variations[1]["mate_in"] is not None,
+        "equivalent_forced_mates": variations[0]["mate_in"] is not None
+        and variations[1]["mate_in"] is not None,
         "variations": variations,
     }
 
@@ -123,15 +136,23 @@ def admission_reasons(
         reasons.append("insufficient-final-gap")
     if deep["equivalent_forced_mates"]:
         reasons.append("multiple-forced-mate-moves")
-    if not all(row["pv_legal"] for analysis in (shallow, deep) for row in analysis["variations"]):
+    if not all(
+        row["pv_legal"]
+        for analysis in (shallow, deep)
+        for row in analysis["variations"]
+    ):
         reasons.append("illegal-principal-variation")
     return reasons
 
 
-def select_verification_slice(puzzles: Sequence[dict[str, Any]], count: int, seed: int) -> list[dict[str, Any]]:
+def select_verification_slice(
+    puzzles: Sequence[dict[str, Any]], count: int, seed: int
+) -> list[dict[str, Any]]:
     if count > len(puzzles):
         raise ValueError("verification slice is larger than the admitted pool")
-    ordered = sorted(puzzles, key=lambda row: (row["label"]["legal_move_count"], row["id"]))
+    ordered = sorted(
+        puzzles, key=lambda row: (row["label"]["legal_move_count"], row["id"])
+    )
     buckets = [ordered[index::4] for index in range(4)]
     rng = random.Random(seed)
     for bucket in buckets:
@@ -225,7 +246,9 @@ def main() -> int:
                         },
                     }
                 )
-    stability_count = sum(row["analyses"][0]["top_move"] == row["analyses"][1]["top_move"] for row in rows)
+    stability_count = sum(
+        row["analyses"][0]["top_move"] == row["analyses"][1]["top_move"] for row in rows
+    )
     report = {
         "schema_version": REPORT_SCHEMA,
         "candidate_suite_id": candidates["suite_id"],
@@ -278,7 +301,17 @@ def main() -> int:
     benchmark.write_json_exclusive(args.output_report, report)
     benchmark.write_json_exclusive(args.output_suite, admitted_suite)
     benchmark.write_json_exclusive(args.output_slice, verification_slice)
-    print(json.dumps({"candidates": len(rows), "stable": stability_count, "admitted": len(admitted), "slice": len(slice_rows)}, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "candidates": len(rows),
+                "stable": stability_count,
+                "admitted": len(admitted),
+                "slice": len(slice_rows),
+            },
+            sort_keys=True,
+        )
+    )
     return 0
 
 

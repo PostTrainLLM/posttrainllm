@@ -249,7 +249,9 @@ def compile_from_run(run_dir: Path) -> dict[str, Any]:
             threshold=threshold_field,
             passed=passed_field,
             sample_size=n_field,
-            frontier=_frontier_field(validity_src, candidate.get("suite") or primary_name, src),
+            frontier=_frontier_field(
+                validity_src, candidate.get("suite") or primary_name, src
+            ),
             suite=candidate.get("suite") or primary_name,
             command=candidate.get("command"),
             command_source=src("eval-candidate.json", "command"),
@@ -629,7 +631,9 @@ def _gate(
             "date": (
                 rc.measured(date, [date_source])
                 if date
-                else rc.missing("No eval date is recorded for this gate.", [date_source])
+                else rc.missing(
+                    "No eval date is recorded for this gate.", [date_source]
+                )
             ),
             "frozen": frozen,
         },
@@ -668,7 +672,10 @@ def _regression_gate_from_slices(
                 f"`{regression_name}`: the run folder carries one baseline/candidate "
                 "pair (the primary gate), and config.eval.regression_slice does not "
                 "name the slice that holds this gate's scores.",
-                [src("config.json", "eval.regression_slice"), src("slice-metrics.json")],
+                [
+                    src("config.json", "eval.regression_slice"),
+                    src("slice-metrics.json"),
+                ],
             )
 
         return _gate(
@@ -779,11 +786,7 @@ def compile_from_specialist(pkg_dir: Path) -> dict[str, Any]:
                 break
 
     quality = report.get("evidence_quality")
-    hist_note = (
-        f"Recorded evidence quality: {quality}. "
-        if quality
-        else ""
-    ) + (
+    hist_note = (f"Recorded evidence quality: {quality}. " if quality else "") + (
         "Imported from a committed specialist package rather than a canonical "
         "factory-run folder, so it lacks current run provenance (command, "
         "hashes, raw predictions)."
@@ -1176,11 +1179,15 @@ def _classify_role(suite: str) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     source = p.add_mutually_exclusive_group(required=True)
     source.add_argument("--run", help="canonical factory run folder (runs/<id>)")
     source.add_argument("--specialist", help="committed specialist package directory")
-    p.add_argument("--out", help="directory to write report-card.json + report-card.html")
+    p.add_argument(
+        "--out", help="directory to write report-card.json + report-card.html"
+    )
     p.add_argument("--json-out", help="explicit path for the JSON payload")
     p.add_argument("--html-out", help="explicit path for the static HTML report")
     p.add_argument(

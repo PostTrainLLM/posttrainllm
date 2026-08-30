@@ -32,12 +32,16 @@ def read_jsonl(path: Path) -> list[dict]:
 
 def write_jsonl(path: Path, rows: list[dict]) -> None:
     path.write_text(
-        "\n".join(json.dumps(row, ensure_ascii=False, separators=(",", ":")) for row in rows)
+        "\n".join(
+            json.dumps(row, ensure_ascii=False, separators=(",", ":")) for row in rows
+        )
         + ("\n" if rows else "")
     )
 
 
-def route_for(row: dict, default: str, trust_route_field: bool = False) -> RouteDecision:
+def route_for(
+    row: dict, default: str, trust_route_field: bool = False
+) -> RouteDecision:
     if trust_route_field and row.get("route") in {"public", "synthetic"}:
         return RouteDecision(row["route"], "trusted_route_field", 1.0)
     if row.get("db"):
@@ -50,8 +54,10 @@ def route_for(row: dict, default: str, trust_route_field: bool = False) -> Route
     text = f"{schema}\n{prompt}".lower()
     if "create table" in text and not row.get("db"):
         return RouteDecision("public", "create_table_schema_without_db", 0.95)
-    if "schema:" in text and ";" in text and any(
-        field in row for field in ("domain", "gold_sql", "question")
+    if (
+        "schema:" in text
+        and ";" in text
+        and any(field in row for field in ("domain", "gold_sql", "question"))
     ):
         return RouteDecision("synthetic", "compact_schema_prompt", 0.65)
     return RouteDecision(default, "default_route", 0.25)
@@ -108,7 +114,10 @@ def main() -> None:
             if not getattr(args, name)
         ]
         if missing:
-            p.error("missing required generation args: " + ", ".join(f"--{m.replace('_', '-')}" for m in missing))
+            p.error(
+                "missing required generation args: "
+                + ", ".join(f"--{m.replace('_', '-')}" for m in missing)
+            )
 
     rows = read_jsonl(Path(args.input))
     buckets = {"public": [], "synthetic": []}
@@ -160,7 +169,9 @@ def main() -> None:
             for pred in read_jsonl(out_path):
                 idx = int(pred.pop("_route_index"))
                 pred["_route"] = route
-                pred["_route_reason"] = route_for(pred, args.default_route, args.trust_route_field).reason
+                pred["_route_reason"] = route_for(
+                    pred, args.default_route, args.trust_route_field
+                ).reason
                 outputs[idx] = pred
 
     merged = [outputs[i] for i in range(len(rows))]

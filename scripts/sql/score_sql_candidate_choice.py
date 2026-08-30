@@ -32,7 +32,11 @@ def pred_to_id(row: dict, choice_row: dict) -> str | None:
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     p.add_argument("--choices", required=True)
-    p.add_argument("--preds", required=True, help="JSONL with id plus selected_id or selected_index")
+    p.add_argument(
+        "--preds",
+        required=True,
+        help="JSONL with id plus selected_id or selected_index",
+    )
     p.add_argument("--out", default="", help="optional per-row scored JSONL")
     args = p.parse_args()
 
@@ -54,17 +58,22 @@ def main() -> None:
         for sl in row.get("slices", []):
             by_slice[sl]["n"] += 1
             by_slice[sl]["correct"] += int(ok)
-        scored.append({
-            "id": row["id"],
-            "selected_id": selected_id,
-            "answer_id": row["answer_id"],
-            "correct": ok,
-            "slices": row.get("slices", []),
-        })
+        scored.append(
+            {
+                "id": row["id"],
+                "selected_id": selected_id,
+                "answer_id": row["answer_id"],
+                "correct": ok,
+                "slices": row.get("slices", []),
+            }
+        )
 
     if args.out:
         Path(args.out).write_text(
-            "\n".join(json.dumps(r, separators=(",", ":"), sort_keys=True) for r in scored) + "\n"
+            "\n".join(
+                json.dumps(r, separators=(",", ":"), sort_keys=True) for r in scored
+            )
+            + "\n"
         )
 
     summary = {

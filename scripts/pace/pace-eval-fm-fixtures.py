@@ -16,6 +16,7 @@ Each fm-fixture has:
 Usage:
   python pace-eval-fm-fixtures.py <hf-base-dir> <lora-path> [system-prompt-path]
 """
+
 import json
 import re
 import subprocess
@@ -23,7 +24,9 @@ import sys
 from pathlib import Path
 
 FM_FIX_DIR = Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/fm-fixtures")
-DEFAULT_PROMPT = Path("/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v3.txt")
+DEFAULT_PROMPT = Path(
+    "/Users/sarthak/Desktop/fleet/posttrainllm/grammars/pace-system-prompt-v3.txt"
+)
 TINYGPT = "/Users/sarthak/Desktop/fleet/posttrainllm/native-mac/.build/arm64-apple-macosx/release/posttrainllm"
 
 
@@ -37,10 +40,17 @@ def parse_fixture(text: str) -> dict:
             out["elements"].append(line.removeprefix("ELEMENT:").strip())
         elif line.startswith("FREE_TEXT_MODE:"):
             out["free_text"] = "true" in line.lower()
-        elif ":" in line and any(line.startswith(p) for p in
-                                  ["EXPECT_POINT_ID", "EXPECT_CLICK_ID",
-                                   "SPOKEN_MUST_CONTAIN", "SPOKEN_MUST_NOT_CONTAIN",
-                                   "SPOKEN_MUST_MATCH_REGEX", "SPOKEN_MAX_WORDS"]):
+        elif ":" in line and any(
+            line.startswith(p)
+            for p in [
+                "EXPECT_POINT_ID",
+                "EXPECT_CLICK_ID",
+                "SPOKEN_MUST_CONTAIN",
+                "SPOKEN_MUST_NOT_CONTAIN",
+                "SPOKEN_MUST_MATCH_REGEX",
+                "SPOKEN_MAX_WORDS",
+            ]
+        ):
             key, _, val = line.partition(":")
             out["expects"][key.strip()] = val.strip()
     return out
@@ -53,7 +63,9 @@ def build_prompt(fx: dict, system_prompt: str) -> str:
         user_parts.extend(fx["elements"])
         user_parts.append("")
     user_parts.append(f"user said: {fx['user']}")
-    return f"system: {system_prompt}\n\nuser: " + "\n".join(user_parts) + "\n\nassistant:"
+    return (
+        f"system: {system_prompt}\n\nuser: " + "\n".join(user_parts) + "\n\nassistant:"
+    )
 
 
 def extract_json_response(content: str) -> dict | None:
@@ -69,26 +81,45 @@ def extract_json_response(content: str) -> dict | None:
                 depth -= 1
                 if depth == 0:
                     try:
-                        return json.loads(content[start:i+1])
+                        return json.loads(content[start : i + 1])
                     except json.JSONDecodeError:
                         break
         start = content.find("{", start + 1)
     return None
 
 
-def evaluate_one(fx_path: Path, hf_dir: str, lora_path: str, system_prompt: str) -> dict:
+def evaluate_one(
+    fx_path: Path, hf_dir: str, lora_path: str, system_prompt: str
+) -> dict:
     fx = parse_fixture(fx_path.read_text())
     prompt = build_prompt(fx, system_prompt)
     try:
         result = subprocess.run(
-            [TINYGPT, "hf-load", hf_dir, "--lora", lora_path, "--sample",
-             "--prompt", prompt, "--tokens", "180", "--temperature", "0.0"],
-            capture_output=True, text=True, timeout=120,
+            [
+                TINYGPT,
+                "hf-load",
+                hf_dir,
+                "--lora",
+                lora_path,
+                "--sample",
+                "--prompt",
+                prompt,
+                "--tokens",
+                "180",
+                "--temperature",
+                "0.0",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=120,
         )
         if result.returncode != 0:
-            return {"name": fx_path.stem, "pass": False,
-                    "failures": [f"exit {result.returncode}"],
-                    "content": result.stderr[:200]}
+            return {
+                "name": fx_path.stem,
+                "pass": False,
+                "failures": [f"exit {result.returncode}"],
+                "content": result.stderr[:200],
+            }
         full = result.stdout
         # Take content AFTER the prompt as printed
         if prompt in full:
@@ -97,7 +128,12 @@ def evaluate_one(fx_path: Path, hf_dir: str, lora_path: str, system_prompt: str)
             content = full
         content = re.split(r"\n\(\d+ tokens? in", content)[0].strip()
     except Exception as e:
-        return {"name": fx_path.stem, "pass": False, "failures": [str(e)], "content": ""}
+        return {
+            "name": fx_path.stem,
+            "pass": False,
+            "failures": [str(e)],
+            "content": "",
+        }
 
     failures = []
     spoken = content
@@ -149,21 +185,32 @@ def evaluate_one(fx_path: Path, hf_dir: str, lora_path: str, system_prompt: str)
         if click_id not in want:
             failures.append(f"clickElementId: got {click_id}, want one of {want}")
 
-    return {"name": fx_path.stem, "pass": len(failures) == 0,
-            "failures": failures, "content": content[:300],
-            "spoken": spoken[:200], "point_id": point_id, "click_id": click_id}
+    return {
+        "name": fx_path.stem,
+        "pass": len(failures) == 0,
+        "failures": failures,
+        "content": content[:300],
+        "spoken": spoken[:200],
+        "point_id": point_id,
+        "click_id": click_id,
+    }
 
 
 def main():
     if len(sys.argv) < 3:
-        print("usage: pace-eval-fm-fixtures.py <hf-base-dir> <lora-path> [system-prompt-path]", file=sys.stderr)
+        print(
+            "usage: pace-eval-fm-fixtures.py <hf-base-dir> <lora-path> [system-prompt-path]",
+            file=sys.stderr,
+        )
         return 2
     hf_dir, lora = sys.argv[1], sys.argv[2]
     sys_prompt_path = Path(sys.argv[3]) if len(sys.argv) > 3 else DEFAULT_PROMPT
     sys_prompt = sys_prompt_path.read_text().strip()
 
     fixtures = sorted(FM_FIX_DIR.glob("*.txt"))
-    print(f"=== pace v3 eval ({len(fixtures)} fm-fixtures, lora={Path(lora).name}) ===\n")
+    print(
+        f"=== pace v3 eval ({len(fixtures)} fm-fixtures, lora={Path(lora).name}) ===\n"
+    )
     passed = 0
     for fx in fixtures:
         r = evaluate_one(fx, hf_dir, lora, sys_prompt)

@@ -90,7 +90,9 @@ def lineage(attempts: list[dict[str, Any]], attempt_id: str) -> list[dict[str, A
     return list(reversed(chain))
 
 
-def descendants(attempts: list[dict[str, Any]], attempt_id: str) -> list[dict[str, Any]]:
+def descendants(
+    attempts: list[dict[str, Any]], attempt_id: str
+) -> list[dict[str, Any]]:
     return [a for a in attempts if a.get("varied_from") == attempt_id]
 
 
@@ -163,7 +165,7 @@ def streak_warning(attempts: list[dict[str, Any]], objective: str | None) -> str
     severity = "STOP AND RETHINK" if record["streak"] >= 3 else "CAUTION"
     return (
         f"{severity}: the last {record['streak']} attempts on {objective!r} all failed "
-        f"({' -> '.join(record['chain'][-record['streak']:])}). "
+        f"({' -> '.join(record['chain'][-record['streak'] :])}). "
         f"Last lesson: {record['tip_lesson']}"
     )
 
@@ -229,8 +231,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--failures-only", action="store_true")
     parser.add_argument("--lineage", metavar="ATTEMPT_ID")
     parser.add_argument("--coverage", action="store_true")
-    parser.add_argument("--streaks", action="store_true",
-                        help="objectives whose chain ends in consecutive failures")
+    parser.add_argument(
+        "--streaks",
+        action="store_true",
+        help="objectives whose chain ends in consecutive failures",
+    )
     parser.add_argument("--json", action="store_true", help="emit raw JSON")
     args = parser.parse_args(argv)
 
@@ -239,8 +244,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.coverage:
         shaped = [a for a in attempts if a.get("kind") != "infrastructure"]
-        print(f"attempts: {len(attempts)}  shaped: {len(shaped)}  "
-              f"infrastructure: {len(attempts) - len(shaped)}")
+        print(
+            f"attempts: {len(attempts)}  shaped: {len(shaped)}  "
+            f"infrastructure: {len(attempts) - len(shaped)}"
+        )
         for field in ("methods", "bases", "objective", "data_rows", "varied_from"):
             have = sum(1 for a in shaped if a.get(field))
             print(f"  {field:12} {have:>3}/{len(shaped)}")
@@ -249,7 +256,9 @@ def main(argv: list[str] | None = None) -> int:
             values: set[str] = set()
             for attempt in shaped:
                 value = attempt.get(key)
-                values.update(value if isinstance(value, list) else [value] if value else [])
+                values.update(
+                    value if isinstance(value, list) else [value] if value else []
+                )
             print(f"  {key:12} {', '.join(sorted(values))}")
         return 0
 
@@ -264,12 +273,17 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         print("trailing failures per objective (chain tip backwards):\n")
         for record in records:
-            mark = "  <-- " + ("STOP AND RETHINK" if record["streak"] >= 3
-                               else "CAUTION") if record["streak"] >= 2 else ""
-            print(f"  {record['objective']:24} {record['streak']} of "
-                  f"{record['chain_length']} in chain{mark}")
+            mark = (
+                "  <-- " + ("STOP AND RETHINK" if record["streak"] >= 3 else "CAUTION")
+                if record["streak"] >= 2
+                else ""
+            )
+            print(
+                f"  {record['objective']:24} {record['streak']} of "
+                f"{record['chain_length']} in chain{mark}"
+            )
             if record["streak"] >= 2:
-                print(f"       {' -> '.join(record['chain'][-record['streak']:])}")
+                print(f"       {' -> '.join(record['chain'][-record['streak'] :])}")
         return 0
 
     if args.lineage:

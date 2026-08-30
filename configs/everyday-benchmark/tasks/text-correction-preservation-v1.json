@@ -38,7 +38,15 @@
   "labels": [],
   "slices": {
     "primary": ["natural"],
-    "protected": ["clean", "name", "number", "url", "code_like", "unicode", "whitespace"]
+    "protected": [
+      "clean",
+      "name",
+      "number",
+      "url",
+      "code_like",
+      "unicode",
+      "whitespace"
+    ]
   },
   "budgets": {
     "timeout_ms_per_instance": 5000,

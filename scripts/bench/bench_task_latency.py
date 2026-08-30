@@ -18,6 +18,7 @@ Usage:
     --sys-prompt grammars/pace-system-prompt-v11.txt \
     --runs 3
 """
+
 from __future__ import annotations
 
 import argparse
@@ -33,7 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.joinpath("pace")))
 from fake_pace import parse_fixture, score_response
 
 DISPATCH_OVERHEAD_S = 0.15  # AX snapshot + AX.press dispatch, measured-ish constant
-QUATERNIUS_STEPS = 85       # 71 Drive packs + navigation steps
+QUATERNIUS_STEPS = 85  # 71 Drive packs + navigation steps
 
 
 def format_user(fx: dict) -> str:
@@ -41,7 +42,9 @@ def format_user(fx: dict) -> str:
     if fx["elements"]:
         parts.append("on-screen elements:")
         for el in fx["elements"]:
-            parts.append(f"[{el['id']}] {el['role']}|{el['pos']}|{el['label']}|{el['text']}")
+            parts.append(
+                f"[{el['id']}] {el['role']}|{el['pos']}|{el['label']}|{el['text']}"
+            )
         parts.append("")
     parts.append(f"user said: {fx['user']}")
     return "\n".join(parts)
@@ -54,11 +57,16 @@ def query(url: str, sys_prompt: str, fx: dict, timeout: int = 120) -> tuple[str,
             {"role": "system", "content": sys_prompt},
             {"role": "user", "content": format_user(fx)},
         ],
-        "temperature": 0.0, "max_tokens": 250, "stream": False,
+        "temperature": 0.0,
+        "max_tokens": 250,
+        "stream": False,
     }
-    req = urllib.request.Request(url, data=json.dumps(body).encode(),
-                                 headers={"Content-Type": "application/json"},
-                                 method="POST")
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(body).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
     t0 = time.time()
     raw = urllib.request.urlopen(req, timeout=timeout).read()
     dt = time.time() - t0
@@ -70,7 +78,9 @@ def main() -> int:
     p.add_argument("--fixtures-dir", type=Path, required=True)
     p.add_argument("--serve-url", required=True)
     p.add_argument("--sys-prompt", type=Path, required=True)
-    p.add_argument("--runs", type=int, default=3, help="timed repeats per step (after 1 warmup)")
+    p.add_argument(
+        "--runs", type=int, default=3, help="timed repeats per step (after 1 warmup)"
+    )
     p.add_argument("--json", dest="json_out", action="store_true")
     args = p.parse_args()
 
@@ -80,8 +90,10 @@ def main() -> int:
         print(f"no step*.txt in {args.fixtures_dir}", file=sys.stderr)
         return 2
 
-    print(f"=== task-latency bench: {args.fixtures_dir.name} "
-          f"({len(steps)} steps, best of {args.runs}) ===\n")
+    print(
+        f"=== task-latency bench: {args.fixtures_dir.name} "
+        f"({len(steps)} steps, best of {args.runs}) ===\n"
+    )
     print(f"{'step':<10} | {'decision ms':>11} | {'correct':>7} | response")
     print("-" * 78)
 
@@ -95,15 +107,25 @@ def main() -> int:
         for _ in range(args.runs):
             last_resp, dt = query(args.serve_url, sys_prompt, fx)
             times.append(dt)
-        ok, fails = score_response(last_resp, fx["expects"], fx["elements"], fx["free_text"])
+        ok, fails = score_response(
+            last_resp, fx["expects"], fx["elements"], fx["free_text"]
+        )
         best = min(times)
         total_best += best
         all_correct &= ok
-        results.append({"step": fp.stem, "best_s": best,
-                        "median_s": statistics.median(times),
-                        "correct": ok, "fails": fails})
-        print(f"{fp.stem:<10} | {best * 1000:>11.0f} | {'PASS' if ok else 'FAIL':>7} | "
-              f"{last_resp[:60]!r}")
+        results.append(
+            {
+                "step": fp.stem,
+                "best_s": best,
+                "median_s": statistics.median(times),
+                "correct": ok,
+                "fails": fails,
+            }
+        )
+        print(
+            f"{fp.stem:<10} | {best * 1000:>11.0f} | {'PASS' if ok else 'FAIL':>7} | "
+            f"{last_resp[:60]!r}"
+        )
         if not ok:
             for f in fails:
                 print(f"{'':<10}   ✗ {f}")
@@ -112,16 +134,30 @@ def main() -> int:
     extrapolated = QUATERNIUS_STEPS * (per_step + DISPATCH_OVERHEAD_S)
     print()
     print(f"per-step decision (best): {per_step * 1000:.0f} ms")
-    print(f"per-step incl. dispatch overhead (+{DISPATCH_OVERHEAD_S * 1000:.0f} ms): "
-          f"{(per_step + DISPATCH_OVERHEAD_S) * 1000:.0f} ms")
-    print(f"extrapolated quaternius scenario ({QUATERNIUS_STEPS} steps): "
-          f"{extrapolated / 60:.1f} min of agent time (download time excluded)")
-    print(f"correctness: {'ALL PASS' if all_correct else 'FAILURES — latency numbers void, fix accuracy first'}")
+    print(
+        f"per-step incl. dispatch overhead (+{DISPATCH_OVERHEAD_S * 1000:.0f} ms): "
+        f"{(per_step + DISPATCH_OVERHEAD_S) * 1000:.0f} ms"
+    )
+    print(
+        f"extrapolated quaternius scenario ({QUATERNIUS_STEPS} steps): "
+        f"{extrapolated / 60:.1f} min of agent time (download time excluded)"
+    )
+    print(
+        f"correctness: {'ALL PASS' if all_correct else 'FAILURES — latency numbers void, fix accuracy first'}"
+    )
 
     if args.json_out:
-        print(json.dumps({"steps": results, "per_step_best_s": per_step,
-                          "extrapolated_task_s": extrapolated,
-                          "all_correct": all_correct}, indent=1))
+        print(
+            json.dumps(
+                {
+                    "steps": results,
+                    "per_step_best_s": per_step,
+                    "extrapolated_task_s": extrapolated,
+                    "all_correct": all_correct,
+                },
+                indent=1,
+            )
+        )
     return 0 if all_correct else 1
 
 

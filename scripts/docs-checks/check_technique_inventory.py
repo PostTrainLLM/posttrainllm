@@ -65,10 +65,14 @@ def main() -> int:
         if summary != actual:
             errors.append(f"{heading}: summary {summary} != table count {actual}")
         if f"| {label} | {actual} |" not in completion:
-            errors.append(f"exactness completion audit has stale technique count for {label!r}")
+            errors.append(
+                f"exactness completion audit has stale technique count for {label!r}"
+            )
 
     total = sum(count for _, count in EXPECTED.values())
-    total_match = re.search(r"\| \*\*Tracked audit rows\*\* \| \*\*(\d+)\*\* \|", inventory)
+    total_match = re.search(
+        r"\| \*\*Tracked audit rows\*\* \| \*\*(\d+)\*\* \|", inventory
+    )
     if not total_match:
         errors.append("missing tracked audit rows summary")
     elif int(total_match.group(1)) != total:
@@ -82,7 +86,9 @@ def main() -> int:
         "docs/attempt-ledger.md",
     ):
         if needle not in audit:
-            errors.append(f"docs/audits/audit_2026.md missing exactness note needle {needle!r}")
+            errors.append(
+                f"docs/audits/audit_2026.md missing exactness note needle {needle!r}"
+            )
 
     if errors:
         for err in errors:

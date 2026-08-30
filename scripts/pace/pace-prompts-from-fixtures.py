@@ -7,6 +7,7 @@ JSONL ready for `posttrainllm synthesize` to label via LM Studio teacher.
 
 Each row: {"prompt": "<user message>", "category": "<fixture name>"}
 """
+
 import json
 import sys
 from pathlib import Path
@@ -19,29 +20,51 @@ OUT = Path.home() / ".cache" / "posttrainllm" / "datasets" / "pace-prompts.jsonl
 # teacher generate more under the same prompt scaffolding.
 VARIANTS = {
     "qa-no-screen": [
-        "what is html?", "explain css", "what is python?",
-        "tell me about transformers", "how does git work?",
+        "what is html?",
+        "explain css",
+        "what is python?",
+        "tell me about transformers",
+        "how does git work?",
         "what's the difference between javascript and typescript?",
-        "describe the http protocol", "what is a database index?",
-        "how does dns resolve a domain?", "explain machine learning",
+        "describe the http protocol",
+        "what is a database index?",
+        "how does dns resolve a domain?",
+        "explain machine learning",
     ],
     "screen-referential": [
-        "save it for me", "click that save button", "open this file",
-        "scroll down to the end", "what does this dialog say?",
-        "close that error", "fix the typo on the screen",
-        "summarize what i'm looking at", "translate this text",
+        "save it for me",
+        "click that save button",
+        "open this file",
+        "scroll down to the end",
+        "what does this dialog say?",
+        "close that error",
+        "fix the typo on the screen",
+        "summarize what i'm looking at",
+        "translate this text",
         "what's this button do?",
     ],
     "multi-turn-continuation": [
-        "tell me more", "what about the second one?", "give me an example",
-        "but why?", "and then?", "what's the alternative?",
-        "summarize that in one sentence", "show me the code",
-        "which one should i pick?", "is there a faster way?",
+        "tell me more",
+        "what about the second one?",
+        "give me an example",
+        "but why?",
+        "and then?",
+        "what's the alternative?",
+        "summarize that in one sentence",
+        "show me the code",
+        "which one should i pick?",
+        "is there a faster way?",
     ],
     "action-mode-off": [
-        "save the document", "click save", "press enter",
-        "open the menu", "type my name", "scroll to top",
-        "select all text", "copy this", "paste it here",
+        "save the document",
+        "click save",
+        "press enter",
+        "open the menu",
+        "type my name",
+        "scroll to top",
+        "select all text",
+        "copy this",
+        "paste it here",
         "minimize this window",
     ],
 }

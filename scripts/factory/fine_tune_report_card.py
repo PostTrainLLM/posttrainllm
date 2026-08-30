@@ -434,8 +434,7 @@ def _denylist_scan(node: Any, path: str, errors: list[str]) -> None:
         for key, value in node.items():
             lowered = str(key).lower()
             if any(
-                lowered == bad or lowered.endswith("_" + bad)
-                for bad in DENYLISTED_KEYS
+                lowered == bad or lowered.endswith("_" + bad) for bad in DENYLISTED_KEYS
             ):
                 errors.append(f"{path}.{key}: denylisted private field name")
             _denylist_scan(value, f"{path}.{key}", errors)
@@ -462,7 +461,11 @@ def _check_delta(holder: dict[str, Any], path: str, errors: list[str]) -> None:
     Applies to gates and slices alike: this is what blocks a hand-typed number
     that contradicts the measurements it claims to summarize.
     """
-    delta, base, cand = holder.get("delta"), holder.get("baseline"), holder.get("candidate")
+    delta, base, cand = (
+        holder.get("delta"),
+        holder.get("baseline"),
+        holder.get("candidate"),
+    )
     if not (has_value(delta) and has_value(base) and has_value(cand)):
         return
     delta_n, base_n, cand_n = (
@@ -472,8 +475,7 @@ def _check_delta(holder: dict[str, Any], path: str, errors: list[str]) -> None:
     )
     if delta_n is None or base_n is None or cand_n is None:
         errors.append(
-            f"{path}: baseline, candidate, and delta must be numbers to be "
-            "comparable"
+            f"{path}: baseline, candidate, and delta must be numbers to be comparable"
         )
         return
     expected = round(cand_n - base_n, 6)
@@ -504,14 +506,20 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
         f"schema_version must be {SCHEMA_VERSION}",
         errors,
     )
-    _require(_nonempty(card.get("report_card_id")), "report_card_id is required", errors)
+    _require(
+        _nonempty(card.get("report_card_id")), "report_card_id is required", errors
+    )
     _require(_nonempty(card.get("title")), "title is required", errors)
 
     compiled = card.get("compiled_from")
     if not isinstance(compiled, dict):
         errors.append("compiled_from is required")
         compiled = {}
-    _require(_nonempty(compiled.get("compiler")), "compiled_from.compiler is required", errors)
+    _require(
+        _nonempty(compiled.get("compiler")),
+        "compiled_from.compiler is required",
+        errors,
+    )
     _require(
         _nonempty(compiled.get("compiler_version")),
         "compiled_from.compiler_version is required",
@@ -522,7 +530,11 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
         "compiled_from.source_kind must be factory-run or specialist-package",
         errors,
     )
-    _require(_nonempty(compiled.get("source_id")), "compiled_from.source_id is required", errors)
+    _require(
+        _nonempty(compiled.get("source_id")),
+        "compiled_from.source_id is required",
+        errors,
+    )
     for idx, entry in enumerate(compiled.get("dataset_hashes") or []):
         _require(
             _nonempty(entry.get("path")),
@@ -560,13 +572,19 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
             "subject.artifact.artifact_id is required",
             errors,
         )
-        _require(_nonempty(artifact.get("kind")), "subject.artifact.kind is required", errors)
+        _require(
+            _nonempty(artifact.get("kind")), "subject.artifact.kind is required", errors
+        )
         _require(
             isinstance(artifact.get("shipped"), bool),
             "subject.artifact.shipped must be a boolean",
             errors,
         )
-        validate_field(artifact.get("routing_constraint"), "subject.artifact.routing_constraint", errors)
+        validate_field(
+            artifact.get("routing_constraint"),
+            "subject.artifact.routing_constraint",
+            errors,
+        )
 
     # --- decision ----------------------------------------------------------
     decision = card.get("decision")
@@ -574,7 +592,11 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
         errors.append("decision is required")
         decision = {}
     value = decision.get("decision")
-    _require(value in DECISIONS, f"decision.decision must be one of {list(DECISIONS)}", errors)
+    _require(
+        value in DECISIONS,
+        f"decision.decision must be one of {list(DECISIONS)}",
+        errors,
+    )
     label = decision.get("outcome_label")
     _require(
         label in OUTCOME_LABELS,
@@ -586,7 +608,9 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
             f"decision.outcome_label `{label}` claims a ship for decision `{value}`"
         )
     if value == "ship" and label not in SHIP_LABELS:
-        errors.append(f"decision.outcome_label `{label}` does not reflect a ship decision")
+        errors.append(
+            f"decision.outcome_label `{label}` does not reflect a ship decision"
+        )
     _require(_nonempty(decision.get("reason")), "decision.reason is required", errors)
     _require(
         decision.get("failure_reason_confidence") in CONFIDENCES,
@@ -605,7 +629,11 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
             "non-ship decision.failure_reason is required",
             errors,
         )
-        _require(_nonempty(decision.get("lesson")), "non-ship decision.lesson is required", errors)
+        _require(
+            _nonempty(decision.get("lesson")),
+            "non-ship decision.lesson is required",
+            errors,
+        )
         _require(
             decision.get("failure_reason_confidence") != "not-applicable",
             "non-ship decision requires a real failure_reason_confidence",
@@ -633,9 +661,13 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
         errors.append("decision.verification_blockers must be a list")
         blockers = []
     if decision.get("verified") and blockers:
-        errors.append("decision.verified=true contradicts a non-empty verification_blockers")
+        errors.append(
+            "decision.verified=true contradicts a non-empty verification_blockers"
+        )
     if decision.get("verified") is False and not blockers:
-        errors.append("decision.verified=false requires at least one verification blocker")
+        errors.append(
+            "decision.verified=false requires at least one verification blocker"
+        )
     # Self-consistency is not enough: a hand-edited or third-party payload could
     # claim `verified: true` with an empty blocker list. Recompute from the
     # evidence and reject any disagreement, so the gate never takes the
@@ -662,13 +694,19 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
         errors.append("gates must be a non-empty list")
         gates = []
     roles = [gate.get("role") for gate in gates if isinstance(gate, dict)]
-    _require(roles.count("primary") == 1, "exactly one gate must have role `primary`", errors)
+    _require(
+        roles.count("primary") == 1, "exactly one gate must have role `primary`", errors
+    )
     for idx, gate in enumerate(gates):
         path = f"gates[{idx}]"
         if not isinstance(gate, dict):
             errors.append(f"{path}: must be an object")
             continue
-        _require(gate.get("role") in GATE_ROLES, f"{path}.role must be one of {list(GATE_ROLES)}", errors)
+        _require(
+            gate.get("role") in GATE_ROLES,
+            f"{path}.role must be one of {list(GATE_ROLES)}",
+            errors,
+        )
         _require(_nonempty(gate.get("name")), f"{path}.name is required", errors)
         _require(_nonempty(gate.get("metric")), f"{path}.metric is required", errors)
         for key in (
@@ -685,7 +723,11 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
         if not isinstance(identity, dict):
             errors.append(f"{path}.eval_identity is required")
         else:
-            _require(_nonempty(identity.get("suite")), f"{path}.eval_identity.suite is required", errors)
+            _require(
+                _nonempty(identity.get("suite")),
+                f"{path}.eval_identity.suite is required",
+                errors,
+            )
             for key in ("command", "date", "frozen"):
                 validate_field(identity.get(key), f"{path}.eval_identity.{key}", errors)
         _check_delta(gate, path, errors)
@@ -729,7 +771,10 @@ def validate(card: Any, allow_report_only: bool = False) -> list[str]:
             errors,
         )
         leak = validity.get("leakage")
-        if has_value(leak) and field_value(leak) not in ("no-overlap", "overlap-detected"):
+        if has_value(leak) and field_value(leak) not in (
+            "no-overlap",
+            "overlap-detected",
+        ):
             errors.append(
                 "eval_validity.leakage value must be `no-overlap` or `overlap-detected`"
             )
@@ -782,8 +827,10 @@ def _publication_errors(card: dict[str, Any], allow_report_only: bool) -> list[s
         if decision.get("blocked_by"):
             errors.append("ship decision must not have open blockers")
         primary = primary_gate(card)
-        if primary is None or not has_value(primary.get("baseline")) or not has_value(
-            primary.get("candidate")
+        if (
+            primary is None
+            or not has_value(primary.get("baseline"))
+            or not has_value(primary.get("candidate"))
         ):
             errors.append(
                 "ship decision requires a primary gate with baseline and candidate "
@@ -948,7 +995,9 @@ def render_field(field: Any, unit_suffix: bool = True) -> str:
             text = f"{text} {unit}"
         body = f'<span class="v-value">{_esc(text)}</span>'
         if state != "measured":
-            body += f' <span class="state" data-state="{_esc(state)}">{_esc(label)}</span>'
+            body += (
+                f' <span class="state" data-state="{_esc(state)}">{_esc(label)}</span>'
+            )
     else:
         body = (
             f'<span class="v-absent">—</span> '
@@ -1022,7 +1071,9 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
             separators=(",", ":"),
         ).replace("<", "\\u003c")
         w(f'<link rel="canonical" href="{_esc(canonical_url)}">')
-        w('<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">')
+        w(
+            '<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">'
+        )
         w('<meta property="og:type" content="article">')
         w('<meta property="og:site_name" content="posttrainllm">')
         w(f'<meta property="og:url" content="{_esc(canonical_url)}">')
@@ -1044,7 +1095,7 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
     w("<header>")
     w(
         '<p class="eyebrow">posttrainllm fine-tune report card '
-        f'· schema v{card["schema_version"]} · compiler {_esc(card["compiled_from"]["compiler_version"])}</p>'
+        f"· schema v{card['schema_version']} · compiler {_esc(card['compiled_from']['compiler_version'])}</p>"
     )
     w(f"<h1>{_esc(card['title'])}</h1>")
     w(f'<p class="lede">{render_field(subject["owner_goal"])}</p>')
@@ -1069,7 +1120,7 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
     w('<h2 id="decision-h">Decision</h2>')
     w(f'<p class="verdict" data-decision="{_esc(decision["decision"])}">')
     w(
-        f'<strong>{_esc(DECISION_HEADLINE.get(decision["decision"], decision["decision"]))}</strong>'
+        f"<strong>{_esc(DECISION_HEADLINE.get(decision['decision'], decision['decision']))}</strong>"
         f' <span class="chip">{_esc(OUTCOME_HEADLINE.get(label, label))}</span>'
     )
     w("</p>")
@@ -1137,9 +1188,7 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
         w('<p class="warn" role="note">')
         w(
             "This candidate does not present an unconditional win: "
-            + _esc(
-                ", ".join(str(g.get("name")) for g in regressed)
-            )
+            + _esc(", ".join(str(g.get("name")) for g in regressed))
             + " failed. Target and regression gates are reported independently below."
         )
         w("</p>")
@@ -1168,9 +1217,17 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
     for gate in card["gates"]:
         w("<tr>")
         w(f'<th scope="row">{_esc(gate["name"])}</th>')
-        w(f'<td>{_esc(gate["role"])}</td>')
-        w(f'<td>{_esc(gate["metric"])}</td>')
-        for key in ("baseline", "candidate", "delta", "threshold", "passed", "sample_size", "frontier_ceiling"):
+        w(f"<td>{_esc(gate['role'])}</td>")
+        w(f"<td>{_esc(gate['metric'])}</td>")
+        for key in (
+            "baseline",
+            "candidate",
+            "delta",
+            "threshold",
+            "passed",
+            "sample_size",
+            "frontier_ceiling",
+        ):
             w(f"<td>{render_field(gate[key])}</td>")
         w("</tr>")
     w("</tbody>")
@@ -1180,7 +1237,9 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
     w("<h3>Eval identity</h3>")
     w('<div class="table-wrap">')
     w("<table>")
-    w("<caption>Which suite produced each gate, how it was invoked, and whether it is frozen.</caption>")
+    w(
+        "<caption>Which suite produced each gate, how it was invoked, and whether it is frozen.</caption>"
+    )
     w("<thead><tr>")
     for heading in ("Gate", "Suite", "Command", "Date", "Frozen"):
         w(f'<th scope="col">{_esc(heading)}</th>')
@@ -1190,7 +1249,7 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
         identity = gate["eval_identity"]
         w("<tr>")
         w(f'<th scope="row">{_esc(gate["name"])}</th>')
-        w(f'<td>{_esc(identity["suite"])}</td>')
+        w(f"<td>{_esc(identity['suite'])}</td>")
         w(f"<td>{render_field(identity['command'])}</td>")
         w(f"<td>{render_field(identity['date'])}</td>")
         w(f"<td>{render_field(identity['frozen'])}</td>")
@@ -1206,16 +1265,26 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
     if card["slices"]:
         w('<div class="table-wrap">')
         w("<table>")
-        w("<caption>Primary metric broken down by task slice, so an overall win cannot hide a weak slice.</caption>")
+        w(
+            "<caption>Primary metric broken down by task slice, so an overall win cannot hide a weak slice.</caption>"
+        )
         w("<thead><tr>")
-        for heading in ("Slice", "Metric", "Baseline", "Candidate", "Delta", "Result", "n"):
+        for heading in (
+            "Slice",
+            "Metric",
+            "Baseline",
+            "Candidate",
+            "Delta",
+            "Result",
+            "n",
+        ):
             w(f'<th scope="col">{_esc(heading)}</th>')
         w("</tr></thead>")
         w("<tbody>")
         for item in card["slices"]:
             w("<tr>")
             w(f'<th scope="row">{_esc(item["name"])}</th>')
-            w(f'<td>{_esc(item["metric"])}</td>')
+            w(f"<td>{_esc(item['metric'])}</td>")
             for key in ("baseline", "candidate", "delta", "passed", "sample_size"):
                 w(f"<td>{render_field(item[key])}</td>")
             w("</tr>")
@@ -1235,7 +1304,9 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
         "<caption>Latency, memory, throughput, and training cost/time. Absent "
         "evidence is reported as not measured, never as zero.</caption>"
     )
-    w('<thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Source</th></tr></thead>')
+    w(
+        '<thead><tr><th scope="col">Metric</th><th scope="col">Value</th><th scope="col">Source</th></tr></thead>'
+    )
     w("<tbody>")
     for key in PERFORMANCE_FIELDS:
         field = card["performance"][key]
@@ -1258,7 +1329,9 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
         "<caption>Whether the benchmark is a trustworthy ruler: frontier "
         "ceiling, frozen-eval identity, and train/eval overlap.</caption>"
     )
-    w('<thead><tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Source</th></tr></thead>')
+    w(
+        '<thead><tr><th scope="col">Check</th><th scope="col">Result</th><th scope="col">Source</th></tr></thead>'
+    )
     w("<tbody>")
     for key, heading in (
         ("frontier_ceiling", "Frontier ceiling"),
@@ -1301,7 +1374,7 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
         "<p>Every number above traces to one of these artifacts. Content "
         "hashes are recorded where the source file is committed.</p>"
     )
-    w("<ul class=\"evidence\">")
+    w('<ul class="evidence">')
     for item in card["evidence"]:
         href = _link_for(item["path"])
         name = (
@@ -1311,25 +1384,29 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
         )
         detail = f"<code>{_esc(item['path'])}</code> · {_esc(item['kind'])}"
         if item.get("sha256"):
-            detail += f' · sha256 <code>{_esc(item["sha256"][:16])}…</code>'
+            detail += f" · sha256 <code>{_esc(item['sha256'][:16])}…</code>"
         if item.get("note"):
             detail += f" · {_esc(item['note'])}"
-        w(f"<li>{name}<span class=\"detail\">{detail}</span></li>")
+        w(f'<li>{name}<span class="detail">{detail}</span></li>')
     w("</ul>")
     hashes = card["compiled_from"].get("dataset_hashes") or []
     if hashes:
         w("<h3>Dataset hashes</h3>")
         w('<div class="table-wrap">')
         w("<table>")
-        w("<caption>SHA-256 of each dataset the run recorded, for independent reproduction.</caption>")
-        w('<thead><tr><th scope="col">Dataset</th><th scope="col">Rows</th><th scope="col">SHA-256</th></tr></thead>')
+        w(
+            "<caption>SHA-256 of each dataset the run recorded, for independent reproduction.</caption>"
+        )
+        w(
+            '<thead><tr><th scope="col">Dataset</th><th scope="col">Rows</th><th scope="col">SHA-256</th></tr></thead>'
+        )
         w("<tbody>")
         for entry in hashes:
             rows = entry.get("rows")
             w("<tr>")
             w(f'<th scope="row"><code>{_esc(entry["path"])}</code></th>')
             w(f"<td>{_esc(rows) if rows is not None else '—'}</td>")
-            w(f'<td><code>{_esc(entry["sha256"])}</code></td>')
+            w(f"<td><code>{_esc(entry['sha256'])}</code></td>")
             w("</tr>")
         w("</tbody>")
         w("</table>")
@@ -1343,7 +1420,7 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
     for state, meaning in STATE_LEGEND:
         w(
             f'<div><dt><span class="state" data-state="{_esc(state)}">'
-            f'{_esc(STATE_LABELS[state])}</span></dt><dd>{_esc(meaning)}</dd></div>'
+            f"{_esc(STATE_LABELS[state])}</span></dt><dd>{_esc(meaning)}</dd></div>"
         )
     w("</dl>")
     w("</section>")

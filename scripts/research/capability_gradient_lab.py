@@ -35,13 +35,16 @@ from typing import Any, Sequence
 
 ROOT = Path(__file__).resolve().parents[2]
 SCORECARD_PATH = ROOT / "configs" / "capability-gradient-lab" / "candidates-v1.json"
-DEVELOPMENT_CONFIG_PATH = ROOT / "configs" / "capability-gradient-lab" / "development-v1.json"
+DEVELOPMENT_CONFIG_PATH = (
+    ROOT / "configs" / "capability-gradient-lab" / "development-v1.json"
+)
 PROBE_DIR = ROOT / "evals" / "capability-gradient-lab" / "fixtures"
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 class ValidationError(ValueError):
     """Raised for a strict scorecard, environment, or probe failure."""
@@ -53,7 +56,8 @@ def load_json(path: Path) -> Any:
 
 def canonical_json_bytes(value: Any) -> bytes:
     return (
-        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
+        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        + "\n"
     ).encode("utf-8")
 
 
@@ -143,25 +147,37 @@ def validate_development_config(data: dict[str, Any]) -> list[str]:
         errors.append("development config: unsupported schema_version")
     if data.get("specialist_max_parameters") != 50_000_000:
         errors.append("development config: specialist_max_parameters must be 50000000")
-    if data.get("baseline_sample_size") != 2000 or data.get("development_seed_start") != 0:
+    if (
+        data.get("baseline_sample_size") != 2000
+        or data.get("development_seed_start") != 0
+    ):
         errors.append("development config: baseline cohort must be seeds 0-1999")
     calendar = data.get("calendar")
     if not isinstance(calendar, dict):
         errors.append("development config: calendar must be an object")
     else:
         for field in (
-            "days", "business_start_hour", "business_end_hour",
-            "slot_granularity_minutes", "event_count_range",
-            "event_duration_minutes", "participant_pool",
-            "request_participant_count_range", "request_date_count",
-            "request_duration_minutes", "unavailability_probability",
-            "unavailability_duration_minutes", "random_valid_rate_accepted_range",
+            "days",
+            "business_start_hour",
+            "business_end_hour",
+            "slot_granularity_minutes",
+            "event_count_range",
+            "event_duration_minutes",
+            "participant_pool",
+            "request_participant_count_range",
+            "request_date_count",
+            "request_duration_minutes",
+            "unavailability_probability",
+            "unavailability_duration_minutes",
+            "random_valid_rate_accepted_range",
         ):
             if field not in calendar:
                 errors.append(f"development config: calendar missing '{field}'")
         accepted = calendar.get("random_valid_rate_accepted_range")
         if not isinstance(accepted, list) or len(accepted) != 2 or accepted[1] > 0.35:
-            errors.append("development config: calendar random-valid upper bound must be <= 0.35")
+            errors.append(
+                "development config: calendar random-valid upper bound must be <= 0.35"
+            )
     return errors
 
 
@@ -174,7 +190,9 @@ def validate_scorecard(data: dict[str, Any]) -> list[str]:
 
     candidates = data.get("candidates")
     if not isinstance(candidates, list) or len(candidates) < 6:
-        errors.append(f"candidates: must be a list of at least 6, got {len(candidates) if isinstance(candidates, list) else 'non-list'}")
+        errors.append(
+            f"candidates: must be a list of at least 6, got {len(candidates) if isinstance(candidates, list) else 'non-list'}"
+        )
         return errors
 
     seen_ids: set[str] = set()
@@ -200,16 +218,25 @@ def validate_scorecard(data: dict[str, Any]) -> list[str]:
         if "rank" in cand:
             r = cand["rank"]
             if not isinstance(r, int) or r < 1:
-                errors.append(f"{prefix} ({cid}): rank must be a positive integer, got {r}")
+                errors.append(
+                    f"{prefix} ({cid}): rank must be a positive integer, got {r}"
+                )
             ranks.append(r)
 
         if "type" in cand and cand["type"] not in VALID_TYPES:
-            errors.append(f"{prefix} ({cid}): type must be one of {VALID_TYPES}, got '{cand['type']}'")
+            errors.append(
+                f"{prefix} ({cid}): type must be one of {VALID_TYPES}, got '{cand['type']}'"
+            )
         if cand.get("type") in VALID_TYPES:
             types_present.add(cand["type"])
 
-        if "gradient_likelihood" in cand and cand["gradient_likelihood"] not in VALID_GRADIENT:
-            errors.append(f"{prefix} ({cid}): gradient_likelihood must be one of {VALID_GRADIENT}")
+        if (
+            "gradient_likelihood" in cand
+            and cand["gradient_likelihood"] not in VALID_GRADIENT
+        ):
+            errors.append(
+                f"{prefix} ({cid}): gradient_likelihood must be one of {VALID_GRADIENT}"
+            )
 
         if "fit_30_50m" in cand and cand["fit_30_50m"] not in VALID_FIT:
             errors.append(f"{prefix} ({cid}): fit_30_50m must be one of {VALID_FIT}")
@@ -218,7 +245,9 @@ def validate_scorecard(data: dict[str, Any]) -> list[str]:
         if isinstance(proto, dict):
             for pf in REQUIRED_PROTOCOL_FIELDS:
                 if pf not in proto:
-                    errors.append(f"{prefix} ({cid}).state_action_protocol: missing '{pf}'")
+                    errors.append(
+                        f"{prefix} ({cid}).state_action_protocol: missing '{pf}'"
+                    )
 
         metric = cand.get("success_metric")
         if isinstance(metric, dict):
@@ -236,51 +265,75 @@ def validate_scorecard(data: dict[str, Any]) -> list[str]:
         if isinstance(fit, dict):
             for ff in REQUIRED_FIT_FIELDS:
                 if ff not in fit:
-                    errors.append(f"{prefix} ({cid}).fit_30_50m_estimate: missing '{ff}'")
+                    errors.append(
+                        f"{prefix} ({cid}).fit_30_50m_estimate: missing '{ff}'"
+                    )
 
         cost = cand.get("frontier_eval_cost")
         if isinstance(cost, dict):
             for cf in REQUIRED_COST_FIELDS:
                 if cf not in cost:
-                    errors.append(f"{prefix} ({cid}).frontier_eval_cost: missing '{cf}'")
+                    errors.append(
+                        f"{prefix} ({cid}).frontier_eval_cost: missing '{cf}'"
+                    )
 
         baseline_evidence = cand.get("baseline_evidence")
-        if not isinstance(baseline_evidence, dict) or not baseline_evidence.get("status") or not baseline_evidence.get("why"):
-            errors.append(f"{prefix} ({cid}).baseline_evidence: requires non-empty 'status' and 'why'")
+        if (
+            not isinstance(baseline_evidence, dict)
+            or not baseline_evidence.get("status")
+            or not baseline_evidence.get("why")
+        ):
+            errors.append(
+                f"{prefix} ({cid}).baseline_evidence: requires non-empty 'status' and 'why'"
+            )
 
         prospect = cand.get("specialist_vs_larger_llm")
         if not isinstance(prospect, dict):
-            errors.append(f"{prefix} ({cid}).specialist_vs_larger_llm: must be an object")
+            errors.append(
+                f"{prefix} ({cid}).specialist_vs_larger_llm: must be an object"
+            )
         else:
             for field in REQUIRED_SPECIALIST_PROSPECT_FIELDS:
                 if not prospect.get(field):
-                    errors.append(f"{prefix} ({cid}).specialist_vs_larger_llm: missing '{field}'")
+                    errors.append(
+                        f"{prefix} ({cid}).specialist_vs_larger_llm: missing '{field}'"
+                    )
 
         if cand.get("selected"):
             selected.append(cand)
 
     # Ranks must be 1..N without gaps
     if ranks and sorted(ranks) != list(range(1, len(ranks) + 1)):
-        errors.append(f"ranks: must be 1..{len(ranks)} without gaps, got {sorted(ranks)}")
+        errors.append(
+            f"ranks: must be 1..{len(ranks)} without gaps, got {sorted(ranks)}"
+        )
 
     # Must have both game and everyday_action types
     if "game" not in types_present:
         errors.append("candidates: must include at least one 'game' type candidate")
     if "everyday_action" not in types_present:
-        errors.append("candidates: must include at least one 'everyday_action' type candidate")
+        errors.append(
+            "candidates: must include at least one 'everyday_action' type candidate"
+        )
 
     # Exactly two selected
     if len(selected) != 2:
-        errors.append(f"selected: exactly 2 candidates must be selected, got {len(selected)}")
+        errors.append(
+            f"selected: exactly 2 candidates must be selected, got {len(selected)}"
+        )
     else:
         # Selected must be non-overlapping reasoning modes
         modes = [s.get("reasoning_mode", "") for s in selected]
         if modes[0] == modes[1]:
-            errors.append(f"selected: both selected candidates have the same reasoning_mode '{modes[0]}' — must be non-overlapping")
+            errors.append(
+                f"selected: both selected candidates have the same reasoning_mode '{modes[0]}' — must be non-overlapping"
+            )
         # Selected must be different types (game + everyday for maximum diversity)
         sel_types = [s.get("type", "") for s in selected]
         if sel_types[0] == sel_types[1]:
-            errors.append(f"selected: both selected candidates have the same type '{sel_types[0]}' — prefer different types")
+            errors.append(
+                f"selected: both selected candidates have the same type '{sel_types[0]}' — prefer different types"
+            )
 
     # Gradient gate config
     gate = data.get("gradient_gate")
@@ -358,7 +411,9 @@ class Connect4Env:
         elif not self.legal_actions():
             self.done = True  # draw
         else:
-            self.current_player = C4_OPPONENT if self.current_player == C4_PLAYER else C4_PLAYER
+            self.current_player = (
+                C4_OPPONENT if self.current_player == C4_PLAYER else C4_PLAYER
+            )
 
         return self._observation()
 
@@ -500,7 +555,9 @@ class Connect4Env:
 
             if player == C4_PLAYER and not env._check_win(C4_PLAYER):
                 # Check if O now has an immediate win (X allowed it)
-                o_can_win = any(env.would_win(c, C4_OPPONENT) for c in env.legal_actions())
+                o_can_win = any(
+                    env.would_win(c, C4_OPPONENT) for c in env.legal_actions()
+                )
                 if o_can_win:
                     allowed_wins += 1
 
@@ -548,13 +605,15 @@ def connect4_play_vs_random(
             col = env.random_legal_action(rng)
 
         obs = env.step(col)
-        trace.append({
-            "player": "X" if acting_player == C4_PLAYER else "O",
-            "column": col + 1,
-            "board_after": env.render(),
-            "done": env.done,
-            "winner": env.winner,
-        })
+        trace.append(
+            {
+                "player": "X" if acting_player == C4_PLAYER else "O",
+                "column": col + 1,
+                "board_after": env.render(),
+                "done": env.done,
+                "winner": env.winner,
+            }
+        )
 
     return {
         "env": "connect4",
@@ -562,7 +621,13 @@ def connect4_play_vs_random(
         "status": "complete" if failure is None else "invalid",
         "failure": failure,
         "outcome": env.outcome_score() if failure is None else None,
-        "winner": ("X" if env.winner == C4_PLAYER else ("O" if env.winner == C4_OPPONENT else "draw")) if failure is None else None,
+        "winner": (
+            "X"
+            if env.winner == C4_PLAYER
+            else ("O" if env.winner == C4_OPPONENT else "draw")
+        )
+        if failure is None
+        else None,
         "move_count": len(env.moves),
         "moves": [m + 1 for m in env.moves],
         "blunders": env.blunder_rate(),
@@ -575,12 +640,14 @@ def connect4_random_baseline(seeds: range | list[int]) -> dict[str, Any]:
     results = []
     for seed in seeds:
         result = connect4_play_vs_random(seed, model_actions=None)
-        results.append({
-            "seed": seed,
-            "outcome": result["outcome"],
-            "winner": result["winner"],
-            "move_count": result["move_count"],
-        })
+        results.append(
+            {
+                "seed": seed,
+                "outcome": result["outcome"],
+                "winner": result["winner"],
+                "move_count": result["move_count"],
+            }
+        )
     wins = sum(1 for r in results if r["outcome"] == 1.0)
     draws = sum(1 for r in results if r["outcome"] == 0.5)
     losses = sum(1 for r in results if r["outcome"] == 0.0)
@@ -646,18 +713,23 @@ class CalendarEnv:
             if slot_key in used_slots:
                 continue
             used_slots.add(slot_key)
-            self.events.append({
-                "day": day,
-                "start": f"{start_h:02d}:{start_m:02d}",
-                "end": f"{end_h:02d}:{end_m:02d}",
-                "title": f"Existing meeting {len(self.events) + 1}",
-            })
+            self.events.append(
+                {
+                    "day": day,
+                    "start": f"{start_h:02d}:{start_m:02d}",
+                    "end": f"{end_h:02d}:{end_m:02d}",
+                    "title": f"Existing meeting {len(self.events) + 1}",
+                }
+            )
 
         # Generate meeting request
         duration = rng.choice(CALENDAR_CONFIG["request_duration_minutes"])
-        participant_min, participant_max = CALENDAR_CONFIG["request_participant_count_range"]
+        participant_min, participant_max = CALENDAR_CONFIG[
+            "request_participant_count_range"
+        ]
         participants = rng.sample(
-            CALENDAR_CONFIG["participant_pool"], rng.randint(participant_min, participant_max)
+            CALENDAR_CONFIG["participant_pool"],
+            rng.randint(participant_min, participant_max),
         )
         date_range = rng.sample(DAYS, CALENDAR_CONFIG["request_date_count"])
         date_range.sort(key=lambda d: DAYS.index(d))
@@ -673,12 +745,14 @@ class CalendarEnv:
                 uend_h = ustart_h + (ustart_m + udur) // 60
                 uend_m = (ustart_m + udur) % 60
                 if uend_h * 60 + uend_m <= BUSINESS_END * 60:
-                    unavailability.append({
-                        "participant": p,
-                        "day": uday,
-                        "start": f"{ustart_h:02d}:{ustart_m:02d}",
-                        "end": f"{uend_h:02d}:{uend_m:02d}",
-                    })
+                    unavailability.append(
+                        {
+                            "participant": p,
+                            "day": uday,
+                            "start": f"{ustart_h:02d}:{ustart_m:02d}",
+                            "end": f"{uend_h:02d}:{uend_m:02d}",
+                        }
+                    )
 
         self.request = {
             "duration_minutes": duration,
@@ -707,7 +781,7 @@ class CalendarEnv:
         for e in self.events:
             lines.append(f"  {e['day']} {e['start']}-{e['end']}: {e['title']}")
         lines.append("")
-        lines.append(f"NEW MEETING REQUEST:")
+        lines.append("NEW MEETING REQUEST:")
         lines.append(f"  Duration: {self.request['duration_minutes']} minutes")
         lines.append(f"  Participants: {', '.join(self.request['participants'])}")
         lines.append(f"  Date range: {', '.join(self.request['date_range'])}")
@@ -717,11 +791,15 @@ class CalendarEnv:
         if self.constraints["unavailability"]:
             lines.append("  Unavailability:")
             for u in self.constraints["unavailability"]:
-                lines.append(f"    {u['participant']}: {u['day']} {u['start']}-{u['end']}")
+                lines.append(
+                    f"    {u['participant']}: {u['day']} {u['start']}-{u['end']}"
+                )
         else:
             lines.append("  Unavailability: none")
         lines.append("")
-        lines.append("Propose a slot as 'DAY HH:MM' (e.g., 'mon 14:00') or 'NONE' if no valid slot exists.")
+        lines.append(
+            "Propose a slot as 'DAY HH:MM' (e.g., 'mon 14:00') or 'NONE' if no valid slot exists."
+        )
         return "\n".join(lines)
 
     def parse_action(self, text: str) -> str:
@@ -806,7 +884,12 @@ class CalendarEnv:
         """Verify a specific slot string like 'mon 14:00'."""
         parts = slot.strip().lower().split()
         if len(parts) != 2:
-            return {"valid": False, "constraint_results": {}, "satisfaction_score": 0.0, "reason": f"malformed slot '{slot}'"}
+            return {
+                "valid": False,
+                "constraint_results": {},
+                "satisfaction_score": 0.0,
+                "reason": f"malformed slot '{slot}'",
+            }
         day, time_str = parts
         constraints_checked: dict[str, bool] = {}
         reasons: list[str] = []
@@ -815,7 +898,9 @@ class CalendarEnv:
         day_in_range = day in self.request.get("date_range", [])
         constraints_checked["day_in_date_range"] = day_in_range
         if not day_in_range:
-            reasons.append(f"day '{day}' not in date range {self.request['date_range']}")
+            reasons.append(
+                f"day '{day}' not in date range {self.request['date_range']}"
+            )
 
         # Constraint 2: valid time format and within business hours
         try:
@@ -837,7 +922,9 @@ class CalendarEnv:
         within_hours = slot_start_min >= biz_start_min and slot_end_min <= biz_end_min
         constraints_checked["within_business_hours"] = within_hours
         if not within_hours:
-            reasons.append(f"slot {time_str} + {self.request['duration_minutes']}min outside business hours {self.constraints['business_hours']}")
+            reasons.append(
+                f"slot {time_str} + {self.request['duration_minutes']}min outside business hours {self.constraints['business_hours']}"
+            )
 
         # Constraint 3: no overlap with existing events on same day
         overlaps = False
@@ -848,7 +935,9 @@ class CalendarEnv:
             e_end = _time_to_min(e["end"])
             if slot_start_min < e_end and slot_end_min > e_start:
                 overlaps = True
-                reasons.append(f"overlaps with existing event {e['day']} {e['start']}-{e['end']}")
+                reasons.append(
+                    f"overlaps with existing event {e['day']} {e['start']}-{e['end']}"
+                )
                 break
         constraints_checked["no_event_overlap"] = not overlaps
 
@@ -861,12 +950,18 @@ class CalendarEnv:
             u_end = _time_to_min(u["end"])
             if slot_start_min < u_end and slot_end_min > u_start:
                 unavail_overlap = True
-                reasons.append(f"overlaps with {u['participant']} unavailability {u['day']} {u['start']}-{u['end']}")
+                reasons.append(
+                    f"overlaps with {u['participant']} unavailability {u['day']} {u['start']}-{u['end']}"
+                )
                 break
         constraints_checked["no_unavailability_overlap"] = not unavail_overlap
 
         all_pass = all(constraints_checked.values())
-        satisfaction = sum(constraints_checked.values()) / len(constraints_checked) if constraints_checked else 0.0
+        satisfaction = (
+            sum(constraints_checked.values()) / len(constraints_checked)
+            if constraints_checked
+            else 0.0
+        )
 
         return {
             "valid": all_pass,
@@ -917,12 +1012,14 @@ def calendar_random_baseline(seeds: range | list[int]) -> dict[str, Any]:
     results = []
     for seed in seeds:
         result = calendar_play(seed, model_action=None)
-        results.append({
-            "seed": seed,
-            "valid": result["valid"],
-            "satisfaction_score": result["satisfaction_score"],
-            "none_is_correct": result["none_is_correct"],
-        })
+        results.append(
+            {
+                "seed": seed,
+                "valid": result["valid"],
+                "satisfaction_score": result["satisfaction_score"],
+                "none_is_correct": result["none_is_correct"],
+            }
+        )
     n = len(results)
     valid_count = sum(1 for r in results if r["valid"])
     return {
@@ -930,19 +1027,27 @@ def calendar_random_baseline(seeds: range | list[int]) -> dict[str, Any]:
         "baseline": "random_well_formed",
         "n_instances": n,
         "valid_rate": valid_count / n if n else 0.0,
-        "avg_satisfaction": sum(r["satisfaction_score"] for r in results) / n if n else 0.0,
-        "none_correct_rate": sum(1 for r in results if r["none_is_correct"]) / n if n else 0.0,
+        "avg_satisfaction": sum(r["satisfaction_score"] for r in results) / n
+        if n
+        else 0.0,
+        "none_correct_rate": sum(1 for r in results if r["none_is_correct"]) / n
+        if n
+        else 0.0,
         "results": results,
     }
 
 
-def validate_baseline_claims(data: dict[str, Any], sample_size: int | None = None) -> list[str]:
+def validate_baseline_claims(
+    data: dict[str, Any], sample_size: int | None = None
+) -> list[str]:
     """Recompute implemented baselines and reject scorecard drift or failed bands."""
     errors: list[str] = []
     if sample_size is None:
         sample_size = int(DEVELOPMENT_CONFIG["baseline_sample_size"])
     seed_start = int(DEVELOPMENT_CONFIG["development_seed_start"])
-    by_id = {candidate["candidate_id"]: candidate for candidate in data.get("candidates", [])}
+    by_id = {
+        candidate["candidate_id"]: candidate for candidate in data.get("candidates", [])
+    }
     seeds = range(seed_start, seed_start + sample_size)
     measured = {
         "connect4": (connect4_random_baseline(seeds), "win_rate"),
@@ -954,27 +1059,58 @@ def validate_baseline_claims(data: dict[str, Any], sample_size: int | None = Non
         accepted = evidence.get("accepted_development_range")
         actual = result[metric_key]
         if evidence.get("status") != "measured":
-            errors.append(f"{candidate_id}: implemented baseline must have status 'measured'")
-        if evidence.get("sample_size") != sample_size or evidence.get("seed_range") != f"{seed_start}-{seed_start + sample_size - 1}":
-            errors.append(f"{candidate_id}: measured sample_size/seed_range do not match validator cohort")
-        if not isinstance(expected, (int, float)) or abs(float(expected) - actual) > 1e-12:
-            errors.append(f"{candidate_id}: recorded {metric_key} {expected!r} != measured {actual}")
-        if not isinstance(accepted, list) or len(accepted) != 2 or not accepted[0] <= actual <= accepted[1]:
-            errors.append(f"{candidate_id}: measured {metric_key} {actual} is outside accepted range {accepted!r}")
-        config_range = DEVELOPMENT_CONFIG["connect4"]["random_x_win_rate_accepted_range"] if candidate_id == "connect4" else CALENDAR_CONFIG["random_valid_rate_accepted_range"]
+            errors.append(
+                f"{candidate_id}: implemented baseline must have status 'measured'"
+            )
+        if (
+            evidence.get("sample_size") != sample_size
+            or evidence.get("seed_range")
+            != f"{seed_start}-{seed_start + sample_size - 1}"
+        ):
+            errors.append(
+                f"{candidate_id}: measured sample_size/seed_range do not match validator cohort"
+            )
+        if (
+            not isinstance(expected, (int, float))
+            or abs(float(expected) - actual) > 1e-12
+        ):
+            errors.append(
+                f"{candidate_id}: recorded {metric_key} {expected!r} != measured {actual}"
+            )
+        if (
+            not isinstance(accepted, list)
+            or len(accepted) != 2
+            or not accepted[0] <= actual <= accepted[1]
+        ):
+            errors.append(
+                f"{candidate_id}: measured {metric_key} {actual} is outside accepted range {accepted!r}"
+            )
+        config_range = (
+            DEVELOPMENT_CONFIG["connect4"]["random_x_win_rate_accepted_range"]
+            if candidate_id == "connect4"
+            else CALENDAR_CONFIG["random_valid_rate_accepted_range"]
+        )
         if accepted != config_range:
-            errors.append(f"{candidate_id}: scorecard accepted range {accepted!r} != development config {config_range!r}")
+            errors.append(
+                f"{candidate_id}: scorecard accepted range {accepted!r} != development config {config_range!r}"
+            )
         if candidate_id == "calendar_scheduling":
             recorded_none = evidence.get("none_correct_rate")
             actual_none = result["none_correct_rate"]
-            if not isinstance(recorded_none, (int, float)) or abs(float(recorded_none) - actual_none) > 1e-12:
-                errors.append(f"calendar_scheduling: recorded none_correct_rate {recorded_none!r} != measured {actual_none}")
+            if (
+                not isinstance(recorded_none, (int, float))
+                or abs(float(recorded_none) - actual_none) > 1e-12
+            ):
+                errors.append(
+                    f"calendar_scheduling: recorded none_correct_rate {recorded_none!r} != measured {actual_none}"
+                )
     return errors
 
 
 # ---------------------------------------------------------------------------
 # Canonical trace
 # ---------------------------------------------------------------------------
+
 
 def canonical_trace(env_name: str, seed: int) -> dict[str, Any]:
     """Produce a deterministic canonical trace for the given env and seed."""
@@ -997,11 +1133,15 @@ def canonical_trace(env_name: str, seed: int) -> dict[str, Any]:
             "env": "calendar",
             "seed": seed,
             "trace_hash": sha256_bytes(
-                json.dumps({
-                    "action": result["action"],
-                    "valid": result["valid"],
-                    "satisfaction_score": result["satisfaction_score"],
-                }, ensure_ascii=False, sort_keys=True).encode("utf-8")
+                json.dumps(
+                    {
+                        "action": result["action"],
+                        "valid": result["valid"],
+                        "satisfaction_score": result["satisfaction_score"],
+                    },
+                    ensure_ascii=False,
+                    sort_keys=True,
+                ).encode("utf-8")
             ),
             "action": result["action"],
             "valid": result["valid"],
@@ -1015,6 +1155,7 @@ def canonical_trace(env_name: str, seed: int) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # Probe validator
 # ---------------------------------------------------------------------------
+
 
 def validate_probes() -> list[str]:
     """Validate all development probe sets. Returns error list."""
@@ -1036,7 +1177,9 @@ def validate_probes() -> list[str]:
             continue
 
         if data.get("artifact_type") != "development_probes":
-            errors.append(f"{probe_path.name}: artifact_type must be 'development_probes'")
+            errors.append(
+                f"{probe_path.name}: artifact_type must be 'development_probes'"
+            )
 
         if data.get("development_only") is not True:
             errors.append(f"{probe_path.name}: development_only must be true")
@@ -1046,7 +1189,9 @@ def validate_probes() -> list[str]:
             errors.append(f"{probe_path.name}: provenance must be an object")
         else:
             if "author" not in provenance or "content_origin" not in provenance:
-                errors.append(f"{probe_path.name}: provenance missing 'author' or 'content_origin'")
+                errors.append(
+                    f"{probe_path.name}: provenance missing 'author' or 'content_origin'"
+                )
             if "date" not in provenance:
                 errors.append(f"{probe_path.name}: provenance missing 'date'")
             if "method" not in provenance:
@@ -1055,7 +1200,10 @@ def validate_probes() -> list[str]:
         if "no_training_labels" not in data or data["no_training_labels"] is not True:
             errors.append(f"{probe_path.name}: no_training_labels must be true")
 
-        if "no_frozen_eval_material" not in data or data["no_frozen_eval_material"] is not True:
+        if (
+            "no_frozen_eval_material" not in data
+            or data["no_frozen_eval_material"] is not True
+        ):
             errors.append(f"{probe_path.name}: no_frozen_eval_material must be true")
 
         probes = data.get("probes")
@@ -1109,11 +1257,15 @@ def _verify_connect4_probe(
 
     for j, col1based in enumerate(setup_moves):
         if not isinstance(col1based, int):
-            errors.append(f"{prefix}.setup_moves[{j}]: must be an integer (1-based column)")
+            errors.append(
+                f"{prefix}.setup_moves[{j}]: must be an integer (1-based column)"
+            )
             return errors
         col = col1based - 1
         if col not in env.legal_actions():
-            errors.append(f"{prefix}.setup_moves[{j}]: column {col1based} is not legal at this point")
+            errors.append(
+                f"{prefix}.setup_moves[{j}]: column {col1based} is not legal at this point"
+            )
             return errors
         env.step(col)
 
@@ -1124,18 +1276,24 @@ def _verify_connect4_probe(
 
     expected_col = expected - 1
     if expected_col not in env.legal_actions():
-        errors.append(f"{prefix}: expected_action column {expected} is not legal at this point")
+        errors.append(
+            f"{prefix}: expected_action column {expected} is not legal at this point"
+        )
         return errors
 
     # Check the probe's claim about why this is the expected action
     claim = probe.get("claim", "")
     if claim == "immediate_win":
         if not env.would_win(expected_col, env.current_player):
-            errors.append(f"{prefix}: claim is 'immediate_win' but column {expected} does not win for current player")
+            errors.append(
+                f"{prefix}: claim is 'immediate_win' but column {expected} does not win for current player"
+            )
     elif claim == "immediate_block":
         opponent = C4_OPPONENT if env.current_player == C4_PLAYER else C4_PLAYER
         if not env.would_win(expected_col, opponent):
-            errors.append(f"{prefix}: claim is 'immediate_block' but column {expected} does not block opponent win")
+            errors.append(
+                f"{prefix}: claim is 'immediate_block' but column {expected} does not block opponent win"
+            )
     elif claim:
         # Non-empty claim we don't auto-verify — just note it
         pass
@@ -1152,7 +1310,9 @@ def _verify_calendar_probe(
     env.reset(seed)
 
     if not isinstance(expected, str):
-        errors.append(f"{prefix}: expected_action must be a string ('DAY HH:MM' or 'NONE')")
+        errors.append(
+            f"{prefix}: expected_action must be a string ('DAY HH:MM' or 'NONE')"
+        )
         return errors
 
     # Parse the expected action
@@ -1191,6 +1351,7 @@ def _verify_calendar_probe(
 # CLI
 # ---------------------------------------------------------------------------
 
+
 def cmd_validate_scorecard(args: argparse.Namespace) -> int:
     data = load_json(SCORECARD_PATH)
     errors = validate_development_config(DEVELOPMENT_CONFIG) + validate_scorecard(data)
@@ -1199,8 +1360,10 @@ def cmd_validate_scorecard(args: argparse.Namespace) -> int:
             print(f"  ERROR: {e}", file=sys.stderr)
         print(f"\nvalidate-scorecard: {len(errors)} error(s)", file=sys.stderr)
         return 1
-    print(f"validate-scorecard: OK ({len(data['candidates'])} candidates, "
-          f"{sum(1 for c in data['candidates'] if c['selected'])} selected)")
+    print(
+        f"validate-scorecard: OK ({len(data['candidates'])} candidates, "
+        f"{sum(1 for c in data['candidates'] if c['selected'])} selected)"
+    )
     return 0
 
 
@@ -1223,7 +1386,9 @@ def cmd_validate_baseline_claims(args: argparse.Namespace) -> int:
             print(f"  ERROR: {error}", file=sys.stderr)
         print(f"\nvalidate-baseline-claims: {len(errors)} error(s)", file=sys.stderr)
         return 1
-    print("validate-baseline-claims: OK (2,000 deterministic seeds per implemented environment)")
+    print(
+        "validate-baseline-claims: OK (2,000 deterministic seeds per implemented environment)"
+    )
     return 0
 
 
@@ -1276,12 +1441,16 @@ def _parse_seed_range(spec: str) -> list[int]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Capability-gradient benchmark candidate lab")
+    parser = argparse.ArgumentParser(
+        description="Capability-gradient benchmark candidate lab"
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("validate-scorecard", help="Validate the candidate scorecard")
     sub.add_parser("validate-probes", help="Validate all development probe sets")
-    sub.add_parser("validate-baseline-claims", help="Recompute implemented baseline claims")
+    sub.add_parser(
+        "validate-baseline-claims", help="Recompute implemented baseline claims"
+    )
 
     ct = sub.add_parser("canonical-trace", help="Produce a canonical trace")
     ct.add_argument("--env", required=True, choices=["connect4", "calendar"])
@@ -1294,7 +1463,9 @@ def main(argv: list[str] | None = None) -> int:
     play = sub.add_parser("play", help="Play a single instance")
     play.add_argument("--env", required=True, choices=["connect4", "calendar"])
     play.add_argument("--seed", type=int, required=True)
-    play.add_argument("--actions", default=None, help="Connect-4: comma-separated 1-based columns")
+    play.add_argument(
+        "--actions", default=None, help="Connect-4: comma-separated 1-based columns"
+    )
     play.add_argument("--action", default=None, help="Calendar: 'DAY HH:MM' or 'NONE'")
 
     args = parser.parse_args(argv)

@@ -10,7 +10,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 # scripts/ is grouped into topic subdirs; each is a flat import surface.
-for _d in [ROOT / "scripts", *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir())]:
+for _d in [
+    ROOT / "scripts",
+    *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir()),
+]:
     sys.path.insert(0, str(_d))
 
 import game_2048 as game  # noqa: E402
@@ -48,12 +51,16 @@ def test_teacher_config_is_versioned_bounded_and_development_only():
 
 def test_chance_node_matches_weighted_spawn_expectation_for_one_empty_cell():
     policy = game.ExpectimaxBoundedPolicy(teacher_policy_config())
-    board = game.board_tuple([2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2, 4, 8, 16, 32, 0])
+    board = game.board_tuple(
+        [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2, 4, 8, 16, 32, 0]
+    )
     with_two = list(board)
     with_two[-1] = 2
     with_four = list(board)
     with_four[-1] = 4
-    expected = 0.9 * policy._leaf_value(tuple(with_two)) + 0.1 * policy._leaf_value(tuple(with_four))
+    expected = 0.9 * policy._leaf_value(tuple(with_two)) + 0.1 * policy._leaf_value(
+        tuple(with_four)
+    )
     actual = policy._chance_value(board, 0, game.SearchBudget(16))
     assert abs(actual - expected) < 1e-9
 
@@ -64,7 +71,9 @@ def test_teacher_choice_is_deterministic_and_does_not_mutate_observation():
     before = copy.deepcopy(observation)
     first = game.ExpectimaxBoundedPolicy(teacher_policy_config())
     second = game.ExpectimaxBoundedPolicy(teacher_policy_config())
-    assert first.choose(observation, observation["legal_actions"]) == second.choose(observation, observation["legal_actions"])
+    assert first.choose(observation, observation["legal_actions"]) == second.choose(
+        observation, observation["legal_actions"]
+    )
     assert observation == before
     assert first.last_search_stats == second.last_search_stats
     assert first.last_search_stats["node_expansions"] <= first.max_nodes_per_decision
@@ -124,7 +133,11 @@ def test_teacher_config_mutations_fail_closed():
 
 
 def main() -> int:
-    tests = [value for name, value in sorted(globals().items()) if name.startswith("test_") and callable(value)]
+    tests = [
+        value
+        for name, value in sorted(globals().items())
+        if name.startswith("test_") and callable(value)
+    ]
     for test in tests:
         test()
         print(f"  ok: {test.__name__}")

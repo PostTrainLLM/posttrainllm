@@ -66,7 +66,9 @@ def _write(dest: Path, name: str, payload: Any) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _config(run_id: str, primary_min: float = 0.9, drop_max: float = 3.0) -> dict[str, Any]:
+def _config(
+    run_id: str, primary_min: float = 0.9, drop_max: float = 3.0
+) -> dict[str, Any]:
     return {
         "run_id": run_id,
         "target": "fixture-target",
@@ -95,13 +97,21 @@ def _config(run_id: str, primary_min: float = 0.9, drop_max: float = 3.0) -> dic
 def _dataset() -> dict[str, Any]:
     return {
         "dataset_id": "fixture-dataset",
-        "sources": [{"kind": "fixture", "path": "evals/fixture/train.jsonl", "rows": 40}],
-        "processing": {"dedupe": True, "quality_filter": True, "heldout_split": "locked"},
+        "sources": [
+            {"kind": "fixture", "path": "evals/fixture/train.jsonl", "rows": 40}
+        ],
+        "processing": {
+            "dedupe": True,
+            "quality_filter": True,
+            "heldout_split": "locked",
+        },
         "counts": {"train_rows": 40, "heldout_rows": 20, "dropped_rows": 2},
     }
 
 
-def _eval(model_id: str, score: float, passed: bool | None, perf: bool = False) -> dict[str, Any]:
+def _eval(
+    model_id: str, score: float, passed: bool | None, perf: bool = False
+) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "model_id": model_id,
         "command": f"posttrainllm eval-gate {model_id}",
@@ -117,7 +127,9 @@ def _eval(model_id: str, score: float, passed: bool | None, perf: bool = False) 
     return payload
 
 
-def _slices(baseline: float, candidate: float, breadth: tuple[float, float] | None) -> dict[str, Any]:
+def _slices(
+    baseline: float, candidate: float, breadth: tuple[float, float] | None
+) -> dict[str, Any]:
     slices: dict[str, Any] = {
         "fixture_gate_rows": {
             "rows": 20,
@@ -150,7 +162,9 @@ def _slices(baseline: float, candidate: float, breadth: tuple[float, float] | No
     }
 
 
-def _validity(overlap: str = "no-overlap", frontier: float | None = 1.0) -> dict[str, Any]:
+def _validity(
+    overlap: str = "no-overlap", frontier: float | None = 1.0
+) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "frozen_eval": {
             "id": "fixture-gate-v1",
@@ -274,9 +288,13 @@ def _run(
     _write(dest, "dataset.json", _dataset())
     _write(dest, "eval-baseline.json", baseline)
     _write(dest, "eval-candidate.json", candidate)
-    _write(dest, "slice-metrics.json", _slices(baseline_score, candidate_score, breadth))
+    _write(
+        dest, "slice-metrics.json", _slices(baseline_score, candidate_score, breadth)
+    )
     _write(dest, "decision.json", decision)
-    _write(dest, "provenance.json", _provenance(baseline["command"], candidate["command"]))
+    _write(
+        dest, "provenance.json", _provenance(baseline["command"], candidate["command"])
+    )
     _write(dest, "trace_review.md", TRACE_REVIEW)
     _write(dest, "train.log", "Synthetic fixture train log.\n")
     if artifact is not None:
@@ -513,7 +531,11 @@ def build(case: str, dest: Path) -> Path:
                 "caveats": ["Synthetic historical fixture; not a measured result."],
             },
         )
-        _write(dest, "model_card.md", "# Fixture historical specialist\n\nSynthetic fixture.\n")
+        _write(
+            dest,
+            "model_card.md",
+            "# Fixture historical specialist\n\nSynthetic fixture.\n",
+        )
         _write(dest, "prompt.md", "Fixture prompt contract.\n")
         _write(dest, "tinygpt.lock.json", {"schema_version": 1, "fixture": True})
         return dest

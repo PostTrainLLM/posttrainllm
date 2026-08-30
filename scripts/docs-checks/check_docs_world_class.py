@@ -49,7 +49,7 @@ REQUIRED = {
         "StreamingLLM + KIVI cache compression",
         "## Factory / Documentation Attempts",
     ],
-        "docs/audits/history-coverage-audit.md": [
+    "docs/audits/history-coverage-audit.md": [
         "## Current Structured Coverage",
         "## Confidence Coverage",
         "## Classified Non-Ledger / Partial Surfaces",
@@ -182,9 +182,9 @@ def main() -> int:
     import json
     from collections import Counter
 
-    attempts = json.loads(
-        (ROOT / "docs/attempts.json").read_text(encoding="utf-8")
-    )["attempts"]
+    attempts = json.loads((ROOT / "docs/attempts.json").read_text(encoding="utf-8"))[
+        "attempts"
+    ]
     completion_rel = "docs/audits/exactness-completion-audit.md"
     completion = (ROOT / completion_rel).read_text(encoding="utf-8")
     exact = Counter(a["failure_reason_confidence"] for a in attempts)["exact"]
@@ -193,7 +193,9 @@ def main() -> int:
         f"| Exact confidence | {exact} |",
     ):
         if row not in completion:
-            errors.append(f"{completion_rel}: missing {row!r} (derived from attempts.json)")
+            errors.append(
+                f"{completion_rel}: missing {row!r} (derived from attempts.json)"
+            )
 
     if errors:
         for err in errors:

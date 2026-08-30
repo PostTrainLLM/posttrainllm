@@ -44,7 +44,9 @@ def main() -> int:
         errors.append("docs/attempts.json schema_version must be 2")
     for confidence in ALLOWED_CONFIDENCE:
         if confidence not in (payload.get("confidence_vocabulary") or {}):
-            errors.append(f"docs/attempts.json confidence_vocabulary missing {confidence!r}")
+            errors.append(
+                f"docs/attempts.json confidence_vocabulary missing {confidence!r}"
+            )
 
     seen: set[str] = set()
     for idx, attempt in enumerate(attempts):
@@ -62,11 +64,21 @@ def main() -> int:
         if status not in ALLOWED_STATUSES:
             errors.append(f"{attempt_id}: invalid status {status!r}")
         if confidence not in ALLOWED_CONFIDENCE:
-            errors.append(f"{attempt_id}: invalid failure_reason_confidence {confidence!r}")
+            errors.append(
+                f"{attempt_id}: invalid failure_reason_confidence {confidence!r}"
+            )
         if status in REQUIRES_REASON and confidence == "not-applicable":
-            errors.append(f"{attempt_id}: {status} requires real confidence, not not-applicable")
-        if status in {"worked", "not-tried"} and confidence != "not-applicable" and not attempt.get("failure_reason"):
-            errors.append(f"{attempt_id}: {status} without failure_reason should use not-applicable confidence")
+            errors.append(
+                f"{attempt_id}: {status} requires real confidence, not not-applicable"
+            )
+        if (
+            status in {"worked", "not-tried"}
+            and confidence != "not-applicable"
+            and not attempt.get("failure_reason")
+        ):
+            errors.append(
+                f"{attempt_id}: {status} without failure_reason should use not-applicable confidence"
+            )
         for field, value in (
             ("name", name),
             ("family", family),
@@ -86,14 +98,18 @@ def main() -> int:
                 if local_source.startswith(("http://", "https://")):
                     continue
                 if not (ROOT / local_source).exists():
-                    errors.append(f"{attempt_id}: evidence source does not exist: {evidence_source}")
+                    errors.append(
+                        f"{attempt_id}: evidence source does not exist: {evidence_source}"
+                    )
         if status in REQUIRES_REASON:
             for field in REASON_FIELDS:
                 value = attempt.get(field)
                 if not value:
                     errors.append(f"{attempt_id}: missing {field}")
                 elif value not in ledger:
-                    errors.append(f"{attempt_id}: ledger missing {field} text {value!r}")
+                    errors.append(
+                        f"{attempt_id}: ledger missing {field} text {value!r}"
+                    )
         if name and name not in ledger:
             errors.append(f"{attempt_id}: ledger missing name {name!r}")
         if status and f"`{status}`" not in ledger:
@@ -123,7 +139,9 @@ def main() -> int:
             errors.append(f"{attempt_id}: invalid or missing kind {kind!r}")
         for method in attempt.get("methods") or []:
             if method not in method_vocab:
-                errors.append(f"{attempt_id}: method {method!r} is not in method_vocabulary")
+                errors.append(
+                    f"{attempt_id}: method {method!r} is not in method_vocabulary"
+                )
         objective = attempt.get("objective")
         if objective and objective not in objective_vocab:
             errors.append(
@@ -134,15 +152,25 @@ def main() -> int:
             if parent not in ids:
                 errors.append(f"{attempt_id}: varied_from {parent!r} does not resolve")
             if not attempt.get("varied"):
-                errors.append(f"{attempt_id}: varied_from without a 'varied' description")
+                errors.append(
+                    f"{attempt_id}: varied_from without a 'varied' description"
+                )
         if kind == "infrastructure":
             stray = [
                 field
-                for field in ("methods", "bases", "objective", "data_rows", "varied_from")
+                for field in (
+                    "methods",
+                    "bases",
+                    "objective",
+                    "data_rows",
+                    "varied_from",
+                )
                 if attempt.get(field)
             ]
             if stray:
-                errors.append(f"{attempt_id}: infrastructure attempt carries shape {stray}")
+                errors.append(
+                    f"{attempt_id}: infrastructure attempt carries shape {stray}"
+                )
 
     # A varied_from cycle would make lineage walks non-terminating.
     for attempt in attempts:
@@ -182,7 +210,9 @@ def main() -> int:
         "tool-calling": "Tool-calling harness",
     }
     family_counts = Counter(attempt.get("family") for attempt in attempts)
-    confidence_counts = Counter(attempt.get("failure_reason_confidence") for attempt in attempts)
+    confidence_counts = Counter(
+        attempt.get("failure_reason_confidence") for attempt in attempts
+    )
     if f"| Total structured attempts | {len(attempts)} |" not in history:
         errors.append("history coverage audit has stale total structured attempt count")
     if f"| Total attempts | {len(attempts)} |" not in completion:
@@ -194,12 +224,18 @@ def main() -> int:
             continue
         if f"| {label} | {count} |" not in history:
             errors.append(f"history coverage audit has stale count for {family!r}")
-    for confidence, count in sorted(confidence_counts.items(), key=lambda kv: kv[0] or ""):
+    for confidence, count in sorted(
+        confidence_counts.items(), key=lambda kv: kv[0] or ""
+    ):
         row = f"| `{confidence}` | {count} |"
         if row not in ledger:
-            errors.append(f"attempt ledger has stale confidence count for {confidence!r}")
+            errors.append(
+                f"attempt ledger has stale confidence count for {confidence!r}"
+            )
         if row not in history:
-            errors.append(f"history coverage audit has stale confidence count for {confidence!r}")
+            errors.append(
+                f"history coverage audit has stale confidence count for {confidence!r}"
+            )
         completion_label = {
             "exact": "Exact confidence",
             "inferred": "Inferred confidence",
@@ -207,7 +243,9 @@ def main() -> int:
             "missing-evidence": "Missing-evidence confidence",
         }.get(confidence)
         if completion_label and f"| {completion_label} | {count} |" not in completion:
-            errors.append(f"exactness completion audit has stale confidence count for {confidence!r}")
+            errors.append(
+                f"exactness completion audit has stale confidence count for {confidence!r}"
+            )
 
     if errors:
         for err in errors:

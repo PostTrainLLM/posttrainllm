@@ -46,9 +46,21 @@ ALTERNATE = {
 PHASES = set(NORMAL) | set(NORMAL.values()) | {"failed"}
 REASON_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 PRIVATE_SUMMARY_MARKERS = (
-    "prompt", "completion", "gold", "prediction", "trajectory", "checkpoint",
-    "weights", "optimizer", "api key", "secret", "password", "credential",
-    "dataset content", "output text", "token",
+    "prompt",
+    "completion",
+    "gold",
+    "prediction",
+    "trajectory",
+    "checkpoint",
+    "weights",
+    "optimizer",
+    "api key",
+    "secret",
+    "password",
+    "credential",
+    "dataset content",
+    "output text",
+    "token",
 )
 
 
@@ -90,7 +102,11 @@ def validate_status(status: dict[str, Any]) -> None:
     if status.get("phase") not in PHASES:
         raise LifecycleError(f"invalid phase: {status.get('phase')!r}")
     transition = status.get("last_transition")
-    if not isinstance(transition, dict) or not transition.get("source") or not transition.get("command"):
+    if (
+        not isinstance(transition, dict)
+        or not transition.get("source")
+        or not transition.get("command")
+    ):
         raise LifecycleError("last_transition source and command are required")
     failure = status.get("failure")
     if status["phase"] == "failed":
@@ -206,9 +222,13 @@ def transition(
                 pass
             elif (origin, target) in ALTERNATE:
                 if not reason or not REASON_RE.fullmatch(reason):
-                    raise LifecycleError(f"{origin} -> {target} requires machine-readable reason")
+                    raise LifecycleError(
+                        f"{origin} -> {target} requires machine-readable reason"
+                    )
             else:
-                raise LifecycleError(f"illegal lifecycle transition {origin} -> {target}")
+                raise LifecycleError(
+                    f"illegal lifecycle transition {origin} -> {target}"
+                )
         if target == "failed":
             if not isinstance(failure, dict):
                 raise LifecycleError("failed transition requires sanitized failure")

@@ -20,6 +20,7 @@ Real run:
     sudo python3 scripts/bench/bench_decode_thermal.py \\
         --model <m> --minutes 30 --out docs/research/data/decode-thermal-m5.jsonl
 """
+
 import argparse
 import json
 import statistics
@@ -52,17 +53,30 @@ def sample_powermetrics():
     {} when unavailable so the bench still records tok/s without thermal."""
     try:
         out = subprocess.run(
-            ["powermetrics", "-n", "1", "-i", "200",
-             "--samplers", "smc", "--hide-cpu-duty-cycle"],
-            capture_output=True, text=True, timeout=10).stdout
+            [
+                "powermetrics",
+                "-n",
+                "1",
+                "-i",
+                "200",
+                "--samplers",
+                "smc",
+                "--hide-cpu-duty-cycle",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        ).stdout
     except Exception:
         return {}
     d = {}
     for line in out.splitlines():
         low = line.lower()
         if "cpu die temperature" in low:
-            try: d["cpu_die_c"] = float(line.split(":")[1].strip().split()[0])
-            except Exception: pass
+            try:
+                d["cpu_die_c"] = float(line.split(":")[1].strip().split()[0])
+            except Exception:
+                pass
         if "thermal pressure" in low:
             d["thermal_pressure"] = line.split(":")[1].strip()
     return d
@@ -72,10 +86,24 @@ def one_decode(url, model, max_tokens):
     """Run bench_decode.py once, return steady-state tok/s (or None)."""
     try:
         out = subprocess.run(
-            [sys.executable, str(HERE / "bench_decode.py"),
-             "--url", url, "--model", model, "--n", "1",
-             "--warm", "0", "--max-tokens", str(max_tokens)],
-            capture_output=True, text=True, timeout=180).stdout
+            [
+                sys.executable,
+                str(HERE / "bench_decode.py"),
+                "--url",
+                url,
+                "--model",
+                model,
+                "--n",
+                "1",
+                "--warm",
+                "0",
+                "--max-tokens",
+                str(max_tokens),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=180,
+        ).stdout
         rec = json.loads(out)
         # bench_decode.py emits decode_tok_s.{median,...} (steady-state tok/s)
         return rec.get("decode_tok_s", {}).get("median")
@@ -101,13 +129,17 @@ def run(args):
         rec.update(sample_powermetrics())
         series.append(rec)
         if fh:
-            fh.write(json.dumps(rec) + "\n"); fh.flush()
-        print(f"  t={rec['t']:>6}s  tok/s={toks}  {rec.get('cpu_die_c','')}")
+            fh.write(json.dumps(rec) + "\n")
+            fh.flush()
+        print(f"  t={rec['t']:>6}s  tok/s={toks}  {rec.get('cpu_die_c', '')}")
     if fh:
         fh.close()
     first, last, pct = degradation(series)
-    print(f"\nfirst-decile {first} → last-decile {last} tok/s  (drop {pct:.1f}%)" if pct is not None
-          else "\nnot enough samples for a degradation estimate")
+    print(
+        f"\nfirst-decile {first} → last-decile {last} tok/s  (drop {pct:.1f}%)"
+        if pct is not None
+        else "\nnot enough samples for a degradation estimate"
+    )
     return 0
 
 
@@ -117,7 +149,9 @@ def self_test():
     _, _, pct = degradation(flat)
     assert abs(pct) < 1e-9, pct
     # throttling: 25 → 20 tok/s ⇒ 20% drop
-    ramp = [{"t": i, "tok_s": 25.0} for i in range(10)] + [{"t": i, "tok_s": 20.0} for i in range(10)]
+    ramp = [{"t": i, "tok_s": 25.0} for i in range(10)] + [
+        {"t": i, "tok_s": 20.0} for i in range(10)
+    ]
     f, l, pct = degradation(ramp)
     assert f == 25.0 and l == 20.0 and abs(pct - 20.0) < 1e-6, (f, l, pct)
     # too few samples
@@ -133,8 +167,11 @@ def main():
     ap.add_argument("--minutes", type=float, default=30.0)
     ap.add_argument("--max-tokens", type=int, default=256)
     ap.add_argument("--out", default=None, help="time-series JSONL output")
-    ap.add_argument("--self-test", action="store_true",
-                    help="validate the pure aggregation logic and exit")
+    ap.add_argument(
+        "--self-test",
+        action="store_true",
+        help="validate the pure aggregation logic and exit",
+    )
     args = ap.parse_args()
     if args.self_test:
         return self_test()

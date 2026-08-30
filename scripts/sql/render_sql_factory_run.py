@@ -27,7 +27,9 @@ def line_count(path: Path) -> int:
 
 
 def write_json(path: Path, payload: dict[str, Any]) -> None:
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def sha256_file(path: Path) -> str:
@@ -54,7 +56,9 @@ def git_value(args: list[str], default: str | None = None) -> str | None:
         return default
 
 
-def build_provenance(payloads: dict[str, dict[str, Any]], dataset_paths: list[Path]) -> dict[str, Any]:
+def build_provenance(
+    payloads: dict[str, dict[str, Any]], dataset_paths: list[Path]
+) -> dict[str, Any]:
     status = git_value(["status", "--short"], default="")
     return {
         "schema_version": 1,
@@ -105,7 +109,7 @@ Reason: {decision["reason"]}
 - Failure reason confidence: `{decision["failure_reason_confidence"]}`
 - Lesson: {decision["lesson"]}
 - Evidence sources:
-{chr(10).join(f'  - `{source}`' for source in decision["evidence_sources"])}
+{chr(10).join(f"  - `{source}`" for source in decision["evidence_sources"])}
 
 ## Target
 
@@ -245,7 +249,9 @@ def build_payloads(run_id: str) -> dict[str, dict[str, Any]]:
     synthetic_prefs = ROOT / "evals/sql-poc-expanded/preferences.jsonl"
     public_train = ROOT / "evals/sql-public-bmc2-train-v4-joinweighted/train.jsonl"
     public_dev = ROOT / "evals/sql-public-bmc2-train-v4-joinweighted/dev.jsonl"
-    public_prefs = ROOT / "evals/sql-public-bmc2-train-v4-joinweighted/preferences.jsonl"
+    public_prefs = (
+        ROOT / "evals/sql-public-bmc2-train-v4-joinweighted/preferences.jsonl"
+    )
     mixed = ROOT / "evals/sql-routed-mixed-v1/mixed114.jsonl"
 
     synthetic_train_rows = line_count(synthetic_train)
@@ -294,7 +300,11 @@ def build_payloads(run_id: str) -> dict[str, dict[str, Any]]:
     dataset = {
         "dataset_id": "sql-routed-mixed-v1",
         "sources": [
-            {"kind": "synthetic-sft", "path": "evals/sql-poc-expanded/train.jsonl", "rows": synthetic_train_rows},
+            {
+                "kind": "synthetic-sft",
+                "path": "evals/sql-poc-expanded/train.jsonl",
+                "rows": synthetic_train_rows,
+            },
             {
                 "kind": "synthetic-heldout",
                 "path": "evals/sql-poc-expanded/dev.jsonl",
@@ -320,7 +330,11 @@ def build_payloads(run_id: str) -> dict[str, dict[str, Any]]:
                 "path": "evals/sql-public-bmc2-train-v4-joinweighted/preferences.jsonl",
                 "rows": public_pref_rows,
             },
-            {"kind": "routed-eval", "path": "evals/sql-routed-mixed-v1/mixed114.jsonl", "rows": mixed_rows},
+            {
+                "kind": "routed-eval",
+                "path": "evals/sql-routed-mixed-v1/mixed114.jsonl",
+                "rows": mixed_rows,
+            },
         ],
         "processing": {
             "dedupe": True,
@@ -450,9 +464,13 @@ def render(out: Path, run_id: str, force: bool) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--out", default=f"runs/{DEFAULT_RUN_ID}", help="Output run directory.")
+    ap.add_argument(
+        "--out", default=f"runs/{DEFAULT_RUN_ID}", help="Output run directory."
+    )
     ap.add_argument("--run-id", default=DEFAULT_RUN_ID)
-    ap.add_argument("--force", action="store_true", help="Overwrite an existing output directory.")
+    ap.add_argument(
+        "--force", action="store_true", help="Overwrite an existing output directory."
+    )
     args = ap.parse_args()
     render(Path(args.out), args.run_id, args.force)
 

@@ -172,7 +172,9 @@ def count_params(model: nn.Module) -> tuple[int, int]:
 # --------------------------------------------------------------------------
 # Base model + adapter checkpoint I/O
 # --------------------------------------------------------------------------
-def load_base(ckpt_dir: str | Path, device: str | torch.device = "cpu") -> tuple[posttrainllm, str]:
+def load_base(
+    ckpt_dir: str | Path, device: str | torch.device = "cpu"
+) -> tuple[posttrainllm, str]:
     """Load a frozen Phase 1 base model. Returns (model, sha256-of-checkpoint)."""
     ckpt = load_checkpoint(ckpt_dir, map_location=device)
     model = posttrainllm(ModelConfig(**ckpt["model_config"])).to(device)
@@ -229,17 +231,21 @@ def save_adapter(
     return out_dir
 
 
-def apply_adapter(model: nn.Module, adapter_dir: str | Path,
-                  device: str | torch.device = "cpu") -> dict:
+def apply_adapter(
+    model: nn.Module, adapter_dir: str | Path, device: str | torch.device = "cpu"
+) -> dict:
     """Inject + load an adapter onto a base model, using adapter_meta.json for the
     rank/alpha/targets. Returns the metadata dict."""
     adapter_dir = Path(adapter_dir)
     meta = json.loads((adapter_dir / "adapter_meta.json").read_text())
     a = meta["adapter"]
     inject_lora(model, a["target_modules"], a["rank"], a["alpha"], a["dropout"])
-    blob = torch.load(adapter_dir / "adapter.pt", map_location=device, weights_only=False)
+    blob = torch.load(
+        adapter_dir / "adapter.pt", map_location=device, weights_only=False
+    )
     expected = {
-        name for name, p in model.named_parameters()
+        name
+        for name, p in model.named_parameters()
         if name.endswith(LORA_PARAM_SUFFIXES)
     }
     actual = set(blob["lora"])
@@ -277,26 +283,34 @@ def train_lora(args: argparse.Namespace) -> None:
     # The LoRA context cannot exceed the base model's position embeddings.
     ctx = min(lora_cfg.context_length, base.cfg.context_length)
     if ctx != lora_cfg.context_length:
-        print(f"note: clamping context {lora_cfg.context_length} -> {ctx} "
-              f"(base model context_length)")
+        print(
+            f"note: clamping context {lora_cfg.context_length} -> {ctx} "
+            f"(base model context_length)"
+        )
 
-    injected = inject_lora(base, lora_cfg.target_modules, lora_cfg.rank,
-                           lora_cfg.alpha, lora_cfg.dropout)
+    injected = inject_lora(
+        base, lora_cfg.target_modules, lora_cfg.rank, lora_cfg.alpha, lora_cfg.dropout
+    )
     base.to(device)
     mark_only_lora_trainable(base)
     trainable, total = count_params(base)
     print(f"base:    {args.base}  sha {base_sha[:12]}…")
-    print(f"adapter: rank {lora_cfg.rank} alpha {lora_cfg.alpha} "
-          f"scale {lora_cfg.scale:g}  ->  {len(injected)} modules: {injected}")
-    print(f"params:  {trainable:,} trainable / {total:,} total  "
-          f"({100 * trainable / total:.2f}%)")
+    print(
+        f"adapter: rank {lora_cfg.rank} alpha {lora_cfg.alpha} "
+        f"scale {lora_cfg.scale:g}  ->  {len(injected)} modules: {injected}"
+    )
+    print(
+        f"params:  {trainable:,} trainable / {total:,} total  "
+        f"({100 * trainable / total:.2f}%)"
+    )
 
     data = ByteDataset.from_file(args.data)
     print(f"dataset: {data.manifest.name}  {data.manifest.token_count:,} tokens")
 
     torch.manual_seed(args.seed)
-    optimizer = torch.optim.AdamW(lora_parameters(base), lr=lora_cfg.learning_rate,
-                                  betas=(0.9, 0.95))
+    optimizer = torch.optim.AdamW(
+        lora_parameters(base), lr=lora_cfg.learning_rate, betas=(0.9, 0.95)
+    )
     steps = args.steps if args.steps is not None else lora_cfg.steps
     eval_every = max(1, steps // 10)
 
@@ -306,8 +320,12 @@ def train_lora(args: argparse.Namespace) -> None:
     for step in range(steps + 1):
         if step % eval_every == 0 or step == steps:
             losses = _eval_loss(base, data, ctx, lora_cfg.batch_size, device)
-            loss_history.append({"step": step, **{f"{k}_loss": v for k, v in losses.items()}})
-            print(f"step {step:>5}  train {losses['train']:.4f}  val {losses['val']:.4f}")
+            loss_history.append(
+                {"step": step, **{f"{k}_loss": v for k, v in losses.items()}}
+            )
+            print(
+                f"step {step:>5}  train {losses['train']:.4f}  val {losses['val']:.4f}"
+            )
         if step == steps:
             break
 
@@ -318,9 +336,17 @@ def train_lora(args: argparse.Namespace) -> None:
         torch.nn.utils.clip_grad_norm_(lora_parameters(base), 1.0)
         optimizer.step()
 
-    save_adapter(args.out, model=base, optimizer=optimizer, lora_cfg=lora_cfg,
-                 base_dir=args.base, base_sha=base_sha, manifest=data.manifest,
-                 step=steps, loss_history=loss_history)
+    save_adapter(
+        args.out,
+        model=base,
+        optimizer=optimizer,
+        lora_cfg=lora_cfg,
+        base_dir=args.base,
+        base_sha=base_sha,
+        manifest=data.manifest,
+        step=steps,
+        loss_history=loss_history,
+    )
     print(f"done in {time.time() - t0:.1f}s. adapter -> {args.out}")
 
 
@@ -335,9 +361,13 @@ def compare(args: argparse.Namespace) -> None:
 
     def gen(model: posttrainllm) -> str:
         g = torch.Generator().manual_seed(args.seed)
-        out = model.generate(idx, max_new_tokens=args.tokens,
-                             temperature=args.temperature,
-                             top_k=args.top_k or None, generator=g)
+        out = model.generate(
+            idx,
+            max_new_tokens=args.tokens,
+            temperature=args.temperature,
+            top_k=args.top_k or None,
+            generator=g,
+        )
         return decode(out[0].tolist())
 
     base, _ = load_base(args.base, device)
@@ -348,12 +378,16 @@ def compare(args: argparse.Namespace) -> None:
     base_lora.to(device)
     print(f"[base+LoRA] {gen(base_lora)!r}")
     a = meta["adapter"]
-    print(f"\nadapter: rank {a['rank']} alpha {a['alpha']} "
-          f"targets {a['target_modules']}  {a['params']:,} params")
+    print(
+        f"\nadapter: rank {a['rank']} alpha {a['alpha']} "
+        f"targets {a['target_modules']}  {a['params']:,} params"
+    )
 
 
 def main(argv: list[str] | None = None) -> None:
-    p = argparse.ArgumentParser(description="LoRA fine-tuning for posttrainllm (Phase 3).")
+    p = argparse.ArgumentParser(
+        description="LoRA fine-tuning for posttrainllm (Phase 3)."
+    )
     p.add_argument("--base", required=True, help="base model checkpoint directory")
     p.add_argument("--data", help="text corpus to fine-tune on")
     p.add_argument("--out", default=str(REPO / "checkpoints" / "adapter"))
@@ -363,7 +397,9 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--device", default="cpu")
     # compare mode
-    p.add_argument("--compare", action="store_true", help="compare base vs base+adapter")
+    p.add_argument(
+        "--compare", action="store_true", help="compare base vs base+adapter"
+    )
     p.add_argument("--adapter", help="adapter directory (for --compare)")
     p.add_argument("--prompt", default="")
     p.add_argument("--tokens", type=int, default=120)

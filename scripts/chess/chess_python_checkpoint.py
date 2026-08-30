@@ -81,18 +81,26 @@ class PythonCheckpointChessPolicy:
             if max(lengths) > self.model.cfg.context_length:
                 raise ValueError("candidate sequence exceeds checkpoint context length")
             padded = [
-                prompt_ids + suffix + [0] * (max(lengths) - len(prompt_ids) - len(suffix))
+                prompt_ids
+                + suffix
+                + [0] * (max(lengths) - len(prompt_ids) - len(suffix))
                 for suffix in suffixes
             ]
-            tokens = self._torch.tensor(padded, dtype=self._torch.long, device=self._device)
+            tokens = self._torch.tensor(
+                padded, dtype=self._torch.long, device=self._device
+            )
             with self._torch.inference_mode():
                 logits, _ = self.model(tokens)
                 log_probs = self._torch.log_softmax(logits, dim=-1)
-            for row_index, (move, suffix) in enumerate(zip(chunk, suffixes, strict=True)):
+            for row_index, (move, suffix) in enumerate(
+                zip(chunk, suffixes, strict=True)
+            ):
                 total = 0.0
                 for suffix_index, target in enumerate(suffix):
                     prediction_index = len(prompt_ids) - 1 + suffix_index
-                    total += float(log_probs[row_index, prediction_index, target].item())
+                    total += float(
+                        log_probs[row_index, prediction_index, target].item()
+                    )
                 scores[move] = total
 
         self.last_scores = scores

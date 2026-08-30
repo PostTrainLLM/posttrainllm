@@ -45,24 +45,46 @@ interface Param {
 }
 
 interface Layer {
-  ln1g: Param; ln1b: Param;
-  wq: Param; bq: Param; wk: Param; bk: Param; wv: Param; bv: Param;
-  wo: Param; bo: Param;
-  ln2g: Param; ln2b: Param;
-  fcInW: Param; fcInB: Param; fcOutW: Param; fcOutB: Param;
+  ln1g: Param;
+  ln1b: Param;
+  wq: Param;
+  bq: Param;
+  wk: Param;
+  bk: Param;
+  wv: Param;
+  bv: Param;
+  wo: Param;
+  bo: Param;
+  ln2g: Param;
+  ln2b: Param;
+  fcInW: Param;
+  fcInB: Param;
+  fcOutW: Param;
+  fcOutB: Param;
 }
 
 /** Forward activations one block needs for its backward pass. */
 interface LayerCache {
-  blockIn: GpuTensor; ln1o: GpuTensor; m1: GpuTensor; r1s: GpuTensor;
-  q: GpuTensor; k: GpuTensor; v: GpuTensor; attn: GpuTensor; ctx: GpuTensor;
+  blockIn: GpuTensor;
+  ln1o: GpuTensor;
+  m1: GpuTensor;
+  r1s: GpuTensor;
+  q: GpuTensor;
+  k: GpuTensor;
+  v: GpuTensor;
+  attn: GpuTensor;
+  ctx: GpuTensor;
   /** Log-sum-exp from FA2 forward, when that path runs (hd ≤ 64). The FA2
    * backward kernels reconstruct P = exp(S − L) from q/k/L instead of
    * reading the attn matrix; if null, backward uses the legacy attn-cached
    * kernels. */
   L: GpuTensor | null;
-  r1: GpuTensor; ln2o: GpuTensor; m2: GpuTensor; r2s: GpuTensor;
-  hpre: GpuTensor; hact: GpuTensor;
+  r1: GpuTensor;
+  ln2o: GpuTensor;
+  m2: GpuTensor;
+  r2s: GpuTensor;
+  hpre: GpuTensor;
+  hact: GpuTensor;
 }
 
 // Deterministic RNG (mulberry32) + Box-Muller, for reproducible weight init.
@@ -90,7 +112,10 @@ export class GpuModel {
   private layers: Layer[] = [];
   private params: Param[] = [];
 
-  constructor(ctx: GpuContext, readonly cfg: GpuModelConfig) {
+  constructor(
+    ctx: GpuContext,
+    readonly cfg: GpuModelConfig,
+  ) {
     this.device = ctx.device;
     this.ops = GpuOps.create(ctx);
     this.initWeights();
@@ -108,7 +133,9 @@ export class GpuModel {
   }
 
   private makeParam(
-    size: number, fill: Float32Array, decay: boolean,
+    size: number,
+    fill: Float32Array,
+    decay: boolean,
     matShape: [number, number] | null = null,
   ): Param {
     const p: Param = {
@@ -134,7 +161,8 @@ export class GpuModel {
         spare = null;
         return r * std;
       }
-      const u = Math.max(1e-9, rng()), w = rng();
+      const u = Math.max(1e-9, rng()),
+        w = rng();
       const mag = Math.sqrt(-2 * Math.log(u));
       spare = mag * Math.sin(2 * Math.PI * w);
       return mag * Math.cos(2 * Math.PI * w) * std;
@@ -144,7 +172,8 @@ export class GpuModel {
       for (let i = 0; i < n; i++) a[i] = randn(std);
       return a;
     };
-    const filled = (n: number, value: number) => new Float32Array(n).fill(value);
+    const filled = (n: number, value: number) =>
+      new Float32Array(n).fill(value);
     const scaled = 0.02 / Math.sqrt(2 * layers); // residual-path init
 
     // Embeddings are matmul-shaped (tied head uses tokEmb in matmulAbt) but
@@ -207,8 +236,16 @@ export class GpuModel {
     // chain off the storage gate (no point trying them if storage
     // failed), and gating both before flipping useF16Storage means
     // linear()'s dispatch sees stable values on its first invocation.
-    try { await this.ops.shaderF16Ready; } catch { /* defaults false */ }
-    try { await this.ops.coopMatrixReady; } catch { /* defaults false */ }
+    try {
+      await this.ops.shaderF16Ready;
+    } catch {
+      /* defaults false */
+    }
+    try {
+      await this.ops.coopMatrixReady;
+    } catch {
+      /* defaults false */
+    }
 
     // Pack every matShape'd weight. Skip params that aren't 2D matmul-B
     // targets (biases, layernorm gain/bias) — those stay f32, used directly
@@ -217,11 +254,14 @@ export class GpuModel {
       if (!p.matShape) continue;
       const [rows, cols] = p.matShape;
       if (cols % 2 !== 0) continue; // f16 packing requires even N axis
-      const bytes = (rows * cols) * 2; // K*N halfs
+      const bytes = rows * cols * 2; // K*N halfs
       const buf = this.device.createBuffer({
         label: "wF16",
         size: bytes,
-        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
+        usage:
+          GPUBufferUsage.STORAGE |
+          GPUBufferUsage.COPY_SRC |
+          GPUBufferUsage.COPY_DST,
       });
       this.ops.packToF16(p.w.buffer, buf, rows, cols);
       p.wF16 = buf;
@@ -261,7 +301,14 @@ export class GpuModel {
   }
 
   // --- linear = matmul + bias ----------------------------------------------
-  private linear(x: GpuTensor, w: Param, b: Param, N: number, cin: number, cout: number) {
+  private linear(
+    x: GpuTensor,
+    w: Param,
+    b: Param,
+    N: number,
+    cin: number,
+    cout: number,
+  ) {
     // Forward matmul dispatch preference (high → low):
     //   1. coop-matrix (hardware MMA — tensor cores / AMX). Requires N
     //      and cout multiples of 8 in addition to even (the kernel tiles
@@ -273,10 +320,18 @@ export class GpuModel {
     //   4. f32 vec4 / blocked matmul — default fallback.
     let y: GpuTensor;
     if (
-      this.useF16Storage && w.wF16 && w.matShape &&
-      cin % 2 === 0 && cout % 2 === 0
+      this.useF16Storage &&
+      w.wF16 &&
+      w.matShape &&
+      cin % 2 === 0 &&
+      cout % 2 === 0
     ) {
-      if (this.ops.coopMatrixActive && N % 8 === 0 && cin % 8 === 0 && cout % 8 === 0) {
+      if (
+        this.ops.coopMatrixActive &&
+        N % 8 === 0 &&
+        cin % 8 === 0 &&
+        cout % 8 === 0
+      ) {
         y = this.keep(this.ops.matmulCoopMat(x, w.wF16, N, cin, cout));
       } else if (this.ops.shaderF16Active) {
         y = this.keep(this.ops.matmulF16Compute(x, w.wF16, N, cin, cout));
@@ -291,8 +346,15 @@ export class GpuModel {
   }
 
   private linearBackward(
-    x: GpuTensor, w: Param, dy: GpuTensor, N: number, cin: number, cout: number,
-    grads: Map<Param, GpuTensor>, wOut: Param, bOut: Param,
+    x: GpuTensor,
+    w: Param,
+    dy: GpuTensor,
+    N: number,
+    cin: number,
+    cout: number,
+    grads: Map<Param, GpuTensor>,
+    wOut: Param,
+    bOut: Param,
   ): GpuTensor {
     // dB = x^T @ dy never reads the weight — always stays on f32 vec4.
     const dB = this.keep(this.ops.matmulAtb(x, dy, cin, N, cout));
@@ -301,8 +363,11 @@ export class GpuModel {
     // shaderF16Active / useF16Storage / matShape evenness.
     let dA: GpuTensor;
     if (
-      this.useF16Storage && w.wF16 && w.matShape &&
-      cin % 2 === 0 && cout % 2 === 0
+      this.useF16Storage &&
+      w.wF16 &&
+      w.matShape &&
+      cin % 2 === 0 &&
+      cout % 2 === 0
     ) {
       if (this.ops.shaderF16Active) {
         dA = this.keep(this.ops.matmulAbtF16Compute(dy, w.wF16, N, cout, cin));
@@ -368,19 +433,29 @@ export class GpuModel {
     const N = batch * T;
     const idsT = this.keep(this.tensorFrom(ids));
     const x0 = this.keep(
-      this.ops.embedForward(this.tokEmb.w, this.posEmb.w, idsT, N, C, T));
+      this.ops.embedForward(this.tokEmb.w, this.posEmb.w, idsT, N, C, T),
+    );
     const caches: LayerCache[] = [];
     let x = x0;
     for (let l = 0; l < L; l++) {
       const ly = this.layers[l];
       const blockIn = x;
-      const ln1 = this.ops.layernormForward(blockIn, ly.ln1g.w, ly.ln1b.w, N, C);
-      this.keep(ln1.y); this.keep(ln1.mean); this.keep(ln1.rstd);
+      const ln1 = this.ops.layernormForward(
+        blockIn,
+        ly.ln1g.w,
+        ly.ln1b.w,
+        N,
+        C,
+      );
+      this.keep(ln1.y);
+      this.keep(ln1.mean);
+      this.keep(ln1.rstd);
       const q = this.linear(ln1.y, ly.wq, ly.bq, N, C, C);
       const k = this.linear(ln1.y, ly.wk, ly.bk, N, C, C);
       const v = this.linear(ln1.y, ly.wv, ly.bv, N, C, C);
       const att = this.ops.attentionForward(q, k, v, batch, T, C, H);
-      this.keep(att.attn); this.keep(att.ctx);
+      this.keep(att.attn);
+      this.keep(att.ctx);
       if (att.L) this.keep(att.L);
       const ao = this.linear(att.ctx, ly.wo, ly.bo, N, C, C);
       // Ablation: when set, the attn output is dropped (residual unchanged).
@@ -390,13 +465,13 @@ export class GpuModel {
         ? blockIn
         : this.keep(this.ops.add(blockIn, ao, N * C));
       const ln2 = this.ops.layernormForward(r1, ly.ln2g.w, ly.ln2b.w, N, C);
-      this.keep(ln2.y); this.keep(ln2.mean); this.keep(ln2.rstd);
+      this.keep(ln2.y);
+      this.keep(ln2.mean);
+      this.keep(ln2.rstd);
       const hpre = this.linear(ln2.y, ly.fcInW, ly.fcInB, N, C, M);
       const hact = this.keep(this.ops.gelu(hpre, N * M));
       const mo = this.linear(hact, ly.fcOutW, ly.fcOutB, N, M, C);
-      var r2 = this.mlpAblated[l]
-        ? r1
-        : this.keep(this.ops.add(r1, mo, N * C));
+      var r2 = this.mlpAblated[l] ? r1 : this.keep(this.ops.add(r1, mo, N * C));
       // Position-level patch: at the specified (layer, position),
       // either ZERO out the block's residual-stream output for that
       // single position (no donorRow) or REPLACE it with a donor's
@@ -405,7 +480,9 @@ export class GpuModel {
         if (patch.layer !== l) continue;
         if (patch.position < 0 || patch.position >= T) continue;
         if (patch.donorRow) {
-          r2 = this.keep(this.ops.replaceRow(r2, patch.donorRow, patch.position, T, C));
+          r2 = this.keep(
+            this.ops.replaceRow(r2, patch.donorRow, patch.position, T, C),
+          );
         } else {
           r2 = this.keep(this.ops.zeroRow(r2, patch.position, T, C));
         }
@@ -423,14 +500,29 @@ export class GpuModel {
         cr.T = T;
       }
       caches.push({
-        blockIn, ln1o: ln1.y, m1: ln1.mean, r1s: ln1.rstd, q, k, v,
-        attn: att.attn, ctx: att.ctx, L: att.L, r1, ln2o: ln2.y, m2: ln2.mean,
-        r2s: ln2.rstd, hpre, hact,
+        blockIn,
+        ln1o: ln1.y,
+        m1: ln1.mean,
+        r1s: ln1.rstd,
+        q,
+        k,
+        v,
+        attn: att.attn,
+        ctx: att.ctx,
+        L: att.L,
+        r1,
+        ln2o: ln2.y,
+        m2: ln2.mean,
+        r2s: ln2.rstd,
+        hpre,
+        hact,
       });
       x = r2;
     }
     const lnf = this.ops.layernormForward(x, this.lnfG.w, this.lnfB.w, N, C);
-    this.keep(lnf.y); this.keep(lnf.mean); this.keep(lnf.rstd);
+    this.keep(lnf.y);
+    this.keep(lnf.mean);
+    this.keep(lnf.rstd);
     // tied head: logits[N,V] = lnf[N,C] @ tok_emb[V,C]ᵀ
     const logits = this.keep(this.ops.matmulAbt(lnf.y, this.tokEmb.w, N, C, V));
     return { logits, caches, lastX: x, lnf, idsT, N };
@@ -463,9 +555,15 @@ export class GpuModel {
       // Pull weights and Adam moments back to CPU. Each download is an async
       // GPU→CPU readback; doing them serially keeps memory pressure manageable
       // (one Float32Array per param at a time) and avoids overlapping mapAsync.
-      const w = await p.w.download(); f32.set(w, off); off += w.length;
-      const m = await p.m.download(); f32.set(m, off); off += m.length;
-      const v = await p.v.download(); f32.set(v, off); off += v.length;
+      const w = await p.w.download();
+      f32.set(w, off);
+      off += w.length;
+      const m = await p.m.download();
+      f32.set(m, off);
+      off += m.length;
+      const v = await p.v.download();
+      f32.set(v, off);
+      off += v.length;
     }
     return buf;
   }
@@ -487,17 +585,26 @@ export class GpuModel {
     if (state.byteLength !== expectedBytes) {
       throw new Error(
         `state size mismatch: got ${state.byteLength} bytes, expected ${expectedBytes} ` +
-        `for ${this.params.length} params totaling ${totalFloats} floats. ` +
-        `The saved checkpoint was probably for a different config.`,
+          `for ${this.params.length} params totaling ${totalFloats} floats. ` +
+          `The saved checkpoint was probably for a different config.`,
       );
     }
     this.stepCount = new Int32Array(state, 0, 1)[0];
     const f32 = new Float32Array(state, 4);
     let off = 0;
     for (const p of this.params) {
-      p.w.upload(new Float32Array(f32.buffer, f32.byteOffset + off * 4, p.size)); off += p.size;
-      p.m.upload(new Float32Array(f32.buffer, f32.byteOffset + off * 4, p.size)); off += p.size;
-      p.v.upload(new Float32Array(f32.buffer, f32.byteOffset + off * 4, p.size)); off += p.size;
+      p.w.upload(
+        new Float32Array(f32.buffer, f32.byteOffset + off * 4, p.size),
+      );
+      off += p.size;
+      p.m.upload(
+        new Float32Array(f32.buffer, f32.byteOffset + off * 4, p.size),
+      );
+      off += p.size;
+      p.v.upload(
+        new Float32Array(f32.buffer, f32.byteOffset + off * 4, p.size),
+      );
+      off += p.size;
     }
   }
 
@@ -524,7 +631,10 @@ export class GpuModel {
       position: number;
       donor?: { prompt: number[]; layer: number; position: number };
     }[],
-    maxNew: number, temperature: number, topK: number, seed: number,
+    maxNew: number,
+    temperature: number,
+    topK: number,
+    seed: number,
     onToken?: (tok: number, idxIntoMaxNew: number) => void,
   ): Promise<number[]> {
     const C = this.cfg.dModel;
@@ -539,11 +649,13 @@ export class GpuModel {
       const key = `${p.donor.prompt.join(",")}#${p.donor.layer}#${p.donor.position}`;
       if (donorByKey.has(key)) continue;
       if (p.donor.prompt.length === 0) {
-        throw new Error("donor prompt is empty — capture has no tokens to run forward on");
+        throw new Error(
+          "donor prompt is empty — capture has no tokens to run forward on",
+        );
       }
-      const hidden = await this.captureHidden(
-        p.donor.prompt, [{ layer: p.donor.layer, position: p.donor.position }],
-      );
+      const hidden = await this.captureHidden(p.donor.prompt, [
+        { layer: p.donor.layer, position: p.donor.position },
+      ]);
       if (hidden.length === 0) {
         // captureHidden silently drops out-of-bounds requests; turn that
         // into a hard error so the UI never shows a swap result that's
@@ -552,8 +664,8 @@ export class GpuModel {
         const T = Math.min(p.donor.prompt.length, this.cfg.ctx);
         throw new Error(
           `donor capture returned no hidden state for (layer=${p.donor.layer}, ` +
-          `position=${p.donor.position}). Check layer < ${this.cfg.layers} and ` +
-          `position < ${T} (donor prompt window).`,
+            `position=${p.donor.position}). Check layer < ${this.cfg.layers} and ` +
+            `position < ${T} (donor prompt window).`,
         );
       }
       const slice = hidden[0].data;
@@ -567,7 +679,8 @@ export class GpuModel {
       captured.push(t);
     }
     this.patchPositions = patches.map((p) => {
-      if (!p.donor) return { layer: p.layer, position: p.position, donorRow: null };
+      if (!p.donor)
+        return { layer: p.layer, position: p.position, donorRow: null };
       const key = `${p.donor.prompt.join(",")}#${p.donor.layer}#${p.donor.position}`;
       const donorRow = donorByKey.get(key);
       if (!donorRow) {
@@ -576,13 +689,20 @@ export class GpuModel {
         // would silently degrade to a zero-patch — fail loudly instead.
         throw new Error(
           `internal: missing donor row for (layer=${p.donor.layer}, ` +
-          `position=${p.donor.position}) after capture`,
+            `position=${p.donor.position}) after capture`,
         );
       }
       return { layer: p.layer, position: p.position, donorRow };
     });
     try {
-      return await this.generate(promptIds, maxNew, temperature, topK, seed, onToken);
+      return await this.generate(
+        promptIds,
+        maxNew,
+        temperature,
+        topK,
+        seed,
+        onToken,
+      );
     } finally {
       this.patchPositions = [];
       // Donor tensors live outside scratch; recycle them explicitly so
@@ -608,7 +728,8 @@ export class GpuModel {
     if (T === 0) return [];
     const window = new Float32Array(promptIds.slice(promptIds.length - T));
     this.captureRequests = captures.map((c) => ({
-      layer: c.layer, position: c.position,
+      layer: c.layer,
+      position: c.position,
     }));
     this.ops.beginBatch();
     this.forward(window, 1, T);
@@ -642,7 +763,10 @@ export class GpuModel {
   async generateAblated(
     promptIds: number[],
     ablations: { layer: number; target: "attn" | "mlp" | "all" }[],
-    maxNew: number, temperature: number, topK: number, seed: number,
+    maxNew: number,
+    temperature: number,
+    topK: number,
+    seed: number,
     onToken?: (tok: number, idxIntoMaxNew: number) => void,
   ): Promise<number[]> {
     const { layers: L } = this.cfg;
@@ -650,11 +774,20 @@ export class GpuModel {
     this.mlpAblated = new Array(L).fill(false);
     for (const ab of ablations) {
       if (ab.layer < 0 || ab.layer >= L) continue;
-      if (ab.target === "attn" || ab.target === "all") this.attnAblated[ab.layer] = true;
-      if (ab.target === "mlp"  || ab.target === "all") this.mlpAblated[ab.layer]  = true;
+      if (ab.target === "attn" || ab.target === "all")
+        this.attnAblated[ab.layer] = true;
+      if (ab.target === "mlp" || ab.target === "all")
+        this.mlpAblated[ab.layer] = true;
     }
     try {
-      return await this.generate(promptIds, maxNew, temperature, topK, seed, onToken);
+      return await this.generate(
+        promptIds,
+        maxNew,
+        temperature,
+        topK,
+        seed,
+        onToken,
+      );
     } finally {
       this.attnAblated = new Array(L).fill(false);
       this.mlpAblated = new Array(L).fill(false);
@@ -665,8 +798,12 @@ export class GpuModel {
    *  Optional `onToken` callback fires once per newly-sampled token so the
    *  caller can stream output instead of waiting for the full sequence. */
   async generate(
-    promptIds: number[], maxNew: number, temperature: number, topK: number,
-    seed: number, onToken?: (tok: number, idxIntoMaxNew: number) => void,
+    promptIds: number[],
+    maxNew: number,
+    temperature: number,
+    topK: number,
+    seed: number,
+    onToken?: (tok: number, idxIntoMaxNew: number) => void,
   ): Promise<number[]> {
     const { vocab: V, ctx } = this.cfg;
     const ids = promptIds.length > 0 ? [...promptIds] : [10];
@@ -681,12 +818,14 @@ export class GpuModel {
       const base = (T - 1) * V;
       let next = 0;
       if (temperature <= 0) {
-        for (let v = 1; v < V; v++) if (logits[base + v] > logits[base + next]) next = v;
+        for (let v = 1; v < V; v++)
+          if (logits[base + v] > logits[base + next]) next = v;
       } else {
         const probs = new Float32Array(V);
         let mx = -1e30;
         for (let v = 0; v < V; v++) mx = Math.max(mx, logits[base + v]);
-        for (let v = 0; v < V; v++) probs[v] = Math.exp((logits[base + v] - mx) / temperature);
+        for (let v = 0; v < V; v++)
+          probs[v] = Math.exp((logits[base + v] - mx) / temperature);
         if (topK > 0 && topK < V) {
           const thresh = [...probs].sort((a, b) => b - a)[topK - 1];
           for (let v = 0; v < V; v++) if (probs[v] < thresh) probs[v] = 0;
@@ -697,7 +836,10 @@ export class GpuModel {
         next = V - 1;
         for (let v = 0; v < V; v++) {
           r -= probs[v];
-          if (r <= 0) { next = v; break; }
+          if (r <= 0) {
+            next = v;
+            break;
+          }
         }
       }
       ids.push(next);
@@ -727,23 +869,29 @@ export class GpuModel {
     this.ops.beginBatch();
     const idsT = this.keep(this.tensorFrom(window));
     const x0 = this.keep(
-      this.ops.embedForward(this.tokEmb.w, this.posEmb.w, idsT, N, C, T));
+      this.ops.embedForward(this.tokEmb.w, this.posEmb.w, idsT, N, C, T),
+    );
     let x = x0;
     const perLayer: import("./tensor").GpuTensor[] = [];
     for (let l = 0; l < L; l++) {
       const ly = this.layers[l];
       const ln1 = this.ops.layernormForward(x, ly.ln1g.w, ly.ln1b.w, N, C);
-      this.keep(ln1.y); this.keep(ln1.mean); this.keep(ln1.rstd);
+      this.keep(ln1.y);
+      this.keep(ln1.mean);
+      this.keep(ln1.rstd);
       const q = this.linear(ln1.y, ly.wq, ly.bq, N, C, C);
       const k = this.linear(ln1.y, ly.wk, ly.bk, N, C, C);
       const v = this.linear(ln1.y, ly.wv, ly.bv, N, C, C);
       const att = this.ops.attentionForward(q, k, v, 1, T, C, H);
-      this.keep(att.attn); this.keep(att.ctx);
+      this.keep(att.attn);
+      this.keep(att.ctx);
       if (att.L) this.keep(att.L);
       const ao = this.linear(att.ctx, ly.wo, ly.bo, N, C, C);
       const r1 = this.keep(this.ops.add(x, ao, N * C));
       const ln2 = this.ops.layernormForward(r1, ly.ln2g.w, ly.ln2b.w, N, C);
-      this.keep(ln2.y); this.keep(ln2.mean); this.keep(ln2.rstd);
+      this.keep(ln2.y);
+      this.keep(ln2.mean);
+      this.keep(ln2.rstd);
       const hpre = this.linear(ln2.y, ly.fcInW, ly.fcInB, N, C, M);
       const hact = this.keep(this.ops.gelu(hpre, N * M));
       const mo = this.linear(hact, ly.fcOutW, ly.fcOutB, N, M, C);
@@ -784,7 +932,8 @@ export class GpuModel {
     this.ops.beginBatch();
     const idsT = this.keep(this.tensorFrom(window));
     const x0 = this.keep(
-      this.ops.embedForward(this.tokEmb.w, this.posEmb.w, idsT, N, C, T));
+      this.ops.embedForward(this.tokEmb.w, this.posEmb.w, idsT, N, C, T),
+    );
     let x = x0;
     const perLayerLogits: import("./tensor").GpuTensor[] = [];
 
@@ -793,17 +942,22 @@ export class GpuModel {
       // Standard block forward — kept inline (vs. calling private `forward`)
       // so we control what gets `keep`'d. The training caches aren't needed.
       const ln1 = this.ops.layernormForward(x, ly.ln1g.w, ly.ln1b.w, N, C);
-      this.keep(ln1.y); this.keep(ln1.mean); this.keep(ln1.rstd);
+      this.keep(ln1.y);
+      this.keep(ln1.mean);
+      this.keep(ln1.rstd);
       const q = this.linear(ln1.y, ly.wq, ly.bq, N, C, C);
       const k = this.linear(ln1.y, ly.wk, ly.bk, N, C, C);
       const v = this.linear(ln1.y, ly.wv, ly.bv, N, C, C);
       const att = this.ops.attentionForward(q, k, v, 1, T, C, H);
-      this.keep(att.attn); this.keep(att.ctx);
+      this.keep(att.attn);
+      this.keep(att.ctx);
       if (att.L) this.keep(att.L);
       const ao = this.linear(att.ctx, ly.wo, ly.bo, N, C, C);
       const r1 = this.keep(this.ops.add(x, ao, N * C));
       const ln2 = this.ops.layernormForward(r1, ly.ln2g.w, ly.ln2b.w, N, C);
-      this.keep(ln2.y); this.keep(ln2.mean); this.keep(ln2.rstd);
+      this.keep(ln2.y);
+      this.keep(ln2.mean);
+      this.keep(ln2.rstd);
       const hpre = this.linear(ln2.y, ly.fcInW, ly.fcInB, N, C, M);
       const hact = this.keep(this.ops.gelu(hpre, N * M));
       const mo = this.linear(hact, ly.fcOutW, ly.fcOutB, N, M, C);
@@ -815,8 +969,12 @@ export class GpuModel {
       // computed locally (not the same as if all layers ran first)
       // — this is the standard interpretation of "logit lens."
       const lnfL = this.ops.layernormForward(x, this.lnfG.w, this.lnfB.w, N, C);
-      this.keep(lnfL.y); this.keep(lnfL.mean); this.keep(lnfL.rstd);
-      const logitsL = this.keep(this.ops.matmulAbt(lnfL.y, this.tokEmb.w, N, C, V));
+      this.keep(lnfL.y);
+      this.keep(lnfL.mean);
+      this.keep(lnfL.rstd);
+      const logitsL = this.keep(
+        this.ops.matmulAbt(lnfL.y, this.tokEmb.w, N, C, V),
+      );
       perLayerLogits.push(logitsL);
     }
     this.ops.endBatch();
@@ -869,7 +1027,8 @@ export class GpuModel {
    * 64 KB. Fine to download.
    */
   async inspect(
-    promptIds: number[], k: number,
+    promptIds: number[],
+    k: number,
   ): Promise<{
     tokens: number[];
     topK: { token: number; prob: number }[][];
@@ -896,7 +1055,8 @@ export class GpuModel {
       // Softmax logits[t, :] (no temperature — show the raw model belief).
       const base = t * V;
       let mx = -1e30;
-      for (let v = 0; v < V; v++) if (logits[base + v] > mx) mx = logits[base + v];
+      for (let v = 0; v < V; v++)
+        if (logits[base + v] > mx) mx = logits[base + v];
       const probs = new Float64Array(V);
       let sum = 0;
       for (let v = 0; v < V; v++) {
@@ -944,7 +1104,10 @@ export class GpuModel {
 
   /** One training step: forward, cross-entropy, backward, AdamW. Returns loss. */
   async trainStep(
-    ids: Float32Array, targets: Float32Array, batch: number, lr: number,
+    ids: Float32Array,
+    targets: Float32Array,
+    batch: number,
+    lr: number,
   ): Promise<number> {
     // Lazy f16-storage activation: the ops-level numerics gate runs at
     // construction time and settles independently. If it passed and we
@@ -965,7 +1128,14 @@ export class GpuModel {
     // p.w). The forward + dA matmuls within this step still read the
     // mirror state from the previous step's repack, which exactly matches
     // p.w pre-AdamW — correct semantics.
-    const { vocab: V, ctx: T, layers: L, heads: H, dModel: C, dMlp: M } = this.cfg;
+    const {
+      vocab: V,
+      ctx: T,
+      layers: L,
+      heads: H,
+      dModel: C,
+      dMlp: M,
+    } = this.cfg;
     const grads = new Map<Param, GpuTensor>();
 
     // Record the whole step (forward + backward + AdamW) into one submission.
@@ -977,15 +1147,25 @@ export class GpuModel {
     // --- loss + dlogits ----------------------------------------------------
     const targetsT = this.keep(this.tensorFrom(targets));
     const ce = this.ops.crossEntropy(logits, targetsT, N, V);
-    this.keep(ce.dlogits); this.keep(ce.loss);
+    this.keep(ce.dlogits);
+    this.keep(ce.loss);
 
     // --- backward ----------------------------------------------------------
     // head backward: dlnf = dlogits @ tok_emb; d(tok_emb)_head = dlogitsᵀ @ lnf
     const dlnf = this.keep(this.ops.matmul(ce.dlogits, this.tokEmb.w, N, V, C));
     const dTokHead = this.keep(this.ops.matmulAtb(ce.dlogits, lnf.y, V, N, C));
     const lnfBack = this.ops.layernormBackward(
-      f.lastX, this.lnfG.w, lnf.mean, lnf.rstd, dlnf, N, C);
-    this.keep(lnfBack.dx); this.keep(lnfBack.dgamma); this.keep(lnfBack.dbeta);
+      f.lastX,
+      this.lnfG.w,
+      lnf.mean,
+      lnf.rstd,
+      dlnf,
+      N,
+      C,
+    );
+    this.keep(lnfBack.dx);
+    this.keep(lnfBack.dgamma);
+    this.keep(lnfBack.dbeta);
     grads.set(this.lnfG, lnfBack.dgamma);
     grads.set(this.lnfB, lnfBack.dbeta);
 
@@ -994,27 +1174,123 @@ export class GpuModel {
       const ly = this.layers[l];
       const c = caches[l];
       // r2 = r1 + mo
-      const dmo = dnext, dr1a = dnext;
-      const dhact = this.linearBackward(c.hact, ly.fcOutW, dmo, N, M, C, grads, ly.fcOutW, ly.fcOutB);
+      const dmo = dnext,
+        dr1a = dnext;
+      const dhact = this.linearBackward(
+        c.hact,
+        ly.fcOutW,
+        dmo,
+        N,
+        M,
+        C,
+        grads,
+        ly.fcOutW,
+        ly.fcOutB,
+      );
       const dhpre = this.keep(this.ops.geluBackward(c.hpre, dhact, N * M));
-      const dln2o = this.linearBackward(c.ln2o, ly.fcInW, dhpre, N, C, M, grads, ly.fcInW, ly.fcInB);
-      const ln2b = this.ops.layernormBackward(c.r1, ly.ln2g.w, c.m2, c.r2s, dln2o, N, C);
-      this.keep(ln2b.dx); this.keep(ln2b.dgamma); this.keep(ln2b.dbeta);
+      const dln2o = this.linearBackward(
+        c.ln2o,
+        ly.fcInW,
+        dhpre,
+        N,
+        C,
+        M,
+        grads,
+        ly.fcInW,
+        ly.fcInB,
+      );
+      const ln2b = this.ops.layernormBackward(
+        c.r1,
+        ly.ln2g.w,
+        c.m2,
+        c.r2s,
+        dln2o,
+        N,
+        C,
+      );
+      this.keep(ln2b.dx);
+      this.keep(ln2b.dgamma);
+      this.keep(ln2b.dbeta);
       grads.set(ly.ln2g, ln2b.dgamma);
       grads.set(ly.ln2b, ln2b.dbeta);
       const dr1 = this.keep(this.ops.add(dr1a, ln2b.dx, N * C));
       // r1 = blockIn + ao
-      const dao = dr1, dBlockA = dr1;
-      const dctx = this.linearBackward(c.ctx, ly.wo, dao, N, C, C, grads, ly.wo, ly.bo);
-      const attBack = this.ops.attentionBackward(c.q, c.k, c.v, c.attn, dctx, batch, T, C, H, c.L);
-      this.keep(attBack.dq); this.keep(attBack.dk); this.keep(attBack.dv);
-      const dx1 = this.linearBackward(c.ln1o, ly.wq, attBack.dq, N, C, C, grads, ly.wq, ly.bq);
-      const dx2 = this.linearBackward(c.ln1o, ly.wk, attBack.dk, N, C, C, grads, ly.wk, ly.bk);
-      const dx3 = this.linearBackward(c.ln1o, ly.wv, attBack.dv, N, C, C, grads, ly.wv, ly.bv);
-      const dln1o = this.keep(this.ops.add(
-        this.keep(this.ops.add(dx1, dx2, N * C)), dx3, N * C));
-      const ln1b = this.ops.layernormBackward(c.blockIn, ly.ln1g.w, c.m1, c.r1s, dln1o, N, C);
-      this.keep(ln1b.dx); this.keep(ln1b.dgamma); this.keep(ln1b.dbeta);
+      const dao = dr1,
+        dBlockA = dr1;
+      const dctx = this.linearBackward(
+        c.ctx,
+        ly.wo,
+        dao,
+        N,
+        C,
+        C,
+        grads,
+        ly.wo,
+        ly.bo,
+      );
+      const attBack = this.ops.attentionBackward(
+        c.q,
+        c.k,
+        c.v,
+        c.attn,
+        dctx,
+        batch,
+        T,
+        C,
+        H,
+        c.L,
+      );
+      this.keep(attBack.dq);
+      this.keep(attBack.dk);
+      this.keep(attBack.dv);
+      const dx1 = this.linearBackward(
+        c.ln1o,
+        ly.wq,
+        attBack.dq,
+        N,
+        C,
+        C,
+        grads,
+        ly.wq,
+        ly.bq,
+      );
+      const dx2 = this.linearBackward(
+        c.ln1o,
+        ly.wk,
+        attBack.dk,
+        N,
+        C,
+        C,
+        grads,
+        ly.wk,
+        ly.bk,
+      );
+      const dx3 = this.linearBackward(
+        c.ln1o,
+        ly.wv,
+        attBack.dv,
+        N,
+        C,
+        C,
+        grads,
+        ly.wv,
+        ly.bv,
+      );
+      const dln1o = this.keep(
+        this.ops.add(this.keep(this.ops.add(dx1, dx2, N * C)), dx3, N * C),
+      );
+      const ln1b = this.ops.layernormBackward(
+        c.blockIn,
+        ly.ln1g.w,
+        c.m1,
+        c.r1s,
+        dln1o,
+        N,
+        C,
+      );
+      this.keep(ln1b.dx);
+      this.keep(ln1b.dgamma);
+      this.keep(ln1b.dbeta);
       grads.set(ly.ln1g, ln1b.dgamma);
       grads.set(ly.ln1b, ln1b.dbeta);
       dnext = this.keep(this.ops.add(dBlockA, ln1b.dx, N * C));
@@ -1029,8 +1305,16 @@ export class GpuModel {
     for (const p of this.params) {
       const g = grads.get(p);
       if (!g) continue;
-      this.ops.adamwStep(p.w, g, p.m, p.v, p.size, this.stepCount, lr,
-        p.decay ? 0.1 : 0.0);
+      this.ops.adamwStep(
+        p.w,
+        g,
+        p.m,
+        p.v,
+        p.size,
+        this.stepCount,
+        lr,
+        p.decay ? 0.1 : 0.0,
+      );
     }
 
     // Keep the f16 mirrors in sync with the just-updated f32 weights so the
@@ -1057,7 +1341,10 @@ export class GpuModel {
       p.w.destroy();
       p.m.destroy();
       p.v.destroy();
-      if (p.wF16) { p.wF16.destroy(); p.wF16 = null; }
+      if (p.wF16) {
+        p.wF16.destroy();
+        p.wF16 = null;
+      }
     }
     this.params.length = 0;
     this.layers.length = 0;

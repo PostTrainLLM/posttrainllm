@@ -28,10 +28,10 @@ def normalize_sql(sql: str) -> str:
         s = fence.group(1).strip()
     select = re.search(r"\bselect\b", s, flags=re.I)
     if select:
-        s = s[select.start():]
+        s = s[select.start() :]
     semi = s.find(";")
     if semi >= 0:
-        s = s[:semi + 1]
+        s = s[: semi + 1]
     s = re.sub(r"\s+", " ", s).strip().rstrip(";").lower()
     return s
 
@@ -70,7 +70,11 @@ def candidate_id(source: str, sql: str) -> str:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("--prompts", required=True, help="SQL prompt/dev JSONL with id, prompt, gold_sql")
+    p.add_argument(
+        "--prompts",
+        required=True,
+        help="SQL prompt/dev JSONL with id, prompt, gold_sql",
+    )
     p.add_argument(
         "--candidate",
         action="append",
@@ -106,20 +110,30 @@ def main() -> None:
             if not norm or norm in seen:
                 return
             seen.add(norm)
-            choices.append({
-                "id": candidate_id(source, norm),
-                "source": source,
-                "sql": sql.strip(),
-                "normalized_sql": norm,
-                "is_gold": is_gold,
-            })
+            choices.append(
+                {
+                    "id": candidate_id(source, norm),
+                    "source": source,
+                    "sql": sql.strip(),
+                    "normalized_sql": norm,
+                    "is_gold": is_gold,
+                }
+            )
 
         add_choice("gold", gold_sql, is_gold=True)
         for name, by_id in candidate_sets:
             row = by_id.get(key)
             if not row:
                 continue
-            add_choice(name, str(row.get("predicted_sql") or row.get("scored_sql") or row.get("output") or ""))
+            add_choice(
+                name,
+                str(
+                    row.get("predicted_sql")
+                    or row.get("scored_sql")
+                    or row.get("output")
+                    or ""
+                ),
+            )
 
         if not any(c["is_gold"] for c in choices):
             raise SystemExit(f"row {key} lost its gold choice after normalization")
@@ -131,22 +145,27 @@ def main() -> None:
 
         rng.shuffle(choices)
         answer_index = next(j for j, c in enumerate(choices) if c["is_gold"])
-        out_rows.append({
-            "id": key,
-            "task": "sql_candidate_selection",
-            "prompt": prompt_row["prompt"],
-            "question": prompt_row.get("question"),
-            "domain": prompt_row.get("domain"),
-            "db": prompt_row.get("db"),
-            "slices": infer_slices(prompt_row),
-            "choices": choices,
-            "answer_index": answer_index,
-            "answer_id": choices[answer_index]["id"],
-            "answer_sql": gold_sql,
-        })
+        out_rows.append(
+            {
+                "id": key,
+                "task": "sql_candidate_selection",
+                "prompt": prompt_row["prompt"],
+                "question": prompt_row.get("question"),
+                "domain": prompt_row.get("domain"),
+                "db": prompt_row.get("db"),
+                "slices": infer_slices(prompt_row),
+                "choices": choices,
+                "answer_index": answer_index,
+                "answer_id": choices[answer_index]["id"],
+                "answer_sql": gold_sql,
+            }
+        )
 
     Path(args.out).write_text(
-        "\n".join(json.dumps(r, separators=(",", ":"), sort_keys=True) for r in out_rows) + "\n"
+        "\n".join(
+            json.dumps(r, separators=(",", ":"), sort_keys=True) for r in out_rows
+        )
+        + "\n"
     )
     print(f"wrote {len(out_rows)} SQL candidate-selection rows -> {args.out}")
 

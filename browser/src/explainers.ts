@@ -22,14 +22,20 @@ export const EXPLAINERS: Record<string, Explainer> = {
   loraOverview: {
     title: "LoRA — fine-tuning, cheaply",
     body: "Instead of nudging all 800k weights, freeze them all and slip in a few tiny new matrices (rank 4 here) into the attention layers. You train ONLY those — typically 1–10% of the base size. One base model can then host many swappable adapters: 'formal writer', 'children's stories', 'Shakespeare-style' — each adapter is a few KB.",
-    link: docsLink("docs/techniques/lora_guide.md", "docs/techniques/lora_guide.md — full LoRA walkthrough"),
+    link: docsLink(
+      "docs/techniques/lora_guide.md",
+      "docs/techniques/lora_guide.md — full LoRA walkthrough",
+    ),
   },
 
   // --- size preset -------------------------------------------------------
   sizePreset: {
     title: "Model size presets",
     body: "Five curated sizes from Tiny (70k params, finishes in seconds) to XL (6.4M params, WebGPU recommended). Picking one auto-fills every knob; switching to Custom lets you tweak individually. The pre-flight estimate below updates live.",
-    link: docsLink("docs/performance/performance.md", "docs/performance/performance.md — perf work"),
+    link: docsLink(
+      "docs/performance/performance.md",
+      "docs/performance/performance.md — perf work",
+    ),
   },
 
   // --- model config ------------------------------------------------------
@@ -77,12 +83,18 @@ export const EXPLAINERS: Record<string, Explainer> = {
   backend: {
     title: "Backend — WASM or WebGPU",
     body: "WASM runs the same model on the CPU via hand-derived C++ kernels — fully supported. WebGPU runs the forward, backward, and AdamW on the GPU. Measured on Apple M-series: WebGPU is ~2.6× faster than WASM on small models and ~12× faster on the XL preset — the speedup grows with model size as the GPU's arithmetic throughput dominates. The kernels are parity-checked, so it's correct. If your machine has WebGPU, use it.",
-    link: docsLink("docs/browser_notes.md", "browser_notes.md — WASM vs WebGPU"),
+    link: docsLink(
+      "docs/browser_notes.md",
+      "browser_notes.md — WASM vs WebGPU",
+    ),
   },
   corpus: {
     title: "The training corpus",
     body: "The model has nothing to learn except patterns in this text. The default is the full TinyShakespeare corpus (~1.1 MB) — enough that a small model learns letter and word patterns, and a larger model trained for ~15 minutes starts producing readable pseudo-Shakespeare. Paste your own text, upload a file, or pull a dataset from Hugging Face to change what it learns.",
-    link: docsLink("docs/learn/README.md", "docs/learn/README.md — the active learning index"),
+    link: docsLink(
+      "docs/learn/README.md",
+      "docs/learn/README.md — the active learning index",
+    ),
   },
 
   // --- sampling ----------------------------------------------------------
@@ -148,7 +160,10 @@ export const EXPLAINERS: Record<string, Explainer> = {
   tokensPerSec: {
     title: "Throughput",
     body: "Tokens (bytes here) processed per second. WASM uses multi-threaded SIMD; WebGPU runs the whole training loop on the GPU. On a modern laptop expect roughly 10k–80k tok/s for a small model under WASM, and ~3× that under WebGPU on the smaller presets — growing to ~12× on XL.",
-    link: docsLink("docs/performance/performance.md", "docs/performance/performance.md — perf work"),
+    link: docsLink(
+      "docs/performance/performance.md",
+      "docs/performance/performance.md — perf work",
+    ),
   },
   eta: {
     title: "Estimated time remaining",
@@ -257,7 +272,10 @@ export const EXPLAINERS: Record<string, Explainer> = {
   whatIsLoss: {
     title: "Reading the loss curve",
     body: "Loss = average surprisal. It starts near 5.55 (random guess over 256 bytes) and falls as the model learns. The curve is the most honest single signal of whether the model is learning at all — flat means dead, falling fast means learning, slow tail means soaking up the hard bits.",
-    link: docsLink("docs/notes.md", "docs/notes.md — the project's loss numbers"),
+    link: docsLink(
+      "docs/notes.md",
+      "docs/notes.md — the project's loss numbers",
+    ),
   },
   whatIsSampling: {
     title: "Sampling from the model",
@@ -271,11 +289,17 @@ export const EXPLAINERS: Record<string, Explainer> = {
   liveInference: {
     title: "Sampling while training is still running",
     body: "The model is a single C++ instance inside the Web Worker. Training mutates its weights in place; Sample runs a forward pass against the same weights between training steps. No copy, no pause, no separate 'trained model' object — you're snapshotting the same neurons as they learn. Sample twice during a run and you can see what the model picked up in those few seconds.",
-    link: docsLink("docs/browser_notes.md", "docs/browser_notes.md — Web Worker"),
+    link: docsLink(
+      "docs/browser_notes.md",
+      "docs/browser_notes.md — Web Worker",
+    ),
   },
   machine: {
     title: "Your machine, and what it can train",
     body: "posttrainllm detects your browser's capabilities (WebGPU, WASM SIMD, cross-origin isolation) and your hardware (cores, RAM, a quick CPU probe) and suggests a model size that should train in a sensible amount of time. Click Apply to use it.",
-    link: docsLink("src/runtime_detect.ts", "runtime_detect.ts — how the probe works"),
+    link: docsLink(
+      "src/runtime_detect.ts",
+      "runtime_detect.ts — how the probe works",
+    ),
   },
 };

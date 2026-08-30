@@ -57,26 +57,32 @@ export default defineConfig({
     "/docs/RETROSPECTIVE": "/docs/sessions/RETROSPECTIVE",
     "/docs/audit_2026": "/docs/audits/audit_2026",
     "/docs/benchmark_first_run": "/docs/performance/benchmark_first_run",
-    "/docs/benchmark_harness_design": "/docs/performance/benchmark_harness_design",
+    "/docs/benchmark_harness_design":
+      "/docs/performance/benchmark_harness_design",
     "/docs/cold_start_results": "/docs/performance/cold_start_results",
     "/docs/constrained_generation": "/docs/techniques/constrained_generation",
     "/docs/continue_provider": "/docs/integrations/continue_provider",
     "/docs/cpu_speedup_results": "/docs/performance/cpu_speedup_results",
-    "/docs/cpu_utilization_research": "/docs/performance/cpu_utilization_research",
+    "/docs/cpu_utilization_research":
+      "/docs/performance/cpu_utilization_research",
     "/docs/data_perf": "/docs/performance/data_perf",
     "/docs/deploy": "/docs/integrations/deploy",
     "/docs/determinism": "/docs/performance/determinism",
     "/docs/distillation": "/docs/techniques/distillation",
     "/docs/docs-quality-audit": "/docs/audits/docs-quality-audit",
     "/docs/evolution_strategies": "/docs/techniques/evolution_strategies",
-    "/docs/exactness-completion-audit": "/docs/audits/exactness-completion-audit",
+    "/docs/exactness-completion-audit":
+      "/docs/audits/exactness-completion-audit",
     "/docs/fa2_backward_notes": "/docs/performance/fa2_backward_notes",
     "/docs/fa2_forward_notes": "/docs/performance/fa2_forward_notes",
     "/docs/feature_audit_2026_05_31": "/docs/audits/feature_audit_2026_05_31",
     "/docs/galore_and_stability": "/docs/techniques/galore_and_stability",
-    "/docs/github_data_integration": "/docs/integrations/github_data_integration",
-    "/docs/gradient_checkpointing_results": "/docs/performance/gradient_checkpointing_results",
-    "/docs/hf_datasets_integration": "/docs/integrations/hf_datasets_integration",
+    "/docs/github_data_integration":
+      "/docs/integrations/github_data_integration",
+    "/docs/gradient_checkpointing_results":
+      "/docs/performance/gradient_checkpointing_results",
+    "/docs/hf_datasets_integration":
+      "/docs/integrations/hf_datasets_integration",
     "/docs/history-coverage-audit": "/docs/audits/history-coverage-audit",
     "/docs/interpretability": "/docs/techniques/interpretability",
     "/docs/kv_cache_optimization": "/docs/performance/kv_cache_optimization",
@@ -86,11 +92,13 @@ export default defineConfig({
     "/docs/model_guide": "/docs/guides/model_guide",
     "/docs/moe": "/docs/techniques/moe",
     "/docs/mtp": "/docs/techniques/mtp",
-    "/docs/online_softmax_in_attention": "/docs/performance/online_softmax_in_attention",
+    "/docs/online_softmax_in_attention":
+      "/docs/performance/online_softmax_in_attention",
     "/docs/optimizers": "/docs/techniques/optimizers",
     "/docs/pace-handoff-2026-06-10": "/docs/sessions/pace-handoff-2026-06-10",
     "/docs/peft_variants": "/docs/techniques/peft_variants",
-    "/docs/perf_audit_mlxfast_tied": "/docs/performance/perf_audit_mlxfast_tied",
+    "/docs/perf_audit_mlxfast_tied":
+      "/docs/performance/perf_audit_mlxfast_tied",
     "/docs/perf_quest": "/docs/performance/perf_quest",
     "/docs/perf_research": "/docs/performance/perf_research",
     "/docs/performance": "/docs/performance/performance",
@@ -115,7 +123,7 @@ export default defineConfig({
 
   integrations: [
     mdx(),
-    sitemap({ customPages: ['https://posttrainllm.com/docs/'] }),
+    sitemap({ customPages: ["https://posttrainllm.com/docs/"] }),
   ],
 
   server: {

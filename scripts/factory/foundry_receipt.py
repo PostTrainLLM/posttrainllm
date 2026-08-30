@@ -86,9 +86,12 @@ def now_iso() -> str:
 
 def git_value(args: list[str], default: str | None = None) -> str | None:
     try:
-        return subprocess.check_output(
-            ["git", *args], cwd=ROOT, stderr=subprocess.DEVNULL, text=True
-        ).strip() or default
+        return (
+            subprocess.check_output(
+                ["git", *args], cwd=ROOT, stderr=subprocess.DEVNULL, text=True
+            ).strip()
+            or default
+        )
     except Exception:
         return default
 
@@ -98,7 +101,9 @@ def read_json(path: Path) -> Any:
 
 
 def write_json(path: Path, payload: Any) -> None:
-    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def sha256_file(path: Path) -> str:
@@ -217,7 +222,9 @@ def playground_block() -> dict[str, Any]:
     }
 
 
-def artifact_quality_claims(pkg: dict[str, Any], eval_report: dict[str, Any] | None) -> list[dict[str, Any]]:
+def artifact_quality_claims(
+    pkg: dict[str, Any], eval_report: dict[str, Any] | None
+) -> list[dict[str, Any]]:
     """Build provenance-anchored quality claims from a registry pkg + eval_report.
 
     Each claim carries source_revision, model, eval_config, dataset_version,
@@ -258,7 +265,9 @@ def artifact_quality_claims(pkg: dict[str, Any], eval_report: dict[str, Any] | N
                 "dataset_version": dataset_version or "not-recorded",
                 "observed_at": updated,
                 "artifact_location": artifact_loc,
-                "retention": "hf-preserved" if pkg.get("storage", {}).get("primary") == "huggingface_hub" else "local-only",
+                "retention": "hf-preserved"
+                if pkg.get("storage", {}).get("primary") == "huggingface_hub"
+                else "local-only",
             }
         )
     return claims
@@ -274,12 +283,16 @@ def artifacts_block(blocked: list[str]) -> list[dict[str, Any]]:
     for pkg in registry.get("packages", []):
         pkg_dir = ROOT / pkg.get("package_path", "")
         eval_report_path = pkg_dir / "eval_report.json"
-        eval_report = read_json(eval_report_path) if eval_report_path.is_file() else None
+        eval_report = (
+            read_json(eval_report_path) if eval_report_path.is_file() else None
+        )
         lock_path = pkg_dir / "tinygpt.lock.json"
         reproducibility = "lockfile-present" if lock_path.is_file() else "fail"
         claims = artifact_quality_claims(pkg, eval_report or {})
         if eval_report and not claims:
-            blocked.append(f"{pkg.get('id')}: eval_report present but no provenance-complete claims")
+            blocked.append(
+                f"{pkg.get('id')}: eval_report present but no provenance-complete claims"
+            )
         out.append(
             {
                 "id": pkg.get("id"),
@@ -305,7 +318,9 @@ def local_runs_block(runs_dir: Path, blocked: list[str]) -> list[dict[str, Any]]
         baseline_path = run_dir / "eval-baseline.json"
         candidate_path = run_dir / "eval-candidate.json"
         provenance_path = run_dir / "provenance.json"
-        if not config_path.is_file() or not (decision_path.is_file() or lifecycle_path.is_file()):
+        if not config_path.is_file() or not (
+            decision_path.is_file() or lifecycle_path.is_file()
+        ):
             continue
         decision = read_json(decision_path) if decision_path.is_file() else {}
         lifecycle: dict[str, Any] = {}
@@ -315,9 +330,7 @@ def local_runs_block(runs_dir: Path, blocked: list[str]) -> list[dict[str, Any]]
                 if isinstance(candidate_lifecycle, dict):
                     lifecycle = candidate_lifecycle
                 else:
-                    blocked.append(
-                        f"{run_dir.name}: run-status.json must be an object"
-                    )
+                    blocked.append(f"{run_dir.name}: run-status.json must be an object")
             except (OSError, ValueError):
                 blocked.append(f"{run_dir.name}: invalid run-status.json")
         config = read_json(config_path)
@@ -340,10 +353,20 @@ def local_runs_block(runs_dir: Path, blocked: list[str]) -> list[dict[str, Any]]
             lifecycle_failure = None
         else:
             failure_summary = str(lifecycle_failure.get("summary", ""))[:240]
-            if any(marker in failure_summary.lower() for marker in (
-                "prompt", "completion", "gold", "prediction", "checkpoint",
-                "secret", "password", "api_key", "token",
-            )):
+            if any(
+                marker in failure_summary.lower()
+                for marker in (
+                    "prompt",
+                    "completion",
+                    "gold",
+                    "prediction",
+                    "checkpoint",
+                    "secret",
+                    "password",
+                    "api_key",
+                    "token",
+                )
+            ):
                 failure_summary = "<redacted:unsafe-summary>"
             lifecycle_failure = {
                 "code": str(lifecycle_failure.get("code", ""))[:64],
@@ -353,12 +376,16 @@ def local_runs_block(runs_dir: Path, blocked: list[str]) -> list[dict[str, Any]]
         lifecycle_stale = False
         if lifecycle_updated and lifecycle.get("phase") not in ("decided", "failed"):
             try:
-                updated = _dt.datetime.fromisoformat(lifecycle_updated.replace("Z", "+00:00"))
+                updated = _dt.datetime.fromisoformat(
+                    lifecycle_updated.replace("Z", "+00:00")
+                )
                 lifecycle_stale = (
                     _dt.datetime.now(_dt.timezone.utc) - updated
                 ).total_seconds() > 24 * 60 * 60
             except (TypeError, ValueError):
-                blocked.append(f"{config.get('run_id') or run_dir.name}: invalid lifecycle updated_at")
+                blocked.append(
+                    f"{config.get('run_id') or run_dir.name}: invalid lifecycle updated_at"
+                )
 
         # publish-check verdict: re-derive by invoking the no-build checker
         # only for completed evidence folders.
@@ -366,7 +393,12 @@ def local_runs_block(runs_dir: Path, blocked: list[str]) -> list[dict[str, Any]]
         if decision_path.is_file():
             try:
                 res = subprocess.run(
-                    ["python3", "scripts/factory/check_factory_run_publish.py", "--allow-report-only", str(run_dir)],
+                    [
+                        "python3",
+                        "scripts/factory/check_factory_run_publish.py",
+                        "--allow-report-only",
+                        str(run_dir),
+                    ],
                     cwd=ROOT,
                     capture_output=True,
                     text=True,
@@ -401,7 +433,9 @@ def local_runs_block(runs_dir: Path, blocked: list[str]) -> list[dict[str, Any]]
                     "imported": lifecycle.get("imported", False),
                     "stale_active": lifecycle_stale,
                     "failure": lifecycle_failure,
-                } if lifecycle else None,
+                }
+                if lifecycle
+                else None,
                 "publication": "pending-approval",  # never auto-publish
             }
         )
@@ -455,7 +489,9 @@ def build_receipt(include_ci: bool, runs_dir: Path | None) -> dict[str, Any]:
         "project": PROJECT,
         "generated_at": now_iso(),
         "source_revision": source_revision(),
-        "ci": ci_status() if include_ci else {"status": "not-applicable", "reason": "skipped"},
+        "ci": ci_status()
+        if include_ci
+        else {"status": "not-applicable", "reason": "skipped"},
         "public_site": public_site_block(),
         "playground": playground_block(),
         "artifacts": artifacts,
@@ -471,9 +507,15 @@ def build_receipt(include_ci: bool, runs_dir: Path | None) -> dict[str, Any]:
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--out", help="write receipt JSON to this path (default: stdout)")
-    p.add_argument("--runs", default="", help="directory of factory run folders to summarize")
+    p.add_argument(
+        "--runs", default="", help="directory of factory run folders to summarize"
+    )
     p.add_argument("--no-ci", action="store_true", help="skip the gh CI query")
-    p.add_argument("--check", action="store_true", help="validate the emitted receipt with check_foundry_receipt.py")
+    p.add_argument(
+        "--check",
+        action="store_true",
+        help="validate the emitted receipt with check_foundry_receipt.py",
+    )
     args = p.parse_args()
 
     runs_dir = Path(args.runs) if args.runs else None
@@ -497,7 +539,10 @@ def main() -> int:
     if args.check:
         check = ROOT / "scripts/factory/check_foundry_receipt.py"
         if not check.is_file():
-            print("foundry_receipt: --check requested but check_foundry_receipt.py missing", file=sys.stderr)
+            print(
+                "foundry_receipt: --check requested but check_foundry_receipt.py missing",
+                file=sys.stderr,
+            )
             return 2
         res = subprocess.run(
             ["python3", str(check), "-"],

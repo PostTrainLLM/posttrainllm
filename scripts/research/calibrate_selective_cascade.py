@@ -34,7 +34,9 @@ GRID_FIELDS = {"max_probability_min", "margin_min", "normalized_entropy_max"}
 
 
 def canonical_bytes(value: Any) -> bytes:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
 
 
 def sha256_json(value: Any) -> str:
@@ -63,7 +65,9 @@ def require_exact_fields(value: dict[str, Any], required: set[str], label: str) 
     missing = sorted(required - set(value))
     unknown = sorted(set(value) - required)
     if missing or unknown:
-        raise ValueError(f"{label}: fields mismatch missing={missing} unknown={unknown}")
+        raise ValueError(
+            f"{label}: fields mismatch missing={missing} unknown={unknown}"
+        )
 
 
 def ratio(numerator: int, denominator: int) -> float | None:
@@ -96,19 +100,25 @@ def validate_policy(value: dict[str, Any]) -> None:
     if value["calibration_layer"] != "public-development":
         raise ValueError("selective policy calibration must use public-development")
     if value["official_policy"] is not False:
-        raise ValueError("a calibrated development policy cannot declare itself official")
+        raise ValueError(
+            "a calibrated development policy cannot declare itself official"
+        )
     task_ref = value["task_ref"]
     if not isinstance(task_ref, dict) or set(task_ref) != {"id", "revision"}:
         raise ValueError("policy.task_ref must contain exactly id and revision")
     nodes = value["ordered_nodes"]
     if not isinstance(nodes, list) or len(nodes) < 2:
-        raise ValueError("policy.ordered_nodes must contain at least specialist and fallback")
+        raise ValueError(
+            "policy.ordered_nodes must contain at least specialist and fallback"
+        )
     node_ids: set[str] = set()
     for index, node in enumerate(nodes):
         if not isinstance(node, dict) or set(node) != {"id", "tier", "enabled"}:
             raise ValueError(f"policy.ordered_nodes[{index}] has invalid fields")
         if not isinstance(node["id"], str) or not node["id"] or node["id"] in node_ids:
-            raise ValueError(f"policy.ordered_nodes[{index}].id must be unique and non-empty")
+            raise ValueError(
+                f"policy.ordered_nodes[{index}].id must be unique and non-empty"
+            )
         if not isinstance(node["tier"], str) or not node["tier"]:
             raise ValueError(f"policy.ordered_nodes[{index}].tier must be non-empty")
         if not isinstance(node["enabled"], bool):
@@ -117,8 +127,14 @@ def validate_policy(value: dict[str, Any]) -> None:
     if not nodes[0]["enabled"] or not nodes[1]["enabled"]:
         raise ValueError("the first specialist and fallback nodes must be enabled")
     max_hops = value["max_hops"]
-    if not isinstance(max_hops, int) or isinstance(max_hops, bool) or not 2 <= max_hops <= len(nodes):
-        raise ValueError("policy.max_hops must cover the enabled chain without exceeding node count")
+    if (
+        not isinstance(max_hops, int)
+        or isinstance(max_hops, bool)
+        or not 2 <= max_hops <= len(nodes)
+    ):
+        raise ValueError(
+            "policy.max_hops must cover the enabled chain without exceeding node count"
+        )
     targets = value["targets"]
     if not isinstance(targets, dict) or set(targets) != TARGET_FIELDS:
         raise ValueError(f"policy.targets must contain exactly {sorted(TARGET_FIELDS)}")
@@ -127,14 +143,18 @@ def validate_policy(value: dict[str, Any]) -> None:
             raise ValueError(f"policy.targets.{field} must be between 0 and 1")
     grid = value["threshold_grid"]
     if not isinstance(grid, dict) or set(grid) != GRID_FIELDS:
-        raise ValueError(f"policy.threshold_grid must contain exactly {sorted(GRID_FIELDS)}")
+        raise ValueError(
+            f"policy.threshold_grid must contain exactly {sorted(GRID_FIELDS)}"
+        )
     for field, values in grid.items():
         if not isinstance(values, list) or not values:
             raise ValueError(f"policy.threshold_grid.{field} must be a non-empty list")
         if len(values) != len(set(values)):
             raise ValueError(f"policy.threshold_grid.{field} contains duplicates")
         if any(not checker.is_number(item) or not 0 <= item <= 1 for item in values):
-            raise ValueError(f"policy.threshold_grid.{field} values must be between 0 and 1")
+            raise ValueError(
+                f"policy.threshold_grid.{field} values must be between 0 and 1"
+            )
 
 
 def assert_identity(
@@ -146,7 +166,9 @@ def assert_identity(
     system_entry: dict[str, Any],
 ) -> None:
     if instances["layer"] != "public-development":
-        raise ValueError("selective policy calibration refuses non-public instance sets")
+        raise ValueError(
+            "selective policy calibration refuses non-public instance sets"
+        )
     if policy["task_ref"] != instances["task_ref"] or policy["task_ref"] != {
         "id": task["task_id"],
         "revision": task["revision"],
@@ -158,30 +180,53 @@ def assert_identity(
         configured_instances["revision"],
         configured_instances["layer"],
     ) != (instances["instance_set_id"], instances["revision"], instances["layer"]):
-        raise ValueError("calibration instances do not match the task's public-development set")
-    if specialist["task_ref"] != policy["task_ref"] or fallback["task_ref"] != policy["task_ref"]:
+        raise ValueError(
+            "calibration instances do not match the task's public-development set"
+        )
+    if (
+        specialist["task_ref"] != policy["task_ref"]
+        or fallback["task_ref"] != policy["task_ref"]
+    ):
         raise ValueError("prediction task references do not match the policy")
-    expected_instances = {"id": instances["instance_set_id"], "revision": instances["revision"]}
-    if specialist["instance_set_ref"] != expected_instances or fallback["instance_set_ref"] != expected_instances:
-        raise ValueError("specialist and fallback predictions must share the calibration instance set")
+    expected_instances = {
+        "id": instances["instance_set_id"],
+        "revision": instances["revision"],
+    }
+    if (
+        specialist["instance_set_ref"] != expected_instances
+        or fallback["instance_set_ref"] != expected_instances
+    ):
+        raise ValueError(
+            "specialist and fallback predictions must share the calibration instance set"
+        )
     nodes = policy["ordered_nodes"]
     if specialist["entry_ref"]["id"] != nodes[0]["id"]:
-        raise ValueError("specialist prediction entry does not match the first policy node")
+        raise ValueError(
+            "specialist prediction entry does not match the first policy node"
+        )
     if fallback["entry_ref"]["id"] != nodes[1]["id"]:
-        raise ValueError("fallback prediction entry does not match the second policy node")
+        raise ValueError(
+            "fallback prediction entry does not match the second policy node"
+        )
     if system_entry["track"] != "system":
         raise ValueError("composed cascade entry must use the system track")
     expected_policy_revision = f"{policy['policy_id']}@{policy['revision']}"
     if system_entry["adapter"].get("kind") != "capability-graph":
         raise ValueError("composed cascade entry must use a capability-graph adapter")
     if system_entry["adapter"].get("policy_revision") != expected_policy_revision:
-        raise ValueError("system entry adapter does not reference the selected policy revision")
+        raise ValueError(
+            "system entry adapter does not reference the selected policy revision"
+        )
     if system_entry["disclosure"].get("policy_revision") != expected_policy_revision:
-        raise ValueError("system entry disclosure does not reference the selected policy revision")
+        raise ValueError(
+            "system entry disclosure does not reference the selected policy revision"
+        )
     components = system_entry["disclosure"].get("components", [])
     for node in nodes[:2]:
         if not any(component.startswith(f"{node['id']}@") for component in components):
-            raise ValueError(f"system entry does not disclose required node {node['id']}")
+            raise ValueError(
+                f"system entry does not disclose required node {node['id']}"
+            )
     benchmark.assert_complete_predictions(task, instances, specialist)
     benchmark.assert_complete_predictions(task, instances, fallback)
 
@@ -209,11 +254,15 @@ def collapse_predictions(
             for row in rows
         }
         if len(signatures) != 1:
-            raise ValueError(f"{predictions['prediction_set_id']}: {instance_id} is inconsistent across passes")
+            raise ValueError(
+                f"{predictions['prediction_set_id']}: {instance_id} is inconsistent across passes"
+            )
         first = rows[0]
         signals = first.get("decision_signals")
         if require_signals and first["error"] is None and signals is None:
-            raise ValueError(f"{predictions['prediction_set_id']}: {instance_id} lacks decision signals")
+            raise ValueError(
+                f"{predictions['prediction_set_id']}: {instance_id} lacks decision signals"
+            )
         if signals is not None:
             revisions.add(signals["revision"])
         collapsed[instance_id] = {
@@ -318,8 +367,12 @@ def candidate_rank(candidate: dict[str, Any]) -> tuple[float, ...]:
     )
 
 
-def fallback_rank(candidate: dict[str, Any], targets: dict[str, float]) -> tuple[float, ...]:
-    return (len(TARGET_FIELDS) - len(gate_failures(candidate, targets)),) + candidate_rank(candidate)
+def fallback_rank(
+    candidate: dict[str, Any], targets: dict[str, float]
+) -> tuple[float, ...]:
+    return (
+        len(TARGET_FIELDS) - len(gate_failures(candidate, targets)),
+    ) + candidate_rank(candidate)
 
 
 def calibrate(
@@ -347,27 +400,36 @@ def calibrate(
         candidates.append(candidate)
     feasible = [candidate for candidate in candidates if not candidate["gate_failures"]]
     selected = max(feasible, key=candidate_rank) if feasible else None
-    best_observed = max(candidates, key=lambda candidate: fallback_rank(candidate, policy["targets"]))
+    best_observed = max(
+        candidates, key=lambda candidate: fallback_rank(candidate, policy["targets"])
+    )
     selective_feasible = [
         candidate
         for candidate in candidates
         if candidate["metrics"]["first_hop_accuracy"] is not None
-        and candidate["metrics"]["first_hop_accuracy"] >= policy["targets"]["first_hop_accuracy_min"]
+        and candidate["metrics"]["first_hop_accuracy"]
+        >= policy["targets"]["first_hop_accuracy_min"]
         and candidate["metrics"]["escalation_recall"] is not None
-        and candidate["metrics"]["escalation_recall"] >= policy["targets"]["escalation_recall_min"]
+        and candidate["metrics"]["escalation_recall"]
+        >= policy["targets"]["escalation_recall_min"]
     ]
-    expected_by_id = {item["id"]: item["expected_label"] for item in instances["instances"]}
+    expected_by_id = {
+        item["id"]: item["expected_label"] for item in instances["instances"]
+    }
 
     def component_summary(rows: dict[str, dict[str, Any]]) -> dict[str, Any]:
         correct = sum(
-            row["error"] is None and row["predicted_label"] == expected_by_id[instance_id]
+            row["error"] is None
+            and row["predicted_label"] == expected_by_id[instance_id]
             for instance_id, row in rows.items()
         )
         return {
             "accuracy": ratio(correct, len(expected_by_id)),
             "correct": correct,
             "count": len(expected_by_id),
-            "latency_ms_mean": statistics.fmean(row["latency_ms"] for row in rows.values()),
+            "latency_ms_mean": statistics.fmean(
+                row["latency_ms"] for row in rows.values()
+            ),
         }
 
     oracle_correct = sum(
@@ -411,7 +473,9 @@ def calibrate(
         "component_metrics": {
             "specialist": component_summary(specialist),
             "fallback": component_summary(fallback),
-            "perfect_router_oracle_accuracy": ratio(oracle_correct, len(expected_by_id)),
+            "perfect_router_oracle_accuracy": ratio(
+                oracle_correct, len(expected_by_id)
+            ),
             "perfect_router_oracle_correct": oracle_correct,
         },
         "decision": "calibrated" if selected is not None else "no-feasible-policy",
@@ -431,9 +495,12 @@ def compose_system_predictions(
     if selected is None:
         raise ValueError("cannot compose system predictions without a feasible policy")
     rule = selected["thresholds"]
-    expected_by_id = {item["id"]: item["expected_label"] for item in instances["instances"]}
+    expected_by_id = {
+        item["id"]: item["expected_label"] for item in instances["instances"]
+    }
     fallback_by_key = {
-        (item["instance_id"], item["pass_index"]): item for item in fallback_predictions["outputs"]
+        (item["instance_id"], item["pass_index"]): item
+        for item in fallback_predictions["outputs"]
     }
     nodes = [node for node in policy["ordered_nodes"] if node["enabled"]]
     eligible_nodes = [node["id"] for node in nodes[:2]]
@@ -446,7 +513,9 @@ def compose_system_predictions(
         expected = expected_by_id[local["instance_id"]]
         local_correct = local["error"] is None and local["predicted_label"] == expected
         broad_correct = broad["error"] is None and broad["predicted_label"] == expected
-        accept_local = local["error"] is None and accepts(local.get("decision_signals"), rule)
+        accept_local = local["error"] is None and accepts(
+            local.get("decision_signals"), rule
+        )
         final = local if accept_local else broad
         selected_node = specialist_node if accept_local else fallback_node
         if local_correct:
@@ -459,7 +528,8 @@ def compose_system_predictions(
             "instance_id": local["instance_id"],
             "pass_index": local["pass_index"],
             "predicted_label": final["predicted_label"],
-            "latency_ms": float(local["latency_ms"]) + (0.0 if accept_local else float(broad["latency_ms"])),
+            "latency_ms": float(local["latency_ms"])
+            + (0.0 if accept_local else float(broad["latency_ms"])),
             "error": final["error"],
             "routing": {
                 "eligible_nodes": eligible_nodes,
@@ -483,14 +553,22 @@ def compose_system_predictions(
         "prediction_set_id": f"{system_entry['entry_id']}-{instances['instance_set_id']}-predictions",
         "revision": "1",
         "task_ref": instances["task_ref"],
-        "entry_ref": {"id": system_entry["entry_id"], "revision": system_entry["revision"]},
-        "instance_set_ref": {"id": instances["instance_set_id"], "revision": instances["revision"]},
+        "entry_ref": {
+            "id": system_entry["entry_id"],
+            "revision": system_entry["revision"],
+        },
+        "instance_set_ref": {
+            "id": instances["instance_set_id"],
+            "revision": instances["revision"],
+        },
         "outputs": outputs,
     }
     errors: list[str] = []
     checker.validate_artifact(artifact, checker.load_contract(), errors)
     if errors:
-        raise ValueError("composed system predictions are invalid: " + "; ".join(errors))
+        raise ValueError(
+            "composed system predictions are invalid: " + "; ".join(errors)
+        )
     return artifact
 
 
@@ -498,7 +576,9 @@ def write_json(path: Path, value: dict[str, Any]) -> None:
     if path.exists():
         raise ValueError(f"refusing to overwrite {path}")
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def main() -> int:
@@ -517,10 +597,21 @@ def main() -> int:
         validate_policy(policy)
         task = load_artifact(args.task, "task")
         instances = load_artifact(args.instances, "instance_set")
-        specialist_predictions = load_artifact(args.specialist_predictions, "prediction_set")
-        fallback_predictions = load_artifact(args.fallback_predictions, "prediction_set")
+        specialist_predictions = load_artifact(
+            args.specialist_predictions, "prediction_set"
+        )
+        fallback_predictions = load_artifact(
+            args.fallback_predictions, "prediction_set"
+        )
         system_entry = load_artifact(args.system_entry, "entry")
-        assert_identity(policy, task, instances, specialist_predictions, fallback_predictions, system_entry)
+        assert_identity(
+            policy,
+            task,
+            instances,
+            specialist_predictions,
+            fallback_predictions,
+            system_entry,
+        )
         specialist = collapse_predictions(specialist_predictions, require_signals=True)
         fallback = collapse_predictions(fallback_predictions, require_signals=False)
         report = calibrate(policy, instances, specialist, fallback)

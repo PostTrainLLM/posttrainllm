@@ -20,7 +20,9 @@ from pathlib import Path
 from datasets import load_dataset
 
 
-SYSTEM = "You are a text-to-SQL model. Return only one SQLite SELECT query, no markdown."
+SYSTEM = (
+    "You are a text-to-SQL model. Return only one SQLite SELECT query, no markdown."
+)
 
 
 def jdump(obj: object) -> str:
@@ -121,13 +123,21 @@ def main() -> None:
 
     dev_src = take_rows(args.dev_start, args.dev_limit)
     dev_ids = {r["source_index"] for r in dev_src}
-    train_src = [r for r in take_rows(args.train_start, args.train_limit * 2) if r["source_index"] not in dev_ids]
+    train_src = [
+        r
+        for r in take_rows(args.train_start, args.train_limit * 2)
+        if r["source_index"] not in dev_ids
+    ]
     train_src = train_src[: args.train_limit]
 
     if len(dev_src) < args.dev_limit:
-        raise SystemExit(f"only found {len(dev_src)} dev rows; requested {args.dev_limit}")
+        raise SystemExit(
+            f"only found {len(dev_src)} dev rows; requested {args.dev_limit}"
+        )
     if len(train_src) < args.train_limit:
-        raise SystemExit(f"only found {len(train_src)} train rows; requested {args.train_limit}")
+        raise SystemExit(
+            f"only found {len(train_src)} train rows; requested {args.train_limit}"
+        )
 
     train_rows = []
     pref_rows = []
@@ -175,7 +185,9 @@ def main() -> None:
     dev_counts = collections.Counter(r["curriculum"] for r in dev_rows)
     (out / "train.jsonl").write_text("\n".join(jdump(r) for r in train_rows) + "\n")
     (out / "dev.jsonl").write_text("\n".join(jdump(r) for r in dev_rows) + "\n")
-    (out / "preferences.jsonl").write_text("\n".join(jdump(r) for r in pref_rows) + "\n")
+    (out / "preferences.jsonl").write_text(
+        "\n".join(jdump(r) for r in pref_rows) + "\n"
+    )
     (out / "manifest.json").write_text(
         jdump(
             {

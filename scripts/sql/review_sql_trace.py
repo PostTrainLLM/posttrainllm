@@ -36,11 +36,38 @@ def tables_and_columns(prompt: str) -> set[str]:
 
 def identifiers(sql: str) -> set[str]:
     words = set(re.findall(r"[A-Za-z_][\w]*", sql.lower()))
-    return {w for w in words if w not in {
-        "select", "from", "where", "join", "on", "and", "or", "as", "count",
-        "sum", "avg", "min", "max", "group", "by", "order", "limit", "desc",
-        "asc", "distinct", "having", "like", "in", "not", "null",
-    }}
+    return {
+        w
+        for w in words
+        if w
+        not in {
+            "select",
+            "from",
+            "where",
+            "join",
+            "on",
+            "and",
+            "or",
+            "as",
+            "count",
+            "sum",
+            "avg",
+            "min",
+            "max",
+            "group",
+            "by",
+            "order",
+            "limit",
+            "desc",
+            "asc",
+            "distinct",
+            "having",
+            "like",
+            "in",
+            "not",
+            "null",
+        }
+    }
 
 
 def label(row: dict) -> str:
@@ -60,9 +87,15 @@ def label(row: dict) -> str:
         extra = identifiers(scored) - allowed
         if extra:
             return "hallucinated_schema"
-    if " join " in str(row.get("gold_sql") or "").lower() and " join " not in scored.lower():
+    if (
+        " join " in str(row.get("gold_sql") or "").lower()
+        and " join " not in scored.lower()
+    ):
         return "missing_join"
-    if " join " not in str(row.get("gold_sql") or "").lower() and " join " in scored.lower():
+    if (
+        " join " not in str(row.get("gold_sql") or "").lower()
+        and " join " in scored.lower()
+    ):
         return "unneeded_join"
     return "wrong_result"
 
@@ -83,7 +116,11 @@ def main() -> None:
     labels = [(row, label(row)) for row in rows]
     counts = Counter(lab for _, lab in labels)
     n = len(rows)
-    success = sum(1 for row, _ in labels if bool(row.get("exec_match")) or bool(row.get("correct")))
+    success = sum(
+        1
+        for row, _ in labels
+        if bool(row.get("exec_match")) or bool(row.get("correct"))
+    )
 
     lines = [
         "# SQL Trace Review",
@@ -102,18 +139,20 @@ def main() -> None:
     for key, value in sorted(counts.items()):
         lines.append(f"| `{key}` | {value} |")
 
-    lines.extend([
-        "",
-        "## Required Checks",
-        "",
-        "- Reward hacking: inspect rows labeled `extractor_success_unclean_raw`.",
-        "- Format collapse: inspect `no_select_or_format_collapse`.",
-        "- Hallucinated schema/API: inspect `hallucinated_schema`.",
-        "- Fake reasoning/prose: inspect `prose_or_markdown_wrapped`.",
-        "",
-        "## Examples",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Required Checks",
+            "",
+            "- Reward hacking: inspect rows labeled `extractor_success_unclean_raw`.",
+            "- Format collapse: inspect `no_select_or_format_collapse`.",
+            "- Hallucinated schema/API: inspect `hallucinated_schema`.",
+            "- Fake reasoning/prose: inspect `prose_or_markdown_wrapped`.",
+            "",
+            "## Examples",
+            "",
+        ]
+    )
     for key, _ in sorted(counts.items()):
         lines.append(f"### `{key}`")
         lines.append("")
@@ -121,8 +160,12 @@ def main() -> None:
         for row, lab in labels:
             if lab != key:
                 continue
-            lines.append(f"- `{row.get('id', row.get('index', '?'))}` {clip(row.get('question', ''))}")
-            lines.append(f"  - pred: `{clip(row.get('predicted_sql') or row.get('output') or '')}`")
+            lines.append(
+                f"- `{row.get('id', row.get('index', '?'))}` {clip(row.get('question', ''))}"
+            )
+            lines.append(
+                f"  - pred: `{clip(row.get('predicted_sql') or row.get('output') or '')}`"
+            )
             if row.get("gold_sql"):
                 lines.append(f"  - gold: `{clip(row.get('gold_sql'))}`")
             shown += 1

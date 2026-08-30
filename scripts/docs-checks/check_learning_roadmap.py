@@ -90,9 +90,7 @@ def require_needles(rel: str, needles: list[str], errors: list[str]) -> str:
 def main() -> int:
     errors: list[str] = []
 
-    curriculum = require_needles(
-        "docs/learn/curriculum.md", CURRICULUM_NEEDLES, errors
-    )
+    curriculum = require_needles("docs/learn/curriculum.md", CURRICULUM_NEEDLES, errors)
     require_needles("docs/learning-pipeline.md", PIPELINE_NEEDLES, errors)
     progress = require_needles("docs/learning-progress.md", PROGRESS_NEEDLES, errors)
     require_needles(
@@ -127,7 +125,9 @@ def main() -> int:
         errors.append("docs/learning-progress.md: expected exactly progress rows 1-10")
 
     if "not-started" not in progress or "reading" not in progress:
-        errors.append("docs/learning-progress.md: expected explicit status vocabulary use")
+        errors.append(
+            "docs/learning-progress.md: expected explicit status vocabulary use"
+        )
 
     if errors:
         for err in errors:

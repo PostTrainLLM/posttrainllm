@@ -21,7 +21,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model-ref", required=True)
     parser.add_argument("--policy-id", required=True)
     parser.add_argument("--data", type=Path, required=True)
-    parser.add_argument("--split", choices=("train", "validation", "test"), required=True)
+    parser.add_argument(
+        "--split", choices=("train", "validation", "test"), required=True
+    )
     parser.add_argument("--maximum-rows", type=int)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--candidate-batch-size", type=int, default=8)
@@ -68,7 +70,11 @@ def main() -> int:
     decisions = []
     for row in rows:
         chosen = policy.choose({"fen": row["fen"]}, row["legal_moves"])
-        ranked = sorted(policy.last_scores, key=lambda move: (policy.last_scores[move], move), reverse=True)
+        ranked = sorted(
+            policy.last_scores,
+            key=lambda move: (policy.last_scores[move], move),
+            reverse=True,
+        )
         target = row["target"]
         strongest_alternative = max(
             (score for move, score in policy.last_scores.items() if move != target),
@@ -120,7 +126,9 @@ def main() -> int:
     }
     result["trace_hash"] = benchmark.sha256_json(result)
     benchmark.write_json_exclusive(args.output, result)
-    print(json.dumps({"output": str(args.output), **result["aggregate"]}, sort_keys=True))
+    print(
+        json.dumps({"output": str(args.output), **result["aggregate"]}, sort_keys=True)
+    )
     return 0
 
 

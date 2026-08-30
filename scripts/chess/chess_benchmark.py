@@ -22,7 +22,9 @@ UCI_PATTERN = re.compile(r"^[a-h][1-8][a-h][1-8][qrbn]?$", re.ASCII)
 
 
 def canonical_bytes(value: Any) -> bytes:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
 
 
 def sha256_json(value: Any) -> str:
@@ -90,7 +92,10 @@ def parse_strict_uci(raw: Any, board: chess.Board) -> chess.Move:
 
 def load_puzzle_suite(path: Path) -> dict[str, Any]:
     suite = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(suite, dict) or suite.get("schema_version") != PUZZLE_SUITE_SCHEMA:
+    if (
+        not isinstance(suite, dict)
+        or suite.get("schema_version") != PUZZLE_SUITE_SCHEMA
+    ):
         raise ValueError("unsupported chess puzzle suite")
     puzzles = suite.get("puzzles")
     if not isinstance(puzzles, list) or not puzzles:
@@ -118,8 +123,7 @@ class TextPolicy(Protocol):
     policy_id: str
     revision: str
 
-    def choose(self, state: dict[str, Any], legal_moves: Sequence[str]) -> Any:
-        ...
+    def choose(self, state: dict[str, Any], legal_moves: Sequence[str]) -> Any: ...
 
 
 class RandomLegalPolicy:
@@ -167,7 +171,9 @@ def evaluate_puzzles(policy: TextPolicy, suite: dict[str, Any]) -> dict[str, Any
                 "raw_output": raw,
                 "parsed_move": parsed,
                 "legal": parsed is not None,
-                "exact": parsed in puzzle["best_moves"] if parsed is not None else False,
+                "exact": parsed in puzzle["best_moves"]
+                if parsed is not None
+                else False,
                 "failure": failure,
                 "latency_ms": latency_ms,
                 "themes": puzzle["themes"],
@@ -201,7 +207,11 @@ def _outcome(board: chess.Board, claim_draw: bool = True) -> dict[str, Any] | No
     if value is None:
         return None
     return {
-        "winner": "white" if value.winner is chess.WHITE else "black" if value.winner is chess.BLACK else None,
+        "winner": "white"
+        if value.winner is chess.WHITE
+        else "black"
+        if value.winner is chess.BLACK
+        else None,
         "result": value.result(),
         "termination": value.termination.name.lower().replace("_", "-"),
     }
@@ -234,13 +244,17 @@ def run_game(
         try:
             raw = policy.choose(state, state["legal_moves"])
             metadata = getattr(policy, "last_decision_metadata", None)
-            policy_metadata = json.loads(json.dumps(metadata)) if isinstance(metadata, dict) else None
+            policy_metadata = (
+                json.loads(json.dumps(metadata)) if isinstance(metadata, dict) else None
+            )
             move = parse_strict_uci(raw, board)
             parsed = move.uci()
             board.push(move)
         except Exception as exc:
             metadata = getattr(policy, "last_decision_metadata", None)
-            policy_metadata = json.loads(json.dumps(metadata)) if isinstance(metadata, dict) else None
+            policy_metadata = (
+                json.loads(json.dumps(metadata)) if isinstance(metadata, dict) else None
+            )
             if raw is None:
                 raw = getattr(exc, "raw_output", None)
             parsed = None
@@ -271,9 +285,17 @@ def run_game(
             }
             break
     else:
-        game_outcome = {"winner": None, "result": "1/2-1/2", "termination": "move-cap-draw"}
+        game_outcome = {
+            "winner": None,
+            "result": "1/2-1/2",
+            "termination": "move-cap-draw",
+        }
     if "game_outcome" not in locals():
-        game_outcome = _outcome(board) or {"winner": None, "result": "1/2-1/2", "termination": "move-cap-draw"}
+        game_outcome = _outcome(board) or {
+            "winner": None,
+            "result": "1/2-1/2",
+            "termination": "move-cap-draw",
+        }
     result = {
         "schema_version": GAME_RESULT_SCHEMA,
         "environment_revision": ENVIRONMENT_REVISION,

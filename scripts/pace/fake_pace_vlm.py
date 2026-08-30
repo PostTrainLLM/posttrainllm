@@ -21,12 +21,11 @@ The first two are mostly free via macOS APIs. The third is what a
 real VLM has to earn. FakePaceVLM does the obvious heuristics on (3)
 so we know what the model has to beat.
 """
+
 from __future__ import annotations
 
 import argparse
-import json
 import re
-import sys
 from pathlib import Path
 
 
@@ -34,32 +33,32 @@ from pathlib import Path
 # cases without any model. Pace's VLM has to do better than this OR
 # handle apps not in this table.
 APP_ACTIVITY_HINTS: dict[str, dict[str, str]] = {
-    "Mail":     {"default": "reading email", "compose": "composing email"},
+    "Mail": {"default": "reading email", "compose": "composing email"},
     "Messages": {"default": "messaging"},
-    "Safari":   {"default": "browsing the web"},
-    "Chrome":   {"default": "browsing the web"},
-    "Firefox":  {"default": "browsing the web"},
-    "Arc":      {"default": "browsing the web"},
-    "Xcode":    {"default": "writing code"},
-    "Cursor":   {"default": "writing code"},
-    "VS Code":  {"default": "writing code"},
+    "Safari": {"default": "browsing the web"},
+    "Chrome": {"default": "browsing the web"},
+    "Firefox": {"default": "browsing the web"},
+    "Arc": {"default": "browsing the web"},
+    "Xcode": {"default": "writing code"},
+    "Cursor": {"default": "writing code"},
+    "VS Code": {"default": "writing code"},
     "Terminal": {"default": "running commands"},
-    "Pages":    {"default": "writing a document"},
-    "Numbers":  {"default": "editing a spreadsheet"},
-    "Keynote":  {"default": "preparing a presentation"},
-    "Notes":    {"default": "taking notes"},
-    "Notion":   {"default": "writing in a workspace"},
-    "Slack":    {"default": "messaging your team"},
-    "Discord":  {"default": "chatting on discord"},
-    "Zoom":     {"default": "in a video call"},
-    "Spotify":  {"default": "listening to music"},
+    "Pages": {"default": "writing a document"},
+    "Numbers": {"default": "editing a spreadsheet"},
+    "Keynote": {"default": "preparing a presentation"},
+    "Notes": {"default": "taking notes"},
+    "Notion": {"default": "writing in a workspace"},
+    "Slack": {"default": "messaging your team"},
+    "Discord": {"default": "chatting on discord"},
+    "Zoom": {"default": "in a video call"},
+    "Spotify": {"default": "listening to music"},
     "Apple Music": {"default": "listening to music"},
-    "Photos":   {"default": "looking at photos"},
+    "Photos": {"default": "looking at photos"},
     "Calendar": {"default": "checking your calendar"},
-    "Reminders":{"default": "managing reminders"},
-    "Figma":    {"default": "designing"},
-    "Lightroom":{"default": "editing photos"},
-    "Finder":   {"default": "browsing files"},
+    "Reminders": {"default": "managing reminders"},
+    "Figma": {"default": "designing"},
+    "Lightroom": {"default": "editing photos"},
+    "Finder": {"default": "browsing files"},
 }
 
 
@@ -82,7 +81,7 @@ def parse_fixture(text: str) -> dict:
     out = {
         "user": "",
         "app_frontmost": "",
-        "ax_blind": False,           # True iff AX tree empty for an interactive screen
+        "ax_blind": False,  # True iff AX tree empty for an interactive screen
         "ax_tree": [],
         "ocr_text": "",
         "expects": {},
@@ -96,11 +95,14 @@ def parse_fixture(text: str) -> dict:
             section = None
             continue
         if stripped.startswith("USER:"):
-            out["user"] = stripped[len("USER:"):].strip(); section = None
+            out["user"] = stripped[len("USER:") :].strip()
+            section = None
         elif stripped.startswith("APP_FRONTMOST:"):
-            out["app_frontmost"] = stripped[len("APP_FRONTMOST:"):].strip(); section = None
+            out["app_frontmost"] = stripped[len("APP_FRONTMOST:") :].strip()
+            section = None
         elif stripped.startswith("AX_BLIND:"):
-            out["ax_blind"] = "true" in stripped.lower(); section = None
+            out["ax_blind"] = "true" in stripped.lower()
+            section = None
         elif stripped.startswith("AX_TREE:"):
             section = "ax"
         elif stripped.startswith("OCR_TEXT:"):
@@ -152,7 +154,10 @@ def fake_pace_vlm(fx: dict) -> dict:
     # 4. Spoken response composition (intent-aware).
     spoken = ""
     user_lower = user
-    if any(q in user_lower for q in ("what am i doing", "what's on", "what do you see", "describe")):
+    if any(
+        q in user_lower
+        for q in ("what am i doing", "what's on", "what do you see", "describe")
+    ):
         if elements_summary:
             spoken = f"you're {activity} in {app_label}; i can see {len(ax)} elements"
         else:
@@ -168,12 +173,16 @@ def fake_pace_vlm(fx: dict) -> dict:
         spoken = f"you're in {app_label}"
     elif user_lower.startswith(("click", "tap", "press", "open", "hit")) and ax:
         # element grounding via substring match (same logic as planner FakePace)
-        target = re.sub(r"\b(click|tap|press|open|hit|the|a|an)\b", " ", user_lower).strip()
+        target = re.sub(
+            r"\b(click|tap|press|open|hit|the|a|an)\b", " ", user_lower
+        ).strip()
         target_words = set(re.findall(r"\b\w+\b", target))
         best, best_score = None, 0
         for el in ax:
             label_words = set(re.findall(r"\b\w+\b", el["label"].lower()))
-            overlap = len(label_words & target_words - {"button", "field", "menu", "icon"})
+            overlap = len(
+                label_words & target_words - {"button", "field", "menu", "icon"}
+            )
             if overlap > best_score:
                 best, best_score = el, overlap
         if best and best_score >= 1:
@@ -231,7 +240,9 @@ def score_response(resp: dict, expects: dict, fx: dict) -> tuple[bool, list[str]
 
     if "SPOKEN_MUST_MATCH_REGEX" in expects:
         if not re.search(expects["SPOKEN_MUST_MATCH_REGEX"], spoken):
-            fails.append(f"spoken does not match regex {expects['SPOKEN_MUST_MATCH_REGEX']!r}")
+            fails.append(
+                f"spoken does not match regex {expects['SPOKEN_MUST_MATCH_REGEX']!r}"
+            )
 
     return len(fails) == 0, fails
 
@@ -243,8 +254,9 @@ def run(fixtures_dir: Path, verbose: bool = False) -> dict:
         fx = parse_fixture(path.read_text())
         resp = fake_pace_vlm(fx)
         passed, fails = score_response(resp, fx["expects"], fx)
-        results.append({"fixture": path.stem, "passed": passed, "response": resp,
-                          "fails": fails})
+        results.append(
+            {"fixture": path.stem, "passed": passed, "response": resp, "fails": fails}
+        )
         mark = "PASS" if passed else "FAIL"
         print(f"[{mark}] {path.stem}")
         if verbose or not passed:
@@ -254,14 +266,19 @@ def run(fixtures_dir: Path, verbose: bool = False) -> dict:
 
     n_pass = sum(1 for r in results if r["passed"])
     n = len(results)
-    print(f"\n=== FakePaceVLM baseline: {n_pass}/{n}  ({100*n_pass/n:.1f}%) ===")
+    print(f"\n=== FakePaceVLM baseline: {n_pass}/{n}  ({100 * n_pass / n:.1f}%) ===")
     return {"n_pass": n_pass, "n_total": n, "results": results}
 
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("--fixtures-dir", type=Path,
-                     default=Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/fm-vlm-fixtures-v1"))
+    p.add_argument(
+        "--fixtures-dir",
+        type=Path,
+        default=Path(
+            "/Users/sarthak/Desktop/fleet/clickyLocal/evals/fm-vlm-fixtures-v1"
+        ),
+    )
     p.add_argument("-v", "--verbose", action="store_true")
     args = p.parse_args()
     run(args.fixtures_dir, verbose=args.verbose)

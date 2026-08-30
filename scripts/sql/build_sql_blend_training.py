@@ -20,7 +20,9 @@ def read_jsonl(path: Path) -> list[dict]:
 
 def dump_jsonl(path: Path, rows: list[dict]) -> None:
     path.write_text(
-        "\n".join(json.dumps(row, ensure_ascii=False, separators=(",", ":")) for row in rows)
+        "\n".join(
+            json.dumps(row, ensure_ascii=False, separators=(",", ":")) for row in rows
+        )
         + "\n"
     )
 
@@ -38,7 +40,10 @@ def weighted_rows(rows: list[dict], repeat: int, source: str) -> list[dict]:
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("--public-train", default="evals/sql-public-bmc2-train-v4-joinweighted/train.jsonl")
+    p.add_argument(
+        "--public-train",
+        default="evals/sql-public-bmc2-train-v4-joinweighted/train.jsonl",
+    )
     p.add_argument("--synthetic-train", default="evals/sql-poc-expanded/train.jsonl")
     p.add_argument("--out", default="evals/sql-blend-public-synthetic-v1")
     p.add_argument("--public-repeat", type=int, default=1)
@@ -48,9 +53,8 @@ def main() -> None:
     public_rows = read_jsonl(Path(args.public_train))
     synthetic_rows = read_jsonl(Path(args.synthetic_train))
 
-    rows = (
-        weighted_rows(public_rows, args.public_repeat, "public")
-        + weighted_rows(synthetic_rows, args.synthetic_repeat, "synthetic")
+    rows = weighted_rows(public_rows, args.public_repeat, "public") + weighted_rows(
+        synthetic_rows, args.synthetic_repeat, "synthetic"
     )
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)

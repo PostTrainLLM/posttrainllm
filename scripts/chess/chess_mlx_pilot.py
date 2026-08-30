@@ -40,7 +40,9 @@ class MlxChessPolicy:
                 enable_thinking=False,
             )
         except TypeError:
-            return self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            return self.tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True
+            )
 
     def choose(self, state: dict[str, Any], legal_moves: Sequence[str]) -> str:
         del legal_moves
@@ -60,7 +62,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--suite", type=Path, required=True)
     parser.add_argument("--model", required=True, help="Local MLX model directory")
-    parser.add_argument("--model-ref", required=True, help="Portable model identity recorded in evidence")
+    parser.add_argument(
+        "--model-ref",
+        required=True,
+        help="Portable model identity recorded in evidence",
+    )
     parser.add_argument("--policy-id", required=True)
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
@@ -84,9 +90,13 @@ def main() -> int:
             },
         }
     )
-    result["trace_hash"] = benchmark.sha256_json({key: value for key, value in result.items() if key != "trace_hash"})
+    result["trace_hash"] = benchmark.sha256_json(
+        {key: value for key, value in result.items() if key != "trace_hash"}
+    )
     benchmark.write_json_exclusive(args.output, result)
-    print(json.dumps({"output": str(args.output), **result["aggregate"]}, sort_keys=True))
+    print(
+        json.dumps({"output": str(args.output), **result["aggregate"]}, sort_keys=True)
+    )
     return 0
 
 

@@ -43,7 +43,11 @@ def aggregate_run(paths: list[Path]) -> dict[str, Any]:
             for doc in documents
             if isinstance(doc.get("model", {}).get("cost_usd"), (int, float))
         ]
-    latencies = [d.get("latency_ms") for d in decisions if isinstance(d.get("latency_ms"), (int, float))]
+    latencies = [
+        d.get("latency_ms")
+        for d in decisions
+        if isinstance(d.get("latency_ms"), (int, float))
+    ]
     model = first.get("model", {})
     if not model and first.get("policy"):
         model = {
@@ -95,14 +99,20 @@ def main() -> None:
     choices: dict[str, dict[str, str | None]] = {}
     for run in runs:
         for decision in run.pop("decisions"):
-            choices.setdefault(decision["puzzle_id"], {})[run["policy_id"]] = decision.get("parsed_move")
+            choices.setdefault(decision["puzzle_id"], {})[run["policy_id"]] = (
+                decision.get("parsed_move")
+            )
 
     disagreements = []
     for puzzle_id, by_policy in choices.items():
         non_null = [move for move in by_policy.values() if move is not None]
         if len(set(non_null)) > 1:
             disagreements.append(
-                {"puzzle_id": puzzle_id, "stockfish_best_moves": gold[puzzle_id], "model_moves": by_policy}
+                {
+                    "puzzle_id": puzzle_id,
+                    "stockfish_best_moves": gold[puzzle_id],
+                    "model_moves": by_policy,
+                }
             )
 
     output = {
@@ -127,7 +137,15 @@ def main() -> None:
     output["trace_hash"] = hashlib.sha256(canonical.encode()).hexdigest()
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n")
-    print(json.dumps({"output": str(args.output), "runs": len(runs), "disagreements": len(disagreements)}))
+    print(
+        json.dumps(
+            {
+                "output": str(args.output),
+                "runs": len(runs),
+                "disagreements": len(disagreements),
+            }
+        )
+    )
 
 
 if __name__ == "__main__":

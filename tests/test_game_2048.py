@@ -12,7 +12,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 # scripts/ is grouped into topic subdirs; each is a flat import surface.
-for _d in [ROOT / "scripts", *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir())]:
+for _d in [
+    ROOT / "scripts",
+    *sorted(p for p in (ROOT / "scripts").iterdir() if p.is_dir()),
+]:
     sys.path.insert(0, str(_d))
 
 import game_2048 as game  # noqa: E402
@@ -40,7 +43,11 @@ class StepClock:
 
 def rotate_clockwise(board):
     source = game.board_tuple(board)
-    return tuple(source[(game.BOARD_SIZE - 1 - column) * game.BOARD_SIZE + row] for row in range(4) for column in range(4))
+    return tuple(
+        source[(game.BOARD_SIZE - 1 - column) * game.BOARD_SIZE + row]
+        for row in range(4)
+        for column in range(4)
+    )
 
 
 def test_configs_and_tracked_fixtures_validate():
@@ -50,7 +57,10 @@ def test_configs_and_tracked_fixtures_validate():
     game.validate_evaluation_config(evaluation)
     game.validate_transition_fixtures(load(BOARD_FIXTURE_PATH))
     assert evaluation["seed_namespaces"]["frozen_evaluation"]["fixture_seeds"] == []
-    assert evaluation["seed_namespaces"]["frozen_evaluation"]["seed_material"] == "maintainer-local-not-tracked"
+    assert (
+        evaluation["seed_namespaces"]["frozen_evaluation"]["seed_material"]
+        == "maintainer-local-not-tracked"
+    )
 
 
 def test_proof_thresholds_and_transition_fixtures_fail_closed():
@@ -69,7 +79,9 @@ def test_proof_thresholds_and_transition_fixtures_fail_closed():
         except ValueError:
             pass
         else:
-            raise AssertionError(f"invalid benchmark admission threshold was accepted: {field}")
+            raise AssertionError(
+                f"invalid benchmark admission threshold was accepted: {field}"
+            )
     for field, invalid in (
         ("candidate_parameter_count_maximum", 50_000_001),
         ("larger_llm_paired_mean_score_delta_minimum", 0),
@@ -159,13 +171,21 @@ def test_invalid_and_noop_actions_do_not_mutate_or_advance_rng():
     env.board = game.board_tuple([2, 0, 0, 0] + [0] * 12)
     before = env.observation()
     state = env.rng_state
-    for action, failure in (("left", "no-state-change"), ("diagonal", "unknown-action"), (None, "unknown-action")):
+    for action, failure in (
+        ("left", "no-state-change"),
+        ("diagonal", "unknown-action"),
+        (None, "unknown-action"),
+    ):
         record = env.step(action)
         assert record["valid"] is False
         assert record["failure"] == failure
         assert env.observation() == before
         assert env.rng_state == state
-        assert record["environment_rng_state_before"] == record["environment_rng_state_after"] == state
+        assert (
+            record["environment_rng_state_before"]
+            == record["environment_rng_state_after"]
+            == state
+        )
 
 
 def test_legal_actions_and_terminal_state_are_exact():
@@ -197,7 +217,9 @@ def test_fixed_seed_reset_and_replay_are_byte_identical():
     )
     assert game.canonical_bytes(first) == game.canonical_bytes(second)
     replayed = game.replay_episode(first)
-    assert game.canonical_bytes(game.episode_trace_payload(first)) == game.canonical_bytes(game.episode_trace_payload(replayed))
+    assert game.canonical_bytes(
+        game.episode_trace_payload(first)
+    ) == game.canonical_bytes(game.episode_trace_payload(replayed))
     assert first["trace_hash"] == replayed["trace_hash"]
 
 
@@ -256,7 +278,9 @@ def test_reward_sum_trace_tamper_and_overwrite_refusal():
 def test_split_validation_fails_closed_on_seed_or_board_overlap():
     board_a = [2, 0, 0, 0] + [0] * 12
     board_b = [0, 2, 0, 0] + [0] * 12
-    game.validate_split_disjoint([{"seed": 1, "board": board_a}], [{"seed": 2, "board": board_b}])
+    game.validate_split_disjoint(
+        [{"seed": 1, "board": board_a}], [{"seed": 2, "board": board_b}]
+    )
     for evaluation in (
         [{"seed": 1, "board": board_b}],
         [{"seed": 2, "board": board_a}],
@@ -281,9 +305,27 @@ def test_policy_boundary_records_unknown_malformed_and_timeout():
             del observation, legal_actions
             return self.action
 
-    unknown = game.run_episode(BadPolicy("diagonal"), 3, max_moves=10, per_move_milliseconds=25, clock_ns=StepClock())
-    malformed = game.run_episode(BadPolicy(["left"]), 3, max_moves=10, per_move_milliseconds=25, clock_ns=StepClock())
-    timeout = game.run_episode(BadPolicy("left"), 3, max_moves=10, per_move_milliseconds=0.001, clock_ns=StepClock())
+    unknown = game.run_episode(
+        BadPolicy("diagonal"),
+        3,
+        max_moves=10,
+        per_move_milliseconds=25,
+        clock_ns=StepClock(),
+    )
+    malformed = game.run_episode(
+        BadPolicy(["left"]),
+        3,
+        max_moves=10,
+        per_move_milliseconds=25,
+        clock_ns=StepClock(),
+    )
+    timeout = game.run_episode(
+        BadPolicy("left"),
+        3,
+        max_moves=10,
+        per_move_milliseconds=0.001,
+        clock_ns=StepClock(),
+    )
     assert unknown["terminal_reason"] == "invalid-decision:unknown-action"
     assert malformed["terminal_reason"] == "invalid-decision:malformed-action"
     assert timeout["terminal_reason"] == "invalid-decision:time-budget-exceeded"
@@ -299,7 +341,9 @@ def test_paired_runner_is_deterministic_with_injected_clock():
     second = game.run_cohort(config, clock_ns=StepClock())
     assert game.canonical_bytes(first) == game.canonical_bytes(second)
     comparison = first["paired_comparisons"][0]
-    assert [row["seed"] for row in comparison["score_deltas_by_seed"]] == config["seed_namespaces"]["development"]["fixture_seeds"]
+    assert [row["seed"] for row in comparison["score_deltas_by_seed"]] == config[
+        "seed_namespaces"
+    ]["development"]["fixture_seeds"]
     assert comparison["paired_mean_score_delta"] > 0
     game.qualify_tiny_cohort(first, load(COHORT_FIXTURE_PATH))
 
@@ -322,7 +366,9 @@ def test_cli_qualifies_and_refuses_to_overwrite():
             "--output",
             str(output),
         ]
-        completed = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
+        completed = subprocess.run(
+            command, cwd=ROOT, capture_output=True, text=True, check=False
+        )
         assert completed.returncode == 0, completed.stderr
         result = load(output)
         assert result["schema_version"] == game.COHORT_SCHEMA
@@ -334,13 +380,19 @@ def test_cli_qualifies_and_refuses_to_overwrite():
             assert performance["decisions_per_second"] is not None
             assert performance["evaluation_wall_time_ms"] > 0
             assert performance["model_load_time_ms"] == 0
-        second = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
+        second = subprocess.run(
+            command, cwd=ROOT, capture_output=True, text=True, check=False
+        )
         assert second.returncode == 1
         assert "refusing to overwrite" in second.stderr
 
 
 def main() -> int:
-    tests = [value for name, value in sorted(globals().items()) if name.startswith("test_") and callable(value)]
+    tests = [
+        value
+        for name, value in sorted(globals().items())
+        if name.startswith("test_") and callable(value)
+    ]
     for test in tests:
         test()
         print(f"  ok: {test.__name__}")

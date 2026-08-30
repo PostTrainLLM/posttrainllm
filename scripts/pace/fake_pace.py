@@ -16,37 +16,88 @@ not model contribution. That's the eval methodology gate for #270.
 Usage: import + call respond(user, elements, free_text_mode=False, sys_prompt_v6=True),
        OR run as CLI to score against fm-fixtures.
 """
+
 from __future__ import annotations
 
 import argparse
 import json
 import re
-import sys
 from pathlib import Path
 
 
 # Action-tag templates kept identical to v6-label system prompt so the
 # regex assertions in fm-fixtures pass.
 KEY_MAP = {
-    "command": "cmd", "cmd": "cmd",
-    "control": "ctrl", "ctrl": "ctrl",
+    "command": "cmd",
+    "cmd": "cmd",
+    "control": "ctrl",
+    "ctrl": "ctrl",
     "shift": "shift",
-    "option": "alt", "alt": "alt",
-    "enter": "Return", "return": "Return",
-    "escape": "Escape", "esc": "Escape",
+    "option": "alt",
+    "alt": "alt",
+    "enter": "Return",
+    "return": "Return",
+    "escape": "Escape",
+    "esc": "Escape",
     "tab": "Tab",
 }
 
-CLICK_VERBS = ("click", "tap", "press", "open", "launch", "hit", "choose", "select", "go to")
-STOP_WORDS = {"the", "a", "an", "this", "that", "please", "on", "and", "to", "for", "of"}
+CLICK_VERBS = (
+    "click",
+    "tap",
+    "press",
+    "open",
+    "launch",
+    "hit",
+    "choose",
+    "select",
+    "go to",
+)
+STOP_WORDS = {
+    "the",
+    "a",
+    "an",
+    "this",
+    "that",
+    "please",
+    "on",
+    "and",
+    "to",
+    "for",
+    "of",
+}
 # Generic role/type words that appear in many labels — don't count them as
 # meaningful matches. e.g. "click the elephant button" shouldn't match
 # "search button" just because both contain "button".
 GENERIC_LABEL_WORDS = {
-    "button", "link", "field", "input", "text", "area", "menu", "item",
-    "view", "tab", "icon", "image", "row", "cell", "label", "control",
-    "switch", "checkbox", "radio", "slider", "panel", "section", "header",
-    "footer", "bar", "box", "list", "group",
+    "button",
+    "link",
+    "field",
+    "input",
+    "text",
+    "area",
+    "menu",
+    "item",
+    "view",
+    "tab",
+    "icon",
+    "image",
+    "row",
+    "cell",
+    "label",
+    "control",
+    "switch",
+    "checkbox",
+    "radio",
+    "slider",
+    "panel",
+    "section",
+    "header",
+    "footer",
+    "bar",
+    "box",
+    "list",
+    "group",
 }
 
 
@@ -61,7 +112,10 @@ def fake_pace(user: str, elements: list[dict], free_text_mode: bool = False) -> 
     u = parse_user(user)
 
     # --- Identity probes ---
-    if re.search(r"\b(who are you|what are you|are you siri|are you apple|are you a chatbot)\b", u):
+    if re.search(
+        r"\b(who are you|what are you|are you siri|are you apple|are you a chatbot)\b",
+        u,
+    ):
         return _wrap("i'm pace", "", "", free_text_mode)
 
     # --- Explicit Siri/AI mention but still expects Pace identity ---
@@ -110,15 +164,20 @@ def fake_pace(user: str, elements: list[dict], free_text_mode: bool = False) -> 
         elif cnt:
             tag = f"[SCROLL:{direction}:{cnt.group(1)}]"
         elif "bottom" in u:
-            tag = f"[SCROLL:down:5]"
+            tag = "[SCROLL:down:5]"
         else:
             tag = f"[SCROLL:{direction}]"
         return _wrap(f"{tag} scrolling", "", "", free_text_mode)
 
     # --- Action: type ---
-    type_match = re.search(r"type\s+(?:the\s+message\s+|the\s+text\s+|in\s+)?[\"']?(.+?)[\"']?$", u)
+    type_match = re.search(
+        r"type\s+(?:the\s+message\s+|the\s+text\s+|in\s+)?[\"']?(.+?)[\"']?$", u
+    )
     if not type_match:
-        type_match = re.search(r"(?:write|enter|fill in)\s+(?:the\s+message\s+|my\s+name\s+as\s+|in\s+)?[\"']?(.+?)[\"']?$", u)
+        type_match = re.search(
+            r"(?:write|enter|fill in)\s+(?:the\s+message\s+|my\s+name\s+as\s+|in\s+)?[\"']?(.+?)[\"']?$",
+            u,
+        )
     if type_match and u.startswith(("type", "write", "enter", "fill")):
         text = type_match.group(1).strip().strip(".").strip("?!")
         # Strip leading "the ... field" context if user said "enter X in the Y field"
@@ -127,7 +186,10 @@ def fake_pace(user: str, elements: list[dict], free_text_mode: bool = False) -> 
         return _wrap(f"[TYPE:{text}] typing", "", "", free_text_mode)
 
     # --- Action: OPEN_APP ---
-    open_app_match = re.search(r"(?:open|launch|start)\s+(safari|notes|calendar|finder|mail|messages|music|photos|maps|chrome|firefox|terminal|xcode)\b", u)
+    open_app_match = re.search(
+        r"(?:open|launch|start)\s+(safari|notes|calendar|finder|mail|messages|music|photos|maps|chrome|firefox|terminal|xcode)\b",
+        u,
+    )
     if open_app_match:
         app = open_app_match.group(1).capitalize()
         return _wrap(f"[OPEN_APP:{app}] opening {app}", "", "", free_text_mode)
@@ -164,7 +226,9 @@ def fake_pace(user: str, elements: list[dict], free_text_mode: bool = False) -> 
             target_phrase = _extract_target_noun(u)
             return _wrap(
                 f"i can't see {target_phrase or 'that'} on this screen",
-                "", "", free_text_mode,
+                "",
+                "",
+                free_text_mode,
             )
         # Try to match user phrase to an element label.
         target = _find_element(u, elements)
@@ -175,7 +239,9 @@ def fake_pace(user: str, elements: list[dict], free_text_mode: bool = False) -> 
         target_phrase = _extract_target_noun(u)
         return _wrap(
             f"i can't see {target_phrase or 'that'} on this screen",
-            "", "", free_text_mode,
+            "",
+            "",
+            free_text_mode,
         )
 
     # --- Pure QA / knowledge — emit templated response keyed off the question term ---
@@ -186,7 +252,9 @@ def fake_pace(user: str, elements: list[dict], free_text_mode: bool = False) -> 
     if qa_match:
         topic = qa_match.group(1).strip()
         # Strip common context phrases
-        topic = re.sub(r"\b(this|that|the|in (this|the) screen|here|on screen)\b", "", topic).strip()
+        topic = re.sub(
+            r"\b(this|that|the|in (this|the) screen|here|on screen)\b", "", topic
+        ).strip()
         topic = topic or "this"
         return _wrap(_qa_answer(topic), "", "", free_text_mode)
 
@@ -197,8 +265,11 @@ def fake_pace(user: str, elements: list[dict], free_text_mode: bool = False) -> 
 def _wrap(spoken: str, point: str, click: str, free_text_mode: bool) -> str:
     if free_text_mode:
         return spoken
-    return json.dumps({"spokenText": spoken, "pointAtLabel": point, "clickLabel": click},
-                       ensure_ascii=False, separators=(",", ":"))
+    return json.dumps(
+        {"spokenText": spoken, "pointAtLabel": point, "clickLabel": click},
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
 
 
 def _qa_answer(topic: str) -> str:
@@ -216,8 +287,9 @@ def _find_element(user: str, elements: list[dict]) -> dict | None:
     intent = u
     for v in CLICK_VERBS:
         intent = re.sub(rf"\b{v}\b", " ", intent)
-    intent_words = {w for w in re.findall(r"\b\w+\b", intent)
-                      if w not in STOP_WORDS and len(w) > 1}
+    intent_words = {
+        w for w in re.findall(r"\b\w+\b", intent) if w not in STOP_WORDS and len(w) > 1
+    }
 
     # Score each element. Generic role words ("button", "link") count for
     # 0 to avoid matching "elephant button" → "search button". Each
@@ -256,18 +328,28 @@ def parse_fixture(text: str) -> dict:
         if not line:
             continue
         if line.startswith("USER:"):
-            out["user"] = line[len("USER:"):].strip()
+            out["user"] = line[len("USER:") :].strip()
         elif line.startswith("ELEMENT:"):
-            out["elements"].append(_parse_element(line[len("ELEMENT:"):].strip()))
+            out["elements"].append(_parse_element(line[len("ELEMENT:") :].strip()))
         elif line.startswith("FREE_TEXT_MODE:"):
             out["free_text"] = "true" in line.lower()
-        elif ":" in line and any(line.startswith(p) for p in
-                                  ("EXPECT_POINT_ID", "EXPECT_CLICK_ID",
-                                    "EXPECT_POINT_ID_ONE_OF", "EXPECT_CLICK_ID_ONE_OF",
-                                    "SPOKEN_MUST_CONTAIN", "SPOKEN_MUST_NOT_CONTAIN",
-                                    "SPOKEN_MUST_MATCH_REGEX", "SPOKEN_MAX_WORDS",
-                                    "BODY_MUST_CONTAIN", "BODY_MUST_BE_EMPTY",
-                                    "BODY_MUST_NOT_BE_EMPTY", "BODY_MIN_WORDS")):
+        elif ":" in line and any(
+            line.startswith(p)
+            for p in (
+                "EXPECT_POINT_ID",
+                "EXPECT_CLICK_ID",
+                "EXPECT_POINT_ID_ONE_OF",
+                "EXPECT_CLICK_ID_ONE_OF",
+                "SPOKEN_MUST_CONTAIN",
+                "SPOKEN_MUST_NOT_CONTAIN",
+                "SPOKEN_MUST_MATCH_REGEX",
+                "SPOKEN_MAX_WORDS",
+                "BODY_MUST_CONTAIN",
+                "BODY_MUST_BE_EMPTY",
+                "BODY_MUST_NOT_BE_EMPTY",
+                "BODY_MIN_WORDS",
+            )
+        ):
             k, _, v = line.partition(":")
             out["expects"][k.strip()] = v.strip()
     return out
@@ -303,7 +385,9 @@ def element_id_for_label(elements: list[dict], label: str) -> int:
     return -1
 
 
-def score_response(response: str, expects: dict, elements: list[dict], free_text_mode: bool) -> tuple[bool, list[str]]:
+def score_response(
+    response: str, expects: dict, elements: list[dict], free_text_mode: bool
+) -> tuple[bool, list[str]]:
     """Returns (passed, list of failure reasons). Mirrors pace-eval-v6.py's
     smart-extraction strategy: try JSON first, fall back to free-text."""
     reasons = []
@@ -330,11 +414,15 @@ def score_response(response: str, expects: dict, elements: list[dict], free_text
                 calls = [payload]
                 calls += [c for c in payload.get("calls", []) if isinstance(c, dict)]
                 for call in calls:
-                    args = call.get("args") if isinstance(call.get("args"), dict) else {}
+                    args = (
+                        call.get("args") if isinstance(call.get("args"), dict) else {}
+                    )
                     if call.get("name") == "AX.press" and args.get("target"):
                         click_label = click_label or args["target"]
                         point_label = point_label or args["target"]
-                    if call.get("name") in ("Mail.draft", "Notes.create") and args.get("body"):
+                    if call.get("name") in ("Mail.draft", "Notes.create") and args.get(
+                        "body"
+                    ):
                         body_text = body_text or args["body"]
     except Exception:
         # Free text — use the whole response as spokenText.
@@ -419,9 +507,18 @@ def run_eval(fixtures_dir: Path, verbose: bool = False) -> dict:
     for f in fixtures:
         fx = parse_fixture(f.read_text())
         response = fake_pace(fx["user"], fx["elements"], free_text_mode=fx["free_text"])
-        passed, reasons = score_response(response, fx["expects"], fx["elements"], fx["free_text"])
-        results.append({"fixture": f.stem, "passed": passed, "reasons": reasons,
-                          "response": response, "user": fx["user"]})
+        passed, reasons = score_response(
+            response, fx["expects"], fx["elements"], fx["free_text"]
+        )
+        results.append(
+            {
+                "fixture": f.stem,
+                "passed": passed,
+                "reasons": reasons,
+                "response": response,
+                "user": fx["user"],
+            }
+        )
         marker = "PASS" if passed else "FAIL"
         print(f"[{marker}] {f.stem}")
         if verbose or not passed:
@@ -438,11 +535,17 @@ def run_eval(fixtures_dir: Path, verbose: bool = False) -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--fixtures", type=Path,
-                          default=Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/fm-fixtures"))
+    parser.add_argument(
+        "--fixtures",
+        type=Path,
+        default=Path("/Users/sarthak/Desktop/fleet/clickyLocal/evals/fm-fixtures"),
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
-    parser.add_argument("--json", action="store_true",
-                          help="emit results JSON to stdout (instead of human-readable summary)")
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="emit results JSON to stdout (instead of human-readable summary)",
+    )
     args = parser.parse_args()
     result = run_eval(args.fixtures, verbose=args.verbose)
     if args.json:

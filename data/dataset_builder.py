@@ -66,7 +66,9 @@ def build_token_array(input_path: str | Path, out_dir: str | Path) -> Path:
     return manifest_path
 
 
-def build_jsonl(input_path: str | Path, out_dir: str | Path, val_split: float = 0.1) -> Path:
+def build_jsonl(
+    input_path: str | Path, out_dir: str | Path, val_split: float = 0.1
+) -> Path:
     """Phase 6: clean a JSONL of LoRA task examples — dedup, train/val split, hash.
 
     Each input line is a JSON object with a "task" field (continuation / rewrite /
@@ -116,8 +118,14 @@ def _write_jsonl(path: Path, rows: list[dict]) -> None:
 HF_ROWS_URL = "https://datasets-server.huggingface.co/rows"
 
 
-def build_from_hf(dataset: str, config: str, split: str, text_column: str,
-                  rows: int, out_dir: str | Path) -> Path:
+def build_from_hf(
+    dataset: str,
+    config: str,
+    split: str,
+    text_column: str,
+    rows: int,
+    out_dir: str | Path,
+) -> Path:
     """Pull text rows from a Hugging Face dataset into a plain-text file.
 
     Uses the public datasets-server HTTP API — no API key, no `datasets`
@@ -134,8 +142,14 @@ def build_from_hf(dataset: str, config: str, split: str, text_column: str,
     while offset < rows:
         n = min(page, rows - offset)
         query = urllib.parse.urlencode(
-            {"dataset": dataset, "config": config, "split": split,
-             "offset": offset, "length": n})
+            {
+                "dataset": dataset,
+                "config": config,
+                "split": split,
+                "offset": offset,
+                "length": n,
+            }
+        )
         with urllib.request.urlopen(f"{HF_ROWS_URL}?{query}", timeout=30) as resp:
             payload = json.loads(resp.read())
         batch = payload.get("rows", [])
@@ -164,7 +178,9 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Build posttrainllm training data.")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    p_tokens = sub.add_parser("tokens", help="Phase 1: text file -> token array + manifest")
+    p_tokens = sub.add_parser(
+        "tokens", help="Phase 1: text file -> token array + manifest"
+    )
     p_tokens.add_argument("input")
     p_tokens.add_argument("--out-dir", default="data/examples")
 
@@ -187,8 +203,14 @@ def main(argv: list[str] | None = None) -> None:
     elif args.cmd == "jsonl":
         build_jsonl(args.input, args.out_dir, args.val_split)
     elif args.cmd == "hf":
-        build_from_hf(args.dataset, args.config, args.split, args.text_column,
-                      args.rows, args.out_dir)
+        build_from_hf(
+            args.dataset,
+            args.config,
+            args.split,
+            args.text_column,
+            args.rows,
+            args.out_dir,
+        )
 
 
 if __name__ == "__main__":

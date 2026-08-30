@@ -62,7 +62,12 @@ def main() -> None:
     rate = clean / len(rows) if rows else 0.0
     print(
         json.dumps(
-            {"rows": len(rows), "clean": clean, "clean_rate": round(rate, 3), "reasons": reasons}
+            {
+                "rows": len(rows),
+                "clean": clean,
+                "clean_rate": round(rate, 3),
+                "reasons": reasons,
+            }
         )
     )
 

@@ -52,7 +52,9 @@ class ModelConfig:
         return cls(**{k: v for k, v in raw.items() if k in fields})
 
     def __post_init__(self) -> None:
-        assert self.d_model % self.n_heads == 0, "d_model must divide evenly into n_heads"
+        assert self.d_model % self.n_heads == 0, (
+            "d_model must divide evenly into n_heads"
+        )
 
     @property
     def head_dim(self) -> int:
@@ -84,7 +86,9 @@ class CausalSelfAttention(nn.Module):
         self.resid_dropout = nn.Dropout(cfg.dropout)
         # Lower-triangular causal mask, registered so it moves with .to(device).
         mask = torch.tril(torch.ones(cfg.context_length, cfg.context_length))
-        self.register_buffer("causal_mask", mask.view(1, 1, cfg.context_length, cfg.context_length))
+        self.register_buffer(
+            "causal_mask", mask.view(1, 1, cfg.context_length, cfg.context_length)
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         B, T, C = x.shape
@@ -172,7 +176,9 @@ class posttrainllm(nn.Module):
     ) -> tuple[torch.Tensor, torch.Tensor | None]:
         """idx: [B, T] int64 token ids. Returns (logits, loss-or-None)."""
         B, T = idx.shape
-        assert T <= self.cfg.context_length, f"sequence length {T} exceeds context {self.cfg.context_length}"
+        assert T <= self.cfg.context_length, (
+            f"sequence length {T} exceeds context {self.cfg.context_length}"
+        )
 
         pos = torch.arange(T, device=idx.device)
         x = self.token_embedding(idx) + self.position_embedding(pos)
@@ -208,7 +214,7 @@ class posttrainllm(nn.Module):
         """Autoregressive decoding. idx: [B, T] prompt. See sample.py for the CLI."""
         self.eval()
         for _ in range(max_new_tokens):
-            idx_cond = idx[:, -self.cfg.context_length:]
+            idx_cond = idx[:, -self.cfg.context_length :]
             logits, _ = self(idx_cond)
             logits = logits[:, -1, :]  # last position only
 
@@ -241,4 +247,6 @@ if __name__ == "__main__":
 
     x = torch.randint(0, cfg.vocab_size, (2, cfg.context_length))
     logits, loss = model(x, x)
-    print(f"logits {tuple(logits.shape)}  loss {loss.item():.4f}  (expect ~{math.log(cfg.vocab_size):.2f})")
+    print(
+        f"logits {tuple(logits.shape)}  loss {loss.item():.4f}  (expect ~{math.log(cfg.vocab_size):.2f})"
+    )

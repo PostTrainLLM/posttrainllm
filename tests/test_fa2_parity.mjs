@@ -41,7 +41,10 @@ function naiveCausalAttention(q, k, v, B, T, C, H) {
           if (s > mx) mx = s;
         }
         let sum = 0;
-        for (let t2 = 0; t2 <= t1; t2++) { sc[t2] = Math.exp(sc[t2] - mx); sum += sc[t2]; }
+        for (let t2 = 0; t2 <= t1; t2++) {
+          sc[t2] = Math.exp(sc[t2] - mx);
+          sum += sc[t2];
+        }
         const arow = ((b * H + h) * T + t1) * T;
         for (let t2 = 0; t2 <= t1; t2++) attn[arow + t2] = sc[t2] / sum;
         for (let d = 0; d < hd; d++) {
@@ -64,7 +67,8 @@ function naiveCausalAttention(q, k, v, B, T, C, H) {
 function fa2CausalAttention(q, k, v, B, T, C, H) {
   const hd = C / H;
   const scale = 1 / Math.sqrt(hd);
-  const BR = 16, BC = 16;
+  const BR = 16,
+    BC = 16;
   const ctx = new Float32Array(B * T * C);
   const attn = new Float32Array(B * H * T * T);
 
@@ -85,11 +89,11 @@ function fa2CausalAttention(q, k, v, B, T, C, H) {
 
         for (let kj = 0; kj < nKBlocks; kj++) {
           const k_start = kj * BC;
-          if (k_start > q_end) break;     // causal: whole block past every Q row
+          if (k_start > q_end) break; // causal: whole block past every Q row
 
           for (let lane = 0; lane < BR; lane++) {
             const q_row = q_start + lane;
-            if (q_row >= T) continue;     // out-of-range Q lane
+            if (q_row >= T) continue; // out-of-range Q lane
 
             // Scores for this block against q_row.
             const S = new Float64Array(BC);
@@ -100,7 +104,9 @@ function fa2CausalAttention(q, k, v, B, T, C, H) {
               if (t2 < T && t2 <= q_row) {
                 s = 0;
                 for (let d = 0; d < hd; d++) {
-                  s += q[(b * T + q_row) * C + off + d] * k[(b * T + t2) * C + off + d];
+                  s +=
+                    q[(b * T + q_row) * C + off + d] *
+                    k[(b * T + t2) * C + off + d];
                 }
                 s *= scale;
               }
@@ -149,7 +155,9 @@ function fa2CausalAttention(q, k, v, B, T, C, H) {
               if (t2 < T && t2 <= q_row) {
                 let s = 0;
                 for (let d = 0; d < hd; d++) {
-                  s += q[(b * T + q_row) * C + off + d] * k[(b * T + t2) * C + off + d];
+                  s +=
+                    q[(b * T + q_row) * C + off + d] *
+                    k[(b * T + t2) * C + off + d];
                 }
                 s *= scale;
                 attn[arow + t2] = Math.exp(s - m_i[lane]) * inv;
@@ -169,7 +177,8 @@ function rand(n, scale = 1) {
   let s = 0xdeadbeef ^ n;
   const a = new Float32Array(n);
   for (let i = 0; i < n; i++) {
-    s |= 0; s = (s + 0x6D2B79F5) | 0;
+    s |= 0;
+    s = (s + 0x6d2b79f5) | 0;
     let t = Math.imul(s ^ (s >>> 15), 1 | s);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     a[i] = (((t ^ (t >>> 14)) >>> 0) / 4294967296) * 2 - 1;
@@ -197,7 +206,7 @@ const cases = [
   // small, T == multiple of 16 — exercises the cooperative-tile happy path
   { B: 1, T: 16, C: 32, H: 4 },
   // T < BR — single partial Q tile, all causal
-  { B: 1, T: 8,  C: 32, H: 4 },
+  { B: 1, T: 8, C: 32, H: 4 },
   // T not a multiple of 16 — exercises the boundary K block mask
   { B: 1, T: 20, C: 32, H: 2 },
   // larger T (small-preset shape): exercises multi-block walk
@@ -215,14 +224,24 @@ const TOL = 1e-4;
 
 for (const { B, T, C, H } of cases) {
   const N = B * T * C;
-  const q = rand(N), k = rand(N), v = rand(N);
+  const q = rand(N),
+    k = rand(N),
+    v = rand(N);
   const ref = naiveCausalAttention(q, k, v, B, T, C, H);
   const got = fa2CausalAttention(q, k, v, B, T, C, H);
-  const dCtx  = maxAbsDiff(ref.ctx,  got.ctx);
+  const dCtx = maxAbsDiff(ref.ctx, got.ctx);
   const dAttn = maxAbsDiff(ref.attn, got.attn);
   const label = `B=${B} T=${T} C=${C} H=${H} hd=${C / H}`;
-  check(`fa2 ctx   [${label}]`,  dCtx  < TOL, `maxAbsDiff=${dCtx.toExponential(2)}`);
-  check(`fa2 attn  [${label}]`,  dAttn < TOL, `maxAbsDiff=${dAttn.toExponential(2)}`);
+  check(
+    `fa2 ctx   [${label}]`,
+    dCtx < TOL,
+    `maxAbsDiff=${dCtx.toExponential(2)}`,
+  );
+  check(
+    `fa2 attn  [${label}]`,
+    dAttn < TOL,
+    `maxAbsDiff=${dAttn.toExponential(2)}`,
+  );
 }
 
 if (failed === 0) {

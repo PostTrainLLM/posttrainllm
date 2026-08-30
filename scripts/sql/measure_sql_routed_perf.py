@@ -159,7 +159,9 @@ def main() -> None:
         ),
     )
     p.add_argument("--data", required=True, help="input .jsonl fixture rows")
-    p.add_argument("--limit", type=int, default=0, help="use only the first N rows (0 = all)")
+    p.add_argument(
+        "--limit", type=int, default=0, help="use only the first N rows (0 = all)"
+    )
     p.add_argument(
         "--cmd",
         default="",
@@ -259,7 +261,9 @@ def main() -> None:
 
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(report.__dict__, ensure_ascii=False, indent=2) + "\n")
+    out_path.write_text(
+        json.dumps(report.__dict__, ensure_ascii=False, indent=2) + "\n"
+    )
     print(
         f"perf: {report.rows} rows mock={report.mock} "
         f"latency p50={report.latency_ms['p50']}ms p95={report.latency_ms['p95']}ms "

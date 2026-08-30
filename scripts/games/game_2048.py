@@ -27,7 +27,9 @@ POLICY_ADAPTER_REVISION = "game-2048/policy-adapter/v1"
 CHARACTER_OBSERVATION_REVISION = "game-2048/character-observation/v1"
 TILE_EXPONENT_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz"
 ACTION_CHARACTERS = {"up": "U", "down": "D", "left": "L", "right": "R"}
-CHARACTER_ACTIONS = {character: action for action, character in ACTION_CHARACTERS.items()}
+CHARACTER_ACTIONS = {
+    character: action for action, character in ACTION_CHARACTERS.items()
+}
 MASK_64 = (1 << 64) - 1
 
 Board = tuple[int, ...]
@@ -35,7 +37,9 @@ Clock = Callable[[], int]
 
 
 def canonical_bytes(value: Any) -> bytes:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
 
 
 def sha256_json(value: Any) -> str:
@@ -60,7 +64,11 @@ def write_json_exclusive(path: Path, value: Any) -> None:
 
 
 def _is_tile(value: Any) -> bool:
-    return isinstance(value, int) and not isinstance(value, bool) and (value == 0 or value > 0 and value & (value - 1) == 0)
+    return (
+        isinstance(value, int)
+        and not isinstance(value, bool)
+        and (value == 0 or value > 0 and value & (value - 1) == 0)
+    )
 
 
 def board_tuple(board: Sequence[int]) -> Board:
@@ -88,12 +96,22 @@ def serialize_character_observation(observation: dict[str, Any]) -> str:
     move_count = observation.get("move_count")
     if not isinstance(score, int) or isinstance(score, bool) or score < 0:
         raise ValueError("observation score must be a non-negative integer")
-    if not isinstance(move_count, int) or isinstance(move_count, bool) or move_count < 0:
+    if (
+        not isinstance(move_count, int)
+        or isinstance(move_count, bool)
+        or move_count < 0
+    ):
         raise ValueError("observation move_count must be a non-negative integer")
     legal = observation.get("legal_actions")
-    if not isinstance(legal, list) or len(legal) != len(set(legal)) or any(action not in ACTIONS for action in legal):
+    if (
+        not isinstance(legal, list)
+        or len(legal) != len(set(legal))
+        or any(action not in ACTIONS for action in legal)
+    ):
         raise ValueError("observation legal_actions must be a unique action list")
-    legal_characters = "".join(ACTION_CHARACTERS[action] for action in ACTIONS if action in legal)
+    legal_characters = "".join(
+        ACTION_CHARACTERS[action] for action in ACTIONS if action in legal
+    )
     return f"B={''.join(encoded_cells)};S={score};M={move_count};L={legal_characters}"
 
 
@@ -108,13 +126,25 @@ def parse_character_action(raw: str) -> str:
 
 def _line_indices(action: str) -> tuple[tuple[int, ...], ...]:
     if action == "left":
-        return tuple(tuple(row * BOARD_SIZE + column for column in range(BOARD_SIZE)) for row in range(BOARD_SIZE))
+        return tuple(
+            tuple(row * BOARD_SIZE + column for column in range(BOARD_SIZE))
+            for row in range(BOARD_SIZE)
+        )
     if action == "right":
-        return tuple(tuple(row * BOARD_SIZE + column for column in reversed(range(BOARD_SIZE))) for row in range(BOARD_SIZE))
+        return tuple(
+            tuple(row * BOARD_SIZE + column for column in reversed(range(BOARD_SIZE)))
+            for row in range(BOARD_SIZE)
+        )
     if action == "up":
-        return tuple(tuple(row * BOARD_SIZE + column for row in range(BOARD_SIZE)) for column in range(BOARD_SIZE))
+        return tuple(
+            tuple(row * BOARD_SIZE + column for row in range(BOARD_SIZE))
+            for column in range(BOARD_SIZE)
+        )
     if action == "down":
-        return tuple(tuple(row * BOARD_SIZE + column for row in reversed(range(BOARD_SIZE))) for column in range(BOARD_SIZE))
+        return tuple(
+            tuple(row * BOARD_SIZE + column for row in reversed(range(BOARD_SIZE)))
+            for column in range(BOARD_SIZE)
+        )
     raise ValueError(f"unknown action: {action!r}")
 
 
@@ -150,7 +180,9 @@ def move_without_spawn(board: Sequence[int], action: str) -> tuple[Board, int]:
 
 def legal_actions_for(board: Sequence[int]) -> tuple[str, ...]:
     source = board_tuple(board)
-    return tuple(action for action in ACTIONS if move_without_spawn(source, action)[0] != source)
+    return tuple(
+        action for action in ACTIONS if move_without_spawn(source, action)[0] != source
+    )
 
 
 class SplitMix64:
@@ -182,7 +214,13 @@ def derive_stream_seed(seed: int, stream: str) -> int:
     if not isinstance(seed, int) or isinstance(seed, bool):
         raise ValueError("game seed must be an integer")
     digest = hashlib.sha256(
-        canonical_bytes({"environment_revision": ENVIRONMENT_REVISION, "seed": seed, "stream": stream})
+        canonical_bytes(
+            {
+                "environment_revision": ENVIRONMENT_REVISION,
+                "seed": seed,
+                "stream": stream,
+            }
+        )
     ).digest()
     return int.from_bytes(digest[:8], "big")
 
@@ -258,7 +296,9 @@ class Game2048:
             "pre_move_board": pre["board"],
             "legal_actions": pre["legal_actions"],
             "chosen_action": action if isinstance(action, str) else None,
-            "raw_action": action if isinstance(action, (str, int, float, bool)) or action is None else repr(action),
+            "raw_action": action
+            if isinstance(action, (str, int, float, bool)) or action is None
+            else repr(action),
             "valid": valid,
             "failure": failure,
             "post_move_board": list(self.board),
@@ -282,10 +322,14 @@ class Game2048:
         pre = self.observation()
         rng_before = self._rng.state
         if not isinstance(action, str) or action not in ACTIONS:
-            return self._record(pre, action, False, "unknown-action", 0, None, rng_before)
+            return self._record(
+                pre, action, False, "unknown-action", 0, None, rng_before
+            )
         moved, score_delta = move_without_spawn(self.board, action)
         if moved == self.board:
-            return self._record(pre, action, False, "no-state-change", 0, None, rng_before)
+            return self._record(
+                pre, action, False, "no-state-change", 0, None, rng_before
+            )
         self.board = moved
         self.score += score_delta
         self.move_count += 1
@@ -297,8 +341,9 @@ class Policy(Protocol):
     policy_id: str
     revision: str
 
-    def choose(self, observation: dict[str, Any], legal_actions: Sequence[str]) -> Any:
-        ...
+    def choose(
+        self, observation: dict[str, Any], legal_actions: Sequence[str]
+    ) -> Any: ...
 
 
 class RandomLegalPolicy:
@@ -325,13 +370,19 @@ def monotonicity(board: Sequence[int]) -> int:
     lines = list(_line_indices("left")) + list(_line_indices("up"))
     for positions in lines:
         values = [_tile_exponent(source[position]) for position in positions]
-        increasing = -sum(max(0, values[index] - values[index + 1]) for index in range(BOARD_SIZE - 1))
-        decreasing = -sum(max(0, values[index + 1] - values[index]) for index in range(BOARD_SIZE - 1))
+        increasing = -sum(
+            max(0, values[index] - values[index + 1]) for index in range(BOARD_SIZE - 1)
+        )
+        decreasing = -sum(
+            max(0, values[index + 1] - values[index]) for index in range(BOARD_SIZE - 1)
+        )
         total += max(increasing, decreasing)
     return total
 
 
-def heuristic_value(board: Sequence[int], score_delta: int, weights: dict[str, int]) -> int:
+def heuristic_value(
+    board: Sequence[int], score_delta: int, weights: dict[str, int]
+) -> int:
     source = board_tuple(board)
     maximum = max(source)
     corners = (source[0], source[BOARD_SIZE - 1], source[-BOARD_SIZE], source[-1])
@@ -349,11 +400,22 @@ class GreedyOnePlyPolicy:
     revision = "1"
 
     def __init__(self, weights: dict[str, int], action_order: Sequence[str]):
-        required = {"immediate_score", "empty_cells", "monotonicity", "maximum_tile_corner"}
-        if set(weights) != required or not all(isinstance(value, int) for value in weights.values()):
-            raise ValueError(f"greedy weights must be integer values for {sorted(required)}")
+        required = {
+            "immediate_score",
+            "empty_cells",
+            "monotonicity",
+            "maximum_tile_corner",
+        }
+        if set(weights) != required or not all(
+            isinstance(value, int) for value in weights.values()
+        ):
+            raise ValueError(
+                f"greedy weights must be integer values for {sorted(required)}"
+            )
         if set(action_order) != set(ACTIONS) or len(action_order) != len(ACTIONS):
-            raise ValueError("greedy action_order must contain every action exactly once")
+            raise ValueError(
+                "greedy action_order must contain every action exactly once"
+            )
         self.weights = dict(weights)
         self.action_order = tuple(action_order)
 
@@ -398,7 +460,10 @@ class ExpectimaxBoundedPolicy:
         self.chance_cell_limit = config["chance_cell_limit"]
         self.action_order = tuple(config["action_order"])
         self.weights = dict(config["weights"])
-        self.spawn_distribution = {int(tile): probability for tile, probability in config["spawn_distribution"].items()}
+        self.spawn_distribution = {
+            int(tile): probability
+            for tile, probability in config["spawn_distribution"].items()
+        }
         self.configuration_sha256 = sha256_json(config)
         self.last_search_stats: dict[str, Any] = {}
 
@@ -409,7 +474,10 @@ class ExpectimaxBoundedPolicy:
         empty = tuple(index for index, value in enumerate(board) if value == 0)
         if len(empty) <= self.chance_cell_limit:
             return empty
-        return tuple(empty[index * len(empty) // self.chance_cell_limit] for index in range(self.chance_cell_limit))
+        return tuple(
+            empty[index * len(empty) // self.chance_cell_limit]
+            for index in range(self.chance_cell_limit)
+        )
 
     def _player_value(self, board: Board, depth: int, budget: SearchBudget) -> float:
         if not budget.consume() or depth <= 0:
@@ -422,7 +490,10 @@ class ExpectimaxBoundedPolicy:
         for action in self.action_order:
             if action in legal_set:
                 moved, score_delta = move_without_spawn(board, action)
-                values.append(score_delta * self.weights["immediate_score"] + self._chance_value(moved, depth - 1, budget))
+                values.append(
+                    score_delta * self.weights["immediate_score"]
+                    + self._chance_value(moved, depth - 1, budget)
+                )
         return max(values)
 
     def _chance_value(self, board: Board, depth: int, budget: SearchBudget) -> float:
@@ -437,7 +508,11 @@ class ExpectimaxBoundedPolicy:
             for tile, tile_probability in sorted(self.spawn_distribution.items()):
                 spawned = list(board)
                 spawned[index] = tile
-                value += cell_probability * tile_probability * self._player_value(tuple(spawned), depth, budget)
+                value += (
+                    cell_probability
+                    * tile_probability
+                    * self._player_value(tuple(spawned), depth, budget)
+                )
         return value
 
     def choose(self, observation: dict[str, Any], legal_actions: Sequence[str]) -> str:
@@ -482,7 +557,11 @@ def validate_environment_config(config: dict[str, Any]) -> None:
         if config.get(key) != value:
             raise ValueError(f"environment config {key} must be {value!r}")
     prng = config.get("prng")
-    if not isinstance(prng, dict) or prng.get("algorithm") != "splitmix64" or prng.get("revision") != "1":
+    if (
+        not isinstance(prng, dict)
+        or prng.get("algorithm") != "splitmix64"
+        or prng.get("revision") != "1"
+    ):
         raise ValueError("environment config must pin splitmix64 revision 1")
 
 
@@ -492,9 +571,16 @@ def validate_evaluation_config(config: dict[str, Any]) -> None:
     if config.get("environment_revision") != ENVIRONMENT_REVISION:
         raise ValueError("evaluation config environment revision mismatch")
     namespaces = config.get("seed_namespaces")
-    required_namespaces = {"development", "trajectory_training", "algorithmic_diagnostic", "frozen_evaluation"}
+    required_namespaces = {
+        "development",
+        "trajectory_training",
+        "algorithmic_diagnostic",
+        "frozen_evaluation",
+    }
     if not isinstance(namespaces, dict) or set(namespaces) != required_namespaces:
-        raise ValueError(f"seed_namespaces must contain exactly {sorted(required_namespaces)}")
+        raise ValueError(
+            f"seed_namespaces must contain exactly {sorted(required_namespaces)}"
+        )
     ranges: list[tuple[int, int, str]] = []
     for name, namespace in namespaces.items():
         if not isinstance(namespace, dict):
@@ -503,7 +589,9 @@ def validate_evaluation_config(config: dict[str, Any]) -> None:
         seeds = namespace.get("fixture_seeds")
         if not isinstance(start, int) or not isinstance(end, int) or start > end:
             raise ValueError(f"seed namespace {name} has an invalid range")
-        if not isinstance(seeds, list) or any(not isinstance(seed, int) or seed < start or seed > end for seed in seeds):
+        if not isinstance(seeds, list) or any(
+            not isinstance(seed, int) or seed < start or seed > end for seed in seeds
+        ):
             raise ValueError(f"seed namespace {name} has invalid fixture seeds")
         if len(seeds) != len(set(seeds)):
             raise ValueError(f"seed namespace {name} repeats fixture seeds")
@@ -516,18 +604,28 @@ def validate_evaluation_config(config: dict[str, Any]) -> None:
     budgets = config.get("budgets", {})
     if not seeds or len(seeds) > budgets.get("max_games", 0):
         raise ValueError("development fixture seeds must fit the max_games budget")
-    if budgets.get("max_moves_per_game", 0) <= 0 or budgets.get("per_move_milliseconds", 0) <= 0:
+    if (
+        budgets.get("max_moves_per_game", 0) <= 0
+        or budgets.get("per_move_milliseconds", 0) <= 0
+    ):
         raise ValueError("evaluation budgets must be positive")
     baselines = config.get("baselines")
-    if not isinstance(baselines, list) or [entry.get("policy_id") for entry in baselines] != [
+    if not isinstance(baselines, list) or [
+        entry.get("policy_id") for entry in baselines
+    ] != [
         "random-legal",
         "greedy-one-ply",
     ]:
-        raise ValueError("development baselines must be random-legal then greedy-one-ply")
+        raise ValueError(
+            "development baselines must be random-legal then greedy-one-ply"
+        )
     if any(entry.get("revision") != "1" for entry in baselines):
         raise ValueError("development baseline revisions must be pinned to 1")
     uncertainty = config.get("uncertainty", {})
-    if uncertainty.get("paired_bootstrap_revision") != "1" or uncertainty.get("bootstrap_samples", 0) <= 0:
+    if (
+        uncertainty.get("paired_bootstrap_revision") != "1"
+        or uncertainty.get("bootstrap_samples", 0) <= 0
+    ):
         raise ValueError("paired bootstrap revision and sample count must be pinned")
     admission = config.get("benchmark_admission", {})
     required_admission = {
@@ -549,10 +647,20 @@ def validate_evaluation_config(config: dict[str, Any]) -> None:
         if not isinstance(value, (int, float)) or isinstance(value, bool) or value <= 0:
             raise ValueError(f"benchmark admission threshold must be positive: {field}")
     win_rate = admission["frontier_constrained_paired_win_rate_minimum"]
-    if not isinstance(win_rate, (int, float)) or isinstance(win_rate, bool) or not 0.5 < win_rate <= 1:
-        raise ValueError("frontier admission paired win rate must be above one half through one")
+    if (
+        not isinstance(win_rate, (int, float))
+        or isinstance(win_rate, bool)
+        or not 0.5 < win_rate <= 1
+    ):
+        raise ValueError(
+            "frontier admission paired win rate must be above one half through one"
+        )
     score_ratio = admission["frontier_constrained_mean_score_ratio_over_random_minimum"]
-    if not isinstance(score_ratio, (int, float)) or isinstance(score_ratio, bool) or score_ratio < 1.1:
+    if (
+        not isinstance(score_ratio, (int, float))
+        or isinstance(score_ratio, bool)
+        or score_ratio < 1.1
+    ):
         raise ValueError("frontier admission mean score ratio must be at least 1.1")
     thresholds = config.get("proof_thresholds", {})
     required_thresholds = {
@@ -567,7 +675,9 @@ def validate_evaluation_config(config: dict[str, Any]) -> None:
     parameter_maximum = thresholds["candidate_parameter_count_maximum"]
     score_delta = thresholds["larger_llm_paired_mean_score_delta_minimum"]
     win_rate = thresholds["larger_llm_paired_win_rate_minimum"]
-    bootstrap_lower_bound = thresholds["larger_llm_paired_bootstrap_lower_bound_minimum"]
+    bootstrap_lower_bound = thresholds[
+        "larger_llm_paired_bootstrap_lower_bound_minimum"
+    ]
     invalid_maximum = thresholds["invalid_decisions_maximum"]
     if parameter_maximum != 50_000_000:
         raise ValueError("candidate parameter ceiling must be exactly 50000000")
@@ -576,51 +686,93 @@ def validate_evaluation_config(config: dict[str, Any]) -> None:
         or isinstance(score_delta, bool)
         or score_delta <= 0
     ):
-        raise ValueError("larger-LLM paired mean score delta threshold must be positive")
+        raise ValueError(
+            "larger-LLM paired mean score delta threshold must be positive"
+        )
     if (
         not isinstance(win_rate, (int, float))
         or isinstance(win_rate, bool)
         or not 0.5 < win_rate <= 1
     ):
-        raise ValueError("larger-LLM paired win-rate threshold must be above one half through one")
+        raise ValueError(
+            "larger-LLM paired win-rate threshold must be above one half through one"
+        )
     if (
         not isinstance(bootstrap_lower_bound, (int, float))
         or isinstance(bootstrap_lower_bound, bool)
         or bootstrap_lower_bound <= 0
     ):
         raise ValueError("larger-LLM bootstrap lower-bound threshold must be positive")
-    if not isinstance(invalid_maximum, int) or isinstance(invalid_maximum, bool) or invalid_maximum < 0:
+    if (
+        not isinstance(invalid_maximum, int)
+        or isinstance(invalid_maximum, bool)
+        or invalid_maximum < 0
+    ):
         raise ValueError("invalid decision threshold must be a non-negative integer")
 
 
 def validate_teacher_policy_config(config: dict[str, Any]) -> None:
     if config.get("policy_id") != "expectimax-bounded" or config.get("revision") != "1":
         raise ValueError("teacher policy must be expectimax-bounded revision 1")
-    if not isinstance(config.get("search_depth"), int) or not 1 <= config["search_depth"] <= 3:
+    if (
+        not isinstance(config.get("search_depth"), int)
+        or not 1 <= config["search_depth"] <= 3
+    ):
         raise ValueError("teacher search_depth must be an integer from 1 through 3")
-    if not isinstance(config.get("max_nodes_per_decision"), int) or not 4 <= config["max_nodes_per_decision"] <= 4096:
+    if (
+        not isinstance(config.get("max_nodes_per_decision"), int)
+        or not 4 <= config["max_nodes_per_decision"] <= 4096
+    ):
         raise ValueError("teacher max_nodes_per_decision must be from 4 through 4096")
-    if not isinstance(config.get("chance_cell_limit"), int) or not 1 <= config["chance_cell_limit"] <= CELL_COUNT:
+    if (
+        not isinstance(config.get("chance_cell_limit"), int)
+        or not 1 <= config["chance_cell_limit"] <= CELL_COUNT
+    ):
         raise ValueError("teacher chance_cell_limit must be from 1 through 16")
     action_order = config.get("action_order")
-    if not isinstance(action_order, list) or len(action_order) != len(ACTIONS) or set(action_order) != set(ACTIONS):
+    if (
+        not isinstance(action_order, list)
+        or len(action_order) != len(ACTIONS)
+        or set(action_order) != set(ACTIONS)
+    ):
         raise ValueError("teacher action_order must contain every action exactly once")
     weights = config.get("weights")
-    required_weights = {"immediate_score", "empty_cells", "monotonicity", "maximum_tile_corner"}
-    if not isinstance(weights, dict) or set(weights) != required_weights or not all(
-        isinstance(value, int) and not isinstance(value, bool) for value in weights.values()
+    required_weights = {
+        "immediate_score",
+        "empty_cells",
+        "monotonicity",
+        "maximum_tile_corner",
+    }
+    if (
+        not isinstance(weights, dict)
+        or set(weights) != required_weights
+        or not all(
+            isinstance(value, int) and not isinstance(value, bool)
+            for value in weights.values()
+        )
     ):
-        raise ValueError(f"teacher weights must be integer values for {sorted(required_weights)}")
+        raise ValueError(
+            f"teacher weights must be integer values for {sorted(required_weights)}"
+        )
     spawn = config.get("spawn_distribution")
     if not isinstance(spawn, dict) or set(spawn) != {"2", "4"}:
-        raise ValueError("teacher spawn distribution must contain exactly tiles 2 and 4")
-    if not all(isinstance(probability, (int, float)) and not isinstance(probability, bool) and probability > 0 for probability in spawn.values()):
+        raise ValueError(
+            "teacher spawn distribution must contain exactly tiles 2 and 4"
+        )
+    if not all(
+        isinstance(probability, (int, float))
+        and not isinstance(probability, bool)
+        and probability > 0
+        for probability in spawn.values()
+    ):
         raise ValueError("teacher spawn probabilities must be positive numbers")
     if not math.isclose(sum(spawn.values()), 1.0, rel_tol=0.0, abs_tol=1e-12):
         raise ValueError("teacher spawn probabilities must sum to one")
 
 
-def validate_teacher_calibration_config(config: dict[str, Any], development_config: dict[str, Any]) -> None:
+def validate_teacher_calibration_config(
+    config: dict[str, Any], development_config: dict[str, Any]
+) -> None:
     validate_evaluation_config(development_config)
     if config.get("schema_version") != "game-2048/teacher-calibration-config/v1":
         raise ValueError("unsupported teacher calibration config schema")
@@ -634,14 +786,25 @@ def validate_teacher_calibration_config(config: dict[str, Any], development_conf
         "sha256": sha256_json(development_config),
     }
     if config.get("development_config_ref") != expected_ref:
-        raise ValueError("teacher calibration development config reference or hash mismatch")
+        raise ValueError(
+            "teacher calibration development config reference or hash mismatch"
+        )
     budgets = config.get("budgets")
-    if not isinstance(budgets, dict) or set(budgets) != {"max_games", "max_moves_per_game", "per_move_milliseconds"}:
+    if not isinstance(budgets, dict) or set(budgets) != {
+        "max_games",
+        "max_moves_per_game",
+        "per_move_milliseconds",
+    }:
         raise ValueError("teacher calibration budgets are incomplete")
     seeds = development_config["seed_namespaces"]["development"]["fixture_seeds"]
     if budgets["max_games"] != len(seeds):
-        raise ValueError("teacher calibration must use exactly the tracked development seeds")
-    if not all(isinstance(budgets[name], (int, float)) and budgets[name] > 0 for name in budgets):
+        raise ValueError(
+            "teacher calibration must use exactly the tracked development seeds"
+        )
+    if not all(
+        isinstance(budgets[name], (int, float)) and budgets[name] > 0
+        for name in budgets
+    ):
         raise ValueError("teacher calibration budgets must be positive")
     validate_teacher_policy_config(config.get("teacher", {}))
     scope = config.get("scope")
@@ -653,7 +816,9 @@ def validate_teacher_calibration_config(config: dict[str, Any], development_conf
         "training_allowed": False,
     }
     if scope != expected_scope:
-        raise ValueError("teacher calibration scope must remain development-only and no-model")
+        raise ValueError(
+            "teacher calibration scope must remain development-only and no-model"
+        )
 
 
 def make_policy(entry: dict[str, Any], game_seed: int) -> Policy:
@@ -663,7 +828,9 @@ def make_policy(entry: dict[str, Any], game_seed: int) -> Policy:
         return GreedyOnePlyPolicy(entry["weights"], entry["action_order"])
     if entry["policy_id"] == "expectimax-bounded" and entry["revision"] == "1":
         return ExpectimaxBoundedPolicy(entry)
-    raise ValueError(f"unsupported policy {entry.get('policy_id')}@{entry.get('revision')}")
+    raise ValueError(
+        f"unsupported policy {entry.get('policy_id')}@{entry.get('revision')}"
+    )
 
 
 def _policy_ref(policy: Policy) -> dict[str, str]:
@@ -690,18 +857,26 @@ def episode_trace_payload(episode: dict[str, Any]) -> dict[str, Any]:
 
 
 def validate_episode(episode: dict[str, Any]) -> None:
-    if episode.get("schema_version") != EPISODE_SCHEMA or episode.get("environment_revision") != ENVIRONMENT_REVISION:
+    if (
+        episode.get("schema_version") != EPISODE_SCHEMA
+        or episode.get("environment_revision") != ENVIRONMENT_REVISION
+    ):
         raise ValueError("unsupported episode contract")
     records = episode.get("records")
     if not isinstance(records, list):
         raise ValueError("episode records must be a list")
-    if sum(record["score_delta"] for record in records) != episode["final_observation"]["score"]:
+    if (
+        sum(record["score_delta"] for record in records)
+        != episode["final_observation"]["score"]
+    ):
         raise ValueError("episode reward sum does not equal final score")
     expected_hash = sha256_json(episode_trace_payload(episode))
     if episode.get("trace_hash") != expected_hash:
         raise ValueError("episode trace hash mismatch")
     replayed = replay_episode(episode, validate=False)
-    if canonical_bytes(episode_trace_payload(replayed)) != canonical_bytes(episode_trace_payload(episode)):
+    if canonical_bytes(episode_trace_payload(replayed)) != canonical_bytes(
+        episode_trace_payload(episode)
+    ):
         raise ValueError("episode replay does not reproduce the recorded trajectory")
 
 
@@ -725,7 +900,9 @@ def replay_episode(episode: dict[str, Any], *, validate: bool = True) -> dict[st
     elif env.move_count >= episode["max_moves"]:
         terminal_reason = "move-budget-exhausted"
     else:
-        raise ValueError("episode ends before a terminal, invalid-decision, or move-budget condition")
+        raise ValueError(
+            "episode ends before a terminal, invalid-decision, or move-budget condition"
+        )
     replayed = {
         "schema_version": EPISODE_SCHEMA,
         "environment_revision": ENVIRONMENT_REVISION,
@@ -804,7 +981,9 @@ def run_episode(
             "reached_2048": max(final["board"]) >= 2048,
             "decisions": len(records),
             "legal_decisions": sum(record["valid"] for record in records),
-            "legal_move_rate": sum(record["valid"] for record in records) / len(records) if records else 1.0,
+            "legal_move_rate": sum(record["valid"] for record in records) / len(records)
+            if records
+            else 1.0,
             "move_count": final["move_count"],
             "terminal_completion": terminal_reason == "no-legal-actions",
         },
@@ -827,13 +1006,17 @@ def percentile(values: Sequence[float], probability: float) -> float:
     return float(ordered[lower] * (1 - fraction) + ordered[upper] * fraction)
 
 
-def aggregate_episodes(episodes: Sequence[dict[str, Any]], wall_time_ns: int) -> dict[str, Any]:
+def aggregate_episodes(
+    episodes: Sequence[dict[str, Any]], wall_time_ns: int
+) -> dict[str, Any]:
     if not episodes:
         raise ValueError("cannot aggregate an empty episode list")
     scores = [episode["metrics"]["score"] for episode in episodes]
     maximum_tiles = [episode["metrics"]["maximum_tile"] for episode in episodes]
     move_counts = [episode["metrics"]["move_count"] for episode in episodes]
-    latencies_ns = [latency for episode in episodes for latency in episode["decision_latencies_ns"]]
+    latencies_ns = [
+        latency for episode in episodes for latency in episode["decision_latencies_ns"]
+    ]
     legal = sum(episode["metrics"]["legal_decisions"] for episode in episodes)
     decisions = sum(episode["metrics"]["decisions"] for episode in episodes)
     latency_seconds = sum(latencies_ns) / 1_000_000_000
@@ -850,9 +1033,12 @@ def aggregate_episodes(episodes: Sequence[dict[str, Any]], wall_time_ns: int) ->
         "maximum_tile": {
             "mean": statistics.fmean(maximum_tiles),
             "median": statistics.median(maximum_tiles),
-            "distribution": dict(sorted(Counter(str(value) for value in maximum_tiles).items())),
+            "distribution": dict(
+                sorted(Counter(str(value) for value in maximum_tiles).items())
+            ),
         },
-        "reach_2048_rate": sum(value >= 2048 for value in maximum_tiles) / len(episodes),
+        "reach_2048_rate": sum(value >= 2048 for value in maximum_tiles)
+        / len(episodes),
         "legal_move_rate": legal / decisions if decisions else 1.0,
         "invalid_decisions": decisions - legal,
         "move_count": {
@@ -861,27 +1047,43 @@ def aggregate_episodes(episodes: Sequence[dict[str, Any]], wall_time_ns: int) ->
             "minimum": min(move_counts),
             "maximum": max(move_counts),
         },
-        "terminal_completion_rate": sum(episode["metrics"]["terminal_completion"] for episode in episodes) / len(episodes),
-        "trace_identity": [{"seed": episode["seed"], "sha256": episode["trace_hash"]} for episode in episodes],
+        "terminal_completion_rate": sum(
+            episode["metrics"]["terminal_completion"] for episode in episodes
+        )
+        / len(episodes),
+        "trace_identity": [
+            {"seed": episode["seed"], "sha256": episode["trace_hash"]}
+            for episode in episodes
+        ],
         "performance": {
             "warm_decision_latency_ms": {
-                "p50": percentile(latencies_ns, 0.5) / 1_000_000 if latencies_ns else None,
-                "p95": percentile(latencies_ns, 0.95) / 1_000_000 if latencies_ns else None,
+                "p50": percentile(latencies_ns, 0.5) / 1_000_000
+                if latencies_ns
+                else None,
+                "p95": percentile(latencies_ns, 0.95) / 1_000_000
+                if latencies_ns
+                else None,
             },
-            "decisions_per_second": decisions / latency_seconds if latency_seconds else None,
+            "decisions_per_second": decisions / latency_seconds
+            if latency_seconds
+            else None,
             "model_load_time_ms": 0,
             "evaluation_wall_time_ms": wall_time_ns / 1_000_000,
         },
     }
 
 
-def paired_bootstrap(deltas: Sequence[float], samples: int, seed: int) -> dict[str, Any]:
+def paired_bootstrap(
+    deltas: Sequence[float], samples: int, seed: int
+) -> dict[str, Any]:
     if not deltas:
         raise ValueError("paired bootstrap requires at least one delta")
     rng = SplitMix64(seed)
     means = []
     for _ in range(samples):
-        means.append(statistics.fmean(deltas[rng.randbelow(len(deltas))] for _ in deltas))
+        means.append(
+            statistics.fmean(deltas[rng.randbelow(len(deltas))] for _ in deltas)
+        )
     return {
         "revision": "1",
         "samples": samples,
@@ -913,7 +1115,9 @@ def quality_projection(cohort: dict[str, Any]) -> dict[str, Any]:
         entries.append(
             {
                 "policy": entry["policy"],
-                "episodes": [stable_episode_projection(episode) for episode in entry["episodes"]],
+                "episodes": [
+                    stable_episode_projection(episode) for episode in entry["episodes"]
+                ],
                 "aggregate": aggregate,
             }
         )
@@ -943,8 +1147,12 @@ def tracked_fixture_projection(cohort: dict[str, Any]) -> dict[str, Any]:
                 "mean_score": entry["aggregate"]["score"]["mean"],
                 "reach_2048_rate": entry["aggregate"]["reach_2048_rate"],
                 "invalid_decisions": entry["aggregate"]["invalid_decisions"],
-                "terminal_completion_rate": entry["aggregate"]["terminal_completion_rate"],
-                "games": [stable_episode_projection(episode) for episode in entry["episodes"]],
+                "terminal_completion_rate": entry["aggregate"][
+                    "terminal_completion_rate"
+                ],
+                "games": [
+                    stable_episode_projection(episode) for episode in entry["episodes"]
+                ],
             }
             for entry in cohort["entries"]
         ],
@@ -961,13 +1169,16 @@ def _paired_comparison(
     baseline_by_seed = {episode["seed"]: episode for episode in baseline["episodes"]}
     candidate_by_seed = {episode["seed"]: episode for episode in candidate["episodes"]}
     deltas = [
-        candidate_by_seed[seed]["metrics"]["score"] - baseline_by_seed[seed]["metrics"]["score"]
+        candidate_by_seed[seed]["metrics"]["score"]
+        - baseline_by_seed[seed]["metrics"]["score"]
         for seed in seeds
     ]
     return {
         "baseline": baseline["policy"],
         "candidate": candidate["policy"],
-        "score_deltas_by_seed": [{"seed": seed, "delta": delta} for seed, delta in zip(seeds, deltas)],
+        "score_deltas_by_seed": [
+            {"seed": seed, "delta": delta} for seed, delta in zip(seeds, deltas)
+        ],
         "paired_mean_score_delta": statistics.fmean(deltas),
         "paired_win_rate": sum(delta > 0 for delta in deltas) / len(deltas),
         "paired_tie_rate": sum(delta == 0 for delta in deltas) / len(deltas),
@@ -991,7 +1202,9 @@ def run_cohort(
 ) -> dict[str, Any]:
     validate_evaluation_config(config)
     seeds = config["seed_namespaces"]["development"]["fixture_seeds"]
-    selected_policies = list(policy_configs if policy_configs is not None else config["baselines"])
+    selected_policies = list(
+        policy_configs if policy_configs is not None else config["baselines"]
+    )
     selected_budgets = budgets if budgets is not None else config["budgets"]
     if len(seeds) > selected_budgets["max_games"]:
         raise ValueError("selected seeds exceed the cohort max_games budget")
@@ -1025,7 +1238,9 @@ def run_cohort(
         )
     uncertainty = config["uncertainty"]
     comparisons = [
-        _paired_comparison(entries[baseline_index], entries[candidate_index], seeds, uncertainty)
+        _paired_comparison(
+            entries[baseline_index], entries[candidate_index], seeds, uncertainty
+        )
         for baseline_index in range(len(entries))
         for candidate_index in range(baseline_index + 1, len(entries))
     ]
@@ -1077,12 +1292,18 @@ def run_teacher_calibration(
     )
 
 
-def validate_split_disjoint(train_examples: Sequence[dict[str, Any]], eval_examples: Sequence[dict[str, Any]]) -> None:
-    def identities(examples: Sequence[dict[str, Any]], split: str) -> tuple[set[int], set[str]]:
+def validate_split_disjoint(
+    train_examples: Sequence[dict[str, Any]], eval_examples: Sequence[dict[str, Any]]
+) -> None:
+    def identities(
+        examples: Sequence[dict[str, Any]], split: str
+    ) -> tuple[set[int], set[str]]:
         seeds: set[int] = set()
         boards: set[str] = set()
         for index, example in enumerate(examples):
-            if not isinstance(example, dict) or not isinstance(example.get("seed"), int):
+            if not isinstance(example, dict) or not isinstance(
+                example.get("seed"), int
+            ):
                 raise ValueError(f"{split}[{index}] must carry an integer seed")
             board = example.get("board")
             if not isinstance(board, list):
@@ -1096,7 +1317,9 @@ def validate_split_disjoint(train_examples: Sequence[dict[str, Any]], eval_examp
     seed_overlap = sorted(train_seeds & eval_seeds)
     board_overlap = sorted(train_boards & eval_boards)
     if seed_overlap or board_overlap:
-        raise ValueError(f"train/evaluation leakage: seeds={seed_overlap}, board_hashes={board_overlap}")
+        raise ValueError(
+            f"train/evaluation leakage: seeds={seed_overlap}, board_hashes={board_overlap}"
+        )
 
 
 def validate_transition_fixtures(fixtures: dict[str, Any]) -> None:
@@ -1109,14 +1332,21 @@ def validate_transition_fixtures(fixtures: dict[str, Any]) -> None:
         raise ValueError("board transition fixtures must contain at least one case")
     for case in cases:
         actual_board, actual_score = move_without_spawn(case["board"], case["action"])
-        if list(actual_board) != case["expected_board_before_spawn"] or actual_score != case["expected_score_delta"]:
+        if (
+            list(actual_board) != case["expected_board_before_spawn"]
+            or actual_score != case["expected_score_delta"]
+        ):
             raise ValueError(f"board fixture failed: {case.get('id')}")
 
 
-def qualify_tiny_cohort(cohort: dict[str, Any], expected: dict[str, Any] | None = None) -> None:
+def qualify_tiny_cohort(
+    cohort: dict[str, Any], expected: dict[str, Any] | None = None
+) -> None:
     entries = {entry["policy"]["policy_id"]: entry for entry in cohort["entries"]}
     if set(entries) != {"random-legal", "greedy-one-ply"}:
-        raise ValueError("tiny qualification requires exactly random and greedy baselines")
+        raise ValueError(
+            "tiny qualification requires exactly random and greedy baselines"
+        )
     for policy_id, entry in entries.items():
         if entry["aggregate"]["invalid_decisions"] != 0:
             raise ValueError(f"{policy_id} produced an invalid decision")
@@ -1124,10 +1354,19 @@ def qualify_tiny_cohort(cohort: dict[str, Any], expected: dict[str, Any] | None 
             raise ValueError(f"{policy_id} did not complete every tiny fixture episode")
         for episode in entry["episodes"]:
             validate_episode(episode)
-    if entries["greedy-one-ply"]["aggregate"]["score"]["mean"] <= entries["random-legal"]["aggregate"]["score"]["mean"]:
-        raise ValueError("greedy-one-ply did not beat random-legal on the tiny development fixture")
-    if expected is not None and canonical_bytes(tracked_fixture_projection(cohort)) != canonical_bytes(expected):
-        raise ValueError("tiny cohort quality/trace output does not match the tracked fixture")
+    if (
+        entries["greedy-one-ply"]["aggregate"]["score"]["mean"]
+        <= entries["random-legal"]["aggregate"]["score"]["mean"]
+    ):
+        raise ValueError(
+            "greedy-one-ply did not beat random-legal on the tiny development fixture"
+        )
+    if expected is not None and canonical_bytes(
+        tracked_fixture_projection(cohort)
+    ) != canonical_bytes(expected):
+        raise ValueError(
+            "tiny cohort quality/trace output does not match the tracked fixture"
+        )
 
 
 def teacher_fixture_projection(cohort: dict[str, Any]) -> dict[str, Any]:
@@ -1136,7 +1375,9 @@ def teacher_fixture_projection(cohort: dict[str, Any]) -> dict[str, Any]:
     return projection
 
 
-def qualify_teacher_calibration(cohort: dict[str, Any], expected_report: dict[str, Any] | None = None) -> None:
+def qualify_teacher_calibration(
+    cohort: dict[str, Any], expected_report: dict[str, Any] | None = None
+) -> None:
     entries = {entry["policy"]["policy_id"]: entry for entry in cohort["entries"]}
     required = {"random-legal", "greedy-one-ply", "expectimax-bounded"}
     if set(entries) != required:
@@ -1149,10 +1390,17 @@ def qualify_teacher_calibration(cohort: dict[str, Any], expected_report: dict[st
         for episode in entry["episodes"]:
             validate_episode(episode)
     if expected_report is not None:
-        if expected_report.get("schema_version") != "game-2048/teacher-calibration-report/v1":
+        if (
+            expected_report.get("schema_version")
+            != "game-2048/teacher-calibration-report/v1"
+        ):
             raise ValueError("unsupported tracked teacher calibration report")
-        if canonical_bytes(teacher_fixture_projection(cohort)) != canonical_bytes(expected_report.get("quality")):
-            raise ValueError("teacher calibration quality/trace output does not match the tracked report")
+        if canonical_bytes(teacher_fixture_projection(cohort)) != canonical_bytes(
+            expected_report.get("quality")
+        ):
+            raise ValueError(
+                "teacher calibration quality/trace output does not match the tracked report"
+            )
 
 
 def build_teacher_calibration_report(
@@ -1251,7 +1499,9 @@ def main() -> int:
             teacher_config = load_json(args.teacher_config)
             validate_teacher_calibration_config(teacher_config, evaluation_config)
             cohort = run_teacher_calibration(evaluation_config, teacher_config)
-            expected_report = load_json(args.expected_report) if args.expected_report else None
+            expected_report = (
+                load_json(args.expected_report) if args.expected_report else None
+            )
             qualify_teacher_calibration(cohort, expected_report)
             write_json_exclusive(args.output, cohort)
             if args.report_output:
@@ -1259,7 +1509,9 @@ def main() -> int:
                     raise ValueError("--observed-at is required with --report-output")
                 write_json_exclusive(
                     args.report_output,
-                    build_teacher_calibration_report(cohort, teacher_config, args.observed_at),
+                    build_teacher_calibration_report(
+                        cohort, teacher_config, args.observed_at
+                    ),
                 )
             print(
                 json.dumps(
@@ -1267,7 +1519,9 @@ def main() -> int:
                         "output": str(args.output),
                         "quality_hash": cohort["quality_hash"],
                         "scores": {
-                            entry["policy"]["policy_id"]: entry["aggregate"]["score"]["mean"]
+                            entry["policy"]["policy_id"]: entry["aggregate"]["score"][
+                                "mean"
+                            ]
                             for entry in cohort["entries"]
                         },
                     },
@@ -1288,7 +1542,9 @@ def main() -> int:
                     "output": str(args.output),
                     "quality_hash": cohort["quality_hash"],
                     "scores": {
-                        entry["policy"]["policy_id"]: entry["aggregate"]["score"]["mean"]
+                        entry["policy"]["policy_id"]: entry["aggregate"]["score"][
+                            "mean"
+                        ]
                         for entry in cohort["entries"]
                     },
                 },

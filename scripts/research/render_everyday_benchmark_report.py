@@ -42,7 +42,12 @@ def pareto(rows: list[dict[str, Any]], resource: str) -> dict[str, Any]:
     for row in rows:
         item = row["resources"][resource]
         if item["value"] is None:
-            excluded.append({"entry_id": row["entry_id"], "reason": f"{resource} is {item['state']}"})
+            excluded.append(
+                {
+                    "entry_id": row["entry_id"],
+                    "reason": f"{resource} is {item['state']}",
+                }
+            )
         else:
             eligible.append(row)
     frontier = []
@@ -85,14 +90,23 @@ def compile_report() -> dict[str, Any]:
                 "status": task["status"],
                 "scorer": task["scorer"],
                 "frontier_qualification": task["frontier_qualification"],
-                "official_ranking_allowed": task["publication_policy"]["official_ranking_allowed"],
+                "official_ranking_allowed": task["publication_policy"][
+                    "official_ranking_allowed"
+                ],
                 "public_fixture_ref": task["instance_set"]["path"],
             }
         )
-    qualified = [task for task in tasks if task["status"] == "qualified" and task["frontier_qualification"]["state"] == "passed"]
+    qualified = [
+        task
+        for task in tasks
+        if task["status"] == "qualified"
+        and task["frontier_qualification"]["state"] == "passed"
+    ]
     minimum = suite["publication"]["minimum_qualified_task_families"]
     if len(qualified) < minimum:
-        raise ValueError(f"qualified task count {len(qualified)} is below required {minimum}")
+        raise ValueError(
+            f"qualified task count {len(qualified)} is below required {minimum}"
+        )
 
     entries: dict[str, dict[str, Any]] = {}
     for path in sorted(ENTRY_DIR.glob("*.json")):
@@ -135,7 +149,9 @@ def compile_report() -> dict[str, Any]:
                 "track": entry["track"],
                 "accuracy": aggregate["exact_accuracy"],
                 "frontier_capability_retained": (
-                    aggregate["exact_accuracy"] / frontier_score if frontier_score else None
+                    aggregate["exact_accuracy"] / frontier_score
+                    if frontier_score
+                    else None
                 ),
                 "slices": {"unknown_recall": aggregate["unknown_recall"]},
                 "reliability": {
@@ -196,8 +212,14 @@ def fmt_measurement(item: dict[str, Any]) -> str:
 
 
 def render_html(report: dict[str, Any]) -> str:
-    task_options = "".join(f'<option value="{html.escape(task)}">{html.escape(task)}</option>' for task in report["filters"]["task_ids"])
-    track_options = "".join(f'<option value="{html.escape(track)}">{html.escape(track)}</option>' for track in report["filters"]["tracks"])
+    task_options = "".join(
+        f'<option value="{html.escape(task)}">{html.escape(task)}</option>'
+        for task in report["filters"]["task_ids"]
+    )
+    track_options = "".join(
+        f'<option value="{html.escape(track)}">{html.escape(track)}</option>'
+        for track in report["filters"]["tracks"]
+    )
     task_rows = "".join(
         "<tr>"
         f"<td>{html.escape(task['title'])}</td>"
@@ -217,13 +239,15 @@ def render_html(report: dict[str, Any]) -> str:
         f"<td>{html.escape(row['selective_risk']['state'])}</td></tr>"
         for row in report["results"]
     )
-    limitations = "".join(f"<li>{html.escape(item)}</li>" for item in report["limitations"])
+    limitations = "".join(
+        f"<li>{html.escape(item)}</li>" for item in report["limitations"]
+    )
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Everyday Specialist Benchmark V1</title>
 <style>body{{font:16px/1.5 system-ui,sans-serif;max-width:1100px;margin:40px auto;padding:0 20px;color:#171717}}table{{border-collapse:collapse;width:100%;margin:16px 0 32px}}th,td{{border-bottom:1px solid #ddd;padding:10px;text-align:left}}th{{background:#f6f6f6}}label{{margin-right:18px}}select{{margin-left:6px;padding:4px}}.note{{color:#555}}</style></head>
 <body><h1>Everyday Specialist Benchmark V1</h1>
-<p>{report['qualification']['qualified_task_families']} frontier-qualified task families. Only results sharing an instance set are compared.</p>
+<p>{report["qualification"]["qualified_task_families"]} frontier-qualified task families. Only results sharing an instance set are compared.</p>
 <h2>Qualification</h2><table><thead><tr><th>Task</th><th>Status</th><th>Frontier</th><th>Headline</th></tr></thead><tbody>{task_rows}</tbody></table>
 <h2>Sealed cohort</h2><p><label>Task <select id="task-filter"><option value="">all</option>{task_options}</select></label><label>Track <select id="track-filter"><option value="">all</option>{track_options}</select></label></p>
 <table><thead><tr><th>Entry</th><th>Track</th><th>Accuracy</th><th>Frontier retained</th><th>Unknown recall</th><th>Warm latency</th><th>Active parameters</th><th>Selective risk</th></tr></thead><tbody id="results">{result_rows}</tbody></table>

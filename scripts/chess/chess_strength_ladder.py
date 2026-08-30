@@ -66,21 +66,35 @@ def load_config(path: Path) -> dict[str, Any]:
         "qualification",
         "rungs",
     }
-    if not isinstance(config, dict) or config.get("schema_version") != CONFIG_SCHEMA or set(config) != required:
+    if (
+        not isinstance(config, dict)
+        or config.get("schema_version") != CONFIG_SCHEMA
+        or set(config) != required
+    ):
         raise ValueError("unsupported or incomplete chess strength ladder config")
     engine = config["engine"]
     if set(engine) != {"binary", "required_name_prefix", "threads", "hash_mb"}:
         raise ValueError("engine config fields are incomplete")
-    if engine["threads"] != 1 or not isinstance(engine["hash_mb"], int) or engine["hash_mb"] < 1:
+    if (
+        engine["threads"] != 1
+        or not isinstance(engine["hash_mb"], int)
+        or engine["hash_mb"] < 1
+    ):
         raise ValueError("ladder requires one Stockfish thread and positive hash size")
-    if not isinstance(config["maximum_plies"], int) or not 1 <= config["maximum_plies"] <= 512:
+    if (
+        not isinstance(config["maximum_plies"], int)
+        or not 1 <= config["maximum_plies"] <= 512
+    ):
         raise ValueError("maximum_plies must be from 1 through 512")
     bootstrap = config["bootstrap"]
     if set(bootstrap) != {"seed", "samples", "confidence"}:
         raise ValueError("bootstrap config fields are incomplete")
     if not isinstance(bootstrap["samples"], int) or bootstrap["samples"] < 100:
         raise ValueError("bootstrap requires at least 100 samples")
-    if not isinstance(bootstrap["confidence"], (int, float)) or not 0 < bootstrap["confidence"] < 1:
+    if (
+        not isinstance(bootstrap["confidence"], (int, float))
+        or not 0 < bootstrap["confidence"] < 1
+    ):
         raise ValueError("bootstrap confidence must be between zero and one")
     qualification = config["qualification"]
     required_qualification = {
@@ -92,9 +106,15 @@ def load_config(path: Path) -> dict[str, Any]:
     }
     if set(qualification) != required_qualification:
         raise ValueError("qualification config fields are incomplete")
-    if any(not isinstance(qualification[key], int) or qualification[key] < 0 for key in required_qualification - {"maximum_invalid_forfeit_rate"}):
+    if any(
+        not isinstance(qualification[key], int) or qualification[key] < 0
+        for key in required_qualification - {"maximum_invalid_forfeit_rate"}
+    ):
         raise ValueError("qualification count gates must be non-negative integers")
-    if not isinstance(qualification["maximum_invalid_forfeit_rate"], (int, float)) or not 0 <= qualification["maximum_invalid_forfeit_rate"] <= 1:
+    if (
+        not isinstance(qualification["maximum_invalid_forfeit_rate"], (int, float))
+        or not 0 <= qualification["maximum_invalid_forfeit_rate"] <= 1
+    ):
         raise ValueError("invalid-forfeit gate must be a probability")
     if not isinstance(config["rungs"], list) or not config["rungs"]:
         raise ValueError("ladder must contain rungs")
@@ -111,7 +131,11 @@ def load_config(path: Path) -> dict[str, Any]:
         "rating_state",
     }
     for rung in config["rungs"]:
-        if not isinstance(rung, dict) or set(rung) != rung_fields or rung["kind"] not in RUNG_KINDS:
+        if (
+            not isinstance(rung, dict)
+            or set(rung) != rung_fields
+            or rung["kind"] not in RUNG_KINDS
+        ):
             raise ValueError("ladder rung fields are incomplete")
         probability = rung["random_probability"]
         if not isinstance(probability, (int, float)) or not 0 <= probability <= 1:
@@ -119,13 +143,19 @@ def load_config(path: Path) -> dict[str, Any]:
         if rung["kind"] == "random-legal" and probability != 1:
             raise ValueError("random-legal rung must have probability one")
         if rung["kind"] == "blunder-mix" and (
-            not isinstance(rung["nodes"], int) or rung["nodes"] < 1 or not isinstance(rung["skill_level"], int)
+            not isinstance(rung["nodes"], int)
+            or rung["nodes"] < 1
+            or not isinstance(rung["skill_level"], int)
         ):
             raise ValueError("blunder-mix rung requires nodes and skill level")
-        if rung["kind"] == "uci-elo" and (not isinstance(rung["uci_elo"], int) or rung["uci_elo"] < 100):
+        if rung["kind"] == "uci-elo" and (
+            not isinstance(rung["uci_elo"], int) or rung["uci_elo"] < 100
+        ):
             raise ValueError("uci-elo rung requires uci_elo")
         rating = rung["calibrated_rating"]
-        if rating is not None and (not isinstance(rating, (int, float)) or isinstance(rating, bool)):
+        if rating is not None and (
+            not isinstance(rating, (int, float)) or isinstance(rating, bool)
+        ):
             raise ValueError("calibrated rating must be numeric or null")
         ids.append(rung["rung_id"])
     if len(ids) != len(set(ids)):
@@ -135,7 +165,10 @@ def load_config(path: Path) -> dict[str, Any]:
 
 def load_openings(path: Path) -> dict[str, Any]:
     openings = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(openings, dict) or openings.get("schema_version") != "chess/openings/v1":
+    if (
+        not isinstance(openings, dict)
+        or openings.get("schema_version") != "chess/openings/v1"
+    ):
         raise ValueError("unsupported chess opening set")
     rows = openings.get("openings")
     if not isinstance(rows, list) or not rows:
@@ -152,7 +185,9 @@ def load_openings(path: Path) -> dict[str, Any]:
     return openings
 
 
-def apply_calibration(config: dict[str, Any], calibration: dict[str, Any]) -> dict[str, Any]:
+def apply_calibration(
+    config: dict[str, Any], calibration: dict[str, Any]
+) -> dict[str, Any]:
     if calibration.get("schema_version") != "chess/stockfish-ladder-calibration/v1":
         raise ValueError("unsupported Stockfish ladder calibration")
     if calibration.get("config_hash") != benchmark.sha256_json(config):
@@ -160,7 +195,9 @@ def apply_calibration(config: dict[str, Any], calibration: dict[str, Any]) -> di
     rows = calibration.get("aggregate", {}).get("ratings")
     if not isinstance(rows, list):
         raise ValueError("calibration ratings are missing")
-    ratings = {row.get("rung_id"): row.get("rating") for row in rows if isinstance(row, dict)}
+    ratings = {
+        row.get("rung_id"): row.get("rating") for row in rows if isinstance(row, dict)
+    }
     if set(ratings) != {row["rung_id"] for row in config["rungs"]}:
         raise ValueError("calibration does not cover every ladder rung")
     calibrated = json.loads(json.dumps(config))
@@ -184,7 +221,9 @@ class FirstLegalPolicy:
         return legal_moves[0]
 
 
-def stockfish_options(rung: dict[str, Any], engine_config: dict[str, Any]) -> dict[str, Any]:
+def stockfish_options(
+    rung: dict[str, Any], engine_config: dict[str, Any]
+) -> dict[str, Any]:
     """Return only options that python-chess allows clients to configure."""
     options: dict[str, Any] = {
         "Threads": engine_config["threads"],
@@ -200,7 +239,9 @@ def stockfish_options(rung: dict[str, Any], engine_config: dict[str, Any]) -> di
 class StockfishRungPolicy:
     revision = "stockfish-rung-policy/v1"
 
-    def __init__(self, rung: dict[str, Any], engine_config: dict[str, Any], binary: str):
+    def __init__(
+        self, rung: dict[str, Any], engine_config: dict[str, Any], binary: str
+    ):
         self.rung = dict(rung)
         self.policy_id = rung["rung_id"]
         self._rng = random.Random(rung["seed"])
@@ -213,7 +254,10 @@ class StockfishRungPolicy:
                 self.close()
                 raise ValueError(f"Stockfish identity mismatch: {name!r}")
             self._engine.configure(stockfish_options(rung, engine_config))
-            self.engine_identity = {"name": name, "author": self._engine.id.get("author")}
+            self.engine_identity = {
+                "name": name,
+                "author": self._engine.id.get("author"),
+            }
 
     def choose(self, state: dict[str, Any], legal_moves: Sequence[str]) -> str:
         if not legal_moves:
@@ -242,19 +286,24 @@ class StockfishRungPolicy:
 
 
 def _candidate_outcome(game: dict[str, Any], candidate_id: str) -> float:
-    winner = game[game["outcome"]["winner"]]["policy_id"] if game["outcome"]["winner"] else None
+    winner = (
+        game[game["outcome"]["winner"]]["policy_id"]
+        if game["outcome"]["winner"]
+        else None
+    )
     if winner is None:
         return 0.5
     return 1.0 if winner == candidate_id else 0.0
 
 
-def bootstrap_interval(values: Sequence[float], *, samples: int, confidence: float, seed: int) -> list[float] | None:
+def bootstrap_interval(
+    values: Sequence[float], *, samples: int, confidence: float, seed: int
+) -> list[float] | None:
     if not values:
         return None
     rng = random.Random(seed)
     estimates = sorted(
-        statistics.fmean(rng.choice(values) for _ in values)
-        for _ in range(samples)
+        statistics.fmean(rng.choice(values) for _ in values) for _ in range(samples)
     )
     tail = (1 - confidence) / 2
     low = estimates[max(0, min(samples - 1, int(math.floor(tail * samples))))]
@@ -277,13 +326,15 @@ def bootstrap_paired_ladder_rating(
         opponent_rating = rung_ratings[game["rung_id"]]
         if opponent_rating is None:
             continue
-        blocks.setdefault(game["rung_id"], {}).setdefault(game["opening_id"], []).append(
-            (opponent_rating, _candidate_outcome(game, candidate_id))
-        )
+        blocks.setdefault(game["rung_id"], {}).setdefault(
+            game["opening_id"], []
+        ).append((opponent_rating, _candidate_outcome(game, candidate_id)))
     if not blocks:
         return None
     if any(len(rows) != 2 for rung in blocks.values() for rows in rung.values()):
-        raise ValueError("rating bootstrap requires complete paired-color opening blocks")
+        raise ValueError(
+            "rating bootstrap requires complete paired-color opening blocks"
+        )
     rng = random.Random(seed)
     estimates = []
     for _ in range(samples):
@@ -301,7 +352,9 @@ def bootstrap_paired_ladder_rating(
     return [low, high]
 
 
-def summarize_games(games: list[dict[str, Any]], candidate_id: str, config: dict[str, Any]) -> dict[str, Any]:
+def summarize_games(
+    games: list[dict[str, Any]], candidate_id: str, config: dict[str, Any]
+) -> dict[str, Any]:
     outcomes = [_candidate_outcome(game, candidate_id) for game in games]
     wins = sum(value == 1 for value in outcomes)
     draws = sum(value == 0.5 for value in outcomes)
@@ -312,9 +365,12 @@ def summarize_games(games: list[dict[str, Any]], candidate_id: str, config: dict
         for decision in game["decisions"]
         if decision["policy_id"] == candidate_id
     ]
-    invalid = sum(game["outcome"]["termination"] == "invalid-decision-forfeit" for game in games)
+    invalid = sum(
+        game["outcome"]["termination"] == "invalid-decision-forfeit" for game in games
+    )
     natural = sum(
-        game["outcome"]["termination"] not in {"invalid-decision-forfeit", "move-cap-draw"}
+        game["outcome"]["termination"]
+        not in {"invalid-decision-forfeit", "move-cap-draw"}
         for game in games
     )
     white_games = sum(game["candidate_color"] == "white" for game in games)
@@ -358,7 +414,9 @@ def summarize_games(games: list[dict[str, Any]], candidate_id: str, config: dict
     rating_interval = None
     rating_fit_state = "missing-calibrated-opponents"
     if rating_observations:
-        rating_estimate, rating_fit_state = chess_elo.fit_single_rating(rating_observations)
+        rating_estimate, rating_fit_state = chess_elo.fit_single_rating(
+            rating_observations
+        )
         rating_interval = bootstrap_paired_ladder_rating(
             games,
             candidate_id,
@@ -367,7 +425,9 @@ def summarize_games(games: list[dict[str, Any]], candidate_id: str, config: dict
             confidence=config["bootstrap"]["confidence"],
             seed=config["bootstrap"]["seed"] + 991,
         )
-    calibrated_values = sorted(value for value in rung_ratings.values() if value is not None)
+    calibrated_values = sorted(
+        value for value in rung_ratings.values() if value is not None
+    )
     range_state = "unavailable"
     display = None
     status = "unrated"
@@ -384,12 +444,17 @@ def summarize_games(games: list[dict[str, Any]], candidate_id: str, config: dict
             range_state = "on-calibrated-ladder"
             display = f"{round(rating_estimate):d}"
         if not failures and rating_fit_state == "finite":
-            status = "qualified-internal-rating" if range_state == "on-calibrated-ladder" else range_state
+            status = (
+                "qualified-internal-rating"
+                if range_state == "on-calibrated-ladder"
+                else range_state
+            )
     guard_rows = [
         row["policy_metadata"]
         for row in candidate_decisions
         if isinstance(row.get("policy_metadata"), dict)
-        and row["policy_metadata"].get("serving_policy") == "always-score-finishing-guards/v1"
+        and row["policy_metadata"].get("serving_policy")
+        == "always-score-finishing-guards/v1"
     ]
     guard_counts: Counter[str] = Counter(
         event["guard"]
@@ -420,7 +485,8 @@ def summarize_games(games: list[dict[str, Any]], candidate_id: str, config: dict
         "serving_policy": {
             "guarded_decisions": len(guard_rows),
             "guard_fire_rate": (
-                sum(bool(row.get("guard_fired")) for row in guard_rows) / len(guard_rows)
+                sum(bool(row.get("guard_fired")) for row in guard_rows)
+                / len(guard_rows)
                 if guard_rows
                 else None
             ),
@@ -440,8 +506,11 @@ def summarize_games(games: list[dict[str, Any]], candidate_id: str, config: dict
             "interval": rating_interval,
             "fit_state": rating_fit_state,
             "range_state": range_state,
-            "calibrated_range": calibrated_values and [calibrated_values[0], calibrated_values[-1]],
-            "diagnostic_extrapolation": rating_estimate if range_state != "on-calibrated-ladder" else None,
+            "calibrated_range": calibrated_values
+            and [calibrated_values[0], calibrated_values[-1]],
+            "diagnostic_extrapolation": rating_estimate
+            if range_state != "on-calibrated-ladder"
+            else None,
             "sample_size": len(rating_observations),
             "status": status,
             "qualification_failures": failures,
@@ -454,7 +523,9 @@ def build_candidate(args: argparse.Namespace):
     def finalize(policy, metadata):
         if args.serving_policy == "always-score-finishing-guards":
             if not hasattr(policy, "last_scores"):
-                raise ValueError("finishing guards require an always-score candidate backend")
+                raise ValueError(
+                    "finishing guards require an always-score candidate backend"
+                )
             from chess_finishing_guards import FinishingGuardPolicy
 
             policy = FinishingGuardPolicy(policy)
@@ -469,22 +540,32 @@ def build_candidate(args: argparse.Namespace):
             metadata = {
                 **metadata,
                 "serving_policy": (
-                    "always-score-legal-argmax/v1" if scored else f"native-policy/{policy.revision}"
+                    "always-score-legal-argmax/v1"
+                    if scored
+                    else f"native-policy/{policy.revision}"
                 ),
                 "serving_assistance": "none-beyond-legal-candidate-selection",
             }
         return policy, metadata
 
     if args.candidate_backend == "first-legal":
-        return finalize(FirstLegalPolicy(args.policy_id), {"backend": "first-legal", "model_ref": None})
+        return finalize(
+            FirstLegalPolicy(args.policy_id),
+            {"backend": "first-legal", "model_ref": None},
+        )
     if args.candidate_backend == "random-legal":
-        return finalize(benchmark.RandomLegalPolicy(args.candidate_seed, args.policy_id), {
-            "backend": "random-legal",
-            "model_ref": None,
-        })
+        return finalize(
+            benchmark.RandomLegalPolicy(args.candidate_seed, args.policy_id),
+            {
+                "backend": "random-legal",
+                "model_ref": None,
+            },
+        )
     if args.candidate_backend == "python-checkpoint":
         if not args.checkpoint or not args.model_ref:
-            raise ValueError("Python checkpoint candidate requires --checkpoint and --model-ref")
+            raise ValueError(
+                "Python checkpoint candidate requires --checkpoint and --model-ref"
+            )
         from chess_python_checkpoint import PythonCheckpointChessPolicy
 
         policy = PythonCheckpointChessPolicy(
@@ -494,23 +575,29 @@ def build_candidate(args: argparse.Namespace):
             device=args.candidate_device,
             candidate_batch_size=args.candidate_batch_size,
         )
-        return finalize(policy, {
-            "backend": "python-checkpoint",
-            "model_ref": args.model_ref,
-            "checkpoint_sha256": policy.checkpoint_sha256,
-            "device": policy.device,
-            "model_load_time_ms": policy.model_load_time_ms,
-        })
+        return finalize(
+            policy,
+            {
+                "backend": "python-checkpoint",
+                "model_ref": args.model_ref,
+                "checkpoint_sha256": policy.checkpoint_sha256,
+                "device": policy.device,
+                "model_load_time_ms": policy.model_load_time_ms,
+            },
+        )
     if not args.model or not args.model_ref:
         raise ValueError("MLX candidate requires --model and --model-ref")
     from chess_mlx_pilot import MlxChessPolicy
 
     policy = MlxChessPolicy(args.model, args.model_ref, args.policy_id)
-    return finalize(policy, {
-        "backend": "mlx",
-        "model_ref": args.model_ref,
-        "model_load_time_ms": policy.model_load_time_ms,
-    })
+    return finalize(
+        policy,
+        {
+            "backend": "mlx",
+            "model_ref": args.model_ref,
+            "model_load_time_ms": policy.model_load_time_ms,
+        },
+    )
 
 
 def run_ladder(
@@ -524,16 +611,28 @@ def run_ladder(
 ) -> dict[str, Any]:
     games: list[dict[str, Any]] = []
     identities: dict[str, Any] = {}
-    factory = opponent_factory or (lambda rung: StockfishRungPolicy(rung, config["engine"], binary))
+    factory = opponent_factory or (
+        lambda rung: StockfishRungPolicy(rung, config["engine"], binary)
+    )
     for rung_index, rung in enumerate(config["rungs"]):
         for opening_index, opening in enumerate(openings["openings"]):
             for candidate_color in ("white", "black"):
-                seeded_rung = {**rung, "seed": rung["seed"] + rung_index * 10000 + opening_index * 2 + (candidate_color == "black")}
+                seeded_rung = {
+                    **rung,
+                    "seed": rung["seed"]
+                    + rung_index * 10000
+                    + opening_index * 2
+                    + (candidate_color == "black"),
+                }
                 opponent = factory(seeded_rung)
                 try:
                     if opponent.engine_identity is not None:
                         identities[rung["rung_id"]] = opponent.engine_identity
-                    white, black = (candidate, opponent) if candidate_color == "white" else (opponent, candidate)
+                    white, black = (
+                        (candidate, opponent)
+                        if candidate_color == "white"
+                        else (opponent, candidate)
+                    )
                     game = benchmark.run_game(
                         white,
                         black,
@@ -557,13 +656,20 @@ def run_ladder(
         "ladder_id": config["ladder_id"],
         "config_hash": benchmark.sha256_json(config),
         "opening_set_id": openings["opening_set_id"],
-        "candidate": {"policy_id": candidate.policy_id, "revision": candidate.revision, **candidate_metadata},
+        "candidate": {
+            "policy_id": candidate.policy_id,
+            "revision": candidate.revision,
+            **candidate_metadata,
+        },
         "engine": {
             "binary": binary,
             "binary_sha256": hashlib.sha256(Path(binary).read_bytes()).hexdigest(),
             "identities": identities,
         },
-        "runtime": {"python": platform.python_version(), "python_chess": chess.__version__},
+        "runtime": {
+            "python": platform.python_version(),
+            "python_chess": chess.__version__,
+        },
         "calibration": calibration_metadata,
         "aggregate": summarize_games(games, candidate.policy_id, config),
         "games": games,
@@ -600,7 +706,9 @@ def main() -> int:
         calibration_metadata=calibration_metadata,
     )
     benchmark.write_json_exclusive(args.output, result)
-    print(json.dumps({"output": str(args.output), **result["aggregate"]}, sort_keys=True))
+    print(
+        json.dumps({"output": str(args.output), **result["aggregate"]}, sort_keys=True)
+    )
     return 0
 
 

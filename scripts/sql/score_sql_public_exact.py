@@ -60,7 +60,9 @@ def main() -> None:
     exact = sum(1 for r in rows if r["exact_match"]) / len(rows)
     print(f"sql-public-exact: exact_match={exact:.3f} (n={len(rows)})")
     if args.out:
-        Path(args.out).write_text("\n".join(json.dumps(r, sort_keys=True) for r in rows) + "\n")
+        Path(args.out).write_text(
+            "\n".join(json.dumps(r, sort_keys=True) for r in rows) + "\n"
+        )
 
 
 if __name__ == "__main__":

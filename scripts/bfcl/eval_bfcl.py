@@ -21,6 +21,7 @@ Usage:
       --max-per-category 50 \\
       --out ~/.cache/posttrainllm/evals/bfcl-v10-<timestamp>.json
 """
+
 from __future__ import annotations
 
 import argparse
@@ -30,7 +31,6 @@ import sys
 import time
 import urllib.request
 from pathlib import Path
-from typing import Any
 
 
 DEFAULT_BFCL_DIR = Path.home() / ".cache/posttrainllm/datasets/bfcl"
@@ -117,11 +117,15 @@ def _args_summary(parameters: dict) -> str:
     return ", ".join(parameters.get("properties", {}).keys())
 
 
-def build_messages(question_turns: list[list[dict]], functions: list[dict]) -> list[dict]:
+def build_messages(
+    question_turns: list[list[dict]], functions: list[dict]
+) -> list[dict]:
     """BFCL `question` is list-of-list-of-turns. We flatten to a single message list."""
     sys_msg = {
         "role": "system",
-        "content": SYSTEM_PROMPT_TEMPLATE.format(function_defs=render_function_defs(functions)),
+        "content": SYSTEM_PROMPT_TEMPLATE.format(
+            function_defs=render_function_defs(functions)
+        ),
     }
     msgs = [sys_msg]
     for turn_group in question_turns:
@@ -133,8 +137,13 @@ def build_messages(question_turns: list[list[dict]], functions: list[dict]) -> l
 # -------------------- Calling the model --------------------
 
 
-def call_model(serve_url: str, model_name: str, messages: list[dict],
-                max_tokens: int = 256, temperature: float = 0.0) -> tuple[str, float]:
+def call_model(
+    serve_url: str,
+    model_name: str,
+    messages: list[dict],
+    max_tokens: int = 256,
+    temperature: float = 0.0,
+) -> tuple[str, float]:
     """Returns (content, elapsed_ms)."""
     body = {
         "model": model_name,
@@ -142,9 +151,12 @@ def call_model(serve_url: str, model_name: str, messages: list[dict],
         "temperature": temperature,
         "max_tokens": max_tokens,
     }
-    req = urllib.request.Request(serve_url, data=json.dumps(body).encode(),
-                                   headers={"Content-Type": "application/json"},
-                                   method="POST")
+    req = urllib.request.Request(
+        serve_url,
+        data=json.dumps(body).encode(),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
     t0 = time.time()
     try:
         with urllib.request.urlopen(req, timeout=60) as r:
@@ -257,9 +269,14 @@ def score_question(predicted_calls: list[dict], ground_truth: list[dict]) -> boo
 # -------------------- Runner --------------------
 
 
-def run_category(bfcl_dir: Path, category: str, serve_url: str, model_name: str,
-                  max_per_category: int | None = None,
-                  verbose: bool = False) -> dict:
+def run_category(
+    bfcl_dir: Path,
+    category: str,
+    serve_url: str,
+    model_name: str,
+    max_per_category: int | None = None,
+    verbose: bool = False,
+) -> dict:
     questions, answers = load_category(bfcl_dir, category)
     if max_per_category:
         questions = questions[:max_per_category]
@@ -283,7 +300,7 @@ def run_category(bfcl_dir: Path, category: str, serve_url: str, model_name: str,
             passed = False
         elif is_irrelevance:
             # Pass if model correctly refrained from calling a function
-            passed = (intent != "action" or not pred_calls)
+            passed = intent != "action" or not pred_calls
         else:
             gt = answers.get(qid, {}).get("ground_truth", [])
             passed = score_question(pred_calls, gt)
@@ -292,14 +309,18 @@ def run_category(bfcl_dir: Path, category: str, serve_url: str, model_name: str,
         else:
             n_fail += 1
         if verbose and not passed:
-            print(f"  FAIL {qid}: pred={pred_calls!r} gt={answers.get(qid,{}).get('ground_truth')}")
-        results.append({
-            "id": qid,
-            "pass": passed,
-            "intent": intent,
-            "pred_calls": pred_calls,
-            "latency_ms": elapsed_ms,
-        })
+            print(
+                f"  FAIL {qid}: pred={pred_calls!r} gt={answers.get(qid, {}).get('ground_truth')}"
+            )
+        results.append(
+            {
+                "id": qid,
+                "pass": passed,
+                "intent": intent,
+                "pred_calls": pred_calls,
+                "latency_ms": elapsed_ms,
+            }
+        )
 
     n = len(questions)
     return {
@@ -309,7 +330,9 @@ def run_category(bfcl_dir: Path, category: str, serve_url: str, model_name: str,
         "fail": n_fail,
         "parse_errors": n_parse_error,
         "pass_rate": n_pass / n if n else 0.0,
-        "median_latency_ms": sorted(latencies_ms)[len(latencies_ms)//2] if latencies_ms else 0,
+        "median_latency_ms": sorted(latencies_ms)[len(latencies_ms) // 2]
+        if latencies_ms
+        else 0,
         "details": results,
     }
 
@@ -322,12 +345,23 @@ def main() -> None:
     p.add_argument("--serve-url", default="http://127.0.0.1:8765/v1/chat/completions")
     p.add_argument("--model", default="posttrainllm")
     p.add_argument("--bfcl-dir", type=Path, default=DEFAULT_BFCL_DIR)
-    p.add_argument("--categories", default=",".join(DEFAULT_CATEGORIES),
-                     help="comma-separated; available: simple, multiple, parallel, parallel_multiple, live_simple, live_multiple, live_parallel, irrelevance, live_irrelevance")
-    p.add_argument("--max-per-category", type=int, default=None,
-                     help="cap N per category for quick runs")
-    p.add_argument("--out", type=Path, default=None,
-                     help="JSON output path; default ~/.cache/posttrainllm/evals/bfcl-<timestamp>.json")
+    p.add_argument(
+        "--categories",
+        default=",".join(DEFAULT_CATEGORIES),
+        help="comma-separated; available: simple, multiple, parallel, parallel_multiple, live_simple, live_multiple, live_parallel, irrelevance, live_irrelevance",
+    )
+    p.add_argument(
+        "--max-per-category",
+        type=int,
+        default=None,
+        help="cap N per category for quick runs",
+    )
+    p.add_argument(
+        "--out",
+        type=Path,
+        default=None,
+        help="JSON output path; default ~/.cache/posttrainllm/evals/bfcl-<timestamp>.json",
+    )
     p.add_argument("-v", "--verbose", action="store_true")
     args = p.parse_args()
 
@@ -344,9 +378,14 @@ def main() -> None:
     for cat in cats:
         print(f"--- {cat} ---")
         try:
-            r = run_category(args.bfcl_dir, cat, args.serve_url, args.model,
-                              max_per_category=args.max_per_category,
-                              verbose=args.verbose)
+            r = run_category(
+                args.bfcl_dir,
+                cat,
+                args.serve_url,
+                args.model,
+                max_per_category=args.max_per_category,
+                verbose=args.verbose,
+            )
         except FileNotFoundError as e:
             # A missing category is a config error, not a soft skip — silently
             # dropping one would let a ship-gate run (v11_pipeline.sh) report
@@ -354,7 +393,9 @@ def main() -> None:
             print(f"  FATAL — {e}", file=sys.stderr)
             sys.exit(2)
         overall["categories"][cat] = r
-        print(f"  {r['pass']}/{r['n']} ({r['pass_rate']*100:.1f}%) · parse_err {r['parse_errors']} · p50 lat {r['median_latency_ms']:.0f}ms")
+        print(
+            f"  {r['pass']}/{r['n']} ({r['pass_rate'] * 100:.1f}%) · parse_err {r['parse_errors']} · p50 lat {r['median_latency_ms']:.0f}ms"
+        )
         total_pass += r["pass"]
         total_n += r["n"]
     overall["summary"] = {
@@ -363,9 +404,16 @@ def main() -> None:
         "overall_pass_rate": total_pass / total_n if total_n else 0.0,
     }
     print()
-    print(f"OVERALL: {total_pass}/{total_n} ({overall['summary']['overall_pass_rate']*100:.1f}%)")
+    print(
+        f"OVERALL: {total_pass}/{total_n} ({overall['summary']['overall_pass_rate'] * 100:.1f}%)"
+    )
 
-    out = args.out or Path.home() / ".cache/posttrainllm/evals" / f"bfcl-{overall['timestamp']}.json"
+    out = (
+        args.out
+        or Path.home()
+        / ".cache/posttrainllm/evals"
+        / f"bfcl-{overall['timestamp']}.json"
+    )
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(overall, indent=2, default=str))
     print(f"wrote: {out}")
