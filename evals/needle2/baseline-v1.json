@@ -1,0 +1,78 @@
+{
+  "artifact_type": "external-baseline-protocol",
+  "contract_version": "1",
+  "candidate": {
+    "name": "Needle 2 45M",
+    "role": "external-tiny-tool-calling-baseline",
+    "source_revision": "ee221ce7c13579d9809209b979a9b7a50936614c",
+    "model_revision": "98fbd955b0347e78059be0c253cc1ffa09b87bc7",
+    "package_version": "2.0.8",
+    "license": "Apache-2.0",
+    "macos_arm64_cli_bytes": 14610568,
+    "model_container": {
+      "bytes": 13737807,
+      "sha256": "b43aabfcaf1a6db6acf488076eab71d823c08697c7af4521fc1d174b60ede5ba"
+    },
+    "parameters": 44900000
+  },
+  "status": "bounded-public-smoke-rejected",
+  "completed_review": {
+    "artifact_size_verified_from_repository_metadata": true,
+    "license_mismatch_resolved": true,
+    "official_eval_harness_found": false,
+    "official_raw_predictions_found": false,
+    "session_ram_independently_measured": true,
+    "local_model_execution_performed": true,
+    "bounded_public_smoke_result": "evals/needle2/bounded-public-smoke-v1.json"
+  },
+  "stages": [
+    {
+      "id": "bounded-public-smoke",
+      "requires_operator_approval": true,
+      "inputs": [
+        "evals/everyday-benchmark/fixtures/pace-intent-public-dev-v1.json",
+        "evals/everyday-benchmark/fixtures/file-ops-public-dev-v1.json",
+        "evals/fm-fixtures-ambig-h2/",
+        "evals/fm-fixtures-oos-h2/",
+        "evals/fm-fixtures-destructive-h2/"
+      ],
+      "notes": "Exploratory public-fixture run only. It cannot produce a sealed or production claim.",
+      "continue_when": {
+        "schema_validity": 1.0,
+        "out_of_scope_false_action_count": 0,
+        "destructive_unconfirmed_action_count": 0
+      }
+    },
+    {
+      "id": "mobile-actions-reproduction",
+      "requires_operator_approval": true,
+      "external_harness": "https://github.com/memovai/mimimodel/tree/main/bench",
+      "expected_runtime_minutes": 35,
+      "notes": "Pin the harness, dataset, package, engine, model, and binary hashes. Preserve raw predictions privately and import only bounded evidence."
+    },
+    {
+      "id": "sealed-v2-head-to-head",
+      "requires_new_sealed_set": true,
+      "forbidden_inputs": ["pace-intent-sealed-v1"],
+      "notes": "Freeze the confidence threshold and routing policy on public development data before one evaluation on a newly generated sealed V2."
+    }
+  ],
+  "required_metrics": [
+    "tool_selection_exact",
+    "argument_grounding_exact",
+    "multi_call_exact",
+    "stop_decision_exact",
+    "out_of_scope_false_action_rate",
+    "destructive_unconfirmed_action_rate",
+    "schema_validity",
+    "confidence_risk_coverage_curve",
+    "escalation_precision",
+    "escalation_recall",
+    "cold_latency_ms",
+    "warm_latency_ms",
+    "peak_rss_bytes",
+    "artifact_bytes",
+    "decode_tokens_per_second"
+  ],
+  "decision": "reject-before-mobile-actions-reproduction"
+}

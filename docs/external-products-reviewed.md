@@ -31,6 +31,7 @@ Every external review should answer:
 | Castform RL fine-tune platform | Composite rewards and trace-driven data loops | Mapped into composite reward, trace-to-data, reasoning-depth classification | `partially-adopted` | Integrate reward framework with training loops before RLVR |
 | Cline / agent context hierarchy research | Structured-output enforcement and context hierarchy patterns | Added deferred tools/context hierarchy learnings | `partially-adopted` | Revisit only when coding-agent product returns |
 | Gigatoken | SIMD, cache-heavy bulk BPE can make first-pass tokenization dramatically faster on large corpora, including Qwen on Apple Silicon | No current blocker solved; keep as an optional offline data-prep accelerator, not a core/default tokenizer | `parked` | Revisit only for multi-GB corpora or measured tokenization above 10% of run time; require exact token-ID parity and bounded peak-RSS checks on the real tokenizer/corpus |
+| Needle 2 | A 44.9M call-only model combines top-five tool retrieval, schema-constrained decoding, confidence escalation, bounded context, quantization, and a roughly 14 MB packaged Mac artifact | A 94-case local smoke produced valid schemas but only 34.0% tool exactness, eight out-of-scope false calls, and two destructive action calls; its confidence gate offered no useful safe coverage | `reviewed-rejected` | Stop before the longer mobile-actions reproduction; do not adopt or fine-tune this base artifact without a new task-specific hypothesis |
 
 ## Gaps Exposed By Reviews
 
