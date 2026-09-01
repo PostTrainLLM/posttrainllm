@@ -1,15 +1,13 @@
 # posttrainllm Closure and Fresh-Experiment Gate
 
 The historical model and experiment work is fully accounted for. Issue #136 is
-the sole open issue and contains no remaining model-training, experiment,
-recipe, or learning-path task. Its local completion pass is green: serial Swift
-and browser builds, current CLI runtime evidence, responsive rendered review,
-dependency-security disposition, completion validation, tests, and coverage
-all pass. Only commit/push, current-SHA CI, deployment, live guest verification,
-and final status reconciliation remain. This document preserves the factory
-sequence as lab context. It is not a second task queue.
+closed. Serial Swift and browser builds, current CLI runtime evidence,
+responsive rendered review, dependency-security disposition, completion
+validation, tests, coverage, current-SHA CI, deployment, and the live guest
+audit all pass. This document preserves the factory sequence as lab context.
+It is not a second task queue.
 
-After the release receipt closes #136, fresh work begins only when the owner has
+Fresh work begins only when the owner has
 chosen a new question—normally after completing a relevant path in
 `docs/learn/path-registry.json`—and opens a scoped GitHub Issue that names:
 
@@ -41,12 +39,9 @@ not imply that a later one happened.
 | Native CLI        | Serial release build, discovery/runtime smoke, and Xcode tests pass on the current source                                                               | **Passed**: release build and 107-entry runtime catalog pass; 218 Xcode tests pass, 6 optional-fixture tests skip, production coverage 32.51% |
 | Browser build     | Production Astro/docs/agent build and internal-link checker pass                                                                                        | **Passed**: 46 app pages, 310 docs pages, 358 paired agent surfaces, and 109,364 internal links checked                                      |
 | Rendered UI       | `/`, `/experiments`, `/recipes`, `/learn`, Needle, Parakeet, and CLI docs pass keyboard, interaction, console, overflow, and 390/768/1440 px inspection | **Passed**: all 21 route/viewport checks are green with zero overflow, console, page, request, or P0/P1 failures                             |
-| Published release | Exact source is committed and pushed, current-SHA CI is green, deployment succeeds, and live guest checks match the source                              | **Not started**; `origin/main` and the live site still serve `2e5b1ce`                                                                     |
+| Published release | Exact source is committed and pushed, current-SHA CI is green, deployment succeeds, and live guest checks match the source                              | **Passed**: `ebe1ba6`, CI run `33561299127`, deploy run `33562477716`, and all 21 live route/viewport checks                                |
 
-Approval for heavy compilation does not imply approval to commit, push, or
-deploy. The operator must authorize each external mutation explicitly.
-
-When authorized, run the boundary in this order:
+The completed release ran the boundary in this order:
 
 1. Build and test the native CLI serially; run `commands`, `help`, `version`,
    unknown-command, and factory/experimental discovery smokes against that
@@ -57,11 +52,11 @@ When authorized, run the boundary in this order:
    and 1440 px. Kill every preview/browser process started for the review.
 4. Re-run completion, test, coverage, quality, and `git diff --check` after any
    fixes.
-5. With separate source-publication approval, commit and push the exact checked
-   tree, wait for current-SHA CI, explicitly trigger deployment, and verify the
-   live guest journeys.
+5. With source-publication approval, commit and push the exact checked tree,
+   wait for current-SHA CI, explicitly trigger deployment, and verify the live
+   guest journeys.
 6. Reconcile `PROJECT_STATUS.md` and Issue #136 only after the live SHA and
-   surfaces match. Then close the project from the AI-work perspective.
+   surfaces match, then close the project from the AI-work perspective.
 
 ## Retained Factory Thesis
 
