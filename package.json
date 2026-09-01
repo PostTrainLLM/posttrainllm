@@ -6,8 +6,9 @@
     "format:check": "node scripts/quality/check-code-format.mjs",
     "lint": "node scripts/quality/check-code-lint.mjs",
     "typecheck": "pnpm --dir browser run typecheck",
-    "test": "pnpm --dir browser test && bash evals/common-smoke.sh",
+    "test": "pnpm --dir browser test && bash evals/common-smoke.sh && bash evals/cli-surface-smoke.sh",
     "test:coverage": "pnpm --dir browser test:coverage",
+    "completion:check": "bash evals/project-completion-smoke.sh && bash evals/attempt-ledger-smoke.sh && bash evals/technique-inventory-smoke.sh && bash evals/learning-roadmap-smoke.sh && bash evals/cli-surface-smoke.sh",
     "quality:unused": "node scripts/quality/check-unused-code.mjs",
     "quality:complexity": "node scripts/quality/check-complexity.mjs",
     "quality:duplication": "node scripts/quality/check-duplication.mjs",
@@ -16,11 +17,11 @@
     "quality": "pnpm run format:check && pnpm run lint && pnpm run quality:unused && pnpm run quality:complexity && pnpm run quality:duplication && pnpm run quality:cycles && pnpm run quality:dependencies"
   },
   "devDependencies": {
-    "jscpd": "5.0.14",
-    "knip": "6.32.1",
+    "jscpd": "5.1.1",
+    "knip": "6.34.0",
     "prettier": "3.9.6",
     "prettier-plugin-astro": "0.14.1",
-    "wrangler": "^4.120.1"
+    "wrangler": "^4.128.0"
   },
   "pnpm": {
     "overrides": {

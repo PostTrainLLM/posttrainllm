@@ -1,3 +1,8 @@
+---
+sidebar:
+  order: 202606170
+---
+
 # Step-back: what we have, the wall, and the ROI menu
 
 Date: 2026-06-17. A deliberate pause to inventory the assets, name the wall, and

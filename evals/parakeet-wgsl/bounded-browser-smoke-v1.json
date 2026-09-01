@@ -1,0 +1,93 @@
+{
+  "artifact_type": "external-browser-baseline-result",
+  "contract_version": "1",
+  "candidate": {
+    "name": "parakeet.wgsl",
+    "source_revision": "8f654eedd8a19fec48cbbe57f9f3a972fedc96e3",
+    "package_version": "1.0.1",
+    "software_license": "MIT",
+    "model": "nvidia/parakeet-tdt-0.6b-v2",
+    "model_revision": "ae9ad07059c7c739ffaf932226a8fe64ae2620b0",
+    "model_license": "CC-BY-4.0",
+    "model_manifest_sha256": "11a359db3d050fd82b002c745b24a5280f3ff13a76834b548df671c95c786c65"
+  },
+  "protocol": {
+    "date": "2026-09-01",
+    "browser": "Chrome",
+    "origin": "localhost",
+    "source_boundary": "Pinned upstream demo consuming the built package through its public API",
+    "sample": {
+      "name": "kennedy.mp3",
+      "bytes": 3091941,
+      "sha256": "dc12e3163c0da5f7fdfbfa4b4dfd0219d0d1c6c432d98c3b4a173829419f6f3f",
+      "audio_duration_seconds": 1030.486875
+    },
+    "full_corpus_benchmark_run": false,
+    "controlled_whisperkit_comparison_run": false
+  },
+  "support": {
+    "supported": true,
+    "errors": [],
+    "warnings": [],
+    "adapter_vendor": "apple",
+    "adapter_architecture": "metal-3",
+    "fallback_adapter": false,
+    "precision": "fp16",
+    "kernel_backend": "subgroups",
+    "required_features": ["shader-f16", "subgroups"]
+  },
+  "model_and_memory": {
+    "manifest_listed_bytes": 405363502,
+    "packed_download_bytes": 405063936,
+    "cached_asset_count": 29,
+    "cached_bytes": 405252493,
+    "model_runtime_gpu_bytes": 404930560,
+    "model_steady_gpu_bytes": 413583616,
+    "activation_arena_bytes": 92406272,
+    "feature_staging_bytes": 30740480,
+    "transient_weight_scratch_bytes": 8650752,
+    "unified_browser_peak_rss_measured": false
+  },
+  "cold_observation": {
+    "starting_cached_bytes": 0,
+    "download_fraction_after_approximately_10_seconds": 0.109,
+    "download_fraction_after_approximately_40_seconds": 0.555,
+    "inference_visible_by_approximately_seconds": 71,
+    "result_observed_by_approximately_seconds": 91,
+    "note": "Polling bounds, not an exact cold-start timer. The runtime totalMs metric excludes model download and initialization."
+  },
+  "inference_runs": [
+    {
+      "kind": "first-after-cold-load",
+      "total_ms": 7225.0,
+      "realtime_factor": 142.6279
+    },
+    { "kind": "warm", "total_ms": 7800.0, "realtime_factor": 132.1 },
+    { "kind": "warm", "total_ms": 7680.0, "realtime_factor": 134.2 },
+    {
+      "kind": "warm-network-observed",
+      "total_ms": 7748.7,
+      "realtime_factor": 132.9884
+    }
+  ],
+  "repeatability": {
+    "warm_transcripts_identical": true,
+    "transcript_characters": 11661,
+    "transcript_sha256": "d857a2e16257841a1db12a2314209521d57be5b62af15cd0ba7906ac9f1615e4"
+  },
+  "warm_network_observation": {
+    "external_requests_observed": 0,
+    "requests_observed": [
+      "http://127.0.0.1:4179/@fs/private/tmp/posttrainllm-parakeet.ymgxAk/source/dist/assets/streaming-decoder.worker-FBmsOjt7.js?worker_file&type=module",
+      "blob:http://127.0.0.1:4179/c6cca2b3-df53-495b-b1c8-4fd64124ebc2"
+    ],
+    "scope": "Chrome DevTools observation on the main tab during one warm transcription"
+  },
+  "accuracy": {
+    "reference_transcript_scored": false,
+    "wer": null,
+    "note": "The output was coherent and repeatable but contained visible name, phrase, and duplication errors. This smoke does not establish accuracy parity."
+  },
+  "decision": "advance-to-controlled-browser-asr-comparison",
+  "reason": "The published package works on Apple WebGPU, is extremely fast on a long public fixture, reuses its verified local cache, and produced deterministic warm output. Product adoption still needs a shared accuracy/domain set against WhisperKit plus explicit download UX and browser compatibility checks."
+}

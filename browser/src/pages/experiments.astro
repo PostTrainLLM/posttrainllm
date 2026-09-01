@@ -1,0 +1,628 @@
+---
+import Default from "../layouts/Default.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import "../styles/system.css";
+import {
+  experimentLearningHref,
+  experimentPublicHref,
+  experimentRecipeHref,
+} from "../data/experimentArchive";
+import attemptPayload from "../../../docs/attempts.json";
+
+type Attempt = (typeof attemptPayload.attempts)[number];
+
+const attempts = attemptPayload.attempts as Attempt[];
+const statusOrder = [
+  "worked",
+  "worked-with-caveat",
+  "failed",
+  "regressed",
+  "inconclusive",
+  "superseded",
+  "rejected",
+  "blocked",
+] as const;
+const labels: Record<string, string> = {
+  worked: "worked",
+  "worked-with-caveat": "worked · caveat",
+  failed: "failed",
+  regressed: "regressed",
+  inconclusive: "inconclusive",
+  superseded: "superseded",
+  rejected: "rejected",
+  blocked: "blocked",
+};
+const confidenceLabels: Record<string, string> = {
+  exact: "direct evidence",
+  inferred: "inferred cause",
+  "missing-evidence": "evidence gap",
+  "not-applicable": "no failure claim",
+};
+const counts = Object.fromEntries(
+  statusOrder.map((status) => [
+    status,
+    attempts.filter((attempt) => attempt.status === status).length,
+  ]),
+);
+const families = [...new Set(attempts.map((attempt) => attempt.family))].sort();
+const exact = attempts.filter(
+  (attempt) => attempt.failure_reason_confidence === "exact",
+).length;
+---
+
+<Default
+  title="Every experiment — posttrainllm"
+  description="The complete PostTrainLLM experiment archive: every worked, failed, regressed, inconclusive, superseded, and rejected attempt with evidence and a reusable lesson."
+>
+  <SiteHeader mode="instrument" active="experiments" />
+  <main id="main" class="experiments-page">
+    <header class="hero">
+      <p class="kicker">
+        closed evidence lab · schema v{attemptPayload.schema_version}
+      </p>
+      <h1>Every experiment. Including the ones that said no.</h1>
+      <p class="lede">
+        This is the complete evidence-backed history of posttrainllm. Nothing is
+        queued or quietly “not tried.” Each historical question ends in a
+        measured result or a final disposition, with the lesson preserved for
+        your next fresh experiment.
+      </p>
+      <div class="summary" aria-label="Experiment archive summary">
+        <div>
+          <strong>{attempts.length}</strong><span>accounted attempts</span>
+        </div>
+        <div><strong>0</strong><span>unresolved attempts</span></div>
+        <div><strong>{exact}</strong><span>exact-evidence records</span></div>
+        <div>
+          <strong>{families.length}</strong><span>experiment families</span>
+        </div>
+      </div>
+      <nav class="hero-links" aria-label="Experiment learning links">
+        <a href="/docs/attempt-ledger">Read the narrative ledger →</a>
+        <a href="/recipes">Open reproducible recipes →</a>
+        <a href="/learn">Start the learning lab →</a>
+      </nav>
+    </header>
+
+    <section class="outcomes" aria-labelledby="outcome-title">
+      <div class="section-heading">
+        <div>
+          <p class="kicker">outcomes</p>
+          <h2 id="outcome-title">The shape of the work</h2>
+        </div>
+        <p>Negative results remain first-class evidence.</p>
+      </div>
+      <div class="outcome-grid">
+        {
+          statusOrder.map((status) => (
+            <button
+              type="button"
+              class="outcome"
+              data-filter-status={status}
+              data-tone={status}
+              aria-pressed="false"
+            >
+              <strong>{counts[status]}</strong>
+              <span>{labels[status]}</span>
+            </button>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="archive" aria-labelledby="archive-title">
+      <div class="archive-head">
+        <div>
+          <p class="kicker">search the lab</p>
+          <h2 id="archive-title">All recorded attempts</h2>
+        </div>
+        <p id="result-count" aria-live="polite">
+          Showing all {attempts.length}
+        </p>
+      </div>
+      <div class="controls" role="search">
+        <label>
+          <span>Search</span>
+          <input
+            id="experiment-search"
+            type="search"
+            placeholder="Needle, SQL, WebGPU, safety…"
+          />
+        </label>
+        <label>
+          <span>Family</span>
+          <select id="experiment-family">
+            <option value="">All families</option>
+            {
+              families.map((family) => (
+                <option value={family}>{family.replaceAll("-", " ")}</option>
+              ))
+            }
+          </select>
+        </label>
+        <button id="experiment-reset" type="button">Reset</button>
+      </div>
+
+      <div id="experiment-list" class="experiment-list">
+        {
+          attempts.map((attempt) => (
+            <article
+              class="experiment"
+              data-family={attempt.family}
+              data-status={attempt.status}
+              data-search={`${attempt.name} ${attempt.family} ${attempt.evidence} ${attempt.lesson} ${attempt.next_action} ${"objective" in attempt ? attempt.objective : ""} ${"methods" in attempt ? attempt.methods.join(" ") : ""} ${"bases" in attempt ? attempt.bases.join(" ") : ""}`.toLowerCase()}
+            >
+              <div class="experiment-top">
+                <span class="family">
+                  {attempt.family.replaceAll("-", " ")}
+                </span>
+                <span class="status" data-tone={attempt.status}>
+                  {labels[attempt.status] ?? attempt.status}
+                </span>
+              </div>
+              <h3>{attempt.name}</h3>
+              {"methods" in attempt && attempt.methods.length > 0 && (
+                <ul
+                  class="methods"
+                  aria-label={`Methods used by ${attempt.name}`}
+                >
+                  {attempt.methods.map((method) => (
+                    <li>{method}</li>
+                  ))}
+                </ul>
+              )}
+              <dl>
+                <div>
+                  <>
+                    <dt>Evidence</dt>
+                    <dd>{attempt.evidence}</dd>
+                  </>
+                </div>
+                {"failure_reason" in attempt && attempt.failure_reason && (
+                  <div>
+                    <dt>Why it stopped</dt>
+                    <dd>{attempt.failure_reason}</dd>
+                  </div>
+                )}
+                <div>
+                  <>
+                    <dt>Learning</dt>
+                    <dd>{attempt.lesson}</dd>
+                  </>
+                </div>
+                <div>
+                  <>
+                    <dt>Disposition</dt>
+                    <dd>{attempt.next_action}</dd>
+                  </>
+                </div>
+              </dl>
+              <footer>
+                <span>
+                  {confidenceLabels[attempt.failure_reason_confidence]}
+                </span>
+                <nav aria-label={`Links for ${attempt.name}`}>
+                  <a href={experimentPublicHref(attempt)}>Proof →</a>
+                  <a href={experimentRecipeHref(attempt)}>Recipes →</a>
+                  <a href={experimentLearningHref(attempt)}>Learn →</a>
+                </nav>
+              </footer>
+            </article>
+          ))
+        }
+      </div>
+      <p id="empty-state" hidden>No experiments match those filters.</p>
+    </section>
+
+    <aside class="closure">
+      <strong>Archive closed; lab open.</strong>
+      <p>
+        These records are not a hidden backlog. New work starts only when you
+        open a fresh question after learning, freeze its ruler, and create a new
+        recipe and experiment ID.
+      </p>
+    </aside>
+  </main>
+</Default>
+
+<script>
+  import { experimentMatches } from "../data/experimentArchive";
+
+  const search = document.querySelector<HTMLInputElement>("#experiment-search");
+  const family =
+    document.querySelector<HTMLSelectElement>("#experiment-family");
+  const reset = document.querySelector<HTMLButtonElement>("#experiment-reset");
+  const cards = [...document.querySelectorAll<HTMLElement>(".experiment")];
+  const resultCount = document.querySelector<HTMLElement>("#result-count");
+  const empty = document.querySelector<HTMLElement>("#empty-state");
+  let status = "";
+
+  function applyFilters() {
+    const query = search?.value.trim().toLowerCase() ?? "";
+    const selectedFamily = family?.value ?? "";
+    let visible = 0;
+    for (const card of cards) {
+      const matches = experimentMatches(
+        card.dataset,
+        query,
+        selectedFamily,
+        status,
+      );
+      card.hidden = !matches;
+      if (matches) visible += 1;
+    }
+    if (resultCount)
+      resultCount.textContent = `Showing ${visible} of ${cards.length}`;
+    if (empty) empty.hidden = visible !== 0;
+  }
+
+  search?.addEventListener("input", applyFilters);
+  family?.addEventListener("change", applyFilters);
+  reset?.addEventListener("click", () => {
+    if (search) search.value = "";
+    if (family) family.value = "";
+    status = "";
+    document.querySelectorAll(".outcome.is-active").forEach((item) => {
+      item.classList.remove("is-active");
+      item.setAttribute("aria-pressed", "false");
+    });
+    applyFilters();
+  });
+  document
+    .querySelectorAll<HTMLButtonElement>("[data-filter-status]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        const next = button.dataset.filterStatus ?? "";
+        status = status === next ? "" : next;
+        document.querySelectorAll(".outcome.is-active").forEach((item) => {
+          item.classList.remove("is-active");
+          item.setAttribute("aria-pressed", "false");
+        });
+        if (status) {
+          button.classList.add("is-active");
+          button.setAttribute("aria-pressed", "true");
+        }
+        applyFilters();
+        const reducedMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+        document.querySelector("#archive-title")?.scrollIntoView({
+          behavior: reducedMotion ? "auto" : "smooth",
+          block: "start",
+        });
+      });
+    });
+</script>
+
+<style>
+  :global(body) {
+    background: #0a0c0f;
+    color: #eceef2;
+  }
+  .experiments-page {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: clamp(56px, 8vw, 108px) 0 100px;
+  }
+  .hero {
+    max-width: 980px;
+  }
+  .kicker {
+    color: #48e5c2;
+    font:
+      600 12px/1.2 "Geist Mono Variable",
+      monospace;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: "Bricolage Grotesque Variable", "Geist Variable", sans-serif;
+    letter-spacing: -0.03em;
+  }
+  h1 {
+    max-width: 960px;
+    margin: 18px 0 24px;
+    font-size: clamp(48px, 8vw, 92px);
+    line-height: 0.94;
+  }
+  .lede {
+    max-width: 72ch;
+    color: #b3b9c4;
+    font-size: clamp(17px, 2vw, 21px);
+    line-height: 1.55;
+  }
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 44px;
+    background: #2a3039;
+    border: 1px solid #2a3039;
+  }
+  .summary div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 22px;
+    background: #111419;
+  }
+  .summary strong {
+    font:
+      650 30px "Geist Mono Variable",
+      monospace;
+    color: #48e5c2;
+  }
+  .summary span {
+    color: #8f97a4;
+    font-size: 13px;
+  }
+  .hero-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    margin-top: 24px;
+  }
+  .hero-links a,
+  .experiment a {
+    color: #48e5c2;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .outcomes,
+  .archive {
+    margin-top: clamp(76px, 10vw, 128px);
+  }
+  .section-heading,
+  .archive-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #2a3039;
+  }
+  .section-heading h2,
+  .archive-head h2 {
+    margin: 9px 0 0;
+    font-size: clamp(29px, 4vw, 46px);
+  }
+  .section-heading > p,
+  .archive-head > p {
+    color: #737b88;
+    margin: 0;
+  }
+  .outcome-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 22px;
+  }
+  .outcome {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px;
+    color: #eceef2;
+    background: #111419;
+    border: 1px solid #2a3039;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .outcome:hover,
+  .outcome.is-active {
+    border-color: #48e5c2;
+    background: #151c1d;
+  }
+  .outcome strong {
+    font:
+      650 26px "Geist Mono Variable",
+      monospace;
+  }
+  .outcome span {
+    color: #a6adb9;
+    font-size: 12px;
+  }
+  .controls {
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) minmax(180px, 0.45fr) auto;
+    gap: 12px;
+    margin: 22px 0;
+  }
+  .controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    color: #8f97a4;
+    font:
+      12px "Geist Mono Variable",
+      monospace;
+  }
+  .controls input,
+  .controls select,
+  .controls button {
+    min-height: 44px;
+    color: #eceef2;
+    background: #111419;
+    border: 1px solid #2a3039;
+    border-radius: 8px;
+    padding: 0 13px;
+  }
+  .controls button {
+    align-self: end;
+    cursor: pointer;
+    color: #48e5c2;
+  }
+  .experiment-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .experiment {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    background: #111419;
+    border: 1px solid #2a3039;
+    border-radius: 12px;
+  }
+  .experiment[hidden] {
+    display: none;
+  }
+  .experiment-top,
+  .experiment footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+  }
+  .family {
+    color: #8f97a4;
+    font:
+      600 11px "Geist Mono Variable",
+      monospace;
+    text-transform: uppercase;
+  }
+  .status {
+    padding: 4px 8px;
+    border: 1px solid #3b424e;
+    border-radius: 999px;
+    color: #c5cbd4;
+    font:
+      11px "Geist Mono Variable",
+      monospace;
+  }
+  [data-tone="worked"] {
+    color: #48e5c2;
+    border-color: #315d54;
+  }
+  [data-tone="worked-with-caveat"],
+  [data-tone="inconclusive"],
+  [data-tone="blocked"] {
+    color: #ffbf69;
+    border-color: #72532d;
+  }
+  [data-tone="failed"],
+  [data-tone="regressed"],
+  [data-tone="rejected"] {
+    color: #ff8a79;
+    border-color: #713c38;
+  }
+  [data-tone="superseded"] {
+    color: #9da8ff;
+    border-color: #4d5278;
+  }
+  .experiment h3 {
+    margin: 18px 0 12px;
+    font-size: 25px;
+    line-height: 1.08;
+  }
+  .methods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 18px;
+    padding: 0;
+    list-style: none;
+  }
+  .methods li {
+    padding: 3px 7px;
+    border-radius: 5px;
+    background: #1a1e25;
+    color: #8f97a4;
+    font:
+      10px "Geist Mono Variable",
+      monospace;
+  }
+  .experiment dl {
+    display: grid;
+    gap: 15px;
+    margin: 0 0 22px;
+  }
+  .experiment dl div {
+    display: grid;
+    gap: 4px;
+  }
+  .experiment dt {
+    color: #737b88;
+    font:
+      11px "Geist Mono Variable",
+      monospace;
+    text-transform: uppercase;
+  }
+  .experiment dd {
+    margin: 0;
+    color: #b9c0ca;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .experiment footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid #252a32;
+  }
+  .experiment footer span {
+    color: #737b88;
+    font:
+      11px "Geist Mono Variable",
+      monospace;
+  }
+  .experiment footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px 14px;
+  }
+  #empty-state {
+    padding: 48px;
+    text-align: center;
+    color: #8f97a4;
+    border: 1px dashed #3b424e;
+  }
+  .closure {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 28px;
+    margin-top: 72px;
+    padding: 28px 0;
+    border-block: 1px solid #2a3039;
+  }
+  .closure strong {
+    color: #48e5c2;
+    font-size: 18px;
+  }
+  .closure p {
+    margin: 0;
+    color: #a6adb9;
+    max-width: 72ch;
+  }
+  @media (max-width: 820px) {
+    .summary,
+    .outcome-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .experiment-list {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 620px) {
+    .experiments-page {
+      width: min(100% - 28px, 1180px);
+    }
+    .controls {
+      grid-template-columns: 1fr;
+    }
+    .section-heading,
+    .archive-head,
+    .closure {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    .outcome-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

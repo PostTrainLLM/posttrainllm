@@ -20,6 +20,10 @@ story is in progress upstream). What's shipped here is the
 fake-quant training. When the kernel lands, these passes plug straight
 in.
 
+**Closed-lab status:** validated with caveats. Algorithmic infrastructure and
+its smoke evidence are retained; packed-kernel ideas are conditional learning
+extensions, not unfinished project tasks.
+
 ---
 
 ## 1. GPTQReader — HF GPTQ loader

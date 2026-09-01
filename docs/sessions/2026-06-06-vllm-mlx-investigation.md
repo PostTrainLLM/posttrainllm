@@ -1,3 +1,8 @@
+---
+sidebar:
+  order: 202606062
+---
+
 # vllm-mlx Investigation
 
 Date: 2026-06-06

@@ -32,11 +32,9 @@ concurrency:
 
 jobs:
   browser:
-    # Browser/WebGPU polish and the Astro migration are parked while the
-    # factory loop is the active project center. Keeping the job definition
-    # around for workflow_dispatch/manual runs but skipping it on push/PR
-    # so parked build-time network dependencies do not fail CI. See AGENTS.md.
-    if: false
+    # The playground runtime is parked, but the public learning lab is now a
+    # release surface. Its archive, recipes, paths, docs, and static build must
+    # gate every push and PR.
     name: browser (tsc + astro build + unit tests)
     runs-on: ubuntu-latest
     steps:
@@ -103,6 +101,11 @@ jobs:
         # RUNTIME — but it DOES catch every Swift compile error. We rely
         # on the separate `xcodebuild test` step below for runtime checks.
         run: swift build
+
+      - name: Verify CLI discovery contract
+        env:
+          POSTTRAINLLM_BIN: native-mac/.build/debug/posttrainllm
+        run: bash evals/cli-surface-smoke.sh
 
       - name: Run unit tests (xcodebuild on posttrainllm-Package)
         working-directory: native-mac
@@ -389,6 +392,21 @@ jobs:
 
       - name: Run common smoke test
         run: bash evals/common-smoke.sh
+
+      - name: Run static CLI surface smoke test
+        run: bash evals/cli-surface-smoke.sh
+
+      - name: Run project completion smoke test
+        run: bash evals/project-completion-smoke.sh
+
+      - name: Run attempt-ledger smoke test
+        run: bash evals/attempt-ledger-smoke.sh
+
+      - name: Run technique-inventory smoke test
+        run: bash evals/technique-inventory-smoke.sh
+
+      - name: Run learning-roadmap smoke test
+        run: bash evals/learning-roadmap-smoke.sh
 
       - name: Run Foundry receipt smoke test
         run: bash evals/foundry-receipt-smoke.sh

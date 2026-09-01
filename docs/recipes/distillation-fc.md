@@ -9,8 +9,13 @@ quality" reduces to "small *matches* large at quality on the specific
 task" — and we win on speed/memory by construction. Speed-and-memory
 dominance is automatic; quality parity is the lever.
 
-**Status:** queued to fire when N02 base lands. All inputs are cached
-or downloadable today.
+**Final disposition:** superseded historical recipe. The proposed 22M/Phi-3
+run was never the path that produced the measured result; the later 1.7B and 4B
+tool-calling lineages in
+[`../learn/tool-calling-frontier-parity.md`](../learn/tool-calling-frontier-parity.md)
+provide the real experiment evidence. Preserve the design below as a learning
+exercise, but do not treat its unimplemented helpers or estimated numbers as a
+project backlog or achieved result.
 
 ## Why function-calling first
 
@@ -140,7 +145,7 @@ Hard distillation as above is v1. If quality parity isn't reached, escalate:
 Constrained decoding is the highest-ROI v2 — it's free (no retraining)
 and the model's output space is a JSON schema we already have.
 
-## Performance optimizations queued for v3 (after quality lands)
+## Historical v3 optimization options
 
 Quality first. **Don't optimize a model that doesn't work.** When the
 quality bar is hit, fire these in order:
@@ -154,7 +159,7 @@ quality bar is hit, fire these in order:
 3. **Speculative decoding** (B14, already shipped) — use the student as
    its own draft model with `--draft self` mode, or use a smaller draft.
    Lossless, ~2× speedup.
-4. **ANE (Apple Neural Engine) inference** (queued #193) — 22M-param
+4. **ANE (Apple Neural Engine) inference** (historical option; #193 closed) — 22M-param
    model is small enough to fit on the NE; potential 5-10× speedup on
    M5 hardware, ~0 power draw.
 5. **MLX compile + fusion** — `posttrainllm sample --compile` already
@@ -193,11 +198,11 @@ while using 1/300th the memory.
 | File | Role |
 |---|---|
 | `docs/recipes/distillation-fc.md` | this doc |
-| `scripts/distill-prep.py` | dataset sampler (TODO) |
-| `scripts/distill-label.py` | teacher inference loop (TODO) |
-| `scripts/bench-perf.sh` | tokens/sec + RSS benchmark (TODO) |
-| `~/.cache/posttrainllm/datasets/distill-fc-inputs.jsonl` | unlabeled inputs (TODO) |
-| `~/.cache/posttrainllm/datasets/distill-fc-labeled.jsonl` | (input, teacher_output) pairs (TODO) |
+| `scripts/distill-prep.py` | proposed dataset sampler; not implemented under this superseded recipe |
+| `scripts/distill-label.py` | proposed teacher loop; not implemented under this superseded recipe |
+| `scripts/bench-perf.sh` | proposed performance harness; not implemented under this superseded recipe |
+| `~/.cache/posttrainllm/datasets/distill-fc-inputs.jsonl` | proposed local input cache; not a retained artifact |
+| `~/.cache/posttrainllm/datasets/distill-fc-labeled.jsonl` | proposed local label cache; not a retained artifact |
 | `/tmp/huge-fc-distilled.tinygpt` | trained student |
 | `docs/artifacts/distill-fc-quality.jsonl` | 3-model BFCL comparison |
 

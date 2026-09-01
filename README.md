@@ -4,6 +4,12 @@ A **Mac-first LLM factory + runtime + research substrate** — and the
 browser playground that started the project. MIT-licensed, runs
 entirely locally, zero cloud.
 
+The historical build phase is now organized as a guided, buildable learning
+lab: all 75 experiments have final dispositions, 18 retained techniques have
+recipe contracts, and nine ordered learning stages produce thirteen concrete
+artifacts—from a byte-level model and LoRA adapter to an eval ruler, local
+agent, MLX package, browser runtime receipt, and causal probe dossier.
+
 The strongest measured claim: a **4B model distilled locally from ~99
 frontier rollouts on one Mac matches DeepSeek-V4-pro at 100% on a
 multi-turn agentic tool-calling gate** that Gemma-12B-qat scores 75%
@@ -11,8 +17,13 @@ on. The full writeup, methodology, and head-to-head table is
 [`docs/learn/tool-calling-frontier-parity.md`](docs/learn/tool-calling-frontier-parity.md).
 
 **[Live browser playground →](https://posttrainllm.com)**
+· [All experiments](https://posttrainllm.com/experiments)
+· [Recipe lab](https://posttrainllm.com/recipes)
+· [Learning paths](https://posttrainllm.com/learn)
+· [Buildable artifact contract](docs/learn/artifact-journey.md)
+· [CLI lab reference](docs/cli-reference.md)
 · [Mac CLI quickstart](#quickstart-mac)
-· [Current factory plan](docs/NEXT.md)
+· [Project closure and fresh-experiment gate](docs/NEXT.md)
 · [Frontier-parity result](docs/learn/tool-calling-frontier-parity.md)
 
 ![posttrainllm playground](browser/public/og-image.png)
@@ -21,35 +32,36 @@ on. The full writeup, methodology, and head-to-head table is
 
 ## What's actually in here
 
-| Surface | What it does | Where to look |
-|---|---|---|
-| **Factory CLI** (`posttrainllm`) | Data prep · post-training · eval gates · traces · packaging · serve/agent/runtime utilities. MLX-Swift on Apple Silicon. | [`native-mac/`](native-mac/), [`docs/NEXT.md`](docs/NEXT.md) |
-| **Factory docs** | Active sequence, run schema, eval protocol, packaging, and report shape. | [`docs/factory/`](docs/factory/) |
-| **Mac app** (SwiftUI) | GUI shell over the CLI. Parked except for a future minimal Factory Run Center. | [`native-mac/Sources/TinyGPTApp/`](native-mac/Sources/TinyGPTApp/), [`docs/parked/app-polish.md`](docs/parked/app-polish.md) |
-| **Eval moat** | E0 shared schema · BFCL · τ-bench · lm-eval (MLX-routed) · HumanEval (sandbox-exec) · eval-gate (CI). | [`docs/leaderboard.md`](docs/leaderboard.md), [`docs/research/mac_slm_leaderboard_v0.md`](docs/research/mac_slm_leaderboard_v0.md) |
-| **Agent runtime** | OpenAI + Ollama-compatible local serve · multi-turn loop · FSM-constrained JSON · cloud-escalate · token-preserving `.atraj` trajectories. | [`docs/agent_runtime.md`](docs/agent_runtime.md) |
-| **Interp** | SAE (per-layer + group) · SAELens export · MEMIT · ROME · tuned/logit lens · activation patching. | [`docs/techniques/interpretability.md`](docs/techniques/interpretability.md) |
-| **Trained specialists** | From-scratch classifiers + distilled/fused LLMs. Pace intent router (49.5M, 95.5%, 3ms) · file-ops distilled (4B, 100% hard gate) · ReST fused (4B, 65% OOD). | [`specialists/`](specialists/), [`specialists/registry.json`](specialists/registry.json) |
-| **Browser playground** | The original surface: GPT-2 trained from scratch in a browser tab via hand-written WebGPU. Parked for active factory work. | [`browser/`](browser/), [live](https://posttrainllm.com), [`docs/parked/browser.md`](docs/parked/browser.md) |
-| **ANE M8** | Layer-chunked Core ML chain running Qwen3-28-block on the Apple Neural Engine at ~17 tok/s. Parked until a shipped specialist needs runtime optimization. | [`docs/parked/ane-coreml.md`](docs/parked/ane-coreml.md) |
+| Surface                          | What it does                                                                                                                                                             | Where to look                                                                                                                      |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Factory CLI** (`posttrainllm`) | Data prep · post-training · eval gates · traces · packaging · serve/agent/runtime utilities. MLX-Swift on Apple Silicon. Retained as the runnable lab; no active target. | [`native-mac/`](native-mac/), [`docs/NEXT.md`](docs/NEXT.md)                                                                       |
+| **Factory docs**                 | Retained sequence, run schema, eval protocol, packaging, and report shape.                                                                                               | [`docs/factory/`](docs/factory/)                                                                                                   |
+| **Mac app** (SwiftUI)            | GUI shell over the CLI. Parked except for a future minimal Factory Run Center.                                                                                           | [`native-mac/Sources/TinyGPTApp/`](native-mac/Sources/TinyGPTApp/), [`docs/parked/app-polish.md`](docs/parked/app-polish.md)       |
+| **Eval moat**                    | E0 shared schema · BFCL · τ-bench · lm-eval (MLX-routed) · HumanEval (sandbox-exec) · eval-gate (CI).                                                                    | [`docs/leaderboard.md`](docs/leaderboard.md), [`docs/research/mac_slm_leaderboard_v0.md`](docs/research/mac_slm_leaderboard_v0.md) |
+| **Agent runtime**                | OpenAI + Ollama-compatible local serve · multi-turn loop · FSM-constrained JSON · cloud-escalate · token-preserving `.atraj` trajectories.                               | [`docs/agent_runtime.md`](docs/agent_runtime.md)                                                                                   |
+| **Interp**                       | SAE (per-layer + group) · SAELens export · MEMIT · ROME · tuned/logit lens · activation patching.                                                                        | [`docs/techniques/interpretability.md`](docs/techniques/interpretability.md)                                                       |
+| **Trained specialists**          | From-scratch classifiers + distilled/fused LLMs. Pace intent router (49.5M, 95.5%, 3ms) · file-ops distilled (4B, 100% hard gate) · ReST fused (4B, 65% OOD).            | [`specialists/`](specialists/), [`specialists/registry.json`](specialists/registry.json)                                           |
+| **Browser site + playground**    | Public experiment archive, recipes, learning paths, evidence artifacts, and the original GPT-2/WebGPU playground.                                                        | [`browser/`](browser/), [experiments](https://posttrainllm.com/experiments), [learn](https://posttrainllm.com/learn)               |
+| **ANE M8**                       | Layer-chunked Core ML chain running Qwen3-28-block on the Apple Neural Engine at ~17 tok/s. Parked until a shipped specialist needs runtime optimization.                | [`docs/parked/ane-coreml.md`](docs/parked/ane-coreml.md)                                                                           |
 
 ---
 
 ## Quickstart (Mac)
 
 ```bash
-git clone https://github.com/sarthakagrawal927/posttrainllm && cd posttrainllm/native-mac
+git clone https://github.com/PostTrainLLM/posttrainllm && cd posttrainllm/native-mac
 
 # One-time: Metal toolchain (Xcode 27+).
 xcodebuild -downloadComponent MetalToolchain
 
-# Build
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-  xcrun swift build -c release
+# Build with the currently selected full Xcode toolchain
+DEVELOPER_DIR="$(xcode-select -p)" xcrun swift build -c release
 BIN=.build/release/posttrainllm
 
 # Try the CLI
 $BIN --help
+$BIN commands
+$BIN help factory-run
 
 # Train a tiny model from scratch on the bundled corpus (~2 min)
 $BIN train --preset tiny --steps 200 \
@@ -76,8 +88,7 @@ curl http://localhost:8090/v1/chat/completions \
 **Mac app** — same project, SwiftUI frontend:
 
 ```bash
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-  xcrun swift build --product TinyGPTApp
+DEVELOPER_DIR="$(xcode-select -p)" xcrun swift build --product TinyGPTApp
 .build/debug/TinyGPTApp
 ```
 
@@ -87,15 +98,16 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
 
 Open **[posttrainllm.com](https://posttrainllm.com)**.
 
-- *Load pretrained model* — Shakespeare checkpoint, generate immediately.
-- *Train your own from scratch* — ~15 min on the larger presets,
+- _Load pretrained model_ — Shakespeare checkpoint, generate immediately.
+- _Train your own from scratch_ — ~15 min on the larger presets,
   WebGPU on Chrome/Edge 113+ and Safari 18+.
 
 To build it locally:
 
 ```bash
 bash wasm/build_wasm.sh          # needs Emscripten SDK
-cd browser && pnpm install && pnpm run dev
+pnpm install
+pnpm --dir browser run dev
 ```
 
 ---
@@ -105,20 +117,20 @@ cd browser && pnpm install && pnpm run dev
 All on a single Apple M-series laptop (primary: M5 Pro / 48 GB). No
 multi-GPU, no cloud, no asterisk.
 
-| What | Number | Source |
-|---|---|---|
-| **Multi-turn agentic hard gate, 4B distilled** | **100%** (vs DeepSeek-V4-pro 100%, Gemma-12B-qat 75%, stock 4B+plan 33%) | [`docs/learn/tool-calling-frontier-parity.md`](docs/learn/tool-calling-frontier-parity.md) §8.1 |
-| Distillation budget | ~99 frontier rollouts · LoRA SFT · 16 layers · lr 1e-5 · 4 epochs | same |
-| Decode throughput, Huge preset (96M, ctx 1024) | **696 tok/s** sustained | [`docs/PLAN.md`](docs/PLAN.md) headline metrics |
-| Decode, Mega preset (960M, ctx 1024) | **293 tok/s** | same |
-| First-token latency (TTFT) | **5.8 ms p99** | same |
-| Training step (Huge, B=8) | **42 ms/step** | same |
-| ANE chain (Qwen3 28-block, layer-chunked Core ML) | **17 tok/s** | [`docs/PLAN.md`](docs/PLAN.md) §1 |
-| Browser WebGPU end-to-end vs WASM SIMD | **2.6× → 12.1×** (curve grows with `d_model` 96 → 256) | [`docs/performance/performance.md`](docs/performance/performance.md) |
-| Largest browser-trainable model | **960M params** via Memory64 | [`browser/devlog.html`](browser/devlog.html) |
-| Loss drift, WebGPU vs WASM reference | **1.1% – 2.5%** across the curve | `tests/test_webgpu_train.mjs` |
-| First end-to-end Mac LoRA fine-tune | **−32% held-out PPL**, 788 KB adapter | [`docs/archive/WHILE_YOU_SLEPT.md`](docs/archive/WHILE_YOU_SLEPT.md) |
-| **Pace intent router, 49.5M from-scratch** | **95.5% accuracy** vs Apple FM 76.5% (+19 pp) vs Qwen3-4B 84.75% (+10.8 pp), **3ms** vs 1597ms vs 240ms, 7-class routing | [`specialists/pace-intent-router-v8/model_card.md`](specialists/pace-intent-router-v8/model_card.md) |
+| What                                              | Number                                                                                                                   | Source                                                                                               |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| **Multi-turn agentic hard gate, 4B distilled**    | **100%** (vs DeepSeek-V4-pro 100%, Gemma-12B-qat 75%, stock 4B+plan 33%)                                                 | [`docs/learn/tool-calling-frontier-parity.md`](docs/learn/tool-calling-frontier-parity.md) §8.1      |
+| Distillation budget                               | ~99 frontier rollouts · LoRA SFT · 16 layers · lr 1e-5 · 4 epochs                                                        | same                                                                                                 |
+| Decode throughput, Huge preset (96M, ctx 1024)    | **696 tok/s** sustained                                                                                                  | [`docs/PLAN.md`](docs/PLAN.md) headline metrics                                                      |
+| Decode, Mega preset (960M, ctx 1024)              | **293 tok/s**                                                                                                            | same                                                                                                 |
+| First-token latency (TTFT)                        | **5.8 ms p99**                                                                                                           | same                                                                                                 |
+| Training step (Huge, B=8)                         | **42 ms/step**                                                                                                           | same                                                                                                 |
+| ANE chain (Qwen3 28-block, layer-chunked Core ML) | **17 tok/s**                                                                                                             | [`docs/PLAN.md`](docs/PLAN.md) §1                                                                    |
+| Browser WebGPU end-to-end vs WASM SIMD            | **2.6× → 12.1×** (curve grows with `d_model` 96 → 256)                                                                   | [`docs/performance/performance.md`](docs/performance/performance.md)                                 |
+| Largest browser-trainable model                   | **960M params** via Memory64                                                                                             | [`browser/devlog.html`](browser/devlog.html)                                                         |
+| Loss drift, WebGPU vs WASM reference              | **1.1% – 2.5%** across the curve                                                                                         | `tests/test_webgpu_train.mjs`                                                                        |
+| First end-to-end Mac LoRA fine-tune               | **−32% held-out PPL**, 788 KB adapter                                                                                    | [`docs/archive/WHILE_YOU_SLEPT.md`](docs/archive/WHILE_YOU_SLEPT.md)                                 |
+| **Pace intent router, 49.5M from-scratch**        | **95.5% accuracy** vs Apple FM 76.5% (+19 pp) vs Qwen3-4B 84.75% (+10.8 pp), **3ms** vs 1597ms vs 240ms, 7-class routing | [`specialists/pace-intent-router-v8/model_card.md`](specialists/pace-intent-router-v8/model_card.md) |
 
 ---
 
@@ -190,12 +202,16 @@ and `browser/tsconfig.json`, so they move together.
 
 Start here:
 
-- [`PROJECT_STATUS.md`](PROJECT_STATUS.md) — current state and active scope.
-- [`docs/NEXT.md`](docs/NEXT.md) — the active factory sequence.
+- [`PROJECT_STATUS.md`](PROJECT_STATUS.md) — completion truth and public-release boundary.
+- [`docs/NEXT.md`](docs/NEXT.md) — closure receipt and fresh-experiment admission rule.
+- [`docs/attempt-ledger.md`](docs/attempt-ledger.md) — all 75 final experiment dispositions.
+- [`docs/recipes/registry.json`](docs/recipes/registry.json) — all 18 retained recipe contracts.
+- [`docs/learn/path-registry.json`](docs/learn/path-registry.json) — nine ready learning paths, labs, and mastery gates.
+- [`docs/learn/artifact-journey.json`](docs/learn/artifact-journey.json) — nine stages and thirteen artifacts, each with build, modify, tune, prove, and package actions.
 - [`docs/factory/`](docs/factory/) — run schema, eval protocol, packaging,
   and report templates.
-- [`docs/parked/`](docs/parked/) — paused lanes that should not compete with
-  the current factory proof.
+- [`docs/parked/`](docs/parked/) — paused lanes retained for an explicitly
+  reactivated target.
 - [`docs/learn/tool-calling-frontier-parity.md`](docs/learn/tool-calling-frontier-parity.md)
   — the strongest measured result, head-to-head methodology.
 - [`docs/agent_runtime.md`](docs/agent_runtime.md) — the agent
@@ -206,8 +222,7 @@ Start here:
   — the Mac SLM leaderboard.
 - [`native-mac/ARCHITECTURE.md`](native-mac/ARCHITECTURE.md) —
   top-down tour of the Mac codebase.
-- [`docs/PLAN.md`](docs/PLAN.md) — long historical ledger. Useful, but not the
-  active queue.
+- [`docs/PLAN.md`](docs/PLAN.md) — long historical ledger; not a task queue.
 
 Deeper:
 

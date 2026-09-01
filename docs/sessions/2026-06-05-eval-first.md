@@ -1,3 +1,8 @@
+---
+sidebar:
+  order: 202606050
+---
+
 # Session — eval-first prep before the 2-day training window
 
 **Date:** 2026-06-05 (afternoon → evening)

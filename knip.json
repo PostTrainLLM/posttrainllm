@@ -1,0 +1,64 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": [
+        "scripts/quality/**/*.mjs",
+        "scripts/release/**/*.mjs",
+        "tests/**/*.mjs"
+      ],
+      "project": [
+        "scripts/quality/**/*.mjs",
+        "scripts/release/**/*.mjs",
+        "tests/**/*.mjs"
+      ],
+      "ignore": ["scripts/archive/**"],
+      "ignoreDependencies": [
+        "jscpd",
+        "playwright",
+        "prettier",
+        "prettier-plugin-astro",
+        "wrangler"
+      ]
+    },
+    "browser": {
+      "entry": [
+        "functions/**/*.ts",
+        "*.{ts,mjs}",
+        "scripts/*.mjs",
+        "src/main.ts",
+        "src/webgpu-test.ts",
+        "src/worker.ts",
+        "src/benchmarks/types.ts",
+        "src/lib/api-timing.ts",
+        "src/lib/vitals.ts"
+      ],
+      "project": [
+        "src/**/*.{astro,ts}",
+        "functions/**/*.ts",
+        "*.{ts,mjs}",
+        "scripts/*.mjs"
+      ],
+      "ignore": ["public/**"],
+      "ignoreDependencies": ["lightningcss"],
+      "ignoreUnresolved": ["/src/main.ts", "/src/webgpu-test.ts"]
+    },
+    "docs-site": {
+      "entry": ["blume.config.ts"],
+      "project": ["blume.config.ts"],
+      "ignore": [".blume/**", "theme.css"],
+      "ignoreDependencies": [
+        "@astrojs/mdx",
+        "@shikijs/twoslash",
+        "@tailwindcss/vite",
+        "astro"
+      ],
+      "ignoreBinaries": ["blume"]
+    }
+  },
+  "ignoreIssues": {
+    "browser/src/components/Logo.astro": ["types"],
+    "browser/src/components/SiteHeader.astro": ["types"],
+    "browser/src/types.ts": ["types"]
+  }
+}

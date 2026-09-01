@@ -1,3 +1,8 @@
+---
+sidebar:
+  order: 202606171
+---
+
 # Vercel Eve and the local-agent wedge
 
 Date: 2026-06-17 (afternoon).

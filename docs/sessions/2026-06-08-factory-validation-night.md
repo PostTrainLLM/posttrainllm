@@ -1,3 +1,8 @@
+---
+sidebar:
+  order: 202606080
+---
+
 # Session — 2026-06-08, the factory-validation night
 
 **Date**: 2026-06-07 evening → 2026-06-08 early morning

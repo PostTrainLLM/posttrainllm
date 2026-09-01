@@ -1,3 +1,8 @@
+---
+sidebar:
+  order: 202606061
+---
+
 # Specialist Embedder PRD Blocker
 
 Date: 2026-06-06

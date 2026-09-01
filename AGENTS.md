@@ -167,27 +167,35 @@ lint entry points. Specs in `configs/`, guides in `docs/`, cross-cutting tests i
 This project is a sandbox: no SaaS Maker product record, deployment, or analytics
 wiring is expected unless explicitly requested.
 
-## Project sequencing (owner's call, updated 2026-07-02)
+## Closed learning lab and fresh-experiment gate (updated 2026-09-02)
 
-The active project center is now the **Mac-local specialist factory**, not
-browser polish, a coding-agent product, or broad research expansion.
+The historical build phase is complete. The repository is a **closed learning
+artifact and practical lab** centered on the Mac-local specialist factory:
+every known evidence-backed experiment has a final disposition, every retained
+technique has a recipe contract, and every recipe resolves to a hands-on
+learning path with a mastery gate. There is no active target or implicit
+backlog. Historical TODOs, blockers, PRDs, and conditional next actions are
+evidence, not authorization to continue the old project.
 
-Active loop:
+Retained factory loop:
 
 ```text
 target -> data -> post-training -> eval -> package -> report
 ```
 
-Before starting work, read:
+Before starting any fresh experiment, read:
 
 1. `PROJECT_STATUS.md` — current state and scope.
-2. `docs/NEXT.md` — active sequence only.
+2. `docs/NEXT.md` — closure receipt and fresh-experiment admission rule.
 3. `docs/factory/` — run schema, eval protocol, packaging, reports.
 4. `docs/prds/PRIORITY.md` — PRD priority map, only when PRD-level acceptance
    criteria are needed.
 5. `docs/parked/` — paused lanes that should not compete with the factory proof.
 
-Every active task must answer one of these questions:
+New implementation work requires the owner to deliberately open a fresh
+question—normally after completing the relevant learning path—and create a
+scoped GitHub Issue. Once authorized, every task must answer one of these
+questions:
 
 1. Can we prepare or improve the data?
 2. Can we post-train a candidate?
@@ -196,9 +204,10 @@ Every active task must answer one of these questions:
 5. Can we report score delta, regressions, cost, latency, RAM, tok/s, and a
    ship/reject decision?
 
-If not, park it.
+If not, it belongs in a separately scoped project. Historical TODOs, PRDs, and
+report blockers do not authorize work by themselves.
 
-Currently parked unless directly needed by the active factory run:
+Parked unless an explicitly reactivated factory run needs them:
 
 - browser/WebGPU polish and launch prep
 - Astro migration
@@ -208,6 +217,13 @@ Currently parked unless directly needed by the active factory run:
 - broad Mac app polish
 - new PRD expansion
 - unused experiment CLIs (ROME, MEMIT, SAE, LASER, GPTQ, and siblings)
+
+Completion exception (owner-approved through Issue #136): the public learning
+UI, experiment archive, recipe/path surfaces, CLI discovery, and their
+build/accessibility/link gates are active until the closure receipt is live.
+This does not reactivate WebGPU runtime polish, new model work, or broad launch
+scope. The Astro major-version migration remains approval-gated as a dependency
+change.
 
 ### Parked experimental CLI group
 

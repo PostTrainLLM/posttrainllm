@@ -14,8 +14,8 @@ An audit row is **not automatically an attempt**.
 |---|---|---|
 | Technique row | A method, feature, or implementation surface from `audit_2026.md` | This file |
 | Measured experiment | A concrete before/after run with evidence, lesson, and next action | [`../attempt-ledger.md`](../attempt-ledger.md) |
-| Recipe | A concrete application of a method to a target/eval | Target-specific backlog, such as [`sql-technique-backlog.md`](sql-technique-backlog.md) |
-| Product cleanup | CLI, source layout, or UX simplification work | PRD/backlog, not attempt ledger |
+| Recipe | A concrete application of a method to a target/eval | Closed technique lineage, such as [`sql-technique-backlog.md`](sql-technique-backlog.md) |
+| Product cleanup | CLI, source layout, or UX simplification work | Historical PRD/reference, not attempt ledger |
 
 ## Coverage Summary
 

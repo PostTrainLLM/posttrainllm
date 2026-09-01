@@ -1,4 +1,4 @@
-# SQL Technique Backlog
+# SQL Technique Lineage — Closed
 
 This is the SQL-specific ledger of methods, recipes, status, and next smallest
 tests. It exists to prevent the roadmap from looking complete just because broad
@@ -20,31 +20,25 @@ method names are present.
 | Routed public + synthetic adapters | Best current candidate | public exact `0.531`, synthetic execution `0.860` | report-ready, not package-ready |
 | Hygiene SimPO/DPO adapter | Failed hard | execution `0.860 -> 0.080`, degenerate output | retry-training |
 
-## Not Yet Tried
+## Closed Historical Proposals
 
-| Technique | Method | Concrete SQL recipe | Why It Might Help | Smallest Next Test |
+| Technique | Method | Historical proposal | Final disposition | Fresh-work rule |
 |---|---|---|---|---|
-| Candidate-selection curriculum | supervised selection / RLVR bridge | Build rows with 4-6 candidate SQL strings, train/eval the model to pick the executable/gold-equivalent answer before open generation | SQL generation is sparse-reward; selecting among candidates is easier and creates denser learning signal | Use `scripts/sql/build_sql_candidate_choice.py` on existing candidate predictions, create a tiny SFT/eval slice, compare selection accuracy by join/filter/group slices |
+| Candidate-selection curriculum | supervised selection / RLVR bridge | Build rows with 4-6 candidate SQL strings and learn to pick the executable answer | `rejected`: no frozen candidate dataset or eval existed before project closure | Reopen only as a new experiment after learning with leakage checks and a frozen selection gate |
 | Reference-anchored hygiene DPO | DPO | Retry the failed hygiene goal with a reference anchor, lower LR, fewer steps, and composed eval against the SFT adapter | Ref-free SimPO over-optimized and collapsed; reference anchoring should preserve generation quality | Same 108 pairs, frozen 50-row eval, require no execution regression and clean-SQL lift |
-| One-step offline rollout update | OAPL/ReST-style batch loop | Generate N rollouts per prompt, score offline by execution/gold/format, train one adapter update, evaluate heldout | Keeps the loop batch-first and avoids moving-target on-policy instability | Render a batch plan with `scripts/render_batch_posttrain_plan.py`, then run only after candidate-selection evidence |
-| Policy lag / stale reference | RL regularization | Keep rollout policy fixed for a batch or compare against a stale reference during preference/RL update | Prevents the optimizer from chasing its own malformed outputs | Add as a variant only after a first offline rollout update exists |
-| Controlled LoRA rank sweep | LoRA/DoRA | Sweep rank `{1,2,4,8}` on the same frozen SQL data with fixed seed/steps/LR | Existing ranks were confounded with different data/recipes; successful adapters have low effective stable rank | Run no more than one small sweep after the next target is frozen; report slice metrics and geometry |
+| One-step offline rollout update | OAPL/ReST-style batch loop | Generate N rollouts per prompt, score offline, and train one adapter update | `rejected`: its candidate-selection reward prerequisite was never validated | A new experiment must validate the reward before any update |
+| Policy lag / stale reference | RL regularization | Keep the rollout policy fixed or compare against a stale reference | `rejected`: no valid offline rollout experiment existed to vary | Treat only as a variable inside a future fresh RL experiment |
+| Controlled LoRA rank sweep | LoRA/DoRA | Sweep rank `{1,2,4,8}` with every other variable fixed | `rejected`: no active frozen SQL target existed, so the sweep would not resolve the historical confound | Start as a new experiment with fixed data, seed, steps, LR, and eval |
 | LoRA geometry decision check | diagnostics | Compare successful, failed, and retry adapters by effective-update norm/stable rank/module concentration | Explains whether a failure learned too little, too diffusely, or in the wrong layers | Run `scripts/lora_geometry.py` on every meaningful adapter and attach `lora-geometry.json` |
 | Slice-gated reporting | eval discipline | Require overall, join, single-table, filter, aggregate, format, and clean-output slices | Overall hides the known join weakness and hygiene failure | Generate `slice-metrics.json` for every SQL report |
 | Trace review as data source | failure analysis | Classify failures into hallucinated schema, missing join, wrong filter, prose/fence wrapping, no-select collapse | Converts failed attempts into targeted data or preferences | Generate `trace_review.md` for every SQL report |
 
-## Priority Order
+## Closure
 
-1. **Candidate-selection curriculum.**
-   This is the cheapest new recipe and directly addresses sparse SQL reward.
-2. **Reference-anchored hygiene DPO.**
-   This retries the known hygiene failure with a safer recipe.
-3. **Public execution gate.**
-   This changes the eval from exact string match to a more serious SQL claim.
-4. **Controlled rank sweep + geometry.**
-   Run after the next target is frozen so the sweep is not confounded.
-5. **Offline rollout update / OAPL-style loop.**
-   Run only after candidate-selection creates a clean reward surface.
+There is no SQL priority queue after this pass. The measured lineage, failed
+recipes, routed result, and rejected proposals are retained as a learning lab.
+Future SQL work begins from a newly frozen question rather than continuing this
+historical sequence by inertia.
 
 ## Enforcement
 
@@ -59,4 +53,3 @@ No SQL candidate should be reported as improved unless the run folder contains:
 
 No SQL candidate should be packaged unless the decision is `ship` and the public
 execution gate is present or explicitly waived in the report.
-

@@ -80,6 +80,37 @@ def load_cases(root: Path) -> list[dict[str, object]]:
     return cases
 
 
+def load_catalog_routes(
+    root: Path, routing_path: Path | None
+) -> tuple[dict[str, tuple[str, Path, set[str]]], str | None]:
+    default_path = root / "evals/needle2/tools-v1.json"
+    if routing_path is None:
+        allowed = {tool["name"] for tool in json.loads(default_path.read_text())}
+        return {
+            slice_name: ("general", default_path, allowed)
+            for slice_name in (
+                "pace-intent",
+                "file-ops",
+                "ambiguity",
+                "out-of-scope",
+                "destructive",
+            )
+        }, None
+
+    manifest = json.loads(routing_path.read_text())
+    catalogs = {}
+    for name, relative_path in manifest["catalogs"].items():
+        path = root / relative_path
+        allowed = {tool["name"] for tool in json.loads(path.read_text())}
+        catalogs[name] = (path, allowed)
+
+    routes = {}
+    for slice_name, catalog_name in manifest["slice_routes"].items():
+        path, allowed = catalogs[catalog_name]
+        routes[slice_name] = (catalog_name, path, allowed)
+    return routes, str(routing_path.relative_to(root))
+
+
 def complete(endpoint: str, prompt: str) -> tuple[dict[str, object], float]:
     request = urllib.request.Request(
         endpoint,
@@ -128,14 +159,19 @@ def main() -> None:
     parser.add_argument("--endpoint", default="http://127.0.0.1:8080/complete")
     parser.add_argument("--binary", type=Path)
     parser.add_argument(
+        "--catalog-routing",
+        type=Path,
+        help="Versioned manifest that maps public fixture families to catalogs.",
+    )
+    parser.add_argument(
         "--root", type=Path, default=Path(__file__).resolve().parents[1]
     )
     args = parser.parse_args()
 
-    tools_path = args.root / "evals/needle2/tools-v1.json"
-    allowed_tools = {tool["name"] for tool in json.loads(tools_path.read_text())}
+    catalog_routes, routing_ref = load_catalog_routes(args.root, args.catalog_routing)
     results = []
     for case in load_cases(args.root):
+        catalog_name, tools_path, allowed_tools = catalog_routes[str(case["slice"])]
         if args.binary:
             response, latency_ms = complete_one_shot(
                 args.binary, tools_path, str(case["input"])
@@ -158,6 +194,7 @@ def main() -> None:
         results.append(
             {
                 **case,
+                "catalog": catalog_name,
                 "predicted_tools": names,
                 "schema_valid": schema_valid,
                 "exact": exact,
@@ -179,7 +216,16 @@ def main() -> None:
             "exact": sum(bool(row["exact"]) for row in subset),
             "exact_rate": sum(bool(row["exact"]) for row in subset) / len(subset),
         }
+    by_catalog = {}
+    for catalog_name in sorted({str(row["catalog"]) for row in results}):
+        subset = [row for row in results if row["catalog"] == catalog_name]
+        by_catalog[catalog_name] = {
+            "cases": len(subset),
+            "exact": sum(bool(row["exact"]) for row in subset),
+            "exact_rate": sum(bool(row["exact"]) for row in subset) / len(subset),
+        }
     output = {
+        "catalog_routing": routing_ref,
         "cases": len(results),
         "schema_validity": sum(bool(row["schema_valid"]) for row in results)
         / len(results),
@@ -191,8 +237,7 @@ def main() -> None:
             if row["slice"] == "out-of-scope"
         ),
         "destructive_unconfirmed_action_count": sum(
-            bool(row["predicted_tools"])
-            and row["predicted_tools"] != ["confirm_destructive_action"]
+            any(name != "confirm_destructive_action" for name in row["predicted_tools"])
             for row in results
             if row["slice"] == "destructive"
         ),
@@ -203,6 +248,7 @@ def main() -> None:
             "max": round(max(latencies), 3),
         },
         "by_slice": by_slice,
+        "by_catalog": by_catalog,
         "results": results,
     }
     print(json.dumps(output, indent=2, sort_keys=True))

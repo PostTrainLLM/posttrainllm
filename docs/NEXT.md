@@ -1,13 +1,69 @@
-# posttrainllm Next
+# posttrainllm Closure and Fresh-Experiment Gate
 
-This is the active queue. It intentionally ignores most historical PRDs.
+The historical model and experiment work is fully accounted for. Issue #136 is
+the sole open issue and contains no remaining model-training, experiment,
+recipe, or learning-path task. Its local completion pass is green: serial Swift
+and browser builds, current CLI runtime evidence, responsive rendered review,
+dependency-security disposition, completion validation, tests, and coverage
+all pass. Only commit/push, current-SHA CI, deployment, live guest verification,
+and final status reconciliation remain. This document preserves the factory
+sequence as lab context. It is not a second task queue.
 
-For the full documentation path, start at `docs/README.md`. For what worked or
-failed, use `docs/attempt-ledger.md`. For reviewed external products and
-techniques, use `docs/external-products-reviewed.md`. For the owner's learning
-sequence, use `docs/learning-pipeline.md`.
+After the release receipt closes #136, fresh work begins only when the owner has
+chosen a new question—normally after completing a relevant path in
+`docs/learn/path-registry.json`—and opens a scoped GitHub Issue that names:
 
-## Current Thesis
+- the baseline and candidate recipe;
+- the frozen primary and regression evals;
+- the data source and leakage boundary;
+- the bounded time, compute, RAM, and cost budget;
+- the ship, retry, and reject thresholds.
+
+Until that gate is met, do not train, download a new model, expand a PRD, or
+revive a parked lane merely because it appears below. Conditional next actions,
+TODO markers, and blockers in retained historical documents explain what was
+not built; they do not mean the closed project is incomplete.
+
+For the full documentation path, start at `docs/README.md`. Browse all 75 final
+attempts at `/experiments`, the 18 recipe contracts at `/recipes`, and the nine
+ready paths plus thirteen buildable artifacts at `/learn`. The artifact
+contract is tracked in `docs/learn/artifact-journey.json`. For reviewed external
+products and techniques, use `docs/external-products-reviewed.md`.
+
+## Release Acceptance Envelope
+
+The completion claim is split into five receipts. A green earlier receipt does
+not imply that a later one happened.
+
+| Receipt           | Required proof                                                                                                                                          | Current state (2026-09-02)                                                                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Local source      | Completion validator, unit tests, coverage, quality, and clean diff checks pass                                                                         | **Passed** for the current worktree: 75 experiments, 18 recipes, 9 paths, 13 journey artifacts, 17 public artifacts, 0 unresolved statuses |
+| Native CLI        | Serial release build, discovery/runtime smoke, and Xcode tests pass on the current source                                                               | **Passed**: release build and 107-entry runtime catalog pass; 218 Xcode tests pass, 6 optional-fixture tests skip, production coverage 32.51% |
+| Browser build     | Production Astro/docs/agent build and internal-link checker pass                                                                                        | **Passed**: 46 app pages, 310 docs pages, 358 paired agent surfaces, and 109,364 internal links checked                                      |
+| Rendered UI       | `/`, `/experiments`, `/recipes`, `/learn`, Needle, Parakeet, and CLI docs pass keyboard, interaction, console, overflow, and 390/768/1440 px inspection | **Passed**: all 21 route/viewport checks are green with zero overflow, console, page, request, or P0/P1 failures                             |
+| Published release | Exact source is committed and pushed, current-SHA CI is green, deployment succeeds, and live guest checks match the source                              | **Not started**; `origin/main` and the live site still serve `2e5b1ce`                                                                     |
+
+Approval for heavy compilation does not imply approval to commit, push, or
+deploy. The operator must authorize each external mutation explicitly.
+
+When authorized, run the boundary in this order:
+
+1. Build and test the native CLI serially; run `commands`, `help`, `version`,
+   unknown-command, and factory/experimental discovery smokes against that
+   binary.
+2. Run `pnpm --dir browser run build`, including the docs/agent builders and
+   generated-link checker.
+3. Preview the production output and refresh the design receipt at 390, 768,
+   and 1440 px. Kill every preview/browser process started for the review.
+4. Re-run completion, test, coverage, quality, and `git diff --check` after any
+   fixes.
+5. With separate source-publication approval, commit and push the exact checked
+   tree, wait for current-SHA CI, explicitly trigger deployment, and verify the
+   live guest journeys.
+6. Reconcile `PROJECT_STATUS.md` and Issue #136 only after the live SHA and
+   surfaces match. Then close the project from the AI-work perspective.
+
+## Retained Factory Thesis
 
 posttrainllm is a Mac-local specialist factory:
 
@@ -34,9 +90,9 @@ Do not tune those gates or present the development cascade as qualified. A
 future routed candidate needs better leaves and a newly frozen evaluation, not
 more threshold search on this public set.
 
-## Operating Rule
+## Fresh-Experiment Operating Rule
 
-Every active task must answer one of these:
+Every newly authorized task must answer one of these:
 
 1. Can we prepare or improve the data?
 2. Can we post-train a candidate?
@@ -44,13 +100,13 @@ Every active task must answer one of these:
 4. Can we package it as a specialist artifact?
 5. Can we report score delta, regressions, cost, latency, RAM, and a decision?
 
-If not, move it to `docs/parked/` or leave it in `docs/prds/` for later.
+If not, it is outside the closed lab and needs a separately scoped project.
 
 Post-training tasks must also name a **recipe**, not only a method. Use
 `docs/techniques/` before training:
 
 - `docs/techniques/method-vs-recipe.md` defines the standard.
-- `docs/techniques/sql-technique-backlog.md` is the current SQL recipe ledger.
+- `docs/techniques/sql-technique-backlog.md` is the closed SQL recipe lineage.
 - `docs/techniques/trainloop-teardown.md` records the latest external teardown.
 
 "Try DPO", "try RLVR", or "try a different LoRA rank" is not specific enough.
@@ -119,7 +175,10 @@ next step is a `v2` recipe that separates training stop rules from ship bars,
 draws on more of the 26 available source documents, and adds a meaning-change
 guard. That is a spec change, not a training run.
 
-## Active Sequence
+## Historical Factory Sequence (inactive)
+
+The sequence below is retained because it is the correct execution order if a
+future issue reactivates the factory. None of its steps is currently assigned.
 
 ### 0. Keep Public Artifacts First-Class
 
@@ -154,8 +213,8 @@ All six public Hugging Face models now have dedicated case studies under
 pages—not Hub request counts—as the public explanation of model quality,
 limitations, and next evidence action.
 
-Current report-only priority remains `qwen06-sql-routed-v1`. Render its canonical
-report run with:
+The last report-only priority was `qwen06-sql-routed-v1`. Its canonical report
+run can be rendered with:
 
 ```bash
 python3 scripts/sql/render_sql_factory_run.py --out runs/2026-07-02-sql-routed-qwen06-v1
@@ -171,7 +230,7 @@ signal but no demonstrable advantage over random legal play in the bounded
 full-game screen. Its 100k/1M/2M stages are rejected under the current recipe;
 the earlier SQL and ReST lanes remain closed or report-only.
 
-Current POC target: SQL specialist. The low-compute fixture is
+The last POC target was the SQL specialist. Its low-compute fixture is
 `evals/sql-poc/`; the brief is `docs/specialists/b1-sql-poc.md`.
 
 **Frozen target (2026-07-03): `qwen06-sql-hygiene-dpo-v1`** — the single
@@ -193,7 +252,7 @@ training:
   magnitudes. The frozen candidate keeps multi-LoRA composition; do not
   re-plan a frozen run.)
 - Eval suite: `posttrainllm generate` + `posttrainllm eval-sql --db-dir
-  evals/sql-poc-expanded/dbs` on the frozen 50-row
+evals/sql-poc-expanded/dbs` on the frozen 50-row
   `evals/sql-poc-expanded/dev.jsonl`, plus the clean-SQL raw-output metric
   (single statement, starts with SELECT, no fence/prose, nothing after `;`).
 - Regression suite: the public64 b-mc2 exact gate (0.531) is unchanged by
@@ -358,23 +417,27 @@ Exit criteria:
 - `decision.json` exists.
 - Specialist package is created only if the decision is `ship`.
 
-## Near-Term Cleanup Tasks
+## Historical Verification Reference
+
+These commands describe the retained factory verification surface. They are
+useful inside a newly authorized experiment, but they are not recurring work
+items in the closed lab.
 
 0. Run the no-GPU factory smoke set for the TrainLoop-style additions:
    `bash evals/sql-choice-smoke.sh`,
    `bash evals/sql-trace-review-smoke.sh`, and
    `bash evals/lora-geometry-smoke.sh`.
-0.1. Run the stricter publish evidence smoke:
+   0.1. Run the stricter publish evidence smoke:
    `bash evals/factory-publish-check-smoke.sh`.
-0.2. Run the docs golden-path smoke:
+   0.2. Run the docs golden-path smoke:
    `bash evals/docs-world-class-smoke.sh`.
-0.3. Run the factory-run assembler bridge smoke:
+   0.3. Run the factory-run assembler bridge smoke:
    `bash evals/factory-run-assemble-smoke.sh`.
-0.3.1. Run the durable lifecycle smoke:
+   0.3.1. Run the durable lifecycle smoke:
    `bash evals/factory-run-lifecycle-smoke.sh`.
-0.4. Run the fine-tune report card smoke:
+   0.4. Run the fine-tune report card smoke:
    `bash evals/fine-tune-report-card-smoke.sh`.
-0.5. Run the autocorrect no-model smokes:
+   0.5. Run the autocorrect no-model smokes:
    `bash evals/autocorrect-foundation-smoke.sh` and
    `bash evals/autocorrect-adapter-smoke.sh`. Both are now in the CI evals job.
 1. ~~Verify live command evidence emission on the next approved factory run.~~
@@ -419,9 +482,9 @@ Exit criteria:
 Use `docs/prds/PRIORITY.md` only when a task needs PRD-level acceptance
 criteria. Do not work from the full PRD list directly.
 
-## Not Active
+## Parked
 
-These are parked unless they directly unblock the current factory run:
+These remain parked unless an explicitly reactivated factory run needs them:
 
 - browser polish
 - Astro migration

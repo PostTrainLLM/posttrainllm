@@ -5,16 +5,16 @@ Same architecture, same `.tinygpt` file format, runs on Metal via MLX-Swift.
 
 ## Status
 
-| Milestone | State | Deliverable |
-|---|---|---|
-| File format I/O | ✅ ships | `TinyGPTIO` library + `posttrainllm inspect/validate` CLI, 12 round-trip tests |
-| Model port | ✅ ships | `TinyGPTModel` library with full transformer (MLX-Swift) |
-| Weight loader | ✅ ships | `TinyGPTWeightLoader.load()` — browser `.tinygpt` → MLX-Swift model |
-| Training loop | ✅ ships | `Trainer` class with compiled train step + AdamW |
-| Benchmark CLI | ✅ ships | `posttrainllm bench` — measures real GPU throughput vs WebGPU baseline |
-| Sample CLI | ✅ ships | `posttrainllm sample` — load checkpoint + generate Shakespeare-quality text at ~130 tok/s |
-| SwiftUI app | ✅ ships | `TinyGPTApp` — single window, Sample + Train tabs, gallery sidebar, live loss chart |
-| Notarized direct build | ⏳ blocked | needs an installed Developer ID Application identity |
+| Milestone              | State      | Deliverable                                                                               |
+| ---------------------- | ---------- | ----------------------------------------------------------------------------------------- |
+| File format I/O        | ✅ ships   | `TinyGPTIO` library + `posttrainllm inspect/validate` CLI, 12 round-trip tests            |
+| Model port             | ✅ ships   | `TinyGPTModel` library with full transformer (MLX-Swift)                                  |
+| Weight loader          | ✅ ships   | `TinyGPTWeightLoader.load()` — browser `.tinygpt` → MLX-Swift model                       |
+| Training loop          | ✅ ships   | `Trainer` class with compiled train step + AdamW                                          |
+| Benchmark CLI          | ✅ ships   | `posttrainllm bench` — measures real GPU throughput vs WebGPU baseline                    |
+| Sample CLI             | ✅ ships   | `posttrainllm sample` — load checkpoint + generate Shakespeare-quality text at ~130 tok/s |
+| SwiftUI app            | ✅ ships   | `TinyGPTApp` — single window, Sample + Train tabs, gallery sidebar, live loss chart       |
+| Notarized direct build | ⏳ blocked | needs an installed Developer ID Application identity                                      |
 
 ## Build
 
@@ -22,7 +22,7 @@ Requires Xcode (not just Command Line Tools) — MLX-Swift bundles Metal
 shaders that only the Xcode build system compiles via SPM.
 
 ```sh
-export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+export DEVELOPER_DIR="$(xcode-select -p)"
 
 # Tests (file-format suite; runs on CPU stream):
 swift test
@@ -85,18 +85,18 @@ posttrainllm sample my.tinygpt --prompt "ROMEO:" --tokens 100
 
 ### Training
 
-| Preset | Params | Time/step | Step/s | Speedup vs WebGPU |
-|---|---|---|---:|---:|
-| Tiny (4L · d=128) | 842K | 11 ms | 90 | ~9× |
-| Huge (12L · d=256 · ctx=256, B=8) | 9.6M | 47 ms | 21 | **15.5×** |
-| Mega (24L · d=512 · ctx=512, B=8) | 76M | 372 ms | 2.7 | **24.2×** (browser can't run Mega at all) |
+| Preset                            | Params | Time/step | Step/s |                         Speedup vs WebGPU |
+| --------------------------------- | ------ | --------- | -----: | ----------------------------------------: |
+| Tiny (4L · d=128)                 | 842K   | 11 ms     |     90 |                                       ~9× |
+| Huge (12L · d=256 · ctx=256, B=8) | 9.6M   | 47 ms     |     21 |                                 **15.5×** |
+| Mega (24L · d=512 · ctx=512, B=8) | 76M    | 372 ms    |    2.7 | **24.2×** (browser can't run Mega at all) |
 
 ### Sampling
 
-| Preset | Tokens/sec | Notes |
-|---|---:|---|
-| Tiny | 438 | M5 Pro GPU well under-utilised at this size |
-| Huge (gallery Shakespeare model) | 131 | Real Shakespeare quality: matches the browser's output |
+| Preset                           | Tokens/sec | Notes                                                  |
+| -------------------------------- | ---------: | ------------------------------------------------------ |
+| Tiny                             |        438 | M5 Pro GPU well under-utilised at this size            |
+| Huge (gallery Shakespeare model) |        131 | Real Shakespeare quality: matches the browser's output |
 
 **Honest reading of the numbers:**
 

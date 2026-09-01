@@ -2,16 +2,49 @@
 import Default from "../layouts/Default.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import "../styles/system.css";
+import pathRegistry from "../../../docs/learn/path-registry.json";
+import artifactJourney from "../../../docs/learn/artifact-journey.json";
+import recipeRegistry from "../../../docs/recipes/registry.json";
 
 const REPO = "https://github.com/PostTrainLLM/posttrainllm";
 const source = (path: string) => `${REPO}/blob/main/${path}`;
 
 const fieldGuides = [
+  { href: "/docs/cli-reference", label: "CLI lab reference" },
   { href: "/how-to-train-your-own-llm", label: "How to train your own LLM" },
   { href: "/fine-tune-llm-on-mac", label: "Fine-tune an LLM on a Mac" },
   { href: "/mlx-lora-fine-tuning", label: "MLX LoRA fine-tuning" },
   { href: "/docs/learn/competitive-landscape", label: "Competitive landscape" },
 ];
+
+const learningPaths = pathRegistry.paths;
+const docHref = (path: string) => `/${path.replace(/\.md$/, "")}`;
+const evidenceHref = (path: string) => {
+  if (/^https?:\/\//.test(path)) return path;
+  return path.endsWith(".md") ? docHref(path) : source(path);
+};
+const artifactHref = (path: string) =>
+  path.startsWith("/") ? path : evidenceHref(path);
+const pathCards = learningPaths.map((path) => ({
+  ...path,
+  recipes: recipeRegistry.recipes.filter(
+    (recipe) => recipe.learning_path === path.id,
+  ),
+}));
+const readinessLegend = artifactJourney.readiness as Record<string, string>;
+const artifactStages = artifactJourney.stages.map((stage) => ({
+  ...stage,
+  artifacts: stage.artifacts.map((artifact) => ({
+    ...artifact,
+    actions: [
+      { name: "Build", ...artifact.build },
+      { name: "Modify", ...artifact.modify },
+      { name: "Tune", ...artifact.tune },
+      { name: "Prove", ...artifact.evaluate },
+      { name: "Package", ...artifact.package },
+    ],
+  })),
+}));
 
 const chapters = [
   {
@@ -227,7 +260,6 @@ const structuredData = {
     slot="head"
     set:html={JSON.stringify(structuredData)}
   />
-  <a class="skip-link" href="#main">Skip to the walkthrough</a>
   <SiteHeader mode="instrument" active="learn" />
 
   <main id="main">
@@ -243,7 +275,7 @@ const structuredData = {
           deciding whether the result should ship, redirect, retry, or stop.
         </p>
         <div class="hero-actions">
-          <a class="primary-action" href="#target">Start at the target</a>
+          <a class="primary-action" href="#artifact-journey">Start building</a>
           <a class="secondary-action" href="/docs">Open the complete docs</a>
         </div>
       </div>
@@ -280,6 +312,215 @@ const structuredData = {
       </ul>
     </section>
 
+    <section
+      class="artifact-journey"
+      id="artifact-journey"
+      aria-labelledby="artifact-journey-title"
+    >
+      <header class="section-heading">
+        <p class="section-index">nine stages / thirteen things you can make</p>
+        <h2 id="artifact-journey-title">Learn by leaving artifacts behind.</h2>
+        <p>
+          Theory becomes useful when you can change a real system and prove what
+          the change did. Each stage ends in something inspectable: a model,
+          adapter, benchmark, agent, package, runtime decision, or causal probe.
+        </p>
+      </header>
+
+      <div class="readiness-legend" aria-label="Artifact readiness legend">
+        {
+          Object.entries(readinessLegend).map(([status, meaning]) => (
+            <div>
+              <span>{status.replaceAll("-", " ")}</span>
+              <p>{meaning}</p>
+            </div>
+          ))
+        }
+      </div>
+
+      <nav class="artifact-map" aria-label="Buildable artifact journey stages">
+        <ol>
+          {
+            artifactStages.map((stage) => (
+              <li>
+                <a href={`#artifact-stage-${stage.id}`}>
+                  <span>{String(stage.order).padStart(2, "0")}</span>
+                  {stage.title}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+
+      <div class="artifact-stage-list">
+        {
+          artifactStages.map((stage) => (
+            <article class="artifact-stage" id={`artifact-stage-${stage.id}`}>
+              <header class="artifact-stage-heading">
+                <p>{String(stage.order).padStart(2, "0")}</p>
+                <div>
+                  <p class="artifact-question">{stage.question}</p>
+                  <h3>{stage.title}</h3>
+                  <p>{stage.outcome}</p>
+                  <a href={`#path-${stage.path_id}`}>
+                    Open the learning path →
+                  </a>
+                </div>
+              </header>
+
+              <div class="journey-artifact-grid">
+                {stage.artifacts.map((artifact) => (
+                  <section class="journey-artifact">
+                    <header>
+                      <div>
+                        <p class="artifact-kind">{artifact.kind}</p>
+                        <h4>{artifact.title}</h4>
+                      </div>
+                      <span class={`readiness ${artifact.readiness}`}>
+                        {artifact.readiness.replaceAll("-", " ")}
+                      </span>
+                    </header>
+                    <p class="artifact-summary">{artifact.summary}</p>
+                    <p class="artifact-workload">
+                      <span>workload</span>
+                      {artifact.workload}
+                    </p>
+
+                    <dl class="artifact-actions">
+                      {artifact.actions.map((action) => (
+                        <div>
+                          <dt>{action.name}</dt>
+                          <dd>
+                            <a href={artifactHref(action.href)}>
+                              {action.label} →
+                            </a>
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+
+                    <div class="artifact-foot">
+                      <div class="artifact-anchors">
+                        <span>Inspect</span>
+                        {artifact.anchors.map((anchor) => (
+                          <a href={evidenceHref(anchor)} rel="noopener">
+                            {anchor.split("/").at(-1)} ↗
+                          </a>
+                        ))}
+                      </div>
+                      {artifact.cli_commands.length > 0 && (
+                        <div class="artifact-commands">
+                          <span>Run</span>
+                          {artifact.cli_commands.map((command) => (
+                            <a href="/docs/cli-reference">
+                              <code>{command}</code>
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="learning-lab" aria-labelledby="learning-lab-title">
+      <header class="section-heading">
+        <p class="section-index">learning lab / nine ready paths</p>
+        <h2 id="learning-lab-title">Learn it, inspect it, then run it.</h2>
+        <p>
+          Each path has prerequisites, a repository lab, and a mastery gate.
+          Start with foundations; use the others when their prerequisites are
+          earned.
+        </p>
+      </header>
+      <div class="path-grid">
+        {
+          pathCards.map((path, index) => (
+            <article class="path-card" id={`path-${path.id}`}>
+              <div class="path-number">
+                {String(index + 1).padStart(2, "0")}
+              </div>
+              <div>
+                <p class="path-prereq">
+                  {path.prerequisites.length
+                    ? `after ${path.prerequisites.join(" + ")}`
+                    : "start here"}
+                </p>
+                <h3>{path.title}</h3>
+                <ol>
+                  {path.sequence.map((step) => (
+                    <li>{step}</li>
+                  ))}
+                </ol>
+                <dl>
+                  <div>
+                    <>
+                      <dt>Lab</dt>
+                      <dd>{path.lab}</dd>
+                    </>
+                  </div>
+                  <div>
+                    <>
+                      <dt>Mastery gate</dt>
+                      <dd>{path.mastery_gate}</dd>
+                    </>
+                  </div>
+                  <div>
+                    <>
+                      <dt>CLI entry points</dt>
+                      <dd class="command-list">
+                        {path.cli_commands.map((command) => (
+                          <a href="/docs/cli-reference">
+                            <code>{command}</code>
+                          </a>
+                        ))}
+                      </dd>
+                    </>
+                  </div>
+                </dl>
+                <div class="path-actions">
+                  <a href={docHref(path.anchors[0])}>Open the path →</a>
+                  {path.recipes.map((recipe) => (
+                    <a href={docHref(recipe.technique_path)}>
+                      Recipe: {recipe.title} →
+                    </a>
+                  ))}
+                  {path.recipes.length === 0 && (
+                    <span>
+                      Foundation prerequisite; applied recipes begin in later
+                      paths.
+                    </span>
+                  )}
+                </div>
+                <details class="path-evidence">
+                  <summary>{path.anchors.length} evidence anchors</summary>
+                  <ul>
+                    {path.anchors.map((anchor) => (
+                      <li>
+                        <a
+                          href={evidenceHref(anchor)}
+                          rel={anchor.endsWith(".md") ? undefined : "noopener"}
+                        >
+                          {anchor.replace(/^docs\//, "").replace(/\.md$/, "")}
+                          {anchor.endsWith(".md") ? " →" : " ↗"}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+
     <section class="principle" aria-labelledby="principle-title">
       <p class="section-index">00 / admission rule</p>
       <div>
@@ -297,7 +538,7 @@ const structuredData = {
 
     <section class="chapters" aria-labelledby="chapters-title">
       <header class="section-heading">
-        <p class="section-index">01–06 / the active loop</p>
+        <p class="section-index">01–06 / the retained lab loop</p>
         <h2 id="chapters-title">Six questions. Six durable artifacts.</h2>
         <p>
           The narrative is the index. The linked docs and code remain the source
@@ -502,6 +743,334 @@ const structuredData = {
     border-radius: 50%;
     background: var(--live);
     box-shadow: 0 0 18px rgba(72, 229, 194, 0.65);
+  }
+  .learning-lab {
+    padding: clamp(72px, 10vw, 128px) 0;
+  }
+  .artifact-journey {
+    padding: clamp(72px, 10vw, 128px) 0 0;
+    scroll-margin-top: 90px;
+  }
+  .readiness-legend {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 32px;
+    border: 1px solid var(--rule-2);
+    background: var(--rule-2);
+  }
+  .readiness-legend > div {
+    padding: 18px;
+    background: var(--paper);
+  }
+  .readiness-legend span,
+  .artifact-kind,
+  .artifact-workload span,
+  .artifact-anchors > span,
+  .artifact-commands > span {
+    color: var(--live);
+    font: 600 10px var(--font-mono);
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+  }
+  .readiness-legend p {
+    margin: 7px 0 0;
+    color: var(--ink-70);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .artifact-map {
+    margin-top: 18px;
+  }
+  .artifact-map ol {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin: 0;
+    padding: 1px;
+    list-style: none;
+    background: var(--rule-2);
+  }
+  .artifact-map a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 54px;
+    padding: 11px 14px;
+    background: var(--paper);
+    color: var(--ink-70);
+    font-size: 13px;
+    font-weight: 620;
+  }
+  .artifact-map a:hover {
+    background: var(--surface);
+    color: var(--live);
+  }
+  .artifact-map span {
+    color: var(--live);
+    font: 600 11px var(--font-mono);
+  }
+  .artifact-stage-list {
+    margin-top: 20px;
+    border-top: 1px solid var(--rule-2);
+  }
+  .artifact-stage {
+    display: grid;
+    grid-template-columns: minmax(230px, 0.52fr) minmax(0, 1.48fr);
+    gap: clamp(28px, 6vw, 80px);
+    padding: clamp(42px, 7vw, 72px) 0;
+    border-bottom: 1px solid var(--rule-2);
+    scroll-margin-top: 90px;
+  }
+  .artifact-stage-heading {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 14px;
+    align-content: start;
+  }
+  .artifact-stage-heading > p {
+    margin: 3px 0 0;
+    color: var(--ink-55);
+    font: 600 12px var(--font-mono);
+  }
+  .artifact-question {
+    margin: 0 0 10px;
+    color: var(--live);
+    font: 600 11px/1.4 var(--font-mono);
+    text-transform: uppercase;
+  }
+  .artifact-stage-heading h3 {
+    font-size: clamp(27px, 3vw, 40px);
+  }
+  .artifact-stage-heading div > p:not(.artifact-question) {
+    margin: 14px 0;
+    color: var(--ink-70);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .artifact-stage-heading a {
+    color: var(--live);
+    font-size: 13px;
+    font-weight: 620;
+  }
+  .journey-artifact-grid {
+    display: grid;
+    gap: 14px;
+  }
+  .journey-artifact {
+    padding: clamp(20px, 3vw, 30px);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .journey-artifact > header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+  }
+  .artifact-kind {
+    margin: 0 0 7px;
+    color: var(--ink-55);
+  }
+  .journey-artifact h4 {
+    margin: 0;
+    font-size: clamp(21px, 2.5vw, 29px);
+  }
+  .readiness {
+    flex: 0 0 auto;
+    padding: 5px 8px;
+    border: 1px solid var(--rule-2);
+    border-radius: 999px;
+    color: var(--ink-70);
+    font: 600 9px var(--font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .readiness.runnable-lab {
+    border-color: color-mix(in srgb, var(--live) 45%, transparent);
+    color: var(--live);
+  }
+  .readiness.recipe-contract {
+    border-color: color-mix(in srgb, var(--amber) 45%, transparent);
+    color: var(--amber);
+  }
+  .artifact-summary {
+    max-width: 72ch;
+    margin: 16px 0 12px;
+    color: var(--ink-70);
+    line-height: 1.55;
+  }
+  .artifact-workload {
+    display: flex;
+    gap: 10px;
+    margin: 0 0 22px;
+    color: var(--ink-55);
+    font: 12px/1.45 var(--font-mono);
+  }
+  .artifact-workload span {
+    flex: 0 0 auto;
+    padding-top: 2px;
+    color: var(--ink-55);
+  }
+  .artifact-actions {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin: 0;
+    border-block: 1px solid var(--rule-2);
+  }
+  .artifact-actions > div {
+    padding: 15px 12px;
+    border-left: 1px solid var(--rule-2);
+  }
+  .artifact-actions > div:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .artifact-actions dt {
+    color: var(--live);
+    font: 650 10px var(--font-mono);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .artifact-actions dd {
+    margin: 7px 0 0;
+  }
+  .artifact-actions a {
+    color: var(--ink-70);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .artifact-actions a:hover {
+    color: var(--live);
+  }
+  .artifact-foot {
+    display: grid;
+    gap: 10px;
+    padding-top: 16px;
+  }
+  .artifact-anchors,
+  .artifact-commands {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px 12px;
+  }
+  .artifact-anchors a,
+  .artifact-commands a {
+    color: var(--ink-55);
+    font-size: 11px;
+  }
+  .artifact-commands code {
+    padding: 3px 6px;
+    border: 1px solid var(--rule-2);
+    border-radius: 4px;
+    background: var(--paper);
+    color: var(--ink-70);
+  }
+  .path-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 36px;
+  }
+  .path-card {
+    display: grid;
+    grid-template-columns: 54px 1fr;
+    gap: 18px;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+  }
+  .path-number {
+    color: var(--live);
+    font: 650 18px var(--font-mono);
+  }
+  .path-prereq {
+    color: var(--ink-50);
+    font: 600 11px var(--font-mono);
+    text-transform: uppercase;
+  }
+  .path-card h3 {
+    margin: 8px 0 16px;
+    font-size: 24px;
+  }
+  .path-card ol {
+    display: grid;
+    gap: 5px;
+    margin: 0 0 20px;
+    padding-left: 20px;
+    color: var(--ink-70);
+    font-size: 14px;
+  }
+  .path-card dl {
+    display: grid;
+    gap: 12px;
+    margin: 0 0 18px;
+  }
+  .path-card dl div {
+    display: grid;
+    gap: 4px;
+  }
+  .path-card dt {
+    color: var(--ink-50);
+    font: 600 10px var(--font-mono);
+    text-transform: uppercase;
+  }
+  .path-card dd {
+    margin: 0;
+    color: var(--ink-70);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .command-list,
+  .path-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px 12px;
+  }
+  .command-list code {
+    display: inline-block;
+    padding: 4px 7px;
+    border: 1px solid var(--rule-2);
+    border-radius: 5px;
+    background: var(--paper);
+    color: var(--ink-70);
+    font-size: 11px;
+  }
+  .path-actions {
+    align-items: baseline;
+  }
+  .path-actions span {
+    color: var(--ink-50);
+    font-size: 12px;
+  }
+  .path-evidence {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule-2);
+  }
+  .path-evidence summary {
+    color: var(--ink-55);
+    cursor: pointer;
+    font: 600 11px var(--font-mono);
+    text-transform: uppercase;
+  }
+  .path-evidence ul {
+    display: grid;
+    gap: 6px;
+    margin: 12px 0 0;
+    padding-left: 18px;
+  }
+  .path-evidence li {
+    color: var(--ink-50);
+    font-size: 12px;
+  }
+  .path-card a {
+    color: var(--live);
+    text-decoration: none;
+    font-weight: 600;
   }
   h1,
   h2,
@@ -819,6 +1388,37 @@ const structuredData = {
     margin-top: 18px;
   }
   @media (max-width: 860px) {
+    .readiness-legend,
+    .artifact-stage {
+      grid-template-columns: 1fr;
+    }
+    .artifact-map {
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+    }
+    .artifact-map ol {
+      grid-auto-flow: column;
+      grid-template-columns: none;
+      grid-auto-columns: minmax(210px, 34vw);
+    }
+    .artifact-actions {
+      grid-template-columns: 1fr 1fr;
+    }
+    .artifact-actions > div,
+    .artifact-actions > div:first-child {
+      padding: 13px 10px;
+      border-left: 0;
+      border-top: 1px solid var(--rule);
+    }
+    .artifact-actions > div:nth-child(odd) {
+      padding-left: 0;
+    }
+    .artifact-actions > div:nth-child(-n + 2) {
+      border-top: 0;
+    }
+    .path-grid {
+      grid-template-columns: 1fr;
+    }
     .hero {
       grid-template-columns: 1fr;
     }

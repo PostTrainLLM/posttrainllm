@@ -99,9 +99,11 @@ remains a budget figure on the stdout summary. The grad-projection
 training dynamics ARE the same as the paper's recipe — only the
 on-device Adam state isn't yet pruned.
 
-A follow-up is queued to subclass `AdamW` and store `m, v` at
-`[r, n]` shape for tracked matrices; the GaLoreProjector already
-exposes `loRankAdamFloats` / `fullAdamFloats` ready for the swap.
+The true low-rank Adam-state variant is not part of the closed project. A fresh
+experiment could subclass `AdamW` and store `m, v` at `[r, n]` shape; the
+existing `GaLoreProjector` exposes `loRankAdamFloats` / `fullAdamFloats` for
+that independent recipe. Until then, only the measured projection-dynamics
+claim above is retained.
 
 ### Smoke results
 

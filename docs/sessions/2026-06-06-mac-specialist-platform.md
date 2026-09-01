@@ -1,3 +1,8 @@
+---
+sidebar:
+  order: 202606060
+---
+
 # Strategy session — what posttrainllm actually is, what's possible on a Mac
 
 **Date:** 2026-06-06

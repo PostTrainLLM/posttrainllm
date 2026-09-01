@@ -1,3 +1,8 @@
+---
+sidebar:
+  order: 202606160
+---
+
 # Session — from frontier-parity distillation to the self-improving loop
 
 Date: 2026-06-16. The arc, the decisions, and the transferable lessons. Numbers and mechanics

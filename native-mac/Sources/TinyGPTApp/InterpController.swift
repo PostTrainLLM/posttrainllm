@@ -120,22 +120,25 @@ final class InterpController: ObservableObject {
                 p.waitUntilExit()
                 pipe.fileHandleForReading.readabilityHandler = nil
                 let exitCode = p.terminationStatus
-                await MainActor.run {
-                    self?.isRunning = false
-                    self?.process = nil
-                    if exitCode == 0 {
-                        self?.status = "done — sidecar saved"
-                        self?.lastSAEPath = finishTag
-                    } else if exitCode == 15 || exitCode == -15 {
-                        self?.status = "cancelled"
-                    } else {
-                        self?.status = "failed (exit \(exitCode))"
-                    }
-                }
+                guard let self else { return }
+                await self.finishProcess(exitCode: exitCode, finishTag: finishTag)
             }
         } catch {
             isRunning = false
             status = "couldn't launch: \(error)"
+        }
+    }
+
+    private func finishProcess(exitCode: Int32, finishTag: String) {
+        isRunning = false
+        process = nil
+        if exitCode == 0 {
+            status = "done — sidecar saved"
+            lastSAEPath = finishTag
+        } else if exitCode == 15 || exitCode == -15 {
+            status = "cancelled"
+        } else {
+            status = "failed (exit \(exitCode))"
         }
     }
 
@@ -146,9 +149,7 @@ final class InterpController: ObservableObject {
         let rest = text[r.upperBound...]
         let scanner = Scanner(string: String(rest))
         scanner.charactersToBeSkipped = .whitespacesAndNewlines
-        var value: Double = 0
-        if scanner.scanDouble(&value) { return value }
-        return nil
+        return scanner.scanDouble()
     }
 
     /// Parse the "(NN.NN%)" payload from the L0 line.

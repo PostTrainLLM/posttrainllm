@@ -7,7 +7,7 @@ import {
   outcomeLabel,
   stateLabel,
 } from "../../artifacts";
-import Logo from "../../components/Logo.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
 
 export function getStaticPaths() {
   return artifacts.map((entry) => ({ params: { slug: entry.slug } }));
@@ -29,22 +29,8 @@ const layoutProps = {
 ---
 
 <Default {...layoutProps}>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <header class="topbar" role="banner">
-    <a class="brand-lockup" href="/" aria-label="posttrainllm home"
-      ><Logo size={26} /><span class="brand-name">posttrainllm</span></a
-    >
-    <nav class="topnav" aria-label="Primary">
-      <a href="/artifacts">specialists</a><a href="/docs/attempt-ledger"
-        >experiments</a
-      ><a href="/docs/learn/curriculum">learn</a><a href="/leaderboard">evals</a
-      ><a href="/playground">playground</a><a
-        href="https://github.com/PostTrainLLM/posttrainllm"
-        rel="noopener">github ↗</a
-      >
-    </nav>
-  </header>
-  <main class="artifact-detail">
+  <SiteHeader mode="instrument" active="specialists" />
+  <main id="main" class="artifact-detail">
     <header class="hero">
       <nav class="crumb">
         <a href="/">posttrainllm</a> / <a href="/artifacts">artifacts</a> / {

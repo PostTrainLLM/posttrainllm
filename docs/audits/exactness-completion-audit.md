@@ -8,8 +8,8 @@ trusted as the operating system for the project?
 The docs pass is complete when the repository has:
 
 1. A current docs golden path.
-2. A structured attempt ledger with evidence, status, confidence, lesson, and
-   next action.
+2. A structured attempt ledger with evidence, final status, confidence,
+   lesson, and next action, with no unresolved `not-tried` state.
 3. A human-readable ledger synced to the structured ledger.
 4. A coverage audit that distinguishes attempts, technique inventory,
    narrative history, and learning notes.
@@ -17,19 +17,22 @@ The docs pass is complete when the repository has:
 6. Factory run/report schemas that require exactness fields before publishing.
 7. A learning path and progress tracker tied to the active factory loop.
 8. Smoke checks that fail when the above surfaces drift.
+9. A completion validator that rejects unresolved attempts, uncovered
+   techniques, dangling learning paths, or missing public surfaces.
 
 ## Evidence
 
 | Requirement | Evidence | Status |
 |---|---|---|
 | Docs golden path | `docs/README.md`, `scripts/docs-checks/check_docs_world_class.py` | complete |
-| Structured attempt ledger | `docs/attempts.json` schema v2, `scripts/docs-checks/check_attempt_ledger.py` | complete |
+| Structured attempt ledger | `docs/attempts.json` schema v3, `scripts/docs-checks/check_attempt_ledger.py` | complete |
 | Human-readable attempt ledger | `docs/attempt-ledger.md` synced by `evals/attempt-ledger-smoke.sh` | complete |
 | Historical coverage boundary | `docs/audits/history-coverage-audit.md` | complete |
 | Technique audit treatment | `docs/techniques/audit-inventory.md`, `scripts/docs-checks/check_technique_inventory.py` | complete |
 | Factory exactness fields | `docs/factory/run-schema.md`, `docs/factory/reports.md`, `docs/factory/case-study-template.md`, `scripts/factory/check_factory_run_publish.py`, native `factory-run publish-check` | complete |
 | Learning path | `docs/learn/curriculum.md`, `docs/learning-pipeline.md`, `docs/learning-progress.md`, `scripts/docs-checks/check_learning_roadmap.py` | complete |
 | Rendered public docs | `browser` Astro build renders docs including the new audit pages | complete |
+| Closed learning-lab contract | `docs/recipes/registry.json`, `docs/learn/path-registry.json`, `scripts/docs-checks/check_project_completion.py` | complete |
 
 ## Current Counts
 
@@ -37,10 +40,10 @@ Structured attempt ledger:
 
 | Metric | Count |
 |---|---:|
-| Total attempts | 66 |
-| Exact confidence | 49 |
+| Total attempts | 75 |
+| Exact confidence | 64 |
 | Inferred confidence | 5 |
-| Not-applicable confidence | 10 |
+| Not-applicable confidence | 4 |
 | Missing-evidence confidence | 2 |
 
 Technique audit inventory:
@@ -53,20 +56,12 @@ Technique audit inventory:
 | Delete | 0 |
 | Tracked audit rows | 83 |
 
-## Non-Blocking Future Hardening
+## Closed Boundary
 
-These are useful improvements, but they are not evidence that the docs pass is
-incomplete:
-
-1. Generate `docs/attempts.json` entries automatically from future factory run
-   folders.
-2. Share implementation between the Python factory publish checker and the
-   native Swift publish checker.
-3. Add visible status banners to every old archive/reference page.
-4. Derive `docs/learning-progress.md` from checklist/run metadata instead of
-   manual edits.
-5. Add git commit, binary provenance, dataset hash, exact commands, cost, RAM,
-   latency, tok/s, report URL, and artifact URL to future run records.
+There is no implicit documentation-hardening backlog after this pass. Future
+automation, provenance fields, or learning checkpoints begin only when the
+owner opens a fresh experiment after the learning phase. Historical absences
+remain explicit limitations rather than AI follow-up work.
 
 ## Verification
 
@@ -78,6 +73,7 @@ bash evals/technique-inventory-smoke.sh
 bash evals/docs-world-class-smoke.sh
 bash evals/factory-publish-check-smoke.sh
 bash evals/learning-roadmap-smoke.sh
+bash evals/project-completion-smoke.sh
 python3 -m py_compile scripts/docs-checks/check_attempt_ledger.py scripts/docs-checks/check_docs_world_class.py scripts/factory/check_factory_run_publish.py scripts/docs-checks/check_learning_roadmap.py scripts/docs-checks/check_technique_inventory.py scripts/sql/render_sql_factory_run.py
 git diff --check
 cd browser && npm run build
@@ -94,5 +90,5 @@ The docs are now exact enough to operate from:
 - the learning path is tied to the same factory loop;
 - smoke checks guard the core docs surfaces.
 
-Future work should improve automation and provenance depth, not reopen the
-basic docs exactness question.
+Any future automation or provenance work begins under a fresh owner-selected
+experiment; it is not unfinished work in this closed project.

@@ -88,7 +88,8 @@ let package = Package(
                 .product(name: "MLX", package: "mlx-swift"),
                 .product(name: "MLXNN", package: "mlx-swift"),
                 .product(name: "MLXRandom", package: "mlx-swift"),
-            ]
+            ],
+            exclude: ["README.md"]
         ),
         // `TinyGPTServe` exposes an OpenAI-compatible HTTP endpoint over a
         // loaded posttrainllm / HF model. This is the adapter that lets

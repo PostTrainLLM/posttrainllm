@@ -2,47 +2,130 @@
 import Default from "../layouts/Default.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import "../styles/system.css";
+import recipeRegistry from "../../../docs/recipes/registry.json";
 
 const layoutProps = {
   title: "posttrainllm — recipes",
   description:
     "The recipe log: named post-training and packaging recipes for posttrainllm. Each names a failure mode, its data, an eval gate, and a stop rule — not just 'try DPO'. Plus cookbooks for real integrations.",
   ogTitle: "posttrainllm — recipes",
-  ogDescription: "Named recipes: failure mode, data, eval gate, stop rule. Not 'try DPO'.",
+  ogDescription:
+    "Named recipes: failure mode, data, eval gate, stop rule. Not 'try DPO'.",
   themeColor: "#0a0c0f",
 };
 
 type Recipe = { title: string; blurb: string; href: string; tag?: string };
 
 const recipes: Recipe[] = [
-  { title: "Method vs recipe — the standard", href: "/docs/techniques/method-vs-recipe", tag: "start here", blurb: "Why \"try DPO\" isn't a plan. A recipe names the failure mode, the data, the eval gate, the slice gate, and the stop rule." },
-  { title: "Distill a specialist from a bigger model", href: "/docs/recipes/distill-specialist", blurb: "Teacher → student on a local machine. KL + NLL mix, temperature, α, rejection sampling on a checker." },
-  { title: "Distill function-calling: Phi-3-mini → tiny", href: "/docs/recipes/distillation-fc", blurb: "The full function-calling distillation arc — the recipe behind the frontier-parity result." },
-  { title: "From .atraj rollouts to a trained specialist", href: "/docs/recipes/from-traces", blurb: "Turn agent trajectories into SFT data: filter, dedupe (MinHash), emit ChatML, train. The self-improving loop." },
-  { title: "eval-gate as a CI / pre-commit gate", href: "/docs/recipes/eval-gate", blurb: "Wire a frozen eval into CI so a regression exits non-zero. The discipline that keeps main honest." },
-  { title: "Balanced training mix", href: "/docs/recipes/balanced-training-mix", blurb: "Mixing corpora without one domain drowning the others — ratio search with a micro-AutoMixer." },
-  { title: "Micro-AutoMixer for data-mix ratios", href: "/docs/recipes/automix", blurb: "Search data-mix ratios cheaply before committing compute to a full run." },
-  { title: "ScaleDown — extractive context compression", href: "/docs/recipes/b25-scaledown", blurb: "A specialist that compresses context extractively — smaller prompts, same answer." },
-  { title: "MLX export", href: "/docs/recipes/mlx-export", tag: "packaging", blurb: "Package a trained adapter/model for the MLX runtime — the last mile before it serves." },
+  {
+    title: "Method vs recipe — the standard",
+    href: "/docs/techniques/method-vs-recipe",
+    tag: "start here",
+    blurb:
+      'Why "try DPO" isn\'t a plan. A recipe names the failure mode, the data, the eval gate, the slice gate, and the stop rule.',
+  },
+  {
+    title: "Distill a specialist from a bigger model",
+    href: "/docs/recipes/distill-specialist",
+    blurb:
+      "Teacher → student on a local machine. KL + NLL mix, temperature, α, rejection sampling on a checker.",
+  },
+  {
+    title: "Distill function-calling: Phi-3-mini → tiny",
+    href: "/docs/recipes/distillation-fc",
+    blurb:
+      "The full function-calling distillation arc — the recipe behind the frontier-parity result.",
+  },
+  {
+    title: "From .atraj rollouts to a trained specialist",
+    href: "/docs/recipes/from-traces",
+    blurb:
+      "Turn agent trajectories into SFT data: filter, dedupe (MinHash), emit ChatML, train. The self-improving loop.",
+  },
+  {
+    title: "eval-gate as a CI / pre-commit gate",
+    href: "/docs/recipes/eval-gate",
+    blurb:
+      "Wire a frozen eval into CI so a regression exits non-zero. The discipline that keeps main honest.",
+  },
+  {
+    title: "Balanced training mix",
+    href: "/docs/recipes/balanced-training-mix",
+    blurb:
+      "Mixing corpora without one domain drowning the others — ratio search with a micro-AutoMixer.",
+  },
+  {
+    title: "Micro-AutoMixer for data-mix ratios",
+    href: "/docs/recipes/automix",
+    blurb:
+      "Search data-mix ratios cheaply before committing compute to a full run.",
+  },
+  {
+    title: "ScaleDown — extractive context compression",
+    href: "/docs/recipes/b25-scaledown",
+    blurb:
+      "A specialist that compresses context extractively — smaller prompts, same answer.",
+  },
+  {
+    title: "MLX export",
+    href: "/docs/recipes/mlx-export",
+    tag: "packaging",
+    blurb:
+      "Package a trained adapter/model for the MLX runtime — the last mile before it serves.",
+  },
 ];
 
 const cookbooks: Recipe[] = [
-  { title: "Character specialist", href: "/docs/recipes/cookbook-character-specialist", blurb: "Train a small model with a consistent voice/persona, end to end." },
-  { title: "Personal code specialist", href: "/docs/recipes/cookbook-personal-code-specialist", blurb: "A code model tuned on your own repos and conventions." },
-  { title: "posttrainllm + Pydantic AI", href: "/docs/recipes/cookbook-pydantic-ai", blurb: "Drive a local posttrainllm model from Pydantic AI via the OpenAI-compatible endpoint." },
-  { title: "posttrainllm + smolagents", href: "/docs/recipes/cookbook-smolagents", blurb: "Run smolagents against a local specialist — agents on one machine, no cloud." },
+  {
+    title: "Character specialist",
+    href: "/docs/recipes/cookbook-character-specialist",
+    blurb: "Train a small model with a consistent voice/persona, end to end.",
+  },
+  {
+    title: "Personal code specialist",
+    href: "/docs/recipes/cookbook-personal-code-specialist",
+    blurb: "A code model tuned on your own repos and conventions.",
+  },
+  {
+    title: "posttrainllm + Pydantic AI",
+    href: "/docs/recipes/cookbook-pydantic-ai",
+    blurb:
+      "Drive a local posttrainllm model from Pydantic AI via the OpenAI-compatible endpoint.",
+  },
+  {
+    title: "posttrainllm + smolagents",
+    href: "/docs/recipes/cookbook-smolagents",
+    blurb:
+      "Run smolagents against a local specialist — agents on one machine, no cloud.",
+  },
 ];
 
 const registry: Recipe[] = [
-  { title: "SQL technique backlog", href: "/docs/techniques/sql-technique-backlog", blurb: "The live ledger of SQL recipes tried and queued — each with its reward surface." },
-  { title: "TrainLoop teardown", href: "/docs/techniques/trainloop-teardown", blurb: "What was learned (and stolen) from an external post-training platform." },
-  { title: "Audit 2026 technique inventory", href: "/docs/techniques/audit-inventory", blurb: "Row-level treatment of every technique in the 2026 audit: keep, experimental, flagged, delete." },
+  {
+    title: "SQL technique lineage",
+    href: "/docs/techniques/sql-technique-backlog",
+    blurb:
+      "The closed ledger of SQL recipes and their final dispositions — each tied to its reward surface.",
+  },
+  {
+    title: "TrainLoop teardown",
+    href: "/docs/techniques/trainloop-teardown",
+    blurb:
+      "What was learned (and stolen) from an external post-training platform.",
+  },
+  {
+    title: "Audit 2026 technique inventory",
+    href: "/docs/techniques/audit-inventory",
+    blurb:
+      "Row-level treatment of every technique in the 2026 audit: keep, experimental, flagged, delete.",
+  },
 ];
+
+const completeRecipes = recipeRegistry.recipes;
 ---
 
 <Default {...layoutProps}>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <SiteHeader mode="instrument" active="learn" />
+  <SiteHeader mode="instrument" active="recipes" />
 
   <main class="rec" id="main">
     <div class="wrap">
@@ -50,94 +133,246 @@ const registry: Recipe[] = [
         <p class="mono-label" style="color:var(--live)">the recipe log</p>
         <h1>Recipes, not vibes.</h1>
         <p class="rec-lede">
-          A recipe names the failure mode, the data, the eval gate, the slice gate, and the stop
-          rule. "Try DPO" is not a recipe — it's a wish. These are the named, reproducible
-          post-training and packaging recipes the factory runs, plus cookbooks for real
-          integrations. Companion logs: the <a href="/devlog">devlog</a> and the
-          <a href="/docs/attempt-ledger">attempt ledger</a>.
+          A recipe names the failure mode, the data, the eval gate, the slice
+          gate, and the stop rule. "Try DPO" is not a recipe — it's a wish.
+          These are the named, reproducible post-training and packaging recipes
+          the factory runs, plus cookbooks for real integrations. Companion
+          logs: the <a href="/devlog">devlog</a> and the
+          <a href="/experiments">experiment lab</a>.
         </p>
       </header>
 
       <section class="rec-sec">
         <h2>Post-training recipes</h2>
         <div class="rec-grid">
-          {recipes.map((r) => (
-            <a class="rec-card" href={r.href}>
-              {r.tag && <span class="rec-tag mono-label">{r.tag}</span>}
-              <h3>{r.title}</h3>
-              <p>{r.blurb}</p>
-              <span class="rec-go">Open recipe →</span>
-            </a>
-          ))}
+          {
+            recipes.map((r) => (
+              <a class="rec-card" href={r.href}>
+                {r.tag && <span class="rec-tag mono-label">{r.tag}</span>}
+                <h3>{r.title}</h3>
+                <p>{r.blurb}</p>
+                <span class="rec-go">Open recipe →</span>
+              </a>
+            ))
+          }
         </div>
       </section>
 
       <section class="rec-sec">
         <h2>Cookbooks — real integrations</h2>
         <div class="rec-grid">
-          {cookbooks.map((r) => (
-            <a class="rec-card" href={r.href}>
-              <h3>{r.title}</h3>
-              <p>{r.blurb}</p>
-              <span class="rec-go">Open cookbook →</span>
-            </a>
-          ))}
+          {
+            cookbooks.map((r) => (
+              <a class="rec-card" href={r.href}>
+                <h3>{r.title}</h3>
+                <p>{r.blurb}</p>
+                <span class="rec-go">Open cookbook →</span>
+              </a>
+            ))
+          }
+        </div>
+      </section>
+
+      <section class="rec-sec" id="complete-registry">
+        <h2>Complete technique → recipe registry</h2>
+        <p class="rec-intro">
+          Every retained technique has a final project disposition and a
+          concrete lab contract: target, failure mode, data, method, eval,
+          regressions, budget, stop rule, decision rule, exercise, and mastery
+          gate. These are ready learning labs, not an unfinished AI backlog.
+        </p>
+        <div class="rec-grid">
+          {
+            completeRecipes.map((recipe) => (
+              <a
+                class="rec-card"
+                href={`/${recipe.technique_path.replace(/\.md$/, "")}`}
+              >
+                <span class="rec-tag mono-label">
+                  {recipe.status.replaceAll("-", " ")}
+                </span>
+                <h3>{recipe.title}</h3>
+                <p>{recipe.failure_mode}</p>
+                <dl class="recipe-proof">
+                  <div>
+                    <>
+                      <dt>Lab</dt>
+                      <dd>{recipe.exercise}</dd>
+                    </>
+                  </div>
+                  <div>
+                    <>
+                      <dt>Mastery</dt>
+                      <dd>{recipe.mastery_gate}</dd>
+                    </>
+                  </div>
+                </dl>
+                <span class="rec-go">Open evidence and method →</span>
+              </a>
+            ))
+          }
         </div>
       </section>
 
       <section class="rec-sec">
         <h2>Technique registry</h2>
         <div class="rec-grid">
-          {registry.map((r) => (
-            <a class="rec-card" href={r.href}>
-              <h3>{r.title}</h3>
-              <p>{r.blurb}</p>
-              <span class="rec-go">Open →</span>
-            </a>
-          ))}
+          {
+            registry.map((r) => (
+              <a class="rec-card" href={r.href}>
+                <h3>{r.title}</h3>
+                <p>{r.blurb}</p>
+                <span class="rec-go">Open →</span>
+              </a>
+            ))
+          }
         </div>
       </section>
     </div>
     <aside class="guide-link">
       <span>Need the full training loop?</span>
-      <a href="/mlx-lora-fine-tuning">Read the MLX LoRA and QLoRA field guide →</a>
+      <a href="/mlx-lora-fine-tuning"
+        >Read the MLX LoRA and QLoRA field guide →</a
+      >
     </aside>
   </main>
 
   <footer class="site-footer">
-    <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px">
+    <div
+      class="wrap"
+      style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px"
+    >
       <span>posttrainllm — recipes, not vibes.</span>
       <span style="display:flex;gap:24px">
         <a href="/devlog" style="color:var(--fg-soft)">devlog</a>
         <a href="/docs/learn/curriculum" style="color:var(--fg-soft)">learn</a>
-        <a href="/docs/attempt-ledger" style="color:var(--fg-soft)">experiments</a>
+        <a href="/experiments" style="color:var(--fg-soft)">experiments</a>
       </span>
     </div>
   </footer>
 </Default>
 
 <style>
-  .guide-link { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s-3); margin-top: var(--s-7); padding-block: var(--s-5); border-block: 1px solid var(--line); color: var(--fg-quiet); font-family: var(--font-mono); font-size: var(--step--1); }
+  .guide-link {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--s-3);
+    margin-top: var(--s-7);
+    padding-block: var(--s-5);
+    border-block: 1px solid var(--line);
+    color: var(--fg-quiet);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
 </style>
 
 <style>
-  .rec { padding-bottom: var(--s-9); }
-  .rec-hero { padding: clamp(40px, 6vw, 80px) 0 var(--s-8); border-bottom: 1px solid var(--line); }
-  .rec-hero h1 { font-size: var(--step-4); font-weight: 680; letter-spacing: -0.035em; margin: var(--s-4) 0 var(--s-4); }
-  .rec-lede { max-width: 66ch; color: var(--fg-soft); font-size: var(--step-1); line-height: 1.55; }
-  .rec-lede a { color: var(--live); }
-  .rec-sec { margin-top: var(--s-8); }
-  .rec-sec > h2 { font-size: var(--step-2); letter-spacing: -0.02em; margin-bottom: var(--s-5); }
-  .rec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--s-4); }
-  .rec-card {
-    display: flex; flex-direction: column; gap: var(--s-2);
-    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-3);
-    padding: var(--s-5); color: var(--fg); position: relative;
-    transition: border-color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+  .rec {
+    padding-bottom: var(--s-9);
   }
-  .rec-card:hover { border-color: var(--live-dim); transform: translateY(-2px); box-shadow: var(--shadow-2); }
-  .rec-tag { color: var(--brand); align-self: flex-start; border: 1px solid color-mix(in oklab, var(--brand) 34%, var(--line)); background: var(--brand-wash); border-radius: 999px; padding: 2px 9px; margin-bottom: 2px; }
-  .rec-card h3 { font-size: var(--step-1); line-height: 1.2; }
-  .rec-card p { color: var(--fg-soft); font-size: var(--step--1); line-height: 1.55; flex: 1; }
-  .rec-go { margin-top: var(--s-2); color: var(--live); font-weight: 550; font-size: var(--step--1); }
+  .rec-hero {
+    padding: clamp(40px, 6vw, 80px) 0 var(--s-8);
+    border-bottom: 1px solid var(--line);
+  }
+  .rec-hero h1 {
+    font-size: var(--step-4);
+    font-weight: 680;
+    letter-spacing: -0.035em;
+    margin: var(--s-4) 0 var(--s-4);
+  }
+  .rec-lede {
+    max-width: 66ch;
+    color: var(--fg-soft);
+    font-size: var(--step-1);
+    line-height: 1.55;
+  }
+  .rec-intro {
+    max-width: 76ch;
+    color: var(--fg-soft);
+    margin: calc(var(--s-3) * -1) 0 var(--s-5);
+    line-height: 1.6;
+  }
+  .rec-lede a {
+    color: var(--live);
+  }
+  .rec-sec {
+    margin-top: var(--s-8);
+  }
+  .rec-sec > h2 {
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    margin-bottom: var(--s-5);
+  }
+  .rec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--s-4);
+  }
+  .rec-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    padding: var(--s-5);
+    color: var(--fg);
+    position: relative;
+    transition:
+      border-color var(--dur-2) var(--ease-out),
+      transform var(--dur-2) var(--ease-out),
+      box-shadow var(--dur-2) var(--ease-out);
+  }
+  .rec-card:hover {
+    border-color: var(--live-dim);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+  }
+  .rec-tag {
+    color: var(--brand);
+    align-self: flex-start;
+    border: 1px solid color-mix(in oklab, var(--brand) 34%, var(--line));
+    background: var(--brand-wash);
+    border-radius: 999px;
+    padding: 2px 9px;
+    margin-bottom: 2px;
+  }
+  .rec-card h3 {
+    font-size: var(--step-1);
+    line-height: 1.2;
+  }
+  .rec-card p {
+    color: var(--fg-soft);
+    font-size: var(--step--1);
+    line-height: 1.55;
+    flex: 1;
+  }
+  .rec-go {
+    margin-top: var(--s-2);
+    color: var(--live);
+    font-weight: 550;
+    font-size: var(--step--1);
+  }
+  .recipe-proof {
+    display: grid;
+    gap: var(--s-3);
+    margin: var(--s-2) 0 0;
+  }
+  .recipe-proof div {
+    display: grid;
+    gap: 4px;
+  }
+  .recipe-proof dt {
+    color: var(--fg-quiet);
+    font: 600 10px/1.2 var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .recipe-proof dd {
+    margin: 0;
+    color: var(--fg-soft);
+    font-size: var(--step--2);
+    line-height: 1.5;
+  }
 </style>

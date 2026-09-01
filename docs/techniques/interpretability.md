@@ -13,6 +13,10 @@ Two interpretability surfaces ship in the browser playground:
 Both are WebGPU-only — they need access to intermediate tensors that
 the WASM build doesn't currently expose.
 
+**Closed-lab status:** reference-only. The shipped inspection surfaces and
+experimental CLI implementations remain learning assets; none of the deeper
+research directions below is an implied experiment backlog.
+
 ---
 
 ## Attention heatmap

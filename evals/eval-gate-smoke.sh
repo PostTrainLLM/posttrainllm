@@ -13,19 +13,15 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "$(dirname "${BASH_SOURCE[0]}")/_common.sh"
 FIX="$ROOT/evals/eval-gate-fixtures"
 SPEC="$FIX/eval-gate.json"
 BASELINE="$FIX/baseline.jsonl"
 BUDGET="$ROOT/evals/sample-budget.json"
 
-# Resolve the posttrainllm binary: prefer release, then debug, else build.
-TINYGPT="$ROOT/native-mac/.build/release/posttrainllm"
-[ -x "$TINYGPT" ] || TINYGPT="$ROOT/native-mac/.build/debug/posttrainllm"
-if [ ! -x "$TINYGPT" ]; then
-  echo "==> posttrainllm binary not found; building (debug)…"
-  ( cd "$ROOT/native-mac" && DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swift build )
-  TINYGPT="$ROOT/native-mac/.build/debug/posttrainllm"
-fi
+# Resolve the posttrainllm binary: prefer release, then debug, else build with
+# the active Xcode toolchain (including versioned or beta Xcode bundles).
+TINYGPT="$(resolve_posttrainllm)" || fail "could not resolve posttrainllm binary"
 echo "==> using $TINYGPT"
 
 WORK="$(mktemp -d)"

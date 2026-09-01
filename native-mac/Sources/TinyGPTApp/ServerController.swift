@@ -85,17 +85,20 @@ final class ServerController: ObservableObject {
                 p.waitUntilExit()
                 pipe.fileHandleForReading.readabilityHandler = nil
                 let code = p.terminationStatus
-                await MainActor.run {
-                    self?.process = nil
-                    self?.isRunning = false
-                    if code != 0 && code != 15 && code != -15 {
-                        self?.lastError = "server exited with code \(code)"
-                    }
-                }
+                guard let self else { return }
+                await self.finishProcess(code: code)
             }
         } catch {
             isRunning = false
             lastError = "couldn't launch: \(error)"
+        }
+    }
+
+    private func finishProcess(code: Int32) {
+        process = nil
+        isRunning = false
+        if code != 0 && code != 15 && code != -15 {
+            lastError = "server exited with code \(code)"
         }
     }
 

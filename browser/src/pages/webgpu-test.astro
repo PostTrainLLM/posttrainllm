@@ -24,13 +24,15 @@ const pageStyle = `
     `;
 
 const pageBody = `
+    <main id="main">
     <h1>WebGPU kernel parity tests</h1>
     <h2>Live parity results</h2>
-    <pre id="results">running…</pre>`;
+    <pre id="results">running…</pre>
+    </main>`;
 ---
 
 <Default {...layoutProps}>
-  <SiteHeader mode="instrument" />
+  <SiteHeader mode="instrument" active="playground" />
   <style is:global slot="head" set:html={pageStyle}></style>
   <Fragment set:html={pageBody} />
   <script>

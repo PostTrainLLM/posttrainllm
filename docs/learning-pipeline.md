@@ -62,10 +62,12 @@ anchor, see [`docs/learn/coverage-map.md`](learn/coverage-map.md).
 | 7 | Failure analysis | Failed runs must become data | trace review, failure taxonomy, targeted retry data | [`docs/factory/reports.md`](factory/reports.md), [`docs/attempt-ledger.md`](attempt-ledger.md) |
 | 8 | Public reporting | Public artifacts are a product surface | case-study reports, blockers, competition comparison, reproduction notes | [`docs/factory/case-study-template.md`](factory/case-study-template.md), [`docs/factory/public-artifacts.md`](factory/public-artifacts.md) |
 
-## Current Practical Curriculum
+## Ready Practical Lab Curriculum
 
-This is the project lab sequence. It should run alongside the ground-up path,
-not replace it.
+This is the ready project lab sequence for the owner's learning phase. It runs
+alongside the ground-up path and does not represent unfinished AI work. Any
+exercise that trains a new model begins a fresh experiment with a new issue and
+frozen gate.
 
 ### Module 1 — SQL Eval Quality
 

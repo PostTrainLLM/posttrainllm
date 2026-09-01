@@ -78,9 +78,9 @@ const pageStyle = `
 ---
 
 <Default {...layoutProps}>
-  <SiteHeader mode="instrument" />
+  <SiteHeader mode="instrument" active="experiments" />
   <style is:global slot="head" set:html={pageStyle}></style>
-  <div class="wrap">
+  <main id="main" class="wrap">
     <h1>Training-run dashboard</h1>
     <p class="sub">
       Drop one or more <code>.jsonl</code> files produced by
@@ -145,7 +145,7 @@ const pageStyle = `
         href="/roadmap">/roadmap</a
       >
     </div>
-  </div>
+  </main>
 
   <script type="module" is:inline>
     // Color palette per loaded run. Cycles for >8.

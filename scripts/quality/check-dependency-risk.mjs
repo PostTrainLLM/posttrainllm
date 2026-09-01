@@ -8,12 +8,14 @@ import { capture } from "./code-health-files.mjs";
 // graph and one audit. Auditing per package directory would just re-report the
 // same workspace-wide graph three times.
 //
-// Moving to a workspace changed resolution: shared transitive deps now dedupe
-// to single versions instead of one copy per package. Net effect was 14 high
-// advisories down to 7. Ten of the old docs-site entries (brace-expansion,
-// fast-uri, js-yaml, tar, ip-address, undici 1130717) resolved themselves and
-// are gone. Four became newly visible and are accepted here pending #104:
-// path-to-regexp 1101846 and undici 1114638 / 1114640 / 1121245.
+// The 2026-09 maintenance update moved Blume from 1.0.4 to 1.5.3. That removed
+// three accepted undici advisories and reduced the full audit from 24 findings
+// to 13, but the current unpatched image-size release reports two parser DoS
+// advisories. They are accepted only for this static docs build: all image
+// inputs are tracked/trusted and no image parser runs in the deployed site.
+// Revisit when image-size publishes a patched release. The path-to-regexp
+// advisory remains inside Blume's unused Vercel adapter path; this site builds
+// statically and does not ship that server adapter.
 const scopes = [
   {
     name: "workspace",
@@ -25,9 +27,9 @@ const scopes = [
       "1139378", // astro
       // surfaced by workspace dedupe, 2026-08
       "1101846", // path-to-regexp
-      "1114638", // undici
-      "1114640", // undici
-      "1121245", // undici
+      // unpatched static-build-only image parsers, 2026-09
+      "1138808", // image-size ICNS parser
+      "1138809", // image-size JXL/HEIF parsers
     ]),
   },
 ];

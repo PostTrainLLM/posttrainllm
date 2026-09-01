@@ -1,8 +1,10 @@
 # Attempt Ledger
 
-This ledger records meaningful posttrainllm attempts as worked, failed, regressed,
-inconclusive, or not yet tried. It is the human-readable companion to run
-folders and factory reports.
+This ledger records meaningful posttrainllm attempts with a final disposition:
+worked, worked with caveats, failed, regressed, inconclusive, superseded, or
+rejected. It is the human-readable companion to run folders and factory
+reports. Historical `not-tried` entries are not treated as unfinished project
+work: each has been closed with an evidence-backed disposition.
 
 The point is not to look successful. The point is to preserve the experimental
 state so the next recipe is better than the last one.
@@ -67,7 +69,9 @@ run report, decision file, artifact metadata, or source doc that proves it.
 | `failed` | Did not pass the intended gate |
 | `regressed` | Improved one slice but damaged a required gate |
 | `inconclusive` | Evidence too weak or eval not credible enough |
-| `not-tried` | Planned/scaffolded but not executed as a model run |
+| `superseded` | A later measured lineage answered or replaced the original question |
+| `rejected` | The proposed run or ruler was invalid, prerequisite-free, or no longer justified |
+| `blocked` | An external prerequisite prevents a conclusive run; the unblock condition must be explicit |
 
 ## SQL Specialist Attempts
 
@@ -224,26 +228,32 @@ SQL is the current factory POC and the best-documented attempt family.
 ### SQL candidate selection
 
 - Recipe: Choose best SQL among candidates before open generation.
-- Evidence: tooling and smoke exist; no model run.
-- Status: `not-tried`.
-- Lesson: Highest-priority next recipe.
-- Next action: Run only after candidate rows are generated without leakage.
+- Evidence: tooling and smoke exist, but no frozen candidate-selection dataset, baseline, or model run was approved before project closure.
+- Status: `rejected`.
+- Failure reason: The proposed run never acquired a frozen target/eval contract, and running it retrospectively would start a new experiment rather than complete an existing measured claim.
+- Lesson: Candidate selection remains a plausible future method, but an unfrozen recipe is not unfinished evidence for this project.
+- Next action: Closed for this project. Reopen only as a fresh owner-led experiment after the learning phase with new data and a frozen gate.
+- Confidence: `exact`.
 
 ### Offline rollout / OAPL-style SQL update
 
 - Recipe: Batch rollouts, score offline, one adapter update.
-- Evidence: plan renderer exists; no model run.
-- Status: `not-tried`.
-- Lesson: Run only after candidate-selection reward surface is clean.
-- Next action: Use after candidate selection proves the reward/data loop.
+- Evidence: plan renderer exists, but the required candidate-selection reward surface was never validated and no model run was authorized.
+- Status: `rejected`.
+- Failure reason: The experiment's explicit prerequisite did not exist, so an OAPL-style update would not have had a trustworthy reward and could not answer its intended question.
+- Lesson: Offline policy updates are downstream of reward validation; skipping the prerequisite is not a useful experiment.
+- Next action: Closed for this project. A future fresh experiment must validate its reward surface first.
+- Confidence: `exact`.
 
 ### Controlled SQL LoRA rank sweep
 
 - Recipe: Same data, ranks `{1,2,4,8}`, fixed seed/steps/LR.
-- Evidence: not run.
-- Status: `not-tried`.
-- Lesson: Needed to separate capacity from data/recipe confounds.
-- Next action: Run only after the next target/eval is frozen.
+- Evidence: no controlled sweep was run because no next target/eval was frozen after the confounded historical comparisons.
+- Status: `rejected`.
+- Failure reason: Without one active frozen recipe, a rank sweep would measure a new arbitrary setup rather than resolve the historical confound.
+- Lesson: Hyperparameter sweeps are valid only inside one frozen experiment contract; they are not project-completion chores.
+- Next action: Closed for this project. Any future rank study begins as a new experiment with fixed data, seed, steps, learning rate, and eval.
+- Confidence: `exact`.
 
 ## Non-SQL Model / Artifact Attempts
 
@@ -373,10 +383,11 @@ Two cross-cutting findings the collapsed entry hid:
 ### Pace planner v7 tools-in-prompt
 
 - Evidence: tools-in-prompt serve, verb-enum grammar, and data/eval harnesses shipped; the SFT was never run.
-- Status: `not-tried`.
+- Status: `superseded`.
+- Failure reason: The version was never trained, and later v8-v11 planner work replaced its proposed prompt/schema direction and supplied the relevant capability evidence.
 - Lesson: v7 is a numbering gap, not a training version. The eleven-version count includes a version that was never trained.
-- Next action: Do not cite v7 as evidence about model capability.
-- Confidence: `not-applicable`.
+- Next action: Closed as a numbering gap. Do not cite v7 as evidence or revive it outside a new owner-led experiment.
+- Confidence: `exact`.
 ### Pace planner v8 augmented corpus
 
 - Varied from `pace-planner-v5`: returned to the v5 corpus after the v6 label experiment regressed and added 59 rows of semantic disambiguation, multi-element reasoning, and abstract reference (248 to 307); hyperparameters unchanged.
@@ -511,10 +522,11 @@ Two cross-cutting findings the collapsed entry hid:
 ### Browser generation streaming and KV cache
 
 - Evidence: tokens/sec counter was added, but browser generation still lacked KV cache and true token streaming; task `#72` was logged.
-- Status: `not-tried`.
+- Status: `rejected`.
+- Failure reason: The browser track completed without implementing this feature, and no measured claim depends on pretending the typewriter animation is true streaming.
 - Lesson: A typewriter animation over an already-complete response is not true streaming.
-- Next action: Add worker protocol support for intermediate tokens and KV-cached browser generation before claiming interactive decode latency.
-- Confidence: `not-applicable`.
+- Next action: Closed for this project with the limitation explicit. A future browser product may reopen true streaming as a new feature.
+- Confidence: `exact`.
 
 ## Runtime / Browser / Architecture Attempts
 
@@ -655,11 +667,12 @@ Two cross-cutting findings the collapsed entry hid:
 
 ### A1 first tool-calling specialist harness
 
-- Evidence: recipe and acceptance harness shipped; training run pending GPU Mac + local BFCL checkout.
-- Status: `not-tried`.
-- Lesson: The four-step specialist contract is reusable, but the model claim does not exist until BFCL training/eval runs.
-- Next action: Run BFCL baseline, SFT, adapter eval, and +3pp gate once GPU/BFCL prerequisites are available.
-- Confidence: `not-applicable`.
+- Evidence: the recipe and acceptance harness shipped; later Qwen3-4B file-ops distillation and BFCL-family evaluations exercised the specialist contract with measured results.
+- Status: `superseded`.
+- Failure reason: The original A1-specific adapter run was never executed, but its question and workflow were overtaken by later measured tool-calling specialists and should not be recreated for historical bookkeeping.
+- Lesson: Reusable infrastructure can be superseded by stronger downstream evidence even when its first named model run never happened.
+- Next action: Closed as superseded. Use the measured file-ops/ReST lineage for evidence and start any new tool-caller as a fresh experiment.
+- Confidence: `exact`.
 
 ### B1 SQL eval infrastructure
 
@@ -724,6 +737,89 @@ Primary SQL source docs:
 - Next action: Do not report the next SQL candidate without `slice-metrics.json` and `trace_review.md`.
 - Confidence: `exact`.
 
+## Final External Runtime And Ruler Experiments
+
+### Needle 2 base public tool-selection gate (2026-08-31)
+
+- Evidence: 32/94 exact tool selections (34.0%), with 8 out-of-scope false calls and 2 destructive-action calls.
+- Status: `failed`.
+- Failure reason: The base artifact was inaccurate on Pace and file operations, produced unsafe false actions, and exposed no useful confidence threshold.
+- Lesson: Tiny packaging and fast decode do not make a tool selector safe enough for action routing.
+- Next action: Reject the base artifact for Pace; preserve it only as a tiny-runtime baseline.
+- Confidence: `exact`.
+
+### Needle 2 task-specific catalog ablation (2026-09-01)
+
+- Evidence: overall exactness moved 32/94 -> 36/94, while Pace regressed 10/28 -> 6/28, file operations stayed 0/6, and 3 out-of-scope prompts still produced actions.
+- Status: `regressed`.
+- Failure reason: Oracle task-family routing reduced schema size and latency but did not repair capability or safety; the target Pace slice became worse.
+- Lesson: Catalog restriction is a latency lever, not a capability or safety rescue for this base model.
+- Next action: Reject this integration path; require a materially different training hypothesis and a new frozen gate for any future Needle-derived work.
+- Confidence: `exact`.
+
+### Parakeet WGSL browser-ASR smoke (2026-09-01)
+
+- Evidence: 17m 10s of audio transcribed in 7.225s after cold load and 7.68-7.80s warm (132-143x real-time); warm transcript was byte-stable.
+- Status: `worked-with-caveat`.
+- Failure reason: Runtime speed and repeatability passed, but no reference transcript or WER scorer established accuracy and the optional first download is 386.5 MiB.
+- Lesson: Browser WebGPU ASR is technically viable on Apple Silicon, but speed cannot substitute for a controlled accuracy and UX gate.
+- Next action: Preserve as a validated proof; compare against WhisperKit only as a fresh owner-led experiment after the learning phase.
+- Confidence: `exact`.
+
+### OffHours Devin stress validation (2026-08-21)
+
+- Evidence: 30/30 workday-conditions and 1,200/1,200 claims completed, but the clean condition scored 95.0% and missed the frozen 98% calibration gate.
+- Status: `inconclusive`.
+- Failure reason: The benchmark ruler failed calibration before the stress comparison could support a confirmatory semantic-effect claim.
+- Lesson: A complete run is still inconclusive when the clean frontier calibration misses its preregistered gate.
+- Next action: Closed as calibration evidence; do not use it as a causal stress result.
+- Confidence: `exact`.
+
+### OffHours persistent-tension pilot (2026-08-21)
+
+- Evidence: unresolved tension scored 198/200 versus 197/200 resolved, a -0.5 percentage-point paired error difference with 95% interval -3.0 to +1.5.
+- Status: `worked-with-caveat`.
+- Failure reason: The frozen experiment found no work-quality penalty, while provider prompt-token, quantization, and model-file provenance remained unavailable.
+- Lesson: Unresolved narrative tension did not degrade measured work quality under the exercised conditions; a null result is a valid result.
+- Next action: Closed as report-only evidence; do not tune scenarios after the null.
+- Confidence: `exact`.
+
+### OffHours context-saturation boundary (2026-08-21)
+
+- Evidence: the ordered volume ladder found its first reproducible boundary at 2,000 words/event or 8,000 submitted words/day.
+- Status: `worked-with-caveat`.
+- Failure reason: The boundary occurred in the neutral arm and therefore measures raw context volume or context management, not personal-obligation semantics; full provider/model provenance is incomplete.
+- Lesson: The supported result is a neutral context-volume boundary, not a psychological or family-tension effect.
+- Next action: Closed as report-only boundary evidence with the interpretation constrained to raw volume.
+- Confidence: `exact`.
+
+### Character Chess benchmark candidate audit (2026-08-22)
+
+- Evidence: 100 stable candidates produced 86 admitted positions, but the best recorded frontier screen reached only 75% exact agreement.
+- Status: `rejected`.
+- Failure reason: The frontier calibration did not approach the required ceiling, external-model coverage was incomplete, and the model alias was mutable, so the suite could not be frozen as a fair ruler.
+- Lesson: A benchmark candidate set is not a benchmark until the frontier ceiling validates the ruler.
+- Next action: Closed as candidate-only evidence; design any future chess ruler independently after the learning phase.
+- Confidence: `exact`.
+
+### Character 2048 frontier benchmark screen (2026-08-04)
+
+- Evidence: pinned Sonnet matched random legal play at 0.995x mean score and pinned Opus reached only 1.058x over three complete pairs before a provider disconnect.
+- Status: `rejected`.
+- Failure reason: The proposed character interface did not expose a reliable frontier intelligence advantage, so training a 30-50M student would measure ruler noise.
+- Lesson: Validate the teacher and interface before spending compute on a specialist; a failed ruler should stop training.
+- Next action: Closed in the current character form; keep the negative benchmark replay public.
+- Confidence: `exact`.
+
+### Character game arena candidate report (2026-08-05)
+
+- Evidence: the arena retained four chess matches and seven complete 2048 pairs, while every rating remained unqualified.
+- Status: `rejected`.
+- Failure reason: Chess missed minimum-match and forfeit gates, while 2048 missed minimum-pair or complete-source gates; cross-game ranking would have overstated sparse development evidence.
+- Lesson: A rating calculation is not a public rating until each underlying competition family passes its qualification contract.
+- Next action: Closed as a transparent candidate report with no Elo, human-equivalence, or specialist-win claim.
+- Confidence: `exact`.
+
 ## Historical Coverage Limits
 
 This ledger is now schema-complete for the structured attempts in
@@ -735,21 +831,22 @@ Current structured coverage:
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 49 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 64 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 5 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
-| `not-applicable` | 10 | No failure reason is expected for worked/not-tried status. |
+| `not-applicable` | 4 | No failure reason is expected for a clean worked status. |
 | `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |
 
-This is also not a claim that every scratch experiment in the repo's older
-archive has been normalized. Older archive/session docs still contain
-additional lessons, but they should enter this ledger only when we can attach a
-status, evidence, confidence, lesson, and next action without inventing history.
-See [`history-coverage-audit.md`](audits/history-coverage-audit.md) for the current
-coverage boundary.
+Every known evidence-backed experiment is normalized here. Older archive and
+session prose remains classified as narrative, implementation chronology, or
+method inventory when it does not preserve enough evidence to reconstruct an
+experiment without invention. That classification is a final disposition, not
+an implicit backlog. See
+[`history-coverage-audit.md`](audits/history-coverage-audit.md) for the coverage
+boundary.
 
-## Next Ledger Improvements
+## Closure Rule For Fresh Experiments
 
-Required future fields for full historical precision:
+Any fresh experiment opened after the owner begins the learning phase must add:
 
 - run id
 - git commit / binary provenance

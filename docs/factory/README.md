@@ -1,8 +1,10 @@
 # Factory Docs
 
-Start here for active posttrainllm work.
+Start here for the retained factory contracts. They are runnable lab material,
+not an active project queue; use them only after the fresh-experiment gate in
+`../NEXT.md` is met.
 
-posttrainllm's current product loop is:
+posttrainllm's retained product loop is:
 
 ```text
 target -> data -> post-training -> eval -> package -> report
@@ -16,8 +18,8 @@ target -> data -> post-training -> eval -> package -> report
 - [`post-training-factory.md`](post-training-factory.md) — how data,
   post-training, evals, performance, packaging, and public artifacts fit
   together.
-- [`../attempt-ledger.md`](../attempt-ledger.md) — worked, failed, regressed,
-  inconclusive, and not-yet-tried attempts.
+- [`../attempt-ledger.md`](../attempt-ledger.md) — all 75 final worked, failed,
+  regressed, inconclusive, superseded, and rejected attempts.
 - [`../external-products-reviewed.md`](../external-products-reviewed.md) —
   external products and techniques reviewed or adopted.
 - [`case-study-template.md`](case-study-template.md) — public artifact report
@@ -27,7 +29,7 @@ target -> data -> post-training -> eval -> package -> report
   scoring, compact adapter update, eval, and decision loop.
 - [`lora-geometry.md`](lora-geometry.md) — adapter effective-update diagnostics
   for rank and module targeting.
-- Autocorrect specialist lane (in progress, untrained):
+- Closed autocorrect foundation (training was rejected after the bounded bake-off):
   [`autocorrect-foundation.md`](autocorrect-foundation.md) — contract,
   evaluator, simulator, and manifests;
   [`autocorrect-model-shortlist.md`](autocorrect-model-shortlist.md) — the

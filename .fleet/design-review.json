@@ -2,7 +2,8 @@
   "$schema": "fleet.design-review.v1",
   "version": 1,
   "project": "posttrainllm",
-  "target": "OffHours Devin persistent-tension experiment report",
+  "target": "browser/src/{components/SiteHeader.astro,pages/{index,experiments,recipes,learn,artifacts/**}.astro}",
+  "surfaceMode": "read",
   "mode": "preserve",
   "register": "product",
   "context": {
@@ -14,33 +15,82 @@
     "probes": [],
     "selected": "existing-design",
     "approval": "not-required",
-    "before": "artifacts/design/before.png"
+    "before": "artifacts/design/before.png",
+    "library": {
+      "strategy": "upstream-first",
+      "primary": "existing-project-system",
+      "sources": [],
+      "runtime": "existing",
+      "customReplacement": {
+        "used": false,
+        "authorization": "not-required",
+        "reason": ""
+      }
+    },
+    "contract": {
+      "purpose": "Turn the completed PostTrainLLM research corpus into a trustworthy learning artifact and practical lab.",
+      "purposeSource": "PRODUCT.md and the owner-approved closure direction in GitHub issue #136",
+      "canonicalPurpose": "PostTrainLLM takes learners from ML and transformer foundations to Mac-local models, adapters, evals, agents, packages, runtimes, and interpretability by making every stage produce an inspectable artifact.",
+      "purposeAlignment": "match",
+      "driftNote": "",
+      "audience": "Learners and practitioners building, modifying, tuning, evaluating, and packaging AI systems on Apple Silicon and in the browser.",
+      "job": "Guide a learner from first principles to a real model, adapter, benchmark, agent, package, runtime decision, or causal probe while keeping historical evidence and fresh experiments distinct.",
+      "thesis": "Preserve the existing dark local-research-bench system and make evidence lineage the visual hierarchy.",
+      "system": "Existing ink surfaces, teal verified-state accents, coral cautions, Bricolage headings, Geist prose, Geist Mono evidence labels, responsive evidence cards, and explicit status text.",
+      "signature": "A nine-stage artifact ladder where every outcome exposes build, modify, tune, prove, and package actions, with evidence and the runnable CLI one click away.",
+      "risk": "The archive is information-dense; search, status filters, concise cards, separate learning paths, and persistent mobile navigation must keep it navigable without hiding limitations."
+    }
   },
   "evidence": {
     "screenshots": [
       {
         "width": 390,
-        "path": "artifacts/design/offhours-tension-after-390.png"
+        "path": "artifacts/design/lab/learn-390.png"
       },
       {
         "width": 768,
-        "path": "artifacts/design/offhours-tension-after-768.png"
+        "path": "artifacts/design/lab/learn-768.png"
       },
       {
         "width": 1440,
-        "path": "artifacts/design/offhours-tension-after-1440.png"
+        "path": "artifacts/design/lab/learn-1440.png"
+      },
+      {
+        "width": 390,
+        "path": "artifacts/design/lab/learn-journey-390.png"
+      },
+      {
+        "width": 768,
+        "path": "artifacts/design/lab/learn-journey-768.png"
+      },
+      {
+        "width": 1440,
+        "path": "artifacts/design/lab/learn-journey-1440.png"
+      },
+      {
+        "width": 390,
+        "path": "artifacts/design/lab/experiments-needle-390.png"
+      },
+      {
+        "width": 768,
+        "path": "artifacts/design/lab/experiments-needle-768.png"
+      },
+      {
+        "width": 1440,
+        "path": "artifacts/design/lab/experiments-needle-1440.png"
       }
     ],
     "projectCheck": {
-      "command": "bash evals/offhours-smoke.sh && CODE_HEALTH_SKIP_SWIFT=1 pnpm run quality",
-      "status": "pass"
+      "command": "pnpm --dir browser run build && pnpm --dir browser run visual:audit",
+      "status": "pass",
+      "note": "The production build generated 46 Astro pages, 310 docs pages, and 358 paired agent surfaces; the rendered audit passed seven key routes at 390, 768, and 1440 pixels with zero failures."
     },
     "critique": {
-      "score": 35,
+      "score": 36,
       "maximum": 40
     },
     "audit": {
-      "score": 19,
+      "score": 18,
       "maximum": 20
     },
     "unresolved": {
@@ -49,13 +99,56 @@
     },
     "detector": {
       "posture": "advisory",
-      "findings": [
-        "Single-pass detector reported one print-only advisory (#111); accepted because print uses a documented monochrome override."
-      ]
+      "findings": []
+    },
+    "comprehension": {
+      "status": "not-applicable",
+      "reviewer": "",
+      "answers": {
+        "product": "",
+        "audience": "",
+        "value": "",
+        "mechanism": "",
+        "proof": "",
+        "nextAction": ""
+      },
+      "purposeScore": {
+        "product": 0,
+        "audience": 0,
+        "value": 0,
+        "mechanism": 0,
+        "proof": 0,
+        "nextAction": 0,
+        "total": 0
+      },
+      "mismatches": []
+    },
+    "browserReview": {
+      "surfaces": [
+        "/",
+        "/experiments",
+        "/recipes",
+        "/learn",
+        "/docs/cli-reference",
+        "/artifacts/needle2-tool-selection",
+        "/artifacts/parakeet-wgsl-browser-asr"
+      ],
+      "viewports": [390, 768, 1440],
+      "horizontalOverflow": false,
+      "consoleErrors": 0,
+      "interactionChecks": [
+        "Primary navigation remains keyboard-visible and horizontally scrollable at narrow viewports",
+        "Needle search returns 2 of 75 experiments",
+        "worked-with-caveat filter returns 38 of 75 experiments",
+        "recipe registry renders 18 mastery contracts",
+        "learning lab renders 9 prerequisite-linked paths",
+        "artifact journey renders 9 stages and 13 buildable outcomes with readiness and workload labels"
+      ],
+      "note": "Fresh preserve-lane renders confirm readable hierarchy, usable controls, deliberate narrow-screen navigation, and no P0/P1 defects. The audit found zero horizontal overflow, console errors, page errors, or failed requests across 21 route/viewport combinations; it also verified 75 attempts, 2 Needle search results, 38 caveated results, 18 recipes, 9 learning paths, 9 journey stages, and 13 buildable artifacts."
     }
   },
   "ownerFeedback": {
-    "decision": "keep",
-    "note": "Owner approved the professional-grade OffHours artifact and asked to try the forced-work persistent-tension design on Devin first."
+    "decision": "delegated",
+    "note": "The owner approved the project-completion spec and explicitly asked for a strong learning artifact and lab; the implementation preserves the existing design system."
   }
 }

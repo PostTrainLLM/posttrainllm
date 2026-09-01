@@ -1,0 +1,529 @@
+{
+  "schema_version": 1,
+  "closure_rule": "Every retained technique is either a reproducible recipe, a closed measured experiment, or reference-only background. Nothing in this registry is an active AI backlog.",
+  "required_fields": [
+    "id",
+    "title",
+    "technique_path",
+    "status",
+    "target",
+    "failure_mode",
+    "data",
+    "method_or_policy",
+    "primary_eval",
+    "regression_slices",
+    "resource_budget",
+    "stop_rule",
+    "decision_rule",
+    "evidence",
+    "learning_path",
+    "exercise",
+    "mastery_gate"
+  ],
+  "governance_docs": [
+    "docs/techniques/README.md",
+    "docs/techniques/method-vs-recipe.md",
+    "docs/techniques/audit-inventory.md",
+    "docs/techniques/trainloop-teardown.md"
+  ],
+  "recipes": [
+    {
+      "id": "constrained-generation",
+      "title": "Constrained generation",
+      "technique_path": "docs/techniques/constrained_generation.md",
+      "status": "validated-with-caveat",
+      "target": "Structured tool calls, SQL, and schema-bound outputs",
+      "failure_mode": "A capable model emits invalid syntax or forbidden output shapes.",
+      "data": "The target's existing frozen eval; no training data is required for the inference policy.",
+      "method_or_policy": "Restrict decoding to the grammar or legal token set and score raw validity separately from task correctness.",
+      "primary_eval": "Schema or grammar validity plus the target semantic metric.",
+      "regression_slices": [
+        "raw unconstrained accuracy",
+        "abstention",
+        "latency",
+        "unsafe action rate"
+      ],
+      "resource_budget": "No training; one bounded baseline/candidate evaluation.",
+      "stop_rule": "Stop if validity rises but semantic correctness, safety, or latency misses its frozen gate.",
+      "decision_rule": "Ship only when constrained execution passes both validity and semantic gates; otherwise retain as a diagnostic.",
+      "evidence": [
+        "docs/techniques/constrained_generation.md",
+        "docs/attempt-ledger.md"
+      ],
+      "learning_path": "runtime-and-agents",
+      "exercise": "Run a tiny legal-token or JSON-schema fixture and compare raw versus constrained validity.",
+      "mastery_gate": "Explain why legal output is not the same as correct output."
+    },
+    {
+      "id": "distillation",
+      "title": "Specialist distillation",
+      "technique_path": "docs/techniques/distillation.md",
+      "status": "validated-with-caveat",
+      "target": "Compress a frontier or larger-model capability into a routed Mac-local specialist.",
+      "failure_mode": "A small base lacks a narrow behavior that a qualified teacher can demonstrate.",
+      "data": "Teacher trajectories filtered by a verifiable checker, with a sealed holdout and breadth set.",
+      "method_or_policy": "Train on accepted teacher trajectories; preserve teacher identity, prompts, filtering, and student recipe.",
+      "primary_eval": "Frozen target gate against stock student and frontier ceiling.",
+      "regression_slices": [
+        "out-of-domain breadth",
+        "safety",
+        "latency",
+        "RAM",
+        "tok/s"
+      ],
+      "resource_budget": "Fresh experiment only; budget exact teacher calls, rows, training steps, and Mac runtime before execution.",
+      "stop_rule": "Stop when the target gate plateaus or breadth exceeds its allowed regression.",
+      "decision_rule": "Ship as routed-only when depth wins and breadth regresses; reject when target gain is absent or negative transfer dominates.",
+      "evidence": [
+        "docs/recipes/distill-specialist.md",
+        "docs/recipes/distillation-fc.md",
+        "docs/attempt-ledger.md"
+      ],
+      "learning_path": "post-training",
+      "exercise": "Trace the file-ops lineage from stock 4B through distilled, multibackend, and ReST candidates.",
+      "mastery_gate": "State the target gain and breadth cost that force routing."
+    },
+    {
+      "id": "evolution-strategies",
+      "title": "Evolution strategies",
+      "technique_path": "docs/techniques/evolution_strategies.md",
+      "status": "reference-only",
+      "target": "Gradient-free optimization when rewards are evaluable but differentiation is unavailable.",
+      "failure_mode": "The objective cannot provide useful gradients or the model/policy is treated as a black box.",
+      "data": "A deterministic task set and scalar reward with repeated-seed variance estimates.",
+      "method_or_policy": "Sample parameter or prompt perturbations, evaluate them under the same seeds, and update toward higher reward.",
+      "primary_eval": "Held-out reward against the unchanged incumbent.",
+      "regression_slices": [
+        "reward variance",
+        "evaluation cost",
+        "breadth",
+        "seed sensitivity"
+      ],
+      "resource_budget": "Not run in the closed project; any use is a fresh experiment with a fixed evaluation-call ceiling.",
+      "stop_rule": "Stop when confidence intervals overlap the incumbent or evaluation cost exceeds the approved ceiling.",
+      "decision_rule": "Reference only until a fresh target justifies its evaluation cost.",
+      "evidence": ["docs/techniques/evolution_strategies.md"],
+      "learning_path": "post-training",
+      "exercise": "Simulate one two-parameter ES update on a deterministic toy reward.",
+      "mastery_gate": "Explain the evaluation-cost tradeoff versus backpropagation."
+    },
+    {
+      "id": "galore-stability",
+      "title": "GaLore and training stability",
+      "technique_path": "docs/techniques/galore_and_stability.md",
+      "status": "validated-with-caveat",
+      "target": "Reduce optimizer memory or stabilize deep training.",
+      "failure_mode": "Optimizer state or unstable gradients block an otherwise valid training recipe.",
+      "data": "The same tiny-overfit and held-out data used by the incumbent recipe.",
+      "method_or_policy": "Change one optimizer or stability mechanism while holding model, data, seed, and eval fixed.",
+      "primary_eval": "Peak memory and task/loss parity versus the incumbent.",
+      "regression_slices": [
+        "step time",
+        "convergence",
+        "held-out behavior",
+        "numerical stability"
+      ],
+      "resource_budget": "Fresh experiment only; one bounded comparison before any sweep.",
+      "stop_rule": "Stop if memory does not improve materially or convergence/quality regresses.",
+      "decision_rule": "Adopt only with measured memory benefit and behavior parity.",
+      "evidence": [
+        "docs/techniques/galore_and_stability.md",
+        "docs/techniques/audit-inventory.md"
+      ],
+      "learning_path": "training-mechanics",
+      "exercise": "Compare the recorded GaLore smoke with the gradient-checkpointing result and identify what each actually saves.",
+      "mastery_gate": "Distinguish optimizer-state memory from activation memory."
+    },
+    {
+      "id": "interpretability",
+      "title": "Interpretability probes",
+      "technique_path": "docs/techniques/interpretability.md",
+      "status": "reference-only",
+      "target": "Diagnose a measured model failure without treating a visualization as causal proof.",
+      "failure_mode": "Aggregate scores cannot explain which layers, tokens, or representations drive a failure.",
+      "data": "A frozen set of successful and failed traces from one checkpoint.",
+      "method_or_policy": "Use logit lens, probes, activation patching, causal tracing, or SAE analysis with an explicit hypothesis.",
+      "primary_eval": "Prediction change under a controlled intervention, not visual salience alone.",
+      "regression_slices": [
+        "control prompts",
+        "random intervention",
+        "layer/token stability",
+        "replayability"
+      ],
+      "resource_budget": "Closed as a learning/reference lane; future use must be attached to a specific model failure.",
+      "stop_rule": "Stop if the probe has no discriminating prediction or intervention control.",
+      "decision_rule": "Use findings only to change a recipe when a controlled intervention supports them.",
+      "evidence": [
+        "docs/techniques/interpretability.md",
+        "docs/learn/advanced-ml-systems-eval.md"
+      ],
+      "learning_path": "interpretability",
+      "exercise": "Inspect one logit-lens or activation-patching fixture and write the causal claim it does and does not support.",
+      "mastery_gate": "Separate correlation, localization, and causal intervention."
+    },
+    {
+      "id": "lora",
+      "title": "LoRA, DoRA, and adapter geometry",
+      "technique_path": "docs/techniques/lora_guide.md",
+      "status": "validated-with-caveat",
+      "target": "Adapt a frozen Mac-local base to one narrow behavior.",
+      "failure_mode": "The base misses a bounded task and full fine-tuning is unnecessary or too costly.",
+      "data": "Frozen train/validation/test splits with a tiny-overfit gate and breadth data.",
+      "method_or_policy": "Train named target modules at a fixed rank and inspect effective-update geometry before changing capacity.",
+      "primary_eval": "Target before/after score on a sealed holdout.",
+      "regression_slices": [
+        "breadth",
+        "safety",
+        "format",
+        "adapter geometry",
+        "serve/load parity"
+      ],
+      "resource_budget": "Fresh experiment only; one tiny-overfit and one bounded candidate before rank or module sweeps.",
+      "stop_rule": "Stop if tiny overfit fails, the target plateaus, or required breadth regresses beyond the frozen threshold.",
+      "decision_rule": "Ship, route, retry, or reject from the same frozen report card.",
+      "evidence": [
+        "docs/techniques/lora_guide.md",
+        "docs/factory/lora-geometry.md",
+        "docs/training/sft.md"
+      ],
+      "learning_path": "post-training",
+      "exercise": "Run or inspect LoRA geometry for one successful and one failed adapter.",
+      "mastery_gate": "Explain rank, target modules, effective rank, and why lower loss is insufficient."
+    },
+    {
+      "id": "moe",
+      "title": "Sparse mixture of experts",
+      "technique_path": "docs/techniques/moe.md",
+      "status": "validated-with-caveat",
+      "target": "Increase conditional capacity while keeping active compute bounded.",
+      "failure_mode": "A dense model lacks capacity and a true sparse execution path is available.",
+      "data": "A deterministic routing fixture plus task data and expert-load diagnostics.",
+      "method_or_policy": "Train a router and experts, then execute only selected experts with sparse gather/scatter or grouped matmul.",
+      "primary_eval": "Task quality and real wall-clock/energy versus a dense parameter-matched baseline.",
+      "regression_slices": [
+        "expert balance",
+        "router collapse",
+        "memory",
+        "wall time",
+        "quality"
+      ],
+      "resource_budget": "Dense-compute smoke completed; no further project run without a real sparse kernel and a fresh target.",
+      "stop_rule": "Stop if all experts still execute or the router collapses.",
+      "decision_rule": "Treat as capacity-only until sparse execution produces a measured compute win.",
+      "evidence": ["docs/techniques/moe.md", "docs/attempt-ledger.md"],
+      "learning_path": "architecture-and-kernels",
+      "exercise": "Calculate active versus total parameters for top-k expert routing and identify why dense execution saves nothing.",
+      "mastery_gate": "Explain the difference between sparse parameters and sparse compute."
+    },
+    {
+      "id": "mtp",
+      "title": "Multi-token prediction",
+      "technique_path": "docs/techniques/mtp.md",
+      "status": "reference-only",
+      "target": "Improve training signal or support speculative multi-token heads.",
+      "failure_mode": "Single-token supervision or decode throughput is the measured bottleneck.",
+      "data": "Sequence data with aligned future-token labels and a held-out language/task gate.",
+      "method_or_policy": "Add auxiliary future-token heads with explicit loss weights and verify the base next-token head remains stable.",
+      "primary_eval": "Base-task quality plus accepted speculative tokens per step.",
+      "regression_slices": [
+        "base-head quality",
+        "extra training cost",
+        "head acceptance",
+        "decode latency"
+      ],
+      "resource_budget": "Closed as reference-only; future use requires a throughput-qualified candidate.",
+      "stop_rule": "Stop if auxiliary loss harms the base head or acceptance cannot offset extra work.",
+      "decision_rule": "Do not adopt without an end-to-end decode win at quality parity.",
+      "evidence": [
+        "docs/techniques/mtp.md",
+        "docs/techniques/speculative_heads.md"
+      ],
+      "learning_path": "runtime-and-agents",
+      "exercise": "Draw the label shift for two future-token heads and compute the added loss terms.",
+      "mastery_gate": "Explain why training more heads does not guarantee faster decoding."
+    },
+    {
+      "id": "optimizers",
+      "title": "Optimizer and schedule selection",
+      "technique_path": "docs/techniques/optimizers.md",
+      "status": "validated-with-caveat",
+      "target": "Make a correct training recipe converge stably within Mac memory and time bounds.",
+      "failure_mode": "Loss spikes, under-updating, or optimizer memory blocks a frozen recipe.",
+      "data": "The same tiny-overfit and held-out splits as the incumbent.",
+      "method_or_policy": "Change exactly one optimizer, learning-rate schedule, or stability term per comparison.",
+      "primary_eval": "Convergence, target quality, wall time, and peak memory versus incumbent.",
+      "regression_slices": [
+        "early-step stability",
+        "final task score",
+        "memory",
+        "step time"
+      ],
+      "resource_budget": "Fresh experiment only; one bounded A/B before a sweep.",
+      "stop_rule": "Stop if the change does not address the diagnosed bottleneck.",
+      "decision_rule": "Prefer the simplest optimizer meeting stability, quality, memory, and speed gates.",
+      "evidence": [
+        "docs/techniques/optimizers.md",
+        "docs/techniques/audit-inventory.md"
+      ],
+      "learning_path": "training-mechanics",
+      "exercise": "Diagnose three recorded loss curves as learning-rate, capacity, or data failures.",
+      "mastery_gate": "Choose an optimizer change from evidence rather than novelty."
+    },
+    {
+      "id": "peft-variants",
+      "title": "Parameter-efficient fine-tuning variants",
+      "technique_path": "docs/techniques/peft_variants.md",
+      "status": "validated-with-caveat",
+      "target": "Trade adapter capacity, initialization, and storage for one narrow fine-tuning target.",
+      "failure_mode": "Plain LoRA has a measured geometry, capacity, quantization, or many-adapter limitation.",
+      "data": "One frozen target with the same split, steps, seed, and module set across variants.",
+      "method_or_policy": "Compare DoRA, QLoRA, VeRA, AdaLoRA, RsLoRA, PISSA, or LoftQ one axis at a time.",
+      "primary_eval": "Target score and effective update versus plain LoRA.",
+      "regression_slices": [
+        "load parity",
+        "memory",
+        "trainable parameters",
+        "breadth",
+        "wall time"
+      ],
+      "resource_budget": "Smokes are retained; any comparative run is a fresh controlled experiment.",
+      "stop_rule": "Stop when the variant does not solve the diagnosed plain-LoRA limitation.",
+      "decision_rule": "Keep plain LoRA unless a variant earns a measured target or systems advantage.",
+      "evidence": [
+        "docs/techniques/peft_variants.md",
+        "docs/techniques/audit-inventory.md"
+      ],
+      "learning_path": "post-training",
+      "exercise": "Create a one-page comparison of LoRA, DoRA, QLoRA, and VeRA parameter/memory assumptions.",
+      "mastery_gate": "Select a PEFT variant from the bottleneck, not from its name."
+    },
+    {
+      "id": "precision",
+      "title": "Precision and numerical gates",
+      "technique_path": "docs/techniques/precision.md",
+      "status": "validated-with-caveat",
+      "target": "Reduce memory or improve throughput without invalidating model math.",
+      "failure_mode": "Precision choice causes overflow, drift, excess memory, or slow execution.",
+      "data": "Deterministic numeric fixtures plus one behavioral smoke.",
+      "method_or_policy": "Compare reference and reduced-precision paths with explicit tolerances before measuring speed.",
+      "primary_eval": "Numerical parity and behavioral parity, then memory and throughput.",
+      "regression_slices": [
+        "max error",
+        "loss drift",
+        "NaN/Inf",
+        "quality",
+        "hardware fallback"
+      ],
+      "resource_budget": "No long loop until single-step parity passes.",
+      "stop_rule": "Stop at the first unexplained numerical or behavioral failure.",
+      "decision_rule": "Adopt the lowest precision that passes correctness and produces a real systems win.",
+      "evidence": [
+        "docs/techniques/precision.md",
+        "docs/learn/webgpu-execution-model.md"
+      ],
+      "learning_path": "architecture-and-kernels",
+      "exercise": "Measure fp32/fp16 error on a tiny matrix operation and choose a tolerance before looking at the result.",
+      "mastery_gate": "Explain why a faster kernel with wrong numerics is not an optimization."
+    },
+    {
+      "id": "pruning",
+      "title": "Unstructured and structured pruning",
+      "technique_path": "docs/techniques/pruning.md",
+      "status": "validated-with-caveat",
+      "target": "Reduce stored or executed model structure after capability is proven.",
+      "failure_mode": "Artifact size or dense topology is the measured deployment bottleneck.",
+      "data": "Frozen quality and latency gates with the original checkpoint as baseline.",
+      "method_or_policy": "Prune weights, heads, or layers; distinguish zeroing from physical topology removal.",
+      "primary_eval": "Quality at matched artifact size and real wall-clock execution.",
+      "regression_slices": [
+        "perplexity",
+        "task score",
+        "file size",
+        "RAM",
+        "latency"
+      ],
+      "resource_budget": "Existing smokes closed; future use requires a shipped candidate with a measured size/latency blocker.",
+      "stop_rule": "Stop if sparsity does not translate into storage or execution savings.",
+      "decision_rule": "Do not call zero weights a speedup without a sparse or physically smaller runtime path.",
+      "evidence": [
+        "docs/techniques/pruning.md",
+        "docs/techniques/audit-inventory.md"
+      ],
+      "learning_path": "quantization-and-packaging",
+      "exercise": "Compare 50% zero weights with physical layer removal and predict which metrics change.",
+      "mastery_gate": "Distinguish statistical sparsity, compressed storage, and runtime sparsity."
+    },
+    {
+      "id": "quantization",
+      "title": "Quantization and storage formats",
+      "technique_path": "docs/techniques/quantization_expansion.md",
+      "status": "validated-with-caveat",
+      "target": "Reduce model download, RAM, or execution cost on Mac and browser runtimes.",
+      "failure_mode": "Full precision exceeds the target's distribution or memory budget.",
+      "data": "Calibration samples plus frozen quality, load, and runtime gates.",
+      "method_or_policy": "Apply the selected format, verify roundtrip/load parity, then measure actual kernel/runtime behavior.",
+      "primary_eval": "Task quality and perplexity at measured file size, RAM, and tok/s.",
+      "regression_slices": [
+        "rare tokens",
+        "long context",
+        "load parity",
+        "cold start",
+        "kernel support"
+      ],
+      "resource_budget": "Storage smokes are retained; large-model conversion or calibration is a fresh bounded experiment.",
+      "stop_rule": "Stop if a smaller file does not load, preserve quality, or reach a matching runtime kernel.",
+      "decision_rule": "Name storage-only quantization honestly; claim runtime gains only with measured kernels.",
+      "evidence": [
+        "docs/techniques/quantization_expansion.md",
+        "docs/learn/advanced-llm-inference.md"
+      ],
+      "learning_path": "quantization-and-packaging",
+      "exercise": "Trace one fp16-to-int4 artifact from calibration through load and decode measurement.",
+      "mastery_gate": "Explain why four-bit storage can still execute with wider arithmetic."
+    },
+    {
+      "id": "speculative-heads",
+      "title": "Speculative heads and decoding",
+      "technique_path": "docs/techniques/speculative_heads.md",
+      "status": "validated-with-caveat",
+      "target": "Increase local decode throughput after model quality is accepted.",
+      "failure_mode": "Autoregressive decode latency is the measured user-visible bottleneck.",
+      "data": "Target-domain sequences for head training plus a frozen acceptance and quality suite.",
+      "method_or_policy": "Train draft heads or a draft model, verify proposed tokens with the target model, and measure accepted tokens per unit work.",
+      "primary_eval": "End-to-end tok/s at output parity.",
+      "regression_slices": [
+        "acceptance rate",
+        "quality parity",
+        "memory",
+        "training cost",
+        "short prompts"
+      ],
+      "resource_budget": "Medusa/EAGLE smoke retained; a production recipe is a new training experiment.",
+      "stop_rule": "Stop if acceptance cannot repay verification and memory overhead.",
+      "decision_rule": "Adopt only on an end-to-end decode benchmark, not head acceptance alone.",
+      "evidence": [
+        "docs/techniques/speculative_heads.md",
+        "docs/attempt-ledger.md"
+      ],
+      "learning_path": "runtime-and-agents",
+      "exercise": "Compute expected speedup from draft length, acceptance rate, and verification cost.",
+      "mastery_gate": "Identify when speculative decoding becomes slower than ordinary decoding."
+    },
+    {
+      "id": "streaming-kivi",
+      "title": "StreamingLLM and KIVI cache compression",
+      "technique_path": "docs/techniques/streaming_llm_kivi.md",
+      "status": "validated-with-caveat",
+      "target": "Bound or compress KV memory for long local contexts.",
+      "failure_mode": "KV cache growth, not model weights, is the measured memory blocker.",
+      "data": "Long-context replay prompts with cached-forward quality checks.",
+      "method_or_policy": "Retain attention sinks/window tokens or quantize KV groups, then replay identical continuations.",
+      "primary_eval": "Cache bytes and trajectory/perplexity parity versus full KV.",
+      "regression_slices": [
+        "long-context recall",
+        "greedy prefix match",
+        "throughput",
+        "storage packing",
+        "composition"
+      ],
+      "resource_budget": "Existing smokes are closed; new work requires a long-context product blocker.",
+      "stop_rule": "Stop if memory savings lack a packed representation or quality gate.",
+      "decision_rule": "Keep as an opt-in long-context lever until quality and composition gates pass.",
+      "evidence": [
+        "docs/techniques/streaming_llm_kivi.md",
+        "docs/attempt-ledger.md"
+      ],
+      "learning_path": "runtime-and-agents",
+      "exercise": "Calculate full, windowed, int8, and int4 KV bytes for one model/context.",
+      "mastery_gate": "Choose between eviction and quantization from the actual context failure mode."
+    },
+    {
+      "id": "sql-lineage",
+      "title": "SQL specialist lineage",
+      "technique_path": "docs/techniques/sql-technique-backlog.md",
+      "status": "closed-lineage",
+      "target": "Generate or select executable SQL on frozen schemas.",
+      "failure_mode": "Small-model SQL gains fail to generalize across public and synthetic domains or emit prose wrappers.",
+      "data": "Historical frozen SQL fixtures, public-style rows, five synthetic SQLite domains, and preference pairs.",
+      "method_or_policy": "SFT, routing, composition, and DPO were compared under their recorded gates; remaining proposals are closed rather than queued.",
+      "primary_eval": "SQLite execution plus exact and slice metrics.",
+      "regression_slices": [
+        "joins",
+        "filters",
+        "aggregates",
+        "format",
+        "public",
+        "synthetic"
+      ],
+      "resource_budget": "Historical lineage closed; no additional compute is authorized by this registry.",
+      "stop_rule": "The lineage stopped when stronger DPO pressure still could not change the output-format prior and no new target was frozen.",
+      "decision_rule": "Retain the routed SQL candidate and failed attempts as learning evidence; start future SQL work from a fresh question.",
+      "evidence": [
+        "docs/techniques/sql-technique-backlog.md",
+        "docs/attempt-ledger.md"
+      ],
+      "learning_path": "evaluation-and-factory",
+      "exercise": "Reconstruct the SQL lineage and mark which variable changed at each step.",
+      "mastery_gate": "Explain why routing beat blending and why DPO failed to remove the wrapper."
+    },
+    {
+      "id": "needle2-evaluation",
+      "title": "Needle 2 tool-selection evaluation",
+      "technique_path": "docs/techniques/needle2-baseline-review.md",
+      "status": "closed-experiment",
+      "target": "Evaluate a tiny tool-selection artifact for Pace and local actions.",
+      "failure_mode": "A tiny classifier may be fast but inaccurate or unsafe across mixed tool catalogs.",
+      "data": "Ninety-four public fixtures with Pace, local-action, ambiguity, OOS, and destructive slices.",
+      "method_or_policy": "Compare the full catalog with oracle-selected task catalogs; never execute predicted calls.",
+      "primary_eval": "Exact tool selection and unsafe false-action rate.",
+      "regression_slices": [
+        "Pace",
+        "file operations",
+        "OOS",
+        "destructive",
+        "confidence coverage",
+        "latency"
+      ],
+      "resource_budget": "Completed bounded CPU evaluation; no remaining run.",
+      "stop_rule": "Reject when no confidence threshold offers useful safe coverage or the target slice regresses.",
+      "decision_rule": "Rejected for Pace; catalog restriction is recorded only as a latency result.",
+      "evidence": [
+        "docs/techniques/needle2-baseline-review.md",
+        "evals/needle2/bounded-catalog-ablation-v1.json"
+      ],
+      "learning_path": "evaluation-and-factory",
+      "exercise": "Plot accepted coverage versus exactness from the confidence sweep and identify the only safe point.",
+      "mastery_gate": "Explain why a four-point aggregate gain did not rescue the product decision."
+    },
+    {
+      "id": "parakeet-browser-asr",
+      "title": "Parakeet WGSL browser ASR",
+      "technique_path": "docs/techniques/parakeet-wgsl-browser-smoke.md",
+      "status": "closed-experiment",
+      "target": "Test whether long-form ASR can run locally in Chrome through WebGPU.",
+      "failure_mode": "Browser audio ingestion may be too slow, too large, nondeterministic, or network-dependent.",
+      "data": "Pinned 1,030.486875-second public Kennedy MP3 and verified model/package revisions.",
+      "method_or_policy": "Measure cold and warm inference, cache contents, network activity, runtime memory components, and transcript repeatability.",
+      "primary_eval": "Real-time factor and repeatability; WER remains explicitly unmeasured.",
+      "regression_slices": [
+        "cold download",
+        "warm runtime",
+        "Chrome",
+        "Safari",
+        "WER",
+        "domain terms",
+        "memory"
+      ],
+      "resource_budget": "Completed browser smoke; accuracy comparison is deliberately a fresh future experiment.",
+      "stop_rule": "Do not select the ASR layer without a shared reference-transcribed accuracy gate.",
+      "decision_rule": "Validated technical proof, not selected production ASR.",
+      "evidence": [
+        "docs/techniques/parakeet-wgsl-browser-smoke.md",
+        "evals/parakeet-wgsl/bounded-browser-smoke-v1.json"
+      ],
+      "learning_path": "browser-and-mac-runtime",
+      "exercise": "Separate download, initialization, inference, GPU component bytes, and accuracy claims in the receipt.",
+      "mastery_gate": "Explain exactly what 142.6x real-time proves and what it does not."
+    }
+  ]
+}

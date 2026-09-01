@@ -5,7 +5,17 @@ description: posttrainllm's learning corpus — a ground-up curriculum from "wha
 
 # posttrainllm learning corpus
 
-A reading map for the `docs/learn/` directory. Three reading paths depending on what you want.
+A reading map for the `docs/learn/` directory. Choose one of the three reading
+modes below, or use the machine-checked
+[`path-registry.json`](path-registry.json) for the nine runnable lab paths with
+prerequisites, evidence, CLI entry points, exercises, and mastery gates. The
+same nine paths are rendered on the public `/learn` surface.
+
+Use [`artifact-journey.md`](artifact-journey.md) for the product-level journey:
+nine stages that turn the curriculum into thirteen things a learner can build,
+modify, tune, prove, and package. Its machine-checked source is
+[`artifact-journey.json`](artifact-journey.json), and the same artifact ladder
+is rendered on `/learn`.
 
 **Start here for ground-up learning:** [Curriculum overview](./curriculum.md).
 It is the 10-module path from functions and loss to transformers,
@@ -52,6 +62,7 @@ current LLMs. They're for someone who knows the basics and wants the
 - [The WebGPU execution model](./webgpu-execution-model.md) — device/queue, pipeline, dispatch, workgroups, invocations, bind groups, the memory hierarchy; how our matmul + attention shaders map onto it (read before the `.wgsl` files)
 
 **Interview-grade topic maps** (what / why-it-matters-here / external source / repo anchor — for senior/staff prep):
+
 - [Speech & systems topics](./speech-and-systems-topics.md) — voice-pipeline latency, WER, speech-to-speech, fine-tune debugging, feature selection, queues vs websockets, FSDP2
 - [Advanced LLM training & post-training](./advanced-llm-training.md) — ZeRO/FSDP2 depth, precision (bf16/fp8), gradient checkpointing, MoE training, data curation, RLHF/DPO/GRPO/reward-modeling/distillation
 - [Advanced LLM inference & serving](./advanced-llm-inference.md) — roofline, KV cache + paging, batching, speculative decoding, quantization, FlashAttention, attention variants, long context, serving architecture, an ordered systems deep-reading path, and worked Blackwell/FLUX performance-engineering case studies

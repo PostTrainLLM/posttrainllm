@@ -1,3 +1,8 @@
+---
+sidebar:
+  order: 202606130
+---
+
 # Strategy session — the market landscape and the Mac-first wedge
 
 **Date:** 2026-06-13

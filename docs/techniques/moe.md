@@ -9,6 +9,10 @@ dispatch kernel lands.
 **Reference**: Fedus et al., 2021 (Switch Transformer);
 Jiang et al., 2024 (Mixtral-of-Experts).
 
+**Closed-lab status:** validated with caveats. The shipped implementation and
+bounded smoke are the retained recipe. Sparse-kernel and broader HF support are
+explicit capability boundaries, not an active queue.
+
 ---
 
 ## Why MoE matters at our scale

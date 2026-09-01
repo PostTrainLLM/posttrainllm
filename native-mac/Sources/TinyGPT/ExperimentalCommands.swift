@@ -61,7 +61,7 @@ enum ExperimentalCommands {
         print("""
         posttrainllm experimental — parked research CLIs
 
-        The default CLI is the factory loop
+        The retained CLI centers the factory loop
         (target -> data -> post-training -> eval -> package -> report).
         These commands stay in-tree as learning assets and are not part of
         that surface. Do not delete the implementations.

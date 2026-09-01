@@ -7,15 +7,11 @@
 # Pre-reqs (one-time):
 #   1. Build the posttrainllm CLI:
 #        cd native-mac
-#        DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
+#        DEVELOPER_DIR="$(xcode-select -p)" \
 #          xcodebuild -scheme posttrainllm -destination "platform=macOS" \
 #          -derivedDataPath /tmp/posttrainllm-smoke -configuration Release build
 #      (this is the same incantation the project's smoke build uses; the
 #       built binary lands at /tmp/posttrainllm-smoke/Build/Products/Release/posttrainllm)
-#
-#   2. Wire `case "serve":` into Sources/TinyGPT/TinyGPT.swift's dispatch.
-#      See TODO(serve-merge) in that file. Until then `posttrainllm serve` is
-#      compiled-in but not callable via the CLI.
 #
 #   3. Install lm-evaluation-harness:
 #        python -m venv .venv
@@ -56,9 +52,8 @@ if [[ ! -x "$TINYGPT_BIN" ]]; then
     fi
 fi
 
-# Pre-flight: confirm `posttrainllm serve` is callable. If the main case dispatch
-# in TinyGPT.swift isn't wired yet (see TODO(serve-merge) in that file),
-# fall back to the stand-in `posttrainllm-serve-smoke` binary.
+# Pre-flight: confirm `posttrainllm serve` is callable. Retain the dedicated
+# smoke-target fallback for older locally built binaries.
 if ! "$TINYGPT_BIN" serve --help >/dev/null 2>&1; then
     SMOKE_BIN="$(dirname "$TINYGPT_BIN")/posttrainllm-serve-smoke"
     if [[ -x "$SMOKE_BIN" ]]; then
@@ -66,7 +61,7 @@ if ! "$TINYGPT_BIN" serve --help >/dev/null 2>&1; then
         TINYGPT_BIN="$SMOKE_BIN"
     else
         echo "error: '$TINYGPT_BIN serve' isn't callable and posttrainllm-serve-smoke is missing." >&2
-        echo "  Wire case \"serve\": into Sources/TinyGPT/TinyGPT.swift, OR build the smoke target:" >&2
+        echo "  Rebuild the main CLI, or build the compatibility smoke target:" >&2
         echo "    xcodebuild -scheme posttrainllm-serve-smoke -derivedDataPath /tmp/posttrainllm-smoke -configuration Release build" >&2
         exit 1
     fi

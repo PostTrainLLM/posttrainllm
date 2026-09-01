@@ -19,7 +19,11 @@ profiles:
   because the existing `CausalSelfAttention` module assumes
   `dModel = nHeads × headDim` end-to-end — see "Caveats" below for
   the asymmetric-attention work needed to make head pruning
-  physically reduce the projection matrices.
+physically reduce the projection matrices.
+
+**Closed-lab status:** validated with caveats. The existing commands, smokes,
+and limitations are the finished learning recipe. Later kernel or topology work
+listed below requires a fresh target and is not part of this project's backlog.
 
 References:
 - Han et al., 2015, "Learning both Weights and Connections for Efficient Neural Networks"

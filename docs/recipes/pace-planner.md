@@ -6,6 +6,12 @@ qwen3-30b-a3b planner into a small student. See
 
 This recipe is the executable form — the actual commands to run.
 
+**Final disposition:** superseded by the measured Pace planner v1–v14 lineage
+in `docs/attempts.json` and the sealed v8 rejection artifact. Missing helper and
+integration checkboxes below describe the original proposal; they are not an
+active project queue. Use this page as a lab recipe only after opening a fresh
+target and freezing a new gate.
+
 ## Prerequisites (verified 2026-06-07)
 
 - ✅ Qwen3-0.6B base on disk + SFT-compatible (GQA + head_dim fix landed)
@@ -82,7 +88,7 @@ python scripts/pace/pace-prompts-from-fixtures.py \
     --fixtures /Users/sarthak/Desktop/fleet/clickyLocal/evals/fixtures/ \
     --variants-per 100 \
     --out ~/.cache/posttrainllm/datasets/pace-prompts.jsonl
-# (TODO: write this; ~50 lines)
+# Historical helper placeholder; intentionally not part of the closed project.
 ```
 
 ### 2. Label with teacher (qwen3-30b-a3b via LM Studio)

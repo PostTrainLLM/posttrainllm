@@ -20,6 +20,10 @@ All seven are now selectable from the CLI — the only honest way to know
 which fits a specific (model, dataset, hardware) combo is to A/B them on
 your real task. The plumbing here makes those A/Bs cheap.
 
+**Closed-lab status:** validated with caveats. The selectable variants and
+their recorded implementation limits form the finished recipe; any task-level
+A/B requires a new frozen target rather than continuing this project.
+
 ## At-a-glance table
 
 | Variant       | CLI flag                       | Trainable params (rel. LoRA) | Forward cost   | Memory      | Reduces                       | Paper                                    |

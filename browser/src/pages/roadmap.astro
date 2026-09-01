@@ -365,7 +365,7 @@ const pageStyle = `
     `;
 
 const pageBody = `
-    <div class="wrap">
+    <main id="main" class="wrap">
       <header>
         <a href="/playground" class="nav-back">← Back to the playground</a>
         <div class="brand">
@@ -1512,12 +1512,12 @@ const pageBody = `
         <span>·</span>
         <a href="https://github.com/PostTrainLLM/posttrainllm" target="_blank" rel="noopener">GitHub ↗</a>
       </footer>
-    </div>
+    </main>
   `;
 ---
 
 <Default {...layoutProps}>
-  <SiteHeader mode="instrument" />
+  <SiteHeader mode="instrument" active="changelog" />
   <style is:global slot="head" set:html={pageStyle}></style>
   <Fragment set:html={pageBody} />
 </Default>

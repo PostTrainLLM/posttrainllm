@@ -20,7 +20,7 @@ description: Exhaustive map of input modalities posttrainllm supports and what o
 | **Screen — accessibility tree (text)** | ✅ | `posttrainllm screen tree` returns the focused window's AX tree as JSON. Text-only — LM-friendly out of the box. |
 | **Screen — raw pixels (image)** | ⚠️ | `posttrainllm screen capture` works in code; bare CLI hits the CGS-init quirk. Needs signed bundle / GUI-terminal context. NO vision encoder yet — just PNG bytes. |
 | **Vision (image → embeddings)** | ⬜ | Vision encoder (ViT → posttrainllm decoder) is **deferred research-grade work**. Not shipped. |
-| **Audio (speech → text)** | ⬜ | Not in scope today. Roadmap notes Apple `Speech.framework` + `AVSpeechSynthesizer` as the eventual local choices. |
+| **Audio (speech → text)** | ⬜ | No posttrainllm integration. A pinned external `parakeet.wgsl` browser proof is validated at 132–143x real-time on one long public fixture; controlled accuracy comparison and product wiring remain undone. |
 | **Audio (text → speech)** | ⬜ | Same — `AVSpeechSynthesizer` placeholder, not wired. |
 | **Multi-modal — text + image** | ⬜ | Architecturally **not shipped**. Cider's mlx_vlm compatibility patches are referenced in the research doc but not consumed; no vision-language model is part of posttrainllm's training or inference today. |
 | **Multi-modal — text + audio** | ⬜ | Not built. |

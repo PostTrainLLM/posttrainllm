@@ -1,6 +1,7 @@
 ---
 import Default from "../layouts/Default.astro";
 import Logo from "../components/Logo.astro";
+import SiteHeader from "../components/SiteHeader.astro";
 import { macReleaseRecord } from "../data/mac-release";
 import { evaluateMacRelease, macReleaseStatusLabel } from "../lib/mac-release";
 import "../styles/system.css";
@@ -17,22 +18,7 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
   ogTitle="PostTrainLLM — Build and measure specialist LLMs on a Mac"
   ogDescription="A one-machine research lab for bounded specialists: fine-tune, evaluate honestly, package for MLX, and publish the evidence."
 >
-  <a class="skip-link" href="#main">Skip to content</a>
-
-  <header class="topbar" role="banner">
-    <a class="brand-lockup" href="/" aria-label="PostTrainLLM home">
-      <Logo size={28} />
-      <span class="brand-name">PostTrainLLM</span>
-    </a>
-    <nav class="topnav" aria-label="Primary">
-      <a href="/artifacts">specialists</a>
-      <a href="/devlog">devlog</a>
-      <a href="/learn">learn</a>
-      <a href="/leaderboard">evals</a>
-      <a href="/playground">playground</a>
-      <a href={REPO} rel="noopener">github ↗</a>
-    </nav>
-  </header>
+  <SiteHeader mode="instrument" />
 
   <main class="landing" id="main">
     <!-- ================= HERO ================= -->
@@ -392,7 +378,7 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
             </p>
             <span class="log-go">Open the curriculum →</span>
           </a>
-          <a class="log" href="/docs/attempt-ledger"
+          <a class="log" href="/experiments"
             ><span class="mono-label">attempt ledger</span><h4>
               What we tried
             </h4><p>
@@ -536,7 +522,7 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
           <a href="/artifacts">specialists</a>
           <a href="/devlog">devlog</a>
           <a href="/learn">learn</a>
-          <a href="/docs/attempt-ledger">experiments</a>
+          <a href="/experiments">experiments</a>
           <a href="/docs/README">docs</a>
           <a href={REPO} rel="noopener">github ↗</a>
         </nav>

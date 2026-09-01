@@ -5,18 +5,18 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { capture } from "./code-health-files.mjs";
 
-// Re-baselined 2026-08 after `ruff format` ran over the files that the
-// scripts/ regrouping pulled into the diff-scoped format gate. Wrapping long
-// lines grew the measured corpus from 129,542 to 136,979 lines, which raises
-// duplicatedLines and clone groups in absolute terms while the ratio improves:
+// Re-baselined after the 2026-09 maintenance cleanup. The scripts regrouping
+// and the completed CLI catalog plus artifact journey expanded the measured
+// corpus without adding clone groups, so the exact ratio improved again:
 //
-//   before  4093 / 129,542 = 3.1596%, 262 clone groups
-//   after   4255 / 136,979 = 3.1063%, 271 clone groups
+//   before  4255 / 137,207 = 3.1012%, 271 clone groups
+//   CLI     4255 / 138,445 = 3.0734%, 271 clone groups
+//   after   4255 / 138,634 = 3.0692%, 271 clone groups
 //
 // Tracked in PostTrainLLM/posttrainllm#104.
 const baseline = {
   duplicatedLines: 4255,
-  percentage: 3.1062936800676016,
+  percentage: 3.069232655769869,
   clones: 271,
 };
 const outputDirectory = mkdtempSync(join(tmpdir(), "posttrainllm-jscpd-"));

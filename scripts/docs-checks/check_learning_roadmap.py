@@ -50,7 +50,7 @@ COVERAGE_NEEDLES = [
     "# Learning coverage map",
     "## 1. Foundations",
     "## Coverage Guarantee",
-    "### Maintenance rule",
+    "### Closed-lab coverage rule",
     "target -> data -> post-training -> eval -> package -> report",
     "session-09-tensors.md",
     "session-10-attention.md",

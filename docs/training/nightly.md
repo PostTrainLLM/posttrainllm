@@ -5,7 +5,7 @@ work fills the queue and polishes infrastructure; nighttime runs through it.
 
 ## How it works
 
-1. Each job is a shell script under [`scripts/nightly/N*.sh`](../../scripts/nightly/),
+1. Each job is a shell script under [`scripts/nightly/N*.sh`](https://github.com/PostTrainLLM/posttrainllm/tree/main/scripts/nightly),
    numbered lex-sortably.
 2. The runner [`scripts/pipelines/nightly.sh`](../../scripts/pipelines/nightly.sh) picks the
    lowest-numbered job that doesn't have a matching `.done` file in

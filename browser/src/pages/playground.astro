@@ -2934,7 +2934,7 @@ const pageStyle = `
     `;
 
 const pageBody = `
-    <div class="wrap">
+    <main id="main" class="wrap">
       <header>
         <div class="brand">
           <div class="brand-mark" aria-hidden="true">
@@ -3653,7 +3653,7 @@ const pageBody = `
       <span class="sticky-item"><strong id="stickyToks">0</strong> tok/s</span>
       <span class="sticky-item">ETA <strong id="stickyEta">–</strong></span>
       <button class="sticky-jump" id="stickyJump" type="button" title="Jump to the loss chart">↑ chart</button>
-    </div>
+    </main>
 
     <!-- Keyboard shortcuts dialog -->
     <dialog id="shortcuts" class="shortcuts-dialog">
@@ -3714,7 +3714,7 @@ const pageBody = `
 ---
 
 <Default {...layoutProps}>
-  <SiteHeader mode="instrument" />
+  <SiteHeader mode="instrument" active="playground" />
   <style is:global slot="head" set:html={pageStyle}></style>
   <Fragment set:html={pageBody} />
   <script>

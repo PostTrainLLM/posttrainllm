@@ -2,8 +2,9 @@
 
 These lanes are not abandoned. They are paused so the factory proof can finish.
 
-Active work should stay in `docs/NEXT.md` unless a parked lane directly unblocks
-the current factory run.
+No work is currently active. If the project is explicitly reactivated, selected
+work should stay in `docs/NEXT.md` or a scoped GitHub Issue unless a parked lane
+directly unblocks that factory run.
 
 ## Parked Now
 

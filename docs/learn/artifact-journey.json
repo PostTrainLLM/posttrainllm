@@ -1,0 +1,583 @@
+{
+  "schema_version": 1,
+  "title": "The buildable AI journey",
+  "promise": "Move from first principles to specialist systems by producing, modifying, tuning, evaluating, and packaging real artifacts on hardware you control.",
+  "start_here": "make-a-model",
+  "readiness": {
+    "runnable-lab": "A bounded local or browser exercise with an existing implementation.",
+    "guided-replay": "A source-linked reconstruction of retained evidence; it does not claim a fresh run.",
+    "recipe-contract": "A complete procedure whose expensive execution begins only as a fresh, budgeted experiment."
+  },
+  "stages": [
+    {
+      "id": "make-a-model",
+      "order": 1,
+      "path_id": "foundations",
+      "title": "Make a language model",
+      "question": "How does text become a prediction and a gradient?",
+      "outcome": "Trace the complete transformer learning loop, then change it without losing track of tensor shapes.",
+      "prerequisites": [],
+      "artifacts": [
+        {
+          "id": "byte-tinygpt",
+          "title": "Byte-level TinyGPT",
+          "kind": "model checkpoint",
+          "readiness": "runnable-lab",
+          "workload": "light first; training duration is user-controlled",
+          "summary": "A readable ~0.8M-parameter transformer whose byte tokenizer, architecture, loss, and checkpoint format are all inspectable.",
+          "build": {
+            "label": "Train the tiny preset on the bundled corpus.",
+            "href": "docs/guides/training_guide.md"
+          },
+          "modify": {
+            "label": "Change layers, heads, width, or context in the source-of-truth model config.",
+            "href": "configs/model.byte-tinygpt-v0.json"
+          },
+          "tune": {
+            "label": "Change learning rate, batch size, seed, or step budget one variable at a time.",
+            "href": "configs/training.json"
+          },
+          "evaluate": {
+            "label": "Inspect initial loss, tiny-overfit behavior, samples, and tensor inventory.",
+            "href": "https://github.com/PostTrainLLM/posttrainllm/blob/main/tests/README.md"
+          },
+          "package": {
+            "label": "Keep a validated .tinygpt checkpoint with its exact config and corpus.",
+            "href": "docs/guides/model_guide.md"
+          },
+          "anchors": [
+            "python_ref/model.py",
+            "python_ref/train.py",
+            "data/examples/tiny-corpus.txt"
+          ],
+          "cli_commands": [
+            "posttrainllm train",
+            "posttrainllm inspect",
+            "posttrainllm validate"
+          ]
+        },
+        {
+          "id": "browser-tinygpt",
+          "title": "Browser-trained TinyGPT",
+          "kind": "interactive model lab",
+          "readiness": "runnable-lab",
+          "workload": "runs in the browser; preset size controls cost",
+          "summary": "The same learning loop made visible through loss, sampling, presets, workers, WASM, and WebGPU-capable browser surfaces.",
+          "build": {
+            "label": "Open the playground and train a tiny model without a server.",
+            "href": "/playground"
+          },
+          "modify": {
+            "label": "Replace the corpus or choose a different model preset.",
+            "href": "docs/browser_notes.md"
+          },
+          "tune": {
+            "label": "Adjust context, batch, learning rate, and generation controls in the lab.",
+            "href": "/playground"
+          },
+          "evaluate": {
+            "label": "Watch loss and samples together; do not mistake lower loss for useful behavior.",
+            "href": "docs/learn/session-08-training-mechanics.md"
+          },
+          "package": {
+            "label": "Export the browser artifact and retain the settings that produced it.",
+            "href": "/download"
+          },
+          "anchors": [
+            "browser/src/pages/playground.astro",
+            "webgpu/gpu_model.ts",
+            "wasm/src/model.cpp"
+          ],
+          "cli_commands": []
+        }
+      ]
+    },
+    {
+      "id": "make-training-trustworthy",
+      "order": 2,
+      "path_id": "training-mechanics",
+      "title": "Make training trustworthy",
+      "question": "Is the learner correct before it is large?",
+      "outcome": "Use tiny-overfit, held-out loss, numerical checks, and bounded comparisons to separate implementation bugs from optimization problems.",
+      "prerequisites": ["make-a-model"],
+      "artifacts": [
+        {
+          "id": "tiny-overfit-receipt",
+          "title": "Tiny-overfit correctness receipt",
+          "kind": "training evidence",
+          "readiness": "runnable-lab",
+          "workload": "bounded correctness gate",
+          "summary": "A minimal proof that data loading, forward pass, backpropagation, optimizer state, sampling, and checkpoint reload agree.",
+          "build": {
+            "label": "Run the smallest overfit gate before any ordinary training run.",
+            "href": "https://github.com/PostTrainLLM/posttrainllm/blob/main/tests/README.md"
+          },
+          "modify": {
+            "label": "Change only one of corpus, seed, precision, or optimizer settings.",
+            "href": "configs/training.json"
+          },
+          "tune": {
+            "label": "Use learning-rate and clipping changes only after gradients and expected initial loss are verified.",
+            "href": "docs/techniques/galore_and_stability.md"
+          },
+          "evaluate": {
+            "label": "Require memorization, checkpoint round-trip, and a sensible held-out comparison.",
+            "href": "docs/guides/training_guide.md"
+          },
+          "package": {
+            "label": "Retain the config, seed, loss trace, sample, and validated checkpoint as one receipt.",
+            "href": "docs/factory/run-schema.md"
+          },
+          "anchors": ["python_ref/evaluate.py", "python_ref/checkpoint.py"],
+          "cli_commands": [
+            "posttrainllm train",
+            "posttrainllm eval",
+            "posttrainllm debug-loss",
+            "posttrainllm validate"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "change-the-behavior",
+      "order": 3,
+      "path_id": "post-training",
+      "title": "Change model behavior",
+      "question": "Which intervention teaches the missing behavior with the least collateral damage?",
+      "outcome": "Turn data and an adaptation method into an adapter whose target gain and regressions are explicit.",
+      "prerequisites": ["make-training-trustworthy"],
+      "artifacts": [
+        {
+          "id": "lora-specialist",
+          "title": "LoRA specialist adapter",
+          "kind": "adapter",
+          "readiness": "recipe-contract",
+          "workload": "fresh training requires an explicit budget",
+          "summary": "A narrow adapter built from a frozen base, traceable data, explicit LoRA geometry, and a held-out task gate.",
+          "build": {
+            "label": "Prepare supervised rows and run the retained SFT path against a frozen base.",
+            "href": "docs/training/sft.md"
+          },
+          "modify": {
+            "label": "Change the target data or modules while keeping the baseline and holdout frozen.",
+            "href": "docs/recipes/from-traces.md"
+          },
+          "tune": {
+            "label": "Vary rank, alpha, target modules, learning rate, or steps from the checked starting profiles.",
+            "href": "configs/lora.json"
+          },
+          "evaluate": {
+            "label": "Compare target gain, breadth, safety, latency, RAM, and throughput to the unchanged base.",
+            "href": "docs/factory/eval-protocol.md"
+          },
+          "package": {
+            "label": "Bind adapter, base identity, prompt contract, recipe, and evidence into a specialist package.",
+            "href": "docs/factory/packaging.md"
+          },
+          "anchors": [
+            "native-mac/Sources/TinyGPT/SFT.swift",
+            "docs/recipes/registry.json"
+          ],
+          "cli_commands": [
+            "posttrainllm prep-data",
+            "posttrainllm sft",
+            "posttrainllm eval-gate",
+            "posttrainllm export-mlx"
+          ]
+        },
+        {
+          "id": "distilled-tool-caller",
+          "title": "Distilled tool-calling specialist",
+          "kind": "routed specialist",
+          "readiness": "guided-replay",
+          "workload": "replay is read-only; reproduction is a budgeted experiment",
+          "summary": "A real lineage where narrow file-operation depth reached 100% while breadth regressed, proving why routing is part of the artifact.",
+          "build": {
+            "label": "Reconstruct the student, teacher trajectories, filtering, and training lineage from retained evidence.",
+            "href": "docs/recipes/distill-specialist.md"
+          },
+          "modify": {
+            "label": "Change teacher mix or selection slices as a new recipe version, never silently.",
+            "href": "docs/recipes/distillation-fc.md"
+          },
+          "tune": {
+            "label": "Tune accepted rows, sampling mix, and steps against the same narrow and breadth gates.",
+            "href": "docs/techniques/distillation.md"
+          },
+          "evaluate": {
+            "label": "Read target and breadth scores together: 100% narrow depth did not make a general upgrade.",
+            "href": "/artifacts/qwen3-4b-file-ops-distilled"
+          },
+          "package": {
+            "label": "Package as routed-only with an explicit redirect boundary.",
+            "href": "docs/factory/packaging.md"
+          },
+          "anchors": ["docs/attempt-ledger.md", "browser/src/artifacts.ts"],
+          "cli_commands": [
+            "posttrainllm distill",
+            "posttrainllm eval-bfcl",
+            "posttrainllm export-mlx"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "build-the-ruler",
+      "order": 4,
+      "path_id": "evaluation-and-factory",
+      "title": "Build the ruler",
+      "question": "Does the benchmark measure the capability it claims to measure?",
+      "outcome": "Freeze a baseline, validate the frontier ceiling, inspect slices, and end with a reproducible decision rather than a score screenshot.",
+      "prerequisites": ["change-the-behavior"],
+      "artifacts": [
+        {
+          "id": "needle-selection-ruler",
+          "title": "Needle 2 selection ruler",
+          "kind": "benchmark case file",
+          "readiness": "guided-replay",
+          "workload": "public evidence replay",
+          "summary": "A tool-selection case showing that catalog composition—not only context retrieval—can dominate the measured result.",
+          "build": {
+            "label": "Reconstruct the task catalog, scoring contract, and two retained comparison conditions.",
+            "href": "docs/techniques/needle2-baseline-review.md"
+          },
+          "modify": {
+            "label": "Change catalog size or distractor composition while keeping prompts and scorer fixed.",
+            "href": "/artifacts/needle2-tool-selection"
+          },
+          "tune": {
+            "label": "Treat catalog design, routing, and retrieval policy as system parameters—not model weights.",
+            "href": "/experiments?q=needle"
+          },
+          "evaluate": {
+            "label": "Compare full-catalog and task-specific-catalog results and state exactly what each proves.",
+            "href": "/artifacts/needle2-tool-selection"
+          },
+          "package": {
+            "label": "Retain fixtures, raw outputs, scorer, catalog policy, and conclusion as a benchmark artifact.",
+            "href": "docs/factory/reports.md"
+          },
+          "anchors": [
+            "docs/attempts.json",
+            "docs/techniques/needle2-baseline-review.md"
+          ],
+          "cli_commands": [
+            "posttrainllm eval-bfcl",
+            "posttrainllm eval-compare"
+          ]
+        },
+        {
+          "id": "factory-report-card",
+          "title": "Specialist factory report card",
+          "kind": "decision artifact",
+          "readiness": "runnable-lab",
+          "workload": "metadata lifecycle is light; model evaluation may require approval",
+          "summary": "A run directory that binds target, data, candidate, frozen evaluation, packaging evidence, resource measurements, and a terminal ship/retry/reject decision.",
+          "build": {
+            "label": "Create a factory run and populate its declared evidence contract.",
+            "href": "docs/factory/run-lifecycle.md"
+          },
+          "modify": {
+            "label": "Version targets, gates, and policies without rewriting completed evidence.",
+            "href": "docs/factory/run-schema.md"
+          },
+          "tune": {
+            "label": "Change thresholds only before the candidate is scored, with rationale recorded.",
+            "href": "docs/factory/eval-protocol.md"
+          },
+          "evaluate": {
+            "label": "Run the same frozen evaluator on baseline and candidate, including regression slices.",
+            "href": "docs/recipes/eval-gate.md"
+          },
+          "package": {
+            "label": "Compile the complete run into a public before/after report and terminal decision.",
+            "href": "docs/factory/report-card.md"
+          },
+          "anchors": [
+            "native-mac/Sources/TinyGPT/FactoryRunCommand.swift",
+            "scripts/factory/build_fine_tune_report_card.py"
+          ],
+          "cli_commands": [
+            "posttrainllm factory-run",
+            "posttrainllm eval-gate",
+            "posttrainllm eval-compare"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "make-it-act",
+      "order": 5,
+      "path_id": "runtime-and-agents",
+      "title": "Make the model act",
+      "question": "What turns model output into a safe, useful local agent?",
+      "outcome": "Separate model capability, constrained output, validation, tool policy, state, and serving performance in one trace.",
+      "prerequisites": ["make-a-model", "build-the-ruler"],
+      "artifacts": [
+        {
+          "id": "local-tool-agent",
+          "title": "Local tool-using agent",
+          "kind": "agent runtime",
+          "readiness": "runnable-lab",
+          "workload": "local inference; model size controls RAM and latency",
+          "summary": "An OpenAI-compatible local model server plus a multi-turn tool loop with schema validation and explicit execution policy.",
+          "build": {
+            "label": "Serve a local artifact, then run one bounded tool-using conversation.",
+            "href": "docs/agent_runtime.md"
+          },
+          "modify": {
+            "label": "Change tool schemas, catalog routing, prompts, or execution policy independently.",
+            "href": "docs/learn/model-vs-agent.md"
+          },
+          "tune": {
+            "label": "Tune decoding, prompt reuse, constraints, and routing before assuming more training is needed.",
+            "href": "docs/learn/advanced-llm-inference.md"
+          },
+          "evaluate": {
+            "label": "Score call selection, arguments, legality, task completion, latency, and unsafe actions.",
+            "href": "docs/factory/eval-protocol.md"
+          },
+          "package": {
+            "label": "Ship the model, tool catalog, policy, and eval gate as one bounded system contract.",
+            "href": "docs/factory/packaging.md"
+          },
+          "anchors": [
+            "native-mac/Sources/TinyGPT/AgentLoop.swift",
+            "native-mac/Sources/TinyGPTServe/Serve.swift"
+          ],
+          "cli_commands": [
+            "posttrainllm serve",
+            "posttrainllm agent",
+            "posttrainllm eval-bfcl",
+            "posttrainllm eval-tau-bench"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "understand-the-machine",
+      "order": 6,
+      "path_id": "architecture-and-kernels",
+      "title": "Understand the machine",
+      "question": "Where do the time, memory traffic, and numerical drift actually come from?",
+      "outcome": "Use the readable implementation as an oracle while comparing kernels and architectures with end-to-end measurements.",
+      "prerequisites": ["make-a-model", "make-training-trustworthy"],
+      "artifacts": [
+        {
+          "id": "kernel-parity-receipt",
+          "title": "Kernel parity and speed receipt",
+          "kind": "systems benchmark",
+          "readiness": "guided-replay",
+          "workload": "read-only replay; fresh kernel loops require approval",
+          "summary": "A numerical and performance comparison that keeps reference math, optimized kernel, dispatch geometry, and end-to-end effect separate.",
+          "build": {
+            "label": "Trace reference attention and matmul before inspecting their optimized counterparts.",
+            "href": "docs/learn/essential-vs-optimization.md"
+          },
+          "modify": {
+            "label": "Change precision, tile size, workgroup shape, or architecture one dimension at a time.",
+            "href": "docs/learn/webgpu-execution-model.md"
+          },
+          "tune": {
+            "label": "Tune the measured bottleneck rather than optimizing a convenient microbenchmark.",
+            "href": "docs/performance/fa2_forward_notes.md"
+          },
+          "evaluate": {
+            "label": "Require numerical parity, warmed timing, memory evidence, and end-to-end impact.",
+            "href": "/speedup"
+          },
+          "package": {
+            "label": "Retain source revision, device, shapes, precision, raw timings, and parity tolerance.",
+            "href": "docs/factory/foundry-evidence.md"
+          },
+          "anchors": [
+            "python_ref/model.py",
+            "webgpu/attention_fa2.wgsl",
+            "docs/performance/fa2_backward_notes.md"
+          ],
+          "cli_commands": [
+            "posttrainllm bench",
+            "posttrainllm bench-train",
+            "posttrainllm experimental train-heads"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "make-it-portable",
+      "order": 7,
+      "path_id": "quantization-and-packaging",
+      "title": "Make it smaller and portable",
+      "question": "Did the artifact become cheaper to store, load, and run without losing its job?",
+      "outcome": "Distinguish file compression, RAM reduction, fewer operations, runtime kernel support, and retained capability.",
+      "prerequisites": ["make-training-trustworthy", "build-the-ruler"],
+      "artifacts": [
+        {
+          "id": "mlx-specialist-package",
+          "title": "Validated MLX specialist package",
+          "kind": "deployable model bundle",
+          "readiness": "runnable-lab",
+          "workload": "conversion is bounded; validation loads the selected model",
+          "summary": "A model or adapter exported with identity, tensors, tokenizer, prompt contract, and evidence that the consumer can load it correctly.",
+          "build": {
+            "label": "Export a .tinygpt model, adapter, or Hugging Face directory into the MLX layout.",
+            "href": "docs/recipes/mlx-export.md"
+          },
+          "modify": {
+            "label": "Change the packaging boundary or consumer metadata without changing model claims.",
+            "href": "docs/factory/packaging.md"
+          },
+          "tune": {
+            "label": "Choose quantization or pruning only against frozen quality, RAM, size, and speed gates.",
+            "href": "docs/techniques/quantization_expansion.md"
+          },
+          "evaluate": {
+            "label": "Verify round-trip load parity, file size, peak RAM, tok/s, and target quality.",
+            "href": "docs/techniques/pruning.md"
+          },
+          "package": {
+            "label": "Publish the bundle with model card, hashes, environment, limits, and decision.",
+            "href": "docs/factory/public-artifacts.md"
+          },
+          "anchors": [
+            "native-mac/Sources/TinyGPT/ExportMLX.swift",
+            "native-mac/Sources/TinyGPT/TinyGPT.swift"
+          ],
+          "cli_commands": [
+            "posttrainllm export-mlx",
+            "posttrainllm validate",
+            "posttrainllm experimental gptq",
+            "posttrainllm experimental prune-structured"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cross-the-runtime-boundary",
+      "order": 8,
+      "path_id": "browser-and-mac-runtime",
+      "title": "Cross runtime boundaries",
+      "question": "Which parts belong in Python, Swift and MLX, Core ML, WASM, or WebGPU?",
+      "outcome": "Choose a runtime from capability, ownership, memory, latency, energy, distribution, and browser constraints—not platform novelty.",
+      "prerequisites": ["understand-the-machine", "make-it-act"],
+      "artifacts": [
+        {
+          "id": "browser-asr-case",
+          "title": "Parakeet browser ASR receipt",
+          "kind": "browser inference artifact",
+          "readiness": "guided-replay",
+          "workload": "public smoke receipt; accuracy remains unqualified",
+          "summary": "A real WebGPU speech-recognition load and inference receipt that proves browser execution while keeping accuracy claims explicitly open.",
+          "build": {
+            "label": "Trace model download, cache, WebGPU load, audio preprocessing, and decoded transcript.",
+            "href": "docs/techniques/parakeet-wgsl-browser-smoke.md"
+          },
+          "modify": {
+            "label": "Change audio input, caching policy, or runtime adapter while preserving the receipt schema.",
+            "href": "/artifacts/parakeet-wgsl-browser-asr"
+          },
+          "tune": {
+            "label": "Tune chunking, preprocessing, and execution policy before changing model weights.",
+            "href": "docs/browser_notes.md"
+          },
+          "evaluate": {
+            "label": "Separate successful execution from qualified transcription accuracy and repeatability.",
+            "href": "/artifacts/parakeet-wgsl-browser-asr"
+          },
+          "package": {
+            "label": "Retain runtime versions, browser/device facts, cache state, input provenance, output, and limitations.",
+            "href": "docs/factory/reports.md"
+          },
+          "anchors": ["docs/attempts.json", "browser/src/artifacts.ts"],
+          "cli_commands": []
+        },
+        {
+          "id": "mac-runtime-boundary-map",
+          "title": "Mac runtime boundary map",
+          "kind": "architecture decision record",
+          "readiness": "guided-replay",
+          "workload": "read-only evidence synthesis",
+          "summary": "A comparison of owned MLX weights, Core ML deployment, Apple Foundation Models, and browser runtimes grounded in measured capability limits.",
+          "build": {
+            "label": "Map one use case across capability, context, RAM, energy, ownership, and distribution constraints.",
+            "href": "docs/learn/mac-mastery-map.md"
+          },
+          "modify": {
+            "label": "Add a new runtime only with a directly comparable evidence row.",
+            "href": "docs/learn/apple-on-device-foundation-models.md"
+          },
+          "tune": {
+            "label": "Tune routing and deployment policy; do not hide a capability gap behind serving changes.",
+            "href": "docs/learn/model-vs-agent.md"
+          },
+          "evaluate": {
+            "label": "Use the same task gate plus latency, RAM, tok/s, energy, setup, and ownership constraints.",
+            "href": "docs/learn/mac-mastery-map.md"
+          },
+          "package": {
+            "label": "Record the chosen runtime, rejected alternatives, evidence, and reversal conditions.",
+            "href": "docs/factory/reports.md"
+          },
+          "anchors": [
+            "scripts/fm_agent_bridge.swift",
+            "native-mac/Sources/TinyGPT/CoreMLServe.swift"
+          ],
+          "cli_commands": [
+            "posttrainllm hf-load",
+            "posttrainllm ane-validate",
+            "posttrainllm coreml-serve"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "look-inside",
+      "order": 9,
+      "path_id": "interpretability",
+      "title": "Look inside without fooling yourself",
+      "question": "Which internal representation causally contributes to a measured behavior?",
+      "outcome": "Turn a behavioral failure into a probe, control, intervention, and decision-changing prediction.",
+      "prerequisites": ["make-a-model", "build-the-ruler"],
+      "artifacts": [
+        {
+          "id": "causal-probe-dossier",
+          "title": "Causal probe dossier",
+          "kind": "interpretability artifact",
+          "readiness": "recipe-contract",
+          "workload": "attach to a specific failure before running",
+          "summary": "A logit lens, linear probe, activation patch, causal trace, or sparse autoencoder investigation with negative controls and an intervention claim.",
+          "build": {
+            "label": "Start from frozen success and failure traces plus a falsifiable representation hypothesis.",
+            "href": "docs/techniques/interpretability.md"
+          },
+          "modify": {
+            "label": "Change layer, token position, feature, or control while keeping the behavioral gate fixed.",
+            "href": "docs/learn/advanced-ml-systems-eval.md"
+          },
+          "tune": {
+            "label": "Tune probe or SAE settings on train data; reserve separate examples for the causal claim.",
+            "href": "docs/techniques/interpretability.md"
+          },
+          "evaluate": {
+            "label": "Require random controls, replay stability, and a predicted behavior change under intervention.",
+            "href": "docs/recipes/registry.json"
+          },
+          "package": {
+            "label": "Retain activations or hashes, probe weights, controls, intervention results, limitations, and recipe decision.",
+            "href": "docs/factory/foundry-evidence.md"
+          },
+          "anchors": [
+            "native-mac/Sources/TinyGPT/ExperimentalCommands.swift",
+            "docs/learn/session-10-attention.md"
+          ],
+          "cli_commands": [
+            "posttrainllm experimental tuned-lens",
+            "posttrainllm experimental linear-probe",
+            "posttrainllm experimental causal-trace",
+            "posttrainllm experimental sae"
+          ]
+        }
+      ]
+    }
+  ]
+}

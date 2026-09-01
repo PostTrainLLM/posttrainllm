@@ -1,0 +1,47 @@
+[
+  {
+    "name": "answer_knowledge",
+    "description": "Answer a factual or explanatory question that needs no live research or screen context.",
+    "parameters": {
+      "type": "object",
+      "properties": { "question": { "type": "string" } },
+      "required": ["question"]
+    }
+  },
+  {
+    "name": "research_topic",
+    "description": "Research a topic using current external sources when the user explicitly asks to research, investigate, or find current information.",
+    "parameters": {
+      "type": "object",
+      "properties": { "query": { "type": "string" } },
+      "required": ["query"]
+    }
+  },
+  {
+    "name": "describe_screen",
+    "description": "Describe or explain what is currently visible on the user's screen without taking an action.",
+    "parameters": {
+      "type": "object",
+      "properties": { "request": { "type": "string" } },
+      "required": ["request"]
+    }
+  },
+  {
+    "name": "perform_screen_action",
+    "description": "Perform a specific, non-destructive action in the visible user interface.",
+    "parameters": {
+      "type": "object",
+      "properties": { "instruction": { "type": "string" } },
+      "required": ["instruction"]
+    }
+  },
+  {
+    "name": "route_to_phone_model",
+    "description": "Route a request that needs the larger phone model because it requires broad synthesis or richer generation, but no screen action.",
+    "parameters": {
+      "type": "object",
+      "properties": { "request": { "type": "string" } },
+      "required": ["request"]
+    }
+  }
+]

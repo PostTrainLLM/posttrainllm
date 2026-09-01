@@ -116,3 +116,31 @@ argument-grounding score, multi-call score, fine-tuning, and product
 integration were not run. The result rejects this base artifact as a safe Pace
 router; it does not claim that Needle cannot improve with a different catalog
 or task-specific fine-tuning.
+
+## Task-specific catalog ablation
+
+A follow-up on 2026-09-01 tested the remaining catalog-scope hypothesis before
+considering fine-tuning. The versioned routing manifest is
+`evals/needle2/catalog-routing-v1.json`; its compact receipt is
+`evals/needle2/bounded-catalog-ablation-v1.json`.
+
+The experiment used the same pinned binary and 94 public fixtures, but selected
+one of two deployed catalogs from fixture provenance alone: a five-lane Pace
+router or a four-tool local-action layer. This is an oracle upstream-routing
+ablation, not evidence that Needle can discover the correct task family.
+
+- Overall exactness moved from 32/94 (34.0%) to 36/94 (38.3%).
+- Pace exactness regressed from 10/28 to 6/28; file operations stayed at 0/6.
+- Three out-of-scope prompts still produced actions.
+- Destructive prompts produced no non-confirmation action tools, but only 1/10
+  returned exactly one confirmation call.
+- At confidence 0.01, the only safe nonzero point accepted 2/94 cases, both
+  exact. At 0.1, coverage fell to zero.
+- The narrower schemas reduced cold-process latency to 149.7 ms mean / 192.8
+  ms p95, with 27.7 MB maximum reported RAM and about 1,716 decode tokens/s.
+
+The task-specific stop rule therefore also fired. Catalog restriction is a
+real latency lever, but it does not make the base Needle 2 artifact accurate or
+safe enough for Pace. Do not proceed to the mobile-actions sweep, integration,
+or fine-tuning without a materially different training hypothesis and a newly
+frozen gate.

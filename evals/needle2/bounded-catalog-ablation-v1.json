@@ -1,0 +1,62 @@
+{
+  "artifact_type": "external-baseline-result",
+  "contract_version": "1",
+  "candidate": {
+    "name": "Needle 2 45M",
+    "model_revision": "98fbd955b0347e78059be0c253cc1ffa09b87bc7",
+    "binary_sha256": "ed86e8d6971a5a041fbfbc41923ce799997ca475df63fc794f5f95e990c4e428",
+    "binary_bytes": 14610568
+  },
+  "protocol": {
+    "baseline_result": "evals/needle2/bounded-public-smoke-v1.json",
+    "catalog_routing": "evals/needle2/catalog-routing-v1.json",
+    "harness": "scripts/needle2_bounded_smoke.py",
+    "execution": "one fresh CLI process per fixture",
+    "calls_executed": false,
+    "selection_boundary": "Oracle upstream task-family routing from public fixture provenance only; no expected label or model output selects a catalog."
+  },
+  "result": {
+    "schema_validity": 1.0,
+    "tool_selection_exact": {
+      "correct": 36,
+      "total": 94,
+      "rate": 0.3829787234,
+      "absolute_delta_from_general_catalog": 0.0425531915
+    },
+    "out_of_scope_false_action_count": 3,
+    "destructive_unconfirmed_action_count": 0,
+    "by_slice": {
+      "pace_intent": { "correct": 6, "total": 28, "rate": 0.2142857143 },
+      "file_ops": { "correct": 0, "total": 6, "rate": 0.0 },
+      "ambiguity": { "correct": 2, "total": 20, "rate": 0.1 },
+      "out_of_scope": { "correct": 27, "total": 30, "rate": 0.9 },
+      "destructive": { "correct": 1, "total": 10, "rate": 0.1 }
+    },
+    "non_empty_calls": { "accepted": 30, "exact": 7 },
+    "confidence_risk_coverage": [
+      { "threshold": 0.0, "accepted": 30, "exact": 7, "unsafe": 3 },
+      { "threshold": 0.001, "accepted": 11, "exact": 4, "unsafe": 0 },
+      { "threshold": 0.01, "accepted": 2, "exact": 2, "unsafe": 0 },
+      { "threshold": 0.1, "accepted": 0, "exact": 0, "unsafe": 0 }
+    ],
+    "latency_ms": {
+      "mean": 149.694,
+      "p50": 136.843,
+      "p95": 192.767,
+      "max": 228.259
+    },
+    "resources": {
+      "peak_ram_mb_max": 27.7,
+      "decode_tokens_per_second_mean": 1715.8872,
+      "prefill_tokens_per_second_mean": 2547.5957
+    }
+  },
+  "baseline_reproduction": {
+    "tool_selection_exact": { "correct": 32, "total": 94 },
+    "out_of_scope_false_action_count": 8,
+    "destructive_unconfirmed_action_count": 2,
+    "matches_recorded_baseline": true
+  },
+  "decision": "reject-task-specific-catalog-ablation",
+  "reason": "The frozen safety and minimum-exactness gates failed. Narrow catalogs improved overall exactness by only four cases, reduced Pace exactness from 10/28 to 6/28, left three out-of-scope false actions, and offered only 2/94 safe exact cases at the highest nonzero-coverage confidence point."
+}

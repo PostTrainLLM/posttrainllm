@@ -250,7 +250,183 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     nextAction:
-      "Freeze this Devin result and run the same benchmark against local Qwen with exact prompt-token counts and model-file provenance; do not revise the treatments after seeing this null.",
+      "Freeze this report-only result. A local provenance-complete comparison, if ever desired, begins as a fresh experiment after the learning phase.",
+  },
+  {
+    slug: "needle2-tool-selection",
+    title: "Needle 2 Tool-Selection Boundary",
+    eyebrow: "Tiny-runtime rejection",
+    state: "report-only",
+    date: "2026-09-01",
+    kind: "Model evaluation and negative-result artifact",
+    tags: [
+      "tool calling",
+      "tiny model",
+      "safety",
+      "routing",
+      "negative result",
+    ],
+    summary:
+      "Needle 2 is tiny and fast, but neither the full catalog nor oracle-selected task catalogs made it accurate or safe enough for Pace.",
+    lede: "The evaluation deliberately tested the most favorable remaining systems hypothesis: reduce the tool catalog before considering any fine-tune. Overall exactness rose four points, but the Pace slice regressed, file operations stayed at zero, and out-of-scope actions remained. The result closes the current integration path without pretending that packaging efficiency is capability.",
+    metrics: [
+      {
+        label: "Full-catalog exact",
+        value: "32/94",
+        context: "34.0% public gate",
+      },
+      {
+        label: "Routed-catalog exact",
+        value: "36/94",
+        context: "38.3% with oracle task family",
+      },
+      {
+        label: "Pace slice",
+        value: "10/28 → 6/28",
+        context: "target regression",
+      },
+    ],
+    comparisons: [
+      {
+        name: "Needle 2 full catalog",
+        metric: "exact tool selection",
+        score: "34.0%",
+        size: "94 public fixtures",
+        comparability: "Direct",
+        note: "Included eight out-of-scope false calls and two destructive-action calls.",
+      },
+      {
+        name: "Needle 2 oracle task catalog",
+        metric: "exact tool selection",
+        score: "38.3%",
+        size: "same 94 fixtures",
+        comparability: "Direct",
+        note: "The upstream task family was supplied; this does not prove Needle can discover it.",
+      },
+    ],
+    tables: [
+      {
+        title: "Catalog ablation",
+        columns: ["Gate", "Full", "Task catalog", "Readout"],
+        rows: [
+          ["Overall exact", "32/94", "36/94", "+4, below usefulness"],
+          ["Pace exact", "10/28", "6/28", "regressed"],
+          ["File operations", "0/6", "0/6", "no capability"],
+          ["OOS false actions", "8", "3", "still unsafe"],
+        ],
+      },
+    ],
+    evidence: [
+      {
+        label: "Full evaluation and decision",
+        href: "/docs/techniques/needle2-baseline-review",
+      },
+      {
+        label: "Machine-readable catalog receipt",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/needle2/bounded-catalog-ablation-v1.json",
+      },
+      { label: "Complete experiment archive", href: "/experiments" },
+    ],
+    blockers: [
+      {
+        blocker: "Capability and safety gate failed",
+        why: "The favorable catalog ablation regressed Pace and retained unsafe false actions.",
+        unblock:
+          "Do not unblock historically; any future work needs a materially different model/training hypothesis and a new gate.",
+      },
+    ],
+    nextAction:
+      "Closed and rejected for Pace. Preserve the 149.7ms mean latency and 27.7MB RAM result as systems evidence only.",
+  },
+  {
+    slug: "parakeet-wgsl-browser-asr",
+    title: "Parakeet WGSL Browser ASR",
+    eyebrow: "Browser runtime proof",
+    state: "report-only",
+    date: "2026-09-01",
+    kind: "WebGPU runtime and adoption-smoke artifact",
+    tags: ["WebGPU", "browser", "ASR", "Apple Silicon", "local first"],
+    summary:
+      "A pinned Parakeet TDT 0.6B package transcribed 17 minutes of public audio in about eight seconds warm inside Chrome on Apple GPU hardware.",
+    lede: "This is a strong browser-systems result and a deliberately incomplete model-quality claim. The path is local after its verified cache is present, warm transcripts are repeatable, and runtime is dramatically faster than real time. Accuracy was not scored against a reference, visible transcript errors remain, and the first download is 386.5 MiB.",
+    metrics: [
+      {
+        label: "First inference",
+        value: "7.225s",
+        context: "17m 10s audio · 142.6x real-time",
+      },
+      {
+        label: "Warm inference",
+        value: "7.68–7.80s",
+        context: "132–134x real-time",
+      },
+      {
+        label: "Verified cache",
+        value: "386.5 MiB",
+        context: "29 browser assets",
+      },
+    ],
+    comparisons: [
+      {
+        name: "Parakeet WGSL warm browser run",
+        metric: "real-time factor",
+        score: "132–134x",
+        size: "1,030.49-second public MP3",
+        comparability: "Direct",
+        note: "Three repeated transcripts were byte-identical.",
+      },
+      {
+        name: "WhisperKit Mac-native baseline",
+        metric: "WER and domain terms",
+        score: "not measured",
+        size: "future fresh comparison",
+        comparability: "Not comparable",
+        note: "No reference transcript was scored in this bounded smoke.",
+      },
+    ],
+    tables: [
+      {
+        title: "What the smoke established",
+        columns: ["Claim", "State", "Boundary"],
+        rows: [
+          [
+            "Browser execution",
+            "validated",
+            "Chrome Apple/Metal FP16 subgroup path",
+          ],
+          ["Warm repeatability", "validated", "identical transcript hash"],
+          ["Local after cache", "supported", "main-tab network observation"],
+          ["Accuracy", "unmeasured", "visible errors; no WER reference"],
+        ],
+      },
+    ],
+    evidence: [
+      {
+        label: "Browser smoke report",
+        href: "/docs/techniques/parakeet-wgsl-browser-smoke",
+      },
+      {
+        label: "Machine-readable receipt",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/parakeet-wgsl/bounded-browser-smoke-v1.json",
+      },
+      { label: "Complete experiment archive", href: "/experiments" },
+    ],
+    blockers: [
+      {
+        blocker: "Accuracy not qualified",
+        why: "The smoke used no shared reference transcript or WER scorer and visible proper-name, phrase, and duplication errors remain.",
+        unblock:
+          "A WhisperKit comparison is a new owner-led experiment, not remaining historical work.",
+      },
+      {
+        blocker: "Large optional first download",
+        why: "The verified cache totals 405,252,493 bytes.",
+        unblock:
+          "Any product use must keep the download explicit, optional, and measured on Chrome and Safari.",
+      },
+    ],
+    nextAction:
+      "Closed as a validated browser-runtime proof, not a selected ASR layer. Use it as the browser-audio lab case study.",
   },
   {
     slug: "qwen06-sql-routed-v1",

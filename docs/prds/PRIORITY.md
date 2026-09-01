@@ -4,7 +4,12 @@ Last updated: 2026-08-04
 
 This file is the working priority map for every PRD currently on disk.
 
-Active work still starts from:
+> Maintenance notice (2026-09-01): the active project phase is complete and
+> no PRD is selected. The priorities below are historical resume options, not
+> an active backlog. A new scoped GitHub Issue must satisfy `docs/NEXT.md`
+> before any item becomes active again.
+
+If the project is reactivated, work starts from:
 
 1. `PROJECT_STATUS.md`
 2. `docs/NEXT.md`
@@ -88,7 +93,7 @@ Remaining gates that are not part of the low-compute sweep:
 - `A1` acceptance is intentionally excluded from low-compute checks; it requires
   a GPU Mac, BFCL checkout, and an existing adapter.
 
-## P0 — Build Next
+## Former P0 — First Resume Candidates
 
 These directly support the first canonical factory run.
 
@@ -102,7 +107,7 @@ These directly support the first canonical factory run.
 | [B10 quality-classifier](B10-quality-classifier.md) | P0 | Data filtering sidecar for target data if quality/noise is a problem. Already has a useful V1. |
 | [B21 micro-automixer](B21-micro-automixer.md) | P0 | Data-mix search before training if the target has multiple data sources. Use dry-run/lightweight mode first. |
 
-## P1 — Immediately After First Candidate
+## Former P1 — After a First Candidate
 
 These are useful once the first SFT candidate exists or if the first run
 reveals the matching failure mode.

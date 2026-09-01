@@ -1,5 +1,5 @@
 ---
-import Logo from "../Logo.astro";
+import SiteHeader from "../SiteHeader.astro";
 import Default from "../../layouts/Default.astro";
 import "../../styles/system.css";
 import type { EditorialContent } from "../../data/education-content";
@@ -47,20 +47,7 @@ const jsonLd = {
   ogType="article"
   ogUrl={canonical}
 >
-  <a class="skip-link" href="#main">Skip to content</a>
-  <header class="topbar" role="banner">
-    <a class="brand-lockup" href="/" aria-label="posttrainllm home"
-      ><Logo size={28} /><span class="brand-name">posttrainllm</span></a
-    >
-    <nav class="topnav" aria-label="Primary">
-      <a href="/artifacts">specialists</a><a href="/recipes">recipes</a><a
-        href="/leaderboard">evals</a
-      ><a href="/docs/">docs</a><a
-        href="https://github.com/PostTrainLLM/posttrainllm"
-        rel="noopener">github ↗</a
-      >
-    </nav>
-  </header>
+  <SiteHeader mode="instrument" active="docs" />
 
   <main id="main" class="education-page">
     <header class="education-hero">
@@ -186,9 +173,6 @@ const jsonLd = {
     font-size: var(--step--1);
   }
   @media (max-width: 760px) {
-    .topnav a:nth-child(-n + 3) {
-      display: none;
-    }
     .education-body {
       overflow-wrap: anywhere;
     }

@@ -1,13 +1,14 @@
 # Document Status Registry
 
 This registry labels the major documentation surfaces so old roadmap material
-does not compete with the active factory path.
+does not compete with the closed learning lab.
 
 ## Status Labels
 
 | Status | Meaning |
 |---|---|
 | `active` | Current source for what to do next |
+| `closed` | Current completion truth and fresh-experiment gate; no backlog is active |
 | `evidence` | Results, attempts, artifacts, and validation history |
 | `reference` | Useful background, not the active queue |
 | `learning` | Owner curriculum and concept explanations |
@@ -19,18 +20,18 @@ does not compete with the active factory path.
 
 | Doc / Folder | Status | Use It For | Do Not Use It For |
 |---|---|---|---|
-| `PROJECT_STATUS.md` | `active` | current project state and active gaps | old feature-by-feature backlog |
-| `docs/README.md` | `active` | golden path through the docs | detailed run evidence |
-| `docs/NEXT.md` | `active` | current queue and sequencing | broad ideation |
-| `docs/factory/` | `active` | factory contracts, reports, evals, packaging, enforcement | generic ML theory |
-| `docs/techniques/` | `active` | method-vs-recipe cards and target-specific technique backlog | historical PRD status |
+| `PROJECT_STATUS.md` | `closed` | completion candidate, release boundary, and fresh-experiment rule | old feature-by-feature backlog |
+| `docs/README.md` | `closed` | golden path through the learning artifact and lab | detailed run evidence |
+| `docs/NEXT.md` | `closed` | release receipt and fresh-experiment admission rule | an active task queue |
+| `docs/factory/` | `reference` | factory contracts, reports, evals, packaging, enforcement | generic ML theory |
+| `docs/techniques/` | `reference` | method-vs-recipe cards and closed technique lineages | active task selection |
 | `docs/techniques/audit-inventory.md` | `evidence` | row-level treatment of `docs/audits/audit_2026.md` technique rows | run-level success/failure claims |
-| `docs/attempt-ledger.md` | `evidence` | worked/failed/regressed/not-tried attempts | full per-run logs |
+| `docs/attempt-ledger.md` | `evidence` | 75 final experiment dispositions and lessons | full per-run logs or an active queue |
 | `docs/audits/history-coverage-audit.md` | `evidence` | what historical work is normalized, classified, partial, or narrative-only | active task selection |
 | `docs/audits/exactness-completion-audit.md` | `evidence` | proof that the docs exactness pass is complete and guarded | new roadmap scope |
 | `docs/external-products-reviewed.md` | `evidence` | reviewed products, papers, and stolen techniques | exhaustive literature survey |
 | `docs/factory/public-artifacts.md` | `evidence` | public artifact release state and blockers | internal-only scratch notes |
-| `docs/learning-pipeline.md` | `learning` | current owner learning sequence tied to factory work | generic course catalog |
+| `docs/learning-pipeline.md` | `learning` | ready owner learning sequence tied to repository labs | generic course catalog |
 | `docs/learn/` | `learning` | curriculum and concept references | active project queue |
 | `docs/prds/` | `reference` | acceptance criteria for a named/deferred lane | selecting the next active task |
 | `docs/PLAN.md` | `reference` | historical feature inventory and shipped/skipped/TODO context | current source of truth |

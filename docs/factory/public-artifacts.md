@@ -8,6 +8,10 @@ Website surface: `/artifacts`. The website should behave like a built-in blog
 for artifacts: one index page for scanning, one detail page per artifact, and
 numbers/blockers/evidence on every page.
 
+The typed public registry in `browser/src/artifacts.ts` is the rendering source
+of truth. It currently contains 17 complete entries; the list below mirrors all
+17 so the owner-readable and public inventories stay aligned.
+
 ## Release Rule
 
 Every public artifact entry must include:
@@ -66,7 +70,9 @@ must not turn its request count into a user claim.
 
 | Artifact | Type | State | Public value | Next release action |
 |---|---|---|---|---|
-| `offhours-context-interference` | Agent-behaviour benchmark | `report-only` | Separates unresolved personal context from matched interruptions and raw volume. Devin showed no mental-toll penalty; the first repeatable failure occurred in the neutral arm at 8,000 submitted words/day. | Freeze the Devin result and run the unchanged protocol against local Qwen with exact prompt-token and model provenance. |
+| `offhours-context-interference` | Agent-behaviour benchmark | `report-only` | Separates unresolved personal context from matched interruptions and raw volume. Devin showed no mental-toll penalty; the first repeatable failure occurred in the neutral arm at 8,000 submitted words/day. | Closed report; any local-model comparison is a fresh experiment. |
+| `needle2-tool-selection` | Tiny-model evaluation | `report-only` | Records the favorable catalog-selection ablation: overall exact rose 34.0% to 38.3%, Pace regressed, file ops stayed at zero, and unsafe false actions remained. | Closed and rejected for Pace; preserve latency/RAM as systems evidence. |
+| `parakeet-wgsl-browser-asr` | Browser ASR runtime proof | `report-only` | Shows 132–134x warm real-time browser inference on 17 minutes of public audio with repeatable transcripts and explicit unmeasured WER. | Closed as a runtime proof; accuracy comparison requires a fresh experiment. |
 | `pace-intent-router-v8` | From-scratch intent classifier | `release-ready-weights` | Shows why sealed distribution gates matter: 95.5% source-matched synthetic accuracy fell to 57.1% on sealed V1, despite 3.8ms mean latency. | Keep as the latency floor and generator-overfit case; train only on public failure themes and judge a successor on a new sealed V2. |
 | `qwen3-4b-file-ops-distilled` | Specialist package | `release-ready-weights` | Shows a real posttrainllm-built routed specialist: 58% -> 100% on file-ops hard gate, with breadth regression disclosed. | Keep routed-only warnings prominent; add a loader/pull smoke when wiring consumers. |
 | `qwen3-4b-rest-fused` | Research specialist package | `release-ready-weights` | Teacher-free ReST preserved 100% file-ops depth and recovered breadth to 65% vs stock 59.6%. | Keep research-only; run a fresh product-specific gate before any runtime wiring. |
@@ -76,9 +82,50 @@ must not turn its request count into a user claim.
 | `hf-specialist-model-archive-v1` | Model archive index | `report-only` | Links every unique local specialist/conversion artifact moved to Hugging Face, and records which plain upstream caches were deleted. | Use as the storage index; promote individual models only after eval/report/package evidence exists. |
 | `qwen06-sql-routed-v1` | Routed SQL specialist POC | `report-ready-candidate` | Shows the factory/router pattern on SQL: public exact 0.531 and synthetic execution 0.860 using separate routed adapters. | Publish as report-only; package only after a public execution benchmark gate exists. |
 | `factory-run-schema-v1` | Process artifact | `report-only` | Explains the repeatable `target -> data -> post-training -> eval -> package -> report` contract. | Use the SQL routed rendered run as the canonical example. |
-| `browser-playground` | Demo artifact | `parked` | Public proof of the earlier browser/WASM/WebGPU learning track. | Keep parked unless it directly presents factory reports or artifacts. |
+| `browser-webgpu-speedup` | Browser performance benchmark | `report-only` | Preserves the measured 2.6x to 12.1x end-to-end WebGPU-over-WASM training curve. | Closed benchmark artifact. |
+| `memory64-browser-behemoth` | Browser memory capability | `report-only` | Preserves the 473M-parameter Memory64 allocation and one 82.2-second training sanity step. | Closed capability-boundary artifact. |
+| `ane-m8-coreml-chain` | Mac runtime experiment | `parked` | Maps Core ML/ANE as an optional deployment target with a measured ~17 tok/s chain, not a model dependency. | Closed and parked; revive only for a fresh battery/runtime target. |
+| `huge-decode-throughput` | Mac runtime benchmark | `report-only` | Records 696 tok/s Huge-preset decode and the related local-serving measurements. | Closed runtime benchmark. |
+| `gallery-int4-browser-models` | Browser distribution artifact | `parked` | Records the storage-side gallery reduction from roughly 75MB to 20MB. | Closed and parked with the browser track. |
 
 ## Artifact Details
+
+### `needle2-tool-selection`
+
+Status: `report-only`; experiment decision: `rejected-for-pace`
+
+The base gate scored 32/94 exact (34.0%). Supplying an oracle task-family
+catalog raised that to 36/94 (38.3%), but Pace fell from 10/28 to 6/28, file
+operations remained 0/6, and three out-of-scope false actions remained. The
+favorable systems hypothesis therefore failed the capability and safety gate.
+The 149.7ms mean latency and 27.7MB RAM footprint remain useful systems
+evidence; they do not rescue the model result.
+
+Public page: `/artifacts/needle2-tool-selection`
+
+Committed evidence:
+
+- `docs/techniques/needle2-baseline-review.md`
+- `evals/needle2/bounded-catalog-ablation-v1.json`
+- `evals/needle2/catalog-routing-v1.json`
+
+### `parakeet-wgsl-browser-asr`
+
+Status: `report-only`; experiment decision: `validated-runtime-only`
+
+The pinned browser package transcribed a 1,030.49-second public MP3 in 7.225
+seconds on the first measured inference and 7.68–7.80 seconds warm. Three warm
+transcripts were byte-identical and the verified 29-file cache totals
+405,252,493 bytes. No shared reference transcript or WER scorer was used, and
+visible transcript errors remain, so this proves browser execution,
+repeatability, and real-time factor—not ASR accuracy or product selection.
+
+Public page: `/artifacts/parakeet-wgsl-browser-asr`
+
+Committed evidence:
+
+- `docs/techniques/parakeet-wgsl-browser-smoke.md`
+- `evals/parakeet-wgsl/bounded-browser-smoke-v1.json`
 
 ### `offhours-context-interference`
 

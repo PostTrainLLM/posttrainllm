@@ -1,0 +1,38 @@
+[
+  {
+    "name": "perform_screen_action",
+    "description": "Perform a specific, non-destructive action in the visible user interface.",
+    "parameters": {
+      "type": "object",
+      "properties": { "instruction": { "type": "string" } },
+      "required": ["instruction"]
+    }
+  },
+  {
+    "name": "perform_file_operation",
+    "description": "Perform a specific non-destructive file creation, copy, move, or organization task.",
+    "parameters": {
+      "type": "object",
+      "properties": { "instruction": { "type": "string" } },
+      "required": ["instruction"]
+    }
+  },
+  {
+    "name": "ask_clarification",
+    "description": "Ask the user for a missing required detail or to resolve an ambiguous reference before any action is taken.",
+    "parameters": {
+      "type": "object",
+      "properties": { "missing_detail": { "type": "string" } },
+      "required": ["missing_detail"]
+    }
+  },
+  {
+    "name": "confirm_destructive_action",
+    "description": "Request explicit confirmation before deleting, erasing, overwriting, uninstalling, force-quitting, or discarding user data.",
+    "parameters": {
+      "type": "object",
+      "properties": { "target": { "type": "string" } },
+      "required": ["target"]
+    }
+  }
+]

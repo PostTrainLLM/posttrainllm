@@ -16,9 +16,19 @@ ALLOWED_STATUSES = {
     "failed",
     "regressed",
     "inconclusive",
-    "not-tried",
+    "superseded",
+    "rejected",
+    "blocked",
 }
-REQUIRES_REASON = {"failed", "regressed", "worked-with-caveat", "inconclusive"}
+REQUIRES_REASON = {
+    "failed",
+    "regressed",
+    "worked-with-caveat",
+    "inconclusive",
+    "superseded",
+    "rejected",
+    "blocked",
+}
 REASON_FIELDS = ("failure_reason", "lesson", "next_action")
 ALLOWED_CONFIDENCE = {
     "exact",
@@ -40,8 +50,8 @@ def main() -> int:
     completion = completion_path.read_text(encoding="utf-8")
     errors: list[str] = []
 
-    if payload.get("schema_version") != 2:
-        errors.append("docs/attempts.json schema_version must be 2")
+    if payload.get("schema_version") != 3:
+        errors.append("docs/attempts.json schema_version must be 3")
     for confidence in ALLOWED_CONFIDENCE:
         if confidence not in (payload.get("confidence_vocabulary") or {}):
             errors.append(
@@ -72,7 +82,7 @@ def main() -> int:
                 f"{attempt_id}: {status} requires real confidence, not not-applicable"
             )
         if (
-            status in {"worked", "not-tried"}
+            status == "worked"
             and confidence != "not-applicable"
             and not attempt.get("failure_reason")
         ):
@@ -204,6 +214,8 @@ def main() -> int:
         "chess": "Chess",
         "factory-docs": "Factory/docs",
         "file-ops": "File-ops",
+        "game-benchmarks": "Game benchmarks",
+        "offhours": "OffHours",
         "pace-planner": "Pace planner",
         "runtime-perf": "Runtime/perf",
         "sql": "SQL",

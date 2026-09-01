@@ -73,9 +73,9 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
 ---
 
 <Default {...layoutProps}>
-  <SiteHeader mode="instrument" />
+  <SiteHeader mode="instrument" active="playground" />
   <style set:html={pageStyle}></style>
-  <div class="wrap">
+  <main id="main" class="wrap">
     <h1>Run an LLM in your browser</h1>
     <p class="sub">
       Fully client-side inference via <strong>WebGPU</strong> (transformers.js). Pick
@@ -181,7 +181,7 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
       <a href="/playground" style="color:var(--accent)">playground</a>) run the
       tiny from-scratch models; this page runs real pretrained LLMs.
     </p>
-  </div>
+  </main>
 
   <script>
     // transformers.js v3 via CDN (avoids bundling the ONNX-runtime wasm).

@@ -5,6 +5,11 @@ and outputs an *extractive* compressed document — a subset of the original
 sentences that preserves the answer-relevant span — and submit to the
 [ScaleDown.ai](https://scaledown.ai) challenge.
 
+**Final disposition:** V1 lexical compression is shipped and smoke-verified.
+The learned V2 and external challenge submission are closed as unrun historical
+scope because no frozen target/data gate justified the GPU run. The commands
+below remain a complete lab recipe, not an active backlog.
+
 ## V1 (shipped, lexical — no GPU)
 
 `posttrainllm compress` is the runnable extractive compressor today, scoring
@@ -166,8 +171,8 @@ wrapper — write after E6 produces a benchmark-format JSONL.
 | File | Role |
 |---|---|
 | `docs/recipes/b25-scaledown.md` | this doc |
-| `scripts/scaledown-prep.py` | data synthesis from existing cached JSONLs (TODO) |
-| `scripts/scaledown-submit.py` | challenge-submission POST wrapper (TODO) |
+| `scripts/scaledown-prep.py` | optional synthesis helper described by the historical V2 recipe |
+| `scripts/scaledown-submit.py` | proposed external-submission wrapper; not required by the shipped V1 |
 | `~/.cache/posttrainllm/datasets/scaledown-train.jsonl` | prepared training data |
 | `~/.cache/posttrainllm/datasets/scaledown-bench.jsonl` | held-out evaluation set |
 

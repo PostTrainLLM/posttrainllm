@@ -259,7 +259,7 @@ to support four things the from-scratch GPT skips:
 
 ```sh
 # CLI tools (must use Xcode toolchain for Metal compilation)
-export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+export DEVELOPER_DIR="$(xcode-select -p)"
 xcodebuild -scheme posttrainllm -destination 'platform=macOS,arch=arm64' \
   -derivedDataPath .xcode-build build
 
@@ -283,6 +283,7 @@ swift test
 ## 8. The roadmap
 
 Shipped tonight:
+
 - Train / save / load / sample / eval / compare / finetune CLI
 - ANE conversion + 4-bit palettization (storage win)
 - LoRA fine-tuning + adapter composition
@@ -294,6 +295,7 @@ Shipped tonight:
   (via swift-transformers)
 
 Next session:
+
 - Wire `posttrainllm hf-load <dir>` end-to-end (config → ModelConfig →
   TinyGPTModel → load safetensors via name map → tokenizer
   attached)

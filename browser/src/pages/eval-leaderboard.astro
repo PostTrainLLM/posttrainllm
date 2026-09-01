@@ -150,9 +150,9 @@ const pageStyle = `
 ---
 
 <Default {...layoutProps}>
-  <SiteHeader mode="instrument" />
+  <SiteHeader mode="instrument" active="evals" />
   <style is:global slot="head" set:html={pageStyle}></style>
-  <div class="wrap">
+  <main id="main" class="wrap">
     <div class="topbar">
       <div>
         <h1>Eval leaderboard</h1>
@@ -207,7 +207,7 @@ const pageStyle = `
         >training dashboard</a
       > · <a href="/docs/integrations/lm_eval_integration">eval docs</a>
     </div>
-  </div>
+  </main>
 
   <script type="module" is:inline>
     const COLORS = [

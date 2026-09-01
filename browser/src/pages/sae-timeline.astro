@@ -114,9 +114,9 @@ const pageStyle = `
 ---
 
 <Default {...layoutProps}>
-  <SiteHeader mode="instrument" />
+  <SiteHeader mode="instrument" active="experiments" />
   <style is:global slot="head" set:html={pageStyle}></style>
-  <div class="wrap">
+  <main id="main" class="wrap">
     <h1>SAE timeline</h1>
     <p class="sub">
       Drop a <code>.jsonl</code> produced by
@@ -185,7 +185,7 @@ const pageStyle = `
         >training dashboard</a
       > · <a href="/docs/techniques/interpretability">interp docs</a>
     </div>
-  </div>
+  </main>
 
   <script type="module" is:inline>
     const COLORS = [

@@ -5,6 +5,10 @@ before it activates for the user. The non-negotiable rule from the
 opportunistic-acceleration scope (see `docs/performance/perf_quest.md` and decision
 log entry 19): **speed only counts if it preserves loss.**
 
+**Closed-lab status:** validated with caveats. The shipped gates and recorded
+results are the retained recipe; the “Future work” section is optional scope
+for a new owner-selected experiment, not unfinished project work.
+
 ## The principle
 
 Each fast path falls into a tiered design:

@@ -10,9 +10,10 @@ import TinyGPTServe
 struct posttrainllm {
     static func main() {
         let args = Array(CommandLine.arguments.dropFirst())
+        CLICommandCatalog.runDiscoveryIfRequested(args: args)
         guard let cmd = args.first else {
             printUsage()
-            exit(2)
+            exit(0)
         }
         switch cmd {
         case "inspect":
@@ -231,14 +232,14 @@ struct posttrainllm {
         case "experimental":
             ExperimentalCommands.run(args: Array(args.dropFirst()))
         case "-h", "--help":
-            printUsage()
+            CLICommandCatalog.printOverview()
         default:
             if ExperimentalCommands.names.contains(cmd) {
                 ExperimentalCommands.dispatch(cmd, args: Array(args.dropFirst()))
                 return
             }
             fputs("unknown subcommand: \(cmd)\n\n", stderr)
-            printUsage()
+            fputs("Run `posttrainllm commands` for the complete catalog.\n", stderr)
             exit(2)
         }
     }
@@ -253,36 +254,7 @@ struct posttrainllm {
     }
 
     private static func printUsage() {
-        print("""
-        posttrainllm — Mac-local specialist factory
-
-        Active loop: target -> data -> post-training -> eval -> package -> report
-
-        usage:
-          posttrainllm factory-run <sub>  render/validate and manage run lifecycle
-          posttrainllm train [flags]      train from scratch
-          posttrainllm sft [flags]        supervised fine-tune (LoRA)
-          posttrainllm dpo [flags]        preference post-training
-          posttrainllm distill [flags]    distillation
-          posttrainllm finetune [flags]   adapter fine-tune
-          posttrainllm eval [flags]       run an eval harness
-          posttrainllm eval-gate [flags]  frozen-suite gate vs a baseline
-          posttrainllm eval-compare [flags]
-                                          compare baseline/candidate E0 rows
-          posttrainllm bake-lora [flags]  fold a .lora adapter into base weights
-          posttrainllm merge [flags]      merge checkpoints / adapters
-          posttrainllm export-mlx <artifact>
-                                          package .tinygpt/.lora/HF for MLX
-          posttrainllm inspect <path>     print manifest + metadata
-          posttrainllm validate <path>    round-trip check a .tinygpt file
-
-        See `posttrainllm <command> --help` for flags. Factory contract:
-        docs/factory/run-schema.md.
-
-        Parked research CLIs (ROME, MEMIT, SAE, LASER, GPTQ, …) live under:
-          posttrainllm experimental <command>
-          posttrainllm experimental --help
-        """)
+        CLICommandCatalog.printOverview()
     }
 
     static func inspect(path: String) throws {

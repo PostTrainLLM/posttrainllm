@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "start_here": "foundations",
+  "closure_rule": "These paths are ready-to-run learning labs, not an active AI backlog. Progress begins when the owner starts learning and records checkpoints in docs/learning-progress.md.",
+  "paths": [
+    {
+      "id": "foundations",
+      "title": "Foundations to transformer",
+      "prerequisites": [],
+      "sequence": [
+        "Functions, data, and parameters",
+        "Loss and gradient descent",
+        "Vectors, matrices, and tensors",
+        "Non-linear networks and backpropagation",
+        "Tokenization and embeddings",
+        "Attention and transformer blocks"
+      ],
+      "anchors": [
+        "docs/learn/curriculum.md",
+        "docs/learn/session-01-neural-net-basics.md",
+        "docs/learn/session-02-gradient-descent.md",
+        "docs/learn/session-09-tensors.md",
+        "docs/learn/session-03-non-linearities.md",
+        "docs/learn/session-06-tokenization-embeddings.md",
+        "docs/learn/session-10-attention.md"
+      ],
+      "lab": "Complete the toy calculation or implementation in Modules 1-7 and explain its tensor shapes aloud.",
+      "mastery_gate": "Trace text from tokens through embeddings, attention, MLP, logits, loss, and one gradient update without skipping a transformation.",
+      "cli_commands": ["posttrainllm train", "posttrainllm inspect"]
+    },
+    {
+      "id": "training-mechanics",
+      "title": "Training mechanics and stability",
+      "prerequisites": ["foundations"],
+      "sequence": [
+        "Batches and masking",
+        "Optimizers and schedules",
+        "Precision and numerical checks",
+        "Tiny-overfit correctness gate",
+        "Memory and convergence diagnosis"
+      ],
+      "anchors": [
+        "docs/learn/session-08-training-mechanics.md",
+        "docs/guides/training_guide.md",
+        "docs/techniques/optimizers.md",
+        "docs/techniques/galore_and_stability.md",
+        "docs/techniques/precision.md"
+      ],
+      "lab": "Inspect one successful tiny-overfit and one failed ordinary run, then diagnose data, optimization, capacity, and evaluation separately.",
+      "mastery_gate": "Given a loss curve and held-out result, identify what is proven and choose the smallest discriminating next test.",
+      "cli_commands": [
+        "posttrainllm train",
+        "posttrainllm bench-train",
+        "posttrainllm eval"
+      ]
+    },
+    {
+      "id": "post-training",
+      "title": "SFT, adapters, preference tuning, and distillation",
+      "prerequisites": ["training-mechanics"],
+      "sequence": [
+        "SFT behavior learning",
+        "LoRA geometry",
+        "DPO and reference anchoring",
+        "Distillation",
+        "Routing and breadth retention"
+      ],
+      "anchors": [
+        "docs/learn/session-07-behavior-learning.md",
+        "docs/training/sft.md",
+        "docs/training/dpo.md",
+        "docs/techniques/lora_guide.md",
+        "docs/techniques/distillation.md",
+        "docs/learn/advanced-llm-training.md"
+      ],
+      "lab": "Reconstruct the SQL and file-ops lineages, including the variable changed, target gain, regression, and decision at each step.",
+      "mastery_gate": "Design a recipe with data, target, reward or labels, regression slices, resource budget, stop rule, and ship/retry/reject threshold.",
+      "cli_commands": [
+        "posttrainllm sft",
+        "posttrainllm dpo",
+        "posttrainllm distill",
+        "posttrainllm finetune"
+      ]
+    },
+    {
+      "id": "evaluation-and-factory",
+      "title": "Evaluation, evidence, and the specialist factory",
+      "prerequisites": ["post-training"],
+      "sequence": [
+        "Frontier-ceiling validation",
+        "Frozen baselines and heldouts",
+        "Slice and safety gates",
+        "Trace review",
+        "Packaging and report cards",
+        "Ship, route, retry, or reject"
+      ],
+      "anchors": [
+        "docs/learn/session-11-evals-rewards.md",
+        "docs/factory/eval-protocol.md",
+        "docs/factory/run-schema.md",
+        "docs/factory/reports.md",
+        "docs/attempt-ledger.md",
+        "docs/recipes/registry.json"
+      ],
+      "lab": "Audit Needle, Chess, and 2048 and explain how the ruler or safety gate changed the decision before integration or training.",
+      "mastery_gate": "Reject a superficially good score when its frontier ruler, safety slice, breadth gate, or provenance is invalid.",
+      "cli_commands": [
+        "posttrainllm factory-run",
+        "posttrainllm eval-gate",
+        "posttrainllm eval-compare",
+        "posttrainllm inspect"
+      ]
+    },
+    {
+      "id": "runtime-and-agents",
+      "title": "Inference, serving, tools, and long context",
+      "prerequisites": ["foundations", "evaluation-and-factory"],
+      "sequence": [
+        "Autoregressive decoding",
+        "KV cache and prompt reuse",
+        "Constrained generation",
+        "Tool dispatch and routing",
+        "Speculative decoding",
+        "Long-context cache policies"
+      ],
+      "anchors": [
+        "docs/learn/advanced-llm-inference.md",
+        "docs/learn/model-vs-agent.md",
+        "docs/agent_runtime.md",
+        "docs/performance/kv_cache_optimization.md",
+        "docs/techniques/constrained_generation.md",
+        "docs/techniques/speculative_heads.md",
+        "docs/techniques/streaming_llm_kivi.md"
+      ],
+      "lab": "Calculate KV memory, compare cold versus reused-prefill latency, and trace one tool request through model output, validation, and execution policy.",
+      "mastery_gate": "Separate model capability, serving optimization, validation, and agent policy in one end-to-end trace.",
+      "cli_commands": [
+        "posttrainllm sample",
+        "posttrainllm serve",
+        "posttrainllm agent",
+        "posttrainllm eval-bfcl"
+      ]
+    },
+    {
+      "id": "architecture-and-kernels",
+      "title": "Architecture and kernel execution",
+      "prerequisites": ["foundations", "training-mechanics"],
+      "sequence": [
+        "Reference transformer math",
+        "Attention memory traffic",
+        "Precision and tiling",
+        "Sparse versus dense MoE",
+        "Correctness before performance"
+      ],
+      "anchors": [
+        "docs/learn/llm-mechanics-fundamentals.md",
+        "docs/learn/essential-vs-optimization.md",
+        "docs/performance/fa2_forward_notes.md",
+        "docs/performance/fa2_backward_notes.md",
+        "docs/techniques/moe.md",
+        "docs/learn/webgpu-execution-model.md"
+      ],
+      "lab": "Match one optimized attention or matmul path against the readable reference and identify the real bottleneck with a measured curve.",
+      "mastery_gate": "Explain the numerical contract, memory traffic, and why a microbenchmark may not improve end-to-end training.",
+      "cli_commands": [
+        "posttrainllm bench",
+        "posttrainllm bench-train",
+        "posttrainllm experimental train-heads"
+      ]
+    },
+    {
+      "id": "quantization-and-packaging",
+      "title": "Quantization, pruning, and artifact packaging",
+      "prerequisites": ["training-mechanics", "evaluation-and-factory"],
+      "sequence": [
+        "Calibration and numeric formats",
+        "Storage versus runtime kernels",
+        "Pruning and physical topology",
+        "Load and serve parity",
+        "Model cards and public evidence"
+      ],
+      "anchors": [
+        "docs/techniques/quantization_expansion.md",
+        "docs/techniques/pruning.md",
+        "docs/factory/packaging.md",
+        "docs/recipes/mlx-export.md",
+        "docs/factory/public-artifacts.md"
+      ],
+      "lab": "Audit one int4 or pruned artifact from source weights through file size, load parity, quality, RAM, and runtime measurement.",
+      "mastery_gate": "Distinguish a smaller file, lower RAM, fewer physical operations, and faster wall-clock execution.",
+      "cli_commands": [
+        "posttrainllm export-mlx",
+        "posttrainllm validate",
+        "posttrainllm experimental gptq",
+        "posttrainllm experimental prune-structured"
+      ]
+    },
+    {
+      "id": "browser-and-mac-runtime",
+      "title": "Browser, WASM, WebGPU, MLX, and Apple runtime",
+      "prerequisites": ["architecture-and-kernels", "runtime-and-agents"],
+      "sequence": [
+        "WASM memory and SIMD",
+        "WebGPU device and kernel model",
+        "Browser caching and distribution",
+        "MLX unified memory",
+        "Apple Foundation Models and Core ML boundaries",
+        "Browser ASR case study"
+      ],
+      "anchors": [
+        "docs/browser_notes.md",
+        "docs/learn/webgpu-execution-model.md",
+        "docs/learn/mac-mastery-map.md",
+        "docs/learn/apple-on-device-foundation-models.md",
+        "docs/techniques/parakeet-wgsl-browser-smoke.md",
+        "docs/attempt-ledger.md"
+      ],
+      "lab": "Compare the WebGPU speedup curve, Memory64 limit, Apple action-grounding result, and Parakeet browser receipt as four different capability boundaries.",
+      "mastery_gate": "Choose the correct Mac or browser runtime from capability, memory, latency, energy, download, and ownership constraints.",
+      "cli_commands": [
+        "posttrainllm hf-load",
+        "posttrainllm ane-validate",
+        "posttrainllm coreml-serve",
+        "posttrainllm vlm-smoke"
+      ]
+    },
+    {
+      "id": "interpretability",
+      "title": "Interpretability with causal discipline",
+      "prerequisites": ["foundations", "evaluation-and-factory"],
+      "sequence": [
+        "Attention and logit inspection",
+        "Linear probes",
+        "Activation patching and causal tracing",
+        "Sparse autoencoders",
+        "Controls and intervention claims"
+      ],
+      "anchors": [
+        "docs/techniques/interpretability.md",
+        "docs/learn/advanced-ml-systems-eval.md",
+        "docs/learn/session-10-attention.md"
+      ],
+      "lab": "Take one behavioral failure and write a probe hypothesis, negative control, intervention, and decision-changing prediction.",
+      "mastery_gate": "Refuse to turn an attractive visualization into a causal model claim without an intervention.",
+      "cli_commands": [
+        "posttrainllm experimental tuned-lens",
+        "posttrainllm experimental linear-probe",
+        "posttrainllm experimental causal-trace",
+        "posttrainllm experimental sae"
+      ]
+    }
+  ]
+}
