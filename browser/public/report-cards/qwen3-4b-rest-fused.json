@@ -111,7 +111,7 @@
       "label": "recorded result source",
       "note": "The document the legacy score was recorded in.",
       "path": "docs/sessions/2026-06-17-stepback-inventory-roi.md",
-      "sha256": "41f8f210371eb7aaba7cdaa0a0a4b299d220ff6b5579e96191f791aa5c08e0b7"
+      "sha256": "20363b2f2fdf27936bee2fee5353c2da51beb29d9645de5b880f0c7abebc0947"
     },
     {
       "kind": "external-artifact",
