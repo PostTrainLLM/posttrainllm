@@ -94,6 +94,15 @@ importers:
         specifier: 1.0.4
         version: 1.0.4(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(@shikijs/themes@4.4.3)(@types/node@25.9.5)(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(@vercel/functions@3.9.5(ws@8.21.0))(esbuild@0.28.1)(prettier-plugin-astro@0.14.1)(prettier@3.9.6)(rollup@4.63.1)(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))(ws@8.21.0)(yaml@2.9.0)
     devDependencies:
+      '@astrojs/mdx':
+        specifier: ^7.0.8
+        version: 7.0.8(@astrojs/markdown-satteri@0.3.8)(astro@7.2.2(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(@types/node@25.9.5)(@vercel/functions@3.9.5(ws@8.21.0))(jiti@2.7.0)(yaml@2.9.0))
+      '@shikijs/twoslash':
+        specifier: ^4.4.3
+        version: 4.4.3(typescript@6.0.3)
+      '@tailwindcss/vite':
+        specifier: ^4.3.3
+        version: 4.3.3(vite@8.2.2(@types/node@25.9.5)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
       astro:
         specifier: 7.2.2
         version: 7.2.2(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(@types/node@25.9.5)(@vercel/functions@3.9.5(ws@8.21.0))(jiti@2.7.0)(yaml@2.9.0)

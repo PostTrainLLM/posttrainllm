@@ -17,6 +17,9 @@
     "blume": "1.0.4"
   },
   "devDependencies": {
+    "@astrojs/mdx": "^7.0.8",
+    "@shikijs/twoslash": "^4.4.3",
+    "@tailwindcss/vite": "^4.3.3",
     "astro": "7.2.2"
   }
 }
