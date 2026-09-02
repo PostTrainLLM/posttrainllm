@@ -85,14 +85,28 @@ for (const viewport of viewports) {
   await page.goto(`${baseURL}/`, { waitUntil: "networkidle" });
   const homeState = await page.evaluate(() => {
     const curve = document.querySelector(".hero-curve");
+    const curveDot = document.querySelector(".hc-dot");
+    const curveCaption = document.querySelector(".hero-curve-cap");
     const stats = document.querySelector(".hero-stats");
-    if (!(curve instanceof SVGElement) || !(stats instanceof HTMLElement)) {
+    if (
+      !(curve instanceof SVGElement) ||
+      !(curveDot instanceof SVGElement) ||
+      !(curveCaption instanceof HTMLElement) ||
+      !(stats instanceof HTMLElement)
+    ) {
       return null;
     }
     const curveStyle = getComputedStyle(curve);
     const statsStyle = getComputedStyle(stats);
+    const dotBounds = curveDot.getBoundingClientRect();
+    const captionBounds = curveCaption.getBoundingClientRect();
+    const statsBounds = stats.getBoundingClientRect();
     return {
       curveBottom: Number.parseFloat(curveStyle.bottom),
+      terminalClearance: statsBounds.top - dotBounds.bottom,
+      captionOverlapsCurveTerminal:
+        captionBounds.top < dotBounds.bottom &&
+        captionBounds.bottom > dotBounds.top,
       statsBackground: statsStyle.backgroundColor,
       statsBackdrop: statsStyle.backdropFilter,
       entryPoints: document.querySelectorAll(".entry-rail > a").length,
@@ -109,6 +123,14 @@ for (const viewport of viewports) {
   } else {
     if (homeState.curveBottom < 110)
       failures.push(`hero curve was not lifted at ${viewport.width}px`);
+    if (homeState.terminalClearance <= 0)
+      failures.push(
+        `hero curve terminal enters stats by ${Math.abs(homeState.terminalClearance).toFixed(1)}px at ${viewport.width}px`,
+      );
+    if (homeState.captionOverlapsCurveTerminal)
+      failures.push(
+        `hero curve terminal overlaps its caption at ${viewport.width}px`,
+      );
     if (homeState.statsBackground !== "rgba(0, 0, 0, 0)")
       failures.push(`hero stats still hide the curve at ${viewport.width}px`);
     if (homeState.statsBackdrop !== "none")
