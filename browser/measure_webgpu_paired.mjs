@@ -123,7 +123,9 @@ async function runArm(context, options, backend, sequenceIndex) {
   page.on("dialog", (dialog) => dialog.accept().catch(() => {}));
 
   try {
-    await page.goto(options.baseUrl, { waitUntil: "networkidle" });
+    await page.goto(new URL("/playground", options.baseUrl).href, {
+      waitUntil: "networkidle",
+    });
     await page
       .locator("#welcomeSkip")
       .click({ timeout: 1500 })
