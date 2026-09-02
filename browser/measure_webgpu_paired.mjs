@@ -22,6 +22,7 @@ function parseArgs(argv) {
   };
   for (let index = 0; index < argv.length; index += 1) {
     const name = argv[index];
+    if (name === "--") continue;
     const value = argv[index + 1];
     if (name === "--base-url") options.baseUrl = value;
     else if (name === "--output") options.output = value;
