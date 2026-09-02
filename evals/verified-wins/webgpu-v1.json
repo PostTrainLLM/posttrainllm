@@ -2,7 +2,7 @@
   "schema_version": "posttrainllm.verified-win.v1",
   "manifest_id": "webgpu-paired-hardware-v1",
   "lane": "webgpu",
-  "status": "design-frozen",
+  "status": "run-frozen",
   "hypothesis": "On a real Apple GPU adapter, browser WebGPU training has a median step-time speedup above 1.25x over WASM without more than 5% final-loss drift.",
   "comparison": {
     "paired": true,
@@ -17,14 +17,22 @@
     "reject_software_adapter": true
   },
   "arms": [
-    { "id": "wasm", "role": "incumbent", "revision": null },
-    { "id": "webgpu", "role": "candidate", "revision": null }
+    {
+      "id": "wasm",
+      "role": "incumbent",
+      "revision": "6c3e25d310780b1891017a2fe04b0608ae89776c"
+    },
+    {
+      "id": "webgpu",
+      "role": "candidate",
+      "revision": "6c3e25d310780b1891017a2fe04b0608ae89776c"
+    }
   ],
   "fixtures": [
     {
       "id": "browser-large-preset",
       "path": "browser/src/sizing.ts",
-      "sha256": null,
+      "sha256": "6dd032f91831d351f5f853a8055fbd2e099bb5a782eb11c0151574d8c3e2031b",
       "visibility": "source-config"
     },
     {
@@ -64,14 +72,12 @@
     "stop_rule": "Stop on software/fallback adapter, device loss, non-finite loss, browser error, or 200 steps in any arm."
   },
   "freeze": {
-    "state": "design-frozen",
+    "state": "run-frozen",
     "protocol_version": "1",
-    "commands": ["TBD: paired receipt runner added by Issue #138 task 3"],
-    "open_requirements": [
-      "pin source revision after runner lands",
-      "hash sizing source",
-      "record adapter-identification receipt"
-    ]
+    "commands": [
+      "pnpm --dir browser run webgpu:paired -- --base-url http://127.0.0.1:4173 --preset large --steps 20 --seed 42 --source-revision 6c3e25d310780b1891017a2fe04b0608ae89776c --output ../runs/verified-wins/webgpu-paired-hardware-v1/receipt.json"
+    ],
+    "open_requirements": []
   },
   "raw_receipt_dir": "runs/verified-wins/webgpu-paired-hardware-v1",
   "allowed_decisions": [
