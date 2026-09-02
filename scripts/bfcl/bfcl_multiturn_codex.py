@@ -76,6 +76,10 @@ SCHEMA = {
 }
 
 
+class CodexInfrastructureError(RuntimeError):
+    """Raised when the Codex CLI cannot produce a scoreable model response."""
+
+
 def parse_args(s):
     if isinstance(s, dict):
         return s
@@ -123,18 +127,32 @@ def codex_gen(prompt):
         prompt,
     ]
     try:
-        subprocess.run(
+        completed = subprocess.run(
             cmd,
+            cwd=tempfile.gettempdir(),
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True,
             timeout=300,
             check=False,
         )
+        if completed.returncode != 0:
+            detail = (completed.stderr or "").strip().replace("\n", " ")
+            raise CodexInfrastructureError(
+                f"codex exec exited {completed.returncode}: {detail[:500]}"
+            )
         txt = open(out_path).read().strip() if os.path.exists(out_path) else ""
-        return json.loads(txt) if txt else {"tool_calls": [], "done": True}
-    except Exception:
-        return {"tool_calls": [], "done": True}
+        if not txt:
+            raise CodexInfrastructureError("codex exec produced no output")
+        try:
+            return json.loads(txt)
+        except json.JSONDecodeError as exc:
+            raise CodexInfrastructureError(
+                f"codex exec produced invalid JSON: {txt[:500]}"
+            ) from exc
+    except subprocess.TimeoutExpired as exc:
+        raise CodexInfrastructureError("codex exec timed out after 300 seconds") from exc
     finally:
         for p in (schema_path, out_path):
             try:
@@ -212,6 +230,7 @@ total = len(data)
 ok = n = 0
 started = time.perf_counter()
 traces = []
+infrastructure_error = None
 dumpf = open(DUMP, "a") if DUMP else None
 
 
@@ -235,6 +254,7 @@ def write_output(complete):
         "accuracy": ok / max(n, 1),
         "elapsed_seconds": time.perf_counter() - started,
         "complete": complete,
+        "infrastructure_error": infrastructure_error,
         "traces": traces,
     }
     output_path = os.path.abspath(OUTPUT)
@@ -282,10 +302,10 @@ if OUTPUT and os.path.exists(OUTPUT):
 
 
 for ex in data[n:]:
-    n += 1
     example_started = time.perf_counter()
     try:
         valid, decoded, checker = run_example(ex, golds.get(ex["id"]))
+        n += 1
         ok += valid
         traces.append(
             {
@@ -300,7 +320,15 @@ for ex in data[n:]:
         if valid and dumpf:
             dumpf.write(json.dumps({"id": ex["id"], "decoded": decoded}) + "\n")
             dumpf.flush()
+    except CodexInfrastructureError as e:
+        infrastructure_error = {"id": ex["id"], "message": str(e)}
+        write_output(complete=False)
+        if dumpf:
+            dumpf.close()
+        print(f"  INFRASTRUCTURE ERROR {ex['id']}: {e}", file=sys.stderr, flush=True)
+        raise SystemExit(2) from e
     except Exception as e:
+        n += 1
         print("  ERR", ex["id"], str(e)[:90])
         traces.append(
             {
