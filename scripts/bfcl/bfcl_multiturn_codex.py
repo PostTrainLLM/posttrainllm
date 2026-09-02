@@ -22,6 +22,7 @@ import tempfile
 import time
 
 from bfcl_paths import resolve_bfcl_root
+from rest_protocol import SYSTEM_PROMPT
 
 BFCL = str(resolve_bfcl_root())
 sys.path.insert(0, BFCL)
@@ -38,14 +39,13 @@ N = int(sys.argv[1]) if len(sys.argv) > 1 else 12
 DUMP = os.environ.get("MT_DUMP")
 OUTPUT = os.environ.get("MT_OUTPUT")
 SEED = int(os.environ.get("MT_SEED", "13803"))
+ONLY_IDS = {value for value in os.environ.get("MT_IDS", "").split(",") if value}
 CODEX_MODEL = os.environ.get("CODEX_MODEL", "gpt-5.5")
 REASONING = os.environ.get("CODEX_REASONING", "medium")
 MAX_STEPS = 12
 SYS = os.environ.get(
     "MT_SYS",
-    "You are an autonomous tool-using agent. Plan the full sequence of calls a turn needs, then "
-    "emit them; never repeat a call that already succeeded; when the turn's task is fully done, "
-    "return done=true with an empty tool_calls list.",
+    SYSTEM_PROMPT,
 )
 
 # next-action schema. OpenAI strict structured-output requires additionalProperties:false on
@@ -192,12 +192,12 @@ def run_example(ex, gold):
         decoded, gold["ground_truth"], ex, "multi_turn_base", "codex"
     )
     valid = bool(r.get("valid")) if isinstance(r, dict) else bool(r)
-    return valid, decoded
+    return valid, decoded, r
 
 
 data = [json.loads(l) for l in open(DATA)]
 random.Random(SEED).shuffle(data)
-data = data[:N]
+data = [item for item in data if item["id"] in ONLY_IDS] if ONLY_IDS else data[:N]
 golds = {json.loads(l)["id"]: json.loads(l) for l in open(GOLD)}
 print(
     f"Codex {CODEX_MODEL} (reasoning={REASONING})  n={len(data)} seed={SEED}",
@@ -207,17 +207,49 @@ ok = n = 0
 started = time.perf_counter()
 traces = []
 dumpf = open(DUMP, "a") if DUMP else None
+
+
+def write_output(complete):
+    if not OUTPUT:
+        return
+    result = {
+        "schema_version": "posttrainllm.rest-frontier-eval.v1",
+        "backend": "codex-cli",
+        "model": CODEX_MODEL,
+        "reasoning": REASONING,
+        "bfcl_root": BFCL,
+        "data": DATA,
+        "gold": GOLD,
+        "seed": SEED,
+        "requested_ids": sorted(ONLY_IDS),
+        "count": n,
+        "passed": ok,
+        "accuracy": ok / max(n, 1),
+        "elapsed_seconds": time.perf_counter() - started,
+        "complete": complete,
+        "traces": traces,
+    }
+    output_path = os.path.abspath(OUTPUT)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    temporary_path = output_path + ".tmp"
+    with open(temporary_path, "w", encoding="utf-8") as output_file:
+        json.dump(result, output_file, indent=2)
+        output_file.write("\n")
+    os.replace(temporary_path, output_path)
+
+
 for ex in data:
     n += 1
     example_started = time.perf_counter()
     try:
-        valid, decoded = run_example(ex, golds.get(ex["id"]))
+        valid, decoded, checker = run_example(ex, golds.get(ex["id"]))
         ok += valid
         traces.append(
             {
                 "id": ex["id"],
                 "valid": valid,
                 "decoded": decoded,
+                "checker": checker,
                 "elapsed_seconds": time.perf_counter() - example_started,
                 "error": None,
             }
@@ -236,28 +268,9 @@ for ex in data:
                 "error": str(e),
             }
         )
+    write_output(complete=False)
     print(f"  {n}/{len(data)}  pass={100 * ok / n:.0f}%", flush=True)
 if dumpf:
     dumpf.close()
 print(f"== Codex task-completion: {ok}/{n} = {100 * ok / max(n, 1):.1f}% ==")
-if OUTPUT:
-    result = {
-        "schema_version": "posttrainllm.rest-frontier-eval.v1",
-        "backend": "codex-cli",
-        "model": CODEX_MODEL,
-        "reasoning": REASONING,
-        "bfcl_root": BFCL,
-        "data": DATA,
-        "gold": GOLD,
-        "seed": SEED,
-        "count": n,
-        "passed": ok,
-        "accuracy": ok / max(n, 1),
-        "elapsed_seconds": time.perf_counter() - started,
-        "traces": traces,
-    }
-    output_path = os.path.abspath(OUTPUT)
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as output_file:
-        json.dump(result, output_file, indent=2)
-        output_file.write("\n")
+write_output(complete=True)

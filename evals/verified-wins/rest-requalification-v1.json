@@ -88,13 +88,21 @@
   },
   "freeze": {
     "state": "run-frozen",
-    "protocol_version": "1",
+    "protocol_version": "2",
     "bfcl_revision": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
     "runtime": {
       "local_backend": "mlx-lm==0.31.3",
       "frontier_backend": "codex-cli gpt-5.5 medium",
-      "system_prompt": "scripts/bfcl/run_rest_arm.py:SYSTEM_PROMPT"
+      "system_prompt": "scripts/bfcl/rest_protocol.py:SYSTEM_PROMPT"
     },
+    "protocol_history": [
+      {
+        "version": "1",
+        "decision": "retry-protocol",
+        "reason": "The frontier missed multi_turn_base_71 by guessing a state-derived refill amount. Version 2 gives every arm the same neutral calculate-don't-guess instruction; fixtures and gates are unchanged.",
+        "raw_receipt": "runs/verified-wins/rest-4b-requalification-v1/frontier-breadth-v1-case-71.json"
+      }
+    ],
     "commands": [
       "BFCL_ROOT=<pinned-bfcl-dir> bash evals/rest-requalification.sh frontier",
       "bash evals/rest-requalification.sh download",
