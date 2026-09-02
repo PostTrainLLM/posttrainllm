@@ -138,6 +138,19 @@ async function runArm(context, options, backend, sequenceIndex) {
     await page.locator("#sizePreset").selectOption(options.preset);
     const configured = await page.evaluate(
       ({ selectedBackend, selectedSeed, selectedSteps }) => {
+        for (const id of [
+          "sizePreset",
+          "layers",
+          "dModel",
+          "ctx",
+          "batch",
+          "maxSteps",
+          "backend",
+          "corpus",
+        ]) {
+          if (!document.getElementById(id))
+            throw new Error(`missing control #${id}`);
+        }
         const setValue = (id, value) => {
           const element = document.getElementById(id);
           if (!element) throw new Error(`missing control #${id}`);
@@ -155,7 +168,7 @@ async function runArm(context, options, backend, sequenceIndex) {
           layers: Number(document.getElementById("layers").value),
           dModel: Number(document.getElementById("dModel").value),
           ctx: Number(document.getElementById("ctx").value),
-          batchSize: Number(document.getElementById("batchSize").value),
+          batchSize: Number(document.getElementById("batch").value),
           steps: Number(document.getElementById("maxSteps").value),
           seed: selectedSeed,
           seedSource: seedControl
