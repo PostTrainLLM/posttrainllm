@@ -4,7 +4,12 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VALIDATOR="$ROOT/scripts/experiments/validate_verified_win_manifest.py"
-MANIFESTS=("$ROOT"/evals/verified-wins/*.json)
+MANIFESTS=(
+  "$ROOT/evals/verified-wins/webgpu-v1.json"
+  "$ROOT/evals/verified-wins/parakeet-asr-v1.json"
+  "$ROOT/evals/verified-wins/rest-requalification-v1.json"
+  "$ROOT/evals/verified-wins/needle-successor-v1.json"
+)
 
 python3 "$VALIDATOR" "${MANIFESTS[@]}" --stage design >/dev/null
 

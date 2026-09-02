@@ -1,0 +1,85 @@
+{
+  "schema_version": "posttrainllm.webgpu-paired-result.v1",
+  "manifest": "evals/verified-wins/webgpu-v1.json",
+  "manifest_id": "webgpu-paired-hardware-v1",
+  "source_revision": "b2c9503746d5e060f120516f48eaa8c13a5934df",
+  "run_started_at": "2026-09-02T09:29:28.158Z",
+  "run_completed_at": "2026-09-02T09:30:43.584Z",
+  "raw_receipt_sha256": "755d20fff73f0888e39018701a11c7bafbfc945a4ab02cc71e06114a6e20ea41",
+  "environment": {
+    "cpu": "Apple M5 Pro",
+    "logical_cpus": 18,
+    "total_memory_bytes": 51539607552,
+    "os_release": "27.0.0",
+    "browser": "Chrome 151.0.7922.34",
+    "adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "fallback": false,
+      "software": false
+    }
+  },
+  "inputs": {
+    "preset": "large",
+    "layers": 6,
+    "d_model": 192,
+    "context": 128,
+    "batch_size": 12,
+    "steps_per_arm": 20,
+    "seed": 42,
+    "sequence": ["wasm", "webgpu", "webgpu", "wasm"],
+    "sizing_sha256": "6dd032f91831d351f5f853a8055fbd2e099bb5a782eb11c0151574d8c3e2031b",
+    "default_config_sha256": "4b54e87a6c0768ecc7df57b46a531202870c25988b67d0df14d7c7a03f29ac8c",
+    "corpus_sha256": "86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed"
+  },
+  "runs": [
+    {
+      "sequence_index": 1,
+      "backend": "wasm",
+      "elapsed_ms": 29262.07125,
+      "ms_per_step": 1463.1035625,
+      "final_loss": 3.5799,
+      "displayed_tokens_per_second": 1207,
+      "errors": []
+    },
+    {
+      "sequence_index": 2,
+      "backend": "webgpu",
+      "elapsed_ms": 3197.919458999997,
+      "ms_per_step": 159.89597294999984,
+      "final_loss": 3.7489,
+      "displayed_tokens_per_second": 14015,
+      "errors": []
+    },
+    {
+      "sequence_index": 3,
+      "backend": "webgpu",
+      "elapsed_ms": 2285.1701660000035,
+      "ms_per_step": 114.25850830000017,
+      "final_loss": 3.7489,
+      "displayed_tokens_per_second": 14158,
+      "errors": []
+    },
+    {
+      "sequence_index": 4,
+      "backend": "wasm",
+      "elapsed_ms": 29237.989041000008,
+      "ms_per_step": 1461.8994520500005,
+      "final_loss": 3.5799,
+      "displayed_tokens_per_second": 1207,
+      "errors": []
+    }
+  ],
+  "summary": {
+    "wasm_median_ms_per_step": 1462.5015072750002,
+    "webgpu_median_ms_per_step": 137.077240625,
+    "median_speedup": 10.669178199143518,
+    "maximum_paired_final_loss_relative_drift": 0.047208022570462874,
+    "hardware_adapter_gate": true,
+    "median_speedup_above_1_25_gate": true,
+    "every_loss_drift_below_0_05_gate": true,
+    "zero_runtime_errors_gate": true
+  },
+  "decision": "promote",
+  "scope": "One Apple M5 Pro, Chrome 151, Large preset, two ABBA pairs, 20 steps per arm. This verifies this configuration only; it does not qualify the historical Small/Medium/XL curve or other hardware."
+}

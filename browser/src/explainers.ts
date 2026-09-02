@@ -82,7 +82,7 @@ export const EXPLAINERS: Record<string, Explainer> = {
   },
   backend: {
     title: "Backend — WASM or WebGPU",
-    body: "WASM runs the same model on the CPU via hand-derived C++ kernels. WebGPU runs the forward pass, backward pass, and AdamW on the GPU. Both paths are parity-checked for correctness. A historical Apple M-series curve reported ~2.6× to ~12× speedups as model width grew, but its raw timings and adapter identity were not retained. Use the live benchmark to explore your machine; treat performance as unverified until an adapter-qualified paired receipt is recorded.",
+    body: "WASM runs the same model on the CPU via hand-derived C++ kernels. WebGPU runs the forward pass, backward pass, and AdamW on the GPU. Both paths are parity-checked. A frozen ABBA receipt on an Apple M5 Pro measured 10.67× on the Large preset with 4.72% final-loss drift; use the live benchmark because that result does not predict every machine or preset.",
     link: docsLink(
       "docs/browser_notes.md",
       "browser_notes.md — WASM vs WebGPU",

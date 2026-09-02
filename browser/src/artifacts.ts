@@ -8,11 +8,7 @@ export type ArtifactState =
   | "parked";
 
 export type ArtifactMetricEvidence =
-  | "measured"
-  | "historical"
-  | "derived"
-  | "observed"
-  | "not-measured";
+  "measured" | "historical" | "derived" | "observed" | "not-measured";
 
 type ArtifactMetric = {
   label: string;
@@ -1674,40 +1670,40 @@ export const artifacts: ArtifactEntry[] = [
     title: "Browser WebGPU Training Speedup",
     eyebrow: "Browser performance artifact",
     state: "report-only",
-    date: "2026-05-31",
+    date: "2026-09-02",
     kind: "Benchmark report",
     tags: ["WebGPU", "WASM", "browser", "performance"],
     summary:
-      "The original browser track retained a 2.6x–12.1x WebGPU curve, but not the raw timings or hardware-adapter receipt needed to verify it today.",
-    lede: "The browser playground and parity-tested WebGPU training path are real. The historical speed curve is useful hypothesis evidence, not a current verified hardware claim: the retained test proves loss parity but does not record timings or reject software adapters.",
+      "A frozen ABBA run on an Apple M5 Pro measured a 10.67x Large-preset WebGPU speedup over WASM with 4.72% paired final-loss drift and zero runtime errors.",
+    lede: "The browser playground now has a retained, adapter-qualified performance win for one configuration. Two WASM and two WebGPU runs used the same Large preset, corpus, seed, and 20-step budget. This qualifies Large on the measured M5 Pro; the older Small/Medium/XL curve remains historical until separately reproduced.",
     metrics: [
       {
         label: "WebGPU speedup",
-        value: "12.1x",
-        context: "historical · unqualified at d_model=256",
-        evidence: "historical",
+        value: "10.67x",
+        context: "measured · Large · Apple M5 Pro",
+        evidence: "measured",
       },
       {
-        label: "Small-width speedup",
-        value: "2.6x",
-        context: "historical · unqualified at d_model=96",
-        evidence: "historical",
+        label: "Loss drift",
+        value: "4.72%",
+        context: "maximum across two paired comparisons",
+        evidence: "measured",
       },
       {
-        label: "Browser track",
-        value: "shipped",
-        context: "WASM, SIMD, OPFS, WebGPU fast path",
-        evidence: "observed",
+        label: "Hardware gate",
+        value: "pass",
+        context: "Apple · metal-3 · no fallback",
+        evidence: "measured",
       },
     ],
     comparisons: [
       {
         name: "posttrainllm WebGPU",
         metric: "training step speedup",
-        score: "12.1x",
-        size: "d_model=256 browser run",
-        comparability: "Directional",
-        note: "Reported against WASM SIMD, but no retained raw timing or adapter identity verifies the comparison.",
+        score: "10.67x",
+        size: "Large · d_model=192 · 20 steps",
+        comparability: "Direct",
+        note: "Median 137.1 ms/step across two WebGPU runs on the same Apple hardware and frozen inputs.",
       },
       {
         name: "posttrainllm WASM SIMD",
@@ -1715,7 +1711,7 @@ export const artifacts: ArtifactEntry[] = [
         score: "1.0x",
         size: "same browser model/config",
         comparability: "Direct",
-        note: "Portable CPU baseline and fallback path.",
+        note: "Median 1462.5 ms/step across the two matching WASM runs.",
       },
       {
         name: "Native Mac runtimes",
@@ -1731,9 +1727,10 @@ export const artifacts: ArtifactEntry[] = [
         title: "Performance readout",
         columns: ["Variant", "Result", "Interpretation"],
         rows: [
-          ["WASM SIMD", "baseline", "Portable CPU path"],
-          ["WebGPU d_model=96", "2.6x historical", "Needs hardware receipt"],
-          ["WebGPU d_model=256", "12.1x historical", "Needs hardware receipt"],
+          ["WASM · Large", "1462.5 ms/step median", "Two matching runs"],
+          ["WebGPU · Large", "137.1 ms/step median", "10.67x measured speedup"],
+          ["Final-loss drift", "4.72% maximum", "Passes the frozen <5% gate"],
+          ["Other presets", "2.6x–12.1x historical", "Still unqualified"],
         ],
       },
     ],
@@ -1741,17 +1738,14 @@ export const artifacts: ArtifactEntry[] = [
       { label: "Performance journey", href: "/roadmap" },
       { label: "Performance docs", href: "/docs/performance/performance" },
       { label: "Playground", href: "/playground" },
-    ],
-    blockers: [
       {
-        blocker: "Hardware evidence not retained",
-        why: "The parity runner records final loss but not paired timing, exact adapter identity, or software-fallback rejection.",
-        unblock:
-          "Record two alternated WebGPU/WASM pairs on a verified hardware adapter with raw JSON timings.",
+        label: "Paired result JSON",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/verified-wins/webgpu-paired-result-v1.json",
       },
     ],
+    blockers: [],
     nextAction:
-      "Retain the historical curve as a learning artifact; promote only the presets reproduced by the real-hardware protocol.",
+      "Keep Large as the measured M5 Pro win; reproduce Small, Medium, and XL independently before promoting the historical curve.",
   },
   {
     slug: "memory64-browser-behemoth",

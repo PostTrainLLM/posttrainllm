@@ -7,14 +7,14 @@ import Default from "../layouts/Default.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
-  title: "posttrainllm — the historical speedup curve and its missing receipt",
+  title: "posttrainllm — verified WebGPU speed on one Mac",
   description:
-    "A historical WebGPU-versus-WASM curve, preserved with its evidence limitation: raw timings and hardware-adapter identity were not retained, so reproduce it before treating it as current.",
+    "A paired Apple M5 Pro WebGPU-versus-WASM receipt verifies 10.67x on the Large preset; the older multi-preset curve remains historical.",
   ogType: "article",
-  ogTitle: "posttrainllm — historical WebGPU speed curve",
+  ogTitle: "posttrainllm — verified WebGPU speed on one Mac",
   ogDescription:
     "The retained curve suggests GPU gains grow with model width, but a paired real-hardware receipt is still required.",
-  twitterTitle: "posttrainllm — historical WebGPU speed curve",
+  twitterTitle: "posttrainllm — verified WebGPU speed on one Mac",
   twitterDescription:
     "Historical 2.6×–12.1× curve, parity-tested code, and the exact real-hardware evidence still needed.",
   themeColor: "#0a0c0f",
@@ -213,13 +213,12 @@ const pageStyle = `
 const pageBody = `
     <main id="main" class="wrap">
       <div class="eyebrow"><a href="/">← posttrainllm</a> · <a href="/roadmap">roadmap</a> · <a href="/devlog">devlog</a> · <a href="/docs">docs</a></div>
-      <h1>The historical speedup curve — and the receipt it still needs</h1>
+      <h1>A verified Large-preset win — and the historical curve around it</h1>
       <p class="lede">
-        The retained numbers suggest that GPU work amortizes better as model width
-        grows. They do not retain raw timings or hardware-adapter identity, so they
-        are historical and unqualified. The current parity runner proves correctness;
-        the paired hardware protocol in <code>docs/performance/performance.md</code>
-        is what can turn an individual preset into a verified win.
+        A frozen ABBA run on an Apple M5 Pro measured <strong>10.67×</strong>
+        WebGPU-over-WASM speedup on Large, with 4.72% maximum paired final-loss
+        drift and zero runtime errors. That point is verified for this machine and
+        configuration. The older Small, Medium, and XL values remain historical.
       </p>
 
       <!-- HEADLINE — small multiples, one bar pair per preset -->
@@ -237,7 +236,7 @@ const pageBody = `
         <div class="headline-bars">
           <div class="label">Large · d=192<small>WASM SIMD (mt)</small></div>
           <div class="bar before" style="width: 100%"></div>
-          <div class="ms">9.3×<small>historical</small></div>
+          <div class="ms">10.67×<small>measured · M5 Pro</small></div>
         </div>
         <div class="headline-bars">
           <div class="label">XL · d=256<small>WASM SIMD (mt)</small></div>
@@ -245,14 +244,14 @@ const pageBody = `
           <div class="ms">12.1×<small>historical</small></div>
         </div>
         <div class="verdict">
-          <span class="big">12.1×</span>
-          <span>reported at XL; not a current verified claim until an adapter-qualified paired run reproduces it.</span>
+          <span class="big">10.67×</span>
+          <span>measured at Large: 1462.5 ms/step WASM versus 137.1 ms/step WebGPU medians.</span>
         </div>
         <div class="source">
-          Historical source: <code>tests/test_webgpu_train.mjs</code>. The current
-          script compares final loss but emits no paired timing receipt and accepts
-          any adapter returned by the browser. The full WebGPU stack remains shipped
-          and parity-tested; performance is deliberately left unverified here.
+          Current source: <code>evals/verified-wins/webgpu-paired-result-v1.json</code>.
+          Chrome 151 identified <code>apple · metal-3</code>, rejected software and
+          fallback adapters, and ran WASM → WebGPU → WebGPU → WASM on identical inputs.
+          The retained 2.6×–12.1× multi-preset curve is still historical evidence only.
         </div>
       </div>
 

@@ -2,7 +2,7 @@
   "schema_version": "posttrainllm.verified-win.v1",
   "manifest_id": "webgpu-paired-hardware-v1",
   "lane": "webgpu",
-  "status": "run-frozen",
+  "status": "completed",
   "hypothesis": "On a real Apple GPU adapter, browser WebGPU training has a median step-time speedup above 1.25x over WASM without more than 5% final-loss drift.",
   "comparison": {
     "paired": true,
@@ -78,12 +78,18 @@
     "stop_rule": "Stop on software/fallback adapter, device loss, non-finite loss, browser error, or 200 steps in any arm."
   },
   "freeze": {
-    "state": "run-frozen",
+    "state": "completed",
     "protocol_version": "1",
     "commands": [
       "pnpm --dir browser run webgpu:paired -- --base-url http://127.0.0.1:4173 --preset large --steps 20 --seed 42 --source-revision b2c9503746d5e060f120516f48eaa8c13a5934df --output ../runs/verified-wins/webgpu-paired-hardware-v1/receipt.json"
     ],
     "open_requirements": []
+  },
+  "outcome": {
+    "decision": "promote",
+    "result": "evals/verified-wins/webgpu-paired-result-v1.json",
+    "median_speedup": 10.669178199143518,
+    "maximum_paired_final_loss_relative_drift": 0.047208022570462874
   },
   "raw_receipt_dir": "runs/verified-wins/webgpu-paired-hardware-v1",
   "allowed_decisions": [

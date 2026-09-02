@@ -485,11 +485,11 @@ Two cross-cutting findings the collapsed entry hid:
 
 ### Browser speedup headline curve
 
-- Evidence: a historical `9.7x` headline was replaced by a shape-specific curve: Small `2.6x`, Medium `6.8x`, Large `9.3x`, XL `12.1x`; no adapter-qualified raw timing receipt survives.
+- Evidence: the historical curve remains unqualified except at Large, where a 2026-09-02 Apple M5 Pro ABBA receipt measured `10.67x` median WebGPU-over-WASM speedup with `4.72%` maximum paired final-loss drift and zero runtime errors.
 - Status: `worked-with-caveat`.
 - Failure reason: The original headline made a shape-dependent result look universal, and the retained tree cannot establish that the historical curve used a real hardware adapter rather than a software fallback.
-- Lesson: A curve is better than a convenient point, but neither is a verified hardware claim without raw timings and adapter identity.
-- Next action: Keep the curve historical and unqualified until two paired real-hardware WebGPU/WASM receipts reproduce it.
+- Lesson: Qualify performance one frozen shape and machine at a time; a retained adapter identity plus alternated paired timings can convert one point without laundering the surrounding curve.
+- Next action: Keep Large as the measured M5 Pro point; independently reproduce Small, Medium, and XL before promoting the historical curve.
 - Confidence: `exact`.
 
 ### Browser default corpus fix

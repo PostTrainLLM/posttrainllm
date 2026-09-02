@@ -87,12 +87,31 @@ a headless-browser e2e that trains on the WebGPU backend.
 Both are real reductions in CPU-side overhead and both keep every parity check
 and the overfit gate green.
 
-### Why there is no speed number here — and it matters
+### Verified Large-preset result (2026-09-02)
 
-WebGPU's speed **cannot be measured in this project's test setup.** The headless
-Chromium that runs the e2e exposes a WebGPU adapter whose architecture is
-`swiftshader` — Google's *software* renderer. It is a CPU implementation of the
-WebGPU API; it never touches a real GPU.
+The fail-closed paired runner now provides one qualified hardware result. On an
+Apple M5 Pro with Chrome 151 and an identified `apple · metal-3` adapter, an
+ABBA sequence (`WASM → WebGPU → WebGPU → WASM`) used the same Large preset,
+TinyShakespeare corpus, seed 42, and 20 steps per arm:
+
+| Backend | Run 1 | Run 2 | Median |
+| --- | ---: | ---: | ---: |
+| WASM | 1463.1 ms/step | 1461.9 ms/step | 1462.5 ms/step |
+| WebGPU | 159.9 ms/step | 114.3 ms/step | 137.1 ms/step |
+
+The measured median speedup is **10.67×**. Maximum paired final-loss drift was
+**4.72%**, below the frozen 5% gate, and the run recorded zero runtime errors.
+The decision is `promote` for this machine and configuration. It does not
+qualify the historical Small/Medium/XL points or predict performance on other
+hardware. The canonical receipt is
+[`evals/verified-wins/webgpu-paired-result-v1.json`](../../evals/verified-wins/webgpu-paired-result-v1.json).
+
+### Why CI still cannot produce a hardware speed number
+
+The headless Chromium used by ordinary CI may expose `swiftshader` — Google's
+*software* renderer. It is a CPU implementation of the WebGPU API and never
+touches a real GPU. The paired runner therefore rejects software, fallback, and
+unidentified adapters before executing an arm.
 
 So any headless "WebGPU vs WASM" number is *software-emulated WebGPU vs
 SIMD-vectorized WASM* — and WASM wins that, which says nothing about real
@@ -101,13 +120,10 @@ that was wrong, and is the reason the buffer-pool and batching optimizations
 showed no change — SwiftShader's bottleneck is its own software compute, not
 buffer allocation or submit count.)
 
-**To measure the real thing:** open the app in a normal browser on a machine
-with a real GPU, pick the WebGPU backend, and read the tokens/sec in the
-playground. That is the only valid measurement, and it is not something the
-headless CI can do. On a real GPU the matmul-heavy work parallelizes hard;
-whether end-to-end training beats WASM depends on how much the small
-elementwise kernels' dispatch overhead costs. That number is genuinely unknown
-until run on hardware — this doc will not guess it.
+**To add another valid measurement:** run the paired receipt on a normal browser
+with a real GPU. On a real GPU the matmul-heavy work parallelizes hard; whether
+end-to-end training beats WASM still depends on model shape, driver, hardware,
+and the small elementwise kernels' dispatch overhead.
 
 ### Real-device benchmark protocol
 
@@ -189,10 +205,10 @@ ratio:       6.8×
 notes:       plugged in; no other GPU apps running
 ```
 
-One real-hardware pair (WebGPU + WASM-SIMD) closes the evidence gap this doc
-currently flags. Multiple pairs across vendors (Apple, NVIDIA discrete, Intel
-integrated, AMD) would let the WebGPU section quote a range instead of a
-single anecdotal number.
+The retained Apple M5 Pro ABBA run closes the Large-preset evidence gap on that
+machine. More paired receipts across presets and vendors (Apple, NVIDIA
+discrete, Intel integrated, AMD) are still required before quoting a general
+range.
 
 ## Register + cache-blocked matmul — and why the microbench lied (2026-06-14)
 
