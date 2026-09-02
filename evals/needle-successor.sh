@@ -10,6 +10,7 @@ RUN_DIR="$ROOT/runs/verified-wins/needle-successor-factorial-v1"
 : "${NEEDLE_ROOT:?Set NEEDLE_ROOT to the patched pinned Needle source checkout}"
 : "${NEEDLE_MODEL_DIR:?Set NEEDLE_MODEL_DIR to the pinned Needle model files}"
 : "${NEEDLE_PYTHON:?Set NEEDLE_PYTHON to the frozen JAX environment Python}"
+export JAX_PLATFORMS=cpu
 CHECKPOINT="$NEEDLE_MODEL_DIR/checkpoints/needle2.pkl"
 SEED=1380401
 ARMS=(plain-standard plain-safety distractor-standard distractor-safety)

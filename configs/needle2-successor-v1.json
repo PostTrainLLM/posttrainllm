@@ -20,7 +20,9 @@
     "jax_metal": "0.1.1",
     "flax": "0.10.2",
     "optax": "0.2.5",
-    "note": "Flax is explicitly pinned because unconstrained 0.10.4 calls jax.api_util.debug_info, which is unavailable in the JAX 0.4.38 required by JAX-Metal."
+    "training_backend": "cpu",
+    "metal_preflight": "unsupported: M5 Pro JAX-Metal failed to legalize the batched attention mhlo.dot_general before step 1",
+    "note": "Flax is explicitly pinned because unconstrained 0.10.4 calls jax.api_util.debug_info, which is unavailable in JAX 0.4.38. CPU uses the same Mac-local float32 reference path after the Metal compiler rejected Needle attention."
   },
   "factorial": {
     "design": "2x2",
