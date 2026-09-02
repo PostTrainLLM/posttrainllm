@@ -1,0 +1,98 @@
+{
+  "schema_version": "posttrainllm.verified-win.v1",
+  "manifest_id": "rest-4b-requalification-v1",
+  "lane": "rest-requalification",
+  "status": "design-frozen",
+  "hypothesis": "The unchanged public ReST 4B candidate preserves a 12/12 file-ops gate and has positive paired held-out breadth delta over stock 4B on a frontier-qualified ruler.",
+  "comparison": {
+    "paired": true,
+    "experimental_unit": "one frozen prompt scored for stock and ReST with the same checker",
+    "replicate_unit": "one independently authored evaluation prompt",
+    "blocked_by": ["suite slice", "prompt order", "runtime instance"],
+    "randomization": {
+      "method": "seeded prompt shuffle with arm order alternated within slice blocks",
+      "seed": 13803
+    },
+    "same_runtime_instance": true,
+    "candidate_weights_unchanged": true
+  },
+  "arms": [
+    { "id": "stock-4b", "role": "incumbent", "revision": null },
+    {
+      "id": "rest-4b",
+      "role": "candidate",
+      "revision": "b332dfe437dc201922d50b28eddf0c99ebcc79a7"
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "file-ops-depth-v1",
+      "path": null,
+      "sha256": null,
+      "visibility": "sealed-test"
+    },
+    {
+      "id": "heldout-breadth-v1",
+      "path": null,
+      "sha256": null,
+      "visibility": "sealed-test"
+    },
+    {
+      "id": "frontier-qualification-v1",
+      "path": null,
+      "sha256": null,
+      "visibility": "sealed-test"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "frontier_ceiling",
+      "kind": "safety",
+      "gate": "frontier calibration arm scores approximately 100%; otherwise fix or drop the ruler"
+    },
+    { "id": "file_ops_depth", "kind": "primary", "gate": "ReST scores 12/12" },
+    {
+      "id": "heldout_breadth_delta",
+      "kind": "primary",
+      "gate": "paired ReST minus stock delta > 0"
+    },
+    {
+      "id": "safety_regressions",
+      "kind": "regression",
+      "gate": "zero additional unsafe actions or schema failures"
+    },
+    {
+      "id": "latency_ram_throughput",
+      "kind": "resource",
+      "gate": "record latency, peak RAM, and decode tok/s for both arms"
+    }
+  ],
+  "resource_envelope": {
+    "limits": [
+      { "id": "training_steps", "maximum": 0, "unit": "steps" },
+      { "id": "download_sets", "maximum": 1, "unit": "set" },
+      { "id": "temporary_disk_gib", "maximum": 20, "unit": "GiB" },
+      { "id": "wall_hours", "maximum": 4, "unit": "hours" }
+    ],
+    "stop_rule": "Stop if the frontier fails the ruler, artifact revisions drift, a second download set is required, or any resource cap is reached."
+  },
+  "freeze": {
+    "state": "design-frozen",
+    "protocol_version": "1",
+    "commands": [
+      "TBD: frozen frontier, stock, and ReST commands added by Issue #138 task 5"
+    ],
+    "open_requirements": [
+      "pin stock revision",
+      "freeze and hash depth/breadth fixtures",
+      "freeze frontier qualification command"
+    ]
+  },
+  "raw_receipt_dir": "runs/verified-wins/rest-4b-requalification-v1",
+  "allowed_decisions": [
+    "advance-model-class",
+    "promote",
+    "reject",
+    "retry-protocol"
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "schema_version": "posttrainllm.verified-win.v1",
+  "manifest_id": "webgpu-paired-hardware-v1",
+  "lane": "webgpu",
+  "status": "design-frozen",
+  "hypothesis": "On a real Apple GPU adapter, browser WebGPU training has a median step-time speedup above 1.25x over WASM without more than 5% final-loss drift.",
+  "comparison": {
+    "paired": true,
+    "experimental_unit": "one backend run on the same browser preset, corpus, seed, and step count",
+    "replicate_unit": "one fresh browser training run",
+    "blocked_by": ["browser build", "Apple GPU adapter", "thermal state"],
+    "randomization": {
+      "method": "fixed ABBA order balances warmup and thermal drift",
+      "seed": 13801
+    },
+    "sequence": ["wasm", "webgpu", "webgpu", "wasm"],
+    "reject_software_adapter": true
+  },
+  "arms": [
+    { "id": "wasm", "role": "incumbent", "revision": null },
+    { "id": "webgpu", "role": "candidate", "revision": null }
+  ],
+  "fixtures": [
+    {
+      "id": "browser-large-preset",
+      "path": "browser/src/sizing.ts",
+      "sha256": null,
+      "visibility": "source-config"
+    },
+    {
+      "id": "shakespeare-corpus",
+      "path": "browser/public/shakespeare.txt",
+      "sha256": "86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed",
+      "visibility": "public-dev"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "median_speedup",
+      "kind": "primary",
+      "gate": "median(WASM ms/step) / median(WebGPU ms/step) > 1.25"
+    },
+    {
+      "id": "final_loss_drift",
+      "kind": "quality",
+      "gate": "absolute relative drift between paired final losses < 0.05"
+    },
+    {
+      "id": "adapter_is_hardware",
+      "kind": "safety",
+      "gate": "adapter is present and is not a software or fallback adapter"
+    },
+    {
+      "id": "runtime_errors",
+      "kind": "regression",
+      "gate": "zero page, console, device-loss, or non-finite-loss errors"
+    }
+  ],
+  "resource_envelope": {
+    "limits": [
+      { "id": "steps_per_arm", "maximum": 200, "unit": "training steps" },
+      { "id": "concurrent_browser_runs", "maximum": 1, "unit": "process" }
+    ],
+    "stop_rule": "Stop on software/fallback adapter, device loss, non-finite loss, browser error, or 200 steps in any arm."
+  },
+  "freeze": {
+    "state": "design-frozen",
+    "protocol_version": "1",
+    "commands": ["TBD: paired receipt runner added by Issue #138 task 3"],
+    "open_requirements": [
+      "pin source revision after runner lands",
+      "hash sizing source",
+      "record adapter-identification receipt"
+    ]
+  },
+  "raw_receipt_dir": "runs/verified-wins/webgpu-paired-hardware-v1",
+  "allowed_decisions": [
+    "advance-model-class",
+    "promote",
+    "reject",
+    "retry-protocol"
+  ]
+}

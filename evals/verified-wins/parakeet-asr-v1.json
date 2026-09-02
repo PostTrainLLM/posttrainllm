@@ -1,0 +1,94 @@
+{
+  "schema_version": "posttrainllm.verified-win.v1",
+  "manifest_id": "parakeet-browser-native-paired-v1",
+  "lane": "parakeet-asr",
+  "status": "design-frozen",
+  "hypothesis": "Parakeet browser ASR stays within 2 WER points of the native incumbent on the same reference-scored audio while remaining at least 50x realtime and not increasing repetition errors.",
+  "comparison": {
+    "paired": true,
+    "experimental_unit": "one audio segment scored against one frozen normalized reference",
+    "replicate_unit": "one independently decoded audio segment",
+    "blocked_by": ["audio segment", "speaker/domain", "normalization policy"],
+    "randomization": {
+      "method": "seeded shuffle of segment execution order within domain blocks",
+      "seed": 13802
+    },
+    "same_audio_and_reference": true
+  },
+  "arms": [
+    { "id": "native-incumbent", "role": "incumbent", "revision": null },
+    {
+      "id": "parakeet-browser",
+      "role": "candidate",
+      "revision": "source=8f654eedd8a19fec48cbbe57f9f3a972fedc96e3; model=ae9ad07059c7c739ffaf932226a8fe64ae2620b0"
+    }
+  ],
+  "fixtures": [
+    {
+      "id": "asr-audio-v1",
+      "path": null,
+      "sha256": null,
+      "visibility": "public-dev"
+    },
+    {
+      "id": "asr-references-v1",
+      "path": null,
+      "sha256": null,
+      "visibility": "public-dev"
+    }
+  ],
+  "metrics": [
+    {
+      "id": "wer_delta_points",
+      "kind": "primary",
+      "gate": "Parakeet WER - native WER <= 2.0 percentage points"
+    },
+    {
+      "id": "warm_realtime_factor",
+      "kind": "resource",
+      "gate": "median warm audio-duration / decode-duration >= 50"
+    },
+    {
+      "id": "repetition_regression",
+      "kind": "safety",
+      "gate": "Parakeet repeated-token-span error count <= native count"
+    },
+    {
+      "id": "proper_noun_accuracy",
+      "kind": "quality",
+      "gate": "report exact proper-noun accuracy and paired delta; no silent qualitative substitution"
+    },
+    {
+      "id": "offline_warm_requests",
+      "kind": "regression",
+      "gate": "zero external network requests during a warm decode"
+    }
+  ],
+  "resource_envelope": {
+    "limits": [
+      { "id": "audio_minutes", "maximum": 30, "unit": "minutes" },
+      { "id": "network_gib", "maximum": 1, "unit": "GiB" },
+      { "id": "browser_gpu_minutes", "maximum": 30, "unit": "minutes" }
+    ],
+    "stop_rule": "Stop on unsupported hardware, external warm request, non-deterministic fixture/reference identity, or any resource cap."
+  },
+  "freeze": {
+    "state": "design-frozen",
+    "protocol_version": "1",
+    "commands": [
+      "TBD: dependency-free scorer and paired browser/native commands added by Issue #138 task 4"
+    ],
+    "open_requirements": [
+      "freeze reference-scored audio set",
+      "pin native incumbent revision",
+      "freeze transcript normalization policy"
+    ]
+  },
+  "raw_receipt_dir": "runs/verified-wins/parakeet-browser-native-paired-v1",
+  "allowed_decisions": [
+    "advance-model-class",
+    "promote",
+    "reject",
+    "retry-protocol"
+  ]
+}
