@@ -1,0 +1,105 @@
+{
+  "schema_version": "posttrainllm.asr-reference-fixture.v1",
+  "fixture_id": "librispeech-clean-spread-v1",
+  "normalization": "nfkd-casefold-english-alnum-apostrophe-v1",
+  "source": {
+    "dataset": "openslr/librispeech_asr",
+    "config": "clean",
+    "split": "test",
+    "viewer_api": "https://datasets-server.huggingface.co/rows",
+    "selection": "Eight fixed row offsets spread across the canonical test-clean ordering; one row per speaker/chapter block.",
+    "license": "CC BY 4.0",
+    "total_audio_seconds": 34.365,
+    "total_audio_bytes": 642940
+  },
+  "items": [
+    {
+      "row_index": 0,
+      "id": "6930-75918-0000",
+      "speaker_id": 6930,
+      "chapter_id": 75918,
+      "reference": "CONCORD RETURNED TO ITS PLACE AMIDST THE TENTS",
+      "proper_nouns": ["Concord"],
+      "audio_bytes": 74138,
+      "audio_seconds": 3.505,
+      "audio_sha256": "9ce35224156f071ab58eb7feb8a5ceae600f6f9f353da2a6cbf797b6b1ac8a23"
+    },
+    {
+      "row_index": 100,
+      "id": "1320-122617-0022",
+      "speaker_id": 1320,
+      "chapter_id": 122617,
+      "reference": "THE DELAWARES ARE CHILDREN OF THE TORTOISE AND THEY OUTSTRIP THE DEER",
+      "proper_nouns": ["Delawares"],
+      "audio_bytes": 74492,
+      "audio_seconds": 3.855,
+      "audio_sha256": "9c4d285c536c8562a3b9add558d159b84c5b3d8c27922669906ae8da831fc25c"
+    },
+    {
+      "row_index": 200,
+      "id": "260-123286-0000",
+      "speaker_id": 260,
+      "chapter_id": 123286,
+      "reference": "SATURDAY AUGUST FIFTEENTH THE SEA UNBROKEN ALL ROUND NO LAND IN SIGHT",
+      "proper_nouns": [],
+      "audio_bytes": 105445,
+      "audio_seconds": 7.04,
+      "audio_sha256": "d654a43d06f0e8b586b525e8ec83d6e3c0dc83c3f4742f8e25fd291db77248b3"
+    },
+    {
+      "row_index": 300,
+      "id": "7729-102255-0039",
+      "speaker_id": 7729,
+      "chapter_id": 102255,
+      "reference": "THE INMATES BEING REMOVED AT THE APPOINTED HOUR A FEW CANNON BALLS WERE FIRED THROUGH THE STONE WALLS",
+      "proper_nouns": [],
+      "audio_bytes": 122054,
+      "audio_seconds": 6.815,
+      "audio_sha256": "33f5a3ea8ef8e5d58e0a543ae208b21d081b98e4cfe27d7f61a5cae8217dd91b"
+    },
+    {
+      "row_index": 400,
+      "id": "3575-170457-0031",
+      "speaker_id": 3575,
+      "chapter_id": 170457,
+      "reference": "ON AUGUST TWENTY SEVENTH EIGHTEEN THIRTY SEVEN SHE WRITES",
+      "proper_nouns": [],
+      "audio_bytes": 84926,
+      "audio_seconds": 4.0,
+      "audio_sha256": "dc22b4909f6e821a7f194fc9d9c3acebb692c21b99c9f2eb7398cde731b2d8fc"
+    },
+    {
+      "row_index": 600,
+      "id": "8463-294828-0022",
+      "speaker_id": 8463,
+      "chapter_id": 294828,
+      "reference": "WE'RE LEAVING ON THE ABRAHAM LINCOLN",
+      "proper_nouns": ["Abraham Lincoln"],
+      "audio_bytes": 53476,
+      "audio_seconds": 2.355,
+      "audio_sha256": "4b0b7f62860ac9f04945b08f79183b52c26f80eedd14ff829e2ff2aaa5143e3f"
+    },
+    {
+      "row_index": 700,
+      "id": "7176-92135-0039",
+      "speaker_id": 7176,
+      "chapter_id": 92135,
+      "reference": "TEA PLEASE MATTHEWS BUTLER IMPASSIVELY",
+      "proper_nouns": ["Matthews"],
+      "audio_bytes": 59447,
+      "audio_seconds": 3.125,
+      "audio_sha256": "40b0ed79e7388da364eeb027aadc70875dc739c948ff63f1bff3c37c281fe6a6"
+    },
+    {
+      "row_index": 900,
+      "id": "5142-33396-0002",
+      "speaker_id": 5142,
+      "chapter_id": 33396,
+      "reference": "TWO HUNDRED WARRIORS FEASTED IN HIS HALL AND FOLLOWED HIM TO BATTLE",
+      "proper_nouns": [],
+      "audio_bytes": 68962,
+      "audio_seconds": 3.67,
+      "audio_sha256": "3056f3669c45871eb8bb876d8166a102b47a473f45612ea029eb164d34507556"
+    }
+  ]
+}
