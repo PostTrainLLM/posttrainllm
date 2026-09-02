@@ -32,9 +32,12 @@ eval_one() {
     --fixture "$fixture" --model "$model_id=$adapter" --output "$output"
 }
 
-tiny() {
+tiny_train() {
   "$NEEDLE_PYTHON" scripts/needle2_successor_train.py tiny \
     --source-root "$NEEDLE_ROOT" --checkpoint "$CHECKPOINT" --run-dir "$RUN_DIR"
+}
+
+tiny_eval() {
   local decision_args=()
   for arm in "${ARMS[@]}"; do
     local adapter="$RUN_DIR/tiny-adapters/$arm-seed-$SEED.pkl"
@@ -44,6 +47,11 @@ tiny() {
   done
   python3 scripts/needle2_successor_decide.py tiny \
     "${decision_args[@]}" --output "$RUN_DIR/tiny-gate.json"
+}
+
+tiny() {
+  tiny_train
+  tiny_eval
 }
 
 full() {
@@ -95,6 +103,7 @@ validate
 case "$STAGE" in
   preflight) "$NEEDLE_PYTHON" -c 'import jax; print(jax.default_backend(), jax.devices())' ;;
   tiny) tiny ;;
+  tiny-eval) tiny_eval ;;
   full) full ;;
   sealed) sealed ;;
   *) echo "unknown stage: $STAGE" >&2; exit 2 ;;

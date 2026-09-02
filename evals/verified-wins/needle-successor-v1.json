@@ -191,6 +191,7 @@
     "commands": [
       "NEEDLE_ROOT=<patched-pinned-source> NEEDLE_MODEL_DIR=<pinned-model-dir> NEEDLE_PYTHON=<frozen-jax-python> bash evals/needle-successor.sh preflight",
       "NEEDLE_ROOT=<patched-pinned-source> NEEDLE_MODEL_DIR=<pinned-model-dir> NEEDLE_PYTHON=<frozen-jax-python> bash evals/needle-successor.sh tiny",
+      "NEEDLE_ROOT=<patched-pinned-source> NEEDLE_MODEL_DIR=<pinned-model-dir> NEEDLE_PYTHON=<frozen-jax-python> bash evals/needle-successor.sh tiny-eval",
       "NEEDLE_ROOT=<patched-pinned-source> NEEDLE_MODEL_DIR=<pinned-model-dir> NEEDLE_PYTHON=<frozen-jax-python> bash evals/needle-successor.sh full",
       "NEEDLE_ROOT=<patched-pinned-source> NEEDLE_MODEL_DIR=<pinned-model-dir> NEEDLE_PYTHON=<frozen-jax-python> bash evals/needle-successor.sh sealed"
     ],
