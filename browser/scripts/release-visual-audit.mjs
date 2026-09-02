@@ -123,9 +123,9 @@ for (const viewport of viewports) {
   } else {
     if (homeState.curveBottom < 110)
       failures.push(`hero curve was not lifted at ${viewport.width}px`);
-    if (homeState.terminalClearance <= 0)
+    if (homeState.terminalClearance < 24)
       failures.push(
-        `hero curve terminal enters stats by ${Math.abs(homeState.terminalClearance).toFixed(1)}px at ${viewport.width}px`,
+        `hero curve terminal has only ${homeState.terminalClearance.toFixed(1)}px clearance above stats at ${viewport.width}px`,
       );
     if (homeState.captionOverlapsCurveTerminal)
       failures.push(
