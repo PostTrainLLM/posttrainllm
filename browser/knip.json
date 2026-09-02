@@ -18,5 +18,10 @@
     "scripts/*.mjs"
   ],
   "ignoreDependencies": ["lightningcss"],
-  "ignoreUnresolved": ["/src/main.ts", "/src/webgpu-test.ts"]
+  "ignoreUnresolved": [
+    "/src/main.ts",
+    "/src/webgpu-test.ts",
+    "/src/engines/asr-parakeet/index.ts",
+    "/src/core/audio.ts"
+  ]
 }

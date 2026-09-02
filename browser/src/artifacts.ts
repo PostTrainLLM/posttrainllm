@@ -7,7 +7,7 @@ export type ArtifactState =
   | "blocked"
   | "parked";
 
-export type ArtifactMetricEvidence =
+type ArtifactMetricEvidence =
   "measured" | "historical" | "derived" | "observed" | "not-measured";
 
 type ArtifactMetric = {
