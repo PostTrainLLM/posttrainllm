@@ -7,16 +7,16 @@ import Default from "../layouts/Default.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 
 const layoutProps = {
-  title: "posttrainllm — the speedup curve, in one chart",
+  title: "posttrainllm — the historical speedup curve and its missing receipt",
   description:
-    "WebAssembly SIMD vs hand-written WebGPU on the same GPT-2 model. The speedup is a curve, not a single number: Small 2.6×, Medium 6.8×, Large 9.3×, XL 12.1× — and growing with model size.",
+    "A historical WebGPU-versus-WASM curve, preserved with its evidence limitation: raw timings and hardware-adapter identity were not retained, so reproduce it before treating it as current.",
   ogType: "article",
-  ogTitle: "posttrainllm — 2.6× → 12.1× faster, in one chart",
+  ogTitle: "posttrainllm — historical WebGPU speed curve",
   ogDescription:
-    "WASM SIMD vs hand-written WebGPU on the same GPT-2 model. The speedup is a curve, not a single number: GPU work amortizes better as d_model grows.",
-  twitterTitle: "posttrainllm — 2.6× → 12.1× faster",
+    "The retained curve suggests GPU gains grow with model width, but a paired real-hardware receipt is still required.",
+  twitterTitle: "posttrainllm — historical WebGPU speed curve",
   twitterDescription:
-    "WASM SIMD vs hand-written WebGPU. Small 2.6×, Medium 6.8×, Large 9.3×, XL 12.1× — the speedup grows with model size.",
+    "Historical 2.6×–12.1× curve, parity-tested code, and the exact real-hardware evidence still needed.",
   themeColor: "#0a0c0f",
   loadFonts: false,
 };
@@ -213,11 +213,13 @@ const pageStyle = `
 const pageBody = `
     <main id="main" class="wrap">
       <div class="eyebrow"><a href="/">← posttrainllm</a> · <a href="/roadmap">roadmap</a> · <a href="/devlog">devlog</a> · <a href="/docs">docs</a></div>
-      <h1>The speedup, measured — and why it's a curve</h1>
+      <h1>The historical speedup curve — and the receipt it still needs</h1>
       <p class="lede">
-        Same model, same seed, same data, same Apple M-series laptop. Two backends.
-        The speedup grows with <code>d_model</code> because GPU work amortizes better
-        as matmul shapes grow. Run it yourself: <code>tests/test_webgpu_train.mjs</code>.
+        The retained numbers suggest that GPU work amortizes better as model width
+        grows. They do not retain raw timings or hardware-adapter identity, so they
+        are historical and unqualified. The current parity runner proves correctness;
+        the paired hardware protocol in <code>docs/performance/performance.md</code>
+        is what can turn an individual preset into a verified win.
       </p>
 
       <!-- HEADLINE — small multiples, one bar pair per preset -->
@@ -225,41 +227,39 @@ const pageBody = `
         <div class="headline-bars">
           <div class="label">Small · d=96<small>WASM SIMD (mt)</small></div>
           <div class="bar before" style="width: 100%"></div>
-          <div class="ms">2.6×<small>WebGPU faster</small></div>
+          <div class="ms">2.6×<small>historical</small></div>
         </div>
         <div class="headline-bars">
           <div class="label">Medium · d=128<small>WASM SIMD (mt)</small></div>
           <div class="bar before" style="width: 100%"></div>
-          <div class="ms">6.8×<small>WebGPU faster</small></div>
+          <div class="ms">6.8×<small>historical</small></div>
         </div>
         <div class="headline-bars">
           <div class="label">Large · d=192<small>WASM SIMD (mt)</small></div>
           <div class="bar before" style="width: 100%"></div>
-          <div class="ms">9.3×<small>WebGPU faster</small></div>
+          <div class="ms">9.3×<small>historical</small></div>
         </div>
         <div class="headline-bars">
           <div class="label">XL · d=256<small>WASM SIMD (mt)</small></div>
           <div class="bar before" style="width: 100%"></div>
-          <div class="ms">12.1×<small>WebGPU faster</small></div>
+          <div class="ms">12.1×<small>historical</small></div>
         </div>
         <div class="verdict">
           <span class="big">12.1×</span>
-          <span>at XL — and growing with model size. 1.1–2.5% loss drift across the curve (pure float-reorder noise from different GPU accumulation order).</span>
+          <span>reported at XL; not a current verified claim until an adapter-qualified paired run reproduces it.</span>
         </div>
         <div class="source">
-          Measured via <code>tests/test_webgpu_train.mjs</code>. WebGPU run uses
-          the full stack: <code>matmul_blocked</code> + vec4 loads,
-          subgroup-cooperative layernorm + cross-entropy, and Flash Attention 2
-          forward + backward. Mega and Behemoth presets are omitted —
-          a Memory64 ABI bug at the JS↔WASM bridge (task #66) currently
-          blocks an honest in-browser end-to-end measurement.
+          Historical source: <code>tests/test_webgpu_train.mjs</code>. The current
+          script compares final loss but emits no paired timing receipt and accepts
+          any adapter returned by the browser. The full WebGPU stack remains shipped
+          and parity-tested; performance is deliberately left unverified here.
         </div>
       </div>
 
       <!-- WHY IT'S A CURVE -->
       <div class="stack">
-        <h2>Why the speedup is a curve, not a single number</h2>
-        <p class="sub">Every training step costs <code>fixed_overhead + math(model_size)</code>. The overhead is roughly the same on both backends; only the math piece scales. So small models are bottlenecked on per-step overhead and look "only" 2.6× faster on the GPU; big models are bottlenecked on the math itself, and the GPU's arithmetic throughput dominates.</p>
+        <h2>The hypothesis encoded by the curve</h2>
+        <p class="sub">Every training step costs <code>fixed_overhead + math(model_size)</code>. Larger matmuls should amortize GPU dispatch overhead better. The historical curve is consistent with that mechanism, but the mechanism does not verify the retained numbers.</p>
 
         <div class="stack-row">
           <div class="lbl">scalar WASM baseline</div>
@@ -283,25 +283,25 @@ const pageBody = `
           <div class="lbl">+ WebGPU full stack — Small (d=96)</div>
           <div class="stack-bar measured" style="width: 13%"></div>
           <div class="val">~8.3×</div>
-          <div class="tag m">2.6× over WASM-SIMD-mt</div>
+          <div class="tag">historical · unqualified</div>
         </div>
         <div class="stack-row">
           <div class="lbl">+ WebGPU full stack — Medium (d=128)</div>
           <div class="stack-bar measured" style="width: 34%"></div>
           <div class="val">~22×</div>
-          <div class="tag m">6.8× over WASM-SIMD-mt</div>
+          <div class="tag">historical · unqualified</div>
         </div>
         <div class="stack-row">
           <div class="lbl">+ WebGPU full stack — Large (d=192)</div>
           <div class="stack-bar measured" style="width: 47%"></div>
           <div class="val">~30×</div>
-          <div class="tag m">9.3× over WASM-SIMD-mt</div>
+          <div class="tag">historical · unqualified</div>
         </div>
         <div class="stack-row">
           <div class="lbl">+ WebGPU full stack — XL (d=256)</div>
           <div class="stack-bar measured" style="width: 60%"></div>
           <div class="val">~39×</div>
-          <div class="tag m">12.1× over WASM-SIMD-mt · top measured</div>
+          <div class="tag">historical · unqualified</div>
         </div>
         <div class="stack-row">
           <div class="lbl">Mega / Behemoth (projected)</div>
@@ -311,10 +311,10 @@ const pageBody = `
         </div>
 
         <p class="sub" style="margin-top: 16px;">
-          Each "WebGPU full stack" row is the same code: blocked4 matmul + vec4
-          loads + subgroup-cooperative reductions + Flash Attention 2 forward and
-          backward. These aren't independent additive levers any more — they're
-          the shipped default WebGPU path.
+          The shipped default WebGPU path uses blocked4 matmul, vec4 loads,
+          subgroup-cooperative reductions, and Flash Attention 2 forward and
+          backward. Use the playground's live benchmark for exploration; use a
+          paired JSON receipt before publishing a performance result.
         </p>
       </div>
 

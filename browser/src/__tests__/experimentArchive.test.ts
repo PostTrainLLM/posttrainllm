@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import pathRegistry from "../../../docs/learn/path-registry.json";
@@ -13,6 +13,32 @@ import {
 } from "../data/experimentArchive";
 
 describe("experiment archive navigation", () => {
+  it("classifies the evidence behind every public headline metric", () => {
+    const evidenceClasses = new Set([
+      "measured",
+      "historical",
+      "derived",
+      "observed",
+      "not-measured",
+    ]);
+
+    for (const artifact of artifacts) {
+      expect(artifact.metrics.length, artifact.slug).toBeGreaterThan(0);
+      for (const metric of artifact.metrics) {
+        expect(evidenceClasses, `${artifact.slug}:${metric.label}`).toContain(
+          metric.evidence,
+        );
+      }
+    }
+
+    const artifactPage = readFileSync(
+      resolve(import.meta.dirname, "../pages/artifacts/[slug].astro"),
+      "utf8",
+    );
+    expect(artifactPage).toContain("data-evidence={metric.evidence}");
+    expect(artifactPage).toContain("not-measured = an explicit evidence gap");
+  });
+
   it("maps every retained family to a specific learning path", () => {
     const families = new Set(
       attemptPayload.attempts.map((attempt) => attempt.family),

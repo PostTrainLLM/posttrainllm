@@ -6,7 +6,7 @@ The technical material this session touched, organized so you can pick what to l
 
 ## 1. Why the speedup is a curve, not a number
 
-For most of the project's life, posttrainllm advertised "9.7× faster than the Python reference" as a single headline. That number was real, but it was the value of a function evaluated at exactly one point — the Medium preset (d_model = 128). When the same measurement was re-run across the preset table the picture changed shape:
+For most of the project's life, posttrainllm advertised "9.7× faster than the Python reference" as a single headline. A later project record replaced it with a shape-dependent WebGPU-versus-WASM curve:
 
 | preset  | d_model | WebGPU vs WASM-SIMD multi-thread |
 | ------- | ------- | -------------------------------- |
@@ -14,6 +14,12 @@ For most of the project's life, posttrainllm advertised "9.7× faster than the P
 | Medium  | 128     | **6.8×** |
 | Large   | 192     | **9.3×** |
 | XL      | 256     | **12.1×** |
+
+The table is now treated as a historical hypothesis, not a verified benchmark:
+the repository does not retain its raw timings or hardware-adapter identity, and
+the current end-to-end runner checks loss parity rather than reproducing these
+ratios. The mechanism below explains why the curve is plausible; it does not
+prove the numbers. A paired, adapter-qualified hardware receipt is required.
 
 The cleanest mental model for why it climbs monotonically is to decompose each step into two additive terms:
 
@@ -53,7 +59,9 @@ On the same machine, running the byte-identical compiled `.wasm` module, a Small
 
 The cost is concentrated in the pthread shim. Emscripten's WASM-threads runtime needs a way to spawn workers, share memory between them, and synchronise via atomics. In Node, it lowers `pthread_create` onto `worker_threads`, sharing memory through `SharedArrayBuffer` and synchronising via `Atomics.wait` / `Atomics.notify` — all happening in a single process with a single V8 isolate, so cross-context cost is low. In the browser the same shim spawns Web Workers, each of which is its own isolate with its own event loop. Cross-context synchronisation goes through structured-clone (or SAB pointers), the cross-origin-isolation enforcement (COOP/COEP) gates every shared-memory operation, and every `postMessage` between workers and main thread is at least one event-loop turn.
 
-At Small, the per-call overhead is comparable in magnitude to the per-call work. A single matmul might do 2-3 ms of arithmetic but pay 1-2 ms of orchestration; in Node the orchestration is closer to 100 µs. The ratio collapses at larger model sizes — by XL the kernels are doing tens of ms of work and the orchestration is noise — which is part of why the speedup curve in §1 climbs with model size.
+At Small, per-call overhead can be comparable in magnitude to the work. As model
+size grows, arithmetic should dominate orchestration. That is one plausible
+explanation for the shape of the historical curve in §1, not verification of it.
 
 The honest takeaway is that you cannot use a Node-WASM benchmark to predict browser-WASM performance, particularly at small model sizes. Per-host, per-shape numbers are the only ones that mean anything. "WASM is fast" is incomplete; you have to name the host.
 

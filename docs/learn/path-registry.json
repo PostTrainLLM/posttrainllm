@@ -215,7 +215,7 @@
         "docs/techniques/parakeet-wgsl-browser-smoke.md",
         "docs/attempt-ledger.md"
       ],
-      "lab": "Compare the WebGPU speedup curve, Memory64 limit, Apple action-grounding result, and Parakeet browser receipt as four different capability boundaries.",
+      "lab": "Compare the historical unqualified WebGPU curve and its missing receipt, Memory64 limit, Apple action-grounding result, and Parakeet browser receipt as four different capability and evidence boundaries.",
       "mastery_gate": "Choose the correct Mac or browser runtime from capability, memory, latency, energy, download, and ownership constraints.",
       "cli_commands": [
         "posttrainllm hf-load",

@@ -82,7 +82,7 @@ export const EXPLAINERS: Record<string, Explainer> = {
   },
   backend: {
     title: "Backend — WASM or WebGPU",
-    body: "WASM runs the same model on the CPU via hand-derived C++ kernels — fully supported. WebGPU runs the forward, backward, and AdamW on the GPU. Measured on Apple M-series: WebGPU is ~2.6× faster than WASM on small models and ~12× faster on the XL preset — the speedup grows with model size as the GPU's arithmetic throughput dominates. The kernels are parity-checked, so it's correct. If your machine has WebGPU, use it.",
+    body: "WASM runs the same model on the CPU via hand-derived C++ kernels. WebGPU runs the forward pass, backward pass, and AdamW on the GPU. Both paths are parity-checked for correctness. A historical Apple M-series curve reported ~2.6× to ~12× speedups as model width grew, but its raw timings and adapter identity were not retained. Use the live benchmark to explore your machine; treat performance as unverified until an adapter-qualified paired receipt is recorded.",
     link: docsLink(
       "docs/browser_notes.md",
       "browser_notes.md — WASM vs WebGPU",
@@ -213,7 +213,7 @@ export const EXPLAINERS: Record<string, Explainer> = {
   },
   f16Storage: {
     title: "f16-storage matmul",
-    body: "The matmul kernel reads weight tensors from a packed-half (f16) GPU buffer instead of the usual f32 — half the bytes per K-step, accumulation stays in f32 for numerical safety. Activates after the startup numerics gate confirms loss is preserved (max relative error < 5%, mean < 0.5% against the f32 reference). On bandwidth-bound matmuls this is ~1.5-2× faster; on Apple Silicon WebGPU the matmul path IS bandwidth-bound, so this lights up across the board. Uses pack2x16float / unpack2x16float — core WGSL, available on every WebGPU device (no shader-f16 extension needed).",
+    body: "The matmul kernel reads packed-half weights while accumulating in f32. It activates only after forward and backward numerics gates pass against the f32 reference. Packing halves weight storage and can help bandwidth-bound shapes, but the retained standalone speedup did not compound with the already-tiled baseline; no end-to-end gain should be assumed. Uses core WGSL pack2x16float / unpack2x16float built-ins.",
     link: {
       href: "https://www.w3.org/TR/WGSL/#pack2x16float-builtin",
       label: "WGSL — pack2x16float",
@@ -221,11 +221,19 @@ export const EXPLAINERS: Record<string, Explainer> = {
   },
   shaderF16: {
     title: "WGSL shader-f16",
-    body: "WGSL extension that lets shaders use the f16 (half-precision) scalar type directly — not just for storage, but for compute. On bandwidth-bound matmuls this halves the memory traffic and on f16-capable hardware also halves the compute throughput cost. Chrome 121+ stable. When on, the matmul + MLP path runs in f16; final accumulation stays in f32 for numerical safety.",
+    body: "WGSL extension that lets shaders use f16 values directly. This capability pill means the browser exposes the feature; posttrainllm still requires its startup numerics gate to pass before selecting the f16 compute path. Feature availability alone proves neither activation nor speed.",
     link: {
       href: "https://www.w3.org/TR/WGSL/#extension-f16",
       label: "WGSL spec — f16 extension",
     },
+  },
+  shaderF16Active: {
+    title: "Active shader-f16 compute",
+    body: "The f16 compute shader compiled and passed posttrainllm's startup numerics gate, so eligible matmuls may use f16 tiles and multiplies with an f32 accumulator. This proves an active, bounded-error path; it does not prove a speedup. Compare timings on the current device.",
+    link: docsLink(
+      "docs/techniques/precision.md",
+      "precision.md — activation and numerics gates",
+    ),
   },
   subgroups: {
     title: "WebGPU subgroups",
@@ -237,15 +245,23 @@ export const EXPLAINERS: Record<string, Explainer> = {
   },
   coopMatrix: {
     title: "Cooperative matrix (WMMA)",
-    body: "WGSL extension that maps to hardware matrix-multiply-accumulate units — NVIDIA's tensor cores, AMD's MFMA, Apple's AMX. Single instruction replaces a tile of multiply-adds; on NVIDIA that's a ~3× speedup, on Apple ~1.3× (the AMX path is more constrained). Behind chrome://flags#enable-unsafe-webgpu + experimental features. The extension name is chromium_experimental_subgroup_matrix and is still evolving.",
+    body: "An experimental WGSL matrix-multiply extension intended to expose hardware matrix units. This capability pill means the browser accepted the probe; posttrainllm still requires its numerics gate before selecting the path. Probe support alone proves neither activation nor speed.",
     link: {
       href: "https://www.w3.org/TR/WGSL/#cooperative-matrix",
       label: "WGSL spec (proposal)",
     },
   },
+  coopMatrixActive: {
+    title: "Active cooperative-matrix path",
+    body: "The experimental cooperative-matrix shader compiled and passed posttrainllm's startup numerics gate, so eligible matmuls may use it. Unsupported shapes and any failed gate fall back automatically. This proves an active path, not a particular performance gain.",
+    link: docsLink(
+      "docs/performance/perf_quest.md",
+      "perf_quest.md — path and fallback design",
+    ),
+  },
   webnn: {
     title: "WebNN API",
-    body: "Web Neural Network API. Hands a model graph to the OS — CoreML on macOS (which can route to the Apple Neural Engine), DirectML on Windows, TFLite on Android. Used here for inference / sampling only; training stays on WebGPU. Behind chrome://flags#enable-webnn-api.",
+    body: "WebNN hands neural-network graphs to an operating-system backend. posttrainllm currently runs only a tiny matrix-multiply probe and checks its output against a CPU reference; the full transformer inference path is not wired. A lit pill means that probe passed on the reported device type, not that sampling or training uses WebNN.",
     link: {
       href: "https://developer.chrome.com/docs/ai/built-in",
       label: "Chrome — built-in AI APIs",

@@ -9,15 +9,15 @@ import SiteHeader from "../components/SiteHeader.astro";
 const layoutProps = {
   title: "posttrainllm — train a real transformer in your browser tab",
   description:
-    "Train a real GPT-2 from scratch in your browser tab — 2.6× to 12.1× faster than the multi-threaded WebAssembly baseline thanks to hand-written WebGPU kernels. Pretrained Shakespeare model included, hand-derived backward pass, parity-tested across the preset curve.",
+    "Train a real GPT-2 from scratch in your browser tab with hand-written, parity-tested WASM and WebGPU backends. Run the live benchmark on your own hardware; historical speedups remain explicitly unqualified until reproduced with adapter receipts.",
   ogTitle: "posttrainllm — train a real transformer in your browser tab",
   ogDescription:
-    "2.6× → 12.1× faster than multi-threaded WebAssembly — the speedup grows with model size. Hand-written WebGPU kernels, parity-tested to within 2.5% loss drift. No server, no install.",
+    "Hand-written WebGPU and WebAssembly training in one browser lab, with parity gates and a live per-device benchmark. No server, no install.",
   ogUrl: "https://posttrainllm.com/playground",
   twitterTitle:
-    "posttrainllm — 12× faster transformer training in a browser tab",
+    "posttrainllm — transformer training in a browser tab",
   twitterDescription:
-    "GPT-2 from scratch. Python reference + WASM + WebGPU. Speedup curve 2.6× → 12.1× across Small → XL. Pretrained Shakespeare model. Every kernel hand-written and parity-tested.",
+    "GPT-2 from scratch. Python reference + WASM + WebGPU. Pretrained Shakespeare model, hand-written kernels, parity tests, and a live hardware benchmark.",
   themeColor: "#0a0c0f",
 };
 
@@ -3618,7 +3618,7 @@ const pageBody = `
             Runs the same matmul through the WebGPU compute kernel and the
             WASM kernel, parity-checks they agree, and reports the per-shape
             speedup on your hardware. Needs Chrome / Edge 113+. For the
-            full end-to-end speedup curve across the preset table, see
+            historical end-to-end curve and its evidence limits, see
             <a href="/speedup">/speedup</a>.
           </p>
           <button id="bench" class="secondary">Run WebGPU benchmark</button>

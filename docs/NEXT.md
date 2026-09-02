@@ -4,11 +4,16 @@ The historical model and experiment work is fully accounted for. Issue #136 is
 closed. Serial Swift and browser builds, current CLI runtime evidence,
 responsive rendered review, dependency-security disposition, completion
 validation, tests, coverage, current-SHA CI, deployment, and the live guest
-audit all pass. This document preserves the factory sequence as lab context.
-It is not a second task queue.
+audit all passed for the completion release. This document preserves the factory
+sequence as lab context. It is not a second task queue.
 
-Fresh work begins only when the owner has
-chosen a new question—normally after completing a relevant path in
+Two newer issues are the only active queues: #137 owns the notarized Mac release
+and final public shell; the owner approved #138's controlled win-conversion
+tranche for ReST, Parakeet, WebGPU, and Needle on 2026-09-02. Neither revives the
+historical TODOs below.
+
+Fresh work begins only when the owner has chosen a new question—normally after
+completing a relevant path in
 `docs/learn/path-registry.json`—and opens a scoped GitHub Issue that names:
 
 - the baseline and candidate recipe;
@@ -17,10 +22,12 @@ chosen a new question—normally after completing a relevant path in
 - the bounded time, compute, RAM, and cost budget;
 - the ship, retry, and reject thresholds.
 
-Until that gate is met, do not train, download a new model, expand a PRD, or
-revive a parked lane merely because it appears below. Conditional next actions,
-TODO markers, and blockers in retained historical documents explain what was
-not built; they do not mean the closed project is incomplete.
+Issue #138 satisfies the written-spec and owner-review portions of that gate.
+Its evaluator implementation and bounded runs are active; no other training,
+model download, PRD expansion, or parked lane is authorized merely because it
+appears below. Conditional next actions, TODO markers, and blockers in retained
+historical documents explain what was not built; they do not mean the closed
+project is incomplete.
 
 For the full documentation path, start at `docs/README.md`. Browse all 75 final
 attempts at `/experiments`, the 18 recipe contracts at `/recipes`, and the nine

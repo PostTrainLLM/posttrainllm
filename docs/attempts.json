@@ -709,14 +709,15 @@
       "name": "Browser speedup headline curve",
       "family": "browser-product",
       "status": "worked-with-caveat",
-      "evidence": "single `9.7x` headline was replaced by a preset curve: Small `2.6x`, Medium `6.8x`, Large `9.3x`, XL `12.1x`",
-      "failure_reason": "The original one-number headline made a shape-dependent performance result look like a universal property of the code.",
+      "evidence": "a historical `9.7x` headline was replaced by a shape-specific curve: Small `2.6x`, Medium `6.8x`, Large `9.3x`, XL `12.1x`; no adapter-qualified raw timing receipt survives",
+      "failure_reason": "The original headline made a shape-dependent result look universal, and the retained tree cannot establish that the historical curve used a real hardware adapter rather than a software fallback.",
       "failure_reason_confidence": "exact",
-      "lesson": "If a performance result depends on preset size, publish the curve rather than the most convenient point.",
-      "next_action": "Keep future public performance artifacts tied to config-specific tables with reproduction context.",
+      "lesson": "A curve is better than a convenient point, but neither is a verified hardware claim without raw timings and adapter identity.",
+      "next_action": "Keep the curve historical and unqualified until two paired real-hardware WebGPU/WASM receipts reproduce it.",
       "evidence_sources": [
         "docs/sessions/qa_log.md",
-        "docs/archive/lessons.md"
+        "docs/archive/lessons.md",
+        "docs/performance/performance.md"
       ],
       "source": "docs/archive/lessons.md",
       "kind": "infrastructure"

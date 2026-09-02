@@ -158,7 +158,7 @@ All in `native-mac/Sources/TinyGPTModel/PeftVariants.swift`, all gated through `
 - ✅ WASM SIMD (`-msimd128`) — measured 1.6×
 - ✅ Multi-threaded WASM (pthreads + SAB) — measured ~2×
 - ✅ Memory64 module (`posttrainllm64.{js,wasm}`) — partial: Node ok, browser blocked at d_model ≥ 256 (ABI bug, task #66)
-- ✅ Speedup curve vs WASM SIMD: Small 2.6× / Medium 6.8× / Large 9.3× / XL 12.1×
+- ⚠️ Historical speedup curve vs WASM SIMD: Small 2.6× / Medium 6.8× / Large 9.3× / XL 12.1×; raw timings and hardware-adapter identity were not retained, so requalification is required
 - ✅ **WebNN active probe** (`webnn_probe.ts`, builds a tiny MLGraph and verifies it computes, drives the `+WebNN (gpu/npu)` pill state — 2026-06-02 in `86433c3`). Full transformer-as-MLGraph follow-up unblocked.
 
 ## WebGPU kernels (in `webgpu/train*.wgsl`)
@@ -265,7 +265,7 @@ zero regression risk. See `docs/techniques/precision.md`.
 | Async tool-call dispatch                               | parallel-tool specialist ships                      | LM dominates 5-100× over subprocess at current scales                      |
 | ScreenCaptureKit raw image (CGS-init fix)              | vision specialist needs raw bytes                   | AX tree sufficient for tool-calling specialists                            |
 | Public launch (HF + writeup + HN)                      | ≥ 1 specialist beats a fair baseline                | Nothing to launch yet                                                      |
-| Phase 7 browser perf (subgroups / coop-matrix / WebNN) | post-HN v2 push                                     | Current 12.1× lift is the launch story                                     |
+| Phase 7 browser perf (subgroups / coop-matrix / WebNN) | browser focus returns                               | Requalify the historical curve with paired hardware receipts before using it as a launch claim |
 
 ## 🚧 Blocked by hardware
 

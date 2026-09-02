@@ -390,12 +390,21 @@ freed cleanly</pre>
         produces equivalent training:
       </p>
 
-      <pre>preset   d_model   speedup (WebGPU vs WASM SIMD mt)   loss drift
+      <pre>historical result — adapter identity and raw timings not retained
+preset   d_model   speedup (WebGPU vs WASM SIMD mt)   loss drift
 Small      96            2.6×                              1.1%
 Medium    128            6.8×                              1.4%
 Large     192            9.3×                              1.9%
 XL        256           12.1×                              2.5%
-                                  (drift = pure float-reorder noise)</pre>
+                                  (requires paired hardware reproduction)</pre>
+
+      <p>
+        This curve is preserved because it shaped the optimization work, but it is
+        not a current verified performance claim. The retained end-to-end runner
+        checks loss parity; it does not emit the raw timings or reject software
+        adapters. The canonical hardware protocol is in
+        <a href="/docs/performance/performance">the performance notes</a>.
+      </p>
 
       <h3>What didn't work</h3>
 
@@ -460,11 +469,12 @@ size 2048:  blocked4 10.15 ms vs blocked8 11.52 ms (0.88×)</pre>
       </div>
 
       <!-- ================================================================ -->
-      <h2>Speed evolution — the cumulative picture <span class="tag">measured</span></h2>
+      <h2>Speed evolution — the cumulative picture <span class="tag">mixed evidence</span></h2>
 
       <p>
-        Each bar is anchored to a measurement on this machine, not an extrapolation.
-        (See the same chart, with longer captions, on <a href="/roadmap">/roadmap</a>.)
+        WASM stages retain direct measurements. WebGPU rows retain the historical
+        curve without raw timings or adapter identity. See the same chart, with
+        longer evidence notes, on <a href="/roadmap">/roadmap</a>.
       </p>
 
       <table>
@@ -475,19 +485,17 @@ size 2048:  blocked4 10.15 ms vs blocked8 11.52 ms (0.88×)</pre>
           <tr><td>scalar WASM</td><td>baseline</td><td class="num">1.0×</td><td>single-threaded, no SIMD</td></tr>
           <tr><td>+ WASM SIMD</td><td>–</td><td class="num">1.6×</td><td>-msimd128</td></tr>
           <tr><td>+ multi-thread (4 wrk)</td><td>–</td><td class="num">3.2×</td><td>Web Workers + SharedArrayBuffer</td></tr>
-          <tr><td>+ WebGPU full stack — Small (d=96)</td><td>—</td><td class="num">~8.3×</td><td>2.6× over WASM-SIMD-mt</td></tr>
-          <tr><td>+ WebGPU full stack — Medium (d=128)</td><td>—</td><td class="num">~22×</td><td>6.8× over WASM-SIMD-mt</td></tr>
-          <tr><td>+ WebGPU full stack — Large (d=192)</td><td>—</td><td class="num">~30×</td><td>9.3× over WASM-SIMD-mt</td></tr>
-          <tr><td>+ WebGPU full stack — XL (d=256)</td><td>—</td><td class="num">~39×</td><td>12.1× over WASM-SIMD-mt · top measured</td></tr>
+          <tr><td>+ WebGPU full stack — Small (d=96)</td><td>—</td><td class="num">~8.3×</td><td>historical 2.6× · unqualified</td></tr>
+          <tr><td>+ WebGPU full stack — Medium (d=128)</td><td>—</td><td class="num">~22×</td><td>historical 6.8× · unqualified</td></tr>
+          <tr><td>+ WebGPU full stack — Large (d=192)</td><td>—</td><td class="num">~30×</td><td>historical 9.3× · unqualified</td></tr>
+          <tr><td>+ WebGPU full stack — XL (d=256)</td><td>—</td><td class="num">~39×</td><td>historical 12.1× · unqualified</td></tr>
         </tbody>
       </table>
 
       <p>
-        The speedup is a curve, not a single number. Small preset 2.6×, XL 12.1×, trending
-        upward because the blocked-4×4 matmul kernel's win scales with matmul size — GPU
-        work amortises better as <code>d_model</code> and <code>ctx</code> grow. Loss
-        drift stays under 2.5% across the curve, pure float-reorder noise from different
-        accumulation order in the GPU kernels.
+        The historical curve suggests that GPU work amortises better as
+        <code>d_model</code> and <code>ctx</code> grow. That is a plausible mechanism,
+        not proof of the retained 2.6×–12.1× numbers; they need a fresh paired run.
       </p>
 
       <!-- ================================================================ -->

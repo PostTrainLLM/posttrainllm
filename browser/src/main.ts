@@ -1380,7 +1380,7 @@ function renderPersonalisation({ caps, hw, rec, browser }: PersonaliseInput): vo
     : `Your browser doesn't expose RAM info (Safari and Firefox don't implement <code>navigator.deviceMemory</code>). It almost certainly isn't the bottleneck — CPU is.`;
 
   const webgpuLine = caps.webgpu
-    ? `Your browser supports <strong>WebGPU</strong>. <em>One measured datapoint: ~7× faster than WASM on Apple M-series</em>. The kernels are parity-checked, so correctness is solid. <strong>Switch the backend to WebGPU</strong> and you'll likely see a similar speedup. (Yours may vary — post your tokens/sec to help calibrate.)`
+    ? `Your browser supports <strong>WebGPU</strong>. The kernels are parity-checked, so correctness is solid. <strong>Switch the backend to WebGPU</strong> and run the live benchmark to compare it with WASM on this device. Historical Apple M-series speedups are intentionally unqualified until a hardware-adapter receipt reproduces them.`
     : `Your browser <strong>doesn't expose WebGPU</strong>. You're CPU-only for now. Chrome / Edge 113+ and Safari 18+ have it; Firefox is gated behind a flag.`;
 
   const simdLine = caps.wasmSimd
@@ -2662,9 +2662,10 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
           pill.type = "button";
           pill.className = "pill on pill-btn";
           pill.dataset.explain = "f16Storage";
-          pill.title = "f16-storage matmul — packed-half weights, ~1.5-2× bandwidth-bound matmuls (passed numerics gate)";
+          pill.title = "f16-storage matmul — packed-half weights; passed numerics gate (speed unmeasured)";
           pill.textContent = "+f16 storage";
           slot.appendChild(pill);
+          initPopovers(slot);
         }
       }
       if (msg.caps.shaderF16) {
@@ -2677,18 +2678,21 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
           pill.title = "shader-f16 compute matmul — f16 shared tiles + f16 multiplies + f32 accumulator (passed numerics gate)";
           pill.textContent = "+f16 compute";
           slot.appendChild(pill);
+          initPopovers(slot);
         }
       }
       if (msg.caps.coopMatrixActive) {
         const slot = document.getElementById("gpuAccel");
         if (slot && !slot.querySelector('[data-explain="coopMatrixActive"]')) {
+          slot.querySelector('[data-explain="coopMatrix"]')?.remove();
           const pill = document.createElement("button");
           pill.type = "button";
           pill.className = "pill on pill-btn";
           pill.dataset.explain = "coopMatrixActive";
-          pill.title = "cooperative-matrix matmul — hardware MMA (tensor cores / AMX) via subgroupMatrixMultiplyAccumulate (passed numerics gate)";
+          pill.title = "cooperative-matrix matmul — compiled and passed its numerics gate (speed unmeasured)";
           pill.textContent = "+coop-matrix";
           slot.appendChild(pill);
+          initPopovers(slot);
         }
       }
       if (typeof msg.caps.webnnPassed === "boolean") {
@@ -2705,7 +2709,7 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
           if (msg.caps.webnnPassed) {
             pill.className = "pill on pill-btn";
             const dev = msg.caps.webnnDevice ?? "gpu";
-            pill.title = `WebNN (deviceType=${dev}) — probed and passed numerics gate. Routes inference to CoreML / ANE / DirectML / NPU.`;
+            pill.title = `WebNN (deviceType=${dev}) — tiny matmul probe passed; transformer inference is not wired.`;
             pill.textContent = `+WebNN (${dev})`;
           } else {
             pill.className = "pill off pill-btn";
@@ -2713,6 +2717,7 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
             pill.textContent = "+WebNN (no backend)";
           }
           slot.appendChild(pill);
+          initPopovers(slot);
         }
       }
       if (msg.caps.cooperativeMatrix) {
@@ -3195,9 +3200,9 @@ async function init(): Promise<void> {
   // Live JS-heap usage (Chromium only — performance.memory is non-standard).
   startHeapPoll();
 
-  // If WebGPU is available, default the backend dropdown to it — measured
-  // ~7× faster on Apple M-series and increasingly accurate elsewhere. Users
-  // who explicitly want WASM can switch back; this just changes the default.
+  // If WebGPU is available, default the backend dropdown to it. Correctness is
+  // parity-tested; actual performance remains device-specific and is measured
+  // by the live benchmark. Users who explicitly want WASM can switch back.
   if (caps.webgpu) {
     const backendSel = byId<HTMLSelectElement>("backend");
     // Only override if the user hasn't already touched it (i.e. it's still
@@ -3607,7 +3612,9 @@ function setGpuMemPill(paramCount: number | null): void {
 function updateGpuAccelPills(extras: { cooperativeMatrix?: boolean }): void {
   const slot = document.getElementById("gpuAccel");
   if (!slot) return;
-  const existing = slot.querySelector('[data-explain="coopMatrix"]');
+  const existing = slot.querySelector(
+    '[data-explain="coopMatrix"], [data-explain="coopMatrixActive"]',
+  );
   if (extras.cooperativeMatrix && !existing) {
     const pill = document.createElement("button");
     pill.type = "button";
@@ -3616,6 +3623,7 @@ function updateGpuAccelPills(extras: { cooperativeMatrix?: boolean }): void {
     pill.title = "WebGPU cooperative matrix — maps to tensor cores / MFMA / AMX";
     pill.textContent = "+coop-matrix";
     slot.appendChild(pill);
+    initPopovers(slot);
     // Also: if the speed nudge is still showing, hide it — they're already
     // running the experimental path.
     const nudge = document.getElementById("speedNudge");

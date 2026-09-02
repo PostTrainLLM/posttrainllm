@@ -7,10 +7,18 @@ export type ArtifactState =
   | "blocked"
   | "parked";
 
+export type ArtifactMetricEvidence =
+  | "measured"
+  | "historical"
+  | "derived"
+  | "observed"
+  | "not-measured";
+
 type ArtifactMetric = {
   label: string;
   value: string;
   context: string;
+  evidence: ArtifactMetricEvidence;
 };
 
 type ArtifactTable = {
@@ -120,16 +128,19 @@ export const artifacts: ArtifactEntry[] = [
         label: "Clean accuracy",
         value: "99.0%",
         context: "198/200 decisions; 200/200 valid JSON",
+        evidence: "measured",
       },
       {
         label: "Mental-toll effect",
         value: "not detected",
         context: "unresolved tension did not reduce work quality",
+        evidence: "measured",
       },
       {
         label: "Volume boundary",
         value: "8,000 words/day",
         context: "2,000 neutral words at each of four interruptions",
+        evidence: "measured",
       },
     ],
     comparisons: [
@@ -274,16 +285,19 @@ export const artifacts: ArtifactEntry[] = [
         label: "Full-catalog exact",
         value: "32/94",
         context: "34.0% public gate",
+        evidence: "measured",
       },
       {
         label: "Routed-catalog exact",
         value: "36/94",
         context: "38.3% with oracle task family",
+        evidence: "measured",
       },
       {
         label: "Pace slice",
         value: "10/28 → 6/28",
         context: "target regression",
+        evidence: "measured",
       },
     ],
     comparisons: [
@@ -354,16 +368,19 @@ export const artifacts: ArtifactEntry[] = [
         label: "First inference",
         value: "7.225s",
         context: "17m 10s audio · 142.6x real-time",
+        evidence: "measured",
       },
       {
         label: "Warm inference",
         value: "7.68–7.80s",
         context: "132–134x real-time",
+        evidence: "measured",
       },
       {
         label: "Verified cache",
         value: "386.5 MiB",
         context: "29 browser assets",
+        evidence: "measured",
       },
     ],
     comparisons: [
@@ -444,21 +461,25 @@ export const artifacts: ArtifactEntry[] = [
         label: "Public exact",
         value: "0.531",
         context: "64-row b-mc2/sql-create-context slice",
+        evidence: "measured",
       },
       {
         label: "T5-small baseline",
         value: "0.484",
         context: "same 64 public rows",
+        evidence: "measured",
       },
       {
         label: "Synthetic execution",
         value: "0.860",
         context: "50 heldout SQLite rows",
+        evidence: "measured",
       },
       {
         label: "Synthetic exact",
         value: "0.840",
         context: "same 50 heldout rows",
+        evidence: "measured",
       },
     ],
     comparisons: [
@@ -585,7 +606,7 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     nextAction:
-      "Publish as a report artifact. Two hygiene DPO retries proved reference anchoring cures the SimPO collapse and even lifts execution to 0.920, but output hygiene needs a generation-strength fix (stronger SFT or constrained SELECT-prefix decoding), not more preference tuning. Do not present as a shipped SQL model until a public execution gate and clean-output gate pass.",
+      "Keep the published report artifact report-only. Two hygiene DPO retries proved reference anchoring cures the SimPO collapse and even lifts execution to 0.920, but output hygiene needs a generation-strength fix (stronger SFT or constrained SELECT-prefix decoding), not more preference tuning. Do not present it as a shipped SQL model until public execution and clean-output gates pass.",
     reportCard: reportCard("qwen06-sql-routed-v1", "report-only", false),
   },
   {
@@ -605,21 +626,25 @@ export const artifacts: ArtifactEntry[] = [
         label: "Sealed accuracy",
         value: "57.1%",
         context: "63 held-out instances, two passes",
+        evidence: "measured",
       },
       {
         label: "Frontier retained",
         value: "57.1%",
         context: "Codex gpt-5.5 scored 100% on the same ruler",
+        evidence: "measured",
       },
       {
         label: "Warm latency",
         value: "3.8ms",
         context: "mean local sealed-eval latency",
+        evidence: "measured",
       },
       {
         label: "Source-matched holdout",
         value: "95.5%",
         context: "14,995 synthetic rows; did not generalize",
+        evidence: "measured",
       },
     ],
     comparisons: [
@@ -774,21 +799,25 @@ export const artifacts: ArtifactEntry[] = [
         label: "File-ops hard gate",
         value: "100%",
         context: "up from 58% stock 4B",
+        evidence: "measured",
       },
       {
         label: "Heldout file-ops",
         value: "95%",
         context: "hardgen heldout suite",
+        evidence: "measured",
       },
       {
         label: "Breadth after tuning",
         value: "42.3%",
         context: "down from 59.6% stock",
+        evidence: "measured",
       },
       {
         label: "Artifact size",
         value: "7.5GB",
         context: "local HF/MLX safetensors directory",
+        evidence: "observed",
       },
     ],
     comparisons: [
@@ -911,21 +940,25 @@ export const artifacts: ArtifactEntry[] = [
         label: "File-ops hard gate",
         value: "100%",
         context: "held from the distilled depth anchor",
+        evidence: "historical",
       },
       {
         label: "Breadth after ReST",
         value: "65%",
         context: "up from 59.6% stock 4B",
+        evidence: "historical",
       },
       {
         label: "Breadth delta",
         value: "+5.4pp",
         context: "52 held-out non-file-ops tasks",
+        evidence: "historical",
       },
       {
         label: "Paid API cost",
         value: "$0",
         context: "teacher-free local ReST iteration",
+        evidence: "historical",
       },
     ],
     comparisons: [
@@ -1027,17 +1060,25 @@ export const artifacts: ArtifactEntry[] = [
         label: "File-ops depth",
         value: "100%",
         context: "saturated narrow gate",
+        evidence: "historical",
       },
-      { label: "Breadth", value: "31%", context: "down from 59.6% stock" },
+      {
+        label: "Breadth",
+        value: "31%",
+        context: "down from 59.6% stock",
+        evidence: "historical",
+      },
       {
         label: "Breadth delta",
         value: "-28.6pp",
         context: "recorded stock-to-candidate change",
+        evidence: "derived",
       },
       {
         label: "Decision",
         value: "Reject",
         context: "failed negative-transfer artifact",
+        evidence: "derived",
       },
     ],
     comparisons: [
@@ -1141,21 +1182,25 @@ export const artifacts: ArtifactEntry[] = [
         label: "Model class",
         value: "3B",
         context: "converted WeiboAI/VibeThinker-3B",
+        evidence: "observed",
       },
       {
         label: "Local GSM8K screen",
         value: "40/40",
         context: "small historical slice; reasoning sanity check",
+        evidence: "historical",
       },
       {
         label: "Training delta",
         value: "None",
         context: "format conversion, not post-training",
+        evidence: "derived",
       },
       {
         label: "Native tool calling",
         value: "No",
         context: "not a drop-in agent",
+        evidence: "historical",
       },
     ],
     comparisons: [
@@ -1270,21 +1315,25 @@ export const artifacts: ArtifactEntry[] = [
         label: "Public weights",
         value: "Yes",
         context: "Hugging Face model repository",
+        evidence: "observed",
       },
       {
         label: "Current agentic eval",
         value: "Missing",
         context: "no promoted before/after result",
+        evidence: "not-measured",
       },
       {
         label: "Reasoning retention",
         value: "Unknown",
         context: "no post-distillation regression gate",
+        evidence: "not-measured",
       },
       {
         label: "Decision",
         value: "Inconclusive",
         context: "weights are not a ship decision",
+        evidence: "derived",
       },
     ],
     comparisons: [
@@ -1375,16 +1424,19 @@ export const artifacts: ArtifactEntry[] = [
         label: "posttrainllm HF repos",
         value: "6",
         context: "all have first-class case studies",
+        evidence: "observed",
       },
       {
         label: "Local model cache",
         value: "cleared",
         context: "after upload/remote-size verification",
+        evidence: "observed",
       },
       {
         label: "Storage policy",
         value: "HF first",
         context: "R2 remains optional private cache or legacy mirror",
+        evidence: "derived",
       },
     ],
     comparisons: [
@@ -1547,16 +1599,19 @@ export const artifacts: ArtifactEntry[] = [
         value: "8",
         context:
           "config, dataset, train log, evals, report, artifact, decision",
+        evidence: "derived",
       },
       {
         label: "Decisions",
         value: "6",
         context: "ship, reject, retry-data, retry-training, retry-eval, park",
+        evidence: "derived",
       },
       {
         label: "First-class outputs",
         value: "5",
         context: "data, training, eval, package, report",
+        evidence: "derived",
       },
     ],
     comparisons: [
@@ -1598,17 +1653,21 @@ export const artifacts: ArtifactEntry[] = [
       { label: "Run schema", href: "/docs/factory/run-schema" },
       { label: "Report template", href: "/docs/factory/reports" },
       { label: "Packaging rules", href: "/docs/factory/packaging" },
+      {
+        label: "Canonical routed SQL report card",
+        href: "/report-cards/qwen06-sql-routed-v1",
+      },
     ],
     blockers: [
       {
-        blocker: "Needs a canonical rendered example",
-        why: "The schema is real, but the website should show one complete run folder as the public example.",
+        blocker: "Live commands do not emit the whole schema automatically",
+        why: "The routed SQL report card is now the canonical rendered example, but training and evaluation commands still require orchestration to assemble every run fragment.",
         unblock:
-          "Promote the SQL routed result into a small report-only rendered artifact.",
+          "Make future train/eval commands emit schema-complete run folders and enforce them with publish-check.",
       },
     ],
     nextAction:
-      "Turn the SQL routed result into the first website-native factory report that follows this schema.",
+      "Use the routed SQL report as the canonical example; make live commands emit the same complete contract automatically.",
   },
   {
     slug: "browser-webgpu-speedup",
@@ -1619,19 +1678,26 @@ export const artifacts: ArtifactEntry[] = [
     kind: "Benchmark report",
     tags: ["WebGPU", "WASM", "browser", "performance"],
     summary:
-      "The original browser posttrainllm track: hand-written WebGPU kernels beat WASM SIMD more as model width grows.",
-    lede: "This is the public proof that the browser playground was not just a demo. The same GPT-2-shaped training path runs through a benchmark harness and reports measured end-to-end speedups.",
+      "The original browser track retained a 2.6x–12.1x WebGPU curve, but not the raw timings or hardware-adapter receipt needed to verify it today.",
+    lede: "The browser playground and parity-tested WebGPU training path are real. The historical speed curve is useful hypothesis evidence, not a current verified hardware claim: the retained test proves loss parity but does not record timings or reject software adapters.",
     metrics: [
       {
         label: "WebGPU speedup",
         value: "12.1x",
-        context: "vs WASM SIMD at d_model=256",
+        context: "historical · unqualified at d_model=256",
+        evidence: "historical",
       },
-      { label: "Small-width speedup", value: "2.6x", context: "d_model=96" },
+      {
+        label: "Small-width speedup",
+        value: "2.6x",
+        context: "historical · unqualified at d_model=96",
+        evidence: "historical",
+      },
       {
         label: "Browser track",
         value: "shipped",
         context: "WASM, SIMD, OPFS, WebGPU fast path",
+        evidence: "observed",
       },
     ],
     comparisons: [
@@ -1640,8 +1706,8 @@ export const artifacts: ArtifactEntry[] = [
         metric: "training step speedup",
         score: "12.1x",
         size: "d_model=256 browser run",
-        comparability: "Direct",
-        note: "Directly measured against the repo's WASM SIMD path.",
+        comparability: "Directional",
+        note: "Reported against WASM SIMD, but no retained raw timing or adapter identity verifies the comparison.",
       },
       {
         name: "posttrainllm WASM SIMD",
@@ -1666,8 +1732,8 @@ export const artifacts: ArtifactEntry[] = [
         columns: ["Variant", "Result", "Interpretation"],
         rows: [
           ["WASM SIMD", "baseline", "Portable CPU path"],
-          ["WebGPU d_model=96", "2.6x", "GPU overhead still visible"],
-          ["WebGPU d_model=256", "12.1x", "GPU dominates as width grows"],
+          ["WebGPU d_model=96", "2.6x historical", "Needs hardware receipt"],
+          ["WebGPU d_model=256", "12.1x historical", "Needs hardware receipt"],
         ],
       },
     ],
@@ -1678,14 +1744,14 @@ export const artifacts: ArtifactEntry[] = [
     ],
     blockers: [
       {
-        blocker: "Not active factory center",
-        why: "The browser track is valuable, but current active work is the Mac-local specialist factory.",
+        blocker: "Hardware evidence not retained",
+        why: "The parity runner records final loss but not paired timing, exact adapter identity, or software-fallback rejection.",
         unblock:
-          "Use browser pages to present factory reports instead of expanding playground scope.",
+          "Record two alternated WebGPU/WASM pairs on a verified hardware adapter with raw JSON timings.",
       },
     ],
     nextAction:
-      "Keep as a public performance artifact and cross-link it from factory reports when browser-local training matters.",
+      "Retain the historical curve as a learning artifact; promote only the presets reproduced by the real-hardware protocol.",
   },
   {
     slug: "memory64-browser-behemoth",
@@ -1703,16 +1769,19 @@ export const artifacts: ArtifactEntry[] = [
         label: "Allocated params",
         value: "473M",
         context: "browser tab, Memory64 build",
+        evidence: "historical",
       },
       {
         label: "Allocation time",
         value: "3.7s",
         context: "measured Behemoth allocation",
+        evidence: "historical",
       },
       {
         label: "Train step",
         value: "82.2s",
         context: "single sanity step after allocation",
+        evidence: "historical",
       },
     ],
     comparisons: [
@@ -1777,16 +1846,19 @@ export const artifacts: ArtifactEntry[] = [
         label: "ANE decode",
         value: "17 tok/s",
         context: "Qwen3 28-block layer-chunked chain",
+        evidence: "historical",
       },
       {
         label: "FoundationModels context",
         value: "4096",
         context: "too small for real tool catalogs",
+        evidence: "historical",
       },
       {
         label: "Action grounding",
         value: "25%",
         context: "FoundationModels BFCL agentic full catalog",
+        evidence: "historical",
       },
     ],
     comparisons: [
@@ -1872,12 +1944,19 @@ export const artifacts: ArtifactEntry[] = [
         label: "Huge decode",
         value: "696 tok/s",
         context: "96M/Huge preset, ctx 1024",
+        evidence: "historical",
       },
-      { label: "Mega pilot", value: "293 tok/s", context: "960M pilot" },
+      {
+        label: "Mega pilot",
+        value: "293 tok/s",
+        context: "960M pilot",
+        evidence: "historical",
+      },
       {
         label: "Warm TTFT p99",
         value: "5.8ms",
         context: "reported runtime metric",
+        evidence: "historical",
       },
     ],
     comparisons: [
@@ -1955,16 +2034,19 @@ export const artifacts: ArtifactEntry[] = [
         label: "Gallery download",
         value: "~75MB -> ~20MB",
         context: "4-bit storage-side variants",
+        evidence: "observed",
       },
       {
         label: "Compression",
         value: "~4x",
         context: "int4 gallery files vs fp16",
+        evidence: "derived",
       },
       {
         label: "Browser-loadable",
         value: "yes",
         context: "unlike Mac-side multi-GB specialists",
+        evidence: "observed",
       },
     ],
     comparisons: [

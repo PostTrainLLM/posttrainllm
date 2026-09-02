@@ -51,6 +51,12 @@ const layoutProps = {
 
     <section aria-labelledby="metrics">
       <h2 id="metrics">Headline Numbers</h2>
+      <p class="metric-key">
+        Evidence class applies to each value: measured = retained evaluation or
+        runtime result; historical = recorded result not freshly reproduced;
+        derived = calculated or decided from records; observed = current artifact
+        state; not-measured = an explicit evidence gap.
+      </p>
       <div class="metric-grid">
         {
           artifact.metrics.map((metric) => (
@@ -58,6 +64,9 @@ const layoutProps = {
               <p>{metric.label}</p>
               <strong>{metric.value}</strong>
               <span>{metric.context}</span>
+              <span class="metric-evidence" data-evidence={metric.evidence}>
+                {metric.evidence}
+              </span>
             </article>
           ))
         }
@@ -301,6 +310,13 @@ const layoutProps = {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: var(--s-5);
   }
+  .metric-key {
+    max-width: 72ch;
+    margin: calc(-1 * var(--s-2)) 0 var(--s-5);
+    color: var(--fg-quiet);
+    font-size: var(--step--1);
+    line-height: 1.55;
+  }
   .metric-grid article {
     padding-top: var(--s-4);
     border-top: 2px solid var(--ink);
@@ -324,6 +340,31 @@ const layoutProps = {
     color: var(--fg-quiet);
     font-size: var(--step--1);
     margin-top: 6px;
+  }
+  .metric-grid .metric-evidence {
+    display: inline-block;
+    width: fit-content;
+    margin-top: var(--s-3);
+    padding: 2px 7px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--fg-quiet);
+  }
+  .metric-grid .metric-evidence[data-evidence="measured"] {
+    color: var(--live);
+    border-color: color-mix(in oklab, var(--live) 42%, var(--line));
+    background: var(--live-wash);
+  }
+  .metric-grid .metric-evidence[data-evidence="historical"],
+  .metric-grid .metric-evidence[data-evidence="not-measured"] {
+    color: var(--brand-bright);
+    border-color: color-mix(in oklab, var(--brand) 42%, var(--line));
+    background: var(--brand-wash);
   }
   .table-wrap {
     overflow-x: auto;

@@ -9,8 +9,14 @@ This is the meta-log: not the lessons learned, not the open questions, but the m
 **Context:** The repo had just landed Flash Attention 2 forward and was advertising a single headline number — "9.7× WebGPU vs WASM" — across the README, the blog, the status doc, and the Astro pages. The number came from one preset run and was treated as the canonical speedup claim.
 **The trigger:** Sarthak's pushback — "Just 9.7×?" — calling out that a single number both undersold the bigger presets and overpromised the smaller ones.
 **The call:** Replace the flat number with a measured curve across four presets and publish the function, not the point.
-**Why it was right:** A curve is honest. A point estimate at one model size implies the speedup is constant; the curve reveals it grows monotonically with model dimension, which is the actual interesting finding (memory-bandwidth-bound kernels widen the WebGPU lead as tensors grow).
+**Why it was directionally right:** A curve avoids implying that a point estimate is constant across model sizes. It also exposed the hypothesis that larger tensors widen the WebGPU lead.
 **What it shipped:** Edits to `README.md`, `archive/BLOG.md`, `docs/archive/status.md`, `browser/src/pages/speedup.astro`, `browser/src/pages/roadmap.astro`, `browser/src/pages/devlog.astro`. The published numbers became Small 2.6×, Medium 6.8×, Large 9.3×, XL 12.1×.
+
+**Retrospective evidence correction (2026-09-02):** The repository does not
+retain raw timings or hardware-adapter identity for that curve. Replacing a point
+with a curve improved the shape of the claim, but did not create a verified
+hardware benchmark. The values are now historical and unqualified until a paired,
+adapter-qualified receipt reproduces them.
 
 ---
 
@@ -30,7 +36,7 @@ This is the meta-log: not the lessons learned, not the open questions, but the m
 **The trigger:** Sarthak's response — "This does not spark joy" — flagging that fewer steps shrinks the ratio, because the WASM amortization-per-step gets worse as step counts drop while WebGPU stays flat.
 **The call:** Keep 15 steps as the comparison standard. Fix the underlying timeout instead.
 **Why it was right:** A speedup claim that depends on a hand-tuned step count is not a speedup claim — it's a benchmark gaming exercise. Keeping the step count constant made the curve comparable across presets.
-**What it shipped:** No file change directly — but the integrity of every number on the speedup page traces back to this refusal.
+**What it shipped:** No file change directly. The fixed-step rule remains good benchmark design, but it cannot replace the missing raw timing and adapter receipt.
 
 ---
 
@@ -49,7 +55,7 @@ This is the meta-log: not the lessons learned, not the open questions, but the m
 **Context:** The demo page was trying to do everything in one flow: pick a preset, click train, see good output. It was failing at the "good output" step for anything below Huge + lots of steps.
 **The trigger:** Sarthak's framing — "We should give them a sample model which works well and we should also ask them if they want to train on their machine also." Two audiences, one page.
 **The call:** Bifurcate the landing experience. A pre-trained checkpoint loads instantly for the "look how good this is" audience; a clearly-labelled "train your own" path serves the "look how fast this trains" audience.
-**Why it was right:** Each path now has a credible story. The pre-trained model demonstrates output quality without lying about training time; the train-your-own path demonstrates the kernel speedups honestly because the speedup is the point, not the loss curve.
+**Why it was right:** Each path now has a credible story. The pre-trained model demonstrates output quality without hiding training time; the train-your-own path lets users compare the backends on their own device. Historical speed claims are now explicitly qualified.
 **What it shipped:** Banner rework and CTA rework in `browser/src/pages/index.astro`; the pretrained model swap; corpus swap (Decision 6).
 
 ---
@@ -76,10 +82,10 @@ This is the meta-log: not the lessons learned, not the open questions, but the m
 
 ### Decision 8: Ship the curve, not the lessons-loss curve
 **When:** Documentation phase, after the speedup numbers settled.
-**Context:** Two artefacts competed for the headline slot on the speedup page: a per-preset speedup curve (Small → XL) and a loss-vs-step curve from training. Both told true stories. Only one fit the page's question.
+**Context:** Two artefacts competed for the headline slot on the speedup page: a per-preset speedup curve (Small → XL) and a loss-vs-step curve from training. Both were treated as established at the time. Only one fit the page's question.
 **The trigger:** A realization that the speedup page is about "how much faster is the kernel" — not "how well does it learn." Mixing the two muddied both.
 **The call:** Publish the preset-to-speedup function on the speedup page. Keep loss curves in `docs/archive/status.md` and the devlog.
-**Why it was right:** Separation of concerns inside the docs. A reader asking "is this fast" gets a clean answer; a reader asking "does this work" gets a different clean answer.
+**Why it was directionally right:** Separation of performance and learning curves makes both easier to interpret. The later evidence audit showed that the performance answer still needed raw timings and adapter identity.
 **What it shipped:** Final `browser/src/pages/speedup.astro` layout — preset axis, speedup axis, four marked points, a fitted shape.
 
 ---
@@ -242,4 +248,3 @@ These three decisions reshape the next session: it's not a launch session. It's 
 **The call:** Yes, two characters — distinct on purpose. **Pace-the-companion** is the menu-bar voice agent's caricature (the *product* face); **posttrainllm-the-trainer** is the toolkit's caricature (the *platform* face). Two characters communicate the platform-vs-product distinction the framing already wants.
 **Why it's right:** A single mascot would conflate the toolkit and the specialist that runs on it — exactly the wrong message for a "Mac platform for individuals to build specialists" pitch. The distinction *is* the product story; the visual identity should mirror it. Pace has narrative shape ("voice companion in the menu bar") that's easy to caricature; posttrainllm is the workshop, which is the harder design problem (the trainer character has to feel like infrastructure, not a personality competing with pace).
 **What it ships:** Not a feature, no PRD. Filed as an identity item. Next step is commissioning the art — that work is out-of-scope for the code agent; needs a human designer. Once landed, the illustrations show up on the landing hero, the docs site nav, and the Mac app's About panel.
-

@@ -85,7 +85,7 @@ const entries: DevlogEntry[] = [
   {
     title: "Speed evolution — the cumulative picture",
     description:
-      "From naive WASM to tiled+blocked WebGPU to Flash Attention 2: the cumulative speedup curve across presets, with loss-drift parity checks at every step.",
+      "From naive WASM to tiled+blocked WebGPU to Flash Attention 2: verified WASM measurements, the historical unqualified WebGPU curve, and the receipt required to reproduce it.",
     guid: "devlog-speed-evolution",
     date: "2026-05-25",
   },

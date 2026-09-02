@@ -50,6 +50,20 @@ Competition rows must be labeled as:
 Public copy should prefer "we beat X on this exact local gate" only for
 `Direct` rows. Everything else is context until the same benchmark is run.
 
+Every headline metric also carries one required evidence class in the typed
+registry and on its HTML and Markdown artifact pages:
+
+| Class | Meaning |
+|---|---|
+| `measured` | A retained evaluation or runtime result supports the value. |
+| `historical` | The result was recorded previously but has not been freshly reproduced under the current gate. |
+| `derived` | The value is calculated or decided from retained records rather than measured directly. |
+| `observed` | The value describes currently inspected artifact or source state. |
+| `not-measured` | The missing measurement is itself the important public fact. |
+
+The class qualifies each metric independently. It does not override artifact
+state, comparison comparability, report-card verification, or release policy.
+
 Hugging Face's public request counter is not an adoption metric. It is not
 deduplicated into known people and does not prove a full weight download,
 successful load, or useful run. Case studies may link the public repository but
@@ -80,9 +94,9 @@ must not turn its request count into a user claim.
 | `vibethinker-3b-mlx` | MLX conversion | `report-only` | Makes the upstream VibeThinker-3B reasoning model available as a public Mac-local conversion; historical GSM8K sanity slice was 40/40. | Add a pinned loader and conversion-parity receipt only if a real consumer adopts it. |
 | `vibethinker-3b-agentic-distilled` | Unqualified distilled weights | `blocked` | Preserves an agentic distillation checkpoint while making the missing before/after eval explicit. | Run a frozen baseline/candidate agentic and reasoning-regression gate before any promotion. |
 | `hf-specialist-model-archive-v1` | Model archive index | `report-only` | Links every unique local specialist/conversion artifact moved to Hugging Face, and records which plain upstream caches were deleted. | Use as the storage index; promote individual models only after eval/report/package evidence exists. |
-| `qwen06-sql-routed-v1` | Routed SQL specialist POC | `report-ready-candidate` | Shows the factory/router pattern on SQL: public exact 0.531 and synthetic execution 0.860 using separate routed adapters. | Publish as report-only; package only after a public execution benchmark gate exists. |
-| `factory-run-schema-v1` | Process artifact | `report-only` | Explains the repeatable `target -> data -> post-training -> eval -> package -> report` contract. | Use the SQL routed rendered run as the canonical example. |
-| `browser-webgpu-speedup` | Browser performance benchmark | `report-only` | Preserves the measured 2.6x to 12.1x end-to-end WebGPU-over-WASM training curve. | Closed benchmark artifact. |
+| `qwen06-sql-routed-v1` | Routed SQL specialist POC | `report-ready-candidate` | Shows the factory/router pattern on SQL: public exact 0.531 and synthetic execution 0.860 using separate routed adapters. | Keep its published report report-only; package only after a public execution benchmark gate exists. |
+| `factory-run-schema-v1` | Process artifact | `report-only` | Explains the repeatable `target -> data -> post-training -> eval -> package -> report` contract and links the routed SQL report as its canonical rendered example. | Make live train/eval commands emit the complete contract automatically. |
+| `browser-webgpu-speedup` | Browser performance benchmark | `report-only` | Preserves a historical 2.6x to 12.1x WebGPU-over-WASM curve whose raw timings and hardware-adapter identity were not retained. | Keep unqualified until a paired real-hardware receipt reproduces it. |
 | `memory64-browser-behemoth` | Browser memory capability | `report-only` | Preserves the 473M-parameter Memory64 allocation and one 82.2-second training sanity step. | Closed capability-boundary artifact. |
 | `ane-m8-coreml-chain` | Mac runtime experiment | `parked` | Maps Core ML/ANE as an optional deployment target with a measured ~17 tok/s chain, not a model dependency. | Closed and parked; revive only for a fresh battery/runtime target. |
 | `huge-decode-throughput` | Mac runtime benchmark | `report-only` | Records 696 tok/s Huge-preset decode and the related local-serving measurements. | Closed runtime benchmark. |
@@ -461,15 +475,16 @@ python3 scripts/sql/build_sql_spider_execution_gate.py \
 
 Website page: `/artifacts/qwen06-sql-routed-v1`
 
-## Release Priority
+## Historical Release Order
 
-1. `qwen06-sql-routed-v1` report artifact: best current story for the factory
-   thesis because it includes failed attempts, routing, blockers, and measured
-   improvement.
-2. `qwen3-4b-file-ops-distilled` weights artifact: strongest model win, but
-   weight distribution and routed-only caveats must be handled carefully.
-3. `hf-specialist-model-archive-v1`: keep public links to preserved weights and
-   failed variants without over-promoting them as product models.
-4. `factory-run-schema-v1`: publish as process proof using the SQL routed
-   rendered run as the canonical example.
-5. `browser-playground`: leave parked unless it becomes a report browser.
+The original public-artifact order has been completed and is retained as design
+history, not an active queue:
+
+1. `qwen06-sql-routed-v1` is published report-only with failed attempts,
+   routing, blockers, and measured improvement.
+2. `qwen3-4b-file-ops-distilled` weights are public with routed-only caveats.
+3. `hf-specialist-model-archive-v1` links preserved wins and failed variants
+   without presenting every public checkpoint as a product model.
+4. `factory-run-schema-v1` links the routed SQL report as its canonical example;
+   automatic schema-complete command output remains a future implementation target.
+5. The browser playground remains a learning lab rather than the factory control plane.
