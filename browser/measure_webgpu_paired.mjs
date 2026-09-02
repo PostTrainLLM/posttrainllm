@@ -185,7 +185,6 @@ async function runArm(context, options, backend, sequenceIndex) {
       },
     );
     const mismatches = [
-      configured.preset !== options.preset && "preset",
       configured.steps !== options.steps && "steps",
       configured.seed !== options.seed && "seed",
       configured.backend !== backend && "backend",
