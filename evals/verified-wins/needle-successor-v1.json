@@ -21,25 +21,25 @@
     {
       "id": "plain-standard",
       "role": "control",
-      "revision": "ee221ce+650ec3e3+7836dfba",
+      "revision": "ee221ce+d524b27b+7836dfba",
       "factors": { "distractor_data": false, "safety_training": false }
     },
     {
       "id": "plain-safety",
       "role": "main-effect-safety",
-      "revision": "ee221ce+650ec3e3+98e939c3",
+      "revision": "ee221ce+d524b27b+98e939c3",
       "factors": { "distractor_data": false, "safety_training": true }
     },
     {
       "id": "distractor-standard",
       "role": "main-effect-distractor",
-      "revision": "ee221ce+650ec3e3+11a3e093",
+      "revision": "ee221ce+d524b27b+11a3e093",
       "factors": { "distractor_data": true, "safety_training": false }
     },
     {
       "id": "distractor-safety",
       "role": "interaction",
-      "revision": "ee221ce+650ec3e3+36f3622e",
+      "revision": "ee221ce+d524b27b+36f3622e",
       "factors": { "distractor_data": true, "safety_training": true }
     }
   ],
@@ -107,7 +107,7 @@
     {
       "id": "factorial-recipe-v1",
       "path": "configs/needle2-successor-v1.json",
-      "sha256": "650ec3e3aeed1166a2ee8eb7c38c95afdc9696be40fcdb9d7fb09bc571df9190",
+      "sha256": "d524b27b9faf41cc4b752bf1700db5786cc24381102dc914ea7d0af84ee18ffd",
       "visibility": "source-config"
     },
     {
@@ -165,7 +165,7 @@
   },
   "freeze": {
     "state": "run-frozen",
-    "protocol_version": "6",
+    "protocol_version": "7",
     "protocol_history": [
       {
         "version": "1",
@@ -191,6 +191,11 @@
         "version": "5",
         "decision": "retry-wiring",
         "reason": "All four tiny adapters scored 100% exact after normalization, but the receipt writer used NumPy-free system Python and could not unpickle adapter metadata. Version 6 runs decisions under the frozen experiment interpreter; no training, decoding, threshold, or result changed."
+      },
+      {
+        "version": "6",
+        "decision": "retry-budget",
+        "reason": "The first full arm was stopped before a checkpoint after 16/210 steps because measured CPU step time projected the 12-run factorial beyond the frozen three-hour stage cap. Version 7 retains all 216 examples, optimizer settings, factors, seeds, and gates but freezes seven epochs (98 steps per run), projected inside the measured host budget. No dev or sealed output was seen."
       }
     ],
     "commands": [

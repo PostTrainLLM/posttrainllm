@@ -50,14 +50,14 @@
     "gate": "exact tool selection 1.0 and final loss <= 0.05 for one seed per recipe"
   },
   "training": {
-    "epochs": 15,
+    "epochs": 7,
     "batch_size": 16,
     "learning_rate": 0.0001,
     "lora_rank": 16,
     "lora_alpha": 32,
     "max_length": 1024,
     "validation_split": 0,
-    "maximum_steps_per_run": 210
+    "maximum_steps_per_run": 98
   },
   "development_gate": {
     "fixture": "evals/needle2/successor-v1/public-dev-v2.jsonl",
