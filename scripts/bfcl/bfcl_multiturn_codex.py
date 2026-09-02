@@ -16,10 +16,14 @@ Usage: MT_DATA=...veryhard_data.jsonl MT_GOLD=...veryhard_gold.jsonl \
 import sys
 import os
 import json
+import random
 import subprocess
 import tempfile
+import time
 
-BFCL = "/Users/sarthak/.cache/posttrainllm/datasets/_external/gorilla-bfcl/berkeley-function-call-leaderboard"
+from bfcl_paths import resolve_bfcl_root
+
+BFCL = str(resolve_bfcl_root())
 sys.path.insert(0, BFCL)
 from bfcl_eval.eval_checker.multi_turn_eval.multi_turn_utils import (
     execute_multi_turn_func_call,
@@ -32,6 +36,8 @@ DATA = os.environ["MT_DATA"]
 GOLD = os.environ["MT_GOLD"]
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 12
 DUMP = os.environ.get("MT_DUMP")
+OUTPUT = os.environ.get("MT_OUTPUT")
+SEED = int(os.environ.get("MT_SEED", "13803"))
 CODEX_MODEL = os.environ.get("CODEX_MODEL", "gpt-5.5")
 REASONING = os.environ.get("CODEX_REASONING", "medium")
 MAX_STEPS = 12
@@ -189,22 +195,69 @@ def run_example(ex, gold):
     return valid, decoded
 
 
-data = [json.loads(l) for l in open(DATA)][:N]
+data = [json.loads(l) for l in open(DATA)]
+random.Random(SEED).shuffle(data)
+data = data[:N]
 golds = {json.loads(l)["id"]: json.loads(l) for l in open(GOLD)}
-print(f"Codex {CODEX_MODEL} (reasoning={REASONING})  n={len(data)}", flush=True)
+print(
+    f"Codex {CODEX_MODEL} (reasoning={REASONING})  n={len(data)} seed={SEED}",
+    flush=True,
+)
 ok = n = 0
+started = time.perf_counter()
+traces = []
 dumpf = open(DUMP, "a") if DUMP else None
 for ex in data:
     n += 1
+    example_started = time.perf_counter()
     try:
         valid, decoded = run_example(ex, golds.get(ex["id"]))
         ok += valid
+        traces.append(
+            {
+                "id": ex["id"],
+                "valid": valid,
+                "decoded": decoded,
+                "elapsed_seconds": time.perf_counter() - example_started,
+                "error": None,
+            }
+        )
         if valid and dumpf:
             dumpf.write(json.dumps({"id": ex["id"], "decoded": decoded}) + "\n")
             dumpf.flush()
     except Exception as e:
         print("  ERR", ex["id"], str(e)[:90])
+        traces.append(
+            {
+                "id": ex["id"],
+                "valid": False,
+                "decoded": [],
+                "elapsed_seconds": time.perf_counter() - example_started,
+                "error": str(e),
+            }
+        )
     print(f"  {n}/{len(data)}  pass={100 * ok / n:.0f}%", flush=True)
 if dumpf:
     dumpf.close()
 print(f"== Codex task-completion: {ok}/{n} = {100 * ok / max(n, 1):.1f}% ==")
+if OUTPUT:
+    result = {
+        "schema_version": "posttrainllm.rest-frontier-eval.v1",
+        "backend": "codex-cli",
+        "model": CODEX_MODEL,
+        "reasoning": REASONING,
+        "bfcl_root": BFCL,
+        "data": DATA,
+        "gold": GOLD,
+        "seed": SEED,
+        "count": n,
+        "passed": ok,
+        "accuracy": ok / max(n, 1),
+        "elapsed_seconds": time.perf_counter() - started,
+        "traces": traces,
+    }
+    output_path = os.path.abspath(OUTPUT)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as output_file:
+        json.dump(result, output_file, indent=2)
+        output_file.write("\n")

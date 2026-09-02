@@ -2,7 +2,7 @@
   "schema_version": "posttrainllm.verified-win.v1",
   "manifest_id": "rest-4b-requalification-v1",
   "lane": "rest-requalification",
-  "status": "design-frozen",
+  "status": "run-frozen",
   "hypothesis": "The unchanged public ReST 4B candidate preserves a 12/12 file-ops gate and has positive paired held-out breadth delta over stock 4B on a frontier-qualified ruler.",
   "comparison": {
     "paired": true,
@@ -17,7 +17,11 @@
     "candidate_weights_unchanged": true
   },
   "arms": [
-    { "id": "stock-4b", "role": "incumbent", "revision": null },
+    {
+      "id": "stock-4b",
+      "role": "incumbent",
+      "revision": "cdbee75f17c01a7cc42f958dc650907174af0554"
+    },
     {
       "id": "rest-4b",
       "role": "candidate",
@@ -26,21 +30,27 @@
   ],
   "fixtures": [
     {
-      "id": "file-ops-depth-v1",
-      "path": null,
-      "sha256": null,
+      "id": "file-ops-depth-data-v1",
+      "path": "scripts/fixtures/multi_turn_hard_data.jsonl",
+      "sha256": "21a00181d7e2e62c513e8aa6a1b80959b6cb92fad64e2c0425f8e31a615596aa",
       "visibility": "sealed-test"
     },
     {
-      "id": "heldout-breadth-v1",
-      "path": null,
-      "sha256": null,
+      "id": "file-ops-depth-gold-v1",
+      "path": "scripts/fixtures/multi_turn_hard_gold.jsonl",
+      "sha256": "2dc02fc024e03c3e037356d13726622db7977bd8f72f0f1f47c5c524369e0e09",
       "visibility": "sealed-test"
     },
     {
-      "id": "frontier-qualification-v1",
-      "path": null,
-      "sha256": null,
+      "id": "heldout-breadth-data-v1",
+      "path": "scripts/fixtures/multi_turn_breadth_data.jsonl",
+      "sha256": "1501cecb59eb9c87cd22625f892f00a82d9ba031580d31635b7a35780f72217b",
+      "visibility": "sealed-test"
+    },
+    {
+      "id": "heldout-breadth-gold-v1",
+      "path": "scripts/fixtures/multi_turn_breadth_gold.jsonl",
+      "sha256": "876242fd0fea758bcd8b1eac98f750bd13e01b47ccd4c4290e1319d6ca23c00e",
       "visibility": "sealed-test"
     }
   ],
@@ -77,16 +87,20 @@
     "stop_rule": "Stop if the frontier fails the ruler, artifact revisions drift, a second download set is required, or any resource cap is reached."
   },
   "freeze": {
-    "state": "design-frozen",
+    "state": "run-frozen",
     "protocol_version": "1",
+    "bfcl_revision": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+    "runtime": {
+      "local_backend": "mlx-lm==0.31.3",
+      "frontier_backend": "codex-cli gpt-5.5 medium",
+      "system_prompt": "scripts/bfcl/run_rest_arm.py:SYSTEM_PROMPT"
+    },
     "commands": [
-      "TBD: frozen frontier, stock, and ReST commands added by Issue #138 task 5"
+      "BFCL_ROOT=<pinned-bfcl-dir> bash evals/rest-requalification.sh frontier",
+      "bash evals/rest-requalification.sh download",
+      "BFCL_ROOT=<pinned-bfcl-dir> bash evals/rest-requalification.sh local"
     ],
-    "open_requirements": [
-      "pin stock revision",
-      "freeze and hash depth/breadth fixtures",
-      "freeze frontier qualification command"
-    ]
+    "open_requirements": []
   },
   "raw_receipt_dir": "runs/verified-wins/rest-4b-requalification-v1",
   "allowed_decisions": [
