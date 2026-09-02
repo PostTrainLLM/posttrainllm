@@ -18,7 +18,12 @@ CALL_RE = re.compile(r"<tool_call>\s*(.*?)\s*</tool_call>", re.DOTALL)
 
 
 def load_rows(path: Path) -> list[dict[str, object]]:
-    return [json.loads(line) for line in path.read_text().splitlines() if line]
+    rows = [json.loads(line) for line in path.read_text().splitlines() if line]
+    for row in rows:
+        if "expected_tool" not in row:
+            answers = row.get("answers") or []
+            row["expected_tool"] = answers[0]["name"] if answers else None
+    return rows
 
 
 def parse_calls(text: str) -> tuple[list[dict[str, object]], bool]:

@@ -1,6 +1,24 @@
+import json
 import math
 
-from needle2_successor_eval import parse_calls, risk_coverage, summarize
+from needle2_successor_eval import load_rows, parse_calls, risk_coverage, summarize
+
+
+def test_load_rows_normalizes_training_answers(tmp_path) -> None:
+    path = tmp_path / "tiny.jsonl"
+    path.write_text(
+        json.dumps(
+            {
+                "id": "tiny",
+                "query": "Explain DNS",
+                "slice": "supported",
+                "tools": [],
+                "answers": [{"name": "answer_knowledge", "arguments": {}}],
+            }
+        )
+        + "\n"
+    )
+    assert load_rows(path)[0]["expected_tool"] == "answer_knowledge"
 
 
 def test_parse_calls_requires_a_well_formed_tool_call_block() -> None:

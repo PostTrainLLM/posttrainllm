@@ -165,7 +165,7 @@
   },
   "freeze": {
     "state": "run-frozen",
-    "protocol_version": "4",
+    "protocol_version": "5",
     "protocol_history": [
       {
         "version": "1",
@@ -181,6 +181,11 @@
         "version": "3",
         "decision": "retry-protocol",
         "reason": "The first CPU tiny invocation exposed unequal optimizer steps because the 1 KB file rule produced two plain JSONL rows and one distractor row. It also showed that the eight-tool positive example hit the 1024-token cap. Version 4 freezes one padded row and 200 equal steps for every recipe, and uses Needle's advertised target-plus-four retrieval width for distractor training. No full factorial or sealed result was produced."
+      },
+      {
+        "version": "4",
+        "decision": "retry-wiring",
+        "reason": "All four equalized tiny optimizations reached loss 0.0001, then the decoding harness stopped before scoring because tiny training rows use answers while evaluation rows use expected_tool. Version 5 normalizes the two frozen representations without changing adapters, data, recipes, seeds, thresholds, or gates."
       }
     ],
     "commands": [
