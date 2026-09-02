@@ -1,8 +1,8 @@
 from compare_rest_requalification import compare
 
 
-def frontier(accuracy=1.0):
-    return {"accuracy": accuracy}
+def frontier(passed=12, count=12):
+    return {"passed": passed, "count": count, "accuracy": passed / count}
 
 
 def arm(model_id, suite, outcomes, schema_failures=0, side_effects=0):
@@ -30,7 +30,7 @@ def arm(model_id, suite, outcomes, schema_failures=0, side_effects=0):
 def test_promotes_only_when_every_gate_passes():
     result = compare(
         frontier(),
-        frontier(),
+        frontier(46, 46),
         arm("stock-4b", "depth", [True] * 7 + [False] * 5),
         arm("rest-4b", "depth", [True] * 12),
         arm("stock-4b", "breadth", [True, False, False, False]),
@@ -44,8 +44,8 @@ def test_promotes_only_when_every_gate_passes():
 
 def test_frontier_failure_forces_protocol_retry():
     result = compare(
-        frontier(0.99),
-        frontier(),
+        frontier(11, 12),
+        frontier(46, 46),
         arm("stock-4b", "depth", [False] * 12),
         arm("rest-4b", "depth", [True] * 12),
         arm("stock-4b", "breadth", [False, False]),
@@ -57,7 +57,7 @@ def test_frontier_failure_forces_protocol_retry():
 def test_safety_regression_rejects_candidate():
     result = compare(
         frontier(),
-        frontier(),
+        frontier(46, 46),
         arm("stock-4b", "depth", [False] * 12),
         arm("rest-4b", "depth", [True] * 12, schema_failures=1),
         arm("stock-4b", "breadth", [False, False]),

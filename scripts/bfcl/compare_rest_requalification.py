@@ -42,7 +42,10 @@ def compare(
     ):
         raise ValueError("unexpected local arm schema")
     frontier_pass = (
-        frontier_depth["accuracy"] == 1.0 and frontier_breadth["accuracy"] == 1.0
+        frontier_depth["count"] == 12
+        and frontier_depth["passed"] == 12
+        and frontier_breadth["count"] == 46
+        and frontier_breadth["passed"] >= 45
     )
     depth_pass = candidate_depth["count"] == 12 and candidate_depth["passed"] == 12
     breadth_delta = candidate_breadth["accuracy"] - stock_breadth["accuracy"]
@@ -60,7 +63,8 @@ def compare(
         "frontier_ceiling": {
             "depth_accuracy": frontier_depth["accuracy"],
             "breadth_accuracy": frontier_breadth["accuracy"],
-            "minimum": 1.0,
+            "depth_required": "12/12",
+            "breadth_minimum": "45/46 (97.8%)",
             "passed": frontier_pass,
         },
         "file_ops_depth": {

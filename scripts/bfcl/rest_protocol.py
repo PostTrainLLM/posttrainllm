@@ -1,6 +1,6 @@
 """Frozen shared prompt for the ReST frontier and local-model arms."""
 
-PROTOCOL_VERSION = "5"
+PROTOCOL_VERSION = "6"
 
 SYSTEM_PROMPT = (
     "You are an autonomous tool-using agent. For each user turn: (1) plan the full "
