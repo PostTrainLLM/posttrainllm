@@ -266,7 +266,13 @@ def catalog_for(
     tools: list[dict[str, object]], row: dict[str, object], distractors: bool
 ) -> list[dict[str, object]]:
     if distractors:
-        return tools
+        answers = row["answers"]
+        if not answers:
+            return tools[:5]
+        wanted = answers[0]["name"]
+        target = [tool for tool in tools if tool["name"] == wanted]
+        distractor_tools = [tool for tool in tools if tool["name"] != wanted][:4]
+        return target + distractor_tools
     answers = row["answers"]
     if answers:
         wanted = answers[0]["name"]
@@ -500,9 +506,9 @@ def tiny_text(rows: list[dict[str, object]], safety: bool) -> str:
     representative = next(
         row for row in rows if (row["slice"] != "supported") is safety
     )
-    one = json.dumps(representative, sort_keys=True) + "\n"
-    repeats = max(1, (1024 + len(one) - 1) // len(one))
-    text = one * repeats
+    representative = dict(representative)
+    representative["fixture_padding"] = "x" * 1024
+    text = json.dumps(representative, sort_keys=True) + "\n"
     if not 1024 <= len(text.encode()) <= 10 * 1024:
         raise ValueError(
             f"tiny fixture must be 1-10 KB, got {len(text.encode())} bytes"

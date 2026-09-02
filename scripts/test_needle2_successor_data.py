@@ -20,7 +20,15 @@ def test_factorial_arms_are_balanced_and_isolate_the_treatments() -> None:
     distractor_standard = rows(OUT / "train-distractor-standard.jsonl")
     distractor_safety = rows(OUT / "train-distractor-safety.jsonl")
 
-    assert {len(arm) for arm in (plain_standard, plain_safety, distractor_standard, distractor_safety)} == {216}
+    assert {
+        len(arm)
+        for arm in (
+            plain_standard,
+            plain_safety,
+            distractor_standard,
+            distractor_safety,
+        )
+    } == {216}
     assert [row["query"] for row in plain_standard[:156]] == [
         row["query"] for row in plain_safety[:156]
     ]
@@ -31,17 +39,15 @@ def test_factorial_arms_are_balanced_and_isolate_the_treatments() -> None:
         row["query"] for row in distractor_safety
     ]
     assert {len(row["tools"]) for row in plain_standard} == {1}
-    assert {len(row["tools"]) for row in distractor_standard} == {8}
-    assert {len(row["tools"]) for row in distractor_safety} == {8}
+    assert {len(row["tools"]) for row in distractor_standard} == {5}
+    assert {len(row["tools"]) for row in distractor_safety} == {5}
     assert all(row["slice"] == "supported" for row in plain_standard)
     assert any(row["slice"] != "supported" for row in plain_safety)
 
 
 def test_eval_sets_are_disjoint_and_tiny_fixtures_fit_the_gate() -> None:
     train_queries = {
-        row["query"]
-        for path in OUT.glob("train-*.jsonl")
-        for row in rows(path)
+        row["query"] for path in OUT.glob("train-*.jsonl") for row in rows(path)
     }
     dev = rows(OUT / "public-dev-v2.jsonl")
     sealed = rows(OUT / "sealed-v2.jsonl")
@@ -52,3 +58,4 @@ def test_eval_sets_are_disjoint_and_tiny_fixtures_fit_the_gate() -> None:
     assert {row["query"] for row in dev}.isdisjoint(row["query"] for row in sealed)
     for path in OUT.glob("tiny-*.jsonl"):
         assert 1024 <= path.stat().st_size <= 10 * 1024
+        assert len(rows(path)) == 1

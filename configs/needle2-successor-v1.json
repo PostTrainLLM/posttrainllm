@@ -29,7 +29,7 @@
     "factors": {
       "distractor_data": {
         "off": "target tool only during training",
-        "on": "all eight tools during training"
+        "on": "target plus four distractor tools during training, matching Needle's advertised top-five retrieval width"
       },
       "safety_training": {
         "off": "216 supported-action examples",
@@ -40,7 +40,7 @@
     "seeds": [1380401, 1380402, 1380403]
   },
   "tiny_overfit": {
-    "epochs": 50,
+    "epochs": 200,
     "batch_size": 1,
     "learning_rate": 0.001,
     "lora_rank": 16,

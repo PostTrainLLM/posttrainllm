@@ -21,25 +21,25 @@
     {
       "id": "plain-standard",
       "role": "control",
-      "revision": "ee221ce+67c55505+7836dfba",
+      "revision": "ee221ce+650ec3e3+7836dfba",
       "factors": { "distractor_data": false, "safety_training": false }
     },
     {
       "id": "plain-safety",
       "role": "main-effect-safety",
-      "revision": "ee221ce+67c55505+98e939c3",
+      "revision": "ee221ce+650ec3e3+98e939c3",
       "factors": { "distractor_data": false, "safety_training": true }
     },
     {
       "id": "distractor-standard",
       "role": "main-effect-distractor",
-      "revision": "ee221ce+67c55505+890100d3",
+      "revision": "ee221ce+650ec3e3+11a3e093",
       "factors": { "distractor_data": true, "safety_training": false }
     },
     {
       "id": "distractor-safety",
       "role": "interaction",
-      "revision": "ee221ce+67c55505+a3776fa7",
+      "revision": "ee221ce+650ec3e3+36f3622e",
       "factors": { "distractor_data": true, "safety_training": true }
     }
   ],
@@ -59,37 +59,37 @@
     {
       "id": "distractor-standard-train-v1",
       "path": "evals/needle2/successor-v1/train-distractor-standard.jsonl",
-      "sha256": "890100d3cce76bdd97c6d5c4fc31a4098b12f7ff0a774c722f6afd7bff0ea487",
+      "sha256": "11a3e093388a0bdcd8c6e69c35c2e8707af519aef8ccf51c6c1c9d43b41e4bb5",
       "visibility": "generated-train"
     },
     {
       "id": "distractor-safety-train-v1",
       "path": "evals/needle2/successor-v1/train-distractor-safety.jsonl",
-      "sha256": "a3776fa7526b6ce145f84858f4f2184a9b9211b54b9e7374765f6e092cb1a5b0",
+      "sha256": "36f3622ef4c0dbb801fc50f7202ad74ec0960c011573a64ca5c720a9e365e709",
       "visibility": "generated-train"
     },
     {
       "id": "plain-standard-tiny-v1",
       "path": "evals/needle2/successor-v1/tiny-plain-standard.jsonl",
-      "sha256": "16bd00a5e426042cd3edb76eaaac9e0dcb69008434c717a9aebbd7c6ae49542d",
+      "sha256": "2287018ef8f0cfe40cabfa8108e6c304652b886830b5a325a5c3bb1294e20540",
       "visibility": "generated-train"
     },
     {
       "id": "plain-safety-tiny-v1",
       "path": "evals/needle2/successor-v1/tiny-plain-safety.jsonl",
-      "sha256": "c7b7b50a8bca0922fd50a41a1746a6b691c2ee7ddf8a80d4639ab3181fbe317b",
+      "sha256": "6432d1b65393056bd525d57b3160548f55d6ae8eebbb17edf18fb29751e26b87",
       "visibility": "generated-train"
     },
     {
       "id": "distractor-standard-tiny-v1",
       "path": "evals/needle2/successor-v1/tiny-distractor-standard.jsonl",
-      "sha256": "c8cb1b252dc98e7172bff0c1ef9e9c84aef0d9554bb539928a50fbbd26beb258",
+      "sha256": "af7d094e7fc197c6bcdcf06d43fd53b0436308293165ee7d54f089b45574fb8d",
       "visibility": "generated-train"
     },
     {
       "id": "distractor-safety-tiny-v1",
       "path": "evals/needle2/successor-v1/tiny-distractor-safety.jsonl",
-      "sha256": "8b3343fd394c172f2bc384aca6b13037df48b9ee730dfa6293fee54cf9c26d9c",
+      "sha256": "4d55fd2a5c7b5bdc294e12a5a55005b12164b383bc7a70cbb9b530a9c926fc78",
       "visibility": "generated-train"
     },
     {
@@ -107,7 +107,7 @@
     {
       "id": "factorial-recipe-v1",
       "path": "configs/needle2-successor-v1.json",
-      "sha256": "67c55505e891f2a754d7f6f2a7ea0b0ffc647e6fffd674967a56694078ddac97",
+      "sha256": "650ec3e3aeed1166a2ee8eb7c38c95afdc9696be40fcdb9d7fb09bc571df9190",
       "visibility": "source-config"
     },
     {
@@ -165,7 +165,7 @@
   },
   "freeze": {
     "state": "run-frozen",
-    "protocol_version": "3",
+    "protocol_version": "4",
     "protocol_history": [
       {
         "version": "1",
@@ -176,6 +176,11 @@
         "version": "2",
         "decision": "retry-wiring",
         "reason": "The second tiny-overfit invocation produced no model result because JAX-Metal on the Apple M5 Pro could not legalize Needle's batched-attention mhlo.dot_general before step 1. Version 3 freezes the same float32 reference path on CPU with zero GPU-hours; model math, data, recipes, seeds, gates, and resource caps are unchanged."
+      },
+      {
+        "version": "3",
+        "decision": "retry-protocol",
+        "reason": "The first CPU tiny invocation exposed unequal optimizer steps because the 1 KB file rule produced two plain JSONL rows and one distractor row. It also showed that the eight-tool positive example hit the 1024-token cap. Version 4 freezes one padded row and 200 equal steps for every recipe, and uses Needle's advertised target-plus-four retrieval width for distractor training. No full factorial or sealed result was produced."
       }
     ],
     "commands": [
