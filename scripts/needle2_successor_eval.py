@@ -163,6 +163,39 @@ def load_adapter(path: Path, params: object, merge_lora: object) -> object:
     return merge_lora(params, lora, adapter["scale"])
 
 
+def generate_length_bucketed(
+    rows: list[dict[str, object]],
+    *,
+    params: object,
+    runtime: dict[str, object],
+) -> list[dict[str, object]]:
+    tokenizer = runtime["tokenizer"]
+    build_prompt = runtime["build_prompt"]
+    batch_generate = runtime["batch_generate"]
+    batch_size = int(runtime["batch_size"])
+    indexed = [
+        (index, build_prompt(str(row["query"]), row["tools"]))
+        for index, row in enumerate(rows)
+    ]
+    indexed.sort(key=lambda item: len(tokenizer.encode(item[1])))
+    generated: list[dict[str, object] | None] = [None] * len(rows)
+    for start in range(0, len(indexed), batch_size):
+        batch = indexed[start : start + batch_size]
+        decoded = batch_generate(
+            runtime["model"],
+            params,
+            tokenizer,
+            [item[1] for item in batch],
+            max_new_tokens=int(runtime["max_new_tokens"]),
+            return_signals=True,
+        )
+        for (original_index, _), output in zip(batch, decoded, strict=True):
+            generated[original_index] = output
+    if any(output is None for output in generated):
+        raise ValueError("length-bucketed evaluation lost one or more outputs")
+    return [output for output in generated if output is not None]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-root", type=Path, required=True)
@@ -203,21 +236,19 @@ def main() -> int:
             if adapter_spec == "base"
             else load_adapter(Path(adapter_spec), base_params, merge_lora)
         )
-        generated = []
         started = time.perf_counter()
-        for start in range(0, len(rows), batch_size):
-            batch = rows[start : start + batch_size]
-            prompts = [build_prompt(str(row["query"]), row["tools"]) for row in batch]
-            generated.extend(
-                batch_generate(
-                    model,
-                    params,
-                    tokenizer,
-                    prompts,
-                    max_new_tokens=max_new_tokens,
-                    return_signals=True,
-                )
-            )
+        generated = generate_length_bucketed(
+            rows,
+            params=params,
+            runtime={
+                "model": model,
+                "tokenizer": tokenizer,
+                "build_prompt": build_prompt,
+                "batch_generate": batch_generate,
+                "batch_size": batch_size,
+                "max_new_tokens": max_new_tokens,
+            },
+        )
         elapsed = time.perf_counter() - started
         summary = summarize(
             model_id,

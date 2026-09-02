@@ -1,7 +1,46 @@
 import json
 import math
 
-from needle2_successor_eval import load_rows, parse_calls, risk_coverage, summarize
+from needle2_successor_eval import (
+    generate_length_bucketed,
+    load_rows,
+    parse_calls,
+    risk_coverage,
+    summarize,
+)
+
+
+def test_length_bucketing_restores_original_output_order() -> None:
+    class Tokenizer:
+        @staticmethod
+        def encode(value: str) -> list[str]:
+            return list(value)
+
+    seen_batches = []
+
+    def batch_generate(_model, _params, _tokenizer, prompts, **_kwargs):
+        seen_batches.append(prompts)
+        return [{"text": prompt} for prompt in prompts]
+
+    rows = [
+        {"query": "longest", "tools": []},
+        {"query": "x", "tools": []},
+        {"query": "middle", "tools": []},
+    ]
+    outputs = generate_length_bucketed(
+        rows,
+        params={},
+        runtime={
+            "model": object(),
+            "tokenizer": Tokenizer(),
+            "build_prompt": lambda query, _tools: query,
+            "batch_generate": batch_generate,
+            "batch_size": 2,
+            "max_new_tokens": 64,
+        },
+    )
+    assert seen_batches == [["x", "middle"], ["longest"]]
+    assert [output["text"] for output in outputs] == ["longest", "x", "middle"]
 
 
 def test_load_rows_normalizes_training_answers(tmp_path) -> None:

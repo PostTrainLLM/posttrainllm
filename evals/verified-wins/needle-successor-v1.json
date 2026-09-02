@@ -21,25 +21,25 @@
     {
       "id": "plain-standard",
       "role": "control",
-      "revision": "ee221ce+349386f1+7836dfba",
+      "revision": "ee221ce+e6d052ce+7836dfba",
       "factors": { "distractor_data": false, "safety_training": false }
     },
     {
       "id": "plain-safety",
       "role": "main-effect-safety",
-      "revision": "ee221ce+349386f1+98e939c3",
+      "revision": "ee221ce+e6d052ce+98e939c3",
       "factors": { "distractor_data": false, "safety_training": true }
     },
     {
       "id": "distractor-standard",
       "role": "main-effect-distractor",
-      "revision": "ee221ce+349386f1+11a3e093",
+      "revision": "ee221ce+e6d052ce+11a3e093",
       "factors": { "distractor_data": true, "safety_training": false }
     },
     {
       "id": "distractor-safety",
       "role": "interaction",
-      "revision": "ee221ce+349386f1+36f3622e",
+      "revision": "ee221ce+e6d052ce+36f3622e",
       "factors": { "distractor_data": true, "safety_training": true }
     }
   ],
@@ -107,7 +107,7 @@
     {
       "id": "factorial-recipe-v1",
       "path": "configs/needle2-successor-v1.json",
-      "sha256": "349386f14ad1b45d7e4bccc922dc3f33596afc5dd4995174bbd16af3be27ef9a",
+      "sha256": "e6d052ce243cd9d37816adefb91368ce6107fbdc3735fe1b6b3e4a8cf09a9b3e",
       "visibility": "source-config"
     },
     {
@@ -165,7 +165,7 @@
   },
   "freeze": {
     "state": "run-frozen",
-    "protocol_version": "8",
+    "protocol_version": "9",
     "protocol_history": [
       {
         "version": "1",
@@ -201,6 +201,11 @@
         "version": "7",
         "decision": "retry-protocol",
         "reason": "The first development evaluation was stopped before any adapter result after more than 20 minutes because batch size 8 used only about five CPU cores. Version 8 raises only the evaluation batch size to 32; model weights, 94 cases, fixture order, 64-token greedy decode, scorer, thresholds, gates, and sealed lock are unchanged. No development outcome was seen."
+      },
+      {
+        "version": "8",
+        "decision": "retry-protocol",
+        "reason": "The batch-32 development evaluation was stopped before any adapter result after 16 minutes because mixing short and long prompts forced Needle's uncached full-sequence decoder to pad every batch to its longest prompt. Version 9 sorts prompts by token length within each model and restores original fixture order before scoring; predictions, weights, 64-token greedy decode, scorer, thresholds, gates, and sealed lock are unchanged. No development outcome was seen."
       }
     ],
     "commands": [
