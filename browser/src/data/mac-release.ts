@@ -2,6 +2,7 @@ type MacReleaseState = "pending-notarization" | "available";
 
 interface MacReleaseVerification {
   developerIdSigned: boolean;
+  hardenedRuntime: boolean;
   notarized: boolean;
   stapled: boolean;
   gatekeeperAccepted: boolean;
@@ -29,12 +30,13 @@ export const macReleaseRecord = {
   version: "0.1.0",
   build: "1",
   minimumMacOS: "14.0",
-  recordUpdated: "2026-08-12",
+  recordUpdated: "2026-09-02",
   state: "pending-notarization",
   artifactURL: null,
   sha256: null,
   verification: {
     developerIdSigned: true,
+    hardenedRuntime: true,
     notarized: false,
     stapled: false,
     gatekeeperAccepted: false,

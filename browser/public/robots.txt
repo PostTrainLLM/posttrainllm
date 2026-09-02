@@ -1,20 +1,12 @@
 # posttrainllm — open in every sense
 User-agent: *
 Allow: /
-
-# AI crawlers welcome — this is a research lab meant to be read
-User-agent: GPTBot
-Allow: /
-User-agent: ClaudeBot
-Allow: /
-User-agent: PerplexityBot
-Allow: /
-User-agent: Google-Extended
-Allow: /
-
-Sitemap: https://posttrainllm.com/sitemap.xml
-# Agent indexing
 Allow: /llms.txt
-Allow: /index.md
-Allow: /api/ai
 Allow: /llms-full.txt
+Allow: /api/ai
+Allow: /openapi.json
+Allow: /releases/mac.json
+Allow: /*.md$
+
+# The wildcard policy intentionally welcomes search and AI readers alike.
+Sitemap: https://posttrainllm.com/sitemap.xml

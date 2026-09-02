@@ -32,23 +32,38 @@ while [[ $# -gt 0 ]]; do
         --release) CONFIG="release"; shift ;;
         --out)     OUT_DIR="$2"; shift 2 ;;
         -h|--help)
-            head -25 "$0" | tail -22
+            cat <<'HELP'
+Usage: ./scripts/release/build_macapp.sh [--debug|--release] [--out DIRECTORY]
+
+Environment:
+  POSTTRAINLLM_SIGNING_IDENTITY  Developer ID Application identity; default is ad-hoc
+  POSTTRAINLLM_BUNDLE_ID         Bundle identifier; default com.sassmaker.posttrainllm
+  POSTTRAINLLM_VERSION           Semantic version; default 0.1.0
+  POSTTRAINLLM_BUILD_NUMBER      Numeric bundle build; default 1
+  POSTTRAINLLM_BUILD_JOBS        Serial Swift build by default; set a positive integer
+HELP
             exit 0
             ;;
         *) echo "unknown arg: $1" >&2; exit 2 ;;
     esac
 done
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PKG="$REPO_ROOT/native-mac"
 FINAL_APP="$OUT_DIR/posttrainllm.app"
 BUNDLE_ID="${POSTTRAINLLM_BUNDLE_ID:-com.sassmaker.posttrainllm}"
 SHORT_VERSION="${POSTTRAINLLM_VERSION:-0.1.0}"
 BUILD_VERSION="${POSTTRAINLLM_BUILD_NUMBER:-1}"
 SIGNING_IDENTITY="${POSTTRAINLLM_SIGNING_IDENTITY:--}"
+BUILD_JOBS="${POSTTRAINLLM_BUILD_JOBS:-1}"
 
-echo "== build (swift build -c $CONFIG --product TinyGPTApp)"
-( cd "$PKG" && swift build -c "$CONFIG" --product TinyGPTApp )
+[[ "$BUILD_JOBS" =~ ^[1-9][0-9]*$ ]] || {
+    echo "POSTTRAINLLM_BUILD_JOBS must be a positive integer" >&2
+    exit 64
+}
+
+echo "== build (swift build -j $BUILD_JOBS -c $CONFIG --product TinyGPTApp)"
+( cd "$PKG" && swift build -j "$BUILD_JOBS" -c "$CONFIG" --product TinyGPTApp )
 BUILD_DIR="$(cd "$PKG" && swift build -c "$CONFIG" --show-bin-path)"
 
 if [[ ! -x "$BUILD_DIR/TinyGPTApp" ]]; then
@@ -67,7 +82,7 @@ chmod +x "$APP/Contents/MacOS/posttrainllm"
 # Also build + bundle the CLI binary. The Interp tab shells out to it
 # for SAE / MEMIT / patch training so the app doesn't have to duplicate
 # the CLI's training paths in-process.
-( cd "$PKG" && swift build -c "$CONFIG" --product posttrainllm )
+( cd "$PKG" && swift build -j "$BUILD_JOBS" -c "$CONFIG" --product posttrainllm )
 if [[ -x "$BUILD_DIR/posttrainllm" ]]; then
     cp "$BUILD_DIR/posttrainllm" "$APP/Contents/MacOS/posttrainllm-cli"
     chmod +x "$APP/Contents/MacOS/posttrainllm-cli"

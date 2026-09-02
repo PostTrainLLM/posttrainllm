@@ -2,6 +2,11 @@
 import Default from "../layouts/Default.astro";
 import Logo from "../components/Logo.astro";
 import SiteHeader from "../components/SiteHeader.astro";
+import attemptLedger from "../../../docs/attempts.json";
+import artifactJourney from "../../../docs/learn/artifact-journey.json";
+import learningPaths from "../../../docs/learn/path-registry.json";
+import recipeRegistry from "../../../docs/recipes/registry.json";
+import { artifacts } from "../artifacts";
 import { macReleaseRecord } from "../data/mac-release";
 import { evaluateMacRelease, macReleaseStatusLabel } from "../lib/mac-release";
 import "../styles/system.css";
@@ -9,6 +14,19 @@ import "../styles/system.css";
 const REPO = "https://github.com/PostTrainLLM/posttrainllm";
 const macRelease = evaluateMacRelease(macReleaseRecord);
 const macReleaseLabel = macReleaseStatusLabel(macRelease);
+const attemptCount = attemptLedger.attempts.length;
+const workedCount = attemptLedger.attempts.filter(
+  (attempt) => attempt.status === "worked",
+).length;
+const caveatCount = attemptLedger.attempts.filter(
+  (attempt) => attempt.status === "worked-with-caveat",
+).length;
+const nonPositiveCount = attemptCount - workedCount - caveatCount;
+const learningPathCount = learningPaths.paths.length;
+const recipeCount = recipeRegistry.recipes.length;
+const buildableArtifactCount = artifactJourney.stages.flatMap(
+  (stage) => stage.artifacts,
+).length;
 ---
 
 <Default
@@ -98,6 +116,58 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
             <b>1</b><span>research routed-ship · not a product default</span>
           </li>
         </ul>
+      </div>
+    </section>
+
+    <!-- ================= ENTRY MAP ================= -->
+    <section class="entry-map" aria-labelledby="entry-map-title">
+      <div class="wrap">
+        <header class="entry-map-head">
+          <p class="mono-label">choose an entry point</p>
+          <h2 id="entry-map-title">One lab, four ways in.</h2>
+          <p>
+            Build locally, work in the browser, inspect the evidence, or follow
+            a structured learning path. Each route leads to something runnable
+            or source-linked — not a feature claim without an artifact.
+          </p>
+        </header>
+        <div class="entry-rail">
+          <a href="/docs/quickstart">
+            <span class="entry-number">01</span>
+            <span class="entry-copy"
+              ><b>Native factory</b><small
+                >Train · evaluate · package · report on Apple Silicon</small
+              ></span
+            ><span aria-hidden="true">→</span>
+          </a>
+          <a href="/playground">
+            <span class="entry-number">02</span>
+            <span class="entry-copy"
+              ><b>Web Lab</b><small
+                >Browser training, inference, WebGPU tests, and dashboards</small
+              ></span
+            ><span aria-hidden="true">→</span>
+          </a>
+          <a href="/experiments">
+            <span class="entry-number">03</span>
+            <span class="entry-copy"
+              ><b>Evidence</b><small
+                >{attemptCount} attempts · {artifacts.length} public artifacts · frozen
+                gates</small
+              ></span
+            ><span aria-hidden="true">→</span>
+          </a>
+          <a href="/learn">
+            <span class="entry-number">04</span>
+            <span class="entry-copy"
+              ><b>Learning journey</b><small
+                >{learningPathCount} paths · {recipeCount} recipes · {
+                  buildableArtifactCount
+                } things to build</small
+              ></span
+            ><span aria-hidden="true">→</span>
+          </a>
+        </div>
       </div>
     </section>
 
@@ -363,10 +433,42 @@ const macReleaseLabel = macReleaseStatusLabel(macRelease);
         <header class="band-head">
           <h2>The lab keeps a paper trail.</h2>
           <p class="band-sub">
-            Material experiments, lessons, and recipes are written down — with
-            the decision they forced and the files where the evidence lives.
+            Most attempts are not clean wins. That is the useful shape of the
+            evidence: caveated mechanism proofs and non-positive boundary
+            results stay visible, with the decision they forced and the files
+            where the evidence lives.
           </p>
         </header>
+        <a
+          class="outcome-ledger"
+          href="/experiments"
+          aria-label="Open all experiment results"
+        >
+          <span class="outcome-intro">
+            <span class="mono-label">all {attemptCount} attempts resolved</span>
+            <strong>The result distribution, without spin.</strong>
+          </span>
+          <span class="outcome-count positive"
+            ><b>{workedCount}</b><small>worked cleanly</small></span
+          >
+          <span class="outcome-count caveat"
+            ><b>{caveatCount}</b><small>worked with caveat</small></span
+          >
+          <span class="outcome-count negative"
+            ><b>{nonPositiveCount}</b><small
+              >failed, regressed, rejected, inconclusive, or superseded</small
+            ></span
+          >
+          <span class="outcome-go" aria-hidden="true">→</span>
+        </a>
+        <p class="outcome-note">
+          “Worked with caveat” means the mechanism was demonstrated inside a
+          stated boundary; it is not a positive product result. The {
+            nonPositiveCount
+          }
+          non-positive or mixed attempts are retained as boundary maps, not hidden
+          as unsuccessful demos.
+        </p>
         <div class="logs">
           <a class="log log-lead" href="/learn">
             <span class="mono-label live">learning log</span>
@@ -513,26 +615,61 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
   </main>
 
   <footer class="site-footer">
-    <div class="wrap">
-      <div class="foot-top">
+    <div class="wrap foot-grid">
+      <div class="foot-intro">
         <a class="brand-lockup" href="/"
           ><Logo size={26} /><span class="brand-name">posttrainllm</span></a
         >
-        <nav class="foot-links" aria-label="Footer">
-          <a href="/artifacts">specialists</a>
-          <a href="/devlog">devlog</a>
-          <a href="/learn">learn</a>
-          <a href="/experiments">experiments</a>
-          <a href="/docs/README">docs</a>
-          <a href={REPO} rel="noopener">github ↗</a>
-        </nav>
+        <p>Build the specialist. Measure the tradeoff. Keep the evidence.</p>
       </div>
+      <nav class="foot-group" aria-label="Build">
+        <p>Build</p>
+        <a href="/docs/quickstart">Native factory</a>
+        <a href="/docs/cli-reference">CLI reference</a>
+        <a href="/download">Verified Mac app</a>
+        <a href="/playground">Browser training</a>
+        <a href="/inference">Browser inference</a>
+        <a href="/webgpu-test">WebGPU tests</a>
+      </nav>
+      <nav class="foot-group" aria-label="Measure">
+        <p>Measure</p>
+        <a href="/experiments">{attemptCount} experiments</a>
+        <a href="/artifacts">Evidence artifacts</a>
+        <a href="/benchmarks">Benchmarks</a>
+        <a href="/leaderboard">Eval leaderboard</a>
+        <a href="/training-dashboard">Training dashboard</a>
+      </nav>
+      <nav class="foot-group" aria-label="Learn">
+        <p>Learn</p>
+        <a href="/learn">{learningPathCount} learning paths</a>
+        <a href="/recipes">{recipeCount} recipes</a>
+        <a href="/docs">Documentation</a>
+        <a href="/docs/architecture/how-it-works">Architecture</a>
+        <a href="/devlog">Devlog</a>
+        <a href="/changelog">Changelog</a>
+      </nav>
+      <nav class="foot-group" aria-label="Agents and source">
+        <p>Agents + source</p>
+        <a href="/llms.txt">Agent index</a>
+        <a href="/llms-full.txt">Full-text corpus</a>
+        <a href="/api/ai">Machine catalog</a>
+        <a href="/openapi.json">OpenAPI</a>
+        <a href="/releases/mac.json">Mac release record</a>
+        <a href={REPO} rel="noopener">GitHub source ↗</a>
+        <a href={`${REPO}/blob/main/LICENSE`} rel="noopener">MIT license ↗</a>
+      </nav>
+    </div>
+    <div class="wrap foot-bottom">
       <p class="foot-disclaimer">
         Every performance figure on this site was measured on a single Apple
         <strong>M5&nbsp;Pro (18-core GPU) with 48&nbsp;GB unified memory</strong
         > — one machine, no cluster, no cloud. Model-quality numbers are on frozen,
         documented evals; where a result is a candidate and not shipped, the page
         says so. Built in the open by one developer. MIT-licensed.
+      </p>
+      <p class="foot-status mono-label">
+        {attemptCount} attempts accounted for · {learningPathCount} paths ready ·
+        {recipeCount} recipes documented
       </p>
     </div>
   </footer>
@@ -597,6 +734,7 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
   /* ---------- hero ---------- */
   .hero {
     position: relative;
+    isolation: isolate;
     overflow: hidden;
     padding-top: clamp(56px, 9vw, 128px);
     background: radial-gradient(
@@ -609,7 +747,8 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 84px;
+    bottom: clamp(112px, 9vw, 148px);
+    z-index: -1;
     width: 100%;
     height: clamp(220px, 42vw, 480px);
     pointer-events: none;
@@ -754,8 +893,6 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
     gap: var(--s-5);
     border-top: 1px solid var(--line);
     position: relative;
-    background: color-mix(in oklab, var(--paper) 55%, transparent);
-    backdrop-filter: blur(4px);
   }
   .hero-stats b {
     display: block;
@@ -779,6 +916,118 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
   @media (max-width: 720px) {
     .hero-stats {
       grid-template-columns: repeat(2, 1fr);
+    }
+    .hero-curve {
+      bottom: 176px;
+    }
+  }
+
+  /* ---------- entry map ---------- */
+  .entry-map {
+    padding: var(--s-8) 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-sunken);
+  }
+  .entry-map-head {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.65fr) 1fr 1.25fr;
+    gap: var(--s-6);
+    align-items: end;
+    margin-bottom: var(--s-6);
+  }
+  .entry-map-head .mono-label {
+    color: var(--live);
+  }
+  .entry-map-head h2 {
+    font-size: var(--step-2);
+  }
+  .entry-map-head > p:last-child {
+    color: var(--fg-soft);
+    line-height: 1.55;
+  }
+  .entry-rail {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-block: 1px solid var(--line-strong);
+  }
+  .entry-rail > a {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: var(--s-3);
+    align-items: start;
+    padding: var(--s-5) var(--s-4);
+    border-right: 1px solid var(--line);
+    color: var(--fg);
+    transition: background var(--dur-2) var(--ease-out);
+  }
+  .entry-rail > a:first-child {
+    padding-left: 0;
+  }
+  .entry-rail > a:last-child {
+    padding-right: 0;
+    border-right: 0;
+  }
+  .entry-rail > a:hover {
+    background: var(--brand-wash);
+  }
+  .entry-rail > a > span:last-child {
+    color: var(--live);
+  }
+  .entry-number {
+    padding-top: 3px;
+    color: var(--fg-quiet);
+    font: 500 var(--step--1)/1 var(--font-mono);
+  }
+  .entry-copy {
+    display: grid;
+    gap: 7px;
+  }
+  .entry-copy b {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+  }
+  .entry-copy small {
+    color: var(--fg-soft);
+    font-size: var(--step--1);
+    line-height: 1.45;
+  }
+  @media (max-width: 900px) {
+    .entry-map-head {
+      grid-template-columns: 1fr 1.4fr;
+    }
+    .entry-map-head .mono-label {
+      grid-column: 1 / -1;
+    }
+    .entry-rail {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .entry-rail > a:nth-child(2) {
+      border-right: 0;
+    }
+    .entry-rail > a:nth-child(-n + 2) {
+      border-bottom: 1px solid var(--line);
+    }
+    .entry-rail > a:first-child,
+    .entry-rail > a:last-child {
+      padding-inline: var(--s-4);
+    }
+  }
+  @media (max-width: 560px) {
+    .entry-map-head,
+    .entry-rail {
+      grid-template-columns: 1fr;
+    }
+    .entry-map-head .mono-label {
+      grid-column: auto;
+    }
+    .entry-rail > a:nth-child(n) {
+      padding-inline: 0;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .entry-rail > a:last-child {
+      border-bottom: 0;
     }
   }
 
@@ -1129,6 +1378,86 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
   }
 
   /* ---------- logs ---------- */
+  .outcome-ledger {
+    display: grid;
+    grid-template-columns: 1.35fr repeat(3, minmax(110px, 0.55fr)) auto;
+    gap: var(--s-5);
+    align-items: center;
+    padding: var(--s-5) 0;
+    border-block: 1px solid var(--line-strong);
+    color: var(--fg);
+  }
+  .outcome-ledger:hover .outcome-go {
+    transform: translateX(4px);
+  }
+  .outcome-intro,
+  .outcome-count {
+    display: grid;
+    gap: 4px;
+  }
+  .outcome-intro .mono-label {
+    color: var(--live);
+  }
+  .outcome-intro strong {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+  }
+  .outcome-count {
+    padding-left: var(--s-4);
+    border-left: 2px solid var(--line-strong);
+  }
+  .outcome-count.positive {
+    border-color: var(--live);
+  }
+  .outcome-count.caveat {
+    border-color: var(--brand-bright);
+  }
+  .outcome-count.negative {
+    border-color: var(--brand);
+  }
+  .outcome-count b {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+  }
+  .outcome-count small {
+    color: var(--fg-quiet);
+    font-size: var(--step--1);
+    line-height: 1.35;
+  }
+  .outcome-go {
+    color: var(--live);
+    font-size: var(--step-2);
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+  .outcome-note {
+    max-width: 92ch;
+    margin: var(--s-4) 0 var(--s-6);
+    color: var(--fg-soft);
+    font-size: var(--step--1);
+    line-height: 1.6;
+  }
+  @media (max-width: 860px) {
+    .outcome-ledger {
+      grid-template-columns: repeat(3, 1fr) auto;
+    }
+    .outcome-intro {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 560px) {
+    .outcome-ledger {
+      grid-template-columns: 1fr auto;
+    }
+    .outcome-intro,
+    .outcome-count {
+      grid-column: 1;
+    }
+    .outcome-go {
+      grid-column: 2;
+      grid-row: 2 / span 3;
+      align-self: center;
+    }
+  }
   .logs {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -1320,25 +1649,43 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
   }
 
   /* ---------- footer ---------- */
-  .foot-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--s-4);
-    padding-bottom: var(--s-5);
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 1.35fr repeat(4, minmax(120px, 1fr));
+    gap: var(--s-7);
+    padding-bottom: var(--s-7);
     border-bottom: 1px solid var(--line);
   }
-  .foot-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-5);
-  }
-  .foot-links a {
+  .foot-intro p {
+    max-width: 25ch;
+    margin-top: var(--s-4);
     color: var(--fg-soft);
+    line-height: 1.5;
   }
-  .foot-links a:hover {
+  .foot-group {
+    display: grid;
+    align-content: start;
+    gap: 9px;
+  }
+  .foot-group p {
+    margin-bottom: 3px;
     color: var(--live);
+    font: 600 var(--step--1)/1.2 var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .foot-group a {
+    color: var(--fg-soft);
+    font-size: var(--step--1);
+  }
+  .foot-group a:hover {
+    color: var(--live);
+  }
+  .foot-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-6);
+    align-items: end;
   }
   .foot-disclaimer {
     margin-top: var(--s-5);
@@ -1348,5 +1695,34 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
   }
   .foot-disclaimer strong {
     color: var(--fg-soft);
+  }
+  .foot-status {
+    flex: 0 0 auto;
+    margin-top: var(--s-5);
+    color: var(--live);
+    text-align: right;
+  }
+  @media (max-width: 1000px) {
+    .foot-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .foot-intro {
+      grid-column: 1 / -1;
+    }
+    .foot-bottom {
+      align-items: start;
+      flex-direction: column;
+    }
+    .foot-status {
+      text-align: left;
+    }
+  }
+  @media (max-width: 560px) {
+    .foot-grid {
+      grid-template-columns: 1fr;
+    }
+    .foot-intro {
+      grid-column: auto;
+    }
   }
 </style>

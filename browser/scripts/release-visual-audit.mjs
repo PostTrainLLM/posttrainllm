@@ -18,6 +18,11 @@ const viewports = [
 ];
 const routes = [
   "/",
+  "/download",
+  "/playground",
+  "/inference",
+  "/webgpu-test",
+  "/training-dashboard",
   "/experiments",
   "/recipes",
   "/learn",
@@ -76,6 +81,55 @@ for (const viewport of viewports) {
       failures.push(`${route} overflows horizontally at ${viewport.width}px`);
     }
   }
+
+  await page.goto(`${baseURL}/`, { waitUntil: "networkidle" });
+  const homeState = await page.evaluate(() => {
+    const curve = document.querySelector(".hero-curve");
+    const stats = document.querySelector(".hero-stats");
+    if (!(curve instanceof SVGElement) || !(stats instanceof HTMLElement)) {
+      return null;
+    }
+    const curveStyle = getComputedStyle(curve);
+    const statsStyle = getComputedStyle(stats);
+    return {
+      curveBottom: Number.parseFloat(curveStyle.bottom),
+      statsBackground: statsStyle.backgroundColor,
+      statsBackdrop: statsStyle.backdropFilter,
+      entryPoints: document.querySelectorAll(".entry-rail > a").length,
+      outcomeCounts: [...document.querySelectorAll(".outcome-count b")].map(
+        (node) => node.textContent?.trim() ?? "",
+      ),
+      footerGroups: [...document.querySelectorAll(".foot-group > p")].map(
+        (node) => node.textContent?.trim() ?? "",
+      ),
+    };
+  });
+  if (!homeState) {
+    failures.push(`home proof surfaces missing at ${viewport.width}px`);
+  } else {
+    if (homeState.curveBottom < 110)
+      failures.push(`hero curve was not lifted at ${viewport.width}px`);
+    if (homeState.statsBackground !== "rgba(0, 0, 0, 0)")
+      failures.push(`hero stats still hide the curve at ${viewport.width}px`);
+    if (homeState.statsBackdrop !== "none")
+      failures.push(`hero stats still blur the curve at ${viewport.width}px`);
+    if (homeState.entryPoints !== 4)
+      failures.push(`home entry map has ${homeState.entryPoints} items`);
+    if (homeState.outcomeCounts.join(",") !== "4,38,33")
+      failures.push(
+        `home outcome distribution drifted: ${homeState.outcomeCounts}`,
+      );
+    if (
+      homeState.footerGroups.join(",") !== "Build,Measure,Learn,Agents + source"
+    )
+      failures.push(
+        `footer capability groups drifted: ${homeState.footerGroups}`,
+      );
+  }
+  await page.screenshot({
+    path: path.join(evidenceDir, `after-${viewport.width}.png`),
+    fullPage: true,
+  });
 
   await page.goto(`${baseURL}/learn`, { waitUntil: "networkidle" });
   await page.screenshot({
@@ -142,6 +196,39 @@ const expected = {
 for (const [key, value] of Object.entries(expected)) {
   if (counts[key] !== value)
     failures.push(`${key}: expected ${value}, got ${counts[key]}`);
+}
+
+for (const resource of [
+  ["/llms.txt", "text/plain"],
+  ["/llms-full.txt", "text/plain"],
+  ["/api-ai.json", "application/json"],
+  ["/releases/mac.json", "application/json"],
+]) {
+  const [route, expectedType] = resource;
+  const response = await page.request.get(`${baseURL}${route}`);
+  if (response.status() !== 200) {
+    failures.push(`${route} returned ${response.status()}`);
+    continue;
+  }
+  const contentType = response.headers()["content-type"] ?? "";
+  if (!contentType.includes(expectedType)) {
+    failures.push(`${route} content type ${contentType} != ${expectedType}`);
+  }
+}
+
+const agentCatalog = await (
+  await page.request.get(`${baseURL}/api-ai.json`)
+).json();
+if (agentCatalog.version !== "3") failures.push("agent catalog is not v3");
+if (agentCatalog.experimentSummary?.total !== 75)
+  failures.push("agent catalog experiment total drifted");
+if (agentCatalog.experimentSummary?.nonPositiveOrMixed !== 33)
+  failures.push("agent catalog non-positive result total drifted");
+if (agentCatalog.learningSummary?.paths !== 9)
+  failures.push("agent catalog learning path total drifted");
+for (const group of ["build", "measure", "learn"]) {
+  if (!Array.isArray(agentCatalog.capabilities?.[group]))
+    failures.push(`agent catalog missing ${group} capabilities`);
 }
 
 await context.close();

@@ -6,10 +6,12 @@ import { evaluateMacRelease } from "../lib/mac-release";
 const eligibleRelease = (): MacReleaseRecord => ({
   ...macReleaseRecord,
   state: "available",
-  artifactURL: "https://github.com/PostTrainLLM/posttrainllm/releases/download/v0.1.0/PostTrainLLM-0.1.0.dmg",
+  artifactURL:
+    "https://github.com/PostTrainLLM/posttrainllm/releases/download/v0.1.0/PostTrainLLM-0.1.0.dmg",
   sha256: "a".repeat(64),
   verification: {
     developerIdSigned: true,
+    hardenedRuntime: true,
     notarized: true,
     stapled: true,
     gatekeeperAccepted: true,
@@ -33,14 +35,47 @@ describe("evaluateMacRelease", () => {
     ["missing record", undefined],
     ["missing version", { ...eligibleRelease(), version: "" }],
     ["missing build", { ...eligibleRelease(), build: "" }],
-    ["malformed macOS version", { ...eligibleRelease(), minimumMacOS: "Sonoma" }],
+    [
+      "malformed macOS version",
+      { ...eligibleRelease(), minimumMacOS: "Sonoma" },
+    ],
     ["missing record date", { ...eligibleRelease(), recordUpdated: "" }],
-    ["malformed record date", { ...eligibleRelease(), recordUpdated: "2026-99-99" }],
+    [
+      "malformed record date",
+      { ...eligibleRelease(), recordUpdated: "2026-99-99" },
+    ],
     ["malformed checksum", { ...eligibleRelease(), sha256: "abc123" }],
-    ["non-HTTPS URL", { ...eligibleRelease(), artifactURL: "http://github.com/PostTrainLLM/posttrainllm/releases/download/v0.1.0/app.dmg" }],
-    ["unapproved host", { ...eligibleRelease(), artifactURL: "https://downloads.example.com/PostTrainLLM.dmg" }],
-    ["unapproved repository", { ...eligibleRelease(), artifactURL: "https://github.com/PostTrainLLM/other/releases/download/v0.1.0/app.dmg" }],
-    ["non-DMG artifact", { ...eligibleRelease(), artifactURL: "https://github.com/PostTrainLLM/posttrainllm/releases/download/v0.1.0/app.zip" }],
+    [
+      "non-HTTPS URL",
+      {
+        ...eligibleRelease(),
+        artifactURL:
+          "http://github.com/PostTrainLLM/posttrainllm/releases/download/v0.1.0/app.dmg",
+      },
+    ],
+    [
+      "unapproved host",
+      {
+        ...eligibleRelease(),
+        artifactURL: "https://downloads.example.com/PostTrainLLM.dmg",
+      },
+    ],
+    [
+      "unapproved repository",
+      {
+        ...eligibleRelease(),
+        artifactURL:
+          "https://github.com/PostTrainLLM/other/releases/download/v0.1.0/app.dmg",
+      },
+    ],
+    [
+      "non-DMG artifact",
+      {
+        ...eligibleRelease(),
+        artifactURL:
+          "https://github.com/PostTrainLLM/posttrainllm/releases/download/v0.1.0/app.zip",
+      },
+    ],
   ])("fails closed for %s", (_name, candidate) => {
     const result = evaluateMacRelease(candidate);
     expect(result.downloadable).toBe(false);
@@ -50,6 +85,7 @@ describe("evaluateMacRelease", () => {
 
   it.each([
     "developerIdSigned",
+    "hardenedRuntime",
     "notarized",
     "stapled",
     "gatekeeperAccepted",
@@ -68,7 +104,8 @@ describe("evaluateMacRelease", () => {
     expect(evaluateMacRelease(eligibleRelease())).toMatchObject({
       state: "available",
       downloadable: true,
-      artifactURL: "https://github.com/PostTrainLLM/posttrainllm/releases/download/v0.1.0/PostTrainLLM-0.1.0.dmg",
+      artifactURL:
+        "https://github.com/PostTrainLLM/posttrainllm/releases/download/v0.1.0/PostTrainLLM-0.1.0.dmg",
       sha256: "a".repeat(64),
     });
   });

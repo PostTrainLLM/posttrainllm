@@ -22,6 +22,7 @@ export interface PublicMacRelease {
   sha256: string | null;
   verification: {
     developerIdSigned: boolean;
+    hardenedRuntime: boolean;
     notarized: boolean;
     stapled: boolean;
     gatekeeperAccepted: boolean;
@@ -56,12 +57,14 @@ function isApprovedArtifactURL(value: unknown): value is string {
 }
 
 export function evaluateMacRelease(input: unknown): PublicMacRelease {
-  const source = input && typeof input === "object"
-    ? input as Partial<MacReleaseRecord>
-    : {};
-  const verification = source.verification && typeof source.verification === "object"
-    ? source.verification
-    : {} as Partial<MacReleaseRecord["verification"]>;
+  const source =
+    input && typeof input === "object"
+      ? (input as Partial<MacReleaseRecord>)
+      : {};
+  const verification =
+    source.verification && typeof source.verification === "object"
+      ? source.verification
+      : ({} as Partial<MacReleaseRecord["verification"]>);
 
   const factualRecordValid =
     source.product === "PostTrainLLM" &&
@@ -78,6 +81,7 @@ export function evaluateMacRelease(input: unknown): PublicMacRelease {
     !Number.isNaN(Date.parse(`${source.recordUpdated}T00:00:00Z`));
   const verificationComplete =
     verification.developerIdSigned === true &&
+    verification.hardenedRuntime === true &&
     verification.notarized === true &&
     verification.stapled === true &&
     verification.gatekeeperAccepted === true &&
@@ -93,17 +97,25 @@ export function evaluateMacRelease(input: unknown): PublicMacRelease {
   return {
     product: isNonEmptyString(source.product) ? source.product : "PostTrainLLM",
     platform: source.platform === "macOS" ? source.platform : "macOS",
-    architecture: source.architecture === "Apple Silicon" ? source.architecture : "Apple Silicon",
+    architecture:
+      source.architecture === "Apple Silicon"
+        ? source.architecture
+        : "Apple Silicon",
     version: isNonEmptyString(source.version) ? source.version : "unknown",
     build: isNonEmptyString(source.build) ? source.build : "unknown",
-    minimumMacOS: isNonEmptyString(source.minimumMacOS) ? source.minimumMacOS : "unknown",
-    recordUpdated: isNonEmptyString(source.recordUpdated) ? source.recordUpdated : "unknown",
+    minimumMacOS: isNonEmptyString(source.minimumMacOS)
+      ? source.minimumMacOS
+      : "unknown",
+    recordUpdated: isNonEmptyString(source.recordUpdated)
+      ? source.recordUpdated
+      : "unknown",
     state: downloadable ? "available" : "pending-notarization",
     downloadable,
     artifactURL: downloadable ? source.artifactURL! : null,
     sha256: downloadable ? source.sha256!.toLowerCase() : null,
     verification: {
       developerIdSigned: verification.developerIdSigned === true,
+      hardenedRuntime: verification.hardenedRuntime === true,
       notarized: verification.notarized === true,
       stapled: verification.stapled === true,
       gatekeeperAccepted: verification.gatekeeperAccepted === true,

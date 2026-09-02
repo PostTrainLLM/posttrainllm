@@ -14,8 +14,25 @@ import { fileURLToPath } from "node:url";
 const ORIGIN = "https://posttrainllm.com";
 const here = dirname(fileURLToPath(import.meta.url));
 const DIST = resolve(here, "..", "dist");
+const REPO_ROOT = resolve(here, "..", "..");
 const CHECK_ONLY = process.argv.includes("--check");
 const MAC_RELEASE_PATH = "/releases/mac.json";
+const REQUIRED_CAPABILITY_PATHS = [
+  "/",
+  "/docs/quickstart",
+  "/playground",
+  "/inference",
+  "/webgpu-test",
+  "/training-dashboard",
+  "/artifacts",
+  "/experiments",
+  "/recipes",
+  "/learn",
+  "/benchmarks",
+  "/leaderboard",
+  "/docs/cli-reference",
+  "/download",
+];
 
 const decodeEntities = (value) =>
   value
@@ -226,6 +243,77 @@ async function buildOutputs() {
   const macRelease = JSON.parse(
     await fs.readFile(resolve(DIST, MAC_RELEASE_PATH.slice(1)), "utf8"),
   );
+  const attempts = JSON.parse(
+    await fs.readFile(resolve(REPO_ROOT, "docs", "attempts.json"), "utf8"),
+  ).attempts;
+  const recipes = JSON.parse(
+    await fs.readFile(
+      resolve(REPO_ROOT, "docs", "recipes", "registry.json"),
+      "utf8",
+    ),
+  ).recipes;
+  const learningPaths = JSON.parse(
+    await fs.readFile(
+      resolve(REPO_ROOT, "docs", "learn", "path-registry.json"),
+      "utf8",
+    ),
+  ).paths;
+  const journeyStages = JSON.parse(
+    await fs.readFile(
+      resolve(REPO_ROOT, "docs", "learn", "artifact-journey.json"),
+      "utf8",
+    ),
+  ).stages;
+  const statusCounts = Object.fromEntries(
+    [...new Set(attempts.map((attempt) => attempt.status))]
+      .sort()
+      .map((status) => [
+        status,
+        attempts.filter((attempt) => attempt.status === status).length,
+      ]),
+  );
+  const experimentSummary = {
+    total: attempts.length,
+    resolved: attempts.length,
+    worked: statusCounts.worked ?? 0,
+    workedWithCaveat: statusCounts["worked-with-caveat"] ?? 0,
+    nonPositiveOrMixed:
+      attempts.length -
+      (statusCounts.worked ?? 0) -
+      (statusCounts["worked-with-caveat"] ?? 0),
+    byStatus: statusCounts,
+    interpretation:
+      "Worked-with-caveat proves a bounded mechanism, not a positive product result. Failed, regressed, rejected, inconclusive, and superseded attempts remain first-class boundary evidence.",
+  };
+  const learningSummary = {
+    paths: learningPaths.length,
+    recipes: recipes.length,
+    stages: journeyStages.length,
+    buildableArtifacts: journeyStages.flatMap((stage) => stage.artifacts)
+      .length,
+  };
+  const capabilities = {
+    build: [
+      { name: "Native specialist factory", url: `${ORIGIN}/docs/quickstart` },
+      { name: "Browser training lab", url: `${ORIGIN}/playground` },
+      { name: "Browser inference lab", url: `${ORIGIN}/inference` },
+      { name: "WebGPU kernel tests", url: `${ORIGIN}/webgpu-test` },
+      { name: "Training dashboard", url: `${ORIGIN}/training-dashboard` },
+      { name: "Native Mac app", url: `${ORIGIN}/download` },
+    ],
+    measure: [
+      { name: "Experiment ledger", url: `${ORIGIN}/experiments` },
+      { name: "Evidence artifacts", url: `${ORIGIN}/artifacts` },
+      { name: "Benchmarks", url: `${ORIGIN}/benchmarks` },
+      { name: "Evaluation leaderboard", url: `${ORIGIN}/leaderboard` },
+    ],
+    learn: [
+      { name: "Learning paths", url: `${ORIGIN}/learn` },
+      { name: "Reproducible recipes", url: `${ORIGIN}/recipes` },
+      { name: "CLI reference", url: `${ORIGIN}/docs/cli-reference` },
+      { name: "Documentation", url: `${ORIGIN}/docs/` },
+    ],
+  };
 
   for (const url of urls) {
     const { html, md } = outputPaths(url);
@@ -310,15 +398,26 @@ Reach for PostTrainLLM when you need to train, fine-tune, evaluate, or package a
 - Evaluating a local model against frozen benchmarks (BFCL, tool-calling, perplexity)
 - Packaging a trained specialist for MLX or on-device inference
 - Comparing Mac-local training approaches (distillation, GRPO, SFT)
-- Running the WebGPU inference playground in a browser
+- Training a tiny model in-browser and inspecting its loss and samples
+- Running client-side inference and validating WebGPU kernels
 
 Do not use PostTrainLLM for: large-scale distributed training, frontier-scale pretraining, or anything that requires a GPU cluster — it is designed for one Mac.
 
 ## Public surface
 
 - [Home](${ORIGIN}/): Product and research-lab overview
+- [Native factory quickstart](${ORIGIN}/docs/quickstart): Target → data → post-train → eval → package → report
+- [Browser training lab](${ORIGIN}/playground): TinyGPT training with visible loss and samples
+- [Browser inference lab](${ORIGIN}/inference): Client-side model inference
+- [WebGPU kernel tests](${ORIGIN}/webgpu-test): Browser kernel correctness and capability probes
+- [Training dashboard](${ORIGIN}/training-dashboard): Inspect recorded training state
+- [Experiments](${ORIGIN}/experiments): ${experimentSummary.total} resolved attempts — ${experimentSummary.worked} worked, ${experimentSummary.workedWithCaveat} worked with caveat, ${experimentSummary.nonPositiveOrMixed} non-positive or mixed
+- [Recipes](${ORIGIN}/recipes): ${learningSummary.recipes} reproducible or explicitly bounded recipe contracts
+- [Learning paths](${ORIGIN}/learn): ${learningSummary.paths} paths and ${learningSummary.buildableArtifacts} buildable artifacts
 - [Documentation](${ORIGIN}/docs/): ${counts.documentation} source documents
 - [Artifacts](${ORIGIN}/artifacts): Public packages, evidence, and blockers
+- [Benchmarks](${ORIGIN}/benchmarks): Measured performance evidence
+- [Evaluation leaderboard](${ORIGIN}/leaderboard): Model-quality comparisons and gates
 - [Mac app](${ORIGIN}/download): ${
     macRelease.downloadable
       ? `Verified release ${macRelease.version} (${macRelease.build})`
@@ -352,7 +451,8 @@ posttrainllm serve --port 8080  # OpenAI-compatible
 \`\`\`
 
 The CLI exposes 100+ subcommands covering train, eval, package, serve, and
-inspect. See \`posttrainllm --help\` for the full command surface.
+inspect. See [the generated CLI reference](${ORIGIN}/docs/cli-reference) or
+\`posttrainllm --help\` for the full command surface.
 `;
   const llmsFull =
     `${llms}\n` +
@@ -380,7 +480,7 @@ inspect. See \`posttrainllm --help\` for the full command surface.
     JSON.stringify(
       {
         name: "posttrainllm",
-        version: "2",
+        version: "3",
         url: ORIGIN,
         llms: `${ORIGIN}/llms.txt`,
         llmsFull: `${ORIGIN}/llms-full.txt`,
@@ -388,6 +488,10 @@ inspect. See \`posttrainllm --help\` for the full command surface.
         robots: `${ORIGIN}/robots.txt`,
         markdown: { suffix: ".md", negotiation: true },
         openapi: `${ORIGIN}/openapi.json`,
+        release: `${ORIGIN}${MAC_RELEASE_PATH}`,
+        capabilities,
+        experimentSummary,
+        learningSummary,
         surfaces,
         machineResources,
         auth: {
@@ -420,6 +524,15 @@ async function verify(outputs) {
   if (outputs.surfaces.length !== outputs.urls.length)
     throw new Error("catalog/page mismatch");
 
+  for (const path of REQUIRED_CAPABILITY_PATHS) {
+    const url = canonicalize(path);
+    if (!sitemapSet.has(url)) {
+      throw new Error(
+        `required capability route missing from inventory: ${path}`,
+      );
+    }
+  }
+
   for (const surface of outputs.surfaces) {
     if (!sitemapSet.has(surface.url))
       throw new Error(`catalog orphan: ${surface.url}`);
@@ -451,6 +564,17 @@ async function verify(outputs) {
   }
   if (!outputs.catalog.includes(`\"url\": \"${releaseResource}\"`)) {
     throw new Error("Mac release JSON missing from machine resources");
+  }
+  for (const phrase of [
+    "Browser training lab",
+    "Browser inference lab",
+    "WebGPU kernel tests",
+    "worked with caveat",
+    "non-positive or mixed",
+  ]) {
+    if (!outputs.llms.includes(phrase)) {
+      throw new Error(`agent index missing capability truth: ${phrase}`);
+    }
   }
   if (outputs.macRelease.downloadable !== true) {
     if (

@@ -2,8 +2,8 @@
   "$schema": "fleet.design-review.v1",
   "version": 1,
   "project": "posttrainllm",
-  "target": "browser/src/{components/SiteHeader.astro,pages/{index,experiments,recipes,learn,artifacts/**}.astro}",
-  "surfaceMode": "read",
+  "target": "Landing page shell, hero curve, agent discovery, and verified Mac release",
+  "surfaceMode": "persuade",
   "mode": "preserve",
   "register": "product",
   "context": {
@@ -15,7 +15,7 @@
     "probes": [],
     "selected": "existing-design",
     "approval": "not-required",
-    "before": "artifacts/design/before.png",
+    "before": "artifacts/design/landing-finish/before-1440.png",
     "library": {
       "strategy": "upstream-first",
       "primary": "existing-project-system",
@@ -28,62 +28,37 @@
       }
     },
     "contract": {
-      "purpose": "Turn the completed PostTrainLLM research corpus into a trustworthy learning artifact and practical lab.",
-      "purposeSource": "PRODUCT.md and the owner-approved closure direction in GitHub issue #136",
-      "canonicalPurpose": "PostTrainLLM takes learners from ML and transformer foundations to Mac-local models, adapters, evals, agents, packages, runtimes, and interpretability by making every stage produce an inspectable artifact.",
+      "purpose": "Show learners and Mac-local AI practitioners the complete path from foundations and browser experiments to specialist training, evaluation, packaging, and honest decisions.",
+      "purposeSource": "PRODUCT.md, DESIGN.md, and owner-directed GitHub issue #137",
+      "canonicalPurpose": "PostTrainLLM turns learning into inspectable local artifacts and bounded specialist objectives into evidence-gated Mac-local factory runs.",
       "purposeAlignment": "match",
       "driftNote": "",
-      "audience": "Learners and practitioners building, modifying, tuning, evaluating, and packaging AI systems on Apple Silicon and in the browser.",
-      "job": "Guide a learner from first principles to a real model, adapter, benchmark, agent, package, runtime decision, or causal probe while keeping historical evidence and fresh experiments distinct.",
-      "thesis": "Preserve the existing dark local-research-bench system and make evidence lineage the visual hierarchy.",
-      "system": "Existing ink surfaces, teal verified-state accents, coral cautions, Bricolage headings, Geist prose, Geist Mono evidence labels, responsive evidence cards, and explicit status text.",
-      "signature": "A nine-stage artifact ladder where every outcome exposes build, modify, tune, prove, and package actions, with evidence and the runnable CLI one click away.",
-      "risk": "The archive is information-dense; search, status filters, concise cards, separate learning paths, and persistent mobile navigation must keep it navigable without hiding limitations."
+      "audience": "Learners and practitioners who want to build, modify, tune, evaluate, package, and understand language-model systems on Apple Silicon hardware they control.",
+      "job": "Orient a fresh visitor to the native factory, Web Lab, evidence archive, recipes, learning paths, Mac app, and agent-readable surfaces, then offer one honest next action.",
+      "thesis": "Preserve the dark Local Research Bench and make the complete lab legible through a lifted continuous loss trace, concise navigation, an evidence-led capability map, and a comprehensive footer.",
+      "system": "Existing deep-ink surfaces, teal verified signals, coral caution states, Bricolage display type, Geist prose, Geist Mono evidence labels, hairline structure, and accessible native disclosure patterns.",
+      "signature": "A continuous measured loss trace leads from the first viewport into an explicit bench map and an honest 75-experiment outcome ledger.",
+      "risk": "Exposing every capability can become a dense link catalog; mitigate with four evidence-backed capability groups, a short primary navigation, and a categorized footer rather than shrinking type or horizontally scrolling all links."
     }
   },
   "evidence": {
     "screenshots": [
       {
         "width": 390,
-        "path": "artifacts/design/lab/learn-390.png"
+        "path": "artifacts/design/landing-finish/after-390.png"
       },
       {
         "width": 768,
-        "path": "artifacts/design/lab/learn-768.png"
+        "path": "artifacts/design/landing-finish/after-768.png"
       },
       {
         "width": 1440,
-        "path": "artifacts/design/lab/learn-1440.png"
-      },
-      {
-        "width": 390,
-        "path": "artifacts/design/lab/learn-journey-390.png"
-      },
-      {
-        "width": 768,
-        "path": "artifacts/design/lab/learn-journey-768.png"
-      },
-      {
-        "width": 1440,
-        "path": "artifacts/design/lab/learn-journey-1440.png"
-      },
-      {
-        "width": 390,
-        "path": "artifacts/design/lab/experiments-needle-390.png"
-      },
-      {
-        "width": 768,
-        "path": "artifacts/design/lab/experiments-needle-768.png"
-      },
-      {
-        "width": 1440,
-        "path": "artifacts/design/lab/experiments-needle-1440.png"
+        "path": "artifacts/design/landing-finish/after-1440.png"
       }
     ],
     "projectCheck": {
-      "command": "pnpm --dir browser run build && pnpm --dir browser run visual:audit",
-      "status": "pass",
-      "note": "The production build generated 46 Astro pages, 310 docs pages, and 358 paired agent surfaces; the rendered audit passed seven key routes at 390, 768, and 1440 pixels with zero failures."
+      "command": "cd browser && pnpm build && EVIDENCE_DIR=<repo>/artifacts/design/landing-finish pnpm visual:audit",
+      "status": "pass"
     },
     "critique": {
       "score": 36,
@@ -99,56 +74,35 @@
     },
     "detector": {
       "posture": "advisory",
-      "findings": []
+      "findings": [
+        "The comprehensive footer is intentionally long on phone widths; it preserves the complete agent and capability map without shrinking text or horizontal scrolling."
+      ]
     },
     "comprehension": {
-      "status": "not-applicable",
-      "reviewer": "",
+      "status": "pass",
+      "reviewer": "Fresh-visitor screenshot review at 390, 768, and 1440 pixels",
       "answers": {
-        "product": "",
-        "audience": "",
-        "value": "",
-        "mechanism": "",
-        "proof": "",
-        "nextAction": ""
+        "product": "A one-machine research lab and specialist-LLM factory for Apple Silicon.",
+        "audience": "Learners and practitioners building, tuning, evaluating, and understanding local language models on a Mac.",
+        "value": "Turn bounded model ideas into runnable artifacts while seeing both gains and regressions.",
+        "mechanism": "A target-to-data-to-post-train-to-eval-to-package-to-report loop, plus browser training and inference labs.",
+        "proof": "Measured specialist gates, 17 public artifacts, and a fully resolved 75-attempt ledger that exposes 4 clean wins, 38 caveated results, and 33 non-positive or mixed results.",
+        "nextAction": "Run the native factory, inspect specialist proof, enter the Web Lab, or start a structured learning path; the Mac download remains visibly pending until Apple trust gates pass."
       },
       "purposeScore": {
-        "product": 0,
-        "audience": 0,
-        "value": 0,
-        "mechanism": 0,
-        "proof": 0,
-        "nextAction": 0,
-        "total": 0
+        "product": 25,
+        "audience": 14,
+        "value": 15,
+        "mechanism": 15,
+        "proof": 14,
+        "nextAction": 15,
+        "total": 98
       },
       "mismatches": []
-    },
-    "browserReview": {
-      "surfaces": [
-        "/",
-        "/experiments",
-        "/recipes",
-        "/learn",
-        "/docs/cli-reference",
-        "/artifacts/needle2-tool-selection",
-        "/artifacts/parakeet-wgsl-browser-asr"
-      ],
-      "viewports": [390, 768, 1440],
-      "horizontalOverflow": false,
-      "consoleErrors": 0,
-      "interactionChecks": [
-        "Primary navigation remains keyboard-visible and horizontally scrollable at narrow viewports",
-        "Needle search returns 2 of 75 experiments",
-        "worked-with-caveat filter returns 38 of 75 experiments",
-        "recipe registry renders 18 mastery contracts",
-        "learning lab renders 9 prerequisite-linked paths",
-        "artifact journey renders 9 stages and 13 buildable outcomes with readiness and workload labels"
-      ],
-      "note": "Fresh preserve-lane renders confirm readable hierarchy, usable controls, deliberate narrow-screen navigation, and no P0/P1 defects. The audit found zero horizontal overflow, console errors, page errors, or failed requests across 21 route/viewport combinations; it also verified 75 attempts, 2 Needle search results, 38 caveated results, 18 recipes, 9 learning paths, 9 journey stages, and 13 buildable artifacts."
     }
   },
   "ownerFeedback": {
-    "decision": "delegated",
-    "note": "The owner approved the project-completion spec and explicitly asked for a strong learning artifact and lab; the implementation preserves the existing design system."
+    "decision": "agent-selected",
+    "note": "The agent selected the direction; no owner approval was required."
   }
 }

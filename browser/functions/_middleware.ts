@@ -12,7 +12,7 @@ const OPENAPI_SPEC = {
   openapi: "3.1.0",
   info: {
     title: "PostTrainLLM public API",
-    version: "1.0.0",
+    version: "1.1.0",
     description:
       "PostTrainLLM is a Mac-local LLM specialist factory. The public web API exposes read-only agent surfaces: the agent catalog, sitemap, llms.txt, and per-page markdown alternates. Training, evaluation, and packaging run locally and do not expose a remote API.",
     contact: { name: "PostTrainLLM", url: "https://posttrainllm.com" },
@@ -142,6 +142,33 @@ const OPENAPI_SPEC = {
         },
       },
     },
+    "/releases/mac.json": {
+      get: {
+        operationId: "getMacRelease",
+        tags: ["agent-surfaces"],
+        summary: "Verified Mac release record",
+        description:
+          "Fail-closed release metadata. A Mac artifact is downloadable only when Developer ID signing, hardened runtime, notarization, stapling, Gatekeeper assessment, a GitHub DMG URL, and SHA-256 evidence are all present.",
+        responses: {
+          "200": {
+            description: "Native Mac release state",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/MacRelease" },
+              },
+            },
+          },
+          "404": {
+            description: "Error response",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/Error" },
+              },
+            },
+          },
+        },
+      },
+    },
   },
   components: {
     schemas: {
@@ -155,6 +182,8 @@ const OPENAPI_SPEC = {
           llmsFull: { type: "string", format: "uri" },
           sitemap: { type: "string", format: "uri" },
           robots: { type: "string", format: "uri" },
+          openapi: { type: "string", format: "uri" },
+          release: { type: "string", format: "uri" },
           markdown: {
             type: "object",
             properties: {
@@ -176,6 +205,76 @@ const OPENAPI_SPEC = {
               },
             },
           },
+          capabilities: {
+            type: "object",
+            additionalProperties: {
+              type: "array",
+              items: { $ref: "#/components/schemas/Capability" },
+            },
+          },
+          experimentSummary: {
+            $ref: "#/components/schemas/ExperimentSummary",
+          },
+          learningSummary: {
+            $ref: "#/components/schemas/LearningSummary",
+          },
+        },
+      },
+      Capability: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          url: { type: "string", format: "uri" },
+        },
+        required: ["name", "url"],
+      },
+      ExperimentSummary: {
+        type: "object",
+        properties: {
+          total: { type: "integer" },
+          resolved: { type: "integer" },
+          worked: { type: "integer" },
+          workedWithCaveat: { type: "integer" },
+          nonPositiveOrMixed: { type: "integer" },
+          byStatus: {
+            type: "object",
+            additionalProperties: { type: "integer" },
+          },
+          interpretation: { type: "string" },
+        },
+      },
+      LearningSummary: {
+        type: "object",
+        properties: {
+          paths: { type: "integer" },
+          recipes: { type: "integer" },
+          stages: { type: "integer" },
+          buildableArtifacts: { type: "integer" },
+        },
+      },
+      MacRelease: {
+        type: "object",
+        properties: {
+          version: { type: "string" },
+          build: { type: "string" },
+          state: { type: "string" },
+          downloadable: { type: "boolean" },
+          artifactURL: { type: ["string", "null"], format: "uri" },
+          sha256: { type: ["string", "null"] },
+          verification: {
+            $ref: "#/components/schemas/MacReleaseVerification",
+          },
+        },
+      },
+      MacReleaseVerification: {
+        type: "object",
+        properties: {
+          developerIdSigned: { type: "boolean" },
+          hardenedRuntime: { type: "boolean" },
+          notarized: { type: "boolean" },
+          stapled: { type: "boolean" },
+          gatekeeperAccepted: { type: "boolean" },
+          checksumVerified: { type: "boolean" },
         },
       },
       Error: {

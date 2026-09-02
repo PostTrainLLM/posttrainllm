@@ -71,6 +71,11 @@ const idCache = new Map();
 const failures = [];
 let checkedLinks = 0;
 let checkedFragments = 0;
+const runtimeResourcePaths = new Set([
+  "/api/ai",
+  "/openapi.json",
+  "/openapi.yaml",
+]);
 
 const coreRoutes = [
   "/",
@@ -118,6 +123,7 @@ for (const page of pages) {
     if (url.origin !== "https://posttrainllm.invalid") continue;
 
     checkedLinks += 1;
+    if (runtimeResourcePaths.has(url.pathname)) continue;
     const target = resolveBuiltPath(url.pathname);
     if (!target) {
       failures.push(`${route}: ${raw} has no built target`);

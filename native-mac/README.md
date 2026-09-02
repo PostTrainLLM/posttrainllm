@@ -14,7 +14,8 @@ Same architecture, same `.tinygpt` file format, runs on Metal via MLX-Swift.
 | Benchmark CLI          | ✅ ships   | `posttrainllm bench` — measures real GPU throughput vs WebGPU baseline                    |
 | Sample CLI             | ✅ ships   | `posttrainllm sample` — load checkpoint + generate Shakespeare-quality text at ~130 tok/s |
 | SwiftUI app            | ✅ ships   | `TinyGPTApp` — single window, Sample + Train tabs, gallery sidebar, live loss chart       |
-| Notarized direct build | ⏳ blocked | needs an installed Developer ID Application identity                                      |
+| Direct release tooling | ✅ ready   | Developer ID + hardened runtime + notarized/stapled DMG + Gatekeeper + SHA-256 gates          |
+| Public notarized build | ⏳ pending | requires a maintainer-owned `notarytool` Keychain profile and accepted Apple submission       |
 
 ## Build
 
@@ -50,6 +51,8 @@ certificate name through `POSTTRAINLLM_SIGNING_IDENTITY` enables hardened
 runtime and trusted timestamp signing. `scripts/release/notarize-macapp.sh` fails
 closed unless that Developer ID signature is present and
 `POSTTRAINLLM_NOTARY_PROFILE` names an existing `notarytool` Keychain profile.
+It notarizes the exact DMG, staples the ticket, runs Gatekeeper against the DMG
+and its mounted app, retains Apple's JSON receipt, and prints the SHA-256.
 Neither helper publishes a release.
 
 ## CLI
@@ -144,22 +147,17 @@ either way, but asymmetric MLP weights don't). Worth raising upstream.
    cast applies, but kernel paths for some MLX ops may not have
    distinct fp16 implementations on M5 Pro yet (MLX 0.31 predates the
    M5 chip ramp). Revisit with newer MLX-Swift.
-3. **No SwiftUI shell yet.** The CLI subcommands work end-to-end; the
-   visual app is the next milestone.
+3. **Direct distribution still needs Apple authorization.** The release helper
+   intentionally cannot submit without a maintainer-owned Keychain profile.
 
-## What's next (in priority order)
+## Deliberate boundaries
 
-1. **Numerics parity**: get `sample` producing Shakespeare-quality text.
-   Test: load gallery model, generate from "ROMEO:", visually verify
-   output matches browser-side output.
-2. **bf16 path**: bf16 preserves fp32 dynamic range — less risky than
-   fp16, may unlock better M5 utilisation.
-3. **ANE-routed sampling**: route the forward-only path through
-   `mx.compile` with `device=.ane` to chase the 100-500× sampling speedup.
-4. **SwiftUI shell**: Setup ⟷ Watch UI, live loss chart, sample panel.
-   The CLI does the work; this is the visible artifact.
-5. **MLX 0.32+**: when it ships with M5 Neural Accelerator support,
-   re-benchmark — the 30→100× jump should be free.
+The native app is a learning and specialist-factory surface, not an App Store
+product or a dependency on Apple's Foundation Models. New numerics, bf16, ANE,
+or model-quality work begins as a fresh, budgeted experiment with a frozen
+baseline. The existing SwiftUI shell already exposes Gallery, Factory, Runs,
+Eval, Serve, and Interp workspaces; the CLI remains the source of truth for
+reproducible automation.
 
 ## Module layout
 

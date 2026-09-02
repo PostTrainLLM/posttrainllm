@@ -201,7 +201,9 @@ Factory primitives:
   SwiftPM resources, CLI, MLX Metal library, and branded icon; supports
   versioned metadata and hardened-runtime Developer ID signing; and refuses
   notarization unless both a Developer ID signature and named Keychain profile
-  are present.
+  are present. The release helper submits the exact DMG, retains Apple's JSON
+  receipt, staples and validates the ticket, Gatekeeper-assesses both container
+  and mounted app, and prints the artifact SHA-256 before any publication.
 - Everyday specialist evaluation and routing: a versioned three-task benchmark
   with generalist/adapted/system tracks, frontier qualification, privacy-safe
   receipts, deterministic reporting, and a validated development capability

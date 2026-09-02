@@ -24,6 +24,11 @@ const checks = [
     complete: release.verification.developerIdSigned,
   },
   {
+    label: "Hardened runtime",
+    detail: "Runtime protection enabled",
+    complete: release.verification.hardenedRuntime,
+  },
+  {
     label: "Apple notarization",
     detail: "Apple trust service",
     complete: release.verification.notarized,
@@ -58,7 +63,7 @@ const checks = [
   <!--
     THESIS: Release truth is the interface; no promotional download hero outranks verification.
     OWN-WORLD: Deep ink bench, teal pass signal, coral pending signal, compact evidence rails.
-    STORY: See the candidate, inspect every trust gate, download only after all five pass.
+    STORY: See the candidate, inspect every trust gate, download only after all six pass.
     FIRST VIEWPORT: State and platform lead left; the verification ledger anchors right.
     FORM: Existing research instrument extended as a two-column release gate, preserve mode.
   -->
@@ -69,7 +74,7 @@ const checks = [
           <span aria-hidden="true"></span>{statusLabel}
         </p>
         <p class="release-progress">
-          <strong>{completedChecks} of 5 checks passed</strong>
+          <strong>{completedChecks} of 6 checks passed</strong>
           <span
             >Next: {
               release.downloadable
@@ -146,7 +151,7 @@ const checks = [
             <h2 id="verification-title">Trust ledger</h2>
           </div>
           <span class:list={["ledger-state", { ready: release.downloadable }]}>
-            {release.downloadable ? "5 / 5" : `${completedChecks} / 5`}
+            {release.downloadable ? "6 / 6" : `${completedChecks} / 6`}
           </span>
         </header>
 
@@ -181,12 +186,13 @@ const checks = [
     <section class="release-method" aria-labelledby="method-title">
       <p class="method-label">Why the gate stays closed</p>
       <div>
-        <h2 id="method-title">One build. Five independent checks.</h2>
+        <h2 id="method-title">One build. Six independent checks.</h2>
         <p>
-          A Developer ID signature identifies the publisher. Apple notarization
-          scans the submitted build. Stapling binds that result to the DMG for
-          offline verification. Gatekeeper checks the installed experience, and
-          the published SHA-256 proves the hosted bytes did not change.
+          A Developer ID signature identifies the publisher, while hardened
+          runtime limits unsafe execution. Apple notarization scans the
+          submitted build. Stapling binds that result to the DMG for offline
+          verification. Gatekeeper checks the installed experience, and the
+          published SHA-256 proves the hosted bytes did not change.
         </p>
       </div>
       <nav aria-label="Release resources">

@@ -13,18 +13,51 @@ export interface Props {
 }
 const { mode = "instrument", active } = Astro.props;
 const homeCurrent = Astro.url.pathname === "/";
-const links = [
-  { href: "/artifacts", label: "specialists", key: "specialists" },
-  { href: "/experiments", label: "experiments", key: "experiments" },
-  { href: "/recipes", label: "recipes", key: "recipes" },
-  { href: "/learn", label: "learn", key: "learn" },
-  { href: "/benchmarks", label: "benchmarks", key: "benchmarks" },
-  { href: "/leaderboard", label: "evals", key: "evals" },
-  { href: "/playground", label: "playground", key: "playground" },
-  { href: "/docs/cli-reference", label: "cli", key: "cli" },
-  { href: "/docs", label: "docs", key: "docs" },
-  { href: "/changelog", label: "changelog", key: "changelog" },
+const primaryLinks = [
+  { href: "/docs/quickstart", label: "Factory", key: "factory" },
+  { href: "/playground", label: "Web Lab", key: "playground", mobile: true },
+  { href: "/artifacts", label: "Artifacts", key: "specialists" },
+  { href: "/experiments", label: "Experiments", key: "experiments" },
+  { href: "/learn", label: "Learn", key: "learn" },
+  { href: "/download", label: "Mac app", key: "download" },
 ];
+const menuGroups = [
+  {
+    label: "Build",
+    links: [
+      { href: "/docs/quickstart", label: "Native factory", key: "factory" },
+      { href: "/playground", label: "Browser training", key: "playground" },
+      { href: "/inference", label: "Browser inference", key: "inference" },
+      { href: "/webgpu-test", label: "WebGPU kernel tests", key: "webgpu" },
+      { href: "/download", label: "Verified Mac app", key: "download" },
+    ],
+  },
+  {
+    label: "Measure",
+    links: [
+      { href: "/artifacts", label: "Evidence artifacts", key: "specialists" },
+      { href: "/experiments", label: "Experiment ledger", key: "experiments" },
+      { href: "/benchmarks", label: "Benchmarks", key: "benchmarks" },
+      { href: "/leaderboard", label: "Eval leaderboard", key: "evals" },
+    ],
+  },
+  {
+    label: "Understand",
+    links: [
+      { href: "/learn", label: "Learning paths", key: "learn" },
+      { href: "/recipes", label: "Reproducible recipes", key: "recipes" },
+      { href: "/docs/cli-reference", label: "CLI reference", key: "cli" },
+      { href: "/docs", label: "Documentation", key: "docs" },
+      { href: "/changelog", label: "Changelog", key: "changelog" },
+    ],
+  },
+] as const;
+
+const isCurrent = (key: string, href: string) =>
+  active === key ||
+  (!active &&
+    (Astro.url.pathname === href ||
+      (href !== "/" && Astro.url.pathname.startsWith(`${href}/`))));
 ---
 
 <header class:list={["site-header", mode]} data-mode={mode} role="banner">
@@ -38,34 +71,65 @@ const links = [
     <Logo size={26} />
     <span class="sh-name">posttrainllm</span>
   </a>
-  <nav class="sh-nav" aria-label="Primary">
-    {
-      links.map((l) => (
-        <a
-          href={l.href}
-          class:list={[{ current: active === l.key }]}
-          aria-current={active === l.key ? "page" : undefined}
-        >
-          {l.label}
-        </a>
-      ))
-    }
-    <a href="https://github.com/PostTrainLLM/posttrainllm" rel="noopener"
-      >github ↗</a
+  <div class="sh-actions">
+    <nav class="sh-nav" aria-label="Primary">
+      {
+        primaryLinks.map((link) => {
+          const current = isCurrent(link.key, link.href);
+          return (
+            <a
+              href={link.href}
+              data-mobile={link.mobile ? "true" : undefined}
+              class:list={[{ current }]}
+              aria-current={current ? "page" : undefined}
+            >
+              {link.label}
+            </a>
+          );
+        })
+      }
+    </nav>
+    <details class="sh-menu">
+      <summary>
+        <span class="wide-label">More</span>
+        <span class="narrow-label">Explore</span>
+        <span aria-hidden="true">⌄</span>
+      </summary>
+      <div class="sh-panel">
+        {
+          menuGroups.map((group) => (
+            <section aria-label={group.label}>
+              <p>{group.label}</p>
+              {group.links.map((link) => {
+                const current = isCurrent(link.key, link.href);
+                return (
+                  <a
+                    href={link.href}
+                    class:list={[{ current }]}
+                    aria-current={current ? "page" : undefined}
+                  >
+                    {link.label}
+                  </a>
+                );
+              })}
+            </section>
+          ))
+        }
+        <div class="sh-panel-source">
+          <a href="/llms.txt">Agent index</a>
+          <a href="https://github.com/PostTrainLLM/posttrainllm" rel="noopener">
+            Source on GitHub ↗
+          </a>
+        </div>
+      </div>
+    </details>
+    <a
+      class="sh-github"
+      href="https://github.com/PostTrainLLM/posttrainllm"
+      rel="noopener">GitHub ↗</a
     >
-  </nav>
+  </div>
 </header>
-
-<script>
-  const nav = document.querySelector<HTMLElement>(".sh-nav");
-  const current = nav?.querySelector<HTMLElement>('[aria-current="page"]');
-  if (nav && current && nav.scrollWidth > nav.clientWidth) {
-    nav.scrollLeft = Math.max(
-      0,
-      current.offsetLeft - (nav.clientWidth - current.offsetWidth) / 2,
-    );
-  }
-</script>
 
 <style>
   .site-header {
@@ -135,12 +199,20 @@ const links = [
     font-weight: 500;
     letter-spacing: -0.01em;
   }
+  .sh-actions {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
   .sh-nav {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: clamp(14px, 1.6vw, 24px);
   }
-  .sh-nav a {
+  .sh-nav a,
+  .sh-github,
+  .sh-menu summary {
     font-size: 0.82rem;
     color: var(--sh-soft);
     font-weight: 500;
@@ -149,7 +221,8 @@ const links = [
     padding: 4px 0;
     transition: color 0.14s ease;
   }
-  .sh-nav a::after {
+  .sh-nav a::after,
+  .sh-github::after {
     content: "";
     position: absolute;
     left: 0;
@@ -160,15 +233,85 @@ const links = [
     transition: right 0.24s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .sh-nav a:hover,
-  .sh-nav a.current {
+  .sh-nav a.current,
+  .sh-github:hover,
+  .sh-menu summary:hover,
+  .sh-menu[open] summary {
     color: var(--sh-fg);
   }
   .sh-nav a:hover::after,
-  .sh-nav a.current::after {
+  .sh-nav a.current::after,
+  .sh-github:hover::after {
     right: 0;
   }
+  .sh-menu {
+    position: relative;
+  }
+  .sh-menu summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .sh-menu summary::-webkit-details-marker {
+    display: none;
+  }
+  .narrow-label {
+    display: none;
+  }
+  .sh-panel {
+    position: absolute;
+    top: calc(100% + 16px);
+    right: -78px;
+    width: min(620px, calc(100vw - 40px));
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 30px;
+    padding: 26px;
+    border: 1px solid #2a3039;
+    border-radius: 14px;
+    background: color-mix(in oklab, #111419 96%, transparent);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.52);
+    backdrop-filter: blur(18px);
+  }
+  .sh-panel section {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+  }
+  .sh-panel p {
+    margin: 0 0 3px;
+    color: var(--sh-accent);
+    font-family: "Geist Mono Variable", ui-monospace, monospace;
+    font-size: 0.68rem;
+    font-weight: 620;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .sh-panel a {
+    color: var(--sh-soft);
+    font-size: 0.84rem;
+    line-height: 1.35;
+    text-decoration: none;
+  }
+  .sh-panel a:hover,
+  .sh-panel a.current {
+    color: var(--sh-fg);
+  }
+  .sh-panel-source {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #2a3039;
+  }
   .sh-brand:focus-visible,
-  .sh-nav a:focus-visible {
+  .sh-nav a:focus-visible,
+  .sh-github:focus-visible,
+  .sh-menu summary:focus-visible,
+  .sh-panel a:focus-visible {
     outline: 2px solid var(--sh-accent);
     outline-offset: 4px;
     border-radius: 3px;
@@ -180,27 +323,62 @@ const links = [
       transition-duration: 0.001ms;
     }
   }
-  @media (max-width: 1180px) {
+  @media (max-width: 1040px) {
     .site-header {
-      flex-wrap: wrap;
-      gap: 8px 18px;
-      padding-block: 11px 8px;
+      gap: 14px;
+      padding-block: 11px;
     }
     .sh-nav {
-      order: 2;
-      display: flex;
-      width: 100%;
-      gap: 18px;
-      overflow-x: auto;
-      padding-block: 2px 5px;
-      overscroll-behavior-inline: contain;
-      scrollbar-width: none;
+      gap: 16px;
     }
-    .sh-nav::-webkit-scrollbar {
+    .sh-nav a:not([data-mobile="true"]),
+    .sh-github {
       display: none;
     }
-    .sh-nav a {
-      flex: 0 0 auto;
+    .wide-label {
+      display: none;
+    }
+    .narrow-label {
+      display: inline;
+    }
+    .sh-panel {
+      right: 0;
+    }
+  }
+  @media (max-width: 620px) {
+    .site-header {
+      padding-inline: 18px;
+    }
+    .sh-actions {
+      gap: 15px;
+    }
+    .sh-name {
+      font-size: 13px;
+    }
+    .sh-nav a,
+    .sh-menu summary {
+      font-size: 0.78rem;
+    }
+    .sh-panel {
+      position: fixed;
+      top: 58px;
+      right: 14px;
+      width: calc(100vw - 28px);
+      max-height: calc(100vh - 78px);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      overflow-y: auto;
+    }
+    .sh-panel-source {
+      flex-direction: column;
+      gap: 9px;
+    }
+  }
+  @media (max-width: 380px) {
+    .sh-nav {
+      display: none;
+    }
+    .sh-panel {
+      grid-template-columns: 1fr;
     }
   }
 </style>
