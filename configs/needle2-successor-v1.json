@@ -13,6 +13,15 @@
     "checkpoint_sha256": "4b0a972d163ffc7678fb3c36bace508114872e9d2ce9e10f225825752d3795bc",
     "parameters": 44900000
   },
+  "environment": {
+    "python": "3.12.14",
+    "jax": "0.4.38",
+    "jaxlib": "0.4.38",
+    "jax_metal": "0.1.1",
+    "flax": "0.10.2",
+    "optax": "0.2.5",
+    "note": "Flax is explicitly pinned because unconstrained 0.10.4 calls jax.api_util.debug_info, which is unavailable in the JAX 0.4.38 required by JAX-Metal."
+  },
   "factorial": {
     "design": "2x2",
     "factors": {

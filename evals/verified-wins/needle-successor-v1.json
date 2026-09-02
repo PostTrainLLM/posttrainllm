@@ -21,25 +21,25 @@
     {
       "id": "plain-standard",
       "role": "control",
-      "revision": "ee221ce+e34ae0dd+7836dfba",
+      "revision": "ee221ce+44ace403+7836dfba",
       "factors": { "distractor_data": false, "safety_training": false }
     },
     {
       "id": "plain-safety",
       "role": "main-effect-safety",
-      "revision": "ee221ce+e34ae0dd+98e939c3",
+      "revision": "ee221ce+44ace403+98e939c3",
       "factors": { "distractor_data": false, "safety_training": true }
     },
     {
       "id": "distractor-standard",
       "role": "main-effect-distractor",
-      "revision": "ee221ce+e34ae0dd+890100d3",
+      "revision": "ee221ce+44ace403+890100d3",
       "factors": { "distractor_data": true, "safety_training": false }
     },
     {
       "id": "distractor-safety",
       "role": "interaction",
-      "revision": "ee221ce+e34ae0dd+a3776fa7",
+      "revision": "ee221ce+44ace403+a3776fa7",
       "factors": { "distractor_data": true, "safety_training": true }
     }
   ],
@@ -107,7 +107,7 @@
     {
       "id": "factorial-recipe-v1",
       "path": "configs/needle2-successor-v1.json",
-      "sha256": "e34ae0dd54be4d05e4b6b4f3187e60b1cb165a186f80c1ad6bb50098317ba898",
+      "sha256": "44ace40334b67c3bc6de2d1c9be667831b41490aa27e0ebd04ef1fb21d41e54d",
       "visibility": "source-config"
     },
     {
@@ -165,7 +165,14 @@
   },
   "freeze": {
     "state": "run-frozen",
-    "protocol_version": "1",
+    "protocol_version": "2",
+    "protocol_history": [
+      {
+        "version": "1",
+        "decision": "retry-wiring",
+        "reason": "The first tiny-overfit invocation produced no model result because unconstrained Flax 0.10.4 called jax.api_util.debug_info, an API absent from the JAX 0.4.38 required by JAX-Metal. Version 2 pins Flax 0.10.2; data, recipes, seeds, gates, and resource caps are unchanged."
+      }
+    ],
     "commands": [
       "NEEDLE_ROOT=<patched-pinned-source> NEEDLE_MODEL_DIR=<pinned-model-dir> NEEDLE_PYTHON=<frozen-jax-python> bash evals/needle-successor.sh preflight",
       "NEEDLE_ROOT=<patched-pinned-source> NEEDLE_MODEL_DIR=<pinned-model-dir> NEEDLE_PYTHON=<frozen-jax-python> bash evals/needle-successor.sh tiny",
