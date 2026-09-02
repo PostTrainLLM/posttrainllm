@@ -85,8 +85,7 @@ async function inspectAdapter(page) {
   });
 }
 
-async function main() {
-  const options = parseArgs(process.argv.slice(2));
+async function loadFixture(options) {
   const fixturePath = path.resolve(options.fixture);
   const audioDir = path.resolve(options["audio-dir"]);
   const sourceRoot = path.resolve(options["source-root"]);
@@ -112,13 +111,191 @@ async function main() {
     }
     audio.set(item.id, await readFile(file));
   }
+  return { fixture, seed, items, audio };
+}
 
+async function setupPage(browser, baseUrl, audio, telemetry) {
+  const context = await browser.newContext({
+    viewport: { width: 1280, height: 800 },
+  });
+  const page = await context.newPage();
+  page.on("console", (message) =>
+    telemetry.consoleMessages.push({
+      type: message.type(),
+      text: message.text(),
+    }),
+  );
+  page.on("pageerror", (error) => telemetry.pageErrors.push(error.message));
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (
+      ["warmup", "timed"].includes(telemetry.phase) &&
+      url.origin !== baseUrl.origin
+    ) {
+      telemetry.externalWarmRequests.push({
+        phase: telemetry.phase,
+        url: request.url(),
+      });
+    }
+  });
+  page.on("response", (response) => {
+    const url = response.url();
+    if (telemetry.phase !== "load" || !url.includes("huggingface.co")) return;
+    const headers = response.headers();
+    telemetry.modelResponses.push({
+      url,
+      status: response.status(),
+      content_length: Number(headers["content-length"] ?? 0),
+      etag: headers.etag ?? "",
+      repo_commit: headers["x-repo-commit"] ?? "",
+    });
+  });
+  await page.route(baseUrl.href, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "text/html",
+      body: "<!doctype html><meta charset=utf-8><title>Parakeet benchmark</title>",
+    }),
+  );
+  await page.route(`${baseUrl.origin}/__fixture/**`, async (route) => {
+    const id = path.basename(new URL(route.request().url()).pathname, ".flac");
+    const body = audio.get(id);
+    if (!body) return route.abort("failed");
+    await route.fulfill({ status: 200, contentType: "audio/flac", body });
+  });
+  await page.goto(baseUrl.href, { waitUntil: "networkidle" });
+  return page;
+}
+
+async function qualifyAdapter(page) {
+  const adapter = await inspectAdapter(page);
+  const adapterText = Object.values(adapter.info).join(" ");
+  const appleHardware = /apple|metal/i.test(adapterText);
+  adapter.software = SOFTWARE_ADAPTER.test(adapterText);
+  adapter.accepted =
+    Boolean(adapterText.trim()) &&
+    appleHardware &&
+    !adapter.fallback &&
+    !adapter.software;
+  adapter.reason = adapter.accepted
+    ? "identified Apple hardware adapter"
+    : "adapter is fallback, software, unknown, or not Apple hardware";
+  if (!adapter.accepted) throw new Error(adapter.reason);
+  return adapter;
+}
+
+async function loadEngine(page, options, modelResponses) {
+  const load = await page.evaluate(async () => {
+    const { ParakeetV3Engine } =
+      await import("/src/engines/asr-parakeet/index.ts");
+    const engine = new ParakeetV3Engine();
+    const progress = {};
+    await engine.load((event) => {
+      const prior = progress[event.file];
+      if (!prior || event.loaded >= prior.loaded) progress[event.file] = event;
+    });
+    globalThis.__posttrainllmParakeet = engine;
+    globalThis.__posttrainllmProgress = progress;
+    return progress;
+  });
+  const downloadBytes = Object.entries(load)
+    .filter(([file]) => file !== "FluidInference/fluidaudio-web")
+    .reduce((sum, [, progress]) => sum + Number(progress.loaded), 0);
+  if (downloadBytes > 1 << 30) {
+    throw new Error(`model download exceeded 1 GiB: ${downloadBytes}`);
+  }
+  for (const revision of [
+    options["weights-revision"],
+    options["vocab-revision"],
+  ]) {
+    const observed = modelResponses.some(
+      (response) =>
+        response.repo_commit === revision || response.url.includes(revision),
+    );
+    if (!observed)
+      throw new Error(`model response did not verify revision ${revision}`);
+  }
+  return downloadBytes;
+}
+
+async function runItem(page, item) {
+  return page.evaluate(async (selected) => {
+    const { decodeToMono16k } = await import("/src/core/audio.ts");
+    const response = await fetch(`/__fixture/${selected.id}.flac`);
+    if (!response.ok)
+      throw new Error(`fixture fetch failed: ${response.status}`);
+    const decoded = await decodeToMono16k(await response.arrayBuffer());
+    const started = performance.now();
+    const result = await globalThis.__posttrainllmParakeet.transcribe(decoded);
+    return {
+      id: selected.id,
+      text: result.text,
+      audio_seconds: decoded.samples.length / decoded.sampleRate,
+      decode_ms: performance.now() - started,
+      engine_metrics: result.metrics ?? null,
+    };
+  }, item);
+}
+
+async function runBrowserExperiment(options, input, browser) {
   const baseUrl = new URL(options["base-url"]);
-  const consoleMessages = [];
-  const pageErrors = [];
-  const externalWarmRequests = [];
-  const modelResponses = [];
-  let phase = "setup";
+  const telemetry = {
+    phase: "setup",
+    consoleMessages: [],
+    pageErrors: [],
+    externalWarmRequests: [],
+    modelResponses: [],
+  };
+  const page = await setupPage(browser, baseUrl, input.audio, telemetry);
+  const adapter = await qualifyAdapter(page);
+  telemetry.phase = "load";
+  const downloadBytes = await loadEngine(
+    page,
+    options,
+    telemetry.modelResponses,
+  );
+  telemetry.phase = "warmup";
+  const warmup = await runItem(page, input.items[0]);
+  telemetry.phase = "timed";
+  const transcripts = [];
+  for (const item of input.items) transcripts.push(await runItem(page, item));
+  telemetry.phase = "dispose";
+  await page.evaluate(async () => {
+    await globalThis.__posttrainllmParakeet.dispose();
+    delete globalThis.__posttrainllmParakeet;
+  });
+  const receipt = {
+    schema_version: "posttrainllm.asr-predictions.v1",
+    fixture_id: input.fixture.fixture_id,
+    model_id: "fluidinference-parakeet-tdt-0.6b-v3-browser",
+    model_revision: `source=${options["source-revision"]}; weights=${options["weights-revision"]}; vocab=${options["vocab-revision"]}`,
+    browser: await browser.version(),
+    user_agent: await page.evaluate(() => navigator.userAgent),
+    adapter,
+    execution_seed: input.seed,
+    execution_order: input.items.map((item) => item.id),
+    model_download_bytes: downloadBytes,
+    model_responses: telemetry.modelResponses,
+    external_warm_requests: telemetry.externalWarmRequests,
+    warmup,
+    transcripts,
+    console_messages: telemetry.consoleMessages,
+    page_errors: telemetry.pageErrors,
+  };
+  if (telemetry.externalWarmRequests.length) {
+    throw new Error(
+      `${telemetry.externalWarmRequests.length} external request(s) during warm decode`,
+    );
+  }
+  if (telemetry.pageErrors.length) {
+    throw new Error(`${telemetry.pageErrors.length} page error(s) during run`);
+  }
+  return receipt;
+}
+
+async function main() {
+  const options = parseArgs(process.argv.slice(2));
+  const input = await loadFixture(options);
   const browser = await chromium.launch({
     headless: false,
     args: [
@@ -128,161 +305,7 @@ async function main() {
     ],
   });
   try {
-    const context = await browser.newContext({
-      viewport: { width: 1280, height: 800 },
-    });
-    const page = await context.newPage();
-    page.on("console", (message) =>
-      consoleMessages.push({ type: message.type(), text: message.text() }),
-    );
-    page.on("pageerror", (error) => pageErrors.push(error.message));
-    page.on("request", (request) => {
-      const url = new URL(request.url());
-      if (
-        ["warmup", "timed"].includes(phase) &&
-        url.origin !== baseUrl.origin
-      ) {
-        externalWarmRequests.push({ phase, url: request.url() });
-      }
-    });
-    page.on("response", (response) => {
-      const url = response.url();
-      if (phase !== "load" || !url.includes("huggingface.co")) return;
-      const headers = response.headers();
-      modelResponses.push({
-        url,
-        status: response.status(),
-        content_length: Number(headers["content-length"] ?? 0),
-        etag: headers.etag ?? "",
-        repo_commit: headers["x-repo-commit"] ?? "",
-      });
-    });
-    await page.route(baseUrl.href, async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "text/html",
-        body: "<!doctype html><meta charset=utf-8><title>Parakeet benchmark</title>",
-      });
-    });
-    await page.route(`${baseUrl.origin}/__fixture/**`, async (route) => {
-      const id = path.basename(
-        new URL(route.request().url()).pathname,
-        ".flac",
-      );
-      const body = audio.get(id);
-      if (!body) return route.abort("failed");
-      await route.fulfill({
-        status: 200,
-        contentType: "audio/flac",
-        body,
-      });
-    });
-    await page.goto(baseUrl.href, { waitUntil: "networkidle" });
-    const adapter = await inspectAdapter(page);
-    const adapterText = Object.values(adapter.info).join(" ");
-    const appleHardware = /apple|metal/i.test(adapterText);
-    adapter.software = SOFTWARE_ADAPTER.test(adapterText);
-    adapter.accepted =
-      Boolean(adapterText.trim()) &&
-      appleHardware &&
-      !adapter.fallback &&
-      !adapter.software;
-    adapter.reason = adapter.accepted
-      ? "identified Apple hardware adapter"
-      : "adapter is fallback, software, unknown, or not Apple hardware";
-    if (!adapter.accepted) throw new Error(adapter.reason);
-
-    phase = "load";
-    const load = await page.evaluate(async () => {
-      const { ParakeetV3Engine } =
-        await import("/src/engines/asr-parakeet/index.ts");
-      const engine = new ParakeetV3Engine();
-      const progress = {};
-      await engine.load((event) => {
-        const prior = progress[event.file];
-        if (!prior || event.loaded >= prior.loaded)
-          progress[event.file] = event;
-      });
-      globalThis.__posttrainllmParakeet = engine;
-      globalThis.__posttrainllmProgress = progress;
-      return progress;
-    });
-    const downloadBytes = Object.entries(load)
-      .filter(([file]) => file !== "FluidInference/fluidaudio-web")
-      .reduce((sum, [, progress]) => sum + Number(progress.loaded), 0);
-    if (downloadBytes > 1 << 30) {
-      throw new Error(`model download exceeded 1 GiB: ${downloadBytes}`);
-    }
-    for (const revision of [
-      options["weights-revision"],
-      options["vocab-revision"],
-    ]) {
-      const observed = modelResponses.some(
-        (response) =>
-          response.repo_commit === revision || response.url.includes(revision),
-      );
-      if (!observed) {
-        throw new Error(`model response did not verify revision ${revision}`);
-      }
-    }
-
-    const runItem = (item) =>
-      page.evaluate(async (selected) => {
-        const { decodeToMono16k } = await import("/src/core/audio.ts");
-        const response = await fetch(`/__fixture/${selected.id}.flac`);
-        if (!response.ok)
-          throw new Error(`fixture fetch failed: ${response.status}`);
-        const decoded = await decodeToMono16k(await response.arrayBuffer());
-        const started = performance.now();
-        const result =
-          await globalThis.__posttrainllmParakeet.transcribe(decoded);
-        const elapsed = performance.now() - started;
-        return {
-          id: selected.id,
-          text: result.text,
-          audio_seconds: decoded.samples.length / decoded.sampleRate,
-          decode_ms: elapsed,
-          engine_metrics: result.metrics ?? null,
-        };
-      }, item);
-
-    phase = "warmup";
-    const warmup = await runItem(items[0]);
-    phase = "timed";
-    const transcripts = [];
-    for (const item of items) transcripts.push(await runItem(item));
-    phase = "dispose";
-    await page.evaluate(async () => {
-      await globalThis.__posttrainllmParakeet.dispose();
-      delete globalThis.__posttrainllmParakeet;
-    });
-
-    const receipt = {
-      schema_version: "posttrainllm.asr-predictions.v1",
-      fixture_id: fixture.fixture_id,
-      model_id: "fluidinference-parakeet-tdt-0.6b-v3-browser",
-      model_revision: `source=${options["source-revision"]}; weights=${options["weights-revision"]}; vocab=${options["vocab-revision"]}`,
-      browser: await browser.version(),
-      user_agent: await page.evaluate(() => navigator.userAgent),
-      adapter,
-      execution_seed: seed,
-      execution_order: items.map((item) => item.id),
-      model_download_bytes: downloadBytes,
-      model_responses: modelResponses,
-      external_warm_requests: externalWarmRequests,
-      warmup,
-      transcripts,
-      console_messages: consoleMessages,
-      page_errors: pageErrors,
-    };
-    if (externalWarmRequests.length) {
-      throw new Error(
-        `${externalWarmRequests.length} external request(s) during warm decode`,
-      );
-    }
-    if (pageErrors.length) {
-      throw new Error(`${pageErrors.length} page error(s) during run`);
-    }
+    const receipt = await runBrowserExperiment(options, input, browser);
     await writeFile(options.output, `${JSON.stringify(receipt, null, 2)}\n`);
     console.log(JSON.stringify(receipt, null, 2));
   } finally {

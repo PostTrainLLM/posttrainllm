@@ -74,6 +74,39 @@ def risk_coverage(rows: list[dict[str, object]]) -> list[dict[str, object]]:
     return points
 
 
+def score_result(
+    case: dict[str, object], generated: dict[str, object]
+) -> dict[str, object]:
+    calls, schema_valid = parse_calls(str(generated["text"]))
+    names = [str(call["name"]) for call in calls]
+    expected = case["expected_tool"]
+    exact = schema_valid and (names == [] if expected is None else names == [expected])
+    return {
+        "id": case["id"],
+        "slice": case["slice"],
+        "expected_tool": expected,
+        "predicted_tools": names,
+        "schema_valid": schema_valid,
+        "exact": exact,
+        "score": math.exp(float(generated["mean_logprob"])),
+        "generated_tokens": len(generated["tokens"]),
+        "text": generated["text"],
+    }
+
+
+def slice_summary(results: list[dict[str, object]]) -> dict[str, object]:
+    by_slice = {}
+    for slice_name in sorted({str(row["slice"]) for row in results}):
+        subset = [row for row in results if row["slice"] == slice_name]
+        exact = sum(bool(row["exact"]) for row in subset)
+        by_slice[slice_name] = {
+            "cases": len(subset),
+            "exact": exact,
+            "exact_rate": exact / len(subset),
+        }
+    return by_slice
+
+
 def summarize(
     model_id: str,
     adapter_path: str | None,
@@ -81,35 +114,10 @@ def summarize(
     decoded: list[dict[str, object]],
     elapsed: float,
 ) -> dict[str, object]:
-    results = []
-    for case, generated in zip(rows, decoded, strict=True):
-        calls, schema_valid = parse_calls(str(generated["text"]))
-        names = [str(call["name"]) for call in calls]
-        expected = case["expected_tool"]
-        exact = schema_valid and (
-            names == [] if expected is None else names == [expected]
-        )
-        results.append(
-            {
-                "id": case["id"],
-                "slice": case["slice"],
-                "expected_tool": expected,
-                "predicted_tools": names,
-                "schema_valid": schema_valid,
-                "exact": exact,
-                "score": math.exp(float(generated["mean_logprob"])),
-                "generated_tokens": len(generated["tokens"]),
-                "text": generated["text"],
-            }
-        )
-    by_slice = {}
-    for slice_name in sorted({str(row["slice"]) for row in results}):
-        subset = [row for row in results if row["slice"] == slice_name]
-        by_slice[slice_name] = {
-            "cases": len(subset),
-            "exact": sum(bool(row["exact"]) for row in subset),
-            "exact_rate": sum(bool(row["exact"]) for row in subset) / len(subset),
-        }
+    results = [
+        score_result(case, generated)
+        for case, generated in zip(rows, decoded, strict=True)
+    ]
     generated_tokens = sum(int(row["generated_tokens"]) for row in results)
     return {
         "model_id": model_id,
@@ -134,7 +142,7 @@ def summarize(
         "maximum_resident_set_bytes": resource.getrusage(
             resource.RUSAGE_SELF
         ).ru_maxrss,
-        "by_slice": by_slice,
+        "by_slice": slice_summary(results),
         "risk_coverage": risk_coverage(results),
         "results": results,
     }

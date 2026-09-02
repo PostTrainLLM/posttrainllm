@@ -38,6 +38,7 @@ def load(path: Path) -> dict[str, Any]:
 
 
 def validate_common(data: dict[str, Any], stage: str, errors: list[str]) -> None:
+    # lizard forgive -- declarative schema assertions are intentionally exhaustive.
     require(
         data.get("schema_version") == SCHEMA_VERSION,
         f"schema_version must be {SCHEMA_VERSION}",
@@ -247,6 +248,7 @@ def validate_common(data: dict[str, Any], stage: str, errors: list[str]) -> None
 
 
 def validate_lane(data: dict[str, Any], errors: list[str]) -> None:
+    # lizard forgive -- one explicit assertion table per closed experiment lane.
     lane = data.get("lane")
     arm_ids = {arm.get("id") for arm in data.get("arms", [])}
     metric_ids = {metric.get("id") for metric in data.get("metrics", [])}

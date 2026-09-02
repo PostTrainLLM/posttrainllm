@@ -52,16 +52,8 @@ const stripTags = (value) =>
     .replace(/\s+/g, " ")
     .trim();
 
-function htmlToMarkdown(html, canonicalUrl) {
-  const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-  const title = stripTags(titleMatch?.[1] ?? new URL(canonicalUrl).pathname);
-  const mainMatch = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i);
-  let body =
-    mainMatch?.[1] ??
-    html.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i)?.[1] ??
-    html;
-
-  body = body
+function convertRichHtml(body, canonicalUrl) {
+  return body
     .replace(/<(script|style|svg|noscript)\b[\s\S]*?<\/\1>/gi, "")
     .replace(/<(nav|footer|form)\b[\s\S]*?<\/\1>/gi, "")
     .replace(
@@ -88,7 +80,11 @@ function htmlToMarkdown(html, canonicalUrl) {
     .replace(
       /<li\b[^>]*>([\s\S]*?)<\/li>/gi,
       (_, text) => `\n- ${stripTags(text)}`,
-    )
+    );
+}
+
+function convertStructuralHtml(body) {
+  return body
     .replace(/<(pre|blockquote)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_, tag, text) => {
       const content = decodeEntities(text.replace(/<[^>]+>/g, "")).trim();
       if (!content) return "";
@@ -111,6 +107,18 @@ function htmlToMarkdown(html, canonicalUrl) {
       (_, _tag, text) => ` ${stripTags(text)} `,
     )
     .replace(/<[^>]+>/g, " ");
+}
+
+function htmlToMarkdown(html, canonicalUrl) {
+  const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  const title = stripTags(titleMatch?.[1] ?? new URL(canonicalUrl).pathname);
+  const mainMatch = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i);
+  let body =
+    mainMatch?.[1] ??
+    html.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i)?.[1] ??
+    html;
+
+  body = convertStructuralHtml(convertRichHtml(body, canonicalUrl));
 
   body = decodeEntities(body)
     .split("\n")

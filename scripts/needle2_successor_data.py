@@ -44,6 +44,7 @@ def call(tool: str | None, value: str) -> list[dict[str, object]]:
 
 
 def supported_pool() -> list[dict[str, object]]:
+    # lizard forgive -- declarative template grid, not branching logic.
     specs = [
         (
             "answer_knowledge",
@@ -371,6 +372,7 @@ def public_dev_rows(tools: list[dict[str, object]]) -> list[dict[str, object]]:
 
 
 def sealed_rows(tools: list[dict[str, object]]) -> list[dict[str, object]]:
+    # lizard forgive -- declarative sealed fixture table, not branching logic.
     cases = [
         (
             "knowledge",

@@ -20,6 +20,19 @@ MAX_BYTES = 1 << 30
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 
 
+def validate_item(item: dict[str, Any], allow_unpinned: bool) -> tuple[int, float]:
+    digest = item.get("audio_sha256")
+    if digest is None and allow_unpinned:
+        pass
+    elif not isinstance(digest, str) or not SHA256_PATTERN.fullmatch(digest):
+        raise ValueError(f"{item['id']}: audio_sha256 is not frozen")
+    audio_bytes = int(item["audio_bytes"])
+    audio_seconds = float(item["audio_seconds"])
+    if audio_bytes <= 0 or audio_seconds <= 0:
+        raise ValueError(f"{item['id']}: audio metadata must be positive")
+    return audio_bytes, audio_seconds
+
+
 def validate_fixture(fixture: dict[str, Any], allow_unpinned: bool = False) -> None:
     items = fixture["items"]
     if not items:
@@ -28,20 +41,9 @@ def validate_fixture(fixture: dict[str, Any], allow_unpinned: bool = False) -> N
     offsets = [item["row_index"] for item in items]
     if len(ids) != len(set(ids)) or len(offsets) != len(set(offsets)):
         raise ValueError("fixture ids and row offsets must be unique")
-    total_bytes = 0
-    total_seconds = 0.0
-    for item in items:
-        digest = item.get("audio_sha256")
-        if digest is None and allow_unpinned:
-            pass
-        elif not isinstance(digest, str) or not SHA256_PATTERN.fullmatch(digest):
-            raise ValueError(f"{item['id']}: audio_sha256 is not frozen")
-        audio_bytes = int(item["audio_bytes"])
-        audio_seconds = float(item["audio_seconds"])
-        if audio_bytes <= 0 or audio_seconds <= 0:
-            raise ValueError(f"{item['id']}: audio metadata must be positive")
-        total_bytes += audio_bytes
-        total_seconds += audio_seconds
+    measurements = [validate_item(item, allow_unpinned) for item in items]
+    total_bytes = sum(item[0] for item in measurements)
+    total_seconds = sum(item[1] for item in measurements)
     if total_bytes > MAX_BYTES:
         raise ValueError("fixture declares more than 1 GiB of audio")
     source = fixture["source"]

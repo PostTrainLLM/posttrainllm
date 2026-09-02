@@ -46,7 +46,7 @@ def shuffled(items: list[dict[str, Any]], seed: int) -> list[dict[str, Any]]:
     return result
 
 
-def main() -> int:
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fixture", required=True, type=Path)
     parser.add_argument("--audio-dir", required=True, type=Path)
@@ -58,7 +58,11 @@ def main() -> int:
     parser.add_argument("--model-revision", required=True)
     parser.add_argument("--config-sha256", required=True)
     parser.add_argument("--generation-config-sha256", required=True)
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
 
     try:
         observed_version = subprocess.run(

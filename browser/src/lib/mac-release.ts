@@ -56,44 +56,56 @@ function isApprovedArtifactURL(value: unknown): value is string {
   }
 }
 
-export function evaluateMacRelease(input: unknown): PublicMacRelease {
-  const source =
-    input && typeof input === "object"
-      ? (input as Partial<MacReleaseRecord>)
-      : {};
-  const verification =
-    source.verification && typeof source.verification === "object"
-      ? source.verification
-      : ({} as Partial<MacReleaseRecord["verification"]>);
-
-  const factualRecordValid =
-    source.product === "PostTrainLLM" &&
-    source.platform === "macOS" &&
-    source.architecture === "Apple Silicon" &&
-    isNonEmptyString(source.version) &&
-    VERSION_PATTERN.test(source.version) &&
-    isNonEmptyString(source.build) &&
-    BUILD_PATTERN.test(source.build) &&
+function factualRecordIsValid(source: Partial<MacReleaseRecord>): boolean {
+  const versionValid =
+    isNonEmptyString(source.version) && VERSION_PATTERN.test(source.version);
+  const buildValid =
+    isNonEmptyString(source.build) && BUILD_PATTERN.test(source.build);
+  const minimumMacOSValid =
     isNonEmptyString(source.minimumMacOS) &&
-    MACOS_PATTERN.test(source.minimumMacOS) &&
+    MACOS_PATTERN.test(source.minimumMacOS);
+  const updatedValid =
     isNonEmptyString(source.recordUpdated) &&
     ISO_DATE_PATTERN.test(source.recordUpdated) &&
     !Number.isNaN(Date.parse(`${source.recordUpdated}T00:00:00Z`));
-  const verificationComplete =
-    verification.developerIdSigned === true &&
-    verification.hardenedRuntime === true &&
-    verification.notarized === true &&
-    verification.stapled === true &&
-    verification.gatekeeperAccepted === true &&
-    verification.checksumVerified === true;
-  const downloadable =
-    factualRecordValid &&
-    source.state === "available" &&
-    isApprovedArtifactURL(source.artifactURL) &&
-    isNonEmptyString(source.sha256) &&
-    SHA256_PATTERN.test(source.sha256) &&
-    verificationComplete;
+  return (
+    source.product === "PostTrainLLM" &&
+    source.platform === "macOS" &&
+    source.architecture === "Apple Silicon" &&
+    versionValid &&
+    buildValid &&
+    minimumMacOSValid &&
+    updatedValid
+  );
+}
 
+function verificationIsComplete(
+  verification: Partial<MacReleaseRecord["verification"]>,
+): boolean {
+  return [
+    verification.developerIdSigned,
+    verification.hardenedRuntime,
+    verification.notarized,
+    verification.stapled,
+    verification.gatekeeperAccepted,
+    verification.checksumVerified,
+  ].every((value) => value === true);
+}
+
+function publicVerification(
+  verification: Partial<MacReleaseRecord["verification"]>,
+): PublicMacRelease["verification"] {
+  return {
+    developerIdSigned: verification.developerIdSigned === true,
+    hardenedRuntime: verification.hardenedRuntime === true,
+    notarized: verification.notarized === true,
+    stapled: verification.stapled === true,
+    gatekeeperAccepted: verification.gatekeeperAccepted === true,
+    checksumVerified: verification.checksumVerified === true,
+  };
+}
+
+function publicIdentity(source: Partial<MacReleaseRecord>) {
   return {
     product: isNonEmptyString(source.product) ? source.product : "PostTrainLLM",
     platform: source.platform === "macOS" ? source.platform : "macOS",
@@ -109,18 +121,34 @@ export function evaluateMacRelease(input: unknown): PublicMacRelease {
     recordUpdated: isNonEmptyString(source.recordUpdated)
       ? source.recordUpdated
       : "unknown",
+  };
+}
+
+export function evaluateMacRelease(input: unknown): PublicMacRelease {
+  const source =
+    input && typeof input === "object"
+      ? (input as Partial<MacReleaseRecord>)
+      : {};
+  const verification =
+    source.verification && typeof source.verification === "object"
+      ? source.verification
+      : ({} as Partial<MacReleaseRecord["verification"]>);
+
+  const downloadable =
+    factualRecordIsValid(source) &&
+    source.state === "available" &&
+    isApprovedArtifactURL(source.artifactURL) &&
+    isNonEmptyString(source.sha256) &&
+    SHA256_PATTERN.test(source.sha256) &&
+    verificationIsComplete(verification);
+
+  return {
+    ...publicIdentity(source),
     state: downloadable ? "available" : "pending-notarization",
     downloadable,
     artifactURL: downloadable ? source.artifactURL! : null,
     sha256: downloadable ? source.sha256!.toLowerCase() : null,
-    verification: {
-      developerIdSigned: verification.developerIdSigned === true,
-      hardenedRuntime: verification.hardenedRuntime === true,
-      notarized: verification.notarized === true,
-      stapled: verification.stapled === true,
-      gatekeeperAccepted: verification.gatekeeperAccepted === true,
-      checksumVerified: verification.checksumVerified === true,
-    },
+    verification: publicVerification(verification),
   };
 }
 

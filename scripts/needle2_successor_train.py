@@ -70,37 +70,20 @@ def load_adapter_receipt(path: Path) -> dict[str, object]:
     }
 
 
-def main() -> int:
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("stage", choices=("tiny", "full"))
     parser.add_argument("--source-root", type=Path, required=True)
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--run-dir", type=Path, required=True)
     parser.add_argument("--tiny-gate", type=Path)
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    config = json.loads((ROOT / "configs/needle2-successor-v1.json").read_text())
-    patch = ROOT / config["source"]["seed_patch"]
-    if sha256(patch) != config["source"]["seed_patch_sha256"]:
-        raise ValueError("Needle seed patch hash mismatch")
-    verify_source(args.source_root, patch, config["source"]["revision"])
-    if sha256(args.checkpoint) != config["base"]["checkpoint_sha256"]:
-        raise ValueError("Needle checkpoint hash mismatch")
-    if args.stage == "full":
-        if not args.tiny_gate or not args.tiny_gate.is_file():
-            raise ValueError("full training requires --tiny-gate")
-        tiny_gate = json.loads(args.tiny_gate.read_text())
-        if tiny_gate.get("passed") is not True:
-            raise ValueError("tiny-overfit gate did not pass")
 
-    sys.path.insert(0, str(args.source_root))
-    import jax
-    from needle.model.finetune import finetune_local
-
-    recipe = config["tiny_overfit" if args.stage == "tiny" else "training"]
+def training_plan(config: dict[str, object], stage: str) -> list[tuple[str, int]]:
     seeds = (
         [config["factorial"]["seeds"][0]]
-        if args.stage == "tiny"
+        if stage == "tiny"
         else config["factorial"]["seeds"]
     )
     order_rng = random.Random(13804)
@@ -109,8 +92,15 @@ def main() -> int:
         block = list(ARMS)
         order_rng.shuffle(block)
         plan.extend((arm, seed) for arm in block)
+    return plan
 
-    args.run_dir.mkdir(parents=True, exist_ok=True)
+
+def run_training(
+    args: argparse.Namespace,
+    recipe: dict[str, object],
+    plan: list[tuple[str, int]],
+    finetune_local: object,
+) -> tuple[list[dict[str, object]], float]:
     adapter_dir = args.run_dir / (
         "tiny-adapters" if args.stage == "tiny" else "adapters"
     )
@@ -127,9 +117,9 @@ def main() -> int:
         for arm, seed in plan:
             if (time.perf_counter() - started) / 3600 >= 3:
                 raise SystemExit("Needle aggregate 3-hour training cap reached")
-            data = (
-                ROOT
-                / f"evals/needle2/successor-v1/{'tiny' if args.stage == 'tiny' else 'train'}-{arm}.jsonl"
+            data = ROOT / (
+                "evals/needle2/successor-v1/"
+                f"{'tiny' if args.stage == 'tiny' else 'train'}-{arm}.jsonl"
             )
             out = adapter_dir / f"{arm}-seed-{seed}.pkl"
             run_started = time.perf_counter()
@@ -164,10 +154,39 @@ def main() -> int:
             )
             outputs.append(receipt)
             print(
-                f"completed {receipt['model_id']} loss={receipt['initial_loss']:.4f}->{receipt['final_loss']:.4f}",
+                f"completed {receipt['model_id']} "
+                f"loss={receipt['initial_loss']:.4f}->{receipt['final_loss']:.4f}",
                 flush=True,
             )
         fcntl.flock(lock_file, fcntl.LOCK_UN)
+    return outputs, time.perf_counter() - started
+
+
+def main() -> int:
+    args = parse_args()
+
+    config = json.loads((ROOT / "configs/needle2-successor-v1.json").read_text())
+    patch = ROOT / config["source"]["seed_patch"]
+    if sha256(patch) != config["source"]["seed_patch_sha256"]:
+        raise ValueError("Needle seed patch hash mismatch")
+    verify_source(args.source_root, patch, config["source"]["revision"])
+    if sha256(args.checkpoint) != config["base"]["checkpoint_sha256"]:
+        raise ValueError("Needle checkpoint hash mismatch")
+    if args.stage == "full":
+        if not args.tiny_gate or not args.tiny_gate.is_file():
+            raise ValueError("full training requires --tiny-gate")
+        tiny_gate = json.loads(args.tiny_gate.read_text())
+        if tiny_gate.get("passed") is not True:
+            raise ValueError("tiny-overfit gate did not pass")
+
+    sys.path.insert(0, str(args.source_root))
+    import jax
+    from needle.model.finetune import finetune_local
+
+    recipe = config["tiny_overfit" if args.stage == "tiny" else "training"]
+    plan = training_plan(config, args.stage)
+    args.run_dir.mkdir(parents=True, exist_ok=True)
+    outputs, elapsed_seconds = run_training(args, recipe, plan, finetune_local)
 
     payload = {
         "schema_version": "posttrainllm.needle-training.v1",
@@ -178,7 +197,7 @@ def main() -> int:
         "source_patch_sha256": sha256(patch),
         "checkpoint_sha256": sha256(args.checkpoint),
         "plan": [{"arm": arm, "seed": seed} for arm, seed in plan],
-        "elapsed_seconds": time.perf_counter() - started,
+        "elapsed_seconds": elapsed_seconds,
         "runs": outputs,
     }
     output = args.run_dir / f"{args.stage}-training.json"

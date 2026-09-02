@@ -80,11 +80,12 @@ async function inspectAdapter(page) {
     if (!info && typeof adapter.requestAdapterInfo === "function") {
       info = await adapter.requestAdapterInfo();
     }
+    const value = (candidate) => candidate || "";
     const normalized = {
-      vendor: info?.vendor ?? "",
-      architecture: info?.architecture ?? "",
-      device: info?.device ?? "",
-      description: info?.description ?? "",
+      vendor: value(info?.vendor),
+      architecture: value(info?.architecture),
+      device: value(info?.device),
+      description: value(info?.description),
     };
     const text = Object.values(normalized).join(" ").toLowerCase();
     const fallback = adapter.isFallbackAdapter === true;
@@ -113,6 +114,73 @@ async function inspectAdapter(page) {
   });
 }
 
+function configureTrainingPage({
+  selectedBackend,
+  selectedSeed,
+  selectedSteps,
+}) {
+  const controlIds = [
+    "sizePreset",
+    "layers",
+    "dModel",
+    "ctx",
+    "batch",
+    "maxSteps",
+    "backend",
+    "corpus",
+  ];
+  for (const id of controlIds) {
+    if (!document.getElementById(id)) throw new Error(`missing control #${id}`);
+  }
+  const setValue = (id, value) => {
+    const element = document.getElementById(id);
+    if (!element) throw new Error(`missing control #${id}`);
+    element.value = String(value);
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+  setValue("maxSteps", selectedSteps);
+  const seedControl = document.getElementById("seed");
+  if (seedControl) setValue("seed", selectedSeed);
+  setValue("backend", selectedBackend);
+  document.getElementById("backend").dataset.userPicked = "1";
+  return {
+    preset: document.getElementById("sizePreset").value,
+    layers: Number(document.getElementById("layers").value),
+    dModel: Number(document.getElementById("dModel").value),
+    ctx: Number(document.getElementById("ctx").value),
+    batchSize: Number(document.getElementById("batch").value),
+    steps: Number(document.getElementById("maxSteps").value),
+    seed: selectedSeed,
+    seedSource: seedControl ? "rendered-control" : "pinned-default-config",
+    backend: document.getElementById("backend").value,
+    corpusCharacters: document.getElementById("corpus").value.length,
+  };
+}
+
+function waitForTrainingTarget(target) {
+  const stepText = document.getElementById("stStep").textContent;
+  const status = document.getElementById("status").textContent;
+  const match = stepText.match(/^(\d+)\s*\/\s*(\d+)/);
+  if (match && Number(match[1]) >= target) return { ok: true, status };
+  if (/error|failed|device lost|non-finite/i.test(status)) {
+    return { ok: false, status };
+  }
+  return false;
+}
+
+function readTrainingOutput() {
+  return {
+    step: document.getElementById("stStep").textContent,
+    loss: Number.parseFloat(document.getElementById("stTrain").textContent),
+    tokensPerSecond: Number(
+      document.getElementById("stToks").textContent.replaceAll(",", ""),
+    ),
+    backend: document.getElementById("stBackend").textContent,
+    status: document.getElementById("status").textContent,
+  };
+}
+
 async function runArm(context, options, backend, sequenceIndex) {
   const page = await context.newPage();
   const errors = [];
@@ -136,54 +204,11 @@ async function runArm(context, options, backend, sequenceIndex) {
       .click({ timeout: 1500 })
       .catch(() => {});
     await page.locator("#sizePreset").selectOption(options.preset);
-    const configured = await page.evaluate(
-      ({ selectedBackend, selectedSeed, selectedSteps }) => {
-        for (const id of [
-          "sizePreset",
-          "layers",
-          "dModel",
-          "ctx",
-          "batch",
-          "maxSteps",
-          "backend",
-          "corpus",
-        ]) {
-          if (!document.getElementById(id))
-            throw new Error(`missing control #${id}`);
-        }
-        const setValue = (id, value) => {
-          const element = document.getElementById(id);
-          if (!element) throw new Error(`missing control #${id}`);
-          element.value = String(value);
-          element.dispatchEvent(new Event("input", { bubbles: true }));
-          element.dispatchEvent(new Event("change", { bubbles: true }));
-        };
-        setValue("maxSteps", selectedSteps);
-        const seedControl = document.getElementById("seed");
-        if (seedControl) setValue("seed", selectedSeed);
-        setValue("backend", selectedBackend);
-        document.getElementById("backend").dataset.userPicked = "1";
-        return {
-          preset: document.getElementById("sizePreset").value,
-          layers: Number(document.getElementById("layers").value),
-          dModel: Number(document.getElementById("dModel").value),
-          ctx: Number(document.getElementById("ctx").value),
-          batchSize: Number(document.getElementById("batch").value),
-          steps: Number(document.getElementById("maxSteps").value),
-          seed: selectedSeed,
-          seedSource: seedControl
-            ? "rendered-control"
-            : "pinned-default-config",
-          backend: document.getElementById("backend").value,
-          corpusCharacters: document.getElementById("corpus").value.length,
-        };
-      },
-      {
-        selectedBackend: backend,
-        selectedSeed: options.seed,
-        selectedSteps: options.steps,
-      },
-    );
+    const configured = await page.evaluate(configureTrainingPage, {
+      selectedBackend: backend,
+      selectedSeed: options.seed,
+      selectedSteps: options.steps,
+    });
     const mismatches = [
       configured.steps !== options.steps && "steps",
       configured.seed !== options.seed && "seed",
@@ -196,36 +221,14 @@ async function runArm(context, options, backend, sequenceIndex) {
     const startedAt = performance.now();
     await page.locator("#start").click({ force: true });
     const outcome = await page
-      .waitForFunction(
-        (target) => {
-          const stepText = document.getElementById("stStep")?.textContent ?? "";
-          const status = document.getElementById("status")?.textContent ?? "";
-          const match = stepText.match(/^(\d+)\s*\/\s*(\d+)/);
-          if (match && Number(match[1]) >= target) return { ok: true, status };
-          if (/error|failed|device lost|non-finite/i.test(status))
-            return { ok: false, status };
-          return false;
-        },
-        options.steps,
-        { timeout: 300_000, polling: 100 },
-      )
+      .waitForFunction(waitForTrainingTarget, options.steps, {
+        timeout: 300_000,
+        polling: 100,
+      })
       .then((handle) => handle.jsonValue())
       .catch((error) => ({ ok: false, status: error.message }));
     const elapsedMs = performance.now() - startedAt;
-    const observed = await page.evaluate(() => ({
-      step: document.getElementById("stStep")?.textContent ?? "",
-      loss: Number.parseFloat(
-        document.getElementById("stTrain")?.textContent ?? "NaN",
-      ),
-      tokensPerSecond: Number(
-        (document.getElementById("stToks")?.textContent ?? "0").replaceAll(
-          ",",
-          "",
-        ),
-      ),
-      backend: document.getElementById("stBackend")?.textContent ?? "",
-      status: document.getElementById("status")?.textContent ?? "",
-    }));
+    const observed = await page.evaluate(readTrainingOutput);
     const finite =
       Number.isFinite(observed.loss) &&
       Number.isFinite(observed.tokensPerSecond);
@@ -248,12 +251,8 @@ async function runArm(context, options, backend, sequenceIndex) {
   }
 }
 
-async function main() {
-  const options = parseArgs(process.argv.slice(2));
-  const repoRoot = resolve(import.meta.dirname, "..");
-  const output = resolve(import.meta.dirname, options.output);
-  const sequence = ["wasm", "webgpu", "webgpu", "wasm"];
-  const receipt = {
+async function createReceipt(options, repoRoot, sequence) {
+  return {
     schema_version: "posttrainllm.webgpu-paired-receipt.v1",
     manifest: "evals/verified-wins/webgpu-v1.json",
     manifest_id: "webgpu-paired-hardware-v1",
@@ -288,6 +287,43 @@ async function main() {
     summary: null,
     decision: "reject",
   };
+}
+
+function summarizeReceipt(receipt) {
+  const wasmRuns = receipt.runs.filter((run) => run.backend === "wasm");
+  const gpuRuns = receipt.runs.filter((run) => run.backend === "webgpu");
+  const wasmMedianMs = median(wasmRuns.map((run) => run.msPerStep));
+  const webgpuMedianMs = median(gpuRuns.map((run) => run.msPerStep));
+  const medianSpeedup = wasmMedianMs / webgpuMedianMs;
+  const pairDrifts = [
+    relativeDrift(receipt.runs[0].finalLoss, receipt.runs[1].finalLoss),
+    relativeDrift(receipt.runs[3].finalLoss, receipt.runs[2].finalLoss),
+  ];
+  const summary = {
+    wasm_median_ms_per_step: wasmMedianMs,
+    webgpu_median_ms_per_step: webgpuMedianMs,
+    median_speedup: medianSpeedup,
+    paired_final_loss_relative_drifts: pairDrifts,
+    maximum_final_loss_relative_drift: Math.max(...pairDrifts),
+    gates: {
+      hardware_adapter: receipt.adapter.accepted,
+      median_speedup_above_1_25: medianSpeedup > 1.25,
+      every_loss_drift_below_0_05: pairDrifts.every((value) => value < 0.05),
+      zero_runtime_errors: receipt.runs.every((run) => run.errors.length === 0),
+    },
+  };
+  receipt.summary = summary;
+  receipt.decision = Object.values(summary.gates).every(Boolean)
+    ? "promote"
+    : "reject";
+}
+
+async function main() {
+  const options = parseArgs(process.argv.slice(2));
+  const repoRoot = resolve(import.meta.dirname, "..");
+  const output = resolve(import.meta.dirname, options.output);
+  const sequence = ["wasm", "webgpu", "webgpu", "wasm"];
+  const receipt = await createReceipt(options, repoRoot, sequence);
 
   const browser = await chromium.launch({
     headless: false,
@@ -320,34 +356,7 @@ async function main() {
       if (!run.ok) throw new Error(`${backend} run ${index + 1} failed`);
     }
 
-    const wasmRuns = receipt.runs.filter((run) => run.backend === "wasm");
-    const gpuRuns = receipt.runs.filter((run) => run.backend === "webgpu");
-    const wasmMedianMs = median(wasmRuns.map((run) => run.msPerStep));
-    const webgpuMedianMs = median(gpuRuns.map((run) => run.msPerStep));
-    const medianSpeedup = wasmMedianMs / webgpuMedianMs;
-    const pairDrifts = [
-      relativeDrift(receipt.runs[0].finalLoss, receipt.runs[1].finalLoss),
-      relativeDrift(receipt.runs[3].finalLoss, receipt.runs[2].finalLoss),
-    ];
-    const summary = {
-      wasm_median_ms_per_step: wasmMedianMs,
-      webgpu_median_ms_per_step: webgpuMedianMs,
-      median_speedup: medianSpeedup,
-      paired_final_loss_relative_drifts: pairDrifts,
-      maximum_final_loss_relative_drift: Math.max(...pairDrifts),
-      gates: {
-        hardware_adapter: receipt.adapter.accepted,
-        median_speedup_above_1_25: medianSpeedup > 1.25,
-        every_loss_drift_below_0_05: pairDrifts.every((value) => value < 0.05),
-        zero_runtime_errors: receipt.runs.every(
-          (run) => run.errors.length === 0,
-        ),
-      },
-    };
-    receipt.summary = summary;
-    receipt.decision = Object.values(summary.gates).every(Boolean)
-      ? "promote"
-      : "reject";
+    summarizeReceipt(receipt);
   } catch (error) {
     receipt.failure = error instanceof Error ? error.message : String(error);
   } finally {
