@@ -165,7 +165,7 @@
   },
   "freeze": {
     "state": "run-frozen",
-    "protocol_version": "5",
+    "protocol_version": "6",
     "protocol_history": [
       {
         "version": "1",
@@ -186,6 +186,11 @@
         "version": "4",
         "decision": "retry-wiring",
         "reason": "All four equalized tiny optimizations reached loss 0.0001, then the decoding harness stopped before scoring because tiny training rows use answers while evaluation rows use expected_tool. Version 5 normalizes the two frozen representations without changing adapters, data, recipes, seeds, thresholds, or gates."
+      },
+      {
+        "version": "5",
+        "decision": "retry-wiring",
+        "reason": "All four tiny adapters scored 100% exact after normalization, but the receipt writer used NumPy-free system Python and could not unpickle adapter metadata. Version 6 runs decisions under the frozen experiment interpreter; no training, decoding, threshold, or result changed."
       }
     ],
     "commands": [

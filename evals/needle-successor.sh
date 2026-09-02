@@ -45,7 +45,7 @@ tiny_eval() {
     eval_one "$arm" "$adapter" "evals/needle2/successor-v1/tiny-$arm.jsonl" "$output"
     decision_args+=(--eval "$output")
   done
-  python3 scripts/needle2_successor_decide.py tiny \
+  "$NEEDLE_PYTHON" scripts/needle2_successor_decide.py tiny \
     "${decision_args[@]}" --output "$RUN_DIR/tiny-gate.json"
 }
 
@@ -70,7 +70,7 @@ full() {
     --source-root "$NEEDLE_ROOT" --checkpoint "$CHECKPOINT" \
     --fixture evals/needle2/successor-v1/public-dev-v2.jsonl \
     "${model_args[@]}" --output "$RUN_DIR/dev-eval.json"
-  python3 scripts/needle2_successor_decide.py dev \
+  "$NEEDLE_PYTHON" scripts/needle2_successor_decide.py dev \
     --eval "$RUN_DIR/dev-eval.json" \
     --incumbent evals/needle2/bounded-public-smoke-v1.json \
     --output "$RUN_DIR/dev-selection.json"
