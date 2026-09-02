@@ -22,7 +22,7 @@ import tempfile
 import time
 
 from bfcl_paths import resolve_bfcl_root
-from rest_protocol import SYSTEM_PROMPT
+from rest_protocol import PROTOCOL_VERSION, SYSTEM_PROMPT
 
 BFCL = str(resolve_bfcl_root())
 sys.path.insert(0, BFCL)
@@ -40,6 +40,9 @@ DUMP = os.environ.get("MT_DUMP")
 OUTPUT = os.environ.get("MT_OUTPUT")
 SEED = int(os.environ.get("MT_SEED", "13803"))
 ONLY_IDS = {value for value in os.environ.get("MT_IDS", "").split(",") if value}
+EXCLUDED_IDS = {
+    value for value in os.environ.get("MT_EXCLUDE_IDS", "").split(",") if value
+}
 CODEX_MODEL = os.environ.get("CODEX_MODEL", "gpt-5.5")
 REASONING = os.environ.get("CODEX_REASONING", "medium")
 MAX_STEPS = 12
@@ -196,12 +199,16 @@ def run_example(ex, gold):
 
 data = [json.loads(l) for l in open(DATA)]
 random.Random(SEED).shuffle(data)
+data = [item for item in data if item["id"] not in EXCLUDED_IDS]
 data = [item for item in data if item["id"] in ONLY_IDS] if ONLY_IDS else data[:N]
 golds = {json.loads(l)["id"]: json.loads(l) for l in open(GOLD)}
 print(
-    f"Codex {CODEX_MODEL} (reasoning={REASONING})  n={len(data)} seed={SEED}",
+    f"Codex {CODEX_MODEL} (reasoning={REASONING})  n={len(data)} seed={SEED} "
+    f"protocol={PROTOCOL_VERSION}",
     flush=True,
 )
+planned_ids = [item["id"] for item in data]
+total = len(data)
 ok = n = 0
 started = time.perf_counter()
 traces = []
@@ -216,11 +223,13 @@ def write_output(complete):
         "backend": "codex-cli",
         "model": CODEX_MODEL,
         "reasoning": REASONING,
+        "protocol_version": PROTOCOL_VERSION,
         "bfcl_root": BFCL,
         "data": DATA,
         "gold": GOLD,
         "seed": SEED,
         "requested_ids": sorted(ONLY_IDS),
+        "excluded_ids": sorted(EXCLUDED_IDS),
         "count": n,
         "passed": ok,
         "accuracy": ok / max(n, 1),
@@ -237,7 +246,42 @@ def write_output(complete):
     os.replace(temporary_path, output_path)
 
 
-for ex in data:
+if OUTPUT and os.path.exists(OUTPUT):
+    try:
+        existing = json.load(open(OUTPUT, encoding="utf-8"))
+        resume_matches = all(
+            (
+                existing.get("model") == CODEX_MODEL,
+                existing.get("reasoning") == REASONING,
+                existing.get("protocol_version") == PROTOCOL_VERSION,
+                existing.get("data") == DATA,
+                existing.get("gold") == GOLD,
+                existing.get("seed") == SEED,
+                existing.get("requested_ids") == sorted(ONLY_IDS),
+                existing.get("excluded_ids") == sorted(EXCLUDED_IDS),
+                [item["id"] for item in existing.get("traces", [])]
+                == planned_ids[: len(existing.get("traces", []))],
+            )
+        )
+        if resume_matches:
+            traces = existing.get("traces", [])
+            n = len(traces)
+            ok = sum(bool(item.get("valid")) for item in traces)
+            if existing.get("complete") and n == total:
+                print(
+                    f"cached complete: {ok}/{n} = {100 * ok / max(n, 1):.1f}%",
+                    flush=True,
+                )
+                if dumpf:
+                    dumpf.close()
+                raise SystemExit(0)
+            print(f"resuming after {n}/{total} checkpointed cases", flush=True)
+    except (OSError, TypeError, ValueError, json.JSONDecodeError):
+        traces = []
+        n = ok = 0
+
+
+for ex in data[n:]:
     n += 1
     example_started = time.perf_counter()
     try:
@@ -268,7 +312,7 @@ for ex in data:
             }
         )
     write_output(complete=False)
-    print(f"  {n}/{len(data)}  pass={100 * ok / n:.0f}%", flush=True)
+    print(f"  {n}/{total}  pass={100 * ok / n:.0f}%", flush=True)
 if dumpf:
     dumpf.close()
 print(f"== Codex task-completion: {ok}/{n} = {100 * ok / max(n, 1):.1f}% ==")

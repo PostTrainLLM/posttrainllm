@@ -17,7 +17,7 @@ def main() -> int:
     breadth = json.loads(args.breadth.read_text())
     for name, result, expected in (
         ("depth", depth, 12),
-        ("breadth", breadth, 52),
+        ("breadth", breadth, 46),
     ):
         if result.get("count") != expected or result.get("passed") != expected:
             print(

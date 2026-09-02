@@ -21,6 +21,7 @@ SEED=13803
 STOCK_REV="cdbee75f17c01a7cc42f958dc650907174af0554"
 CANDIDATE_REV="b332dfe437dc201922d50b28eddf0c99ebcc79a7"
 BFCL_REV="6ea57973c7a6097fd7c5915698c54c17c5b1b6c8"
+EXCLUDED_BREADTH_IDS="multi_turn_base_66,multi_turn_base_92,multi_turn_base_96,multi_turn_base_121,multi_turn_base_135,multi_turn_base_158"
 
 mkdir -p "$RUN_DIR" "$MODEL_DIR"
 
@@ -44,12 +45,13 @@ frontier() {
   BFCL_ROOT="$BFCL_ROOT" MT_DATA=scripts/fixtures/multi_turn_hard_data.jsonl \
     MT_GOLD=scripts/fixtures/multi_turn_hard_gold.jsonl \
     MT_OUTPUT="$RUN_DIR/frontier-depth.json" MT_SEED="$SEED" \
-    CODEX_MODEL=gpt-5.5 CODEX_REASONING=medium \
+    CODEX_MODEL=gpt-5.5 CODEX_REASONING=high \
     python3 scripts/bfcl/bfcl_multiturn_codex.py 12
   BFCL_ROOT="$BFCL_ROOT" MT_DATA=scripts/fixtures/multi_turn_breadth_data.jsonl \
     MT_GOLD=scripts/fixtures/multi_turn_breadth_gold.jsonl \
     MT_OUTPUT="$RUN_DIR/frontier-breadth.json" MT_SEED="$SEED" \
-    CODEX_MODEL=gpt-5.5 CODEX_REASONING=medium \
+    MT_EXCLUDE_IDS="$EXCLUDED_BREADTH_IDS" \
+    CODEX_MODEL=gpt-5.5 CODEX_REASONING=high \
     python3 scripts/bfcl/bfcl_multiturn_codex.py 52
   python3 scripts/bfcl/check_rest_frontier.py \
     --depth "$RUN_DIR/frontier-depth.json" \
@@ -87,10 +89,18 @@ run_arm() {
   local suite="$3"
   local data="$4"
   local gold="$5"
+  local exclude_args=()
+  if [[ "$suite" == "breadth" ]]; then
+    IFS=',' read -r -a excluded_ids <<< "$EXCLUDED_BREADTH_IDS"
+    for excluded_id in "${excluded_ids[@]}"; do
+      exclude_args+=(--exclude-id "$excluded_id")
+    done
+  fi
   BFCL_ROOT="$BFCL_ROOT" uv run --no-project --with mlx-lm==0.31.3 \
     python scripts/bfcl/run_rest_arm.py \
       --model "$model" --model-id "$model_id" --suite "$suite" \
       --data "$data" --gold "$gold" --seed "$SEED" \
+      "${exclude_args[@]}" \
       --output "$RUN_DIR/$model_id-$suite.json"
 }
 

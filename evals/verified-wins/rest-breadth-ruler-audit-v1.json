@@ -1,0 +1,62 @@
+{
+  "schema_version": "posttrainllm.rest-ruler-audit.v1",
+  "source_fixture": "scripts/fixtures/multi_turn_breadth_data.jsonl",
+  "source_count": 52,
+  "frontier_backend": "codex-cli gpt-5.5 medium",
+  "protocol_version": "3",
+  "raw_receipt": "runs/verified-wins/rest-4b-requalification-v1/frontier-breadth-v3-full-audit.json",
+  "raw_receipt_sha256": "5b1f59461fbe6f7e2d7fcab694a79afb6c22edb43ec4f25a6e235fa2c306c904",
+  "raw_score": {
+    "passed": 44,
+    "count": 52,
+    "accuracy": 0.8461538461538461
+  },
+  "excluded": [
+    {
+      "id": "multi_turn_base_66",
+      "classification": "ambiguous-gold",
+      "reason": "The user asks for the brake to be engaged; engaging the parking brake is a defensible safe interpretation, while the gold requires it to remain released."
+    },
+    {
+      "id": "multi_turn_base_92",
+      "classification": "path-gold-inconsistency",
+      "reason": "The declared path ends at find_nearest_tire_shop, whose response supplies the location, but the gold adds set_navigation."
+    },
+    {
+      "id": "multi_turn_base_96",
+      "classification": "overconstrained-end-state",
+      "reason": "The model safely releases the brake pedal after the engine starts; the gold requires leaving it pressed without a user request."
+    },
+    {
+      "id": "multi_turn_base_121",
+      "classification": "redundant-call-gold",
+      "reason": "The withdrawal succeeds with the correct balance, but the gold additionally requires an unnecessary get_account_info call."
+    },
+    {
+      "id": "multi_turn_base_135",
+      "classification": "redundant-call-gold",
+      "reason": "add_to_watchlist already returns and displays the updated watchlist, but the gold requires a duplicate get_watchlist call."
+    },
+    {
+      "id": "multi_turn_base_158",
+      "classification": "ungroundable-identifier",
+      "reason": "The prompt provides only a passport prefix, while the gold treats that prefix as the complete passport number."
+    }
+  ],
+  "retained_frontier_failures": [
+    {
+      "id": "multi_turn_base_73",
+      "classification": "exact-copy-miss",
+      "reason": "The model dropped the user-provided ZIP code from the navigation address at medium reasoning.",
+      "resolution": "Passed the unchanged case and shared prompt at high reasoning; retained in the qualified slice."
+    },
+    {
+      "id": "multi_turn_base_179",
+      "classification": "dependency-order-miss",
+      "reason": "The model emitted placeholder airport IDs before the lookup calls returned.",
+      "resolution": "Passed after the shared no-placeholder rule; retained in the qualified slice."
+    }
+  ],
+  "qualified_count": 46,
+  "decision": "exclude six unsound cases; retain both genuine failures and requalify all 46 cases with the shared prompt and high-reasoning Codex"
+}

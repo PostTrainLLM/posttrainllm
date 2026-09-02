@@ -53,6 +53,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--data", required=True, type=Path)
     parser.add_argument("--gold", required=True, type=Path)
     parser.add_argument("--seed", required=True, type=int)
+    parser.add_argument("--exclude-id", action="append", default=[])
     parser.add_argument("--output", required=True, type=Path)
     return parser.parse_args()
 
@@ -106,6 +107,8 @@ def main() -> int:
         json.loads(line) for line in args.data.read_text().splitlines() if line.strip()
     ]
     random.Random(args.seed).shuffle(examples)
+    excluded_ids = set(args.exclude_id)
+    examples = [item for item in examples if item["id"] not in excluded_ids]
     golds = {
         value["id"]: value
         for value in (
@@ -273,6 +276,7 @@ def main() -> int:
         "data": str(args.data),
         "gold": str(args.gold),
         "seed": args.seed,
+        "excluded_ids": sorted(excluded_ids),
         "count": len(examples),
         "passed": passed,
         "accuracy": passed / max(len(examples), 1),

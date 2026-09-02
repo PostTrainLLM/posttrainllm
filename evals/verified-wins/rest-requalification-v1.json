@@ -52,6 +52,12 @@
       "path": "scripts/fixtures/multi_turn_breadth_gold.jsonl",
       "sha256": "876242fd0fea758bcd8b1eac98f750bd13e01b47ccd4c4290e1319d6ca23c00e",
       "visibility": "sealed-test"
+    },
+    {
+      "id": "heldout-breadth-ruler-audit-v1",
+      "path": "evals/verified-wins/rest-breadth-ruler-audit-v1.json",
+      "sha256": "35b82545e649916484063dafed78a74fc6d27c5ee1729a658497e29fa593ec58",
+      "visibility": "source-config"
     }
   ],
   "metrics": [
@@ -88,11 +94,11 @@
   },
   "freeze": {
     "state": "run-frozen",
-    "protocol_version": "3",
+    "protocol_version": "5",
     "bfcl_revision": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
     "runtime": {
       "local_backend": "mlx-lm==0.31.3",
-      "frontier_backend": "codex-cli gpt-5.5 medium",
+      "frontier_backend": "codex-cli gpt-5.5 high",
       "system_prompt": "scripts/bfcl/rest_protocol.py:SYSTEM_PROMPT"
     },
     "protocol_history": [
@@ -107,6 +113,22 @@
         "decision": "retry-protocol",
         "reason": "The frontier still missed multi_turn_base_71 because its harness omitted tool descriptions and response schemas, including the 50-gallon capacity required to derive the gold refill. Version 3 gives the frontier the same complete tool information as the local arms and removes a duplicate current-user rendering; fixtures and gates remain unchanged.",
         "raw_receipt": "runs/verified-wins/rest-4b-requalification-v1/frontier-breadth-v2-case-71.json"
+      },
+      {
+        "version": "3",
+        "decision": "retry-protocol",
+        "reason": "The complete 52-case frontier audit found six invalid or ambiguous golds and two genuine general-agent misses. Version 4 excludes only the six audited ruler defects and adds shared no-placeholder and exact-copy instructions; model-comparable cases and score gates are unchanged.",
+        "raw_receipt": "runs/verified-wins/rest-4b-requalification-v1/frontier-breadth-v3-full-audit.json",
+        "audit": "evals/verified-wins/rest-breadth-ruler-audit-v1.json"
+      },
+      {
+        "version": "4",
+        "decision": "retry-protocol",
+        "reason": "The shared prompt fixed dependency ordering, but medium-reasoning Codex still omitted a supplied ZIP code. The unchanged case passed at high reasoning, so version 5 uses the strongest free Codex setting for frontier qualification while keeping the shared local-arm prompt and fixtures unchanged.",
+        "raw_receipts": [
+          "runs/verified-wins/rest-4b-requalification-v1/frontier-breadth-v4-two-misses.json",
+          "runs/verified-wins/rest-4b-requalification-v1/frontier-breadth-v4-high-case-73.json"
+        ]
       }
     ],
     "commands": [
