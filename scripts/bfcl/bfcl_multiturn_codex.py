@@ -140,15 +140,14 @@ def codex_gen(prompt):
                 pass
 
 
-def render_prompt(SYS, tools, history, user_msg):
+def render_prompt(SYS, tools, history):
     toollines = "\n".join(
-        f"- {f['name']}: {json.dumps(f.get('parameters', {}).get('properties', {}))}"
-        for f in tools
+        f"- {json.dumps(tool, sort_keys=True)}" for tool in tools
     )
     h = "\n".join(history)
     return (
         f"{SYS}\n\nAvailable tools (name: params):\n{toollines}\n\n"
-        f"Conversation so far:\n{h}\n\nCurrent user request: {user_msg}\n\n"
+        f"Conversation including the current request:\n{h}\n\n"
         "Respond with JSON: the next tool_calls to run now (each {name, arguments}), and "
         "done=false if more calls are still needed this turn, or an empty list with done=true "
         "when the request is fully satisfied."
@@ -164,7 +163,7 @@ def run_example(ex, gold):
         history.append(f"USER: {user_msg}")
         steps = []
         for _ in range(MAX_STEPS):
-            resp = codex_gen(render_prompt(SYS, cat, history, user_msg))
+            resp = codex_gen(render_prompt(SYS, cat, history))
             calls = resp.get("tool_calls") or []
             if not calls:
                 break

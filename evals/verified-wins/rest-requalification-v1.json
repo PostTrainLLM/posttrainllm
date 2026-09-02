@@ -88,7 +88,7 @@
   },
   "freeze": {
     "state": "run-frozen",
-    "protocol_version": "2",
+    "protocol_version": "3",
     "bfcl_revision": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
     "runtime": {
       "local_backend": "mlx-lm==0.31.3",
@@ -101,6 +101,12 @@
         "decision": "retry-protocol",
         "reason": "The frontier missed multi_turn_base_71 by guessing a state-derived refill amount. Version 2 gives every arm the same neutral calculate-don't-guess instruction; fixtures and gates are unchanged.",
         "raw_receipt": "runs/verified-wins/rest-4b-requalification-v1/frontier-breadth-v1-case-71.json"
+      },
+      {
+        "version": "2",
+        "decision": "retry-protocol",
+        "reason": "The frontier still missed multi_turn_base_71 because its harness omitted tool descriptions and response schemas, including the 50-gallon capacity required to derive the gold refill. Version 3 gives the frontier the same complete tool information as the local arms and removes a duplicate current-user rendering; fixtures and gates remain unchanged.",
+        "raw_receipt": "runs/verified-wins/rest-4b-requalification-v1/frontier-breadth-v2-case-71.json"
       }
     ],
     "commands": [
