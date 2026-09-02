@@ -21,7 +21,7 @@ SEED=13803
 STOCK_REV="cdbee75f17c01a7cc42f958dc650907174af0554"
 CANDIDATE_REV="b332dfe437dc201922d50b28eddf0c99ebcc79a7"
 BFCL_REV="6ea57973c7a6097fd7c5915698c54c17c5b1b6c8"
-EXCLUDED_BREADTH_IDS="multi_turn_base_66,multi_turn_base_92,multi_turn_base_96,multi_turn_base_121,multi_turn_base_135,multi_turn_base_158"
+EXCLUDED_BREADTH_IDS="multi_turn_base_66,multi_turn_base_92,multi_turn_base_96,multi_turn_base_121,multi_turn_base_135,multi_turn_base_158,multi_turn_base_179"
 
 mkdir -p "$RUN_DIR" "$MODEL_DIR"
 

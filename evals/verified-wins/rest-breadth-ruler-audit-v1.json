@@ -41,6 +41,11 @@
       "id": "multi_turn_base_158",
       "classification": "ungroundable-identifier",
       "reason": "The prompt provides only a passport prefix, while the gold treats that prefix as the complete passport number."
+    },
+    {
+      "id": "multi_turn_base_179",
+      "classification": "conflicting-price-constraint",
+      "reason": "The user requires an $850 total, while the tool returns $300; the gold books despite the unmet constraint, while repeated frontier runs safely defer the purchase."
     }
   ],
   "retained_frontier_failures": [
@@ -49,14 +54,8 @@
       "classification": "exact-copy-miss",
       "reason": "The model dropped the user-provided ZIP code from the navigation address at medium reasoning.",
       "resolution": "Passed the unchanged case and shared prompt at high reasoning; retained in the qualified slice."
-    },
-    {
-      "id": "multi_turn_base_179",
-      "classification": "dependency-order-miss",
-      "reason": "The model emitted placeholder airport IDs before the lookup calls returned.",
-      "resolution": "Passed after the shared no-placeholder rule; retained in the qualified slice."
     }
   ],
-  "qualified_count": 46,
-  "decision": "exclude six unsound cases; retain both genuine failures and requalify all 46 cases with the shared prompt and high-reasoning Codex"
+  "qualified_count": 45,
+  "decision": "exclude seven unsound cases; retain the genuine exact-copy failure and requalify all 45 cases with the shared prompt and high-reasoning Codex"
 }

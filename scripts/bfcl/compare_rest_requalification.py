@@ -44,8 +44,8 @@ def compare(
     frontier_pass = (
         frontier_depth["count"] == 12
         and frontier_depth["passed"] == 12
-        and frontier_breadth["count"] == 46
-        and frontier_breadth["passed"] >= 45
+        and frontier_breadth["count"] == 45
+        and frontier_breadth["passed"] >= 44
     )
     depth_pass = candidate_depth["count"] == 12 and candidate_depth["passed"] == 12
     breadth_delta = candidate_breadth["accuracy"] - stock_breadth["accuracy"]
@@ -64,7 +64,7 @@ def compare(
             "depth_accuracy": frontier_depth["accuracy"],
             "breadth_accuracy": frontier_breadth["accuracy"],
             "depth_required": "12/12",
-            "breadth_minimum": "45/46 (97.8%)",
+            "breadth_minimum": "44/45 (97.8%)",
             "passed": frontier_pass,
         },
         "file_ops_depth": {

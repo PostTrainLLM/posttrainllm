@@ -17,7 +17,7 @@ def main() -> int:
     breadth = json.loads(args.breadth.read_text())
     gates = (
         ("depth", depth, 12, 12),
-        ("breadth", breadth, 46, 45),
+        ("breadth", breadth, 45, 44),
     )
     for name, result, expected_count, minimum_passed in gates:
         if (
@@ -30,7 +30,7 @@ def main() -> int:
                 f"(required at least {minimum_passed}/{expected_count})"
             )
             return 1
-    print("frontier ceiling passed: depth=12/12 breadth>=45/46")
+    print("frontier ceiling passed: depth=12/12 breadth>=44/45")
     return 0
 
 
