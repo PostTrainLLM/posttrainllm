@@ -58,6 +58,11 @@ full() {
   "$NEEDLE_PYTHON" scripts/needle2_successor_train.py full \
     --source-root "$NEEDLE_ROOT" --checkpoint "$CHECKPOINT" --run-dir "$RUN_DIR" \
     --tiny-gate "$RUN_DIR/tiny-gate.json"
+  dev
+}
+
+dev() {
+  [[ -f "$RUN_DIR/full-training.json" ]]
   local model_args=()
   local seed
   for seed in 1380401 1380402 1380403; do
@@ -105,6 +110,7 @@ case "$STAGE" in
   tiny) tiny ;;
   tiny-eval) tiny_eval ;;
   full) full ;;
+  dev) dev ;;
   sealed) sealed ;;
   *) echo "unknown stage: $STAGE" >&2; exit 2 ;;
 esac

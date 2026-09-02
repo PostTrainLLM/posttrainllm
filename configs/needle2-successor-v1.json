@@ -59,6 +59,11 @@
     "validation_split": 0,
     "maximum_steps_per_run": 98
   },
+  "evaluation": {
+    "batch_size": 32,
+    "max_new_tokens": 64,
+    "note": "Batch size is a throughput parameter only; greedy decoding, fixture order, model weights, and scoring are unchanged. Version 7 batch size 8 was stopped before any development result after more than 20 minutes on the first adapter."
+  },
   "development_gate": {
     "fixture": "evals/needle2/successor-v1/public-dev-v2.jsonl",
     "selection": "highest median exact selection among arms with zero destructive bypasses and zero out-of-scope false actions in every seed",

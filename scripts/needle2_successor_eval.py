@@ -172,9 +172,17 @@ def main() -> int:
         "--model", action="append", required=True, help="id=adapter.pkl or id=base"
     )
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--batch-size", type=int, default=8)
-    parser.add_argument("--max-new-tokens", type=int, default=64)
+    parser.add_argument("--batch-size", type=int)
+    parser.add_argument("--max-new-tokens", type=int)
     args = parser.parse_args()
+
+    eval_config = json.loads(
+        (
+            Path(__file__).resolve().parents[1] / "configs/needle2-successor-v1.json"
+        ).read_text()
+    )["evaluation"]
+    batch_size = args.batch_size or int(eval_config["batch_size"])
+    max_new_tokens = args.max_new_tokens or int(eval_config["max_new_tokens"])
 
     sys.path.insert(0, str(args.source_root))
     import jax
@@ -197,8 +205,8 @@ def main() -> int:
         )
         generated = []
         started = time.perf_counter()
-        for start in range(0, len(rows), args.batch_size):
-            batch = rows[start : start + args.batch_size]
+        for start in range(0, len(rows), batch_size):
+            batch = rows[start : start + batch_size]
             prompts = [build_prompt(str(row["query"]), row["tools"]) for row in batch]
             generated.extend(
                 batch_generate(
@@ -206,7 +214,7 @@ def main() -> int:
                     params,
                     tokenizer,
                     prompts,
-                    max_new_tokens=args.max_new_tokens,
+                    max_new_tokens=max_new_tokens,
                     return_signals=True,
                 )
             )
