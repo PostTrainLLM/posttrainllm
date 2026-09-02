@@ -12,11 +12,7 @@ MANIFESTS=(
 )
 
 python3 "$VALIDATOR" "${MANIFESTS[@]}" --stage design >/dev/null
-
-if python3 "$VALIDATOR" "${MANIFESTS[@]}" --stage run >/dev/null 2>&1; then
-  echo "FAIL: design-only manifests must not pass the run freeze" >&2
-  exit 1
-fi
+python3 "$VALIDATOR" "${MANIFESTS[@]}" --stage run >/dev/null
 
 BROKEN="$(mktemp)"
 trap 'rm -f "$BROKEN"' EXIT

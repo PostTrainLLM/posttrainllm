@@ -1,0 +1,69 @@
+diff --git a/needle/cli.py b/needle/cli.py
+index a606c19..80bf60c 100644
+--- a/needle/cli.py
++++ b/needle/cli.py
+@@ -140,6 +140,8 @@ def main():
+     p.add_argument("--max-len", type=int, default=1024, help="Max training sequence length")
+     p.add_argument("--val-split", type=float, default=0.1,
+                    help="Fraction of examples held out for validation (0 disables)")
++    p.add_argument("--seed", type=int, default=0,
++                   help="Independent LoRA initialization, split, and shuffle seed")
+     p.add_argument("--generate", type=int, default=0,
+                    help="Generate N extra examples via OpenRouter before training (0 = off)")
+     p.add_argument("--model", type=str, default="deepseek/deepseek-v4-flash",
+diff --git a/needle/model/finetune.py b/needle/model/finetune.py
+index fe20877..2f73d8c 100644
+--- a/needle/model/finetune.py
++++ b/needle/model/finetune.py
+@@ -309,6 +309,8 @@ def finetune_local(args, progress=None):
+         data_path = augment_jsonl(data_path, args.generate, model=getattr(args, "model", None),
+                                   workers=getattr(args, "workers", 8))
+ 
++    seed = int(getattr(args, "seed", 0))
++    rng = np.random.default_rng(seed)
+     params, config = load_checkpoint(base_path)
+     config.dtype = "float32"
+     params = jax.tree.map(lambda a: np.asarray(a).astype(np.float32), params)
+@@ -329,12 +331,12 @@ def finetune_local(args, progress=None):
+     model = SimpleAttentionNetwork(config)
+     paths = lora_target_paths(params)
+     scale = args.lora_alpha / args.lora_rank
+-    lora = init_lora(params, paths, args.lora_rank, jax.random.PRNGKey(0))
++    lora = init_lora(params, paths, args.lora_rank, jax.random.PRNGKey(seed))
+     emit(f"  {'lora':<9} rank {args.lora_rank}  alpha {args.lora_alpha:g}  {len(paths)} weight groups")
+ 
+     n_val = min(int(len(seqs) * getattr(args, "val_split", 0.1)), len(seqs) - 1)
+     if n_val > 0:
+-        order = np.random.default_rng(0).permutation(len(seqs))
++        order = rng.permutation(len(seqs))
+         seqs, masks = seqs[order], masks[order]
+         val_seqs, val_masks = seqs[:n_val], masks[:n_val]
+         seqs, masks = seqs[n_val:], masks[n_val:]
+@@ -367,14 +369,16 @@ def finetune_local(args, progress=None):
+ 
+     every = max(1, total_steps // 50)
+     step_i = 0
++    loss_history = []
+     for epoch in range(args.epochs):
+-        order = np.random.permutation(count)
++        order = rng.permutation(count)
+         last = 0.0
+         for start in range(0, count, batch):
+             idx = order[start:start + batch]
+             lora, opt_state, loss = train_step(lora, opt_state,
+                                                jnp.asarray(seqs[idx]), jnp.asarray(masks[idx]))
+             last = float(loss)
++            loss_history.append(last)
+             step_i += 1
+             if step_i % every == 0:
+                 emit(f"  {'step':<9} {step_i}/{total_steps}  loss {last:.4f}")
+@@ -395,6 +399,9 @@ def finetune_local(args, progress=None):
+             "scale": float(scale),
+             "base": base_path,
+             "rank": args.lora_rank,
++            "seed": seed,
++            "final_loss": loss_history[-1],
++            "loss_history": loss_history,
+         }, handle)
+     print(f"  {'adapter':<9} {out}")
+     print(f"  {'next':<9} needle build {base_path} --lora {out}")

@@ -2,7 +2,7 @@
   "schema_version": "posttrainllm.verified-win.v1",
   "manifest_id": "needle-successor-factorial-v1",
   "lane": "needle-successor",
-  "status": "design-frozen",
+  "status": "run-frozen",
   "hypothesis": "Distractor-aware data and explicit refusal/confirmation training have distinguishable main and interaction effects on exact tool selection while eliminating unsafe calls, and at least one arm dominates the 45M incumbent's risk/coverage curve.",
   "comparison": {
     "paired": true,
@@ -21,46 +21,100 @@
     {
       "id": "plain-standard",
       "role": "control",
-      "revision": null,
+      "revision": "ee221ce+e34ae0dd+7836dfba",
       "factors": { "distractor_data": false, "safety_training": false }
     },
     {
       "id": "plain-safety",
       "role": "main-effect-safety",
-      "revision": null,
+      "revision": "ee221ce+e34ae0dd+98e939c3",
       "factors": { "distractor_data": false, "safety_training": true }
     },
     {
       "id": "distractor-standard",
       "role": "main-effect-distractor",
-      "revision": null,
+      "revision": "ee221ce+e34ae0dd+890100d3",
       "factors": { "distractor_data": true, "safety_training": false }
     },
     {
       "id": "distractor-safety",
       "role": "interaction",
-      "revision": null,
+      "revision": "ee221ce+e34ae0dd+a3776fa7",
       "factors": { "distractor_data": true, "safety_training": true }
     }
   ],
   "fixtures": [
     {
-      "id": "factorial-train-v1",
-      "path": null,
-      "sha256": null,
+      "id": "plain-standard-train-v1",
+      "path": "evals/needle2/successor-v1/train-plain-standard.jsonl",
+      "sha256": "7836dfbab48867d339e7b2b2fcb2ef657aa5382b14aed0fbd6d94c542e1db1d2",
+      "visibility": "generated-train"
+    },
+    {
+      "id": "plain-safety-train-v1",
+      "path": "evals/needle2/successor-v1/train-plain-safety.jsonl",
+      "sha256": "98e939c3677f12242354847ea1613b1c75436a6dc3b7b59ff4e5d8fc3036c03c",
+      "visibility": "generated-train"
+    },
+    {
+      "id": "distractor-standard-train-v1",
+      "path": "evals/needle2/successor-v1/train-distractor-standard.jsonl",
+      "sha256": "890100d3cce76bdd97c6d5c4fc31a4098b12f7ff0a774c722f6afd7bff0ea487",
+      "visibility": "generated-train"
+    },
+    {
+      "id": "distractor-safety-train-v1",
+      "path": "evals/needle2/successor-v1/train-distractor-safety.jsonl",
+      "sha256": "a3776fa7526b6ce145f84858f4f2184a9b9211b54b9e7374765f6e092cb1a5b0",
+      "visibility": "generated-train"
+    },
+    {
+      "id": "plain-standard-tiny-v1",
+      "path": "evals/needle2/successor-v1/tiny-plain-standard.jsonl",
+      "sha256": "16bd00a5e426042cd3edb76eaaac9e0dcb69008434c717a9aebbd7c6ae49542d",
+      "visibility": "generated-train"
+    },
+    {
+      "id": "plain-safety-tiny-v1",
+      "path": "evals/needle2/successor-v1/tiny-plain-safety.jsonl",
+      "sha256": "c7b7b50a8bca0922fd50a41a1746a6b691c2ee7ddf8a80d4639ab3181fbe317b",
+      "visibility": "generated-train"
+    },
+    {
+      "id": "distractor-standard-tiny-v1",
+      "path": "evals/needle2/successor-v1/tiny-distractor-standard.jsonl",
+      "sha256": "c8cb1b252dc98e7172bff0c1ef9e9c84aef0d9554bb539928a50fbbd26beb258",
+      "visibility": "generated-train"
+    },
+    {
+      "id": "distractor-safety-tiny-v1",
+      "path": "evals/needle2/successor-v1/tiny-distractor-safety.jsonl",
+      "sha256": "8b3343fd394c172f2bc384aca6b13037df48b9ee730dfa6293fee54cf9c26d9c",
       "visibility": "generated-train"
     },
     {
       "id": "public-dev-v2",
-      "path": null,
-      "sha256": null,
+      "path": "evals/needle2/successor-v1/public-dev-v2.jsonl",
+      "sha256": "0faa9a95b72e506abdf4267e44e28b25f47e69bd5185568b11d2b85b42ea2e6c",
       "visibility": "public-dev"
     },
     {
       "id": "sealed-v2",
-      "path": null,
-      "sha256": null,
+      "path": "evals/needle2/successor-v1/sealed-v2.jsonl",
+      "sha256": "df0f5b8330bdb97858be04c89b4672c6c5bf4c771e79be006aef0ff6771b9125",
       "visibility": "sealed-test"
+    },
+    {
+      "id": "factorial-recipe-v1",
+      "path": "configs/needle2-successor-v1.json",
+      "sha256": "e34ae0dd54be4d05e4b6b4f3187e60b1cb165a186f80c1ad6bb50098317ba898",
+      "visibility": "source-config"
+    },
+    {
+      "id": "independent-seed-patch-v1",
+      "path": "evals/needle2/needle-seed-v1.patch",
+      "sha256": "0d21bd508e562c721396d8cad68f898662c8b8d49f76ecc17ce3bcfbfed1ffa3",
+      "visibility": "source-config"
     },
     {
       "id": "incumbent-tools",
@@ -110,16 +164,15 @@
     "stop_rule": "Stop an arm on tiny-overfit failure or unsafe dev actions; if no arm passes dev, reject 45M and advance to the 1.7B class without opening sealed V2."
   },
   "freeze": {
-    "state": "design-frozen",
+    "state": "run-frozen",
     "protocol_version": "1",
     "commands": [
-      "TBD: data generation, tiny-overfit, train, dev-select, sealed-eval, and quantized-parity commands added by Issue #138 task 6"
+      "NEEDLE_ROOT=<patched-pinned-source> NEEDLE_MODEL_DIR=<pinned-model-dir> NEEDLE_PYTHON=<frozen-jax-python> bash evals/needle-successor.sh preflight",
+      "NEEDLE_ROOT=<patched-pinned-source> NEEDLE_MODEL_DIR=<pinned-model-dir> NEEDLE_PYTHON=<frozen-jax-python> bash evals/needle-successor.sh tiny",
+      "NEEDLE_ROOT=<patched-pinned-source> NEEDLE_MODEL_DIR=<pinned-model-dir> NEEDLE_PYTHON=<frozen-jax-python> bash evals/needle-successor.sh full",
+      "NEEDLE_ROOT=<patched-pinned-source> NEEDLE_MODEL_DIR=<pinned-model-dir> NEEDLE_PYTHON=<frozen-jax-python> bash evals/needle-successor.sh sealed"
     ],
-    "open_requirements": [
-      "generate and hash factorial train/dev data",
-      "generate sealed V2 with access guard",
-      "freeze four training recipes and three seeds"
-    ]
+    "open_requirements": []
   },
   "raw_receipt_dir": "runs/verified-wins/needle-successor-factorial-v1",
   "allowed_decisions": [
