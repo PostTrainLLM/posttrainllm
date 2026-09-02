@@ -20,12 +20,12 @@
     {
       "id": "wasm",
       "role": "incumbent",
-      "revision": "4641e910a95cbd554a32d76939a8ba7bd9ac5fef"
+      "revision": "0d6176fe416f386817f7a07c619755ff3bc03514"
     },
     {
       "id": "webgpu",
       "role": "candidate",
-      "revision": "4641e910a95cbd554a32d76939a8ba7bd9ac5fef"
+      "revision": "0d6176fe416f386817f7a07c619755ff3bc03514"
     }
   ],
   "fixtures": [
@@ -40,6 +40,12 @@
       "path": "browser/public/shakespeare.txt",
       "sha256": "86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed",
       "visibility": "public-dev"
+    },
+    {
+      "id": "browser-default-config",
+      "path": "browser/src/types.ts",
+      "sha256": "4b54e87a6c0768ecc7df57b46a531202870c25988b67d0df14d7c7a03f29ac8c",
+      "visibility": "source-config"
     }
   ],
   "metrics": [
@@ -75,7 +81,7 @@
     "state": "run-frozen",
     "protocol_version": "1",
     "commands": [
-      "pnpm --dir browser run webgpu:paired -- --base-url http://127.0.0.1:4173 --preset large --steps 20 --seed 42 --source-revision 4641e910a95cbd554a32d76939a8ba7bd9ac5fef --output ../runs/verified-wins/webgpu-paired-hardware-v1/receipt.json"
+      "pnpm --dir browser run webgpu:paired -- --base-url http://127.0.0.1:4173 --preset large --steps 20 --seed 42 --source-revision 0d6176fe416f386817f7a07c619755ff3bc03514 --output ../runs/verified-wins/webgpu-paired-hardware-v1/receipt.json"
     ],
     "open_requirements": []
   },
