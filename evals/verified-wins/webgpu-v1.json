@@ -20,12 +20,12 @@
     {
       "id": "wasm",
       "role": "incumbent",
-      "revision": "0d6176fe416f386817f7a07c619755ff3bc03514"
+      "revision": "4d2208208051982bcbee6fa222dafbe480856698"
     },
     {
       "id": "webgpu",
       "role": "candidate",
-      "revision": "0d6176fe416f386817f7a07c619755ff3bc03514"
+      "revision": "4d2208208051982bcbee6fa222dafbe480856698"
     }
   ],
   "fixtures": [
@@ -81,7 +81,7 @@
     "state": "run-frozen",
     "protocol_version": "1",
     "commands": [
-      "pnpm --dir browser run webgpu:paired -- --base-url http://127.0.0.1:4173 --preset large --steps 20 --seed 42 --source-revision 0d6176fe416f386817f7a07c619755ff3bc03514 --output ../runs/verified-wins/webgpu-paired-hardware-v1/receipt.json"
+      "pnpm --dir browser run webgpu:paired -- --base-url http://127.0.0.1:4173 --preset large --steps 20 --seed 42 --source-revision 4d2208208051982bcbee6fa222dafbe480856698 --output ../runs/verified-wins/webgpu-paired-hardware-v1/receipt.json"
     ],
     "open_requirements": []
   },
