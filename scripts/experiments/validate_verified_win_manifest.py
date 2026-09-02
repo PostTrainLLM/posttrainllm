@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -219,6 +220,19 @@ def validate_common(data: dict[str, Any], stage: str, errors: list[str]) -> None
                 f"run stage requires fixtures[{idx}].sha256",
                 errors,
             )
+            fixture_path = Path(str(fixture.get("path", "")))
+            require(
+                fixture_path.is_file(),
+                f"run stage fixture does not exist: {fixture_path}",
+                errors,
+            )
+            if fixture_path.is_file():
+                actual_digest = hashlib.sha256(fixture_path.read_bytes()).hexdigest()
+                require(
+                    actual_digest == fixture.get("sha256"),
+                    f"run stage fixture hash mismatch: {fixture_path}",
+                    errors,
+                )
         for idx, command in enumerate(freeze.get("commands") or []):
             require(
                 nonempty(command) and not str(command).startswith("TBD"),

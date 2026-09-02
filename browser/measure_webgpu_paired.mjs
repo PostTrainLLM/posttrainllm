@@ -35,6 +35,11 @@ function parseArgs(argv) {
   }
   if (!Number.isInteger(options.seed))
     throw new Error("--seed must be an integer");
+  if (options.seed !== 42) {
+    throw new Error(
+      "--seed must be 42 because the Playground uses pinned DEFAULT_CONFIG.seed",
+    );
+  }
   if (
     !Number.isInteger(options.steps) ||
     options.steps < 1 ||
@@ -141,7 +146,8 @@ async function runArm(context, options, backend, sequenceIndex) {
           element.dispatchEvent(new Event("change", { bubbles: true }));
         };
         setValue("maxSteps", selectedSteps);
-        setValue("seed", selectedSeed);
+        const seedControl = document.getElementById("seed");
+        if (seedControl) setValue("seed", selectedSeed);
         setValue("backend", selectedBackend);
         document.getElementById("backend").dataset.userPicked = "1";
         return {
@@ -151,7 +157,10 @@ async function runArm(context, options, backend, sequenceIndex) {
           ctx: Number(document.getElementById("ctx").value),
           batchSize: Number(document.getElementById("batchSize").value),
           steps: Number(document.getElementById("maxSteps").value),
-          seed: Number(document.getElementById("seed").value),
+          seed: selectedSeed,
+          seedSource: seedControl
+            ? "rendered-control"
+            : "pinned-default-config",
           backend: document.getElementById("backend").value,
           corpusCharacters: document.getElementById("corpus").value.length,
         };
@@ -253,6 +262,9 @@ async function main() {
       seed: options.seed,
       sequence,
       sizing_sha256: await sha256(resolve(repoRoot, "browser/src/sizing.ts")),
+      default_config_sha256: await sha256(
+        resolve(repoRoot, "browser/src/types.ts"),
+      ),
       corpus_sha256: await sha256(
         resolve(repoRoot, "browser/public/shakespeare.txt"),
       ),
