@@ -86,7 +86,7 @@ must not turn its request count into a user claim.
 |---|---|---|---|---|
 | `offhours-context-interference` | Agent-behaviour benchmark | `report-only` | Separates unresolved personal context from matched interruptions and raw volume. Devin showed no mental-toll penalty; the first repeatable failure occurred in the neutral arm at 8,000 submitted words/day. | Closed report; any local-model comparison is a fresh experiment. |
 | `needle2-tool-selection` | Tiny-model evaluation | `report-only` | Records the favorable catalog-selection ablation: overall exact rose 34.0% to 38.3%, Pace regressed, file ops stayed at zero, and unsafe false actions remained. | Closed and rejected for Pace; preserve latency/RAM as systems evidence. |
-| `parakeet-wgsl-browser-asr` | Browser ASR runtime proof | `report-only` | Shows 132–134x warm real-time browser inference on 17 minutes of public audio with repeatable transcripts and explicit unmeasured WER. | Closed as a runtime proof; accuracy comparison requires a fresh experiment. |
+| `parakeet-wgsl-browser-asr` | Paired browser/native ASR evaluation | `report-only` | Browser Parakeet v3 scored 0/82 word errors versus native WhisperKit's 7/82 and decoded 3.51x faster, but its 33.84x median short-clip RTFx missed the frozen 50x bar. | Closed as a quality and native-latency win with a formal speed-threshold miss. |
 | `pace-intent-router-v8` | From-scratch intent classifier | `release-ready-weights` | Shows why sealed distribution gates matter: 95.5% source-matched synthetic accuracy fell to 57.1% on sealed V1, despite 3.8ms mean latency. | Keep as the latency floor and generator-overfit case; train only on public failure themes and judge a successor on a new sealed V2. |
 | `qwen3-4b-file-ops-distilled` | Specialist package | `release-ready-weights` | Shows a real posttrainllm-built routed specialist: 58% -> 100% on file-ops hard gate, with breadth regression disclosed. | Keep routed-only warnings prominent; add a loader/pull smoke when wiring consumers. |
 | `qwen3-4b-rest-fused` | Research specialist package | `release-ready-weights` | Teacher-free ReST preserved 100% file-ops depth and recovered breadth to 65% vs stock 59.6%. | Keep research-only; run a fresh product-specific gate before any runtime wiring. |
@@ -125,14 +125,16 @@ Committed evidence:
 
 ### `parakeet-wgsl-browser-asr`
 
-Status: `report-only`; experiment decision: `validated-runtime-only`
+Status: `report-only`; experiment decision: `quality-win-speed-gate-reject`
 
-The pinned browser package transcribed a 1,030.49-second public MP3 in 7.225
-seconds on the first measured inference and 7.68–7.80 seconds warm. Three warm
-transcripts were byte-identical and the verified 29-file cache totals
-405,252,493 bytes. No shared reference transcript or WER scorer was used, and
-visible transcript errors remain, so this proves browser execution,
-repeatability, and real-time factor—not ASR accuracy or product selection.
+On eight fixed LibriSpeech `test-clean` clips, browser Parakeet v3 made zero
+errors across 82 reference words while native WhisperKit made seven. Both hit
+all four proper nouns and produced no repetition errors. Browser decode totaled
+914.7ms versus native's 3,211.8ms, a 3.51x paired speed win, and made no
+external warm requests on the real Apple/Metal adapter. Its 33.84x median
+short-clip real-time factor missed the preregistered 50x target, so the formal
+decision remains reject. The earlier 132–134x long-form smoke remains useful
+systems context but does not replace the frozen short-clip gate.
 
 Public page: `/artifacts/parakeet-wgsl-browser-asr`
 
@@ -140,6 +142,8 @@ Committed evidence:
 
 - `docs/techniques/parakeet-wgsl-browser-smoke.md`
 - `evals/parakeet-wgsl/bounded-browser-smoke-v1.json`
+- `evals/verified-wins/parakeet-asr-v1.json`
+- `evals/verified-wins/parakeet-asr-result-v1.json`
 
 ### `offhours-context-interference`
 

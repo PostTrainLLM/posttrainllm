@@ -502,9 +502,9 @@
       "status": "closed-experiment",
       "target": "Test whether long-form ASR can run locally in Chrome through WebGPU.",
       "failure_mode": "Browser audio ingestion may be too slow, too large, nondeterministic, or network-dependent.",
-      "data": "Pinned 1,030.486875-second public Kennedy MP3 and verified model/package revisions.",
-      "method_or_policy": "Measure cold and warm inference, cache contents, network activity, runtime memory components, and transcript repeatability.",
-      "primary_eval": "Real-time factor and repeatability; WER remains explicitly unmeasured.",
+      "data": "Eight pinned LibriSpeech test-clean clips: 34.365 seconds, 82 normalized words, eight speakers/chapters, and exact audio hashes.",
+      "method_or_policy": "Run the official pinned Parakeet v3 engine on real Apple WebGPU and WhisperKit large-v3 turbo through Core ML on the identical seeded clip order, then score both with one deterministic ruler.",
+      "primary_eval": "Paired WER within 2 points plus median browser RTFx >=50, no repetition regression, exact proper-noun reporting, and zero warm external requests.",
       "regression_slices": [
         "cold download",
         "warm runtime",
@@ -514,16 +514,18 @@
         "domain terms",
         "memory"
       ],
-      "resource_budget": "Completed browser smoke; accuracy comparison is deliberately a fresh future experiment.",
-      "stop_rule": "Do not select the ASR layer without a shared reference-transcribed accuracy gate.",
-      "decision_rule": "Validated technical proof, not selected production ASR.",
+      "resource_budget": "34.365 seconds of audio, 652.7 MiB browser download, and one bounded browser/native run.",
+      "stop_rule": "Stop on software GPU fallback, model/fixture drift, warm external requests, or any resource cap.",
+      "decision_rule": "Reject under the frozen conjunction because median short-clip RTFx was 33.84x; preserve the 0.0% WER and 3.51x native-latency wins.",
       "evidence": [
         "docs/techniques/parakeet-wgsl-browser-smoke.md",
-        "evals/parakeet-wgsl/bounded-browser-smoke-v1.json"
+        "evals/parakeet-wgsl/bounded-browser-smoke-v1.json",
+        "evals/verified-wins/parakeet-asr-v1.json",
+        "evals/verified-wins/parakeet-asr-result-v1.json"
       ],
       "learning_path": "browser-and-mac-runtime",
-      "exercise": "Separate download, initialization, inference, GPU component bytes, and accuracy claims in the receipt.",
-      "mastery_gate": "Explain exactly what 142.6x real-time proves and what it does not."
+      "exercise": "Re-score the two prediction files, identify which WhisperKit errors come from numeric normalization, and compare aggregate with median per-clip RTFx.",
+      "mastery_gate": "Explain why 0.0% WER and a 3.51x paired latency win can coexist with a correct reject decision under the frozen 50x gate."
     }
   ]
 }

@@ -1,0 +1,76 @@
+{
+  "schema_version": "posttrainllm.parakeet-native-result.v1",
+  "manifest": "evals/verified-wins/parakeet-asr-v1.json",
+  "manifest_id": "parakeet-browser-native-paired-v1",
+  "run_date": "2026-09-02",
+  "harness_revision": "157a2aa8fb0264b1411e133ec754d81e4b138554",
+  "fixture": {
+    "id": "librispeech-clean-spread-v1",
+    "items": 8,
+    "reference_words": 82,
+    "audio_seconds": 34.365,
+    "sha256": "c35a74fb9554710e1e8c3a7c343db07de31d48edcc54c3e8b07e26f892ea6924"
+  },
+  "environment": {
+    "browser": "Chrome 151.0.7922.34",
+    "adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "fallback": false,
+      "software": false,
+      "shader_f16": true,
+      "subgroups": true,
+      "subgroup_matrix": true
+    },
+    "native_runtime": "WhisperKit CLI v1.1.0",
+    "native_compute_units": "cpuAndNeuralEngine"
+  },
+  "browser_candidate": {
+    "model": "Parakeet TDT 0.6B v3",
+    "source_revision": "ab738c92b8a6af0dcdfe51dddd062427a5ec7689",
+    "weights_revision": "6c6bcda07b23fd91778062b435b1a5f2f6d07504",
+    "vocab_revision": "f88260fa0777fe0868dda6df85d1a98f012a4a7a",
+    "word_errors": 0,
+    "wer": 0.0,
+    "proper_noun_accuracy": 1.0,
+    "repetition_events": 0,
+    "decode_ms": 914.7000000476837,
+    "aggregate_realtime_factor": 37.56969498000278,
+    "median_realtime_factor": 33.84331128483366,
+    "model_download_bytes": 684385250,
+    "external_warm_requests": 0
+  },
+  "native_incumbent": {
+    "model": "OpenAI Whisper large-v3 turbo for WhisperKit Core ML",
+    "model_revision": "97a5bf9bbc74c7d9c12c755d04dea59e672e3808",
+    "word_errors": 7,
+    "wer": 0.08536585365853659,
+    "proper_noun_accuracy": 1.0,
+    "repetition_events": 0,
+    "decode_ms": 3211.8133306503296,
+    "aggregate_realtime_factor": 10.699563287833344,
+    "median_realtime_factor": 9.279238752226405,
+    "model_load_seconds": 73.7309319972992
+  },
+  "paired": {
+    "wer_delta_points_browser_minus_native": -8.536585365853659,
+    "decode_speedup_browser_over_native": 3.511329758918658,
+    "proper_noun_accuracy_delta": 0.0
+  },
+  "gates": {
+    "wer_within_2_points": true,
+    "median_warm_realtime_factor_at_least_50": false,
+    "no_repetition_regression": true,
+    "zero_external_warm_requests": true
+  },
+  "raw_receipts": {
+    "browser_predictions_sha256": "21d54d335db97c824788aad7c802356fc14fb182defc41845eafe6f39a6fd335",
+    "browser_score_sha256": "7cab20496bbe8e2833420ec42a0fd74c96f9907e153bb94fb8e41f353025c19f",
+    "native_predictions_sha256": "a9e7572144fbae296758582daa9fd8a59dda82e27268674b36ff87fa988d3cee",
+    "native_score_sha256": "f42421945122b4a4bbe37012c1df4a443d75695d7d771cf4244bf8529b23c3d1",
+    "comparison_sha256": "9473c853f0f3b2abbe45444b5dc912272cd9d31d1bdbbbdbcf794c67ad9ca906"
+  },
+  "decision": "reject",
+  "classification": "worked-with-caveat",
+  "scope": "Parakeet won quality and paired latency on eight short LibriSpeech test-clean clips, but the preregistered 50x median short-clip realtime gate failed at 33.84x. Preserve the quality and 3.51x native-speed results; do not relabel the frozen decision."
+}

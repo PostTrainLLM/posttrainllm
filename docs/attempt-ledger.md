@@ -757,13 +757,13 @@ Primary SQL source docs:
 - Next action: Reject this integration path; require a materially different training hypothesis and a new frozen gate for any future Needle-derived work.
 - Confidence: `exact`.
 
-### Parakeet WGSL browser-ASR smoke (2026-09-01)
+### Parakeet WGSL browser-ASR paired validation (2026-09-02)
 
-- Evidence: 17m 10s of audio transcribed in 7.225s after cold load and 7.68-7.80s warm (132-143x real-time); warm transcript was byte-stable.
+- Evidence: On the same eight LibriSpeech clips, browser Parakeet v3 scored 0/82 word errors versus native WhisperKit's 7/82, matched all four proper nouns, had zero repetition errors, and decoded 3.51x faster; its 33.84x median short-clip real-time factor missed the frozen 50x bar.
 - Status: `worked-with-caveat`.
-- Failure reason: Runtime speed and repeatability passed, but no reference transcript or WER scorer established accuracy and the optional first download is 386.5 MiB.
-- Lesson: Browser WebGPU ASR is technically viable on Apple Silicon, but speed cannot substitute for a controlled accuracy and UX gate.
-- Next action: Preserve as a validated proof; compare against WhisperKit only as a fresh owner-led experiment after the learning phase.
+- Failure reason: Quality, paired native latency, repetition, and offline-warm gates passed, but fixed dispatch overhead on 2-7 second clips held the preregistered median throughput below 50x; the optional first download is 652.7 MiB.
+- Lesson: Browser WebGPU ASR can beat a native large-model incumbent on both bounded WER and latency while still failing an absolute throughput target; short-clip fixed cost and long-form throughput are different measurements.
+- Next action: Close this frozen gate without relabeling it; batching, long-form amortization, Safari, or a larger WER set are fresh experiments.
 - Confidence: `exact`.
 
 ### OffHours Devin stress validation (2026-08-21)

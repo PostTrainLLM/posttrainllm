@@ -466,8 +466,8 @@
           "title": "Parakeet browser ASR receipt",
           "kind": "browser inference artifact",
           "readiness": "guided-replay",
-          "workload": "public smoke receipt; accuracy remains unqualified",
-          "summary": "A real WebGPU speech-recognition load and inference receipt that proves browser execution while keeping accuracy claims explicitly open.",
+          "workload": "eight reference-scored LibriSpeech clips against native WhisperKit",
+          "summary": "A paired browser/native ASR lab: Parakeet wins bounded WER and latency while a frozen 50x short-clip throughput gate catches fixed dispatch cost.",
           "build": {
             "label": "Trace model download, cache, WebGPU load, audio preprocessing, and decoded transcript.",
             "href": "docs/techniques/parakeet-wgsl-browser-smoke.md"
@@ -481,7 +481,7 @@
             "href": "docs/browser_notes.md"
           },
           "evaluate": {
-            "label": "Separate successful execution from qualified transcription accuracy and repeatability.",
+            "label": "Recompute paired WER, proper nouns, repetitions, per-clip RTFx, and the frozen decision.",
             "href": "/artifacts/parakeet-wgsl-browser-asr"
           },
           "package": {

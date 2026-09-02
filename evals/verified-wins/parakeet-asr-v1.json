@@ -2,7 +2,7 @@
   "schema_version": "posttrainllm.verified-win.v1",
   "manifest_id": "parakeet-browser-native-paired-v1",
   "lane": "parakeet-asr",
-  "status": "run-frozen",
+  "status": "completed",
   "hypothesis": "Parakeet browser ASR stays within 2 WER points of the native incumbent on the same reference-scored audio while remaining at least 50x realtime and not increasing repetition errors.",
   "comparison": {
     "paired": true,
@@ -77,13 +77,23 @@
     "stop_rule": "Stop on unsupported hardware, external warm request, non-deterministic fixture/reference identity, or any resource cap."
   },
   "freeze": {
-    "state": "run-frozen",
+    "state": "completed",
     "protocol_version": "1",
     "commands": [
       "python3 scripts/asr/fetch_hf_audio_fixture.py evals/parakeet-wgsl/reference-fixture-v1.json --out runs/verified-wins/parakeet-browser-native-paired-v1/audio --receipt runs/verified-wins/parakeet-browser-native-paired-v1/fetch-receipt.json",
       "FLUIDAUDIO_SOURCE=/private/tmp/posttrainllm-fluidaudio-v3.G5yboV/source WHISPERKIT_MODEL_PATH=/Users/sarthak/Documents/huggingface/models/argmaxinc/whisperkit-coreml/openai_whisper-large-v3-v20240930_turbo bash evals/parakeet-browser-native-paired.sh"
     ],
     "open_requirements": []
+  },
+  "outcome": {
+    "decision": "reject",
+    "classification": "worked-with-caveat",
+    "result": "evals/verified-wins/parakeet-asr-result-v1.json",
+    "browser_wer": 0.0,
+    "native_wer": 0.08536585365853659,
+    "browser_over_native_decode_speedup": 3.511329758918658,
+    "browser_median_realtime_factor": 33.84331128483366,
+    "failed_gate": "median warm realtime factor >= 50"
   },
   "raw_receipt_dir": "runs/verified-wins/parakeet-browser-native-paired-v1",
   "allowed_decisions": [

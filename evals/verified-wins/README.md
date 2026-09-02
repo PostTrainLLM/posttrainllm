@@ -20,3 +20,12 @@ pass is not permission or evidence that a run happened.
 Raw outputs belong under each manifest's `raw_receipt_dir`. A result can use
 only one of the manifest's four decisions: `promote`, `reject`,
 `retry-protocol`, or `advance-model-class`.
+
+## Current execution state
+
+| Lane | State | Decision | Tracked result |
+|---|---|---|---|
+| WebGPU training | completed | `promote` | `webgpu-paired-result-v1.json` |
+| Browser Parakeet vs native WhisperKit | completed | `reject` — quality/native-latency win, 50x short-clip gate miss | `parakeet-asr-result-v1.json` |
+| ReST requalification | design-frozen | pending | — |
+| Needle successor | design-frozen | pending | — |

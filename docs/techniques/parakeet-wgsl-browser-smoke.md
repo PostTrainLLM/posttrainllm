@@ -1,8 +1,50 @@
 # parakeet.wgsl browser smoke
 
-Review date: 2026-09-01
-Decision: **validated browser-ASR proof; advance to a controlled comparison,
-but do not integrate yet**.
+Review date: 2026-09-02
+Decision: **paired quality and native-latency win; reject against the frozen 50x
+short-clip throughput gate**.
+
+## Reference-scored browser versus native result
+
+The follow-up used eight fixed LibriSpeech `test-clean` rows spanning eight
+speakers and chapters: 34.365 seconds and 82 normalized reference words. Both
+arms received the identical audio, references, normalization, and seeded
+execution order. The candidate was the official Parakeet TDT 0.6B v3 browser
+engine at source revision `ab738c92b8a6af0dcdfe51dddd062427a5ec7689`; the
+incumbent was WhisperKit CLI v1.1.0 with the local Whisper large-v3 turbo Core
+ML model. The frozen protocol is
+`evals/verified-wins/parakeet-asr-v1.json`.
+
+| Measure | Browser Parakeet v3 | Native WhisperKit | Result |
+|---|---:|---:|---|
+| Word errors / 82 | **0** | 7 | browser wins |
+| WER | **0.00%** | 8.54% | −8.54 points |
+| Proper nouns | 4/4 | 4/4 | tied |
+| Repetition events | 0 | 0 | tied |
+| Total decode | **914.7 ms** | 3,211.8 ms | browser **3.51x faster** |
+| Aggregate real-time factor | **37.57x** | 10.70x | browser wins |
+| Median per-clip real-time factor | **33.84x** | 9.28x | below frozen 50x gate |
+
+Chrome 151 selected the real Apple/Metal 3 adapter with FP16, subgroups, and
+the experimental subgroup-matrix feature. It was neither fallback nor
+software rendering. The browser downloaded 684,385,250 pinned model bytes and
+made zero external requests during warm inference.
+
+Three of four formal gates passed: WER stayed within two points (and in fact
+won), repetitions did not regress, and the warm path stayed local. The
+preregistered median throughput target did not: 33.84x is below 50x. These
+short 2–7 second clips expose an approximately 80–100 ms fixed dispatch floor,
+so they are a much harder throughput case than the earlier 17-minute smoke.
+That is a systems lesson, not permission to replace the gate after seeing the
+answer.
+
+The compact result is
+`evals/verified-wins/parakeet-asr-result-v1.json`. Raw transcripts, native JSON
+reports, scores, adapter details, and request logs remain under the ignored
+`runs/verified-wins/parakeet-browser-native-paired-v1/` directory; the tracked
+result records their SHA-256 digests.
+
+## Earlier long-form adoption smoke
 
 ## What was tested
 
@@ -67,9 +109,11 @@ for optional browser audio ingestion: it works through the published package,
 uses the right Apple WebGPU features, is dramatically faster than real-time on
 the public long-form sample, and reuses a verified local cache.
 
-It is not yet the selected ASR layer. The next justified experiment is a small,
-shared, reference-transcribed set against the qualified Mac-native WhisperKit
-baseline, covering exact domain terms, WER, cold/warm UX, Chrome and Safari,
-and browser memory. The 386.5 MiB first download must remain explicit and
-optional. A full LibriSpeech reproduction or production integration remains a
-separate scope.
+That smoke correctly withheld the accuracy claim and led to the paired test
+above. The controlled comparison now qualifies accuracy on its bounded fixture
+and shows that browser Parakeet is faster than this native incumbent. It still
+does not select a product ASR layer because the separately frozen 50x
+short-clip gate failed. The 652.7 MiB v3 first download must remain explicit
+and optional. A batching/long-form gate, Safari qualification, larger WER set,
+or product integration would each be a new experiment rather than unfinished
+work in this one.
