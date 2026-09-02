@@ -15,6 +15,14 @@ from typing import Any
 SCHEMA = "posttrainllm.asr-score.v1"
 
 
+def median(values: list[float]) -> float:
+    ordered = sorted(values)
+    middle = len(ordered) // 2
+    if len(ordered) % 2:
+        return ordered[middle]
+    return (ordered[middle - 1] + ordered[middle]) / 2
+
+
 def normalize(text: str) -> list[str]:
     decomposed = unicodedata.normalize("NFKD", text.casefold())
     ascii_text = "".join(char for char in decomposed if not unicodedata.combining(char))
@@ -115,6 +123,7 @@ def score(fixture: dict[str, Any], prediction: dict[str, Any]) -> dict[str, Any]
     hypothesis_repetitions = 0
     total_audio_seconds = 0.0
     total_decode_ms = 0.0
+    realtime_factors = []
     per_item = []
     for item_id, reference in references.items():
         hypothesis = hypotheses[item_id]
@@ -142,6 +151,7 @@ def score(fixture: dict[str, Any], prediction: dict[str, Any]) -> dict[str, Any]
             raise ValueError(f"{item_id}: audio_seconds and decode_ms must be positive")
         total_audio_seconds += audio_seconds
         total_decode_ms += decode_ms
+        realtime_factors.append(audio_seconds / (decode_ms / 1000))
         per_item.append(
             {
                 "id": item_id,
@@ -180,6 +190,7 @@ def score(fixture: dict[str, Any], prediction: dict[str, Any]) -> dict[str, Any]
             "audio_seconds": total_audio_seconds,
             "decode_ms": total_decode_ms,
             "realtime_factor": total_audio_seconds / (total_decode_ms / 1000),
+            "median_realtime_factor": median(realtime_factors),
         },
         "per_item": per_item,
     }

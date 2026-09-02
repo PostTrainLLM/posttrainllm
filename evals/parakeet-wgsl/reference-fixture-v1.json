@@ -1,6 +1,7 @@
 {
   "schema_version": "posttrainllm.asr-reference-fixture.v1",
   "fixture_id": "librispeech-clean-spread-v1",
+  "execution_seed": 13802,
   "normalization": "nfkd-casefold-english-alnum-apostrophe-v1",
   "source": {
     "dataset": "openslr/librispeech_asr",

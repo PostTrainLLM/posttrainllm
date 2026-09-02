@@ -2,7 +2,7 @@
   "schema_version": "posttrainllm.verified-win.v1",
   "manifest_id": "parakeet-browser-native-paired-v1",
   "lane": "parakeet-asr",
-  "status": "design-frozen",
+  "status": "run-frozen",
   "hypothesis": "Parakeet browser ASR stays within 2 WER points of the native incumbent on the same reference-scored audio while remaining at least 50x realtime and not increasing repetition errors.",
   "comparison": {
     "paired": true,
@@ -16,25 +16,29 @@
     "same_audio_and_reference": true
   },
   "arms": [
-    { "id": "native-incumbent", "role": "incumbent", "revision": null },
+    {
+      "id": "native-incumbent",
+      "role": "incumbent",
+      "revision": "whisperkit-cli=v1.1.0; model=argmaxinc/whisperkit-coreml@97a5bf9bbc74c7d9c12c755d04dea59e672e3808/openai_whisper-large-v3-v20240930_turbo; config=f01d83dd891791d6f12421c05d3ed8ebbe70866f10d6c9a7a7e80b558ce5a0f1; generation_config=7fbb053a023be11fbeccd8421811610308143daa93d9617c52aab4a0fa1491c6"
+    },
     {
       "id": "parakeet-browser",
       "role": "candidate",
-      "revision": "source=8f654eedd8a19fec48cbbe57f9f3a972fedc96e3; model=ae9ad07059c7c739ffaf932226a8fe64ae2620b0"
+      "revision": "source=ab738c92b8a6af0dcdfe51dddd062427a5ec7689; weights=FluidInference/fluidaudio-web@6c6bcda07b23fd91778062b435b1a5f2f6d07504; vocab=ysdede/parakeet-tdt-0.6b-v3-onnx@f88260fa0777fe0868dda6df85d1a98f012a4a7a"
     }
   ],
   "fixtures": [
     {
       "id": "asr-audio-v1",
-      "path": null,
-      "sha256": null,
+      "path": "evals/parakeet-wgsl/reference-fixture-v1.json",
+      "sha256": "c35a74fb9554710e1e8c3a7c343db07de31d48edcc54c3e8b07e26f892ea6924",
       "visibility": "public-dev"
     },
     {
       "id": "asr-references-v1",
-      "path": null,
-      "sha256": null,
-      "visibility": "public-dev"
+      "path": "scripts/asr/score_asr.py",
+      "sha256": "c8ec5be75fe6dab90a260788ba722f7ef7f3b21738301fd27366a31ec964143c",
+      "visibility": "source-config"
     }
   ],
   "metrics": [
@@ -73,16 +77,13 @@
     "stop_rule": "Stop on unsupported hardware, external warm request, non-deterministic fixture/reference identity, or any resource cap."
   },
   "freeze": {
-    "state": "design-frozen",
+    "state": "run-frozen",
     "protocol_version": "1",
     "commands": [
-      "TBD: dependency-free scorer and paired browser/native commands added by Issue #138 task 4"
+      "python3 scripts/asr/fetch_hf_audio_fixture.py evals/parakeet-wgsl/reference-fixture-v1.json --out runs/verified-wins/parakeet-browser-native-paired-v1/audio --receipt runs/verified-wins/parakeet-browser-native-paired-v1/fetch-receipt.json",
+      "FLUIDAUDIO_SOURCE=/private/tmp/posttrainllm-fluidaudio-v3.G5yboV/source WHISPERKIT_MODEL_PATH=/Users/sarthak/Documents/huggingface/models/argmaxinc/whisperkit-coreml/openai_whisper-large-v3-v20240930_turbo bash evals/parakeet-browser-native-paired.sh"
     ],
-    "open_requirements": [
-      "freeze reference-scored audio set",
-      "pin native incumbent revision",
-      "freeze transcript normalization policy"
-    ]
+    "open_requirements": []
   },
   "raw_receipt_dir": "runs/verified-wins/parakeet-browser-native-paired-v1",
   "allowed_decisions": [

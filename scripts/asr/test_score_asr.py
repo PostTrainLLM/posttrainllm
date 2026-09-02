@@ -53,6 +53,7 @@ class ScoreAsrTests(unittest.TestCase):
         self.assertEqual(summary["proper_noun_accuracy"], 1)
         self.assertEqual(summary["repetition_regression"], 1)
         self.assertEqual(summary["realtime_factor"], 50)
+        self.assertEqual(summary["median_realtime_factor"], 50)
 
 
 if __name__ == "__main__":
