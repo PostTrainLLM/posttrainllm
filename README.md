@@ -5,7 +5,7 @@ browser playground that started the project. MIT-licensed, runs
 entirely locally, zero cloud.
 
 The historical build phase is now organized as a guided, buildable learning
-lab: all 75 experiments have final dispositions, 18 retained techniques have
+lab: all 76 experiments have final dispositions, 18 retained techniques have
 recipe contracts, and nine ordered learning stages produce thirteen concrete
 artifacts—from a byte-level model and LoRA adapter to an eval ruler, local
 agent, MLX package, browser runtime receipt, and causal probe dossier.
@@ -40,7 +40,7 @@ on. The full writeup, methodology, and head-to-head table is
 | **Eval moat**                    | E0 shared schema · BFCL · τ-bench · lm-eval (MLX-routed) · HumanEval (sandbox-exec) · eval-gate (CI).                                                                    | [`docs/leaderboard.md`](docs/leaderboard.md), [`docs/research/mac_slm_leaderboard_v0.md`](docs/research/mac_slm_leaderboard_v0.md) |
 | **Agent runtime**                | OpenAI + Ollama-compatible local serve · multi-turn loop · FSM-constrained JSON · cloud-escalate · token-preserving `.atraj` trajectories.                               | [`docs/agent_runtime.md`](docs/agent_runtime.md)                                                                                   |
 | **Interp**                       | SAE (per-layer + group) · SAELens export · MEMIT · ROME · tuned/logit lens · activation patching.                                                                        | [`docs/techniques/interpretability.md`](docs/techniques/interpretability.md)                                                       |
-| **Trained specialists**          | From-scratch classifiers + distilled/fused LLMs. Pace intent router (49.5M, 95.5%, 3ms) · file-ops distilled (4B, 100% hard gate) · ReST fused (4B, 65% OOD).            | [`specialists/`](specialists/), [`specialists/registry.json`](specialists/registry.json)                                           |
+| **Trained specialists**          | From-scratch classifiers + distilled/fused LLMs. Pace intent router (49.5M, 95.5%, 3ms) · file-ops distilled (4B, 100% hard gate) · ReST fused (4B, fresh 12/12 routed depth win; 25/45 breadth reject). | [`specialists/`](specialists/), [`specialists/registry.json`](specialists/registry.json)                                           |
 | **Browser site + playground**    | Public experiment archive, recipes, learning paths, evidence artifacts, and the original GPT-2/WebGPU playground.                                                        | [`browser/`](browser/), [experiments](https://posttrainllm.com/experiments), [learn](https://posttrainllm.com/learn)               |
 | **ANE M8**                       | Layer-chunked Core ML chain running Qwen3-28-block on the Apple Neural Engine at ~17 tok/s. Parked until a shipped specialist needs runtime optimization.                | [`docs/parked/ane-coreml.md`](docs/parked/ane-coreml.md)                                                                           |
 
@@ -204,7 +204,7 @@ Start here:
 
 - [`PROJECT_STATUS.md`](PROJECT_STATUS.md) — completion truth and public-release boundary.
 - [`docs/NEXT.md`](docs/NEXT.md) — closure receipt and fresh-experiment admission rule.
-- [`docs/attempt-ledger.md`](docs/attempt-ledger.md) — all 75 final experiment dispositions.
+- [`docs/attempt-ledger.md`](docs/attempt-ledger.md) — all 76 final experiment dispositions.
 - [`docs/recipes/registry.json`](docs/recipes/registry.json) — all 18 retained recipe contracts.
 - [`docs/learn/path-registry.json`](docs/learn/path-registry.json) — nine ready learning paths, labs, and mastery gates.
 - [`docs/learn/artifact-journey.json`](docs/learn/artifact-journey.json) — nine stages and thirteen artifacts, each with build, modify, tune, prove, and package actions.

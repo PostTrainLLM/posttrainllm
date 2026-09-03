@@ -1,8 +1,8 @@
 {
   "caveats": [
-    "The 65% breadth score is the rounded historical result recorded in project docs.",
-    "The breadth slice was directly compared with stock but not frontier-ceiling validated.",
-    "Raw prediction traces are unavailable for a current qualitative failure review.",
+    "The fresh candidate won file-ops depth 12/12 versus 9/12 and removed all eight stock side effects.",
+    "The same candidate lost frontier-qualified breadth 25/45 versus stock 30/45, so the general-successor decision is reject.",
+    "The tracked result preserves raw receipt hashes; raw traces remain local and gitignored.",
     "Pace requires a different intent envelope and product-specific ship gate.",
     "Do not use for: Pace default planner without re-distillation and its product ship gate",
     "Do not use for: unqualified broad general-agent claims"
@@ -32,13 +32,12 @@
       "value": null
     },
     "outcome_label": "routed-ship",
-    "reason": "ship as a research specialist package; do not use as the Pace default planner",
+    "reason": "retain only as a routed file-operations specialist; reject as a general successor and do not use as the Pace default planner",
     "verification_blockers": [
       "Primary gate `file_ops_hard_gate` baseline is `historical`, not a current measurement.",
       "Primary gate `file_ops_hard_gate` candidate is `historical`, not a current measurement.",
       "Primary gate `file_ops_hard_gate` has no threshold value (state `missing`).",
       "Primary gate `file_ops_hard_gate` has no passed value (state `missing`).",
-      "Primary gate `file_ops_hard_gate` has no frontier-ceiling evidence, so the eval is unverified as a ruler.",
       "Frozen-eval identity is not recorded as a current measurement.",
       "Train/eval overlap (leakage) was not checked with current evidence."
     ],
@@ -46,12 +45,12 @@
   },
   "eval_validity": {
     "frontier_ceiling": {
-      "note": "No frontier-ceiling score is recorded for this benchmark, so it is unverified as a ruler for absolute capability.",
+      "note": "Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
       "sources": [
-        "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0]"
+        "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].frontier"
       ],
-      "state": "missing",
-      "value": null
+      "state": "historical",
+      "value": 1.0
     },
     "frozen_eval": {
       "note": "The package records no frozen held-out split identity.",
@@ -62,8 +61,6 @@
       "value": null
     },
     "known_limitations": [
-      "Gate `file_ops_hard_gate` has no frontier-ceiling evidence, so its absolute score is not calibrated against frontier capability.",
-      "Gate `out_of_domain_breadth` has no frontier-ceiling evidence, so its absolute score is not calibrated against frontier capability.",
       "Values come from a committed specialist package, not a canonical factory-run folder: eval commands, dataset hashes, and raw predictions are unavailable for independent replay."
     ],
     "leakage": {
@@ -80,13 +77,13 @@
       "kind": "committed-package-file",
       "label": "model card",
       "path": "specialists/qwen3-4b-rest-fused/model_card.md",
-      "sha256": "2d48e93229b806c2fa9dfd149c980bf08b14584ff04d79d27f2b6103e1075f8d"
+      "sha256": "036dce9f2b45629ba0ea26de10566d9b3494297f4bf3c4d47918f300f1856e9e"
     },
     {
       "kind": "committed-package-file",
       "label": "eval report",
       "path": "specialists/qwen3-4b-rest-fused/eval_report.json",
-      "sha256": "ed87abf262e7e52c6fa6d1d8bf702ad30482e1e9499fd97b0e48f3adc7b96150"
+      "sha256": "e9924e33ad56792a89017a36e012bccf9b3703c5953a17d30e317e93d42be30c"
     },
     {
       "kind": "committed-package-file",
@@ -104,14 +101,14 @@
       "kind": "committed-registry",
       "label": "specialist registry entry",
       "path": "specialists/registry.json",
-      "sha256": "97a78c4c1783fad075659fdbc49c22d55d0a34434ffcf7a274853037ec04f15a"
+      "sha256": "34b7b43a62dcece35fe7212add23e19ea79427ae5a776ceb647244c75e3f4b15"
     },
     {
       "kind": "historical-record",
       "label": "recorded result source",
       "note": "The document the legacy score was recorded in.",
-      "path": "docs/sessions/2026-06-17-stepback-inventory-roi.md",
-      "sha256": "20363b2f2fdf27936bee2fee5353c2da51beb29d9645de5b880f0c7abebc0947"
+      "path": "evals/verified-wins/rest-requalification-result-v1.json",
+      "sha256": "368104c72ef06c66fe840fb0e61384b9e6630d3bde6e4a0c7181026ae75cf87a"
     },
     {
       "kind": "external-artifact",
@@ -123,15 +120,15 @@
   "gates": [
     {
       "baseline": {
-        "note": "Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+        "note": "Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
         "sources": [
           "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].stock_4b"
         ],
         "state": "historical",
-        "value": 0.58
+        "value": 0.75
       },
       "candidate": {
-        "note": "Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+        "note": "Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
         "sources": [
           "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].rest_4b"
         ],
@@ -149,7 +146,7 @@
           "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].rest_4b"
         ],
         "state": "derived",
-        "value": 0.42
+        "value": 0.25
       },
       "eval_identity": {
         "command": {
@@ -165,7 +162,7 @@
             "specialists/qwen3-4b-rest-fused/eval_report.json#evaluation_date"
           ],
           "state": "measured",
-          "value": "2026-06-17"
+          "value": "2026-09-03"
         },
         "frozen": {
           "note": "The package does not record whether this suite is frozen.",
@@ -178,12 +175,12 @@
         "suite": "file_ops_hard_gate"
       },
       "frontier_ceiling": {
-        "note": "No frontier-ceiling score is recorded for this benchmark, so it is unverified as a ruler for absolute capability.",
+        "note": "Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
         "sources": [
-          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0]"
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].frontier"
         ],
-        "state": "missing",
-        "value": null
+        "state": "historical",
+        "value": 1.0
       },
       "metric": "file_ops_hard_gate",
       "name": "file_ops_hard_gate",
@@ -197,7 +194,7 @@
       },
       "role": "primary",
       "sample_size": {
-        "note": "Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+        "note": "Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
         "sources": [
           "specialists/qwen3-4b-rest-fused/eval_report.json#scores[0].n"
         ],
@@ -215,20 +212,20 @@
     },
     {
       "baseline": {
-        "note": "Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+        "note": "Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
         "sources": [
           "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].stock_4b"
         ],
         "state": "historical",
-        "value": 0.596
+        "value": 0.6666666666666666
       },
       "candidate": {
-        "note": "Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+        "note": "Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
         "sources": [
           "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].rest_4b"
         ],
         "state": "historical",
-        "value": 0.65
+        "value": 0.5555555555555556
       },
       "delta": {
         "derived_from": [
@@ -241,7 +238,7 @@
           "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].rest_4b"
         ],
         "state": "derived",
-        "value": 0.054
+        "value": -0.111111
       },
       "eval_identity": {
         "command": {
@@ -257,7 +254,7 @@
             "specialists/qwen3-4b-rest-fused/eval_report.json#evaluation_date"
           ],
           "state": "measured",
-          "value": "2026-06-17"
+          "value": "2026-09-03"
         },
         "frozen": {
           "note": "The package does not record whether this suite is frozen.",
@@ -270,12 +267,12 @@
         "suite": "out_of_domain_breadth"
       },
       "frontier_ceiling": {
-        "note": "No frontier-ceiling score is recorded for this benchmark, so it is unverified as a ruler for absolute capability.",
+        "note": "Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
         "sources": [
-          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1]"
+          "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].frontier"
         ],
-        "state": "missing",
-        "value": null
+        "state": "historical",
+        "value": 0.9777777777777777
       },
       "metric": "out_of_domain_breadth",
       "name": "out_of_domain_breadth",
@@ -284,22 +281,22 @@
           "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].stock_4b",
           "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].rest_4b"
         ],
-        "note": "No threshold was recorded. Derived as passing because the candidate did not score below the baseline.",
+        "note": "No threshold was recorded. Derived as failing because the candidate scored below the baseline on a non-primary gate.",
         "sources": [
           "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].stock_4b",
           "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].rest_4b"
         ],
         "state": "derived",
-        "value": true
+        "value": false
       },
       "role": "breadth",
       "sample_size": {
-        "note": "Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+        "note": "Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
         "sources": [
           "specialists/qwen3-4b-rest-fused/eval_report.json#scores[1].n"
         ],
         "state": "historical",
-        "value": 52
+        "value": 45
       },
       "threshold": {
         "note": "The specialist package format records no per-gate threshold.",
@@ -313,15 +310,16 @@
   ],
   "performance": {
     "eval_time_seconds": {
-      "note": "Historical timing, memory, throughput, and raw trace artifacts were not preserved. A rerun is intentionally not implied by this metadata promotion.",
+      "note": "Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
       "sources": [
         "specialists/qwen3-4b-rest-fused/eval_report.json#performance.eval_time_seconds"
       ],
-      "state": "missing",
-      "value": null
+      "state": "historical",
+      "unit": "s",
+      "value": 2011.194777167053
     },
     "latency_ms": {
-      "note": "Historical timing, memory, throughput, and raw trace artifacts were not preserved. A rerun is intentionally not implied by this metadata promotion.",
+      "note": "Training duration and normalized per-request latency were not measured. Eval time is candidate depth plus breadth wall time; throughput and peak RSS are the candidate depth values. Per-suite values and raw receipt hashes are preserved in the published result.",
       "sources": [
         "specialists/qwen3-4b-rest-fused/eval_report.json#performance.latency_ms"
       ],
@@ -329,23 +327,25 @@
       "value": null
     },
     "peak_rss_mb": {
-      "note": "Historical timing, memory, throughput, and raw trace artifacts were not preserved. A rerun is intentionally not implied by this metadata promotion.",
+      "note": "Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
       "sources": [
         "specialists/qwen3-4b-rest-fused/eval_report.json#performance.peak_rss_mb"
       ],
-      "state": "missing",
-      "value": null
+      "state": "historical",
+      "unit": "MB",
+      "value": 7755.078125
     },
     "tokens_per_second": {
-      "note": "Historical timing, memory, throughput, and raw trace artifacts were not preserved. A rerun is intentionally not implied by this metadata promotion.",
+      "note": "Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
       "sources": [
         "specialists/qwen3-4b-rest-fused/eval_report.json#performance.tokens_per_second"
       ],
-      "state": "missing",
-      "value": null
+      "state": "historical",
+      "unit": "tok/s",
+      "value": 13.39701217776838
     },
     "training_cost_usd": {
-      "note": "Teacher-free local ReST iteration; no paid model API was used. Recorded evidence quality: historical-results-without-raw-predictions. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
+      "note": "Teacher-free local ReST iteration; no paid model API was used. Recorded evidence quality: fresh-paired-frontier-qualified-result-with-hashed-raw-receipts. Imported from a committed specialist package rather than a canonical factory-run folder, so it lacks current run provenance (command, hashes, raw predictions).",
       "sources": [
         "specialists/qwen3-4b-rest-fused/eval_report.json#performance.training_cost_usd"
       ],
@@ -354,7 +354,7 @@
       "value": 0
     },
     "training_time_seconds": {
-      "note": "Historical timing, memory, throughput, and raw trace artifacts were not preserved. A rerun is intentionally not implied by this metadata promotion.",
+      "note": "Training duration and normalized per-request latency were not measured. Eval time is candidate depth plus breadth wall time; throughput and peak RSS are the candidate depth values. Per-suite values and raw receipt hashes are preserved in the published result.",
       "sources": [
         "specialists/qwen3-4b-rest-fused/eval_report.json#performance.training_time_seconds"
       ],
@@ -377,7 +377,7 @@
           "specialists/registry.json#do_not_use_for"
         ],
         "state": "measured",
-        "value": "ship as a research specialist package; do not use as the Pace default planner. Do not use for: Pace default planner without re-distillation and its product ship gate; unqualified broad general-agent claims."
+        "value": "retain only as a routed file-operations specialist; reject as a general successor and do not use as the Pace default planner. Do not use for: Pace default planner without re-distillation and its product ship gate; unqualified broad general-agent claims."
       },
       "shipped": true
     },

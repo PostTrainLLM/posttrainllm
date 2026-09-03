@@ -46,23 +46,23 @@ envelope and requires its own ship gate.
 
 ## Eval results
 
-All numbers are historical results recorded on 2026-06-17. Source:
+The current numbers come from the fresh paired run on 2026-09-03. Source:
 [`qwen3-4b-rest-fused.json`](/report-cards/qwen3-4b-rest-fused.json).
 
 | Suite                 | Stock 4B |  ReST 4B |  Delta |   n |
 | --------------------- | -------: | -------: | -----: | --: |
-| File-ops hard gate    |     0.58 | **1.00** |  +0.42 |  12 |
-| Out-of-domain breadth |    0.596 | **0.65** | +0.054 |  52 |
+| File-ops hard gate    |     0.75 | **1.00** |  +0.25 |  12 |
+| Qualified breadth     |    0.667 |    0.556 | -0.111 |  45 |
 
-The breadth suite contains 52 held-out TradingBot, VehicleControlAPI, and
-TravelAPI tasks. The depth suite contains 12 file-ops tasks. ReST recovered
-breadth (65% vs stock 59.6%) while keeping the file-ops hard gate at 100% —
-the negative transfer that plagued the distilled-only variant was reversed.
+The breadth ruler passed its frontier gate at 44/45. ReST reached 12/12 on
+file-ops, removed all eight stock side effects, and ran that slice 2.42x faster
+wall-clock. It also lost five net breadth cases versus stock. This confirms a
+routed file-ops win and rejects the candidate as a general successor.
 
-**Evidence quality caveat:** the raw timing, memory, throughput, and trace
-artifacts from the historical run were not preserved. This package does not
-claim current latency, RAM, tok/s, or exact qualitative failure counts. A
-rerun is intentionally not implied by this metadata promotion.
+**Evidence quality caveat:** raw traces remain local and gitignored, with their
+SHA-256 receipts preserved in
+`evals/verified-wins/rest-requalification-result-v1.json`. The legacy package
+report-card adapter cannot promote those run fields to a fully verified ship.
 
 ## Training recipe summary
 
@@ -77,19 +77,17 @@ rerun is intentionally not implied by this metadata promotion.
    could not regress the saturated 100% hard gate while recovering breadth.
 4. **Student:** Qwen3-4B-Instruct-2507 bf16, fused into a single HF/MLX
    safetensors directory.
-5. **Decision:** ship as a research specialist — do not use as the Pace
-   default planner without re-distillation and a product-specific ship gate.
+5. **Decision:** retain only as a routed file-ops specialist; reject as a
+   general successor and do not use as the Pace default planner.
 
 ## Limitations
 
-- **Breadth suite not frontier-validated.** The 65% breadth score is the
-  rounded historical result. The 52-task slice was directly compared with
-  stock but has not been ceiling-validated against a frontier model.
-- **Raw predictions unavailable.** Historical trace artifacts were not
-  preserved, so a current qualitative failure review is not possible from
-  this package alone.
-- **No performance numbers.** Latency, RAM, tok/s, and training duration
-  were not recorded. Do not infer Mac-runtime performance from this artifact.
+- **Breadth regression.** The frontier-qualified candidate scored 25/45 versus
+  stock 30/45. Do not market it as breadth recovery or a general replacement.
+- **Raw predictions are not committed.** Their hashes are preserved in the
+  tracked result, but the files remain local and gitignored.
+- **Training duration and normalized latency remain absent.** Fresh eval wall
+  time, tok/s, and peak RSS are recorded per suite in the tracked result.
 - **Not a Pace planner.** Pace requires a different intent envelope and
   product-specific ship gate. Re-distill and evaluate on Pace's intent
   envelope before considering any downstream promotion.

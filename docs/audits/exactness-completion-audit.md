@@ -40,10 +40,10 @@ Structured attempt ledger:
 
 | Metric | Count |
 |---|---:|
-| Total attempts | 75 |
-| Exact confidence | 64 |
-| Inferred confidence | 5 |
-| Not-applicable confidence | 4 |
+| Total attempts | 76 |
+| Exact confidence | 65 |
+| Inferred confidence | 4 |
+| Not-applicable confidence | 5 |
 | Missing-evidence confidence | 2 |
 
 Technique audit inventory:

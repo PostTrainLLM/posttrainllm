@@ -7,9 +7,10 @@ validation, tests, coverage, current-SHA CI, deployment, and the live guest
 audit all passed for the completion release. This document preserves the factory
 sequence as lab context. It is not a second task queue.
 
-Two newer issues are the only active queues: #137 owns the notarized Mac release
-and final public shell; the owner approved #138's controlled win-conversion
-tranche for ReST, Parakeet, WebGPU, and Needle on 2026-09-02. Neither revives the
+Issue #137 remains the only external release queue: it owns notarization and the
+final public distribution receipt. Issue #138's controlled ReST, Parakeet,
+WebGPU, and Needle experiment tranche was completed on 2026-09-03 with four
+tracked decisions and no open experimental run. Neither issue revives the
 historical TODOs below.
 
 Fresh work begins only when the owner has chosen a new question—normally after
@@ -22,14 +23,14 @@ completing a relevant path in
 - the bounded time, compute, RAM, and cost budget;
 - the ship, retry, and reject thresholds.
 
-Issue #138 satisfies the written-spec and owner-review portions of that gate.
-Its evaluator implementation and bounded runs are active; no other training,
-model download, PRD expansion, or parked lane is authorized merely because it
-appears below. Conditional next actions, TODO markers, and blockers in retained
-historical documents explain what was not built; they do not mean the closed
-project is incomplete.
+Issue #138 satisfied the written-spec and owner-review portions of that gate;
+its bounded runs are now closed. No other training, model download, PRD
+expansion, or parked lane is authorized merely because it appears below.
+Conditional next actions, TODO markers, and blockers in retained historical
+documents explain what was not built; they do not mean the closed project is
+incomplete.
 
-For the full documentation path, start at `docs/README.md`. Browse all 75 final
+For the full documentation path, start at `docs/README.md`. Browse all 76 final
 attempts at `/experiments`, the 18 recipe contracts at `/recipes`, and the nine
 ready paths plus thirteen buildable artifacts at `/learn`. The artifact
 contract is tracked in `docs/learn/artifact-journey.json`. For reviewed external
@@ -40,13 +41,13 @@ products and techniques, use `docs/external-products-reviewed.md`.
 The completion claim is split into five receipts. A green earlier receipt does
 not imply that a later one happened.
 
-| Receipt           | Required proof                                                                                                                                          | Current state (2026-09-02)                                                                                                                 |
+| Receipt           | Required proof                                                                                                                                          | Current state (2026-09-03)                                                                                                                 |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Local source      | Completion validator, unit tests, coverage, quality, and clean diff checks pass                                                                         | **Passed** for the current worktree: 75 experiments, 18 recipes, 9 paths, 13 journey artifacts, 17 public artifacts, 0 unresolved statuses |
+| Local source      | Completion validator, unit tests, coverage, quality, and clean diff checks pass                                                                         | **Passed**: 76 experiments, 18 recipes, 9 paths, 13 journey artifacts, 17 public artifacts, 0 unresolved statuses; attempt, completion, report-card, browser-test, and quality gates are green |
 | Native CLI        | Serial release build, discovery/runtime smoke, and Xcode tests pass on the current source                                                               | **Passed**: release build and 107-entry runtime catalog pass; 218 Xcode tests pass, 6 optional-fixture tests skip, production coverage 32.51% |
-| Browser build     | Production Astro/docs/agent build and internal-link checker pass                                                                                        | **Passed**: 46 app pages, 310 docs pages, 358 paired agent surfaces, and 109,364 internal links checked                                      |
-| Rendered UI       | `/`, `/experiments`, `/recipes`, `/learn`, Needle, Parakeet, and CLI docs pass keyboard, interaction, console, overflow, and 390/768/1440 px inspection | **Passed**: all 21 route/viewport checks are green with zero overflow, console, page, request, or P0/P1 failures                             |
-| Published release | Exact source is committed and pushed, current-SHA CI is green, deployment succeeds, and live guest checks match the source                              | **Passed**: `ebe1ba6`, CI run `33561299127`, deploy run `33562477716`, and all 21 live route/viewport checks                                |
+| Browser build     | Production Astro/docs/agent build and internal-link checker pass                                                                                        | **Passed**: 46 app pages, 310 docs pages, 359 paired agent surfaces, and 110,565 internal links checked                                      |
+| Rendered UI       | `/`, `/experiments`, `/recipes`, `/learn`, Needle, Parakeet, and CLI docs pass keyboard, interaction, console, overflow, and 390/768/1440 px inspection | **Passed**: all 36 route/viewport checks are green with zero overflow, console, page, request, or P0/P1 failures; hero-curve clearance is enforced at 56px                             |
+| Published release | Exact source is committed and pushed, current-SHA CI is green, deployment succeeds, and live guest checks match the source                              | **Passed for the earlier completion SHA only**: `ebe1ba6`, CI run `33561299127`, deploy run `33562477716`, and all 21 live route/viewport checks. The 2026-09-03 closeout is not yet claimed deployed. |
 
 The completed release ran the boundary in this order:
 
@@ -208,7 +209,9 @@ frontier-ceiling, frozen-eval identity, leakage, and cost/time have nowhere to
 live, and every current card lists that as a blocker.
 
 Current shipped research artifact: `qwen3-4b-rest-fused`, with package metadata,
-public weights, a narrow routing decision, and historical-evidence caveats.
+public weights, a narrow routing decision, and a fresh paired requalification
+receipt. Its legacy-package report card remains not fully verified because the
+card format cannot import the raw run-folder validity fields.
 
 All six public Hugging Face models now have dedicated case studies under
 `/artifacts`, including the rejected and missing-evidence releases. Use those

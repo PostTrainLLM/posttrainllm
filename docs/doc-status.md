@@ -26,7 +26,7 @@ does not compete with the closed learning lab.
 | `docs/factory/` | `reference` | factory contracts, reports, evals, packaging, enforcement | generic ML theory |
 | `docs/techniques/` | `reference` | method-vs-recipe cards and closed technique lineages | active task selection |
 | `docs/techniques/audit-inventory.md` | `evidence` | row-level treatment of `docs/audits/audit_2026.md` technique rows | run-level success/failure claims |
-| `docs/attempt-ledger.md` | `evidence` | 75 final experiment dispositions and lessons | full per-run logs or an active queue |
+| `docs/attempt-ledger.md` | `evidence` | 76 final experiment dispositions and lessons | full per-run logs or an active queue |
 | `docs/audits/history-coverage-audit.md` | `evidence` | what historical work is normalized, classified, partial, or narrative-only | active task selection |
 | `docs/audits/exactness-completion-audit.md` | `evidence` | proof that the docs exactness pass is complete and guarded | new roadmap scope |
 | `docs/external-products-reviewed.md` | `evidence` | reviewed products, papers, and stolen techniques | exhaustive literature survey |

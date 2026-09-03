@@ -11,7 +11,7 @@ compiled from files already in the repository.
 | Slug | Source | Outcome | Verified | Headline |
 |---|---|---|---|---|
 | [`qwen3-4b-file-ops-distilled`](https://posttrainllm.com/report-cards/qwen3-4b-file-ops-distilled) | specialist package | `routed-ship` | no | depth 0.58 → 1.00, breadth 0.596 → 0.423 |
-| [`qwen3-4b-rest-fused`](https://posttrainllm.com/report-cards/qwen3-4b-rest-fused) | specialist package | `routed-ship` | no | depth 0.58 → 1.00, breadth 0.596 → 0.65 |
+| [`qwen3-4b-rest-fused`](https://posttrainllm.com/report-cards/qwen3-4b-rest-fused) | specialist package | `routed-ship` | no | fresh depth 0.75 → 1.00, breadth 0.667 → 0.556 |
 | [`qwen06-sql-routed-v1`](https://posttrainllm.com/report-cards/qwen06-sql-routed-v1) | canonical run folder | `report-only` | no | synthetic execution 0.16 → 0.86 |
 
 **No published card claims a verified ship**, and that is the honest result: the
@@ -31,11 +31,12 @@ package states a routing constraint. Its depth benchmark does carry a recorded
 frontier score of 1.0 — but as `historical`, so it still cannot certify a
 verified ship.
 
-`qwen3-4b-rest-fused` is the missing-evidence case. Breadth recovers instead of
-regressing, `training_cost_usd` is a genuinely recorded `0` (local teacher-free
-ReST, marked `historical` with its note), and latency, RAM, throughput, training
-time, and eval time are all `missing` with the package's own
-`missing_evidence` explanation attached. Nothing is estimated.
+`qwen3-4b-rest-fused` now imports the fresh paired scores and candidate resource
+measurements, but remains a legacy specialist-package card: the compiler marks
+them `historical` and cannot import the frozen-eval identity or overlap check
+from the external run receipt. Depth passes, breadth is derived as regressing,
+and publication remains valid only because the routing constraint is explicit.
+Nothing is promoted to a fully verified general ship.
 
 `qwen06-sql-routed-v1` is the strongest provenance in the cohort: `measured`
 baseline and candidate, four slices including a candidate-only join slice whose

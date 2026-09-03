@@ -18,7 +18,7 @@ target -> data -> post-training -> eval -> package -> report
 - [`post-training-factory.md`](post-training-factory.md) — how data,
   post-training, evals, performance, packaging, and public artifacts fit
   together.
-- [`../attempt-ledger.md`](../attempt-ledger.md) — all 75 final worked, failed,
+- [`../attempt-ledger.md`](../attempt-ledger.md) — all 76 final worked, failed,
   regressed, inconclusive, superseded, and rejected attempts.
 - [`../external-products-reviewed.md`](../external-products-reviewed.md) —
   external products and techniques reviewed or adopted.

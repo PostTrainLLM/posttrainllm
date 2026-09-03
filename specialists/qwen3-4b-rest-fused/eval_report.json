@@ -1,46 +1,48 @@
 {
   "id": "qwen3-4b-rest-fused",
-  "updated": "2026-07-13",
-  "evaluation_date": "2026-06-17",
+  "updated": "2026-09-03",
+  "evaluation_date": "2026-09-03",
   "artifact": "hf://models/posttrainllm/qwen3-4b-rest-fused",
   "artifact_revision": "b332dfe437dc201922d50b28eddf0c99ebcc79a7",
   "base": "Qwen/Qwen3-4B-Instruct-2507",
   "precision": "bf16",
   "training_method": "teacher-free ReST over checker-passing interleaved trajectories with a file-ops gold depth anchor",
-  "evidence_quality": "historical-results-without-raw-predictions",
+  "evidence_quality": "fresh-paired-frontier-qualified-result-with-hashed-raw-receipts",
   "scores": [
     {
       "suite": "file_ops_hard_gate",
       "n": 12,
-      "stock_4b": 0.58,
+      "stock_4b": 0.75,
       "rest_4b": 1.0,
-      "delta": 0.42,
-      "source": "docs/sessions/2026-06-17-stepback-inventory-roi.md"
+      "delta": 0.25,
+      "frontier": 1.0,
+      "source": "evals/verified-wins/rest-requalification-result-v1.json"
     },
     {
       "suite": "out_of_domain_breadth",
-      "n": 52,
-      "stock_4b": 0.596,
-      "rest_4b": 0.65,
-      "delta": 0.054,
-      "source": "docs/sessions/2026-06-17-stepback-inventory-roi.md"
+      "n": 45,
+      "stock_4b": 0.6666666666666666,
+      "rest_4b": 0.5555555555555556,
+      "delta": -0.11111111111111105,
+      "frontier": 0.9777777777777777,
+      "source": "evals/verified-wins/rest-requalification-result-v1.json"
     }
   ],
   "performance": {
     "training_cost_usd": 0,
     "training_cost_note": "Teacher-free local ReST iteration; no paid model API was used.",
     "training_time_seconds": null,
-    "eval_time_seconds": null,
+    "eval_time_seconds": 2011.194777167053,
     "latency_ms": null,
-    "tokens_per_second": null,
-    "peak_rss_mb": null,
-    "missing_evidence": "Historical timing, memory, throughput, and raw trace artifacts were not preserved. A rerun is intentionally not implied by this metadata promotion."
+    "tokens_per_second": 13.39701217776838,
+    "peak_rss_mb": 7755.078125,
+    "missing_evidence": "Training duration and normalized per-request latency were not measured. Eval time is candidate depth plus breadth wall time; throughput and peak RSS are the candidate depth values. Per-suite values and raw receipt hashes are preserved in the published result."
   },
-  "decision": "ship as a research specialist package; do not use as the Pace default planner",
+  "decision": "retain only as a routed file-operations specialist; reject as a general successor and do not use as the Pace default planner",
   "caveats": [
-    "The 65% breadth score is the rounded historical result recorded in project docs.",
-    "The breadth slice was directly compared with stock but not frontier-ceiling validated.",
-    "Raw prediction traces are unavailable for a current qualitative failure review.",
+    "The fresh candidate won file-ops depth 12/12 versus 9/12 and removed all eight stock side effects.",
+    "The same candidate lost frontier-qualified breadth 25/45 versus stock 30/45, so the general-successor decision is reject.",
+    "The tracked result preserves raw receipt hashes; raw traces remain local and gitignored.",
     "Pace requires a different intent envelope and product-specific ship gate."
   ]
 }

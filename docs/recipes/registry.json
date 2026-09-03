@@ -24,7 +24,8 @@
     "docs/techniques/README.md",
     "docs/techniques/method-vs-recipe.md",
     "docs/techniques/audit-inventory.md",
-    "docs/techniques/trainloop-teardown.md"
+    "docs/techniques/trainloop-teardown.md",
+    "docs/techniques/needle2-baseline-review.md"
   ],
   "recipes": [
     {
@@ -468,14 +469,14 @@
     },
     {
       "id": "needle2-evaluation",
-      "title": "Needle 2 tool-selection evaluation",
-      "technique_path": "docs/techniques/needle2-baseline-review.md",
+      "title": "Needle 45M successor factorial",
+      "technique_path": "docs/techniques/needle2-successor-factorial.md",
       "status": "closed-experiment",
-      "target": "Evaluate a tiny tool-selection artifact for Pace and local actions.",
-      "failure_mode": "A tiny classifier may be fast but inaccurate or unsafe across mixed tool catalogs.",
-      "data": "Ninety-four public fixtures with Pace, local-action, ambiguity, OOS, and destructive slices.",
-      "method_or_policy": "Compare the full catalog with oracle-selected task catalogs; never execute predicted calls.",
-      "primary_eval": "Exact tool selection and unsafe false-action rate.",
+      "target": "Test whether distractor-rich selection data and explicit refusal/confirmation examples can make a 45M tool selector safe and more accurate than stock.",
+      "failure_mode": "Tiny overfit can pass while held-out selection remains below stock and destructive confirmation behavior fails completely.",
+      "data": "Four 216-row training arms plus a 94-case public development ruler spanning Pace, file operations, ambiguity, OOS, and destructive actions; sealed V2 remained unopened.",
+      "method_or_policy": "Run a 2x2 factorial over distractor data and safety data with identical LoRA geometry and three seeds; stop an arm after its first unsafe public-dev seed.",
+      "primary_eval": "All-seed zero unsafe actions plus median exact selection above the 32/94 incumbent.",
       "regression_slices": [
         "Pace",
         "file operations",
@@ -484,16 +485,17 @@
         "confidence coverage",
         "latency"
       ],
-      "resource_budget": "Completed bounded CPU evaluation; no remaining run.",
-      "stop_rule": "Reject when no confidence threshold offers useful safe coverage or the target slice regresses.",
-      "decision_rule": "Rejected for Pace; catalog restriction is recorded only as a latency result.",
+      "resource_budget": "Completed 12-run CPU factorial: 1,176 steps in 7,963.9 seconds, followed by early-stopped public evaluation; no paid API use.",
+      "stop_rule": "Stop an arm on its first unsafe development seed; do not open sealed V2 or package when no arm is safe and improving.",
+      "decision_rule": "Advance the task to a 1.7B model class; close further 45M recipe and threshold search.",
       "evidence": [
         "docs/techniques/needle2-baseline-review.md",
-        "evals/needle2/bounded-catalog-ablation-v1.json"
+        "docs/techniques/needle2-successor-factorial.md",
+        "evals/verified-wins/needle-successor-result-v1.json"
       ],
       "learning_path": "evaluation-and-factory",
-      "exercise": "Plot accepted coverage versus exactness from the confidence sweep and identify the only safe point.",
-      "mastery_gate": "Explain why a four-point aggregate gain did not rescue the product decision."
+      "exercise": "Reconstruct the three factorial effects, apply the logical early-stop rule, and design the next 1.7B capacity test without changing the public gate.",
+      "mastery_gate": "Explain why 100% tiny overfit coexists with a conclusive failed promotion and why sealed V2 stayed closed."
     },
     {
       "id": "parakeet-browser-asr",

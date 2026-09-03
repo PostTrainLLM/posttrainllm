@@ -299,12 +299,12 @@ SQL is the current factory POC and the best-documented attempt family.
 
 ### Qwen3-4B ReST fused breadth recovery variant
 
-- Evidence: depth `100%`, breadth `65%` vs stock breadth `60%`.
+- Evidence: fresh frozen run: depth `9/12 stock -> 12/12 ReST` (+25 points), breadth `30/45 stock -> 25/45 ReST` (-11.1 points), 10 fewer schema/side-effect events, and 2.42x faster depth wall time.
 - Status: `worked-with-caveat`.
-- Failure reason: Historical runtime and raw trace artifacts were not preserved, so the package cannot claim current latency/RAM/tok-s or a fresh qualitative review.
-- Lesson: Existing public weights can be promoted honestly when the measured delta, routing boundary, and missing evidence are explicit.
-- Next action: Keep it research-only unless a product-specific target justifies a fresh heavy eval and re-distillation.
-- Confidence: `exact` for artifact/package state; `inferred` for the rounded historical breadth result.
+- Failure reason: The unchanged public weights reproduce a strong routed file-operations win but regress held-out breadth by five net paired cases, so they fail the general-successor gate.
+- Lesson: ReST produced a real depth-and-safety specialist, not breadth recovery; routing is the win and general replacement is the failed hypothesis.
+- Next action: Retain the package only behind the file-operations route; any broader successor needs breadth-preserving data or optimization on the same frozen ruler.
+- Confidence: `exact`; see `evals/verified-wins/rest-requalification-result-v1.json`.
 
 ### Qwen3-4B multibackend distilled variant
 
@@ -491,6 +491,15 @@ Two cross-cutting findings the collapsed entry hid:
 - Lesson: Qualify performance one frozen shape and machine at a time; a retained adapter identity plus alternated paired timings can convert one point without laundering the surrounding curve.
 - Next action: Keep Large as the measured M5 Pro point; independently reproduce Small, Medium, and XL before promoting the historical curve.
 - Confidence: `exact`.
+
+### Browser WebGPU training loop
+
+- Evidence: Apple M5 Pro / Metal 3 ABBA run measured `10.67x` median Large-preset speedup over WASM with `4.72%` maximum paired final-loss drift and zero runtime errors.
+- Status: `worked`.
+- Failure reason: None.
+- Lesson: Hardware-qualified browser WebGPU can deliver a double-digit training-step win while preserving the frozen numerical-loss gate.
+- Next action: Retain Large as the verified Apple M5 Pro result; Small, Medium, XL, other browsers, and other hardware require independent receipts.
+- Confidence: `not-applicable`.
 
 ### Browser default corpus fix
 
@@ -757,6 +766,15 @@ Primary SQL source docs:
 - Next action: Reject this integration path; require a materially different training hypothesis and a new frozen gate for any future Needle-derived work.
 - Confidence: `exact`.
 
+### Needle 45M distractor-and-safety successor factorial (2026-09-03)
+
+- Evidence: all four arms passed 100% tiny overfit, but public-dev exactness was 25.5%, 25.5%, 26.6%, and 27.7% versus the 34.0% incumbent; every arm produced 7-9 out-of-scope false actions and all 10 destructive bypasses.
+- Status: `failed`.
+- Failure reason: The 45M model memorized the tiny gate but neither distractor-aware data nor explicit safety examples transferred to safe 94-case tool selection.
+- Lesson: Tiny overfit proves wiring, not capacity; the interaction treatment recovered only two cases over plain training and could not learn destructive confirmation at this scale.
+- Next action: Close 45M recipe search and advance the same frozen selection-and-safety task to the 1.7B class as a fresh experiment.
+- Confidence: `exact`; see `evals/verified-wins/needle-successor-result-v1.json` and `docs/techniques/needle2-successor-factorial.md`.
+
 ### Parakeet WGSL browser-ASR paired validation (2026-09-02)
 
 - Evidence: On the same eight LibriSpeech clips, browser Parakeet v3 scored 0/82 word errors versus native WhisperKit's 7/82, matched all four proper nouns, had zero repetition errors, and decoded 3.51x faster; its 33.84x median short-clip real-time factor missed the frozen 50x bar.
@@ -831,9 +849,9 @@ Current structured coverage:
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 64 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
-| `inferred` | 5 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
-| `not-applicable` | 4 | No failure reason is expected for a clean worked status. |
+| `exact` | 65 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `inferred` | 4 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
+| `not-applicable` | 5 | No failure reason is expected for a clean worked status. |
 | `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |
 
 Every known evidence-backed experiment is normalized here. Older archive and

@@ -36,18 +36,23 @@ requires its own ship gate.
 - Training method: teacher-free ReST iteration over checker-passing,
   interleaved trajectories plus a file-ops depth anchor
 
-## Recorded Result
+## Fresh Requalification Result
 
 | Suite | Stock 4B | ReST 4B |
 |---|---:|---:|
-| File-ops hard gate | 58% | 100% |
-| Out-of-domain breadth | 59.6% | 65% |
+| File-ops hard gate | 9/12 | 12/12 |
+| Frontier-qualified breadth | 30/45 | 25/45 |
+| Unexpected depth side effects | 8 | 0 |
+| Depth wall time | 360.50s | 148.91s |
+| Depth decode | 12.10 tok/s | 13.40 tok/s |
+| Depth peak RSS | 6.77GB | 8.13GB |
 
-The breadth suite contains 52 held-out TradingBot, VehicleControlAPI, and
-TravelAPI tasks. The depth suite contains 12 file-ops tasks. These are the
-historical run results recorded on 2026-06-17; the raw timing and trace logs
-were not preserved, so this package does not claim current latency, RAM, tok/s,
-or exact qualitative failure counts.
+The 2026-09-03 paired run used a 12-case file-ops depth gate and a 45-case BFCL
+breadth gate whose frontier ceiling scored 44/45. The candidate won depth,
+safety, and wall-clock speed, but lost breadth by 11.1 percentage points. The
+frozen general-successor decision is therefore reject; the package remains a
+file-ops-only routed specialist. Raw traces remain local and gitignored, while
+their hashes are preserved in the tracked result.
 
 ## Recommended Use
 
@@ -60,11 +65,11 @@ intent envelope before considering that change.
 
 ## Known Limits
 
-- The breadth suite is directly comparable to stock but was not
-  frontier-ceiling validated.
-- The historical report records rounded breadth accuracy; raw predictions are
-  unavailable for a new trace review.
-- Latency, RAM, tok/s, and training duration were not preserved.
+- The fresh breadth suite passed frontier-ceiling calibration but the candidate
+  regressed against stock, so it must not be presented as breadth recovery.
+- Raw prediction traces are local and gitignored; the tracked result preserves
+  their SHA-256 receipts.
+- Training duration and normalized per-request latency were not measured.
 - The evaluated backends do not prove broad general-agent capability.
 - The artifact is multi-GB and lives on Hugging Face, not in git.
 
@@ -72,4 +77,5 @@ intent envelope before considering that change.
 
 - `docs/sessions/2026-06-17-stepback-inventory-roi.md`
 - `docs/learn/tool-calling-frontier-parity.md`
+- `evals/verified-wins/rest-requalification-result-v1.json`
 - `specialists/qwen3-4b-rest-fused/eval_report.json`

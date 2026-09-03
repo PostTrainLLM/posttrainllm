@@ -102,7 +102,7 @@
       "kind": "committed-registry",
       "label": "specialist registry entry",
       "path": "specialists/registry.json",
-      "sha256": "97a78c4c1783fad075659fdbc49c22d55d0a34434ffcf7a274853037ec04f15a"
+      "sha256": "34b7b43a62dcece35fe7212add23e19ea79427ae5a776ceb647244c75e3f4b15"
     },
     {
       "kind": "historical-record",

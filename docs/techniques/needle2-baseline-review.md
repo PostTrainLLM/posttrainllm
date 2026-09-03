@@ -1,5 +1,10 @@
 # Needle 2 baseline review
 
+Successor result: the catalog-ablation boundary led to a materially different
+2x2 training experiment. All four 45M arms failed the public development safety
+and accuracy gate, so the model-class boundary is now closed. See
+[`needle2-successor-factorial.md`](needle2-successor-factorial.md).
+
 Review date: 2026-08-31  
 Decision: **reject before the longer mobile-actions reproduction; do not adopt
 or fine-tune this baseline**.

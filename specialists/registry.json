@@ -105,9 +105,10 @@
         "unqualified broad general-agent claims"
       ],
       "headline": {
-        "file_ops_hard_gate": "100%",
-        "out_of_domain_breadth": "65%",
-        "stock_4b_out_of_domain_breadth": "59.6%"
+        "file_ops_hard_gate": "12/12 vs stock 9/12",
+        "out_of_domain_breadth": "25/45",
+        "stock_4b_out_of_domain_breadth": "30/45",
+        "depth_wall_speedup": "2.42x"
       },
       "model_card": "specialists/qwen3-4b-rest-fused/model_card.md",
       "eval_report": "specialists/qwen3-4b-rest-fused/eval_report.json",

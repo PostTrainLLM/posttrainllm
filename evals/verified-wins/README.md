@@ -27,5 +27,5 @@ only one of the manifest's four decisions: `promote`, `reject`,
 |---|---|---|---|
 | WebGPU training | completed | `promote` | `webgpu-paired-result-v1.json` |
 | Browser Parakeet vs native WhisperKit | completed | `reject` — quality/native-latency win, 50x short-clip gate miss | `parakeet-asr-result-v1.json` |
-| ReST requalification | design-frozen | pending | — |
-| Needle successor | design-frozen | pending | — |
+| ReST requalification | completed | `reject` as general successor — 12/12 depth win, 25/45 vs 30/45 breadth loss | `rest-requalification-result-v1.json` |
+| Needle successor | completed | `advance-model-class` — all 45M arms unsafe and below stock on public dev | `needle-successor-result-v1.json` |

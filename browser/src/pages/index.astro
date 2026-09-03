@@ -235,7 +235,7 @@ const buildableArtifactCount = artifactJourney.stages.flatMap(
           </li>
           <li>
             <span class="ls-n">04</span><span class="ls-k">eval</span><code
-              class="ok">depth 100 · breadth 65</code
+              class="ok">depth 12/12 · breadth 25/45</code
             >
           </li>
           <li>
@@ -250,11 +250,11 @@ const buildableArtifactCount = artifactJourney.stages.flatMap(
           </li>
         </ol>
         <p class="loop-latest mono-label">
-          routed-ship proof · evaluated 2026-06-17 · qwen3-4b-rest-fused kept
-          the 100% file-operations gate and recovered breadth from 59.6% to 65%.
-          the decision is <span class="ship">ship as a research specialist</span
-          >, not as the Pace default. historical latency, RAM, tok/s, and raw
-          traces were not preserved, so those claims stay missing.
+          fresh paired proof · evaluated 2026-09-03 · qwen3-4b-rest-fused moved
+          file operations from 9/12 to 12/12, removed eight side effects, and
+          ran that slice 2.42× faster. breadth fell from 30/45 to 25/45, so the
+          decision is <span class="ship">retain behind the file-ops route</span
+          >, not promote as the general successor.
         </p>
       </div>
     </section>
@@ -278,19 +278,19 @@ const buildableArtifactCount = artifactJourney.stages.flatMap(
             </div>
             <h3>Qwen3-4B, ReST fused</h3>
             <p class="spec-body">
-              One teacher-free ReST iteration retained <strong>100%</strong> on the
-              file-operations hard gate, up from the stock model's 58%, and recovered
-              held-out breadth to <strong>65%</strong> versus the stock 59.6%. It
-              ships only as a research specialist behind an explicit route.
+              Fresh requalification moved file-operations depth from <strong
+                >9/12</strong
+              > to <strong>12/12</strong>, removed eight side effects, and ran
+              the slice 2.42× faster. Breadth fell to <strong>25/45</strong> versus
+              stock's 30/45, so it remains an explicit routed specialist.
             </p>
             <dl class="spec-metrics">
-              <div><dt>file-ops gate</dt><dd>58 → <b>100%</b></dd></div>
-              <div><dt>OOD breadth</dt><dd>59.6 → <b>65%</b></dd></div>
+              <div><dt>file-ops gate</dt><dd>9/12 → <b>12/12</b></dd></div>
+              <div><dt>breadth gate</dt><dd>30/45 → <b>25/45</b></dd></div>
             </dl>
             <p class="spec-limit">
-              Historical runtime and raw prediction traces are missing; no
-              current latency, memory, or throughput claim is attached to this
-              package.
+              This is a depth, safety, and speed win—not a general-capability
+              win. The frozen breadth regression forces routed-only use.
             </p>
             <a class="spec-link" href="/artifacts/qwen3-4b-rest-fused"
               >Artifact, evidence, and limits →</a
@@ -332,9 +332,9 @@ const buildableArtifactCount = artifactJourney.stages.flatMap(
           <h2>Current specialist evidence.</h2>
           <p class="band-sub">
             These figures belong to <code>qwen3-4b-rest-fused</code>. The
-            breadth set is a held-out project gate, not a frontier benchmark.
-            Historical runtime traces were not preserved, so no speed or memory
-            claim is presented as evidence for this package.
+            breadth set passed its frontier-ceiling calibration. Fresh paired
+            traces support speed and memory reporting; the route stays narrow
+            because the candidate lost five net breadth cases.
           </p>
         </header>
         <div class="metric-row" role="list">
@@ -344,13 +344,13 @@ const buildableArtifactCount = artifactJourney.stages.flatMap(
             >
           </div>
           <div role="listitem">
-            <b>65%</b><span class="mu">breadth</span><small
-              >held-out gate · n=52</small
+            <b>55.6%</b><span class="mu">breadth</span><small
+              >frontier-qualified · n=45</small
             >
           </div>
           <div role="listitem">
-            <b>+5.4</b><span class="mu">points</span><small
-              >versus stock breadth</small
+            <b>−11.1</b><span class="mu">points</span><small
+              >versus stock breadth · reject general</small
             >
           </div>
           <div role="listitem">
@@ -359,8 +359,8 @@ const buildableArtifactCount = artifactJourney.stages.flatMap(
             >
           </div>
           <div role="listitem">
-            <b>0</b><span class="mu">runtime claims</span><small
-              >traces were not preserved</small
+            <b>2.42×</b><span class="mu">depth wall speed</span><small
+              >360.50s → 148.91s</small
             >
           </div>
         </div>

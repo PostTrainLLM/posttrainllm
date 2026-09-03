@@ -314,13 +314,14 @@
       "name": "Qwen3-4B ReST fused breadth recovery variant",
       "family": "file-ops",
       "status": "worked-with-caveat",
-      "evidence": "depth `100%`, breadth `65%` vs stock breadth `60%`",
-      "failure_reason": "Historical runtime and raw trace artifacts were not preserved, so the package cannot claim current latency/RAM/tok-s or a fresh qualitative review.",
-      "failure_reason_confidence": "inferred",
-      "lesson": "Existing public weights can be promoted honestly when the measured delta, routing boundary, and missing evidence are explicit.",
-      "next_action": "Keep it research-only unless a product-specific target justifies a fresh heavy eval and re-distillation.",
+      "evidence": "fresh frozen run: depth `9/12 stock -> 12/12 ReST` (+25 points), breadth `30/45 stock -> 25/45 ReST` (-11.1 points), 10 fewer schema/side-effect events, and 2.42x faster depth wall time",
+      "failure_reason": "The unchanged public weights reproduce a strong routed file-operations win but regress held-out breadth by five net paired cases, so they fail the general-successor gate.",
+      "failure_reason_confidence": "exact",
+      "lesson": "ReST produced a real depth-and-safety specialist, not breadth recovery; routing is the win and general replacement is the failed hypothesis.",
+      "next_action": "Retain the package only behind the file-operations route; any broader successor needs breadth-preserving data or optimization on the same frozen ruler.",
       "evidence_sources": [
         "docs/factory/public-artifacts.md",
+        "evals/verified-wins/rest-requalification-result-v1.json",
         "specialists/qwen3-4b-rest-fused/eval_report.json",
         "specialists/qwen3-4b-rest-fused/model_card.md"
       ],
@@ -819,14 +820,16 @@
       "id": "browser-webgpu-training-loop",
       "name": "Browser WebGPU training loop",
       "family": "runtime-perf",
-      "status": "worked-with-caveat",
-      "evidence": "24 kernel parity checks, GPU overfit gate loss `5.55 -> 0.002` in 150 steps, and headless-browser e2e passed",
-      "failure_reason": "Correctness is proven, but speed is not measured because headless Chromium exposes SwiftShader software WebGPU rather than a real GPU.",
-      "failure_reason_confidence": "exact",
-      "lesson": "GPU API correctness can be CI-proven, but performance claims require a hardware adapter measurement.",
-      "next_action": "Collect the documented real-device WebGPU vs WASM-SIMD benchmark before quoting a browser GPU speedup.",
-      "evidence_sources": ["docs/performance/performance.md"],
-      "source": "docs/performance/performance.md",
+      "status": "worked",
+      "evidence": "Apple M5 Pro / Metal 3 ABBA run measured `10.67x` median Large-preset speedup over WASM with `4.72%` maximum paired final-loss drift and zero runtime errors",
+      "failure_reason_confidence": "not-applicable",
+      "lesson": "Hardware-qualified browser WebGPU can deliver a double-digit training-step win while preserving the frozen numerical-loss gate.",
+      "next_action": "Retain Large as the verified Apple M5 Pro result; Small, Medium, XL, other browsers, and other hardware require independent receipts.",
+      "evidence_sources": [
+        "docs/performance/performance.md",
+        "evals/verified-wins/webgpu-paired-result-v1.json"
+      ],
+      "source": "evals/verified-wins/webgpu-paired-result-v1.json",
       "kind": "infrastructure"
     },
     {
@@ -1260,6 +1263,31 @@
       "data_rows": 94,
       "varied_from": "needle2-base-public-gate",
       "varied": "full mixed catalog -> oracle-selected Pace or local-action catalog"
+    },
+    {
+      "id": "needle2-successor-factorial",
+      "name": "Needle 45M distractor-and-safety successor factorial (2026-09-03)",
+      "family": "tool-calling",
+      "status": "failed",
+      "evidence": "all four arms passed 100% tiny overfit, but public-dev exactness was 25.5%, 25.5%, 26.6%, and 27.7% versus the 34.0% incumbent; every arm produced 7-9 out-of-scope false actions and all 10 destructive bypasses",
+      "failure_reason": "The 45M model memorized the tiny gate but neither distractor-aware data nor explicit safety examples transferred to safe 94-case tool selection.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Tiny overfit proves wiring, not capacity; the interaction treatment recovered only two cases over plain training and could not learn destructive confirmation at this scale.",
+      "next_action": "Close 45M recipe search and advance the same frozen selection-and-safety task to the 1.7B class as a fresh experiment.",
+      "evidence_sources": [
+        "evals/verified-wins/needle-successor-v1.json",
+        "evals/verified-wins/needle-successor-result-v1.json",
+        "docs/techniques/needle2-baseline-review.md",
+        "docs/techniques/needle2-successor-factorial.md"
+      ],
+      "source": "evals/verified-wins/needle-successor-result-v1.json",
+      "kind": "training-run",
+      "methods": ["lora", "evaluation"],
+      "bases": ["needle2-45m"],
+      "objective": "tool-selection",
+      "data_rows": 216,
+      "varied_from": "needle2-task-catalog-ablation",
+      "varied": "2x2 distractor-rich data on/off x refusal-and-confirmation data on/off"
     },
     {
       "id": "parakeet-wgsl-browser-asr-smoke",

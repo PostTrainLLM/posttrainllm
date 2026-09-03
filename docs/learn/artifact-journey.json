@@ -235,22 +235,22 @@
           "title": "Needle 2 selection ruler",
           "kind": "benchmark case file",
           "readiness": "guided-replay",
-          "workload": "public evidence replay",
-          "summary": "A tool-selection case showing that catalog composition—not only context retrieval—can dominate the measured result.",
+          "workload": "public evidence replay; rerunning model evaluation requires approval",
+          "summary": "A complete tiny-model journey from catalog ablation through a 2x2 distractor-and-safety training factorial, ending at a measured 45M capacity boundary.",
           "build": {
-            "label": "Reconstruct the task catalog, scoring contract, and two retained comparison conditions.",
-            "href": "docs/techniques/needle2-baseline-review.md"
+            "label": "Build the four training arms and verify the tiny-overfit correctness gate.",
+            "href": "docs/techniques/needle2-successor-factorial.md"
           },
           "modify": {
-            "label": "Change catalog size or distractor composition while keeping prompts and scorer fixed.",
+            "label": "Inspect how distractor-rich and safety examples differ while every other training variable stays fixed.",
             "href": "/artifacts/needle2-tool-selection"
           },
           "tune": {
-            "label": "Treat catalog design, routing, and retrieval policy as system parameters—not model weights.",
+            "label": "Compare the four LoRA arms, three independent training seeds, and the predeclared unsafe-arm stop rule.",
             "href": "/experiments?q=needle"
           },
           "evaluate": {
-            "label": "Compare full-catalog and task-specific-catalog results and state exactly what each proves.",
+            "label": "Reproduce the public-dev decision and explain why sealed V2 and quantized parity stayed locked.",
             "href": "/artifacts/needle2-tool-selection"
           },
           "package": {
@@ -259,7 +259,9 @@
           },
           "anchors": [
             "docs/attempts.json",
-            "docs/techniques/needle2-baseline-review.md"
+            "docs/techniques/needle2-baseline-review.md",
+            "docs/techniques/needle2-successor-factorial.md",
+            "evals/verified-wins/needle-successor-result-v1.json"
           ],
           "cli_commands": [
             "posttrainllm eval-bfcl",

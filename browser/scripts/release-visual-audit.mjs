@@ -137,7 +137,7 @@ for (const viewport of viewports) {
       failures.push(`hero stats still blur the curve at ${viewport.width}px`);
     if (homeState.entryPoints !== 4)
       failures.push(`home entry map has ${homeState.entryPoints} items`);
-    if (homeState.outcomeCounts.join(",") !== "4,38,33")
+    if (homeState.outcomeCounts.join(",") !== "5,37,34")
       failures.push(
         `home outcome distribution drifted: ${homeState.outcomeCounts}`,
       );
@@ -207,9 +207,9 @@ const counts = {
   learningPaths: pathCount,
 };
 const expected = {
-  attempts: 75,
-  needleResults: 2,
-  workedWithCaveat: 38,
+  attempts: 76,
+  needleResults: 3,
+  workedWithCaveat: 37,
   recipes: 18,
   journeyStages: 9,
   buildableArtifacts: 13,
@@ -242,9 +242,9 @@ const agentCatalog = await (
   await page.request.get(`${baseURL}/api-ai.json`)
 ).json();
 if (agentCatalog.version !== "3") failures.push("agent catalog is not v3");
-if (agentCatalog.experimentSummary?.total !== 75)
+if (agentCatalog.experimentSummary?.total !== 76)
   failures.push("agent catalog experiment total drifted");
-if (agentCatalog.experimentSummary?.nonPositiveOrMixed !== 33)
+if (agentCatalog.experimentSummary?.nonPositiveOrMixed !== 34)
   failures.push("agent catalog non-positive result total drifted");
 if (agentCatalog.learningSummary?.paths !== 9)
   failures.push("agent catalog learning path total drifted");

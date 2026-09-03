@@ -261,10 +261,10 @@ export const artifacts: ArtifactEntry[] = [
   },
   {
     slug: "needle2-tool-selection",
-    title: "Needle 2 Tool-Selection Boundary",
-    eyebrow: "Tiny-runtime rejection",
+    title: "Needle 2: The 45M Capacity Boundary",
+    eyebrow: "A failed model that won us an answer",
     state: "report-only",
-    date: "2026-09-01",
+    date: "2026-09-03",
     kind: "Model evaluation and negative-result artifact",
     tags: [
       "tool calling",
@@ -274,25 +274,25 @@ export const artifacts: ArtifactEntry[] = [
       "negative result",
     ],
     summary:
-      "Needle 2 is tiny and fast, but neither the full catalog nor oracle-selected task catalogs made it accurate or safe enough for Pace.",
-    lede: "The evaluation deliberately tested the most favorable remaining systems hypothesis: reduce the tool catalog before considering any fine-tune. Overall exactness rose four points, but the Pace slice regressed, file operations stayed at zero, and out-of-scope actions remained. The result closes the current integration path without pretending that packaging efficiency is capability.",
+      "Catalog restriction and a four-arm successor factorial both failed, establishing that this 45M model class—not one missing recipe tweak—is the current tool-selection bottleneck.",
+    lede: "The lab first gave Needle the oracle task family, then trained plain and distractor-negative data under standard and safety-weighted losses. Every arm passed tiny overfit, but the best successor scored 26/94 versus stock's 32/94 and every arm produced ten destructive-action bypasses. The safety stop prevented a wasteful sweep and kept sealed V2 unopened. That is a useful capacity-boundary result, not a product candidate.",
     metrics: [
       {
-        label: "Full-catalog exact",
-        value: "32/94",
-        context: "34.0% public gate",
+        label: "Tiny-overfit gates",
+        value: "4/4",
+        context: "all arms reached exact 1.0",
         evidence: "measured",
       },
       {
-        label: "Routed-catalog exact",
-        value: "36/94",
-        context: "38.3% with oracle task family",
+        label: "Best successor",
+        value: "26/94",
+        context: "27.7% vs stock 34.0%",
         evidence: "measured",
       },
       {
-        label: "Pace slice",
-        value: "10/28 → 6/28",
-        context: "target regression",
+        label: "Destructive bypasses",
+        value: "10 vs 2",
+        context: "best arm vs stock; unsafe stop",
         evidence: "measured",
       },
     ],
@@ -313,23 +313,39 @@ export const artifacts: ArtifactEntry[] = [
         comparability: "Direct",
         note: "The upstream task family was supplied; this does not prove Needle can discover it.",
       },
+      {
+        name: "Best trained 45M successor",
+        metric: "exact tool selection",
+        score: "27.7%",
+        size: "94 public-development fixtures",
+        comparability: "Direct",
+        note: "Distractor plus safety weighting was the best arm, but remained below stock and failed the destructive-action stop.",
+      },
     ],
     tables: [
       {
-        title: "Catalog ablation",
-        columns: ["Gate", "Full", "Task catalog", "Readout"],
+        title: "Successor factorial",
+        columns: ["Training data", "Loss", "Exact", "Destructive bypasses"],
         rows: [
-          ["Overall exact", "32/94", "36/94", "+4, below usefulness"],
-          ["Pace exact", "10/28", "6/28", "regressed"],
-          ["File operations", "0/6", "0/6", "no capability"],
-          ["OOS false actions", "8", "3", "still unsafe"],
+          ["Plain", "Standard", "24/94", "10"],
+          ["Plain", "Safety", "24/94", "10"],
+          ["Distractor", "Standard", "25/94", "10"],
+          ["Distractor", "Safety", "26/94", "10"],
         ],
       },
     ],
     evidence: [
       {
-        label: "Full evaluation and decision",
+        label: "Baseline and catalog review",
         href: "/docs/techniques/needle2-baseline-review",
+      },
+      {
+        label: "Successor recipe and learning lab",
+        href: "/docs/techniques/needle2-successor-factorial",
+      },
+      {
+        label: "Machine-readable successor result",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/verified-wins/needle-successor-result-v1.json",
       },
       {
         label: "Machine-readable catalog receipt",
@@ -339,14 +355,14 @@ export const artifacts: ArtifactEntry[] = [
     ],
     blockers: [
       {
-        blocker: "Capability and safety gate failed",
-        why: "The favorable catalog ablation regressed Pace and retained unsafe false actions.",
+        blocker: "45M capacity boundary",
+        why: "All four trained arms passed memorization but regressed public exactness and multiplied destructive bypasses.",
         unblock:
-          "Do not unblock historically; any future work needs a materially different model/training hypothesis and a new gate.",
+          "Open a fresh scoped experiment for a 1.7B successor under the same frozen public and sealed gates.",
       },
     ],
     nextAction:
-      "Closed and rejected for Pace. Preserve the 149.7ms mean latency and 27.7MB RAM result as systems evidence only.",
+      "Close the 45M recipe-search lane. Keep the complete factorial as a hands-on learning artifact; any 1.7B successor is a fresh experiment.",
   },
   {
     slug: "parakeet-wgsl-browser-asr",
@@ -928,80 +944,76 @@ export const artifacts: ArtifactEntry[] = [
   {
     slug: "qwen3-4b-rest-fused",
     title: "Qwen3-4B ReST Fused",
-    eyebrow: "Teacher-free breadth recovery",
+    eyebrow: "Routed depth and safety win",
     state: "release-ready-weights",
-    date: "2026-07-13",
+    date: "2026-09-03",
     kind: "Research specialist package",
     modelRepoId: "posttrainllm/qwen3-4b-rest-fused",
     tags: ["agentic", "ReST", "tool calling", "BFCL"],
     summary:
-      "A teacher-free ReST candidate that preserves the 100% file-ops gate while recovering out-of-domain breadth above the stock 4B baseline.",
-    lede: "This is the factory's first narrow ship decision from an existing measured candidate: the public weights, frozen fixtures, package, and routing boundary are preserved, while missing historical performance and trace evidence stays visible.",
+      "Fresh requalification confirms a perfect, safer, faster file-ops specialist while rejecting it as the general successor because breadth regressed.",
+    lede: "On the frozen paired run, ReST improved file-ops depth from 9/12 to 12/12, removed eight unexpected side effects, and completed that slice 2.42x faster wall-clock. The same candidate fell from 30/45 to 25/45 on frontier-qualified breadth. The honest win is routed specialization, not a general-planner claim.",
     metrics: [
       {
         label: "File-ops hard gate",
-        value: "100%",
-        context: "held from the distilled depth anchor",
-        evidence: "historical",
+        value: "12/12",
+        context: "vs stock 9/12",
+        evidence: "measured",
       },
       {
-        label: "Breadth after ReST",
-        value: "65%",
-        context: "up from 59.6% stock 4B",
-        evidence: "historical",
+        label: "Qualified breadth",
+        value: "25/45",
+        context: "vs stock 30/45",
+        evidence: "measured",
       },
       {
-        label: "Breadth delta",
-        value: "+5.4pp",
-        context: "52 held-out non-file-ops tasks",
-        evidence: "historical",
+        label: "Depth wall speedup",
+        value: "2.42x",
+        context: "360.50s → 148.91s",
+        evidence: "derived",
       },
       {
-        label: "Paid API cost",
-        value: "$0",
-        context: "teacher-free local ReST iteration",
-        evidence: "historical",
+        label: "Safety events removed",
+        value: "10",
+        context: "11 total → 1 across both gates",
+        evidence: "measured",
       },
     ],
     comparisons: [
       {
         name: "posttrainllm Qwen3-4B ReST",
-        metric: "out-of-domain breadth",
-        score: "65%",
+        metric: "file-ops depth",
+        score: "100%",
         size: "4B, 8.06GB stored",
         comparability: "Direct",
-        note: "Recorded on the same 52-task breadth fixture and prompt family as stock.",
+        note: "Fresh run: 12/12, zero unexpected side effects, and 13.40 tok/s.",
       },
       {
         name: "Stock Qwen3-4B",
-        metric: "same out-of-domain breadth fixture",
-        score: "59.6%",
+        metric: "same file-ops depth fixture",
+        score: "75%",
         size: "4B",
         comparability: "Direct",
-        note: "The ReST iteration recovers breadth without giving up the file-ops depth gate.",
+        note: "Fresh run: 9/12, eight unexpected side effects, and 12.10 tok/s.",
       },
       {
-        name: "File-ops-only distilled 4B",
-        metric: "same out-of-domain breadth fixture",
-        score: "42.3%",
+        name: "ReST breadth result",
+        metric: "frontier-qualified breadth",
+        score: "55.6%",
         size: "4B",
         comparability: "Direct",
-        note: "Shows the negative transfer that the ReST iteration was designed to recover.",
+        note: "Below stock's 66.7%; this is why the frozen general-successor decision is reject.",
       },
     ],
     tables: [
       {
-        title: "Recorded result",
+        title: "Fresh requalification",
         columns: ["Gate", "Stock", "ReST candidate", "Readout"],
         rows: [
-          ["File-ops hard gate", "0.58", "1.00", "Depth preserved"],
-          ["Out-of-domain breadth", "0.596", "0.65", "+5.4 points over stock"],
-          [
-            "Latency / RAM / tok-s",
-            "not preserved",
-            "not preserved",
-            "No estimated values",
-          ],
+          ["File-ops depth", "9/12", "12/12", "+25 points"],
+          ["Qualified breadth", "30/45", "25/45", "-11.1 points"],
+          ["Depth wall time", "360.50s", "148.91s", "2.42x faster"],
+          ["Depth peak RSS", "6.77GB", "8.13GB", "+1.36GB"],
         ],
       },
     ],
@@ -1019,8 +1031,8 @@ export const artifacts: ArtifactEntry[] = [
         href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-rest-fused/eval_report.json",
       },
       {
-        label: "ReST inventory",
-        href: "/docs/sessions/06-17-stepback-inventory-roi/",
+        label: "Fresh machine-readable result",
+        href: "https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/verified-wins/rest-requalification-result-v1.json",
       },
       {
         label: "Specialist registry",
@@ -1029,10 +1041,10 @@ export const artifacts: ArtifactEntry[] = [
     ],
     blockers: [
       {
-        blocker: "Historical performance evidence missing",
-        why: "The original run did not preserve latency, RAM, tok-s, elapsed time, or raw predictions.",
+        blocker: "General breadth regressed",
+        why: "The fresh candidate lost five of 45 frontier-qualified breadth cases versus stock.",
         unblock:
-          "Run a fresh product-specific gate only when a downstream integration justifies the heavy model work.",
+          "Do not unblock this candidate as a general model; route it only to the file-ops envelope.",
       },
       {
         blocker: "Not a Pace planner",
@@ -1042,7 +1054,7 @@ export const artifacts: ArtifactEntry[] = [
       },
     ],
     nextAction:
-      "Keep this package research-only. Freeze a product-specific target before spending compute on another eval or training run.",
+      "Keep this package behind the file-ops route and reject it as the general Pace successor.",
     reportCard: reportCard("qwen3-4b-rest-fused", "routed-ship", false),
   },
   {
@@ -1488,8 +1500,8 @@ export const artifacts: ArtifactEntry[] = [
           [
             "mt4b_rest_fused",
             "qwen3-4b-rest-fused",
-            "archive",
-            "ReST breadth recovery variant: depth 100%, breadth 65%",
+            "routed specialist",
+            "Fresh 12/12 vs 9/12 depth win; 25/45 vs 30/45 breadth reject",
           ],
           [
             "mt4b_mb_fused",

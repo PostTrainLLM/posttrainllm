@@ -14,7 +14,7 @@ Source of truth: [`attempts.json`](../attempts.json).
 
 | Dimension | Count |
 |---|---:|
-| Total structured attempts | 75 |
+| Total structured attempts | 76 |
 | Autocorrect | 2 |
 | Chess | 1 |
 | SQL | 17 |
@@ -26,7 +26,7 @@ Source of truth: [`attempts.json`](../attempts.json).
 | Apple FM | 1 |
 | Architecture | 1 |
 | Archive model | 1 |
-| Tool-calling harness | 3 |
+| Tool-calling harness | 4 |
 | Game benchmarks | 3 |
 | OffHours | 3 |
 
@@ -34,9 +34,9 @@ Source of truth: [`attempts.json`](../attempts.json).
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 64 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
-| `inferred` | 5 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
-| `not-applicable` | 4 | No failure reason is expected for a clean worked status. |
+| `exact` | 65 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `inferred` | 4 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
+| `not-applicable` | 5 | No failure reason is expected for a clean worked status. |
 | `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |
 
 ## Normalized Families
