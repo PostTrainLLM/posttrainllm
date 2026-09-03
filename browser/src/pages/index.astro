@@ -46,16 +46,12 @@ const buildableArtifactCount = artifactJourney.stages.flatMap(
           <span class="pulse"></span> a one-machine research lab · MIT
         </p>
         <h1 class="hero-h1">
-          Build a bounded specialist.<br /><span class="tl"
-            >Measure it on one Mac.</span
-          >
+          Build a specialist.<br /><span class="tl">Prove it on one Mac.</span>
         </h1>
         <p class="hero-lede reveal">
-          PostTrainLLM turns a stock open model into a <em>routed specialist</em
-          > sized to local hardware — then shows you exactly where it fails. Distill,
-          fine-tune, gate on real evals, package for MLX, and open the model up with
-          interpretability. This is a measured specialist loop, not a claim that every
-          model can be trained on one Mac.
+          Turn a stock open model into a <em>routed specialist</em> on one Mac — then
+          measure every win and regression. Distill, fine-tune, evaluate, package
+          for MLX, and inspect the result.
         </p>
         <div class="hero-cta reveal">
           <a class="btn btn-primary" href="/docs/quickstart">Run the factory</a>
@@ -77,7 +73,7 @@ const buildableArtifactCount = artifactJourney.stages.flatMap(
       <div class="hero-curve-band" aria-hidden="true">
         <svg
           class="hero-curve"
-          viewBox="0 0 1440 560"
+          viewBox="0 0 1440 260"
           preserveAspectRatio="none"
         >
           <defs>
@@ -88,16 +84,16 @@ const buildableArtifactCount = artifactJourney.stages.flatMap(
           </defs>
           <path
             class="hc-fill"
-            d="M0,60 C240,72 380,180 700,192 C930,195 1200,195 1440,195 L1440,560 L0,560 Z"
+            d="M0,10 C190,16 330,58 480,104 C720,176 1040,155 1440,155 L1440,260 L0,260 Z"
             fill="url(#lcv)"></path>
           <path
             class="hc-line"
-            d="M0,60 C240,72 380,180 700,192 C930,195 1200,195 1440,195"
+            d="M0,10 C190,16 330,58 480,104 C720,176 1040,155 1440,155"
             fill="none"
             stroke="#48e5c2"
             stroke-width="2"
             stroke-linecap="round"></path>
-          <circle class="hc-dot" cx="1440" cy="195" r="5" fill="#48e5c2"
+          <circle class="hc-dot" cx="1440" cy="155" r="5" fill="#48e5c2"
           ></circle>
         </svg>
         <div class="wrap hero-curve-caption-wrap">
@@ -742,7 +738,7 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    padding-top: clamp(56px, 9vw, 128px);
+    padding-top: clamp(40px, 6vw, 80px);
     background: radial-gradient(
       110% 70% at 18% 0%,
       rgba(72, 229, 194, 0.07),
@@ -759,8 +755,8 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
   }
   .hero-curve-band {
     position: relative;
-    height: clamp(120px, 13vw, 180px);
-    margin-top: clamp(44px, 5vw, 72px);
+    height: clamp(190px, 20vw, 280px);
+    margin-top: clamp(40px, 3.5vw, 48px);
   }
   .hero-curve-caption-wrap {
     position: relative;
@@ -805,7 +801,7 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
     display: inline-flex;
     align-items: center;
     gap: 9px;
-    margin-bottom: var(--s-5);
+    margin-bottom: var(--s-3);
     color: var(--fg-soft);
   }
   .pulse {
@@ -828,20 +824,20 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
     }
   }
   .hero-h1 {
-    font-size: clamp(2.5rem, 1.85rem + 3vw, 4rem);
+    font-size: clamp(2.2rem, 1.75rem + 2vw, 3.25rem);
     font-weight: 700;
     letter-spacing: -0.04em;
-    max-width: 16ch;
+    max-width: 15ch;
   }
   .hero-h1 .tl {
     color: var(--live);
     text-shadow: 0 0 34px rgba(72, 229, 194, 0.35);
   }
   .hero-lede {
-    max-width: 56ch;
-    margin-top: var(--s-5);
-    font-size: var(--step-1);
-    line-height: 1.55;
+    max-width: 65ch;
+    margin-top: var(--s-4);
+    font-size: var(--step-0);
+    line-height: 1.5;
     color: var(--fg-soft);
   }
   .hero-lede em {
@@ -853,13 +849,13 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
     display: flex;
     flex-wrap: wrap;
     gap: var(--s-3);
-    margin-top: var(--s-6);
+    margin-top: var(--s-5);
   }
   .mac-release-entry {
     display: inline-flex;
     align-items: center;
     gap: 9px;
-    margin-top: var(--s-5);
+    margin-top: var(--s-4);
     color: var(--fg-quiet);
     font: 540 var(--step--1)/1.4 var(--font-mono);
   }

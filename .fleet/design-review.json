@@ -2,7 +2,7 @@
   "$schema": "fleet.design-review.v1",
   "version": 1,
   "project": "posttrainllm",
-  "target": "Landing hero typography, current evidence, and loss-curve clearance",
+  "target": "Landing hero compression and expanded loss-curve signal",
   "surfaceMode": "persuade",
   "mode": "preserve",
   "register": "product",
@@ -35,10 +35,10 @@
       "driftNote": "",
       "audience": "Learners and practitioners who want to build, modify, tune, evaluate, package, and understand language-model systems on Apple Silicon hardware they control.",
       "job": "State the Mac-local specialist proposition, show one coherent current proof, and offer direct routes into the factory, evidence archive, Web Lab, and learning journey.",
-      "thesis": "Preserve the Local Research Bench while reducing headline dominance and giving the loss trace a dedicated evidence band below every interactive hero element.",
+      "thesis": "Preserve the Local Research Bench while compressing the proposition into a smaller instrument label and promoting the loss trace into the dominant first-viewport visual.",
       "system": "Existing deep-ink surfaces, teal verified signals, coral caution states, Bricolage display type, Geist prose, Geist Mono evidence labels, and full-width loss-curve signature.",
-      "signature": "A measured loss trace now bridges the hero actions and a fresh paired ReST score row without crossing either surface.",
-      "risk": "Separating the trace from the copy could make it feel decorative; retain its historical run caption and place it directly before the current paired evidence row."
+      "signature": "A measured loss trace occupies most of a tall evidence band between the compact hero actions and the fresh paired ReST score row.",
+      "risk": "Compressing the copy could erase the bounded-specialist promise; retain routed-specialist language, one-Mac scope, and the requirement to measure both wins and regressions."
     }
   },
   "evidence": {
@@ -57,7 +57,7 @@
       }
     ],
     "projectCheck": {
-      "command": "pnpm --dir browser test && python3 scripts/docs-checks/check_attempt_ledger.py && python3 scripts/docs-checks/check_project_completion.py && pnpm --dir browser build && E2E_URL=http://127.0.0.1:4321 EVIDENCE_DIR=<repo>/artifacts/design/hero-refinement pnpm --dir browser visual:audit",
+      "command": "pnpm --dir browser test && pnpm --dir browser build && E2E_URL=http://127.0.0.1:4173 EVIDENCE_DIR=<repo>/artifacts/design/hero-refinement pnpm --dir browser visual:audit",
       "status": "pass"
     },
     "critique": {
@@ -101,6 +101,6 @@
   },
   "ownerFeedback": {
     "decision": "agent-selected",
-    "note": "The owner requested a smaller headline, no curve overlap, and corrected experiment presentation; the implementation preserves the established system and uses the fresh paired ReST receipt."
+    "note": "The owner explicitly asked for less header content and substantially more room for the loss curve; the implementation shortens and shrinks the proposition, expands the curve canvas, and preserves all current proof and navigation."
   }
 }

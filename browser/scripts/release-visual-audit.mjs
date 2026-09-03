@@ -35,6 +35,7 @@ await mkdir(evidenceDir, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const failures = [];
 const observations = [];
+const heroObservations = [];
 
 for (const viewport of viewports) {
   const context = await browser.newContext({ viewport });
@@ -142,6 +143,10 @@ for (const viewport of viewports) {
       actionClearance: Math.min(
         ...actionBounds.map((action) => bandBounds.top - action.bottom),
       ),
+      curveVerticalShare:
+        (Math.max(...curvePoints.map((point) => point.y)) -
+          Math.min(...curvePoints.map((point) => point.y))) /
+        bandBounds.height,
       headlineSize: Number.parseFloat(getComputedStyle(headline).fontSize),
       heroMetrics: [...stats.querySelectorAll("li")].map((item) => ({
         value: item.querySelector("b")?.textContent?.trim() ?? "",
@@ -165,6 +170,15 @@ for (const viewport of viewports) {
   if (!homeState) {
     failures.push(`home proof surfaces missing at ${viewport.width}px`);
   } else {
+    heroObservations.push({
+      viewport: viewport.width,
+      headlineSize: Number(homeState.headlineSize.toFixed(2)),
+      actionClearance: Number(homeState.actionClearance.toFixed(2)),
+      curveVerticalShare: Number(
+        (homeState.curveVerticalShare * 100).toFixed(2),
+      ),
+      terminalClearance: Number(homeState.terminalClearance.toFixed(2)),
+    });
     if (!homeState.curveInsideBand)
       failures.push(
         `hero curve escaped its evidence band at ${viewport.width}px`,
@@ -175,7 +189,11 @@ for (const viewport of viewports) {
       failures.push(
         `hero curve band has only ${homeState.actionClearance.toFixed(1)}px clearance after actions at ${viewport.width}px`,
       );
-    if (homeState.headlineSize > 64.1)
+    if (homeState.curveVerticalShare < 0.55)
+      failures.push(
+        `hero curve uses only ${(homeState.curveVerticalShare * 100).toFixed(1)}% of its band at ${viewport.width}px`,
+      );
+    if (homeState.headlineSize > 52.1)
       failures.push(
         `hero headline grew to ${homeState.headlineSize.toFixed(1)}px at ${viewport.width}px`,
       );
@@ -327,6 +345,10 @@ await context.close();
 await browser.close();
 
 console.log(
-  JSON.stringify({ baseURL, counts, observations, failures }, null, 2),
+  JSON.stringify(
+    { baseURL, counts, heroObservations, observations, failures },
+    null,
+    2,
+  ),
 );
 if (failures.length > 0) process.exitCode = 1;
