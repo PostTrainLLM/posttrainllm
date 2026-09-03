@@ -89,19 +89,20 @@ run_arm() {
   local suite="$3"
   local data="$4"
   local gold="$5"
-  local exclude_args=()
+  local arm_args=(
+    python scripts/bfcl/run_rest_arm.py
+    --model "$model" --model-id "$model_id" --suite "$suite"
+    --data "$data" --gold "$gold" --seed "$SEED"
+  )
   if [[ "$suite" == "breadth" ]]; then
     IFS=',' read -r -a excluded_ids <<< "$EXCLUDED_BREADTH_IDS"
     for excluded_id in "${excluded_ids[@]}"; do
-      exclude_args+=(--exclude-id "$excluded_id")
+      arm_args+=(--exclude-id "$excluded_id")
     done
   fi
+  arm_args+=(--output "$RUN_DIR/$model_id-$suite.json")
   BFCL_ROOT="$BFCL_ROOT" uv run --no-project --with mlx-lm==0.31.3 \
-    python scripts/bfcl/run_rest_arm.py \
-      --model "$model" --model-id "$model_id" --suite "$suite" \
-      --data "$data" --gold "$gold" --seed "$SEED" \
-      "${exclude_args[@]}" \
-      --output "$RUN_DIR/$model_id-$suite.json"
+    "${arm_args[@]}"
 }
 
 local_eval() {

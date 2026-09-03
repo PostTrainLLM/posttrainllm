@@ -156,6 +156,11 @@
         "reason": "macOS revoked child-process access to the Desktop checkout after three breadth cases. The old runner silently treated nonzero Codex exits as empty model answers, so this receipt is infrastructure evidence only and cannot qualify or reject the ruler.",
         "raw_receipt": "runs/verified-wins/rest-4b-requalification-v1/frontier-breadth-v8-infrastructure-failure.json",
         "sha256": "93623ce98985da50a6a8ff599b1b56241a0eb4f7a9893829ead47a6033429e38"
+      },
+      {
+        "protocol_version": "8",
+        "decision": "invalid-run",
+        "reason": "The first local invocation stopped before loading a model because macOS Bash 3.2 reports an empty exclude-argument array as unbound under set -u for the depth suite. The runner now builds one non-empty command array and appends breadth exclusions conditionally; models, data, scorer, thresholds, seed, arm order, resources, and gates are unchanged. No local model outcome was seen."
       }
     ],
     "commands": [
