@@ -161,6 +161,11 @@
         "protocol_version": "8",
         "decision": "invalid-run",
         "reason": "The first local invocation stopped before loading a model because macOS Bash 3.2 reports an empty exclude-argument array as unbound under set -u for the depth suite. The runner now builds one non-empty command array and appends breadth exclusions conditionally; models, data, scorer, thresholds, seed, arm order, resources, and gates are unchanged. No local model outcome was seen."
+      },
+      {
+        "protocol_version": "8",
+        "decision": "invalid-run",
+        "reason": "The second local invocation completed all 12 stock-depth cases but failed before writing its receipt because BFCL's checker nested a typed Directory simulator value that Python's JSON encoder rejects. The trace writer now preserves the checker structure while stringifying only non-JSON simulator leaves; models, inference, decoded calls, scoring, thresholds, seed, arm order, resources, and gates are unchanged. No candidate model outcome was seen."
       }
     ],
     "commands": [

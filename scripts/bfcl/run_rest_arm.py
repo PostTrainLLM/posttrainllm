@@ -81,6 +81,11 @@ def schema_failure_count(
     return failures
 
 
+def json_safe(value: Any) -> Any:
+    """Preserve BFCL trace structure while stringifying typed simulator values."""
+    return json.loads(json.dumps(value, default=str))
+
+
 def main() -> int:
     args = parse_args()
     bfcl_root = resolve_bfcl_root()
@@ -225,7 +230,9 @@ def main() -> int:
                         str(result).startswith("Error during execution:")
                         for result in results
                     )
-                messages.append({"role": "tool", "content": json.dumps(results)})
+                messages.append(
+                    {"role": "tool", "content": json.dumps(results, default=str)}
+                )
             decoded.append(turn_steps if turn_steps else [[]])
 
         checker = multi_turn_checker(
@@ -254,7 +261,7 @@ def main() -> int:
                 "schema_failures": example_schema_failures,
                 "unexpected_side_effects": example_side_effects,
                 "decoded": decoded,
-                "checker": checker,
+                "checker": json_safe(checker),
             }
         )
         print(
