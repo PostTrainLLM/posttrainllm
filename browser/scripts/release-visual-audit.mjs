@@ -86,23 +86,67 @@ for (const viewport of viewports) {
   const homeState = await page.evaluate(() => {
     const curve = document.querySelector(".hero-curve");
     const curveDot = document.querySelector(".hc-dot");
+    const curveLine = document.querySelector(".hc-line");
+    const curveBand = document.querySelector(".hero-curve-band");
     const curveCaption = document.querySelector(".hero-curve-cap");
     const stats = document.querySelector(".hero-stats");
+    const actions = [
+      ...document.querySelectorAll(
+        ".hero > .hero-inner .hero-cta a, .hero > .hero-inner .mac-release-entry",
+      ),
+    ];
     if (
       !(curve instanceof SVGElement) ||
       !(curveDot instanceof SVGElement) ||
+      !(curveLine instanceof SVGPathElement) ||
+      !(curveBand instanceof HTMLElement) ||
       !(curveCaption instanceof HTMLElement) ||
-      !(stats instanceof HTMLElement)
+      !(stats instanceof HTMLElement) ||
+      actions.some((action) => !(action instanceof HTMLElement))
     ) {
       return null;
     }
-    const curveStyle = getComputedStyle(curve);
     const statsStyle = getComputedStyle(stats);
+    const headline = document.querySelector(".hero-h1");
+    if (!(headline instanceof HTMLElement)) return null;
+    const curveBounds = curve.getBoundingClientRect();
+    const viewBox = curve.viewBox.baseVal;
+    const curveLength = curveLine.getTotalLength();
+    const curvePoints = Array.from({ length: 201 }, (_, index) => {
+      const point = curveLine.getPointAtLength((curveLength * index) / 200);
+      return {
+        x: curveBounds.x + (point.x / viewBox.width) * curveBounds.width,
+        y: curveBounds.y + (point.y / viewBox.height) * curveBounds.height,
+      };
+    });
+    const actionBounds = actions.map((action) =>
+      action.getBoundingClientRect(),
+    );
     const dotBounds = curveDot.getBoundingClientRect();
     const captionBounds = curveCaption.getBoundingClientRect();
     const statsBounds = stats.getBoundingClientRect();
+    const bandBounds = curveBand.getBoundingClientRect();
     return {
-      curveBottom: Number.parseFloat(curveStyle.bottom),
+      curveInsideBand:
+        curveBounds.top >= bandBounds.top &&
+        curveBounds.bottom <= bandBounds.bottom,
+      actionOverlap: actionBounds.some((action) =>
+        curvePoints.some(
+          (point) =>
+            point.x >= action.left &&
+            point.x <= action.right &&
+            point.y >= action.top &&
+            point.y <= action.bottom,
+        ),
+      ),
+      actionClearance: Math.min(
+        ...actionBounds.map((action) => bandBounds.top - action.bottom),
+      ),
+      headlineSize: Number.parseFloat(getComputedStyle(headline).fontSize),
+      heroMetrics: [...stats.querySelectorAll("li")].map((item) => ({
+        value: item.querySelector("b")?.textContent?.trim() ?? "",
+        label: item.querySelector("span")?.textContent?.trim() ?? "",
+      })),
       terminalClearance: statsBounds.top - dotBounds.bottom,
       captionOverlapsCurveTerminal:
         captionBounds.top < dotBounds.bottom &&
@@ -121,8 +165,34 @@ for (const viewport of viewports) {
   if (!homeState) {
     failures.push(`home proof surfaces missing at ${viewport.width}px`);
   } else {
-    if (homeState.curveBottom < 110)
-      failures.push(`hero curve was not lifted at ${viewport.width}px`);
+    if (!homeState.curveInsideBand)
+      failures.push(
+        `hero curve escaped its evidence band at ${viewport.width}px`,
+      );
+    if (homeState.actionOverlap)
+      failures.push(`hero curve crosses an action at ${viewport.width}px`);
+    if (homeState.actionClearance < 40)
+      failures.push(
+        `hero curve band has only ${homeState.actionClearance.toFixed(1)}px clearance after actions at ${viewport.width}px`,
+      );
+    if (homeState.headlineSize > 64.1)
+      failures.push(
+        `hero headline grew to ${homeState.headlineSize.toFixed(1)}px at ${viewport.width}px`,
+      );
+    const expectedHeroMetrics = [
+      { value: "100%", label: "file ops · 12/12 · stock 9/12" },
+      { value: "55.6%", label: "breadth · 25/45 · stock 30/45" },
+      { value: "0", label: "unexpected side effects · stock 8" },
+      {
+        value: "2.42×",
+        label: "depth wall speed · 360.50s → 148.91s",
+      },
+    ];
+    if (
+      JSON.stringify(homeState.heroMetrics) !==
+      JSON.stringify(expectedHeroMetrics)
+    )
+      failures.push(`hero proof metrics drifted at ${viewport.width}px`);
     if (homeState.terminalClearance < 56)
       failures.push(
         `hero curve terminal has only ${homeState.terminalClearance.toFixed(1)}px clearance above stats at ${viewport.width}px`,

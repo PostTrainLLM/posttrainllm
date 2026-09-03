@@ -41,33 +41,6 @@ const buildableArtifactCount = artifactJourney.stages.flatMap(
   <main class="landing" id="main">
     <!-- ================= HERO ================= -->
     <section class="hero">
-      <!-- the identity IS the composition: the loss curve draws across the whole fold -->
-      <svg
-        class="hero-curve"
-        viewBox="0 0 1440 560"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <defs>
-          <linearGradient id="lcv" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#48e5c2" stop-opacity="0.14"></stop>
-            <stop offset="1" stop-color="#48e5c2" stop-opacity="0"></stop>
-          </linearGradient>
-        </defs>
-        <path
-          class="hc-fill"
-          d="M0,60 C240,72 380,180 700,192 C930,195 1200,195 1440,195 L1440,560 L0,560 Z"
-          fill="url(#lcv)"></path>
-        <path
-          class="hc-line"
-          d="M0,60 C240,72 380,180 700,192 C930,195 1200,195 1440,195"
-          fill="none"
-          stroke="#48e5c2"
-          stroke-width="2"
-          stroke-linecap="round"></path>
-        <circle class="hc-dot" cx="1440" cy="195" r="5" fill="#48e5c2"></circle>
-      </svg>
-
       <div class="wrap hero-inner">
         <p class="hero-kicker mono-label reveal">
           <span class="pulse"></span> a one-machine research lab · MIT
@@ -98,22 +71,55 @@ const buildableArtifactCount = artifactJourney.stages.flatMap(
           <strong>{macReleaseLabel}</strong>
           <span aria-hidden="true">→</span>
         </a>
-        <p class="hero-curve-cap mono-label" aria-hidden="true">
-          historical learning run · huge-base-v1 · 200k steps · loss 4.16
-        </p>
+      </div>
+
+      <!-- The trace gets its own evidence band so it can never cross a hero action. -->
+      <div class="hero-curve-band" aria-hidden="true">
+        <svg
+          class="hero-curve"
+          viewBox="0 0 1440 560"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <linearGradient id="lcv" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#48e5c2" stop-opacity="0.14"></stop>
+              <stop offset="1" stop-color="#48e5c2" stop-opacity="0"></stop>
+            </linearGradient>
+          </defs>
+          <path
+            class="hc-fill"
+            d="M0,60 C240,72 380,180 700,192 C930,195 1200,195 1440,195 L1440,560 L0,560 Z"
+            fill="url(#lcv)"></path>
+          <path
+            class="hc-line"
+            d="M0,60 C240,72 380,180 700,192 C930,195 1200,195 1440,195"
+            fill="none"
+            stroke="#48e5c2"
+            stroke-width="2"
+            stroke-linecap="round"></path>
+          <circle class="hc-dot" cx="1440" cy="195" r="5" fill="#48e5c2"
+          ></circle>
+        </svg>
+        <div class="wrap hero-curve-caption-wrap">
+          <p class="hero-curve-cap mono-label">
+            historical learning run · huge-base-v1 · 200k steps · loss 4.16
+          </p>
+        </div>
       </div>
 
       <div class="wrap">
         <ul class="hero-stats reveal" role="list">
           <li>
-            <b>100<i>%</i></b><span>file-ops gate · n=12 · from 58%</span>
+            <b>100<i>%</i></b><span>file ops · 12/12 · stock 9/12</span>
           </li>
           <li>
-            <b>65<i>%</i></b><span>held-out breadth · n=52 · from 59.6%</span>
+            <b>55.6<i>%</i></b><span>breadth · 25/45 · stock 30/45</span>
           </li>
-          <li><b>2</b><span>public routed specialist packages</span></li>
           <li>
-            <b>1</b><span>research routed-ship · not a product default</span>
+            <b>0</b><span>unexpected side effects · stock 8</span>
+          </li>
+          <li>
+            <b>2.42<i>×</i></b><span>depth wall speed · 360.50s → 148.91s</span>
           </li>
         </ul>
       </div>
@@ -745,13 +751,21 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
   }
   .hero-curve {
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: clamp(112px, 9vw, 148px);
-    z-index: -1;
+    inset: 0;
+    z-index: 0;
     width: 100%;
-    height: clamp(220px, 42vw, 480px);
+    height: 100%;
     pointer-events: none;
+  }
+  .hero-curve-band {
+    position: relative;
+    height: clamp(120px, 13vw, 180px);
+    margin-top: clamp(44px, 5vw, 72px);
+  }
+  .hero-curve-caption-wrap {
+    position: relative;
+    z-index: 1;
+    height: 100%;
   }
   @media (prefers-reduced-motion: no-preference) {
     .hc-line {
@@ -786,7 +800,6 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
   }
   .hero-inner {
     position: relative;
-    padding-bottom: clamp(120px, 16vw, 220px);
   }
   .hero-kicker {
     display: inline-flex;
@@ -815,10 +828,10 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
     }
   }
   .hero-h1 {
-    font-size: var(--step-5);
+    font-size: clamp(2.5rem, 1.85rem + 3vw, 4rem);
     font-weight: 700;
     letter-spacing: -0.04em;
-    max-width: 14ch;
+    max-width: 16ch;
   }
   .hero-h1 .tl {
     color: var(--live);
@@ -879,7 +892,9 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
   .hero-curve-cap {
     position: absolute;
     right: 0;
-    bottom: var(--s-5);
+    bottom: var(--s-3);
+    max-width: min(100%, 58ch);
+    text-align: right;
     color: var(--live);
     opacity: 0.85;
   }
@@ -917,11 +932,8 @@ $BIN factory-run validate ../runs/&lt;run-id&gt;</code></pre>
     .hero-stats {
       grid-template-columns: repeat(2, 1fr);
     }
-    .hero-curve {
-      bottom: 200px;
-    }
     .hero-curve-cap {
-      bottom: 72px;
+      font-size: 0.67rem;
     }
   }
 

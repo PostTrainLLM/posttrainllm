@@ -2,7 +2,7 @@
   "$schema": "fleet.design-review.v1",
   "version": 1,
   "project": "posttrainllm",
-  "target": "Landing page shell, hero curve, agent discovery, and verified Mac release",
+  "target": "Landing hero typography, current evidence, and loss-curve clearance",
   "surfaceMode": "persuade",
   "mode": "preserve",
   "register": "product",
@@ -15,7 +15,7 @@
     "probes": [],
     "selected": "existing-design",
     "approval": "not-required",
-    "before": "artifacts/design/landing-finish/before-1440.png",
+    "before": "artifacts/design/lab/after-1440.png",
     "library": {
       "strategy": "upstream-first",
       "primary": "existing-project-system",
@@ -28,44 +28,44 @@
       }
     },
     "contract": {
-      "purpose": "Show learners and Mac-local AI practitioners the complete path from foundations and browser experiments to specialist training, evaluation, packaging, and honest decisions.",
-      "purposeSource": "PRODUCT.md, DESIGN.md, and owner-directed GitHub issue #137",
+      "purpose": "Show learners and Mac-local AI practitioners a complete, evidence-led path from browser experiments to specialist training, evaluation, packaging, and honest decisions.",
+      "purposeSource": "PRODUCT.md, DESIGN.md, PROJECT_STATUS.md, and the fresh ReST requalification receipt",
       "canonicalPurpose": "PostTrainLLM turns learning into inspectable local artifacts and bounded specialist objectives into evidence-gated Mac-local factory runs.",
       "purposeAlignment": "match",
       "driftNote": "",
       "audience": "Learners and practitioners who want to build, modify, tune, evaluate, package, and understand language-model systems on Apple Silicon hardware they control.",
-      "job": "Orient a fresh visitor to the native factory, Web Lab, evidence archive, recipes, learning paths, Mac app, and agent-readable surfaces, then offer one honest next action.",
-      "thesis": "Preserve the dark Local Research Bench and make the complete lab legible through a lifted continuous loss trace, concise navigation, an evidence-led capability map, and a comprehensive footer.",
-      "system": "Existing deep-ink surfaces, teal verified signals, coral caution states, Bricolage display type, Geist prose, Geist Mono evidence labels, hairline structure, and accessible native disclosure patterns.",
-      "signature": "A continuous measured loss trace leads from the first viewport into an explicit bench map and an honest 75-experiment outcome ledger.",
-      "risk": "Exposing every capability can become a dense link catalog; mitigate with four evidence-backed capability groups, a short primary navigation, and a categorized footer rather than shrinking type or horizontally scrolling all links."
+      "job": "State the Mac-local specialist proposition, show one coherent current proof, and offer direct routes into the factory, evidence archive, Web Lab, and learning journey.",
+      "thesis": "Preserve the Local Research Bench while reducing headline dominance and giving the loss trace a dedicated evidence band below every interactive hero element.",
+      "system": "Existing deep-ink surfaces, teal verified signals, coral caution states, Bricolage display type, Geist prose, Geist Mono evidence labels, and full-width loss-curve signature.",
+      "signature": "A measured loss trace now bridges the hero actions and a fresh paired ReST score row without crossing either surface.",
+      "risk": "Separating the trace from the copy could make it feel decorative; retain its historical run caption and place it directly before the current paired evidence row."
     }
   },
   "evidence": {
     "screenshots": [
       {
         "width": 390,
-        "path": "artifacts/design/landing-finish/after-390.png"
+        "path": "artifacts/design/hero-refinement/after-390.png"
       },
       {
         "width": 768,
-        "path": "artifacts/design/landing-finish/after-768.png"
+        "path": "artifacts/design/hero-refinement/after-768.png"
       },
       {
         "width": 1440,
-        "path": "artifacts/design/landing-finish/after-1440.png"
+        "path": "artifacts/design/hero-refinement/after-1440.png"
       }
     ],
     "projectCheck": {
-      "command": "cd browser && pnpm build && EVIDENCE_DIR=<repo>/artifacts/design/landing-finish pnpm visual:audit",
+      "command": "pnpm --dir browser test && python3 scripts/docs-checks/check_attempt_ledger.py && python3 scripts/docs-checks/check_project_completion.py && pnpm --dir browser build && E2E_URL=http://127.0.0.1:4321 EVIDENCE_DIR=<repo>/artifacts/design/hero-refinement pnpm --dir browser visual:audit",
       "status": "pass"
     },
     "critique": {
-      "score": 36,
+      "score": 38,
       "maximum": 40
     },
     "audit": {
-      "score": 18,
+      "score": 20,
       "maximum": 20
     },
     "unresolved": {
@@ -74,20 +74,18 @@
     },
     "detector": {
       "posture": "advisory",
-      "findings": [
-        "The comprehensive footer is intentionally long on phone widths; it preserves the complete agent and capability map without shrinking text or horizontal scrolling."
-      ]
+      "findings": []
     },
     "comprehension": {
       "status": "pass",
-      "reviewer": "Fresh-visitor screenshot review at 390, 768, and 1440 pixels",
+      "reviewer": "Fresh-visitor screenshot and geometry review at 390, 768, and 1440 pixels",
       "answers": {
-        "product": "A one-machine research lab and specialist-LLM factory for Apple Silicon.",
+        "product": "A one-machine research lab and bounded specialist-LLM factory for Apple Silicon.",
         "audience": "Learners and practitioners building, tuning, evaluating, and understanding local language models on a Mac.",
-        "value": "Turn bounded model ideas into runnable artifacts while seeing both gains and regressions.",
-        "mechanism": "A target-to-data-to-post-train-to-eval-to-package-to-report loop, plus browser training and inference labs.",
-        "proof": "Measured specialist gates, 17 public artifacts, and a fully resolved 75-attempt ledger that exposes 4 clean wins, 38 caveated results, and 33 non-positive or mixed results.",
-        "nextAction": "Run the native factory, inspect specialist proof, enter the Web Lab, or start a structured learning path; the Mac download remains visibly pending until Apple trust gates pass."
+        "value": "Turn bounded model objectives into runnable artifacts while measuring both improvements and regressions.",
+        "mechanism": "A target-to-data-to-post-train-to-eval-to-package-to-report loop, with browser training and inference labs.",
+        "proof": "Fresh paired ReST evidence shows 12/12 file operations versus stock 9/12, zero versus eight unexpected side effects, 2.42x faster depth wall time, and the disclosed 25/45 versus 30/45 breadth regression.",
+        "nextAction": "Run the native factory or inspect the specialist proof; Web Lab, artifacts, experiments, learning paths, and the pending Mac release remain directly reachable."
       },
       "purposeScore": {
         "product": 25,
@@ -103,6 +101,6 @@
   },
   "ownerFeedback": {
     "decision": "agent-selected",
-    "note": "The agent selected the direction; no owner approval was required."
+    "note": "The owner requested a smaller headline, no curve overlap, and corrected experiment presentation; the implementation preserves the established system and uses the fresh paired ReST receipt."
   }
 }
