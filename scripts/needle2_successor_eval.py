@@ -15,6 +15,8 @@ from pathlib import Path
 
 
 CALL_RE = re.compile(r"<tool_call>\s*(.*?)\s*</tool_call>", re.DOTALL)
+SOURCE_REVISION = "ee221ce7c13579d9809209b979a9b7a50936614c"
+CHECKPOINT_SHA256 = "4b0a972d163ffc7678fb3c36bace508114872e9d2ce9e10f225825752d3795bc"
 
 
 def load_rows(path: Path) -> list[dict[str, object]]:
@@ -196,6 +198,43 @@ def generate_length_bucketed(
     return [output for output in generated if output is not None]
 
 
+def evaluation_payload(
+    fixture: Path,
+    backend: str,
+    devices: list[str],
+    summaries: list[dict[str, object]],
+) -> dict[str, object]:
+    return {
+        "schema_version": "posttrainllm.needle-float-eval.v1",
+        "source_revision": SOURCE_REVISION,
+        "checkpoint_sha256": CHECKPOINT_SHA256,
+        "fixture": str(fixture),
+        "backend": backend,
+        "devices": devices,
+        "models": summaries,
+    }
+
+
+def write_checkpoint(path: Path, payload: dict[str, object]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(f"{path.suffix}.tmp")
+    temporary.write_text(json.dumps(payload, indent=2) + "\n")
+    temporary.replace(path)
+
+
+def load_completed(path: Path, fixture: Path, enabled: bool) -> dict[str, object]:
+    if not enabled or not path.exists():
+        return {}
+    payload = json.loads(path.read_text())
+    if payload.get("fixture") != str(fixture):
+        raise ValueError("resume receipt fixture does not match this evaluation")
+    if payload.get("source_revision") != SOURCE_REVISION:
+        raise ValueError("resume receipt source revision does not match")
+    if payload.get("checkpoint_sha256") != CHECKPOINT_SHA256:
+        raise ValueError("resume receipt base checkpoint does not match")
+    return {str(model["model_id"]): model for model in payload.get("models", [])}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-root", type=Path, required=True)
@@ -207,6 +246,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--batch-size", type=int)
     parser.add_argument("--max-new-tokens", type=int)
+    parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
 
     eval_config = json.loads(
@@ -228,9 +268,18 @@ def main() -> int:
     base_params, config = load_checkpoint(str(args.checkpoint))
     model = SimpleAttentionNetwork(config)
     tokenizer = get_tokenizer(config.vocab_size)
+    completed = load_completed(args.output, args.fixture, args.resume)
     summaries = []
     for spec in args.model:
         model_id, adapter_spec = spec.split("=", 1)
+        if model_id in completed:
+            prior = completed[model_id]
+            expected_adapter = None if adapter_spec == "base" else adapter_spec
+            if prior.get("adapter") != expected_adapter:
+                raise ValueError(f"resume adapter does not match for {model_id}")
+            summaries.append(prior)
+            print(f"{model_id}: resumed from checkpoint", flush=True)
+            continue
         params = (
             base_params
             if adapter_spec == "base"
@@ -258,6 +307,15 @@ def main() -> int:
             elapsed,
         )
         summaries.append(summary)
+        write_checkpoint(
+            args.output,
+            evaluation_payload(
+                args.fixture,
+                jax.default_backend(),
+                [str(device) for device in jax.devices()],
+                summaries,
+            ),
+        )
         print(
             f"{model_id}: exact={summary['tool_selection_exact']:.3f} "
             f"oos={summary['out_of_scope_false_actions']} "
@@ -265,17 +323,15 @@ def main() -> int:
             flush=True,
         )
 
-    payload = {
-        "schema_version": "posttrainllm.needle-float-eval.v1",
-        "source_revision": "ee221ce7c13579d9809209b979a9b7a50936614c",
-        "checkpoint_sha256": "4b0a972d163ffc7678fb3c36bace508114872e9d2ce9e10f225825752d3795bc",
-        "fixture": str(args.fixture),
-        "backend": jax.default_backend(),
-        "devices": [str(device) for device in jax.devices()],
-        "models": summaries,
-    }
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(payload, indent=2) + "\n")
+    write_checkpoint(
+        args.output,
+        evaluation_payload(
+            args.fixture,
+            jax.default_backend(),
+            [str(device) for device in jax.devices()],
+            summaries,
+        ),
+    )
     return 0
 
 

@@ -74,7 +74,7 @@ dev() {
   "$NEEDLE_PYTHON" scripts/needle2_successor_eval.py \
     --source-root "$NEEDLE_ROOT" --checkpoint "$CHECKPOINT" \
     --fixture evals/needle2/successor-v1/public-dev-v2.jsonl \
-    "${model_args[@]}" --output "$RUN_DIR/dev-eval.json"
+    "${model_args[@]}" --output "$RUN_DIR/dev-eval.json" --resume
   "$NEEDLE_PYTHON" scripts/needle2_successor_decide.py dev \
     --eval "$RUN_DIR/dev-eval.json" \
     --incumbent evals/needle2/bounded-public-smoke-v1.json \

@@ -2,7 +2,9 @@ import json
 import math
 
 from needle2_successor_eval import (
+    evaluation_payload,
     generate_length_bucketed,
+    load_completed,
     load_rows,
     parse_calls,
     risk_coverage,
@@ -41,6 +43,23 @@ def test_length_bucketing_restores_original_output_order() -> None:
     )
     assert seen_batches == [["x", "middle"], ["longest"]]
     assert [output["text"] for output in outputs] == ["longest", "x", "middle"]
+
+
+def test_resume_loads_only_a_matching_fixture(tmp_path) -> None:
+    fixture = tmp_path / "dev.jsonl"
+    output = tmp_path / "receipt.json"
+    payload = evaluation_payload(
+        fixture,
+        "cpu",
+        ["TFRT_CPU_0"],
+        [{"model_id": "candidate", "tool_selection_exact": 0.5}],
+    )
+    output.write_text(json.dumps(payload))
+    assert (
+        load_completed(output, fixture, True)["candidate"]["tool_selection_exact"]
+        == 0.5
+    )
+    assert load_completed(output, fixture, False) == {}
 
 
 def test_load_rows_normalizes_training_answers(tmp_path) -> None:
