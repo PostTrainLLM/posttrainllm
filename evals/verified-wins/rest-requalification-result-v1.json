@@ -1,0 +1,112 @@
+{
+  "schema_version": "posttrainllm.rest-requalification-published-result.v1",
+  "manifest": "evals/verified-wins/rest-requalification-v1.json",
+  "manifest_id": "rest-4b-requalification-v1",
+  "run_date": "2026-09-03",
+  "harness_revision": "7a33ddc6439dded9d808dcd25804abc18638381b",
+  "environment": {
+    "backend": "mlx-lm==0.31.3",
+    "host": "Apple Silicon Mac",
+    "seed": 13803,
+    "bfcl_revision": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8"
+  },
+  "models": {
+    "stock": {
+      "id": "Qwen/Qwen3-4B-Instruct-2507",
+      "revision": "cdbee75f17c01a7cc42f958dc650907174af0554"
+    },
+    "candidate": {
+      "id": "posttrainllm/qwen3-4b-rest-fused",
+      "revision": "b332dfe437dc201922d50b28eddf0c99ebcc79a7"
+    }
+  },
+  "frontier_ceiling": {
+    "backend": "codex-cli gpt-5.5 high",
+    "depth": { "passed": 12, "count": 12, "accuracy": 1.0 },
+    "breadth": {
+      "passed": 44,
+      "count": 45,
+      "accuracy": 0.9777777777777777
+    },
+    "gate_passed": true
+  },
+  "depth": {
+    "stock": {
+      "passed": 9,
+      "count": 12,
+      "accuracy": 0.75,
+      "schema_failures": 0,
+      "unexpected_side_effects": 8,
+      "decode_tokens_per_second": 12.10009098697156,
+      "peak_rss_bytes": 6772555776,
+      "wall_seconds": 360.50349187495885
+    },
+    "candidate": {
+      "passed": 12,
+      "count": 12,
+      "accuracy": 1.0,
+      "schema_failures": 0,
+      "unexpected_side_effects": 0,
+      "decode_tokens_per_second": 13.39701217776838,
+      "peak_rss_bytes": 8131788800,
+      "wall_seconds": 148.90700433403254
+    },
+    "accuracy_delta": 0.25,
+    "candidate_wall_speedup": 2.420997544657247,
+    "candidate_decode_throughput_ratio": 1.1071827635175011,
+    "candidate_peak_rss_delta_bytes": 1359233024,
+    "hard_gate_passed": true
+  },
+  "breadth": {
+    "stock": {
+      "passed": 30,
+      "count": 45,
+      "accuracy": 0.6666666666666666,
+      "schema_failures": 3,
+      "unexpected_side_effects": 0,
+      "decode_tokens_per_second": 16.543736783955158,
+      "peak_rss_bytes": 7823376384,
+      "wall_seconds": 1895.7528109590057
+    },
+    "candidate": {
+      "passed": 25,
+      "count": 45,
+      "accuracy": 0.5555555555555556,
+      "schema_failures": 1,
+      "unexpected_side_effects": 0,
+      "decode_tokens_per_second": 16.367335955373544,
+      "peak_rss_bytes": 6303924224,
+      "wall_seconds": 1862.2877728330204
+    },
+    "accuracy_delta": -0.11111111111111105,
+    "paired_counts": {
+      "both_pass": 21,
+      "stock_only": 9,
+      "candidate_only": 4,
+      "both_fail": 11
+    },
+    "candidate_wall_speedup": 1.0179698533245891,
+    "candidate_decode_throughput_ratio": 0.9893373044503044,
+    "candidate_peak_rss_delta_bytes": -1519452160,
+    "positive_delta_gate_passed": false
+  },
+  "safety": {
+    "stock_events": 11,
+    "candidate_events": 1,
+    "additional_candidate_events": -10,
+    "no_regression_gate_passed": true
+  },
+  "raw_receipts": {
+    "directory": "runs/verified-wins/rest-4b-requalification-v1",
+    "frontier_depth_sha256": "2db0d402e326fb0249dddcbbb83bd351877d73686a1016fe8f7b026578f0929a",
+    "frontier_breadth_sha256": "aa0eee039ded4f9a945dcaa6ad75ba3909d3aa0e8307da21d57195f69f7afb6d",
+    "stock_depth_sha256": "c4b953a2c7c14c8777cfff77d6b117ba00afca161b9409447754832b1a19f47c",
+    "candidate_depth_sha256": "7a7bccff9b2e05ccadbac4f9bca5fb403b71d07242163734931fa2ccc4c4766b",
+    "stock_breadth_sha256": "226a1414b774909ba3de3eeb292977254d905945d93aee87033c3dc3e067847c",
+    "candidate_breadth_sha256": "20fe247043d9ce0b40b7e59f4f2e4c33a5f7e376c5d4aa9a8b0094a966907e66",
+    "comparison_sha256": "0e37f70d1e2817880e4f1d87d02235d115885e3a47269c68f66f56a95f7f3b46"
+  },
+  "decision": "reject",
+  "classification": "worked-with-caveat",
+  "scope": "Retain qwen3-4b-rest-fused as a routed file-operations specialist: it restores the 12/12 depth gate, removes eight stock side effects, and finishes depth 2.42x faster wall-clock. Reject it as a general Qwen3-4B replacement because held-out breadth falls 11.1 points and loses five net paired cases."
+}
