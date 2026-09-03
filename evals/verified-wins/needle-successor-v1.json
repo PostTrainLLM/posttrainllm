@@ -21,25 +21,25 @@
     {
       "id": "plain-standard",
       "role": "control",
-      "revision": "ee221ce+98824b42+7836dfba",
+      "revision": "ee221ce+87d35598+7836dfba",
       "factors": { "distractor_data": false, "safety_training": false }
     },
     {
       "id": "plain-safety",
       "role": "main-effect-safety",
-      "revision": "ee221ce+98824b42+98e939c3",
+      "revision": "ee221ce+87d35598+98e939c3",
       "factors": { "distractor_data": false, "safety_training": true }
     },
     {
       "id": "distractor-standard",
       "role": "main-effect-distractor",
-      "revision": "ee221ce+98824b42+11a3e093",
+      "revision": "ee221ce+87d35598+11a3e093",
       "factors": { "distractor_data": true, "safety_training": false }
     },
     {
       "id": "distractor-safety",
       "role": "interaction",
-      "revision": "ee221ce+98824b42+36f3622e",
+      "revision": "ee221ce+87d35598+36f3622e",
       "factors": { "distractor_data": true, "safety_training": true }
     }
   ],
@@ -107,7 +107,7 @@
     {
       "id": "factorial-recipe-v1",
       "path": "configs/needle2-successor-v1.json",
-      "sha256": "98824b429b57b178c764008313050018fdb7006ef0ff753eec2128fadd1710d1",
+      "sha256": "87d35598edd3e8423fd2800e9717b31ccb4894bb5fa1ce4c83606792aa8a173b",
       "visibility": "source-config"
     },
     {
@@ -165,7 +165,7 @@
   },
   "freeze": {
     "state": "run-frozen",
-    "protocol_version": "10",
+    "protocol_version": "11",
     "protocol_history": [
       {
         "version": "1",
@@ -211,6 +211,11 @@
         "version": "9",
         "decision": "retry-wiring",
         "reason": "The length-bucketed development process ended without a receipt after more than nine minutes in the first adapter, so none of its work was resumable and no development outcome was seen. Version 10 atomically checkpoints the complete receipt after every adapter and resumes only completed model ids from the identical fixture; prompts, order, weights, 64-token greedy decode, scorer, thresholds, gates, and sealed lock are unchanged."
+      },
+      {
+        "version": "10",
+        "decision": "apply-frozen-stop-rule",
+        "reason": "The first durable development result made plain-standard ineligible with 7 out-of-scope false actions and 10 destructive bypasses at 25.5% exact. Version 11 implements the already-frozen stop-an-arm-on-unsafe-dev-actions rule: arms are evaluated contiguously, an unsafe seed prevents later seeds for only that arm, and safe arms still require all three seeds. Data, completed receipt, weights, 64-token greedy decode, scorer, thresholds, gates, and sealed lock are unchanged."
       }
     ],
     "commands": [

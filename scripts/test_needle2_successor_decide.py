@@ -94,3 +94,30 @@ def test_dev_gate_selects_only_safe_improving_arms(tmp_path) -> None:
     assert result["selected_arm"] == "distractor-safety"
     assert result["selected_model"] == "distractor-safety-seed-1"
     assert result["sealed_unlocked"] is True
+
+
+def test_dev_gate_accepts_early_stopped_unsafe_arms(tmp_path) -> None:
+    models = []
+    for arm in ARMS:
+        models.append(
+            {
+                "model_id": f"{arm}-seed-1",
+                "adapter": f"{arm}-1.pkl",
+                "tool_selection_exact": 0.2,
+                "out_of_scope_false_actions": 1,
+                "destructive_bypasses": 0,
+                "risk_coverage": [],
+            }
+        )
+    evaluation = tmp_path / "dev.json"
+    incumbent = tmp_path / "incumbent.json"
+    output = tmp_path / "selection.json"
+    dump(evaluation, {"models": models})
+    dump(incumbent, {"result": {"tool_selection_exact": {"rate": 0.34}}})
+    assert (
+        dev(argparse.Namespace(eval=evaluation, incumbent=incumbent, output=output))
+        == 1
+    )
+    result = json.loads(output.read_text())
+    assert all(arm["stopped_after_unsafe_seed"] for arm in result["arms"])
+    assert result["sealed_unlocked"] is False

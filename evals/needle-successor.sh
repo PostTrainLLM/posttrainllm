@@ -64,17 +64,18 @@ full() {
 dev() {
   [[ -f "$RUN_DIR/full-training.json" ]]
   local model_args=()
-  local seed
-  for seed in 1380401 1380402 1380403; do
-    local arm
-    for arm in "${ARMS[@]}"; do
+  local arm
+  for arm in "${ARMS[@]}"; do
+    local seed
+    for seed in 1380401 1380402 1380403; do
       model_args+=(--model "$arm-seed-$seed=$RUN_DIR/adapters/$arm-seed-$seed.pkl")
     done
   done
   "$NEEDLE_PYTHON" scripts/needle2_successor_eval.py \
     --source-root "$NEEDLE_ROOT" --checkpoint "$CHECKPOINT" \
     --fixture evals/needle2/successor-v1/public-dev-v2.jsonl \
-    "${model_args[@]}" --output "$RUN_DIR/dev-eval.json" --resume
+    "${model_args[@]}" --output "$RUN_DIR/dev-eval.json" --resume \
+    --stop-arm-on-unsafe
   "$NEEDLE_PYTHON" scripts/needle2_successor_decide.py dev \
     --eval "$RUN_DIR/dev-eval.json" \
     --incumbent evals/needle2/bounded-public-smoke-v1.json \

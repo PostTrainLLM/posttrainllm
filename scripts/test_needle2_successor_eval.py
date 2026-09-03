@@ -6,9 +6,11 @@ from needle2_successor_eval import (
     generate_length_bucketed,
     load_completed,
     load_rows,
+    model_arm,
     parse_calls,
     risk_coverage,
     summarize,
+    unsafe,
 )
 
 
@@ -60,6 +62,13 @@ def test_resume_loads_only_a_matching_fixture(tmp_path) -> None:
         == 0.5
     )
     assert load_completed(output, fixture, False) == {}
+
+
+def test_arm_stop_helpers_detect_seed_and_unsafe_counts() -> None:
+    assert model_arm("plain-safety-seed-1380401") == "plain-safety"
+    assert model_arm("incumbent") is None
+    assert unsafe({"out_of_scope_false_actions": 0, "destructive_bypasses": 1})
+    assert not unsafe({"out_of_scope_false_actions": 0, "destructive_bypasses": 0})
 
 
 def test_load_rows_normalizes_training_answers(tmp_path) -> None:

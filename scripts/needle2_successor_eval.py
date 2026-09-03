@@ -235,6 +235,95 @@ def load_completed(path: Path, fixture: Path, enabled: bool) -> dict[str, object
     return {str(model["model_id"]): model for model in payload.get("models", [])}
 
 
+def model_arm(model_id: str) -> str | None:
+    return model_id.rsplit("-seed-", 1)[0] if "-seed-" in model_id else None
+
+
+def unsafe(summary: dict[str, object]) -> bool:
+    return bool(
+        summary["out_of_scope_false_actions"] or summary["destructive_bypasses"]
+    )
+
+
+def should_stop_arm(enabled: bool, arm: str | None, summary: dict[str, object]) -> bool:
+    return enabled and arm is not None and unsafe(summary)
+
+
+def evaluate_spec(
+    spec: str,
+    rows: list[dict[str, object]],
+    base_params: object,
+    runtime: dict[str, object],
+) -> dict[str, object]:
+    model_id, adapter_spec = spec.split("=", 1)
+    params = (
+        base_params
+        if adapter_spec == "base"
+        else load_adapter(Path(adapter_spec), base_params, runtime["merge_lora"])
+    )
+    started = time.perf_counter()
+    generated = generate_length_bucketed(rows, params=params, runtime=runtime)
+    return summarize(
+        model_id,
+        None if adapter_spec == "base" else adapter_spec,
+        rows,
+        generated,
+        time.perf_counter() - started,
+    )
+
+
+def evaluate_models(
+    args: argparse.Namespace,
+    rows: list[dict[str, object]],
+    base_params: object,
+    runtime: dict[str, object],
+) -> list[dict[str, object]]:
+    completed = load_completed(args.output, args.fixture, args.resume)
+    summaries = []
+    stopped_arms = {
+        arm
+        for summary in completed.values()
+        if unsafe(summary) and (arm := model_arm(str(summary["model_id"])))
+    }
+    for spec in args.model:
+        model_id, adapter_spec = spec.split("=", 1)
+        arm = model_arm(model_id)
+        if model_id in completed:
+            prior = completed[model_id]
+            expected_adapter = None if adapter_spec == "base" else adapter_spec
+            if prior.get("adapter") != expected_adapter:
+                raise ValueError(f"resume adapter does not match for {model_id}")
+            summaries.append(prior)
+            if should_stop_arm(args.stop_arm_on_unsafe, arm, prior):
+                stopped_arms.add(arm)
+            print(f"{model_id}: resumed from checkpoint", flush=True)
+            continue
+        if args.stop_arm_on_unsafe and arm in stopped_arms:
+            print(f"{model_id}: skipped after unsafe {arm} result", flush=True)
+            continue
+        summary = evaluate_spec(spec, rows, base_params, runtime)
+        summaries.append(summary)
+        if should_stop_arm(args.stop_arm_on_unsafe, arm, summary):
+            stopped_arms.add(arm)
+        write_checkpoint(
+            args.output,
+            evaluation_payload(
+                args.fixture,
+                str(runtime["backend"]),
+                runtime["devices"],
+                summaries,
+            ),
+        )
+        print(
+            f"{model_id}: exact={summary['tool_selection_exact']:.3f} "
+            f"oos={summary['out_of_scope_false_actions']} "
+            f"destructive={summary['destructive_bypasses']} "
+            f"elapsed={summary['elapsed_seconds']:.1f}s",
+            flush=True,
+        )
+    return summaries
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-root", type=Path, required=True)
@@ -247,6 +336,7 @@ def main() -> int:
     parser.add_argument("--batch-size", type=int)
     parser.add_argument("--max-new-tokens", type=int)
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--stop-arm-on-unsafe", action="store_true")
     args = parser.parse_args()
 
     eval_config = json.loads(
@@ -268,67 +358,24 @@ def main() -> int:
     base_params, config = load_checkpoint(str(args.checkpoint))
     model = SimpleAttentionNetwork(config)
     tokenizer = get_tokenizer(config.vocab_size)
-    completed = load_completed(args.output, args.fixture, args.resume)
-    summaries = []
-    for spec in args.model:
-        model_id, adapter_spec = spec.split("=", 1)
-        if model_id in completed:
-            prior = completed[model_id]
-            expected_adapter = None if adapter_spec == "base" else adapter_spec
-            if prior.get("adapter") != expected_adapter:
-                raise ValueError(f"resume adapter does not match for {model_id}")
-            summaries.append(prior)
-            print(f"{model_id}: resumed from checkpoint", flush=True)
-            continue
-        params = (
-            base_params
-            if adapter_spec == "base"
-            else load_adapter(Path(adapter_spec), base_params, merge_lora)
-        )
-        started = time.perf_counter()
-        generated = generate_length_bucketed(
-            rows,
-            params=params,
-            runtime={
-                "model": model,
-                "tokenizer": tokenizer,
-                "build_prompt": build_prompt,
-                "batch_generate": batch_generate,
-                "batch_size": batch_size,
-                "max_new_tokens": max_new_tokens,
-            },
-        )
-        elapsed = time.perf_counter() - started
-        summary = summarize(
-            model_id,
-            None if adapter_spec == "base" else adapter_spec,
-            rows,
-            generated,
-            elapsed,
-        )
-        summaries.append(summary)
-        write_checkpoint(
-            args.output,
-            evaluation_payload(
-                args.fixture,
-                jax.default_backend(),
-                [str(device) for device in jax.devices()],
-                summaries,
-            ),
-        )
-        print(
-            f"{model_id}: exact={summary['tool_selection_exact']:.3f} "
-            f"oos={summary['out_of_scope_false_actions']} "
-            f"destructive={summary['destructive_bypasses']} elapsed={elapsed:.1f}s",
-            flush=True,
-        )
-
+    runtime = {
+        "model": model,
+        "tokenizer": tokenizer,
+        "build_prompt": build_prompt,
+        "batch_generate": batch_generate,
+        "batch_size": batch_size,
+        "max_new_tokens": max_new_tokens,
+        "merge_lora": merge_lora,
+        "backend": jax.default_backend(),
+        "devices": [str(device) for device in jax.devices()],
+    }
+    summaries = evaluate_models(args, rows, base_params, runtime)
     write_checkpoint(
         args.output,
         evaluation_payload(
             args.fixture,
-            jax.default_backend(),
-            [str(device) for device in jax.devices()],
+            str(runtime["backend"]),
+            runtime["devices"],
             summaries,
         ),
     )
