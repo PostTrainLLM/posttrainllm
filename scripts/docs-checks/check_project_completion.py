@@ -427,7 +427,11 @@ def validate_browser_landmarks(errors: list[str]) -> None:
     header = header_path.read_text(encoding="utf-8")
     if 'class="sh-skip" href="#main"' not in header:
         errors.append("SiteHeader must provide the shared skip-to-content link")
-    header_keys = set(re.findall(r'key: "([^"]+)"', header))
+    # A status page renders the header but belongs to no nav section, so it
+    # declares active="none": the sentinel resolves to no key, which is also
+    # what switches off SiteHeader's pathname fallback. Every page still has to
+    # state its section explicitly; "none" is a statement, not an exemption.
+    header_keys = set(re.findall(r'key: "([^"]+)"', header)) | {"none"}
 
     for page in sorted((ROOT / "browser/src/pages").rglob("*.astro")):
         text = page.read_text(encoding="utf-8")
