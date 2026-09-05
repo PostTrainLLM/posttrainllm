@@ -106,6 +106,31 @@ for (const route of coreRoutes) {
   }
 }
 
+// Cloudflare Pages picks the status code for an unmatched path from the
+// nearest 404.html in the deployed output. With no root 404.html it serves
+// /index.html at HTTP 200 instead, which is how every unknown path on
+// posttrainllm.com used to return a byte-identical copy of the homepage.
+// Assert the file exists and is genuinely a 404 page, not the homepage under
+// another name, so the catch-all cannot come back unnoticed.
+const notFoundPath = join(distPath, "404.html");
+const homePath = join(distPath, "index.html");
+if (!existsSync(notFoundPath)) {
+  failures.push(
+    "/404.html: missing — Cloudflare Pages will serve the homepage at HTTP 200 for every unknown path",
+  );
+} else {
+  const notFound = readFileSync(notFoundPath, "utf8");
+  if (existsSync(homePath) && notFound === readFileSync(homePath, "utf8")) {
+    failures.push("/404.html: is byte-identical to the homepage");
+  }
+  if (!/<meta\s+name="robots"\s+content="noindex/u.test(notFound)) {
+    failures.push("/404.html: missing a noindex robots directive");
+  }
+  if (/<link\s+rel="canonical"/u.test(notFound)) {
+    failures.push("/404.html: must not declare a canonical URL");
+  }
+}
+
 for (const page of pages) {
   const html = readFileSync(page, "utf8");
   const route = pageRoute(page);

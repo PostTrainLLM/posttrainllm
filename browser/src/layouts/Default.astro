@@ -45,6 +45,14 @@ export interface Props {
    * so opting out happens implicitly via not using the font in styles.
    */
   loadFonts?: boolean;
+  /**
+   * Status pages (404) are served under arbitrary paths, so a self-referencing
+   * canonical would point at a URL that itself 404s. Drop the canonical and
+   * flip robots to noindex for those; the HTTP status already keeps them out
+   * of the index, this just removes the ambiguity for crawlers that render
+   * the body before reading the status line.
+   */
+  noindex?: boolean;
 }
 
 const {
@@ -58,6 +66,7 @@ const {
   twitterDescription,
   themeColor = "#0a0c0f",
   loadFonts: _loadFonts = true,
+  noindex = false,
 } = Astro.props;
 
 const ORIGIN = "https://posttrainllm.com";
@@ -126,10 +135,12 @@ const clampedTwitterDescription = clampDescription(
     <title>{title}</title>
 
     <!-- Canonical + robots -->
-    <link rel="canonical" href={ogUrl ?? canonical} />
+    {!noindex && <link rel="canonical" href={ogUrl ?? canonical} />}
     <meta
       name="robots"
-      content="index, follow, max-image-preview:large, max-snippet:-1"
+      content={noindex
+        ? "noindex, follow"
+        : "index, follow, max-image-preview:large, max-snippet:-1"}
     />
     <meta name="author" content="Sarthak Agrawal" />
     <meta

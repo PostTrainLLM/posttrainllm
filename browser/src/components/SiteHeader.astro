@@ -9,6 +9,13 @@
 import Logo from "./Logo.astro";
 export interface Props {
   mode?: "brand" | "instrument";
+  /**
+   * Key of the nav section this page belongs to. Omit it and the header falls
+   * back to matching the current pathname. Pass "none" for a page that belongs
+   * to no section and is served under arbitrary paths — the 404 page — because
+   * it matches no key and so also switches the pathname fallback off, keeping
+   * a 404 at /artifacts/nope from lighting up "Artifacts".
+   */
   active?: string;
 }
 const { mode = "instrument", active } = Astro.props;
