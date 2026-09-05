@@ -138,11 +138,9 @@ const clampedTwitterDescription = clampDescription(
     {!noindex && <link rel="canonical" href={ogUrl ?? canonical} />}
     <meta
       name="robots"
-      content={
-        noindex
-          ? "noindex, follow"
-          : "index, follow, max-image-preview:large, max-snippet:-1"
-      }
+      content={noindex
+        ? "noindex, follow"
+        : "index, follow, max-image-preview:large, max-snippet:-1"}
     />
     <meta name="author" content="Sarthak Agrawal" />
     <meta
