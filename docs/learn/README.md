@@ -3,7 +3,7 @@ title: Learn
 description: posttrainllm's learning corpus — a ground-up curriculum from "what's a neural net" to modern training mechanics, plus reference + research notes.
 ---
 
-# posttrainllm learning corpus
+# PostTrainLLM learning corpus
 
 A reading map for the `docs/learn/` directory. Choose one of the three reading
 modes below, or use the machine-checked

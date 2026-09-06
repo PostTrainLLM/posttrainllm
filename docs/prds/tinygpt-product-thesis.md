@@ -1,4 +1,4 @@
-# posttrainllm product thesis — the embedded local-AI runtime for Mac apps
+# PostTrainLLM product thesis — the embedded local-AI runtime for Mac apps
 
 Status: positioning doc (2026-06-10). Written as the specialist track closes
 (v11 = final 0.6B planner run, verdict pending) and focus shifts to

@@ -1,4 +1,4 @@
-# posttrainllm — a detailed write-up
+# PostTrainLLM — a detailed write-up
 
 How a documented scaffold became a verified, end-to-end implementation of the
 modern LLM stack: a GPT trained from scratch, adapted with LoRA, ported to

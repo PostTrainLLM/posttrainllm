@@ -1,11 +1,11 @@
 ---
-title: "posttrainllm docs"
+title: "PostTrainLLM docs"
 description: "Mac-local LLM specialist factory — training, inference, evals, systems notes, and learning paths."
 ---
 
-# posttrainllm documentation
+# PostTrainLLM documentation
 
-posttrainllm is a **Mac-local specialist factory**: target → data →
+PostTrainLLM is a **Mac-local specialist factory**: target → data →
 post-training → eval → package → report. These docs are the committed source
 of truth; this site is the presentation + search layer over them.
 

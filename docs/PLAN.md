@@ -1,9 +1,9 @@
 ---
-title: posttrainllm — master plan (shipped / skipped / TODO)
+title: PostTrainLLM — master plan (shipped / skipped / TODO)
 description: Single source of truth for what's shipped, skipped, and still to build. Consolidated from docs/roadmap/*, docs/progress.md, docs/backlog.md, docs/audits/feature_audit_2026_05_31.md, and docs/roadmap/recent_research.md (paper catalogue). Replaces them as the canonical reference; the older docs are now pointer stubs or archived under docs/archive/.
 ---
 
-# posttrainllm — master plan
+# PostTrainLLM — master plan
 
 > **Status: reference / historical inventory.**
 >

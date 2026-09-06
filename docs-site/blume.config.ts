@@ -1,8 +1,8 @@
-import { defineConfig } from 'blume';
+import { defineConfig } from "blume";
 
 // PRDs and OpenSpec content are public by default. Set DOCS_PUBLIC_INTERNAL=false
 // to exclude internal-only trees (prds/**, openspec/**) from the build.
-const publicInternal = process.env.DOCS_PUBLIC_INTERNAL !== 'false';
+const publicInternal = process.env.DOCS_PUBLIC_INTERNAL !== "false";
 
 /**
  * posttrainllm documentation — Blume (AI-ready docs).
@@ -18,23 +18,23 @@ const publicInternal = process.env.DOCS_PUBLIC_INTERNAL !== 'false';
  * Custom domain (recommended): https://docs.posttrainllm.com
  */
 export default defineConfig({
-  title: 'posttrainllm docs',
+  title: "PostTrainLLM docs",
   description:
-    'Mac-local LLM factory documentation — training, inference, evals, systems notes, and learning paths.',
+    "Mac-local LLM factory documentation — training, inference, evals, systems notes, and learning paths.",
   content: {
     // Point directly at the repo's canonical docs tree so there is exactly
     // one home for every doc. Relative to this config file (docs-site/).
-    root: '../docs',
-    exclude: publicInternal ? [] : ['prds/**', 'openspec/**'],
+    root: "../docs",
+    exclude: publicInternal ? [] : ["prds/**", "openspec/**"],
   },
   github: {
-    owner: 'PostTrainLLM',
-    repo: 'posttrainllm',
-    branch: 'main',
-    dir: 'docs',
+    owner: "PostTrainLLM",
+    repo: "posttrainllm",
+    branch: "main",
+    dir: "docs",
   },
   search: {
-    provider: 'orama',
+    provider: "orama",
   },
   ai: {
     llmsTxt: true,
@@ -47,8 +47,8 @@ export default defineConfig({
   deployment: {
     // Served at the apex under /docs (posttrainllm.com/docs) — no separate
     // product/subdomain. base prefixes every asset + route.
-    base: '/docs',
-    site: 'https://posttrainllm.com',
-    output: 'static',
+    base: "/docs",
+    site: "https://posttrainllm.com",
+    output: "static",
   },
 });

@@ -1,4 +1,4 @@
-# posttrainllm Docs
+# PostTrainLLM Docs
 
 This is the canonical entrypoint for posttrainllm documentation.
 

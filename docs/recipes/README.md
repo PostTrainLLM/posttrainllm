@@ -1,4 +1,4 @@
-# posttrainllm Recipes
+# PostTrainLLM Recipes
 
 Copy-paste workflows for using posttrainllm specialists outside the core CLI.
 

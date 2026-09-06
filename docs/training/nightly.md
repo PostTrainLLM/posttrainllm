@@ -1,4 +1,4 @@
-# posttrainllm — nightly training queue
+# PostTrainLLM — nightly training queue
 
 Project shape: **every night the Mac produces a training artifact.** Daytime
 work fills the queue and polishes infrastructure; nighttime runs through it.

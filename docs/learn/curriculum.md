@@ -1,4 +1,4 @@
-# posttrainllm learning curriculum — ground up
+# PostTrainLLM learning curriculum — ground up
 
 This is the owner learning roadmap from first principles to a self-improving
 factory for Mac-local specialist models: a self-improving factory in practice,

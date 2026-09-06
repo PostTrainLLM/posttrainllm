@@ -1,4 +1,4 @@
-# posttrainllm — open in every sense
+# PostTrainLLM — open in every sense
 User-agent: *
 Allow: /
 Allow: /llms.txt

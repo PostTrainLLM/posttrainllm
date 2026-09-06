@@ -1,4 +1,4 @@
-# posttrainllm Closure and Fresh-Experiment Gate
+# PostTrainLLM Closure and Fresh-Experiment Gate
 
 The historical model and experiment work is fully accounted for. Issue #136 is
 closed. Serial Swift and browser builds, current CLI runtime evidence,

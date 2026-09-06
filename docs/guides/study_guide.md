@@ -1,4 +1,4 @@
-# posttrainllm study guide
+# PostTrainLLM study guide
 
 The technical material this session touched, organized so you can pick what to learn at your own pace. The chapters are thematic, not chronological. Each one answers the same two questions in a different domain: *what is this thing*, and *why does it matter for posttrainllm specifically*. You don't need to read them in order. If you're comfortable with JavaScript and have shipped a neural net in PyTorch, the prerequisites are met — the rest is the connective tissue between transformer training internals, GPU shading languages, and the particular way the modern web shoves both of those into a static page.
 

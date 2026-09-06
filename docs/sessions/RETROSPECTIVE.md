@@ -1,4 +1,4 @@
-# posttrainllm — retrospective and forward plan
+# PostTrainLLM — retrospective and forward plan
 
 > Historical strategy note. This captured the 2026-06-11 Pace/small-specialist
 > failure arc and remains valuable learning evidence. It is not the current
