@@ -239,6 +239,13 @@ Sessions + research:
 - [`docs/research/`](docs/research/) — written-up investigations.
 - [`docs/learn/`](docs/learn/) — primers + the project's learning map.
 
+## External projects to study
+
+- [oumi-ai/oumi](https://github.com/oumi-ai/oumi) — open-source ML training and evaluation platform
+- [google-research/tuning_playbook](https://github.com/google-research/tuning_playbook) — a guide for hyperparameter tuning
+- [radixark/miles](https://github.com/radixark/miles) — a personal learning roadmap tool
+- [mvakde.github.io/blog/44-on-arc-1](https://mvakde.github.io/blog/44-on-arc-1/) — essay on ARC-AGI approaches
+
 ---
 
 ## License
