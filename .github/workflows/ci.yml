@@ -350,7 +350,7 @@ jobs:
       - name: Install static-analysis tooling
         run: |
           pnpm install --frozen-lockfile
-          pip install lizard==1.23.0 pycycle==0.0.8 ruff==0.16.2 vulture==2.16
+          pip install lizard==1.23.0 ruff==0.16.2 vulture==2.16
 
       - name: Check changed formatting
         env:

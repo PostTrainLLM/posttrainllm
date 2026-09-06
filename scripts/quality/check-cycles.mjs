@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { capture, commandWithUvx } from "./code-health-files.mjs";
+import { capture } from "./code-health-files.mjs";
 
 const knip = capture("pnpm", [
   "exec",
@@ -23,10 +23,18 @@ if (browserCycles.length > 0) {
   process.exit(1);
 }
 
-const pycycle = commandWithUvx("pycycle", ["pycycle==0.0.8"]);
-const python = capture(pycycle.command, [...pycycle.prefix, "--here"], {
-  cwd: "python_ref",
-});
+// pycycle==0.0.8 seeds its traversal from whichever file os.walk() lists
+// first, an order that depends on the filesystem/checkout rather than the
+// code, and flags any node reached twice as a cycle -- so a plain fan-in
+// (e.g. train.py and sample.py both importing model.py) is misreported as
+// circular purely depending on that order. A real `git clone` checkout
+// reproduced a false-positive 10/10 runs in the 2026-09-06 investigation
+// for a graph that a manual trace shows is a DAG. check_python_cycles.py
+// re-implements the same check with a deterministic white/gray/black DFS.
+const python = capture("python3", [
+  "scripts/quality/check_python_cycles.py",
+  "python_ref",
+]);
 if (!python.stdout.includes("No worries, no cycles here!")) {
   process.stdout.write(python.stdout);
   console.error("Python cycle analysis did not produce a clean result.");
