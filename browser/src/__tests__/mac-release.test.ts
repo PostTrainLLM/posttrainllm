@@ -19,7 +19,7 @@ const eligibleRelease = (): MacReleaseRecord => ({
   },
 });
 
-describe("evaluateMacRelease", () => {
+describe("evaluateMacRelease: shipped release record", () => {
   it("publishes the shipped notarized candidate with its verified artifact", () => {
     expect(evaluateMacRelease(macReleaseRecord)).toMatchObject({
       version: "0.1.0",
@@ -28,7 +28,8 @@ describe("evaluateMacRelease", () => {
       downloadable: true,
       artifactURL:
         "https://github.com/PostTrainLLM/posttrainllm/releases/download/mac-v0.1.0/posttrainllm-0.1.0-macOS.dmg",
-      sha256: "67d7e476eb2abb9863fd902d5e76a65c1db2243f41e19004f436bb78ca157fb8",
+      sha256:
+        "67d7e476eb2abb9863fd902d5e76a65c1db2243f41e19004f436bb78ca157fb8",
     });
   });
 
@@ -56,7 +57,9 @@ describe("evaluateMacRelease", () => {
       sha256: null,
     });
   });
+});
 
+describe("evaluateMacRelease: publication gates", () => {
   it.each([
     ["missing record", undefined],
     ["missing version", { ...eligibleRelease(), version: "" }],

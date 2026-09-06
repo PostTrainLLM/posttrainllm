@@ -53,17 +53,13 @@ const checks = [
 
 <Default
   title="PostTrainLLM for Mac — release status"
-  description={
-    release.downloadable
-      ? "Verified release status for the native PostTrainLLM app on Apple Silicon. The signed, notarized, stapled DMG is published with its SHA-256."
-      : "Verified release status for the native PostTrainLLM app on Apple Silicon. Downloads remain closed until every macOS trust check passes."
-  }
+  description={release.downloadable
+    ? "Verified release status for the native PostTrainLLM app on Apple Silicon. The signed, notarized, stapled DMG is published with its SHA-256."
+    : "Verified release status for the native PostTrainLLM app on Apple Silicon. Downloads remain closed until every macOS trust check passes."}
   ogTitle="PostTrainLLM for Mac"
-  ogDescription={
-    release.downloadable
-      ? "The signed, notarized native Mac app is available for trusted direct distribution."
-      : "The signed native Mac app is being prepared for trusted direct distribution."
-  }
+  ogDescription={release.downloadable
+    ? "The signed, notarized native Mac app is available for trusted direct distribution."
+    : "The signed native Mac app is being prepared for trusted direct distribution."}
   themeColor="#0a0c0f"
 >
   <SiteHeader mode="instrument" active="specialists" />
