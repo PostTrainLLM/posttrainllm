@@ -48,7 +48,9 @@ def build_graph(root: Path) -> dict[str, set[str]]:
     for name, path in modules.items():
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         graph[name] = {
-            imported for imported in imported_names(tree) if imported in modules and imported != name
+            imported
+            for imported in imported_names(tree)
+            if imported in modules and imported != name
         }
     return graph
 
