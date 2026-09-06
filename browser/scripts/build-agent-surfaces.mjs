@@ -393,7 +393,7 @@ async function buildOutputs() {
     "</sitemapindex>\n";
   const counts = { application: 0, documentation: 0, "report-card": 0 };
   for (const surface of surfaces) counts[surface.kind] += 1;
-  const llms = `# posttrainllm
+  const llms = `# PostTrainLLM
 
 > A Mac-local LLM specialist factory: post-training, evidence-gated packaging,
 > MLX runtime work, and a WebGPU playground.
@@ -487,7 +487,7 @@ inspect. See [the generated CLI reference](${ORIGIN}/docs/cli-reference) or
   const catalog =
     JSON.stringify(
       {
-        name: "posttrainllm",
+        name: "PostTrainLLM",
         version: "3",
         url: ORIGIN,
         llms: `${ORIGIN}/llms.txt`,

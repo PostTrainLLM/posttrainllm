@@ -1058,7 +1058,7 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
                 "url": canonical_url,
                 "isPartOf": {
                     "@type": "WebSite",
-                    "name": "posttrainllm",
+                    "name": "PostTrainLLM",
                     "url": "https://posttrainllm.com",
                 },
                 "about": {
@@ -1075,7 +1075,7 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
             '<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">'
         )
         w('<meta property="og:type" content="article">')
-        w('<meta property="og:site_name" content="posttrainllm">')
+        w('<meta property="og:site_name" content="PostTrainLLM">')
         w(f'<meta property="og:url" content="{_esc(canonical_url)}">')
         w(f'<meta property="og:title" content="{_esc(title)}">')
         w(f'<meta property="og:description" content="{_esc(meta_summary)}">')
@@ -1094,7 +1094,7 @@ def render_html(card: dict[str, Any], canonical_url: str | None = None) -> str:
     # --- header ------------------------------------------------------------
     w("<header>")
     w(
-        '<p class="eyebrow">posttrainllm fine-tune report card '
+        '<p class="eyebrow">PostTrainLLM fine-tune report card '
         f"· schema v{card['schema_version']} · compiler {_esc(card['compiled_from']['compiler_version'])}</p>"
     )
     w(f"<h1>{_esc(card['title'])}</h1>")

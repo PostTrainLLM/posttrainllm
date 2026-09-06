@@ -1,4 +1,4 @@
-# posttrainllm — Working Session Q&A Log
+# PostTrainLLM — Working Session Q&A Log
 
 A chronological reconstruction of the working session — the questions asked, what shipped in response. Format is question-then-answer, with an **Outcome** line per entry pointing at what actually shipped. The thread spans four rough phases: an early measurement-and-disillusionment phase, a reframing of what the demo is for, a build-and-ship sprint, and a final round that surfaced the meta-question of "document this thread so it can be re-read."
 

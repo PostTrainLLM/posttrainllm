@@ -1,4 +1,4 @@
-# posttrainllm Decision Log
+# PostTrainLLM Decision Log
 
 This is the meta-log: not the lessons learned, not the open questions, but the moments the direction actually changed. Across one long working session on posttrainllm, the project drifted, snapped, doubled back, and sometimes lurched. The entries below are the turning points — the messages and findings that forced a course correction, the calls that followed, and what those calls eventually shipped. Lessons live elsewhere. This file is just the inflection points, in the order they happened.
 

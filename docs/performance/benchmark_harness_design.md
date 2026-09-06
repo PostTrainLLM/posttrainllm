@@ -1,4 +1,4 @@
-# posttrainllm Inference Benchmark Harness — Design
+# PostTrainLLM Inference Benchmark Harness — Design
 
 *Status: scaffold landed 2026-05-30. This is the foundation for the
 "most powerful inference engine for modern transformers" claim; nothing
