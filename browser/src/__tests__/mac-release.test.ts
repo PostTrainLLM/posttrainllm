@@ -20,8 +20,34 @@ const eligibleRelease = (): MacReleaseRecord => ({
 });
 
 describe("evaluateMacRelease", () => {
-  it("keeps the current candidate pending without exposing an artifact", () => {
+  it("publishes the shipped notarized candidate with its verified artifact", () => {
     expect(evaluateMacRelease(macReleaseRecord)).toMatchObject({
+      version: "0.1.0",
+      build: "1",
+      state: "available",
+      downloadable: true,
+      artifactURL:
+        "https://github.com/PostTrainLLM/posttrainllm/releases/download/mac-v0.1.0/posttrainllm-0.1.0-macOS.dmg",
+      sha256: "67d7e476eb2abb9863fd902d5e76a65c1db2243f41e19004f436bb78ca157fb8",
+    });
+  });
+
+  it("keeps an unverified candidate pending without exposing an artifact", () => {
+    expect(
+      evaluateMacRelease({
+        ...macReleaseRecord,
+        state: "pending-notarization",
+        artifactURL: null,
+        sha256: null,
+        verification: {
+          ...macReleaseRecord.verification,
+          notarized: false,
+          stapled: false,
+          gatekeeperAccepted: false,
+          checksumVerified: false,
+        },
+      }),
+    ).toMatchObject({
       version: "0.1.0",
       build: "1",
       state: "pending-notarization",

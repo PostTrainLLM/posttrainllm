@@ -53,9 +53,17 @@ const checks = [
 
 <Default
   title="PostTrainLLM for Mac — release status"
-  description="Verified release status for the native PostTrainLLM app on Apple Silicon. Downloads remain closed until every macOS trust check passes."
+  description={
+    release.downloadable
+      ? "Verified release status for the native PostTrainLLM app on Apple Silicon. The signed, notarized, stapled DMG is published with its SHA-256."
+      : "Verified release status for the native PostTrainLLM app on Apple Silicon. Downloads remain closed until every macOS trust check passes."
+  }
   ogTitle="PostTrainLLM for Mac"
-  ogDescription="The signed native Mac app is being prepared for trusted direct distribution."
+  ogDescription={
+    release.downloadable
+      ? "The signed, notarized native Mac app is available for trusted direct distribution."
+      : "The signed native Mac app is being prepared for trusted direct distribution."
+  }
   themeColor="#0a0c0f"
 >
   <SiteHeader mode="instrument" active="specialists" />
@@ -88,13 +96,20 @@ const checks = [
         </p>
         <h1 id="release-title">
           Signed for Mac.<br />
-          <span>Awaiting Apple notarization.</span>
+          <span>
+            {
+              release.downloadable
+                ? "Notarized by Apple."
+                : "Awaiting Apple notarization."
+            }
+          </span>
         </h1>
         <p class="release-summary">
-          PostTrainLLM packages the local specialist factory into a native Apple
-          Silicon app. The current candidate is not downloadable yet: the site
-          stays closed until notarization, stapling, Gatekeeper, and checksum
-          verification all agree on the exact DMG.
+          {
+            release.downloadable
+              ? "PostTrainLLM packages the local specialist factory into a native Apple Silicon app. Notarization, stapling, Gatekeeper, and the published checksum all agree on this exact DMG, so the download is open."
+              : "PostTrainLLM packages the local specialist factory into a native Apple Silicon app. The current candidate is not downloadable yet: the site stays closed until notarization, stapling, Gatekeeper, and checksum verification all agree on the exact DMG."
+          }
         </p>
 
         <dl class="release-facts" aria-label="Release details">
@@ -184,7 +199,13 @@ const checks = [
     </section>
 
     <section class="release-method" aria-labelledby="method-title">
-      <p class="method-label">Why the gate stays closed</p>
+      <p class="method-label">
+        {
+          release.downloadable
+            ? "How the gate was cleared"
+            : "Why the gate stays closed"
+        }
+      </p>
       <div>
         <h2 id="method-title">One build. Six independent checks.</h2>
         <p>
