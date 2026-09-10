@@ -21,10 +21,6 @@ const scopes = [
     name: "workspace",
     directory: ".",
     acceptedHigh: new Set([
-      // carried over, still present
-      "1124066", // sharp
-      "1139377", // astro
-      "1139378", // astro
       // surfaced by workspace dedupe, 2026-08
       "1101846", // path-to-regexp
       // unpatched static-build-only image parsers, 2026-09
