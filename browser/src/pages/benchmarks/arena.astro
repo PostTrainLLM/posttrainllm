@@ -11,8 +11,15 @@ const score = arena.games.find(
 )!;
 const chessResult = chess.result;
 const scoreResult = score.result;
-if (!chessResult.ratings || !chessResult.qualification || chessResult.forfeit_rate == null || !scoreResult.entries) {
-  throw new Error("Arena evidence lacks required head-to-head or paired-score results");
+if (
+  !chessResult.ratings ||
+  !chessResult.qualification ||
+  chessResult.forfeit_rate == null ||
+  !scoreResult.entries
+) {
+  throw new Error(
+    "Arena evidence lacks required head-to-head or paired-score results",
+  );
 }
 
 const policyNames: Record<string, string> = {

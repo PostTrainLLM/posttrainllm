@@ -4,8 +4,13 @@ import SiteHeader from "../../components/SiteHeader.astro";
 import replay from "../../data/benchmarks/game-2048-pilot-v1.json";
 import chess from "../../data/benchmarks/chess-development-v1.json";
 
-const measured = replay.models.flatMap((model) => model.aggregate ? [{ ...model, aggregate: model.aggregate }] : []);
-if (measured.length === 0) throw new Error("2048 benchmark catalog requires at least one measured result");
+const measured = replay.models.flatMap((model) =>
+  model.aggregate ? [{ ...model, aggregate: model.aggregate }] : [],
+);
+if (measured.length === 0)
+  throw new Error(
+    "2048 benchmark catalog requires at least one measured result",
+  );
 const strongest = measured.reduce((best, model) =>
   model.aggregate.mean_score > best.aggregate.mean_score ? model : best,
 );
