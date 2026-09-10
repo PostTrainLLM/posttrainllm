@@ -358,7 +358,7 @@ const candidateRandom = candidateMatrix.runs.find(
         } candidates, but no frontier lane reached the required near-100% ceiling.
         GPT-5.5 high reasoning scored lower than medium reasoning. The calibrated
         random mean was {
-          candidateRandom && "calibration" in candidateRandom
+          candidateRandom?.calibration
             ? formatPercent(
                 candidateRandom.calibration.mean_exact_move_accuracy,
               )

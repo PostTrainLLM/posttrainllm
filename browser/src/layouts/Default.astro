@@ -302,7 +302,7 @@ const clampedTwitterDescription = clampDescription(
       import { initVitals } from "../lib/vitals";
       import { initApiTiming } from "../lib/api-timing";
       initVitals();
-      if ("requestIdleCallback" in window) {
+      if (typeof window.requestIdleCallback === "function") {
         window.requestIdleCallback(() => initApiTiming(), { timeout: 5_000 });
       } else {
         window.setTimeout(() => initApiTiming(), 1_000);

@@ -10,7 +10,7 @@ const layoutProps = {
   title: "posttrainllm — verified WebGPU speed on one Mac",
   description:
     "A paired Apple M5 Pro WebGPU-versus-WASM receipt verifies 10.67x on the Large preset; the older multi-preset curve remains historical.",
-  ogType: "article",
+  ogType: "article" as const,
   ogTitle: "posttrainllm — verified WebGPU speed on one Mac",
   ogDescription:
     "The retained curve suggests GPU gains grow with model width, but a paired real-hardware receipt is still required.",

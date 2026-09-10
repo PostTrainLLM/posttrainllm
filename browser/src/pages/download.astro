@@ -29,7 +29,7 @@ const checks = [
     complete: release.verification.hardenedRuntime,
   },
   {
-    label: "Apple notarization",
+    label: "Next: Apple notarization",
     detail: "Apple trust service",
     complete: release.verification.notarized,
   },
@@ -80,10 +80,10 @@ const checks = [
         <p class="release-progress">
           <strong>{completedChecks} of 6 checks passed</strong>
           <span
-            >Next: {
+            >{
               release.downloadable
-                ? "publish verified release"
-                : "Apple notarization"
+                ? "Available to download"
+                : "Next: Apple notarization"
             }</span
           >
           <time datetime={release.recordUpdated}

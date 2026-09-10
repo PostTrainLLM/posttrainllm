@@ -11,6 +11,10 @@ const score = arena.games.find(
 )!;
 const chessResult = chess.result;
 const scoreResult = score.result;
+if (!chessResult.ratings || !chessResult.qualification || chessResult.forfeit_rate == null || !scoreResult.entries) {
+  throw new Error("Arena evidence lacks required head-to-head or paired-score results");
+}
+
 const policyNames: Record<string, string> = {
   "qwen3-4b-instruct-2507-4bit": "Qwen3 4B",
   "qwen3.5-9b-mlx-4bit": "Qwen3.5 9B",

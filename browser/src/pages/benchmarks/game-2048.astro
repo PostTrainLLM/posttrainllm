@@ -4,11 +4,10 @@ import SiteHeader from "../../components/SiteHeader.astro";
 import replay from "../../data/benchmarks/game-2048-pilot-v1.json";
 
 const clientData = JSON.stringify(replay).replaceAll("<", "\\u003c");
-const measuredModels = replay.models.filter((model) => model.aggregate);
+const measuredModels = replay.models.flatMap((model) => model.aggregate ? [{ ...model, aggregate: model.aggregate }] : []);
 const specialist = replay.models.find(
   (model) => model.role === "specialist-candidate",
 );
-const actionCharacter = { up: "U", down: "D", left: "L", right: "R" };
 ---
 
 <Default

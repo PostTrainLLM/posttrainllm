@@ -150,7 +150,7 @@ const exact = attempts.filter(
               class="experiment"
               data-family={attempt.family}
               data-status={attempt.status}
-              data-search={`${attempt.name} ${attempt.family} ${attempt.evidence} ${attempt.lesson} ${attempt.next_action} ${"objective" in attempt ? attempt.objective : ""} ${"methods" in attempt ? attempt.methods.join(" ") : ""} ${"bases" in attempt ? attempt.bases.join(" ") : ""}`.toLowerCase()}
+              data-search={`${attempt.name} ${attempt.family} ${attempt.evidence} ${attempt.lesson} ${attempt.next_action} ${"objective" in attempt ? attempt.objective : ""} ${"methods" in attempt ? (attempt.methods ?? []).join(" ") : ""} ${"bases" in attempt ? (attempt.bases ?? []).join(" ") : ""}`.toLowerCase()}
             >
               <div class="experiment-top">
                 <span class="family">
@@ -161,12 +161,12 @@ const exact = attempts.filter(
                 </span>
               </div>
               <h3>{attempt.name}</h3>
-              {"methods" in attempt && attempt.methods.length > 0 && (
+              {"methods" in attempt && (attempt.methods?.length ?? 0) > 0 && (
                 <ul
                   class="methods"
                   aria-label={`Methods used by ${attempt.name}`}
                 >
-                  {attempt.methods.map((method) => (
+                  {(attempt.methods ?? []).map((method) => (
                     <li>{method}</li>
                   ))}
                 </ul>

@@ -6,7 +6,7 @@ const layoutProps = {
   title: "posttrainllm — training run dashboard",
   description:
     "Drop a .jsonl training log to see loss, LR, val, step-rate, and spike markers — overlay multiple runs to compare.",
-  ogType: "article",
+  ogType: "article" as const,
   ogTitle: "posttrainllm — training dashboard",
   ogDescription:
     "In-house, zero-dependency viewer for posttrainllm train --log-jsonl streams.",

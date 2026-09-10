@@ -10,7 +10,7 @@ const layoutProps = {
   title: "posttrainllm — the performance journey",
   description:
     "The performance journey of posttrainllm — every speed lever, what's shipped, what's blocked, and why.",
-  ogType: "article",
+  ogType: "article" as const,
   ogTitle: "posttrainllm — the performance journey",
   ogDescription:
     "Every speed lever, what's shipped, what's blocked, and why. Scalar → SIMD → threads → WebGPU naive → blocked-4×4, with verified measurements separated from the historical WebGPU curve that still needs a hardware receipt.",

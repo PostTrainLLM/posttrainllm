@@ -6,7 +6,7 @@ const layoutProps = {
   title: "posttrainllm — in-browser inference",
   description:
     "Run real LLMs fully client-side in your browser via WebGPU (transformers.js). Pull any ONNX model from Hugging Face by id, or pick a curated one — no server, no upload, weights stay on your machine.",
-  ogType: "website",
+  ogType: "website" as const,
   ogTitle: "Run an LLM in your browser — no server",
   ogDescription:
     "Client-side WebGPU inference. Pull a model from Hugging Face and chat with it; the weights never leave your device.",
@@ -204,7 +204,6 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
 
     let generator: any = null;
     let TextStreamer: any = null;
-    let loadedId = "";
     let stopFlag = false;
 
     function setLoadStatus(msg: string, err = false) {
@@ -263,7 +262,6 @@ button.ghost{background:var(--panel-2);border-color:var(--line-strong);color:var
             }
           },
         });
-        loadedId = id;
         loadBar.style.width = "100%";
         setLoadStatus(`Ready: ${id} on ${deviceSel.value.toUpperCase()}.`);
         genBtn.disabled = false;
