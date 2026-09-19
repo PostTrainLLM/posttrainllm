@@ -68,7 +68,7 @@ $BIN train --preset tiny --steps 200 \
   --corpus ../data/examples/tiny-corpus.txt --out /tmp/tiny.tinygpt
 
 # Sample from it
-$BIN sample /tmp/tiny.tinygpt --prompt "ROMEO:" --max-tokens 100
+$BIN sample /tmp/tiny.tinygpt --prompt "ROMEO:" --tokens 100
 
 # Or LoRA-fine-tune a HuggingFace model on your data
 $BIN sft <hf-model-dir-or-id> \
