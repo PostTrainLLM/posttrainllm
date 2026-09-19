@@ -77,7 +77,7 @@
       "kind": "committed-package-file",
       "label": "model card",
       "path": "specialists/qwen3-4b-rest-fused/model_card.md",
-      "sha256": "036dce9f2b45629ba0ea26de10566d9b3494297f4bf3c4d47918f300f1856e9e"
+      "sha256": "a96a9053f018fa2a36b23d3922399a76824d130918d2b03d8dea398813bb05d3"
     },
     {
       "kind": "committed-package-file",
