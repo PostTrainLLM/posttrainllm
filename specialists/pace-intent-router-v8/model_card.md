@@ -1,5 +1,5 @@
 ---
-base_model: posttrainllm-ToolRouterModel-small
+base_model: posttrainllm-ToolRouterModel-medium
 language:
   - en
 library_name: posttrainllm
@@ -97,10 +97,10 @@ useful for reproducing the factory run, not for an official win claim.
    the 4B generalist ahead by 36.5 points.
 2. **77x faster**: 3.1ms vs 240ms. The router runs in sub-4ms on CPU;
    Qwen needs a full LLM forward pass.
-3. **Unknown class is the moat**: v8 scores 79.6% on unknown vs Qwen's
-   2.6%. Qwen almost never returns "unknown" — it forces everything
-   into a known class, which is risky for a router (wrong route →
-   wrong pipeline). The trained model knows when to say "I don't know."
+3. **Unknown detection did not generalize**: the old synthetic holdout
+   measured 79.6% unknown accuracy, but sealed V1 measured 55.6% unknown
+   recall versus Qwen's 77.8%. The historical result is not a production
+   reliability claim.
 4. **v5 vs v8**: v5 (12K steps) slightly outperforms v8 (18K steps)
    overall (95.9% vs 95.5%), but v8 has a much better unknown class
    (79.6% vs 70.3%, +9.3 pp). The longer training improved the hardest
@@ -173,10 +173,9 @@ the synthetic eval — and it also beats Apple Foundation Models (3B,
 in-process) on the same task: 95.5% vs 76.5% on a 200-example
 stratified sample. The model is most useful as:
 
-1. **The production intent classifier** — it's faster (3ms vs 1600ms),
-   more accurate (95.5% vs 76.5%), and has calibrated confidence
-   (real softmax vs hardcoded 0.95)
-2. A fallback when Apple FM is unavailable (older Macs)
+1. A latency baseline for a small, local intent classifier.
+2. A study of synthetic-data generalization failures; sealed V1 rejected
+   this checkpoint as a production winner.
 3. A training pipeline validation (the corpus and pipeline are assets)
 4. A baseline for future on-device classifiers
 
@@ -196,6 +195,10 @@ Pace-specific distinction between "research X" (multi-step) and
 
 ## References
 
+- [Project and learning lab](https://posttrainllm.com)
+- [Source and Mac quickstart](https://github.com/PostTrainLLM/posttrainllm#quickstart-mac)
+- [Sealed benchmark](https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/everyday-benchmark/pace-intent-sealed-v1.md)
+- [Canonical evaluation report](https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/pace-intent-router-v8/eval_report.json)
 - Factory run report: `runs/2026-07-13-pace-intent-router-v1/report.md`
 - Eval data: `runs/2026-07-13-pace-intent-router-v1/eval-candidate-v8.json`
 - Head-to-head: `runs/2026-07-13-pace-intent-router-v1/head-to-head.json`

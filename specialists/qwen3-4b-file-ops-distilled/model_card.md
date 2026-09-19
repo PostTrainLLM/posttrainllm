@@ -68,5 +68,10 @@ Qwen3-4B-Instruct-2507 bf16 with the plan-then-execute prompt.
 
 ## References
 
+- [Project and learning lab](https://posttrainllm.com)
+- [Mac quickstart](https://github.com/PostTrainLLM/posttrainllm#quickstart-mac)
+- [Distillation recipe](https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/recipes/distill-specialist.md)
+- [Evidence and limitations](https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/learn/tool-calling-frontier-parity.md)
+- [Base model and license](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507)
 - `docs/learn/tool-calling-frontier-parity.md` sections 8.1-8.5
 - `docs/sessions/planner-lock-2026-06-19.md`
