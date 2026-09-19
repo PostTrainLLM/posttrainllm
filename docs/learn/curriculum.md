@@ -135,6 +135,10 @@ relevant foundations. These are learning exercises, not new required modules:
 - **Inside vLLM**, after transformer foundations in the inference/runtime path:
   trace scheduling and KV-block ownership, predict latency/throughput tradeoffs,
   and map the single-Mac-to-cluster boundary.
+- **Splash**, after transformer and training-mechanics foundations: study how
+  per-model Metal kernels, speculative drafts, cache policy, and memory planning
+  trade generality for Mac-local serving speed, then design a fair same-Mac
+  comparison.
 
 Each case study has source links, an exercise, and a mastery gate. Track the
 checkpoint in [learning progress](../learning-progress.md). No model run is

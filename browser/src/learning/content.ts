@@ -316,4 +316,15 @@ export const learningCaseStudies: LearningCaseStudy[] = [
       "/docs/industry_learning_roadmap#case-study---inside-vllm-inference-systems-and-scaling-boundaries",
     sourceLabel: "Open the article study guide",
   },
+  {
+    id: "splash-mac-inference",
+    title: "Splash: model-specific Mac inference",
+    lesson:
+      "Study how shape-specific Metal kernels, a model-specific speculative draft, packed weights, cache reuse, and a startup memory plan trade generic model support for Mac-local serving performance.",
+    exercise:
+      "Design a same-Mac comparison with a general engine covering cold and cached TTFT, prefill, decode, concurrency, memory, output validity, task completion, and per-model tuning cost.",
+    sourceHref:
+      "/docs/industry_learning_roadmap#case-study---splash-model-specific-mac-inference",
+    sourceLabel: "Open the launch analysis and source guide",
+  },
 ];

@@ -119,5 +119,5 @@
     "decision": "agent-selected",
     "note": "The owner delegated the visual choice, selected browser-only persistence with export/import, and required self-contained public lessons for learners who may not use AI chat. Session Desk was selected and implemented."
   },
-  "notes": "Issue #151. Session Desk implemented with ten module-specific exercise and recall loops, four applied cases, browser-only persistence, safe backup import/export, telemetry isolation, and retained library routes. Final independent review found no material P0, P1, or P2 issues."
+  "notes": "Issue #151. Session Desk implemented with ten module-specific exercise and recall loops, five applied cases, browser-only persistence, safe backup import/export, telemetry isolation, and retained library routes. Final independent review found no material P0, P1, or P2 issues."
 }

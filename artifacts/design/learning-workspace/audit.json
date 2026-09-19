@@ -2,5 +2,7 @@
   "failures": [],
   "errors": [],
   "route": "/learn/session",
-  "checkedAt": "2026-09-19T12:24:21.360Z"
+  "caseStudies": 5,
+  "analyticsRequests": 0,
+  "checkedAt": "2026-09-19T13:04:20Z"
 }

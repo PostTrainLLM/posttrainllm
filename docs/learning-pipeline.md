@@ -72,6 +72,13 @@ The exercise is a hand-simulated request trace and performance prediction table;
 it needs no GPU run. See the [case study](industry_learning_roadmap.md#case-study---inside-vllm-inference-systems-and-scaling-boundaries)
 and record progress in [the tracker](learning-progress.md).
 
+**Splash**, by Inco AI, follows Inside vLLM as the Mac-specific specialization
+case. Separate the shared scheduler/cache/API from the per-model packed weights,
+Metal kernels, DFlash 2 draft, and memory plan. Its exercise designs a same-Mac
+comparison across cold and cached TTFT, prefill, decode, concurrency, memory,
+output validity, and task completion; the source review does not authorize an
+install or benchmark. See the [case study](industry_learning_roadmap.md#case-study---splash-model-specific-mac-inference).
+
 ## Factory-Attached Learning Sequence
 
 | Order | Topic | Why Now | Project Work It Unlocks | Primary Docs |

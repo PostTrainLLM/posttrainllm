@@ -77,7 +77,7 @@ Next session:
 - [Thirteen buildable artifacts](learn/artifact-journey.json): build/modify/tune/prove/package work.
 - [Coverage map](learn/coverage-map.md): find the lesson for each subsystem.
 - [Industry roadmap](industry_learning_roadmap.md): all external readings,
-  including Savante, Bonsai, QORL and its owner PRD, and Inside vLLM.
+  including Savante, Bonsai, QORL and its owner PRD, Inside vLLM, and Splash.
 - [Recipe registry](recipes/registry.json) and [attempt ledger](attempt-ledger.md):
   retained methods, experiments, results, and failures.
 
@@ -121,6 +121,7 @@ establish owner mastery; the queued exercises remain `not-started`.
 | [Bonsai 2 27B](industry_learning_roadmap.md#case-study---bonsai-2-27b-capability-retained-per-deployment-cost) | Quantization and packaging; runtime and agents | `not-started` | Draft the artifact/runtime comparison sheet with unmeasured fields marked unknown |
 | [QORL / parameter-aware query optimization](industry_learning_roadmap.md#case-study---qorl-parameter-aware-query-optimization) | Evaluation and factory; runtime and agents | `not-started` | Draft the frozen three-arm comparison protocol from the retained owner PRD; no database runs yet |
 | [Inside vLLM](industry_learning_roadmap.md#case-study---inside-vllm-inference-systems-and-scaling-boundaries) | Runtime and agents; architecture and kernels | `not-started` | Hand-simulate three requests and KV-block allocation; write the latency/throughput prediction table |
+| [Splash](industry_learning_roadmap.md#case-study---splash-model-specific-mac-inference) | Runtime and agents; architecture and kernels; quantization and packaging | `not-started` | Design the same-Mac specialized-versus-general engine comparison; no install or benchmark yet |
 
 Record the explanation, inspected source, open questions, and mastery-gate
 result here after study. These entries authorize learning, not model runs.

@@ -343,6 +343,48 @@ workload. Record the trace and predictions in the learning tracker. Refresh
 upstream documentation before any future implementation; this is boundary
 study, not a request to recreate or deploy a serving stack.
 
+## Case study - Splash: model-specific Mac inference
+
+Added 2026-09-19. **Study only; no installation or benchmark started.**
+
+Sources: Inco AI's [launch article](https://inco.ai/blog/splash/), the
+[Apache-2.0 repository](https://github.com/incoai/splash), and its
+[development guide](https://github.com/incoai/splash/blob/main/DEVELOPMENT.md).
+The published measurements use an M5 Pro with 48 GB of unified memory and
+compare complete engine configurations. Treat the results as vendor-reported
+end-to-end evidence, not an independent benchmark or an ablation of any one
+technique.
+
+Read after transformer and training-mechanics foundations in
+`runtime-and-agents`, with `architecture-and-kernels` and
+`quantization-and-packaging`. Splash trades generic model support for a package
+built around each supported model: shape-specific fused Metal kernels, a
+model-specific DFlash 2 draft, packed 4-bit weights, prefix-indexed paged cache,
+and a startup memory plan. The shared runtime still owns scheduling, cache, and
+OpenAI/Anthropic-compatible APIs. This is a concrete Mac-local example of when
+specialization can beat a general engine and what flexibility it gives up.
+
+The article reports, on its stated setup, 74 tok/s short-prompt decode for
+Qwen3.8-27B, 282 ms cached TTFT on a 32K replay, and 170 tok/s aggregate decode
+for four concurrent short prompts. Those numbers combine kernels, draft,
+scheduler, cache, packaging, and recommended settings. They do not isolate the
+gain from DFlash, kernel generation, quantization, or memory planning, and they
+do not establish output-quality parity by themselves.
+
+Exercise: design a same-Mac comparison between Splash and one general-purpose
+engine. Pin the Mac, OS, model revision, runtime commits, quantization, prompt
+set, output/reasoning limits, and API behavior. Measure cold and cached TTFT,
+prefill, decode, four-request aggregate throughput, peak process and Metal
+memory, cache-hit rate, output validity, and task completion. Record packaging
+and per-model tuning cost separately. Predict where a specialized engine should
+win and define a case that favors the general engine.
+
+Mastery gate: explain why faster decode alone does not prove a faster agent,
+how prefix reuse changes repeated-turn latency, why concurrency can widen the
+advantage of batching, and what must be re-engineered to add a new model. A
+future install or benchmark requires a scoped issue, an exact-source protocol,
+and a bounded resource budget; this reading entry authorizes none of them.
+
 ## Running source queue
 
 Read in this order when updating the roadmap:
@@ -354,7 +396,8 @@ Read in this order when updating the roadmap:
 5. OpenAI evals, then QORL for search, routing, and held-out runtime evaluation
 6. Poolside Laguna
 7. Apple MLX, then Inside vLLM for inference systems and scaling boundaries,
-   and Bonsai 2 in the quantization/runtime paths
+   Splash for model-specific Mac serving, and Bonsai 2 in the
+   quantization/runtime paths
 8. Llama/Qwen reports
 9. DeepSeek-R1
 10. Lamina/video references
