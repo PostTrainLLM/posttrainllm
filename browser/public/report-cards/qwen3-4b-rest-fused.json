@@ -77,7 +77,7 @@
       "kind": "committed-package-file",
       "label": "model card",
       "path": "specialists/qwen3-4b-rest-fused/model_card.md",
-      "sha256": "a96a9053f018fa2a36b23d3922399a76824d130918d2b03d8dea398813bb05d3"
+      "sha256": "6d5fefe5efcf76f67ae84204136f36955d2dbc4043f9b0704405284867ef1890"
     },
     {
       "kind": "committed-package-file",
@@ -101,7 +101,7 @@
       "kind": "committed-registry",
       "label": "specialist registry entry",
       "path": "specialists/registry.json",
-      "sha256": "34b7b43a62dcece35fe7212add23e19ea79427ae5a776ceb647244c75e3f4b15"
+      "sha256": "f051c563b97adab75186d78d0adb6aa656a8cb38181d6970c877d81a572bfc6f"
     },
     {
       "kind": "historical-record",

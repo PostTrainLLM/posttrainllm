@@ -16,7 +16,7 @@
     {"name": "shared_base_bytes", "state": "not-applicable", "value": null, "unit": "bytes", "source": null},
     {"name": "adapter_bytes", "state": "not-applicable", "value": null, "unit": "bytes", "source": null},
     {"name": "energy_joules", "state": "missing", "value": null, "unit": "joules", "source": null},
-    {"name": "training_time_seconds", "state": "historical", "value": 1800, "unit": "seconds", "source": "specialists/pace-intent-router-v8/model_card.md"},
+    {"name": "training_time_seconds", "state": "missing", "value": null, "unit": "seconds", "source": null},
     {"name": "evaluation_time_seconds", "state": "missing", "value": null, "unit": "seconds", "source": null},
     {"name": "local_cost_usd", "state": "missing", "value": null, "unit": "usd", "source": null},
     {"name": "external_cost_usd", "state": "not-applicable", "value": null, "unit": "usd", "source": null}
@@ -27,7 +27,7 @@
     "permitted_benchmark_split": "training corpus predates sealed-official-v1; sealed instances prohibited",
     "row_count": 112061,
     "method": "train-extractor cross-entropy classification",
-    "training_time": "historical 1800 seconds",
+    "training_time": "missing",
     "compute_cost": "missing"
   },
   "evidence": [

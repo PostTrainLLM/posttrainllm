@@ -75,8 +75,10 @@ Qwen3-4B-Instruct-2507 bf16 with the plan-then-execute prompt.
   (rejection-sampled SFT rendered in the student's chat template). An identical
   model was independently reproduced with teacher-free gold
   behaviour-cloning; see `docs/learn/tool-calling-frontier-parity.md` §8.1.
-- The evaluation methodology derives from Berkeley's BFCL multi-turn suite
-  (Apache-2.0). No third-party weight files are bundled.
+- The distributed artifact is itself fused Qwen-derived weights; no BFCL
+  datasets, teacher trajectories, or additional third-party weights are
+  bundled. The evaluation methodology derives from Berkeley's BFCL
+  multi-turn suite (Apache-2.0).
 
 ## References
 

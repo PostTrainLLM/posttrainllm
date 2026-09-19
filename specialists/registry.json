@@ -15,7 +15,7 @@
         "status": "weights-published",
         "large_weights_published": true
       },
-      "base": "posttrainllm-ToolRouterModel-small",
+      "base": "posttrainllm-ToolRouterModel-medium",
       "base_precision": "float32",
       "training": "train-extractor cross-entropy classification on 127K synthetic Pace intent examples (18000 steps)",
       "status": "trained-specialist",
