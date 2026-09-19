@@ -96,3 +96,10 @@ not just headline scores.
 Before posting: owner reviews wording, complete artifact license/provenance
 qualification, and attach the fresh-clone verification receipt. No account
 creation, community submission, ad spend or new tracking is authorized here.
+
+**Gate status (2026-09-19):** all three pre-posting gates are now satisfied —
+wording owner-approved, license/provenance qualification complete on all three
+cards (Apache-2.0 for the two Qwen derivatives, MIT for the from-scratch
+router, live on Hugging Face), and the clean-clone receipt is posted on #148.
+Posting itself remains the owner's action; record the link and date on #148
+once published.
