@@ -9,7 +9,8 @@
     "src/worker.ts",
     "src/benchmarks/types.ts",
     "src/lib/api-timing.ts",
-    "src/lib/vitals.ts"
+    "src/lib/vitals.ts",
+    "src/learning/workspace.ts"
   ],
   "project": [
     "src/**/*.{astro,ts}",

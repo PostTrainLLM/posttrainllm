@@ -71,7 +71,8 @@
         "docs/training/dpo.md",
         "docs/techniques/lora_guide.md",
         "docs/techniques/distillation.md",
-        "docs/learn/advanced-llm-training.md"
+        "docs/learn/advanced-llm-training.md",
+        "docs/industry_learning_roadmap.md"
       ],
       "lab": "Reconstruct the SQL and file-ops lineages, including the variable changed, target gain, regression, and decision at each step.",
       "mastery_gate": "Design a recipe with data, target, reward or labels, regression slices, resource budget, stop rule, and ship/retry/reject threshold.",
@@ -100,7 +101,8 @@
         "docs/factory/run-schema.md",
         "docs/factory/reports.md",
         "docs/attempt-ledger.md",
-        "docs/recipes/registry.json"
+        "docs/recipes/registry.json",
+        "docs/industry_learning_roadmap.md"
       ],
       "lab": "Audit Needle, Chess, and 2048 and explain how the ruler or safety gate changed the decision before integration or training.",
       "mastery_gate": "Reject a superficially good score when its frontier ruler, safety slice, breadth gate, or provenance is invalid.",
@@ -130,7 +132,8 @@
         "docs/performance/kv_cache_optimization.md",
         "docs/techniques/constrained_generation.md",
         "docs/techniques/speculative_heads.md",
-        "docs/techniques/streaming_llm_kivi.md"
+        "docs/techniques/streaming_llm_kivi.md",
+        "docs/industry_learning_roadmap.md"
       ],
       "lab": "Calculate KV memory, compare cold versus reused-prefill latency, and trace one tool request through model output, validation, and execution policy.",
       "mastery_gate": "Separate model capability, serving optimization, validation, and agent policy in one end-to-end trace.",
@@ -158,7 +161,8 @@
         "docs/performance/fa2_forward_notes.md",
         "docs/performance/fa2_backward_notes.md",
         "docs/techniques/moe.md",
-        "docs/learn/webgpu-execution-model.md"
+        "docs/learn/webgpu-execution-model.md",
+        "docs/industry_learning_roadmap.md"
       ],
       "lab": "Match one optimized attention or matmul path against the readable reference and identify the real bottleneck with a measured curve.",
       "mastery_gate": "Explain the numerical contract, memory traffic, and why a microbenchmark may not improve end-to-end training.",
@@ -184,7 +188,8 @@
         "docs/techniques/pruning.md",
         "docs/factory/packaging.md",
         "docs/recipes/mlx-export.md",
-        "docs/factory/public-artifacts.md"
+        "docs/factory/public-artifacts.md",
+        "docs/industry_learning_roadmap.md"
       ],
       "lab": "Audit one int4 or pruned artifact from source weights through file size, load parity, quality, RAM, and runtime measurement.",
       "mastery_gate": "Distinguish a smaller file, lower RAM, fewer physical operations, and faster wall-clock execution.",

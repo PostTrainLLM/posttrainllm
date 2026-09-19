@@ -1,0 +1,123 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "Browser-local learning workspace with recall and backup",
+  "surfaceMode": "operate",
+  "mode": "overhaul",
+  "register": "product",
+  "context": {
+    "product": "PRODUCT.md",
+    "design": "DESIGN.md"
+  },
+  "direction": {
+    "references": ["PRODUCT.md", "DESIGN.md", "browser/src/pages/learn.astro"],
+    "probes": [
+      {
+        "id": "session-desk",
+        "path": "artifacts/design/learning-directions/index.html"
+      },
+      {
+        "id": "lesson-notebook",
+        "path": "artifacts/design/learning-directions/preview.png"
+      },
+      {
+        "id": "learning-atlas",
+        "path": "artifacts/design/learning-directions/index.html"
+      }
+    ],
+    "selected": "session-desk",
+    "approval": "delegated",
+    "before": "",
+    "library": {
+      "strategy": "upstream-first",
+      "primary": "existing-project-system",
+      "sources": [
+        "https://github.com/PostTrainLLM/posttrainllm/blob/main/browser/src/pages/learn.astro",
+        "https://github.com/PostTrainLLM/posttrainllm/blob/main/browser/src/styles/system.css"
+      ],
+      "runtime": "existing",
+      "customReplacement": {
+        "used": false,
+        "authorization": "not-required",
+        "reason": ""
+      }
+    },
+    "contract": {
+      "purpose": "Help the owner learn Mac-local AI through one exercise, recorded reasoning, and delayed recall while retaining the full learning library.",
+      "purposeSource": "PRODUCT.md and owner-approved docs/learning-progress.md",
+      "canonicalPurpose": "PostTrainLLM turns local model-training experiments into measured, reproducible recipes for useful specialist language models.",
+      "purposeAlignment": "match",
+      "driftNote": "Public lessons extend the existing learning library while personal answers remain browser-local.",
+      "audience": "Learners studying foundational and advanced Mac-local AI systems, including people who do not use an AI tutor.",
+      "job": "Resume one study session, preserve its evidence, complete recall, and keep portable backups.",
+      "thesis": "Choose among focused Session Desk, reading-led Lesson Notebook, and map-led Learning Atlas.",
+      "system": "A: existing dark Bricolage/Geist research bench, generous single-column sequence, teal action and coral repair. B: warm paper reading canvas, serif lesson hierarchy, ruled notes, green actions. C: dark blue map with compact sans headings, mono stage labels, teal current node and neutral future nodes. All include explicit text states.",
+      "signature": "A: read/try/explain/review sequence. B: calculation and explanation on a notebook page. C: current exercise pinned within the prerequisite map.",
+      "risk": "A can hide breadth: retain Library access. B can encourage passive reading: require exercise evidence. C can distract with breadth: pin one current session."
+    }
+  },
+  "evidence": {
+    "screenshots": [
+      {
+        "width": 390,
+        "path": "artifacts/design/learning-workspace/session-390.png"
+      },
+      {
+        "width": 768,
+        "path": "artifacts/design/learning-workspace/session-768.png"
+      },
+      {
+        "width": 1440,
+        "path": "artifacts/design/learning-workspace/session-1440.png"
+      }
+    ],
+    "projectCheck": {
+      "command": "pnpm --dir browser test && pnpm --dir browser run build && pnpm --dir browser run size:check && bash evals/learning-roadmap-smoke.sh && bash evals/project-completion-smoke.sh",
+      "status": "pass"
+    },
+    "critique": {
+      "score": 37,
+      "maximum": 40
+    },
+    "audit": {
+      "score": 20,
+      "maximum": 20
+    },
+    "unresolved": {
+      "p0": 0,
+      "p1": 0
+    },
+    "detector": {
+      "posture": "advisory",
+      "findings": []
+    },
+    "comprehension": {
+      "status": "pass",
+      "reviewer": "Independent screenshot, source, keyboard, and live-flow review at 390, 768, and 1440 pixels",
+      "answers": {
+        "product": "A public learning workspace for understanding language models and Mac-local post-training through exercises and delayed recall.",
+        "audience": "Learners who want a self-contained path through model foundations, post-training, evaluation, and local systems.",
+        "value": "Learn on the website, preserve work locally, and verify understanding through checkpoints rather than passive reading.",
+        "mechanism": "Read, work an exercise, explain it, self-review, complete module-specific recall at two and seven days, then continue through ten modules.",
+        "proof": "Versioned browser-local state, checkpoint history, module-specific recalls, tested backup import and export, and the retained public article and artifact library.",
+        "nextAction": "Start Module 1, record the first checkpoint, and continue to Module 2 while the first recalls remain scheduled."
+      },
+      "purposeScore": {
+        "product": 24,
+        "audience": 14,
+        "value": 15,
+        "mechanism": 15,
+        "proof": 14,
+        "nextAction": 14,
+        "total": 96
+      },
+      "mismatches": []
+    }
+  },
+  "ownerFeedback": {
+    "decision": "agent-selected",
+    "note": "The owner delegated the visual choice, selected browser-only persistence with export/import, and required self-contained public lessons for learners who may not use AI chat. Session Desk was selected and implemented."
+  },
+  "notes": "Issue #151. Session Desk implemented with ten module-specific exercise and recall loops, four applied cases, browser-only persistence, safe backup import/export, telemetry isolation, and retained library routes. Final independent review found no material P0, P1, or P2 issues."
+}

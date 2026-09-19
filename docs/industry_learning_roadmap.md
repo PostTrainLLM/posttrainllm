@@ -1,8 +1,10 @@
 # Industry learning roadmap
 
-This is the external learning track for posttrainllm. Use it after the repo-local
-[`archive/learning_roadmap.md`](archive/learning_roadmap.md): CS336 is the spine, and company
-docs/blogs are the applied case studies.
+This is the external learning track for posttrainllm. Use it alongside the canonical
+[`ground-up curriculum`](learn/curriculum.md) and
+[`practical paths`](learn/path-registry.json). CS336 supplies external course
+depth; company docs and papers supply applied case studies. External module
+numbers below are independent of the ten ground-up curriculum modules.
 
 The goal is not to copy frontier-scale infrastructure. The goal is to extract
 small, testable ideas that fit posttrainllm: better data, cleaner evals, stronger
@@ -13,7 +15,10 @@ specialist training, and Mac-first runtime discipline.
 1. Read the source.
 2. Write the one sentence lesson.
 3. Map it to a posttrainllm artifact: code, doc, eval, or explicit skip.
-4. Only implement if it improves a current Tier A/B item in `PLAN.md`.
+4. Record a learning checkpoint in [`learning-progress.md`](learning-progress.md).
+5. Start implementation only after the owner opens a fresh, scoped question under
+   [`NEXT.md`](NEXT.md). Historical actions below are retained study context,
+   not an active queue or authorization for downloads, training, or benchmarks.
 
 ## Module 0 - Course spine: Stanford CS336
 
@@ -186,24 +191,177 @@ posttrainllm actions:
   render.
 - Train a visual-planner specialist only after storyboard data and evals exist.
 
+## Case study - Savante / Aryabhata: specialist data and evaluation
+
+Added 2026-09-19. **Study only; local reproduction not attempted.**
+
+Sources: [Savante](https://savante.ai/),
+[Aryabhata paper](https://arxiv.org/abs/2508.08665),
+[model card](https://huggingface.co/PhysicsWallahAI/Aryabhata-1.0).
+
+Read after ground-up Modules 9–10, in the `post-training` and
+`evaluation-and-factory` paths. The published recipe combines model merging,
+curated reasoning traces, SFT, and verifiable-reward RL for JEE mathematics.
+Use it to study how domain data and a measurable task shape specialization;
+do not attribute the whole improvement to RL or treat selected historical
+comparisons as current frontier parity. The reported H100 training is not
+proof of Mac-local reproducibility.
+
+Exercise: write a one-page recipe teardown separating initialization, data,
+trace filtering, SFT, reward, and evaluation. Identify missing ablations,
+possible leakage boundaries, and what data access a comparable specialist
+would require. Map each component to the existing factory loop.
+
+Mastery gate: explain what the evidence supports, what cannot be attributed to
+one training stage, and how to freeze an independent test before adapting the
+recipe to a Mac-sized target. Record the checkpoint; running it would require
+a new scoped experiment with a resource budget.
+
+## Case study - Bonsai 2 27B: capability retained per deployment cost
+
+Added 2026-09-19. **Study only; candidate for a future bounded comparison.**
+
+Sources: [release announcement](https://prismml.com/news/bonsai-2-27b),
+[MLX model card](https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-mlx-2bit),
+[runtime and technical report](https://github.com/PrismML-Eng/Bonsai-demo).
+
+Read in `quantization-and-packaging`, then connect to `runtime-and-agents`.
+Study ternary representation, packing overhead, activation transforms, and
+kernel support. The current card distinguishes a 5.95 GB GGUF language model
+from 7.67 GB MLX language weights and an 8.60 GB MLX pack including vision.
+These are artifact sizes, not peak runtime memory. Its custom-loader warning,
+earlier-build Apple speed measurements, and differences from the announcement's
+benchmark table make provenance part of the exercise. Retention relative to
+the source model does not establish parity with a frontier model.
+
+Exercise: draft a comparison sheet for Bonsai and an existing small-model
+baseline: exact weight/runtime revisions, packing, context and reasoning
+budget, frozen task completion and regression gates, peak RAM, prefill/TTFT,
+decode throughput, and total task latency. Mark unmeasured fields unknown;
+separate inference feasibility from post-training feasibility.
+
+Mastery gate: explain why parameter count, file size, RAM, and latency can rank
+models differently, and specify a fair same-Mac test. A future experiment
+requires owner selection, a scoped issue, and bounded resources; this reading
+entry does not authorize model downloads or runs.
+
+## Case study - QORL: parameter-aware query optimization
+
+Added 2026-09-19. **Learning queued; experiment proposed, not started.**
+
+Reference: [QORL](https://rohanbansal.com/qorl).
+
+Read after ground-up Module 10 in the `evaluation-and-factory` path, with
+`runtime-and-agents` for dispatcher overhead and fallback behavior. QORL studies
+post-training a model to propose faster PostgreSQL plans. The owner-proposed
+experiment below instead isolates offline search and parameter-based routing;
+LLM training is explicitly outside its scope.
+
+Exercise: turn the PRD into a frozen comparison protocol. Specify parameter
+splits, workload weights, repeated-measurement/cache policy, timeout accounting,
+search budgets, SQL-equivalence checks, and how unfamiliar parameters trigger
+native fallback. Keep search/selection measurements separate from the fresh
+held-out evaluation. Compare both search methods against native parameter-aware
+planning and against each other.
+
+Mastery gate: explain how selection bias, cache state, parameter skew, and
+routing overhead can erase an apparent speedup. Derive break-even executions
+as tuning cost divided by positive per-execution savings using consistent
+units; report no finite break-even when savings are non-positive. Distinguish
+wall-time amortization from monetary amortization.
+
+### Owner PRD: Experimental Parameter-Aware Query Optimization
+
+**Goal:** Test whether offline plan exploration and parameter-based routing
+outperform PostgreSQL's native planner.
+
+**Experiment:**
+
+1. Use an isolated, representative PostgreSQL snapshot, **1–3 parameterized
+   SELECT queries**, and real parameter samples.
+2. Compare native parameter-aware planning, structured hint sweeping, and
+   QORL-inspired LLM hint proposals. Give both searches equal execution budgets
+   and hard timeouts; preserve SQL semantics.
+3. Benchmark candidates repeatedly. Retain a small plan portfolio and learn a
+   simple **parameters → plan** dispatcher, falling back to native planning for
+   unfamiliar cases.
+4. Evaluate on held-out parameters with fresh measurements after selection.
+   Include dispatcher overhead.
+
+**Deliverables:** Runnable harness, reusable plan portfolio, dispatcher, and
+comparison report covering latency, regressions, resource usage, tuning cost,
+and break-even execution count.
+
+**Provisional success criteria:** At least **20% lower held-out workload
+execution time**, with no greater than **10% p95 latency regression**. Retain
+the LLM only if it provides worthwhile gains over structured search after
+accounting for tuning cost.
+
+**Non-goals:** Production integration, LLM training, SQL rewrites, index/schema
+changes, or a general-purpose optimizer.
+
+**Activation boundary:** This entry preserves the owner's proposed experiment
+as learning material. Before implementation, choose the isolated snapshot,
+queries, parameter source, explicit budgets, and acceptance metric definitions
+in a scoped GitHub Issue. Database-optimizer implementation belongs in a
+separately scoped project under the repo's factory boundary; the experimental
+design and evaluation lessons remain part of this learning roadmap.
+
+## Case study - Inside vLLM: inference systems and scaling boundaries
+
+Added 2026-09-19. **Study only; no installation or benchmark started.**
+
+Source: Aleksa Gordić, [Inside vLLM: Anatomy of a High-Throughput LLM Inference
+System](https://www.aleksagordic.com/blog/vllm), published August 29, 2025.
+The article analyzes V1 at commit `42172ad` (August 9, 2025); treat implementation
+names and setup details as a historical snapshot.
+
+Read after attention and transformer foundations, in `runtime-and-agents`,
+with `architecture-and-kernels` for execution and memory tradeoffs. Study the
+request lifecycle, paged KV storage, continuous batching, chunked prefill,
+prefix reuse, constrained/speculative decoding, and the progression to
+multi-GPU and multi-node serving.
+
+Exercise, in three passes:
+
+1. Draw a request from admission through scheduling, prefill, decode, and
+   completion. Hand-simulate three requests of different lengths under a
+   fixed token budget and KV-block capacity; show allocation and release.
+2. Write a prediction table for which changes help TTFT, inter-token latency,
+   throughput, or memory, and where improving one may hurt another. Connect
+   the predictions to the existing [KV-cache notes](performance/kv_cache_optimization.md)
+   and [inference guide](learn/advanced-llm-inference.md).
+3. Separate ideas transferable to Mac-local serving from CUDA-specific
+   execution mechanisms and cluster coordination. Explain what a second
+   machine buys and what communication costs it introduces; do not assume
+   an MLX implementation has vLLM's exact behavior or features.
+
+Mastery gate: explain why high throughput need not mean low interactive
+latency, trace block ownership without confusing storage layout with attention
+math, and justify a single-Mac versus distributed serving choice for a stated
+workload. Record the trace and predictions in the learning tracker. Refresh
+upstream documentation before any future implementation; this is boundary
+study, not a request to recreate or deploy a serving stack.
+
 ## Running source queue
 
 Read in this order when updating the roadmap:
 
 1. CS336
 2. SmolLM / FineWeb-Edu
-3. Tulu 3
+3. Tulu 3, then Savante / Aryabhata after ground-up Modules 9–10
 4. Anthropic agents
-5. OpenAI evals
+5. OpenAI evals, then QORL for search, routing, and held-out runtime evaluation
 6. Poolside Laguna
-7. Apple MLX
+7. Apple MLX, then Inside vLLM for inference systems and scaling boundaries,
+   and Bonsai 2 in the quantization/runtime paths
 8. Llama/Qwen reports
 9. DeepSeek-R1
 10. Lamina/video references
 
 Each time a new source is added, update this file with one of:
 
-- **Adopt now**: exact Tier A/B task.
+- **Adopt now**: exact owner-authorized issue and frozen experiment contract.
 - **Adopt later**: exact trigger.
 - **Study only**: why it is context, not roadmap.
 - **Skip**: why it does not fit posttrainllm.

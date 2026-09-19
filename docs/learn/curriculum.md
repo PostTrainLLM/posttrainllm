@@ -35,22 +35,24 @@ The roadmap is good enough only if it satisfies all of these:
 
 ## Operating Loop
 
-For each module:
+Start at the single [Next Session](../learning-progress.md#next-session) card.
+Choose one module and one exercise; record one explanation in the owner's own
+words, actual work, errors, and the connection to a repo artifact.
 
 ```text
-read -> explain -> implement/inspect -> connect to posttrainllm -> change a recipe/report
+read -> exercise -> explain -> immediate check -> delayed recall -> verified
 ```
 
-Suggested weekly cadence:
+The [Learning Loop](../learning-progress.md#learning-loop) owns status rules
+and recall scheduling. After the immediate gate passes, the next module may
+start while recall checks remain due at +2 and +7 days. Complete those checks
+closed-book using changed examples. Repair failed recall before advancing
+further. Reading a file or generating a lesson is not evidence of mastery.
 
-| Block | Time | Output |
-|---|---:|---|
-| Read/watch | 30-60 min | notes on the concept |
-| Rebuild toy version | 60-120 min | tiny script, notebook, or code inspection |
-| posttrainllm bridge | 30-60 min | point to the repo file/run where it matters |
-| Written checkpoint | 15 min | one paragraph in the next report or learning note |
-
-Do not advance because a file was read. Advance when the mastery gate is met.
+A typical 30-minute session gives 5 minutes to due recall, 10 to focused
+reading, 10 to the exercise, and 5 to the checkpoint. Split substantial labs
+across sessions. All existing courses, sessions, paths, articles, and artifacts
+remain reference material; adding a source does not change the current module.
 
 ## Canonical External Anchors
 
@@ -115,12 +117,35 @@ interpretability, WASM/WebGPU, VLM, the factory loop — has a learning anchor, 
 [`coverage-map.md`](coverage-map.md). The spine teaches you to read the system;
 the coverage map is the index that proves nothing was left unread.
 
+## Applied Industry Case Studies
+
+Use the [industry learning roadmap](../industry_learning_roadmap.md) after the
+relevant foundations. These are learning exercises, not new required modules:
+
+- **Savante / Aryabhata**, after Modules 9–10: reconstruct a specialist recipe,
+  audit data and reward design, and distinguish reported gains from causal proof.
+- **Bonsai 2 27B**, in the quantization and runtime paths: distinguish compressed
+  weights from runtime cost and design a fair capability-per-RAM comparison.
+
+- **QORL**, after Module 10 in evaluation and runtime study: compare offline
+  plan search and parameter routing with native PostgreSQL planning, including
+  held-out measurements, regressions, and tuning-cost break-even. The retained
+  owner PRD excludes LLM training.
+
+- **Inside vLLM**, after transformer foundations in the inference/runtime path:
+  trace scheduling and KV-block ownership, predict latency/throughput tradeoffs,
+  and map the single-Mac-to-cluster boundary.
+
+Each case study has source links, an exercise, and a mastery gate. Track the
+checkpoint in [learning progress](../learning-progress.md). No model run is
+needed to complete the initial source audit.
+
 ## Current Starting Point
 
 Start at Module 1 unless the owner can pass the mastery gate out loud.
 
-The current project work is SQL candidate selection, but the learning path does
-not jump straight there. The correct bridge is:
+SQL candidate selection is retained lab material, not an active experiment.
+The learning path does not jump straight there. The correct bridge is:
 
 ```text
 parameters -> loss -> gradients -> tensors -> neural nets
@@ -132,17 +157,9 @@ The SQL factory is the lab. Ground-up understanding is the curriculum.
 
 ## Checkpoint Template
 
-At the end of each module, write a short checkpoint:
-
-```text
-Module:
-Concept in my words:
-Toy exercise completed:
-posttrainllm file/run inspected:
-What this changes about the next SQL/factory recipe:
-Open confusion:
-```
-
-Store durable checkpoints in [`../learning-progress.md`](../learning-progress.md)
-or the next run report. Do not create loose notes unless they feed back into the
-tracker.
+Use the canonical [checkpoint template](../learning-progress.md#checkpoints-and-recall-queue)
+after each exercise. Record the owner's explanation, actual work, repo
+connection, immediate result, dated recall checks, and unresolved confusion.
+Keep old checkpoints so progress and repairs remain auditable. Experiment
+reports and learning checkpoints serve different purposes; a new run is not
+required to verify a foundational concept.

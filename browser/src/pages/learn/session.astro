@@ -1,0 +1,787 @@
+---
+import Default from "../../layouts/Default.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import "../../styles/system.css";
+import { learningCaseStudies, learningUnits } from "../../learning/content";
+import pathRegistry from "../../../../docs/learn/path-registry.json";
+import artifactJourney from "../../../../docs/learn/artifact-journey.json";
+
+const current = learningUnits[0];
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  name: "PostTrainLLM learning workspace",
+  description:
+    "A self-contained course from model parameters to post-training and evaluation, with browser-local exercises and delayed recall.",
+  educationalLevel: "Beginner to advanced",
+  teaches: learningUnits.map((unit) => unit.title),
+  isAccessibleForFree: true,
+};
+---
+
+<Default
+  title="Learn language models from first principles | PostTrainLLM"
+  description="Learn parameters, gradients, tensors, transformers, post-training, and evaluation through public lessons, browser-local exercises, and delayed recall."
+  ogType="article"
+  telemetry={false}
+>
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(structuredData)}
+  />
+  <SiteHeader mode="instrument" active="learn" />
+
+  <main id="main" data-learning-workspace data-ph-no-capture>
+    <header class="session-hero wrap">
+      <div>
+        <p class="mono-label current-label">
+          Current session · Module <span data-current-number
+            >{current.number}</span
+          >
+        </p>
+        <h1>Learn it here.<br />Prove it to yourself.</h1>
+        <p class="session-lede">
+          Read the lesson, work one exercise, explain it in your own words, and
+          return for two short recall checks. AI chat is optional. Your answers
+          stay in this browser.
+        </p>
+      </div>
+      <aside class="session-state" aria-label="Learning status">
+        <span data-module-position>Module 1 of {learningUnits.length}</span>
+        <strong data-learning-status>reading</strong>
+        <p data-save-status aria-live="polite">Opening browser storage…</p>
+      </aside>
+    </header>
+
+    <nav class="session-steps wrap" aria-label="Session steps">
+      <a href="#read"><span>1</span> Read</a>
+      <a href="#try"><span>2</span> Try</a>
+      <a href="#explain"><span>3</span> Explain</a>
+      <a href="#review"><span>4</span> Review</a>
+    </nav>
+
+    <article class="lesson wrap-narrow" id="read">
+      <header>
+        <p class="mono-label">
+          <span data-current-number>{current.number}</span> / Foundations
+        </p>
+        <h2 data-current-title>{current.title}</h2>
+        <p data-current-summary>{current.summary}</p>
+      </header>
+      <div data-current-lesson>
+        {current.lesson.map((paragraph) => <p>{paragraph}</p>)}
+      </div>
+      <div class="worked-example" data-module-one-only>
+        <p class="mono-label">Worked example</p>
+        <p>
+          Suppose <code>y = 2x + 1</code>. For <code>x = 3</code>, the
+          prediction is <code>7</code>. The input <code>x</code> and observed target
+          come from the example; <code>m = 2</code> and <code>b = 1</code> are parameters.
+          Changing <code>b</code> shifts every prediction equally. Changing
+          <code>m</code> changes how strongly the prediction responds to x.
+        </p>
+      </div>
+      <a class="source-link" href={current.sourceHref} data-current-source
+        ><span data-current-source-label>{current.sourceLabel}</span> →</a
+      >
+    </article>
+
+    <section
+      class="exercise wrap-narrow"
+      id="try"
+      aria-labelledby="exercise-title"
+    >
+      <p class="mono-label">Your exercise</p>
+      <h2 id="exercise-title" data-current-exercise-title>{current.title}</h2>
+      <div data-module-one-only>
+        <div class="equation" aria-label="y equals m x plus b">y = mx + b</div>
+        <p class="points">(0,1) · (1,3) · (2,5) · (3,7) · (4,9)</p>
+      </div>
+      <p data-current-exercise>{current.exercise}</p>
+
+      <label for="actual-work">Your work</label>
+      <textarea
+        id="actual-work"
+        required
+        aria-describedby="actual-work-error"
+        rows="8"
+        autocomplete="off"
+        placeholder={current.workPlaceholder}></textarea>
+      <p class="field-error" id="actual-work-error" hidden>
+        Write your calculation or exercise response before recording the check.
+      </p>
+
+      <details class="answer-guide" data-module-one-only>
+        <summary>Check the worked answer after trying</summary>
+        <div>
+          <p><code>m = 2</code> and <code>b = 1</code>.</p>
+          <p>
+            Predictions: x=0 → 1; x=1 → 3; x=2 → 5; x=3 → 7; x=4 → 9. The x
+            values are inputs, the listed y values are targets, m and b are
+            adjustable parameters, and the values produced by the equation are
+            predictions.
+          </p>
+        </div>
+      </details>
+    </section>
+
+    <section
+      class="explanation wrap-narrow"
+      id="explain"
+      aria-labelledby="explain-title"
+    >
+      <p class="mono-label">Your explanation</p>
+      <h2 id="explain-title">Explain the idea in your own words.</h2>
+      <p data-current-explanation>{current.explanationPrompt}</p>
+      <label for="explanation">Explanation</label>
+      <textarea
+        id="explanation"
+        required
+        aria-describedby="explanation-error"
+        rows="7"
+        autocomplete="off"
+        placeholder="During fitting…"></textarea>
+      <p class="field-error" id="explanation-error" hidden>
+        Explain what your work means before recording the check.
+      </p>
+      <label for="repo-connection">Repository connection</label>
+      <input
+        id="repo-connection"
+        autocomplete="off"
+        placeholder="For example: a weight in model.py…"
+      />
+      <label for="open-questions">Errors or open questions</label>
+      <textarea
+        id="open-questions"
+        rows="3"
+        autocomplete="off"
+        placeholder="Anything still unclear…"></textarea>
+    </section>
+
+    <section
+      class="review wrap-narrow"
+      id="review"
+      aria-labelledby="review-title"
+    >
+      <p class="mono-label">Immediate self-review</p>
+      <h2 id="review-title">Can you clear the gate?</h2>
+      <p data-current-gate>{current.masteryGate}</p>
+      <p class="self-review-note">
+        This is self-assessed. Record what is true today; both delayed checks
+        are still required before the module becomes verified.
+      </p>
+      <div class="review-actions">
+        <button
+          class="btn btn-ghost"
+          type="button"
+          data-immediate-result="needs-repair">I need another pass</button
+        >
+        <button
+          class="btn btn-primary"
+          type="button"
+          data-immediate-result="pass">Record immediate pass</button
+        >
+      </div>
+      <div class="continue-panel" data-continue-panel hidden>
+        <p>
+          You have a saved checkpoint. Keep the delayed recalls scheduled and
+          move on when ready.
+        </p>
+        <button class="btn btn-primary" type="button" data-continue-module>
+          Continue to the next module
+        </button>
+      </div>
+    </section>
+
+    <section class="recalls wrap" aria-labelledby="recalls-title">
+      <header class="section-heading-small">
+        <p class="mono-label">Delayed recall</p>
+        <h2 id="recalls-title">Return without rereading.</h2>
+        <p>
+          Due reviews unlock on their date. Write the answer before checking
+          your notes.
+        </p>
+      </header>
+      <div class="recall-grid" data-recall-region>
+        <p class="empty-copy">Loading recall schedule…</p>
+      </div>
+    </section>
+
+    <section class="history-and-backup wrap">
+      <div>
+        <header class="section-heading-small">
+          <p class="mono-label">Evidence</p>
+          <h2>Checkpoint history</h2>
+        </header>
+        <div data-history-region>
+          <p class="empty-copy">Loading checkpoints…</p>
+        </div>
+      </div>
+      <aside class="backup-panel">
+        <p class="mono-label">Local backup</p>
+        <h2>Carry your work with you.</h2>
+        <p>
+          Progress is stored only in this browser. Clearing site data removes
+          it. Export a JSON backup to move it to another device or keep a copy.
+        </p>
+        <div class="backup-actions">
+          <button type="button" class="btn btn-primary" data-export
+            >Export backup</button
+          >
+          <label class="btn btn-ghost import-label" for="learning-import"
+            >Choose backup</label
+          >
+          <input
+            id="learning-import"
+            type="file"
+            accept="application/json,.json"
+            hidden
+          />
+        </div>
+        <div class="import-preview" data-import-preview hidden>
+          <strong>Validated backup</strong>
+          <p data-import-summary></p>
+          <p>
+            A safety backup of the current state downloads before either action.
+          </p>
+          <div class="review-actions">
+            <button
+              type="button"
+              class="btn btn-ghost"
+              data-import-mode="replace">Replace</button
+            >
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-import-mode="merge">Merge history</button
+            >
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <details class="course-browser wrap">
+      <summary>
+        <span class="mono-label">Public course · indexable</span>
+        <h2 id="course-library-title">Browse the complete learning spine</h2>
+        <small>10 modules · choose any module as your current session</small>
+      </summary>
+      <section class="course-library" aria-labelledby="course-library-title">
+        <div class="module-list">
+          {
+            learningUnits.map((unit, index) => (
+              <details class="module-row" open={index === 0} id={unit.id}>
+                <summary>
+                  <span>{unit.number}</span>
+                  <div>
+                    <>
+                      <h3>{unit.title}</h3>
+                      <small>{unit.summary}</small>
+                    </>
+                  </div>
+                </summary>
+                <div class="module-body">
+                  {unit.lesson.map((paragraph) => (
+                    <p>{paragraph}</p>
+                  ))}
+                  <p>
+                    <strong>Exercise:</strong> {unit.exercise}
+                  </p>
+                  <p>
+                    <strong>Mastery gate:</strong> {unit.masteryGate}
+                  </p>
+                  <a href={unit.sourceHref}>{unit.sourceLabel} →</a>
+                  <button
+                    class="btn btn-ghost module-select"
+                    type="button"
+                    data-select-module={unit.id}
+                  >
+                    Make this the current session
+                  </button>
+                </div>
+              </details>
+            ))
+          }
+        </div>
+      </section>
+    </details>
+
+    <details class="course-browser wrap">
+      <summary>
+        <span class="mono-label">Applied reading</span>
+        <h2 id="case-library-title">Open the industry case studies</h2>
+        <small>4 cases · each turned into a practical exercise</small>
+      </summary>
+      <section class="case-library" aria-labelledby="case-library-title">
+        <div class="case-grid">
+          {
+            learningCaseStudies.map((study) => (
+              <article id={study.id}>
+                <h3>{study.title}</h3>
+                <p>{study.lesson}</p>
+                <p>
+                  <strong>Exercise:</strong> {study.exercise}
+                </p>
+                <a href={study.sourceHref}>{study.sourceLabel} →</a>
+              </article>
+            ))
+          }
+        </div>
+      </section>
+    </details>
+
+    <footer class="library-footer wrap">
+      <p>
+        The wider library remains intact: {pathRegistry.paths.length} practical paths,{
+          " "
+        }
+        {
+          artifactJourney.stages.reduce(
+            (count, stage) => count + stage.artifacts.length,
+            0,
+          )
+        } buildable artifacts, retained recipes, and the experiment archive.
+      </p>
+      <div>
+        <a class="btn btn-ghost" href="/learn">Browse all artifacts and paths</a
+        >
+        <a class="btn btn-ghost" href="/recipes">Open recipes</a>
+        <a class="btn btn-ghost" href="/experiments">Open experiments</a>
+      </div>
+    </footer>
+  </main>
+  <script
+    id="learning-units-data"
+    type="application/json"
+    set:html={JSON.stringify(learningUnits)}
+  />
+  <script src="../../learning/workspace.ts"></script>
+</Default>
+
+<style is:global>
+  body {
+    background: var(--paper);
+  }
+  main {
+    padding-bottom: 7rem;
+  }
+  .session-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: 4rem;
+    padding-top: clamp(4rem, 9vw, 8rem);
+    align-items: end;
+  }
+  .current-label {
+    color: var(--live);
+    margin-bottom: 1.25rem;
+  }
+  .session-hero h1 {
+    max-width: 800px;
+    font-size: clamp(3rem, 7vw, 6.4rem);
+  }
+  .session-lede {
+    max-width: 65ch;
+    color: var(--ink-70);
+    font-size: var(--step-1);
+    margin-top: 1.75rem;
+  }
+  .session-state {
+    border-top: 1px solid var(--line-strong);
+    padding-top: 1rem;
+  }
+  .session-state span {
+    color: var(--ink-55);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+  .session-state strong {
+    display: block;
+    color: var(--live);
+    font: 600 1.4rem var(--font-display);
+    margin: 0.35rem 0 1rem;
+    text-transform: capitalize;
+  }
+  [data-save-status] {
+    color: var(--ink-70);
+    font-size: 0.82rem;
+  }
+  [data-save-status][data-kind="error"] {
+    color: var(--brand-bright);
+  }
+  [data-save-status][data-kind="ok"] {
+    color: var(--live);
+  }
+  .session-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-top: 4rem;
+    margin-bottom: 6rem;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .session-steps a {
+    color: var(--ink-70);
+    padding: 1rem 0;
+    font-size: 0.88rem;
+  }
+  .session-steps span {
+    color: var(--live);
+    font-family: var(--font-mono);
+    margin-right: 0.5rem;
+  }
+  .lesson,
+  .exercise,
+  .explanation,
+  .review {
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  .lesson header {
+    margin-bottom: 2rem;
+  }
+  .lesson h2,
+  .exercise h2,
+  .explanation h2,
+  .review h2 {
+    font-size: clamp(2.2rem, 5vw, 4.3rem);
+    margin: 0.75rem 0 1.25rem;
+  }
+  .lesson > p,
+  .exercise > p,
+  .explanation > p,
+  .review > p {
+    max-width: 68ch;
+    color: var(--ink-70);
+    margin-top: 1.2rem;
+    font-size: 1.06rem;
+  }
+  .worked-example {
+    margin: 2.5rem 0 1.5rem;
+    padding: 1.5rem;
+    background: var(--paper-raised);
+    border-radius: var(--r-3);
+  }
+  .worked-example p:last-child {
+    margin-top: 0.75rem;
+  }
+  .source-link {
+    display: inline-block;
+    margin-top: 1rem;
+  }
+  .exercise,
+  .explanation,
+  .review {
+    margin-top: 7rem;
+  }
+  .equation {
+    color: var(--live);
+    font: 500 clamp(2.3rem, 7vw, 5rem) var(--font-mono);
+    text-align: center;
+    margin: 2.5rem 0 1rem;
+  }
+  .points {
+    text-align: center;
+    font-family: var(--font-mono);
+  }
+  label {
+    display: block;
+    color: var(--ink-70);
+    margin-top: 2rem;
+    font-size: 0.9rem;
+  }
+  textarea,
+  input {
+    width: 100%;
+    margin-top: 0.6rem;
+    padding: 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-2);
+    background: var(--paper-sunken);
+    color: var(--ink);
+    font: inherit;
+    resize: vertical;
+  }
+  textarea::placeholder,
+  input::placeholder {
+    color: var(--ink-55);
+  }
+  textarea[aria-invalid="true"],
+  input[aria-invalid="true"] {
+    border-color: var(--brand-bright);
+  }
+  .field-error {
+    color: var(--brand-bright);
+    font-size: 0.84rem;
+    margin-top: 0.5rem;
+  }
+  .answer-guide {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 1rem 0;
+  }
+  .answer-guide summary {
+    color: var(--live);
+    cursor: pointer;
+  }
+  .answer-guide div {
+    padding: 1rem 0 0.25rem;
+    color: var(--ink-70);
+  }
+  .answer-guide div p + p {
+    margin-top: 0.8rem;
+  }
+  .self-review-note {
+    border-left: 1px solid var(--brand);
+    padding-left: 1rem;
+  }
+  .review-actions,
+  .backup-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .continue-panel {
+    margin-top: 2rem;
+    padding: 1.25rem;
+    background: var(--paper-raised);
+    border-left: 2px solid var(--live);
+  }
+  .continue-panel p {
+    color: var(--ink-70);
+    margin-bottom: 1rem;
+  }
+  .recalls,
+  .history-and-backup,
+  .course-browser,
+  .library-footer {
+    margin-top: 8rem;
+  }
+  .section-heading-small {
+    max-width: 720px;
+    margin-bottom: 2.5rem;
+  }
+  .section-heading-small h2 {
+    margin: 0.7rem 0 1rem;
+  }
+  .section-heading-small > p:last-child {
+    color: var(--ink-70);
+  }
+  .recall-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .recall-item {
+    padding: 1.5rem;
+    background: var(--paper-raised);
+    border-radius: var(--r-3);
+  }
+  .recall-item h3 {
+    margin: 0.8rem 0;
+  }
+  .recall-item > p {
+    color: var(--ink-70);
+  }
+  .state-chip {
+    font: 600 0.7rem var(--font-mono);
+    text-transform: uppercase;
+    color: var(--ink-55);
+  }
+  .state-chip.due {
+    color: var(--brand-bright);
+  }
+  .empty-copy {
+    color: var(--ink-55);
+  }
+  .history-and-backup {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+    gap: 4rem;
+  }
+  .history-item {
+    border-top: 1px solid var(--line-strong);
+    padding: 1rem 0;
+  }
+  .history-item summary {
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .history-item div {
+    color: var(--ink-70);
+    padding: 1rem 0;
+  }
+  .history-item div p {
+    white-space: pre-wrap;
+    margin: 0.35rem 0 1rem;
+  }
+  .backup-panel {
+    background: var(--paper-raised);
+    border-radius: var(--r-3);
+    padding: 1.5rem;
+    align-self: start;
+  }
+  .backup-panel h2 {
+    font-size: var(--step-2);
+    margin: 0.7rem 0 1rem;
+  }
+  .backup-panel > p {
+    color: var(--ink-70);
+  }
+  .import-label {
+    margin: 0;
+  }
+  .import-preview {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1.25rem;
+  }
+  .import-preview p {
+    color: var(--ink-70);
+    margin-top: 0.5rem;
+  }
+  .course-browser {
+    border-top: 1px solid var(--line-strong);
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .course-browser + .course-browser {
+    margin-top: 1rem;
+  }
+  .course-browser > summary {
+    display: grid;
+    gap: 0.35rem;
+    padding: 1.5rem 0;
+    cursor: pointer;
+    list-style: none;
+  }
+  .course-browser > summary::-webkit-details-marker {
+    display: none;
+  }
+  .course-browser > summary h2 {
+    font: 600 var(--step-2) var(--font-display);
+  }
+  .course-browser > summary small {
+    color: var(--ink-55);
+  }
+  .course-library,
+  .case-library {
+    padding-bottom: 2rem;
+  }
+  .module-list {
+    border-top: 1px solid var(--line-strong);
+  }
+  .module-row {
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .module-row summary {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 1rem;
+    padding: 1.35rem 0;
+    cursor: pointer;
+    list-style: none;
+  }
+  .module-row summary::-webkit-details-marker {
+    display: none;
+  }
+  .module-row summary > span {
+    color: var(--live);
+    font-family: var(--font-mono);
+  }
+  .module-row summary h3 {
+    display: block;
+    font: 600 var(--step-1) var(--font-display);
+  }
+  .module-row summary small {
+    display: block;
+    color: var(--ink-70);
+    margin-top: 0.35rem;
+  }
+  .module-body {
+    max-width: 76ch;
+    margin-left: 4rem;
+    padding: 0 0 2rem;
+    color: var(--ink-70);
+  }
+  .module-body p + p,
+  .module-body a {
+    display: block;
+    margin-top: 1rem;
+  }
+  .module-select {
+    margin-top: 1.25rem;
+  }
+  .module-select[aria-current="step"] {
+    border-color: var(--live);
+    color: var(--live);
+  }
+  .case-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--line-strong);
+    border: 1px solid var(--line-strong);
+  }
+  .case-grid article {
+    background: var(--paper);
+    padding: 2rem;
+  }
+  .case-grid h3 {
+    margin-bottom: 1rem;
+  }
+  .case-grid p {
+    color: var(--ink-70);
+  }
+  .case-grid p + p,
+  .case-grid a {
+    display: block;
+    margin-top: 1rem;
+  }
+  .library-footer {
+    border-top: 1px solid var(--line-strong);
+    padding-top: 2rem;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .library-footer > p {
+    color: var(--ink-70);
+    max-width: 55ch;
+  }
+  .library-footer > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  button:disabled,
+  textarea:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  @media (max-width: 760px) {
+    .session-hero,
+    .history-and-backup {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .session-state {
+      max-width: 280px;
+    }
+    .session-steps {
+      grid-template-columns: repeat(2, 1fr);
+      margin-bottom: 4rem;
+    }
+    .recall-grid,
+    .case-grid {
+      grid-template-columns: 1fr;
+    }
+    .library-footer {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>

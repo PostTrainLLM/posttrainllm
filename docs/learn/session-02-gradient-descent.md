@@ -57,10 +57,11 @@ is this guess `(m, b)`?"
 > option, and the Gaussian-noise reason it's privileged.
 
 > **Sidebar: loss numbers are NOT comparable across setups.** A common
-> trap. For language modeling specifically, cross-entropy loss has a
-> ceiling of `log(vocab_size)` — the random-guessing baseline. A
-> byte-level model (vocab=256) has a ceiling of 5.55; a BPE-49K model
-> has a ceiling of 10.80. The same "quality" of model produces very
+> trap. For language modeling specifically, cross-entropy loss under uniform
+> predictions is `log(vocab_size)` — a baseline, not an upper bound. A
+> byte-level model (vocab=256) has a uniform baseline of 5.55; a BPE-49K
+> model has a baseline of 10.80. Loss can grow without bound as the
+> probability assigned to the correct token approaches zero. The same "quality" of model produces very
 > different absolute numbers in different setups. Never compare two
 > loss numbers unless they're from the same vocab, same data, and same
 > tokenization. To compare across setups, normalize to **bits per byte

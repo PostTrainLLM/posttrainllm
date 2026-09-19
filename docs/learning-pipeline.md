@@ -13,7 +13,18 @@ math intuition -> tiny neural net -> training loop -> transformer
 Learning is not separate from building; every module should eventually make the
 next run better.
 
-Progress is tracked in [`learning-progress.md`](learning-progress.md).
+**Start each session at [Next Session](learning-progress.md#next-session).**
+It holds the one current module, one exercise, one owner explanation, and due
+recall checks. That tracker is the only active study queue.
+
+The [Learning Loop](learning-progress.md#learning-loop) defines advancement:
+exercise plus immediate gate → `applied`; closed-book checks at +2 and +7 days
+→ `verified`. Record actual answers, errors, and dates. Existing lessons and
+agent-written explanations do not establish owner mastery.
+
+All [articles and artifacts](learning-progress.md#preserved-learning-library)
+remain available. The sequences below are reference maps from which a session
+is selected; they do not create additional active assignments.
 
 ## Principle
 
@@ -49,6 +60,18 @@ shipped subsystem (post-training internals, quantization, serving,
 interpretability, WASM/WebGPU, VLM, the factory loop) also has a learning
 anchor, see [`docs/learn/coverage-map.md`](learn/coverage-map.md).
 
+## Applied Systems Reading
+
+The [industry learning roadmap](industry_learning_roadmap.md) holds source
+reviews, exercises, and mastery gates. Match each reading to its prerequisites.
+
+**Inside vLLM**, by Aleksa Gordić, belongs after transformer foundations in the
+inference/runtime path. Work through request scheduling and KV memory first,
+then advanced decoding and caching, then the single-machine-to-cluster boundary.
+The exercise is a hand-simulated request trace and performance prediction table;
+it needs no GPU run. See the [case study](industry_learning_roadmap.md#case-study---inside-vllm-inference-systems-and-scaling-boundaries)
+and record progress in [the tracker](learning-progress.md).
+
 ## Factory-Attached Learning Sequence
 
 | Order | Topic | Why Now | Project Work It Unlocks | Primary Docs |
@@ -62,10 +85,11 @@ anchor, see [`docs/learn/coverage-map.md`](learn/coverage-map.md).
 | 7 | Failure analysis | Failed runs must become data | trace review, failure taxonomy, targeted retry data | [`docs/factory/reports.md`](factory/reports.md), [`docs/attempt-ledger.md`](attempt-ledger.md) |
 | 8 | Public reporting | Public artifacts are a product surface | case-study reports, blockers, competition comparison, reproduction notes | [`docs/factory/case-study-template.md`](factory/case-study-template.md), [`docs/factory/public-artifacts.md`](factory/public-artifacts.md) |
 
-## Ready Practical Lab Curriculum
+## Current Practical Curriculum
 
-This is the ready project lab sequence for the owner's learning phase. It runs
-alongside the ground-up path and does not represent unfinished AI work. Any
+This is the ready project lab sequence for the owner's learning phase. Select a lab
+from it when the current module and prerequisites make it useful; it does not
+create a second active study queue or represent unfinished AI work. Any
 exercise that trains a new model begins a fresh experiment with a new issue and
 frozen gate.
 
@@ -135,7 +159,8 @@ Deliverable:
 
 ## Learning Is Complete For A Topic When
 
-- the concept is explained in owner-readable language,
-- the explanation points to repo evidence,
-- it changes a recipe, eval, or report,
-- and the next run can verify whether that change mattered.
+The owner has completed the exercise, explained the concept and its repo
+connection, and passed both delayed recall checks with recorded evidence in
+[the tracker](learning-progress.md#checkpoints-and-recall-queue). A toy exercise
+or inspection can be sufficient; new training or production changes are not
+required for learning completion. Actual experiments retain their own gates.
