@@ -12,8 +12,8 @@ agent, MLX package, browser runtime receipt, and causal probe dossier.
 
 The strongest measured claim: a **4B model distilled locally from ~99
 frontier rollouts on one Mac matches DeepSeek-V4-pro at 100% on a
-multi-turn agentic tool-calling gate** that Gemma-12B-qat scores 75%
-on. The full writeup, methodology, and head-to-head table is
+multi-turn agentic tool-calling gate** that Gemma-4-12b-qat scores
+83% and the stock 4B 75% on. The full writeup, methodology, and head-to-head table is
 [`docs/learn/tool-calling-frontier-parity.md`](docs/learn/tool-calling-frontier-parity.md).
 
 **[Live browser playground →](https://posttrainllm.com)**
@@ -40,7 +40,7 @@ on. The full writeup, methodology, and head-to-head table is
 | **Eval moat**                    | E0 shared schema · BFCL · τ-bench · lm-eval (MLX-routed) · HumanEval (sandbox-exec) · eval-gate (CI).                                                                    | [`docs/leaderboard.md`](docs/leaderboard.md), [`docs/research/mac_slm_leaderboard_v0.md`](docs/research/mac_slm_leaderboard_v0.md) |
 | **Agent runtime**                | OpenAI + Ollama-compatible local serve · multi-turn loop · FSM-constrained JSON · cloud-escalate · token-preserving `.atraj` trajectories.                               | [`docs/agent_runtime.md`](docs/agent_runtime.md)                                                                                   |
 | **Interp**                       | SAE (per-layer + group) · SAELens export · MEMIT · ROME · tuned/logit lens · activation patching.                                                                        | [`docs/techniques/interpretability.md`](docs/techniques/interpretability.md)                                                       |
-| **Trained specialists**          | From-scratch classifiers + distilled/fused LLMs. Pace intent router (49.5M, 95.5%, 3ms) · file-ops distilled (4B, 100% hard gate) · ReST fused (4B, fresh 12/12 routed depth win; 25/45 breadth reject). | [`specialists/`](specialists/), [`specialists/registry.json`](specialists/registry.json)                                           |
+| **Trained specialists**          | From-scratch classifiers + distilled/fused LLMs. Pace intent router (49.5M, 3ms; 95.5% source-matched synthetic holdout, sealed V1 57.1% → production reject) · file-ops distilled (4B, 100% hard gate) · ReST fused (4B, fresh 12/12 routed depth win; 25/45 breadth reject). | [`specialists/`](specialists/), [`specialists/registry.json`](specialists/registry.json)                                           |
 | **Browser site + playground**    | Public experiment archive, recipes, learning paths, evidence artifacts, and the original GPT-2/WebGPU playground.                                                        | [`browser/`](browser/), [experiments](https://posttrainllm.com/experiments), [learn](https://posttrainllm.com/learn)               |
 | **ANE M8**                       | Layer-chunked Core ML chain running Qwen3-28-block on the Apple Neural Engine at ~17 tok/s. Parked until a shipped specialist needs runtime optimization.                | [`docs/parked/ane-coreml.md`](docs/parked/ane-coreml.md)                                                                           |
 
@@ -119,18 +119,18 @@ multi-GPU, no cloud, no asterisk.
 
 | What                                              | Number                                                                                                                   | Source                                                                                               |
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| **Multi-turn agentic hard gate, 4B distilled**    | **100%** (vs DeepSeek-V4-pro 100%, Gemma-12B-qat 75%, stock 4B+plan 33%)                                                 | [`docs/learn/tool-calling-frontier-parity.md`](docs/learn/tool-calling-frontier-parity.md) §8.1      |
+| **Multi-turn agentic hard gate, 4B distilled**    | **100%** (vs DeepSeek-V4-pro 100%, Gemma-4-12b-qat 83%, stock 4B+plan 75%)                                               | [`docs/learn/tool-calling-frontier-parity.md`](docs/learn/tool-calling-frontier-parity.md) §8.1–8.2  |
 | Distillation budget                               | ~99 frontier rollouts · LoRA SFT · 16 layers · lr 1e-5 · 4 epochs                                                        | same                                                                                                 |
-| Decode throughput, Huge preset (96M, ctx 1024)    | **696 tok/s** sustained                                                                                                  | [`docs/PLAN.md`](docs/PLAN.md) headline metrics                                                      |
-| Decode, Mega preset (960M, ctx 1024)              | **293 tok/s**                                                                                                            | same                                                                                                 |
+| Decode throughput, flagship-huge-v5 (221M)        | **696 tok/s** sustained                                                                                                  | [`docs/research/mac_decode_baseline_m5pro.md`](docs/research/mac_decode_baseline_m5pro.md)           |
+| Decode, mega-pilot (960M)                         | **293 tok/s**                                                                                                            | same                                                                                                 |
 | First-token latency (TTFT)                        | **5.8 ms p99**                                                                                                           | same                                                                                                 |
 | Training step (Huge, B=8)                         | **42 ms/step**                                                                                                           | same                                                                                                 |
 | ANE chain (Qwen3 28-block, layer-chunked Core ML) | **17 tok/s**                                                                                                             | [`docs/PLAN.md`](docs/PLAN.md) §1                                                                    |
 | Browser WebGPU end-to-end vs WASM                  | **10.67×** on Large in a paired Apple M5 Pro ABBA run; 4.72% max final-loss drift; other presets remain historical     | [`evals/verified-wins/webgpu-paired-result-v1.json`](evals/verified-wins/webgpu-paired-result-v1.json) |
-| Largest browser-trainable model                   | **960M params** via Memory64                                                                                             | [`browser/devlog.html`](browser/devlog.html)                                                         |
+| Largest browser-path model allocation             | **473M params** via Memory64 (Node; in-browser Memory64 remains ABI-limited)                                            | [`browser/src/pages/devlog.astro`](browser/src/pages/devlog.astro)                                   |
 | WebGPU vs WASM correctness                        | Paired Large run passed the frozen <5% final-loss-drift gate with zero runtime errors                                  | [`evals/verified-wins/webgpu-paired-result-v1.json`](evals/verified-wins/webgpu-paired-result-v1.json) |
 | First end-to-end Mac LoRA fine-tune               | **−32% held-out PPL**, 788 KB adapter                                                                                    | [`docs/archive/WHILE_YOU_SLEPT.md`](docs/archive/WHILE_YOU_SLEPT.md)                                 |
-| **Pace intent router, 49.5M from-scratch**        | **95.5% accuracy** vs Apple FM 76.5% (+19 pp) vs Qwen3-4B 84.75% (+10.8 pp), **3ms** vs 1597ms vs 240ms, 7-class routing | [`specialists/pace-intent-router-v8/model_card.md`](specialists/pace-intent-router-v8/model_card.md) |
+| **Pace intent router, 49.5M from-scratch**        | **95.5% accuracy** vs Apple FM 76.5% (+19 pp) vs Qwen3-4B 84.75% (+10.8 pp), **3ms** vs 1597ms vs 240ms — source-matched synthetic holdout; sealed V1 scored 57.1% → production reject | [`specialists/pace-intent-router-v8/model_card.md`](specialists/pace-intent-router-v8/model_card.md) |
 
 ---
 
