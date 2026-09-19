@@ -78,7 +78,7 @@
       "kind": "committed-package-file",
       "label": "model card",
       "path": "specialists/qwen3-4b-file-ops-distilled/model_card.md",
-      "sha256": "8c87f0a9861facbe07f16d126ebd2b64f54b0d409ee3b75bcb89918cde6d2f34"
+      "sha256": "417c6c352fb25a40fb1aa04315170d3fc472f6f841a9c43d25487775263dbd96"
     },
     {
       "kind": "committed-package-file",

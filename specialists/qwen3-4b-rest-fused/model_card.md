@@ -18,10 +18,11 @@ tags:
 
 ## Summary
 
-This package preserves the best measured Qwen3-4B agentic candidate produced by
-posttrainllm's teacher-free ReST loop. One ReST iteration recovered the
-out-of-domain breadth lost by narrow distillation while retaining the saturated
-file-operations gate.
+This package preserves a Qwen3-4B candidate produced by posttrainllm's
+teacher-free ReST loop. The September 3 paired requalification improved
+file-operations depth and reduced side effects, but regressed on broader
+tool-calling tasks. Earlier breadth-recovery claims are superseded by that
+measurement.
 
 It is a **research specialist package**, not the default Pace planner. The model
 speaks BFCL/OpenAI-style tool calls; Pace uses a different intent envelope and
@@ -75,6 +76,11 @@ intent envelope before considering that change.
 
 ## References
 
+- [Project and learning lab](https://posttrainllm.com)
+- [Mac quickstart](https://github.com/PostTrainLLM/posttrainllm#quickstart-mac)
+- [Specialist recipe](https://github.com/PostTrainLLM/posttrainllm/blob/main/docs/recipes/distill-specialist.md)
+- [Paired requalification receipt](https://github.com/PostTrainLLM/posttrainllm/blob/main/evals/verified-wins/rest-requalification-result-v1.json)
+- [Base model and license](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507)
 - `docs/sessions/2026-06-17-stepback-inventory-roi.md`
 - `docs/learn/tool-calling-frontier-parity.md`
 - `evals/verified-wins/rest-requalification-result-v1.json`
