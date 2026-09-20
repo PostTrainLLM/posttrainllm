@@ -1,0 +1,113 @@
+---
+import Default from "../../layouts/Default.astro";
+import "../../styles/system.css";
+import SiteHeader from "../../components/SiteHeader.astro";
+import { articleList } from "../../data/articles-content";
+
+const layoutProps = {
+  title: "posttrainllm — articles",
+  description:
+    "Long-form articles on Mac-local post-training: evaluation discipline, LoRA workflows, capability density, and Apple Silicon hardware limits.",
+  ogTitle: "posttrainllm — articles",
+  ogDescription:
+    "Long-form articles on Mac-local post-training: evaluation discipline, LoRA workflows, capability density, and Apple Silicon hardware limits.",
+  themeColor: "#0a0c0f",
+};
+---
+
+<Default {...layoutProps}>
+  <SiteHeader mode="instrument" active="docs" />
+  <main id="main" class="articles-page">
+    <header class="hero">
+      <p class="kicker">Articles · Mac-local practice</p>
+      <h1>Long-form notes from the specialist factory.</h1>
+      <p class="lede">
+        Evidence-first articles on post-training, evaluation, and hardware
+        limits — every claim grounded in measured runs on a single Apple Silicon
+        machine.
+      </p>
+    </header>
+
+    <section class="article-list" aria-label="Articles">
+      {
+        articleList.map((article) => (
+          <article class="article-card">
+            <h2>
+              <a href={article.path}>{article.title}</a>
+            </h2>
+            <p>{article.description}</p>
+          </article>
+        ))
+      }
+    </section>
+  </main>
+</Default>
+
+<style>
+  .articles-page {
+    width: min(100%, 900px);
+    margin: 0 auto;
+    padding: clamp(48px, 7vw, 96px) var(--gutter) var(--s-10);
+  }
+  .hero {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: var(--s-7);
+    margin-bottom: var(--s-7);
+  }
+  .kicker {
+    color: var(--live);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    margin: 0 0 var(--s-4);
+  }
+  .articles-page h1 {
+    max-width: 18ch;
+    font-size: var(--step-4);
+    line-height: 1.04;
+    letter-spacing: -0.035em;
+    color: var(--ink);
+    margin: 0 0 var(--s-5);
+  }
+  .lede {
+    max-width: 62ch;
+    color: var(--fg-soft);
+    font-size: var(--step-1);
+    line-height: 1.55;
+    margin: 0;
+  }
+  .article-list {
+    display: grid;
+    gap: var(--s-4);
+  }
+  .article-card {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: var(--r-3);
+    padding: var(--s-5);
+    transition:
+      border-color var(--dur-2) var(--ease-out),
+      box-shadow var(--dur-2) var(--ease-out);
+  }
+  .article-card:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-2);
+  }
+  .article-card h2 {
+    font-size: var(--step-1);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    margin: 0 0 var(--s-3);
+  }
+  .article-card h2 a {
+    color: var(--ink);
+  }
+  .article-card h2 a:hover {
+    color: var(--live);
+  }
+  .article-card p {
+    color: var(--fg-soft);
+    line-height: 1.6;
+    margin: 0;
+    font-size: var(--step-0);
+  }
+</style>

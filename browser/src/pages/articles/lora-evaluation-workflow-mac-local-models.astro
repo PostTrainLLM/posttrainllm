@@ -1,0 +1,9 @@
+---
+import EditorialPage from "../../components/content/EditorialPage.astro";
+import { articleContent } from "../../data/articles-content";
+
+const content =
+  articleContent["/articles/lora-evaluation-workflow-mac-local-models"];
+---
+
+<EditorialPage content={content} />
