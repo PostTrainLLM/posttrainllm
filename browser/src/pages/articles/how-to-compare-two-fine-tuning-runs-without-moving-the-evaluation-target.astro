@@ -1,0 +1,11 @@
+---
+import EditorialPage from "../../components/content/EditorialPage.astro";
+import { articleContent } from "../../data/articles-content";
+
+const content =
+  articleContent[
+    "/articles/how-to-compare-two-fine-tuning-runs-without-moving-the-evaluation-target"
+  ];
+---
+
+<EditorialPage content={content} />

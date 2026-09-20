@@ -1,0 +1,9 @@
+---
+import EditorialPage from "../../components/content/EditorialPage.astro";
+import { articleContent } from "../../data/articles-content";
+
+const content =
+  articleContent["/articles/post-train-small-language-model-apple-silicon"];
+---
+
+<EditorialPage content={content} />
