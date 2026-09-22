@@ -103,16 +103,35 @@ public enum AgentTrajectoryExport {
     /// the recorded `content` (bare stdout) when no payload was stored.
     public static func toolResultText(_ step: AgentTrajectoryStep) -> String {
         guard let r = step.toolResult else { return step.content }
+        return toolResultText(r)
+    }
+
+    /// Canonical JSON fed to the agent after a tool call. AgentLoop uses
+    /// this same helper, so newly recorded trajectories preserve the exact
+    /// text that conditioned the following assistant turn.
+    public static func toolResultText(_ result: ToolResultPayload) -> String {
         let obj: [String: Any] = [
-            "tool": r.name,
-            "stdout": r.stdout,
-            "stderr": r.stderr,
-            "exit_code": r.exitCode,
+            "tool": result.name,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "exit_code": result.exitCode,
         ]
         if let data = try? JSONSerialization.data(
             withJSONObject: obj, options: [.sortedKeys]),
            let s = String(data: data, encoding: .utf8) { return s }
-        return step.content
+        return result.stdout
+    }
+
+    /// Strip the outer system ChatML markers before storing the prompt as
+    /// a semantic trajectory step. `renderChatBlocks` restores the same
+    /// markers during SFT export without double-wrapping the prompt.
+    public static func systemContent(from prefill: String) -> String {
+        let prefix = "<|im_start|>system\n"
+        let suffix = "<|im_end|>"
+        guard prefill.hasPrefix(prefix), prefill.hasSuffix(suffix) else {
+            return prefill
+        }
+        return String(prefill.dropFirst(prefix.count).dropLast(suffix.count))
     }
 
     /// Stable serialization of a message list for dedup keys — role,

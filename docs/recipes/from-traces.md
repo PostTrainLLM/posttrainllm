@@ -60,6 +60,9 @@ Two export modes (`--export`, issue #159):
   context the model saw. `sft` renders these rows per-block through the
   agent loop's ChatML convention, consumes recorded assistant
   `output_ids` when present, and masks loss to the flagged sampled spans.
+  New recordings include the system prefill as the first context step;
+  older `.atraj` files cannot recover a system prompt that was never
+  recorded.
 
 Default filters: tool-echo drop (answer-only only — assistant turns
 that emitted a tool-call JSON but never reached `{"answer": ...}` are

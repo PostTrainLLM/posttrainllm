@@ -132,7 +132,7 @@ final class TrajectoryExportTests: XCTestCase {
         ])
         let texts = blocks.map(\.text)
         XCTAssertEqual(texts, [
-            "<|im_start|>system\nSYS<|im_end|>\n",
+            "<|im_start|>system\nSYS<|im_end|>",
             "<|im_start|>user\nU<|im_end|>\n<|im_start|>assistant\n",
             "CALL",
             "<|im_start|>tool\nRES<|im_end|>\n<|im_start|>assistant\n",
@@ -255,6 +255,30 @@ final class TrajectoryExportTests: XCTestCase {
         XCTAssertNil(records[0].messages)
         XCTAssertEqual(records[0].instruction, "i")
         XCTAssertNotNil(records[1].messages)
+    }
+
+    func testSystemPrefillRoundTripsWithoutDoubleWrapping() {
+        let prefill = "<|im_start|>system\nSYS<|im_end|>"
+        let content = AgentTrajectoryExport.systemContent(from: prefill)
+        XCTAssertEqual(content, "SYS")
+        let blocks = SFTBuilder.renderChatBlocks([
+            SFTMessage(role: "system", content: content, supervise: false),
+        ])
+        XCTAssertEqual(blocks.map(\.text), [prefill])
+    }
+
+    func testReaderRejectsChatRowsWithoutAssistantTarget() throws {
+        let url = try writeTemp(jsonl: """
+            {"messages":[{"role":"user","content":"q"}]}
+            """)
+        XCTAssertThrowsError(try SFTReader.readJSONL(url))
+    }
+
+    func testReaderRejectsSupervisedNonAssistantMessage() throws {
+        let url = try writeTemp(jsonl: """
+            {"messages":[{"role":"user","content":"q","supervise":true}]}
+            """)
+        XCTAssertThrowsError(try SFTReader.readJSONL(url))
     }
 
     private func writeTemp(jsonl: String) throws -> URL {

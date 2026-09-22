@@ -316,16 +316,30 @@ public enum SFTReader {
             // rows fell through to the flat-field check below and were
             // silently dropped (CorrectionCuration documents the trap).
             if let arr = obj["messages"] as? [[String: Any]] {
-                var msgs = arr.compactMap { m -> SFTMessage? in
+                guard !arr.isEmpty else {
+                    throw ReadError.parseError(
+                        line: lineNo, detail: "messages must not be empty")
+                }
+                var msgs: [SFTMessage] = []
+                for (messageIndex, m) in arr.enumerated() {
                     guard let role = m["role"] as? String,
-                          let content = m["content"] as? String
-                    else { return nil }
+                          let content = m["content"] as? String else {
+                        throw ReadError.parseError(
+                            line: lineNo,
+                            detail: "messages[\(messageIndex)] needs string role and content")
+                    }
+                    let supervise = m["supervise"] as? Bool ?? false
+                    guard !supervise || role == "assistant" else {
+                        throw ReadError.parseError(
+                            line: lineNo,
+                            detail: "only assistant messages may be supervised")
+                    }
                     let outputIds = (m["output_ids"] as? [Any])?.compactMap {
                         ($0 as? NSNumber)?.intValue
                     }
-                    return SFTMessage(role: role, content: content,
-                                      supervise: m["supervise"] as? Bool ?? false,
-                                      outputIds: outputIds)
+                    msgs.append(SFTMessage(
+                        role: role, content: content, supervise: supervise,
+                        outputIds: outputIds))
                 }
                 // No explicit supervision flags → supervise the last
                 // assistant turn only, matching prior convention.
@@ -336,10 +350,13 @@ public enum SFTReader {
                                             supervise: true,
                                             outputIds: msgs[last].outputIds)
                 }
-                if !msgs.isEmpty {
-                    records.append(SFTRecord(instruction: "", input: "",
-                                             response: "", messages: msgs))
+                guard msgs.contains(where: { $0.supervise }) else {
+                    throw ReadError.parseError(
+                        line: lineNo,
+                        detail: "messages needs at least one assistant target")
                 }
+                records.append(SFTRecord(instruction: "", input: "",
+                                         response: "", messages: msgs))
                 continue
             }
             // Accept either {instruction, input?, response} OR {prompt, completion}.
@@ -408,7 +425,7 @@ public enum SFTBuilder {
     ///
     /// Block shapes (the `<|im_start|>assistant\n` preface is generated
     /// by the preceding context block's suffix — never supervised):
-    ///   system    → <|im_start|>system\n…<|im_end|>\n            context
+    ///   system    → <|im_start|>system\n…<|im_end|>              context
     ///   user/tool → <|im_start|>role\n…<|im_end|>\n<|im_start|>assistant\n
     ///                                                            context
     ///   assistant → sampled output IDs (or decoded content)            supervise?
@@ -435,7 +452,7 @@ public enum SFTBuilder {
                 blocks.append((m.content, m.supervise, m.outputIds))
                 assistantPrefacePending = true
             case "system":
-                blocks.append(("<|im_start|>system\n\(m.content)<|im_end|>\n", false, nil))
+                blocks.append(("<|im_start|>system\n\(m.content)<|im_end|>", false, nil))
                 assistantPrefacePending = true
             default:
                 // user, tool, or anything else: context block that also
