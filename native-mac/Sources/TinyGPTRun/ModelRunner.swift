@@ -92,12 +92,20 @@ public enum ModelRunner {
         // dies on launch; the real stderr is the evidence).
         let plans = RunnerPlanner.plans(for: report, forced: options.forcedRunner)
         guard !plans.isEmpty else {
-            persistReceipt(
-                report: report, status: .blocked, runtime: nil,
-                failureStage: .validate, attempts: [])
+            if shouldPersistSelectionFailure(forced: options.forcedRunner) {
+                persistReceipt(
+                    report: report, status: .blocked, runtime: nil,
+                    failureStage: .validate, attempts: [])
+            }
             fputs(RunnerPlanner.blocker(for: report, forced: options.forcedRunner) + "\n", stderr)
             return 3
         }
+        return runPlans(plans, report: report, options: options)
+    }
+
+    private static func runPlans(
+        _ plans: [RunnerPlan], report: ModelCheckReport, options: Options
+    ) -> Int32 {
         var attempts: [ModelCheckReport.VerificationAttempt] = []
         for (index, plan) in plans.enumerated() {
             if index > 0 { fputs("… falling back to \(plan.runner.rawValue)\n", stderr) }
@@ -119,25 +127,33 @@ public enum ModelRunner {
             case .llamaCpp:
                 outcome = runLlamaCpp(report: report, options: options)
             }
-            attempts.append(receiptAttempt(
-                outcome: outcome, runner: plan.runner, report: report,
-                requestedTokens: options.maxTokens))
+            if shouldRecordReceipt(chat: options.chat) {
+                attempts.append(receiptAttempt(
+                    outcome: outcome, runner: plan.runner, report: report,
+                    requestedTokens: options.maxTokens))
+            }
             if outcome.succeeded {
-                persistReceipt(
-                    report: report, status: .verified,
-                    runtime: plan.runner.rawValue, failureStage: nil,
-                    attempts: attempts)
-                emit("\n✓ ran on \(plan.runner.rawValue) — verified, not predicted")
-                emit("keep chatting: \(chatHint(plan.runner, report: report))")
+                if options.chat {
+                    emit("\n✓ interactive session exited cleanly; no verification receipt recorded")
+                } else {
+                    persistReceipt(
+                        report: report, status: .verified,
+                        runtime: plan.runner.rawValue, failureStage: nil,
+                        attempts: attempts)
+                    emit("\n✓ ran on \(plan.runner.rawValue) — verified, not predicted")
+                    emit("keep chatting: \(chatHint(plan.runner, report: report))")
+                }
                 return 0
             }
             fputs("  \(plan.runner.rawValue) failed — trying next runner if any\n", stderr)
         }
-        persistReceipt(
-            report: report, status: .failed,
-            runtime: attempts.last?.runtime,
-            failureStage: deepestFailureStage(attempts),
-            attempts: attempts)
+        if shouldRecordReceipt(chat: options.chat) {
+            persistReceipt(
+                report: report, status: .failed,
+                runtime: attempts.last?.runtime,
+                failureStage: deepestFailureStage(attempts),
+                attempts: attempts)
+        }
         fputs("all runnable paths failed — the real errors are above.\n", stderr)
         return 6
     }
@@ -478,7 +494,8 @@ public enum ModelRunner {
                                    timeout: 1800)
         }
         let download = capturedOutcome(
-            runner: "lms get", result: r, failureStage: .download)
+            runner: "lms get", result: r, failureStage: .download,
+            requiresOutput: false)
         guard download.succeeded else { return download }
 
         guard let key = lmsModelKey(report: report, getOutput: r.stdout) else {
@@ -492,7 +509,8 @@ public enum ModelRunner {
         let load = Subprocess.capture(["lms", "load", key, "--ttl", "300", "-y"],
                                       timeout: 600)
         let loaded = capturedOutcome(
-            runner: "lms load", result: load, failureStage: .load)
+            runner: "lms load", result: load, failureStage: .load,
+            requiresOutput: false)
         guard loaded.succeeded else { return loaded }
         defer { _ = Subprocess.capture(["lms", "unload", key], timeout: 30) }
 
@@ -644,15 +662,44 @@ public enum ModelRunner {
     private static func capturedOutcome(
         runner: String, result: Subprocess.Result,
         failureStage: ModelCheckReport.ExecutionStageName? = nil,
-        promptTokens: Int? = nil, generatedTokens: Int? = nil
+        promptTokens: Int? = nil, generatedTokens: Int? = nil,
+        requiresOutput: Bool = true
     ) -> RunOutcome {
-        RunOutcome(
-            succeeded: printOutcome(runner: runner, result: result),
-            result: result,
-            failureStage: failureStage ?? inferredFailureStage(result),
+        let accepted = requiresOutput
+            ? acceptedSampleResult(result, generatedTokens: generatedTokens)
+            : result
+        return RunOutcome(
+            succeeded: printOutcome(runner: runner, result: accepted),
+            result: accepted,
+            failureStage: failureStage ?? inferredFailureStage(accepted),
             promptTokens: promptTokens,
             generatedTokens: generatedTokens)
     }
+
+    static func acceptedSampleResult(
+        _ result: Subprocess.Result, generatedTokens: Int?
+    ) -> Subprocess.Result {
+        guard result.status == 0, !result.timedOut,
+              hasMeasuredSample(result, generatedTokens: generatedTokens) else {
+            if result.status != 0 || result.timedOut { return result }
+            let detail = "runtime exited successfully without producing sample output"
+            return Subprocess.Result(
+                status: -1, stdout: result.stdout, stderr: detail,
+                timedOut: false, durationMS: result.durationMS)
+        }
+        return result
+    }
+
+    private static func hasMeasuredSample(
+        _ result: Subprocess.Result, generatedTokens: Int?
+    ) -> Bool {
+        !result.stdout.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || (generatedTokens ?? 0) > 0
+    }
+
+    static func shouldRecordReceipt(chat: Bool) -> Bool { !chat }
+
+    static func shouldPersistSelectionFailure(forced: Runner?) -> Bool { forced == nil }
 
     private static func attachedOutcome(status: Int32) -> RunOutcome {
         RunOutcome(
@@ -710,6 +757,7 @@ public enum ModelRunner {
             identity: .init(
                 modelID: report.model.id,
                 revision: ModelCompatibilityContract.receiptRevision(for: report.model),
+                artifactPath: ModelCompatibilityContract.receiptArtifact(for: report.model),
                 environmentFingerprint: ModelCompatibilityContract.environmentFingerprint(
                     report.environment)),
             verifiedAt: ISO8601DateFormatter().string(from: Date()),
@@ -739,10 +787,8 @@ public enum ModelRunner {
             let base = "hf.co/\(report.model.id)"
             return "ollama run \(ggufQuantTag(report: report).map { "\(base):\($0)" } ?? base)"
         case .mlxSwift:
-            let target = report.model.revision == "main"
-                ? report.model.id
-                : "https://huggingface.co/\(report.model.id)/tree/\(report.model.revision)"
-            return "\(CommandLine.arguments[0]) model-run \(target) --runtime mlx-swift --chat"
+            return "\(shellQuote(CommandLine.arguments[0])) model-run "
+                + "\(shellQuote(canonicalArtifactTarget(report))) --runtime mlx-swift --chat"
         case .mlxLm:
             return "python3 -m mlx_lm chat --model \(report.model.id)"
         case .lms:
@@ -754,8 +800,28 @@ public enum ModelRunner {
             let revisionKey = Data(artifactRevision(report).utf8).base64EncodedString()
                 .replacingOccurrences(of: "/", with: "_")
             let dir = "~/.cache/posttrainllm/models/\(report.model.id)/\(revisionKey)"
-            return "\(CommandLine.arguments[0]) serve \(dir)  # OpenAI-compatible endpoint"
+            return "\(shellQuote(CommandLine.arguments[0])) serve \(dir)"
+                + "  # OpenAI-compatible endpoint"
         }
+    }
+
+    static func canonicalArtifactTarget(_ report: ModelCheckReport) -> String {
+        let revision = encodePathComponent(artifactRevision(report))
+        let base = "https://huggingface.co/\(report.model.id)"
+        guard let path = report.model.filePath else { return "\(base)/tree/\(revision)" }
+        let encodedPath = path.split(separator: "/").map {
+            encodePathComponent(String($0))
+        }.joined(separator: "/")
+        return "\(base)/blob/\(revision)/\(encodedPath)"
+    }
+
+    private static func encodePathComponent(_ value: String) -> String {
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-._~"))
+        return value.addingPercentEncoding(withAllowedCharacters: allowed) ?? value
+    }
+
+    static func shellQuote(_ value: String) -> String {
+        "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'"
     }
 
     /// Print a runner's captured output and classify the outcome.

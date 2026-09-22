@@ -6,18 +6,19 @@ import Foundation
 public enum ModelCompatibilityContract {
     public static func enrich(
         _ source: ModelCheckReport,
-        hasHFAccess: Bool,
+        hasVerifiedHFAccess: Bool,
         receipt: ModelCheckReport.VerificationReceipt? = nil
     ) -> ModelCheckReport {
         var report = source
         report.schemaVersion = 2
-        report.operations = deriveOperations(report, hasHFAccess: hasHFAccess)
+        report.operations = deriveOperations(report, hasVerifiedHFAccess: hasVerifiedHFAccess)
         report.executionStages = deriveStages(report)
         report.verificationReceipt = nil
 
         guard let receipt,
               receipt.modelID == report.model.id,
               receipt.revision == receiptRevision(for: report.model),
+              receipt.artifactPath == receiptArtifact(for: report.model),
               receipt.environmentFingerprint == environmentFingerprint(report.environment)
         else { return report }
 
@@ -35,6 +36,15 @@ public enum ModelCompatibilityContract {
         model.resolvedRevision ?? model.revision
     }
 
+    /// Exact blob targets must not share a receipt with another artifact in
+    /// the same repository snapshot. A nil path represents the repository
+    /// target rather than a particular file.
+    public static func receiptArtifact(
+        for model: ModelCheckReport.ModelSection
+    ) -> String? {
+        model.filePath
+    }
+
     public static func environmentFingerprint(
         _ environment: ModelCheckReport.EnvironmentSection
     ) -> String {
@@ -45,26 +55,28 @@ public enum ModelCompatibilityContract {
 
     private static func deriveOperations(
         _ report: ModelCheckReport,
-        hasHFAccess: Bool
+        hasVerifiedHFAccess: Bool
     ) -> [ModelCheckReport.OperationAssessment] {
         let inspected = hasRepositoryEvidence(report)
+        let unresolved = report.requiredChanges.filter {
+            !($0.kind == "access" && hasVerifiedHFAccess)
+        }
         let loadStatus: ModelCheckReport.OperationStatus
-        switch report.checkedPath.status {
-        case .expectedToWork: loadStatus = .supported
-        case .changesRequired:
-            let unresolved = report.requiredChanges.filter {
-                !($0.kind == "access" && hasHFAccess)
-            }
-            loadStatus = unresolved.isEmpty ? .supported : .blocked
-        case .unsupportedOnCheckedPath: loadStatus = .blocked
-        case .unknown: loadStatus = .unverified
+        switch (report.checkedPath.status, unresolved.isEmpty) {
+        case (.expectedToWork, true), (.changesRequired, true): loadStatus = .supported
+        case (.expectedToWork, false), (.changesRequired, false): loadStatus = .blocked
+        case (.unsupportedOnCheckedPath, _): loadStatus = .blocked
+        case (.unknown, _): loadStatus = .unverified
         }
 
         let downloadStatus: ModelCheckReport.OperationStatus
         let downloadDetail: String
-        if report.model.gated && !hasHFAccess {
+        if report.model.gated && !hasVerifiedHFAccess {
             downloadStatus = .blocked
-            downloadDetail = "Gated repository; accept its license and provide HF_TOKEN before downloading weights."
+            downloadDetail = "Gated repository access was not verified by an authenticated small-file read; accept its license and provide a valid HF_TOKEN."
+        } else if unresolved.contains(where: isDiskBlocker) {
+            downloadStatus = .blocked
+            downloadDetail = "Insufficient free disk space for the selected model artifact."
         } else if inspected {
             downloadStatus = .supported
             downloadDetail = "Repository metadata exposes a downloadable revision; weights were not fetched by model-check."
@@ -216,9 +228,14 @@ public enum ModelCompatibilityContract {
     }
 
     private static func hasRepositoryEvidence(_ report: ModelCheckReport) -> Bool {
-        report.evidence.contains { $0.source.contains("huggingface.co") }
-            || !report.model.formats.isEmpty
-            || !report.model.architectures.isEmpty
+        let source = "https://huggingface.co/api/models/\(report.model.id)"
+        return report.evidence.contains {
+            $0.source == source && $0.detail == "Hugging Face Hub model metadata"
+        }
+    }
+
+    private static func isDiskBlocker(_ change: ModelCheckReport.RequiredChange) -> Bool {
+        change.detail.lowercased().contains("free disk space")
     }
 
     private static func updateOperation(
@@ -307,14 +324,16 @@ public struct ModelVerificationStore: Sendable {
     public func load(
         modelID: String,
         revision: String,
+        artifactPath: String? = nil,
         environment: ModelCheckReport.EnvironmentSection
     ) -> ModelCheckReport.VerificationReceipt? {
-        let url = receiptURL(modelID: modelID, revision: revision)
+        let url = receiptURL(modelID: modelID, revision: revision, artifactPath: artifactPath)
         guard let data = try? Data(contentsOf: url),
               let receipt = try? JSONDecoder().decode(ModelCheckReport.VerificationReceipt.self, from: data),
               receipt.schemaVersion == 1,
               receipt.modelID == modelID,
               receipt.revision == revision,
+              receipt.artifactPath == artifactPath,
               receipt.environmentFingerprint == ModelCompatibilityContract.environmentFingerprint(environment)
         else { return nil }
         return receipt
@@ -326,7 +345,9 @@ public struct ModelVerificationStore: Sendable {
     ) throws -> URL {
         let receipt = Self.sanitized(source)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        let url = receiptURL(modelID: receipt.modelID, revision: receipt.revision)
+        let url = receiptURL(
+            modelID: receipt.modelID, revision: receipt.revision,
+            artifactPath: receipt.artifactPath)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
         try encoder.encode(receipt).write(to: url, options: .atomic)
@@ -366,8 +387,9 @@ public struct ModelVerificationStore: Sendable {
         return receipt
     }
 
-    private func receiptURL(modelID: String, revision: String) -> URL {
-        let key = modelID + "@" + revision
+    private func receiptURL(modelID: String, revision: String, artifactPath: String?) -> URL {
+        let artifactKey = artifactPath.map { "file:\($0)" } ?? "repository:"
+        let key = modelID + "@" + revision + "#" + artifactKey
         let prefix = key.unicodeScalars.map { scalar -> Character in
             CharacterSet.alphanumerics.contains(scalar) || "-_.".unicodeScalars.contains(scalar)
                 ? Character(String(scalar)) : "_"
