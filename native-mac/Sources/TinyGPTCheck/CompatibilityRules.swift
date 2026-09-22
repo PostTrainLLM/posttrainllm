@@ -24,48 +24,33 @@ public enum CompatibilityRules {
     /// `info` means the API lookup itself failed — see `fetchIssue`.
     public struct Input {
         public var ref: ModelRef
-        public var info: HubModelClient.Info?       // nil → fetch failed
-        public var fetchIssue: String?              // human-readable why
-        public var config: HuggingFaceConfig?       // parsed config.json
-        public var configIssue: String?             // why config is nil
+        public var info: HubModelClient.Info? = nil       // nil → fetch failed
+        public var fetchIssue: String? = nil              // human-readable why
+        public var config: HuggingFaceConfig? = nil       // parsed config.json
+        public var configIssue: String? = nil             // why config is nil
         /// `architectures` pulled leniently from a config.json that
         /// failed strict parse (e.g. GPT-2's legacy n_head/n_layer
         /// schema) — lets the report name the architecture even when the
         /// full typed config is unavailable.
-        public var architecturesHint: [String]
+        public var architecturesHint: [String] = []
         /// Tensor-name layout from the safetensors index/header — nil
         /// when it couldn't be fetched (recorded as a limitation).
-        public var tensorLayout: TensorLayout?
+        public var tensorLayout: TensorLayout? = nil
         /// Repo ships custom modeling code (config `auto_map` or
         /// transformersInfo.custom_class) — we never execute it, which
         /// matters when the architecture isn't natively supported.
-        public var remoteCode: Bool
+        public var remoteCode = false
         /// PEFT/LoRA adapter repo details (nil for full models).
-        public var adapter: (base: String?, peftType: String?)?
+        public var adapter: (base: String?, peftType: String?)? = nil
         /// GGUF header metadata for the selected variant, when readable.
-        public var ggufMeta: GGUFHeader.Meta?
+        public var ggufMeta: GGUFHeader.Meta? = nil
         /// Exact weight bytes / param count from safetensors header
         /// dtypes+shapes — preferred over Hub stats or file sizes.
-        public var exactWeightBytes: Int64?
-        public var exactParams: Int64?
+        public var exactWeightBytes: Int64? = nil
+        public var exactParams: Int64? = nil
         public var env: MacEnvironment
-        public init(ref: ModelRef, info: HubModelClient.Info?, fetchIssue: String?,
-                    config: HuggingFaceConfig?, configIssue: String?,
-                    architecturesHint: [String] = [],
-                    tensorLayout: TensorLayout? = nil,
-                    remoteCode: Bool = false,
-                    adapter: (base: String?, peftType: String?)? = nil,
-                    ggufMeta: GGUFHeader.Meta? = nil,
-                    exactWeightBytes: Int64? = nil,
-                    exactParams: Int64? = nil,
-                    env: MacEnvironment) {
-            self.ref = ref; self.info = info; self.fetchIssue = fetchIssue
-            self.config = config; self.configIssue = configIssue
-            self.architecturesHint = architecturesHint
-            self.tensorLayout = tensorLayout
-            self.remoteCode = remoteCode; self.adapter = adapter
-            self.ggufMeta = ggufMeta
-            self.exactWeightBytes = exactWeightBytes; self.exactParams = exactParams
+        public init(ref: ModelRef, env: MacEnvironment) {
+            self.ref = ref
             self.env = env
         }
     }
@@ -159,7 +144,7 @@ public enum CompatibilityRules {
         a.architectures = input.config?.architectures ?? input.architecturesHint
         a.formats = detectFormats(info: info, config: input.config)
         if input.adapter != nil { a.formats.insert("peft-adapter", at: 0) }
-        a.selectedVariant = pickVariant(info: info)
+        a.selectedVariant = pickVariant(info: info, requestedPath: input.ref.filePath)
         if let b = info.baseModel {
             a.evidence.append(.init(source: apiDetail(info), kind: "documented",
                                     detail: "cardData base_model: \(b)"))
@@ -305,20 +290,19 @@ public enum CompatibilityRules {
         // ComfyUI single-file repos ship split components under
         // diffusion_models/, vae/, text_encoders/, clip/ — no
         // model_index.json, often no pipeline_tag.
-        if info.siblings.contains(where: {
-            let n = $0.name
-            return n.hasPrefix("diffusion_models/") || n.hasPrefix("unet/")
-                || n.hasPrefix("vae/") || n.hasPrefix("text_encoders/")
-                || n.hasPrefix("checkpoints/")
+        let componentPrefixes = ["diffusion_models/", "unet/", "vae/", "text_encoders/", "checkpoints/"]
+        if info.siblings.contains(where: { sibling in
+            componentPrefixes.contains { sibling.name.hasPrefix($0) }
         }) { return true }
         if let tag = info.pipelineTag {
             // Generation-side media pipelines are diffusers-domain.
             // ASR / TTS / classifiers are transformers-domain — they get
             // the generic non-language assessment instead.
-            return tag.hasPrefix("text-to-image") || tag.hasPrefix("image-to-")
-                || tag.hasPrefix("text-to-video") || tag.hasPrefix("text-to-audio")
-                || tag.hasPrefix("text-to-3d") || tag.hasPrefix("image-to-3d")
-                || tag.hasPrefix("video-")
+            let mediaPrefixes = [
+                "text-to-image", "image-to-", "text-to-video", "text-to-audio",
+                "text-to-3d", "image-to-3d", "video-",
+            ]
+            return mediaPrefixes.contains { tag.hasPrefix($0) }
         }
         return false
     }
@@ -334,9 +318,12 @@ public enum CompatibilityRules {
 
     /// The GGUF sibling we'd pick — prefer a middle quant (Q4_K_M/Q5) if
     /// several exist, else the largest single file.
-    static func pickVariant(info: HubModelClient.Info) -> String? {
+    static func pickVariant(info: HubModelClient.Info, requestedPath: String? = nil) -> String? {
         let ggufs = info.siblings(matchingSuffix: ".gguf")
         guard !ggufs.isEmpty else { return nil }
+        if let requestedPath, requestedPath.lowercased().hasSuffix(".gguf") {
+            return requestedPath
+        }
         let preferred = ["q4_k_m", "q5_k_m", "q4_0", "q8_0"]
         for tag in preferred {
             if let hit = ggufs.first(where: { $0.name.lowercased().contains(tag) }) {
@@ -352,18 +339,24 @@ public enum CompatibilityRules {
     /// matters for a back-of-envelope figure.
     static func weightEstimate(info: HubModelClient.Info) -> (params: Int64, bytes: Int64, source: String)? {
         if !info.safetensorsParams.isEmpty {
-            let bytesPer: [String: Double] = [
+            let bytesPer: [String: Int64] = [
                 "F64": 8, "F32": 4, "BF16": 2, "F16": 2,
                 "I64": 8, "I32": 4, "I16": 2, "I8": 1, "U8": 1,
                 "F8_E4M3": 1, "F8_E5M2": 1,
             ]
             var params: Int64 = 0
-            var bytes: Double = 0
+            var bytes: Int64 = 0
             for (dtype, count) in info.safetensorsParams {
-                params += count
-                bytes += Double(count) * (bytesPer[dtype] ?? 2)
+                guard count >= 0 else { return nil }
+                let paramTotal = params.addingReportingOverflow(count)
+                let tensorBytes = count.multipliedReportingOverflow(by: bytesPer[dtype] ?? 2)
+                guard !paramTotal.overflow, !tensorBytes.overflow else { return nil }
+                let byteTotal = bytes.addingReportingOverflow(tensorBytes.partialValue)
+                guard !byteTotal.overflow else { return nil }
+                params = paramTotal.partialValue
+                bytes = byteTotal.partialValue
             }
-            return (params, Int64(bytes), "safetensors parameter stats")
+            return (params, bytes, "safetensors parameter stats")
         }
         let stBytes = info.sizeOf(".safetensors")
         if stBytes > 0 { return (0, stBytes, "safetensors file sizes") }
@@ -376,14 +369,17 @@ public enum CompatibilityRules {
     /// an 8k-token reference context — real usage scales with context.
     static func loadFootprint(weightBytes: Int64, mlxPacked: Bool,
                               config: HuggingFaceConfig?) -> Int64 {
+        guard weightBytes >= 0 else { return Int64.max }
         var total = Double(weightBytes) * (mlxPacked ? 1.15 : 2.0)
         if let cfg = config {
             let kvHeads = cfg.numKeyValueHeads > 0 ? cfg.numKeyValueHeads : cfg.numAttentionHeads
             let headDim = cfg.headDim > 0 ? cfg.headDim
                 : cfg.hiddenSize / max(cfg.numAttentionHeads, 1)
-            total += Double(2 * cfg.numHiddenLayers * kvHeads * headDim) * 8192 * 4
+            total += 2.0 * Double(cfg.numHiddenLayers) * Double(kvHeads)
+                * Double(headDim) * 8192.0 * 4.0
         }
-        return Int64(total)
+        guard total.isFinite, total < Double(Int64.max) else { return Int64.max }
+        return Int64(max(total, 0))
     }
 
     // MARK: - per-format assessments
@@ -459,11 +455,9 @@ public enum CompatibilityRules {
         // Tokenizer presence — a repo without tokenizer files can't run
         // end-to-end regardless of weight compatibility.
         let hasTokenizer = info.sibling(named: "tokenizer.json") != nil
-            || info.sibling(named: "tokenizer.model") != nil
-            || info.sibling(named: "tokenizer_config.json") != nil
         if !hasTokenizer {
             a.requiredChanges.append(.init(kind: "model-component",
-                detail: "no tokenizer files in repo — the loader needs tokenizer.json or tokenizer.model",
+                detail: "no tokenizer.json in repo — the native HF tokenizer cannot load tokenizer.model/tokenizer_config.json alone",
                 sizeBytes: nil, estimate: false))
         }
 
@@ -604,15 +598,42 @@ public enum CompatibilityRules {
             return a
         }
 
+        if !hasTokenizer {
+            a.verdict = .changesRequired
+            a.verdictSummary = "\(archs.joined(separator: ", ")) weights are compatible, but tokenizer.json is missing"
+            a.checkedPath.status = .changesRequired
+            a.checkedPath.detail = "the native tokenizer requires tokenizer.json; this repo cannot run end to end on the checked path as published"
+            a.otherPaths.append(transformersPath(
+                env: input.env, task: info.pipelineTag ?? "text-generation"))
+            a.nextActions.append("Use a matching tokenizer.json from the exact base model, or run through a runtime that supports the repo's published tokenizer format.")
+            addMemoryChange(&a, weightBytes: weightBytes, disk: disk)
+            return a
+        }
+
         // Loadable — now it's a memory/disk question. Exact header
         // dtype/shape sums beat Hub stats beat file-size guesses.
         let est = weightEstimate(info: info)
         let weights = input.exactWeightBytes ?? (weightBytes > 0 ? weightBytes : (est?.bytes ?? 0))
-        let footprint = loadFootprint(weightBytes: weights, mlxPacked: mlxPacked, config: cfg)
+        let packedQuant = layout?.kind == .packedQuant
+        let residentWeights: Int64
+        if packedQuant, let params = input.exactParams {
+            let fp32 = params.multipliedReportingOverflow(by: 4)
+            residentWeights = fp32.overflow ? Int64.max : fp32.partialValue
+        } else if packedQuant {
+            let expanded = Double(weights) * 8.0
+            residentWeights = expanded.isFinite && expanded < Double(Int64.max)
+                ? Int64(expanded) : Int64.max
+        } else {
+            residentWeights = weights
+        }
+        let footprint = loadFootprint(
+            weightBytes: residentWeights, mlxPacked: mlxPacked || packedQuant,
+            config: cfg)
         let estNote: String
         if let exact = input.exactWeightBytes {
             let p = input.exactParams.map { fmtParams($0) + " params, " } ?? ""
             estNote = "~\(p)\(fmtBytes(exact)) weights (exact from safetensors header dtypes)"
+                + (packedQuant ? "; dequantized to dense fp32 by the native loader" : "")
         } else {
             estNote = est.map { "~\($0.params > 0 ? fmtParams($0.params) + " params, " : "")\(fmtBytes($0.bytes)) weights (\($0.source))" }
                 ?? "weight size unknown"
@@ -646,7 +667,10 @@ public enum CompatibilityRules {
                 a.nextActions.append("Close memory-heavy apps and retry, or pick a quantized variant (see Other paths).")
             } else {
                 // Doesn't fit dense — does a q4 path plausibly fit?
-                let q4 = Int64(Double(weights) * (mlxPacked ? 1.15 : 0.55 * 1.15)) + weights / 8
+                let q4Estimate = Double(weights) * (mlxPacked ? 1.15 : 0.55 * 1.15)
+                    + Double(weights) / 8.0
+                let q4 = q4Estimate.isFinite && q4Estimate < Double(Int64.max)
+                    ? Int64(max(q4Estimate, 0)) : Int64.max
                 a.verdict = .changesRequired
                 a.verdictSummary = "too large to load dense (est. \(fmtBytes(footprint)) vs \(fmtBytes(ram)) RAM); a quantized variant is the documented route"
                 a.checkedPath.status = .changesRequired
@@ -681,11 +705,12 @@ public enum CompatibilityRules {
 
         // Header-verified verdicts: general.architecture + file_type
         // tell us the arch AND the quant — and quant matters because
-        // GGUFReader dequantizes F32/F16/Q4_0/Q8_0 only. Most published
-        // GGUFs are K-quants, which our loader cannot dequantize yet.
+        // GGUFReader only supports its explicitly implemented schemes.
         if let meta, let arch = meta.architecture {
             let quant = meta.fileType.map(GGUFHeader.fileTypeName) ?? "unknown quant"
-            let ctx = meta.contextLength.map { ", ctx \(fmtParams(Int64($0)))" } ?? ""
+            let ctx = meta.contextLength.map {
+                ", ctx \(fmtParams(Int64(clamping: $0)))"
+            } ?? ""
             a.evidence.append(.init(
                 source: "GGUF header of \(variant) (Range-read metadata only)",
                 kind: "documented",
@@ -696,14 +721,14 @@ public enum CompatibilityRules {
                 a.verdict = .changesRequired
                 a.verdictSummary = "GGUF \(arch)/\(quant) — verified loadable by `gguf-load` once downloaded"
                 a.checkedPath.status = .changesRequired
-                a.checkedPath.detail = "header confirms a llama-family arch and a quant our GGUFReader dequantizes"
+                a.checkedPath.detail = "header confirms a llama-family arch and a supported quant our GGUFReader dequantizes"
             } else if archKnown && !quantOK {
                 a.verdict = .unsupportedOnCheckedPath
                 a.verdictSummary = "GGUF \(arch) is compatible-shaped, but \(quant) quantization isn't dequantized by our loader yet"
                 a.checkedPath.status = .unsupportedOnCheckedPath
-                a.checkedPath.detail = "GGUFReader supports F32/F16/Q4_0/Q8_0/BF16; \(quant) needs the K-quant/IQ dequant follow-up — llama.cpp and Ollama handle it today"
+                a.checkedPath.detail = "GGUFReader supports F32/F16/BF16, Q4_0/Q8_0 and Q4_K/Q5_K/Q6_K; \(quant) needs a dequant follow-up — llama.cpp and Ollama handle it today"
                 a.requiredChanges.append(.init(kind: "runtime",
-                    detail: "K-quant dequant in GGUFReader, or pick an F16/Q8_0/Q4_0 variant of this repo if published",
+                    detail: "add \(quant) dequant in GGUFReader, or pick a supported variant of this repo if published",
                     sizeBytes: nil, estimate: false))
             } else {
                 a.verdict = .unsupportedOnCheckedPath
@@ -715,7 +740,7 @@ public enum CompatibilityRules {
             a.verdict = .changesRequired
             a.verdictSummary = "GGUF weights — needs a download plus a GGUF-capable runtime"
             a.checkedPath.status = .changesRequired
-            a.checkedPath.detail = "posttrainllm loads single-file GGUF (`gguf-load`) for llama-family archs with F32/F16/Q4_0/Q8_0 quants; the header wasn't readable so arch + quant are unverified"
+            a.checkedPath.detail = "posttrainllm loads single-file GGUF (`gguf-load`) for llama-family archs with its implemented float and quant formats; the header wasn't readable so arch + quant are unverified"
             a.limitations.append("GGUF header of \(variant) could not be range-read — arch and quant unverified")
         }
 
@@ -801,88 +826,113 @@ public enum CompatibilityRules {
     /// three working tools.
     static func toolMatrix(input: Input,
                            assessment a: Assessment) -> [ModelCheckReport.ToolOption] {
-        typealias T = ModelCheckReport.ToolOption
-        let env = input.env.runtimes
-        func probe(_ name: String) -> Bool {
-            env.contains { $0.name == name && $0.found }
-        }
-        // python3 stack probe packs versions into one string.
-        let pyStack = env.first { $0.name == "python3 ML stack" && $0.found }
-        func pyHas(_ pkg: String) -> Bool {
-            pyStack?.version?.contains(pkg) ?? false
+        let context = ToolContext(input: input, assessment: a)
+        return nativeTools(context) + ggufTools(context) + specializedTools(context)
+    }
+
+    private struct ToolContext {
+        let input: Input
+        let id: String
+        let isGGUF: Bool
+        let isST: Bool
+        let isPTBin: Bool
+        let isDiff: Bool
+        let isASR: Bool
+        let isEncoder: Bool
+        let isLM: Bool
+        let isVLM: Bool
+        let checkedOK: Bool
+
+        init(input: Input, assessment: Assessment) {
+            self.input = input
+            id = input.ref.id
+            let formats = Set(assessment.formats)
+            isGGUF = formats.contains("gguf")
+            isST = formats.contains("safetensors")
+            isPTBin = formats.contains("pytorch-bin")
+            isDiff = (input.info.map(isDiffusers) ?? false)
+                || input.tensorLayout?.kind == .diffusion
+            let tag = assessment.task ?? ""
+            isASR = tag == "automatic-speech-recognition"
+            isEncoder = input.tensorLayout?.kind == .encoderOnly
+                || ["fill-mask", "feature-extraction", "sentence-similarity",
+                    "text-classification", "token-classification"].contains(tag)
+            isLM = isST && !isDiff && !isASR && !isEncoder
+            isVLM = input.tensorLayout?.kind == .multimodal
+                || tag == "image-text-to-text" || tag.hasPrefix("visual-question")
+            checkedOK = isST && assessment.checkedPath.status == .expectedToWork
         }
 
-        let fmts = Set(a.formats)
-        let id = input.ref.id
-        let isGGUF = fmts.contains("gguf")
-        let isST = fmts.contains("safetensors")
-        let isPTBin = fmts.contains("pytorch") || fmts.contains("bin")
-        let isDiff = (input.info.map(isDiffusers) ?? false)
-            || input.tensorLayout?.kind == .diffusion
-        let tag = a.task ?? ""
-        let isASR = tag == "automatic-speech-recognition"
-        let isEncoder = input.tensorLayout?.kind == .encoderOnly
-            || ["fill-mask", "feature-extraction", "sentence-similarity",
-                "text-classification", "token-classification"].contains(tag)
-        let isLM = isST && !isDiff && !isASR && !isEncoder
-        let isVLM = input.tensorLayout?.kind == .multimodal
-            || tag == "image-text-to-text" || tag.hasPrefix("visual-question")
-        let checkedOK = a.checkedPath.status == .expectedToWork
-            || a.checkedPath.status == .changesRequired
-        var tools: [T] = []
-        tools.append(T(name: "posttrainllm (native)",
-            availability: "bundled",
-            applies: checkedOK,
-            detail: checkedOK
+        func probe(_ name: String) -> Bool {
+            input.env.runtimes.contains { $0.name == name && $0.found }
+        }
+
+        func pythonHas(_ package: String) -> Bool {
+            input.env.runtimes.first { $0.name == "python3 ML stack" && $0.found }?
+                .version?.contains(package) ?? false
+        }
+    }
+
+    private static func nativeTools(_ c: ToolContext) -> [ModelCheckReport.ToolOption] {
+        typealias T = ModelCheckReport.ToolOption
+        return [
+            T(name: "posttrainllm (native)", availability: "bundled",
+              applies: c.checkedOK,
+              detail: c.checkedOK
                 ? "our own loader — the checked path; `model-run` verifies it for real"
                 : "checked path doesn't apply to this model",
-            run: checkedOK ? "posttrainllm model-run \(id)" : nil))
-        tools.append(T(name: "MLX-Swift-LM (posttrainllm-mlxrun)",
-            availability: "bundled",
-            applies: isST && (isLM || isVLM),
-            detail: "Apple's maintained HF impls in-process — wide arch table (MoE, VLM, packed quants), auto-downloads",
-            run: (isST && (isLM || isVLM)) ? "posttrainllm model-run \(id) --runtime mlx-swift" : nil))
-        tools.append(T(name: "python3 mlx-lm",
-            availability: pyHas("mlx-lm") ? "installed" : "not_installed",
-            applies: isST && isLM,
-            detail: "python MLX runner — the broadest LM arch table",
-            run: isST && isLM ? "python3 -m mlx_lm chat --model \(id)" : nil))
-        tools.append(T(name: "Ollama",
-            availability: probe("ollama") ? "installed" : "not_installed",
-            applies: isGGUF,
-            detail: "runs GGUFs; `ollama run hf.co/…` or local Modelfile (model-run handles both)",
-            run: isGGUF ? "posttrainllm model-run \(id) --runtime ollama" : nil))
-        tools.append(T(name: "llama.cpp (llama-cli)",
-            availability: probe("llama.cpp") ? "installed" : "not_installed",
-            applies: isGGUF,
-            detail: "reference GGUF runtime — every quant scheme, incl. K-quants our loader can't read",
-            run: isGGUF ? "llama-cli -m <downloaded .gguf>" : nil))
-        tools.append(T(name: "LM Studio (lms)",
-            availability: probe("lms (LM Studio)") ? "installed" : "not_installed",
-            applies: isGGUF,
-            detail: "GUI + OpenAI-compatible server over GGUFs",
-            run: isGGUF ? "lms get \(id)" : nil))
-        tools.append(T(name: "transformers (python3)",
-            availability: pyHas("transformers") ? "installed" : "not_installed",
-            applies: isST || isPTBin,
-            detail: "reference HF runtime — covers every arch/task incl. encoders and seq2seq",
-            run: nil))
-        tools.append(T(name: "diffusers (python3)",
-            availability: pyHas("diffusers") ? "installed" : "not_installed",
-            applies: isDiff,
-            detail: "reference diffusion runtime — pipelines for image/video/audio generation",
-            run: nil))
-        tools.append(T(name: "MLXEmbedders",
-            availability: "bundled",
-            applies: isEncoder,
-            detail: "MLX-Swift-LM's embedder set — embeddings/rerankers natively on Apple Silicon (not chat)",
-            run: nil))
-        tools.append(T(name: "whisper.cpp",
-            availability: "unknown",
-            applies: isASR,
-            detail: "native ASR runtime for Whisper weights (GGML/GGUF)",
-            run: nil))
-        return tools
+              run: c.checkedOK ? "posttrainllm model-run \(c.id)" : nil),
+            T(name: "MLX-Swift-LM (posttrainllm-mlxrun)", availability: "bundled",
+              applies: c.isST && (c.isLM || c.isVLM),
+              detail: "Apple's maintained HF impls in-process — wide arch table (MoE, VLM, packed quants), auto-downloads",
+              run: c.isST && (c.isLM || c.isVLM)
+                  ? "posttrainllm model-run \(c.id) --runtime mlx-swift" : nil),
+            T(name: "python3 mlx-lm",
+              availability: c.pythonHas("mlx-lm") ? "installed" : "not_installed",
+              applies: c.isST && c.isLM,
+              detail: "python MLX runner — the broadest LM arch table",
+              run: c.isST && c.isLM ? "python3 -m mlx_lm chat --model \(c.id)" : nil),
+        ]
+    }
+
+    private static func ggufTools(_ c: ToolContext) -> [ModelCheckReport.ToolOption] {
+        typealias T = ModelCheckReport.ToolOption
+        return [
+            T(name: "Ollama", availability: c.probe("ollama") ? "installed" : "not_installed",
+              applies: c.isGGUF,
+              detail: "runs GGUFs; `ollama run hf.co/…` or local Modelfile (model-run handles both)",
+              run: c.isGGUF ? "posttrainllm model-run \(c.id) --runtime ollama" : nil),
+            T(name: "llama.cpp (llama-cli)",
+              availability: c.probe("llama.cpp") ? "installed" : "not_installed",
+              applies: c.isGGUF,
+              detail: "reference GGUF runtime — every quant scheme, incl. K-quants our loader can't read",
+              run: c.isGGUF ? "llama-cli -m <downloaded .gguf>" : nil),
+            T(name: "LM Studio (lms)",
+              availability: c.probe("lms (LM Studio)") ? "installed" : "not_installed",
+              applies: c.isGGUF, detail: "GUI + OpenAI-compatible server over GGUFs",
+              run: c.isGGUF ? "lms get \(c.id)" : nil),
+        ]
+    }
+
+    private static func specializedTools(_ c: ToolContext) -> [ModelCheckReport.ToolOption] {
+        typealias T = ModelCheckReport.ToolOption
+        return [
+            T(name: "transformers (python3)",
+              availability: c.pythonHas("transformers") ? "installed" : "not_installed",
+              applies: c.isST || c.isPTBin,
+              detail: "reference HF runtime — covers every arch/task incl. encoders and seq2seq",
+              run: nil),
+            T(name: "diffusers (python3)",
+              availability: c.pythonHas("diffusers") ? "installed" : "not_installed",
+              applies: c.isDiff,
+              detail: "reference diffusion runtime — pipelines for image/video/audio generation",
+              run: nil),
+            T(name: "MLXEmbedders", availability: "bundled", applies: c.isEncoder,
+              detail: "MLX-Swift-LM's embedder set — embeddings/rerankers natively on Apple Silicon (not chat)",
+              run: nil),
+            T(name: "whisper.cpp", availability: "unknown", applies: c.isASR,
+              detail: "native ASR runtime for Whisper weights (GGML/GGUF)", run: nil),
+        ]
     }
 
     static func diffusersAssessment(

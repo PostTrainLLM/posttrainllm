@@ -24,8 +24,9 @@ public enum AgentTrajectoryExport {
     /// One message inside an exported row. `supervise` marks the single
     /// assistant turn this row trains on; everything else is context.
     /// `tool_call` / `tool_result` / `output_ids` are carried through
-    /// verbatim for future consumers (token-level RLVR wants the sampled
-    /// IDs — they are tokenizer-coupled, so SFT re-encodes text instead).
+    /// verbatim for downstream consumers. Trajectory SFT uses sampled IDs
+    /// when they are valid for the loaded tokenizer vocabulary; otherwise
+    /// it safely re-encodes the decoded content.
     public struct Message: Equatable, Sendable {
         public let role: String
         public let content: String
@@ -134,11 +135,14 @@ public enum AgentTrajectoryExport {
         return String(prefill.dropFirst(prefix.count).dropLast(suffix.count))
     }
 
-    /// Stable serialization of a message list for dedup keys — role,
-    /// content, and supervise flag only; ids and payloads don't affect
-    /// what the model learns from.
+    /// Stable serialization of the fields consumed by SFT. Recorded token
+    /// IDs are part of the learning example (and can differ despite equal
+    /// decoded text), so exact dedup must retain those distinct rows.
     private static func serialize(_ msgs: [Message]) -> String {
-        msgs.map { "\($0.role)\u{1F}\($0.supervise)\u{1F}\($0.content)" }
+        msgs.map {
+            let ids = $0.outputIds?.map(String.init).joined(separator: ",") ?? ""
+            return "\($0.role)\u{1F}\($0.supervise)\u{1F}\($0.content)\u{1F}\(ids)"
+        }
             .joined(separator: "\u{1E}")
     }
 }

@@ -55,11 +55,12 @@ public enum GGUFHeader {
     }
 
     /// GGUF dequant types TinyGPTModel/GGUFReader supports — F32, F16,
-    /// Q4_0, Q8_0. K-quants and IQ formats are NOT wired for our loader
-    /// (mechanical follow-up), which matters for verdict honesty: most
-    /// published GGUFs are K-quants and our `gguf-load` can't dequant
-    /// them even when the architecture is otherwise compatible.
-    public static let loaderSupportedFileTypes: Set<UInt32> = [0, 1, 2, 8, 27]
+    /// BF16, Q4_0/Q8_0, and the K-quant implementations wired there.
+    /// The values are llama.cpp `llama_model_ftype` codes, not tensor
+    /// type codes; keep this list aligned with GGUFReader's switch.
+    public static let loaderSupportedFileTypes: Set<UInt32> = [
+        0, 1, 2, 8, 14, 15, 16, 17, 18, 27,
+    ]
 
     /// GGUF `general.architecture` values our HF-native loader maps onto
     /// the verified Llama-family set. llama.cpp arch names ≠ HF arch
@@ -105,7 +106,7 @@ public enum GGUFHeader {
         struct Truncated: Error {}
 
         mutating func take(_ n: Int) throws -> UnsafePointer<UInt8> {
-            guard pos + n <= count else { throw Truncated() }
+            guard n >= 0, pos <= count, n <= count - pos else { throw Truncated() }
             defer { pos += n }
             return base + pos
         }
@@ -127,21 +128,15 @@ public enum GGUFHeader {
             return v
         }
         mutating func string() throws -> String {
-            let n = try Int(u64())
+            guard let n = Int(exactly: try u64()) else { throw Truncated() }
             let p = try take(n)
             return String(decoding: UnsafeBufferPointer(start: p, count: n), as: UTF8.self)
         }
-        mutating func array(of elementType: UInt32) throws -> [Any] {
-            let count = try Int(u64())
-            var values: [Any] = []
-            values.reserveCapacity(min(count, 1024))
-            for index in 0..<count {
-                let element = try value(of: elementType)
-                if index < 1024 { values.append(element) }
-            }
-            return values
-        }
         mutating func value(of t: UInt32) throws -> Any {
+            if t == 9 { return try arrayValue() }
+            return try scalarValue(of: t)
+        }
+        mutating func scalarValue(of t: UInt32) throws -> Any {
             switch t {
             case 0: return try u8()
             case 1: return Int8(bitPattern: try u8())
@@ -153,14 +148,24 @@ public enum GGUFHeader {
                 return Float(bitPattern: try u32())
             case 7: return try u8() != 0
             case 8: return try string()
-            case 9:
-                return try array(of: u32())
             case 10: return try u64()
             case 11: return Int64(bitPattern: try u64())
             case 12:
                 return Double(bitPattern: try u64())
             default: throw Truncated()
             }
+        }
+        mutating func arrayValue() throws -> [Any] {
+            let elementType = try u32()
+            guard elementType != 9,
+                  let count = Int(exactly: try u64()) else { throw Truncated() }
+            var array: [Any] = []
+            array.reserveCapacity(min(count, 1024))
+            for index in 0..<count {
+                let value = try scalarValue(of: elementType)
+                if index < 1024 { array.append(value) }
+            }
+            return array
         }
     }
 }

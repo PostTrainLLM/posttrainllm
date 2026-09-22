@@ -69,6 +69,12 @@ from a static prediction. The same report schema backs the app's Check
 workspace. See
 [docs/integrations/model-check.md](integrations/model-check.md).
 
+`posttrainllm model-run <url>` goes further: it picks the best installed
+runtime (native `hf-load`, mlx-lm, ollama, lms, or llama-cli), downloads,
+runs a bounded sample, and prints the command to keep chatting. Failed
+runners surface their real error and fall through. See
+[docs/integrations/model-run.md](integrations/model-run.md).
+
 ## Parked research commands
 
 Research implementations remain available as learning assets, but the official

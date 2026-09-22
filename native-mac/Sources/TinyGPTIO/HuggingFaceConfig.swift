@@ -57,15 +57,22 @@ public struct HuggingFaceConfig {
             }
             return v
         }
+        func positive(_ key: String) throws -> Int {
+            let value = try req(key, Int.self)
+            guard value > 0 else { throw HFConfigError.invalidValue(field: key) }
+            return value
+        }
         let arch = (d["architectures"] as? [String]) ?? []
-        let numHeads = try req("num_attention_heads", Int.self)
+        let numHeads = try positive("num_attention_heads")
         let nkvh = (d["num_key_value_heads"] as? Int) ?? numHeads
-        let hidden = try req("hidden_size", Int.self)
+        guard nkvh > 0 else { throw HFConfigError.invalidValue(field: "num_key_value_heads") }
+        let hidden = try positive("hidden_size")
         // Explicit `head_dim` overrides the derived `hidden_size / num_heads`.
         // Qwen3-0.6B: hidden_size=1024, num_heads=16, head_dim=128 — Q out
         // is num_heads*head_dim=2048, NOT hidden_size. Phi-3 / Llama-2
         // omit the field and the fallback gives the canonical value.
         let hd = (d["head_dim"] as? Int) ?? (hidden / numHeads)
+        guard hd > 0 else { throw HFConfigError.invalidValue(field: "head_dim") }
         let normEps = (d["rms_norm_eps"] as? Double).map(Float.init)
             ?? (d["layer_norm_eps"] as? Double).map(Float.init)
             ?? 1e-5
@@ -86,14 +93,14 @@ public struct HuggingFaceConfig {
 
         return HuggingFaceConfig(
             architectures: arch,
-            vocabSize: try req("vocab_size", Int.self),
+            vocabSize: try positive("vocab_size"),
             hiddenSize: hidden,
-            intermediateSize: try req("intermediate_size", Int.self),
-            numHiddenLayers: try req("num_hidden_layers", Int.self),
+            intermediateSize: try positive("intermediate_size"),
+            numHiddenLayers: try positive("num_hidden_layers"),
             numAttentionHeads: numHeads,
             numKeyValueHeads: nkvh,
             headDim: hd,
-            maxPositionEmbeddings: try req("max_position_embeddings", Int.self),
+            maxPositionEmbeddings: try positive("max_position_embeddings"),
             rmsNormEps: normEps,
             hiddenAct: act,
             ropeTheta: ropeBase,
@@ -126,10 +133,13 @@ public struct HuggingFaceConfig {
 
 public enum HFConfigError: Error, CustomStringConvertible {
     case missingOrWrongType(field: String, expected: String)
+    case invalidValue(field: String)
     public var description: String {
         switch self {
         case .missingOrWrongType(let f, let t):
             return "config.json: field '\(f)' missing or not \(t)"
+        case .invalidValue(let field):
+            return "config.json: field '\(field)' must be a positive integer"
         }
     }
 }

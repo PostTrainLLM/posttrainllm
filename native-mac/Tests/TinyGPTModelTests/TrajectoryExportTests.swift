@@ -99,6 +99,21 @@ final class TrajectoryExportTests: XCTestCase {
         XCTAssertNotEqual(rows[0].rowKey, rows[1].rowKey)
     }
 
+    func testExactDedupDistinguishesDifferentRecordedTokenizations() {
+        let first = AgentTrajectory(steps: [
+            AgentTrajectoryStep(role: "user", content: "same"),
+            AgentTrajectoryStep(role: "assistant", content: "same answer",
+                                outputIds: [10, 11]),
+        ])
+        let second = AgentTrajectory(steps: [
+            AgentTrajectoryStep(role: "user", content: "same"),
+            AgentTrajectoryStep(role: "assistant", content: "same answer",
+                                outputIds: [20, 21]),
+        ])
+        XCTAssertNotEqual(AgentTrajectoryExport.rows(for: first)[0].rowKey,
+                          AgentTrajectoryExport.rows(for: second)[0].rowKey)
+    }
+
     func testEmptyAssistantTurnSkippedButKeptAsContext() {
         let traj = AgentTrajectory(steps: [
             AgentTrajectoryStep(role: "user", content: "hi"),
@@ -202,6 +217,56 @@ final class TrajectoryExportTests: XCTestCase {
             maxSeqLen: 1024, encode: stubEncode)
         XCTAssertEqual(Array(ex.tokens.suffix(3)), [901, 902, 903])
         XCTAssertEqual(Array(ex.responseMask.suffix(3)), [true, true, true])
+    }
+
+    func testOutOfVocabularyRecordedIdsFallBackToTokenizer() throws {
+        let ex = try SFTBuilder.buildChatExample(
+            messages: [
+                SFTMessage(role: "assistant", content: "A", supervise: true,
+                           outputIds: [999]),
+            ],
+            maxSeqLen: 1024, validTokenIds: 0..<256, encode: stubEncode)
+        XCTAssertEqual(ex.tokens.last, Int32(Character("A").asciiValue!))
+        XCTAssertNotEqual(ex.tokens.last, 999)
+    }
+
+    func testLoadedHFTokenizerUsesAuthoritativeModelVocabularyBound() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("hf-tokenizer-test-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory,
+                                                withIntermediateDirectories: true)
+        addTeardownBlock { try? FileManager.default.removeItem(at: directory) }
+        let tokenizerJSON = #"""
+        {
+          "version":"1.0","truncation":null,"padding":null,
+          "added_tokens":[{"id":0,"content":"<unk>"}],
+          "model":{"type":"BPE","vocab":{"<unk>":0,"offline":1},
+                   "merges":[],"continuing_subword_prefix":"",
+                   "end_of_word_suffix":"","unk_token":"<unk>"},
+          "normalizer":{"type":"Lowercase"},
+          "pre_tokenizer":{"type":"Whitespace"}
+        }
+        """#
+        try tokenizerJSON.write(
+            to: directory.appendingPathComponent("tokenizer.json"),
+            atomically: true, encoding: .utf8)
+        try #"{"tokenizer_class":"GPT2Tokenizer","unk_token":"<unk>","model_max_length":32}"#
+            .write(to: directory.appendingPathComponent("tokenizer_config.json"),
+                   atomically: true, encoding: .utf8)
+        let tokenizer = try HFTokenizer.loadBlocking(from: directory, vocabSize: 8)
+        XCTAssertEqual(tokenizer.vocabSize, 8)
+
+        let exact = try SFTBuilder.buildChatExample(
+            messages: [SFTMessage(role: "assistant", content: "offline",
+                                  supervise: true, outputIds: [7])],
+            tokenizer: tokenizer, maxSeqLen: 32)
+        XCTAssertEqual(exact.tokens.last, 7)
+
+        let fallback = try SFTBuilder.buildChatExample(
+            messages: [SFTMessage(role: "assistant", content: "offline",
+                                  supervise: true, outputIds: [8])],
+            tokenizer: tokenizer, maxSeqLen: 32)
+        XCTAssertNotEqual(fallback.tokens.last, 8)
     }
 
     func testTruncationCapsAtMaxSeqLen() throws {

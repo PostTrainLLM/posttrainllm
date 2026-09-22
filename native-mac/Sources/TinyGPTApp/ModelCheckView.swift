@@ -136,56 +136,17 @@ struct ModelCheckView: View {
 
     @ViewBuilder
     private func reportSections(_ r: ModelCheckReport) -> some View {
-        // Verdict banner
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 10) {
-                Text(r.verdict.displayName.uppercased())
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .foregroundStyle(Theme.base)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(verdictColor(r.verdict))
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
-                Text("\(r.model.id) @ \(r.model.revision)")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundStyle(Theme.fg)
-            }
-            Text(r.verdictSummary)
-                .font(.system(size: 12))
-                .foregroundStyle(Theme.muted)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.panel)
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(verdictColor(r.verdict).opacity(0.4)))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        verdictBanner(r)
+        modelEnvironmentSections(r)
+        operationSections(r)
+        pathsAndChangesSections(r)
+        toolsSection(r)
+        evidenceSection(r)
+        nextActionSection(r)
+    }
 
-        // Model + environment
-        section("MODEL") {
-            kvRow("task", r.model.task ?? "unknown")
-            kvRow("library", r.model.library ?? "unknown")
-            kvRow("architectures", r.model.architectures.isEmpty ? "unknown" : r.model.architectures.joined(separator: ", "))
-            kvRow("formats", r.model.formats.isEmpty ? "unknown" : r.model.formats.joined(separator: ", "))
-            if let v = r.model.selectedVariant { kvRow("variant", v) }
-            if r.model.gated { kvRow("gated", "yes — HF_TOKEN required") }
-            if let m = r.model.lastModified { kvRow("last modified", m) }
-        }
-
-        section("CURRENT SETUP — \(r.environment.source.uppercased())") {
-            kvRow("chip", "\(r.environment.chip) (\(r.environment.arch))")
-            kvRow("RAM", ModelCheckReport.fmtBytes(r.environment.ramBytes))
-            kvRow("disk free", ModelCheckReport.fmtBytes(r.environment.freeDiskBytes))
-            kvRow("macOS", r.environment.macOSVersion)
-            let found = r.environment.runtimes.filter(\.found)
-            if !found.isEmpty {
-                kvRow("runtimes", found.map { "\($0.name) \($0.version ?? "")".trimmingCharacters(in: .whitespaces) }.joined(separator: " · "))
-            }
-            Divider().background(Theme.line)
-            kvRow("checked path", r.checkedPath.name)
-            labeledText(r.checkedPath.detail)
-        }
-
+    @ViewBuilder
+    private func operationSections(_ r: ModelCheckReport) -> some View {
         if let operations = r.operations, !operations.isEmpty {
             section("OPERATIONS — PREDICTION VS RECEIPT") {
                 ForEach(Array(operations.enumerated()), id: \.offset) { _, operation in
@@ -233,7 +194,63 @@ struct ModelCheckView: View {
                 }
             }
         }
+    }
 
+    private func verdictBanner(_ r: ModelCheckReport) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 10) {
+                Text(r.verdict.displayName.uppercased())
+                    .font(.system(size: 12, weight: .bold, design: .monospaced))
+                    .foregroundStyle(Theme.base)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(verdictColor(r.verdict))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                Text("\(r.model.id) @ \(r.model.revision)")
+                    .font(.system(size: 12, design: .monospaced))
+                    .foregroundStyle(Theme.fg)
+            }
+            Text(r.verdictSummary)
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.muted)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.panel)
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(verdictColor(r.verdict).opacity(0.4)))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    @ViewBuilder
+    private func modelEnvironmentSections(_ r: ModelCheckReport) -> some View {
+        section("MODEL") {
+            kvRow("task", r.model.task ?? "unknown")
+            kvRow("library", r.model.library ?? "unknown")
+            kvRow("architectures", r.model.architectures.isEmpty ? "unknown" : r.model.architectures.joined(separator: ", "))
+            kvRow("formats", r.model.formats.isEmpty ? "unknown" : r.model.formats.joined(separator: ", "))
+            if let v = r.model.selectedVariant { kvRow("variant", v) }
+            if r.model.gated { kvRow("gated", "yes — HF_TOKEN required") }
+            if let m = r.model.lastModified { kvRow("last modified", m) }
+        }
+
+        section("CURRENT SETUP — \(r.environment.source.uppercased())") {
+            kvRow("chip", "\(r.environment.chip) (\(r.environment.arch))")
+            kvRow("RAM", ModelCheckReport.fmtBytes(r.environment.ramBytes))
+            kvRow("disk free", ModelCheckReport.fmtBytes(r.environment.freeDiskBytes))
+            kvRow("macOS", r.environment.macOSVersion)
+            let found = r.environment.runtimes.filter(\.found)
+            if !found.isEmpty {
+                kvRow("runtimes", found.map { "\($0.name) \($0.version ?? "")".trimmingCharacters(in: .whitespaces) }.joined(separator: " · "))
+            }
+            Divider().background(Theme.line)
+            kvRow("checked path", r.checkedPath.name)
+            labeledText(r.checkedPath.detail)
+        }
+    }
+
+    @ViewBuilder
+    private func pathsAndChangesSections(_ r: ModelCheckReport) -> some View {
         if !r.otherPaths.isEmpty {
             section("OTHER MAC EXECUTION PATHS") {
                 ForEach(Array(r.otherPaths.enumerated()), id: \.offset) { _, p in
@@ -281,7 +298,50 @@ struct ModelCheckView: View {
                 }
             }
         }
+    }
 
+    @ViewBuilder
+    private func toolsSection(_ r: ModelCheckReport) -> some View {
+        if !r.tools.isEmpty {
+            section("TOOLS THAT CAN RUN THIS MODEL") {
+                ForEach(Array(r.tools.enumerated()), id: \.offset) { _, tool in
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 8) {
+                            Text(tool.name)
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(tool.applies ? Theme.fg : Theme.faint)
+                            Text(tool.applies ? tool.availability.replacingOccurrences(of: "_", with: " ") : "not applicable")
+                                .font(.system(size: 9, design: .monospaced))
+                                .foregroundStyle(toolAvailabilityColor(tool))
+                        }
+                        Text(tool.detail)
+                            .font(.system(size: 11))
+                            .foregroundStyle(tool.applies ? Theme.muted : Theme.faint)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if tool.applies, let command = tool.run {
+                            Text(command)
+                                .font(.system(size: 9, design: .monospaced))
+                                .foregroundStyle(Theme.accent)
+                                .textSelection(.enabled)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+        }
+    }
+
+    private func toolAvailabilityColor(_ tool: ModelCheckReport.ToolOption) -> Color {
+        guard tool.applies else { return Theme.faint }
+        switch tool.availability {
+        case "bundled", "installed": return Theme.accent
+        case "not_installed": return Theme.warn
+        default: return Theme.muted
+        }
+    }
+
+    @ViewBuilder
+    private func evidenceSection(_ r: ModelCheckReport) -> some View {
         if !r.limitations.isEmpty {
             section("LIMITATIONS") {
                 ForEach(r.limitations, id: \.self) { l in
@@ -309,8 +369,9 @@ struct ModelCheckView: View {
             }
             kvRow("checked at", r.checkedAt)
         }
+    }
 
-        // Next action + copy buttons
+    private func nextActionSection(_ r: ModelCheckReport) -> some View {
         section("NEXT ACTION") {
             ForEach(r.nextActions, id: \.self) { a in
                 Text("• \(a)")

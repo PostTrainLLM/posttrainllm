@@ -267,10 +267,12 @@ public enum ModelCompatibilityContract {
     ) -> [ModelCheckReport.ExecutionStage] {
         guard let index = ModelCheckReport.ExecutionStageName.allCases.firstIndex(of: stage) else { return [] }
         return ModelCheckReport.ExecutionStageName.allCases.dropFirst(index + 1).map {
-            .init(stage: $0, status: blocked ? .blocked : .pending,
-                  detail: blocked
-                      ? "Not reachable until the earlier blocker is resolved."
-                      : "Requires a bounded model-run receipt.")
+            let detail = blocked
+                ? "Not reachable until the earlier blocker is resolved."
+                : "Requires a bounded model-run receipt."
+            return ModelCheckReport.ExecutionStage(
+                stage: $0, status: blocked ? .blocked : .pending,
+                detail: detail)
         }
     }
 }
