@@ -230,6 +230,45 @@ final class TrajectoryExportTests: XCTestCase {
         XCTAssertNotEqual(ex.tokens.last, 999)
     }
 
+    func testLoadedHFTokenizerUsesAuthoritativeModelVocabularyBound() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("hf-tokenizer-test-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory,
+                                                withIntermediateDirectories: true)
+        addTeardownBlock { try? FileManager.default.removeItem(at: directory) }
+        let tokenizerJSON = #"""
+        {
+          "version":"1.0","truncation":null,"padding":null,
+          "added_tokens":[{"id":0,"content":"<unk>"}],
+          "model":{"type":"BPE","vocab":{"<unk>":0,"offline":1},
+                   "merges":[],"continuing_subword_prefix":"",
+                   "end_of_word_suffix":"","unk_token":"<unk>"},
+          "normalizer":{"type":"Lowercase"},
+          "pre_tokenizer":{"type":"Whitespace"}
+        }
+        """#
+        try tokenizerJSON.write(
+            to: directory.appendingPathComponent("tokenizer.json"),
+            atomically: true, encoding: .utf8)
+        try #"{"tokenizer_class":"GPT2Tokenizer","unk_token":"<unk>","model_max_length":32}"#
+            .write(to: directory.appendingPathComponent("tokenizer_config.json"),
+                   atomically: true, encoding: .utf8)
+        let tokenizer = try HFTokenizer.loadBlocking(from: directory, vocabSize: 8)
+        XCTAssertEqual(tokenizer.vocabSize, 8)
+
+        let exact = try SFTBuilder.buildChatExample(
+            messages: [SFTMessage(role: "assistant", content: "offline",
+                                  supervise: true, outputIds: [7])],
+            tokenizer: tokenizer, maxSeqLen: 32)
+        XCTAssertEqual(exact.tokens.last, 7)
+
+        let fallback = try SFTBuilder.buildChatExample(
+            messages: [SFTMessage(role: "assistant", content: "offline",
+                                  supervise: true, outputIds: [8])],
+            tokenizer: tokenizer, maxSeqLen: 32)
+        XCTAssertNotEqual(fallback.tokens.last, 8)
+    }
+
     func testTruncationCapsAtMaxSeqLen() throws {
         let ex = try SFTBuilder.buildChatExample(
             messages: [
