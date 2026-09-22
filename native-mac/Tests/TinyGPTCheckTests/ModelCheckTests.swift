@@ -609,6 +609,37 @@ final class ModelCheckTests: XCTestCase {
             "https://huggingface.co/x/mixed/blob/deadbeef/nested/m-Q4_K_M.gguf") == true)
     }
 
+    func testToolCommandsEncodeShellMetacharacters() {
+        var info = hubInfo(
+            id: "x/gguf", sha: "deadbeef",
+            siblings: [.init(name: "m;touch$HOME&(x).gguf", size: 2_000_000_000)])
+        info.pipelineTag = "text-generation"
+        let meta = GGUFHeader.Meta(version: 3, tensorCount: 300,
+                                   kv: ["general.architecture": "llama",
+                                        "general.file_type": UInt32(15)])
+        let target = "https://huggingface.co/x/gguf/blob/main/m;touch$HOME&(x).gguf"
+        let input = rulesInput(target, info: info, ggufMeta: meta)
+        let assessment = CompatibilityRules.assess(input)
+        let command = CompatibilityRules.toolMatrix(input: input, assessment: assessment)
+            .first { $0.name == "LM Studio (lms)" }?.run ?? ""
+        XCTAssertTrue(command.contains("'https://huggingface.co/x/gguf/blob/deadbeef/"))
+        XCTAssertTrue(command.contains("m%3Btouch%24HOME%26%28x%29.gguf'"))
+        XCTAssertFalse(command.contains(";"))
+        XCTAssertFalse(command.contains("$"))
+        XCTAssertFalse(command.contains("&"))
+    }
+
+    func testToolMatrixDoesNotAdvertiseMlxLmForNonMainRevision() {
+        let (info, config) = lmInfo(id: "x/model")
+        let input = rulesInput(
+            "https://huggingface.co/x/model/tree/feature", info: info, config: config)
+        let assessment = CompatibilityRules.assess(input)
+        let mlxLm = CompatibilityRules.toolMatrix(input: input, assessment: assessment)
+            .first { $0.name == "python3 mlx-lm" }
+        XCTAssertEqual(mlxLm?.applies, false)
+        XCTAssertNil(mlxLm?.run)
+    }
+
     // MARK: - report schema + agent prompt
 
     func testReportRoundTripsJSON() throws {
