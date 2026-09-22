@@ -132,6 +132,7 @@ struct ModelCheckView: View {
         verdictBanner(r)
         modelEnvironmentSections(r)
         pathsAndChangesSections(r)
+        toolsSection(r)
         evidenceSection(r)
         nextActionSection(r)
     }
@@ -237,6 +238,46 @@ struct ModelCheckView: View {
                     }
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func toolsSection(_ r: ModelCheckReport) -> some View {
+        if !r.tools.isEmpty {
+            section("TOOLS THAT CAN RUN THIS MODEL") {
+                ForEach(Array(r.tools.enumerated()), id: \.offset) { _, tool in
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 8) {
+                            Text(tool.name)
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(tool.applies ? Theme.fg : Theme.faint)
+                            Text(tool.applies ? tool.availability.replacingOccurrences(of: "_", with: " ") : "not applicable")
+                                .font(.system(size: 9, design: .monospaced))
+                                .foregroundStyle(toolAvailabilityColor(tool))
+                        }
+                        Text(tool.detail)
+                            .font(.system(size: 11))
+                            .foregroundStyle(tool.applies ? Theme.muted : Theme.faint)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if tool.applies, let command = tool.run {
+                            Text(command)
+                                .font(.system(size: 9, design: .monospaced))
+                                .foregroundStyle(Theme.accent)
+                                .textSelection(.enabled)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+        }
+    }
+
+    private func toolAvailabilityColor(_ tool: ModelCheckReport.ToolOption) -> Color {
+        guard tool.applies else { return Theme.faint }
+        switch tool.availability {
+        case "bundled", "installed": return Theme.accent
+        case "not_installed": return Theme.warn
+        default: return Theme.muted
         }
     }
 
