@@ -45,6 +45,43 @@ public struct TensorLayout: Sendable, Equatable {
         totalTensors > 0 ? Double(lmConventionCount) / Double(totalTensors) : 0
     }
 
+    private static func markerKind(for name: String) -> Kind? {
+        let value = name.lowercased()
+        if value.contains("unet") || value.contains("vae.") || value.hasPrefix("text_encoder") {
+            return .diffusion
+        }
+        if value.contains("vision_tower") || value.contains("multi_modal_projector")
+            || value.contains("image_tower") || value.hasPrefix("visual.") {
+            return .multimodal
+        }
+        if value.contains(".experts.") || value.contains("block_sparse_moe")
+            || value.hasSuffix("router.weight") || value.contains("mlp.router") {
+            return .moe
+        }
+        return nil
+    }
+
+    private static func isMarker(_ name: String) -> Bool {
+        markerKind(for: name) != nil || name.contains("router.weight")
+            || (name.hasSuffix(".gate.weight") && name.contains("mlp"))
+    }
+
+    private static func namedConvention(in names: [String]) -> String? {
+        if names.contains(where: { $0.range(of: #"h\.\d+\.attn\.c_attn"#, options: .regularExpression) != nil }) {
+            return "GPT-2-style fused c_attn attention (h.N.attn.c_attn)"
+        }
+        if names.contains(where: { $0.hasPrefix("gpt_neox.") || $0.contains("query_key_value") }) {
+            return "GPT-NeoX-style fused query_key_value"
+        }
+        if names.contains(where: { $0.hasPrefix("transformer.h.") || $0.hasPrefix("transformer.word_embeddings") }) {
+            return "BLOOM/Falcon-style transformer.h.N"
+        }
+        if names.contains(where: { $0.contains("encoder.layer.") }) {
+            return "BERT-style encoder stack"
+        }
+        return nil
+    }
+
     public static func assess(names: [String]) -> TensorLayout {
         let lmPattern = #/model\.(embed_tokens|norm|layers\.\d+\.(self_attn\.(q|k|v|o)_proj|mlp\.(gate|up|down)_proj|(input|post_attention)_layernorm))\.weight/#
         var lmCount = 0
@@ -60,9 +97,29 @@ public struct TensorLayout: Sendable, Equatable {
             if isMarker(n) { markers.append(name) }
         }
 
+        let kind: Kind
         let lower = names.map { $0.lowercased() }
-        let kind = classify(lowerNames: lower, lmCount: lmCount, sawQWeight: sawQWeight)
-        let convention = kind == .unknown ? recognizedConvention(lower) : nil
+        let markerKinds = Set(lower.compactMap(markerKind))
+        if markerKinds.contains(.diffusion) {
+            kind = .diffusion
+        } else if markerKinds.contains(.multimodal) {
+            kind = .multimodal
+        } else if markerKinds.contains(.moe) {
+            kind = .moe
+        } else if sawQWeight {
+            kind = .packedQuant
+        } else if names.contains(where: { $0.hasPrefix("encoder.") || $0.contains("pooler") })
+                    && !names.contains("lm_head.weight") && lmCount == 0 {
+            kind = .encoderOnly
+        } else if lmCount > 0 && Double(lmCount) / Double(max(names.count, 1)) > 0.5 {
+            kind = .llamaFamily
+        } else {
+            kind = .unknown
+        }
+
+        // Named non-Llama conventions — a positive ID is more useful
+        // than "unknown": it tells the user exactly which gap exists.
+        let convention = kind == .unknown ? namedConvention(in: lower) : nil
 
         return TensorLayout(
             kind: kind, totalTensors: names.count,
@@ -70,58 +127,5 @@ public struct TensorLayout: Sendable, Equatable {
             sampleNames: Array(names.prefix(6)),
             markers: Array(markers.prefix(8)),
             conventionName: convention)
-    }
-
-    private static func isMarker(_ name: String) -> Bool {
-        let fragments = [
-            "unet", "vae.", "vision_tower", "multi_modal_projector", "image_tower",
-            ".experts.", "block_sparse_moe", "router.weight",
-        ]
-        return fragments.contains { name.contains($0) }
-            || name.hasPrefix("text_encoder") || name.hasPrefix("visual.")
-            || (name.hasSuffix(".gate.weight") && name.contains("mlp"))
-    }
-
-    private static func classify(
-        lowerNames: [String], lmCount: Int, sawQWeight: Bool
-    ) -> Kind {
-        if lowerNames.contains(where: { isDiffusionName($0) }) { return .diffusion }
-        if lowerNames.contains(where: { isMultimodalName($0) }) { return .multimodal }
-        if lowerNames.contains(where: { isMoEName($0) }) { return .moe }
-        if sawQWeight { return .packedQuant }
-        let encoder = lowerNames.contains { $0.hasPrefix("encoder.") || $0.contains("pooler") }
-        if encoder && !lowerNames.contains("lm_head.weight") && lmCount == 0 { return .encoderOnly }
-        let ratio = Double(lmCount) / Double(max(lowerNames.count, 1))
-        return lmCount > 0 && ratio > 0.5 ? .llamaFamily : .unknown
-    }
-
-    private static func isDiffusionName(_ name: String) -> Bool {
-        ["unet", "vae."].contains { name.contains($0) } || name.hasPrefix("text_encoder")
-    }
-
-    private static func isMultimodalName(_ name: String) -> Bool {
-        ["vision_tower", "multi_modal_projector", "image_tower"].contains { name.contains($0) }
-            || name.hasPrefix("visual.")
-    }
-
-    private static func isMoEName(_ name: String) -> Bool {
-        [".experts.", "block_sparse_moe", "mlp.router"].contains { name.contains($0) }
-            || name.hasSuffix("router.weight")
-    }
-
-    private static func recognizedConvention(_ names: [String]) -> String? {
-        if names.contains(where: {
-            $0.range(of: #"h\.\d+\.attn\.c_attn"#, options: .regularExpression) != nil
-        }) { return "GPT-2-style fused c_attn attention (h.N.attn.c_attn)" }
-        if names.contains(where: { $0.hasPrefix("gpt_neox.") || $0.contains("query_key_value") }) {
-            return "GPT-NeoX-style fused query_key_value"
-        }
-        if names.contains(where: {
-            $0.hasPrefix("transformer.h.") || $0.hasPrefix("transformer.word_embeddings")
-        }) { return "BLOOM/Falcon-style transformer.h.N" }
-        if names.contains(where: { $0.contains("encoder.layer.") }) {
-            return "BERT-style encoder stack"
-        }
-        return nil
     }
 }

@@ -184,10 +184,10 @@ public struct MacEnvironment: Equatable, Sendable {
     }
 
     static func sysctlString(_ name: String) -> String? {
-        var size = 0
-        guard sysctlbyname(name, nil, &size, nil, 0) == 0, size > 0 else { return nil }
-        var buf = [CChar](repeating: 0, count: size)
-        guard sysctlbyname(name, &buf, &size, nil, 0) == 0 else { return nil }
-        return String(cString: buf)
+        var byteCount = 0
+        guard sysctlbyname(name, nil, &byteCount, nil, 0) == 0, byteCount > 0 else { return nil }
+        var bytes = [CChar](repeating: 0, count: byteCount)
+        guard sysctlbyname(name, &bytes, &byteCount, nil, 0) == 0 else { return nil }
+        return String(cString: bytes)
     }
 }
