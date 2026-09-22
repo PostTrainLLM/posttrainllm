@@ -185,6 +185,8 @@ struct posttrainllm {
             HFLoad.run(args: Array(args.dropFirst()))
         case "model-check":
             ModelCheck.run(args: Array(args.dropFirst()))
+        case "model-run":
+            ModelRun.run(args: Array(args.dropFirst()))
         case "download-dataset":
             DownloadDataset.run(args: Array(args.dropFirst()))
         case "list-datasets":

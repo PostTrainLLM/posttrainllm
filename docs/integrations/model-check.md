@@ -100,6 +100,18 @@ Manual overrides (`--chip/--ram-gb/--disk-gb/--macos`, or the app's
 "check a different Mac" fields) set `environment.source: "manual"` so a
 remote/web context can never pass its specs off as the user's machine.
 
+## `model-run` — close the loop
+
+`posttrainllm model-run <url>` runs the check, picks the best installed
+runtime, downloads, executes a bounded sample, and reports measured
+success. Runner order: GGUF → Ollama (`ollama run hf.co/<id>`, with
+`ollama serve` auto-start and a local-GGUF + `ollama create` fallback
+when hf.co pulls hit Xet-CDN redirect blocks); compatible safetensors →
+native `hf-load` (the real verification step); other safetensors →
+`python3 -m mlx_lm`. Failures cascade to the next runner with the real
+error surfaced. `--chat` drops into an interactive session; `--runtime`
+forces a specific one; gated repos require HF_TOKEN first.
+
 ## Boundaries
 
 - Metadata only. The 401/403 and 404 cases produce `unknown` with the

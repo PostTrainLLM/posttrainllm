@@ -146,6 +146,7 @@ enum CLICommandCatalog {
         Command("hf-inspect", .packaging, "Inspect a local Hugging Face model directory."),
         Command("hf-load", .packaging, "Load a Hugging Face model through the native runtime."),
         Command("model-check", .packaging, "Report whether a Hugging Face model URL can run on this Mac."),
+        Command("model-run", .packaging, "Check a Hugging Face model, then download and run it via the best installed runtime."),
         ]
     }
 
