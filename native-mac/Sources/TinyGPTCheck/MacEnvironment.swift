@@ -62,11 +62,18 @@ public struct MacEnvironment: Equatable, Sendable {
         MacEnvironment(
             chip: chip ?? "Apple Silicon (unspecified)",
             arch: "arm64",
-            ramBytes: Int64(ramGB ?? 0) * 1_073_741_824,
-            freeDiskBytes: Int64(diskGB ?? 0) * 1_073_741_824,
+            ramBytes: bytes(gigabytes: ramGB),
+            freeDiskBytes: bytes(gigabytes: diskGB),
             macOSVersion: macOS ?? "unspecified",
             source: "manual",
             runtimes: [])
+    }
+
+    private static func bytes(gigabytes: Int?) -> Int64 {
+        guard let gigabytes, gigabytes >= 0,
+              let value = Int64(exactly: gigabytes) else { return 0 }
+        let result = value.multipliedReportingOverflow(by: 1_073_741_824)
+        return result.overflow ? 0 : result.partialValue
     }
 
     // MARK: - Runtime probes

@@ -38,8 +38,10 @@ enum ModelRun {
             case "--chat":
                 options.chat = true; i += 1
             case "--max-tokens":
-                guard i + 1 < args.count, let n = Int(args[i + 1]) else {
-                    fputs("--max-tokens needs an int\n", stderr); exit(2)
+                guard i + 1 < args.count,
+                      let n = Int(args[i + 1]),
+                      (1 ... 4096).contains(n) else {
+                    fputs("--max-tokens must be 1...4096\n", stderr); exit(2)
                 }
                 options.maxTokens = n; i += 2
             case "--prompt":

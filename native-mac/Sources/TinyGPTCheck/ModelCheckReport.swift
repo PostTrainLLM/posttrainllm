@@ -175,20 +175,28 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         out.append(String(repeating: "-", count: 64))
         out.append("verdict: \(verdict.displayName)")
         out.append("  \(verdictSummary)")
+        appendModelAndEnvironment(to: &out)
+        appendPathsAndTools(to: &out)
+        appendOutcomeDetails(to: &out)
         out.append("")
-        out.append("Model")
-        out.append("  task:          \(model.task ?? "unknown")")
-        out.append("  library:       \(model.library ?? "unknown")")
-        out.append("  architectures: \(model.architectures.isEmpty ? "unknown" : model.architectures.joined(separator: ", "))")
-        out.append("  formats:       \(model.formats.isEmpty ? "unknown" : model.formats.joined(separator: ", "))")
-        if let v = model.selectedVariant { out.append("  variant:       \(v)") }
+        out.append("Checked at \(checkedAt) · schema v\(schemaVersion)")
+        out.append("Use the report's agent_prompt field for a copy-ready investigation handoff.")
+        return out.joined(separator: "\n")
+    }
+
+    private func appendModelAndEnvironment(to out: inout [String]) {
+        out += ["", "Model",
+                "  task:          \(model.task ?? "unknown")",
+                "  library:       \(model.library ?? "unknown")",
+                "  architectures: \(model.architectures.isEmpty ? "unknown" : model.architectures.joined(separator: ", "))",
+                "  formats:       \(model.formats.isEmpty ? "unknown" : model.formats.joined(separator: ", "))"]
+        if let variant = model.selectedVariant { out.append("  variant:       \(variant)") }
         if model.gated { out.append("  gated:         yes (HF_TOKEN required)") }
-        out.append("")
-        out.append("Environment (\(environment.source))")
-        out.append("  chip:     \(environment.chip) (\(environment.arch))")
-        out.append("  RAM:      \(Self.fmtBytes(environment.ramBytes))")
-        out.append("  disk free: \(Self.fmtBytes(environment.freeDiskBytes))")
-        out.append("  macOS:    \(environment.macOSVersion)")
+        out += ["", "Environment (\(environment.source))",
+                "  chip:     \(environment.chip) (\(environment.arch))",
+                "  RAM:      \(Self.fmtBytes(environment.ramBytes))",
+                "  disk free: \(Self.fmtBytes(environment.freeDiskBytes))",
+                "  macOS:    \(environment.macOSVersion)"]
         if !environment.runtimes.isEmpty {
             out.append("  runtimes:")
             for rt in environment.runtimes where rt.found {
@@ -199,13 +207,13 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
                 out.append("    not found: \(missing.joined(separator: ", "))")
             }
         }
-        out.append("")
-        out.append("Checked path: \(checkedPath.name)")
-        out.append("  status: \(checkedPath.status.displayName)")
-        out.append("  \(checkedPath.detail)")
+    }
+
+    private func appendPathsAndTools(to out: inout [String]) {
+        out += ["", "Checked path: \(checkedPath.name)",
+                "  status: \(checkedPath.status.displayName)", "  \(checkedPath.detail)"]
         if !otherPaths.isEmpty {
-            out.append("")
-            out.append("Other Mac execution paths")
+            out += ["", "Other Mac execution paths"]
             for p in otherPaths {
                 let src = p.source.map { " — \($0)" } ?? ""
                 out.append("  \(p.name) [\(p.status.displayName), \(p.evidenceKind)]\(src)")
@@ -213,8 +221,7 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
             }
         }
         if !tools.isEmpty {
-            out.append("")
-            out.append("Tools that can run this model")
+            out += ["", "Tools that can run this model"]
             let usable = tools.filter { $0.applies && $0.availability != "not_installed" }
             let absent = tools.filter { $0.applies && $0.availability == "not_installed" }
             for t in usable {
@@ -229,9 +236,11 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
                 out.append("  n/a: \(nA.map(\.name).joined(separator: ", "))")
             }
         }
+    }
+
+    private func appendOutcomeDetails(to out: inout [String]) {
         if !requiredChanges.isEmpty {
-            out.append("")
-            out.append("Required changes")
+            out += ["", "Required changes"]
             for c in requiredChanges {
                 var line = "  [\(c.kind)] \(c.detail)"
                 if let s = c.sizeBytes {
@@ -241,27 +250,20 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
             }
         }
         if !nextActions.isEmpty {
-            out.append("")
-            out.append("Next action")
+            out += ["", "Next action"]
             for a in nextActions { out.append("  • \(a)") }
         }
         if !limitations.isEmpty {
-            out.append("")
-            out.append("Limitations")
+            out += ["", "Limitations"]
             for l in limitations { out.append("  • \(l)") }
         }
         if !evidence.isEmpty {
-            out.append("")
-            out.append("Evidence")
+            out += ["", "Evidence"]
             for e in evidence {
                 out.append("  [\(e.kind)] \(e.detail)")
                 out.append("    \(e.source)")
             }
         }
-        out.append("")
-        out.append("Checked at \(checkedAt) · schema v\(schemaVersion)")
-        out.append("Use the report's agent_prompt field for a copy-ready investigation handoff.")
-        return out.joined(separator: "\n")
     }
 
     public static func fmtBytes(_ n: Int64) -> String {

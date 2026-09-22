@@ -49,46 +49,34 @@ public enum HubModelClient {
     /// (Not Sendable: `apiConfig` is untyped JSON.)
     public struct Info {
         public var id: String
-        public var sha: String?
-        public var lastModified: String?
-        public var tags: [String]
-        public var pipelineTag: String?
-        public var libraryName: String?
-        public var gated: Bool
-        public var gatedKind: String?       // "auto" | "manual"
-        public var isPrivate: Bool
-        public var siblings: [Sibling]
+        public var sha: String? = nil
+        public var lastModified: String? = nil
+        public var tags: [String] = []
+        public var pipelineTag: String? = nil
+        public var libraryName: String? = nil
+        public var gated = false
+        public var gatedKind: String? = nil       // "auto" | "manual"
+        public var isPrivate = false
+        public var siblings: [Sibling] = []
         /// safetensors stats: dtype string → parameter count, when the
         /// Hub computed them. e.g. ["BF16": 4_020_000_000]
-        public var safetensorsParams: [String: Int64]
+        public var safetensorsParams: [String: Int64] = [:]
         /// The Hub embeds the repo's parsed config.json in the API
         /// response — including for gated repos, where the resolve URL
         /// 401s without a token. This is the single biggest source of
         /// otherwise-unnecessary `unknown` verdicts on popular models.
-        public var apiConfig: [String: Any]?
+        public var apiConfig: [String: Any]? = nil
         /// transformersInfo.auto_model — e.g. "AutoModelForCausalLM",
         /// "AutoModelForMaskedLM". Task truth straight from the Hub.
-        public var autoModel: String?
+        public var autoModel: String? = nil
         /// transformersInfo.custom_class — set when the repo ships its
         /// own modeling code (trust_remote_code territory).
-        public var customClass: String?
+        public var customClass: String? = nil
         /// cardData.base_model — set on fine-tunes/adapters.
-        public var baseModel: String?
+        public var baseModel: String? = nil
 
-        public init(id: String, sha: String? = nil, lastModified: String? = nil,
-                    tags: [String] = [], pipelineTag: String? = nil,
-                    libraryName: String? = nil, gated: Bool = false,
-                    gatedKind: String? = nil, isPrivate: Bool = false,
-                    siblings: [Sibling] = [], safetensorsParams: [String: Int64] = [:],
-                    apiConfig: [String: Any]? = nil, autoModel: String? = nil,
-                    customClass: String? = nil, baseModel: String? = nil) {
-            self.id = id; self.sha = sha; self.lastModified = lastModified
-            self.tags = tags; self.pipelineTag = pipelineTag
-            self.libraryName = libraryName; self.gated = gated
-            self.gatedKind = gatedKind; self.isPrivate = isPrivate
-            self.siblings = siblings; self.safetensorsParams = safetensorsParams
-            self.apiConfig = apiConfig; self.autoModel = autoModel
-            self.customClass = customClass; self.baseModel = baseModel
+        public init(id: String) {
+            self.id = id
         }
 
         public func sibling(named name: String) -> Sibling? {
@@ -130,18 +118,27 @@ public enum HubModelClient {
     /// not weights.
     public static func smallFile(id: String, revision: String, path: String,
                                  maxBytes: Int = 512 * 1024) throws -> Data? {
-        let encoded = path.split(separator: "/", omittingEmptySubsequences: false)
-            .map { String($0).addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? String($0) }
-            .joined(separator: "/")
-        let url = "https://huggingface.co/\(id)/resolve/\(revision)/\(encoded)"
-        let (data, status): (Data, Int)
-        do { (data, status) = try HFDatasets.httpGet(url) }
-        catch { throw HubError.network("\(error)") }
+        guard maxBytes >= 0,
+              let url = resolveURL(id: id, revision: revision, path: path) else {
+            throw HubError.malformed("invalid small-file request")
+        }
+        let fetch = BoundedFetchDelegate(maxBody: maxBytes)
+        var request = authorizedRequest(url: url)
+        request.httpMethod = "GET"
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 30
+        let session = URLSession(configuration: config, delegate: fetch, delegateQueue: nil)
+        defer { session.finishTasksAndInvalidate() }
+        session.dataTask(with: request).resume()
+        fetch.semaphore.wait()
+        if fetch.tooLarge {
+            throw HubError.malformed("\(path) exceeds the \(maxBytes)-byte small-file cap")
+        }
+        if let error = fetch.error { throw HubError.network("\(error)") }
+        let data = fetch.data
+        let status = fetch.statusCode
         switch status {
         case 200:
-            guard data.count <= maxBytes else {
-                throw HubError.malformed("\(path) is \(data.count) bytes — over the \(maxBytes)-byte small-file cap")
-            }
             return data
         case 404: return nil
         case 401, 403: throw HubError.needsAuth(id: id, gated: true)
@@ -230,16 +227,8 @@ public enum HubModelClient {
     /// before body bytes arrive. Throws on real network errors.
     static func rangeGet(id: String, revision: String, path: String,
                          range: String, maxBody: Int) throws -> Data? {
-        let encoded = path.split(separator: "/", omittingEmptySubsequences: false)
-            .map { String($0).addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? String($0) }
-            .joined(separator: "/")
-        guard let url = URL(string: "https://huggingface.co/\(id)/resolve/\(revision)/\(encoded)")
-        else { return nil }
-        var req = URLRequest(url: url)
-        if let token = ProcessInfo.processInfo.environment["HF_TOKEN"], !token.isEmpty {
-            req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        }
-        req.setValue("posttrainllm/0.1", forHTTPHeaderField: "User-Agent")
+        guard let url = resolveURL(id: id, revision: revision, path: path) else { return nil }
+        var req = authorizedRequest(url: url)
         req.setValue(range, forHTTPHeaderField: "Range")
         let delegate = RangeFetchDelegate(maxBody: maxBody)
         let cfg = URLSessionConfiguration.default
@@ -251,6 +240,24 @@ public enum HubModelClient {
         if delegate.refusedFullBody || delegate.statusCode != 206 { return nil }
         if let err = delegate.error { throw HubError.network("\(err)") }
         return delegate.data
+    }
+
+    private static func resolveURL(id: String, revision: String, path: String) -> URL? {
+        let encodedPath = path.split(separator: "/", omittingEmptySubsequences: false)
+            .map { String($0).addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? String($0) }
+            .joined(separator: "/")
+        let encodedRevision = revision.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)
+            ?? revision
+        return URL(string: "https://huggingface.co/\(id)/resolve/\(encodedRevision)/\(encodedPath)")
+    }
+
+    private static func authorizedRequest(url: URL) -> URLRequest {
+        var request = URLRequest(url: url)
+        if let token = ProcessInfo.processInfo.environment["HF_TOKEN"], !token.isEmpty {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        request.setValue("posttrainllm/0.1", forHTTPHeaderField: "User-Agent")
+        return request
     }
 
     /// Read the GGUF metadata block (magic + kv pairs) of a .gguf file —
@@ -302,6 +309,45 @@ public enum HubModelClient {
         }
     }
 
+    /// Receives a metadata response only while it remains under the cap.
+    /// A declared oversized body is refused before its first byte; chunked
+    /// responses are cancelled before an over-cap chunk is retained.
+    private final class BoundedFetchDelegate: NSObject, URLSessionDataDelegate, @unchecked Sendable {
+        let semaphore = DispatchSemaphore(value: 0)
+        let maxBody: Int
+        var data = Data()
+        var statusCode = 0
+        var error: Error?
+        var tooLarge = false
+
+        init(maxBody: Int) { self.maxBody = maxBody }
+
+        func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
+                        didReceive response: URLResponse,
+                        completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+            statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+            let size = response.expectedContentLength
+            tooLarge = size > Int64(maxBody)
+            completionHandler(tooLarge ? .cancel : .allow)
+        }
+
+        func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
+                        didReceive chunk: Data) {
+            guard chunk.count <= maxBody - data.count else {
+                tooLarge = true
+                dataTask.cancel()
+                return
+            }
+            data.append(chunk)
+        }
+
+        func urlSession(_ session: URLSession, task: URLSessionTask,
+                        didCompleteWithError error: Error?) {
+            if let error, !tooLarge { self.error = error }
+            semaphore.signal()
+        }
+    }
+
     // MARK: - decode
 
     static func decodeInfo(data: Data, fallbackId: String) throws -> Info {
@@ -311,51 +357,60 @@ public enum HubModelClient {
         } catch { throw HubError.malformed("\(error)") }
         guard !obj.isEmpty else { throw HubError.malformed("empty object") }
 
-        var info = Info(
-            id: (obj["id"] as? String) ?? fallbackId,
-            sha: obj["sha"] as? String,
-            lastModified: obj["lastModified"] as? String,
-            tags: (obj["tags"] as? [String]) ?? [],
-            pipelineTag: obj["pipeline_tag"] as? String,
-            libraryName: obj["library_name"] as? String,
-            gated: false,
-            gatedKind: nil,
-            isPrivate: (obj["private"] as? Bool) ?? false,
-            siblings: [],
-            safetensorsParams: [:])
+        var info = Info(id: (obj["id"] as? String) ?? fallbackId)
+        info.sha = obj["sha"] as? String
+        info.lastModified = obj["lastModified"] as? String
+        info.tags = (obj["tags"] as? [String]) ?? []
+        info.pipelineTag = obj["pipeline_tag"] as? String
+        info.libraryName = obj["library_name"] as? String
+        info.isPrivate = (obj["private"] as? Bool) ?? false
 
-        if let g = obj["gated"] as? Bool { info.gated = g }
-        if let g = obj["gated"] as? String, g != "false" {
-            info.gated = true; info.gatedKind = g
-        }
+        decodeGating(obj, into: &info)
         if let disabled = obj["disabled"] as? Bool, disabled {
             info.tags.append("disabled")
         }
-
-        for sib in (obj["siblings"] as? [[String: Any]] ?? []) {
-            guard let name = sib["rfilename"] as? String else { continue }
-            let size = (sib["size"] as? NSNumber)?.int64Value
-            info.siblings.append(Sibling(name: name, size: size))
-        }
-
-        // safetensors stats: {"parameters": {"BF16": 4020000064, ...}, "total": ...}
-        if let st = obj["safetensors"] as? [String: Any],
-           let params = st["parameters"] as? [String: Any] {
-            for (dtype, count) in params {
-                if let n = (count as? NSNumber)?.int64Value {
-                    info.safetensorsParams[dtype] = n
-                }
-            }
-        }
+        decodeSiblings(obj, into: &info)
+        decodeSafetensorsStats(obj, into: &info)
         info.apiConfig = obj["config"] as? [String: Any]
-        if let ti = obj["transformersInfo"] as? [String: Any] {
-            info.autoModel = ti["auto_model"] as? String
-            info.customClass = ti["custom_class"] as? String
-        }
+        decodeTransformersInfo(obj, into: &info)
         if let card = obj["cardData"] as? [String: Any] {
             info.baseModel = card["base_model"] as? String
                 ?? (card["base_model"] as? [String])?.first
         }
         return info
+    }
+
+    private static func decodeGating(_ object: [String: Any], into info: inout Info) {
+        if let gated = object["gated"] as? Bool { info.gated = gated }
+        if let gated = object["gated"] as? String, gated != "false" {
+            info.gated = true
+            info.gatedKind = gated
+        }
+    }
+
+    private static func decodeSiblings(_ object: [String: Any], into info: inout Info) {
+        for sibling in object["siblings"] as? [[String: Any]] ?? [] {
+            guard let name = sibling["rfilename"] as? String else { continue }
+            info.siblings.append(Sibling(
+                name: name,
+                size: (sibling["size"] as? NSNumber)?.int64Value
+            ))
+        }
+    }
+
+    private static func decodeSafetensorsStats(_ object: [String: Any], into info: inout Info) {
+        guard let safetensors = object["safetensors"] as? [String: Any],
+              let parameters = safetensors["parameters"] as? [String: Any] else { return }
+        for (dtype, count) in parameters {
+            if let value = (count as? NSNumber)?.int64Value {
+                info.safetensorsParams[dtype] = value
+            }
+        }
+    }
+
+    private static func decodeTransformersInfo(_ object: [String: Any], into info: inout Info) {
+        guard let transformers = object["transformersInfo"] as? [String: Any] else { return }
+        info.autoModel = transformers["auto_model"] as? String
+        info.customClass = transformers["custom_class"] as? String
     }
 }

@@ -1,9 +1,24 @@
 import Foundation
 import MLXLMCommon
 import MLXLLM
-import MLXHuggingFace
-import HuggingFace
-import Tokenizers
+
+private final class LockedRunResult: @unchecked Sendable {
+    private let lock = NSLock()
+    private var result: Result<String, Error>?
+
+    func finish(_ result: Result<String, Error>) {
+        lock.lock()
+        defer { lock.unlock() }
+        guard self.result == nil else { return }
+        self.result = result
+    }
+
+    func snapshot() -> Result<String, Error>? {
+        lock.lock()
+        defer { lock.unlock() }
+        return result
+    }
+}
 
 /// MLX-Swift-LM runner for `model-run` — Apple's maintained HF model
 /// implementations loaded in-process. Covers the archs our own loader
@@ -23,47 +38,42 @@ public enum MLXRunner {
     /// generate a bounded response. Returns the generated text.
     public static func sample(id: String, prompt: String, maxTokens: Int,
                               timeout: TimeInterval = 1800) throws -> String {
-        final class Box { var text: String?; var error: Error?; var done = false }
-        let box = Box()
+        let result = LockedRunResult()
         Task.detached {
-            defer { box.done = true }
             do {
                 // HubClient() auto-detects HF_ENDPOINT + reads HF_TOKEN.
                 let model = try await loadModel(
-                    from: #hubDownloader(),
-                    using: #huggingFaceTokenizerLoader(),
+                    from: HubDownloader(),
+                    using: HuggingFaceTokenizerLoader(),
                     id: id) { progress in
                         fputs("\r    downloading: \(Int(progress.fractionCompleted * 100))%", stderr)
                     }
                 fputs("\n", stderr)
-                var session = ChatSession(model)
+                let session = ChatSession(model)
                 session.generateParameters = .init(maxTokens: maxTokens)
-                box.text = try await session.respond(to: prompt)
+                result.finish(.success(try await session.respond(to: prompt)))
             } catch {
-                box.error = error
+                result.finish(.failure(error))
             }
         }
         // NOT a semaphore wait — MLXLMCommon hops to the MainActor for
         // parts of load/generate, so the main run loop must keep turning.
         let deadline = Date().addingTimeInterval(timeout)
-        while !box.done {
+        while result.snapshot() == nil {
             if Date() > deadline { throw RunError.timedOut }
             RunLoop.main.run(mode: .default, before: Date().addingTimeInterval(0.05))
         }
-        if let err = box.error { throw err }
-        return box.text ?? ""
+        return try result.snapshot()!.get()
     }
 
     /// Interactive chat loop — blocks on stdin until an empty line.
     public static func chat(id: String) throws {
-        final class Box { var error: Error?; var done = false }
-        let box = Box()
+        let result = LockedRunResult()
         Task.detached {
-            defer { box.done = true }
             do {
                 let model = try await loadModel(
-                    from: #hubDownloader(),
-                    using: #huggingFaceTokenizerLoader(),
+                    from: HubDownloader(),
+                    using: HuggingFaceTokenizerLoader(),
                     id: id)
                 let session = ChatSession(model)
                 print("(mlx-swift chat — empty line to exit)")
@@ -71,13 +81,14 @@ public enum MLXRunner {
                     let out = try await session.respond(to: line)
                     print(out)
                 }
+                result.finish(.success(""))
             } catch {
-                box.error = error
+                result.finish(.failure(error))
             }
         }
-        while !box.done {
+        while result.snapshot() == nil {
             RunLoop.main.run(mode: .default, before: Date().addingTimeInterval(0.05))
         }
-        if let err = box.error { throw err }
+        _ = try result.snapshot()!.get()
     }
 }

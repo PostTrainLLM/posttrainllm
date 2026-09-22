@@ -14,8 +14,18 @@ var i = 1
 let argv = CommandLine.arguments
 while i < argv.count {
     switch argv[i] {
-    case "--prompt":     prompt = argv[i + 1]; i += 2
-    case "--max-tokens": maxTokens = Int(argv[i + 1]) ?? maxTokens; i += 2
+    case "--prompt":
+        guard i + 1 < argv.count else {
+            fputs("mlxrun: --prompt needs a value\n", stderr); exit(2)
+        }
+        prompt = argv[i + 1]; i += 2
+    case "--max-tokens":
+        guard i + 1 < argv.count,
+              let n = Int(argv[i + 1]),
+              (1 ... 4096).contains(n) else {
+            fputs("mlxrun: --max-tokens must be 1...4096\n", stderr); exit(2)
+        }
+        maxTokens = n; i += 2
     case "--chat":       chat = true; i += 1
     default:
         if argv[i].hasPrefix("-") {

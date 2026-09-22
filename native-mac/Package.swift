@@ -68,7 +68,7 @@ let package = Package(
         // wide quant table); replaces the python3 mlx_lm subprocess.
         .package(url: "https://github.com/ml-explore/mlx-swift-lm", from: "3.31.4"),
         // swift-huggingface — HubClient for MLX-Swift-LM's downloader
-        // macro (declared explicitly so TinyGPTRun can import it).
+        // bridge (declared explicitly so MLXRun can import it).
         .package(url: "https://github.com/huggingface/swift-huggingface", from: "0.9.0"),
     ],
     targets: [
@@ -156,7 +156,6 @@ let package = Package(
                 .product(name: "MLXVLM", package: "mlx-swift-lm"),
                 .product(name: "MLXLMCommon", package: "mlx-swift-lm"),
                 .product(name: "MLXEmbedders", package: "mlx-swift-lm"),
-                .product(name: "MLXHuggingFace", package: "mlx-swift-lm"),
                 .product(name: "HuggingFace", package: "swift-huggingface"),
                 .product(name: "Tokenizers", package: "swift-transformers"),
             ]

@@ -24,48 +24,33 @@ public enum CompatibilityRules {
     /// `info` means the API lookup itself failed — see `fetchIssue`.
     public struct Input {
         public var ref: ModelRef
-        public var info: HubModelClient.Info?       // nil → fetch failed
-        public var fetchIssue: String?              // human-readable why
-        public var config: HuggingFaceConfig?       // parsed config.json
-        public var configIssue: String?             // why config is nil
+        public var info: HubModelClient.Info? = nil       // nil → fetch failed
+        public var fetchIssue: String? = nil              // human-readable why
+        public var config: HuggingFaceConfig? = nil       // parsed config.json
+        public var configIssue: String? = nil             // why config is nil
         /// `architectures` pulled leniently from a config.json that
         /// failed strict parse (e.g. GPT-2's legacy n_head/n_layer
         /// schema) — lets the report name the architecture even when the
         /// full typed config is unavailable.
-        public var architecturesHint: [String]
+        public var architecturesHint: [String] = []
         /// Tensor-name layout from the safetensors index/header — nil
         /// when it couldn't be fetched (recorded as a limitation).
-        public var tensorLayout: TensorLayout?
+        public var tensorLayout: TensorLayout? = nil
         /// Repo ships custom modeling code (config `auto_map` or
         /// transformersInfo.custom_class) — we never execute it, which
         /// matters when the architecture isn't natively supported.
-        public var remoteCode: Bool
+        public var remoteCode = false
         /// PEFT/LoRA adapter repo details (nil for full models).
-        public var adapter: (base: String?, peftType: String?)?
+        public var adapter: (base: String?, peftType: String?)? = nil
         /// GGUF header metadata for the selected variant, when readable.
-        public var ggufMeta: GGUFHeader.Meta?
+        public var ggufMeta: GGUFHeader.Meta? = nil
         /// Exact weight bytes / param count from safetensors header
         /// dtypes+shapes — preferred over Hub stats or file sizes.
-        public var exactWeightBytes: Int64?
-        public var exactParams: Int64?
+        public var exactWeightBytes: Int64? = nil
+        public var exactParams: Int64? = nil
         public var env: MacEnvironment
-        public init(ref: ModelRef, info: HubModelClient.Info?, fetchIssue: String?,
-                    config: HuggingFaceConfig?, configIssue: String?,
-                    architecturesHint: [String] = [],
-                    tensorLayout: TensorLayout? = nil,
-                    remoteCode: Bool = false,
-                    adapter: (base: String?, peftType: String?)? = nil,
-                    ggufMeta: GGUFHeader.Meta? = nil,
-                    exactWeightBytes: Int64? = nil,
-                    exactParams: Int64? = nil,
-                    env: MacEnvironment) {
-            self.ref = ref; self.info = info; self.fetchIssue = fetchIssue
-            self.config = config; self.configIssue = configIssue
-            self.architecturesHint = architecturesHint
-            self.tensorLayout = tensorLayout
-            self.remoteCode = remoteCode; self.adapter = adapter
-            self.ggufMeta = ggufMeta
-            self.exactWeightBytes = exactWeightBytes; self.exactParams = exactParams
+        public init(ref: ModelRef, env: MacEnvironment) {
+            self.ref = ref
             self.env = env
         }
     }
@@ -237,7 +222,7 @@ public enum CompatibilityRules {
         } else {
             a.limitations.append("adapter's base model could not be identified")
         }
-        a.nextActions.append(base.map { "Run `posttrainllm model-check \( $0 )` to check the base model." }
+        a.nextActions.append(base.map { "Run `posttrainllm model-check \($0)` to check the base model." }
             ?? "Inspect adapter_config.json for base_model_name_or_path.")
         a.nextActions.append("Apply via the LoRA path: train/apply adapters over the loaded base (`sft --adapter`, `hf-load`).")
         return a
@@ -305,20 +290,19 @@ public enum CompatibilityRules {
         // ComfyUI single-file repos ship split components under
         // diffusion_models/, vae/, text_encoders/, clip/ — no
         // model_index.json, often no pipeline_tag.
-        if info.siblings.contains(where: {
-            let n = $0.name
-            return n.hasPrefix("diffusion_models/") || n.hasPrefix("unet/")
-                || n.hasPrefix("vae/") || n.hasPrefix("text_encoders/")
-                || n.hasPrefix("checkpoints/")
+        let componentPrefixes = ["diffusion_models/", "unet/", "vae/", "text_encoders/", "checkpoints/"]
+        if info.siblings.contains(where: { sibling in
+            componentPrefixes.contains { sibling.name.hasPrefix($0) }
         }) { return true }
         if let tag = info.pipelineTag {
             // Generation-side media pipelines are diffusers-domain.
             // ASR / TTS / classifiers are transformers-domain — they get
             // the generic non-language assessment instead.
-            return tag.hasPrefix("text-to-image") || tag.hasPrefix("image-to-")
-                || tag.hasPrefix("text-to-video") || tag.hasPrefix("text-to-audio")
-                || tag.hasPrefix("text-to-3d") || tag.hasPrefix("image-to-3d")
-                || tag.hasPrefix("video-")
+            let mediaPrefixes = [
+                "text-to-image", "image-to-", "text-to-video", "text-to-audio",
+                "text-to-3d", "image-to-3d", "video-",
+            ]
+            return mediaPrefixes.contains { tag.hasPrefix($0) }
         }
         return false
     }
@@ -801,88 +785,114 @@ public enum CompatibilityRules {
     /// three working tools.
     static func toolMatrix(input: Input,
                            assessment a: Assessment) -> [ModelCheckReport.ToolOption] {
-        typealias T = ModelCheckReport.ToolOption
-        let env = input.env.runtimes
-        func probe(_ name: String) -> Bool {
-            env.contains { $0.name == name && $0.found }
-        }
-        // python3 stack probe packs versions into one string.
-        let pyStack = env.first { $0.name == "python3 ML stack" && $0.found }
-        func pyHas(_ pkg: String) -> Bool {
-            pyStack?.version?.contains(pkg) ?? false
+        let context = ToolContext(input: input, assessment: a)
+        return nativeTools(context) + ggufTools(context) + specializedTools(context)
+    }
+
+    private struct ToolContext {
+        let input: Input
+        let id: String
+        let isGGUF: Bool
+        let isST: Bool
+        let isPTBin: Bool
+        let isDiff: Bool
+        let isASR: Bool
+        let isEncoder: Bool
+        let isLM: Bool
+        let isVLM: Bool
+        let checkedOK: Bool
+
+        init(input: Input, assessment: Assessment) {
+            self.input = input
+            id = input.ref.id
+            let formats = Set(assessment.formats)
+            isGGUF = formats.contains("gguf")
+            isST = formats.contains("safetensors")
+            isPTBin = formats.contains("pytorch-bin")
+            isDiff = (input.info.map(isDiffusers) ?? false)
+                || input.tensorLayout?.kind == .diffusion
+            let tag = assessment.task ?? ""
+            isASR = tag == "automatic-speech-recognition"
+            isEncoder = input.tensorLayout?.kind == .encoderOnly
+                || ["fill-mask", "feature-extraction", "sentence-similarity",
+                    "text-classification", "token-classification"].contains(tag)
+            isLM = isST && !isDiff && !isASR && !isEncoder
+            isVLM = input.tensorLayout?.kind == .multimodal
+                || tag == "image-text-to-text" || tag.hasPrefix("visual-question")
+            checkedOK = isST && (assessment.checkedPath.status == .expectedToWork
+                || assessment.checkedPath.status == .changesRequired)
         }
 
-        let fmts = Set(a.formats)
-        let id = input.ref.id
-        let isGGUF = fmts.contains("gguf")
-        let isST = fmts.contains("safetensors")
-        let isPTBin = fmts.contains("pytorch") || fmts.contains("bin")
-        let isDiff = (input.info.map(isDiffusers) ?? false)
-            || input.tensorLayout?.kind == .diffusion
-        let tag = a.task ?? ""
-        let isASR = tag == "automatic-speech-recognition"
-        let isEncoder = input.tensorLayout?.kind == .encoderOnly
-            || ["fill-mask", "feature-extraction", "sentence-similarity",
-                "text-classification", "token-classification"].contains(tag)
-        let isLM = isST && !isDiff && !isASR && !isEncoder
-        let isVLM = input.tensorLayout?.kind == .multimodal
-            || tag == "image-text-to-text" || tag.hasPrefix("visual-question")
-        let checkedOK = a.checkedPath.status == .expectedToWork
-            || a.checkedPath.status == .changesRequired
-        var tools: [T] = []
-        tools.append(T(name: "posttrainllm (native)",
-            availability: "bundled",
-            applies: checkedOK,
-            detail: checkedOK
+        func probe(_ name: String) -> Bool {
+            input.env.runtimes.contains { $0.name == name && $0.found }
+        }
+
+        func pythonHas(_ package: String) -> Bool {
+            input.env.runtimes.first { $0.name == "python3 ML stack" && $0.found }?
+                .version?.contains(package) ?? false
+        }
+    }
+
+    private static func nativeTools(_ c: ToolContext) -> [ModelCheckReport.ToolOption] {
+        typealias T = ModelCheckReport.ToolOption
+        return [
+            T(name: "posttrainllm (native)", availability: "bundled",
+              applies: c.checkedOK,
+              detail: c.checkedOK
                 ? "our own loader — the checked path; `model-run` verifies it for real"
                 : "checked path doesn't apply to this model",
-            run: checkedOK ? "posttrainllm model-run \(id)" : nil))
-        tools.append(T(name: "MLX-Swift-LM (posttrainllm-mlxrun)",
-            availability: "bundled",
-            applies: isST && (isLM || isVLM),
-            detail: "Apple's maintained HF impls in-process — wide arch table (MoE, VLM, packed quants), auto-downloads",
-            run: (isST && (isLM || isVLM)) ? "posttrainllm model-run \(id) --runtime mlx-swift" : nil))
-        tools.append(T(name: "python3 mlx-lm",
-            availability: pyHas("mlx-lm") ? "installed" : "not_installed",
-            applies: isST && isLM,
-            detail: "python MLX runner — the broadest LM arch table",
-            run: isST && isLM ? "python3 -m mlx_lm chat --model \(id)" : nil))
-        tools.append(T(name: "Ollama",
-            availability: probe("ollama") ? "installed" : "not_installed",
-            applies: isGGUF,
-            detail: "runs GGUFs; `ollama run hf.co/…` or local Modelfile (model-run handles both)",
-            run: isGGUF ? "posttrainllm model-run \(id) --runtime ollama" : nil))
-        tools.append(T(name: "llama.cpp (llama-cli)",
-            availability: probe("llama.cpp") ? "installed" : "not_installed",
-            applies: isGGUF,
-            detail: "reference GGUF runtime — every quant scheme, incl. K-quants our loader can't read",
-            run: isGGUF ? "llama-cli -m <downloaded .gguf>" : nil))
-        tools.append(T(name: "LM Studio (lms)",
-            availability: probe("lms (LM Studio)") ? "installed" : "not_installed",
-            applies: isGGUF,
-            detail: "GUI + OpenAI-compatible server over GGUFs",
-            run: isGGUF ? "lms get \(id)" : nil))
-        tools.append(T(name: "transformers (python3)",
-            availability: pyHas("transformers") ? "installed" : "not_installed",
-            applies: isST || isPTBin,
-            detail: "reference HF runtime — covers every arch/task incl. encoders and seq2seq",
-            run: nil))
-        tools.append(T(name: "diffusers (python3)",
-            availability: pyHas("diffusers") ? "installed" : "not_installed",
-            applies: isDiff,
-            detail: "reference diffusion runtime — pipelines for image/video/audio generation",
-            run: nil))
-        tools.append(T(name: "MLXEmbedders",
-            availability: "bundled",
-            applies: isEncoder,
-            detail: "MLX-Swift-LM's embedder set — embeddings/rerankers natively on Apple Silicon (not chat)",
-            run: nil))
-        tools.append(T(name: "whisper.cpp",
-            availability: "unknown",
-            applies: isASR,
-            detail: "native ASR runtime for Whisper weights (GGML/GGUF)",
-            run: nil))
-        return tools
+              run: c.checkedOK ? "posttrainllm model-run \(c.id)" : nil),
+            T(name: "MLX-Swift-LM (posttrainllm-mlxrun)", availability: "bundled",
+              applies: c.isST && (c.isLM || c.isVLM),
+              detail: "Apple's maintained HF impls in-process — wide arch table (MoE, VLM, packed quants), auto-downloads",
+              run: c.isST && (c.isLM || c.isVLM)
+                  ? "posttrainllm model-run \(c.id) --runtime mlx-swift" : nil),
+            T(name: "python3 mlx-lm",
+              availability: c.pythonHas("mlx-lm") ? "installed" : "not_installed",
+              applies: c.isST && c.isLM,
+              detail: "python MLX runner — the broadest LM arch table",
+              run: c.isST && c.isLM ? "python3 -m mlx_lm chat --model \(c.id)" : nil),
+        ]
+    }
+
+    private static func ggufTools(_ c: ToolContext) -> [ModelCheckReport.ToolOption] {
+        typealias T = ModelCheckReport.ToolOption
+        return [
+            T(name: "Ollama", availability: c.probe("ollama") ? "installed" : "not_installed",
+              applies: c.isGGUF,
+              detail: "runs GGUFs; `ollama run hf.co/…` or local Modelfile (model-run handles both)",
+              run: c.isGGUF ? "posttrainllm model-run \(c.id) --runtime ollama" : nil),
+            T(name: "llama.cpp (llama-cli)",
+              availability: c.probe("llama.cpp") ? "installed" : "not_installed",
+              applies: c.isGGUF,
+              detail: "reference GGUF runtime — every quant scheme, incl. K-quants our loader can't read",
+              run: c.isGGUF ? "llama-cli -m <downloaded .gguf>" : nil),
+            T(name: "LM Studio (lms)",
+              availability: c.probe("lms (LM Studio)") ? "installed" : "not_installed",
+              applies: c.isGGUF, detail: "GUI + OpenAI-compatible server over GGUFs",
+              run: c.isGGUF ? "lms get \(c.id)" : nil),
+        ]
+    }
+
+    private static func specializedTools(_ c: ToolContext) -> [ModelCheckReport.ToolOption] {
+        typealias T = ModelCheckReport.ToolOption
+        return [
+            T(name: "transformers (python3)",
+              availability: c.pythonHas("transformers") ? "installed" : "not_installed",
+              applies: c.isST || c.isPTBin,
+              detail: "reference HF runtime — covers every arch/task incl. encoders and seq2seq",
+              run: nil),
+            T(name: "diffusers (python3)",
+              availability: c.pythonHas("diffusers") ? "installed" : "not_installed",
+              applies: c.isDiff,
+              detail: "reference diffusion runtime — pipelines for image/video/audio generation",
+              run: nil),
+            T(name: "MLXEmbedders", availability: "bundled", applies: c.isEncoder,
+              detail: "MLX-Swift-LM's embedder set — embeddings/rerankers natively on Apple Silicon (not chat)",
+              run: nil),
+            T(name: "whisper.cpp", availability: "unknown", applies: c.isASR,
+              detail: "native ASR runtime for Whisper weights (GGML/GGUF)", run: nil),
+        ]
     }
 
     static func diffusersAssessment(

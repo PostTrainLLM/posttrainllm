@@ -32,51 +32,37 @@ import TinyGPTCheck
 ///   HF_TOKEN             optional; required to inspect gated/private repos
 enum ModelCheck {
 
-    static func run(args: [String]) {
-        var input: String? = nil
+    private struct Options {
+        var input: String?
         var json = false
-        var chip: String? = nil
-        var ramGB: Int? = nil
-        var diskGB: Int? = nil
-        var macOS: String? = nil
+        var chip: String?
+        var ramGB: Int?
+        var diskGB: Int?
+        var macOS: String?
+    }
 
+    static func run(args: [String]) {
+        var options = Options()
         var i = 0
         while i < args.count {
-            switch args[i] {
-            case "--json": json = true; i += 1
-            case "--chip":
-                guard i+1 < args.count else { fputs("--chip needs value\n", stderr); exit(2) }
-                chip = args[i+1]; i += 2
-            case "--ram-gb":
-                guard i+1 < args.count, let n = Int(args[i+1]) else { fputs("--ram-gb needs int\n", stderr); exit(2) }
-                ramGB = n; i += 2
-            case "--disk-gb":
-                guard i+1 < args.count, let n = Int(args[i+1]) else { fputs("--disk-gb needs int\n", stderr); exit(2) }
-                diskGB = n; i += 2
-            case "--macos":
-                guard i+1 < args.count else { fputs("--macos needs value\n", stderr); exit(2) }
-                macOS = args[i+1]; i += 2
-            case "-h", "--help":
-                printUsage(); exit(0)
-            default:
-                if args[i].hasPrefix("-") {
-                    fputs("unknown flag: \(args[i])\n", stderr); exit(2)
-                }
-                if input != nil {
-                    fputs("model-check takes exactly one model argument\n", stderr); exit(2)
-                }
-                input = args[i]; i += 1
+            if consumeOption(args: args, index: &i, options: &options) { continue }
+            if options.input != nil {
+                fputs("model-check takes exactly one model argument\n", stderr); exit(2)
             }
+            options.input = args[i]
+            i += 1
         }
 
-        guard let target = input else {
+        guard let target = options.input else {
             fputs("model-check: a Hugging Face URL or owner/repo is required\n\n", stderr)
             printUsage(); exit(2)
         }
 
         let envOverride: MacEnvironment? =
-            (chip != nil || ramGB != nil || diskGB != nil || macOS != nil)
-            ? .manual(chip: chip, ramGB: ramGB, diskGB: diskGB, macOS: macOS)
+            (options.chip != nil || options.ramGB != nil
+                || options.diskGB != nil || options.macOS != nil)
+            ? .manual(chip: options.chip, ramGB: options.ramGB,
+                      diskGB: options.diskGB, macOS: options.macOS)
             : nil
 
         do {
@@ -86,7 +72,7 @@ enum ModelCheck {
                 // Progress to stderr so --json stdout stays a clean report.
                 fputs("… \(stage.rawValue)\n", stderr)
             }
-            if json {
+            if options.json {
                 print(try report.encoded())
             } else {
                 print(report.renderText())
@@ -98,6 +84,43 @@ enum ModelCheck {
             fputs("model-check failed: \(error)\n", stderr)
             exit(1)
         }
+    }
+
+    private static func consumeOption(
+        args: [String], index: inout Int, options: inout Options
+    ) -> Bool {
+        let flag = args[index]
+        switch flag {
+        case "--json":
+            options.json = true
+            index += 1
+        case "--chip", "--macos":
+            guard index + 1 < args.count else { argumentError("\(flag) needs value") }
+            if flag == "--chip" { options.chip = args[index + 1] }
+            else { options.macOS = args[index + 1] }
+            index += 2
+        case "--ram-gb", "--disk-gb":
+            guard index + 1 < args.count,
+                  let value = Int(args[index + 1]), value > 0,
+                  value <= Int64.max / 1_073_741_824 else {
+                argumentError("\(flag) needs a positive, representable integer")
+            }
+            if flag == "--ram-gb" { options.ramGB = value }
+            else { options.diskGB = value }
+            index += 2
+        case "-h", "--help":
+            printUsage()
+            exit(0)
+        default:
+            guard flag.hasPrefix("-") else { return false }
+            argumentError("unknown flag: \(flag)")
+        }
+        return true
+    }
+
+    private static func argumentError(_ message: String) -> Never {
+        fputs("\(message)\n", stderr)
+        exit(2)
     }
 
     private static func printUsage() {

@@ -50,21 +50,32 @@ public struct RunnerPlan: Equatable, Sendable {
 
 public enum RunnerPlanner {
 
+    private struct Availability {
+        let ollama: Bool
+        let lms: Bool
+        let llamaCpp: Bool
+        let mlxSwift: Bool
+        let mlxLm: Bool
+
+        init(_ probes: [ModelCheckReport.RuntimeProbe]) {
+            ollama = installed(probes, "ollama")
+            lms = installed(probes, "lms (LM Studio)")
+            llamaCpp = installed(probes, "llama.cpp")
+            mlxSwift = installed(probes, "mlx-swift runner")
+            mlxLm = probes.contains {
+                $0.name == "python3 ML stack" && $0.found
+                    && ($0.version?.contains("mlx-lm") ?? false)
+            }
+        }
+    }
+
     /// Ordered runner candidates for this report on this machine.
     /// `forced` (from `--runtime`) narrows to a single candidate; an
     /// unavailable forced runner yields an empty list and `blocker`
     /// explains it. Native needs no probe — the running binary is it.
     public static func plans(for report: ModelCheckReport,
                              forced: Runner? = nil) -> [RunnerPlan] {
-        let env = report.environment.runtimes
-        let hasOllama = installed(env, "ollama")
-        let hasLms = installed(env, "lms (LM Studio)")
-        let hasLlamaCpp = installed(env, "llama.cpp")
-        let hasMlxSwift = installed(env, "mlx-swift runner")
-        let hasMlxLm = env.contains {
-            $0.name == "python3 ML stack" && $0.found
-                && ($0.version?.contains("mlx-lm") ?? false)
-        }
+        let available = Availability(report.environment.runtimes)
         let fmts = Set(report.model.formats)
         // The checked path is the native runtime; only a green/amber
         // assessment justifies downloading GBs for a real load. Unknown
@@ -74,64 +85,74 @@ public enum RunnerPlanner {
         let checkedOK = report.checkedPath.status == .expectedToWork
             || report.checkedPath.status == .changesRequired
 
-        if let forced {
-            switch forced {
-            case .native:
-                guard fmts.contains("safetensors") else {
-                    return []   // gguf-load validates structure; it does not generate
-                }
-                return [RunnerPlan(runner: .native, why: "forced via --runtime")]
-            case .mlxSwift:
-                return hasMlxSwift ? [RunnerPlan(runner: .mlxSwift, why: "forced via --runtime")] : []
-            case .mlxLm:
-                return hasMlxLm ? [RunnerPlan(runner: .mlxLm, why: "forced via --runtime")] : []
-            case .ollama:
-                return hasOllama ? [RunnerPlan(runner: .ollama, why: "forced via --runtime")] : []
-            case .lms:
-                return hasLms ? [RunnerPlan(runner: .lms, why: "forced via --runtime")] : []
-            case .llamaCpp:
-                return hasLlamaCpp ? [RunnerPlan(runner: .llamaCpp, why: "forced via --runtime")] : []
-            }
-        }
+        if let forced { return forcedPlan(forced, formats: fmts, checkedOK: checkedOK,
+                                          available: available) }
 
+        return safetensorPlans(formats: fmts, checkedOK: checkedOK, available: available)
+            + ggufPlans(formats: fmts, available: available)
+    }
+
+    private static func forcedPlan(
+        _ runner: Runner, formats: Set<String>, checkedOK: Bool,
+        available: Availability
+    ) -> [RunnerPlan] {
+        let usable: Bool
+        switch runner {
+        case .native: usable = formats.contains("safetensors") && checkedOK
+        case .mlxSwift: usable = available.mlxSwift
+        case .mlxLm: usable = available.mlxLm
+        case .ollama: usable = available.ollama
+        case .lms: usable = available.lms
+        case .llamaCpp: usable = available.llamaCpp
+        }
+        return usable ? [RunnerPlan(runner: runner, why: "forced via --runtime")] : []
+    }
+
+    private static func safetensorPlans(
+        formats: Set<String>, checkedOK: Bool, available: Availability
+    ) -> [RunnerPlan] {
+        guard formats.contains("safetensors") else { return [] }
         var plans: [RunnerPlan] = []
-        if fmts.contains("safetensors") && checkedOK {
+        if checkedOK {
             plans.append(RunnerPlan(runner: .native,
                 why: "checked path says compatible — verify with a real hf-load"))
-        }
-        if fmts.contains("gguf") {
-            if hasOllama {
-                plans.append(RunnerPlan(runner: .ollama,
-                    why: "GGUF repo + Ollama installed — `ollama run hf.co/` pulls and runs in one step"))
-            }
-            // Not `else if`: a detected runtime can still be broken
-            // (e.g. ollama refusing HF's Xet-CDN redirects), so lms
-            // stays a live fallback whenever it's installed.
-            if hasLms {
-                plans.append(RunnerPlan(runner: .lms,
-                    why: hasOllama
-                        ? "LM Studio installed — the GGUF fallback if ollama can't pull this repo"
-                        : "GGUF repo + LM Studio installed (Ollama absent) — `lms get` then `lms chat`"))
-            }
-            if hasLlamaCpp {
-                plans.append(RunnerPlan(runner: .llamaCpp,
-                    why: "llama.cpp installed — `llama-cli -hf` pulls and generates directly"))
-            }
         }
         // MLX-Swift-LM beats the python mlx-lm install as the wide-table
         // alternative: it's our own compiled sibling, no env to break —
         // a partial python env probes fine then dies mid-import.
-        if fmts.contains("safetensors") && hasMlxSwift {
+        if available.mlxSwift {
             plans.append(RunnerPlan(runner: .mlxSwift,
                 why: checkedOK
                     ? "posttrainllm-mlxrun — Apple's MLX-Swift-LM impls, the cross-check runner"
                     : "checked path can't run this arch — MLX-Swift-LM's table is wider (MoE, VLM)"))
         }
-        if fmts.contains("safetensors") && hasMlxLm {
+        if available.mlxLm {
             plans.append(RunnerPlan(runner: .mlxLm,
                 why: checkedOK
                     ? "mlx-lm is the cross-check — widest arch table, auto-downloads to the HF cache"
                     : "checked path can't run this arch, but mlx-lm's table is wider — the installed alternative"))
+        }
+        return plans
+    }
+
+    private static func ggufPlans(
+        formats: Set<String>, available: Availability
+    ) -> [RunnerPlan] {
+        guard formats.contains("gguf") else { return [] }
+        var plans: [RunnerPlan] = []
+        if available.ollama {
+            plans.append(RunnerPlan(runner: .ollama,
+                why: "GGUF repo + Ollama installed — `ollama run hf.co/` pulls and runs in one step"))
+        }
+        if available.lms {
+            plans.append(RunnerPlan(runner: .lms,
+                why: available.ollama
+                    ? "LM Studio installed — the GGUF fallback if ollama can't pull this repo"
+                    : "GGUF repo + LM Studio installed (Ollama absent) — `lms get` then `lms chat`"))
+        }
+        if available.llamaCpp {
+            plans.append(RunnerPlan(runner: .llamaCpp,
+                why: "llama.cpp installed — `llama-cli -hf` pulls and generates directly"))
         }
         return plans
     }

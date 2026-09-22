@@ -184,6 +184,11 @@ final class RunnerPlanTests: XCTestCase {
             .contains("safetensors"))
     }
 
+    func testForcedNativeStillRequiresClearedCheckedPath() {
+        let r = report(formats: ["safetensors"], checkedStatus: .unknown)
+        XCTAssertTrue(runners(r, forced: .native).isEmpty)
+    }
+
     // MARK: - ollama quant tag
 
     func testQuantTagFromSelectedVariant() {

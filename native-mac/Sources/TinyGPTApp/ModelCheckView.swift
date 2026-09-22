@@ -129,7 +129,14 @@ struct ModelCheckView: View {
 
     @ViewBuilder
     private func reportSections(_ r: ModelCheckReport) -> some View {
-        // Verdict banner
+        verdictBanner(r)
+        modelEnvironmentSections(r)
+        pathsAndChangesSections(r)
+        evidenceSection(r)
+        nextActionSection(r)
+    }
+
+    private func verdictBanner(_ r: ModelCheckReport) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 10) {
                 Text(r.verdict.displayName.uppercased())
@@ -153,8 +160,10 @@ struct ModelCheckView: View {
         .background(Theme.panel)
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(verdictColor(r.verdict).opacity(0.4)))
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
 
-        // Model + environment
+    @ViewBuilder
+    private func modelEnvironmentSections(_ r: ModelCheckReport) -> some View {
         section("MODEL") {
             kvRow("task", r.model.task ?? "unknown")
             kvRow("library", r.model.library ?? "unknown")
@@ -178,7 +187,10 @@ struct ModelCheckView: View {
             kvRow("checked path", r.checkedPath.name)
             labeledText(r.checkedPath.detail)
         }
+    }
 
+    @ViewBuilder
+    private func pathsAndChangesSections(_ r: ModelCheckReport) -> some View {
         if !r.otherPaths.isEmpty {
             section("OTHER MAC EXECUTION PATHS") {
                 ForEach(Array(r.otherPaths.enumerated()), id: \.offset) { _, p in
@@ -226,7 +238,10 @@ struct ModelCheckView: View {
                 }
             }
         }
+    }
 
+    @ViewBuilder
+    private func evidenceSection(_ r: ModelCheckReport) -> some View {
         if !r.limitations.isEmpty {
             section("LIMITATIONS") {
                 ForEach(r.limitations, id: \.self) { l in
@@ -254,8 +269,9 @@ struct ModelCheckView: View {
             }
             kvRow("checked at", r.checkedAt)
         }
+    }
 
-        // Next action + copy buttons
+    private func nextActionSection(_ r: ModelCheckReport) -> some View {
         section("NEXT ACTION") {
             ForEach(r.nextActions, id: \.self) { a in
                 Text("• \(a)")
