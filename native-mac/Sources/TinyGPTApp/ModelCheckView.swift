@@ -103,17 +103,7 @@ struct ModelCheckView: View {
     }
 
     private func errorSection(_ err: String) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(Theme.warn)
-            Text(err)
-                .font(.system(size: 11, design: .monospaced))
-                .foregroundStyle(Theme.fg)
-                .fixedSize(horizontal: false, vertical: true)
-            Spacer()
-        }
-        .padding(12)
-        .background(Theme.warn.opacity(0.10))
-        .overlay(Rectangle().fill(Theme.warn).frame(width: 2), alignment: .leading)
+        WarningBanner(message: err)
     }
 
     // MARK: - report
