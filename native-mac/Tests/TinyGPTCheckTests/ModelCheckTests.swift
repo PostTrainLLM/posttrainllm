@@ -251,6 +251,20 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertTrue(a.otherPaths.contains { $0.name.contains("Ollama") && $0.status == .expectedToWork })
     }
 
+    func testGGUFBlobURLKeepsRequestedVariant() {
+        let info = hubInfo(
+            id: "bartowski/Qwen3-4B-GGUF",
+            siblings: [
+                .init(name: "Qwen3-4B-Q4_K_M.gguf", size: 2_500_000_000),
+                .init(name: "Qwen3-4B-Q8_0.gguf", size: 4_200_000_000),
+            ])
+        let input = rulesInput(
+            "https://huggingface.co/bartowski/Qwen3-4B-GGUF/blob/main/Qwen3-4B-Q8_0.gguf",
+            info: info)
+        let assessment = CompatibilityRules.assess(input)
+        XCTAssertEqual(assessment.selectedVariant, "Qwen3-4B-Q8_0.gguf")
+    }
+
     // MARK: - tensor layout + legacy schema
 
     private func llamaTensorNames() -> [String] {
@@ -340,12 +354,76 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertNoThrow(try HuggingFaceConfig.fromDict(normalized))
     }
 
+    func testConfigRejectsNonPositiveDimensions() {
+        var raw: [String: Any] = [
+            "vocab_size": 32, "hidden_size": 16,
+            "intermediate_size": 64, "num_hidden_layers": 2,
+            "num_attention_heads": 0, "num_key_value_heads": 1,
+            "max_position_embeddings": 128,
+        ]
+        XCTAssertThrowsError(try HuggingFaceConfig.fromDict(raw)) { error in
+            XCTAssertTrue(String(describing: error).contains("num_attention_heads"))
+        }
+        raw["num_attention_heads"] = 2
+        raw["head_dim"] = 0
+        XCTAssertThrowsError(try HuggingFaceConfig.fromDict(raw)) { error in
+            XCTAssertTrue(String(describing: error).contains("head_dim"))
+        }
+    }
+
     func testTokenizerMissingFlagged() {
         let (info0, cfg) = lmInfo()
         var info = info0
         info.siblings = info.siblings.filter { !$0.name.contains("tokenizer") }
         let a = assess(info, config: cfg)
+        XCTAssertEqual(a.verdict, .changesRequired)
+        XCTAssertEqual(a.checkedPath.status, .changesRequired)
         XCTAssertTrue(a.requiredChanges.contains { $0.detail.contains("tokenizer") })
+    }
+
+    func testTokenizerConfigWithoutTokenizerJSONStillBlocksNative() {
+        let (base, cfg) = lmInfo()
+        var info = base
+        info.siblings = info.siblings.filter { !$0.name.contains("tokenizer") }
+        info.siblings.append(.init(name: "tokenizer_config.json", size: 500))
+        let assessment = assess(info, config: cfg)
+        XCTAssertEqual(assessment.checkedPath.status, .changesRequired)
+        XCTAssertTrue(assessment.checkedPath.detail.contains("tokenizer.json"))
+    }
+
+    func testPackedQuantFootprintUsesDenseParameterSize() {
+        let (info, cfg) = lmInfo(weightBytes: 4_000_000_000)
+        var input = CompatibilityRules.Input(ref: ref(info.id), env: env(ramGB: 16))
+        input.info = info
+        input.config = cfg
+        input.tensorLayout = TensorLayout.assess(
+            names: ["model.layers.0.self_attn.q_proj.qweight"])
+        input.exactWeightBytes = 4_000_000_000
+        input.exactParams = 7_000_000_000
+        let assessment = CompatibilityRules.assess(input)
+        XCTAssertEqual(assessment.verdict, .changesRequired)
+        XCTAssertTrue(assessment.verdictSummary.contains("too large"))
+        XCTAssertTrue(assessment.evidence.contains {
+            $0.detail.contains("dequantized to dense fp32")
+        })
+    }
+
+    func testHubStatsOverflowStaysUnknown() {
+        var info = HubModelClient.Info(id: "x/y")
+        info.safetensorsParams = ["F64": Int64.max]
+        XCTAssertNil(CompatibilityRules.weightEstimate(info: info))
+        info.siblings = [
+            .init(name: "a.safetensors", size: Int64.max),
+            .init(name: "b.safetensors", size: 1),
+        ]
+        XCTAssertEqual(info.sizeOf(".safetensors"), Int64.max)
+    }
+
+    func testLegacyNormalizationDoesNotOverflow() {
+        let normalized = ModelCheckService.normalizeLegacyKeys([
+            "hidden_size": Int.max,
+        ])
+        XCTAssertNil(normalized["intermediate_size"])
     }
 
     // MARK: - adapters / remote code / gated / GGUF meta
@@ -438,15 +516,15 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertEqual(totals.bytes, 24)
     }
 
-    func testGGUFKQuantUnsupportedHonest() {
+    func testGGUFKQuantSupportedByNativeLoader() {
         let info = hubInfo(
             id: "x/gguf", siblings: [.init(name: "m-Q4_K_M.gguf", size: 2_000_000_000)])
         let kv: [String: Any] = ["general.architecture": "llama", "general.file_type": UInt32(15)]
         let meta = GGUFHeader.Meta(version: 3, tensorCount: 300, kv: kv)
         let a = CompatibilityRules.assess(rulesInput(
             "x/gguf", info: info, ggufMeta: meta))
-        XCTAssertEqual(a.verdict, .unsupportedOnCheckedPath)   // K-quant not dequantized by our loader
-        XCTAssertTrue(a.checkedPath.detail.contains("K-quant"))
+        XCTAssertEqual(a.verdict, .changesRequired)
+        XCTAssertTrue(a.checkedPath.detail.contains("supported quant"))
     }
 
     func testGGUFLlamaQ80Loadable() {

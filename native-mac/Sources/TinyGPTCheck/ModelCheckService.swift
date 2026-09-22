@@ -132,7 +132,10 @@ public enum ModelCheckService {
         guard let info, adapter == nil else { return nil }
         let files = info.siblings(matchingSuffix: ".gguf")
         let preferred = ["q4_k_m", "q5_k_m", "q4_0", "q8_0", "f16"]
-        let variant = preferred.compactMap { tag in
+        let requested = ref.filePath.flatMap { path in
+            files.first { $0.name == path }
+        }
+        let variant = requested ?? preferred.compactMap { tag in
             files.first { $0.name.lowercased().contains(tag) }
         }.first ?? files.max(by: { ($0.size ?? 0) < ($1.size ?? 0) })
         guard let variant else { return nil }
@@ -212,7 +215,10 @@ public enum ModelCheckService {
         if out["intermediate_size"] == nil {
             let hidden = (out["hidden_size"] as? Int)
                 ?? (out["n_embd"] as? Int) ?? (out["d_model"] as? Int)
-            if let hidden { out["intermediate_size"] = hidden * 4 }
+            if let hidden {
+                let scaled = hidden.multipliedReportingOverflow(by: 4)
+                if !scaled.overflow { out["intermediate_size"] = scaled.partialValue }
+            }
         }
         return out
     }
@@ -311,7 +317,7 @@ public enum ModelCheckService {
             checkedAt: ISO8601DateFormatter().string(from: Date()),
             input: input,
             model: ModelCheckReport.ModelSection(
-                id: ref.id, revision: ref.revision,
+                id: ref.id, revision: ref.revision, filePath: ref.filePath,
                 task: assessment.task, library: assessment.library,
                 architectures: assessment.architectures, formats: assessment.formats,
                 selectedVariant: assessment.selectedVariant,

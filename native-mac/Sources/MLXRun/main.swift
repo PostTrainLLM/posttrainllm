@@ -10,6 +10,7 @@ var id: String? = nil
 var prompt = "Say hello in one sentence."
 var maxTokens = 32
 var chat = false
+var revision = "main"
 var i = 1
 let argv = CommandLine.arguments
 while i < argv.count {
@@ -27,6 +28,11 @@ while i < argv.count {
         }
         maxTokens = n; i += 2
     case "--chat":       chat = true; i += 1
+    case "--revision":
+        guard i + 1 < argv.count, !argv[i + 1].isEmpty else {
+            fputs("mlxrun: --revision needs a value\n", stderr); exit(2)
+        }
+        revision = argv[i + 1]; i += 2
     default:
         if argv[i].hasPrefix("-") {
             fputs("mlxrun: unknown flag \(argv[i])\n", stderr); exit(2)
@@ -41,9 +47,10 @@ guard let id else { fputs("mlxrun: missing <model-id>\n", stderr); exit(2) }
 
 do {
     if chat {
-        try MLXRunner.chat(id: id)
+        try MLXRunner.chat(id: id, revision: revision)
     } else {
-        print(try MLXRunner.sample(id: id, prompt: prompt, maxTokens: maxTokens))
+        print(try MLXRunner.sample(
+            id: id, revision: revision, prompt: prompt, maxTokens: maxTokens))
     }
 } catch {
     fputs("mlxrun failed: \(error)\n", stderr)

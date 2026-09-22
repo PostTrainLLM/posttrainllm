@@ -25,8 +25,8 @@ private final class LockedRunResult: @unchecked Sendable {
 /// doesn't (MoE, VLM, wider quant table) without shelling to a python
 /// install that may or may not be healthy.
 ///
-/// The CLI is synchronous; `loadModel`/`ChatSession.respond` are async —
-/// we park the calling thread on a semaphore and report through a box.
+/// The CLI is synchronous; `loadModel`/`ChatSession.respond` are async.
+/// A locked result box bridges them while the main run loop remains live.
 public enum MLXRunner {
 
     public enum RunError: Error, LocalizedError {
@@ -36,7 +36,8 @@ public enum MLXRunner {
 
     /// Load `id` (auto-downloads to the HF cache; honors HF_TOKEN) and
     /// generate a bounded response. Returns the generated text.
-    public static func sample(id: String, prompt: String, maxTokens: Int,
+    public static func sample(id: String, revision: String = "main",
+                              prompt: String, maxTokens: Int,
                               timeout: TimeInterval = 1800) throws -> String {
         let result = LockedRunResult()
         Task.detached {
@@ -45,7 +46,7 @@ public enum MLXRunner {
                 let model = try await loadModel(
                     from: HubDownloader(),
                     using: HuggingFaceTokenizerLoader(),
-                    id: id) { progress in
+                    id: id, revision: revision) { progress in
                         fputs("\r    downloading: \(Int(progress.fractionCompleted * 100))%", stderr)
                     }
                 fputs("\n", stderr)
@@ -67,14 +68,14 @@ public enum MLXRunner {
     }
 
     /// Interactive chat loop — blocks on stdin until an empty line.
-    public static func chat(id: String) throws {
+    public static func chat(id: String, revision: String = "main") throws {
         let result = LockedRunResult()
         Task.detached {
             do {
                 let model = try await loadModel(
                     from: HubDownloader(),
                     using: HuggingFaceTokenizerLoader(),
-                    id: id)
+                    id: id, revision: revision)
                 let session = ChatSession(model)
                 print("(mlx-swift chat — empty line to exit)")
                 while let line = readLine(strippingNewline: true), !line.isEmpty {

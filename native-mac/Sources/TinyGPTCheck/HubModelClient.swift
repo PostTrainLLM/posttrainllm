@@ -1,5 +1,4 @@
 import Foundation
-import TinyGPTData
 import TinyGPTIO
 
 /// Read-only Hugging Face **model** Hub client for model-check.
@@ -12,8 +11,8 @@ import TinyGPTIO
 ///      (and callers may ask for other small JSON) capped at 512 KB.
 ///
 /// Weight files are NEVER fetched — the boundary is metadata only.
-/// Auth: `HF_TOKEN` env, forwarded by `HFDatasets.httpGet` as a Bearer
-/// token; the token is never copied into reports or prompts.
+/// Auth: `HF_TOKEN` is forwarded as a Bearer token; the token is never
+/// copied into reports or prompts.
 public enum HubModelClient {
 
     public enum HubError: Error, CustomStringConvertible {
@@ -87,7 +86,13 @@ public enum HubModelClient {
         }
         /// Sum of sibling sizes for files with the given suffix.
         public func sizeOf(_ suffix: String) -> Int64 {
-            siblings(matchingSuffix: suffix).compactMap(\.size).reduce(0, +)
+            var total: Int64 = 0
+            for size in siblings(matchingSuffix: suffix).compactMap(\.size) where size >= 0 {
+                let next = total.addingReportingOverflow(size)
+                if next.overflow { return Int64.max }
+                total = next.partialValue
+            }
+            return total
         }
     }
 
@@ -97,9 +102,17 @@ public enum HubModelClient {
         if revision != "main", let enc = revision.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
             url += "&revision=\(enc)"
         }
-        let (data, status): (Data, Int)
-        do { (data, status) = try HFDatasets.httpGet(url) }
-        catch { throw HubError.network("\(error)") }
+        guard let endpoint = URL(string: url) else {
+            throw HubError.malformed("invalid model-info request")
+        }
+        let result = fetch(
+            authorizedRequest(url: endpoint), maxBytes: 16 * 1024 * 1024)
+        if result.tooLarge {
+            throw HubError.malformed("model metadata exceeds the 16 MB API cap")
+        }
+        if let error = result.error { throw HubError.network("\(error)") }
+        let data = result.data
+        let status = result.statusCode
 
         switch status {
         case 200: break
@@ -122,21 +135,15 @@ public enum HubModelClient {
               let url = resolveURL(id: id, revision: revision, path: path) else {
             throw HubError.malformed("invalid small-file request")
         }
-        let fetch = BoundedFetchDelegate(maxBody: maxBytes)
         var request = authorizedRequest(url: url)
         request.httpMethod = "GET"
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 30
-        let session = URLSession(configuration: config, delegate: fetch, delegateQueue: nil)
-        defer { session.finishTasksAndInvalidate() }
-        session.dataTask(with: request).resume()
-        fetch.semaphore.wait()
-        if fetch.tooLarge {
+        let result = fetch(request, maxBytes: maxBytes)
+        if result.tooLarge {
             throw HubError.malformed("\(path) exceeds the \(maxBytes)-byte small-file cap")
         }
-        if let error = fetch.error { throw HubError.network("\(error)") }
-        let data = fetch.data
-        let status = fetch.statusCode
+        if let error = result.error { throw HubError.network("\(error)") }
+        let data = result.data
+        let status = result.statusCode
         switch status {
         case 200:
             return data
@@ -230,16 +237,10 @@ public enum HubModelClient {
         guard let url = resolveURL(id: id, revision: revision, path: path) else { return nil }
         var req = authorizedRequest(url: url)
         req.setValue(range, forHTTPHeaderField: "Range")
-        let delegate = RangeFetchDelegate(maxBody: maxBody)
-        let cfg = URLSessionConfiguration.default
-        cfg.timeoutIntervalForRequest = 30
-        let session = URLSession(configuration: cfg, delegate: delegate, delegateQueue: nil)
-        defer { session.finishTasksAndInvalidate() }
-        session.dataTask(with: req).resume()
-        delegate.semaphore.wait()
-        if delegate.refusedFullBody || delegate.statusCode != 206 { return nil }
-        if let err = delegate.error { throw HubError.network("\(err)") }
-        return delegate.data
+        let result = fetch(req, maxBytes: maxBody, acceptedStatuses: [206])
+        if result.refusedStatus || result.statusCode != 206 { return nil }
+        if let error = result.error { throw HubError.network("\(error)") }
+        return result.data
     }
 
     private static func resolveURL(id: String, revision: String, path: String) -> URL? {
@@ -272,55 +273,50 @@ public enum HubModelClient {
         return GGUFHeader.parse(data)
     }
 
-    /// Delegate for range fetches: refuses anything that isn't a 206
-    /// partial response at header time (a 200 means the server ignored
-    /// Range and is about to send the whole weight file — cancel before
-    /// body bytes arrive), and cancels if the body exceeds the expected
-    /// byte count anyway.
-    private final class RangeFetchDelegate: NSObject, URLSessionDataDelegate, @unchecked Sendable {
-        let semaphore = DispatchSemaphore(value: 0)
-        let maxBody: Int
-        var data = Data()
-        var statusCode = 0
-        var error: Error?
-        var refusedFullBody = false
-
-        init(maxBody: Int) { self.maxBody = maxBody }
-
-        func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
-                        didReceive response: URLResponse,
-                        completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
-            statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
-            if statusCode == 200 { refusedFullBody = true }
-            completionHandler(statusCode == 206 ? .allow : .cancel)
-        }
-
-        func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
-                        didReceive chunk: Data) {
-            data.append(chunk)
-            if data.count > maxBody { dataTask.cancel() }
-        }
-
-        func urlSession(_ session: URLSession, task: URLSessionTask,
-                        didCompleteWithError error: Error?) {
-            // Cancellation after refusal is expected, not an error.
-            if let error = error, !refusedFullBody { self.error = error }
-            semaphore.signal()
-        }
+    private struct FetchResult {
+        let data: Data
+        let statusCode: Int
+        let error: Error?
+        let tooLarge: Bool
+        let refusedStatus: Bool
     }
 
-    /// Receives a metadata response only while it remains under the cap.
-    /// A declared oversized body is refused before its first byte; chunked
-    /// responses are cancelled before an over-cap chunk is retained.
-    private final class BoundedFetchDelegate: NSObject, URLSessionDataDelegate, @unchecked Sendable {
+    private static func fetch(
+        _ request: URLRequest, maxBytes: Int,
+        acceptedStatuses: Set<Int>? = nil
+    ) -> FetchResult {
+        let delegate = CappedFetchDelegate(
+            maxBody: maxBytes, acceptedStatuses: acceptedStatuses)
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 30
+        let session = URLSession(
+            configuration: config, delegate: delegate, delegateQueue: nil)
+        session.dataTask(with: request).resume()
+        delegate.semaphore.wait()
+        session.finishTasksAndInvalidate()
+        return FetchResult(
+            data: delegate.data, statusCode: delegate.statusCode,
+            error: delegate.error, tooLarge: delegate.tooLarge,
+            refusedStatus: delegate.refusedStatus)
+    }
+
+    /// Receives a response only while it remains under the cap. Range
+    /// requests can additionally require 206, refusing a whole-file 200
+    /// before any weight bytes arrive.
+    private final class CappedFetchDelegate: NSObject, URLSessionDataDelegate, @unchecked Sendable {
         let semaphore = DispatchSemaphore(value: 0)
         let maxBody: Int
+        let acceptedStatuses: Set<Int>?
         var data = Data()
         var statusCode = 0
         var error: Error?
         var tooLarge = false
+        var refusedStatus = false
 
-        init(maxBody: Int) { self.maxBody = maxBody }
+        init(maxBody: Int, acceptedStatuses: Set<Int>?) {
+            self.maxBody = maxBody
+            self.acceptedStatuses = acceptedStatuses
+        }
 
         func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
                         didReceive response: URLResponse,
@@ -328,7 +324,8 @@ public enum HubModelClient {
             statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
             let size = response.expectedContentLength
             tooLarge = size > Int64(maxBody)
-            completionHandler(tooLarge ? .cancel : .allow)
+            refusedStatus = acceptedStatuses.map { !$0.contains(statusCode) } ?? false
+            completionHandler(tooLarge || refusedStatus ? .cancel : .allow)
         }
 
         func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
@@ -343,7 +340,7 @@ public enum HubModelClient {
 
         func urlSession(_ session: URLSession, task: URLSessionTask,
                         didCompleteWithError error: Error?) {
-            if let error, !tooLarge { self.error = error }
+            if let error, !tooLarge, !refusedStatus { self.error = error }
             semaphore.signal()
         }
     }
@@ -393,7 +390,9 @@ public enum HubModelClient {
             guard let name = sibling["rfilename"] as? String else { continue }
             info.siblings.append(Sibling(
                 name: name,
-                size: (sibling["size"] as? NSNumber)?.int64Value
+                size: (sibling["size"] as? NSNumber).flatMap {
+                    $0.int64Value >= 0 ? $0.int64Value : nil
+                }
             ))
         }
     }
@@ -402,7 +401,7 @@ public enum HubModelClient {
         guard let safetensors = object["safetensors"] as? [String: Any],
               let parameters = safetensors["parameters"] as? [String: Any] else { return }
         for (dtype, count) in parameters {
-            if let value = (count as? NSNumber)?.int64Value {
+            if let value = (count as? NSNumber)?.int64Value, value >= 0 {
                 info.safetensorsParams[dtype] = value
             }
         }

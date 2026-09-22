@@ -83,33 +83,42 @@ public enum RunnerPlanner {
         // fail silently (builds the wrong model), which is worse than a
         // clear refusal.
         let checkedOK = report.checkedPath.status == .expectedToWork
-            || report.checkedPath.status == .changesRequired
+        let isMainRevision = report.model.revision == "main"
 
-        if let forced { return forcedPlan(forced, formats: fmts, checkedOK: checkedOK,
-                                          available: available) }
+        if let forced {
+            return forcedPlan(
+                forced, formats: fmts, checkedOK: checkedOK,
+                isMainRevision: isMainRevision, available: available)
+        }
 
-        return safetensorPlans(formats: fmts, checkedOK: checkedOK, available: available)
-            + ggufPlans(formats: fmts, available: available)
+        return safetensorPlans(
+            formats: fmts, checkedOK: checkedOK,
+            isMainRevision: isMainRevision, available: available)
+            + ggufPlans(
+                formats: fmts, isMainRevision: isMainRevision,
+                availability: available)
     }
 
     private static func forcedPlan(
         _ runner: Runner, formats: Set<String>, checkedOK: Bool,
+        isMainRevision: Bool,
         available: Availability
     ) -> [RunnerPlan] {
         let usable: Bool
         switch runner {
         case .native: usable = formats.contains("safetensors") && checkedOK
         case .mlxSwift: usable = available.mlxSwift
-        case .mlxLm: usable = available.mlxLm
-        case .ollama: usable = available.ollama
+        case .mlxLm: usable = available.mlxLm && isMainRevision
+        case .ollama: usable = available.ollama && isMainRevision
         case .lms: usable = available.lms
-        case .llamaCpp: usable = available.llamaCpp
+        case .llamaCpp: usable = available.llamaCpp && isMainRevision
         }
         return usable ? [RunnerPlan(runner: runner, why: "forced via --runtime")] : []
     }
 
     private static func safetensorPlans(
-        formats: Set<String>, checkedOK: Bool, available: Availability
+        formats: Set<String>, checkedOK: Bool, isMainRevision: Bool,
+        available: Availability
     ) -> [RunnerPlan] {
         guard formats.contains("safetensors") else { return [] }
         var plans: [RunnerPlan] = []
@@ -126,7 +135,7 @@ public enum RunnerPlanner {
                     ? "posttrainllm-mlxrun — Apple's MLX-Swift-LM impls, the cross-check runner"
                     : "checked path can't run this arch — MLX-Swift-LM's table is wider (MoE, VLM)"))
         }
-        if available.mlxLm {
+        if available.mlxLm && isMainRevision {
             plans.append(RunnerPlan(runner: .mlxLm,
                 why: checkedOK
                     ? "mlx-lm is the cross-check — widest arch table, auto-downloads to the HF cache"
@@ -136,21 +145,21 @@ public enum RunnerPlanner {
     }
 
     private static func ggufPlans(
-        formats: Set<String>, available: Availability
+        formats: Set<String>, isMainRevision: Bool, availability: Availability
     ) -> [RunnerPlan] {
         guard formats.contains("gguf") else { return [] }
         var plans: [RunnerPlan] = []
-        if available.ollama {
+        if availability.ollama && isMainRevision {
             plans.append(RunnerPlan(runner: .ollama,
                 why: "GGUF repo + Ollama installed — `ollama run hf.co/` pulls and runs in one step"))
         }
-        if available.lms {
+        if availability.lms {
             plans.append(RunnerPlan(runner: .lms,
-                why: available.ollama
+                why: availability.ollama && isMainRevision
                     ? "LM Studio installed — the GGUF fallback if ollama can't pull this repo"
                     : "GGUF repo + LM Studio installed (Ollama absent) — `lms get` then `lms chat`"))
         }
-        if available.llamaCpp {
+        if availability.llamaCpp && isMainRevision {
             plans.append(RunnerPlan(runner: .llamaCpp,
                 why: "llama.cpp installed — `llama-cli -hf` pulls and generates directly"))
         }
@@ -163,6 +172,10 @@ public enum RunnerPlanner {
     public static func blocker(for report: ModelCheckReport,
                                forced: Runner? = nil) -> String {
         if let forced {
+            if report.model.revision != "main",
+               [.mlxLm, .ollama, .llamaCpp].contains(forced) {
+                return "forced --runtime \(forced.rawValue) cannot guarantee revision \(report.model.revision); use native, mlx-swift, or LM Studio's exact artifact import"
+            }
             switch forced {
             case .native:
                 if !report.model.formats.contains("safetensors") {

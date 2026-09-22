@@ -79,7 +79,9 @@ public enum ModelRunner {
             case .native:
                 ok = runNative(report: report, options: options)
             case .mlxSwift:
-                ok = runMlxSwift(id: report.model.id, options: options)
+                ok = runMlxSwift(
+                    id: report.model.id, revision: report.model.revision,
+                    options: options)
             case .mlxLm:
                 ok = runMlxLm(id: report.model.id, options: options)
             case .ollama:
@@ -110,7 +112,7 @@ public enum ModelRunner {
                                   options: Options) -> Bool {
         let id = report.model.id
         do {
-            let dir = try cacheDir(for: id)
+            let dir = try cacheDir(for: id, revision: report.model.revision)
             try downloadLoadSet(report: report, into: dir)
             let selfPath = CommandLine.arguments[0]
             if options.chat {
@@ -165,12 +167,14 @@ public enum ModelRunner {
         }
     }
 
-    private static func cacheDir(for id: String) throws -> URL {
+    private static func cacheDir(for id: String, revision: String = "main") throws -> URL {
         let home = ProcessInfo.processInfo.environment["HOME"]
             .map { URL(fileURLWithPath: $0) }
             ?? FileManager.default.homeDirectoryForCurrentUser
+        let revisionKey = Data(revision.utf8).base64EncodedString()
+            .replacingOccurrences(of: "/", with: "_")
         let dir = home.appendingPathComponent(".cache/posttrainllm/models")
-            .appendingPathComponent(id)
+            .appendingPathComponent(id).appendingPathComponent(revisionKey)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
     }
@@ -249,7 +253,8 @@ public enum ModelRunner {
     /// — the fallback for runtimes whose own Hub pull fails.
     private static func downloadGGUFVariant(report: ModelCheckReport,
                                             variant: String) throws -> URL {
-        let dir = try cacheDir(for: report.model.id)
+        let dir = try cacheDir(
+            for: report.model.id, revision: report.model.revision)
         let dest = dir.appendingPathComponent(variant)
         if !FileManager.default.fileExists(atPath: dest.path) {
             let url = "https://huggingface.co/\(report.model.id)/resolve/\(report.model.revision)/\(variant)"
@@ -301,16 +306,19 @@ public enum ModelRunner {
     /// Apple's maintained HF model impls (LLM + VLM + embedders) running
     /// in their own process, so a load failure is a captured result, not
     /// a crash here. Honors HF_TOKEN via the HubClient env auto-detect.
-    private static func runMlxSwift(id: String, options: Options) -> Bool {
+    private static func runMlxSwift(
+        id: String, revision: String, options: Options
+    ) -> Bool {
         guard let bin = mlxrunBinary() else {
             fputs("  posttrainllm-mlxrun not built — run `swift build --product posttrainllm-mlxrun`\n", stderr)
             return false
         }
         if options.chat {
-            return Subprocess.attached([bin, id, "--chat"]) == 0
+            return Subprocess.attached(
+                [bin, id, "--revision", revision, "--chat"]) == 0
         }
         let r = Subprocess.capture(
-            [bin, id, "--prompt", options.prompt,
+            [bin, id, "--revision", revision, "--prompt", options.prompt,
              "--max-tokens", String(options.maxTokens)],
             timeout: 1800)
         return printOutcome(runner: "mlx-swift", result: r)
@@ -488,7 +496,10 @@ public enum ModelRunner {
             let base = "hf.co/\(report.model.id)"
             return "ollama run \(ggufQuantTag(report: report).map { "\(base):\($0)" } ?? base)"
         case .mlxSwift:
-            return "\(CommandLine.arguments[0]) model-run \(report.model.id) --runtime mlx-swift --chat"
+            let target = report.model.revision == "main"
+                ? report.model.id
+                : "https://huggingface.co/\(report.model.id)/tree/\(report.model.revision)"
+            return "\(CommandLine.arguments[0]) model-run \(target) --runtime mlx-swift --chat"
         case .mlxLm:
             return "python3 -m mlx_lm chat --model \(report.model.id)"
         case .lms:
@@ -497,7 +508,9 @@ public enum ModelRunner {
             let base = report.model.id
             return "llama-cli -hf \(ggufQuantTag(report: report).map { "\(base):\($0)" } ?? base)"
         case .native:
-            let dir = "~/.cache/posttrainllm/models/\(report.model.id)"
+            let revisionKey = Data(report.model.revision.utf8).base64EncodedString()
+                .replacingOccurrences(of: "/", with: "_")
+            let dir = "~/.cache/posttrainllm/models/\(report.model.id)/\(revisionKey)"
             return "\(CommandLine.arguments[0]) serve \(dir)  # OpenAI-compatible endpoint"
         }
     }

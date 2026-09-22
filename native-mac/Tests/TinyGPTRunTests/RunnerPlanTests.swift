@@ -21,6 +21,7 @@ final class RunnerPlanTests: XCTestCase {
                         mlxLm: Bool = false,
                         llamaCpp: Bool = false,
                         gated: Bool = false,
+                        revision: String = "main",
                         variant: String? = nil) -> ModelCheckReport {
         var runtimes: [ModelCheckReport.RuntimeProbe] = [
             .init(name: "ollama", found: ollama, version: ollama ? "0.34.2" : nil,
@@ -39,7 +40,7 @@ final class RunnerPlanTests: XCTestCase {
         return ModelCheckReport(
             schemaVersion: 1, checkedAt: "2026-09-22T00:00:00Z",
             input: "x/y",
-            model: .init(id: "x/y", revision: "main", task: "text-generation",
+            model: .init(id: "x/y", revision: revision, task: "text-generation",
                          library: "transformers",
                          architectures: ["LlamaForCausalLM"], formats: formats,
                          selectedVariant: variant, gated: gated,
@@ -103,6 +104,15 @@ final class RunnerPlanTests: XCTestCase {
                        mlxLm: true)
         XCTAssertFalse(runners(r).contains(.native))
         XCTAssertEqual(runners(r), [.mlxLm])
+    }
+
+    func testChangesRequiredStaysOffNative() {
+        let report = report(
+            formats: ["safetensors"], checkedStatus: .changesRequired,
+            checkedDetail: "insufficient memory", mlxSwift: true)
+        XCTAssertFalse(runners(report).contains(.native))
+        XCTAssertEqual(runners(report), [.mlxSwift])
+        XCTAssertTrue(runners(report, forced: .native).isEmpty)
     }
 
     func testSafetensorsUnsupportedNothingInstalled() {
@@ -175,6 +185,23 @@ final class RunnerPlanTests: XCTestCase {
         XCTAssertTrue(runners(r, forced: .ollama).isEmpty)
         XCTAssertTrue(RunnerPlanner.blocker(for: r, forced: .ollama)
             .contains("ollama"))
+    }
+
+    func testExactRevisionUsesRevisionAwareRunnersOnly() {
+        let r = report(
+            formats: ["safetensors"], ollama: true, mlxSwift: true,
+            mlxLm: true, llamaCpp: true, revision: "abc123")
+        XCTAssertEqual(runners(r), [.native, .mlxSwift])
+        XCTAssertTrue(runners(r, forced: .mlxLm).isEmpty)
+        XCTAssertTrue(RunnerPlanner.blocker(for: r, forced: .mlxLm)
+            .contains("cannot guarantee revision abc123"))
+    }
+
+    func testExactRevisionGGUFStillAllowsLocalLmsImport() {
+        let r = report(
+            formats: ["gguf"], ollama: true, lms: true, llamaCpp: true,
+            revision: "abc123", variant: "model-Q4_K_M.gguf")
+        XCTAssertEqual(runners(r), [.lms])
     }
 
     func testForcedNativeOnGGUFRefused() {
