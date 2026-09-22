@@ -71,12 +71,12 @@ K-quants report honestly as needing llama.cpp/Ollama).
 
 ## Verdict vocabulary
 
-| Verdict | Meaning |
-| --- | --- |
-| `expected_to_work` | verified architecture, no config blockers, estimated footprint fits |
-| `changes_required` | reachable, but needs a change (memory, conversion, install, download) |
+| Verdict                       | Meaning                                                                                                                                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `expected_to_work`            | verified architecture, no config blockers, estimated footprint fits                                                                                                                                           |
+| `changes_required`            | reachable, but needs a change (memory, conversion, install, download)                                                                                                                                         |
 | `unsupported_on_checked_path` | the posttrainllm MLX-Swift path can't run it — task mismatch (e.g. diffusers), MoE/multimodal/`*ForCausalLM` outside the verified set, or a config-level blocker from `HuggingFaceConfig.unsupportedReason()` |
-| `unknown` | repo inaccessible, unrecognized format, or unverifiable — always with the missing evidence named and a copy-ready agent prompt |
+| `unknown`                     | repo inaccessible, unrecognized format, or unverifiable — always with the missing evidence named and a copy-ready agent prompt                                                                                |
 
 Two honesty rules are load-bearing:
 
@@ -95,13 +95,13 @@ The top-level verdict remains the compact compatibility summary. Schema v2
 adds the operation-specific contract that prevents "downloadable" from being
 mistaken for "runnable" or "tunable":
 
-| Operation | What it answers |
-| --- | --- |
-| `inspect` | Could the checker read enough repository metadata/config to assess it? |
-| `download` | Can this exact revision be fetched now, including the gated-access boundary? |
-| `load` | Does the checked architecture/format/runtime path have a loadable route? |
-| `inference` | Is bounded generation predicted or measured on this device? |
-| `lora_sft` | Is the repository a structurally eligible standalone base for the native adapter path? |
+| Operation     | What it answers                                                                                    |
+| ------------- | -------------------------------------------------------------------------------------------------- |
+| `inspect`     | Could the checker read enough repository metadata/config to assess it?                             |
+| `download`    | Can this exact revision be fetched now, including the gated-access boundary?                       |
+| `load`        | Does the checked architecture/format/runtime path have a loadable route?                           |
+| `inference`   | Is bounded generation predicted or measured on this device?                                        |
+| `lora_sft`    | Is the repository a structurally eligible standalone base for the native adapter path?             |
 | `agentic_use` | Has tool/template/parser behavior actually been exercised? A plain text smoke never verifies this. |
 
 Each operation is one of `supported` (static prediction), `blocked` (a known
@@ -186,7 +186,7 @@ whether it **applies** to this model (format × task × layout) and its
 - The verified-architecture list (`CompatibilityRules.verifiedArchitectures`)
   is intentionally narrow: `HFConfigConverter` always builds a
   RoPE+RMSNorm+SwiGLU model, so an unlisted `*ForCausalLM` would load
-  into the *wrong* architecture silently — `unknown` is the correct
+  into the _wrong_ architecture silently — `unknown` is the correct
   answer there, with an agent-prompt handoff.
 
 Tests: `native-mac/Tests/TinyGPTCheckTests/` — pure fixtures, no network.
