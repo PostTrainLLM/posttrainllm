@@ -145,8 +145,10 @@ the real error surfaced. `--chat` drops into an interactive session;
 Every bounded `model-run` terminal outcome writes an atomic local receipt under
 `~/.cache/posttrainllm/model-check-receipts/` (override the directory with
 `POSTTRAINLLM_MODEL_RECEIPTS_DIR` for fixtures or isolated tooling). The receipt
-contains the exact model revision and current device fingerprint, runtime and
-version when known, timestamp, bounded sample statistics, attempted paths, and
+contains the immutable Hub commit resolved from the requested revision (or
+the literal revision when no commit was available), current device
+fingerprint, runtime and version when known, timestamp, bounded sample
+statistics, attempted paths, and
 bounded/sanitized stderr for failures. It does **not** store prompts, model
 output, credentials, or weight contents. MLX-Swift receipts include the exact
 prompt/generated token counts emitted by the runtime; runners that do not
@@ -154,7 +156,9 @@ expose token counts retain elapsed time and output-character count without
 inventing tokens.
 
 A later `model-check` reads—but never creates or mutates—a receipt only when
-model ID, revision, and device fingerprint all match. A successful plain-text
+model ID, resolved commit, and device fingerprint all match. This prevents
+an old receipt for mutable `main` from being reused after the repository moves.
+A successful plain-text
 smoke upgrades download/load/inference; it deliberately does not upgrade
 LoRA/SFT or agentic use. Receipts for another revision, another Mac, or a
 manually described environment are ignored.
