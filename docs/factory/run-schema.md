@@ -367,10 +367,16 @@ Required fields:
   "base_model": "Qwen/Qwen3-4B-Instruct-2507",
   "format": "tgla",
   "package_dir": "specialists/pace-planner-sft-v1",
+  "lifecycle_manifest": "pace-planner-sft-v1.lora.artifact-manifest.json",
   "shipped": false,
   "routing_constraint": null
 }
 ```
+
+`lifecycle_manifest` names the sidecar adjacent to `path`. New factory-produced
+artifacts require it; historical artifacts may omit it and remain legacy with
+an explicit warning. The sidecar contract and migration boundary are documented
+in [`artifact-lifecycle.md`](artifact-lifecycle.md).
 
 `routing_constraint` is optional. Set it to the named route or task envelope the
 artifact is safe inside. A shipped candidate whose regression or breadth gate

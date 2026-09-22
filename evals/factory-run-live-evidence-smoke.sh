@@ -18,7 +18,7 @@ struct Smoke {
                 runId: "live-evidence-smoke",
                 target: "fixture",
                 ownerGoal: "Exercise command evidence without loading a model.",
-                baseModel: .init(id: "fixture-base"),
+                baseModel: .init(id: "fixture-base", revision: "fixture-revision"),
                 candidate: .init(method: "sft-lora"),
                 eval: .init(primary: "fixture-gate")
             ),
@@ -38,10 +38,26 @@ struct Smoke {
             source: "smoke", command: "prepare"
         )
         status = try FactoryRunEvidence.beginTraining(directory: run)
+        let artifactURL = run.appendingPathComponent("fixture.lora")
+        try Data([0x54, 0x47, 0x4c, 0x41]).write(to: artifactURL)
+        let manifest = ArtifactLifecycleManifest(
+            artifact: .init(id: "fixture-adapter"),
+            kind: .adapter,
+            artifactPath: artifactURL.lastPathComponent,
+            base: .init(id: "fixture-base", revision: "fixture-revision"),
+            tokenizer: .init(id: "fixture-base", revision: "fixture-revision"),
+            lifecycle: .init(
+                history: [.init(action: "sft", tool: "posttrainllm")],
+                runtimes: [.nativeHFLoad],
+                next: [.merge, .convert, .eval, .serve]
+            )
+        )
+        let sidecar = try ArtifactLifecycleStore.write(manifest, for: artifactURL)
         status = try FactoryRunEvidence.finishTraining(
             directory: run,
             artifact: .init(artifactId: "fixture-adapter", kind: "adapter",
-                            path: "fixture.lora", baseModel: "fixture-base"),
+                            path: artifactURL.path, baseModel: "fixture-base",
+                            files: .init(lifecycleManifest: sidecar.lastPathComponent)),
             summary: "Fixture SFT evidence completed without model execution.",
             trainingTimeSeconds: 0
         )
@@ -71,6 +87,7 @@ SWIFT
 swiftc \
   -parse-as-library \
   "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRun.swift" \
+  "$ROOT/native-mac/Sources/TinyGPTIO/ArtifactLifecycleManifest.swift" \
   "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRunLifecycle.swift" \
   "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRunFolder.swift" \
   "$ROOT/native-mac/Sources/TinyGPTIO/FactoryRunEvidence.swift" \

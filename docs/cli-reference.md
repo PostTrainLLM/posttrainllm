@@ -57,6 +57,16 @@ Use the [factory contract](factory/README.md) for the run schema and evidence
 requirements. Use the [recipe registry](recipes/README.md) when selecting the
 method, data, gate, regression checks, budget, and stop rule.
 
+## Artifact lifecycle checks
+
+Native checkpoints, factory SFT adapters, and manifest-aware exports write the
+schema-v1 sidecar documented in
+[`factory/artifact-lifecycle.md`](factory/artifact-lifecycle.md). `sample`,
+`hf-load`, and `serve` inspect it before model loading, print the artifact kind
+and legal next actions, and refuse an unsupported action/runtime or proven
+adapter/base mismatch. A legacy artifact without a sidecar still loads with an
+explicit warning; malformed metadata fails closed.
+
 ## Check a Hugging Face model before downloading
 
 `posttrainllm model-check <url>` reports whether a Hub model can run on

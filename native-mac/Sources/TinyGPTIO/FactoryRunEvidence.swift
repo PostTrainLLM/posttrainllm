@@ -15,6 +15,7 @@ public enum FactoryRunEvidence {
         case invalidDuration(String)
         case invalidTrainingLog
         case invalidSlice(String)
+        case invalidArtifact(String)
 
         public var description: String {
             switch self {
@@ -26,6 +27,8 @@ public enum FactoryRunEvidence {
                 return "training summary must be one bounded non-empty line"
             case .invalidSlice(let reason):
                 return "invalid slice evidence: \(reason)"
+            case .invalidArtifact(let reason):
+                return "invalid artifact evidence: \(reason)"
             }
         }
     }
@@ -136,6 +139,36 @@ public enum FactoryRunEvidence {
                                       command: String = "posttrainllm sft") throws
         -> FactoryRunLifecycle.Status {
         try FactoryRun.validate(artifact)
+        let expandedPath = NSString(string: artifact.path).expandingTildeInPath
+        let artifactURL = NSString(string: expandedPath).isAbsolutePath
+            ? URL(fileURLWithPath: expandedPath)
+            : directory.appendingPathComponent(expandedPath)
+        let sidecarURL = ArtifactLifecycleStore.sidecarURL(for: artifactURL)
+        guard artifact.lifecycleManifest == sidecarURL.lastPathComponent else {
+            throw EvidenceError.invalidArtifact(
+                "lifecycle_manifest must be \(sidecarURL.lastPathComponent)"
+            )
+        }
+        guard let manifest = try ArtifactLifecycleStore.load(for: artifactURL) else {
+            throw EvidenceError.invalidArtifact(
+                "artifact lifecycle manifest is required beside \(artifactURL.lastPathComponent)"
+            )
+        }
+        guard manifest.artifact.id == artifact.artifactId else {
+            throw EvidenceError.invalidArtifact(
+                "artifact lifecycle id \(manifest.artifact.id) does not match \(artifact.artifactId)"
+            )
+        }
+        guard manifest.kind.rawValue == artifact.kind else {
+            throw EvidenceError.invalidArtifact(
+                "artifact lifecycle kind \(manifest.kind.rawValue) does not match \(artifact.kind)"
+            )
+        }
+        if let base = manifest.base, base.id != artifact.baseModel {
+            throw EvidenceError.invalidArtifact(
+                "artifact lifecycle base \(base.id) does not match \(artifact.baseModel)"
+            )
+        }
         try validateDuration(trainingTimeSeconds, field: "training_time_seconds")
         let cleanSummary = summary.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanSummary.isEmpty, cleanSummary.count <= 512,

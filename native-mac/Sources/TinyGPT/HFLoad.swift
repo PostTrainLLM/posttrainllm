@@ -9,6 +9,7 @@ import TinyGPTModel
 /// TinyGPTModelHF from a downloaded HuggingFace model directory, load
 /// the safetensors weights, optionally generate a sample to verify
 /// everything wires up.
+/// Lifecycle sidecars are validated before model or adapter bytes are loaded.
 ///
 /// USAGE
 ///   huggingface-cli download meta-llama/Llama-3.2-1B --local-dir ~/Models/llama-3.2-1b
@@ -45,6 +46,13 @@ enum HFLoad {
         }
         let dir = URL(fileURLWithPath: dirPath)
 
+        do {
+            try inspectLifecycle(dir: dir, loraPath: loraPath, doSample: doSample)
+        } catch {
+            fputs("invalid lifecycle manifest: \(error)\n", stderr)
+            exit(1)
+        }
+
         // Load the model
         print("loading HF model from \(dir.path)…")
         let result: HFModelLoader.LoadResult
@@ -71,7 +79,8 @@ enum HFLoad {
         if let lp = loraPath {
             print("applying LoRA adapter from \(lp)…")
             do {
-                let adapter = try LoraAdapterReader.read(URL(fileURLWithPath: lp))
+                let adapterURL = URL(fileURLWithPath: lp)
+                let adapter = try LoraAdapterReader.read(adapterURL)
                 try LoraAdapterHFReader.apply(adapter, to: model)
                 print("✓ adapter applied (rank \(adapter.header.rank), \(adapter.header.entries.count) entries)")
             } catch {
@@ -86,6 +95,24 @@ enum HFLoad {
         }
 
         print("\nNext: `posttrainllm finetune \(dirPath) --corpus my.txt --out my.lora`")
+    }
+
+    private static func inspectLifecycle(
+        dir: URL,
+        loraPath: String?,
+        doSample: Bool
+    ) throws {
+        let lifecycle = try ArtifactLifecycleStore.inspect(
+            base: dir,
+            adapters: loraPath.map { [URL(fileURLWithPath: $0)] } ?? [],
+            action: doSample ? .eval : nil,
+            runtime: .nativeHFLoad
+        )
+        if let base = lifecycle.base { print("lifecycle: \(base.summary)") }
+        for adapter in lifecycle.adapters.compactMap({ $0 }) {
+            print("adapter lifecycle: \(adapter.summary)")
+        }
+        for warning in lifecycle.warnings { fputs("warning: \(warning).\n", stderr) }
     }
 
     /// Sample using the HF tokenizer attached to the model directory.

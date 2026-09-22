@@ -181,29 +181,47 @@ public enum FactoryRun {
     }
 
     public struct Artifact: Codable, Hashable, Sendable {
+        public struct Files: Hashable, Sendable {
+            public let format: String?
+            public let packageDir: String?
+            public let lifecycleManifest: String?
+
+            public init(
+                format: String? = nil,
+                packageDir: String? = nil,
+                lifecycleManifest: String? = nil
+            ) {
+                self.format = format
+                self.packageDir = packageDir
+                self.lifecycleManifest = lifecycleManifest
+            }
+        }
+
         public let artifactId: String
         public let kind: String
         public let path: String
         public let baseModel: String
         public let format: String?
         public let packageDir: String?
+        public let lifecycleManifest: String?
         public let shipped: Bool
 
         public init(artifactId: String,
                     kind: String,
                     path: String,
                     baseModel: String,
-                    format: String? = nil,
-                    packageDir: String? = nil,
+                    files: Files = .init(),
                     shipped: Bool = false) {
             self.artifactId = artifactId
             self.kind = kind
             self.path = path
             self.baseModel = baseModel
-            self.format = format
-            self.packageDir = packageDir
+            self.format = files.format
+            self.packageDir = files.packageDir
+            self.lifecycleManifest = files.lifecycleManifest
             self.shipped = shipped
         }
+
     }
 
     public struct DecisionRecord: Codable, Hashable, Sendable {
@@ -419,6 +437,9 @@ public enum FactoryRun {
         try nonEmpty(artifact.kind, "artifact.kind")
         try nonEmpty(artifact.path, "artifact.path")
         try nonEmpty(artifact.baseModel, "artifact.base_model")
+        if let manifest = artifact.lifecycleManifest {
+            try nonEmpty(manifest, "artifact.lifecycle_manifest")
+        }
     }
 
     public static func validate(_ decision: DecisionRecord) throws {

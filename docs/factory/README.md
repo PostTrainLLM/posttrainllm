@@ -37,6 +37,8 @@ target -> data -> post-training -> eval -> package -> report
   [`autocorrect-adapter-recipe.md`](autocorrect-adapter-recipe.md) — the frozen
   LoRA recipe, the encoder-decoder training path, and its load-parity evidence.
 - [`run-schema.md`](run-schema.md) — local run directory contract.
+- [`artifact-lifecycle.md`](artifact-lifecycle.md) — relocatable artifact
+  identity, provenance, runtime compatibility, and legal-next-action contract.
 - [`run-lifecycle.md`](run-lifecycle.md) — durable phase/revision state,
   metadata-only operator commands, advisory discovery, and recovery.
 - [`report-card.md`](report-card.md) — portable before/after proof contract:

@@ -86,6 +86,13 @@ enum Finetune {
 
         // Load model (auto-detects .tinygpt file vs HF directory)
         print("loading base from \(basePath)…")
+        let baseManifest: ArtifactLifecycleManifest?
+        do {
+            baseManifest = try ArtifactLifecycleStore.load(for: URL(fileURLWithPath: basePath))
+        } catch {
+            fputs("invalid base lifecycle manifest: \(error)\n", stderr)
+            exit(1)
+        }
         let load: ModelLoader.LoadResult
         do { load = try ModelLoader.load(basePath) }
         catch { fputs("error loading base: \(error)\n", stderr); exit(1) }
@@ -221,6 +228,42 @@ enum Finetune {
             print("✓ wrote \(outPath)  (\(formatBytes(sz)))")
         } catch {
             fputs("save failed: \(error)\n", stderr); exit(1)
+        }
+        let outputURL = URL(fileURLWithPath: outPath)
+        if let baseManifest {
+            let runtime: ArtifactLifecycleManifest.Runtime
+            switch load.model {
+            case .fromScratch: runtime = .nativeTinyGPT
+            case .huggingFace: runtime = .nativeHFLoad
+            }
+            let manifest = ArtifactLifecycleManifest(
+                artifact: .init(id: outputURL.deletingPathExtension().lastPathComponent),
+                kind: .adapter,
+                artifactPath: outputURL.lastPathComponent,
+                base: baseManifest.artifact,
+                tokenizer: baseManifest.tokenizer,
+                lifecycle: .init(
+                    history: baseManifest.history + [.init(
+                        action: "finetune",
+                        tool: "posttrainllm",
+                        detail: "steps=\(lastStep); rank=\(rank)"
+                    )],
+                    runtimes: [runtime],
+                    next: [.merge, .convert, .eval, .serve]
+                )
+            )
+            do {
+                let sidecar = try ArtifactLifecycleStore.write(manifest, for: outputURL)
+                print("✓ wrote lifecycle manifest \(sidecar.path)")
+            } catch {
+                fputs("adapter saved but lifecycle manifest failed: \(error)\n", stderr)
+                exit(1)
+            }
+        } else {
+            fputs(
+                "warning: base has no artifact lifecycle manifest; adapter identity was not guessed.\n",
+                stderr
+            )
         }
         if stoppedEarly { exit(130) }
     }

@@ -65,6 +65,12 @@ enum TrainSupport {
             _ = try? fm.removeItem(at: url)
         }
         try fm.moveItem(at: tmpURL, to: url)
+        try writeLifecycleManifest(
+            config: cfg,
+            step: step,
+            hasOptimizerState: !optimizerMoments.isEmpty,
+            artifactURL: url
+        )
     }
 
     /// Same call surface as `atomicSave` but writes directly to `url` (no
@@ -83,6 +89,48 @@ enum TrainSupport {
                              manifestEntries: manifestEntries,
                              optimizerMoments: optimizerMoments,
                              to: url)
+        try writeLifecycleManifest(
+            config: cfg,
+            step: step,
+            hasOptimizerState: !optimizerMoments.isEmpty,
+            artifactURL: url
+        )
+    }
+
+    private static func writeLifecycleManifest(
+        config: ModelConfig,
+        step: Int,
+        hasOptimizerState: Bool,
+        artifactURL: URL
+    ) throws {
+        let tokenizer = config.tokenizerSource ?? "byte-v1"
+        let history = ArtifactLifecycleManifest.HistoryStep(
+            action: "pretrain",
+            tool: "posttrainllm",
+            detail: "step=\(step)"
+        )
+        let trainingState = ArtifactLifecycleManifest.TrainingState(
+            optimizer: hasOptimizerState,
+            scheduler: false,
+            rng: false
+        )
+        let lifecycle = ArtifactLifecycleManifest.Lifecycle(
+            history: [history],
+            runtimes: [.nativeTinyGPT],
+            next: [.warmRestart, .convert, .eval, .serve],
+            trainingState: trainingState
+        )
+        let manifest = ArtifactLifecycleManifest(
+            artifact: ArtifactLifecycleManifest.Identity(
+                id: config.modelName,
+                checkpoint: "step-\(step)"
+            ),
+            kind: .trainingCheckpoint,
+            artifactPath: artifactURL.lastPathComponent,
+            tokenizer: ArtifactLifecycleManifest.Tokenizer(id: tokenizer),
+            lifecycle: lifecycle
+        )
+        try ArtifactLifecycleStore.write(manifest, for: artifactURL)
     }
 
     /// The actual write — same body as the previous `saveCheckpoint`,
