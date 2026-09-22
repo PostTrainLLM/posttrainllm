@@ -175,31 +175,7 @@ public enum RunnerPlanner {
     public static func blocker(for report: ModelCheckReport,
                                forced: Runner? = nil) -> String {
         if let forced {
-            let exactGGUF = report.model.filePath?.lowercased().hasSuffix(".gguf") == true
-            if exactGGUF && (forced == .ollama || forced == .llamaCpp) {
-                return "forced --runtime \(forced.rawValue) cannot guarantee the exact GGUF artifact \(report.model.filePath ?? "") — use LM Studio's exact artifact import"
-            }
-            if report.model.revision != "main",
-               [.mlxLm, .ollama, .llamaCpp].contains(forced) {
-                return "forced --runtime \(forced.rawValue) cannot guarantee revision \(report.model.revision); use native, mlx-swift, or LM Studio's exact artifact import"
-            }
-            switch forced {
-            case .native:
-                if !report.model.formats.contains("safetensors") {
-                    return "forced --runtime native but \(report.model.id) has no safetensors weights — the native loader reads safetensors, and gguf-load validates rather than generates"
-                }
-                return "forced --runtime native is unavailable"
-            case .mlxSwift:
-                return "forced --runtime mlx-swift but posttrainllm-mlxrun is not built — `cd native-mac && swift build --product posttrainllm-mlxrun`"
-            case .mlxLm:
-                return "forced --runtime mlx-lm but `python3 -m mlx_lm` is not installed (pip install mlx-lm)"
-            case .ollama:
-                return "forced --runtime ollama but `ollama` is not installed (brew install ollama)"
-            case .lms:
-                return "forced --runtime lms but the LM Studio CLI (`lms`) is not installed"
-            case .llamaCpp:
-                return "forced --runtime llama-cli but `llama-cli` is not installed (brew install llama.cpp)"
-            }
+            return forcedBlocker(forced, report: report)
         }
         let fmts = Set(report.model.formats)
         var lines = ["no installed runtime can run this repo:"]
@@ -219,6 +195,36 @@ public enum RunnerPlanner {
             lines.append("  • no loadable weight format was identified — see `model-check` for the full report")
         }
         return lines.joined(separator: "\n")
+    }
+
+    private static func forcedBlocker(
+        _ forced: Runner, report: ModelCheckReport
+    ) -> String {
+        let exactGGUF = report.model.filePath?.lowercased().hasSuffix(".gguf") == true
+        if exactGGUF && (forced == .ollama || forced == .llamaCpp) {
+            return "forced --runtime \(forced.rawValue) cannot guarantee the exact GGUF artifact \(report.model.filePath ?? "") — use LM Studio's exact artifact import"
+        }
+        if report.model.revision != "main",
+           [.mlxLm, .ollama, .llamaCpp].contains(forced) {
+            return "forced --runtime \(forced.rawValue) cannot guarantee revision \(report.model.revision); use native, mlx-swift, or LM Studio's exact artifact import"
+        }
+        switch forced {
+        case .native:
+            if !report.model.formats.contains("safetensors") {
+                return "forced --runtime native but \(report.model.id) has no safetensors weights — the native loader reads safetensors, and gguf-load validates rather than generates"
+            }
+            return "forced --runtime native is unavailable"
+        case .mlxSwift:
+            return "forced --runtime mlx-swift but posttrainllm-mlxrun is not built — `cd native-mac && swift build --product posttrainllm-mlxrun`"
+        case .mlxLm:
+            return "forced --runtime mlx-lm but `python3 -m mlx_lm` is not installed (pip install mlx-lm)"
+        case .ollama:
+            return "forced --runtime ollama but `ollama` is not installed (brew install ollama)"
+        case .lms:
+            return "forced --runtime lms but the LM Studio CLI (`lms`) is not installed"
+        case .llamaCpp:
+            return "forced --runtime llama-cli but `llama-cli` is not installed (brew install llama.cpp)"
+        }
     }
 
     private static func installed(_ probes: [ModelCheckReport.RuntimeProbe],
