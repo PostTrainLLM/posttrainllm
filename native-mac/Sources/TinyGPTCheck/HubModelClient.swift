@@ -46,7 +46,8 @@ public enum HubModelClient {
 
     /// Decoded `/api/models/<id>` response — permissive parse, HF adds
     /// fields freely and we only read what we need.
-    public struct Info: Sendable {
+    /// (Not Sendable: `apiConfig` is untyped JSON.)
+    public struct Info {
         public var id: String
         public var sha: String?
         public var lastModified: String?
@@ -60,17 +61,34 @@ public enum HubModelClient {
         /// safetensors stats: dtype string → parameter count, when the
         /// Hub computed them. e.g. ["BF16": 4_020_000_000]
         public var safetensorsParams: [String: Int64]
+        /// The Hub embeds the repo's parsed config.json in the API
+        /// response — including for gated repos, where the resolve URL
+        /// 401s without a token. This is the single biggest source of
+        /// otherwise-unnecessary `unknown` verdicts on popular models.
+        public var apiConfig: [String: Any]?
+        /// transformersInfo.auto_model — e.g. "AutoModelForCausalLM",
+        /// "AutoModelForMaskedLM". Task truth straight from the Hub.
+        public var autoModel: String?
+        /// transformersInfo.custom_class — set when the repo ships its
+        /// own modeling code (trust_remote_code territory).
+        public var customClass: String?
+        /// cardData.base_model — set on fine-tunes/adapters.
+        public var baseModel: String?
 
         public init(id: String, sha: String? = nil, lastModified: String? = nil,
                     tags: [String] = [], pipelineTag: String? = nil,
                     libraryName: String? = nil, gated: Bool = false,
                     gatedKind: String? = nil, isPrivate: Bool = false,
-                    siblings: [Sibling] = [], safetensorsParams: [String: Int64] = [:]) {
+                    siblings: [Sibling] = [], safetensorsParams: [String: Int64] = [:],
+                    apiConfig: [String: Any]? = nil, autoModel: String? = nil,
+                    customClass: String? = nil, baseModel: String? = nil) {
             self.id = id; self.sha = sha; self.lastModified = lastModified
             self.tags = tags; self.pipelineTag = pipelineTag
             self.libraryName = libraryName; self.gated = gated
             self.gatedKind = gatedKind; self.isPrivate = isPrivate
             self.siblings = siblings; self.safetensorsParams = safetensorsParams
+            self.apiConfig = apiConfig; self.autoModel = autoModel
+            self.customClass = customClass; self.baseModel = baseModel
         }
 
         public func sibling(named name: String) -> Sibling? {
@@ -147,20 +165,25 @@ public enum HubModelClient {
     ///
     /// Returns nil when neither source is available/readable — callers
     /// record that as a limitation, never as invented compatibility.
+    /// `entries` is the full `{name: {dtype, shape}}` header when the
+    /// safetensors header was read (nil for index.json, which is
+    /// name→file only) — enough for exact weight-byte/param counts.
     public static func tensorNames(id: String, revision: String,
-                                   info: Info) throws -> [String]? {
+                                   info: Info) throws -> (names: [String], entries: [String: [String: Any]]?)? {
         if info.sibling(named: "model.safetensors.index.json") != nil {
             if let data = try smallFile(id: id, revision: revision,
                                         path: "model.safetensors.index.json",
                                         maxBytes: 8 * 1024 * 1024),
                let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let weightMap = obj["weight_map"] as? [String: Any] {
-                return Array(weightMap.keys)
+                return (Array(weightMap.keys), nil)
             }
         }
         guard let shard = info.siblings(matchingSuffix: ".safetensors")
             .sorted(by: { $0.name < $1.name }).first else { return nil }
-        return try safetensorsHeaderNames(id: id, revision: revision, path: shard.name)
+        guard let header = try safetensorsHeader(id: id, revision: revision, path: shard.name)
+        else { return nil }
+        return (header.keys.filter { $0 != "__metadata__" }.sorted(), header)
     }
 
     /// Read a safetensors file's JSON header via HTTP Range requests.
@@ -175,41 +198,71 @@ public enum HubModelClient {
     /// 206 are treated as "header unavailable", not as data.
     static func safetensorsHeaderNames(id: String, revision: String,
                                        path: String, maxHeaderBytes: Int = 24 * 1024 * 1024) throws -> [String]? {
+        guard let header = try safetensorsHeader(id: id, revision: revision, path: path)
+        else { return nil }
+        return header.keys.filter { $0 != "__metadata__" }.sorted()
+    }
+
+    /// Full safetensors header dict `{name: {dtype, shape, data_offsets}}`
+    /// via Range GET — kept around because dtype+shape give exact weight
+    /// bytes and param counts, independent of Hub-side stats.
+    static func safetensorsHeader(id: String, revision: String,
+                                  path: String, maxHeaderBytes: Int = 24 * 1024 * 1024) throws -> [String: [String: Any]]? {
+        guard let first = try rangeGet(id: id, revision: revision, path: path,
+                                       range: "bytes=0-7", maxBody: 8),
+              first.count >= 8 else { return nil }
+        // Byte-assembled LE u64 — avoid unaligned `load(as:)` traps.
+        let headerLen = first.prefix(8).reduce(UInt64(0)) { ($0 << 8) | UInt64($1) }.byteSwapped
+        guard headerLen > 0, headerLen <= UInt64(maxHeaderBytes) else { return nil }
+
+        guard let headerData = try rangeGet(id: id, revision: revision, path: path,
+                                            range: "bytes=8-\(8 + headerLen - 1)",
+                                            maxBody: Int(headerLen)),
+              headerData.count >= Int(headerLen) else { return nil }
+        guard let obj = try? JSONSerialization.jsonObject(with: headerData.prefix(Int(headerLen)))
+                as? [String: [String: Any]] else { return nil }
+        return obj
+    }
+
+    /// Range GET helper shared by the safetensors and GGUF header reads.
+    /// Returns nil (not throw) when the server doesn't honor Range —
+    /// a 200 would be the whole weight file, which the delegate refuses
+    /// before body bytes arrive. Throws on real network errors.
+    static func rangeGet(id: String, revision: String, path: String,
+                         range: String, maxBody: Int) throws -> Data? {
         let encoded = path.split(separator: "/", omittingEmptySubsequences: false)
             .map { String($0).addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? String($0) }
             .joined(separator: "/")
-        let base = "https://huggingface.co/\(id)/resolve/\(revision)/\(encoded)"
-
-        func rangeGet(_ range: String, maxBody: Int) throws -> Data? {
-            guard let url = URL(string: base) else { return nil }
-            var req = URLRequest(url: url)
-            if let token = ProcessInfo.processInfo.environment["HF_TOKEN"], !token.isEmpty {
-                req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            }
-            req.setValue("posttrainllm/0.1", forHTTPHeaderField: "User-Agent")
-            req.setValue(range, forHTTPHeaderField: "Range")
-            let delegate = RangeFetchDelegate(maxBody: maxBody)
-            let cfg = URLSessionConfiguration.default
-            cfg.timeoutIntervalForRequest = 30
-            let session = URLSession(configuration: cfg, delegate: delegate, delegateQueue: nil)
-            defer { session.finishTasksAndInvalidate() }
-            session.dataTask(with: req).resume()
-            delegate.semaphore.wait()
-            if delegate.refusedFullBody || delegate.statusCode != 206 { return nil }
-            if let err = delegate.error { throw HubError.network("\(err)") }
-            return delegate.data
+        guard let url = URL(string: "https://huggingface.co/\(id)/resolve/\(revision)/\(encoded)")
+        else { return nil }
+        var req = URLRequest(url: url)
+        if let token = ProcessInfo.processInfo.environment["HF_TOKEN"], !token.isEmpty {
+            req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
+        req.setValue("posttrainllm/0.1", forHTTPHeaderField: "User-Agent")
+        req.setValue(range, forHTTPHeaderField: "Range")
+        let delegate = RangeFetchDelegate(maxBody: maxBody)
+        let cfg = URLSessionConfiguration.default
+        cfg.timeoutIntervalForRequest = 30
+        let session = URLSession(configuration: cfg, delegate: delegate, delegateQueue: nil)
+        defer { session.finishTasksAndInvalidate() }
+        session.dataTask(with: req).resume()
+        delegate.semaphore.wait()
+        if delegate.refusedFullBody || delegate.statusCode != 206 { return nil }
+        if let err = delegate.error { throw HubError.network("\(err)") }
+        return delegate.data
+    }
 
-        // safetensors: [8-byte little-endian u64 headerLen][JSON header]
-        guard let first = try rangeGet("bytes=0-7", maxBody: 8), first.count >= 8 else { return nil }
-        let headerLen = first.prefix(8).withUnsafeBytes { $0.load(as: UInt64.self) }
-        guard headerLen > 0, headerLen <= UInt64(maxHeaderBytes) else { return nil }
-
-        guard let headerData = try rangeGet("bytes=8-\(8 + headerLen - 1)", maxBody: Int(headerLen)),
-              headerData.count >= Int(headerLen) else { return nil }
-        guard let obj = try? JSONSerialization.jsonObject(with: headerData.prefix(Int(headerLen)))
-                as? [String: Any] else { return nil }
-        return obj.keys.filter { $0 != "__metadata__" }.sorted()
+    /// Read the GGUF metadata block (magic + kv pairs) of a .gguf file —
+    /// enough for `general.architecture`, `general.file_type` (quant),
+    /// `general.name`, and `<arch>.context_length`. Bounded at 8 MB; the
+    /// tokenizer tokens array inflates some metadata blocks.
+    public static func ggufMeta(id: String, revision: String, path: String) throws -> GGUFHeader.Meta? {
+        guard let data = try rangeGet(id: id, revision: revision, path: path,
+                                      range: "bytes=0-\(8 * 1024 * 1024 - 1)",
+                                      maxBody: 8 * 1024 * 1024)
+        else { return nil }
+        return GGUFHeader.parse(data)
     }
 
     /// Delegate for range fetches: refuses anything that isn't a 206
@@ -293,6 +346,15 @@ public enum HubModelClient {
                     info.safetensorsParams[dtype] = n
                 }
             }
+        }
+        info.apiConfig = obj["config"] as? [String: Any]
+        if let ti = obj["transformersInfo"] as? [String: Any] {
+            info.autoModel = ti["auto_model"] as? String
+            info.customClass = ti["custom_class"] as? String
+        }
+        if let card = obj["cardData"] as? [String: Any] {
+            info.baseModel = card["base_model"] as? String
+                ?? (card["base_model"] as? [String])?.first
         }
         return info
     }

@@ -35,6 +35,11 @@ public struct TensorLayout: Sendable, Equatable {
     public let sampleNames: [String]
     /// Names that triggered non-LM classifications (evidence trail).
     public let markers: [String]
+    /// Recognized non-Llama convention, when the layout is a *named*
+    /// family the loader can't map — e.g. GPT-2's fused `c_attn`,
+    /// GPT-NeoX's fused `query_key_value`, BLOOM/Falcon `h.N`/`transformer.h`.
+    /// Turns "unknown layout" into "unsupported layout: <name>".
+    public let conventionName: String?
 
     public var lmConventionRatio: Double {
         totalTensors > 0 ? Double(lmConventionCount) / Double(totalTensors) : 0
@@ -82,10 +87,26 @@ public struct TensorLayout: Sendable, Equatable {
             kind = .unknown
         }
 
+        // Named non-Llama conventions — a positive ID is more useful
+        // than "unknown": it tells the user exactly which gap exists.
+        var convention: String? = nil
+        if kind == .unknown {
+            if lower.contains(where: { $0.range(of: #"h\.\d+\.attn\.c_attn"#, options: .regularExpression) != nil }) {
+                convention = "GPT-2-style fused c_attn attention (h.N.attn.c_attn)"
+            } else if lower.contains(where: { $0.hasPrefix("gpt_neox.") || $0.contains("query_key_value") }) {
+                convention = "GPT-NeoX-style fused query_key_value"
+            } else if lower.contains(where: { $0.hasPrefix("transformer.h.") || $0.hasPrefix("transformer.word_embeddings") }) {
+                convention = "BLOOM/Falcon-style transformer.h.N"
+            } else if lower.contains(where: { $0.contains("encoder.layer.") }) {
+                convention = "BERT-style encoder stack"
+            }
+        }
+
         return TensorLayout(
             kind: kind, totalTensors: names.count,
             lmConventionCount: lmCount,
             sampleNames: Array(names.prefix(6)),
-            markers: Array(markers.prefix(8)))
+            markers: Array(markers.prefix(8)),
+            conventionName: convention)
     }
 }

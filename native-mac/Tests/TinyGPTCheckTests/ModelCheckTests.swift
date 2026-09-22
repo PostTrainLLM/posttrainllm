@@ -306,6 +306,95 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertTrue(a.requiredChanges.contains { $0.detail.contains("tokenizer") })
     }
 
+    // MARK: - adapters / remote code / gated / GGUF meta
+
+    func testAdapterRepo() {
+        let info = HubModelClient.Info(
+            id: "x/opt-lora", libraryName: "peft",
+            siblings: [.init(name: "adapter_config.json", size: 400),
+                       .init(name: "adapter_model.safetensors", size: 20_000_000)],
+            baseModel: "facebook/opt-350m")
+        let a = CompatibilityRules.assess(.init(
+            ref: ref("x/opt-lora"), info: info, fetchIssue: nil,
+            config: nil, configIssue: nil,
+            adapter: (base: "facebook/opt-350m", peftType: "lora"), env: env()))
+        XCTAssertEqual(a.verdict, .changesRequired)
+        XCTAssertTrue(a.verdictSummary.contains("opt-350m"))
+        XCTAssertTrue(a.formats.contains("peft-adapter"))
+    }
+
+    func testRemoteCodeRepo() {
+        let (info, cfg) = lmInfo(archs: ["Phi3VForCausalLM"])
+        let a = CompatibilityRules.assess(.init(
+            ref: ref("x/phi3v"), info: info, fetchIssue: nil,
+            config: cfg, configIssue: nil, remoteCode: true, env: env()))
+        XCTAssertEqual(a.verdict, .unsupportedOnCheckedPath)
+        XCTAssertTrue(a.checkedPath.detail.contains("auto_map"))
+    }
+
+    func testRemoteCodeOnVerifiedArchIsNoteOnly() {
+        let (info, cfg) = lmInfo()
+        let a = CompatibilityRules.assess(.init(
+            ref: ref("x/qwen"), info: info, fetchIssue: nil,
+            config: cfg, configIssue: nil, remoteCode: true, env: env()))
+        XCTAssertEqual(a.verdict, .expectedToWork)
+        XCTAssertTrue(a.limitations.contains { $0.contains("auto_map") })
+    }
+
+    func testGatedDowngrade() {
+        var (info, cfg) = lmInfo()
+        info.gated = true
+        let a = assess(info, config: cfg)
+        XCTAssertEqual(a.verdict, .changesRequired)
+        XCTAssertTrue(a.requiredChanges.contains { $0.kind == "access" })
+    }
+
+    func testGGUFMetaParsing() {
+        // Hand-built minimal GGUF: magic + v3 + counts + two metadata KVs.
+        var d = Data()
+        d.append(contentsOf: [0x47, 0x47, 0x55, 0x46])          // 'GGUF'
+        d.append(contentsOf: [3, 0, 0, 0])                       // version 3
+        d.append(contentsOf: [1, 0, 0, 0, 0, 0, 0, 0])           // 1 tensor
+        d.append(contentsOf: [2, 0, 0, 0, 0, 0, 0, 0])           // 2 kvs
+        func str(_ s: String) -> [UInt8] {
+            var n = UInt64(s.utf8.count)
+            return withUnsafeBytes(of: &n) { Array($0) } + Array(s.utf8)
+        }
+        d.append(contentsOf: str("general.architecture"))
+        d.append(contentsOf: [8, 0, 0, 0])                       // vtype string
+        d.append(contentsOf: str("llama"))
+        d.append(contentsOf: str("general.file_type"))
+        d.append(contentsOf: [4, 0, 0, 0])                       // vtype u32
+        d.append(contentsOf: [15, 0, 0, 0])                      // Q4_K_M
+        let meta = GGUFHeader.parse(d)
+        XCTAssertEqual(meta?.architecture, "llama")
+        XCTAssertEqual(meta?.fileType, 15)
+        XCTAssertEqual(GGUFHeader.fileTypeName(15), "Q4_K_M")
+    }
+
+    func testGGUFKQuantUnsupportedHonest() {
+        let info = HubModelClient.Info(
+            id: "x/gguf", siblings: [.init(name: "m-Q4_K_M.gguf", size: 2_000_000_000)])
+        let kv: [String: Any] = ["general.architecture": "llama", "general.file_type": UInt32(15)]
+        let meta = GGUFHeader.Meta(version: 3, tensorCount: 300, kv: kv)
+        let a = CompatibilityRules.assess(.init(
+            ref: ref("x/gguf"), info: info, fetchIssue: nil,
+            config: nil, configIssue: nil, ggufMeta: meta, env: env()))
+        XCTAssertEqual(a.verdict, .unsupportedOnCheckedPath)   // K-quant not dequantized by our loader
+        XCTAssertTrue(a.checkedPath.detail.contains("K-quant"))
+    }
+
+    func testGGUFLlamaQ80Loadable() {
+        let info = HubModelClient.Info(
+            id: "x/gguf", siblings: [.init(name: "m-Q8_0.gguf", size: 3_000_000_000)])
+        let meta = GGUFHeader.Meta(version: 3, tensorCount: 300,
+                                   kv: ["general.architecture": "qwen2", "general.file_type": UInt32(8)])
+        let a = CompatibilityRules.assess(.init(
+            ref: ref("x/gguf"), info: info, fetchIssue: nil,
+            config: nil, configIssue: nil, ggufMeta: meta, env: env()))
+        XCTAssertEqual(a.verdict, .changesRequired)   // verified arch + supported quant
+    }
+
     // MARK: - report schema + agent prompt
 
     func testReportRoundTripsJSON() throws {

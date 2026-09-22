@@ -48,6 +48,25 @@ nonstandard layouts (GPT-2's `h.N.attn.c_attn`: 0% match). Legacy config
 schemas (`n_head`/`n_embd`/`n_layer`, missing `n_inner` → 4×hidden) are
 normalized before the strict parse.
 
+**Gated repos are assessable.** `GET /api/models/<id>` embeds the parsed
+config, `transformersInfo`, `cardData`, the file manifest, and
+safetensors param stats even without auth — only per-file reads (config,
+headers) 401. The checker uses the API-embedded config as a fallback, so
+a gated Llama/Gemma still gets a real verdict (`changes_required`, with
+"accept license + HF_TOKEN" as the named access step) rather than
+`unknown`. Truly private repos (404/401 on the API itself) remain
+`unknown`.
+
+Other detection paths: **PEFT/LoRA adapters** (`adapter_model.*`,
+`adapter_config.json` → base model) get a "compatibility is the base
+model's" verdict with a `model-check` handoff to the base; **remote-code
+repos** (`auto_map`, `transformersInfo.custom_class`) are a named
+`unsupported_on_checked_path` — repo-shipped modeling code is never
+executed by policy; **GGUF headers** are Range-read for
+`general.architecture` + `file_type`, so quant support is verified
+against what `GGUFReader` actually dequantizes (F32/F16/Q4_0/Q8_0/BF16 —
+K-quants report honestly as needing llama.cpp/Ollama).
+
 ## Verdict vocabulary
 
 | Verdict | Meaning |

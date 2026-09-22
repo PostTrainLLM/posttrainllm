@@ -66,23 +66,35 @@ public enum ModelCheckService {
         var config: HuggingFaceConfig? = nil
         var configIssue: String? = nil
         var architecturesHint: [String] = []
-        if let info = info, info.sibling(named: "config.json") != nil {
-            do {
-                if let data = try HubModelClient.smallFile(
-                    id: ref.id, revision: ref.revision, path: "config.json") {
-                    let raw = (try JSONSerialization.jsonObject(with: data)) as? [String: Any] ?? [:]
-                    // Lenient fallback first: even if the strict typed
-                    // parse fails (legacy schemas like GPT-2's n_head/
-                    // n_layer), the architecture name is still worth
-                    // reporting.
-                    architecturesHint = (raw["architectures"] as? [String]) ?? []
-                    config = try HuggingFaceConfig.fromDict(normalizeLegacyKeys(raw))
+        var remoteCode = false
+        if let info = info {
+            var rawConfig: [String: Any]? = nil
+            if info.sibling(named: "config.json") != nil {
+                do {
+                    if let data = try HubModelClient.smallFile(
+                        id: ref.id, revision: ref.revision, path: "config.json") {
+                        rawConfig = (try JSONSerialization.jsonObject(with: data)) as? [String: Any]
+                    }
+                } catch {
+                    configIssue = "config.json present but unreadable: \(error)"
                 }
-            } catch {
-                configIssue = "config.json present but unreadable: \(error)"
             }
-        } else if info != nil {
-            configIssue = "no config.json in the repository file list"
+            // Fallback: the Hub embeds the parsed config in the API
+            // response — this is what unlocks gated repos, whose
+            // resolve/ URLs 401 without a token.
+            if rawConfig == nil, let api = info.apiConfig { rawConfig = api }
+            if rawConfig == nil, info.sibling(named: "config.json") == nil, info.apiConfig == nil {
+                configIssue = "no config.json in the repository file list"
+            }
+            if let raw = rawConfig {
+                architecturesHint = (raw["architectures"] as? [String]) ?? []
+                remoteCode = raw["auto_map"] != nil || info.customClass != nil
+                do {
+                    config = try HuggingFaceConfig.fromDict(normalizeLegacyKeys(raw))
+                } catch {
+                    configIssue = configIssue ?? "config parsed partially: \(error)"
+                }
+            }
         }
 
         // Structural evidence: tensor names from the safetensors index
@@ -90,10 +102,60 @@ public enum ModelCheckService {
         // Metadata only — a 200 (Range ignored) is refused, never a
         // weight download.
         var tensorLayout: TensorLayout? = nil
+        var exactWeightBytes: Int64? = nil
+        var exactParams: Int64? = nil
         if let info = info, !info.siblings(matchingSuffix: ".safetensors").isEmpty {
-            if let names = try? HubModelClient.tensorNames(
+            if let fetched = try? HubModelClient.tensorNames(
                 id: ref.id, revision: ref.revision, info: info) {
-                tensorLayout = TensorLayout.assess(names: names)
+                tensorLayout = TensorLayout.assess(names: fetched.names)
+                if let entries = fetched.entries {
+                    var bytes: Int64 = 0
+                    var params: Int64 = 0
+                    for (name, e) in entries where name != "__metadata__" {
+                        let shape = (e["shape"] as? [NSNumber])?.map(\.int64Value) ?? []
+                        let count = shape.reduce(1, *)
+                        params += count
+                        bytes += count * Self.dtypeBytes(e["dtype"] as? String)
+                    }
+                    exactWeightBytes = bytes; exactParams = params
+                }
+            }
+        }
+
+        // PEFT/LoRA adapter repos: adapter_model.* + adapter_config.json
+        // (which names the base model). Detected before format dispatch.
+        var adapter: (base: String?, peftType: String?)? = nil
+        if let info = info {
+            let isAdapter = info.sibling(named: "adapter_config.json") != nil
+                || info.sibling(named: "adapter_model.safetensors") != nil
+                || info.sibling(named: "adapter_model.bin") != nil
+                || info.libraryName == "peft"
+                || info.tags.contains(where: { $0.lowercased() == "peft" || $0.lowercased() == "lora" })
+            if isAdapter {
+                var base = info.baseModel, peftType: String? = nil
+                if let data = try? HubModelClient.smallFile(
+                    id: ref.id, revision: ref.revision, path: "adapter_config.json"),
+                   let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    base = base ?? (obj["base_model_name_or_path"] as? String)
+                    peftType = obj["peft_type"] as? String
+                }
+                adapter = (base: base, peftType: peftType)
+            }
+        }
+
+        // GGUF header: arch + quant + context for the selected variant.
+        var ggufMeta: GGUFHeader.Meta? = nil
+        if let info = info, adapter == nil {
+            let ggufs = info.siblings(matchingSuffix: ".gguf")
+            if !ggufs.isEmpty {
+                let preferred = ["q4_k_m", "q5_k_m", "q4_0", "q8_0", "f16"]
+                let variant = preferred.compactMap({ tag in
+                    ggufs.first { $0.name.lowercased().contains(tag) }
+                }).first ?? ggufs.max(by: { ($0.size ?? 0) < ($1.size ?? 0) })
+                if let variant {
+                    ggufMeta = try? HubModelClient.ggufMeta(
+                        id: ref.id, revision: ref.revision, path: variant.name)
+                }
             }
         }
 
@@ -105,7 +167,10 @@ public enum ModelCheckService {
             ref: ref, info: info, fetchIssue: fetchIssue,
             config: config, configIssue: configIssue,
             architecturesHint: architecturesHint,
-            tensorLayout: tensorLayout, env: env)
+            tensorLayout: tensorLayout, remoteCode: remoteCode,
+            adapter: adapter, ggufMeta: ggufMeta,
+            exactWeightBytes: exactWeightBytes, exactParams: exactParams,
+            env: env)
         let a = CompatibilityRules.assess(rulesInput)
 
         let report = ModelCheckReport(
@@ -135,6 +200,16 @@ public enum ModelCheckService {
         var final = report
         final.agentPrompt = agentPrompt(for: final)
         return final
+    }
+
+    /// safetensors dtype string → bytes per element.
+    static func dtypeBytes(_ dtype: String?) -> Int64 {
+        switch dtype {
+        case "F64", "I64", "U64": return 8
+        case "F32", "I32", "U32": return 4
+        case "F16", "BF16", "I16", "U16": return 2
+        default: return 1   // I8/U8/F8_*/BOOL
+        }
     }
 
     /// Legacy HF schemas use different key names — GPT-2/GPT-Neo/J use

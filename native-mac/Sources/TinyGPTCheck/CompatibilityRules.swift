@@ -36,15 +36,37 @@ public enum CompatibilityRules {
         /// Tensor-name layout from the safetensors index/header — nil
         /// when it couldn't be fetched (recorded as a limitation).
         public var tensorLayout: TensorLayout?
+        /// Repo ships custom modeling code (config `auto_map` or
+        /// transformersInfo.custom_class) — we never execute it, which
+        /// matters when the architecture isn't natively supported.
+        public var remoteCode: Bool
+        /// PEFT/LoRA adapter repo details (nil for full models).
+        public var adapter: (base: String?, peftType: String?)?
+        /// GGUF header metadata for the selected variant, when readable.
+        public var ggufMeta: GGUFHeader.Meta?
+        /// Exact weight bytes / param count from safetensors header
+        /// dtypes+shapes — preferred over Hub stats or file sizes.
+        public var exactWeightBytes: Int64?
+        public var exactParams: Int64?
         public var env: MacEnvironment
         public init(ref: ModelRef, info: HubModelClient.Info?, fetchIssue: String?,
                     config: HuggingFaceConfig?, configIssue: String?,
                     architecturesHint: [String] = [],
-                    tensorLayout: TensorLayout? = nil, env: MacEnvironment) {
+                    tensorLayout: TensorLayout? = nil,
+                    remoteCode: Bool = false,
+                    adapter: (base: String?, peftType: String?)? = nil,
+                    ggufMeta: GGUFHeader.Meta? = nil,
+                    exactWeightBytes: Int64? = nil,
+                    exactParams: Int64? = nil,
+                    env: MacEnvironment) {
             self.ref = ref; self.info = info; self.fetchIssue = fetchIssue
             self.config = config; self.configIssue = configIssue
             self.architecturesHint = architecturesHint
-            self.tensorLayout = tensorLayout; self.env = env
+            self.tensorLayout = tensorLayout
+            self.remoteCode = remoteCode; self.adapter = adapter
+            self.ggufMeta = ggufMeta
+            self.exactWeightBytes = exactWeightBytes; self.exactParams = exactParams
+            self.env = env
         }
     }
 
@@ -126,26 +148,91 @@ public enum CompatibilityRules {
         a.lastModified = info.lastModified
         a.architectures = input.config?.architectures ?? input.architecturesHint
         a.formats = detectFormats(info: info, config: input.config)
+        if input.adapter != nil { a.formats.insert("peft-adapter", at: 0) }
         a.selectedVariant = pickVariant(info: info)
+        if let b = info.baseModel {
+            a.evidence.append(.init(source: apiDetail(info), kind: "documented",
+                                    detail: "cardData base_model: \(b)"))
+        }
 
         let ram = input.env.ramBytes
         let disk = input.env.freeDiskBytes
 
         // --- Repo-kind / task gates -----------------------------------
+        // Adapters aren't standalone models — their own verdict path.
+        if let adapter = input.adapter {
+            var r = adapterAssessment(&a, info: info, adapter: adapter)
+            applyGated(&r, info: info)
+            return r
+        }
+        var result: Assessment
         if isDiffusers(info: info) {
-            return diffusersAssessment(&a, info: info, env: input.env)
+            result = diffusersAssessment(&a, info: info, env: input.env)
+        } else if let tag = info.pipelineTag, !generationCompatibleTasks.contains(tag) {
+            // Any non-generation pipeline tag is a task mismatch regardless
+            // of weight format — a GGUF of whisper.cpp or a safetensors
+            // sentence encoder both need a different executor.
+            result = nonLanguageTaskAssessment(&a, info: info, env: input.env)
+        } else {
+            result = formatDispatch(&a, input: input, info: info, ram: ram, disk: disk)
         }
-        // Any non-generation pipeline tag is a task mismatch regardless
-        // of weight format — a GGUF of whisper.cpp or a safetensors
-        // sentence encoder both need a different executor.
-        if let tag = info.pipelineTag, !generationCompatibleTasks.contains(tag) {
-            return nonLanguageTaskAssessment(&a, info: info, env: input.env)
-        }
+        applyGated(&result, info: info)
+        return result
+    }
 
-        // --- Format → candidate paths ---------------------------------
+    /// Gated repos: metadata still assessed, but every load needs
+    /// license acceptance + HF_TOKEN — so `expected_to_work` softens to
+    /// `changes_required` and an explicit access step is added. The API
+    /// gave us config + manifest + param stats without auth; only the
+    /// tensor-header read is unavailable.
+    static func applyGated(_ a: inout Assessment, info: HubModelClient.Info) {
+        guard info.gated else { return }
+        a.requiredChanges.insert(.init(kind: "access",
+            detail: "gated repo (\(info.gatedKind ?? "auto")) — accept the license on huggingface.co and set HF_TOKEN to download",
+            sizeBytes: nil, estimate: false), at: 0)
+        if a.verdict == .expectedToWork {
+            a.verdict = .changesRequired
+            a.checkedPath.status = .changesRequired
+            a.verdictSummary = "compatible once access is granted — " + a.verdictSummary
+        }
+        a.limitations.append("gated repo — assessed from Hub API metadata; per-file inspection (tensor headers) requires HF_TOKEN")
+    }
+
+    /// PEFT/LoRA adapter repos ship adapter weights + adapter_config.json,
+    /// not a standalone model. Compatibility is the *base model's*
+    /// compatibility — so the verdict names the base and hands off.
+    static func adapterAssessment(_ a: inout Assessment, info: HubModelClient.Info,
+                                  adapter: (base: String?, peftType: String?)) -> Assessment {
+        let base = adapter.base ?? info.baseModel
+        let kind = adapter.peftType?.uppercased() ?? "PEFT"
+        a.verdict = .changesRequired
+        a.verdictSummary = "\(kind) adapter\(base.map { " over \($0)" } ?? "") — not a standalone model; compatibility is the base model's"
+        a.checkedPath.status = .changesRequired
+        a.checkedPath.detail = "posttrainllm trains and applies LoRA over safetensors bases; this repo is adapter weights only — load \(base ?? "the base model") first, then apply"
+        a.requiredChanges.append(.init(kind: "model-component",
+            detail: base.map { "requires base model \($0) — run `model-check` on it for its own verdict" }
+                ?? "base model not identified in adapter_config.json or cardData",
+            sizeBytes: nil, estimate: false))
+        if let base {
+            a.evidence.append(.init(
+                source: "https://huggingface.co/\(info.id)/resolve/main/adapter_config.json",
+                kind: "documented", detail: "adapter declares base_model_name_or_path = \(base)"))
+        } else {
+            a.limitations.append("adapter's base model could not be identified")
+        }
+        a.nextActions.append(base.map { "Run `posttrainllm model-check \( $0 )` to check the base model." }
+            ?? "Inspect adapter_config.json for base_model_name_or_path.")
+        a.nextActions.append("Apply via the LoRA path: train/apply adapters over the loaded base (`sft --adapter`, `hf-load`).")
+        return a
+    }
+
+    /// Format dispatch — safetensors → gguf → pytorch .bin → config-only
+    /// → unknown, in that preference order.
+    static func formatDispatch(_ a: inout Assessment, input: Input,
+                               info: HubModelClient.Info, ram: Int64, disk: Int64) -> Assessment {
         let safetensorsBytes = info.sizeOf(".safetensors")
         let ggufFiles = info.siblings(matchingSuffix: ".gguf")
-        let hasConfig = info.sibling(named: "config.json") != nil
+        let hasConfig = info.sibling(named: "config.json") != nil || input.config != nil
         let hasSafetensors = safetensorsBytes > 0 || !info.siblings(matchingSuffix: ".safetensors").isEmpty
         let hasPytorchBin = !info.siblings(matchingSuffix: ".bin").isEmpty
         let mlxPacked = isMLXQuantized(info: info, config: input.config)
@@ -157,7 +244,7 @@ public enum CompatibilityRules {
                                          ram: ram, disk: disk)
         }
         if !ggufFiles.isEmpty {
-            return ggufAssessment(&a, info: info, ggufFiles: ggufFiles,
+            return ggufAssessment(&a, input: input, info: info, ggufFiles: ggufFiles,
                                   env: input.env)
         }
         if hasPytorchBin && hasConfig {
@@ -175,7 +262,6 @@ public enum CompatibilityRules {
         a.checkedPath.status = .unknown
         a.checkedPath.detail = "no loadable weight format was identified in the file manifest"
         if let ci = input.configIssue { a.limitations.append(ci) }
-        if info.gated { a.limitations.append("repo is gated (\(info.gatedKind ?? "auto")) — file manifest may be incomplete without HF_TOKEN") }
         a.nextActions.append("Use the agent prompt to have an agent inspect the full file list and README for a documented execution path.")
         return a
     }
@@ -281,16 +367,28 @@ public enum CompatibilityRules {
         weightBytes: Int64, mlxPacked: Bool, ram: Int64, disk: Int64
     ) -> Assessment {
         guard let cfg = input.config else {
-            a.verdict = .unknown
             let hint = input.architecturesHint
-            if !hint.isEmpty {
-                a.verdictSummary = "architecture \(hint.joined(separator: ", ")) — config.json parsed only partially"
-                a.checkedPath.detail = "config.json is present but didn't fully parse; the named architecture(s) can't be verified against the loader's requirements"
+            // Partial-but-known: a verified arch name + Hub param stats
+            // (the gated-repo situation — resolve/ 401s but the API gave
+            // us architectures + safetensors counts) earns a provisional
+            // verdict rather than unknown.
+            if hint.contains(where: { verifiedArchitectures.contains($0) }) {
+                a.verdict = .changesRequired
+                a.verdictSummary = "\(hint.joined(separator: ", ")) is a verified architecture; full config unreadable (gated or malformed) — blocker fields unverifiable"
+                a.checkedPath.status = .changesRequired
+                a.checkedPath.detail = "architecture is verified and the weight format is safetensors; config-level gates (activation, RoPE scaling, GQA divisibility) could not be evaluated without a readable config.json"
+                a.limitations.append("config-level compatibility checks skipped — config.json unreadable\(info.gated ? " (gated repo)" : "")")
             } else {
-                a.verdictSummary = "safetensors present but config.json could not be read"
-                a.checkedPath.detail = "cannot determine the architecture without config.json"
+                a.verdict = .unknown
+                if !hint.isEmpty {
+                    a.verdictSummary = "architecture \(hint.joined(separator: ", ")) — config.json parsed only partially"
+                    a.checkedPath.detail = "config.json is present but didn't fully parse; the named architecture(s) can't be verified against the loader's requirements"
+                } else {
+                    a.verdictSummary = "safetensors present but config.json could not be read"
+                    a.checkedPath.detail = "cannot determine the architecture without config.json"
+                }
+                a.checkedPath.status = .unknown
             }
-            a.checkedPath.status = .unknown
             if let ci = input.configIssue { a.limitations.append(ci) }
             a.nextActions.append("Set HF_TOKEN if the repo is gated, then re-run; otherwise hand the agent prompt to investigate config.json.")
             return a
@@ -348,6 +446,25 @@ public enum CompatibilityRules {
             addMemoryChange(&a, weightBytes: weightBytes, disk: disk)
             return a
         }
+        // Remote-code repos (auto_map / transformersInfo.custom_class)
+        // ship their own modeling file — which we never execute. If the
+        // architecture isn't natively verified, the modeling code was
+        // doing the work, so this is a named unsupported, not unknown.
+        if input.remoteCode, !verified {
+            let named = archs.isEmpty ? "(unnamed)" : archs.joined(separator: ", ")
+            a.verdict = .unsupportedOnCheckedPath
+            a.verdictSummary = "\(named) needs repository-provided modeling code — never executed by policy"
+            a.checkedPath.status = .unsupportedOnCheckedPath
+            a.checkedPath.detail = "config declares auto_map/custom code (trust_remote_code); posttrainllm's loader builds architectures natively and will not run repo-shipped code. A native port is the only checked-path route."
+            a.otherPaths.append(transformersPath(env: input.env, task: info.pipelineTag ?? "text-generation"))
+            a.nextActions.append("If you trust the repo's modeling code, transformers `trust_remote_code=True` is the documented path — review the code first.")
+            addMemoryChange(&a, weightBytes: weightBytes, disk: disk)
+            return a
+        }
+        if input.remoteCode {
+            a.limitations.append("repo declares custom modeling code (auto_map) — ignored by the native loader; verify the standard implementation suffices")
+        }
+
         if moe {
             a.verdict = .unsupportedOnCheckedPath
             a.verdictSummary = "MoE \(archs.joined(separator: ", ")) — the HF loader builds a dense MLP"
@@ -392,6 +509,20 @@ public enum CompatibilityRules {
                 addMemoryChange(&a, weightBytes: weightBytes, disk: disk)
                 return a
             }
+            // A positively-identified non-Llama convention is a named
+            // unsupported, not unknown: fused-QKV / encoder layouts can't
+            // be mapped onto the loader's per-tensor expectations.
+            if let conv = layout?.conventionName {
+                a.verdict = .unsupportedOnCheckedPath
+                a.verdictSummary = "\(named) uses \(conv) — a weight layout the loader doesn't map"
+                a.checkedPath.status = .unsupportedOnCheckedPath
+                a.checkedPath.detail = "tensor names are \(conv), not the model.layers.*.self_attn/mlp convention HFModelLoader consumes; a name-remap port is the checked-path route"
+                a.otherPaths.append(mlxLmPath(env: input.env, note: "mlx-lm handles this family natively"))
+                a.otherPaths.append(transformersPath(env: input.env, task: info.pipelineTag ?? "text-generation"))
+                a.nextActions.append("Run through mlx-lm or transformers — both support \(named) natively.")
+                addMemoryChange(&a, weightBytes: weightBytes, disk: disk)
+                return a
+            }
             a.verdict = .unknown
             a.verdictSummary = "architecture \(named) is not in the verified load set"
             a.checkedPath.status = .unknown
@@ -409,6 +540,15 @@ public enum CompatibilityRules {
             return a
         }
 
+        // Cross-check: a verified arch name whose tensor layout does NOT
+        // match the loader's convention shouldn't pass silently.
+        if verified, let layout, layout.kind != .llamaFamily,
+           layout.kind != .packedQuant, layout.kind != .unknown {
+            // non-LM kinds were handled above; a mismatch here means e.g.
+            // encoder/diffusion markers inside a nominally-LM config.
+            a.limitations.append("config says \(archs.joined(separator: ", ")) but tensor layout classifies as \(layout.kind.rawValue) — treated with suspicion")
+        }
+
         // Verified family — config-level blockers next.
         if let reason = cfg.unsupportedReason() {
             a.verdict = .unsupportedOnCheckedPath
@@ -423,12 +563,19 @@ public enum CompatibilityRules {
             return a
         }
 
-        // Loadable — now it's a memory/disk question.
+        // Loadable — now it's a memory/disk question. Exact header
+        // dtype/shape sums beat Hub stats beat file-size guesses.
         let est = weightEstimate(info: info)
-        let weights = weightBytes > 0 ? weightBytes : (est?.bytes ?? 0)
+        let weights = input.exactWeightBytes ?? (weightBytes > 0 ? weightBytes : (est?.bytes ?? 0))
         let footprint = loadFootprint(weightBytes: weights, mlxPacked: mlxPacked, config: cfg)
-        let estNote = est.map { "~\($0.params > 0 ? fmtParams($0.params) + " params, " : "")\(fmtBytes($0.bytes)) weights (\($0.source))" }
-            ?? "weight size unknown"
+        let estNote: String
+        if let exact = input.exactWeightBytes {
+            let p = input.exactParams.map { fmtParams($0) + " params, " } ?? ""
+            estNote = "~\(p)\(fmtBytes(exact)) weights (exact from safetensors header dtypes)"
+        } else {
+            estNote = est.map { "~\($0.params > 0 ? fmtParams($0.params) + " params, " : "")\(fmtBytes($0.bytes)) weights (\($0.source))" }
+                ?? "weight size unknown"
+        }
         if weights == 0 {
             a.limitations.append("weight size could not be determined — memory fit is unverified")
         }
@@ -479,20 +626,57 @@ public enum CompatibilityRules {
     }
 
     static func ggufAssessment(
-        _ a: inout Assessment, info: HubModelClient.Info,
+        _ a: inout Assessment, input: Input, info: HubModelClient.Info,
         ggufFiles: [HubModelClient.Sibling], env: MacEnvironment
     ) -> Assessment {
         let variant = a.selectedVariant ?? ggufFiles.first?.name ?? "the .gguf file"
         let variantSize = ggufFiles.first(where: { $0.name == variant })?.size
             ?? ggufFiles.compactMap(\.size).max()
+        let meta = input.ggufMeta
 
-        a.verdict = .changesRequired
-        a.verdictSummary = "GGUF weights — needs a download plus a GGUF-capable runtime"
-        a.checkedPath.status = .changesRequired
-        a.checkedPath.detail = "posttrainllm loads single-file GGUF (`gguf-load`, materialized through the HF loader) for Llama-family architectures; this repo ships no safetensors, so download '\(variant)' first — architecture support still needs verifying against the verified set"
         a.requiredChanges.append(.init(kind: "model-component",
             detail: "download \(variant) from the repo's Files tab",
             sizeBytes: variantSize, estimate: variantSize == nil))
+
+        // Header-verified verdicts: general.architecture + file_type
+        // tell us the arch AND the quant — and quant matters because
+        // GGUFReader dequantizes F32/F16/Q4_0/Q8_0 only. Most published
+        // GGUFs are K-quants, which our loader cannot dequantize yet.
+        if let meta, let arch = meta.architecture {
+            let quant = meta.fileType.map(GGUFHeader.fileTypeName) ?? "unknown quant"
+            let ctx = meta.contextLength.map { ", ctx \(fmtParams(Int64($0)))" } ?? ""
+            a.evidence.append(.init(
+                source: "GGUF header of \(variant) (Range-read metadata only)",
+                kind: "documented",
+                detail: "architecture \(arch), quant \(quant)\(ctx), \(meta.tensorCount) tensors"))
+            let archKnown = GGUFHeader.llamaFamilyArchNames.contains(arch)
+            let quantOK = meta.fileType.map { GGUFHeader.loaderSupportedFileTypes.contains($0) } ?? false
+            if archKnown && quantOK {
+                a.verdict = .changesRequired
+                a.verdictSummary = "GGUF \(arch)/\(quant) — verified loadable by `gguf-load` once downloaded"
+                a.checkedPath.status = .changesRequired
+                a.checkedPath.detail = "header confirms a llama-family arch and a quant our GGUFReader dequantizes"
+            } else if archKnown && !quantOK {
+                a.verdict = .unsupportedOnCheckedPath
+                a.verdictSummary = "GGUF \(arch) is compatible-shaped, but \(quant) quantization isn't dequantized by our loader yet"
+                a.checkedPath.status = .unsupportedOnCheckedPath
+                a.checkedPath.detail = "GGUFReader supports F32/F16/Q4_0/Q8_0/BF16; \(quant) needs the K-quant/IQ dequant follow-up — llama.cpp and Ollama handle it today"
+                a.requiredChanges.append(.init(kind: "runtime",
+                    detail: "K-quant dequant in GGUFReader, or pick an F16/Q8_0/Q4_0 variant of this repo if published",
+                    sizeBytes: nil, estimate: false))
+            } else {
+                a.verdict = .unsupportedOnCheckedPath
+                a.verdictSummary = "GGUF architecture '\(arch)' is outside the loader's llama-family set"
+                a.checkedPath.status = .unsupportedOnCheckedPath
+                a.checkedPath.detail = "GGUF arch names differ from HF names; '\(arch)' isn't one of \(GGUFHeader.llamaFamilyArchNames.sorted().joined(separator: ", "))"
+            }
+        } else {
+            a.verdict = .changesRequired
+            a.verdictSummary = "GGUF weights — needs a download plus a GGUF-capable runtime"
+            a.checkedPath.status = .changesRequired
+            a.checkedPath.detail = "posttrainllm loads single-file GGUF (`gguf-load`) for llama-family archs with F32/F16/Q4_0/Q8_0 quants; the header wasn't readable so arch + quant are unverified"
+            a.limitations.append("GGUF header of \(variant) could not be range-read — arch and quant unverified")
+        }
 
         let ollama = env.runtimes.first { $0.name == "ollama" }
         let llamacpp = env.runtimes.first { $0.name == "llama.cpp" }
