@@ -250,6 +250,7 @@ const OPENAPI_SPEC = {
           recipes: { type: "integer" },
           stages: { type: "integer" },
           buildableArtifacts: { type: "integer" },
+          studies: { type: "integer" },
         },
       },
       MacRelease: {

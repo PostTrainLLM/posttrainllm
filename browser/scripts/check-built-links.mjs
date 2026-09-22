@@ -83,6 +83,12 @@ const coreRoutes = [
   "/recipes",
   "/learn",
   "/artifacts",
+  "/studies",
+  "/studies/trainloop-ai",
+  "/experiments/sql-toy-sft-r4",
+  "/recipes/distillation",
+  "/learn/paths/post-training",
+  "/learn/artifacts/byte-tinygpt",
   "/docs/cli-reference",
 ];
 for (const route of coreRoutes) {

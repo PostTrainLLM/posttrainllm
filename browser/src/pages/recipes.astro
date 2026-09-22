@@ -184,10 +184,7 @@ const completeRecipes = recipeRegistry.recipes;
         <div class="rec-grid">
           {
             completeRecipes.map((recipe) => (
-              <a
-                class="rec-card"
-                href={`/${recipe.technique_path.replace(/\.md$/, "")}`}
-              >
+              <a class="rec-card" href={`/recipes/${recipe.id}`}>
                 <span class="rec-tag mono-label">
                   {recipe.status.replaceAll("-", " ")}
                 </span>
@@ -207,7 +204,7 @@ const completeRecipes = recipeRegistry.recipes;
                     </>
                   </div>
                 </dl>
-                <span class="rec-go">Open evidence and method →</span>
+                <span class="rec-go">Open canonical recipe →</span>
               </a>
             ))
           }

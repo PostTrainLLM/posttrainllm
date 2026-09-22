@@ -1,0 +1,412 @@
+---
+import SiteHeader from "../SiteHeader.astro";
+import Default from "../../layouts/Default.astro";
+import "../../styles/system.css";
+import type { KnowledgeRecord } from "../../data/knowledgeGraph";
+
+interface Props {
+  record: KnowledgeRecord;
+  backHref: string;
+  backLabel: string;
+  active?: string;
+}
+
+const { record, backHref, backLabel, active = "learn" } = Astro.props;
+const canonical = `https://posttrainllm.com${record.canonicalPath}`;
+const markdown = `${record.canonicalPath}.md`;
+const pageTitle = `${record.title} | ${record.title.length > 39 ? "PTLLM" : "PostTrainLLM"}`;
+const schemaType = record.kind === "recipe" ? "HowTo" : "TechArticle";
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": schemaType,
+      "@id": `${canonical}#record`,
+      headline: record.title,
+      name: record.title,
+      description: record.description,
+      url: canonical,
+      datePublished: "2026-09-23",
+      dateModified: "2026-09-23",
+      author: { "@type": "Person", name: "Sarthak Agrawal" },
+      isPartOf: { "@id": "https://posttrainllm.com/#app" },
+      about: record.kindLabel,
+      keywords: [
+        record.kind,
+        record.status,
+        ...record.facts.map((fact) => fact.value),
+      ],
+      citation: record.sources.map((source) => source.href),
+      ...(record.kind === "recipe"
+        ? {
+            step: record.sections.map((section, index) => ({
+              "@type": "HowToStep",
+              position: index + 1,
+              name: section.title,
+              text: [
+                ...(section.paragraphs ?? []),
+                ...(section.items ?? []),
+              ].join(" "),
+            })),
+          }
+        : {}),
+    },
+    {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "posttrainllm",
+          item: "https://posttrainllm.com/",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: backLabel,
+          item: `https://posttrainllm.com${backHref}`,
+        },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: record.title,
+          item: canonical,
+        },
+      ],
+    },
+  ],
+};
+---
+
+<Default
+  title={pageTitle}
+  description={record.description}
+  ogTitle={`${record.title} — PostTrainLLM evidence dossier`}
+  ogDescription={record.description}
+  ogType="article"
+  ogUrl={canonical}
+>
+  <link slot="head" rel="alternate" type="text/markdown" href={markdown} />
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(jsonLd)}
+  />
+  <SiteHeader mode="instrument" active={active} />
+
+  <main id="main" class="dossier">
+    <header class="dossier-hero">
+      <nav class="crumb" aria-label="Breadcrumb">
+        <a href={backHref}>← {backLabel}</a>
+        <span aria-hidden="true">/</span>
+        <span>{record.id}</span>
+      </nav>
+      <p class="eyebrow">{record.kindLabel}</p>
+      <h1>{record.title}</h1>
+      <p class="lede">{record.description}</p>
+    </header>
+
+    <dl class="verdict-strip" aria-label="Evidence summary">
+      {
+        record.facts.map((fact, index) => (
+          <div class:list={[{ disposition: index === 0 }]}>
+            <dt>{fact.label}</dt>
+            <dd>{fact.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <div class="dossier-grid">
+      <article class="dossier-body">
+        {
+          record.sections.map((section) => (
+            <section>
+              <h2>{section.title}</h2>
+              {section.paragraphs?.map((paragraph) => (
+                <p>{paragraph}</p>
+              ))}
+              {section.items && (
+                <ul>
+                  {section.items.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          ))
+        }
+
+        <section class="reading-contract">
+          <h2>How to read this dossier</h2>
+          <p>
+            This canonical page separates the retained repository decision from
+            the material that informed it. A source may describe an external
+            claim, historical measurement, local observation, or planned
+            procedure; those evidence classes are not interchangeable. Follow
+            the provenance links before reusing a number or method.
+          </p>
+          <p>
+            Status and disposition describe what PostTrainLLM retained when this
+            record was indexed. They are not a live product promise, a newly run
+            benchmark, or permission to restart historical work. Unknown or
+            unmeasured fields remain unknown rather than being treated as zero.
+          </p>
+          <p>
+            To reuse the record, first name the exact claim you need and trace
+            it to the linked source. Then check whether the original
+            environment, model revision, data split, evaluator, hardware, and
+            budget match the proposed use. If they do not, treat the record as a
+            hypothesis or design reference and run the smallest fresh comparison
+            that can falsify it. Preserve negative outcomes and regressions
+            beside any improvement; a local win on one slice does not silently
+            become a general capability claim.
+          </p>
+        </section>
+
+        <section class="provenance">
+          <h2>Source provenance</h2>
+          <p>
+            The normalized record comes from <code>{record.sourceRecord}</code>.
+            The links below are the tracked evidence and explanatory sources
+            preserved with the record.
+          </p>
+          <ul>
+            {
+              record.sources.map((source) => (
+                <li>
+                  <a href={source.href}>{source.label} ↗</a>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="machine-link">
+            <a href={markdown}>Read the Markdown equivalent →</a>
+          </p>
+        </section>
+      </article>
+
+      <aside class="related" aria-labelledby="related-title">
+        <p class="rail-label" id="related-title">Related evidence</p>
+        <ul>
+          {
+            record.relations.map((relation) => (
+              <li>
+                <span>{relation.kind ?? "record"}</span>
+                <a href={relation.href}>{relation.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="record-id">
+          <span>Canonical record</span>
+          <code>{record.kind}:{record.id}</code>
+        </div>
+      </aside>
+    </div>
+  </main>
+</Default>
+
+<style>
+  .dossier {
+    width: min(100%, 1120px);
+    margin: 0 auto;
+    padding: clamp(44px, 7vw, 92px) var(--gutter) var(--s-10);
+  }
+  .dossier-hero {
+    max-width: 920px;
+  }
+  .crumb {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-bottom: var(--s-7);
+    color: var(--fg-quiet);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+  .crumb a {
+    color: var(--fg-quiet);
+  }
+  .crumb a:hover {
+    color: var(--live);
+  }
+  .eyebrow,
+  .rail-label,
+  .record-id span {
+    color: var(--live);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 650;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+  h1 {
+    max-width: 18ch;
+    margin-top: var(--s-4);
+  }
+  .lede {
+    max-width: 68ch;
+    margin-top: var(--s-5);
+    color: var(--fg-soft);
+    font-size: var(--step-1);
+    line-height: 1.65;
+  }
+  .verdict-strip {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.7fr) repeat(3, minmax(130px, 1fr));
+    margin-top: var(--s-7);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .verdict-strip div {
+    min-width: 0;
+    padding: var(--s-5);
+    border-left: 1px solid var(--line);
+  }
+  .verdict-strip div:first-child {
+    border-left: 0;
+  }
+  .verdict-strip dt {
+    color: var(--fg-quiet);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .verdict-strip dd {
+    margin-top: var(--s-2);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-weight: 620;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+  .verdict-strip .disposition dd {
+    color: var(--live);
+  }
+  .dossier-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: clamp(48px, 8vw, 104px);
+    align-items: start;
+    margin-top: var(--s-8);
+  }
+  .dossier-body {
+    max-width: 72ch;
+  }
+  .dossier-body section + section {
+    margin-top: var(--s-7);
+    padding-top: var(--s-7);
+    border-top: 1px solid var(--line);
+  }
+  .dossier-body h2 {
+    font-size: var(--step-2);
+  }
+  .dossier-body p,
+  .dossier-body li {
+    color: var(--fg-soft);
+    line-height: 1.78;
+  }
+  .dossier-body h2 + p,
+  .dossier-body h2 + ul,
+  .dossier-body p + p,
+  .dossier-body p + ul {
+    margin-top: var(--s-4);
+  }
+  .dossier-body ul {
+    padding-left: 1.25rem;
+  }
+  .dossier-body li + li {
+    margin-top: var(--s-3);
+  }
+  .reading-contract {
+    border-left: 2px solid var(--live);
+    padding-left: var(--s-5);
+  }
+  .provenance code {
+    color: var(--live-bright);
+  }
+  .machine-link {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+  .related {
+    position: sticky;
+    top: 96px;
+  }
+  .related ul {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--s-4);
+    border-top: 1px solid var(--line);
+  }
+  .related li {
+    padding: var(--s-4) 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .related li span,
+  .record-id span {
+    display: block;
+    margin-bottom: var(--s-1);
+    color: var(--fg-quiet);
+    font-size: 0.68rem;
+  }
+  .related li a {
+    display: block;
+    color: var(--fg);
+    font-size: var(--step--1);
+    font-weight: 590;
+    line-height: 1.45;
+  }
+  .related li a:hover {
+    color: var(--live);
+  }
+  .record-id {
+    margin-top: var(--s-6);
+    padding: var(--s-4);
+    border: 1px solid var(--line);
+    border-radius: var(--r-2);
+    background: var(--sunken);
+  }
+  .record-id code {
+    color: var(--fg-soft);
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 860px) {
+    .verdict-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .verdict-strip div:nth-child(3) {
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+    .verdict-strip div:nth-child(4) {
+      border-top: 1px solid var(--line);
+    }
+    .dossier-grid {
+      grid-template-columns: 1fr;
+    }
+    .related {
+      position: static;
+    }
+  }
+  @media (max-width: 520px) {
+    .verdict-strip {
+      grid-template-columns: 1fr;
+    }
+    .verdict-strip div,
+    .verdict-strip div:nth-child(3) {
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+    .verdict-strip div:first-child {
+      border-top: 0;
+    }
+    .reading-contract {
+      padding-left: var(--s-4);
+    }
+  }
+</style>

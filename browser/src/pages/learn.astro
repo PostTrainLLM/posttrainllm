@@ -378,7 +378,11 @@ const structuredData = {
                     <header>
                       <div>
                         <p class="artifact-kind">{artifact.kind}</p>
-                        <h4>{artifact.title}</h4>
+                        <h4>
+                          <a href={`/learn/artifacts/${artifact.id}`}>
+                            {artifact.title}
+                          </a>
+                        </h4>
                       </div>
                       <span class={`readiness ${artifact.readiness}`}>
                         {artifact.readiness.replaceAll("-", " ")}
@@ -455,7 +459,9 @@ const structuredData = {
                     ? `after ${path.prerequisites.join(" + ")}`
                     : "start here"}
                 </p>
-                <h3>{path.title}</h3>
+                <h3>
+                  <a href={`/learn/paths/${path.id}`}>{path.title}</a>
+                </h3>
                 <ol>
                   {path.sequence.map((step) => (
                     <li>{step}</li>
@@ -488,9 +494,9 @@ const structuredData = {
                   </div>
                 </dl>
                 <div class="path-actions">
-                  <a href={docHref(path.anchors[0])}>Open the path →</a>
+                  <a href={`/learn/paths/${path.id}`}>Open the path →</a>
                   {path.recipes.map((recipe) => (
-                    <a href={docHref(recipe.technique_path)}>
+                    <a href={`/recipes/${recipe.id}`}>
                       Recipe: {recipe.title} →
                     </a>
                   ))}

@@ -1,0 +1,23 @@
+---
+import EvidenceDossier from "../../../components/content/EvidenceDossier.astro";
+import {
+  learningArtifactRecords,
+  type KnowledgeRecord,
+} from "../../../data/knowledgeGraph";
+
+export function getStaticPaths() {
+  return learningArtifactRecords.map((record) => ({
+    params: { id: record.id },
+    props: { record },
+  }));
+}
+
+const { record } = Astro.props as { record: KnowledgeRecord };
+---
+
+<EvidenceDossier
+  record={record}
+  backHref="/learn#artifact-journey"
+  backLabel="learning artifacts"
+  active="learn"
+/>
