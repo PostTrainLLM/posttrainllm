@@ -262,61 +262,94 @@ public enum ModelCheckService {
     /// and open questions — and instructs the receiving agent to
     /// investigate before proposing changes.
     public static func agentPrompt(for r: ModelCheckReport) -> String {
-        var p: [String] = []
-        p.append("Investigate whether and how this Hugging Face model can run on the described Mac, then report findings BEFORE proposing or making any changes. Do not install software, download weights, or modify the machine without explicit confirmation.")
-        p.append("")
-        p.append("Model: https://huggingface.co/\(r.model.id) (revision: \(r.model.revision))")
-        if let t = r.model.task { p.append("Task: \(t)") }
-        if !r.model.architectures.isEmpty {
-            p.append("Architectures: \(r.model.architectures.joined(separator: ", "))")
+        var lines = [
+            "Investigate whether and how this Hugging Face model can run on the described Mac, then report findings BEFORE proposing or making any changes. Do not install software, download weights, or modify the machine without explicit confirmation.",
+            "",
+        ]
+        appendModelSummary(r, to: &lines)
+        appendEnvironmentSummary(r, to: &lines)
+        appendCompatibilitySummary(r, to: &lines)
+        lines.append("")
+        lines.append("Evidence:")
+        for evidence in r.evidence {
+            lines.append("- [\(evidence.kind)] \(evidence.detail) — \(evidence.source)")
         }
-        if !r.model.formats.isEmpty {
-            p.append("Formats seen: \(r.model.formats.joined(separator: ", "))")
+        lines += [
+            "",
+            "Questions to resolve:",
+            "- Is there a documented execution path on Apple Silicon for this exact repo/revision?",
+            "- What are the real memory, disk, and runtime requirements — verified against official documentation, not assumed?",
+            "- If the checked path is wrong or incomplete, what did the checker miss?",
+        ]
+        return lines.joined(separator: "\n")
+    }
+
+    private static func appendModelSummary(
+        _ report: ModelCheckReport,
+        to lines: inout [String]
+    ) {
+        lines.append("Model: https://huggingface.co/\(report.model.id) (revision: \(report.model.revision))")
+        if let task = report.model.task { lines.append("Task: \(task)") }
+        if !report.model.architectures.isEmpty {
+            lines.append("Architectures: \(report.model.architectures.joined(separator: ", "))")
         }
-        if r.model.gated { p.append("Repo is gated — an HF_TOKEN with accepted license terms is required.") }
-        p.append("")
-        p.append("Environment (\(r.environment.source)):")
-        p.append("- chip: \(r.environment.chip) (\(r.environment.arch))")
-        p.append("- RAM: \(ModelCheckReport.fmtBytes(r.environment.ramBytes)); free disk: \(ModelCheckReport.fmtBytes(r.environment.freeDiskBytes)); \(r.environment.macOSVersion)")
-        let found = r.environment.runtimes.filter(\.found)
+        if !report.model.formats.isEmpty {
+            lines.append("Formats seen: \(report.model.formats.joined(separator: ", "))")
+        }
+        if report.model.gated {
+            lines.append("Repo is gated — an HF_TOKEN with accepted license terms is required.")
+        }
+    }
+
+    private static func appendEnvironmentSummary(
+        _ report: ModelCheckReport,
+        to lines: inout [String]
+    ) {
+        lines.append("")
+        lines.append("Environment (\(report.environment.source)):")
+        lines.append("- chip: \(report.environment.chip) (\(report.environment.arch))")
+        lines.append("- RAM: \(ModelCheckReport.fmtBytes(report.environment.ramBytes)); free disk: \(ModelCheckReport.fmtBytes(report.environment.freeDiskBytes)); \(report.environment.macOSVersion)")
+        let found = report.environment.runtimes.filter(\.found)
         if !found.isEmpty {
-            p.append("- runtimes: " + found.map { "\($0.name) \($0.version ?? "")".trimmingCharacters(in: .whitespaces) }.joined(separator: "; "))
+            let runtimes = found.map {
+                "\($0.name) \($0.version ?? "")".trimmingCharacters(in: .whitespaces)
+            }.joined(separator: "; ")
+            lines.append("- runtimes: \(runtimes)")
         }
-        p.append("")
-        p.append("Checker verdict: \(r.verdict.rawValue) — \(r.verdictSummary)")
-        p.append("Checked path: \(r.checkedPath.name) → \(r.checkedPath.status.rawValue): \(r.checkedPath.detail)")
-        if let operations = r.operations, !operations.isEmpty {
-            p.append("Operation-specific states:")
+    }
+
+    private static func appendCompatibilitySummary(
+        _ report: ModelCheckReport,
+        to lines: inout [String]
+    ) {
+        lines.append("")
+        lines.append("Checker verdict: \(report.verdict.rawValue) — \(report.verdictSummary)")
+        lines.append("Checked path: \(report.checkedPath.name) → \(report.checkedPath.status.rawValue): \(report.checkedPath.detail)")
+        if let operations = report.operations, !operations.isEmpty {
+            lines.append("Operation-specific states:")
             for operation in operations {
-                p.append("- \(operation.operation.rawValue): \(operation.status.rawValue) — \(operation.detail)")
+                lines.append("- \(operation.operation.rawValue): \(operation.status.rawValue) — \(operation.detail)")
             }
         }
-        if let receipt = r.verificationReceipt {
+        if let receipt = report.verificationReceipt {
             let runtime = receipt.runtime.map { " via \($0)" } ?? ""
-            p.append("Matching local receipt: \(receipt.status.rawValue)\(runtime), \(receipt.verifiedAt).")
+            lines.append("Matching local receipt: \(receipt.status.rawValue)\(runtime), \(receipt.verifiedAt).")
         }
-        if !r.otherPaths.isEmpty {
-            p.append("Other paths considered:")
-            for path in r.otherPaths {
-                p.append("- \(path.name) [\(path.status.rawValue), \(path.evidenceKind)]: \(path.detail)")
+        if !report.otherPaths.isEmpty {
+            lines.append("Other paths considered:")
+            for path in report.otherPaths {
+                lines.append("- \(path.name) [\(path.status.rawValue), \(path.evidenceKind)]: \(path.detail)")
             }
         }
-        if !r.requiredChanges.isEmpty {
-            p.append("Required changes identified:")
-            for c in r.requiredChanges { p.append("- [\(c.kind)] \(c.detail)") }
+        if !report.requiredChanges.isEmpty {
+            lines.append("Required changes identified:")
+            for change in report.requiredChanges {
+                lines.append("- [\(change.kind)] \(change.detail)")
+            }
         }
-        if !r.limitations.isEmpty {
-            p.append("Limitations / unresolved questions:")
-            for l in r.limitations { p.append("- \(l)") }
+        if !report.limitations.isEmpty {
+            lines.append("Limitations / unresolved questions:")
+            for limitation in report.limitations { lines.append("- \(limitation)") }
         }
-        p.append("")
-        p.append("Evidence:")
-        for e in r.evidence { p.append("- [\(e.kind)] \(e.detail) — \(e.source)") }
-        p.append("")
-        p.append("Questions to resolve:")
-        p.append("- Is there a documented execution path on Apple Silicon for this exact repo/revision?")
-        p.append("- What are the real memory, disk, and runtime requirements — verified against official documentation, not assumed?")
-        p.append("- If the checked path is wrong or incomplete, what did the checker miss?")
-        return p.joined(separator: "\n")
     }
 }

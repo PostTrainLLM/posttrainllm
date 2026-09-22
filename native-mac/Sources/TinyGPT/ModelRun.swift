@@ -85,21 +85,13 @@ enum ModelRun {
         for (i, plan) in plans.enumerated() {
             if i > 0 { print("falling back to \(plan.runner.rawValue)…") }
             print("runner: \(plan.runner.rawValue) — \(plan.why)\n")
-            let outcome: AttemptOutcome
-            switch plan.runner {
-            case .ollama:
-                outcome = runOllama(report: report, prompt: prompt,
-                                    tokens: maxTokens, chat: chat)
-            case .mlxSwift:
-                outcome = runMlxSwift(id: report.model.id, prompt: prompt,
-                                      tokens: maxTokens, chat: chat)
-            case .mlxLm:
-                outcome = runMlxLm(id: report.model.id, prompt: prompt,
-                                   tokens: maxTokens, chat: chat)
-            case .native:
-                outcome = runNative(report: report, prompt: prompt,
-                                    tokens: maxTokens)
-            }
+            let outcome = runAttempt(
+                plan,
+                report: report,
+                prompt: prompt,
+                maxTokens: maxTokens,
+                chat: chat
+            )
             let ok = printOutcome(runner: plan.runner.rawValue, result: outcome.result)
             attempts.append(outcome.receiptAttempt(
                 runner: plan.runner, report: report, requestedTokens: maxTokens,
@@ -149,7 +141,7 @@ enum ModelRun {
             requestedTokens: Int,
             succeeded: Bool
         ) -> ModelCheckReport.VerificationAttempt {
-            .init(
+            ModelCheckReport.VerificationAttempt(
                 runtime: runner.rawValue,
                 runtimeVersion: ModelRun.runtimeVersion(runner, report: report),
                 status: succeeded ? .verified : .failed,
@@ -160,6 +152,29 @@ enum ModelRun {
                 promptTokens: promptTokens,
                 generatedTokens: generatedTokens,
                 outputCharacters: result.stdout.count)
+        }
+    }
+
+    private static func runAttempt(
+        _ plan: Plan,
+        report: ModelCheckReport,
+        prompt: String,
+        maxTokens: Int,
+        chat: Bool
+    ) -> AttemptOutcome {
+        switch plan.runner {
+        case .ollama:
+            return runOllama(report: report, prompt: prompt,
+                             tokens: maxTokens, chat: chat)
+        case .mlxSwift:
+            return runMlxSwift(id: report.model.id, prompt: prompt,
+                               tokens: maxTokens, chat: chat)
+        case .mlxLm:
+            return runMlxLm(id: report.model.id, prompt: prompt,
+                            tokens: maxTokens, chat: chat)
+        case .native:
+            return runNative(report: report, prompt: prompt,
+                             tokens: maxTokens)
         }
     }
 
