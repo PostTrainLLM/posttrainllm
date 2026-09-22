@@ -75,9 +75,11 @@ public enum ModelRunner {
         // 2. Access gate first — nothing runs gated without a token.
         if report.model.gated,
            (ProcessInfo.processInfo.environment["HF_TOKEN"] ?? "").isEmpty {
-            persistReceipt(
-                report: report, status: .blocked, runtime: nil,
-                failureStage: .download, attempts: [])
+            if shouldRecordReceipt(chat: options.chat) {
+                persistReceipt(
+                    report: report, status: .blocked, runtime: nil,
+                    failureStage: .download, attempts: [])
+            }
             fputs("""
             blocked: \(report.model.id) is gated — accept the license at
               https://huggingface.co/\(report.model.id)
@@ -92,7 +94,9 @@ public enum ModelRunner {
         // dies on launch; the real stderr is the evidence).
         let plans = RunnerPlanner.plans(for: report, forced: options.forcedRunner)
         guard !plans.isEmpty else {
-            if shouldPersistSelectionFailure(forced: options.forcedRunner) {
+            if shouldPersistSelectionFailure(
+                forced: options.forcedRunner, chat: options.chat
+            ) {
                 persistReceipt(
                     report: report, status: .blocked, runtime: nil,
                     failureStage: .validate, attempts: [])
@@ -650,7 +654,7 @@ public enum ModelRunner {
             .joined(separator: "\n")
     }
 
-    private static func inferredFailureStage(
+    static func inferredFailureStage(
         _ result: Subprocess.Result
     ) -> ModelCheckReport.ExecutionStageName {
         let text = (result.stderr + "\n" + result.stdout).lowercased()
@@ -659,7 +663,8 @@ public enum ModelRunner {
             return .download
         }
         if text.contains("warm up") || text.contains("warmup") { return .warmUp }
-        if text.contains("generate") || text.contains("sampling") || text.contains("decode") {
+        if text.contains("generate") || text.contains("sampling") || text.contains("decode")
+            || text.contains("sample output") {
             return .smokeTest
         }
         return .load
@@ -711,7 +716,9 @@ public enum ModelRunner {
 
     static func shouldRecordReceipt(chat: Bool) -> Bool { !chat }
 
-    static func shouldPersistSelectionFailure(forced: Runner?) -> Bool { forced == nil }
+    static func shouldPersistSelectionFailure(forced: Runner?, chat: Bool) -> Bool {
+        forced == nil && !chat
+    }
 
     private static func attachedOutcome(status: Int32) -> RunOutcome {
         RunOutcome(

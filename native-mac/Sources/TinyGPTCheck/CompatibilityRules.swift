@@ -766,6 +766,7 @@ public enum CompatibilityRules {
         if let sz = variantSize {
             a.evidence.append(.init(source: "https://huggingface.co/\(info.id)", kind: "documented",
                                     detail: "selected variant \(variant): \(fmtBytes(sz)) (GGUF mmap footprint ≈ file size + context, estimate)"))
+            addMemoryChange(&a, weightBytes: sz, disk: env.freeDiskBytes)
         }
         a.nextActions.append("Download \(variant) and run `posttrainllm gguf-load <file>`, or run it directly through Ollama/llama.cpp.")
         return a

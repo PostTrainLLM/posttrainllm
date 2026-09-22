@@ -261,13 +261,18 @@ final class RunnerPlanTests: XCTestCase {
             durationMS: 10)
         XCTAssertNotEqual(ModelRunner.acceptedSampleResult(
             logsOnly, generatedTokens: nil, requiresTokenCount: true).status, 0)
+        XCTAssertEqual(ModelRunner.inferredFailureStage(rejected), .smokeTest)
     }
 
     func testChatAndForcedSelectionDoNotOverwriteModelReceipt() {
         XCTAssertFalse(ModelRunner.shouldRecordReceipt(chat: true))
         XCTAssertTrue(ModelRunner.shouldRecordReceipt(chat: false))
-        XCTAssertFalse(ModelRunner.shouldPersistSelectionFailure(forced: .native))
-        XCTAssertTrue(ModelRunner.shouldPersistSelectionFailure(forced: nil))
+        XCTAssertFalse(ModelRunner.shouldPersistSelectionFailure(
+            forced: .native, chat: false))
+        XCTAssertFalse(ModelRunner.shouldPersistSelectionFailure(
+            forced: nil, chat: true))
+        XCTAssertTrue(ModelRunner.shouldPersistSelectionFailure(
+            forced: nil, chat: false))
     }
 
     func testChatHintPinsResolvedSlashRevisionAndQuotesArguments() {

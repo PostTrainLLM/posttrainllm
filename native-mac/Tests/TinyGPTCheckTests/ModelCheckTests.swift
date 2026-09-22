@@ -300,6 +300,19 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertEqual(assessment.selectedVariant, "Qwen3-4B-Q8_0.gguf")
     }
 
+    func testGGUFVariantLargerThanFreeDiskAddsBlocker() {
+        let info = hubInfo(
+            id: "bartowski/Qwen3-4B-GGUF",
+            siblings: [.init(name: "Qwen3-4B-Q8_0.gguf", size: 4_200_000_000)])
+        let assessment = assess(
+            info, config: nil, env: env(diskGB: 3),
+            refString: "https://huggingface.co/bartowski/Qwen3-4B-GGUF/blob/main/Qwen3-4B-Q8_0.gguf")
+
+        XCTAssertTrue(assessment.requiredChanges.contains {
+            $0.detail.contains("free disk space")
+        })
+    }
+
     // MARK: - tensor layout + legacy schema
 
     private func llamaTensorNames() -> [String] {
