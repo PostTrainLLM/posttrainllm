@@ -845,6 +845,8 @@ public enum CompatibilityRules {
         var id: String { input.ref.id }
         var target: String { Self.canonicalTarget(input, revision: input.info?.sha) }
         var originalTarget: String { Self.canonicalTarget(input, revision: input.ref.revision) }
+        var targetArgument: String { "'\(target)'" }
+        var originalTargetArgument: String { "'\(originalTarget)'" }
         var exactGGUF: Bool { input.ref.filePath?.lowercased().hasSuffix(".gguf") == true }
         var ollamaApplicable: Bool {
             isGGUF && !exactGGUF && input.ref.revision == "main"
@@ -862,6 +864,9 @@ public enum CompatibilityRules {
                     "text-classification", "token-classification"].contains(assessment.task ?? "")
         }
         var isLM: Bool { isST && !isDiff && !isASR && !isEncoder }
+        var mlxLmApplicable: Bool {
+            isLM && input.ref.revision == "main" && input.ref.filePath == nil
+        }
         var isVLM: Bool {
             input.tensorLayout?.kind == .multimodal
                 || assessment.task == "image-text-to-text"
@@ -891,8 +896,11 @@ public enum CompatibilityRules {
         }
 
         private static func encodePathComponent(_ value: String) -> String {
-            var allowed = CharacterSet.urlPathAllowed
-            allowed.remove(charactersIn: "/")
+            // RFC 3986 unreserved only. Besides preserving segment boundaries,
+            // this encodes shell metacharacters before the URL is quoted in a
+            // copy-ready command.
+            let allowed = CharacterSet.alphanumerics
+                .union(CharacterSet(charactersIn: "-._~"))
             return value.addingPercentEncoding(withAllowedCharacters: allowed) ?? value
         }
 
@@ -914,17 +922,18 @@ public enum CompatibilityRules {
               detail: c.checkedOK
                 ? "our own loader — the checked path; `model-run` verifies it for real"
                 : "checked path doesn't apply to this model",
-              run: c.checkedOK ? "posttrainllm model-run \(c.target)" : nil),
+              run: c.checkedOK ? "posttrainllm model-run \(c.targetArgument)" : nil),
             T(name: "MLX-Swift-LM (posttrainllm-mlxrun)", availability: "bundled",
               applies: c.isST && (c.isLM || c.isVLM),
               detail: "Apple's maintained HF impls in-process — wide arch table (MoE, VLM, packed quants), auto-downloads",
               run: c.isST && (c.isLM || c.isVLM)
-                  ? "posttrainllm model-run \(c.target) --runtime mlx-swift" : nil),
+                  ? "posttrainllm model-run \(c.targetArgument) --runtime mlx-swift" : nil),
             T(name: "python3 mlx-lm",
               availability: c.pythonHas("mlx-lm") ? "installed" : "not_installed",
-              applies: c.isST && c.isLM,
+              applies: c.mlxLmApplicable,
               detail: "python MLX runner — the broadest LM arch table",
-              run: c.isST && c.isLM ? "python3 -m mlx_lm chat --model \(c.id)" : nil),
+              run: c.mlxLmApplicable
+                  ? "python3 -m mlx_lm chat --model '\(c.id)'" : nil),
         ]
     }
 
@@ -940,7 +949,7 @@ public enum CompatibilityRules {
                 ? "repo/quant selectors cannot guarantee the requested GGUF revision or blob"
                 : "runs GGUFs; `ollama run hf.co/…` or local Modelfile (model-run handles both)",
             run: c.ollamaApplicable
-                ? "posttrainllm model-run \(c.originalTarget) --runtime ollama" : nil)
+                ? "posttrainllm model-run \(c.originalTargetArgument) --runtime ollama" : nil)
     }
 
     private static func llamaTool(_ c: ToolContext) -> ModelCheckReport.ToolOption {
@@ -958,7 +967,7 @@ public enum CompatibilityRules {
             availability: c.probe("lms (LM Studio)") ? "installed" : "not_installed",
             applies: c.isGGUF, detail: "GUI + OpenAI-compatible server over GGUFs",
             run: c.isGGUF
-                ? "posttrainllm model-run \(c.target) --runtime lms" : nil)
+                ? "posttrainllm model-run \(c.targetArgument) --runtime lms" : nil)
     }
 
     private static func specializedTools(_ c: ToolContext) -> [ModelCheckReport.ToolOption] {
