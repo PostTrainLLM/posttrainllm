@@ -47,11 +47,24 @@ posttrainllm traces-to-data ~/.cache/posttrainllm/atraj/tool-call-v1 \
   --out raw-sft.jsonl
 ```
 
-Default filters: tool-echo drop (assistant turns that emitted a
-tool-call JSON but never reached `{"answer": ...}` are excluded —
-those are training-data noise, not training-data signal), exact dedup
-on `(prompt, response)`, and MinHash near-dedup on the prompt at
-Jaccard ≥ 0.85.
+Two export modes (`--export`, issue #159):
+
+- **`answer-only`** (default) — one row per (user → final assistant
+  answer) pair. Intermediate tool calls and tool results are dropped;
+  the row teaches the answer, not the actions that produced it.
+- **`trajectory`** — one row per assistant turn, each carrying the full
+  conditioning context (system, prior turns, tool calls, reconstructed
+  tool results) with per-message `supervise` flags. This is the mode
+  that teaches the tool-use *sequence*: every assistant turn —
+  including bare tool calls — is a supervised target under the exact
+  context the model saw. `sft` renders these rows per-block through the
+  agent loop's ChatML convention, masking loss to the flagged spans.
+
+Default filters: tool-echo drop (answer-only only — assistant turns
+that emitted a tool-call JSON but never reached `{"answer": ...}` are
+excluded), exact dedup on the full row, and MinHash near-dedup at
+Jaccard ≥ 0.85 — sketched on the prompt for answer-only, on the full
+conditioning context for trajectory.
 
 Tune the MinHash threshold per corpus:
 
@@ -121,6 +134,8 @@ knows what's missing:
 | `Sources/TinyGPTModel/AgentTrajectory.swift` | B22 — record types + Codable I/O |
 | `Sources/TinyGPT/AgentLoop.swift` | B22 — recorder hooks at every turn boundary |
 | `Sources/TinyGPT/TracesToData.swift` | B29 — orchestrator |
+| `Sources/TinyGPTModel/AgentTrajectoryExport.swift` | #159 — trajectory → per-turn rows |
+| `Sources/TinyGPTModel/SFTCorpus.swift` | `SFTReader` messages rows + `buildChatExample` |
 | `Sources/TinyGPT/ReasoningClassify.swift` | B30 — depth classifier + filter |
 | `evals/traces-to-data-fixtures/*.atraj` | smoke fixture (5 trajectories) |
 | `evals/traces-to-data-smoke.sh` | end-to-end smoke (rows in / rows out + filter-summary asserts) |

@@ -62,7 +62,7 @@ public struct AgentTrajectoryStep: Codable, Equatable {
 /// Structured tool invocation. We keep `arguments` as a JSON string so
 /// the codable surface stays Sendable and dictionary-heterogeneity isn't
 /// a problem — the consumer parses on demand.
-public struct ToolCallPayload: Codable, Equatable {
+public struct ToolCallPayload: Codable, Equatable, Sendable {
     public var name: String
     public var argumentsJson: String
 
@@ -77,7 +77,7 @@ public struct ToolCallPayload: Codable, Equatable {
     }
 }
 
-public struct ToolResultPayload: Codable, Equatable {
+public struct ToolResultPayload: Codable, Equatable, Sendable {
     public var name: String
     public var stdout: String
     public var stderr: String
