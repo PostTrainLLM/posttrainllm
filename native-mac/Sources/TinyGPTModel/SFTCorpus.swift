@@ -472,14 +472,18 @@ public enum SFTBuilder {
     /// without a real BPE tokenizer.
     public static func buildChatExample(
         messages: [SFTMessage], maxSeqLen: Int,
+        validTokenIds: Range<Int>? = nil,
         encode: (String) throws -> [Int32]
     ) throws -> SFTExample {
         var ids: [Int32] = []
         var mask: [Bool] = []
         for (text, supervise, recordedIds) in renderChatBlocks(messages) {
             let exactIds = recordedIds?.compactMap(Int32.init(exactly:))
+            let idsInVocabulary = recordedIds?.allSatisfy { id in
+                id >= 0 && (validTokenIds?.contains(id) ?? true)
+            } ?? false
             let blockIds: [Int32]
-            if let exactIds, exactIds.count == recordedIds?.count {
+            if let exactIds, exactIds.count == recordedIds?.count, idsInVocabulary {
                 blockIds = exactIds
             } else {
                 blockIds = try encode(text)
@@ -498,7 +502,8 @@ public enum SFTBuilder {
     public static func buildChatExample(
         messages: [SFTMessage], tokenizer: HFTokenizer, maxSeqLen: Int
     ) throws -> SFTExample {
-        try buildChatExample(messages: messages, maxSeqLen: maxSeqLen) {
+        try buildChatExample(messages: messages, maxSeqLen: maxSeqLen,
+                             validTokenIds: 0..<tokenizer.vocabSize) {
             try tokenizer.encode($0).map { Int32($0) }
         }
     }

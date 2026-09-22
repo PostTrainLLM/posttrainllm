@@ -504,11 +504,16 @@ public final class AgentLoop {
             generated.append(id)
             // Decoded-so-far view for stop & JSON detection.
             let decoded = decode(generated)
-            if isCompleteJSONObject(decoded) { break }
-            if decoded.contains(assistantTerminator) { break }
+            let shouldStop = isCompleteJSONObject(decoded)
+                || decoded.contains(assistantTerminator)
             if cache.currentLength >= cfg.contextLength { break }
+            // Every emitted token must enter the KV cache, including the
+            // token that closes a balanced JSON object. Tool continuation
+            // is fed after this cache state, and trajectory output_ids
+            // records the same sampled sequence.
             let logits = model.forwardCached(nextId.asType(.int32), cache: cache)
             lastLogits = logits[0..., 0, 0...]
+            if shouldStop { break }
         }
         // Stash for the B22 trajectory recorder. Always set (even when
         // the recorder is off) — the cost is one array assign per turn.
