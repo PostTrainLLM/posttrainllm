@@ -340,7 +340,8 @@ public enum ModelCheckService {
             checkedAt: ISO8601DateFormatter().string(from: Date()),
             input: input,
             model: ModelCheckReport.ModelSection(
-                id: ref.id, revision: ref.revision, filePath: ref.filePath,
+                id: ref.id, revision: ref.revision,
+                resolvedRevision: info?.sha, filePath: ref.filePath,
                 task: assessment.task, library: assessment.library,
                 architectures: assessment.architectures, formats: assessment.formats,
                 selectedVariant: assessment.selectedVariant,
@@ -361,7 +362,8 @@ public enum ModelCheckService {
             limitations: assessment.limitations)
         let storedReceipt = env.source == "detected"
             ? ModelVerificationStore().load(
-                modelID: ref.id, revision: ref.revision,
+                modelID: ref.id,
+                revision: ModelCompatibilityContract.receiptRevision(for: report.model),
                 environment: report.environment)
             : nil
         let hasHFAccess = !(ProcessInfo.processInfo.environment["HF_TOKEN"] ?? "").isEmpty

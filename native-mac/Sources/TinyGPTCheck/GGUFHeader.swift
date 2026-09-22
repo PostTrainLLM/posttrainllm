@@ -55,11 +55,11 @@ public enum GGUFHeader {
     }
 
     /// GGUF dequant types TinyGPTModel/GGUFReader supports — F32, F16,
-    /// BF16, Q4_0/Q8_0, and the K-quant implementations wired there.
+    /// Q4_0/Q8_0, and the K-quant implementations wired there.
     /// The values are llama.cpp `llama_model_ftype` codes, not tensor
     /// type codes; keep this list aligned with GGUFReader's switch.
     public static let loaderSupportedFileTypes: Set<UInt32> = [
-        0, 1, 2, 8, 14, 15, 16, 17, 18, 27,
+        0, 1, 2, 8, 14, 15, 16, 17, 18,
     ]
 
     /// GGUF `general.architecture` values our HF-native loader maps onto

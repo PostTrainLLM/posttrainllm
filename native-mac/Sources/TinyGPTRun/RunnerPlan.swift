@@ -93,6 +93,13 @@ public enum RunnerPlanner {
                 available: available)
         }
 
+        // A blob URL names one GGUF artifact. Do not prepend repo-level
+        // safetensors runners merely because the same repo publishes them.
+        if exactGGUF {
+            return ggufPlans(
+                formats: fmts, isMainRevision: isMainRevision,
+                exactGGUF: true, availability: available)
+        }
         return safetensorPlans(
             formats: fmts, checkedOK: checkedOK,
             isMainRevision: isMainRevision, available: available)
@@ -106,6 +113,7 @@ public enum RunnerPlanner {
         isMainRevision: Bool, exactGGUF: Bool,
         available: Availability
     ) -> [RunnerPlan] {
+        if exactGGUF { return exactGGUFPlan(runner, available: available) }
         let usable: Bool
         switch runner {
         case .native: usable = formats.contains("safetensors") && checkedOK
@@ -116,6 +124,13 @@ public enum RunnerPlanner {
         case .llamaCpp: usable = available.llamaCpp && isMainRevision && !exactGGUF
         }
         return usable ? [RunnerPlan(runner: runner, why: "forced via --runtime")] : []
+    }
+
+    private static func exactGGUFPlan(
+        _ runner: Runner, available: Availability
+    ) -> [RunnerPlan] {
+        guard runner == .lms, available.lms else { return [] }
+        return [RunnerPlan(runner: .lms, why: "forced via --runtime")]
     }
 
     private static func safetensorPlans(

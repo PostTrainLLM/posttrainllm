@@ -17,13 +17,22 @@ public enum ModelCompatibilityContract {
 
         guard let receipt,
               receipt.modelID == report.model.id,
-              receipt.revision == report.model.revision,
+              receipt.revision == receiptRevision(for: report.model),
               receipt.environmentFingerprint == environmentFingerprint(report.environment)
         else { return report }
 
         report.verificationReceipt = receipt
         merge(receipt, into: &report)
         return report
+    }
+
+    /// Receipts bind to the immutable Hub commit inspected whenever the API
+    /// resolved one. A receipt for mutable `main` must not survive a later
+    /// repository update and get presented as evidence for different bytes.
+    public static func receiptRevision(
+        for model: ModelCheckReport.ModelSection
+    ) -> String {
+        model.resolvedRevision ?? model.revision
     }
 
     public static func environmentFingerprint(

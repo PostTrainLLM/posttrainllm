@@ -167,6 +167,14 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertEqual(r.filePath, "model.safetensors")
     }
 
+    func testParseEncodedSlashRevisionWithoutMovingItIntoFilePath() throws {
+        let r = try ModelRef.parse(
+            "https://huggingface.co/o/r/blob/refs%2Fpr%2F1/nested/model.gguf")
+        XCTAssertEqual(r.id, "o/r")
+        XCTAssertEqual(r.revision, "refs/pr/1")
+        XCTAssertEqual(r.filePath, "nested/model.gguf")
+    }
+
     func testParseHfDotCo() throws {
         XCTAssertEqual(try ModelRef.parse("https://hf.co/a/b").id, "a/b")
     }
@@ -564,6 +572,43 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertEqual(a.verdict, .changesRequired)   // verified arch + supported quant
     }
 
+    func testGGUFBF16IsNotAdvertisedAsNativeLoadable() {
+        let info = hubInfo(
+            id: "x/gguf", siblings: [.init(name: "m-BF16.gguf", size: 3_000_000_000)])
+        let meta = GGUFHeader.Meta(version: 3, tensorCount: 300,
+                                   kv: ["general.architecture": "llama",
+                                        "general.file_type": UInt32(27)])
+        let a = CompatibilityRules.assess(rulesInput(
+            "x/gguf", info: info, ggufMeta: meta))
+        XCTAssertEqual(a.verdict, .unsupportedOnCheckedPath)
+        XCTAssertFalse(GGUFHeader.loaderSupportedFileTypes.contains(27))
+    }
+
+    func testExactGGUFInMixedRepoControlsAssessmentAndToolCommands() {
+        var (info, config) = lmInfo(id: "x/mixed")
+        info.sha = "deadbeef"
+        info.siblings.append(.init(name: "nested/m-Q4_K_M.gguf", size: 2_000_000_000))
+        let meta = GGUFHeader.Meta(version: 3, tensorCount: 300,
+                                   kv: ["general.architecture": "llama",
+                                        "general.file_type": UInt32(15)])
+        let target = "https://huggingface.co/x/mixed/blob/refs%2Fpr%2F1/nested/m-Q4_K_M.gguf"
+        let input = rulesInput(target, info: info, config: config, ggufMeta: meta)
+        let assessment = CompatibilityRules.assess(input)
+        XCTAssertEqual(assessment.selectedVariant, "nested/m-Q4_K_M.gguf")
+        XCTAssertTrue(assessment.checkedPath.detail.contains("supported quant"))
+
+        let tools = CompatibilityRules.toolMatrix(input: input, assessment: assessment)
+        let native = tools.first { $0.name == "posttrainllm (native)" }
+        let ollama = tools.first { $0.name == "Ollama" }
+        let lms = tools.first { $0.name == "LM Studio (lms)" }
+        XCTAssertEqual(native?.applies, false)
+        XCTAssertEqual(ollama?.applies, false)
+        XCTAssertNil(ollama?.run)
+        XCTAssertEqual(lms?.applies, true)
+        XCTAssertTrue(lms?.run?.contains(
+            "https://huggingface.co/x/mixed/blob/deadbeef/nested/m-Q4_K_M.gguf") == true)
+    }
+
     // MARK: - report schema + agent prompt
 
     func testReportRoundTripsJSON() throws {
@@ -576,7 +621,8 @@ final class ModelCheckTests: XCTestCase {
         let report = ModelCheckReport(
             schemaVersion: 1, checkedAt: "2026-09-22T00:00:00Z",
             input: "Qwen/Qwen3-4B-Instruct-2507",
-            model: .init(id: info.id, revision: "main", task: a.task,
+            model: .init(id: info.id, revision: "main", resolvedRevision: "abc123",
+                         task: a.task,
                          library: a.library, architectures: a.architectures,
                          formats: a.formats, selectedVariant: a.selectedVariant,
                          gated: false, lastModified: nil),
@@ -593,6 +639,7 @@ final class ModelCheckTests: XCTestCase {
         let json = try report.encoded()
         XCTAssertTrue(json.contains("\"schema_version\""))
         XCTAssertTrue(json.contains("\"expected_to_work\""))
+        XCTAssertTrue(json.contains("\"resolved_revision\" : \"abc123\""))
         let decoded = try ModelCheckReport.decode(Data(json.utf8))
         XCTAssertEqual(decoded, report)
     }
@@ -703,6 +750,30 @@ final class ModelCheckTests: XCTestCase {
             .contains("19 measured tokens") ?? false)
         XCTAssertEqual(enriched.executionStages?.last?.status, .passed)
         XCTAssertEqual(enriched.verificationReceipt, receipt)
+    }
+
+    func testMutableRevisionReceiptMustMatchResolvedCommit() {
+        let (info, cfg) = lmInfo()
+        var base = report(info: info, config: cfg)
+        base.model.resolvedRevision = "abc123"
+        let fingerprint = ModelCompatibilityContract.environmentFingerprint(base.environment)
+
+        func receipt(revision: String) -> ModelCheckReport.VerificationReceipt {
+            ModelCheckReport.VerificationReceipt(
+                identity: .init(
+                    modelID: info.id, revision: revision,
+                    environmentFingerprint: fingerprint),
+                verifiedAt: "2026-09-22T01:02:03Z",
+                outcome: .init(status: .verified))
+        }
+
+        let stale = ModelCompatibilityContract.enrich(
+            base, hasHFAccess: false, receipt: receipt(revision: "main"))
+        XCTAssertNil(stale.verificationReceipt)
+
+        let current = ModelCompatibilityContract.enrich(
+            base, hasHFAccess: false, receipt: receipt(revision: "abc123"))
+        XCTAssertEqual(current.verificationReceipt?.revision, "abc123")
     }
 
     func testFailureReceiptNamesLoadBoundary() {

@@ -60,8 +60,14 @@ public struct ModelRef: Equatable, Sendable {
             throw ParseError.notHuggingFaceURL(input)
         }
 
-        var comps = url.path.split(separator: "/", omittingEmptySubsequences: true)
+        // Split the percent-encoded path first, then decode each component.
+        // URL.path decodes `%2F` before splitting, which turns a revision such
+        // as `refs%2Fpr%2F1` into three path components and silently targets a
+        // different ref/file pair.
+        let encodedComponents = url.path(percentEncoded: true)
+            .split(separator: "/", omittingEmptySubsequences: true)
             .map(String.init)
+        var comps = encodedComponents.map(decodedPathComponent)
         guard !comps.isEmpty else { throw ParseError.missingRepo(input) }
 
         // Repo-kind prefixes: /datasets/<id>, /spaces/<id> are not models.
@@ -93,6 +99,10 @@ public struct ModelRef: Equatable, Sendable {
             }
         }
         return ModelRef(id: id, revision: revision, filePath: filePath)
+    }
+
+    private static func decodedPathComponent(_ encoded: String) -> String {
+        return encoded.removingPercentEncoding ?? encoded
     }
 
     private static func isValidRepoID(_ id: String) -> Bool {
