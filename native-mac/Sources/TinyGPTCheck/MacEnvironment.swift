@@ -110,6 +110,26 @@ public struct MacEnvironment: Equatable, Sendable {
         cli("llama.cpp", ["llama-cli", "--help"], "`llama-cli --help`")
         cli("lms (LM Studio)", ["lms", "--version"], "`lms --version`")
 
+        // posttrainllm-mlxrun is our own sibling executable — it sits
+        // beside this binary in the build products dir, not necessarily
+        // on PATH, so probe by file existence rather than spawning it.
+        let mlxrunPath: String? = {
+            let dir = (CommandLine.arguments[0] as NSString)
+                .deletingLastPathComponent
+            let sibling = dir + "/posttrainllm-mlxrun"
+            if FileManager.default.isExecutableFile(atPath: sibling) {
+                return sibling
+            }
+            if let r = runProbe(["which", "posttrainllm-mlxrun"]) {
+                let p = r.out.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !p.isEmpty { return p }
+            }
+            return nil
+        }()
+        out.append(.init(name: "mlx-swift runner",
+                         found: mlxrunPath != nil, version: nil,
+                         detail: "posttrainllm-mlxrun sibling (MLX-Swift-LM)"))
+
         // One python probe reports the whole ML stack via
         // importlib.metadata — versions without importing heavy modules.
         if let r = runProbe(["python3", "-c", """

@@ -11,8 +11,9 @@ import TinyGPTData
 ///                            lms (`get` + `load` + `chat -p`), then
 ///                            llama-cli (`-hf <id>:<quant>`)
 ///   safetensors, checked OK→ native posttrainllm (download → hf-load sample)
-///   safetensors, other     → mlx-lm (`python3 -m mlx_lm generate` —
-///                            widest arch table, auto-downloads)
+///   safetensors, other     → mlx-swift (`posttrainllm-mlxrun` sibling —
+///                            Apple's MLX-Swift-LM impls, no python dep),
+///                            then mlx-lm (`python3 -m mlx_lm generate`)
 ///   gated without HF_TOKEN → named blocker, nothing attempted
 ///
 /// Every runner is a bounded subprocess (timeout, captured output, killed
@@ -77,6 +78,8 @@ public enum ModelRunner {
             switch plan.runner {
             case .native:
                 ok = runNative(report: report, options: options)
+            case .mlxSwift:
+                ok = runMlxSwift(id: report.model.id, options: options)
             case .mlxLm:
                 ok = runMlxLm(id: report.model.id, options: options)
             case .ollama:
@@ -174,14 +177,21 @@ public enum ModelRunner {
 
     // MARK: - ollama
 
+    /// The local ollama model name when the Modelfile fallback created
+    /// one — the chat hint points here instead of the hf.co ref that
+    /// failed. Set only by runOllama; read only by chatHint.
+    private static var ollamaLocalModel: String? = nil
+
     /// `ollama run hf.co/<id>[:quant] "<prompt>"` — one-shot mode prints
     /// the generation and exits; the GGUF pull happens inside the same
     /// call on first use. When the checker picked a variant, its quant
-    /// tag pins the pull; a rejected tag retries the bare ref once.
+    /// tag pins the pull; a rejected tag retries the bare ref once, then
+    /// a direct-download + `ollama create` Modelfile fallback runs.
     private static func runOllama(report: ModelCheckReport,
                                   options: Options) -> Bool {
         let base = "hf.co/\(report.model.id)"
         let tagged = ggufQuantTag(report: report).map { "\(base):\($0)" } ?? base
+        ollamaLocalModel = nil
 
         // Installed ≠ serving. Start `ollama serve` ourselves when the
         // daemon doesn't answer — and terminate only the one we spawned.
@@ -206,7 +216,50 @@ public enum ModelRunner {
             r = Subprocess.capture(["ollama", "run", base, options.prompt],
                                    timeout: 1800)
         }
+        // ollama's hf.co pull chokes on HF's Xet CDN cross-host redirects.
+        // Robust fallback: download the selected GGUF ourselves (our
+        // downloader follows redirects), `ollama create` from a
+        // Modelfile, then run the local model.
+        if r.status != 0,
+           let variant = report.model.selectedVariant,
+           variant.lowercased().hasSuffix(".gguf") {
+            fputs("  ollama hf.co pull failed — downloading the GGUF directly\n", stderr)
+            if let local = try? downloadGGUFVariant(report: report, variant: variant) {
+                let name = "posttrainllm-"
+                    + variant.replacingOccurrences(of: ".gguf", with: "")
+                        .lowercased()
+                let modelfile = local.deletingLastPathComponent()
+                    .appendingPathComponent("Modelfile")
+                try? "FROM \"\(local.path)\"\n".write(
+                    to: modelfile, atomically: true, encoding: .utf8)
+                let c = Subprocess.capture(
+                    ["ollama", "create", name, "-f", modelfile.path],
+                    timeout: 300)
+                if c.status == 0 {
+                    ollamaLocalModel = name
+                    r = Subprocess.capture(["ollama", "run", name, options.prompt],
+                                           timeout: 600)
+                }
+            }
+        }
         return printOutcome(runner: "ollama", result: r)
+    }
+
+    /// Download the checker's selected GGUF variant into the model cache
+    /// — the fallback for runtimes whose own Hub pull fails.
+    private static func downloadGGUFVariant(report: ModelCheckReport,
+                                            variant: String) throws -> URL {
+        let dir = try cacheDir(for: report.model.id)
+        let dest = dir.appendingPathComponent(variant)
+        if !FileManager.default.fileExists(atPath: dest.path) {
+            let url = "https://huggingface.co/\(report.model.id)/resolve/\(report.model.revision)/\(variant)"
+            fputs("  \(variant)…\n", stderr)
+            try HFDatasets.streamDownload(urlString: url, to: dest) { done, total in
+                if total > 0 { fputs("\r    \(done * 100 / total)%", stderr) }
+            }
+            fputs("\n", stderr)
+        }
+        return dest
     }
 
     /// A quant tag (`Q4_K_M`, `Q8_0`, `F16`, …) recovered from the
@@ -240,6 +293,38 @@ public enum ModelRunner {
             Thread.sleep(forTimeInterval: 0.2)
         }
         return false
+    }
+
+    // MARK: - mlx-swift (posttrainllm-mlxrun sibling)
+
+    /// MLX-Swift-LM via the `posttrainllm-mlxrun` sibling executable —
+    /// Apple's maintained HF model impls (LLM + VLM + embedders) running
+    /// in their own process, so a load failure is a captured result, not
+    /// a crash here. Honors HF_TOKEN via the HubClient env auto-detect.
+    private static func runMlxSwift(id: String, options: Options) -> Bool {
+        guard let bin = mlxrunBinary() else {
+            fputs("  posttrainllm-mlxrun not built — run `swift build --product posttrainllm-mlxrun`\n", stderr)
+            return false
+        }
+        if options.chat {
+            return Subprocess.attached([bin, id, "--chat"]) == 0
+        }
+        let r = Subprocess.capture(
+            [bin, id, "--prompt", options.prompt,
+             "--max-tokens", String(options.maxTokens)],
+            timeout: 1800)
+        return printOutcome(runner: "mlx-swift", result: r)
+    }
+
+    /// Locate the sibling `posttrainllm-mlxrun` next to this binary,
+    /// else on PATH.
+    static func mlxrunBinary() -> String? {
+        let dir = (CommandLine.arguments[0] as NSString).deletingLastPathComponent
+        let sibling = dir + "/posttrainllm-mlxrun"
+        if FileManager.default.isExecutableFile(atPath: sibling) { return sibling }
+        let which = Subprocess.capture(["which", "posttrainllm-mlxrun"], timeout: 5)
+        let path = which.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        return which.status == 0 && !path.isEmpty ? path : nil
     }
 
     // MARK: - mlx-lm
@@ -397,8 +482,13 @@ public enum ModelRunner {
     static func chatHint(_ runner: Runner, report: ModelCheckReport) -> String {
         switch runner {
         case .ollama:
+            // When the Modelfile fallback created a local model, point at
+            // it — the hf.co pull is the path that failed.
+            if let local = ollamaLocalModel { return "ollama run \(local)" }
             let base = "hf.co/\(report.model.id)"
             return "ollama run \(ggufQuantTag(report: report).map { "\(base):\($0)" } ?? base)"
+        case .mlxSwift:
+            return "\(CommandLine.arguments[0]) model-run \(report.model.id) --runtime mlx-swift --chat"
         case .mlxLm:
             return "python3 -m mlx_lm chat --model \(report.model.id)"
         case .lms:

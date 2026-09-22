@@ -17,6 +17,7 @@ final class RunnerPlanTests: XCTestCase {
                         checkedDetail: String = "verified architecture",
                         ollama: Bool = false,
                         lms: Bool = false,
+                        mlxSwift: Bool = false,
                         mlxLm: Bool = false,
                         llamaCpp: Bool = false,
                         gated: Bool = false,
@@ -28,11 +29,13 @@ final class RunnerPlanTests: XCTestCase {
                   version: lms ? "0.3.27" : nil, detail: "test"),
             .init(name: "llama.cpp", found: llamaCpp,
                   version: llamaCpp ? "7000" : nil, detail: "test"),
+            .init(name: "mlx-swift runner", found: mlxSwift, version: nil,
+                  detail: "test"),
             .init(name: "python3 ML stack", found: mlxLm,
                   version: mlxLm ? "mlx==0.31.2, mlx-lm==0.31.3" : nil,
                   detail: "test"),
         ]
-        if !ollama && !lms && !mlxLm && !llamaCpp { runtimes = [] }
+        if !ollama && !lms && !mlxSwift && !mlxLm && !llamaCpp { runtimes = [] }
         return ModelCheckReport(
             schemaVersion: 1, checkedAt: "2026-09-22T00:00:00Z",
             input: "x/y",
@@ -50,7 +53,7 @@ final class RunnerPlanTests: XCTestCase {
             verdictSummary: "summary",
             checkedPath: .init(name: "posttrainllm native runtime",
                                status: checkedStatus, detail: checkedDetail),
-            otherPaths: [], requiredChanges: [], evidence: [],
+            otherPaths: [], requiredChanges: [], tools: [], evidence: [],
             nextActions: [], agentPrompt: "", limitations: [])
     }
 
@@ -73,7 +76,17 @@ final class RunnerPlanTests: XCTestCase {
         XCTAssertEqual(runners(r), [.native])
     }
 
-    func testUnsupportedArchSkipsNativeForMlxLm() {
+    func testMlxSwiftBeatsPythonMlxLmForSafetensors() {
+        // The compiled sibling has no env to break — it's preferred over
+        // python mlx-lm for archs native can't run, and as the cross-check.
+        let r = report(formats: ["safetensors"],
+                       checkedStatus: .unsupportedOnCheckedPath,
+                       checkedDetail: "MoE — the HF loader builds a dense MLP",
+                       mlxSwift: true, mlxLm: true)
+        XCTAssertEqual(runners(r), [.mlxSwift, .mlxLm])
+    }
+
+    func testUnsupportedArchWithoutMlxSwiftStillUsesMlxLm() {
         // MoE on the checked path → native would build the wrong model;
         // the installed alternative is the plan.
         let r = report(formats: ["safetensors"],
@@ -146,6 +159,15 @@ final class RunnerPlanTests: XCTestCase {
     func testForcedRunnerNarrowsToOne() {
         let r = report(formats: ["safetensors"], ollama: true, mlxLm: true)
         XCTAssertEqual(runners(r, forced: .mlxLm), [.mlxLm])
+    }
+
+    func testForcedMlxSwiftNeedsTheSiblingBinary() {
+        let r = report(formats: ["safetensors"], mlxSwift: true)
+        XCTAssertEqual(runners(r, forced: .mlxSwift), [.mlxSwift])
+        let missing = report(formats: ["safetensors"])
+        XCTAssertTrue(runners(missing, forced: .mlxSwift).isEmpty)
+        XCTAssertTrue(RunnerPlanner.blocker(for: missing, forced: .mlxSwift)
+            .contains("posttrainllm-mlxrun"))
     }
 
     func testForcedUnavailableRunnerIsBlocker() {

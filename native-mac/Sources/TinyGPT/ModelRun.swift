@@ -13,13 +13,14 @@ import TinyGPTRun
 ///   posttrainllm model-run <url> --chat --prompt "hi" --max-tokens 64
 ///
 /// FLAGS
-///   --runtime auto|native|mlx-lm|ollama|lms|llama-cli   force one runner (default auto)
+///   --runtime auto|native|mlx-swift|mlx-lm|ollama|lms|llama-cli   force one runner (default auto)
 ///   --chat             hand the terminal to the runtime's interactive session
 ///   --prompt "…"       sample prompt (default: a one-sentence hello)
 ///   --max-tokens N     bound the sample (default 32)
 ///
 /// Runner choice (auto): safetensors + checked-path-OK → native hf-load;
-/// GGUF → ollama, else lms; other safetensors → mlx-lm. Gated repos
+/// GGUF → ollama → lms → llama-cli; other safetensors → mlx-swift then
+/// mlx-lm. Gated repos
 /// without HF_TOKEN stop with the named fix. All logic lives in the
 /// TinyGPTRun library; this file only parses arguments.
 ///
@@ -56,7 +57,7 @@ enum ModelRun {
                 } else if let r = Runner(rawValue: value) {
                     options.forcedRunner = r
                 } else {
-                    fputs("--runtime must be auto|native|mlx-lm|ollama|lms|llama-cli\n", stderr)
+                    fputs("--runtime must be auto|native|mlx-swift|mlx-lm|ollama|lms|llama-cli\n", stderr)
                     exit(2)
                 }
                 i += 2
@@ -91,7 +92,7 @@ enum ModelRun {
         and fall through to the next installed candidate.
 
         Flags:
-          --runtime auto|native|mlx-lm|ollama|lms|llama-cli   force one runner
+          --runtime auto|native|mlx-swift|mlx-lm|ollama|lms|llama-cli   force one runner
           --chat            interactive session instead of the bounded sample
           --prompt "…"      sample prompt
           --max-tokens N    bound the sample (default 32)

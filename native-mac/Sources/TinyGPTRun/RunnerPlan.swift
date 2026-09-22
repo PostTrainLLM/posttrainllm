@@ -7,14 +7,19 @@ import TinyGPTCheck
 ///
 /// A *runner* is an installed piece of software that can turn a Hub repo
 /// into generated tokens:
-///   native  — posttrainllm's own hf-load (always available: it is us)
-///   mlx-lm  — `python3 -m mlx_lm generate` (widest arch table; the
-///             installed alternative for archs native rejects, e.g. MoE)
-///   ollama  — `ollama run hf.co/<id>` (pulls + runs GGUF in one step)
-///   lms     — LM Studio CLI (`lms get` + `lms load` + `lms chat -p`),
-///             the GGUF fallback when Ollama is absent or can't pull
-///   llamaCpp— `llama-cli -hf <id>:<quant>` — pulls + generates direct
-///             from the Hub, the last-resort GGUF runner
+///   native   — posttrainllm's own hf-load (always available: it is us)
+///   mlx-swift— the `posttrainllm-mlxrun` sibling executable: Apple's
+///              MLX-Swift-LM impls in-process, no python dependency —
+///              the preferred alternative when native can't run an arch
+///   mlx-lm   — `python3 -m mlx_lm generate` (wider arch table still;
+///              depends on a healthy python env)
+///   ollama   — `ollama run hf.co/<id>` (pulls + runs GGUF in one step),
+///              with a direct-download + `ollama create` fallback for
+///              Hub Xet-redirect failures
+///   lms      — LM Studio CLI (`lms get` + `lms load` + `lms chat -p`),
+///              the GGUF fallback when Ollama is absent or can't pull
+///   llamaCpp — `llama-cli -hf <id>:<quant>` — pulls + generates direct
+///              from the Hub, the last-resort GGUF runner
 ///
 /// GGUF is deliberately *not* routed to native: `gguf-load` is a
 /// structural validator — it parses and maps tensors but cannot generate
@@ -27,6 +32,7 @@ import TinyGPTCheck
 /// detected-but-broken runtime falls through instead of dead-ending.
 public enum Runner: String, Sendable, CaseIterable {
     case native
+    case mlxSwift = "mlx-swift"
     case mlxLm = "mlx-lm"
     case ollama
     case lms
@@ -54,6 +60,7 @@ public enum RunnerPlanner {
         let hasOllama = installed(env, "ollama")
         let hasLms = installed(env, "lms (LM Studio)")
         let hasLlamaCpp = installed(env, "llama.cpp")
+        let hasMlxSwift = installed(env, "mlx-swift runner")
         let hasMlxLm = env.contains {
             $0.name == "python3 ML stack" && $0.found
                 && ($0.version?.contains("mlx-lm") ?? false)
@@ -74,6 +81,8 @@ public enum RunnerPlanner {
                     return []   // gguf-load validates structure; it does not generate
                 }
                 return [RunnerPlan(runner: .native, why: "forced via --runtime")]
+            case .mlxSwift:
+                return hasMlxSwift ? [RunnerPlan(runner: .mlxSwift, why: "forced via --runtime")] : []
             case .mlxLm:
                 return hasMlxLm ? [RunnerPlan(runner: .mlxLm, why: "forced via --runtime")] : []
             case .ollama:
@@ -109,6 +118,15 @@ public enum RunnerPlanner {
                     why: "llama.cpp installed — `llama-cli -hf` pulls and generates directly"))
             }
         }
+        // MLX-Swift-LM beats the python mlx-lm install as the wide-table
+        // alternative: it's our own compiled sibling, no env to break —
+        // a partial python env probes fine then dies mid-import.
+        if fmts.contains("safetensors") && hasMlxSwift {
+            plans.append(RunnerPlan(runner: .mlxSwift,
+                why: checkedOK
+                    ? "posttrainllm-mlxrun — Apple's MLX-Swift-LM impls, the cross-check runner"
+                    : "checked path can't run this arch — MLX-Swift-LM's table is wider (MoE, VLM)"))
+        }
         if fmts.contains("safetensors") && hasMlxLm {
             plans.append(RunnerPlan(runner: .mlxLm,
                 why: checkedOK
@@ -130,6 +148,8 @@ public enum RunnerPlanner {
                     return "forced --runtime native but \(report.model.id) has no safetensors weights — the native loader reads safetensors, and gguf-load validates rather than generates"
                 }
                 return "forced --runtime native is unavailable"
+            case .mlxSwift:
+                return "forced --runtime mlx-swift but posttrainllm-mlxrun is not built — `cd native-mac && swift build --product posttrainllm-mlxrun`"
             case .mlxLm:
                 return "forced --runtime mlx-lm but `python3 -m mlx_lm` is not installed (pip install mlx-lm)"
             case .ollama:
