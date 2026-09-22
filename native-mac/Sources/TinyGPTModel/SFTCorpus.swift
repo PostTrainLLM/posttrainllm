@@ -243,6 +243,40 @@ public struct SFTRecord: Sendable {
     public let instruction: String
     public let input: String
     public let response: String
+    /// When set, this is a multi-turn chat row (traces-to-data's
+    /// `--export trajectory` output, or any `messages:` array). The flat
+    /// fields are ignored and the row renders per-block through the
+    /// agent-loop ChatML convention — see `SFTBuilder.buildChatExample`.
+    public let messages: [SFTMessage]?
+
+    public init(instruction: String, input: String, response: String,
+                messages: [SFTMessage]? = nil) {
+        self.instruction = instruction
+        self.input = input
+        self.response = response
+        self.messages = messages
+    }
+}
+
+/// One message in a chat-array SFT row. `supervise` marks the spans the
+/// loss scores; rows without explicit flags fall back to supervising
+/// the last assistant message only (matching the historical "last
+/// assistant turn is the response" convention).
+public struct SFTMessage: Sendable {
+    public let role: String
+    public let content: String
+    public let supervise: Bool
+    /// Exact sampled IDs from `.atraj`, when this is an assistant turn.
+    /// Trajectory SFT consumes these instead of re-encoding decoded text,
+    /// which can drift for whitespace, non-ASCII, and tool-argument JSON.
+    public let outputIds: [Int]?
+    public init(role: String, content: String, supervise: Bool,
+                outputIds: [Int]? = nil) {
+        self.role = role
+        self.content = content
+        self.supervise = supervise
+        self.outputIds = outputIds
+    }
 }
 
 public enum SFTReader {
@@ -277,6 +311,54 @@ public enum SFTReader {
             } catch {
                 throw ReadError.parseError(line: lineNo, detail: "\(error)")
             }
+            // Chat-array row: {messages: [{role, content, supervise?}]}.
+            // Consumed by `sft` via buildChatExample — previously these
+            // rows fell through to the flat-field check below and were
+            // silently dropped (CorrectionCuration documents the trap).
+            if let arr = obj["messages"] as? [[String: Any]] {
+                guard !arr.isEmpty else {
+                    throw ReadError.parseError(
+                        line: lineNo, detail: "messages must not be empty")
+                }
+                var msgs: [SFTMessage] = []
+                for (messageIndex, m) in arr.enumerated() {
+                    guard let role = m["role"] as? String,
+                          let content = m["content"] as? String else {
+                        throw ReadError.parseError(
+                            line: lineNo,
+                            detail: "messages[\(messageIndex)] needs string role and content")
+                    }
+                    let supervise = m["supervise"] as? Bool ?? false
+                    guard !supervise || role == "assistant" else {
+                        throw ReadError.parseError(
+                            line: lineNo,
+                            detail: "only assistant messages may be supervised")
+                    }
+                    let outputIds = (m["output_ids"] as? [Any])?.compactMap {
+                        ($0 as? NSNumber)?.intValue
+                    }
+                    msgs.append(SFTMessage(
+                        role: role, content: content, supervise: supervise,
+                        outputIds: outputIds))
+                }
+                // No explicit supervision flags → supervise the last
+                // assistant turn only, matching prior convention.
+                if !msgs.contains(where: { $0.supervise }),
+                   let last = msgs.lastIndex(where: { $0.role == "assistant" }) {
+                    msgs[last] = SFTMessage(role: "assistant",
+                                            content: msgs[last].content,
+                                            supervise: true,
+                                            outputIds: msgs[last].outputIds)
+                }
+                guard msgs.contains(where: { $0.supervise }) else {
+                    throw ReadError.parseError(
+                        line: lineNo,
+                        detail: "messages needs at least one assistant target")
+                }
+                records.append(SFTRecord(instruction: "", input: "",
+                                         response: "", messages: msgs))
+                continue
+            }
             // Accept either {instruction, input?, response} OR {prompt, completion}.
             let instruction = (obj["instruction"] as? String) ?? (obj["prompt"] as? String) ?? ""
             let input = (obj["input"] as? String) ?? ""
@@ -304,6 +386,10 @@ public enum SFTBuilder {
         record: SFTRecord, template: PromptTemplate, tokenizer: HFTokenizer,
         maxSeqLen: Int
     ) throws -> SFTExample {
+        if let messages = record.messages {
+            return try buildChatExample(
+                messages: messages, tokenizer: tokenizer, maxSeqLen: maxSeqLen)
+        }
         let (fullText, _) = template.render(
             instruction: record.instruction, input: record.input, response: record.response
         )
@@ -327,5 +413,93 @@ public enum SFTBuilder {
         let truncatedIds = Array(fullIds.prefix(maxSeqLen))
         let truncatedMask = Array(mask.prefix(maxSeqLen))
         return SFTExample(tokens: truncatedIds, responseMask: truncatedMask)
+    }
+
+    // MARK: - multi-turn chat rows (issue #159 trajectory export)
+
+    /// Render a `messages` row into per-turn blocks matching what the
+    /// agent loop actually feeds the model — `AgentLoop` encodes each
+    /// appended block separately (`feedText`), so per-block tokenization
+    /// reproduces the inference-time token stream exactly; a whole-text
+    /// encode could drift at block boundaries.
+    ///
+    /// Block shapes (the `<|im_start|>assistant\n` preface is generated
+    /// by the preceding context block's suffix — never supervised):
+    ///   system    → <|im_start|>system\n…<|im_end|>              context
+    ///   user/tool → <|im_start|>role\n…<|im_end|>\n<|im_start|>assistant\n
+    ///                                                            context
+    ///   assistant → sampled output IDs (or decoded content)            supervise?
+    ///
+    /// Trajectory rows ignore `--template` deliberately: the agent's wire
+    /// format is fixed ChatML, and rendering tool turns through Alpaca
+    /// would train a format inference never produces.
+    static func renderChatBlocks(_ messages: [SFTMessage])
+        -> [(text: String, supervise: Bool, outputIds: [Int]?)]
+    {
+        var blocks: [(String, Bool, [Int]?)] = []
+        var assistantPrefacePending = true   // first assistant needs its marker
+        for m in messages {
+            switch m.role {
+            case "assistant":
+                if assistantPrefacePending {
+                    blocks.append(("<|im_start|>assistant\n", false, nil))
+                }
+                // AgentLoop stops as soon as it has a complete JSON object;
+                // it does not append an assistant terminator before the next
+                // tool/user block. Preserve that actual token stream. Prefer
+                // recorded sampled IDs so decoded-text re-encoding cannot
+                // move the supervision boundary.
+                blocks.append((m.content, m.supervise, m.outputIds))
+                assistantPrefacePending = true
+            case "system":
+                blocks.append(("<|im_start|>system\n\(m.content)<|im_end|>", false, nil))
+                assistantPrefacePending = true
+            default:
+                // user, tool, or anything else: context block that also
+                // carries the next assistant preface (the loop's
+                // userSuffix / toolResultSuffix shape).
+                blocks.append(("<|im_start|>\(m.role)\n\(m.content)<|im_end|>\n<|im_start|>assistant\n",
+                               false, nil))
+                assistantPrefacePending = false
+            }
+        }
+        return blocks
+    }
+
+    /// Tokenize a chat row: encode each rendered block independently and
+    /// concatenate (per-feedText semantics), supervising exactly the
+    /// flagged spans. Injectable encoder keeps this unit-testable
+    /// without a real BPE tokenizer.
+    public static func buildChatExample(
+        messages: [SFTMessage], maxSeqLen: Int,
+        encode: (String) throws -> [Int32]
+    ) throws -> SFTExample {
+        var ids: [Int32] = []
+        var mask: [Bool] = []
+        for (text, supervise, recordedIds) in renderChatBlocks(messages) {
+            let exactIds = recordedIds?.compactMap(Int32.init(exactly:))
+            let blockIds: [Int32]
+            if let exactIds, exactIds.count == recordedIds?.count {
+                blockIds = exactIds
+            } else {
+                blockIds = try encode(text)
+            }
+            ids.append(contentsOf: blockIds)
+            mask.append(contentsOf: [Bool](repeating: supervise,
+                                           count: blockIds.count))
+        }
+        // Trajectory targets sit at the end of a growing context. Keep the
+        // most recent window so a long rollout cannot silently truncate the
+        // entire supervised turn into an all-zero-loss example.
+        return SFTExample(tokens: Array(ids.suffix(maxSeqLen)),
+                          responseMask: Array(mask.suffix(maxSeqLen)))
+    }
+
+    public static func buildChatExample(
+        messages: [SFTMessage], tokenizer: HFTokenizer, maxSeqLen: Int
+    ) throws -> SFTExample {
+        try buildChatExample(messages: messages, maxSeqLen: maxSeqLen) {
+            try tokenizer.encode($0).map { Int32($0) }
+        }
     }
 }

@@ -45,7 +45,7 @@ if grep -q '"{\\\"tool\\\":' "$OUT"; then
   fail "tool-echo assistant turn leaked into output"
 fi
 
-echo "$out" | grep -q "raw (user→assistant) samples harvested: 4" \
+echo "$out" | grep -q "raw rows harvested:                           4" \
   || fail "expected 4 harvested samples (5 trajectories, 1 tool-echo dropped at harvest)"
 echo "$out" | grep -q "exact-duplicates dropped:               1" \
   || fail "expected 1 exact-duplicate drop"
@@ -81,5 +81,34 @@ echo "--- --judge-model rejection ---"
 if "$BIN" traces-to-data "$FIX" --task t --out "$TMP/never.jsonl" --judge-model fakeq3 >/dev/null 2>&1; then
   fail "expected non-zero exit when --judge-model is passed (V1 deferred)"
 fi
+
+# 5) --export trajectory (issue #159) — one row per assistant turn with the
+# full context preserved. Fixture 05 (user → tool-call → tool, no answer)
+# produces a row whose supervised target IS the tool call — the exact
+# signal answer-only drops. Expect 4 rows (01, 03, 04, 05; 02 exact-dupped).
+echo "--- --export trajectory ---"
+TRAJ_OUT="$TMP/traj.jsonl"
+out5="$("$BIN" traces-to-data "$FIX" --task t --out "$TRAJ_OUT" --export trajectory)" \
+  || fail "trajectory run exited non-zero"
+echo "$out5"
+rows5="$(wc -l < "$TRAJ_OUT" | tr -d ' ')"
+[ "$rows5" = "4" ] || fail "expected 4 trajectory rows, got $rows5"
+
+# Fixture 05's tool call survives as a supervised target.
+python3 - "$TRAJ_OUT" <<'PY' || fail "trajectory row checks failed"
+import json, sys
+rows = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+assert all(r.get("export") == "trajectory" for r in rows), "missing export tag"
+assert all(r["messages"][-1]["role"] == "assistant" and r["messages"][-1]["supervise"]
+           for r in rows), "last message must be the supervised assistant turn"
+assert all(not m.get("supervise") for r in rows for m in r["messages"][:-1]), \
+    "context messages must be unsupervised"
+# The tool-call rollout produced a supervised tool-call turn.
+toolcall = [r for r in rows
+            if any(m.get("tool_call") for m in r["messages"])]
+assert toolcall, "no row carries a tool_call payload"
+assert any(r["messages"][-1].get("tool_call") for r in toolcall), \
+    "the tool call itself should be a supervised target"
+PY
 
 echo "SMOKE PASS"

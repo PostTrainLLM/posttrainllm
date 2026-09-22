@@ -233,6 +233,11 @@ public final class AgentLoop {
     public func prefillSystemPrompt(_ text: String,
                                      alreadyPrefilled: Bool = false) -> Int
     {
+        if trajectoryRecorder?.trajectory.steps.isEmpty == true {
+            trajectoryRecorder?.appendSystem(
+                text: AgentTrajectoryExport.systemContent(from: text),
+                inputIds: encode(text))
+        }
         // If the cache was loaded from disk for this prompt, currentLength
         // is already populated. Caller signals via `alreadyPrefilled`.
         if alreadyPrefilled {
@@ -362,14 +367,14 @@ public final class AgentLoop {
                         text: trimmed, outputIds: assistantStepOutputIds,
                         toolCall: ToolCallPayload(
                             name: toolName, argumentsJson: argsJsonStr))
-                    trajectoryRecorder?.appendTool(
-                        result: ToolResultPayload(
-                            name: toolName,
-                            stdout: toolResult.stdout,
-                            stderr: toolResult.stderr,
-                            exitCode: Int(toolResult.exitCode),
-                            durationSec: toolResult.durationSec))
-                    let resultJSON = encodeToolResult(toolName, result: toolResult)
+                    let resultPayload = ToolResultPayload(
+                        name: toolName,
+                        stdout: toolResult.stdout,
+                        stderr: toolResult.stderr,
+                        exitCode: Int(toolResult.exitCode),
+                        durationSec: toolResult.durationSec)
+                    trajectoryRecorder?.appendTool(result: resultPayload)
+                    let resultJSON = AgentTrajectoryExport.toolResultText(resultPayload)
                     feedText(toolResultPreface + resultJSON + toolResultSuffix)
                     continue
                 }
@@ -458,19 +463,6 @@ public final class AgentLoop {
                 exitCode: 2,
                 durationSec: 0)
         }
-    }
-
-    private func encodeToolResult(_ name: String, result: ToolExecutor.Result) -> String {
-        // Compact JSON; the model just needs to see the contents.
-        let obj: [String: Any] = [
-            "tool": name,
-            "stdout": result.stdout,
-            "stderr": result.stderr,
-            "exit_code": Int(result.exitCode),
-        ]
-        if let data = try? JSONSerialization.data(withJSONObject: obj),
-           let s = String(data: data, encoding: .utf8) { return s }
-        return "{\"tool\":\"\(name)\",\"stdout\":\"\(result.stdout)\"}"
     }
 
     // MARK: - Generation
