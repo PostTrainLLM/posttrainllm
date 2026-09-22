@@ -101,6 +101,31 @@ public struct ArtifactLifecycleManifest: Codable, Hashable, Sendable {
         public var supportsExactResume: Bool { optimizer && scheduler && rng }
     }
 
+    public struct Lifecycle: Hashable, Sendable {
+        public let history: [HistoryStep]
+        public let runtimes: [Runtime]
+        public let next: [NextAction]
+        public let receipts: [Receipt]
+        public let trainingState: TrainingState?
+        public let createdAt: String
+
+        public init(
+            history: [HistoryStep],
+            runtimes: [Runtime],
+            next: [NextAction],
+            receipts: [Receipt] = [],
+            trainingState: TrainingState? = nil,
+            createdAt: String = ISO8601DateFormatter().string(from: Date())
+        ) {
+            self.history = history
+            self.runtimes = runtimes
+            self.next = next
+            self.receipts = receipts
+            self.trainingState = trainingState
+            self.createdAt = createdAt
+        }
+    }
+
     public struct Diagnostic: Codable, Hashable, Sendable, CustomStringConvertible {
         public let field: String
         public let message: String
@@ -133,12 +158,7 @@ public struct ArtifactLifecycleManifest: Codable, Hashable, Sendable {
         artifactPath: String,
         base: Identity? = nil,
         tokenizer: Tokenizer,
-        history: [HistoryStep],
-        runtimes: [Runtime],
-        next: [NextAction],
-        receipts: [Receipt] = [],
-        trainingState: TrainingState? = nil,
-        createdAt: String = ISO8601DateFormatter().string(from: Date())
+        lifecycle: Lifecycle
     ) {
         self.schemaVersion = schemaVersion
         self.artifact = artifact
@@ -146,12 +166,12 @@ public struct ArtifactLifecycleManifest: Codable, Hashable, Sendable {
         self.artifactPath = artifactPath
         self.base = base
         self.tokenizer = tokenizer
-        self.history = history
-        self.runtimes = runtimes
-        self.next = next
-        self.receipts = receipts
-        self.trainingState = trainingState
-        self.createdAt = createdAt
+        self.history = lifecycle.history
+        self.runtimes = lifecycle.runtimes
+        self.next = lifecycle.next
+        self.receipts = lifecycle.receipts
+        self.trainingState = lifecycle.trainingState
+        self.createdAt = lifecycle.createdAt
     }
 
     enum CodingKeys: String, CodingKey {

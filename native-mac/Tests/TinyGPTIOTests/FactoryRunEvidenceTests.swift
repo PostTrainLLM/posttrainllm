@@ -55,10 +55,12 @@ final class FactoryRunEvidenceTests: XCTestCase {
                 revision: "fixture-revision",
                 chatTemplate: "chatml"
             ),
-            history: [.init(action: "sft", tool: "posttrainllm")],
-            runtimes: [.nativeHFLoad],
-            next: [.merge, .convert, .eval, .serve],
-            createdAt: "2026-09-22T00:00:00Z"
+            lifecycle: .init(
+                history: [.init(action: "sft", tool: "posttrainllm")],
+                runtimes: [.nativeHFLoad],
+                next: [.merge, .convert, .eval, .serve],
+                createdAt: "2026-09-22T00:00:00Z"
+            )
         )
         let sidecar = try ArtifactLifecycleStore.write(manifest, for: artifactURL)
         return FactoryRun.Artifact(
@@ -66,8 +68,10 @@ final class FactoryRunEvidenceTests: XCTestCase {
             kind: "adapter",
             path: artifactURL.path,
             baseModel: "fixture-base",
-            format: "lora",
-            lifecycleManifest: sidecar.lastPathComponent,
+            files: .init(
+                format: "lora",
+                lifecycleManifest: sidecar.lastPathComponent
+            ),
             shipped: false
         )
     }
@@ -133,8 +137,7 @@ final class FactoryRunEvidenceTests: XCTestCase {
             kind: valid.kind,
             path: valid.path,
             baseModel: valid.baseModel,
-            format: valid.format,
-            lifecycleManifest: nil,
+            files: .init(format: valid.format),
             shipped: valid.shipped
         )
         XCTAssertThrowsError(try FactoryRunEvidence.finishTraining(

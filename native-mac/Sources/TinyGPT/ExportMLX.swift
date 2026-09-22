@@ -96,9 +96,11 @@ enum ExportMLX {
             artifactPath: ".",
             base: source.kind == .adapter ? source.base : source.artifact,
             tokenizer: source.tokenizer,
-            history: source.history + [.init(action: "export-mlx", tool: "posttrainllm")],
-            runtimes: [runtime],
-            next: next
+            lifecycle: .init(
+                history: source.history + [.init(action: "export-mlx", tool: "posttrainllm")],
+                runtimes: [runtime],
+                next: next
+            )
         )
         let sidecar = try ArtifactLifecycleStore.write(manifest, for: outURL)
         print("lifecycle:        \(sidecar.path)")

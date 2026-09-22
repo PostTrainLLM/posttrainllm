@@ -242,13 +242,15 @@ enum Finetune {
                 artifactPath: outputURL.lastPathComponent,
                 base: baseManifest.artifact,
                 tokenizer: baseManifest.tokenizer,
-                history: baseManifest.history + [.init(
-                    action: "finetune",
-                    tool: "posttrainllm",
-                    detail: "steps=\(lastStep); rank=\(rank)"
-                )],
-                runtimes: [runtime],
-                next: [.merge, .convert, .eval, .serve]
+                lifecycle: .init(
+                    history: baseManifest.history + [.init(
+                        action: "finetune",
+                        tool: "posttrainllm",
+                        detail: "steps=\(lastStep); rank=\(rank)"
+                    )],
+                    runtimes: [runtime],
+                    next: [.merge, .convert, .eval, .serve]
+                )
             )
             do {
                 let sidecar = try ArtifactLifecycleStore.write(manifest, for: outputURL)

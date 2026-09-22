@@ -13,11 +13,13 @@ struct ArtifactLifecycleManifestTests {
             artifactPath: "pace-adapter.lora",
             base: .init(id: "Qwen/Qwen3-4B", revision: "abc123"),
             tokenizer: .init(id: "Qwen/Qwen3-4B", revision: "abc123", chatTemplate: "chatml"),
-            history: [.init(action: "sft", tool: "posttrainllm", detail: "recipe-v1")],
-            runtimes: [.nativeHFLoad],
-            next: next,
-            receipts: [.init(kind: "eval", path: "receipts/eval.json")],
-            createdAt: "2026-09-22T00:00:00Z"
+            lifecycle: .init(
+                history: [.init(action: "sft", tool: "posttrainllm", detail: "recipe-v1")],
+                runtimes: [.nativeHFLoad],
+                next: next,
+                receipts: [.init(kind: "eval", path: "receipts/eval.json")],
+                createdAt: "2026-09-22T00:00:00Z"
+            )
         )
     }
 
@@ -66,10 +68,12 @@ struct ArtifactLifecycleManifestTests {
             artifactPath: ".",
             base: .init(id: "Qwen/Qwen3-4B", revision: "abc123"),
             tokenizer: .init(id: "Qwen/Qwen3-4B", revision: "abc123"),
-            history: [.init(action: "export-mlx", tool: "posttrainllm")],
-            runtimes: [.mlxLM],
-            next: [.serve],
-            createdAt: "2026-09-22T00:00:00Z"
+            lifecycle: .init(
+                history: [.init(action: "export-mlx", tool: "posttrainllm")],
+                runtimes: [.mlxLM],
+                next: [.serve],
+                createdAt: "2026-09-22T00:00:00Z"
+            )
         )
         try ArtifactLifecycleStore.write(manifest, for: original)
         try FileManager.default.copyItem(at: original, to: moved)
@@ -116,10 +120,12 @@ struct ArtifactLifecycleManifestTests {
             artifactPath: "different.lora",
             base: .init(id: "Qwen/Qwen3-4B", revision: "abc123"),
             tokenizer: .init(id: "Qwen/Qwen3-4B", revision: "abc123"),
-            history: [.init(action: "sft", tool: "posttrainllm")],
-            runtimes: [.nativeHFLoad],
-            next: [.eval],
-            createdAt: "2026-09-22T00:00:00Z"
+            lifecycle: .init(
+                history: [.init(action: "sft", tool: "posttrainllm")],
+                runtimes: [.nativeHFLoad],
+                next: [.eval],
+                createdAt: "2026-09-22T00:00:00Z"
+            )
         )
         let encoded = try JSONEncoder().encode(wrong)
         try encoded.write(to: sidecar)
@@ -135,11 +141,13 @@ struct ArtifactLifecycleManifestTests {
             kind: .adapter,
             artifactPath: "../escape.lora",
             tokenizer: .init(id: ""),
-            history: [],
-            runtimes: [],
-            next: [],
-            receipts: [.init(kind: "eval", path: "../outside.json")],
-            createdAt: "2026-09-22T00:00:00Z"
+            lifecycle: .init(
+                history: [],
+                runtimes: [],
+                next: [],
+                receipts: [.init(kind: "eval", path: "../outside.json")],
+                createdAt: "2026-09-22T00:00:00Z"
+            )
         )
         let fields = Set(manifest.diagnostics().map(\.field))
         #expect(fields.contains("artifact.id"))
@@ -159,11 +167,13 @@ struct ArtifactLifecycleManifestTests {
             kind: .trainingCheckpoint,
             artifactPath: "checkpoint.tinygpt",
             tokenizer: .init(id: "byte-v1"),
-            history: [.init(action: "pretrain", tool: "posttrainllm")],
-            runtimes: [.nativeTinyGPT],
-            next: [.resumeExactly, .warmRestart],
-            trainingState: .init(optimizer: true, scheduler: false, rng: true),
-            createdAt: "2026-09-22T00:00:00Z"
+            lifecycle: .init(
+                history: [.init(action: "pretrain", tool: "posttrainllm")],
+                runtimes: [.nativeTinyGPT],
+                next: [.resumeExactly, .warmRestart],
+                trainingState: .init(optimizer: true, scheduler: false, rng: true),
+                createdAt: "2026-09-22T00:00:00Z"
+            )
         )
         #expect(manifest.diagnostics().contains { $0.field == "next" })
     }
@@ -175,10 +185,12 @@ struct ArtifactLifecycleManifestTests {
             kind: .baseModel,
             artifactPath: ".",
             tokenizer: .init(id: "Qwen/Qwen3-4B", revision: "different"),
-            history: [.init(action: "download", tool: "huggingface")],
-            runtimes: [.nativeHFLoad],
-            next: [.eval, .serve],
-            createdAt: "2026-09-22T00:00:00Z"
+            lifecycle: .init(
+                history: [.init(action: "download", tool: "huggingface")],
+                runtimes: [.nativeHFLoad],
+                next: [.eval, .serve],
+                createdAt: "2026-09-22T00:00:00Z"
+            )
         )
         let mismatch = try #require(
             ArtifactLifecycleManifest.adapterMismatch(adapter: completeAdapter(), base: base)
@@ -201,10 +213,12 @@ struct ArtifactLifecycleManifestTests {
             kind: .baseModel,
             artifactPath: baseURL.lastPathComponent,
             tokenizer: .init(id: "Qwen/Qwen3-4B", revision: "different"),
-            history: [.init(action: "download", tool: "huggingface")],
-            runtimes: [.nativeTinyGPT],
-            next: [.eval],
-            createdAt: "2026-09-22T00:00:00Z"
+            lifecycle: .init(
+                history: [.init(action: "download", tool: "huggingface")],
+                runtimes: [.nativeTinyGPT],
+                next: [.eval],
+                createdAt: "2026-09-22T00:00:00Z"
+            )
         )
         var adapter = completeAdapter(next: [.eval])
         adapter = ArtifactLifecycleManifest(
@@ -213,11 +227,13 @@ struct ArtifactLifecycleManifestTests {
             artifactPath: adapterURL.lastPathComponent,
             base: adapter.base,
             tokenizer: adapter.tokenizer,
-            history: adapter.history,
-            runtimes: [.nativeTinyGPT],
-            next: adapter.next,
-            receipts: adapter.receipts,
-            createdAt: adapter.createdAt
+            lifecycle: .init(
+                history: adapter.history,
+                runtimes: [.nativeTinyGPT],
+                next: adapter.next,
+                receipts: adapter.receipts,
+                createdAt: adapter.createdAt
+            )
         )
         try ArtifactLifecycleStore.write(base, for: baseURL)
         try ArtifactLifecycleStore.write(adapter, for: adapterURL)
@@ -237,10 +253,12 @@ struct ArtifactLifecycleManifestTests {
             artifactPath: adapterURL.lastPathComponent,
             base: base.artifact,
             tokenizer: adapter.tokenizer,
-            history: adapter.history,
-            runtimes: [.nativeTinyGPT],
-            next: [.eval],
-            createdAt: adapter.createdAt
+            lifecycle: .init(
+                history: adapter.history,
+                runtimes: [.nativeTinyGPT],
+                next: [.eval],
+                createdAt: adapter.createdAt
+            )
         )
         try ArtifactLifecycleStore.write(misclassified, for: adapterURL)
         #expect(throws: ArtifactLifecycleStore.StoreError.self) {
@@ -275,10 +293,12 @@ struct ArtifactLifecycleManifestTests {
             kind: .baseModel,
             artifactPath: "model.tinygpt",
             tokenizer: .init(id: "byte-v1"),
-            history: [.init(action: "download", tool: "posttrainllm", detail: "token=secret")],
-            runtimes: [.nativeTinyGPT],
-            next: [.eval],
-            createdAt: "2026-09-22T00:00:00Z"
+            lifecycle: .init(
+                history: [.init(action: "download", tool: "posttrainllm", detail: "token=secret")],
+                runtimes: [.nativeTinyGPT],
+                next: [.eval],
+                createdAt: "2026-09-22T00:00:00Z"
+            )
         )
         #expect(manifest.diagnostics().contains { $0.message.contains("credential") })
     }
@@ -290,14 +310,16 @@ struct ArtifactLifecycleManifestTests {
             kind: .baseModel,
             artifactPath: "model.tinygpt",
             tokenizer: .init(id: "byte-v1"),
-            history: [.init(
-                action: "train",
-                tool: "posttrainllm",
-                detail: "prompt=private text\nfull log follows"
-            )],
-            runtimes: [.nativeTinyGPT],
-            next: [.eval],
-            createdAt: "2026-09-22T00:00:00Z"
+            lifecycle: .init(
+                history: [.init(
+                    action: "train",
+                    tool: "posttrainllm",
+                    detail: "prompt=private text\nfull log follows"
+                )],
+                runtimes: [.nativeTinyGPT],
+                next: [.eval],
+                createdAt: "2026-09-22T00:00:00Z"
+            )
         )
         let detailIssues = manifest.diagnostics().filter { $0.field == "history[0].detail" }
         #expect(detailIssues.count == 2)

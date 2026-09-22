@@ -104,6 +104,22 @@ enum TrainSupport {
         artifactURL: URL
     ) throws {
         let tokenizer = config.tokenizerSource ?? "byte-v1"
+        let history = ArtifactLifecycleManifest.HistoryStep(
+            action: "pretrain",
+            tool: "posttrainllm",
+            detail: "step=\(step)"
+        )
+        let trainingState = ArtifactLifecycleManifest.TrainingState(
+            optimizer: hasOptimizerState,
+            scheduler: false,
+            rng: false
+        )
+        let lifecycle = ArtifactLifecycleManifest.Lifecycle(
+            history: [history],
+            runtimes: [.nativeTinyGPT],
+            next: [.warmRestart, .convert, .eval, .serve],
+            trainingState: trainingState
+        )
         let manifest = ArtifactLifecycleManifest(
             artifact: ArtifactLifecycleManifest.Identity(
                 id: config.modelName,
@@ -112,18 +128,7 @@ enum TrainSupport {
             kind: .trainingCheckpoint,
             artifactPath: artifactURL.lastPathComponent,
             tokenizer: ArtifactLifecycleManifest.Tokenizer(id: tokenizer),
-            history: [ArtifactLifecycleManifest.HistoryStep(
-                action: "pretrain",
-                tool: "posttrainllm",
-                detail: "step=\(step)"
-            )],
-            runtimes: [.nativeTinyGPT],
-            next: [.warmRestart, .convert, .eval, .serve],
-            trainingState: ArtifactLifecycleManifest.TrainingState(
-                optimizer: hasOptimizerState,
-                scheduler: false,
-                rng: false
-            )
+            lifecycle: lifecycle
         )
         try ArtifactLifecycleStore.write(manifest, for: artifactURL)
     }

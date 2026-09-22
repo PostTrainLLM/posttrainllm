@@ -181,6 +181,22 @@ public enum FactoryRun {
     }
 
     public struct Artifact: Codable, Hashable, Sendable {
+        public struct Files: Hashable, Sendable {
+            public let format: String?
+            public let packageDir: String?
+            public let lifecycleManifest: String?
+
+            public init(
+                format: String? = nil,
+                packageDir: String? = nil,
+                lifecycleManifest: String? = nil
+            ) {
+                self.format = format
+                self.packageDir = packageDir
+                self.lifecycleManifest = lifecycleManifest
+            }
+        }
+
         public let artifactId: String
         public let kind: String
         public let path: String
@@ -194,17 +210,15 @@ public enum FactoryRun {
                     kind: String,
                     path: String,
                     baseModel: String,
-                    format: String? = nil,
-                    packageDir: String? = nil,
-                    lifecycleManifest: String? = nil,
+                    files: Files = .init(),
                     shipped: Bool = false) {
             self.artifactId = artifactId
             self.kind = kind
             self.path = path
             self.baseModel = baseModel
-            self.format = format
-            self.packageDir = packageDir
-            self.lifecycleManifest = lifecycleManifest
+            self.format = files.format
+            self.packageDir = files.packageDir
+            self.lifecycleManifest = files.lifecycleManifest
             self.shipped = shipped
         }
 

@@ -48,8 +48,10 @@ final class FactoryRunTests: XCTestCase {
             kind: "adapter",
             path: "~/.cache/posttrainllm/models/pace-planner-sft-v1",
             baseModel: "Qwen/Qwen3-4B-Instruct-2507",
-            format: "tgla",
-            packageDir: "specialists/pace-planner-sft-v1",
+            files: .init(
+                format: "tgla",
+                packageDir: "specialists/pace-planner-sft-v1"
+            ),
             shipped: shipped)
         return FactoryRun.Bundle(
             config: config,

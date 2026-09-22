@@ -46,16 +46,18 @@ struct Smoke {
             artifactPath: artifactURL.lastPathComponent,
             base: .init(id: "fixture-base", revision: "fixture-revision"),
             tokenizer: .init(id: "fixture-base", revision: "fixture-revision"),
-            history: [.init(action: "sft", tool: "posttrainllm")],
-            runtimes: [.nativeHFLoad],
-            next: [.merge, .convert, .eval, .serve]
+            lifecycle: .init(
+                history: [.init(action: "sft", tool: "posttrainllm")],
+                runtimes: [.nativeHFLoad],
+                next: [.merge, .convert, .eval, .serve]
+            )
         )
         let sidecar = try ArtifactLifecycleStore.write(manifest, for: artifactURL)
         status = try FactoryRunEvidence.finishTraining(
             directory: run,
             artifact: .init(artifactId: "fixture-adapter", kind: "adapter",
                             path: artifactURL.path, baseModel: "fixture-base",
-                            lifecycleManifest: sidecar.lastPathComponent),
+                            files: .init(lifecycleManifest: sidecar.lastPathComponent)),
             summary: "Fixture SFT evidence completed without model execution.",
             trainingTimeSeconds: 0
         )

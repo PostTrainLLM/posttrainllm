@@ -374,13 +374,15 @@ enum SFT {
                     revision: revision,
                     chatTemplate: template.rawValue
                 ),
-                history: [.init(
-                    action: "sft",
-                    tool: "posttrainllm",
-                    detail: "method=\(factoryConfig.candidate.method); steps=\(lastStep); rank=\(rank)"
-                )],
-                runtimes: [.nativeHFLoad],
-                next: [.merge, .convert, .eval, .serve]
+                lifecycle: .init(
+                    history: [.init(
+                        action: "sft",
+                        tool: "posttrainllm",
+                        detail: "method=\(factoryConfig.candidate.method); steps=\(lastStep); rank=\(rank)"
+                    )],
+                    runtimes: [.nativeHFLoad],
+                    next: [.merge, .convert, .eval, .serve]
+                )
             )
             let sidecar: URL
             do {
@@ -395,8 +397,10 @@ enum SFT {
                 kind: "adapter",
                 path: artifactURL.path,
                 baseModel: factoryConfig.baseModel.id,
-                format: "lora",
-                lifecycleManifest: sidecar.lastPathComponent,
+                files: .init(
+                    format: "lora",
+                    lifecycleManifest: sidecar.lastPathComponent
+                ),
                 shipped: false
             )
             let summary = String(
