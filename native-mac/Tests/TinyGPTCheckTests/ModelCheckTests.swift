@@ -32,11 +32,50 @@ final class ModelCheckTests: XCTestCase {
 
     private func ref(_ s: String) -> ModelRef { try! ModelRef.parse(s) }
 
+    private func hubInfo(
+        id: String, sha: String? = nil, lastModified: String? = nil,
+        tags: [String] = [], pipelineTag: String? = nil,
+        libraryName: String? = nil, gated: Bool = false,
+        gatedKind: String? = nil, isPrivate: Bool = false,
+        siblings: [HubModelClient.Sibling] = [],
+        safetensorsParams: [String: Int64] = [:],
+        apiConfig: [String: Any]? = nil, autoModel: String? = nil,
+        customClass: String? = nil, baseModel: String? = nil
+    ) -> HubModelClient.Info {
+        var info = HubModelClient.Info(id: id)
+        info.sha = sha; info.lastModified = lastModified; info.tags = tags
+        info.pipelineTag = pipelineTag; info.libraryName = libraryName
+        info.gated = gated; info.gatedKind = gatedKind; info.isPrivate = isPrivate
+        info.siblings = siblings; info.safetensorsParams = safetensorsParams
+        info.apiConfig = apiConfig; info.autoModel = autoModel
+        info.customClass = customClass; info.baseModel = baseModel
+        return info
+    }
+
+    private func rulesInput(
+        _ refString: String,
+        info: HubModelClient.Info,
+        config: HuggingFaceConfig? = nil,
+        tensorLayout: TensorLayout? = nil,
+        remoteCode: Bool = false,
+        adapter: (base: String?, peftType: String?)? = nil,
+        ggufMeta: GGUFHeader.Meta? = nil
+    ) -> CompatibilityRules.Input {
+        var input = CompatibilityRules.Input(ref: ref(refString), env: env())
+        input.info = info
+        input.config = config
+        input.tensorLayout = tensorLayout
+        input.remoteCode = remoteCode
+        input.adapter = adapter
+        input.ggufMeta = ggufMeta
+        return input
+    }
+
     private func lmInfo(id: String = "Qwen/Qwen3-4B-Instruct-2507",
                         weightBytes: Int64 = 8_000_000_000,
                         archs: [String] = ["Qwen3ForCausalLM"],
                         pipeline: String? = "text-generation") -> (HubModelClient.Info, HuggingFaceConfig) {
-        let info = HubModelClient.Info(
+        let info = hubInfo(
             id: id, sha: "abc123",
             tags: ["safetensors", "text-generation"],
             pipelineTag: pipeline, libraryName: "transformers",
@@ -66,10 +105,12 @@ final class ModelCheckTests: XCTestCase {
                         env: MacEnvironment? = nil,
                         refString: String? = nil) -> CompatibilityRules.Assessment {
         let refStr = refString ?? "https://huggingface.co/\(info?.id ?? "x/y")"
-        return CompatibilityRules.assess(.init(
-            ref: ref(refStr), info: info, fetchIssue: fetchIssue,
-            config: config, configIssue: configIssue,
-            env: env ?? self.env()))
+        var input = CompatibilityRules.Input(ref: ref(refStr), env: env ?? self.env())
+        input.info = info
+        input.fetchIssue = fetchIssue
+        input.config = config
+        input.configIssue = configIssue
+        return CompatibilityRules.assess(input)
     }
 
     private func report(
@@ -126,6 +167,14 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertEqual(r.filePath, "model.safetensors")
     }
 
+    func testParseEncodedSlashRevisionWithoutMovingItIntoFilePath() throws {
+        let r = try ModelRef.parse(
+            "https://huggingface.co/o/r/blob/refs%2Fpr%2F1/nested/model.gguf")
+        XCTAssertEqual(r.id, "o/r")
+        XCTAssertEqual(r.revision, "refs/pr/1")
+        XCTAssertEqual(r.filePath, "nested/model.gguf")
+    }
+
     func testParseHfDotCo() throws {
         XCTAssertEqual(try ModelRef.parse("https://hf.co/a/b").id, "a/b")
     }
@@ -142,6 +191,8 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertThrowsError(try ModelRef.parse("https://example.com/a/b"))
         XCTAssertThrowsError(try ModelRef.parse("justonepart"))
         XCTAssertThrowsError(try ModelRef.parse("   "))
+        XCTAssertThrowsError(try ModelRef.parse("owner/repo?blobs=true"))
+        XCTAssertThrowsError(try ModelRef.parse("owner/../repo"))
     }
 
     // MARK: - supported model → expected_to_work
@@ -168,7 +219,7 @@ final class ModelCheckTests: XCTestCase {
     // MARK: - diffusers → explained mismatch, never "impossible"
 
     func testDiffusersModelMismatch() {
-        var info = HubModelClient.Info(
+        var info = hubInfo(
             id: "black-forest-labs/FLUX.1-dev",
             tags: ["diffusers"], pipelineTag: "text-to-image",
             libraryName: "diffusers",
@@ -210,7 +261,7 @@ final class ModelCheckTests: XCTestCase {
 
     func testGatedWithoutTokenKeepsUnknownHonest() {
         // API answered but gated → config fetch failed.
-        let info = HubModelClient.Info(
+        let info = hubInfo(
             id: "meta-llama/Llama-3.1-8B", gated: true, gatedKind: "auto",
             siblings: [.init(name: "config.json", size: 800)])
         let a = assess(info, config: nil, configIssue: "config.json present but unreadable: needs auth")
@@ -223,7 +274,7 @@ final class ModelCheckTests: XCTestCase {
     // MARK: - GGUF
 
     func testGGUFRepo() {
-        let info = HubModelClient.Info(
+        let info = hubInfo(
             id: "bartowski/Qwen3-4B-GGUF",
             siblings: [
                 .init(name: "Qwen3-4B-Q4_K_M.gguf", size: 2_500_000_000),
@@ -233,6 +284,20 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertEqual(a.verdict, .changesRequired)
         XCTAssertEqual(a.selectedVariant, "Qwen3-4B-Q4_K_M.gguf")
         XCTAssertTrue(a.otherPaths.contains { $0.name.contains("Ollama") && $0.status == .expectedToWork })
+    }
+
+    func testGGUFBlobURLKeepsRequestedVariant() {
+        let info = hubInfo(
+            id: "bartowski/Qwen3-4B-GGUF",
+            siblings: [
+                .init(name: "Qwen3-4B-Q4_K_M.gguf", size: 2_500_000_000),
+                .init(name: "Qwen3-4B-Q8_0.gguf", size: 4_200_000_000),
+            ])
+        let input = rulesInput(
+            "https://huggingface.co/bartowski/Qwen3-4B-GGUF/blob/main/Qwen3-4B-Q8_0.gguf",
+            info: info)
+        let assessment = CompatibilityRules.assess(input)
+        XCTAssertEqual(assessment.selectedVariant, "Qwen3-4B-Q8_0.gguf")
     }
 
     // MARK: - tensor layout + legacy schema
@@ -295,9 +360,8 @@ final class ModelCheckTests: XCTestCase {
         // convention upgrades unknown → changesRequired (verify-by-smoke).
         let (info, cfg) = lmInfo(archs: ["SmolLM2ForCausalLM"])
         let layout = TensorLayout.assess(names: llamaTensorNames())
-        let a = CompatibilityRules.assess(.init(
-            ref: ref("x/smollm2"), info: info, fetchIssue: nil,
-            config: cfg, configIssue: nil, tensorLayout: layout, env: env()))
+        let a = CompatibilityRules.assess(rulesInput(
+            "x/smollm2", info: info, config: cfg, tensorLayout: layout))
         XCTAssertEqual(a.verdict, .changesRequired)
         XCTAssertTrue(a.checkedPath.detail.contains("hf-load"))
         XCTAssertTrue(a.evidence.contains { $0.kind == "inferred" })
@@ -325,26 +389,89 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertNoThrow(try HuggingFaceConfig.fromDict(normalized))
     }
 
+    func testConfigRejectsNonPositiveDimensions() {
+        var raw: [String: Any] = [
+            "vocab_size": 32, "hidden_size": 16,
+            "intermediate_size": 64, "num_hidden_layers": 2,
+            "num_attention_heads": 0, "num_key_value_heads": 1,
+            "max_position_embeddings": 128,
+        ]
+        XCTAssertThrowsError(try HuggingFaceConfig.fromDict(raw)) { error in
+            XCTAssertTrue(String(describing: error).contains("num_attention_heads"))
+        }
+        raw["num_attention_heads"] = 2
+        raw["head_dim"] = 0
+        XCTAssertThrowsError(try HuggingFaceConfig.fromDict(raw)) { error in
+            XCTAssertTrue(String(describing: error).contains("head_dim"))
+        }
+    }
+
     func testTokenizerMissingFlagged() {
         let (info0, cfg) = lmInfo()
         var info = info0
         info.siblings = info.siblings.filter { !$0.name.contains("tokenizer") }
         let a = assess(info, config: cfg)
+        XCTAssertEqual(a.verdict, .changesRequired)
+        XCTAssertEqual(a.checkedPath.status, .changesRequired)
         XCTAssertTrue(a.requiredChanges.contains { $0.detail.contains("tokenizer") })
+    }
+
+    func testTokenizerConfigWithoutTokenizerJSONStillBlocksNative() {
+        let (base, cfg) = lmInfo()
+        var info = base
+        info.siblings = info.siblings.filter { !$0.name.contains("tokenizer") }
+        info.siblings.append(.init(name: "tokenizer_config.json", size: 500))
+        let assessment = assess(info, config: cfg)
+        XCTAssertEqual(assessment.checkedPath.status, .changesRequired)
+        XCTAssertTrue(assessment.checkedPath.detail.contains("tokenizer.json"))
+    }
+
+    func testPackedQuantFootprintUsesDenseParameterSize() {
+        let (info, cfg) = lmInfo(weightBytes: 4_000_000_000)
+        var input = CompatibilityRules.Input(ref: ref(info.id), env: env(ramGB: 16))
+        input.info = info
+        input.config = cfg
+        input.tensorLayout = TensorLayout.assess(
+            names: ["model.layers.0.self_attn.q_proj.qweight"])
+        input.exactWeightBytes = 4_000_000_000
+        input.exactParams = 7_000_000_000
+        let assessment = CompatibilityRules.assess(input)
+        XCTAssertEqual(assessment.verdict, .changesRequired)
+        XCTAssertTrue(assessment.verdictSummary.contains("too large"))
+        XCTAssertTrue(assessment.evidence.contains {
+            $0.detail.contains("dequantized to dense fp32")
+        })
+    }
+
+    func testHubStatsOverflowStaysUnknown() {
+        var info = HubModelClient.Info(id: "x/y")
+        info.safetensorsParams = ["F64": Int64.max]
+        XCTAssertNil(CompatibilityRules.weightEstimate(info: info))
+        info.siblings = [
+            .init(name: "a.safetensors", size: Int64.max),
+            .init(name: "b.safetensors", size: 1),
+        ]
+        XCTAssertEqual(info.sizeOf(".safetensors"), Int64.max)
+    }
+
+    func testLegacyNormalizationDoesNotOverflow() {
+        let normalized = ModelCheckService.normalizeLegacyKeys([
+            "hidden_size": Int.max,
+        ])
+        XCTAssertNil(normalized["intermediate_size"])
     }
 
     // MARK: - adapters / remote code / gated / GGUF meta
 
     func testAdapterRepo() {
-        let info = HubModelClient.Info(
+        let info = hubInfo(
             id: "x/opt-lora", libraryName: "peft",
             siblings: [.init(name: "adapter_config.json", size: 400),
                        .init(name: "adapter_model.safetensors", size: 20_000_000)],
             baseModel: "facebook/opt-350m")
-        let a = CompatibilityRules.assess(.init(
-            ref: ref("x/opt-lora"), info: info, fetchIssue: nil,
-            config: nil, configIssue: nil,
-            adapter: (base: "facebook/opt-350m", peftType: "lora"), env: env()))
+        let a = CompatibilityRules.assess(rulesInput(
+            "x/opt-lora", info: info,
+            adapter: (base: "facebook/opt-350m", peftType: "lora")))
         XCTAssertEqual(a.verdict, .changesRequired)
         XCTAssertTrue(a.verdictSummary.contains("opt-350m"))
         XCTAssertTrue(a.formats.contains("peft-adapter"))
@@ -352,18 +479,16 @@ final class ModelCheckTests: XCTestCase {
 
     func testRemoteCodeRepo() {
         let (info, cfg) = lmInfo(archs: ["Phi3VForCausalLM"])
-        let a = CompatibilityRules.assess(.init(
-            ref: ref("x/phi3v"), info: info, fetchIssue: nil,
-            config: cfg, configIssue: nil, remoteCode: true, env: env()))
+        let a = CompatibilityRules.assess(rulesInput(
+            "x/phi3v", info: info, config: cfg, remoteCode: true))
         XCTAssertEqual(a.verdict, .unsupportedOnCheckedPath)
         XCTAssertTrue(a.checkedPath.detail.contains("auto_map"))
     }
 
     func testRemoteCodeOnVerifiedArchIsNoteOnly() {
         let (info, cfg) = lmInfo()
-        let a = CompatibilityRules.assess(.init(
-            ref: ref("x/qwen"), info: info, fetchIssue: nil,
-            config: cfg, configIssue: nil, remoteCode: true, env: env()))
+        let a = CompatibilityRules.assess(rulesInput(
+            "x/qwen", info: info, config: cfg, remoteCode: true))
         XCTAssertEqual(a.verdict, .expectedToWork)
         XCTAssertTrue(a.limitations.contains { $0.contains("auto_map") })
     }
@@ -399,27 +524,120 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertEqual(GGUFHeader.fileTypeName(15), "Q4_K_M")
     }
 
-    func testGGUFKQuantUnsupportedHonest() {
-        let info = HubModelClient.Info(
+    func testGGUFRejectsUnrepresentableStringLength() {
+        var data = Data([0x47, 0x47, 0x55, 0x46, 3, 0, 0, 0])
+        data.append(contentsOf: [0, 0, 0, 0, 0, 0, 0, 0])
+        data.append(contentsOf: [1, 0, 0, 0, 0, 0, 0, 0])
+        data.append(contentsOf: Array(repeating: 0xFF, count: 8))
+        XCTAssertNil(GGUFHeader.parse(data))
+    }
+
+    func testExactTensorTotalsRejectOverflow() {
+        let entries: [String: [String: Any]] = [
+            "weight": ["shape": [NSNumber(value: Int64.max), 2], "dtype": "F32"],
+        ]
+        let totals = ModelCheckService.exactTensorTotals(entries)
+        XCTAssertNil(totals.bytes)
+        XCTAssertNil(totals.params)
+    }
+
+    func testExactTensorTotals() {
+        let entries: [String: [String: Any]] = [
+            "weight": ["shape": [2, 3], "dtype": "F16"],
+            "bias": ["shape": [3], "dtype": "F32"],
+        ]
+        let totals = ModelCheckService.exactTensorTotals(entries)
+        XCTAssertEqual(totals.params, 9)
+        XCTAssertEqual(totals.bytes, 24)
+    }
+
+    func testGGUFKQuantSupportedByNativeLoader() {
+        let info = hubInfo(
             id: "x/gguf", siblings: [.init(name: "m-Q4_K_M.gguf", size: 2_000_000_000)])
         let kv: [String: Any] = ["general.architecture": "llama", "general.file_type": UInt32(15)]
         let meta = GGUFHeader.Meta(version: 3, tensorCount: 300, kv: kv)
-        let a = CompatibilityRules.assess(.init(
-            ref: ref("x/gguf"), info: info, fetchIssue: nil,
-            config: nil, configIssue: nil, ggufMeta: meta, env: env()))
-        XCTAssertEqual(a.verdict, .unsupportedOnCheckedPath)   // K-quant not dequantized by our loader
-        XCTAssertTrue(a.checkedPath.detail.contains("K-quant"))
+        let a = CompatibilityRules.assess(rulesInput(
+            "x/gguf", info: info, ggufMeta: meta))
+        XCTAssertEqual(a.verdict, .changesRequired)
+        XCTAssertTrue(a.checkedPath.detail.contains("supported quant"))
     }
 
     func testGGUFLlamaQ80Loadable() {
-        let info = HubModelClient.Info(
+        let info = hubInfo(
             id: "x/gguf", siblings: [.init(name: "m-Q8_0.gguf", size: 3_000_000_000)])
         let meta = GGUFHeader.Meta(version: 3, tensorCount: 300,
                                    kv: ["general.architecture": "qwen2", "general.file_type": UInt32(8)])
-        let a = CompatibilityRules.assess(.init(
-            ref: ref("x/gguf"), info: info, fetchIssue: nil,
-            config: nil, configIssue: nil, ggufMeta: meta, env: env()))
+        let a = CompatibilityRules.assess(rulesInput(
+            "x/gguf", info: info, ggufMeta: meta))
         XCTAssertEqual(a.verdict, .changesRequired)   // verified arch + supported quant
+    }
+
+    func testGGUFBF16IsNotAdvertisedAsNativeLoadable() {
+        let info = hubInfo(
+            id: "x/gguf", siblings: [.init(name: "m-BF16.gguf", size: 3_000_000_000)])
+        let meta = GGUFHeader.Meta(version: 3, tensorCount: 300,
+                                   kv: ["general.architecture": "llama",
+                                        "general.file_type": UInt32(27)])
+        let a = CompatibilityRules.assess(rulesInput(
+            "x/gguf", info: info, ggufMeta: meta))
+        XCTAssertEqual(a.verdict, .unsupportedOnCheckedPath)
+        XCTAssertFalse(GGUFHeader.loaderSupportedFileTypes.contains(27))
+    }
+
+    func testExactGGUFInMixedRepoControlsAssessmentAndToolCommands() {
+        var (info, config) = lmInfo(id: "x/mixed")
+        info.sha = "deadbeef"
+        info.siblings.append(.init(name: "nested/m-Q4_K_M.gguf", size: 2_000_000_000))
+        let meta = GGUFHeader.Meta(version: 3, tensorCount: 300,
+                                   kv: ["general.architecture": "llama",
+                                        "general.file_type": UInt32(15)])
+        let target = "https://huggingface.co/x/mixed/blob/refs%2Fpr%2F1/nested/m-Q4_K_M.gguf"
+        let input = rulesInput(target, info: info, config: config, ggufMeta: meta)
+        let assessment = CompatibilityRules.assess(input)
+        XCTAssertEqual(assessment.selectedVariant, "nested/m-Q4_K_M.gguf")
+        XCTAssertTrue(assessment.checkedPath.detail.contains("supported quant"))
+
+        let tools = CompatibilityRules.toolMatrix(input: input, assessment: assessment)
+        let native = tools.first { $0.name == "posttrainllm (native)" }
+        let ollama = tools.first { $0.name == "Ollama" }
+        let lms = tools.first { $0.name == "LM Studio (lms)" }
+        XCTAssertEqual(native?.applies, false)
+        XCTAssertEqual(ollama?.applies, false)
+        XCTAssertNil(ollama?.run)
+        XCTAssertEqual(lms?.applies, true)
+        XCTAssertTrue(lms?.run?.contains(
+            "https://huggingface.co/x/mixed/blob/deadbeef/nested/m-Q4_K_M.gguf") == true)
+    }
+
+    func testToolCommandsEncodeShellMetacharacters() {
+        var info = hubInfo(
+            id: "x/gguf", sha: "deadbeef",
+            siblings: [.init(name: "m;touch$HOME&(x).gguf", size: 2_000_000_000)])
+        info.pipelineTag = "text-generation"
+        let meta = GGUFHeader.Meta(version: 3, tensorCount: 300,
+                                   kv: ["general.architecture": "llama",
+                                        "general.file_type": UInt32(15)])
+        let target = "https://huggingface.co/x/gguf/blob/main/m;touch$HOME&(x).gguf"
+        let input = rulesInput(target, info: info, ggufMeta: meta)
+        let assessment = CompatibilityRules.assess(input)
+        let command = CompatibilityRules.toolMatrix(input: input, assessment: assessment)
+            .first { $0.name == "LM Studio (lms)" }?.run ?? ""
+        XCTAssertTrue(command.contains("'https://huggingface.co/x/gguf/blob/deadbeef/"))
+        XCTAssertTrue(command.contains("m%3Btouch%24HOME%26%28x%29.gguf'"))
+        XCTAssertFalse(command.contains(";"))
+        XCTAssertFalse(command.contains("$"))
+        XCTAssertFalse(command.contains("&"))
+    }
+
+    func testToolMatrixDoesNotAdvertiseMlxLmForNonMainRevision() {
+        let (info, config) = lmInfo(id: "x/model")
+        let input = rulesInput(
+            "https://huggingface.co/x/model/tree/feature", info: info, config: config)
+        let assessment = CompatibilityRules.assess(input)
+        let mlxLm = CompatibilityRules.toolMatrix(input: input, assessment: assessment)
+            .first { $0.name == "python3 mlx-lm" }
+        XCTAssertEqual(mlxLm?.applies, false)
+        XCTAssertNil(mlxLm?.run)
     }
 
     // MARK: - report schema + agent prompt
@@ -429,13 +647,13 @@ final class ModelCheckTests: XCTestCase {
         // Exercise the service's report assembly path directly against
         // rules output — the network stage is covered by HubModelClient,
         // not re-tested here.
-        let a = CompatibilityRules.assess(.init(
-            ref: ref("Qwen/Qwen3-4B-Instruct-2507"), info: info,
-            fetchIssue: nil, config: cfg, configIssue: nil, env: env()))
+        let a = CompatibilityRules.assess(rulesInput(
+            "Qwen/Qwen3-4B-Instruct-2507", info: info, config: cfg))
         let report = ModelCheckReport(
             schemaVersion: 1, checkedAt: "2026-09-22T00:00:00Z",
             input: "Qwen/Qwen3-4B-Instruct-2507",
-            model: .init(id: info.id, revision: "main", task: a.task,
+            model: .init(id: info.id, revision: "main", resolvedRevision: "abc123",
+                         task: a.task,
                          library: a.library, architectures: a.architectures,
                          formats: a.formats, selectedVariant: a.selectedVariant,
                          gated: false, lastModified: nil),
@@ -452,6 +670,7 @@ final class ModelCheckTests: XCTestCase {
         let json = try report.encoded()
         XCTAssertTrue(json.contains("\"schema_version\""))
         XCTAssertTrue(json.contains("\"expected_to_work\""))
+        XCTAssertTrue(json.contains("\"resolved_revision\" : \"abc123\""))
         let decoded = try ModelCheckReport.decode(Data(json.utf8))
         XCTAssertEqual(decoded, report)
     }
@@ -538,12 +757,16 @@ final class ModelCheckTests: XCTestCase {
         let fingerprint = ModelCompatibilityContract.environmentFingerprint(base.environment)
         let attempt = ModelCheckReport.VerificationAttempt(
             runtime: "mlx-swift", runtimeVersion: "3.31.4", status: .verified,
-            durationMS: 840, requestedTokens: 32, promptTokens: 8,
-            generatedTokens: 19, outputCharacters: 64)
+            measurement: .init(
+                durationMS: 840, requestedTokens: 32, promptTokens: 8,
+                generatedTokens: 19, outputCharacters: 64))
         let receipt = ModelCheckReport.VerificationReceipt(
-            modelID: info.id, revision: "main", environmentFingerprint: fingerprint,
-            verifiedAt: "2026-09-22T01:02:03Z", status: .verified,
-            runtime: "mlx-swift", runtimeVersion: "3.31.4", attempts: [attempt])
+            identity: .init(
+                modelID: info.id, revision: "main", environmentFingerprint: fingerprint),
+            verifiedAt: "2026-09-22T01:02:03Z",
+            outcome: .init(
+                status: .verified, runtime: "mlx-swift", runtimeVersion: "3.31.4"),
+            attempts: [attempt])
 
         let enriched = ModelCompatibilityContract.enrich(
             base, hasHFAccess: false, receipt: receipt)
@@ -560,17 +783,43 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertEqual(enriched.verificationReceipt, receipt)
     }
 
+    func testMutableRevisionReceiptMustMatchResolvedCommit() {
+        let (info, cfg) = lmInfo()
+        var base = report(info: info, config: cfg)
+        base.model.resolvedRevision = "abc123"
+        let fingerprint = ModelCompatibilityContract.environmentFingerprint(base.environment)
+
+        func receipt(revision: String) -> ModelCheckReport.VerificationReceipt {
+            ModelCheckReport.VerificationReceipt(
+                identity: .init(
+                    modelID: info.id, revision: revision,
+                    environmentFingerprint: fingerprint),
+                verifiedAt: "2026-09-22T01:02:03Z",
+                outcome: .init(status: .verified))
+        }
+
+        let stale = ModelCompatibilityContract.enrich(
+            base, hasHFAccess: false, receipt: receipt(revision: "main"))
+        XCTAssertNil(stale.verificationReceipt)
+
+        let current = ModelCompatibilityContract.enrich(
+            base, hasHFAccess: false, receipt: receipt(revision: "abc123"))
+        XCTAssertEqual(current.verificationReceipt?.revision, "abc123")
+    }
+
     func testFailureReceiptNamesLoadBoundary() {
         let (info, cfg) = lmInfo()
         let base = report(info: info, config: cfg)
         let receipt = ModelCheckReport.VerificationReceipt(
-            modelID: info.id, revision: "main",
-            environmentFingerprint: ModelCompatibilityContract.environmentFingerprint(base.environment),
-            verifiedAt: "2026-09-22T01:02:03Z", status: .failed,
-            failureStage: .load,
+            identity: .init(
+                modelID: info.id, revision: "main",
+                environmentFingerprint: ModelCompatibilityContract.environmentFingerprint(
+                    base.environment)),
+            verifiedAt: "2026-09-22T01:02:03Z",
+            outcome: .init(status: .failed, failureStage: .load),
             attempts: [.init(runtime: "native", status: .failed,
                              failureStage: .load, stderr: "unsupported architecture",
-                             durationMS: 20, requestedTokens: 32)])
+                             measurement: .init(durationMS: 20, requestedTokens: 32))])
 
         let enriched = ModelCompatibilityContract.enrich(base, hasHFAccess: false, receipt: receipt)
 
@@ -588,14 +837,16 @@ final class ModelCheckTests: XCTestCase {
         let (info, cfg) = lmInfo()
         let base = report(info: info, config: cfg)
         let receipt = ModelCheckReport.VerificationReceipt(
-            modelID: info.id, revision: "main",
-            environmentFingerprint: ModelCompatibilityContract.environmentFingerprint(base.environment),
-            verifiedAt: "2026-09-22T01:02:03Z", status: .failed,
-            failureStage: .download,
+            identity: .init(
+                modelID: info.id, revision: "main",
+                environmentFingerprint: ModelCompatibilityContract.environmentFingerprint(
+                    base.environment)),
+            verifiedAt: "2026-09-22T01:02:03Z",
+            outcome: .init(status: .failed, failureStage: .download),
             attempts: [.init(runtime: "mlx-swift", status: .failed,
                              failureStage: .download,
                              stderr: "Authorization: Bearer hf_supersecret123 token=plainsecret",
-                             durationMS: 50, requestedTokens: 32)])
+                             measurement: .init(durationMS: 50, requestedTokens: 32))])
 
         let url = try store.write(receipt)
         XCTAssertTrue(FileManager.default.fileExists(atPath: url.path))

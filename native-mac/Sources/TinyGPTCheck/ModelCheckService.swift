@@ -7,14 +7,15 @@ import TinyGPTIO
 ///   URL + environment
 ///     → fetch repository metadata + small config files
 ///     → apply known compatibility checks
-///     → merge an exact-revision/device local receipt when one exists
-///     → produce a schema-v2 structured report
+///     → produce a structured report
 ///
 /// It never downloads weights, installs software, runs a model, or
 /// executes repository code. Missing metadata and failed lookups produce
 /// explicit limitations, not invented claims — `unknown` is a valid
 /// outcome.
 public enum ModelCheckService {
+
+    public typealias ProgressHandler = @Sendable (Stage) -> Void
 
     /// Progress stages surfaced by both the CLI and the UI panel.
     public enum Stage: String, Sendable {
@@ -44,171 +45,104 @@ public enum ModelCheckService {
     public static func check(
         input: String,
         environment: MacEnvironment? = nil,
-        progress: (@Sendable (Stage) -> Void)? = nil
+        progress: ProgressHandler? = nil
     ) throws -> ModelCheckReport {
-        let ref: ModelRef
-        do { ref = try ModelRef.parse(input) }
-        catch let e as ModelRef.ParseError {
-            throw CheckError.invalidInput(e.description)
-        }
+        try performCheck(input: input, environment: environment, progress: progress)
+    }
 
-        progress?(.inspectingRepository)
-
-        var info: HubModelClient.Info? = nil
-        var fetchIssue: String? = nil
-        do {
-            info = try HubModelClient.info(id: ref.id, revision: ref.revision)
-        } catch {
-            fetchIssue = "\(error)"
-        }
-
-        // config.json is the one small file that unlocks the architecture
-        // gates; model_index.json presence is already visible in siblings.
-        var config: HuggingFaceConfig? = nil
-        var configIssue: String? = nil
-        var architecturesHint: [String] = []
+    private struct ConfigFacts {
+        var config: HuggingFaceConfig?
+        var issue: String?
+        var architectures: [String] = []
         var remoteCode = false
-        if let info = info {
-            var rawConfig: [String: Any]? = nil
-            if info.sibling(named: "config.json") != nil {
-                do {
-                    if let data = try HubModelClient.smallFile(
-                        id: ref.id, revision: ref.revision, path: "config.json") {
-                        rawConfig = (try JSONSerialization.jsonObject(with: data)) as? [String: Any]
-                    }
-                } catch {
-                    configIssue = "config.json present but unreadable: \(error)"
+    }
+
+    private static func readConfig(ref: ModelRef, info: HubModelClient.Info?) -> ConfigFacts {
+        guard let info else { return ConfigFacts() }
+        var facts = ConfigFacts()
+        var raw: [String: Any]?
+        if info.sibling(named: "config.json") != nil {
+            do {
+                if let data = try HubModelClient.smallFile(
+                    id: ref.id, revision: ref.revision, path: "config.json") {
+                    raw = try JSONSerialization.jsonObject(with: data) as? [String: Any]
                 }
-            }
-            // Fallback: the Hub embeds the parsed config in the API
-            // response — this is what unlocks gated repos, whose
-            // resolve/ URLs 401 without a token.
-            if rawConfig == nil, let api = info.apiConfig { rawConfig = api }
-            if rawConfig == nil, info.sibling(named: "config.json") == nil, info.apiConfig == nil {
-                configIssue = "no config.json in the repository file list"
-            }
-            if let raw = rawConfig {
-                architecturesHint = (raw["architectures"] as? [String]) ?? []
-                remoteCode = raw["auto_map"] != nil || info.customClass != nil
-                do {
-                    config = try HuggingFaceConfig.fromDict(normalizeLegacyKeys(raw))
-                } catch {
-                    configIssue = configIssue ?? "config parsed partially: \(error)"
-                }
+            } catch {
+                facts.issue = "config.json present but unreadable: \(error)"
             }
         }
-
-        // Structural evidence: tensor names from the safetensors index
-        // (sharded repos) or a Range-read of the first shard's header.
-        // Metadata only — a 200 (Range ignored) is refused, never a
-        // weight download.
-        var tensorLayout: TensorLayout? = nil
-        var exactWeightBytes: Int64? = nil
-        var exactParams: Int64? = nil
-        if let info = info, !info.siblings(matchingSuffix: ".safetensors").isEmpty {
-            if let fetched = try? HubModelClient.tensorNames(
-                id: ref.id, revision: ref.revision, info: info) {
-                tensorLayout = TensorLayout.assess(names: fetched.names)
-                if let entries = fetched.entries {
-                    var bytes: Int64 = 0
-                    var params: Int64 = 0
-                    for (name, e) in entries where name != "__metadata__" {
-                        let shape = (e["shape"] as? [NSNumber])?.map(\.int64Value) ?? []
-                        let count = shape.reduce(1, *)
-                        params += count
-                        bytes += count * Self.dtypeBytes(e["dtype"] as? String)
-                    }
-                    exactWeightBytes = bytes; exactParams = params
-                }
-            }
+        if raw == nil { raw = info.apiConfig }
+        if raw == nil, info.sibling(named: "config.json") == nil, info.apiConfig == nil {
+            facts.issue = "no config.json in the repository file list"
         }
+        guard let raw else { return facts }
+        facts.architectures = (raw["architectures"] as? [String]) ?? []
+        facts.remoteCode = raw["auto_map"] != nil || info.customClass != nil
+        do { facts.config = try HuggingFaceConfig.fromDict(normalizeLegacyKeys(raw)) }
+        catch { facts.issue = facts.issue ?? "config parsed partially: \(error)" }
+        return facts
+    }
 
-        // PEFT/LoRA adapter repos: adapter_model.* + adapter_config.json
-        // (which names the base model). Detected before format dispatch.
-        var adapter: (base: String?, peftType: String?)? = nil
-        if let info = info {
-            let isAdapter = info.sibling(named: "adapter_config.json") != nil
-                || info.sibling(named: "adapter_model.safetensors") != nil
-                || info.sibling(named: "adapter_model.bin") != nil
-                || info.libraryName == "peft"
-                || info.tags.contains(where: { $0.lowercased() == "peft" || $0.lowercased() == "lora" })
-            if isAdapter {
-                var base = info.baseModel, peftType: String? = nil
-                if let data = try? HubModelClient.smallFile(
-                    id: ref.id, revision: ref.revision, path: "adapter_config.json"),
-                   let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                    base = base ?? (obj["base_model_name_or_path"] as? String)
-                    peftType = obj["peft_type"] as? String
-                }
-                adapter = (base: base, peftType: peftType)
-            }
+    private struct TensorFacts {
+        var layout: TensorLayout?
+        var bytes: Int64?
+        var params: Int64?
+    }
+
+    private static func readTensorFacts(
+        ref: ModelRef, info: HubModelClient.Info?
+    ) -> TensorFacts {
+        guard let info, !info.siblings(matchingSuffix: ".safetensors").isEmpty,
+              let fetched = try? HubModelClient.tensorNames(
+                  id: ref.id, revision: ref.revision, info: info) else {
+            return TensorFacts()
         }
-
-        // GGUF header: arch + quant + context for the selected variant.
-        var ggufMeta: GGUFHeader.Meta? = nil
-        if let info = info, adapter == nil {
-            let ggufs = info.siblings(matchingSuffix: ".gguf")
-            if !ggufs.isEmpty {
-                let preferred = ["q4_k_m", "q5_k_m", "q4_0", "q8_0", "f16"]
-                let variant = preferred.compactMap({ tag in
-                    ggufs.first { $0.name.lowercased().contains(tag) }
-                }).first ?? ggufs.max(by: { ($0.size ?? 0) < ($1.size ?? 0) })
-                if let variant {
-                    ggufMeta = try? HubModelClient.ggufMeta(
-                        id: ref.id, revision: ref.revision, path: variant.name)
-                }
-            }
+        var facts = TensorFacts(layout: TensorLayout.assess(names: fetched.names))
+        if let entries = fetched.entries {
+            (facts.bytes, facts.params) = exactTensorTotals(entries)
         }
+        return facts
+    }
 
-        progress?(.checkingEnvironment)
-        let env = environment ?? MacEnvironment.detect()
+    private static func readAdapter(
+        ref: ModelRef, info: HubModelClient.Info?
+    ) -> (base: String?, peftType: String?)? {
+        guard let info else { return nil }
+        let adapterFiles = info.sibling(named: "adapter_config.json") != nil
+            || info.sibling(named: "adapter_model.safetensors") != nil
+            || info.sibling(named: "adapter_model.bin") != nil
+        let adapterLabels = info.libraryName == "peft"
+            || info.tags.contains { ["peft", "lora"].contains($0.lowercased()) }
+        guard adapterFiles || adapterLabels else { return nil }
+        var base = info.baseModel
+        var peftType: String?
+        if let data = try? HubModelClient.smallFile(
+            id: ref.id, revision: ref.revision, path: "adapter_config.json"),
+           let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+            base = base ?? (object["base_model_name_or_path"] as? String)
+            peftType = object["peft_type"] as? String
+        }
+        return (base, peftType)
+    }
 
-        progress?(.preparingReport)
-        let rulesInput = CompatibilityRules.Input(
-            ref: ref, info: info, fetchIssue: fetchIssue,
-            config: config, configIssue: configIssue,
-            architecturesHint: architecturesHint,
-            tensorLayout: tensorLayout, remoteCode: remoteCode,
-            adapter: adapter, ggufMeta: ggufMeta,
-            exactWeightBytes: exactWeightBytes, exactParams: exactParams,
-            env: env)
-        let a = CompatibilityRules.assess(rulesInput)
-
-        let report = ModelCheckReport(
-            schemaVersion: 2,
-            checkedAt: ISO8601DateFormatter().string(from: Date()),
-            input: input,
-            model: .init(
-                id: ref.id, revision: ref.revision,
-                task: a.task, library: a.library,
-                architectures: a.architectures, formats: a.formats,
-                selectedVariant: a.selectedVariant,
-                gated: a.gated, lastModified: a.lastModified),
-            environment: .init(
-                chip: env.chip, arch: env.arch, ramBytes: env.ramBytes,
-                freeDiskBytes: env.freeDiskBytes, macOSVersion: env.macOSVersion,
-                source: env.source, runtimes: env.runtimes),
-            verdict: a.verdict,
-            verdictSummary: a.verdictSummary,
-            checkedPath: a.checkedPath,
-            otherPaths: a.otherPaths,
-            requiredChanges: a.requiredChanges,
-            tools: CompatibilityRules.toolMatrix(input: rulesInput, assessment: a),
-            evidence: a.evidence,
-            nextActions: a.nextActions,
-            agentPrompt: "",   // filled below
-            limitations: a.limitations)
-
-        let storedReceipt = env.source == "detected"
-            ? ModelVerificationStore().load(
-                modelID: ref.id, revision: ref.revision,
-                environment: report.environment)
-            : nil
-        let hasHFAccess = !(ProcessInfo.processInfo.environment["HF_TOKEN"] ?? "").isEmpty
-        var final = ModelCompatibilityContract.enrich(
-            report, hasHFAccess: hasHFAccess, receipt: storedReceipt)
-        final.agentPrompt = agentPrompt(for: final)
-        return final
+    private static func readGGUFMeta(
+        ref: ModelRef, info: HubModelClient.Info?,
+        adapter: (base: String?, peftType: String?)?
+    ) -> GGUFHeader.Meta? {
+        guard let info, adapter == nil else { return nil }
+        let files = info.siblings(matchingSuffix: ".gguf")
+        let preferred = ["q4_k_m", "q5_k_m", "q4_0", "q8_0", "f16"]
+        let requested = ref.filePath.flatMap { path in
+            path.lowercased().hasSuffix(".gguf") ? HubModelClient.Sibling(
+                name: path, size: files.first { $0.name == path }?.size) : nil
+        }
+        let variant = requested ?? preferred.compactMap { tag in
+            files.first { $0.name.lowercased().contains(tag) }
+        }.first ?? files.max(by: { ($0.size ?? 0) < ($1.size ?? 0) })
+        guard let variant else { return nil }
+        return try? HubModelClient.ggufMeta(
+            id: ref.id, revision: ref.revision, path: variant.name
+        )
     }
 
     /// safetensors dtype string → bytes per element.
@@ -219,6 +153,36 @@ public enum ModelCheckService {
         case "F16", "BF16", "I16", "U16": return 2
         default: return 1   // I8/U8/F8_*/BOOL
         }
+    }
+
+    /// Untrusted safetensors headers must not be able to overflow the
+    /// checker. If any dimension or aggregate is invalid, keep the exact
+    /// totals unknown and let the manifest-based estimate remain visible.
+    static func exactTensorTotals(
+        _ entries: [String: [String: Any]]
+    ) -> (bytes: Int64?, params: Int64?) {
+        var bytes: Int64 = 0
+        var params: Int64 = 0
+        for (name, entry) in entries where name != "__metadata__" {
+            let shape = (entry["shape"] as? [NSNumber])?.map(\.int64Value) ?? []
+            var count: Int64 = 1
+            for dimension in shape {
+                guard dimension >= 0 else { return (nil, nil) }
+                let product = count.multipliedReportingOverflow(by: dimension)
+                guard !product.overflow else { return (nil, nil) }
+                count = product.partialValue
+            }
+            let paramTotal = params.addingReportingOverflow(count)
+            let tensorBytes = count.multipliedReportingOverflow(
+                by: dtypeBytes(entry["dtype"] as? String)
+            )
+            guard !paramTotal.overflow, !tensorBytes.overflow else { return (nil, nil) }
+            let byteTotal = bytes.addingReportingOverflow(tensorBytes.partialValue)
+            guard !byteTotal.overflow else { return (nil, nil) }
+            params = paramTotal.partialValue
+            bytes = byteTotal.partialValue
+        }
+        return (bytes, params)
     }
 
     /// Legacy HF schemas use different key names — GPT-2/GPT-Neo/J use
@@ -252,7 +216,10 @@ public enum ModelCheckService {
         if out["intermediate_size"] == nil {
             let hidden = (out["hidden_size"] as? Int)
                 ?? (out["n_embd"] as? Int) ?? (out["d_model"] as? Int)
-            if let hidden { out["intermediate_size"] = hidden * 4 }
+            if let hidden {
+                let scaled = hidden.multipliedReportingOverflow(by: 4)
+                if !scaled.overflow { out["intermediate_size"] = scaled.partialValue }
+            }
         }
         return out
     }
@@ -262,94 +229,147 @@ public enum ModelCheckService {
     /// and open questions — and instructs the receiving agent to
     /// investigate before proposing changes.
     public static func agentPrompt(for r: ModelCheckReport) -> String {
-        var lines = [
-            "Investigate whether and how this Hugging Face model can run on the described Mac, then report findings BEFORE proposing or making any changes. Do not install software, download weights, or modify the machine without explicit confirmation.",
-            "",
-        ]
-        appendModelSummary(r, to: &lines)
-        appendEnvironmentSummary(r, to: &lines)
-        appendCompatibilitySummary(r, to: &lines)
-        lines.append("")
-        lines.append("Evidence:")
-        for evidence in r.evidence {
-            lines.append("- [\(evidence.kind)] \(evidence.detail) — \(evidence.source)")
+        var p: [String] = []
+        p.append("Investigate whether and how this Hugging Face model can run on the described Mac, then report findings BEFORE proposing or making any changes. Do not install software, download weights, or modify the machine without explicit confirmation.")
+        p.append("")
+        p.append("Model: https://huggingface.co/\(r.model.id) (revision: \(r.model.revision))")
+        if let t = r.model.task { p.append("Task: \(t)") }
+        if !r.model.architectures.isEmpty {
+            p.append("Architectures: \(r.model.architectures.joined(separator: ", "))")
         }
-        lines += [
-            "",
-            "Questions to resolve:",
-            "- Is there a documented execution path on Apple Silicon for this exact repo/revision?",
-            "- What are the real memory, disk, and runtime requirements — verified against official documentation, not assumed?",
-            "- If the checked path is wrong or incomplete, what did the checker miss?",
-        ]
-        return lines.joined(separator: "\n")
-    }
-
-    private static func appendModelSummary(
-        _ report: ModelCheckReport,
-        to lines: inout [String]
-    ) {
-        lines.append("Model: https://huggingface.co/\(report.model.id) (revision: \(report.model.revision))")
-        if let task = report.model.task { lines.append("Task: \(task)") }
-        if !report.model.architectures.isEmpty {
-            lines.append("Architectures: \(report.model.architectures.joined(separator: ", "))")
+        if !r.model.formats.isEmpty {
+            p.append("Formats seen: \(r.model.formats.joined(separator: ", "))")
         }
-        if !report.model.formats.isEmpty {
-            lines.append("Formats seen: \(report.model.formats.joined(separator: ", "))")
-        }
-        if report.model.gated {
-            lines.append("Repo is gated — an HF_TOKEN with accepted license terms is required.")
-        }
-    }
-
-    private static func appendEnvironmentSummary(
-        _ report: ModelCheckReport,
-        to lines: inout [String]
-    ) {
-        lines.append("")
-        lines.append("Environment (\(report.environment.source)):")
-        lines.append("- chip: \(report.environment.chip) (\(report.environment.arch))")
-        lines.append("- RAM: \(ModelCheckReport.fmtBytes(report.environment.ramBytes)); free disk: \(ModelCheckReport.fmtBytes(report.environment.freeDiskBytes)); \(report.environment.macOSVersion)")
-        let found = report.environment.runtimes.filter(\.found)
+        if r.model.gated { p.append("Repo is gated — an HF_TOKEN with accepted license terms is required.") }
+        p.append("")
+        p.append("Environment (\(r.environment.source)):")
+        p.append("- chip: \(r.environment.chip) (\(r.environment.arch))")
+        p.append("- RAM: \(ModelCheckReport.fmtBytes(r.environment.ramBytes)); free disk: \(ModelCheckReport.fmtBytes(r.environment.freeDiskBytes)); \(r.environment.macOSVersion)")
+        let found = r.environment.runtimes.filter(\.found)
         if !found.isEmpty {
-            let runtimes = found.map {
-                "\($0.name) \($0.version ?? "")".trimmingCharacters(in: .whitespaces)
-            }.joined(separator: "; ")
-            lines.append("- runtimes: \(runtimes)")
+            p.append("- runtimes: " + found.map { "\($0.name) \($0.version ?? "")".trimmingCharacters(in: .whitespaces) }.joined(separator: "; "))
+        }
+        p.append("")
+        p.append("Checker verdict: \(r.verdict.rawValue) — \(r.verdictSummary)")
+        p.append("Checked path: \(r.checkedPath.name) → \(r.checkedPath.status.rawValue): \(r.checkedPath.detail)")
+        appendOperationEvidence(r, to: &p)
+        appendAlternativePaths(r, to: &p)
+        appendLimitationsAndEvidence(r, to: &p)
+        p.append("")
+        p.append("Questions to resolve:")
+        p.append("- Is there a documented execution path on Apple Silicon for this exact repo/revision?")
+        p.append("- What are the real memory, disk, and runtime requirements — verified against official documentation, not assumed?")
+        p.append("- If the checked path is wrong or incomplete, what did the checker miss?")
+        return p.joined(separator: "\n")
+    }
+
+    private static func appendOperationEvidence(_ r: ModelCheckReport, to p: inout [String]) {
+        if let operations = r.operations, !operations.isEmpty {
+            p.append("Operation-specific states:")
+            for operation in operations {
+                p.append("- \(operation.operation.rawValue): \(operation.status.rawValue) — \(operation.detail)")
+            }
+        }
+        if let receipt = r.verificationReceipt {
+            let runtime = receipt.runtime.map { " via \($0)" } ?? ""
+            p.append("Matching local receipt: \(receipt.status.rawValue)\(runtime), \(receipt.verifiedAt).")
         }
     }
 
-    private static func appendCompatibilitySummary(
-        _ report: ModelCheckReport,
-        to lines: inout [String]
-    ) {
-        lines.append("")
-        lines.append("Checker verdict: \(report.verdict.rawValue) — \(report.verdictSummary)")
-        lines.append("Checked path: \(report.checkedPath.name) → \(report.checkedPath.status.rawValue): \(report.checkedPath.detail)")
-        if let operations = report.operations, !operations.isEmpty {
-            lines.append("Operation-specific states:")
-            for operation in operations {
-                lines.append("- \(operation.operation.rawValue): \(operation.status.rawValue) — \(operation.detail)")
+    private static func appendAlternativePaths(_ r: ModelCheckReport, to p: inout [String]) {
+        if !r.otherPaths.isEmpty {
+            p.append("Other paths considered:")
+            for path in r.otherPaths {
+                p.append("- \(path.name) [\(path.status.rawValue), \(path.evidenceKind)]: \(path.detail)")
             }
         }
-        if let receipt = report.verificationReceipt {
-            let runtime = receipt.runtime.map { " via \($0)" } ?? ""
-            lines.append("Matching local receipt: \(receipt.status.rawValue)\(runtime), \(receipt.verifiedAt).")
+        if !r.requiredChanges.isEmpty {
+            p.append("Required changes identified:")
+            for c in r.requiredChanges { p.append("- [\(c.kind)] \(c.detail)") }
         }
-        if !report.otherPaths.isEmpty {
-            lines.append("Other paths considered:")
-            for path in report.otherPaths {
-                lines.append("- \(path.name) [\(path.status.rawValue), \(path.evidenceKind)]: \(path.detail)")
-            }
+    }
+
+    private static func appendLimitationsAndEvidence(_ r: ModelCheckReport, to p: inout [String]) {
+        if !r.limitations.isEmpty {
+            p.append("Limitations / unresolved questions:")
+            for l in r.limitations { p.append("- \(l)") }
         }
-        if !report.requiredChanges.isEmpty {
-            lines.append("Required changes identified:")
-            for change in report.requiredChanges {
-                lines.append("- [\(change.kind)] \(change.detail)")
-            }
+        p.append("")
+        p.append("Evidence:")
+        for e in r.evidence { p.append("- [\(e.kind)] \(e.detail) — \(e.source)") }
+    }
+
+    private static func performCheck(
+        input: String, environment: MacEnvironment?, progress: ProgressHandler?
+    ) throws -> ModelCheckReport {
+        let ref: ModelRef
+        do { ref = try ModelRef.parse(input) }
+        catch let error as ModelRef.ParseError {
+            throw CheckError.invalidInput(error.description)
         }
-        if !report.limitations.isEmpty {
-            lines.append("Limitations / unresolved questions:")
-            for limitation in report.limitations { lines.append("- \(limitation)") }
-        }
+        progress?(.inspectingRepository)
+        var info: HubModelClient.Info?
+        var fetchIssue: String?
+        do { info = try HubModelClient.info(id: ref.id, revision: ref.revision) }
+        catch { fetchIssue = "\(error)" }
+
+        let config = readConfig(ref: ref, info: info)
+        let tensors = readTensorFacts(ref: ref, info: info)
+        let adapter = readAdapter(ref: ref, info: info)
+        let gguf = readGGUFMeta(ref: ref, info: info, adapter: adapter)
+        progress?(.checkingEnvironment)
+        let env = environment ?? MacEnvironment.detect()
+        progress?(.preparingReport)
+
+        var rules = CompatibilityRules.Input(ref: ref, env: env)
+        rules.info = info
+        rules.fetchIssue = fetchIssue
+        rules.config = config.config
+        rules.configIssue = config.issue
+        rules.architecturesHint = config.architectures
+        rules.tensorLayout = tensors.layout
+        rules.remoteCode = config.remoteCode
+        rules.adapter = adapter
+        rules.ggufMeta = gguf
+        rules.exactWeightBytes = tensors.bytes
+        rules.exactParams = tensors.params
+        let assessment = CompatibilityRules.assess(rules)
+
+        let report = ModelCheckReport(
+            schemaVersion: 2,
+            checkedAt: ISO8601DateFormatter().string(from: Date()),
+            input: input,
+            model: ModelCheckReport.ModelSection(
+                id: ref.id, revision: ref.revision,
+                resolvedRevision: info?.sha, filePath: ref.filePath,
+                task: assessment.task, library: assessment.library,
+                architectures: assessment.architectures, formats: assessment.formats,
+                selectedVariant: assessment.selectedVariant,
+                gated: assessment.gated, lastModified: assessment.lastModified),
+            environment: .init(
+                chip: env.chip, arch: env.arch, ramBytes: env.ramBytes,
+                freeDiskBytes: env.freeDiskBytes, macOSVersion: env.macOSVersion,
+                source: env.source, runtimes: env.runtimes),
+            verdict: assessment.verdict,
+            verdictSummary: assessment.verdictSummary,
+            checkedPath: assessment.checkedPath,
+            otherPaths: assessment.otherPaths,
+            requiredChanges: assessment.requiredChanges,
+            tools: CompatibilityRules.toolMatrix(input: rules, assessment: assessment),
+            evidence: assessment.evidence,
+            nextActions: assessment.nextActions,
+            agentPrompt: "",
+            limitations: assessment.limitations)
+        let storedReceipt = env.source == "detected"
+            ? ModelVerificationStore().load(
+                modelID: ref.id,
+                revision: ModelCompatibilityContract.receiptRevision(for: report.model),
+                environment: report.environment)
+            : nil
+        let hasHFAccess = !(ProcessInfo.processInfo.environment["HF_TOKEN"] ?? "").isEmpty
+        var final = ModelCompatibilityContract.enrich(
+            report, hasHFAccess: hasHFAccess, receipt: storedReceipt)
+        final.agentPrompt = agentPrompt(for: final)
+        return final
     }
 }

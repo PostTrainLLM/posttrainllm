@@ -22,6 +22,7 @@ public struct ModelRef: Equatable, Sendable {
         case notHuggingFaceURL(String)
         case notAModelRepo(kind: String, id: String)  // datasets / spaces
         case missingRepo(String)
+        case invalidRepo(String)
 
         public var description: String {
             switch self {
@@ -33,6 +34,8 @@ public struct ModelRef: Equatable, Sendable {
                 return "'\(id)' is a Hugging Face \(kind), not a model repository — model-check only inspects models"
             case .missingRepo(let s):
                 return "'\(s)' doesn't name a model — expected owner/repo"
+            case .invalidRepo(let s):
+                return "'\(s)' is not a valid Hugging Face owner/repo id"
             }
         }
     }
@@ -44,10 +47,11 @@ public struct ModelRef: Equatable, Sendable {
         // Bare owner/repo fast path (no scheme, no host).
         if !input.contains("://") && !input.contains(" ") {
             let parts = input.split(separator: "/", omittingEmptySubsequences: true)
-            if parts.count == 2 {
+            if parts.count == 2, isValidRepoID(input) {
                 return ModelRef(id: input, revision: "main", filePath: nil)
             }
-            throw ParseError.missingRepo(input)
+            if parts.count != 2 { throw ParseError.missingRepo(input) }
+            throw ParseError.invalidRepo(input)
         }
 
         guard let url = URL(string: input),
@@ -56,8 +60,14 @@ public struct ModelRef: Equatable, Sendable {
             throw ParseError.notHuggingFaceURL(input)
         }
 
-        var comps = url.path.split(separator: "/", omittingEmptySubsequences: true)
+        // Split the percent-encoded path first, then decode each component.
+        // URL.path decodes `%2F` before splitting, which turns a revision such
+        // as `refs%2Fpr%2F1` into three path components and silently targets a
+        // different ref/file pair.
+        let encodedComponents = url.path(percentEncoded: true)
+            .split(separator: "/", omittingEmptySubsequences: true)
             .map(String.init)
+        var comps = encodedComponents.map(decodedPathComponent)
         guard !comps.isEmpty else { throw ParseError.missingRepo(input) }
 
         // Repo-kind prefixes: /datasets/<id>, /spaces/<id> are not models.
@@ -68,6 +78,7 @@ public struct ModelRef: Equatable, Sendable {
         guard comps.count >= 2 else { throw ParseError.missingRepo(input) }
 
         let id = "\(comps[0])/\(comps[1])"
+        guard isValidRepoID(id) else { throw ParseError.invalidRepo(id) }
         comps = Array(comps.dropFirst(2))
 
         var revision = "main"
@@ -88,5 +99,19 @@ public struct ModelRef: Equatable, Sendable {
             }
         }
         return ModelRef(id: id, revision: revision, filePath: filePath)
+    }
+
+    private static func decodedPathComponent(_ encoded: String) -> String {
+        return encoded.removingPercentEncoding ?? encoded
+    }
+
+    private static func isValidRepoID(_ id: String) -> Bool {
+        guard id.utf8.count <= 96 else { return false }
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-_./"))
+        guard id.unicodeScalars.allSatisfy(allowed.contains) else { return false }
+        return id.split(separator: "/", omittingEmptySubsequences: false).allSatisfy { part in
+            !part.isEmpty && part.first != "." && part.first != "-"
+                && part.last != "." && part.last != "-" && !part.contains("..")
+        }
     }
 }

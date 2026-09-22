@@ -54,12 +54,13 @@ public final class HFTokenizer: TGTokenizer {
 
     /// Load a tokenizer from a HF model directory.
     /// Expects at minimum `tokenizer.json` to be present.
-    public static func load(from url: URL) async throws -> HFTokenizer {
+    public static func load(from url: URL, vocabSize: Int? = nil) async throws -> HFTokenizer {
         // `AutoTokenizer.from(modelFolder:)` reads tokenizer.json +
         // tokenizer_config.json from a local directory and constructs
         // the right tokenizer kind automatically.
         let tokenizer = try await AutoTokenizer.from(modelFolder: url)
-        return HFTokenizer(tokenizer: tokenizer)
+        return HFTokenizer(tokenizer: tokenizer,
+                           vocabSize: vocabSize ?? inferredVocabularySize(from: url))
     }
 
     /// Sync bridge for the CLI. swift-transformers' `AutoTokenizer.from`
@@ -67,7 +68,7 @@ public final class HFTokenizer: TGTokenizer {
     /// calling thread with a semaphore. Necessary because Swift 6 strict
     /// concurrency rejects shuttling the result across a raw Task
     /// boundary without an actor-isolated container.
-    public static func loadBlocking(from url: URL) throws -> HFTokenizer {
+    public static func loadBlocking(from url: URL, vocabSize: Int? = nil) throws -> HFTokenizer {
         let sem = DispatchSemaphore(value: 0)
         nonisolated(unsafe) var boxed: Tokenizer? = nil
         nonisolated(unsafe) var error: Error? = nil
@@ -85,16 +86,37 @@ public final class HFTokenizer: TGTokenizer {
             throw NSError(domain: "posttrainllm", code: 99,
                           userInfo: [NSLocalizedDescriptionKey: "tokenizer load returned nothing"])
         }
-        return HFTokenizer(tokenizer: t)
+        return HFTokenizer(tokenizer: t,
+                           vocabSize: vocabSize ?? inferredVocabularySize(from: url))
     }
 
-    private init(tokenizer: Tokenizer) {
+    private init(tokenizer: Tokenizer, vocabSize: Int) {
         self.tokenizer = tokenizer
-        // The HF library exposes vocab via the underlying tokenizer's
-        // `tokenizer.vocabSize` if available; fall back to a max-id scan.
-        // For now, use the constants in tokenizer_config — we'll wire a
-        // precise value later if needed.
-        self.vocabSize = 0  // filled in by caller from HF config.json's vocab_size
+        self.vocabSize = vocabSize
+    }
+
+    /// Best-effort vocabulary bound for call sites that do not own a model
+    /// config. Training passes the model's authoritative embedding bound.
+    private static func inferredVocabularySize(from directory: URL) -> Int {
+        let url = directory.appendingPathComponent("tokenizer.json")
+        guard let data = try? Data(contentsOf: url),
+              let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            return 0
+        }
+        var maximum = -1
+        if let model = root["model"] as? [String: Any] {
+            if let vocab = model["vocab"] as? [String: Any] {
+                for value in vocab.values {
+                    maximum = max(maximum, (value as? NSNumber)?.intValue ?? -1)
+                }
+            } else if let vocab = model["vocab"] as? [Any] {
+                maximum = max(maximum, vocab.count - 1)
+            }
+        }
+        for token in root["added_tokens"] as? [[String: Any]] ?? [] {
+            maximum = max(maximum, (token["id"] as? NSNumber)?.intValue ?? -1)
+        }
+        return maximum + 1
     }
 
     public func encode(_ text: String) throws -> [Int] {

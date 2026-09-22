@@ -88,6 +88,16 @@ if [[ -x "$BUILD_DIR/posttrainllm" ]]; then
     chmod +x "$APP/Contents/MacOS/posttrainllm-cli"
 fi
 
+# model-run advertises the MLX-Swift-LM sibling as bundled. Ship that
+# sibling next to the CLI so the runtime probe and the claim stay true.
+( cd "$PKG" && swift build -j "$BUILD_JOBS" -c "$CONFIG" --product posttrainllm-mlxrun )
+if [[ ! -x "$BUILD_DIR/posttrainllm-mlxrun" ]]; then
+    echo "build did not produce $BUILD_DIR/posttrainllm-mlxrun" >&2
+    exit 1
+fi
+cp "$BUILD_DIR/posttrainllm-mlxrun" "$APP/Contents/MacOS/posttrainllm-mlxrun"
+chmod +x "$APP/Contents/MacOS/posttrainllm-mlxrun"
+
 # MLX needs its compiled Metal shader library at runtime. SwiftPM drops
 # it next to the binary; the .app needs it in Resources so the binary's
 # search path (which Foundation rewrites to the bundle when launched as
