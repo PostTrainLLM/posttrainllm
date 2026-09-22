@@ -145,6 +145,7 @@ enum CLICommandCatalog {
         Command("gguf-extract", .packaging, "Extract GGUF tensors into a local directory."),
         Command("hf-inspect", .packaging, "Inspect a local Hugging Face model directory."),
         Command("hf-load", .packaging, "Load a Hugging Face model through the native runtime."),
+        Command("model-check", .packaging, "Report whether a Hugging Face model URL can run on this Mac."),
         ]
     }
 

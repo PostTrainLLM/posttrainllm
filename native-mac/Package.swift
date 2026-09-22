@@ -26,6 +26,12 @@ let package = Package(
         // we can unit-test the registry / format detector without
         // pulling MLX. See docs/integrations/hf_datasets_integration.md.
         .library(name: "TinyGPTData", targets: ["TinyGPTData"]),
+        // TinyGPTCheck — read-only Hugging Face model compatibility
+        // checker (issue #156). Pure Foundation + TinyGPTIO/TinyGPTData so
+        // the SAME inspection service + report schema backs both the
+        // `model-check` CLI and the app's Check panel, and its tests run
+        // under plain `swift test` without Metal.
+        .library(name: "TinyGPTCheck", targets: ["TinyGPTCheck"]),
         // TinyGPTScreen — Mac screen-reading scaffold (Wave 2.6).
         // ScreenCaptureKit window capture + macOS Accessibility (AX) tree
         // reader. Pure Foundation + ScreenCaptureKit + ApplicationServices;
@@ -66,6 +72,10 @@ let package = Package(
         // Window:) initialiser we use.
         .target(
             name: "TinyGPTScreen"
+        ),
+        .target(
+            name: "TinyGPTCheck",
+            dependencies: ["TinyGPTIO", "TinyGPTData"]
         ),
         .target(
             name: "TinyGPTModel",
@@ -117,6 +127,7 @@ let package = Package(
                 "TinyGPTServe",
                 "TinyGPTData",
                 "TinyGPTScreen",
+                "TinyGPTCheck",
                 .product(name: "MLX", package: "mlx-swift"),
                 .product(name: "MLXNN", package: "mlx-swift"),
                 .product(name: "MLXOptimizers", package: "mlx-swift"),
@@ -142,6 +153,7 @@ let package = Package(
             dependencies: [
                 "TinyGPTIO",
                 "TinyGPTModel",
+                "TinyGPTCheck",
                 .product(name: "MLX", package: "mlx-swift"),
                 .product(name: "MLXNN", package: "mlx-swift"),
                 .product(name: "MLXRandom", package: "mlx-swift"),
@@ -164,6 +176,12 @@ let package = Package(
         .testTarget(
             name: "TinyGPTServeTests",
             dependencies: ["TinyGPTServe", "TinyGPTModel"]
+        ),
+        // Pure-Foundation verdict tests — fixtures only, no network, no
+        // Metal. Safe under plain `swift test`.
+        .testTarget(
+            name: "TinyGPTCheckTests",
+            dependencies: ["TinyGPTCheck", "TinyGPTIO"]
         ),
     ],
     swiftLanguageModes: [.v5]

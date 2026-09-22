@@ -1,0 +1,270 @@
+import XCTest
+@testable import TinyGPTCheck
+import TinyGPTIO
+
+/// Fixture-driven verdict tests — no network, no Metal, no weight files.
+/// Every acceptance-criteria scenario from issue #156 gets a case:
+/// supported model → evidence-backed yes; image model vs LM runtime →
+/// explained mismatch; unfamiliar/inaccessible repo → Unknown + handoff.
+final class ModelCheckTests: XCTestCase {
+
+    // MARK: - fixtures
+
+    private func env(ramGB: Int = 48, diskGB: Int = 400,
+                     ollama: Bool = false) -> MacEnvironment {
+        var runtimes: [ModelCheckReport.RuntimeProbe] = [
+            .init(name: "posttrainllm", found: true, version: "0.1.0", detail: "test"),
+            .init(name: "python3 ML stack", found: true,
+                  version: "mlx==0.28.0, mlx-lm==0.27.0, transformers==4.55.0", detail: "test"),
+        ]
+        if ollama {
+            runtimes.append(.init(name: "ollama", found: true, version: "0.12.0", detail: "test"))
+        } else {
+            runtimes.append(.init(name: "ollama", found: false, version: nil, detail: "test"))
+        }
+        return MacEnvironment(
+            chip: "Apple M5 Pro", arch: "arm64",
+            ramBytes: Int64(ramGB) * 1_073_741_824,
+            freeDiskBytes: Int64(diskGB) * 1_073_741_824,
+            macOSVersion: "macOS 26.0", source: "detected", runtimes: runtimes)
+    }
+
+    private func ref(_ s: String) -> ModelRef { try! ModelRef.parse(s) }
+
+    private func lmInfo(id: String = "Qwen/Qwen3-4B-Instruct-2507",
+                        weightBytes: Int64 = 8_000_000_000,
+                        archs: [String] = ["Qwen3ForCausalLM"],
+                        pipeline: String? = "text-generation") -> (HubModelClient.Info, HuggingFaceConfig) {
+        let info = HubModelClient.Info(
+            id: id, sha: "abc123",
+            tags: ["safetensors", "text-generation"],
+            pipelineTag: pipeline, libraryName: "transformers",
+            siblings: [
+                .init(name: "config.json", size: 1200),
+                .init(name: "tokenizer.json", size: 11_000_000),
+                .init(name: "model-00001-of-00002.safetensors", size: weightBytes / 2),
+                .init(name: "model-00002-of-00002.safetensors", size: weightBytes / 2),
+            ],
+            safetensorsParams: ["BF16": weightBytes / 2])
+        let cfg = try! HuggingFaceConfig.fromDict([
+            "architectures": archs,
+            "vocab_size": 151_936, "hidden_size": 2560,
+            "intermediate_size": 9728, "num_hidden_layers": 36,
+            "num_attention_heads": 32, "num_key_value_heads": 8,
+            "head_dim": 128, "max_position_embeddings": 262_144,
+            "rms_norm_eps": 1e-6, "hidden_act": "silu",
+            "rope_theta": 5_000_000.0, "tie_word_embeddings": true,
+        ])
+        return (info, cfg)
+    }
+
+    private func assess(_ info: HubModelClient.Info?,
+                        config: HuggingFaceConfig?,
+                        fetchIssue: String? = nil,
+                        configIssue: String? = nil,
+                        env: MacEnvironment? = nil,
+                        refString: String? = nil) -> CompatibilityRules.Assessment {
+        let refStr = refString ?? "https://huggingface.co/\(info?.id ?? "x/y")"
+        return CompatibilityRules.assess(.init(
+            ref: ref(refStr), info: info, fetchIssue: fetchIssue,
+            config: config, configIssue: configIssue,
+            env: env ?? self.env()))
+    }
+
+    // MARK: - URL parsing
+
+    func testParseBareId() throws {
+        let r = try ModelRef.parse("Qwen/Qwen3-0.6B")
+        XCTAssertEqual(r.id, "Qwen/Qwen3-0.6B")
+        XCTAssertEqual(r.revision, "main")
+        XCTAssertNil(r.filePath)
+    }
+
+    func testParseFullURL() throws {
+        let r = try ModelRef.parse("https://huggingface.co/mlx-community/Qwen3-4B-4bit")
+        XCTAssertEqual(r.id, "mlx-community/Qwen3-4B-4bit")
+        XCTAssertEqual(r.revision, "main")
+    }
+
+    func testParseTreeRevision() throws {
+        let r = try ModelRef.parse("https://huggingface.co/owner/repo/tree/v2.1")
+        XCTAssertEqual(r.id, "owner/repo")
+        XCTAssertEqual(r.revision, "v2.1")
+    }
+
+    func testParseBlobPath() throws {
+        let r = try ModelRef.parse("https://huggingface.co/o/r/blob/main/model.safetensors")
+        XCTAssertEqual(r.id, "o/r")
+        XCTAssertEqual(r.revision, "main")
+        XCTAssertEqual(r.filePath, "model.safetensors")
+    }
+
+    func testParseHfDotCo() throws {
+        XCTAssertEqual(try ModelRef.parse("https://hf.co/a/b").id, "a/b")
+    }
+
+    func testRejectDatasetURL() {
+        XCTAssertThrowsError(try ModelRef.parse("https://huggingface.co/datasets/a/b")) { e in
+            guard case ModelRef.ParseError.notAModelRepo = e else {
+                return XCTFail("expected notAModelRepo, got \(e)")
+            }
+        }
+    }
+
+    func testRejectGarbage() {
+        XCTAssertThrowsError(try ModelRef.parse("https://example.com/a/b"))
+        XCTAssertThrowsError(try ModelRef.parse("justonepart"))
+        XCTAssertThrowsError(try ModelRef.parse("   "))
+    }
+
+    // MARK: - supported model → expected_to_work
+
+    func testVerifiedModelOnBigRAM() {
+        let (info, cfg) = lmInfo()
+        let a = assess(info, config: cfg)
+        XCTAssertEqual(a.verdict, .expectedToWork)
+        XCTAssertEqual(a.checkedPath.status, .expectedToWork)
+        XCTAssertFalse(a.evidence.isEmpty)
+        XCTAssertFalse(a.nextActions.isEmpty)
+    }
+
+    func testVerifiedModelOnSmallRAMNeedsChanges() {
+        // 4B bf16 ≈ 8 GB weights → ~16 GB fp32 resident; on 8 GB that's
+        // over the line → changesRequired with a quantization route.
+        let (info, cfg) = lmInfo()
+        let a = assess(info, config: cfg, env: env(ramGB: 8))
+        XCTAssertEqual(a.verdict, .changesRequired)
+        XCTAssertTrue(a.requiredChanges.contains { $0.kind == "conversion" })
+        XCTAssertTrue(a.requiredChanges.allSatisfy { $0.estimate || $0.sizeBytes == nil })
+    }
+
+    // MARK: - diffusers → explained mismatch, never "impossible"
+
+    func testDiffusersModelMismatch() {
+        var info = HubModelClient.Info(
+            id: "black-forest-labs/FLUX.1-dev",
+            tags: ["diffusers"], pipelineTag: "text-to-image",
+            libraryName: "diffusers",
+            siblings: [
+                .init(name: "model_index.json", size: 500),
+                .init(name: "transformer/diffusion_pytorch_model.safetensors", size: 23_000_000_000),
+            ])
+        info.gated = true
+        let a = assess(info, config: nil)
+        XCTAssertEqual(a.verdict, .unsupportedOnCheckedPath)
+        XCTAssertTrue(a.checkedPath.detail.contains("mismatch"))
+        // Other path documented — "unsupported here" ≠ "impossible on Mac".
+        XCTAssertTrue(a.otherPaths.contains { $0.name.contains("diffusers") })
+        XCTAssertFalse(a.verdictSummary.lowercased().contains("impossible"))
+    }
+
+    // MARK: - unknown cases
+
+    func testUnknownArchitecture() {
+        let (info, cfg) = lmInfo(archs: ["FalconForCausalLM"])
+        let a = assess(info, config: cfg)
+        XCTAssertEqual(a.verdict, .unknown)
+        XCTAssertTrue(a.limitations.contains { $0.contains("verified set") })
+    }
+
+    func testMoENotDenseLoadable() {
+        let (info, cfg) = lmInfo(archs: ["Qwen3MoeForCausalLM"])
+        let a = assess(info, config: cfg)
+        XCTAssertEqual(a.verdict, .unsupportedOnCheckedPath)
+        XCTAssertTrue(a.checkedPath.detail.contains("dense"))
+    }
+
+    func testInaccessibleRepoIsUnknown() {
+        let a = assess(nil, config: nil, fetchIssue: "model 'x/y' not found on Hugging Face")
+        XCTAssertEqual(a.verdict, .unknown)
+        XCTAssertTrue(a.limitations.contains { $0.contains("not found") })
+        XCTAssertFalse(a.nextActions.isEmpty)
+    }
+
+    func testGatedWithoutTokenKeepsUnknownHonest() {
+        // API answered but gated → config fetch failed.
+        let info = HubModelClient.Info(
+            id: "meta-llama/Llama-3.1-8B", gated: true, gatedKind: "auto",
+            siblings: [.init(name: "config.json", size: 800)])
+        let a = assess(info, config: nil, configIssue: "config.json present but unreadable: needs auth")
+        // has config.json sibling but we couldn't read it and there are
+        // no weight siblings → no identifiable format → unknown.
+        XCTAssertEqual(a.verdict, .unknown)
+        XCTAssertTrue(a.limitations.contains { $0.contains("config.json") })
+    }
+
+    // MARK: - GGUF
+
+    func testGGUFRepo() {
+        let info = HubModelClient.Info(
+            id: "bartowski/Qwen3-4B-GGUF",
+            siblings: [
+                .init(name: "Qwen3-4B-Q4_K_M.gguf", size: 2_500_000_000),
+                .init(name: "Qwen3-4B-Q8_0.gguf", size: 4_200_000_000),
+            ])
+        let a = assess(info, config: nil, env: env(ollama: true))
+        XCTAssertEqual(a.verdict, .changesRequired)
+        XCTAssertEqual(a.selectedVariant, "Qwen3-4B-Q4_K_M.gguf")
+        XCTAssertTrue(a.otherPaths.contains { $0.name.contains("Ollama") && $0.status == .expectedToWork })
+    }
+
+    // MARK: - report schema + agent prompt
+
+    func testReportRoundTripsJSON() throws {
+        let (info, cfg) = lmInfo()
+        // Exercise the service's report assembly path directly against
+        // rules output — the network stage is covered by HubModelClient,
+        // not re-tested here.
+        let a = CompatibilityRules.assess(.init(
+            ref: ref("Qwen/Qwen3-4B-Instruct-2507"), info: info,
+            fetchIssue: nil, config: cfg, configIssue: nil, env: env()))
+        let report = ModelCheckReport(
+            schemaVersion: 1, checkedAt: "2026-09-22T00:00:00Z",
+            input: "Qwen/Qwen3-4B-Instruct-2507",
+            model: .init(id: info.id, revision: "main", task: a.task,
+                         library: a.library, architectures: a.architectures,
+                         formats: a.formats, selectedVariant: a.selectedVariant,
+                         gated: false, lastModified: nil),
+            environment: .init(chip: "Apple M5 Pro", arch: "arm64",
+                               ramBytes: 48 * 1_073_741_824,
+                               freeDiskBytes: 400 * 1_073_741_824,
+                               macOSVersion: "macOS 26.0", source: "detected",
+                               runtimes: []),
+            verdict: a.verdict, verdictSummary: a.verdictSummary,
+            checkedPath: a.checkedPath, otherPaths: a.otherPaths,
+            requiredChanges: a.requiredChanges, evidence: a.evidence,
+            nextActions: a.nextActions, agentPrompt: "test",
+            limitations: a.limitations)
+        let json = try report.encoded()
+        XCTAssertTrue(json.contains("\"schema_version\""))
+        XCTAssertTrue(json.contains("\"expected_to_work\""))
+        let decoded = try ModelCheckReport.decode(Data(json.utf8))
+        XCTAssertEqual(decoded, report)
+    }
+
+    func testAgentPromptCarriesContext() {
+        let (info, cfg) = lmInfo(archs: ["NemotronForCausalLM"])
+        let a = assess(info, config: cfg)
+        let report = ModelCheckReport(
+            schemaVersion: 1, checkedAt: "2026-09-22T00:00:00Z",
+            input: "x", model: .init(id: info.id, revision: "main", task: a.task,
+                                     library: nil, architectures: a.architectures,
+                                     formats: a.formats, selectedVariant: nil,
+                                     gated: false, lastModified: nil),
+            environment: .init(chip: "Apple M5 Pro", arch: "arm64",
+                               ramBytes: 48 * 1_073_741_824, freeDiskBytes: 0,
+                               macOSVersion: "macOS 26.0", source: "detected",
+                               runtimes: []),
+            verdict: a.verdict, verdictSummary: a.verdictSummary,
+            checkedPath: a.checkedPath, otherPaths: a.otherPaths,
+            requiredChanges: a.requiredChanges, evidence: a.evidence,
+            nextActions: a.nextActions, agentPrompt: "", limitations: a.limitations)
+        let prompt = ModelCheckService.agentPrompt(for: report)
+        XCTAssertTrue(prompt.contains(info.id))
+        XCTAssertTrue(prompt.contains("main"))
+        XCTAssertTrue(prompt.contains("Apple M5 Pro"))
+        XCTAssertTrue(prompt.lowercased().contains("investigate"))
+        XCTAssertTrue(prompt.contains("NemotronForCausalLM"))
+        XCTAssertFalse(prompt.contains("HF_TOKEN="))   // never leak a token value
+    }
+}
