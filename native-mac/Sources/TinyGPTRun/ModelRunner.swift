@@ -80,7 +80,7 @@ public enum ModelRunner {
                 ok = runNative(report: report, options: options)
             case .mlxSwift:
                 ok = runMlxSwift(
-                    id: report.model.id, revision: report.model.revision,
+                    id: report.model.id, revision: artifactRevision(report),
                     options: options)
             case .mlxLm:
                 ok = runMlxLm(id: report.model.id, options: options)
@@ -112,7 +112,7 @@ public enum ModelRunner {
                                   options: Options) -> Bool {
         let id = report.model.id
         do {
-            let dir = try cacheDir(for: id, revision: report.model.revision)
+            let dir = try cacheDir(for: id, revision: artifactRevision(report))
             try downloadLoadSet(report: report, into: dir)
             let selfPath = CommandLine.arguments[0]
             if options.chat {
@@ -140,7 +140,8 @@ public enum ModelRunner {
     private static func downloadLoadSet(report: ModelCheckReport,
                                         into dir: URL) throws {
         let id = report.model.id
-        let info = try HubModelClient.info(id: id, revision: report.model.revision)
+        let revision = artifactRevision(report)
+        let info = try HubModelClient.info(id: id, revision: revision)
         let names = Set(info.siblings.map(\.name))
         var wanted = ["config.json", "tokenizer.json", "tokenizer.model",
                       "tokenizer_config.json", "generation_config.json",
@@ -152,19 +153,54 @@ public enum ModelRunner {
         fputs("… downloading \(files.count) files → \(dir.path)\n", stderr)
         for file in files {
             let dest = dir.appendingPathComponent(file)
-            try FileManager.default.createDirectory(
-                at: dest.deletingLastPathComponent(), withIntermediateDirectories: true)
-            if FileManager.default.fileExists(atPath: dest.path) {
+            let expectedSize = info.sibling(named: file)?.size
+            if cachedFileMatches(dest, expectedSize: expectedSize) {
                 fputs("  \(file) (cached)\n", stderr)
                 continue
             }
-            fputs("  \(file)…\n", stderr)
-            let url = "https://huggingface.co/\(id)/resolve/\(report.model.revision)/\(file)"
-            try HFDatasets.streamDownload(urlString: url, to: dest) { done, total in
-                if total > 0 { fputs("\r    \(done * 100 / total)%", stderr) }
-            }
-            fputs("\n", stderr)
+            let url = "https://huggingface.co/\(id)/resolve/\(revision)/\(file)"
+            try downloadArtifact(url: url, to: dest, expectedSize: expectedSize, label: file)
         }
+    }
+
+    private static func downloadArtifact(
+        url: String, to destination: URL, expectedSize: Int64?, label: String
+    ) throws {
+        try FileManager.default.createDirectory(
+            at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+        fputs("  \(label)…\n", stderr)
+        try HFDatasets.streamDownload(urlString: url, to: destination) { done, total in
+            if total > 0 { fputs("\r    \(done * 100 / total)%", stderr) }
+        }
+        guard expectedSize == nil || cachedFileMatches(destination, expectedSize: expectedSize) else {
+            throw invalidDownload(label)
+        }
+        fputs("\n", stderr)
+    }
+
+    private static func invalidDownload(_ label: String) -> NSError {
+        NSError(domain: "PostTrainLLM.ModelRunner", code: 1,
+                userInfo: [NSLocalizedDescriptionKey:
+                    "downloaded \(label) does not match the Hub manifest size"])
+    }
+
+    /// The Hub API resolves mutable refs (`main`, branches, tags) to a commit.
+    /// Downloads and cache directories must use that immutable commit so the
+    /// bytes executed are the same snapshot the checker inspected.
+    static func artifactRevision(_ report: ModelCheckReport) -> String {
+        report.model.resolvedRevision ?? report.model.revision
+    }
+
+    /// Existing files are reusable only when the Hub manifest supplied a size
+    /// and the on-disk file matches it. Unknown-size entries are re-downloaded
+    /// atomically instead of trusting arbitrary pre-existing bytes.
+    static func cachedFileMatches(_ file: URL, expectedSize: Int64?) -> Bool {
+        guard let expectedSize, expectedSize >= 0,
+              let attributes = try? FileManager.default.attributesOfItem(atPath: file.path),
+              let actual = (attributes[.size] as? NSNumber)?.int64Value else {
+            return false
+        }
+        return actual == expectedSize
     }
 
     private static func cacheDir(for id: String, revision: String = "main") throws -> URL {
@@ -253,16 +289,16 @@ public enum ModelRunner {
     /// — the fallback for runtimes whose own Hub pull fails.
     private static func downloadGGUFVariant(report: ModelCheckReport,
                                             variant: String) throws -> URL {
+        let revision = artifactRevision(report)
         let dir = try cacheDir(
-            for: report.model.id, revision: report.model.revision)
+            for: report.model.id, revision: revision)
         let dest = dir.appendingPathComponent(variant)
-        if !FileManager.default.fileExists(atPath: dest.path) {
-            let url = "https://huggingface.co/\(report.model.id)/resolve/\(report.model.revision)/\(variant)"
-            fputs("  \(variant)…\n", stderr)
-            try HFDatasets.streamDownload(urlString: url, to: dest) { done, total in
-                if total > 0 { fputs("\r    \(done * 100 / total)%", stderr) }
-            }
-            fputs("\n", stderr)
+        let info = try HubModelClient.info(id: report.model.id, revision: revision)
+        let expectedSize = info.sibling(named: variant)?.size
+        if !cachedFileMatches(dest, expectedSize: expectedSize) {
+            let url = "https://huggingface.co/\(report.model.id)/resolve/\(revision)/\(variant)"
+            try downloadArtifact(
+                url: url, to: dest, expectedSize: expectedSize, label: variant)
         }
         return dest
     }
@@ -366,7 +402,7 @@ public enum ModelRunner {
         // the repo URL lets `lms get -y` pick for this hardware.
         var source = "https://huggingface.co/\(id)"
         if let v = report.model.selectedVariant, v.hasSuffix(".gguf") {
-            source = "\(source)/blob/\(report.model.revision)/\(v)"
+            source = "\(source)/blob/\(artifactRevision(report))/\(v)"
         }
         var r = Subprocess.capture(["lms", "get", source, "--gguf", "-y"],
                                    timeout: 1800)
@@ -509,7 +545,7 @@ public enum ModelRunner {
             let base = report.model.id
             return "llama-cli -hf \(ggufQuantTag(report: report).map { "\(base):\($0)" } ?? base)"
         case .native:
-            let revisionKey = Data(report.model.revision.utf8).base64EncodedString()
+            let revisionKey = Data(artifactRevision(report).utf8).base64EncodedString()
                 .replacingOccurrences(of: "/", with: "_")
             let dir = "~/.cache/posttrainllm/models/\(report.model.id)/\(revisionKey)"
             return "\(CommandLine.arguments[0]) serve \(dir)  # OpenAI-compatible endpoint"

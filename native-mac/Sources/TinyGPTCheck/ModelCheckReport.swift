@@ -60,6 +60,7 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
     public struct ModelSection: Codable, Equatable, Sendable {
         public var id: String               // "owner/repo"
         public var revision: String
+        public var resolvedRevision: String? = nil // immutable Hub commit inspected
         public var filePath: String? = nil  // exact /blob/ or /resolve/ artifact, when supplied
         public var task: String?            // HF pipeline_tag
         public var library: String?         // HF library_name
@@ -70,7 +71,8 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         public var lastModified: String?
 
         enum CodingKeys: String, CodingKey {
-            case id, revision, filePath = "file_path", task, library, architectures, formats, gated
+            case id, revision, resolvedRevision = "resolved_revision", filePath = "file_path"
+            case task, library, architectures, formats, gated
             case selectedVariant = "selected_variant"
             case lastModified = "last_modified"
         }

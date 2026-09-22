@@ -239,6 +239,13 @@ public enum CompatibilityRules {
         let hasPytorchBin = !info.siblings(matchingSuffix: ".bin").isEmpty
         let mlxPacked = isMLXQuantized(info: info, config: input.config)
 
+        // An exact GGUF URL is an artifact request, not a repo preference.
+        // Mixed repos commonly also publish safetensors; selecting those here
+        // would inspect and later run a different artifact than the user named.
+        if input.ref.filePath?.lowercased().hasSuffix(".gguf") == true {
+            return ggufAssessment(&a, input: input, info: info, ggufFiles: ggufFiles,
+                                  env: input.env)
+        }
         if hasSafetensors && hasConfig {
             return safetensorsAssessment(&a, input: input, info: info,
                                          weightBytes: safetensorsBytes,
@@ -726,7 +733,7 @@ public enum CompatibilityRules {
                 a.verdict = .unsupportedOnCheckedPath
                 a.verdictSummary = "GGUF \(arch) is compatible-shaped, but \(quant) quantization isn't dequantized by our loader yet"
                 a.checkedPath.status = .unsupportedOnCheckedPath
-                a.checkedPath.detail = "GGUFReader supports F32/F16/BF16, Q4_0/Q8_0 and Q4_K/Q5_K/Q6_K; \(quant) needs a dequant follow-up — llama.cpp and Ollama handle it today"
+                a.checkedPath.detail = "GGUFReader supports F32/F16, Q4_0/Q8_0 and Q4_K/Q5_K/Q6_K; \(quant) needs a dequant follow-up — llama.cpp and Ollama handle it today"
                 a.requiredChanges.append(.init(kind: "runtime",
                     detail: "add \(quant) dequant in GGUFReader, or pick a supported variant of this repo if published",
                     sizeBytes: nil, estimate: false))
@@ -832,35 +839,61 @@ public enum CompatibilityRules {
 
     private struct ToolContext {
         let input: Input
-        let id: String
-        let isGGUF: Bool
-        let isST: Bool
-        let isPTBin: Bool
-        let isDiff: Bool
-        let isASR: Bool
-        let isEncoder: Bool
-        let isLM: Bool
-        let isVLM: Bool
-        let checkedOK: Bool
+        let assessment: Assessment
+        let formats: Set<String>
+
+        var id: String { input.ref.id }
+        var target: String { Self.canonicalTarget(input, revision: input.info?.sha) }
+        var originalTarget: String { Self.canonicalTarget(input, revision: input.ref.revision) }
+        var exactGGUF: Bool { input.ref.filePath?.lowercased().hasSuffix(".gguf") == true }
+        var ollamaApplicable: Bool {
+            isGGUF && !exactGGUF && input.ref.revision == "main"
+        }
+        var isGGUF: Bool { formats.contains("gguf") }
+        var isST: Bool { formats.contains("safetensors") && !exactGGUF }
+        var isPTBin: Bool { formats.contains("pytorch-bin") }
+        var isDiff: Bool {
+            (input.info.map(isDiffusers) ?? false) || input.tensorLayout?.kind == .diffusion
+        }
+        var isASR: Bool { assessment.task == "automatic-speech-recognition" }
+        var isEncoder: Bool {
+            input.tensorLayout?.kind == .encoderOnly
+                || ["fill-mask", "feature-extraction", "sentence-similarity",
+                    "text-classification", "token-classification"].contains(assessment.task ?? "")
+        }
+        var isLM: Bool { isST && !isDiff && !isASR && !isEncoder }
+        var isVLM: Bool {
+            input.tensorLayout?.kind == .multimodal
+                || assessment.task == "image-text-to-text"
+                || assessment.task?.hasPrefix("visual-question") == true
+        }
+        var checkedOK: Bool {
+            isST && assessment.checkedPath.status == .expectedToWork
+        }
 
         init(input: Input, assessment: Assessment) {
             self.input = input
-            id = input.ref.id
-            let formats = Set(assessment.formats)
-            isGGUF = formats.contains("gguf")
-            isST = formats.contains("safetensors")
-            isPTBin = formats.contains("pytorch-bin")
-            isDiff = (input.info.map(isDiffusers) ?? false)
-                || input.tensorLayout?.kind == .diffusion
-            let tag = assessment.task ?? ""
-            isASR = tag == "automatic-speech-recognition"
-            isEncoder = input.tensorLayout?.kind == .encoderOnly
-                || ["fill-mask", "feature-extraction", "sentence-similarity",
-                    "text-classification", "token-classification"].contains(tag)
-            isLM = isST && !isDiff && !isASR && !isEncoder
-            isVLM = input.tensorLayout?.kind == .multimodal
-                || tag == "image-text-to-text" || tag.hasPrefix("visual-question")
-            checkedOK = isST && assessment.checkedPath.status == .expectedToWork
+            self.assessment = assessment
+            formats = Set(assessment.formats)
+        }
+
+        private static func canonicalTarget(_ input: Input, revision: String?) -> String {
+            let revision = revision ?? input.ref.revision
+            let encodedRevision = encodePathComponent(revision)
+            let base = "https://huggingface.co/\(input.ref.id)"
+            if let path = input.ref.filePath {
+                let encodedPath = path.split(separator: "/").map {
+                    encodePathComponent(String($0))
+                }.joined(separator: "/")
+                return "\(base)/blob/\(encodedRevision)/\(encodedPath)"
+            }
+            return "\(base)/tree/\(encodedRevision)"
+        }
+
+        private static func encodePathComponent(_ value: String) -> String {
+            var allowed = CharacterSet.urlPathAllowed
+            allowed.remove(charactersIn: "/")
+            return value.addingPercentEncoding(withAllowedCharacters: allowed) ?? value
         }
 
         func probe(_ name: String) -> Bool {
@@ -881,12 +914,12 @@ public enum CompatibilityRules {
               detail: c.checkedOK
                 ? "our own loader — the checked path; `model-run` verifies it for real"
                 : "checked path doesn't apply to this model",
-              run: c.checkedOK ? "posttrainllm model-run \(c.id)" : nil),
+              run: c.checkedOK ? "posttrainllm model-run \(c.target)" : nil),
             T(name: "MLX-Swift-LM (posttrainllm-mlxrun)", availability: "bundled",
               applies: c.isST && (c.isLM || c.isVLM),
               detail: "Apple's maintained HF impls in-process — wide arch table (MoE, VLM, packed quants), auto-downloads",
               run: c.isST && (c.isLM || c.isVLM)
-                  ? "posttrainllm model-run \(c.id) --runtime mlx-swift" : nil),
+                  ? "posttrainllm model-run \(c.target) --runtime mlx-swift" : nil),
             T(name: "python3 mlx-lm",
               availability: c.pythonHas("mlx-lm") ? "installed" : "not_installed",
               applies: c.isST && c.isLM,
@@ -896,22 +929,36 @@ public enum CompatibilityRules {
     }
 
     private static func ggufTools(_ c: ToolContext) -> [ModelCheckReport.ToolOption] {
-        typealias T = ModelCheckReport.ToolOption
-        return [
-            T(name: "Ollama", availability: c.probe("ollama") ? "installed" : "not_installed",
-              applies: c.isGGUF,
-              detail: "runs GGUFs; `ollama run hf.co/…` or local Modelfile (model-run handles both)",
-              run: c.isGGUF ? "posttrainllm model-run \(c.id) --runtime ollama" : nil),
-            T(name: "llama.cpp (llama-cli)",
-              availability: c.probe("llama.cpp") ? "installed" : "not_installed",
-              applies: c.isGGUF,
-              detail: "reference GGUF runtime — every quant scheme, incl. K-quants our loader can't read",
-              run: c.isGGUF ? "llama-cli -m <downloaded .gguf>" : nil),
-            T(name: "LM Studio (lms)",
-              availability: c.probe("lms (LM Studio)") ? "installed" : "not_installed",
-              applies: c.isGGUF, detail: "GUI + OpenAI-compatible server over GGUFs",
-              run: c.isGGUF ? "lms get \(c.id)" : nil),
-        ]
+        [ollamaTool(c), llamaTool(c), lmsTool(c)]
+    }
+
+    private static func ollamaTool(_ c: ToolContext) -> ModelCheckReport.ToolOption {
+        ModelCheckReport.ToolOption(
+            name: "Ollama", availability: c.probe("ollama") ? "installed" : "not_installed",
+            applies: c.ollamaApplicable,
+            detail: c.exactGGUF || c.input.ref.revision != "main"
+                ? "repo/quant selectors cannot guarantee the requested GGUF revision or blob"
+                : "runs GGUFs; `ollama run hf.co/…` or local Modelfile (model-run handles both)",
+            run: c.ollamaApplicable
+                ? "posttrainllm model-run \(c.originalTarget) --runtime ollama" : nil)
+    }
+
+    private static func llamaTool(_ c: ToolContext) -> ModelCheckReport.ToolOption {
+        ModelCheckReport.ToolOption(
+            name: "llama.cpp (llama-cli)",
+            availability: c.probe("llama.cpp") ? "installed" : "not_installed",
+            applies: c.isGGUF,
+            detail: "reference GGUF runtime — every quant scheme, incl. K-quants our loader can't read",
+            run: c.isGGUF ? "llama-cli -m <downloaded .gguf>" : nil)
+    }
+
+    private static func lmsTool(_ c: ToolContext) -> ModelCheckReport.ToolOption {
+        ModelCheckReport.ToolOption(
+            name: "LM Studio (lms)",
+            availability: c.probe("lms (LM Studio)") ? "installed" : "not_installed",
+            applies: c.isGGUF, detail: "GUI + OpenAI-compatible server over GGUFs",
+            run: c.isGGUF
+                ? "posttrainllm model-run \(c.target) --runtime lms" : nil)
     }
 
     private static func specializedTools(_ c: ToolContext) -> [ModelCheckReport.ToolOption] {

@@ -215,6 +215,36 @@ final class RunnerPlanTests: XCTestCase {
             .contains("exact GGUF artifact"))
     }
 
+    func testExactGGUFInMixedRepoNeverRunsSafetensorsInstead() {
+        var r = report(
+            formats: ["safetensors", "gguf"], ollama: true, lms: true,
+            mlxSwift: true, mlxLm: true, llamaCpp: true,
+            variant: "nested/model-Q4_K_M.gguf")
+        r.model.filePath = "nested/model-Q4_K_M.gguf"
+        XCTAssertEqual(runners(r), [.lms])
+        XCTAssertTrue(runners(r, forced: .native).isEmpty)
+        XCTAssertTrue(runners(r, forced: .mlxSwift).isEmpty)
+        XCTAssertTrue(runners(r, forced: .mlxLm).isEmpty)
+    }
+
+    func testRunnerPinsResolvedHubRevision() {
+        var r = report(formats: ["safetensors"], revision: "main")
+        r.model.resolvedRevision = "deadbeef"
+        XCTAssertEqual(ModelRunner.artifactRevision(r), "deadbeef")
+    }
+
+    func testCachedFileRequiresKnownMatchingManifestSize() throws {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let file = dir.appendingPathComponent("weights.bin")
+        try Data([1, 2, 3, 4]).write(to: file)
+        XCTAssertTrue(ModelRunner.cachedFileMatches(file, expectedSize: 4))
+        XCTAssertFalse(ModelRunner.cachedFileMatches(file, expectedSize: 5))
+        XCTAssertFalse(ModelRunner.cachedFileMatches(file, expectedSize: nil))
+    }
+
     func testForcedNativeOnGGUFRefused() {
         let r = report(formats: ["gguf"], ollama: true)
         XCTAssertTrue(runners(r, forced: .native).isEmpty)

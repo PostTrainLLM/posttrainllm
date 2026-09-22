@@ -318,7 +318,8 @@ public enum ModelCheckService {
             checkedAt: ISO8601DateFormatter().string(from: Date()),
             input: input,
             model: ModelCheckReport.ModelSection(
-                id: ref.id, revision: ref.revision, filePath: ref.filePath,
+                id: ref.id, revision: ref.revision,
+                resolvedRevision: info?.sha, filePath: ref.filePath,
                 task: assessment.task, library: assessment.library,
                 architectures: assessment.architectures, formats: assessment.formats,
                 selectedVariant: assessment.selectedVariant,
