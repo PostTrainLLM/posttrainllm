@@ -795,6 +795,96 @@ public enum CompatibilityRules {
         return a
     }
 
+    /// The "what all can run this" matrix — every tool that could
+    /// execute the model, with availability on this Mac. Independent of
+    /// the verdict: a model unsupported on our path can still list
+    /// three working tools.
+    static func toolMatrix(input: Input,
+                           assessment a: Assessment) -> [ModelCheckReport.ToolOption] {
+        typealias T = ModelCheckReport.ToolOption
+        let env = input.env.runtimes
+        func probe(_ name: String) -> Bool {
+            env.contains { $0.name == name && $0.found }
+        }
+        // python3 stack probe packs versions into one string.
+        let pyStack = env.first { $0.name == "python3 ML stack" && $0.found }
+        func pyHas(_ pkg: String) -> Bool {
+            pyStack?.version?.contains(pkg) ?? false
+        }
+
+        let fmts = Set(a.formats)
+        let id = input.ref.id
+        let isGGUF = fmts.contains("gguf")
+        let isST = fmts.contains("safetensors")
+        let isPTBin = fmts.contains("pytorch") || fmts.contains("bin")
+        let isDiff = (input.info.map(isDiffusers) ?? false)
+            || input.tensorLayout?.kind == .diffusion
+        let tag = a.task ?? ""
+        let isASR = tag == "automatic-speech-recognition"
+        let isEncoder = input.tensorLayout?.kind == .encoderOnly
+            || ["fill-mask", "feature-extraction", "sentence-similarity",
+                "text-classification", "token-classification"].contains(tag)
+        let isLM = isST && !isDiff && !isASR && !isEncoder
+        let isVLM = input.tensorLayout?.kind == .multimodal
+            || tag == "image-text-to-text" || tag.hasPrefix("visual-question")
+        let checkedOK = a.checkedPath.status == .expectedToWork
+            || a.checkedPath.status == .changesRequired
+        var tools: [T] = []
+        tools.append(T(name: "posttrainllm (native)",
+            availability: "bundled",
+            applies: checkedOK,
+            detail: checkedOK
+                ? "our own loader — the checked path; `model-run` verifies it for real"
+                : "checked path doesn't apply to this model",
+            run: checkedOK ? "posttrainllm model-run \(id)" : nil))
+        tools.append(T(name: "MLX-Swift-LM (posttrainllm-mlxrun)",
+            availability: "bundled",
+            applies: isST && (isLM || isVLM),
+            detail: "Apple's maintained HF impls in-process — wide arch table (MoE, VLM, packed quants), auto-downloads",
+            run: (isST && (isLM || isVLM)) ? "posttrainllm model-run \(id) --runtime mlx-swift" : nil))
+        tools.append(T(name: "python3 mlx-lm",
+            availability: pyHas("mlx-lm") ? "installed" : "not_installed",
+            applies: isST && isLM,
+            detail: "python MLX runner — the broadest LM arch table",
+            run: isST && isLM ? "python3 -m mlx_lm chat --model \(id)" : nil))
+        tools.append(T(name: "Ollama",
+            availability: probe("ollama") ? "installed" : "not_installed",
+            applies: isGGUF,
+            detail: "runs GGUFs; `ollama run hf.co/…` or local Modelfile (model-run handles both)",
+            run: isGGUF ? "posttrainllm model-run \(id) --runtime ollama" : nil))
+        tools.append(T(name: "llama.cpp (llama-cli)",
+            availability: probe("llama.cpp") ? "installed" : "not_installed",
+            applies: isGGUF,
+            detail: "reference GGUF runtime — every quant scheme, incl. K-quants our loader can't read",
+            run: isGGUF ? "llama-cli -m <downloaded .gguf>" : nil))
+        tools.append(T(name: "LM Studio (lms)",
+            availability: probe("lms (LM Studio)") ? "installed" : "not_installed",
+            applies: isGGUF,
+            detail: "GUI + OpenAI-compatible server over GGUFs",
+            run: isGGUF ? "lms get \(id)" : nil))
+        tools.append(T(name: "transformers (python3)",
+            availability: pyHas("transformers") ? "installed" : "not_installed",
+            applies: isST || isPTBin,
+            detail: "reference HF runtime — covers every arch/task incl. encoders and seq2seq",
+            run: nil))
+        tools.append(T(name: "diffusers (python3)",
+            availability: pyHas("diffusers") ? "installed" : "not_installed",
+            applies: isDiff,
+            detail: "reference diffusion runtime — pipelines for image/video/audio generation",
+            run: nil))
+        tools.append(T(name: "MLXEmbedders",
+            availability: "bundled",
+            applies: isEncoder,
+            detail: "MLX-Swift-LM's embedder set — embeddings/rerankers natively on Apple Silicon (not chat)",
+            run: nil))
+        tools.append(T(name: "whisper.cpp",
+            availability: "unknown",
+            applies: isASR,
+            detail: "native ASR runtime for Whisper weights (GGML/GGUF)",
+            run: nil))
+        return tools
+    }
+
     static func diffusersAssessment(
         _ a: inout Assessment, info: HubModelClient.Info, env: MacEnvironment
     ) -> Assessment {

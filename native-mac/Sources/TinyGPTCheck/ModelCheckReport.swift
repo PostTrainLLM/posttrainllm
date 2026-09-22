@@ -21,6 +21,7 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
     public var checkedPath: PathAssessment
     public var otherPaths: [ExecutionPath]
     public var requiredChanges: [RequiredChange]
+    public var tools: [ToolOption]
     public var evidence: [Evidence]
     public var nextActions: [String]
     public var agentPrompt: String
@@ -34,7 +35,7 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         case checkedPath = "checked_path"
         case otherPaths = "other_paths"
         case requiredChanges = "required_changes"
-        case evidence
+        case tools, evidence
         case nextActions = "next_actions"
         case agentPrompt = "agent_prompt"
         case limitations
@@ -120,6 +121,19 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         }
     }
 
+    /// One runnable tool and whether it applies to this model — the
+    /// "what all can run it" matrix. `availability` is about this Mac:
+    /// bundled (compiled into posttrainllm) / installed (probed) /
+    /// not_installed / unknown (not probed). `applies` is about the
+    /// model: would this tool actually execute it.
+    public struct ToolOption: Codable, Equatable, Sendable {
+        public var name: String
+        public var availability: String   // bundled | installed | not_installed | unknown
+        public var applies: Bool
+        public var detail: String
+        public var run: String?           // the command, when known
+    }
+
     public struct RequiredChange: Codable, Equatable, Sendable {
         public var kind: String             // runtime | software | model-component | conversion | memory | access
         public var detail: String
@@ -196,6 +210,23 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
                 let src = p.source.map { " — \($0)" } ?? ""
                 out.append("  \(p.name) [\(p.status.displayName), \(p.evidenceKind)]\(src)")
                 out.append("    \(p.detail)")
+            }
+        }
+        if !tools.isEmpty {
+            out.append("")
+            out.append("Tools that can run this model")
+            let usable = tools.filter { $0.applies && $0.availability != "not_installed" }
+            let absent = tools.filter { $0.applies && $0.availability == "not_installed" }
+            for t in usable {
+                out.append("  ✓ \(t.name) [\(t.availability)]\(t.run.map { " — \($0)" } ?? "")")
+                out.append("    \(t.detail)")
+            }
+            for t in absent {
+                out.append("  · \(t.name) [not installed]\(t.run.map { " — \($0)" } ?? "")")
+            }
+            let nA = tools.filter { !$0.applies }
+            if !nA.isEmpty {
+                out.append("  n/a: \(nA.map(\.name).joined(separator: ", "))")
             }
         }
         if !requiredChanges.isEmpty {

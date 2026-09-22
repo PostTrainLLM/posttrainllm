@@ -419,7 +419,7 @@ final class ModelCheckTests: XCTestCase {
                                runtimes: []),
             verdict: a.verdict, verdictSummary: a.verdictSummary,
             checkedPath: a.checkedPath, otherPaths: a.otherPaths,
-            requiredChanges: a.requiredChanges, evidence: a.evidence,
+            requiredChanges: a.requiredChanges, tools: [], evidence: a.evidence,
             nextActions: a.nextActions, agentPrompt: "test",
             limitations: a.limitations)
         let json = try report.encoded()
@@ -444,7 +444,7 @@ final class ModelCheckTests: XCTestCase {
                                runtimes: []),
             verdict: a.verdict, verdictSummary: a.verdictSummary,
             checkedPath: a.checkedPath, otherPaths: a.otherPaths,
-            requiredChanges: a.requiredChanges, evidence: a.evidence,
+            requiredChanges: a.requiredChanges, tools: [], evidence: a.evidence,
             nextActions: a.nextActions, agentPrompt: "", limitations: a.limitations)
         let prompt = ModelCheckService.agentPrompt(for: report)
         XCTAssertTrue(prompt.contains(info.id))

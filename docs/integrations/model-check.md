@@ -114,6 +114,16 @@ VLM, packed quants — auto-downloads to the HF cache, honors HF_TOKEN)
 the real error surfaced. `--chat` drops into an interactive session;
 `--runtime` forces a specific one; gated repos require HF_TOKEN first.
 
+## Tool matrix
+
+Every report carries a `tools` array (rendered as "Tools that can run
+this model"): for each candidate runtime — posttrainllm native,
+MLX-Swift-LM, python mlx-lm, Ollama, llama.cpp, LM Studio,
+transformers, diffusers, MLXEmbedders, whisper.cpp — the report records
+whether it **applies** to this model (format × task × layout) and its
+**availability** on this Mac (`bundled` / `installed` / `not_installed`
+/ `unknown`). Applicable tools include the exact command to run.
+
 ## Boundaries
 
 - Metadata only. The 401/403 and 404 cases produce `unknown` with the

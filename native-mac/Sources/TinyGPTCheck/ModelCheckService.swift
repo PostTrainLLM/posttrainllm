@@ -192,6 +192,7 @@ public enum ModelCheckService {
             checkedPath: a.checkedPath,
             otherPaths: a.otherPaths,
             requiredChanges: a.requiredChanges,
+            tools: CompatibilityRules.toolMatrix(input: rulesInput, assessment: a),
             evidence: a.evidence,
             nextActions: a.nextActions,
             agentPrompt: "",   // filled below
