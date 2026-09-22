@@ -12,6 +12,12 @@ import TinyGPTModel
 /// on the response tokens (instruction tokens are seen but don't
 /// contribute to the gradient).
 ///
+/// Rows may also be `{messages: [{role, content, supervise?}]}` — the
+/// `traces-to-data --export trajectory` shape (issue #159). Those render
+/// per-block through the agent loop's ChatML convention with loss masked
+/// to the flagged assistant spans; `supervise` defaults to the last
+/// assistant turn when unflagged.
+///
 /// This is the step that turns a base language model into one that
 /// follows instructions. Without it, the model learns to autocomplete
 /// the instruction itself; with it, the model learns "given THIS
@@ -225,6 +231,13 @@ enum SFT {
         let records: [SFTRecord]
         do { records = try SFTReader.readJSONL(URL(fileURLWithPath: dataPath)) }
         catch { fputs("read failed: \(error)\n", stderr); exit(1) }
+        // Chat rows render through the agent loop's fixed ChatML blocks
+        // regardless of --template — the wire format is a contract with
+        // inference, not a style choice.
+        if template != .chatml,
+           records.contains(where: { $0.messages != nil }) {
+            fputs("note: messages rows render as ChatML (agent wire format); --template \(template.rawValue) applies to flat records only\n", stderr)
+        }
         print("templating + tokenizing \(records.count) records…")
         let effectiveMax = min(maxSeqLen, cfg.contextLength)
         var examples: [SFTExample] = []

@@ -3,17 +3,30 @@ import TinyGPTModel
 
 /// B29 — `posttrainllm traces-to-data <atraj-dir> --task <t> --out <jsonl>`.
 ///
-/// Reads every `.atraj` file in `<atraj-dir>` (recursively), extracts
-/// per-turn (user → assistant) pairs, applies cheap filters, and emits
-/// ChatML-style SFT JSONL ready to feed `posttrainllm sft --data`.
+/// Reads every `.atraj` file in `<atraj-dir>` (recursively), applies cheap
+/// filters, and emits ChatML-style SFT JSONL for `posttrainllm sft --data`.
+///
+/// Export modes (`--export`):
+///   - `answer-only` (default, the original V1 behavior): one row per
+///     (user → final assistant answer) pair. Intermediate assistant tool
+///     calls and tool results are dropped — the row teaches answers, not
+///     the actions that produced them.
+///   - `trajectory` (issue #159): one row per eligible assistant turn,
+///     each carrying the FULL conditioning context — system, prior turns,
+///     assistant tool calls, and reconstructed tool results — with
+///     per-message `supervise` flags. `sft` renders these per-block
+///     through the agent loop's ChatML convention and masks the loss to
+///     exactly the flagged assistant spans.
 ///
 /// Filters applied in order:
-///   1. **Tool-echo drop** — assistant turn that just echoes the prior
-///      tool_result is useless training signal; drop.
-///   2. **Exact dedup** — identical (prompt, response) pairs collapse
-///      to one row.
-///   3. **MinHash near-dedup** on the user prompt — Jaccard ≥
-///      `--minhash-threshold` (default 0.85) → keep first occurrence.
+///   1. **Tool-echo drop** (answer-only only) — assistant turn that just
+///      echoes the prior tool_result is useless training signal; drop.
+///   2. **Exact dedup** — identical rows collapse to one.
+///   3. **MinHash near-dedup** — Jaccard ≥ `--minhash-threshold`
+///      (default 0.85) → keep first occurrence. Sketch input is the user
+///      prompt for answer-only, the full conditioning context for
+///      trajectory (issue #159: two turns sharing a user prompt but
+///      differing earlier in the trajectory are not duplicates).
 ///
 /// Out-of-scope for V1 (Castform's pivot-judge filter): `--judge-model`
 /// is reserved but rejected with a "deferred" message — wiring it would
@@ -28,6 +41,7 @@ enum TracesToData {
         var outPath: String? = nil
         var task: String? = nil
         var mode: String = "sft"
+        var exportMode: String = "answer-only"
         var dropToolEcho: Bool = true
         var minhashThreshold: Double = 0.85
         var minhashShingleK: Int = 5
@@ -47,6 +61,9 @@ enum TracesToData {
             case "--mode":
                 guard i + 1 < args.count else { exitUsage() }
                 mode = args[i+1]; i += 2
+            case "--export":
+                guard i + 1 < args.count else { exitUsage() }
+                exportMode = args[i+1]; i += 2
             case "--no-tool-echo-drop":
                 dropToolEcho = false; i += 1
             case "--minhash-threshold":
@@ -80,6 +97,10 @@ enum TracesToData {
             fputs("traces-to-data: --mode \(mode) not yet supported (V1 ships --mode sft only). Follow-up: docs/prds/B29-trace-to-training-data.md.\n", stderr)
             exit(2)
         }
+        guard exportMode == "answer-only" || exportMode == "trajectory" else {
+            fputs("traces-to-data: --export must be answer-only or trajectory\n", stderr)
+            exit(2)
+        }
         if judgeModel != nil {
             fputs("traces-to-data: --judge-model is reserved but deferred — V1 has no LLM-pivot judge step. Ship-then-judge per docs/prds/B29-trace-to-training-data.md.\n", stderr)
             exit(2)
@@ -99,22 +120,36 @@ enum TracesToData {
         out:                \(outPath)
         task:               \(task ?? "(none)")
         mode:               \(mode)
+        export:             \(exportMode)
         tool-echo drop:     \(dropToolEcho ? "on" : "off")
         minhash threshold:  \(minhashThreshold) (k=\(minhashShingleK), perms=\(minhashNumPerms))
         dry run:            \(dryRun ? "yes — counts only, no write" : "no")
         """)
 
-        // First pass: harvest raw (prompt, response, source) triples.
-        var raws: [Sample] = []
+        // First pass: harvest rows in the chosen export shape.
+        var raws: [OutRow] = []
         var loadFailures = 0
         for url in atrajURLs {
             guard let traj = try? AgentTrajectory.load(from: url) else {
                 loadFailures += 1; continue
             }
-            raws.append(contentsOf: extractSamples(
-                from: traj, sourcePath: url.lastPathComponent,
-                task: task,
-                dropToolEcho: dropToolEcho))
+            if exportMode == "trajectory" {
+                raws.append(contentsOf: trajectoryRows(
+                    from: traj, sourcePath: url.lastPathComponent, task: task))
+            } else {
+                raws.append(contentsOf: extractSamples(
+                    from: traj, sourcePath: url.lastPathComponent,
+                    task: task,
+                    dropToolEcho: dropToolEcho).map { s in
+                        OutRow(messages: [
+                            ["role": "user", "content": s.prompt],
+                            ["role": "assistant", "content": s.response],
+                        ],
+                        dedupKey: s.prompt + "\u{1F}" + s.response,
+                        sketchText: s.prompt,
+                        task: s.task, sourceAtraj: s.sourceAtraj, extra: [:])
+                    })
+            }
         }
 
         var stats = FilterStats()
@@ -126,13 +161,12 @@ enum TracesToData {
         // (extractSamples honors `dropToolEcho`). Stats account for it
         // post-hoc on the raws array.
 
-        // Filter 2: exact dedup on (prompt, response) pair.
+        // Filter 2: exact dedup on the full row.
         var exactSeen = Set<String>()
-        var afterExact: [Sample] = []
+        var afterExact: [OutRow] = []
         afterExact.reserveCapacity(raws.count)
         for s in raws {
-            let key = s.prompt + "\u{1F}" + s.response  // unit separator
-            if exactSeen.insert(key).inserted { afterExact.append(s) }
+            if exactSeen.insert(s.dedupKey).inserted { afterExact.append(s) }
         }
         stats.exactDeduped = raws.count - afterExact.count
 
@@ -152,11 +186,11 @@ enum TracesToData {
             bCoefs.append(seed % prime)
         }
 
-        var afterMinhash: [Sample] = []
+        var afterMinhash: [OutRow] = []
         var sketches: [[UInt64]] = []
         for s in afterExact {
             let sk = Dedupe.minHashSketch(
-                of: s.prompt, shingle: minhashShingleK,
+                of: s.sketchText, shingle: minhashShingleK,
                 aCoefs: aCoefs, bCoefs: bCoefs, prime: prime)
             var dup = false
             for prev in sketches {
@@ -187,14 +221,12 @@ enum TracesToData {
         defer { try? fh.close() }
 
         for s in afterMinhash {
-            let row: [String: Any] = [
-                "messages": [
-                    ["role": "user", "content": s.prompt],
-                    ["role": "assistant", "content": s.response],
-                ],
+            var row: [String: Any] = [
+                "messages": s.messages,
                 "task": s.task ?? NSNull(),
                 "source_atraj": s.sourceAtraj,
             ]
+            for (k, v) in s.extra { row[k] = v }
             if let data = try? JSONSerialization.data(withJSONObject: row, options: [.sortedKeys]) {
                 try? fh.write(contentsOf: data)
                 try? fh.write(contentsOf: Data([0x0A]))
@@ -210,6 +242,19 @@ enum TracesToData {
 
     // MARK: - Harvest
 
+    /// The unified row shape both export modes feed through the filters.
+    /// `dedupKey`/`sketchText` differ per mode: answer-only keys on
+    /// (prompt, response) / prompt; trajectory keys on the full row /
+    /// full conditioning context.
+    private struct OutRow {
+        let messages: [[String: Any]]
+        let dedupKey: String
+        let sketchText: String
+        let task: String?
+        let sourceAtraj: String
+        let extra: [String: Any]
+    }
+
     private struct Sample {
         let prompt: String
         let response: String
@@ -217,12 +262,51 @@ enum TracesToData {
         let sourceAtraj: String
     }
 
-    /// Pull (user → assistant) pairs out of a trajectory. A tool-using
-    /// turn folds the tool result back into the same prompt context the
-    /// final assistant answer landed on; we emit one (prompt, response)
-    /// pair per user turn whose assistant FINAL answer was reached.
-    /// Intermediate "tool" assistant turns (the ones that just emitted
-    /// the JSON tool-call) are not training-data on their own.
+    /// Trajectory mode: one row per eligible assistant turn via
+    /// `AgentTrajectoryExport.rows` — full context preserved, last
+    /// message is the supervised target.
+    private static func trajectoryRows(
+        from traj: AgentTrajectory, sourcePath: String, task: String?
+    ) -> [OutRow] {
+        AgentTrajectoryExport.rows(for: traj).map { row in
+            OutRow(messages: row.messages.map(serializeMessage),
+                   dedupKey: row.rowKey, sketchText: row.contextKey,
+                   task: task ?? traj.task, sourceAtraj: sourcePath,
+                   extra: ["export": "trajectory"])
+        }
+    }
+
+    /// Serialize one exported message. `supervise` marks the row's
+    /// training target; `tool_call`/`tool_result`/`output_ids` ride along
+    /// verbatim for consumers that want the structured/token-level form.
+    private static func serializeMessage(
+        _ m: AgentTrajectoryExport.Message) -> [String: Any]
+    {
+        var d: [String: Any] = [
+            "role": m.role, "content": m.content, "supervise": m.supervise,
+        ]
+        if let tc = m.toolCall {
+            d["tool_call"] = ["name": tc.name, "arguments_json": tc.argumentsJson]
+        }
+        if let tr = m.toolResult {
+            var t: [String: Any] = [
+                "name": tr.name, "stdout": tr.stdout,
+                "stderr": tr.stderr, "exit_code": tr.exitCode,
+            ]
+            if let dur = tr.durationSec { t["duration_sec"] = dur }
+            d["tool_result"] = t
+        }
+        if let ids = m.outputIds { d["output_ids"] = ids }
+        return d
+    }
+
+    /// Pull (user → assistant) pairs out of a trajectory — the
+    /// answer-only export. Intermediate assistant turns (the ones that
+    /// just emitted the JSON tool-call) and tool results are DROPPED;
+    /// each emitted pair is the user text plus the last assistant turn
+    /// before the next user turn. This is the documented V1 contract —
+    /// use `--export trajectory` when the tool-use sequence itself is
+    /// the training signal.
     private static func extractSamples(
         from traj: AgentTrajectory,
         sourcePath: String,
@@ -327,7 +411,7 @@ enum TracesToData {
             filter summary
               trajectories scanned:  \(trajectoriesScanned)
               trajectories failed:   \(trajectoriesFailed)
-              raw (user→assistant) samples harvested: \(harvested)
+              raw rows harvested:                           \(harvested)
               exact-duplicates dropped:               \(exactDeduped)
               minhash near-duplicates dropped:        \(minhashDeduped)
               emitted:                                \(emitted)
@@ -350,6 +434,12 @@ enum TracesToData {
                                   (falls back to .atraj's `task` field if unset)
         --mode {sft|dpo}          V1 ships --mode sft only; --mode dpo is a
                                   follow-up (PRD B29 §"Open questions")
+        --export {answer-only|trajectory}
+                                  answer-only (default): (user → final answer)
+                                  pairs — tool calls and results are dropped.
+                                  trajectory: one row per assistant turn with
+                                  the full context and per-message supervise
+                                  flags — teaches the tool-use sequence itself.
         --no-tool-echo-drop       Disable the heuristic that drops assistant
                                   turns that emitted a tool-call but never
                                   reached a final answer
