@@ -28,12 +28,18 @@ public enum CompatibilityRules {
         public var fetchIssue: String?              // human-readable why
         public var config: HuggingFaceConfig?       // parsed config.json
         public var configIssue: String?             // why config is nil
+        /// `architectures` pulled leniently from a config.json that
+        /// failed strict parse (e.g. GPT-2's legacy n_head/n_layer
+        /// schema) — lets the report name the architecture even when the
+        /// full typed config is unavailable.
+        public var architecturesHint: [String]
         public var env: MacEnvironment
-        /// Extra formats found in the sibling list that Info doesn't model.
         public init(ref: ModelRef, info: HubModelClient.Info?, fetchIssue: String?,
-                    config: HuggingFaceConfig?, configIssue: String?, env: MacEnvironment) {
+                    config: HuggingFaceConfig?, configIssue: String?,
+                    architecturesHint: [String] = [], env: MacEnvironment) {
             self.ref = ref; self.info = info; self.fetchIssue = fetchIssue
-            self.config = config; self.configIssue = configIssue; self.env = env
+            self.config = config; self.configIssue = configIssue
+            self.architecturesHint = architecturesHint; self.env = env
         }
     }
 
@@ -68,14 +74,13 @@ public enum CompatibilityRules {
         "LFM2ForCausalLM", "SmolLM3ForCausalLM",
     ]
 
-    /// pipeline_tags that are generation-side language tasks the checked
-    /// runtime exists for. Anything else is a documented mismatch, not a
-    /// capability claim.
-    static let languageTasks: Set<String> = [
-        "text-generation", "text2text-generation", "fill-mask",
-        "summarization", "translation", "question-answering",
-        "text-classification", "token-classification",
-        "feature-extraction", "sentence-similarity",
+    /// pipeline_tags compatible with a causal-LM generation runtime. A
+    /// repo tagged with anything else (sentence-similarity, ASR, image
+    /// classification, …) is a documented task mismatch — the checked
+    /// path generates text and nothing else.
+    static let generationCompatibleTasks: Set<String> = [
+        "text-generation", "text2text-generation", "conversational",
+        "question-answering", "summarization", "translation", "fill-mask",
     ]
 
     static let checkedPathName = "posttrainllm native runtime (MLX-Swift)"
@@ -114,7 +119,7 @@ public enum CompatibilityRules {
         a.library = info.libraryName
         a.gated = info.gated
         a.lastModified = info.lastModified
-        a.architectures = input.config?.architectures ?? []
+        a.architectures = input.config?.architectures ?? input.architecturesHint
         a.formats = detectFormats(info: info, config: input.config)
         a.selectedVariant = pickVariant(info: info)
 
@@ -124,6 +129,12 @@ public enum CompatibilityRules {
         // --- Repo-kind / task gates -----------------------------------
         if isDiffusers(info: info) {
             return diffusersAssessment(&a, info: info, env: input.env)
+        }
+        // Any non-generation pipeline tag is a task mismatch regardless
+        // of weight format — a GGUF of whisper.cpp or a safetensors
+        // sentence encoder both need a different executor.
+        if let tag = info.pipelineTag, !generationCompatibleTasks.contains(tag) {
+            return nonLanguageTaskAssessment(&a, info: info, env: input.env)
         }
 
         // --- Format → candidate paths ---------------------------------
@@ -184,11 +195,13 @@ public enum CompatibilityRules {
         if info.libraryName == "diffusers" { return true }
         if info.sibling(named: "model_index.json") != nil { return true }
         if let tag = info.pipelineTag {
+            // Generation-side media pipelines are diffusers-domain.
+            // ASR / TTS / classifiers are transformers-domain — they get
+            // the generic non-language assessment instead.
             return tag.hasPrefix("text-to-image") || tag.hasPrefix("image-to-")
                 || tag.hasPrefix("text-to-video") || tag.hasPrefix("text-to-audio")
-                || tag.hasPrefix("audio-") || tag == "image-text-to-text"
-                || tag.hasPrefix("image-") || tag.hasPrefix("video-")
-                || tag == "automatic-speech-recognition" || tag == "text-to-speech"
+                || tag.hasPrefix("text-to-3d") || tag.hasPrefix("image-to-3d")
+                || tag.hasPrefix("video-")
         }
         return false
     }
@@ -255,9 +268,15 @@ public enum CompatibilityRules {
     ) -> Assessment {
         guard let cfg = input.config else {
             a.verdict = .unknown
-            a.verdictSummary = "safetensors present but config.json could not be read"
+            let hint = input.architecturesHint
+            if !hint.isEmpty {
+                a.verdictSummary = "architecture \(hint.joined(separator: ", ")) — config.json parsed only partially"
+                a.checkedPath.detail = "config.json is present but didn't fully parse; the named architecture(s) can't be verified against the loader's requirements"
+            } else {
+                a.verdictSummary = "safetensors present but config.json could not be read"
+                a.checkedPath.detail = "cannot determine the architecture without config.json"
+            }
             a.checkedPath.status = .unknown
-            a.checkedPath.detail = "cannot determine the architecture without config.json"
             if let ci = input.configIssue { a.limitations.append(ci) }
             a.nextActions.append("Set HF_TOKEN if the repo is gated, then re-run; otherwise hand the agent prompt to investigate config.json.")
             return a
@@ -266,19 +285,6 @@ public enum CompatibilityRules {
         let archs = cfg.architectures
         if archs.isEmpty {
             a.limitations.append("config.json has no architectures field")
-        }
-
-        // Task mismatch first — a text-to-image safetensors repo with a
-        // config.json still isn't a language model for this runtime.
-        if let tag = info.pipelineTag, !languageTasks.contains(tag) {
-            a.verdict = .unsupportedOnCheckedPath
-            a.verdictSummary = "a \(tag) model is not a language task the posttrainllm runtime executes"
-            a.checkedPath.status = .unsupportedOnCheckedPath
-            a.checkedPath.detail = "the checked path is a causal-LM runtime; '\(tag)' pipelines need a different executor (task mismatch, not a Mac capability limit)"
-            a.otherPaths.append(transformersPath(env: input.env, task: tag))
-            a.nextActions.append("Run it through a runtime that implements the '\(tag)' pipeline — see Other Mac execution paths.")
-            addMemoryChange(&a, weightBytes: weightBytes, disk: disk)
-            return a
         }
 
         // Architecture gates.
@@ -450,6 +456,36 @@ public enum CompatibilityRules {
         a.checkedPath.detail = "no .safetensors / .gguf / .bin siblings — the repo may use remote code, sharded formats under different names, or be a weights-less repo"
         a.limitations.append("file manifest does not show a recognized weight file; remote-code repos are out of scope (code execution is never performed)")
         a.nextActions.append("Have an agent read the repo's README + full file list for its documented load path.")
+        return a
+    }
+
+    /// Non-generation, non-diffusers pipeline tag: sentence encoders,
+    /// classifiers, ASR/TTS, vision models. The checked runtime only
+    /// generates text — the mismatch is documented and the right
+    /// executor is named.
+    static func nonLanguageTaskAssessment(
+        _ a: inout Assessment, info: HubModelClient.Info, env: MacEnvironment
+    ) -> Assessment {
+        let tag = info.pipelineTag ?? "unknown"
+        a.verdict = .unsupportedOnCheckedPath
+        a.verdictSummary = "\(tag) is not a text-generation task the posttrainllm runtime executes"
+        a.checkedPath.status = .unsupportedOnCheckedPath
+        a.checkedPath.detail = "the checked path is a causal-LM generation runtime; '\(tag)' needs a different executor (task mismatch, not a Mac capability limit)"
+        if tag == "automatic-speech-recognition" {
+            a.otherPaths.append(.init(
+                name: "whisper.cpp / mlx audio ports", status: .changesRequired,
+                detail: "whisper.cpp runs Whisper GGML/GGUF weights natively on Apple Silicon; mlx-examples ships a Whisper port",
+                source: "https://github.com/ggml-org/whisper.cpp", evidenceKind: "documented"))
+        }
+        if tag == "image-text-to-text" || tag.hasPrefix("visual-question") || tag.hasPrefix("document-question") {
+            a.otherPaths.append(.init(
+                name: "mlx-vlm", status: .changesRequired,
+                detail: "vision-language models run natively via mlx-vlm (Qwen-VL, Gemma-3, Llava families)",
+                source: "https://github.com/Blaizzy/mlx-vlm", evidenceKind: "documented"))
+        }
+        a.otherPaths.append(transformersPath(env: env, task: tag))
+        a.nextActions.append("Run it through a runtime that implements the '\(tag)' pipeline — see Other Mac execution paths.")
+        addMemoryChange(&a, weightBytes: info.sizeOf(".safetensors"), disk: env.freeDiskBytes)
         return a
     }
 

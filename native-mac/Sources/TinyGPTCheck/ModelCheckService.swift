@@ -65,12 +65,18 @@ public enum ModelCheckService {
         // gates; model_index.json presence is already visible in siblings.
         var config: HuggingFaceConfig? = nil
         var configIssue: String? = nil
+        var architecturesHint: [String] = []
         if let info = info, info.sibling(named: "config.json") != nil {
             do {
                 if let data = try HubModelClient.smallFile(
                     id: ref.id, revision: ref.revision, path: "config.json") {
-                    config = try HuggingFaceConfig.fromDict(
-                        (try JSONSerialization.jsonObject(with: data)) as? [String: Any] ?? [:])
+                    let raw = (try JSONSerialization.jsonObject(with: data)) as? [String: Any] ?? [:]
+                    // Lenient fallback first: even if the strict typed
+                    // parse fails (legacy schemas like GPT-2's n_head/
+                    // n_layer), the architecture name is still worth
+                    // reporting.
+                    architecturesHint = (raw["architectures"] as? [String]) ?? []
+                    config = try HuggingFaceConfig.fromDict(raw)
                 }
             } catch {
                 configIssue = "config.json present but unreadable: \(error)"
@@ -85,7 +91,8 @@ public enum ModelCheckService {
         progress?(.preparingReport)
         let rulesInput = CompatibilityRules.Input(
             ref: ref, info: info, fetchIssue: fetchIssue,
-            config: config, configIssue: configIssue, env: env)
+            config: config, configIssue: configIssue,
+            architecturesHint: architecturesHint, env: env)
         let a = CompatibilityRules.assess(rulesInput)
 
         let report = ModelCheckReport(
