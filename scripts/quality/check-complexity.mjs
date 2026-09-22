@@ -16,7 +16,7 @@ const paths = [
   "scripts/parquet-decoder/src",
 ];
 const baseline = {
-  warnings: 290,
+  warnings: 301,
   maxNloc: 795,
   maxCcn: 97,
   maxTokens: 2512,
@@ -35,21 +35,15 @@ const result = capture(lizard.command, [
 const rows = result.stdout
   .trim()
   .split("\n")
-  .map((line) =>
-    line.match(/^(\d+),(\d+),(\d+),(\d+),(\d+),"[^"]*","[^"]*","([^"]*)",/u),
-  )
+  .map((line) => line.match(/^(\d+),(\d+),(\d+),(\d+),(\d+),/u))
   .filter(Boolean)
-  .map((match) => [...match.slice(1, 6).map(Number), match[6]]);
+  .map((match) => match.slice(1).map(Number));
 
 const observed = {
   functions: rows.length,
   nloc: rows.reduce((sum, row) => sum + row[0], 0),
-  // Swift value types often have long, declarative memberwise initializers.
-  // Parameter count is not a useful complexity signal for those constructors;
-  // their bodies still remain subject to CCN and length thresholds.
-  warnings: rows.filter(
-    (row) => row[1] > 15 || row[4] > 100 || (row[3] > 7 && row[5] !== "init"),
-  ).length,
+  warnings: rows.filter((row) => row[1] > 15 || row[4] > 100 || row[3] > 7)
+    .length,
   maxNloc: Math.max(...rows.map((row) => row[0])),
   maxCcn: Math.max(...rows.map((row) => row[1])),
   maxTokens: Math.max(...rows.map((row) => row[2])),

@@ -83,6 +83,26 @@ public struct TensorLayout: Sendable, Equatable {
     }
 
     public static func assess(names: [String]) -> TensorLayout {
+        let scan = scan(names: names)
+        let kind = classify(
+            names: names, lower: scan.lower,
+            lmCount: scan.lmCount, sawQWeight: scan.sawQWeight)
+
+        // Named non-Llama conventions — a positive ID is more useful
+        // than "unknown": it tells the user exactly which gap exists.
+        let convention = kind == .unknown ? namedConvention(in: scan.lower) : nil
+
+        return TensorLayout(
+            kind: kind, totalTensors: names.count,
+            lmConventionCount: scan.lmCount,
+            sampleNames: Array(names.prefix(6)),
+            markers: Array(scan.markers.prefix(8)),
+            conventionName: convention)
+    }
+
+    private static func scan(
+        names: [String]
+    ) -> (lmCount: Int, markers: [String], sawQWeight: Bool, lower: [String]) {
         let lmPattern = #/model\.(embed_tokens|norm|layers\.\d+\.(self_attn\.(q|k|v|o)_proj|mlp\.(gate|up|down)_proj|(input|post_attention)_layernorm))\.weight/#
         var lmCount = 0
         var markers: [String] = []
@@ -96,9 +116,13 @@ public struct TensorLayout: Sendable, Equatable {
             if n.hasSuffix(".qweight") || n.hasSuffix(".qzeros") { sawQWeight = true }
             if isMarker(n) { markers.append(name) }
         }
+        return (lmCount, markers, sawQWeight, names.map { $0.lowercased() })
+    }
 
+    private static func classify(
+        names: [String], lower: [String], lmCount: Int, sawQWeight: Bool
+    ) -> Kind {
         let kind: Kind
-        let lower = names.map { $0.lowercased() }
         let markerKinds = Set(lower.compactMap(markerKind))
         if markerKinds.contains(.diffusion) {
             kind = .diffusion
@@ -116,16 +140,6 @@ public struct TensorLayout: Sendable, Equatable {
         } else {
             kind = .unknown
         }
-
-        // Named non-Llama conventions — a positive ID is more useful
-        // than "unknown": it tells the user exactly which gap exists.
-        let convention = kind == .unknown ? namedConvention(in: lower) : nil
-
-        return TensorLayout(
-            kind: kind, totalTensors: names.count,
-            lmConventionCount: lmCount,
-            sampleNames: Array(names.prefix(6)),
-            markers: Array(markers.prefix(8)),
-            conventionName: convention)
+        return kind
     }
 }

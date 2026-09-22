@@ -71,6 +71,8 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
     public struct ModelSection: Codable, Equatable, Sendable {
         public var id: String               // "owner/repo"
         public var revision: String
+        public var resolvedRevision: String? = nil // immutable Hub commit inspected
+        public var filePath: String? = nil  // exact /blob/ or /resolve/ artifact, when supplied
         public var task: String?            // HF pipeline_tag
         public var library: String?         // HF library_name
         public var architectures: [String]
@@ -80,7 +82,8 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         public var lastModified: String?
 
         enum CodingKeys: String, CodingKey {
-            case id, revision, task, library, architectures, formats, gated
+            case id, revision, resolvedRevision = "resolved_revision", filePath = "file_path"
+            case task, library, architectures, formats, gated
             case selectedVariant = "selected_variant"
             case lastModified = "last_modified"
         }
@@ -250,6 +253,55 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         case failed
     }
 
+    public struct SampleMeasurement: Equatable, Sendable {
+        public var durationMS: Int
+        public var requestedTokens: Int
+        public var promptTokens: Int?
+        public var generatedTokens: Int?
+        public var outputCharacters: Int
+
+        public init(durationMS: Int, requestedTokens: Int,
+                    promptTokens: Int? = nil, generatedTokens: Int? = nil,
+                    outputCharacters: Int = 0) {
+            self.durationMS = durationMS
+            self.requestedTokens = requestedTokens
+            self.promptTokens = promptTokens
+            self.generatedTokens = generatedTokens
+            self.outputCharacters = outputCharacters
+        }
+    }
+
+    public struct ReceiptIdentity: Equatable, Sendable {
+        public var modelID: String
+        public var revision: String
+        public var artifactPath: String?
+        public var environmentFingerprint: String
+
+        public init(modelID: String, revision: String, artifactPath: String? = nil,
+                    environmentFingerprint: String) {
+            self.modelID = modelID
+            self.revision = revision
+            self.artifactPath = artifactPath
+            self.environmentFingerprint = environmentFingerprint
+        }
+    }
+
+    public struct ReceiptOutcome: Equatable, Sendable {
+        public var status: VerificationStatus
+        public var runtime: String?
+        public var runtimeVersion: String?
+        public var failureStage: ExecutionStageName?
+
+        public init(status: VerificationStatus, runtime: String? = nil,
+                    runtimeVersion: String? = nil,
+                    failureStage: ExecutionStageName? = nil) {
+            self.status = status
+            self.runtime = runtime
+            self.runtimeVersion = runtimeVersion
+            self.failureStage = failureStage
+        }
+    }
+
     public struct VerificationAttempt: Codable, Equatable, Sendable {
         public var runtime: String
         public var runtimeVersion: String?
@@ -275,19 +327,17 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
 
         public init(runtime: String, runtimeVersion: String? = nil,
                     status: VerificationStatus, failureStage: ExecutionStageName? = nil,
-                    stderr: String? = nil, durationMS: Int, requestedTokens: Int,
-                    promptTokens: Int? = nil, generatedTokens: Int? = nil,
-                    outputCharacters: Int = 0) {
+                    stderr: String? = nil, measurement: SampleMeasurement) {
             self.runtime = runtime
             self.runtimeVersion = runtimeVersion
             self.status = status
             self.failureStage = failureStage
             self.stderr = stderr
-            self.durationMS = durationMS
-            self.requestedTokens = requestedTokens
-            self.promptTokens = promptTokens
-            self.generatedTokens = generatedTokens
-            self.outputCharacters = outputCharacters
+            self.durationMS = measurement.durationMS
+            self.requestedTokens = measurement.requestedTokens
+            self.promptTokens = measurement.promptTokens
+            self.generatedTokens = measurement.generatedTokens
+            self.outputCharacters = measurement.outputCharacters
         }
     }
 
@@ -295,6 +345,7 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         public var schemaVersion: Int
         public var modelID: String
         public var revision: String
+        public var artifactPath: String?
         public var environmentFingerprint: String
         public var verifiedAt: String
         public var status: VerificationStatus
@@ -307,6 +358,7 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
             case schemaVersion = "schema_version"
             case modelID = "model_id"
             case revision
+            case artifactPath = "artifact_path"
             case environmentFingerprint = "environment_fingerprint"
             case verifiedAt = "verified_at"
             case status, runtime, attempts
@@ -314,21 +366,19 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
             case failureStage = "failure_stage"
         }
 
-        public init(schemaVersion: Int = 1, modelID: String, revision: String,
-                    environmentFingerprint: String, verifiedAt: String,
-                    status: VerificationStatus, runtime: String? = nil,
-                    runtimeVersion: String? = nil,
-                    failureStage: ExecutionStageName? = nil,
+        public init(schemaVersion: Int = 1, identity: ReceiptIdentity,
+                    verifiedAt: String, outcome: ReceiptOutcome,
                     attempts: [VerificationAttempt] = []) {
             self.schemaVersion = schemaVersion
-            self.modelID = modelID
-            self.revision = revision
-            self.environmentFingerprint = environmentFingerprint
+            self.modelID = identity.modelID
+            self.revision = identity.revision
+            self.artifactPath = identity.artifactPath
+            self.environmentFingerprint = identity.environmentFingerprint
             self.verifiedAt = verifiedAt
-            self.status = status
-            self.runtime = runtime
-            self.runtimeVersion = runtimeVersion
-            self.failureStage = failureStage
+            self.status = outcome.status
+            self.runtime = outcome.runtime
+            self.runtimeVersion = outcome.runtimeVersion
+            self.failureStage = outcome.failureStage
             self.attempts = attempts
         }
     }

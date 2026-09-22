@@ -8,6 +8,7 @@ software, converts, or executes models or repository code.
 Specs: GitHub issues #156 and #161. Implementation: `native-mac/Sources/TinyGPTCheck/`
 (service + report schema), `TinyGPT/ModelCheck.swift` (CLI),
 `TinyGPTApp/ModelCheck{Controller,View}.swift` (app panel).
+The executor half is [`model-run`](model-run.md) (issue #157).
 
 ## Surfaces
 
@@ -55,7 +56,9 @@ safetensors param stats even without auth — only per-file reads (config,
 headers) 401. The checker uses the API-embedded config as a fallback, so
 a gated Llama/Gemma still gets a real verdict (`changes_required`, with
 "accept license + HF_TOKEN" as the named access step) rather than
-`unknown`. Truly private repos (404/401 on the API itself) remain
+`unknown`. A token's mere presence is not treated as access: the checker
+must complete one bounded authenticated metadata-file read before removing
+the access blocker. Truly private repos (404/401 on the API itself) remain
 `unknown`.
 
 Other detection paths: **PEFT/LoRA adapters** (`adapter_model.*`,
@@ -144,8 +147,10 @@ the real error surfaced. `--chat` drops into an interactive session;
 Every bounded `model-run` terminal outcome writes an atomic local receipt under
 `~/.cache/posttrainllm/model-check-receipts/` (override the directory with
 `POSTTRAINLLM_MODEL_RECEIPTS_DIR` for fixtures or isolated tooling). The receipt
-contains the exact model revision and current device fingerprint, runtime and
-version when known, timestamp, bounded sample statistics, attempted paths, and
+contains the immutable Hub commit resolved from the requested revision (or
+the literal revision when no commit was available), the exact blob path when
+one was requested, current device fingerprint, runtime and version when
+known, timestamp, bounded sample statistics, attempted paths, and
 bounded/sanitized stderr for failures. It does **not** store prompts, model
 output, credentials, or weight contents. MLX-Swift receipts include the exact
 prompt/generated token counts emitted by the runtime; runners that do not
@@ -153,7 +158,11 @@ expose token counts retain elapsed time and output-character count without
 inventing tokens.
 
 A later `model-check` reads—but never creates or mutates—a receipt only when
-model ID, revision, and device fingerprint all match. A successful plain-text
+model ID, resolved commit, exact artifact path, and device fingerprint all
+match. This prevents an old receipt for mutable `main` from being reused after
+the repository moves or evidence for one GGUF blob from being applied to
+another. Interactive `--chat` sessions never write receipts because they are
+not bounded verification runs. A successful bounded plain-text
 smoke upgrades download/load/inference; it deliberately does not upgrade
 LoRA/SFT or agentic use. Receipts for another revision, another Mac, or a
 manually described environment are ignored.

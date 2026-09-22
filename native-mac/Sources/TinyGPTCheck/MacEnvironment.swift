@@ -62,11 +62,18 @@ public struct MacEnvironment: Equatable, Sendable {
         MacEnvironment(
             chip: chip ?? "Apple Silicon (unspecified)",
             arch: "arm64",
-            ramBytes: Int64(ramGB ?? 0) * 1_073_741_824,
-            freeDiskBytes: Int64(diskGB ?? 0) * 1_073_741_824,
+            ramBytes: bytes(gigabytes: ramGB),
+            freeDiskBytes: bytes(gigabytes: diskGB),
             macOSVersion: macOS ?? "unspecified",
             source: "manual",
             runtimes: [])
+    }
+
+    private static func bytes(gigabytes: Int?) -> Int64 {
+        guard let gigabytes, gigabytes >= 0,
+              let value = Int64(exactly: gigabytes) else { return 0 }
+        let result = value.multipliedReportingOverflow(by: 1_073_741_824)
+        return result.overflow ? 0 : result.partialValue
     }
 
     // MARK: - Runtime probes
@@ -105,8 +112,30 @@ public struct MacEnvironment: Equatable, Sendable {
 
         cli("posttrainllm", ["posttrainllm", "--version"], "`posttrainllm --version`")
         cli("ollama", ["ollama", "--version"], "`ollama --version`")
-        cli("llama.cpp", ["llama-cli", "--version"], "`llama-cli --version`")
+        // llama-cli has no reliable --version (newer builds hang on it);
+        // --help exits 0 immediately and still proves the binary works.
+        cli("llama.cpp", ["llama-cli", "--help"], "`llama-cli --help`")
         cli("lms (LM Studio)", ["lms", "--version"], "`lms --version`")
+
+        // posttrainllm-mlxrun is our own sibling executable — it sits
+        // beside this binary in the build products dir, not necessarily
+        // on PATH, so probe by file existence rather than spawning it.
+        let mlxrunPath: String? = {
+            let dir = (CommandLine.arguments[0] as NSString)
+                .deletingLastPathComponent
+            let sibling = dir + "/posttrainllm-mlxrun"
+            if FileManager.default.isExecutableFile(atPath: sibling) {
+                return sibling
+            }
+            if let r = runProbe(["which", "posttrainllm-mlxrun"]) {
+                let p = r.out.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !p.isEmpty { return p }
+            }
+            return nil
+        }()
+        out.append(.init(name: "mlx-swift runner",
+                         found: mlxrunPath != nil, version: nil,
+                         detail: "posttrainllm-mlxrun sibling (MLX-Swift-LM)"))
 
         // One python probe reports the whole ML stack via
         // importlib.metadata — versions without importing heavy modules.

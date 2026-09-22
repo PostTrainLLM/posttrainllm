@@ -202,7 +202,7 @@ enum SFT {
         }
         print("loading tokenizer from \(tokDir.lastPathComponent)…")
         let tokenizer: HFTokenizer
-        do { tokenizer = try HFTokenizer.loadBlocking(from: tokDir) }
+        do { tokenizer = try HFTokenizer.loadBlocking(from: tokDir, vocabSize: cfg.vocabSize) }
         catch { fputs("tokenizer load failed: \(error)\n", stderr); exit(1) }
 
         // Inject LoRA (or DoRA / one of the PEFT variants).

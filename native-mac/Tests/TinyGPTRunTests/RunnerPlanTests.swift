@@ -1,0 +1,323 @@
+import XCTest
+@testable import TinyGPTRun
+@testable import TinyGPTCheck
+import TinyGPTData
+
+/// Runner-planning tests for `model-run` — pure fixtures over a
+/// ModelCheckReport, no network and no subprocesses. Each case maps to
+/// an acceptance row from issue #157: safetensors+verified → native
+/// first; GGUF → ollama, or lms when Ollama is absent; unsupported
+/// arch → the installed alternative; nothing installed → a named
+/// blocker rather than a silent failure.
+final class RunnerPlanTests: XCTestCase {
+
+    // MARK: - fixtures
+
+    private func report(formats: [String],
+                        checkedStatus: ModelCheckReport.Verdict = .expectedToWork,
+                        checkedDetail: String = "verified architecture",
+                        ollama: Bool = false,
+                        lms: Bool = false,
+                        mlxSwift: Bool = false,
+                        mlxLm: Bool = false,
+                        llamaCpp: Bool = false,
+                        gated: Bool = false,
+                        revision: String = "main",
+                        variant: String? = nil) -> ModelCheckReport {
+        var runtimes: [ModelCheckReport.RuntimeProbe] = [
+            .init(name: "ollama", found: ollama, version: ollama ? "0.34.2" : nil,
+                  detail: "test"),
+            .init(name: "lms (LM Studio)", found: lms,
+                  version: lms ? "0.3.27" : nil, detail: "test"),
+            .init(name: "llama.cpp", found: llamaCpp,
+                  version: llamaCpp ? "7000" : nil, detail: "test"),
+            .init(name: "mlx-swift runner", found: mlxSwift, version: nil,
+                  detail: "test"),
+            .init(name: "python3 ML stack", found: mlxLm,
+                  version: mlxLm ? "mlx==0.31.2, mlx-lm==0.31.3" : nil,
+                  detail: "test"),
+        ]
+        if !ollama && !lms && !mlxSwift && !mlxLm && !llamaCpp { runtimes = [] }
+        return ModelCheckReport(
+            schemaVersion: 1, checkedAt: "2026-09-22T00:00:00Z",
+            input: "x/y",
+            model: .init(id: "x/y", revision: revision, task: "text-generation",
+                         library: "transformers",
+                         architectures: ["LlamaForCausalLM"], formats: formats,
+                         selectedVariant: variant, gated: gated,
+                         lastModified: nil),
+            environment: .init(chip: "Apple M5 Pro", arch: "arm64",
+                               ramBytes: 48 * 1_073_741_824,
+                               freeDiskBytes: 400 * 1_073_741_824,
+                               macOSVersion: "macOS 26.0", source: "detected",
+                               runtimes: runtimes),
+            verdict: checkedStatus,
+            verdictSummary: "summary",
+            checkedPath: .init(name: "posttrainllm native runtime",
+                               status: checkedStatus, detail: checkedDetail),
+            otherPaths: [], requiredChanges: [], tools: [], evidence: [],
+            nextActions: [], agentPrompt: "", limitations: [])
+    }
+
+    private func runners(_ r: ModelCheckReport,
+                         forced: Runner? = nil) -> [Runner] {
+        RunnerPlanner.plans(for: r, forced: forced).map(\.runner)
+    }
+
+    // MARK: - safetensors
+
+    func testVerifiedSafetensorsPrefersNative() {
+        let r = report(formats: ["safetensors"], ollama: true, mlxLm: true)
+        XCTAssertEqual(runners(r).first, .native)
+        XCTAssertTrue(runners(r).contains(.mlxLm))   // installed alternative still listed
+        XCTAssertFalse(runners(r).contains(.ollama)) // nothing GGUF to pull
+    }
+
+    func testSafetensorsOnlyOnNativeWhenCheckedOK() {
+        let r = report(formats: ["safetensors"])
+        XCTAssertEqual(runners(r), [.native])
+    }
+
+    func testMlxSwiftBeatsPythonMlxLmForSafetensors() {
+        // The compiled sibling has no env to break — it's preferred over
+        // python mlx-lm for archs native can't run, and as the cross-check.
+        let r = report(formats: ["safetensors"],
+                       checkedStatus: .unsupportedOnCheckedPath,
+                       checkedDetail: "MoE — the HF loader builds a dense MLP",
+                       mlxSwift: true, mlxLm: true)
+        XCTAssertEqual(runners(r), [.mlxSwift, .mlxLm])
+    }
+
+    func testUnsupportedArchWithoutMlxSwiftStillUsesMlxLm() {
+        // MoE on the checked path → native would build the wrong model;
+        // the installed alternative is the plan.
+        let r = report(formats: ["safetensors"],
+                       checkedStatus: .unsupportedOnCheckedPath,
+                       checkedDetail: "MoE — the HF loader builds a dense MLP",
+                       mlxLm: true)
+        XCTAssertEqual(runners(r), [.mlxLm])
+    }
+
+    func testUnknownCheckedPathStaysOffNative() {
+        let r = report(formats: ["safetensors"],
+                       checkedStatus: .unknown,
+                       checkedDetail: "architecture not in the verified set",
+                       mlxLm: true)
+        XCTAssertFalse(runners(r).contains(.native))
+        XCTAssertEqual(runners(r), [.mlxLm])
+    }
+
+    func testChangesRequiredStaysOffNative() {
+        let report = report(
+            formats: ["safetensors"], checkedStatus: .changesRequired,
+            checkedDetail: "insufficient memory", mlxSwift: true)
+        XCTAssertFalse(runners(report).contains(.native))
+        XCTAssertEqual(runners(report), [.mlxSwift])
+        XCTAssertTrue(runners(report, forced: .native).isEmpty)
+    }
+
+    func testSafetensorsUnsupportedNothingInstalled() {
+        let r = report(formats: ["safetensors"],
+                       checkedStatus: .unsupportedOnCheckedPath,
+                       checkedDetail: "MoE — the HF loader builds a dense MLP")
+        XCTAssertTrue(runners(r).isEmpty)
+        let blocker = RunnerPlanner.blocker(for: r)
+        XCTAssertTrue(blocker.contains("mlx-lm"))
+        XCTAssertTrue(blocker.contains("dense MLP"))
+    }
+
+    // MARK: - GGUF
+
+    func testGGUFPrefersOllama() {
+        let r = report(formats: ["gguf"], checkedStatus: .changesRequired,
+                       ollama: true, lms: true, llamaCpp: true,
+                       variant: "Qwen3-4B-Q4_K_M.gguf")
+        // lms + llama-cli stay live fallbacks — detected ≠ working.
+        XCTAssertEqual(runners(r), [.ollama, .lms, .llamaCpp])
+    }
+
+    func testGGUFFallsBackToLmsWithoutOllama() {
+        let r = report(formats: ["gguf"], checkedStatus: .changesRequired,
+                       lms: true)
+        XCTAssertEqual(runners(r), [.lms])
+    }
+
+    func testGGUFNeverPlansNative() {
+        // gguf-load validates structure only — it must not appear as a
+        // run path even when the checked path cleared.
+        let r = report(formats: ["gguf"],
+                       checkedStatus: .changesRequired,
+                       checkedDetail: "verified loadable by gguf-load")
+        XCTAssertFalse(runners(r).contains(.native))
+    }
+
+    func testGGUFFallsBackToLlamaCliAlone() {
+        let r = report(formats: ["gguf"], checkedStatus: .changesRequired,
+                       llamaCpp: true)
+        XCTAssertEqual(runners(r), [.llamaCpp])
+    }
+
+    func testGGUFNoRuntimeIsNamedBlocker() {
+        let r = report(formats: ["gguf"])
+        XCTAssertTrue(runners(r).isEmpty)
+        let blocker = RunnerPlanner.blocker(for: r)
+        XCTAssertTrue(blocker.contains("ollama"))
+        XCTAssertTrue(blocker.contains("LM Studio"))
+    }
+
+    // MARK: - forced runtime
+
+    func testForcedRunnerNarrowsToOne() {
+        let r = report(formats: ["safetensors"], ollama: true, mlxLm: true)
+        XCTAssertEqual(runners(r, forced: .mlxLm), [.mlxLm])
+    }
+
+    func testForcedMlxSwiftNeedsTheSiblingBinary() {
+        let r = report(formats: ["safetensors"], mlxSwift: true)
+        XCTAssertEqual(runners(r, forced: .mlxSwift), [.mlxSwift])
+        let missing = report(formats: ["safetensors"])
+        XCTAssertTrue(runners(missing, forced: .mlxSwift).isEmpty)
+        XCTAssertTrue(RunnerPlanner.blocker(for: missing, forced: .mlxSwift)
+            .contains("posttrainllm-mlxrun"))
+    }
+
+    func testForcedUnavailableRunnerIsBlocker() {
+        let r = report(formats: ["gguf"], lms: true)
+        XCTAssertTrue(runners(r, forced: .ollama).isEmpty)
+        XCTAssertTrue(RunnerPlanner.blocker(for: r, forced: .ollama)
+            .contains("ollama"))
+    }
+
+    func testExactRevisionUsesRevisionAwareRunnersOnly() {
+        let r = report(
+            formats: ["safetensors"], ollama: true, mlxSwift: true,
+            mlxLm: true, llamaCpp: true, revision: "abc123")
+        XCTAssertEqual(runners(r), [.native, .mlxSwift])
+        XCTAssertTrue(runners(r, forced: .mlxLm).isEmpty)
+        XCTAssertTrue(RunnerPlanner.blocker(for: r, forced: .mlxLm)
+            .contains("cannot guarantee revision abc123"))
+    }
+
+    func testExactRevisionGGUFStillAllowsLocalLmsImport() {
+        let r = report(
+            formats: ["gguf"], ollama: true, lms: true, llamaCpp: true,
+            revision: "abc123", variant: "model-Q4_K_M.gguf")
+        XCTAssertEqual(runners(r), [.lms])
+    }
+
+    func testExactGGUFArtifactAvoidsQuantOnlyRemoteSelectors() {
+        var r = report(
+            formats: ["gguf"], ollama: true, lms: true, llamaCpp: true,
+            variant: "nested/model-Q4_K_M.gguf")
+        r.model.filePath = "nested/model-Q4_K_M.gguf"
+        XCTAssertEqual(runners(r), [.lms])
+        XCTAssertTrue(runners(r, forced: .ollama).isEmpty)
+        XCTAssertTrue(RunnerPlanner.blocker(for: r, forced: .ollama)
+            .contains("exact GGUF artifact"))
+    }
+
+    func testExactGGUFInMixedRepoNeverRunsSafetensorsInstead() {
+        var r = report(
+            formats: ["safetensors", "gguf"], ollama: true, lms: true,
+            mlxSwift: true, mlxLm: true, llamaCpp: true,
+            variant: "nested/model-Q4_K_M.gguf")
+        r.model.filePath = "nested/model-Q4_K_M.gguf"
+        XCTAssertEqual(runners(r), [.lms])
+        XCTAssertTrue(runners(r, forced: .native).isEmpty)
+        XCTAssertTrue(runners(r, forced: .mlxSwift).isEmpty)
+        XCTAssertTrue(runners(r, forced: .mlxLm).isEmpty)
+    }
+
+    func testRunnerPinsResolvedHubRevision() {
+        var r = report(formats: ["safetensors"], revision: "main")
+        r.model.resolvedRevision = "deadbeef"
+        XCTAssertEqual(ModelRunner.artifactRevision(r), "deadbeef")
+    }
+
+    func testCachedFileRequiresKnownMatchingManifestSize() throws {
+        let dir = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let file = dir.appendingPathComponent("weights.bin")
+        try Data([1, 2, 3, 4]).write(to: file)
+        XCTAssertTrue(ModelRunner.cachedFileMatches(file, expectedSize: 4))
+        XCTAssertFalse(ModelRunner.cachedFileMatches(file, expectedSize: 5))
+        XCTAssertFalse(ModelRunner.cachedFileMatches(file, expectedSize: nil))
+    }
+
+    func testEmptySuccessfulProcessIsNotVerificationEvidence() {
+        let empty = Subprocess.Result(
+            status: 0, stdout: " \n", stderr: "", timedOut: false, durationMS: 10)
+        let rejected = ModelRunner.acceptedSampleResult(empty, generatedTokens: 0)
+        XCTAssertNotEqual(rejected.status, 0)
+        XCTAssertTrue(rejected.stderr.contains("without producing sample output"))
+
+        let measured = ModelRunner.acceptedSampleResult(empty, generatedTokens: 2)
+        XCTAssertEqual(measured.status, 0)
+
+        let logsOnly = Subprocess.Result(
+            status: 0, stdout: "model loaded", stderr: "", timedOut: false,
+            durationMS: 10)
+        XCTAssertNotEqual(ModelRunner.acceptedSampleResult(
+            logsOnly, generatedTokens: nil, requiresTokenCount: true).status, 0)
+        XCTAssertEqual(ModelRunner.inferredFailureStage(rejected), .smokeTest)
+    }
+
+    func testChatAndForcedSelectionDoNotOverwriteModelReceipt() {
+        XCTAssertFalse(ModelRunner.shouldRecordReceipt(chat: true))
+        XCTAssertTrue(ModelRunner.shouldRecordReceipt(chat: false))
+        XCTAssertFalse(ModelRunner.shouldPersistSelectionFailure(
+            forced: .native, chat: false))
+        XCTAssertFalse(ModelRunner.shouldPersistSelectionFailure(
+            forced: nil, chat: true))
+        XCTAssertTrue(ModelRunner.shouldPersistSelectionFailure(
+            forced: nil, chat: false))
+    }
+
+    func testChatHintPinsResolvedSlashRevisionAndQuotesArguments() {
+        var r = report(formats: ["safetensors"], mlxSwift: true, revision: "refs/pr/1")
+        r.model.resolvedRevision = "deadbeef"
+        r.model.filePath = "nested/model & unsafe.safetensors"
+
+        let target = ModelRunner.canonicalArtifactTarget(r)
+        let hint = ModelRunner.chatHint(.mlxSwift, report: r)
+
+        XCTAssertEqual(
+            target,
+            "https://huggingface.co/x/y/blob/deadbeef/nested/model%20%26%20unsafe.safetensors")
+        XCTAssertTrue(hint.contains("'\(target)'"))
+        XCTAssertFalse(hint.contains("refs/pr/1"))
+        XCTAssertTrue(hint.hasPrefix("'"))
+    }
+
+    func testForcedNativeOnGGUFRefused() {
+        let r = report(formats: ["gguf"], ollama: true)
+        XCTAssertTrue(runners(r, forced: .native).isEmpty)
+        XCTAssertTrue(RunnerPlanner.blocker(for: r, forced: .native)
+            .contains("safetensors"))
+    }
+
+    func testForcedNativeStillRequiresClearedCheckedPath() {
+        let r = report(formats: ["safetensors"], checkedStatus: .unknown)
+        XCTAssertTrue(runners(r, forced: .native).isEmpty)
+    }
+
+    // MARK: - ollama quant tag
+
+    func testQuantTagFromSelectedVariant() {
+        let r = report(formats: ["gguf"], variant: "Qwen3-4B-Instruct-Q4_K_M.gguf")
+        XCTAssertEqual(ModelRunner.ggufQuantTag(report: r), "Q4_K_M")
+    }
+
+    func testQuantTagRejectsNonQuantComponent() {
+        // "Qwen3" must not read as quant Q3 — only the trailing
+        // quant-shaped filename component counts.
+        let r = report(formats: ["gguf"], variant: "Qwen3-4B-F16.gguf")
+        XCTAssertEqual(ModelRunner.ggufQuantTag(report: r), "F16")
+        let noQuant = report(formats: ["gguf"], variant: "model-weights.gguf")
+        XCTAssertNil(ModelRunner.ggufQuantTag(report: noQuant))
+        let noVariant = report(formats: ["gguf"])
+        XCTAssertNil(ModelRunner.ggufQuantTag(report: noVariant))
+    }
+}
