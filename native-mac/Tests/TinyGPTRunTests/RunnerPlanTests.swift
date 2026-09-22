@@ -255,6 +255,12 @@ final class RunnerPlanTests: XCTestCase {
 
         let measured = ModelRunner.acceptedSampleResult(empty, generatedTokens: 2)
         XCTAssertEqual(measured.status, 0)
+
+        let logsOnly = Subprocess.Result(
+            status: 0, stdout: "model loaded", stderr: "", timedOut: false,
+            durationMS: 10)
+        XCTAssertNotEqual(ModelRunner.acceptedSampleResult(
+            logsOnly, generatedTokens: nil, requiresTokenCount: true).status, 0)
     }
 
     func testChatAndForcedSelectionDoNotOverwriteModelReceipt() {

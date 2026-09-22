@@ -201,7 +201,12 @@ public enum ModelRunner {
                  "--prompt", options.prompt,
                  "--tokens", String(options.maxTokens)],
                 timeout: 600)
-            return capturedOutcome(runner: "native", result: r)
+            let stats = sampleStats(from: r.stderr)
+            return capturedOutcome(
+                runner: "native", result: r,
+                promptTokens: stats?.promptTokens,
+                generatedTokens: stats?.generatedTokens,
+                requiresTokenCount: true)
         } catch {
             return failedOutcome(
                 "native run failed during download: \(error)", stage: .download)
@@ -437,7 +442,8 @@ public enum ModelRunner {
         return capturedOutcome(
             runner: "mlx-swift", result: r,
             promptTokens: stats?.promptTokens,
-            generatedTokens: stats?.generatedTokens)
+            generatedTokens: stats?.generatedTokens,
+            requiresTokenCount: true)
     }
 
     /// Locate the sibling `posttrainllm-mlxrun` next to this binary,
@@ -663,10 +669,12 @@ public enum ModelRunner {
         runner: String, result: Subprocess.Result,
         failureStage: ModelCheckReport.ExecutionStageName? = nil,
         promptTokens: Int? = nil, generatedTokens: Int? = nil,
-        requiresOutput: Bool = true
+        requiresOutput: Bool = true, requiresTokenCount: Bool = false
     ) -> RunOutcome {
         let accepted = requiresOutput
-            ? acceptedSampleResult(result, generatedTokens: generatedTokens)
+            ? acceptedSampleResult(
+                result, generatedTokens: generatedTokens,
+                requiresTokenCount: requiresTokenCount)
             : result
         return RunOutcome(
             succeeded: printOutcome(runner: runner, result: accepted),
@@ -677,10 +685,13 @@ public enum ModelRunner {
     }
 
     static func acceptedSampleResult(
-        _ result: Subprocess.Result, generatedTokens: Int?
+        _ result: Subprocess.Result, generatedTokens: Int?,
+        requiresTokenCount: Bool = false
     ) -> Subprocess.Result {
         guard result.status == 0, !result.timedOut,
-              hasMeasuredSample(result, generatedTokens: generatedTokens) else {
+              hasMeasuredSample(
+                  result, generatedTokens: generatedTokens,
+                  requiresTokenCount: requiresTokenCount) else {
             if result.status != 0 || result.timedOut { return result }
             let detail = "runtime exited successfully without producing sample output"
             return Subprocess.Result(
@@ -691,9 +702,10 @@ public enum ModelRunner {
     }
 
     private static func hasMeasuredSample(
-        _ result: Subprocess.Result, generatedTokens: Int?
+        _ result: Subprocess.Result, generatedTokens: Int?, requiresTokenCount: Bool
     ) -> Bool {
-        !result.stdout.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        if requiresTokenCount { return (generatedTokens ?? 0) > 0 }
+        return !result.stdout.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             || (generatedTokens ?? 0) > 0
     }
 

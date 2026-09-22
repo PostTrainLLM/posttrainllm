@@ -105,8 +105,8 @@ enum HFLoad {
         do {
             tokenizer = try TokenizerBox.loadBlocking(from: dir)
         } catch {
-            fputs("tokenizer load failed: \(error). Falling back to byte-level.\n", stderr)
-            return
+            fputs("tokenizer load failed: \(error)\n", stderr)
+            exit(1)
         }
         print("\n✓ tokenizer loaded\n")
 
@@ -153,7 +153,8 @@ enum HFLoad {
         }
         let elapsed = -t0.timeIntervalSinceNow
         print()
-        print("\n(\(maxTokens) tokens in \(String(format: "%.2f", elapsed))s — \(String(format: "%.0f", Double(maxTokens) / elapsed)) tok/s · KV-cached)")
+        print("\n(\(generated.count) tokens in \(String(format: "%.2f", elapsed))s — \(String(format: "%.0f", Double(generated.count) / elapsed)) tok/s · KV-cached)")
+        fputs("__POSTTRAINLLM_SAMPLE_STATS__{\"prompt_tokens\":\(promptIds.count),\"generated_tokens\":\(generated.count)}\n", stderr)
     }
 
     private static func formatLargeInt(_ n: Int) -> String {
