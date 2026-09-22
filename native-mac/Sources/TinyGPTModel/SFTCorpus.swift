@@ -266,10 +266,16 @@ public struct SFTMessage: Sendable {
     public let role: String
     public let content: String
     public let supervise: Bool
-    public init(role: String, content: String, supervise: Bool) {
+    /// Exact sampled IDs from `.atraj`, when this is an assistant turn.
+    /// Trajectory SFT consumes these instead of re-encoding decoded text,
+    /// which can drift for whitespace, non-ASCII, and tool-argument JSON.
+    public let outputIds: [Int]?
+    public init(role: String, content: String, supervise: Bool,
+                outputIds: [Int]? = nil) {
         self.role = role
         self.content = content
         self.supervise = supervise
+        self.outputIds = outputIds
     }
 }
 
@@ -314,8 +320,12 @@ public enum SFTReader {
                     guard let role = m["role"] as? String,
                           let content = m["content"] as? String
                     else { return nil }
+                    let outputIds = (m["output_ids"] as? [Any])?.compactMap {
+                        ($0 as? NSNumber)?.intValue
+                    }
                     return SFTMessage(role: role, content: content,
-                                      supervise: m["supervise"] as? Bool ?? false)
+                                      supervise: m["supervise"] as? Bool ?? false,
+                                      outputIds: outputIds)
                 }
                 // No explicit supervision flags → supervise the last
                 // assistant turn only, matching prior convention.
@@ -323,7 +333,8 @@ public enum SFTReader {
                    let last = msgs.lastIndex(where: { $0.role == "assistant" }) {
                     msgs[last] = SFTMessage(role: "assistant",
                                             content: msgs[last].content,
-                                            supervise: true)
+                                            supervise: true,
+                                            outputIds: msgs[last].outputIds)
                 }
                 if !msgs.isEmpty {
                     records.append(SFTRecord(instruction: "", input: "",
@@ -400,33 +411,38 @@ public enum SFTBuilder {
     ///   system    → <|im_start|>system\n…<|im_end|>\n            context
     ///   user/tool → <|im_start|>role\n…<|im_end|>\n<|im_start|>assistant\n
     ///                                                            context
-    ///   assistant → …<|im_end|>                                  supervise?
+    ///   assistant → sampled output IDs (or decoded content)            supervise?
     ///
     /// Trajectory rows ignore `--template` deliberately: the agent's wire
     /// format is fixed ChatML, and rendering tool turns through Alpaca
     /// would train a format inference never produces.
     static func renderChatBlocks(_ messages: [SFTMessage])
-        -> [(text: String, supervise: Bool)]
+        -> [(text: String, supervise: Bool, outputIds: [Int]?)]
     {
-        var blocks: [(String, Bool)] = []
+        var blocks: [(String, Bool, [Int]?)] = []
         var assistantPrefacePending = true   // first assistant needs its marker
         for m in messages {
             switch m.role {
             case "assistant":
                 if assistantPrefacePending {
-                    blocks.append(("<|im_start|>assistant\n", false))
+                    blocks.append(("<|im_start|>assistant\n", false, nil))
                 }
-                blocks.append((m.content + "<|im_end|>", m.supervise))
+                // AgentLoop stops as soon as it has a complete JSON object;
+                // it does not append an assistant terminator before the next
+                // tool/user block. Preserve that actual token stream. Prefer
+                // recorded sampled IDs so decoded-text re-encoding cannot
+                // move the supervision boundary.
+                blocks.append((m.content, m.supervise, m.outputIds))
                 assistantPrefacePending = true
             case "system":
-                blocks.append(("<|im_start|>system\n\(m.content)<|im_end|>\n", false))
+                blocks.append(("<|im_start|>system\n\(m.content)<|im_end|>\n", false, nil))
                 assistantPrefacePending = true
             default:
                 // user, tool, or anything else: context block that also
                 // carries the next assistant preface (the loop's
                 // userSuffix / toolResultSuffix shape).
                 blocks.append(("<|im_start|>\(m.role)\n\(m.content)<|im_end|>\n<|im_start|>assistant\n",
-                               false))
+                               false, nil))
                 assistantPrefacePending = false
             }
         }
@@ -443,14 +459,23 @@ public enum SFTBuilder {
     ) throws -> SFTExample {
         var ids: [Int32] = []
         var mask: [Bool] = []
-        for (text, supervise) in renderChatBlocks(messages) {
-            let blockIds = try encode(text)
+        for (text, supervise, recordedIds) in renderChatBlocks(messages) {
+            let exactIds = recordedIds?.compactMap(Int32.init(exactly:))
+            let blockIds: [Int32]
+            if let exactIds, exactIds.count == recordedIds?.count {
+                blockIds = exactIds
+            } else {
+                blockIds = try encode(text)
+            }
             ids.append(contentsOf: blockIds)
             mask.append(contentsOf: [Bool](repeating: supervise,
                                            count: blockIds.count))
         }
-        return SFTExample(tokens: Array(ids.prefix(maxSeqLen)),
-                          responseMask: Array(mask.prefix(maxSeqLen)))
+        // Trajectory targets sit at the end of a growing context. Keep the
+        // most recent window so a long rollout cannot silently truncate the
+        // entire supervised turn into an all-zero-loss example.
+        return SFTExample(tokens: Array(ids.suffix(maxSeqLen)),
+                          responseMask: Array(mask.suffix(maxSeqLen)))
     }
 
     public static func buildChatExample(

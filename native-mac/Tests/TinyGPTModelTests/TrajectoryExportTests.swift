@@ -134,9 +134,9 @@ final class TrajectoryExportTests: XCTestCase {
         XCTAssertEqual(texts, [
             "<|im_start|>system\nSYS<|im_end|>\n",
             "<|im_start|>user\nU<|im_end|>\n<|im_start|>assistant\n",
-            "CALL<|im_end|>",
+            "CALL",
             "<|im_start|>tool\nRES<|im_end|>\n<|im_start|>assistant\n",
-            "ANS<|im_end|>",
+            "ANS",
         ])
         XCTAssertEqual(blocks.map(\.supervise),
                        [false, false, false, false, true])
@@ -149,7 +149,7 @@ final class TrajectoryExportTests: XCTestCase {
             SFTMessage(role: "assistant", content: "A", supervise: true),
         ])
         XCTAssertEqual(blocks.map(\.text),
-                       ["<|im_start|>assistant\n", "A<|im_end|>"])
+                       ["<|im_start|>assistant\n", "A"])
         XCTAssertEqual(blocks.map(\.supervise), [false, true])
     }
 
@@ -167,9 +167,9 @@ final class TrajectoryExportTests: XCTestCase {
                 SFTMessage(role: "assistant", content: "ANS", supervise: true),
             ],
             maxSeqLen: 1024, encode: stubEncode)
-        // context = user block incl. assistant preface; target = "ANS<|im_end|>"
+        // context = user block incl. assistant preface; target = "ANS"
         let ctxText = "<|im_start|>user\nU<|im_end|>\n<|im_start|>assistant\n"
-        let tgtText = "ANS<|im_end|>"
+        let tgtText = "ANS"
         XCTAssertEqual(ex.tokens, stubEncode(ctxText) + stubEncode(tgtText))
         let ctxLen = stubEncode(ctxText).count
         XCTAssertEqual(Array(ex.responseMask.prefix(ctxLen)),
@@ -189,7 +189,19 @@ final class TrajectoryExportTests: XCTestCase {
             maxSeqLen: 1024, encode: stubEncode)
         let supervised = zip(ex.tokens, ex.responseMask)
             .filter { $0.1 }.map { $0.0 }
-        XCTAssertEqual(supervised, stubEncode("ANS<|im_end|>"))
+        XCTAssertEqual(supervised, stubEncode("ANS"))
+    }
+
+    func testRecordedAssistantIdsBypassRetokenization() throws {
+        let ex = try SFTBuilder.buildChatExample(
+            messages: [
+                SFTMessage(role: "user", content: "U", supervise: false),
+                SFTMessage(role: "assistant", content: "decoded", supervise: true,
+                           outputIds: [901, 902, 903]),
+            ],
+            maxSeqLen: 1024, encode: stubEncode)
+        XCTAssertEqual(Array(ex.tokens.suffix(3)), [901, 902, 903])
+        XCTAssertEqual(Array(ex.responseMask.suffix(3)), [true, true, true])
     }
 
     func testTruncationCapsAtMaxSeqLen() throws {
@@ -201,6 +213,8 @@ final class TrajectoryExportTests: XCTestCase {
             maxSeqLen: 40, encode: stubEncode)
         XCTAssertEqual(ex.tokens.count, 40)
         XCTAssertEqual(ex.responseMask.count, 40)
+        XCTAssertTrue(ex.responseMask.contains(true),
+                      "left truncation must retain the supervised tail")
     }
 
     // MARK: - SFTReader chat rows
@@ -212,6 +226,15 @@ final class TrajectoryExportTests: XCTestCase {
         let records = try SFTReader.readJSONL(url)
         XCTAssertEqual(records.count, 1)
         XCTAssertEqual(records[0].messages?.map(\.supervise), [false, true])
+        XCTAssertEqual(records[0].messages?.last?.outputIds, nil)
+    }
+
+    func testReaderPreservesRecordedOutputIds() throws {
+        let url = try writeTemp(jsonl: """
+            {"messages":[{"role":"user","content":"q"},{"role":"assistant","content":"a","supervise":true,"output_ids":[7,8,9]}]}
+            """)
+        let records = try SFTReader.readJSONL(url)
+        XCTAssertEqual(records[0].messages?.last?.outputIds, [7, 8, 9])
     }
 
     func testReaderDefaultsToLastAssistantWhenUnflagged() throws {

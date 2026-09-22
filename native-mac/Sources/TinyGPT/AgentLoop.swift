@@ -468,7 +468,10 @@ public final class AgentLoop {
             "stderr": result.stderr,
             "exit_code": Int(result.exitCode),
         ]
-        if let data = try? JSONSerialization.data(withJSONObject: obj),
+        // Keep this ordering deterministic so `.atraj` exporters can
+        // reconstruct the exact tool-result text fed to the model.
+        if let data = try? JSONSerialization.data(
+            withJSONObject: obj, options: [.sortedKeys]),
            let s = String(data: data, encoding: .utf8) { return s }
         return "{\"tool\":\"\(name)\",\"stdout\":\"\(result.stdout)\"}"
     }

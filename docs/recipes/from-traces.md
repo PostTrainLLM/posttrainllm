@@ -58,7 +58,8 @@ Two export modes (`--export`, issue #159):
   that teaches the tool-use *sequence*: every assistant turn —
   including bare tool calls — is a supervised target under the exact
   context the model saw. `sft` renders these rows per-block through the
-  agent loop's ChatML convention, masking loss to the flagged spans.
+  agent loop's ChatML convention, consumes recorded assistant
+  `output_ids` when present, and masks loss to the flagged sampled spans.
 
 Default filters: tool-echo drop (answer-only only — assistant turns
 that emitted a tool-call JSON but never reached `{"answer": ...}` are
