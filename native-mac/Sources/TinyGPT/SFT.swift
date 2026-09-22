@@ -167,6 +167,13 @@ enum SFT {
                         "run candidate method must identify SFT"
                     )
                 }
+                guard context.config.baseModel.revision?.trimmingCharacters(
+                    in: .whitespacesAndNewlines
+                ).isEmpty == false else {
+                    throw FactoryRunEvidence.EvidenceError.invalidSlice(
+                        "run config must pin base_model.revision before producing an adapter"
+                    )
+                }
                 factoryConfig = context.config
                 _ = try FactoryRunEvidence.beginTraining(directory: directory)
             } catch {
@@ -351,12 +358,45 @@ enum SFT {
             fputs("save failed: \(error)\n", stderr); exit(1)
         }
         if !stoppedEarly, let factoryRunPath, let factoryConfig {
+            let artifactURL = URL(fileURLWithPath: outPath).standardizedFileURL
+            let artifactId = artifactURL.deletingPathExtension().lastPathComponent
+            guard let revision = factoryConfig.baseModel.revision else {
+                fputs("factory run base_model.revision disappeared after preflight\n", stderr)
+                exit(1)
+            }
+            let lifecycle = ArtifactLifecycleManifest(
+                artifact: .init(id: artifactId),
+                kind: .adapter,
+                artifactPath: artifactURL.lastPathComponent,
+                base: .init(id: factoryConfig.baseModel.id, revision: revision),
+                tokenizer: .init(
+                    id: factoryConfig.baseModel.id,
+                    revision: revision,
+                    chatTemplate: template.rawValue
+                ),
+                history: [.init(
+                    action: "sft",
+                    tool: "posttrainllm",
+                    detail: "method=\(factoryConfig.candidate.method); steps=\(lastStep); rank=\(rank)"
+                )],
+                runtimes: [.nativeHFLoad],
+                next: [.merge, .convert, .eval, .serve]
+            )
+            let sidecar: URL
+            do {
+                sidecar = try ArtifactLifecycleStore.write(lifecycle, for: artifactURL)
+                print("✓ wrote lifecycle manifest \(sidecar.path)")
+            } catch {
+                fputs("adapter saved but lifecycle manifest failed: \(error)\n", stderr)
+                exit(1)
+            }
             let artifact = FactoryRun.Artifact(
-                artifactId: URL(fileURLWithPath: outPath).deletingPathExtension().lastPathComponent,
+                artifactId: artifactId,
                 kind: "adapter",
-                path: outPath,
+                path: artifactURL.path,
                 baseModel: factoryConfig.baseModel.id,
                 format: "lora",
+                lifecycleManifest: sidecar.lastPathComponent,
                 shipped: false
             )
             let summary = String(

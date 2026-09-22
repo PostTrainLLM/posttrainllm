@@ -12,6 +12,7 @@ import TinyGPTModel
 // posttrainllm / HF model. This unlocks running the canonical `lm-evaluation-harness`
 // against any posttrainllm model — HellaSwag, MMLU-Pro, GSM8K, IFEval, GPQA-Diamond
 // — by pointing the harness at `local-chat-completions` with our base_url.
+// Artifact lifecycle sidecars are validated before base or adapter bytes load.
 //
 // Wire-up:
 //   POST /v1/chat/completions     — chat-style requests (messages: [...])
@@ -385,7 +386,7 @@ extension Serve {
 
             // Load model + (optional) BPE tokenizer up front. Same logic as
             // Sample.swift so behaviour matches between `sample` and `serve`.
-            let load = try ModelLoader.load(modelPath)
+            let load = try ServeLifecyclePreflight.load(modelPath: modelPath, loraPaths: loraPaths)
             let cfg = load.config
 
             // Optional LoRA adapters — applied AFTER base load. One adapter

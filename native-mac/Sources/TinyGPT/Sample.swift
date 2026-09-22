@@ -8,6 +8,7 @@ import TinyGPTModel
 /// `posttrainllm sample` — load a browser-trained `.tinygpt` file and generate
 /// text. The cross-path interop demo: the model trained in the browser,
 /// run here on Metal at native speeds.
+/// Lifecycle sidecars are validated before model or adapter bytes are loaded.
 enum Sample {
     static func run(args: [String]) {
         var path: String?
@@ -148,6 +149,27 @@ enum Sample {
             exitUsage()
         }
         let url = URL(fileURLWithPath: path)
+
+        do {
+            var isDirectory: ObjCBool = false
+            _ = FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory)
+            let runtime: ArtifactLifecycleManifest.Runtime = isDirectory.boolValue
+                ? .nativeHFLoad : .nativeTinyGPT
+            let lifecycle = try ArtifactLifecycleStore.inspect(
+                base: url,
+                adapters: loraPaths.map { URL(fileURLWithPath: $0) },
+                action: .eval,
+                runtime: runtime
+            )
+            if let base = lifecycle.base { print("lifecycle: \(base.summary)") }
+            for adapter in lifecycle.adapters.compactMap({ $0 }) {
+                print("adapter lifecycle: \(adapter.summary)")
+            }
+            for warning in lifecycle.warnings { fputs("warning: \(warning).\n", stderr) }
+        } catch {
+            fputs("invalid lifecycle manifest: \(error)\n", stderr)
+            exit(1)
+        }
 
         // Unified loader — accepts .tinygpt files or HF model dirs.
         //

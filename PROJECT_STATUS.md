@@ -1,6 +1,6 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-09-22
+Last updated: 2026-09-23
 
 Lifecycle: **learning artifact complete; release closeout and verified-win tranche active**
 
@@ -31,6 +31,15 @@ Parakeet, WebGPU, and Needle win-conversion experiments on 2026-09-02–03. It f
 baselines, resource budgets, regression gates, and ship/retry/reject rules before
 any new model download or training. Historical TODOs and conditional unblock
 notes remain evidence, not authorization.
+
+Artifact lifecycle contract v1 now travels beside native checkpoints, factory
+SFT adapters, and manifest-aware exports. The shared `TinyGPTIO` validator binds
+artifact/base/tokenizer identity, bounded production history, compatible
+runtimes, legal next actions, and relative receipts. `sample`, `hf-load`,
+`serve`, factory evidence, packaging, and publish checks fail closed on malformed
+metadata or proven adapter/base mismatches while keeping legacy artifacts
+loadable with an explicit unverifiable-lifecycle warning. Exact resume is never
+advertised without pinned checkpoint plus optimizer, scheduler, and RNG state.
 
 Maintenance cleanup snapshot (2026-09-02): the workspace-aware unused-code,
 format, lint, typecheck, complexity, duplication, cycle, dependency-risk, test,

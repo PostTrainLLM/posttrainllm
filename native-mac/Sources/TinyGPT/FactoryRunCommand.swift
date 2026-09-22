@@ -389,6 +389,9 @@ enum FactoryRunCommand {
         if !allowReportOnly && bundle.artifact == nil {
             throw PublishCheckError.missingFile(FactoryRunFolder.artifactFile)
         }
+        if let artifact = bundle.artifact {
+            try checkArtifactLifecycle(artifact, directory: directory)
+        }
         if bundle.dataset.counts.heldoutRows <= 0 {
             throw PublishCheckError.invalidField("dataset.counts.heldout_rows must be > 0")
         }
@@ -485,6 +488,58 @@ enum FactoryRunCommand {
                 throw PublishCheckError.invalidField("ship decision must not have blockers")
             }
         }
+    }
+
+    private static func checkArtifactLifecycle(
+        _ artifact: FactoryRun.Artifact,
+        directory: URL
+    ) throws {
+        let expandedPath = NSString(string: artifact.path).expandingTildeInPath
+        let artifactURL = NSString(string: expandedPath).isAbsolutePath
+            ? URL(fileURLWithPath: expandedPath)
+            : directory.appendingPathComponent(expandedPath)
+        let sidecarURL = ArtifactLifecycleStore.sidecarURL(for: artifactURL)
+
+        guard let declared = artifact.lifecycleManifest else {
+            if FileManager.default.fileExists(atPath: sidecarURL.path) {
+                throw PublishCheckError.invalidField(
+                    "artifact.lifecycle_manifest must reference \(sidecarURL.lastPathComponent)"
+                )
+            }
+            fputs(
+                "warning: legacy artifact has no lifecycle manifest; lifecycle/base verification is unavailable.\n",
+                stderr
+            )
+            return
+        }
+        let declaredPath = NSString(string: declared)
+        guard !declaredPath.isAbsolutePath,
+              !declaredPath.pathComponents.contains(".."),
+              declaredPath.pathComponents.count == 1,
+              declared == sidecarURL.lastPathComponent else {
+            throw PublishCheckError.invalidField(
+                "artifact.lifecycle_manifest must be the adjacent sidecar \(sidecarURL.lastPathComponent)"
+            )
+        }
+        guard let manifest = try ArtifactLifecycleStore.load(for: artifactURL) else {
+            throw PublishCheckError.missingFile(declared)
+        }
+        guard manifest.artifact.id == artifact.artifactId else {
+            throw PublishCheckError.invalidField(
+                "artifact lifecycle id \(manifest.artifact.id) does not match \(artifact.artifactId)"
+            )
+        }
+        guard manifest.kind.rawValue == artifact.kind else {
+            throw PublishCheckError.invalidField(
+                "artifact lifecycle kind \(manifest.kind.rawValue) does not match \(artifact.kind)"
+            )
+        }
+        if let base = manifest.base, base.id != artifact.baseModel {
+            throw PublishCheckError.invalidField(
+                "artifact lifecycle base \(base.id) does not match \(artifact.baseModel)"
+            )
+        }
+        fputs("factory-run lifecycle: \(manifest.summary)\n", stderr)
     }
 
     private static func read<T: Decodable>(_ type: T.Type, _ path: String) throws -> T {

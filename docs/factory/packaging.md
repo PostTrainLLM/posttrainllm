@@ -8,6 +8,7 @@ committed; the large model or adapter artifact usually stays under
 
 ```text
 specialists/<specialist-id>/
+  artifact-manifest.json
   model_card.md
   eval_report.json
   tinygpt.lock.json
@@ -39,9 +40,20 @@ Use `specialists/qwen3-4b-file-ops-distilled/` as the current pattern.
 - eval suite ids
 - package date
 
+The lifecycle manifest is the runtime authority for artifact kind, pinned base
+and tokenizer, bounded production history, compatible runtimes, and legal next
+actions. The lock remains package metadata and may repeat selected fields for
+human inspection, but must not contradict the manifest. See
+[`artifact-lifecycle.md`](artifact-lifecycle.md).
+
 ## Ship Criteria
 
 Create a specialist package only when `decision.json` says `ship`.
+
+For a newly produced package, `artifact.json.lifecycle_manifest` must name the
+adjacent lifecycle sidecar and `factory-run publish-check` must validate it.
+Legacy packages without a sidecar remain inspectable with an explicit warning;
+do not invent missing identity to silence that warning.
 
 Do not package:
 

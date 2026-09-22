@@ -16,7 +16,7 @@ final class FactoryRunEvidenceTests: XCTestCase {
                 runId: "fixture-live-run",
                 target: "fixture-target",
                 ownerGoal: "Prove live evidence persistence without a model.",
-                baseModel: .init(id: "fixture-base"),
+                baseModel: .init(id: "fixture-base", revision: "fixture-revision"),
                 candidate: .init(method: "sft-lora"),
                 eval: .init(primary: "fixture-gate")
             ),
@@ -42,18 +42,41 @@ final class FactoryRunEvidenceTests: XCTestCase {
         return run
     }
 
+    private func makeArtifact(in run: URL) throws -> FactoryRun.Artifact {
+        let artifactURL = run.appendingPathComponent("fixture-adapter.lora")
+        try Data([0x54, 0x47, 0x4c, 0x41]).write(to: artifactURL)
+        let manifest = ArtifactLifecycleManifest(
+            artifact: .init(id: "fixture-adapter"),
+            kind: .adapter,
+            artifactPath: artifactURL.lastPathComponent,
+            base: .init(id: "fixture-base", revision: "fixture-revision"),
+            tokenizer: .init(
+                id: "fixture-base",
+                revision: "fixture-revision",
+                chatTemplate: "chatml"
+            ),
+            history: [.init(action: "sft", tool: "posttrainllm")],
+            runtimes: [.nativeHFLoad],
+            next: [.merge, .convert, .eval, .serve],
+            createdAt: "2026-09-22T00:00:00Z"
+        )
+        let sidecar = try ArtifactLifecycleStore.write(manifest, for: artifactURL)
+        return FactoryRun.Artifact(
+            artifactId: "fixture-adapter",
+            kind: "adapter",
+            path: artifactURL.path,
+            baseModel: "fixture-base",
+            format: "lora",
+            lifecycleManifest: sidecar.lastPathComponent,
+            shipped: false
+        )
+    }
+
     func testTrainingAndEvaluationEvidenceAdvanceOnlyAfterWrites() throws {
         let run = try makeRun()
         XCTAssertEqual(try FactoryRunEvidence.beginTraining(directory: run).phase, .training)
 
-        let artifact = FactoryRun.Artifact(
-            artifactId: "fixture-adapter",
-            kind: "adapter",
-            path: "runs/fixture-adapter.lora",
-            baseModel: "fixture-base",
-            format: "lora",
-            shipped: false
-        )
+        let artifact = try makeArtifact(in: run)
         let trained = try FactoryRunEvidence.finishTraining(
             directory: run,
             artifact: artifact,
@@ -101,6 +124,30 @@ final class FactoryRunEvidenceTests: XCTestCase {
         XCTAssertEqual(try FactoryRunLifecycle.readStatus(directory: run).phase, .training)
     }
 
+    func testTrainingRejectsAnUndeclaredLifecycleSidecar() throws {
+        let run = try makeRun()
+        _ = try FactoryRunEvidence.beginTraining(directory: run)
+        let valid = try makeArtifact(in: run)
+        let missingPointer = FactoryRun.Artifact(
+            artifactId: valid.artifactId,
+            kind: valid.kind,
+            path: valid.path,
+            baseModel: valid.baseModel,
+            format: valid.format,
+            lifecycleManifest: nil,
+            shipped: valid.shipped
+        )
+        XCTAssertThrowsError(try FactoryRunEvidence.finishTraining(
+            directory: run,
+            artifact: missingPointer,
+            summary: "Artifact exists but its lifecycle sidecar is not declared.",
+            trainingTimeSeconds: 1
+        )) { error in
+            XCTAssertTrue(String(describing: error).contains("lifecycle_manifest"))
+        }
+        XCTAssertEqual(try FactoryRunLifecycle.readStatus(directory: run).phase, .training)
+    }
+
     func testRepeatedBoundaryCallCannotSkipPhase() throws {
         let run = try makeRun()
         _ = try FactoryRunEvidence.beginTraining(directory: run)
@@ -116,12 +163,7 @@ final class FactoryRunEvidenceTests: XCTestCase {
     func testSliceMetricsRequireSameInstanceCountsAndPreserveLifecycle() throws {
         let run = try makeRun()
         _ = try FactoryRunEvidence.beginTraining(directory: run)
-        let artifact = FactoryRun.Artifact(
-            artifactId: "fixture-adapter",
-            kind: "adapter",
-            path: "fixture.lora",
-            baseModel: "fixture-base"
-        )
+        let artifact = try makeArtifact(in: run)
         _ = try FactoryRunEvidence.finishTraining(
             directory: run,
             artifact: artifact,

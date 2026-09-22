@@ -44,18 +44,64 @@ enum ExportMLX {
         let outURL = URL(fileURLWithPath: outDir)
 
         do {
+            let sourceManifest = try ArtifactLifecycleStore.load(for: inputURL)
             try prepareEmptyOutputDirectory(outURL)
             if isAdapterFile(inputURL) {
                 try exportAdapter(inputURL, to: outURL)
+                try writeLifecycleManifest(
+                    source: sourceManifest,
+                    to: outURL,
+                    runtime: .pythonMLX,
+                    next: [.convert, .eval]
+                )
             } else if isDirectory(inputURL) {
                 try exportHFDirectory(inputURL, to: outURL)
+                try writeLifecycleManifest(
+                    source: sourceManifest,
+                    to: outURL,
+                    runtime: .mlxLM,
+                    next: [.eval, .serve]
+                )
             } else {
                 try exportposttrainllm(inputPath, to: outURL, hfNames: hfNames)
+                try writeLifecycleManifest(
+                    source: sourceManifest,
+                    to: outURL,
+                    runtime: .pythonMLX,
+                    next: [.convert, .eval]
+                )
             }
         } catch {
             fputs("export-mlx failed: \(error)\n", stderr)
             exit(1)
         }
+    }
+
+    private static func writeLifecycleManifest(
+        source: ArtifactLifecycleManifest?,
+        to outURL: URL,
+        runtime: ArtifactLifecycleManifest.Runtime,
+        next: [ArtifactLifecycleManifest.NextAction]
+    ) throws {
+        guard let source else {
+            fputs(
+                "warning: source has no artifact lifecycle manifest; export remains legacy and no identity was guessed.\n",
+                stderr
+            )
+            return
+        }
+        let manifest = ArtifactLifecycleManifest(
+            artifact: source.artifact,
+            kind: .deployPackage,
+            artifactPath: ".",
+            base: source.kind == .adapter ? source.base : source.artifact,
+            tokenizer: source.tokenizer,
+            history: source.history + [.init(action: "export-mlx", tool: "posttrainllm")],
+            runtimes: [runtime],
+            next: next
+        )
+        let sidecar = try ArtifactLifecycleStore.write(manifest, for: outURL)
+        print("lifecycle:        \(sidecar.path)")
     }
 
     private static func exportposttrainllm(_ path: String, to outURL: URL, hfNames: Bool) throws {

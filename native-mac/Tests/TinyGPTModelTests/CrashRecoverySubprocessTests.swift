@@ -140,6 +140,56 @@ final class CrashRecoverySubprocessTests: XCTestCase {
         )
     }
 
+    /// Produce a checkpoint and lifecycle sidecar, relocate the pair without
+    /// its training directory, then prove a new CLI process resolves the
+    /// sidecar and runs inference from the copied checkpoint.
+    func test_relocatedArtifactAndManifestLoadInFreshProcess() throws {
+        guard let bin = TinyGPTBinaryURL else {
+            throw XCTSkip("posttrainllm binary not found; set TINYGPT_BIN to enable")
+        }
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("artifact-relocation-\(UUID().uuidString)")
+        let source = root.appendingPathComponent("source", isDirectory: true)
+        let moved = root.appendingPathComponent("moved", isDirectory: true)
+        try FileManager.default.createDirectory(at: source, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: moved, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let corpusURL = source.appendingPathComponent("corpus.txt")
+        try String(repeating: "the quick brown fox\n", count: 128)
+            .write(to: corpusURL, atomically: true, encoding: .utf8)
+        let artifact = source.appendingPathComponent("model.tinygpt")
+        _ = try runCapture(
+            bin: bin,
+            args: [
+                "train", "--preset", "tiny", "--steps", "1",
+                "--corpus", corpusURL.path, "--out", artifact.path,
+                "--batch", "1", "--sample-every", "100",
+            ],
+            timeout: 120
+        )
+        let sidecar = ArtifactLifecycleStore.sidecarURL(for: artifact)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: sidecar.path))
+
+        let movedArtifact = moved.appendingPathComponent(artifact.lastPathComponent)
+        let movedSidecar = moved.appendingPathComponent(sidecar.lastPathComponent)
+        try FileManager.default.copyItem(at: artifact, to: movedArtifact)
+        try FileManager.default.copyItem(at: sidecar, to: movedSidecar)
+        try FileManager.default.removeItem(at: artifact)
+        try FileManager.default.removeItem(at: sidecar)
+
+        let output = try runCapture(
+            bin: bin,
+            args: [
+                "sample", movedArtifact.path, "--prompt", "a",
+                "--tokens", "1", "--temperature", "0", "--no-async-load",
+            ],
+            timeout: 120
+        )
+        XCTAssertTrue(output.contains("lifecycle: training-checkpoint"), output)
+        XCTAssertTrue(output.contains("loaded in"), output)
+    }
+
     // MARK: - Test 3: atomic write — no partial file on disk
 
     /// Race SIGTERM against a save. The atomicSave path writes
@@ -245,6 +295,16 @@ final class CrashRecoverySubprocessTests: XCTestCase {
             throw NSError(
                 domain: "CrashRecoveryTests", code: 1,
                 userInfo: [NSLocalizedDescriptionKey: "subprocess timed out after \(timeout)s"]
+            )
+        }
+        guard p.terminationStatus == 0 else {
+            pipeHandle.readabilityHandler = nil
+            let tail = pipeHandle.readDataToEndOfFile()
+            q.sync { accum.append(tail) }
+            throw NSError(
+                domain: "CrashRecoveryTests", code: Int(p.terminationStatus),
+                userInfo: [NSLocalizedDescriptionKey:
+                    "subprocess exited \(p.terminationStatus): \(String(decoding: accum, as: UTF8.self))"]
             )
         }
         // Drain any remaining buffered output.

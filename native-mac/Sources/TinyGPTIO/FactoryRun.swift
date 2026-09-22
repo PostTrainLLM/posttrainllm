@@ -187,6 +187,7 @@ public enum FactoryRun {
         public let baseModel: String
         public let format: String?
         public let packageDir: String?
+        public let lifecycleManifest: String?
         public let shipped: Bool
 
         public init(artifactId: String,
@@ -195,6 +196,7 @@ public enum FactoryRun {
                     baseModel: String,
                     format: String? = nil,
                     packageDir: String? = nil,
+                    lifecycleManifest: String? = nil,
                     shipped: Bool = false) {
             self.artifactId = artifactId
             self.kind = kind
@@ -202,8 +204,10 @@ public enum FactoryRun {
             self.baseModel = baseModel
             self.format = format
             self.packageDir = packageDir
+            self.lifecycleManifest = lifecycleManifest
             self.shipped = shipped
         }
+
     }
 
     public struct DecisionRecord: Codable, Hashable, Sendable {
@@ -419,6 +423,9 @@ public enum FactoryRun {
         try nonEmpty(artifact.kind, "artifact.kind")
         try nonEmpty(artifact.path, "artifact.path")
         try nonEmpty(artifact.baseModel, "artifact.base_model")
+        if let manifest = artifact.lifecycleManifest {
+            try nonEmpty(manifest, "artifact.lifecycle_manifest")
+        }
     }
 
     public static func validate(_ decision: DecisionRecord) throws {
