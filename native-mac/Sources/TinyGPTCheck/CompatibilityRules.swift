@@ -101,13 +101,23 @@ public enum CompatibilityRules {
         "LFM2ForCausalLM", "SmolLM3ForCausalLM",
     ]
 
-    /// pipeline_tags compatible with a causal-LM generation runtime. A
-    /// repo tagged with anything else (sentence-similarity, ASR, image
-    /// classification, …) is a documented task mismatch — the checked
-    /// path generates text and nothing else.
+    /// pipeline_tags unambiguously served by a causal-LM generation
+    /// runtime. Anything else (fill-mask, text2text-generation, ASR,
+    /// embeddings, vision…) is a *task* mismatch for the checked path —
+    /// unless architecture/layout evidence says the weights are still a
+    /// causal LM merely tagged for a downstream task (a Llama fine-tune
+    /// tagged "summarization" is still a causal LM).
     static let generationCompatibleTasks: Set<String> = [
-        "text-generation", "text2text-generation", "conversational",
-        "question-answering", "summarization", "translation", "fill-mask",
+        "text-generation", "conversational",
+    ]
+
+    /// Hub library_names that are never causal-LM inference — catches
+    /// repos with no pipeline_tag (ComfyUI single-file diffusion,
+    /// ultralytics YOLO, timm vision, speech toolkits…).
+    static let nonLanguageLibraries: Set<String> = [
+        "diffusion-single-file", "comfyui", "ultralytics", "timm",
+        "espnet", "speechbrain", "nemo", "audiocraft", "pyannote",
+        "keras", "open_clip",
     ]
 
     static let checkedPathName = "posttrainllm native runtime (MLX-Swift)"
@@ -165,13 +175,20 @@ public enum CompatibilityRules {
             applyGated(&r, info: info)
             return r
         }
+        // A non-generation tag is overridden when the weights themselves
+        // look like a causal LM (verified arch name, or a llama-family
+        // tensor layout) — the tag then describes the fine-tune's task,
+        // not the model class.
+        let earlyArchs = input.config?.architectures ?? input.architecturesHint
+        let looksCausal = earlyArchs.contains { verifiedArchitectures.contains($0) }
+            || input.tensorLayout?.kind == .llamaFamily
+
         var result: Assessment
         if isDiffusers(info: info) {
             result = diffusersAssessment(&a, info: info, env: input.env)
-        } else if let tag = info.pipelineTag, !generationCompatibleTasks.contains(tag) {
-            // Any non-generation pipeline tag is a task mismatch regardless
-            // of weight format — a GGUF of whisper.cpp or a safetensors
-            // sentence encoder both need a different executor.
+        } else if let lib = info.libraryName, nonLanguageLibraries.contains(lib), !looksCausal {
+            result = nonLanguageTaskAssessment(&a, info: info, env: input.env)
+        } else if let tag = info.pipelineTag, !generationCompatibleTasks.contains(tag), !looksCausal {
             result = nonLanguageTaskAssessment(&a, info: info, env: input.env)
         } else {
             result = formatDispatch(&a, input: input, info: info, ram: ram, disk: disk)
@@ -283,8 +300,17 @@ public enum CompatibilityRules {
     }
 
     static func isDiffusers(info: HubModelClient.Info) -> Bool {
-        if info.libraryName == "diffusers" { return true }
+        if info.libraryName == "diffusers" || info.libraryName == "diffusion-single-file" { return true }
         if info.sibling(named: "model_index.json") != nil { return true }
+        // ComfyUI single-file repos ship split components under
+        // diffusion_models/, vae/, text_encoders/, clip/ — no
+        // model_index.json, often no pipeline_tag.
+        if info.siblings.contains(where: {
+            let n = $0.name
+            return n.hasPrefix("diffusion_models/") || n.hasPrefix("unet/")
+                || n.hasPrefix("vae/") || n.hasPrefix("text_encoders/")
+                || n.hasPrefix("checkpoints/")
+        }) { return true }
         if let tag = info.pipelineTag {
             // Generation-side media pipelines are diffusers-domain.
             // ASR / TTS / classifiers are transformers-domain — they get
@@ -368,6 +394,21 @@ public enum CompatibilityRules {
     ) -> Assessment {
         guard let cfg = input.config else {
             let hint = input.architecturesHint
+            // Hint-only disqualifiers: a MoE or multimodal arch name is
+            // enough to rule out the checked path without a full config
+            // (e.g. Qwen3_5MoeForConditionalGeneration).
+            let hintJoined = hint.joined(separator: " ")
+            if hintJoined.localizedCaseInsensitiveContains("moe")
+                || hintJoined.contains("ConditionalGeneration")
+                || hintJoined.contains("Vision") {
+                a.verdict = .unsupportedOnCheckedPath
+                a.verdictSummary = "\(hintJoined) is MoE/multimodal — outside the dense text-only loader, and the full config is unreadable"
+                a.checkedPath.status = .unsupportedOnCheckedPath
+                a.checkedPath.detail = "the architecture name alone disqualifies the checked path (no expert routing / no vision tower support)"
+                a.otherPaths.append(mlxLmPath(env: input.env, note: "mlx-lm covers MoE and many VLM families"))
+                if let ci = input.configIssue { a.limitations.append(ci) }
+                return a
+            }
             // Partial-but-known: a verified arch name + Hub param stats
             // (the gated-repo situation — resolve/ 401s but the API gave
             // us architectures + safetensors counts) earns a provisional
@@ -731,7 +772,7 @@ public enum CompatibilityRules {
     static func nonLanguageTaskAssessment(
         _ a: inout Assessment, info: HubModelClient.Info, env: MacEnvironment
     ) -> Assessment {
-        let tag = info.pipelineTag ?? "unknown"
+        let tag = info.pipelineTag ?? info.libraryName ?? "unknown"
         a.verdict = .unsupportedOnCheckedPath
         a.verdictSummary = "\(tag) is not a text-generation task the posttrainllm runtime executes"
         a.checkedPath.status = .unsupportedOnCheckedPath
