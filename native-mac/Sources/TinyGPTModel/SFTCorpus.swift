@@ -316,45 +316,7 @@ public enum SFTReader {
             // rows fell through to the flat-field check below and were
             // silently dropped (CorrectionCuration documents the trap).
             if let arr = obj["messages"] as? [[String: Any]] {
-                guard !arr.isEmpty else {
-                    throw ReadError.parseError(
-                        line: lineNo, detail: "messages must not be empty")
-                }
-                var msgs: [SFTMessage] = []
-                for (messageIndex, m) in arr.enumerated() {
-                    guard let role = m["role"] as? String,
-                          let content = m["content"] as? String else {
-                        throw ReadError.parseError(
-                            line: lineNo,
-                            detail: "messages[\(messageIndex)] needs string role and content")
-                    }
-                    let supervise = m["supervise"] as? Bool ?? false
-                    guard !supervise || role == "assistant" else {
-                        throw ReadError.parseError(
-                            line: lineNo,
-                            detail: "only assistant messages may be supervised")
-                    }
-                    let outputIds = (m["output_ids"] as? [Any])?.compactMap {
-                        ($0 as? NSNumber)?.intValue
-                    }
-                    msgs.append(SFTMessage(
-                        role: role, content: content, supervise: supervise,
-                        outputIds: outputIds))
-                }
-                // No explicit supervision flags → supervise the last
-                // assistant turn only, matching prior convention.
-                if !msgs.contains(where: { $0.supervise }),
-                   let last = msgs.lastIndex(where: { $0.role == "assistant" }) {
-                    msgs[last] = SFTMessage(role: "assistant",
-                                            content: msgs[last].content,
-                                            supervise: true,
-                                            outputIds: msgs[last].outputIds)
-                }
-                guard msgs.contains(where: { $0.supervise }) else {
-                    throw ReadError.parseError(
-                        line: lineNo,
-                        detail: "messages needs at least one assistant target")
-                }
+                let msgs = try chatMessages(arr, line: lineNo)
                 records.append(SFTRecord(instruction: "", input: "",
                                          response: "", messages: msgs))
                 continue
@@ -367,6 +329,47 @@ public enum SFTReader {
             records.append(SFTRecord(instruction: instruction, input: input, response: response))
         }
         return records
+    }
+
+    private static func chatMessages(
+        _ rows: [[String: Any]], line: Int
+    ) throws -> [SFTMessage] {
+        guard !rows.isEmpty else {
+            throw ReadError.parseError(line: line, detail: "messages must not be empty")
+        }
+        var messages: [SFTMessage] = []
+        for (index, row) in rows.enumerated() {
+            guard let role = row["role"] as? String,
+                  let content = row["content"] as? String else {
+                throw ReadError.parseError(
+                    line: line,
+                    detail: "messages[\(index)] needs string role and content")
+            }
+            let supervise = row["supervise"] as? Bool ?? false
+            guard !supervise || role == "assistant" else {
+                throw ReadError.parseError(
+                    line: line, detail: "only assistant messages may be supervised")
+            }
+            let outputIds = (row["output_ids"] as? [Any])?.compactMap {
+                ($0 as? NSNumber)?.intValue
+            }
+            messages.append(SFTMessage(
+                role: role, content: content, supervise: supervise,
+                outputIds: outputIds))
+        }
+        // No explicit flags means supervise the last assistant turn,
+        // matching the historical chat-row convention.
+        if !messages.contains(where: { $0.supervise }),
+           let last = messages.lastIndex(where: { $0.role == "assistant" }) {
+            messages[last] = SFTMessage(
+                role: "assistant", content: messages[last].content,
+                supervise: true, outputIds: messages[last].outputIds)
+        }
+        guard messages.contains(where: { $0.supervise }) else {
+            throw ReadError.parseError(
+                line: line, detail: "messages needs at least one assistant target")
+        }
+        return messages
     }
 }
 
