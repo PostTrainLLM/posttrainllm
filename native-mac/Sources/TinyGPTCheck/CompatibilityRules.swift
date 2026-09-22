@@ -33,13 +33,18 @@ public enum CompatibilityRules {
         /// schema) — lets the report name the architecture even when the
         /// full typed config is unavailable.
         public var architecturesHint: [String]
+        /// Tensor-name layout from the safetensors index/header — nil
+        /// when it couldn't be fetched (recorded as a limitation).
+        public var tensorLayout: TensorLayout?
         public var env: MacEnvironment
         public init(ref: ModelRef, info: HubModelClient.Info?, fetchIssue: String?,
                     config: HuggingFaceConfig?, configIssue: String?,
-                    architecturesHint: [String] = [], env: MacEnvironment) {
+                    architecturesHint: [String] = [],
+                    tensorLayout: TensorLayout? = nil, env: MacEnvironment) {
             self.ref = ref; self.info = info; self.fetchIssue = fetchIssue
             self.config = config; self.configIssue = configIssue
-            self.architecturesHint = architecturesHint; self.env = env
+            self.architecturesHint = architecturesHint
+            self.tensorLayout = tensorLayout; self.env = env
         }
     }
 
@@ -255,9 +260,18 @@ public enum CompatibilityRules {
 
     /// Resident-memory estimate for the posttrainllm path: fp16/bf16
     /// checkpoints up-convert to fp32 (~2× weight bytes); MLX-packed
-    /// checkpoints stay quantized (~1.15×).
-    static func loadFootprint(weightBytes: Int64, mlxPacked: Bool) -> Int64 {
-        Int64(Double(weightBytes) * (mlxPacked ? 1.15 : 2.0))
+    /// checkpoints stay quantized (~1.15×). Adds a KV-cache allowance at
+    /// an 8k-token reference context — real usage scales with context.
+    static func loadFootprint(weightBytes: Int64, mlxPacked: Bool,
+                              config: HuggingFaceConfig?) -> Int64 {
+        var total = Double(weightBytes) * (mlxPacked ? 1.15 : 2.0)
+        if let cfg = config {
+            let kvHeads = cfg.numKeyValueHeads > 0 ? cfg.numKeyValueHeads : cfg.numAttentionHeads
+            let headDim = cfg.headDim > 0 ? cfg.headDim
+                : cfg.hiddenSize / max(cfg.numAttentionHeads, 1)
+            total += Double(2 * cfg.numHiddenLayers * kvHeads * headDim) * 8192 * 4
+        }
+        return Int64(total)
     }
 
     // MARK: - per-format assessments
@@ -287,9 +301,40 @@ public enum CompatibilityRules {
             a.limitations.append("config.json has no architectures field")
         }
 
-        // Architecture gates.
+        // Tensor-layout evidence, when the safetensors index/header was
+        // readable — this is the strongest signal we have short of a load
+        // test: does the checkpoint's naming match what the loader
+        // actually consumes?
+        let layout = input.tensorLayout
+        if let layout {
+            a.evidence.append(.init(
+                source: "safetensors tensor-name index/header (metadata only — no weight bytes fetched)",
+                kind: "documented",
+                detail: "\(layout.totalTensors) tensors; \(layout.lmConventionCount) match the loader's HF naming convention (\(Int(layout.lmConventionRatio * 100))%); classified \(layout.kind.rawValue)"))
+        }
+
+        if layout?.kind == .packedQuant {
+            a.limitations.append("packed quant tensors detected (qweight/qzeros — GPTQ/AWQ-style); the loader dequantizes on load")
+        }
+
+        // Tokenizer presence — a repo without tokenizer files can't run
+        // end-to-end regardless of weight compatibility.
+        let hasTokenizer = info.sibling(named: "tokenizer.json") != nil
+            || info.sibling(named: "tokenizer.model") != nil
+            || info.sibling(named: "tokenizer_config.json") != nil
+        if !hasTokenizer {
+            a.requiredChanges.append(.init(kind: "model-component",
+                detail: "no tokenizer files in repo — the loader needs tokenizer.json or tokenizer.model",
+                sizeBytes: nil, estimate: false))
+        }
+
+        // Architecture gates — tensor layout can confirm or override the
+        // name-based reading (e.g. an unlisted arch that is structurally
+        // Llama-family, or a MoE that hides behind a generic name).
         let moe = archs.contains { $0.localizedCaseInsensitiveContains("moe") }
+            || layout?.kind == .moe
         let multimodal = archs.contains { $0.contains("ConditionalGeneration") || $0.contains("Vision") }
+            || layout?.kind == .multimodal
         let verified = archs.contains { verifiedArchitectures.contains($0) }
 
         if multimodal {
@@ -314,8 +359,39 @@ public enum CompatibilityRules {
             addMemoryChange(&a, weightBytes: weightBytes, disk: disk)
             return a
         }
+        // Encoder-only checkpoints (BERT family etc.) can't generate.
+        if layout?.kind == .encoderOnly {
+            a.verdict = .unsupportedOnCheckedPath
+            a.verdictSummary = "encoder-only checkpoint — no causal-LM head"
+            a.checkedPath.status = .unsupportedOnCheckedPath
+            a.checkedPath.detail = "tensor names look like an encoder stack (encoder.*/pooler, no lm_head); the checked runtime only generates text"
+            a.otherPaths.append(transformersPath(env: input.env, task: info.pipelineTag ?? "feature-extraction"))
+            a.nextActions.append("Serve it through transformers/sentence-transformers — it's an embedding or classification model, not a generator.")
+            return a
+        }
+
         if !verified {
             let named = archs.isEmpty ? "(unnamed)" : archs.joined(separator: ", ")
+            // Structural rescue: an unlisted architecture whose tensor
+            // names fully match the loader's convention, with no config
+            // blocker, is probably loadable — upgrade unknown → changes
+            // required, with the verification step named explicitly.
+            if layout?.kind == .llamaFamily, layout!.lmConventionRatio > 0.6,
+               cfg.unsupportedReason() == nil {
+                a.verdict = .changesRequired
+                a.verdictSummary = "\(named) isn't in the verified set, but the checkpoint layout matches the loader's convention (\(Int(layout!.lmConventionRatio * 100))% of tensors)"
+                a.checkedPath.status = .changesRequired
+                a.checkedPath.detail = "structural evidence only — the architecture name isn't verified; confirm with a load smoke (`posttrainllm hf-load <dir>` after download). Numerics could still differ (attention details, positional encoding)."
+                a.requiredChanges.append(.init(kind: "runtime",
+                    detail: "verification step — run `posttrainllm hf-load` on the downloaded repo to confirm the load",
+                    sizeBytes: nil, estimate: false))
+                a.otherPaths.append(mlxLmPath(env: input.env, note: "mlx-lm carries a wider verified architecture table"))
+                a.evidence.append(.init(source: "tensor-name layout match", kind: "inferred",
+                    detail: "inferred loadability — not a verified execution"))
+                a.nextActions.append("Download via the HF browser, run `posttrainllm hf-load <dir>` as the smoke check, then sample.")
+                addMemoryChange(&a, weightBytes: weightBytes, disk: disk)
+                return a
+            }
             a.verdict = .unknown
             a.verdictSummary = "architecture \(named) is not in the verified load set"
             a.checkedPath.status = .unknown
@@ -323,6 +399,11 @@ public enum CompatibilityRules {
             a.otherPaths.append(mlxLmPath(env: input.env, note: "mlx-lm carries a wider verified architecture table"))
             a.otherPaths.append(transformersPath(env: input.env, task: info.pipelineTag ?? "text-generation"))
             a.limitations.append("verified set: \(verifiedArchitectures.sorted().joined(separator: ", "))")
+            if layout?.kind == .unknown {
+                a.limitations.append("tensor names did not match the loader's convention — the layout itself is nonstandard, not just the architecture name")
+            } else if layout == nil {
+                a.limitations.append("tensor-name layout could not be inspected (no index.json / range-readable header)")
+            }
             a.nextActions.append("Ask the agent to verify whether \(named) matches the Llama-family layout (attention + SwiGLU MLP + RMSNorm + RoPE) before attempting a load.")
             addMemoryChange(&a, weightBytes: weightBytes, disk: disk)
             return a
@@ -345,7 +426,7 @@ public enum CompatibilityRules {
         // Loadable — now it's a memory/disk question.
         let est = weightEstimate(info: info)
         let weights = weightBytes > 0 ? weightBytes : (est?.bytes ?? 0)
-        let footprint = loadFootprint(weightBytes: weights, mlxPacked: mlxPacked)
+        let footprint = loadFootprint(weightBytes: weights, mlxPacked: mlxPacked, config: cfg)
         let estNote = est.map { "~\($0.params > 0 ? fmtParams($0.params) + " params, " : "")\(fmtBytes($0.bytes)) weights (\($0.source))" }
             ?? "weight size unknown"
         if weights == 0 {

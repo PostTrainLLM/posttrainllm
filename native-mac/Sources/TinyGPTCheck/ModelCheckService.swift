@@ -76,13 +76,25 @@ public enum ModelCheckService {
                     // n_layer), the architecture name is still worth
                     // reporting.
                     architecturesHint = (raw["architectures"] as? [String]) ?? []
-                    config = try HuggingFaceConfig.fromDict(raw)
+                    config = try HuggingFaceConfig.fromDict(normalizeLegacyKeys(raw))
                 }
             } catch {
                 configIssue = "config.json present but unreadable: \(error)"
             }
         } else if info != nil {
             configIssue = "no config.json in the repository file list"
+        }
+
+        // Structural evidence: tensor names from the safetensors index
+        // (sharded repos) or a Range-read of the first shard's header.
+        // Metadata only — a 200 (Range ignored) is refused, never a
+        // weight download.
+        var tensorLayout: TensorLayout? = nil
+        if let info = info, !info.siblings(matchingSuffix: ".safetensors").isEmpty {
+            if let names = try? HubModelClient.tensorNames(
+                id: ref.id, revision: ref.revision, info: info) {
+                tensorLayout = TensorLayout.assess(names: names)
+            }
         }
 
         progress?(.checkingEnvironment)
@@ -92,7 +104,8 @@ public enum ModelCheckService {
         let rulesInput = CompatibilityRules.Input(
             ref: ref, info: info, fetchIssue: fetchIssue,
             config: config, configIssue: configIssue,
-            architecturesHint: architecturesHint, env: env)
+            architecturesHint: architecturesHint,
+            tensorLayout: tensorLayout, env: env)
         let a = CompatibilityRules.assess(rulesInput)
 
         let report = ModelCheckReport(
@@ -122,6 +135,42 @@ public enum ModelCheckService {
         var final = report
         final.agentPrompt = agentPrompt(for: final)
         return final
+    }
+
+    /// Legacy HF schemas use different key names — GPT-2/GPT-Neo/J use
+    /// `n_head`/`n_embd`/`n_layer`, older models use `d_model`,
+    /// `layer_norm_epsilon`, `ffn_dim`. Normalize aliases so the strict
+    /// `HuggingFaceConfig` parser can read them; the architecture gate
+    /// still decides the verdict, this only unlocks the parse.
+    static let legacyConfigAliases: [String: [String]] = [
+        "vocab_size": ["n_vocab"],
+        "hidden_size": ["n_embd", "d_model", "dim"],
+        "num_hidden_layers": ["n_layer", "num_layers", "n_layers"],
+        "num_attention_heads": ["n_head", "n_heads", "num_heads"],
+        "intermediate_size": ["n_inner", "ffn_dim", "mlp_dim"],
+        "max_position_embeddings": ["n_positions", "n_ctx", "max_seq_len", "seq_length"],
+        "rms_norm_eps": ["layer_norm_epsilon", "norm_eps", "layernorm_epsilon", "layer_norm_eps"],
+        "hidden_act": ["activation_function", "hidden_activation"],
+        "num_key_value_heads": ["n_head_kv", "multi_query_group_num", "num_kv_heads"],
+        "rope_theta": ["rotary_emb_base", "rope_base"],
+    ]
+
+    static func normalizeLegacyKeys(_ raw: [String: Any]) -> [String: Any] {
+        var out = raw
+        for (canonical, aliases) in legacyConfigAliases where out[canonical] == nil {
+            for alias in aliases {
+                if let v = raw[alias] { out[canonical] = v; break }
+            }
+        }
+        // GPT-2/GPT-Neo omit n_inner entirely — the MLP is implicitly
+        // 4× hidden. Synthesize it so the strict parser can proceed;
+        // intermediate_size only feeds memory/param estimates here.
+        if out["intermediate_size"] == nil {
+            let hidden = (out["hidden_size"] as? Int)
+                ?? (out["n_embd"] as? Int) ?? (out["d_model"] as? Int)
+            if let hidden { out["intermediate_size"] = hidden * 4 }
+        }
+        return out
     }
 
     /// The copy-ready handoff for cases the checker can't close. Carries

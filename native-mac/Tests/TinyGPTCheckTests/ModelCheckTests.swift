@@ -208,6 +208,104 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertTrue(a.otherPaths.contains { $0.name.contains("Ollama") && $0.status == .expectedToWork })
     }
 
+    // MARK: - tensor layout + legacy schema
+
+    private func llamaTensorNames() -> [String] {
+        var names = ["model.embed_tokens.weight", "model.norm.weight", "lm_head.weight"]
+        for i in 0..<4 {
+            for p in ["self_attn.q_proj", "self_attn.k_proj", "self_attn.v_proj", "self_attn.o_proj",
+                      "mlp.gate_proj", "mlp.up_proj", "mlp.down_proj",
+                      "input_layernorm", "post_attention_layernorm"] {
+                names.append("model.layers.\(i).\(p).weight")
+            }
+        }
+        return names
+    }
+
+    func testLayoutLlamaFamily() {
+        let l = TensorLayout.assess(names: llamaTensorNames())
+        XCTAssertEqual(l.kind, .llamaFamily)
+        XCTAssertGreaterThan(l.lmConventionRatio, 0.9)
+    }
+
+    func testLayoutMoE() {
+        var names = llamaTensorNames()
+        names.append(contentsOf: [
+            "model.layers.0.mlp.experts.0.gate_proj.weight",
+            "model.layers.0.mlp.router.weight",
+        ])
+        XCTAssertEqual(TensorLayout.assess(names: names).kind, .moe)
+    }
+
+    func testLayoutMultimodal() {
+        var names = llamaTensorNames()
+        names.append(contentsOf: ["vision_tower.vision_model.encoder.layers.0.fc1.weight",
+                                  "multi_modal_projector.linear_1.weight"])
+        XCTAssertEqual(TensorLayout.assess(names: names).kind, .multimodal)
+    }
+
+    func testLayoutEncoderOnly() {
+        let names = ["embeddings.word_embeddings.weight", "embeddings.position_embeddings.weight",
+                     "encoder.layer.0.attention.self.query.weight", "encoder.layer.0.output.dense.weight",
+                     "pooler.dense.weight"]
+        XCTAssertEqual(TensorLayout.assess(names: names).kind, .encoderOnly)
+    }
+
+    func testLayoutDiffusion() {
+        let names = ["unet.down_blocks.0.attentions.0.to_q.weight", "vae.decoder.conv_in.weight",
+                     "text_encoder.text_model.encoder.layers.0.mlp.fc1.weight"]
+        XCTAssertEqual(TensorLayout.assess(names: names).kind, .diffusion)
+    }
+
+    func testLayoutUnknownGPT2Style() {
+        // GPT-2 checkpoints use h.N.attn.c_attn — nonstandard naming.
+        let names = (0..<4).map { "h.\($0).attn.c_attn.weight" } + ["wte.weight", "ln_f.weight"]
+        XCTAssertEqual(TensorLayout.assess(names: names).kind, .unknown)
+    }
+
+    func testStructuralRescueUnlistedArch() {
+        // An unlisted *ForCausalLM arch whose tensors match the loader's
+        // convention upgrades unknown → changesRequired (verify-by-smoke).
+        let (info, cfg) = lmInfo(archs: ["SmolLM2ForCausalLM"])
+        let layout = TensorLayout.assess(names: llamaTensorNames())
+        let a = CompatibilityRules.assess(.init(
+            ref: ref("x/smollm2"), info: info, fetchIssue: nil,
+            config: cfg, configIssue: nil, tensorLayout: layout, env: env()))
+        XCTAssertEqual(a.verdict, .changesRequired)
+        XCTAssertTrue(a.checkedPath.detail.contains("hf-load"))
+        XCTAssertTrue(a.evidence.contains { $0.kind == "inferred" })
+    }
+
+    func testUnlistedArchStillUnknownWithoutLayout() {
+        let (info, cfg) = lmInfo(archs: ["NemotronForCausalLM"])
+        let a = assess(info, config: cfg)   // no tensorLayout → unknown
+        XCTAssertEqual(a.verdict, .unknown)
+    }
+
+    func testLegacyKeyNormalization() {
+        let raw: [String: Any] = [
+            "n_vocab": 50257, "n_embd": 768, "n_layer": 12, "n_head": 12,
+            "n_positions": 1024, "activation_function": "gelu_new",
+            "layer_norm_epsilon": 1e-5, "architectures": ["GPT2LMHeadModel"],
+        ]
+        let normalized = ModelCheckService.normalizeLegacyKeys(raw)
+        XCTAssertEqual(normalized["vocab_size"] as? Int, 50257)
+        XCTAssertEqual(normalized["hidden_size"] as? Int, 768)
+        XCTAssertEqual(normalized["num_hidden_layers"] as? Int, 12)
+        XCTAssertEqual(normalized["num_attention_heads"] as? Int, 12)
+        XCTAssertEqual(normalized["max_position_embeddings"] as? Int, 1024)
+        // Strict parse now succeeds on a GPT-2-shaped config.
+        XCTAssertNoThrow(try HuggingFaceConfig.fromDict(normalized))
+    }
+
+    func testTokenizerMissingFlagged() {
+        let (info0, cfg) = lmInfo()
+        var info = info0
+        info.siblings = info.siblings.filter { !$0.name.contains("tokenizer") }
+        let a = assess(info, config: cfg)
+        XCTAssertTrue(a.requiredChanges.contains { $0.detail.contains("tokenizer") })
+    }
+
     // MARK: - report schema + agent prompt
 
     func testReportRoundTripsJSON() throws {

@@ -28,10 +28,25 @@ call `ModelCheckService.check`.
 URL + environment
   → GET /api/models/<id>?blobs=true  (manifest, tags, gated, param stats)
   → fetch small files only           (config.json, ≤512 KB cap)
+  → tensor names                     (model.safetensors.index.json, or a
+                                      Range-read of a shard's JSON header —
+                                      a 200 full-file response is refused;
+                                      weight bytes are never fetched)
   → CompatibilityRules.assess        (pure functions — fixture-testable)
   → MacEnvironment.detect            (chip/RAM/disk/macOS + runtime probes)
   → ModelCheckReport                 (verdict + evidence + agent prompt)
 ```
+
+**Tensor-name layout** is the structural check that upgrades name-guessing
+into evidence: `HFModelLoader` consumes the standard HF convention
+(`model.layers.N.self_attn.{q,k,v,o}_proj`, `mlp.{gate,up,down}_proj`,
+`model.embed_tokens`, `model.norm`, `lm_head`), so the checker counts how
+many tensors match. An unlisted architecture whose tensors match (e.g.
+OLMo-2: 73% match) becomes `changes_required` with `hf-load` named as the
+verification step — `unknown` is reserved for genuinely unreadable or
+nonstandard layouts (GPT-2's `h.N.attn.c_attn`: 0% match). Legacy config
+schemas (`n_head`/`n_embd`/`n_layer`, missing `n_inner` → 4×hidden) are
+normalized before the strict parse.
 
 ## Verdict vocabulary
 
@@ -50,7 +65,8 @@ Two honesty rules are load-bearing:
 - **All memory figures are estimates** (`estimate: true`, "~" in text).
   Weights come from Hub safetensors stats or file sizes; resident memory
   assumes ~2× weight bytes for bf16/fp16 (fp32 up-convert in
-  `HFModelLoader`), ~1.15× for MLX-packed checkpoints.
+  `HFModelLoader`), ~1.15× for MLX-packed checkpoints, plus a KV-cache
+  allowance at an 8k-token reference context.
 
 ## Environment detection
 
