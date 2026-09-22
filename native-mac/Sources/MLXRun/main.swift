@@ -31,6 +31,9 @@ while i < argv.count {
         if argv[i].hasPrefix("-") {
             fputs("mlxrun: unknown flag \(argv[i])\n", stderr); exit(2)
         }
+        guard id == nil else {
+            fputs("mlxrun: expected exactly one <model-id>\n", stderr); exit(2)
+        }
         id = argv[i]; i += 1
     }
 }

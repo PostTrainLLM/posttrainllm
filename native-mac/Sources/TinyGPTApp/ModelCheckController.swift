@@ -28,6 +28,10 @@ final class ModelCheckController: ObservableObject {
     func check() {
         let target = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !target.isEmpty, !isChecking else { return }
+        let manualRAM = manualGigabytes(manualRAMGB, label: "RAM")
+        guard manualRAM.valid else { return }
+        let manualDisk = manualGigabytes(manualDiskGB, label: "free disk")
+        guard manualDisk.valid else { return }
         isChecking = true
         lastError = nil
         report = nil
@@ -35,8 +39,8 @@ final class ModelCheckController: ObservableObject {
 
         let env: MacEnvironment? = useManualEnv ? .manual(
             chip: manualChip.isEmpty ? nil : manualChip,
-            ramGB: Int(manualRAMGB),
-            diskGB: Int(manualDiskGB),
+            ramGB: manualRAM.value,
+            diskGB: manualDisk.value,
             macOS: manualMacOS.isEmpty ? nil : manualMacOS
         ) : nil
 
@@ -58,5 +62,19 @@ final class ModelCheckController: ObservableObject {
                 }
             }
         }
+    }
+
+    private func manualGigabytes(
+        _ text: String, label: String
+    ) -> (value: Int?, valid: Bool) {
+        guard useManualEnv else { return (nil, true) }
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return (nil, true) }
+        guard let value = Int(trimmed), value > 0,
+              value <= Int64.max / 1_073_741_824 else {
+            lastError = "\(label) must be a positive whole number of GB"
+            return (nil, false)
+        }
+        return (value, true)
     }
 }
