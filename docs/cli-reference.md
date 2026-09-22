@@ -60,9 +60,13 @@ method, data, gate, regression checks, budget, and stop rule.
 ## Check a Hugging Face model before downloading
 
 `posttrainllm model-check <url>` reports whether a Hub model can run on
-this Mac — verdict, other execution paths, required changes, evidence,
-and a copy-ready agent prompt — without downloading weights or changing
-anything. The same service backs the app's Check workspace. See
+this Mac — summary verdict plus separate inspect/download/load/inference/
+LoRA/agentic states, ordered execution stages, other paths, evidence, and a
+copy-ready agent prompt — without downloading weights or changing anything.
+`posttrainllm model-run <url>` performs a bounded run and writes a local,
+exact-revision/device receipt; later checks distinguish that measured result
+from a static prediction. The same report schema backs the app's Check
+workspace. See
 [docs/integrations/model-check.md](integrations/model-check.md).
 
 ## Parked research commands

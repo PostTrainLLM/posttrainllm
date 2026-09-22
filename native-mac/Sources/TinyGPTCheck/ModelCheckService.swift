@@ -7,7 +7,8 @@ import TinyGPTIO
 ///   URL + environment
 ///     → fetch repository metadata + small config files
 ///     → apply known compatibility checks
-///     → produce a structured report
+///     → merge an exact-revision/device local receipt when one exists
+///     → produce a schema-v2 structured report
 ///
 /// It never downloads weights, installs software, runs a model, or
 /// executes repository code. Missing metadata and failed lookups produce
@@ -174,7 +175,7 @@ public enum ModelCheckService {
         let a = CompatibilityRules.assess(rulesInput)
 
         let report = ModelCheckReport(
-            schemaVersion: 1,
+            schemaVersion: 2,
             checkedAt: ISO8601DateFormatter().string(from: Date()),
             input: input,
             model: .init(
@@ -198,7 +199,14 @@ public enum ModelCheckService {
             agentPrompt: "",   // filled below
             limitations: a.limitations)
 
-        var final = report
+        let storedReceipt = env.source == "detected"
+            ? ModelVerificationStore().load(
+                modelID: ref.id, revision: ref.revision,
+                environment: report.environment)
+            : nil
+        let hasHFAccess = !(ProcessInfo.processInfo.environment["HF_TOKEN"] ?? "").isEmpty
+        var final = ModelCompatibilityContract.enrich(
+            report, hasHFAccess: hasHFAccess, receipt: storedReceipt)
         final.agentPrompt = agentPrompt(for: final)
         return final
     }
@@ -277,6 +285,16 @@ public enum ModelCheckService {
         p.append("")
         p.append("Checker verdict: \(r.verdict.rawValue) — \(r.verdictSummary)")
         p.append("Checked path: \(r.checkedPath.name) → \(r.checkedPath.status.rawValue): \(r.checkedPath.detail)")
+        if let operations = r.operations, !operations.isEmpty {
+            p.append("Operation-specific states:")
+            for operation in operations {
+                p.append("- \(operation.operation.rawValue): \(operation.status.rawValue) — \(operation.detail)")
+            }
+        }
+        if let receipt = r.verificationReceipt {
+            let runtime = receipt.runtime.map { " via \($0)" } ?? ""
+            p.append("Matching local receipt: \(receipt.status.rawValue)\(runtime), \(receipt.verifiedAt).")
+        }
         if !r.otherPaths.isEmpty {
             p.append("Other paths considered:")
             for path in r.otherPaths {

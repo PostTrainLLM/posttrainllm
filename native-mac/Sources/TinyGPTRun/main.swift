@@ -1,5 +1,19 @@
 import Foundation
 
+private struct SampleStats: Encodable {
+    let promptTokens: Int?
+    let generatedTokens: Int?
+    let promptMS: Int?
+    let generationMS: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case promptTokens = "prompt_tokens"
+        case generatedTokens = "generated_tokens"
+        case promptMS = "prompt_ms"
+        case generationMS = "generation_ms"
+    }
+}
+
 /// `posttrainllm-mlxrun` — sibling executable invoked by
 /// `posttrainllm model-run` for the MLX-Swift-LM runner. Lives in its
 /// own process so a model load failure or a runtime quirk is a captured
@@ -30,7 +44,17 @@ do {
     if chat {
         try MLXRunner.chat(id: id)
     } else {
-        print(try MLXRunner.sample(id: id, prompt: prompt, maxTokens: maxTokens))
+        let sample = try MLXRunner.sample(id: id, prompt: prompt, maxTokens: maxTokens)
+        print(sample.text)
+        let stats = SampleStats(
+            promptTokens: sample.promptTokens,
+            generatedTokens: sample.generatedTokens,
+            promptMS: sample.promptMS,
+            generationMS: sample.generationMS)
+        if let data = try? JSONEncoder().encode(stats),
+           let json = String(data: data, encoding: .utf8) {
+            fputs("__POSTTRAINLLM_SAMPLE_STATS__\(json)\n", stderr)
+        }
     }
 } catch {
     fputs("mlxrun failed: \(error)\n", stderr)

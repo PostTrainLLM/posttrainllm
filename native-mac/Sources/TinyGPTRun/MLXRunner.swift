@@ -14,16 +14,25 @@ import Tokenizers
 /// we park the calling thread on a semaphore and report through a box.
 public enum MLXRunner {
 
+    public struct SampleResult: Sendable {
+        public let text: String
+        public let promptTokens: Int?
+        public let generatedTokens: Int?
+        public let promptMS: Int?
+        public let generationMS: Int?
+    }
+
     public enum RunError: Error, LocalizedError {
         case timedOut
         public var errorDescription: String? { "mlx-swift run timed out" }
     }
 
     /// Load `id` (auto-downloads to the HF cache; honors HF_TOKEN) and
-    /// generate a bounded response. Returns the generated text.
+    /// generate a bounded response. Returns text plus the runtime's exact
+    /// prompt/generation counts for the parent model-run receipt.
     public static func sample(id: String, prompt: String, maxTokens: Int,
-                              timeout: TimeInterval = 1800) throws -> String {
-        final class Box { var text: String?; var error: Error?; var done = false }
+                              timeout: TimeInterval = 1800) throws -> SampleResult {
+        final class Box { var result: SampleResult?; var error: Error?; var done = false }
         let box = Box()
         Task.detached {
             defer { box.done = true }
@@ -38,7 +47,24 @@ public enum MLXRunner {
                 fputs("\n", stderr)
                 let session = ChatSession(model)
                 session.generateParameters = .init(maxTokens: maxTokens)
-                box.text = try await session.respond(to: prompt)
+                var text = ""
+                var promptTokens: Int? = nil
+                var generatedTokens: Int? = nil
+                var promptMS: Int? = nil
+                var generationMS: Int? = nil
+                for try await event in session.streamDetails(to: prompt) {
+                    if let chunk = event.chunk { text += chunk }
+                    if let info = event.info {
+                        promptTokens = info.promptTokenCount
+                        generatedTokens = info.generationTokenCount
+                        promptMS = Int((info.promptTime * 1_000).rounded())
+                        generationMS = Int((info.generateTime * 1_000).rounded())
+                    }
+                }
+                box.result = SampleResult(
+                    text: text, promptTokens: promptTokens,
+                    generatedTokens: generatedTokens, promptMS: promptMS,
+                    generationMS: generationMS)
             } catch {
                 box.error = error
             }
@@ -51,7 +77,9 @@ public enum MLXRunner {
             RunLoop.main.run(mode: .default, before: Date().addingTimeInterval(0.05))
         }
         if let err = box.error { throw err }
-        return box.text ?? ""
+        return box.result ?? SampleResult(
+            text: "", promptTokens: nil, generatedTokens: nil,
+            promptMS: nil, generationMS: nil)
     }
 
     /// Interactive chat loop — blocks on stdin until an empty line.

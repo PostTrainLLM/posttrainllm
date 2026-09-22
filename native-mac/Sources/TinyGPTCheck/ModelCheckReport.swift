@@ -6,10 +6,15 @@ import Foundation
 /// app decodes the same struct for its cards. Keep field names stable:
 /// the JSON output is a contract for agent handoffs.
 ///
-/// Verdict vocabulary (from the feature spec — issue #156):
+/// Summary verdict vocabulary (from the feature spec — issue #156):
 ///   expected_to_work / changes_required / unsupported_on_checked_path / unknown
 /// "Unsupported by your installed runtime" must never be reported as
 /// "impossible on your Mac"; unknown is a first-class, acceptable result.
+///
+/// Schema v2 (issue #161) adds operation-specific predictions, explicit
+/// execution stages, and an optional measured `model-run` receipt. The new
+/// fields stay optional in the Codable shape so saved schema-v1 reports still
+/// decode; reports produced by current code always populate them.
 public struct ModelCheckReport: Codable, Equatable, Sendable {
     public var schemaVersion: Int
     public var checkedAt: String            // ISO-8601
@@ -26,6 +31,9 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
     public var nextActions: [String]
     public var agentPrompt: String
     public var limitations: [String]
+    public var operations: [OperationAssessment]? = nil
+    public var executionStages: [ExecutionStage]? = nil
+    public var verificationReceipt: VerificationReceipt? = nil
 
     public enum CodingKeys: String, CodingKey {
         case schemaVersion = "schema_version"
@@ -39,6 +47,9 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         case nextActions = "next_actions"
         case agentPrompt = "agent_prompt"
         case limitations
+        case operations
+        case executionStages = "execution_stages"
+        case verificationReceipt = "verification_receipt"
     }
 
     public enum Verdict: String, Codable, Sendable {
@@ -152,6 +163,176 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         public var detail: String
     }
 
+    public enum Operation: String, Codable, CaseIterable, Sendable {
+        case inspect
+        case download
+        case load
+        case inference
+        case loraSFT = "lora_sft"
+        case agenticUse = "agentic_use"
+
+        public var displayName: String {
+            switch self {
+            case .inspect: return "Inspect"
+            case .download: return "Download"
+            case .load: return "Load"
+            case .inference: return "Inference"
+            case .loraSFT: return "LoRA / SFT"
+            case .agenticUse: return "Agentic use"
+            }
+        }
+    }
+
+    public enum OperationStatus: String, Codable, Sendable {
+        case supported
+        case blocked
+        case unverified
+        case verifiedOnThisDevice = "verified_on_this_device"
+
+        public var displayName: String {
+            switch self {
+            case .supported: return "Supported (predicted)"
+            case .blocked: return "Blocked"
+            case .unverified: return "Unverified"
+            case .verifiedOnThisDevice: return "Verified on this device"
+            }
+        }
+    }
+
+    public struct OperationAssessment: Codable, Equatable, Sendable {
+        public var operation: Operation
+        public var status: OperationStatus
+        public var detail: String
+
+        public init(operation: Operation, status: OperationStatus, detail: String) {
+            self.operation = operation
+            self.status = status
+            self.detail = detail
+        }
+    }
+
+    public enum ExecutionStageName: String, Codable, CaseIterable, Sendable {
+        case inspect
+        case validate
+        case download
+        case load
+        case warmUp = "warm_up"
+        case smokeTest = "smoke_test"
+        case ready
+
+        public var displayName: String {
+            rawValue.replacingOccurrences(of: "_", with: " ")
+        }
+    }
+
+    public enum ExecutionStageStatus: String, Codable, Sendable {
+        case passed
+        case pending
+        case blocked
+        case failed
+    }
+
+    public struct ExecutionStage: Codable, Equatable, Sendable {
+        public var stage: ExecutionStageName
+        public var status: ExecutionStageStatus
+        public var detail: String
+
+        public init(stage: ExecutionStageName, status: ExecutionStageStatus, detail: String) {
+            self.stage = stage
+            self.status = status
+            self.detail = detail
+        }
+    }
+
+    public enum VerificationStatus: String, Codable, Sendable {
+        case verified
+        case blocked
+        case failed
+    }
+
+    public struct VerificationAttempt: Codable, Equatable, Sendable {
+        public var runtime: String
+        public var runtimeVersion: String?
+        public var status: VerificationStatus
+        public var failureStage: ExecutionStageName?
+        public var stderr: String?
+        public var durationMS: Int
+        public var requestedTokens: Int
+        public var promptTokens: Int?
+        public var generatedTokens: Int?
+        public var outputCharacters: Int
+
+        enum CodingKeys: String, CodingKey {
+            case runtime, status, stderr
+            case runtimeVersion = "runtime_version"
+            case failureStage = "failure_stage"
+            case durationMS = "duration_ms"
+            case requestedTokens = "requested_tokens"
+            case promptTokens = "prompt_tokens"
+            case generatedTokens = "generated_tokens"
+            case outputCharacters = "output_characters"
+        }
+
+        public init(runtime: String, runtimeVersion: String? = nil,
+                    status: VerificationStatus, failureStage: ExecutionStageName? = nil,
+                    stderr: String? = nil, durationMS: Int, requestedTokens: Int,
+                    promptTokens: Int? = nil, generatedTokens: Int? = nil,
+                    outputCharacters: Int = 0) {
+            self.runtime = runtime
+            self.runtimeVersion = runtimeVersion
+            self.status = status
+            self.failureStage = failureStage
+            self.stderr = stderr
+            self.durationMS = durationMS
+            self.requestedTokens = requestedTokens
+            self.promptTokens = promptTokens
+            self.generatedTokens = generatedTokens
+            self.outputCharacters = outputCharacters
+        }
+    }
+
+    public struct VerificationReceipt: Codable, Equatable, Sendable {
+        public var schemaVersion: Int
+        public var modelID: String
+        public var revision: String
+        public var environmentFingerprint: String
+        public var verifiedAt: String
+        public var status: VerificationStatus
+        public var runtime: String?
+        public var runtimeVersion: String?
+        public var failureStage: ExecutionStageName?
+        public var attempts: [VerificationAttempt]
+
+        enum CodingKeys: String, CodingKey {
+            case schemaVersion = "schema_version"
+            case modelID = "model_id"
+            case revision
+            case environmentFingerprint = "environment_fingerprint"
+            case verifiedAt = "verified_at"
+            case status, runtime, attempts
+            case runtimeVersion = "runtime_version"
+            case failureStage = "failure_stage"
+        }
+
+        public init(schemaVersion: Int = 1, modelID: String, revision: String,
+                    environmentFingerprint: String, verifiedAt: String,
+                    status: VerificationStatus, runtime: String? = nil,
+                    runtimeVersion: String? = nil,
+                    failureStage: ExecutionStageName? = nil,
+                    attempts: [VerificationAttempt] = []) {
+            self.schemaVersion = schemaVersion
+            self.modelID = modelID
+            self.revision = revision
+            self.environmentFingerprint = environmentFingerprint
+            self.verifiedAt = verifiedAt
+            self.status = status
+            self.runtime = runtime
+            self.runtimeVersion = runtimeVersion
+            self.failureStage = failureStage
+            self.attempts = attempts
+        }
+    }
+
     /// JSON encoding used by `model-check --json` and any tooling that
     /// consumes the report. Pretty-printed with stable key order so diffs
     /// between runs are meaningful.
@@ -177,6 +358,8 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         out.append("  \(verdictSummary)")
         appendModel(to: &out)
         appendEnvironment(to: &out)
+        appendOperations(to: &out)
+        appendExecutionStages(to: &out)
         out.append("")
         out.append("Checked path: \(checkedPath.name)")
         out.append("  status: \(checkedPath.status.displayName)")
@@ -191,6 +374,29 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         out.append("Checked at \(checkedAt) · schema v\(schemaVersion)")
         out.append("Use the report's agent_prompt field for a copy-ready investigation handoff.")
         return out.joined(separator: "\n")
+    }
+
+    private func appendOperations(to out: inout [String]) {
+        guard let operations, !operations.isEmpty else { return }
+        out.append("")
+        out.append("Operations")
+        for operation in operations {
+            out.append("  \(operation.operation.displayName): \(operation.status.displayName)")
+            out.append("    \(operation.detail)")
+        }
+    }
+
+    private func appendExecutionStages(to out: inout [String]) {
+        guard let executionStages, !executionStages.isEmpty else { return }
+        out.append("")
+        out.append("Execution stages")
+        for stage in executionStages {
+            out.append("  \(stage.stage.displayName): \(stage.status.rawValue)")
+            out.append("    \(stage.detail)")
+        }
+        guard let receipt = verificationReceipt else { return }
+        let runtime = receipt.runtime.map { " via \($0)" } ?? ""
+        out.append("  receipt: \(receipt.status.rawValue)\(runtime) at \(receipt.verifiedAt)")
     }
 
     private func appendModel(to out: inout [String]) {

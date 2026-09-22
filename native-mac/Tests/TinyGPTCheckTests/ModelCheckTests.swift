@@ -3,9 +3,10 @@ import XCTest
 import TinyGPTIO
 
 /// Fixture-driven verdict tests — no network, no Metal, no weight files.
-/// Every acceptance-criteria scenario from issue #156 gets a case:
+/// Every acceptance-criteria scenario from issues #156 and #161 gets a case:
 /// supported model → evidence-backed yes; image model vs LM runtime →
-/// explained mismatch; unfamiliar/inaccessible repo → Unknown + handoff.
+/// explained mismatch; unfamiliar/inaccessible repo → Unknown + handoff;
+/// operation/stage predictions stay separate from measured receipts.
 final class ModelCheckTests: XCTestCase {
 
     // MARK: - fixtures
@@ -69,6 +70,32 @@ final class ModelCheckTests: XCTestCase {
             ref: ref(refStr), info: info, fetchIssue: fetchIssue,
             config: config, configIssue: configIssue,
             env: env ?? self.env()))
+    }
+
+    private func report(
+        info: HubModelClient.Info,
+        config: HuggingFaceConfig,
+        environment: MacEnvironment? = nil,
+        gated: Bool = false
+    ) -> ModelCheckReport {
+        var modelInfo = info
+        modelInfo.gated = gated
+        let machine = environment ?? env()
+        let a = assess(modelInfo, config: config, env: machine)
+        return ModelCheckReport(
+            schemaVersion: 1, checkedAt: "2026-09-22T00:00:00Z", input: info.id,
+            model: .init(id: info.id, revision: "main", task: a.task,
+                         library: a.library, architectures: a.architectures,
+                         formats: a.formats, selectedVariant: a.selectedVariant,
+                         gated: gated, lastModified: nil),
+            environment: .init(
+                chip: machine.chip, arch: machine.arch, ramBytes: machine.ramBytes,
+                freeDiskBytes: machine.freeDiskBytes, macOSVersion: machine.macOSVersion,
+                source: machine.source, runtimes: machine.runtimes),
+            verdict: a.verdict, verdictSummary: a.verdictSummary,
+            checkedPath: a.checkedPath, otherPaths: a.otherPaths,
+            requiredChanges: a.requiredChanges, tools: [], evidence: a.evidence,
+            nextActions: a.nextActions, agentPrompt: "", limitations: a.limitations)
     }
 
     // MARK: - URL parsing
@@ -453,5 +480,133 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertTrue(prompt.lowercased().contains("investigate"))
         XCTAssertTrue(prompt.contains("NemotronForCausalLM"))
         XCTAssertFalse(prompt.contains("HF_TOKEN="))   // never leak a token value
+    }
+
+    // MARK: - operation-specific contract + receipts
+
+    func testSchemaV1ReportStillDecodesWithoutV2Fields() throws {
+        let (info, cfg) = lmInfo()
+        let legacy = report(info: info, config: cfg)
+        let decoded = try ModelCheckReport.decode(Data(try legacy.encoded().utf8))
+
+        XCTAssertEqual(decoded.schemaVersion, 1)
+        XCTAssertNil(decoded.operations)
+        XCTAssertNil(decoded.executionStages)
+        XCTAssertNil(decoded.verificationReceipt)
+    }
+
+    func testOperationContractSeparatesPredictionFromVerification() {
+        let (info, cfg) = lmInfo()
+        let enriched = ModelCompatibilityContract.enrich(
+            report(info: info, config: cfg), hasHFAccess: false)
+
+        XCTAssertEqual(enriched.schemaVersion, 2)
+        XCTAssertEqual(enriched.operations?.map(\.operation), ModelCheckReport.Operation.allCases)
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .download }?.status, .supported)
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .load }?.status, .supported)
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .inference }?.status, .supported)
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .agenticUse }?.status, .unverified)
+        XCTAssertFalse(enriched.operations?.contains { $0.status == .verifiedOnThisDevice } ?? true)
+        XCTAssertEqual(enriched.executionStages?.first { $0.stage == .load }?.status, .pending)
+    }
+
+    func testGatedRepoBlocksAtDownloadBeforeWeightFetch() {
+        let (info, cfg) = lmInfo()
+        let enriched = ModelCompatibilityContract.enrich(
+            report(info: info, config: cfg, gated: true), hasHFAccess: false)
+
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .inspect }?.status, .supported)
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .download }?.status, .blocked)
+        XCTAssertEqual(enriched.executionStages?.first { $0.stage == .download }?.status, .blocked)
+        XCTAssertEqual(enriched.executionStages?.first { $0.stage == .load }?.status, .blocked)
+    }
+
+    func testAcceptedGatedAccessDoesNotRemainACompatibilityBlocker() {
+        let (info, cfg) = lmInfo()
+        let enriched = ModelCompatibilityContract.enrich(
+            report(info: info, config: cfg, gated: true), hasHFAccess: true)
+
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .download }?.status, .supported)
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .load }?.status, .supported)
+        XCTAssertEqual(enriched.executionStages?.first { $0.stage == .download }?.status, .pending)
+        XCTAssertEqual(enriched.executionStages?.first { $0.stage == .load }?.status, .pending)
+    }
+
+    func testMatchingSuccessReceiptUpgradesOnlyMeasuredOperations() {
+        let (info, cfg) = lmInfo()
+        let base = report(info: info, config: cfg)
+        let fingerprint = ModelCompatibilityContract.environmentFingerprint(base.environment)
+        let attempt = ModelCheckReport.VerificationAttempt(
+            runtime: "mlx-swift", runtimeVersion: "3.31.4", status: .verified,
+            durationMS: 840, requestedTokens: 32, promptTokens: 8,
+            generatedTokens: 19, outputCharacters: 64)
+        let receipt = ModelCheckReport.VerificationReceipt(
+            modelID: info.id, revision: "main", environmentFingerprint: fingerprint,
+            verifiedAt: "2026-09-22T01:02:03Z", status: .verified,
+            runtime: "mlx-swift", runtimeVersion: "3.31.4", attempts: [attempt])
+
+        let enriched = ModelCompatibilityContract.enrich(
+            base, hasHFAccess: false, receipt: receipt)
+
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .load }?.status,
+                       .verifiedOnThisDevice)
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .inference }?.status,
+                       .verifiedOnThisDevice)
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .agenticUse }?.status,
+                       .unverified)
+        XCTAssertTrue(enriched.operations?.first { $0.operation == .inference }?.detail
+            .contains("19 measured tokens") ?? false)
+        XCTAssertEqual(enriched.executionStages?.last?.status, .passed)
+        XCTAssertEqual(enriched.verificationReceipt, receipt)
+    }
+
+    func testFailureReceiptNamesLoadBoundary() {
+        let (info, cfg) = lmInfo()
+        let base = report(info: info, config: cfg)
+        let receipt = ModelCheckReport.VerificationReceipt(
+            modelID: info.id, revision: "main",
+            environmentFingerprint: ModelCompatibilityContract.environmentFingerprint(base.environment),
+            verifiedAt: "2026-09-22T01:02:03Z", status: .failed,
+            failureStage: .load,
+            attempts: [.init(runtime: "native", status: .failed,
+                             failureStage: .load, stderr: "unsupported architecture",
+                             durationMS: 20, requestedTokens: 32)])
+
+        let enriched = ModelCompatibilityContract.enrich(base, hasHFAccess: false, receipt: receipt)
+
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .download }?.status, .supported)
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .load }?.status, .blocked)
+        XCTAssertEqual(enriched.executionStages?.first { $0.stage == .load }?.status, .failed)
+        XCTAssertEqual(enriched.executionStages?.first { $0.stage == .smokeTest }?.status, .blocked)
+    }
+
+    func testReceiptStoreMatchesExactRevisionAndDeviceAndRedactsStderr() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("model-check-receipts-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ModelVerificationStore(directory: root)
+        let (info, cfg) = lmInfo()
+        let base = report(info: info, config: cfg)
+        let receipt = ModelCheckReport.VerificationReceipt(
+            modelID: info.id, revision: "main",
+            environmentFingerprint: ModelCompatibilityContract.environmentFingerprint(base.environment),
+            verifiedAt: "2026-09-22T01:02:03Z", status: .failed,
+            failureStage: .download,
+            attempts: [.init(runtime: "mlx-swift", status: .failed,
+                             failureStage: .download,
+                             stderr: "Authorization: Bearer hf_supersecret123 token=plainsecret",
+                             durationMS: 50, requestedTokens: 32)])
+
+        let url = try store.write(receipt)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: url.path))
+        let loaded = store.load(modelID: info.id, revision: "main", environment: base.environment)
+        XCTAssertNotNil(loaded)
+        XCTAssertFalse(loaded?.attempts[0].stderr?.contains("hf_supersecret123") ?? true)
+        XCTAssertFalse(loaded?.attempts[0].stderr?.contains("plainsecret") ?? true)
+        XCTAssertNil(store.load(modelID: info.id, revision: "other", environment: base.environment))
+
+        var otherDevice = base.environment
+        otherDevice.chip = "Apple M6 Ultra"
+        XCTAssertNil(store.load(modelID: info.id, revision: "main", environment: otherDevice))
     }
 }

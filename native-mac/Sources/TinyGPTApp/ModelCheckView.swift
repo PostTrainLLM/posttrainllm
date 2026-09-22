@@ -117,6 +117,23 @@ struct ModelCheckView: View {
         }
     }
 
+    private func operationColor(_ status: ModelCheckReport.OperationStatus) -> Color {
+        switch status {
+        case .verifiedOnThisDevice: return Theme.accent
+        case .supported: return Theme.fg
+        case .blocked: return Theme.warn
+        case .unverified: return Theme.muted
+        }
+    }
+
+    private func stageColor(_ status: ModelCheckReport.ExecutionStageStatus) -> Color {
+        switch status {
+        case .passed: return Theme.accent
+        case .blocked, .failed: return Theme.warn
+        case .pending: return Theme.muted
+        }
+    }
+
     @ViewBuilder
     private func reportSections(_ r: ModelCheckReport) -> some View {
         // Verdict banner
@@ -167,6 +184,54 @@ struct ModelCheckView: View {
             Divider().background(Theme.line)
             kvRow("checked path", r.checkedPath.name)
             labeledText(r.checkedPath.detail)
+        }
+
+        if let operations = r.operations, !operations.isEmpty {
+            section("OPERATIONS — PREDICTION VS RECEIPT") {
+                ForEach(Array(operations.enumerated()), id: \.offset) { _, operation in
+                    HStack(alignment: .top, spacing: 8) {
+                        Text(operation.operation.displayName)
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(Theme.faint)
+                            .frame(width: 110, alignment: .leading)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(operation.status.displayName)
+                                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                .foregroundStyle(operationColor(operation.status))
+                            Text(operation.detail)
+                                .font(.system(size: 11))
+                                .foregroundStyle(Theme.muted)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+            }
+        }
+
+        if let stages = r.executionStages, !stages.isEmpty {
+            section("EXECUTION STAGES") {
+                ForEach(Array(stages.enumerated()), id: \.offset) { _, stage in
+                    HStack(alignment: .top, spacing: 8) {
+                        Text(stage.stage.displayName)
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(Theme.faint)
+                            .frame(width: 110, alignment: .leading)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(stage.status.rawValue.uppercased())
+                                .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                                .foregroundStyle(stageColor(stage.status))
+                            Text(stage.detail)
+                                .font(.system(size: 11))
+                                .foregroundStyle(Theme.muted)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                }
+                if let receipt = r.verificationReceipt {
+                    Divider().background(Theme.line)
+                    kvRow("receipt", "\(receipt.status.rawValue) · \(receipt.runtime ?? "no runtime") · \(receipt.verifiedAt)")
+                }
+            }
         }
 
         if !r.otherPaths.isEmpty {
