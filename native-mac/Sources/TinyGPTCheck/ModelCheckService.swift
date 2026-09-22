@@ -133,7 +133,8 @@ public enum ModelCheckService {
         let files = info.siblings(matchingSuffix: ".gguf")
         let preferred = ["q4_k_m", "q5_k_m", "q4_0", "q8_0", "f16"]
         let requested = ref.filePath.flatMap { path in
-            files.first { $0.name == path }
+            path.lowercased().hasSuffix(".gguf") ? HubModelClient.Sibling(
+                name: path, size: files.first { $0.name == path }?.size) : nil
         }
         let variant = requested ?? preferred.compactMap { tag in
             files.first { $0.name.lowercased().contains(tag) }

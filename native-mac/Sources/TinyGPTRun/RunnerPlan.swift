@@ -84,11 +84,13 @@ public enum RunnerPlanner {
         // clear refusal.
         let checkedOK = report.checkedPath.status == .expectedToWork
         let isMainRevision = report.model.revision == "main"
+        let exactGGUF = report.model.filePath?.lowercased().hasSuffix(".gguf") == true
 
         if let forced {
             return forcedPlan(
                 forced, formats: fmts, checkedOK: checkedOK,
-                isMainRevision: isMainRevision, available: available)
+                isMainRevision: isMainRevision, exactGGUF: exactGGUF,
+                available: available)
         }
 
         return safetensorPlans(
@@ -96,12 +98,12 @@ public enum RunnerPlanner {
             isMainRevision: isMainRevision, available: available)
             + ggufPlans(
                 formats: fmts, isMainRevision: isMainRevision,
-                availability: available)
+                exactGGUF: exactGGUF, availability: available)
     }
 
     private static func forcedPlan(
         _ runner: Runner, formats: Set<String>, checkedOK: Bool,
-        isMainRevision: Bool,
+        isMainRevision: Bool, exactGGUF: Bool,
         available: Availability
     ) -> [RunnerPlan] {
         let usable: Bool
@@ -109,9 +111,9 @@ public enum RunnerPlanner {
         case .native: usable = formats.contains("safetensors") && checkedOK
         case .mlxSwift: usable = available.mlxSwift
         case .mlxLm: usable = available.mlxLm && isMainRevision
-        case .ollama: usable = available.ollama && isMainRevision
+        case .ollama: usable = available.ollama && isMainRevision && !exactGGUF
         case .lms: usable = available.lms
-        case .llamaCpp: usable = available.llamaCpp && isMainRevision
+        case .llamaCpp: usable = available.llamaCpp && isMainRevision && !exactGGUF
         }
         return usable ? [RunnerPlan(runner: runner, why: "forced via --runtime")] : []
     }
@@ -145,21 +147,22 @@ public enum RunnerPlanner {
     }
 
     private static func ggufPlans(
-        formats: Set<String>, isMainRevision: Bool, availability: Availability
+        formats: Set<String>, isMainRevision: Bool, exactGGUF: Bool,
+        availability: Availability
     ) -> [RunnerPlan] {
         guard formats.contains("gguf") else { return [] }
         var plans: [RunnerPlan] = []
-        if availability.ollama && isMainRevision {
+        if availability.ollama && isMainRevision && !exactGGUF {
             plans.append(RunnerPlan(runner: .ollama,
                 why: "GGUF repo + Ollama installed — `ollama run hf.co/` pulls and runs in one step"))
         }
         if availability.lms {
             plans.append(RunnerPlan(runner: .lms,
-                why: availability.ollama && isMainRevision
+                why: availability.ollama && isMainRevision && !exactGGUF
                     ? "LM Studio installed — the GGUF fallback if ollama can't pull this repo"
                     : "GGUF repo + LM Studio installed (Ollama absent) — `lms get` then `lms chat`"))
         }
-        if availability.llamaCpp && isMainRevision {
+        if availability.llamaCpp && isMainRevision && !exactGGUF {
             plans.append(RunnerPlan(runner: .llamaCpp,
                 why: "llama.cpp installed — `llama-cli -hf` pulls and generates directly"))
         }
@@ -172,6 +175,10 @@ public enum RunnerPlanner {
     public static func blocker(for report: ModelCheckReport,
                                forced: Runner? = nil) -> String {
         if let forced {
+            let exactGGUF = report.model.filePath?.lowercased().hasSuffix(".gguf") == true
+            if exactGGUF && (forced == .ollama || forced == .llamaCpp) {
+                return "forced --runtime \(forced.rawValue) cannot guarantee the exact GGUF artifact \(report.model.filePath ?? "") — use LM Studio's exact artifact import"
+            }
             if report.model.revision != "main",
                [.mlxLm, .ollama, .llamaCpp].contains(forced) {
                 return "forced --runtime \(forced.rawValue) cannot guarantee revision \(report.model.revision); use native, mlx-swift, or LM Studio's exact artifact import"

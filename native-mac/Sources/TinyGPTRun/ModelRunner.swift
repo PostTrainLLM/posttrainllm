@@ -370,7 +370,8 @@ public enum ModelRunner {
         }
         var r = Subprocess.capture(["lms", "get", source, "--gguf", "-y"],
                                    timeout: 1800)
-        if r.status != 0 && source != "https://huggingface.co/\(id)" {
+        if r.status != 0, report.model.filePath == nil,
+           source != "https://huggingface.co/\(id)" {
             fputs("  variant download rejected — retrying repo URL\n", stderr)
             source = "https://huggingface.co/\(id)"
             r = Subprocess.capture(["lms", "get", source, "--gguf", "-y"],

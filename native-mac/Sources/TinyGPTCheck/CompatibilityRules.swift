@@ -321,7 +321,7 @@ public enum CompatibilityRules {
     static func pickVariant(info: HubModelClient.Info, requestedPath: String? = nil) -> String? {
         let ggufs = info.siblings(matchingSuffix: ".gguf")
         guard !ggufs.isEmpty else { return nil }
-        if let requestedPath, ggufs.contains(where: { $0.name == requestedPath }) {
+        if let requestedPath, requestedPath.lowercased().hasSuffix(".gguf") {
             return requestedPath
         }
         let preferred = ["q4_k_m", "q5_k_m", "q4_0", "q8_0"]

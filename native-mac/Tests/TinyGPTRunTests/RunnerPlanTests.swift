@@ -204,6 +204,17 @@ final class RunnerPlanTests: XCTestCase {
         XCTAssertEqual(runners(r), [.lms])
     }
 
+    func testExactGGUFArtifactAvoidsQuantOnlyRemoteSelectors() {
+        var r = report(
+            formats: ["gguf"], ollama: true, lms: true, llamaCpp: true,
+            variant: "nested/model-Q4_K_M.gguf")
+        r.model.filePath = "nested/model-Q4_K_M.gguf"
+        XCTAssertEqual(runners(r), [.lms])
+        XCTAssertTrue(runners(r, forced: .ollama).isEmpty)
+        XCTAssertTrue(RunnerPlanner.blocker(for: r, forced: .ollama)
+            .contains("exact GGUF artifact"))
+    }
+
     func testForcedNativeOnGGUFRefused() {
         let r = report(formats: ["gguf"], ollama: true)
         XCTAssertTrue(runners(r, forced: .native).isEmpty)
