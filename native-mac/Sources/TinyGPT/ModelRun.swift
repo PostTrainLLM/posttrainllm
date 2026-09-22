@@ -15,6 +15,8 @@ import TinyGPTData
 ///
 /// Every runner is a bounded subprocess (timeout, captured output);
 /// failures surface the runtime's real error, which is itself evidence.
+/// Bounded terminal outcomes write an exact-revision/device receipt for
+/// the next `model-check`; stderr is bounded/redacted by the shared store.
 /// `--chat` execs into the runtime's interactive session instead of the
 /// bounded sample. Nothing is left running afterwards.
 enum ModelRun {
@@ -57,6 +59,9 @@ enum ModelRun {
         // 2. Access gate first — nothing runs gated without a token.
         if report.model.gated,
            (ProcessInfo.processInfo.environment["HF_TOKEN"] ?? "").isEmpty {
+            persistReceipt(
+                report: report, status: .blocked, runtime: nil,
+                failureStage: .download, attempts: [])
             fputs("""
             blocked: \(report.model.id) is gated — accept the license at
               https://huggingface.co/\(report.model.id)
@@ -70,31 +75,41 @@ enum ModelRun {
         // through to the next candidate rather than dead-ending.
         let plans = runnerPlans(report: report, forced: forcedRunner)
         guard !plans.isEmpty else {
+            persistReceipt(
+                report: report, status: .blocked, runtime: nil,
+                failureStage: .validate, attempts: [])
             fputs("no runnable path for this verdict — see `model-check` report.\n", stderr)
             exit(3)
         }
+        var attempts: [ModelCheckReport.VerificationAttempt] = []
         for (i, plan) in plans.enumerated() {
             if i > 0 { print("falling back to \(plan.runner.rawValue)…") }
             print("runner: \(plan.runner.rawValue) — \(plan.why)\n")
-            let ok: Bool
-            switch plan.runner {
-            case .ollama:
-                ok = runOllama(report: report, prompt: prompt,
-                               tokens: maxTokens, chat: chat)
-            case .mlxSwift:
-                ok = runMlxSwift(id: report.model.id, prompt: prompt,
-                                 tokens: maxTokens, chat: chat)
-            case .mlxLm:
-                ok = runMlxLm(id: report.model.id, prompt: prompt,
-                              tokens: maxTokens, chat: chat)
-            case .native:
-                ok = runNative(report: report, prompt: prompt,
-                               tokens: maxTokens)
+            let outcome = runAttempt(
+                plan,
+                report: report,
+                prompt: prompt,
+                maxTokens: maxTokens,
+                chat: chat
+            )
+            let ok = printOutcome(runner: plan.runner.rawValue, result: outcome.result)
+            attempts.append(outcome.receiptAttempt(
+                runner: plan.runner, report: report, requestedTokens: maxTokens,
+                succeeded: ok))
+            if ok {
+                persistReceipt(
+                    report: report, status: .verified,
+                    runtime: plan.runner.rawValue, failureStage: nil,
+                    attempts: attempts)
+                reportSuccess(runner: plan.runner.rawValue,
+                              hint: chatHint(plan.runner, report: report))
             }
-            if ok { reportSuccess(runner: plan.runner.rawValue,
-                                  hint: chatHint(plan.runner, report: report)) }
             fputs("  \(plan.runner.rawValue) failed — trying next runner if any\n", stderr)
         }
+        persistReceipt(
+            report: report, status: .failed, runtime: attempts.last?.runtime,
+            failureStage: deepestFailureStage(attempts),
+            attempts: attempts)
         fputs("all runnable paths failed — real errors above.\n", stderr)
         exit(6)
     }
@@ -102,6 +117,65 @@ enum ModelRun {
     private struct Plan {
         let runner: Runner
         let why: String
+    }
+
+    private struct AttemptOutcome {
+        let result: Result
+        let failureStage: ModelCheckReport.ExecutionStageName
+        let promptTokens: Int?
+        let generatedTokens: Int?
+
+        init(result: Result,
+             failureStage: ModelCheckReport.ExecutionStageName = .load,
+             promptTokens: Int? = nil,
+             generatedTokens: Int? = nil) {
+            self.result = result
+            self.failureStage = failureStage
+            self.promptTokens = promptTokens
+            self.generatedTokens = generatedTokens
+        }
+
+        func receiptAttempt(
+            runner: Runner,
+            report: ModelCheckReport,
+            requestedTokens: Int,
+            succeeded: Bool
+        ) -> ModelCheckReport.VerificationAttempt {
+            ModelCheckReport.VerificationAttempt(
+                runtime: runner.rawValue,
+                runtimeVersion: ModelRun.runtimeVersion(runner, report: report),
+                status: succeeded ? .verified : .failed,
+                failureStage: succeeded ? nil : failureStage,
+                stderr: succeeded ? nil : ModelRun.stderrWithoutStats(result.stderr),
+                durationMS: result.durationMS,
+                requestedTokens: requestedTokens,
+                promptTokens: promptTokens,
+                generatedTokens: generatedTokens,
+                outputCharacters: result.stdout.count)
+        }
+    }
+
+    private static func runAttempt(
+        _ plan: Plan,
+        report: ModelCheckReport,
+        prompt: String,
+        maxTokens: Int,
+        chat: Bool
+    ) -> AttemptOutcome {
+        switch plan.runner {
+        case .ollama:
+            return runOllama(report: report, prompt: prompt,
+                             tokens: maxTokens, chat: chat)
+        case .mlxSwift:
+            return runMlxSwift(id: report.model.id, prompt: prompt,
+                               tokens: maxTokens, chat: chat)
+        case .mlxLm:
+            return runMlxLm(id: report.model.id, prompt: prompt,
+                            tokens: maxTokens, chat: chat)
+        case .native:
+            return runNative(report: report, prompt: prompt,
+                             tokens: maxTokens)
+        }
     }
 
     /// Ordered runner candidates. The order encodes preference: native
@@ -155,7 +229,7 @@ enum ModelRun {
     /// `ollama run hf.co/<id> "<prompt>"` — one-shot non-interactive;
     /// ollama pulls the GGUF on first call. `--chat` execs interactive.
     private static func runOllama(report: ModelCheckReport, prompt: String,
-                                  tokens: Int, chat: Bool) -> Bool {
+                                  tokens: Int, chat: Bool) -> AttemptOutcome {
         let id = report.model.id
         let model = "hf.co/\(id)"
         if chat {
@@ -193,7 +267,7 @@ enum ModelRun {
             }
         }
         daemon?.terminate()
-        return printOutcome(runner: "ollama", result: r)
+        return AttemptOutcome(result: r, failureStage: inferredFailureStage(r))
     }
 
     /// Download the selected GGUF variant into the model cache.
@@ -243,16 +317,24 @@ enum ModelRun {
     /// in its own process so load failures are captured results.
     /// Honors HF_TOKEN via the HubClient env auto-detect.
     private static func runMlxSwift(id: String, prompt: String,
-                                    tokens: Int, chat: Bool) -> Bool {
+                                    tokens: Int, chat: Bool) -> AttemptOutcome {
         guard let bin = mlxrunBinary() else {
-            fputs("posttrainllm-mlxrun not built — run `swift build --product posttrainllm-mlxrun`\n", stderr)
-            return false
+            return AttemptOutcome(
+                result: Result(
+                    status: -1, stdout: "",
+                    stderr: "posttrainllm-mlxrun not built — run `swift build --product posttrainllm-mlxrun`",
+                    timedOut: false, durationMS: 0),
+                failureStage: .validate)
         }
         if chat { interactive([bin, id, "--chat"]) }
         let r = execCapture([bin, id, "--prompt", prompt,
                              "--max-tokens", String(tokens)],
                             timeout: 1800)
-        return printOutcome(runner: "mlx-swift", result: r)
+        let stats = sampleStats(from: r.stderr)
+        return AttemptOutcome(
+            result: r, failureStage: inferredFailureStage(r),
+            promptTokens: stats?.promptTokens,
+            generatedTokens: stats?.generatedTokens)
     }
 
     /// Locate the sibling `posttrainllm-mlxrun` next to this binary,
@@ -270,20 +352,20 @@ enum ModelRun {
     /// `python3 -m mlx_lm generate` — auto-downloads to the HF cache,
     /// covers MoE/VLM/quantized archs our native loader doesn't.
     private static func runMlxLm(id: String, prompt: String,
-                                 tokens: Int, chat: Bool) -> Bool {
+                                 tokens: Int, chat: Bool) -> AttemptOutcome {
         if chat { interactive(["python3", "-m", "mlx_lm", "chat", "--model", id]) }
         let r = execCapture(["python3", "-m", "mlx_lm", "generate",
                              "--model", id, "--prompt", prompt,
                              "--max-tokens", String(tokens)],
                             timeout: 1800)
-        return printOutcome(runner: "mlx-lm", result: r)
+        return AttemptOutcome(result: r, failureStage: inferredFailureStage(r))
     }
 
     /// Native path: download needed files to the posttrainllm cache,
     /// then shell out to `hf-load --sample` so a load failure is a
     /// captured result, not a process kill.
     private static func runNative(report: ModelCheckReport,
-                                  prompt: String, tokens: Int) -> Bool {
+                                  prompt: String, tokens: Int) -> AttemptOutcome {
         let id = report.model.id
         do {
             let dir = try modelCacheDir(id)
@@ -310,10 +392,14 @@ enum ModelRun {
                         "--sample", "--prompt", prompt, "--tokens", String(tokens)]
             }
             let r = execCapture(argv, timeout: 600)
-            return printOutcome(runner: "native", result: r)
+            return AttemptOutcome(result: r, failureStage: inferredFailureStage(r))
         } catch {
-            fputs("native run failed during download: \(error)\n", stderr)
-            return false
+            return AttemptOutcome(
+                result: Result(
+                    status: -1, stdout: "",
+                    stderr: "native run failed during download: \(error)",
+                    timedOut: false, durationMS: 0),
+                failureStage: .download)
         }
     }
 
@@ -393,11 +479,13 @@ enum ModelRun {
         let stdout: String
         let stderr: String
         let timedOut: Bool
+        let durationMS: Int
     }
 
     /// Run a subprocess with captured output and a hard timeout. The
     /// process group is killed on timeout so nothing outlives model-run.
     static func execCapture(_ argv: [String], timeout: TimeInterval) -> Result {
+        let startedAt = Date()
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/usr/bin/env")
         p.arguments = argv
@@ -405,7 +493,8 @@ enum ModelRun {
         p.standardOutput = out; p.standardError = err
         do { try p.run() } catch {
             return Result(status: -1, stdout: "",
-                          stderr: "spawn failed: \(error)", timedOut: false)
+                          stderr: "spawn failed: \(error)", timedOut: false,
+                          durationMS: Int(Date().timeIntervalSince(startedAt) * 1_000))
         }
         // Drain pipes on background threads — a child that fills the
         // 64 KB pipe buffer would deadlock against waitUntilExit
@@ -433,7 +522,98 @@ enum ModelRun {
         return Result(status: p.terminationStatus,
                       stdout: String(data: ob.d, encoding: .utf8) ?? "",
                       stderr: String(data: eb.d, encoding: .utf8) ?? "",
-                      timedOut: timedOut)
+                      timedOut: timedOut,
+                      durationMS: Int(Date().timeIntervalSince(startedAt) * 1_000))
+    }
+
+    private struct SampleStats: Decodable {
+        let promptTokens: Int?
+        let generatedTokens: Int?
+
+        enum CodingKeys: String, CodingKey {
+            case promptTokens = "prompt_tokens"
+            case generatedTokens = "generated_tokens"
+        }
+    }
+
+    private static let sampleStatsPrefix = "__POSTTRAINLLM_SAMPLE_STATS__"
+
+    private static func sampleStats(from stderr: String) -> SampleStats? {
+        for line in stderr.split(separator: "\n").reversed() {
+            let value = String(line)
+            guard value.hasPrefix(sampleStatsPrefix) else { continue }
+            return try? JSONDecoder().decode(
+                SampleStats.self,
+                from: Data(value.dropFirst(sampleStatsPrefix.count).utf8))
+        }
+        return nil
+    }
+
+    private static func stderrWithoutStats(_ stderr: String) -> String {
+        stderr.split(separator: "\n", omittingEmptySubsequences: false)
+            .filter { !String($0).hasPrefix(sampleStatsPrefix) }
+            .joined(separator: "\n")
+    }
+
+    private static func inferredFailureStage(_ result: Result) -> ModelCheckReport.ExecutionStageName {
+        let text = (result.stderr + "\n" + result.stdout).lowercased()
+        if text.contains("401") || text.contains("403") || text.contains("download")
+            || text.contains("resolve/") || text.contains("not found") {
+            return .download
+        }
+        if text.contains("warm up") || text.contains("warmup") { return .warmUp }
+        if text.contains("generate") || text.contains("sampling") || text.contains("decode") {
+            return .smokeTest
+        }
+        return .load
+    }
+
+    private static func runtimeVersion(_ runner: Runner, report: ModelCheckReport) -> String? {
+        let probeName: String
+        switch runner {
+        case .native: probeName = "posttrainllm"
+        case .ollama: probeName = "ollama"
+        case .mlxLm: probeName = "python3 ML stack"
+        case .mlxSwift: return "bundled MLX-Swift-LM"
+        }
+        return report.environment.runtimes.first { $0.name == probeName }?.version
+    }
+
+    private static func deepestFailureStage(
+        _ attempts: [ModelCheckReport.VerificationAttempt]
+    ) -> ModelCheckReport.ExecutionStageName {
+        let order = ModelCheckReport.ExecutionStageName.allCases
+        return attempts.compactMap(\.failureStage).max {
+            (order.firstIndex(of: $0) ?? 0) < (order.firstIndex(of: $1) ?? 0)
+        } ?? .load
+    }
+
+    private static func persistReceipt(
+        report: ModelCheckReport,
+        status: ModelCheckReport.VerificationStatus,
+        runtime: String?,
+        failureStage: ModelCheckReport.ExecutionStageName?,
+        attempts: [ModelCheckReport.VerificationAttempt]
+    ) {
+        let runtimeVersion = runtime.flatMap { name in
+            attempts.last { $0.runtime == name }?.runtimeVersion
+        }
+        let receipt = ModelCheckReport.VerificationReceipt(
+            modelID: report.model.id,
+            revision: report.model.revision,
+            environmentFingerprint: ModelCompatibilityContract.environmentFingerprint(report.environment),
+            verifiedAt: ISO8601DateFormatter().string(from: Date()),
+            status: status,
+            runtime: runtime,
+            runtimeVersion: runtimeVersion,
+            failureStage: failureStage,
+            attempts: attempts)
+        do {
+            let url = try ModelVerificationStore().write(receipt)
+            print("receipt: \(url.path)")
+        } catch {
+            fputs("warning: could not write model verification receipt: \(error)\n", stderr)
+        }
     }
 
     private static func printOutcome(runner: String, result: Result) -> Bool {

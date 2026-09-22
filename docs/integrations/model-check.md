@@ -5,7 +5,7 @@ with your current setup, could it run with changes, what to do next.**
 The feature advises only — it never downloads weights, installs
 software, converts, or executes models or repository code.
 
-Spec: GitHub issue #156. Implementation: `native-mac/Sources/TinyGPTCheck/`
+Specs: GitHub issues #156 and #161. Implementation: `native-mac/Sources/TinyGPTCheck/`
 (service + report schema), `TinyGPT/ModelCheck.swift` (CLI),
 `TinyGPTApp/ModelCheck{Controller,View}.swift` (app panel).
 
@@ -34,7 +34,8 @@ URL + environment
                                       weight bytes are never fetched)
   → CompatibilityRules.assess        (pure functions — fixture-testable)
   → MacEnvironment.detect            (chip/RAM/disk/macOS + runtime probes)
-  → ModelCheckReport                 (verdict + evidence + agent prompt)
+  → local matching receipt           (read-only; exact revision + device)
+  → ModelCheckReport v2              (summary + operations + stages + evidence)
 ```
 
 **Tensor-name layout** is the structural check that upgrades name-guessing
@@ -69,12 +70,12 @@ K-quants report honestly as needing llama.cpp/Ollama).
 
 ## Verdict vocabulary
 
-| Verdict | Meaning |
-| --- | --- |
-| `expected_to_work` | verified architecture, no config blockers, estimated footprint fits |
-| `changes_required` | reachable, but needs a change (memory, conversion, install, download) |
+| Verdict                       | Meaning                                                                                                                                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `expected_to_work`            | verified architecture, no config blockers, estimated footprint fits                                                                                                                                           |
+| `changes_required`            | reachable, but needs a change (memory, conversion, install, download)                                                                                                                                         |
 | `unsupported_on_checked_path` | the posttrainllm MLX-Swift path can't run it — task mismatch (e.g. diffusers), MoE/multimodal/`*ForCausalLM` outside the verified set, or a config-level blocker from `HuggingFaceConfig.unsupportedReason()` |
-| `unknown` | repo inaccessible, unrecognized format, or unverifiable — always with the missing evidence named and a copy-ready agent prompt |
+| `unknown`                     | repo inaccessible, unrecognized format, or unverifiable — always with the missing evidence named and a copy-ready agent prompt                                                                                |
 
 Two honesty rules are load-bearing:
 
@@ -86,6 +87,32 @@ Two honesty rules are load-bearing:
   assumes ~2× weight bytes for bf16/fp16 (fp32 up-convert in
   `HFModelLoader`), ~1.15× for MLX-packed checkpoints, plus a KV-cache
   allowance at an 8k-token reference context.
+
+## Operation and execution vocabulary (schema v2)
+
+The top-level verdict remains the compact compatibility summary. Schema v2
+adds the operation-specific contract that prevents "downloadable" from being
+mistaken for "runnable" or "tunable":
+
+| Operation     | What it answers                                                                                    |
+| ------------- | -------------------------------------------------------------------------------------------------- |
+| `inspect`     | Could the checker read enough repository metadata/config to assess it?                             |
+| `download`    | Can this exact revision be fetched now, including the gated-access boundary?                       |
+| `load`        | Does the checked architecture/format/runtime path have a loadable route?                           |
+| `inference`   | Is bounded generation predicted or measured on this device?                                        |
+| `lora_sft`    | Is the repository a structurally eligible standalone base for the native adapter path?             |
+| `agentic_use` | Has tool/template/parser behavior actually been exercised? A plain text smoke never verifies this. |
+
+Each operation is one of `supported` (static prediction), `blocked` (a known
+requirement or measured failure), `unverified` (insufficient evidence), or
+`verified_on_this_device` (matching measured receipt). These states are not
+synonyms: `supported` never renders as measured proof.
+
+Reports also expose the ordered stages `inspect → validate → download → load
+→ warm_up → smoke_test → ready`. A metadata-only check completes inspection
+and validation, then leaves execution stages pending. Known access/runtime
+problems block the exact stage and every dependent stage. A measured run
+replaces those pending states with its passed/failed boundary.
 
 ## Environment detection
 
@@ -114,6 +141,23 @@ VLM, packed quants — auto-downloads to the HF cache, honors HF_TOKEN)
 the real error surfaced. `--chat` drops into an interactive session;
 `--runtime` forces a specific one; gated repos require HF_TOKEN first.
 
+Every bounded `model-run` terminal outcome writes an atomic local receipt under
+`~/.cache/posttrainllm/model-check-receipts/` (override the directory with
+`POSTTRAINLLM_MODEL_RECEIPTS_DIR` for fixtures or isolated tooling). The receipt
+contains the exact model revision and current device fingerprint, runtime and
+version when known, timestamp, bounded sample statistics, attempted paths, and
+bounded/sanitized stderr for failures. It does **not** store prompts, model
+output, credentials, or weight contents. MLX-Swift receipts include the exact
+prompt/generated token counts emitted by the runtime; runners that do not
+expose token counts retain elapsed time and output-character count without
+inventing tokens.
+
+A later `model-check` reads—but never creates or mutates—a receipt only when
+model ID, revision, and device fingerprint all match. A successful plain-text
+smoke upgrades download/load/inference; it deliberately does not upgrade
+LoRA/SFT or agentic use. Receipts for another revision, another Mac, or a
+manually described environment are ignored.
+
 ## Tool matrix
 
 Every report carries a `tools` array (rendered as "Tools that can run
@@ -131,10 +175,13 @@ whether it **applies** to this model (format × task × layout) and its
   says "requires authentication," not "doesn't exist").
 - `HF_TOKEN` is used as a Bearer token for Hub reads and is never copied
   into reports or agent prompts.
+- Receipt stderr is capped at 8 KiB and redacts Hugging Face tokens, Bearer
+  credentials, common secret assignments, and credential-bearing URLs before
+  it reaches disk.
 - The verified-architecture list (`CompatibilityRules.verifiedArchitectures`)
   is intentionally narrow: `HFConfigConverter` always builds a
   RoPE+RMSNorm+SwiGLU model, so an unlisted `*ForCausalLM` would load
-  into the *wrong* architecture silently — `unknown` is the correct
+  into the _wrong_ architecture silently — `unknown` is the correct
   answer there, with an agent-prompt handoff.
 
 Tests: `native-mac/Tests/TinyGPTCheckTests/` — pure fixtures, no network.
