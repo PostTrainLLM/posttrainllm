@@ -105,7 +105,9 @@ public struct MacEnvironment: Equatable, Sendable {
 
         cli("posttrainllm", ["posttrainllm", "--version"], "`posttrainllm --version`")
         cli("ollama", ["ollama", "--version"], "`ollama --version`")
-        cli("llama.cpp", ["llama-cli", "--version"], "`llama-cli --version`")
+        // llama-cli has no reliable --version (newer builds hang on it);
+        // --help exits 0 immediately and still proves the binary works.
+        cli("llama.cpp", ["llama-cli", "--help"], "`llama-cli --help`")
         cli("lms (LM Studio)", ["lms", "--version"], "`lms --version`")
 
         // One python probe reports the whole ML stack via

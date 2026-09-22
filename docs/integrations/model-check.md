@@ -8,6 +8,7 @@ software, converts, or executes models or repository code.
 Spec: GitHub issue #156. Implementation: `native-mac/Sources/TinyGPTCheck/`
 (service + report schema), `TinyGPT/ModelCheck.swift` (CLI),
 `TinyGPTApp/ModelCheck{Controller,View}.swift` (app panel).
+The executor half is [`model-run`](model-run.md) (issue #157).
 
 ## Surfaces
 
