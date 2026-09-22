@@ -131,6 +131,16 @@ public enum GGUFHeader {
             let p = try take(n)
             return String(decoding: UnsafeBufferPointer(start: p, count: n), as: UTF8.self)
         }
+        mutating func array(of elementType: UInt32) throws -> [Any] {
+            let count = try Int(u64())
+            var values: [Any] = []
+            values.reserveCapacity(min(count, 1024))
+            for index in 0..<count {
+                let element = try value(of: elementType)
+                if index < 1024 { values.append(element) }
+            }
+            return values
+        }
         mutating func value(of t: UInt32) throws -> Any {
             switch t {
             case 0: return try u8()
@@ -144,15 +154,7 @@ public enum GGUFHeader {
             case 7: return try u8() != 0
             case 8: return try string()
             case 9:
-                let elemType = try u32()
-                let n = try Int(u64())
-                var arr: [Any] = []
-                arr.reserveCapacity(min(n, 1024))
-                for i in 0..<n {
-                    if i < 1024 { arr.append(try value(of: elemType)) }
-                    else { _ = try value(of: elemType) }   // still advance
-                }
-                return arr
+                return try array(of: u32())
             case 10: return try u64()
             case 11: return Int64(bitPattern: try u64())
             case 12:

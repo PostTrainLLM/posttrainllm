@@ -159,7 +159,7 @@ enum ModelRun {
         let id = report.model.id
         let model = "hf.co/\(id)"
         if chat {
-            ensureOllamaDaemon()
+            _ = ensureOllamaDaemon()
             interactive(["ollama", "run", model])
         }
         var r = execCapture(["ollama", "run", model, prompt],

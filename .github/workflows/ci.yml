@@ -114,11 +114,15 @@ jobs:
         # uses the runner host directly (no simulator needed).
         # CLANG_ENABLE_CODE_COVERAGE=YES collects .xccoverage data for the
         # post-test extraction step.
+        # MLX-Swift-LM's macro is pinned by Package.resolved, but fresh CI
+        # runners have no interactive trust record, so both attempts skip
+        # Xcode's local macro-fingerprint prompt.
         run: |
           xcodebuild test \
             -scheme posttrainllm-Package \
             -destination 'platform=macOS' \
             -resultBundlePath /tmp/test-result.xcresult \
+            -skipMacroValidation \
             -enableCodeCoverage YES \
             CLANG_ENABLE_CODE_COVERAGE=YES \
           | xcbeautify --renderer github-actions || \
@@ -126,6 +130,7 @@ jobs:
             -scheme posttrainllm-Package \
             -destination 'platform=macOS' \
             -resultBundlePath /tmp/test-result.xcresult \
+            -skipMacroValidation \
             -enableCodeCoverage YES \
             CLANG_ENABLE_CODE_COVERAGE=YES
 

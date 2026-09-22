@@ -36,7 +36,7 @@ public enum MLXRunner {
                         fputs("\r    downloading: \(Int(progress.fractionCompleted * 100))%", stderr)
                     }
                 fputs("\n", stderr)
-                var session = ChatSession(model)
+                let session = ChatSession(model)
                 session.generateParameters = .init(maxTokens: maxTokens)
                 box.text = try await session.respond(to: prompt)
             } catch {

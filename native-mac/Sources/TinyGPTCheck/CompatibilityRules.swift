@@ -237,7 +237,7 @@ public enum CompatibilityRules {
         } else {
             a.limitations.append("adapter's base model could not be identified")
         }
-        a.nextActions.append(base.map { "Run `posttrainllm model-check \( $0 )` to check the base model." }
+        a.nextActions.append(base.map { "Run `posttrainllm model-check \($0)` to check the base model." }
             ?? "Inspect adapter_config.json for base_model_name_or_path.")
         a.nextActions.append("Apply via the LoRA path: train/apply adapters over the loaded base (`sft --adapter`, `hf-load`).")
         return a

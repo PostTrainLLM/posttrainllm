@@ -175,93 +175,107 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         out.append(String(repeating: "-", count: 64))
         out.append("verdict: \(verdict.displayName)")
         out.append("  \(verdictSummary)")
+        appendModel(to: &out)
+        appendEnvironment(to: &out)
+        out.append("")
+        out.append("Checked path: \(checkedPath.name)")
+        out.append("  status: \(checkedPath.status.displayName)")
+        out.append("  \(checkedPath.detail)")
+        appendOtherPaths(to: &out)
+        appendTools(to: &out)
+        appendRequiredChanges(to: &out)
+        appendListSection("Next action", values: nextActions, to: &out)
+        appendListSection("Limitations", values: limitations, to: &out)
+        appendEvidence(to: &out)
+        out.append("")
+        out.append("Checked at \(checkedAt) · schema v\(schemaVersion)")
+        out.append("Use the report's agent_prompt field for a copy-ready investigation handoff.")
+        return out.joined(separator: "\n")
+    }
+
+    private func appendModel(to out: inout [String]) {
         out.append("")
         out.append("Model")
         out.append("  task:          \(model.task ?? "unknown")")
         out.append("  library:       \(model.library ?? "unknown")")
         out.append("  architectures: \(model.architectures.isEmpty ? "unknown" : model.architectures.joined(separator: ", "))")
         out.append("  formats:       \(model.formats.isEmpty ? "unknown" : model.formats.joined(separator: ", "))")
-        if let v = model.selectedVariant { out.append("  variant:       \(v)") }
+        if let variant = model.selectedVariant { out.append("  variant:       \(variant)") }
         if model.gated { out.append("  gated:         yes (HF_TOKEN required)") }
+    }
+
+    private func appendEnvironment(to out: inout [String]) {
         out.append("")
         out.append("Environment (\(environment.source))")
         out.append("  chip:     \(environment.chip) (\(environment.arch))")
         out.append("  RAM:      \(Self.fmtBytes(environment.ramBytes))")
         out.append("  disk free: \(Self.fmtBytes(environment.freeDiskBytes))")
         out.append("  macOS:    \(environment.macOSVersion)")
-        if !environment.runtimes.isEmpty {
-            out.append("  runtimes:")
-            for rt in environment.runtimes where rt.found {
-                out.append("    \(rt.name) \(rt.version ?? "(version unknown)")")
-            }
-            let missing = environment.runtimes.filter { !$0.found }.map(\.name)
-            if !missing.isEmpty {
-                out.append("    not found: \(missing.joined(separator: ", "))")
-            }
+        guard !environment.runtimes.isEmpty else { return }
+        out.append("  runtimes:")
+        for runtime in environment.runtimes where runtime.found {
+            out.append("    \(runtime.name) \(runtime.version ?? "(version unknown)")")
         }
+        let missing = environment.runtimes.filter { !$0.found }.map(\.name)
+        if !missing.isEmpty { out.append("    not found: \(missing.joined(separator: ", "))") }
+    }
+
+    private func appendOtherPaths(to out: inout [String]) {
+        guard !otherPaths.isEmpty else { return }
         out.append("")
-        out.append("Checked path: \(checkedPath.name)")
-        out.append("  status: \(checkedPath.status.displayName)")
-        out.append("  \(checkedPath.detail)")
-        if !otherPaths.isEmpty {
-            out.append("")
-            out.append("Other Mac execution paths")
-            for p in otherPaths {
-                let src = p.source.map { " — \($0)" } ?? ""
-                out.append("  \(p.name) [\(p.status.displayName), \(p.evidenceKind)]\(src)")
-                out.append("    \(p.detail)")
-            }
+        out.append("Other Mac execution paths")
+        for path in otherPaths {
+            let source = path.source.map { " — \($0)" } ?? ""
+            out.append("  \(path.name) [\(path.status.displayName), \(path.evidenceKind)]\(source)")
+            out.append("    \(path.detail)")
         }
-        if !tools.isEmpty {
-            out.append("")
-            out.append("Tools that can run this model")
-            let usable = tools.filter { $0.applies && $0.availability != "not_installed" }
-            let absent = tools.filter { $0.applies && $0.availability == "not_installed" }
-            for t in usable {
-                out.append("  ✓ \(t.name) [\(t.availability)]\(t.run.map { " — \($0)" } ?? "")")
-                out.append("    \(t.detail)")
-            }
-            for t in absent {
-                out.append("  · \(t.name) [not installed]\(t.run.map { " — \($0)" } ?? "")")
-            }
-            let nA = tools.filter { !$0.applies }
-            if !nA.isEmpty {
-                out.append("  n/a: \(nA.map(\.name).joined(separator: ", "))")
-            }
-        }
-        if !requiredChanges.isEmpty {
-            out.append("")
-            out.append("Required changes")
-            for c in requiredChanges {
-                var line = "  [\(c.kind)] \(c.detail)"
-                if let s = c.sizeBytes {
-                    line += " (\(Self.fmtBytes(s))\(c.estimate ? ", estimate" : ""))"
-                }
-                out.append(line)
-            }
-        }
-        if !nextActions.isEmpty {
-            out.append("")
-            out.append("Next action")
-            for a in nextActions { out.append("  • \(a)") }
-        }
-        if !limitations.isEmpty {
-            out.append("")
-            out.append("Limitations")
-            for l in limitations { out.append("  • \(l)") }
-        }
-        if !evidence.isEmpty {
-            out.append("")
-            out.append("Evidence")
-            for e in evidence {
-                out.append("  [\(e.kind)] \(e.detail)")
-                out.append("    \(e.source)")
-            }
-        }
+    }
+
+    private func appendTools(to out: inout [String]) {
+        guard !tools.isEmpty else { return }
         out.append("")
-        out.append("Checked at \(checkedAt) · schema v\(schemaVersion)")
-        out.append("Use the report's agent_prompt field for a copy-ready investigation handoff.")
-        return out.joined(separator: "\n")
+        out.append("Tools that can run this model")
+        let usable = tools.filter { $0.applies && $0.availability != "not_installed" }
+        let absent = tools.filter { $0.applies && $0.availability == "not_installed" }
+        for tool in usable {
+            out.append("  ✓ \(tool.name) [\(tool.availability)]\(tool.run.map { " — \($0)" } ?? "")")
+            out.append("    \(tool.detail)")
+        }
+        for tool in absent {
+            out.append("  · \(tool.name) [not installed]\(tool.run.map { " — \($0)" } ?? "")")
+        }
+        let unavailable = tools.filter { !$0.applies }
+        if !unavailable.isEmpty { out.append("  n/a: \(unavailable.map(\.name).joined(separator: ", "))") }
+    }
+
+    private func appendRequiredChanges(to out: inout [String]) {
+        guard !requiredChanges.isEmpty else { return }
+        out.append("")
+        out.append("Required changes")
+        for change in requiredChanges {
+            var line = "  [\(change.kind)] \(change.detail)"
+            if let size = change.sizeBytes {
+                line += " (\(Self.fmtBytes(size))\(change.estimate ? ", estimate" : ""))"
+            }
+            out.append(line)
+        }
+    }
+
+    private func appendListSection(_ title: String, values: [String], to out: inout [String]) {
+        guard !values.isEmpty else { return }
+        out.append("")
+        out.append(title)
+        for value in values { out.append("  • \(value)") }
+    }
+
+    private func appendEvidence(to out: inout [String]) {
+        guard !evidence.isEmpty else { return }
+        out.append("")
+        out.append("Evidence")
+        for item in evidence {
+            out.append("  [\(item.kind)] \(item.detail)")
+            out.append("    \(item.source)")
+        }
     }
 
     public static func fmtBytes(_ n: Int64) -> String {
