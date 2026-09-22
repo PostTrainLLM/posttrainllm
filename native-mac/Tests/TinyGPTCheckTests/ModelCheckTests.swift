@@ -300,6 +300,19 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertEqual(assessment.selectedVariant, "Qwen3-4B-Q8_0.gguf")
     }
 
+    func testGGUFVariantLargerThanFreeDiskAddsBlocker() {
+        let info = hubInfo(
+            id: "bartowski/Qwen3-4B-GGUF",
+            siblings: [.init(name: "Qwen3-4B-Q8_0.gguf", size: 4_200_000_000)])
+        let assessment = assess(
+            info, config: nil, env: env(diskGB: 3),
+            refString: "https://huggingface.co/bartowski/Qwen3-4B-GGUF/blob/main/Qwen3-4B-Q8_0.gguf")
+
+        XCTAssertTrue(assessment.requiredChanges.contains {
+            $0.detail.contains("free disk space")
+        })
+    }
+
     // MARK: - tensor layout + legacy schema
 
     private func llamaTensorNames() -> [String] {
@@ -717,7 +730,7 @@ final class ModelCheckTests: XCTestCase {
     func testOperationContractSeparatesPredictionFromVerification() {
         let (info, cfg) = lmInfo()
         let enriched = ModelCompatibilityContract.enrich(
-            report(info: info, config: cfg), hasHFAccess: false)
+            report(info: info, config: cfg), hasVerifiedHFAccess: false)
 
         XCTAssertEqual(enriched.schemaVersion, 2)
         XCTAssertEqual(enriched.operations?.map(\.operation), ModelCheckReport.Operation.allCases)
@@ -729,10 +742,43 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertEqual(enriched.executionStages?.first { $0.stage == .load }?.status, .pending)
     }
 
+    func testFailedRepositoryFetchDoesNotCountAttemptedURLAsEvidence() {
+        let (info, cfg) = lmInfo()
+        var base = report(info: info, config: cfg)
+        base.model.formats = []
+        base.model.architectures = []
+        base.evidence = [.init(
+            source: "local system probe", kind: "documented", detail: "fixture")]
+
+        let enriched = ModelCompatibilityContract.enrich(
+            base, hasVerifiedHFAccess: false)
+
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .inspect }?.status,
+                       .unverified)
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .download }?.status,
+                       .unverified)
+    }
+
+    func testInsufficientDiskBlocksDownloadAndLoadEvenWhenPathOtherwiseWorks() {
+        let (info, cfg) = lmInfo()
+        var base = report(info: info, config: cfg)
+        base.requiredChanges.append(.init(
+            kind: "memory", detail: "free disk space — weights exceed capacity",
+            sizeBytes: 10_000, estimate: true))
+
+        let enriched = ModelCompatibilityContract.enrich(
+            base, hasVerifiedHFAccess: false)
+
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .download }?.status,
+                       .blocked)
+        XCTAssertEqual(enriched.operations?.first { $0.operation == .load }?.status,
+                       .blocked)
+    }
+
     func testGatedRepoBlocksAtDownloadBeforeWeightFetch() {
         let (info, cfg) = lmInfo()
         let enriched = ModelCompatibilityContract.enrich(
-            report(info: info, config: cfg, gated: true), hasHFAccess: false)
+            report(info: info, config: cfg, gated: true), hasVerifiedHFAccess: false)
 
         XCTAssertEqual(enriched.operations?.first { $0.operation == .inspect }?.status, .supported)
         XCTAssertEqual(enriched.operations?.first { $0.operation == .download }?.status, .blocked)
@@ -740,10 +786,10 @@ final class ModelCheckTests: XCTestCase {
         XCTAssertEqual(enriched.executionStages?.first { $0.stage == .load }?.status, .blocked)
     }
 
-    func testAcceptedGatedAccessDoesNotRemainACompatibilityBlocker() {
+    func testVerifiedGatedAccessDoesNotRemainACompatibilityBlocker() {
         let (info, cfg) = lmInfo()
         let enriched = ModelCompatibilityContract.enrich(
-            report(info: info, config: cfg, gated: true), hasHFAccess: true)
+            report(info: info, config: cfg, gated: true), hasVerifiedHFAccess: true)
 
         XCTAssertEqual(enriched.operations?.first { $0.operation == .download }?.status, .supported)
         XCTAssertEqual(enriched.operations?.first { $0.operation == .load }?.status, .supported)
@@ -769,7 +815,7 @@ final class ModelCheckTests: XCTestCase {
             attempts: [attempt])
 
         let enriched = ModelCompatibilityContract.enrich(
-            base, hasHFAccess: false, receipt: receipt)
+            base, hasVerifiedHFAccess: false, receipt: receipt)
 
         XCTAssertEqual(enriched.operations?.first { $0.operation == .load }?.status,
                        .verifiedOnThisDevice)
@@ -799,12 +845,35 @@ final class ModelCheckTests: XCTestCase {
         }
 
         let stale = ModelCompatibilityContract.enrich(
-            base, hasHFAccess: false, receipt: receipt(revision: "main"))
+            base, hasVerifiedHFAccess: false, receipt: receipt(revision: "main"))
         XCTAssertNil(stale.verificationReceipt)
 
         let current = ModelCompatibilityContract.enrich(
-            base, hasHFAccess: false, receipt: receipt(revision: "abc123"))
+            base, hasVerifiedHFAccess: false, receipt: receipt(revision: "abc123"))
         XCTAssertEqual(current.verificationReceipt?.revision, "abc123")
+    }
+
+    func testExactArtifactReceiptMustMatchRequestedBlob() {
+        let (info, cfg) = lmInfo()
+        var base = report(info: info, config: cfg)
+        base.model.resolvedRevision = "abc123"
+        base.model.filePath = "weights/model-Q8.gguf"
+        let receipt = ModelCheckReport.VerificationReceipt(
+            identity: .init(
+                modelID: info.id, revision: "abc123",
+                artifactPath: "weights/model-Q4.gguf",
+                environmentFingerprint: ModelCompatibilityContract.environmentFingerprint(
+                    base.environment)),
+            verifiedAt: "2026-09-22T01:02:03Z",
+            outcome: .init(status: .verified))
+
+        let enriched = ModelCompatibilityContract.enrich(
+            base, hasVerifiedHFAccess: false, receipt: receipt)
+
+        XCTAssertNil(enriched.verificationReceipt)
+        XCTAssertFalse(enriched.operations?.contains {
+            $0.status == .verifiedOnThisDevice
+        } ?? true)
     }
 
     func testFailureReceiptNamesLoadBoundary() {
@@ -821,7 +890,8 @@ final class ModelCheckTests: XCTestCase {
                              failureStage: .load, stderr: "unsupported architecture",
                              measurement: .init(durationMS: 20, requestedTokens: 32))])
 
-        let enriched = ModelCompatibilityContract.enrich(base, hasHFAccess: false, receipt: receipt)
+        let enriched = ModelCompatibilityContract.enrich(
+            base, hasVerifiedHFAccess: false, receipt: receipt)
 
         XCTAssertEqual(enriched.operations?.first { $0.operation == .download }?.status, .supported)
         XCTAssertEqual(enriched.operations?.first { $0.operation == .load }?.status, .blocked)
@@ -859,5 +929,30 @@ final class ModelCheckTests: XCTestCase {
         var otherDevice = base.environment
         otherDevice.chip = "Apple M6 Ultra"
         XCTAssertNil(store.load(modelID: info.id, revision: "main", environment: otherDevice))
+    }
+
+    func testReceiptStoreSeparatesArtifactsAtSameRevision() throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("model-check-artifacts-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ModelVerificationStore(directory: root)
+        let (info, cfg) = lmInfo()
+        let base = report(info: info, config: cfg)
+        let receipt = ModelCheckReport.VerificationReceipt(
+            identity: .init(
+                modelID: info.id, revision: "abc123", artifactPath: "q4.gguf",
+                environmentFingerprint: ModelCompatibilityContract.environmentFingerprint(
+                    base.environment)),
+            verifiedAt: "2026-09-22T01:02:03Z",
+            outcome: .init(status: .verified))
+
+        _ = try store.write(receipt)
+
+        XCTAssertNotNil(store.load(
+            modelID: info.id, revision: "abc123", artifactPath: "q4.gguf",
+            environment: base.environment))
+        XCTAssertNil(store.load(
+            modelID: info.id, revision: "abc123", artifactPath: "q8.gguf",
+            environment: base.environment))
     }
 }

@@ -118,9 +118,6 @@ public enum CompatibilityRules {
             formats: [], architectures: [], selectedVariant: nil,
             task: nil, library: nil, gated: false, lastModified: nil)
 
-        let apiURL = "https://huggingface.co/api/models/\(input.ref.id)"
-        a.evidence.append(.init(source: apiURL, kind: "documented",
-                                detail: "Hugging Face Hub model metadata"))
         a.evidence.append(.init(source: "local system probe", kind: "documented",
                                 detail: "environment: \(input.env.chip), "
                                     + "\(fmtBytes(input.env.ramBytes)) RAM, "
@@ -136,6 +133,10 @@ public enum CompatibilityRules {
             a.nextActions.append("Hand the agent prompt to an agent with network access to identify the repo, or set HF_TOKEN if the repo is gated/private.")
             return a
         }
+
+        let apiURL = "https://huggingface.co/api/models/\(input.ref.id)"
+        a.evidence.append(.init(source: apiURL, kind: "documented",
+                                detail: "Hugging Face Hub model metadata"))
 
         a.task = info.pipelineTag
         a.library = info.libraryName
@@ -765,6 +766,7 @@ public enum CompatibilityRules {
         if let sz = variantSize {
             a.evidence.append(.init(source: "https://huggingface.co/\(info.id)", kind: "documented",
                                     detail: "selected variant \(variant): \(fmtBytes(sz)) (GGUF mmap footprint ≈ file size + context, estimate)"))
+            addMemoryChange(&a, weightBytes: sz, disk: env.freeDiskBytes)
         }
         a.nextActions.append("Download \(variant) and run `posttrainllm gguf-load <file>`, or run it directly through Ollama/llama.cpp.")
         return a

@@ -145,6 +145,33 @@ public enum ModelCheckService {
         )
     }
 
+    /// A supplied token is only a credential candidate. For gated models,
+    /// treat access as verified only after the Hub accepts it for a bounded
+    /// repository file read.
+    static func hasVerifiedHFAccess(
+        ref: ModelRef, info: HubModelClient.Info?
+    ) -> Bool {
+        guard let info, info.gated,
+              !(ProcessInfo.processInfo.environment["HF_TOKEN"] ?? "").isEmpty,
+              let path = gatedAccessProbePath(info)
+        else { return false }
+        do {
+            return try HubModelClient.smallFile(
+                id: ref.id, revision: ref.revision, path: path) != nil
+        } catch {
+            return false
+        }
+    }
+
+    private static func gatedAccessProbePath(_ info: HubModelClient.Info) -> String? {
+        let preferred = ["config.json", "tokenizer_config.json",
+                         "generation_config.json", "README.md"]
+        return preferred.first { info.sibling(named: $0) != nil }
+            ?? info.siblings.first {
+                $0.name.lowercased().hasSuffix(".json") && ($0.size ?? 0) <= 512 * 1024
+            }?.name
+    }
+
     /// safetensors dtype string → bytes per element.
     static func dtypeBytes(_ dtype: String?) -> Int64 {
         switch dtype {
@@ -364,11 +391,12 @@ public enum ModelCheckService {
             ? ModelVerificationStore().load(
                 modelID: ref.id,
                 revision: ModelCompatibilityContract.receiptRevision(for: report.model),
+                artifactPath: ModelCompatibilityContract.receiptArtifact(for: report.model),
                 environment: report.environment)
             : nil
-        let hasHFAccess = !(ProcessInfo.processInfo.environment["HF_TOKEN"] ?? "").isEmpty
+        let hasVerifiedHFAccess = hasVerifiedHFAccess(ref: ref, info: info)
         var final = ModelCompatibilityContract.enrich(
-            report, hasHFAccess: hasHFAccess, receipt: storedReceipt)
+            report, hasVerifiedHFAccess: hasVerifiedHFAccess, receipt: storedReceipt)
         final.agentPrompt = agentPrompt(for: final)
         return final
     }

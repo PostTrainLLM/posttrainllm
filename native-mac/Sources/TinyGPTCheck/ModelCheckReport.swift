@@ -274,11 +274,14 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
     public struct ReceiptIdentity: Equatable, Sendable {
         public var modelID: String
         public var revision: String
+        public var artifactPath: String?
         public var environmentFingerprint: String
 
-        public init(modelID: String, revision: String, environmentFingerprint: String) {
+        public init(modelID: String, revision: String, artifactPath: String? = nil,
+                    environmentFingerprint: String) {
             self.modelID = modelID
             self.revision = revision
+            self.artifactPath = artifactPath
             self.environmentFingerprint = environmentFingerprint
         }
     }
@@ -342,6 +345,7 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
         public var schemaVersion: Int
         public var modelID: String
         public var revision: String
+        public var artifactPath: String?
         public var environmentFingerprint: String
         public var verifiedAt: String
         public var status: VerificationStatus
@@ -354,6 +358,7 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
             case schemaVersion = "schema_version"
             case modelID = "model_id"
             case revision
+            case artifactPath = "artifact_path"
             case environmentFingerprint = "environment_fingerprint"
             case verifiedAt = "verified_at"
             case status, runtime, attempts
@@ -367,6 +372,7 @@ public struct ModelCheckReport: Codable, Equatable, Sendable {
             self.schemaVersion = schemaVersion
             self.modelID = identity.modelID
             self.revision = identity.revision
+            self.artifactPath = identity.artifactPath
             self.environmentFingerprint = identity.environmentFingerprint
             self.verifiedAt = verifiedAt
             self.status = outcome.status

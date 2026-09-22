@@ -1,6 +1,7 @@
 import XCTest
 @testable import TinyGPTRun
 @testable import TinyGPTCheck
+import TinyGPTData
 
 /// Runner-planning tests for `model-run` — pure fixtures over a
 /// ModelCheckReport, no network and no subprocesses. Each case maps to
@@ -243,6 +244,51 @@ final class RunnerPlanTests: XCTestCase {
         XCTAssertTrue(ModelRunner.cachedFileMatches(file, expectedSize: 4))
         XCTAssertFalse(ModelRunner.cachedFileMatches(file, expectedSize: 5))
         XCTAssertFalse(ModelRunner.cachedFileMatches(file, expectedSize: nil))
+    }
+
+    func testEmptySuccessfulProcessIsNotVerificationEvidence() {
+        let empty = Subprocess.Result(
+            status: 0, stdout: " \n", stderr: "", timedOut: false, durationMS: 10)
+        let rejected = ModelRunner.acceptedSampleResult(empty, generatedTokens: 0)
+        XCTAssertNotEqual(rejected.status, 0)
+        XCTAssertTrue(rejected.stderr.contains("without producing sample output"))
+
+        let measured = ModelRunner.acceptedSampleResult(empty, generatedTokens: 2)
+        XCTAssertEqual(measured.status, 0)
+
+        let logsOnly = Subprocess.Result(
+            status: 0, stdout: "model loaded", stderr: "", timedOut: false,
+            durationMS: 10)
+        XCTAssertNotEqual(ModelRunner.acceptedSampleResult(
+            logsOnly, generatedTokens: nil, requiresTokenCount: true).status, 0)
+        XCTAssertEqual(ModelRunner.inferredFailureStage(rejected), .smokeTest)
+    }
+
+    func testChatAndForcedSelectionDoNotOverwriteModelReceipt() {
+        XCTAssertFalse(ModelRunner.shouldRecordReceipt(chat: true))
+        XCTAssertTrue(ModelRunner.shouldRecordReceipt(chat: false))
+        XCTAssertFalse(ModelRunner.shouldPersistSelectionFailure(
+            forced: .native, chat: false))
+        XCTAssertFalse(ModelRunner.shouldPersistSelectionFailure(
+            forced: nil, chat: true))
+        XCTAssertTrue(ModelRunner.shouldPersistSelectionFailure(
+            forced: nil, chat: false))
+    }
+
+    func testChatHintPinsResolvedSlashRevisionAndQuotesArguments() {
+        var r = report(formats: ["safetensors"], mlxSwift: true, revision: "refs/pr/1")
+        r.model.resolvedRevision = "deadbeef"
+        r.model.filePath = "nested/model & unsafe.safetensors"
+
+        let target = ModelRunner.canonicalArtifactTarget(r)
+        let hint = ModelRunner.chatHint(.mlxSwift, report: r)
+
+        XCTAssertEqual(
+            target,
+            "https://huggingface.co/x/y/blob/deadbeef/nested/model%20%26%20unsafe.safetensors")
+        XCTAssertTrue(hint.contains("'\(target)'"))
+        XCTAssertFalse(hint.contains("refs/pr/1"))
+        XCTAssertTrue(hint.hasPrefix("'"))
     }
 
     func testForcedNativeOnGGUFRefused() {
