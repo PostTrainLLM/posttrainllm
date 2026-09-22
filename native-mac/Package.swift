@@ -26,6 +26,15 @@ let package = Package(
         // we can unit-test the registry / format detector without
         // pulling MLX. See docs/integrations/hf_datasets_integration.md.
         .library(name: "TinyGPTData", targets: ["TinyGPTData"]),
+        // TinyGPTCheck — read-only Hugging Face model compatibility
+        // checker (issue #156). Pure Foundation + TinyGPTIO/TinyGPTData so
+        // the SAME inspection service + report schema backs both the
+        // `model-check` CLI and the app's Check panel, and its tests run
+        // under plain `swift test` without Metal.
+        .library(name: "TinyGPTCheck", targets: ["TinyGPTCheck"]),
+        // posttrainllm-mlxrun — sibling executable, MLX-Swift-LM runner
+        // invoked as a subprocess by `posttrainllm model-run`.
+        .executable(name: "posttrainllm-mlxrun", targets: ["TinyGPTRun"]),
         // TinyGPTScreen — Mac screen-reading scaffold (Wave 2.6).
         // ScreenCaptureKit window capture + macOS Accessibility (AX) tree
         // reader. Pure Foundation + ScreenCaptureKit + ApplicationServices;
@@ -46,6 +55,14 @@ let package = Package(
         // every production Swift LLM project. We use it for the HF model
         // loading path; our from-scratch byte-level path doesn't need it.
         .package(url: "https://github.com/huggingface/swift-transformers", from: "1.3.0"),
+        // MLX-Swift-LM — Apple's maintained HF model implementations for
+        // MLX (LLM + VLM + embedders). model-run's Swift-native runner
+        // for architectures our own loader doesn't cover (MoE, VLM,
+        // wide quant table); replaces the python3 mlx_lm subprocess.
+        .package(url: "https://github.com/ml-explore/mlx-swift-lm", from: "3.31.4"),
+        // swift-huggingface — HubClient for MLX-Swift-LM's downloader
+        // macro (declared explicitly so TinyGPTRun can import it).
+        .package(url: "https://github.com/huggingface/swift-huggingface", from: "0.9.0"),
     ],
     targets: [
         .target(
@@ -66,6 +83,10 @@ let package = Package(
         // Window:) initialiser we use.
         .target(
             name: "TinyGPTScreen"
+        ),
+        .target(
+            name: "TinyGPTCheck",
+            dependencies: ["TinyGPTIO", "TinyGPTData"]
         ),
         .target(
             name: "TinyGPTModel",
@@ -108,6 +129,24 @@ let package = Package(
                 .product(name: "MLXRandom", package: "mlx-swift"),
             ]
         ),
+        // TinyGPTRun — `posttrainllm-mlxrun`, model-run's MLX-Swift-LM
+        // runner as a sibling executable. Separate process AND target so
+        // MLXLMCommon's `Module.numParameters()` extension can't leak
+        // into the main CLI's name lookup (transitively-imported module
+        // extensions apply module-wide) and collide with TinyGPTModel's
+        // own `numParameters()` members.
+        .executableTarget(
+            name: "TinyGPTRun",
+            dependencies: [
+                .product(name: "MLXLLM", package: "mlx-swift-lm"),
+                .product(name: "MLXVLM", package: "mlx-swift-lm"),
+                .product(name: "MLXLMCommon", package: "mlx-swift-lm"),
+                .product(name: "MLXEmbedders", package: "mlx-swift-lm"),
+                .product(name: "MLXHuggingFace", package: "mlx-swift-lm"),
+                .product(name: "HuggingFace", package: "swift-huggingface"),
+                .product(name: "Tokenizers", package: "swift-transformers"),
+            ]
+        ),
         .executableTarget(
             name: "TinyGPT",
             dependencies: [
@@ -117,6 +156,7 @@ let package = Package(
                 "TinyGPTServe",
                 "TinyGPTData",
                 "TinyGPTScreen",
+                "TinyGPTCheck",
                 .product(name: "MLX", package: "mlx-swift"),
                 .product(name: "MLXNN", package: "mlx-swift"),
                 .product(name: "MLXOptimizers", package: "mlx-swift"),
@@ -142,6 +182,7 @@ let package = Package(
             dependencies: [
                 "TinyGPTIO",
                 "TinyGPTModel",
+                "TinyGPTCheck",
                 .product(name: "MLX", package: "mlx-swift"),
                 .product(name: "MLXNN", package: "mlx-swift"),
                 .product(name: "MLXRandom", package: "mlx-swift"),
@@ -164,6 +205,12 @@ let package = Package(
         .testTarget(
             name: "TinyGPTServeTests",
             dependencies: ["TinyGPTServe", "TinyGPTModel"]
+        ),
+        // Pure-Foundation verdict tests — fixtures only, no network, no
+        // Metal. Safe under plain `swift test`.
+        .testTarget(
+            name: "TinyGPTCheckTests",
+            dependencies: ["TinyGPTCheck", "TinyGPTIO"]
         ),
     ],
     swiftLanguageModes: [.v5]

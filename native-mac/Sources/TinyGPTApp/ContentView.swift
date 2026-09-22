@@ -11,6 +11,7 @@ enum AppTab: Hashable {
     case trace       // inference heatmap
     case interp      // mech-interp power tools
     case serve       // HTTP endpoint
+    case check       // HF model compatibility check (issue #156)
     // Removed 2026-06-17:
     //  - .sample  → renamed to .gallery (was previously two distinct tabs
     //              which duplicated each other; one workspace owns picker +
@@ -62,6 +63,7 @@ struct ContentView: View {
                         case .trace:      InferenceHeatmapView()
                         case .interp:     InterpView()
                         case .serve:      ServerView()
+                        case .check:      ModelCheckView()
                         }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -224,6 +226,7 @@ struct ContentView: View {
                     navRow(.trace,      icon: "chart.bar.xaxis",                   label: "Trace")
                     navRow(.interp,     icon: "scope",                             label: "Interp")
                     navRow(.serve,      icon: "antenna.radiowaves.left.and.right", label: "Serve")
+                    navRow(.check,      icon: "checkmark.shield",                  label: "Check")
 
                     // Inference section — live `posttrainllm serve` processes
                     // detected via pgrep. Click a row to jump to Serve tab.

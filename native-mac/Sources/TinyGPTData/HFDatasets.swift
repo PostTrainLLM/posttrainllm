@@ -211,6 +211,12 @@ public enum HFDatasets {
     /// small class instead of captured `var`s (closure capture of `var`
     /// is illegal across actor isolation).
     public static func httpGet(_ urlString: String) throws -> (Data, Int) {
+        try httpGet(urlString, headers: [:])
+    }
+
+    /// Same synchronous GET, with extra request headers (e.g. Range for
+    /// safetensors header reads in model-check).
+    public static func httpGet(_ urlString: String, headers: [String: String]) throws -> (Data, Int) {
         guard let url = URL(string: urlString) else {
             throw HFError.malformedResponse("bad URL: \(urlString)")
         }
@@ -220,6 +226,7 @@ public enum HFDatasets {
             req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         req.setValue("posttrainllm/0.1 (+https://github.com/sarthak/posttrainllm)", forHTTPHeaderField: "User-Agent")
+        for (k, v) in headers { req.setValue(v, forHTTPHeaderField: k) }
 
         let box = ResultBox()
         let sema = DispatchSemaphore(value: 0)

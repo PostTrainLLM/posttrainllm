@@ -57,6 +57,14 @@ Use the [factory contract](factory/README.md) for the run schema and evidence
 requirements. Use the [recipe registry](recipes/README.md) when selecting the
 method, data, gate, regression checks, budget, and stop rule.
 
+## Check a Hugging Face model before downloading
+
+`posttrainllm model-check <url>` reports whether a Hub model can run on
+this Mac — verdict, other execution paths, required changes, evidence,
+and a copy-ready agent prompt — without downloading weights or changing
+anything. The same service backs the app's Check workspace. See
+[docs/integrations/model-check.md](integrations/model-check.md).
+
 ## Parked research commands
 
 Research implementations remain available as learning assets, but the official
