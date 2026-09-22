@@ -108,9 +108,11 @@ success. Runner order: GGUF → Ollama (`ollama run hf.co/<id>`, with
 `ollama serve` auto-start and a local-GGUF + `ollama create` fallback
 when hf.co pulls hit Xet-CDN redirect blocks); compatible safetensors →
 native `hf-load` (the real verification step); other safetensors →
-`python3 -m mlx_lm`. Failures cascade to the next runner with the real
-error surfaced. `--chat` drops into an interactive session; `--runtime`
-forces a specific one; gated repos require HF_TOKEN first.
+`posttrainllm-mlxrun` (MLX-Swift-LM in-process — wide arch table: MoE,
+VLM, packed quants — auto-downloads to the HF cache, honors HF_TOKEN)
+→ `python3 -m mlx_lm` last. Failures cascade to the next runner with
+the real error surfaced. `--chat` drops into an interactive session;
+`--runtime` forces a specific one; gated repos require HF_TOKEN first.
 
 ## Boundaries
 

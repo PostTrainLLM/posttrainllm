@@ -21,6 +21,7 @@ enum ModelRun {
 
     enum Runner: String {
         case native = "native"       // posttrainllm hf-load
+        case mlxSwift = "mlx-swift"  // MLX-Swift-LM in-process (wide arch table)
         case mlxLm  = "mlx-lm"       // python3 -m mlx_lm
         case ollama = "ollama"       // ollama run hf.co/<id>
     }
@@ -80,6 +81,9 @@ enum ModelRun {
             case .ollama:
                 ok = runOllama(report: report, prompt: prompt,
                                tokens: maxTokens, chat: chat)
+            case .mlxSwift:
+                ok = runMlxSwift(id: report.model.id, prompt: prompt,
+                                 tokens: maxTokens, chat: chat)
             case .mlxLm:
                 ok = runMlxLm(id: report.model.id, prompt: prompt,
                               tokens: maxTokens, chat: chat)
@@ -126,9 +130,15 @@ enum ModelRun {
             plans.append(Plan(runner: .ollama,
                 why: "GGUF repo + Ollama installed — `ollama run hf.co/` pulls and runs directly"))
         }
+        // MLX-Swift-LM is compiled in — always available, wider arch
+        // table than our loader (MoE, VLM-adjacent, more quants).
+        if fmts.contains("safetensors") {
+            plans.append(Plan(runner: .mlxSwift,
+                why: "MLX-Swift-LM in-process — wide architecture table, auto-downloads to the HF cache"))
+        }
         if fmts.contains("safetensors") && hasMlxLm {
             plans.append(Plan(runner: .mlxLm,
-                why: "mlx-lm's arch table is wider and it auto-downloads"))
+                why: "python3 mlx-lm fallback — wider arch table, auto-downloads"))
         }
         // GGUF native attempt only when the checked path verified the
         // quant — downloading GBs to fail on a known-incompatible
@@ -228,6 +238,35 @@ enum ModelRun {
         return nil
     }
 
+    /// MLX-Swift-LM via the `posttrainllm-mlxrun` sibling executable —
+    /// Apple's maintained HF model impls (LLM + VLM + embedders), runs
+    /// in its own process so load failures are captured results.
+    /// Honors HF_TOKEN via the HubClient env auto-detect.
+    private static func runMlxSwift(id: String, prompt: String,
+                                    tokens: Int, chat: Bool) -> Bool {
+        guard let bin = mlxrunBinary() else {
+            fputs("posttrainllm-mlxrun not built — run `swift build --product posttrainllm-mlxrun`\n", stderr)
+            return false
+        }
+        if chat { interactive([bin, id, "--chat"]) }
+        let r = execCapture([bin, id, "--prompt", prompt,
+                             "--max-tokens", String(tokens)],
+                            timeout: 1800)
+        return printOutcome(runner: "mlx-swift", result: r)
+    }
+
+    /// Locate the sibling `posttrainllm-mlxrun` next to this binary,
+    /// else on PATH.
+    private static func mlxrunBinary() -> String? {
+        let self_ = CommandLine.arguments[0]
+        let sibling = (self_ as NSString).deletingLastPathComponent
+            + "/posttrainllm-mlxrun"
+        if FileManager.default.fileExists(atPath: sibling) { return sibling }
+        let which = execCapture(["which", "posttrainllm-mlxrun"], timeout: 5)
+        let p = which.stdout.trimmingCharacters(in: .whitespacesAndNewlines)
+        return which.status == 0 && !p.isEmpty ? p : nil
+    }
+
     /// `python3 -m mlx_lm generate` — auto-downloads to the HF cache,
     /// covers MoE/VLM/quantized archs our native loader doesn't.
     private static func runMlxLm(id: String, prompt: String,
@@ -280,6 +319,7 @@ enum ModelRun {
 
     private static func chatHint(_ runner: Runner, report: ModelCheckReport) -> String {
         switch runner {
+        case .mlxSwift: return "posttrainllm model-run \(report.model.id) --chat"
         case .ollama:
             // If we created a local ollama model from a downloaded GGUF
             // (the hf.co pull path can hit Xet-redirect failures), point
