@@ -18,21 +18,21 @@ import {
 
 const REPO = "https://github.com/PostTrainLLM/posttrainllm/blob/main/";
 
-export type KnowledgeKind =
+type KnowledgeKind =
   "study" | "experiment" | "recipe" | "learning-path" | "learning-artifact";
 
-export interface KnowledgeLink {
+interface KnowledgeLink {
   label: string;
   href: string;
   kind?: string;
 }
 
-export interface KnowledgeFact {
+interface KnowledgeFact {
   label: string;
   value: string;
 }
 
-export interface KnowledgeSection {
+interface KnowledgeSection {
   title: string;
   paragraphs?: string[];
   items?: string[];
@@ -69,7 +69,7 @@ function humanize(value: string): string {
   return value.replaceAll("-", " ");
 }
 
-export function sourceHref(value: string): string {
+function sourceHref(value: string): string {
   if (/^https?:\/\//u.test(value) || value.startsWith("/")) return value;
   const [path, fragment] = value.split("#", 2);
   if (path.startsWith("docs/") && path.endsWith(".md")) {
@@ -496,13 +496,6 @@ export const allKnowledgeRecords = [
   ...learningPathRecords,
   ...learningArtifactRecords,
 ];
-
-export function getKnowledgeRecord(
-  records: KnowledgeRecord[],
-  id: string,
-): KnowledgeRecord | undefined {
-  return records.find((record) => record.id === id);
-}
 
 export function knowledgeWordCount(record: KnowledgeRecord): number {
   const text = [
