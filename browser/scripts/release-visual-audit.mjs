@@ -1,13 +1,32 @@
 // Release visual audit for the public learning lab.
 // Run after `pnpm build` while `pnpm preview` is serving the static output.
 
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const baseURL = process.env.E2E_URL ?? "http://127.0.0.1:4173";
 const here = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(here, "../..");
+const attemptsSource = JSON.parse(
+  await readFile(path.join(repoRoot, "docs/attempts.json"), "utf8"),
+).attempts;
+const recipeSource = JSON.parse(
+  await readFile(path.join(repoRoot, "docs/recipes/registry.json"), "utf8"),
+).recipes;
+const pathSource = JSON.parse(
+  await readFile(path.join(repoRoot, "docs/learn/path-registry.json"), "utf8"),
+).paths;
+const journeySource = JSON.parse(
+  await readFile(
+    path.join(repoRoot, "docs/learn/artifact-journey.json"),
+    "utf8",
+  ),
+).stages;
+const studySource = JSON.parse(
+  await readFile(path.join(repoRoot, "docs/studies/registry.json"), "utf8"),
+).studies;
 const evidenceDir = process.env.EVIDENCE_DIR
   ? path.resolve(process.env.EVIDENCE_DIR)
   : path.resolve(here, "../../artifacts/design/lab");
@@ -26,13 +45,24 @@ const routes = [
   "/experiments",
   "/recipes",
   "/learn",
+  "/studies",
+  "/studies/trainloop-ai",
+  "/experiments/sql-toy-sft-r4",
+  "/recipes/distillation",
+  "/learn/paths/post-training",
+  "/learn/artifacts/byte-tinygpt",
   "/docs/cli-reference",
   "/artifacts/needle2-tool-selection",
   "/artifacts/parakeet-wgsl-browser-asr",
 ];
 
 await mkdir(evidenceDir, { recursive: true });
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({
+  headless: true,
+  ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+    ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
+    : {}),
+});
 const failures = [];
 const observations = [];
 const heroObservations = [];
@@ -241,6 +271,14 @@ for (const viewport of viewports) {
     fullPage: true,
   });
 
+  await page.goto(`${baseURL}/studies/trainloop-ai`, {
+    waitUntil: "networkidle",
+  });
+  await page.screenshot({
+    path: path.join(evidenceDir, `knowledge-dossier-${viewport.width}.png`),
+    fullPage: true,
+  });
+
   await page.goto(`${baseURL}/learn`, { waitUntil: "networkidle" });
   await page.screenshot({
     path: path.join(evidenceDir, `learn-${viewport.width}.png`),
@@ -285,6 +323,9 @@ const stageCount = await page.locator(".artifact-stage").count();
 const artifactCount = await page.locator(".journey-artifact").count();
 const pathCount = await page.locator(".path-card").count();
 
+await page.goto(`${baseURL}/studies`, { waitUntil: "networkidle" });
+const studyCount = await page.locator(".study-grid article").count();
+
 const counts = {
   attempts: attemptCount,
   needleResults: needleCount,
@@ -293,15 +334,21 @@ const counts = {
   journeyStages: stageCount,
   buildableArtifacts: artifactCount,
   learningPaths: pathCount,
+  studies: studyCount,
 };
 const expected = {
-  attempts: 76,
-  needleResults: 3,
-  workedWithCaveat: 37,
-  recipes: 18,
-  journeyStages: 9,
-  buildableArtifacts: 13,
-  learningPaths: 9,
+  attempts: attemptsSource.length,
+  needleResults: attemptsSource.filter((attempt) =>
+    `${attempt.name} ${attempt.family}`.toLowerCase().includes("needle"),
+  ).length,
+  workedWithCaveat: attemptsSource.filter(
+    (attempt) => attempt.status === "worked-with-caveat",
+  ).length,
+  recipes: recipeSource.length,
+  journeyStages: journeySource.length,
+  buildableArtifacts: journeySource.flatMap((stage) => stage.artifacts).length,
+  learningPaths: pathSource.length,
+  studies: studySource.length,
 };
 for (const [key, value] of Object.entries(expected)) {
   if (counts[key] !== value)
@@ -330,12 +377,17 @@ const agentCatalog = await (
   await page.request.get(`${baseURL}/api-ai.json`)
 ).json();
 if (agentCatalog.version !== "3") failures.push("agent catalog is not v3");
-if (agentCatalog.experimentSummary?.total !== 76)
+if (agentCatalog.experimentSummary?.total !== attemptsSource.length)
   failures.push("agent catalog experiment total drifted");
-if (agentCatalog.experimentSummary?.nonPositiveOrMixed !== 34)
+const expectedNonPositive = attemptsSource.filter(
+  (attempt) => !["worked", "worked-with-caveat"].includes(attempt.status),
+).length;
+if (agentCatalog.experimentSummary?.nonPositiveOrMixed !== expectedNonPositive)
   failures.push("agent catalog non-positive result total drifted");
-if (agentCatalog.learningSummary?.paths !== 9)
+if (agentCatalog.learningSummary?.paths !== pathSource.length)
   failures.push("agent catalog learning path total drifted");
+if (agentCatalog.learningSummary?.studies !== studySource.length)
+  failures.push("agent catalog study total drifted");
 for (const group of ["build", "measure", "learn"]) {
   if (!Array.isArray(agentCatalog.capabilities?.[group]))
     failures.push(`agent catalog missing ${group} capabilities`);

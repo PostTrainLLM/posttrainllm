@@ -51,20 +51,19 @@ export const learningPathByFamily: Record<string, string> = {
   "tool-calling": "post-training",
 };
 
-const recipeHrefByFamily: Record<string, string> = {
-  architecture: "/docs/techniques/moe",
-  autocorrect: "/docs/factory/autocorrect-adapter-recipe",
-  "file-ops": "/docs/recipes/distillation-fc",
-  "pace-planner": "/docs/recipes/pace-planner",
-  sql: "/docs/techniques/sql-technique-backlog",
-  "tool-calling": "/docs/recipes/distillation-fc",
+const recipeIdByFamily: Record<string, string> = {
+  architecture: "moe",
+  autocorrect: "lora",
+  "file-ops": "distillation",
+  "pace-planner": "constrained-generation",
+  sql: "sql-lineage",
+  "tool-calling": "distillation",
 };
 
-const recipeHrefByAttempt: Record<string, string> = {
-  "needle2-base-public-gate": "/docs/techniques/needle2-baseline-review",
-  "needle2-task-catalog-ablation": "/docs/techniques/needle2-baseline-review",
-  "parakeet-wgsl-browser-asr-smoke":
-    "/docs/techniques/parakeet-wgsl-browser-smoke",
+const recipeIdByAttempt: Record<string, string> = {
+  "needle2-base-public-gate": "needle2-evaluation",
+  "needle2-task-catalog-ablation": "needle2-evaluation",
+  "parakeet-wgsl-browser-asr-smoke": "parakeet-browser-asr",
 };
 
 export function experimentPublicHref(attempt: PublicExperiment): string {
@@ -83,15 +82,13 @@ export function experimentPublicHref(attempt: PublicExperiment): string {
 
 export function experimentLearningHref(attempt: PublicExperiment): string {
   const path = learningPathByFamily[attempt.family];
-  return path ? `/learn#path-${path}` : "/learn";
+  return path ? `/learn/paths/${path}` : "/learn";
 }
 
 export function experimentRecipeHref(attempt: PublicExperiment): string {
-  return (
-    recipeHrefByAttempt[attempt.id] ??
-    recipeHrefByFamily[attempt.family] ??
-    "/recipes#complete-registry"
-  );
+  const recipe =
+    recipeIdByAttempt[attempt.id] ?? recipeIdByFamily[attempt.family];
+  return recipe ? `/recipes/${recipe}` : "/recipes";
 }
 
 export function experimentMatches(

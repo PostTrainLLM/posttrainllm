@@ -45,7 +45,7 @@ describe("experiment archive navigation", () => {
     );
     expect(new Set(Object.keys(learningPathByFamily))).toEqual(families);
     const pathHrefs = new Set(
-      pathRegistry.paths.map((path) => `/learn#path-${path.id}`),
+      pathRegistry.paths.map((path) => `/learn/paths/${path.id}`),
     );
     for (const attempt of attemptPayload.attempts) {
       expect(pathHrefs).toContain(experimentLearningHref(attempt));
@@ -67,7 +67,7 @@ describe("experiment archive navigation", () => {
       "/artifacts/needle2-tool-selection",
     );
     expect(experimentRecipeHref(byId["needle2-task-catalog-ablation"])).toBe(
-      "/docs/techniques/needle2-baseline-review",
+      "/recipes/needle2-evaluation",
     );
     expect(experimentPublicHref(byId["parakeet-wgsl-browser-asr-smoke"])).toBe(
       "/artifacts/parakeet-wgsl-browser-asr",

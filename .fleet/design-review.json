@@ -2,20 +2,36 @@
   "$schema": "fleet.design-review.v1",
   "version": 1,
   "project": "posttrainllm",
-  "target": "Landing hero compression and expanded loss-curve signal",
-  "surfaceMode": "persuade",
-  "mode": "preserve",
+  "target": "Canonical evidence dossiers for studies, experiments, recipes, learning paths, and learning artifacts",
+  "surfaceMode": "read",
+  "mode": "overhaul",
   "register": "product",
   "context": {
     "product": "PRODUCT.md",
     "design": "DESIGN.md"
   },
   "direction": {
-    "references": [],
-    "probes": [],
-    "selected": "existing-design",
-    "approval": "not-required",
-    "before": "artifacts/design/lab/after-1440.png",
+    "references": [
+      "PostTrainLLM Local Research Bench",
+      "Existing artifact detail route"
+    ],
+    "probes": [
+      {
+        "id": "evidence-dossier",
+        "path": ".fleet/design-reviews/issue-166-directions.html"
+      },
+      {
+        "id": "knowledge-graph",
+        "path": ".fleet/design-reviews/issue-166-directions.html"
+      },
+      {
+        "id": "field-manual",
+        "path": ".fleet/design-reviews/issue-166-directions.html"
+      }
+    ],
+    "selected": "evidence-dossier",
+    "approval": "approved",
+    "before": "",
     "library": {
       "strategy": "upstream-first",
       "primary": "existing-project-system",
@@ -28,44 +44,44 @@
       }
     },
     "contract": {
-      "purpose": "Show learners and Mac-local AI practitioners a complete, evidence-led path from browser experiments to specialist training, evaluation, packaging, and honest decisions.",
-      "purposeSource": "PRODUCT.md, DESIGN.md, PROJECT_STATUS.md, and the fresh ReST requalification receipt",
+      "purpose": "Make every retained PostTrainLLM study and learning artifact independently discoverable without separating conclusions from provenance, limits, or related evidence.",
+      "purposeSource": "PRODUCT.md, DESIGN.md, PROJECT_STATUS.md, and GitHub Issue #166",
       "canonicalPurpose": "PostTrainLLM turns learning into inspectable local artifacts and bounded specialist objectives into evidence-gated Mac-local factory runs.",
       "purposeAlignment": "match",
       "driftNote": "",
-      "audience": "Learners and practitioners who want to build, modify, tune, evaluate, package, and understand language-model systems on Apple Silicon hardware they control.",
-      "job": "State the Mac-local specialist proposition, show one coherent current proof, and offer direct routes into the factory, evidence archive, Web Lab, and learning journey.",
-      "thesis": "Preserve the Local Research Bench while compressing the proposition into a smaller instrument label and promoting the loss trace into the dominant first-viewport visual.",
-      "system": "Existing deep-ink surfaces, teal verified signals, coral caution states, Bricolage display type, Geist prose, Geist Mono evidence labels, and full-width loss-curve signature.",
-      "signature": "A measured loss trace occupies most of a tall evidence band between the compact hero actions and the fresh paired ReST score row.",
-      "risk": "Compressing the copy could erase the bounded-specialist promise; retain routed-specialist language, one-Mac scope, and the requirement to measure both wins and regressions."
+      "audience": "Learners and practitioners researching Mac-local language-model systems who need a precise, citable record of what was studied, retained, rejected, built, or left unverified.",
+      "job": "Give each public knowledge object one canonical evidence page with an immediate disposition, substantive explanation, source provenance, limitations, and contextual routes to related work.",
+      "thesis": "A calm editorial evidence dossier extends the existing research bench: direct headline, restrained verdict strip, readable narrative, and a compact related-evidence rail.",
+      "system": "Existing deep-ink surfaces, teal verified/action signals, sparse coral warning states, Bricolage display type, Geist prose, Geist Mono evidence labels, 66-72 character reading measure, and one-column mobile reflow.",
+      "signature": "Every dossier opens with a typed disposition strip and closes the loop through a provenance-first related-evidence rail linking studies, recipes, experiments, paths, and built artifacts.",
+      "risk": "Templated detail pages could become thin or imply stronger evidence than exists; publication must fail when a record lacks substantive original interpretation, source provenance, limitations, or an explicit lifecycle disposition."
     }
   },
   "evidence": {
     "screenshots": [
       {
         "width": 390,
-        "path": "artifacts/design/hero-refinement/after-390.png"
+        "path": "artifacts/design/issue-166/knowledge-dossier-390.png"
       },
       {
         "width": 768,
-        "path": "artifacts/design/hero-refinement/after-768.png"
+        "path": "artifacts/design/issue-166/knowledge-dossier-768.png"
       },
       {
         "width": 1440,
-        "path": "artifacts/design/hero-refinement/after-1440.png"
+        "path": "artifacts/design/issue-166/knowledge-dossier-1440.png"
       }
     ],
     "projectCheck": {
-      "command": "pnpm --dir browser test && pnpm --dir browser build && E2E_URL=http://127.0.0.1:4173 EVIDENCE_DIR=<repo>/artifacts/design/hero-refinement pnpm --dir browser visual:audit",
+      "command": "pnpm --dir browser test && pnpm --dir browser build",
       "status": "pass"
     },
     "critique": {
-      "score": 38,
+      "score": 37,
       "maximum": 40
     },
     "audit": {
-      "score": 20,
+      "score": 19,
       "maximum": 20
     },
     "unresolved": {
@@ -74,33 +90,36 @@
     },
     "detector": {
       "posture": "advisory",
-      "findings": []
+      "findings": [
+        "Focused SEO audit reports the existing global SoftwareApplication JSON-LD as ineligible for review-rich results because no review evidence exists; no ratings or reviews were invented.",
+        "The broader legacy visual suite still reports a pre-existing 390px overflow on /webgpu-test and an aborted third-party request on /learn; all five new route families passed at 390, 768, and 1440 pixels."
+      ]
     },
     "comprehension": {
-      "status": "pass",
-      "reviewer": "Fresh-visitor screenshot and geometry review at 390, 768, and 1440 pixels",
+      "status": "not-applicable",
+      "reviewer": "",
       "answers": {
-        "product": "A one-machine research lab and bounded specialist-LLM factory for Apple Silicon.",
-        "audience": "Learners and practitioners building, tuning, evaluating, and understanding local language models on a Mac.",
-        "value": "Turn bounded model objectives into runnable artifacts while measuring both improvements and regressions.",
-        "mechanism": "A target-to-data-to-post-train-to-eval-to-package-to-report loop, with browser training and inference labs.",
-        "proof": "Fresh paired ReST evidence shows 12/12 file operations versus stock 9/12, zero versus eight unexpected side effects, 2.42x faster depth wall time, and the disclosed 25/45 versus 30/45 breadth regression.",
-        "nextAction": "Run the native factory or inspect the specialist proof; Web Lab, artifacts, experiments, learning paths, and the pending Mac release remain directly reachable."
+        "product": "",
+        "audience": "",
+        "value": "",
+        "mechanism": "",
+        "proof": "",
+        "nextAction": ""
       },
       "purposeScore": {
-        "product": 25,
-        "audience": 14,
-        "value": 15,
-        "mechanism": 15,
-        "proof": 14,
-        "nextAction": 15,
-        "total": 98
+        "product": 0,
+        "audience": 0,
+        "value": 0,
+        "mechanism": 0,
+        "proof": 0,
+        "nextAction": 0,
+        "total": 0
       },
       "mismatches": []
     }
   },
   "ownerFeedback": {
-    "decision": "agent-selected",
-    "note": "The owner explicitly asked for less header content and substantially more room for the loss curve; the implementation shortens and shrinks the proposition, expands the curve canvas, and preserves all current proof and navigation."
+    "decision": "keep",
+    "note": "The owner approved GitHub Issue #166 and explicitly selected Direction A, Evidence dossier."
   }
 }

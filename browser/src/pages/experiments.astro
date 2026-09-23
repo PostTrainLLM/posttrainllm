@@ -160,7 +160,9 @@ const exact = attempts.filter(
                   {labels[attempt.status] ?? attempt.status}
                 </span>
               </div>
-              <h3>{attempt.name}</h3>
+              <h3>
+                <a href={`/experiments/${attempt.id}`}>{attempt.name}</a>
+              </h3>
               {"methods" in attempt && (attempt.methods?.length ?? 0) > 0 && (
                 <ul
                   class="methods"
@@ -202,6 +204,7 @@ const exact = attempts.filter(
                   {confidenceLabels[attempt.failure_reason_confidence]}
                 </span>
                 <nav aria-label={`Links for ${attempt.name}`}>
+                  <a href={`/experiments/${attempt.id}`}>Dossier →</a>
                   <a href={experimentPublicHref(attempt)}>Proof →</a>
                   <a href={experimentRecipeHref(attempt)}>Recipes →</a>
                   <a href={experimentLearningHref(attempt)}>Learn →</a>

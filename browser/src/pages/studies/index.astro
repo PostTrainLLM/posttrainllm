@@ -1,0 +1,214 @@
+---
+import Default from "../../layouts/Default.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import "../../styles/system.css";
+import { studyRecords } from "../../data/knowledgeGraph";
+
+const statusCounts = Object.entries(
+  studyRecords.reduce<Record<string, number>>((counts, record) => {
+    counts[record.status] = (counts[record.status] ?? 0) + 1;
+    return counts;
+  }, {}),
+).sort(([left], [right]) => left.localeCompare(right));
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "PostTrainLLM studied projects and research",
+  description:
+    "Canonical evidence dossiers for every external product, project, model, paper, platform, and industry case study retained by PostTrainLLM.",
+  url: "https://posttrainllm.com/studies",
+  hasPart: studyRecords.map((study) => ({
+    "@type": "TechArticle",
+    headline: study.title,
+    url: `https://posttrainllm.com${study.canonicalPath}`,
+  })),
+};
+---
+
+<Default
+  title="Studied projects and research | PostTrainLLM"
+  description="Canonical, source-linked evidence dossiers for every external product, model, platform, technical writeup, and industry case study retained by PostTrainLLM."
+  ogType="website"
+>
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(jsonLd)}
+  />
+  <SiteHeader mode="instrument" active="studies" />
+  <main id="main" class="studies-page">
+    <header class="hero">
+      <p class="eyebrow">Tracked external evidence</p>
+      <h1>What we studied, what we kept, and what we rejected.</h1>
+      <p class="lede">
+        Every external product, model, platform, writeup, and case study that
+        changed the PostTrainLLM learning map gets one canonical record. Each
+        dossier keeps the local translation beside its evidence limits so a
+        useful idea never turns into an unsupported claim.
+      </p>
+      <dl class="summary">
+        <div><dt>Canonical studies</dt><dd>{studyRecords.length}</dd></div>
+        <div><dt>Distinct dispositions</dt><dd>{statusCounts.length}</dd></div>
+        <div><dt>Unresolved ownership</dt><dd>0</dd></div>
+      </dl>
+    </header>
+
+    <section aria-labelledby="study-index">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Evidence index</p>
+          <h2 id="study-index">All retained studies</h2>
+        </div>
+        <p>Indexed from the tracked review ledger and industry learning map.</p>
+      </div>
+      <div class="study-grid">
+        {
+          studyRecords.map((study) => (
+            <article>
+              <div class="card-meta">
+                <span>{study.kindLabel}</span>
+                <span>{study.status}</span>
+              </div>
+              <h3>
+                <a href={study.canonicalPath}>{study.title}</a>
+              </h3>
+              <p>{study.sections[0]?.paragraphs?.[0] ?? study.description}</p>
+              <a class="record-link" href={study.canonicalPath}>
+                Open evidence dossier →
+              </a>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+  </main>
+</Default>
+
+<style>
+  .studies-page {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: clamp(56px, 8vw, 108px) 0 var(--s-10);
+  }
+  .hero {
+    max-width: 980px;
+  }
+  .eyebrow {
+    color: var(--live);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 650;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+  h1 {
+    max-width: 18ch;
+    margin-top: var(--s-4);
+  }
+  .lede {
+    max-width: 68ch;
+    margin-top: var(--s-5);
+    color: var(--fg-soft);
+    font-size: var(--step-1);
+    line-height: 1.68;
+  }
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: var(--s-7);
+    border-block: 1px solid var(--line);
+  }
+  .summary div {
+    padding: var(--s-5) 0;
+  }
+  .summary dt {
+    color: var(--fg-quiet);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+  }
+  .summary dd {
+    margin-top: var(--s-2);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: var(--step-2);
+  }
+  section {
+    margin-top: var(--s-9);
+  }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-6);
+    align-items: end;
+    margin-bottom: var(--s-6);
+  }
+  .section-head h2 {
+    margin-top: var(--s-2);
+  }
+  .section-head > p {
+    max-width: 42ch;
+    color: var(--fg-quiet);
+  }
+  .study-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-4);
+  }
+  .study-grid article {
+    display: flex;
+    min-height: 310px;
+    flex-direction: column;
+    padding: var(--s-6);
+    border: 1px solid var(--line);
+    border-radius: var(--r-3);
+    background: var(--surface);
+  }
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-4);
+    color: var(--fg-quiet);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+  }
+  .card-meta span:last-child {
+    color: var(--live);
+  }
+  .study-grid h3 {
+    margin-top: var(--s-5);
+  }
+  .study-grid h3 a {
+    color: var(--fg);
+  }
+  .study-grid article > p {
+    margin-top: var(--s-4);
+    color: var(--fg-soft);
+    line-height: 1.65;
+  }
+  .record-link {
+    margin-top: auto;
+    padding-top: var(--s-5);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+  @media (max-width: 760px) {
+    .summary,
+    .study-grid {
+      grid-template-columns: 1fr;
+    }
+    .summary div + div {
+      border-top: 1px solid var(--line);
+    }
+    .section-head {
+      display: block;
+    }
+    .section-head > p {
+      margin-top: var(--s-4);
+    }
+    .study-grid article {
+      min-height: 0;
+    }
+  }
+</style>

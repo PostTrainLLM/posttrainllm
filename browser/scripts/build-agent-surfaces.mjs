@@ -17,6 +17,7 @@ const DIST = resolve(here, "..", "dist");
 const REPO_ROOT = resolve(here, "..", "..");
 const CHECK_ONLY = process.argv.includes("--check");
 const MAC_RELEASE_PATH = "/releases/mac.json";
+const KNOWLEDGE_INDEX_LASTMOD = "2026-09-23";
 const REQUIRED_CAPABILITY_PATHS = [
   "/",
   "/docs/quickstart",
@@ -28,6 +29,7 @@ const REQUIRED_CAPABILITY_PATHS = [
   "/experiments",
   "/recipes",
   "/learn",
+  "/studies",
   "/benchmarks",
   "/leaderboard",
   "/docs/cli-reference",
@@ -210,7 +212,26 @@ function surfaceKind(canonicalUrl) {
   if (pathname === "/docs" || pathname.startsWith("/docs/"))
     return "documentation";
   if (pathname.startsWith("/report-cards/")) return "report-card";
+  if (/^\/studies\/[^/]+$/u.test(pathname)) return "study";
+  if (/^\/experiments\/[^/]+$/u.test(pathname)) return "experiment-record";
+  if (/^\/recipes\/[^/]+$/u.test(pathname)) return "recipe";
+  if (/^\/learn\/paths\/[^/]+$/u.test(pathname)) return "learning-path";
+  if (/^\/learn\/artifacts\/[^/]+$/u.test(pathname)) return "learning-artifact";
   return "application";
+}
+
+function sitemapEntry(url) {
+  const pathname = routePath(url);
+  const isKnowledgeRoute =
+    pathname === "/studies" ||
+    pathname.startsWith("/studies/") ||
+    pathname.startsWith("/experiments/") ||
+    pathname.startsWith("/recipes/") ||
+    pathname.startsWith("/learn/paths/") ||
+    pathname.startsWith("/learn/artifacts/");
+  return isKnowledgeRoute
+    ? `  <url><loc>${xmlEscape(url)}</loc><lastmod>${KNOWLEDGE_INDEX_LASTMOD}</lastmod></url>`
+    : `  <url><loc>${xmlEscape(url)}</loc></url>`;
 }
 
 async function buildInventory() {
@@ -272,6 +293,12 @@ async function buildOutputs() {
       "utf8",
     ),
   ).stages;
+  const studies = JSON.parse(
+    await fs.readFile(
+      resolve(REPO_ROOT, "docs", "studies", "registry.json"),
+      "utf8",
+    ),
+  ).studies;
   const statusCounts = Object.fromEntries(
     [...new Set(attempts.map((attempt) => attempt.status))]
       .sort()
@@ -299,6 +326,7 @@ async function buildOutputs() {
     stages: journeyStages.length,
     buildableArtifacts: journeyStages.flatMap((stage) => stage.artifacts)
       .length,
+    studies: studies.length,
   };
   const capabilities = {
     build: [
@@ -317,6 +345,7 @@ async function buildOutputs() {
     ],
     learn: [
       { name: "Learning paths", url: `${ORIGIN}/learn` },
+      { name: "Studied projects", url: `${ORIGIN}/studies` },
       { name: "Reproducible recipes", url: `${ORIGIN}/recipes` },
       { name: "CLI reference", url: `${ORIGIN}/docs/cli-reference` },
       { name: "Documentation", url: `${ORIGIN}/docs/` },
@@ -383,7 +412,7 @@ async function buildOutputs() {
   const sitemap =
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-    urls.map((url) => `  <url><loc>${xmlEscape(url)}</loc></url>`).join("\n") +
+    urls.map(sitemapEntry).join("\n") +
     "\n</urlset>\n";
   const sitemapIndex =
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -391,7 +420,12 @@ async function buildOutputs() {
     `  <sitemap><loc>${ORIGIN}/sitemap-0.xml</loc></sitemap>\n` +
     `  <sitemap><loc>${ORIGIN}/docs/sitemap.xml</loc></sitemap>\n` +
     "</sitemapindex>\n";
-  const counts = { application: 0, documentation: 0, "report-card": 0 };
+  const counts = Object.fromEntries(
+    [...new Set(surfaces.map((surface) => surface.kind))].map((kind) => [
+      kind,
+      0,
+    ]),
+  );
   for (const surface of surfaces) counts[surface.kind] += 1;
   const llms = `# PostTrainLLM
 
@@ -422,6 +456,7 @@ Do not use PostTrainLLM for: large-scale distributed training, frontier-scale pr
 - [Experiments](${ORIGIN}/experiments): ${experimentSummary.total} resolved attempts — ${experimentSummary.worked} worked, ${experimentSummary.workedWithCaveat} worked with caveat, ${experimentSummary.nonPositiveOrMixed} non-positive or mixed
 - [Recipes](${ORIGIN}/recipes): ${learningSummary.recipes} reproducible or explicitly bounded recipe contracts
 - [Learning paths](${ORIGIN}/learn): ${learningSummary.paths} paths and ${learningSummary.buildableArtifacts} buildable artifacts
+- [Studied projects](${ORIGIN}/studies): ${learningSummary.studies} source-linked evidence dossiers
 - [Documentation](${ORIGIN}/docs/): ${counts.documentation} source documents
 - [Artifacts](${ORIGIN}/artifacts): Public packages, evidence, and blockers
 - [Benchmarks](${ORIGIN}/benchmarks): Measured performance evidence
@@ -464,10 +499,24 @@ inspect. See [the generated CLI reference](${ORIGIN}/docs/cli-reference) or
 `;
   const llmsFull =
     `${llms}\n` +
-    ["application", "report-card", "documentation"]
+    [
+      "application",
+      "study",
+      "experiment-record",
+      "recipe",
+      "learning-path",
+      "learning-artifact",
+      "report-card",
+      "documentation",
+    ]
       .map((kind) => {
         const heading = {
           application: "Application and research pages",
+          study: "Studied products and research",
+          "experiment-record": "Experiment records",
+          recipe: "Reproducible recipe contracts",
+          "learning-path": "Learning paths",
+          "learning-artifact": "Buildable learning artifacts",
           "report-card": "Fine-tune report cards",
           documentation: "Documentation",
         }[kind];

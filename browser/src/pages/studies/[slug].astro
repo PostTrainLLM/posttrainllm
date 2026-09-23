@@ -1,0 +1,20 @@
+---
+import EvidenceDossier from "../../components/content/EvidenceDossier.astro";
+import { studyRecords, type KnowledgeRecord } from "../../data/knowledgeGraph";
+
+export function getStaticPaths() {
+  return studyRecords.map((record) => ({
+    params: { slug: record.id },
+    props: { record },
+  }));
+}
+
+const { record } = Astro.props as { record: KnowledgeRecord };
+---
+
+<EvidenceDossier
+  record={record}
+  backHref="/studies"
+  backLabel="studies"
+  active="studies"
+/>
