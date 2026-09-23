@@ -287,6 +287,19 @@ const clarityLoader = telemetry
       host; PostHog remains the primary telemetry path.
     -->
     <script is:inline set:html={clarityLoader} />
+    {
+      telemetry && (
+        <script
+          is:inline
+          defer
+          src="https://health.sassmaker.com/tracker.js"
+          data-key="ahk_pub_dbdf16dbbb0bf141edf166fb7a314d45760bb0cd061d3d8e0e30c70de1e620e6"
+          data-project="app-87fd048a-cbd2-4110-9609-be67389fd239"
+          data-identity="persistent"
+          data-endpoint="https://ingest.sassmaker.com/v1/browser"
+        />
+      )
+    }
     <script is:inline src="/app-health-log.js" defer></script>
   </head>
   <body>
