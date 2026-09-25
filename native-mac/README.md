@@ -44,9 +44,23 @@ xcodebuild -scheme TinyGPTApp -destination 'platform=macOS,arch=arm64' \
 .xcode-build/Build/Products/Debug/TinyGPTApp
 ```
 
-For a Finder-launchable Release bundle, run `./scripts/release/build_macapp.sh` from
-the repository root. It embeds SwiftPM resources and the MLX Metal library,
-then verifies an ad-hoc signature by default. Supplying the complete personal
+For a Finder-launchable Release bundle, first build the `TinyGPTApp` scheme with
+Xcode in Release configuration so MLX's Metal shaders compile:
+
+```sh
+cd native-mac
+xcodebuild -scheme TinyGPTApp -configuration Release \
+  -destination 'platform=macOS,arch=arm64' -derivedDataPath .xcode-build \
+  -jobs 1 -skipPackagePluginValidation build
+cd ..
+./scripts/release/build_macapp.sh
+```
+
+Set `POSTTRAINLLM_XCODE_PRODUCTS_DIR` to Xcode's `Build/Products/Release` directory
+if it differs from `native-mac/.xcode-build/Build/Products/Release`. The script
+fails if the compiled `mlx-swift_Cmlx.bundle` is absent. It embeds SwiftPM
+resources and the MLX Metal library, then verifies an ad-hoc signature by default.
+Supplying the complete personal
 certificate name through `POSTTRAINLLM_SIGNING_IDENTITY` enables hardened
 runtime and trusted timestamp signing. `scripts/release/notarize-macapp.sh` fails
 closed unless that Developer ID signature is present and
