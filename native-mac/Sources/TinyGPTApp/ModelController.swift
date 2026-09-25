@@ -49,7 +49,7 @@ final class ModelController: ObservableObject {
         let tokensPerSec: Double
     }
 
-    private static let historyKey = "tg.completionHistory.v1"
+    private let historyKey: String
     /// Bound the persisted history — keep the last N completions so the
     /// UserDefaults plist doesn't grow without limit on heavy use.
     private static let historyMax = 200
@@ -63,13 +63,14 @@ final class ModelController: ObservableObject {
     /// byte-level gallery models (Shakespeare, code, chat, etc.).
     private var tokenizer: HFTokenizer? = nil
 
-    init() {
+    init(historyKey: String = "tg.completionHistory.v1") {
+        self.historyKey = historyKey
         deviceName = "\(Device.defaultDevice())"
         loadHistory()
     }
 
     private func loadHistory() {
-        guard let data = UserDefaults.standard.data(forKey: Self.historyKey),
+        guard let data = UserDefaults.standard.data(forKey: historyKey),
               let items = try? JSONDecoder().decode([HistoryItem].self, from: data)
         else { return }
         self.history = items
@@ -79,7 +80,7 @@ final class ModelController: ObservableObject {
         // Cap the persisted size — older runs drop off the front.
         let trimmed = history.suffix(Self.historyMax)
         guard let data = try? JSONEncoder().encode(Array(trimmed)) else { return }
-        UserDefaults.standard.set(data, forKey: Self.historyKey)
+        UserDefaults.standard.set(data, forKey: historyKey)
     }
 
     func load(_ item: GalleryItem) async {
