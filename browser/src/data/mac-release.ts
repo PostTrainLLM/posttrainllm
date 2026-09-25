@@ -34,7 +34,7 @@ export const macReleaseRecord = {
   state: "available",
   artifactURL:
     "https://github.com/PostTrainLLM/posttrainllm/releases/download/mac-v0.2.0/posttrainllm-0.2.0-macOS.dmg",
-  sha256: "b39fa0fa7ff8c777d31be3edec0ad434eb4b9850e14223183a29fe2b44c6f9f8",
+  sha256: "32dca8d4bbe1ad041a8820f4b969d78ce1962bda96eadc7dee16b2448daf7947",
   verification: {
     developerIdSigned: true,
     hardenedRuntime: true,
