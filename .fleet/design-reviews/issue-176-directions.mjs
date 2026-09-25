@@ -1,0 +1,88 @@
+import { writeFileSync } from 'node:fs';
+
+const out = new URL('.', import.meta.url);
+const esc = (v) => String(v).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+const R = (x,y,w,h,fill,rx=0,stroke='',sw=1) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}"${stroke?` stroke="${stroke}" stroke-width="${sw}"`:''}/>`;
+const L = (x1,y1,x2,y2,color,width=1) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${width}"/>`;
+const T = (x,y,value,size=16,color='#e8edf1',weight=400,family='-apple-system,Helvetica Neue,Arial,sans-serif',extra='') => `<text x="${x}" y="${y}" font-family="${family}" font-size="${size}" font-weight="${weight}" fill="${color}" ${extra}>${esc(value)}</text>`;
+const C = (x,y,r,fill) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`;
+const wrap = (content) => `<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">${content}</svg>`;
+const traffic = () => [C(26,22,6,'#ff6059'),C(47,22,6,'#febc2e'),C(68,22,6,'#29c840')].join('');
+const mono = 'SFMono-Regular,Menlo,Consolas,monospace';
+
+const a = [
+  R(0,0,1440,900,'#0b0e12'),R(0,0,1440,44,'#13171b'),traffic(),T(650,28,'posttrainllm  /  local research bench',13,'#aab5bd',500),
+  R(0,44,78,856,'#11171a'),L(78,44,78,900,'#263139'),
+  T(25,98,'P',23,'#5ce3c3',700),
+  ...[['▦',175],['⌁',239],['◇',303],['✓',367],['⌕',431],['◎',495]].map(([icon,y],i)=>[i===0?R(9,y-29,60,52,'#1c3633',12):'',T(28,y,icon,25,i===0?'#66efca':'#84929b',500)].join('')),
+  T(27,852,'?',22,'#81949d'),
+  T(116,96,'GALLERY  /  SHAKESPEARE',12,'#65dfbf',700,mono,'letter-spacing="2"'),
+  T(116,142,'A place to think with a model.',30,'#eef3f3',650),
+  T(116,174,'One run at a time. Parameters stay available without crowding the work.',15,'#91a0a9'),
+  R(112,201,988,72,'#151c20',16,'#2a363c'),T(138,232,'🎭  Shakespeare',19,'#f4f6f4',650),T(138,254,'9,608,704 parameters  ·  byte-level  ·  Device(gpu, 0)',12,'#8c9ca5',400,mono),
+  R(930,219,140,36,'#173c34',9),T(957,242,'MODEL READY',11,'#69e6c2',700,mono),
+  R(112,296,988,431,'#10161a',18,'#27343a'),
+  T(142,333,'LATEST RUN',11,'#76d9bc',700,mono,'letter-spacing="2"'),T(953,333,'00:04',11,'#87959e',500,mono),L(142,348,1070,348,'#26343a'),
+  T(142,386,'PROMPT',10,'#84939c',700,mono,'letter-spacing="2"'),T(142,419,'MENENIUS:',23,'#e7eeee',500,mono),
+  T(142,480,'COMPLETION',10,'#84939c',700,mono,'letter-spacing="2"'),T(142,523,'They fin',28,'#d7f6e9',500,mono),
+  L(142,666,1070,666,'#26343a'),T(142,697,'8 tokens',12,'#b8c6cc',500,mono),T(277,697,'2 tok/s',12,'#b8c6cc',500,mono),T(967,697,'COPY ↗',12,'#70e7c3',700,mono),
+  R(112,750,988,110,'#171f23',17,'#3a514d'),T(142,785,'NEW PROMPT',10,'#78d8bc',700,mono,'letter-spacing="2"'),T(142,819,'MENENIUS:',19,'#eef2f0',500,mono),
+  R(930,779,139,56,'#58e2b8',12),T(957,814,'GENERATE',13,'#09251d',750,mono),
+  R(1120,44,320,856,'#11171b'),L(1120,44,1120,900,'#263139'),T(1150,94,'RUN SETTINGS',11,'#93a3aa',700,mono,'letter-spacing="2"'),
+  T(1150,143,'Sampling',22,'#edf4f2',600),T(1150,181,'Temperature',14,'#d7e0e0'),T(1343,181,'0.80',14,'#f0f2f2',600,mono),R(1150,197,258,5,'#33433f',3),R(1150,197,203,5,'#58e2b8',3),C(1353,199,8,'#58e2b8'),
+  T(1150,251,'Top-K',14,'#d7e0e0'),T(1386,251,'0',14,'#f0f2f2',600,mono),R(1150,267,258,5,'#33433f',3),C(1150,269,8,'#58e2b8'),
+  T(1150,321,'Repetition penalty',14,'#d7e0e0'),T(1367,321,'1.00',14,'#f0f2f2',600,mono),R(1150,337,258,5,'#33433f',3),R(1150,337,130,5,'#58e2b8',3),C(1280,339,8,'#58e2b8'),
+  T(1150,397,'Max tokens',14,'#d7e0e0'),R(1150,413,258,42,'#1c272b',9,'#34434a'),T(1166,440,'8',16,'#f0f2f2',500,mono),
+  L(1150,496,1409,496,'#29383d'),T(1150,529,'MACHINE',11,'#93a3aa',700,mono,'letter-spacing="2"'),T(1150,565,'M5 Pro',18,'#eef4f0',600),T(1150,591,'48 GB unified memory',12,'#95a4aa',400,mono),
+  R(1150,628,258,92,'#17322f',13),T(1167,655,'LOCAL EXECUTION',11,'#69e6c2',700,mono),T(1167,681,'No network model call',12,'#e1ece7'),T(1167,702,'Metal library loaded',12,'#e1ece7'),
+  T(1150,852,'A  /  FOCUSED BENCH',11,'#6c9487',700,mono,'letter-spacing="2"')
+].join('');
+
+const b = [
+  R(0,0,1440,900,'#f2f0e9'),R(0,0,1440,44,'#e8e6df'),traffic(),T(650,28,'posttrainllm  —  Mac factory',13,'#626965',500),
+  R(0,44,264,856,'#202723'),T(32,99,'posttrainllm',23,'#f1f2ec',650),T(32,124,'MAC FACTORY',10,'#91bcae',700,mono,'letter-spacing="2"'),
+  T(32,184,'WORKSPACES',10,'#8da69b',700,mono,'letter-spacing="2"'),
+  ...[['Gallery',224],['Factory',266],['Runs',308],['Eval',350],['Trace',392],['Interp',434],['Serve',476],['Check',518]].map(([label,y],i)=>[i===0?R(17,y-30,230,42,'#364941',9):'',T(36,y,label,16,i===0?'#f5fff8':'#bccbc3',i===0?650:450)].join('')),
+  L(26,735,236,735,'#48554e'),T(32,772,'DEVICE',10,'#94ada0',700,mono,'letter-spacing="2"'),T(32,802,'M5 Pro  /  48 GB',14,'#e5eae3',500,mono),T(32,835,'GPU ready  •  local',12,'#70dab4',500,mono),
+  T(310,99,'MODEL NOTEBOOK',11,'#5c7568',700,mono,'letter-spacing="2"'),T(310,143,'Shakespeare',36,'#23352c',680),T(310,174,'A small local model, one inspectable run.',16,'#66756c'),
+  R(1160,77,234,45,'#f7fbf6',10,'#d1d9d0'),T(1180,105,'Change model  ↗',14,'#2c5e47',600),
+  R(309,210,1085,72,'#e4ede5',13),T(331,238,'MODEL  9,608,704 params',12,'#325744',600,mono),T(331,264,'Byte-level  ·  Device(gpu, 0)  ·  ready for a bounded run',13,'#617468',400,mono),
+  R(309,305,1085,403,'#fcfbf6',17,'#d9ded6'),
+  T(343,345,'01  /  GENERATION',11,'#4f8d6b',700,mono,'letter-spacing="2"'),T(1215,345,'Today 00:04',12,'#879289',500,mono),L(343,365,1361,365,'#dce3da'),
+  T(343,400,'INPUT',10,'#7a8980',700,mono,'letter-spacing="2"'),T(343,432,'MENENIUS:',22,'#334c3e',500,mono),
+  T(343,485,'OUTPUT',10,'#7a8980',700,mono,'letter-spacing="2"'),T(343,535,'They fin',31,'#243b2e',500,mono),
+  L(343,648,1361,648,'#dce3da'),T(343,681,'8 tokens     2 tok/s     T = 0.80',12,'#6f7c72',500,mono),T(1295,681,'COPY  ↗',12,'#2b7e55',700,mono),
+  R(309,732,1085,128,'#ffffff',17,'#ced9d0'),T(343,764,'NEXT RUN',10,'#498563',700,mono,'letter-spacing="2"'),
+  T(343,805,'MENENIUS:',20,'#344c3e',500,mono),R(1223,774,139,55,'#206647',10),T(1248,808,'Generate',15,'#f7fff7',650),
+  T(343,839,'⌘↵ to generate     ·     8 tokens     ·     sampling settings',12,'#73837a',400,mono),
+  T(1078,188,'B  /  MODEL NOTEBOOK',11,'#648471',700,mono,'letter-spacing="2"')
+].join('');
+
+const c = [
+  R(0,0,1440,900,'#0b1011'),R(0,0,1440,44,'#171c1c'),traffic(),T(652,28,'posttrainllm  •  research console',13,'#a0afa9',500),
+  R(0,44,1440,68,'#101919'),T(26,86,'POSTTRAIN',20,'#c8f5df',800,mono,'letter-spacing="2"'),T(177,86,'/  MAC LAB',12,'#779b8a',700,mono),
+  ...[['GALLERY',369],['FACTORY',475],['RUNS',576],['EVAL',658],['TRACE',742],['INTERP',838],['SERVE',935],['CHECK',1022]].map(([label,x],i)=>[i===0?R(x-15,60,95,40,'#1e4234',7):'',T(x,85,label,12,i===0?'#79e5ae':'#8a9f94',700,mono)].join('')),
+  T(1288,84,'M5 PRO  ●',12,'#80e0ac',700,mono),L(0,112,1440,112,'#2d4840'),
+  R(0,112,294,788,'#0f1718'),L(294,112,294,900,'#315047'),T(24,151,'MODELS  /  LOCAL',11,'#80ba9e',700,mono,'letter-spacing="2"'),
+  R(14,178,266,110,'#193229',9,'#3a7654'),T(30,208,'01  🎭 SHAKESPEARE',14,'#d8f6e5',700,mono),T(30,234,'9.6M params',12,'#a5c4b2',400,mono),T(30,263,'● READY ON GPU',11,'#88e6b1',700,mono),
+  R(14,302,266,89,'#162020',8,'#293c36'),T(30,332,'02  TINYSTORIES',13,'#bccbc2',600,mono),T(30,358,'local checkpoint',11,'#819489',400,mono),
+  R(14,405,266,89,'#162020',8,'#293c36'),T(30,435,'03  PYTHON CODE',13,'#bccbc2',600,mono),T(30,461,'local checkpoint',11,'#819489',400,mono),
+  R(14,508,266,89,'#162020',8,'#293c36'),T(30,538,'04  Q&A CHAT',13,'#bccbc2',600,mono),T(30,564,'local checkpoint',11,'#819489',400,mono),
+  L(24,734,270,734,'#30453d'),T(24,764,'SESSION METRICS',11,'#80ba9e',700,mono,'letter-spacing="1"'),T(24,795,'48 GB RAM  /  6.7 GB FREE',11,'#aec4b5',500,mono),T(24,824,'METAL LOADED  /  LOCAL',11,'#88e6b1',500,mono),
+  R(294,112,1146,88,'#101a1a'),T(327,152,'SHAKESPEARE',23,'#e0f3e6',700,mono),T(327,179,'Gallery  /  Model 01  /  Generation',12,'#89a99a',400,mono),
+  R(1257,134,152,42,'#244a35',8),T(1280,161,'NEW RUN  +',13,'#c2f4d7',700,mono),L(294,200,1440,200,'#315047'),
+  R(319,226,794,466,'#101919',11,'#355149'),T(342,258,'RUN 001',11,'#88e6b1',700,mono),T(983,258,'00:04',11,'#7a9587',600,mono),L(342,275,1090,275,'#2a4038'),
+  T(342,315,'> PROMPT',13,'#82b798',700,mono),T(342,348,'MENENIUS:',21,'#d8eee1',500,mono),
+  T(342,401,'< COMPLETION',13,'#82b798',700,mono),T(342,440,'They fin',24,'#a3e6be',500,mono),
+  T(342,654,'8 TOKENS  ·  2 TOK/S  ·  COMPLETED',11,'#88b49b',600,mono),
+  R(1135,226,278,466,'#14201d',10,'#355149'),T(1155,258,'PARAMETERS',11,'#88e6b1',700,mono,'letter-spacing="1"'),
+  ...[['TEMPERATURE','0.80',302],['TOP-K','0',381],['REPETITION','1.00',460],['MAX TOKENS','8',539]].map(([label,val,y])=>[T(1155,y,label,11,'#a6c2ae',650,mono),T(1354,y,val,14,'#eef5e8',700,mono),R(1155,y+14,228,3,'#355c47',2),R(1155,y+14,Math.max(18,Number.parseFloat(val)*90),3,'#73dfa7',2)].join('')),
+  T(1155,658,'RESET DEFAULTS ↗',11,'#88e6b1',700,mono),
+  R(319,719,1094,141,'#172923',12,'#3c7851'),T(342,753,'COMMAND  /  NEXT GENERATION',11,'#8bdfad',700,mono,'letter-spacing="1"'),
+  T(342,801,'MENENIUS:',21,'#e1f4e8',500,mono),R(1253,768,132,59,'#7beaac',9),T(1270,805,'EXECUTE ↵',13,'#11331e',800,mono),
+  T(1173,880,'C  /  INSTRUMENT CONSOLE',11,'#609474',700,mono,'letter-spacing="1"')
+].join('');
+
+for (const [id, svg] of [['a-focused-bench',a],['b-model-notebook',b],['c-instrument-console',c]]) {
+  writeFileSync(new URL(`issue-176-${id}.svg`,out), wrap(svg));
+}
