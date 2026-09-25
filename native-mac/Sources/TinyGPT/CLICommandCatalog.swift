@@ -6,7 +6,7 @@ import Foundation
 /// the parked runners in `ExperimentalCommands.swift`. The repository-level
 /// CLI surface smoke test enforces that contract without loading a model.
 enum CLICommandCatalog {
-    static let version = "0.1.0"
+    static let version = "0.2.0"
 
     enum Category: String, CaseIterable, Codable {
         case start = "Start here"

@@ -27,7 +27,7 @@ fi
 [ -x "$bin" ] || { echo "CLI SURFACE FAIL: binary is not executable: $bin" >&2; exit 1; }
 
 version="$($bin --version)"
-[ "$version" = "posttrainllm 0.1.0" ] || {
+[ "$version" = "posttrainllm 0.2.0" ] || {
   echo "CLI SURFACE FAIL: unexpected version output: $version" >&2
   exit 1
 }
@@ -42,7 +42,7 @@ import sys
 
 payload = json.load(open(sys.argv[1]))
 assert payload["schema_version"] == 1
-assert payload["cli_version"] == "0.1.0"
+assert payload["cli_version"] == "0.2.0"
 assert payload["lab_loop"] == ["target", "data", "post-training", "eval", "package", "report"]
 commands = payload["commands"]
 assert len(commands) >= 100
