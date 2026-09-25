@@ -93,7 +93,9 @@
     },
     "detector": {
       "posture": "advisory",
-      "findings": ["Browser DOM detector does not apply to this native SwiftUI surface."]
+      "findings": [
+        "Browser DOM detector does not apply to this native SwiftUI surface."
+      ]
     },
     "comprehension": {
       "status": "not-applicable",
