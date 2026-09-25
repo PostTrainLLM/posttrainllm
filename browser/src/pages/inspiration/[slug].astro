@@ -1,0 +1,164 @@
+---
+import Default from "../../layouts/Default.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import {
+  inspirations,
+  inspirationStudies,
+  type Inspiration,
+} from "../../data/inspirations";
+import "../../styles/system.css";
+import "../../styles/inspiration.css";
+
+export function getStaticPaths() {
+  return inspirations.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props as { entry: Inspiration };
+const studies = inspirationStudies(entry);
+const next =
+  inspirations[
+    (inspirations.findIndex((item) => item.slug === entry.slug) + 1) %
+      inspirations.length
+  ];
+const canonical = `https://posttrainllm.com/inspiration/${entry.slug}`;
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: `${entry.name} and PostTrainLLM`,
+  description: entry.opening,
+  url: canonical,
+  author: { "@type": "Person", name: "Sarthak Agrawal" },
+  about: { "@type": "Thing", name: entry.name, url: entry.source.href },
+  citation: [
+    entry.source.href,
+    ...studies.map((study) => `https://posttrainllm.com/studies/${study.id}`),
+  ],
+};
+---
+
+<Default
+  title={`${entry.name}: an inspiration for PostTrainLLM`}
+  description={entry.opening}
+  ogType="article"
+>
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(jsonLd)}
+  />
+  <link
+    slot="head"
+    rel="alternate"
+    type="text/markdown"
+    href={`/inspiration/${entry.slug}.md`}
+  />
+  <SiteHeader mode="instrument" active="inspiration" />
+  <main id="main" class="inspiration-page inspiration-article">
+    <nav class="inspiration-breadcrumb" aria-label="Breadcrumb">
+      <a href="/inspiration">Inspiration</a><span aria-hidden="true">
+        /
+      </span><span aria-current="page">{entry.name}</span>
+    </nav>
+    <header class="article-hero">
+      <div>
+        <p class="inspiration-kicker">A note of thanks · {entry.thread}</p>
+        <h1>{entry.name}</h1>
+      </div>
+      <p>{entry.opening}</p>
+    </header>
+
+    <div class="article-content">
+      <div class="article-prose">
+        <section aria-labelledby="lesson-title">
+          <p class="inspiration-kicker">01 · The idea</p>
+          <h2 id="lesson-title">What stayed with us</h2>
+          {
+            studies.length ? (
+              studies.map((study) => <p>{study.what_mattered}</p>)
+            ) : (
+              <p>{entry.opening}</p>
+            )
+          }
+        </section>
+        <section aria-labelledby="local-title">
+          <p class="inspiration-kicker">02 · The local translation</p>
+          <h2 id="local-title">What we did with it</h2>
+          {
+            studies.length ? (
+              studies.map((study) => <p>{study.local_translation}</p>)
+            ) : (
+              <p>{entry.localRead}</p>
+            )
+          }
+        </section>
+        <section aria-labelledby="boundary-title">
+          <p class="inspiration-kicker">03 · The boundary</p>
+          <h2 id="boundary-title">Where the comparison stops</h2>
+          {
+            studies.length ? (
+              studies.map((study) => <p>{study.boundary}</p>)
+            ) : (
+              <p>{entry.boundary}</p>
+            )
+          }
+        </section>
+      </div>
+      <aside class="article-sources" aria-labelledby="source-title">
+        <p class="inspiration-kicker">Source trail</p>
+        <h2 id="source-title">Follow the work</h2>
+        <ul>
+          <li>
+            <span>Original project</span><a
+              href={entry.source.href}
+              target="_blank"
+              rel="noopener noreferrer">{entry.source.label} ↗</a
+            >
+          </li>
+          {
+            entry.reading?.map((link) => (
+              <li>
+                <>
+                  <span>Further reading</span>
+                  <a href={link.href} target="_blank" rel="noopener noreferrer">
+                    {link.label} ↗
+                  </a>
+                </>
+              </li>
+            ))
+          }
+          {
+            studies.map((study) => (
+              <li>
+                <>
+                  <span>Our evidence · {study.status}</span>
+                  <a href={`/studies/${study.id}`}>{study.title} ↗</a>
+                </>
+              </li>
+            ))
+          }
+          {
+            entry.evidence?.map((link) => (
+              <li>
+                <>
+                  <span>Our context</span>
+                  <a href={link.href}>{link.label} ↗</a>
+                </>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="source-caveat">
+          Independent appreciation. The named projects have not endorsed or
+          affiliated with PostTrainLLM.
+        </p>
+      </aside>
+    </div>
+    <footer class="inspiration-article-footer">
+      <a href="/inspiration">← All inspirations</a>
+      <a href={`/inspiration/${next.slug}`}>Next: {next.name} →</a>
+    </footer>
+  </main>
+</Default>

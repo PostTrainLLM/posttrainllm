@@ -85,6 +85,8 @@ const coreRoutes = [
   "/artifacts",
   "/studies",
   "/studies/trainloop-ai",
+  "/inspiration",
+  "/inspiration/halo",
   "/experiments/sql-toy-sft-r4",
   "/recipes/distillation",
   "/learn/paths/post-training",

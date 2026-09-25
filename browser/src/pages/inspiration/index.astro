@@ -1,0 +1,101 @@
+---
+import Default from "../../layouts/Default.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import { inspirations } from "../../data/inspirations";
+import "../../styles/system.css";
+import "../../styles/inspiration.css";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "The projects behind PostTrainLLM",
+  url: "https://posttrainllm.com/inspiration",
+  hasPart: inspirations.map((entry) => ({
+    "@type": "Article",
+    headline: entry.name,
+    url: `https://posttrainllm.com/inspiration/${entry.slug}`,
+  })),
+};
+---
+
+<Default
+  title="Inspiration: the projects behind PostTrainLLM"
+  description="A public thank-you to the tools and projects that shaped PostTrainLLM, with source links, local lessons, evidence, and clear boundaries."
+  ogType="website"
+>
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(jsonLd)}
+  />
+  <link
+    slot="head"
+    rel="alternate"
+    type="text/markdown"
+    href="/inspiration.md"
+  />
+  <SiteHeader mode="instrument" active="inspiration" />
+  <main id="main" class="inspiration-page inspiration-index">
+    <header class="inspiration-hero">
+      <p class="inspiration-kicker">The people and projects behind the lab</p>
+      <div class="inspiration-hero-grid">
+        <h1>Built in good company.</h1>
+        <div class="inspiration-intro">
+          <p>
+            PostTrainLLM grew by studying tools that solved hard problems in
+            public. Here are the ideas we admired, the parts we tried, and the
+            limits we kept.
+          </p>
+          <a href="#all-inspirations"
+            >Meet the projects <span aria-hidden="true">↓</span></a
+          >
+        </div>
+      </div>
+    </header>
+
+    <section id="all-inspirations" aria-labelledby="inspiration-list-title">
+      <div class="inspiration-list-heading">
+        <h2 id="inspiration-list-title">With thanks to</h2>
+        <p>{inspirations.length} named tools and projects</p>
+      </div>
+      <ol class="inspiration-list">
+        {
+          inspirations.map((entry, index) => (
+            <li>
+              <span class="inspiration-number">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <h3>
+                <a href={`/inspiration/${entry.slug}`}>{entry.name}</a>
+              </h3>
+              <p>{entry.thread}</p>
+              <a
+                class="inspiration-row-link"
+                href={`/inspiration/${entry.slug}`}
+                aria-label={`Read about ${entry.name}`}
+              >
+                Read the story <span aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <aside
+      class="inspiration-index-note"
+      aria-label="How to read these acknowledgments"
+    >
+      <p class="inspiration-kicker">Credit, with context</p>
+      <h2>Admiration is a starting point.</h2>
+      <p>
+        Some ideas became local tools; some stayed studies, and some failed our
+        tests. Each article links the original project and our own evidence so
+        you can follow the distinction. Papers and articles live in the
+        <a href="/docs/learn/external-references">reading list</a> and appear here
+        as sources, not separate entries.
+      </p>
+      <a href="/studies">Browse the evidence dossiers ↗</a>
+    </aside>
+  </main>
+</Default>
