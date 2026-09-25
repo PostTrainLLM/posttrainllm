@@ -1,0 +1,133 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "Native Mac app shell and Gallery generation workspace",
+  "surfaceMode": "operate",
+  "mode": "overhaul",
+  "register": "product",
+  "context": {
+    "product": "PRODUCT.md",
+    "design": "DESIGN.md"
+  },
+  "direction": {
+    "references": [
+      "PostTrainLLM Local Research Bench",
+      "Owner-supplied 0.2.0 Gallery screenshot"
+    ],
+    "probes": [
+      {
+        "id": "focused-bench",
+        "path": ".fleet/design-reviews/issue-176-a-focused-bench.png"
+      },
+      {
+        "id": "model-notebook",
+        "path": ".fleet/design-reviews/issue-176-b-model-notebook.png"
+      },
+      {
+        "id": "instrument-console",
+        "path": ".fleet/design-reviews/issue-176-c-instrument-console.png"
+      }
+    ],
+    "selected": "focused-bench",
+    "approval": "approved",
+    "before": "artifacts/design/issue-176/before.png",
+    "library": {
+      "strategy": "upstream-first",
+      "primary": "existing-project-system",
+      "sources": [],
+      "runtime": "existing",
+      "customReplacement": {
+        "used": false,
+        "authorization": "not-required",
+        "reason": ""
+      }
+    },
+    "contract": {
+      "purpose": "Make a Mac-local model run easy to start, read, and inspect in the native app.",
+      "purposeSource": "PRODUCT.md, DESIGN.md, PROJECT_STATUS.md, owner screenshot and Issue #176 selection",
+      "canonicalPurpose": "PostTrainLLM turns learning into inspectable local artifacts and bounded specialist objectives into evidence-gated Mac-local factory runs.",
+      "purposeAlignment": "match",
+      "driftNote": "",
+      "audience": "Learners and practitioners running and evaluating local models on Apple Silicon.",
+      "job": "Show the selected model, prompt, Generate action, completion, sampling controls, and local status together without clipping or duplicate output.",
+      "thesis": "A focused dark research bench with a compact labeled workspace rail, one structured run record, a fixed prompt composer, and a clear parameter inspector.",
+      "system": "Deep ink surfaces, teal live/action signals, restrained coral warnings, compact monospaced evidence labels, generous run-record spacing, and a scrollable labeled rail.",
+      "signature": "One inspectable local run record replaces a duplicated transcript, with the next prompt anchored below it and the MLX sampling recipe beside it.",
+      "risk": "The compact rail could weaken discoverability; every icon keeps a visible label, tooltip, and accessibility name, and all workspaces remain reachable."
+    }
+  },
+  "evidence": {
+    "screenshots": [
+      {
+        "width": 1840,
+        "state": "model-library",
+        "path": "artifacts/design/issue-176/after-gallery.png"
+      },
+      {
+        "width": 1840,
+        "state": "completed-run",
+        "path": "artifacts/design/issue-176/after-generate.png"
+      },
+      {
+        "width": 1840,
+        "state": "return-to-library",
+        "path": "artifacts/design/issue-176/after-return-to-gallery.png"
+      }
+    ],
+    "projectCheck": {
+      "command": "DEVELOPER_DIR=/Applications/Xcode-26.6.0.app/Contents/Developer swift build -j 1 -c debug --product TinyGPTApp; swiftformat --lint ContentView.swift ModelController.swift; git diff --check",
+      "status": "pass"
+    },
+    "critique": {
+      "score": 33,
+      "maximum": 40
+    },
+    "audit": {
+      "score": 16,
+      "maximum": 20
+    },
+    "unresolved": {
+      "p0": 0,
+      "p1": 0
+    },
+    "detector": {
+      "posture": "advisory",
+      "findings": ["Browser DOM detector does not apply to this native SwiftUI surface."]
+    },
+    "comprehension": {
+      "status": "not-applicable",
+      "reviewer": "",
+      "answers": {
+        "product": "",
+        "audience": "",
+        "value": "",
+        "mechanism": "",
+        "proof": "",
+        "nextAction": ""
+      },
+      "purposeScore": {
+        "product": 0,
+        "audience": 0,
+        "value": 0,
+        "mechanism": 0,
+        "proof": 0,
+        "nextAction": 0,
+        "total": 0
+      },
+      "mismatches": []
+    }
+  },
+  "ownerFeedback": {
+    "decision": "keep",
+    "note": "Owner selected A Focused Bench from three visible previews on 2026-09-26."
+  },
+  "nativeVerification": {
+    "windowPixels": "1840x1264",
+    "preview": "Temporary ad hoc signed app built with Xcode 26.6; preview bundle is not a release artifact.",
+    "modelLoad": "One owner-approved Shakespeare load verified on the final preview; no new token generation or training was run.",
+    "journey": "Library to Run to Library to Continue run succeeded without reloading. Clear history displayed a confirmation and was canceled. Compare disabled Generate until model B is chosen.",
+    "review": "Independent visual critique 33/40 and source/native audit 16/20; zero remaining P0 or P1 in this bounded review.",
+    "workflowLimit": "The shared design-workflow validator requires 390/768/1440 browser viewport captures. Those sizes do not describe a native Mac window, so this receipt records actual window screenshots instead."
+  }
+}
