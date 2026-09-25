@@ -7,11 +7,10 @@ validation, tests, coverage, current-SHA CI, deployment, and the live guest
 audit all passed for the completion release. This document preserves the factory
 sequence as lab context. It is not a second task queue.
 
-Issue #137 remains the only external release queue: it owns notarization and the
-final public distribution receipt. Issue #138's controlled ReST, Parakeet,
-WebGPU, and Needle experiment tranche was completed on 2026-09-03 with four
-tracked decisions and no open experimental run. Neither issue revives the
-historical TODOs below.
+Issue #137 closed after the notarized Mac release and public distribution
+receipt. Issue #138's controlled ReST, Parakeet, WebGPU, and Needle experiment
+tranche closed with four tracked decisions. Issue #166's canonical learning
+evidence index is deployed. None revives the historical TODOs below.
 
 Fresh work begins only when the owner has chosen a new question—normally after
 completing a relevant path in
@@ -41,13 +40,13 @@ products and techniques, use `docs/external-products-reviewed.md`.
 The completion claim is split into five receipts. A green earlier receipt does
 not imply that a later one happened.
 
-| Receipt           | Required proof                                                                                                                                          | Current state (2026-09-03)                                                                                                                 |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Local source      | Completion validator, unit tests, coverage, quality, and clean diff checks pass                                                                         | **Passed**: 76 experiments, 18 recipes, 9 paths, 13 journey artifacts, 17 public artifacts, 0 unresolved statuses; attempt, completion, report-card, browser-test, and quality gates are green |
-| Native CLI        | Serial release build, discovery/runtime smoke, and Xcode tests pass on the current source                                                               | **Passed**: release build and 107-entry runtime catalog pass; 218 Xcode tests pass, 6 optional-fixture tests skip, production coverage 32.51% |
-| Browser build     | Production Astro/docs/agent build and internal-link checker pass                                                                                        | **Passed**: 46 app pages, 310 docs pages, 359 paired agent surfaces, and 110,565 internal links checked                                      |
-| Rendered UI       | `/`, `/experiments`, `/recipes`, `/learn`, Needle, Parakeet, and CLI docs pass keyboard, interaction, console, overflow, and 390/768/1440 px inspection | **Passed**: all 36 route/viewport checks are green with zero overflow, console, page, request, or P0/P1 failures; hero-curve clearance is enforced at 56px                             |
-| Published release | Exact source is committed and pushed, current-SHA CI is green, deployment succeeds, and live guest checks match the source                              | **Passed for the earlier completion SHA only**: `ebe1ba6`, CI run `33561299127`, deploy run `33562477716`, and all 21 live route/viewport checks. The 2026-09-03 closeout is not yet claimed deployed. |
+| Receipt           | Required proof                                                                                                                                          | Recorded receipt (reviewed 2026-09-25)                                                                                                                                                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Local source      | Completion validator, unit tests, coverage, quality, and clean diff checks pass                                                                         | **Passed**: 76 experiments, 18 recipes, 9 paths, 13 journey artifacts, 17 public artifacts, 0 unresolved statuses; attempt, completion, report-card, browser-test, and quality gates are green                                                                     |
+| Native CLI        | Serial release build, discovery/runtime smoke, and Xcode tests pass on the current source                                                               | **Passed**: release build and 107-entry runtime catalog pass; 218 Xcode tests pass, 6 optional-fixture tests skip, production coverage 32.51%                                                                                                                      |
+| Browser build     | Production Astro/docs/agent build and internal-link checker pass                                                                                        | **Passed**: 46 app pages, 310 docs pages, 359 paired agent surfaces, and 110,565 internal links checked                                                                                                                                                            |
+| Rendered UI       | `/`, `/experiments`, `/recipes`, `/learn`, Needle, Parakeet, and CLI docs pass keyboard, interaction, console, overflow, and 390/768/1440 px inspection | **Passed**: all 36 route/viewport checks are green with zero overflow, console, page, request, or P0/P1 failures; hero-curve clearance is enforced at 56px                                                                                                         |
+| Published release | Exact source is committed and pushed, current-SHA CI is green, deployment succeeds, and live guest checks match the source                              | **2026-09-23 public checkpoint deployed**: `f5a6279`, CI run `35820333740`, deploy run `35821320668`, and production smoke passed. The prior completion SHA `ebe1ba6` also has a 21-check live viewport audit; a full viewport sweep is not claimed for `f5a6279`. |
 
 The completed release ran the boundary in this order:
 

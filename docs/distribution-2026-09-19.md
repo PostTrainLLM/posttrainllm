@@ -31,33 +31,33 @@ derived from recipe intent; they are not claimed as observed customer searches.
 
 ## All 18 recipes mapped
 
-| Recipe | Query hypothesis / observed theme | Existing destination | Decision |
-| --- | --- | --- | --- |
-| constrained-generation | constrained JSON output vs correct tool calls | `/evaluate-local-llm` | Cover in evaluation gate |
-| distillation | distill small language model tool calling (observed theme) | `/build-small-language-model-specialist` | Refresh |
-| evolution-strategies | evolution strategies vs backprop LLM cost | `/recipes` | Leave reference-only |
-| galore-stability | GaLore optimizer memory vs activation memory | `/recipes` | Retain measured caveats |
-| interpretability | activation patching causal controls LLM | `/recipes` | Leave reference-only |
-| lora | MLX LoRA fine tuning Mac (observed theme) | `/mlx-lora-fine-tuning` | Refresh |
-| moe | sparse MoE active parameters vs runtime speed | `/recipes` | Retain dense-compute caveat |
-| mtp | multi token prediction vs speculative decoding | `/recipes` | Leave reference-only |
-| optimizers | LLM optimizer schedule controlled comparison | `/recipes` | No separate page |
-| peft-variants | LoRA DoRA adapter comparison MLX | `/mlx-lora-fine-tuning` | Link existing recipe |
-| precision | fp16 bf16 mixed precision numerical validation | `/evaluate-local-llm` | Include runtime gate |
-| pruning | LLM pruning smaller file vs faster inference | `/recipes` | Retain storage/runtime distinction |
-| quantization | MLX quantization memory quality tradeoff | `/evaluate-local-llm` | Include load parity gate |
-| speculative-heads | speculative decoding quality parity MLX | `/recipes` | Keep qualified caveat |
-| streaming-kivi | KV cache quantization vs sliding window | `/recipes` | No new runtime claim |
-| sql-lineage | SQL fine tuning execution evaluation negative transfer | `/build-small-language-model-specialist` | Link failure evidence |
-| needle2-evaluation | tiny tool selector safety held out evaluation | `/evaluate-local-llm` | Link reject evidence |
-| parakeet-browser-asr | browser ASR WebGPU WER latency comparison | `/recipes` | Retain closed experiment |
+| Recipe                 | Query hypothesis / observed theme                          | Existing destination                     | Decision                           |
+| ---------------------- | ---------------------------------------------------------- | ---------------------------------------- | ---------------------------------- |
+| constrained-generation | constrained JSON output vs correct tool calls              | `/evaluate-local-llm`                    | Cover in evaluation gate           |
+| distillation           | distill small language model tool calling (observed theme) | `/build-small-language-model-specialist` | Refresh                            |
+| evolution-strategies   | evolution strategies vs backprop LLM cost                  | `/recipes`                               | Leave reference-only               |
+| galore-stability       | GaLore optimizer memory vs activation memory               | `/recipes`                               | Retain measured caveats            |
+| interpretability       | activation patching causal controls LLM                    | `/recipes`                               | Leave reference-only               |
+| lora                   | MLX LoRA fine tuning Mac (observed theme)                  | `/mlx-lora-fine-tuning`                  | Refresh                            |
+| moe                    | sparse MoE active parameters vs runtime speed              | `/recipes`                               | Retain dense-compute caveat        |
+| mtp                    | multi token prediction vs speculative decoding             | `/recipes`                               | Leave reference-only               |
+| optimizers             | LLM optimizer schedule controlled comparison               | `/recipes`                               | No separate page                   |
+| peft-variants          | LoRA DoRA adapter comparison MLX                           | `/mlx-lora-fine-tuning`                  | Link existing recipe               |
+| precision              | fp16 bf16 mixed precision numerical validation             | `/evaluate-local-llm`                    | Include runtime gate               |
+| pruning                | LLM pruning smaller file vs faster inference               | `/recipes`                               | Retain storage/runtime distinction |
+| quantization           | MLX quantization memory quality tradeoff                   | `/evaluate-local-llm`                    | Include load parity gate           |
+| speculative-heads      | speculative decoding quality parity MLX                    | `/recipes`                               | Keep qualified caveat              |
+| streaming-kivi         | KV cache quantization vs sliding window                    | `/recipes`                               | No new runtime claim               |
+| sql-lineage            | SQL fine tuning execution evaluation negative transfer     | `/build-small-language-model-specialist` | Link failure evidence              |
+| needle2-evaluation     | tiny tool selector safety held out evaluation              | `/evaluate-local-llm`                    | Link reject evidence               |
+| parakeet-browser-asr   | browser ASR WebGPU WER latency comparison                  | `/recipes`                               | Retain closed experiment           |
 
 After publication, compare query-page observations over complete 28-day windows
 using the existing measurement pipeline. No traffic lift is claimed. A useful
 qualitative outcome is a practitioner reproducing the documented workflow or
 reporting a precise failure; reactions alone do not establish usability.
 
-## Community draft — not approved or posted
+## Community draft — retired, never posted
 
 **Title:** What survived our Mac-local tool-calling experiments: narrow wins,
 breadth regressions, and a rejected tiny router
@@ -93,13 +93,10 @@ not just headline scores.
 - [Router and limitations](https://huggingface.co/posttrainllm/pace-intent-router-v8)
 - [Mac quickstart](https://github.com/PostTrainLLM/posttrainllm#quickstart-mac)
 
-Before posting: owner reviews wording, complete artifact license/provenance
-qualification, and attach the fresh-clone verification receipt. No account
-creation, community submission, ad spend or new tracking is authorized here.
-
-**Gate status (2026-09-19):** all three pre-posting gates are now satisfied —
-wording owner-approved, license/provenance qualification complete on all three
-cards (Apache-2.0 for the two Qwen derivatives, MIT for the from-scratch
-router, live on Hugging Face), and the clean-clone receipt is posted on #148.
-Posting itself remains the owner's action; record the link and date on #148
-once published.
+**Historical gate status (2026-09-19):** all three pre-posting gates were
+satisfied — wording owner-approved, license/provenance qualification complete
+on all three cards (Apache-2.0 for the two Qwen derivatives, MIT for the
+from-scratch router, live on Hugging Face), and the clean-clone receipt posted
+on #148. The owner closed that broad distribution issue as **not planned** on
+2026-09-20 and chose on 2026-09-25 to retire this draft. It remains as research
+evidence; no community submission is planned or claimed.
