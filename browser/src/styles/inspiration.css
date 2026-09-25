@@ -1,0 +1,280 @@
+.inspiration-page {
+  width: min(1320px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: clamp(56px, 8vw, 116px) 0 var(--s-10);
+}
+.inspiration-kicker {
+  color: var(--live);
+  font: 650 0.75rem/1.5 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.inspiration-hero {
+  padding-bottom: clamp(52px, 6vw, 92px);
+  border-bottom: 1px solid var(--line);
+}
+.inspiration-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(260px, 0.75fr);
+  align-items: end;
+  gap: clamp(32px, 5vw, 96px);
+  margin-top: var(--s-5);
+}
+.inspiration-hero h1 {
+  max-width: 9ch;
+  font-size: clamp(4.5rem, 9.2vw, 9.5rem);
+  line-height: 0.92;
+  letter-spacing: -0.075em;
+}
+.inspiration-intro {
+  border-top: 2px solid var(--live);
+  padding-top: var(--s-5);
+}
+.inspiration-intro p {
+  color: var(--fg-soft);
+  font-size: clamp(1.1rem, 1.4vw, 1.4rem);
+  line-height: 1.5;
+}
+.inspiration-intro a {
+  display: inline-block;
+  margin-top: var(--s-5);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+.inspiration-index section {
+  margin-top: var(--s-8);
+}
+.inspiration-list-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin-bottom: var(--s-5);
+}
+.inspiration-list-heading h2 {
+  font-size: clamp(2rem, 3.5vw, 3.8rem);
+}
+.inspiration-list-heading p {
+  color: var(--fg-quiet);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+.inspiration-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.inspiration-list li {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1.5fr) minmax(140px, 0.55fr) auto;
+  gap: 24px;
+  align-items: center;
+  min-height: 112px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.inspiration-number {
+  font: 600 0.74rem var(--font-mono);
+  color: var(--fg-quiet);
+}
+.inspiration-list h3 {
+  font-size: clamp(1.6rem, 2.6vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+}
+.inspiration-list h3 a {
+  color: var(--fg);
+  text-decoration: none;
+}
+.inspiration-list h3 a:hover,
+.inspiration-list h3 a:focus-visible {
+  color: var(--live);
+}
+.inspiration-list li > p {
+  color: var(--fg-soft);
+  line-height: 1.4;
+}
+.inspiration-row-link {
+  white-space: nowrap;
+  font: 600 0.79rem var(--font-mono);
+}
+.inspiration-index-note {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: var(--s-4) var(--s-8);
+  margin-top: var(--s-9);
+  padding: var(--s-7);
+  border-left: 2px solid var(--live);
+  background: var(--surface);
+}
+.inspiration-index-note .inspiration-kicker {
+  grid-column: 1/-1;
+}
+.inspiration-index-note h2 {
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1.05;
+}
+.inspiration-index-note > p:not(.inspiration-kicker) {
+  color: var(--fg-soft);
+  line-height: 1.65;
+}
+.inspiration-index-note > a {
+  grid-column: 2;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+.inspiration-breadcrumb {
+  display: flex;
+  gap: 12px;
+  color: var(--fg-quiet);
+  font: 600 0.75rem var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.article-hero {
+  display: grid;
+  grid-template-columns: 1.1fr 0.8fr;
+  gap: clamp(32px, 8vw, 140px);
+  align-items: end;
+  padding: clamp(48px, 6vw, 92px) 0 var(--s-7);
+  border-bottom: 1px solid var(--line);
+}
+.article-hero h1 {
+  margin-top: var(--s-4);
+  font-size: clamp(4rem, 8vw, 8rem);
+  line-height: 0.95;
+  letter-spacing: -0.07em;
+  overflow-wrap: anywhere;
+}
+.article-hero > p {
+  max-width: 55ch;
+  color: var(--fg-soft);
+  font-size: clamp(1.2rem, 1.65vw, 1.6rem);
+  line-height: 1.5;
+}
+.article-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+  gap: clamp(32px, 7vw, 110px);
+  padding-top: var(--s-8);
+}
+.article-prose section + section {
+  margin-top: var(--s-8);
+}
+.article-prose h2 {
+  margin: var(--s-2) 0 var(--s-5);
+  font-size: clamp(2rem, 3.5vw, 3.8rem);
+  line-height: 1.05;
+}
+.article-prose p:not(.inspiration-kicker) {
+  max-width: 68ch;
+  margin-top: var(--s-4);
+  color: var(--fg-soft);
+  font-size: clamp(1rem, 1.18vw, 1.18rem);
+  line-height: 1.7;
+}
+.article-sources {
+  align-self: start;
+  padding: var(--s-6);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.article-sources h2 {
+  margin: var(--s-2) 0 var(--s-5);
+  font-size: 1.8rem;
+}
+.article-sources ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.article-sources li {
+  padding: var(--s-4) 0;
+  border-top: 1px solid var(--line);
+}
+.article-sources li span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--fg-quiet);
+  font: 600 0.7rem var(--font-mono);
+  text-transform: uppercase;
+}
+.article-sources li a {
+  overflow-wrap: anywhere;
+}
+.source-caveat {
+  margin-top: var(--s-5);
+  color: var(--fg-quiet);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.inspiration-article-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: var(--s-9);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.83rem;
+}
+@media (max-width: 800px) {
+  .inspiration-hero-grid,
+  .article-hero,
+  .article-content {
+    grid-template-columns: 1fr;
+  }
+  .inspiration-hero h1 {
+    max-width: 12ch;
+  }
+  .inspiration-intro {
+    max-width: 58ch;
+  }
+  .article-hero {
+    gap: var(--s-5);
+  }
+  .inspiration-list li {
+    grid-template-columns: 35px 1fr auto;
+    gap: 8px 16px;
+  }
+  .inspiration-list li > p {
+    grid-column: 2;
+  }
+  .inspiration-row-link {
+    grid-column: 3;
+    grid-row: 1/3;
+  }
+  .inspiration-index-note {
+    grid-template-columns: 1fr;
+  }
+  .inspiration-index-note > a {
+    grid-column: 1;
+  }
+}
+@media (max-width: 520px) {
+  .inspiration-page {
+    width: calc(100% - 32px);
+  }
+  .inspiration-hero h1 {
+    font-size: clamp(3.6rem, 14vw, 5rem);
+  }
+  .inspiration-list li {
+    grid-template-columns: 28px 1fr;
+    gap: 7px 12px;
+  }
+  .inspiration-list h3 {
+    font-size: 1.85rem;
+  }
+  .inspiration-list li > p,
+  .inspiration-row-link {
+    grid-column: 2;
+    grid-row: auto;
+  }
+  .inspiration-article-footer {
+    flex-direction: column;
+  }
+  .inspiration-index-note {
+    padding: var(--s-5);
+  }
+}

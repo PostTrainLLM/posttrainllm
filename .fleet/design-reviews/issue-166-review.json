@@ -1,0 +1,125 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "Canonical evidence dossiers for studies, experiments, recipes, learning paths, and learning artifacts",
+  "surfaceMode": "read",
+  "mode": "overhaul",
+  "register": "product",
+  "context": {
+    "product": "PRODUCT.md",
+    "design": "DESIGN.md"
+  },
+  "direction": {
+    "references": [
+      "PostTrainLLM Local Research Bench",
+      "Existing artifact detail route"
+    ],
+    "probes": [
+      {
+        "id": "evidence-dossier",
+        "path": ".fleet/design-reviews/issue-166-directions.html"
+      },
+      {
+        "id": "knowledge-graph",
+        "path": ".fleet/design-reviews/issue-166-directions.html"
+      },
+      {
+        "id": "field-manual",
+        "path": ".fleet/design-reviews/issue-166-directions.html"
+      }
+    ],
+    "selected": "evidence-dossier",
+    "approval": "approved",
+    "before": "",
+    "library": {
+      "strategy": "upstream-first",
+      "primary": "existing-project-system",
+      "sources": [],
+      "runtime": "existing",
+      "customReplacement": {
+        "used": false,
+        "authorization": "not-required",
+        "reason": ""
+      }
+    },
+    "contract": {
+      "purpose": "Make every retained PostTrainLLM study and learning artifact independently discoverable without separating conclusions from provenance, limits, or related evidence.",
+      "purposeSource": "PRODUCT.md, DESIGN.md, PROJECT_STATUS.md, and GitHub Issue #166",
+      "canonicalPurpose": "PostTrainLLM turns learning into inspectable local artifacts and bounded specialist objectives into evidence-gated Mac-local factory runs.",
+      "purposeAlignment": "match",
+      "driftNote": "",
+      "audience": "Learners and practitioners researching Mac-local language-model systems who need a precise, citable record of what was studied, retained, rejected, built, or left unverified.",
+      "job": "Give each public knowledge object one canonical evidence page with an immediate disposition, substantive explanation, source provenance, limitations, and contextual routes to related work.",
+      "thesis": "A calm editorial evidence dossier extends the existing research bench: direct headline, restrained verdict strip, readable narrative, and a compact related-evidence rail.",
+      "system": "Existing deep-ink surfaces, teal verified/action signals, sparse coral warning states, Bricolage display type, Geist prose, Geist Mono evidence labels, 66-72 character reading measure, and one-column mobile reflow.",
+      "signature": "Every dossier opens with a typed disposition strip and closes the loop through a provenance-first related-evidence rail linking studies, recipes, experiments, paths, and built artifacts.",
+      "risk": "Templated detail pages could become thin or imply stronger evidence than exists; publication must fail when a record lacks substantive original interpretation, source provenance, limitations, or an explicit lifecycle disposition."
+    }
+  },
+  "evidence": {
+    "screenshots": [
+      {
+        "width": 390,
+        "path": "artifacts/design/issue-166/knowledge-dossier-390.png"
+      },
+      {
+        "width": 768,
+        "path": "artifacts/design/issue-166/knowledge-dossier-768.png"
+      },
+      {
+        "width": 1440,
+        "path": "artifacts/design/issue-166/knowledge-dossier-1440.png"
+      }
+    ],
+    "projectCheck": {
+      "command": "pnpm --dir browser test && pnpm --dir browser build",
+      "status": "pass"
+    },
+    "critique": {
+      "score": 37,
+      "maximum": 40
+    },
+    "audit": {
+      "score": 19,
+      "maximum": 20
+    },
+    "unresolved": {
+      "p0": 0,
+      "p1": 0
+    },
+    "detector": {
+      "posture": "advisory",
+      "findings": [
+        "Focused SEO audit reports the existing global SoftwareApplication JSON-LD as ineligible for review-rich results because no review evidence exists; no ratings or reviews were invented.",
+        "The broader legacy visual suite still reports a pre-existing 390px overflow on /webgpu-test and an aborted third-party request on /learn; all five new route families passed at 390, 768, and 1440 pixels."
+      ]
+    },
+    "comprehension": {
+      "status": "not-applicable",
+      "reviewer": "",
+      "answers": {
+        "product": "",
+        "audience": "",
+        "value": "",
+        "mechanism": "",
+        "proof": "",
+        "nextAction": ""
+      },
+      "purposeScore": {
+        "product": 0,
+        "audience": 0,
+        "value": 0,
+        "mechanism": 0,
+        "proof": 0,
+        "nextAction": 0,
+        "total": 0
+      },
+      "mismatches": []
+    }
+  },
+  "ownerFeedback": {
+    "decision": "keep",
+    "note": "The owner approved GitHub Issue #166 and explicitly selected Direction A, Evidence dossier."
+  }
+}

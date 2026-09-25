@@ -2,7 +2,7 @@
   "$schema": "fleet.design-review.v1",
   "version": 1,
   "project": "posttrainllm",
-  "target": "Canonical evidence dossiers for studies, experiments, recipes, learning paths, and learning artifacts",
+  "target": "Public inspiration index and product credit articles",
   "surfaceMode": "read",
   "mode": "overhaul",
   "register": "product",
@@ -13,23 +13,23 @@
   "direction": {
     "references": [
       "PostTrainLLM Local Research Bench",
-      "Existing artifact detail route"
+      "Existing study index and evidence dossier"
     ],
     "probes": [
       {
-        "id": "evidence-dossier",
-        "path": ".fleet/design-reviews/issue-166-directions.html"
+        "id": "acknowledgment-wall",
+        "path": ".fleet/design-reviews/issue-172-directions.html"
       },
       {
-        "id": "knowledge-graph",
-        "path": ".fleet/design-reviews/issue-166-directions.html"
+        "id": "influence-atlas",
+        "path": ".fleet/design-reviews/issue-172-directions.html"
       },
       {
-        "id": "field-manual",
-        "path": ".fleet/design-reviews/issue-166-directions.html"
+        "id": "annotated-reading-room",
+        "path": ".fleet/design-reviews/issue-172-directions.html"
       }
     ],
-    "selected": "evidence-dossier",
+    "selected": "acknowledgment-wall",
     "approval": "approved",
     "before": "",
     "library": {
@@ -44,44 +44,56 @@
       }
     },
     "contract": {
-      "purpose": "Make every retained PostTrainLLM study and learning artifact independently discoverable without separating conclusions from provenance, limits, or related evidence.",
-      "purposeSource": "PRODUCT.md, DESIGN.md, PROJECT_STATUS.md, and GitHub Issue #166",
+      "purpose": "Publicly credit the tools and projects that shaped PostTrainLLM and let readers follow each influence from original source to local evidence and limits.",
+      "purposeSource": "PRODUCT.md, DESIGN.md, GitHub Issue #172 and owner scope/design selections",
       "canonicalPurpose": "PostTrainLLM turns learning into inspectable local artifacts and bounded specialist objectives into evidence-gated Mac-local factory runs.",
       "purposeAlignment": "match",
       "driftNote": "",
-      "audience": "Learners and practitioners researching Mac-local language-model systems who need a precise, citable record of what was studied, retained, rejected, built, or left unverified.",
-      "job": "Give each public knowledge object one canonical evidence page with an immediate disposition, substantive explanation, source provenance, limitations, and contextual routes to related work.",
-      "thesis": "A calm editorial evidence dossier extends the existing research bench: direct headline, restrained verdict strip, readable narrative, and a compact related-evidence rail.",
-      "system": "Existing deep-ink surfaces, teal verified/action signals, sparse coral warning states, Bricolage display type, Geist prose, Geist Mono evidence labels, 66-72 character reading measure, and one-column mobile reflow.",
-      "signature": "Every dossier opens with a typed disposition strip and closes the loop through a provenance-first related-evidence rail linking studies, recipes, experiments, paths, and built artifacts.",
-      "risk": "Templated detail pages could become thin or imply stronger evidence than exists; publication must fail when a record lacks substantive original interpretation, source provenance, limitations, or an explicit lifecycle disposition."
+      "audience": "Learners and practitioners exploring Mac-local model training and evaluation who want to see which outside projects informed the lab.",
+      "job": "Make the acknowledgments easy to browse and give each project a source-linked article that separates admiration, adoption, local evidence, and boundary.",
+      "thesis": "A large editorial thank-you opens into a numbered index and calm, source-traced articles, extending the established dark research bench.",
+      "system": "Deep ink canvas, teal links and evidence labels, Bricolage display headlines, Geist prose, Geist Mono source identities, hairline dividers, generous spacing, and one-column mobile reflow.",
+      "signature": "A numbered wall of named projects pairs public thanks with exact local evidence and a boundary section on every article.",
+      "risk": "An appreciative tone could imply adoption or endorsement; each article names the local disposition and links the original project plus our evidence."
     }
   },
   "evidence": {
     "screenshots": [
       {
         "width": 390,
-        "path": "artifacts/design/issue-166/knowledge-dossier-390.png"
+        "path": "artifacts/design/issue-172/inspiration-390.png"
       },
       {
         "width": 768,
-        "path": "artifacts/design/issue-166/knowledge-dossier-768.png"
+        "path": "artifacts/design/issue-172/inspiration-768.png"
       },
       {
         "width": 1440,
-        "path": "artifacts/design/issue-166/knowledge-dossier-1440.png"
+        "path": "artifacts/design/issue-172/inspiration-1440.png"
+      },
+      {
+        "width": 390,
+        "path": "artifacts/design/issue-172/inspiration-halo-390.png"
+      },
+      {
+        "width": 768,
+        "path": "artifacts/design/issue-172/inspiration-halo-768.png"
+      },
+      {
+        "width": 1440,
+        "path": "artifacts/design/issue-172/inspiration-halo-1440.png"
       }
     ],
     "projectCheck": {
-      "command": "pnpm --dir browser test && pnpm --dir browser build",
+      "command": "pnpm --dir browser exec vitest run src/__tests__/inspirations.test.ts && pnpm --dir browser build",
       "status": "pass"
     },
     "critique": {
-      "score": 37,
+      "score": 35,
       "maximum": 40
     },
     "audit": {
-      "score": 19,
+      "score": 18,
       "maximum": 20
     },
     "unresolved": {
@@ -91,8 +103,7 @@
     "detector": {
       "posture": "advisory",
       "findings": [
-        "Focused SEO audit reports the existing global SoftwareApplication JSON-LD as ineligible for review-rich results because no review evidence exists; no ratings or reviews were invented.",
-        "The broader legacy visual suite still reports a pre-existing 390px overflow on /webgpu-test and an aborted third-party request on /learn; all five new route families passed at 390, 768, and 1440 pixels."
+        "The primary index is intentionally long; source trails live in the individual articles, while the existing studies index remains the denser evidence view."
       ]
     },
     "comprehension": {
@@ -120,6 +131,6 @@
   },
   "ownerFeedback": {
     "decision": "keep",
-    "note": "The owner approved GitHub Issue #166 and explicitly selected Direction A, Evidence dossier."
+    "note": "The owner explicitly selected A, the acknowledgment wall, after viewing all three rendered previews in the conversation."
   }
 }

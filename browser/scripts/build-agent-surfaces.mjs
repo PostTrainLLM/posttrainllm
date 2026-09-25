@@ -30,6 +30,8 @@ const REQUIRED_CAPABILITY_PATHS = [
   "/recipes",
   "/learn",
   "/studies",
+  "/inspiration",
+  "/inspiration/halo",
   "/benchmarks",
   "/leaderboard",
   "/docs/cli-reference",
@@ -213,6 +215,7 @@ function surfaceKind(canonicalUrl) {
     return "documentation";
   if (pathname.startsWith("/report-cards/")) return "report-card";
   if (/^\/studies\/[^/]+$/u.test(pathname)) return "study";
+  if (/^\/inspiration\/[^/]+$/u.test(pathname)) return "inspiration";
   if (/^\/experiments\/[^/]+$/u.test(pathname)) return "experiment-record";
   if (/^\/recipes\/[^/]+$/u.test(pathname)) return "recipe";
   if (/^\/learn\/paths\/[^/]+$/u.test(pathname)) return "learning-path";
@@ -225,6 +228,8 @@ function sitemapEntry(url) {
   const isKnowledgeRoute =
     pathname === "/studies" ||
     pathname.startsWith("/studies/") ||
+    pathname === "/inspiration" ||
+    pathname.startsWith("/inspiration/") ||
     pathname.startsWith("/experiments/") ||
     pathname.startsWith("/recipes/") ||
     pathname.startsWith("/learn/paths/") ||
@@ -346,6 +351,7 @@ async function buildOutputs() {
     learn: [
       { name: "Learning paths", url: `${ORIGIN}/learn` },
       { name: "Studied projects", url: `${ORIGIN}/studies` },
+      { name: "Inspiration and credits", url: `${ORIGIN}/inspiration` },
       { name: "Reproducible recipes", url: `${ORIGIN}/recipes` },
       { name: "CLI reference", url: `${ORIGIN}/docs/cli-reference` },
       { name: "Documentation", url: `${ORIGIN}/docs/` },
@@ -457,6 +463,7 @@ Do not use PostTrainLLM for: large-scale distributed training, frontier-scale pr
 - [Recipes](${ORIGIN}/recipes): ${learningSummary.recipes} reproducible or explicitly bounded recipe contracts
 - [Learning paths](${ORIGIN}/learn): ${learningSummary.paths} paths and ${learningSummary.buildableArtifacts} buildable artifacts
 - [Studied projects](${ORIGIN}/studies): ${learningSummary.studies} source-linked evidence dossiers
+- [Inspiration](${ORIGIN}/inspiration): credited tools and projects, local lessons, and source trails
 - [Documentation](${ORIGIN}/docs/): ${counts.documentation} source documents
 - [Artifacts](${ORIGIN}/artifacts): Public packages, evidence, and blockers
 - [Benchmarks](${ORIGIN}/benchmarks): Measured performance evidence
