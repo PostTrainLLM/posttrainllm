@@ -41,6 +41,7 @@ Environment:
   POSTTRAINLLM_VERSION           Semantic version; default 0.1.0
   POSTTRAINLLM_BUILD_NUMBER      Numeric bundle build; default 1
   POSTTRAINLLM_BUILD_JOBS        Serial Swift build by default; set a positive integer
+  POSTTRAINLLM_XCODE_PRODUCTS_DIR  Xcode products directory containing the compiled MLX resource bundle
 HELP
             exit 0
             ;;
@@ -56,11 +57,24 @@ SHORT_VERSION="${POSTTRAINLLM_VERSION:-0.1.0}"
 BUILD_VERSION="${POSTTRAINLLM_BUILD_NUMBER:-1}"
 SIGNING_IDENTITY="${POSTTRAINLLM_SIGNING_IDENTITY:--}"
 BUILD_JOBS="${POSTTRAINLLM_BUILD_JOBS:-1}"
+if [[ "$CONFIG" == release ]]; then
+    XCODE_CONFIGURATION=Release
+else
+    XCODE_CONFIGURATION=Debug
+fi
+XCODE_PRODUCTS_DIR="${POSTTRAINLLM_XCODE_PRODUCTS_DIR:-$PKG/.xcode-build/Build/Products/$XCODE_CONFIGURATION}"
+MLX_BUNDLE="$XCODE_PRODUCTS_DIR/mlx-swift_Cmlx.bundle"
 
 [[ "$BUILD_JOBS" =~ ^[1-9][0-9]*$ ]] || {
     echo "POSTTRAINLLM_BUILD_JOBS must be a positive integer" >&2
     exit 64
 }
+
+if [[ ! -s "$MLX_BUNDLE/Contents/Resources/default.metallib" ]]; then
+    echo "missing compiled MLX Metal library: $MLX_BUNDLE/Contents/Resources/default.metallib" >&2
+    echo "build TinyGPTApp with Xcode first, then set POSTTRAINLLM_XCODE_PRODUCTS_DIR to its Products/$XCODE_CONFIGURATION directory" >&2
+    exit 1
+fi
 
 echo "== build (swift build -j $BUILD_JOBS -c $CONFIG --product TinyGPTApp)"
 ( cd "$PKG" && swift build -j "$BUILD_JOBS" -c "$CONFIG" --product TinyGPTApp )
@@ -98,14 +112,10 @@ fi
 cp "$BUILD_DIR/posttrainllm-mlxrun" "$APP/Contents/MacOS/posttrainllm-mlxrun"
 chmod +x "$APP/Contents/MacOS/posttrainllm-mlxrun"
 
-# MLX needs its compiled Metal shader library at runtime. SwiftPM drops
-# it next to the binary; the .app needs it in Resources so the binary's
-# search path (which Foundation rewrites to the bundle when launched as
-# an .app) finds it.
-if [[ -f "$BUILD_DIR/mlx.metallib" ]]; then
-    cp "$BUILD_DIR/mlx.metallib" "$APP/Contents/Resources/default.metallib"
-    cp "$BUILD_DIR/mlx.metallib" "$APP/Contents/MacOS/mlx.metallib"
-fi
+# SwiftPM's command-line build does not compile MLX's Metal shaders. Copy
+# the resource bundle from an Xcode build of this package; MLX resolves its
+# default.metallib through that bundle at runtime.
+cp -R "$MLX_BUNDLE" "$APP/Contents/Resources/"
 
 # Resource bundles SwiftPM produces for swift-transformers + swift-crypto.
 # Copy any *.bundle next to the binary into Resources/ so dynamic loader

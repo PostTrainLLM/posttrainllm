@@ -22,14 +22,14 @@ const eligibleRelease = (): MacReleaseRecord => ({
 describe("evaluateMacRelease: shipped release record", () => {
   it("publishes the shipped notarized candidate with its verified artifact", () => {
     expect(evaluateMacRelease(macReleaseRecord)).toMatchObject({
-      version: "0.1.0",
-      build: "1",
+      version: "0.2.0",
+      build: "2",
       state: "available",
       downloadable: true,
       artifactURL:
-        "https://github.com/PostTrainLLM/posttrainllm/releases/download/mac-v0.1.0/posttrainllm-0.1.0-macOS.dmg",
+        "https://github.com/PostTrainLLM/posttrainllm/releases/download/mac-v0.2.0/posttrainllm-0.2.0-macOS.dmg",
       sha256:
-        "67d7e476eb2abb9863fd902d5e76a65c1db2243f41e19004f436bb78ca157fb8",
+        "32dca8d4bbe1ad041a8820f4b969d78ce1962bda96eadc7dee16b2448daf7947",
     });
   });
 
@@ -49,8 +49,8 @@ describe("evaluateMacRelease: shipped release record", () => {
         },
       }),
     ).toMatchObject({
-      version: "0.1.0",
-      build: "1",
+      version: "0.2.0",
+      build: "2",
       state: "pending-notarization",
       downloadable: false,
       artifactURL: null,
