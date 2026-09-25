@@ -23,12 +23,15 @@ enum AppTab: Hashable {
 
 struct ContentView: View {
     @StateObject private var controller = ModelController()
-    @StateObject private var controllerB = ModelController()  // A/B compare slot
+    @StateObject private var controllerB = ModelController(historyKey: "tg.completionHistory.compare.v1")
     @State private var compareMode: Bool = false
+    @State private var inspectorBeforeCompare: Bool = true
     @StateObject private var stats = MachineStats()
     @StateObject private var hfBrowser = HFBrowserController()
     @State private var galleryItems: [GalleryItem] = []
     @State private var selectedItem: GalleryItem? = nil
+    @State private var showModelLibrary: Bool = true
+    @State private var showClearHistoryConfirmation: Bool = false
     @State private var showHFBrowser: Bool = false
     @AppStorage("posttrainllm.gallery.expanded") private var galleryExpanded: Bool = false
 
@@ -48,7 +51,7 @@ struct ContentView: View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 sidebar
-                    .frame(width: 220)
+                    .frame(width: 84)
                     .background(Theme.panel)
 
                 Divider().background(Theme.line)
@@ -85,22 +88,33 @@ struct ContentView: View {
         .sheet(isPresented: $showHFBrowser) {
             HFBrowserView(controller: hfBrowser, isPresented: $showHFBrowser)
         }
+        .confirmationDialog("Clear this model's run history?",
+                            isPresented: $showClearHistoryConfirmation,
+                            titleVisibility: .visible) {
+            Button("Clear history", role: .destructive) { controller.clearHistory() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Completed runs for this model will be removed from this Mac.")
+        }
     }
 
     private var machineStatsBar: some View {
-        HStack(spacing: 16) {
-            statsBlock("CHIP", stats.cpuModel.replacingOccurrences(of: "Apple ", with: ""))
-            statsBlock("CORES", "\(stats.cpuCores)")
-            statsBlock("GPU", stats.gpuName.isEmpty ? "—" : stats.gpuName)
-            Divider().frame(height: 18).background(Theme.line)
+        HStack(spacing: 14) {
+            Image(systemName: "circle.fill")
+                .font(.system(size: 6))
+                .foregroundStyle(Theme.accent)
+                .accessibilityHidden(true)
+            statsBlock("LOCAL", stats.cpuModel.replacingOccurrences(of: "Apple ", with: ""))
+            Text(controller.status)
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundStyle(Theme.muted)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .frame(maxWidth: .infinity, alignment: .leading)
             statsBlock("APP RAM", FormatBytes.compact(stats.processRSSBytes))
-            statsBlock("FREE RAM", FormatBytes.compact(stats.freeRAMBytes))
-            statsBlock("TOTAL", FormatBytes.compact(stats.totalRAMBytes))
-            Spacer()
-            statsBlock("GPU MAX SET", "\(stats.gpuRegistryMB) MB")
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 6)
+        .padding(.vertical, 9)
         .background(Theme.panel2)
     }
 
@@ -119,36 +133,37 @@ struct ContentView: View {
     // Old top tabBar + grouped sections — replaced 2026-06-07 PM
     // after user audit consolidated to 6 flat workspaces.
 
-    /// Sidebar workspace nav row — left-aligned icon + label + active highlight.
-    /// Replaces the old top tabBar (2026-06-07). Hit area = full row width
-    /// × ~32pt height (macOS HIG-compliant for compact controls).
+    /// Compact workspace rail. Labels remain visible, and each whole tile is
+    /// a keyboard-reachable target with a full descriptive accessibility name.
     private func navRow(_ which: AppTab, icon: String, label: String) -> some View {
         let active = tab == which
         return Button {
             tab = which
+            if which == .gallery { showModelLibrary = true }
         } label: {
-            HStack(spacing: 12) {
+            VStack(spacing: 4) {
                 Image(systemName: icon)
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(active ? Theme.accent : Theme.muted)
-                    .frame(width: 18)
                 Text(label)
-                    .font(.system(size: 13, weight: active ? .semibold : .regular))
+                    .font(.system(size: 10, weight: active ? .semibold : .medium))
                     .foregroundStyle(active ? Theme.fg : Theme.muted)
-                Spacer(minLength: 0)
             }
-            .padding(.horizontal, 20)
-            .frame(maxWidth: .infinity, minHeight: 32, alignment: .leading)
+            .frame(width: 64, height: 44)
             .contentShape(Rectangle())
-            .background(active ? Theme.accent.opacity(0.10) : Color.clear)
-            .overlay(
-                Rectangle()
-                    .fill(active ? Theme.accent : Color.clear)
-                    .frame(width: 2),
-                alignment: .leading
-            )
+            .background(active ? Theme.accent.opacity(0.13) : Color.clear,
+                        in: RoundedRectangle(cornerRadius: 10))
+            .overlay(alignment: .topTrailing) {
+                if which == .serve && !liveServes.isEmpty {
+                    Circle().fill(Theme.accent).frame(width: 6, height: 6)
+                        .padding(7)
+                }
+            }
         }
         .buttonStyle(.plain)
+        .help(label)
+        .accessibilityLabel(label)
+        .accessibilityAddTraits(active ? .isSelected : [])
     }
 
     private func tabButton(_ which: AppTab, label: String) -> some View {
@@ -170,55 +185,16 @@ struct ContentView: View {
     }
 
     private var sidebar: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Header — app brand + global actions (HF browser + open file).
-            // Actions moved here when the bottom-sidebar Gallery section
-            // was retired in favor of the Gallery workspace tab.
-            HStack(alignment: .top, spacing: 8) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("posttrainllm")
-                        .font(.tgDisplay)
-                        .foregroundStyle(Theme.fg)
-                        .lineLimit(1)
-                        .fixedSize(horizontal: true, vertical: false)
-                        .minimumScaleFactor(0.7)
-                    Text("Mac factory")
-                        .font(.system(size: 11, design: .monospaced))
-                        .foregroundStyle(Theme.muted)
-                        .lineLimit(1)
-                }
-                Spacer(minLength: 4)
-                Button {
-                    showHFBrowser = true
-                } label: {
-                    Image(systemName: "cloud.fill")
-                        .font(.system(size: 13))
-                        .foregroundStyle(Theme.muted)
-                        .frame(width: 28, height: 28)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .help("Browse + download HuggingFace models.")
-                Button {
-                    openModelFile()
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(Theme.muted)
-                        .frame(width: 28, height: 28)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .help("Open a .tinygpt file from anywhere on disk.")
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 24)
-            .padding(.bottom, 16)
+        VStack(spacing: 0) {
+            Text("P")
+                .font(.system(size: 27, weight: .bold, design: .rounded))
+                .foregroundStyle(Theme.accent)
+                .frame(width: 64, height: 56)
+                .help("posttrainllm · Mac factory")
+                .accessibilityLabel("posttrainllm Mac factory")
 
-            // Workspace navigation — six consolidated workspaces
-            // (2026-06-07 PM, after user audit found 12 tabs overengineered).
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 1) {
+            ScrollView(showsIndicators: true) {
+                VStack(spacing: 2) {
                     navRow(.gallery,    icon: "rectangle.grid.2x2",                label: "Gallery")
                     navRow(.train,      icon: "waveform.path.ecg",                 label: "Factory")
                     navRow(.runs,       icon: "shippingbox",                       label: "Runs")
@@ -227,66 +203,31 @@ struct ContentView: View {
                     navRow(.interp,     icon: "scope",                             label: "Interp")
                     navRow(.serve,      icon: "antenna.radiowaves.left.and.right", label: "Serve")
                     navRow(.check,      icon: "checkmark.shield",                  label: "Check")
-
-                    // Inference section — live `posttrainllm serve` processes
-                    // detected via pgrep. Click a row to jump to Serve tab.
-                    if !liveServes.isEmpty {
-                        Text("INFERENCE")
-                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                            .foregroundStyle(Theme.faint)
-                            .tracking(1)
-                            .padding(.horizontal, 20)
-                            .padding(.top, 16)
-                            .padding(.bottom, 4)
-                        ForEach(liveServes) { p in
-                            Button {
-                                tab = .serve
-                            } label: {
-                                HStack(spacing: 8) {
-                                    Circle().fill(Color.green).frame(width: 6, height: 6)
-                                    VStack(alignment: .leading, spacing: 1) {
-                                        Text((p.modelPath as NSString).lastPathComponent)
-                                            .font(.system(size: 11, design: .monospaced))
-                                            .foregroundStyle(Theme.fg)
-                                            .lineLimit(1)
-                                            .truncationMode(.middle)
-                                        Text(":\(p.port) · pid \(p.pid)")
-                                            .font(.system(size: 9, design: .monospaced))
-                                            .foregroundStyle(Theme.faint)
-                                    }
-                                    Spacer(minLength: 0)
-                                }
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 6)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
                 }
-                .padding(.bottom, 12)
+                .padding(.horizontal, 10)
+                .padding(.bottom, 8)
             }
 
-            // The bottom Gallery section was removed (2026-06-07) — Gallery
-            // is now a dedicated workspace in the sidebar nav, so a
-            // duplicate quick-list at the bottom was redundant. Global
-            // actions (HF browser + open arbitrary file) live in the
-            // brand header above.
-
-            Spacer()
-
-            // Status bar
-            VStack(alignment: .leading, spacing: 6) {
-                Divider().background(Theme.line)
-                Text(controller.status)
-                    .font(.system(size: 11))
-                    .foregroundStyle(Theme.muted)
-                    .lineLimit(2)
-                    .truncationMode(.tail)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
+            Divider().background(Theme.line)
+            VStack(spacing: 3) {
+                Button { showHFBrowser = true } label: {
+                    Image(systemName: "cloud.fill")
+                        .font(.system(size: 15))
+                        .frame(width: 48, height: 28)
+                }
+                .help("Browse and download Hugging Face models")
+                .accessibilityLabel("Browse Hugging Face models")
+                Button { openModelFile() } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 17, weight: .medium))
+                        .frame(width: 48, height: 28)
+                }
+                .help("Open a model file")
+                .accessibilityLabel("Open a model file")
             }
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.muted)
+            .padding(.vertical, 6)
         }
     }
 
@@ -326,17 +267,18 @@ struct ContentView: View {
         .background(Theme.base)
     }
 
-    /// Gallery card with model info + 3 action buttons (Chat / Eval / Interp).
+    /// The first action starts a local run; Eval and Interp remain direct paths.
     private func galleryCardWithActions(_ item: GalleryItem) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                Text(item.icon).font(.system(size: 28))
-                VStack(alignment: .leading, spacing: 2) {
+        let fileSize = (try? item.url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
+        return VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 14) {
+                Text(item.icon).font(.system(size: 30))
+                VStack(alignment: .leading, spacing: 4) {
                     Text(item.displayName)
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(Theme.fg)
                         .lineLimit(1)
-                    Text(item.url.deletingLastPathComponent().lastPathComponent + "/")
+                    Text("\(item.url.lastPathComponent)  ·  \(FormatBytes.compact(fileSize))")
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(Theme.faint)
                         .lineLimit(1)
@@ -344,12 +286,19 @@ struct ContentView: View {
                 }
                 Spacer(minLength: 0)
             }
+            Text("STARTING PROMPT   " + item.prompt.trimmingCharacters(in: .whitespacesAndNewlines))
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundStyle(Theme.muted)
+                .lineLimit(1)
             Divider().background(Theme.line)
             HStack(spacing: 8) {
-                galleryActionButton(label: "Chat", icon: "text.bubble") {
+                galleryActionButton(label: "Generate", icon: "arrow.up.right", prominent: true) {
                     selectedItem = item
                     prompt = item.prompt
-                    Task { await controller.load(item) }
+                    if controller.loadedItem?.id != item.id {
+                        Task { await controller.load(item) }
+                    }
+                    showModelLibrary = false
                     tab = .gallery
                 }
                 galleryActionButton(label: "Eval", icon: "checkmark.gobackward") {
@@ -372,13 +321,13 @@ struct ContentView: View {
                 }
             }
         }
-        .padding(16)
-        .background(Theme.panel)
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.line))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .padding(20)
+        .background(Theme.panel, in: RoundedRectangle(cornerRadius: 13))
+        .overlay(RoundedRectangle(cornerRadius: 13).stroke(Theme.lineStrong))
     }
 
-    private func galleryActionButton(label: String, icon: String, action: @escaping () -> Void) -> some View {
+    private func galleryActionButton(label: String, icon: String,
+                                     prominent: Bool = false, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 5) {
                 Image(systemName: icon)
@@ -386,11 +335,11 @@ struct ContentView: View {
                 Text(label)
                     .font(.system(size: 11, weight: .medium, design: .monospaced))
             }
-            .foregroundStyle(Theme.accent)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(Theme.accent.opacity(0.12))
-            .clipShape(RoundedRectangle(cornerRadius: 5))
+            .foregroundStyle(prominent ? Theme.base : Theme.accent)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(prominent ? Theme.accent : Theme.accent.opacity(0.12),
+                        in: RoundedRectangle(cornerRadius: 7))
         }
         .buttonStyle(.plain)
     }
@@ -507,7 +456,7 @@ struct ContentView: View {
 
     @ViewBuilder
     private var mainPane: some View {
-        if controller.loadedItem == nil {
+        if showModelLibrary || controller.loadedItem == nil {
             placeholderPane
         } else {
             generationPane
@@ -516,14 +465,35 @@ struct ContentView: View {
 
     private var placeholderPane: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Gallery")
-                        .font(.tgDisplay)
+            VStack(alignment: .leading, spacing: 25) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("LOCAL MODEL LIBRARY")
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .tracking(1)
+                        .foregroundStyle(Theme.accent)
+                    Text("Pick a model. Start a run.")
+                        .font(.system(size: 27, weight: .semibold))
                         .foregroundStyle(Theme.fg)
-                    Text("\(galleryItems.count) model\(galleryItems.count == 1 ? "" : "s") loadable from data/gallery/ + ~/.cache/posttrainllm/runs/ · pick an action below each model")
-                        .font(.system(size: 12, design: .monospaced))
+                    Text("Generate, evaluate, or inspect the checkpoints available on this Mac.")
+                        .font(.system(size: 14))
                         .foregroundStyle(Theme.muted)
+                    if controller.status.contains("failed") {
+                        Text(controller.status)
+                            .font(.system(size: 12))
+                            .foregroundStyle(Theme.danger)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    if let loaded = controller.loadedItem {
+                        Button {
+                            showModelLibrary = false
+                        } label: {
+                            Label("Continue \(loaded.displayName) run", systemImage: "arrow.right")
+                        }
+                        .buttonStyle(.plain)
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Theme.accent)
+                        .padding(.top, 8)
+                    }
                 }
 
                 if galleryItems.isEmpty {
@@ -534,132 +504,168 @@ struct ContentView: View {
                         Text("No models found")
                             .font(.system(size: 13, weight: .medium))
                             .foregroundStyle(Theme.muted)
-                        Text("Drop .tinygpt / HF-dir into data/gallery/, train via the Train tab, or click + in the sidebar to add one.")
+                        Text("Open a checkpoint with +, browse Hugging Face with the cloud button, or train one in Factory.")
                             .font(.system(size: 11, design: .monospaced))
                             .foregroundStyle(Theme.faint)
                             .multilineTextAlignment(.center)
                     }
                     .frame(maxWidth: .infinity, minHeight: 240)
                 } else {
-                    // Show ALL models — rich card per item with Chat / Eval / Interp
+                    // Show all models with direct Generate / Eval / Interp
                     // actions so the workspace doubles as a hub: jump straight to
                     // any surface from any model.
-                    LazyVGrid(columns: [
-                        GridItem(.flexible(), spacing: 16),
-                        GridItem(.flexible(), spacing: 16),
-                    ], alignment: .leading, spacing: 16) {
+                    HStack {
+                        Text("AVAILABLE MODELS")
+                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                            .tracking(1)
+                            .foregroundStyle(Theme.faint)
+                        Spacer()
+                        Text("\(galleryItems.count) LOCAL")
+                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                            .foregroundStyle(Theme.muted)
+                    }
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 330), spacing: 16)],
+                              alignment: .leading, spacing: 16) {
                         ForEach(galleryItems) { item in
                             galleryCardWithActions(item)
                         }
                     }
                 }
             }
+            .frame(maxWidth: 1120, alignment: .leading)
             .padding(.horizontal, 32)
-            .padding(.vertical, 28)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 44)
+            .frame(maxWidth: .infinity, alignment: .center)
         }
         .background(Theme.base)
     }
 
-    /// One past completion as a card. Prompt is highlighted in the
-    /// accent colour to set it off from the model's output, with a
-    /// monospaced footer line for the sampler recipe so re-running the
-    /// same prompt at the same settings stays easy.
-    /// One output column for a given ModelController. Used by both
-    /// single-model view (A only) and compare mode (A and B side-by-side).
+    /// Keep the in-progress stream and completed history mutually exclusive.
+    /// The old layout showed the latest completion twice after a run.
     private func outputColumn(controller: ModelController, label: String) -> some View {
         ScrollView {
-            ScrollViewReader { proxy in
-                VStack(alignment: .leading, spacing: 16) {
-                    if compareMode {
-                        HStack(spacing: 6) {
-                            Text(label)
-                                .font(.system(size: 11, weight: .bold, design: .monospaced))
-                                .foregroundStyle(Theme.accent)
-                            Text(controller.loadedItem?.displayName ?? "—")
-                                .font(.system(size: 11, design: .monospaced))
-                                .foregroundStyle(Theme.muted)
-                            if controller.tokensPerSec > 0 {
-                                Spacer()
-                                Text(String(format: "%.0f tok/s", controller.tokensPerSec))
-                                    .font(.system(size: 10, design: .monospaced))
-                                    .foregroundStyle(Theme.faint)
-                            }
-                        }
-                        .padding(.bottom, 4)
+            VStack(alignment: .leading, spacing: 16) {
+                if compareMode {
+                    HStack(spacing: 6) {
+                        Text(label).foregroundStyle(Theme.accent)
+                        Text(controller.loadedItem?.displayName ?? "Pick a model")
+                            .foregroundStyle(Theme.muted)
+                        Spacer()
                     }
-
-                    ForEach(controller.historyForCurrentModel) { item in
-                        historyCard(item)
-                    }
-
-                    Text(controller.generated.isEmpty && controller.historyForCurrentModel.isEmpty
-                         ? "Output will appear here as the model generates token-by-token."
-                         : controller.generated)
-                        .font(.tgMono)
-                        .foregroundStyle((controller.generated.isEmpty && controller.historyForCurrentModel.isEmpty) ? Theme.faint : Theme.fg)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .textSelection(.enabled)
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
                 }
-                .padding(24)
-                .id("output-end-\(label)")
-                .onChange(of: controller.generated) { _, _ in
-                    withAnimation(.linear(duration: 0.1)) {
-                        proxy.scrollTo("output-end-\(label)", anchor: .bottom)
+
+                if controller.isGenerating {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text("GENERATING · LIVE OUTPUT")
+                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                            .tracking(1)
+                            .foregroundStyle(Theme.accent)
+                        Text(controller.generated)
+                            .font(.tgMono)
+                            .foregroundStyle(Theme.fg)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
+                    .padding(24)
+                    .frame(maxWidth: .infinity, minHeight: 180, alignment: .topLeading)
+                    .background(Theme.panel, in: RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Theme.lineStrong))
+                } else if let latest = controller.historyForCurrentModel.last {
+                    historyCard(latest, heading: "LATEST RUN")
+                } else {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("READY FOR A RUN")
+                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                            .tracking(1)
+                            .foregroundStyle(Theme.accent)
+                        Text("Enter a prompt below to generate with this local model.")
+                            .font(.system(size: 15))
+                            .foregroundStyle(Theme.muted)
+                    }
+                    .padding(24)
+                    .frame(maxWidth: .infinity, minHeight: 180, alignment: .topLeading)
+                    .background(Theme.panel, in: RoundedRectangle(cornerRadius: 14))
+                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Theme.lineStrong))
                 }
-                .onChange(of: controller.historyForCurrentModel.count) { _, _ in
-                    withAnimation(.linear(duration: 0.1)) {
-                        proxy.scrollTo("output-end-\(label)", anchor: .bottom)
+
+                let earlierRuns = controller.isGenerating
+                    ? controller.historyForCurrentModel
+                    : Array(controller.historyForCurrentModel.dropLast())
+                if !earlierRuns.isEmpty {
+                    Text(controller.isGenerating ? "PREVIOUS RUNS" : "EARLIER RUNS")
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .tracking(1)
+                        .foregroundStyle(Theme.faint)
+                        .padding(.top, 10)
+                    ForEach(Array(earlierRuns.reversed())) { item in
+                        historyCard(item, heading: "RUN")
                     }
                 }
             }
+            .frame(maxWidth: 900, alignment: .leading)
+            .padding(24)
+            .frame(maxWidth: .infinity, alignment: .top)
         }
+        .background(Theme.base)
     }
 
-    private func historyCard(_ item: ModelController.HistoryItem) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                Text(item.prompt)
-                    .font(.tgMono)
-                    .foregroundStyle(Theme.accent)
+    private func historyCard(_ item: ModelController.HistoryItem, heading: String) -> some View {
+        VStack(alignment: .leading, spacing: 18) {
+            HStack {
+                Text(heading).foregroundStyle(Theme.accent)
                 Spacer()
                 Text(item.timestamp, format: .dateTime.hour().minute().second())
-                    .font(.system(size: 10, design: .monospaced))
                     .foregroundStyle(Theme.faint)
             }
-            Text(item.output)
-                .font(.tgMono)
-                .foregroundStyle(Theme.fg)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .textSelection(.enabled)
-            HStack(spacing: 10) {
+            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+            .tracking(1)
+            Divider().background(Theme.line)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("PROMPT")
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(Theme.faint)
+                    .tracking(1)
+                Text(item.prompt)
+                    .font(.system(size: 16, design: .monospaced))
+                    .foregroundStyle(Theme.fg)
+                    .textSelection(.enabled)
+            }
+            VStack(alignment: .leading, spacing: 8) {
+                Text("COMPLETION")
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(Theme.faint)
+                    .tracking(1)
+                Text(item.output)
+                    .font(.system(size: 20, design: .monospaced))
+                    .foregroundStyle(Theme.fg)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .textSelection(.enabled)
+            }
+            Divider().background(Theme.line)
+            HStack(spacing: 12) {
                 Text("T=\(String(format: "%.2f", item.temperature))")
                 if item.topK > 0 { Text("top-k=\(item.topK)") }
                 if item.repetitionPenalty > 1.001 { Text("rp=\(String(format: "%.2f", item.repetitionPenalty))") }
                 Text("\(item.tokensGenerated) tok")
                 Text(String(format: "%.0f tok/s", item.tokensPerSec))
-                Spacer()
+                Spacer(minLength: 0)
                 Button {
                     let pb = NSPasteboard.general
                     pb.clearContents()
                     pb.setString(item.output, forType: .string)
                 } label: { Text("Copy") }
-                .buttonStyle(.borderless)
-                .controlSize(.mini)
+                .buttonStyle(.plain)
+                .foregroundStyle(Theme.accent)
+                .accessibilityLabel("Copy generated text")
             }
             .font(.system(size: 10, design: .monospaced))
-            .foregroundStyle(Theme.faint)
+            .foregroundStyle(Theme.muted)
         }
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Theme.panel)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Theme.line, lineWidth: 1)
-        )
+        .padding(24)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.panel, in: RoundedRectangle(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Theme.lineStrong))
     }
 
     private func welcomeRow(icon: String, title: String, description: String) -> some View {
@@ -683,53 +689,74 @@ struct ContentView: View {
 
     private var generationPane: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Model header — also hosts the inspector toggle.
-            HStack(alignment: .firstTextBaseline, spacing: 10) {
-                Text(controller.loadedItem?.icon ?? "•")
-                    .font(.system(size: 24))
-                Text(controller.loadedItem?.displayName ?? "")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(Theme.fg)
-                Text("\(formattedInt(controller.paramCount)) params")
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundStyle(Theme.muted)
-                Spacer()
-                if controller.isGenerating || controller.tokensPerSec > 0 {
-                    HStack(spacing: 6) {
-                        Circle()
-                            .fill(controller.isGenerating ? Theme.accent : Theme.muted)
-                            .frame(width: 6, height: 6)
-                        Text(String(format: "%.0f tok/s", controller.tokensPerSec))
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .center, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 5) {
+                        Button {
+                            showModelLibrary = true
+                        } label: {
+                            Text("GALLERY  /  \(controller.loadedItem?.displayName.uppercased() ?? "MODEL")")
+                        }
+                        .buttonStyle(.plain)
+                            .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                            .tracking(1)
+                            .foregroundStyle(Theme.accent)
+                        Text("Run a local model")
+                            .font(.system(size: 24, weight: .semibold))
+                            .foregroundStyle(Theme.fg)
+                    }
+                    Spacer(minLength: 8)
+                    Button {
+                        compareMode.toggle()
+                        if compareMode {
+                            inspectorBeforeCompare = showInspector
+                            showInspector = false
+                        } else {
+                            controllerB.cancelGeneration()
+                            showInspector = inspectorBeforeCompare
+                        }
+                    } label: {
+                        Label(compareMode ? "Comparing" : "Compare", systemImage: "rectangle.split.2x1")
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(compareMode ? Theme.accent : Theme.muted)
+                    .help("Run a second model side-by-side on the same prompt")
+                    Button {
+                        showInspector.toggle()
+                    } label: {
+                        Label("Settings", systemImage: "slider.horizontal.3")
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(showInspector ? Theme.accent : Theme.muted)
+                    .help(showInspector ? "Hide sampling settings" : "Show sampling settings")
+                }
+
+                HStack(spacing: 14) {
+                    Text(controller.loadedItem?.icon ?? "•")
+                        .font(.system(size: 25))
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(controller.loadedItem?.displayName ?? "")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(Theme.fg)
+                        Text("\(formattedInt(controller.paramCount)) parameters  ·  \(controller.deviceName)")
                             .font(.system(size: 11, design: .monospaced))
                             .foregroundStyle(Theme.muted)
                     }
+                    Spacer(minLength: 0)
+                    Text(controller.isGenerating ? "GENERATING" : "MODEL READY")
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .foregroundStyle(Theme.accent)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .background(Theme.accent.opacity(0.12),
+                                    in: RoundedRectangle(cornerRadius: 7))
                 }
-                Button {
-                    compareMode.toggle()
-                    if !compareMode {
-                        controllerB.cancelGeneration()
-                    }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: compareMode ? "rectangle.split.2x1.fill" : "rectangle.split.2x1")
-                        Text(compareMode ? "compare" : "+ compare")
-                            .font(.system(size: 11, design: .monospaced))
-                    }
-                    .foregroundStyle(compareMode ? Theme.accent : Theme.muted)
-                }
-                .buttonStyle(.plain)
-                .help("Run a second model side-by-side on the same prompt.")
-                Button {
-                    showInspector.toggle()
-                } label: {
-                    Image(systemName: showInspector ? "sidebar.right" : "sidebar.squares.right")
-                        .foregroundStyle(showInspector ? Theme.accent : Theme.muted)
-                }
-                .buttonStyle(.plain)
-                .help(showInspector ? "Hide sampler inspector" : "Show sampler inspector")
+                .padding(15)
+                .background(Theme.panel2, in: RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.lineStrong))
             }
             .padding(.horizontal, 24)
-            .padding(.vertical, 20)
+            .padding(.vertical, 18)
             Divider().background(Theme.line)
 
             // Compare mode: second model picker (model B). Renders as a
@@ -781,7 +808,7 @@ struct ContentView: View {
                 if showInspector {
                     Divider().background(Theme.line)
                     samplerInspector
-                        .frame(width: 240)
+                        .frame(width: 250)
                         .frame(maxHeight: .infinity)
                         .background(Theme.panel)
                 }
@@ -789,64 +816,76 @@ struct ContentView: View {
 
             Divider().background(Theme.line)
 
-            // Controls — prompt + generate. Sampler knobs (temp/topK/penalty)
-            // live in the inspector panel above so this row stays focused
-            // on the actual prompt + action, like Cursor's chat box.
-            HStack(spacing: 16) {
-                TextField("Prompt", text: $prompt, axis: .horizontal)
-                    .textFieldStyle(.plain)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Theme.panel)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.line))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
-                    .font(.tgMono)
+            // Keep the prompt and primary action anchored in the viewport.
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("NEW PROMPT")
+                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                        .tracking(1)
+                        .foregroundStyle(Theme.accent)
+                    Spacer()
+                    Text("⌘↵ to generate")
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundStyle(Theme.faint)
+                }
+                HStack(spacing: 12) {
+                    TextField("Prompt", text: $prompt, axis: .horizontal)
+                        .textFieldStyle(.plain)
+                        .padding(.horizontal, 14)
+                        .frame(minHeight: 42)
+                        .background(Theme.base, in: RoundedRectangle(cornerRadius: 9))
+                        .overlay(RoundedRectangle(cornerRadius: 9).stroke(Theme.lineStrong))
+                        .font(.tgMono)
+                        .accessibilityLabel("Prompt")
 
-                if controller.isGenerating || (compareMode && controllerB.isGenerating) {
-                    Button("Stop") {
-                        controller.cancelGeneration()
-                        if compareMode { controllerB.cancelGeneration() }
-                    }
-                    .keyboardShortcut(.cancelAction)
-                    .buttonStyle(PrimaryButtonStyle(color: Theme.danger))
-                } else {
-                    Button("Generate") {
-                        controller.generate(prompt: prompt, maxTokens: maxTokens,
-                                          temperature: Float(temperature),
-                                          topK: topK,
-                                          repetitionPenalty: Float(repPenalty))
-                        if compareMode && controllerB.loadedItem != nil {
-                            controllerB.generate(prompt: prompt, maxTokens: maxTokens,
-                                              temperature: Float(temperature),
-                                              topK: topK,
-                                              repetitionPenalty: Float(repPenalty))
+                    if controller.isGenerating || (compareMode && controllerB.isGenerating) {
+                        Button("Stop") {
+                            controller.cancelGeneration()
+                            if compareMode { controllerB.cancelGeneration() }
                         }
+                        .keyboardShortcut(.cancelAction)
+                        .buttonStyle(PrimaryButtonStyle(color: Theme.danger))
+                    } else {
+                        Button("Generate") {
+                            controller.generate(prompt: prompt, maxTokens: maxTokens,
+                                                temperature: Float(temperature),
+                                                topK: topK,
+                                                repetitionPenalty: Float(repPenalty))
+                            if compareMode && controllerB.loadedItem != nil {
+                                controllerB.generate(prompt: prompt, maxTokens: maxTokens,
+                                                     temperature: Float(temperature),
+                                                     topK: topK,
+                                                     repetitionPenalty: Float(repPenalty))
+                            }
+                        }
+                        .keyboardShortcut(.return, modifiers: [.command])
+                        .buttonStyle(PrimaryButtonStyle(color: Theme.accent))
+                        .disabled(controller.loadedItem == nil ||
+                                  (compareMode && controllerB.loadedItem == nil))
                     }
-                    .keyboardShortcut(.return, modifiers: [.command])
-                    .buttonStyle(PrimaryButtonStyle(color: Theme.accent))
-                    .disabled(controller.loadedItem == nil)
                 }
-
-                Button(controller.isEvaluating ? "Scoring…" : "Score") {
-                    runEval()
-                }
-                .buttonStyle(.bordered)
-                .disabled(controller.loadedItem == nil || controller.isEvaluating)
-                .help("Pick a text file; the model's cross-entropy loss + BPB + perplexity print to the status line.")
-
-                if !controller.historyForCurrentModel.isEmpty {
-                    Button {
-                        controller.clearHistory()
-                    } label: {
-                        Image(systemName: "trash")
-                            .foregroundStyle(Theme.faint)
+                HStack(spacing: 16) {
+                    Button(controller.isEvaluating ? "Scoring…" : "Score a text file") {
+                        runEval()
                     }
                     .buttonStyle(.plain)
-                    .help("Clear completion history for the current model only.")
+                    .disabled(controller.loadedItem == nil || controller.isEvaluating)
+                    .help("Score a UTF-8 text file with cross-entropy, BPB, and perplexity")
+                    if !controller.historyForCurrentModel.isEmpty {
+                        Button("Clear history") { showClearHistoryConfirmation = true }
+                            .buttonStyle(.plain)
+                            .help("Clear completion history for the current model only")
+                    }
+                    Spacer()
+                    Text("\(maxTokens) max tokens")
+                        .foregroundStyle(Theme.faint)
                 }
+                .font(.system(size: 10, design: .monospaced))
+                .foregroundStyle(Theme.muted)
             }
-            .padding(20)
-            .background(Theme.panel)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 17)
+            .background(Theme.panel2)
 
             if let result = controller.evalResult {
                 HStack {
@@ -920,6 +959,7 @@ struct ContentView: View {
                         .foregroundStyle(Theme.muted)
                     Spacer()
                     TextField("", value: $maxTokens, format: .number)
+                        .accessibilityLabel("Maximum tokens")
                         .textFieldStyle(.plain)
                         .multilineTextAlignment(.trailing)
                         .frame(width: 80)
@@ -972,6 +1012,8 @@ struct ContentView: View {
                 value: Binding(get: { value }, set: setter),
                 in: range
             )
+            .accessibilityLabel(label)
+            .accessibilityValue(String(format: format, value))
             .controlSize(.small)
             .tint(Theme.accent)
             Text(hint)
@@ -1023,6 +1065,9 @@ struct ContentView: View {
             if !galleryItems.contains(where: { $0.url == item.url }) {
                 galleryItems.append(item)
             }
+            selectedItem = item
+            showModelLibrary = false
+            tab = .gallery
             Task { await controller.load(item) }
         }
     }
