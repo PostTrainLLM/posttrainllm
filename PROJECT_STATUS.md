@@ -1,6 +1,6 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-09-25
+Last updated: 2026-09-26
 
 Lifecycle: **learning artifact complete; public release verified; no active target**
 
@@ -43,6 +43,24 @@ and final public distribution receipt; Issue #138 completed its controlled
 ReST, Parakeet, WebGPU, and Needle experiments; Issue #166 delivered the public
 knowledge graph. No new model download or training is selected. Historical
 TODOs and conditional unblock notes remain evidence, not authorization.
+
+Sharing release (2026-09-26): the credited
+[inspiration library](https://posttrainllm.com/inspiration) is live with 24 named
+tools and projects, including [Halo](https://posttrainllm.com/inspiration/halo).
+The owner-selected Focused Bench UI is in the public
+[Mac release 0.2.0](https://github.com/PostTrainLLM/posttrainllm/releases/tag/mac-v0.2.0),
+whose normal DMG asset has SHA-256
+`32dca8d4bbe1ad041a8820f4b969d78ce1962bda96eadc7dee16b2448daf7947`.
+All eight [main CI checks](https://github.com/PostTrainLLM/posttrainllm/actions/runs/36183580563)
+passed at `9bdcfe1`; the
+[Cloudflare deployment](https://github.com/PostTrainLLM/posttrainllm/actions/runs/36217473143)
+of that commit passed build, upload, and production smoke. Live guest checks
+loaded `/inspiration`, `/inspiration/halo`, and `/download`; the download
+page shows 0.2.0 build 2, the published asset URL, and the matching checksum.
+The exact signed app's previously approved eight-token MLX sample completed
+without a Metal load error. Chrome blocked a fresh browser download from the
+redirected release-asset host, so the hosted DMG was verified by GitHub's
+public asset digest rather than a second local hash.
 
 Artifact lifecycle contract v1 now travels beside native checkpoints, factory
 SFT adapters, and manifest-aware exports. The shared `TinyGPTIO` validator binds
@@ -201,7 +219,7 @@ Important constraints:
 | Fine-tune report cards            | Portable before/after proof per artifact: versioned JSON plus a self-contained static page at `/report-cards/<slug>.html`, compiled offline from recorded evidence with explicit measurement states. Contract in `docs/factory/report-card.md`.                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Eval gates                        | Strong fixture/no-GPU layer exists. Live GPU/full-suite gates remain operator-dependent.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | Browser learning lab + playground | The experiment archive, recipes, paths, CLI guide, documentation, report cards, and artifact pages are an active public release surface. The original from-scratch playground remains a retained learning runtime rather than the factory control plane. Shared navigation stays accessible on narrow screens; generated HTML, Markdown, sitemap, agent-catalog, and internal-link parity are build-gated.                                                                                                                                                                                                                                                                                         |
-| PostTrainLLM app                  | GUI shell over the CLI. Now covers the factory-loop experiment commands: Factory tab runs pretrain/finetune/**DPO**/**distill**; new **Runs** tab runs **factory-run** (validate/publish-check), **eval-gate**, **eval-compare**, **eval-sql**, and **generate** — all via a shared `CLICommandRunner` shell-out. Data-prep, quantization/export, and most interpretability commands remain CLI-only by design (batch/one-off, not interactive). The public [Mac release 0.1.0](https://github.com/PostTrainLLM/posttrainllm/releases/tag/mac-v0.1.0) is Developer ID signed, notarized, stapled, Gatekeeper accepted, checksummed, and downloadable through `/download` and `/releases/mac.json`. |
+| PostTrainLLM app                  | GUI shell over the CLI. Now covers the factory-loop experiment commands: Factory tab runs pretrain/finetune/**DPO**/**distill**; new **Runs** tab runs **factory-run** (validate/publish-check), **eval-gate**, **eval-compare**, **eval-sql**, and **generate** — all via a shared `CLICommandRunner` shell-out. Data-prep, quantization/export, and most interpretability commands remain CLI-only by design (batch/one-off, not interactive). The public [Mac release 0.2.0](https://github.com/PostTrainLLM/posttrainllm/releases/tag/mac-v0.2.0) is Developer ID signed, notarized, stapled, Gatekeeper accepted, checksummed, and linked from `/download`; the published GitHub asset digest matches the site record. |
 | Pace outputs                      | Dev-time artifacts only: data, grammar/eval assets, adapter/model package metadata, reports.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 ## Features (shipped)
@@ -221,7 +239,7 @@ Factory primitives:
   canonical `/download` page, `/releases/mac.json`, and agent indexes. A pure
   evaluator accepts only the reviewed PostTrainLLM GitHub Releases path and
   fails closed on any missing field, malformed checksum or URL, false trust
-  gate, or non-HTTPS/unapproved host; the current candidate exposes no DMG.
+  gate, or non-HTTPS/unapproved host; the public 0.2.0 record exposes the reviewed DMG.
 - Native Mac app packaging: repeatable Release bundle assembly embeds the
   SwiftPM resources, CLI, MLX Metal library, and branded icon; supports
   versioned metadata and hardened-runtime Developer ID signing; and refuses
