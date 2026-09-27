@@ -5,6 +5,14 @@ const layout = await readFile(
   new URL("../layouts/Default.astro", import.meta.url),
   "utf8",
 );
+const landingPage = await readFile(
+  new URL("../pages/index.astro", import.meta.url),
+  "utf8",
+);
+const browserLogger = await readFile(
+  new URL("../../public/app-health-log.js", import.meta.url),
+  "utf8",
+);
 
 describe("App Health browser analytics", () => {
   it("loads the origin-bound tracker once behind the telemetry flag", () => {
@@ -20,5 +28,11 @@ describe("App Health browser analytics", () => {
     expect(layout).toContain(
       'data-endpoint="https://ingest.sassmaker.com/v1/browser"',
     );
+  });
+
+  it("logs the homepage quickstart CTA through the shared browser logger", () => {
+    expect(landingPage.match(/data-log="quickstart_opened"/g)).toHaveLength(5);
+    expect(browserLogger).toContain('closest("[data-log]")');
+    expect(browserLogger).toContain("if (name) send(name,");
   });
 });
