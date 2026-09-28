@@ -5,7 +5,7 @@ is one-sentence-what + one-sentence-why-for-us + link, per the docs
 preference for leaning on authoritative external sources rather than
 re-explaining them.
 
-Updated 2026-06-08; GPU systems reference added 2026-09-29.
+Updated 2026-06-08; GPU systems references added 2026-09-29.
 
 ---
 
@@ -78,6 +78,17 @@ Updated 2026-06-08; GPU systems reference added 2026-09-29.
   bottleneck predictions in inference Weeks 3–5, and its thread/memory hierarchy
   and coalescing entries for the Week 4 kernel diagrams. Treat NVIDIA-specific
   hardware details as a Mac-to-CUDA comparison, not a Mac execution result.
+
+- **[GPU MODE Triton Puzzles](https://github.com/gpu-mode/Triton-Puzzles)**
+  Interpreter-backed puzzles that teach Triton loads, stores, masks, and
+  increasingly complex kernels without requiring a GPU.
+  _Why for us_: optional Week 4 prediction-and-check practice; verify the
+  local setup before treating it as a Mac lab, and do not claim GPU timings.
+
+- **[GPU MODE Ring Attention experiments](https://github.com/gpu-mode/ring-attention)**
+  Notebooks, experiments, and references for blockwise attention across GPUs.
+  _Why for us_: a concrete Week 10 source to trace communication at the
+  single-device-to-cluster boundary without requiring a cluster run.
 
 ---
 

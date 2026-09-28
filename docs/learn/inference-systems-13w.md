@@ -87,6 +87,23 @@ multiprocessors, and CUDA memory spaces describe NVIDIA hardware; compare the
 ideas with Mac/Metal/MLX without treating the hardware details or measurements
 as interchangeable. The Week 4 NVIDIA execution boundary still applies.
 
+### GPU MODE projects at their relevant weeks
+
+The [GPU MODE working groups](https://www.gpumode.com/working-groups) are a
+project directory. In Week 4, use the first
+few [Triton Puzzles](https://github.com/gpu-mode/Triton-Puzzles) as optional
+practice for predicting loads, stores, masks, and output before checking the
+interpreter result. The puzzles do not require a GPU, but their Python/Triton
+setup has not been verified on this Mac; source review remains sufficient for
+the Mac portion of the week. A puzzle result is not a CUDA timing result.
+
+In Week 10, inspect [GPU MODE's Ring Attention
+experiments](https://github.com/gpu-mode/ring-attention) as one concrete
+example of blockwise attention across GPUs. Draw the block handoff and
+estimate the communication needed for a declared sequence shape. This is
+source analysis for the single-device-to-cluster boundary, not a required
+distributed implementation or benchmark.
+
 ## Week 1: full session contract
 
 **Objective:** trace the reference decoder from token IDs to logits, predict
