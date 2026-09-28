@@ -32,6 +32,9 @@ describe("App Health browser analytics", () => {
 
   it("logs the homepage quickstart CTA through the shared browser logger", () => {
     expect(landingPage.match(/data-log="quickstart_opened"/g)).toHaveLength(5);
+    expect(landingPage.match(/data-log="specialist_proof_opened"/g)).toHaveLength(
+      1,
+    );
     expect(browserLogger).toContain('closest("[data-log]")');
     expect(browserLogger).toContain("send(name, {");
     expect(browserLogger).toContain("window.appHealth.track(name)");
