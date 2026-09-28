@@ -41,5 +41,6 @@ describe("App Health browser analytics", () => {
     expect(browserLogger).toContain("appHealth.flush()");
     expect(browserLogger).toContain("e.button === 0");
     expect(browserLogger).toContain("destination.origin === location.origin");
+    expect(browserLogger).toContain("setTimeout(navigate, 3000)");
   });
 });

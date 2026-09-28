@@ -93,7 +93,7 @@
               e.preventDefault();
               var navigated = false;
               var retry;
-              var timeout = setTimeout(navigate, 1500);
+              var timeout = setTimeout(navigate, 3000);
               function navigate() {
                 if (navigated) return;
                 navigated = true;
