@@ -8,17 +8,22 @@
 
 | Step | What happens | Matmuls |
 |---|---|---|
-| Token IDs → vectors | Look up each token in an `embedding` matrix (one-hot × matrix) | 1 |
+| Token IDs → vectors | Index rows of the token-embedding table; one-hot × matrix is a mathematical equivalence | 0 |
 | Self-attention (per layer) | Project to Q/K/V; compute attention; weighted sum; output projection | 6 |
 | Feed-forward (per layer) | Expand → non-linearity → contract | 2 |
 | Final projection | Last token's vector × embedding-matrixᵀ → vocabulary scores | 1 |
-| Softmax → next token | Element-wise; not a matmul | 0 |
+| Softmax → next token | Normalize vocabulary scores, then select/sample; not a matmul | 0 |
 
-For a 12-layer Huge model: **~108 matmuls in the body + ~1 input lookup + 1 output projection = ~110 matmuls per next-token prediction.**
+For a **simplified 12-layer illustration**, the displayed six attention plus
+two MLP matrix products make **8 × 12 = 96 conceptual products in the body**,
+plus one output projection. The input lookup is not a dense matmul. Fusion,
+prefill/decode shape, and implementation determine actual kernel launches;
+these counts are an anatomy aid, not a latency model. The reference model's
+actual layer count comes from `configs/model.byte-tinygpt-v0.json`.
 
 ## The full trace
 
-### 0. Token IDs become vectors (one matmul)
+### 0. Token IDs become vectors (a lookup)
 
 The model can't work with token IDs (`42`, `1337`) directly — those are just labels. So:
 
@@ -27,15 +32,24 @@ token_id 42  →  embedding[42]  →  a vector of d_model floats
                                    (for Huge: 256 floats)
 ```
 
-`embedding` is a learned matrix of shape `[vocab_size × d_model]`. Looking up row 42 is mathematically `one_hot(42) · embedding` — a matrix multiplication. Matmul #1.
+`embedding` is a learned matrix of shape `[vocab_size × d_model]`. Looking
+up row 42 is mathematically equivalent to `one_hot(42) · embedding`, but
+`torch.nn.Embedding` and this repo's `python_ref/model.py` perform a lookup,
+not a dense multiplication. See the [PyTorch Embedding reference](https://docs.pytorch.org/docs/2.14/generated/torch.nn.Embedding.html).
 
 After this, your token "hello" is a 256-number vector. The model now thinks in continuous space.
 
-### 1. Positions added (not a matmul)
+### 1. Positions represented (method varies)
 
-Each position in the sequence gets a positional encoding (rotary / ALiBi / learned — varies). Added element-wise to the token embedding. No matmul here.
+In the [Python reference](https://github.com/PostTrainLLM/posttrainllm/blob/ffb934d/python_ref/model.py), learned position vectors
+are looked up and added to token vectors. Other architectures differ:
+[RoPE](https://arxiv.org/abs/2104.09864) rotates attention queries and keys;
+[ALiBi](https://arxiv.org/abs/2108.12409) biases query-key attention scores
+according to distance. Neither is an addition to token embeddings.
 
-After Steps 0+1 you have a `[sequence_length × d_model]` matrix where each row is "the meaning of the token at this position."
+After Steps 0+1 in this reference, the activation has shape
+`[batch, sequence_length, d_model]`; each row is an initial representation,
+not a fixed meaning independent of context.
 
 ### 2-N: transformer blocks (the heavy lifters)
 
@@ -59,7 +73,9 @@ output = softmax_scores · V    ← matmul: weighted sum of values
 final  = output · W_O          ← matmul: project back to d_model
 ```
 
-`Q · Kᵀ` is what makes attention work — it's how every token "looks at" every other token and computes how relevant they are for understanding the current one.
+In causal attention, a query compares against keys at its own and earlier
+positions only; the mask excludes future positions. See the
+[reference implementation](https://github.com/PostTrainLLM/posttrainllm/blob/ffb934d/python_ref/model.py).
 
 #### Sub-layer B: feed-forward MLP (2 matmuls)
 
@@ -80,7 +96,9 @@ logits = last_row · embedding_matrixᵀ
          ([d_model]) · ([d_model × vocab_size]) → [vocab_size]
 ```
 
-This is the embedding matrix reused (transposed!). The same matrix that converted token IDs to vectors converts the final hidden state back to vocabulary scores. This **weight tying** saves parameters.
+This reference reuses the input embedding weights (transposed) for the output
+projection. This **weight tying** saves a separate output-weight matrix; other
+models may use an untied head.
 
 ### N+2: softmax + sample (not a matmul)
 
@@ -89,7 +107,9 @@ probabilities = softmax(logits)
 next_token = argmax(probabilities)  OR  sample(probabilities)
 ```
 
-Element-wise math. Pick the next token.
+Softmax normalizes scores across the vocabulary; then select or sample a
+token. Argmax can be applied directly to logits when only the top token is
+needed.
 
 ## Why matrix multiplication specifically?
 
@@ -99,11 +119,12 @@ Three compounding reasons:
 |---|---|
 | **Simplest learnable transformation** | `y = W·x` has one free parameter set (W). Easy to differentiate, easy to optimize via gradient descent. |
 | **Composes well** | Two stacked matmuls = mathematically one bigger matmul. To get expressive power, you sprinkle non-linearities (GELU, softmax) between them. Non-linearities give the *capacity* to learn; matmuls do the *work*. |
-| **GPU hardware optimization** | GPUs and TPUs are matmul machines. H100 ≈ 10¹⁵ matmul ops/sec. Building the architecture out of matmuls uses ~95% of hardware's theoretical capability. |
+| **Hardware mapping** | Matrix operations can use accelerator hardware efficiently for suitable shapes, precision, and batch size. Actual utilization depends on memory traffic, launch overhead, kernels, and workload. |
 
 ## Where the model's "knowledge" lives
 
-The model's weight matrices ARE the model:
+Learned parameters include matrices, embeddings, biases, and normalization
+parameters. In this reference, the major matrix groups are:
 
 - `embedding_matrix` — what each token "means" as a vector
 - `W_Q`, `W_K`, `W_V`, `W_O` (per layer) — what aspects of meaning to compare, how
@@ -111,26 +132,47 @@ The model's weight matrices ARE the model:
 
 When you **train**, you learn the values in these matrices via backpropagation.
 When you **fine-tune**, you nudge them slightly toward your task.
-When you **distill**, you copy what a bigger model's matrices have learned into smaller matrices.
-When you **quantize**, you compress the float values from 32 → 4 bits.
-When you **prune**, you zero out matrix entries that don't matter.
-When you **edit** (MEMIT), you surgically modify specific rows of specific matrices.
+When you **distill**, a student learns from teacher outputs or trajectories;
+its matrices are not normally copied element for element.
+When you **quantize**, you represent selected weights or activations at lower
+precision, with an accuracy and runtime tradeoff.
+When you **prune**, you remove or zero selected weights or structures.
+When you **edit** a model, you apply a targeted parameter intervention whose
+effect must be checked.
 
-A "22M parameter model" means **22 million floats stored in these matrices.** That's the entire model.
+A "22M parameter model" counts **22 million learned scalar values** across
+all parameter tensors. Storage depends on dtype and packaging.
 
 ## Why size and bandwidth matter
 
-**Why bigger models are smarter:** more matrix entries → more capacity to fit nuanced patterns. A 7B model has 318× the "shapeable surface" of a 22M model. But the cost is proportional in both memory and compute.
+**Why size matters:** more parameters can add capacity, but quality also
+depends on architecture, data, training, and evaluation. Parameter count alone
+does not predict capability or runtime cost for architectures such as MoE.
 
-**Why memory bandwidth matters at inference:** to generate ONE token, you must read the ENTIRE model through compute. For a 7B model at bf16 = 14 GB read per token. Max tok/s = `bandwidth / model_size`. (See the inference-performance section of `docs/sessions/2026-06-06-mac-specialist-platform.md` for hardware-specific numbers.)
+**Why memory bandwidth matters at decode:** for an unfused, batch-one dense
+model whose weight working set exceeds cache, weight reads can dominate each
+token step. A 7B-parameter bf16 weight set occupies about 14 GB before
+metadata and other state. `bandwidth / weight_bytes` is a rough weight-traffic
+ceiling only under those assumptions; batching, cache reuse, quantization,
+KV traffic, compute, and launch overhead change observed tok/s. Always state
+model, precision, batch, context, device, and timing boundary before using
+such an estimate.
 
-**Why architecture matters:** transformer vs Mamba vs MoE = "what shape are the matrices, in what order do we multiply them, where do we put the non-linearities." Different choices have different speed/memory/quality tradeoffs.
+**Why architecture matters:** the operations, routing/state, and their order
+determine different speed, memory, and quality tradeoffs.
 
 ## Mental model summary
 
-> An LLM is a stack of ~10-100 layers. Each layer is "multiply by a matrix, apply a non-linearity, multiply by another matrix." Tokens are pushed through the stack as vectors. Each layer's matrix is *learned* by showing the model billions of training examples and adjusting until it predicts the next token well.
+> A decoder language model turns token IDs into vectors, applies repeated
+> attention and feed-forward transformations with normalization and residual
+> paths, then projects to vocabulary scores. Training adjusts learned
+> parameters to reduce an objective; inference uses those parameters without
+> a gradient step.
 >
-> When you talk to an LLM, every token you see is the result of one full pass through the stack — about 110 matmuls per token for a small model, thousands per token for a frontier model. The matrices are the model. Everything else (positional encoding, layer norms, residual connections, attention masks) is plumbing to make the matmul-stack stable and expressive enough to learn language.
+> Each generated token depends on a forward step, often with cached earlier
+> keys and values. Position representation, normalization, residuals, and
+> causal masking materially affect the function and correctness; operation
+> counts here describe the illustrated math, not hardware kernel counts.
 
 ## Further reading
 

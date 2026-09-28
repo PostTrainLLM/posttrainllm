@@ -1,8 +1,10 @@
 # PostTrainLLM learning curriculum — ground up
 
-This is the owner learning roadmap from first principles to a self-improving
-factory for Mac-local specialist models: a self-improving factory in practice,
-not a pile of disconnected courses.
+This is the ground-up roadmap from first principles to a self-improving
+factory for Mac-local specialist models. The owner's active route for
+28 September–27 December 2026 is the
+[13-week inference-systems sprint](inference-systems-13w.md); use this
+curriculum when that route calls for a foundation or remediation lesson.
 
 The goal is not to "finish a course." The goal is to build durable taste:
 
@@ -146,7 +148,11 @@ needed to complete the initial source audit.
 
 ## Current Starting Point
 
-Start at Module 1 unless the owner can pass the mastery gate out loud.
+For the active inference sprint, start with its
+[prerequisite check](inference-systems-13w.md#entry-and-prerequisite-gate).
+If a foundation gap appears, use the smallest matching module below and
+retry with a changed example. For a complete ground-up pass, start at Module 1
+unless the owner can pass its mastery gate out loud.
 
 SQL candidate selection is retained lab material, not an active experiment.
 The learning path does not jump straight there. The correct bridge is:

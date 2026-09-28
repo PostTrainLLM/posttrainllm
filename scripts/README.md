@@ -17,6 +17,7 @@ compilers, and the repo's own quality gates.
 | `pace/` | Pace planner and intent router |
 | `bfcl/` | BFCL / tool-calling evaluation |
 | `bench/` | Latency, decode, energy, and thermal benchmarks |
+| `learning/` | Small, bounded learner-run exercises against the reference model |
 | `pipelines/` | Multi-step shell drivers (`v11_pipeline.sh`, `nightly.sh`, scoring runs) |
 | `release/` | Mac app bundling, notarization, icons, manual deploy |
 | `docs-checks/` | Docs and attempt-ledger enforcement |

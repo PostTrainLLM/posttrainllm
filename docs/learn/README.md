@@ -17,6 +17,10 @@ modify, tune, prove, and package. Its machine-checked source is
 [`artifact-journey.json`](artifact-journey.json), and the same artifact ladder
 is rendered on `/learn`.
 
+**Current owner route, 28 September–27 December 2026:** [13-week inference-systems sprint](./inference-systems-13w.md).
+Its [single Next Session](../learning-progress.md#next-session) owns today's
+exercise and recall dates.
+
 **Start here for ground-up learning:** [Curriculum overview](./curriculum.md).
 It is the 10-module path from functions and loss to transformers,
 post-training, evals, rewards, and the self-improving factory.

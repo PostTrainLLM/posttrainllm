@@ -1,7 +1,9 @@
 # Learning Progress Tracker
 
-This tracker makes the owner learning pipeline measurable. The goal is to learn
-from the ground up while using posttrainllm as the lab.
+This tracker makes the owner learning pipeline measurable. The active route
+for 28 September–27 December 2026 is the
+[13-week inference-systems sprint](learn/inference-systems-13w.md), with the
+ground-up curriculum available for prerequisite repair.
 
 ## Next Session
 
@@ -10,23 +12,24 @@ articles, and artifacts are the reference library, not competing task queues.
 
 | Field | Current selection |
 |---|---|
-| Current module | **Module 1 — Functions, data, parameters** |
-| Read | [Session 1](learn/session-01-neural-net-basics.md), only as needed for the exercise |
-| One exercise | For `(x,y) = (0,1), (1,3), (2,5), (3,7), (4,9)`, choose `m,b` for `y = mx + b`; show all five predictions and label inputs, targets, parameters, and predictions |
-| One explanation | In your own words, explain which quantities stay fixed during fitting, which change, and how parameters differ from inputs; name one corresponding quantity in the repo |
-| Evidence to save | Your calculation and explanation in a dated checkpoint below; unanswered questions stay explicit |
-| Immediate gate | Explain a parameter without LLM jargon and predict the effect of changing `m` versus `b` on a new input |
+| Current module | **Inference sprint Week 1 (28 Sep–4 Oct) — forward path; prerequisite check first** |
+| Read | [Week 1 contract](learn/inference-systems-13w.md#week-1-full-session-contract); use the [entry check](learn/inference-systems-13w.md#entry-and-prerequisite-gate) before answer-bearing lessons |
+| One exercise | Write the entry-check answers without notes, then predict the reference model's embedding/logit shapes and causal influence before running the bounded [CPU lab](learn/inference-systems-13w.md#week-1-full-session-contract). If an entry answer fails, repair that prerequisite and retry with changed numbers before the lab. |
+| One explanation | In your own words, trace token IDs through lookup, attention/mask, MLP, and tied output head; distinguish inputs, parameters, activations, and outputs; explain which token changes can affect which logits |
+| Evidence to save | Entry attempt and retry if needed; predictions before running; source revision/config/environment; raw lab output, annotated trace, owner explanation, and unresolved questions in a dated checkpoint |
+| Immediate gate | Correct shapes and causal prediction, a passing Week 1 correctness smoke on the stated CPU environment, and an independent explanation of the observed result |
 | Delayed recall | Not scheduled yet: set actual dates at exercise completion, for +2 and +7 days |
-| Next eligible module | Module 2, after the exercise and immediate gate pass |
+| Next eligible module | Inference sprint Week 2, after Week 1's immediate gate; due recall remains in this tracker |
 
-Suggested session: 5 minutes of due recall, 10 minutes of focused reading,
-10 minutes on the exercise, and 5 minutes recording your explanation. Split
-larger labs across sessions while keeping one exercise in focus.
+Suggested first session: use the [two-hour Week 1 schedule](learn/inference-systems-13w.md#week-1-full-session-contract).
+Split larger labs across sessions while keeping one exercise in focus.
 
 ## Learning Loop
 
 1. Start with any due recall check, closed-book, before rereading.
-2. Work on the **one current module** and its **one selected exercise**.
+2. Work on the **one current module** and its **one selected exercise**. The
+   active route is the inference sprint; prerequisite repair may temporarily
+   use a ground-up lesson without creating another current task.
 3. Record **one explanation in the owner's words**, the actual work, errors,
    and a link to a relevant repo artifact. An agent may critique or transcribe
    it, but must not substitute its own answer as evidence of owner mastery.
@@ -72,6 +75,8 @@ Next session:
 
 ## Preserved Learning Library
 
+- [Inference-systems 13-week route](learn/inference-systems-13w.md): active
+  sequence and Week 1 lab contract.
 - [Ten-module curriculum](learn/curriculum.md): prerequisites and mastery gates.
 - [Nine practical paths](learn/path-registry.json): deeper labs and repo anchors.
 - [Thirteen buildable artifacts](learn/artifact-journey.json): build/modify/tune/prove/package work.
@@ -145,10 +150,11 @@ active task queue.
 
 ## Current Focus
 
-The next ground-up focus is **Module 1 -> Module 2**. Only Module 1 is current;
-Module 2 becomes eligible after its immediate gate. The Next Session card is
-the authoritative selection, and earlier modules remain in the recall queue.
-SQL candidate selection remains a retained lab example for later study.
+The current focus is **inference sprint Week 1**. The Next Session card above
+is authoritative. The historical ground-up table remains evidence of prior
+resource status, not a second assignment or proof of prerequisite mastery.
+Use Module 1 or another small lesson only when the entry check identifies a
+gap. SQL candidate selection remains a retained lab example for later study.
 
 ## Completion Criteria
 
