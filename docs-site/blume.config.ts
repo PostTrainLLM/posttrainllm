@@ -27,6 +27,77 @@ export default defineConfig({
     root: "../docs",
     exclude: publicInternal ? [] : ["prds/**", "openspec/**"],
   },
+  navigation: {
+    // Keep every page at its existing URL; show curated entrances in the
+    // sidebar instead of an alphabetical dump of the research corpus.
+    sidebar: [
+      "/",
+      {
+        label: "Current learning",
+        display: "group",
+        collapsed: false,
+        items: ["/learn", "/learn/inference-systems-13w", "/learning-progress"],
+      },
+      {
+        label: "Foundations and labs",
+        display: "group",
+        items: [
+          "/learn/curriculum",
+          "/learn/README",
+          "/learn/artifact-journey",
+          "/learn/coverage-map",
+          "/learning-pipeline",
+        ],
+      },
+      {
+        label: "Reference library",
+        display: "group",
+        items: [
+          "/library",
+          "/learn/llm-mechanics-fundamentals",
+          "/learn/advanced-llm-inference",
+          "/industry_learning_roadmap",
+          "/techniques/README",
+          "/recipes/README",
+        ],
+      },
+      {
+        label: "Factory handbook",
+        display: "group",
+        items: [
+          "/quickstart",
+          "/cli-reference",
+          "/factory/README",
+          "/factory/eval-protocol",
+          "/factory/packaging",
+          "/factory/reports",
+        ],
+      },
+      {
+        label: "Evidence and decisions",
+        display: "group",
+        items: [
+          "/attempt-ledger",
+          "/factory/public-artifacts",
+          "/research/mac_decode_baseline_m5pro",
+          "/audits/history-coverage-audit",
+          "/external-products-reviewed",
+        ],
+      },
+      {
+        label: "History and parked work",
+        display: "group",
+        items: [
+          "/doc-status",
+          "/NEXT",
+          "/prds/README",
+          "/roadmap/index",
+          "/parked/README",
+          "/learn/legacy-walkthrough",
+        ],
+      },
+    ],
+  },
   github: {
     owner: "PostTrainLLM",
     repo: "posttrainllm",

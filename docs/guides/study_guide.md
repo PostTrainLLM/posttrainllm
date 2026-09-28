@@ -296,9 +296,10 @@ For private datasets you can store an HF token in `localStorage` and the loader 
 
 If you want to follow specific threads further, here are the most useful entry points:
 
-- **Inside posttrainllm.** `docs/learn/README.md` is the active learning index;
-  `docs/learn.md` is the legacy code walkthrough for the original
-  Python/WASM/WebGPU arc. `docs/performance/performance.md` is the canonical perf doc,
+- **Inside posttrainllm.** `docs/learn.md` is the active course workspace;
+  `docs/learn/README.md` is the full learning index; and
+  `docs/learn/legacy-walkthrough.md` retains the original Python/WASM/WebGPU
+  tour. `docs/performance/performance.md` is the canonical perf doc,
   including the real-device benchmark protocol you'd use if you wanted to add a
   hardware datapoint. The root `PROJECT_STATUS.md` is the live "what's shipped,
   what's open" board (`docs/archive/status.md` is the 2026 browser/perf-era

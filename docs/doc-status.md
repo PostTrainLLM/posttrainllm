@@ -32,7 +32,10 @@ does not compete with the closed learning lab.
 | `docs/external-products-reviewed.md` | `evidence` | reviewed products, papers, and stolen techniques | exhaustive literature survey |
 | `docs/factory/public-artifacts.md` | `evidence` | public artifact release state and blockers | internal-only scratch notes |
 | `docs/learning-pipeline.md` | `learning` | ready owner learning sequence tied to repository labs | generic course catalog |
+| `docs/learn.md` | `active` | current 13-week course entrance and single-session route | proof of owner mastery |
+| `docs/library.md` | `reference` | find retained learning, factory, evidence, and history documents | a second active queue |
 | `docs/learn/` | `learning` | curriculum and concept references | active project queue |
+| `docs/learn/legacy-walkthrough.md` | `archive` | original Python/WASM/WebGPU guided tour | current inference-systems route |
 | `docs/prds/` | `reference` | acceptance criteria for a named/deferred lane | selecting the next active task |
 | `docs/PLAN.md` | `reference` | historical feature inventory and shipped/skipped/TODO context | current source of truth |
 | `docs/roadmap/` | `superseded` | old roadmap links and historical split | active roadmap |

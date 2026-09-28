@@ -65,7 +65,8 @@ Everything that can be checked by a machine, is — that was the method througho
 
 ## Where the docs are
 
-- [`learn.md`](../learn.md) — start here to understand the repo
+- [`legacy-walkthrough.md`](../learn/legacy-walkthrough.md) — original Python/WASM/WebGPU tour
+- [`learn.md`](../learn.md) — current course workspace
 - [`notes.md`](../notes.md) — what each component does and what each experiment showed
 - [`performance.md`](../performance/performance.md) — the SIMD and WebGPU performance work
 - [`lessons.md`](lessons.md) — the bugs and surprises worth more than the kernels
