@@ -70,6 +70,23 @@ then. `Source review` is never reported as execution.
 | **12 · Dec 14–20** | **Capstone review.** Reproduce Week 11 on the same conditions, then try changed workloads. Predict where the gain should fail; report regressions, variance, costs, and limits, and defend ship/reject/redo. Raw evidence and your own explanation are required; one good trace is insufficient. |
 | **13 · Dec 21–27** | **Unfamiliar-problem assessment.** Given a new bottleneck or correctness failure, write assumptions, a predicted cause, diagnostic plan, and next test before inspecting results. Check on a changed workload and defend the conclusion without copying the capstone solution. A reviewer may prepare the prompt, but the owner supplies the reasoning and evidence. |
 
+### GPU vocabulary when Weeks 3–5 begin
+
+The [Modal GPU Glossary](https://modal.com/gpu-glossary) is a linked reference,
+not a new session or mastery gate. For Week 3, use its [arithmetic
+intensity](https://modal.com/gpu-glossary/perf/arithmetic-intensity) and
+[roofline model](https://modal.com/gpu-glossary/perf/roofline-model) entries to
+explain a predicted compute or memory bound. A roofline does not include request
+queueing or latency, so keep the serving measurements in the Week 3 contract.
+For Weeks 4–5, use [thread
+hierarchy](https://modal.com/gpu-glossary/device-software/thread-hierarchy),
+[memory hierarchy](https://modal.com/gpu-glossary/device-software/memory-hierarchy),
+and [memory coalescing](https://modal.com/gpu-glossary/perf/memory-coalescing)
+while drawing the kernel and memory-traffic diagrams. Its warps, streaming
+multiprocessors, and CUDA memory spaces describe NVIDIA hardware; compare the
+ideas with Mac/Metal/MLX without treating the hardware details or measurements
+as interchangeable. The Week 4 NVIDIA execution boundary still applies.
+
 ## Week 1: full session contract
 
 **Objective:** trace the reference decoder from token IDs to logits, predict

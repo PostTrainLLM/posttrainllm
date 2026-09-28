@@ -5,7 +5,7 @@ is one-sentence-what + one-sentence-why-for-us + link, per the docs
 preference for leaning on authoritative external sources rather than
 re-explaining them.
 
-Updated 2026-06-08.
+Updated 2026-06-08; GPU systems reference added 2026-09-29.
 
 ---
 
@@ -66,6 +66,18 @@ Updated 2026-06-08.
   things weirdly).
   _Why for us_: closest practicing tradition for whimsy + ML mechanics;
   good rhythm reference.
+
+---
+
+## GPU systems and performance
+
+- **[Modal GPU Glossary](https://modal.com/gpu-glossary)**
+  An interlinked reference spanning NVIDIA GPU hardware, CUDA's programming
+  model and software stack, and performance vocabulary.
+  _Why for us_: use its roofline and arithmetic-intensity explanations for
+  bottleneck predictions in inference Weeks 3–5, and its thread/memory hierarchy
+  and coalescing entries for the Week 4 kernel diagrams. Treat NVIDIA-specific
+  hardware details as a Mac-to-CUDA comparison, not a Mac execution result.
 
 ---
 

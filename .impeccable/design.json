@@ -1,67 +1,245 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-05T00:00:00.000Z",
+  "generatedAt": "2026-09-28T19:28:22Z",
   "title": "Design System: posttrainllm",
   "extensions": {
     "colorMeta": {
-      "deep-ink": { "role": "neutral", "displayName": "Deep Ink", "canonical": "#0a0c0f" },
-      "panel": { "role": "neutral", "displayName": "Evidence Panel", "canonical": "#111419" },
-      "live-teal": { "role": "primary", "displayName": "Live Teal", "canonical": "#48e5c2" },
-      "failure-coral": { "role": "semantic", "displayName": "Failure Coral", "canonical": "#ff6f5c" },
-      "candidate-amber": { "role": "semantic", "displayName": "Candidate Amber", "canonical": "#ffb454" }
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Deep Ink Canvas",
+        "canonical": "#0a0c0f",
+        "tonalRamp": [
+          "oklch(15% 0.007 258.4)",
+          "oklch(25% 0.007 258.4)",
+          "oklch(35% 0.007 258.4)",
+          "oklch(45% 0.007 258.4)",
+          "oklch(55% 0.007 258.4)",
+          "oklch(65% 0.007 258.4)",
+          "oklch(78% 0.007 258.4)",
+          "oklch(92% 0.007 258.4)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Evidence Surface",
+        "canonical": "#111419",
+        "tonalRamp": [
+          "oklch(15% 0.011 260.7)",
+          "oklch(25% 0.011 260.7)",
+          "oklch(35% 0.011 260.7)",
+          "oklch(45% 0.011 260.7)",
+          "oklch(55% 0.011 260.7)",
+          "oklch(65% 0.011 260.7)",
+          "oklch(78% 0.011 260.7)",
+          "oklch(92% 0.011 260.7)"
+        ]
+      },
+      "raised": {
+        "role": "neutral",
+        "displayName": "Raised Panel",
+        "canonical": "#171b22",
+        "tonalRamp": [
+          "oklch(15% 0.015 261.6)",
+          "oklch(25% 0.015 261.6)",
+          "oklch(35% 0.015 261.6)",
+          "oklch(45% 0.015 261.6)",
+          "oklch(55% 0.015 261.6)",
+          "oklch(65% 0.015 261.6)",
+          "oklch(78% 0.015 261.6)",
+          "oklch(92% 0.015 261.6)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Primary Ink",
+        "canonical": "#eaedf2",
+        "tonalRamp": [
+          "oklch(15% 0.007 260.7)",
+          "oklch(25% 0.007 260.7)",
+          "oklch(35% 0.007 260.7)",
+          "oklch(45% 0.007 260.7)",
+          "oklch(55% 0.007 260.7)",
+          "oklch(65% 0.007 260.7)",
+          "oklch(78% 0.007 260.7)",
+          "oklch(92% 0.007 260.7)"
+        ]
+      },
+      "secondary": {
+        "role": "neutral",
+        "displayName": "Secondary Ink",
+        "canonical": "#a6adb9",
+        "tonalRamp": [
+          "oklch(15% 0.019 261.3)",
+          "oklch(25% 0.019 261.3)",
+          "oklch(35% 0.019 261.3)",
+          "oklch(45% 0.019 261.3)",
+          "oklch(55% 0.019 261.3)",
+          "oklch(65% 0.019 261.3)",
+          "oklch(78% 0.019 261.3)",
+          "oklch(92% 0.019 261.3)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#737b88",
+        "tonalRamp": [
+          "oklch(15% 0.022 260.2)",
+          "oklch(25% 0.022 260.2)",
+          "oklch(35% 0.022 260.2)",
+          "oklch(45% 0.022 260.2)",
+          "oklch(55% 0.022 260.2)",
+          "oklch(65% 0.022 260.2)",
+          "oklch(78% 0.022 260.2)",
+          "oklch(92% 0.022 260.2)"
+        ]
+      },
+      "live-teal": {
+        "role": "primary",
+        "displayName": "Live Teal",
+        "canonical": "#48e5c2",
+        "tonalRamp": [
+          "oklch(15% 0.139 174.5)",
+          "oklch(25% 0.139 174.5)",
+          "oklch(35% 0.139 174.5)",
+          "oklch(45% 0.139 174.5)",
+          "oklch(55% 0.139 174.5)",
+          "oklch(65% 0.139 174.5)",
+          "oklch(78% 0.139 174.5)",
+          "oklch(92% 0.139 174.5)"
+        ]
+      },
+      "counter-coral": {
+        "role": "semantic",
+        "displayName": "Counter Coral",
+        "canonical": "#ff6f5c",
+        "tonalRamp": [
+          "oklch(15% 0.179 29.8)",
+          "oklch(25% 0.179 29.8)",
+          "oklch(35% 0.179 29.8)",
+          "oklch(45% 0.179 29.8)",
+          "oklch(55% 0.179 29.8)",
+          "oklch(65% 0.179 29.8)",
+          "oklch(78% 0.179 29.8)",
+          "oklch(92% 0.179 29.8)"
+        ]
+      }
     },
     "typographyMeta": {
-      "display": { "displayName": "Editorial Display", "purpose": "Thesis and section hierarchy." },
-      "body": { "displayName": "Readable Interface", "purpose": "Explanation and navigation." },
-      "mono": { "displayName": "Evidence Type", "purpose": "Metrics, paths, commands, and states." }
+      "display": {
+        "displayName": "Bricolage Display",
+        "purpose": "Research headlines and major section hierarchy."
+      },
+      "body": {
+        "displayName": "Geist Body",
+        "purpose": "Long explanations and interface copy."
+      },
+      "data": {
+        "displayName": "Geist Mono Data",
+        "purpose": "Commands, metrics, paths, states, and evidence identities."
+      }
     },
-    "shadows": [],
+    "shadows": [
+      {
+        "name": "shadow-1",
+        "value": "0 1px 2px rgba(0, 0, 0, 0.45)",
+        "purpose": "Subtle separation for compact surfaces."
+      },
+      {
+        "name": "shadow-2",
+        "value": "0 14px 40px -18px rgba(0, 0, 0, 0.7), 0 2px 8px -2px rgba(0, 0, 0, 0.4)",
+        "purpose": "Raised panel depth."
+      },
+      {
+        "name": "shadow-3",
+        "value": "0 40px 90px -32px rgba(0, 0, 0, 0.8)",
+        "purpose": "High elevation where a surface needs separation."
+      },
+      {
+        "name": "glow-live",
+        "value": "0 0 0 1px rgba(72, 229, 194, 0.18), 0 0 40px -8px rgba(72, 229, 194, 0.28)",
+        "purpose": "Bounded emphasis on a live primary action."
+      }
+    ],
     "motion": [
-      { "name": "state-fast", "value": "140ms cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Focus, hover, and active-state feedback." }
+      {
+        "name": "state-fast",
+        "value": "140ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Hover, focus, and active-state feedback."
+      },
+      {
+        "name": "state-medium",
+        "value": "260ms cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Background, border, and shadow changes."
+      },
+      {
+        "name": "reveal",
+        "value": "720ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Optional content reveal; reduced-motion styles disable animation."
+      }
     ],
     "breakpoints": [
-      { "name": "compact", "value": "520px" },
-      { "name": "tablet", "value": "768px" },
-      { "name": "wide", "value": "1180px" }
+      {
+        "name": "compact-content",
+        "value": "560px"
+      },
+      {
+        "name": "compact-navigation",
+        "value": "760px"
+      }
     ]
   },
   "components": [
     {
-      "name": "Evidence Panel",
-      "kind": "card",
-      "refersTo": "evidence-panel",
-      "description": "A bounded claim with explicit state and provenance.",
-      "html": "<article class=\"evidence-panel\"><p class=\"state\">candidate</p><h3>Claim</h3><a href=\"/evidence\">Inspect evidence</a></article>",
-      "css": ".evidence-panel{background:#111419;color:#eaedf2;border:1px solid #2a3039;border-radius:14px;padding:24px}.evidence-panel a{color:#48e5c2}.state{font-family:'Geist Mono Variable',monospace;color:#ffb454}"
-    },
-    {
       "name": "Primary Action",
       "kind": "button",
-      "refersTo": "primary-action",
-      "description": "The single strongest next action on a surface.",
-      "html": "<a class=\"primary-action\" href=\"/learn\">Open the walkthrough</a>",
-      "css": ".primary-action{display:inline-flex;background:#48e5c2;color:#06110e;border-radius:9px;padding:11px 20px;font:600 16px 'Geist Variable',sans-serif}.primary-action:focus-visible{outline:2px solid #48e5c2;outline-offset:3px}"
+      "description": "One clear next action in live teal.",
+      "html": "<a class=\"ds-btn-primary\" href=\"/learn\">Start learning</a>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;background:#48e5c2;color:#06110e;border:1px solid transparent;border-radius:9px;padding:11px 20px;font:560 16px \"Geist Variable\",sans-serif;text-decoration:none;transition:background 140ms cubic-bezier(0.22,1,0.36,1),box-shadow 260ms cubic-bezier(0.22,1,0.36,1)}.ds-btn-primary:hover{background:#74f2d8;box-shadow:0 0 0 1px rgba(72,229,194,.18),0 0 40px -8px rgba(72,229,194,.28)}.ds-btn-primary:focus-visible{outline:2px solid #48e5c2;outline-offset:3px}.ds-btn-primary:active{transform:translateY(1px)}"
+    },
+    {
+      "name": "Secondary Action",
+      "kind": "button",
+      "description": "Quiet outlined path beside a primary action.",
+      "html": "<a class=\"ds-btn-ghost\" href=\"/experiments\">Inspect experiments</a>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;background:transparent;color:#eaedf2;border:1px solid #2a3039;border-radius:9px;padding:11px 20px;font:560 16px \"Geist Variable\",sans-serif;text-decoration:none;transition:border-color 140ms cubic-bezier(0.22,1,0.36,1),color 140ms cubic-bezier(0.22,1,0.36,1)}.ds-btn-ghost:hover{border-color:#48e5c2;color:#48e5c2}.ds-btn-ghost:focus-visible{outline:2px solid #48e5c2;outline-offset:3px}.ds-btn-ghost:active{transform:translateY(1px)}"
+    },
+    {
+      "name": "Evidence Panel",
+      "kind": "card",
+      "description": "Dark, ruled surface that keeps claim and provenance together.",
+      "html": "<article class=\"ds-evidence\"><span class=\"ds-evidence-label\">VERIFIED · LOCAL</span><h3>Specialist result</h3><p>Keep the measured delta beside its limits.</p><a href=\"/experiments\">Inspect evidence</a></article>",
+      "css": ".ds-evidence{background:#111419;color:#eaedf2;border:1px solid #2a3039;border-radius:14px;padding:24px;font:16px/1.6 \"Geist Variable\",sans-serif;box-shadow:0 1px 2px rgba(0,0,0,.45)}.ds-evidence-label{color:#48e5c2;font:600 12px \"Geist Mono Variable\",monospace;letter-spacing:.02em}.ds-evidence h3{margin:12px 0 8px;font:650 24px/1.1 \"Bricolage Grotesque Variable\",sans-serif}.ds-evidence p{margin:0 0 16px;color:#a6adb9}.ds-evidence a{color:#48e5c2;text-decoration:none}.ds-evidence a:hover{text-decoration:underline}.ds-evidence a:focus-visible{outline:2px solid #48e5c2;outline-offset:3px}"
+    },
+    {
+      "name": "Research Navigation",
+      "kind": "nav",
+      "description": "Quiet top-level links with teal on the current or hovered destination.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Primary\"><a class=\"ds-current\" href=\"/learn\" aria-current=\"page\">Learn</a><a href=\"/experiments\">Experiments</a><a href=\"/artifacts\">Artifacts</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:24px;background:#0a0c0f;border-bottom:1px solid #1c212a;padding:13px 20px;font:500 13px \"Geist Variable\",sans-serif}.ds-nav a{color:#a6adb9;text-decoration:none;border-bottom:2px solid transparent;padding:5px 0;transition:color 140ms cubic-bezier(0.22,1,0.36,1)}.ds-nav a:hover,.ds-nav a.ds-current{color:#eaedf2;border-bottom-color:#48e5c2}.ds-nav a:focus-visible{outline:2px solid #48e5c2;outline-offset:3px}"
+    },
+    {
+      "name": "Evidence Label",
+      "kind": "chip",
+      "description": "Compact monospace state text with color tied to meaning.",
+      "html": "<span class=\"ds-evidence-chip\">● VERIFIED</span>",
+      "css": ".ds-evidence-chip{display:inline-flex;align-items:center;color:#48e5c2;background:#111419;border:1px solid #2a3039;border-radius:5px;padding:5px 9px;font:600 12px \"Geist Mono Variable\",monospace;letter-spacing:.02em}"
     }
   ],
   "narrative": {
-    "northStar": "The Evidence Instrument",
-    "overview": "A dark, ruled research surface that pairs editorial explanation with inspectable model evidence and explicit qualification states.",
-    "keyCharacteristics": [
-      "Deep ink surfaces with tonal panels and precise rules.",
-      "Bricolage display type, Geist body type, and Geist Mono evidence labels.",
-      "Teal live states, coral failures, and amber candidates.",
-      "Source-linked claims and failure-visible reports."
-    ],
-    "rules": [
-      { "name": "State colors carry meaning", "body": "Use teal, coral, and amber only for their established evidence states.", "section": "colors" }
-    ],
+    "northStar": "The Local Research Bench",
+    "overview": "The site should feel like a working research instrument rather than a generic AI landing page: deep ink surfaces, tightly controlled typography, explicit evidence, and a small number of signals that carry stable meaning.",
+    "keyCharacteristics": [],
+    "rules": [],
     "dos": [
-      "Show qualification and provenance beside claims.",
-      "Keep long explanations within a readable measure."
+      "Show real-shaped recipes, commands, artifacts, evaluations, and blockers.",
+      "Separate published evidence from guidance and unverified work.",
+      "Keep agent-readable Markdown equivalent to the visible public page."
     ],
     "donts": [
-      "Do not fabricate capability or efficiency claims.",
-      "Do not replace evidence with generic AI imagery or decorative gradients."
+      "Add generic AI imagery, glossy gradients, or dashboard decoration.",
+      "Invent benchmark outcomes, hardware speed, model quality, or user proof.",
+      "Use teal as ambient decoration or coral as an unrelated second brand voice."
     ]
   }
 }
