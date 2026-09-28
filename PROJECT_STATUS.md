@@ -1,8 +1,8 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-09-26
+Last updated: 2026-09-28
 
-Lifecycle: **learning artifact complete; public release verified; no active target**
+Lifecycle: **learning artifact complete; public release verified; owner inference sprint active; no active model target**
 
 ## Completion State
 
@@ -43,6 +43,18 @@ and final public distribution receipt; Issue #138 completed its controlled
 ReST, Parakeet, WebGPU, and Needle experiments; Issue #166 delivered the public
 knowledge graph. No new model download or training is selected. Historical
 TODOs and conditional unblock notes remain evidence, not authorization.
+
+Inference learning release (2026-09-28): the owner-selected
+[13-week inference-systems route](https://posttrainllm.com/docs/learn/inference-systems-13w/)
+runs 28 September–27 December at up to 20 focused hours per week. `/learn`
+links to it; the single [Next Session](https://posttrainllm.com/docs/learning-progress/)
+selects Week 1 without promoting historical mastery. The bounded CPU reference
+lab passed shape and causal checks. All eight
+[CI jobs](https://github.com/PostTrainLLM/posttrainllm/actions/runs/36431192427)
+passed at `44f9661`; the
+[Cloudflare deployment](https://github.com/PostTrainLLM/posttrainllm/actions/runs/36432948735)
+passed and live guest checks confirmed the route, Learn link, and Next Session.
+No owner checkpoint or CUDA execution has been recorded.
 
 Sharing release (2026-09-26): the credited
 [inspiration library](https://posttrainllm.com/inspiration) is live with 24 named
@@ -152,6 +164,7 @@ Important constraints:
 
 | Date / phase                                                | Status                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-28 Inference-systems learning route                  | **Live (Issue #178).** A 13-week route from 28 September to 27 December links existing lessons to forward-pass, measurement, kernels, serving, and boundary exercises. The single Next Session selects Week 1; the CPU reference lab and mechanics corrections are verified. All eight current-SHA CI jobs passed at `44f9661`, the Pages deployment passed, and the public route, Learn link, and Week 1 selection were checked live. Owner mastery and NVIDIA execution remain unclaimed. |
 | 2026-09-23 Canonical learning-evidence index                | **Deployed (issue #166); Search Console sitemap accepted, individual indexing pending.** Direction A extends the Local Research Bench with one evidence-dossier system across 19 studied products/research records, all 76 experiments, all 18 recipes, nine learning paths, and thirteen buildable artifacts. Each of the 135 source objects now has one canonical HTML route, generated Markdown parity, unique metadata, JSON-LD, contextual relationships, and a dated sitemap entry. The build gate rejects missing routes, provenance, thin content, duplicate metadata, absent Markdown, or sitemap freshness. Browser tests (96), the 507-page production build, the 576-page/119,262-link internal crawl, focused on-page SEO, and 390/768/1440 responsive checks for all five new route families pass. The wider legacy visual sweep reported a `/webgpu-test` 390px overflow, addressed in Issue #170, and an aborted third-party `/learn` request; neither affected the new dossier routes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | 2026-09-22 Operation-specific model compatibility           | **Complete (issue #161).** Schema-v2 reports now separate inspect, download, load, inference, LoRA/SFT, and agentic-use states and expose the ordered inspect-to-ready pipeline. Bounded `model-run` outcomes write atomic, sanitized receipts tied to the immutable Hub commit and current device; only an exact later match upgrades static predictions to measured evidence. Schema-v1 reports remain decodable. Verification covered 81 focused tests, the MLX runner and Mac app builds, formatting, unchanged complexity and duplication gates; no model weights were downloaded or executed during the final integration.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | 2026-09-22 HF model compatibility check                     | **Shipped locally (issue #156).** `posttrainllm model-check <hf-url> [--json]` and the app's Check workspace share one `TinyGPTCheck` service + `ModelCheckReport` schema: read-only Hub metadata + config.json fetch, local env/runtime probes, verdict ladder (expected_to_work / changes_required / unsupported_on_checked_path / unknown), other-Mac-path alternatives, and a copy-ready agent prompt. Verified live against real repos (Qwen3-0.6B → expected_to_work; FLUX.1-dev → runtime/task mismatch with diffusers + Core ML alternatives; nonexistent repo → unknown + handoff). 17 fixture tests; docs: `docs/integrations/model-check.md`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
@@ -226,6 +239,10 @@ Important constraints:
 
 Factory primitives:
 
+- Public inference-systems learning route: 13 dated weeks, one evidence-based
+  Next Session, prerequisite repair, a bounded CPU Week 1 lab, and explicit
+  NVIDIA/source-analysis boundaries. The ground-up and factory libraries remain
+  available; learner mastery requires owner evidence and delayed recall.
 - OffHours context-interference benchmark: a forced-work, paired
   resolved-versus-unresolved family-health design with clean-only ruler checks,
   fixed-volume 20/50/80% semantic occupancy, an exact-word raw-volume ladder,
@@ -327,10 +344,10 @@ Completed/parked learning tracks:
 
 ## Work queue
 
-Issue [#136](https://github.com/PostTrainLLM/posttrainllm/issues/136) is closed
-with the completion build, rendered verification, current-SHA CI, deployment,
-live guest audit, and final release receipt attached. There are no active work
-items and no open pull requests.
+Issues [#136](https://github.com/PostTrainLLM/posttrainllm/issues/136) and
+[#178](https://github.com/PostTrainLLM/posttrainllm/issues/178) are closed
+with their release receipts. There are no active implementation items or open
+pull requests; the owner's inference learning sprint is active.
 
 If the project is reactivated, an open issue is the only authoritative to-do,
 a linked pull request means work is in progress, and merge plus issue closure
