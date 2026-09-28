@@ -441,13 +441,16 @@ function enforceSinglePageTitle(html) {
   for (const heading of headings.slice(1).reverse()) {
     if (normalizeText(heading[2]) === pageTitle) {
       const duplicateId = heading[1].match(/\bid=(["'])(.*?)\1/i)?.[2];
+      // Remove the article copy before transferring its id. Otherwise the
+      // first replacement makes the two tags identical and removes Blume's
+      // visible page heading, leaving only its CSS-hidden article heading.
+      after = after.replace(heading[0], "");
       if (duplicateId && !/\bid=/i.test(headings[0][1])) {
         after = after.replace(
           headings[0][0],
           `<h1${headings[0][1]} id="${duplicateId}">${headings[0][2]}</h1>`,
         );
       }
-      after = after.replace(heading[0], "");
       removed += 1;
       continue;
     }
