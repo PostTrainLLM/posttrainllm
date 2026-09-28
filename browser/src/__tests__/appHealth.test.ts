@@ -37,6 +37,9 @@ describe("App Health browser analytics", () => {
     ).toHaveLength(1);
     expect(browserLogger).toContain('closest("[data-log]")');
     expect(browserLogger).toContain("send(name, {");
-    expect(browserLogger).toContain("window.appHealth.track(name)");
+    expect(browserLogger).toContain("appHealth.track(name)");
+    expect(browserLogger).toContain("appHealth.flush()");
+    expect(browserLogger).toContain("e.button === 0");
+    expect(browserLogger).toContain("destination.origin === location.origin");
   });
 });

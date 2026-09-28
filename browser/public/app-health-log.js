@@ -70,9 +70,54 @@
           title: (t.textContent || "").trim().slice(0, 120) || name,
           props: { page: location.pathname },
         });
+        var appHealth = window.appHealth;
         try {
-          if (window.appHealth && typeof window.appHealth.track === "function")
-            window.appHealth.track(name);
+          if (appHealth && typeof appHealth.track === "function") {
+            appHealth.track(name);
+            var anchor = t.closest("a[href]");
+            var destination = anchor && new URL(anchor.href, location.href);
+            var sameTabNavigation =
+              anchor &&
+              e.button === 0 &&
+              !e.metaKey &&
+              !e.ctrlKey &&
+              !e.shiftKey &&
+              !e.altKey &&
+              !e.defaultPrevented &&
+              !anchor.hasAttribute("download") &&
+              (!anchor.target || anchor.target.toLowerCase() === "_self") &&
+              destination &&
+              destination.origin === location.origin;
+
+            if (sameTabNavigation && typeof appHealth.flush === "function") {
+              e.preventDefault();
+              var navigated = false;
+              var retry;
+              var timeout = setTimeout(navigate, 1500);
+              function navigate() {
+                if (navigated) return;
+                navigated = true;
+                clearTimeout(timeout);
+                clearTimeout(retry);
+                location.assign(destination.href);
+              }
+              function flushUntilDrained() {
+                try {
+                  Promise.resolve(appHealth.flush()).then(function () {
+                    var queued =
+                      typeof appHealth.diagnostics === "function"
+                        ? appHealth.diagnostics().queued
+                        : 0;
+                    if (queued === 0 || navigated) navigate();
+                    else retry = setTimeout(flushUntilDrained, 50);
+                  }, navigate);
+                } catch (_) {
+                  navigate();
+                }
+              }
+              flushUntilDrained();
+            }
+          }
         } catch (_) {}
       }
     },
