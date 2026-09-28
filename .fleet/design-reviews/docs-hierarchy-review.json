@@ -1,0 +1,122 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "Course-first documentation hierarchy",
+  "surfaceMode": "read",
+  "mode": "overhaul",
+  "register": "product",
+  "context": {
+    "product": "PRODUCT.md",
+    "design": "DESIGN.md"
+  },
+  "direction": {
+    "references": [
+      "PostTrainLLM Local Research Bench",
+      "Existing Blume grouped sidebar"
+    ],
+    "probes": [
+      {
+        "id": "course-workspace",
+        "path": ".fleet/design-reviews/docs-hierarchy-directions.html"
+      },
+      {
+        "id": "field-guide",
+        "path": ".fleet/design-reviews/docs-hierarchy-directions.html"
+      },
+      {
+        "id": "systems-atlas",
+        "path": ".fleet/design-reviews/docs-hierarchy-directions.html"
+      }
+    ],
+    "selected": "course-workspace",
+    "approval": "approved",
+    "before": "",
+    "library": {
+      "strategy": "upstream-first",
+      "primary": "existing-project-system",
+      "sources": [],
+      "runtime": "existing",
+      "customReplacement": {
+        "used": false,
+        "authorization": "not-required",
+        "reason": ""
+      }
+    },
+    "contract": {
+      "purpose": "Make one current learning route and one next session obvious while retaining the full Mac-local research corpus.",
+      "purposeSource": "PRODUCT.md, DESIGN.md, docs/learn/inference-systems-13w.md, owner option 1 selection",
+      "canonicalPurpose": "PostTrainLLM turns learning into inspectable local artifacts and bounded specialist objectives into evidence-gated Mac-local factory runs.",
+      "purposeAlignment": "match",
+      "driftNote": "",
+      "audience": "The owner and technical readers learning inference systems on a Mac.",
+      "job": "Open the current Week 1 contract, find the single Next Session, and reach reference or history without mistaking it for active work.",
+      "thesis": "A course-first reading map within the established dark research bench.",
+      "system": "Use the existing Blume layout and dark ink/teal tokens; keep current learning expanded and secondary shelves collapsed.",
+      "signature": "The current 13-week route and single Next Session lead the docs across all pages.",
+      "risk": "A curated sidebar may make long-tail documents less visible; a labeled library map and full search retain access."
+    }
+  },
+  "evidence": {
+    "screenshots": [
+      {
+        "width": 390,
+        "path": ".fleet/design-reviews/docs-hierarchy-evidence/learn-390-full.png"
+      },
+      {
+        "width": 768,
+        "path": ".fleet/design-reviews/docs-hierarchy-evidence/learn-768.png"
+      },
+      {
+        "width": 1440,
+        "path": ".fleet/design-reviews/docs-hierarchy-evidence/learn-1440.png"
+      }
+    ],
+    "projectCheck": {
+      "command": "pnpm --dir browser build",
+      "status": "pass"
+    },
+    "critique": {
+      "score": 35,
+      "maximum": 40
+    },
+    "audit": {
+      "score": 17,
+      "maximum": 20
+    },
+    "unresolved": {
+      "p0": 0,
+      "p1": 0
+    },
+    "detector": {
+      "posture": "advisory",
+      "findings": []
+    },
+    "comprehension": {
+      "status": "not-applicable",
+      "reviewer": "",
+      "answers": {
+        "product": "",
+        "audience": "",
+        "value": "",
+        "mechanism": "",
+        "proof": "",
+        "nextAction": ""
+      },
+      "purposeScore": {
+        "product": 0,
+        "audience": 0,
+        "value": 0,
+        "mechanism": 0,
+        "proof": 0,
+        "nextAction": 0,
+        "total": 0
+      },
+      "mismatches": []
+    }
+  },
+  "ownerFeedback": {
+    "decision": "keep",
+    "note": "Owner selected option 1, Course workspace, on 2026-09-28."
+  }
+}
