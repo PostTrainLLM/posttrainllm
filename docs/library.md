@@ -3,6 +3,8 @@ title: Document library — where to look
 description: A labeled map of the retained learning, reference, factory, evidence, and historical documentation.
 ---
 
+# Document library — where to look
+
 Use this map when you need a document outside the [current learning
 session](learning-progress.md#next-session). The sidebar shows the primary
 entrances; site search reaches the full retained corpus. Existing document

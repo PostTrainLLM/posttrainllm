@@ -3,6 +3,8 @@ title: "PostTrainLLM docs"
 description: "Mac-local LLM specialist factory — training, inference, evals, systems notes, and learning paths."
 ---
 
+# PostTrainLLM documentation
+
 PostTrainLLM is a **Mac-local learning lab and specialist factory**. The
 current owner learning route is the [13-week inference-systems
 sprint](learn/inference-systems-13w.md), beginning 28 September 2026. The

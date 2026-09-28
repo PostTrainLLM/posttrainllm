@@ -3,6 +3,8 @@ title: Learn — course workspace
 description: Start the active 13-week inference-systems sprint, open the single Next Session, then explore foundations and the retained learning library.
 ---
 
+# Learn — course workspace
+
 The active owner route is the [13-week inference-systems sprint](learn/inference-systems-13w.md),
 28 September–27 December 2026. It starts with a transformer forward trace on
 one Mac and builds toward measurement, runtime changes, serving, and the
