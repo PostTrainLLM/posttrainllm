@@ -367,8 +367,11 @@ function repositoryUrl(target) {
 function resolveAuthoredSourceTarget(sourceRelative) {
   const exact = resolve(DOCS_SOURCE, sourceRelative);
   const candidates = [
-    exact,
+    // A routed page can share a name with a source folder (learn.md and
+    // learn/). Resolve the page first so Blume's /docs/learn nav link stays
+    // on the site rather than becoming a GitHub directory link.
     `${exact}.md`,
+    exact,
     resolve(exact, "README.md"),
     resolve(exact, "index.md"),
   ];
