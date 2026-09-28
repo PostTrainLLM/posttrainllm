@@ -70,7 +70,7 @@ PROGRESS_NEEDLES = [
     "## Ground-Up Roadmap Progress",
     "Canonical roadmap: [`learn/curriculum.md`](learn/curriculum.md).",
     "## Factory Lab Progress",
-    "The next ground-up focus is **Module 1 -> Module 2**",
+    "The current focus is **inference sprint Week 1**",
 ]
 
 
