@@ -377,6 +377,19 @@ const structuredData = {
                 <p>
                   <strong>Progression:</strong> {week.progression}
                 </p>
+                {
+                  week.resources && (
+                    <p>
+                      <strong>Reading:</strong>{" "}
+                      {week.resources.map((resource, index) => (
+                        <>
+                          {index > 0 && ", "}
+                          <a href={resource.href}>{resource.label}</a>
+                        </>
+                      ))}
+                    </p>
+                  )
+                }
                 <p>
                   <strong>Weekend evidence:</strong> {week.artifact}
                 </p>

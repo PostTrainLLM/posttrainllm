@@ -71,6 +71,18 @@ Updated 2026-06-08; GPU systems references added 2026-09-29.
 
 ## GPU systems and performance
 
+- **[Learn Inference](https://learn-inference.com/)**
+  Interactive companion to *Inference Engineering* covering inference
+  mechanics, latency metrics, hardware, software, and serving techniques.
+  _Why for us_: use its prefill/decode and KV explanations in Week 2, then
+  its metric simulations in Week 3 before collecting local measurements.
+
+- **[Wafer AI performance-engineering resources](https://github.com/wafer-ai/gpu-perf-engineering-resources)**
+  Curated primary-source index from GPU fundamentals through kernels,
+  inference engines, and distributed serving.
+  _Why for us_: select specific sources for Weeks 4, 6–7, and 10; treat
+  CUDA and cluster material as boundary mapping until run on that hardware.
+
 - **[Modal GPU Glossary](https://modal.com/gpu-glossary)**
   An interlinked reference spanning NVIDIA GPU hardware, CUDA's programming
   model and software stack, and performance vocabulary.

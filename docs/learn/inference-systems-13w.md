@@ -65,6 +65,34 @@ then. `Source review` is never reported as execution.
 | **12 · Dec 14–20** | **Capstone review.** Reproduce Week 11 on the same conditions, then try changed workloads. Predict where the gain should fail; report regressions, variance, costs, and limits, and defend ship/reject/redo. Raw evidence and your own explanation are required; one good trace is insufficient. |
 | **13 · Dec 21–27** | **Unfamiliar-problem assessment.** Given a new bottleneck or correctness failure, write assumptions, a predicted cause, diagnostic plan, and next test before inspecting results. Check on a changed workload and defend the conclusion without copying the capstone solution. A reviewer may prepare the prompt, but the owner supplies the reasoning and evidence. |
 
+### Guided external reading at the point of use
+
+[Learn Inference](https://learn-inference.com/) is an interactive companion for
+serving concepts. In Week 2, use its [LLM inference
+mechanics](https://learn-inference.com/chapters/models/llm-mechanics) to predict
+what prefill computes, what decode reuses, and how KV memory grows. In Week 3,
+use [measuring latency and
+throughput](https://learn-inference.com/chapters/prerequisites/latency-throughput)
+to distinguish time to first token, inter-token latency, per-user token rate,
+and total service throughput before defining the harness metrics. Its sliders
+are intuition checks; the week's measured artifact must still come from a
+declared workload and timing boundary.
+
+The [Wafer AI performance-engineering resource
+list](https://github.com/wafer-ai/gpu-perf-engineering-resources) is a selective
+source index, not an extra course to finish. For Week 4, start with its [GPU
+fundamentals and kernel
+optimization](https://github.com/wafer-ai/gpu-perf-engineering-resources#1-gpu-fundamentals)
+sections and choose a source for the vector-add or softmax prediction. For
+Weeks 6–7, use its [inference-engine
+references](https://github.com/wafer-ai/gpu-perf-engineering-resources#4-inference-engines)
+to orient the pinned vLLM request and KV trace. For Week 10, use its
+[distributed-inference
+references](https://github.com/wafer-ai/gpu-perf-engineering-resources#5-distributed-inference)
+to name a communication or topology limit in the single-Mac-to-cluster
+comparison. The list includes CUDA/NVIDIA-specific work; source reading on a
+Mac does not satisfy Week 4's NVIDIA execution gate or prove cluster timing.
+
 ### GPU vocabulary when Weeks 3–5 begin
 
 The [Modal GPU Glossary](https://modal.com/gpu-glossary) is a linked reference,

@@ -8,6 +8,7 @@ export interface InferenceWeek {
   artifact: string;
   passCriterion: string;
   boundary: string;
+  resources?: { label: string; href: string }[];
   readiness: "ready" | "planned";
 }
 
@@ -35,6 +36,12 @@ const weekContracts: Omit<InferenceWeek, "prerequisites" | "passCriterion">[] =
         "A tested local comparison with cache arithmetic and matching relevant logits under declared tolerance.",
       boundary:
         "Inspect a compatible implementation first; this repo's reference cache path is not assumed. Detailed lessons remain to be authored.",
+      resources: [
+        {
+          label: "Learn Inference: LLM mechanics",
+          href: "https://learn-inference.com/chapters/models/llm-mechanics",
+        },
+      ],
       readiness: "planned",
     },
     {
@@ -47,6 +54,12 @@ const weekContracts: Omit<InferenceWeek, "prerequisites" | "passCriterion">[] =
         "Reproducible output and a prediction-versus-observation note with pinned workload, versions, and repetitions.",
       boundary:
         "Audit an existing harness first. One forward time is insufficient. Detailed lessons remain to be authored.",
+      resources: [
+        {
+          label: "Learn Inference: latency and throughput",
+          href: "https://learn-inference.com/chapters/prerequisites/latency-throughput",
+        },
+      ],
       readiness: "planned",
     },
     {
@@ -59,6 +72,12 @@ const weekContracts: Omit<InferenceWeek, "prerequisites" | "passCriterion">[] =
         "Reference-checked vector operation and fused softmax, including edge cases and memory-traffic explanation.",
       boundary:
         "NVIDIA execution requires separately approved compatible hardware, pinned tooling, and cost cap. Mac/source practice cannot pass that gate. Detailed lessons and host verification remain.",
+      resources: [
+        {
+          label: "Wafer AI: GPU fundamentals and kernels",
+          href: "https://github.com/wafer-ai/gpu-perf-engineering-resources#1-gpu-fundamentals",
+        },
+      ],
       readiness: "planned",
     },
     {
@@ -83,6 +102,12 @@ const weekContracts: Omit<InferenceWeek, "prerequisites" | "passCriterion">[] =
         "Source-linked request trace at a pinned revision and a hand-simulated request.",
       boundary:
         "Mac source review is code-understanding evidence, not a vLLM runtime result. Detailed lessons and source revision remain to be pinned.",
+      resources: [
+        {
+          label: "Wafer AI: inference engines",
+          href: "https://github.com/wafer-ai/gpu-perf-engineering-resources#4-inference-engines",
+        },
+      ],
       readiness: "planned",
     },
     {
@@ -131,6 +156,12 @@ const weekContracts: Omit<InferenceWeek, "prerequisites" | "passCriterion">[] =
         "Declared model/workload memory and communication calculation with topology-aware assumptions.",
       boundary:
         "Multi-GPU reasoning is required; a multi-GPU benchmark is not. Detailed lessons remain to be authored.",
+      resources: [
+        {
+          label: "Wafer AI: distributed inference",
+          href: "https://github.com/wafer-ai/gpu-perf-engineering-resources#5-distributed-inference",
+        },
+      ],
       readiness: "planned",
     },
     {
