@@ -1,41 +1,48 @@
 # Learning Progress Tracker
 
-This tracker makes the owner learning pipeline measurable. The active route
-for 28 September–27 December 2026 is the
+This document preserves the manual learning plan and historical notes. Actual
+interactive progress lives in the existing [browser-local workspace](https://posttrainllm.com/learn/session),
+including drafts, checkpoints, and recall dates. The recommended route for
+28 September–27 December 2026 is the
 [13-week inference-systems sprint](learn/inference-systems-13w.md), with the
 ground-up curriculum available for prerequisite repair.
 
 ## Next Session
 
-This is the single current-session page. The curriculum, practical paths,
-articles, and artifacts are the reference library, not competing task queues.
+Open [Continue the inference sprint](https://posttrainllm.com/learn/session?route=inference-systems-13w)
+for the saved session in this browser. With empty browser state, the recommended
+entry is [Week 1, Day 1](https://posttrainllm.com/learn/session?route=inference-systems-13w&session=inference-w01-d01).
+Opening either link does not mark a pass. The table below is the recorded
+28 September recommendation, not synchronized personal progress; its old
+full-model lab now belongs to Day 6.
 
 | Field | Current selection |
 |---|---|
-| Current module | **Inference sprint Week 1 (28 Sep–4 Oct) — forward path; prerequisite check first** |
-| Read | [Week 1 contract](learn/inference-systems-13w.md#week-1-full-session-contract); use the [entry check](learn/inference-systems-13w.md#entry-and-prerequisite-gate) before answer-bearing lessons |
-| One exercise | Write the entry-check answers without notes, then predict the reference model's embedding/logit shapes and causal influence before running the bounded [CPU lab](learn/inference-systems-13w.md#week-1-full-session-contract). If an entry answer fails, repair that prerequisite and retry with changed numbers before the lab. |
+| Recorded recommendation | **Inference sprint Week 1 (28 Sep–4 Oct) — forward path; prerequisite check first** |
+| Read | [Week 1 route](learn/inference-systems-13w.md#week-1-seven-ready-lessons); use the [Day 1 diagnostic](learn/inference-systems-13w.md#day-1-entry-diagnostic) before answer-bearing sections |
+| One exercise | The original plan was to predict the full reference model's shapes and run the bounded [CPU lab](learn/inference-systems-13w.md#day-6-reference-model-integration-contract). The v2 course now teaches Days 1–5 before that Day 6 lab. |
 | One explanation | In your own words, trace token IDs through lookup, attention/mask, MLP, and tied output head; distinguish inputs, parameters, activations, and outputs; explain which token changes can affect which logits |
 | Evidence to save | Entry attempt and retry if needed; predictions before running; source revision/config/environment; raw lab output, annotated trace, owner explanation, and unresolved questions in a dated checkpoint |
 | Immediate gate | Correct shapes and causal prediction, a passing Week 1 correctness smoke on the stated CPU environment, and an independent explanation of the observed result |
 | Delayed recall | Not scheduled yet: set actual dates at exercise completion, for +2 and +7 days |
 | Next eligible module | Inference sprint Week 2, after Week 1's immediate gate; due recall remains in this tracker |
 
-Suggested first session: use the [two-hour Week 1 schedule](learn/inference-systems-13w.md#week-1-full-session-contract).
-Split larger labs across sessions while keeping one exercise in focus.
+The complete [seven-day Week 1 sequence](learn/inference-systems-13w.md#week-1-seven-ready-lessons)
+is in the workspace. Its Day 1 lesson teaches the prerequisites before the
+reference-model integration on Day 6.
 
 ## Learning Loop
 
 1. Start with any due recall check, closed-book, before rereading.
-2. Work on the **one current module** and its **one selected exercise**. The
-   active route is the inference sprint; prerequisite repair may temporarily
-   use a ground-up lesson without creating another current task.
+2. Work on the **one selected session** in the browser workspace. The active
+   route is the inference sprint; a ground-up foundation can be selected for
+   a targeted repair without losing the sprint draft.
 3. Record **one explanation in the owner's words**, the actual work, errors,
    and a link to a relevant repo artifact. An agent may critique or transcribe
    it, but must not substitute its own answer as evidence of owner mastery.
 4. On an immediate pass, mark `applied`, set recall dates for **+2 days** and
    **+7 days** from completion, and select the next prerequisite-ready module.
-   Earlier modules can await recall while one new module is current.
+   Earlier sessions can await recall while one new session is current.
 5. At each recall, explain without notes and solve a changed example or
    diagnose a new failure. Record the answer before checking it. A failed
    recall returns the topic to `reading`; repair the gap as the current focus
@@ -56,9 +63,10 @@ inferred from the existence of an article, lesson, artifact, or agent review.
 
 ## Checkpoints and Recall Queue
 
-No checkpoints have been recorded under this loop yet. Keep completed and
-failed entries; when changing the current session, do not overwrite evidence.
-Append one block per exercise and update only its recall results:
+No owner checkpoint was published in this manual document at the time of its
+last review. Browser-local records are private and cannot be inferred here.
+Keep completed and failed entries when exporting or switching sessions. For a
+manual/offline copy, use this format:
 
 ```text
 Date / module:

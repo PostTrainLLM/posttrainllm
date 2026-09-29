@@ -3,10 +3,12 @@ import Default from "../../layouts/Default.astro";
 import SiteHeader from "../../components/SiteHeader.astro";
 import "../../styles/system.css";
 import { learningCaseStudies, learningUnits } from "../../learning/content";
+import { inferenceSessions } from "../../learning/inference-content";
+import { inferenceWeeks } from "../../learning/inference-weeks";
 import pathRegistry from "../../../../docs/learn/path-registry.json";
 import artifactJourney from "../../../../docs/learn/artifact-journey.json";
 
-const current = learningUnits[0];
+const current = inferenceSessions[0];
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "LearningResource",
@@ -14,7 +16,7 @@ const structuredData = {
   description:
     "A self-contained course from model parameters to post-training and evaluation, with browser-local exercises and delayed recall.",
   educationalLevel: "Beginner to advanced",
-  teaches: learningUnits.map((unit) => unit.title),
+  teaches: [...inferenceSessions, ...learningUnits].map((unit) => unit.title),
   isAccessibleForFree: true,
 };
 ---
@@ -36,7 +38,7 @@ const structuredData = {
     <header class="session-hero wrap">
       <div>
         <p class="mono-label current-label">
-          Ground-up workspace · Module <span data-current-number
+          <span data-current-route>Loading saved session</span> · <span data-current-number
             >{current.number}</span
           >
         </p>
@@ -48,7 +50,7 @@ const structuredData = {
         </p>
       </div>
       <aside class="session-state" aria-label="Learning status">
-        <span data-module-position>Module 1 of {learningUnits.length}</span>
+        <span data-module-position>Opening course…</span>
         <strong data-learning-status>reading</strong>
         <p data-save-status aria-live="polite">Opening browser storage…</p>
       </aside>
@@ -61,18 +63,38 @@ const structuredData = {
       <a href="#review"><span>4</span> Review</a>
     </nav>
 
-    <article class="lesson wrap-narrow" id="read">
+    <div class="route-alert wrap-narrow" data-route-alert hidden role="status"></div>
+    <nav class="route-choices wrap" aria-label="Learning routes">
+      <a href="/learn/session?route=inference-systems-13w" data-select-route="inference-systems-13w">Inference sprint</a>
+      <a href="/learn/session?route=ground-up" data-select-route="ground-up">Ground-up foundations</a>
+      <a href="/docs/learn/inference-systems-13w/">13-week overview</a>
+    </nav>
+
+    <section class="diagnostic wrap-narrow" data-diagnostic-section hidden aria-labelledby="diagnostic-title">
+      <p class="mono-label">Day 1 · first attempt</p>
+      <h2 id="diagnostic-title">What do you already know?</h2>
+      <p data-current-diagnostic></p>
+      <label for="diagnostic">Your initial answer</label>
+      <textarea id="diagnostic" rows="5" autocomplete="off" placeholder="Calculate, label the axes, and note what is uncertain…"></textarea>
+      <details class="answer-guide" data-diagnostic-repair>
+        <summary>See a worked repair after trying</summary>
+        <p data-current-diagnostic-repair></p>
+      </details>
+    </section>
+
+    <article class="lesson wrap-narrow" id="read" data-session-content hidden>
       <header>
         <p class="mono-label">
-          <span data-current-number>{current.number}</span> / Foundations
+          <span data-current-number>{current.number}</span> / <span data-current-track>Inference sprint</span>
         </p>
         <h2 data-current-title>{current.title}</h2>
         <p data-current-summary>{current.summary}</p>
       </header>
+      <div class="session-meta" data-session-meta></div>
       <div data-current-lesson>
-        {current.lesson.map((paragraph) => <p>{paragraph}</p>)}
+        <p>Loading lesson…</p>
       </div>
-      <div class="worked-example" data-module-one-only>
+      <div class="worked-example" data-current-worked-example>
         <p class="mono-label">Worked example</p>
         <p>
           Suppose <code>y = 2x + 1</code>. For <code>x = 3</code>, the
@@ -87,18 +109,28 @@ const structuredData = {
       >
     </article>
 
+    <section class="prediction wrap-narrow" data-prediction-section data-session-content hidden aria-labelledby="prediction-title">
+      <p class="mono-label">Predict before checking</p>
+      <h2 id="prediction-title">Write your first attempt.</h2>
+      <p data-current-prediction></p>
+      <label for="prediction">Initial prediction</label>
+      <textarea id="prediction" rows="5" autocomplete="off" placeholder="Your shapes and dependency prediction…"></textarea>
+    </section>
+
     <section
       class="exercise wrap-narrow"
       id="try"
       aria-labelledby="exercise-title"
+      data-session-content hidden
     >
       <p class="mono-label">Your exercise</p>
       <h2 id="exercise-title" data-current-exercise-title>{current.title}</h2>
-      <div data-module-one-only>
+      <div data-foundation-one-only>
         <div class="equation" aria-label="y equals m x plus b">y = mx + b</div>
         <p class="points">(0,1) · (1,3) · (2,5) · (3,7) · (4,9)</p>
       </div>
       <p data-current-exercise>{current.exercise}</p>
+      <div class="starter-code" data-current-starter hidden></div>
 
       <label for="actual-work">Your work</label>
       <textarea
@@ -112,7 +144,7 @@ const structuredData = {
         Write your calculation or exercise response before recording the check.
       </p>
 
-      <details class="answer-guide" data-module-one-only>
+      <details class="answer-guide" data-foundation-answer hidden>
         <summary>Check the worked answer after trying</summary>
         <div>
           <p><code>m = 2</code> and <code>b = 1</code>.</p>
@@ -124,12 +156,18 @@ const structuredData = {
           </p>
         </div>
       </details>
+      <details class="answer-guide" data-inference-answer hidden>
+        <summary>Check the answer after recording your attempt</summary>
+        <div data-current-answer></div>
+      </details>
+      <div class="lesson-checks" data-current-checks hidden></div>
     </section>
 
     <section
       class="explanation wrap-narrow"
       id="explain"
       aria-labelledby="explain-title"
+      data-session-content hidden
     >
       <p class="mono-label">Your explanation</p>
       <h2 id="explain-title">Explain the idea in your own words.</h2>
@@ -163,6 +201,7 @@ const structuredData = {
       class="review wrap-narrow"
       id="review"
       aria-labelledby="review-title"
+      data-session-content hidden
     >
       <p class="mono-label">Immediate self-review</p>
       <h2 id="review-title">Can you clear the gate?</h2>
@@ -171,6 +210,7 @@ const structuredData = {
         This is self-assessed. Record what is true today; both delayed checks
         are still required before the module becomes verified.
       </p>
+      <p class="repair-note" data-repair-guidance hidden></p>
       <div class="review-actions">
         <button
           class="btn btn-ghost"
@@ -259,6 +299,40 @@ const structuredData = {
           </div>
         </div>
       </aside>
+    </section>
+
+    <section class="sprint-browser wrap" aria-labelledby="sprint-browser-title">
+      <header class="section-heading-small">
+        <p class="mono-label">Inference systems · 28 Sep–27 Dec 2026</p>
+        <h2 id="sprint-browser-title">The 13-week route</h2>
+        <p>Week 1 has seven complete lessons. Weeks 2–13 have scoped contracts; their daily lessons are planned.</p>
+      </header>
+      <div class="sprint-days">
+        {inferenceSessions.map((session) => (
+          <article>
+            <span class="mono-label">Week 1 · Day {session.day} · {session.minutes} min · ready</span>
+            <h3>{session.title}</h3>
+            <p>{session.objective}</p>
+            <button class="btn btn-ghost" type="button" data-select-module={session.id}>Open this lesson</button>
+          </article>
+        ))}
+      </div>
+      <details class="planned-weeks">
+        <summary>View Weeks 2–13 contracts · detailed lessons planned</summary>
+        <div class="planned-week-grid">
+          {inferenceWeeks.slice(1).map((week) => (
+            <article>
+              <p class="mono-label">Week {week.week} · {week.dates} · planned</p>
+              <h3>{week.title}</h3>
+              <p><strong>Before this:</strong> {week.prerequisites}</p>
+              <p><strong>Progression:</strong> {week.progression}</p>
+              <p><strong>Weekend evidence:</strong> {week.artifact}</p>
+              <p><strong>Pass criterion:</strong> {week.passCriterion}</p>
+              <p><strong>Boundary:</strong> {week.boundary}</p>
+            </article>
+          ))}
+        </div>
+      </details>
     </section>
 
     <details class="course-browser wrap">
@@ -356,7 +430,7 @@ const structuredData = {
   <script
     id="learning-units-data"
     type="application/json"
-    set:html={JSON.stringify(learningUnits)}
+    set:html={JSON.stringify([...inferenceSessions, ...learningUnits])}
   />
   <script src="../../learning/workspace.ts"></script>
 </Default>
@@ -368,11 +442,128 @@ const structuredData = {
   main {
     padding-bottom: 7rem;
   }
+  [hidden] {
+    display: none !important;
+  }
+  .route-alert {
+    margin: 1.5rem auto;
+    padding: 1rem;
+    border-left: 2px solid var(--brand-bright);
+    background: var(--paper-raised);
+  }
+  .route-choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin: -3rem auto 4rem;
+    font-size: 0.9rem;
+  }
+  .route-choices a[aria-current="page"] {
+    color: var(--live);
+    border-bottom: 1px solid var(--live);
+  }
+  .session-meta {
+    border-left: 2px solid var(--live);
+    padding-left: 1rem;
+    color: var(--ink-70);
+    margin: 0 0 2rem;
+  }
+  .session-meta p + p {
+    margin-top: 0.45rem;
+  }
+  .lesson-block + .lesson-block {
+    margin-top: 2.25rem;
+  }
+  .lesson-block h3,
+  .lesson-checks h3 {
+    font: 600 var(--step-1) var(--font-display);
+    margin: 1.4rem 0 0.7rem;
+  }
+  .lesson-block p + p,
+  .lesson-block li + li {
+    margin-top: 0.75rem;
+  }
+  .lesson-block p,
+  .lesson-checks,
+  .prediction > p {
+    color: var(--ink-70);
+    line-height: 1.65;
+  }
+  .lesson-block ul,
+  .lesson-checks ul {
+    padding-left: 1.4rem;
+  }
+  .starter-code,
+  .lesson-block pre {
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: var(--paper-sunken);
+    border: 1px solid var(--line);
+    border-radius: var(--r-2);
+    font: 0.82rem/1.55 var(--font-mono);
+    white-space: pre;
+  }
+  .starter-code pre {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .prediction,
+  .diagnostic {
+    margin: 4rem auto 0;
+    padding-inline: var(--gutter);
+  }
+  .prediction h2,
+  .diagnostic h2 {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    margin: 0.75rem 0 1rem;
+  }
+  .lesson-checks {
+    margin-top: 2rem;
+  }
+  .sprint-browser {
+    margin-top: 8rem;
+  }
+  .sprint-days,
+  .planned-week-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--line-strong);
+    border: 1px solid var(--line-strong);
+  }
+  .sprint-days article,
+  .planned-week-grid article {
+    background: var(--paper);
+    padding: 1.5rem;
+  }
+  .sprint-days h3,
+  .planned-week-grid h3 {
+    margin: 0.6rem 0;
+    font: 600 var(--step-1) var(--font-display);
+  }
+  .sprint-days p,
+  .planned-week-grid p {
+    color: var(--ink-70);
+  }
+  .sprint-days button {
+    margin-top: 1rem;
+  }
+  .planned-weeks {
+    margin-top: 2rem;
+  }
+  .planned-weeks summary {
+    cursor: pointer;
+    color: var(--live);
+    margin-bottom: 1rem;
+  }
   .session-hero {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 250px;
     gap: 4rem;
-    padding-top: clamp(4rem, 9vw, 8rem);
+    padding-top: clamp(2.5rem, 5vw, 5rem);
     align-items: end;
   }
   .current-label {
@@ -381,7 +572,7 @@ const structuredData = {
   }
   .session-hero h1 {
     max-width: 800px;
-    font-size: clamp(3rem, 7vw, 6.4rem);
+    font-size: clamp(2.75rem, 5.5vw, 5rem);
   }
   .session-lede {
     max-width: 65ch;
@@ -418,8 +609,8 @@ const structuredData = {
   .session-steps {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    margin-top: 4rem;
-    margin-bottom: 6rem;
+    margin-top: 2.5rem;
+    margin-bottom: 4rem;
     border-top: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
   }
@@ -775,11 +966,17 @@ const structuredData = {
     }
     .session-steps {
       grid-template-columns: repeat(2, 1fr);
-      margin-bottom: 4rem;
+      margin-top: 2rem;
+      margin-bottom: 3rem;
     }
     .recall-grid,
-    .case-grid {
+    .case-grid,
+    .sprint-days,
+    .planned-week-grid {
       grid-template-columns: 1fr;
+    }
+    .route-choices {
+      margin-top: -2rem;
     }
     .library-footer {
       align-items: flex-start;

@@ -1,6 +1,6 @@
 ---
 title: Learn — course workspace
-description: Start the active 13-week inference-systems sprint, open the single Next Session, then explore foundations and the retained learning library.
+description: Continue the interactive 13-week inference-systems sprint, with foundations and retained learning references nearby.
 ---
 
 # Learn — course workspace
@@ -14,22 +14,20 @@ not establish mastery.
 
 ## Start with one session
 
-1. Open the [single Next Session](learning-progress.md#next-session). It names
-   the current module, exercise, evidence, and recall dates. There is no second
-   active assignment list.
-2. Read the [Week 1 entry gate and lab contract](learn/inference-systems-13w.md#entry-and-prerequisite-gate).
-   Record your answers and predictions before reading the answer-bearing
-   sections or running the small CPU lab.
-3. Save your own explanation and actual output in the
-   [learning checkpoint](learning-progress.md#checkpoints-and-recall-queue).
-   The recorded work decides when Week 2 is eligible; no progress is inferred
-   from opening a page.
+1. Open the [interactive inference workspace](https://posttrainllm.com/learn/session?route=inference-systems-13w).
+   Empty browser state starts at Week 1, Day 1; existing progress resumes.
+2. Learn the Day 1 concepts, record a prediction, do the small CPU exercise,
+   check the result, and explain it in your own words. The full reference-model
+   smoke arrives on Day 6 after attention has been taught.
+3. Save a browser-local checkpoint and use Continue for the next day. See the
+   [manual progress record](learning-progress.md) for historical context;
+   opening a page never records mastery.
 
 ## Course route
 
 | Stage | Read and do |
 |---|---|
-| **Now — Week 1** | [Forward path and initial baseline](learn/inference-systems-13w.md#week-1-full-session-contract): predict shapes and causal influence, then run one bounded reference check. |
+| **Now — Week 1** | [Seven ready sessions](learn/inference-systems-13w.md#week-1-seven-ready-lessons): token IDs to logits, causal attention, the reference CPU trace, and a closed-book debug. |
 | **Next — Weeks 2–3** | Generation, prefill/decode, KV cache, and measured latency and memory. Start only after the preceding immediate gate. |
 | **Later — Weeks 4–13** | GPU execution, attention performance, vLLM source trace, scheduling, a bounded change, serving, and the Mac-to-cluster boundary. [See every week's contract](learn/inference-systems-13w.md#weekly-route). |
 
@@ -39,8 +37,8 @@ The [ten-module ground-up curriculum](learn/curriculum.md) and its
 [ordered lessons](learn/README.md#i-want-to-learn-ml-from-scratch) teach the
 smallest missing concept. The session file numbers reflect creation order,
 not reading order. Use the [coverage map](learn/coverage-map.md) to locate a
-specific subsystem. A prerequisite repair temporarily becomes the current
-exercise in the same Next Session; it does not create a parallel course.
+  specific subsystem. A prerequisite repair can be selected in the same
+  browser workspace while preserving the sprint draft.
 
 ## Explore after the current task
 

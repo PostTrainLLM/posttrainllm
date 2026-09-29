@@ -28,8 +28,9 @@ The roadmap is good enough only if it satisfies all of these:
 5. **Project transfer** — every module says how it changes SQL/factory work.
 6. **External anchors** — one or two canonical external resources per stage,
    used as support, not as the curriculum owner.
-7. **Progress tracking** — learning state lives in
-   [`../learning-progress.md`](../learning-progress.md), with evidence.
+7. **Progress tracking** — actual interactive state lives in the
+   [browser-local workspace](https://posttrainllm.com/learn/session), with evidence; the
+   [manual record](../learning-progress.md) is a historical reference.
 8. **Cadence** — each week ends in a note, a repo artifact, or a recipe change.
 9. **Failure feedback** — failed posttrainllm runs create the next learning prompt.
 10. **No random walk** — interesting topics are parked unless they improve
@@ -149,7 +150,7 @@ needed to complete the initial source audit.
 ## Current Starting Point
 
 For the active inference sprint, start with its
-[prerequisite check](inference-systems-13w.md#entry-and-prerequisite-gate).
+[Day 1 diagnostic](inference-systems-13w.md#day-1-entry-diagnostic).
 If a foundation gap appears, use the smallest matching module below and
 retry with a changed example. For a complete ground-up pass, start at Module 1
 unless the owner can pass its mastery gate out loud.

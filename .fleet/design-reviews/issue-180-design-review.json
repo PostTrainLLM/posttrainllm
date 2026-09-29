@@ -1,0 +1,112 @@
+{
+  "$schema": "fleet.design-review.v1",
+  "version": 1,
+  "project": "posttrainllm",
+  "target": "Interactive inference learning workspace and Week 1 lessons",
+  "surfaceMode": "read",
+  "mode": "preserve",
+  "register": "product",
+  "context": {
+    "product": "PRODUCT.md",
+    "design": "DESIGN.md"
+  },
+  "direction": {
+    "references": [
+      "Existing PostTrainLLM Learn workspace",
+      "PRODUCT.md",
+      "DESIGN.md"
+    ],
+    "probes": [],
+    "selected": "existing-project-system",
+    "approval": "not-required",
+    "before": ".fleet/evidence/issue-180-design-evidence/before.png",
+    "library": {
+      "strategy": "upstream-first",
+      "primary": "existing-project-system",
+      "sources": [],
+      "runtime": "existing",
+      "customReplacement": {
+        "used": false,
+        "authorization": "not-required",
+        "reason": ""
+      }
+    },
+    "contract": {
+      "purpose": "Teach one bounded inference concept at a time and let the learner preserve predictions, results, explanations, and recall.",
+      "purposeSource": "PRODUCT.md, DESIGN.md, and PostTrainLLM_Curriculum_PRD_v2.md",
+      "canonicalPurpose": "PostTrainLLM turns learning into inspectable local artifacts and bounded specialist objectives into evidence-gated Mac-local factory runs.",
+      "purposeAlignment": "match",
+      "driftNote": "",
+      "audience": "Sarthak and Mac-local practitioners learning LLM inference from first principles.",
+      "job": "Open the exact lesson, study and predict, do the bounded exercise, record evidence, and continue without losing prior work.",
+      "thesis": "Keep the established dark research-bench reading layout and bring the exercise into the same workspace.",
+      "system": "Existing deep-ink surface, teal active states, mono labels, large display headings, narrow lesson measure, quiet dividers, and responsive one-column reading.",
+      "signature": "A prediction and evidence loop beside the numbered 13-week route, with saved browser-local checkpoints.",
+      "risk": "A long reading page can bury the first exercise; shorter hero spacing and numbered steps bring Day 1 into view earlier."
+    }
+  },
+  "evidence": {
+    "screenshots": [
+      {
+        "width": 390,
+        "path": ".fleet/evidence/issue-180-design-evidence/day1-390.png"
+      },
+      {
+        "width": 768,
+        "path": ".fleet/evidence/issue-180-design-evidence/day1-768.png"
+      },
+      {
+        "width": 1440,
+        "path": ".fleet/evidence/issue-180-design-evidence/day1-1440.png"
+      }
+    ],
+    "projectCheck": {
+      "command": "pnpm --dir browser test && pnpm --dir browser build && node browser/scripts/check-learning-journey.mjs",
+      "status": "pass"
+    },
+    "critique": {
+      "score": 34,
+      "maximum": 40
+    },
+    "audit": {
+      "score": 17,
+      "maximum": 20
+    },
+    "unresolved": {
+      "p0": 0,
+      "p1": 0
+    },
+    "detector": {
+      "posture": "advisory",
+      "findings": [
+        "The lesson remains a long-form reading surface; Week 2–13 daily lessons are explicitly planned."
+      ]
+    },
+    "comprehension": {
+      "status": "not-applicable",
+      "reviewer": "",
+      "answers": {
+        "product": "",
+        "audience": "",
+        "value": "",
+        "mechanism": "",
+        "proof": "",
+        "nextAction": ""
+      },
+      "purposeScore": {
+        "product": 0,
+        "audience": 0,
+        "value": 0,
+        "mechanism": 0,
+        "proof": 0,
+        "nextAction": 0,
+        "total": 0
+      },
+      "mismatches": []
+    }
+  },
+  "ownerFeedback": {
+    "decision": "agent-selected",
+    "note": "Preserve lane uses the existing DESIGN.md system; no new visual direction was selected."
+  }
+}

@@ -11,9 +11,10 @@ weeks at **up to 20 focused hours each** (260 hours total). The remaining
 December days are buffer or review time, not a fourteenth week. Reading, recall,
 implementation, debugging, and explanation all count toward each 20-hour cap.
 
-Open the single [Next Session](../learning-progress.md#next-session) for the
-current exercise. This page is the route and evidence contract, not another
-progress tracker. The [ten-module curriculum](curriculum.md) remains the
+Open the [interactive inference workspace](https://posttrainllm.com/learn/session?route=inference-systems-13w)
+to start or resume the current lesson. Actual drafts, checkpoints, and recalls
+live in that browser's local store. This page is the route and evidence
+contract. The [ten-module curriculum](curriculum.md) remains the
 foundation and remediation path. The broader factory, artifacts, and learning
 paths remain available. Session filenames are creation order: Session 9 teaches
 tensors before Session 6's embedding work and Session 10's attention work.
@@ -24,28 +25,22 @@ source-level inference-engine trace, a tested bounded change, and a defense
 on an unfamiliar workload. A read article, generated implementation, or passed
 automated check alone is not evidence of owner mastery.
 
-## Entry and prerequisite gate
+## Day 1 entry diagnostic
 
-Before reading the answer-bearing sections, write your own answers in the
-[checkpoint](../learning-progress.md#checkpoints-and-recall-queue):
+In [Week 1, Day 1](https://posttrainllm.com/learn/session?route=inference-systems-13w&session=inference-w01-d01),
+record a short initial attempt before opening the answer guide:
 
 1. For `y = w·x + b`, with `x = [2, 3]`, `w = [4, -1]`, `b = 2`, identify the
    input, parameters, intermediate dot product, and output. Calculate it.
 2. A batch has shape `(2, 4, 3)` and a linear map has three input features and
    five output features. Predict the output shape, naming each axis.
-3. In a one-layer causal decoder, which positions may influence the output at
-   position 2? Distinguish training from inference and explain where loss and
-   gradients enter (or do not enter) the forward pass.
+3. In an array shaped `(2, 4)`, locate the entry at row 1, position 2. Name
+   the two axes.
 
-Check the arithmetic and shapes only after recording the attempt, using
-[Session 9's dot-product and shape sections](session-09-tensors.md#the-one-operation-that-matters-the-dot-product)
-and [Session 10's causal mask](session-10-attention.md#causal-masking--no-peeking-at-the-future).
-If a part fails, study only the smallest missing foundation: [parameters](session-01-neural-net-basics.md),
-[loss and gradients](session-02-gradient-descent.md),
-[nonlinearity](session-03-non-linearities.md),
-[tensors](session-09-tensors.md), or [attention](session-10-attention.md).
-Retry with changed numbers before moving on. A previous `reading` status does
-not imply either a pass or a failure.
+Day 1 teaches tensor axes and parameters with a worked example and a small
+repair if needed. Causal attention enters on Days 3–4, after those basics.
+The optional [tensor reference](session-09-tensors.md) is available for a
+specific gap. Opening a lesson does not record a pass.
 
 ## Weekly route
 
@@ -56,7 +51,7 @@ then. `Source review` is never reported as execution.
 
 | Week / dates | Contract and required evidence |
 |---|---|
-| **1 · Sep 28–Oct 4** | **Forward path and initial baseline.** After the entry gate, read the selected [tensor](session-09-tensors.md), [embedding](session-06-tokenization-embeddings.md), [attention](session-10-attention.md), and [mechanics](llm-mechanics-fundamentals.md) sections below. Predict shapes and causal influence before the CPU lab; save the exact source revision, config, output, annotated tensor trace, and your explanation. See the full contract below. |
+| **1 · Sep 28–Oct 4** | **Forward path and initial baseline.** Complete [Days 1–7](#week-1-seven-ready-lessons) in the interactive workspace: lookup → byte/position axes → attention → causal heads → block → reference CPU trace → closed-book debug. Save predictions, observed checks, raw output, and your own explanations. |
 | **2 · Oct 5–11** | **Autoregressive generation, prefill/decode, KV cache.** Requires Week 1's forward trace. Read [KV/cache sections](advanced-llm-inference.md#memory--scheduling) and inspect `python_ref/model.py`'s `generate`. Predict cache bytes for declared layers, KV heads, head dimension, context, batch, precision; compare cached and uncached output and context lengths only after choosing a verified implementation. Explain why prefill and decode have different work. Mac CPU/source review first; no unverified cached path is claimed here. |
 | **3 · Oct 12–18** | **Measurement.** Requires Week 2's phase model. Read [serving metrics](advanced-llm-inference.md#fundamentals) and [benchmark design](../performance/benchmark_harness_design.md). Declare timing boundary, warmup, device, batch, precision, prompts, repetitions, and memory method before measuring TTFT, inter-token latency, throughput, and memory in an existing harness. Predict bottleneck, compare observed values, and explain variance. Mac-local; inspect/extend the harness only if its current commands pass an audit. |
 | **4 · Oct 19–25** | **GPU execution and introductory CUDA/Triton.** Requires Week 3's measurement discipline. Read the [kernel path](advanced-llm-inference.md#curated-deep-reading-path); draw grid/block/warp and memory-access diagrams, then predict correctness and timing for vector add and fused softmax. Check against a reference and document launch shape and memory traffic. Explain coalescing and fusion. Source analysis is Mac-compatible; CUDA execution needs a separately approved NVIDIA environment, pinned dependencies, and cost cap. The CUDA execution gate remains pending until run there. |
@@ -104,7 +99,29 @@ estimate the communication needed for a declared sequence shape. This is
 source analysis for the single-device-to-cluster boundary, not a required
 distributed implementation or benchmark.
 
-## Week 1: full session contract
+## Week 1: seven ready lessons
+
+The five weekdays are 120 minutes each; Saturday and Sunday are 300 minutes
+each: 1,200 minutes / 20 hours total. Recall, setup, and repairs use this same
+budget. The lesson pages contain the explanation, worked example, exact
+exercise, answer guide, evidence, and next action.
+
+| Day | Open the lesson | Outcome |
+|---|---|---|
+| 1 | [Token IDs to scores](https://posttrainllm.com/learn/session?route=inference-systems-13w&session=inference-w01-d01) | Shapes and the missing context path in an embedding-plus-head toy |
+| 2 | [Bytes, axes, and position](https://posttrainllm.com/learn/session?route=inference-systems-13w&session=inference-w01-d02) | Byte/token and learned-position trace |
+| 3 | [Single-head attention](https://posttrainllm.com/learn/session?route=inference-systems-13w&session=inference-w01-d03) | Hand and CPU check of one attention row |
+| 4 | [Causal mask and heads](https://posttrainllm.com/learn/session?route=inference-systems-13w&session=inference-w01-d04) | Future-token isolation and head shapes |
+| 5 | [Transformer block](https://posttrainllm.com/learn/session?route=inference-systems-13w&session=inference-w01-d05) | Residual, MLP, norm, output, and training boundary |
+| 6 | [Reference CPU trace](https://posttrainllm.com/learn/session?route=inference-systems-13w&session=inference-w01-d06) | Source annotation and one bounded correctness smoke |
+| 7 | [Reconstruct and debug](https://posttrainllm.com/learn/session?route=inference-systems-13w&session=inference-w01-d07) | Changed-shape explanation and a repaired mask bug |
+
+Each day may begin after its prerequisite's immediate self-review passes;
+delayed recalls can remain pending. Dates organize study and never mark a day
+complete automatically. Weeks 2–13 have contracts above; detailed lessons
+remain planned.
+
+### Day 6 reference-model integration contract
 
 **Objective:** trace the reference decoder from token IDs to logits, predict
 shapes and causal influence, and capture one reproducible CPU baseline.
@@ -157,13 +174,9 @@ separate evidence. Use [the Learning Loop](../learning-progress.md#learning-loop
 for the immediate gate and actual +2/+7-day recall dates. Week 2 is eligible
 after Week 1's immediate gate, even while delayed checks are pending.
 
-**First two-hour session:** 10 minutes entry gate; 25 minutes selected tensor
-and embedding sections; 55 minutes prediction plus embedding/output-head and
-reference trace; 20 minutes causal-attention example; 10 minutes save the
-owner's explanation and actual evidence. If the entry gate fails, replace
-the lab time with the smallest remediation lesson and changed-number retry.
-The full Week 1 trace and baseline are week deliverables, not prerequisites
-to ending the first lesson.
+This integration lab follows Days 1–5. The first two-hour lesson uses the
+embedding-plus-head toy in the workspace; it does not require the full-model
+smoke to be run on Day 1.
 
 ## Hardware and evidence boundary
 
