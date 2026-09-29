@@ -1,6 +1,6 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-09-28
+Last updated: 2026-09-29
 
 Lifecycle: **learning artifact complete; public release verified; owner inference sprint active; no active model target**
 
@@ -44,17 +44,25 @@ ReST, Parakeet, WebGPU, and Needle experiments; Issue #166 delivered the public
 knowledge graph. No new model download or training is selected. Historical
 TODOs and conditional unblock notes remain evidence, not authorization.
 
-Inference learning release (2026-09-28): the owner-selected
+Inference learning course release (2026-09-29): the owner-selected
 [13-week inference-systems route](https://posttrainllm.com/docs/learn/inference-systems-13w/)
 runs 28 September–27 December at up to 20 focused hours per week. `/learn`
-links to it; the single [Next Session](https://posttrainllm.com/docs/learning-progress/)
-selects Week 1 without promoting historical mastery. The bounded CPU reference
-lab passed shape and causal checks. All eight
-[CI jobs](https://github.com/PostTrainLLM/posttrainllm/actions/runs/36431192427)
-passed at `44f9661`; the
-[Cloudflare deployment](https://github.com/PostTrainLLM/posttrainllm/actions/runs/36432948735)
-passed and live guest checks confirmed the route, Learn link, and Next Session.
-No owner checkpoint or CUDA execution has been recorded.
+now opens the interactive sprint in `/learn/session`, with seven complete Week 1
+lessons and explicit planned contracts for Weeks 2–13. A fresh browser starts
+Day 1; existing ground-up drafts, checkpoints, and backups migrate into the
+same browser-local workspace. Passing an immediate self-review schedules +2/+7
+local-calendar recall; opening a lesson does not create a pass. Static progress
+documents are historical/manual records, not a second personal tracker. The
+Day 1 instructor fixture and one bounded CPU reference smoke passed; neither
+establishes learner mastery or a performance benchmark. All eight
+[CI jobs](https://github.com/PostTrainLLM/posttrainllm/actions/runs/36529468502)
+passed at `2add10d`; the
+[Cloudflare deployment](https://github.com/PostTrainLLM/posttrainllm/actions/runs/36530433189)
+passed at that SHA. An isolated live browser journey covered fresh entry,
+Continue, route/draft preservation, recall repair, v1 backup import, storage
+failure, and narrow viewport; `/learn`, the exact Day 1 URL, and the overview
+returned HTTP 200. No owner checkpoint or CUDA execution has been recorded.
+The 2026-09-28 roadmap-only release at `44f9661` remains historical evidence.
 
 Sharing release (2026-09-26): the credited
 [inspiration library](https://posttrainllm.com/inspiration) is live with 24 named
