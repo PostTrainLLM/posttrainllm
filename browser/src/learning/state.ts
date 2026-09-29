@@ -194,7 +194,9 @@ function isValidLearningState(value: unknown): value is LearningWorkspaceState {
 function normalizeState(value: unknown): LearningWorkspaceState {
   if (isValidLearningState(value)) return value;
   if (!isRecord(value) || value.schemaVersion !== 1)
-    throw new Error("The saved learning data is unsupported. Export or restore a valid backup before continuing.");
+    throw new Error(
+      "The saved learning data is unsupported. Export or restore a valid backup before continuing.",
+    );
   const oldId = value.currentModuleId;
   const oldDraft = value.draft;
   if (
@@ -205,11 +207,15 @@ function normalizeState(value: unknown): LearningWorkspaceState {
       (key) => typeof oldDraft[key] === "string",
     ) ||
     typeof value.updatedAt !== "string" ||
-    (value.status !== "reading" && value.status !== "applied" && value.status !== "verified") ||
+    (value.status !== "reading" &&
+      value.status !== "applied" &&
+      value.status !== "verified") ||
     !Array.isArray(value.checkpoints) ||
     !value.checkpoints.every(isValidCheckpoint)
   )
-    throw new Error("The saved learning data is invalid. Existing browser data was not replaced.");
+    throw new Error(
+      "The saved learning data is invalid. Existing browser data was not replaced.",
+    );
   const draft: LearningDraft = {
     diagnostic: "",
     prediction: "",
@@ -229,7 +235,9 @@ function normalizeState(value: unknown): LearningWorkspaceState {
     checkpoints: value.checkpoints as unknown as LearningCheckpoint[],
   };
   if (!isValidLearningState(migrated))
-    throw new Error("The saved learning data is invalid. Existing browser data was not replaced.");
+    throw new Error(
+      "The saved learning data is invalid. Existing browser data was not replaced.",
+    );
   return migrated;
 }
 
@@ -241,7 +249,8 @@ export function createCheckpoint(
 ): LearningCheckpoint {
   const unit = ALL_UNITS.find((item) => item.id === state.currentModuleId);
   if (!unit) throw new Error("The selected learning module is not available.");
-  const due = (days: number) => addCalendarDays(localCalendarDate(now, timeZone), days);
+  const due = (days: number) =>
+    addCalendarDays(localCalendarDate(now, timeZone), days);
   return {
     id: `${state.currentModuleId}-${now.getTime()}`,
     moduleId: state.currentModuleId,
@@ -317,7 +326,8 @@ export function selectLearningModule(
   now = new Date(),
 ): LearningWorkspaceState {
   const routeId = routeForSession(moduleId);
-  if (!routeId) throw new Error("The selected learning session is not available.");
+  if (!routeId)
+    throw new Error("The selected learning session is not available.");
   const drafts = { ...state.drafts, [state.currentModuleId]: state.draft };
   return {
     ...state,
@@ -343,19 +353,23 @@ export function completeRecall(
     return {
       ...checkpoint,
       recalls: checkpoint.recalls.map((recall) =>
-          recall.id === recallId
-            ? {
-                ...recall,
-                response: response.trim(),
-                result,
-                completedAt: now.toISOString(),
-                attempts: [
-                  ...(recall.attempts ?? []),
-                  { response: response.trim(), result, completedAt: now.toISOString() },
-                ],
-              }
-            : recall,
-        ),
+        recall.id === recallId
+          ? {
+              ...recall,
+              response: response.trim(),
+              result,
+              completedAt: now.toISOString(),
+              attempts: [
+                ...(recall.attempts ?? []),
+                {
+                  response: response.trim(),
+                  result,
+                  completedAt: now.toISOString(),
+                },
+              ],
+            }
+          : recall,
+      ),
     };
   });
   return {
@@ -382,7 +396,9 @@ export function dueRecalls(
   );
 }
 
-export function activeRecallCheckpoints(state: LearningWorkspaceState): LearningCheckpoint[] {
+export function activeRecallCheckpoints(
+  state: LearningWorkspaceState,
+): LearningCheckpoint[] {
   const seen = new Set<string>();
   return [...state.checkpoints]
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
@@ -400,7 +416,8 @@ export function localCalendarDate(date: Date, timeZone: string): string {
     month: "2-digit",
     day: "2-digit",
   }).formatToParts(date);
-  const value = (type: string) => parts.find((part) => part.type === type)?.value;
+  const value = (type: string) =>
+    parts.find((part) => part.type === type)?.value;
   return `${value("year")}-${value("month")}-${value("day")}`;
 }
 
@@ -490,7 +507,11 @@ export async function loadLearningState(): Promise<LearningWorkspaceState> {
     const request = transaction.objectStore(STORE_NAME).get(STATE_KEY);
     request.onsuccess = () => {
       try {
-        resolve(request.result === undefined ? emptyLearningState() : normalizeState(request.result));
+        resolve(
+          request.result === undefined
+            ? emptyLearningState()
+            : normalizeState(request.result),
+        );
       } catch (error) {
         reject(error);
       }

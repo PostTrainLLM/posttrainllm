@@ -38,27 +38,49 @@ export function routeForSession(id: string): LearningRouteId | null {
   if (learningRoutes[INFERENCE_ROUTE].orderedSessionIds.includes(id))
     return INFERENCE_ROUTE;
   if (
-    (learningRoutes[FOUNDATION_ROUTE].orderedSessionIds as readonly string[]).includes(
-      id,
-    )
+    (
+      learningRoutes[FOUNDATION_ROUTE].orderedSessionIds as readonly string[]
+    ).includes(id)
   )
     return FOUNDATION_ROUTE;
   return null;
 }
 
 export function resolveSessionUrl(search: string):
-  | { routeId: LearningRouteId | null; sessionId: string | null; error: string | null }
+  | {
+      routeId: LearningRouteId | null;
+      sessionId: string | null;
+      error: string | null;
+    }
   | { routeId: null; sessionId: null; error: string } {
   const params = new URLSearchParams(search);
   const requestedRoute = params.get("route");
   const requestedSession = params.get("session");
   if (!requestedRoute && !requestedSession)
     return { routeId: null, sessionId: null, error: null };
-  const routeId = requestedRoute ?? (requestedSession ? routeForSession(requestedSession) : null);
+  const routeId =
+    requestedRoute ??
+    (requestedSession ? routeForSession(requestedSession) : null);
   if (!routeId || !(routeId in learningRoutes))
-    return { routeId: null, sessionId: null, error: "Unknown learning route. Choose a valid course below." };
+    return {
+      routeId: null,
+      sessionId: null,
+      error: "Unknown learning route. Choose a valid course below.",
+    };
   const route = learningRoutes[routeId as LearningRouteId];
-  if (requestedSession && !(route.orderedSessionIds as readonly string[]).includes(requestedSession))
-    return { routeId: null, sessionId: null, error: "That session does not belong to this route. Choose a valid session below." };
-  return { routeId: routeId as LearningRouteId, sessionId: requestedSession, error: null };
+  if (
+    requestedSession &&
+    !(route.orderedSessionIds as readonly string[]).includes(requestedSession)
+  )
+    return {
+      routeId: null,
+      sessionId: null,
+      error:
+        "That session does not belong to this route. Choose a valid session below.",
+    };
+  return {
+    routeId: routeId as LearningRouteId,
+    sessionId: requestedSession,
+    error: null,
+  };
 }

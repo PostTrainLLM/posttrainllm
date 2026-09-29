@@ -38,8 +38,8 @@ const structuredData = {
     <header class="session-hero wrap">
       <div>
         <p class="mono-label current-label">
-          <span data-current-route>Loading saved session</span> · <span data-current-number
-            >{current.number}</span
+          <span data-current-route>Loading saved session</span> · <span
+            data-current-number>{current.number}</span
           >
         </p>
         <h1>Learn it here.<br />Prove it to yourself.</h1>
@@ -63,19 +63,35 @@ const structuredData = {
       <a href="#review"><span>4</span> Review</a>
     </nav>
 
-    <div class="route-alert wrap-narrow" data-route-alert hidden role="status"></div>
+    <div class="route-alert wrap-narrow" data-route-alert hidden role="status">
+    </div>
     <nav class="route-choices wrap" aria-label="Learning routes">
-      <a href="/learn/session?route=inference-systems-13w" data-select-route="inference-systems-13w">Inference sprint</a>
-      <a href="/learn/session?route=ground-up" data-select-route="ground-up">Ground-up foundations</a>
+      <a
+        href="/learn/session?route=inference-systems-13w"
+        data-select-route="inference-systems-13w">Inference sprint</a
+      >
+      <a href="/learn/session?route=ground-up" data-select-route="ground-up"
+        >Ground-up foundations</a
+      >
       <a href="/docs/learn/inference-systems-13w/">13-week overview</a>
     </nav>
 
-    <section class="diagnostic wrap-narrow" data-diagnostic-section hidden aria-labelledby="diagnostic-title">
+    <section
+      class="diagnostic wrap-narrow"
+      data-diagnostic-section
+      hidden
+      aria-labelledby="diagnostic-title"
+    >
       <p class="mono-label">Day 1 · first attempt</p>
       <h2 id="diagnostic-title">What do you already know?</h2>
       <p data-current-diagnostic></p>
       <label for="diagnostic">Your initial answer</label>
-      <textarea id="diagnostic" rows="5" autocomplete="off" placeholder="Calculate, label the axes, and note what is uncertain…"></textarea>
+      <textarea
+        id="diagnostic"
+        rows="5"
+        autocomplete="off"
+        placeholder="Calculate, label the axes, and note what is uncertain…"
+      ></textarea>
       <details class="answer-guide" data-diagnostic-repair>
         <summary>See a worked repair after trying</summary>
         <p data-current-diagnostic-repair></p>
@@ -85,7 +101,9 @@ const structuredData = {
     <article class="lesson wrap-narrow" id="read" data-session-content hidden>
       <header>
         <p class="mono-label">
-          <span data-current-number>{current.number}</span> / <span data-current-track>Inference sprint</span>
+          <span data-current-number>{current.number}</span> / <span
+            data-current-track>Inference sprint</span
+          >
         </p>
         <h2 data-current-title>{current.title}</h2>
         <p data-current-summary>{current.summary}</p>
@@ -109,19 +127,30 @@ const structuredData = {
       >
     </article>
 
-    <section class="prediction wrap-narrow" data-prediction-section data-session-content hidden aria-labelledby="prediction-title">
+    <section
+      class="prediction wrap-narrow"
+      data-prediction-section
+      data-session-content
+      hidden
+      aria-labelledby="prediction-title"
+    >
       <p class="mono-label">Predict before checking</p>
       <h2 id="prediction-title">Write your first attempt.</h2>
       <p data-current-prediction></p>
       <label for="prediction">Initial prediction</label>
-      <textarea id="prediction" rows="5" autocomplete="off" placeholder="Your shapes and dependency prediction…"></textarea>
+      <textarea
+        id="prediction"
+        rows="5"
+        autocomplete="off"
+        placeholder="Your shapes and dependency prediction…"></textarea>
     </section>
 
     <section
       class="exercise wrap-narrow"
       id="try"
       aria-labelledby="exercise-title"
-      data-session-content hidden
+      data-session-content
+      hidden
     >
       <p class="mono-label">Your exercise</p>
       <h2 id="exercise-title" data-current-exercise-title>{current.title}</h2>
@@ -167,7 +196,8 @@ const structuredData = {
       class="explanation wrap-narrow"
       id="explain"
       aria-labelledby="explain-title"
-      data-session-content hidden
+      data-session-content
+      hidden
     >
       <p class="mono-label">Your explanation</p>
       <h2 id="explain-title">Explain the idea in your own words.</h2>
@@ -201,7 +231,8 @@ const structuredData = {
       class="review wrap-narrow"
       id="review"
       aria-labelledby="review-title"
-      data-session-content hidden
+      data-session-content
+      hidden
     >
       <p class="mono-label">Immediate self-review</p>
       <h2 id="review-title">Can you clear the gate?</h2>
@@ -305,32 +336,59 @@ const structuredData = {
       <header class="section-heading-small">
         <p class="mono-label">Inference systems · 28 Sep–27 Dec 2026</p>
         <h2 id="sprint-browser-title">The 13-week route</h2>
-        <p>Week 1 has seven complete lessons. Weeks 2–13 have scoped contracts; their daily lessons are planned.</p>
+        <p>
+          Week 1 has seven complete lessons. Weeks 2–13 have scoped contracts;
+          their daily lessons are planned.
+        </p>
       </header>
       <div class="sprint-days">
-        {inferenceSessions.map((session) => (
-          <article>
-            <span class="mono-label">Week 1 · Day {session.day} · {session.minutes} min · ready</span>
-            <h3>{session.title}</h3>
-            <p>{session.objective}</p>
-            <button class="btn btn-ghost" type="button" data-select-module={session.id}>Open this lesson</button>
-          </article>
-        ))}
+        {
+          inferenceSessions.map((session) => (
+            <article>
+              <span class="mono-label">
+                Week 1 · Day {session.day} · {session.minutes} min · ready
+              </span>
+              <h3>{session.title}</h3>
+              <p>{session.objective}</p>
+              <button
+                class="btn btn-ghost"
+                type="button"
+                data-select-module={session.id}
+              >
+                Open this lesson
+              </button>
+            </article>
+          ))
+        }
       </div>
       <details class="planned-weeks">
         <summary>View Weeks 2–13 contracts · detailed lessons planned</summary>
         <div class="planned-week-grid">
-          {inferenceWeeks.slice(1).map((week) => (
-            <article>
-              <p class="mono-label">Week {week.week} · {week.dates} · planned</p>
-              <h3>{week.title}</h3>
-              <p><strong>Before this:</strong> {week.prerequisites}</p>
-              <p><strong>Progression:</strong> {week.progression}</p>
-              <p><strong>Weekend evidence:</strong> {week.artifact}</p>
-              <p><strong>Pass criterion:</strong> {week.passCriterion}</p>
-              <p><strong>Boundary:</strong> {week.boundary}</p>
-            </article>
-          ))}
+          {
+            inferenceWeeks.slice(1).map((week) => (
+              <article>
+                <p class="mono-label">
+                  Week {week.week} · {week.dates} · planned
+                </p>
+                <h3>{week.title}</h3>
+                <p>
+                  <strong>Before this:</strong> {week.prerequisites}
+                </p>
+                <p>
+                  <strong>Progression:</strong> {week.progression}
+                </p>
+                <p>
+                  <strong>Weekend evidence:</strong> {week.artifact}
+                </p>
+                <p>
+                  <strong>Pass criterion:</strong> {week.passCriterion}
+                </p>
+                <p>
+                  <strong>Boundary:</strong> {week.boundary}
+                </p>
+              </article>
+            ))
+          }
         </div>
       </details>
     </section>

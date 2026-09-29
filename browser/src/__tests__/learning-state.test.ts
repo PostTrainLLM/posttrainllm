@@ -74,12 +74,27 @@ describe("learning state", () => {
     expect(state.status).toBe("reading");
     expect(state.checkpoints[0].recalls).toHaveLength(2);
     expect(state.checkpoints[0].recalls[0].attempts).toEqual([
-      { response: "I confused inputs and parameters", result: "needs-repair", completedAt: "2026-09-21T10:00:00.000Z" },
+      {
+        response: "I confused inputs and parameters",
+        result: "needs-repair",
+        completedAt: "2026-09-21T10:00:00.000Z",
+      },
     ]);
     expect(dueRecalls(state, new Date("2026-09-27T10:00:00Z"))).toHaveLength(1);
-    const retried = completeRecall(state, checkpoint.id, "plus-2", "changed-example explanation", "pass", new Date("2026-09-27T11:00:00Z"));
+    const retried = completeRecall(
+      state,
+      checkpoint.id,
+      "plus-2",
+      "changed-example explanation",
+      "pass",
+      new Date("2026-09-27T11:00:00Z"),
+    );
     expect(retried.status).toBe("applied");
-    expect(retried.checkpoints[0].recalls[0].attempts?.map((attempt) => attempt.result)).toEqual(["needs-repair", "pass"]);
+    expect(
+      retried.checkpoints[0].recalls[0].attempts?.map(
+        (attempt) => attempt.result,
+      ),
+    ).toEqual(["needs-repair", "pass"]);
   });
 
   it("exposes only due pending recalls", () => {
@@ -169,10 +184,25 @@ describe("learning backup and module selection", () => {
   });
 
   it("migrates v1 drafts and checkpoints without promoting progress", () => {
-    const foundation = selectLearningModule(answeredState(), "functions-data-parameters", started);
+    const foundation = selectLearningModule(
+      answeredState(),
+      "functions-data-parameters",
+      started,
+    );
     const checkpoint = createCheckpoint(foundation, "pass", started);
-    const withRecall = completeRecall(applyCheckpoint(foundation, checkpoint, started), checkpoint.id, "plus-2", "my older recall answer", "pass", new Date("2026-09-21T10:00:00Z")).checkpoints[0];
-    const { diagnostic: _diagnostic, prediction: _prediction, ...oldCheckpoint } = withRecall;
+    const withRecall = completeRecall(
+      applyCheckpoint(foundation, checkpoint, started),
+      checkpoint.id,
+      "plus-2",
+      "my older recall answer",
+      "pass",
+      new Date("2026-09-21T10:00:00Z"),
+    ).checkpoints[0];
+    const {
+      diagnostic: _diagnostic,
+      prediction: _prediction,
+      ...oldCheckpoint
+    } = withRecall;
     const old = {
       schemaVersion: 1,
       updatedAt: "2026-09-19T10:00:00.000Z",
@@ -186,20 +216,30 @@ describe("learning backup and module selection", () => {
       },
       checkpoints: [oldCheckpoint],
     };
-    const restored = parseBackup(JSON.stringify({
-      kind: "posttrainllm-learning-backup",
-      exportedAt: "2026-09-19T11:00:00.000Z",
-      state: old,
-    })).state;
+    const restored = parseBackup(
+      JSON.stringify({
+        kind: "posttrainllm-learning-backup",
+        exportedAt: "2026-09-19T11:00:00.000Z",
+        state: old,
+      }),
+    ).state;
     expect(restored.schemaVersion).toBe(2);
     expect(restored.currentRouteId).toBe("ground-up");
     expect(restored.draft.actualWork).toBe("my unfinished calculation");
-    expect(restored.drafts["functions-data-parameters"].explanation).toBe("my own words");
+    expect(restored.drafts["functions-data-parameters"].explanation).toBe(
+      "my own words",
+    );
     expect(restored.status).toBe("reading");
     expect(restored.checkpoints[0]).toEqual(oldCheckpoint);
-    expect(restored.checkpoints[0].recalls.map((recall) => recall.dueDate)).toEqual(oldCheckpoint.recalls.map((recall) => recall.dueDate));
-    expect(restored.checkpoints[0].recalls[0].response).toBe("my older recall answer");
-    expect(parseBackup(JSON.stringify(makeBackup(restored, started))).state).toEqual(restored);
+    expect(
+      restored.checkpoints[0].recalls.map((recall) => recall.dueDate),
+    ).toEqual(oldCheckpoint.recalls.map((recall) => recall.dueDate));
+    expect(restored.checkpoints[0].recalls[0].response).toBe(
+      "my older recall answer",
+    );
+    expect(
+      parseBackup(JSON.stringify(makeBackup(restored, started))).state,
+    ).toEqual(restored);
   });
 
   it("keeps drafts when switching between the sprint and foundations", () => {
@@ -208,18 +248,43 @@ describe("learning backup and module selection", () => {
     foundation.draft.actualWork = "foundation draft";
     const returned = selectLearningModule(foundation, "inference-w01-d01");
     expect(returned.draft.actualWork).toBe(first.draft.actualWork);
-    expect(selectLearningModule(returned, "functions-data-parameters").draft.actualWork).toBe("foundation draft");
+    expect(
+      selectLearningModule(returned, "functions-data-parameters").draft
+        .actualWork,
+    ).toBe("foundation draft");
   });
 
   it("schedules dates using the Asia/Kolkata calendar near midnight", () => {
     const late = new Date("2026-09-28T18:40:00.000Z");
-    const checkpoint = createCheckpoint(answeredState(), "pass", late, "Asia/Kolkata");
-    expect(checkpoint.recalls.map((recall) => recall.dueDate)).toEqual(["2026-10-01", "2026-10-06"]);
+    const checkpoint = createCheckpoint(
+      answeredState(),
+      "pass",
+      late,
+      "Asia/Kolkata",
+    );
+    expect(checkpoint.recalls.map((recall) => recall.dueDate)).toEqual([
+      "2026-10-01",
+      "2026-10-06",
+    ]);
   });
 
   it("rejects a newer or malformed backup without yielding a replacement state", () => {
     const backup = makeBackup(answeredState(), started);
-    expect(() => parseBackup(JSON.stringify({ ...backup, state: { ...backup.state, schemaVersion: 3 } }))).toThrow("unsupported");
-    expect(() => parseBackup(JSON.stringify({ ...backup, state: { ...backup.state, draft: { actualWork: 5 } } }))).toThrow("unsupported");
+    expect(() =>
+      parseBackup(
+        JSON.stringify({
+          ...backup,
+          state: { ...backup.state, schemaVersion: 3 },
+        }),
+      ),
+    ).toThrow("unsupported");
+    expect(() =>
+      parseBackup(
+        JSON.stringify({
+          ...backup,
+          state: { ...backup.state, draft: { actualWork: 5 } },
+        }),
+      ),
+    ).toThrow("unsupported");
   });
 });
