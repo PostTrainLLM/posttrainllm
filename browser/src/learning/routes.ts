@@ -1,7 +1,7 @@
 export const INFERENCE_ROUTE = "inference-systems-13w";
 export const FOUNDATION_ROUTE = "ground-up";
 
-export const inferenceWeekOneIds = Array.from(
+const inferenceWeekOneIds = Array.from(
   { length: 7 },
   (_, index) => `inference-w01-d${String(index + 1).padStart(2, "0")}`,
 );

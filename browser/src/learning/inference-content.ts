@@ -1,4 +1,5 @@
 import type { LearningUnit } from "./content";
+import { makeSession } from "./inference-session";
 
 export interface LessonSection {
   heading: string;
@@ -27,32 +28,6 @@ export interface InferenceSession extends LearningUnit {
   evidence: string[];
   nextSessionId: string | null;
 }
-
-const makeSession = (
-  day: number,
-  data: Omit<
-    InferenceSession,
-    | "id"
-    | "routeId"
-    | "week"
-    | "day"
-    | "number"
-    | "readiness"
-    | "lesson"
-    | "nextSessionId"
-  >,
-): InferenceSession => ({
-  ...data,
-  id: `inference-w01-d${String(day).padStart(2, "0")}`,
-  routeId: "inference-systems-13w",
-  week: 1,
-  day,
-  number: `W1 · D${day}`,
-  readiness: "ready",
-  lesson: data.sections.flatMap((section) => section.paragraphs ?? []),
-  nextSessionId:
-    day < 7 ? `inference-w01-d${String(day + 1).padStart(2, "0")}` : null,
-});
 
 export const inferenceSessions: InferenceSession[] = [
   makeSession(1, {

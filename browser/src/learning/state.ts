@@ -60,7 +60,7 @@ export interface LearningWorkspaceState {
   checkpoints: LearningCheckpoint[];
 }
 
-export interface LearningDraft {
+interface LearningDraft {
   diagnostic: string;
   prediction: string;
   actualWork: string;
@@ -105,40 +105,79 @@ function isReviewResult(value: unknown): value is ReviewResult {
   return value === "pending" || value === "pass" || value === "needs-repair";
 }
 
-function isValidRecall(value: unknown): boolean {
+function hasStringFields(
+  value: Record<string, unknown>,
+  fields: string[],
+): boolean {
+  return fields.every((field) => typeof value[field] === "string");
+}
+
+const draftFields = [
+  "diagnostic",
+  "prediction",
+  "actualWork",
+  "explanation",
+  "repoConnection",
+  "openQuestions",
+];
+
+function isValidDraft(value: unknown): value is LearningDraft {
+  return isRecord(value) && hasStringFields(value, draftFields);
+}
+
+function isValidDraftMap(value: unknown): boolean {
   return (
     isRecord(value) &&
-    (value.id === "plus-2" || value.id === "plus-7") &&
-    typeof value.dueDate === "string" &&
-    (value.completedAt === null || typeof value.completedAt === "string") &&
-    typeof value.prompt === "string" &&
-    typeof value.response === "string" &&
-    isReviewResult(value.result) &&
-    (value.attempts === undefined ||
-      (Array.isArray(value.attempts) &&
-        value.attempts.every(
-          (attempt) =>
-            isRecord(attempt) &&
-            typeof attempt.response === "string" &&
-            (attempt.result === "pass" || attempt.result === "needs-repair") &&
-            typeof attempt.completedAt === "string",
-        )))
+    Object.entries(value).every(
+      ([id, draft]) => LEARNING_MODULE_IDS.has(id) && isValidDraft(draft),
+    )
+  );
+}
+
+function isValidRecallAttempt(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    hasStringFields(value, ["response", "completedAt"]) &&
+    (value.result === "pass" || value.result === "needs-repair")
+  );
+}
+
+function isValidRecall(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  if (value.id !== "plus-2" && value.id !== "plus-7") return false;
+  if (!hasStringFields(value, ["dueDate", "prompt", "response"])) return false;
+  if (value.completedAt !== null && typeof value.completedAt !== "string")
+    return false;
+  if (!isReviewResult(value.result)) return false;
+  return (
+    value.attempts === undefined ||
+    (Array.isArray(value.attempts) &&
+      value.attempts.every(isValidRecallAttempt))
   );
 }
 
 function isValidCheckpoint(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  if (
+    !hasStringFields(value, [
+      "id",
+      "moduleId",
+      "createdAt",
+      "actualWork",
+      "explanation",
+      "repoConnection",
+      "openQuestions",
+    ])
+  )
+    return false;
+  if (!LEARNING_MODULE_IDS.has(value.moduleId as string)) return false;
+  if (
+    ["prediction", "diagnostic"].some(
+      (field) => value[field] !== undefined && typeof value[field] !== "string",
+    )
+  )
+    return false;
   return (
-    isRecord(value) &&
-    typeof value.id === "string" &&
-    typeof value.moduleId === "string" &&
-    LEARNING_MODULE_IDS.has(value.moduleId) &&
-    typeof value.createdAt === "string" &&
-    typeof value.actualWork === "string" &&
-    (value.prediction === undefined || typeof value.prediction === "string") &&
-    (value.diagnostic === undefined || typeof value.diagnostic === "string") &&
-    typeof value.explanation === "string" &&
-    typeof value.repoConnection === "string" &&
-    typeof value.openQuestions === "string" &&
     isReviewResult(value.immediateResult) &&
     Array.isArray(value.recalls) &&
     value.recalls.every(isValidRecall)
@@ -148,14 +187,14 @@ function isValidCheckpoint(value: unknown): boolean {
 function isValidLearningState(value: unknown): value is LearningWorkspaceState {
   if (!isRecord(value)) return false;
   if (value.schemaVersion !== LEARNING_SCHEMA_VERSION) return false;
+  if (!hasStringFields(value, ["updatedAt", "currentModuleId"])) return false;
   if (
-    typeof value.updatedAt !== "string" ||
-    (value.currentRouteId !== INFERENCE_ROUTE &&
-      value.currentRouteId !== FOUNDATION_ROUTE) ||
-    typeof value.currentModuleId !== "string" ||
-    !LEARNING_MODULE_IDS.has(value.currentModuleId) ||
-    routeForSession(value.currentModuleId) !== value.currentRouteId
+    value.currentRouteId !== INFERENCE_ROUTE &&
+    value.currentRouteId !== FOUNDATION_ROUTE
   )
+    return false;
+  if (!LEARNING_MODULE_IDS.has(value.currentModuleId as string)) return false;
+  if (routeForSession(value.currentModuleId as string) !== value.currentRouteId)
     return false;
   if (
     value.status !== "reading" &&
@@ -163,32 +202,12 @@ function isValidLearningState(value: unknown): value is LearningWorkspaceState {
     value.status !== "verified"
   )
     return false;
-  if (!isRecord(value.draft)) return false;
-  for (const key of [
-    "diagnostic",
-    "prediction",
-    "actualWork",
-    "explanation",
-    "repoConnection",
-    "openQuestions",
-  ]) {
-    if (typeof value.draft[key] !== "string") return false;
-  }
-  if (!isRecord(value.drafts)) return false;
-  for (const [id, draft] of Object.entries(value.drafts)) {
-    if (!LEARNING_MODULE_IDS.has(id) || !isRecord(draft)) return false;
-    for (const key of [
-      "diagnostic",
-      "prediction",
-      "actualWork",
-      "explanation",
-      "repoConnection",
-      "openQuestions",
-    ])
-      if (typeof draft[key] !== "string") return false;
-  }
-  if (!Array.isArray(value.checkpoints)) return false;
-  return value.checkpoints.every(isValidCheckpoint);
+  if (!isValidDraft(value.draft) || !isValidDraftMap(value.drafts))
+    return false;
+  return (
+    Array.isArray(value.checkpoints) &&
+    value.checkpoints.every(isValidCheckpoint)
+  );
 }
 
 function normalizeState(value: unknown): LearningWorkspaceState {
@@ -409,7 +428,7 @@ export function activeRecallCheckpoints(
     });
 }
 
-export function localCalendarDate(date: Date, timeZone: string): string {
+function localCalendarDate(date: Date, timeZone: string): string {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,
     year: "numeric",

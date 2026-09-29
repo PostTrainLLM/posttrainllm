@@ -182,7 +182,9 @@ describe("learning backup and module selection", () => {
     backup.state.currentModuleId = "missing-module";
     expect(() => parseBackup(JSON.stringify(backup))).toThrow("unsupported");
   });
+});
 
+describe("learning state migration and validation", () => {
   it("migrates v1 drafts and checkpoints without promoting progress", () => {
     const foundation = selectLearningModule(
       answeredState(),
@@ -241,7 +243,9 @@ describe("learning backup and module selection", () => {
       parseBackup(JSON.stringify(makeBackup(restored, started))).state,
     ).toEqual(restored);
   });
+});
 
+describe("learning route and calendar edge cases", () => {
   it("keeps drafts when switching between the sprint and foundations", () => {
     const first = answeredState();
     const foundation = selectLearningModule(first, "functions-data-parameters");
