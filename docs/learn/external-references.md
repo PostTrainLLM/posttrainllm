@@ -72,7 +72,7 @@ Updated 2026-06-08; GPU systems references added 2026-09-29.
 ## GPU systems and performance
 
 - **[Learn Inference](https://learn-inference.com/)**
-  Interactive companion to *Inference Engineering* covering inference
+  Interactive companion to _Inference Engineering_ covering inference
   mechanics, latency metrics, hardware, software, and serving techniques.
   _Why for us_: use its prefill/decode and KV explanations in Week 2, then
   its metric simulations in Week 3 before collecting local measurements.
