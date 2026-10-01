@@ -40,7 +40,9 @@ const canonical = "https://posttrainllm.com/articles/how-to-cook-an-llm";
 >
   <SiteHeader mode="instrument" active="learn" />
   <main id="main" class="cook-article journey-article">
-    <KitchenWelcome journey={journey} />
+    <KitchenWelcome journey={journey}>
+      <h1 slot="title">How to cook<br /><em>an LLM.</em></h1>
+    </KitchenWelcome>
     <nav class="journey-nav" aria-label="Journey stops">
       <span class="journey-reading" id="journey-current-label"
         >01 / Harvest</span
