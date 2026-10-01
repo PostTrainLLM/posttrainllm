@@ -1,0 +1,362 @@
+[
+  {
+    "width": 1440,
+    "height": 900,
+    "stage": "ingredients",
+    "primaryBottom": 641,
+    "navigationBottom": 760,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "stage": "chopping",
+    "primaryBottom": 401,
+    "navigationBottom": 729,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "stage": "cleaning",
+    "primaryBottom": 343,
+    "navigationBottom": 729,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "stage": "base-recipe",
+    "primaryBottom": 544,
+    "navigationBottom": 745,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "stage": "refine",
+    "primaryBottom": 390,
+    "navigationBottom": 729,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "stage": "chat",
+    "primaryBottom": 307,
+    "navigationBottom": 729,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "stage": "refine-1",
+    "primaryBottom": 644,
+    "navigationBottom": 733,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "stage": "refine-2",
+    "primaryBottom": 419,
+    "navigationBottom": 729,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "stage": "welcome",
+    "primaryBottom": 726,
+    "navigationBottom": 804,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1366,
+    "height": 768,
+    "stage": "ingredients",
+    "primaryBottom": 640,
+    "navigationBottom": 759,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1366,
+    "height": 768,
+    "stage": "chopping",
+    "primaryBottom": 401,
+    "navigationBottom": 714,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1366,
+    "height": 768,
+    "stage": "cleaning",
+    "primaryBottom": 342,
+    "navigationBottom": 714,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1366,
+    "height": 768,
+    "stage": "base-recipe",
+    "primaryBottom": 543,
+    "navigationBottom": 744,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1366,
+    "height": 768,
+    "stage": "refine",
+    "primaryBottom": 389,
+    "navigationBottom": 714,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1366,
+    "height": 768,
+    "stage": "chat",
+    "primaryBottom": 306,
+    "navigationBottom": 714,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1366,
+    "height": 768,
+    "stage": "refine-1",
+    "primaryBottom": 644,
+    "navigationBottom": 733,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1366,
+    "height": 768,
+    "stage": "refine-2",
+    "primaryBottom": 418,
+    "navigationBottom": 714,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 1366,
+    "height": 768,
+    "stage": "welcome",
+    "primaryBottom": 660,
+    "navigationBottom": 734,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "stage": "ingredients",
+    "primaryBottom": 623,
+    "navigationBottom": 738,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "stage": "chopping",
+    "primaryBottom": 366,
+    "navigationBottom": 715,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "stage": "cleaning",
+    "primaryBottom": 307,
+    "navigationBottom": 690,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "stage": "base-recipe",
+    "primaryBottom": 508,
+    "navigationBottom": 774,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "stage": "refine",
+    "primaryBottom": 378,
+    "navigationBottom": 763,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "stage": "chat",
+    "primaryBottom": 275,
+    "navigationBottom": 690,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "stage": "refine-1",
+    "primaryBottom": 714,
+    "navigationBottom": 799,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "stage": "refine-2",
+    "primaryBottom": 425,
+    "navigationBottom": 711,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "height": 1024,
+    "stage": "welcome",
+    "primaryBottom": 701,
+    "navigationBottom": 786,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "stage": "ingredients",
+    "primaryBottom": 740,
+    "navigationBottom": 843,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "stage": "chopping",
+    "primaryBottom": 541,
+    "navigationBottom": 749,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "stage": "cleaning",
+    "primaryBottom": 475,
+    "navigationBottom": 793,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "stage": "base-recipe",
+    "primaryBottom": 581,
+    "navigationBottom": 826,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "stage": "refine",
+    "primaryBottom": 544,
+    "navigationBottom": 839,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "stage": "chat",
+    "primaryBottom": 443,
+    "navigationBottom": 623,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "stage": "refine-1",
+    "primaryBottom": 764,
+    "navigationBottom": 841,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "stage": "refine-2",
+    "primaryBottom": 601,
+    "navigationBottom": 754,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "stage": "welcome",
+    "primaryBottom": 756,
+    "navigationBottom": 807,
+    "primaryInViewport": true,
+    "navigationInViewport": true,
+    "overflow": false
+  }
+]

@@ -8,10 +8,15 @@
  * Guide: docs/browser_notes.md ("Web Worker")
  */
 
-import { benchmarkMatmul, benchmarkMatmulF16Sweep, initWebGPU } from "../../webgpu/kernels";
+import {
+  benchmarkMatmul,
+  benchmarkMatmulF16Sweep,
+  initWebGPU,
+} from "../../webgpu/kernels";
 import { TinyGptBackend, usingMemory64 } from "./backend";
 import { HF_CATALOG, HfFetchError, fetchHfText } from "./datasets";
 import { LossChart } from "./charts";
+import { offerKitchenBatch } from "./kitchen/trainer-import";
 import {
   detectBrowser,
   detectCapabilities,
@@ -29,9 +34,23 @@ import {
   formatParams,
   headsFor,
 } from "./sizing";
-import { loadCachedGalleryModel, loadRun, loadState, requestDurableStorage, saveCachedGalleryModel, saveRun, saveState } from "./storage";
+import {
+  loadCachedGalleryModel,
+  loadRun,
+  loadState,
+  requestDurableStorage,
+  saveCachedGalleryModel,
+  saveRun,
+  saveState,
+} from "./storage";
 import { hasSeenTour, markTourSeen, startTour } from "./tour";
-import { DEFAULT_CONFIG, type FromWorker, type InspectResult, type RunConfig, type ToWorker } from "./types";
+import {
+  DEFAULT_CONFIG,
+  type FromWorker,
+  type InspectResult,
+  type RunConfig,
+  type ToWorker,
+} from "./types";
 import { benchmarks as registeredBenchmarks } from "./benchmarks/registry";
 import {
   initAnalytics,
@@ -251,11 +270,17 @@ const autoSaveFilename: string | null = (() => {
   try {
     const v = new URLSearchParams(window.location.search).get("autoSave");
     return v ? `${v}.tinygpt` : null;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 })();
 
 let firstRunCelebrated = (() => {
-  try { return localStorage.getItem("posttrainllm.firstRunCelebrated") === "1"; } catch { return false; }
+  try {
+    return localStorage.getItem("posttrainllm.firstRunCelebrated") === "1";
+  } catch {
+    return false;
+  }
 })();
 
 /**
@@ -284,10 +309,14 @@ function renderRunVerdict(finished: boolean): void {
   let headline: string;
   if (trainLoss > 4.0) headline = "Barely moved from random.";
   else if (trainLoss > 3.0) headline = "Letter pairs learned, no words yet.";
-  else if (trainLoss > 2.3) headline = "Common short words emerging, no grammar.";
-  else if (trainLoss > 1.7) headline = "Word shapes formed, local grammar rough.";
-  else if (trainLoss > 1.2) headline = "Local grammar visible. Generation will read.";
-  else if (trainLoss > 0.8) headline = "Substantial memorisation of the corpus.";
+  else if (trainLoss > 2.3)
+    headline = "Common short words emerging, no grammar.";
+  else if (trainLoss > 1.7)
+    headline = "Word shapes formed, local grammar rough.";
+  else if (trainLoss > 1.2)
+    headline = "Local grammar visible. Generation will read.";
+  else if (trainLoss > 0.8)
+    headline = "Substantial memorisation of the corpus.";
   else headline = "Near-perfect memorisation.";
 
   // Pick the single most actionable improvement.
@@ -300,7 +329,8 @@ function renderRunVerdict(finished: boolean): void {
       label: "Load Tiny Shakespeare (1 MB)",
       apply: () => {
         switchTab("url");
-        els.urlInput.value = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt";
+        els.urlInput.value =
+          "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt";
         els.urlLoad.click();
       },
     });
@@ -360,7 +390,10 @@ function renderRunVerdict(finished: boolean): void {
   }
 
   const actionHtml = actions
-    .map((_, i) => `<button class="verdict-cta" data-action-idx="${i}">${actions[i].label}</button>`)
+    .map(
+      (_, i) =>
+        `<button class="verdict-cta" data-action-idx="${i}">${actions[i].label}</button>`,
+    )
     .join("");
   // Verdict actions that change the preset live on Setup. The verdict
   // renders on Watch — without this, clicking "Try Medium preset" silently
@@ -368,9 +401,13 @@ function renderRunVerdict(finished: boolean): void {
   function applyVerdictPreset(id: string): void {
     els.sizePreset.value = id;
     els.sizePreset.dispatchEvent(new Event("change"));
-    const hp = document.getElementById("hyperparamDetails") as HTMLDetailsElement | null;
+    const hp = document.getElementById(
+      "hyperparamDetails",
+    ) as HTMLDetailsElement | null;
     if (hp) hp.open = true;
-    const setupTab = document.querySelector<HTMLButtonElement>('.screen-tab[data-screen="setup"]');
+    const setupTab = document.querySelector<HTMLButtonElement>(
+      '.screen-tab[data-screen="setup"]',
+    );
     setupTab?.click();
   }
 
@@ -401,12 +438,14 @@ function showFirstRunCelebration(): void {
     <button class="first-run-cta" type="button">Generate ↓</button>
   `;
   document.body.appendChild(div);
-  div.querySelector<HTMLButtonElement>(".first-run-cta")?.addEventListener("click", () => {
-    div.remove();
-    els.sample.scrollIntoView({ behavior: "smooth", block: "center" });
-    els.sample.classList.add("nudge");
-    setTimeout(() => els.sample.classList.remove("nudge"), 1200);
-  });
+  div
+    .querySelector<HTMLButtonElement>(".first-run-cta")
+    ?.addEventListener("click", () => {
+      div.remove();
+      els.sample.scrollIntoView({ behavior: "smooth", block: "center" });
+      els.sample.classList.add("nudge");
+      setTimeout(() => els.sample.classList.remove("nudge"), 1200);
+    });
   setTimeout(() => div.classList.add("dismissing"), 9000);
   setTimeout(() => div.remove(), 9600);
 }
@@ -437,7 +476,10 @@ function startElapsedClock(): void {
   }, 250);
 }
 function stopElapsedClock(): void {
-  if (elapsedTimer != null) { clearInterval(elapsedTimer); elapsedTimer = undefined; }
+  if (elapsedTimer != null) {
+    clearInterval(elapsedTimer);
+    elapsedTimer = undefined;
+  }
 }
 function formatElapsed(s: number): string {
   if (s < 60) return `${s.toFixed(s < 10 ? 1 : 0)} s`;
@@ -446,30 +488,48 @@ function formatElapsed(s: number): string {
   return `${m}m ${r.toString().padStart(2, "0")}s`;
 }
 
-function checkMilestones(_step: number, trainLoss: number, valLoss?: number): void {
+function checkMilestones(
+  _step: number,
+  trainLoss: number,
+  valLoss?: number,
+): void {
   if (trainLoss < LN_256 - 0.3 && !milestonesHit.has("baseline")) {
     milestonesHit.add("baseline");
-    showMilestone(`Past random baseline (ln 256 = 5.55) — the model is no longer guessing uniformly.`);
+    showMilestone(
+      `Past random baseline (ln 256 = 5.55) — the model is no longer guessing uniformly.`,
+    );
     return;
   }
   if (trainLoss < 3.0 && !milestonesHit.has("under3")) {
     milestonesHit.add("under3");
-    showMilestone(`Loss under 3.0 — the model has locked onto byte frequencies and short n-grams.`);
+    showMilestone(
+      `Loss under 3.0 — the model has locked onto byte frequencies and short n-grams.`,
+    );
     return;
   }
   if (trainLoss < 2.0 && !milestonesHit.has("under2")) {
     milestonesHit.add("under2");
-    showMilestone(`Loss under 2.0 — real structure has been learned. Generated samples should start looking word-shaped.`);
+    showMilestone(
+      `Loss under 2.0 — real structure has been learned. Generated samples should start looking word-shaped.`,
+    );
     return;
   }
   if (trainLoss < 1.0 && !milestonesHit.has("under1")) {
     milestonesHit.add("under1");
-    showMilestone(`Loss under 1.0 — substantial memorisation of this corpus. Holdout loss is now the honest signal.`);
+    showMilestone(
+      `Loss under 1.0 — substantial memorisation of this corpus. Holdout loss is now the honest signal.`,
+    );
     return;
   }
-  if (valLoss != null && valLoss - trainLoss > 1.0 && !milestonesHit.has("overfit")) {
+  if (
+    valLoss != null &&
+    valLoss - trainLoss > 1.0 &&
+    !milestonesHit.has("overfit")
+  ) {
     milestonesHit.add("overfit");
-    showMilestone(`Train ↔ holdout gap > 1.0 — overfitting territory. The model is memorising rather than generalising.`);
+    showMilestone(
+      `Train ↔ holdout gap > 1.0 — overfitting territory. The model is memorising rather than generalising.`,
+    );
     return;
   }
 }
@@ -490,7 +550,8 @@ function readConfig(): RunConfig {
     maxSteps: intOf("maxSteps"),
     evalEvery: DEFAULT_CONFIG.evalEvery,
     seed: DEFAULT_CONFIG.seed,
-    backend: byId<HTMLSelectElement>("backend").value === "webgpu" ? "webgpu" : "wasm",
+    backend:
+      byId<HTMLSelectElement>("backend").value === "webgpu" ? "webgpu" : "wasm",
   };
 }
 
@@ -503,11 +564,18 @@ function setRunning(on: boolean): void {
   const live = document.getElementById("liveBadge");
   if (live) live.hidden = !on;
   // Notify the sticky-stats observer.
-  const hook = (window as unknown as { __tgSetTraining?: (b: boolean) => void }).__tgSetTraining;
+  const hook = (window as unknown as { __tgSetTraining?: (b: boolean) => void })
+    .__tgSetTraining;
   if (typeof hook === "function") hook(on);
 }
 
-function updateStickyStats(step: number, maxSteps: number, loss: number, toks: number, etaText: string): void {
+function updateStickyStats(
+  step: number,
+  maxSteps: number,
+  loss: number,
+  toks: number,
+  etaText: string,
+): void {
   const s = document.getElementById("stickyStep");
   const l = document.getElementById("stickyLoss");
   const t = document.getElementById("stickyToks");
@@ -572,29 +640,29 @@ els.start.addEventListener("click", () => {
   if (bytesPerParamSeen < 0.1 && estParams > 5_000_000) {
     warnings.push(
       `CATASTROPHIC under-data: ${formatParams(estParams)} params against ` +
-      `${corpusMB < 1 ? `${(corpusBytes / 1024).toFixed(0)} KB` : `${corpusMB.toFixed(1)} MB`} ` +
-      `of corpus is roughly ${(1 / bytesPerParamSeen).toFixed(0)}× more parameters ` +
-      `than bytes the model will see. Training will memorize the corpus verbatim ` +
-      `and produce nothing original. Use ${recommendCorpus}.`,
+        `${corpusMB < 1 ? `${(corpusBytes / 1024).toFixed(0)} KB` : `${corpusMB.toFixed(1)} MB`} ` +
+        `of corpus is roughly ${(1 / bytesPerParamSeen).toFixed(0)}× more parameters ` +
+        `than bytes the model will see. Training will memorize the corpus verbatim ` +
+        `and produce nothing original. Use ${recommendCorpus}.`,
     );
   } else if (bytesPerParamSeen < 1 && estParams > 1_000_000) {
     warnings.push(
       `Severely under-data: ~${bytesPerParamSeen.toFixed(2)} bytes per parameter ` +
-      `(${formatParams(estParams)} params against ${corpusMB < 1 ? `${(corpusBytes / 1024).toFixed(0)} KB` : `${corpusMB.toFixed(1)} MB`} ` +
-      `of corpus, Chinchilla floor ~20). Val loss will plateau very early; ` +
-      `most steps will be pure memorization. Use ${recommendCorpus}.`,
+        `(${formatParams(estParams)} params against ${corpusMB < 1 ? `${(corpusBytes / 1024).toFixed(0)} KB` : `${corpusMB.toFixed(1)} MB`} ` +
+        `of corpus, Chinchilla floor ~20). Val loss will plateau very early; ` +
+        `most steps will be pure memorization. Use ${recommendCorpus}.`,
     );
   } else if (bytesPerParamSeen < 5 && estParams > 500_000) {
     warnings.push(
       `Your corpus has only ~${bytesPerParamSeen.toFixed(1)} bytes per parameter ` +
-      `(Chinchilla floor is ~20). The model will plateau early; output will be ` +
-      `letter-level, not word-level. Pick ${recommendCorpus}.`,
+        `(Chinchilla floor is ~20). The model will plateau early; output will be ` +
+        `letter-level, not word-level. Pick ${recommendCorpus}.`,
     );
   }
   if (estParams > 5_000_000 && cfg.maxSteps < 2000) {
     warnings.push(
       `${(estParams / 1e6).toFixed(0)}M-param models typically need 3000+ steps to converge. ` +
-      `${cfg.maxSteps} steps will leave it undertrained — loss will look stuck.`,
+        `${cfg.maxSteps} steps will leave it undertrained — loss will look stuck.`,
     );
   }
   // Memory64 ceiling check: fp32 weights + Adam state ≈ 12 bytes/param. The
@@ -605,9 +673,9 @@ els.start.addEventListener("click", () => {
   if (!usingMemory64 && fp32BytesNeeded > 3.5e9) {
     window.alert(
       `This config needs ~${(fp32BytesNeeded / 1e9).toFixed(1)} GB of heap ` +
-      `(${formatParams(estParams)} fp32 params × 12 bytes for weights + AdamW state). ` +
-      `Your browser doesn't expose WebAssembly Memory64, so the heap is capped at ~4 GB ` +
-      `and this run would OOM. Use Chromium 133+ or Firefox 134+, or pick a smaller preset.`,
+        `(${formatParams(estParams)} fp32 params × 12 bytes for weights + AdamW state). ` +
+        `Your browser doesn't expose WebAssembly Memory64, so the heap is capped at ~4 GB ` +
+        `and this run would OOM. Use Chromium 133+ or Firefox 134+, or pick a smaller preset.`,
     );
     return;
   }
@@ -618,44 +686,53 @@ els.start.addEventListener("click", () => {
   // shows ~85 instead of 5.55. Tracked as #66's outstanding tail. Rather
   // than let the run silently produce garbage, block it with a clear
   // message until the proper SAB-view-aware C++ helpers land.
-  const heapNeeded = estParams * 12 + cfg.batchSize * cfg.ctx * 4 * (cfg.layers * 18 + 4); // weights+adam + per-step activations
+  const heapNeeded =
+    estParams * 12 + cfg.batchSize * cfg.ctx * 4 * (cfg.layers * 18 + 4); // weights+adam + per-step activations
   if (cfg.backend === "wasm" && heapNeeded > 240 * 1024 * 1024) {
     window.alert(
       `This config needs ~${(heapNeeded / 1024 / 1024).toFixed(0)} MB of WASM heap, ` +
-      `which forces memory.grow() during training. There's a known race in ` +
-      `the browser between memory.grow() and the pthread workers that produces ` +
-      `garbage gradients (loss stuck around 80–90 instead of dropping from ~5.55).\n\n` +
-      `Workarounds:\n` +
-      `  • Pick a smaller preset (XL or below) — those fit without growth.\n` +
-      `  • Switch backend to WebGPU — different code path, not affected.\n` +
-      `  • Run on the Python CLI for genuinely big models.\n\n` +
-      `Tracked as roadmap item #9 — fix needs C++ kernel changes to use ` +
-      `GROWABLE_HEAP_* helpers so workers re-resolve their heap views after growth.`,
+        `which forces memory.grow() during training. There's a known race in ` +
+        `the browser between memory.grow() and the pthread workers that produces ` +
+        `garbage gradients (loss stuck around 80–90 instead of dropping from ~5.55).\n\n` +
+        `Workarounds:\n` +
+        `  • Pick a smaller preset (XL or below) — those fit without growth.\n` +
+        `  • Switch backend to WebGPU — different code path, not affected.\n` +
+        `  • Run on the Python CLI for genuinely big models.\n\n` +
+        `Tracked as roadmap item #9 — fix needs C++ kernel changes to use ` +
+        `GROWABLE_HEAP_* helpers so workers re-resolve their heap views after growth.`,
     );
     return;
   }
   if (warnings.length > 0) {
     const ok = window.confirm(
       "⚠ Heads up — this config is likely to produce poor output:\n\n" +
-      warnings.map((w, i) => `${i + 1}. ${w}`).join("\n\n") +
-      "\n\nRun anyway?",
+        warnings.map((w, i) => `${i + 1}. ${w}`).join("\n\n") +
+        "\n\nRun anyway?",
     );
     if (!ok) return;
   }
 
   // For the big presets, also confirm the time cost.
   if (estParams > 5_000_000) {
-    const minutes = estimateTrainSeconds(
-      cfg.layers, cfg.dModel, cfg.ctx, cfg.batchSize, cfg.maxSteps, cachedCpuProbeMs,
-    ) / 60;
+    const minutes =
+      estimateTrainSeconds(
+        cfg.layers,
+        cfg.dModel,
+        cfg.ctx,
+        cfg.batchSize,
+        cfg.maxSteps,
+        cachedCpuProbeMs,
+      ) / 60;
     const onWebgpu = cfg.backend === "webgpu";
-    const wallClock = onWebgpu ? Math.max(2, Math.round(minutes / 7)) : Math.round(minutes);
+    const wallClock = onWebgpu
+      ? Math.max(2, Math.round(minutes / 7))
+      : Math.round(minutes);
     const backendLabel = onWebgpu ? "WebGPU" : "WASM (CPU)";
     const ok = window.confirm(
       `This is a ${(estParams / 1e6).toFixed(1)}M-param run on ${backendLabel}.\n\n` +
-      `Estimated time: ~${wallClock} minute${wallClock === 1 ? "" : "s"}.\n\n` +
-      `Your machine may feel slower while it's running — WebGPU shares the GPU with the system compositor.\n\n` +
-      `Continue?`,
+        `Estimated time: ~${wallClock} minute${wallClock === 1 ? "" : "s"}.\n\n` +
+        `Your machine may feel slower while it's running — WebGPU shares the GPU with the system compositor.\n\n` +
+        `Continue?`,
     );
     if (!ok) return;
   }
@@ -694,7 +771,10 @@ els.start.addEventListener("click", () => {
   setRunning(true);
   // Hide any prior run's live-sample card; the worker will reveal it on the
   // first progress_sample of the new run.
-  { const liveCard = document.getElementById("liveSampleCard"); if (liveCard) liveCard.hidden = true; }
+  {
+    const liveCard = document.getElementById("liveSampleCard");
+    if (liveCard) liveCard.hidden = true;
+  }
   // Keep Sample disabled DURING training: the live-sample card auto-samples
   // every ~8% of steps so the user can watch output evolve mid-run, and the
   // manual button is re-enabled after the worker's post-training warmup
@@ -711,7 +791,11 @@ els.start.addEventListener("click", () => {
     batch: lastConfig.batchSize,
     max_steps: lastConfig.maxSteps,
     corpus_bytes: text.length,
-    est_params: estimateParams(lastConfig.layers, lastConfig.dModel, lastConfig.ctx),
+    est_params: estimateParams(
+      lastConfig.layers,
+      lastConfig.dModel,
+      lastConfig.ctx,
+    ),
   });
   send({ type: "train", text, config: lastConfig });
 });
@@ -743,7 +827,10 @@ function setupModelMenu(): void {
   };
   const toggle = () => (menu.hidden ? open() : close());
 
-  btn.addEventListener("click", (e) => { e.stopPropagation(); toggle(); });
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggle();
+  });
   // Close on outside click or Esc.
   document.addEventListener("click", (e) => {
     if (!menu.hidden && !container.contains(e.target as Node)) close();
@@ -763,7 +850,9 @@ function setupModelMenu(): void {
 setupModelMenu();
 
 // --- copy sample output ---------------------------------------------------
-const copyBtn = document.getElementById("copyOutput") as HTMLButtonElement | null;
+const copyBtn = document.getElementById(
+  "copyOutput",
+) as HTMLButtonElement | null;
 if (copyBtn) {
   copyBtn.addEventListener("click", async () => {
     const text = els.output.textContent || "";
@@ -793,25 +882,37 @@ if (copyBtn) {
 // The default corpus is the bundled Shakespeare file (~1.1 MB); it is fetched
 // lazily by setupDefaultCorpus() at init time and cached in defaultCorpus.
 let defaultCorpus = "";
-function getResetCorpus(): string { return defaultCorpus; }
+function getResetCorpus(): string {
+  return defaultCorpus;
+}
 
 // Top-level reset button (next to Start/Pause/Stop) delegates to the same
 // handler as the Model ▾ → Reset menu item — single source of reset logic.
 {
   const topReset = document.getElementById("resetTop");
-  if (topReset) topReset.addEventListener("click", () => document.getElementById("reset")?.click());
+  if (topReset)
+    topReset.addEventListener("click", () =>
+      document.getElementById("reset")?.click(),
+    );
   // Persistent reset button in the screen-nav row (visible from both
   // Setup and Watch screens, so a user who's loaded a gallery model
   // can return to the gallery without hunting for the Model ▾ menu).
   const navReset = document.getElementById("resetNav");
-  if (navReset) navReset.addEventListener("click", () => document.getElementById("reset")?.click());
+  if (navReset)
+    navReset.addEventListener("click", () =>
+      document.getElementById("reset")?.click(),
+    );
 }
 
 byId<HTMLButtonElement>("reset").addEventListener("click", () => {
   const hasModel = latestState !== null;
   const corpusChanged = els.corpus.value !== getResetCorpus();
   if (hasModel || corpusChanged) {
-    if (!window.confirm("Reset everything? Your trained model, corpus changes, and config will be cleared.")) {
+    if (
+      !window.confirm(
+        "Reset everything? Your trained model, corpus changes, and config will be cleared.",
+      )
+    ) {
       return;
     }
   }
@@ -878,7 +979,10 @@ byId<HTMLButtonElement>("reset").addEventListener("click", () => {
 
   // Cancel any in-flight gallery download — user explicitly reset, so
   // we shouldn't finish loading a model they no longer want.
-  if (galleryFetchAbort) { galleryFetchAbort.abort(); galleryFetchAbort = null; }
+  if (galleryFetchAbort) {
+    galleryFetchAbort.abort();
+    galleryFetchAbort = null;
+  }
 
   // Navigate back to the Setup screen (Step 1) and bring back the
   // "Load from gallery" banner so the user has a clear next move.
@@ -901,7 +1005,10 @@ els.continueBtn.addEventListener("click", () => {
   setRunning(true);
   // Hide any prior run's live-sample card; the worker will reveal it on the
   // first progress_sample of the new run.
-  { const liveCard = document.getElementById("liveSampleCard"); if (liveCard) liveCard.hidden = true; }
+  {
+    const liveCard = document.getElementById("liveSampleCard");
+    if (liveCard) liveCard.hidden = true;
+  }
   setStatus(`continuing for ${extra} more steps…`);
   // Don't reset history/chart — the new progress points extend the same curve.
   // Extend the chart's x-axis to the new target step so points past the old
@@ -918,7 +1025,11 @@ els.continueBtn.addEventListener("click", () => {
 // worker comes back. Storing length only — we never track prompt contents.
 // `prompt` is also stashed so streaming chunks can be rendered with the
 // original prompt prefix.
-let lastSampleRequest: { promptBytes: number; temperature: number; prompt: string } | null = null;
+let lastSampleRequest: {
+  promptBytes: number;
+  temperature: number;
+  prompt: string;
+} | null = null;
 
 function finalizeSampleAnalytics(text: string): void {
   const last = history.length > 0 ? history[history.length - 1] : null;
@@ -983,7 +1094,9 @@ function renderLens(result: import("./types").LensResult): void {
   // Header — input bytes themselves, two-char-wide cells.
   const cell = (b: number): string => {
     if (b >= 0x20 && b <= 0x7e) return String.fromCharCode(b).padEnd(2);
-    return `<${b.toString(16).padStart(2, "0").toUpperCase()}>`.slice(0, 4).padEnd(2);
+    return `<${b.toString(16).padStart(2, "0").toUpperCase()}>`
+      .slice(0, 4)
+      .padEnd(2);
   };
   const lines: string[] = [];
   lines.push("input: " + tokens.map(cell).join(" "));
@@ -993,7 +1106,9 @@ function renderLens(result: import("./types").LensResult): void {
     lines.push(`L${String(layerIdx).padStart(2, "0")}:   ${row}`);
   });
   lines.push("");
-  lines.push("(top-1 token predicted at each layer · position. Top layer ≈ real output.)");
+  lines.push(
+    "(top-1 token predicted at each layer · position. Top layer ≈ real output.)",
+  );
   els.lensResult.textContent = lines.join("\n");
 }
 
@@ -1066,7 +1181,10 @@ els.runAblate.addEventListener("click", () => {
   els.ablateResult.hidden = false;
   els.ablateResult.textContent = `sampling with layer ${layer} ${target} zeroed…`;
   send({
-    type: "ablate", prompt: promptVal, tokens, temperature,
+    type: "ablate",
+    prompt: promptVal,
+    tokens,
+    temperature,
     ablations: [{ layer, target }],
   });
 });
@@ -1091,10 +1209,12 @@ els.runPatchZero.addEventListener("click", () => {
   els.runPatchZero.disabled = true;
   els.runPatchZero.textContent = "patching…";
   els.patchResult.hidden = false;
-  els.patchResult.textContent =
-    `sampling with residual zeroed at layer ${i.layer}, position ${i.position}…`;
+  els.patchResult.textContent = `sampling with residual zeroed at layer ${i.layer}, position ${i.position}…`;
   send({
-    type: "patch", prompt: i.promptVal, tokens: i.tokens, temperature: i.temperature,
+    type: "patch",
+    prompt: i.promptVal,
+    tokens: i.tokens,
+    temperature: i.temperature,
     patches: [{ layer: i.layer, position: i.position }],
   });
 });
@@ -1125,11 +1245,21 @@ els.runPatchSwap.addEventListener("click", () => {
     `capturing donor L${donorLayer}.${donorPosition} from "${donorPrompt}", ` +
     `then sampling with substitution at L${i.layer}.${i.position}…`;
   send({
-    type: "patch", prompt: i.promptVal, tokens: i.tokens, temperature: i.temperature,
-    patches: [{
-      layer: i.layer, position: i.position,
-      donor: { prompt: donorPrompt, layer: donorLayer, position: donorPosition },
-    }],
+    type: "patch",
+    prompt: i.promptVal,
+    tokens: i.tokens,
+    temperature: i.temperature,
+    patches: [
+      {
+        layer: i.layer,
+        position: i.position,
+        donor: {
+          prompt: donorPrompt,
+          layer: donorLayer,
+          position: donorPosition,
+        },
+      },
+    ],
   });
 });
 
@@ -1177,7 +1307,9 @@ function applyPreset(id: string): void {
   byId<HTMLInputElement>("layers").value = String(preset.layers);
   // Make sure the d_model exists in the <select>; if not, add an option.
   const dSel = byId<HTMLSelectElement>("dModel");
-  if (!Array.from(dSel.options).some((o) => o.value === String(preset.dModel))) {
+  if (
+    !Array.from(dSel.options).some((o) => o.value === String(preset.dModel))
+  ) {
     const opt = document.createElement("option");
     opt.value = String(preset.dModel);
     opt.textContent = String(preset.dModel);
@@ -1213,13 +1345,34 @@ function applyPreset(id: string): void {
  */
 function describeLoss(loss: number): { text: string; cls: string } {
   if (!Number.isFinite(loss) || loss <= 0) return { text: "", cls: "" };
-  if (loss > 4.0) return { text: "still mostly random — keep going", cls: "t-random" };
-  if (loss > 3.0) return { text: "letter pairs only · no words yet", cls: "t-letters" };
-  if (loss > 2.0) return { text: "letters + short n-grams · words won't form until <2.0", cls: "t-letters" };
-  if (loss > 1.5) return { text: "words forming · grammar won't kick in until <1.5", cls: "t-words" };
-  if (loss > 1.0) return { text: "grammar emerging · sentences start parsing", cls: "t-grammar" };
-  if (loss > 0.7) return { text: "fluent local grammar · watch for memorisation", cls: "t-grammar" };
-  return { text: "memorisation regime · trust val loss now", cls: "t-memorize" };
+  if (loss > 4.0)
+    return { text: "still mostly random — keep going", cls: "t-random" };
+  if (loss > 3.0)
+    return { text: "letter pairs only · no words yet", cls: "t-letters" };
+  if (loss > 2.0)
+    return {
+      text: "letters + short n-grams · words won't form until <2.0",
+      cls: "t-letters",
+    };
+  if (loss > 1.5)
+    return {
+      text: "words forming · grammar won't kick in until <1.5",
+      cls: "t-words",
+    };
+  if (loss > 1.0)
+    return {
+      text: "grammar emerging · sentences start parsing",
+      cls: "t-grammar",
+    };
+  if (loss > 0.7)
+    return {
+      text: "fluent local grammar · watch for memorisation",
+      cls: "t-grammar",
+    };
+  return {
+    text: "memorisation regime · trust val loss now",
+    cls: "t-memorize",
+  };
 }
 
 function updateLossMeaning(loss: number): void {
@@ -1235,11 +1388,12 @@ function refreshSampleNote(): void {
   const params = estimateParams(cfg.layers, cfg.dModel, cfg.ctx);
   const corpusBytes = els.corpus.value.length;
   const corpusKb = corpusBytes / 1024;
-  const corpusLabel = corpusBytes < 5000
-    ? `${corpusBytes} bytes`
-    : corpusBytes < 1_000_000
-      ? `${corpusKb.toFixed(0)} KB`
-      : `${(corpusBytes / 1_000_000).toFixed(1)} MB`;
+  const corpusLabel =
+    corpusBytes < 5000
+      ? `${corpusBytes} bytes`
+      : corpusBytes < 1_000_000
+        ? `${corpusKb.toFixed(0)} KB`
+        : `${(corpusBytes / 1_000_000).toFixed(1)} MB`;
 
   // Reasonable "params-per-byte-seen" thresholds. With ~6 epochs over the
   // corpus, total bytes seen ≈ corpusBytes × 6. The model can usefully exploit
@@ -1257,7 +1411,8 @@ function refreshSampleNote(): void {
   // — what they're seeing is the model that was already trained, somewhere
   // else. Lead with the measured outcome; demote the regime advice to a
   // footnote so it doesn't read as a critique of the loaded model.
-  const isLoadedCheckpoint = haveTrained && corpusBytes < 5000 && params > 100_000;
+  const isLoadedCheckpoint =
+    haveTrained && corpusBytes < 5000 && params > 100_000;
 
   if (isLoadedCheckpoint) {
     regime = "Pre-trained checkpoint loaded";
@@ -1286,15 +1441,21 @@ function refreshSampleNote(): void {
   if (haveTrained && finalTrain != null) {
     const bits = (finalTrain / Math.log(2)).toFixed(2);
     const ppx = Math.exp(finalTrain).toFixed(1);
-    const valBit = finalVal != null
-      ? `, val ${(finalVal / Math.log(2)).toFixed(2)} bits`
-      : "";
+    const valBit =
+      finalVal != null
+        ? `, val ${(finalVal / Math.log(2)).toFixed(2)} bits`
+        : "";
     let interpret = "";
     if (finalTrain > 3.0) interpret = "Still in the 'letter pairs' regime.";
-    else if (finalTrain > 2.0) interpret = "Letter frequencies + short n-grams learned.";
-    else if (finalTrain > 1.5) interpret = "Word shapes emerging; grammar still rough.";
-    else if (finalTrain > 1.0) interpret = "Local grammar should be visible. Long-range still random.";
-    else interpret = "Substantial memorisation — train ↔ val gap is the honest signal now.";
+    else if (finalTrain > 2.0)
+      interpret = "Letter frequencies + short n-grams learned.";
+    else if (finalTrain > 1.5)
+      interpret = "Word shapes emerging; grammar still rough.";
+    else if (finalTrain > 1.0)
+      interpret = "Local grammar should be visible. Long-range still random.";
+    else
+      interpret =
+        "Substantial memorisation — train ↔ val gap is the honest signal now.";
     outcomeLine = `<br><br><strong>This run:</strong> ${bits} bits/byte${valBit} · perplexity ${ppx}. ${interpret}`;
   }
 
@@ -1312,16 +1473,21 @@ function refreshSampleNote(): void {
 function refreshEstimate(extraNote = ""): void {
   const cfg = readConfig();
   const params = estimateParams(cfg.layers, cfg.dModel, cfg.ctx);
-  els.estParams.textContent =
-    `${formatParams(params)} params · ${cfg.layers}L · d_model ${cfg.dModel} · ctx ${cfg.ctx} · ${cfg.heads} heads`;
+  els.estParams.textContent = `${formatParams(params)} params · ${cfg.layers}L · d_model ${cfg.dModel} · ctx ${cfg.ctx} · ${cfg.heads} heads`;
   if (cfg.backend === "webgpu") {
     els.estTime.textContent = "depends on your GPU";
     els.estNote.textContent =
-      extraNote || "WebGPU runs aren't pre-flight benchmarked here — start the run to see real tokens/sec.";
+      extraNote ||
+      "WebGPU runs aren't pre-flight benchmarked here — start the run to see real tokens/sec.";
     return;
   }
   const secs = estimateTrainSeconds(
-    cfg.layers, cfg.dModel, cfg.ctx, cfg.batchSize, cfg.maxSteps, cachedCpuProbeMs,
+    cfg.layers,
+    cfg.dModel,
+    cfg.ctx,
+    cfg.batchSize,
+    cfg.maxSteps,
+    cachedCpuProbeMs,
   );
   els.estTime.textContent = `~${formatDuration(secs)} on this machine (WASM SIMD, single-threaded)`;
   els.estNote.textContent = extraNote;
@@ -1329,7 +1495,9 @@ function refreshEstimate(extraNote = ""): void {
 
 els.sizePreset.addEventListener("change", () => {
   const id = els.sizePreset.value;
-  const hp = document.getElementById("hyperparamDetails") as HTMLDetailsElement | null;
+  const hp = document.getElementById(
+    "hyperparamDetails",
+  ) as HTMLDetailsElement | null;
   if (id === "custom") {
     if (hp) hp.open = true;
     refreshEstimate("");
@@ -1363,17 +1531,40 @@ interface PersonaliseInput {
 }
 
 function classifyCpuSpeed(probeMs: number): { tier: string; verdict: string } {
-  if (probeMs < 8) return { tier: "very fast", verdict: "near the in-browser ceiling — try Large or XL." };
-  if (probeMs < 18) return { tier: "fast", verdict: "Medium runs in a few minutes; Large is feasible if patient." };
-  if (probeMs < 40) return { tier: "comfortable", verdict: "Small (~360k) is the sweet spot — under a minute." };
-  return { tier: "modest", verdict: "stick to Tiny (~70k); larger sizes will be slow." };
+  if (probeMs < 8)
+    return {
+      tier: "very fast",
+      verdict: "near the in-browser ceiling — try Large or XL.",
+    };
+  if (probeMs < 18)
+    return {
+      tier: "fast",
+      verdict: "Medium runs in a few minutes; Large is feasible if patient.",
+    };
+  if (probeMs < 40)
+    return {
+      tier: "comfortable",
+      verdict: "Small (~360k) is the sweet spot — under a minute.",
+    };
+  return {
+    tier: "modest",
+    verdict: "stick to Tiny (~70k); larger sizes will be slow.",
+  };
 }
 
-function renderPersonalisation({ caps, hw, rec, browser }: PersonaliseInput): void {
+function renderPersonalisation({
+  caps,
+  hw,
+  rec,
+  browser,
+}: PersonaliseInput): void {
   const cpu = classifyCpuSpeed(hw.cpuProbeMs);
   const tps = 1.7e10 / (hw.cpuProbeMs * rec.approxParams);
   const recRunSec = (rec.maxSteps * 16 * rec.ctx) / Math.max(tps, 1);
-  const recRunStr = recRunSec < 90 ? `~${Math.round(recRunSec)} s` : `~${(recRunSec / 60).toFixed(1)} min`;
+  const recRunStr =
+    recRunSec < 90
+      ? `~${Math.round(recRunSec)} s`
+      : `~${(recRunSec / 60).toFixed(1)} min`;
 
   const ramLine = hw.deviceMemoryGB
     ? `Browser reports ${hw.deviceMemoryGB >= 8 ? "≥" : "~"}${hw.deviceMemoryGB} GB RAM available — that's a privacy-capped value, your real RAM may be higher. Either way, plenty for in-browser training; the wall here is CPU speed, not memory.`
@@ -1391,7 +1582,9 @@ function renderPersonalisation({ caps, hw, rec, browser }: PersonaliseInput): vo
     ? `<strong>Cross-origin isolated: yes.</strong> Your page is set up for SharedArrayBuffer — meaning if multi-threaded WASM ships, your browser is already ready to run it.`
     : `<strong>Cross-origin isolated: no.</strong> The deployment isn't serving the COOP/COEP headers SharedArrayBuffer needs. Single-threaded only — for now.`;
 
-  const browserNote = browser.note ? `${browser.name} — ${browser.note}` : browser.name;
+  const browserNote = browser.note
+    ? `${browser.name} — ${browser.note}`
+    : browser.name;
 
   const fastestLeverHtml = !caps.webgpu
     ? `your biggest open speed lever is <strong>enabling WebGPU</strong> (upgrade browser or try Chrome / Safari 18+) — potential 3–10×.`
@@ -1575,11 +1768,12 @@ function encodeModelFile(config: RunConfig, state: ArrayBuffer): Blob {
       const N = history.length;
       const cap = 512;
       if (N === 0) return [];
-      if (N <= cap) return history.map((p) => ({
-        step: p.step,
-        train: +p.trainLoss.toFixed(4),
-        val: p.valLoss != null ? +p.valLoss.toFixed(4) : null,
-      }));
+      if (N <= cap)
+        return history.map((p) => ({
+          step: p.step,
+          train: +p.trainLoss.toFixed(4),
+          val: p.valLoss != null ? +p.valLoss.toFixed(4) : null,
+        }));
       const stride = Math.ceil(N / cap);
       const out: { step: number; train: number; val: number | null }[] = [];
       for (let i = 0; i < N; i += stride) {
@@ -1602,9 +1796,13 @@ function encodeModelFile(config: RunConfig, state: ArrayBuffer): Blob {
       }
       return out;
     })(),
-    finalLoss: final ? { step: final.step, train: final.trainLoss, val: final.valLoss ?? null } : null,
+    finalLoss: final
+      ? { step: final.step, train: final.trainLoss, val: final.valLoss ?? null }
+      : null,
     sample: lastSampleText.slice(0, 320),
-    bestVal: Number.isFinite(bestVal) ? { loss: bestVal, step: bestValStep } : null,
+    bestVal: Number.isFinite(bestVal)
+      ? { loss: bestVal, step: bestValStep }
+      : null,
     project: "https://github.com/PostTrainLLM/posttrainllm",
   };
   const headerJson = JSON.stringify(headerObj);
@@ -1614,21 +1812,35 @@ function encodeModelFile(config: RunConfig, state: ArrayBuffer): Blob {
   new Uint8Array(prefix, 0, 4).set(new TextEncoder().encode(MODEL_MAGIC));
   view.setUint32(4, MODEL_VERSION, true);
   view.setUint32(8, headerBytes.byteLength, true);
-  return new Blob([prefix, headerBytes, state], { type: "application/octet-stream" });
+  return new Blob([prefix, headerBytes, state], {
+    type: "application/octet-stream",
+  });
 }
 
-async function decodeModelFile(file: File): Promise<{ config: RunConfig; state: ArrayBuffer; header: Record<string, unknown> }> {
+async function decodeModelFile(file: File): Promise<{
+  config: RunConfig;
+  state: ArrayBuffer;
+  header: Record<string, unknown>;
+}> {
   const buf = await file.arrayBuffer();
-  if (buf.byteLength < 12) throw new Error("file too small to be a .tinygpt model");
+  if (buf.byteLength < 12)
+    throw new Error("file too small to be a .tinygpt model");
   const magic = new TextDecoder().decode(new Uint8Array(buf, 0, 4));
-  if (magic !== MODEL_MAGIC) throw new Error("not a .tinygpt model file (bad magic)");
+  if (magic !== MODEL_MAGIC)
+    throw new Error("not a .tinygpt model file (bad magic)");
   const view = new DataView(buf);
   const version = view.getUint32(4, true);
-  if (version !== 1 && version !== 2) throw new Error(`unsupported model version ${version}`);
+  if (version !== 1 && version !== 2)
+    throw new Error(`unsupported model version ${version}`);
   const headerLen = view.getUint32(8, true);
-  if (12 + headerLen > buf.byteLength) throw new Error("model header is malformed");
-  const headerJson = new TextDecoder().decode(new Uint8Array(buf, 12, headerLen));
-  const header = JSON.parse(headerJson) as Record<string, unknown> & { config: RunConfig };
+  if (12 + headerLen > buf.byteLength)
+    throw new Error("model header is malformed");
+  const headerJson = new TextDecoder().decode(
+    new Uint8Array(buf, 12, headerLen),
+  );
+  const header = JSON.parse(headerJson) as Record<string, unknown> & {
+    config: RunConfig;
+  };
   let state = buf.slice(12 + headerLen);
 
   // Compact format: weights-only fp16 + no optimizer state. Expand back to the
@@ -1636,11 +1848,17 @@ async function decodeModelFile(file: File): Promise<{ config: RunConfig; state: 
   // doesn't need to know about quantization or layout variants. Bumps the
   // state by ~6× (fp16 → 3 × fp32) but stays in JS memory, never goes through
   // the network — the FILE on disk is still ~10× smaller than the canonical.
-  if (header.weightDtype === "fp16" && header.includesOptimizerState === false) {
+  if (
+    header.weightDtype === "fp16" &&
+    header.includesOptimizerState === false
+  ) {
     state = expandFp16WeightsOnly(state, header.config);
-    header.weightDtype = "fp32";              // signal the canonical layout to downstream consumers
-    header.includesOptimizerState = true;     // moments are zero-filled, but the LAYOUT now matches
-  } else if (header.weightDtype === "int4" && header.includesOptimizerState === false) {
+    header.weightDtype = "fp32"; // signal the canonical layout to downstream consumers
+    header.includesOptimizerState = true; // moments are zero-filled, but the LAYOUT now matches
+  } else if (
+    header.weightDtype === "int4" &&
+    header.includesOptimizerState === false
+  ) {
     // Storage-side quantization: dequantize block-wise int4 → fp32 in JS
     // before handing off to the WASM importer. The WASM/native paths never
     // see the int4 layout — it's purely a download-size reduction. The
@@ -1659,14 +1877,20 @@ async function decodeModelFile(file: File): Promise<{ config: RunConfig; state: 
  *  [step(int32), then per-param [w_fp32, m=0, v=0]] layout the WASM
  *  importer expects. Used to load the small (~19 MB) variant of a Huge
  *  checkpoint shipped as the demo model. */
-function expandFp16WeightsOnly(stateFp16: ArrayBuffer, config: RunConfig): ArrayBuffer {
+function expandFp16WeightsOnly(
+  stateFp16: ArrayBuffer,
+  config: RunConfig,
+): ArrayBuffer {
   const manifest = buildManifest(config);
-  const totalFloats = manifest.reduce((acc, t) => acc + t.shape.reduce((a, b) => a * b, 1), 0);
+  const totalFloats = manifest.reduce(
+    (acc, t) => acc + t.shape.reduce((a, b) => a * b, 1),
+    0,
+  );
   const expectedFp16Bytes = 4 + totalFloats * 2; // 4-byte step prefix + N × 2 bytes
   if (stateFp16.byteLength !== expectedFp16Bytes) {
     throw new Error(
       `fp16 state size mismatch: got ${stateFp16.byteLength} bytes, expected ${expectedFp16Bytes} ` +
-      `(int32 step + ${totalFloats} fp16 weights)`,
+        `(int32 step + ${totalFloats} fp16 weights)`,
     );
   }
   // Output: int32 step + 3 × fp32 per param.
@@ -1728,15 +1952,22 @@ function expandInt4WeightsOnly(
   if (state.byteLength !== expectedBytes) {
     throw new Error(
       `int4 state size mismatch: got ${state.byteLength} bytes, expected ${expectedBytes} ` +
-      `(step + ${totalScalars} fp16 scales + ${totalPackedBytes} packed bytes)`,
+        `(step + ${totalScalars} fp16 scales + ${totalPackedBytes} packed bytes)`,
     );
   }
   const scalesView = new DataView(state, 4, totalScalars * 2);
-  const packedView = new Uint8Array(state, 4 + totalScalars * 2, totalPackedBytes);
+  const packedView = new Uint8Array(
+    state,
+    4 + totalScalars * 2,
+    totalPackedBytes,
+  );
 
   // Output is the canonical layout: int32 step + 3 × fp32 per param.
   // (Adam m + v zero-fill — same as the fp16 expander above.)
-  const totalFloats = manifest.reduce((acc, t) => acc + t.shape.reduce((a, b) => a * b, 1), 0);
+  const totalFloats = manifest.reduce(
+    (acc, t) => acc + t.shape.reduce((a, b) => a * b, 1),
+    0,
+  );
   const outBytes = 4 + totalFloats * 3 * 4;
   const out = new ArrayBuffer(outBytes);
   new Int32Array(out, 0, 1)[0] = new Int32Array(state, 0, 1)[0];
@@ -1754,7 +1985,9 @@ function expandInt4WeightsOnly(
     const scaleStartByte = scaleIdx * 2;
     const blockScales = new Float32Array(nBlocks);
     for (let b = 0; b < nBlocks; b++) {
-      blockScales[b] = fp16ToFp32(scalesView.getUint16(scaleStartByte + b * 2, true));
+      blockScales[b] = fp16ToFp32(
+        scalesView.getUint16(scaleStartByte + b * 2, true),
+      );
     }
     // Walk packed bytes for this tensor. Block i lives at
     // [packedIdx + i*(blockSize/2), …]; nibble j-of-2 is low/high.
@@ -1763,12 +1996,12 @@ function expandInt4WeightsOnly(
       const b = (i / blockSize) | 0;
       const inBlock = i - b * blockSize;
       const byte = packedView[packedIdx + b * halfBlock + (inBlock >>> 1)];
-      const nibble = (inBlock & 1) === 0 ? (byte & 0xf) : (byte >>> 4) & 0xf;
+      const nibble = (inBlock & 1) === 0 ? byte & 0xf : (byte >>> 4) & 0xf;
       f32[outFloat + i] = (nibble - 8) * blockScales[b];
     }
     scaleIdx += nBlocks;
     packedIdx += nBlocks * halfBlock;
-    outFloat += n * 3;  // skip past w + m + v slots; m, v stay zero
+    outFloat += n * 3; // skip past w + m + v slots; m, v stay zero
   }
   return out;
 }
@@ -1778,7 +2011,7 @@ function expandInt4WeightsOnly(
  *  so the loop in expandFp16WeightsOnly is the hot path. */
 function fp16ToFp32(h: number): number {
   const sign = (h >> 15) & 0x1;
-  const exp  = (h >> 10) & 0x1f;
+  const exp = (h >> 10) & 0x1f;
   const frac = h & 0x3ff;
   if (exp === 0) {
     // Subnormal or zero.
@@ -1815,9 +2048,15 @@ els.downloadSafetensors.addEventListener("click", () => {
     const sizeKb = (blob.size / 1024).toFixed(0);
     const filename = `posttrainllm-${latestStateConfig.layers}L-d${latestStateConfig.dModel}-ctx${latestStateConfig.ctx}.safetensors`;
     triggerDownload(blob, filename);
-    setModelStatus(`✓ saved ${filename} (${sizeKb} KB) — load in Python with safetensors.numpy.load_file`, "ok");
+    setModelStatus(
+      `✓ saved ${filename} (${sizeKb} KB) — load in Python with safetensors.numpy.load_file`,
+      "ok",
+    );
   } catch (err) {
-    setModelStatus(`couldn't export: ${err instanceof Error ? err.message : String(err)}`, "error");
+    setModelStatus(
+      `couldn't export: ${err instanceof Error ? err.message : String(err)}`,
+      "error",
+    );
   }
 });
 
@@ -1891,7 +2130,11 @@ function encodeSafetensorsFile(config: RunConfig, state: ArrayBuffer): Blob {
   new DataView(prefix).setBigUint64(0, BigInt(headerBytes.byteLength), true);
 
   return new Blob(
-    [prefix, headerBytes as BlobPart, ...tensors.map((t) => t.bytes as BlobPart)],
+    [
+      prefix,
+      headerBytes as BlobPart,
+      ...tensors.map((t) => t.bytes as BlobPart),
+    ],
     { type: "application/octet-stream" },
   );
 }
@@ -1909,11 +2152,21 @@ async function loadModelFromFile(file: File, label = file.name): Promise<void> {
     };
     if (meta.finalLoss) {
       const trainTxt = meta.finalLoss.train.toFixed(3);
-      const valTxt = meta.finalLoss.val != null ? `, val ${meta.finalLoss.val.toFixed(3)}` : "";
-      setModelStatus(`✓ ${label} · final loss ${trainTxt}${valTxt} @ step ${meta.finalLoss.step}`, "ok");
+      const valTxt =
+        meta.finalLoss.val != null
+          ? `, val ${meta.finalLoss.val.toFixed(3)}`
+          : "";
+      setModelStatus(
+        `✓ ${label} · final loss ${trainTxt}${valTxt} @ step ${meta.finalLoss.step}`,
+        "ok",
+      );
     }
     if (meta.lossHistory && meta.lossHistory.length > 0) {
-      history = meta.lossHistory.map((p) => ({ step: p.step, trainLoss: p.train, valLoss: p.val ?? undefined }));
+      history = meta.lossHistory.map((p) => ({
+        step: p.step,
+        trainLoss: p.train,
+        valLoss: p.val ?? undefined,
+      }));
       chart.reset();
       // Span the chart to the last step of the loaded run so the line fills
       // the plot rather than leaving empty space on the right.
@@ -1935,7 +2188,10 @@ async function loadModelFromFile(file: File, label = file.name): Promise<void> {
       if (last.valLoss != null) {
         els.stVal.textContent = last.valLoss.toFixed(4);
         const best = history.reduce(
-          (b, p) => (p.valLoss != null && p.valLoss < b.loss ? { loss: p.valLoss, step: p.step } : b),
+          (b, p) =>
+            p.valLoss != null && p.valLoss < b.loss
+              ? { loss: p.valLoss, step: p.step }
+              : b,
           { loss: Infinity, step: 0 },
         );
         if (Number.isFinite(best.loss)) {
@@ -1955,7 +2211,9 @@ async function loadModelFromFile(file: File, label = file.name): Promise<void> {
     }
     byId<HTMLInputElement>("layers").value = String(config.layers);
     const dSel = byId<HTMLSelectElement>("dModel");
-    if (!Array.from(dSel.options).some((o) => o.value === String(config.dModel))) {
+    if (
+      !Array.from(dSel.options).some((o) => o.value === String(config.dModel))
+    ) {
       const opt = document.createElement("option");
       opt.value = String(config.dModel);
       opt.textContent = String(config.dModel);
@@ -1975,7 +2233,10 @@ async function loadModelFromFile(file: File, label = file.name): Promise<void> {
     els.downloadModel.disabled = false;
     els.downloadSafetensors.disabled = false;
     els.continueBtn.disabled = !meta.corpus;
-    worker.postMessage({ type: "restore", state, config, corpus: meta.corpus }, [state]);
+    worker.postMessage(
+      { type: "restore", state, config, corpus: meta.corpus },
+      [state],
+    );
     if (!els.modelStatus.classList.contains("ok")) {
       setModelStatus(
         meta.corpus
@@ -1985,7 +2246,10 @@ async function loadModelFromFile(file: File, label = file.name): Promise<void> {
       );
     }
   } catch (err) {
-    setModelStatus(`couldn't load: ${err instanceof Error ? err.message : String(err)}`, "error");
+    setModelStatus(
+      `couldn't load: ${err instanceof Error ? err.message : String(err)}`,
+      "error",
+    );
     throw err;
   }
 }
@@ -1995,12 +2259,22 @@ els.uploadModel.addEventListener("change", async () => {
   if (!file) return;
   try {
     await loadModelFromFile(file);
-  } catch { /* status already set */ }
+  } catch {
+    /* status already set */
+  }
   els.uploadModel.value = "";
 });
 
 // --- share & restore from URL --------------------------------------------
-const SHARE_KEYS = ["layers", "dModel", "ctx", "maxSteps", "batch", "lr", "backend"] as const;
+const SHARE_KEYS = [
+  "layers",
+  "dModel",
+  "ctx",
+  "maxSteps",
+  "batch",
+  "lr",
+  "backend",
+] as const;
 
 function buildShareUrl(): string {
   const params = new URLSearchParams();
@@ -2010,7 +2284,8 @@ function buildShareUrl(): string {
   }
   // Share the dataset choice too — but never the corpus text itself (URL-limit
   // hostile and often private). Pull from whichever data-source tab is active.
-  const activeTab = document.querySelector<HTMLButtonElement>(".tab-btn.active")?.dataset.tab;
+  const activeTab =
+    document.querySelector<HTMLButtonElement>(".tab-btn.active")?.dataset.tab;
   if (activeTab === "custom") {
     const ds = els.hfCustomDataset.value.trim();
     if (ds) {
@@ -2073,7 +2348,9 @@ function showToast(message: string): void {
   els.shareToast.textContent = message;
   els.shareToast.hidden = false;
   if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => { els.shareToast.hidden = true; }, 2500);
+  toastTimer = window.setTimeout(() => {
+    els.shareToast.hidden = true;
+  }, 2500);
 }
 
 els.shareBtn.addEventListener("click", async () => {
@@ -2128,7 +2405,12 @@ els.notify.addEventListener("change", async () => {
 });
 
 function fireDoneNotification(message: string): void {
-  if (!els.notify.checked || !notificationsSupported() || Notification.permission !== "granted") return;
+  if (
+    !els.notify.checked ||
+    !notificationsSupported() ||
+    Notification.permission !== "granted"
+  )
+    return;
   // Always fire — the user explicitly opted in. Skipping when the tab is
   // focused turned out to be surprising more than helpful.
   try {
@@ -2155,8 +2437,13 @@ els.bench.addEventListener("click", async () => {
     els.benchOut.textContent = "loading the WASM matmul kernel…";
     const backend = await TinyGptBackend.load();
     els.benchOut.textContent = "running 384×384 parity check (WASM vs WebGPU)…";
-    const ref = (a: Float32Array, b: Float32Array, M: number, K: number, N: number) =>
-      backend.matmul(a, b, M, K, N);
+    const ref = (
+      a: Float32Array,
+      b: Float32Array,
+      M: number,
+      K: number,
+      N: number,
+    ) => backend.matmul(a, b, M, K, N);
     const r = await benchmarkMatmul(device, ref, 384);
 
     // Sweep three matmul variants across realistic sizes. Inputs upload
@@ -2166,20 +2453,31 @@ els.bench.addEventListener("click", async () => {
     els.benchOut.textContent = "running matmul kernel sweep on WebGPU (~10 s)…";
     let sweepLine = "";
     try {
-      const sweep = await benchmarkMatmulF16Sweep(device, ref, [256, 512, 1024, 2048]);
+      const sweep = await benchmarkMatmulF16Sweep(
+        device,
+        ref,
+        [256, 512, 1024, 2048],
+      );
       const rows = sweep.map((s) => {
-        const par = s.size <= 512
-          ? (s.parityOk ? "parity OK" : "PARITY FAIL")
-          : "(par skipped)";
-        return `  size ${s.size.toString().padStart(4)}  ` +
+        const par =
+          s.size <= 512
+            ? s.parityOk
+              ? "parity OK"
+              : "PARITY FAIL"
+            : "(par skipped)";
+        return (
+          `  size ${s.size.toString().padStart(4)}  ` +
           `naive ${s.f32GpuMs.toFixed(2)}  ` +
           `tiled ${s.tiledGpuMs.toFixed(2)}  ` +
           `blocked4 ${s.blockedGpuMs.toFixed(2)}  ` +
           `vec4 ${s.blockedVec4GpuMs.toFixed(2)}  ` +
           `f16 ${s.f16GpuMs.toFixed(2)} ms  ` +
-          `→ best=${s.bestVariant} @ ${s.bestSpeedup.toFixed(2)}×  ${par}`;
+          `→ best=${s.bestVariant} @ ${s.bestSpeedup.toFixed(2)}×  ${par}`
+        );
       });
-      sweepLine = "\n\nWebGPU matmul kernel sweep (upload + pack outside timed loop):\n" + rows.join("\n");
+      sweepLine =
+        "\n\nWebGPU matmul kernel sweep (upload + pack outside timed loop):\n" +
+        rows.join("\n");
     } catch (e) {
       sweepLine = `\n\nmatmul sweep failed: ${e instanceof Error ? e.message : String(e)}`;
     }
@@ -2187,7 +2485,8 @@ els.bench.addEventListener("click", async () => {
       `${r.size}×${r.size} parity — ${r.parityOk ? "parity OK ✓" : "PARITY FAILED"} ` +
       `(max abs error ${r.maxAbsError.toExponential(2)})\n` +
       `WASM ${r.refMs.toFixed(1)} ms · WebGPU ${r.gpuMs.toFixed(1)} ms · ` +
-      `${r.speedup.toFixed(1)}× speed-up` + sweepLine;
+      `${r.speedup.toFixed(1)}× speed-up` +
+      sweepLine;
   } catch (err) {
     els.benchOut.textContent = `benchmark error: ${
       err instanceof Error ? err.message : String(err)
@@ -2213,16 +2512,24 @@ let lastHfEntry: import("./datasets").HfDataset | null = null;
 const HF_TOKEN_KEY = "posttrainllm.hf.token";
 
 function getStoredHfToken(): string {
-  try { return localStorage.getItem(HF_TOKEN_KEY) ?? ""; } catch { return ""; }
+  try {
+    return localStorage.getItem(HF_TOKEN_KEY) ?? "";
+  } catch {
+    return "";
+  }
 }
 function setStoredHfToken(value: string): void {
   try {
     if (value) localStorage.setItem(HF_TOKEN_KEY, value);
     else localStorage.removeItem(HF_TOKEN_KEY);
-  } catch { /* private mode */ }
+  } catch {
+    /* private mode */
+  }
 }
 
-async function loadHfDataset(entry: import("./datasets").HfDataset): Promise<void> {
+async function loadHfDataset(
+  entry: import("./datasets").HfDataset,
+): Promise<void> {
   lastHfEntry = entry;
   const callToken = ++hfLoadToken;
   els.hfDataset.disabled = true;
@@ -2231,20 +2538,33 @@ async function loadHfDataset(entry: import("./datasets").HfDataset): Promise<voi
   const hfToken = getStoredHfToken();
   const maxChars = parseInt(els.fetchSize.value, 10) || 2_000_000;
   try {
-    const text = await fetchHfText(entry, maxChars, (chars) => {
-      if (callToken !== hfLoadToken) return;
-      setDataLoadStatus(`fetching ${entry.label}… ${(chars / 1024).toFixed(0)} KB / ${(maxChars / 1024).toFixed(0)} KB`);
-    }, hfToken || undefined);
+    const text = await fetchHfText(
+      entry,
+      maxChars,
+      (chars) => {
+        if (callToken !== hfLoadToken) return;
+        setDataLoadStatus(
+          `fetching ${entry.label}… ${(chars / 1024).toFixed(0)} KB / ${(maxChars / 1024).toFixed(0)} KB`,
+        );
+      },
+      hfToken || undefined,
+    );
     if (callToken !== hfLoadToken) return;
     els.corpus.value = text;
-    setDataLoadStatus(`✓ loaded ${Math.round(text.length / 1000)} KB from ${entry.label} · ${entry.license}`, "ok");
+    setDataLoadStatus(
+      `✓ loaded ${Math.round(text.length / 1000)} KB from ${entry.label} · ${entry.license}`,
+      "ok",
+    );
     els.hfTokenRow.hidden = !hfToken;
     refreshSampleNote();
   } catch (err) {
     if (callToken !== hfLoadToken) return;
     const message = err instanceof Error ? err.message : String(err);
     setDataLoadStatus(`✗ ${message}`, "error");
-    if (err instanceof HfFetchError && (err.kind === "auth" || err.kind === "ratelimit")) {
+    if (
+      err instanceof HfFetchError &&
+      (err.kind === "auth" || err.kind === "ratelimit")
+    ) {
       els.hfTokenRow.hidden = false;
       els.hfToken.focus();
     }
@@ -2345,16 +2665,24 @@ els.uploadCorpus.addEventListener("change", async () => {
   setDataLoadStatus(`reading ${file.name}…`);
   try {
     if (file.size > 5 * 1024 * 1024) {
-      throw new Error("file too big (max 5 MB) — browser training is bounded by corpus size anyway");
+      throw new Error(
+        "file too big (max 5 MB) — browser training is bounded by corpus size anyway",
+      );
     }
     const text = await file.text();
     els.corpus.value = text;
     els.hfDataset.value = "";
     els.hfCustom.hidden = true;
-    setDataLoadStatus(`✓ loaded ${(file.size / 1024).toFixed(0)} KB from ${file.name}`, "ok");
+    setDataLoadStatus(
+      `✓ loaded ${(file.size / 1024).toFixed(0)} KB from ${file.name}`,
+      "ok",
+    );
     refreshSampleNote();
   } catch (err) {
-    setDataLoadStatus(`couldn't read: ${err instanceof Error ? err.message : String(err)}`, "error");
+    setDataLoadStatus(
+      `couldn't read: ${err instanceof Error ? err.message : String(err)}`,
+      "error",
+    );
   } finally {
     els.uploadCorpus.value = "";
   }
@@ -2370,7 +2698,10 @@ els.uploadCorpus.addEventListener("change", async () => {
 // "quantum mechanics" into ~1-5 MB of real prose.
 els.wikiLoad.addEventListener("click", () => void loadWikipediaTopic());
 els.wikiTitle.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") { e.preventDefault(); void loadWikipediaTopic(); }
+  if (e.key === "Enter") {
+    e.preventDefault();
+    void loadWikipediaTopic();
+  }
 });
 
 async function loadWikipediaTopic(): Promise<void> {
@@ -2385,7 +2716,9 @@ async function loadWikipediaTopic(): Promise<void> {
   // Accept a single-article URL too — extract the slug if present.
   const urlMatch = /\/wiki\/([^?#]+)/.exec(raw);
   const isSingleArticleUrl = !!urlMatch;
-  const seedTopic = isSingleArticleUrl ? decodeURIComponent(urlMatch![1]).replace(/_/g, " ") : raw;
+  const seedTopic = isSingleArticleUrl
+    ? decodeURIComponent(urlMatch![1]).replace(/_/g, " ")
+    : raw;
 
   try {
     setDataLoadStatus(`searching Wikipedia for "${seedTopic}"…`);
@@ -2393,15 +2726,21 @@ async function loadWikipediaTopic(): Promise<void> {
       `https://en.wikipedia.org/w/api.php?action=query&list=search` +
       `&srsearch=${encodeURIComponent(seedTopic)}&srlimit=50&srprop=&format=json&origin=*`;
     const searchResp = await fetch(searchUrl);
-    if (!searchResp.ok) throw new Error(`Wikipedia search returned HTTP ${searchResp.status}`);
-    const searchJson = await searchResp.json() as { query?: { search?: { title: string }[] } };
+    if (!searchResp.ok)
+      throw new Error(`Wikipedia search returned HTTP ${searchResp.status}`);
+    const searchJson = (await searchResp.json()) as {
+      query?: { search?: { title: string }[] };
+    };
     const titles = (searchJson.query?.search ?? []).map((s) => s.title);
-    if (titles.length === 0) throw new Error(`no Wikipedia articles found for "${seedTopic}"`);
+    if (titles.length === 0)
+      throw new Error(`no Wikipedia articles found for "${seedTopic}"`);
 
     // If user pasted a single-article URL, lead with that exact title.
     if (isSingleArticleUrl) {
       const targeted = decodeURIComponent(urlMatch![1]).replace(/_/g, " ");
-      const without = titles.filter((t) => t.toLowerCase() !== targeted.toLowerCase());
+      const without = titles.filter(
+        (t) => t.toLowerCase() !== targeted.toLowerCase(),
+      );
       titles.length = 0;
       titles.push(targeted, ...without);
     }
@@ -2413,28 +2752,42 @@ async function loadWikipediaTopic(): Promise<void> {
       if (chars >= maxChars) break;
       try {
         const slug = title.replace(/\s+/g, "_");
-        const articleUrl =
-          `https://en.wikipedia.org/api/rest_v1/page/plain/${encodeURIComponent(slug)}`;
-        const articleResp = await fetch(articleUrl, { headers: { Accept: "text/plain" } });
+        const articleUrl = `https://en.wikipedia.org/api/rest_v1/page/plain/${encodeURIComponent(slug)}`;
+        const articleResp = await fetch(articleUrl, {
+          headers: { Accept: "text/plain" },
+        });
         if (!articleResp.ok) continue;
         const text = await articleResp.text();
         if (text.length < 200) continue;
         parts.push(`# ${title}\n\n${text}`);
         chars += text.length + title.length + 4;
         fetched += 1;
-        setDataLoadStatus(`fetched ${fetched} articles · ${(chars / 1024).toFixed(0)} KB / ${(maxChars / 1024).toFixed(0)} KB`);
-      } catch { /* skip individual failures */ }
+        setDataLoadStatus(
+          `fetched ${fetched} articles · ${(chars / 1024).toFixed(0)} KB / ${(maxChars / 1024).toFixed(0)} KB`,
+        );
+      } catch {
+        /* skip individual failures */
+      }
     }
-    if (parts.length === 0) throw new Error("none of the matching articles loaded — try a different topic");
+    if (parts.length === 0)
+      throw new Error(
+        "none of the matching articles loaded — try a different topic",
+      );
 
     const corpus = parts.join("\n\n").slice(0, maxChars);
     els.corpus.value = corpus;
     els.hfDataset.value = "";
     els.hfCustom.hidden = true;
-    setDataLoadStatus(`✓ loaded ${(corpus.length / 1024).toFixed(0)} KB from ${fetched} Wikipedia articles about "${seedTopic}"`, "ok");
+    setDataLoadStatus(
+      `✓ loaded ${(corpus.length / 1024).toFixed(0)} KB from ${fetched} Wikipedia articles about "${seedTopic}"`,
+      "ok",
+    );
     refreshSampleNote();
   } catch (err) {
-    setDataLoadStatus(`couldn't load: ${err instanceof Error ? err.message : String(err)}`, "error");
+    setDataLoadStatus(
+      `couldn't load: ${err instanceof Error ? err.message : String(err)}`,
+      "error",
+    );
   } finally {
     els.wikiLoad.disabled = false;
   }
@@ -2446,12 +2799,18 @@ async function loadWikipediaTopic(): Promise<void> {
 // error — we don't try to proxy.
 els.urlLoad.addEventListener("click", () => void loadFromUrl());
 els.urlInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") { e.preventDefault(); void loadFromUrl(); }
+  if (e.key === "Enter") {
+    e.preventDefault();
+    void loadFromUrl();
+  }
 });
 
 async function loadFromUrl(): Promise<void> {
   let url = els.urlInput.value.trim();
-  if (!url) { setDataLoadStatus("paste a URL first", "error"); return; }
+  if (!url) {
+    setDataLoadStatus("paste a URL first", "error");
+    return;
+  }
 
   // Quality-of-life: github.com/.../blob/ → raw.githubusercontent.com/.../
   if (/^https?:\/\/github\.com\/.+\/blob\//.test(url)) {
@@ -2474,13 +2833,18 @@ async function loadFromUrl(): Promise<void> {
     if (text.length === 0) throw new Error("empty file");
     // If it looks like HTML, warn — but still load it; the user might want it.
     if (/^\s*<!doctype html|^\s*<html/i.test(text)) {
-      setDataLoadStatus("⚠ looks like an HTML page, not plain text — may train poorly. Loading anyway…");
+      setDataLoadStatus(
+        "⚠ looks like an HTML page, not plain text — may train poorly. Loading anyway…",
+      );
     }
     if (text.length > maxChars) text = text.slice(0, maxChars);
     els.corpus.value = text;
     els.hfDataset.value = "";
     els.hfCustom.hidden = true;
-    setDataLoadStatus(`✓ loaded ${(text.length / 1024).toFixed(0)} KB from ${new URL(url).hostname}`, "ok");
+    setDataLoadStatus(
+      `✓ loaded ${(text.length / 1024).toFixed(0)} KB from ${new URL(url).hostname}`,
+      "ok",
+    );
     refreshSampleNote();
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -2504,8 +2868,16 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
       break;
     case "progress": {
       const p = msg.progress;
-      history.push({ step: p.step, trainLoss: p.trainLoss, valLoss: p.valLoss });
-      chart.addPoint({ step: p.step, trainLoss: p.trainLoss, valLoss: p.valLoss });
+      history.push({
+        step: p.step,
+        trainLoss: p.trainLoss,
+        valLoss: p.valLoss,
+      });
+      chart.addPoint({
+        step: p.step,
+        trainLoss: p.trainLoss,
+        valLoss: p.valLoss,
+      });
       flashStat(els.stStep, `${p.step} / ${p.maxSteps}`);
       flashStat(els.stTrain, p.trainLoss.toFixed(4));
       updateLossMeaning(p.trainLoss);
@@ -2514,16 +2886,28 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
       els.stBackend.textContent = p.backend;
       flashStat(els.stPpl, formatPerplexity(p.trainLoss));
       if (p.valLoss != null) {
-        if (p.valLoss < bestVal) { bestVal = p.valLoss; bestValStep = p.step; }
-        flashStat(els.stBestVal, Number.isFinite(bestVal)
-          ? `${bestVal.toFixed(4)} @ ${bestValStep}`
-          : "–");
+        if (p.valLoss < bestVal) {
+          bestVal = p.valLoss;
+          bestValStep = p.step;
+        }
+        flashStat(
+          els.stBestVal,
+          Number.isFinite(bestVal)
+            ? `${bestVal.toFixed(4)} @ ${bestValStep}`
+            : "–",
+        );
         flashStat(els.stGap, (p.valLoss - p.trainLoss).toFixed(3));
       }
       checkMilestones(p.step, p.trainLoss, p.valLoss);
       setProgress(p.step, p.maxSteps);
       refreshSampleNote();
-      updateStickyStats(p.step, p.maxSteps, p.trainLoss, p.tokensPerSecond, els.stEta.textContent || "–");
+      updateStickyStats(
+        p.step,
+        p.maxSteps,
+        p.trainLoss,
+        p.tokensPerSecond,
+        els.stEta.textContent || "–",
+      );
       // Live GPU activity badge — visible during training, shows real
       // tok/s so users can see their GPU is being driven hard.
       {
@@ -2531,14 +2915,16 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
         const tpsEl = document.getElementById("gpuActiveTps");
         if (badge && tpsEl) {
           badge.hidden = false;
-          tpsEl.textContent = p.tokensPerSecond > 0
-            ? `${Math.round(p.tokensPerSecond).toLocaleString()} tok/s`
-            : "warming up…";
+          tpsEl.textContent =
+            p.tokensPerSecond > 0
+              ? `${Math.round(p.tokensPerSecond).toLocaleString()} tok/s`
+              : "warming up…";
         }
       }
       // Live time estimate: tokens left ÷ current throughput.
       if (lastConfig && p.tokensPerSecond > 0 && p.step < p.maxSteps) {
-        const tokensLeft = (p.maxSteps - p.step) * lastConfig.batchSize * lastConfig.ctx;
+        const tokensLeft =
+          (p.maxSteps - p.step) * lastConfig.batchSize * lastConfig.ctx;
         els.stEta.textContent = formatTime(tokensLeft / p.tokensPerSecond);
       } else {
         els.stEta.textContent = p.step >= p.maxSteps ? "done" : "…";
@@ -2584,8 +2970,13 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
       // first model token (which itself takes a forward pass on the prompt).
       els.output.classList.remove("empty");
       els.output.textContent = msg.prompt;
-      const statsEl = document.getElementById("sampleStats") as HTMLElement | null;
-      if (statsEl) { statsEl.hidden = true; statsEl.innerHTML = ""; }
+      const statsEl = document.getElementById(
+        "sampleStats",
+      ) as HTMLElement | null;
+      if (statsEl) {
+        statsEl.hidden = true;
+        statsEl.innerHTML = "";
+      }
       break;
     }
     case "sample_chunk": {
@@ -2607,11 +2998,14 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
       }
       requestInspect(msg.text);
       finalizeSampleAnalytics(msg.text);
-      const statsEl = document.getElementById("sampleStats") as HTMLElement | null;
+      const statsEl = document.getElementById(
+        "sampleStats",
+      ) as HTMLElement | null;
       if (statsEl) {
         const tps = Math.max(0, msg.tokensPerSecond).toFixed(1);
         const totalSec = (msg.totalMs / 1000).toFixed(2);
-        const firstMs = msg.firstTokenMs > 0 ? `${msg.firstTokenMs.toFixed(0)} ms` : "n/a";
+        const firstMs =
+          msg.firstTokenMs > 0 ? `${msg.firstTokenMs.toFixed(0)} ms` : "n/a";
         statsEl.innerHTML =
           `<span class="stat-pair"><strong>${tps}</strong><span class="unit">tok/s</span></span>` +
           `<span class="stat-pair"><strong>${totalSec}</strong><span class="unit">s total</span></span>` +
@@ -2640,13 +3034,17 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
       els.downloadSafetensors.disabled = false;
       els.continueBtn.disabled = false;
       // Allow navigation to the Watch screen once a model is in memory.
-      (window as unknown as { __tgEnableWatch?: () => void }).__tgEnableWatch?.();
+      (
+        window as unknown as { __tgEnableWatch?: () => void }
+      ).__tgEnableWatch?.();
       break;
     case "restored":
       els.sample.disabled = false;
       setBenchAvailable(true);
       // A restored model lives in the worker — the Watch screen is now valid.
-      (window as unknown as { __tgEnableWatch?: () => void }).__tgEnableWatch?.();
+      (
+        window as unknown as { __tgEnableWatch?: () => void }
+      ).__tgEnableWatch?.();
       break;
     case "gpu_caps":
       // Post-init capability update — the worker has just activated a
@@ -2662,7 +3060,8 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
           pill.type = "button";
           pill.className = "pill on pill-btn";
           pill.dataset.explain = "f16Storage";
-          pill.title = "f16-storage matmul — packed-half weights; passed numerics gate (speed unmeasured)";
+          pill.title =
+            "f16-storage matmul — packed-half weights; passed numerics gate (speed unmeasured)";
           pill.textContent = "+f16 storage";
           slot.appendChild(pill);
           initPopovers(slot);
@@ -2675,7 +3074,8 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
           pill.type = "button";
           pill.className = "pill on pill-btn";
           pill.dataset.explain = "shaderF16Active";
-          pill.title = "shader-f16 compute matmul — f16 shared tiles + f16 multiplies + f32 accumulator (passed numerics gate)";
+          pill.title =
+            "shader-f16 compute matmul — f16 shared tiles + f16 multiplies + f32 accumulator (passed numerics gate)";
           pill.textContent = "+f16 compute";
           slot.appendChild(pill);
           initPopovers(slot);
@@ -2689,7 +3089,8 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
           pill.type = "button";
           pill.className = "pill on pill-btn";
           pill.dataset.explain = "coopMatrixActive";
-          pill.title = "cooperative-matrix matmul — compiled and passed its numerics gate (speed unmeasured)";
+          pill.title =
+            "cooperative-matrix matmul — compiled and passed its numerics gate (speed unmeasured)";
           pill.textContent = "+coop-matrix";
           slot.appendChild(pill);
           initPopovers(slot);
@@ -2713,7 +3114,8 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
             pill.textContent = `+WebNN (${dev})`;
           } else {
             pill.className = "pill off pill-btn";
-            pill.title = "WebNN namespace present but probe matmul failed numerics gate — the backend isn't reliable for inference right now.";
+            pill.title =
+              "WebNN namespace present but probe matmul failed numerics gate — the backend isn't reliable for inference right now.";
             pill.textContent = "+WebNN (no backend)";
           }
           slot.appendChild(pill);
@@ -2721,8 +3123,13 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
         }
       }
       if (msg.caps.cooperativeMatrix) {
-        (window as unknown as { __tgUpdateGpuAccelPills?: (e: { cooperativeMatrix?: boolean }) => void })
-          .__tgUpdateGpuAccelPills?.({ cooperativeMatrix: true });
+        (
+          window as unknown as {
+            __tgUpdateGpuAccelPills?: (e: {
+              cooperativeMatrix?: boolean;
+            }) => void;
+          }
+        ).__tgUpdateGpuAccelPills?.({ cooperativeMatrix: true });
       }
       break;
     case "model_offloaded":
@@ -2739,8 +3146,10 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
       setStatus("model freed after idle · re-load from gallery to use again");
       break;
     case "benchmark_done": {
-      const fmtScore = msg.score >= 100 || msg.score < 0.01
-        ? msg.score.toExponential(2) : msg.score.toFixed(3);
+      const fmtScore =
+        msg.score >= 100 || msg.score < 0.01
+          ? msg.score.toExponential(2)
+          : msg.score.toFixed(3);
       els.benchResult.hidden = false;
       els.benchResult.innerHTML =
         `<span class="stat-pair"><strong>${fmtScore}</strong><span class="unit">${msg.id} score</span></span>` +
@@ -2767,13 +3176,16 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
       els.runLens.textContent = "Logit lens";
       break;
     case "ablate_done": {
-      const tags = msg.ablations.map((a) => `L${a.layer}.${a.target}`).join(", ");
+      const tags = msg.ablations
+        .map((a) => `L${a.layer}.${a.target}`)
+        .join(", ");
       els.ablateResult.hidden = false;
       els.ablateResult.innerHTML =
         `<div style="margin-bottom:4px"><strong>ablated [${tags}]</strong></div>` +
-        `<div style="white-space:pre-wrap;font-family:monospace">${
-          msg.text.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]!))
-        }</div>`;
+        `<div style="white-space:pre-wrap;font-family:monospace">${msg.text.replace(
+          /[<>&]/g,
+          (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[c]!,
+        )}</div>`;
       els.runAblate.disabled = false;
       els.runAblate.textContent = "Ablate & sample";
       break;
@@ -2785,13 +3197,16 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
       els.runAblate.textContent = "Ablate & sample";
       break;
     case "patch_done": {
-      const tag = msg.patches.map((p) => `L${p.layer}.${p.position}`).join(", ");
+      const tag = msg.patches
+        .map((p) => `L${p.layer}.${p.position}`)
+        .join(", ");
       els.patchResult.hidden = false;
       els.patchResult.innerHTML =
         `<div style="margin-bottom:4px"><strong>patched [${tag}]</strong></div>` +
-        `<div style="white-space:pre-wrap;font-family:monospace">${
-          msg.text.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]!))
-        }</div>`;
+        `<div style="white-space:pre-wrap;font-family:monospace">${msg.text.replace(
+          /[<>&]/g,
+          (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[c]!,
+        )}</div>`;
       els.runPatchZero.disabled = false;
       els.runPatchZero.textContent = "Zero & sample";
       els.runPatchSwap.disabled = false;
@@ -2809,7 +3224,8 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
     case "tuned_lenses_loaded":
       els.lensResult.hidden = false;
       if (msg.nLayers === 0) {
-        els.lensResult.textContent = "tuned lens cleared — using raw lens next.";
+        els.lensResult.textContent =
+          "tuned lens cleared — using raw lens next.";
       } else {
         els.lensResult.textContent =
           `tuned lens loaded: ${msg.nLayers} probes, vocab ${msg.vocabSize}, dModel ${msg.dModel}. ` +
@@ -2845,7 +3261,9 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
         els.stEta.textContent = elapsedStr;
         if (!firstRunCelebrated) {
           firstRunCelebrated = true;
-          try { localStorage.setItem("posttrainllm.firstRunCelebrated", "1"); } catch {}
+          try {
+            localStorage.setItem("posttrainllm.firstRunCelebrated", "1");
+          } catch {}
           showFirstRunCelebration();
         }
       } else {
@@ -2870,13 +3288,24 @@ worker.onmessage = (e: MessageEvent<FromWorker>) => {
       // critical artifact (the .tinygpt checkpoint) is now persisted
       // before ANY subsequent UI step runs, so a failure in sample
       // generation or anywhere else can't lose the training output.
-      if (msg.reason === "finished" && autoSaveFilename && latestState && latestStateConfig) {
+      if (
+        msg.reason === "finished" &&
+        autoSaveFilename &&
+        latestState &&
+        latestStateConfig
+      ) {
         try {
           const blob = encodeModelFile(latestStateConfig, latestState);
           triggerDownload(blob, autoSaveFilename);
-          setModelStatus(`✓ auto-saved ${autoSaveFilename} (${(blob.size / 1024).toFixed(0)} KB)`, "ok");
+          setModelStatus(
+            `✓ auto-saved ${autoSaveFilename} (${(blob.size / 1024).toFixed(0)} KB)`,
+            "ok",
+          );
         } catch (err) {
-          setModelStatus(`auto-save failed: ${err instanceof Error ? err.message : String(err)}`, "error");
+          setModelStatus(
+            `auto-save failed: ${err instanceof Error ? err.message : String(err)}`,
+            "error",
+          );
         }
       }
       break;
@@ -2915,7 +3344,8 @@ function requestInspect(text: string): void {
   // capping here keeps the UI count consistent.
   const ctxLimit = lastConfig?.ctx ?? 256;
   const enc = new TextEncoder().encode(text);
-  const trimmed = enc.length > ctxLimit ? enc.slice(enc.length - ctxLimit) : enc;
+  const trimmed =
+    enc.length > ctxLimit ? enc.slice(enc.length - ctxLimit) : enc;
   send({ type: "inspect", prompt: trimmed, topK: 10 });
 }
 
@@ -2988,11 +3418,11 @@ function selectThinkPos(idx: number): void {
   // the last position we don't know "what was sampled next", so show the
   // current byte's top candidate instead.
   const nextIdx = idx + 1;
-  const chosen = nextIdx < thinkResult.tokens.length ? thinkResult.tokens[nextIdx] : null;
+  const chosen =
+    nextIdx < thinkResult.tokens.length ? thinkResult.tokens[nextIdx] : null;
   if (pickEl) {
-    pickEl.textContent = chosen != null
-      ? `· chose "${tokenLabel(chosen).text}"`
-      : "";
+    pickEl.textContent =
+      chosen != null ? `· chose "${tokenLabel(chosen).text}"` : "";
   }
 
   // Top-K bars.
@@ -3012,9 +3442,10 @@ function selectThinkPos(idx: number): void {
     bar.style.width = `${Math.max(1, (prob / maxProb) * 100)}%`;
     const pct = document.createElement("span");
     pct.className = "pct";
-    pct.textContent = prob >= 0.01
-      ? `${(prob * 100).toFixed(1)}%`
-      : `${(prob * 100).toFixed(2)}%`;
+    pct.textContent =
+      prob >= 0.01
+        ? `${(prob * 100).toFixed(1)}%`
+        : `${(prob * 100).toFixed(2)}%`;
     row.append(tk, bar, pct);
     barsEl.appendChild(row);
   }
@@ -3080,7 +3511,8 @@ initAnalytics();
 installBrowserMonitoring();
 
 let playgroundLoadedFired = false;
-let pendingPlaygroundLoadedProps: Parameters<typeof trackPlaygroundLoaded>[0] | null = null;
+let pendingPlaygroundLoadedProps:
+  Parameters<typeof trackPlaygroundLoaded>[0] | null = null;
 
 function maybeFirePlaygroundLoaded(): void {
   if (playgroundLoadedFired) return;
@@ -3133,22 +3565,32 @@ async function init(): Promise<void> {
   // on a vanilla browser.
   const acceleratorPills: string[] = [];
   if (caps.webgpu && caps.gpuFeatures.shaderF16) {
-    acceleratorPills.push(`<button type="button" class="pill on pill-btn" data-explain="shaderF16" title="WGSL shader-f16 — half-precision compute in the matmul path">+f16</button>`);
+    acceleratorPills.push(
+      `<button type="button" class="pill on pill-btn" data-explain="shaderF16" title="WGSL shader-f16 — half-precision compute in the matmul path">+f16</button>`,
+    );
   }
   if (caps.webgpu && caps.gpuFeatures.subgroups) {
-    acceleratorPills.push(`<button type="button" class="pill on pill-btn" data-explain="subgroups" title="WebGPU subgroups — fast cross-lane reductions in layernorm / softmax">+subgroups</button>`);
+    acceleratorPills.push(
+      `<button type="button" class="pill on pill-btn" data-explain="subgroups" title="WebGPU subgroups — fast cross-lane reductions in layernorm / softmax">+subgroups</button>`,
+    );
   }
   // cooperativeMatrix is undefined until the worker probes it; the post-init
   // updateGpuAccelPills() function fills the pill in if/when it lands.
   if (caps.webnnPresent) {
-    acceleratorPills.push(`<button type="button" class="pill on pill-btn" data-explain="webnn" title="WebNN API — routes inference to CoreML / DirectML / NPU">+WebNN</button>`);
+    acceleratorPills.push(
+      `<button type="button" class="pill on pill-btn" data-explain="webnn" title="WebNN API — routes inference to CoreML / DirectML / NPU">+WebNN</button>`,
+    );
   }
 
   els.caps.innerHTML =
     pill("WebGPU", caps.webgpu, "webgpuPill") +
     pill("WASM SIMD", caps.wasmSimd, "wasmSimd") +
     pill("Memory64", usingMemory64, "memory64") +
-    pill("cross-origin isolated", caps.crossOriginIsolated, "crossOriginIsolated") +
+    pill(
+      "cross-origin isolated",
+      caps.crossOriginIsolated,
+      "crossOriginIsolated",
+    ) +
     `<span class="pill on" id="backendPill">backend: ${caps.active}</span>` +
     `<span class="pill off">${browser.name}</span>` +
     `<span class="pill off">${hw.cores} cores${ramBit}</span>` +
@@ -3266,15 +3708,25 @@ async function init(): Promise<void> {
     els.downloadSafetensors.disabled = false;
     els.continueBtn.disabled = !prev.corpus;
     const doRestore = () => {
-      worker.postMessage({
-        type: "restore",
-        state: buffer,
-        config: lastConfig as RunConfig,
-        corpus: prev.corpus,
-      }, [buffer]);
+      worker.postMessage(
+        {
+          type: "restore",
+          state: buffer,
+          config: lastConfig as RunConfig,
+          corpus: prev.corpus,
+        },
+        [buffer],
+      );
       els.status.textContent = "restoring your last model from storage…";
     };
-    const ric = (globalThis as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => void }).requestIdleCallback;
+    const ric = (
+      globalThis as unknown as {
+        requestIdleCallback?: (
+          cb: () => void,
+          opts?: { timeout: number },
+        ) => void;
+      }
+    ).requestIdleCallback;
     if (ric) ric(doRestore, { timeout: 3000 });
     else setTimeout(doRestore, 1200);
   }
@@ -3284,6 +3736,15 @@ void init().then(() => {
   initPopovers();
   setupTour();
   applyConfigFromUrl();
+  offerKitchenBatch(
+    els.corpus,
+    () => els.start.disabled || !els.stop.disabled,
+    () => {
+      els.hfDataset.value = "";
+      switchTab("upload");
+      refreshSampleNote();
+    },
+  );
   setupIntroCard();
   setupStickyStats();
   setupKeyboardShortcuts();
@@ -3299,8 +3760,12 @@ void init().then(() => {
 
 // --- keyboard shortcuts ---------------------------------------------------
 function setupKeyboardShortcuts(): void {
-  const dialog = document.getElementById("shortcuts") as HTMLDialogElement | null;
-  const closeBtn = document.getElementById("shortcutsClose") as HTMLButtonElement | null;
+  const dialog = document.getElementById(
+    "shortcuts",
+  ) as HTMLDialogElement | null;
+  const closeBtn = document.getElementById(
+    "shortcutsClose",
+  ) as HTMLButtonElement | null;
   if (!dialog || !closeBtn) return;
   closeBtn.addEventListener("click", () => dialog.close());
 
@@ -3309,7 +3774,12 @@ function setupKeyboardShortcuts(): void {
     const el = document.activeElement as HTMLElement | null;
     if (!el) return false;
     const tag = el.tagName;
-    return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el.isContentEditable;
+    return (
+      tag === "INPUT" ||
+      tag === "TEXTAREA" ||
+      tag === "SELECT" ||
+      el.isContentEditable
+    );
   };
 
   document.addEventListener("keydown", (e) => {
@@ -3332,7 +3802,9 @@ function setupKeyboardShortcuts(): void {
       return;
     }
     if (e.key === "t" || e.key === "T") {
-      const tourBtn = document.getElementById("tourBtn") as HTMLButtonElement | null;
+      const tourBtn = document.getElementById(
+        "tourBtn",
+      ) as HTMLButtonElement | null;
       tourBtn?.click();
       return;
     }
@@ -3416,7 +3888,8 @@ function setupScreens(): void {
   void origRender; // referenced to silence TS
 
   // Expose enableWatch globally so other code paths can call it.
-  (window as unknown as { __tgEnableWatch?: () => void }).__tgEnableWatch = enableWatch;
+  (window as unknown as { __tgEnableWatch?: () => void }).__tgEnableWatch =
+    enableWatch;
   // Expose a one-shot "switch to Watch screen" too — used by the demo banner
   // so loading the pretrained model takes the user straight to the Generate
   // button instead of leaving them on Setup wondering where it went.
@@ -3450,16 +3923,20 @@ function setupScreens(): void {
  *  Any interaction (click, keypress, scroll, generation) resets the timer.
  *  Training in flight blocks offload — the worker would crash mid-step. */
 function setupAutoOffload(): void {
-  const IDLE_MS = 5 * 60 * 1000;          // 5 minutes
-  const CHECK_INTERVAL_MS = 30 * 1000;    // poll every 30 sec
+  const IDLE_MS = 5 * 60 * 1000; // 5 minutes
+  const CHECK_INTERVAL_MS = 30 * 1000; // poll every 30 sec
   let lastActivity = Date.now();
 
   // Any meaningful user activity resets the timer. `passive: true` so we
   // don't slow down scrolling; we only need the timestamp, no preventDefault.
-  const bump = () => { lastActivity = Date.now(); };
-  ["mousedown", "keydown", "touchstart", "scroll", "pointerdown"].forEach((ev) => {
-    document.addEventListener(ev, bump, { passive: true });
-  });
+  const bump = () => {
+    lastActivity = Date.now();
+  };
+  ["mousedown", "keydown", "touchstart", "scroll", "pointerdown"].forEach(
+    (ev) => {
+      document.addEventListener(ev, bump, { passive: true });
+    },
+  );
   // Also bump on workflow milestones — training start / sample click.
   els.start.addEventListener("click", bump);
   els.sample.addEventListener("click", bump);
@@ -3484,7 +3961,13 @@ function setupSystemPressure(): void {
   const chip = document.getElementById("systemPressure");
   const label = document.getElementById("pressureLabel");
   if (!chip || !label) return;
-  const PO = (globalThis as unknown as { PressureObserver?: new (cb: (r: { state: string; source: string }[]) => void) => { observe: (s: string) => Promise<void> } }).PressureObserver;
+  const PO = (
+    globalThis as unknown as {
+      PressureObserver?: new (
+        cb: (r: { state: string; source: string }[]) => void,
+      ) => { observe: (s: string) => Promise<void> };
+    }
+  ).PressureObserver;
   if (!PO) return; // Quietly no-op when the API isn't available.
   try {
     const obs = new PO((records) => {
@@ -3494,8 +3977,12 @@ function setupSystemPressure(): void {
       chip.setAttribute("data-state", cpu.state);
       label.textContent = `system: ${cpu.state}`;
     });
-    void obs.observe("cpu").catch(() => { /* permission denied or unsupported source */ });
-  } catch { /* nothing — chip stays hidden */ }
+    void obs.observe("cpu").catch(() => {
+      /* permission denied or unsupported source */
+    });
+  } catch {
+    /* nothing — chip stays hidden */
+  }
 }
 
 // --- default corpus — lazy-loaded Shakespeare ----------------------------
@@ -3527,7 +4014,9 @@ async function ensureCorpusLoaded(): Promise<void> {
       els.corpus.value = text;
       els.corpus.dispatchEvent(new Event("input", { bubbles: true }));
     }
-  } catch { /* leave textarea empty so user can paste their own */ }
+  } catch {
+    /* leave textarea empty so user can paste their own */
+  }
 }
 
 function setupDefaultCorpus(): void {
@@ -3535,14 +4024,23 @@ function setupDefaultCorpus(): void {
   // 1. user focuses or clicks into the textarea (they're about to need it)
   // 2. user clicks Start (training is about to read it)
   // 3. browser is idle (warm the cache for the eventual click)
-  const trigger = () => { void ensureCorpusLoaded(); };
+  const trigger = () => {
+    void ensureCorpusLoaded();
+  };
   els.corpus.addEventListener("focus", trigger, { once: true });
   els.corpus.addEventListener("click", trigger, { once: true });
   els.start.addEventListener("click", trigger, { once: true });
   // Idle warm-up: most visitors stay on the page > 2 s before doing
   // anything; pre-fetch in that gap so by the time they click Train the
   // file is already cached. requestIdleCallback isn't available on Safari.
-  const ric = (globalThis as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => void }).requestIdleCallback;
+  const ric = (
+    globalThis as unknown as {
+      requestIdleCallback?: (
+        cb: () => void,
+        opts?: { timeout: number },
+      ) => void;
+    }
+  ).requestIdleCallback;
   if (ric) {
     ric(trigger, { timeout: 4000 });
   } else {
@@ -3557,11 +4055,14 @@ function setupDefaultCorpus(): void {
 const SPEED_NUDGE_KEY = "posttrainllm.speedNudgeDismissed";
 function speedNudgeHtml(
   browser: { name: string; chromium: boolean },
-  caps: { webgpu: boolean; gpuFeatures: { subgroups: boolean; cooperativeMatrix?: boolean } },
+  caps: {
+    webgpu: boolean;
+    gpuFeatures: { subgroups: boolean; cooperativeMatrix?: boolean };
+  },
 ): string {
-  if (!browser.chromium) return "";              // only nudge Chromium users
-  if (!caps.webgpu) return "";                   // no WebGPU — different problem
-  if (caps.gpuFeatures.subgroups) return "";     // they already have the flag
+  if (!browser.chromium) return ""; // only nudge Chromium users
+  if (!caps.webgpu) return ""; // no WebGPU — different problem
+  if (caps.gpuFeatures.subgroups) return ""; // they already have the flag
   if (caps.gpuFeatures.cooperativeMatrix) return "";
   return `<div class="speed-nudge" id="speedNudge">
     <span class="speed-nudge-icon" aria-hidden="true">⚡</span>
@@ -3578,12 +4079,23 @@ function setupSpeedNudge(): void {
   const node = document.getElementById("speedNudge");
   if (!node) return;
   let dismissed = false;
-  try { dismissed = localStorage.getItem(SPEED_NUDGE_KEY) === "1"; } catch { /* private mode */ }
-  if (dismissed) { node.remove(); return; }
+  try {
+    dismissed = localStorage.getItem(SPEED_NUDGE_KEY) === "1";
+  } catch {
+    /* private mode */
+  }
+  if (dismissed) {
+    node.remove();
+    return;
+  }
   const close = document.getElementById("speedNudgeClose");
   close?.addEventListener("click", () => {
     node.remove();
-    try { localStorage.setItem(SPEED_NUDGE_KEY, "1"); } catch { /* private mode */ }
+    try {
+      localStorage.setItem(SPEED_NUDGE_KEY, "1");
+    } catch {
+      /* private mode */
+    }
   });
 }
 
@@ -3592,7 +4104,9 @@ function setupSpeedNudge(): void {
  *  Adam m + Adam v, all f32). Activations are transient per-step and not
  *  counted here. Hide with bytes=null. */
 function setGpuMemPill(paramCount: number | null): void {
-  const pill = document.getElementById("gpuMemPill") as HTMLButtonElement | null;
+  const pill = document.getElementById(
+    "gpuMemPill",
+  ) as HTMLButtonElement | null;
   if (!pill) return;
   if (!paramCount || paramCount <= 0) {
     pill.hidden = true;
@@ -3620,7 +4134,8 @@ function updateGpuAccelPills(extras: { cooperativeMatrix?: boolean }): void {
     pill.type = "button";
     pill.className = "pill on pill-btn";
     pill.dataset.explain = "coopMatrix";
-    pill.title = "WebGPU cooperative matrix — maps to tensor cores / MFMA / AMX";
+    pill.title =
+      "WebGPU cooperative matrix — maps to tensor cores / MFMA / AMX";
     pill.textContent = "+coop-matrix";
     slot.appendChild(pill);
     initPopovers(slot);
@@ -3631,8 +4146,11 @@ function updateGpuAccelPills(extras: { cooperativeMatrix?: boolean }): void {
   }
 }
 // Expose for the worker→main bridge to call.
-(window as unknown as { __tgUpdateGpuAccelPills?: (e: { cooperativeMatrix?: boolean }) => void })
-  .__tgUpdateGpuAccelPills = updateGpuAccelPills;
+(
+  window as unknown as {
+    __tgUpdateGpuAccelPills?: (e: { cooperativeMatrix?: boolean }) => void;
+  }
+).__tgUpdateGpuAccelPills = updateGpuAccelPills;
 
 // --- gallery — "Load from gallery" CTA + dialog ---------------------------
 // On load, fetch /gallery/manifest.json. If it lists ≥1 model, reveal the
@@ -3645,7 +4163,7 @@ interface GalleryModel {
   blurb?: string;
   corpus?: string;
   corpusUrl?: string;
-  file: string;          // path relative to /gallery/ — or filename for the OPFS cache key
+  file: string; // path relative to /gallery/ — or filename for the OPFS cache key
   /** Optional 4-bit-quantized variant of the same checkpoint. Same gallery
    *  ID, ~4× smaller download (~5 MB vs ~19 MB for the Huge preset). When
    *  present AND the int4 numerics gate has passed in this session, the
@@ -3718,10 +4236,16 @@ interface GalleryManifest {
 
 async function setupGallery(): Promise<void> {
   const banner = document.getElementById("demoBanner");
-  const openBtn = document.getElementById("openGalleryBtn") as HTMLButtonElement | null;
-  const dialog = document.getElementById("galleryDialog") as HTMLDialogElement | null;
+  const openBtn = document.getElementById(
+    "openGalleryBtn",
+  ) as HTMLButtonElement | null;
+  const dialog = document.getElementById(
+    "galleryDialog",
+  ) as HTMLDialogElement | null;
   const grid = document.getElementById("galleryGrid");
-  const closeBtn = document.getElementById("galleryClose") as HTMLButtonElement | null;
+  const closeBtn = document.getElementById(
+    "galleryClose",
+  ) as HTMLButtonElement | null;
   const noteEl = document.getElementById("galleryNote");
   if (!banner || !openBtn || !dialog || !grid || !closeBtn) return;
 
@@ -3733,13 +4257,20 @@ async function setupGallery(): Promise<void> {
   let manifest: GalleryManifest | null = null;
   try {
     const resp = await fetch("/gallery/manifest.json", { cache: "no-cache" });
-    if (!resp.ok) { banner.hidden = true; return; }
-    manifest = await resp.json() as GalleryManifest;
+    if (!resp.ok) {
+      banner.hidden = true;
+      return;
+    }
+    manifest = (await resp.json()) as GalleryManifest;
   } catch {
     banner.hidden = true;
     return;
   }
-  if (!manifest || !Array.isArray(manifest.models) || manifest.models.length === 0) {
+  if (
+    !manifest ||
+    !Array.isArray(manifest.models) ||
+    manifest.models.length === 0
+  ) {
     banner.hidden = true;
     return;
   }
@@ -3765,7 +4296,7 @@ async function setupGallery(): Promise<void> {
     renderGallery(manifest, dialog, grid, noteEl);
     dialog.showModal();
     const target = grid.querySelector<HTMLButtonElement>(
-      `.gallery-card[data-id="${(window.CSS && CSS.escape) ? CSS.escape(wantedId) : wantedId}"]`,
+      `.gallery-card[data-id="${window.CSS && CSS.escape ? CSS.escape(wantedId) : wantedId}"]`,
     );
     if (target) target.click();
   }
@@ -3871,9 +4402,12 @@ function runInt4NumericsGate(): { passed: boolean; summary: string } {
     return (seed / 0x7fffffff) * 2 - 1;
   };
   // Approximate Gaussian via 3-uniform sum.
-  for (let i = 0; i < N; i++) values[i] = (rand() + rand() + rand()) / 3 * 0.05;
+  for (let i = 0; i < N; i++)
+    values[i] = ((rand() + rand() + rand()) / 3) * 0.05;
   // Throw a few outliers in — those are what stress the block-wise scaling.
-  values[10] = 0.6; values[500] = -0.7; values[800] = 0.5;
+  values[10] = 0.6;
+  values[500] = -0.7;
+  values[800] = 0.5;
 
   // Quantize + dequantize in JS — same algorithm as the conversion
   // script + the browser-side expander, just inline so the gate is
@@ -3885,14 +4419,18 @@ function runInt4NumericsGate(): { passed: boolean; summary: string } {
     const start = b * blockSize;
     const end = Math.min(start + blockSize, N);
     let absmax = 0;
-    for (let i = start; i < end; i++) { const a = Math.abs(values[i]); if (a > absmax) absmax = a; }
+    for (let i = start; i < end; i++) {
+      const a = Math.abs(values[i]);
+      if (a > absmax) absmax = a;
+    }
     const scale = absmax > 0 ? absmax / 7 : 0;
     scales[b] = scale;
     if (scale === 0) continue;
     const inv = 1 / scale;
     for (let i = start; i < end; i++) {
       let q = Math.round(values[i] * inv);
-      if (q < -7) q = -7; if (q > 7) q = 7;
+      if (q < -7) q = -7;
+      if (q > 7) q = 7;
       const nibble = (q + 8) & 0xf;
       const idx = b * blockSize + (i - start);
       if ((idx & 1) === 0) packed[idx >>> 1] = nibble;
@@ -3902,7 +4440,8 @@ function runInt4NumericsGate(): { passed: boolean; summary: string } {
   // Round-trip scales through fp16 to model the on-disk storage.
   for (let i = 0; i < nBlocks; i++) {
     const buf = new ArrayBuffer(4);
-    const f32 = new Float32Array(buf); const u32 = new Uint32Array(buf);
+    const f32 = new Float32Array(buf);
+    const u32 = new Uint32Array(buf);
     f32[0] = scales[i];
     const x = u32[0];
     const sign = (x >>> 16) & 0x8000;
@@ -3921,8 +4460,17 @@ function runInt4NumericsGate(): { passed: boolean; summary: string } {
           h = sign | (mant >> 13);
         }
       } else {
-        if (mant & 0x00001000) { mant += 0x00002000; if (mant & 0x00800000) { mant = 0; halfExp++; } }
-        h = halfExp >= 0x1f ? (sign | 0x7c00) : (sign | (halfExp << 10) | (mant >> 13));
+        if (mant & 0x00001000) {
+          mant += 0x00002000;
+          if (mant & 0x00800000) {
+            mant = 0;
+            halfExp++;
+          }
+        }
+        h =
+          halfExp >= 0x1f
+            ? sign | 0x7c00
+            : sign | (halfExp << 10) | (mant >> 13);
       }
     }
     scales[i] = fp16ToFp32(h);
@@ -3932,7 +4480,7 @@ function runInt4NumericsGate(): { passed: boolean; summary: string } {
   for (let i = 0; i < N; i++) {
     const b = (i / blockSize) | 0;
     const byte = packed[i >>> 1];
-    const nibble = (i & 1) === 0 ? (byte & 0xf) : (byte >>> 4) & 0xf;
+    const nibble = (i & 1) === 0 ? byte & 0xf : (byte >>> 4) & 0xf;
     deq[i] = (nibble - 8) * scales[b];
   }
   // Compare.
@@ -3945,7 +4493,8 @@ function runInt4NumericsGate(): { passed: boolean; summary: string } {
   }
   const meanAbsRef = sumAbsRef / N;
   const denomFloor = Math.max(meanAbsRef * 0.01, 1e-6);
-  let maxAbs = 0, sumRel = 0;
+  let maxAbs = 0,
+    sumRel = 0;
   for (let i = 0; i < N; i++) {
     const e = Math.abs(deq[i] - values[i]);
     if (e > maxAbs) maxAbs = e;
@@ -3957,7 +4506,7 @@ function runInt4NumericsGate(): { passed: boolean; summary: string } {
   // are bounded by scale/2 ≈ absmax/14); a wrong endianness or off-by-
   // one in block indexing would blow past it.
   const maxAbsThreshold = maxAbsRef;
-  const passed = maxAbs < maxAbsThreshold && meanRel < 0.60;
+  const passed = maxAbs < maxAbsThreshold && meanRel < 0.6;
   const summary =
     `mean|ref|=${meanAbsRef.toExponential(2)}, ` +
     `max_abs=${maxAbs.toExponential(2)} (limit ${maxAbsThreshold.toExponential(2)}), ` +
@@ -3981,7 +4530,9 @@ async function loadGalleryCard(
   // Disable all cards while one is loading — prevents double-click into a
   // half-loaded second model that would corrupt the worker state.
   const allCards = dialog.querySelectorAll<HTMLButtonElement>(".gallery-card");
-  allCards.forEach((c) => { c.disabled = true; });
+  allCards.forEach((c) => {
+    c.disabled = true;
+  });
   card.classList.add("loading");
   const sampleSlot = card.querySelector<HTMLElement>(".gallery-card-sample");
   const originalSample = sampleSlot?.textContent ?? "";
@@ -4009,16 +4560,21 @@ async function loadGalleryCard(
       // When we're substituting int4 for the manifest's `file`, swap the
       // tail of the URL too (works for both relative `/gallery/x.bin` and
       // absolute CDN URLs). When `pickedFile === m.file` this is a no-op.
-      const fetchUrl = pickedFile === m.file ? baseUrl : baseUrl.replace(/[^/]+$/, pickedFile);
+      const fetchUrl =
+        pickedFile === m.file ? baseUrl : baseUrl.replace(/[^/]+$/, pickedFile);
       const resp = await fetch(fetchUrl, { signal });
       if (!resp.ok) {
         // int4 fetch failed (404, network) — silently fall back to fp16
         // so the user still gets their model. Cache key change ensures
         // the failed attempt isn't remembered.
         if (pickedFile !== m.file) {
-          console.warn(`[gallery] int4 fetch failed (${resp.status}), falling back to fp16 for ${m.id}`);
+          console.warn(
+            `[gallery] int4 fetch failed (${resp.status}), falling back to fp16 for ${m.id}`,
+          );
           pickedFile = m.file;
-          const fp16Resp = await fetch(m.url ?? `/gallery/${m.file}`, { signal });
+          const fp16Resp = await fetch(m.url ?? `/gallery/${m.file}`, {
+            signal,
+          });
           if (!fp16Resp.ok) throw new Error(`HTTP ${fp16Resp.status}`);
           bytes = new Uint8Array(await fp16Resp.arrayBuffer());
         } else {
@@ -4030,7 +4586,9 @@ async function loadGalleryCard(
       // Fire-and-forget write to OPFS — never block model load on cache write.
       void saveCachedGalleryModel(pickedFile, bytes);
     }
-    const file = new File([bytes as Uint8Array<ArrayBuffer>], pickedFile, { type: "application/octet-stream" });
+    const file = new File([bytes as Uint8Array<ArrayBuffer>], pickedFile, {
+      type: "application/octet-stream",
+    });
     await loadModelFromFile(file, `${m.name} (gallery)`);
     // Surface the loaded model's GPU footprint as a live pill in the
     // capability cluster — answers "how much of my GPU is being used".
@@ -4041,7 +4599,9 @@ async function loadGalleryCard(
     // Generate click produce format-consistent output instead of
     // bleeding the prior input from a different gallery model.
     if (m.prompt) {
-      const promptEl = document.getElementById("prompt") as HTMLInputElement | null;
+      const promptEl = document.getElementById(
+        "prompt",
+      ) as HTMLInputElement | null;
       if (promptEl) {
         promptEl.value = m.prompt;
         promptEl.dispatchEvent(new Event("input", { bubbles: true }));
@@ -4054,8 +4614,13 @@ async function loadGalleryCard(
     // Worker's "restored" message lands a tick after loadModelFromFile resolves.
     (window as unknown as { __tgGoToWatch?: () => void }).__tgGoToWatch?.();
     const tryFocus = (attempts: number) => {
-      const sample = document.getElementById("sample") as HTMLButtonElement | null;
-      if (sample && !sample.disabled) { sample.focus(); return; }
+      const sample = document.getElementById(
+        "sample",
+      ) as HTMLButtonElement | null;
+      if (sample && !sample.disabled) {
+        sample.focus();
+        return;
+      }
       if (attempts > 0) setTimeout(() => tryFocus(attempts - 1), 50);
     };
     tryFocus(20);
@@ -4063,7 +4628,9 @@ async function loadGalleryCard(
     const msg = err instanceof Error ? err.message : String(err);
     if (sampleSlot) sampleSlot.textContent = originalSample;
     card.classList.remove("loading");
-    allCards.forEach((c) => { c.disabled = false; });
+    allCards.forEach((c) => {
+      c.disabled = false;
+    });
     setStatus(`couldn't load gallery model: ${msg}`, true);
   }
 }
@@ -4078,14 +4645,20 @@ function setupIntroCard(): void {
   const KEY = "posttrainllm.introDismissed";
   dismiss.addEventListener("click", () => {
     document.documentElement.classList.add("intro-dismissed");
-    try { localStorage.setItem(KEY, "1"); } catch { /* private mode */ }
+    try {
+      localStorage.setItem(KEY, "1");
+    } catch {
+      /* private mode */
+    }
   });
 }
 
 // --- sticky mini-stats — shown when training + loss card scrolled offscreen
 function setupStickyStats(): void {
   const sticky = document.getElementById("stickyStats");
-  const jumpBtn = document.getElementById("stickyJump") as HTMLButtonElement | null;
+  const jumpBtn = document.getElementById(
+    "stickyJump",
+  ) as HTMLButtonElement | null;
   const lossCard = document.querySelector<HTMLElement>(".loss-card");
   if (!sticky || !jumpBtn || !lossCard) return;
 
@@ -4104,7 +4677,10 @@ function setupStickyStats(): void {
   // Wrap setRunning by patching the function reference is tricky; just keep
   // sticky in sync via a small hook fired from setRunning.
   Object.defineProperty(window, "__tgSetTraining", {
-    value: (on: boolean) => { isTraining = on; updateSticky(); },
+    value: (on: boolean) => {
+      isTraining = on;
+      updateSticky();
+    },
     writable: false,
   });
 
@@ -4122,11 +4698,21 @@ function setupStickyStats(): void {
 }
 
 function setupTour(): void {
-  const tourBtn = document.getElementById("tourBtn") as HTMLButtonElement | null;
-  const welcome = document.getElementById("welcome") as HTMLDialogElement | null;
-  const welcomeStart = document.getElementById("welcomeStart") as HTMLButtonElement | null;
-  const welcomeSkip = document.getElementById("welcomeSkip") as HTMLButtonElement | null;
-  const welcomeGallery = document.getElementById("welcomeGallery") as HTMLButtonElement | null;
+  const tourBtn = document.getElementById(
+    "tourBtn",
+  ) as HTMLButtonElement | null;
+  const welcome = document.getElementById(
+    "welcome",
+  ) as HTMLDialogElement | null;
+  const welcomeStart = document.getElementById(
+    "welcomeStart",
+  ) as HTMLButtonElement | null;
+  const welcomeSkip = document.getElementById(
+    "welcomeSkip",
+  ) as HTMLButtonElement | null;
+  const welcomeGallery = document.getElementById(
+    "welcomeGallery",
+  ) as HTMLButtonElement | null;
 
   tourBtn?.addEventListener("click", () => startTour());
 

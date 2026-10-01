@@ -1,8 +1,30 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-09-29
+Last updated: 2026-10-02
 
 Lifecycle: **learning artifact complete; public release verified; owner inference sprint active; no active model target**
+
+## Owner-authorized learning feature
+
+Issue [#182](https://github.com/PostTrainLLM/posttrainllm/issues/182) adds
+**How to Cook an LLM** at `/articles/how-to-cook-an-llm`. The owner selected the
+illustrated essay direction in the existing dark theme, then requested a
+garden-to-table journey: harvest, chop, clean, cook, refine and serve. Kitchen
+and model-development processes remain paired throughout the six scenes.
+
+The local implementation includes real byte tokenization, data preparation, and
+opt-in cooking through the existing proven WASM trainer. Real loss/steps appear
+at the stove; the table generates from the same trained weights. Checkpoints
+export in the existing `.tinygpt` format. Web Lab saved work is protected by an
+isolated worker with no OPFS writes. SFT/preference activities remain labelled
+illustrations. The prepared-corpus handoff also remains available. No new
+training kernels, dependencies, or parked research experiments are introduced.
+
+Local proof: 117 unit tests, typecheck/build/docs/link gates, controlled full
+journey on desktop/phone, and one actual optimizer step with same-weight
+inference/export. The single-step runtime check validates wiring, not full-run
+quality. Evidence lives in `artifacts/design/llm-kitchen/`.
+Release verification and deployment receipts are tracked in Issue #182.
 
 ## Completion State
 

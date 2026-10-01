@@ -1,0 +1,1698 @@
+---
+import Default from "../../layouts/Default.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import KitchenScene from "../../components/content/KitchenScene.astro";
+import KitchenDrawing from "../../components/content/KitchenDrawing.astro";
+import KitchenWelcome from "../../components/content/KitchenWelcome.astro";
+import "../../styles/system.css";
+import {
+  checkpoints,
+  dinnerPrompt,
+  ingredients,
+  tasteResponses,
+} from "../../kitchen/model";
+const journey = [
+  { id: "ingredients", scene: "harvest", name: "Harvest", model: "Find data" },
+  { id: "chopping", scene: "chop", name: "Chop", model: "Inspect tokens" },
+  { id: "cleaning", scene: "clean", name: "Clean", model: "Prepare the batch" },
+  { id: "base-recipe", scene: "cook", name: "Cook", model: "Pre-train" },
+  {
+    id: "refine",
+    scene: "serve",
+    name: "Refine & serve",
+    model: "Post-train → infer",
+  },
+  { id: "chat", scene: "serve", name: "Talk", model: "Live inference" },
+] as const;
+import { kitchenConfig } from "../../kitchen/cook-model";
+const title = "How to cook an LLM";
+const description =
+  "A hands-on journey from garden to table: gather data, inspect tokens, clean a batch, explore pre-training, then refine and serve. Kitchen and model-building steps travel together.";
+const canonical = "https://posttrainllm.com/articles/how-to-cook-an-llm";
+---
+
+<Default
+  title={`${title} | posttrainllm`}
+  description={description}
+  ogType="article"
+  ogUrl={canonical}
+  telemetry={false}
+>
+  <SiteHeader mode="instrument" active="learn" />
+  <main id="main" class="cook-article journey-article">
+    <KitchenWelcome journey={journey} />
+    <nav class="journey-nav" aria-label="Journey stops">
+      <span class="journey-reading" id="journey-current-label"
+        >01 / Harvest</span
+      ><div>
+        {
+          journey.map((stop, i) => (
+            <a
+              href={`#${stop.id}`}
+              data-journey-link={i}
+              aria-current={i === 0 ? "step" : undefined}
+            >
+              <span>0{i + 1}</span> {stop.name}
+            </a>
+          ))
+        }
+      </div>
+    </nav>
+    <noscript
+      ><p class="small-note">
+        The full reading journey is available below. Enable JavaScript for token
+        previews, data preparation, and the training illustrations.
+      </p></noscript
+    >
+    <div id="scene-controls" hidden>
+      <a id="scene-back" class="text-button" href="#welcome">← Back</a><span
+        id="scene-count"
+        aria-live="polite">Choose a scene</span
+      ><a id="scene-forward" class="text-button" href="#ingredients">Next →</a>
+    </div>
+    <article class="essay-body journey-body">
+      <section
+        id="ingredients"
+        class="chapter journey-stop"
+        data-journey-stage="0"
+      >
+        <p class="eyebrow">01 / In the garden</p><h2>Find your ingredients.</h2>
+        <div class="scene-pair">
+          <div class="scene-art">
+            <KitchenScene kind="harvest" /><span
+              >Kitchen / harvest what you need</span
+            >
+          </div><div class="scene-explanation">
+            <span class="eyebrow">Model / gather training data</span>
+            <KitchenDrawing kind="select" technical /><p>
+              A model’s ingredients are text. Walk through the available sources
+              and choose what belongs in your basket.
+            </p><p class="scene-state">
+              You’re collecting material.<br /><strong
+                >No weights have changed.</strong
+              >
+            </p>
+          </div>
+        </div>
+        <p>
+          You’re making a three-ingredient dinner without dairy: rice, beans,
+          and tomatoes. You don’t begin with the stove. You begin by finding
+          ingredients that can make the dish you want.
+        </p><p>
+          Model-building starts the same way. You gather explanations,
+          conversations, code, or other material from relevant sources. What you
+          pick shapes what the model will have a chance to learn. These small,
+          handwritten samples are our teaching harvest.
+        </p>
+        <div class="exercise harvest-exercise">
+          <p class="eyebrow">Your first decision</p><h3>
+            What goes in your basket?
+          </h3><fieldset tabindex="0">
+            <legend>Choose which text samples to keep</legend>{
+              ingredients.map((sample) => (
+                <label class="ingredient">
+                  <>
+                    <input
+                      type="checkbox"
+                      data-ingredient
+                      value={sample.id}
+                      checked={sample.keep}
+                    />
+                    <span>
+                      <>
+                        <strong>{sample.title}</strong>
+                        <span class="sample-text">
+                          {sample.id === "broken"
+                            ? "Dinner[NUL][replacement character]"
+                            : sample.text}
+                        </span>
+                      </>
+                    </span>
+                  </>
+                </label>
+              ))
+            }
+          </fieldset><p class="state-receipt" id="harvest-status" role="status">
+            Your basket: empty. Nothing has been cleaned or trained yet.
+          </p><p class="small-note">
+            Read the samples before deciding. The sink removes exact repeats and
+            malformed text. A recipe with cheese or an unrelated forecast can
+            still be structurally clean; choosing relevant material is your
+            decision.
+          </p>
+        </div>
+        <a class="journey-next" href="#chopping"
+          ><span>Take your basket inside</span><strong
+            >Next: the cutting board →</strong
+          ></a
+        >
+      </section>
+      <section
+        id="chopping"
+        class="chapter journey-stop"
+        data-journey-stage="1"
+      >
+        <p class="eyebrow">02 / At the cutting board</p><h2>
+          Turn text into workable pieces.
+        </h2>
+        <div class="scene-pair">
+          <div class="scene-art">
+            <KitchenScene kind="chop" /><span>Kitchen / cut and portion</span>
+          </div><div class="scene-explanation">
+            <span class="eyebrow">Model / inspect preprocessing & tokens</span>
+            <KitchenDrawing kind="prepare" technical /><p>
+              A model processes token IDs. See how a sentence becomes smaller
+              units it can work with.
+            </p><p class="scene-state">
+              You’re changing the representation.<br /><strong
+                >The model stays unchanged.</strong
+              >
+            </p>
+          </div>
+        </div>
+        <p>
+          Put a sentence on the board. In our tiny trainer, cutting it into
+          model inputs means encoding its UTF-8 bytes. Larger LLMs often use
+          subword pieces instead. The knife is a way to understand tokenization,
+          not how every tokenizer literally works.
+        </p>
+        <div class="exercise">
+          <p class="eyebrow">Try the knife / real byte tokenization</p><label
+            for="chop-text"
+            class="input-label">Put some text on the cutting board</label
+          ><input
+            id="chop-text"
+            class="chop-input"
+            type="text"
+            value="Rice and beans"
+            maxlength="80"
+          /><button type="button" id="chop-preview" class="primary"
+            >Cut into tokens →</button
+          ><div
+            id="chopped-pieces"
+            tabindex="0"
+            class="token-pieces"
+            aria-label="Byte token pieces"
+          >
+          </div><p id="chop-status" class="state-receipt" role="status">
+            A preview of the tool, not a prepared training batch. Try “café” to
+            see one character occupy multiple bytes.
+          </p>
+        </div>
+        <p>
+          We’re inspecting tokenization before preparing the full harvest. In
+          the actual data pipeline, clean the source text first, then encode the
+          finished batch. That is what we’ll do at the next stop.
+        </p>
+        <a class="journey-next" href="#cleaning"
+          ><span>The pieces still need checking</span><strong
+            >Next: wash and sort →</strong
+          ></a
+        >
+      </section>
+      <section
+        id="cleaning"
+        class="chapter journey-stop"
+        data-journey-stage="2"
+      >
+        <p class="eyebrow">03 / At the sink</p><h2>
+          Wash and sort your batch.
+        </h2>
+        <div class="scene-pair">
+          <div class="scene-art">
+            <KitchenScene kind="clean" /><span
+              >Kitchen / wash, trim, and sort</span
+            >
+          </div><div class="scene-explanation">
+            <span class="eyebrow">Model / clean, deduplicate, encode</span>
+            <KitchenDrawing kind="prepare" technical /><p>
+              Inspect the harvest. Remove exact repeats and deliberately broken
+              samples, then tokenize what remains.
+            </p><p class="scene-state">
+              The batch is becoming usable.<br /><strong
+                >Only the data changes.</strong
+              >
+            </p>
+          </div>
+        </div>
+        <p>
+          Now your earlier choices matter. Did you pick the same sample twice?
+          Did a broken one slip into the basket? Clean the text before the final
+          encoding and inspect what survives.
+        </p>
+        <div class="exercise" aria-labelledby="prep-title">
+          <header>
+            <p class="eyebrow">At the sink / real data preparation</p><h3
+              id="prep-title"
+            >
+              Wash, sort, and check your batch.
+            </h3>
+          </header>
+
+          <button type="button" id="prepare-batch" class="primary"
+            >Prepare selected text →</button
+          >
+          <p id="prepare-status" class="state-receipt" role="status">
+            What changed? Nothing yet. Model weights unchanged.
+          </p>
+          <details open class="inspection">
+            <summary>Under the hood: prepared text & actual tokens</summary><pre
+              id="prepared-text">Choose your text, then prepare a batch.</pre><pre
+              id="token-preview">No batch prepared yet.</pre><p>
+              This trainer uses one token per UTF-8 byte, with a vocabulary of
+              256. “Rice” → [82, 105, 99, 101]. Non-ASCII characters can take
+              several bytes. Larger LLMs commonly use subword tokenizers.
+            </p>
+          </details>
+          <div class="exercise-actions">
+            <button type="button" id="open-trainer" class="primary" disabled
+              >Open this batch in the trainer →</button
+            ><button
+              type="button"
+              id="download-batch"
+              class="secondary"
+              disabled>Download text</button
+            >
+          </div><p class="small-note">
+            Handwritten teaching samples, not a production dataset. The trainer
+            will offer an import; it won’t start training automatically. A tiny
+            batch shows the mechanism, not general assistant capability.
+          </p><p id="handoff-status" role="status" class="small-note"></p>
+        </div>
+
+        <p class="takeaway">
+          You have ingredients ready for cooking. <strong
+            >You still don’t have a trained model.</strong
+          >
+        </p>
+        <a class="journey-next" href="#base-recipe"
+          ><span>Carry the prepared batch to the stove</span><strong
+            >Next: start cooking →</strong
+          ></a
+        >
+      </section>
+      <section
+        id="base-recipe"
+        class="chapter journey-stop"
+        data-journey-stage="3"
+      >
+        <p class="eyebrow">04 / At the stove</p><h2>
+          Start cooking the base recipe.
+        </h2>
+        <div class="scene-pair">
+          <div class="scene-art">
+            <KitchenScene kind="cook" /><span
+              >Kitchen / cook, check, adjust</span
+            >
+          </div><div class="scene-explanation">
+            <span class="eyebrow">Model / pre-training</span>
+            <KitchenDrawing kind="pretrain" technical /><p>
+              Predict the next token. Compare with the text’s actual next token.
+              Use the error to guide a weight update.
+            </p><p class="scene-state">
+              Cook trains on your batch.<br /><strong
+                >Your model’s weights change here.</strong
+              >
+            </p>
+          </div>
+        </div>
+        <p>
+          Chopping wasn’t cooking. Washing wasn’t cooking. Pre-training is the
+          cooking: repeated practice develops the foundation. A generative model
+          commonly learns by predicting the next token in a sequence.
+        </p>
+        <div class="exercise">
+          <p class="eyebrow">Your batch → your weights</p><h3>
+            Turn on the heat.
+          </h3>
+          <p>Train on your batch, right here in your browser.</p>
+          <div class="cook-readings">
+            <span
+              >Training steps <strong id="cook-counter"
+                >0 / {kitchenConfig.maxSteps}</strong
+              ></span
+            ><span>Prediction loss <strong id="cook-loss">—</strong></span>
+          </div>
+          <svg
+            class="cook-loss-chart"
+            viewBox="0 0 320 76"
+            role="img"
+            aria-label="Actual training loss over time"
+            ><path d="M0 70H320" stroke="#30343b"></path><polyline
+              id="cook-curve"
+              fill="none"
+              stroke="#78dec6"
+              stroke-width="2"></polyline></svg
+          >
+          <progress
+            id="cook-progress"
+            max={kitchenConfig.maxSteps}
+            value="0"
+            aria-label="Training progress"></progress>
+          <div class="exercise-actions">
+            <button type="button" id="cook-step" class="primary"
+              >Cook my model →</button
+            ><button type="button" id="stop-cook" class="secondary" disabled
+              >Turn off the heat</button
+            ><button type="button" id="reset-cook" class="text-button" disabled
+              >Keep cooking · {kitchenConfig.maxSteps} steps</button
+            >
+          </div>
+          <p id="cook-status" class="state-receipt" role="status">
+            Prepare your ingredients at the sink first. Nothing trains
+            automatically.
+          </p>
+          <details>
+            <summary>What is in the pot?</summary><pre
+              id="cook-corpus">No prepared batch yet.</pre><p>
+              One transformer layer, byte tokens, existing WASM trainer. Up to {
+                kitchenConfig.maxSteps
+              } optimizer steps per click, with a 30-second stop. This small recipe
+              teaches training; it does not create a general assistant.
+            </p>
+          </details>
+        </div>
+        <p>
+          A real optimizer repeats this cycle across many batches. Lower
+          training loss is a signal about the objective, not a guarantee of
+          usefulness. Set aside evaluation data to test whether the learning
+          carries beyond the training examples.
+        </p>
+        <p class="paired-story">
+          <strong>What the processes share:</strong> repeated trials can change the
+          recipe. The difference is that a model learns numerical weights through
+          an objective; it isn’t a cook understanding the dish.
+        </p>
+        <a class="journey-next" href="#refine"
+          ><span>The foundation is cooked. Make it fit the brief.</span><strong
+            >Next: taste, refine, and serve →</strong
+          ></a
+        >
+      </section>
+      <section id="refine" class="chapter journey-stop" data-journey-stage="4">
+        <p class="eyebrow">05 / At the tasting and serving table</p><h2>
+          Refine it. Then serve it.
+        </h2>
+        <div class="scene-pair">
+          <div class="scene-art">
+            <KitchenScene kind="serve" /><span
+              >Kitchen / refine, plate, garnish, serve</span
+            >
+          </div><div class="scene-explanation">
+            <span class="eyebrow">Model / post-training, then inference</span>
+            <KitchenDrawing kind="sft" technical /><p>
+              Worked examples and tasting feedback guide further training. A new
+              order then uses the resulting model.
+            </p><p class="scene-state">
+              Refining can change weights.<br /><strong
+                >Plating and serving do not.</strong
+              >
+            </p>
+          </div>
+        </div>
+        <p>
+          You’ve developed a base recipe, but the brief is specific: three
+          ingredients, no dairy, a short answer. Learn from a worked example,
+          taste two versions, and revise toward that brief. That is the
+          post-training part of our journey.
+        </p>
+        <h3 class="subchapter">First, learn from a worked recipe.</h3><p>
+          Supervised fine-tuning continues training on demonstrations of the
+          desired response. Like practicing a particular recipe, it teaches the
+          result you want to serve. With LoRA, that update can be carried in
+          adapter weights while the base stays frozen.
+        </p>
+        <div class="exercise">
+          <p class="eyebrow">Illustrative checkpoints</p><blockquote>
+            {dinnerPrompt}
+          </blockquote><p class="illustrative">
+            Authored teaching outputs. No model was trained here.
+          </p><div
+            class="checkpoint-controls"
+            role="group"
+            aria-label="Choose an illustrative checkpoint"
+          >
+            {
+              checkpoints.map((checkpoint, i) => (
+                <button
+                  type="button"
+                  data-checkpoint={checkpoint.id}
+                  aria-pressed={i === 0}
+                  class="secondary"
+                >
+                  {checkpoint.title}
+                </button>
+              ))
+            }
+          </div><div class="checkpoint-pair">
+            <div>
+              <span>Kitchen</span><p id="checkpoint-kitchen">
+                {checkpoints[0].kitchen}
+              </p>
+            </div><div>
+              <span>Model</span><p id="checkpoint-method">
+                {checkpoints[0].method}
+              </p>
+            </div>
+          </div><div class="output" id="checkpoint-output">
+            {checkpoints[0].output}
+          </div><details class="inspection" open>
+            <summary>Inspect the example or training objective</summary><pre
+              id="checkpoint-evidence">{checkpoints[0].evidence}</pre>
+          </details><p
+            class="state-receipt"
+            id="checkpoint-change"
+            role="status"
+          >
+            Real run: {checkpoints[0].changed}. Here: illustrative output only.
+          </p>
+        </div>
+
+        <div id="taste" class="subchapter-anchor">
+          <h3 class="subchapter">Then taste two versions.</h3><p>
+            The tasting table gives you a comparison. Choosing an answer records
+            a preference; a separate optimization step uses it to change
+            trainable weights. Both SFT and preference optimization belong
+            within post-training.
+          </p>
+        </div>
+        <div class="exercise">
+          <p class="eyebrow">Your turn / become the taste tester</p><h3>
+            Which meets the brief?
+          </h3><p class="prompt-reminder">{dinnerPrompt}</p><div
+            class="taste-options"
+          >
+            {
+              (["a", "b"] as const).map((key) => (
+                <button
+                  type="button"
+                  class="taste-choice"
+                  data-taste={key}
+                  aria-pressed="false"
+                >
+                  <>
+                    <span class="eyebrow">Response {key.toUpperCase()}</span>
+                    <span>{tasteResponses[key]}</span>
+                    <span class="choose-label">Prefer this response</span>
+                  </>
+                </button>
+              ))
+            }
+          </div><p id="preference-status" class="state-receipt" role="status">
+            No preference collected. Model weights unchanged.
+          </p><details class="inspection" open>
+            <summary>Your preference tray / collected data</summary><pre
+              id="preference-tray">Your tray is empty. Choose a response to collect a preference pair.</pre>
+          </details><div class="exercise-actions">
+            <button
+              type="button"
+              id="simulate-feedback"
+              class="primary"
+              disabled>Simulate training →</button
+            ><button
+              type="button"
+              id="download-preference"
+              class="secondary"
+              disabled>Export pair</button
+            ><button type="button" id="reset-feedback" class="text-button"
+              >Reset</button
+            >
+          </div><div id="feedback-demo" class="feedback-demo" hidden>
+            <p class="eyebrow">Illustration only / no model optimized</p><p
+              class="optimization"
+            >
+              Pair collected <span aria-hidden="true">→</span> Optimization step
+              <span aria-hidden="true">→</span> Candidate weights <span
+                aria-hidden="true">→</span
+              > Held-out evaluation
+            </p><p id="feedback-example"></p><p class="small-note">
+              DPO can optimize on preference pairs directly. RLHF can first fit
+              a reward model and use it during reinforcement learning. This is a
+              conceptual illustration of the separation, not a numerical
+              simulation of either algorithm.
+            </p>
+          </div>
+        </div>
+
+        <div id="serve" class="subchapter-anchor">
+          <h3 class="subchapter">Finally, plate, garnish, and serve.</h3><p>
+            A finished recipe can fulfil another order without being rewritten.
+            That is ordinary inference: fixed weights, a new prompt, a new
+            response. Garnish is presentation—it can make an answer easier to
+            read, but presentation alone isn’t post-training.
+          </p><div class="exercise">
+            <p class="eyebrow">
+              A last distinction / same answer, different presentation
+            </p><pre
+              id="served-output"
+              class="served-output">{tasteResponses.b}</pre><button
+              type="button"
+              id="add-garnish"
+              class="secondary"
+              aria-pressed="false">Add a heading / garnish the answer</button
+            ><p id="garnish-status" class="state-receipt" role="status">
+              Illustrative answer, not live generation. Model weights unchanged.
+            </p>
+          </div>
+        </div>
+        <p class="takeaway">
+          Gather. Prepare. Cook. Refine. Serve. <strong
+            >Now you know which steps change data, weights, or the answer’s
+            presentation.</strong
+          >
+        </p>
+        <a class="journey-next" href="#chat"
+          ><span>Your model is ready at the table</span><strong
+            >Take an order →</strong
+          ></a
+        >
+        <div class="finish">
+          <p class="eyebrow">Take your harvest into the real lab</p><h3>
+            Your next dish can be a real run.
+          </h3><p>
+            Return to your prepared batch and offer it to the existing browser
+            trainer. It demonstrates tiny next-token training from scratch, not
+            the SFT or preference scenes above.
+          </p><div class="exercise-actions">
+            <a class="primary" href="#cleaning">Return to your batch ↑</a><a
+              class="secondary"
+              href="/playground">Explore the trainer →</a
+            ><a class="text-button" href="/fine-tune-llm-on-mac"
+              >Real post-training on a Mac →</a
+            >
+          </div>
+        </div>
+      </section>
+      <section
+        id="chat"
+        class="chapter journey-stop chat-scene"
+        data-journey-stage="5"
+      >
+        <p class="eyebrow">06 / Dinner is served</p>
+        <h2>Meet the model you cooked.</h2>
+        <div class="scene-pair">
+          <div class="scene-art">
+            <KitchenScene kind="serve" /><span
+              >Kitchen / taste your own dish</span
+            >
+          </div><div class="scene-explanation">
+            <span class="eyebrow">Model / your trained weights</span><p>
+              Start a sentence. Your model predicts what comes next using what
+              it learned from your batch.
+            </p><p class="scene-state">
+              Same model. Same weights.<br /><strong
+                >No pretrained assistant behind the curtain.</strong
+              >
+            </p>
+          </div>
+        </div>
+        <div class="live-chat">
+          <div class="chat-topline">
+            <span class="eyebrow" id="chat-model-name">Your kitchen model</span
+            ><span id="chat-engine">Not cooked yet</span>
+          </div>
+          <p>
+            This is a tiny byte-level text generator. Short training may produce
+            fragments or nonsense; more practice can lower training loss without
+            proving useful generalization. Its weights stay in this tab until
+            you download them or leave the page.
+          </p>
+          <div class="exercise-actions">
+            <a id="return-stove" class="primary" href="#base-recipe"
+              >Back to the stove →</a
+            ><button id="download-cooked" class="secondary" disabled
+              >Take my model home ↓</button
+            >
+          </div>
+          <p id="chat-status" class="state-receipt" role="status">
+            Cook your batch first, then try the model here.
+          </p>
+          <div
+            id="chat-log"
+            class="chat-log"
+            role="log"
+            aria-label="Your model’s completions"
+            aria-live="off"
+            tabindex="0"
+          >
+            <p class="chat-empty">Your own model will be served here.</p>
+          </div>
+          <form id="chat-form">
+            <div class="prompt-label">
+              <label for="chat-prompt">Start a sentence</label><button
+                id="try-dinner"
+                type="button"
+                class="text-button"
+                disabled>Use my batch’s opening</button
+              >
+            </div><textarea
+              id="chat-prompt"
+              rows="2"
+              maxlength="128"
+              placeholder="Cook rice"
+              disabled></textarea><div class="exercise-actions">
+              <button id="send-chat" class="primary" disabled
+                >Let it finish →</button
+              ><button id="stop-chat" type="button" class="secondary" disabled
+                >Stop</button
+              ><button id="clear-chat" type="button" class="text-button"
+                >Clear plate</button
+              >
+            </div>
+          </form>
+          <details>
+            <summary>What is running?</summary><p>
+              The same isolated WASM worker trained at the stove generates 48
+              new byte tokens. No external model downloads, no system prompt,
+              and no canned replies. Download exports the trainer’s .tinygpt
+              format for the Web Lab. Your existing saved Web Lab model is
+              untouched. Changing ingredients does not silently retrain or
+              replace this model.
+            </p>
+          </details>
+        </div>
+        <a class="journey-next" href="/playground"
+          ><span>Explore a bigger recipe</span><strong
+            >Open the browser trainer →</strong
+          ></a
+        >
+      </section>
+      <section class="sources">
+        <h2>Read the technical sources.</h2><p>
+          The kitchen is a metaphor. These sources explain the mechanisms.
+        </p><ul>
+          <li>
+            <a href="https://huggingface.co/learn/llm-course/chapter1/4"
+              >Hugging Face: pre-training and fine-tuning</a
+            >
+          </li><li>
+            <a href="https://arxiv.org/abs/2203.02155"
+              >InstructGPT: demonstrations, preferences, and RLHF</a
+            >
+          </li><li>
+            <a href="https://arxiv.org/abs/2305.18290"
+              >Direct Preference Optimization</a
+            >
+          </li><li>
+            <a href="/docs/learn/llm-kitchen"
+              >Lesson notes and trainer integration contract</a
+            >
+          </li><li>
+            <a href="/learn">Continue with the hands-on learning paths</a>
+          </li>
+        </ul>
+      </section>
+    </article>
+  </main>
+  <script
+    type="application/ld+json"
+    set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "TechArticle",
+      headline: title,
+      description,
+      url: canonical,
+    })}
+  />
+</Default>
+<script>
+  import "../../kitchen/article";
+  import "../../kitchen/cooker";
+  import "../../kitchen/motion.css";
+  import "../../kitchen/welcome.css";
+</script>
+<style>
+  .cook-article {
+    max-width: 1320px;
+    margin: auto;
+    padding: 0 clamp(20px, 4vw, 60px) 100px;
+  }
+  .essay-head {
+    text-align: center;
+  }
+  .edition {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--line-strong);
+    padding: 30px 0;
+    font: 11px var(--font-mono);
+    color: var(--ink-70);
+  }
+  .edition a {
+    color: var(--ink-70);
+  }
+  .eyebrow {
+    font: 11px/1.6 var(--font-mono);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--live);
+    margin-bottom: 14px;
+  }
+  .essay-head > .eyebrow {
+    padding-top: 60px;
+  }
+  .essay-head h1 {
+    font-family: var(--font-display);
+    font-size: clamp(58px, 7.4vw, 104px);
+    line-height: 0.98;
+    font-weight: 600;
+    letter-spacing: -5px;
+    margin: 22px 0 28px;
+  }
+  .dek {
+    font-size: clamp(17px, 2vw, 21px);
+    line-height: 1.6;
+    color: var(--ink-70);
+    margin: auto;
+    max-width: 660px;
+  }
+  .article-meta {
+    font: 11px/1.8 var(--font-mono);
+    color: var(--ink-70);
+    margin: 28px 0 58px;
+  }
+  .article-meta span {
+    padding: 0 12px;
+  }
+  .process-heading {
+    border-top: 1px solid var(--line-strong);
+    padding-top: 32px;
+    margin-bottom: 30px;
+  }
+  .process-heading h2 {
+    font: 500 clamp(23px, 2.5vw, 33px)/1.2 var(--font-display);
+    letter-spacing: -0.8px;
+    margin-bottom: 12px;
+  }
+  .process-heading > p:last-child {
+    font-size: 14px;
+    color: var(--ink-70);
+  }
+  .lane-labels {
+    display: grid;
+    grid-template-columns: 1fr 0.8fr 1fr;
+    gap: 24px;
+    padding-bottom: 16px;
+    font: 10px var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+    color: var(--ink-70);
+  }
+  .lane-labels span:nth-child(2) {
+    text-align: center;
+  }
+  .process-rows {
+    list-style: none;
+    padding: 0;
+  }
+  .process-row {
+    display: grid;
+    grid-template-columns: 1fr 0.8fr 1fr;
+    gap: 24px;
+    border-top: 1px solid var(--line);
+    padding: 17px 0;
+    align-items: center;
+  }
+  .process-side {
+    display: flex;
+    gap: 17px;
+    align-items: center;
+  }
+  .process-side h3 {
+    font-family: var(--font-display);
+    font-size: 19px;
+    line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: -0.35px;
+  }
+  .process-side h3 a {
+    color: var(--ink);
+  }
+  .process-side h3 a:hover {
+    color: var(--live);
+  }
+  .step-number,
+  .group-label {
+    font: 10px var(--font-mono);
+    color: var(--ink-70);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .group-label {
+    color: var(--live);
+  }
+  .process-side p {
+    font-size: 12px;
+    color: var(--ink-70);
+    line-height: 1.5;
+    margin-top: 8px;
+  }
+  .bridge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .bridge p {
+    font: 12px/1.55 var(--font-sans);
+    text-align: center;
+    color: var(--ink-70);
+    max-width: 165px;
+    flex: 1;
+  }
+  .connecting-rule {
+    height: 1px;
+    background: var(--line-strong);
+    flex: 1;
+    min-width: 15px;
+  }
+  .post-training .model-side {
+    border-left: 2px solid var(--live-dim);
+    padding-left: 10px;
+  }
+  .analogy-note {
+    border-top: 1px solid var(--line-strong);
+    padding: 22px 0 0;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink-70);
+  }
+  .analogy-note strong {
+    color: var(--brand);
+  }
+  .reading-grid {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 700px) 150px;
+    gap: 38px;
+    justify-content: center;
+    margin-top: 80px;
+  }
+  .chapter-nav,
+  .technical-margin {
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--ink-70);
+    align-self: start;
+    position: sticky;
+    top: 100px;
+  }
+  .chapter-nav nav {
+    display: grid;
+    gap: 12px;
+  }
+  .chapter-nav a {
+    color: var(--ink-70);
+  }
+  .aside-note {
+    margin-top: 32px;
+  }
+  .technical-margin p {
+    margin-bottom: 18px;
+  }
+  .technical-margin b,
+  .aside-note b {
+    color: var(--ink);
+  }
+  .margin-rule {
+    height: 1px;
+    background: var(--line-strong);
+    margin: 28px 0;
+  }
+  .chapter {
+    scroll-margin-top: 100px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--line-strong);
+    margin-bottom: 48px;
+  }
+  .chapter h2,
+  .sources h2 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(28px, 3vw, 38px);
+    line-height: 1.16;
+    letter-spacing: -1px;
+    margin: 0 0 24px;
+  }
+  .essay-body > .chapter > p:not(.eyebrow):not(.state-receipt):not(.takeaway) {
+    font-size: 17px;
+    line-height: 1.8;
+    margin-bottom: 22px;
+    color: var(--ink-70);
+  }
+  .paired-note {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 20px 0;
+    margin: 28px 0;
+  }
+  .paired-note span,
+  .checkpoint-pair span {
+    font: 10px var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+    color: var(--live);
+  }
+  .paired-note p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-70);
+    margin-top: 9px;
+  }
+  .exercise {
+    margin: 30px 0;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 14px;
+    padding: 26px;
+  }
+  .exercise h3,
+  .finish h3 {
+    font: 500 23px/1.3 var(--font-display);
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+  }
+  .exercise fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0 0 20px;
+    min-width: 0;
+  }
+  .exercise legend {
+    font-size: 13px;
+    color: var(--ink-70);
+    margin-bottom: 12px;
+  }
+  .ingredient {
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+    cursor: pointer;
+  }
+  .ingredient input {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    margin-top: 3px;
+    accent-color: var(--live);
+  }
+  .ingredient strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .sample-text {
+    display: block;
+    font: 12px/1.7 var(--font-mono);
+    color: var(--ink-70);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .primary,
+  .secondary,
+  .text-button {
+    display: inline-block;
+    padding: 11px 16px;
+    min-height: 44px;
+    border-radius: 7px;
+    font: 500 12px/1.65 var(--font-sans);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .primary {
+    background: var(--live);
+    color: var(--paper);
+    border: 1px solid var(--live);
+  }
+  .secondary {
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    color: var(--ink);
+  }
+  .text-button {
+    background: transparent;
+    border: 0;
+    color: var(--live);
+    padding-inline: 4px;
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .secondary[aria-pressed="true"] {
+    background: var(--live-wash);
+    border-color: var(--live);
+    color: var(--live);
+  }
+  .state-receipt {
+    font: 12px/1.8 var(--font-mono);
+    color: var(--ink-70);
+    padding: 17px 0;
+    margin-top: 14px;
+    border-top: 1px solid var(--line-strong);
+  }
+  .state-receipt strong {
+    color: var(--ink);
+  }
+  .inspection {
+    margin-top: 12px;
+  }
+  .inspection summary {
+    font-size: 12px;
+    color: var(--ink-70);
+    cursor: pointer;
+    padding: 10px 0;
+    min-height: 44px;
+  }
+  .inspection pre {
+    font: 12px/1.7 var(--font-mono);
+    background: var(--sunken);
+    padding: 16px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    max-height: 260px;
+    overflow: auto;
+    border-radius: 5px;
+    margin: 10px 0;
+  }
+  .inspection p {
+    font-size: 12px;
+    line-height: 1.65;
+    color: var(--ink-70);
+  }
+  .exercise-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .small-note {
+    font-size: 12px;
+    color: var(--ink-70);
+    line-height: 1.7;
+    margin-top: 14px;
+  }
+  .takeaway {
+    font: 18px/1.7 var(--font-display);
+    border-left: 2px solid var(--live);
+    padding-left: 20px;
+  }
+  .exercise blockquote {
+    font-size: 18px;
+    line-height: 1.6;
+    margin: 12px 0 16px;
+  }
+  .illustrative {
+    font: 11px/1.7 var(--font-mono);
+    color: var(--brand);
+    margin-bottom: 22px;
+  }
+  .checkpoint-controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .checkpoint-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 20px 0;
+  }
+  .checkpoint-pair p {
+    font-size: 12px;
+    color: var(--ink-70);
+    margin-top: 6px;
+  }
+  .output {
+    font-size: 19px;
+    line-height: 1.6;
+    border-left: 2px solid var(--live-dim);
+    padding: 12px 0 12px 18px;
+    margin: 4px 0 16px;
+  }
+  .prompt-reminder {
+    font-size: 13px;
+    color: var(--ink-70);
+    margin-bottom: 18px;
+  }
+  .taste-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .taste-choice {
+    text-align: left;
+    background: var(--sunken);
+    border: 1px solid var(--line-strong);
+    border-radius: 9px;
+    color: var(--ink);
+    padding: 18px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font: 14px/1.65 var(--font-sans);
+  }
+  .taste-choice[aria-pressed="true"] {
+    border-color: var(--live);
+    background: var(--live-wash);
+  }
+  .taste-choice .eyebrow {
+    margin: 0;
+  }
+  .choose-label {
+    font-size: 11px;
+    color: var(--live);
+    margin-top: auto;
+  }
+  .feedback-demo {
+    border-top: 1px solid var(--line-strong);
+    margin-top: 24px;
+    padding-top: 20px;
+  }
+  .feedback-demo > p {
+    font-size: 13px;
+    color: var(--ink-70);
+    line-height: 1.8;
+    margin-bottom: 14px;
+  }
+  .optimization {
+    font-family: var(--font-mono);
+    overflow-wrap: anywhere;
+  }
+  .optimization span {
+    color: var(--live);
+    margin: 0 7px;
+  }
+  .finish {
+    padding-top: 22px;
+  }
+  .finish > p:not(.eyebrow) {
+    color: var(--ink-70);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  .sources h2 {
+    font-size: 27px;
+  }
+  .sources p,
+  .sources li {
+    font-size: 13px;
+    color: var(--ink-70);
+    line-height: 1.8;
+  }
+  .sources ul {
+    padding-left: 20px;
+    margin-top: 16px;
+  }
+  .sources a {
+    color: var(--ink-70);
+  }
+  .sources a:hover {
+    color: var(--live);
+  }
+  [hidden] {
+    display: none !important;
+  }
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--live);
+    outline-offset: 5px;
+  }
+  @media (max-width: 1100px) {
+    .reading-grid {
+      grid-template-columns: 120px minmax(0, 700px);
+      gap: 28px;
+    }
+    .technical-margin {
+      display: none;
+    }
+    .process-row,
+    .lane-labels {
+      grid-template-columns: 1fr 0.6fr 1fr;
+      gap: 16px;
+    }
+    .process-side {
+      gap: 10px;
+    }
+    .process-side h3 {
+      font-size: 17px;
+    }
+  }
+  @media (max-width: 768px) {
+    .reading-grid {
+      display: block;
+      margin-top: 50px;
+    }
+    .chapter-nav {
+      position: static;
+      margin-bottom: 35px;
+    }
+    .chapter-nav nav {
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .aside-note {
+      display: none;
+    }
+    .process-side {
+      display: block;
+    }
+    .process-side h3 {
+      font-size: 16px;
+    }
+    .bridge {
+      gap: 3px;
+    }
+    .bridge p {
+      font-size: 11px;
+    }
+    .connecting-rule {
+      min-width: 4px;
+    }
+    .edition span:last-child {
+      display: none;
+    }
+    .essay-head h1 {
+      letter-spacing: -3px;
+    }
+    .essay-head > .eyebrow {
+      padding-top: 40px;
+    }
+    .article-meta {
+      margin-bottom: 40px;
+    }
+    .exercise {
+      padding: 20px;
+    }
+    .chapter h2 {
+      font-size: 31px;
+    }
+  }
+  @media (max-width: 500px) {
+    .process-row,
+    .lane-labels {
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .lane-labels span:nth-child(2) {
+      display: none;
+    }
+    .bridge {
+      grid-column: 1/-1;
+      grid-row: 2;
+      padding-bottom: 7px;
+      justify-content: center;
+    }
+    .bridge p {
+      max-width: 100%;
+      font-size: 12px;
+      flex: 0 1 auto;
+    }
+    .connecting-rule {
+      max-width: 30px;
+    }
+    .process-side {
+      display: flex;
+      gap: 8px;
+      align-items: start;
+    }
+    .process-side h3 {
+      font-size: 14px;
+    }
+    .process-side p {
+      font-size: 11px;
+    }
+    .process-side .step-number,
+    .group-label {
+      font-size: 9px;
+    }
+    .model-side {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .post-training .model-side {
+      padding-left: 5px;
+    }
+    .process-row {
+      padding: 17px 0 10px;
+    }
+    .process-heading h2 {
+      font-size: 26px;
+    }
+    .paired-note,
+    .checkpoint-pair {
+      gap: 14px;
+    }
+    .paired-note p {
+      font-size: 13px;
+    }
+    .taste-options {
+      grid-template-columns: 1fr;
+    }
+    .essay-body
+      > .chapter
+      > p:not(.eyebrow):not(.state-receipt):not(.takeaway) {
+      font-size: 16px;
+    }
+    .article-meta span {
+      padding: 0 3px;
+    }
+    .edition {
+      font-size: 10px;
+    }
+    .exercise {
+      padding: 17px;
+    }
+    .exercise-actions .primary {
+      width: 100%;
+      text-align: center;
+    }
+  }
+
+  .journey-article {
+    max-width: 1200px;
+  }
+  .start-journey {
+    margin-top: -14px;
+  }
+  .journey-map {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 18px;
+    padding: 35px 0 30px;
+    text-align: left;
+  }
+  .journey-map a {
+    text-decoration: none;
+    color: var(--ink);
+    border-bottom: 1px solid var(--line-strong);
+    padding-bottom: 15px;
+  }
+  .journey-map a:hover {
+    border-color: var(--live);
+  }
+  .journey-map strong,
+  .journey-map a > span {
+    display: block;
+  }
+  .journey-map strong {
+    font: 500 16px var(--font-display);
+    margin: 6px 0;
+  }
+  .journey-map a > span {
+    font: 10px/1.5 var(--font-mono);
+    color: var(--ink-70);
+  }
+  .journey-nav {
+    position: sticky;
+    top: 72px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    padding: 18px 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .journey-nav > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 22px;
+    flex: 1;
+  }
+  .journey-nav a {
+    color: var(--ink-70);
+    font-size: 12px;
+    text-decoration: none;
+  }
+  .journey-nav a span {
+    font: 10px var(--font-mono);
+    padding-right: 7px;
+  }
+  .journey-nav a[aria-current="step"] {
+    color: var(--live);
+  }
+  .journey-reading {
+    font: 11px var(--font-mono);
+    color: var(--ink);
+    min-width: 115px;
+  }
+  .journey-body {
+    max-width: 800px;
+    margin: 65px auto 0;
+  }
+  .journey-stop {
+    scroll-margin-top: 155px;
+  }
+  .journey-stop h2 {
+    max-width: 21ch;
+    font-size: clamp(32px, 4vw, 46px);
+  }
+  .scene-pair {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 28px;
+    margin: 24px 0 30px;
+    align-items: center;
+    border-block: 1px solid var(--line);
+    padding: 20px 0;
+  }
+  .scene-art > span {
+    display: block;
+    font: 10px var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--ink-70);
+    text-align: center;
+    margin-top: 10px;
+  }
+  .scene-explanation :global(.kitchen-drawing) {
+    float: right;
+    width: 50px;
+    height: 50px;
+    margin: 0 0 10px 12px;
+  }
+  .scene-explanation > p:not(.eyebrow) {
+    color: var(--ink-70);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .scene-explanation > .scene-state {
+    font: 11px/1.8 var(--font-mono);
+    padding-top: 15px;
+    border-top: 1px solid var(--line-strong);
+    margin-top: 15px;
+  }
+  .scene-state strong {
+    color: var(--ink);
+    font-weight: 400;
+  }
+  .journey-next {
+    display: block;
+    text-decoration: none;
+    padding: 21px 0 0;
+    margin-top: 32px;
+    border-top: 1px solid var(--line);
+  }
+  .journey-next span {
+    color: var(--ink-70);
+    display: block;
+    font-size: 12px;
+    margin-bottom: 7px;
+  }
+  .journey-next strong {
+    color: var(--live);
+    font: 500 18px var(--font-display);
+  }
+  .input-label {
+    display: block;
+    font-size: 13px;
+    color: var(--ink-70);
+    margin-bottom: 12px;
+  }
+  .chop-input {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--line-strong);
+    background: var(--sunken);
+    padding: 14px;
+    color: var(--ink);
+    font: 16px var(--font-mono);
+    border-radius: 5px;
+    margin-bottom: 16px;
+  }
+  .token-pieces {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 22px;
+  }
+  .token-piece {
+    display: grid;
+    gap: 5px;
+    text-align: center;
+    min-width: 38px;
+    padding: 9px;
+    background: var(--sunken);
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    font: 12px var(--font-mono);
+  }
+  .token-piece span {
+    color: var(--ink-70);
+    font-size: 10px;
+  }
+  .cooking-cycle {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin: 22px 0;
+  }
+  .cooking-cycle li {
+    border-top: 2px solid var(--line-strong);
+    padding: 14px 0;
+  }
+  .cooking-cycle li[data-active="true"] {
+    border-color: var(--live);
+  }
+  .cooking-cycle span {
+    font: 10px var(--font-mono);
+    color: var(--live);
+  }
+  .cooking-cycle p {
+    font-size: 13px;
+    color: var(--ink-70);
+    line-height: 1.65;
+    margin-top: 10px;
+  }
+  .subchapter {
+    font: 500 25px/1.25 var(--font-display);
+    letter-spacing: -0.5px;
+    margin: 35px 0 18px;
+  }
+  .subchapter-anchor {
+    scroll-margin-top: 155px;
+  }
+  .subchapter-anchor > p {
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--ink-70);
+  }
+  .served-output {
+    font: 16px/1.7 var(--font-sans);
+    white-space: pre-wrap;
+    margin-bottom: 22px;
+  }
+  .journey-body .chapter > p:not(.eyebrow):not(.state-receipt):not(.takeaway) {
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--ink-70);
+    margin-bottom: 22px;
+  }
+  .paired-story {
+    border-left: 2px solid var(--live-dim);
+    padding-left: 20px;
+  }
+  @media (max-width: 768px) {
+    .journey-nav {
+      top: 50px;
+      gap: 12px;
+      padding: 14px 0;
+    }
+    .journey-reading {
+      display: none;
+    }
+    .journey-nav > div {
+      gap: 10px;
+    }
+    .journey-nav a {
+      font-size: 11px;
+    }
+    .journey-nav a span {
+      display: none;
+    }
+    .journey-map {
+      gap: 10px;
+    }
+    .journey-map strong {
+      font-size: 13px;
+    }
+    .journey-map a > span {
+      font-size: 9px;
+    }
+    .journey-body {
+      margin-top: 45px;
+    }
+    .scene-pair {
+      gap: 18px;
+    }
+    .scene-explanation > p:not(.eyebrow) {
+      font-size: 13px;
+    }
+    .journey-stop {
+      scroll-margin-top: 125px;
+    }
+  }
+  @media (max-width: 500px) {
+    .journey-map {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .journey-map strong {
+      font-size: 11px;
+    }
+    .journey-map a > span:not(.route-number) {
+      display: none;
+    }
+    .journey-map {
+      padding-top: 22px;
+    }
+    .scene-pair {
+      grid-template-columns: 1fr;
+    }
+    .scene-art {
+      max-width: 330px;
+      margin: auto;
+    }
+    .scene-explanation {
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+    .scene-explanation .eyebrow {
+      margin-bottom: 10px;
+    }
+    .scene-explanation > .scene-state {
+      font-size: 11px;
+    }
+    .cooking-cycle {
+      gap: 10px;
+    }
+    .cooking-cycle p {
+      font-size: 12px;
+    }
+    .journey-nav a {
+      font-size: 10px;
+    }
+    .journey-body
+      .chapter
+      > p:not(.eyebrow):not(.state-receipt):not(.takeaway) {
+      font-size: 16px;
+    }
+    .journey-next strong {
+      font-size: 17px;
+    }
+    .journey-map .route-number {
+      font-size: 9px;
+    }
+  }
+</style>

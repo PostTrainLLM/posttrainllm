@@ -1,0 +1,15 @@
+{
+  "mode": "real WASM: one training step, same-weight generation/export",
+  "results": [
+    {
+      "width": 1366,
+      "trainingMs": 641,
+      "prompt": "Cook rice, warm",
+      "completion": "Your opening: Cook rice, warm5�\u001fl��lV{t�\u0006C�.t\"g�a�����\u001ch�ww�d�H!�65g��2.��gr.",
+      "checkpointBytes": 216425,
+      "viewport": true,
+      "messages": ["train", "sample"]
+    }
+  ],
+  "errors": []
+}

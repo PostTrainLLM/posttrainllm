@@ -1,0 +1,20 @@
+{
+  "mode": "actual pretrained SmolLM2-135M inference",
+  "steps": [
+    "ingredients",
+    "chopping",
+    "cleaning",
+    "cleaning",
+    "base-recipe",
+    "refine",
+    "taste",
+    "serve",
+    "chat",
+    "final trainer handoff"
+  ],
+  "errors": [],
+  "reply": "You can make a three-ingredient dinner without dairy by using rice, beans, and tomatoes. Cook the rice, warm the beans, and combine with chopped tomatoes.",
+  "generationMs": 1241,
+  "followup": "You can make a three-ingredient dinner without dairy by using rice, beans, and tomatoes. Cook the rice, warm the beans, and combine with chopped tomatoes.",
+  "status": "pass"
+}

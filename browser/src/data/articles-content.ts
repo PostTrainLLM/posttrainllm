@@ -89,4 +89,12 @@ export const articleContent: Record<string, EditorialContent> = {
   },
 };
 
-export const articleList = Object.values(articleContent);
+export const articleList = [
+  {
+    title: "How to cook an LLM",
+    description:
+      "A garden-to-table journey through model-building: gather your data, inspect tokens, clean the batch, cook, refine, and serve.",
+    path: "/articles/how-to-cook-an-llm",
+  },
+  ...Object.values(articleContent),
+];

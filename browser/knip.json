@@ -10,7 +10,9 @@
     "src/benchmarks/types.ts",
     "src/lib/api-timing.ts",
     "src/lib/vitals.ts",
-    "src/learning/workspace.ts"
+    "src/learning/workspace.ts",
+    "src/kitchen/article.ts",
+    "src/kitchen/cooker.ts"
   ],
   "project": [
     "src/**/*.{astro,ts}",

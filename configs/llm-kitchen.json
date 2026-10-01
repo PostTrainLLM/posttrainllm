@@ -1,0 +1,14 @@
+{
+  "ctx": 32,
+  "layers": 1,
+  "heads": 2,
+  "dModel": 32,
+  "dMlp": 64,
+  "batchSize": 4,
+  "learningRate": 0.003,
+  "gradClip": 1,
+  "maxSteps": 256,
+  "evalEvery": 8,
+  "seed": 42,
+  "backend": "wasm"
+}

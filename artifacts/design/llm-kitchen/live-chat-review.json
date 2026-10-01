@@ -1,0 +1,19 @@
+{
+  "runtime": "real single-thread WASM, pretrained SmolLM2-135M INT8",
+  "errors": [
+    "Failed to load resource: the server responded with a status of 403 ()"
+  ],
+  "failedRequests": [],
+  "httpErrors": [
+    {
+      "url": "https://ingest.sassmaker.com/v1/logs",
+      "status": 403
+    }
+  ],
+  "loadStatus": "Model ready. Send a prompt to see actual inference. Weights stay fixed.",
+  "reply": "SmolLM2 · live modelThe three-ingredient dinner without dairy is: \n\n- Chicken and vegetables \n\n- Fish and vegetables \n\n- Chicken and tofu",
+  "elapsedMs": 919,
+  "generationStatus": "Reply complete. Fixed pretrained weights; no training took place.",
+  "unloaded": true,
+  "status": "pass"
+}

@@ -1,0 +1,139 @@
+{
+  "mode": "overhaul",
+  "surfaceMode": "experience",
+  "status": "real-cooking-verified-locally",
+  "scope": "Opening screen of approved dark kitchen journey; no production changes",
+  "purpose": "PostTrainLLM helps first-time LLM learners understand data, training and inference through paired kitchen/model decisions and inspectable local artifacts.",
+  "purposeSource": "PRODUCT.md; DESIGN.md; owner journey brief and opening screenshot",
+  "purposeAlignment": "match",
+  "library": {
+    "posture": "Preserve existing native Astro navigation, button and selection behavior, existing owned SVGs and fonts. No new dependency; probes are standalone HTML."
+  },
+  "directions": [
+    {
+      "id": "a",
+      "name": "Kitchen workbench",
+      "audience": "First-time LLM learners",
+      "screenJob": "Understand all six kitchen/model pairs and start gathering data",
+      "visualThesis": "Asymmetric workspace: concise left introduction, illustrated right workbench, full-width paired process ledger",
+      "typography": "Bricolage bold display 70px; Geist body; Mono process captions",
+      "semanticColorRoles": "Existing ink surfaces, teal next action/current stop, muted secondary labels",
+      "interactionThesis": "Preview the full route, then pick up a basket; right-hand illustration becomes the active workstation",
+      "signature": "Two aligned process rows map the kitchen actions directly to model-building",
+      "risk": "Separate introduction remains one click before doing; desktop diagram needs re-composition on phone"
+    },
+    {
+      "id": "b",
+      "name": "Illustrated field guide",
+      "audience": "Readers who want an overview before trying",
+      "screenJob": "Read one clear premise, compare three lifecycle anchors and start",
+      "visualThesis": "Editorial title and short invitation over a full-width illustrated triptych and marginal lesson notes",
+      "typography": "Bricolage 105px title; compact Geist learning outcomes; Mono annotations",
+      "semanticColorRoles": "Ink editorial canvas, light heading, teal start action and process annotations",
+      "interactionThesis": "A compact illustrated reading opening leads into the existing one-scene journey",
+      "signature": "Garden, stove and plate paired with data, weights and answers",
+      "risk": "Most faithful to existing article direction but introduces less immediate agency"
+    },
+    {
+      "id": "c",
+      "name": "Straight into the garden",
+      "audience": "Learners who prefer doing first",
+      "screenJob": "Pick a text source and see it enter the basket before continuing",
+      "visualThesis": "Experience-first scene: compact title, large garden, three selectable source placards, visible basket receipt",
+      "typography": "Bricolage 58px headline; 18px source titles; Mono scene state",
+      "semanticColorRoles": "Ink garden, neutral selectable crop surfaces, teal selection and next step",
+      "interactionThesis": "The opening is the first real harvest activity; selection advances naturally to cutting",
+      "signature": "Text sources are clickable crops; basket selection and data/weights state are visible immediately",
+      "risk": "Needs discoverable keyboard focus and purposeful movement; may overwhelm a reader wanting a plain introduction"
+    }
+  ],
+  "recommendation": "c",
+  "ownerDecision": "delegated",
+  "evidence": {
+    "preview": "artifacts/design/llm-kitchen/opening-directions/index.html",
+    "screenshots": "artifacts/design/llm-kitchen/opening-directions/{a,b,c}-{1440,390}.png",
+    "before": "artifacts/design/llm-kitchen/opening-directions/before.png",
+    "checks": "artifacts/design/llm-kitchen/opening-directions/checks.json",
+    "implementedScreenshots": "artifacts/design/llm-kitchen/opening-final-{1440,1366,768,390,320}.png",
+    "implementationChecks": "artifacts/design/llm-kitchen/opening-final-review.json"
+  },
+  "toolingLimitations": [
+    "Installed design-inspiration/SKILL.md and shared design-workflow.mjs are unavailable; no validator pass claimed."
+  ],
+  "selectionGate": {
+    "source": "/Users/sarthak/.agents/skills/design-workflow/SKILL.md section 1",
+    "instruction": "Ask the owner to select a direction and stop before implementation until they answer."
+  },
+  "selectedDirection": "c",
+  "ownerNote": "Owner said give your best deisng after reviewing the three opening directions. Agent selected C to begin with actual data selection and preserve the paired-process journey.",
+  "implementationStarted": true,
+  "verification": {
+    "unit": "16 files / 117 tests pass",
+    "opening": "Empty start and visible dinner goal at all five widths, keyboard selection, canonical continuity, reload, empty guard/focus, inspector sync, reduced motion and no-JS pass",
+    "firstViewport": "36 initial scene/action/navigation checks pass at 1440x900,1366x768,768x1024,390x844",
+    "wholeJourney": "Controlled train/continue/stop/generate/download, changed-batch disclosure, reload and desktop/phone viewport pass; separate actual WASM step and same-weight generation",
+    "chat": "Same cooked model; no pretrained assistant loaded",
+    "bundle": "255815 bytes / 500000 pass",
+    "publication": "Production/docs/knowledge/link gates pass; 607 HTML pages, 31929 internal links and 10331 fragments",
+    "formalDesignValidator": "Unavailable in installed skill and repository; no shared validator pass claimed"
+  },
+  "review": {
+    "critique": {
+      "total": 35,
+      "maximum": 40,
+      "basis": "Purpose and kitchen/model correspondence 9; composition and first-screen hierarchy 9; owned illustration and typography 8; real interaction and state continuity 9"
+    },
+    "audit": {
+      "total": 18,
+      "maximum": 20,
+      "basis": "Native keyboard selection/focus, known state source, finite reduced motion, first-screen primary actions and recovery pass; no automated WCAG suite run"
+    },
+    "unresolvedP0": 0,
+    "unresolvedP1": 0,
+    "polish": "Repaired CSS specificity, narrow-phone inspector overlap, overlapping mobile cards, primary-action styling, inert no-JS controls and muted crop-label contrast"
+  },
+  "reviewRuntime": "http://127.0.0.1:4173/articles/how-to-cook-an-llm",
+  "basketRefinement": {
+    "mode": "preserve",
+    "ownerScope": "Basket interaction and offered options",
+    "goal": "Three-ingredient, dairy-free dinner assistant",
+    "choices": [
+      "Rice, beans and tomatoes: actual dairy-free recipe",
+      "Creamy rice with cheese: actual contrasting recipe",
+      "Tomorrow\u2019s forecast: actual unrelated example"
+    ],
+    "initialSelection": "Empty; all samples are opt-in",
+    "learningContract": "Choose by the goal, inspect actual text; structural cleaning does not judge semantic suitability",
+    "session": "Lesson key/schema v2 prevents restoring prior preselected choices; model/trainer state remains untouched",
+    "responsive": "Bounded full inspector and horizontally scrollable paired route on phone"
+  },
+  "realCooking": {
+    "ownerScope": "Bro, let them cook the model.",
+    "direction": "Preserve delegated garden and paired-process workspace; replace authored stove/independent chat with actual cooking.",
+    "runtime": "Existing proven WASM worker, isolated state; no dependencies, OPFS writes or external pretrained weights",
+    "motion": "Steam follows actual training state; reduced motion disables it",
+    "evidence": [
+      "artifacts/design/llm-kitchen/cook-real.json",
+      "artifacts/design/llm-kitchen/cook-ui.json",
+      "artifacts/design/llm-kitchen/export-reopen.json",
+      "artifacts/design/llm-kitchen/viewport-review.json"
+    ],
+    "limits": "Real runtime smoke uses one optimizer step, not full-run quality proof. SFT/preferences remain illustrations."
+  },
+  "releasePass": {
+    "lane": "preserve",
+    "scope": "Continue owner-delegated garden; release reliability and lifecycle corrections",
+    "ownerAuthorization": "Just make the best version possible, push it, and release it.",
+    "configuration": "configs/llm-kitchen.json",
+    "recovery": "Runtime errors and page exit keep the last checkpoint downloadable; counters use serialized optimizer steps",
+    "codeHealth": "No unused kitchen modules or exports; complexity remains at 301; no browser dependency cycles",
+    "dependencies": "No direct package additions. Existing build dependencies patched with same-major overrides; security gate passes without adding exceptions.",
+    "evidence": [
+      "artifacts/design/llm-kitchen/cook-real.json",
+      "artifacts/design/llm-kitchen/cook-ui.json",
+      "artifacts/design/llm-kitchen/export-reopen.json",
+      "artifacts/design/llm-kitchen/opening-final-review.json",
+      "artifacts/design/llm-kitchen/viewport-review.json"
+    ]
+  }
+}

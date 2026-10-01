@@ -1,0 +1,28 @@
+{
+  "viewports": [
+    {
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "width": 768,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "overflow": false
+    }
+  ],
+  "interactions": [
+    "Real preparation: exact duplicate removed, malformed sample excluded, code retained",
+    "Checkpoint comparison shows training objective/example with illustration label",
+    "Vote collects data only; separate training illustration; re-vote invalidates illustration; poor feedback explained; reset clears tray",
+    "Text download matches prepared corpus",
+    "Same-tab handoff offers explicit corpus replacement; batch consumed; no training message sent",
+    "Unavailable storage leaves reader on article with download/Upload fallback",
+    "Busy operation blocks corpus replacement",
+    "Dismiss preserves corpus and consumes pending batch",
+    "Invalid handoff presents fallback and leaves existing corpus untouched"
+  ],
+  "errors": []
+}
