@@ -1,0 +1,109 @@
+---
+// Paired editorial diagrams for the kitchen lesson; decorative, text carries meaning.
+interface Props {
+  kind: string;
+  technical?: boolean;
+}
+const { kind, technical = false } = Astro.props;
+const kitchen: Record<string, string[]> = {
+  select: [
+    "M20 45Q48 83 76 45Z",
+    "M24 42q5-18 14-8q6-19 17-10q9-12 17 14",
+    "M39 25l-5-12m25 12 5-14",
+  ],
+  prepare: [
+    "M15 20h70v56H15Z",
+    "M24 32h25m-25 12h20m-20 12h30",
+    "M63 29l14 27m-2-32 7 15",
+  ],
+  pretrain: [
+    "M21 33h58v27q0 17-17 17H38q-17 0-17-17Z",
+    "M18 27h64m-37-5h10",
+    "M21 42H12v14h9m58-14h9v14h-9",
+    "M41 17q-8-7 0-15m21 16q-8-7 0-15",
+  ],
+  sft: [
+    "M18 18h51v61H18Z",
+    "M28 30h25m-25 11h30m-30 11h18m-18 11h29",
+    "M65 47l10 10 17-25",
+  ],
+  preference: [
+    "M10 55q18-31 35 0q-18 20-35 0Zm46 0q18-31 35 0q-18 20-35 0Z",
+    "M28 23v14m48-14v14",
+    "M44 75l9 6 13-14",
+  ],
+  inference: [
+    "M17 50q33-34 66 0Z",
+    "M12 56h76m-34-39h-8m4 0v9",
+    "M24 65q25 19 51 0",
+  ],
+};
+const model: Record<string, string[]> = {
+  select: [
+    "M20 16h56v67H20Z",
+    "M30 29h34m-34 13h28m-28 13h34m-34 13h20",
+    "M24 12h56v67",
+  ],
+  prepare: [
+    "M10 28h20v25H10Zm30 0h20v25H40Zm30 0h20v25H70Z",
+    "M16 62h7m24 0h7m24 0h7",
+    "M15 73h70",
+  ],
+  pretrain: [
+    "M16 26h19v19H16Zm48 0h19v19H64Zm-24 30h19v19H40Z",
+    "M35 35h29m8 10-14 16m-17 0L25 45",
+    "M85 62q10 13-3 21H68m5-7-5 7 6 5",
+  ],
+  sft: [
+    "M10 25h34v27H10Zm47 0h34v27H57Z",
+    "M44 38h13m-7-6 7 6-7 6",
+    "M26 61h47m-47 12h36",
+  ],
+  preference: [
+    "M12 19h27v25H12Zm48 0h27v25H60Z",
+    "M24 55l6 6 12-17",
+    "M39 31h21m-6-6 6 6-6 6",
+    "M50 62v17m-17-8h34",
+  ],
+  inference: [
+    "M10 29h25v25H10Zm55 0h25v25H65Z",
+    "M35 42h30m-7-7 7 7-7 7",
+    "M17 38h11m44 0h11m-11 9h8",
+    "M32 69h38",
+  ],
+};
+const paths = (technical ? model : kitchen)[kind] ?? [];
+---
+
+<svg
+  viewBox="0 0 100 100"
+  aria-hidden="true"
+  class:list={["kitchen-drawing", { technical }]}
+>
+  <g
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    {paths.map((path) => <path d={path} />)}
+  </g>
+</svg>
+<style>
+  .kitchen-drawing {
+    width: 76px;
+    height: 76px;
+    flex: 0 0 auto;
+    color: var(--ink-70);
+  }
+  .technical {
+    color: var(--live);
+  }
+  @media (max-width: 600px) {
+    .kitchen-drawing {
+      width: 44px;
+      height: 44px;
+    }
+  }
+</style>

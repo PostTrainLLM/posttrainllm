@@ -1,0 +1,64 @@
+{
+  "mode": "overhaul",
+  "surfaceMode": "read",
+  "target": "How to Cook an LLM interactive article",
+  "issue": "https://github.com/PostTrainLLM/posttrainllm/issues/182",
+  "status": "awaiting-owner-selection",
+  "implementationStarted": false,
+  "purpose": "PostTrainLLM helps learners understand model development by making inspectable decisions about data, training examples, feedback, and inference.",
+  "purposeSource": "PRODUCT.md; PROJECT_STATUS.md; owner brief 2026-10-01",
+  "directions": [
+    {
+      "id": "a",
+      "name": "Research kitchen",
+      "audience": "First-time LLM learners on the existing research site",
+      "screenJob": "Read a guided article and inspect inline decisions",
+      "visualThesis": "Existing dark research bench with editorial pacing",
+      "typography": "Bricolage headings; Geist prose; Geist Mono token data in implementation",
+      "colorRoles": "Ink canvas, teal actions, coral warnings",
+      "layout": "Long-form article, inline station panels",
+      "interactionThesis": "Read, decide, inspect, continue",
+      "signature": "Each station exposes a data/weights/input-output change receipt",
+      "risk": "May feel technical for absolute beginners",
+      "preview": "direction-a.png"
+    },
+    {
+      "id": "b",
+      "name": "Annotated cookbook",
+      "audience": "Beginners arriving for an approachable explainer",
+      "screenJob": "Read a recipe and complete small preparation sheets",
+      "visualThesis": "Warm editorial paper with serif headings and margin annotations",
+      "typography": "Serif display, sans-serif reading, mono token annotations",
+      "colorRoles": "Paper canvas, forest actions, rust teaching notes",
+      "layout": "Reading-first chapters with inline worksheets",
+      "interactionThesis": "Complete a decision while reading its explanation",
+      "signature": "Recipe annotations translate kitchen actions into weight/data changes",
+      "risk": "A lighter editorial island differs from the surrounding dark site",
+      "preview": "direction-b.png"
+    },
+    {
+      "id": "c",
+      "name": "Guided workshop",
+      "audience": "Learners who prefer doing before reading",
+      "screenJob": "Complete stations while inspecting technical state",
+      "visualThesis": "A compact lesson console with persistent station navigation",
+      "typography": "Strong sans-serif headings, readable prose, mono inspector",
+      "colorRoles": "Slate canvas, amber station actions, neutral evidence",
+      "layout": "Station rail and dual-pane kitchen/technical workspace",
+      "interactionThesis": "Decision followed immediately by inspectable explanation",
+      "signature": "Prepared text and actual byte tokens visible side by side",
+      "risk": "Can feel more like a tool than an article",
+      "preview": "direction-c.png"
+    }
+  ],
+  "library": {
+    "posture": "Reuse existing Astro shell, project-native inputs, buttons and disclosure patterns; no added runtime dependency"
+  },
+  "toolingLimitations": [
+    "Referenced design-inspiration/SKILL.md and shared design-workflow.mjs were not found in searched installed/local locations. No completion validation is claimed."
+  ],
+  "checks": {
+    "preview": "Rendered and visually inspected all three desktop composition previews with existing Playwright; browser closed afterward",
+    "featureChecks": "Pending implementation"
+  }
+}

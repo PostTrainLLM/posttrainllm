@@ -1,0 +1,15 @@
+{
+  "mode": "real WASM: one training step, same-weight generation/export",
+  "results": [
+    {
+      "width": 1366,
+      "trainingMs": 584,
+      "prompt": "Cook rice, warm",
+      "completion": "Your opening: Cook rice, warm�W�����D\u0012k\u0014 A�^a2gp2V\fhrV�\b.JL;hH�o��XU�BXm2�XmH",
+      "checkpointBytes": 216425,
+      "viewport": true,
+      "messages": []
+    }
+  ],
+  "errors": []
+}

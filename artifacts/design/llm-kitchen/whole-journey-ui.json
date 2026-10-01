@@ -1,0 +1,19 @@
+{
+  "mode": "controlled worker double",
+  "steps": [
+    "ingredients",
+    "chopping",
+    "cleaning",
+    "cleaning",
+    "base-recipe",
+    "refine",
+    "taste",
+    "serve",
+    "chat",
+    "final trainer handoff"
+  ],
+  "errors": [],
+  "reply": "Controlled test reply.",
+  "generationMs": 33,
+  "status": "pass"
+}

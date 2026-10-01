@@ -1,0 +1,34 @@
+{
+  "mode": "controlled worker: UI and lifecycle",
+  "results": [
+    {
+      "width": 1366,
+      "trainingMs": 966,
+      "prompt": "Cook rice, warm",
+      "completion": "Your opening: Cook rice, warmControlled completion, not model evidence.",
+      "checkpointBytes": 2534,
+      "viewport": true,
+      "messages": [
+        "train",
+        "continue",
+        "stop",
+        "sample"
+      ]
+    },
+    {
+      "width": 390,
+      "trainingMs": 877,
+      "prompt": "Cook rice, warm",
+      "completion": "Your opening: Cook rice, warmControlled completion, not model evidence.",
+      "checkpointBytes": 2534,
+      "viewport": true,
+      "messages": [
+        "train",
+        "continue",
+        "stop",
+        "sample"
+      ]
+    }
+  ],
+  "errors": []
+}

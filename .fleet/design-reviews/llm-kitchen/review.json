@@ -1,0 +1,185 @@
+{
+  "mode": "overhaul",
+  "surfaceMode": "read",
+  "target": "How to Cook an LLM interactive article",
+  "issue": "https://github.com/PostTrainLLM/posttrainllm/issues/182",
+  "status": "whole-journey-usability-verified-locally",
+  "implementationStarted": true,
+  "purpose": "PostTrainLLM helps learners understand model development by making inspectable decisions about data, training examples, feedback, and inference.",
+  "purposeSource": "PRODUCT.md; PROJECT_STATUS.md; owner brief 2026-10-01",
+  "directions": [
+    {
+      "id": "a",
+      "name": "Illustrated essay",
+      "audience": "First-time LLM learners on the existing research site",
+      "screenJob": "Read a guided article and inspect inline decisions",
+      "visualThesis": "A reading-first editorial essay with integrated line illustrations, a single prose column, marginal technical notes, and inline exercises.",
+      "typography": "Georgia editorial display/prose; sans-serif exercises; monospace annotations",
+      "colorRoles": "Paper canvas; olive diagrams; forest actions; dark serif headings.",
+      "layout": "A reading-first editorial essay with integrated line illustrations, a single prose column, marginal technical notes, and inline exercises.",
+      "interactionThesis": "Scroll through the narrative; make a small decision at the relevant paragraph.",
+      "signature": "An illustrated ingredient-to-recipe lifecycle and technical marginalia.",
+      "risk": "Interactions could be overlooked by readers focused on prose.",
+      "preview": "direction-a.png"
+    },
+    {
+      "id": "b",
+      "name": "Explore the kitchen",
+      "audience": "Beginners arriving for an approachable explainer",
+      "screenJob": "Read a recipe and complete small preparation sheets",
+      "visualThesis": "A spatial illustrated kitchen with three selectable stations and a shared contextual inspector beneath the map.",
+      "typography": "Sans-serif station labels/headings; monospace technical labels",
+      "colorRoles": "Forest canvas; sage equipment; warm gold current station; paper inspector.",
+      "layout": "A spatial illustrated kitchen with three selectable stations and a shared contextual inspector beneath the map.",
+      "interactionThesis": "Choose a station, act on its materials, then inspect the data-versus-weights consequence.",
+      "signature": "Clickable preparation counter, stove, and tasting table reveal the model lifecycle.",
+      "risk": "Spatial exploration needs a strong linear and accessible fallback.",
+      "preview": "direction-b.png"
+    },
+    {
+      "id": "c",
+      "name": "Experiment notebook",
+      "audience": "Learners who prefer doing before reading",
+      "screenJob": "Complete stations while inspecting technical state",
+      "visualThesis": "A compact notebook document with execution gutters, code cells, output receipts, and a checkpoint comparison table.",
+      "typography": "Compact sans-serif document headings; monospace execution cells",
+      "colorRoles": "White document; neutral cell surfaces; blue execution actions; green data output.",
+      "layout": "A compact notebook document with execution gutters, code cells, output receipts, and a checkpoint comparison table.",
+      "interactionThesis": "Run preparation, inspect the result, compare checkpoints, collect a preference.",
+      "signature": "Every execution cell declares whether data or weights changed.",
+      "risk": "Code may make a beginner article feel more technical.",
+      "preview": "direction-c.png"
+    }
+  ],
+  "library": {
+    "posture": "Reuse existing Astro shell, project-native inputs, buttons and disclosure patterns; no added runtime dependency"
+  },
+  "toolingLimitations": [
+    "Referenced design-inspiration/SKILL.md and shared design-workflow.mjs were not found in searched installed/local locations. No completion validation is claimed."
+  ],
+  "checks": {
+    "preview": "All three revised composition previews rendered and inspected at desktop; preparation, station switching, technical labels, notebook byte-token output, and preference collection checks passed; 390px page overflow check passed. Browser closed afterward.",
+    "featureChecks": "Full visible-controls journey, real model inference, trainer return/reload, desktop and phone chat reachability pass"
+  },
+  "revision": 3,
+  "ownerFeedback": "First direction round rejected: shared composition with color changes; insufficient visual quality.",
+  "supersedes": "first-round/",
+  "selectedDirection": "a",
+  "ownerDecision": "keep",
+  "ownerNote": "Owner retained the illustrated essay in the existing theme and asked for a journey: harvest vegetables, chop, clean data, cook/pre-train, refine and serve. This is an adaptation of the owner-selected direction, not a new agent-selected design.",
+  "directionContract": {
+    "purpose": "PostTrainLLM helps learners understand model development by making inspectable decisions about data, training examples, feedback, and inference.",
+    "audience": "Beginners learning the model-building lifecycle",
+    "screenJob": "Read an illustrated essay, compare kitchen and ML processes simultaneously, make inspectable decisions, then carry data to the trainer",
+    "visualThesis": "Illustrated essay in the existing Local Research Bench theme",
+    "system": "Existing Bricolage/Geist/Geist Mono typography, deep ink surfaces, teal actions, coral for analogy limits, reading column and paired process rails",
+    "signature": "Kitchen and ML actions are paired at each station with a shared-function explanation and explicit what-changed receipt",
+    "risk": "A simple kitchen analogy can hide optimization and evaluation differences; keep those limits visible",
+    "library": "Reuse Default, SiteHeader, system.css, and existing native form/disclosure patterns; no dependency changes"
+  },
+  "publication": "not-requested",
+  "evidence": {
+    "directory": "artifacts/design/llm-kitchen",
+    "screenshots": [
+      "first-viewport-390.png",
+      "first-viewport-768.png",
+      "first-viewport-1440.png",
+      "after-390.png",
+      "after-768.png",
+      "after-1440.png",
+      "ingredients-1440.png",
+      "base-recipe-390.png"
+    ],
+    "browserReview": "artifacts/design/llm-kitchen/journey-browser-review.json",
+    "standalonePreview": "artifacts/design/llm-kitchen/review.html",
+    "comprehension": {
+      "status": "not-applicable",
+      "reason": "Read/learning surface, not Persuade"
+    },
+    "chatLifecycle": "artifacts/design/llm-kitchen/chat-lifecycle-review.json",
+    "liveInference": "artifacts/design/llm-kitchen/live-chat-review.json",
+    "compactScreenshots": "artifacts/design/llm-kitchen/compact-*.png",
+    "wholeJourney": "artifacts/design/llm-kitchen/whole-journey-live.json"
+  },
+  "scores": {
+    "critique": {
+      "total": 34,
+      "maximum": 40,
+      "basis": "Purpose and concept mapping 9; composition/typography 8; product-specific illustration 8; interaction clarity 9"
+    },
+    "audit": {
+      "total": 18,
+      "maximum": 20,
+      "basis": "Keyboard/native inputs, clear labels and focus, 390/768/1440 reflow, no page errors, no training on import; automated WCAG audit not run"
+    },
+    "unresolvedP0": 0,
+    "unresolvedP1": 0
+  },
+  "decision": "keep",
+  "verification": {
+    "unitTests": "Full browser unit suite: 15 files / 115 tests pass",
+    "typecheck": "pass",
+    "build": "production Astro/docs build pass",
+    "publicationGates": "538 Markdown counterparts, 135 knowledge objects, 607 HTML pages, 31929 internal links and 10330 fragments pass",
+    "browser": "all three viewports and article/import/storage fallback checks pass; no model training run",
+    "formatting": "New feature modules/components/page and changed web publication surfaces pass Prettier. main.ts has a verified pre-existing full-file formatting failure; its adapter diff is kept small.",
+    "designValidator": "Referenced shared design-workflow.mjs unavailable; no validator pass claimed",
+    "journeyAudit": "pnpm --dir browser exec node scripts/kitchen-journey-audit.mjs: pass at 390/768/1440; selection continuity, Unicode and empty tokenization, bounded/replayable cooking, post-training controls, garnish distinction, explicit trainer import with no training, no-JS reading fallback",
+    "bundleSize": "256737 bytes; 500000-byte limit passes",
+    "liveChat": "Actual SmolLM2-135M INT8 single-thread WASM load and streamed reply pass; 695ms generation, worker unloaded. No training. Existing site log ingest returned HTTP403; no model/runtime requests failed.",
+    "motion": "Finite harvest/knife/water/steam/garnish SVG animations; enabled and reduced-motion paths verified.",
+    "chatLifecycle": "Controlled Worker double verifies opt-in load, streaming UI, termination on stop/navigation, reload, cancelled-context exclusion, and mobile overflow. Separate actual-model evidence is live-chat-review.json.",
+    "firstViewport": "36 primary-action/navigation checks pass; no horizontal overflow",
+    "wholeJourney": "artifacts/design/llm-kitchen/whole-journey-live.json: actual model load, dinner reply, follow-up, reload and trainer handoff; separate controlled-double UI report",
+    "chatReachability": "Readable transcript >=100px; Send button center hit-test passes desktop and phone; footer cannot cover composer"
+  },
+  "journey": {
+    "stops": [
+      "Garden: select teaching data",
+      "Cutting board: inspect real byte tokens",
+      "Sink: clean and encode selected batch",
+      "Stove: bounded predict/compare/update illustration",
+      "Table: SFT and preference refinement, presentation garnish, then inference",
+      "Live table: explicit pretrained model load and streamed local inference"
+    ],
+    "continuity": "One scene at a time; Back/Next and browser history retain choices, focus scene headings, and terminate chat worker when leaving.",
+    "truthBoundary": "Post-training corresponds to worked examples and feedback-driven refinement; garnish is presentation only; ordinary inference does not update weights"
+  },
+  "reviewRuntime": {
+    "url": "http://127.0.0.1:4173/articles/how-to-cook-an-llm",
+    "server": "Astro production preview on loopback",
+    "persistence": "Owner explicitly requested keeping the local app running for review on 2026-10-01",
+    "stopCommand": "pnpm --dir browser exec astro preview stop"
+  },
+  "viewportRefinement": {
+    "direction": "Owner-directed compact adaptation of the approved dark illustrated journey",
+    "screenJob": "See the animated kitchen, matching model step, primary interaction and navigation before scrolling",
+    "composition": "Paired scene/explanation beside interaction on desktop; compact paired scene over interaction on mobile; full sample text and supporting evidence progressively disclosed",
+    "evidence": "artifacts/design/llm-kitchen/viewport-review.json",
+    "checks": "36 initial-view checks across welcome, six scenes and two refinement activities at 1440x900, 1366x768, 768x1024 and 390x844 pass",
+    "limits": "Expanded notes and generated chat transcript can scroll; no browser-level scroll lock or clipped reading content",
+    "ownerSource": "Owner requested most things on the first screen without scrolling, preserving the existing direction"
+  },
+  "usabilityRepair": {
+    "route": "ingredients -> chopping -> cleaning -> base-recipe -> refine -> taste -> serve -> chat -> trainer",
+    "continuity": "Bounded one-hour same-tab lesson state restores selections, preparation and preference/garnish choices; chat messages are not persisted",
+    "fixes": [
+      "Next/Back no longer skip Taste and Serve",
+      "Readable mobile transcript and collapsible context",
+      "Enter to send; Shift+Enter newline; starter prompt",
+      "Cancellable model loading and explicit unload",
+      "Return from trainer continues at cleaning with choices retained",
+      "Prepared-batch trainer handoff available from final footer",
+      "Navigation does not overlay chat composer"
+    ],
+    "modelLimit": "135M pretrained model is a teaching demo; follow-up can repeat a prior answer rather than obey new formatting instructions. Worked recipe in system context is prompt context, not training. Larger Qwen 0.5B and SmolLM2 360M candidates closed the test browser during loading and are not offered."
+  },
+  "openingRedesign": {
+    "direction": "c",
+    "decision": "delegated",
+    "receipt": ".fleet/design-reviews/llm-kitchen/opening-direction-review.json",
+    "evidence": "artifacts/design/llm-kitchen/opening-final-review.json",
+    "contract": "Opening is a real harvest, mirrors canonical lesson state, and continues to cutting; full inspector and reading fallback retained",
+    "basketRefinement": "Empty, task-based basket with neutral actual snippets, seven-sample inspector and explicit semantic-versus-structural cleaning distinction"
+  }
+}

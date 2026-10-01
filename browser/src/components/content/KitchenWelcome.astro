@@ -1,0 +1,130 @@
+---
+// The opening is a real harvest surface; canonical lesson state stays in article.ts.
+// Guide: docs/learn/llm-kitchen.md. No model is loaded or trained here.
+import KitchenScene from "./KitchenScene.astro";
+import { ingredients } from "../../kitchen/model";
+interface Props {
+  journey: readonly { id: string; name: string; model: string }[];
+}
+const { journey } = Astro.props;
+const crops = [
+  { id: "explanation", category: "Recipe note", label: "Dinner recipe" },
+  { id: "dairy", category: "Recipe note", label: "Dinner recipe" },
+  { id: "weather", category: "Forecast", label: "Weather report" },
+].map((crop) => ({
+  ...crop,
+  sample: ingredients.find((sample) => sample.id === crop.id)!,
+}));
+---
+
+<header id="welcome" class="essay-head kitchen-opening">
+  <div class="opening-title">
+    <div>
+      <p class="eyebrow">A garden-to-table journey</p>
+      <h1>How to cook<br /><em>an LLM.</em></h1>
+    </div>
+    <div class="opening-invitation">
+      <p>Make a dinner assistant.<br />Three ingredients. No dairy.</p>
+      <span class="opening-goal"
+        >Goal: three-ingredient, dairy-free dinners.</span
+      >
+      <span class="opening-hint">Read a sample. Keep it, or leave it.</span>
+      <span class="opening-duration"
+        >10 minutes · Six stops · Your choices carry forward</span
+      >
+    </div>
+  </div>
+  <div class="opening-garden">
+    <div class="opening-question">
+      <span class="opening-step">01 / HARVEST</span>
+      <h2>Pick your training text.</h2>
+      <p>
+        A model learns from the text you give it.<br />Read each sample, then
+        decide what<br />belongs in your dinner assistant’s data.
+      </p>
+      <a class="opening-inspect" href="#ingredients"
+        >Explore all seven samples ↗</a
+      >
+    </div>
+    <div class="opening-plot"><KitchenScene kind="harvest" /></div>
+    <fieldset class="opening-crops" hidden>
+      <legend class="visually-hidden"
+        >Choose examples for your dinner assistant’s training data</legend
+      >
+      {
+        crops.map((crop, index) => (
+          <label
+            class={`opening-crop ${["crop-explanation", "crop-conversation", "crop-code"][index]}`}
+          >
+            <input
+              type="checkbox"
+              data-opening-source={crop.id}
+              checked={
+                ingredients.find((sample) => sample.id === crop.id)?.keep
+              }
+            />
+            <span class="crop-caption">
+              <>
+                <span>
+                  0{index + 1} / {crop.category}
+                </span>
+                <span class="crop-check" aria-hidden="true">
+                  +
+                </span>
+              </>
+            </span>
+            <strong>{crop.sample.title}</strong>
+            <span class="crop-preview">{crop.sample.text}</span>
+            <span class="crop-label">
+              {crop.label}
+              <span class="crop-action" aria-hidden="true">
+                Add to basket
+              </span>
+            </span>
+          </label>
+        ))
+      }
+    </fieldset>
+    <div class="opening-state">
+      <span>IN THE GARDEN / GATHER INGREDIENTS</span><span
+        >IN THE MODEL / SELECT TRAINING DATA</span
+      >
+    </div>
+  </div>
+  <div class="opening-basket">
+    <div class="basket-receipt">
+      <span class="eyebrow">Your basket / selected data</span>
+      <div class="basket-line">
+        <strong id="opening-count"
+          >Your basket is empty. Pick a sample above.</strong
+        ><div id="opening-picked" aria-label="Selected sources"></div>
+      </div>
+      <p id="opening-status" role="status">
+        You’re choosing data. No model weights have changed.
+      </p>
+    </div>
+    <a class="primary start-journey" href="#ingredients"
+      >To the cutting board <span aria-hidden="true">↗</span></a
+    >
+  </div>
+  <nav
+    class="journey-map opening-route"
+    aria-label="Kitchen and model-building journey"
+  >
+    {
+      journey.map((stop, index) => (
+        <a href={`#${stop.id}`}>
+          <span class="route-number">0{index + 1}</span>
+          <strong>{stop.name}</strong>
+          <span class="route-model">
+            {index === 4 ? "Post-train" : stop.model}
+          </span>
+        </a>
+      ))
+    }
+  </nav>
+  <p class="opening-truth">
+    Real data preparation <span>·</span> Illustrated training <span>·</span> Opt-in
+    local chat
+  </p>
+</header>

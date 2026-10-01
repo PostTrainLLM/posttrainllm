@@ -1,0 +1,57 @@
+{
+  "status": "pass",
+  "results": [
+    {
+      "width": 1440,
+      "height": 900,
+      "primaryBottom": 726,
+      "overflow": false,
+      "keyboard": true,
+      "reload": true,
+      "emptyRecovery": true,
+      "inspectorSync": true
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "primaryBottom": 660,
+      "overflow": false,
+      "keyboard": true,
+      "reload": true,
+      "emptyRecovery": true,
+      "inspectorSync": true
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "primaryBottom": 701,
+      "overflow": false,
+      "keyboard": true,
+      "reload": true,
+      "emptyRecovery": true,
+      "inspectorSync": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "primaryBottom": 756,
+      "overflow": false,
+      "keyboard": true,
+      "reload": true,
+      "emptyRecovery": true,
+      "inspectorSync": true
+    },
+    {
+      "width": 320,
+      "height": 740,
+      "primaryBottom": 720,
+      "overflow": false,
+      "keyboard": true,
+      "reload": true,
+      "emptyRecovery": true,
+      "inspectorSync": true
+    }
+  ],
+  "errors": [],
+  "noJS": "Full reading fallback and harvest anchor remain available"
+}

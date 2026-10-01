@@ -1,0 +1,17 @@
+{
+  "status": "pass",
+  "worker": "controlled double, no model inference claimed",
+  "checks": [
+    "no automatic model load",
+    "single visible scene",
+    "streamed chunks in a readable transcript",
+    "Enter submits the prompt",
+    "cancel terminates worker",
+    "cancelled prompt excluded from context",
+    "navigation unload",
+    "history navigation",
+    "reload",
+    "mobile overflow"
+  ],
+  "errors": []
+}

@@ -1,0 +1,32 @@
+{
+  "viewports": [
+    {
+      "width": 390,
+      "overflow": false,
+      "stops": 6,
+      "duplicateIds": 0
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "stops": 6,
+      "duplicateIds": 0
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "stops": 6,
+      "duplicateIds": 0
+    }
+  ],
+  "interactions": [
+    "Motion-enabled scene animates; reduced-motion scenes suppress animation",
+    "Harvest selection carries forward; editable byte tokenization handles Unicode, empty input, and stale results",
+    "Sink prepares selected harvest: exact repeat and malformed sample removed; final text re-encoded",
+    "Prepared batch enables opt-in real cooking; no automatic model training",
+    "Post-training checkpoint and preference scenes retained; garnish changes presentation only",
+    "Journey batch transfers via explicit trainer import; no training message sent",
+    "All six reading scenes and next-stop links available without JavaScript"
+  ],
+  "errors": []
+}

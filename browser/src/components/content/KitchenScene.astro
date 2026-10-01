@@ -1,0 +1,205 @@
+---
+// Original scene illustrations for the owner-selected garden-to-table journey.
+// Explanations are rendered as text beside each decorative scene.
+interface Props {
+  kind: "harvest" | "chop" | "clean" | "cook" | "serve";
+}
+const { kind } = Astro.props;
+---
+
+<svg
+  data-scene={kind}
+  class="kitchen-scene"
+  viewBox="0 0 560 240"
+  aria-hidden="true"
+>
+  <g
+    fill="none"
+    stroke="#a6adb9"
+    stroke-width="1.7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    {
+      kind === "harvest" && (
+        <>
+          <>
+            <path d="M42 139l249-52 207 63-256 55Z" fill="#171b22" />
+            <path d="M42 139v17l200 65 256-55v-16M242 205v16" />
+          </>
+          <path
+            d="M76 145l216-45m-159 65 217-48m-155 67 213-47"
+            stroke="#41494e"
+          />
+          <path
+            d="M121 136v-51m0 18q-34-3-34-29 27 0 34 29m0-1q33-1 35-29-27 0-35 29"
+            stroke="#809f8c"
+          />
+          <>
+            <path
+              d="M234 124V63m0 30q-31-3-31-26 25-1 31 26m0-2q31 0 34-25-25-1-34 25"
+              stroke="#809f8c"
+            />
+            <circle
+              class="harvest-produce"
+              cx="215"
+              cy="101"
+              r="12"
+              fill="#b7a087"
+            />
+            <circle
+              class="harvest-produce"
+              cx="251"
+              cy="111"
+              r="10"
+              fill="#b7a087"
+            />
+          </>
+          <path
+            d="M359 144q-7-44-35-42 3 29 35 42m-1-1q3-44 26-39-2 32-26 39m-1-3q-3-57 14-66 12 35-14 66"
+            stroke="#809f8c"
+          />
+          <>
+            <path d="M364 183h107l-12 34h-83Z" fill="#171b22" />
+            <path d="M378 178q41-46 79 0m-44 6v30m-26-25 6 21m46-21-5 21" />
+            <path d="M386 174q10-26 25-2m11 0q13-29 28-3" stroke="#809f8c" />
+          </>
+          <path d="M70 45h63m-32-11v23m342-19h37m-18-10v19" stroke="#41494e" />
+        </>
+      )
+    }
+    {
+      kind === "chop" && (
+        <>
+          <>
+            <path d="M56 186h448M112 100l250-36 95 73-260 50Z" fill="#171b22" />
+            <path d="M112 100v12l85 87 260-48v-14m-260 50v12" />
+          </>
+          <path d="M161 115l100-21m-89 32 45-9m82-36 44-7" stroke="#41494e" />
+          <g class="scene-knife">
+            <path d="M292 37l31-12 78 51-18 22Z" fill="#737b88" />
+            <path
+              d="M292 37l-13 24 81 55 23-18"
+              fill="#eaedf2"
+              stroke="#eaedf2"
+            />
+            <path d="M306 38l18-6" />
+          </g>
+          <>
+            <path d="M176 147l40-22 20 10-43 21Z" fill="#b7a087" />
+            <path
+              d="M219 119l12-5 13 8-12 8Zm19-6 12-4 12 8-12 6Zm19-5 12-3 11 8-11 6Z"
+              fill="#b7a087"
+            />
+          </>
+          <path
+            d="M369 159q11-23 30-23-2 22-30 23m10-9q31-20 45-8-13 17-45 8"
+            stroke="#809f8c"
+          />
+          <path d="M66 55q27-29 50 1q-28 28-50-1Z" fill="#809f8c" />
+        </>
+      )
+    }
+    {
+      kind === "clean" && (
+        <>
+          <>
+            <path d="M58 144l245-56 197 62-250 64Z" fill="#171b22" />
+            <path d="M141 142l162-35 105 36-160 44Z" fill="#0a0c0f" />
+            <path d="M141 142l20 29 86 30 141-38 20-20" />
+          </>
+          <>
+            <path
+              d="M273 105V54q0-31 31-31 29 0 29 27v13h-18V50q0-11-11-11-13 0-13 15v50"
+              fill="#171b22"
+            />
+            <path
+              class="scene-water"
+              d="M315 66h18m-9 4v37m-5-12v21m10-19v25"
+              stroke="#7b9f9a"
+            />
+          </>
+          <path
+            d="M222 142q8-35 31-28-1 31-31 28m8-7q35-18 44-4-15 22-44 4"
+            stroke="#809f8c"
+          />
+          <>
+            <circle cx="291" cy="145" r="11" fill="#b7a087" />
+            <circle cx="263" cy="152" r="9" fill="#b7a087" />
+          </>
+          <>
+            <path d="M401 185h67l-7 29h-52Zm-3-7h73m-53 16v11m19-11v11m14-11v11" />
+            <path d="M417 159l10-7m12 13 8-11" stroke="#737b88" />
+          </>
+          <path d="M110 204q35 9 66 0m182-2 22-5" stroke="#41494e" />
+        </>
+      )
+    }
+    {
+      kind === "cook" && (
+        <>
+          <>
+            <path d="M101 144l220-47 145 56-222 58Z" fill="#171b22" />
+            <path d="M101 144v34l143 53 222-59v-19m-222 58v20" />
+          </>
+          <>
+            <ellipse cx="293" cy="160" rx="64" ry="23" stroke="#737b88" />
+            <ellipse cx="172" cy="147" rx="32" ry="12" stroke="#41494e" />
+            <ellipse cx="395" cy="152" rx="32" ry="12" stroke="#41494e" />
+          </>
+          <>
+            <path d="M228 87v57q65 38 130 0V87" fill="#171b22" />
+            <ellipse cx="293" cy="87" rx="65" ry="22" fill="#b7a087" />
+            <path d="M249 85q21-12 42 0m8 3 33-9" stroke="#eaedf2" />
+          </>
+          <path d="M228 109l-24-7v19l24 8m130-20 24-7v19l-24 8" />
+          <path
+            class="scene-steam"
+            d="M265 60q-19-15 0-34m29 27q17-17 0-38m27 45q-19-15 0-34"
+            stroke="#737b88"
+          />
+          <>
+            <path d="M263 185l10-7m24 9 8-11m17 4 8-6" stroke="#809f8c" />
+            <path d="M68 205h85m294-11h49" stroke="#41494e" />
+          </>
+        </>
+      )
+    }
+    {
+      kind === "serve" && (
+        <>
+          <>
+            <ellipse cx="280" cy="151" rx="182" ry="53" fill="#171b22" />
+            <ellipse cx="280" cy="149" rx="137" ry="36" />
+          </>
+          <>
+            <path
+              d="M209 152q15-66 71-66 58 0 74 66-66 44-145 0Z"
+              fill="#b7a087"
+            />
+            <path
+              d="M221 136l20 6m12-29 21 8m11-24 16 14m17 25 18 5m-80 14 20-6m19 8 17-5"
+              stroke="#eaedf2"
+            />
+          </>
+          <path
+            class="scene-garnish"
+            d="M274 106q-27-24-43-11 13 24 43 11m1 0q10-33 28-29 1 25-28 29m0 0 13-9"
+            stroke="#809f8c"
+            fill="#809f8c"
+          />
+          <path d="M79 110v69m-8-69v23q8 16 16 0v-23m-8 69v34m403-96v94m-10-94v38h10" />
+          <path d="M224 218h112m-198-22h-22m328-1h21" stroke="#41494e" />
+        </>
+      )
+    }
+  </g>
+</svg>
+<style>
+  .kitchen-scene {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 240px;
+  }
+</style>

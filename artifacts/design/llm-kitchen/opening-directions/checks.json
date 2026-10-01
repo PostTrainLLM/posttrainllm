@@ -1,0 +1,43 @@
+{
+  "status": "pass",
+  "evidence": [
+    {
+      "direction": "a",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "direction": "b",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "direction": "c",
+      "width": 1440,
+      "overflow": false
+    },
+    {
+      "direction": "a",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "direction": "b",
+      "width": 390,
+      "overflow": false
+    },
+    {
+      "direction": "c",
+      "width": 390,
+      "overflow": false
+    }
+  ],
+  "interaction": "select/deselect sample and preview action feedback",
+  "scope": "Design probes only; production journey unchanged",
+  "phoneGardenAction": {
+    "bottom": 787.53125,
+    "viewportHeight": 844,
+    "status": "pass"
+  },
+  "reviewURL": "http://127.0.0.1:4173/design-review/kitchen-openings.html"
+}
