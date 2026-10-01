@@ -100,7 +100,7 @@ ctx.onmessage = (e: MessageEvent<ToWorker>) => {
       void doSample(msg.prompt, msg.tokens, msg.temperature);
       break;
     case "restore":
-      void doRestore(msg.state, msg.config);
+      void doRestore(msg.state, msg.config, msg.corpus);
       break;
     case "inspect":
       void doInspect(msg.prompt, msg.topK);
@@ -846,6 +846,7 @@ async function doRestore(
     model.importState(new Uint8Array(state));
     lastCfg = cfg;
     lastTokens = corpus ? encode(corpus) : null;
+    if (lastTokens) model.setData(lastTokens, 0.9);
     lastStep = model.step();
     post({ type: "restored" });
     post({

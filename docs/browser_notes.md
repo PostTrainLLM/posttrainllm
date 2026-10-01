@@ -153,3 +153,20 @@ LoRA training → WASM SIMD → WebGPU inference → WebGPU LoRA training.
 - OPFS: https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system
 - Storage quotas: https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria
 - WebGPU overview: https://developer.chrome.com/docs/web-platform/webgpu/overview
+
+## Kitchen lesson handoff
+
+The [How to Cook an LLM article](https://posttrainllm.com/articles/how-to-cook-an-llm) can offer a
+prepared corpus to the trainer via a bounded, versioned same-tab session
+handoff. `browser/src/kitchen/trainer-import.ts` offers explicit replacement
+after normal initialization and restoration. It never starts training or
+resets a model. See [the lesson contract](learn/llm-kitchen.md) for validation,
+storage fallback, and the distinction from illustrated SFT/preference training.
+
+The Kitchen article offers six navigable scenes with reduced-motion support.
+Its stove trains an isolated tiny model using the existing WASM worker; its
+final table generates from the same weights. No pretrained chat-model download
+is involved. Cook/Keep cooking explicitly start bounded optimizer runs; Stop
+preserves a checkpoint. Export uses the trainer’s `.tinygpt` format and never
+writes into the existing Web Lab OPFS slot. See `docs/learn/llm-kitchen.md` for
+limits, lifecycle, and the separate illustrative SFT/preference activities.

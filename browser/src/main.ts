@@ -12,6 +12,7 @@ import { benchmarkMatmul, benchmarkMatmulF16Sweep, initWebGPU } from "../../webg
 import { TinyGptBackend, usingMemory64 } from "./backend";
 import { HF_CATALOG, HfFetchError, fetchHfText } from "./datasets";
 import { LossChart } from "./charts";
+import { offerKitchenBatch } from "./kitchen/trainer-import";
 import {
   detectBrowser,
   detectCapabilities,
@@ -3284,6 +3285,15 @@ void init().then(() => {
   initPopovers();
   setupTour();
   applyConfigFromUrl();
+  offerKitchenBatch(
+    els.corpus,
+    () => els.start.disabled || !els.stop.disabled,
+    () => {
+      els.hfDataset.value = "";
+      switchTab("upload");
+      refreshSampleNote();
+    },
+  );
   setupIntroCard();
   setupStickyStats();
   setupKeyboardShortcuts();
