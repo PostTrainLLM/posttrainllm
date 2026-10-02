@@ -54,6 +54,9 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: pnpm-lock.yaml
 
+      - name: Test manual deploy CI lookup
+        run: node --test scripts/release/manual-deploy.test.mjs
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
