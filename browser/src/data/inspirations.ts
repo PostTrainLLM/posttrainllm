@@ -220,15 +220,21 @@ export const inspirations: Inspiration[] = [
       label: "Halo source",
       href: "https://github.com/whitecircle/halo",
     },
-    studyIds: [],
-    localRead:
-      "Halo is a useful architecture reference for the factory loop from pre-training through RL. We are mapping where its single-GPU path ends and its expert, context, tensor, and data parallel paths begin. That gives the Mac lab a precise vocabulary for future scale without changing the current local implementation.",
-    boundary:
-      "Halo's published training path targets PyTorch and CUDA hardware. We have not run it on this Mac, reproduced its benchmarks, or adopted it as a dependency. Any future use would need a separate target, frozen evaluator, and resource budget.",
+    studyIds: ["halo"],
     evidence: [
+      {
+        label: "Source review and completed local adoptions",
+        href: "/docs/learn/halo",
+      },
       {
         label: "Our Mac and cluster boundary map",
         href: "/docs/learn/mac-mastery-map",
+      },
+    ],
+    reading: [
+      {
+        label: "White Circle's architecture article",
+        href: "https://whitecircle.com/research/halo",
       },
     ],
   },

@@ -26,6 +26,16 @@ inference/export. The single-step runtime check validates wiring, not full-run
 quality. Evidence lives in `artifacts/design/llm-kitchen/`.
 Release verification and deployment receipts are tracked in Issue #182.
 
+Halo research refresh (2026-10-02): the source-pinned
+[dossier](docs/learn/halo.md) records current training/distributed capabilities,
+runtime requirements, benchmark limits and supplemental license terms. It
+reconciles the already-completed local work in Issues #159, #161 and #162 with
+the inspiration article and review ledger, and adds Halo as the twentieth
+canonical study. No Halo runtime, model experiment or benchmark was run.
+The docs golden-path validator now tolerates Markdown line wrapping and checks
+the current closed-boundary and Learning lab headings. Exact-SHA publication
+receipts are tracked in [Issue #184](https://github.com/PostTrainLLM/posttrainllm/issues/184).
+
 ## Completion State
 
 The completed learning baseline contains 76 final experiment records with no
@@ -38,8 +48,8 @@ pass: the serial Swift release build, runtime discovery smoke, complete Xcode
 suite with coverage, production browser/docs build, and fresh responsive review
 all pass.
 
-The public knowledge graph now gives all 135 retained source objects their own
-canonical evidence dossier: 19 studied products and research records, 76
+The knowledge graph now gives all 136 retained source objects their own
+canonical evidence dossier: 20 studied products and research records, 76
 experiments, 18 recipes, nine learning paths, and thirteen buildable artifacts.
 Every object emits unique metadata, JSON-LD, a substantive Markdown equivalent,
 contextual relationships, and a dated sitemap entry. The one-object/one-route

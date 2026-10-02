@@ -4,6 +4,7 @@
  * The tracked JSON registries remain the factual sources of truth. This module
  * normalizes them into one route contract so every study, experiment, recipe,
  * learning path, and buildable artifact gets exactly one canonical dossier.
+ * Studies retain their own review dates; the registry date is a legacy fallback.
  */
 import attemptPayload from "../../../docs/attempts.json";
 import artifactJourney from "../../../docs/learn/artifact-journey.json";
@@ -459,7 +460,7 @@ export const studyRecords: KnowledgeRecord[] = (
   facts: [
     { label: "Disposition", value: study.status },
     { label: "Study class", value: study.kind },
-    { label: "Reviewed", value: studyRegistry.updated },
+    { label: "Reviewed", value: study.reviewed_at ?? studyRegistry.updated },
     { label: "Evidence", value: "Tracked source record" },
   ],
   sections: [

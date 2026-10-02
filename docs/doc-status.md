@@ -30,6 +30,7 @@ does not compete with the closed learning lab.
 | `docs/audits/history-coverage-audit.md` | `evidence` | what historical work is normalized, classified, partial, or narrative-only | active task selection |
 | `docs/audits/exactness-completion-audit.md` | `evidence` | proof that the docs exactness pass is complete and guarded | new roadmap scope |
 | `docs/external-products-reviewed.md` | `evidence` | reviewed products, papers, and stolen techniques | exhaustive literature survey |
+| `docs/learn/halo.md` | `reference` | source-pinned Halo review, completed local adoptions and the Mac/cluster boundary | proof of local Halo execution or an active experiment queue |
 | `docs/factory/public-artifacts.md` | `evidence` | public artifact release state and blockers | internal-only scratch notes |
 | `docs/learning-pipeline.md` | `learning` | ready owner learning sequence tied to repository labs | generic course catalog |
 | `docs/learn.md` | `active` | current 13-week course entrance and single-session route | proof of owner mastery |

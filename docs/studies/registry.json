@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated": "2026-09-23",
+  "updated": "2026-10-02",
   "studies": [
     {
       "id": "trainloop-ai",
@@ -11,7 +11,8 @@
       "local_translation": "PostTrainLLM added a technique registry, SQL candidate-selection tooling, slice metrics, trace review, a batch plan renderer, and LoRA geometry documentation and tooling.",
       "boundary": "The distributed autoresearch operating pattern was not copied. Only methods that remain useful and auditable on one Mac were retained.",
       "next_action": "Retain the methods as evidence. Any new candidate-selection run requires a fresh scoped experiment with a frozen evaluator.",
-      "source_href": "/docs/external-products-reviewed"
+      "source_href": "/docs/external-products-reviewed",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "trainloop-nollamd",
@@ -22,7 +23,8 @@
       "local_translation": "The SQL lane gained a candidate-selection step before open SQL generation so selection quality can be separated from generation quality.",
       "boundary": "The framing is a method, not evidence that the PostTrainLLM SQL specialist is competitive. No fresh candidate model result is implied.",
       "next_action": "A future run would need a frozen candidate set, held-out execution gate, and explicit comparison with open generation.",
-      "source_href": "/docs/external-products-reviewed"
+      "source_href": "/docs/external-products-reviewed",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "trainloop-oapl",
@@ -33,7 +35,8 @@
       "local_translation": "PostTrainLLM retained a batch post-training plan but did not schedule an OAPL-style run before a clean reward surface exists.",
       "boundary": "Policy lag is not assumed to help every target. It remains a hypothesis until a bounded local comparison isolates it.",
       "next_action": "Use only after candidate selection and reward validity have independent evidence.",
-      "source_href": "/docs/external-products-reviewed"
+      "source_href": "/docs/external-products-reviewed",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "trainloop-lora-geometry",
@@ -44,7 +47,8 @@
       "local_translation": "PostTrainLLM added LoRA geometry diagnostics and retained a controlled rank-and-layer sweep as a possible future experiment.",
       "boundary": "Geometry diagnostics describe an update; they do not establish task improvement without the same frozen behavioral evaluation used for the baseline.",
       "next_action": "Attach lora-geometry.json to the next authorized adapter run and compare it beside task and regression scores.",
-      "source_href": "/docs/external-products-reviewed"
+      "source_href": "/docs/external-products-reviewed",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "trainloop-mercor-coding-agent",
@@ -55,7 +59,8 @@
       "local_translation": "Future coding-agent work should prefer file and code surfaces when they are the natural task boundary.",
       "boundary": "The coding-agent product lane is not active, and this study does not authorize a new agent runtime or evaluation campaign.",
       "next_action": "Revisit only if the owner opens a concrete coding-agent target.",
-      "source_href": "/docs/external-products-reviewed"
+      "source_href": "/docs/external-products-reviewed",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "baseten-post-training",
@@ -66,7 +71,8 @@
       "local_translation": "PostTrainLLM was reframed as a Mac-local specialist factory organized around target, data, post-training, evaluation, packaging, and reporting.",
       "boundary": "The positioning was adopted, not Baseten's hosted infrastructure or scale assumptions.",
       "next_action": "Keep factory documentation centered on the complete evidence loop and one-Mac constraints.",
-      "source_href": "/docs/external-products-reviewed"
+      "source_href": "/docs/external-products-reviewed",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "hugging-face-sql-specialists",
@@ -77,7 +83,8 @@
       "local_translation": "PostTrainLLM compared cssupport/t5-small-awesome-text-to-sql and reviewed prem-1B-SQL, Qwen SQL variants, and SQLCoder-class models.",
       "boundary": "Model-card scores from different datasets are directional context, not a head-to-head result against the local specialist.",
       "next_action": "Require a shared public execution benchmark before making a serious SQL competitiveness claim.",
-      "source_href": "/docs/external-products-reviewed"
+      "source_href": "/docs/external-products-reviewed",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "defog-sqlcoder-arctic-text2sql",
@@ -88,7 +95,8 @@
       "local_translation": "PostTrainLLM treats Spider or BIRD-style execution as a required public gate before elevating a SQL result beyond a local fixture.",
       "boundary": "External category scores remain non-comparable until the same dataset, schema context, prompting, and execution rules are used.",
       "next_action": "Build and run a bounded Spider or BIRD Mini execution gate only under a fresh authorized experiment.",
-      "source_href": "/docs/external-products-reviewed"
+      "source_href": "/docs/external-products-reviewed",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "apple-on-device-foundation-models",
@@ -99,7 +107,8 @@
       "local_translation": "PostTrainLLM measured the framework, retained a bridge for comparison, ruled out adapter dependency, and kept owned weights plus owned evaluation as the differentiation.",
       "boundary": "Core ML remains a possible deployment target for owned weights. The rejection applies to depending on Apple's closed model for capability, not to every Apple runtime technology.",
       "next_action": "Use the system model only where a fresh task-specific gate proves it sufficient.",
-      "source_href": "/docs/learn/apple-on-device-foundation-models"
+      "source_href": "/docs/learn/apple-on-device-foundation-models",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "castform-rl-finetune",
@@ -110,7 +119,8 @@
       "local_translation": "PostTrainLLM mapped those ideas into composite reward scaffolding, trace-to-data workflows, and reasoning-depth classification.",
       "boundary": "The hosted dashboard and pay-per-compute product model were not copied, and the scaffolding is not proof that an RLVR run improves a specialist.",
       "next_action": "Connect rewards to an authorized training loop only after the evaluator and held-out gate are frozen.",
-      "source_href": "/docs/learn/castform-rl-finetune"
+      "source_href": "/docs/learn/castform-rl-finetune",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "cline-context-hierarchy",
@@ -121,7 +131,8 @@
       "local_translation": "PostTrainLLM retained the tool protocol shape and context hierarchy as learning assets for a future coding-agent lane.",
       "boundary": "The research did not justify another agent layer or a coding product. Tool quality and a frozen task gate still come first.",
       "next_action": "Revisit only when a concrete coding-agent target and evaluation exist.",
-      "source_href": "/docs/tool_call_extractor"
+      "source_href": "/docs/tool_call_extractor",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "gigatoken",
@@ -132,7 +143,8 @@
       "local_translation": "The implementation is retained as an optional offline data-preparation accelerator rather than a default tokenizer dependency.",
       "boundary": "No current bottleneck was solved. Adoption requires exact token-ID parity and bounded peak memory on the real tokenizer and corpus.",
       "next_action": "Revisit only for multi-gigabyte corpora or measured tokenization above ten percent of run time.",
-      "source_href": "/docs/external-products-reviewed"
+      "source_href": "/docs/external-products-reviewed",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "needle-2",
@@ -143,7 +155,8 @@
       "local_translation": "A 94-case local smoke reached 34.0 percent exact tool selection. Oracle catalog restriction reached 38.3 percent overall but regressed Pace and retained false actions.",
       "boundary": "Catalog restriction is a latency lever, not a capability rescue. Package size and narrow call formatting do not establish grounded tool competence.",
       "next_action": "Stop before integration or fine-tuning unless a new model or method changes the capability premise.",
-      "source_href": "/docs/techniques/needle2-baseline-review"
+      "source_href": "/docs/techniques/needle2-baseline-review",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "parakeet-wgsl",
@@ -154,7 +167,8 @@
       "local_translation": "The pinned package transcribed a 17 minute 10 second public fixture in 7.2 to 7.8 seconds on Apple WebGPU. Warm output was deterministic and no external request was observed.",
       "boundary": "This validates reproducible browser execution, not transcription accuracy against a shared reference or readiness for default product integration. The 386.5 MiB package remains material.",
       "next_action": "Run a small shared reference-transcribed comparison against WhisperKit before considering integration.",
-      "source_href": "/docs/techniques/parakeet-wgsl-browser-smoke"
+      "source_href": "/docs/techniques/parakeet-wgsl-browser-smoke",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "savante-aryabhata",
@@ -165,7 +179,8 @@
       "local_translation": "The study teaches how to separate initialization, data, filtering, training stages, reward, and evaluation before adapting a recipe to a Mac-sized target.",
       "boundary": "The published result does not isolate each stage's contribution, and H100 training is not evidence of Mac-local reproducibility.",
       "next_action": "Write a recipe teardown and freeze an independent test; running it would require a new scoped experiment and resource budget.",
-      "source_href": "/docs/industry_learning_roadmap#case-study---savante--aryabhata-specialist-data-and-evaluation"
+      "source_href": "/docs/industry_learning_roadmap#case-study---savante--aryabhata-specialist-data-and-evaluation",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "bonsai-2-27b",
@@ -176,7 +191,8 @@
       "local_translation": "The retained exercise is a same-Mac comparison sheet covering revisions, task gates, peak RAM, time to first token, prefill, decode throughput, and total task latency.",
       "boundary": "File size is not peak runtime memory, and retention relative to a source model does not establish frontier parity.",
       "next_action": "A future comparison requires owner selection, bounded resources, and exact runtime and weight revisions.",
-      "source_href": "/docs/industry_learning_roadmap#case-study---bonsai-2-27b-capability-retained-per-deployment-cost"
+      "source_href": "/docs/industry_learning_roadmap#case-study---bonsai-2-27b-capability-retained-per-deployment-cost",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "qorl",
@@ -187,7 +203,8 @@
       "local_translation": "The owner-proposed local experiment isolates offline search and a parameter-to-plan dispatcher while keeping language-model training outside the scope.",
       "boundary": "Selection bias, cache state, parameter skew, routing overhead, and tuning cost can erase an apparent speedup.",
       "next_action": "Freeze parameter splits, workload weights, cache policy, timeouts, fallback behavior, and break-even accounting before any run.",
-      "source_href": "/docs/industry_learning_roadmap#case-study---qorl-parameter-aware-query-optimization"
+      "source_href": "/docs/industry_learning_roadmap#case-study---qorl-parameter-aware-query-optimization",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "inside-vllm",
@@ -198,7 +215,8 @@
       "local_translation": "The study maps the boundary between one-device Mac inference and cluster serving through a hand-simulated request and KV-block budget.",
       "boundary": "The goal is boundary mapping, not reproducing a multi-GPU serving system on one Mac or claiming equivalent throughput.",
       "next_action": "Simulate requests under fixed token and KV budgets, then explain effects on latency, throughput, and memory.",
-      "source_href": "/docs/industry_learning_roadmap#case-study---inside-vllm-inference-systems-and-scaling-boundaries"
+      "source_href": "/docs/industry_learning_roadmap#case-study---inside-vllm-inference-systems-and-scaling-boundaries",
+      "reviewed_at": "2026-09-23"
     },
     {
       "id": "splash-mac-inference",
@@ -209,7 +227,20 @@
       "local_translation": "The retained exercise compares a specialized engine with a general engine on cold and cached latency, prefill, decode, concurrency, memory, output validity, and task completion.",
       "boundary": "A model-specific runtime can be fast without being a general serving replacement, and tuning cost must be included beside runtime gains.",
       "next_action": "Design the same-Mac comparison before considering implementation or model-specific kernel work.",
-      "source_href": "/docs/industry_learning_roadmap#case-study---splash-model-specific-mac-inference"
+      "source_href": "/docs/industry_learning_roadmap#case-study---splash-model-specific-mac-inference",
+      "reviewed_at": "2026-09-23"
+    },
+    {
+      "id": "halo",
+      "title": "Halo / White Circle",
+      "kind": "training-framework review",
+      "status": "partially adopted",
+      "what_mattered": "HF-native training and portable checkpoints, independent expert/context/tensor/data parallelism, faithful multi-turn trajectories, operation-specific model support, and explicit resume/export/serving boundaries make the single-machine-to-cluster transition inspectable.",
+      "local_translation": "Halo informed completed Issues #159, #161 and #162: trajectory export preserves tool actions and observations with per-turn supervision; compatibility reports distinguish static predictions from matching device receipts; artifact lifecycle contracts bind identity, history, runtimes and legal next actions. The 2026-10-02 source-pinned review connects these implementations to the original contracts.",
+      "boundary": "The documented runtime requires NVIDIA/CUDA containers, not MLX or Metal. Halo has not been run on this Mac or adopted as a dependency, and its B300 benchmarks have not been reproduced. Sampled-token RL, asynchronous weight synchronization and distributed training were not implemented locally; its license includes supplemental commercial and attribution terms.",
+      "next_action": "Retain the completed contract improvements and scale-boundary reference. No experiment is active. A future runtime or algorithm trial requires an owner-opened factory question, frozen baseline and held-out evaluator, regression gate, compatible hardware and fixed resource budget.",
+      "source_href": "/docs/learn/halo",
+      "reviewed_at": "2026-10-02"
     }
   ]
 }

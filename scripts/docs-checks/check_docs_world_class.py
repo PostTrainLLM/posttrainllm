@@ -108,7 +108,7 @@ REQUIRED = {
         # here -- three copies of the same number is three places to go stale.
         # check_attempt_ledger.py owns validating the audit tables themselves.
         "| Tracked audit rows | 83 |",
-        "## Non-Blocking Future Hardening",
+        "## Closed Boundary",
         "## Verification",
         "## Verdict",
     ],
@@ -161,7 +161,8 @@ REQUIRED = {
         "Docs hub",
         "Attempt ledger",
         "External review ledger",
-        "Learning pipeline",
+        "Learning lab",
+        "docs/learning-pipeline.md",
     ],
 }
 
@@ -174,8 +175,10 @@ def main() -> int:
             errors.append(f"missing {rel}")
             continue
         text = path.read_text(encoding="utf-8")
+        # Markdown line wrapping must not change whether required prose exists.
+        normalized = " ".join(text.split())
         for needle in needles:
-            if needle not in text:
+            if " ".join(needle.split()) not in normalized:
                 errors.append(f"{rel}: missing {needle!r}")
 
     # Derive attempt counts from the structured index so they cannot go stale.
