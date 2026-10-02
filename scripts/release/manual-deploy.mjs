@@ -68,18 +68,6 @@ try {
 }
 
 const slug = githubSlug();
-let ciWorkflowId;
-try {
-  ciWorkflowId = run("gh", [
-    "api",
-    `repos/${slug}/actions/workflows/${ciWorkflowFile}`,
-    "--jq",
-    ".id",
-  ]);
-} catch {
-  fail(`could not resolve ${ciWorkflowFile} in GitHub Actions`);
-}
-
 let ciRuns;
 try {
   ciRuns = JSON.parse(
@@ -89,7 +77,7 @@ try {
       "-R",
       slug,
       "--workflow",
-      ciWorkflowId,
+      ciWorkflowFile,
       "--branch",
       "main",
       "--limit",
