@@ -14,7 +14,8 @@
     "quality:duplication": "node scripts/quality/check-duplication.mjs",
     "quality:cycles": "node scripts/quality/check-cycles.mjs",
     "quality:dependencies": "node scripts/quality/check-dependency-risk.mjs",
-    "quality": "pnpm run format:check && pnpm run lint && pnpm run quality:unused && pnpm run quality:complexity && pnpm run quality:duplication && pnpm run quality:cycles && pnpm run quality:dependencies"
+    "quality": "pnpm run format:check && pnpm run lint && pnpm run quality:unused && pnpm run quality:complexity && pnpm run quality:duplication && pnpm run quality:cycles && pnpm run quality:dependencies",
+    "test:dependency-security": "node --test scripts/http-cache-security.test.mjs"
   },
   "devDependencies": {
     "jscpd": "5.1.1",
@@ -33,7 +34,11 @@
       "brace-expansion@<1.1.20": "1.1.20",
       "brace-expansion@>=2.0.0 <2.1.6": "2.1.6",
       "brace-expansion@>=5.0.0 <5.0.11": "5.0.11",
-      "devalue@>=5.0.0 <5.9.3": "5.9.3"
+      "devalue@>=5.0.0 <5.9.3": "5.9.3",
+      "http-cache-semantics": "4.3.0"
+    },
+    "patchedDependencies": {
+      "http-cache-semantics@4.3.0": "patches/http-cache-semantics@4.3.0.patch"
     }
   }
 }

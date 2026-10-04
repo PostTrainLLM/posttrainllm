@@ -1,0 +1,15 @@
+diff --git a/index.js b/index.js
+--- a/index.js
++++ b/index.js
+@@ -399,1 +399,10 @@
+-        if (this._rescc['must-revalidate']) {
++        if (
++            this._rescc['must-revalidate'] ||
++            !this.storable() ||
++            this._rescc['no-cache'] ||
++            (this._isShared && (
++                this._rescc['proxy-revalidate'] ||
++                (this._resHeaders['set-cookie'] &&
++                    !this._rescc.public && !this._rescc.immutable)
++            ))
++        ) {
