@@ -4,6 +4,8 @@ import crypto from "node:crypto";
 import { createRequire } from "node:module";
 import { execFileSync, spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
+import { prerenderOptOut } from "./prerender-check.mjs";
+import { packageAndLockFailure } from "./package-lock-guard.mjs";
 
 const requireFromBrowser = createRequire(path.resolve("browser/package.json"));
 const ts = requireFromBrowser("typescript");
@@ -53,6 +55,26 @@ function configFindings(text, fileName) {
     /adapter/i.test(specifier) ||
     (specifier.startsWith("@astrojs/") &&
       !new Set(["@astrojs/mdx", "@astrojs/sitemap"]).has(specifier));
+  const visitAdapter = (node) => {
+    const imported =
+      ts.isImportDeclaration(node) &&
+      ts.isStringLiteral(node.moduleSpecifier) &&
+      isAdapterOrUnknownIntegration(node.moduleSpecifier.text);
+    const dynamic =
+      ts.isCallExpression(node) &&
+      node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+      node.arguments[0] &&
+      ts.isStringLiteral(node.arguments[0]) &&
+      isAdapterOrUnknownIntegration(node.arguments[0].text);
+    if (imported) findings.push("Astro adapter import present");
+    if (dynamic) findings.push("dynamic Astro adapter import present");
+    if (
+      ts.isCallExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      node.expression.text === "setAdapter"
+    )
+      findings.push("Astro setAdapter hook present");
+  };
   const property = (obj, name) =>
     obj.properties.find(
       (p) =>
@@ -62,29 +84,7 @@ function configFindings(text, fileName) {
     );
   let defineConfigCalls = 0;
   function visit(node) {
-    if (
-      ts.isImportDeclaration(node) &&
-      ts.isStringLiteral(node.moduleSpecifier) &&
-      isAdapterOrUnknownIntegration(node.moduleSpecifier.text)
-    ) {
-      findings.push("Astro adapter import present");
-    }
-    if (
-      ts.isCallExpression(node) &&
-      node.expression.kind === ts.SyntaxKind.ImportKeyword &&
-      node.arguments[0] &&
-      ts.isStringLiteral(node.arguments[0]) &&
-      isAdapterOrUnknownIntegration(node.arguments[0].text)
-    ) {
-      findings.push("dynamic Astro adapter import present");
-    }
-    if (
-      ts.isCallExpression(node) &&
-      ts.isIdentifier(node.expression) &&
-      node.expression.text === "setAdapter"
-    ) {
-      findings.push("Astro setAdapter hook present");
-    }
+    visitAdapter(node);
     if (
       ts.isCallExpression(node) &&
       ts.isIdentifier(node.expression) &&
@@ -173,80 +173,25 @@ function hasLiteralStaticOutput(text, fileName) {
   return matches === 1 && safe;
 }
 
-function prerenderOptOut(text, fileName) {
-  let sourceText = text;
-  if (fileName.endsWith(".astro")) {
-    const match = text.match(/^---\s*\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
-    sourceText = match?.[1] ?? "";
-  }
-  const source = ts.createSourceFile(
-    fileName,
-    sourceText,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TS,
-  );
-  let found = false;
-  const unwrap = (node) => {
-    while (
-      node &&
-      (ts.isParenthesizedExpression(node) ||
-        ts.isAsExpression(node) ||
-        ts.isTypeAssertionExpression(node) ||
-        ts.isSatisfiesExpression(node) ||
-        ts.isNonNullExpression(node))
-    )
-      node = node.expression;
-    return node;
-  };
-  function visit(node) {
-    if (
-      ts.isVariableStatement(node) &&
-      node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)
-    ) {
-      for (const d of node.declarationList.declarations) {
-        if (
-          ts.isIdentifier(d.name) &&
-          d.name.text === "prerender" &&
-          unwrap(d.initializer)?.kind !== ts.SyntaxKind.TrueKeyword
-        )
-          found = true;
-      }
-    }
-    if (
-      ts.isExportDeclaration(node) &&
-      node.exportClause &&
-      ts.isNamedExports(node.exportClause) &&
-      node.exportClause.elements.some(
-        (element) =>
-          element.name.text === "prerender" ||
-          element.propertyName?.text === "prerender",
-      )
-    )
-      found = true;
-    ts.forEachChild(node, visit);
-  }
-  visit(source);
-  return found;
-}
-
-export function qualifyAuditFinding({ id, advisory, context, now }) {
-  const deny = (reason) => ({ qualified: false, reason });
-  if (String(id) !== TEMPORARY_ADVISORY.id) return deny("wrong advisory id");
+function auditIdentityFailure(id, advisory) {
+  if (String(id) !== TEMPORARY_ADVISORY.id) return "wrong advisory id";
   if (advisory?.module_name !== TEMPORARY_ADVISORY.moduleName)
-    return deny("wrong package");
-  if (advisory?.severity !== "high") return deny("severity changed");
+    return "wrong package";
+  if (advisory?.severity !== "high") return "severity changed";
   if ((advisory.vulnerable_versions ?? "").replace(/\s/g, "") !== "<=4.2.0")
-    return deny("affected-version range changed");
+    return "affected-version range changed";
   if (!new Set(["<0.0.0", "none", "None"]).has(advisory.patched_versions ?? ""))
-    return deny("upstream patch is available or patch state is unknown");
+    return "upstream patch is available or patch state is unknown";
   if (
     !advisory.url?.toLowerCase().includes(TEMPORARY_ADVISORY.ghsa.toLowerCase())
   )
-    return deny("GHSA identity changed");
+    return "GHSA identity changed";
+  return "";
+}
+
+function auditPathsFailure(advisory) {
   const findings = advisory.findings ?? [];
-  if (findings.length === 0)
-    return deny("audit has no concrete dependency paths");
+  if (findings.length === 0) return "audit has no concrete dependency paths";
   const exactPaths = findings.every((finding) => {
     const paths = finding.paths ?? [];
     return (
@@ -259,14 +204,23 @@ export function qualifyAuditFinding({ id, advisory, context, now }) {
       )
     );
   });
-  if (!exactPaths) return deny("resolved version or dependency path changed");
+  if (!exactPaths) return "resolved version or dependency path changed";
   const allowedRoots = new Set(["browser", "docs-site"]);
   if (
     findings
       .flatMap((finding) => finding.paths ?? [])
       .some((p) => !allowedRoots.has(p.split(">", 1)[0]))
   )
-    return deny("unexpected audit dependency root");
+    return "unexpected audit dependency root";
+  return "";
+}
+
+export function qualifyAuditFinding({ id, advisory, context, now }) {
+  const deny = (reason) => ({ qualified: false, reason });
+  const identityFailure = auditIdentityFailure(id, advisory);
+  if (identityFailure) return deny(identityFailure);
+  const pathFailure = auditPathsFailure(advisory);
+  if (pathFailure) return deny(pathFailure);
   if (Date.parse(now) >= Date.parse(TEMPORARY_ADVISORY.expiresAt))
     return deny("temporary qualification expired");
   const sourceResult = verifyQualificationEvidence(
@@ -279,133 +233,6 @@ export function qualifyAuditFinding({ id, advisory, context, now }) {
   return {
     qualified: true,
     reason: "exact temporary build-only scope and static guard passed",
-  };
-}
-
-export function qualifyStaticContext(context) {
-  const deny = (reason) => ({ qualified: false, reason });
-  for (const [label, pkg] of Object.entries(context.packages ?? {})) {
-    if (!pkg.devDependencies?.astro)
-      return deny(`${label} Astro is no longer dev-only`);
-    if (
-      pkg.dependencies?.astro ||
-      pkg.dependencies?.[TEMPORARY_ADVISORY.moduleName]
-    )
-      return deny(`${label} vulnerable graph moved into runtime dependencies`);
-  }
-  if (
-    context.packages?.browser?.devDependencies?.astro !== "^7.2.8" ||
-    context.packages?.docsSite?.devDependencies?.astro !== "7.2.8"
-  )
-    return deny(
-      "Astro package declaration changed; requalify the dependency graph",
-    );
-  if (!context.lockfile?.includes("http-cache-semantics@4.2.0"))
-    return deny("lockfile no longer has the qualified package snapshot");
-  const astroVersions = [
-    ...(context.lockfile ?? "").matchAll(/^  astro@([^(:]+)(?:\(|:)/gm),
-  ].map((m) => m[1]);
-  if (astroVersions.length === 0 || astroVersions.some((v) => v !== "7.2.8"))
-    return deny("Astro version changed; requalify framework behavior");
-  for (const importer of ["browser", "docs-site"]) {
-    const start = context.lockfile.indexOf(`  ${importer}:\n`);
-    const rest = start < 0 ? "" : context.lockfile.slice(start);
-    const next = rest.slice(1).search(/^  [A-Za-z@.][^:\n]*:\s*$/m);
-    const block = start < 0 ? "" : next < 0 ? rest : rest.slice(0, next + 1);
-    const devStart = block.indexOf("    devDependencies:\n");
-    const prodEnd =
-      devStart < 0
-        ? -1
-        : block.slice(devStart + 1).search(/^    [A-Za-z@.][^:\n]*:\s*$/m);
-    const devBlock =
-      devStart < 0
-        ? ""
-        : prodEnd < 0
-          ? block.slice(devStart)
-          : block.slice(devStart, devStart + prodEnd + 1);
-    if (
-      !/^      astro:\n(?:(?!^      [^ ]).*(?:\n|$))*?^        version: 7\.2\.8\(/m.test(
-        devBlock,
-      )
-    )
-      return deny(
-        `${importer} lock importer no longer pins Astro 7.2.8 as a dev dependency`,
-      );
-  }
-  for (const [label, config] of Object.entries(context.astroConfigs ?? {})) {
-    const findings = configFindings(config, `${label}.astro.config.mjs`);
-    if (findings.length) return deny(`${label} ${findings.join(", ")}`);
-  }
-  if (
-    !context.astroConfigs?.browser ||
-    !context.astroConfigs?.docs ||
-    !hasLiteralStaticOutput(
-      context.astroConfigs.docs,
-      "docs-site/.blume/astro.config.mjs",
-    )
-  )
-    return deny(
-      "browser or generated Blume Astro config is absent, or Blume is not explicitly static",
-    );
-  for (const [label, files] of Object.entries(context.sourceFiles ?? {})) {
-    for (const [name, text] of Object.entries(files)) {
-      if (prerenderOptOut(text, name))
-        return deny(`${label}/${name} opts out of prerendering`);
-      if (/astro:assets|<\s*(?:Image|Picture)\b|\bgetImage\s*\(/.test(text))
-        return deny(`${label}/${name} uses Astro asset/image handling`);
-      if (
-        /http-cache-semantics|\b(?:CachePolicy|cachePolicy)\b|\bmax-stale\b|\bshared(?:User)?Cache\b/.test(
-          text,
-        )
-      )
-        return deny(`${label}/${name} uses the vulnerable cache API`);
-    }
-  }
-  const output = context.outputFiles ?? {};
-  if (Object.keys(output).length === 0)
-    return deny("built static output evidence missing");
-  for (const [name, text] of Object.entries(output)) {
-    if (
-      /(?:^|\/)(?:_worker\.js|functions\/|server\/entry\.|_routes\.json)/.test(
-        name,
-      )
-    )
-      return deny(`server runtime output present: ${name}`);
-    if (
-      /\.(?:js|mjs|cjs)$/i.test(name) &&
-      MARKERS.some((marker) => text.includes(marker))
-    )
-      return deny(`vulnerable cache marker in shipped bundle: ${name}`);
-    if (/(?:^|\/)_headers$/i.test(name) && /^\s*Set-Cookie\s*:/im.test(text))
-      return deny(`static response header config sets cookies: ${name}`);
-  }
-  const responses = context.httpResponses ?? [];
-  const requiredRoutes = [
-    "/",
-    "/playground.html",
-    "/devlog.html",
-    "/docs/",
-    "/docs/architecture/how-it-works",
-  ];
-  if (
-    !Array.isArray(responses) ||
-    responses.length !== requiredRoutes.length ||
-    new Set(responses.map((response) => response.url)).size !==
-      requiredRoutes.length ||
-    !requiredRoutes.every((route) =>
-      responses.some(
-        (response) => response.url === route && response.status === 200,
-      ),
-    )
-  )
-    return deny("preview response evidence missing or route not static/200");
-  for (const response of responses) {
-    if (response.setCookie !== false)
-      return deny(`static route response sets cookies: ${response.url}`);
-  }
-  return {
-    qualified: true,
-    reason: "static source, output, and response-header guards passed",
   };
 }
 
@@ -788,5 +615,108 @@ export function readCurrentContext(
     },
     outputFiles: includeOutput ? readOutput() : {},
     httpResponses: [],
+  };
+}
+
+function configFailure(context) {
+  for (const [label, config] of Object.entries(context.astroConfigs ?? {})) {
+    const findings = configFindings(config, `${label}.astro.config.mjs`);
+    if (findings.length) return `${label} ${findings.join(", ")}`;
+  }
+  if (
+    !context.astroConfigs?.browser ||
+    !context.astroConfigs?.docs ||
+    !hasLiteralStaticOutput(
+      context.astroConfigs.docs,
+      "docs-site/.blume/astro.config.mjs",
+    )
+  )
+    return "browser or generated Blume Astro config is absent, or Blume is not explicitly static";
+  return "";
+}
+
+function sourceFailure(context) {
+  for (const [label, files] of Object.entries(context.sourceFiles ?? {})) {
+    for (const [name, text] of Object.entries(files)) {
+      if (prerenderOptOut(text, name, ts))
+        return `${label}/${name} opts out of prerendering`;
+      if (/astro:assets|<\s*(?:Image|Picture)\b|\bgetImage\s*\(/.test(text))
+        return `${label}/${name} uses Astro asset/image handling`;
+      if (
+        /http-cache-semantics|\b(?:CachePolicy|cachePolicy)\b|\bmax-stale\b|\bshared(?:User)?Cache\b/.test(
+          text,
+        )
+      )
+        return `${label}/${name} uses the vulnerable cache API`;
+    }
+  }
+  return "";
+}
+
+function outputFailure(context) {
+  const output = context.outputFiles ?? {};
+  if (Object.keys(output).length === 0)
+    return "built static output evidence missing";
+  for (const [name, text] of Object.entries(output)) {
+    if (
+      /(?:^|\/)(?:_worker\.js|functions\/|server\/entry\.|_routes\.json)/.test(
+        name,
+      )
+    )
+      return `server runtime output present: ${name}`;
+    if (
+      /\.(?:js|mjs|cjs)$/i.test(name) &&
+      MARKERS.some((marker) => text.includes(marker))
+    )
+      return `vulnerable cache marker in shipped bundle: ${name}`;
+    if (/(?:^|\/)_headers$/i.test(name) && /^\s*Set-Cookie\s*:/im.test(text))
+      return `static response header config sets cookies: ${name}`;
+  }
+  return "";
+}
+
+function responseFailure(context) {
+  const responses = context.httpResponses ?? [];
+  const requiredRoutes = [
+    "/",
+    "/playground.html",
+    "/devlog.html",
+    "/docs/",
+    "/docs/architecture/how-it-works",
+  ];
+  if (
+    !Array.isArray(responses) ||
+    responses.length !== requiredRoutes.length ||
+    new Set(responses.map((response) => response.url)).size !==
+      requiredRoutes.length ||
+    !requiredRoutes.every((route) =>
+      responses.some(
+        (response) => response.url === route && response.status === 200,
+      ),
+    )
+  )
+    return "preview response evidence missing or route not static/200";
+  for (const response of responses) {
+    if (response.setCookie !== false)
+      return `static route response sets cookies: ${response.url}`;
+  }
+  return "";
+}
+
+export function qualifyStaticContext(context) {
+  const checks = [
+    packageAndLockFailure,
+    configFailure,
+    sourceFailure,
+    outputFailure,
+    responseFailure,
+  ];
+  for (const check of checks) {
+    const reason = check(context);
+    if (reason) return { qualified: false, reason };
+  }
+  return {
+    qualified: true,
+    reason: "static source, output, and response-header guards passed",
   };
 }

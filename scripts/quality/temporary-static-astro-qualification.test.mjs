@@ -206,11 +206,11 @@ test("expiry, missing build, runtime dependency path and changed lock versions f
   );
 });
 
-test("fresh code-health checkout verifies same-run evidence without generated Blume or private ignored files", () => {
-  const repoRoot = mkdtempSync(
-    path.join(os.tmpdir(), "posttrain-astro-qualification-"),
-  );
-  const files = {
+const digest = (value) =>
+  crypto.createHash("sha256").update(value).digest("hex");
+
+function fixtureFiles() {
+  return {
     "browser/astro.config.mjs": `import { defineConfig } from "astro/config"; export default defineConfig({});`,
     "browser/package.json": JSON.stringify({
       devDependencies: { astro: "^7.2.8" },
@@ -252,89 +252,87 @@ snapshots:
   - docs-site
 `,
   };
-  const digest = (value) =>
-    crypto.createHash("sha256").update(value).digest("hex");
+}
+
+function createFixtureRepo(repoRoot, files) {
+  for (const [name, contents] of Object.entries(files)) {
+    const target = path.join(repoRoot, name);
+    mkdirSync(path.dirname(target), { recursive: true });
+    writeFileSync(target, contents);
+  }
+  execFileSync("git", ["init", "-q"], { cwd: repoRoot });
+  execFileSync("git", ["add", "."], { cwd: repoRoot });
+  execFileSync(
+    "git",
+    [
+      "-c",
+      "user.name=Fixture",
+      "-c",
+      "user.email=fixture@example.test",
+      "commit",
+      "-qm",
+      "fixture",
+    ],
+    { cwd: repoRoot },
+  );
+  return execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: repoRoot,
+    encoding: "utf8",
+  }).trim();
+}
+
+function fixtureEvidence(files, commit) {
+  const lock = files["pnpm-lock.yaml"];
+  const generatedConfig = `import { defineConfig } from "astro/config"; export default defineConfig({ output: "static" });`;
+  const generatedSources = {
+    "docs-site/.blume/src/index.astro": digest("<main>docs</main>"),
+  };
+  const outputFiles = { "index.html": digest("<html>static</html>") };
+  return {
+    schemaVersion: 1,
+    advisoryId: TEMPORARY_ADVISORY.id,
+    ghsa: TEMPORARY_ADVISORY.ghsa,
+    package: TEMPORARY_ADVISORY.moduleName,
+    vulnerableVersion: TEMPORARY_ADVISORY.vulnerableVersion,
+    expiresAt: TEMPORARY_ADVISORY.expiresAt,
+    commit,
+    generatedAt: now,
+    lockfileSha256: digest(lock),
+    buildInputs: Object.fromEntries(
+      Object.entries(files).map(([name, text]) => [name, digest(text)]),
+    ),
+    generatedDocs: {
+      config: generatedConfig,
+      configSha256: digest(generatedConfig),
+      sourceFiles: generatedSources,
+      sourceDigest: digest(JSON.stringify(generatedSources)),
+      scanResult: "passed",
+    },
+    output: {
+      count: 1,
+      files: outputFiles,
+      digest: digest(JSON.stringify(outputFiles)),
+      findings: [],
+    },
+    responses: [
+      "/",
+      "/playground.html",
+      "/devlog.html",
+      "/docs/",
+      "/docs/architecture/how-it-works",
+    ].map((url) => ({ url, status: 200, setCookie: false })),
+    result: "qualified",
+  };
+}
+
+test("fresh code-health checkout verifies same-run evidence without generated Blume or private ignored files", () => {
+  const repoRoot = mkdtempSync(
+    path.join(os.tmpdir(), "posttrain-astro-qualification-"),
+  );
+  const files = fixtureFiles();
   try {
-    for (const [name, contents] of Object.entries(files)) {
-      const target = path.join(repoRoot, name);
-      mkdirSync(path.dirname(target), { recursive: true });
-      writeFileSync(target, contents);
-    }
-    execFileSync("git", ["init", "-q"], { cwd: repoRoot });
-    execFileSync("git", ["add", "."], { cwd: repoRoot });
-    execFileSync(
-      "git",
-      [
-        "-c",
-        "user.name=Fixture",
-        "-c",
-        "user.email=fixture@example.test",
-        "commit",
-        "-qm",
-        "fixture",
-      ],
-      { cwd: repoRoot },
-    );
-    const commit = execFileSync("git", ["rev-parse", "HEAD"], {
-      cwd: repoRoot,
-      encoding: "utf8",
-    }).trim();
-    const lock = files["pnpm-lock.yaml"];
-    const generatedConfig = `import { defineConfig } from "astro/config"; export default defineConfig({ output: "static" });`;
-    const generatedSources = {
-      "docs-site/.blume/src/index.astro": digest("<main>docs</main>"),
-    };
-    const outputFiles = { "index.html": digest("<html>static</html>") };
-    const evidence = {
-      schemaVersion: 1,
-      advisoryId: TEMPORARY_ADVISORY.id,
-      ghsa: TEMPORARY_ADVISORY.ghsa,
-      package: TEMPORARY_ADVISORY.moduleName,
-      vulnerableVersion: TEMPORARY_ADVISORY.vulnerableVersion,
-      expiresAt: TEMPORARY_ADVISORY.expiresAt,
-      commit,
-      generatedAt: now,
-      lockfileSha256: digest(lock),
-      buildInputs: {
-        "browser/astro.config.mjs": digest(files["browser/astro.config.mjs"]),
-        "browser/package.json": digest(files["browser/package.json"]),
-        "browser/public/_headers": digest(files["browser/public/_headers"]),
-        "browser/scripts/build-agent-surfaces.mjs": digest(
-          files["browser/scripts/build-agent-surfaces.mjs"],
-        ),
-        "browser/scripts/build-docs.mjs": digest(
-          files["browser/scripts/build-docs.mjs"],
-        ),
-        "browser/src/index.astro": digest(files["browser/src/index.astro"]),
-        "docs/README.md": digest(files["docs/README.md"]),
-        "docs-site/blume.config.ts": digest(files["docs-site/blume.config.ts"]),
-        "docs-site/package.json": digest(files["docs-site/package.json"]),
-        "docs-site/theme.css": digest(files["docs-site/theme.css"]),
-        "pnpm-lock.yaml": digest(lock),
-        "pnpm-workspace.yaml": digest(files["pnpm-workspace.yaml"]),
-      },
-      generatedDocs: {
-        config: generatedConfig,
-        configSha256: digest(generatedConfig),
-        sourceFiles: generatedSources,
-        sourceDigest: digest(JSON.stringify(generatedSources)),
-        scanResult: "passed",
-      },
-      output: {
-        count: 1,
-        files: outputFiles,
-        digest: digest(JSON.stringify(outputFiles)),
-        findings: [],
-      },
-      responses: [
-        "/",
-        "/playground.html",
-        "/devlog.html",
-        "/docs/",
-        "/docs/architecture/how-it-works",
-      ].map((url) => ({ url, status: 200, setCookie: false })),
-      result: "qualified",
-    };
+    const commit = createFixtureRepo(repoRoot, files);
+    const evidence = fixtureEvidence(files, commit);
     assert.equal(existsSync(path.join(repoRoot, "docs-site/.blume")), false);
     const verified = verifyQualificationEvidence(
       repoRoot,
