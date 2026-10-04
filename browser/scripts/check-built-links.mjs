@@ -8,10 +8,11 @@
 
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join, relative, sep } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const root = new URL("../", import.meta.url);
 const dist = new URL("dist/", root);
-const distPath = dist.pathname;
+const distPath = fileURLToPath(dist);
 
 if (!existsSync(distPath)) {
   console.error(
