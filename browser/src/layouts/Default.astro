@@ -368,36 +368,28 @@ const clarityLoader = telemetry
         window.setTimeout(() => initApiTiming(), 1_000);
       }
     </script>
-    {
-      normalizeCanonicalPath(Astro.url.pathname) !== "/" && (
-        <script
-          is:inline
-          src="https://sassmaker.com/project-strip.js?v=precise-b0adaa67"
-          crossorigin="anonymous"
-          data-project="posttrainllm"
-          data-layout="studio"
-          data-theme="dark"
-          data-host-only="true"
-          defer
-        />
-      )
-    }
-    {
-      normalizeCanonicalPath(Astro.url.pathname) !== "/" && (
-        <script
-          is:inline
-          src="https://sassmaker.com/ai-chat-footer.js?v=precise-b0adaa67"
-          data-host-only="true"
-          data-project="posttrainllm"
-          data-layout="question"
-          data-theme="dark"
-          crossorigin="anonymous"
-          data-name="PostTrainLLM"
-          data-feedback={telemetry ? "true" : "false"}
-          defer
-        />
-      )
-    }
+    <script
+      is:inline
+      src="https://sassmaker.com/project-strip.js?v=precise-b0adaa67"
+      crossorigin="anonymous"
+      data-project="posttrainllm"
+      data-layout="studio"
+      data-theme="dark"
+      data-host-only="true"
+      defer
+    />
+    <script
+      is:inline
+      src="https://sassmaker.com/ai-chat-footer.js?v=precise-b0adaa67"
+      data-host-only="true"
+      data-project="posttrainllm"
+      data-layout="question"
+      data-theme="dark"
+      crossorigin="anonymous"
+      data-name="PostTrainLLM"
+      data-feedback={telemetry ? "true" : "false"}
+      defer
+    />
   </body>
 </html>
 
