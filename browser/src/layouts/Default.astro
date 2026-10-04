@@ -315,11 +315,11 @@ const clarityLoader = telemetry
   <body>
     <slot />
     {
-      telemetry && Astro.url.pathname !== "/" && (
+      telemetry && normalizeCanonicalPath(Astro.url.pathname) !== "/" && (
         <fleet-footer-extension
           data-fleet-footer-project="posttrainllm"
           product-name="PostTrainLLM"
-          art-src="https://sassmaker.com/footer-art/posttrainllm.webp"
+          art-src="/footer-art/posttrainllm.webp"
           theme="dark"
           surface="app"
         >
