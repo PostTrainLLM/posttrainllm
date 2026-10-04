@@ -372,6 +372,52 @@ function fixtureEvidence(files, commit) {
   };
 }
 
+function verifyEdgeSourceMutations(repoRoot, evidence, commit) {
+  writeFileSync(
+    path.join(repoRoot, "browser/functions/_middleware.ts"),
+    `${pagesMiddleware}\n// changed edge behavior\n`,
+  );
+  assert.equal(
+    verifyQualificationEvidence(repoRoot, evidence, commit, new Date(now))
+      .qualified,
+    false,
+    "middleware drift is rejected",
+  );
+  writeFileSync(
+    path.join(repoRoot, "browser/functions/_middleware.ts"),
+    pagesMiddleware,
+  );
+
+  writeFileSync(
+    path.join(repoRoot, "browser/functions/new-route.ts"),
+    'export const onRequest = () => new Response("new route");',
+  );
+  assert.equal(
+    verifyQualificationEvidence(repoRoot, evidence, commit, new Date(now))
+      .qualified,
+    false,
+    "untracked edge function is rejected",
+  );
+  rmSync(path.join(repoRoot, "browser/functions/new-route.ts"));
+  rmSync(path.join(repoRoot, "browser/functions/_middleware.ts"));
+  assert.equal(
+    verifyQualificationEvidence(repoRoot, evidence, commit, new Date(now))
+      .qualified,
+    false,
+    "missing middleware is rejected",
+  );
+  writeFileSync(
+    path.join(repoRoot, "browser/functions/_middleware.ts"),
+    pagesMiddleware,
+  );
+  assert.equal(
+    verifyQualificationEvidence(repoRoot, evidence, commit, new Date(now))
+      .qualified,
+    true,
+    "restored middleware qualifies before receipt mutation tests",
+  );
+}
+
 test("fresh code-health checkout verifies same-run evidence without generated Blume or private ignored files", () => {
   const repoRoot = mkdtempSync(
     path.join(os.tmpdir(), "posttrain-astro-qualification-"),
@@ -404,49 +450,7 @@ test("fresh code-health checkout verifies same-run evidence without generated Bl
       files["docs-site/theme.css"],
     );
 
-    writeFileSync(
-      path.join(repoRoot, "browser/functions/_middleware.ts"),
-      `${pagesMiddleware}\n// changed edge behavior\n`,
-    );
-    assert.equal(
-      verifyQualificationEvidence(repoRoot, evidence, commit, new Date(now))
-        .qualified,
-      false,
-      "middleware drift is rejected",
-    );
-    writeFileSync(
-      path.join(repoRoot, "browser/functions/_middleware.ts"),
-      pagesMiddleware,
-    );
-
-    writeFileSync(
-      path.join(repoRoot, "browser/functions/new-route.ts"),
-      'export const onRequest = () => new Response("new route");',
-    );
-    assert.equal(
-      verifyQualificationEvidence(repoRoot, evidence, commit, new Date(now))
-        .qualified,
-      false,
-      "untracked edge function is rejected",
-    );
-    rmSync(path.join(repoRoot, "browser/functions/new-route.ts"));
-    rmSync(path.join(repoRoot, "browser/functions/_middleware.ts"));
-    assert.equal(
-      verifyQualificationEvidence(repoRoot, evidence, commit, new Date(now))
-        .qualified,
-      false,
-      "missing middleware is rejected",
-    );
-    writeFileSync(
-      path.join(repoRoot, "browser/functions/_middleware.ts"),
-      pagesMiddleware,
-    );
-    assert.equal(
-      verifyQualificationEvidence(repoRoot, evidence, commit, new Date(now))
-        .qualified,
-      true,
-      "restored middleware qualifies before receipt mutation tests",
-    );
+    verifyEdgeSourceMutations(repoRoot, evidence, commit);
 
     for (const bad of [
       { ...evidence, generatedAt: "not-a-date" },

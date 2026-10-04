@@ -652,7 +652,7 @@ function configFailure(context) {
   return "";
 }
 
-function sourceFailure(context) {
+function pagesFunctionFailure(context) {
   const pagesFunctions = context.sourceFiles?.browserFunctions;
   const middlewarePath = "browser/functions/_middleware.ts";
   if (!pagesFunctions || !pagesFunctions[middlewarePath])
@@ -668,6 +668,12 @@ function sourceFailure(context) {
     if (sha256(pagesFunctions[name]) !== expectedHash)
       return `pinned Pages function source changed: ${name}`;
   }
+  return "";
+}
+
+function sourceFailure(context) {
+  const edgeFailure = pagesFunctionFailure(context);
+  if (edgeFailure) return edgeFailure;
   for (const [label, files] of Object.entries(context.sourceFiles ?? {})) {
     for (const [name, text] of Object.entries(files)) {
       if (prerenderOptOut(text, name, ts))
