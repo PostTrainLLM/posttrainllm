@@ -120,3 +120,6 @@ build/
 # repo root, which drops these here.
 .coverage
 .coverage.*
+
+# Private footer review and release evidence
+.fleet-local/
