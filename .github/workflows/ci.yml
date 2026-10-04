@@ -76,14 +76,6 @@ jobs:
           VITE_POSTHOG_KEY: ""
           VITE_POSTHOG_HOST: ""
         run: pnpm run build
-      - name: Qualify temporary static Astro build scope
-        run: node scripts/quality/capture-temporary-static-astro-evidence.mjs "$RUNNER_TEMP/temporary-static-astro-qualification.json"
-      - name: Upload same-run static Astro qualification evidence
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: temporary-static-astro-qualification
-          path: ${{ runner.temp }}/temporary-static-astro-qualification.json
-          retention-days: 2
       - name: Check bundle size
         working-directory: browser
         run: pnpm run size
@@ -341,12 +333,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download same-run static Astro qualification evidence
-        uses: actions/download-artifact@v8.0.1
-        with:
-          name: temporary-static-astro-qualification
-          path: ${{ runner.temp }}
-
       - name: Setup pnpm
         # Version comes from the root package.json "packageManager" field.
         # Passing `version:` as well makes the action fail with "Multiple
@@ -397,7 +383,9 @@ jobs:
 
       - name: Audit JavaScript dependencies
         run: |
-          node --test scripts/quality/temporary-static-astro-qualification.test.mjs
+          node --test scripts/quality/check-dependency-risk.test.mjs
+          pnpm run test:dependency-security
+          POSTTRAIN_CACHE_CONSUMER=docs-site pnpm run test:dependency-security
           pnpm run quality:dependencies
 
   evals:
