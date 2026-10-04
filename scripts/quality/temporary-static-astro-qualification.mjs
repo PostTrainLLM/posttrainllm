@@ -27,6 +27,7 @@ const MARKERS = [
 ];
 const BUILD_INPUTS = [
   "browser/astro.config.mjs",
+  "browser/functions",
   "browser/package.json",
   "browser/public",
   "browser/scripts/build-agent-surfaces.mjs",
@@ -39,6 +40,18 @@ const BUILD_INPUTS = [
   "pnpm-lock.yaml",
   "pnpm-workspace.yaml",
 ];
+// Wrangler discovers Functions from browser/functions during deploy. Pin the
+// complete known directory (including its colocated test source) fail-closed.
+const PAGES_FUNCTION_SHA256 = new Map([
+  [
+    "browser/functions/_middleware.ts",
+    "0564433dd6b3c729f7925a23ad51507c70a50ad8fa89571127e61756b4c2060e",
+  ],
+  [
+    "browser/functions/_middleware.test.ts",
+    "297573986933db23dbab6f4639eab02af94cd95076f098eba57f01013d9d9805",
+  ],
+]);
 const MAX_EVIDENCE_AGE_MS = 6 * 60 * 60 * 1000;
 
 function configFindings(text, fileName) {
@@ -232,7 +245,8 @@ export function qualifyAuditFinding({ id, advisory, context, now }) {
   if (!sourceResult.qualified) return sourceResult;
   return {
     qualified: true,
-    reason: "exact temporary build-only scope and static guard passed",
+    reason:
+      "exact temporary static-assets and pinned Pages-function scope passed",
   };
 }
 
@@ -338,8 +352,10 @@ export function trackedBuildInputs(repoRoot) {
     .filter(Boolean)
     .sort();
   const files = {};
-  for (const rel of paths)
+  for (const rel of paths) {
+    if (!fs.existsSync(path.join(repoRoot, rel))) return {};
     files[rel] = sha256(fs.readFileSync(path.join(repoRoot, rel)));
+  }
   return files;
 }
 
@@ -557,7 +573,7 @@ export function verifyQualificationEvidence(
   return {
     qualified: true,
     reason:
-      "same-commit static build, output, and preview response evidence passed",
+      "same-commit static build, pinned Pages-function, output, and preview response evidence passed",
   };
 }
 
@@ -611,6 +627,7 @@ export function readCurrentContext(
     },
     sourceFiles: {
       browser: readTree("browser/src"),
+      browserFunctions: readTree("browser/functions"),
       docs: includeGenerated ? readTree("docs-site/.blume/src") : {},
     },
     outputFiles: includeOutput ? readOutput() : {},
@@ -636,6 +653,21 @@ function configFailure(context) {
 }
 
 function sourceFailure(context) {
+  const pagesFunctions = context.sourceFiles?.browserFunctions;
+  const middlewarePath = "browser/functions/_middleware.ts";
+  if (!pagesFunctions || !pagesFunctions[middlewarePath])
+    return "Pages edge middleware source is missing";
+  const unknownFunction = Object.keys(pagesFunctions).find(
+    (name) => !PAGES_FUNCTION_SHA256.has(name),
+  );
+  if (unknownFunction)
+    return `unknown Pages edge function source present: ${unknownFunction}`;
+  for (const [name, expectedHash] of PAGES_FUNCTION_SHA256) {
+    if (!pagesFunctions[name])
+      return `pinned Pages function source is missing: ${name}`;
+    if (sha256(pagesFunctions[name]) !== expectedHash)
+      return `pinned Pages function source changed: ${name}`;
+  }
   for (const [label, files] of Object.entries(context.sourceFiles ?? {})) {
     for (const [name, text] of Object.entries(files)) {
       if (prerenderOptOut(text, name, ts))
@@ -717,6 +749,7 @@ export function qualifyStaticContext(context) {
   }
   return {
     qualified: true,
-    reason: "static source, output, and response-header guards passed",
+    reason:
+      "static assets, pinned Pages-function source, output, and response-header guards passed",
   };
 }

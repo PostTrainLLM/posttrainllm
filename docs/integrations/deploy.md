@@ -1,8 +1,10 @@
 # Deploying the playground
 
-The browser app in `browser/` is a Vite static build — no server, no API. It
-loads a pre-compiled WASM module from `browser/public/`, so the deploy
-environment does **not** need Emscripten; it only needs Node to run `vite build`.
+The browser app in `browser/` builds its pages and assets statically and loads
+a pre-compiled WASM module from `browser/public/`, so the deploy environment
+does **not** need Emscripten. Cloudflare Pages also runs the dependency-free
+`browser/functions/_middleware.ts` edge middleware on requests; it is deployed
+alongside the static files and is not an Astro server-rendering adapter.
 
 Target: **`posttrainllm.com`**, on Cloudflare Pages.
 

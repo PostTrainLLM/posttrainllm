@@ -6,6 +6,7 @@ import {
   mkdtempSync,
   mkdirSync,
   rmSync,
+  readFileSync,
   writeFileSync,
   existsSync,
 } from "node:fs";
@@ -19,6 +20,14 @@ import {
 } from "./temporary-static-astro-qualification.mjs";
 
 const now = "2026-10-04T00:00:00.000Z";
+const pagesMiddleware = readFileSync(
+  new URL("../../browser/functions/_middleware.ts", import.meta.url),
+  "utf8",
+);
+const pagesMiddlewareTest = readFileSync(
+  new URL("../../browser/functions/_middleware.test.ts", import.meta.url),
+  "utf8",
+);
 const safeContext = () => ({
   packages: {
     browser: { devDependencies: { astro: "^7.2.8" }, dependencies: {} },
@@ -34,6 +43,10 @@ const safeContext = () => ({
   },
   sourceFiles: {
     browser: { "src/page.astro": "---\n---\n<main>Static</main>" },
+    browserFunctions: {
+      "browser/functions/_middleware.ts": pagesMiddleware,
+      "browser/functions/_middleware.test.ts": pagesMiddlewareTest,
+    },
     docs: { "src/index.astro": "---\n---\n<main>Docs</main>" },
   },
   outputFiles: {
@@ -62,7 +75,8 @@ const advisory = () => ({
 test("static baseline fixture is analyzable and qualifies", () => {
   assert.deepEqual(qualifyStaticContext(safeContext()), {
     qualified: true,
-    reason: "static source, output, and response-header guards passed",
+    reason:
+      "static assets, pinned Pages-function source, output, and response-header guards passed",
   });
 });
 
@@ -151,6 +165,37 @@ test("route opt-outs, Astro remote asset APIs, and custom caches fail closed", (
   }
 });
 
+test("Pages function inventory and pinned middleware fail closed", () => {
+  const changedMiddleware = safeContext();
+  changedMiddleware.sourceFiles.browserFunctions[
+    "browser/functions/_middleware.ts"
+  ] += '\nimport "http-cache-semantics";\n';
+  assert.equal(qualifyStaticContext(changedMiddleware).qualified, false);
+
+  const changedMiddlewareTest = safeContext();
+  changedMiddlewareTest.sourceFiles.browserFunctions[
+    "browser/functions/_middleware.test.ts"
+  ] += '\nexport const onRequest = () => new Response("route");\n';
+  assert.equal(qualifyStaticContext(changedMiddlewareTest).qualified, false);
+
+  const newFunction = safeContext();
+  newFunction.sourceFiles.browserFunctions["browser/functions/api/handler.ts"] =
+    'export const onRequest = () => import("http-cache-semantics");';
+  assert.equal(qualifyStaticContext(newFunction).qualified, false);
+
+  const missingMiddleware = safeContext();
+  delete missingMiddleware.sourceFiles.browserFunctions[
+    "browser/functions/_middleware.ts"
+  ];
+  assert.equal(qualifyStaticContext(missingMiddleware).qualified, false);
+
+  const missingMiddlewareTest = safeContext();
+  delete missingMiddlewareTest.sourceFiles.browserFunctions[
+    "browser/functions/_middleware.test.ts"
+  ];
+  assert.equal(qualifyStaticContext(missingMiddlewareTest).qualified, false);
+});
+
 test("server files, shipped vulnerable markers, cookie headers and responses fail closed", () => {
   for (const [name, text] of [
     ["_worker.js", ""],
@@ -212,6 +257,8 @@ const digest = (value) =>
 function fixtureFiles() {
   return {
     "browser/astro.config.mjs": `import { defineConfig } from "astro/config"; export default defineConfig({});`,
+    "browser/functions/_middleware.ts": pagesMiddleware,
+    "browser/functions/_middleware.test.ts": pagesMiddlewareTest,
     "browser/package.json": JSON.stringify({
       devDependencies: { astro: "^7.2.8" },
       dependencies: {},
@@ -355,6 +402,50 @@ test("fresh code-health checkout verifies same-run evidence without generated Bl
     writeFileSync(
       path.join(repoRoot, "docs-site/theme.css"),
       files["docs-site/theme.css"],
+    );
+
+    writeFileSync(
+      path.join(repoRoot, "browser/functions/_middleware.ts"),
+      `${pagesMiddleware}\n// changed edge behavior\n`,
+    );
+    assert.equal(
+      verifyQualificationEvidence(repoRoot, evidence, commit, new Date(now))
+        .qualified,
+      false,
+      "middleware drift is rejected",
+    );
+    writeFileSync(
+      path.join(repoRoot, "browser/functions/_middleware.ts"),
+      pagesMiddleware,
+    );
+
+    writeFileSync(
+      path.join(repoRoot, "browser/functions/new-route.ts"),
+      'export const onRequest = () => new Response("new route");',
+    );
+    assert.equal(
+      verifyQualificationEvidence(repoRoot, evidence, commit, new Date(now))
+        .qualified,
+      false,
+      "untracked edge function is rejected",
+    );
+    rmSync(path.join(repoRoot, "browser/functions/new-route.ts"));
+    rmSync(path.join(repoRoot, "browser/functions/_middleware.ts"));
+    assert.equal(
+      verifyQualificationEvidence(repoRoot, evidence, commit, new Date(now))
+        .qualified,
+      false,
+      "missing middleware is rejected",
+    );
+    writeFileSync(
+      path.join(repoRoot, "browser/functions/_middleware.ts"),
+      pagesMiddleware,
+    );
+    assert.equal(
+      verifyQualificationEvidence(repoRoot, evidence, commit, new Date(now))
+        .qualified,
+      true,
+      "restored middleware qualifies before receipt mutation tests",
     );
 
     for (const bad of [

@@ -205,7 +205,7 @@ Version bumps are explicit: v1 was the original (config + flat state), v2 added 
 
 ## 11. Astro + Cloudflare Pages deployment
 
-posttrainllm's playground is an Astro site (`browser/`) built statically — `npm run build` emits `dist/` with one HTML file per route, all CSS inlined per page, and JavaScript bundles fingerprinted for cache-busting. Cloudflare Pages serves the static directory verbatim from edge caches; there is no server-side Astro runtime at deploy time.
+posttrainllm's playground is an Astro site (`browser/`) built statically — `npm run build` emits `dist/` with one HTML file per route, all CSS inlined per page, and JavaScript bundles fingerprinted for cache-busting. Cloudflare Pages serves those files and also runs the dependency-free `browser/functions/_middleware.ts` edge middleware on requests; there is no server-side Astro rendering runtime at deploy time.
 
 The wrinkle is `SharedArrayBuffer`. The multi-threaded WASM build needs it; the browser only exposes it under "cross-origin isolation," which requires two response headers:
 
@@ -218,7 +218,7 @@ In production, those come from `browser/public/_headers` — Cloudflare Pages co
 
 Important quirk for browser-driven training sessions: `astro dev` has hot-module-reload, which is destructive during a long-running browser training. A 15-minute training run that touches CSS triggers an HMR refresh and loses all state. For Playwright-driven training (`browser/train_demo.mjs`), switch to `astro preview` instead — it serves the same `dist/` Cloudflare Pages would serve, with no HMR, same headers, no surprises.
 
-The deploy path is fully static-first; if you want a server-rendered route (analytics endpoint, model upload form), you'd add a `functions/` directory for Cloudflare Pages Functions, which the current build does not need.
+The deploy path is static-first with a narrow Pages Function for request handling. A new dynamic endpoint or other server-side behavior would need a separately reviewed Pages Function; the current middleware does not provide application APIs or server-rendered Astro routes.
 
 **Reference**: `browser/public/_headers`; `browser/astro.config.mjs`; `docs/integrations/deploy.md`.
 

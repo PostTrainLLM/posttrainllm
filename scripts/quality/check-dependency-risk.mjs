@@ -9,8 +9,8 @@ import {
 } from "./temporary-static-astro-qualification.mjs";
 
 // Accepted legacy advisories are tracked in PostTrainLLM/posttrainllm#104.
-// The separate static Astro exception is tracked in #190 and expires on
-// 2026-10-18; pnpm audit continues to report it on every run.
+// The separate static-assets plus pinned Pages-function exception is tracked
+// in #190 and expires on 2026-10-18; pnpm audit continues to report it on every run.
 //
 // This is one workspace (pnpm-workspace.yaml), so there is one dependency
 // graph and one audit. Auditing per package directory would just re-report the
@@ -96,7 +96,7 @@ for (const scope of scopes) {
   if (temporary) {
     if (temporaryCheck.qualified) {
       console.log(
-        `${scope.name}: temporary build-only qualification passed for ${TEMPORARY_ADVISORY.ghsa} through ${TEMPORARY_ADVISORY.expiresAt}.`,
+        `${scope.name}: temporary static-assets and pinned Pages-function qualification passed for ${TEMPORARY_ADVISORY.ghsa} through ${TEMPORARY_ADVISORY.expiresAt}.`,
       );
     } else {
       console.error(
