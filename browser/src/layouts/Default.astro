@@ -315,7 +315,7 @@ const clarityLoader = telemetry
   <body>
     <slot />
     {
-      telemetry && normalizeCanonicalPath(Astro.url.pathname) !== "/" && (
+      normalizeCanonicalPath(Astro.url.pathname) !== "/" && (
         <fleet-footer-extension
           data-fleet-footer-project="posttrainllm"
           product-name="PostTrainLLM"
@@ -369,7 +369,7 @@ const clarityLoader = telemetry
       }
     </script>
     {
-      telemetry && (
+      normalizeCanonicalPath(Astro.url.pathname) !== "/" && (
         <script
           is:inline
           src="https://sassmaker.com/project-strip.js?v=precise-b0adaa67"
@@ -383,7 +383,7 @@ const clarityLoader = telemetry
       )
     }
     {
-      telemetry && (
+      normalizeCanonicalPath(Astro.url.pathname) !== "/" && (
         <script
           is:inline
           src="https://sassmaker.com/ai-chat-footer.js?v=precise-b0adaa67"
@@ -393,6 +393,7 @@ const clarityLoader = telemetry
           data-theme="dark"
           crossorigin="anonymous"
           data-name="PostTrainLLM"
+          data-feedback={telemetry ? "true" : "false"}
           defer
         />
       )
