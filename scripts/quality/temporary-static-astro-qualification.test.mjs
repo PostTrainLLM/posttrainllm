@@ -15,11 +15,23 @@ import path from "node:path";
 import {
   qualifyAuditFinding,
   qualifyStaticContext,
+  foregroundPreviewEnvironment,
   TEMPORARY_ADVISORY,
   verifyQualificationEvidence,
 } from "./temporary-static-astro-qualification.mjs";
 
 const now = "2026-10-04T00:00:00.000Z";
+
+test("preview subprocess stays foreground when Astro detects an agent run", () => {
+  const environment = foregroundPreviewEnvironment({
+    CODEX_THREAD_ID: "agent-session",
+    ASTRO_PREVIEW_BACKGROUND: "",
+  });
+  assert.equal(environment.ASTRO_PREVIEW_BACKGROUND, "0");
+  assert.ok(environment.ASTRO_PREVIEW_BACKGROUND);
+  assert.equal(environment.CODEX_THREAD_ID, "agent-session");
+});
+
 const pagesMiddleware = readFileSync(
   new URL("../../browser/functions/_middleware.ts", import.meta.url),
   "utf8",

@@ -281,6 +281,10 @@ async function startPreview(repoRoot) {
       cwd: repoRoot,
       stdio: "ignore",
       detached: process.platform !== "win32",
+      // Astro 7 detects agent runs and otherwise converts `preview` into a
+      // background command whose CLI exits successfully before serving the
+      // random port this qualifier is polling.
+      env: foregroundPreviewEnvironment(process.env),
     },
   );
   const origin = `http://${host}:${port}`;
@@ -307,6 +311,10 @@ async function startPreview(repoRoot) {
     stopPreview(child);
     throw error;
   }
+}
+
+export function foregroundPreviewEnvironment(environment) {
+  return { ...environment, ASTRO_PREVIEW_BACKGROUND: "0" };
 }
 
 function stopPreview(child) {
