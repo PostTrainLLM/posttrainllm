@@ -850,7 +850,7 @@ Historical artifact evidence, not newly reproduced or shipped capability.
 - Lesson: A fast classifier can learn the generator rather than the action policy.
 - Next action: Retain as a rejected baseline; require policy-adjudicated fresh cases before a successor.
 - Confidence: `exact`.
-- Source: [pace-intent-router-v8-sealed](specialists/pace-intent-router-v8/model_card.md); [Pace PR #201](https://github.com/HeyPace/pace/pull/201).
+- Source: [pace-intent-router-v8-sealed](https://github.com/PostTrainLLM/posttrainllm/blob/23a61e02bbc6704507cd51316ddd1aac7477c7c7/specialists/pace-intent-router-v8/model_card.md); [Pace PR #201](https://github.com/HeyPace/pace/pull/201).
 
 ### Pace next-step Jev teacher development baseline
 
