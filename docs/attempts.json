@@ -1537,7 +1537,7 @@
       "evidence": "123 development fixtures: student v1 58.5% full pass, reported MPS routing p50 16 ms.",
       "failure_reason": "Teacher labels and limited coverage left single-target click routing weak. Synthetic sealed data and inspected development misses do not qualify a shipping gate.",
       "failure_reason_confidence": "exact",
-      "lesson": "Policy and independent evaluation must precede more teacher distillation.",
+      "lesson": "Student v1 left single-target clicks weak; label policy and independent evaluation must precede further teacher distillation.",
       "next_action": "Continue issue #200 with a label policy, fresh adjudicated acceptance cases, and per-class regression gates.",
       "evidence_sources": [
         "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v1/harness-results.json",
@@ -1563,7 +1563,7 @@
       "evidence": "123 development fixtures: student v2 53.7% full pass, reported MPS routing p50 18 ms.",
       "failure_reason": "Agreement filtering reduced development full pass rather than repairing label policy. Synthetic sealed data and inspected development misses do not qualify a shipping gate.",
       "failure_reason_confidence": "exact",
-      "lesson": "Policy and independent evaluation must precede more teacher distillation.",
+      "lesson": "Agreement filtering lowered student v2 full pass to 53.7%; agreement alone does not repair a disputed action policy.",
       "next_action": "Continue issue #200 with a label policy, fresh adjudicated acceptance cases, and per-class regression gates.",
       "evidence_sources": [
         "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v2-agreement/harness-results.json",
@@ -1589,7 +1589,7 @@
       "evidence": "123 development fixtures: student v3 65.0% full pass, reported MPS routing p50 14 ms.",
       "failure_reason": "Goal-phrased data improved clicks but full pass remained below the local 71.5% baseline and RESPOND regressed. Synthetic sealed data and inspected development misses do not qualify a shipping gate.",
       "failure_reason_confidence": "exact",
-      "lesson": "Policy and independent evaluation must precede more teacher distillation.",
+      "lesson": "Goal-phrased training improved student v3 clicks but regressed RESPOND; report per-class gates alongside aggregate full pass.",
       "next_action": "Continue issue #200 with a label policy, fresh adjudicated acceptance cases, and per-class regression gates.",
       "evidence_sources": [
         "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v3-extra/harness-results.json",
@@ -1640,7 +1640,7 @@
       "evidence": "Jeff base: 123 development cases, 33.3% full pass, 6.7% ASK_USER, p50 121 ms; 50 repeat guards.",
       "failure_reason": "Fast routing did not preserve clarification, action selection, or stopping.",
       "failure_reason_confidence": "exact",
-      "lesson": "Separate tool choice, stateful stopping, input-format compatibility, and acceptance evidence.",
+      "lesson": "Jeff base latency did not preserve clarification, action choice or stopping; qualify each behavior before choosing a fast router.",
       "next_action": "Reject this zero-shot configuration for Pace; no app wiring.",
       "evidence_sources": [
         "evals/pace-next-step-router-20261005/summary.json#results-jeff-base-v1.2-20261005.json",
@@ -1665,7 +1665,7 @@
       "evidence": "Jeff tools with 32 Pace options: 38.2% full pass, 10.0% ASK_USER, p50 143 ms; 36 repeat guards.",
       "failure_reason": "The unchanged label contract remained weak on step control and clarification.",
       "failure_reason_confidence": "exact",
-      "lesson": "Separate tool choice, stateful stopping, input-format compatibility, and acceptance evidence.",
+      "lesson": "Jeff tools with the existing label contract remained weak on clarification and step control; a tool-oriented model is not a qualified policy replacement.",
       "next_action": "Reject the 32-option substitution; preserve a separate upstream-format trial.",
       "evidence_sources": [
         "evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-v1.2-20261005.json",
@@ -1690,7 +1690,7 @@
       "evidence": "Jeff tools documented 31-option format: 34.1% full pass, 33.3% ASK_USER, p50 120 ms; 58 repeat guards.",
       "failure_reason": "Following the published option wording and state format did not repair progress awareness; explicit DONE was unmeasured.",
       "failure_reason_confidence": "exact",
-      "lesson": "Separate tool choice, stateful stopping, input-format compatibility, and acceptance evidence.",
+      "lesson": "Jeff documented wording did not repair progress awareness; native format compatibility must be tested separately from DONE and task completion.",
       "next_action": "Reject this format adaptation for the current next-step router.",
       "evidence_sources": [
         "evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-native-v1.2-20261005.json",
@@ -1715,7 +1715,7 @@
       "evidence": "416 frozen synthetic states: 36.5% generator agreement, 34.4% teacher agreement, ECE 0.332/0.353, p50/p95 146/169 ms.",
       "failure_reason": "Weakness persisted on ambiguous and progress states; generator and teacher labels are disputed, so this is smoke evidence only.",
       "failure_reason_confidence": "exact",
-      "lesson": "Separate tool choice, stateful stopping, input-format compatibility, and acceptance evidence.",
+      "lesson": "The frozen Jeff synthetic smoke retained ambiguous and progress failures; disputed generator and teacher labels cannot establish acceptance.",
       "next_action": "Do not fit fallback thresholds or claim acceptance from this sample.",
       "evidence_sources": [
         "evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-synthetic-20261005.json",
