@@ -65,8 +65,8 @@ The lesson’s SFT and preference response cards are authored illustrations. Cho
 
 ## Source and proof pointers
 
-- Lesson behavior and limits: [`docs/learn/llm-kitchen.md`](../../learn/llm-kitchen.md)
-- Product purpose and truthful-claim commitments: [`PRODUCT.md`](../../../PRODUCT.md)
+- Lesson behavior and limits: [`docs/learn/llm-kitchen.md`](../../docs/learn/llm-kitchen.md)
+- Product purpose and truthful-claim commitments: [`PRODUCT.md`](../../PRODUCT.md)
 - Current lesson structure and labels: `browser/src/pages/articles/how-to-cook-an-llm.astro`
 - Actual sample selection, byte encoding, authored checkpoint text, and preference pair: `browser/src/kitchen/model.ts`
 - Real training and same-weight generation flow: `browser/src/kitchen/cooker.ts`
