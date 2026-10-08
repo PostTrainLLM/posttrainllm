@@ -1,0 +1,194 @@
+# Archived AGENTS.md history (moved 2026-10-08)
+
+Historical record moved out of [AGENTS.md](../../AGENTS.md): owner north-star and eval-philosophy statements (recorded June 2026), the closed-lab closure text, and the parked experimental CLI group. Current operating instructions stay in AGENTS.md; where they conflict, AGENTS.md wins.
+
+## North-star (owner's goal — recorded 2026-06-14)
+
+The owner is **not** trying to win at the large-scale / frontier paradigm — no
+money, no compute, and that's fully accepted. The actual goal:
+
+1. **Win on the Mac** — be best-in-class at Mac-local AI specifically.
+2. **Learn the whole space like a sponge** — including the *single-machine ↔
+   distributed boundary*: what a cluster/distributed system can do that one Mac
+   can't, and the physics + economics of why.
+3. **Build everything that's buildable on a Mac** — "if it can be built on this
+   Mac, build it."
+4. **Position for the future** — get the foundation, knowledge, and assets done
+   now, so when money/opportunity to expand arrives we scale from a running start.
+
+How this shapes the work:
+- Value **completeness, depth, and learning as first-class outcomes**, not only
+  commercial ROI. Coverage of the Mac-local surface IS the goal.
+- Treat "failed" experiments as **learning wins** — e.g., A1 (a fine-tune not
+  beating the base) mapped the fine-tuning frontier; the distillation result (a
+  0.6B matching a 4B at 1/7th size on tool-calling) is a validated recipe.
+- The eval/judgment "turnaround" is *one* valuable piece, not the sole focus —
+  don't over-narrow to a single commercial niche.
+- When scaled/distributed approaches come up (Prime Intellect, oMLX, teale),
+  explaining them is **boundary-mapping**, not a detour.
+- Tactically, ROI-scope per task still applies; strategically the north-star is
+  comprehensive Mac mastery + future optionality.
+
+> Owner preference: durable goal/context like this lives **here in AGENTS.md**
+> (owner-readable, version-controlled), not in agent-private memory.
+> When the owner explicitly says to remember something, record it in this
+> repo-owned wrapper (normally `AGENTS.md`, or the nearest appropriate tracked
+> project document), never only in Codex's external/private memory.
+
+### External autoresearch products to retain
+
+- Keep Aster AI Labs and Weco AI on the radar for future factory work.
+- Weco is the more directly applicable product: consider a bounded trial of its
+  traceable, steerable autoresearch loop only after a concrete target, frozen
+  eval, held-out gate, regression metric, and fixed cost budget exist.
+- Use Aster primarily to learn distributed research-search techniques and map
+  the single-Mac-to-cluster boundary; do not reproduce its massive compute
+  pattern locally.
+- Adopt useful ideas from either when an active target justifies them, without
+  speculative installation or adoption.
+
+## Eval philosophy (owner's call — recorded 2026-06-14)
+
+**The goal is not to *beat* frontier models — it's to *reach frontier capability
+at a fraction of the cost* (compute, RAM, $).** Frontier is the capability
+*ceiling we approach cheaply*, not an opponent. So the headline metric for any
+Mac model is "% of frontier capability retained per unit of compute/RAM," not
+raw accuracy in isolation.
+
+This makes frontier models the **calibration anchor for every benchmark**:
+
+- **Frontier-ceiling gate.** Before any benchmark is used to grade Mac models, a
+  frontier model must score **~100%** on it. If frontier can't ace it, the benchmark
+  is broken — **fix or drop it; never report Mac-model accuracy on it.**
+  - **Teacher backend preference (owner, 2026-06-16): prefer the FREE
+    Codex CLI (`gpt-5.5`, `scripts/bfcl/bfcl_multiturn_codex.py`, `codex exec
+    --output-schema`) for frontier validation + teacher trajectories.** DeepSeek-V4
+    (`bfcl_multiturn_deepseek.py`) is a clean OpenAI-FC backend but **costs the owner
+    money — use sparingly / only to cross-check.** `claude -p` editorializes (it's an
+    agent CLI, not a clean endpoint) and the `free-ai` gateway health-routes to
+    llama-4-scout — neither is a reliable clean frontier; Codex `gpt-5.5` is. Rationale: an eval that penalizes a frontier model's correct-or-better
+  answers will penalize our small models the same way — we'd be optimizing
+  against noise, and any "gap" we measure is the ruler, not the model.
+- **Why this is load-bearing:** the hermes-fc tool-call set fails this gate hard —
+  frontier scored ~12% on its difficult cases because ~29% of golds are
+  *ungroundable* (device IDs, txn codes, JSON payloads, even a literal
+  `unique_nft_identifier` placeholder that appear nowhere in the prompt), and the
+  frontier answers were often *more* correct than the gold. Hard exact-match
+  ceiling ≈71%. → hermes-fc is **training-only**; never a reported metric.
+- **What passes:** BFCL (AST matching, verified-groundable golds) — frontier aces
+  it, so 80–90% is a real, reachable target there and a measured Mac-vs-frontier
+  cost ratio is meaningful. Prefer benchmarks with verified golds + AST/semantic
+  matching + per-call partial credit over single-reference exact-string match.
+- **Tool-calling target (owner, 2026-06-14): smallest model that reaches
+  frontier-parity, not the biggest available.** Push the **1.7B** as far as it
+  goes first; step up to **4B only if 1.7B plateaus below the bar**. Reference
+  points (BFCL slice, this harness): frontier (Claude) ~99%; **30B-A3B local ≈
+  frontier on multi-call** (parallel/parallel_multiple ~96%, only ~3B active
+  params — the cost-compression proof); distilled 1.7B ~60–84% single/multi-call
+  but ~24% on `live_multiple` (real-user, many-distractor function *selection* is
+  the genuine gap — attack via multi-call/selection distillation data or GRPO with
+  the AST matcher as the verifiable reward, not raw size).
+- **Incumbent + conclusive winner (owner, 2026-06-16).** Pace (the production app)
+  currently runs **Gemma**; our agentic-tool-calling work targets the **~4B**
+  (Qwen3-4B-2507) and a distilled/RL'd successor. The endgame deliverable is a
+  **single head-to-head that picks a conclusive winner for Pace** — Gemma vs the 4B
+  variants (and an 8B only if the 4B plateaus) on the same multi-turn agentic gate,
+  reported alongside decode tok/s + RAM. Until that table exists, no candidate is
+  "the answer." Multi-turn gate reference (task-completion, hard tier):
+  DeepSeek-V4-pro 100; Qwen3-4B-2507 bf16 58 stock → 75 with a plan-then-execute
+  system prompt; target ~95.
+- **On-device-model platform stance (owner, 2026-06-17): own the model; do not depend
+  on Apple's.** Apple's on-device FoundationModels model is treated as **intel + a free
+  routing floor**, never a capability dependency. Measured (see
+  [`docs/learn/apple-on-device-foundation-models.md`](docs/learn/apple-on-device-foundation-models.md)):
+  it **can't ground actions** — BFCL agentic 25% (full catalog) / ~0% (compact); Pace
+  planner action-grounding 13% / OOS-refusal ~95%; **4096-token context can't hold a real
+  tool catalog**; **not faster** than our 4B (its only edge is ANE perf-per-watt + zero
+  setup/RAM/cost). **Adapter-tuning Apple's model is ruled out** (locks us to their
+  model/format/OS). Core ML–compiling *our own* weights to the ANE stays an *optional
+  future battery optimization* (Core ML = deploy target, not a model dependency), not a
+  capability bet. The differentiation stays **our model + our eval gate**, not the serving
+  layer. Reusable artifact: [`scripts/fm_agent_bridge.swift`](scripts/fm_agent_bridge.swift)
+  (on-device model behind our OpenAI-FC harness).
+
+## Closed learning lab and fresh-experiment gate (updated 2026-09-02)
+
+The historical build phase is complete. The repository is a **closed learning
+artifact and practical lab** centered on the Mac-local specialist factory:
+every known evidence-backed experiment has a final disposition, every retained
+technique has a recipe contract, and every recipe resolves to a hands-on
+learning path with a mastery gate. There is no active target or implicit
+backlog. Historical TODOs, blockers, PRDs, and conditional next actions are
+evidence, not authorization to continue the old project.
+
+Retained factory loop:
+
+```text
+target -> data -> post-training -> eval -> package -> report
+```
+
+Before starting any fresh experiment, read:
+
+1. `PROJECT_STATUS.md` — current state and scope.
+2. `docs/NEXT.md` — closure receipt and fresh-experiment admission rule.
+3. `docs/factory/` — run schema, eval protocol, packaging, reports.
+4. `docs/prds/PRIORITY.md` — PRD priority map, only when PRD-level acceptance
+   criteria are needed.
+5. `docs/parked/` — paused lanes that should not compete with the factory proof.
+
+New implementation work requires the owner to deliberately open a fresh
+question—normally after completing the relevant learning path—and create a
+scoped GitHub Issue. Once authorized, every task must answer one of these
+questions:
+
+1. Can we prepare or improve the data?
+2. Can we post-train a candidate?
+3. Can we evaluate it against a frozen baseline?
+4. Can we package it as a specialist artifact?
+5. Can we report score delta, regressions, cost, latency, RAM, tok/s, and a
+   ship/reject decision?
+
+If not, it belongs in a separately scoped project. Historical TODOs, PRDs, and
+report blockers do not authorize work by themselves.
+
+Parked unless an explicitly reactivated factory run needs them:
+
+- browser/WebGPU polish and launch prep
+- Astro migration
+- ANE/CoreML research
+- VLM work
+- Tier 5 research
+- broad Mac app polish
+- new PRD expansion
+- unused experiment CLIs (ROME, MEMIT, SAE, LASER, GPTQ, and siblings)
+
+Completion exception (owner-approved through Issue #136): the public learning
+UI, experiment archive, recipe/path surfaces, CLI discovery, and their
+build/accessibility/link gates are active until the closure receipt is live.
+This does not reactivate WebGPU runtime polish, new model work, or broad launch
+scope. The Astro major-version migration remains approval-gated as a dependency
+change.
+
+### Parked experimental CLI group
+
+The default `posttrainllm` command surface is the factory loop
+(train / eval / package / report / decide). Research experiment
+commands stay in-tree under `native-mac/Sources/TinyGPT/` as learning
+assets — do not delete the implementations — but they are dispatched
+only through:
+
+```text
+posttrainllm experimental <command>
+posttrainllm experimental --help
+```
+
+Parked names: `rome`, `memit`, `patch`, `sae`, `sae-explore`,
+`sae-to-saelens`, `interp-replay`, `tuned-lens`, `linear-probe`,
+`causal-trace`, `laser`, `gptq`, `hqq`, `prune-unstructured`,
+`prune-structured`, `magpie`, `automix`, `compress`, `bon`,
+`train-heads`. Hidden top-level aliases still work so existing scripts
+keep running; they are omitted from default `--help`.
+
+The old polish-first launch sequence is superseded. Preserve the idea that
+polish matters, but apply it narrowly to the **Factory Run Center** and
+before/after reports after the CLI factory loop proves improvement.

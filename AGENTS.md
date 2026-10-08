@@ -1,4 +1,4 @@
-# agents.md — posttrainllm
+# AGENTS.md — posttrainllm
 
 ## Repository operating rules
 
@@ -9,285 +9,108 @@ and record durable follow-up in this repository's GitHub Issues.
 
 ## Purpose
 
-A **learning project**, not a deployed product: build a browser-capable posttrainllm that
-trains from scratch and adapts a small base model with LoRA. Priority is correctness
-and understanding over output quality or shipping.
+A **learning project**, not a deployed product: build a browser-capable
+posttrainllm that trains from scratch and adapts a small base model with LoRA.
+Priority is correctness and understanding over output quality or shipping.
 
-## North-star (owner's goal — recorded 2026-06-14)
+Owner north-star: be best-in-class at Mac-local AI, learn the whole space
+including the single-machine/distributed boundary, build everything buildable
+on a Mac, and keep foundations ready to scale later. Failed experiments count
+as learning wins. Tactically, ROI-scope per task still applies.
 
-The owner is **not** trying to win at the large-scale / frontier paradigm — no
-money, no compute, and that's fully accepted. The actual goal:
+Durable owner goals live here in AGENTS.md, not in agent-private memory. When
+the owner says to remember something, record it in a tracked project document.
 
-1. **Win on the Mac** — be best-in-class at Mac-local AI specifically.
-2. **Learn the whole space like a sponge** — including the *single-machine ↔
-   distributed boundary*: what a cluster/distributed system can do that one Mac
-   can't, and the physics + economics of why.
-3. **Build everything that's buildable on a Mac** — "if it can be built on this
-   Mac, build it."
-4. **Position for the future** — get the foundation, knowledge, and assets done
-   now, so when money/opportunity to expand arrives we scale from a running start.
+History (full north-star, eval philosophy, closure text, parked CLI list):
+[docs/archive/agents-history.md](docs/archive/agents-history.md).
 
-How this shapes the work:
-- Value **completeness, depth, and learning as first-class outcomes**, not only
-  commercial ROI. Coverage of the Mac-local surface IS the goal.
-- Treat "failed" experiments as **learning wins** — e.g., A1 (a fine-tune not
-  beating the base) mapped the fine-tuning frontier; the distillation result (a
-  0.6B matching a 4B at 1/7th size on tool-calling) is a validated recipe.
-- The eval/judgment "turnaround" is *one* valuable piece, not the sole focus —
-  don't over-narrow to a single commercial niche.
-- When scaled/distributed approaches come up (Prime Intellect, oMLX, teale),
-  explaining them is **boundary-mapping**, not a detour.
-- Tactically, ROI-scope per task still applies; strategically the north-star is
-  comprehensive Mac mastery + future optionality.
+## Eval rules (current)
 
-> Owner preference: durable goal/context like this lives **here in AGENTS.md**
-> (owner-readable, version-controlled), not in agent-private memory.
-> When the owner explicitly says to remember something, record it in this
-> repo-owned wrapper (normally `AGENTS.md`, or the nearest appropriate tracked
-> project document), never only in Codex's external/private memory.
+- **Frontier-ceiling gate.** Before a benchmark grades Mac models, a frontier
+  model must score ~100% on it. If it cannot, fix or drop the benchmark; never
+  report Mac-model accuracy on it. `hermes-fc` fails this gate: it is
+  training-only, never a reported metric. BFCL (AST matching) passes.
+- Headline metric is "% of frontier capability retained per unit of compute,
+  RAM, and $", not raw accuracy.
+- Prefer the free Codex CLI (`scripts/bfcl/bfcl_multiturn_codex.py`) for
+  frontier validation and teacher trajectories. DeepSeek-V4 costs money: use
+  sparingly, only to cross-check.
+- Tool-calling target: the smallest model that reaches frontier parity. Push
+  1.7B first; step to 4B only if it plateaus.
+- Own the on-device model; Apple's FoundationModels is intel and a routing
+  floor, never a capability dependency. See
+  [docs/learn/apple-on-device-foundation-models.md](docs/learn/apple-on-device-foundation-models.md).
 
-### External autoresearch products to retain
+## Working rules
 
-- Keep Aster AI Labs and Weco AI on the radar for future factory work.
-- Weco is the more directly applicable product: consider a bounded trial of its
-  traceable, steerable autoresearch loop only after a concrete target, frozen
-  eval, held-out gate, regression metric, and fixed cost budget exist.
-- Use Aster primarily to learn distributed research-search techniques and map
-  the single-Mac-to-cluster boundary; do not reproduce its massive compute
-  pattern locally.
-- Adopt useful ideas from either when an active target justifies them, without
-  speculative installation or adoption.
-
-## Eval philosophy (owner's call — recorded 2026-06-14)
-
-**The goal is not to *beat* frontier models — it's to *reach frontier capability
-at a fraction of the cost* (compute, RAM, $).** Frontier is the capability
-*ceiling we approach cheaply*, not an opponent. So the headline metric for any
-Mac model is "% of frontier capability retained per unit of compute/RAM," not
-raw accuracy in isolation.
-
-This makes frontier models the **calibration anchor for every benchmark**:
-
-- **Frontier-ceiling gate.** Before any benchmark is used to grade Mac models, a
-  frontier model must score **~100%** on it. If frontier can't ace it, the benchmark
-  is broken — **fix or drop it; never report Mac-model accuracy on it.**
-  - **Teacher backend preference (owner, 2026-06-16): prefer the FREE
-    Codex CLI (`gpt-5.5`, `scripts/bfcl/bfcl_multiturn_codex.py`, `codex exec
-    --output-schema`) for frontier validation + teacher trajectories.** DeepSeek-V4
-    (`bfcl_multiturn_deepseek.py`) is a clean OpenAI-FC backend but **costs the owner
-    money — use sparingly / only to cross-check.** `claude -p` editorializes (it's an
-    agent CLI, not a clean endpoint) and the `free-ai` gateway health-routes to
-    llama-4-scout — neither is a reliable clean frontier; Codex `gpt-5.5` is. Rationale: an eval that penalizes a frontier model's correct-or-better
-  answers will penalize our small models the same way — we'd be optimizing
-  against noise, and any "gap" we measure is the ruler, not the model.
-- **Why this is load-bearing:** the hermes-fc tool-call set fails this gate hard —
-  frontier scored ~12% on its difficult cases because ~29% of golds are
-  *ungroundable* (device IDs, txn codes, JSON payloads, even a literal
-  `unique_nft_identifier` placeholder that appear nowhere in the prompt), and the
-  frontier answers were often *more* correct than the gold. Hard exact-match
-  ceiling ≈71%. → hermes-fc is **training-only**; never a reported metric.
-- **What passes:** BFCL (AST matching, verified-groundable golds) — frontier aces
-  it, so 80–90% is a real, reachable target there and a measured Mac-vs-frontier
-  cost ratio is meaningful. Prefer benchmarks with verified golds + AST/semantic
-  matching + per-call partial credit over single-reference exact-string match.
-- **Tool-calling target (owner, 2026-06-14): smallest model that reaches
-  frontier-parity, not the biggest available.** Push the **1.7B** as far as it
-  goes first; step up to **4B only if 1.7B plateaus below the bar**. Reference
-  points (BFCL slice, this harness): frontier (Claude) ~99%; **30B-A3B local ≈
-  frontier on multi-call** (parallel/parallel_multiple ~96%, only ~3B active
-  params — the cost-compression proof); distilled 1.7B ~60–84% single/multi-call
-  but ~24% on `live_multiple` (real-user, many-distractor function *selection* is
-  the genuine gap — attack via multi-call/selection distillation data or GRPO with
-  the AST matcher as the verifiable reward, not raw size).
-- **Incumbent + conclusive winner (owner, 2026-06-16).** Pace (the production app)
-  currently runs **Gemma**; our agentic-tool-calling work targets the **~4B**
-  (Qwen3-4B-2507) and a distilled/RL'd successor. The endgame deliverable is a
-  **single head-to-head that picks a conclusive winner for Pace** — Gemma vs the 4B
-  variants (and an 8B only if the 4B plateaus) on the same multi-turn agentic gate,
-  reported alongside decode tok/s + RAM. Until that table exists, no candidate is
-  "the answer." Multi-turn gate reference (task-completion, hard tier):
-  DeepSeek-V4-pro 100; Qwen3-4B-2507 bf16 58 stock → 75 with a plan-then-execute
-  system prompt; target ~95.
-- **On-device-model platform stance (owner, 2026-06-17): own the model; do not depend
-  on Apple's.** Apple's on-device FoundationModels model is treated as **intel + a free
-  routing floor**, never a capability dependency. Measured (see
-  [`docs/learn/apple-on-device-foundation-models.md`](docs/learn/apple-on-device-foundation-models.md)):
-  it **can't ground actions** — BFCL agentic 25% (full catalog) / ~0% (compact); Pace
-  planner action-grounding 13% / OOS-refusal ~95%; **4096-token context can't hold a real
-  tool catalog**; **not faster** than our 4B (its only edge is ANE perf-per-watt + zero
-  setup/RAM/cost). **Adapter-tuning Apple's model is ruled out** (locks us to their
-  model/format/OS). Core ML–compiling *our own* weights to the ANE stays an *optional
-  future battery optimization* (Core ML = deploy target, not a model dependency), not a
-  capability bet. The differentiation stays **our model + our eval gate**, not the serving
-  layer. Reusable artifact: [`scripts/fm_agent_bridge.swift`](scripts/fm_agent_bridge.swift)
-  (on-device model behind our OpenAI-FC harness).
-
-## Working rules specific to this repo
-
-- **Respect the build order.** Python reference → WASM → WebGPU. Do not implement a
-  browser/WebGPU path before the Python reference for that component is correct and
-  tested. See `README.md` and `docs/archive/learning_roadmap.md`.
-- **Correctness gates.** Before scaling anything, the model must overfit a tiny
-  (1–10 KB) repeated dataset. If it cannot, the bug is in model/backprop/data — fix
-  that first. See `tests/README.md`.
-- **Configs are the source of truth.** Exact specs live in `configs/*.json`. Code and
-  docs should reference them rather than restating numbers.
-- **File headers are the contract.** Most source files open with a header describing
-  their interface and linking the relevant `docs/` section. When changing one, keep the
-  header and the linked doc in step with the code.
-- **Steal first, improve where we can (standing policy, reaffirmed 2026-06-14).**
-  Default to adopting the best existing tool / benchmark / kernel / library rather
-  than rebuilding it; only hand-roll when nothing good exists or we can measurably
-  beat it. (Why: limited Mac compute — spend effort on the deltas that matter, not
-  reinventing solved problems. E.g. use BFCL's scorer, MLX's QuantizedLinear, the
-  Rust `tokenizers` crate — don't reimplement them.)
-- **Best tool for the job (owner pref, 2026-06-14).** Use the ultimate best tool for
-  each task that runs on this Mac — **Go is in the set** alongside C/C++, Rust,
-  hand-written Metal, Swift+MLX, PyTorch (MPS), Accelerate/vDSP. **CUDA is dropped
-  for now** — not available on this Apple-Silicon host; it only re-enters when
-  boundary-mapping the distributed/cluster side or future non-Mac scale.
-- **Performance latitude.** Once correctness is established (reference path passes
-  its gates), hot paths MAY drop to a faster language where it *measurably* boosts
-  performance. Keep the readable reference impl as the correctness oracle; the fast
-  path must match it numerically. Pick the lever by bottleneck: compute-bound local
-  math → Metal/MLX/SIMD-C/Rust; **eval/orchestration speed is I/O- and model-bound
-  → the win is parallelism + batching + a warm model server, NOT the orchestration
-  language.** A Go (or Rust) concurrent driver only pays off once an eval becomes a
-  high-throughput, server-hammering harness; for small slices, async fan-out in the
-  existing language gets the same speedup with no rewrite.
+- **Respect the build order.** Python reference, then WASM, then WebGPU. No
+  browser/WebGPU path before the Python reference for that component is
+  correct and tested. See `README.md` and `docs/archive/learning_roadmap.md`.
+- **Correctness gates.** Before scaling, the model must overfit a tiny
+  (1-10 KB) repeated dataset. If it cannot, fix model/backprop/data first. See
+  `tests/README.md`.
+- **Configs are the source of truth.** Exact specs live in `configs/*.json`;
+  reference them rather than restating numbers.
+- **File headers are the contract.** Keep a source file's header and its
+  linked doc in step with the code.
+- **Steal first, improve where we can.** Adopt the best existing tool,
+  benchmark, kernel, or library (BFCL scorer, MLX QuantizedLinear, Rust
+  `tokenizers`) before hand-rolling.
+- **Best tool for the job.** Go, C/C++, Rust, Metal, Swift+MLX, PyTorch (MPS),
+  and Accelerate are all fine. CUDA is dropped (no Apple-Silicon support).
+- **Performance latitude.** After correctness is established, hot paths may
+  drop to a faster language when it measurably helps. Keep the readable
+  reference as the numerical oracle. Eval speed is I/O- and model-bound:
+  parallelism, batching and a warm model server beat a language rewrite.
 
 ## Layout
 
-See `README.md` for the directory map, and `CONTRIBUTING.md` for build, test, and
-lint entry points. Specs in `configs/`, guides in `docs/`, cross-cutting tests in
-`tests/` (Swift tests live in `native-mac/Tests/`, browser tests in `browser/src/`).
+See `README.md` for the directory map and `CONTRIBUTING.md` for build, test,
+and lint entry points. Specs in `configs/`, guides in `docs/`, cross-cutting
+tests in `tests/` (Swift in `native-mac/Tests/`, browser in `browser/src/`).
+
+## Closed lab and fresh-experiment gate
+
+The build phase is complete. The repo is a closed learning artifact and
+practical lab around the Mac-local specialist factory loop
+(target, data, post-training, eval, package, report). There is no active
+target or implicit backlog; historical TODOs, PRDs and blockers are evidence,
+not authorization.
+
+Before any fresh experiment read `PROJECT_STATUS.md`, `docs/NEXT.md` (closure
+receipt and admission rule), `docs/factory/`, and `docs/parked/`. New
+implementation work needs the owner to open a fresh question and a scoped
+GitHub Issue. Each task must serve one of: prepare data, post-train a
+candidate, eval against a frozen baseline, package a specialist artifact, or
+report score delta, regressions, cost, latency, RAM, tok/s and a ship/reject
+decision.
+
+Parked unless a reactivated factory run needs them: browser/WebGPU polish,
+Astro migration (approval-gated dependency change), ANE/CoreML, VLM, Tier 5
+research, broad Mac app polish, new PRD expansion. Research CLIs (`rome`,
+`memit`, `sae`, `laser`, `gptq`, etc.) stay in-tree under `native-mac/Sources/TinyGPT/`,
+dispatched only via `posttrainllm experimental <command>`; do not delete them.
+Issue #136 keeps the public learning UI, experiment archive, recipe/path
+surfaces and CLI discovery active until the closure receipt is live.
 
 ## Not in scope for the fleet tooling
 
-This project is a sandbox: no SaaS Maker product record, deployment, or analytics
-wiring is expected unless explicitly requested.
-
-## Closed learning lab and fresh-experiment gate (updated 2026-09-02)
-
-The historical build phase is complete. The repository is a **closed learning
-artifact and practical lab** centered on the Mac-local specialist factory:
-every known evidence-backed experiment has a final disposition, every retained
-technique has a recipe contract, and every recipe resolves to a hands-on
-learning path with a mastery gate. There is no active target or implicit
-backlog. Historical TODOs, blockers, PRDs, and conditional next actions are
-evidence, not authorization to continue the old project.
-
-Retained factory loop:
-
-```text
-target -> data -> post-training -> eval -> package -> report
-```
-
-Before starting any fresh experiment, read:
-
-1. `PROJECT_STATUS.md` — current state and scope.
-2. `docs/NEXT.md` — closure receipt and fresh-experiment admission rule.
-3. `docs/factory/` — run schema, eval protocol, packaging, reports.
-4. `docs/prds/PRIORITY.md` — PRD priority map, only when PRD-level acceptance
-   criteria are needed.
-5. `docs/parked/` — paused lanes that should not compete with the factory proof.
-
-New implementation work requires the owner to deliberately open a fresh
-question—normally after completing the relevant learning path—and create a
-scoped GitHub Issue. Once authorized, every task must answer one of these
-questions:
-
-1. Can we prepare or improve the data?
-2. Can we post-train a candidate?
-3. Can we evaluate it against a frozen baseline?
-4. Can we package it as a specialist artifact?
-5. Can we report score delta, regressions, cost, latency, RAM, tok/s, and a
-   ship/reject decision?
-
-If not, it belongs in a separately scoped project. Historical TODOs, PRDs, and
-report blockers do not authorize work by themselves.
-
-Parked unless an explicitly reactivated factory run needs them:
-
-- browser/WebGPU polish and launch prep
-- Astro migration
-- ANE/CoreML research
-- VLM work
-- Tier 5 research
-- broad Mac app polish
-- new PRD expansion
-- unused experiment CLIs (ROME, MEMIT, SAE, LASER, GPTQ, and siblings)
-
-Completion exception (owner-approved through Issue #136): the public learning
-UI, experiment archive, recipe/path surfaces, CLI discovery, and their
-build/accessibility/link gates are active until the closure receipt is live.
-This does not reactivate WebGPU runtime polish, new model work, or broad launch
-scope. The Astro major-version migration remains approval-gated as a dependency
-change.
-
-### Parked experimental CLI group
-
-The default `posttrainllm` command surface is the factory loop
-(train / eval / package / report / decide). Research experiment
-commands stay in-tree under `native-mac/Sources/TinyGPT/` as learning
-assets — do not delete the implementations — but they are dispatched
-only through:
-
-```text
-posttrainllm experimental <command>
-posttrainllm experimental --help
-```
-
-Parked names: `rome`, `memit`, `patch`, `sae`, `sae-explore`,
-`sae-to-saelens`, `interp-replay`, `tuned-lens`, `linear-probe`,
-`causal-trace`, `laser`, `gptq`, `hqq`, `prune-unstructured`,
-`prune-structured`, `magpie`, `automix`, `compress`, `bon`,
-`train-heads`. Hidden top-level aliases still work so existing scripts
-keep running; they are omitted from default `--help`.
-
-The old polish-first launch sequence is superseded. Preserve the idea that
-polish matters, but apply it narrowly to the **Factory Run Center** and
-before/after reports after the CLI factory loop proves improvement.
+Sandbox project: no SaaS Maker product record, deployment, or analytics wiring
+unless explicitly requested.
 
 ## Safety rules for heavy GPU / compile loops (macOS host)
 
-Some work on this repo — particularly **Flash Attention 2** (task #47), the
-**native Mac app** (`native-mac/`), and any **benchmark sweeps over big-preset
-configs** — can spawn workloads that stress the macOS graphics stack hard
-enough to make WindowServer sluggish or unstable. This is **workload runaway
-+ UI compositor stress, not hardware failure**, but it's still expensive in
-user time.
+Flash Attention 2 work, the native Mac app, and big-preset benchmark sweeps
+can stress WindowServer (workload runaway, not hardware failure).
 
-Rules of engagement when working on this repo from an AI agent context:
-
-- **Never run long benchmarks, training, or install/build loops without first
-  asking the user.** "Long" here means: more than a few seconds of pinned
-  CPU/GPU, more than a single training step on anything above the Small
-  preset, or any sweep that repeats kernel dispatches in a tight loop.
-- **Single-shot heavy work is OK** (e.g. one Behemoth allocation + one train
-  step to verify Memory64 works) — but stop after the verification, don't loop.
-- **Kill background processes you spawned** before ending a task. `npm run
-  dev` workers, headed Playwright Chrome windows, and Emscripten compile jobs
-  all count. Use `ps` / `kill -9` rather than leaving things to time out.
-- **Workloads to flag explicitly before kicking off:** Flash Attention 2
-  kernel development with iterated bench runs; MLX/Metal model runs from the
-  native Mac app; any `pip install` of PyTorch/JAX/CUDA-adjacent packages;
-  any parallel compile (`emcc -j`, `cmake --parallel`, `cargo build`).
-
-If you suspect the host has degraded, ask the user to keep a guardrail
-terminal open with:
-
-```
-top -o cpu
-```
-
-and if the screen starts lagging, identify and kill the runaway process from
-a separate terminal (or via SSH from a phone if the GUI is locked up):
-
-```
-ps -arcwwwxo pid,pcpu,pmem,comm | head -30
-kill -9 <pid>
-```
-
-This guidance came directly from the project owner after a heavy session.
-File under "things that aren't obvious until they bite you."
+- Ask the user before long benchmarks, training, or install/build loops: more
+  than a few seconds of pinned CPU/GPU, more than one training step above the
+  Small preset, or any sweep repeating kernel dispatches in a tight loop.
+- Single-shot heavy verification is fine; stop after it, don't loop.
+- Kill background processes you spawned (dev workers, headed Playwright,
+  Emscripten jobs) before ending a task.
+- Flag before: iterated Flash Attention 2 benches, MLX/Metal runs from the
+  native app, `pip install` of PyTorch/JAX/CUDA-adjacent packages, parallel
+  compiles (`emcc -j`, `cmake --parallel`, `cargo build`).
+- If the host degrades, check `ps -arcwwwxo pid,pcpu,pmem,comm | head -30` and
+  kill the runaway process.
