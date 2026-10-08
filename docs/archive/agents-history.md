@@ -100,7 +100,7 @@ This makes frontier models the **calibration anchor for every benchmark**:
 - **On-device-model platform stance (owner, 2026-06-17): own the model; do not depend
   on Apple's.** Apple's on-device FoundationModels model is treated as **intel + a free
   routing floor**, never a capability dependency. Measured (see
-  [`docs/learn/apple-on-device-foundation-models.md`](docs/learn/apple-on-device-foundation-models.md)):
+  [`docs/learn/apple-on-device-foundation-models.md`](../learn/apple-on-device-foundation-models.md)):
   it **can't ground actions** — BFCL agentic 25% (full catalog) / ~0% (compact); Pace
   planner action-grounding 13% / OOS-refusal ~95%; **4096-token context can't hold a real
   tool catalog**; **not faster** than our 4B (its only edge is ANE perf-per-watt + zero
@@ -108,7 +108,7 @@ This makes frontier models the **calibration anchor for every benchmark**:
   model/format/OS). Core ML–compiling *our own* weights to the ANE stays an *optional
   future battery optimization* (Core ML = deploy target, not a model dependency), not a
   capability bet. The differentiation stays **our model + our eval gate**, not the serving
-  layer. Reusable artifact: [`scripts/fm_agent_bridge.swift`](scripts/fm_agent_bridge.swift)
+  layer. Reusable artifact: [`scripts/fm_agent_bridge.swift`](../../scripts/fm_agent_bridge.swift)
   (on-device model behind our OpenAI-FC harness).
 
 ## Closed learning lab and fresh-experiment gate (updated 2026-09-02)
