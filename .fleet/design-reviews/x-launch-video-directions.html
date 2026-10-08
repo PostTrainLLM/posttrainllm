@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PostTrainLLM — X launch video directions</title>
+<style>
+  :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:#090b0e; color:#eaedf2; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:54px max(24px, calc((100vw - 1240px)/2)); }
+  header { max-width:850px; margin-bottom:45px; }
+  .eyebrow,.label,.micro { font: 600 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing:.16em; text-transform:uppercase; }
+  .eyebrow,.label { color:#57dec0; }
+  h1 { margin:12px 0; font-size:clamp(36px,5vw,64px); line-height:1; letter-spacing:-.045em; }
+  .intro { margin:0; color:#a6adb9; font-size:18px; line-height:1.5; }
+  .option { margin:0 0 58px; }
+  .option-head { display:flex; justify-content:space-between; align-items:baseline; gap:25px; margin:0 0 14px; }
+  h2 { margin:0; font-size:24px; letter-spacing:-.03em; }
+  .option-head p { margin:0; color:#9da5af; font-size:14px; }
+  .frame { position:relative; width:100%; aspect-ratio:16/9; overflow:hidden; border:1px solid #2d363b; border-radius:13px; background:#0b0f12; box-shadow:0 22px 70px #0008; }
+  .frame:after { content:""; position:absolute; inset:0; pointer-events:none; border:1px solid #ffffff0b; border-radius:12px; }
+  .cap { margin:13px 0 0; max-width:950px; font-size:15px; line-height:1.5; color:#a6adb9; }
+  .cap strong { color:#eaedf2; }
+  .a { background:radial-gradient(circle at 78% 18%,#16352d 0,#0c1214 35%,#080b0e 68%); }
+  .a .index { position:absolute; top:6%; left:5.2%; }
+  .a .title { position:absolute; top:17%; left:5.2%; width:46%; font-size:clamp(30px,5.7vw,73px); font-weight:760; line-height:.99; letter-spacing:-.06em; }
+  .a .sub { position:absolute; top:54%; left:5.2%; width:34%; color:#9ca8ab; font-size:clamp(12px,1.4vw,19px); line-height:1.45; }
+  .a .app { position:absolute; left:45%; top:16%; width:73%; height:72%; object-fit:cover; object-position:left top; border:1px solid #3c5350; border-radius:12px; box-shadow:0 32px 80px #000a; transform:perspective(1200px) rotateY(-8deg) rotateX(3deg); }
+  .a .rail { position:absolute; left:5.2%; right:5.2%; bottom:7%; height:1px; background:#4ce0bc; }
+  .a .foot { position:absolute; left:5.2%; bottom:8.4%; color:#57dec0; }
+  .b { background:#0b0d10; }
+  .b .grid { position:absolute; inset:0; background:linear-gradient(#ffffff09 1px,transparent 1px),linear-gradient(90deg,#ffffff09 1px,transparent 1px); background-size:6% 10%; mask-image:linear-gradient(90deg,#000,#0008); }
+  .b .top { position:absolute; top:6%; left:5%; right:5%; display:flex; justify-content:space-between; }
+  .b .huge { position:absolute; top:15%; left:5%; font-size:clamp(36px,7vw,105px); font-weight:780; letter-spacing:-.07em; line-height:.92; }
+  .b .huge em { font-style:normal; color:#57dec0; }
+  .b .loop { position:absolute; left:5%; right:5%; bottom:15%; display:grid; grid-template-columns:repeat(6,1fr); gap:7px; }
+  .b .cell { border-top:1px solid #4ce0bc; padding-top:15px; min-height:74px; color:#e9edf0; font-size:clamp(11px,1.4vw,19px); font-weight:650; }
+  .b .cell span { display:block; color:#6f8783; margin-bottom:5px; }
+  .b .bottom { position:absolute; bottom:6%; left:5%; right:5%; display:flex; justify-content:space-between; color:#91a09e; }
+  .c { background:linear-gradient(125deg,#10151a 0%,#090c0e 58%,#101816 100%); }
+  .c .side { position:absolute; top:0; bottom:0; left:0; width:25%; border-right:1px solid #26332f; padding:6% 3%; display:flex; flex-direction:column; justify-content:space-between; }
+  .c .side strong { font-size:clamp(21px,2.5vw,34px); line-height:1.04; letter-spacing:-.045em; }
+  .c .side small { color:#9ca8ab; font-size:clamp(10px,1vw,14px); line-height:1.45; }
+  .c .body { position:absolute; left:29%; right:5%; top:10%; }
+  .c .statement { font-size:clamp(31px,4.7vw,64px); line-height:1.02; font-weight:730; letter-spacing:-.055em; }
+  .c .statement em { color:#57dec0; font-style:normal; }
+  .c .metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:13px; margin-top:7%; }
+  .c .metric { border-top:1px solid #48534f; padding-top:12px; }
+  .c .metric b { display:block; font:550 clamp(25px,3.9vw,55px)/1 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:-.08em; }
+  .c .metric small { display:block; margin-top:10px; color:#a4adb1; font:500 clamp(10px,1vw,14px)/1.4 ui-monospace,SFMono-Regular,Menlo,monospace; }
+  .c .coral { color:#ff7768; }
+  @media(max-width:680px) { body {padding:28px 16px;} .option-head {display:block;} .option-head p {margin-top:5px;} .frame { border-radius:6px; } .a .app { top:25%; } .a .sub { top:60%; } }
+</style>
+<header>
+  <div class="eyebrow">POSTTRAINLLM / X LAUNCH FILM</div>
+  <h1>Choose the motion language.</h1>
+  <p class="intro">Three frames from three different 25-second launch films. Each uses the actual Mac app, research loop, and measured results. Final format: 16:9 MP4 with captions, ready to attach to the launch post.</p>
+</header>
+
+<section class="option">
+  <div class="option-head"><h2>A · The Research Bench</h2><p>Product-led · cinematic · recommended</p></div>
+  <div class="frame a">
+    <div class="index label">01 / ONE MAC. THE WHOLE LOOP.</div>
+    <div class="title">Build a<br>specialist.<br><span style="color:#57dec0">Prove it.</span></div>
+    <div class="sub">A real app on a real Mac, introduced through a precise moving window and restrained editorial captions.</div>
+    <img class="app" src="issue-176-a-focused-bench.png" alt="PostTrainLLM Focused Bench Mac app design">
+    <div class="foot micro">POSTTRAINLLM / APPLE SILICON / OPEN SOURCE</div><div class="rail"></div>
+  </div>
+  <p class="cap"><strong>Film:</strong> Mac app hero → training and eval stages → artifact/report reveal → weekly research promise. Slow camera motion, cropped UI details, and clean teal signals. <strong>Risk:</strong> the app shot could dominate the broader lab story; the final cut must show the factory loop.</p>
+</section>
+
+<section class="option">
+  <div class="option-head"><h2>B · The Factory Loop</h2><p>Typographic · kinetic · systems-first</p></div>
+  <div class="frame b">
+    <div class="grid"></div><div class="top label"><span>POSTTRAINLLM / METHOD 001</span><span>LOCAL RESEARCH SYSTEM</span></div>
+    <div class="huge">One Mac.<br><em>Six stages.</em><br>Every result.</div>
+    <div class="loop"><div class="cell"><span class="micro">01</span>target</div><div class="cell"><span class="micro">02</span>data</div><div class="cell"><span class="micro">03</span>post-train</div><div class="cell"><span class="micro">04</span>eval</div><div class="cell"><span class="micro">05</span>package</div><div class="cell"><span class="micro">06</span>report</div></div>
+    <div class="bottom micro"><span>FROZEN BASELINE BEFORE TRAINING</span><span>SHIP / RETRY / REJECT</span></div>
+  </div>
+  <p class="cap"><strong>Film:</strong> the target-to-report chain assembles at speed; each stage opens a real UI or artifact glimpse. Sharp cuts, mono labels, and one continuous teal path. <strong>Risk:</strong> can feel abstract unless the Mac app and published result appear early.</p>
+</section>
+
+<section class="option">
+  <div class="option-head"><h2>C · Show the Receipts</h2><p>Editorial · evidence-led · documentary</p></div>
+  <div class="frame c">
+    <div class="side"><div class="label">RESEARCH NOTE<br>NO. 076</div><strong>What did<br>the model<br>actually do?</strong><small>All attempts stay visible.<br>So do regressions.</small></div>
+    <div class="body"><div class="statement">A specialist is only<br>real when the <em>evidence</em><br>survives the cut.</div><div class="metrics"><div class="metric"><b>12/12</b><small>file-ops hard gate</small></div><div class="metric"><b>2.42×</b><small>depth wall speed</small></div><div class="metric"><b class="coral">25/45</b><small>breadth regression disclosed</small></div></div></div>
+  </div>
+  <p class="cap"><strong>Film:</strong> real scorecard numbers, one setback, and the decision to route the specialist narrowly. The app and site appear as evidence rather than spectacle. <strong>Risk:</strong> the candid metric story may need a stronger first three seconds for X.</p>
+</section>
+</html>
