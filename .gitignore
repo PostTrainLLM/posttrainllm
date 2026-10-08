@@ -123,3 +123,6 @@ build/
 
 # Private footer review and release evidence
 .fleet-local/
+
+# Regenerable launch-film audio intermediate (render.py writes it; the mp4 carries the mix)
+marketing/video/**/*.wav

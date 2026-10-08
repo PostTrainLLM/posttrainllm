@@ -61,15 +61,15 @@
     "screenshots": [
       {
         "width": 390,
-        "path": "artifacts/design/issue-166/knowledge-dossier-390.png"
+        "path": ".fleet/evidence/issue-166-design-evidence/responsive-review/knowledge-dossier-390.png"
       },
       {
         "width": 768,
-        "path": "artifacts/design/issue-166/knowledge-dossier-768.png"
+        "path": ".fleet/evidence/issue-166-design-evidence/responsive-review/knowledge-dossier-768.png"
       },
       {
         "width": 1440,
-        "path": "artifacts/design/issue-166/knowledge-dossier-1440.png"
+        "path": ".fleet/evidence/issue-166-design-evidence/responsive-review/knowledge-dossier-1440.png"
       }
     ],
     "projectCheck": {
