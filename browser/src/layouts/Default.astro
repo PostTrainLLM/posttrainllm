@@ -301,14 +301,15 @@ const clarityLoader = telemetry
       )
     }
     <script is:inline src="/app-health-log.js" defer></script>
-    <script
+    {telemetry && (<script
       is:inline
       type="module"
       src="https://sassmaker.com/newsletter-capture.js"
-      crossorigin="anonymous"></script>
+      crossorigin="anonymous"></script>)}
   </head>
   <body>
     <slot />
+    {telemetry && Astro.url.pathname !== "/" && <fleet-footer-extension data-fleet-footer-project="posttrainllm" product-name="PostTrainLLM" art-src="https://sassmaker.com/footer-art/posttrainllm.webp" surface="app"></fleet-footer-extension>}
     <script>
       import { initVitals } from "../lib/vitals";
       import { initApiTiming } from "../lib/api-timing";
@@ -335,6 +336,8 @@ const clarityLoader = telemetry
         <script
           is:inline
           src="https://sassmaker.com/ai-chat-footer.js"
+      data-host-only="true"
+      data-project="posttrainllm"
           crossorigin="anonymous"
           data-name="PostTrainLLM"
           defer

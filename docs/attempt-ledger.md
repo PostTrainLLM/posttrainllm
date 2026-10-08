@@ -838,6 +838,142 @@ Primary SQL source docs:
 - Next action: Closed as a transparent candidate report with no Elo, human-equivalence, or specialist-win claim.
 - Confidence: `exact`.
 
+## Pace router backfill (recorded 2026-10-05)
+
+Historical artifact evidence, not newly reproduced or shipped capability.
+
+### Pace intent router v8 sealed rejection
+
+- Evidence: Synthetic holdout 95.5%; official sealed V1 57.1% (unknown 55.6%), router p50 3.8 ms.
+- Status: `rejected`.
+- Failure reason: Synthetic phrasing generalization and confidence failed on independently sealed states.
+- Lesson: A fast classifier can learn the generator rather than the action policy.
+- Next action: Retain as a rejected baseline; require policy-adjudicated fresh cases before a successor.
+- Confidence: `exact`.
+- Source: [pace-intent-router-v8-sealed](specialists/pace-intent-router-v8/model_card.md); [Pace PR #201](https://github.com/HeyPace/pace/pull/201).
+
+### Pace next-step Jev teacher development baseline
+
+- Evidence: 123 development fixtures: Jev 85.4% full pass (direct and keyless); direct routing p50 385 ms.
+- Status: `worked-with-caveat`.
+- Failure reason: Cloud inference violates Pace runtime privacy, and development fixtures are synthetic and already inspected.
+- Lesson: Use the teacher as offline comparison evidence; runtime integration requires an on-device candidate.
+- Next action: Keep PR #201 experiment-only; qualify a separate acceptance set before shipping.
+- Confidence: `exact`.
+- Source: [pace-next-step-jev-20261004](https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/results-jev-direct.json); [Pace PR #201](https://github.com/HeyPace/pace/pull/201).
+
+### Pace next-step Qwen development baseline
+
+- Evidence: 123 development fixtures: Qwen3.5-4B 71.5% full pass, 40% ASK_USER; routing p50 687 ms.
+- Status: `worked-with-caveat`.
+- Failure reason: Clarification and stopping errors remain; a synthetic development score is not hardware acceptance.
+- Lesson: Compare identical simulated loops and argument extractors rather than model-card scores.
+- Next action: Pin this development baseline and score the sealed acceptance cases separately.
+- Confidence: `exact`.
+- Source: [pace-next-step-qwen-20261004](https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/results-local-qwen3.5-4b.json); [Pace PR #201](https://github.com/HeyPace/pace/pull/201).
+
+### Pace next-step GLiNER zero-shot rejection
+
+- Evidence: 123 development fixtures: GLiNER headed input 0% full pass; prose 17.9%; ASK_USER 0% in both.
+- Status: `rejected`.
+- Failure reason: Premature DONE and repeated actions prevented useful task completion.
+- Lesson: Zero-shot label matching does not establish stateful next-step control.
+- Next action: Reject this zero-shot path; preserve its recorded negative result.
+- Confidence: `exact`.
+- Source: [pace-next-step-gliner-20261004](https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/results-gliner2.5-base.json); [Pace PR #201](https://github.com/HeyPace/pace/pull/201).
+
+### Pace next-step ModernBERT student v1
+
+- Evidence: 123 development fixtures: student v1 58.5% full pass, reported MPS routing p50 16 ms.
+- Status: `inconclusive`.
+- Failure reason: Teacher labels and limited coverage left single-target click routing weak. Synthetic sealed data and inspected development misses do not qualify a shipping gate.
+- Lesson: Policy and independent evaluation must precede more teacher distillation.
+- Next action: Continue issue #200 with a label policy, fresh adjudicated acceptance cases, and per-class regression gates.
+- Confidence: `exact`.
+- Source: [pace-next-step-student-v1-20261004](https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v1/harness-results.json); [Pace PR #201](https://github.com/HeyPace/pace/pull/201).
+
+### Pace next-step ModernBERT student v2
+
+- Evidence: 123 development fixtures: student v2 53.7% full pass, reported MPS routing p50 18 ms.
+- Status: `inconclusive`.
+- Failure reason: Agreement filtering reduced development full pass rather than repairing label policy. Synthetic sealed data and inspected development misses do not qualify a shipping gate.
+- Lesson: Policy and independent evaluation must precede more teacher distillation.
+- Next action: Continue issue #200 with a label policy, fresh adjudicated acceptance cases, and per-class regression gates.
+- Confidence: `exact`.
+- Source: [pace-next-step-student-v2-20261004](https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v2-agreement/harness-results.json); [Pace PR #201](https://github.com/HeyPace/pace/pull/201).
+
+### Pace next-step ModernBERT student v3
+
+- Evidence: 123 development fixtures: student v3 65.0% full pass, reported MPS routing p50 14 ms.
+- Status: `inconclusive`.
+- Failure reason: Goal-phrased data improved clicks but full pass remained below the local 71.5% baseline and RESPOND regressed. Synthetic sealed data and inspected development misses do not qualify a shipping gate.
+- Lesson: Policy and independent evaluation must precede more teacher distillation.
+- Next action: Continue issue #200 with a label policy, fresh adjudicated acceptance cases, and per-class regression gates.
+- Confidence: `exact`.
+- Source: [pace-next-step-student-v3-20261004](https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v3-extra/harness-results.json); [Pace PR #201](https://github.com/HeyPace/pace/pull/201).
+
+## Local next-step router continuation (2026-10-05)
+
+### Pace next-step Qwen reproduced development baseline
+
+- Evidence: Fresh 123-case run: 71.5% full pass, 40.0% ASK_USER, routing p50/p95 613/687 ms.
+- Status: `worked-with-caveat`.
+- Failure reason: The prior result reproduced, but synthetic development golds remain disputed.
+- Lesson: Separate tool choice, stateful stopping, input-format compatibility, and acceptance evidence.
+- Next action: Keep as the frozen local development comparator; qualify human-adjudicated acceptance separately.
+- Confidence: `exact`.
+- Source: [local run summary](../evals/pace-next-step-router-20261005/summary.json#results-local-qwen3.5-4b-20261005.json); [Pace #200](https://github.com/HeyPace/pace/issues/200).
+
+### Pace next-step Jeff v1.2 base rejection
+
+- Evidence: Jeff base: 123 development cases, 33.3% full pass, 6.7% ASK_USER, p50 121 ms; 50 repeat guards.
+- Status: `rejected`.
+- Failure reason: Fast routing did not preserve clarification, action selection, or stopping.
+- Lesson: Separate tool choice, stateful stopping, input-format compatibility, and acceptance evidence.
+- Next action: Reject this zero-shot configuration for Pace; no app wiring.
+- Confidence: `exact`.
+- Source: [local run summary](../evals/pace-next-step-router-20261005/summary.json#results-jeff-base-v1.2-20261005.json); [Pace #200](https://github.com/HeyPace/pace/issues/200).
+
+### Pace next-step Jeff v1.2 tools rejection
+
+- Evidence: Jeff tools with 32 Pace options: 38.2% full pass, 10.0% ASK_USER, p50 143 ms; 36 repeat guards.
+- Status: `rejected`.
+- Failure reason: The unchanged label contract remained weak on step control and clarification.
+- Lesson: Separate tool choice, stateful stopping, input-format compatibility, and acceptance evidence.
+- Next action: Reject the 32-option substitution; preserve a separate upstream-format trial.
+- Confidence: `exact`.
+- Source: [local run summary](../evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-v1.2-20261005.json); [Pace #200](https://github.com/HeyPace/pace/issues/200).
+
+### Pace next-step Jeff documented tools-format rejection
+
+- Evidence: Jeff tools documented 31-option format: 34.1% full pass, 33.3% ASK_USER, p50 120 ms; 58 repeat guards.
+- Status: `rejected`.
+- Failure reason: Following the published option wording and state format did not repair progress awareness; explicit DONE was unmeasured.
+- Lesson: Separate tool choice, stateful stopping, input-format compatibility, and acceptance evidence.
+- Next action: Reject this format adaptation for the current next-step router.
+- Confidence: `exact`.
+- Source: [local run summary](../evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-native-v1.2-20261005.json); [Pace #200](https://github.com/HeyPace/pace/issues/200).
+
+### Pace next-step Jeff frozen synthetic smoke rejection
+
+- Evidence: 416 frozen synthetic states: 36.5% generator agreement, 34.4% teacher agreement, ECE 0.332/0.353, p50/p95 146/169 ms.
+- Status: `rejected`.
+- Failure reason: Weakness persisted on ambiguous and progress states; generator and teacher labels are disputed, so this is smoke evidence only.
+- Lesson: Separate tool choice, stateful stopping, input-format compatibility, and acceptance evidence.
+- Next action: Do not fit fallback thresholds or claim acceptance from this sample.
+- Confidence: `exact`.
+- Source: [local run summary](../evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-synthetic-20261005.json); [Pace #200](https://github.com/HeyPace/pace/issues/200).
+
+### Pace next-step Apple FM availability blocker
+
+- Evidence: Standalone FoundationModels bridge Release build passed; runtime modelNotReady, zero evaluated cases and no accuracy score.
+- Status: `blocked`.
+- Failure reason: The system model was unavailable at runtime despite a successful isolated build.
+- Lesson: Separate tool choice, stateful stopping, input-format compatibility, and acceptance evidence.
+- Next action: Re-evaluate after the system model becomes ready; preserve unknown accuracy.
+- Confidence: `exact`.
+- Source: [local run summary](../evals/pace-next-step-router-20261005/summary.json#results-apple-fm-20261005.json); [Pace #200](https://github.com/HeyPace/pace/issues/200).
+
 ## Historical Coverage Limits
 
 This ledger is now schema-complete for the structured attempts in
@@ -849,7 +985,7 @@ Current structured coverage:
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 65 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 78 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 4 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
 | `not-applicable` | 5 | No failure reason is expected for a clean worked status. |
 | `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |
