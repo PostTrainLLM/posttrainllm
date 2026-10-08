@@ -1445,13 +1445,8 @@
       ],
       "source": "specialists/pace-intent-router-v8/model_card.md",
       "kind": "training-run",
-      "bases": [
-        "pace-intent-router-v8"
-      ],
-      "methods": [
-        "sft",
-        "routing"
-      ],
+      "bases": ["pace-intent-router-v8"],
+      "methods": ["sft", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1470,13 +1465,8 @@
       ],
       "source": "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/results-jev-direct.json",
       "kind": "model-evaluation",
-      "bases": [
-        "jev-1.13.0"
-      ],
-      "methods": [
-        "evaluation",
-        "routing"
-      ],
+      "bases": ["jev-1.13.0"],
+      "methods": ["evaluation", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1495,13 +1485,8 @@
       ],
       "source": "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/results-local-qwen3.5-4b.json",
       "kind": "model-evaluation",
-      "bases": [
-        "qwen3.5-4b"
-      ],
-      "methods": [
-        "evaluation",
-        "routing"
-      ],
+      "bases": ["qwen3.5-4b"],
+      "methods": ["evaluation", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1520,13 +1505,8 @@
       ],
       "source": "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/results-gliner2.5-base.json",
       "kind": "model-evaluation",
-      "bases": [
-        "fastino/gliner2.5-base-v1"
-      ],
-      "methods": [
-        "evaluation",
-        "routing"
-      ],
+      "bases": ["fastino/gliner2.5-base-v1"],
+      "methods": ["evaluation", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1545,14 +1525,8 @@
       ],
       "source": "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v1/harness-results.json",
       "kind": "training-run",
-      "bases": [
-        "answerdotai/ModernBERT-base"
-      ],
-      "methods": [
-        "sft",
-        "distill",
-        "routing"
-      ],
+      "bases": ["answerdotai/ModernBERT-base"],
+      "methods": ["sft", "distill", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1571,14 +1545,8 @@
       ],
       "source": "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v2-agreement/harness-results.json",
       "kind": "training-run",
-      "bases": [
-        "answerdotai/ModernBERT-base"
-      ],
-      "methods": [
-        "sft",
-        "distill",
-        "routing"
-      ],
+      "bases": ["answerdotai/ModernBERT-base"],
+      "methods": ["sft", "distill", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1597,14 +1565,8 @@
       ],
       "source": "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v3-extra/harness-results.json",
       "kind": "training-run",
-      "bases": [
-        "answerdotai/ModernBERT-base"
-      ],
-      "methods": [
-        "sft",
-        "distill",
-        "routing"
-      ],
+      "bases": ["answerdotai/ModernBERT-base"],
+      "methods": ["sft", "distill", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1623,13 +1585,8 @@
       ],
       "source": "evals/pace-next-step-router-20261005/summary.json#results-local-qwen3.5-4b-20261005.json",
       "kind": "model-evaluation",
-      "bases": [
-        "qwen3.5-4b"
-      ],
-      "methods": [
-        "evaluation",
-        "routing"
-      ],
+      "bases": ["qwen3.5-4b"],
+      "methods": ["evaluation", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1648,13 +1605,8 @@
       ],
       "source": "evals/pace-next-step-router-20261005/summary.json#results-jeff-base-v1.2-20261005.json",
       "kind": "model-evaluation",
-      "bases": [
-        "mstrasser/Jeff-Qwen3.5-0.8B@v1.2"
-      ],
-      "methods": [
-        "evaluation",
-        "routing"
-      ],
+      "bases": ["mstrasser/Jeff-Qwen3.5-0.8B@v1.2"],
+      "methods": ["evaluation", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1673,13 +1625,8 @@
       ],
       "source": "evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-v1.2-20261005.json",
       "kind": "model-evaluation",
-      "bases": [
-        "mstrasser/Jeff-Qwen3.5-0.8B-tools"
-      ],
-      "methods": [
-        "evaluation",
-        "routing"
-      ],
+      "bases": ["mstrasser/Jeff-Qwen3.5-0.8B-tools"],
+      "methods": ["evaluation", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1698,13 +1645,8 @@
       ],
       "source": "evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-native-v1.2-20261005.json",
       "kind": "model-evaluation",
-      "bases": [
-        "mstrasser/Jeff-Qwen3.5-0.8B-tools"
-      ],
-      "methods": [
-        "evaluation",
-        "routing"
-      ],
+      "bases": ["mstrasser/Jeff-Qwen3.5-0.8B-tools"],
+      "methods": ["evaluation", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1723,13 +1665,8 @@
       ],
       "source": "evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-synthetic-20261005.json",
       "kind": "model-evaluation",
-      "bases": [
-        "mstrasser/Jeff-Qwen3.5-0.8B-tools"
-      ],
-      "methods": [
-        "evaluation",
-        "routing"
-      ],
+      "bases": ["mstrasser/Jeff-Qwen3.5-0.8B-tools"],
+      "methods": ["evaluation", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1748,13 +1685,8 @@
       ],
       "source": "evals/pace-next-step-router-20261005/summary.json#results-apple-fm-20261005.json",
       "kind": "model-evaluation",
-      "bases": [
-        "Apple FoundationModels"
-      ],
-      "methods": [
-        "evaluation",
-        "routing"
-      ],
+      "bases": ["Apple FoundationModels"],
+      "methods": ["evaluation", "routing"],
       "objective": "tool-selection"
     },
     {
@@ -1773,13 +1705,8 @@
       ],
       "source": "https://github.com/HeyPace/pace/blob/6a87a013c3da5f174977c6c815a197333bc15e5b/evals/router-policy-20261008/local-comparison.json",
       "kind": "model-evaluation",
-      "bases": [
-        "Qwen/Qwen3.5-4B"
-      ],
-      "methods": [
-        "evaluation",
-        "routing"
-      ],
+      "bases": ["Qwen/Qwen3.5-4B"],
+      "methods": ["evaluation", "routing"],
       "objective": "tool-selection"
     }
   ],
