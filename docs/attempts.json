@@ -1428,6 +1428,286 @@
       ],
       "source": "browser/src/data/benchmarks/game-arena-candidate-v1.json",
       "kind": "infrastructure"
+    },
+    {
+      "id": "pace-intent-router-v8-sealed",
+      "name": "Pace intent router v8 sealed rejection",
+      "family": "pace-planner",
+      "status": "rejected",
+      "evidence": "Synthetic holdout 95.5%; official sealed V1 57.1% (unknown 55.6%), router p50 3.8 ms.",
+      "failure_reason": "Synthetic phrasing generalization and confidence failed on independently sealed states.",
+      "failure_reason_confidence": "exact",
+      "lesson": "A fast classifier can learn the generator rather than the action policy.",
+      "next_action": "Retain as a rejected baseline; require policy-adjudicated fresh cases before a successor.",
+      "evidence_sources": [
+        "specialists/pace-intent-router-v8/model_card.md",
+        "https://github.com/HeyPace/pace/pull/201"
+      ],
+      "source": "specialists/pace-intent-router-v8/model_card.md",
+      "kind": "training-run",
+      "bases": ["pace-intent-router-v8"],
+      "methods": ["sft", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-jev-20261004",
+      "name": "Pace next-step Jev teacher development baseline",
+      "family": "pace-planner",
+      "status": "worked-with-caveat",
+      "evidence": "123 development fixtures: Jev 85.4% full pass (direct and keyless); direct routing p50 385 ms.",
+      "failure_reason": "Cloud inference violates Pace runtime privacy, and development fixtures are synthetic and already inspected.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Use the teacher as offline comparison evidence; runtime integration requires an on-device candidate.",
+      "next_action": "Keep PR #201 experiment-only; qualify a separate acceptance set before shipping.",
+      "evidence_sources": [
+        "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/results-jev-direct.json",
+        "https://github.com/HeyPace/pace/pull/201"
+      ],
+      "source": "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/results-jev-direct.json",
+      "kind": "model-evaluation",
+      "bases": ["jev-1.13.0"],
+      "methods": ["evaluation", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-qwen-20261004",
+      "name": "Pace next-step Qwen development baseline",
+      "family": "pace-planner",
+      "status": "worked-with-caveat",
+      "evidence": "123 development fixtures: Qwen3.5-4B 71.5% full pass, 40% ASK_USER; routing p50 687 ms.",
+      "failure_reason": "Clarification and stopping errors remain; a synthetic development score is not hardware acceptance.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Compare identical simulated loops and argument extractors rather than model-card scores.",
+      "next_action": "Pin this development baseline and score the sealed acceptance cases separately.",
+      "evidence_sources": [
+        "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/results-local-qwen3.5-4b.json",
+        "https://github.com/HeyPace/pace/pull/201"
+      ],
+      "source": "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/results-local-qwen3.5-4b.json",
+      "kind": "model-evaluation",
+      "bases": ["qwen3.5-4b"],
+      "methods": ["evaluation", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-gliner-20261004",
+      "name": "Pace next-step GLiNER zero-shot rejection",
+      "family": "pace-planner",
+      "status": "rejected",
+      "evidence": "123 development fixtures: GLiNER headed input 0% full pass; prose 17.9%; ASK_USER 0% in both.",
+      "failure_reason": "Premature DONE and repeated actions prevented useful task completion.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Zero-shot label matching does not establish stateful next-step control.",
+      "next_action": "Reject this zero-shot path; preserve its recorded negative result.",
+      "evidence_sources": [
+        "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/results-gliner2.5-base.json",
+        "https://github.com/HeyPace/pace/pull/201"
+      ],
+      "source": "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/results-gliner2.5-base.json",
+      "kind": "model-evaluation",
+      "bases": ["fastino/gliner2.5-base-v1"],
+      "methods": ["evaluation", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-student-v1-20261004",
+      "name": "Pace next-step ModernBERT student v1",
+      "family": "pace-planner",
+      "status": "inconclusive",
+      "evidence": "123 development fixtures: student v1 58.5% full pass, reported MPS routing p50 16 ms.",
+      "failure_reason": "Teacher labels and limited coverage left single-target click routing weak. Synthetic sealed data and inspected development misses do not qualify a shipping gate.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Student v1 left single-target clicks weak; label policy and independent evaluation must precede further teacher distillation.",
+      "next_action": "Continue issue #200 with a label policy, fresh adjudicated acceptance cases, and per-class regression gates.",
+      "evidence_sources": [
+        "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v1/harness-results.json",
+        "https://github.com/HeyPace/pace/pull/201"
+      ],
+      "source": "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v1/harness-results.json",
+      "kind": "training-run",
+      "bases": ["answerdotai/ModernBERT-base"],
+      "methods": ["sft", "distill", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-student-v2-20261004",
+      "name": "Pace next-step ModernBERT student v2",
+      "family": "pace-planner",
+      "status": "inconclusive",
+      "evidence": "123 development fixtures: student v2 53.7% full pass, reported MPS routing p50 18 ms.",
+      "failure_reason": "Agreement filtering reduced development full pass rather than repairing label policy. Synthetic sealed data and inspected development misses do not qualify a shipping gate.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Agreement filtering lowered student v2 full pass to 53.7%; agreement alone does not repair a disputed action policy.",
+      "next_action": "Continue issue #200 with a label policy, fresh adjudicated acceptance cases, and per-class regression gates.",
+      "evidence_sources": [
+        "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v2-agreement/harness-results.json",
+        "https://github.com/HeyPace/pace/pull/201"
+      ],
+      "source": "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v2-agreement/harness-results.json",
+      "kind": "training-run",
+      "bases": ["answerdotai/ModernBERT-base"],
+      "methods": ["sft", "distill", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-student-v3-20261004",
+      "name": "Pace next-step ModernBERT student v3",
+      "family": "pace-planner",
+      "status": "inconclusive",
+      "evidence": "123 development fixtures: student v3 65.0% full pass, reported MPS routing p50 14 ms.",
+      "failure_reason": "Goal-phrased data improved clicks but full pass remained below the local 71.5% baseline and RESPOND regressed. Synthetic sealed data and inspected development misses do not qualify a shipping gate.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Goal-phrased training improved student v3 clicks but regressed RESPOND; report per-class gates alongside aggregate full pass.",
+      "next_action": "Continue issue #200 with a label policy, fresh adjudicated acceptance cases, and per-class regression gates.",
+      "evidence_sources": [
+        "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v3-extra/harness-results.json",
+        "https://github.com/HeyPace/pace/pull/201"
+      ],
+      "source": "https://github.com/HeyPace/pace/blob/2995366cd8ea60d9c1a88e0d682f19686df46875/evals/jev-experiment/students/modernbert-v3-extra/harness-results.json",
+      "kind": "training-run",
+      "bases": ["answerdotai/ModernBERT-base"],
+      "methods": ["sft", "distill", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-qwen-20261005",
+      "name": "Pace next-step Qwen reproduced development baseline",
+      "family": "pace-planner",
+      "status": "worked-with-caveat",
+      "evidence": "Fresh 123-case run: 71.5% full pass, 40.0% ASK_USER, routing p50/p95 613/687 ms.",
+      "failure_reason": "The prior result reproduced, but synthetic development golds remain disputed.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Separate tool choice, stateful stopping, input-format compatibility, and acceptance evidence.",
+      "next_action": "Keep as the frozen local development comparator; qualify human-adjudicated acceptance separately.",
+      "evidence_sources": [
+        "evals/pace-next-step-router-20261005/summary.json#results-local-qwen3.5-4b-20261005.json",
+        "https://github.com/HeyPace/pace/issues/200"
+      ],
+      "source": "evals/pace-next-step-router-20261005/summary.json#results-local-qwen3.5-4b-20261005.json",
+      "kind": "model-evaluation",
+      "bases": ["qwen3.5-4b"],
+      "methods": ["evaluation", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-jeff-base-20261005",
+      "name": "Pace next-step Jeff v1.2 base rejection",
+      "family": "pace-planner",
+      "status": "rejected",
+      "evidence": "Jeff base: 123 development cases, 33.3% full pass, 6.7% ASK_USER, p50 121 ms; 50 repeat guards.",
+      "failure_reason": "Fast routing did not preserve clarification, action selection, or stopping.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Jeff base latency did not preserve clarification, action choice or stopping; qualify each behavior before choosing a fast router.",
+      "next_action": "Reject this zero-shot configuration for Pace; no app wiring.",
+      "evidence_sources": [
+        "evals/pace-next-step-router-20261005/summary.json#results-jeff-base-v1.2-20261005.json",
+        "https://github.com/HeyPace/pace/issues/200"
+      ],
+      "source": "evals/pace-next-step-router-20261005/summary.json#results-jeff-base-v1.2-20261005.json",
+      "kind": "model-evaluation",
+      "bases": ["mstrasser/Jeff-Qwen3.5-0.8B@v1.2"],
+      "methods": ["evaluation", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-jeff-tools-20261005",
+      "name": "Pace next-step Jeff v1.2 tools rejection",
+      "family": "pace-planner",
+      "status": "rejected",
+      "evidence": "Jeff tools with 32 Pace options: 38.2% full pass, 10.0% ASK_USER, p50 143 ms; 36 repeat guards.",
+      "failure_reason": "The unchanged label contract remained weak on step control and clarification.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Jeff tools with the existing label contract remained weak on clarification and step control; a tool-oriented model is not a qualified policy replacement.",
+      "next_action": "Reject the 32-option substitution; preserve a separate upstream-format trial.",
+      "evidence_sources": [
+        "evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-v1.2-20261005.json",
+        "https://github.com/HeyPace/pace/issues/200"
+      ],
+      "source": "evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-v1.2-20261005.json",
+      "kind": "model-evaluation",
+      "bases": ["mstrasser/Jeff-Qwen3.5-0.8B-tools"],
+      "methods": ["evaluation", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-jeff-tools-native-20261005",
+      "name": "Pace next-step Jeff documented tools-format rejection",
+      "family": "pace-planner",
+      "status": "rejected",
+      "evidence": "Jeff tools documented 31-option format: 34.1% full pass, 33.3% ASK_USER, p50 120 ms; 58 repeat guards.",
+      "failure_reason": "Following the published option wording and state format did not repair progress awareness; explicit DONE was unmeasured.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Jeff documented wording did not repair progress awareness; native format compatibility must be tested separately from DONE and task completion.",
+      "next_action": "Reject this format adaptation for the current next-step router.",
+      "evidence_sources": [
+        "evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-native-v1.2-20261005.json",
+        "https://github.com/HeyPace/pace/issues/200"
+      ],
+      "source": "evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-native-v1.2-20261005.json",
+      "kind": "model-evaluation",
+      "bases": ["mstrasser/Jeff-Qwen3.5-0.8B-tools"],
+      "methods": ["evaluation", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-jeff-tools-smoke-20261005",
+      "name": "Pace next-step Jeff frozen synthetic smoke rejection",
+      "family": "pace-planner",
+      "status": "rejected",
+      "evidence": "416 frozen synthetic states: 36.5% generator agreement, 34.4% teacher agreement, ECE 0.332/0.353, p50/p95 146/169 ms.",
+      "failure_reason": "Weakness persisted on ambiguous and progress states; generator and teacher labels are disputed, so this is smoke evidence only.",
+      "failure_reason_confidence": "exact",
+      "lesson": "The frozen Jeff synthetic smoke retained ambiguous and progress failures; disputed generator and teacher labels cannot establish acceptance.",
+      "next_action": "Do not fit fallback thresholds or claim acceptance from this sample.",
+      "evidence_sources": [
+        "evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-synthetic-20261005.json",
+        "https://github.com/HeyPace/pace/issues/200"
+      ],
+      "source": "evals/pace-next-step-router-20261005/summary.json#results-jeff-tools-synthetic-20261005.json",
+      "kind": "model-evaluation",
+      "bases": ["mstrasser/Jeff-Qwen3.5-0.8B-tools"],
+      "methods": ["evaluation", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-apple-fm-20261005",
+      "name": "Pace next-step Apple FM availability blocker",
+      "family": "pace-planner",
+      "status": "blocked",
+      "evidence": "Standalone FoundationModels bridge Release build passed; runtime modelNotReady, zero evaluated cases and no accuracy score.",
+      "failure_reason": "The system model was unavailable at runtime despite a successful isolated build.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Separate tool choice, stateful stopping, input-format compatibility, and acceptance evidence.",
+      "next_action": "Re-evaluate after the system model becomes ready; preserve unknown accuracy.",
+      "evidence_sources": [
+        "evals/pace-next-step-router-20261005/summary.json#results-apple-fm-20261005.json",
+        "https://github.com/HeyPace/pace/issues/200"
+      ],
+      "source": "evals/pace-next-step-router-20261005/summary.json#results-apple-fm-20261005.json",
+      "kind": "model-evaluation",
+      "bases": ["Apple FoundationModels"],
+      "methods": ["evaluation", "routing"],
+      "objective": "tool-selection"
+    },
+    {
+      "id": "pace-next-step-qwen-policy-20261008",
+      "name": "Pace frozen generated policy Qwen comparison",
+      "family": "pace-planner",
+      "status": "rejected",
+      "evidence": "96 generated policy cases: rules 96/96, Qwen3.5-4B 4-bit 48/96 with zero errors; Qwen route p50/p95 394.7507/953.5587 ms, model bytes 3061316115.",
+      "failure_reason": "Qwen failed all ASK_USER, RESPOND and named-tool cases. The rules-perfect template set establishes regression behavior only, not real-task generalization.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Preserve raw failures, generated provenance and unknown calibration/hardware measures; a fast or rules-perfect result does not qualify a planner replacement.",
+      "next_action": "KEEP the current native planner. The owner withdrew the 400-500 handwritten-case requirement; any future learned replacement needs independent task evidence, not relabeled generated gold.",
+      "evidence_sources": [
+        "https://github.com/HeyPace/pace/blob/6a87a013c3da5f174977c6c815a197333bc15e5b/evals/router-policy-20261008/local-comparison.json",
+        "https://github.com/HeyPace/pace/issues/200"
+      ],
+      "source": "https://github.com/HeyPace/pace/blob/6a87a013c3da5f174977c6c815a197333bc15e5b/evals/router-policy-20261008/local-comparison.json",
+      "kind": "model-evaluation",
+      "bases": ["Qwen/Qwen3.5-4B"],
+      "methods": ["evaluation", "routing"],
+      "objective": "tool-selection"
     }
   ],
   "method_vocabulary": {

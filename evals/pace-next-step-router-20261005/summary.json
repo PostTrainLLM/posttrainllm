@@ -1,0 +1,694 @@
+{
+  "date": "2026-10-05",
+  "scope": "Offline local evaluation; no integration, training, release, or cloud inference",
+  "provenance": {
+    "pace_pr": 201,
+    "pace_source_sha": "2995366cd8ea60d9c1a88e0d682f19686df46875",
+    "jeff_upstream_sha": "d0173b4ee317a46dee031421b713f3fc5f868cfe",
+    "model_revisions": {
+      "mstrasser/Jeff-Qwen3.5-0.8B": "f0a2b523f1b64c567d4628fadd60caea03cc6847",
+      "mstrasser/Jeff-Qwen3.5-0.8B-tools": "a9086f3a10cb70d4ab13ed7b253458f204518dfa"
+    },
+    "base_sha256": "080ff4a5b419aaf59f5c5059c492de88a063f34087361fb3c3ff120d95d5396f",
+    "mac_chip": "Apple M5 Pro",
+    "memory_gb": 48,
+    "network_policy": "HF_HUB_OFFLINE=1 during inference; local argument fill at 127.0.0.1:1234; simulated execution only",
+    "python": "3.14.8",
+    "local_baseline": "qwen/qwen3.5-4b",
+    "evaluation_split": "123 previously inspected development fixtures; not sealed acceptance",
+    "status": "uncommitted local evaluation",
+    "base-v1.2_sha256": {
+      "decision_config.json": "4b9b07551651bef87710185c0ce6983c37d29cc86952ff878c453634c7b1df03",
+      "readout.safetensors": "86363dc193724b4c4321bfe107d07c0a53eb903b860b8c8bcb48865039f2e4f9"
+    },
+    "tools-v1.2_sha256": {
+      "decision_config.json": "62bdbeaf4e741b88cfcdc143e9f34b865ec0669a6fc52c06ed3dc685dd8cd15a",
+      "readout.safetensors": "dd67222fac35c87361053ad910e302fcc45c911f4e8b10d418cecd1afdeaca7f",
+      "adapter_model.safetensors": "6ea05c3a9f5b65b8c00bc23978e380ce658b5160263ab5977d0a5a3e4d6d57bf"
+    }
+  },
+  "reports": {
+    "results-local-qwen3.5-4b-20261005.json": {
+      "summary": {
+        "cases": 123,
+        "errors": 0,
+        "first_step_accuracy": 0.789,
+        "full_pass": 0.715,
+        "route_calls": 199,
+        "route_ms_p50": 613,
+        "route_ms_p95": 687,
+        "route_model_ms_p50": null,
+        "argument_ms_p50": 450,
+        "argument_ms_p95": 1023,
+        "by_kind": {
+          "ask": {
+            "n": 30,
+            "first_step": 0.4,
+            "args": 1.0,
+            "full_pass": 0.4
+          },
+          "click": {
+            "n": 39,
+            "first_step": 0.923,
+            "args": 0.974,
+            "full_pass": 0.692
+          },
+          "compose": {
+            "n": 8,
+            "first_step": 0.875,
+            "args": 0.875,
+            "full_pass": 0.875
+          },
+          "respond": {
+            "n": 38,
+            "first_step": 0.921,
+            "args": 1.0,
+            "full_pass": 0.921
+          },
+          "tool": {
+            "n": 8,
+            "first_step": 0.875,
+            "args": 1.0,
+            "full_pass": 0.875
+          }
+        },
+        "by_category": {
+          "fm-fixtures": {
+            "n": 15,
+            "first_step": 0.933,
+            "args": 0.933,
+            "full_pass": 0.867
+          },
+          "fm-fixtures-actions": {
+            "n": 8,
+            "first_step": 0.875,
+            "args": 1.0,
+            "full_pass": 0.875
+          },
+          "fm-fixtures-ambig": {
+            "n": 20,
+            "first_step": 0.25,
+            "args": 1.0,
+            "full_pass": 0.25
+          },
+          "fm-fixtures-compose": {
+            "n": 10,
+            "first_step": 0.9,
+            "args": 0.9,
+            "full_pass": 0.9
+          },
+          "fm-fixtures-destructive": {
+            "n": 10,
+            "first_step": 0.7,
+            "args": 1.0,
+            "full_pass": 0.7
+          },
+          "fm-fixtures-holdout": {
+            "n": 15,
+            "first_step": 0.933,
+            "args": 1.0,
+            "full_pass": 0.6
+          },
+          "fm-fixtures-oos": {
+            "n": 30,
+            "first_step": 0.933,
+            "args": 1.0,
+            "full_pass": 0.933
+          },
+          "fm-fixtures-v2": {
+            "n": 15,
+            "first_step": 0.867,
+            "args": 1.0,
+            "full_pass": 0.667
+          }
+        },
+        "wall_seconds": 138.6
+      },
+      "diagnostics": null,
+      "format_sha256": null,
+      "fixture_sha256": null,
+      "jeff_prompt_sha256": null,
+      "option_contract": null,
+      "raw_sha256": "1e4860712b431573dfda66aab5b2a3f56de8ec9a728235c71535d72367d30631",
+      "local_raw_path": "/Users/sarthak/Desktop/fleet/pace/.fleet-local/jeff-eval/pace-source/evals/jev-experiment/results-local-qwen3.5-4b-20261005.json"
+    },
+    "results-jeff-base-v1.2-20261005.json": {
+      "summary": {
+        "cases": 123,
+        "errors": 0,
+        "first_step_accuracy": 0.463,
+        "full_pass": 0.333,
+        "route_calls": 201,
+        "route_ms_p50": 121,
+        "route_ms_p95": 163,
+        "route_model_ms_p50": null,
+        "argument_ms_p50": 497,
+        "argument_ms_p95": 1776,
+        "by_kind": {
+          "ask": {
+            "n": 30,
+            "first_step": 0.067,
+            "args": 1.0,
+            "full_pass": 0.067
+          },
+          "click": {
+            "n": 39,
+            "first_step": 0.205,
+            "args": 1.0,
+            "full_pass": 0.077
+          },
+          "compose": {
+            "n": 8,
+            "first_step": 0.875,
+            "args": 0.875,
+            "full_pass": 0.0
+          },
+          "respond": {
+            "n": 38,
+            "first_step": 0.895,
+            "args": 1.0,
+            "full_pass": 0.895
+          },
+          "tool": {
+            "n": 8,
+            "first_step": 0.75,
+            "args": 1.0,
+            "full_pass": 0.25
+          }
+        },
+        "by_category": {
+          "fm-fixtures": {
+            "n": 15,
+            "first_step": 0.8,
+            "args": 1.0,
+            "full_pass": 0.667
+          },
+          "fm-fixtures-actions": {
+            "n": 8,
+            "first_step": 0.75,
+            "args": 1.0,
+            "full_pass": 0.25
+          },
+          "fm-fixtures-ambig": {
+            "n": 20,
+            "first_step": 0.0,
+            "args": 1.0,
+            "full_pass": 0.0
+          },
+          "fm-fixtures-compose": {
+            "n": 10,
+            "first_step": 0.7,
+            "args": 0.9,
+            "full_pass": 0.0
+          },
+          "fm-fixtures-destructive": {
+            "n": 10,
+            "first_step": 0.2,
+            "args": 1.0,
+            "full_pass": 0.2
+          },
+          "fm-fixtures-holdout": {
+            "n": 15,
+            "first_step": 0.067,
+            "args": 1.0,
+            "full_pass": 0.0
+          },
+          "fm-fixtures-oos": {
+            "n": 30,
+            "first_step": 0.9,
+            "args": 1.0,
+            "full_pass": 0.9
+          },
+          "fm-fixtures-v2": {
+            "n": 15,
+            "first_step": 0.133,
+            "args": 1.0,
+            "full_pass": 0.0
+          }
+        },
+        "wall_seconds": 106.9
+      },
+      "diagnostics": {
+        "first_step_ece_10_bins_development": 0.14081118534493253,
+        "calibration_bins": [
+          {
+            "lower": 0.0,
+            "n": 1,
+            "mean_confidence": 0.09490768611431122,
+            "first_step_accuracy": 0.0
+          },
+          {
+            "lower": 0.1,
+            "n": 18,
+            "mean_confidence": 0.16562313876218265,
+            "first_step_accuracy": 0.2222222222222222
+          },
+          {
+            "lower": 0.2,
+            "n": 16,
+            "mean_confidence": 0.24064653739333153,
+            "first_step_accuracy": 0.0625
+          },
+          {
+            "lower": 0.3,
+            "n": 16,
+            "mean_confidence": 0.33663344383239746,
+            "first_step_accuracy": 0.3125
+          },
+          {
+            "lower": 0.4,
+            "n": 12,
+            "mean_confidence": 0.4510803123315175,
+            "first_step_accuracy": 0.25
+          },
+          {
+            "lower": 0.5,
+            "n": 8,
+            "mean_confidence": 0.5475793704390526,
+            "first_step_accuracy": 0.75
+          },
+          {
+            "lower": 0.6,
+            "n": 10,
+            "mean_confidence": 0.6389561653137207,
+            "first_step_accuracy": 0.8
+          },
+          {
+            "lower": 0.7,
+            "n": 11,
+            "mean_confidence": 0.7465009635145013,
+            "first_step_accuracy": 0.8181818181818182
+          },
+          {
+            "lower": 0.8,
+            "n": 19,
+            "mean_confidence": 0.8546878852342304,
+            "first_step_accuracy": 0.8421052631578947
+          },
+          {
+            "lower": 0.9,
+            "n": 12,
+            "mean_confidence": 0.9416065464417139,
+            "first_step_accuracy": 0.4166666666666667
+          }
+        ],
+        "terminal_counts": {
+          "REPEAT_GUARD": 50,
+          "DONE": 14,
+          "RESPOND": 54,
+          "null": 1,
+          "ASK_USER": 4
+        },
+        "thresholds_fitted": false
+      },
+      "format_sha256": "c16b70898b42ef057b6c42204040a887f15ebb2891fafd857292228c9b4f929e",
+      "fixture_sha256": "1b079b23d7652d2cd02a025e9e8fc7f81e9d8ade5001e7809db8398d385470dd",
+      "jeff_prompt_sha256": "1801b7ab3385f83c03c1219811b5e9aafea5ee029bc5a647010966fd9e197350",
+      "option_contract": null,
+      "raw_sha256": "c1e2de0e723f8cbb37570365d6ec8ef547f88b82f00133228eb132616dc6c763",
+      "local_raw_path": "/Users/sarthak/Desktop/fleet/pace/.fleet-local/jeff-eval/pace-source/evals/jev-experiment/results-jeff-base-v1.2-20261005.json"
+    },
+    "results-jeff-tools-v1.2-20261005.json": {
+      "summary": {
+        "cases": 123,
+        "errors": 0,
+        "first_step_accuracy": 0.553,
+        "full_pass": 0.382,
+        "route_calls": 193,
+        "route_ms_p50": 143,
+        "route_ms_p95": 189,
+        "route_model_ms_p50": null,
+        "argument_ms_p50": 581,
+        "argument_ms_p95": 1313,
+        "by_kind": {
+          "ask": {
+            "n": 30,
+            "first_step": 0.1,
+            "args": 1.0,
+            "full_pass": 0.1
+          },
+          "click": {
+            "n": 39,
+            "first_step": 0.462,
+            "args": 0.974,
+            "full_pass": 0.128
+          },
+          "compose": {
+            "n": 8,
+            "first_step": 0.875,
+            "args": 0.875,
+            "full_pass": 0.25
+          },
+          "respond": {
+            "n": 38,
+            "first_step": 0.868,
+            "args": 1.0,
+            "full_pass": 0.868
+          },
+          "tool": {
+            "n": 8,
+            "first_step": 0.875,
+            "args": 0.875,
+            "full_pass": 0.5
+          }
+        },
+        "by_category": {
+          "fm-fixtures": {
+            "n": 15,
+            "first_step": 0.933,
+            "args": 0.933,
+            "full_pass": 0.667
+          },
+          "fm-fixtures-actions": {
+            "n": 8,
+            "first_step": 0.875,
+            "args": 0.875,
+            "full_pass": 0.5
+          },
+          "fm-fixtures-ambig": {
+            "n": 20,
+            "first_step": 0.05,
+            "args": 1.0,
+            "full_pass": 0.05
+          },
+          "fm-fixtures-compose": {
+            "n": 10,
+            "first_step": 0.7,
+            "args": 0.9,
+            "full_pass": 0.2
+          },
+          "fm-fixtures-destructive": {
+            "n": 10,
+            "first_step": 0.2,
+            "args": 1.0,
+            "full_pass": 0.2
+          },
+          "fm-fixtures-holdout": {
+            "n": 15,
+            "first_step": 0.333,
+            "args": 1.0,
+            "full_pass": 0.0
+          },
+          "fm-fixtures-oos": {
+            "n": 30,
+            "first_step": 0.867,
+            "args": 1.0,
+            "full_pass": 0.867
+          },
+          "fm-fixtures-v2": {
+            "n": 15,
+            "first_step": 0.4,
+            "args": 1.0,
+            "full_pass": 0.133
+          }
+        },
+        "wall_seconds": 93.2
+      },
+      "diagnostics": {
+        "first_step_ece_10_bins_development": 0.2333161262719612,
+        "calibration_bins": [
+          {
+            "lower": 0.2,
+            "n": 3,
+            "mean_confidence": 0.22437462707360586,
+            "first_step_accuracy": 0.3333333333333333
+          },
+          {
+            "lower": 0.3,
+            "n": 14,
+            "mean_confidence": 0.3516622121844973,
+            "first_step_accuracy": 0.35714285714285715
+          },
+          {
+            "lower": 0.4,
+            "n": 5,
+            "mean_confidence": 0.45112740993499756,
+            "first_step_accuracy": 0.0
+          },
+          {
+            "lower": 0.5,
+            "n": 11,
+            "mean_confidence": 0.554171540520408,
+            "first_step_accuracy": 0.45454545454545453
+          },
+          {
+            "lower": 0.6,
+            "n": 9,
+            "mean_confidence": 0.6555834478802152,
+            "first_step_accuracy": 0.3333333333333333
+          },
+          {
+            "lower": 0.7,
+            "n": 8,
+            "mean_confidence": 0.7415381148457527,
+            "first_step_accuracy": 0.0
+          },
+          {
+            "lower": 0.8,
+            "n": 10,
+            "mean_confidence": 0.8506476700305938,
+            "first_step_accuracy": 0.5
+          },
+          {
+            "lower": 0.9,
+            "n": 63,
+            "mean_confidence": 0.9778368529819307,
+            "first_step_accuracy": 0.7777777777777778
+          }
+        ],
+        "terminal_counts": {
+          "REPEAT_GUARD": 36,
+          "RESPOND": 51,
+          "null": 2,
+          "DONE": 26,
+          "ASK_USER": 8
+        },
+        "thresholds_fitted": false
+      },
+      "format_sha256": "c16b70898b42ef057b6c42204040a887f15ebb2891fafd857292228c9b4f929e",
+      "fixture_sha256": "1b079b23d7652d2cd02a025e9e8fc7f81e9d8ade5001e7809db8398d385470dd",
+      "jeff_prompt_sha256": "1801b7ab3385f83c03c1219811b5e9aafea5ee029bc5a647010966fd9e197350",
+      "option_contract": null,
+      "raw_sha256": "444fedd8a168a4bcf06d2bbabd476e1ad4e04aa88130a1ea7127cf151fc092b9",
+      "local_raw_path": "/Users/sarthak/Desktop/fleet/pace/.fleet-local/jeff-eval/pace-source/evals/jev-experiment/results-jeff-tools-v1.2-20261005.json"
+    },
+    "results-jeff-tools-native-v1.2-20261005.json": {
+      "summary": {
+        "cases": 123,
+        "errors": 0,
+        "first_step_accuracy": 0.602,
+        "full_pass": 0.341,
+        "route_calls": 202,
+        "route_ms_p50": 120,
+        "route_ms_p95": 159,
+        "route_model_ms_p50": null,
+        "argument_ms_p50": 309,
+        "argument_ms_p95": 1143,
+        "by_kind": {
+          "ask": {
+            "n": 30,
+            "first_step": 0.333,
+            "args": 1.0,
+            "full_pass": 0.333
+          },
+          "click": {
+            "n": 39,
+            "first_step": 0.564,
+            "args": 0.974,
+            "full_pass": 0.051
+          },
+          "compose": {
+            "n": 8,
+            "first_step": 0.875,
+            "args": 0.875,
+            "full_pass": 0.125
+          },
+          "respond": {
+            "n": 38,
+            "first_step": 0.763,
+            "args": 1.0,
+            "full_pass": 0.763
+          },
+          "tool": {
+            "n": 8,
+            "first_step": 0.75,
+            "args": 0.75,
+            "full_pass": 0.0
+          }
+        },
+        "by_category": {
+          "fm-fixtures": {
+            "n": 15,
+            "first_step": 0.867,
+            "args": 0.933,
+            "full_pass": 0.4
+          },
+          "fm-fixtures-actions": {
+            "n": 8,
+            "first_step": 0.75,
+            "args": 0.75,
+            "full_pass": 0.0
+          },
+          "fm-fixtures-ambig": {
+            "n": 20,
+            "first_step": 0.5,
+            "args": 1.0,
+            "full_pass": 0.5
+          },
+          "fm-fixtures-compose": {
+            "n": 10,
+            "first_step": 0.8,
+            "args": 0.9,
+            "full_pass": 0.1
+          },
+          "fm-fixtures-destructive": {
+            "n": 10,
+            "first_step": 0.0,
+            "args": 1.0,
+            "full_pass": 0.0
+          },
+          "fm-fixtures-holdout": {
+            "n": 15,
+            "first_step": 0.467,
+            "args": 1.0,
+            "full_pass": 0.067
+          },
+          "fm-fixtures-oos": {
+            "n": 30,
+            "first_step": 0.767,
+            "args": 1.0,
+            "full_pass": 0.767
+          },
+          "fm-fixtures-v2": {
+            "n": 15,
+            "first_step": 0.467,
+            "args": 1.0,
+            "full_pass": 0.067
+          }
+        },
+        "wall_seconds": 86.0
+      },
+      "diagnostics": {
+        "first_step_ece_10_bins_development": 0.2288699314846256,
+        "terminal_counts": {
+          "REPEAT_GUARD": 58,
+          "RESPOND": 51,
+          "ASK_USER": 14
+        },
+        "thresholds_fitted": false
+      },
+      "format_sha256": "c16b70898b42ef057b6c42204040a887f15ebb2891fafd857292228c9b4f929e",
+      "fixture_sha256": "1b079b23d7652d2cd02a025e9e8fc7f81e9d8ade5001e7809db8398d385470dd",
+      "jeff_prompt_sha256": "641fc7702b72006c0c6f71a348d2be2016e743c6c7d8e5fa398ef935cc72c14b",
+      "option_contract": {
+        "format": "upstream tools example: answer_directly, ask_user, t1..t29",
+        "options": 31,
+        "answer_directly_maps_to": "RESPOND",
+        "explicit_DONE_selection": "not measured",
+        "same_simulated_execution_and_scoring": true
+      },
+      "raw_sha256": "778dcd6711ca80b9710138b59f8a5cf9e43bf749dcfea0c2a528f6ed4daf2231",
+      "local_raw_path": "/Users/sarthak/Desktop/fleet/pace/.fleet-local/jeff-eval/pace-source/evals/jev-experiment/results-jeff-tools-native-v1.2-20261005.json"
+    },
+    "results-jeff-tools-synthetic-20261005.json": {
+      "evaluation_split": "synthetic smoke; disputed generator/teacher labels; not human acceptance",
+      "input_sha256": "03bb514da59b312004d1aaea203f06929f02abab74036e76c832d400a5da8c81",
+      "checkpoint": "models/base-v1.2",
+      "adapter": "models/tools-v1.2",
+      "format": "pace-32",
+      "summary": {
+        "n": 416,
+        "wall_seconds": 61.5,
+        "p50_ms": 146,
+        "p95_ms": 169,
+        "peak_rss_bytes_macos": 2308685824,
+        "mlx_peak_memory_bytes": 2480895940,
+        "stop_equivalent_accuracy": 0.36538461538461536,
+        "by_scenario": {
+          "abstract_ambiguous": {
+            "n": 32,
+            "accuracy_vs_intended": 0.0,
+            "accuracy_vs_teacher": 0.0625
+          },
+          "abstract_click": {
+            "n": 32,
+            "accuracy_vs_intended": 0.03125,
+            "accuracy_vs_teacher": 0.0625
+          },
+          "after_failure": {
+            "n": 32,
+            "accuracy_vs_intended": 0.0,
+            "accuracy_vs_teacher": 0.15625
+          },
+          "already_done": {
+            "n": 32,
+            "accuracy_vs_intended": 0.625,
+            "accuracy_vs_teacher": 0.46875
+          },
+          "ambiguous_targets": {
+            "n": 32,
+            "accuracy_vs_intended": 0.0,
+            "accuracy_vs_teacher": 0.0
+          },
+          "click_unique_target": {
+            "n": 32,
+            "accuracy_vs_intended": 0.1875,
+            "accuracy_vs_teacher": 0.21875
+          },
+          "compose": {
+            "n": 32,
+            "accuracy_vs_intended": 0.75,
+            "accuracy_vs_teacher": 0.625
+          },
+          "describe_screen": {
+            "n": 32,
+            "accuracy_vs_intended": 0.9375,
+            "accuracy_vs_teacher": 0.8125
+          },
+          "destructive": {
+            "n": 32,
+            "accuracy_vs_intended": 0.15625,
+            "accuracy_vs_teacher": 0.21875
+          },
+          "disfluent_click": {
+            "n": 32,
+            "accuracy_vs_intended": 0.15625,
+            "accuracy_vs_teacher": 0.1875
+          },
+          "multi_step_intermediate": {
+            "n": 32,
+            "accuracy_vs_intended": 0.375,
+            "accuracy_vs_teacher": 0.1875
+          },
+          "out_of_scope": {
+            "n": 32,
+            "accuracy_vs_intended": 0.9375,
+            "accuracy_vs_teacher": 0.84375
+          },
+          "single_tool_first_step": {
+            "n": 32,
+            "accuracy_vs_intended": 0.59375,
+            "accuracy_vs_teacher": 0.625
+          }
+        },
+        "accuracy_vs_intended": 0.36538461538461536,
+        "ece_10_bins_vs_intended": 0.33153559883626604,
+        "accuracy_vs_teacher": 0.34375,
+        "ece_10_bins_vs_teacher": 0.3531702142208814
+      },
+      "raw_sha256": "aaada7611e3111537c0797fd2a36157fed726f51b828b8b52ef72be444e5b864",
+      "local_raw_path": "/Users/sarthak/Desktop/fleet/pace/.fleet-local/jeff-eval/pace-source/evals/jev-experiment/results-jeff-tools-synthetic-20261005.json"
+    },
+    "results-apple-fm-20261005.json": {
+      "status": "unavailable",
+      "evaluated_cases": 0,
+      "reason": "SystemLanguageModel.Availability.UnavailableReason.modelNotReady",
+      "build": "Standalone SwiftPM bridge Release build passed; no Pace application build",
+      "runtime_exit_code": 2,
+      "score": null,
+      "evidence_log": "/Users/sarthak/Library/Developer/XcodeBuildMCP/workspaces/pace-82658c9f3251/logs/build_run_spm_2026-10-04T18-53-49-935Z_pid38297_20143645.log",
+      "raw_sha256": "79d3c225696b3a44daa856f72d4a4a6eedb702a01b1b7608e1896a6ab8984d6d",
+      "local_raw_path": "/Users/sarthak/Desktop/fleet/pace/.fleet-local/jeff-eval/pace-source/evals/jev-experiment/results-apple-fm-20261005.json"
+    }
+  }
+}
