@@ -44,6 +44,7 @@
     "@astrojs/sitemap": "^3.7.3",
     "@floating-ui/dom": "^1.8.0",
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@saas-maker/ui": "github:sass-maker/ui-library#v0.1.17&path:/packages/ui",
     "posthog-js": "^1.415.5",
     "web-vitals": "^4.2.4"
   }

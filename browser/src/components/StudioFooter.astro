@@ -1,0 +1,65 @@
+---
+import { renderStudioFooterHtml } from "@saas-maker/ui/footer-html";
+
+interface Props {
+  groups?: { title: string; links: { label: string; href: string }[] }[];
+}
+
+const {
+  groups = [
+    {
+      title: "learn",
+      links: [
+        { label: "Learning paths", href: "/learn" },
+        { label: "Recipes", href: "/recipes" },
+        { label: "Experiments", href: "/experiments" },
+        { label: "Evidence artifacts", href: "/artifacts" },
+        { label: "Documentation", href: "/docs" },
+        {
+          label: "Source",
+          href: "https://github.com/PostTrainLLM/posttrainllm",
+        },
+      ],
+    },
+  ],
+} = Astro.props;
+
+const config = {
+  product: "PostTrainLLM",
+  url: "https://posttrainllm.com",
+  catalogId: "posttrainllm",
+  capture: "newsletter" as const,
+  variant: "studio" as const,
+  summary: "Build the specialist. Measure the tradeoff. Keep the evidence.",
+  art: {
+    src: "/footer-art/posttrainllm.webp",
+    alt: "A pixel-art workshop at night with a distillation furnace, ingredient jars, cat and owl models under glass, and an open notebook on a wooden workbench.",
+  },
+  groups,
+  legal:
+    "Every performance figure on this site was measured on a single Apple M5 Pro (18-core GPU) with 48 GB unified memory — one machine, no cluster, no cloud. Model-quality numbers are on frozen, documented evals; where a result is a candidate and not shipped, the page says so. Built in the open by one developer. MIT-licensed.",
+};
+const json = JSON.stringify(config).replace(/</g, "\\u003c");
+---
+
+<link rel="stylesheet" href="/footer.css" />
+<script is:inline type="module" src="/footer.js"></script>
+<studio-footer
+  product="PostTrainLLM"
+  url="https://posttrainllm.com"
+  catalog-id="posttrainllm"
+  capture="newsletter"
+  variant="studio"
+  data-mode="dark"
+>
+  <script is:inline type="application/json" set:html={json} />
+  <Fragment set:html={renderStudioFooterHtml(config)} />
+</studio-footer>
+
+<style is:global>
+  studio-footer {
+    --font-text: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+    --ui-case: lowercase;
+    --eyebrow-transform: none;
+  }
+</style>
