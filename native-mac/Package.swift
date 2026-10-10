@@ -54,6 +54,7 @@ let package = Package(
         .executable(name: "TinyGPTApp", targets: ["TinyGPTApp"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/sass-maker/ui-library", from: "0.1.14"),
         // MLX-Swift — Apple ML primitives for Apple Silicon. Pinned to a
         // recent stable; bump the lower bound as the API stabilises.
         .package(url: "https://github.com/ml-explore/mlx-swift", from: "0.31.4"),
@@ -194,6 +195,7 @@ let package = Package(
         .executableTarget(
             name: "TinyGPTApp",
             dependencies: [
+                .product(name: "SaaSMakerUI", package: "ui-library"),
                 "TinyGPTIO",
                 "TinyGPTModel",
                 "TinyGPTCheck",

@@ -1,4 +1,5 @@
 import SwiftUI
+import SaaSMakerUI
 import UniformTypeIdentifiers
 
 struct TrainView: View {
@@ -18,9 +19,8 @@ struct TrainView: View {
         VStack(spacing: 0) {
             // Header — current run summary
             HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text("Train")
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(Theme.fg)
+                SMSectionHeader("train", size: 18)
+                .fixedSize(horizontal: true, vertical: false)
                 Text("watch a model learn from scratch")
                     .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(Theme.muted)
@@ -39,99 +39,102 @@ struct TrainView: View {
             Divider().background(Theme.line)
             ThermalSafetyBanner()
 
-            // Controls row
-            HStack(spacing: 14) {
-                // Preset picker
-                HStack(spacing: 6) {
-                    Text("preset")
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(Theme.faint)
-                    Picker("", selection: $controller.presetIdx) {
-                        ForEach(0..<TrainController.presets.count, id: \.self) { i in
-                            Text(TrainController.presets[i].name).tag(i)
+            // Three compact rows keep every control reachable at 920pt.
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 14) {
+                    // Preset picker
+                    HStack(spacing: 6) {
+                        Text("preset")
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(Theme.faint)
+                        Picker("", selection: $controller.presetIdx) {
+                            ForEach(0..<TrainController.presets.count, id: \.self) { i in
+                                Text(TrainController.presets[i].name).tag(i)
+                            }
                         }
+                        .pickerStyle(.menu)
+                        .frame(width: 100)
                     }
-                    .pickerStyle(.menu)
-                    .frame(width: 100)
-                }
 
-                HStack(spacing: 6) {
-                    Text("steps")
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(Theme.faint)
-                    TextField(
-                        "",
-                        value: $controller.targetSteps,
-                        format: IntegerFormatStyle<Int>.number
-                            .locale(Locale(identifier: "en_US_POSIX"))
-                            .grouping(.automatic)
-                    )
-                        .textFieldStyle(.plain)
-                        .frame(width: 80)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 6)
+                    HStack(spacing: 6) {
+                        Text("steps")
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(Theme.faint)
+                        TextField(
+                            "",
+                            value: $controller.targetSteps,
+                            format: IntegerFormatStyle<Int>.number
+                                .locale(Locale(identifier: "en_US_POSIX"))
+                                .grouping(.automatic)
+                        )
+                            .textFieldStyle(.plain)
+                            .frame(width: 80)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+                            .background(Theme.panel)
+                            .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.line))
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                            .font(.system(size: 11, design: .monospaced))
+                    }
+
+                    // LR schedule picker — exposes today's WSD + cosine + constant.
+                    HStack(spacing: 6) {
+                        Text("schedule")
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(Theme.faint)
+                        Picker("", selection: $controller.lrSchedule) {
+                            ForEach(TrainController.LRSchedule.allCases) { s in
+                                Text(s.rawValue).tag(s)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .frame(width: 95)
+                    }
+
+                    // Seed — empty = random at runtime (placeholder, not literal text).
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("seed")
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(Theme.faint)
+                        ZStack(alignment: .leading) {
+                            if controller.seedText.isEmpty {
+                                Text("random — auto-pick")
+                                    .font(.system(size: 11, design: .monospaced))
+                                    .foregroundStyle(Theme.faint.opacity(0.7))
+                                    .italic()
+                                    .padding(.horizontal, 8)
+                                    .allowsHitTesting(false)
+                            }
+                            TextField("", text: $controller.seedText)
+                                .textFieldStyle(.plain)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 6)
+                                .font(.system(size: 11, design: .monospaced))
+                        }
+                        .frame(width: 120)
+                        .frame(minHeight: 28)
                         .background(Theme.panel)
                         .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.line))
                         .clipShape(RoundedRectangle(cornerRadius: 4))
-                        .font(.system(size: 11, design: .monospaced))
-                }
-
-                // LR schedule picker — exposes today's WSD + cosine + constant.
-                HStack(spacing: 6) {
-                    Text("schedule")
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(Theme.faint)
-                    Picker("", selection: $controller.lrSchedule) {
-                        ForEach(TrainController.LRSchedule.allCases) { s in
-                            Text(s.rawValue).tag(s)
-                        }
+                        .help("Leave blank for random init; any UInt64 makes init reproducible.")
                     }
-                    .pickerStyle(.menu)
-                    .frame(width: 95)
-                }
 
-                // Seed — empty = random at runtime (placeholder, not literal text).
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("seed")
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(Theme.faint)
-                    ZStack(alignment: .leading) {
-                        if controller.seedText.isEmpty {
-                            Text("random — auto-pick")
-                                .font(.system(size: 11, design: .monospaced))
-                                .foregroundStyle(Theme.faint.opacity(0.7))
-                                .italic()
-                                .padding(.horizontal, 8)
-                                .allowsHitTesting(false)
-                        }
-                        TextField("", text: $controller.seedText)
-                            .textFieldStyle(.plain)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 6)
-                            .font(.system(size: 11, design: .monospaced))
+                    // Spike-detector toggle — same primitive the CLI uses.
+                    Toggle(isOn: $controller.spikeDetectEnabled) {
+                        Text("spike")
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(Theme.faint)
                     }
-                    .frame(width: 120)
+                    .toggleStyle(.checkbox)
                     .frame(minHeight: 28)
-                    .background(Theme.panel)
-                    .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.line))
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
-                    .help("Leave blank for random init; any UInt64 makes init reproducible.")
-                }
+                    .contentShape(Rectangle())
+                    .help("Logs a warning when loss > 3× moving avg over the last 50 steps.")
 
-                // Spike-detector toggle — same primitive the CLI uses.
-                Toggle(isOn: $controller.spikeDetectEnabled) {
-                    Text("spike")
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(Theme.faint)
                 }
-                .toggleStyle(.checkbox)
-                .frame(minHeight: 28)
-                .contentShape(Rectangle())
-                .help("Logs a warning when loss > 3× moving avg over the last 50 steps.")
 
                 // Throttle — label stacked above controls for readable layout.
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Throttle:")
+                    Text("throttle:")
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(Theme.faint)
                     HStack(spacing: 10) {
@@ -153,75 +156,77 @@ struct TrainView: View {
                 }
                 .help("Lower sustained load without changing training results.")
 
-                // Starter corpora menu — one click loads any of the
-                // fetched Project Gutenberg classics or browser gallery
-                // corpora. Falls through to "Other..." for arbitrary files.
-                Menu {
-                    if availableCorpora.isEmpty {
-                        Text("no corpora found — run scripts/fetch_corpora.sh").disabled(true)
-                    }
-                    ForEach(availableCorpora) { c in
-                        Button {
-                            loadCorpus(c)
-                        } label: {
-                            HStack {
-                                Text(c.icon)
-                                Text(c.displayName)
-                                Spacer()
-                                Text(formattedBytes(c.size))
-                                    .foregroundStyle(.secondary)
+                HStack(spacing: 14) {
+                    // Starter corpora menu — one click loads any of the
+                    // fetched Project Gutenberg classics or browser gallery
+                    // corpora. Falls through to "Other..." for arbitrary files.
+                    Menu {
+                        if availableCorpora.isEmpty {
+                            Text("no corpora found — run scripts/fetch_corpora.sh").disabled(true)
+                        }
+                        ForEach(availableCorpora) { c in
+                            Button {
+                                loadCorpus(c)
+                            } label: {
+                                HStack {
+                                    Text(c.icon)
+                                    Text(c.displayName)
+                                    Spacer()
+                                    Text(formattedBytes(c.size))
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        Divider()
+                        Button("other file…") { pickCorpus() }
+                    } label: {
+                        HStack(spacing: 6) {
+                            if let sel = selectedCorpus {
+                                Text(sel.icon)
+                                Text(sel.displayName)
+                                Text("(\(formattedBytes(corpusBytes)))")
+                                    .font(.system(size: 10, design: .monospaced))
+                                    .foregroundStyle(Theme.faint)
+                            } else if hasRealCorpus {
+                                Text("Corpus (\(formattedBytes(corpusBytes)))")
+                            } else {
+                                Text("pick corpus…")
                             }
                         }
                     }
-                    Divider()
-                    Button("Other file…") { pickCorpus() }
-                } label: {
-                    HStack(spacing: 6) {
-                        if let sel = selectedCorpus {
-                            Text(sel.icon)
-                            Text(sel.displayName)
-                            Text("(\(formattedBytes(corpusBytes)))")
-                                .font(.system(size: 10, design: .monospaced))
-                                .foregroundStyle(Theme.faint)
-                        } else if hasRealCorpus {
-                            Text("Corpus (\(formattedBytes(corpusBytes)))")
-                        } else {
-                            Text("Pick corpus…")
+                    .menuStyle(.borderlessButton)
+                    .frame(maxWidth: 200)
+
+                    Spacer()
+
+                    if controller.isTraining {
+                        Button(controller.isPaused ? "Resume" : "Pause") {
+                            controller.isPaused ? controller.resume() : controller.pause()
                         }
-                    }
-                }
-                .menuStyle(.borderlessButton)
-                .frame(maxWidth: 200)
-
-                Spacer()
-
-                if controller.isTraining {
-                    Button(controller.isPaused ? "Resume" : "Pause") {
-                        controller.isPaused ? controller.resume() : controller.pause()
-                    }
-                    .disabled(controller.isPausing)
-                    .frame(minHeight: 44)
-                    .buttonStyle(PrimaryButtonStyle(color: Theme.warn))
-                    Button("Stop") { controller.cancel() }
-                        .keyboardShortcut(.cancelAction)
+                        .disabled(controller.isPausing)
                         .frame(minHeight: 44)
-                        .buttonStyle(PrimaryButtonStyle(color: Theme.danger))
-                } else if let run = controller.externalRun, run.pid != 0 {
-                    // External (CLI-spawned) training is in flight — the
-                    // banner has Resume/Pause for it. Don't show our own
-                    // Start; would let the user fire a second simultaneous
-                    // run that fights for the GPU.
-                    Text(run.isStopped ? "external run paused" : "external run active")
-                        .font(.system(size: 11, design: .monospaced))
-                        .foregroundStyle(Theme.muted)
-                } else {
-                    Button(controller.externalRun != nil ? "Attached to existing run" : "Start") {
-                        if controller.externalRun == nil { startOrConfirm() }
+                        .instrumentButton(color: Theme.warn)
+                        Button("stop") { controller.cancel() }
+                            .keyboardShortcut(.cancelAction)
+                            .frame(minHeight: 44)
+                            .instrumentButton(color: Theme.danger)
+                    } else if let run = controller.externalRun, run.pid != 0 {
+                        // External (CLI-spawned) training is in flight — the
+                        // banner has Resume/Pause for it. Don't show our own
+                        // Start; would let the user fire a second simultaneous
+                        // run that fights for the GPU.
+                        Text(run.isStopped ? "external run paused" : "external run active")
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundStyle(Theme.muted)
+                    } else {
+                        Button(controller.externalRun != nil ? "Attached to existing run" : "Start") {
+                            if controller.externalRun == nil { startOrConfirm() }
+                        }
+                        .disabled(controller.externalRun != nil)
+                        .keyboardShortcut(.return, modifiers: [.command])
+                        .frame(minHeight: 44)
+                        .instrumentButton(color: Theme.accent)
                     }
-                    .disabled(controller.externalRun != nil)
-                    .keyboardShortcut(.return, modifiers: [.command])
-                    .frame(minHeight: 44)
-                    .buttonStyle(PrimaryButtonStyle(color: Theme.accent))
                 }
             }
             .padding(.horizontal, 24)
@@ -274,7 +279,7 @@ struct TrainView: View {
             if !trainingRuns.isEmpty {
                 VStack(alignment: .leading, spacing: 0) {
                     HStack(spacing: 12) {
-                        Text("RUNS")
+                        Text("runs")
                             .font(.system(size: 10, weight: .semibold, design: .monospaced))
                             .foregroundStyle(Theme.faint)
                             .tracking(1)
@@ -294,7 +299,7 @@ struct TrainView: View {
                         Button {
                             trainingRuns = RunRegistry.discover()
                         } label: {
-                            Text("Refresh")
+                            Text("refresh")
                                 .font(.system(size: 10, design: .monospaced))
                                 .foregroundStyle(Theme.muted)
                         }
@@ -351,7 +356,7 @@ struct TrainView: View {
                         Text(run.pid == 0
                              ? "Last training run — exited cleanly (no live process)"
                              : "Attached to existing run — PID \(run.pid)\(run.isStopped ? " (paused)" : "")")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(Theme.ui(13, weight: .semibold))
                         HStack(spacing: 16) {
                             if let s = run.lastStep {
                                 Text("step \(s)\(run.totalSteps.map { " / \($0)" } ?? "")")
@@ -395,13 +400,13 @@ struct TrainView: View {
                             controller.pauseExternalRun()
                         }
                     }
-                    .buttonStyle(.borderedProminent)
-                    Button("Refresh") {
+                    .instrumentButton()
+                    Button("refresh") {
                         controller.detectExternalRun()
                     }
                     .buttonStyle(.bordered)
                     if let log = run.logPath {
-                        Button("Reveal log") {
+                        Button("reveal log") {
                             NSWorkspace.shared.activateFileViewerSelecting(
                                 [URL(fileURLWithPath: log)]
                             )
@@ -479,13 +484,13 @@ struct TrainView: View {
             thermalMonitor.refresh()
         }
         .alert("Long Training Run", isPresented: $showLongRunConfirm) {
-            Button("Start") { startNow() }
-            Button("Cancel", role: .cancel) {}
+            Button("start") { startNow() }
+            Button("cancel", role: .cancel) {}
         } message: {
             Text("This run is expected to keep the GPU busy for a long time. Use a hard surface with clear airflow before starting.")
         }
         .alert("Previous Paused Run", isPresented: $showPausedRestorePrompt) {
-            Button("OK") {}
+            Button("ok") {}
         } message: {
             Text("The previous app session recorded a paused checkpoint. Load the same corpus and press Start to continue from it.")
         }
@@ -647,25 +652,5 @@ struct TrainView: View {
         if n >= 1_000_000 { return String(format: "%.1fMB", Double(n)/1_000_000) }
         if n >= 1_000 { return String(format: "%.0fKB", Double(n)/1_000) }
         return "\(n)B"
-    }
-}
-
-private struct PrimaryButtonStyle: ButtonStyle {
-    let color: Color
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(color)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .contentShape(Rectangle())
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(color.opacity(configuration.isPressed ? 0.25 : 0.15))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 6)
-                    .stroke(color.opacity(0.5), lineWidth: 1)
-            )
     }
 }

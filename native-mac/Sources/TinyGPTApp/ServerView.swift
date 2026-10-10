@@ -1,4 +1,5 @@
 import SwiftUI
+import SaaSMakerUI
 
 /// The Server tab — wraps `ServerController`, lets the user point the
 /// server at any model on disk + start/stop the OpenAI-compatible HTTP
@@ -25,29 +26,16 @@ struct ServerView: View {
 
     private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
-            Text("Server")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(Theme.fg)
+            SMSectionHeader("server", size: 18)
+                .fixedSize(horizontal: true, vertical: false)
             Text("OpenAI-compatible HTTP endpoint")
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(Theme.muted)
             Spacer()
             if controller.isRunning {
-                HStack(spacing: 6) {
-                    Circle().fill(Theme.accent).frame(width: 8, height: 8)
-                    Text("LISTENING")
-                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(Theme.accent)
-                        .tracking(1)
-                }
+                SMStatusPill("listening", tone: .success)
             } else {
-                HStack(spacing: 6) {
-                    Circle().stroke(Theme.faint, lineWidth: 1).frame(width: 8, height: 8)
-                    Text("STOPPED")
-                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(Theme.faint)
-                        .tracking(1)
-                }
+                SMStatusPill("stopped")
             }
         }
         .padding(.horizontal, 24)
@@ -100,25 +88,23 @@ struct ServerView: View {
                             }
                     }
                     Text("Bound to 127.0.0.1 (localhost only) — change in code for LAN exposure.")
-                        .font(.system(size: 10))
+                        .font(Theme.ui(10))
                         .foregroundStyle(Theme.faint)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
                 if controller.isRunning {
                     Button { controller.stop() } label: {
-                        Text("Stop server").frame(maxWidth: .infinity)
+                        Text("stop server").frame(maxWidth: .infinity)
                     }
                     .controlSize(.large)
-                    .buttonStyle(.borderedProminent)
-                    .tint(Theme.danger)
+                    .instrumentButton(color: Theme.danger)
                 } else {
                     Button { controller.start() } label: {
-                        Text("Start server").frame(maxWidth: .infinity)
+                        Text("start server").frame(maxWidth: .infinity)
                     }
                     .controlSize(.large)
-                    .buttonStyle(.borderedProminent)
-                    .tint(Theme.accent)
+                    .instrumentButton(color: Theme.accent)
                     .disabled(controller.modelPath.isEmpty)
                 }
 
@@ -175,13 +161,13 @@ struct ServerView: View {
     private var logArea: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("LOG")
+                Text("log")
                     .font(.system(size: 10, weight: .semibold, design: .monospaced))
                     .foregroundStyle(Theme.faint)
                     .tracking(1)
                 Spacer()
                 if !controller.log.isEmpty {
-                    Button("Clear") { controller.log = "" }
+                    Button("clear") { controller.log = "" }
                         .buttonStyle(.borderless)
                         .controlSize(.small)
                 }
@@ -213,10 +199,7 @@ struct ServerView: View {
     @ViewBuilder
     private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(title.uppercased())
-                .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                .foregroundStyle(Theme.faint)
-                .tracking(1)
+            SMSectionHeader(title.lowercased(), size: 13)
             content()
         }
     }

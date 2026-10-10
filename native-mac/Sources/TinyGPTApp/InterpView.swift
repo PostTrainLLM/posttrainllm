@@ -1,4 +1,5 @@
 import SwiftUI
+import SaaSMakerUI
 import UniformTypeIdentifiers
 
 /// The Interp tab — posttrainllm's unique-vs-LM-Studio surface. v1 launches
@@ -37,9 +38,8 @@ struct InterpView: View {
 
     private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
-            Text("Interp")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(Theme.fg)
+            SMSectionHeader("interp", size: 18)
+                .fixedSize(horizontal: true, vertical: false)
             Text("decompose what the model learned")
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(Theme.muted)
@@ -90,17 +90,15 @@ struct InterpView: View {
                 if controller.isRunning {
                     Button {
                         controller.cancel()
-                    } label: { Text("Cancel").frame(maxWidth: .infinity) }
+                    } label: { Text("cancel").frame(maxWidth: .infinity) }
                         .controlSize(.large)
-                        .buttonStyle(.borderedProminent)
-                        .tint(Theme.danger)
+                        .instrumentButton(color: Theme.danger)
                 } else {
                     Button {
                         launch()
-                    } label: { Text("Train SAE").frame(maxWidth: .infinity) }
+                    } label: { Text("train sae").frame(maxWidth: .infinity) }
                         .controlSize(.large)
-                        .buttonStyle(.borderedProminent)
-                        .tint(Theme.accent)
+                        .instrumentButton(color: Theme.accent)
                         .disabled(modelPath.isEmpty || corpusPath.isEmpty || outPath.isEmpty)
                 }
 
@@ -116,7 +114,7 @@ struct InterpView: View {
     private var outputArea: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("OUTPUT")
+                Text("output")
                     .font(.system(size: 10, weight: .semibold, design: .monospaced))
                     .foregroundStyle(Theme.faint)
                     .tracking(1)
@@ -127,7 +125,7 @@ struct InterpView: View {
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "doc.text.magnifyingglass")
-                            Text("Reveal").font(.system(size: 11))
+                            Text("reveal").font(Theme.ui(11))
                         }
                     }
                     .buttonStyle(.borderless)
@@ -162,10 +160,7 @@ struct InterpView: View {
     @ViewBuilder
     private func section(_ title: String, @ViewBuilder content: () -> some View) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(title.uppercased())
-                .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                .foregroundStyle(Theme.faint)
-                .tracking(1)
+            SMSectionHeader(title.lowercased(), size: 13)
             content()
         }
     }

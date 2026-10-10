@@ -1,4 +1,5 @@
 import SwiftUI
+import SaaSMakerUI
 
 /// Six workspaces. Factory internally has sub-modes
 /// (pretrain / fine-tune / DPO / distill). The current product center is the
@@ -91,8 +92,8 @@ struct ContentView: View {
         .confirmationDialog("Clear this model's run history?",
                             isPresented: $showClearHistoryConfirmation,
                             titleVisibility: .visible) {
-            Button("Clear history", role: .destructive) { controller.clearHistory() }
-            Button("Cancel", role: .cancel) {}
+            Button("clear history", role: .destructive) { controller.clearHistory() }
+            Button("cancel", role: .cancel) {}
         } message: {
             Text("Completed runs for this model will be removed from this Mac.")
         }
@@ -145,8 +146,8 @@ struct ContentView: View {
                 Image(systemName: icon)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(active ? Theme.accent : Theme.muted)
-                Text(label)
-                    .font(.system(size: 10, weight: active ? .semibold : .medium))
+                Text(label.lowercased())
+                    .font(Theme.ui(10, weight: active ? .semibold : .medium))
                     .foregroundStyle(active ? Theme.fg : Theme.muted)
             }
             .frame(width: 64, height: 44)
@@ -172,8 +173,8 @@ struct ContentView: View {
             tab = which
         } label: {
             VStack(spacing: 6) {
-                Text(label)
-                    .font(.system(size: 13, weight: active ? .semibold : .regular))
+                Text(label.lowercased())
+                    .font(Theme.ui(13, weight: active ? .semibold : .regular))
                     .foregroundStyle(active ? Theme.accent : Theme.muted)
                 Rectangle()
                     .fill(active ? Theme.accent : Color.clear)
@@ -188,7 +189,7 @@ struct ContentView: View {
         VStack(spacing: 0) {
             Text("P")
                 .font(.system(size: 27, weight: .bold, design: .rounded))
-                .foregroundStyle(Theme.accent)
+                .foregroundStyle(Theme.brand)
                 .frame(width: 64, height: 56)
                 .help("posttrainllm · Mac factory")
                 .accessibilityLabel("posttrainllm Mac factory")
@@ -238,7 +239,7 @@ struct ContentView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Gallery")
+                    Text("gallery")
                         .font(.tgDisplay)
                         .foregroundStyle(Theme.fg)
                     Text("models loadable from data/gallery/ + ~/.cache/posttrainllm/runs/ · click an action below each model")
@@ -272,10 +273,10 @@ struct ContentView: View {
         let fileSize = (try? item.url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
         return VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 14) {
-                Text(item.icon).font(.system(size: 30))
+                Text(item.icon).font(Theme.ui(30))
                 VStack(alignment: .leading, spacing: 4) {
                     Text(item.displayName)
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(Theme.ui(17, weight: .semibold))
                         .foregroundStyle(Theme.fg)
                         .lineLimit(1)
                     Text("\(item.url.lastPathComponent)  ·  \(FormatBytes.compact(fileSize))")
@@ -286,13 +287,13 @@ struct ContentView: View {
                 }
                 Spacer(minLength: 0)
             }
-            Text("STARTING PROMPT   " + item.prompt.trimmingCharacters(in: .whitespacesAndNewlines))
+            Text("starting prompt   " + item.prompt.trimmingCharacters(in: .whitespacesAndNewlines))
                 .font(.system(size: 10, design: .monospaced))
                 .foregroundStyle(Theme.muted)
                 .lineLimit(1)
             Divider().background(Theme.line)
             HStack(spacing: 8) {
-                galleryActionButton(label: "Generate", icon: "arrow.up.right", prominent: true) {
+                galleryActionButton(label: "Generate", icon: "arrow.up.right") {
                     selectedItem = item
                     prompt = item.prompt
                     if controller.loadedItem?.id != item.id {
@@ -322,26 +323,21 @@ struct ContentView: View {
             }
         }
         .padding(20)
-        .background(Theme.panel, in: RoundedRectangle(cornerRadius: 13))
-        .overlay(RoundedRectangle(cornerRadius: 13).stroke(Theme.lineStrong))
+        .instrumentCard()
     }
 
     private func galleryActionButton(label: String, icon: String,
-                                     prominent: Bool = false, action: @escaping () -> Void) -> some View {
+                                     action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 5) {
                 Image(systemName: icon)
                     .font(.system(size: 10))
-                Text(label)
+                Text(label.lowercased())
                     .font(.system(size: 11, weight: .medium, design: .monospaced))
             }
-            .foregroundStyle(prominent ? Theme.base : Theme.accent)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(prominent ? Theme.accent : Theme.accent.opacity(0.12),
-                        in: RoundedRectangle(cornerRadius: 7))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(SMButtonStyle(.link))
+        .environment(\.smPalette, Theme.palette.brand(Theme.accent, foreground: Theme.base))
     }
 
     /// Inline grid-card for the Sample placeholder. Click loads the model
@@ -354,10 +350,10 @@ struct ContentView: View {
         } label: {
             HStack(spacing: 12) {
                 Text(item.icon)
-                    .font(.system(size: 24))
+                    .font(Theme.ui(24))
                 VStack(alignment: .leading, spacing: 2) {
                     Text(item.displayName)
-                        .font(.system(size: 13, weight: .medium))
+                        .font(Theme.ui(13, weight: .medium))
                         .foregroundStyle(Theme.fg)
                         .lineLimit(1)
                     Text(item.url.deletingLastPathComponent().lastPathComponent + "/")
@@ -390,8 +386,8 @@ struct ContentView: View {
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundStyle(Theme.faint)
                         .frame(width: 12)
-                    Text("Gallery")
-                        .font(.system(size: 13, weight: .medium))
+                    Text("gallery")
+                        .font(Theme.ui(13, weight: .medium))
                         .foregroundStyle(Theme.muted)
                     Spacer(minLength: 0)
                     Text("\(galleryItems.count)")
@@ -436,7 +432,7 @@ struct ContentView: View {
         } label: {
             HStack(spacing: 10) {
                 Text(item.icon)
-                    .font(.system(size: 18))
+                    .font(Theme.ui(18))
                 Text(item.displayName)
                     .font(.system(size: 13, weight: isSelected ? .medium : .regular))
                     .foregroundStyle(isSelected ? Theme.accent : Theme.fg)
@@ -467,19 +463,17 @@ struct ContentView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 25) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("LOCAL MODEL LIBRARY")
+                    Text("local model library")
                         .font(.system(size: 10, weight: .semibold, design: .monospaced))
                         .tracking(1)
                         .foregroundStyle(Theme.accent)
-                    Text("Pick a model. Start a run.")
-                        .font(.system(size: 27, weight: .semibold))
-                        .foregroundStyle(Theme.fg)
+                    SMSectionHeader("pick a model. start a run.", size: 27)
                     Text("Generate, evaluate, or inspect the checkpoints available on this Mac.")
-                        .font(.system(size: 14))
+                        .font(Theme.ui(14))
                         .foregroundStyle(Theme.muted)
                     if controller.status.contains("failed") {
                         Text(controller.status)
-                            .font(.system(size: 12))
+                            .font(Theme.ui(12))
                             .foregroundStyle(Theme.danger)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -490,7 +484,7 @@ struct ContentView: View {
                             Label("Continue \(loaded.displayName) run", systemImage: "arrow.right")
                         }
                         .buttonStyle(.plain)
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(Theme.ui(12, weight: .semibold))
                         .foregroundStyle(Theme.accent)
                         .padding(.top, 8)
                     }
@@ -501,8 +495,8 @@ struct ContentView: View {
                         Image(systemName: "tray")
                             .font(.system(size: 28))
                             .foregroundStyle(Theme.faint)
-                        Text("No models found")
-                            .font(.system(size: 13, weight: .medium))
+                        Text("no models found")
+                            .font(Theme.ui(13, weight: .medium))
                             .foregroundStyle(Theme.muted)
                         Text("Open a checkpoint with +, browse Hugging Face with the cloud button, or train one in Factory.")
                             .font(.system(size: 11, design: .monospaced))
@@ -515,7 +509,7 @@ struct ContentView: View {
                     // actions so the workspace doubles as a hub: jump straight to
                     // any surface from any model.
                     HStack {
-                        Text("AVAILABLE MODELS")
+                        Text("available models")
                             .font(.system(size: 10, weight: .semibold, design: .monospaced))
                             .tracking(1)
                             .foregroundStyle(Theme.faint)
@@ -557,7 +551,7 @@ struct ContentView: View {
 
                 if controller.isGenerating {
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("GENERATING · LIVE OUTPUT")
+                        Text("generating · live output")
                             .font(.system(size: 10, weight: .semibold, design: .monospaced))
                             .tracking(1)
                             .foregroundStyle(Theme.accent)
@@ -569,24 +563,22 @@ struct ContentView: View {
                     }
                     .padding(24)
                     .frame(maxWidth: .infinity, minHeight: 180, alignment: .topLeading)
-                    .background(Theme.panel, in: RoundedRectangle(cornerRadius: 14))
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Theme.lineStrong))
+                    .instrumentCard()
                 } else if let latest = controller.historyForCurrentModel.last {
                     historyCard(latest, heading: "LATEST RUN")
                 } else {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("READY FOR A RUN")
+                        Text("ready for a run")
                             .font(.system(size: 10, weight: .semibold, design: .monospaced))
                             .tracking(1)
                             .foregroundStyle(Theme.accent)
                         Text("Enter a prompt below to generate with this local model.")
-                            .font(.system(size: 15))
+                            .font(Theme.ui(15))
                             .foregroundStyle(Theme.muted)
                     }
                     .padding(24)
                     .frame(maxWidth: .infinity, minHeight: 180, alignment: .topLeading)
-                    .background(Theme.panel, in: RoundedRectangle(cornerRadius: 14))
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(Theme.lineStrong))
+                    .instrumentCard()
                 }
 
                 let earlierRuns = controller.isGenerating
@@ -613,7 +605,7 @@ struct ContentView: View {
     private func historyCard(_ item: ModelController.HistoryItem, heading: String) -> some View {
         VStack(alignment: .leading, spacing: 18) {
             HStack {
-                Text(heading).foregroundStyle(Theme.accent)
+                Text(heading.lowercased()).foregroundStyle(Theme.accent)
                 Spacer()
                 Text(item.timestamp, format: .dateTime.hour().minute().second())
                     .foregroundStyle(Theme.faint)
@@ -622,7 +614,7 @@ struct ContentView: View {
             .tracking(1)
             Divider().background(Theme.line)
             VStack(alignment: .leading, spacing: 8) {
-                Text("PROMPT")
+                Text("prompt")
                     .font(.system(size: 10, weight: .semibold, design: .monospaced))
                     .foregroundStyle(Theme.faint)
                     .tracking(1)
@@ -632,7 +624,7 @@ struct ContentView: View {
                     .textSelection(.enabled)
             }
             VStack(alignment: .leading, spacing: 8) {
-                Text("COMPLETION")
+                Text("completion")
                     .font(.system(size: 10, weight: .semibold, design: .monospaced))
                     .foregroundStyle(Theme.faint)
                     .tracking(1)
@@ -654,7 +646,7 @@ struct ContentView: View {
                     let pb = NSPasteboard.general
                     pb.clearContents()
                     pb.setString(item.output, forType: .string)
-                } label: { Text("Copy") }
+                } label: { Text("copy") }
                 .buttonStyle(.plain)
                 .foregroundStyle(Theme.accent)
                 .accessibilityLabel("Copy generated text")
@@ -664,8 +656,7 @@ struct ContentView: View {
         }
         .padding(24)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.panel, in: RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Theme.lineStrong))
+        .instrumentCard()
     }
 
     private func welcomeRow(icon: String, title: String, description: String) -> some View {
@@ -676,10 +667,10 @@ struct ContentView: View {
                 .frame(width: 24, height: 24, alignment: .center)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(Theme.ui(13, weight: .semibold))
                     .foregroundStyle(Theme.fg)
                 Text(description)
-                    .font(.system(size: 12))
+                    .font(Theme.ui(12))
                     .foregroundStyle(Theme.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -695,15 +686,13 @@ struct ContentView: View {
                         Button {
                             showModelLibrary = true
                         } label: {
-                            Text("GALLERY  /  \(controller.loadedItem?.displayName.uppercased() ?? "MODEL")")
+                            Text("gallery  /  \(controller.loadedItem?.displayName ?? "model")")
                         }
                         .buttonStyle(.plain)
                             .font(.system(size: 10, weight: .semibold, design: .monospaced))
                             .tracking(1)
                             .foregroundStyle(Theme.accent)
-                        Text("Run a local model")
-                            .font(.system(size: 24, weight: .semibold))
-                            .foregroundStyle(Theme.fg)
+                        SMSectionHeader("run a local model", size: 24)
                     }
                     Spacer(minLength: 8)
                     Button {
@@ -724,7 +713,7 @@ struct ContentView: View {
                     Button {
                         showInspector.toggle()
                     } label: {
-                        Label("Settings", systemImage: "slider.horizontal.3")
+                        Label("settings", systemImage: "slider.horizontal.3")
                     }
                     .buttonStyle(.plain)
                     .foregroundStyle(showInspector ? Theme.accent : Theme.muted)
@@ -733,10 +722,10 @@ struct ContentView: View {
 
                 HStack(spacing: 14) {
                     Text(controller.loadedItem?.icon ?? "•")
-                        .font(.system(size: 25))
+                        .font(Theme.ui(25))
                     VStack(alignment: .leading, spacing: 4) {
                         Text(controller.loadedItem?.displayName ?? "")
-                            .font(.system(size: 16, weight: .semibold))
+                            .font(Theme.ui(16, weight: .semibold))
                             .foregroundStyle(Theme.fg)
                         Text("\(formattedInt(controller.paramCount)) parameters  ·  \(controller.deviceName)")
                             .font(.system(size: 11, design: .monospaced))
@@ -819,7 +808,7 @@ struct ContentView: View {
             // Keep the prompt and primary action anchored in the viewport.
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Text("NEW PROMPT")
+                    Text("new prompt")
                         .font(.system(size: 10, weight: .semibold, design: .monospaced))
                         .tracking(1)
                         .foregroundStyle(Theme.accent)
@@ -839,14 +828,14 @@ struct ContentView: View {
                         .accessibilityLabel("Prompt")
 
                     if controller.isGenerating || (compareMode && controllerB.isGenerating) {
-                        Button("Stop") {
+                        Button("stop") {
                             controller.cancelGeneration()
                             if compareMode { controllerB.cancelGeneration() }
                         }
                         .keyboardShortcut(.cancelAction)
-                        .buttonStyle(PrimaryButtonStyle(color: Theme.danger))
+                        .instrumentButton(color: Theme.danger)
                     } else {
-                        Button("Generate") {
+                        Button("generate") {
                             controller.generate(prompt: prompt, maxTokens: maxTokens,
                                                 temperature: Float(temperature),
                                                 topK: topK,
@@ -859,7 +848,7 @@ struct ContentView: View {
                             }
                         }
                         .keyboardShortcut(.return, modifiers: [.command])
-                        .buttonStyle(PrimaryButtonStyle(color: Theme.accent))
+                        .instrumentButton(color: Theme.accent)
                         .disabled(controller.loadedItem == nil ||
                                   (compareMode && controllerB.loadedItem == nil))
                     }
@@ -872,7 +861,7 @@ struct ContentView: View {
                     .disabled(controller.loadedItem == nil || controller.isEvaluating)
                     .help("Score a UTF-8 text file with cross-entropy, BPB, and perplexity")
                     if !controller.historyForCurrentModel.isEmpty {
-                        Button("Clear history") { showClearHistoryConfirmation = true }
+                        Button("clear history") { showClearHistoryConfirmation = true }
                             .buttonStyle(.plain)
                             .help("Clear completion history for the current model only")
                     }
@@ -889,7 +878,7 @@ struct ContentView: View {
 
             if let result = controller.evalResult {
                 HStack {
-                    Text("EVAL")
+                    Text("eval")
                         .font(.system(size: 9, weight: .semibold, design: .monospaced))
                         .foregroundStyle(Theme.accent)
                         .tracking(1)
@@ -914,7 +903,7 @@ struct ContentView: View {
     private var samplerInspector: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
-                Text("SAMPLING")
+                Text("sampling")
                     .font(.system(size: 10, weight: .semibold, design: .monospaced))
                     .foregroundStyle(Theme.faint)
                     .tracking(1)
@@ -948,7 +937,7 @@ struct ContentView: View {
 
                 Divider().background(Theme.line).padding(.vertical, 4)
 
-                Text("LENGTH")
+                Text("length")
                     .font(.system(size: 10, weight: .semibold, design: .monospaced))
                     .foregroundStyle(Theme.faint)
                     .tracking(1)
@@ -981,9 +970,9 @@ struct ContentView: View {
                 } label: {
                     HStack {
                         Image(systemName: "arrow.counterclockwise")
-                        Text("Reset to defaults")
+                        Text("reset to defaults")
                     }
-                    .font(.system(size: 11))
+                    .font(Theme.ui(11))
                     .foregroundStyle(Theme.muted)
                 }
                 .buttonStyle(.plain)
@@ -1001,7 +990,7 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(label)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(Theme.ui(12, weight: .medium))
                     .foregroundStyle(Theme.fg)
                 Spacer()
                 Text(String(format: format, value))
@@ -1017,7 +1006,7 @@ struct ContentView: View {
             .controlSize(.small)
             .tint(Theme.accent)
             Text(hint)
-                .font(.system(size: 10))
+                .font(Theme.ui(10))
                 .foregroundStyle(Theme.faint)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
@@ -1076,24 +1065,5 @@ struct ContentView: View {
         let f = NumberFormatter()
         f.numberStyle = .decimal
         return f.string(from: NSNumber(value: n)) ?? "\(n)"
-    }
-}
-
-private struct PrimaryButtonStyle: ButtonStyle {
-    let color: Color
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(color)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(color.opacity(configuration.isPressed ? 0.25 : 0.15))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 6)
-                    .stroke(color.opacity(0.5), lineWidth: 1)
-            )
     }
 }

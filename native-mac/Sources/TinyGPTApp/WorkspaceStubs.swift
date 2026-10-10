@@ -15,7 +15,7 @@ struct LearnView: View {
         HStack(spacing: 0) {
             // Left: doc list
             VStack(alignment: .leading, spacing: 0) {
-                Text("Learn")
+                Text("learn")
                     .font(.tgDisplay)
                     .foregroundStyle(Theme.fg)
                     .padding(.horizontal, 20)
@@ -117,14 +117,14 @@ private struct MarkdownView: View {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(doc.title)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(Theme.ui(16, weight: .semibold))
                         .foregroundStyle(Theme.fg)
                     Text(doc.relPath)
                         .font(.system(size: 10, design: .monospaced))
                         .foregroundStyle(Theme.faint)
                 }
                 Spacer()
-                Button("Open in Finder") {
+                Button("open in finder") {
                     NSWorkspace.shared.activateFileViewerSelecting([doc.url])
                 }
                 .controlSize(.small)
@@ -136,7 +136,7 @@ private struct MarkdownView: View {
 
             ScrollView {
                 Text(attributed)
-                    .font(.system(size: 13))
+                    .font(Theme.ui(13))
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 32)
@@ -282,7 +282,7 @@ struct WorkspaceShelf: View {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(title)
-                        .font(.system(size: 18, weight: .semibold))
+                        .font(Theme.ui(18, weight: .semibold))
                         .foregroundStyle(Theme.fg)
                     Text(tagline)
                         .font(.system(size: 12, design: .monospaced))
@@ -296,7 +296,7 @@ struct WorkspaceShelf: View {
                             .padding(.top, 6)
                         VStack(alignment: .leading, spacing: 4) {
                             Text(item.primary)
-                                .font(.system(size: 13, weight: .semibold))
+                                .font(Theme.ui(13, weight: .semibold))
                                 .foregroundStyle(Theme.fg)
                             Text(item.detail)
                                 .font(.system(size: 11, design: .monospaced))
@@ -307,9 +307,7 @@ struct WorkspaceShelf: View {
                     }
                     .padding(14)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Theme.panel)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.line))
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .instrumentCard()
                 }
             }
             .padding(.horizontal, 32)

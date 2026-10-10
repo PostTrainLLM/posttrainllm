@@ -1,4 +1,5 @@
 import SwiftUI
+import SaaSMakerUI
 import AppKit
 
 struct EvalView: View {
@@ -21,20 +22,14 @@ struct EvalView: View {
 
     private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
-            Text("Eval")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(Theme.fg)
+            SMSectionHeader("eval", size: 18)
+                .fixedSize(horizontal: true, vertical: false)
             Text("score specialists without leaving the app")
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(Theme.muted)
             Spacer()
             if controller.isRunning {
-                HStack(spacing: 6) {
-                    Circle().fill(Theme.accent).frame(width: 7, height: 7)
-                    Text("RUNNING")
-                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(Theme.accent)
-                }
+                SMStatusPill("running", tone: .success)
             }
         }
         .padding(.horizontal, 24)
@@ -47,7 +42,7 @@ struct EvalView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Picker("", selection: $controller.mode) {
                         ForEach(EvalMode.allCases) { mode in
-                            Text(mode.rawValue).tag(mode)
+                            Text(mode.rawValue.lowercased()).tag(mode)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -111,18 +106,16 @@ struct EvalView: View {
 
                 if controller.isRunning {
                     Button { controller.cancel() } label: {
-                        Text("Cancel").frame(maxWidth: .infinity)
+                        Text("cancel").frame(maxWidth: .infinity)
                     }
                     .controlSize(.large)
-                    .buttonStyle(.borderedProminent)
-                    .tint(Theme.danger)
+                    .instrumentButton(color: Theme.danger)
                 } else {
                     Button { controller.run() } label: {
                         Text(controller.mode == .emergence ? "Sweep" : "Run").frame(maxWidth: .infinity)
                     }
                     .controlSize(.large)
-                    .buttonStyle(.borderedProminent)
-                    .tint(Theme.accent)
+                    .instrumentButton(color: Theme.accent)
                 }
 
                 // Only show Output path AFTER a run has produced rows.
@@ -137,7 +130,7 @@ struct EvalView: View {
                         Button {
                             controller.revealResults()
                         } label: {
-                            Label("Reveal in Finder", systemImage: "folder")
+                            Label("reveal in finder", systemImage: "folder")
                         }
                     }
                 }
@@ -150,7 +143,7 @@ struct EvalView: View {
                             } label: {
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text(item.mode)
-                                        .font(.system(size: 11, weight: .semibold))
+                                        .font(Theme.ui(11, weight: .semibold))
                                     Text("\(item.rowCount) rows · \(URL(fileURLWithPath: item.resultsPath).lastPathComponent)")
                                         .font(.system(size: 10, design: .monospaced))
                                         .foregroundStyle(Theme.faint)
@@ -170,7 +163,7 @@ struct EvalView: View {
         VStack(spacing: 0) {
             if controller.mode == .emergence {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("EMERGENCE")
+                    Text("emergence")
                         .font(.system(size: 10, weight: .semibold, design: .monospaced))
                         .foregroundStyle(Theme.faint)
                     EvalChart(rows: controller.rows)
@@ -197,7 +190,7 @@ struct EvalView: View {
         let artifacts = pastArtifacts()
         return VStack(alignment: .leading, spacing: 6) {
             if !artifacts.isEmpty {
-                Text("PAST RESULTS")
+                Text("past results")
                     .font(.system(size: 10, weight: .semibold, design: .monospaced))
                     .foregroundStyle(Theme.faint)
                     .tracking(1)
@@ -296,6 +289,8 @@ struct EvalView: View {
                     }
                     .padding(20)
                 } else {
+                    ScrollView(.horizontal) {
+                        VStack(alignment: .leading, spacing: 8) {
                     headerRow
                     ForEach(controller.rows) { row in
                         HStack(spacing: 10) {
@@ -313,6 +308,9 @@ struct EvalView: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
                         .background(Theme.panel.opacity(0.7))
+                    }
+                        }
+                        .frame(minWidth: 640, alignment: .leading)
                     }
                 }
             }
@@ -338,7 +336,7 @@ struct EvalView: View {
     private var logPane: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Text("LOG")
+                Text("log")
                     .font(.system(size: 10, weight: .semibold, design: .monospaced))
                     .foregroundStyle(Theme.faint)
                 Spacer()
@@ -364,10 +362,7 @@ struct EvalView: View {
 
     private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(title.uppercased())
-                .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                .foregroundStyle(Theme.faint)
-                .tracking(1)
+            SMSectionHeader(title.lowercased(), size: 13)
             content()
         }
     }

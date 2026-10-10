@@ -1,4 +1,5 @@
 import SwiftUI
+import SaaSMakerUI
 import AppKit
 import TinyGPTCheck
 
@@ -29,9 +30,7 @@ struct ModelCheckView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Check model compatibility")
-                .font(.tgDisplay)
-                .foregroundStyle(Theme.fg)
+            SMSectionHeader("check model compatibility", size: 24)
             Text("paste a Hugging Face model URL — reports what runs here, what needs changes, and what an agent should investigate · read-only, nothing is installed or run")
                 .font(.system(size: 12, design: .monospaced))
                 .foregroundStyle(Theme.muted)
@@ -50,8 +49,8 @@ struct ModelCheckView: View {
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.line))
                 .clipShape(RoundedRectangle(cornerRadius: 6))
                 .onSubmit { controller.check() }
-            Button("Analyze") { controller.check() }
-                .buttonStyle(CLIRunButtonStyle())
+            Button("analyze") { controller.check() }
+                .instrumentButton()
                 .disabled(controller.isChecking || controller.input.trimmingCharacters(in: .whitespaces).isEmpty)
         }
     }
@@ -72,7 +71,7 @@ struct ModelCheckView: View {
                     CLIField(label: "MACOS", placeholder: "26.0", text: $controller.manualMacOS)
                 }
                 Text("environment is marked \"manual\" in the report — the machine running this app is never used as the target")
-                    .font(.system(size: 10))
+                    .font(Theme.ui(10))
                     .foregroundStyle(Theme.faint)
             }
         }
@@ -89,9 +88,7 @@ struct ModelCheckView: View {
                 .foregroundStyle(Theme.faint)
         }
         .padding(12)
-        .background(Theme.panel)
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.line))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .instrumentCard()
     }
 
     private var nextStageHint: String {
@@ -160,7 +157,7 @@ struct ModelCheckView: View {
                                 .font(.system(size: 10, weight: .semibold, design: .monospaced))
                                 .foregroundStyle(operationColor(operation.status))
                             Text(operation.detail)
-                                .font(.system(size: 11))
+                                .font(Theme.ui(11))
                                 .foregroundStyle(Theme.muted)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -182,7 +179,7 @@ struct ModelCheckView: View {
                                 .font(.system(size: 9, weight: .semibold, design: .monospaced))
                                 .foregroundStyle(stageColor(stage.status))
                             Text(stage.detail)
-                                .font(.system(size: 11))
+                                .font(Theme.ui(11))
                                 .foregroundStyle(Theme.muted)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
@@ -211,7 +208,7 @@ struct ModelCheckView: View {
                     .foregroundStyle(Theme.fg)
             }
             Text(r.verdictSummary)
-                .font(.system(size: 12))
+                .font(Theme.ui(12))
                 .foregroundStyle(Theme.muted)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -257,7 +254,7 @@ struct ModelCheckView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 8) {
                             Text(p.name)
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(Theme.ui(12, weight: .semibold))
                                 .foregroundStyle(Theme.fg)
                             Text(p.status.displayName)
                                 .font(.system(size: 9, design: .monospaced))
@@ -267,7 +264,7 @@ struct ModelCheckView: View {
                                 .foregroundStyle(Theme.faint)
                         }
                         Text(p.detail)
-                            .font(.system(size: 11))
+                            .font(Theme.ui(11))
                             .foregroundStyle(Theme.muted)
                             .fixedSize(horizontal: false, vertical: true)
                         if let s = p.source {
@@ -291,7 +288,7 @@ struct ModelCheckView: View {
                             .foregroundStyle(Theme.warn)
                             .frame(width: 110, alignment: .leading)
                         Text(c.detail + (c.sizeBytes.map { " (\(ModelCheckReport.fmtBytes($0))\(c.estimate ? ", estimate" : ""))" } ?? ""))
-                            .font(.system(size: 11))
+                            .font(Theme.ui(11))
                             .foregroundStyle(Theme.fg)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -308,14 +305,14 @@ struct ModelCheckView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 8) {
                             Text(tool.name)
-                                .font(.system(size: 12, weight: .semibold))
+                                .font(Theme.ui(12, weight: .semibold))
                                 .foregroundStyle(tool.applies ? Theme.fg : Theme.faint)
                             Text(tool.applies ? tool.availability.replacingOccurrences(of: "_", with: " ") : "not applicable")
                                 .font(.system(size: 9, design: .monospaced))
                                 .foregroundStyle(toolAvailabilityColor(tool))
                         }
                         Text(tool.detail)
-                            .font(.system(size: 11))
+                            .font(Theme.ui(11))
                             .foregroundStyle(tool.applies ? Theme.muted : Theme.faint)
                             .fixedSize(horizontal: false, vertical: true)
                         if tool.applies, let command = tool.run {
@@ -346,7 +343,7 @@ struct ModelCheckView: View {
             section("LIMITATIONS") {
                 ForEach(r.limitations, id: \.self) { l in
                     Text("• \(l)")
-                        .font(.system(size: 11))
+                        .font(Theme.ui(11))
                         .foregroundStyle(Theme.muted)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -357,7 +354,7 @@ struct ModelCheckView: View {
             ForEach(Array(r.evidence.enumerated()), id: \.offset) { _, e in
                 VStack(alignment: .leading, spacing: 2) {
                     Text("[\(e.kind)] \(e.detail)")
-                        .font(.system(size: 11))
+                        .font(Theme.ui(11))
                         .foregroundStyle(Theme.muted)
                         .fixedSize(horizontal: false, vertical: true)
                     Text(e.source)
@@ -375,23 +372,23 @@ struct ModelCheckView: View {
         section("NEXT ACTION") {
             ForEach(r.nextActions, id: \.self) { a in
                 Text("• \(a)")
-                    .font(.system(size: 11))
+                    .font(Theme.ui(11))
                     .foregroundStyle(Theme.fg)
                     .fixedSize(horizontal: false, vertical: true)
             }
             HStack(spacing: 10) {
-                Button("Copy next steps") {
+                Button("copy next steps") {
                     copyToPasteboard(r.nextActions.map { "• \($0)" }.joined(separator: "\n"))
                 }
                 .font(.system(size: 11, design: .monospaced))
                 .buttonStyle(.bordered)
-                Button("Copy agent prompt") {
+                Button("copy agent prompt") {
                     copyToPasteboard(r.agentPrompt)
                 }
                 .font(.system(size: 11, design: .monospaced))
-                .buttonStyle(.borderedProminent)
+                .instrumentButton()
                 .tint(Theme.accent)
-                Button("Copy JSON report") {
+                Button("copy json report") {
                     copyToPasteboard((try? r.encoded()) ?? "")
                 }
                 .font(.system(size: 11, design: .monospaced))
@@ -399,23 +396,18 @@ struct ModelCheckView: View {
             }
             .padding(.top, 6)
             Text("the agent prompt carries model, revision, environment, findings, and open questions — paste it into an agent to investigate further")
-                .font(.system(size: 10))
+                .font(Theme.ui(10))
                 .foregroundStyle(Theme.faint)
         }
     }
 
     private func section<Content: View>(_ title: String, @ViewBuilder _ content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                .foregroundStyle(Theme.faint)
-                .tracking(1)
+            SMSectionHeader(title.lowercased(), size: 13)
             VStack(alignment: .leading, spacing: 6) { content() }
                 .padding(14)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Theme.panel)
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Theme.line))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .instrumentCard()
         }
     }
 
@@ -426,7 +418,7 @@ struct ModelCheckView: View {
                 .foregroundStyle(Theme.faint)
                 .frame(width: 110, alignment: .leading)
             Text(value)
-                .font(.system(size: 11))
+                .font(Theme.ui(11))
                 .foregroundStyle(Theme.fg)
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
@@ -435,7 +427,7 @@ struct ModelCheckView: View {
 
     private func labeledText(_ s: String) -> some View {
         Text(s)
-            .font(.system(size: 11))
+            .font(Theme.ui(11))
             .foregroundStyle(Theme.muted)
             .fixedSize(horizontal: false, vertical: true)
     }

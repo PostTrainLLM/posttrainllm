@@ -1,4 +1,5 @@
 import SwiftUI
+import SaaSMakerUI
 import AppKit
 import TinyGPTModel
 
@@ -24,9 +25,8 @@ struct InferenceHeatmapView: View {
 
     private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
-            Text("Trace")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(Theme.fg)
+            SMSectionHeader("trace", size: 18)
+                .fixedSize(horizontal: true, vertical: false)
             Text("inference heatmap")
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(Theme.muted)
@@ -46,11 +46,11 @@ struct InferenceHeatmapView: View {
             Button {
                 openTrace()
             } label: {
-                Label("Open Trace JSON", systemImage: "doc.badge.magnifyingglass")
+                Label("open trace json", systemImage: "doc.badge.magnifyingglass")
                     .frame(maxWidth: .infinity)
             }
             .controlSize(.large)
-            .buttonStyle(.borderedProminent)
+            .instrumentButton()
             .tint(Theme.accent)
 
             if !tracePath.isEmpty {
@@ -101,7 +101,7 @@ struct InferenceHeatmapView: View {
                 } else {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Open a trace JSON")
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(Theme.ui(20, weight: .semibold))
                             .foregroundStyle(Theme.fg)
                         Text("Generate one with `posttrainllm serve --trace-infer --trace-dir <dir>`.")
                             .font(.system(size: 12, design: .monospaced))
@@ -129,7 +129,7 @@ struct InferenceHeatmapView: View {
         let rows = aggregateRows(trace)
         let maxMs = max(rows.map(\.durationMs).max() ?? 1, 1)
         return VStack(alignment: .leading, spacing: 8) {
-            Text("HEATMAP")
+            Text("heatmap")
                 .font(.system(size: 10, weight: .semibold, design: .monospaced))
                 .foregroundStyle(Theme.faint)
                 .tracking(1)
@@ -168,7 +168,7 @@ struct InferenceHeatmapView: View {
         }
         .prefix(12)
         return VStack(alignment: .leading, spacing: 8) {
-            Text("SLOWEST TOKENS")
+            Text("slowest tokens")
                 .font(.system(size: 10, weight: .semibold, design: .monospaced))
                 .foregroundStyle(Theme.faint)
                 .tracking(1)
@@ -211,10 +211,7 @@ struct InferenceHeatmapView: View {
 
     private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(title.uppercased())
-                .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                .foregroundStyle(Theme.faint)
-                .tracking(1)
+            SMSectionHeader(title.lowercased(), size: 13)
             content()
         }
     }

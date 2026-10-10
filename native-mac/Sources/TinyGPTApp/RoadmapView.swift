@@ -1,4 +1,5 @@
 import SwiftUI
+import SaaSMakerUI
 
 /// Legacy roadmap workspace. It is not exposed in ContentView.
 ///
@@ -10,9 +11,7 @@ struct RoadmapView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 28) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Roadmap")
-                        .font(.tgDisplay)
-                        .foregroundStyle(Theme.fg)
+                    SMSectionHeader("roadmap", size: 24)
                     Text("North Star: (speed × accuracy) / cost. ≥5% per 2-week investment to make the queue.")
                         .font(.system(size: 12, design: .monospaced))
                         .foregroundStyle(Theme.muted)
@@ -105,10 +104,7 @@ struct RoadmapView: View {
 
     private func roadmapSection(title: String, items: [Item]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                .foregroundStyle(Theme.faint)
-                .tracking(1)
+            SMSectionHeader(title.lowercased(), size: 13)
             ForEach(items) { item in
                 HStack(alignment: .top, spacing: 14) {
                     Image(systemName: item.icon)
@@ -118,15 +114,9 @@ struct RoadmapView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         HStack(spacing: 8) {
                             Text(item.name)
-                                .font(.system(size: 13, weight: .semibold))
+                                .font(Theme.ui(13, weight: .semibold))
                                 .foregroundStyle(Theme.fg)
-                            Text(item.status.label)
-                                .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                                .foregroundStyle(item.status.color)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 1)
-                                .background(item.status.color.opacity(0.15))
-                                .cornerRadius(3)
+                            SMStatusPill(item.status.label.lowercased(), tone: item.status.tone)
                         }
                         Text(item.desc)
                             .font(.system(size: 11, design: .monospaced))
@@ -138,9 +128,7 @@ struct RoadmapView: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Theme.panel)
-                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.line))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .instrumentCard()
             }
         }
     }
@@ -162,12 +150,20 @@ struct RoadmapView: View {
             case .rejected: return "REJECTED"
             }
         }
+        var tone: SMStatusPill.Tone {
+            switch self {
+            case .shipped: return .success
+            case .inFlight: return .brand
+            case .queued: return .warning
+            case .rejected: return .danger
+            }
+        }
         var color: Color {
             switch self {
-            case .shipped:  return .green
-            case .inFlight: return .blue
-            case .queued:   return .orange
-            case .rejected: return .red
+            case .shipped:  return Theme.accent
+            case .inFlight: return Theme.brand
+            case .queued:   return Theme.warn
+            case .rejected: return Theme.danger
             }
         }
     }

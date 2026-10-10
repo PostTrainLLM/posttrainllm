@@ -137,7 +137,7 @@ struct CLIPathField: View {
                     .padding(.vertical, 6)
                     .background(Theme.panel)
                     .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.line))
-                Button("Browse…") { browse() }
+                Button("browse…") { browse() }
                     .font(.system(size: 10, design: .monospaced))
                     .buttonStyle(.plain)
                     .foregroundStyle(Theme.accent)
@@ -157,20 +157,6 @@ struct CLIPathField: View {
             panel.allowsMultipleSelection = false
             if panel.runModal() == .OK, let url = panel.url { path = url.path }
         }
-    }
-}
-
-/// Filled action button used to launch a CLI command.
-struct CLIRunButtonStyle: ButtonStyle {
-    var color: Color = Theme.accent
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 12, weight: .semibold, design: .monospaced))
-            .foregroundStyle(Theme.base)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(color.opacity(configuration.isPressed ? 0.75 : 1))
-            .clipShape(RoundedRectangle(cornerRadius: 5))
     }
 }
 

@@ -30,7 +30,7 @@ struct RunsHubView: View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
                 Picker("", selection: $mode) {
-                    ForEach(Mode.allCases) { m in Text(m.rawValue).tag(m) }
+                    ForEach(Mode.allCases) { m in Text(m.rawValue.lowercased()).tag(m) }
                 }
                 .pickerStyle(.segmented)
                 .frame(maxWidth: 620)
@@ -41,16 +41,22 @@ struct RunsHubView: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 14)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.panel.opacity(0.5))
             .overlay(Rectangle().fill(Theme.line).frame(height: 1), alignment: .bottom)
 
-            Group {
-                switch mode {
-                case .factoryRun:  FactoryRunView()
-                case .evalGate:    EvalGateView()
-                case .evalCompare: EvalCompareView()
-                case .sqlEval:     SQLEvalView()
-                case .generate:    GenerateView()
+            GeometryReader { geometry in
+                ScrollView {
+                    Group {
+                        switch mode {
+                        case .factoryRun:  FactoryRunView()
+                        case .evalGate:    EvalGateView()
+                        case .evalCompare: EvalCompareView()
+                        case .sqlEval:     SQLEvalView()
+                        case .generate:    GenerateView()
+                        }
+                    }
+                    .frame(minHeight: geometry.size.height, alignment: .topLeading)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -87,7 +93,7 @@ struct FactoryRunView: View {
                 HStack(alignment: .bottom, spacing: 8) {
                     CLIPathField(label: "Run root", placeholder: "runs", path: $runRoot,
                                  chooseDirectories: true)
-                    Button("Refresh") { refreshDiscovery() }
+                    Button("refresh") { refreshDiscovery() }
                         .buttonStyle(.bordered)
                 }
                 if !discoveryError.isEmpty {

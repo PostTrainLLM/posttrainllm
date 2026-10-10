@@ -1,4 +1,5 @@
 import SwiftUI
+import SaaSMakerUI
 
 /// Preference-tuning (DPO / SimPO / ORPO / KTO) as a real GUI flow over the CLI.
 /// Replaces the old DPOStubView — builds the `posttrainllm dpo` invocation from
@@ -134,9 +135,7 @@ struct CommandHeader: View {
     let subtitle: String
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(title)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Theme.fg)
+            SMSectionHeader(title.lowercased(), size: 18)
             Text(subtitle)
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(Theme.muted)
@@ -153,18 +152,15 @@ struct CommandControls: View {
     var body: some View {
         HStack(spacing: 12) {
             if runner.isRunning {
-                Button("Stop") { runner.cancel() }
-                    .buttonStyle(CLIRunButtonStyle(color: Theme.danger))
+                Button("stop") { runner.cancel() }
+                    .instrumentButton(color: Theme.danger)
             } else {
-                Button("Run") { run() }
-                    .buttonStyle(CLIRunButtonStyle())
+                Button("run") { run() }
+                    .instrumentButton()
                     .disabled(!canRun)
-                    .opacity(canRun ? 1 : 0.45)
             }
             if let code = runner.exitCode {
-                Text(code == 0 ? "✓ exit 0" : "✗ exit \(code)")
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundStyle(code == 0 ? Theme.accent : Theme.danger)
+                SMStatusPill(code == 0 ? "exit 0" : "exit \(code)", tone: code == 0 ? .success : .danger)
             }
             if let err = runner.lastError {
                 Text(err).font(.system(size: 11, design: .monospaced)).foregroundStyle(Theme.danger)

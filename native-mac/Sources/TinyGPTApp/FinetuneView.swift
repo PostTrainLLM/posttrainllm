@@ -1,4 +1,5 @@
 import SwiftUI
+import SaaSMakerUI
 import UniformTypeIdentifiers
 import AppKit
 
@@ -37,9 +38,8 @@ struct FinetuneView: View {
 
     private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: 12) {
-            Text("Fine-tune")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(Theme.fg)
+            SMSectionHeader("fine-tune", size: 18)
+                .fixedSize(horizontal: true, vertical: false)
             Text("LoRA adapter on top of a frozen base · ~100KB-1MB output")
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(Theme.muted)
@@ -66,13 +66,13 @@ struct FinetuneView: View {
                 corpusPicker
                 Spacer()
                 if controller.isTraining {
-                    Button("Stop") { controller.cancel() }
+                    Button("stop") { controller.cancel() }
                         .keyboardShortcut(.cancelAction)
-                        .buttonStyle(FinetunePrimaryButtonStyle(color: Theme.danger))
+                        .instrumentButton(color: Theme.danger)
                 } else {
-                    Button("Start") { controller.start() }
+                    Button("start") { controller.start() }
                         .keyboardShortcut(.return, modifiers: [.command])
-                        .buttonStyle(FinetunePrimaryButtonStyle(color: Theme.accent))
+                        .instrumentButton(color: Theme.accent)
                         .disabled(controller.basePath == nil || controller.corpusPath == nil)
                 }
             }
@@ -129,7 +129,7 @@ struct FinetuneView: View {
                     }
                 }
                 Divider()
-                Button("Other file…") { pickCorpusFile() }
+                Button("other file…") { pickCorpusFile() }
             } label: {
                 if let c = selectedCorpus {
                     HStack {
@@ -269,24 +269,5 @@ struct FinetuneView: View {
         if n >= 1_000_000 { return String(format: "%.1fMB", Double(n) / 1_000_000) }
         if n >= 1_000 { return String(format: "%.0fKB", Double(n) / 1_000) }
         return "\(n)B"
-    }
-}
-
-private struct FinetunePrimaryButtonStyle: ButtonStyle {
-    let color: Color
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(color)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(color.opacity(configuration.isPressed ? 0.25 : 0.15))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 6)
-                    .stroke(color.opacity(0.5), lineWidth: 1)
-            )
     }
 }
