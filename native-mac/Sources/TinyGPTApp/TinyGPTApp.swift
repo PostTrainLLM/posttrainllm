@@ -1,4 +1,5 @@
 import SwiftUI
+import SaaSMakerUI
 import AppKit
 
 @main
@@ -8,6 +9,7 @@ struct TinyGPTApp: App {
     var body: some Scene {
         Window("posttrainllm", id: "main") {
             ContentView()
+                .smTheme(Theme.palette)
                 .frame(minWidth: 920, minHeight: 600)
                 .preferredColorScheme(.dark)
         }

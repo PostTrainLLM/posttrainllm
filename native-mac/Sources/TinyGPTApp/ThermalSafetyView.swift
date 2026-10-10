@@ -21,10 +21,10 @@ struct ThermalSafetyBanner: View {
                     .frame(width: 18)
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Training runs the CPU and GPU at sustained load.")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(Theme.ui(12, weight: .semibold))
                         .foregroundStyle(Theme.fg)
                     Text("Use a hard surface with clear airflow. A laptop stand or clamshell setup is better for long runs. Do not cover the keyboard or bottom vents.")
-                        .font(.system(size: 11))
+                        .font(Theme.ui(11))
                         .foregroundStyle(Theme.muted)
                         .fixedSize(horizontal: false, vertical: true)
                 }

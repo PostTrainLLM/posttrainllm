@@ -35,7 +35,7 @@ struct HFBrowserView: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text("HuggingFace models")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(Theme.ui(16, weight: .semibold))
                     .foregroundStyle(Theme.fg)
                 Text("download to ~/Library/Application Support/posttrainllm/hf/")
                     .font(.system(size: 10, design: .monospaced))
@@ -54,7 +54,7 @@ struct HFBrowserView: View {
 
     private var promptSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("DOWNLOAD")
+            Text("download")
                 .font(.system(size: 10, weight: .semibold, design: .monospaced))
                 .foregroundStyle(Theme.faint)
                 .tracking(1)
@@ -68,14 +68,14 @@ struct HFBrowserView: View {
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Theme.line))
                     .clipShape(RoundedRectangle(cornerRadius: 6))
                     .onSubmit { startDownload() }
-                Button("Download") { startDownload() }
+                Button("download") { startDownload() }
                     .controlSize(.regular)
-                    .buttonStyle(.borderedProminent)
+                    .instrumentButton()
                     .tint(Theme.accent)
                     .disabled(controller.isDownloading || repoInput.isEmpty)
             }
             Text("`owner/repo` format. Public models download immediately; gated/private models need `HF_TOKEN` in your environment.")
-                .font(.system(size: 10))
+                .font(Theme.ui(10))
                 .foregroundStyle(Theme.faint)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -91,7 +91,7 @@ struct HFBrowserView: View {
                     .truncationMode(.middle)
                 Spacer()
                 Button { controller.cancel() } label: {
-                    Text("Cancel").font(.system(size: 11))
+                    Text("cancel").font(Theme.ui(11))
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
@@ -112,7 +112,7 @@ struct HFBrowserView: View {
 
     private var localSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("DOWNLOADED")
+            Text("downloaded")
                 .font(.system(size: 10, weight: .semibold, design: .monospaced))
                 .foregroundStyle(Theme.faint)
                 .tracking(1)
@@ -130,7 +130,7 @@ struct HFBrowserView: View {
                 .foregroundStyle(Theme.muted)
             VStack(alignment: .leading, spacing: 2) {
                 Text(model.displayName)
-                    .font(.system(size: 12))
+                    .font(Theme.ui(12))
                     .foregroundStyle(Theme.fg)
                 Text(formatBytes(model.sizeBytes))
                     .font(.system(size: 10, design: .monospaced))
@@ -139,7 +139,7 @@ struct HFBrowserView: View {
             Spacer()
             Button {
                 NSWorkspace.shared.activateFileViewerSelecting([model.url])
-            } label: { Image(systemName: "folder").font(.system(size: 12)) }
+            } label: { Image(systemName: "folder").font(Theme.ui(12)) }
             .buttonStyle(.plain)
             .help("Reveal in Finder")
 
@@ -147,12 +147,12 @@ struct HFBrowserView: View {
                 let pb = NSPasteboard.general
                 pb.clearContents()
                 pb.setString("./native-mac/.build/release/posttrainllm sample \(model.url.path) --prompt \"Hello\" --tokens 100", forType: .string)
-            } label: { Image(systemName: "terminal").font(.system(size: 12)) }
+            } label: { Image(systemName: "terminal").font(Theme.ui(12)) }
             .buttonStyle(.plain)
             .help("Copy CLI sample command to clipboard")
 
             Button { controller.delete(model) } label: {
-                Image(systemName: "trash").font(.system(size: 12))
+                Image(systemName: "trash").font(Theme.ui(12))
                     .foregroundStyle(Theme.faint)
             }
             .buttonStyle(.plain)

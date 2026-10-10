@@ -33,7 +33,7 @@ struct TrainHubView: View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
                 Picker("", selection: $mode) {
-                    ForEach(Mode.allCases) { m in Text(m.rawValue).tag(m) }
+                    ForEach(Mode.allCases) { m in Text(m.rawValue.lowercased()).tag(m) }
                 }
                 .pickerStyle(.segmented)
                 .frame(maxWidth: 540)

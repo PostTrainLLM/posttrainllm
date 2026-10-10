@@ -13,8 +13,7 @@ struct WarningBanner: View {
                 .fixedSize(horizontal: false, vertical: true)
             Spacer()
         }
-        .padding(12)
-        .background(Theme.warn.opacity(0.10))
+        .instrumentCard(padding: 12)
         .overlay(Rectangle().fill(Theme.warn).frame(width: 2), alignment: .leading)
     }
 }
