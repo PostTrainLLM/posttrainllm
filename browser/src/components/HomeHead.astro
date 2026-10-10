@@ -1,0 +1,73 @@
+---
+/** Home-only head compatibility for the Workbench shell; Default stays unchanged. */
+interface Props {
+  jsonLd: string[];
+}
+const { jsonLd } = Astro.props;
+const posthogLoader = `window.addEventListener("load",()=>{window.setTimeout(()=>{const analytics=document.createElement("script");analytics.src="/scripts/posthog.js";analytics.async=true;document.head.append(analytics);},5000);},{once:true});`;
+const clarityLoader = `if(!window.crossOriginIsolated){(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments);};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/y6br5d0ds7";y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","y6br5d0ds7");window.clarity("set","project_id","posttrainllm");}`;
+---
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="theme-color" content="#0a0c0f" />
+<meta name="author" content="Sarthak Agrawal" />
+<meta
+  name="keywords"
+  content="LLM factory, Mac LLM, Apple Silicon LLM, MLX, LoRA, DoRA, QLoRA, distillation, BFCL, model evaluation, SAE interpretability, on-device AI, posttrainllm, WebGPU training"
+/>
+<meta property="og:locale" content="en_US" />
+<meta
+  property="og:image:alt"
+  content="PostTrainLLM — a Mac-local LLM specialist factory"
+/>
+<link rel="sitemap" href="/sitemap.xml" />
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title="PostTrainLLM — Devlog"
+  href="/devlog/rss.xml"
+/>
+<link
+  rel="preload"
+  href="/gallery/manifest.json"
+  as="fetch"
+  crossorigin="anonymous"
+/>
+<!-- Pre-paint layout-shift guard. Reads localStorage SYNCHRONOUSLY before
+         the body parses, and adds classes on <html> that CSS uses to hide
+         elements in their resting state. Without this, hidden-by-default
+         elements (intro card, demo banner) would flash visible after JS ran
+         and shove content below them around on every page load. -->
+<script is:inline>
+  (function () {
+    try {
+      const html = document.documentElement;
+      if (localStorage.getItem("posttrainllm.introDismissed") === "1") {
+        html.classList.add("intro-dismissed");
+      }
+    } catch (_) {
+      /* private mode / disabled storage — accept the one-time shift */
+    }
+  })();
+</script>
+<!-- fleet-jsonld:start -->
+<script is:inline type="application/ld+json" set:html={jsonLd[0]} />
+<!-- fleet-jsonld:end -->
+<script is:inline type="application/ld+json" set:html={jsonLd[1]} />
+<script is:inline set:html={posthogLoader} />
+<!--
+      Microsoft Clarity does not publish CORS/CORP headers, so loading it on a
+      COEP: require-corp page creates a console error. Preserve cross-origin
+      isolation for SharedArrayBuffer and load Clarity only on a non-isolated
+      host; PostHog remains the primary telemetry path.
+    -->
+<script is:inline set:html={clarityLoader} />
+<script
+  is:inline
+  defer
+  src="https://health.sassmaker.com/tracker.js"
+  data-key="ahk_pub_dbdf16dbbb0bf141edf166fb7a314d45760bb0cd061d3d8e0e30c70de1e620e6"
+  data-project="app-87fd048a-cbd2-4110-9609-be67389fd239"
+  data-identity="persistent"
+  data-endpoint="https://ingest.sassmaker.com/v1/browser"></script>
+<script is:inline src="/app-health-log.js" defer></script>
