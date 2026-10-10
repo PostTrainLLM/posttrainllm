@@ -24,6 +24,7 @@
  * (pages that don't reference "Geist Variable" in CSS won't pull the
  * file).
  */
+import StudioFooter from "../components/StudioFooter.astro";
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import "@fontsource-variable/bricolage-grotesque";
@@ -301,63 +302,10 @@ const clarityLoader = telemetry
       )
     }
     <script is:inline src="/app-health-log.js" defer></script>
-    {
-      telemetry && (
-        <script
-          is:inline
-          type="module"
-          src="https://sassmaker.com/newsletter-capture.js?v=precise-b0adaa67"
-          crossorigin="anonymous"
-        />
-      )
-    }
   </head>
   <body>
     <slot />
-    {
-      normalizeCanonicalPath(Astro.url.pathname) !== "/" && (
-        <fleet-footer-extension
-          data-fleet-footer-project="posttrainllm"
-          product-name="PostTrainLLM"
-          art-src="/footer-art/posttrainllm.webp"
-          theme="dark"
-          surface="app"
-        >
-          <footer
-            slot="navigation"
-            data-fleet-footer-navigation
-            class="precise-learning-footer"
-          >
-            <p>
-              Build the specialist. Measure the tradeoff. Keep the evidence.
-            </p>
-            <nav aria-label="PostTrainLLM learning resources">
-              <a href="/learn" data-fleet-footer-primary>
-                Learning paths
-              </a>
-              <a href="/recipes" data-fleet-footer-primary>
-                Recipes
-              </a>
-              <a href="/experiments" data-fleet-footer-primary>
-                Experiments
-              </a>
-              <a href="/artifacts" data-fleet-footer-primary>
-                Evidence artifacts
-              </a>
-              <a href="/docs" data-fleet-footer-primary>
-                Documentation
-              </a>
-              <a
-                href="https://github.com/PostTrainLLM/posttrainllm"
-                data-fleet-footer-primary
-              >
-                Source
-              </a>
-            </nav>
-          </footer>
-        </fleet-footer-extension>
-      )
-    }
+    {normalizeCanonicalPath(Astro.url.pathname) !== "/" && <StudioFooter />}
     <script>
       import { initVitals } from "../lib/vitals";
       import { initApiTiming } from "../lib/api-timing";
@@ -368,42 +316,5 @@ const clarityLoader = telemetry
         window.setTimeout(() => initApiTiming(), 1_000);
       }
     </script>
-    <script
-      is:inline
-      src="https://sassmaker.com/project-strip.js?v=precise-b0adaa67"
-      crossorigin="anonymous"
-      data-project="posttrainllm"
-      data-layout="studio"
-      data-theme="dark"
-      data-host-only="true"
-      defer></script>
-    <script
-      is:inline
-      src="https://sassmaker.com/ai-chat-footer.js?v=precise-b0adaa67"
-      data-host-only="true"
-      data-project="posttrainllm"
-      data-layout="question"
-      data-theme="dark"
-      crossorigin="anonymous"
-      data-name="PostTrainLLM"
-      data-feedback={telemetry ? "true" : "false"}
-      defer></script>
   </body>
 </html>
-
-<style>
-  .precise-learning-footer p {
-    max-width: 40ch;
-    margin: 0 0 1.5rem;
-    color: var(--fg-soft);
-  }
-  .precise-learning-footer nav {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 1.5rem;
-  }
-  .precise-learning-footer a:focus-visible {
-    outline: 2px solid var(--live);
-    outline-offset: 4px;
-  }
-</style>

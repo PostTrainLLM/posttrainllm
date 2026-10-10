@@ -192,9 +192,9 @@ for (const viewport of viewports) {
       outcomeCounts: [...document.querySelectorAll(".outcome-count b")].map(
         (node) => node.textContent?.trim() ?? "",
       ),
-      footerGroups: [...document.querySelectorAll(".foot-group > p")].map(
-        (node) => node.textContent?.trim() ?? "",
-      ),
+      footerGroups: [
+        ...document.querySelectorAll("studio-footer nav[aria-label=Footer] h2"),
+      ].map((node) => node.textContent?.trim() ?? ""),
     };
   });
   if (!homeState) {
@@ -260,7 +260,7 @@ for (const viewport of viewports) {
         `home outcome distribution drifted: ${homeState.outcomeCounts}`,
       );
     if (
-      homeState.footerGroups.join(",") !== "Build,Measure,Learn,Agents + source"
+      homeState.footerGroups.join(",") !== "build,measure,learn,agents + source"
     )
       failures.push(
         `footer capability groups drifted: ${homeState.footerGroups}`,
