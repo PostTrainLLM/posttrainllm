@@ -114,158 +114,79 @@ for (const viewport of viewports) {
   }
 
   await page.goto(`${baseURL}/`, { waitUntil: "networkidle" });
-  const homeState = await page.evaluate(() => {
-    const curve = document.querySelector(".hero-curve");
-    const curveDot = document.querySelector(".hc-dot");
-    const curveLine = document.querySelector(".hc-line");
-    const curveBand = document.querySelector(".hero-curve-band");
-    const curveCaption = document.querySelector(".hero-curve-cap");
-    const stats = document.querySelector(".hero-stats");
-    const actions = [
-      ...document.querySelectorAll(
-        ".hero > .hero-inner .hero-cta a, .hero > .hero-inner .mac-release-entry",
-      ),
-    ];
-    if (
-      !(curve instanceof SVGElement) ||
-      !(curveDot instanceof SVGElement) ||
-      !(curveLine instanceof SVGPathElement) ||
-      !(curveBand instanceof HTMLElement) ||
-      !(curveCaption instanceof HTMLElement) ||
-      !(stats instanceof HTMLElement) ||
-      actions.some((action) => !(action instanceof HTMLElement))
-    ) {
-      return null;
-    }
-    const statsStyle = getComputedStyle(stats);
-    const headline = document.querySelector(".hero-h1");
-    if (!(headline instanceof HTMLElement)) return null;
-    const curveBounds = curve.getBoundingClientRect();
-    const viewBox = curve.viewBox.baseVal;
-    const curveLength = curveLine.getTotalLength();
-    const curvePoints = Array.from({ length: 201 }, (_, index) => {
-      const point = curveLine.getPointAtLength((curveLength * index) / 200);
-      return {
-        x: curveBounds.x + (point.x / viewBox.width) * curveBounds.width,
-        y: curveBounds.y + (point.y / viewBox.height) * curveBounds.height,
-      };
-    });
-    const actionBounds = actions.map((action) =>
-      action.getBoundingClientRect(),
-    );
-    const dotBounds = curveDot.getBoundingClientRect();
-    const captionBounds = curveCaption.getBoundingClientRect();
-    const statsBounds = stats.getBoundingClientRect();
-    const bandBounds = curveBand.getBoundingClientRect();
-    return {
-      curveInsideBand:
-        curveBounds.top >= bandBounds.top &&
-        curveBounds.bottom <= bandBounds.bottom,
-      actionOverlap: actionBounds.some((action) =>
-        curvePoints.some(
-          (point) =>
-            point.x >= action.left &&
-            point.x <= action.right &&
-            point.y >= action.top &&
-            point.y <= action.bottom,
-        ),
-      ),
-      actionClearance: Math.min(
-        ...actionBounds.map((action) => bandBounds.top - action.bottom),
-      ),
-      curveVerticalShare:
-        (Math.max(...curvePoints.map((point) => point.y)) -
-          Math.min(...curvePoints.map((point) => point.y))) /
-        bandBounds.height,
-      headlineSize: Number.parseFloat(getComputedStyle(headline).fontSize),
-      heroMetrics: [...stats.querySelectorAll("li")].map((item) => ({
-        value: item.querySelector("b")?.textContent?.trim() ?? "",
-        label: item.querySelector("span")?.textContent?.trim() ?? "",
-      })),
-      terminalClearance: statsBounds.top - dotBounds.bottom,
-      captionOverlapsCurveTerminal:
-        captionBounds.top < dotBounds.bottom &&
-        captionBounds.bottom > dotBounds.top,
-      statsBackground: statsStyle.backgroundColor,
-      statsBackdrop: statsStyle.backdropFilter,
-      entryPoints: document.querySelectorAll(".entry-rail > a").length,
-      outcomeCounts: [...document.querySelectorAll(".outcome-count b")].map(
-        (node) => node.textContent?.trim() ?? "",
-      ),
-      footerGroups: [
-        ...document.querySelectorAll("studio-footer nav[aria-label=Footer] h2"),
-      ].map((node) => node.textContent?.trim() ?? ""),
-    };
-  });
-  if (!homeState) {
-    failures.push(`home proof surfaces missing at ${viewport.width}px`);
-  } else {
-    heroObservations.push({
-      viewport: viewport.width,
-      headlineSize: Number(homeState.headlineSize.toFixed(2)),
-      actionClearance: Number(homeState.actionClearance.toFixed(2)),
-      curveVerticalShare: Number(
-        (homeState.curveVerticalShare * 100).toFixed(2),
-      ),
-      terminalClearance: Number(homeState.terminalClearance.toFixed(2)),
-    });
-    if (!homeState.curveInsideBand)
-      failures.push(
-        `hero curve escaped its evidence band at ${viewport.width}px`,
-      );
-    if (homeState.actionOverlap)
-      failures.push(`hero curve crosses an action at ${viewport.width}px`);
-    if (homeState.actionClearance < 40)
-      failures.push(
-        `hero curve band has only ${homeState.actionClearance.toFixed(1)}px clearance after actions at ${viewport.width}px`,
-      );
-    if (homeState.curveVerticalShare < 0.55)
-      failures.push(
-        `hero curve uses only ${(homeState.curveVerticalShare * 100).toFixed(1)}% of its band at ${viewport.width}px`,
-      );
-    if (homeState.headlineSize > 52.1)
-      failures.push(
-        `hero headline grew to ${homeState.headlineSize.toFixed(1)}px at ${viewport.width}px`,
-      );
-    const expectedHeroMetrics = [
-      { value: "100%", label: "file ops · 12/12 · stock 9/12" },
-      { value: "55.6%", label: "breadth · 25/45 · stock 30/45" },
-      { value: "0", label: "unexpected side effects · stock 8" },
-      {
-        value: "2.42×",
-        label: "depth wall speed · 360.50s → 148.91s",
-      },
-    ];
-    if (
-      JSON.stringify(homeState.heroMetrics) !==
-      JSON.stringify(expectedHeroMetrics)
-    )
-      failures.push(`hero proof metrics drifted at ${viewport.width}px`);
-    if (homeState.terminalClearance < 56)
-      failures.push(
-        `hero curve terminal has only ${homeState.terminalClearance.toFixed(1)}px clearance above stats at ${viewport.width}px`,
-      );
-    if (homeState.captionOverlapsCurveTerminal)
-      failures.push(
-        `hero curve terminal overlaps its caption at ${viewport.width}px`,
-      );
-    if (homeState.statsBackground !== "rgba(0, 0, 0, 0)")
-      failures.push(`hero stats still hide the curve at ${viewport.width}px`);
-    if (homeState.statsBackdrop !== "none")
-      failures.push(`hero stats still blur the curve at ${viewport.width}px`);
-    if (homeState.entryPoints !== 4)
-      failures.push(`home entry map has ${homeState.entryPoints} items`);
-    if (homeState.outcomeCounts.join(",") !== "5,37,34")
-      failures.push(
-        `home outcome distribution drifted: ${homeState.outcomeCounts}`,
-      );
-    if (
-      homeState.footerGroups.join(",") !== "build,measure,learn,agents + source"
-    )
-      failures.push(
-        `footer capability groups drifted: ${homeState.footerGroups}`,
-      );
-  }
+  const homeState = await page.evaluate(() => ({
+    h1Count: document.querySelectorAll("h1").length,
+    layout: document
+      .querySelector("[data-hero-layout]")
+      ?.getAttribute("data-hero-layout"),
+    brand: getComputedStyle(document.documentElement)
+      .getPropertyValue("--brand")
+      .trim(),
+    entryPoints: document.querySelectorAll("#entry-points nav > a").length,
+    guides: document.querySelectorAll("#field-guides nav > a").length,
+    quickstart: document
+      .querySelector('.identity-actions [data-log="quickstart_opened"]')
+      ?.getAttribute("href"),
+    proof: document
+      .querySelector('[data-log="specialist_proof_opened"]')
+      ?.getAttribute("href"),
+    fileOps: document.querySelector("#file-ops-proof")?.textContent ?? "",
+    sql: document.querySelector("#sql-proof")?.textContent ?? "",
+    ledger: document.querySelector("#paper-trail")?.textContent ?? "",
+    footer: document
+      .querySelector('footer[data-fleet-footer="studio"]')
+      ?.getAttribute("data-catalog-id"),
+    footerGroups: [
+      ...document.querySelectorAll("studio-footer nav[aria-label=Footer] h2"),
+    ].map((node) => node.textContent?.trim() ?? ""),
+  }));
+  heroObservations.push({ viewport: viewport.width, ...homeState });
+  if (homeState.h1Count !== 1 || homeState.layout !== "masthead")
+    failures.push(`home masthead contract drifted at ${viewport.width}px`);
+  if (homeState.brand !== "#48e5c2")
+    failures.push(`home brand drifted at ${viewport.width}px`);
+  if (homeState.entryPoints !== 4 || homeState.guides !== 7)
+    failures.push(`home directories drifted at ${viewport.width}px`);
+  if (
+    homeState.quickstart !== "/docs/quickstart" ||
+    homeState.proof !== "/artifacts"
+  )
+    failures.push(`home logged actions missing at ${viewport.width}px`);
+  for (const phrase of [
+    "9/12",
+    "12/12",
+    "30/45",
+    "25/45",
+    "2.42×",
+    "360.50s",
+    "148.91s",
+    "Breadth fell",
+  ])
+    if (!homeState.fileOps.includes(phrase))
+      failures.push(`home file-ops proof missing ${phrase}`);
+  for (const phrase of ["0.860", "0.920", "0.000", "retry-data"])
+    if (!homeState.sql.includes(phrase))
+      failures.push(`home SQL proof missing ${phrase}`);
+  const worked = attemptsSource.filter(
+    (attempt) => attempt.status === "worked",
+  ).length;
+  const caveated = attemptsSource.filter(
+    (attempt) => attempt.status === "worked-with-caveat",
+  ).length;
+  const mixed = attemptsSource.length - worked - caveated;
+  for (const phrase of [
+    `${attemptsSource.length} resolved attempts`,
+    `${worked} worked cleanly`,
+    `${caveated} worked with caveat`,
+    `${mixed} failed`,
+  ])
+    if (!homeState.ledger.includes(phrase))
+      failures.push(`home ledger missing ${phrase}`);
+  if (
+    homeState.footer !== "posttrainllm" ||
+    homeState.footerGroups.join(",") !== "build,measure,learn,agents and source"
+  )
+    failures.push(`home StudioFooter contract drifted at ${viewport.width}px`);
   await page.screenshot({
     path: path.join(evidenceDir, `after-${viewport.width}.png`),
     fullPage: true,

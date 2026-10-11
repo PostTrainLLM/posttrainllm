@@ -1,0 +1,474 @@
+{
+  "template": "workbench",
+  "page": {
+    "title": "PostTrainLLM — Build and measure specialist LLMs on a Mac",
+    "description": "Build bounded specialist language models sized to one Apple Silicon machine, then distill, fine-tune, evaluate, package, and inspect them with reproducible…",
+    "theme": "ink",
+    "mode": "dark",
+    "fonts": {
+      "display": "figtree",
+      "text": "geist",
+      "accent": "figtree",
+      "accentStyle": "normal"
+    },
+    "surface": {
+      "variant": "editorial-dark",
+      "backdrop": "none"
+    },
+    "canonical": "https://posttrainllm.com/",
+    "robots": "index, follow, max-image-preview:large, max-snippet:-1",
+    "motion": false,
+    "og": {
+      "title": "PostTrainLLM — Build and measure specialist LLMs on a Mac",
+      "description": "A one-machine research lab for bounded specialists: fine-tune, evaluate honestly, package for MLX, and publish the evidence.",
+      "type": "website",
+      "siteName": "PostTrainLLM",
+      "image": "https://posttrainllm.com/og-image.png",
+      "imageWidth": 1200,
+      "imageHeight": 630,
+      "twitterCard": "summary_large_image"
+    },
+    "tokens": {
+      "--brand": "#48e5c2",
+      "--brand-foreground": "#0a0c0f",
+      "--brand-soft": "#48e5c21a",
+      "--brand-ink": "#48e5c2",
+      "--background": "#0a0c0f",
+      "--surface": "#111419",
+      "--card": "#111419",
+      "--popover": "#171b22",
+      "--muted": "#171b22",
+      "--secondary": "#171b22",
+      "--accent": "#171b22",
+      "--foreground": "#eaedf2",
+      "--muted-foreground": "#a6adb9",
+      "--border": "#293039",
+      "--primary": "#48e5c2",
+      "--primary-foreground": "#0a0c0f",
+      "--success": "#48e5c2"
+    }
+  },
+  "product": "posttrainllm",
+  "url": "https://posttrainllm.com",
+  "mark": "/favicon.svg",
+  "nav": [
+    {
+      "label": "factory",
+      "href": "#factory-loop"
+    },
+    {
+      "label": "proof",
+      "href": "#file-ops-proof"
+    },
+    {
+      "label": "learn",
+      "href": "/learn"
+    }
+  ],
+  "header": {
+    "primary": {
+      "label": "run the factory",
+      "href": "/docs/quickstart"
+    },
+    "secondary": {
+      "label": "source",
+      "href": "https://github.com/PostTrainLLM/posttrainllm"
+    }
+  },
+  "hero": {
+    "layout": "masthead",
+    "issue": "a one-machine research lab · MIT",
+    "issueNote": "the local research bench",
+    "title": "build a specialist.\n*prove it on one Mac.*",
+    "lede": "Turn a stock open model into a routed specialist on one Mac — then measure every win and regression. Distill, fine-tune, evaluate, package for MLX, and inspect the result.",
+    "primary": {
+      "label": "run the factory",
+      "href": "/docs/quickstart"
+    },
+    "secondary": {
+      "label": "inspect specialist proof",
+      "href": "/artifacts"
+    }
+  },
+  "sections": [
+    {
+      "id": "file-ops-proof",
+      "blocks": [
+        {
+          "type": "spread",
+          "items": [
+            {
+              "kicker": "paired proof · research routed-ship",
+              "title": "qwen3-4b, ReST fused.",
+              "body": "The file-operations route improved depth, removed unexpected side effects, and ran 2.42× faster. Breadth fell on the same frozen evaluation. Retain behind the file-ops route; reject as the general successor.",
+              "diff": {
+                "file": "stock → ReST · paired frozen eval",
+                "lines": [
+                  {
+                    "kind": "add",
+                    "text": "file-ops       9/12 → 12/12"
+                  },
+                  {
+                    "kind": "del",
+                    "text": "breadth       30/45 → 25/45",
+                    "note": {
+                      "text": "regression — five net breadth cases lost. The depth win does not justify general promotion."
+                    }
+                  },
+                  {
+                    "kind": "add",
+                    "text": "side effects     8 → 0"
+                  },
+                  {
+                    "kind": "add",
+                    "text": "depth wall  360.50s → 148.91s"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "thesis",
+      "blocks": [
+        {
+          "type": "statement",
+          "eyebrow": "the thesis",
+          "title": "reach frontier capability. understand the machine.",
+          "lede": "Be best-in-class at what one Apple Silicon machine can actually do: train, post-train, evaluate, serve, inspect. No cluster and no cloud dependency.",
+          "points": [
+            {
+              "title": "learn the whole space",
+              "body": "From y = mx + b to a self-improving factory. Reproduce techniques locally or integrate the best tools, anchored to evidence and the files where they live."
+            },
+            {
+              "title": "show the scars",
+              "body": "Failed runs are first-class. Every attempt keeps the decision it forced. A result carries its regression. Build everything buildable here, then package it so the lab can scale when compute arrives."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "factory-loop",
+      "blocks": [
+        {
+          "type": "spread",
+          "items": [
+            {
+              "kicker": "the factory loop",
+              "title": "each surface feeds the next.",
+              "body": "Every run ends in a schema-valid folder — config, dataset, eval, decision, report — that factory-run validates.",
+              "code": {
+                "label": "a bounded file-operations run",
+                "code": "target      file operations\ndata        interleaved + depth anchor\npost-train  teacher-free ReST\neval        frozen depth + breadth gates\npackage     fused bf16 · HF/MLX\ndecide      routed-ship"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sql-proof",
+      "blocks": [
+        {
+          "type": "spread",
+          "items": [
+            {
+              "kicker": "report-only candidate · retry-data",
+              "title": "qwen3-0.6b, routed SQL.",
+              "body": "Reference-anchored DPO cured a policy collapse and improved synthetic execution. Output hygiene did not improve: the small adapter could not strip the base model’s prose wrapper. This remains a report-only candidate.",
+              "diff": {
+                "file": "frozen SQL gates · report-only",
+                "lines": [
+                  {
+                    "kind": "add",
+                    "text": "execution    0.860 → 0.920"
+                  },
+                  {
+                    "kind": "del",
+                    "text": "clean-SQL    0.000 → 0.000",
+                    "note": {
+                      "text": "blocked — clean output still fails. Decision: retry-data; execution alone is not a ship gate."
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "scope",
+      "blocks": [
+        {
+          "type": "statement",
+          "eyebrow": "honest scope",
+          "title": "a factory for specialists.",
+          "lede": "Models and runs are deliberately bounded to the hardware. A specialist beats a generalist on its target and routes away when it should not answer.",
+          "points": [
+            {
+              "title": "what it is",
+              "body": "A single-developer, MIT-licensed research lab. Mac-first: M-series, unified memory, MLX-Swift. An OpenAI-compatible runtime. A research-only routed ship, with missing evidence disclosed."
+            },
+            {
+              "title": "what it isn’t",
+              "body": "A general assistant, multi-GPU or distributed training, or a cloud product. The ReST package is not product-default proof: runtime promotion still needs a fresh Pace-specific gate. Nothing leaves the laptop unless you ask."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "blocks": [
+        {
+          "type": "spread",
+          "items": [
+            {
+              "kicker": "run it · one Mac · from source",
+              "title": "build. inspect. validate.",
+              "body": "Use the native quickstart for a real Mac-local factory run. The browser playground is a bounded learning demo, not the specialist factory.",
+              "code": {
+                "label": "zsh — build and validate the native factory",
+                "code": "# build the native factory\ngit clone https://github.com/PostTrainLLM/posttrainllm.git\ncd posttrainllm/native-mac\nxcrun swift build -c release\nBIN=.build/release/posttrainllm\n\n# inspect the current factory surface\n$BIN --help\n$BIN factory-run validate ../runs/<run-id>"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "paper-trail",
+      "blocks": [
+        {
+          "type": "statement",
+          "title": "the result distribution, without spin.",
+          "lede": "{attemptCount} resolved attempts: {workedCount} worked cleanly, {caveatCount} worked with caveat, and {nonPositiveCount} failed, regressed, were rejected, inconclusive, or superseded. A caveated mechanism proof is not a positive product result. Boundary evidence stays visible.",
+          "eyebrow": "attempt ledger"
+        }
+      ]
+    }
+  ],
+  "footer": {
+    "catalogId": "posttrainllm",
+    "capture": "newsletter",
+    "summary": "Build the specialist. Measure the tradeoff. Keep the evidence.",
+    "groups": [
+      {
+        "title": "build",
+        "links": [
+          {
+            "label": "native factory",
+            "href": "/docs/quickstart"
+          },
+          {
+            "label": "CLI reference",
+            "href": "/docs/cli-reference"
+          },
+          {
+            "label": "Mac app",
+            "href": "/download"
+          },
+          {
+            "label": "browser training",
+            "href": "/playground"
+          },
+          {
+            "label": "browser inference",
+            "href": "/inference"
+          },
+          {
+            "label": "WebGPU tests",
+            "href": "/webgpu-test"
+          }
+        ]
+      },
+      {
+        "title": "measure",
+        "links": [
+          {
+            "label": "experiments",
+            "href": "/experiments"
+          },
+          {
+            "label": "evidence artifacts",
+            "href": "/artifacts"
+          },
+          {
+            "label": "benchmarks",
+            "href": "/benchmarks"
+          },
+          {
+            "label": "eval leaderboard",
+            "href": "/leaderboard"
+          },
+          {
+            "label": "training dashboard",
+            "href": "/training-dashboard"
+          }
+        ]
+      },
+      {
+        "title": "learn",
+        "links": [
+          {
+            "label": "learning paths",
+            "href": "/learn"
+          },
+          {
+            "label": "recipes",
+            "href": "/recipes"
+          },
+          {
+            "label": "documentation",
+            "href": "/docs"
+          },
+          {
+            "label": "architecture",
+            "href": "/docs/architecture/how-it-works"
+          },
+          {
+            "label": "devlog",
+            "href": "/devlog"
+          },
+          {
+            "label": "changelog",
+            "href": "/changelog"
+          },
+          {
+            "label": "interpretability",
+            "href": "/docs/techniques/interpretability"
+          },
+          {
+            "label": "inspiration",
+            "href": "/inspiration"
+          },
+          {
+            "label": "studied projects",
+            "href": "/studies"
+          }
+        ]
+      },
+      {
+        "title": "agents and source",
+        "links": [
+          {
+            "label": "agent index",
+            "href": "/llms.txt"
+          },
+          {
+            "label": "full-text corpus",
+            "href": "/llms-full.txt"
+          },
+          {
+            "label": "machine catalog",
+            "href": "/api/ai"
+          },
+          {
+            "label": "OpenAPI",
+            "href": "/openapi.json"
+          },
+          {
+            "label": "Mac release record",
+            "href": "/releases/mac.json"
+          },
+          {
+            "label": "GitHub repository",
+            "href": "https://github.com/PostTrainLLM/posttrainllm"
+          },
+          {
+            "label": "MIT license ↗",
+            "href": "https://github.com/PostTrainLLM/posttrainllm/blob/main/LICENSE"
+          }
+        ]
+      }
+    ]
+  },
+  "directories": [
+    {
+      "id": "entry-points",
+      "title": "choose your entry point.",
+      "lede": "Run the native factory, inspect a bounded browser mechanism, read the evidence, or follow the learning journey.",
+      "links": [
+        {
+          "label": "native factory",
+          "href": "/docs/quickstart"
+        },
+        {
+          "label": "browser lab",
+          "href": "/playground"
+        },
+        {
+          "label": "evidence",
+          "href": "/experiments"
+        },
+        {
+          "label": "learning journey",
+          "href": "/learn"
+        }
+      ]
+    },
+    {
+      "id": "field-guides",
+      "title": "build the specialist, then prove it.",
+      "lede": "Evidence-first field guides connect the public factory to concrete Apple Silicon workflows.",
+      "links": [
+        {
+          "label": "how to train your own LLM",
+          "href": "/how-to-train-your-own-llm"
+        },
+        {
+          "label": "fine-tune an LLM on Mac",
+          "href": "/fine-tune-llm-on-mac"
+        },
+        {
+          "label": "MLX LoRA and QLoRA",
+          "href": "/mlx-lora-fine-tuning"
+        },
+        {
+          "label": "evaluate a local LLM",
+          "href": "/evaluate-local-llm"
+        },
+        {
+          "label": "build a trajectory dataset",
+          "href": "/agent-trajectory-dataset"
+        },
+        {
+          "label": "build a routed specialist",
+          "href": "/build-small-language-model-specialist"
+        },
+        {
+          "label": "long-form articles",
+          "href": "/articles"
+        }
+      ]
+    }
+  ],
+  "head": {
+    "jsonLd": [
+      "\n      {\n        \"@context\": \"https://schema.org\",\n        \"@graph\": [\n          {\n            \"@type\": \"Person\",\n            \"@id\": \"https://sarthakagrawal.dev/#person\",\n            \"name\": \"Sarthak Agrawal\",\n            \"jobTitle\": \"AI Infrastructure & Product Engineer\",\n            \"url\": \"https://sarthakagrawal.dev\",\n            \"image\": \"https://avatars.githubusercontent.com/u/43884471?v=4\",\n            \"sameAs\": [\n              \"https://sarthakagrawal.dev\",\n              \"https://www.linkedin.com/in/sarthakagrawal927\",\n              \"https://github.com/sarthakagrawal927\",\n              \"https://x.com/sarthakcodes\",\n              \"https://huggingface.co/sarthakagrawal927\"\n            ],\n            \"knowsAbout\": [\n              \"AI infrastructure\",\n              \"Local-first software\",\n              \"Post-training language models\",\n              \"AI code review\",\n              \"Cloudflare Workers\",\n              \"TypeScript\",\n              \"Rust\"\n            ],\n            \"affiliation\": {\n              \"@type\": \"Organization\",\n              \"@id\": \"https://sassmaker.com/#app\",\n              \"name\": \"SaaS Maker\",\n              \"url\": \"https://sassmaker.com\"\n            }\n          },\n          {\n            \"@type\": \"WebSite\",\n            \"@id\": \"https://posttrainllm.com/#app\",\n            \"name\": \"PostTrainLLM\",\n            \"alternateName\": [\"Post Train LLM\", \"posttrainllm.com\"],\n            \"url\": \"https://posttrainllm.com\",\n            \"description\": \"Mac-local LLM specialist factory — post-training and runtime that fits on one Mac, plus WebGPU playground.\",\n            \"publisher\": { \"@id\": \"https://sarthakagrawal.dev/#person\" },\n            \"sameAs\": [\"https://github.com/PostTrainLLM/posttrainllm\"]\n          }\n        ]\n      }\n    ",
+      "\n      {\n        \"@context\": \"https://schema.org\",\n        \"@type\": \"SoftwareApplication\",\n        \"@id\": \"https://posttrainllm.com/#product\",\n        \"name\": \"PostTrainLLM\",\n        \"alternateName\": [\"Post Train LLM\", \"posttrainllm.com\"],\n        \"url\": \"https://posttrainllm.com\",\n        \"description\": \"Mac-local LLM specialist factory — post-training and runtime that fits on one Mac, plus WebGPU playground.\",\n        \"applicationCategory\": \"DeveloperApplication\",\n        \"operatingSystem\": \"macOS\",\n        \"isAccessibleForFree\": true,\n        \"publisher\": { \"@id\": \"https://sarthakagrawal.dev/#person\" },\n        \"sameAs\": [\"https://github.com/PostTrainLLM/posttrainllm\"]\n      }\n    "
+    ]
+  },
+  "sources": [
+    {
+      "section": "file-ops-proof",
+      "label": "paired scorecard, evidence, and limits",
+      "href": "/artifacts/qwen3-4b-rest-fused"
+    },
+    {
+      "section": "sql-proof",
+      "label": "SQL report and blockers",
+      "href": "/artifacts/qwen06-sql-routed-v1"
+    },
+    {
+      "section": "paper-trail",
+      "label": "inspect every attempt and decision",
+      "href": "/experiments"
+    }
+  ]
+}

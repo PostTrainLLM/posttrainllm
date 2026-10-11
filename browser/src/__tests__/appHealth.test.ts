@@ -31,10 +31,14 @@ describe("App Health browser analytics", () => {
   });
 
   it("logs the homepage quickstart CTA through the shared browser logger", () => {
-    expect(landingPage.match(/data-log="quickstart_opened"/g)).toHaveLength(4);
-    expect(
-      landingPage.match(/data-log="specialist_proof_opened"/g),
-    ).toHaveLength(1);
+    expect(landingPage).toContain(`.home-workbench a[href="/docs/quickstart"]`);
+    expect(landingPage).toContain(
+      'setAttribute("data-log", "quickstart_opened")',
+    );
+    expect(landingPage).toContain(`.identity-actions a[href="/artifacts"]`);
+    expect(landingPage).toContain(
+      'setAttribute("data-log", "specialist_proof_opened")',
+    );
     expect(browserLogger).toContain('closest("[data-log]")');
     expect(browserLogger).toContain("send(name, {");
     expect(browserLogger).toContain("appHealth.track(name)");
