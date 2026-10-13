@@ -331,12 +331,10 @@ struct ContentView: View {
         Button(action: action) {
             HStack(spacing: 5) {
                 Image(systemName: icon)
-                    .font(.system(size: 10))
                 Text(label.lowercased())
-                    .font(.system(size: 11, weight: .medium, design: .monospaced))
             }
         }
-        .buttonStyle(SMButtonStyle(.link))
+        .buttonStyle(SMButtonStyle(.link, size: .compact))
         .environment(\.smPalette, Theme.palette.brand(Theme.accent, foreground: Theme.base))
     }
 
