@@ -1,0 +1,53 @@
+name: Compact button app qualification
+on:
+  pull_request:
+    paths:
+      - 'native-mac/Package.swift'
+      - 'native-mac/Sources/TinyGPTApp/ContentView.swift'
+      - '.github/workflows/compact-button.yml'
+permissions:
+  contents: read
+jobs:
+  native-app:
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build actual native app without launching providers
+        working-directory: native-mac
+        run: |
+          set -o pipefail
+          mkdir -p "$RUNNER_TEMP/compact-button-evidence"
+          xcodebuild -version | tee "$RUNNER_TEMP/compact-button-evidence/toolchain.log"
+          xcodebuild build -scheme TinyGPTApp -destination 'platform=macOS' \
+            -configuration Debug -derivedDataPath "$RUNNER_TEMP/compact-button-derived" \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$RUNNER_TEMP/compact-button-evidence/build.log"
+      - name: Package through existing local packaging script
+        env:
+          POSTTRAINLLM_XCODE_PRODUCTS_DIR: ${{ runner.temp }}/compact-button-derived/Build/Products/Debug
+        run: |
+          set -o pipefail
+          bash scripts/release/build_macapp.sh --debug --out "$RUNNER_TEMP/compact-button-app" \
+            2>&1 | tee "$RUNNER_TEMP/compact-button-evidence/package.log"
+      - name: Verify shared UI bundle in the packaged app
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          app = Path(os.environ["RUNNER_TEMP"]) / "compact-button-app/posttrainllm.app"
+          bundle = app / "Contents/Resources/SaaSMakerUI_SaaSMakerUI.bundle"
+          assert app.is_dir(), f"Missing actual built app: {app}"
+          assert bundle.is_dir(), f"Missing shared UI resources: {bundle}"
+          fonts = sorted(p.name for p in bundle.rglob("*.ttf"))
+          required = {"Figtree.ttf", "Geist.ttf", "Newsreader.ttf", "GeistMono.ttf", "InstrumentSerif-Regular.ttf", "Fraunces.ttf"}
+          assert required <= set(fonts), f"Missing fonts: {required - set(fonts)}"
+          evidence = Path(os.environ["RUNNER_TEMP"]) / "compact-button-evidence/app-resources.json"
+          evidence.write_text(json.dumps({"app": app.name, "bundle": bundle.name, "fonts": fonts, "libraryRevision": "580a30e6dac470bbf45c9c4661c76169715cf538"}, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: posttrainllm-compact-button-app-evidence
+          path: ${{ runner.temp }}/compact-button-evidence/
+          if-no-files-found: error
+          retention-days: 14
