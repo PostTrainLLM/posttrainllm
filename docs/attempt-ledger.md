@@ -988,6 +988,30 @@ The owner withdrew the handwritten 400-500-case requirement. Historical next act
 - Confidence: `exact`
 - Source: [frozen comparison report](https://github.com/HeyPace/pace/blob/6a87a013c3da5f174977c6c815a197333bc15e5b/evals/router-policy-20261008/local-comparison.json). CPU/MPS qualification, peak RAM, confidence calibration and token throughput were not measured. Local cached inference incurred no provider charge; dollar cost remains unmeasured. Exact source, workload hashes, command, arm timings and raw-report SHA are retained in the report.
 
+## Pace policy qualification checkpoint (2026-10-16)
+
+Continuation of [Pace #200](https://github.com/HeyPace/pace/issues/200), not a
+reactivation of this closed lab or a new trained specialist. The older frozen
+policy comparison was reproduced. A separately frozen 30-case generated
+boundary challenge exposed missing clarification/approval before initial
+clicks; the [Pace report and raw diagnostics](https://github.com/HeyPace/pace/blob/291b47e37be02679a5be622adcedd83aedfb6c41/evals/jev-experiment/README.md#policy-qualification-refresh-2026-10-16)
+retain counts, per-case outcomes and their limits. This challenge has no
+independent frontier-ceiling qualification; no Mac-model acceptance accuracy,
+capability-retention ratio or shipping qualification is claimed here.
+
+Run identity: `pace-policy-challenge-20261016`; harness source
+`2ea410934c3058eacae2439228f2246947c338ae`; frozen bundle SHA-256
+`7095e2e73bd32ac5d0a6f94df24835ef6b499b6f7246f94fa6e9b43cc7878d19`.
+The existing cached local model incurred no provider charge; total local cost,
+peak RAM, CPU/MPS parity, ECE and token throughput are unqualified. Shared-host
+latency and model/context settings remain in the linked report. No model was
+trained or downloaded. A separate keyless Jev attempt stopped on a
+non-retryable payment-required response; it has no complete score and no paid
+fallback. KEEP the current native planner. [Pace PR #225](https://github.com/HeyPace/pace/pull/225)
+adds input-identity guards so legacy teacher labels cannot be silently reused
+under a new serializer; it does not qualify historical checkpoints. No
+handwritten owner dataset or new default is required by this checkpoint.
+
 ## Historical Coverage Limits
 
 This ledger is now schema-complete for the structured attempts in
