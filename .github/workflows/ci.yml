@@ -94,6 +94,9 @@ jobs:
           swift --version
           xcodebuild -version
 
+      - name: Verify generated-code sandbox and resource limits
+        run: cargo test --locked --manifest-path scripts/humaneval-sandbox/Cargo.toml -- --test-threads=1
+
       - name: Resolve SwiftPM dependencies
         working-directory: native-mac
         run: swift package resolve
