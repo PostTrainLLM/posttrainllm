@@ -54,16 +54,8 @@ fn main() -> Result<()> {
     writeln!(f, "\n{test}")?;
     writeln!(f, "\nif __name__ == '__main__':\n    check(candidate)")?;
 
-    let profile = sandbox_profile(&run_dir, &python, args.allow_network);
-    let mut cmd = Command::new("/usr/bin/sandbox-exec");
-    cmd.args(["-p", &profile])
-        .arg(&python.executable)
-        .args(["-I", "-S", "-B"])
-        .arg(&runner)
-        .env_clear()
-        .env("PATH", "/usr/bin:/bin")
-        .env("TMPDIR", &run_dir)
-        .current_dir(&run_dir)
+    let mut cmd = python_command(&run_dir, &python, args.allow_network);
+    cmd.arg(&runner)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
 
@@ -159,6 +151,23 @@ fn profile_path(path: &std::path::Path) -> String {
     serde_json::to_string(&path.to_string_lossy()).expect("path string serialization")
 }
 
+fn python_command(
+    run_dir: &std::path::Path,
+    python: &PythonRuntime,
+    allow_network: bool,
+) -> Command {
+    let mut command = Command::new("/usr/bin/sandbox-exec");
+    command
+        .args(["-p", &sandbox_profile(run_dir, python, allow_network)])
+        .arg(&python.executable)
+        .args(["-I", "-S", "-B"])
+        .env_clear()
+        .env("PATH", "/usr/bin:/bin")
+        .env("TMPDIR", run_dir)
+        .current_dir(run_dir);
+    command
+}
+
 fn sandbox_profile(
     run_dir: &std::path::Path,
     python: &PythonRuntime,
@@ -248,14 +257,8 @@ print(json.dumps(results))
 "#,
             outside = profile_path(&outside),
         );
-        let output = Command::new("/usr/bin/sandbox-exec")
-            .args(["-p", &sandbox_profile(&run, &python, false)])
-            .arg(&python.executable)
-            .args(["-I", "-S", "-B", "-c", &source])
-            .env_clear()
-            .env("PATH", "/usr/bin:/bin")
-            .env("TMPDIR", &run)
-            .current_dir(&run)
+        let output = python_command(&run, &python, false)
+            .args(["-c", &source])
             .output()?;
         // Cleanup only this test's newly created fixture, including its symlink.
         fs::remove_dir_all(&root)?;

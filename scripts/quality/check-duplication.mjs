@@ -13,11 +13,13 @@ import { capture } from "./code-health-files.mjs";
 //   CLI     4255 / 138,445 = 3.0734%, 271 clone groups
 //   after   4255 / 138,634 = 3.0692%, 271 clone groups
 //
+// 2026-10-22: remove four repeated Rust roots already covered by `scripts`.
+// The same 550 unique files remain covered; full-file self-clones disappear.
 // Tracked in PostTrainLLM/posttrainllm#104.
 const baseline = {
-  duplicatedLines: 4255,
-  percentage: 3.069232655769869,
-  clones: 271,
+  duplicatedLines: 3346,
+  percentage: (3346 / 158071) * 100,
+  clones: 259,
 };
 const outputDirectory = mkdtempSync(join(tmpdir(), "posttrainllm-jscpd-"));
 const paths = [
@@ -28,11 +30,9 @@ const paths = [
   "browser/functions",
   "wasm",
   "webgpu",
-  "scripts/humaneval-sandbox/src",
-  "scripts/tokenizer-trainer/src",
-  "scripts/hf-downloader/src",
-  "scripts/parquet-decoder/src",
 ];
+// `scripts` already includes the Rust crates. Repeating their roots makes
+// jscpd compare an entire source file with itself and report a false clone.
 capture("pnpm", [
   "exec",
   "jscpd",
