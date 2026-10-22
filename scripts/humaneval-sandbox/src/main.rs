@@ -1,9 +1,13 @@
 use std::fs;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::os::unix::fs::DirBuilderExt;
 use std::os::unix::process::CommandExt;
 use std::path::PathBuf;
-use std::process::{Command, Stdio};
+use std::process::{Child, Command, Stdio};
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use anyhow::{Context, Result, ensure};
@@ -59,7 +63,11 @@ fn main() -> Result<()> {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
 
-    let mem_bytes = args.memory_mb * 1024 * 1024;
+    let mem_bytes = args
+        .memory_mb
+        .checked_mul(1024 * 1024)
+        .context("Invalid memory limit")?;
+    ensure!(mem_bytes > 0, "Memory limit must be positive");
     unsafe {
         cmd.pre_exec(move || {
             set_limit(libc::RLIMIT_CPU, args.timeout, args.timeout + 1)?;
@@ -69,42 +77,165 @@ fn main() -> Result<()> {
                 let _ = set_limit(libc::RLIMIT_DATA, mem_bytes, mem_bytes);
             }
             set_limit(libc::RLIMIT_NOFILE, 64, 64)?;
+            set_limit(libc::RLIMIT_FSIZE, 8 * 1024 * 1024, 8 * 1024 * 1024)?;
             Ok(())
         });
     }
 
-    let mut child = cmd.spawn()?;
-    let deadline = Instant::now() + Duration::from_secs(args.timeout + 1);
-    let timed_out;
-    loop {
-        if child.try_wait()?.is_some() {
-            timed_out = false;
-            break;
-        }
-        if Instant::now() >= deadline {
-            let _ = child.kill();
-            timed_out = true;
-            break;
-        }
-        std::thread::sleep(Duration::from_millis(50));
-    }
-    let output = child.wait_with_output()?;
-    let wall = started.elapsed().as_secs_f64();
-    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-    let passed = output.status.success() && !timed_out;
-    println!(
-        "{}",
-        json!({
-            "passed": passed,
-            "stdout": stdout,
-            "stderr": if timed_out { format!("{stderr}\ntimeout") } else { stderr },
-            "exit_code": output.status.code().unwrap_or(-1),
-            "wall_seconds": wall
-        })
-    );
+    let report = run_sandbox(cmd, args.timeout, mem_bytes, started)?;
+    println!("{report}");
     let _ = fs::remove_dir_all(&run_dir);
     Ok(())
+}
+
+fn run_sandbox(
+    mut cmd: Command,
+    timeout: u64,
+    mem_bytes: u64,
+    started: Instant,
+) -> Result<serde_json::Value> {
+    let mut child = cmd.spawn()?;
+    // Drain both pipes concurrently. A verbose candidate must not deadlock
+    // against a full pipe or cause unbounded parent-side output allocation.
+    let overflow = Arc::new(AtomicBool::new(false));
+    let stdout = capture_output(child.stdout.take().expect("piped stdout"), overflow.clone());
+    let stderr = capture_output(child.stderr.take().expect("piped stderr"), overflow.clone());
+    let deadline = Instant::now() + Duration::from_secs(timeout + 1);
+    let (mut stop_reason, mut peak_rss_bytes) =
+        monitor_child(&mut child, &overflow, deadline, mem_bytes, resident_bytes)?;
+    let output = child.wait_with_output()?;
+    let stdout = stdout.join().expect("stdout capture thread")?;
+    let stderr = stderr.join().expect("stderr capture thread")?;
+    // Darwin rlimits do not establish a resident-RAM ceiling. Include the
+    // kernel's completed-child peak so even a fast over-budget exit fails.
+    // This conservatively includes this invocation's trusted Python discovery.
+    let mut usage: libc::rusage = unsafe { std::mem::zeroed() };
+    ensure!(
+        unsafe { libc::getrusage(libc::RUSAGE_CHILDREN, &mut usage) } == 0,
+        "Cannot read completed-child memory usage"
+    );
+    peak_rss_bytes = peak_rss_bytes.max(usage.ru_maxrss.max(0) as u64);
+    if peak_rss_bytes > mem_bytes {
+        stop_reason = Some("memory_limit");
+    } else if overflow.load(Ordering::SeqCst) {
+        stop_reason = Some("output_limit");
+    }
+    let wall = started.elapsed().as_secs_f64();
+    let passed = output.status.success() && stop_reason.is_none();
+    Ok(json!({
+        "passed": passed,
+        "stdout": String::from_utf8_lossy(&stdout),
+        "stderr": String::from_utf8_lossy(&stderr),
+        "exit_code": output.status.code().unwrap_or(-1),
+        "wall_seconds": wall,
+        "stop_reason": stop_reason,
+        "max_owned_child_rss_bytes": peak_rss_bytes,
+        "memory_limit_bytes": mem_bytes,
+        "memory_observation": "1ms live RSS polling plus kernel completed-child peak; polling can overshoot",
+        "output_limit_bytes_per_stream": 64 * 1024
+    }))
+}
+
+fn monitor_child(
+    child: &mut Child,
+    overflow: &AtomicBool,
+    deadline: Instant,
+    mem_bytes: u64,
+    mut resident: impl FnMut(u32) -> std::io::Result<u64>,
+) -> Result<(Option<&'static str>, u64)> {
+    let mut stop_reason = None;
+    let mut peak_rss_bytes = 0;
+    let mut missing_samples = 0;
+    loop {
+        if child.try_wait()?.is_some() {
+            break;
+        }
+        match resident(child.id()) {
+            Ok(bytes) => {
+                peak_rss_bytes = peak_rss_bytes.max(bytes);
+                missing_samples = 0;
+            }
+            Err(_) if child.try_wait()?.is_some() => break,
+            Err(_) => {
+                // proc_pidinfo can lose an exiting process before waitpid sees
+                // its exit. Retry at most three live samples; the completed
+                // child's kernel peak below still governs pass eligibility.
+                missing_samples += 1;
+                if missing_samples >= 3 {
+                    stop_reason = Some("memory_observation_failed");
+                }
+            }
+        }
+        if peak_rss_bytes > mem_bytes {
+            stop_reason = Some("memory_limit");
+        } else if overflow.load(Ordering::SeqCst) {
+            stop_reason = Some("output_limit");
+        } else if Instant::now() >= deadline {
+            stop_reason = Some("timeout");
+        }
+        if stop_reason.is_some() {
+            let _ = child.kill();
+            break;
+        }
+        std::thread::sleep(Duration::from_millis(1));
+    }
+    Ok((stop_reason, peak_rss_bytes))
+}
+
+fn capture_output(
+    reader: impl Read + Send + 'static,
+    overflow: Arc<AtomicBool>,
+) -> std::thread::JoinHandle<std::io::Result<Vec<u8>>> {
+    std::thread::spawn(move || {
+        let mut bytes = Vec::new();
+        reader.take(64 * 1024 + 1).read_to_end(&mut bytes)?;
+        if bytes.len() > 64 * 1024 {
+            bytes.truncate(64 * 1024);
+            overflow.store(true, Ordering::SeqCst);
+        }
+        Ok(bytes)
+    })
+}
+
+#[cfg(target_os = "macos")]
+fn resident_bytes(pid: u32) -> std::io::Result<u64> {
+    // sys/proc_info.h: PROC_PIDTASKINFO = 4; six uint64 fields followed by
+    // twelve int32 fields. Resident size is the second uint64, in bytes.
+    #[repr(C)]
+    struct TaskInfo {
+        sizes_and_times: [u64; 6],
+        counters: [i32; 12],
+    }
+    unsafe extern "C" {
+        fn proc_pidinfo(
+            pid: libc::c_int,
+            flavor: libc::c_int,
+            arg: u64,
+            buffer: *mut libc::c_void,
+            size: libc::c_int,
+        ) -> libc::c_int;
+    }
+    let mut info: TaskInfo = unsafe { std::mem::zeroed() };
+    let size = std::mem::size_of::<TaskInfo>() as libc::c_int;
+    let read = unsafe {
+        proc_pidinfo(
+            pid as libc::c_int,
+            4,
+            0,
+            (&mut info as *mut TaskInfo).cast(),
+            size,
+        )
+    };
+    if read == size {
+        Ok(info.sizes_and_times[1])
+    } else {
+        Err(std::io::Error::last_os_error())
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+fn resident_bytes(_pid: u32) -> std::io::Result<u64> {
+    Err(std::io::Error::other("Mac-only runner"))
 }
 
 struct PythonRuntime {
@@ -221,6 +352,28 @@ fn set_limit(resource: libc::c_int, soft: u64, hard: u64) -> std::io::Result<()>
 #[cfg(all(test, target_os = "macos"))]
 mod tests {
     use super::*;
+
+    #[test]
+    fn persistent_memory_observation_failure_stops_the_owned_child() -> Result<()> {
+        let mut child = Command::new("/bin/sleep").arg("1").spawn()?;
+        let mut samples = 0;
+        let (reason, _) = monitor_child(
+            &mut child,
+            &AtomicBool::new(false),
+            Instant::now() + Duration::from_secs(2),
+            256 * 1024 * 1024,
+            |_| {
+                samples += 1;
+                Err(std::io::Error::other(
+                    "owned unavailable-observation fixture",
+                ))
+            },
+        )?;
+        assert!(!child.wait()?.success());
+        assert_eq!(reason, Some("memory_observation_failed"));
+        assert_eq!(samples, 3);
+        Ok(())
+    }
 
     #[test]
     fn runtime_policy_denies_owned_outside_files_network_and_children() -> Result<()> {
