@@ -1,0 +1,173 @@
+{
+  "issue": 201,
+  "counts": {
+    "train": 8,
+    "dev": 4,
+    "test": 6
+  },
+  "model": "mlx-community/Qwen3-1.7B-4bit",
+  "runtime": {
+    "mlx-lm": "0.32.2",
+    "mlx": "0.32.4",
+    "transformers": "5.20.2",
+    "tokenizers": "0.23.3",
+    "numpy": "2.4.6"
+  },
+  "data_sha256": "a5b686f3b5589bde6a84e19524744140b7102726a38fef2434afb8138ee91f93",
+  "frontier": {
+    "passed": 18,
+    "count": 18,
+    "model": "gpt-6.1-sol",
+    "answers_sha256": "a74c5651925526c7b207583541880beb3a706d40adea9e737bec35c087e38a49",
+    "correction": "Original17/18 was an over-restrictive AST filter rejecting valid dict.fromkeys; all exact original answers pass after correction."
+  },
+  "execution_admission_sha256": "352431c2017467489aa7e9d94a81fa5242d5fee4fd7a89392ae99d17a489678f",
+  "test_selections_sha256": "dc4067e2249ff26b0fbbabcdf867cca90b8eebfef425a52a70db84d1bc0f3676",
+  "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+  "contract_sha256": "fc2723a4d9d8f08df1e5b023868b4564a041d3ba4eec514aebf0b85fe156537f",
+  "systems": {
+    "random": {
+      "count": 6,
+      "selection_only_passed": 2,
+      "end_to_end_passed": 2,
+      "previously_solved_regressions": 0,
+      "common_pool_oracle": 2,
+      "fresh_pool_oracle": 2,
+      "execution_calls": 6,
+      "charged_seconds": 17.590743225089682,
+      "median_task_seconds": 2.6381565793441646,
+      "selection_seconds": 0.0006001670044497587,
+      "amortized_training_seconds": 0.0,
+      "generation_tokens": 1984,
+      "generation_tps": 133.5395212349346,
+      "diagnostic_calls_excluded": 41,
+      "within_all_task_caps": true
+    },
+    "static": {
+      "count": 6,
+      "selection_only_passed": 2,
+      "end_to_end_passed": 2,
+      "previously_solved_regressions": 0,
+      "common_pool_oracle": 2,
+      "fresh_pool_oracle": 2,
+      "execution_calls": 6,
+      "charged_seconds": 16.694907057120872,
+      "median_task_seconds": 2.6089436003518736,
+      "selection_seconds": 0.007498001003114041,
+      "amortized_training_seconds": 0.0,
+      "generation_tokens": 1844,
+      "generation_tps": 132.22784490251007,
+      "diagnostic_calls_excluded": 41,
+      "within_all_task_caps": true
+    },
+    "execution": {
+      "count": 6,
+      "selection_only_passed": 2,
+      "end_to_end_passed": 2,
+      "previously_solved_regressions": 0,
+      "common_pool_oracle": 2,
+      "fresh_pool_oracle": 2,
+      "execution_calls": 48,
+      "charged_seconds": 24.09785293109599,
+      "median_task_seconds": 3.730463910341011,
+      "selection_seconds": 6.574798317160457e-5,
+      "amortized_training_seconds": 0.0,
+      "generation_tokens": 2007,
+      "generation_tps": 132.35180834808057,
+      "diagnostic_calls_excluded": 0,
+      "within_all_task_caps": true
+    },
+    "frozen": {
+      "count": 6,
+      "selection_only_passed": 2,
+      "end_to_end_passed": 2,
+      "previously_solved_regressions": 0,
+      "common_pool_oracle": 2,
+      "fresh_pool_oracle": 2,
+      "execution_calls": 48,
+      "charged_seconds": 23.75242330408946,
+      "median_task_seconds": 3.614947474847819,
+      "selection_seconds": 0.01031353999132989,
+      "amortized_training_seconds": 0.0021412499991129152,
+      "generation_tokens": 2027,
+      "generation_tps": 134.88915999736682,
+      "diagnostic_calls_excluded": 0,
+      "within_all_task_caps": true
+    },
+    "adapted": {
+      "count": 6,
+      "selection_only_passed": 2,
+      "end_to_end_passed": 2,
+      "previously_solved_regressions": 0,
+      "common_pool_oracle": 2,
+      "fresh_pool_oracle": 2,
+      "execution_calls": 48,
+      "charged_seconds": 23.89676151409367,
+      "median_task_seconds": 3.60605808451146,
+      "selection_seconds": 0.008653708995552734,
+      "amortized_training_seconds": 0.005169292002392467,
+      "generation_tokens": 2028,
+      "generation_tps": 135.10945715378122,
+      "diagnostic_calls_excluded": 0,
+      "within_all_task_caps": true
+    }
+  },
+  "comparisons": {
+    "frozen": {
+      "delta": 0,
+      "paired_95_percentile_ci": [0, 0],
+      "unit": "held-out problem",
+      "samples": 10000,
+      "seed": 201
+    },
+    "adapted": {
+      "delta": 0,
+      "paired_95_percentile_ci": [0, 0],
+      "unit": "held-out problem",
+      "samples": 10000,
+      "seed": 201
+    }
+  },
+  "development": {
+    "retain_update": false,
+    "selected_success": {
+      "frozen": 3,
+      "adapted": 3
+    },
+    "brier": {
+      "frozen": 0.2363825346481029,
+      "updated": 0.2522398984546378
+    },
+    "selected_at": "2026-10-22T18:27:54.828774+00:00"
+  },
+  "test_brier_frozen": 0.21284454597335564,
+  "adapted_policy": "DEV rejected the update; TEST adapted-policy rows use the frozen parent.",
+  "resources": {
+    "elapsed_seconds": 134.014841876,
+    "peak_rss_bytes": 1337819136,
+    "mlx_peak_memory_bytes": 1477333300,
+    "generated": 264,
+    "paid_usd": 0
+  },
+  "accounting": {
+    "measured_global_seconds": 134.014841876,
+    "generation_seconds": 75.45063141404535,
+    "public_seconds": 32.853751069967984,
+    "hidden_grading_seconds": 23.80926216890657,
+    "unattributed_shared_overhead_seconds": 1.9011972230800893,
+    "all_generated": 264,
+    "invalid_candidates": 10,
+    "public_timeouts": 0,
+    "limit": "Setup/serialization are conservatively allocated as a measured residual; separate model-load latency was not instrumented. Shared-host timings are not an acceleration claim."
+  },
+  "bfcl": {
+    "passed": 16,
+    "count": 20,
+    "source": "runs/2026-10-22-grounding-200-v1/bfcl-baseline-result.json",
+    "meaning": "Reuse exact unchanged stock coder, runtime and calibrated BFCL prompt; coder not updated."
+  },
+  "decision": "Reject learned selection for this pilot: no gain over cheaper static/random or direct execution; reject feedback update on DEV.",
+  "limitations": "18-task pilot with only6 TEST problems; cannot establish a small general population improvement. No JEPA/RSI reproduction claim.",
+  "local_run": "runs/2026-10-22-repair-selection-201-v1",
+  "paid_usd": 0
+}
