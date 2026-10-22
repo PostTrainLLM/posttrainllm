@@ -1,6 +1,5 @@
 (version 1)
 (deny default)
-(allow process*)
-(allow file-read*)
 (deny network*)
-; The CLI generates a stricter runtime profile with a per-run writable temp dir.
+; Reference only: the CLI generates runtime-specific read/exec allowlists and
+; a private writable run directory. Never use a blanket process or read grant.
