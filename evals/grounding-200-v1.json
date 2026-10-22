@@ -1,0 +1,145 @@
+{
+  "issue": 200,
+  "date": "2026-10-22",
+  "contract_sha256": "c2dda76906d78c546466465f1ce9bb5f768af8c94d0076dce097af4ae1c8b61f",
+  "model": "mlx-community/Qwen3-1.7B-4bit",
+  "revision": "3b1b1768f8f8cf8351c712464f906e86c2b8269e",
+  "runtime": {
+    "mlx-lm": "0.32.2",
+    "mlx": "0.32.4",
+    "transformers": "5.20.2",
+    "tokenizers": "0.23.3",
+    "numpy": "2.4.6"
+  },
+  "counts": {
+    "train_documents": 48,
+    "dev_documents": 12,
+    "test_documents": 20,
+    "paired_examples": 160,
+    "regression": 12
+  },
+  "leakage": {
+    "source_documents_disjoint": true,
+    "actual_target_values_disjoint": true,
+    "decisive_values_absent_from_perturbed_contexts": true,
+    "value_prefixes": {
+      "train": ["T"],
+      "dev": ["D"],
+      "test": ["T"]
+    },
+    "limitation": "TRAIN and TEST values share T prefix; this is a source-document/value split, not a prefix split."
+  },
+  "comparisons": {
+    "baseline": {
+      "improvement": 0.25,
+      "paired_95_percentile_ci": [0.1, 0.45],
+      "unit": "held-out source document",
+      "bootstrap_samples": 10000,
+      "seed": 200
+    },
+    "ordinary": {
+      "improvement": 0.25,
+      "paired_95_percentile_ci": [0.1, 0.45],
+      "unit": "held-out source document",
+      "bootstrap_samples": 10000,
+      "seed": 200
+    }
+  },
+  "systems": {
+    "baseline": {
+      "model_id": "qwen3-1.7b-4bit",
+      "suite": "grounding-200-v1",
+      "score": 0.75,
+      "passed": true,
+      "date": "2026-10-22",
+      "command": ".venv/bin/python scripts/grounding/evaluate.py baseline",
+      "test": {
+        "answerable_accuracy": 1.0,
+        "unsupported_answer_rate": 0.25,
+        "correct_abstention": 0.75,
+        "inappropriate_abstention": 0.0,
+        "regression_accuracy": null,
+        "counts": {
+          "present": 20,
+          "absent": 20,
+          "regression": 0
+        }
+      },
+      "regression_accuracy": 0.9166666666666666,
+      "bfcl_accuracy": 0.8,
+      "train_time": 0,
+      "eval_time": 12.009054082998773,
+      "latency_ms": 80.10633300000336,
+      "tokens_per_second": 67.57701604750089,
+      "peak_rss_mb": 1286.453125,
+      "cost_usd": 0,
+      "adapter_sha256": null,
+      "limits": "Narrow synthetic opaque-fact pilot;12 QA and20 BFCL controls do not establish broad non-regression."
+    },
+    "ordinary": {
+      "model_id": "grounding-qwen17-ordinary-v1",
+      "suite": "grounding-200-v1",
+      "score": 0.75,
+      "passed": true,
+      "date": "2026-10-22",
+      "command": ".venv/bin/python scripts/grounding/evaluate.py ordinary --adapter runs/2026-10-22-grounding-200-v1/adapters/ordinary",
+      "test": {
+        "answerable_accuracy": 1.0,
+        "unsupported_answer_rate": 0.25,
+        "correct_abstention": 0.75,
+        "inappropriate_abstention": 0.0,
+        "regression_accuracy": null,
+        "counts": {
+          "present": 20,
+          "absent": 20,
+          "regression": 0
+        }
+      },
+      "regression_accuracy": 0.9166666666666666,
+      "bfcl_accuracy": 0.0,
+      "train_time": 16.067039375004242,
+      "eval_time": 13.710682125994936,
+      "latency_ms": 96.18329199656728,
+      "tokens_per_second": 67.02737557582535,
+      "peak_rss_mb": 1278.796875,
+      "cost_usd": 0,
+      "adapter_sha256": null,
+      "limits": "Narrow synthetic opaque-fact pilot;12 QA and20 BFCL controls do not establish broad non-regression."
+    },
+    "perturbation": {
+      "model_id": "grounding-qwen17-perturbation-v1",
+      "suite": "grounding-200-v1",
+      "score": 1.0,
+      "passed": true,
+      "date": "2026-10-22",
+      "command": ".venv/bin/python scripts/grounding/evaluate.py perturbation --adapter runs/2026-10-22-grounding-200-v1/adapters/perturbation",
+      "test": {
+        "answerable_accuracy": 1.0,
+        "unsupported_answer_rate": 0.0,
+        "correct_abstention": 1.0,
+        "inappropriate_abstention": 0.0,
+        "regression_accuracy": null,
+        "counts": {
+          "present": 20,
+          "absent": 20,
+          "regression": 0
+        }
+      },
+      "regression_accuracy": 0.9166666666666666,
+      "bfcl_accuracy": 0.8,
+      "train_time": 10.163435542002844,
+      "eval_time": 12.137608375000127,
+      "latency_ms": 79.3819584978337,
+      "tokens_per_second": 65.00438622676954,
+      "peak_rss_mb": 1280.0,
+      "cost_usd": 0,
+      "adapter_sha256": "d43d02d869c3ea9c13c518bed2a13182b67738af246c63fe108fbeb0c888b936",
+      "limits": "Narrow synthetic opaque-fact pilot;12 QA and20 BFCL controls do not establish broad non-regression."
+    }
+  },
+  "decision": "retain local perturbation pilot; reject ordinary SFT; no public release",
+  "weights_sha256": "d43d02d869c3ea9c13c518bed2a13182b67738af246c63fe108fbeb0c888b936",
+  "local_run": "runs/2026-10-22-grounding-200-v1",
+  "limits": "Small controlled opaque-fact pilot, not a claim about broad factual grounding.",
+  "retained_evidence_move": "Raw files originally ran under evals/grounding-200-v1 and were reversibly moved byte-for-byte into ignored runs after execution."
+}
