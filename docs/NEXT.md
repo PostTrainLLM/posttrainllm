@@ -29,7 +29,7 @@ Conditional next actions, TODO markers, and blockers in retained historical
 documents explain what was not built; they do not mean the closed project is
 incomplete.
 
-For the full documentation path, start at `docs/README.md`. Browse all 76 final
+For the full documentation path, start at `docs/README.md`. Browse all 97 final
 attempts at `/experiments`, the 18 recipe contracts at `/recipes`, and the nine
 ready paths plus thirteen buildable artifacts at `/learn`. The artifact
 contract is tracked in `docs/learn/artifact-journey.json`. For reviewed external

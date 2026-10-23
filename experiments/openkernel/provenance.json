@@ -234,5 +234,5 @@
       "per_day": 20
     }
   },
-  "validation": "pending H200 correctness and timing; no submission made"
+  "validation": "H200 checks and scored submissions are recorded by exact source hash in experiments/openkernel/results.json"
 }

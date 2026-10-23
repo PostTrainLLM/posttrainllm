@@ -119,7 +119,7 @@ def kernel_fn(data: Inputs, state: dict[str, torch.Tensor]) -> torch.Tensor:
         x.stride(1),
         BM=16,
         BN=32,
-        BK=64,
+        BK=128,
         SPLIT_K=splits,
         num_warps=4,
         num_stages=2,

@@ -25,6 +25,12 @@
     "source": "experiments/openkernel/muse_moe_w4a16/submission.py",
     "sha256": "e3d2691154bde133e75793de11b385770b1725e894d12a0653a0d9f0b2def9c6",
     "check_job": "ea5e0dcc5e1846ac",
-    "change": "Use global expert count for EP block-sizing heuristic; all Marlin math and streams retained."
+    "change": "Use global expert count for EP block sizing at 256 or more tokens; retain baseline tiling below that measured range. All Marlin math and streams retained.",
+    "full_layer_evidence": {
+      "initial_check": "5e444821e58e404a",
+      "initial_scored": "0a072555103b4e2d",
+      "selected_scored": "bc25711588004579",
+      "reason": "Initial layer regressed at 32 tokens; narrowed dispatch passed all correctness cases and improved every benchmark shape."
+    }
   }
 }

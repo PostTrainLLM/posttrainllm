@@ -1,5 +1,5 @@
 # okc: problem=muse_decode_layer
-"""Fuse unit-scale attention prep and size MoE tiles by global routing density.
+"""Fuse attention prep; use global-density MoE tiles for large batches.
 
 Derived from SGLang's decoder layer for Muse Spark Open, as one H200 runs it under TP8/EP8, at SGLang commit
 a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f (MuseSpark1xDecoderLayer.forward), with the same modules:
@@ -461,7 +461,12 @@ def _experts(x, topk_weights, topk_ids, state):
     gemm1_n = 2 * size_n
     local_ids = bank["expert_map"][topk_ids].contiguous()
     topk_weights = topk_weights.to(torch.float32).contiguous()
-    routing_experts = N_EXPERTS if bank["expert_map"] is not None else LOCAL_EXPERTS
+    # Preserve baseline tiling below the measured large-batch crossover.
+    routing_experts = (
+        N_EXPERTS
+        if bank["expert_map"] is not None and num_tokens >= 256
+        else LOCAL_EXPERTS
+    )
     for block_size_m in BLOCK_SIZE_M_CANDIDATES:
         if num_tokens * TOP_K / routing_experts / block_size_m < 0.9:
             break

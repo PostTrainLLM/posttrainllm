@@ -672,6 +672,76 @@ Two cross-cutting findings the collapsed entry hid:
 - Next action: Keep this as positive verification; only reopen if new SDPA call sites or untied embedding save paths are added.
 - Confidence: `not-applicable`.
 
+### Open Kernel broad split-K router
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check afe0a26a817f473c: 0.8443x aggregate, reported 95% interval 0.8316-0.8570x; correctness passed with no flags.
+- Failure reason: Applying the small-tile split-K path at larger token counts caused measured per-shape regressions and an aggregate below baseline.
+- Failure-reason confidence: `exact`.
+- Lesson: A fused kernel needs a measured dispatch range; correctness alone does not qualify a performance change.
+- Next action: Reject the broad dispatch; retain its exact receipt and use baseline fallbacks outside measured winning shapes.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel large-token router tile
+
+- Status: `inconclusive`.
+- Evidence: 2026-10-23 H200 check 9cd67921edfc40b7: 1.0088x aggregate, reported 95% interval 0.9936-1.0239x; correctness passed with no flags.
+- Failure reason: The reported aggregate interval includes 1x despite improvements at individual large-token shapes.
+- Failure-reason confidence: `exact`.
+- Lesson: Keep per-shape improvements separate from demonstrated aggregate gains.
+- Next action: Retain as an unpromoted experiment; require new evidence before combining it with the selected router.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel narrow split-K router
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 85ab373d8dcc44f7: 1.0534x aggregate, reported 95% interval 1.0376-1.0692x; correctness passed with no flags. Earlier BK64 scored run 5b1f1c6523524705 measured 1.0309x; tile variants have overlapping aggregate intervals.
+- Failure reason: The demonstrated gain is limited to the organizer H200 workload; a larger tile advantage over the earlier scored variant is not statistically established by the aggregate intervals.
+- Failure-reason confidence: `exact`.
+- Lesson: Preserve tiny-token and large-token baseline paths, and judge tile choices using both target-shape timing and aggregate uncertainty.
+- Next action: Keep the selected measured candidate; do not transfer the BF16 router shortcut into the full layer FP32 small-batch router.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel fused attention preparation
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run f141c8d265234a99: 1.1357x aggregate, reported 95% interval 1.1187-1.1528x; correctness passed with no flags.
+- Failure reason: This measures attention preparation plus the existing attention implementation on one organizer workload, not application throughput or Mac performance.
+- Failure-reason confidence: `exact`.
+- Lesson: Fusion must preserve BF16 rounding, the exact RoPE table, cache slot writes and non-unit scale fallbacks.
+- Next action: Retain the passing source; any later FA3 split-count experiment must use matching scheduler metadata and fresh correctness checks.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel global-expert MoE block sizing
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 84fb1b656d3c44e2: 1.0645x aggregate, reported 95% interval 1.0485-1.0804x; correctness passed with no flags.
+- Failure reason: The gain is specific to the supplied expert-parallel routing distribution and organizer H200 workload.
+- Failure-reason confidence: `exact`.
+- Lesson: Use the global expert count for routing density; do not confuse that heuristic with local expert IDs used by alignment.
+- Next action: Keep the measured heuristic; profile alignment before proposing a separate local-expert alignment change.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel combined decoder layer
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 0a072555103b4e2d: 1.0254x aggregate, reported 95% interval 1.0100-1.0408x; correctness passed with no flags. Its preceding check 5e444821e58e404a measured 1.0181x overall but regressed at 32 and 128 tokens.
+- Failure reason: Component gains did not compose uniformly: the full-layer check regressed at 32 and 128 tokens despite a positive aggregate.
+- Failure-reason confidence: `exact`.
+- Lesson: Measure attention and MoE together while preserving the full layer router precision and stream ordering; component speedups do not multiply into a layer claim.
+- Next action: Retain this initial source and receipt; the selected conservative dispatch recovered its 32-token regressions in a fresh scored run.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel decoder layer with conservative MoE dispatch
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run bc25711588004579: 1.0351x aggregate, reported 95% interval 1.0196-1.0506x; correctness passed with no flags.
+- Failure reason: The cutoff preserves baseline MoE tiling below 256 tokens based on measured layer regressions; results establish only this organizer H200 workload.
+- Failure-reason confidence: `exact`.
+- Lesson: Use combined-layer evidence to narrow component optimizations, and rerun correctness and timing after restoring fallbacks.
+- Next action: Keep the selected source and receipt; require fresh correctness and timing for any further optimization within the October 23-24 timebox.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
 ## Tool-Calling / Eval Infrastructure Attempts
 
 ### A1 first tool-calling specialist harness
@@ -1023,7 +1093,7 @@ Current structured coverage:
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 79 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 86 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 4 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
 | `not-applicable` | 5 | No failure reason is expected for a clean worked status. |
 | `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |
