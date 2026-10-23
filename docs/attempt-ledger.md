@@ -805,11 +805,11 @@ Two cross-cutting findings the collapsed entry hid:
 ### Open Kernel decoder-layer GEMV and attention composition
 
 - Status: `worked-with-caveat`.
-- Evidence: 2026-10-23 H200 check 2928071145b44c58 passed correctness with no flags: 1.1364x aggregate, reported 95% interval 1.1193-1.1534x. This is an off-board check, not a scored submission.
-- Failure reason: The check is not a scored leaderboard run; composition improves over the selected 1.1070x layer but remains far from the top-ten target.
+- Evidence: 2026-10-23 H200 check 2928071145b44c58 measured 1.1364x; exact-source scored run e5f50469aadf4638 passed fresh correctness with no flags at 1.1366x, reported 95% interval 1.1196-1.1537x. All twelve scored shapes beat SGLang.
+- Failure reason: The repeated composition gain is qualified and promoted, but 1.1366x remains far from the overall top-ten target. It includes the earlier BF16-dot attention, not the newer joint-head experiment.
 - Failure-reason confidence: `exact`.
 - Lesson: Compose qualified components while preserving FP32 router input, stream ordering, cache semantics and normalization boundaries.
-- Next action: Await the exact-source scored run e5f50469aadf4638 before promoting the full-layer source.
+- Next action: Retain this exact scored source while checking joint-head attention, M128 expert block sizing and normalization/ID-map fusion inside the full layer.
 - Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
 
 ### Open Kernel native FP8 QK and PV attention
@@ -850,6 +850,16 @@ Two cross-cutting findings the collapsed entry hid:
 - Failure-reason confidence: `exact`.
 - Lesson: Correct tensor-core math does not establish an efficient implementation. The measured regression is inside GEMMs; unpacking cost, resource pressure and compiler layout remain unverified explanations.
 - Next action: Reject this source. Use the queued cheaper decoder and BF16 decode/resource diagnostic before any further rewrite or full-layer integration.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel joint-head FP8 paged attention
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 check 717f23591a6f4ff8 passed correctness with no flags: 1.3664x aggregate, reported 95% interval 1.3459-1.3869x. This is an off-board check, not a scored submission.
+- Failure reason: The off-board check improves attention from selected 1.2804x to 1.3664x, but the exact-source scored run and full-layer composition are still pending; overall top ten is not achieved.
+- Failure-reason confidence: `exact`.
+- Lesson: Loading both contiguous KV heads in one CTA improves this measured decode regime. This result does not establish a general FP8 advantage: the separate-head FP8 variant regressed, and verification still uses FA3.
+- Next action: Await exact-source scored run 939615aea8b24931 and full-layer check 0c5c8d83f1fa489f; independently measure the wider key tile with compiler resource diagnostics.
 - Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
 
 ## Tool-Calling / Eval Infrastructure Attempts
@@ -1203,7 +1213,7 @@ Current structured coverage:
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 97 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 98 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 4 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
 | `not-applicable` | 5 | No failure reason is expected for a clean worked status. |
 | `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |

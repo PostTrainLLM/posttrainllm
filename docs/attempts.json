@@ -1944,11 +1944,11 @@
       "family": "runtime-perf",
       "kind": "infrastructure",
       "status": "worked-with-caveat",
-      "evidence": "2026-10-23 H200 check 2928071145b44c58 passed correctness with no flags: 1.1364x aggregate, reported 95% interval 1.1193-1.1534x. This is an off-board check, not a scored submission.",
-      "failure_reason": "The check is not a scored leaderboard run; composition improves over the selected 1.1070x layer but remains far from the top-ten target.",
+      "evidence": "2026-10-23 H200 check 2928071145b44c58 measured 1.1364x; exact-source scored run e5f50469aadf4638 passed fresh correctness with no flags at 1.1366x, reported 95% interval 1.1196-1.1537x. All twelve scored shapes beat SGLang.",
+      "failure_reason": "The repeated composition gain is qualified and promoted, but 1.1366x remains far from the overall top-ten target. It includes the earlier BF16-dot attention, not the newer joint-head experiment.",
       "failure_reason_confidence": "exact",
       "lesson": "Compose qualified components while preserving FP32 router input, stream ordering, cache semantics and normalization boundaries.",
-      "next_action": "Await the exact-source scored run e5f50469aadf4638 before promoting the full-layer source.",
+      "next_action": "Retain this exact scored source while checking joint-head attention, M128 expert block sizing and normalization/ID-map fusion inside the full layer.",
       "evidence_sources": [
         "experiments/openkernel/results.json",
         "docs/learn/openkernel.md"
@@ -2017,6 +2017,23 @@
       "failure_reason_confidence": "exact",
       "lesson": "Correct tensor-core math does not establish an efficient implementation. The measured regression is inside GEMMs; unpacking cost, resource pressure and compiler layout remain unverified explanations.",
       "next_action": "Reject this source. Use the queued cheaper decoder and BF16 decode/resource diagnostic before any further rewrite or full-layer integration.",
+      "evidence_sources": [
+        "experiments/openkernel/results.json",
+        "docs/learn/openkernel.md"
+      ],
+      "source": "docs/learn/openkernel.md"
+    },
+    {
+      "id": "openkernel-attention-joint-heads-20261024",
+      "name": "Open Kernel joint-head FP8 paged attention",
+      "family": "runtime-perf",
+      "kind": "infrastructure",
+      "status": "worked-with-caveat",
+      "evidence": "2026-10-23 H200 check 717f23591a6f4ff8 passed correctness with no flags: 1.3664x aggregate, reported 95% interval 1.3459-1.3869x. This is an off-board check, not a scored submission.",
+      "failure_reason": "The off-board check improves attention from selected 1.2804x to 1.3664x, but the exact-source scored run and full-layer composition are still pending; overall top ten is not achieved.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Loading both contiguous KV heads in one CTA improves this measured decode regime. This result does not establish a general FP8 advantage: the separate-head FP8 variant regressed, and verification still uses FA3.",
+      "next_action": "Await exact-source scored run 939615aea8b24931 and full-layer check 0c5c8d83f1fa489f; independently measure the wider key tile with compiler resource diagnostics.",
       "evidence_sources": [
         "experiments/openkernel/results.json",
         "docs/learn/openkernel.md"

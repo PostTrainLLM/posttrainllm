@@ -11,15 +11,15 @@ This is an isolated CUDA experiment; the Mac application has no new dependency.
 
 Two bounded rounds completed: 28 organizer H200 jobs, comprising 18 checks and
 10 scored runs. Twenty-seven passed correctness; one attention draft failed GPU
-compilation and was corrected. All four selected scored sources passed fresh
+compilation and was corrected. Continuation has since promoted a composed layer. All four selected scored sources passed fresh
 correctness with no flags:
 
-| Candidate                                     | Scored speedup | Reported 95% interval | Measured scope                          |
-| --------------------------------------------- | -------------- | --------------------- | --------------------------------------- |
-| Narrow paged split-K attention + fused prep   | 1.2804×        | 1.2612–1.2996×        | All 12 shapes faster than SGLang        |
-| MoE block sizing + fused small-batch norm     | 1.2236×        | 1.2053–1.2420×        | Small-batch gains; 32-token case 0.988× |
-| Single-token GEMV + narrow router dispatch    | 1.0673×        | 1.0513–1.0834×        | One-token projections 1.13–1.20×        |
-| Decoder layer + fused small-batch expert norm | 1.1070×        | 1.0903–1.1236×        | All 12 shapes faster than SGLang        |
+| Candidate                                   | Scored speedup | Reported 95% interval | Measured scope                          |
+| ------------------------------------------- | -------------- | --------------------- | --------------------------------------- |
+| Narrow paged split-K attention + fused prep | 1.2804×        | 1.2612–1.2996×        | All 12 shapes faster than SGLang        |
+| MoE block sizing + fused small-batch norm   | 1.2236×        | 1.2053–1.2420×        | Small-batch gains; 32-token case 0.988× |
+| Single-token GEMV + narrow router dispatch  | 1.0673×        | 1.0513–1.0834×        | One-token projections 1.13–1.20×        |
+| Composed decoder layer                      | 1.1366×        | 1.1196–1.1537×        | All 12 shapes faster than SGLang        |
 
 At 2026-10-23 19:39 UTC (October 24, 01:09 Asia/Kolkata), the live overall
 rank was **321 of 586**, versus 369 of 546 before the second round. Individual
@@ -30,7 +30,7 @@ requested continued iteration toward overall top ten; that target is not achieve
 
 See [results.json](../../experiments/openkernel/results.json) for every job ID,
 exact source hash, correctness case, per-shape timing, evaluator image and the
-leaderboard snapshot. Eighteen measured outcomes are now indexed in the
+leaderboard snapshot. Nineteen measured outcomes are now indexed in the
 existing [attempt ledger](../attempt-ledger.md) and
 [structured history](../attempts.json), including failures and regressions.
 These results establish organizer workloads only, not Mac application or
@@ -38,24 +38,34 @@ end-to-end serving gains. No paid GPU was provisioned.
 
 ## Active top-ten continuation
 
-At 2026-10-23 21:08 UTC, fifteen additional jobs had been submitted: five
-completed checks and ten pending jobs, including one scored layer run. The
-four selected sources above remain unchanged until new scored evidence qualifies
-a replacement. The last rank check before this continuation was 324 of 593.
+At 2026-10-23 21:34 UTC, twenty-four additional jobs had been submitted: seven
+completed and seventeen pending. The composed layer passed its scored run and
+replaced the earlier 1.1070x source. Attention, dense and MoE selections remain
+unchanged. The latest overall rank was 345 of 633; layer rank was 259 of 308.
 
-| Completed check                                  | Speedup | Decision                                                   |
+| Measured trial                                   | Speedup | Decision                                                   |
 | ------------------------------------------------ | ------- | ---------------------------------------------------------- |
-| Layer composition of selected GEMV and attention | 1.1364× | Passed; exact-source scored run pending                    |
+| Layer composition of selected GEMV and attention | 1.1366× | Check and scored run passed; promoted                      |
 | Native FP8 QK/PV attention                       | 1.2223× | Reject broad dispatch; large full-context decode regressed |
 | Small-batch dense split-K and tiny router        | 1.0485× | Reject broad dispatch; only narrow pooler cases improved   |
 | Direct one-token packed NVFP4 SIMT GEMV          | 0.9291× | Reject; one-token case 271.8 µs versus selected 51.4 µs    |
 | Raw grouped NVFP4 tensor-core experts            | 0.2087× | Reject; 16-token case 1402.6 µs versus selected 157.3 µs   |
+| Joint-head FP8 paged attention                   | 1.3664× | Passed; exact-source scoring and layer composition pending |
 
-Queued checks cover grouped NVFP4 tensor-core kernels, cheaper FP4 decoding,
-joint-head attention, additional attention splits, whole-row dense/router
-reductions, and fused attention merge/normalization/gating. Pending jobs are
-not performance or correctness evidence. Exact job IDs and submitted hashes are
-in the results file; rejected source snapshots remain in local ignored runs.
+The joint-head check `717f23591a6f4ff8` loads both contiguous KV heads in one
+CTA with block-diagonal queries. Full-context decode took 140.9 microseconds at
+batch 16 and 266.8 at batch 32; verification keeps FA3. The native FP8 dots use
+Triton's default accumulation setting, with FP32 softmax statistics and merge.
+This is not evidence that FP8 universally wins: the separate-head variant above
+regressed. Exact-source scored run `939615aea8b24931` and the full-layer
+composition check are pending; a wider key tile is an independent ablation.
+
+Other queued checks cover cheaper FP4 decoding, single-token tensor-core MoE,
+additional attention splits, whole-row dense/router reductions, fused attention
+merge/normalization/gating, fixed-Q FA3 scheduling, and full-layer MoE block
+sizing plus normalization/ID-map fusion. Pending jobs are not performance or
+correctness evidence. Exact job IDs and submitted hashes are in the results
+file; rejected source snapshots remain in local ignored runs.
 
 Claude and research agents reviewed the measured regressions. The attention
 epilogue proposal was checked against pinned SGLang
@@ -90,8 +100,9 @@ The imported helper is pinned to SGLang's
 The same norm change passed inside the full decoder layer. Scored run
 `1c749497f0bf4c89` measured 1.1070×, versus 1.0351× previously. It retains the
 layer's FP32 small-batch router, stream ordering and baseline MoE tiling below
-256 tokens. The new GEMV and split-K attention are **not** composed into this
-layer source; that would require a separate full-layer correctness and timing run.
+256 tokens. That round did not compose GEMV and split-K attention into the layer.
+Continuation check `2928071145b44c58` and scored run `e5f50469aadf4638` now
+qualify that composition at 1.1366x; the exact scored bytes are selected.
 
 The new attention kernel uses paged GQA split-K with live cache metadata, every
 legal key, FP32 online softmax and split reduction. FP8 Q/K/V convert losslessly

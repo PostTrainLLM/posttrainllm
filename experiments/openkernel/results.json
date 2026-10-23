@@ -1,7 +1,7 @@
 {
-  "observed_at": "2026-10-23T21:08:50.664620+00:00",
+  "observed_at": "2026-10-23T21:34:03.408265+00:00",
   "timebox": "2026-10-23/2026-10-24 Asia/Kolkata",
-  "scored_submissions": 11,
+  "scored_submissions": 12,
   "jobs": [
     {
       "job_id": "0a072555103b4e2d",
@@ -12480,21 +12480,488 @@
       "mode": "check",
       "source_sha256": "4bb42627ed8807e6c85380db7043288ca9fff3ce33e8e00f62e404a680231f6b",
       "source_snapshot": "runs/openkernel/717f23591a6f4ff8/submission.py",
-      "status": "queued",
-      "passed": null,
-      "speedup": null,
-      "speedup_ci": null,
-      "score_us": null,
-      "gpu": null,
-      "flags": null,
+      "status": "done",
+      "passed": true,
+      "speedup": 1.3663597760194979,
+      "speedup_ci": [1.3458643793792053, 1.3868551726597902],
+      "score_us": 2756.4482401348555,
+      "gpu": "H200",
+      "flags": [],
       "error": null,
-      "evaluator_image": null,
-      "server_content_hash": null,
-      "created_at": null,
-      "finished_at": null,
-      "judge_checks": null,
-      "correctness_cases": [],
-      "benchmarks": []
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "5ae52ad05bf1e8a1c85ea52b4225d193634ecd74cf2f9cb97f68b789d8518799",
+      "created_at": 1792786228.293689,
+      "finished_at": 1792790576.7086296,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 10,
+            "heads": "tp8",
+            "layer": "sliding",
+            "seed": 1359223514610694136
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.168e-02 (worst row 4.168e-02) [bound 0.120: 2.5 x the reference's 0.042 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 3,
+            "ctx": 2047,
+            "heads": "tp8",
+            "layer": "sliding",
+            "seed": 1359319260134836092
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.898e-02 (worst row 8.155e-02) [bound 0.150: 2.5 x the reference's 0.071 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 5,
+            "ctx": 5000,
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1359415005658978049,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.228e-02 (worst row 1.295e-01) [bound 0.150: 2.5 x the reference's 0.083 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 4,
+            "ctx": 3000,
+            "heads": "tp8",
+            "layer": "full",
+            "seed": 1359510751183120007
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.391e-02 (worst row 1.017e-01) [bound 0.150: 2.5 x the reference's 0.080 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 8,
+            "ctx": 8192,
+            "heads": "dp",
+            "layer": "full",
+            "seed": 1359606496707261966,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.121e-02 (worst row 8.867e-02) [bound 0.150: 2.5 x the reference's 0.081 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 2,
+            "ctx": 100000,
+            "heads": "tp8",
+            "layer": "full",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1359702242231403926
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.217e-02 (worst row 1.061e-01) [bound 0.150: 2.5 x the reference's 0.084 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "edges",
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "seed": 1359797987755545887
+          },
+          "status": "pass",
+          "message": "relative L2 error 6.754e-02 (worst row 7.831e-02) [bound 0.150: 2.5 x the reference's 0.067 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "edges",
+            "heads": "tp8",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 1359893733279687849
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.427e-02 (worst row 1.299e-01) [bound 0.150: 2.5 x the reference's 0.084 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 1,
+            "ctx": 1048576,
+            "heads": "tp8",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 1359989478803829812
+          },
+          "status": "pass",
+          "message": "relative L2 error 9.499e-02 (worst row 1.156e-01) [bound 0.150: 2.5 x the reference's 0.099 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 3,
+            "ctx": 4000,
+            "heads": "tp8",
+            "kv_scale": 0.015625,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1360563951948681611
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.117e-02 (worst row 1.133e-01) [bound 0.150: 2.5 x the reference's 0.080 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 2,
+            "ctx": 9000,
+            "heads": "tp8",
+            "kv_scale": 0.015625,
+            "layer": "full",
+            "seed": 1360659697472823581
+          },
+          "status": "pass",
+          "message": "relative L2 error 9.090e-02 (worst row 9.578e-02) [bound 0.150: 2.5 x the reference's 0.091 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 4,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "full",
+            "seed": 1360085224327971776,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.087e-02 (worst row 7.501e-02) [bound 0.150: 2.5 x the reference's 0.071 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 12,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1360180969852113741
+          },
+          "status": "pass",
+          "message": "relative L2 error 6.811e-02 (worst row 9.087e-02) [bound 0.150: 2.5 x the reference's 0.066 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 13,
+          "case": {
+            "batch": 2,
+            "ctx": 20000,
+            "dist": "soft",
+            "heads": "dp",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 1360276715376255707
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.021e-02 (worst row 7.565e-02) [bound 0.150: 2.5 x the reference's 0.069 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 14,
+          "case": {
+            "batch": 4,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "page": 1,
+            "seed": 1360372460900397674,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.302e-02 (worst row 5.185e-02) [bound 0.123: 2.5 x the reference's 0.043 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 15,
+          "case": {
+            "batch": 2,
+            "ctx": 20000,
+            "dist": "coherent",
+            "heads": "dp",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 1360468206424539642
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.025e-02 (worst row 4.620e-02) [bound 0.113: 2.5 x the reference's 0.039 with FP8 E4M3 queries + 0.015]"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "decode 1",
+            "page": 1,
+            "seed": 1368798067024894686,
+            "weight": 46
+          },
+          "baseline_ns": 20560.000091791153,
+          "median_ns": 10257.993071193525,
+          "speedup": 2.0042906979073423,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "decode 1",
+            "page": 1,
+            "seed": 1368893812549036742,
+            "weight": 16
+          },
+          "baseline_ns": 31280.0002284348,
+          "median_ns": 19517.401570678074,
+          "speedup": 1.6026723698419079,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 1368989558073178799,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 27184.000238776207,
+          "median_ns": 14272.935356746088,
+          "speedup": 1.9045837145144582,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 1369085303597320857,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 201056.00403621793,
+          "median_ns": 140938.01426160446,
+          "speedup": 1.426556242399048,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 1369181049121462916,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 31200.00008493662,
+          "median_ns": 17603.53574717874,
+          "speedup": 1.7723712175229878,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 1369276794645604976,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 386143.9982429147,
+          "median_ns": 266766.89041212684,
+          "speedup": 1.4474959679080217,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1369372540169747037,
+            "weight": 46
+          },
+          "baseline_ns": 22464.00061994791,
+          "median_ns": 16280.570199576847,
+          "speedup": 1.3798042909167751,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1369468285693889099,
+            "weight": 16
+          },
+          "baseline_ns": 35856.00201040506,
+          "median_ns": 29841.377687416094,
+          "speedup": 1.2015531717734766,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1369564031218031162,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 29535.999055951834,
+          "median_ns": 22776.01124293568,
+          "speedup": 1.2968029713768632,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1369659776742173226,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 205664.00606185198,
+          "median_ns": 198427.0369432512,
+          "speedup": 1.0364716886876182,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1369755522266315291,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 34432.001411914825,
+          "median_ns": 27135.75283040057,
+          "speedup": 1.2688795342114174,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 1369851267790457357,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 390271.9961479306,
+          "median_ns": 382271.89420752565,
+          "speedup": 1.020927779576863,
+          "status": "pass",
+          "flags": []
+        }
+      ]
     },
     {
       "job_id": "a848d0b7c8794535",
@@ -12546,21 +13013,423 @@
       "mode": "run",
       "source_sha256": "ef302807fb7f72ed9a5a48326217e3488e6b5711cd307b9f7c2bf3cc8793c187",
       "source_snapshot": "runs/openkernel/e5f50469aadf4638/submission.py",
-      "status": "queued",
-      "passed": null,
-      "speedup": null,
-      "speedup_ci": null,
-      "score_us": null,
-      "gpu": null,
-      "flags": null,
+      "status": "done",
+      "passed": true,
+      "speedup": 1.1366091860933258,
+      "speedup_ci": [1.119560048301926, 1.1536583238847256],
+      "score_us": 19901.56359526613,
+      "gpu": "H200",
+      "flags": [],
       "error": null,
-      "evaluator_image": null,
-      "server_content_hash": null,
-      "created_at": null,
-      "finished_at": null,
-      "judge_checks": null,
-      "correctness_cases": [],
-      "benchmarks": []
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "e435c13003336a383512bfe63b282a2a47828679ddc4b0b5875e4f9fabf4fa28",
+      "created_at": 1792786752.3520162,
+      "finished_at": 1792791190.647025,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 10,
+            "layer": "sliding",
+            "seed": 7470795471277745653
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.516e-02 (worst row 6.516e-02) [bound 0.144]; attention input relative L2 error 4.045e-02 (worst row 4.045e-02) [bound 0.089]"
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 3000,
+            "layer": "full",
+            "seed": 7471040423198540609
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.964e-02 (worst row 5.964e-02) [bound 0.137]; attention input relative L2 error 4.354e-02 (worst row 4.354e-02) [bound 0.100]"
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 8,
+            "ctx": 2047,
+            "layer": "sliding",
+            "seed": 7471285375119335566
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.459e-02 (worst row 9.084e-02) [bound 0.150]; attention input relative L2 error 4.761e-02 (worst row 5.817e-02) [bound 0.111]"
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 9,
+            "ctx": 5000,
+            "layer": "sliding",
+            "page": 1,
+            "seed": 7471530327040130524,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.915e-02 (worst row 9.176e-02) [bound 0.150]; attention input relative L2 error 4.396e-02 (worst row 5.526e-02) [bound 0.117]"
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 3,
+            "ctx": 6000,
+            "dist": "outliers",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 7471775278960925483
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.983e-02 (worst row 1.150e-01) [bound 0.150]; attention input relative L2 error 3.670e-02 (worst row 5.066e-02) [bound 0.093]"
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 5,
+            "ctx": 5000,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7472020230881720443,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.104e-02 (worst row 1.047e-01) [bound 0.150]; attention input relative L2 error 4.792e-02 (worst row 7.503e-02) [bound 0.113]"
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 33,
+            "ctx": 20000,
+            "layer": "full",
+            "page": 1,
+            "seed": 7472265182802515404,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.209e-02 (worst row 1.019e-01) [bound 0.150]; attention input relative L2 error 4.659e-02 (worst row 6.651e-02) [bound 0.115]"
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 2,
+            "ctx": 300000,
+            "layer": "sliding",
+            "q_len": 8,
+            "seed": 7472510134723310366
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.458e-02 (worst row 1.028e-01) [bound 0.150]; attention input relative L2 error 4.846e-02 (worst row 7.290e-02) [bound 0.112]"
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 1,
+            "ctx": 1048576,
+            "layer": "full",
+            "q_len": 8,
+            "seed": 7472755086644105329
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.709e-02 (worst row 9.687e-02) [bound 0.150]; attention input relative L2 error 5.124e-02 (worst row 6.757e-02) [bound 0.129]"
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 4,
+            "ctx": 7000,
+            "kv_scale": 0.015625,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7473734894327285191
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.046e-02 (worst row 1.003e-01) [bound 0.150]; attention input relative L2 error 4.548e-02 (worst row 6.253e-02) [bound 0.112]"
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "page": 1,
+            "seed": 7473000038564900293
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.899e-02 (worst row 6.899e-02) [bound 0.150]; attention input relative L2 error 4.311e-02 (worst row 4.311e-02) [bound 0.111]"
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "soft",
+            "layer": "sliding",
+            "q_len": 8,
+            "seed": 7473244990485695258
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.770e-02 (worst row 8.780e-02) [bound 0.133]; attention input relative L2 error 3.797e-02 (worst row 5.110e-02) [bound 0.088]"
+        },
+        {
+          "index": 12,
+          "case": {
+            "batch": 16,
+            "ctx": 20000,
+            "dist": "soft",
+            "layer": "full",
+            "page": 1,
+            "seed": 7473489942406490224,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.828e-02 (worst row 7.073e-02) [bound 0.150]; attention input relative L2 error 3.968e-02 (worst row 5.333e-02) [bound 0.103]"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 1",
+            "page": 1,
+            "repeats": 60,
+            "seed": 7495290663357246203,
+            "weight": 46
+          },
+          "baseline_ns": 170399.99552071095,
+          "median_ns": 130891.59965578586,
+          "speedup": 1.3018405762388334,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 1",
+            "page": 1,
+            "repeats": 60,
+            "seed": 7495535615278041259,
+            "weight": 16
+          },
+          "baseline_ns": 182047.99946397543,
+          "median_ns": 146751.12751896225,
+          "speedup": 1.2405219812737203,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 7495780567198836316,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 263600.0062339008,
+          "median_ns": 218978.1967847971,
+          "speedup": 1.2037728417909852,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 7496025519119631374,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 432832.0021741092,
+          "median_ns": 387404.40302140283,
+          "speedup": 1.1172614425608287,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 7496270471040426433,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 263967.992272228,
+          "median_ns": 253241.30429873013,
+          "speedup": 1.042357576712069,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 7496515422961221493,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 613104.0100008249,
+          "median_ns": 578134.1834644503,
+          "speedup": 1.0604873877666583,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7496760374882016554,
+            "weight": 46
+          },
+          "baseline_ns": 256288.00597041845,
+          "median_ns": 216072.80783299182,
+          "speedup": 1.186118737201351,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7497005326802811616,
+            "weight": 16
+          },
+          "baseline_ns": 269663.9974601567,
+          "median_ns": 234584.12480695712,
+          "speedup": 1.1495406932675745,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7497250278723606679,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 526015.9964673221,
+          "median_ns": 521170.29991235904,
+          "speedup": 1.0092977219841153,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7497495230644401743,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 681888.0084902048,
+          "median_ns": 676284.5131192981,
+          "speedup": 1.0082857070688505,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7497740182565196808,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 711455.9770561755,
+          "median_ns": 604207.8974974792,
+          "speedup": 1.177501949251075,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7497985134485991874,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 1036895.9833867848,
+          "median_ns": 943023.2602918909,
+          "speedup": 1.0995444407870043,
+          "status": "pass",
+          "flags": []
+        }
+      ]
     },
     {
       "job_id": "ea95ebe0676248be",
@@ -14405,6 +15274,204 @@
           "flags": []
         }
       ]
+    },
+    {
+      "job_id": "048fe1129b344184",
+      "problem": "muse_decode_layer",
+      "mode": "check",
+      "source_sha256": "016d3f18eff36b51cf3b8d5b2adc988d3f7730944b3d7d54af7416f10341beed",
+      "source_snapshot": "runs/openkernel/048fe1129b344184/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "0c5c8d83f1fa489f",
+      "problem": "muse_decode_layer",
+      "mode": "check",
+      "source_sha256": "3218275120dd10a4df08da150e20452f8ee7a4b7d82c70dc2c084b67b5e39378",
+      "source_snapshot": "runs/openkernel/0c5c8d83f1fa489f/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "30ed1e95b2984d51",
+      "problem": "muse_attention_decode",
+      "mode": "check",
+      "source_sha256": "066b9ce1c22d9d767f427211d5d80f2fe21f8f05e40de02d0a6dd151a13225c3",
+      "source_snapshot": "runs/openkernel/30ed1e95b2984d51/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "583215fc82cb43db",
+      "problem": "muse_attention_decode",
+      "mode": "check",
+      "source_sha256": "c05f78c2f02a61796e539db29404f84076a0c792a2c0c51265f41dae2a17e882",
+      "source_snapshot": "runs/openkernel/583215fc82cb43db/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "5a7a3f5158e94210",
+      "problem": "muse_attention_decode",
+      "mode": "check",
+      "source_sha256": "c90e46387fe17bd69d9c79492e03596d3e58072c95a352b3506114aaff22e71b",
+      "source_snapshot": "runs/openkernel/5a7a3f5158e94210/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "622cee5dfcfd4f1e",
+      "problem": "muse_decode_layer",
+      "mode": "check",
+      "source_sha256": "050a22d66bbe56863dd034d155fa4ac2e21459cfe088920d6a96513bf8a7a9bf",
+      "source_snapshot": "runs/openkernel/622cee5dfcfd4f1e/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "939615aea8b24931",
+      "problem": "muse_attention_decode",
+      "mode": "run",
+      "source_sha256": "4bb42627ed8807e6c85380db7043288ca9fff3ce33e8e00f62e404a680231f6b",
+      "source_snapshot": "runs/openkernel/939615aea8b24931/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "c490ffa4d6aa4d0e",
+      "problem": "muse_bf16_proj",
+      "mode": "check",
+      "source_sha256": "1e2b8fd75b611f3c70996125325671082e4e1484329331e224ac988a700e2640",
+      "source_snapshot": "runs/openkernel/c490ffa4d6aa4d0e/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "ec00131830f54653",
+      "problem": "muse_decode_layer",
+      "mode": "check",
+      "source_sha256": "fb758db88c5a8cd44c775f68dec348218eeb9eae7e026651126b7d46961448f0",
+      "source_snapshot": "runs/openkernel/ec00131830f54653/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": "30f3af9d96c26166a0e825f6acb85fb1500eedd3d592df3f511aa285b0b0ea0d",
+      "created_at": 1792790420.4624722,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
     }
   ],
   "selected_candidates": [
@@ -14427,10 +15494,10 @@
     {
       "problem": "muse_decode_layer",
       "file": "experiments/openkernel/muse_decode_layer/submission.py",
-      "source_sha256": "ea1adbaf4510c0a9856a4d467000eea164da401b77c334a4dc8afb44e4a5ff6d",
-      "job_id": "1c749497f0bf4c89",
-      "speedup": 1.1069516306686,
-      "speedup_ci": [1.090347356208571, 1.123555905128629]
+      "source_sha256": "ef302807fb7f72ed9a5a48326217e3488e6b5711cd307b9f7c2bf3cc8793c187",
+      "job_id": "e5f50469aadf4638",
+      "speedup": 1.1366091860933258,
+      "speedup_ci": [1.119560048301926, 1.1536583238847256]
     },
     {
       "problem": "muse_moe_w4a16",
@@ -14503,5 +15570,28 @@
         }
       }
     ]
+  },
+  "continuation_leaderboard_snapshot": {
+    "observed_at": "2026-10-23T21:34:46.651809+00:00",
+    "overall": {
+      "you": {
+        "rank": 345,
+        "team": "sarthakagrawal927",
+        "first": false,
+        "ahead": 344
+      },
+      "ranked": 633
+    },
+    "muse_decode_layer": {
+      "you": {
+        "rank": 259,
+        "team": "sarthakagrawal927",
+        "speedup": 1.1366,
+        "first": false,
+        "ahead": 258,
+        "to_first": 1.6643
+      },
+      "ranked": 308
+    }
   }
 }
