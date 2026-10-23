@@ -3,6 +3,8 @@
 Owner-selected experiment, 2026-10-23:
 [Issue #206](https://github.com/PostTrainLLM/posttrainllm/issues/206).
 Question: can a rules-compliant kernel beat SGLang on the organizer's H200?
+Timebox: October 23–24, 2026, in the owner's Asia/Kolkata timezone. This is a
+two-day kernel experiment; the later serving competition is outside scope.
 This is an isolated CUDA experiment; the Mac application has no new dependency.
 
 ## Current state
@@ -59,14 +61,14 @@ runs can be deduplicated; do not treat a repeated old job as independent timing.
 The judge image already contains PyTorch, Triton and SGLang. No CUDA package
 is added to PostTrain's normal dependency graph.
 
-## Serving phase and sources
+## Competition context and sources
 
 The kernel track closes November 4 at 11:59 pm PT. The serving track opens
 November 5 at noon PT and supplies an 8×H200 node. Cash prizes are on the
 serving board; top-50 overall kernel placement grants queue priority.
 Serving changes must be a permitted diff against SGLang commit
 `a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f`, not a patch to this repository.
-No serving run has been made. The terms PDF says the contest ends November 18,
+No serving work is planned in this timebox. The terms PDF says the contest ends November 18,
 while the current API/site says November 19; resolve this before the final day.
 
 - [Official CLI, API and technical rules](https://openkernelchallenge.dev/llms.txt)
