@@ -1,0 +1,10 @@
+# Refreshable official material from okc init; provenance records the hashes.
+muse_bf16_proj/AGENTS.md
+muse_bf16_proj/TASK.md
+muse_bf16_proj/baseline.py
+muse_bf16_proj/reference.py
+muse_bf16_proj/checks.py
+# Remote judge output stays local until reviewed for publication.
+**/profiles/
+**/results/
+**/baseline_submission.py
