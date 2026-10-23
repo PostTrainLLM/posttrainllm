@@ -9,31 +9,65 @@ This is an isolated CUDA experiment; the Mac application has no new dependency.
 
 ## Current state
 
-Two bounded rounds complete: 28 organizer H200 jobs, comprising 18 checks and
+Two bounded rounds completed: 28 organizer H200 jobs, comprising 18 checks and
 10 scored runs. Twenty-seven passed correctness; one attention draft failed GPU
 compilation and was corrected. All four selected scored sources passed fresh
 correctness with no flags:
 
-| Candidate | Scored speedup | Reported 95% interval | Measured scope |
-| --- | --- | --- | --- |
-| Narrow paged split-K attention + fused prep | 1.2804× | 1.2612–1.2996× | All 12 shapes faster than SGLang |
-| MoE block sizing + fused small-batch norm | 1.2236× | 1.2053–1.2420× | Small-batch gains; 32-token case 0.988× |
-| Single-token GEMV + narrow router dispatch | 1.0673× | 1.0513–1.0834× | One-token projections 1.13–1.20× |
-| Decoder layer + fused small-batch expert norm | 1.1070× | 1.0903–1.1236× | All 12 shapes faster than SGLang |
+| Candidate                                     | Scored speedup | Reported 95% interval | Measured scope                          |
+| --------------------------------------------- | -------------- | --------------------- | --------------------------------------- |
+| Narrow paged split-K attention + fused prep   | 1.2804×        | 1.2612–1.2996×        | All 12 shapes faster than SGLang        |
+| MoE block sizing + fused small-batch norm     | 1.2236×        | 1.2053–1.2420×        | Small-batch gains; 32-token case 0.988× |
+| Single-token GEMV + narrow router dispatch    | 1.0673×        | 1.0513–1.0834×        | One-token projections 1.13–1.20×        |
+| Decoder layer + fused small-batch expert norm | 1.1070×        | 1.0903–1.1236×        | All 12 shapes faster than SGLang        |
 
 At 2026-10-23 19:39 UTC (October 24, 01:09 Asia/Kolkata), the live overall
 rank was **321 of 586**, versus 369 of 546 before the second round. Individual
 ranks were attention 219/329, dense 449/481, MoE 317/380 and layer 252/284.
 The field grew during the runs; these are dated snapshots, not fixed placements.
-Results improved, but placement remains outside the top 50.
+Results improved, but placement remains outside the top 50. The owner then
+requested continued iteration toward overall top ten; that target is not achieved.
 
 See [results.json](../../experiments/openkernel/results.json) for every job ID,
 exact source hash, correctness case, per-shape timing, evaluator image and the
-leaderboard snapshot. Thirteen outcomes from the two rounds are indexed in the
+leaderboard snapshot. Eighteen measured outcomes are now indexed in the
 existing [attempt ledger](../attempt-ledger.md) and
 [structured history](../attempts.json), including failures and regressions.
 These results establish organizer workloads only, not Mac application or
 end-to-end serving gains. No paid GPU was provisioned.
+
+## Active top-ten continuation
+
+At 2026-10-23 21:08 UTC, fifteen additional jobs had been submitted: five
+completed checks and ten pending jobs, including one scored layer run. The
+four selected sources above remain unchanged until new scored evidence qualifies
+a replacement. The last rank check before this continuation was 324 of 593.
+
+| Completed check                                  | Speedup | Decision                                                   |
+| ------------------------------------------------ | ------- | ---------------------------------------------------------- |
+| Layer composition of selected GEMV and attention | 1.1364× | Passed; exact-source scored run pending                    |
+| Native FP8 QK/PV attention                       | 1.2223× | Reject broad dispatch; large full-context decode regressed |
+| Small-batch dense split-K and tiny router        | 1.0485× | Reject broad dispatch; only narrow pooler cases improved   |
+| Direct one-token packed NVFP4 SIMT GEMV          | 0.9291× | Reject; one-token case 271.8 µs versus selected 51.4 µs    |
+| Raw grouped NVFP4 tensor-core experts            | 0.2087× | Reject; 16-token case 1402.6 µs versus selected 157.3 µs   |
+
+Queued checks cover grouped NVFP4 tensor-core kernels, cheaper FP4 decoding,
+joint-head attention, additional attention splits, whole-row dense/router
+reductions, and fused attention merge/normalization/gating. Pending jobs are
+not performance or correctness evidence. Exact job IDs and submitted hashes are
+in the results file; rejected source snapshots remain in local ignored runs.
+
+Claude and research agents reviewed the measured regressions. The attention
+epilogue proposal was checked against pinned SGLang
+[norm_gate.cuh](https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/jit/csrc/muse_spark_v12/norm_gate.cuh):
+round attention to BF16 before FP32 RMS normalization and sigmoid gating, then
+round once to BF16 output. It adds no persistent counter or cross-call state.
+FP8 dot-layout and register-pressure explanations remain hypotheses.
+
+A diagnostic H200 batch was prepared with a 30-minute cap (listed compute cost
+about USD 2.50). Hugging Face rejected the personal launch with HTTP 402 and the
+organization launch with HTTP 403; neither created a job. Official judging
+continues on the free queue. No benchmark result comes from that prepared runner.
 
 ## What the second round changed
 
@@ -71,7 +105,7 @@ The selected dispatch uses custom attention for one-token decoding and
 single-request sliding verification on supported page-one/GQA8/unit-scale
 configurations. Other shapes retain FA3. Scored run `3439c74e04594576` passed
 fresh correctness and measured 1.2804×, with single-request sliding decoding at
-2.05×. No tuning or GPU jobs remain running from this round.
+2.05×. Those second-round jobs are complete; continuation jobs are listed above.
 
 ## Retained first-round evidence
 

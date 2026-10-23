@@ -1,7 +1,7 @@
 {
-  "observed_at": "2026-10-23T19:39:24.515898+00:00",
+  "observed_at": "2026-10-23T21:08:50.664620+00:00",
   "timebox": "2026-10-23/2026-10-24 Asia/Kolkata",
-  "scored_submissions": 10,
+  "scored_submissions": 11,
   "jobs": [
     {
       "job_id": "0a072555103b4e2d",
@@ -12359,6 +12359,2048 @@
           "baseline_ns": 390319.999307394,
           "median_ns": 382378.3729811496,
           "speedup": 1.0207690258848294,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "350b4c2c87ef4312",
+      "problem": "muse_bf16_proj",
+      "mode": "check",
+      "source_sha256": "e01a340200165abc17222d9733a128a153ffb10a9e8a2a7785d500738fb94cd6",
+      "source_snapshot": "runs/openkernel/350b4c2c87ef4312/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "45dde2ec9cfa4fbe",
+      "problem": "muse_bf16_proj",
+      "mode": "check",
+      "source_sha256": "2ba63d06b2eb00046443eefc4d2cff654b259a57e1705b65adaddcb4b7301589",
+      "source_snapshot": "runs/openkernel/45dde2ec9cfa4fbe/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "59b8264c0c8d4e59",
+      "problem": "muse_moe_w4a16",
+      "mode": "check",
+      "source_sha256": "2cb5d3f5fa5821b34934be05e4263da83f51fc1b42cb36a995e6a5ad625e360d",
+      "source_snapshot": "runs/openkernel/59b8264c0c8d4e59/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "63bd8567d57d4199",
+      "problem": "muse_moe_w4a16",
+      "mode": "check",
+      "source_sha256": "5268d1be3856c68a0140dec3232d22869b50e83712377e23753e11ef3350686a",
+      "source_snapshot": "runs/openkernel/63bd8567d57d4199/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "6a1c90b00a0c46a5",
+      "problem": "muse_attention_decode",
+      "mode": "check",
+      "source_sha256": "0934c1e3216e5d4cc37e3c3efa7d597db1f610fe1d38a1c57e4cedad4dacb224",
+      "source_snapshot": "runs/openkernel/6a1c90b00a0c46a5/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "717f23591a6f4ff8",
+      "problem": "muse_attention_decode",
+      "mode": "check",
+      "source_sha256": "4bb42627ed8807e6c85380db7043288ca9fff3ce33e8e00f62e404a680231f6b",
+      "source_snapshot": "runs/openkernel/717f23591a6f4ff8/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "a848d0b7c8794535",
+      "problem": "muse_attention_decode",
+      "mode": "check",
+      "source_sha256": "39e735833195ab65821a6dfa4485d5bfac50511b1f8ea49ec9c887dee57c488e",
+      "source_snapshot": "runs/openkernel/a848d0b7c8794535/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "cac9617e49ed43eb",
+      "problem": "muse_moe_w4a16",
+      "mode": "check",
+      "source_sha256": "f0e37e6954ffdfb6e232240850cf42b1d93eef9bf45262674ba9230b79e2eb98",
+      "source_snapshot": "runs/openkernel/cac9617e49ed43eb/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "e5f50469aadf4638",
+      "problem": "muse_decode_layer",
+      "mode": "run",
+      "source_sha256": "ef302807fb7f72ed9a5a48326217e3488e6b5711cd307b9f7c2bf3cc8793c187",
+      "source_snapshot": "runs/openkernel/e5f50469aadf4638/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "ea95ebe0676248be",
+      "problem": "muse_moe_w4a16",
+      "mode": "check",
+      "source_sha256": "c736ae0dc8f774de5a438f3ae8259e9b6d94f7ad64780855625aea46e10eed42",
+      "source_snapshot": "runs/openkernel/ea95ebe0676248be/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": null,
+      "flags": null,
+      "error": null,
+      "evaluator_image": null,
+      "server_content_hash": null,
+      "created_at": null,
+      "finished_at": null,
+      "judge_checks": null,
+      "correctness_cases": [],
+      "benchmarks": []
+    },
+    {
+      "job_id": "2928071145b44c58",
+      "problem": "muse_decode_layer",
+      "mode": "check",
+      "source_sha256": "ef302807fb7f72ed9a5a48326217e3488e6b5711cd307b9f7c2bf3cc8793c187",
+      "source_snapshot": "runs/openkernel/2928071145b44c58/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.13639382970922,
+      "speedup_ci": [1.1193479222635816, 1.1534397371548581],
+      "score_us": 19905.335112377434,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "e435c13003336a383512bfe63b282a2a47828679ddc4b0b5875e4f9fabf4fa28",
+      "created_at": 1792785662.7354267,
+      "finished_at": 1792786516.6827846,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 10,
+            "layer": "sliding",
+            "seed": 8635038994099528000
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.950e-02 (worst row 5.950e-02) [bound 0.127]; attention input relative L2 error 3.829e-02 (worst row 3.829e-02) [bound 0.081]"
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 3000,
+            "layer": "full",
+            "seed": 8635047672855397431
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.230e-02 (worst row 7.230e-02) [bound 0.150]; attention input relative L2 error 4.577e-02 (worst row 4.577e-02) [bound 0.118]"
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 8,
+            "ctx": 2047,
+            "layer": "sliding",
+            "seed": 8635056351611266863
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.903e-02 (worst row 1.136e-01) [bound 0.150]; attention input relative L2 error 4.632e-02 (worst row 6.292e-02) [bound 0.118]"
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 9,
+            "ctx": 5000,
+            "layer": "sliding",
+            "page": 1,
+            "seed": 8635065030367136296,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.714e-02 (worst row 8.850e-02) [bound 0.150]; attention input relative L2 error 3.501e-02 (worst row 4.989e-02) [bound 0.094]"
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 3,
+            "ctx": 6000,
+            "dist": "outliers",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 8635073709123005730
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.869e-02 (worst row 1.249e-01) [bound 0.150]; attention input relative L2 error 3.572e-02 (worst row 4.931e-02) [bound 0.087]"
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 5,
+            "ctx": 5000,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8635082387878875165,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.488e-02 (worst row 9.162e-02) [bound 0.150]; attention input relative L2 error 4.359e-02 (worst row 6.106e-02) [bound 0.109]"
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 33,
+            "ctx": 20000,
+            "layer": "full",
+            "page": 1,
+            "seed": 8635091066634744601,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.495e-02 (worst row 1.184e-01) [bound 0.150]; attention input relative L2 error 4.884e-02 (worst row 8.241e-02) [bound 0.121]"
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 2,
+            "ctx": 300000,
+            "layer": "sliding",
+            "q_len": 8,
+            "seed": 8635099745390614038
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.002e-02 (worst row 1.005e-01) [bound 0.150]; attention input relative L2 error 4.579e-02 (worst row 6.960e-02) [bound 0.109]"
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 1,
+            "ctx": 1048576,
+            "layer": "full",
+            "q_len": 8,
+            "seed": 8635108424146483476
+          },
+          "status": "pass",
+          "message": "update relative L2 error 8.520e-02 (worst row 1.077e-01) [bound 0.150]; attention input relative L2 error 5.590e-02 (worst row 7.256e-02) [bound 0.141]"
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 4,
+            "ctx": 7000,
+            "kv_scale": 0.015625,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8635143139169961238
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.465e-02 (worst row 1.101e-01) [bound 0.150]; attention input relative L2 error 4.998e-02 (worst row 6.683e-02) [bound 0.122]"
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "page": 1,
+            "seed": 8635117102902352915
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.524e-02 (worst row 6.524e-02) [bound 0.150]; attention input relative L2 error 4.135e-02 (worst row 4.135e-02) [bound 0.108]"
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "soft",
+            "layer": "sliding",
+            "q_len": 8,
+            "seed": 8635125781658222355
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.316e-02 (worst row 8.940e-02) [bound 0.150]; attention input relative L2 error 4.065e-02 (worst row 5.864e-02) [bound 0.102]"
+        },
+        {
+          "index": 12,
+          "case": {
+            "batch": 16,
+            "ctx": 20000,
+            "dist": "soft",
+            "layer": "full",
+            "page": 1,
+            "seed": 8635134460414091796,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.245e-02 (worst row 8.726e-02) [bound 0.150]; attention input relative L2 error 4.235e-02 (worst row 6.233e-02) [bound 0.105]"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 1",
+            "page": 1,
+            "repeats": 60,
+            "seed": 8635906869686476050,
+            "weight": 46
+          },
+          "baseline_ns": 172447.99621403217,
+          "median_ns": 131200.20720781616,
+          "speedup": 1.3143881391961605,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 1",
+            "page": 1,
+            "repeats": 60,
+            "seed": 8635915548442345581,
+            "weight": 16
+          },
+          "baseline_ns": 182896.00545540452,
+          "median_ns": 145875.11861770687,
+          "speedup": 1.2537847933801365,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 8635924227198215113,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 268880.0017349422,
+          "median_ns": 223419.19849673437,
+          "speedup": 1.2034776041812374,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 8635932905954084646,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 443856.00090026855,
+          "median_ns": 397393.42624589417,
+          "speedup": 1.1169183272438554,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 8635941584709954180,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 275424.00313541293,
+          "median_ns": 263178.1797425383,
+          "speedup": 1.0465305421781337,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 8635950263465823715,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 630639.9991735816,
+          "median_ns": 594808.3801397714,
+          "speedup": 1.0602406089594607,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8635958942221693251,
+            "weight": 46
+          },
+          "baseline_ns": 267247.9972243309,
+          "median_ns": 225085.10919806064,
+          "speedup": 1.1873197572975367,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8635967620977562788,
+            "weight": 16
+          },
+          "baseline_ns": 277008.0044865608,
+          "median_ns": 241301.12396521398,
+          "speedup": 1.1479764368047218,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8635976299733432326,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 522720.024921,
+          "median_ns": 517627.76064007886,
+          "speedup": 1.0098376954795165,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8635984978489301865,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 715151.9889011979,
+          "median_ns": 709531.9310461603,
+          "speedup": 1.0079207962448584,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8635993657245171405,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 714352.0037643611,
+          "median_ns": 619166.1939233242,
+          "speedup": 1.1537322463261366,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8636002336001040946,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 1070944.0330974758,
+          "median_ns": 973786.5609461128,
+          "speedup": 1.0997728619883258,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "8c3311ccc5cd4b3c",
+      "problem": "muse_attention_decode",
+      "mode": "check",
+      "source_sha256": "ad75f0f38e06542eb258311a4dc6d7612fd495a3275026f83d80702ce144e716",
+      "source_snapshot": "runs/openkernel/8c3311ccc5cd4b3c/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.2223343476270576,
+      "speedup_ci": [1.2039993324126517, 1.2458367301415056],
+      "score_us": 3081.2355124533597,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "d4cacb0094c1b004bc734c99db87cc1d502fec20e842e2c80cd72576d3005cbc",
+      "created_at": 1792785879.9964795,
+      "finished_at": 1792787500.197487,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 10,
+            "heads": "tp8",
+            "layer": "sliding",
+            "seed": 7816302165294431242
+          },
+          "status": "pass",
+          "message": "relative L2 error 3.277e-02 (worst row 3.277e-02) [bound 0.120: 2.5 x the reference's 0.042 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 3,
+            "ctx": 2047,
+            "heads": "tp8",
+            "layer": "sliding",
+            "seed": 7816538783728158418
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.278e-02 (worst row 8.282e-02) [bound 0.150: 2.5 x the reference's 0.064 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 5,
+            "ctx": 5000,
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7816775402161885595,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.066e-02 (worst row 1.189e-01) [bound 0.150: 2.5 x the reference's 0.081 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 4,
+            "ctx": 3000,
+            "heads": "tp8",
+            "layer": "full",
+            "seed": 7817012020595612773
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.291e-02 (worst row 9.946e-02) [bound 0.150: 2.5 x the reference's 0.085 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 8,
+            "ctx": 8192,
+            "heads": "dp",
+            "layer": "full",
+            "seed": 7817248639029339952,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.093e-02 (worst row 8.757e-02) [bound 0.150: 2.5 x the reference's 0.079 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 2,
+            "ctx": 100000,
+            "heads": "tp8",
+            "layer": "full",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7817485257463067132
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.564e-02 (worst row 1.075e-01) [bound 0.150: 2.5 x the reference's 0.088 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "edges",
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "seed": 7817721875896794313
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.011e-02 (worst row 7.331e-02) [bound 0.150: 2.5 x the reference's 0.080 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "edges",
+            "heads": "tp8",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 7817958494330521495
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.666e-02 (worst row 1.429e-01) [bound 0.150: 2.5 x the reference's 0.086 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 1,
+            "ctx": 1048576,
+            "heads": "tp8",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 7818195112764248678
+          },
+          "status": "pass",
+          "message": "relative L2 error 9.304e-02 (worst row 1.126e-01) [bound 0.150: 2.5 x the reference's 0.096 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 3,
+            "ctx": 4000,
+            "heads": "tp8",
+            "kv_scale": 0.015625,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7819614823366611797
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.762e-02 (worst row 9.646e-02) [bound 0.150: 2.5 x the reference's 0.077 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 2,
+            "ctx": 9000,
+            "heads": "tp8",
+            "kv_scale": 0.015625,
+            "layer": "full",
+            "seed": 7819851441800338987
+          },
+          "status": "pass",
+          "message": "relative L2 error 9.150e-02 (worst row 1.078e-01) [bound 0.150: 2.5 x the reference's 0.085 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 4,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "full",
+            "seed": 7818431731197975862,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 6.518e-02 (worst row 7.743e-02) [bound 0.150: 2.5 x the reference's 0.069 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 12,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7818668349631703047
+          },
+          "status": "pass",
+          "message": "relative L2 error 6.805e-02 (worst row 9.511e-02) [bound 0.150: 2.5 x the reference's 0.067 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 13,
+          "case": {
+            "batch": 2,
+            "ctx": 20000,
+            "dist": "soft",
+            "heads": "dp",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 7818904968065430233
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.281e-02 (worst row 7.853e-02) [bound 0.150: 2.5 x the reference's 0.072 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 14,
+          "case": {
+            "batch": 4,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "page": 1,
+            "seed": 7819141586499157420,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.519e-02 (worst row 5.405e-02) [bound 0.129: 2.5 x the reference's 0.046 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 15,
+          "case": {
+            "batch": 2,
+            "ctx": 20000,
+            "dist": "coherent",
+            "heads": "dp",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 7819378204932884608
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.064e-02 (worst row 4.737e-02) [bound 0.112: 2.5 x the reference's 0.039 with FP8 E4M3 queries + 0.015]"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "decode 1",
+            "page": 1,
+            "seed": 7839964008667153792,
+            "weight": 46
+          },
+          "baseline_ns": 20192.000549286604,
+          "median_ns": 9154.168585523628,
+          "speedup": 2.205771104239676,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "decode 1",
+            "page": 1,
+            "seed": 7840200627100881068,
+            "weight": 16
+          },
+          "baseline_ns": 31455.99877461791,
+          "median_ns": 22092.762373737743,
+          "speedup": 1.4238146521690966,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 7840437245534608345,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 26768.000330775976,
+          "median_ns": 13842.031897452549,
+          "speedup": 1.9338201594306605,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 7840673863968335623,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 200720.00101208687,
+          "median_ns": 230639.19511102885,
+          "speedup": 0.8702770616046462,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 7840910482402062902,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 31295.99941894412,
+          "median_ns": 19178.47284139158,
+          "speedup": 1.631829587150449,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 7841147100835790182,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 384240.00330269337,
+          "median_ns": 443284.9917464976,
+          "speedup": 0.8668012913968213,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7841383719269517463,
+            "weight": 46
+          },
+          "baseline_ns": 22623.999044299126,
+          "median_ns": 11923.080665202659,
+          "speedup": 1.897496098498012,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7841620337703244745,
+            "weight": 16
+          },
+          "baseline_ns": 35807.99885094166,
+          "median_ns": 29930.946363648516,
+          "speedup": 1.1963537141756029,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7841856956136972028,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 29344.001319259405,
+          "median_ns": 22352.609362913183,
+          "speedup": 1.3127774410063346,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7842093574570699312,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 204624.00000542402,
+          "median_ns": 197276.87093037818,
+          "speedup": 1.0372427291673678,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7842330193004426597,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 34688.00103291869,
+          "median_ns": 27111.420646327795,
+          "speedup": 1.2794608399695622,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7842566811438153883,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 390031.9985114038,
+          "median_ns": 382355.14601560147,
+          "speedup": 1.0200778061333824,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "a2d8bfdabc884c1f",
+      "problem": "muse_bf16_proj",
+      "mode": "check",
+      "source_sha256": "9364440b039466380d0f7495fcac823f8f02d82de7371a8aecf8fb9a7b7ec721",
+      "source_snapshot": "runs/openkernel/a2d8bfdabc884c1f/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.0485416109748875,
+      "speedup_ci": [1.032813486810264, 1.0642697351395107],
+      "score_us": 4607.16098382451,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "8b8bd9a1e215915a17eb5466b01b1c292dee41c172088aa8b4957cdef0de2643",
+      "created_at": 1792785901.2603812,
+      "finished_at": 1792788043.497758,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "layer": "qkv_gate",
+            "m": 1,
+            "seed": 4086709585009861918
+          },
+          "status": "pass",
+          "message": "relative L2 error 0.000e+00 (worst row 0.000e+00)"
+        },
+        {
+          "index": 1,
+          "case": {
+            "layer": "pooler",
+            "m": 7,
+            "seed": 4086877041854303939
+          },
+          "status": "pass",
+          "message": "relative L2 error 1.322e-04 (worst row 2.464e-04); 1 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 2,
+          "case": {
+            "layer": "o",
+            "m": 33,
+            "seed": 4087044498698745961
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.465e-05 (worst row 1.921e-04); 8 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 3,
+          "case": {
+            "layer": "unpooler",
+            "m": 130,
+            "seed": 4087211955543187984
+          },
+          "status": "pass",
+          "message": "relative L2 error 1.322e-04 (worst row 2.894e-04); 22 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 4,
+          "case": {
+            "layer": "unpooler",
+            "m": 5,
+            "seed": 4088049239765398114
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.859e-06 (worst row 1.579e-05); 1 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 5,
+          "case": {
+            "layer": "router",
+            "m": 8,
+            "seed": 4087379412387630008
+          },
+          "status": "pass",
+          "message": "relative L2 error 2.544e-06 (worst row 2.727e-06); 2 probe rows exact to 2.5e-06"
+        },
+        {
+          "index": 6,
+          "case": {
+            "dist": "outliers",
+            "layer": "router",
+            "m": 9,
+            "seed": 4087546869232072033
+          },
+          "status": "pass",
+          "message": "relative L2 error 2.602e-06 (worst row 2.802e-06); 3 probe rows exact to 2.8e-06"
+        },
+        {
+          "index": 7,
+          "case": {
+            "dist": "outliers",
+            "layer": "qkv_gate",
+            "m": 512,
+            "seed": 4087714326076514059
+          },
+          "status": "pass",
+          "message": "relative L2 error 2.234e-04 (worst row 6.109e-04); 80 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 8,
+          "case": {
+            "dist": "outliers",
+            "layer": "unpooler",
+            "m": 1000,
+            "seed": 4087881782920956086
+          },
+          "status": "pass",
+          "message": "relative L2 error 1.572e-04 (worst row 3.925e-04); 126 probe rows exact to 0.0e+00"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 4103455269454068968,
+            "weight": 62
+          },
+          "baseline_ns": 14064.000453799963,
+          "median_ns": 12521.017147354049,
+          "speedup": 1.1232314666042909,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "layer": "o",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 4103622726298511089,
+            "weight": 62
+          },
+          "baseline_ns": 6880.000699311495,
+          "median_ns": 6325.607677391977,
+          "speedup": 1.0876426503497751,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "layer": "pooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 4103790183142953211,
+            "weight": 62
+          },
+          "baseline_ns": 21199.99984279275,
+          "median_ns": 17804.583657874588,
+          "speedup": 1.1907046101252945,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 4103957639987395334,
+            "weight": 62
+          },
+          "baseline_ns": 6719.999480992556,
+          "median_ns": 5702.39630462362,
+          "speedup": 1.1784518511180715,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "layer": "router",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 4104125096831837458,
+            "weight": 62
+          },
+          "baseline_ns": 10255.999863147736,
+          "median_ns": 11470.5496871938,
+          "speedup": 0.894115813350947,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 4104292553676279583,
+            "weight": 62
+          },
+          "baseline_ns": 14031.999744474888,
+          "median_ns": 13917.953097255684,
+          "speedup": 1.0081942112049287,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "layer": "o",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 4104460010520721709,
+            "weight": 62
+          },
+          "baseline_ns": 6976.000498980284,
+          "median_ns": 7056.378548162867,
+          "speedup": 0.9886091642286524,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "layer": "pooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 4104627467365163836,
+            "weight": 62
+          },
+          "baseline_ns": 21408.00002962351,
+          "median_ns": 19447.67925677882,
+          "speedup": 1.1007997276673196,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 4104794924209605964,
+            "weight": 62
+          },
+          "baseline_ns": 18463.99949863553,
+          "median_ns": 20623.807913065717,
+          "speedup": 0.8952759634140167,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "layer": "router",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 4104962381054048093,
+            "weight": 62
+          },
+          "baseline_ns": 14943.999238312244,
+          "median_ns": 11515.17731224409,
+          "speedup": 1.2977654475560951,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 4105129837898490223,
+            "weight": 62
+          },
+          "baseline_ns": 13983.998913317919,
+          "median_ns": 14642.881410836002,
+          "speedup": 0.9550032210852641,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "layer": "o",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 4105297294742932354,
+            "weight": 62
+          },
+          "baseline_ns": 6736.000068485737,
+          "median_ns": 6697.252641782195,
+          "speedup": 1.0057855704086491,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 12,
+          "case": {
+            "layer": "pooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 4105464751587374486,
+            "weight": 62
+          },
+          "baseline_ns": 21696.00035995245,
+          "median_ns": 24037.15072616113,
+          "speedup": 0.9026028337185297,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 13,
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 4105632208431816619,
+            "weight": 62
+          },
+          "baseline_ns": 18479.999620467424,
+          "median_ns": 24780.898296791078,
+          "speedup": 0.7457356629747531,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 14,
+          "case": {
+            "layer": "router",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 4105799665276258753,
+            "weight": 62
+          },
+          "baseline_ns": 15455.999411642551,
+          "median_ns": 15312.433196515467,
+          "speedup": 1.0093757937281813,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 15,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 4105967122120700888,
+            "weight": 62
+          },
+          "baseline_ns": 14240.000396966934,
+          "median_ns": 13783.613501118574,
+          "speedup": 1.0331108309015864,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 16,
+          "case": {
+            "layer": "o",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 4106134578965143024,
+            "weight": 62
+          },
+          "baseline_ns": 6783.999968320131,
+          "median_ns": 6609.911213624747,
+          "speedup": 1.0263375329968945,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 17,
+          "case": {
+            "layer": "pooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 4106302035809585161,
+            "weight": 62
+          },
+          "baseline_ns": 21232.000552117825,
+          "median_ns": 19054.464690330344,
+          "speedup": 1.114279561099007,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 18,
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 4106469492654027299,
+            "weight": 62
+          },
+          "baseline_ns": 7232.000585645437,
+          "median_ns": 7137.68867686207,
+          "speedup": 1.0132132281265074,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 19,
+          "case": {
+            "layer": "router",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 4106636949498469438,
+            "weight": 62
+          },
+          "baseline_ns": 26383.99926945567,
+          "median_ns": 11500.879827255807,
+          "speedup": 2.294085293103274,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 20,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 4106804406342911578,
+            "weight": 62
+          },
+          "baseline_ns": 16896.00059762597,
+          "median_ns": 16935.32490321643,
+          "speedup": 0.9976779715880744,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 21,
+          "case": {
+            "layer": "o",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 4106971863187353719,
+            "weight": 62
+          },
+          "baseline_ns": 7360.000163316727,
+          "median_ns": 7538.890008358295,
+          "speedup": 0.9762710631348601,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 22,
+          "case": {
+            "layer": "pooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 4107139320031795861,
+            "weight": 62
+          },
+          "baseline_ns": 25215.99968895316,
+          "median_ns": 25344.44914261059,
+          "speedup": 0.9949318506417458,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 23,
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 4107306776876238004,
+            "weight": 62
+          },
+          "baseline_ns": 19743.99946630001,
+          "median_ns": 20041.73438892384,
+          "speedup": 0.9851442536436181,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 24,
+          "case": {
+            "layer": "router",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 4107474233720680148,
+            "weight": 62
+          },
+          "baseline_ns": 16287.999227643013,
+          "median_ns": 16408.311609553337,
+          "speedup": 0.9926675952545736,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 25,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 4107641690565122293,
+            "weight": 62
+          },
+          "baseline_ns": 20031.999796628952,
+          "median_ns": 20072.213430468215,
+          "speedup": 0.9979965521003169,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 26,
+          "case": {
+            "layer": "o",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 4107809147409564439,
+            "weight": 62
+          },
+          "baseline_ns": 9199.999738484621,
+          "median_ns": 9231.505640299169,
+          "speedup": 0.9965871329074413,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 27,
+          "case": {
+            "layer": "pooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 4107976604254006586,
+            "weight": 62
+          },
+          "baseline_ns": 30751.999467611313,
+          "median_ns": 30540.321776172426,
+          "speedup": 1.0069310891021468,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 28,
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 4108144061098448734,
+            "weight": 62
+          },
+          "baseline_ns": 24048.00057411194,
+          "median_ns": 24116.426230813904,
+          "speedup": 0.9971626950010306,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 29,
+          "case": {
+            "layer": "router",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 4108311517942890883,
+            "weight": 62
+          },
+          "baseline_ns": 17440.00054895878,
+          "median_ns": 17392.26354128529,
+          "speedup": 1.0027447265596092,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "facf2729e11e442c",
+      "problem": "muse_moe_w4a16",
+      "mode": "check",
+      "source_sha256": "4f3b82ec491f12ab98e4656252d278ebdeb8b50b23799137f359257e7e8cdd07",
+      "source_snapshot": "runs/openkernel/facf2729e11e442c/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 0.9291319416311807,
+      "speedup_ci": [0.9151949625067131, 0.9518795040626349],
+      "score_us": 14474.26290865629,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "40ffb7a2d7c5a12f8a99cbbfaac50b4d62043534a4397de206e1be5c4fb229c6",
+      "created_at": 1792785902.18518,
+      "finished_at": 1792788746.2199056,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "bs": 4,
+            "seed": 3357634292707682025,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.433e-03 (worst row 5.459e-03)"
+        },
+        {
+          "index": 1,
+          "case": {
+            "bs": 33,
+            "seed": 3357644936396955325,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.579e-03 (worst row 5.770e-03)"
+        },
+        {
+          "index": 2,
+          "case": {
+            "bs": 257,
+            "seed": 3357666223775501928,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.555e-03 (worst row 5.970e-03)"
+        },
+        {
+          "index": 3,
+          "case": {
+            "bs": 128,
+            "dist": "skewed",
+            "seed": 3357676867464775231,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.363e-03 (worst row 5.651e-03)"
+        },
+        {
+          "index": 4,
+          "case": {
+            "bs": 1,
+            "seed": 3357687511154048535,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.502e-03 (worst row 4.502e-03)"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "bs": 1,
+            "load": "decode 1",
+            "seed": 3358698661635016975,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 77408.0017581582,
+          "median_ns": 271788.51776589913,
+          "speedup": 0.2848096836262686,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "bs": 16,
+            "load": "decode 16",
+            "seed": 3358709305324290375,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 191855.99591583014,
+          "median_ns": 158282.6959164696,
+          "speedup": 1.2121097306623976,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "bs": 32,
+            "load": "decode 32",
+            "seed": 3358719949013563776,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 206735.99932342768,
+          "median_ns": 210863.70809545348,
+          "speedup": 0.980424754884054,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "bs": 8,
+            "load": "verify 1",
+            "seed": 3358730592702837178,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 143664.00241851807,
+          "median_ns": 113577.46839646489,
+          "speedup": 1.2648987906389153,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "bs": 128,
+            "load": "verify 16",
+            "seed": 3358741236392110581,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 475791.9991388917,
+          "median_ns": 425729.18192883534,
+          "speedup": 1.117593106921256,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "bs": 256,
+            "load": "verify 32",
+            "seed": 3358751880081383985,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 624768.0182568729,
+          "median_ns": 464627.4844023895,
+          "speedup": 1.3446643585031532,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "875ff735dfa84734",
+      "problem": "muse_moe_w4a16",
+      "mode": "check",
+      "source_sha256": "8683f54a31084390f269485125305a90faee99cbb3670f996cda63d2d7ac8cd0",
+      "source_snapshot": "runs/openkernel/875ff735dfa84734/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 0.20868608854751142,
+      "speedup_ci": [0.20555579721929873, 0.21181637987572408],
+      "score_us": 64443.68234415486,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "1b22f9d1d21591276b0d7ca4ea8b4ee5e75ec481a58cb4d717076cdbf70f7de2",
+      "created_at": 1792786087.8309913,
+      "finished_at": 1792789537.216439,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "bs": 4,
+            "seed": 814886844314922974,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.576e-03 (worst row 4.769e-03)"
+        },
+        {
+          "index": 1,
+          "case": {
+            "bs": 33,
+            "seed": 814983319269505899,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.552e-03 (worst row 4.756e-03)"
+        },
+        {
+          "index": 2,
+          "case": {
+            "bs": 257,
+            "seed": 815176269178671752,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.572e-03 (worst row 4.929e-03)"
+        },
+        {
+          "index": 3,
+          "case": {
+            "bs": 128,
+            "dist": "skewed",
+            "seed": 815272744133254680,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.471e-03 (worst row 4.696e-03)"
+        },
+        {
+          "index": 4,
+          "case": {
+            "bs": 1,
+            "seed": 815369219087837609,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.375e-03 (worst row 5.375e-03)"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "bs": 1,
+            "load": "decode 1",
+            "seed": 824534339773220424,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 76528.00297364593,
+          "median_ns": 51331.61310205216,
+          "speedup": 1.490855212780883,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "bs": 16,
+            "load": "decode 16",
+            "seed": 824630814727803449,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 191744.00251358747,
+          "median_ns": 1402629.9823922673,
+          "speedup": 0.13670319679503562,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "bs": 32,
+            "load": "decode 32",
+            "seed": 824727289682386475,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 205807.99924209714,
+          "median_ns": 1791355.1415880327,
+          "speedup": 0.11488955733236056,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "bs": 8,
+            "load": "verify 1",
+            "seed": 824823764636969502,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 142703.99790257215,
+          "median_ns": 1020638.899311228,
+          "speedup": 0.1398183020448026,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "bs": 128,
+            "load": "verify 16",
+            "seed": 824920239591552530,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 473359.9931932986,
+          "median_ns": 2980359.870713236,
+          "speedup": 0.15882645510188603,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "bs": 256,
+            "load": "verify 32",
+            "seed": 825016714546135559,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 621840.0085344911,
+          "median_ns": 3914706.6886254903,
+          "speedup": 0.15884715203345873,
           "status": "pass",
           "flags": []
         }

@@ -802,6 +802,56 @@ Two cross-cutting findings the collapsed entry hid:
 - Next action: Keep the exact passing scored source; any composition into the full decoder layer needs fresh correctness and timing.
 - Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
 
+### Open Kernel decoder-layer GEMV and attention composition
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 check 2928071145b44c58 passed correctness with no flags: 1.1364x aggregate, reported 95% interval 1.1193-1.1534x. This is an off-board check, not a scored submission.
+- Failure reason: The check is not a scored leaderboard run; composition improves over the selected 1.1070x layer but remains far from the top-ten target.
+- Failure-reason confidence: `exact`.
+- Lesson: Compose qualified components while preserving FP32 router input, stream ordering, cache semantics and normalization boundaries.
+- Next action: Await the exact-source scored run e5f50469aadf4638 before promoting the full-layer source.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel native FP8 QK and PV attention
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check 8c3311ccc5cd4b3c passed correctness with no flags: 1.2223x aggregate, reported 95% interval 1.2040-1.2458x. This is an off-board check, not a scored submission.
+- Failure reason: Aggregate 1.2223x is below selected 1.2804x; full decode at batch 16 and 32 took 230.6 and 443.3 microseconds, versus selected measurements near 189.7 and 350.9. Both use the same keys; native FP8 dots did not improve these regimes.
+- Failure-reason confidence: `exact`.
+- Lesson: Lower operand precision does not guarantee lower latency; layout conversion and dependent gathers are hypotheses until compiler or hardware evidence establishes their cost.
+- Next action: Reject broad native-FP8 dispatch. Keep the BF16-dot incumbent and independently test scheduling and epilogue fusion.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel small-batch dense split-K and native tiny router
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check a2d8bfdabc884c1f passed correctness with no flags: 1.0485x aggregate, reported 95% interval 1.0328-1.0643x. This is an off-board check, not a scored submission.
+- Failure reason: Aggregate 1.0485x is below selected 1.0673x. Pooler at 8 and 16 tokens improved about 10 percent over SGLang, but 32-token dense paths and the tiny-router replacement regressed.
+- Failure-reason confidence: `exact`.
+- Lesson: Separate public-shape regimes before composing improvements; more splits add a reduction launch and may lose despite sufficient parallel work.
+- Next action: Reject broad dispatch. Retain measured pooler cases for a later narrow candidate and check a structurally different whole-row reduction.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel single-token direct packed NVFP4 SIMT GEMV
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check facf2729e11e442c passed correctness with no flags: 0.9291x aggregate, reported 95% interval 0.9152-0.9519x. This is an off-board check, not a scored submission.
+- Failure reason: One-token latency was 271.789 microseconds versus 77.408 for SGLang and 51.41 for the selected source; the two custom GEMVs consumed 97.3 percent of the diagnostic profile.
+- Failure-reason confidence: `exact`.
+- Lesson: Removing route alignment is insufficient when serial unpack, scaling and repeated reductions dominate; register spilling or occupancy was not measured.
+- Next action: Reject this source. Measure the queued bit-decoder/vector-accumulator variant and grouped tensor-core approach before composition.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel raw grouped NVFP4 tensor-core experts
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check 875ff735dfa84734 passed correctness with no flags: 0.2087x aggregate, reported 95% interval 0.2056-0.2118x. This is an off-board check, not a scored submission.
+- Failure reason: Aggregate 0.2087x is far below selected 1.2236x. At 16 tokens the candidate took 1402.630 microseconds versus 191.744 for SGLang and 157.29 for the selected source; the two custom GEMMs account for 99 percent of the diagnostic profile.
+- Failure-reason confidence: `exact`.
+- Lesson: Correct tensor-core math does not establish an efficient implementation. The measured regression is inside GEMMs; unpacking cost, resource pressure and compiler layout remain unverified explanations.
+- Next action: Reject this source. Use the queued cheaper decoder and BF16 decode/resource diagnostic before any further rewrite or full-layer integration.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
 ## Tool-Calling / Eval Infrastructure Attempts
 
 ### A1 first tool-calling specialist harness
@@ -1153,7 +1203,7 @@ Current structured coverage:
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 92 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 97 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 4 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
 | `not-applicable` | 5 | No failure reason is expected for a clean worked status. |
 | `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |

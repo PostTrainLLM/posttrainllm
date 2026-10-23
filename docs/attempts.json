@@ -1937,6 +1937,91 @@
         "experiments/openkernel/muse_attention_decode/submission.py"
       ],
       "source": "docs/learn/openkernel.md"
+    },
+    {
+      "id": "openkernel-layer-compose-20261024",
+      "name": "Open Kernel decoder-layer GEMV and attention composition",
+      "family": "runtime-perf",
+      "kind": "infrastructure",
+      "status": "worked-with-caveat",
+      "evidence": "2026-10-23 H200 check 2928071145b44c58 passed correctness with no flags: 1.1364x aggregate, reported 95% interval 1.1193-1.1534x. This is an off-board check, not a scored submission.",
+      "failure_reason": "The check is not a scored leaderboard run; composition improves over the selected 1.1070x layer but remains far from the top-ten target.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Compose qualified components while preserving FP32 router input, stream ordering, cache semantics and normalization boundaries.",
+      "next_action": "Await the exact-source scored run e5f50469aadf4638 before promoting the full-layer source.",
+      "evidence_sources": [
+        "experiments/openkernel/results.json",
+        "docs/learn/openkernel.md"
+      ],
+      "source": "docs/learn/openkernel.md"
+    },
+    {
+      "id": "openkernel-attention-native-fp8-20261024",
+      "name": "Open Kernel native FP8 QK and PV attention",
+      "family": "runtime-perf",
+      "kind": "infrastructure",
+      "status": "regressed",
+      "evidence": "2026-10-23 H200 check 8c3311ccc5cd4b3c passed correctness with no flags: 1.2223x aggregate, reported 95% interval 1.2040-1.2458x. This is an off-board check, not a scored submission.",
+      "failure_reason": "Aggregate 1.2223x is below selected 1.2804x; full decode at batch 16 and 32 took 230.6 and 443.3 microseconds, versus selected measurements near 189.7 and 350.9. Both use the same keys; native FP8 dots did not improve these regimes.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Lower operand precision does not guarantee lower latency; layout conversion and dependent gathers are hypotheses until compiler or hardware evidence establishes their cost.",
+      "next_action": "Reject broad native-FP8 dispatch. Keep the BF16-dot incumbent and independently test scheduling and epilogue fusion.",
+      "evidence_sources": [
+        "experiments/openkernel/results.json",
+        "docs/learn/openkernel.md"
+      ],
+      "source": "docs/learn/openkernel.md"
+    },
+    {
+      "id": "openkernel-dense-splitk-20261024",
+      "name": "Open Kernel small-batch dense split-K and native tiny router",
+      "family": "runtime-perf",
+      "kind": "infrastructure",
+      "status": "regressed",
+      "evidence": "2026-10-23 H200 check a2d8bfdabc884c1f passed correctness with no flags: 1.0485x aggregate, reported 95% interval 1.0328-1.0643x. This is an off-board check, not a scored submission.",
+      "failure_reason": "Aggregate 1.0485x is below selected 1.0673x. Pooler at 8 and 16 tokens improved about 10 percent over SGLang, but 32-token dense paths and the tiny-router replacement regressed.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Separate public-shape regimes before composing improvements; more splits add a reduction launch and may lose despite sufficient parallel work.",
+      "next_action": "Reject broad dispatch. Retain measured pooler cases for a later narrow candidate and check a structurally different whole-row reduction.",
+      "evidence_sources": [
+        "experiments/openkernel/results.json",
+        "docs/learn/openkernel.md"
+      ],
+      "source": "docs/learn/openkernel.md"
+    },
+    {
+      "id": "openkernel-moe-direct-gemv-20261024",
+      "name": "Open Kernel single-token direct packed NVFP4 SIMT GEMV",
+      "family": "runtime-perf",
+      "kind": "infrastructure",
+      "status": "regressed",
+      "evidence": "2026-10-23 H200 check facf2729e11e442c passed correctness with no flags: 0.9291x aggregate, reported 95% interval 0.9152-0.9519x. This is an off-board check, not a scored submission.",
+      "failure_reason": "One-token latency was 271.789 microseconds versus 77.408 for SGLang and 51.41 for the selected source; the two custom GEMVs consumed 97.3 percent of the diagnostic profile.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Removing route alignment is insufficient when serial unpack, scaling and repeated reductions dominate; register spilling or occupancy was not measured.",
+      "next_action": "Reject this source. Measure the queued bit-decoder/vector-accumulator variant and grouped tensor-core approach before composition.",
+      "evidence_sources": [
+        "experiments/openkernel/results.json",
+        "docs/learn/openkernel.md"
+      ],
+      "source": "docs/learn/openkernel.md"
+    },
+    {
+      "id": "openkernel-moe-grouped-20261024",
+      "name": "Open Kernel raw grouped NVFP4 tensor-core experts",
+      "family": "runtime-perf",
+      "kind": "infrastructure",
+      "status": "regressed",
+      "evidence": "2026-10-23 H200 check 875ff735dfa84734 passed correctness with no flags: 0.2087x aggregate, reported 95% interval 0.2056-0.2118x. This is an off-board check, not a scored submission.",
+      "failure_reason": "Aggregate 0.2087x is far below selected 1.2236x. At 16 tokens the candidate took 1402.630 microseconds versus 191.744 for SGLang and 157.29 for the selected source; the two custom GEMMs account for 99 percent of the diagnostic profile.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Correct tensor-core math does not establish an efficient implementation. The measured regression is inside GEMMs; unpacking cost, resource pressure and compiler layout remain unverified explanations.",
+      "next_action": "Reject this source. Use the queued cheaper decoder and BF16 decode/resource diagnostic before any further rewrite or full-layer integration.",
+      "evidence_sources": [
+        "experiments/openkernel/results.json",
+        "docs/learn/openkernel.md"
+      ],
+      "source": "docs/learn/openkernel.md"
     }
   ],
   "method_vocabulary": {
