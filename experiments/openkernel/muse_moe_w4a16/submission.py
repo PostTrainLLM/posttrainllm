@@ -1,5 +1,5 @@
 # okc: problem=muse_moe_w4a16
-# Adapted from the supplied SGLang Apache-2.0 baseline; tile heuristic experiment.
+# Adapted from the supplied SGLang Apache-2.0 baseline; fused small-batch norm.
 """SGLang's NVFP4 expert path for Muse Spark Open on H200 (Marlin MoE runner), at SGLang commit
 a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f: MuseSpark1xFp4Experts._forward_marlin, starting after the pre-expert norm.
 
@@ -14,12 +14,14 @@ from typing import TypedDict
 import types
 
 import torch
+import triton
 from sgl_kernel.scalar_type import scalar_types
 
 from sglang.kernels.ops.activation.activation import silu_and_mul
 from sglang.kernels.ops.moe.moe_wna16_marlin import moe_wna16_marlin_gemm
 from sglang.kernels.ops.muse_spark_v12.fused_post_expert_norm_weighted_sum_triton import (
     fused_post_expert_norm_weighted_sum,
+    _post_expert_norm_weighted_sum_kernel,
 )
 from sglang.srt.layers.moe.fused_moe_triton import moe_align_block_size
 from sglang.srt.layers.quantization.marlin_utils import marlin_make_workspace
@@ -218,6 +220,26 @@ def kernel_fn(data, state):
         size_k=size_n,
         **common,
     ).view(num_tokens, TOP_K, size_k)
+    if 0 < num_tokens < 32:
+        out = torch.empty((num_tokens, size_k), dtype=y.dtype, device=y.device)
+        _post_expert_norm_weighted_sum_kernel[(num_tokens,)](
+            y,
+            state["norm_w"],
+            topk_weights,
+            out,
+            local_ids,
+            TOPK=TOP_K,
+            H=size_k,
+            eps=POST_NORM_EPS,
+            APPLY_NORM=True,
+            HAS_WEIGHT=True,
+            WEIGHT_FIRST=True,
+            HAS_IDS=True,
+            BLOCK_H=triton.next_power_of_2(size_k),
+            num_warps=8 if size_k >= 4096 else 4,
+            num_stages=2,
+        )
+        return out
     return fused_post_expert_norm_weighted_sum(
         y,
         topk_weights,

@@ -9,46 +9,89 @@ This is an isolated CUDA experiment; the Mac application has no new dependency.
 
 ## Current state
 
-October 23 batch complete: 19 judge jobs, including six scored runs. All four
-baselines and the selected scored candidates passed on the organizer's H200,
-with no flags:
+Two bounded rounds complete: 28 organizer H200 jobs, comprising 18 checks and
+10 scored runs. Twenty-seven passed correctness; one attention draft failed GPU
+compilation and was corrected. All four selected scored sources passed fresh
+correctness with no flags:
 
-| Candidate | Scored speedup | Reported 95% interval | Status |
+| Candidate | Scored speedup | Reported 95% interval | Measured scope |
 | --- | --- | --- | --- |
-| Fused attention preparation | 1.1357× | 1.1187–1.1528× | Passed; every benchmark shape improved |
-| MoE global-expert block sizing | 1.0645× | 1.0485–1.0804× | Passed; gains concentrated at 128–256 tokens |
-| Router dispatch, BK128 | 1.0534× | 1.0376–1.0692× | Passed; fusion limited to 5–16 tokens |
-| Combined decoder layer, narrowed MoE dispatch | 1.0351× | 1.0196–1.0506× | Passed; every benchmark shape improved |
+| Narrow paged split-K attention + fused prep | 1.2804× | 1.2612–1.2996× | All 12 shapes faster than SGLang |
+| MoE block sizing + fused small-batch norm | 1.2236× | 1.2053–1.2420× | Small-batch gains; 32-token case 0.988× |
+| Single-token GEMV + narrow router dispatch | 1.0673× | 1.0513–1.0834× | One-token projections 1.13–1.20× |
+| Decoder layer + fused small-batch expert norm | 1.1070× | 1.0903–1.1236× | All 12 shapes faster than SGLang |
 
-The original router passed correctness but regressed to 0.8443×; its source
-remains in commit `fa8bd98` and the local receipt. A subsequent check measured
-1.98× at eight tokens and 1.13× at sixteen, with regressions elsewhere. The
-current candidate uses fusion only for 5–16 tokens and the baseline otherwise.
-The larger-token tile check measured 1.0088× with an interval including 1×;
-it is inconclusive and not promoted. The selected BK128 small-token variant
-scored 1.0534×, with router cases at 2.38× for eight tokens and 1.40× for sixteen.
-The earlier BK64 variant scored 1.0309×; the aggregate intervals overlap, so
-these runs do not establish the whole score difference as a tile-size effect.
+At 2026-10-23 19:39 UTC (October 24, 01:09 Asia/Kolkata), the live overall
+rank was **321 of 586**, versus 369 of 546 before the second round. Individual
+ranks were attention 219/329, dense 449/481, MoE 317/380 and layer 252/284.
+The field grew during the runs; these are dated snapshots, not fixed placements.
+Results improved, but placement remains outside the top 50.
 
-The full-layer candidate incorporates attention and MoE changes while preserving
-the layer's FP32 small-batch router and stream ordering. The initial combined
-version passed all 13 correctness cases and scored 1.0254×, but regressed at
-32 tokens in both check and scored runs. The selected fallback preserves
-baseline MoE tiling below 256 tokens; it passed fresh correctness and improved
-all 12 benchmark shapes. Its aggregate interval overlaps the initial version's;
-selection also uses recovery of the measured shape regressions.
-See [results.json](../../experiments/openkernel/results.json) for dated job IDs,
-exact source hashes, correctness cases, per-shape timings and aggregate results.
-Seven outcomes are indexed in the existing [attempt ledger](../attempt-ledger.md)
-and [structured history](../attempts.json), including regressed and inconclusive
-variants. These results establish the organizer workloads only, not Mac
-application or end-to-end serving gains. No paid GPU was provisioned.
+See [results.json](../../experiments/openkernel/results.json) for every job ID,
+exact source hash, correctness case, per-shape timing, evaluator image and the
+leaderboard snapshot. Thirteen outcomes from the two rounds are indexed in the
+existing [attempt ledger](../attempt-ledger.md) and
+[structured history](../attempts.json), including failures and regressions.
+These results establish organizer workloads only, not Mac application or
+end-to-end serving gains. No paid GPU was provisioned.
 
-Research agents inspected requirements, repository fit, attention/MoE code and
-the measured router regression. Claude reviewed the approach and candidates.
-Local snapshots under ignored `runs/openkernel/<job>/` preserve exact submitted
-source, hashes and raw judge results. The published timing-floor table is not
-measured baseline timing; decisions use actual judge profiles.
+## What the second round changed
+
+The single-token GEMV uses one launch for dense projections,
+while preserving other dense dispatch and the measured 5–16-token router path.
+Scored run `1095cf9b43bf49a0` measured 1.0673×, versus the first round's 1.0534×.
+Their aggregate intervals overlap; the stronger evidence is that all four
+one-token projection gains repeated in check and scored runs. The router itself
+is unchanged in this round.
+
+Claude identified the small-batch PyTorch fallback in SGLang's post-expert norm
+wrapper; an agent traced its numerical and sentinel contracts. The candidate
+launches the existing Triton norm kernel below 32 tokens, preserving FP32
+reduction, weight-first normalization and invalid-expert masking. Scored run
+`20b3199ecbd847f2` measured 1.2236×, versus 1.0645× previously, with small-batch
+cases at 1.22–1.49×. The unchanged 32-token path retains a small regression.
+The imported helper is pinned to SGLang's
+[fused norm implementation](https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/ops/muse_spark_v12/fused_post_expert_norm_weighted_sum_triton.py).
+
+The same norm change passed inside the full decoder layer. Scored run
+`1c749497f0bf4c89` measured 1.1070×, versus 1.0351× previously. It retains the
+layer's FP32 small-batch router, stream ordering and baseline MoE tiling below
+256 tokens. The new GEMV and split-K attention are **not** composed into this
+layer source; that would require a separate full-layer correctness and timing run.
+
+The new attention kernel uses paged GQA split-K with live cache metadata, every
+legal key, FP32 online softmax and split reduction. FP8 Q/K/V convert losslessly
+to BF16; probabilities use BF16, finer than FA3's FP8 probability operands.
+The first draft failed compilation because masked FP8 loads used integer zero;
+floating-point zero fixed that backend type error. The broad dispatch then passed
+correctness but measured only 1.0564×, below the existing 1.1357× candidate.
+Long-context verification at batches 16 and 32 regressed to 0.553× and 0.537×.
+
+The selected dispatch uses custom attention for one-token decoding and
+single-request sliding verification on supported page-one/GQA8/unit-scale
+configurations. Other shapes retain FA3. Scored run `3439c74e04594576` passed
+fresh correctness and measured 1.2804×, with single-request sliding decoding at
+2.05×. No tuning or GPU jobs remain running from this round.
+
+## Retained first-round evidence
+
+The original broad router passed correctness but regressed to 0.8443×; its source
+remains in commit `fa8bd98` and the local receipt. Narrowing fusion to 5–16 tokens
+recovered the performance regression. A larger-token tile check measured 1.0088×
+with an interval including 1× and was not promoted. BK64 and BK128 router scored
+intervals overlap, so they do not establish the whole score difference as a
+tile-size effect.
+
+The initial combined layer scored 1.0254× but regressed at 32 tokens. Restoring
+baseline MoE tiling below 256 tokens recovered the measured shape regressions
+and scored 1.0351×; the selected layer retains that fallback alongside the new
+small-batch norm fusion. Component gains are not assumed to compose.
+
+Research agents inspected requirements, repository fit, source and profiles;
+Claude reviewed the approach and new kernels. Local snapshots under ignored
+`runs/openkernel/<job>/` preserve every exact submitted source and raw receipt.
+The published timing-floor table is not measured baseline timing; selection uses
+actual judge profiles and comparisons with the incumbent as well as SGLang.
 
 ## Lessons carried forward from prior PostTrain experiments
 
@@ -126,7 +169,8 @@ while the current API/site says November 19. Neither date affects this two-day t
 - [Serving status](https://openkernelchallenge.dev/api/v1/serving)
 - [Triton dot precision](https://triton-lang.org/main/python-api/generated/triton.language.dot.html)
 
-Submissions are Apache-2.0 licensed under the challenge terms. This candidate's
-baseline-compatible wrapper follows the supplied SGLang baseline; the split-K
-router kernel is new experiment code. Official reference/harness files remain
-local, unmodified, and outside the submitted single file.
+Submissions are Apache-2.0 licensed under the challenge terms. The wrappers and
+fused QK/cache preparation follow the supplied SGLang source. The split-K router,
+GEMV and paged attention kernels are new experiment code; the post-expert norm
+kernel is imported from pinned SGLang. Official reference/harness files remain
+local, unmodified, and outside each submitted single file.

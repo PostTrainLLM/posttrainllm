@@ -60,6 +60,7 @@ from sglang.kernels.ops.muse_spark_v12.fused_norm_residual import (
 )
 from sglang.kernels.ops.muse_spark_v12.fused_post_expert_norm_weighted_sum_triton import (
     fused_post_expert_norm_weighted_sum,
+    _post_expert_norm_weighted_sum_kernel,
 )
 from sglang.kernels.ops.muse_spark_v12.fused_qk_norm import FusedQKNorm
 from sglang.srt.layers.moe.fused_moe_triton import moe_align_block_size
@@ -535,6 +536,26 @@ def _experts(x, topk_weights, topk_ids, state):
         size_k=size_n,
         **common,
     ).view(num_tokens, TOP_K, size_k)
+    if 0 < num_tokens < 32:
+        out = torch.empty((num_tokens, size_k), dtype=y.dtype, device=y.device)
+        _post_expert_norm_weighted_sum_kernel[(num_tokens,)](
+            y,
+            state["post_expert_w"],
+            topk_weights,
+            out,
+            local_ids,
+            TOPK=TOP_K,
+            H=size_k,
+            eps=POST_NORM_EPS,
+            APPLY_NORM=True,
+            HAS_WEIGHT=True,
+            WEIGHT_FIRST=True,
+            HAS_IDS=True,
+            BLOCK_H=triton.next_power_of_2(size_k),
+            num_warps=8 if size_k >= 4096 else 4,
+            num_stages=2,
+        )
+        return out
     return fused_post_expert_norm_weighted_sum(
         y,
         topk_weights,

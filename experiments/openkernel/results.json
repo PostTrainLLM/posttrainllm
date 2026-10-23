@@ -1,7 +1,7 @@
 {
-  "observed_at": "2026-10-23T15:32:21.501062+00:00",
+  "observed_at": "2026-10-23T19:39:24.515898+00:00",
   "timebox": "2026-10-23/2026-10-24 Asia/Kolkata",
-  "scored_submissions": 6,
+  "scored_submissions": 10,
   "jobs": [
     {
       "job_id": "0a072555103b4e2d",
@@ -8811,40 +8811,3655 @@
           "flags": []
         }
       ]
+    },
+    {
+      "job_id": "9a4cbed259054f1a",
+      "problem": "muse_bf16_proj",
+      "mode": "check",
+      "source_sha256": "a668f70c393cd5edfa4fde244caefd29c8b5a9f9752b4a0648d5e581b731451e",
+      "source_snapshot": "runs/openkernel/9a4cbed259054f1a/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.066596467941702,
+      "speedup_ci": [1.0505975209225764, 1.0825954149608275],
+      "score_us": 4529.173070788795,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "760b61be8eaa6684fd12c4a0787444e2dfa7115b32b6c77aff60023a42aa4a99",
+      "created_at": 1792777226.4762602,
+      "finished_at": 1792777975.6635103,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "layer": "qkv_gate",
+            "m": 1,
+            "seed": 1483895641867762378
+          },
+          "status": "pass",
+          "message": "relative L2 error 0.000e+00 (worst row 0.000e+00)"
+        },
+        {
+          "index": 1,
+          "case": {
+            "layer": "pooler",
+            "m": 7,
+            "seed": 1484132716125750052
+          },
+          "status": "pass",
+          "message": "relative L2 error 9.989e-05 (worst row 1.846e-04)"
+        },
+        {
+          "index": 2,
+          "case": {
+            "layer": "o",
+            "m": 33,
+            "seed": 1484369790383737727
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.651e-05 (worst row 1.736e-04); 7 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 3,
+          "case": {
+            "layer": "unpooler",
+            "m": 130,
+            "seed": 1484606864641725403
+          },
+          "status": "pass",
+          "message": "relative L2 error 1.352e-04 (worst row 2.750e-04); 16 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 4,
+          "case": {
+            "layer": "unpooler",
+            "m": 5,
+            "seed": 1485792235931663798
+          },
+          "status": "pass",
+          "message": "relative L2 error 6.857e-06 (worst row 1.547e-05)"
+        },
+        {
+          "index": 5,
+          "case": {
+            "layer": "router",
+            "m": 8,
+            "seed": 1484843938899713080
+          },
+          "status": "pass",
+          "message": "relative L2 error 2.461e-06 (worst row 2.871e-06); 1 probe rows exact to 2.3e-06"
+        },
+        {
+          "index": 6,
+          "case": {
+            "dist": "outliers",
+            "layer": "router",
+            "m": 9,
+            "seed": 1485081013157700758
+          },
+          "status": "pass",
+          "message": "relative L2 error 2.594e-06 (worst row 2.748e-06); 2 probe rows exact to 2.2e-06"
+        },
+        {
+          "index": 7,
+          "case": {
+            "dist": "outliers",
+            "layer": "qkv_gate",
+            "m": 512,
+            "seed": 1485318087415688437
+          },
+          "status": "pass",
+          "message": "relative L2 error 2.164e-04 (worst row 4.939e-04); 81 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 8,
+          "case": {
+            "dist": "outliers",
+            "layer": "unpooler",
+            "m": 1000,
+            "seed": 1485555161673676117
+          },
+          "status": "pass",
+          "message": "relative L2 error 1.623e-04 (worst row 3.338e-04); 138 probe rows exact to 0.0e+00"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 1507603067666534728,
+            "weight": 62
+          },
+          "baseline_ns": 13919.999822974205,
+          "median_ns": 12624.9367402655,
+          "speedup": 1.1025797680695126,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "layer": "o",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 1507840141924522502,
+            "weight": 62
+          },
+          "baseline_ns": 7072.000298649073,
+          "median_ns": 6404.629656348547,
+          "speedup": 1.1042012853372403,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "layer": "pooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 1508077216182510277,
+            "weight": 62
+          },
+          "baseline_ns": 21376.000251621008,
+          "median_ns": 17857.371210306123,
+          "speedup": 1.1970407066009896,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 1508314290440498053,
+            "weight": 62
+          },
+          "baseline_ns": 7008.000276982784,
+          "median_ns": 6128.201786768439,
+          "speedup": 1.1435655222897427,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "layer": "router",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 1508551364698485830,
+            "weight": 62
+          },
+          "baseline_ns": 10480.000171810389,
+          "median_ns": 10529.597902522968,
+          "speedup": 0.9952896842622361,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 1508788438956473608,
+            "weight": 62
+          },
+          "baseline_ns": 14320.001006126404,
+          "median_ns": 14650.159735242956,
+          "speedup": 0.977463813700112,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "layer": "o",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 1509025513214461387,
+            "weight": 62
+          },
+          "baseline_ns": 7215.999998152256,
+          "median_ns": 7209.51812113839,
+          "speedup": 1.0008990721577995,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "layer": "pooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 1509262587472449167,
+            "weight": 62
+          },
+          "baseline_ns": 21728.001069277525,
+          "median_ns": 21692.852543652334,
+          "speedup": 1.0016202814062587,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 1509499661730436948,
+            "weight": 62
+          },
+          "baseline_ns": 18671.99968546629,
+          "median_ns": 18657.180237986817,
+          "speedup": 1.0007943026379356,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "layer": "router",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 1509736735988424730,
+            "weight": 62
+          },
+          "baseline_ns": 14991.999603807926,
+          "median_ns": 11316.454047551804,
+          "speedup": 1.3247965785758913,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 1509973810246412513,
+            "weight": 62
+          },
+          "baseline_ns": 14543.999452143908,
+          "median_ns": 14220.623402301882,
+          "speedup": 1.0227399348603579,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "layer": "o",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 1510210884504400297,
+            "weight": 62
+          },
+          "baseline_ns": 6736.000068485737,
+          "median_ns": 6547.693201807794,
+          "speedup": 1.02875926847427,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 12,
+          "case": {
+            "layer": "pooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 1510447958762388082,
+            "weight": 62
+          },
+          "baseline_ns": 22047.999780625105,
+          "median_ns": 21696.870051377347,
+          "speedup": 1.0161834277670603,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 13,
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 1510685033020375868,
+            "weight": 62
+          },
+          "baseline_ns": 18784.000538289547,
+          "median_ns": 18704.920436939003,
+          "speedup": 1.0042277699933102,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 14,
+          "case": {
+            "layer": "router",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 1510922107278363655,
+            "weight": 62
+          },
+          "baseline_ns": 14943.999703973532,
+          "median_ns": 14936.729071319807,
+          "speedup": 1.0004867620359859,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 15,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 1511159181536351443,
+            "weight": 62
+          },
+          "baseline_ns": 14399.999286979437,
+          "median_ns": 14399.54687914207,
+          "speedup": 1.0000314181995562,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 16,
+          "case": {
+            "layer": "o",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 1511396255794339232,
+            "weight": 62
+          },
+          "baseline_ns": 6591.999903321266,
+          "median_ns": 6591.688168157079,
+          "speedup": 1.0000472921588877,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 17,
+          "case": {
+            "layer": "pooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 1511633330052327022,
+            "weight": 62
+          },
+          "baseline_ns": 21519.99995112419,
+          "median_ns": 21314.945452502685,
+          "speedup": 1.0096202215988983,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 18,
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 1511870404310314813,
+            "weight": 62
+          },
+          "baseline_ns": 7296.000141650438,
+          "median_ns": 7447.047535990069,
+          "speedup": 0.9797171437929395,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 19,
+          "case": {
+            "layer": "router",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 1512107478568302605,
+            "weight": 62
+          },
+          "baseline_ns": 26223.99991378188,
+          "median_ns": 11237.564250762141,
+          "speedup": 2.333601777805484,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 20,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 1512344552826290398,
+            "weight": 62
+          },
+          "baseline_ns": 17520.000226795673,
+          "median_ns": 17212.713944795785,
+          "speedup": 1.0178522854086467,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 21,
+          "case": {
+            "layer": "o",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 1512581627084278192,
+            "weight": 62
+          },
+          "baseline_ns": 7296.000141650438,
+          "median_ns": 7297.185641672745,
+          "speedup": 0.999837540103744,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 22,
+          "case": {
+            "layer": "pooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 1512818701342265987,
+            "weight": 62
+          },
+          "baseline_ns": 24960.000067949295,
+          "median_ns": 25260.537317662303,
+          "speedup": 0.9881024997238332,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 23,
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 1513055775600253783,
+            "weight": 62
+          },
+          "baseline_ns": 19584.000576287508,
+          "median_ns": 19725.289697773773,
+          "speedup": 0.992837158609528,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 24,
+          "case": {
+            "layer": "router",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 1513292849858241580,
+            "weight": 62
+          },
+          "baseline_ns": 16176.000237464905,
+          "median_ns": 16272.38639449872,
+          "speedup": 0.9940767042585468,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 25,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 1513529924116229378,
+            "weight": 62
+          },
+          "baseline_ns": 19679.999444633722,
+          "median_ns": 19823.384272439547,
+          "speedup": 0.9927668845119866,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 26,
+          "case": {
+            "layer": "o",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 1513766998374217177,
+            "weight": 62
+          },
+          "baseline_ns": 9680.000133812428,
+          "median_ns": 9555.53783282811,
+          "speedup": 1.0130251486794104,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 27,
+          "case": {
+            "layer": "pooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 1514004072632204977,
+            "weight": 62
+          },
+          "baseline_ns": 30943.998135626316,
+          "median_ns": 30909.948618123963,
+          "speedup": 1.0011015714688827,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 28,
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 1514241146890192778,
+            "weight": 62
+          },
+          "baseline_ns": 24223.999585956335,
+          "median_ns": 24223.95753253836,
+          "speedup": 1.0000017360259124,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 29,
+          "case": {
+            "layer": "router",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 1514478221148180580,
+            "weight": 62
+          },
+          "baseline_ns": 17344.000283628702,
+          "median_ns": 17352.27503911163,
+          "speedup": 0.9995231313782038,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "7b79837948e642d6",
+      "problem": "muse_moe_w4a16",
+      "mode": "check",
+      "source_sha256": "909873095a4eca7db2195bad348fae96728bbc955b1ec4b33459e6deb2d67d8e",
+      "source_snapshot": "runs/openkernel/7b79837948e642d6/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.2201223922743902,
+      "speedup_ci": [1.2018205563902744, 1.238424228158506],
+      "score_us": 11022.25488619309,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "940926c4a5a3cf06dbd03a07df1dd917c7dd6f5549108cffdf74d53829a311c6",
+      "created_at": 1792777227.2006063,
+      "finished_at": 1792778680.81548,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "bs": 4,
+            "seed": 3009456882270756527,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.541e-03 (worst row 5.730e-03)"
+        },
+        {
+          "index": 1,
+          "case": {
+            "bs": 33,
+            "seed": 3009676347909820492,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.528e-03 (worst row 5.843e-03)"
+        },
+        {
+          "index": 2,
+          "case": {
+            "bs": 257,
+            "seed": 3010115279187948425,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.536e-03 (worst row 5.950e-03)"
+        },
+        {
+          "index": 3,
+          "case": {
+            "bs": 128,
+            "dist": "skewed",
+            "seed": 3010334744827012393,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.347e-03 (worst row 5.607e-03)"
+        },
+        {
+          "index": 4,
+          "case": {
+            "bs": 1,
+            "seed": 3010554210466076362,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.449e-03 (worst row 5.449e-03)"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "bs": 1,
+            "load": "decode 1",
+            "seed": 3031403446177157977,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 77216.00262448192,
+          "median_ns": 52390.17144804466,
+          "speedup": 1.473864285805154,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "bs": 16,
+            "load": "decode 16",
+            "seed": 3031622911816222042,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 188336.000777781,
+          "median_ns": 155211.59020173666,
+          "speedup": 1.2134145429023104,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "bs": 32,
+            "load": "decode 32",
+            "seed": 3031842377455286108,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 204655.99978342652,
+          "median_ns": 208377.89964694163,
+          "speedup": 0.9821387015138304,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "bs": 8,
+            "load": "verify 1",
+            "seed": 3032061843094350175,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 142559.99261513352,
+          "median_ns": 111787.1957965366,
+          "speedup": 1.275280157081732,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "bs": 128,
+            "load": "verify 16",
+            "seed": 3032281308733414243,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 461200.00164955854,
+          "median_ns": 412858.7009701982,
+          "speedup": 1.1170892137328354,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "bs": 256,
+            "load": "verify 32",
+            "seed": 3032500774372478312,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 621455.9767395258,
+          "median_ns": 471327.6958561767,
+          "speedup": 1.3185220860205082,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "035753a0aef44f2f",
+      "problem": "muse_attention_decode",
+      "mode": "check",
+      "source_sha256": "5b45d9cebcd6f385bf7019839b9f685302ee7281e1929782904bae169e2cb2b8",
+      "source_snapshot": "runs/openkernel/035753a0aef44f2f/submission.py",
+      "status": "done",
+      "passed": false,
+      "speedup": null,
+      "speedup_ci": null,
+      "score_us": null,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "b22d66407980cc9e50fd35265dcdef2d4b0826d0edb53aa8bf37b3d4c6908968",
+      "created_at": 1792777228.052067,
+      "finished_at": 1792779384.2675467,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 10,
+            "heads": "tp8",
+            "layer": "sliding",
+            "seed": 7416659414146062365
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.830e-02 (worst row 5.830e-02) [bound 0.078: 2.5 x the reference's 0.025 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 3,
+            "ctx": 2047,
+            "heads": "tp8",
+            "layer": "sliding",
+            "seed": 7416787293160612914
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.894e-02 (worst row 9.684e-02) [bound 0.150: 2.5 x the reference's 0.076 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 5,
+            "ctx": 5000,
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7416915172175163464,
+            "spread": "mixed"
+          },
+          "status": "fail",
+          "message": "CompilationError: at 49:8:\n    split = tl.program_id(2)\n    rows = tl.arange(0, BM)\n    dims = tl.arange(0, 64)\n    columns = tl.arange(0, BN)\n    query_start = tl.load(CU_Q + batch * CS)\n    query_length = tl.load(CU_Q + (batch + 1) * CS) - query_start\n    seqlen = tl.load(LENGTHS + batch * LS)\n    query_token = rows // GROUP\n    query_head = head * GROUP + rows % GROUP\n    valid_query = (rows < ROWS) & (query_token < query_length)\n    query_pos = seqlen - query_length + query_token\n    q = tl.load(\n        ^\ncannot cast int32[constexpr[64], constexpr[64]] to <['64', '64'], fp8e4nv>"
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 4,
+            "ctx": 3000,
+            "heads": "tp8",
+            "layer": "full",
+            "seed": 7417043051189714015
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.938e-02 (worst row 1.079e-01) [bound 0.150: 2.5 x the reference's 0.075 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 8,
+            "ctx": 8192,
+            "heads": "dp",
+            "layer": "full",
+            "seed": 7417170930204264567,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.309e-02 (worst row 9.592e-02) [bound 0.150: 2.5 x the reference's 0.082 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 2,
+            "ctx": 100000,
+            "heads": "tp8",
+            "layer": "full",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7417298809218815120
+          },
+          "status": "fail",
+          "message": "CompilationError: at 49:8:\n    split = tl.program_id(2)\n    rows = tl.arange(0, BM)\n    dims = tl.arange(0, 64)\n    columns = tl.arange(0, BN)\n    query_start = tl.load(CU_Q + batch * CS)\n    query_length = tl.load(CU_Q + (batch + 1) * CS) - query_start\n    seqlen = tl.load(LENGTHS + batch * LS)\n    query_token = rows // GROUP\n    query_head = head * GROUP + rows % GROUP\n    valid_query = (rows < ROWS) & (query_token < query_length)\n    query_pos = seqlen - query_length + query_token\n    q = tl.load(\n        ^\ncannot cast int32[constexpr[64], constexpr[64]] to <['64', '64'], fp8e4nv>"
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "edges",
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "seed": 7417426688233365674
+          },
+          "status": "fail",
+          "message": "CompilationError: at 49:8:\n    split = tl.program_id(2)\n    rows = tl.arange(0, BM)\n    dims = tl.arange(0, 64)\n    columns = tl.arange(0, BN)\n    query_start = tl.load(CU_Q + batch * CS)\n    query_length = tl.load(CU_Q + (batch + 1) * CS) - query_start\n    seqlen = tl.load(LENGTHS + batch * LS)\n    query_token = rows // GROUP\n    query_head = head * GROUP + rows % GROUP\n    valid_query = (rows < ROWS) & (query_token < query_length)\n    query_pos = seqlen - query_length + query_token\n    q = tl.load(\n        ^\ncannot cast int32[constexpr[16], constexpr[64]] to <['16', '64'], fp8e4nv>"
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "edges",
+            "heads": "tp8",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 7417554567247916229
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.553e-02 (worst row 1.240e-01) [bound 0.150: 2.5 x the reference's 0.085 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 1,
+            "ctx": 1048576,
+            "heads": "tp8",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 7417682446262466785
+          },
+          "status": "pass",
+          "message": "relative L2 error 9.433e-02 (worst row 1.131e-01) [bound 0.150: 2.5 x the reference's 0.096 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 3,
+            "ctx": 4000,
+            "heads": "tp8",
+            "kv_scale": 0.015625,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7418449720349770142
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.678e-02 (worst row 1.198e-01) [bound 0.150: 2.5 x the reference's 0.086 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 2,
+            "ctx": 9000,
+            "heads": "tp8",
+            "kv_scale": 0.015625,
+            "layer": "full",
+            "seed": 7418577599364320705
+          },
+          "status": "pass",
+          "message": "relative L2 error 9.137e-02 (worst row 9.864e-02) [bound 0.150: 2.5 x the reference's 0.089 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 4,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "full",
+            "seed": 7417810325277017342,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.068e-02 (worst row 7.516e-02) [bound 0.150: 2.5 x the reference's 0.073 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 12,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7417938204291567900
+          },
+          "status": "fail",
+          "message": "CompilationError: at 49:8:\n    split = tl.program_id(2)\n    rows = tl.arange(0, BM)\n    dims = tl.arange(0, 64)\n    columns = tl.arange(0, BN)\n    query_start = tl.load(CU_Q + batch * CS)\n    query_length = tl.load(CU_Q + (batch + 1) * CS) - query_start\n    seqlen = tl.load(LENGTHS + batch * LS)\n    query_token = rows // GROUP\n    query_head = head * GROUP + rows % GROUP\n    valid_query = (rows < ROWS) & (query_token < query_length)\n    query_pos = seqlen - query_length + query_token\n    q = tl.load(\n        ^\ncannot cast int32[constexpr[64], constexpr[64]] to <['64', '64'], fp8e4nv>"
+        },
+        {
+          "index": 13,
+          "case": {
+            "batch": 2,
+            "ctx": 20000,
+            "dist": "soft",
+            "heads": "dp",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 7418066083306118459
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.208e-02 (worst row 7.883e-02) [bound 0.150: 2.5 x the reference's 0.071 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 14,
+          "case": {
+            "batch": 4,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "page": 1,
+            "seed": 7418193962320669019,
+            "spread": "mixed"
+          },
+          "status": "fail",
+          "message": "CompilationError: at 49:8:\n    split = tl.program_id(2)\n    rows = tl.arange(0, BM)\n    dims = tl.arange(0, 64)\n    columns = tl.arange(0, BN)\n    query_start = tl.load(CU_Q + batch * CS)\n    query_length = tl.load(CU_Q + (batch + 1) * CS) - query_start\n    seqlen = tl.load(LENGTHS + batch * LS)\n    query_token = rows // GROUP\n    query_head = head * GROUP + rows % GROUP\n    valid_query = (rows < ROWS) & (query_token < query_length)\n    query_pos = seqlen - query_length + query_token\n    q = tl.load(\n        ^\ncannot cast int32[constexpr[16], constexpr[64]] to <['16', '64'], fp8e4nv>"
+        },
+        {
+          "index": 15,
+          "case": {
+            "batch": 2,
+            "ctx": 20000,
+            "dist": "coherent",
+            "heads": "dp",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 7418321841335219580
+          },
+          "status": "pass",
+          "message": "relative L2 error 3.822e-02 (worst row 4.607e-02) [bound 0.108: 2.5 x the reference's 0.037 with FP8 E4M3 queries + 0.015]"
+        }
+      ],
+      "benchmarks": []
+    },
+    {
+      "job_id": "e2fb79818ea343cb",
+      "problem": "muse_decode_layer",
+      "mode": "check",
+      "source_sha256": "ea1adbaf4510c0a9856a4d467000eea164da401b77c334a4dc8afb44e4a5ff6d",
+      "source_snapshot": "runs/openkernel/e2fb79818ea343cb/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.1086331429881342,
+      "speedup_ci": [1.0920036458433122, 1.1252626401329562],
+      "score_us": 20403.773911206357,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "11da74c9abf34176df20996f0f559160c5ecf0110344739648aec6b32f1e2419",
+      "created_at": 1792777295.8393624,
+      "finished_at": 1792780193.6029053,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 10,
+            "layer": "sliding",
+            "seed": 9148980572558263921
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.220e-02 (worst row 7.220e-02) [bound 0.150]; attention input relative L2 error 5.265e-02 (worst row 5.265e-02) [bound 0.134]"
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 3000,
+            "layer": "full",
+            "seed": 9149090701693993865
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.790e-02 (worst row 7.790e-02) [bound 0.150]; attention input relative L2 error 4.770e-02 (worst row 4.770e-02) [bound 0.099]"
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 8,
+            "ctx": 2047,
+            "layer": "sliding",
+            "seed": 9149200830829723810
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.597e-02 (worst row 8.925e-02) [bound 0.150]; attention input relative L2 error 4.820e-02 (worst row 5.940e-02) [bound 0.117]"
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 9,
+            "ctx": 5000,
+            "layer": "sliding",
+            "page": 1,
+            "seed": 9149310959965453756,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.054e-02 (worst row 9.937e-02) [bound 0.150]; attention input relative L2 error 4.732e-02 (worst row 7.677e-02) [bound 0.119]"
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 3,
+            "ctx": 6000,
+            "dist": "outliers",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 9149421089101183703
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.274e-02 (worst row 9.520e-02) [bound 0.150]; attention input relative L2 error 3.365e-02 (worst row 5.329e-02) [bound 0.084]"
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 5,
+            "ctx": 5000,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9149531218236913651,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.459e-02 (worst row 1.244e-01) [bound 0.150]; attention input relative L2 error 4.909e-02 (worst row 7.348e-02) [bound 0.118]"
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 33,
+            "ctx": 20000,
+            "layer": "full",
+            "page": 1,
+            "seed": 9149641347372643600,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.283e-02 (worst row 1.077e-01) [bound 0.150]; attention input relative L2 error 4.909e-02 (worst row 7.940e-02) [bound 0.117]"
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 2,
+            "ctx": 300000,
+            "layer": "sliding",
+            "q_len": 8,
+            "seed": 9149751476508373550
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.109e-02 (worst row 9.851e-02) [bound 0.150]; attention input relative L2 error 4.745e-02 (worst row 6.814e-02) [bound 0.123]"
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 1,
+            "ctx": 1048576,
+            "layer": "full",
+            "q_len": 8,
+            "seed": 9149861605644103501
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.277e-02 (worst row 8.551e-02) [bound 0.150]; attention input relative L2 error 4.831e-02 (worst row 5.551e-02) [bound 0.122]"
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 4,
+            "ctx": 7000,
+            "kv_scale": 0.015625,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9150302122187023315
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.235e-02 (worst row 9.605e-02) [bound 0.150]; attention input relative L2 error 4.954e-02 (worst row 6.768e-02) [bound 0.119]"
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "page": 1,
+            "seed": 9149971734779833453
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.205e-02 (worst row 6.205e-02) [bound 0.150]; attention input relative L2 error 3.920e-02 (worst row 3.920e-02) [bound 0.100]"
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "soft",
+            "layer": "sliding",
+            "q_len": 8,
+            "seed": 9150081863915563406
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.282e-02 (worst row 8.171e-02) [bound 0.150]; attention input relative L2 error 4.218e-02 (worst row 5.867e-02) [bound 0.101]"
+        },
+        {
+          "index": 12,
+          "case": {
+            "batch": 16,
+            "ctx": 20000,
+            "dist": "soft",
+            "layer": "full",
+            "page": 1,
+            "seed": 9150191993051293360,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.793e-02 (worst row 7.086e-02) [bound 0.140]; attention input relative L2 error 3.704e-02 (worst row 5.056e-02) [bound 0.090]"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 1",
+            "page": 1,
+            "repeats": 60,
+            "seed": 9159993486131263271,
+            "weight": 46
+          },
+          "baseline_ns": 170848.00451993942,
+          "median_ns": 142295.66717718847,
+          "speedup": 1.2006550017239612,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 1",
+            "page": 1,
+            "repeats": 60,
+            "seed": 9160103615266993315,
+            "weight": 16
+          },
+          "baseline_ns": 183295.99499702454,
+          "median_ns": 152899.0406649314,
+          "speedup": 1.1988040879779365,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 9160213744402723360,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 261967.99473837018,
+          "median_ns": 223456.21242091758,
+          "speedup": 1.1723459907434086,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 9160323873538453406,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 431695.98560780287,
+          "median_ns": 392853.93009544787,
+          "speedup": 1.0988714953237655,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 9160434002674183453,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 266000.0044852495,
+          "median_ns": 259736.03516029014,
+          "speedup": 1.024116674149945,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 9160544131809913501,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 628863.9903068542,
+          "median_ns": 624691.0297613303,
+          "speedup": 1.006680039166111,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9160654260945643550,
+            "weight": 46
+          },
+          "baseline_ns": 278736.0013462603,
+          "median_ns": 240637.45130608513,
+          "speedup": 1.1583234439751222,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9160764390081373600,
+            "weight": 16
+          },
+          "baseline_ns": 273263.9918103814,
+          "median_ns": 236983.91691911928,
+          "speedup": 1.153090873688463,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9160874519217103651,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 536080.0018534064,
+          "median_ns": 529698.2614573532,
+          "speedup": 1.0120478786894547,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9160984648352833703,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 695535.9736457467,
+          "median_ns": 689648.6495042475,
+          "speedup": 1.0085367007471577,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9161094777488563756,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 717984.0058088303,
+          "median_ns": 622081.9961444174,
+          "speedup": 1.15416297250009,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9161204906624293810,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 1082048.0356924236,
+          "median_ns": 978031.1597330786,
+          "speedup": 1.1063533353965256,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "1095cf9b43bf49a0",
+      "problem": "muse_bf16_proj",
+      "mode": "run",
+      "source_sha256": "774a28dae97b364a64704edc54d3ad811aaa71fea3918fc5ff8ab4f207845269",
+      "source_snapshot": "runs/openkernel/1095cf9b43bf49a0/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.0673408559093023,
+      "speedup_ci": [1.0513307430706627, 1.0833509687479417],
+      "score_us": 4526.014321717766,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "193eeaba0a6e52e03777059a546eb3bb06d1a1fab0363ac25b4cd3e43ba2a962",
+      "created_at": 1792777993.8612754,
+      "finished_at": 1792780918.093759,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "layer": "qkv_gate",
+            "m": 1,
+            "seed": 1097140893413646903
+          },
+          "status": "pass",
+          "message": "relative L2 error 0.000e+00 (worst row 0.000e+00)"
+        },
+        {
+          "index": 1,
+          "case": {
+            "layer": "pooler",
+            "m": 7,
+            "seed": 1097402139955423229
+          },
+          "status": "pass",
+          "message": "relative L2 error 1.010e-04 (worst row 1.865e-04); 2 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 2,
+          "case": {
+            "layer": "o",
+            "m": 33,
+            "seed": 1097663386497199556
+          },
+          "status": "pass",
+          "message": "relative L2 error 6.259e-05 (worst row 1.799e-04); 5 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 3,
+          "case": {
+            "layer": "unpooler",
+            "m": 130,
+            "seed": 1097924633038975884
+          },
+          "status": "pass",
+          "message": "relative L2 error 1.313e-04 (worst row 2.708e-04); 20 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 4,
+          "case": {
+            "layer": "unpooler",
+            "m": 5,
+            "seed": 1099230865747857539
+          },
+          "status": "pass",
+          "message": "relative L2 error 9.169e-08 (worst row 2.414e-07); 2 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 5,
+          "case": {
+            "layer": "router",
+            "m": 8,
+            "seed": 1098185879580752213
+          },
+          "status": "pass",
+          "message": "relative L2 error 2.634e-06 (worst row 2.744e-06); 2 probe rows exact to 2.7e-06"
+        },
+        {
+          "index": 6,
+          "case": {
+            "dist": "outliers",
+            "layer": "router",
+            "m": 9,
+            "seed": 1098447126122528543
+          },
+          "status": "pass",
+          "message": "relative L2 error 2.424e-06 (worst row 2.721e-06); 3 probe rows exact to 2.7e-06"
+        },
+        {
+          "index": 7,
+          "case": {
+            "dist": "outliers",
+            "layer": "qkv_gate",
+            "m": 512,
+            "seed": 1098708372664304874
+          },
+          "status": "pass",
+          "message": "relative L2 error 2.162e-04 (worst row 6.353e-04); 66 probe rows exact to 0.0e+00"
+        },
+        {
+          "index": 8,
+          "case": {
+            "dist": "outliers",
+            "layer": "unpooler",
+            "m": 1000,
+            "seed": 1098969619206081206
+          },
+          "status": "pass",
+          "message": "relative L2 error 1.578e-04 (worst row 3.250e-04); 133 probe rows exact to 0.0e+00"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 1123265547591284453,
+            "weight": 62
+          },
+          "baseline_ns": 14176.000840961933,
+          "median_ns": 12568.950775337313,
+          "speedup": 1.1278587285724724,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "layer": "o",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 1123526794133060879,
+            "weight": 62
+          },
+          "baseline_ns": 6608.00002515316,
+          "median_ns": 5791.56799552543,
+          "speedup": 1.140969083028725,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "layer": "pooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 1123788040674837306,
+            "weight": 62
+          },
+          "baseline_ns": 21487.999707460403,
+          "median_ns": 17890.15051042458,
+          "speedup": 1.2011078215881614,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 1124049287216613734,
+            "weight": 62
+          },
+          "baseline_ns": 6815.999746322632,
+          "median_ns": 5866.583851926187,
+          "speedup": 1.1618345392071268,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "layer": "router",
+            "load": "decode 1",
+            "m": 1,
+            "seed": 1124310533758390163,
+            "weight": 62
+          },
+          "baseline_ns": 10048.000141978264,
+          "median_ns": 10089.263497756841,
+          "speedup": 0.9959101716604238,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 1124571780300166593,
+            "weight": 62
+          },
+          "baseline_ns": 14240.000396966934,
+          "median_ns": 14232.003135802755,
+          "speedup": 1.0005619209810361,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "layer": "o",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 1124833026841943024,
+            "weight": 62
+          },
+          "baseline_ns": 6624.000146985054,
+          "median_ns": 6585.207956126147,
+          "speedup": 1.0058908072633939,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "layer": "pooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 1125094273383719456,
+            "weight": 62
+          },
+          "baseline_ns": 21584.000438451767,
+          "median_ns": 21594.291311558936,
+          "speedup": 0.9995234447401541,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 1125355519925495889,
+            "weight": 62
+          },
+          "baseline_ns": 18640.000838786364,
+          "median_ns": 18691.630702803082,
+          "speedup": 0.9972378084695962,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "layer": "router",
+            "load": "decode 16",
+            "m": 16,
+            "seed": 1125616766467272323,
+            "weight": 62
+          },
+          "baseline_ns": 14959.999825805426,
+          "median_ns": 11326.731422832929,
+          "speedup": 1.3207693611988003,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 1125878013009048758,
+            "weight": 62
+          },
+          "baseline_ns": 14192.000962793827,
+          "median_ns": 14335.971643027697,
+          "speedup": 0.9899573824628839,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "layer": "o",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 1126139259550825194,
+            "weight": 62
+          },
+          "baseline_ns": 6735.9996028244495,
+          "median_ns": 6744.574677113401,
+          "speedup": 0.9987285967315257,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 12,
+          "case": {
+            "layer": "pooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 1126400506092601631,
+            "weight": 62
+          },
+          "baseline_ns": 22128.00085544586,
+          "median_ns": 22304.534876514474,
+          "speedup": 0.9920852857032901,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 13,
+          "case": {
+            "layer": "unpooler",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 1126661752634378069,
+            "weight": 62
+          },
+          "baseline_ns": 18639.99990746379,
+          "median_ns": 18721.009081159813,
+          "speedup": 0.9956728201271187,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 14,
+          "case": {
+            "layer": "router",
+            "load": "decode 32",
+            "m": 32,
+            "seed": 1126922999176154508,
+            "weight": 62
+          },
+          "baseline_ns": 15343.999955803156,
+          "median_ns": 15295.49841649816,
+          "speedup": 1.003170968214588,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 15,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 1127184245717930948,
+            "weight": 62
+          },
+          "baseline_ns": 13920.000288635492,
+          "median_ns": 13662.59148233593,
+          "speedup": 1.0188404086173812,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 16,
+          "case": {
+            "layer": "o",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 1127445492259707389,
+            "weight": 62
+          },
+          "baseline_ns": 6463.999859988689,
+          "median_ns": 6382.850648937066,
+          "speedup": 1.012713631497102,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 17,
+          "case": {
+            "layer": "pooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 1127706738801483831,
+            "weight": 62
+          },
+          "baseline_ns": 21391.999442130327,
+          "median_ns": 21225.56532712104,
+          "speedup": 1.0078412099957887,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 18,
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 1127967985343260274,
+            "weight": 62
+          },
+          "baseline_ns": 6991.999689489603,
+          "median_ns": 7032.236897902085,
+          "speedup": 0.9942781779117131,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 19,
+          "case": {
+            "layer": "router",
+            "load": "verify 1",
+            "m": 8,
+            "seed": 1128229231885036718,
+            "weight": 62
+          },
+          "baseline_ns": 26128.000114113092,
+          "median_ns": 10996.996341069076,
+          "speedup": 2.3759215065423085,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 20,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 1128490478426813163,
+            "weight": 62
+          },
+          "baseline_ns": 17376.00052729249,
+          "median_ns": 17132.270760782892,
+          "speedup": 1.014226355041476,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 21,
+          "case": {
+            "layer": "o",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 1128751724968589609,
+            "weight": 62
+          },
+          "baseline_ns": 7296.000141650438,
+          "median_ns": 7497.4027289873375,
+          "speedup": 0.9731370189628186,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 22,
+          "case": {
+            "layer": "pooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 1129012971510366056,
+            "weight": 62
+          },
+          "baseline_ns": 24895.99958062172,
+          "median_ns": 25078.818506085412,
+          "speedup": 0.992710225746108,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 23,
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 1129274218052142504,
+            "weight": 62
+          },
+          "baseline_ns": 19919.99987512827,
+          "median_ns": 20071.251775740096,
+          "speedup": 0.9924642517416555,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 24,
+          "case": {
+            "layer": "router",
+            "load": "verify 16",
+            "m": 128,
+            "seed": 1129535464593918953,
+            "weight": 62
+          },
+          "baseline_ns": 16608.00026729703,
+          "median_ns": 16768.9641564038,
+          "speedup": 0.990401083358193,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 25,
+          "case": {
+            "layer": "qkv_gate",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 1129796711135695403,
+            "weight": 62
+          },
+          "baseline_ns": 19695.999566465616,
+          "median_ns": 19736.849775381295,
+          "speedup": 0.9979302568859477,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 26,
+          "case": {
+            "layer": "o",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 1130057957677471854,
+            "weight": 62
+          },
+          "baseline_ns": 9024.000726640224,
+          "median_ns": 9280.449080251949,
+          "speedup": 0.9723668163691103,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 27,
+          "case": {
+            "layer": "pooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 1130319204219248306,
+            "weight": 62
+          },
+          "baseline_ns": 30879.99951094389,
+          "median_ns": 30896.88187206234,
+          "speedup": 0.9994535901328698,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 28,
+          "case": {
+            "layer": "unpooler",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 1130580450761024759,
+            "weight": 62
+          },
+          "baseline_ns": 24192.000273615122,
+          "median_ns": 24423.902713792446,
+          "speedup": 0.9905051030175301,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 29,
+          "case": {
+            "layer": "router",
+            "load": "verify 32",
+            "m": 256,
+            "seed": 1130841697302801213,
+            "weight": 62
+          },
+          "baseline_ns": 17696.000169962645,
+          "median_ns": 17752.154578555048,
+          "speedup": 0.996836755316437,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "20b3199ecbd847f2",
+      "problem": "muse_moe_w4a16",
+      "mode": "run",
+      "source_sha256": "909873095a4eca7db2195bad348fae96728bbc955b1ec4b33459e6deb2d67d8e",
+      "source_snapshot": "runs/openkernel/20b3199ecbd847f2/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.2236334151530706,
+      "speedup_ci": [1.2052789139257745, 1.2419879163803664],
+      "score_us": 10990.628266160627,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "940926c4a5a3cf06dbd03a07df1dd917c7dd6f5549108cffdf74d53829a311c6",
+      "created_at": 1792778751.7765071,
+      "finished_at": 1792781639.5471787,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "bs": 4,
+            "seed": 8615163201247762925,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.482e-03 (worst row 5.659e-03)"
+        },
+        {
+          "index": 1,
+          "case": {
+            "bs": 33,
+            "seed": 8615363997181433464,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.510e-03 (worst row 5.794e-03)"
+        },
+        {
+          "index": 2,
+          "case": {
+            "bs": 257,
+            "seed": 8615765589048774545,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.544e-03 (worst row 5.894e-03)"
+        },
+        {
+          "index": 3,
+          "case": {
+            "bs": 128,
+            "dist": "skewed",
+            "seed": 8615966384982445087,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.374e-03 (worst row 5.725e-03)"
+        },
+        {
+          "index": 4,
+          "case": {
+            "bs": 1,
+            "seed": 8616167180916115630,
+            "sharding": "ep8"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.529e-03 (worst row 5.529e-03)"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "bs": 1,
+            "load": "decode 1",
+            "seed": 8635242794614821775,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 76799.99992251396,
+          "median_ns": 51414.0178562891,
+          "speedup": 1.4937560440653166,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "bs": 16,
+            "load": "decode 16",
+            "seed": 8635443590548492414,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 191424.0000769496,
+          "median_ns": 157285.92666490577,
+          "speedup": 1.2170446786683862,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "bs": 32,
+            "load": "decode 32",
+            "seed": 8635644386482163054,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 206527.99447998405,
+          "median_ns": 208975.722253669,
+          "speedup": 0.9882870232614211,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "bs": 8,
+            "load": "verify 1",
+            "seed": 8635845182415833695,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 140928.00160869956,
+          "median_ns": 109906.21619265371,
+          "speedup": 1.2822568776425531,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "bs": 128,
+            "load": "verify 16",
+            "seed": 8636045978349504337,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 471295.99936306477,
+          "median_ns": 425064.35958329885,
+          "speedup": 1.108763858313334,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "bs": 256,
+            "load": "verify 32",
+            "seed": 8636246774283174980,
+            "sharding": "ep8",
+            "weight": 60
+          },
+          "baseline_ns": 609615.9964799881,
+          "median_ns": 463907.90553527273,
+          "speedup": 1.3140883981629767,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "34c48a28a66d46d3",
+      "problem": "muse_attention_decode",
+      "mode": "check",
+      "source_sha256": "b2915d67a257adb8ac480966f53910ab8a0b3ebefc7528991f8b24ce05c17b58",
+      "source_snapshot": "runs/openkernel/34c48a28a66d46d3/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.0563923839341454,
+      "speedup_ci": [1.0405464981751331, 1.0722382696931574],
+      "score_us": 3565.247210486126,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "8139e7862b65b25f798194077474dcd39921ea2937ad0522ee20d394188004b7",
+      "created_at": 1792779420.5937016,
+      "finished_at": 1792782666.388745,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 10,
+            "heads": "tp8",
+            "layer": "sliding",
+            "seed": 376223661229888836
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.257e-02 (worst row 7.257e-02) [bound 0.150: 2.5 x the reference's 0.067 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 3,
+            "ctx": 2047,
+            "heads": "tp8",
+            "layer": "sliding",
+            "seed": 376240076945522899
+          },
+          "status": "pass",
+          "message": "relative L2 error 6.401e-02 (worst row 7.811e-02) [bound 0.150: 2.5 x the reference's 0.065 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 5,
+            "ctx": 5000,
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 376256492661156963,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.407e-02 (worst row 1.333e-01) [bound 0.150: 2.5 x the reference's 0.081 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 4,
+            "ctx": 3000,
+            "heads": "tp8",
+            "layer": "full",
+            "seed": 376272908376791028
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.528e-02 (worst row 1.050e-01) [bound 0.150: 2.5 x the reference's 0.087 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 8,
+            "ctx": 8192,
+            "heads": "dp",
+            "layer": "full",
+            "seed": 376289324092425094,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.512e-02 (worst row 9.320e-02) [bound 0.150: 2.5 x the reference's 0.084 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 2,
+            "ctx": 100000,
+            "heads": "tp8",
+            "layer": "full",
+            "page": 1,
+            "q_len": 8,
+            "seed": 376305739808059161
+          },
+          "status": "pass",
+          "message": "relative L2 error 9.513e-02 (worst row 1.257e-01) [bound 0.150: 2.5 x the reference's 0.091 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "edges",
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "seed": 376322155523693229
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.393e-02 (worst row 8.630e-02) [bound 0.150: 2.5 x the reference's 0.073 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "edges",
+            "heads": "tp8",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 376338571239327298
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.259e-02 (worst row 1.196e-01) [bound 0.150: 2.5 x the reference's 0.081 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 1,
+            "ctx": 1048576,
+            "heads": "tp8",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 376354986954961368
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.892e-02 (worst row 1.093e-01) [bound 0.150: 2.5 x the reference's 0.093 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 3,
+            "ctx": 4000,
+            "heads": "tp8",
+            "kv_scale": 0.015625,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 376453481248765809
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.252e-02 (worst row 1.085e-01) [bound 0.150: 2.5 x the reference's 0.081 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 2,
+            "ctx": 9000,
+            "heads": "tp8",
+            "kv_scale": 0.015625,
+            "layer": "full",
+            "seed": 376469896964399886
+          },
+          "status": "pass",
+          "message": "relative L2 error 1.159e-01 (worst row 1.172e-01) [bound 0.150: 2.5 x the reference's 0.107 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 4,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "full",
+            "seed": 376371402670595439,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.291e-02 (worst row 7.802e-02) [bound 0.150: 2.5 x the reference's 0.077 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 12,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 376387818386229511
+          },
+          "status": "pass",
+          "message": "relative L2 error 6.891e-02 (worst row 9.661e-02) [bound 0.150: 2.5 x the reference's 0.068 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 13,
+          "case": {
+            "batch": 2,
+            "ctx": 20000,
+            "dist": "soft",
+            "heads": "dp",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 376404234101863584
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.215e-02 (worst row 7.853e-02) [bound 0.150: 2.5 x the reference's 0.071 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 14,
+          "case": {
+            "batch": 4,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "page": 1,
+            "seed": 376420649817497658,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.103e-02 (worst row 4.558e-02) [bound 0.115: 2.5 x the reference's 0.040 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 15,
+          "case": {
+            "batch": 2,
+            "ctx": 20000,
+            "dist": "coherent",
+            "heads": "dp",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 376437065533131733
+          },
+          "status": "pass",
+          "message": "relative L2 error 3.949e-02 (worst row 4.667e-02) [bound 0.111: 2.5 x the reference's 0.039 with FP8 E4M3 queries + 0.015]"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "decode 1",
+            "page": 1,
+            "seed": 377865232793300086,
+            "weight": 46
+          },
+          "baseline_ns": 20496.000535786152,
+          "median_ns": 9983.63522731756,
+          "speedup": 2.0529596754200616,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "decode 1",
+            "page": 1,
+            "seed": 377881648508934249,
+            "weight": 16
+          },
+          "baseline_ns": 31695.999205112457,
+          "median_ns": 24854.875757119782,
+          "speedup": 1.275242713536116,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 377898064224568413,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 26416.000444442034,
+          "median_ns": 14508.134635893794,
+          "speedup": 1.8207716641316267,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 377914479940202578,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 199744.00335922837,
+          "median_ns": 187972.5821101458,
+          "speedup": 1.0626230757535953,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 377930895655836744,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 30927.999410778284,
+          "median_ns": 19811.942680455475,
+          "speedup": 1.56107858323701,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 377947311371470911,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 382928.007747978,
+          "median_ns": 347972.16965512786,
+          "speedup": 1.1004558442920724,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 377963727087105079,
+            "weight": 46
+          },
+          "baseline_ns": 22959.99974012375,
+          "median_ns": 11985.971899219574,
+          "speedup": 1.9155726321716733,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 377980142802739248,
+            "weight": 16
+          },
+          "baseline_ns": 35855.998285114765,
+          "median_ns": 32894.50951473218,
+          "speedup": 1.0900298807938222,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 377996558518373418,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 28895.999304950237,
+          "median_ns": 22942.754138488555,
+          "speedup": 1.2594825856793963,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 378012974234007589,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 204431.99807778,
+          "median_ns": 369562.18835261354,
+          "speedup": 0.5531734699079213,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 378029389949641761,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 34287.99845278263,
+          "median_ns": 36171.82256099613,
+          "speedup": 0.947920121939202,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 378045805665275934,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 388255.9994235635,
+          "median_ns": 723669.7812560293,
+          "speedup": 0.536509896474731,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "1c749497f0bf4c89",
+      "problem": "muse_decode_layer",
+      "mode": "run",
+      "source_sha256": "ea1adbaf4510c0a9856a4d467000eea164da401b77c334a4dc8afb44e4a5ff6d",
+      "source_snapshot": "runs/openkernel/1c749497f0bf4c89/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.1069516306686,
+      "speedup_ci": [1.090347356208571, 1.123555905128629],
+      "score_us": 20434.768216870787,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "11da74c9abf34176df20996f0f559160c5ecf0110344739648aec6b32f1e2419",
+      "created_at": 1792780261.4951332,
+      "finished_at": 1792783267.2204044,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 10,
+            "layer": "sliding",
+            "seed": 7969778005517986540
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.254e-02 (worst row 6.254e-02) [bound 0.150]; attention input relative L2 error 4.194e-02 (worst row 4.194e-02) [bound 0.110]"
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 3000,
+            "layer": "full",
+            "seed": 7969811995708951670
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.658e-02 (worst row 6.658e-02) [bound 0.150]; attention input relative L2 error 3.310e-02 (worst row 3.310e-02) [bound 0.096]"
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 8,
+            "ctx": 2047,
+            "layer": "sliding",
+            "seed": 7969845985899916801
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.966e-02 (worst row 8.318e-02) [bound 0.150]; attention input relative L2 error 3.984e-02 (worst row 6.205e-02) [bound 0.108]"
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 9,
+            "ctx": 5000,
+            "layer": "sliding",
+            "page": 1,
+            "seed": 7969879976090881933,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.173e-02 (worst row 7.610e-02) [bound 0.150]; attention input relative L2 error 4.119e-02 (worst row 5.154e-02) [bound 0.100]"
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 3,
+            "ctx": 6000,
+            "dist": "outliers",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 7969913966281847066
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.182e-02 (worst row 1.157e-01) [bound 0.150]; attention input relative L2 error 3.518e-02 (worst row 5.112e-02) [bound 0.087]"
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 5,
+            "ctx": 5000,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7969947956472812200,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.911e-02 (worst row 1.064e-01) [bound 0.150]; attention input relative L2 error 4.490e-02 (worst row 7.109e-02) [bound 0.115]"
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 33,
+            "ctx": 20000,
+            "layer": "full",
+            "page": 1,
+            "seed": 7969981946663777335,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.695e-02 (worst row 1.116e-01) [bound 0.150]; attention input relative L2 error 4.975e-02 (worst row 8.274e-02) [bound 0.120]"
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 2,
+            "ctx": 300000,
+            "layer": "sliding",
+            "q_len": 8,
+            "seed": 7970015936854742471
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.977e-02 (worst row 9.115e-02) [bound 0.150]; attention input relative L2 error 4.482e-02 (worst row 6.560e-02) [bound 0.111]"
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 1,
+            "ctx": 1048576,
+            "layer": "full",
+            "q_len": 8,
+            "seed": 7970049927045707608
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.608e-02 (worst row 8.849e-02) [bound 0.150]; attention input relative L2 error 5.266e-02 (worst row 6.352e-02) [bound 0.127]"
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 4,
+            "ctx": 7000,
+            "kv_scale": 0.015625,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7970185887809568166
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.255e-02 (worst row 1.037e-01) [bound 0.150]; attention input relative L2 error 4.810e-02 (worst row 7.247e-02) [bound 0.115]"
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "page": 1,
+            "seed": 7970083917236672746
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.241e-02 (worst row 5.241e-02) [bound 0.127]; attention input relative L2 error 2.828e-02 (worst row 2.828e-02) [bound 0.068]"
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "soft",
+            "layer": "sliding",
+            "q_len": 8,
+            "seed": 7970117907427637885
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.058e-02 (worst row 8.791e-02) [bound 0.149]; attention input relative L2 error 4.063e-02 (worst row 6.332e-02) [bound 0.100]"
+        },
+        {
+          "index": 12,
+          "case": {
+            "batch": 16,
+            "ctx": 20000,
+            "dist": "soft",
+            "layer": "full",
+            "page": 1,
+            "seed": 7970151897618603025,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.897e-02 (worst row 7.189e-02) [bound 0.144]; attention input relative L2 error 4.004e-02 (worst row 5.202e-02) [bound 0.098]"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 1",
+            "page": 1,
+            "repeats": 60,
+            "seed": 7973177024614504490,
+            "weight": 46
+          },
+          "baseline_ns": 171824.00170713663,
+          "median_ns": 141892.7722247636,
+          "speedup": 1.2109425942778875,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 1",
+            "page": 1,
+            "repeats": 60,
+            "seed": 7973211014805469720,
+            "weight": 16
+          },
+          "baseline_ns": 180848.004296422,
+          "median_ns": 151374.82702971596,
+          "speedup": 1.194703292780115,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 7973245004996434951,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 260703.9986178279,
+          "median_ns": 220837.2038342406,
+          "speedup": 1.1805257180013524,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 7973278995187400183,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 437487.99758031964,
+          "median_ns": 398017.0190760014,
+          "speedup": 1.0991690722068879,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 7973312985378365416,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 262672.00196161866,
+          "median_ns": 256883.51813864682,
+          "speedup": 1.0225334963679829,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 7973346975569330650,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 612719.9986949563,
+          "median_ns": 608273.6070619349,
+          "speedup": 1.0073098546137786,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7973380965760295885,
+            "weight": 46
+          },
+          "baseline_ns": 266928.01201716065,
+          "median_ns": 232875.98635539238,
+          "speedup": 1.1462238601527657,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7973414955951261121,
+            "weight": 16
+          },
+          "baseline_ns": 278799.990657717,
+          "median_ns": 243509.92992052203,
+          "speedup": 1.1449224709181802,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7973448946142226358,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 550720.0104184449,
+          "median_ns": 545564.8913524861,
+          "speedup": 1.0094491400522108,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7973482936333191596,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 711488.0024455488,
+          "median_ns": 707270.520912278,
+          "speedup": 1.005963038764617,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7973516926524156835,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 734992.0179694891,
+          "median_ns": 634576.206219389,
+          "speedup": 1.1582407451870074,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 7973550916715122075,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 1076271.9763442874,
+          "median_ns": 996366.9280833234,
+          "speedup": 1.0801964075771509,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "3439c74e04594576",
+      "problem": "muse_attention_decode",
+      "mode": "run",
+      "source_sha256": "dda280672a239d8977c673a669d73ad6c89a44940aaee9284e9ee332479ebf23",
+      "source_snapshot": "runs/openkernel/3439c74e04594576/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.280412243415249,
+      "speedup_ci": [1.2612060597640202, 1.2996184270664775],
+      "score_us": 2941.474528511327,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "c9273e02ae4190ee822fdc23368490dc04ab96cf0307deeefc6792141ab81b16",
+      "created_at": 1792782771.3479428,
+      "finished_at": 1792784271.1045682,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 10,
+            "heads": "tp8",
+            "layer": "sliding",
+            "seed": 8371395183931489601
+          },
+          "status": "pass",
+          "message": "relative L2 error 3.715e-02 (worst row 3.715e-02) [bound 0.103: 2.5 x the reference's 0.035 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 3,
+            "ctx": 2047,
+            "heads": "tp8",
+            "layer": "sliding",
+            "seed": 8371460848451675045
+          },
+          "status": "pass",
+          "message": "relative L2 error 6.561e-02 (worst row 8.025e-02) [bound 0.150: 2.5 x the reference's 0.070 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 5,
+            "ctx": 5000,
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8371526512971860490,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.030e-02 (worst row 1.169e-01) [bound 0.150: 2.5 x the reference's 0.079 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 4,
+            "ctx": 3000,
+            "heads": "tp8",
+            "layer": "full",
+            "seed": 8371592177492045936
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.973e-02 (worst row 9.450e-02) [bound 0.150: 2.5 x the reference's 0.085 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 8,
+            "ctx": 8192,
+            "heads": "dp",
+            "layer": "full",
+            "seed": 8371657842012231383,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.100e-02 (worst row 8.754e-02) [bound 0.150: 2.5 x the reference's 0.080 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 2,
+            "ctx": 100000,
+            "heads": "tp8",
+            "layer": "full",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8371723506532416831
+          },
+          "status": "pass",
+          "message": "relative L2 error 9.505e-02 (worst row 1.167e-01) [bound 0.150: 2.5 x the reference's 0.094 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "edges",
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "seed": 8371789171052602280
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.461e-02 (worst row 1.009e-01) [bound 0.150: 2.5 x the reference's 0.086 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "edges",
+            "heads": "tp8",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 8371854835572787730
+          },
+          "status": "pass",
+          "message": "relative L2 error 8.792e-02 (worst row 1.224e-01) [bound 0.150: 2.5 x the reference's 0.087 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 1,
+            "ctx": 1048576,
+            "heads": "tp8",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 8371920500092973181
+          },
+          "status": "pass",
+          "message": "relative L2 error 9.735e-02 (worst row 1.286e-01) [bound 0.150: 2.5 x the reference's 0.094 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 3,
+            "ctx": 4000,
+            "heads": "tp8",
+            "kv_scale": 0.015625,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8372314487214085908
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.769e-02 (worst row 1.092e-01) [bound 0.150: 2.5 x the reference's 0.078 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 2,
+            "ctx": 9000,
+            "heads": "tp8",
+            "kv_scale": 0.015625,
+            "layer": "full",
+            "seed": 8372380151734271366
+          },
+          "status": "pass",
+          "message": "relative L2 error 9.650e-02 (worst row 1.068e-01) [bound 0.150: 2.5 x the reference's 0.091 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 4,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "full",
+            "seed": 8371986164613158633,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 6.993e-02 (worst row 7.515e-02) [bound 0.150: 2.5 x the reference's 0.077 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 12,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8372051829133344086
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.400e-02 (worst row 9.318e-02) [bound 0.150: 2.5 x the reference's 0.072 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 13,
+          "case": {
+            "batch": 2,
+            "ctx": 20000,
+            "dist": "soft",
+            "heads": "dp",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 8372117493653529540
+          },
+          "status": "pass",
+          "message": "relative L2 error 7.164e-02 (worst row 7.606e-02) [bound 0.150: 2.5 x the reference's 0.070 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 14,
+          "case": {
+            "batch": 4,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "page": 1,
+            "seed": 8372183158173714995,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "relative L2 error 5.220e-02 (worst row 6.111e-02) [bound 0.125: 2.5 x the reference's 0.044 with FP8 E4M3 queries + 0.015]"
+        },
+        {
+          "index": 15,
+          "case": {
+            "batch": 2,
+            "ctx": 20000,
+            "dist": "coherent",
+            "heads": "dp",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 8372248822693900451
+          },
+          "status": "pass",
+          "message": "relative L2 error 4.011e-02 (worst row 4.589e-02) [bound 0.112: 2.5 x the reference's 0.039 with FP8 E4M3 queries + 0.015]"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "decode 1",
+            "page": 1,
+            "seed": 8377961635950038951,
+            "weight": 46
+          },
+          "baseline_ns": 20527.999848127365,
+          "median_ns": 10003.1205804505,
+          "speedup": 2.0521595919023565,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "decode 1",
+            "page": 1,
+            "seed": 8378027300470224495,
+            "weight": 16
+          },
+          "baseline_ns": 31791.99807345867,
+          "median_ns": 25053.407256286555,
+          "speedup": 1.2689690367557183,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 8378092964990410040,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 26415.999978780746,
+          "median_ns": 14251.69779947304,
+          "speedup": 1.853533547403558,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 8378158629510595586,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 200623.99934977293,
+          "median_ns": 189652.83825707165,
+          "speedup": 1.0578486522718422,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 8378224294030781133,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 31583.99974927306,
+          "median_ns": 20054.984222303843,
+          "speedup": 1.574870336429754,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 8378289958550966681,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 385888.0028128624,
+          "median_ns": 350900.8675139337,
+          "speedup": 1.0997066081563318,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8378355623071152230,
+            "weight": 46
+          },
+          "baseline_ns": 22512.000519782305,
+          "median_ns": 11730.335897071465,
+          "speedup": 1.9191266744034614,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8378421287591337780,
+            "weight": 16
+          },
+          "baseline_ns": 36143.99954676628,
+          "median_ns": 29985.743616944103,
+          "speedup": 1.205372793434488,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8378486952111523331,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 29151.99939161539,
+          "median_ns": 22012.83895737244,
+          "speedup": 1.3243180240435064,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8378552616631708883,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 205615.9982457757,
+          "median_ns": 197944.15451780875,
+          "speedup": 1.0387576169988728,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "heads": "tp8",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8378618281151894436,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 34400.00023692846,
+          "median_ns": 26935.389033966003,
+          "speedup": 1.2771302539402514,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "coherent",
+            "heads": "tp8",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 8378683945672079990,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 390319.999307394,
+          "median_ns": 382378.3729811496,
+          "speedup": 1.0207690258848294,
+          "status": "pass",
+          "flags": []
+        }
+      ]
     }
   ],
   "selected_candidates": [
     {
       "problem": "muse_attention_decode",
       "file": "experiments/openkernel/muse_attention_decode/submission.py",
-      "source_sha256": "e7e25a9ee5718ac7bcbd0baa0e1cde4583cd2fd5da0302e481bb6488a6928a4b",
-      "job_id": "f141c8d265234a99",
-      "speedup": 1.1357292434339956,
-      "speedup_ci": [1.1186933047824856, 1.1527651820855054]
+      "source_sha256": "dda280672a239d8977c673a669d73ad6c89a44940aaee9284e9ee332479ebf23",
+      "job_id": "3439c74e04594576",
+      "speedup": 1.280412243415249,
+      "speedup_ci": [1.2612060597640202, 1.2996184270664775]
     },
     {
       "problem": "muse_bf16_proj",
       "file": "experiments/openkernel/muse_bf16_proj/submission.py",
-      "source_sha256": "1b6e096b49ac7877780262c5e1c57db86af7a0baec98e455034552b33e8763ca",
-      "job_id": "85ab373d8dcc44f7",
-      "speedup": 1.0533923227124238,
-      "speedup_ci": [1.0375914378717375, 1.06919320755311]
+      "source_sha256": "774a28dae97b364a64704edc54d3ad811aaa71fea3918fc5ff8ab4f207845269",
+      "job_id": "1095cf9b43bf49a0",
+      "speedup": 1.0673408559093023,
+      "speedup_ci": [1.0513307430706627, 1.0833509687479417]
     },
     {
       "problem": "muse_decode_layer",
       "file": "experiments/openkernel/muse_decode_layer/submission.py",
-      "source_sha256": "9e1c99c199b8716fdae9c82ed97ddf6bf3f88be943d6af57362c20537624c814",
-      "job_id": "bc25711588004579",
-      "speedup": 1.0350999983984313,
-      "speedup_ci": [1.0195734984224547, 1.0506264983744076]
+      "source_sha256": "ea1adbaf4510c0a9856a4d467000eea164da401b77c334a4dc8afb44e4a5ff6d",
+      "job_id": "1c749497f0bf4c89",
+      "speedup": 1.1069516306686,
+      "speedup_ci": [1.090347356208571, 1.123555905128629]
     },
     {
       "problem": "muse_moe_w4a16",
       "file": "experiments/openkernel/muse_moe_w4a16/submission.py",
-      "source_sha256": "e3d2691154bde133e75793de11b385770b1725e894d12a0653a0d9f0b2def9c6",
-      "job_id": "84fb1b656d3c44e2",
-      "speedup": 1.0644651583520175,
-      "speedup_ci": [1.0484981809767373, 1.0804321357272977]
+      "source_sha256": "909873095a4eca7db2195bad348fae96728bbc955b1ec4b33459e6deb2d67d8e",
+      "job_id": "20b3199ecbd847f2",
+      "speedup": 1.2236334151530706,
+      "speedup_ci": [1.2052789139257745, 1.2419879163803664]
     }
-  ]
+  ],
+  "leaderboard_snapshot": {
+    "observed_at": "2026-10-23T19:39:25.310639+00:00",
+    "boards": [
+      {
+        "board": "overall",
+        "ranked": 586,
+        "you": {
+          "rank": 321,
+          "team": "sarthakagrawal927",
+          "first": false,
+          "ahead": 320
+        }
+      },
+      {
+        "board": "muse_bf16_proj",
+        "ranked": 481,
+        "you": {
+          "rank": 449,
+          "team": "sarthakagrawal927",
+          "speedup": 1.0673,
+          "first": false,
+          "ahead": 448,
+          "to_first": 1.3554
+        }
+      },
+      {
+        "board": "muse_attention_decode",
+        "ranked": 329,
+        "you": {
+          "rank": 219,
+          "team": "sarthakagrawal927",
+          "speedup": 1.2804,
+          "first": false,
+          "ahead": 218,
+          "to_first": 1.8478
+        }
+      },
+      {
+        "board": "muse_moe_w4a16",
+        "ranked": 380,
+        "you": {
+          "rank": 317,
+          "team": "sarthakagrawal927",
+          "speedup": 1.2236,
+          "first": false,
+          "ahead": 316,
+          "to_first": 1.9009
+        }
+      },
+      {
+        "board": "muse_decode_layer",
+        "ranked": 284,
+        "you": {
+          "rank": 252,
+          "team": "sarthakagrawal927",
+          "speedup": 1.107,
+          "first": false,
+          "ahead": 251,
+          "to_first": 1.7088
+        }
+      }
+    ]
+  }
 }

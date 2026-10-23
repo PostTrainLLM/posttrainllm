@@ -1123,7 +1123,7 @@
       "family": "sql",
       "status": "failed",
       "evidence": "composed execution `0.860 -> 0.900` (+0.040, exact `0.840 -> 0.860`)",
-      "failure_reason": "DPO pressure too low to change output FORMAT — 41/50 raw",
+      "failure_reason": "DPO pressure too low to change output FORMAT \u2014 41/50 raw",
       "failure_reason_confidence": "exact",
       "lesson": "Reference-anchored DPO is the correct fix for the SimPO collapse",
       "next_action": "~~Higher-pressure reference-anchored DPO...~~ Done 2026-07-11 (next entry).",
@@ -1830,6 +1830,111 @@
         "experiments/openkernel/results.json",
         "docs/learn/openkernel.md",
         "experiments/openkernel/muse_decode_layer/submission.py"
+      ],
+      "source": "docs/learn/openkernel.md"
+    },
+    {
+      "id": "openkernel-attention-fp8-load-20261023",
+      "name": "Open Kernel split-K attention FP8 load compilation",
+      "status": "failed",
+      "evidence": "2026-10-23 H200 check 035753a0aef44f2f failed five correctness cases during Triton compilation: integer zero fallback values could not be cast to FP8 E4M3 loads; no timing score was produced.",
+      "failure_reason": "Masked FP8 loads used an integer other=0 value that the judge Triton compiler could not cast to fp8e4nv.",
+      "lesson": "Python syntax and lint checks do not validate Triton backend types; masked FP8 loads need a compatible floating-point fill value.",
+      "next_action": "Retain the failure receipt; use floating-point zero and require a fresh H200 compilation and correctness check.",
+      "family": "runtime-perf",
+      "kind": "infrastructure",
+      "failure_reason_confidence": "exact",
+      "evidence_sources": [
+        "experiments/openkernel/results.json",
+        "docs/learn/openkernel.md"
+      ],
+      "source": "docs/learn/openkernel.md"
+    },
+    {
+      "id": "openkernel-dense-gemv-20261023",
+      "name": "Open Kernel single-token dense GEMV",
+      "status": "worked-with-caveat",
+      "evidence": "2026-10-23 H200 scored run 1095cf9b43bf49a0 passed with no flags: 1.0673x aggregate, reported 95% interval 1.0513-1.0834x. All four targeted one-token projections measured 1.13-1.20x versus SGLang, repeating the preceding check gains.",
+      "failure_reason": "The aggregate interval overlaps the previous dense candidate; targeted projection gains do not establish the exact aggregate improvement or gains outside one-token dispatch.",
+      "lesson": "A single streaming GEMV can remove split-reduction overhead for one-token projections while retaining existing dispatch for other shapes.",
+      "next_action": "Keep the exact passing scored source; require new measurements before expanding GEMV to other token counts.",
+      "family": "runtime-perf",
+      "kind": "infrastructure",
+      "failure_reason_confidence": "exact",
+      "evidence_sources": [
+        "experiments/openkernel/results.json",
+        "docs/learn/openkernel.md"
+      ],
+      "source": "docs/learn/openkernel.md"
+    },
+    {
+      "id": "openkernel-moe-fused-norm-20261023",
+      "name": "Open Kernel fused small-batch expert norm",
+      "family": "runtime-perf",
+      "kind": "infrastructure",
+      "status": "worked-with-caveat",
+      "evidence": "2026-10-23 H200 scored run 20b3199ecbd847f2 passed with no flags: 1.2236x aggregate, reported 95% interval 1.2053-1.2420x. Small batches measured 1.22-1.49x versus SGLang; the 32-token case measured 0.988x. The preceding check measured 1.2201x aggregate.",
+      "failure_reason": "The existing 32-token path retains a small measured regression, and the gain applies to the organizer workload rather than application throughput.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Profile wrapper dispatch as well as kernel arithmetic: the existing fused norm kernel removed several small-batch framework launches while preserving FP32 reduction and invalid-expert masking.",
+      "next_action": "Keep the exact passing scored source and its per-shape caveat; measure composition in the full decoder layer separately.",
+      "evidence_sources": [
+        "experiments/openkernel/results.json",
+        "docs/learn/openkernel.md",
+        "experiments/openkernel/muse_moe_w4a16/submission.py"
+      ],
+      "source": "docs/learn/openkernel.md"
+    },
+    {
+      "id": "openkernel-attention-splitk-broad-20261023",
+      "name": "Open Kernel broad paged split-K attention",
+      "family": "runtime-perf",
+      "kind": "infrastructure",
+      "status": "regressed",
+      "evidence": "2026-10-23 H200 check 34c48a28a66d46d3 passed correctness with no flags: 1.0564x aggregate, reported 95% interval 1.0405-1.0722x, below the selected 1.1357x attention candidate. Full-context verification at batches 16 and 32 measured 0.553x and 0.537x versus SGLang.",
+      "failure_reason": "Applying the same split-K kernel to eight-token long-context verification nearly doubled latency; larger sliding verification also lost against the existing fused-preparation candidate.",
+      "failure_reason_confidence": "exact",
+      "lesson": "A custom attention kernel can help decoding while losing verification; compare each dispatch regime with the current incumbent as well as the official baseline.",
+      "next_action": "Reject broad dispatch; retain FA3 for multi-query full attention and multi-request verification, then rerun correctness and timing for the narrowed candidate.",
+      "evidence_sources": [
+        "experiments/openkernel/results.json",
+        "docs/learn/openkernel.md"
+      ],
+      "source": "docs/learn/openkernel.md"
+    },
+    {
+      "id": "openkernel-layer-fused-norm-20261023",
+      "name": "Open Kernel decoder layer with fused small-batch expert norm",
+      "family": "runtime-perf",
+      "kind": "infrastructure",
+      "status": "worked-with-caveat",
+      "evidence": "2026-10-23 H200 scored run 1c749497f0bf4c89 passed correctness with no flags: 1.1070x aggregate, reported 95% interval 1.0903-1.1236x, with all 12 benchmark shapes faster than SGLang. The preceding check measured 1.1086x.",
+      "failure_reason": "This qualifies the MoE norm fusion inside the organizer decoder-layer workload; it does not establish serving throughput or compose the separate new GEMV and split-K attention kernels.",
+      "failure_reason_confidence": "exact",
+      "lesson": "A wrapper-level fusion can carry into the full layer, but retain the layer router precision, stream ordering and measured MoE tile fallback.",
+      "next_action": "Keep the passing full-layer source; any later composition of GEMV or split-K attention needs fresh full-layer correctness and timing.",
+      "evidence_sources": [
+        "experiments/openkernel/results.json",
+        "docs/learn/openkernel.md",
+        "experiments/openkernel/muse_decode_layer/submission.py"
+      ],
+      "source": "docs/learn/openkernel.md"
+    },
+    {
+      "id": "openkernel-attention-splitk-narrow-20261023",
+      "name": "Open Kernel narrow paged split-K attention",
+      "family": "runtime-perf",
+      "kind": "infrastructure",
+      "status": "worked-with-caveat",
+      "evidence": "2026-10-23 H200 scored run 3439c74e04594576 passed correctness with no flags: 1.2804x aggregate, reported 95% interval 1.2612-1.2996x. All 12 benchmark shapes measured faster than SGLang; single-request sliding decoding reached 2.05x.",
+      "failure_reason": "The custom kernel is selected only for one-token decoding and single-request sliding verification on supported configurations; other shapes retain FA3, and full-layer composition has not been measured.",
+      "failure_reason_confidence": "exact",
+      "lesson": "Use measured dispatch boundaries to retain custom attention wins and avoid verification regressions; preserve live cache metadata, legal keys and FP32 softmax state.",
+      "next_action": "Keep the exact passing scored source; any composition into the full decoder layer needs fresh correctness and timing.",
+      "evidence_sources": [
+        "experiments/openkernel/results.json",
+        "docs/learn/openkernel.md",
+        "experiments/openkernel/muse_attention_decode/submission.py"
       ],
       "source": "docs/learn/openkernel.md"
     }

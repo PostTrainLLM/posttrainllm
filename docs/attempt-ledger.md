@@ -742,6 +742,66 @@ Two cross-cutting findings the collapsed entry hid:
 - Next action: Keep the selected source and receipt; require fresh correctness and timing for any further optimization within the October 23-24 timebox.
 - Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
 
+### Open Kernel split-K attention FP8 load compilation
+
+- Status: `failed`.
+- Evidence: 2026-10-23 H200 check 035753a0aef44f2f failed five correctness cases during Triton compilation: integer zero fallback values could not be cast to FP8 E4M3 loads; no timing score was produced.
+- Failure reason: Masked FP8 loads used an integer other=0 value that the judge Triton compiler could not cast to fp8e4nv.
+- Failure-reason confidence: `exact`.
+- Lesson: Python syntax and lint checks do not validate Triton backend types; masked FP8 loads need a compatible floating-point fill value.
+- Next action: Retain the failure receipt; use floating-point zero and require a fresh H200 compilation and correctness check.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel single-token dense GEMV
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 1095cf9b43bf49a0 passed with no flags: 1.0673x aggregate, reported 95% interval 1.0513-1.0834x. All four targeted one-token projections measured 1.13-1.20x versus SGLang, repeating the preceding check gains.
+- Failure reason: The aggregate interval overlaps the previous dense candidate; targeted projection gains do not establish the exact aggregate improvement or gains outside one-token dispatch.
+- Failure-reason confidence: `exact`.
+- Lesson: A single streaming GEMV can remove split-reduction overhead for one-token projections while retaining existing dispatch for other shapes.
+- Next action: Keep the exact passing scored source; require new measurements before expanding GEMV to other token counts.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel fused small-batch expert norm
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 20b3199ecbd847f2 passed with no flags: 1.2236x aggregate, reported 95% interval 1.2053-1.2420x. Small batches measured 1.22-1.49x versus SGLang; the 32-token case measured 0.988x. The preceding check measured 1.2201x aggregate.
+- Failure reason: The existing 32-token path retains a small measured regression, and the gain applies to the organizer workload rather than application throughput.
+- Failure-reason confidence: `exact`.
+- Lesson: Profile wrapper dispatch as well as kernel arithmetic: the existing fused norm kernel removed several small-batch framework launches while preserving FP32 reduction and invalid-expert masking.
+- Next action: Keep the exact passing scored source and its per-shape caveat; measure composition in the full decoder layer separately.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel broad paged split-K attention
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check 34c48a28a66d46d3 passed correctness with no flags: 1.0564x aggregate, reported 95% interval 1.0405-1.0722x, below the selected 1.1357x attention candidate. Full-context verification at batches 16 and 32 measured 0.553x and 0.537x versus SGLang.
+- Failure reason: Applying the same split-K kernel to eight-token long-context verification nearly doubled latency; larger sliding verification also lost against the existing fused-preparation candidate.
+- Failure-reason confidence: `exact`.
+- Lesson: A custom attention kernel can help decoding while losing verification; compare each dispatch regime with the current incumbent as well as the official baseline.
+- Next action: Reject broad dispatch; retain FA3 for multi-query full attention and multi-request verification, then rerun correctness and timing for the narrowed candidate.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel decoder layer with fused small-batch expert norm
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 1c749497f0bf4c89 passed correctness with no flags: 1.1070x aggregate, reported 95% interval 1.0903-1.1236x, with all 12 benchmark shapes faster than SGLang. The preceding check measured 1.1086x.
+- Failure reason: This qualifies the MoE norm fusion inside the organizer decoder-layer workload; it does not establish serving throughput or compose the separate new GEMV and split-K attention kernels.
+- Failure-reason confidence: `exact`.
+- Lesson: A wrapper-level fusion can carry into the full layer, but retain the layer router precision, stream ordering and measured MoE tile fallback.
+- Next action: Keep the passing full-layer source; any later composition of GEMV or split-K attention needs fresh full-layer correctness and timing.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel narrow paged split-K attention
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 3439c74e04594576 passed correctness with no flags: 1.2804x aggregate, reported 95% interval 1.2612-1.2996x. All 12 benchmark shapes measured faster than SGLang; single-request sliding decoding reached 2.05x.
+- Failure reason: The custom kernel is selected only for one-token decoding and single-request sliding verification on supported configurations; other shapes retain FA3, and full-layer composition has not been measured.
+- Failure-reason confidence: `exact`.
+- Lesson: Use measured dispatch boundaries to retain custom attention wins and avoid verification regressions; preserve live cache metadata, legal keys and FP32 softmax state.
+- Next action: Keep the exact passing scored source; any composition into the full decoder layer needs fresh correctness and timing.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
 ## Tool-Calling / Eval Infrastructure Attempts
 
 ### A1 first tool-calling specialist harness
@@ -1093,7 +1153,7 @@ Current structured coverage:
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 86 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 92 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 4 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
 | `not-applicable` | 5 | No failure reason is expected for a clean worked status. |
 | `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |

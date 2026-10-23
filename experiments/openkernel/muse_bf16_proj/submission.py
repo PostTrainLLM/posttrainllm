@@ -1,7 +1,7 @@
 # okc: problem=muse_bf16_proj
-"""Small-token candidate: fuse the router's BF16 hi/lo products with split-K.
+"""Single-token BF16 GEMV plus the measured small-token router.
 
-Non-router dispatch follows the official SGLang
+Other dense shapes follow the official SGLang dispatch
 baseline at a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f (Apache-2.0).
 See docs/learn/openkernel.md for provenance and the required H200 checks.
 """
@@ -89,12 +89,57 @@ def _router_partials(
     )
 
 
+@triton.jit
+def _dense_gemv(
+    X,
+    W,
+    OUT,
+    N: tl.constexpr,
+    K: tl.constexpr,
+    X_STRIDE: tl.constexpr,
+    W_ROW_STRIDE: tl.constexpr,
+    W_K_STRIDE: tl.constexpr,
+    BN: tl.constexpr,
+    BK: tl.constexpr,
+):
+    rows = tl.program_id(0) * BN + tl.arange(0, BN)
+    ks = tl.arange(0, BK)
+    acc = tl.zeros((BN, BK), dtype=tl.float32)
+    for block in range(tl.cdiv(K, BK)):
+        offsets = block * BK + ks
+        x = tl.load(X + offsets * X_STRIDE, offsets < K, other=0).to(tl.float32)
+        w = tl.load(
+            W + rows[:, None] * W_ROW_STRIDE + offsets[None, :] * W_K_STRIDE,
+            (rows[:, None] < N) & (offsets[None, :] < K),
+            other=0,
+        ).to(tl.float32)
+        acc += w * x[None, :]
+    tl.store(OUT + rows, tl.sum(acc, axis=1), rows < N)
+
+
 def kernel_fn(data: Inputs, state: dict[str, torch.Tensor]) -> torch.Tensor:
     """Compute every call from fresh inputs, branching only on public shapes."""
     x, config = data["x"], data["config"]
     layer, n = config["layer"], config["n"]
     if layer != "router":
-        return _bf16_gemm_dispatch_impl(x, state[layer][:n], None)
+        w = state[layer][:n]
+        if x.shape[0] == 1 and x.dtype == w.dtype == torch.bfloat16:
+            out = torch.empty((1, n), dtype=torch.bfloat16, device=x.device)
+            _dense_gemv[(triton.cdiv(n, 4),)](
+                x,
+                w,
+                out,
+                n,
+                x.shape[1],
+                x.stride(1),
+                w.stride(0),
+                w.stride(1),
+                BN=4,
+                BK=1024,
+                num_warps=4,
+            )
+            return out
+        return _bf16_gemm_dispatch_impl(x, w, None)
     m, k = x.shape
     # Tiny batches favor the baseline FP32 GEMV; fusion wins at 8–16 tokens.
     if m <= 4:
