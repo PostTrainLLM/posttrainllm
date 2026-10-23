@@ -24,10 +24,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0008138404133688,
-      "speedup_ci": [
-        0.9858016328071683,
-        1.0158260480195693
-      ],
+      "speedup_ci": [0.9858016328071683, 1.0158260480195693],
       "gpu": "H200",
       "flags": [],
       "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
@@ -79,10 +76,7 @@
       "status": "done",
       "passed": true,
       "speedup": 0.8443037973337207,
-      "speedup_ci": [
-        0.831639240373715,
-        0.8569683542937264
-      ],
+      "speedup_ci": [0.831639240373715, 0.8569683542937264],
       "gpu": "H200",
       "flags": [],
       "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
@@ -121,10 +115,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0048251631518028,
-      "speedup_ci": [
-        0.9897527857045257,
-        1.0198975405990798
-      ],
+      "speedup_ci": [0.9897527857045257, 1.0198975405990798],
       "gpu": "H200",
       "flags": [],
       "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"

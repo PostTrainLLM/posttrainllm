@@ -9,6 +9,7 @@ See docs/learn/openkernel.md for provenance and the required H200 checks.
 from typing import TypedDict
 
 import torch
+import torch.nn.functional as F
 import triton
 import triton.language as tl
 from sglang.srt.layers.quantization.unquant import _bf16_gemm_dispatch_impl
@@ -95,13 +96,16 @@ def kernel_fn(data: Inputs, state: dict[str, torch.Tensor]) -> torch.Tensor:
     if layer != "router":
         return _bf16_gemm_dispatch_impl(x, state[layer][:n], None)
     m, k = x.shape
+    # Tiny batches favor the baseline FP32 GEMV; fusion wins at 8–16 tokens.
+    if m <= 4:
+        return F.linear(x.float(), state["router"][:n])
     if m > 16:
         acc = torch.mm(x, state["router_hi_t"], out_dtype=torch.float32)
         acc += torch.mm(x, state["router_lo_t"], out_dtype=torch.float32)
         return acc
     # Keep enough independent work for H200's 132 SMs at small M. Fixed
     # buckets apply to nearby shapes too; no autotuning during graph capture.
-    splits = 16 if m <= 16 else 8 if m <= 32 else 4 if m <= 64 else 2 if m <= 128 else 1
+    splits = 16
     partials = torch.empty((splits, m, n), dtype=torch.float32, device=x.device)
     _router_partials[(triton.cdiv(m, 16), triton.cdiv(n, 32), splits)](
         x,
@@ -122,4 +126,4 @@ def kernel_fn(data: Inputs, state: dict[str, torch.Tensor]) -> torch.Tensor:
     )
     # Each partial is fully written on this call. No atomics, persistent
     # activation state, cross-call reuse, or uninitialised accumulation.
-    return partials[0] if splits == 1 else partials.sum(dim=0)
+    return partials.sum(dim=0)
