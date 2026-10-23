@@ -1,0 +1,30 @@
+{
+  "observed_date": "2026-10-23",
+  "source": "https://openkernelchallenge.dev/api/v1/problems/muse_decode_layer",
+  "sglang_revision": "a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f",
+  "upstream_sha256": {
+    "template.py": "fa180988357910e7ce3332ef59045b0aa013c20416e537f199b31299f0a79d00",
+    "baseline.py": "87d95a0c4b78f0fd6c772436b959330ca45652b10e82dfc8add9acf0549227d4",
+    "reference.py": "23e177b87aee70c0d4990515989b95bff2972270cdac8ab967445b21fa2f5163",
+    "nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+    "checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055"
+  },
+  "derivation": {
+    "baseline": "baseline.py from the official muse_decode_layer problem payload",
+    "attention_kernel_source": "experiments/openkernel/muse_attention_decode/submission.py",
+    "attention_kernel_source_sha256": "e7e25a9ee5718ac7bcbd0baa0e1cde4583cd2fd5da0302e481bb6488a6928a4b",
+    "attention_check_job": "404dca2dd4134a9a",
+    "attention_check_result": "pass, 1.14035785x, 95% CI [1.12325, 1.15746], no flags",
+    "changes": [
+      "lifted _fused_qk_cache_kernel and launch wrapper",
+      "reuse state.cos_sin",
+      "fuse only when kv_scale == 1.0; retain baseline scaled path"
+    ]
+  },
+  "moe_integration": {
+    "source": "experiments/openkernel/muse_moe_w4a16/submission.py",
+    "sha256": "e3d2691154bde133e75793de11b385770b1725e894d12a0653a0d9f0b2def9c6",
+    "check_job": "ea5e0dcc5e1846ac",
+    "change": "Use global expert count for EP block-sizing heuristic; all Marlin math and streams retained."
+  }
+}

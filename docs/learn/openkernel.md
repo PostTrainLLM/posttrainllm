@@ -9,17 +9,27 @@ This is an isolated CUDA experiment; the Mac application has no new dependency.
 
 ## Current state
 
-The owner completed authentication. Dense-projection and MoE baseline checks
-passed on H200. The first fused router passed correctness but lost performance
-(0.8443×, 95% interval 0.8316–0.8570); it is rejected. Its source remains in
-commit `fa8bd98` and the local job receipt. The current dense candidate limits
-fusion to at most 16 tokens and restores SGLang for larger batches.
+The owner completed authentication, and all three component baselines passed on
+H200. Two optimized component checks have demonstrated gains:
 
-Two additional candidates are queued: attention Q/K preparation fused with FP8
-query conversion and cache writes, and MoE block sizing based on global expert
-count under EP8. Both retain the baseline computation and have passed static
-review only. No optimized candidate has yet demonstrated a speedup, and no
-scored submission has been made.
+| Candidate | Check speedup | Reported 95% interval | Status |
+| --- | --- | --- | --- |
+| Fused attention preparation | 1.1404× | 1.1233–1.1575× | Passed, no flags; scored run queued |
+| MoE global-expert block sizing | 1.0643× | 1.0484–1.0803× | Passed, no flags; scored run queued |
+| Router dispatch | Pending | Pending | Scored run queued |
+| Combined decoder layer | Pending | Pending | Baseline and candidate checks queued |
+
+The original router passed correctness but regressed to 0.8443×; its source
+remains in commit `fa8bd98` and the local receipt. A subsequent check measured
+1.98× at eight tokens and 1.13× at sixteen, with regressions elsewhere. The
+current candidate uses fusion only for 5–16 tokens and the baseline otherwise.
+One larger-tile experiment and one small-token tile variant are also pending.
+
+The full-layer candidate incorporates the measured attention and MoE changes.
+It preserves the layer's FP32 small-batch router and stream ordering; component
+correctness does not establish full-layer correctness. No scored result is
+available yet. See [results.json](../../experiments/openkernel/results.json)
+for dated job IDs, exact source hashes, status and measured results.
 
 Research agents inspected requirements, repository fit, attention/MoE code and
 the measured router regression. Claude reviewed the approach and candidates.
@@ -55,7 +65,8 @@ Record candidate SHA-256 and git revision beside each job's JSON in ignored
 `runs/`. Retain failures. Reject gains inside the reported interval (at least
 ±1.5%) and investigate material per-shape regressions. A syntax/lint pass is not
 a CUDA compilation, graph-capture, numerical-correctness or speed result.
-Only after a passing, useful measured result:
+Enter a scored run after useful measured evidence and review. The judge reruns
+fresh correctness and timing for the scored file:
 
 ```sh
 okc submit experiments/openkernel/muse_bf16_proj/submission.py --json
