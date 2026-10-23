@@ -1,7 +1,7 @@
 # okc: problem=muse_bf16_proj
-"""Unmeasured candidate: fuse the router's BF16 hi/lo products with split-K.
+"""Small-token candidate: fuse the router's BF16 hi/lo products with split-K.
 
-Non-router dispatch and the small-router fallback follow the official SGLang
+Non-router dispatch follows the official SGLang
 baseline at a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f (Apache-2.0).
 See docs/learn/openkernel.md for provenance and the required H200 checks.
 """
@@ -9,7 +9,6 @@ See docs/learn/openkernel.md for provenance and the required H200 checks.
 from typing import TypedDict
 
 import torch
-import torch.nn.functional as F
 import triton
 import triton.language as tl
 from sglang.srt.layers.quantization.unquant import _bf16_gemm_dispatch_impl
@@ -42,6 +41,8 @@ def prepare(weights: Weights) -> dict[str, torch.Tensor]:
     lo = (weights["router"] - hi.float()).to(torch.bfloat16)
     state["router_hi"] = hi.contiguous()
     state["router_lo"] = lo.contiguous()
+    state["router_hi_t"] = hi.t().contiguous()
+    state["router_lo_t"] = lo.t().contiguous()
     return state
 
 
@@ -94,8 +95,10 @@ def kernel_fn(data: Inputs, state: dict[str, torch.Tensor]) -> torch.Tensor:
     if layer != "router":
         return _bf16_gemm_dispatch_impl(x, state[layer][:n], None)
     m, k = x.shape
-    if m <= 8:
-        return F.linear(x.float(), state["router"][:n])
+    if m > 16:
+        acc = torch.mm(x, state["router_hi_t"], out_dtype=torch.float32)
+        acc += torch.mm(x, state["router_lo_t"], out_dtype=torch.float32)
+        return acc
     # Keep enough independent work for H200's 132 SMs at small M. Fixed
     # buckets apply to nearby shapes too; no autotuning during graph capture.
     splits = 16 if m <= 16 else 8 if m <= 32 else 4 if m <= 64 else 2 if m <= 128 else 1

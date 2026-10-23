@@ -9,21 +9,27 @@ This is an isolated CUDA experiment; the Mac application has no new dependency.
 
 ## Current state
 
-Prepared, not H200 validated or submitted. The first candidate fuses the router's
-two BF16 hi/lo products, with FP32 accumulation and split-K parallelism. It keeps
-SGLang's dispatch for other projections and its FP32 router path at up to eight
-tokens. Fixed shape buckets cover nearby sizes. There is no claimed speedup.
+The owner completed authentication. Dense-projection and MoE baseline checks
+passed on H200. The first fused router passed correctness but lost performance
+(0.8443×, 95% interval 0.8316–0.8570); it is rejected. Its source remains in
+commit `fa8bd98` and the local job receipt. The current dense candidate limits
+fusion to at most 16 tokens and restores SGLang for larger batches.
 
-Two research agents examined requirements and repository fit. Claude Opus
-recommended a baseline check first and warned that an unsplit router GEMM would
-underutilize H200. The candidate uses fully written partial buffers followed by
-reduction, avoiding floating-point atomics and persistent activation state.
-The published per-shape table contains theoretical floors, not measured
-SGLang times. Only judge profiles establish optimization headroom.
+Two additional candidates are queued: attention Q/K preparation fused with FP8
+query conversion and cache writes, and MoE block sizing based on global expert
+count under EP8. Both retain the baseline computation and have passed static
+review only. No optimized candidate has yet demonstrated a speedup, and no
+scored submission has been made.
+
+Research agents inspected requirements, repository fit, attention/MoE code and
+the measured router regression. Claude reviewed the approach and candidates.
+Local snapshots under ignored `runs/openkernel/<job>/` preserve exact submitted
+source, hashes and raw judge results. The published timing-floor table is not
+measured baseline timing; decisions use actual judge profiles.
 
 ## Run
 
-Install the official `okc` CLI, then personally run `okc login`: it asks you to
+For a fresh machine, install the official `okc` CLI and personally run `okc login`: it asks you to
 accept the rules and terms and complete GitHub authentication. Never commit or
 print the account token. Organizer judging provides the H200 execution; no
 paid host is needed for this first experiment. The Mac cannot validate CUDA.
@@ -69,7 +75,7 @@ serving board; top-50 overall kernel placement grants queue priority.
 Serving changes must be a permitted diff against SGLang commit
 `a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f`, not a patch to this repository.
 No serving work is planned in this timebox. The terms PDF says the contest ends November 18,
-while the current API/site says November 19; resolve this before the final day.
+while the current API/site says November 19. Neither date affects this two-day timebox.
 
 - [Official CLI, API and technical rules](https://openkernelchallenge.dev/llms.txt)
 - [Live problem and limits](https://openkernelchallenge.dev/api/v1/problems/muse_bf16_proj)

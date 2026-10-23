@@ -1,0 +1,133 @@
+{
+  "observed_at": "2026-10-23T13:40:18.091747+00:00",
+  "timebox": "2026-10-23/2026-10-24 Asia/Kolkata",
+  "scored_submissions": 0,
+  "jobs": [
+    {
+      "job_id": "f27cc4ac63ee4a49",
+      "mode": "check",
+      "source_sha256": "1b9b7bf591e0bf849408aaa83a7f3eed4d1128ff384ca8df06bcee130c0d8892",
+      "source_file": "experiments/openkernel/muse_bf16_proj/router_all_tokens.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "gpu": null,
+      "flags": null,
+      "evaluator_image": null
+    },
+    {
+      "job_id": "59ff6bd7d4674073",
+      "mode": "check",
+      "source_sha256": "4fc48bd9cdfd749863c93a2dbf4e556e0c38fb04acc4fa48a53ef34cbf6c92a1",
+      "source_file": "runs/openkernel/moe-baseline.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.0008138404133688,
+      "speedup_ci": [
+        0.9858016328071683,
+        1.0158260480195693
+      ],
+      "gpu": "H200",
+      "flags": [],
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    },
+    {
+      "job_id": "ea5e0dcc5e1846ac",
+      "mode": "check",
+      "source_sha256": "e3d2691154bde133e75793de11b385770b1725e894d12a0653a0d9f0b2def9c6",
+      "source_file": "experiments/openkernel/muse_moe_w4a16/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "gpu": null,
+      "flags": null,
+      "evaluator_image": null
+    },
+    {
+      "job_id": "404dca2dd4134a9a",
+      "mode": "check",
+      "source_sha256": "e7e25a9ee5718ac7bcbd0baa0e1cde4583cd2fd5da0302e481bb6488a6928a4b",
+      "source_file": "experiments/openkernel/muse_attention_decode/submission.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "gpu": null,
+      "flags": null,
+      "evaluator_image": null
+    },
+    {
+      "job_id": "9cd67921edfc40b7",
+      "mode": "check",
+      "source_sha256": "9c5ae3aab46b7b344ca4b1044e381e99a8acca752cc0c93c4e50e862f14b4b98",
+      "source_file": "experiments/openkernel/muse_bf16_proj/router_large_tokens.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "gpu": null,
+      "flags": null,
+      "evaluator_image": null
+    },
+    {
+      "job_id": "afe0a26a817f473c",
+      "mode": "check",
+      "source_sha256": "7285f394cf2f62b5858d1b65d7f492b189ee41d9e479e3ddeadc4f64e5947532",
+      "source_file": "experiments/openkernel/muse_bf16_proj/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 0.8443037973337207,
+      "speedup_ci": [
+        0.831639240373715,
+        0.8569683542937264
+      ],
+      "gpu": "H200",
+      "flags": [],
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    },
+    {
+      "job_id": "382cb640050441cd",
+      "mode": "check",
+      "source_sha256": "37f51207283f85a65eb393b1dfb1344759d7df0bdec5450e34d24e7139f56ecc",
+      "source_file": "runs/openkernel/attention-baseline.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "gpu": null,
+      "flags": null,
+      "evaluator_image": null
+    },
+    {
+      "job_id": "8ce6e82a8a994909",
+      "mode": "check",
+      "source_sha256": "7630a4a9d370fb77992eb4a19d11e36e54e5ecb8c223c97f0b8a0b785817440f",
+      "source_file": "experiments/openkernel/muse_bf16_proj/router_small_tokens.py",
+      "status": "queued",
+      "passed": null,
+      "speedup": null,
+      "speedup_ci": null,
+      "gpu": null,
+      "flags": null,
+      "evaluator_image": null
+    },
+    {
+      "job_id": "7516c83b44e248a3",
+      "mode": "check",
+      "source_sha256": "39f52ea5b65505958aa9dee9c8129dd394cbba4e670046f862b5a88ce91a0574",
+      "source_file": "experiments/openkernel/muse_bf16_proj/baseline.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.0048251631518028,
+      "speedup_ci": [
+        0.9897527857045257,
+        1.0198975405990798
+      ],
+      "gpu": "H200",
+      "flags": [],
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e"
+    }
+  ]
+}
