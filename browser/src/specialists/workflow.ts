@@ -150,6 +150,7 @@ export function setupWorkflow(root: HTMLElement, host: Host) {
   }
 
   function inputForAction(): void {
+    get("job-progress").hidden = true;
     const data = datasets.get(host.mode());
     if (data?.[host.action.value])
       host.input.value = JSON.stringify(data[host.action.value], null, 2);
@@ -160,6 +161,7 @@ export function setupWorkflow(root: HTMLElement, host: Host) {
 
   async function refresh(): Promise<void> {
     workspace = (await host.request("workspace")) as unknown as Workspace;
+    get<HTMLInputElement>("data-file").disabled = false;
     modelState();
     const history = get("history");
     history.replaceChildren();
