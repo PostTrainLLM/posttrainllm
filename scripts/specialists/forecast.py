@@ -212,6 +212,7 @@ def train(forecaster, rows, out, steps, budget):
         torch.nn.utils.clip_grad_norm_(forecaster.model.parameters(), 1.0)
         optimizer.step()
         losses.append(float(loss.detach()))
+        budget.progress(step + 1, steps, losses[-1])
     out = Path(out)
     out.mkdir(parents=True)
     save_file(

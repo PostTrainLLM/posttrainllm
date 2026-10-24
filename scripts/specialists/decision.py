@@ -378,6 +378,7 @@ def train(model_name, rows, out, steps, budget, revision=None, offline=True):
         torch.nn.utils.clip_grad_norm_(lora_parameters(backend.model), 1.0)
         optimizer.step()
         losses.append(float(loss.detach()))
+        budget.progress(step + 1, steps, losses[-1])
     # Merge the adapter for a standard HF-loadable portable artifact. No custom
     # pickle loader or dependence on the original base directory is needed.
     for parent in backend.model.modules():
@@ -463,6 +464,7 @@ def train_mlx(model_name, rows, out, steps, budget, revision=None, offline=True)
         if not math.isfinite(loss.item()):
             raise ValueError("nonfinite MLX training loss")
         losses.append(loss.item())
+        budget.progress(step + 1, steps, losses[-1])
     out = Path(out)
     out.mkdir(parents=True)
     mx.save_safetensors(

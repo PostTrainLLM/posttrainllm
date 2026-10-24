@@ -82,29 +82,120 @@ uv run --project scripts/specialists python scripts/specialists/lab.py serve</co
         </p>
       </div><span id="sp-model" class="sp-model">Qwen3 · 1.7B · local</span>
     </div>
+    <div class="sp-model-picker">
+      <div>
+        <label for="sp-model-select">Base model</label><select
+          id="sp-model-select"
+          disabled><option>Connect your local runtime</option></select
+        >
+      </div>
+      <button id="sp-model-download" type="button" class="sp-secondary" disabled
+        >Download selected model</button
+      >
+      <p id="sp-model-ready" class="sp-note" role="status">
+        Pinned model choices and cached weights appear after connecting.
+      </p>
+    </div>
+    <details class="sp-data-import" id="sp-import-panel">
+      <summary>Bring your own data · CSV, JSON or JSONL</summary>
+      <p class="sp-note">
+        Preview your data, map its columns, and freeze separate training and
+        evaluation windows. Files stay in the local lab.
+      </p>
+      <label for="sp-data-file"
+        >Dataset<input
+          id="sp-data-file"
+          type="file"
+          accept=".csv,.json,.jsonl"
+        /></label
+      >
+      <div id="sp-data-mapping" hidden>
+        <div class="sp-mapping-grid">
+          <label data-sp-map="decision" for="sp-map-question"
+            >Question column<select id="sp-map-question"></select></label
+          >
+          <label data-sp-map="decision" for="sp-map-answer"
+            >Answer column<select id="sp-map-answer"></select></label
+          >
+          <label data-sp-map="decision" for="sp-map-options"
+            >Option columns · select two or more<select
+              id="sp-map-options"
+              multiple
+              size="4"></select></label
+          >
+          <label data-sp-map="forecast" for="sp-map-time"
+            >Timestamp column<select id="sp-map-time"></select></label
+          >
+          <label data-sp-map="forecast" for="sp-map-values"
+            >Numeric target columns<select id="sp-map-values" multiple size="4"
+            ></select></label
+          >
+          <label data-sp-map="forecast" for="sp-horizon"
+            >Forecast horizon<input
+              id="sp-horizon"
+              type="number"
+              min="1"
+              max="32"
+              value="8"
+            /></label
+          >
+        </div>
+        <div
+          id="sp-data-preview"
+          role="region"
+          aria-label="Dataset preview"
+          tabindex="0"
+        >
+        </div>
+        <button type="button" id="sp-data-apply"
+          >Validate &amp; use dataset</button
+        >
+      </div>
+    </details>
+    <p id="sp-data-summary" class="sp-note" role="status">
+      Decision imports need at least 20 distinct labelled questions. Forecast
+      data stays chronological. Terminal imports use recorded episode JSON.
+    </p>
     <div class="sp-grid">
       <form id="sp-form">
         <label for="sp-action">Operation</label>
         <select id="sp-action"></select>
-        <div class="sp-input-heading">
-          <label for="sp-input">Input JSON</label><label
-            class="sp-file-label"
-            for="sp-file"
-            >Import JSON<input
-              type="file"
-              id="sp-file"
-              accept=".json,.jsonl,application/json"
-            /></label
-          >
-        </div>
-        <textarea
-          id="sp-input"
-          spellcheck="false"
-          aria-describedby="sp-input-help"
-          rows="16"></textarea>
-        <p id="sp-input-help" class="sp-note">
-          Edit the example or import your input. No silent prompt truncation.
+        <label id="sp-steps-label" for="sp-steps" hidden
+          >Training steps · 1–200<input
+            id="sp-steps"
+            type="number"
+            value="1"
+            min="1"
+            max="200"
+          /></label
+        >
+        <p id="sp-ceiling-note" class="sp-note" hidden>
+          Validate benchmark with Codex sends the held-out questions and choices
+          to your signed-in Codex CLI. Gold labels stay local. No paid API is
+          used.
         </p>
+        <details id="sp-advanced">
+          <summary>Advanced input JSON</summary>
+          <div class="sp-input-heading">
+            <label for="sp-input">Input JSON</label><label
+              class="sp-file-label"
+              for="sp-file"
+              >Import JSON<input
+                type="file"
+                id="sp-file"
+                accept=".json,.jsonl,application/json"
+              /></label
+            >
+          </div>
+          <textarea
+            id="sp-input"
+            spellcheck="false"
+            aria-describedby="sp-input-help"
+            rows="16"></textarea>
+          <p id="sp-input-help" class="sp-note">
+            Edit the example or import your input. No silent prompt truncation.
+          </p>
+        </details>
         <div class="sp-run-actions">
           <button id="sp-run" type="submit" disabled>Run locally →</button
           ><button id="sp-example" class="sp-secondary" type="button"
@@ -119,6 +210,16 @@ uv run --project scripts/specialists python scripts/specialists/lab.py serve</co
         <p id="sp-status" role="status" aria-live="polite">
           Connect your local runtime to run this example.
         </p>
+        <div id="sp-job-progress" hidden>
+          <progress id="sp-progress" aria-label="Run progress" max="1"
+          ></progress>
+          <p id="sp-progress-text" class="sp-note" aria-live="polite"></p>
+          <div id="sp-loss-chart"></div>
+          <button type="button" id="sp-cancel" class="sp-secondary"
+            >Cancel run</button
+          >
+        </div>
+        <div id="sp-report" hidden></div>
         <div id="sp-visual"></div>
         <div id="sp-terminal-controls" hidden>
           <label for="sp-terminal-input">Type into the learned terminal</label>
@@ -157,6 +258,22 @@ uv run --project scripts/specialists python scripts/specialists/lab.py serve</co
         <p id="sp-measurements" class="sp-note"></p>
       </div>
     </div>
+    <div class="sp-history">
+      <div class="sp-result-heading">
+        <h3>Saved runs</h3><button
+          id="sp-refresh-runs"
+          type="button"
+          class="sp-secondary">Refresh runs</button
+        >
+      </div>
+      <p class="sp-note">
+        Configs, checkpoints and reports stay on your Mac. Reopen a completed
+        run after restarting; cancelled runs remain in history.
+      </p>
+      <div id="sp-history" aria-live="polite">
+        Connect your local runtime to see saved runs.
+      </div>
+    </div>
     <p class="sp-boundary">
       These modes use a local Python runtime. Browser-only WASM/WebGPU execution
       for these specialists has not been built. The byte-level trainer above
@@ -180,6 +297,9 @@ uv run --project scripts/specialists python scripts/specialists/lab.py serve</co
 </script>
 
 <style>
+  .specialist-labs [hidden] {
+    display: none !important;
+  }
   .specialist-labs {
     max-width: 1160px;
     margin: 0 auto 80px;
@@ -239,6 +359,110 @@ uv run --project scripts/specialists python scripts/specialists/lab.py serve</co
     border: 1px solid #2c2f35;
     border-radius: 9px;
     padding: 18px 20px;
+  }
+  .sp-model-picker,
+  .sp-data-import,
+  .sp-history {
+    margin: 20px 0;
+    padding: 18px;
+    border: 1px solid #2c2f35;
+    border-radius: 9px;
+  }
+  .sp-model-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  .sp-model-picker > div {
+    flex: 1 1 260px;
+    min-width: 0;
+  }
+  .sp-model-picker select {
+    margin: 0;
+  }
+  .sp-model-picker p {
+    flex-basis: 100%;
+    margin: 0;
+  }
+  .sp-mapping-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+  #sp-data-preview {
+    max-height: 200px;
+    overflow: auto;
+    margin: 16px 0;
+    background: #090b0e;
+    border-radius: 5px;
+  }
+  #sp-data-preview :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  #sp-data-preview :global(th),
+  #sp-data-preview :global(td) {
+    padding: 9px 12px;
+    text-align: left;
+    border-bottom: 1px solid #2c2f35;
+    max-width: 320px;
+    overflow-wrap: anywhere;
+  }
+  input[type="number"] {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px;
+    background: #111419;
+    border: 1px solid #2c2f35;
+    color: #e7e8ea;
+    border-radius: 7px;
+  }
+  #sp-advanced {
+    margin-bottom: 18px;
+  }
+  #sp-advanced summary {
+    margin-bottom: 14px;
+    color: #a6adb9;
+  }
+  progress {
+    width: 100%;
+    accent-color: #48e5c2;
+  }
+  #sp-loss-chart :global(svg) {
+    width: 100%;
+    height: 120px;
+  }
+  #sp-history :global(article) {
+    border-top: 1px solid #2c2f35;
+    padding: 14px 0;
+  }
+  #sp-history :global(p) {
+    color: #a6adb9;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+  }
+  #sp-history :global(button),
+  #sp-report :global(a) {
+    margin: 4px 8px 4px 0;
+  }
+  #sp-history :global(button) {
+    background: transparent;
+    border-color: #2c2f35;
+    color: #a6adb9;
+  }
+  #sp-report :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  #sp-report :global(th),
+  #sp-report :global(td) {
+    text-align: left;
+    padding: 10px 5px;
+    border-bottom: 1px solid #2c2f35;
   }
   summary {
     cursor: pointer;
