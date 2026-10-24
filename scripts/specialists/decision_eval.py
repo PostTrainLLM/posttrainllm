@@ -16,6 +16,30 @@ from decision import identity, metrics, validate_splits
 
 
 def prepare(rows, out, seed=7):
+    groups = split_rows(rows, seed)
+    out = Path(out)
+    if out.exists():
+        raise FileExistsError(out)
+    out.mkdir(parents=True)
+    for name, items in groups.items():
+        write_rows(out / f"{name}.jsonl", items)
+    write_json(
+        out / "splits.json",
+        {
+            "seed": seed,
+            "source_sha256": digest(sorted(rows, key=identity)),
+            "splits": {
+                name: {
+                    "count": len(items),
+                    "identities": [identity(row) for row in items],
+                }
+                for name, items in groups.items()
+            },
+        },
+    )
+
+
+def split_rows(rows, seed=7):
     validate_splits({"source": rows})
     if len(rows) < 20 or any("answer" not in row for row in rows):
         raise ValueError("prepare requires >=20 distinct labeled examples")
@@ -29,26 +53,7 @@ def prepare(rows, out, seed=7):
         "train": rows[holdout * 3 :],
     }
     validate_splits(groups)
-    out = Path(out)
-    if out.exists():
-        raise FileExistsError(out)
-    out.mkdir(parents=True)
-    for name, items in groups.items():
-        write_rows(out / f"{name}.jsonl", items)
-    write_json(
-        out / "splits.json",
-        {
-            "seed": seed,
-            "source_sha256": digest(rows),
-            "splits": {
-                name: {
-                    "count": len(items),
-                    "identities": [identity(row) for row in items],
-                }
-                for name, items in groups.items()
-            },
-        },
-    )
+    return groups
 
 
 def ceiling(rows, out):

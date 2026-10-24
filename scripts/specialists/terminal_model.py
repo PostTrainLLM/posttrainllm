@@ -205,6 +205,7 @@ def train(model, samples, out, steps, budget, learning_rate=1e-3):
         nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         optimizer.step()
         losses.append(float(loss.detach()))
+        budget.progress(step + 1, steps, losses[-1])
     model.eval()
     save(
         model,

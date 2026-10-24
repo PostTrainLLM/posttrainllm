@@ -1,4 +1,5 @@
 /** Local specialist modes inside /playground. No network calls before Connect. */
+import { setupWorkflow } from "./workflow";
 
 type Mode = "decision" | "forecast" | "terminal";
 type Json = Record<string, unknown>;
@@ -24,6 +25,8 @@ const modes: Record<
       train: "Train a LoRA adapter",
       calibrate: "Fit temperature",
       eval: "Evaluate with frontier ceiling",
+      ceiling: "Validate benchmark with Codex",
+      compare: "Compare trained model with baseline",
     },
   },
   forecast: {
@@ -36,6 +39,7 @@ const modes: Record<
       synthetic: "Generate a synthetic series",
       train: "Adapt with pinball loss",
       backtest: "Run a chronological backtest",
+      compare: "Compare trained model with baseline",
     },
   },
   terminal: {
@@ -52,6 +56,11 @@ const modes: Record<
 };
 
 export function sampleInput(mode: Mode, action: string): Json {
+  const workflowSamples: Record<string, Json> = {
+    compare: {},
+    ceiling: { rows: [] },
+  };
+  if (action in workflowSamples) return workflowSamples[action];
   const item = {
     id: "example-even",
     question: "Which integer is even?",
@@ -194,6 +203,7 @@ export function setupSpecialistLabs(): void {
     artifact: string | null = null,
     session: string | undefined;
   let keyQueue = Promise.resolve();
+  let workflow: ReturnType<typeof setupWorkflow> | undefined;
 
   async function request(path: string, data?: Json): Promise<Json> {
     const response = await fetch(
@@ -271,6 +281,7 @@ export function setupSpecialistLabs(): void {
     status.textContent = connected
       ? "Ready. Edit the example and run locally."
       : "Connect your local runtime to run this example.";
+    workflow?.modeChanged();
   }
 
   function display(body: Json): void {
@@ -352,6 +363,10 @@ export function setupSpecialistLabs(): void {
     setBusy(true);
     status.textContent = "Running on your Mac…";
     try {
+      if (["train", "compare", "ceiling"].includes(action.value)) {
+        await workflow?.execute(payload ?? object(JSON.parse(input.value)));
+        return;
+      }
       display(
         await request(
           `${mode}/${action.value}`,
@@ -380,6 +395,7 @@ export function setupSpecialistLabs(): void {
       status.textContent =
         "Connected. Cached models load on their first operation.";
       setBusy(false);
+      await workflow?.connect();
     } catch (error) {
       connected = false;
       setBusy(false);
@@ -408,8 +424,10 @@ export function setupSpecialistLabs(): void {
     input.value = JSON.stringify(sampleInput(mode, action.value), null, 2);
     resetOutput();
     session = undefined;
+    workflow?.inputForAction();
   });
   get("example").addEventListener("click", () => {
+    workflow?.reset();
     input.value = JSON.stringify(sampleInput(mode, action.value), null, 2);
     session = undefined;
   });
@@ -461,6 +479,7 @@ export function setupSpecialistLabs(): void {
       const active = await request("artifact/use", { artifact });
       status.textContent = `${String(active.mode)} artifact loaded. Choose prediction to try it; quality remains unqualified.`;
       session = undefined;
+      await workflow?.refresh();
     } catch (error) {
       status.textContent = String(error);
     } finally {
@@ -527,6 +546,24 @@ export function setupSpecialistLabs(): void {
   });
   input.addEventListener("change", () => {
     session = undefined;
+  });
+  workflow = setupWorkflow(root, {
+    request,
+    mode: () => mode,
+    action,
+    input,
+    busy: () => busy,
+    setBusy,
+    display,
+    restore(next, operation, payload) {
+      selectMode(next);
+      action.value = operation;
+      workflow?.inputForAction();
+      input.value = Object.keys(payload).length
+        ? JSON.stringify(payload, null, 2)
+        : JSON.stringify(sampleInput(next, operation), null, 2);
+      get<HTMLDetailsElement>("advanced").open = true;
+    },
   });
   selectMode("decision");
 }

@@ -31,6 +31,63 @@ edit its example JSON, and run it. Outputs can be inspected and exported.
 **Use trained artifact** loads a newly trained candidate for subsequent
 predictions. It does not qualify that candidate or replace a frozen baseline.
 
+### Guided workflow and saved runs
+
+After connecting, **Base model** lists pinned Qwen3 MLX models and all four
+Timestral sizes. Readiness checks installed packages, Apple Silicon compatibility
+and cached files without loading a model or accessing the network. **Download
+selected model** explicitly downloads its pinned public files from Hugging Face.
+There are no automatic model downloads or paid API calls.
+
+Open **Bring your own data** to import up to 800 KB of CSV, JSON or JSONL.
+The preview shows five records. Decision CSV maps question, answer and option
+columns; assigned labels are A, B, C, etc. Answers may name a column, assigned
+label or unique option value. Canonical question/options/answer JSONL works too.
+At least twenty distinct questions are required. Train, calibration, primary
+and regression splits are deterministic and disjoint.
+
+Forecast CSV maps an optional timestamp and numeric target columns. Timestamps
+must increase strictly; otherwise supplied row order is chronological. Empty
+cells mean missing observations. The last two horizons are held out for primary
+and regression evaluation; training ends before either window. Guided imports
+support numeric targets; covariates remain available in advanced JSON. Terminal
+imports accept recorded episode JSON and remain experimental.
+
+Choose **Train**, set 1–200 steps, and follow real loss/progress observations.
+One owned subprocess runs at a time. **Cancel run** terminates that process group;
+a parent watchdog enforces 180 seconds. This is not a hard RAM sandbox. Browser
+reload does not cancel a job; reconnect to follow it. Stopping the runtime
+cancels its owned process. Abandoned running records become interrupted on the
+next startup; recorded stale PIDs are never signalled. Partial jobs cannot
+activate their artifacts.
+
+**Saved runs** retains recipes, source hashes, pinned base identities, losses,
+results and artifacts under `runs/specialist-labs/web/`. Completed artifacts can
+be selected after restarting. Restore setup starts no work until Run is clicked.
+Use `serve --state-root <directory>` for an isolated workspace; one runtime may
+own a workspace at a time.
+
+After training, choose **Use trained artifact**, then **Compare trained model
+with baseline**. Decision comparisons require **Validate benchmark with Codex**,
+which explicitly sends held-out questions/choices through the free subscription
+CLI; gold labels stay local. Receipts bind source and gold. Forecast comparisons
+use two disjoint chronological windows and also report seasonal-naive error.
+Both paths verify training-data/base identities and emit existing factory
+report-card JSON/HTML. Missing measurements remain missing; comparisons are
+report-only and cannot automatically ship a model.
+
+The finishing check used four optimizer steps per model. Decision primary
+changed from 6/6 to 5/6, with regression unchanged at 5/6. Timestral primary MAE
+improved from 0.01742 to 0.01214 while regression MAE worsened from 0.03609 to
+0.03626 (eight observations per slice). These are tiny synthetic results,
+not general quality claims; neither candidate qualified for shipment.
+
+Workflow patterns were reviewed against Transformer Lab, Silicon Studio,
+LLaMA-Factory, AutoGluon, Orange and Ludwig. Feather's resolved experiment
+conditions inspired source/config identity capture; its E2B/Tinker integration
+is not installed. Existing MLX/Timestral trainers and factory report contracts
+remain the implementation base; no new production dependency is added.
+
 There are no bundled terminal weights. In Terminal world, select training and
 run the repeated tiny typing example, then use its trained artifact. This
 establishes the learning/checkpoint path, not useful shell competence.
@@ -213,7 +270,7 @@ checks cover the unified modes, actual local inference and responsive layouts.
 
 Defaults cap PyTorch CPU threads at two. CLI work has a cooperative wall-time
 budget; it is not a hard process/RAM sandbox. Browser training is limited to
-1–200 steps and 60 seconds. Peak RSS is process-wide, not isolated model RAM;
+1–200 steps; background jobs have a 180-second parent watchdog. Peak RSS is process-wide, not isolated model RAM;
 MLX GPU memory is recorded separately when training. There is no paid API use.
 
 Python-only artifact formats are not yet native TinyGPT packages. Full terminal

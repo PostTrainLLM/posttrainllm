@@ -1,5 +1,16 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { keyBytes, sampleInput } from "../specialists/labs";
+import { lossPoints } from "../specialists/workflow";
+
+describe("observed training loss chart", () => {
+  it("keeps constant and single-step runs finite and rejects missing measurements", () => {
+    expect(lossPoints([{ loss: 2 }])).toBe("10,110");
+    expect(lossPoints([{ loss: 2 }, { loss: 2 }])).toBe("10,110 390,110");
+    expect(lossPoints([{ loss: Number.NaN }])).toBe("");
+    expect(lossPoints([])).toBe("");
+    expect(lossPoints([{ loss: 3 }, { loss: 1 }])).toBe("10,10 390,110");
+  });
+});
 
 describe("specialist raw terminal input", () => {
   const key = (

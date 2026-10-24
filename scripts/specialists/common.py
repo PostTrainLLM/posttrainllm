@@ -104,12 +104,20 @@ def frontier_answers(schema, out, prompt):
 class Budget:
     """Cooperative deadline plus thread cap; not an OS sandbox or hard RAM limit."""
 
-    def __init__(self, seconds=60.0, threads=2):
+    def __init__(self, seconds=60.0, threads=2, progress=None):
         if not 0 < seconds <= 3600 or not 1 <= threads <= 2:
             raise ValueError("seconds must be in (0,3600], threads in [1,2]")
         self.seconds = seconds
         self.threads = threads
         self.started = time.monotonic()
+        self.on_progress = progress
+
+    def progress(self, step, total, loss=None, phase="training"):
+        self.check()
+        if self.on_progress:
+            self.on_progress(
+                {"phase": phase, "step": step, "total": total, "loss": loss}
+            )
 
     def check(self):
         if time.monotonic() - self.started >= self.seconds:

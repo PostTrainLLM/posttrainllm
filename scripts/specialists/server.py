@@ -8,8 +8,10 @@ Contract: docs/factory/specialist-labs.md.
 from __future__ import annotations
 
 import argparse
+import gc
 import json
 import mimetypes
+import signal
 import threading
 import uuid
 from functools import partial
@@ -18,6 +20,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 from common import Budget, ROOT, read_json
+from jobs import Jobs, atomic
 
 
 class LabRuntime:
@@ -40,15 +43,174 @@ class LabRuntime:
         self.decision = self.forecast = self.terminal = None
         self.sessions = {}
         self.artifacts = {}
+        self.configure_workspace(restore=False)
+
+    @classmethod
+    def from_snapshot(cls, config, restore=True):
+        config = dict(config)
+        state_root = config.pop("state_root", None)
+        runtime = cls(**config)
+        runtime.configure_workspace(state_root, restore)
+        return runtime
+
+    def configure_workspace(self, state_root=None, restore=True):
+        self.state_root = Path(
+            state_root or ROOT / "runs" / "specialist-labs" / "web"
+        ).resolve()
+        self.active_artifacts = {}
+        self.selection = {"decision": "qwen-1.7b", "forecast": "timestral-5m"}
+        self.jobs = None
+        self.budget = None
+        if restore and (self.state_root / "workspace.json").is_file():
+            state = read_json(self.state_root / "workspace.json")
+            self.selection.update(state.get("selection", {}))
+            self.active_artifacts = state.get("active_artifacts", {})
+            for key in self.selection.values():
+                self.select_model(key, persist=False)
+
+    def manager(self):
+        if self.jobs is None:
+            self.jobs = Jobs(self.state_root / "jobs")
+        return self.jobs
+
+    def save_workspace(self):
+        atomic(
+            self.state_root / "workspace.json",
+            {"selection": self.selection, "active_artifacts": self.active_artifacts},
+        )
+
+    def artifact_path(self, key, mode=None):
+        if (
+            not isinstance(key, str)
+            or len(key) != 32
+            or any(c not in "0123456789abcdef" for c in key)
+        ):
+            raise ValueError("invalid artifact id")
+        if key not in self.artifacts:
+            candidates = list((self.state_root / key).glob("*/specialist.json"))
+            if len(candidates) != 1:
+                raise ValueError("saved artifact is missing or incomplete")
+            metadata = candidates[0]
+            path = metadata.parent.resolve()
+            if not path.is_relative_to(self.state_root):
+                raise ValueError("artifact escapes this workspace")
+            kind = path.name
+            run_id = read_json(metadata).get("run_id")
+            if run_id:
+                state = read_json(self.state_root / "jobs" / run_id / "state.json")
+                if state["status"] != "completed":
+                    raise ValueError(
+                        "artifact belongs to an incomplete or cancelled run"
+                    )
+            self.artifacts[key] = (kind, path)
+        kind, path = self.artifacts[key]
+        if mode and kind != mode:
+            raise ValueError("artifact belongs to another model type")
+        return path
+
+    def select_model(self, key, persist=True):
+        from model_catalog import get
+
+        spec = get(key)
+        mode = spec["mode"]
+        self.selection[mode] = key
+        if mode == "decision":
+            self.decision_model, self.decision_revision = spec["repo"], spec["revision"]
+            self.backend = spec["backend"]
+            self.decision = None
+        else:
+            self.forecast_model, self.forecast_revision = spec["repo"], spec["revision"]
+            self.forecast = None
+        if persist:
+            self.active_artifacts.pop(mode, None)
+            self.save_workspace()
+        gc.collect()
+        return {"mode": mode, "model": key}
+
+    def snapshot(self):
+        return {
+            "decision_model": self.decision_model,
+            "decision_revision": self.decision_revision,
+            "forecast_model": self.forecast_model,
+            "forecast_revision": self.forecast_revision,
+            "terminal_model": str(self.terminal_model) if self.terminal_model else None,
+            "backend": self.backend,
+            "state_root": str(self.state_root),
+        }
+
+    def start_job(self, mode, action, payload):
+        if action not in ("train", "compare", "ceiling", "download"):
+            raise ValueError("unknown background operation")
+        if action == "train":
+            bounded_steps(payload)
+        if action != "download" and mode not in ("decision", "forecast", "terminal"):
+            raise ValueError("unknown model type")
+        if action == "compare":
+            payload = {
+                **payload,
+                "artifact": payload.get("artifact") or self.active_artifacts.get(mode),
+            }
+            self.artifact_path(payload["artifact"], mode)
+        if action == "download":
+            from model_catalog import get
+
+            get(payload["model"])
+            mode = "model"
+        if mode not in ("decision", "forecast", "terminal", "model"):
+            raise ValueError("unknown model type")
+        # Free parent model references before the child performs an update.
+        self.decision = self.forecast = self.terminal = None
+        self.sessions.clear()
+        gc.collect()
+        return self.manager().start(
+            {
+                "mode": mode,
+                "action": action,
+                "payload": payload,
+                "runtime": self.snapshot(),
+                "selection": self.selection.copy(),
+            }
+        )
+
+    def workspace(self):
+        from model_catalog import MODELS, readiness
+
+        manager = self.manager()
+        runs = manager.list()
+        artifacts = []
+        for row in runs:
+            marker = manager.folder(row["run_id"]) / "artifact.json"
+            if row["status"] == "completed" and marker.is_file():
+                key = read_json(marker)["artifact"]
+                try:
+                    path = self.artifact_path(key, row["mode"])
+                    artifacts.append(
+                        {
+                            "id": key,
+                            "mode": row["mode"],
+                            "run_id": row["run_id"],
+                            "created_at": row["created_at"],
+                            "steps": read_json(path / "specialist.json")["steps"],
+                        }
+                    )
+                except (ValueError, OSError, KeyError):
+                    pass
+        return {
+            "models": [readiness(k) for k in MODELS],
+            "selection": self.selection,
+            "active_artifacts": self.active_artifacts,
+            "runs": runs,
+            "artifacts": artifacts,
+        }
 
     def destination(self, mode):
         key = uuid.uuid4().hex
-        path = ROOT / "runs" / "specialist-labs" / "web" / key / mode
+        path = self.state_root / key / mode
         self.artifacts[key] = (mode, path)
         return key, path
 
     def run(self, mode, action, payload):
-        budget = Budget(60)
+        budget = self.budget or Budget(60)
         if mode == "decision":
             result = self.run_decision(action, payload, budget)
         elif mode == "forecast":
@@ -59,17 +221,28 @@ class LabRuntime:
             raise ValueError("unknown specialist mode")
         return {"result": result, "measurements": budget.measurements()}
 
+    def decision_backend(self, budget):
+        from decision import DecisionModel
+
+        model, revision = self.decision_model, self.decision_revision
+        adapter = None
+        active = self.active_artifacts.get("decision")
+        if active:
+            path = str(self.artifact_path(active, "decision"))
+            if self.backend == "mlx":
+                adapter = path
+            else:
+                model, revision = path, None
+        return DecisionModel(
+            model, self.backend, revision, budget=budget, adapter=adapter
+        )
+
     def run_decision(self, action, payload, budget):
         import decision
 
         if action in ("predict", "score"):
             if self.decision is None:
-                self.decision = decision.DecisionModel(
-                    self.decision_model,
-                    self.backend,
-                    self.decision_revision,
-                    budget=budget,
-                )
+                self.decision = self.decision_backend(budget)
             self.decision.budget = budget
             rows = payload.get("rows", [payload.get("item")])
             if not isinstance(rows, list) or not 1 <= len(rows) <= 256:
@@ -131,8 +304,13 @@ class LabRuntime:
                 payload.get("seed", 7), payload.get("length", 128)
             )
         if self.forecast is None:
+            active = self.active_artifacts.get("forecast")
             self.forecast = forecast.load(
-                self.forecast_model, self.forecast_revision, budget=budget
+                str(self.artifact_path(active, "forecast"))
+                if active
+                else self.forecast_model,
+                None if active else self.forecast_revision,
+                budget=budget,
             )
         if action == "predict":
             return forecast.forecast(
@@ -175,6 +353,10 @@ class LabRuntime:
             tm.train(model, samples, path, bounded_steps(payload), budget)
             return {"artifact": key, "metadata": read_json(path / "specialist.json")}
         if self.terminal is None:
+            if self.active_artifacts.get("terminal"):
+                self.terminal_model = self.artifact_path(
+                    self.active_artifacts["terminal"], "terminal"
+                )
             if self.terminal_model is None:
                 raise ValueError(
                     "train a terminal artifact, then choose Use artifact; no terminal weights are loaded"
@@ -211,39 +393,43 @@ class LabRuntime:
         raise ValueError("unknown terminal action")
 
     def use_artifact(self, key):
-        if key not in self.artifacts:
-            raise ValueError("unknown artifact in this runtime session")
+        self.artifact_path(key)
         mode, path = self.artifacts[key]
-        budget = Budget(60)
+        metadata = read_json(path / "specialist.json")
+        self.restore_artifact_base(metadata, mode)
         if mode == "decision":
-            from decision import DecisionModel
-
+            if metadata.get("kind") == "decision-mlx-adapter":
+                self.decision_model = metadata["base_model"]
+                self.decision_revision = metadata["revision"]
+                self.backend = "mlx"
+            else:
+                self.backend = "torch"
             self.decision = None
-            self.decision = DecisionModel(
-                self.decision_model if self.backend == "mlx" else str(path),
-                self.backend,
-                self.decision_revision if self.backend == "mlx" else None,
-                budget=budget,
-                adapter=str(path) if self.backend == "mlx" else None,
-            )
         elif mode == "forecast":
-            import forecast
-
-            self.forecast = forecast.load(str(path), budget=budget)
+            self.forecast = None
         elif mode == "terminal":
-            import terminal_model as tm
-
-            budget.torch()
-            self.terminal = tm.load(path)
+            self.terminal = None
+            self.terminal_model = path
             self.sessions.clear()
         else:
             raise ValueError("this artifact is data, not a model")
+        self.active_artifacts[mode] = key
+        self.save_workspace()
         return {"mode": mode, "active_artifact": key, "quality": "unqualified"}
+
+    def restore_artifact_base(self, metadata, mode):
+        run_id = metadata.get("run_id")
+        if not run_id:
+            return
+        request = read_json(self.manager().folder(run_id) / "request.json")
+        selected = request.get("selection", {}).get(mode)
+        if selected and mode != "terminal":
+            self.select_model(selected, persist=False)
 
 
 def bounded_steps(payload):
     steps = payload.get("steps", 1)
-    if not isinstance(steps, int) or not 1 <= steps <= 200:
+    if isinstance(steps, bool) or not isinstance(steps, int) or not 1 <= steps <= 200:
         raise ValueError(
             "browser training accepts 1–200 steps; use a scoped CLI recipe for more"
         )
@@ -272,6 +458,38 @@ class Handler(BaseHTTPRequestHandler):
     def allowed_host(self):
         return self.headers.get("Host") == f"127.0.0.1:{self.server.server_port}"
 
+    def get_job(self, path):
+        parts = path.strip("/").split("/")
+        try:
+            manager = self.runtime.manager()
+            key = parts[3]
+            if len(parts) == 5 and parts[4] in (
+                "report-card.json",
+                "report-card.html",
+            ):
+                if manager.read(key)["status"] != "completed":
+                    raise ValueError("report is not complete")
+                report = manager.folder(key) / "report" / parts[4]
+                data = report.read_bytes()
+                self.send_response(200)
+                self.send_header(
+                    "Content-Type",
+                    "text/html; charset=utf-8"
+                    if report.suffix == ".html"
+                    else "application/json",
+                )
+                self.send_header(
+                    "Content-Security-Policy",
+                    "default-src 'none'; style-src 'unsafe-inline'",
+                )
+                self.send_header("Content-Length", str(len(data)))
+                self.end_headers()
+                self.wfile.write(data)
+            else:
+                self.send_json(200, manager.read(key, recipe=True))
+        except (ValueError, OSError, KeyError) as error:
+            self.send_json(404, {"error": str(error)})
+
     def do_GET(self):
         if not self.allowed_host():
             self.send_json(403, {"error": "use the runtime's 127.0.0.1 address"})
@@ -287,6 +505,15 @@ class Handler(BaseHTTPRequestHandler):
                     or self.runtime.terminal_model is not None,
                 },
             )
+            return
+        if path == "/api/specialists/workspace":
+            try:
+                self.send_json(200, self.runtime.workspace())
+            except (ValueError, OSError) as error:
+                self.send_json(422, {"error": str(error)})
+            return
+        if path.startswith("/api/specialists/jobs/"):
+            self.get_job(path)
             return
         if path.startswith("/api/specialists/artifacts/"):
             key = path.rsplit("/", 1)[-1]
@@ -305,6 +532,9 @@ class Handler(BaseHTTPRequestHandler):
             )
             self.send_json(200, read_json(metadata))
             return
+        self.serve_asset(path)
+
+    def serve_asset(self, path):
         relative = unquote(path).lstrip("/")
         target = (self.web_root / relative).resolve()
         if target.is_dir():
@@ -325,6 +555,18 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def parse_payload(self):
+        length = int(self.headers.get("Content-Length", "0"))
+        if not 0 < length <= 1024 * 1024:
+            raise ValueError("request must contain 1 byte–1 MiB of JSON")
+        payload = json.loads(self.rfile.read(length))
+        if not isinstance(payload, dict):
+            raise ValueError("request must be a JSON object")
+        parts = urlsplit(self.path).path.strip("/").split("/")
+        if len(parts) != 4 or parts[:2] != ["api", "specialists"]:
+            raise ValueError("unknown specialist endpoint")
+        return payload, parts
+
     def do_POST(self):
         origin = f"http://127.0.0.1:{self.server.server_port}"
         if (
@@ -341,16 +583,25 @@ class Handler(BaseHTTPRequestHandler):
             self.send_json(409, {"error": "another specialist operation is running"})
             return
         try:
-            length = int(self.headers.get("Content-Length", "0"))
-            if not 0 < length <= 1024 * 1024:
-                raise ValueError("request must contain 1 byte–1 MiB of JSON")
-            payload = json.loads(self.rfile.read(length))
-            if not isinstance(payload, dict):
-                raise ValueError("request must be a JSON object")
-            parts = urlsplit(self.path).path.strip("/").split("/")
-            if len(parts) != 4 or parts[:2] != ["api", "specialists"]:
-                raise ValueError("unknown specialist endpoint")
-            if parts[2:] == ["artifact", "use"]:
+            payload, parts = self.parse_payload()
+            if parts[2:] == ["jobs", "cancel"]:
+                result = self.runtime.manager().cancel(payload["run_id"])
+            elif self.runtime.jobs and self.runtime.jobs.active:
+                self.send_json(
+                    409, {"error": "a background job is running; wait or cancel it"}
+                )
+                return
+            elif parts[2:] == ["jobs", "start"]:
+                result = self.runtime.start_job(
+                    payload["mode"], payload["action"], payload["input"]
+                )
+            elif parts[2:] == ["data", "inspect"]:
+                from data_tools import inspect
+
+                result = inspect(payload)
+            elif parts[2:] == ["model", "select"]:
+                result = self.runtime.select_model(payload["model"])
+            elif parts[2:] == ["artifact", "use"]:
                 result = self.runtime.use_artifact(payload["artifact"])
             else:
                 result = self.runtime.run(parts[2], parts[3], payload)
@@ -386,6 +637,7 @@ def main():
         "--forecast-revision", default="bdd20cfc15a3fea0e4cb5ccef37f8d3ca7aa335f"
     )
     parser.add_argument("--terminal-model", type=Path)
+    parser.add_argument("--state-root", type=Path, help="isolated local run workspace")
     args = parser.parse_args()
     web_root = args.web_root.resolve()
     if not any(
@@ -404,7 +656,13 @@ def main():
         args.terminal_model,
         args.backend,
     )
+    runtime.configure_workspace(args.state_root)
     server = ThreadingHTTPServer(("127.0.0.1", args.port), handler(runtime, web_root))
+
+    def stop_runtime(*_):
+        raise KeyboardInterrupt
+
+    signal.signal(signal.SIGTERM, stop_runtime)
     print(
         f"Specialist modes: http://127.0.0.1:{server.server_port}/playground#specialists",
         flush=True,
@@ -414,6 +672,8 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
+        if runtime.jobs:
+            runtime.jobs.close()
         server.server_close()
 
 

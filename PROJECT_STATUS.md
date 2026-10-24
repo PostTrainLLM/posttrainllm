@@ -16,9 +16,23 @@ The local reference tranche is implemented. All 28 focused Python tests and
 122 browser unit tests pass. The production build and internal-link gate pass;
 actual local inference, training, artifact reload and responsive browser checks
 pass with no external network requests. Tiny correctness checks and runtime
-smokes do not qualify a new specialist or establish upstream parity. This
-tranche is not deployed; browser-only specialist execution remains unbuilt.
+smokes do not qualify a new specialist or establish upstream parity. The
+reference tranche was published through PR #211 at `b12f5ff`, with all eight
+CI jobs and Pages deployment `40124733205` passing. Browser-only specialist
+execution remains unbuilt.
 See the [operator commands and boundaries](docs/factory/specialist-labs.md).
+
+The owner-authorized finishing pass adds guided CSV/JSONL import, pinned model
+readiness/selection, explicit downloads, subprocess progress/cancellation,
+persistent run/artifact reopening, and canonical held-out comparison reports.
+Real four-step Qwen3 QLoRA and Timestral adaptation, a free Codex ceiling,
+chronological held-out results, and a browser/server restart were exercised.
+Decision primary fell from 6/6 to 5/6; forecasting improved primary MAE but
+slightly worsened regression MAE. Both remain report-only. General terminal
+quality and full article parity remain open in #210; #209 remains a separate
+measurement audit. The finishing pass is a validated local workflow; publication
+is recorded by
+the linked pull request and deployment receipts in #210.
 
 ## Owner-authorized learning feature
 
