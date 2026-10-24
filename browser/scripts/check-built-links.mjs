@@ -145,16 +145,16 @@ for (const page of pages) {
   const route = pageRoute(page);
   for (const match of html.matchAll(/\shref=(?:"([^"]*)"|'([^']*)')/gu)) {
     const raw = (match[1] ?? match[2]).replaceAll("&amp;", "&").trim();
-    if (!raw || raw.startsWith("//")) continue;
+    if (!raw) continue;
 
     let url;
     try {
-      url = new URL(raw, `https://posttrainllm.invalid${route}`);
+      url = new URL(raw, `https://posttrainllm.com${route}`);
     } catch {
       failures.push(`${route}: invalid href ${JSON.stringify(raw)}`);
       continue;
     }
-    if (url.origin !== "https://posttrainllm.invalid") continue;
+    if (url.origin !== "https://posttrainllm.com") continue;
 
     checkedLinks += 1;
     if (runtimeResourcePaths.has(url.pathname)) continue;
