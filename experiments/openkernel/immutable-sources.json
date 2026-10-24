@@ -1,0 +1,27 @@
+[
+  {
+    "file": "experiments/openkernel/muse_attention_decode/submission.py",
+    "job_id": "939615aea8b24931",
+    "sha256": "4bb42627ed8807e6c85380db7043288ca9fff3ce33e8e00f62e404a680231f6b"
+  },
+  {
+    "file": "experiments/openkernel/muse_bf16_proj/submission.py",
+    "job_id": "1095cf9b43bf49a0",
+    "sha256": "774a28dae97b364a64704edc54d3ad811aaa71fea3918fc5ff8ab4f207845269"
+  },
+  {
+    "file": "experiments/openkernel/muse_decode_layer/submission.py",
+    "job_id": "beb82b4224554523",
+    "sha256": "48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894"
+  },
+  {
+    "file": "experiments/openkernel/muse_moe_w4a16/submission.py",
+    "job_id": "20b3199ecbd847f2",
+    "sha256": "909873095a4eca7db2195bad348fae96728bbc955b1ec4b33459e6deb2d67d8e"
+  },
+  {
+    "file": "experiments/openkernel/candidates/final-layer.py",
+    "job_id": "beb82b4224554523",
+    "sha256": "48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894"
+  }
+]

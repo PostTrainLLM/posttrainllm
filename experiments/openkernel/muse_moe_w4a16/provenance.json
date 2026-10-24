@@ -1,0 +1,64 @@
+{
+  "observed_date": "2026-10-23",
+  "source": "https://openkernelchallenge.dev/api/v1/problems/muse_moe_w4a16",
+  "sglang_revision": "a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f",
+  "upstream_sha256": {
+    "template.py": "f02d590bde6ad96e6c17fc699bbf7b1a130ad840d318dd500e34c348b66c41b9",
+    "baseline.py": "4fc48bd9cdfd749863c93a2dbf4e556e0c38fb04acc4fa48a53ef34cbf6c92a1",
+    "reference.py": "a7e0b4fa86aa477a4e7bb5745b2b258954d72636b6da153bd239a717927cba44",
+    "nvfp4.py": "cfdf37c7bc14b10f7353aba7d4632f4767401b92b4b073941a8030d9a961aaaf",
+    "checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055"
+  },
+  "benchmarks": [
+    {
+      "bs": 1,
+      "sharding": "ep8",
+      "load": "decode 1",
+      "weight": 60,
+      "seed": 401
+    },
+    {
+      "bs": 16,
+      "sharding": "ep8",
+      "load": "decode 16",
+      "weight": 60,
+      "seed": 402
+    },
+    {
+      "bs": 32,
+      "sharding": "ep8",
+      "load": "decode 32",
+      "weight": 60,
+      "seed": 403
+    },
+    {
+      "bs": 8,
+      "sharding": "ep8",
+      "load": "verify 1",
+      "weight": 60,
+      "seed": 404
+    },
+    {
+      "bs": 128,
+      "sharding": "ep8",
+      "load": "verify 16",
+      "weight": 60,
+      "seed": 405
+    },
+    {
+      "bs": 256,
+      "sharding": "ep8",
+      "load": "verify 32",
+      "weight": 60,
+      "seed": 406
+    }
+  ],
+  "limits_observed": {
+    "scored": {
+      "per_day": 10
+    },
+    "checks": {
+      "per_day": 20
+    }
+  }
+}

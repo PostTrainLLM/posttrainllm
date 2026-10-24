@@ -1,0 +1,238 @@
+{
+  "observed_at": "2026-10-23T13:06:02.659353+00:00",
+  "problem": "muse_bf16_proj",
+  "source": "https://openkernelchallenge.dev/api/v1/problems/muse_bf16_proj",
+  "cli_version": "0.7.1",
+  "sglang_revision": "a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f",
+  "judge_image": "lmsysorg/sglang:dev-muse-spark-open",
+  "gpu": "NVIDIA H200 SXM",
+  "upstream_sha256": {
+    "template.py": "1d789cd9827236c4a3d6b2adb9fd444c45a8f1f8b6c55decb592c8507289821d",
+    "baseline.py": "39f52ea5b65505958aa9dee9c8129dd394cbba4e670046f862b5a88ce91a0574",
+    "reference.py": "e62491abc9ddcad33f5faba8b0ee74cf6370b7be5dd2dc05031742f3ebf7147d",
+    "checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055",
+    "TASK.md": "deb9118fa75cbc03c2ebd16b283e72a0314168d40299fa7501373eb1960a2bc4",
+    "AGENTS.md": "d6f3fb0cedb7cfac9aaef929c5ec2999eba5e1103cc3fa240f49de4e732e21fc"
+  },
+  "benchmarks": [
+    {
+      "m": 1,
+      "layer": "qkv_gate",
+      "load": "decode 1",
+      "weight": 62,
+      "seed": 201
+    },
+    {
+      "m": 1,
+      "layer": "o",
+      "load": "decode 1",
+      "weight": 62,
+      "seed": 202
+    },
+    {
+      "m": 1,
+      "layer": "pooler",
+      "load": "decode 1",
+      "weight": 62,
+      "seed": 203
+    },
+    {
+      "m": 1,
+      "layer": "unpooler",
+      "load": "decode 1",
+      "weight": 62,
+      "seed": 204
+    },
+    {
+      "m": 1,
+      "layer": "router",
+      "load": "decode 1",
+      "weight": 62,
+      "seed": 205
+    },
+    {
+      "m": 16,
+      "layer": "qkv_gate",
+      "load": "decode 16",
+      "weight": 62,
+      "seed": 206
+    },
+    {
+      "m": 16,
+      "layer": "o",
+      "load": "decode 16",
+      "weight": 62,
+      "seed": 207
+    },
+    {
+      "m": 16,
+      "layer": "pooler",
+      "load": "decode 16",
+      "weight": 62,
+      "seed": 208
+    },
+    {
+      "m": 16,
+      "layer": "unpooler",
+      "load": "decode 16",
+      "weight": 62,
+      "seed": 209
+    },
+    {
+      "m": 16,
+      "layer": "router",
+      "load": "decode 16",
+      "weight": 62,
+      "seed": 210
+    },
+    {
+      "m": 32,
+      "layer": "qkv_gate",
+      "load": "decode 32",
+      "weight": 62,
+      "seed": 211
+    },
+    {
+      "m": 32,
+      "layer": "o",
+      "load": "decode 32",
+      "weight": 62,
+      "seed": 212
+    },
+    {
+      "m": 32,
+      "layer": "pooler",
+      "load": "decode 32",
+      "weight": 62,
+      "seed": 213
+    },
+    {
+      "m": 32,
+      "layer": "unpooler",
+      "load": "decode 32",
+      "weight": 62,
+      "seed": 214
+    },
+    {
+      "m": 32,
+      "layer": "router",
+      "load": "decode 32",
+      "weight": 62,
+      "seed": 215
+    },
+    {
+      "m": 8,
+      "layer": "qkv_gate",
+      "load": "verify 1",
+      "weight": 62,
+      "seed": 216
+    },
+    {
+      "m": 8,
+      "layer": "o",
+      "load": "verify 1",
+      "weight": 62,
+      "seed": 217
+    },
+    {
+      "m": 8,
+      "layer": "pooler",
+      "load": "verify 1",
+      "weight": 62,
+      "seed": 218
+    },
+    {
+      "m": 8,
+      "layer": "unpooler",
+      "load": "verify 1",
+      "weight": 62,
+      "seed": 219
+    },
+    {
+      "m": 8,
+      "layer": "router",
+      "load": "verify 1",
+      "weight": 62,
+      "seed": 220
+    },
+    {
+      "m": 128,
+      "layer": "qkv_gate",
+      "load": "verify 16",
+      "weight": 62,
+      "seed": 221
+    },
+    {
+      "m": 128,
+      "layer": "o",
+      "load": "verify 16",
+      "weight": 62,
+      "seed": 222
+    },
+    {
+      "m": 128,
+      "layer": "pooler",
+      "load": "verify 16",
+      "weight": 62,
+      "seed": 223
+    },
+    {
+      "m": 128,
+      "layer": "unpooler",
+      "load": "verify 16",
+      "weight": 62,
+      "seed": 224
+    },
+    {
+      "m": 128,
+      "layer": "router",
+      "load": "verify 16",
+      "weight": 62,
+      "seed": 225
+    },
+    {
+      "m": 256,
+      "layer": "qkv_gate",
+      "load": "verify 32",
+      "weight": 62,
+      "seed": 226
+    },
+    {
+      "m": 256,
+      "layer": "o",
+      "load": "verify 32",
+      "weight": 62,
+      "seed": 227
+    },
+    {
+      "m": 256,
+      "layer": "pooler",
+      "load": "verify 32",
+      "weight": 62,
+      "seed": 228
+    },
+    {
+      "m": 256,
+      "layer": "unpooler",
+      "load": "verify 32",
+      "weight": 62,
+      "seed": 229
+    },
+    {
+      "m": 256,
+      "layer": "router",
+      "load": "verify 32",
+      "weight": 62,
+      "seed": 230
+    }
+  ],
+  "limits_observed": {
+    "scored": {
+      "per_day": 10
+    },
+    "checks": {
+      "per_day": 20
+    }
+  },
+  "validation": "H200 checks and scored submissions are recorded by exact source hash in experiments/openkernel/results.json"
+}

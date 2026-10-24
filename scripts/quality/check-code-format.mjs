@@ -1,12 +1,17 @@
 #!/usr/bin/env node
 
 import { changedFiles, commandWithUvx, run } from "./code-health-files.mjs";
+import { verifiedKernelSnapshots } from "./verified-kernel-snapshots.mjs";
 
 if (process.env.CODE_HEALTH_SKIP_SWIFT !== "1") {
   run("swiftformat", ["--lint", "native-mac/Sources", "native-mac/Tests"]);
 }
 
-const pythonFiles = changedFiles([".py"]);
+const snapshots = verifiedKernelSnapshots();
+console.log(`Verified ${snapshots.size} immutable scored kernel snapshots.`);
+const pythonFiles = changedFiles([".py"]).filter(
+  (file) => !snapshots.has(file),
+);
 if (pythonFiles.length > 0) {
   const ruff = commandWithUvx("ruff", ["ruff==0.16.2"]);
   run(ruff.command, [...ruff.prefix, "format", "--check", ...pythonFiles]);

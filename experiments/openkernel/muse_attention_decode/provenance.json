@@ -1,0 +1,167 @@
+{
+  "observed_date": "2026-10-23",
+  "source": "https://openkernelchallenge.dev/api/v1/problems/muse_attention_decode",
+  "sglang_revision": "a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f",
+  "upstream_sha256": {
+    "template.py": "18e15dfdfdcebb8251d94530947f4ccfa1c19f598a8240a0b76c6574eddecb6d",
+    "baseline.py": "37f51207283f85a65eb393b1dfb1344759d7df0bdec5450e34d24e7139f56ecc",
+    "reference.py": "386f7f67a1d788501e8fb9005d340423d098a0946e23810ba10878228c11a37b",
+    "checks.py": "9a046c3c38db28b325dcd1557baecdf6bc9ef941d2175f9a900ba4c230bb8055"
+  },
+  "benchmarks": [
+    {
+      "batch": 1,
+      "ctx": 80000,
+      "heads": "tp8",
+      "layer": "sliding",
+      "page": 1,
+      "dist": "soft",
+      "load": "decode 1",
+      "weight": 46,
+      "seed": 601
+    },
+    {
+      "batch": 1,
+      "ctx": 80000,
+      "heads": "tp8",
+      "layer": "full",
+      "page": 1,
+      "dist": "coherent",
+      "load": "decode 1",
+      "weight": 16,
+      "seed": 602
+    },
+    {
+      "batch": 16,
+      "ctx": 80000,
+      "heads": "tp8",
+      "layer": "sliding",
+      "page": 1,
+      "spread": "agentic",
+      "dist": "soft",
+      "load": "decode 16",
+      "weight": 46,
+      "seed": 603
+    },
+    {
+      "batch": 16,
+      "ctx": 80000,
+      "heads": "tp8",
+      "layer": "full",
+      "page": 1,
+      "spread": "agentic",
+      "dist": "coherent",
+      "load": "decode 16",
+      "weight": 16,
+      "seed": 604
+    },
+    {
+      "batch": 32,
+      "ctx": 80000,
+      "heads": "tp8",
+      "layer": "sliding",
+      "page": 1,
+      "spread": "agentic",
+      "dist": "soft",
+      "load": "decode 32",
+      "weight": 46,
+      "seed": 605
+    },
+    {
+      "batch": 32,
+      "ctx": 80000,
+      "heads": "tp8",
+      "layer": "full",
+      "page": 1,
+      "spread": "agentic",
+      "dist": "coherent",
+      "load": "decode 32",
+      "weight": 16,
+      "seed": 606
+    },
+    {
+      "batch": 1,
+      "ctx": 80000,
+      "heads": "tp8",
+      "layer": "sliding",
+      "page": 1,
+      "q_len": 8,
+      "dist": "soft",
+      "load": "verify 1",
+      "weight": 46,
+      "seed": 607
+    },
+    {
+      "batch": 1,
+      "ctx": 80000,
+      "heads": "tp8",
+      "layer": "full",
+      "page": 1,
+      "q_len": 8,
+      "dist": "coherent",
+      "load": "verify 1",
+      "weight": 16,
+      "seed": 608
+    },
+    {
+      "batch": 16,
+      "ctx": 80000,
+      "heads": "tp8",
+      "layer": "sliding",
+      "page": 1,
+      "q_len": 8,
+      "spread": "agentic",
+      "dist": "soft",
+      "load": "verify 16",
+      "weight": 46,
+      "seed": 609
+    },
+    {
+      "batch": 16,
+      "ctx": 80000,
+      "heads": "tp8",
+      "layer": "full",
+      "page": 1,
+      "q_len": 8,
+      "spread": "agentic",
+      "dist": "coherent",
+      "load": "verify 16",
+      "weight": 16,
+      "seed": 610
+    },
+    {
+      "batch": 32,
+      "ctx": 80000,
+      "heads": "tp8",
+      "layer": "sliding",
+      "page": 1,
+      "q_len": 8,
+      "spread": "agentic",
+      "dist": "soft",
+      "load": "verify 32",
+      "weight": 46,
+      "seed": 611
+    },
+    {
+      "batch": 32,
+      "ctx": 80000,
+      "heads": "tp8",
+      "layer": "full",
+      "page": 1,
+      "q_len": 8,
+      "spread": "agentic",
+      "dist": "coherent",
+      "load": "verify 32",
+      "weight": 16,
+      "seed": 612
+    }
+  ],
+  "limits_observed": {
+    "scored": {
+      "per_day": 10
+    },
+    "checks": {
+      "per_day": 20
+    }
+  }
+}

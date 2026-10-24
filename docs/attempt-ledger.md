@@ -672,6 +672,376 @@ Two cross-cutting findings the collapsed entry hid:
 - Next action: Keep this as positive verification; only reopen if new SDPA call sites or untied embedding save paths are added.
 - Confidence: `not-applicable`.
 
+### Open Kernel broad split-K router
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check afe0a26a817f473c: 0.8443x aggregate, reported 95% interval 0.8316-0.8570x; correctness passed with no flags.
+- Failure reason: Applying the small-tile split-K path at larger token counts caused measured per-shape regressions and an aggregate below baseline.
+- Failure-reason confidence: `exact`.
+- Lesson: A fused kernel needs a measured dispatch range; correctness alone does not qualify a performance change.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel large-token router tile
+
+- Status: `inconclusive`.
+- Evidence: 2026-10-23 H200 check 9cd67921edfc40b7: 1.0088x aggregate, reported 95% interval 0.9936-1.0239x; correctness passed with no flags.
+- Failure reason: The reported aggregate interval includes 1x despite improvements at individual large-token shapes.
+- Failure-reason confidence: `exact`.
+- Lesson: Keep per-shape improvements separate from demonstrated aggregate gains.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel narrow split-K router
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 85ab373d8dcc44f7: 1.0534x aggregate, reported 95% interval 1.0376-1.0692x; correctness passed with no flags. Earlier BK64 scored run 5b1f1c6523524705 measured 1.0309x; tile variants have overlapping aggregate intervals.
+- Failure reason: The demonstrated gain is limited to the organizer H200 workload; a larger tile advantage over the earlier scored variant is not statistically established by the aggregate intervals.
+- Failure-reason confidence: `exact`.
+- Lesson: Preserve tiny-token and large-token baseline paths, and judge tile choices using both target-shape timing and aggregate uncertainty.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel fused attention preparation
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run f141c8d265234a99: 1.1357x aggregate, reported 95% interval 1.1187-1.1528x; correctness passed with no flags.
+- Failure reason: This measures attention preparation plus the existing attention implementation on one organizer workload, not application throughput or Mac performance.
+- Failure-reason confidence: `exact`.
+- Lesson: Fusion must preserve BF16 rounding, the exact RoPE table, cache slot writes and non-unit scale fallbacks.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel global-expert MoE block sizing
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 84fb1b656d3c44e2: 1.0645x aggregate, reported 95% interval 1.0485-1.0804x; correctness passed with no flags.
+- Failure reason: The gain is specific to the supplied expert-parallel routing distribution and organizer H200 workload.
+- Failure-reason confidence: `exact`.
+- Lesson: Use the global expert count for routing density; do not confuse that heuristic with local expert IDs used by alignment.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel combined decoder layer
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 0a072555103b4e2d: 1.0254x aggregate, reported 95% interval 1.0100-1.0408x; correctness passed with no flags. Its preceding check 5e444821e58e404a measured 1.0181x overall but regressed at 32 and 128 tokens.
+- Failure reason: Component gains did not compose uniformly: the full-layer check regressed at 32 and 128 tokens despite a positive aggregate.
+- Failure-reason confidence: `exact`.
+- Lesson: Measure attention and MoE together while preserving the full layer router precision and stream ordering; component speedups do not multiply into a layer claim.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel decoder layer with conservative MoE dispatch
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run bc25711588004579: 1.0351x aggregate, reported 95% interval 1.0196-1.0506x; correctness passed with no flags.
+- Failure reason: The cutoff preserves baseline MoE tiling below 256 tokens based on measured layer regressions; results establish only this organizer H200 workload.
+- Failure-reason confidence: `exact`.
+- Lesson: Use combined-layer evidence to narrow component optimizations, and rerun correctness and timing after restoring fallbacks.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel split-K attention FP8 load compilation
+
+- Status: `failed`.
+- Evidence: 2026-10-23 H200 check 035753a0aef44f2f failed five correctness cases during Triton compilation: integer zero fallback values could not be cast to FP8 E4M3 loads; no timing score was produced.
+- Failure reason: Masked FP8 loads used an integer other=0 value that the judge Triton compiler could not cast to fp8e4nv.
+- Failure-reason confidence: `exact`.
+- Lesson: Python syntax and lint checks do not validate Triton backend types; masked FP8 loads need a compatible floating-point fill value.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel single-token dense GEMV
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 1095cf9b43bf49a0 passed with no flags: 1.0673x aggregate, reported 95% interval 1.0513-1.0834x. All four targeted one-token projections measured 1.13-1.20x versus SGLang, repeating the preceding check gains.
+- Failure reason: The aggregate interval overlaps the previous dense candidate; targeted projection gains do not establish the exact aggregate improvement or gains outside one-token dispatch.
+- Failure-reason confidence: `exact`.
+- Lesson: A single streaming GEMV can remove split-reduction overhead for one-token projections while retaining existing dispatch for other shapes.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel fused small-batch expert norm
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 20b3199ecbd847f2 passed with no flags: 1.2236x aggregate, reported 95% interval 1.2053-1.2420x. Small batches measured 1.22-1.49x versus SGLang; the 32-token case measured 0.988x. The preceding check measured 1.2201x aggregate.
+- Failure reason: The existing 32-token path retains a small measured regression, and the gain applies to the organizer workload rather than application throughput.
+- Failure-reason confidence: `exact`.
+- Lesson: Profile wrapper dispatch as well as kernel arithmetic: the existing fused norm kernel removed several small-batch framework launches while preserving FP32 reduction and invalid-expert masking.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel broad paged split-K attention
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check 34c48a28a66d46d3 passed correctness with no flags: 1.0564x aggregate, reported 95% interval 1.0405-1.0722x, below the selected 1.1357x attention candidate. Full-context verification at batches 16 and 32 measured 0.553x and 0.537x versus SGLang.
+- Failure reason: Applying the same split-K kernel to eight-token long-context verification nearly doubled latency; larger sliding verification also lost against the existing fused-preparation candidate.
+- Failure-reason confidence: `exact`.
+- Lesson: A custom attention kernel can help decoding while losing verification; compare each dispatch regime with the current incumbent as well as the official baseline.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel decoder layer with fused small-batch expert norm
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 1c749497f0bf4c89 passed correctness with no flags: 1.1070x aggregate, reported 95% interval 1.0903-1.1236x, with all 12 benchmark shapes faster than SGLang. The preceding check measured 1.1086x.
+- Failure reason: This qualifies the MoE norm fusion inside the organizer decoder-layer workload; it does not establish serving throughput or compose the separate new GEMV and split-K attention kernels.
+- Failure-reason confidence: `exact`.
+- Lesson: A wrapper-level fusion can carry into the full layer, but retain the layer router precision, stream ordering and measured MoE tile fallback.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel narrow paged split-K attention
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 scored run 3439c74e04594576 passed correctness with no flags: 1.2804x aggregate, reported 95% interval 1.2612-1.2996x. All 12 benchmark shapes measured faster than SGLang; single-request sliding decoding reached 2.05x.
+- Failure reason: The custom kernel is selected only for one-token decoding and single-request sliding verification on supported configurations; other shapes retain FA3, and full-layer composition has not been measured.
+- Failure-reason confidence: `exact`.
+- Lesson: Use measured dispatch boundaries to retain custom attention wins and avoid verification regressions; preserve live cache metadata, legal keys and FP32 softmax state.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel decoder-layer GEMV and attention composition
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 check 2928071145b44c58 measured 1.1364x; exact-source scored run e5f50469aadf4638 passed fresh correctness with no flags at 1.1366x, reported 95% interval 1.1196-1.1537x. All twelve scored shapes beat SGLang.
+- Failure reason: The repeated composition gain is qualified and promoted, but 1.1366x remains far from the overall top-ten target. It includes the earlier BF16-dot attention, not the newer joint-head experiment.
+- Failure-reason confidence: `exact`.
+- Lesson: Compose qualified components while preserving FP32 router input, stream ordering, cache semantics and normalization boundaries.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel native FP8 QK and PV attention
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check 8c3311ccc5cd4b3c passed correctness with no flags: 1.2223x aggregate, reported 95% interval 1.2040-1.2458x. This is an off-board check, not a scored submission.
+- Failure reason: Aggregate 1.2223x is below selected 1.2804x; full decode at batch 16 and 32 took 230.6 and 443.3 microseconds, versus selected measurements near 189.7 and 350.9. Both use the same keys; native FP8 dots did not improve these regimes.
+- Failure-reason confidence: `exact`.
+- Lesson: Lower operand precision does not guarantee lower latency; layout conversion and dependent gathers are hypotheses until compiler or hardware evidence establishes their cost.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel small-batch dense split-K and native tiny router
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check a2d8bfdabc884c1f passed correctness with no flags: 1.0485x aggregate, reported 95% interval 1.0328-1.0643x. This is an off-board check, not a scored submission.
+- Failure reason: Aggregate 1.0485x is below selected 1.0673x. Pooler at 8 and 16 tokens improved about 10 percent over SGLang, but 32-token dense paths and the tiny-router replacement regressed.
+- Failure-reason confidence: `exact`.
+- Lesson: Separate public-shape regimes before composing improvements; more splits add a reduction launch and may lose despite sufficient parallel work.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel single-token direct packed NVFP4 SIMT GEMV
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check facf2729e11e442c passed correctness with no flags: 0.9291x aggregate, reported 95% interval 0.9152-0.9519x. This is an off-board check, not a scored submission.
+- Failure reason: One-token latency was 271.789 microseconds versus 77.408 for SGLang and 51.41 for the selected source; the two custom GEMVs consumed 97.3 percent of the diagnostic profile.
+- Failure-reason confidence: `exact`.
+- Lesson: Removing route alignment is insufficient when serial unpack, scaling and repeated reductions dominate; register spilling or occupancy was not measured.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel raw grouped NVFP4 tensor-core experts
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check 875ff735dfa84734 passed correctness with no flags: 0.2087x aggregate, reported 95% interval 0.2056-0.2118x. This is an off-board check, not a scored submission.
+- Failure reason: Aggregate 0.2087x is far below selected 1.2236x. At 16 tokens the candidate took 1402.630 microseconds versus 191.744 for SGLang and 157.29 for the selected source; the two custom GEMMs account for 99 percent of the diagnostic profile.
+- Failure-reason confidence: `exact`.
+- Lesson: Correct tensor-core math does not establish an efficient implementation. The measured regression is inside GEMMs; unpacking cost, resource pressure and compiler layout remain unverified explanations.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel joint-head FP8 paged attention
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 check 717f23591a6f4ff8 passed correctness with no flags: 1.3664x aggregate, reported 95% interval 1.3459-1.3869x. This is an off-board check, not a scored submission. Exact-source score 939615aea8b24931 subsequently passed all sixteen checks with no flags: 1.3723038378x, reported interval 1.3517192802-1.3995453283x; selected.
+- Failure reason: Selected attention is measured on organizer H200 workloads only. Full-layer composition is separately validated by final run beb82b4224554523; no serving or Mac gain is claimed.
+- Failure-reason confidence: `exact`.
+- Lesson: Loading both contiguous KV heads in one CTA improves this measured decode regime. This result does not establish a general FP8 advantage: the separate-head FP8 variant regressed, and verification still uses FA3.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel grouped NVFP4 experts with bit decoding
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check 63bd8567d57d4199 passed all five fresh correctness cases with no flags: 0.2905x aggregate, reported 95% interval 0.2861-0.2948x. This is an off-board check, not a scored submission.
+- Failure reason: Aggregate 0.2905x is below selected 1.2236x. At 16 tokens the candidate took 964.156 microseconds versus 189.056 for SGLang and 157.29 for the selected source. Multi-token diagnostic profiles place 98-99 percent of GPU time in the two grouped GEMMs.
+- Failure-reason confidence: `exact`.
+- Lesson: Cheaper bit decoding improves the earlier grouped implementation at 0.2087x but leaves every custom multi-token case slower than SGLang. The one-token result uses the unchanged Marlin fallback. Register pressure, spills and instruction costs remain unmeasured.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel single-token NVFP4 bit decoding and vector accumulation
+
+- Status: `regressed`.
+- Evidence: 2026-10-23 H200 check ea95ebe0676248be passed all five fresh correctness cases with no flags: 1.0400x aggregate, reported 95% interval 1.0244-1.0556x. This is an off-board check, not a scored submission.
+- Failure reason: Aggregate 1.0400x is below selected 1.2236x. The custom one-token path took 137.590 microseconds versus 77.680 for SGLang and the selected source's prior 51.414 measurement. Its two custom GEMVs consume 93.4 percent of diagnostic GPU time.
+- Failure-reason confidence: `exact`.
+- Lesson: Bit decoding and one final reduction per output improve the earlier direct GEMV's 271.789-microsecond result, but still lose to Marlin. Unchanged multi-token fallback timings do not establish a new optimization. Spills, occupancy and instruction costs remain unmeasured.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel additional full-context attention splits
+
+- Status: `inconclusive`.
+- Evidence: 2026-10-23 H200 check 6a1c90b00a0c46a5 passed all sixteen fresh correctness cases with no flags: 1.2968x aggregate, reported 95% interval 1.2774-1.3221x. All twelve benchmark cases beat SGLang. This is an off-board check, not a scored submission.
+- Failure reason: The aggregate is only 1.28 percent above selected attention 1.2804x, and their reported intervals overlap. Full-context decode at batches 16 and 32 took 179.835 and 341.780 microseconds versus the joint-head check's earlier 140.938 and 266.767 measurements. This check does not establish a repeatable improvement over the selected source.
+- Failure-reason confidence: `exact`.
+- Lesson: Doubling the full-context split target preserves correctness but does not establish a meaningful aggregate gain. Diagnostic profiles place 97.1 and 98.6 percent of those full-context decode cases in the partial-attention kernel. The underlying hardware bottleneck remains unmeasured.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel whole-row FP32 tiny-router reduction
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 check 45dde2ec9cfa4fbe passed all nine fresh correctness cases with no flags: 1.0915x aggregate, reported 95% interval 1.0751-1.1079x. The one-token router took 3.939 microseconds versus SGLang 10.352 and selected source's earlier 10.089. This is an off-board check, not a scored submission.
+- Failure reason: The aggregate point estimate is 2.26 percent above selected dense 1.0673x, but reported intervals overlap and the source remains unscored. The eight-token router took 11.218 microseconds versus the selected source's earlier 10.997, so extending the reduction to eight tokens did not establish a gain. Owner policy parks this source without scoring or promotion.
+- Failure-reason confidence: `exact`.
+- Lesson: One whole-row FP32 reduction removes the cast launch for the one-token router and shows a substantial measured case gain. The diagnostic profile contains one 2.4-microsecond router kernel at one token and one 10.9-microsecond kernel at eight tokens. A case gain does not establish an aggregate or full-layer improvement.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel whole-row single-token dense and router reductions
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-23 H200 check 350b4c2c87ef4312 passed all nine fresh correctness cases with no flags: 1.1131x aggregate, reported 95% interval 1.0964-1.1298x. The point estimate is 4.29 percent above selected dense 1.0673x, whose reported interval is 1.0513-1.0834x. These intervals do not overlap. This is an off-board check, not a scored submission.
+- Failure reason: The standalone candidate was not scored. Its whole-row reductions were composed into final layer beb82b4224554523, which passed at 1.2503x; that combined result does not isolate their contribution.
+- Failure-reason confidence: `exact`.
+- Lesson: Whole-row FP32 reductions improve the measured long single-token projections while retaining the short O-projection path. QKV, pooler, unpooler and router measured 10.619, 16.461, 3.348 and 4.242 microseconds versus selected prior 12.569, 17.890, 5.867 and 10.089. Their separate profiles each contain one whole-row kernel; the pooler kernel takes 16.1 microseconds. Hardware bandwidth and occupancy were not measured.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel attention merge/norm/gate fusion
+
+- Status: `regressed`.
+- Evidence: 2026-10-24 H200 off-board check a848d0b7c8794535: passed 16 fresh correctness cases with no flags; 1.3067727260x, reported 95% interval 1.2871711351-1.3263743169x.
+- Failure reason: Below the selected joint-head attention; epilogue fusion alone did not win.
+- Failure-reason confidence: `exact`.
+- Lesson: Below the selected joint-head attention; epilogue fusion alone did not win.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel fixed-query FA3 scheduling
+
+- Status: `regressed`.
+- Evidence: 2026-10-24 H200 off-board check 5a7a3f5158e94210: passed 16 fresh correctness cases with no flags; 1.2911857494x, reported 95% interval 1.2674624602-1.3164755845x.
+- Failure reason: Below selected joint-head attention; preserve the existing FA3 fallback.
+- Failure-reason confidence: `exact`.
+- Lesson: Below selected joint-head attention; preserve the existing FA3 fallback.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel grouped BF16-decoded NVFP4 experts
+
+- Status: `regressed`.
+- Evidence: 2026-10-24 H200 off-board check 59b8264c0c8d4e59: passed 5 fresh correctness cases with no flags; 0.2986659409x, reported 95% interval 0.2941859518-0.3031459300x.
+- Failure reason: 96 registers and zero spills do not explain the large regression; grouped GEMMs still dominate.
+- Failure-reason confidence: `exact`.
+- Lesson: 96 registers and zero spills do not explain the large regression; grouped GEMMs still dominate.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel single-token direct tensor-core experts
+
+- Status: `regressed`.
+- Evidence: 2026-10-24 H200 off-board check cac9617e49ed43eb: passed 5 fresh correctness cases with no flags; 0.9062609933x, reported 95% interval 0.8926670784-0.9198549082x.
+- Failure reason: The direct tensor-core path did not beat the selected Marlin implementation.
+- Failure-reason confidence: `exact`.
+- Lesson: The direct tensor-core path did not beat the selected Marlin implementation.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel layer local expert-ID mapping
+
+- Status: `inconclusive`.
+- Evidence: 2026-10-24 H200 off-board check 622cee5dfcfd4f1e: passed 13 fresh correctness cases with no flags; 1.1552940589x, reported 95% interval 1.1379646480-1.1726234698x.
+- Failure reason: Point estimate improved but reported interval overlaps the previous scored layer.
+- Failure-reason confidence: `exact`.
+- Lesson: Point estimate improved but reported interval overlaps the previous scored layer.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel layer M128 expert tile
+
+- Status: `regressed`.
+- Evidence: 2026-10-24 H200 off-board check 048fe1129b344184: passed 13 fresh correctness cases with no flags; 1.1346135282x, reported 95% interval 1.1175943253-1.1516327311x.
+- Failure reason: The global-density M128 tile change did not improve the aggregate.
+- Failure-reason confidence: `exact`.
+- Lesson: The global-density M128 tile change did not improve the aggregate.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel layer normalization and ID-map fusion
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-24 H200 off-board check ec00131830f54653: passed 13 fresh correctness cases with no flags; 1.1791209960x, reported 95% interval 1.1614341810-1.1968078109x.
+- Failure reason: Best prior layer check; not scored separately. Included in the final composition.
+- Failure-reason confidence: `exact`.
+- Lesson: Best prior layer check; not scored separately. Included in the final composition.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel joint-head attention layer integration
+
+- Status: `inconclusive`.
+- Evidence: 2026-10-24 H200 off-board check 0c5c8d83f1fa489f: passed 13 fresh correctness cases with no flags; 1.1627907377x, reported 95% interval 1.1453488766-1.1802325988x.
+- Failure reason: Only 2.30 percent over the scored layer with overlapping intervals; failed the prior promotion gate.
+- Failure-reason confidence: `exact`.
+- Lesson: Only 2.30 percent over the scored layer with overlapping intervals; failed the prior promotion gate.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel wider attention key tile
+
+- Status: `regressed`.
+- Evidence: 2026-10-24 H200 off-board check 30ed1e95b2984d51: passed 16 fresh correctness cases with no flags; 1.2292738162x, reported 95% interval 1.2108347089-1.2477129234x.
+- Failure reason: Large full-decode kernels used 255 registers and 96 spills; wider tiles regressed.
+- Failure-reason confidence: `exact`.
+- Lesson: Large full-decode kernels used 255 registers and 96 spills; wider tiles regressed.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel shared-load verification attention
+
+- Status: `regressed`.
+- Evidence: 2026-10-24 H200 off-board check 583215fc82cb43db: passed 16 fresh correctness cases with no flags; 0.8432330590x, reported 95% interval 0.8305845631-0.8591197270x.
+- Failure reason: 254-255 registers with no spills; shared loading did not make this mapping faster.
+- Failure-reason confidence: `exact`.
+- Lesson: 254-255 registers with no spills; shared loading did not make this mapping faster.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel lossless single-token dense pooler
+
+- Status: `regressed`.
+- Evidence: 2026-10-24 H200 off-board check c490ffa4d6aa4d0e: passed 9 fresh correctness cases with no flags; 1.0309774607x, reported 95% interval 1.0155127988-1.0464421226x.
+- Failure reason: Below selected dense despite a lossless weight/layout treatment.
+- Failure-reason confidence: `exact`.
+- Lesson: Below selected dense despite a lossless weight/layout treatment.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel large-tile dense pooler
+
+- Status: `regressed`.
+- Evidence: 2026-10-24 H200 off-board check d4d13353fe054eb6: passed 9 fresh correctness cases with no flags; 1.0465768799x, reported 95% interval 1.0308782267-1.0622755331x.
+- Failure reason: Larger pooler tiles did not beat selected dense.
+- Failure-reason confidence: `exact`.
+- Lesson: Larger pooler tiles did not beat selected dense.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
+### Open Kernel final valid-local expert decoder composition
+
+- Status: `worked-with-caveat`.
+- Evidence: 2026-10-24 H200 scored run beb82b4224554523: passed 13 fresh correctness cases with no flags; 1.2503460947x, reported 95% interval 1.2315909033-1.2691012861x. Final check b5f1d79d24524705 measured 1.2480231870x and met the single-score gate. Source SHA-256 48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894.
+- Failure reason: Final layer is 10.01 percent faster by aggregate speedup ratio than the previous scored layer, but rank 283/749 missed the top-100 target. Component contributions are not isolated.
+- Failure-reason confidence: `exact`.
+- Lesson: Final layer is 10.01 percent faster by aggregate speedup ratio than the previous scored layer, but rank 283/749 missed the top-100 target. Component contributions are not isolated.
+- Next action: Experiment closed after scored run beb82b4224554523 finished at rank 283/749, outside the owner top-100 target. Retain the research artifact; no further jobs.
+- Source: [Open Kernel experiment](learn/openkernel.md), [judge results](../experiments/openkernel/results.json).
+
 ## Tool-Calling / Eval Infrastructure Attempts
 
 ### A1 first tool-calling specialist harness
@@ -1023,7 +1393,7 @@ Current structured coverage:
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 79 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 116 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 4 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
 | `not-applicable` | 5 | No failure reason is expected for a clean worked status. |
 | `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |

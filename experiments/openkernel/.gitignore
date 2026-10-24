@@ -1,0 +1,11 @@
+# Refreshable official material from okc init; provenance records the hashes.
+*/AGENTS.md
+*/TASK.md
+*/baseline.py
+*/reference.py
+*/checks.py
+*/nvfp4.py
+# Remote judge output stays local until reviewed for publication.
+**/profiles/
+**/results/
+**/baseline_submission.py

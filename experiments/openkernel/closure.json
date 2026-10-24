@@ -1,0 +1,55 @@
+{
+  "closed_at": "2026-10-24T06:20:45.187741+00:00",
+  "disposition": "Closed: final rank missed owner top-100 target; no further experiments.",
+  "rank_at_completion": 283,
+  "ranked_at_completion": 749,
+  "rank_before_final_bet": 414,
+  "ranked_before_final_bet": 740,
+  "target_rank": 100,
+  "target_met": false,
+  "final_check": "b5f1d79d24524705",
+  "final_score": "beb82b4224554523",
+  "final_source_sha256": "48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894",
+  "layer_speedup_gain_percent": 10.006685672594106,
+  "jobs": 55,
+  "checks": 42,
+  "scored_runs": 13,
+  "correctness_passes": 54,
+  "compile_failures": 1,
+  "paid_gpu_jobs": 0,
+  "selected_candidates": [
+    {
+      "problem": "muse_attention_decode",
+      "file": "experiments/openkernel/muse_attention_decode/submission.py",
+      "source_sha256": "4bb42627ed8807e6c85380db7043288ca9fff3ce33e8e00f62e404a680231f6b",
+      "job_id": "939615aea8b24931",
+      "speedup": 1.3723038377726406,
+      "speedup_ci": [1.351719280206051, 1.3995453282701504]
+    },
+    {
+      "problem": "muse_bf16_proj",
+      "file": "experiments/openkernel/muse_bf16_proj/submission.py",
+      "source_sha256": "774a28dae97b364a64704edc54d3ad811aaa71fea3918fc5ff8ab4f207845269",
+      "job_id": "1095cf9b43bf49a0",
+      "speedup": 1.0673408559093023,
+      "speedup_ci": [1.0513307430706627, 1.0833509687479417]
+    },
+    {
+      "problem": "muse_decode_layer",
+      "file": "experiments/openkernel/muse_decode_layer/submission.py",
+      "source_sha256": "48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894",
+      "job_id": "beb82b4224554523",
+      "speedup": 1.2503460946715153,
+      "speedup_ci": [1.2315909032514425, 1.2691012860915878]
+    },
+    {
+      "problem": "muse_moe_w4a16",
+      "file": "experiments/openkernel/muse_moe_w4a16/submission.py",
+      "source_sha256": "909873095a4eca7db2195bad348fae96728bbc955b1ec4b33459e6deb2d67d8e",
+      "job_id": "20b3199ecbd847f2",
+      "speedup": 1.2236334151530706,
+      "speedup_ci": [1.2052789139257745, 1.2419879163803664]
+    }
+  ],
+  "scope": "Official NVIDIA H200 kernel judging; no Mac or serving claim."
+}
