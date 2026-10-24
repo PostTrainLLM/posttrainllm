@@ -258,8 +258,8 @@ result does not establish vim, tmux, snake or persistent-file competence.
 ## Verification and remaining work
 
 ```sh
-uv run --project scripts/specialists pytest tests/test_specialist_labs.py -q
-uv run --project scripts/specialists ruff check scripts/specialists tests/test_specialist_labs.py
+uv run --project scripts/specialists pytest tests/test_specialist_labs.py tests/test_specialist_workflow.py -q
+uv run --project scripts/specialists ruff check scripts/specialists tests/test_specialist_labs.py tests/test_specialist_workflow.py
 pnpm --dir browser run typecheck
 ```
 

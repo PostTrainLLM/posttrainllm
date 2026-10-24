@@ -263,3 +263,30 @@ def test_readiness_requires_every_weight_shard(tmp_path):
     assert complete_weights(tmp_path) is False
     (tmp_path / "part-2.safetensors").write_bytes(b"second shard")
     assert complete_weights(tmp_path) is True
+
+
+def test_report_keeps_primary_and_regression_gate_results_separate(tmp_path):
+    from comparison import report
+
+    result = {
+        "metric": "accuracy",
+        "baseline": {
+            "primary": {"accuracy": 0.5},
+            "regression": {"accuracy": 0.75},
+            "model_identity": "base",
+        },
+        "candidate": {
+            "primary": {"accuracy": 0.75},
+            "regression": {"accuracy": 0.5},
+            "model_identity": "candidate",
+            "latency_ms": 5,
+        },
+        "sample_size": 6,
+        "regression_size": 6,
+        "dataset_sha256": "a" * 64,
+        "metadata": {"elapsed_seconds": 1},
+    }
+    card = report(tmp_path, result, Budget())["report_card"]
+    assert card["gates"][0]["passed"]["value"] is True
+    assert card["gates"][1]["passed"]["value"] is False
+    assert card["decision"]["verified"] is False

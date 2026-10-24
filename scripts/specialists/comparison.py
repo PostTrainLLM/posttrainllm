@@ -263,7 +263,7 @@ def report(folder, result, budget):
             "suite": metric,
             "score": primary,
             "model_id": candidate["model_identity"],
-            "passed": delta >= 0 and regression_delta >= 0,
+            "passed": delta >= 0,
             "latency_ms": candidate["latency_ms"],
             "peak_rss_mb": budget.measurements()["process_peak_rss_bytes"] / 2**20,
         },
@@ -283,6 +283,7 @@ def report(folder, result, budget):
                     "metric": metric,
                     "baseline": baseline[kind][metric],
                     "candidate": candidate[kind][metric],
+                    "pass": candidate[kind][metric] >= baseline[kind][metric],
                     "rows": result[size],
                 }
                 for name, kind, size in [
