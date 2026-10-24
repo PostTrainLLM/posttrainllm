@@ -30,6 +30,8 @@ const result = capture(lizard.command, [
   ...paths,
   "-x",
   "scripts/archive/*",
+  "-x",
+  "*/.venv/*",
   "--csv",
 ]);
 const rows = result.stdout

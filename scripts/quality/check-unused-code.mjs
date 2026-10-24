@@ -45,7 +45,7 @@ const vulture = capture(
     "python_ref",
     "scripts",
     "--exclude",
-    "*/archive/*",
+    "*/archive/*,*/.venv/*",
     "--min-confidence",
     "100",
     "--sort-by-size",

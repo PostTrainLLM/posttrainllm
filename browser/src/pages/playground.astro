@@ -5,6 +5,7 @@
 // the popover system to keep wiring up correctly.
 import Default from "../layouts/Default.astro";
 import SiteHeader from "../components/SiteHeader.astro";
+import SpecialistLabs from "../components/SpecialistLabs.astro";
 
 const layoutProps = {
   title: "posttrainllm — train a real transformer in your browser tab",
@@ -2975,6 +2976,10 @@ const pageBody = `
           write you a sentence.
           <a href="https://github.com/PostTrainLLM/posttrainllm">Source ↗</a>
         </p>
+        <p class="lede" style="font-size: 13px; margin-top: 12px">
+          <a href="#specialists">Decision, forecasting &amp; learned-terminal modes ↓</a>
+          <span> · one Mac-local specialist workspace</span>
+        </p>
       </header>
 
       <!-- First-visit explainer for non-engineer visitors. Visible by
@@ -3721,10 +3726,11 @@ const pageBody = `
     </dialog>`;
 ---
 
-<Default {...layoutProps}>
+<Default {...layoutProps} telemetry={false}>
   <SiteHeader mode="instrument" active="playground" />
   <style is:global slot="head" set:html={pageStyle}></style>
   <Fragment set:html={pageBody} />
+  <SpecialistLabs />
   <script>
     import "../main";
   </script>

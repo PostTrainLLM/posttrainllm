@@ -1,8 +1,24 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-10-02
+Last updated: 2026-10-25
 
 Lifecycle: **learning artifact complete; public release verified; owner inference sprint active; no active model target**
+
+## Owner-authorized specialist modes
+
+Issue [#210](https://github.com/PostTrainLLM/posttrainllm/issues/210) reopens a
+scoped capability build: single-forward calibrated decisions, real Timestral
+forecasting/adaptation, and a learned terminal world model. The owner selected
+working implementations in that order. They share one local runtime and extend
+the existing playground; historical closed experiments remain closed.
+
+The local reference tranche is implemented. All 28 focused Python tests and
+122 browser unit tests pass. The production build and internal-link gate pass;
+actual local inference, training, artifact reload and responsive browser checks
+pass with no external network requests. Tiny correctness checks and runtime
+smokes do not qualify a new specialist or establish upstream parity. This
+tranche is not deployed; browser-only specialist execution remains unbuilt.
+See the [operator commands and boundaries](docs/factory/specialist-labs.md).
 
 ## Owner-authorized learning feature
 

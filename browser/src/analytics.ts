@@ -51,6 +51,12 @@ function userHasOptedOut(): boolean {
  * the SDK; subsequent calls are no-ops. Returns true if analytics is live.
  */
 export function initAnalytics(): boolean {
+  if (
+    typeof document !== "undefined" &&
+    document.documentElement.dataset.telemetry === "disabled"
+  ) {
+    return false;
+  }
   if (enabled) return true;
 
   if (userHasOptedOut()) {
