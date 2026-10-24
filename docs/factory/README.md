@@ -12,6 +12,9 @@ target -> data -> post-training -> eval -> package -> report
 
 ## Files
 
+- [`specialist-labs.md`](specialist-labs.md) — owner-authorized Issue #210:
+  decision, Timestral forecasting and learned-terminal Python/browser modes.
+
 - [`../README.md`](../README.md) — golden path through state, attempts,
   reviewed products, roadmap, and learning.
 - [`overview.md`](overview.md) — what the factory is and what counts as proof.

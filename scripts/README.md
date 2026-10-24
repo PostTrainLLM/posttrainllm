@@ -10,6 +10,7 @@ compilers, and the repo's own quality gates.
 | `quality/` | The `pnpm run quality` gates — format, lint, complexity, duplication, cycles, unused code, dependency risk, Swift coverage |
 | `factory/` | Report cards, foundry receipts, factory-run assembly and publish checks |
 | `research/` | Autocorrect, capability graph, capability-gradient lab, everyday benchmark |
+| `specialists/` | Unified decision, Timestral forecasting and learned-terminal lab; see `docs/factory/specialist-labs.md` |
 | `offhours/` | The OffHours context-interference benchmark |
 | `chess/` | Chess specialist: corpus, training, Elo, gates, candidate matrices |
 | `games/` | 2048 and the game arena |

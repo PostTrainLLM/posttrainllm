@@ -1,0 +1,536 @@
+---
+// Three modes inside the existing playground; Python bridge stays on loopback.
+// Contract: docs/factory/specialist-labs.md.
+---
+
+<section
+  id="specialists"
+  class="specialist-labs"
+  aria-labelledby="specialist-title"
+>
+  <div class="sp-heading">
+    <div>
+      <span class="sp-eyebrow">Mac-local specialist lab</span><h2
+        id="specialist-title"
+      >
+        Three ways to teach a small model.
+      </h2>
+    </div>
+    <span id="sp-connection" class="sp-state">Runtime disconnected</span>
+  </div>
+  <p class="sp-intro">
+    Choose an answer, forecast a series, or predict a terminal screen. One
+    workspace for inputs, training, evaluation, and saved models.
+  </p>
+  <details id="sp-connect-help" class="sp-connect-help" open>
+    <summary>Start your local runtime</summary>
+    <p>
+      The specialist modes run on your Mac through Python. Your inputs stay
+      between this page and the local runtime.
+    </p>
+    <pre><code>uv sync --project scripts/specialists --all-extras --frozen
+pnpm --dir browser run build
+uv run --project scripts/specialists python scripts/specialists/lab.py serve</code></pre>
+    <div class="sp-connect-actions">
+      <a href="http://127.0.0.1:8765/playground#specialists">Open local lab ↗</a
+      ><button id="sp-connect" type="button">Connect runtime</button><a
+        href="/docs/factory/specialist-labs">Setup, models &amp; commands</a
+      >
+    </div>
+    <p class="sp-note">
+      Download the selected model first using the setup commands. The runtime
+      loads cached weights. Training defaults to one step; a training smoke
+      proves wiring, not model quality.
+    </p>
+  </details>
+  <div class="sp-tabs" role="tablist" aria-label="Specialist mode">
+    <button
+      id="sp-tab-decision"
+      type="button"
+      role="tab"
+      aria-selected="true"
+      aria-controls="sp-workspace"
+      data-sp-mode="decision">01 <span>Decision</span></button
+    >
+    <button
+      id="sp-tab-forecast"
+      type="button"
+      role="tab"
+      aria-selected="false"
+      aria-controls="sp-workspace"
+      tabindex="-1"
+      data-sp-mode="forecast">02 <span>Forecast</span></button
+    >
+    <button
+      id="sp-tab-terminal"
+      type="button"
+      role="tab"
+      aria-selected="false"
+      aria-controls="sp-workspace"
+      tabindex="-1"
+      data-sp-mode="terminal">03 <span>Terminal world</span></button
+    >
+  </div>
+  <div id="sp-workspace" role="tabpanel" aria-labelledby="sp-tab-decision">
+    <div class="sp-mode-heading">
+      <div>
+        <h3 id="sp-mode-title">Make a choice in one forward pass.</h3><p
+          id="sp-mode-description"
+        >
+          Compare every allowed answer. Fit temperature on separate examples
+          before interpreting the probabilities.
+        </p>
+      </div><span id="sp-model" class="sp-model">Qwen3 · 1.7B · local</span>
+    </div>
+    <div class="sp-grid">
+      <form id="sp-form">
+        <label for="sp-action">Operation</label>
+        <select id="sp-action"></select>
+        <div class="sp-input-heading">
+          <label for="sp-input">Input JSON</label><label
+            class="sp-file-label"
+            for="sp-file"
+            >Import JSON<input
+              type="file"
+              id="sp-file"
+              accept=".json,.jsonl,application/json"
+            /></label
+          >
+        </div>
+        <textarea
+          id="sp-input"
+          spellcheck="false"
+          aria-describedby="sp-input-help"
+          rows="16"></textarea>
+        <p id="sp-input-help" class="sp-note">
+          Edit the example or import your input. No silent prompt truncation.
+        </p>
+        <div class="sp-run-actions">
+          <button id="sp-run" type="submit" disabled>Run locally →</button
+          ><button id="sp-example" class="sp-secondary" type="button"
+            >Reset example</button
+          >
+        </div>
+      </form>
+      <div class="sp-result-panel">
+        <div class="sp-result-heading">
+          <h4>Result</h4><span class="sp-quality">Unqualified model</span>
+        </div>
+        <p id="sp-status" role="status" aria-live="polite">
+          Connect your local runtime to run this example.
+        </p>
+        <div id="sp-visual"></div>
+        <div id="sp-terminal-controls" hidden>
+          <label for="sp-terminal-input">Type into the learned terminal</label>
+          <input
+            id="sp-terminal-input"
+            type="text"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="Type a key or paste text"
+          />
+          <div class="sp-key-actions">
+            <button type="button" data-sp-key="enter">Enter ↵</button><button
+              type="button"
+              data-sp-key="backspace">⌫</button
+            ><button type="button" data-sp-key="escape">Esc</button><button
+              type="button"
+              data-sp-key="wait">Wait 1s</button
+            ><button type="button" id="sp-reset-session">Reset session</button>
+          </div>
+          <p class="sp-note">
+            Every frame is predicted. No shell runs here. A tiny typing artifact
+            does not know shell commands.
+          </p>
+        </div>
+        <div class="sp-output-actions">
+          <button id="sp-export" type="button" class="sp-secondary" disabled
+            >Export result</button
+          ><button id="sp-use-artifact" type="button" hidden
+            >Use trained artifact</button
+          >
+        </div>
+        <details id="sp-inspector" hidden>
+          <summary>Inspect full output</summary><pre id="sp-output"></pre>
+        </details>
+        <p id="sp-measurements" class="sp-note"></p>
+      </div>
+    </div>
+    <p class="sp-boundary">
+      These modes use a local Python runtime. Browser-only WASM/WebGPU execution
+      for these specialists has not been built. The byte-level trainer above
+      continues to run entirely in your tab.
+    </p>
+    <div class="sp-credits">
+      Methods and upstream work: <a
+        href="https://nishtahir.com/build-your-own-decision-model/"
+        >Nish Tahir’s decision models</a
+      > · <a href="https://mistral.ai/news/timestral/">Mistral Timestral</a> · <a
+        href="https://simedw.com/2026/10/21/world-model-terminal/"
+        >Simon Edwardsson’s WorldTUI</a
+      >
+    </div>
+  </div>
+</section>
+
+<script>
+  import { setupSpecialistLabs } from "../specialists/labs";
+  setupSpecialistLabs();
+</script>
+
+<style>
+  .specialist-labs {
+    max-width: 1160px;
+    margin: 0 auto 80px;
+    padding: 40px 28px;
+    border-top: 1px solid #2c2f35;
+    color: #e7e8ea;
+    scroll-margin-top: 80px;
+    font-family: "Geist Variable", sans-serif;
+  }
+  .sp-heading,
+  .sp-mode-heading,
+  .sp-input-heading,
+  .sp-result-heading,
+  .sp-connect-actions,
+  .sp-run-actions,
+  .sp-output-actions,
+  .sp-key-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .sp-eyebrow {
+    color: #48e5c2;
+    text-transform: uppercase;
+    font:
+      11px "Geist Mono Variable",
+      monospace;
+    letter-spacing: 0.09em;
+  }
+  h2 {
+    margin: 12px 0;
+    font:
+      500 clamp(25px, 3.2vw, 38px)/1.15 "Bricolage Grotesque Variable",
+      sans-serif;
+    letter-spacing: -0.025em;
+  }
+  .sp-intro {
+    max-width: 68ch;
+    color: #a6adb9;
+    margin: 10px 0 26px;
+  }
+  .sp-state,
+  .sp-model,
+  .sp-quality {
+    font:
+      11px "Geist Mono Variable",
+      monospace;
+    color: #a6adb9;
+    border: 1px solid #2c2f35;
+    padding: 8px 10px;
+    border-radius: 5px;
+  }
+  .sp-connect-help {
+    background: #111419;
+    border: 1px solid #2c2f35;
+    border-radius: 9px;
+    padding: 18px 20px;
+  }
+  summary {
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .sp-connect-help p {
+    font-size: 13px;
+    color: #a6adb9;
+  }
+  pre {
+    max-width: 100%;
+    overflow: auto;
+    background: #090b0e;
+    padding: 14px;
+    border-radius: 5px;
+    font:
+      11px/1.8 "Geist Mono Variable",
+      monospace;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  a {
+    color: #48e5c2;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .sp-connect-actions {
+    justify-content: flex-start;
+    font-size: 12px;
+  }
+  .sp-tabs {
+    display: flex;
+    gap: 28px;
+    border-bottom: 1px solid #2c2f35;
+    margin-top: 26px;
+  }
+  .sp-tabs button {
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 16px 0;
+    border-radius: 0;
+    color: #787d88;
+    font:
+      11px "Geist Mono Variable",
+      monospace;
+  }
+  .sp-tabs button span {
+    margin-left: 8px;
+    font:
+      14px "Geist Variable",
+      sans-serif;
+  }
+  .sp-tabs button[aria-selected="true"] {
+    color: #48e5c2;
+    border-bottom-color: #48e5c2;
+  }
+  .sp-mode-heading {
+    margin: 26px 0;
+  }
+  h3 {
+    margin: 0 0 8px;
+    font-size: 21px;
+    font-weight: 500;
+  }
+  .sp-mode-heading p {
+    margin: 0;
+    max-width: 65ch;
+    color: #9296a0;
+    font-size: 13px;
+  }
+  .sp-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 28px;
+  }
+  form,
+  .sp-result-panel {
+    min-width: 0;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  label {
+    display: block;
+    font-size: 12px;
+    color: #a6adb9;
+    margin-bottom: 8px;
+  }
+  select,
+  textarea,
+  input[type="text"] {
+    width: 100%;
+    border: 1px solid #2c2f35;
+    border-radius: 7px;
+    background: #111419;
+    color: #e7e8ea;
+    padding: 12px;
+    font:
+      12px/1.65 "Geist Mono Variable",
+      monospace;
+  }
+  select {
+    font:
+      13px "Geist Variable",
+      sans-serif;
+    min-height: 44px;
+    margin-bottom: 18px;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 260px;
+  }
+  textarea:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  button:focus-visible,
+  a:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid #48e5c2;
+    outline-offset: 3px;
+  }
+  button {
+    min-height: 40px;
+    border: 1px solid #48e5c2;
+    background: #48e5c2;
+    color: #08231c;
+    border-radius: 7px;
+    font:
+      600 12px "Geist Variable",
+      sans-serif;
+    padding: 10px 16px;
+    cursor: pointer;
+  }
+  button:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+  button.sp-secondary,
+  .sp-key-actions button {
+    border-color: #2c2f35;
+    color: #a6adb9;
+    background: transparent;
+    font-weight: 400;
+  }
+  .sp-input-heading {
+    gap: 8px;
+  }
+  .sp-file-label {
+    color: #48e5c2;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  input[type="file"] {
+    max-width: 180px;
+    font-size: 10px;
+    display: block;
+  }
+  .sp-note {
+    font-size: 11px;
+    line-height: 1.6;
+    color: #9296a0;
+  }
+  .sp-run-actions {
+    justify-content: flex-start;
+    margin-top: 8px;
+  }
+  .sp-result-panel {
+    padding: 22px;
+    border: 1px solid #2c2f35;
+    border-radius: 9px;
+    background: #0d1014;
+  }
+  h4 {
+    margin: 0;
+    font:
+      11px "Geist Mono Variable",
+      monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #a6adb9;
+  }
+  .sp-quality {
+    border: 0;
+    padding: 0;
+    color: #ff9a88;
+  }
+  #sp-status {
+    font-size: 13px;
+    color: #a6adb9;
+    margin: 22px 0;
+    line-height: 1.7;
+  }
+  .sp-output-actions {
+    justify-content: flex-start;
+    margin: 22px 0;
+  }
+  #sp-terminal-controls label {
+    margin-top: 18px;
+  }
+  .sp-key-actions {
+    justify-content: flex-start;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .sp-key-actions button {
+    padding: 8px 10px;
+  }
+  #sp-output {
+    max-height: 360px;
+  }
+  .sp-boundary {
+    border-top: 1px solid #2c2f35;
+    padding-top: 18px;
+    margin-top: 28px;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #9296a0;
+  }
+  .sp-credits {
+    font-size: 11px;
+    color: #9296a0;
+    line-height: 1.8;
+  }
+  #sp-visual :global(.sp-probability) {
+    margin: 16px 0;
+  }
+  #sp-visual :global(.sp-probability-label) {
+    display: flex;
+    justify-content: space-between;
+    font:
+      12px "Geist Mono Variable",
+      monospace;
+    margin-bottom: 8px;
+  }
+  #sp-visual :global(.sp-probability-track) {
+    background: #232932;
+    height: 3px;
+  }
+  #sp-visual :global(.sp-probability-fill) {
+    background: #48e5c2;
+    height: 3px;
+  }
+  #sp-visual :global(svg) {
+    width: 100%;
+    min-height: 170px;
+  }
+  #sp-visual :global(pre) {
+    white-space: pre;
+    overflow-x: auto;
+    min-height: 120px;
+    color: #c7ded7;
+  }
+  @media (max-width: 760px) {
+    .specialist-labs {
+      padding: 32px 20px;
+    }
+    .sp-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .specialist-labs[data-has-result="true"] .sp-result-panel {
+      order: -1;
+    }
+    .sp-tabs {
+      gap: 18px;
+    }
+    .sp-tabs button {
+      min-height: 48px;
+    }
+    .sp-tabs button span {
+      margin-left: 4px;
+      font-size: 12px;
+    }
+    textarea,
+    input[type="text"] {
+      font-size: 16px;
+    }
+    .sp-result-panel {
+      padding: 18px;
+    }
+    .sp-model {
+      max-width: 100%;
+      overflow-wrap: anywhere;
+    }
+  }
+  @media (hover: hover) {
+    button:not(:disabled):hover {
+      filter: brightness(1.08);
+    }
+  }
+</style>

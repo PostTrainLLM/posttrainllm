@@ -1,0 +1,9 @@
+{
+  "vocab_size": 333,
+  "context_length": 2048,
+  "d_model": 64,
+  "n_heads": 4,
+  "n_layers": 2,
+  "d_mlp": 128,
+  "dropout": 0.0
+}

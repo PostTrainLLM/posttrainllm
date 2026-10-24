@@ -135,7 +135,7 @@ const clarityLoader = telemetry
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-telemetry={telemetry ? "enabled" : "disabled"}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -301,7 +301,7 @@ const clarityLoader = telemetry
         />
       )
     }
-    <script is:inline src="/app-health-log.js" defer></script>
+    {telemetry && <script is:inline src="/app-health-log.js" defer />}
   </head>
   <body>
     <slot />
@@ -309,11 +309,13 @@ const clarityLoader = telemetry
     <script>
       import { initVitals } from "../lib/vitals";
       import { initApiTiming } from "../lib/api-timing";
-      initVitals();
-      if (typeof window.requestIdleCallback === "function") {
-        window.requestIdleCallback(() => initApiTiming(), { timeout: 5_000 });
-      } else {
-        window.setTimeout(() => initApiTiming(), 1_000);
+      if (document.documentElement.dataset.telemetry !== "disabled") {
+        initVitals();
+        if (typeof window.requestIdleCallback === "function") {
+          window.requestIdleCallback(() => initApiTiming(), { timeout: 5_000 });
+        } else {
+          window.setTimeout(() => initApiTiming(), 1_000);
+        }
       }
     </script>
   </body>
