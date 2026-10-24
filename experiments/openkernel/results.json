@@ -1,7 +1,7 @@
 {
-  "observed_at": "2026-10-24T05:40:27.833817+00:00",
+  "observed_at": "2026-10-24T06:20:46.158111+00:00",
   "timebox": "2026-10-23/2026-10-24 Asia/Kolkata",
-  "scored_submissions": 12,
+  "scored_submissions": 13,
   "jobs": [
     {
       "job_id": "0a072555103b4e2d",
@@ -12,10 +12,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0254195369657029,
-      "speedup_ci": [
-        1.0100382439112172,
-        1.0408008300201883
-      ],
+      "speedup_ci": [1.0100382439112172, 1.0408008300201883],
       "score_us": 22059.556293354082,
       "gpu": "H200",
       "flags": [],
@@ -439,10 +436,7 @@
       "status": "done",
       "passed": true,
       "speedup": 0.9954812404888017,
-      "speedup_ci": [
-        0.9805490218814696,
-        1.0104134590961336
-      ],
+      "speedup_ci": [0.9805490218814696, 1.0104134590961336],
       "score_us": 3783.3962578246774,
       "gpu": "H200",
       "flags": [],
@@ -931,10 +925,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0431615966034324,
-      "speedup_ci": [
-        1.0275141726543808,
-        1.0588090205524838
-      ],
+      "speedup_ci": [1.0275141726543808, 1.0588090205524838],
       "score_us": 4630.922012207159,
       "gpu": "H200",
       "flags": [],
@@ -1505,10 +1496,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.1403578501045162,
-      "speedup_ci": [
-        1.1232524823529484,
-        1.1574632178560837
-      ],
+      "speedup_ci": [1.1232524823529484, 1.1574632178560837],
       "score_us": 3302.73518935728,
       "gpu": "H200",
       "flags": [],
@@ -1997,10 +1985,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0008138404133688,
-      "speedup_ci": [
-        0.9858016328071683,
-        1.0158260480195693
-      ],
+      "speedup_ci": [0.9858016328071683, 1.0158260480195693],
       "score_us": 13437.563967386111,
       "gpu": "H200",
       "flags": [],
@@ -2169,10 +2154,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0309068216971795,
-      "speedup_ci": [
-        1.0154432193717218,
-        1.046370424022637
-      ],
+      "speedup_ci": [1.0154432193717218, 1.046370424022637],
       "score_us": 4685.971513940576,
       "gpu": "H200",
       "flags": [],
@@ -2743,10 +2725,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0181441464605143,
-      "speedup_ci": [
-        1.0028719842636067,
-        1.033416308657422
-      ],
+      "speedup_ci": [1.0028719842636067, 1.033416308657422],
       "score_us": 22217.188085437036,
       "gpu": "H200",
       "flags": [],
@@ -3170,10 +3149,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0048251631518028,
-      "speedup_ci": [
-        0.9897527857045257,
-        1.0198975405990798
-      ],
+      "speedup_ci": [0.9897527857045257, 1.0198975405990798],
       "score_us": 4807.602533407289,
       "gpu": "H200",
       "flags": [],
@@ -3744,10 +3720,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0014487868318767,
-      "speedup_ci": [
-        0.9864270550293985,
-        1.0164705186343548
-      ],
+      "speedup_ci": [0.9864270550293985, 1.0164705186343548],
       "score_us": 22587.575418170134,
       "gpu": "H200",
       "flags": [],
@@ -4171,10 +4144,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0644651583520175,
-      "speedup_ci": [
-        1.0484981809767373,
-        1.0804321357272977
-      ],
+      "speedup_ci": [1.0484981809767373, 1.0804321357272977],
       "score_us": 12634.044331540812,
       "gpu": "H200",
       "flags": [],
@@ -4343,10 +4313,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0533923227124238,
-      "speedup_ci": [
-        1.0375914378717375,
-        1.06919320755311
-      ],
+      "speedup_ci": [1.0375914378717375, 1.06919320755311],
       "score_us": 4585.945706876781,
       "gpu": "H200",
       "flags": [],
@@ -4917,10 +4884,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0337152453146943,
-      "speedup_ci": [
-        1.0182095166349738,
-        1.0492209739944145
-      ],
+      "speedup_ci": [1.0182095166349738, 1.0492209739944145],
       "score_us": 4673.240548492983,
       "gpu": "H200",
       "flags": [],
@@ -5491,10 +5455,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0087504000514993,
-      "speedup_ci": [
-        0.9936191440507268,
-        1.0238816560522717
-      ],
+      "speedup_ci": [0.9936191440507268, 1.0238816560522717],
       "score_us": 4788.895250751202,
       "gpu": "H200",
       "flags": [],
@@ -6065,10 +6026,7 @@
       "status": "done",
       "passed": true,
       "speedup": 0.8443037973337207,
-      "speedup_ci": [
-        0.831639240373715,
-        0.8569683542937264
-      ],
+      "speedup_ci": [0.831639240373715, 0.8569683542937264],
       "score_us": 5721.637182321675,
       "gpu": "H200",
       "flags": [],
@@ -6639,10 +6597,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0350999983984313,
-      "speedup_ci": [
-        1.0195734984224547,
-        1.0506264983744076
-      ],
+      "speedup_ci": [1.0195734984224547, 1.0506264983744076],
       "score_us": 21853.250927446123,
       "gpu": "H200",
       "flags": [],
@@ -7066,10 +7021,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.064320031825154,
-      "speedup_ci": [
-        1.0483552313477766,
-        1.0802848323025311
-      ],
+      "speedup_ci": [1.0483552313477766, 1.0802848323025311],
       "score_us": 12635.767060531389,
       "gpu": "H200",
       "flags": [],
@@ -7238,10 +7190,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.1357292434339956,
-      "speedup_ci": [
-        1.1186933047824856,
-        1.1527651820855054
-      ],
+      "speedup_ci": [1.1186933047824856, 1.1527651820855054],
       "score_us": 3316.1953183596825,
       "gpu": "H200",
       "flags": [],
@@ -7730,10 +7679,7 @@
       "status": "done",
       "passed": true,
       "speedup": 0.8677276281993258,
-      "speedup_ci": [
-        0.8547117137763359,
-        0.8807435426223156
-      ],
+      "speedup_ci": [0.8547117137763359, 0.8807435426223156],
       "score_us": 5567.184728259357,
       "gpu": "H200",
       "flags": [],
@@ -8304,10 +8250,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.045720306492886,
-      "speedup_ci": [
-        1.0300345018954926,
-        1.061406111090279
-      ],
+      "speedup_ci": [1.0300345018954926, 1.061406111090279],
       "score_us": 4619.590888697028,
       "gpu": "H200",
       "flags": [],
@@ -8878,10 +8821,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.066596467941702,
-      "speedup_ci": [
-        1.0505975209225764,
-        1.0825954149608275
-      ],
+      "speedup_ci": [1.0505975209225764, 1.0825954149608275],
       "score_us": 4529.173070788795,
       "gpu": "H200",
       "flags": [],
@@ -9452,10 +9392,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.2201223922743902,
-      "speedup_ci": [
-        1.2018205563902744,
-        1.238424228158506
-      ],
+      "speedup_ci": [1.2018205563902744, 1.238424228158506],
       "score_us": 11022.25488619309,
       "gpu": "H200",
       "flags": [],
@@ -9870,10 +9807,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.1086331429881342,
-      "speedup_ci": [
-        1.0920036458433122,
-        1.1252626401329562
-      ],
+      "speedup_ci": [1.0920036458433122, 1.1252626401329562],
       "score_us": 20403.773911206357,
       "gpu": "H200",
       "flags": [],
@@ -10297,10 +10231,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0673408559093023,
-      "speedup_ci": [
-        1.0513307430706627,
-        1.0833509687479417
-      ],
+      "speedup_ci": [1.0513307430706627, 1.0833509687479417],
       "score_us": 4526.014321717766,
       "gpu": "H200",
       "flags": [],
@@ -10871,10 +10802,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.2236334151530706,
-      "speedup_ci": [
-        1.2052789139257745,
-        1.2419879163803664
-      ],
+      "speedup_ci": [1.2052789139257745, 1.2419879163803664],
       "score_us": 10990.628266160627,
       "gpu": "H200",
       "flags": [],
@@ -11043,10 +10971,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0563923839341454,
-      "speedup_ci": [
-        1.0405464981751331,
-        1.0722382696931574
-      ],
+      "speedup_ci": [1.0405464981751331, 1.0722382696931574],
       "score_us": 3565.247210486126,
       "gpu": "H200",
       "flags": [],
@@ -11535,10 +11460,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.1069516306686,
-      "speedup_ci": [
-        1.090347356208571,
-        1.123555905128629
-      ],
+      "speedup_ci": [1.090347356208571, 1.123555905128629],
       "score_us": 20434.768216870787,
       "gpu": "H200",
       "flags": [],
@@ -11962,10 +11884,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.280412243415249,
-      "speedup_ci": [
-        1.2612060597640202,
-        1.2996184270664775
-      ],
+      "speedup_ci": [1.2612060597640202, 1.2996184270664775],
       "score_us": 2941.474528511327,
       "gpu": "H200",
       "flags": [],
@@ -12454,10 +12373,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.11309834983094,
-      "speedup_ci": [
-        1.0964018745834758,
-        1.129794825078404
-      ],
+      "speedup_ci": [1.0964018745834758, 1.129794825078404],
       "score_us": 4339.957920819588,
       "gpu": "H200",
       "flags": [],
@@ -13028,10 +12944,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0915052087581167,
-      "speedup_ci": [
-        1.075132630626745,
-        1.1078777868894885
-      ],
+      "speedup_ci": [1.075132630626745, 1.1078777868894885],
       "score_us": 4425.814885021342,
       "gpu": "H200",
       "flags": [],
@@ -13602,10 +13515,7 @@
       "status": "done",
       "passed": true,
       "speedup": 0.2986659408842303,
-      "speedup_ci": [
-        0.29418595177096685,
-        0.30314592999749373
-      ],
+      "speedup_ci": [0.29418595177096685, 0.30314592999749373],
       "score_us": 45028.56924423446,
       "gpu": "H200",
       "flags": [],
@@ -13774,10 +13684,7 @@
       "status": "done",
       "passed": true,
       "speedup": 0.2904580481997919,
-      "speedup_ci": [
-        0.286101177476795,
-        0.2948149189227887
-      ],
+      "speedup_ci": [0.286101177476795, 0.2948149189227887],
       "score_us": 46301.00657685834,
       "gpu": "H200",
       "flags": [],
@@ -13946,10 +13853,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.2968157641258964,
-      "speedup_ci": [
-        1.2773635276640078,
-        1.3221387642471312
-      ],
+      "speedup_ci": [1.2773635276640078, 1.3221387642471312],
       "score_us": 2904.2675946637887,
       "gpu": "H200",
       "flags": [],
@@ -14438,10 +14342,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.3663597760194979,
-      "speedup_ci": [
-        1.3458643793792053,
-        1.3868551726597902
-      ],
+      "speedup_ci": [1.3458643793792053, 1.3868551726597902],
       "score_us": 2756.4482401348555,
       "gpu": "H200",
       "flags": [],
@@ -14930,10 +14831,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.3067727260107238,
-      "speedup_ci": [
-        1.287171135120563,
-        1.3263743169008846
-      ],
+      "speedup_ci": [1.287171135120563, 1.3263743169008846],
       "score_us": 2882.1385119489346,
       "gpu": "H200",
       "flags": [],
@@ -15422,10 +15320,7 @@
       "status": "done",
       "passed": true,
       "speedup": 0.9062609932792505,
-      "speedup_ci": [
-        0.8926670783800617,
-        0.9198549081784392
-      ],
+      "speedup_ci": [0.8926670783800617, 0.9198549081784392],
       "score_us": 14839.544126617893,
       "gpu": "H200",
       "flags": [],
@@ -15594,10 +15489,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.1366091860933258,
-      "speedup_ci": [
-        1.119560048301926,
-        1.1536583238847256
-      ],
+      "speedup_ci": [1.119560048301926, 1.1536583238847256],
       "score_us": 19901.56359526613,
       "gpu": "H200",
       "flags": [],
@@ -16021,10 +15913,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0400007166432612,
-      "speedup_ci": [
-        1.0244007058936122,
-        1.05560072739291
-      ],
+      "speedup_ci": [1.0244007058936122, 1.05560072739291],
       "score_us": 12931.241089339628,
       "gpu": "H200",
       "flags": [],
@@ -16193,10 +16082,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.13639382970922,
-      "speedup_ci": [
-        1.1193479222635816,
-        1.1534397371548581
-      ],
+      "speedup_ci": [1.1193479222635816, 1.1534397371548581],
       "score_us": 19905.335112377434,
       "gpu": "H200",
       "flags": [],
@@ -16620,10 +16506,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.2223343476270576,
-      "speedup_ci": [
-        1.2039993324126517,
-        1.2458367301415056
-      ],
+      "speedup_ci": [1.2039993324126517, 1.2458367301415056],
       "score_us": 3081.2355124533597,
       "gpu": "H200",
       "flags": [],
@@ -17112,10 +16995,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0485416109748875,
-      "speedup_ci": [
-        1.032813486810264,
-        1.0642697351395107
-      ],
+      "speedup_ci": [1.032813486810264, 1.0642697351395107],
       "score_us": 4607.16098382451,
       "gpu": "H200",
       "flags": [],
@@ -17686,10 +17566,7 @@
       "status": "done",
       "passed": true,
       "speedup": 0.9291319416311807,
-      "speedup_ci": [
-        0.9151949625067131,
-        0.9518795040626349
-      ],
+      "speedup_ci": [0.9151949625067131, 0.9518795040626349],
       "score_us": 14474.26290865629,
       "gpu": "H200",
       "flags": [],
@@ -17858,10 +17735,7 @@
       "status": "done",
       "passed": true,
       "speedup": 0.20868608854751142,
-      "speedup_ci": [
-        0.20555579721929873,
-        0.21181637987572408
-      ],
+      "speedup_ci": [0.20555579721929873, 0.21181637987572408],
       "score_us": 64443.68234415486,
       "gpu": "H200",
       "flags": [],
@@ -18030,10 +17904,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.1346135282172534,
-      "speedup_ci": [
-        1.1175943252939946,
-        1.1516327311405121
-      ],
+      "speedup_ci": [1.1175943252939946, 1.1516327311405121],
       "score_us": 19936.568212386686,
       "gpu": "H200",
       "flags": [],
@@ -18457,10 +18328,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.162790737706432,
-      "speedup_ci": [
-        1.1453488766408355,
-        1.1802325987720284
-      ],
+      "speedup_ci": [1.1453488766408355, 1.1802325987720284],
       "score_us": 19453.457330265486,
       "gpu": "H200",
       "flags": [],
@@ -18884,10 +18752,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.2292738161868333,
-      "speedup_ci": [
-        1.2108347089440308,
-        1.2477129234296356
-      ],
+      "speedup_ci": [1.2108347089440308, 1.2477129234296356],
       "score_us": 3063.8413918901633,
       "gpu": "H200",
       "flags": [],
@@ -19376,10 +19241,7 @@
       "status": "done",
       "passed": true,
       "speedup": 0.8432330590245296,
-      "speedup_ci": [
-        0.8305845631391616,
-        0.8591197269677239
-      ],
+      "speedup_ci": [0.8305845631391616, 0.8591197269677239],
       "score_us": 4466.499456694615,
       "gpu": "H200",
       "flags": [],
@@ -19868,10 +19730,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.291185749407318,
-      "speedup_ci": [
-        1.2674624601628415,
-        1.3164755845219833
-      ],
+      "speedup_ci": [1.2674624601628415, 1.3164755845219833],
       "score_us": 2916.9312019814442,
       "gpu": "H200",
       "flags": [],
@@ -20360,10 +20219,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.1552940588869876,
-      "speedup_ci": [
-        1.1379646480036827,
-        1.1726234697702922
-      ],
+      "speedup_ci": [1.1379646480036827, 1.1726234697702922],
       "score_us": 19579.690405222405,
       "gpu": "H200",
       "flags": [],
@@ -20787,10 +20643,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.3723038377726406,
-      "speedup_ci": [
-        1.351719280206051,
-        1.3995453282701504
-      ],
+      "speedup_ci": [1.351719280206051, 1.3995453282701504],
       "score_us": 2744.508829847046,
       "gpu": "H200",
       "flags": [],
@@ -21279,10 +21132,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.030977460662656,
-      "speedup_ci": [
-        1.0155127987527162,
-        1.0464421225725957
-      ],
+      "speedup_ci": [1.0155127987527162, 1.0464421225725957],
       "score_us": 4685.6504475811,
       "gpu": "H200",
       "flags": [],
@@ -21853,10 +21703,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.1791209959541284,
-      "speedup_ci": [
-        1.1614341810148165,
-        1.1968078108934403
-      ],
+      "speedup_ci": [1.1614341810148165, 1.1968078108934403],
       "score_us": 19184.03630977325,
       "gpu": "H200",
       "flags": [],
@@ -22280,10 +22127,7 @@
       "status": "done",
       "passed": true,
       "speedup": 1.0465768799197697,
-      "speedup_ci": [
-        1.030878226720973,
-        1.062275533118566
-      ],
+      "speedup_ci": [1.030878226720973, 1.062275533118566],
       "score_us": 4615.809973148202,
       "gpu": "H200",
       "flags": [],
@@ -22851,21 +22695,847 @@
       "mode": "check",
       "source_sha256": "48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894",
       "source_snapshot": "runs/openkernel/b5f1d79d24524705/submission.py",
-      "status": "queued",
-      "passed": null,
-      "speedup": null,
-      "speedup_ci": null,
-      "score_us": null,
-      "gpu": null,
-      "flags": null,
+      "status": "done",
+      "passed": true,
+      "speedup": 1.2480231870109288,
+      "speedup_ci": [1.229302839205765, 1.2667435348160927],
+      "score_us": 18124.90363594656,
+      "gpu": "H200",
+      "flags": [],
       "error": null,
-      "evaluator_image": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
       "server_content_hash": "a665844fda9122dadfb6f5eb03f8b6702f8d3e5efb162ed63a2575eede65cdf5",
       "created_at": 1792820379.9835045,
-      "finished_at": null,
-      "judge_checks": null,
-      "correctness_cases": [],
-      "benchmarks": []
+      "finished_at": 1792821570.3657658,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 10,
+            "layer": "sliding",
+            "seed": 2453916055147406544
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.870e-02 (worst row 6.870e-02) [bound 0.150]; attention input relative L2 error 3.843e-02 (worst row 3.843e-02) [bound 0.099]"
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 3000,
+            "layer": "full",
+            "seed": 2454192499909341518
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.833e-02 (worst row 6.833e-02) [bound 0.150]; attention input relative L2 error 4.971e-02 (worst row 4.971e-02) [bound 0.131]"
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 8,
+            "ctx": 2047,
+            "layer": "sliding",
+            "seed": 2454468944671276493
+          },
+          "status": "pass",
+          "message": "update relative L2 error 8.060e-02 (worst row 1.101e-01) [bound 0.150]; attention input relative L2 error 5.247e-02 (worst row 8.248e-02) [bound 0.133]"
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 9,
+            "ctx": 5000,
+            "layer": "sliding",
+            "page": 1,
+            "seed": 2454745389433211469,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.505e-02 (worst row 9.225e-02) [bound 0.150]; attention input relative L2 error 4.278e-02 (worst row 6.351e-02) [bound 0.103]"
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 3,
+            "ctx": 6000,
+            "dist": "outliers",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 2455021834195146446
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.345e-02 (worst row 8.721e-02) [bound 0.150]; attention input relative L2 error 3.447e-02 (worst row 4.473e-02) [bound 0.085]"
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 5,
+            "ctx": 5000,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 2455298278957081424,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.009e-02 (worst row 1.061e-01) [bound 0.150]; attention input relative L2 error 4.665e-02 (worst row 7.267e-02) [bound 0.116]"
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 33,
+            "ctx": 20000,
+            "layer": "full",
+            "page": 1,
+            "seed": 2455574723719016403,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.072e-02 (worst row 1.095e-01) [bound 0.150]; attention input relative L2 error 4.544e-02 (worst row 7.761e-02) [bound 0.109]"
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 2,
+            "ctx": 300000,
+            "layer": "sliding",
+            "q_len": 8,
+            "seed": 2455851168480951383
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.056e-02 (worst row 9.006e-02) [bound 0.150]; attention input relative L2 error 4.572e-02 (worst row 6.492e-02) [bound 0.111]"
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 1,
+            "ctx": 1048576,
+            "layer": "full",
+            "q_len": 8,
+            "seed": 2456127613242886364
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.799e-02 (worst row 1.039e-01) [bound 0.150]; attention input relative L2 error 4.897e-02 (worst row 6.474e-02) [bound 0.130]"
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 4,
+            "ctx": 7000,
+            "kv_scale": 0.015625,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 2457233392290626298
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.867e-02 (worst row 1.057e-01) [bound 0.150]; attention input relative L2 error 4.495e-02 (worst row 7.703e-02) [bound 0.113]"
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "page": 1,
+            "seed": 2456404058004821346
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.583e-02 (worst row 6.583e-02) [bound 0.150]; attention input relative L2 error 4.633e-02 (worst row 4.633e-02) [bound 0.121]"
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "soft",
+            "layer": "sliding",
+            "q_len": 8,
+            "seed": 2456680502766756329
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.644e-02 (worst row 8.311e-02) [bound 0.134]; attention input relative L2 error 3.706e-02 (worst row 5.009e-02) [bound 0.088]"
+        },
+        {
+          "index": 12,
+          "case": {
+            "batch": 16,
+            "ctx": 20000,
+            "dist": "soft",
+            "layer": "full",
+            "page": 1,
+            "seed": 2456956947528691313,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.597e-02 (worst row 7.008e-02) [bound 0.135]; attention input relative L2 error 3.675e-02 (worst row 5.124e-02) [bound 0.088]"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 1",
+            "page": 1,
+            "repeats": 60,
+            "seed": 2481560531340908894,
+            "weight": 46
+          },
+          "baseline_ns": 171600.00139847398,
+          "median_ns": 117351.55540067864,
+          "speedup": 1.4622729184336114,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 1",
+            "page": 1,
+            "repeats": 60,
+            "seed": 2481836976102843968,
+            "weight": 16
+          },
+          "baseline_ns": 181631.9962963462,
+          "median_ns": 126023.27997709079,
+          "speedup": 1.4412574909125064,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 2482113420864779043,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 266704.0009982884,
+          "median_ns": 212385.97846802048,
+          "speedup": 1.2557514527186489,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 2482389865626714119,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 435280.0021879375,
+          "median_ns": 333611.5803819187,
+          "speedup": 1.3047508773215508,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 2482666310388649196,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 265615.9996986389,
+          "median_ns": 240097.09641663448,
+          "speedup": 1.1062857638133288,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 2482942755150584274,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 621055.998839438,
+          "median_ns": 490161.19266713946,
+          "speedup": 1.2670444093300284,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 2483219199912519353,
+            "weight": 46
+          },
+          "baseline_ns": 262640.00637456775,
+          "median_ns": 190329.68436520966,
+          "speedup": 1.3799214097923218,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 2483495644674454433,
+            "weight": 16
+          },
+          "baseline_ns": 262816.00538641214,
+          "median_ns": 192830.77051338574,
+          "speedup": 1.362936032909583,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 2483772089436389514,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 519264.00465890765,
+          "median_ns": 491668.5419499925,
+          "speedup": 1.0561261507589434,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 2484048534198324596,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 690703.9964571595,
+          "median_ns": 661459.7820652288,
+          "speedup": 1.0442116288621865,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 2484324978960259679,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 720511.9952559471,
+          "median_ns": 586349.3397402704,
+          "speedup": 1.22881010759747,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 2484601423722194763,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 1096671.9859279692,
+          "median_ns": 954036.5433166176,
+          "speedup": 1.1495073156375049,
+          "status": "pass",
+          "flags": []
+        }
+      ]
+    },
+    {
+      "job_id": "beb82b4224554523",
+      "problem": "muse_decode_layer",
+      "mode": "run",
+      "source_sha256": "48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894",
+      "source_snapshot": "runs/openkernel/beb82b4224554523/submission.py",
+      "status": "done",
+      "passed": true,
+      "speedup": 1.2503460946715153,
+      "speedup_ci": [1.2315909032514425, 1.2691012860915878],
+      "score_us": 18091.230977086143,
+      "gpu": "H200",
+      "flags": [],
+      "error": null,
+      "evaluator_image": "localhost:30500/kc/judge@sha256:9a7f287b80d772c6f636bbcb57422c619fe326e2aabc53803b85007bca93f68e",
+      "server_content_hash": "a665844fda9122dadfb6f5eb03f8b6702f8d3e5efb162ed63a2575eede65cdf5",
+      "created_at": 1792821622.3026898,
+      "finished_at": 1792822788.194771,
+      "judge_checks": {
+        "flagged": [],
+        "ok": true,
+        "rejected": []
+      },
+      "correctness_cases": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 10,
+            "layer": "sliding",
+            "seed": 9155422720368948111
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.285e-02 (worst row 5.285e-02) [bound 0.131]; attention input relative L2 error 3.752e-02 (worst row 3.752e-02) [bound 0.093]"
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 3000,
+            "layer": "full",
+            "seed": 9155488471879919424
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.942e-02 (worst row 5.942e-02) [bound 0.140]; attention input relative L2 error 3.361e-02 (worst row 3.361e-02) [bound 0.079]"
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 8,
+            "ctx": 2047,
+            "layer": "sliding",
+            "seed": 9155554223390890738
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.117e-02 (worst row 9.566e-02) [bound 0.149]; attention input relative L2 error 3.557e-02 (worst row 5.630e-02) [bound 0.087]"
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 9,
+            "ctx": 5000,
+            "layer": "sliding",
+            "page": 1,
+            "seed": 9155619974901862053,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.972e-02 (worst row 9.008e-02) [bound 0.150]; attention input relative L2 error 4.417e-02 (worst row 5.816e-02) [bound 0.112]"
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 3,
+            "ctx": 6000,
+            "dist": "outliers",
+            "layer": "full",
+            "q_len": 8,
+            "seed": 9155685726412833369
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.877e-02 (worst row 9.583e-02) [bound 0.150]; attention input relative L2 error 3.605e-02 (worst row 4.892e-02) [bound 0.090]"
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 5,
+            "ctx": 5000,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9155751477923804686,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.243e-02 (worst row 1.032e-01) [bound 0.150]; attention input relative L2 error 4.784e-02 (worst row 6.206e-02) [bound 0.116]"
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 33,
+            "ctx": 20000,
+            "layer": "full",
+            "page": 1,
+            "seed": 9155817229434776004,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.239e-02 (worst row 1.154e-01) [bound 0.150]; attention input relative L2 error 4.662e-02 (worst row 6.883e-02) [bound 0.113]"
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 2,
+            "ctx": 300000,
+            "layer": "sliding",
+            "q_len": 8,
+            "seed": 9155882980945747323
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.863e-02 (worst row 8.844e-02) [bound 0.150]; attention input relative L2 error 4.519e-02 (worst row 6.390e-02) [bound 0.110]"
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 1,
+            "ctx": 1048576,
+            "layer": "full",
+            "q_len": 8,
+            "seed": 9155948732456718643
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.991e-02 (worst row 1.025e-01) [bound 0.150]; attention input relative L2 error 5.393e-02 (worst row 7.295e-02) [bound 0.134]"
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 4,
+            "ctx": 7000,
+            "kv_scale": 0.015625,
+            "layer": "sliding",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9156211738500603933
+          },
+          "status": "pass",
+          "message": "update relative L2 error 7.243e-02 (worst row 1.529e-01) [bound 0.150]; attention input relative L2 error 4.885e-02 (worst row 8.446e-02) [bound 0.121]"
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "page": 1,
+            "seed": 9156014483967689964
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.314e-02 (worst row 5.314e-02) [bound 0.129]; attention input relative L2 error 3.559e-02 (worst row 3.559e-02) [bound 0.087]"
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 4,
+            "ctx": 6000,
+            "dist": "soft",
+            "layer": "sliding",
+            "q_len": 8,
+            "seed": 9156080235478661286
+          },
+          "status": "pass",
+          "message": "update relative L2 error 6.046e-02 (worst row 7.677e-02) [bound 0.145]; attention input relative L2 error 3.920e-02 (worst row 5.560e-02) [bound 0.094]"
+        },
+        {
+          "index": 12,
+          "case": {
+            "batch": 16,
+            "ctx": 20000,
+            "dist": "soft",
+            "layer": "full",
+            "page": 1,
+            "seed": 9156145986989632609,
+            "spread": "mixed"
+          },
+          "status": "pass",
+          "message": "update relative L2 error 5.851e-02 (worst row 7.638e-02) [bound 0.146]; attention input relative L2 error 4.069e-02 (worst row 5.347e-02) [bound 0.101]"
+        }
+      ],
+      "benchmarks": [
+        {
+          "index": 0,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 1",
+            "page": 1,
+            "repeats": 60,
+            "seed": 9161997871466084361,
+            "weight": 46
+          },
+          "baseline_ns": 172367.999330163,
+          "median_ns": 117016.65145538864,
+          "speedup": 1.4730211229457073,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 1,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 1",
+            "page": 1,
+            "repeats": 60,
+            "seed": 9162063622977055774,
+            "weight": 16
+          },
+          "baseline_ns": 180816.00358709693,
+          "median_ns": 125620.29028193706,
+          "speedup": 1.4393853348155847,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 2,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 9162129374488027188,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 268767.9920345545,
+          "median_ns": 214505.3661400477,
+          "speedup": 1.252966286442827,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 3,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 16",
+            "page": 1,
+            "seed": 9162195125998998603,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 432127.99774482846,
+          "median_ns": 328914.893883517,
+          "speedup": 1.3137988147714093,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 4,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 9162260877509970019,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 264639.9876102805,
+          "median_ns": 240498.1299072833,
+          "speedup": 1.100382725272352,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 5,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "decode 32",
+            "page": 1,
+            "seed": 9162326629020941436,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 611071.9856806099,
+          "median_ns": 482595.51253964147,
+          "speedup": 1.2662197840689933,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 6,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9162392380531912854,
+            "weight": 46
+          },
+          "baseline_ns": 258303.99664118886,
+          "median_ns": 185915.05155251425,
+          "speedup": 1.3893657048430388,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 7,
+          "case": {
+            "batch": 1,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 1",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9162458132042884273,
+            "weight": 16
+          },
+          "baseline_ns": 279648.00177142024,
+          "median_ns": 209121.09097764053,
+          "speedup": 1.3372539348569128,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 8,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9162523883553855693,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 521520.0181119144,
+          "median_ns": 494654.419940603,
+          "speedup": 1.054311853060036,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 9,
+          "case": {
+            "batch": 16,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 16",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9162589635064827114,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 698431.9924376905,
+          "median_ns": 669058.7341377378,
+          "speedup": 1.0439023613342528,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 10,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "sliding",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9162655386575798536,
+            "spread": "agentic",
+            "weight": 46
+          },
+          "baseline_ns": 738544.0189391375,
+          "median_ns": 594906.8967963416,
+          "speedup": 1.241444708266625,
+          "status": "pass",
+          "flags": []
+        },
+        {
+          "index": 11,
+          "case": {
+            "batch": 32,
+            "ctx": 80000,
+            "dist": "soft",
+            "layer": "full",
+            "load": "verify 32",
+            "page": 1,
+            "q_len": 8,
+            "seed": 9162721138086769959,
+            "spread": "agentic",
+            "weight": 16
+          },
+          "baseline_ns": 1089775.966014713,
+          "median_ns": 937608.8111873994,
+          "speedup": 1.1622927952592588,
+          "status": "pass",
+          "flags": []
+        }
+      ]
     }
   ],
   "selected_candidates": [
@@ -22875,10 +23545,7 @@
       "source_sha256": "4bb42627ed8807e6c85380db7043288ca9fff3ce33e8e00f62e404a680231f6b",
       "job_id": "939615aea8b24931",
       "speedup": 1.3723038377726406,
-      "speedup_ci": [
-        1.351719280206051,
-        1.3995453282701504
-      ]
+      "speedup_ci": [1.351719280206051, 1.3995453282701504]
     },
     {
       "problem": "muse_bf16_proj",
@@ -22886,21 +23553,15 @@
       "source_sha256": "774a28dae97b364a64704edc54d3ad811aaa71fea3918fc5ff8ab4f207845269",
       "job_id": "1095cf9b43bf49a0",
       "speedup": 1.0673408559093023,
-      "speedup_ci": [
-        1.0513307430706627,
-        1.0833509687479417
-      ]
+      "speedup_ci": [1.0513307430706627, 1.0833509687479417]
     },
     {
       "problem": "muse_decode_layer",
       "file": "experiments/openkernel/muse_decode_layer/submission.py",
-      "source_sha256": "ef302807fb7f72ed9a5a48326217e3488e6b5711cd307b9f7c2bf3cc8793c187",
-      "job_id": "e5f50469aadf4638",
-      "speedup": 1.1366091860933258,
-      "speedup_ci": [
-        1.119560048301926,
-        1.1536583238847256
-      ]
+      "source_sha256": "48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894",
+      "job_id": "beb82b4224554523",
+      "speedup": 1.2503460946715153,
+      "speedup_ci": [1.2315909032514425, 1.2691012860915878]
     },
     {
       "problem": "muse_moe_w4a16",
@@ -22908,10 +23569,7 @@
       "source_sha256": "909873095a4eca7db2195bad348fae96728bbc955b1ec4b33459e6deb2d67d8e",
       "job_id": "20b3199ecbd847f2",
       "speedup": 1.2236334151530706,
-      "speedup_ci": [
-        1.2052789139257745,
-        1.2419879163803664
-      ]
+      "speedup_ci": [1.2052789139257745, 1.2419879163803664]
     }
   ],
   "leaderboard_snapshot": {

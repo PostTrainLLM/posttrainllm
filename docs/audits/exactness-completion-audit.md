@@ -40,8 +40,8 @@ Structured attempt ledger:
 
 | Metric | Count |
 |---|---:|
-| Total attempts | 109 |
-| Exact confidence | 98 |
+| Total attempts | 127 |
+| Exact confidence | 116 |
 | Inferred confidence | 4 |
 | Not-applicable confidence | 5 |
 | Missing-evidence confidence | 2 |

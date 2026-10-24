@@ -6,58 +6,63 @@ Question: can a rules-compliant kernel beat SGLang on the organizer's H200?
 This is an isolated CUDA experiment; the Mac application has no new dependency.
 Only the free official queue is authorized. Serving and paid GPUs are outside scope.
 
-## Current state
+## Final outcome — experiment closed
 
-At 2026-10-24 05:45 UTC the overall rank was **414 of 740**. All 53 earlier
-jobs completed. One final check is queued, bringing the submitted total to 54.
-The previous autonomous worker is stopped; no unrestricted iteration remains.
-These are dated leaderboard observations, not fixed placements.
+The final scored run finished at **2026-10-24 06:20 UTC** (11:50 Asia/Kolkata).
+Overall rank improved from 414/740 before the final bet to **283/749 at completion**.
+The owner's top-100 stop condition was not met. All experiment workers are stopped,
+and no further checks, scoring runs or paid infrastructure are authorized.
+Leaderboard ranks drift; 283/749 is the frozen completion snapshot.
 
-| Selected exact-source scored candidate | Speedup | Reported 95% interval |
+All **55 official H200 jobs** completed: 42 off-board checks and 13 scored runs.
+Fifty-four passed correctness; one early attention draft failed compilation.
+The exact selected scored sources all passed fresh correctness with no flags:
+
+| Selected candidate | Speedup vs SGLang | Reported 95% interval |
 | --- | --- | --- |
 | Joint-head FP8 paged attention | 1.3723× | 1.3517–1.3995× |
 | MoE block sizing + fused small-batch norm | 1.2236× | 1.2053–1.2420× |
-| Single-token GEMV + narrow router dispatch | 1.0673× | 1.0513–1.0834× |
-| Composed decoder layer | 1.1366× | 1.1196–1.1537× |
+| Single-token dense GEMV + narrow router dispatch | 1.0673× | 1.0513–1.0834× |
+| Final decoder-layer composition | 1.2503× | 1.2316–1.2691× |
 
-All selected sources passed fresh correctness with no flags. Attention score
-`939615aea8b24931` is 7.18% above its earlier 1.2804× incumbent, and its exact
-scored source is now selected locally. The layer target has not been reached.
-See [results.json](../../experiments/openkernel/results.json) for all job IDs,
-source hashes, correctness cases, per-shape timings and evaluator identities.
-Check results are off-board and are not scored submissions or serving evidence.
+Final score `beb82b4224554523` improves the prior scored layer from 1.1366× to
+1.2503×, a **10.01% aggregate speedup-ratio gain**. The preceding final check
+`b5f1d79d24524705` measured 1.2480× and satisfied the promotion gate. Both passed
+all 13 fresh layer correctness cases with no flags. These establish organizer
+workloads only; no Mac application or end-to-end serving gain is claimed.
 
-## One final bet and stop condition
+The final exact source is [submission.py](../../experiments/openkernel/muse_decode_layer/submission.py),
+SHA-256 `48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894`.
+See [results.json](../../experiments/openkernel/results.json) for every job,
+source hash, correctness case, per-shape timing and evaluator identity, and
+[closure.json](../../experiments/openkernel/closure.json) for the frozen outcome.
+The [research release](https://github.com/PostTrainLLM/posttrainllm/releases/tag/research-openkernel-2026-10-24-v1)
+packages the exact sources and offline-verifiable evidence.
 
-On October 24 the owner authorized **one best bet, then quit unless overall
-rank reaches the top 100**. This supersedes the prior freeze and the top-ten
-aspiration. No parameter sweep, paid GPU or alternate candidate is authorized.
+## Final bet and evidence boundary
 
-Final check `b5f1d79d24524705` uses
-[final-layer.py](../../experiments/openkernel/candidates/final-layer.py), SHA-256
-`48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894`.
-It combines the checked norm/local-ID fusion, joint-head attention and whole-row
-small projections with one new scheduling change: align only local expert routes,
-discard negative IDs, and use Marlin's non-EP specialization. Every valid route,
-weight, numerical boundary and fresh input remains part of the computation.
-This removes repeated scans of invalid expert blocks, not valid GEMM arithmetic.
-No causal attribution to that change alone will be made from this composition.
+The final composition combines checked norm/local-ID fusion, joint-head attention
+and whole-row small projections with local-only Marlin scheduling. Alignment
+filters negative expert IDs and uses the non-EP specialization, removing repeated
+scans of non-local blocks while preserving every valid route and numerical boundary.
+The composed result does not isolate the contribution of any one component.
 
 Claude and an independent source reviewer checked negative-ID filtering,
 all-invalid routing, padding sentinels, masked scratch reads and FP32 router input.
 The pinned AOT align kernel supports `ignore_invalid_expert`; the separate JIT
 implementation Claude initially inspected does not establish that API contract.
-Source review and local lint passed; CUDA compilation, correctness and timing
-remain pending on the H200 check.
+The measured H200 check and score establish the final correctness and timing result.
 
-The exact source may receive at most one scored run if it passes with no flags,
-its point estimate exceeds the strongest prior layer check (1.179121×) by at
-least 3% (at least 1.214495×), its lower reported interval exceeds 1.196808×,
-and every matched benchmark case has at most 5% latency regression against that
-prior check. The bounded watcher enforces these conservative gates; otherwise stop.
-After scoring, refresh overall rank and stop if it is outside the top 100.
-Local `runs/openkernel-control/submission-policy.json` and its guarded launcher
-bind this allowance to the exact source and reserve each job slot before sending.
+The final allowance was one check and at most one exact-source score. Scoring
+required no flags, at least 3% improvement over the strongest prior layer check
+(1.179121×), a lower interval above 1.196808×, and no matched case more than 5%
+slower than that check. The bounded watcher enforced these gates and stopped after
+the scored result. No retuning or extra candidate followed.
+
+Exact judged Python files are immutable artifacts: the quality gate checks their
+SHA-256 against passing scored receipts instead of reformatting their bytes.
+Ordinary Python lint still runs. The release's offline verifier checks all 55
+submitted sources and all four selected scored source/result bindings.
 
 ## Completed continuation evidence
 

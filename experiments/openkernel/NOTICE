@@ -1,0 +1,12 @@
+Open Kernel Challenge research, October 23-24, 2026.
+
+Kernel submissions in this directory are licensed under Apache-2.0, consistent
+with the challenge submission terms. They adapt the supplied SGLang baselines
+at revision a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f.
+SGLang: https://github.com/sgl-project/sglang (Apache-2.0).
+The full Apache-2.0 license is provided in LICENSE in this directory.
+Other PostTrainLLM project files retain their existing repository license.
+
+The judge environment provides SGLang, PyTorch, Triton and FlashAttention.
+No model weights, CUDA binaries, reference harnesses or private host files
+are distributed in the research artifact.

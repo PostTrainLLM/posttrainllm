@@ -1,4 +1,5 @@
 # okc: problem=muse_decode_layer
+# Final bounded bet: valid-local Marlin schedule plus independently checked components.
 """Compose measured paged attention and single-token GEMV with norm fusion.
 
 Derived from SGLang's decoder layer for Muse Spark Open, as one H200 runs it under TP8/EP8, at SGLang commit
@@ -377,7 +378,7 @@ def _paged_attention_partials(
     head = tl.program_id(1)
     split = tl.program_id(2)
     rows = tl.arange(0, BM)
-    dims = tl.arange(0, 64)
+    dims = tl.arange(0, 128)
     columns = tl.arange(0, BN)
     query_start = tl.load(CU_Q + batch * CS)
     query_length = tl.load(CU_Q + (batch + 1) * CS) - query_start
@@ -390,10 +391,10 @@ def _paged_attention_partials(
         Q
         + (query_start + query_token)[:, None] * QT
         + query_head[:, None] * QH
-        + dims[None, :] * QD,
-        valid_query[:, None],
+        + (dims[None, :] % 64) * QD,
+        valid_query[:, None] & (dims[None, :] // 64 == query_head[:, None] // 8),
         other=0.0,
-    ).to(tl.bfloat16)
+    )
     scale = SM_SCALE * tl.load(K_SCALE)
 
     first_key = 0
@@ -406,7 +407,7 @@ def _paged_attention_partials(
 
     row_max = tl.full((BM,), -float("inf"), tl.float32)
     row_sum = tl.zeros((BM,), tl.float32)
-    acc = tl.zeros((BM, 64), tl.float32)
+    acc = tl.zeros((BM, 128), tl.float32)
     for block in range(start, stop, BN):
         key_pos = block + columns
         valid_key = (key_pos < seqlen) & (key_pos < TABLE_COLS)
@@ -416,16 +417,22 @@ def _paged_attention_partials(
         valid_key = valid_key & (page >= 0) & (page < CACHE_PAGES)
         safe_page = tl.maximum(page, 0)
         k = tl.load(
-            K + safe_page[None, :] * KP + head * KH + dims[:, None] * KD,
+            K
+            + safe_page[None, :] * KP
+            + (dims[:, None] // 64) * KH
+            + (dims[:, None] % 64) * KD,
             valid_key[None, :],
             other=0.0,
-        ).to(tl.bfloat16)
+        )
         v = tl.load(
-            V + safe_page[:, None] * VP + head * VH + dims[None, :] * VD,
+            V
+            + safe_page[:, None] * VP
+            + (dims[None, :] // 64) * VH
+            + (dims[None, :] % 64) * VD,
             valid_key[:, None],
             other=0.0,
-        ).to(tl.bfloat16)
-        # FP8 Q/K/V convert losslessly to BF16. Both dots accumulate in FP32.
+        )
+        # Native E4M3 QK dot, matching FA3; accumulation remains FP32.
         scores = tl.dot(q, k) * scale
         visible = valid_query[:, None] & valid_key[None, :]
         visible = visible & (key_pos[None, :] <= query_pos[:, None])
@@ -440,16 +447,16 @@ def _paged_attention_partials(
         p = tl.exp(scores - safe_max[:, None])
         row_sum = row_sum * alpha + tl.sum(p, axis=1)
         acc = acc * alpha[:, None]
-        # FA3's FP8 path converts its softmax probabilities to FP8 before PV.
-        # BF16 probabilities are finer; max/sum and PV accumulation stay FP32.
-        acc = tl.dot(p.to(tl.bfloat16), v, acc)
+        # Match FA3 probability scaling: P*256 in E4M3, FP32 PV accumulation.
+        # Undo that scale on the stored numerator, keeping FP32 softmax sums.
+        acc = tl.dot((p * 256.0).to(tl.float8e4nv), v, acc)
         row_max = new_max
 
     partial_row = ((batch * HKV + head) * SPLITS + split) * ROWS + rows
     tl.store(
-        PARTIAL_OUT + partial_row[:, None] * 64 + dims[None, :],
-        acc,
-        (rows < ROWS)[:, None],
+        PARTIAL_OUT + partial_row[:, None] * 64 + dims[None, :] % 64,
+        acc * (1.0 / 256.0),
+        (rows < ROWS)[:, None] & (dims[None, :] // 64 == query_head[:, None] // 8),
     )
     tl.store(PARTIAL_STATS + partial_row * 2, row_max, rows < ROWS)
     tl.store(PARTIAL_STATS + partial_row * 2 + 1, row_sum, rows < ROWS)
@@ -506,10 +513,9 @@ def _splitk_attention(data: Inputs, q: torch.Tensor) -> torch.Tensor | None:
     sm_scale = cfg["sm_scale"] * cfg["qk_scale_factor"]
     if not (
         batch > 0
-        and hkv > 0
+        and hkv == 2
         and hq == hkv * 8
-        and length in (1, 8)
-        and (length == 1 or (cfg["window"] > 0 and batch * length <= 8))
+        and length == 1
         and d == 64
         and cfg["page_size"] == 1
         and cfg["kv_scale"] == 1.0
@@ -529,17 +535,17 @@ def _splitk_attention(data: Inputs, q: torch.Tensor) -> torch.Tensor | None:
     ):
         return None
 
-    # Keep FA3 for long-context verification and larger verification batches;
-    # those regimes regressed in the broad split-K H200 check.
-    group = hq // hkv
+    # Joint-head decoding uses block-diagonal queries over both cache heads.
+    # Keep FA3 for verification while measuring this new cache-access layout.
+    group = hq
     rows = length * group
     block_n = 64 if cfg["window"] else 128
     capacity = table.shape[1]
     if cfg["window"]:
         capacity = min(capacity, cfg["window"] + length - 1)
     splits = min(
-        128,
-        triton.next_power_of_2(triton.cdiv(512, batch * hkv)),
+        256,
+        triton.next_power_of_2(triton.cdiv(512, batch)),
         triton.next_power_of_2(triton.cdiv(capacity, block_n)),
     )
     # Scored shapes need at most 8.25 MiB. Bound nearby shapes as well rather
@@ -547,13 +553,13 @@ def _splitk_attention(data: Inputs, q: torch.Tensor) -> torch.Tensor | None:
     if batch * hkv * splits * rows * (d + 2) * 4 > 32 * 1024 * 1024:
         return None
     partials = torch.empty(
-        (batch, hkv, splits, rows, d), dtype=torch.float32, device=q.device
+        (batch, 1, splits, rows, d), dtype=torch.float32, device=q.device
     )
     stats = torch.empty(
-        (batch, hkv, splits, rows, 2), dtype=torch.float32, device=q.device
+        (batch, 1, splits, rows, 2), dtype=torch.float32, device=q.device
     )
     out = torch.empty((batch * length, hq, d), dtype=torch.bfloat16, device=q.device)
-    _paged_attention_partials[(batch, hkv, splits)](
+    _paged_attention_partials[(batch, 1, splits)](
         q,
         k,
         v,
@@ -564,7 +570,7 @@ def _splitk_attention(data: Inputs, q: torch.Tensor) -> torch.Tensor | None:
         partials,
         stats,
         HQ=hq,
-        HKV=hkv,
+        HKV=1,
         GROUP=group,
         ROWS=rows,
         SPLITS=splits,
@@ -590,14 +596,14 @@ def _splitk_attention(data: Inputs, q: torch.Tensor) -> torch.Tensor | None:
         num_warps=4,
         num_stages=2,
     )
-    _merge_attention_partials[(batch, hkv, rows)](
+    _merge_attention_partials[(batch, 1, rows)](
         partials,
         stats,
         cu_q,
         data["v_scale"],
         out,
         HQ=hq,
-        HKV=hkv,
+        HKV=1,
         GROUP=group,
         ROWS=rows,
         SPLITS=splits,
@@ -607,9 +613,36 @@ def _splitk_attention(data: Inputs, q: torch.Tensor) -> torch.Tensor | None:
     return out
 
 
+@triton.jit
+def _gemv_whole_row(
+    X,
+    W,
+    OUT,
+    N: tl.constexpr,
+    K: tl.constexpr,
+    X_ROW: tl.constexpr,
+    X_K: tl.constexpr,
+    BLOCK_K: tl.constexpr,
+):
+    col = tl.program_id(0)
+    row = tl.program_id(1)
+    k = tl.arange(0, BLOCK_K)
+    x = tl.load(X + row * X_ROW + k * X_K, k < K, other=0).to(tl.float32)
+    w = tl.load(W + col * K + k, k < K, other=0).to(tl.float32)
+    result = tl.sum(x * w, axis=0)
+    tl.store(OUT + row * N + col, result)
+
+
 def _gemm(x, w):
     if x.shape[0] == 1 and x.dtype == w.dtype == torch.bfloat16:
         out = torch.empty((1, w.shape[0]), dtype=torch.bfloat16, device=x.device)
+        if x.shape[1] >= 4096 and w.is_contiguous():
+            _gemv_whole_row[(w.shape[0], 1)](
+                x, w, out, w.shape[0], x.shape[1], x.stride(0), x.stride(1),
+                BLOCK_K=triton.next_power_of_2(x.shape[1]),
+                num_warps=8 if x.shape[1] >= 8192 else 4,
+            )
+            return out
         _dense_gemv[(triton.cdiv(w.shape[0], 4),)](
             x,
             w,
@@ -763,18 +796,68 @@ def prepare(weights):
         "side_stream": torch.cuda.Stream(device),
         "_modules": (pre_ffn, next_pre_attn, post_attn, post_ffn, post_expert),
     }
+    state["pre_expert_w"] = (
+        state["pre_expert_norm"]._get_effective_weight().detach().to(torch.bfloat16)
+    )
     del freqs
     torch.cuda.synchronize()
     return state
 
 
-def _experts(x, topk_weights, topk_ids, state):
+@triton.jit
+def _norm_and_local_ids(
+    X,
+    W,
+    Y,
+    IDS,
+    START,
+    OUT,
+    XS: tl.constexpr,
+    STRIDE_M: tl.constexpr,
+    STRIDE_K: tl.constexpr,
+    D: tl.constexpr,
+    TOPK: tl.constexpr,
+    EPS: tl.constexpr,
+):
+    token = tl.program_id(0)
+    dims = tl.arange(0, D)
+    x = tl.load(X + token * XS + dims).to(tl.float32)
+    gamma = tl.load(W + dims).to(tl.float32)
+    rstd = tl.rsqrt(tl.sum(x * x, 0) / D + EPS)
+    y = gamma * (rstd * x)
+    tl.store(Y + token * D + dims, y)
+    slots = tl.arange(0, TOPK)
+    ids = tl.load(IDS + token * STRIDE_M + slots * STRIDE_K).to(tl.int32)
+    start = tl.load(START).to(tl.int32)
+    shifted = (ids - start) & 255
+    local = tl.where(shifted < 32, shifted, -1)
+    tl.store(OUT + token * TOPK + slots, local)
+
+
+def _experts(x, topk_weights, topk_ids, local_start, state):
     """MuseSpark1xFp4Experts._marlin_expert_outputs and its post-expert-norm finalize."""
     bank = state["bank"]
     num_tokens, size_k = x.shape
     size_n = bank["size_n"]
     gemm1_n = 2 * size_n
-    local_ids = bank["expert_map"][topk_ids].contiguous()
+    local_ids = torch.empty(topk_ids.shape, device=topk_ids.device, dtype=torch.int32)
+    normed_x = torch.empty_like(x)
+    _norm_and_local_ids[(num_tokens,)](
+        x,
+        state["pre_expert_w"],
+        normed_x,
+        topk_ids,
+        local_start,
+        local_ids,
+        x.stride(0),
+        topk_ids.stride(0),
+        topk_ids.stride(1),
+        D=D_EXPERT,
+        TOPK=TOP_K,
+        EPS=RMS_EPS,
+        num_warps=4,
+    )
+    x = normed_x
     topk_weights = topk_weights.to(torch.float32).contiguous()
     # Preserve baseline tiling below the measured large-batch crossover.
     routing_experts = (
@@ -786,7 +869,7 @@ def _experts(x, topk_weights, topk_ids, state):
         if num_tokens * TOP_K / routing_experts / block_size_m < 0.9:
             break
     sorted_ids, block_experts, n_padded = moe_align_block_size(
-        local_ids, block_size_m, N_EXPERTS
+        local_ids, block_size_m, LOCAL_EXPERTS, ignore_invalid_expert=True
     )
     cache2 = torch.empty((num_tokens * TOP_K, size_n), device=x.device, dtype=x.dtype)
     cache13 = torch.empty(
@@ -797,7 +880,7 @@ def _experts(x, topk_weights, topk_ids, state):
     common = dict(
         moe_block_size=block_size_m,
         mul_topk_weights=False,
-        is_ep=True,
+        is_ep=False,  # Alignment contains only valid local expert blocks.
         b_q_type=scalar_types.float4_e2m1f,
         is_k_full=True,
         use_atomic_add=False,
@@ -955,17 +1038,27 @@ def kernel_fn(data, state):
             logits = torch.mm(ffn_input, state["router_hi_t"], out_dtype=torch.float32)
             logits += torch.mm(ffn_input, state["router_lo_t"], out_dtype=torch.float32)
         else:
-            logits = F.linear(router_input, state["router"])
+            logits = torch.empty(
+                (tokens, N_EXPERTS), dtype=torch.float32, device=router_input.device
+            )
+            _gemv_whole_row[(N_EXPERTS, tokens)](
+                router_input, state["router"], logits, N_EXPERTS,
+                router_input.shape[1], router_input.stride(0), router_input.stride(1),
+                BLOCK_K=triton.next_power_of_2(router_input.shape[1]), num_warps=8,
+            )
         topk_weights, topk_ids = state["routing"](None, logits, TOP_K, True)
     main_stream.wait_stream(side_stream)
     if not torch.cuda.is_current_stream_capturing():
         for tensor in (topk_weights, topk_ids):
             tensor.record_stream(main_stream)
     # This GPU's experts start at local_start: as SGLang's expert_map on that EP rank.
-    local_ids = (topk_ids - data["local_start"]) % N_EXPERTS
     # all-reduce: identity
     expert_output = _experts(
-        state["pre_expert_norm"](expert_input), topk_weights, local_ids, state
+        expert_input,
+        topk_weights,
+        topk_ids,
+        data["local_start"],
+        state,
     )
     if tokens <= SLICED_UNPOOL_MAX_TOKENS:
         unpooled = _gemm(expert_output, dense["unpooler"][:UNPOOL_SLICE])

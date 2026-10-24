@@ -6,4 +6,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 python3 "$ROOT/scripts/docs-checks/check_attempt_ledger.py"
 python3 "$ROOT/tests/test_query_attempts.py"
 
+node --test "$ROOT/tests/test_kernel_snapshots.mjs"
+
 echo "attempt-ledger-smoke ok"
