@@ -206,6 +206,10 @@ export function setupSpecialistLabs(): void {
   let workflow: ReturnType<typeof setupWorkflow> | undefined;
 
   async function request(path: string, data?: Json): Promise<Json> {
+    if (location.hostname !== "127.0.0.1")
+      throw new Error(
+        "Open the local lab served by lab.py serve before importing private data.",
+      );
     const response = await fetch(
       `/api/specialists/${path}`,
       data
