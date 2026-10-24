@@ -1,83 +1,94 @@
 # Open Kernel Challenge
 
-Owner-selected experiment, 2026-10-23:
+Owner-selected experiment, October 23–24, 2026 (Asia/Kolkata):
 [Issue #206](https://github.com/PostTrainLLM/posttrainllm/issues/206).
 Question: can a rules-compliant kernel beat SGLang on the organizer's H200?
-Timebox: October 23–24, 2026, in the owner's Asia/Kolkata timezone. This is a
-two-day kernel experiment; the later serving competition is outside scope.
 This is an isolated CUDA experiment; the Mac application has no new dependency.
+Only the free official queue is authorized. Serving and paid GPUs are outside scope.
 
 ## Current state
 
-Two bounded rounds completed: 28 organizer H200 jobs, comprising 18 checks and
-10 scored runs. Twenty-seven passed correctness; one attention draft failed GPU
-compilation and was corrected. Continuation has since promoted a composed layer. All four selected scored sources passed fresh
-correctness with no flags:
+At 2026-10-24 05:45 UTC the overall rank was **414 of 740**. All 53 earlier
+jobs completed. One final check is queued, bringing the submitted total to 54.
+The previous autonomous worker is stopped; no unrestricted iteration remains.
+These are dated leaderboard observations, not fixed placements.
 
-| Candidate                                   | Scored speedup | Reported 95% interval | Measured scope                          |
-| ------------------------------------------- | -------------- | --------------------- | --------------------------------------- |
-| Narrow paged split-K attention + fused prep | 1.2804×        | 1.2612–1.2996×        | All 12 shapes faster than SGLang        |
-| MoE block sizing + fused small-batch norm   | 1.2236×        | 1.2053–1.2420×        | Small-batch gains; 32-token case 0.988× |
-| Single-token GEMV + narrow router dispatch  | 1.0673×        | 1.0513–1.0834×        | One-token projections 1.13–1.20×        |
-| Composed decoder layer                      | 1.1366×        | 1.1196–1.1537×        | All 12 shapes faster than SGLang        |
+| Selected exact-source scored candidate | Speedup | Reported 95% interval |
+| --- | --- | --- |
+| Joint-head FP8 paged attention | 1.3723× | 1.3517–1.3995× |
+| MoE block sizing + fused small-batch norm | 1.2236× | 1.2053–1.2420× |
+| Single-token GEMV + narrow router dispatch | 1.0673× | 1.0513–1.0834× |
+| Composed decoder layer | 1.1366× | 1.1196–1.1537× |
 
-At 2026-10-23 19:39 UTC (October 24, 01:09 Asia/Kolkata), the live overall
-rank was **321 of 586**, versus 369 of 546 before the second round. Individual
-ranks were attention 219/329, dense 449/481, MoE 317/380 and layer 252/284.
-The field grew during the runs; these are dated snapshots, not fixed placements.
-Results improved, but placement remains outside the top 50. The owner then
-requested continued iteration toward overall top ten; that target is not achieved.
+All selected sources passed fresh correctness with no flags. Attention score
+`939615aea8b24931` is 7.18% above its earlier 1.2804× incumbent, and its exact
+scored source is now selected locally. The layer target has not been reached.
+See [results.json](../../experiments/openkernel/results.json) for all job IDs,
+source hashes, correctness cases, per-shape timings and evaluator identities.
+Check results are off-board and are not scored submissions or serving evidence.
 
-See [results.json](../../experiments/openkernel/results.json) for every job ID,
-exact source hash, correctness case, per-shape timing, evaluator image and the
-leaderboard snapshot. Nineteen measured outcomes are now indexed in the
-existing [attempt ledger](../attempt-ledger.md) and
-[structured history](../attempts.json), including failures and regressions.
-These results establish organizer workloads only, not Mac application or
-end-to-end serving gains. No paid GPU was provisioned.
+## One final bet and stop condition
 
-## Active top-ten continuation
+On October 24 the owner authorized **one best bet, then quit unless overall
+rank reaches the top 100**. This supersedes the prior freeze and the top-ten
+aspiration. No parameter sweep, paid GPU or alternate candidate is authorized.
 
-At 2026-10-23 21:34 UTC, twenty-four additional jobs had been submitted: seven
-completed and seventeen pending. The composed layer passed its scored run and
-replaced the earlier 1.1070x source. Attention, dense and MoE selections remain
-unchanged. The latest overall rank was 345 of 633; layer rank was 259 of 308.
+Final check `b5f1d79d24524705` uses
+[final-layer.py](../../experiments/openkernel/candidates/final-layer.py), SHA-256
+`48655c1bef954efc8c894169eacc504c1338a44a102e18a62bd5a4d1f329e894`.
+It combines the checked norm/local-ID fusion, joint-head attention and whole-row
+small projections with one new scheduling change: align only local expert routes,
+discard negative IDs, and use Marlin's non-EP specialization. Every valid route,
+weight, numerical boundary and fresh input remains part of the computation.
+This removes repeated scans of invalid expert blocks, not valid GEMM arithmetic.
+No causal attribution to that change alone will be made from this composition.
 
-| Measured trial                                   | Speedup | Decision                                                   |
-| ------------------------------------------------ | ------- | ---------------------------------------------------------- |
-| Layer composition of selected GEMV and attention | 1.1366× | Check and scored run passed; promoted                      |
-| Native FP8 QK/PV attention                       | 1.2223× | Reject broad dispatch; large full-context decode regressed |
-| Small-batch dense split-K and tiny router        | 1.0485× | Reject broad dispatch; only narrow pooler cases improved   |
-| Direct one-token packed NVFP4 SIMT GEMV          | 0.9291× | Reject; one-token case 271.8 µs versus selected 51.4 µs    |
-| Raw grouped NVFP4 tensor-core experts            | 0.2087× | Reject; 16-token case 1402.6 µs versus selected 157.3 µs   |
-| Joint-head FP8 paged attention                   | 1.3664× | Passed; exact-source scoring and layer composition pending |
+Claude and an independent source reviewer checked negative-ID filtering,
+all-invalid routing, padding sentinels, masked scratch reads and FP32 router input.
+The pinned AOT align kernel supports `ignore_invalid_expert`; the separate JIT
+implementation Claude initially inspected does not establish that API contract.
+Source review and local lint passed; CUDA compilation, correctness and timing
+remain pending on the H200 check.
 
-The joint-head check `717f23591a6f4ff8` loads both contiguous KV heads in one
-CTA with block-diagonal queries. Full-context decode took 140.9 microseconds at
-batch 16 and 266.8 at batch 32; verification keeps FA3. The native FP8 dots use
-Triton's default accumulation setting, with FP32 softmax statistics and merge.
-This is not evidence that FP8 universally wins: the separate-head variant above
-regressed. Exact-source scored run `939615aea8b24931` and the full-layer
-composition check are pending; a wider key tile is an independent ablation.
+The exact source may receive at most one scored run if it passes with no flags,
+its point estimate exceeds the strongest prior layer check (1.179121×) by at
+least 3% (at least 1.214495×), its lower reported interval exceeds 1.196808×,
+and every matched benchmark case has at most 5% latency regression against that
+prior check. The bounded watcher enforces these conservative gates; otherwise stop.
+After scoring, refresh overall rank and stop if it is outside the top 100.
+Local `runs/openkernel-control/submission-policy.json` and its guarded launcher
+bind this allowance to the exact source and reserve each job slot before sending.
 
-Other queued checks cover cheaper FP4 decoding, single-token tensor-core MoE,
-additional attention splits, whole-row dense/router reductions, fused attention
-merge/normalization/gating, fixed-Q FA3 scheduling, and full-layer MoE block
-sizing plus normalization/ID-map fusion. Pending jobs are not performance or
-correctness evidence. Exact job IDs and submitted hashes are in the results
-file; rejected source snapshots remain in local ignored runs.
+## Completed continuation evidence
 
-Claude and research agents reviewed the measured regressions. The attention
-epilogue proposal was checked against pinned SGLang
-[norm_gate.cuh](https://github.com/sgl-project/sglang/blob/a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f/python/sglang/kernels/jit/csrc/muse_spark_v12/norm_gate.cuh):
-round attention to BF16 before FP32 RMS normalization and sigmoid gating, then
-round once to BF16 output. It adds no persistent counter or cross-call state.
-FP8 dot-layout and register-pressure explanations remain hypotheses.
+| Trial | Speedup | Decision |
+| --- | --- | --- |
+| Norm plus local-ID layer fusion, `ec00131830f54653` | 1.1791× | Strongest prior layer check; unscored |
+| Joint-head attention in layer, `0c5c8d83f1fa489f` | 1.1628× | Failed earlier 3% and nonoverlap gate |
+| Whole-row dense/router, `350b4c2c87ef4312` | 1.1131× | Component check passed; used in final composition |
+| Attention merge/norm/gate fusion, `a848d0b7c8794535` | 1.3068× | Below selected attention |
+| Wider attention key tile, `30ed1e95b2984d51` | 1.2293× | Reject; 255 registers and 96 spills in large full decode |
+| Shared-load verification attention, `583215fc82cb43db` | 0.8432× | Reject; 254–255 registers, zero spills |
+| Grouped BF16-decoded NVFP4, `59b8264c0c8d4e59` | 0.2987× | Reject; 96 registers, zero spills; GEMMs dominate |
+| Single-token direct tensor-core MoE, `cac9617e49ed43eb` | 0.9063× | Reject versus Marlin |
+| Global-density tile at M128, `048fe1129b344184` | 1.1346× | No layer gain; not repeated |
+| Lossless M1 / larger-tile dense pooler | 1.0310× / 1.0466× | Below selected dense |
 
-A diagnostic H200 batch was prepared with a 30-minute cap (listed compute cost
-about USD 2.50). Hugging Face rejected the personal launch with HTTP 402 and the
-organization launch with HTTP 403; neither created a job. Official judging
-continues on the free queue. No benchmark result comes from that prepared runner.
+Diagnostic profiles place attention at roughly 50–55% of summed kernel duration
+in larger full-context decode, and expert GEMMs at 44–51% in larger verification.
+Overlapping streams mean these percentages are not additive end-to-end savings.
+Compiler register/spill counts do not identify the hardware limiter by themselves.
+
+Research used primary [FlashInfer competition winner reports](https://github.com/flashinfer-ai/mlsys26-contest/tree/main/writeups),
+[FlashAttention-3](https://tridao.me/blog/2024/flash3/) and
+[H100 kernel-boundary analysis](https://hazyresearch.stanford.edu/blog/2025-05-27-no-bubbles).
+Blackwell FP4 instructions and TMEM recipes are not H200 drop-ins. Marlin already
+provides pipelined packed-weight execution; a raw Triton rewrite regressed badly.
+The remaining scheduling bet is source-supported but does not establish a path
+to top 100. Earlier research and failed attempts remain evidence, not a backlog.
+
+A separate Hugging Face diagnostic batch was rejected before launch (402/403).
+No paid GPU job was created. Every measured result here is from official H200 jobs.
 
 ## What the second round changed
 
@@ -206,7 +217,7 @@ serving board; top-50 overall kernel placement grants queue priority.
 Serving changes must be a permitted diff against SGLang commit
 `a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f`, not a patch to this repository.
 No serving work is planned in this timebox. The terms PDF says the contest ends November 18,
-while the current API/site says November 19. Neither date affects this two-day timebox.
+while the API/site at the initial review said November 19. Neither date affects this two-day timebox.
 
 - [Official CLI, API and technical rules](https://openkernelchallenge.dev/llms.txt)
 - [Live problem and limits](https://openkernelchallenge.dev/api/v1/problems/muse_bf16_proj)

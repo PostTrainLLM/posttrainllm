@@ -1,5 +1,5 @@
 # okc: problem=muse_attention_decode
-"""Paged split-K attention with the existing fused QK/cache prep.
+"""Joint-KV-head FP8 decode attention with fused QK/cache prep.
 
 The Triton kernel adapts SGLang's ``fused_qk_norm.py`` at
 ``a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f`` (Apache-2.0). It keeps the
@@ -277,7 +277,7 @@ def _paged_attention_partials(
     head = tl.program_id(1)
     split = tl.program_id(2)
     rows = tl.arange(0, BM)
-    dims = tl.arange(0, 64)
+    dims = tl.arange(0, 128)
     columns = tl.arange(0, BN)
     query_start = tl.load(CU_Q + batch * CS)
     query_length = tl.load(CU_Q + (batch + 1) * CS) - query_start
@@ -290,10 +290,10 @@ def _paged_attention_partials(
         Q
         + (query_start + query_token)[:, None] * QT
         + query_head[:, None] * QH
-        + dims[None, :] * QD,
-        valid_query[:, None],
+        + (dims[None, :] % 64) * QD,
+        valid_query[:, None] & (dims[None, :] // 64 == query_head[:, None] // 8),
         other=0.0,
-    ).to(tl.bfloat16)
+    )
     scale = SM_SCALE * tl.load(K_SCALE)
 
     first_key = 0
@@ -306,7 +306,7 @@ def _paged_attention_partials(
 
     row_max = tl.full((BM,), -float("inf"), tl.float32)
     row_sum = tl.zeros((BM,), tl.float32)
-    acc = tl.zeros((BM, 64), tl.float32)
+    acc = tl.zeros((BM, 128), tl.float32)
     for block in range(start, stop, BN):
         key_pos = block + columns
         valid_key = (key_pos < seqlen) & (key_pos < TABLE_COLS)
@@ -316,16 +316,22 @@ def _paged_attention_partials(
         valid_key = valid_key & (page >= 0) & (page < CACHE_PAGES)
         safe_page = tl.maximum(page, 0)
         k = tl.load(
-            K + safe_page[None, :] * KP + head * KH + dims[:, None] * KD,
+            K
+            + safe_page[None, :] * KP
+            + (dims[:, None] // 64) * KH
+            + (dims[:, None] % 64) * KD,
             valid_key[None, :],
             other=0.0,
-        ).to(tl.bfloat16)
+        )
         v = tl.load(
-            V + safe_page[:, None] * VP + head * VH + dims[None, :] * VD,
+            V
+            + safe_page[:, None] * VP
+            + (dims[None, :] // 64) * VH
+            + (dims[None, :] % 64) * VD,
             valid_key[:, None],
             other=0.0,
-        ).to(tl.bfloat16)
-        # FP8 Q/K/V convert losslessly to BF16. Both dots accumulate in FP32.
+        )
+        # Native E4M3 QK dot, matching FA3; accumulation remains FP32.
         scores = tl.dot(q, k) * scale
         visible = valid_query[:, None] & valid_key[None, :]
         visible = visible & (key_pos[None, :] <= query_pos[:, None])
@@ -340,16 +346,16 @@ def _paged_attention_partials(
         p = tl.exp(scores - safe_max[:, None])
         row_sum = row_sum * alpha + tl.sum(p, axis=1)
         acc = acc * alpha[:, None]
-        # FA3's FP8 path converts its softmax probabilities to FP8 before PV.
-        # BF16 probabilities are finer; max/sum and PV accumulation stay FP32.
-        acc = tl.dot(p.to(tl.bfloat16), v, acc)
+        # Match FA3 probability scaling: P*256 in E4M3, FP32 PV accumulation.
+        # Undo that scale on the stored numerator, keeping FP32 softmax sums.
+        acc = tl.dot((p * 256.0).to(tl.float8e4nv), v, acc)
         row_max = new_max
 
     partial_row = ((batch * HKV + head) * SPLITS + split) * ROWS + rows
     tl.store(
-        PARTIAL_OUT + partial_row[:, None] * 64 + dims[None, :],
-        acc,
-        (rows < ROWS)[:, None],
+        PARTIAL_OUT + partial_row[:, None] * 64 + dims[None, :] % 64,
+        acc * (1.0 / 256.0),
+        (rows < ROWS)[:, None] & (dims[None, :] // 64 == query_head[:, None] // 8),
     )
     tl.store(PARTIAL_STATS + partial_row * 2, row_max, rows < ROWS)
     tl.store(PARTIAL_STATS + partial_row * 2 + 1, row_sum, rows < ROWS)
@@ -406,10 +412,9 @@ def _splitk_attention(data: Inputs, q: torch.Tensor) -> torch.Tensor | None:
     sm_scale = cfg["sm_scale"] * cfg["qk_scale_factor"]
     if not (
         batch > 0
-        and hkv > 0
+        and hkv == 2
         and hq == hkv * 8
-        and length in (1, 8)
-        and (length == 1 or (cfg["window"] > 0 and batch * length <= 8))
+        and length == 1
         and d == 64
         and cfg["page_size"] == 1
         and cfg["kv_scale"] == 1.0
@@ -429,17 +434,17 @@ def _splitk_attention(data: Inputs, q: torch.Tensor) -> torch.Tensor | None:
     ):
         return None
 
-    # Keep FA3 for long-context verification and larger verification batches;
-    # those regimes regressed in the broad split-K H200 check.
-    group = hq // hkv
+    # Joint-head decoding uses block-diagonal queries over both cache heads.
+    # Keep FA3 for verification while measuring this new cache-access layout.
+    group = hq
     rows = length * group
     block_n = 64 if cfg["window"] else 128
     capacity = table.shape[1]
     if cfg["window"]:
         capacity = min(capacity, cfg["window"] + length - 1)
     splits = min(
-        128,
-        triton.next_power_of_2(triton.cdiv(512, batch * hkv)),
+        256,
+        triton.next_power_of_2(triton.cdiv(512, batch)),
         triton.next_power_of_2(triton.cdiv(capacity, block_n)),
     )
     # Scored shapes need at most 8.25 MiB. Bound nearby shapes as well rather
@@ -447,13 +452,13 @@ def _splitk_attention(data: Inputs, q: torch.Tensor) -> torch.Tensor | None:
     if batch * hkv * splits * rows * (d + 2) * 4 > 32 * 1024 * 1024:
         return None
     partials = torch.empty(
-        (batch, hkv, splits, rows, d), dtype=torch.float32, device=q.device
+        (batch, 1, splits, rows, d), dtype=torch.float32, device=q.device
     )
     stats = torch.empty(
-        (batch, hkv, splits, rows, 2), dtype=torch.float32, device=q.device
+        (batch, 1, splits, rows, 2), dtype=torch.float32, device=q.device
     )
     out = torch.empty((batch * length, hq, d), dtype=torch.bfloat16, device=q.device)
-    _paged_attention_partials[(batch, hkv, splits)](
+    _paged_attention_partials[(batch, 1, splits)](
         q,
         k,
         v,
@@ -464,7 +469,7 @@ def _splitk_attention(data: Inputs, q: torch.Tensor) -> torch.Tensor | None:
         partials,
         stats,
         HQ=hq,
-        HKV=hkv,
+        HKV=1,
         GROUP=group,
         ROWS=rows,
         SPLITS=splits,
@@ -490,14 +495,14 @@ def _splitk_attention(data: Inputs, q: torch.Tensor) -> torch.Tensor | None:
         num_warps=4,
         num_stages=2,
     )
-    _merge_attention_partials[(batch, hkv, rows)](
+    _merge_attention_partials[(batch, 1, rows)](
         partials,
         stats,
         cu_q,
         data["v_scale"],
         out,
         HQ=hq,
-        HKV=hkv,
+        HKV=1,
         GROUP=group,
         ROWS=rows,
         SPLITS=splits,

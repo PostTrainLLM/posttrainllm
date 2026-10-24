@@ -1,0 +1,1073 @@
+# okc: problem=muse_decode_layer
+# Final bounded bet: valid-local Marlin schedule plus independently checked components.
+"""Compose measured paged attention and single-token GEMV with norm fusion.
+
+Derived from SGLang's decoder layer for Muse Spark Open, as one H200 runs it under TP8/EP8, at SGLang commit
+a55ab7d5ae1bba59ac351e55026fe7f7644ecc5f (MuseSpark1xDecoderLayer.forward), with the same modules:
+
+  qkv_gate projection              bf16_gemm_dispatch (cuBLAS on H200)
+  FusedQKNorm (Triton)             per-head RMSNorm of q and k, read from the fused projection,
+                                   with the interleaved RoPE fused in on sliding layers
+  cache store, q to FP8            as FlashAttentionBackend and set_kv_buffer do for an FP8 cache
+                                   (cast, then the store_cache JIT kernel at the step's rows)
+  flash_attn_with_kvcache (FA3)    paged, causal, window (2047, 0) on sliding layers
+  FusedRMSNormGate (JIT)           per-head output norm x sigmoid(gate)
+  o projection                     bf16_gemm_dispatch; then the all-reduce (identity here)
+  FusedPostNormResidualPreNorm     post-attention norm + residual gate + pre-FFN norm (JIT);
+                                   it also writes the FP32 router input up to 8 tokens
+  router                           FP32 F.linear up to 8 tokens, above that two BF16 GEMMs
+                                   on a hi/lo split of the weight (MuseSpark1xRouter); on a
+                                   side stream, overlapping the pooler
+  FusedMuseSparkRouting (JIT)      sigmoid, biased top-8, renormalize (on the side stream)
+  pooler                           bf16_gemm_dispatch, replicated on every GPU
+  pre-expert norm                  MuseSpark1xRMSNorm (F.rms_norm)
+  experts                          moe_align_block_size, two moe_wna16_marlin_gemm (W4A16),
+                                   silu_and_mul, Triton post-expert norm weighted sum
+                                   (MuseSpark1xFp4Experts._forward_marlin); then the
+                                   all-reduce (identity here)
+  unpooler                         up to 8 tokens, this GPU's 1/8 slice of the weight, then
+                                   the all-gather (identity here: zeros in the other columns);
+                                   above that, the whole weight (bf16_gemm_dispatch)
+  FusedPostNormResidualPreNorm     post-FFN norm + residual gate + the next layer's pre-attention
+                                   norm (JIT)
+
+Differs from SGLang:
+  * The step's positions, cache rows, FA3 lengths and FA3 scheduler metadata come in with the
+    inputs; SGLang builds them once per step for all layers.
+  * All-reduces are the identity; the all-gather is a zero pad of the unpooler's output."""
+
+from typing import TypedDict
+
+import triton
+import triton.language as tl
+
+import types
+
+import torch
+import torch.nn.functional as F
+from sgl_kernel.flash_attn import flash_attn_with_kvcache
+from sgl_kernel.scalar_type import scalar_types
+from torch import nn
+
+from sglang.kernels.ops.activation.activation import silu_and_mul
+from sglang.kernels.ops.kvcache.kvcache import store_cache
+from sglang.kernels.ops.moe.moe_wna16_marlin import moe_wna16_marlin_gemm
+from sglang.kernels.ops.muse_spark_v12.fused_muse_spark_routing import (
+    FusedMuseSparkRouting,
+)
+from sglang.kernels.ops.muse_spark_v12.fused_norm_gate import FusedRMSNormGate
+from sglang.kernels.ops.muse_spark_v12.fused_norm_residual import (
+    FusedPostNormResidualPreNorm,
+)
+from sglang.kernels.ops.muse_spark_v12.fused_post_expert_norm_weighted_sum_triton import (
+    fused_post_expert_norm_weighted_sum,
+    _post_expert_norm_weighted_sum_kernel,
+)
+from sglang.kernels.ops.muse_spark_v12.fused_qk_norm import FusedQKNorm
+from sglang.srt.layers.moe.fused_moe_triton import moe_align_block_size
+from sglang.srt.layers.muse_spark_layers import (
+    MuseSpark1xNormPreservingResidualConnection,
+    MuseSpark1xRMSNorm,
+    MuseSpark1xRMSNormWithInputScale,
+)
+from sglang.srt.layers.quantization.marlin_utils import marlin_make_workspace
+from sglang.srt.layers.quantization.marlin_utils_fp4 import (
+    prepare_moe_nvfp4_layer_for_marlin,
+)
+from sglang.srt.layers.quantization.unquant import _bf16_gemm_dispatch_impl
+
+
+class Weights(TypedDict):
+    qkv_gate: (
+        torch.Tensor
+    )  # bfloat16 [2304, 8192]: q 16x64, k 2x64, v 2x64, output gate 16x64
+    o: torch.Tensor  # bfloat16 [8192, 1024]
+    attn_residual_gate: (
+        torch.Tensor
+    )  # bfloat16 [8192], the post-attention residual gate's weight
+    pre_ffn_norm: torch.Tensor  # bfloat16 [8192] (applied as 1 + w)
+    router: torch.Tensor  # float32 [256, 8192]
+    router_bias: (
+        torch.Tensor
+    )  # float32 [256], added to the scores only to choose experts
+    pooler: torch.Tensor  # bfloat16 [4096, 8192]
+    pre_expert_norm: torch.Tensor  # bfloat16 [4096] (applied as 1 + w)
+    w13: (
+        torch.Tensor
+    )  # uint8 [32, 8192, 2048]: this GPU's experts, gate then up rows, packed E2M1
+    w13_sf: torch.Tensor  # float8_e4m3fn [32, 8192, 256]
+    w13_gs: torch.Tensor  # float32 [32]
+    w2: torch.Tensor  # uint8 [32, 4096, 2048]
+    w2_sf: torch.Tensor  # float8_e4m3fn [32, 4096, 256]
+    w2_gs: torch.Tensor  # float32 [32]
+    post_expert_norm: (
+        torch.Tensor
+    )  # bfloat16 [4096] (applied as 1 + w, before normalizing)
+    unpooler: (
+        torch.Tensor
+    )  # bfloat16 [8192, 4096]; up to 8 tokens only rows 0-1023 (this GPU's slice)
+    post_ffn_norm: (
+        torch.Tensor
+    )  # bfloat16 [8192] (applied as 1 + w, before normalizing)
+    ffn_residual_gate: torch.Tensor  # bfloat16 [8192]
+    next_pre_attn_norm: (
+        torch.Tensor
+    )  # bfloat16 [8192], the next layer's input norm (applied as 1 + w)
+
+
+class Config(TypedDict):
+    batch: int  # B sequences
+    q_len: int  # L: 1 for decode, 8 for a verify block (causal inside it); 200-16384 on muse_prefill_layer
+    tokens: int  # T = B * L, request-major
+    hidden: int  # 8192
+    num_q_heads: int  # 16 per GPU under TP8
+    num_kv_heads: int  # 2
+    head_dim: int  # 64
+    page_size: (
+        int  # 1 in the scored cases (as SGLang serves Muse on H200), 64 in some tests
+    )
+    window: (
+        int  # 2048 on sliding-window layers (a token and the 2,047 before it); 0 = all
+    )
+    rope_theta: float  # 500000 on sliding-window layers (interleaved RoPE); 0 = no RoPE
+    qk_scale_factor: float
+    sm_scale: float  # 1/8
+    kv_scale: float  # the cache scales' value: 1 in the scored cases (SGLang leaves them unset)
+    n_experts: int  # 256
+    top_k: int  # 8
+    local_experts: int  # 32: this GPU computes experts local_start .. local_start + 31
+
+
+class Inputs(TypedDict):
+    stream: torch.Tensor  # float32 [T, 8192], the residual stream
+    attn_input: torch.Tensor  # bfloat16 [T, 8192], the normalized stream (the previous layer's boundary wrote it)
+    k_cache: torch.Tensor  # float8_e4m3fn [pages, page_size, 2, 64], written in place
+    v_cache: torch.Tensor  # float8_e4m3fn [pages, page_size, 2, 64], written in place
+    positions: torch.Tensor  # int64 [T], each new token's position
+    cache_loc: torch.Tensor  # int64 [T], each new token's flat cache row
+    cache_seqlens: torch.Tensor  # int32 [B], seq_lens + L
+    cu_seqlens_q: torch.Tensor  # int32 [B+1], 0, L, 2L, ...
+    scheduler_metadata: (
+        torch.Tensor | None
+    )  # int32, FA3's tile schedule on full-attention decode steps
+    k_scale: torch.Tensor  # float32 [], key = e4m3 * k_scale
+    v_scale: torch.Tensor  # float32 []
+    page_table: (
+        torch.Tensor
+    )  # int32 [B, max_pages], physical page of each logical page (-1 unused)
+    seq_lens: (
+        torch.Tensor
+    )  # int32 [B], cached tokens per request; the block starts at this position
+    local_start: torch.Tensor  # int32 [1], this GPU's first expert (a multiple of 32; its weights are w13[0], ...)
+    config: Config
+
+
+HIDDEN = 8192
+RMS_EPS = 1e-5
+POST_NORM_EPS = 1e-8
+FP8 = torch.float8_e4m3fn
+FP8_MAX = 448.0
+N_EXPERTS = 256
+TOP_K = 8
+LOCAL_EXPERTS = 32
+D_EXPERT = 4096
+# MuseSpark1xRouter switches to the split BF16 GEMMs above this many tokens.
+ROUTER_FP32_MAX_TOKENS = 8
+# Up to this many tokens the unpooler runs on this GPU's slice and is all-gathered.
+SLICED_UNPOOL_MAX_TOKENS = 8
+UNPOOL_SLICE = HIDDEN // 8
+# MuseSpark1xFp4Experts' candidates, smallest first.
+BLOCK_SIZE_M_CANDIDATES = (8, 16, 32, 48, 64)
+ROPE_POSITIONS = 1 << 21
+ROPE_THETA = 500_000.0
+
+
+@triton.jit
+def _fused_qk_cache_kernel(
+    QKV,
+    Q_OUT,
+    POS,
+    COS_SIN,
+    K_CACHE,
+    V_CACHE,
+    CACHE_LOC,
+    stride_qkv,
+    n_rows,
+    NUM_Q_HEADS: tl.constexpr,
+    NUM_KV_HEADS: tl.constexpr,
+    D: tl.constexpr,
+    BD: tl.constexpr,
+    BLOCK_M: tl.constexpr,
+    HAS_ROPE: tl.constexpr,
+    EPS: tl.constexpr,
+    FP8_LIMIT: tl.constexpr,
+):
+    rows = tl.program_id(0) * BLOCK_M + tl.arange(0, BLOCK_M)
+    row_mask = rows < n_rows
+    cols = tl.arange(0, BD)
+    mask = row_mask[:, None] & (cols < D)[None, :]
+    heads: tl.constexpr = NUM_Q_HEADS + 2 * NUM_KV_HEADS
+    token = rows // heads
+    head = rows % heads
+    is_q = head < NUM_Q_HEADS
+    is_k = (head >= NUM_Q_HEADS) & (head < NUM_Q_HEADS + NUM_KV_HEADS)
+    is_v = head >= NUM_Q_HEADS + NUM_KV_HEADS
+
+    src = token * stride_qkv + head * D
+    raw = tl.load(QKV + src[:, None] + cols[None, :], mask=mask, other=0.0)
+    x = raw.to(tl.float32)
+    variance = tl.sum(tl.where(mask, x * x, 0.0), axis=1) / D
+    rstd = tl.rsqrt(variance + EPS)
+    x = x * rstd[:, None]
+
+    if HAS_ROPE:
+        # SGLang rounds normalized Q/K to BF16 before applying interleaved RoPE.
+        x = x.to(QKV.dtype.element_ty).to(tl.float32)
+        partner_cols = cols ^ 1
+        partner = tl.load(
+            QKV + src[:, None] + partner_cols[None, :], mask=mask, other=0.0
+        ).to(tl.float32)
+        partner = (partner * rstd[:, None]).to(QKV.dtype.element_ty).to(tl.float32)
+        pos = tl.load(POS + token, mask=row_mask, other=0).to(tl.int64)
+        freq = cols // 2
+        cos = tl.load(COS_SIN + pos[:, None] * D + freq[None, :], mask=mask, other=1.0)
+        sin = tl.load(
+            COS_SIN + pos[:, None] * D + D // 2 + freq[None, :], mask=mask, other=0.0
+        )
+        is_even = (cols % 2 == 0)[None, :]
+        x = tl.where(is_even, x * cos - partner * sin, partner * sin + x * cos)
+
+    # The FP8 cache path rounds the rotated Q/K to BF16 before E4M3 conversion.
+    x = x.to(QKV.dtype.element_ty).to(tl.float32)
+    x = tl.where(is_v[:, None], raw.to(tl.float32), x)
+    x = tl.minimum(tl.maximum(x, -FP8_LIMIT), FP8_LIMIT)
+
+    loc = tl.load(CACHE_LOC + token, mask=row_mask, other=0).to(tl.int64)
+    kv_head = tl.where(is_v, head - NUM_Q_HEADS - NUM_KV_HEADS, head - NUM_Q_HEADS)
+    cache_dst = loc * (NUM_KV_HEADS * D) + kv_head * D
+    tl.store(
+        K_CACHE + cache_dst[:, None] + cols[None, :],
+        x,
+        mask=mask & is_k[:, None],
+    )
+    tl.store(
+        V_CACHE + cache_dst[:, None] + cols[None, :],
+        x,
+        mask=mask & is_v[:, None],
+    )
+
+    q_dst = (token * NUM_Q_HEADS + head) * D
+    tl.store(
+        Q_OUT + q_dst[:, None] + cols[None, :],
+        x,
+        mask=mask & is_q[:, None],
+    )
+
+
+def _block_config(n_rows: int) -> tuple[int, int]:
+    if n_rows < 1024:
+        return 4, 4
+    if n_rows < 8192:
+        return 8, 4
+    if n_rows < 65536:
+        return 16, 4
+    return 32, 4
+
+
+def _fused_q_and_cache(
+    data: Inputs, qkv: torch.Tensor, cos_sin: torch.Tensor
+) -> torch.Tensor:
+    cfg = data["config"]
+    batch, length = cfg["batch"], cfg["q_len"]
+    hq, hkv, d = cfg["num_q_heads"], cfg["num_kv_heads"], cfg["head_dim"]
+    tokens = batch * length
+    n_rows = tokens * (hq + 2 * hkv)
+    block_m, warps = _block_config(n_rows)
+    q = torch.empty((tokens, hq * d), dtype=FP8, device=qkv.device)
+    k_cache = data["k_cache"].view(-1, hkv * d)
+    v_cache = data["v_cache"].view(-1, hkv * d)
+    theta = cfg["rope_theta"]
+    _fused_qk_cache_kernel[(triton.cdiv(n_rows, block_m),)](
+        qkv,
+        q,
+        data["positions"],
+        cos_sin if theta else qkv,
+        k_cache,
+        v_cache,
+        data["cache_loc"],
+        qkv.stride(0),
+        n_rows,
+        hq,
+        hkv,
+        d,
+        triton.next_power_of_2(d),
+        block_m,
+        HAS_ROPE=bool(theta),
+        EPS=RMS_EPS,
+        FP8_LIMIT=FP8_MAX,
+        num_warps=warps,
+    )
+    return q.view(tokens, hq, d)
+
+
+@triton.jit
+def _dense_gemv(
+    X,
+    W,
+    OUT,
+    N: tl.constexpr,
+    K: tl.constexpr,
+    X_STRIDE: tl.constexpr,
+    W_ROW_STRIDE: tl.constexpr,
+    W_K_STRIDE: tl.constexpr,
+    BN: tl.constexpr,
+    BK: tl.constexpr,
+):
+    rows = tl.program_id(0) * BN + tl.arange(0, BN)
+    ks = tl.arange(0, BK)
+    acc = tl.zeros((BN, BK), dtype=tl.float32)
+    for block in range(tl.cdiv(K, BK)):
+        offsets = block * BK + ks
+        x = tl.load(X + offsets * X_STRIDE, offsets < K, other=0).to(tl.float32)
+        w = tl.load(
+            W + rows[:, None] * W_ROW_STRIDE + offsets[None, :] * W_K_STRIDE,
+            (rows[:, None] < N) & (offsets[None, :] < K),
+            other=0,
+        ).to(tl.float32)
+        acc += w * x[None, :]
+    tl.store(OUT + rows, tl.sum(acc, axis=1), rows < N)
+
+
+@triton.jit
+def _paged_attention_partials(
+    Q,
+    K,
+    V,
+    TABLE,
+    LENGTHS,
+    CU_Q,
+    K_SCALE,
+    PARTIAL_OUT,
+    PARTIAL_STATS,
+    HQ: tl.constexpr,
+    HKV: tl.constexpr,
+    GROUP: tl.constexpr,
+    ROWS: tl.constexpr,
+    SPLITS: tl.constexpr,
+    WINDOW: tl.constexpr,
+    SM_SCALE: tl.constexpr,
+    TABLE_COLS: tl.constexpr,
+    CACHE_PAGES: tl.constexpr,
+    QT: tl.constexpr,
+    QH: tl.constexpr,
+    QD: tl.constexpr,
+    KP: tl.constexpr,
+    KH: tl.constexpr,
+    KD: tl.constexpr,
+    VP: tl.constexpr,
+    VH: tl.constexpr,
+    VD: tl.constexpr,
+    TB: tl.constexpr,
+    TP: tl.constexpr,
+    LS: tl.constexpr,
+    CS: tl.constexpr,
+    BM: tl.constexpr,
+    BN: tl.constexpr,
+):
+    batch = tl.program_id(0)
+    head = tl.program_id(1)
+    split = tl.program_id(2)
+    rows = tl.arange(0, BM)
+    dims = tl.arange(0, 128)
+    columns = tl.arange(0, BN)
+    query_start = tl.load(CU_Q + batch * CS)
+    query_length = tl.load(CU_Q + (batch + 1) * CS) - query_start
+    seqlen = tl.load(LENGTHS + batch * LS)
+    query_token = rows // GROUP
+    query_head = head * GROUP + rows % GROUP
+    valid_query = (rows < ROWS) & (query_token < query_length)
+    query_pos = seqlen - query_length + query_token
+    q = tl.load(
+        Q
+        + (query_start + query_token)[:, None] * QT
+        + query_head[:, None] * QH
+        + (dims[None, :] % 64) * QD,
+        valid_query[:, None] & (dims[None, :] // 64 == query_head[:, None] // 8),
+        other=0.0,
+    )
+    scale = SM_SCALE * tl.load(K_SCALE)
+
+    first_key = 0
+    if WINDOW > 0:
+        first_key = tl.maximum(0, seqlen - query_length - WINDOW + 1)
+    block_count = tl.cdiv(tl.maximum(0, seqlen - first_key), BN)
+    blocks_per_split = tl.cdiv(block_count, SPLITS)
+    start = first_key + split * blocks_per_split * BN
+    stop = tl.minimum(seqlen, start + blocks_per_split * BN)
+
+    row_max = tl.full((BM,), -float("inf"), tl.float32)
+    row_sum = tl.zeros((BM,), tl.float32)
+    acc = tl.zeros((BM, 128), tl.float32)
+    for block in range(start, stop, BN):
+        key_pos = block + columns
+        valid_key = (key_pos < seqlen) & (key_pos < TABLE_COLS)
+        page = tl.load(TABLE + batch * TB + key_pos * TP, valid_key, other=-1).to(
+            tl.int64
+        )
+        valid_key = valid_key & (page >= 0) & (page < CACHE_PAGES)
+        safe_page = tl.maximum(page, 0)
+        k = tl.load(
+            K
+            + safe_page[None, :] * KP
+            + (dims[:, None] // 64) * KH
+            + (dims[:, None] % 64) * KD,
+            valid_key[None, :],
+            other=0.0,
+        )
+        v = tl.load(
+            V
+            + safe_page[:, None] * VP
+            + (dims[None, :] // 64) * VH
+            + (dims[None, :] % 64) * VD,
+            valid_key[:, None],
+            other=0.0,
+        )
+        # Native E4M3 QK dot, matching FA3; accumulation remains FP32.
+        scores = tl.dot(q, k) * scale
+        visible = valid_query[:, None] & valid_key[None, :]
+        visible = visible & (key_pos[None, :] <= query_pos[:, None])
+        if WINDOW > 0:
+            visible = visible & (key_pos[None, :] >= query_pos[:, None] - WINDOW + 1)
+        scores = tl.where(visible, scores, -float("inf"))
+        new_max = tl.maximum(row_max, tl.max(scores, axis=1))
+        # An entirely masked row/split has max=-inf and sum=0. Subtract a
+        # finite value there, so neither alpha nor P evaluates -inf - -inf.
+        safe_max = tl.where(new_max == -float("inf"), 0.0, new_max)
+        alpha = tl.exp(row_max - safe_max)
+        p = tl.exp(scores - safe_max[:, None])
+        row_sum = row_sum * alpha + tl.sum(p, axis=1)
+        acc = acc * alpha[:, None]
+        # Match FA3 probability scaling: P*256 in E4M3, FP32 PV accumulation.
+        # Undo that scale on the stored numerator, keeping FP32 softmax sums.
+        acc = tl.dot((p * 256.0).to(tl.float8e4nv), v, acc)
+        row_max = new_max
+
+    partial_row = ((batch * HKV + head) * SPLITS + split) * ROWS + rows
+    tl.store(
+        PARTIAL_OUT + partial_row[:, None] * 64 + dims[None, :] % 64,
+        acc * (1.0 / 256.0),
+        (rows < ROWS)[:, None] & (dims[None, :] // 64 == query_head[:, None] // 8),
+    )
+    tl.store(PARTIAL_STATS + partial_row * 2, row_max, rows < ROWS)
+    tl.store(PARTIAL_STATS + partial_row * 2 + 1, row_sum, rows < ROWS)
+
+
+@triton.jit
+def _merge_attention_partials(
+    PARTIAL_OUT,
+    PARTIAL_STATS,
+    CU_Q,
+    V_SCALE,
+    OUT,
+    HQ: tl.constexpr,
+    HKV: tl.constexpr,
+    GROUP: tl.constexpr,
+    ROWS: tl.constexpr,
+    SPLITS: tl.constexpr,
+    CS: tl.constexpr,
+):
+    batch = tl.program_id(0)
+    head = tl.program_id(1)
+    row = tl.program_id(2)
+    splits = tl.arange(0, SPLITS)
+    dims = tl.arange(0, 64)
+    partial_row = ((batch * HKV + head) * SPLITS + splits) * ROWS + row
+    maxima = tl.load(PARTIAL_STATS + partial_row * 2)
+    sums = tl.load(PARTIAL_STATS + partial_row * 2 + 1)
+    maximum = tl.max(maxima, axis=0)
+    safe_maximum = tl.where(maximum == -float("inf"), 0.0, maximum)
+    weights = tl.exp(maxima - safe_maximum)
+    denominator = tl.sum(sums * weights, axis=0)
+    partials = tl.load(PARTIAL_OUT + partial_row[:, None] * 64 + dims[None, :])
+    numerator = tl.sum(partials * weights[:, None], axis=0)
+    out = numerator / tl.where(denominator > 0, denominator, 1.0)
+    out *= tl.load(V_SCALE)
+    query_start = tl.load(CU_Q + batch * CS)
+    query_end = tl.load(CU_Q + (batch + 1) * CS)
+    token = query_start + row // GROUP
+    query_head = head * GROUP + row % GROUP
+    tl.store(OUT + (token * HQ + query_head) * 64 + dims, out, token < query_end)
+
+
+def _splitk_attention(data: Inputs, q: torch.Tensor) -> torch.Tensor | None:
+    """Bounded page-one/GQA8 path; dispatch only on public shape/config metadata."""
+    cfg = data["config"]
+    batch, length = cfg["batch"], cfg["q_len"]
+    hq, hkv, d = cfg["num_q_heads"], cfg["num_kv_heads"], cfg["head_dim"]
+    k, v = data["k_cache"], data["v_cache"]
+    table, lengths, cu_q = (
+        data["page_table"],
+        data["cache_seqlens"],
+        data["cu_seqlens_q"],
+    )
+    sm_scale = cfg["sm_scale"] * cfg["qk_scale_factor"]
+    if not (
+        batch > 0
+        and hkv == 2
+        and hq == hkv * 8
+        and length == 1
+        and d == 64
+        and cfg["page_size"] == 1
+        and cfg["kv_scale"] == 1.0
+        and cfg["window"] >= 0
+        and 0 < sm_scale < float("inf")
+        and q.dtype == k.dtype == v.dtype == FP8
+        and q.shape == (batch * length, hq, d)
+        and k.ndim == v.ndim == 4
+        and k.shape == v.shape
+        and k.shape[1:] == (1, hkv, d)
+        and table.ndim == 2
+        and table.shape[0] == batch
+        and table.shape[1] > 0
+        and lengths.shape == (batch,)
+        and cu_q.shape == (batch + 1,)
+        and data["k_scale"].numel() == data["v_scale"].numel() == 1
+    ):
+        return None
+
+    # Joint-head decoding uses block-diagonal queries over both cache heads.
+    # Keep FA3 for verification while measuring this new cache-access layout.
+    group = hq
+    rows = length * group
+    block_n = 64 if cfg["window"] else 128
+    capacity = table.shape[1]
+    if cfg["window"]:
+        capacity = min(capacity, cfg["window"] + length - 1)
+    splits = min(
+        256,
+        triton.next_power_of_2(triton.cdiv(512, batch)),
+        triton.next_power_of_2(triton.cdiv(capacity, block_n)),
+    )
+    # Scored shapes need at most 8.25 MiB. Bound nearby shapes as well rather
+    # than constructing unbounded per-context scratch or a dense score matrix.
+    if batch * hkv * splits * rows * (d + 2) * 4 > 32 * 1024 * 1024:
+        return None
+    partials = torch.empty(
+        (batch, 1, splits, rows, d), dtype=torch.float32, device=q.device
+    )
+    stats = torch.empty(
+        (batch, 1, splits, rows, 2), dtype=torch.float32, device=q.device
+    )
+    out = torch.empty((batch * length, hq, d), dtype=torch.bfloat16, device=q.device)
+    _paged_attention_partials[(batch, 1, splits)](
+        q,
+        k,
+        v,
+        table,
+        lengths,
+        cu_q,
+        data["k_scale"],
+        partials,
+        stats,
+        HQ=hq,
+        HKV=1,
+        GROUP=group,
+        ROWS=rows,
+        SPLITS=splits,
+        WINDOW=cfg["window"],
+        SM_SCALE=sm_scale,
+        TABLE_COLS=table.shape[1],
+        CACHE_PAGES=k.shape[0],
+        QT=q.stride(0),
+        QH=q.stride(1),
+        QD=q.stride(2),
+        KP=k.stride(0),
+        KH=k.stride(2),
+        KD=k.stride(3),
+        VP=v.stride(0),
+        VH=v.stride(2),
+        VD=v.stride(3),
+        TB=table.stride(0),
+        TP=table.stride(1),
+        LS=lengths.stride(0),
+        CS=cu_q.stride(0),
+        BM=max(16, triton.next_power_of_2(rows)),
+        BN=block_n,
+        num_warps=4,
+        num_stages=2,
+    )
+    _merge_attention_partials[(batch, 1, rows)](
+        partials,
+        stats,
+        cu_q,
+        data["v_scale"],
+        out,
+        HQ=hq,
+        HKV=1,
+        GROUP=group,
+        ROWS=rows,
+        SPLITS=splits,
+        CS=cu_q.stride(0),
+        num_warps=4,
+    )
+    return out
+
+
+@triton.jit
+def _gemv_whole_row(
+    X,
+    W,
+    OUT,
+    N: tl.constexpr,
+    K: tl.constexpr,
+    X_ROW: tl.constexpr,
+    X_K: tl.constexpr,
+    BLOCK_K: tl.constexpr,
+):
+    col = tl.program_id(0)
+    row = tl.program_id(1)
+    k = tl.arange(0, BLOCK_K)
+    x = tl.load(X + row * X_ROW + k * X_K, k < K, other=0).to(tl.float32)
+    w = tl.load(W + col * K + k, k < K, other=0).to(tl.float32)
+    result = tl.sum(x * w, axis=0)
+    tl.store(OUT + row * N + col, result)
+
+
+def _gemm(x, w):
+    if x.shape[0] == 1 and x.dtype == w.dtype == torch.bfloat16:
+        out = torch.empty((1, w.shape[0]), dtype=torch.bfloat16, device=x.device)
+        if x.shape[1] >= 4096 and w.is_contiguous():
+            _gemv_whole_row[(w.shape[0], 1)](
+                x, w, out, w.shape[0], x.shape[1], x.stride(0), x.stride(1),
+                BLOCK_K=triton.next_power_of_2(x.shape[1]),
+                num_warps=8 if x.shape[1] >= 8192 else 4,
+            )
+            return out
+        _dense_gemv[(triton.cdiv(w.shape[0], 4),)](
+            x,
+            w,
+            out,
+            w.shape[0],
+            x.shape[1],
+            x.stride(1),
+            w.stride(0),
+            w.stride(1),
+            BN=4,
+            BK=1024,
+            num_warps=4,
+        )
+        return out
+    return _bf16_gemm_dispatch_impl(x, w, None)
+
+
+def _param(w):
+    return nn.Parameter(w.contiguous(), requires_grad=False)
+
+
+def _norm(cls, w, size, eps, **kw):
+    """A Muse norm module holding w (applied as 1 + w), as the checkpoint loads it."""
+    norm = cls(size, eps=eps, has_weight=w is not None, zero_centered_gamma=True, **kw)
+    if w is not None:
+        norm.weight = _param(w)
+        norm.precompute_effective_weight()
+    return norm
+
+
+def _residual(w):
+    gate = MuseSpark1xNormPreservingResidualConnection(HIDDEN, temperature=0.3)
+    gate.gate = _param(w)
+    gate.precompute_coefficients()
+    return gate
+
+
+def _marlin_bank(weights):
+    """The local experts in Marlin's layout, via SGLang's own loader step."""
+    device = weights["w13"].device
+    layer = types.SimpleNamespace(
+        quant_config=types.SimpleNamespace(group_size=16),
+        moe_runner_config=types.SimpleNamespace(is_gated=True),
+        intermediate_size_per_partition=weights["w13"].shape[1] // 2,
+        params_dtype=torch.bfloat16,
+        w13_weight=weights["w13"].contiguous(),
+        w2_weight=weights["w2"].contiguous(),
+        w13_weight_scale=weights["w13_sf"].contiguous(),
+        w2_weight_scale=weights["w2_sf"].contiguous(),
+        w13_weight_scale_2=weights["w13_gs"].contiguous(),
+        w2_weight_scale_2=weights["w2_gs"].contiguous(),
+    )
+    prepare_moe_nvfp4_layer_for_marlin(layer)
+    expert_map = torch.full((N_EXPERTS,), -1, dtype=torch.int32, device=device)
+    expert_map[:LOCAL_EXPERTS] = torch.arange(
+        LOCAL_EXPERTS, dtype=torch.int32, device=device
+    )
+    return {
+        "w13": layer.w13_weight.data,
+        "w13_s": layer.w13_weight_scale.data,
+        "w13_gs": layer.w13_weight_scale_2.data,
+        "w2": layer.w2_weight.data,
+        "w2_s": layer.w2_weight_scale.data,
+        "w2_gs": layer.w2_weight_scale_2.data,
+        "expert_map": expert_map,
+        "size_n": layer.intermediate_size_per_partition,
+        "workspace": marlin_make_workspace(device, max_blocks_per_sm=4),
+    }
+
+
+def prepare(weights):
+    device = weights["qkv_gate"].device
+    router = weights["router"]
+    hi = router.to(torch.bfloat16)
+    lo = (router - hi.float()).to(torch.bfloat16)
+    # [2^21, 64] float32 cos | sin, as SGLang's RotaryEmbedding builds it.
+    inv_freq = 1.0 / (
+        ROPE_THETA ** (torch.arange(0, 64, 2, dtype=torch.float, device=device) / 64)
+    )
+    freqs = torch.einsum(
+        "i,j -> ij",
+        torch.arange(ROPE_POSITIONS, dtype=torch.float, device=device),
+        inv_freq,
+    )
+    pre_ffn = _norm(MuseSpark1xRMSNorm, weights["pre_ffn_norm"], HIDDEN, RMS_EPS)
+    next_pre_attn = _norm(
+        MuseSpark1xRMSNorm, weights["next_pre_attn_norm"], HIDDEN, RMS_EPS
+    )
+    post_attn = _norm(
+        MuseSpark1xRMSNorm,
+        None,
+        HIDDEN,
+        POST_NORM_EPS,
+        is_post_norm=True,
+        post_norm_gain_center_type="one",
+        residual_id=1,
+    )
+    post_ffn = _norm(
+        MuseSpark1xRMSNormWithInputScale,
+        weights["post_ffn_norm"],
+        HIDDEN,
+        POST_NORM_EPS,
+        is_post_norm=True,
+        post_norm_gain_center_type="one",
+        residual_id=2,
+    )
+    post_expert = _norm(
+        MuseSpark1xRMSNormWithInputScale,
+        weights["post_expert_norm"],
+        D_EXPERT,
+        POST_NORM_EPS,
+        is_post_norm=True,
+        post_norm_gain_center_type="one",
+        residual_id=2,
+    )
+    state = {
+        "dense": {
+            name: weights[name].contiguous()
+            for name in ("qkv_gate", "o", "pooler", "unpooler")
+        },
+        "router": router.contiguous(),
+        "router_hi_t": hi.t().contiguous(),
+        "router_lo_t": lo.t().contiguous(),
+        "routing": FusedMuseSparkRouting(
+            expert_bias=weights["router_bias"].float().contiguous(),
+            route_scale=1.0,
+            router_output_multiplier=0.1767766952966369,
+            router_score_division_eps=1e-15,
+        ),
+        "cos_sin": torch.cat((freqs.cos(), freqs.sin()), dim=-1),
+        "qk_norm": FusedQKNorm(
+            head_dim=64, num_q_heads=16, num_kv_heads=2, eps=RMS_EPS
+        ),
+        "o_norm_gate": FusedRMSNormGate(
+            MuseSpark1xRMSNorm(64, eps=RMS_EPS, has_weight=False), True, 64
+        ),
+        "attn_boundary": FusedPostNormResidualPreNorm(
+            post_attn, _residual(weights["attn_residual_gate"]), pre_ffn
+        ),
+        "ffn_boundary": FusedPostNormResidualPreNorm(
+            post_ffn, _residual(weights["ffn_residual_gate"]), next_pre_attn
+        ),
+        "pre_expert_norm": _norm(
+            MuseSpark1xRMSNorm, weights["pre_expert_norm"], D_EXPERT, RMS_EPS
+        ),
+        # MuseSpark1xFp4Experts binds the post-expert norm's effective (1 + w) weight.
+        "post_expert_w": post_expert._get_effective_weight()
+        .detach()
+        .to(torch.bfloat16),
+        "bank": _marlin_bank(weights),
+        "side_stream": torch.cuda.Stream(device),
+        "_modules": (pre_ffn, next_pre_attn, post_attn, post_ffn, post_expert),
+    }
+    state["pre_expert_w"] = (
+        state["pre_expert_norm"]._get_effective_weight().detach().to(torch.bfloat16)
+    )
+    del freqs
+    torch.cuda.synchronize()
+    return state
+
+
+@triton.jit
+def _norm_and_local_ids(
+    X,
+    W,
+    Y,
+    IDS,
+    START,
+    OUT,
+    XS: tl.constexpr,
+    STRIDE_M: tl.constexpr,
+    STRIDE_K: tl.constexpr,
+    D: tl.constexpr,
+    TOPK: tl.constexpr,
+    EPS: tl.constexpr,
+):
+    token = tl.program_id(0)
+    dims = tl.arange(0, D)
+    x = tl.load(X + token * XS + dims).to(tl.float32)
+    gamma = tl.load(W + dims).to(tl.float32)
+    rstd = tl.rsqrt(tl.sum(x * x, 0) / D + EPS)
+    y = gamma * (rstd * x)
+    tl.store(Y + token * D + dims, y)
+    slots = tl.arange(0, TOPK)
+    ids = tl.load(IDS + token * STRIDE_M + slots * STRIDE_K).to(tl.int32)
+    start = tl.load(START).to(tl.int32)
+    shifted = (ids - start) & 255
+    local = tl.where(shifted < 32, shifted, -1)
+    tl.store(OUT + token * TOPK + slots, local)
+
+
+def _experts(x, topk_weights, topk_ids, local_start, state):
+    """MuseSpark1xFp4Experts._marlin_expert_outputs and its post-expert-norm finalize."""
+    bank = state["bank"]
+    num_tokens, size_k = x.shape
+    size_n = bank["size_n"]
+    gemm1_n = 2 * size_n
+    local_ids = torch.empty(topk_ids.shape, device=topk_ids.device, dtype=torch.int32)
+    normed_x = torch.empty_like(x)
+    _norm_and_local_ids[(num_tokens,)](
+        x,
+        state["pre_expert_w"],
+        normed_x,
+        topk_ids,
+        local_start,
+        local_ids,
+        x.stride(0),
+        topk_ids.stride(0),
+        topk_ids.stride(1),
+        D=D_EXPERT,
+        TOPK=TOP_K,
+        EPS=RMS_EPS,
+        num_warps=4,
+    )
+    x = normed_x
+    topk_weights = topk_weights.to(torch.float32).contiguous()
+    # Preserve baseline tiling below the measured large-batch crossover.
+    routing_experts = (
+        N_EXPERTS
+        if bank["expert_map"] is not None and num_tokens >= 256
+        else LOCAL_EXPERTS
+    )
+    for block_size_m in BLOCK_SIZE_M_CANDIDATES:
+        if num_tokens * TOP_K / routing_experts / block_size_m < 0.9:
+            break
+    sorted_ids, block_experts, n_padded = moe_align_block_size(
+        local_ids, block_size_m, LOCAL_EXPERTS, ignore_invalid_expert=True
+    )
+    cache2 = torch.empty((num_tokens * TOP_K, size_n), device=x.device, dtype=x.dtype)
+    cache13 = torch.empty(
+        (num_tokens * TOP_K * max(gemm1_n, size_k),), device=x.device, dtype=x.dtype
+    )
+    cache1 = cache13[: num_tokens * TOP_K * gemm1_n].view(-1, gemm1_n)
+    cache3 = cache13[: num_tokens * TOP_K * size_k].view(-1, size_k)
+    common = dict(
+        moe_block_size=block_size_m,
+        mul_topk_weights=False,
+        is_ep=False,  # Alignment contains only valid local expert blocks.
+        b_q_type=scalar_types.float4_e2m1f,
+        is_k_full=True,
+        use_atomic_add=False,
+        use_fp32_reduce=True,
+        is_zp_float=False,
+    )
+    ws = bank["workspace"]
+    cache1 = moe_wna16_marlin_gemm(
+        x,
+        cache1,
+        bank["w13"],
+        None,
+        bank["w13_s"],
+        bank["w13_gs"],
+        None,
+        None,
+        None,
+        ws,
+        sorted_ids,
+        block_experts,
+        n_padded,
+        topk_weights,
+        top_k=TOP_K,
+        size_m=num_tokens,
+        size_n=gemm1_n,
+        size_k=size_k,
+        **common,
+    )
+    silu_and_mul(
+        cache1.view(-1, gemm1_n), cache2, expert_ids=local_ids.view(-1), expert_step=1
+    )
+    y = moe_wna16_marlin_gemm(
+        cache2,
+        cache3,
+        bank["w2"],
+        None,
+        bank["w2_s"],
+        bank["w2_gs"],
+        None,
+        None,
+        None,
+        ws,
+        sorted_ids,
+        block_experts,
+        n_padded,
+        topk_weights,
+        top_k=1,
+        size_m=num_tokens * TOP_K,
+        size_n=size_k,
+        size_k=size_n,
+        **common,
+    ).view(num_tokens, TOP_K, size_k)
+    if 0 < num_tokens < 32:
+        out = torch.empty((num_tokens, size_k), dtype=y.dtype, device=y.device)
+        _post_expert_norm_weighted_sum_kernel[(num_tokens,)](
+            y,
+            state["post_expert_w"],
+            topk_weights,
+            out,
+            local_ids,
+            TOPK=TOP_K,
+            H=size_k,
+            eps=POST_NORM_EPS,
+            APPLY_NORM=True,
+            HAS_WEIGHT=True,
+            WEIGHT_FIRST=True,
+            HAS_IDS=True,
+            BLOCK_H=triton.next_power_of_2(size_k),
+            num_warps=8 if size_k >= 4096 else 4,
+            num_stages=2,
+        )
+        return out
+    return fused_post_expert_norm_weighted_sum(
+        y,
+        topk_weights,
+        norm_weight=state["post_expert_w"],
+        eps=POST_NORM_EPS,
+        weight_first=True,
+        slot_expert_ids=local_ids,
+    )
+
+
+def kernel_fn(data, state):
+    cfg = data["config"]
+    batch, length, tokens = cfg["batch"], cfg["q_len"], cfg["tokens"]
+    hq, hkv, d = cfg["num_q_heads"], cfg["num_kv_heads"], cfg["head_dim"]
+    dense = state["dense"]
+    # Attention: MuseSpark1xAttention.forward.
+    qkv = _gemm(data["attn_input"], dense["qkv_gate"])
+    gate = qkv[:, hq * d + 2 * hkv * d :]
+    k_cache, v_cache = data["k_cache"], data["v_cache"]
+    scaled = cfg["kv_scale"] != 1.0
+    if not scaled:
+        # Reuse prepare()'s full-layer RoPE table and write the FP8 cache rows directly.
+        q = _fused_q_and_cache(data, qkv.contiguous(), state["cos_sin"])
+    else:
+        if cfg["rope_theta"]:
+            q, k = state["qk_norm"](qkv, data["positions"], state["cos_sin"])
+        else:
+            q, k = state["qk_norm"](qkv)
+        v = qkv[:, hq * d + hkv * d : hq * d + 2 * hkv * d]
+        k = k.reshape(tokens, hkv * d)
+        k, v = k / data["k_scale"], v / data["v_scale"]
+        # Keep SGLang's scaled-cache store path for non-unit cache scales.
+        store_cache(
+            k.to(FP8).view(torch.uint8),
+            v.to(FP8).view(torch.uint8),
+            k_cache.view(-1, hkv * d).view(torch.uint8),
+            v_cache.view(-1, hkv * d).view(torch.uint8),
+            data["cache_loc"],
+            reserved_skip_index=-1,
+        )
+    window = cfg["window"]
+    descale = {}
+    if scaled:
+        descale = dict(
+            k_descale=data["k_scale"].reshape(1, 1).expand(batch, hkv),
+            v_descale=data["v_scale"].reshape(1, 1).expand(batch, hkv),
+        )
+    out = _splitk_attention(data, q.view(tokens, hq, d).to(FP8))
+    if out is None:
+        out = flash_attn_with_kvcache(
+            q=q.view(tokens, hq, d).to(FP8),
+            k_cache=k_cache,
+            v_cache=v_cache,
+            page_table=data["page_table"],
+            cache_seqlens=data["cache_seqlens"],
+            cu_seqlens_q=data["cu_seqlens_q"],
+            max_seqlen_q=length,
+            softmax_scale=cfg["sm_scale"] * cfg["qk_scale_factor"],
+            causal=True,
+            window_size=(window - 1, 0) if window else (-1, -1),
+            scheduler_metadata=data["scheduler_metadata"],
+            **descale,
+        )
+    if isinstance(out, tuple):
+        out = out[0]
+    o = state["o_norm_gate"](out.reshape(tokens, hq * d).to(torch.bfloat16), gate)
+    attn_output = _gemm(o, dense["o"])  # all-reduce: identity
+
+    # Post-attention boundary, router and MoE block: MuseSpark1xMoE._forward_experts.
+    split_router = tokens > ROUTER_FP32_MAX_TOKENS
+    ffn_input, stream, router_input = state["attn_boundary"](
+        data["stream"],
+        attn_output,
+        branch_dtype=torch.bfloat16,
+        router_dtype=None if split_router else torch.float32,
+    )
+    # The router and routing run on a side stream, overlapping the pooler on the main one.
+    main_stream, side_stream = torch.cuda.current_stream(), state["side_stream"]
+    side_stream.wait_stream(main_stream)
+    expert_input = _gemm(ffn_input, dense["pooler"])
+    with torch.cuda.stream(side_stream):
+        if split_router:
+            logits = torch.mm(ffn_input, state["router_hi_t"], out_dtype=torch.float32)
+            logits += torch.mm(ffn_input, state["router_lo_t"], out_dtype=torch.float32)
+        else:
+            logits = torch.empty(
+                (tokens, N_EXPERTS), dtype=torch.float32, device=router_input.device
+            )
+            _gemv_whole_row[(N_EXPERTS, tokens)](
+                router_input, state["router"], logits, N_EXPERTS,
+                router_input.shape[1], router_input.stride(0), router_input.stride(1),
+                BLOCK_K=triton.next_power_of_2(router_input.shape[1]), num_warps=8,
+            )
+        topk_weights, topk_ids = state["routing"](None, logits, TOP_K, True)
+    main_stream.wait_stream(side_stream)
+    if not torch.cuda.is_current_stream_capturing():
+        for tensor in (topk_weights, topk_ids):
+            tensor.record_stream(main_stream)
+    # This GPU's experts start at local_start: as SGLang's expert_map on that EP rank.
+    # all-reduce: identity
+    expert_output = _experts(
+        expert_input,
+        topk_weights,
+        topk_ids,
+        data["local_start"],
+        state,
+    )
+    if tokens <= SLICED_UNPOOL_MAX_TOKENS:
+        unpooled = _gemm(expert_output, dense["unpooler"][:UNPOOL_SLICE])
+        ffn_output = F.pad(unpooled, (0, HIDDEN - UNPOOL_SLICE))  # all-gather: identity
+    else:
+        ffn_output = _gemm(expert_output, dense["unpooler"])
+
+    # Post-FFN boundary, with the next layer's pre-attention norm.
+    next_attn_input, stream, _ = state["ffn_boundary"](
+        stream, ffn_output, branch_dtype=torch.bfloat16
+    )
+    return next_attn_input, stream, topk_ids
