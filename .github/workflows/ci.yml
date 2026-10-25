@@ -57,6 +57,9 @@ jobs:
       - name: Test manual deploy CI lookup
         run: node --test scripts/release/manual-deploy.test.mjs
 
+      - name: Test built-link validation
+        run: node --test browser/scripts/check-built-links.test.mjs
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
