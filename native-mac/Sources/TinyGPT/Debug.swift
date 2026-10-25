@@ -153,6 +153,11 @@ enum DebugNames {
     }
 
     static func logits(args: [String]) {
+        if args.contains("--hf") {
+            do { try DebugHFLogits.run(args: args) }
+            catch { fputs("\(error.localizedDescription)\n", stderr); exit(2) }
+            return
+        }
         // After loading, run a forward pass on "ROMEO:" and print the
         // top-5 next-token candidates by logit. Lets us see if the
         // distribution is degenerate (all probability on one token) vs

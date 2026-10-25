@@ -522,6 +522,34 @@ WASM_EXPORT int tg_generate(TgModel handle, const unsigned char* prompt,
 }
 
 // --- checkpointing: serialise step + every param's w / m / v -------------
+WASM_EXPORT int tg_forward_logits(TgModel handle, const int* tokens, int count,
+                                 float* out, int out_count) {
+  Model* m = static_cast<Model*>(handle);
+  if (!m || !tokens || !out || count < 1 || count > m->ctx || out_count != m->V)
+    return 0;
+  for (int i = 0; i < count; ++i)
+    if (tokens[i] < 0 || tokens[i] >= m->V) return 0;
+  forward(*m, tokens, 1, count);
+  std::copy_n(m->acts.logits.data() + (count - 1) * m->V, m->V, out);
+  return m->V;
+}
+
+WASM_EXPORT int tg_import_weights(TgModel handle, const float* weights, int count) {
+  Model* m = static_cast<Model*>(handle);
+  if (!m || !weights || count != tg_model_num_params(handle)) return 0;
+  for (int i = 0; i < count; ++i)
+    if (!std::isfinite(weights[i])) return 0;
+  int offset = 0;
+  for (Param* p : m->params) {
+    std::copy_n(weights + offset, p->size(), p->w.begin());
+    std::fill(p->m.begin(), p->m.end(), 0.0f);
+    std::fill(p->v.begin(), p->v.end(), 0.0f);
+    offset += p->size();
+  }
+  m->step = 0;
+  return count;
+}
+
 WASM_EXPORT int tg_state_bytes(TgModel handle) {
   Model* m = static_cast<Model*>(handle);
   long floats = 0;

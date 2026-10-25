@@ -531,36 +531,48 @@ def argument_parser():
     child = sub.add_parser("prepare")
     child.add_argument("--data", required=True)
     child.add_argument("--out", required=True)
+    child = sub.add_parser("export-native")
+    child.add_argument("--base", required=True)
+    child.add_argument("--adapter", required=True)
+    child.add_argument("--out", required=True)
     return parser
+
+
+def run_model(args):
+    budget = Budget(args.seconds)
+    rows = read_rows(args.data)
+    if args.command == "train":
+        trainer = train_mlx if args.backend == "mlx" else train
+        trainer(
+            args.model,
+            rows,
+            args.out,
+            args.steps,
+            budget,
+            args.revision,
+            not args.download,
+        )
+    else:
+        model = DecisionModel(
+            args.model,
+            args.backend,
+            args.revision,
+            not args.download,
+            budget,
+            args.adapter,
+        )
+        write_rows(args.out, [model.score(row) for row in rows])
+        print(json.dumps(budget.measurements()))
 
 
 def main():
     args = argument_parser().parse_args()
-    if args.command in ("score", "train"):
-        budget = Budget(args.seconds)
-        rows = read_rows(args.data)
-        if args.command == "train":
-            trainer = train_mlx if args.backend == "mlx" else train
-            trainer(
-                args.model,
-                rows,
-                args.out,
-                args.steps,
-                budget,
-                args.revision,
-                not args.download,
-            )
-        else:
-            model = DecisionModel(
-                args.model,
-                args.backend,
-                args.revision,
-                not args.download,
-                budget,
-                args.adapter,
-            )
-            write_rows(args.out, [model.score(row) for row in rows])
-            print(json.dumps(budget.measurements()))
+    if args.command == "export-native":
+        from decision_native import export
+
+        print(json.dumps(export(args.base, args.adapter, args.out)))
+    elif args.command in ("score", "train"):
+        run_model(args)
     elif args.command == "calibrate":
         excluded = [r for path in args.exclude for r in read_rows(path)]
         write_json(args.out, calibrate(read_rows(args.scores), excluded))

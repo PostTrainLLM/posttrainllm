@@ -1,5 +1,6 @@
 /** Local specialist modes inside /playground. No network calls before Connect. */
 import { setupWorkflow } from "./workflow";
+import { setupBrowserTerminal } from "./browser-terminal";
 
 type Mode = "decision" | "forecast" | "terminal";
 type Json = Record<string, unknown>;
@@ -180,6 +181,16 @@ function object(value: unknown): Json {
   return value as Json;
 }
 
+function formatMeasurements(measurements: Json): string {
+  const parts = [`${Number(measurements.elapsed_seconds).toFixed(2)} s`];
+  if (typeof measurements.process_peak_rss_bytes === "number")
+    parts.push(
+      `${(measurements.process_peak_rss_bytes / 2 ** 20).toFixed(0)} MiB process peak`,
+    );
+  parts.push("$0 paid API");
+  return parts.join(" · ");
+}
+
 export function setupSpecialistLabs(): void {
   const root = document.querySelector<HTMLElement>("#specialists");
   if (!root) return;
@@ -203,7 +214,20 @@ export function setupSpecialistLabs(): void {
     artifact: string | null = null,
     session: string | undefined;
   let keyQueue = Promise.resolve();
+  let executionGeneration = 0;
   let workflow: ReturnType<typeof setupWorkflow> | undefined;
+  const portable = setupBrowserTerminal(
+    root,
+    () => resetExecution(),
+    (text) => status.replaceChildren(text),
+  );
+  const inBrowser = () => mode === "terminal" && portable.selected();
+
+  function resetExecution(): void {
+    session = undefined;
+    executionGeneration++;
+    setBusy(busy);
+  }
 
   async function request(path: string, data?: Json): Promise<Json> {
     if (location.hostname !== "127.0.0.1")
@@ -237,8 +261,16 @@ export function setupSpecialistLabs(): void {
   function setBusy(value: boolean): void {
     busy = value;
     form.setAttribute("aria-busy", String(value));
-    run.disabled = value || !connected;
-    run.textContent = value ? "Running locally…" : "Run locally →";
+    run.disabled =
+      value ||
+      (inBrowser()
+        ? !portable.ready() || action.value !== "predict"
+        : !connected);
+    run.textContent = value
+      ? "Running locally…"
+      : inBrowser()
+        ? "Predict in this tab →"
+        : "Run locally →";
     for (const tab of tabs) tab.disabled = value;
     action.disabled = value;
   }
@@ -257,9 +289,11 @@ export function setupSpecialistLabs(): void {
 
   function selectMode(next: Mode): void {
     if (busy) return;
+    resetExecution();
     if (action.value)
       saved.set(mode, { action: action.value, text: input.value });
     mode = next;
+    get("terminal-browser").hidden = mode !== "terminal";
     const config = modes[mode];
     get("mode-title").textContent = config.title;
     get("mode-description").textContent = config.description;
@@ -286,6 +320,7 @@ export function setupSpecialistLabs(): void {
       ? "Ready. Edit the example and run locally."
       : "Connect your local runtime to run this example.";
     workflow?.modeChanged();
+    setBusy(false);
   }
 
   function display(body: Json): void {
@@ -300,7 +335,7 @@ export function setupSpecialistLabs(): void {
     get("use-artifact").hidden = !artifact || action.value === "prepare";
     const measurements = body.measurements ? object(body.measurements) : null;
     get("measurements").textContent = measurements
-      ? `${Number(measurements.elapsed_seconds).toFixed(2)} s · ${(Number(measurements.process_peak_rss_bytes) / 2 ** 20).toFixed(0)} MiB process peak · $0 paid API`
+      ? formatMeasurements(measurements)
       : "";
     if (Array.isArray(result.predictions) && result.predictions.length) {
       const prediction = object(result.predictions[0]);
@@ -362,24 +397,33 @@ export function setupSpecialistLabs(): void {
     status.scrollIntoView({ block: "nearest" });
   }
 
+  async function perform(payload: Json): Promise<Json | undefined> {
+    if (inBrowser()) {
+      if (action.value !== "predict")
+        throw new Error(
+          "Browser terminal supports prediction. Select Python for training and qualification.",
+        );
+      return portable.execute(payload);
+    }
+    if (["train", "compare", "ceiling"].includes(action.value)) {
+      await workflow?.execute(payload);
+      return;
+    }
+    return request(`${mode}/${action.value}`, payload);
+  }
+
   async function execute(payload?: Json): Promise<void> {
-    if (!connected || busy) return;
+    if ((!connected && !inBrowser()) || busy) return;
+    const generation = executionGeneration;
     setBusy(true);
-    status.textContent = "Running on your Mac…";
+    status.textContent = "Running locally…";
     try {
-      if (["train", "compare", "ceiling"].includes(action.value)) {
-        await workflow?.execute(payload ?? object(JSON.parse(input.value)));
-        return;
-      }
-      display(
-        await request(
-          `${mode}/${action.value}`,
-          payload ?? object(JSON.parse(input.value)),
-        ),
-      );
+      const result = await perform(payload ?? object(JSON.parse(input.value)));
+      if (result && generation === executionGeneration) display(result);
     } catch (error) {
-      status.textContent =
-        error instanceof Error ? error.message : "Operation failed.";
+      if (generation === executionGeneration)
+        status.textContent =
+          error instanceof Error ? error.message : "Operation failed.";
     } finally {
       setBusy(false);
     }
@@ -427,13 +471,14 @@ export function setupSpecialistLabs(): void {
   action.addEventListener("change", () => {
     input.value = JSON.stringify(sampleInput(mode, action.value), null, 2);
     resetOutput();
-    session = undefined;
+    resetExecution();
     workflow?.inputForAction();
+    setBusy(false);
   });
   get("example").addEventListener("click", () => {
     workflow?.reset();
     input.value = JSON.stringify(sampleInput(mode, action.value), null, 2);
-    session = undefined;
+    resetExecution();
   });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -457,7 +502,7 @@ export function setupSpecialistLabs(): void {
           }
         : JSON.parse(raw);
       input.value = JSON.stringify(object(data), null, 2);
-      session = undefined;
+      resetExecution();
     } catch {
       status.textContent =
         "This file is not valid input JSON. Check the example's structure.";
@@ -482,7 +527,7 @@ export function setupSpecialistLabs(): void {
     try {
       const active = await request("artifact/use", { artifact });
       status.textContent = `${String(active.mode)} artifact loaded. Choose prediction to try it; quality remains unqualified.`;
-      session = undefined;
+      resetExecution();
       await workflow?.refresh();
     } catch (error) {
       status.textContent = String(error);
@@ -492,9 +537,15 @@ export function setupSpecialistLabs(): void {
   });
 
   function enqueue(event: Json): void {
+    const generation = executionGeneration;
     keyQueue = keyQueue
       .then(async () => {
-        if (mode !== "terminal" || action.value !== "predict") return;
+        if (
+          generation !== executionGeneration ||
+          mode !== "terminal" ||
+          action.value !== "predict"
+        )
+          return;
         const payload = object(JSON.parse(input.value));
         if (session) payload.session = session;
         payload.event = event;
@@ -544,12 +595,12 @@ export function setupSpecialistLabs(): void {
     }),
   );
   get("reset-session").addEventListener("click", () => {
-    session = undefined;
+    resetExecution();
     status.textContent =
       "Session reset. The next key starts from your input screen.";
   });
   input.addEventListener("change", () => {
-    session = undefined;
+    resetExecution();
   });
   workflow = setupWorkflow(root, {
     request,

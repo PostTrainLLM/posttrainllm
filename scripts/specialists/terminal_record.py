@@ -15,12 +15,28 @@ import subprocess
 import time
 import tty
 import uuid
+import re
 
 from terminal_codec import Screen, event_tokens
 
 
+def image_identity(image):
+    inspected = subprocess.run(
+        ["docker", "image", "inspect", "--format", "{{.Id}}", image],
+        capture_output=True,
+        text=True,
+        check=True,
+        timeout=10,
+    ).stdout.strip()
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", inspected):
+        raise ValueError("local Docker image has no immutable identity")
+    return inspected
+
+
 def record(recipe, image, budget):
     import pyte
+
+    image = image_identity(image)
 
     rows, cols = recipe.get("rows", 8), recipe.get("cols", 48)
     Screen.custom("", rows, cols)  # Validate before launching a process.
@@ -147,6 +163,21 @@ def capture(recipe, budget, drain, snapshot, master, image):
         frames.append(frame)
     return {
         "id": recipe["id"],
+        "world_id": recipe.get("world_id", recipe["id"]),
+        "family": recipe.get("family", "shell"),
+        "seed": recipe.get("seed"),
+        "world_conditions": {
+            "image_id": image,
+            "cwd": "/tmp",
+            "initial_files": {},
+            "programs": {"shell": "/bin/sh from the pinned image"},
+            "environment": {
+                "TERM": "xterm",
+                "PS1": "lab$ ",
+                "rows": rows,
+                "cols": cols,
+            },
+        },
         "initial_screen": initial,
         "frames": frames,
         "source": {
@@ -197,6 +228,8 @@ def synthetic_recipe(seed=7, rows=8, cols=48, memory=False):
             )
     return {
         "id": f"terminal-{seed}",
+        "seed": seed,
+        "family": "memory" if memory else "shell",
         "rows": rows,
         "cols": cols,
         "events": events,

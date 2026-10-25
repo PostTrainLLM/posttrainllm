@@ -51,9 +51,9 @@ public final class TransformerBlockHF: Module {
         // The HF naming convention is `input_layernorm` for ln1 and
         // `post_attention_layernorm` for ln2. We use those keys so
         // safetensors weight names match without re-mapping.
-        self._ln1.wrappedValue = RMSNorm(dimensions: cfg.dModel, eps: 1e-5)
+        self._ln1.wrappedValue = RMSNorm(dimensions: cfg.dModel, eps: cfg.normEps)
         self._attn.wrappedValue = CausalSelfAttention(cfg)
-        self._ln2.wrappedValue = RMSNorm(dimensions: cfg.dModel, eps: 1e-5)
+        self._ln2.wrappedValue = RMSNorm(dimensions: cfg.dModel, eps: cfg.normEps)
         let swiglu = SwiGLU(dModel: cfg.dModel, dMlp: cfg.dMlp, bias: false)
         swiglu.qatBits = cfg.qatBits
         self._mlp.wrappedValue = swiglu

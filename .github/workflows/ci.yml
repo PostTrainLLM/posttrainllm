@@ -324,7 +324,7 @@ jobs:
       - name: Verify specialist references without model downloads
         run: |
           pip install pytest safetensors pyte 'transformers>=4.51,<5' 'timestral @ git+https://github.com/mistralai/timestral.git@a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff'
-          python -m pytest tests/test_specialist_labs.py tests/test_specialist_workflow.py -q
+          python -m pytest tests/test_specialist_labs.py tests/test_specialist_workflow.py tests/test_specialist_terminal_portability.py tests/test_specialist_native_export.py -q
 
       - name: Upload coverage
         uses: actions/upload-artifact@v7.0.1

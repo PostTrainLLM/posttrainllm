@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 
 from common import Budget, read_json, read_rows, write_json, write_rows
 from terminal_codec import Screen
@@ -67,11 +68,22 @@ def argument_parser():
     child.add_argument("--parallel", action="store_true")
     child.add_argument("--seconds", type=float, default=60)
     child.add_argument("--out", required=True)
+    child = sub.add_parser("export")
+    child.add_argument("--model", required=True, type=Path)
+    child.add_argument("--dtype", choices=("f32", "f16"), default="f32")
+    child.add_argument("--out", required=True)
     return parser
 
 
 def main():
     args = argument_parser().parse_args()
+    if args.command == "export":
+        from terminal_export import export
+
+        budget = Budget()
+        budget.torch()
+        print(json.dumps(export(args.model, args.out, args.dtype)))
+        return
     if args.command == "recipe":
         from terminal_record import synthetic_recipe
 

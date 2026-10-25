@@ -172,71 +172,122 @@ public enum LoraAdapterHFWriter {
 }
 
 public enum LoraAdapterHFReader {
-    /// Load a .lora adapter onto an HF model. The adapter file's
-    /// header.targetSuffixes determines what gets wrapped. Architecture
-    /// is validated against the model's config (rejects mismatched bases).
-    public static func apply(_ adapter: LoraAdapter, to model: TinyGPTModelHF) throws {
-        let h = adapter.header
-        let cfg = model.config
-        guard h.baseLayers == cfg.nLayers,
-              h.baseDModel == cfg.dModel,
-              h.baseCtx == cfg.contextLength,
-              h.baseHeads == cfg.nHeads,
-              h.baseDMlp == cfg.dMlp else {
-            throw NSError(domain: "TinyGPTLoRA", code: 4,
-                          userInfo: [NSLocalizedDescriptionKey:
-                            "adapter base config doesn't match loaded HF model"])
-        }
-        // Detect DoRA vs plain LoRA from saved entries. Mixed not supported.
-        let hasMagnitudes = adapter.matrices.allSatisfy { $0.m != nil }
-        let hasPureLora = adapter.matrices.allSatisfy { $0.m == nil }
-        guard hasMagnitudes || hasPureLora else {
-            throw NSError(domain: "TinyGPTLoRA", code: 5,
-                          userInfo: [NSLocalizedDescriptionKey:
-                            "mixed DoRA/LoRA entries in one adapter — not supported"])
-        }
-        let loraCfg = LoraConfig(rank: h.rank, alpha: h.alpha,
-                                  targetSuffixes: h.targetSuffixes,
-                                  useDora: hasMagnitudes)
-        LoraInjectionHF.inject(model, config: loraCfg)
+    private typealias Matrices = (loraA: [Float], loraB: [Float], m: [Float]?)
+    private struct Plan {
+        let entry: LoraAdapter.Entry
+        let values: Matrices
+        let base: Linear
+    }
 
-        // Overwrite the freshly-injected LoraLinear/DoraLinear params with
-        // the saved values. Build a NestedDictionary update.
-        var layersList: [NestedItem<String, MLXArray>] = []
-        var idx = 0
-        for _ in model.blocks {
-            var attn: [String: NestedItem<String, MLXArray>] = [:]
-            var mlp:  [String: NestedItem<String, MLXArray>] = [:]
-            let projs: [(name: String, isAttn: Bool, target: Bool)] = [
-                ("q_proj",    true,  h.targetSuffixes.contains("q_proj")),
-                ("k_proj",    true,  h.targetSuffixes.contains("k_proj")),
-                ("v_proj",    true,  h.targetSuffixes.contains("v_proj")),
-                ("o_proj",    true,  h.targetSuffixes.contains("o_proj")),
-                ("gate_proj", false, h.targetSuffixes.contains("gate_proj")),
-                ("up_proj",   false, h.targetSuffixes.contains("up_proj")),
-                ("down_proj", false, h.targetSuffixes.contains("down_proj")),
-            ]
-            for p in projs where p.target {
-                let entry = adapter.matrices[idx]
-                let hEntry = h.entries[idx]
-                var dict: [String: NestedItem<String, MLXArray>] = [
-                    "loraA": .value(MLXArray(entry.loraA, hEntry.loraAShape)),
-                    "loraB": .value(MLXArray(entry.loraB, hEntry.loraBShape)),
-                ]
-                if let m = entry.m, let mShape = hEntry.loraMShape {
-                    dict["m"] = .value(MLXArray(m, mShape))
-                }
-                let child: NestedItem<String, MLXArray> = .dictionary(dict)
-                if p.isAttn { attn[p.name] = child } else { mlp[p.name] = child }
-                idx += 1
-            }
-            var entries: [String: NestedItem<String, MLXArray>] = [:]
-            if !attn.isEmpty { entries["self_attn"] = .dictionary(attn) }
-            if !mlp.isEmpty { entries["mlp"] = .dictionary(mlp) }
-            layersList.append(.dictionary(entries))
+    private static func invalid(_ message: String) -> NSError {
+        NSError(domain: "TinyGPTLoRA", code: 4,
+                userInfo: [NSLocalizedDescriptionKey: message])
+    }
+
+    private static func projection(_ entry: LoraAdapter.Entry,
+                                   header: LoraAdapter.Header,
+                                   model: TinyGPTModelHF) throws -> Linear {
+        let parts = entry.name.split(separator: ".").map(String.init)
+        guard parts.count == 4, parts[0] == "layers",
+              parts.joined(separator: ".") == entry.name,
+              let layer = Int(parts[1]), String(layer) == parts[1],
+              model.blocks.indices.contains(layer),
+              header.targetSuffixes.contains(parts[3]) else {
+            throw invalid("invalid adapter projection: \(entry.name)")
         }
-        var root = NestedDictionary<String, MLXArray>()
-        root["layers"] = .array(layersList)
-        try model.update(parameters: root, verify: [])
+        let block = model.blocks[layer]
+        let projections: [String: Linear] = [
+            "self_attn.q_proj": block.attn.qProj, "self_attn.k_proj": block.attn.kProj,
+            "self_attn.v_proj": block.attn.vProj, "self_attn.o_proj": block.attn.oProj,
+            "mlp.gate_proj": block.mlp.fcGate, "mlp.up_proj": block.mlp.fcUp,
+            "mlp.down_proj": block.mlp.fcDown,
+        ]
+        guard let base = projections[parts[2] + "." + parts[3]],
+              !(base is LoraLinear), !(base is DoraLinear),
+              !(base is StackedLoraLinear) else {
+            throw invalid("unknown or already adapted projection: \(entry.name)")
+        }
+        return base
+    }
+
+    private static func validate(_ plan: Plan, rank: Int) throws {
+        let (outFeatures, inFeatures) = plan.base.shape
+        let e = plan.entry, v = plan.values
+        guard e.loraAShape == [inFeatures, rank],
+              e.loraBShape == [rank, outFeatures],
+              v.loraA.count == inFeatures * rank,
+              v.loraB.count == rank * outFeatures,
+              v.loraA.allSatisfy({ $0.isFinite }),
+              v.loraB.allSatisfy({ $0.isFinite }) else {
+            throw invalid("adapter shape or values mismatch: \(e.name)")
+        }
+        if let magnitude = v.m {
+            guard e.loraMShape == [outFeatures], magnitude.count == outFeatures,
+                  magnitude.allSatisfy({ $0.isFinite }) else {
+                throw invalid("invalid adapter magnitude: \(e.name)")
+            }
+        } else if e.loraMShape != nil {
+            throw invalid("adapter magnitude is missing: \(e.name)")
+        }
+    }
+
+    private static func replacement(_ plan: Plan, header: LoraAdapter.Header) throws -> Module {
+        let a = MLXArray(plan.values.loraA, plan.entry.loraAShape)
+        let b = MLXArray(plan.values.loraB, plan.entry.loraBShape)
+        if let magnitude = plan.values.m {
+            let layer = DoraLinear(wrapping: plan.base, rank: header.rank, alpha: header.alpha)
+            let updates: [String: MLXArray] = ["loraA": a, "loraB": b, "m": MLXArray(magnitude)]
+            try layer.update(parameters: ModuleParameters.unflattened(updates), verify: [])
+            return layer
+        }
+        return LoraLinear(wrapping: plan.base, loraA: a, loraB: b,
+                          rank: header.rank, alpha: header.alpha)
+    }
+
+    /// Load named projections, including subset-layer adapters. Validate every
+    /// entry before replacing anything, so a malformed import is atomic.
+    public static func apply(_ adapter: LoraAdapter, to model: TinyGPTModelHF) throws {
+        let h = adapter.header, cfg = model.config
+        guard h.baseLayers == cfg.nLayers, h.baseDModel == cfg.dModel,
+              h.baseCtx == cfg.contextLength, h.baseHeads == cfg.nHeads,
+              h.baseDMlp == cfg.dMlp else {
+            throw invalid("adapter base config doesn't match loaded HF model")
+        }
+        guard h.rank > 0, h.rank <= 4096, h.alpha.isFinite,
+              !h.entries.isEmpty, h.entries.count == adapter.matrices.count,
+              Set(h.entries.map(\.name)).count == h.entries.count else {
+            throw invalid("invalid or duplicate adapter entries")
+        }
+        let magnitudes = adapter.matrices.map { $0.m != nil }
+        guard magnitudes.allSatisfy({ $0 }) || magnitudes.allSatisfy({ !$0 }) else {
+            throw invalid("mixed DoRA/LoRA entries are not supported")
+        }
+        let plans = try zip(h.entries, adapter.matrices).map { entry, values in
+            let plan = Plan(entry: entry, values: values,
+                            base: try projection(entry, header: h, model: model))
+            try validate(plan, rank: h.rank)
+            return plan
+        }
+        let swaps = try plans.map { plan in
+            (plan.entry.name, try replacement(plan, header: h))
+        }
+        // MLX's sparse unflattened arrays contain .none, which cannot update
+        // a module array. Untargeted layers must be explicit empty dictionaries.
+        var layers: [NestedItem<String, Module>] = []
+        for i in model.blocks.indices {
+            var children: [String: NestedItem<String, Module>] = [:]
+            for group in ["self_attn", "mlp"] {
+                let prefix = "layers.\(i).\(group)."
+                let values = swaps.filter { $0.0.hasPrefix(prefix) }
+                if !values.isEmpty {
+                    children[group] = .dictionary(Dictionary(uniqueKeysWithValues:
+                        values.map { (String($0.0.dropFirst(prefix.count)), .value($0.1)) }))
+                }
+            }
+            layers.append(.dictionary(children))
+        }
+        var modules = ModuleChildren()
+        modules["layers"] = .array(layers)
+        model.update(modules: modules)
     }
 }

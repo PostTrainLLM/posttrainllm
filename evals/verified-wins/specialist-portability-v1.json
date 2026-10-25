@@ -1,0 +1,151 @@
+{
+  "schema": "posttrainllm-specialist-portability-v1",
+  "issue": 210,
+  "date": "2026-10-25",
+  "decision": "accept bounded inference portability; no model-quality promotion",
+  "sources": {
+    "scripts/specialists/terminal_export.py": "65ab6b85c64b31f3e429166267d3f9fa95cdf1d5ac66eb12f48aec059132a3ba",
+    "scripts/specialists/terminal_data.py": "67f16e3f3667a969bd2539f4b12c82513111e9d66628a64c0b3b859e13cc9ccc",
+    "scripts/specialists/decision_native.py": "555fdd9d2d99e215040b1d164cc39b888cc4a3e387b6badf62754fb4900d016d",
+    "browser/src/specialists/terminal-worker.ts": "a9b6f7d058550beb4c3ebdef51056aa709b14e5de15793f9bf3a503ddd00aad3",
+    "browser/src/specialists/browser-terminal.ts": "50634eabec14671e567c4dc4e34163718904dc25b1b034a1c97f7b8bf9165ff8",
+    "browser/src/specialists/labs.ts": "a1649f3537d0f512c5ca353f4226385a0cd085d6316ccb6313eaafa7f5e4c1c9",
+    "wasm/src/model.cpp": "6f06f8806a161bf3b7182c38a7517c323b05e8346916602e9624971cf130c99c",
+    "native-mac/Sources/TinyGPTModel/LoraHF.swift": "c84811d0ddfb5e1563d0e56470ad399ee78389443a769cd2daeb4c7e5a6014af",
+    "native-mac/Sources/TinyGPTModel/Lora.swift": "da3c27fc48218ea1e2b947e03b2d3050292ff98a53add5794d03b1dafae6204b",
+    "native-mac/Sources/TinyGPT/DebugHFLogits.swift": "2dde13807b988cca76bb8525b32933a496c5870df8b21f558c9237a9131556c7"
+  },
+  "terminal": {
+    "source": {
+      "weights_sha256": "4b499fdc77d7b8c3e23911a2ee7802062cf66c572ae3f3b56bbd296ca1c199bb",
+      "config_sha256": "a41f5a01fc5ef418c503983dab3a5d1659071f6f47197845e07134b4986ab744"
+    },
+    "training_episode_provenance": null,
+    "probes_per_runtime": 3,
+    "runtime_checks": [
+      {
+        "provider": "wasm",
+        "dtype": "f32",
+        "parity_status": "WASM ready \u00b7 f32 \u00b7 maximum logit error 9.54e-6. Choose Predict. Model quality remains unqualified.",
+        "same_predicted_screen": true
+      },
+      {
+        "provider": "wasm",
+        "dtype": "f16",
+        "parity_status": "WASM ready \u00b7 f16 \u00b7 maximum logit error 8.31e-3. Choose Predict. Model quality remains unqualified.",
+        "same_predicted_screen": true
+      },
+      {
+        "provider": "webgpu",
+        "dtype": "f32",
+        "parity_status": "WEBGPU ready \u00b7 f32 \u00b7 maximum logit error 7.63e-6. Choose Predict. Model quality remains unqualified.",
+        "same_predicted_screen": true
+      },
+      {
+        "provider": "webgpu",
+        "dtype": "f16",
+        "parity_status": "WEBGPU ready \u00b7 f16 \u00b7 maximum logit error 8.31e-3. Choose Predict. Model quality remains unqualified.",
+        "same_predicted_screen": true
+      }
+    ],
+    "webgpu_adapter": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "device": "",
+      "description": ""
+    },
+    "abi_checks": [
+      {
+        "memory64": false,
+        "maximum_logit_error": 9.5367431640625e-6,
+        "invalid_weights_rejected": true,
+        "byte_training_loss": 5.528998851776123,
+        "byte_training_step": 1
+      },
+      {
+        "memory64": true,
+        "maximum_logit_error": 9.5367431640625e-6,
+        "invalid_weights_rejected": true,
+        "byte_training_loss": 5.528998851776123,
+        "byte_training_step": 1
+      }
+    ],
+    "stale_response_discarded": true,
+    "reset_starts_fresh": true,
+    "viewports": [
+      {
+        "width": 390,
+        "overflow": {
+          "page": false,
+          "lab": false
+        }
+      },
+      {
+        "width": 768,
+        "overflow": {
+          "page": false,
+          "lab": false
+        }
+      },
+      {
+        "width": 1440,
+        "overflow": {
+          "page": false,
+          "lab": false
+        }
+      }
+    ],
+    "page_errors": 0,
+    "external_requests": 0,
+    "quality": "unqualified tiny typing model; unknown legacy training provenance prevents held-out qualification",
+    "browser_training": false,
+    "browser_parallel_drafting": false,
+    "compression": "f16 storage only; runtime weights expand to f32",
+    "memory": "tensor allocation admission estimate, not a measured total-process RAM ceiling"
+  },
+  "native_decision": {
+    "source_base_identity": "94d380f8834a59ba3cd709c8b09938882ae09c9f5047f252bf32cdc1dcb51ff0",
+    "adapter_entries": 8,
+    "probe_tokens": 44,
+    "source_bf16_max_absolute_error": 0.6425762176513672,
+    "python_fp32_max_absolute_error": 0.06772613525390625,
+    "same_selected_option": true,
+    "numerical_parity": false,
+    "calibration_portable": false,
+    "identity_rejections": [
+      {
+        "case": "added-shard",
+        "exit_code": 2,
+        "error": "native base file set changed",
+        "before_model_loading": true
+      },
+      {
+        "case": "changed-base",
+        "exit_code": 2,
+        "error": "native base identity mismatch: config.json",
+        "before_model_loading": true
+      }
+    ]
+  },
+  "checks": {
+    "python_tests": 52,
+    "browser_tests": 127,
+    "native_tests": 9,
+    "browser_bundle_gzip_kb": 376.44,
+    "bundle_limit_kb": 500,
+    "quality_complexity_violations": 301,
+    "new_production_dependencies": 0
+  },
+  "remaining": [
+    "useful terminal shell/memory/vim/tmux/game qualification",
+    "browser-only Qwen and Timestral execution",
+    "broader frozen primary/regression gates and native confidence recalibration"
+  ],
+  "raw_evidence": {
+    "runs/measurement-209-2026-10-25/browser-terminal-check.json": "768ee6fb5da34456e1a8188e0e54507f0b679b4741ebf24b236fe88bd4db2656",
+    "runs/measurement-209-2026-10-25/wasm-abi-check.json": "09d27715a7294e6bc222179fde9e4177b646b8793181e9a8de3fa9591eff417e",
+    "runs/measurement-209-2026-10-25/native-decision-parity.json": "2e99b0c3f0a9cb58aa4a4993f55ea8c3014a07afb4331ededeba5cbeca956833",
+    "runs/measurement-209-2026-10-25/native-identity-rejections.json": "4478d3816b31bd3c6f5af74724020dc5ac7884cd8e35b91e639ca0ed4b5ea622",
+    "runs/measurement-209-2026-10-25/native-parity-tests-v5.log": "d37dca6b91ed0d54edb67c262adcd0623b408c37783d9d7af8a4ff403a707dfe"
+  }
+}

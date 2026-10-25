@@ -158,7 +158,7 @@ def main() -> None:
             write_jsonl(in_path, buckets[route])
             lora = args.public_lora if route == "public" else args.synthetic_lora
             run_generate(
-                args.tinygpt,
+                args.posttrainllm,
                 str(args.base),
                 lora,
                 in_path,

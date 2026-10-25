@@ -76,6 +76,9 @@ public struct HuggingFaceConfig {
         let normEps = (d["rms_norm_eps"] as? Double).map(Float.init)
             ?? (d["layer_norm_eps"] as? Double).map(Float.init)
             ?? 1e-5
+        guard normEps.isFinite && normEps > 0 else {
+            throw HFConfigError.invalidValue(field: "rms_norm_eps")
+        }
         let ropeBase = (d["rope_theta"] as? Double).map(Float.init) ?? 10_000.0
         let act = (d["hidden_act"] as? String) ?? "silu"
         let tied = (d["tie_word_embeddings"] as? Bool) ?? false
