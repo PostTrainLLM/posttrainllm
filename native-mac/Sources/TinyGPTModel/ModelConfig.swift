@@ -37,6 +37,9 @@ public struct ModelConfig: Sendable, Equatable {
     /// Use RMSNorm instead of LayerNorm. HF models almost universally
     /// use RMSNorm.
     public var useRMSNorm: Bool
+    /// Source HF normalization epsilon. From-scratch presets keep 1e-5.
+    public var normEps: Float = 1e-5
+    public var qkNormEps: Float = 1e-6
     /// Use SwiGLU MLP instead of plain GELU. HF models almost
     /// universally use SwiGLU.
     public var useSwiGLU: Bool

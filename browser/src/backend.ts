@@ -23,15 +23,52 @@ type Ptr = number | bigint;
 interface RawExports {
   _malloc(bytes: number | bigint): number;
   _free(ptr: Ptr): void;
-  _tg_model_create(vocab: number, ctx: number, layers: number, heads: number, dModel: number, dMlp: number, seed: number): Ptr;
+  _tg_model_create(
+    vocab: number,
+    ctx: number,
+    layers: number,
+    heads: number,
+    dModel: number,
+    dMlp: number,
+    seed: number,
+  ): Ptr;
   _tg_model_free(handle: Ptr): void;
   _tg_model_num_params(handle: Ptr): number;
   _tg_model_step(handle: Ptr): number;
+  _tg_forward_logits(
+    handle: Ptr,
+    tokens: Ptr,
+    count: number,
+    out: Ptr,
+    outCount: number,
+  ): number;
+  _tg_import_weights(handle: Ptr, weights: Ptr, count: number): number;
   _tg_set_data(handle: Ptr, data: Ptr, len: number, trainFrac: number): void;
-  _tg_train_step(handle: Ptr, batch: number, lr: number, gradClip: number): number;
+  _tg_train_step(
+    handle: Ptr,
+    batch: number,
+    lr: number,
+    gradClip: number,
+  ): number;
   _tg_eval(handle: Ptr, split: number, batch: number, nBatches: number): number;
-  _tg_generate(handle: Ptr, prompt: Ptr, plen: number, out: Ptr, maxNew: number, temp: number, topK: number, seed: number): number;
-  _matmul_forward(a: Ptr, b: Ptr, c: Ptr, M: number, K: number, N: number): void;
+  _tg_generate(
+    handle: Ptr,
+    prompt: Ptr,
+    plen: number,
+    out: Ptr,
+    maxNew: number,
+    temp: number,
+    topK: number,
+    seed: number,
+  ): number;
+  _matmul_forward(
+    a: Ptr,
+    b: Ptr,
+    c: Ptr,
+    M: number,
+    K: number,
+    N: number,
+  ): void;
   _tg_state_bytes(handle: Ptr): number;
   _tg_export_state(handle: Ptr, buf: Ptr): void;
   _tg_import_state(handle: Ptr, buf: Ptr): void;
@@ -78,7 +115,12 @@ function supportsMemory64(): boolean {
   // bundles as of late 2026) still ship `index`. Try both.
   for (const key of ["address", "index"] as const) {
     try {
-      new WebAssembly.Memory({ initial: 1, maximum: 1, shared: false, [key]: "i64" } as unknown as WebAssembly.MemoryDescriptor);
+      new WebAssembly.Memory({
+        initial: 1,
+        maximum: 1,
+        shared: false,
+        [key]: "i64",
+      } as unknown as WebAssembly.MemoryDescriptor);
       return true;
     } catch {
       // Try the next spelling.
@@ -102,7 +144,9 @@ async function loadFactory(): Promise<Factory> {
       const blob = new Blob([code], { type: "application/javascript" });
       const url = URL.createObjectURL(blob);
       try {
-        const mod = (await import(/* @vite-ignore */ url)) as { default: Factory };
+        const mod = (await import(/* @vite-ignore */ url)) as {
+          default: Factory;
+        };
         return mod.default;
       } finally {
         URL.revokeObjectURL(url);
@@ -131,7 +175,13 @@ export class TinyGptBackend {
   }
 
   /** Raw C = A @ B via the WASM matmul kernel — the WebGPU parity reference. */
-  matmul(a: Float32Array, b: Float32Array, M: number, K: number, N: number): Float32Array {
+  matmul(
+    a: Float32Array,
+    b: Float32Array,
+    M: number,
+    K: number,
+    N: number,
+  ): Float32Array {
     const aPtr = this.m._malloc(M * K * 4);
     const bPtr = this.m._malloc(K * N * 4);
     const cPtr = this.m._malloc(M * N * 4);
@@ -148,6 +198,7 @@ export class TinyGptBackend {
   }
 
   createModel(cfg: {
+    vocab?: number;
     ctx: number;
     layers: number;
     heads: number;
@@ -156,13 +207,19 @@ export class TinyGptBackend {
     seed: number;
   }): TinyGptModel {
     const handle = this.m._tg_model_create(
-      256, cfg.ctx, cfg.layers, cfg.heads, cfg.dModel, cfg.dMlp, cfg.seed,
+      cfg.vocab ?? 256,
+      cfg.ctx,
+      cfg.layers,
+      cfg.heads,
+      cfg.dModel,
+      cfg.dMlp,
+      cfg.seed,
     );
     // handle is Number on 32-bit, BigInt on MEM64. Compare loosely (0 ⇔ 0n).
     if (handle === 0 || handle === 0n) {
       throw new Error("tg_model_create failed (d_model % heads != 0?)");
     }
-    return new TinyGptModel(this.m, handle);
+    return new TinyGptModel(this.m, handle, cfg.vocab ?? 256, cfg.ctx);
   }
 }
 
@@ -174,7 +231,58 @@ export class TinyGptModel {
   constructor(
     private readonly m: WasmModule,
     private readonly handle: Ptr,
+    private readonly vocab = 256,
+    private readonly contextLength = 128,
   ) {}
+
+  /** Full-width token ids, with no byte coercion or silent context clipping. */
+  forwardLogits(ids: number[]): Float32Array {
+    if (
+      !ids.length ||
+      ids.length > this.contextLength ||
+      ids.some((id) => !Number.isInteger(id) || id < 0 || id >= this.vocab)
+    )
+      throw new Error("Invalid specialist token ids or context length.");
+    const tokens = Int32Array.from(ids);
+    const input = this.m._malloc(tokens.byteLength);
+    const output = this.m._malloc(this.vocab * 4);
+    try {
+      this.m.HEAPU8.set(new Uint8Array(tokens.buffer), input);
+      if (
+        this.m._tg_forward_logits(
+          this.handle,
+          toPtr(input),
+          ids.length,
+          toPtr(output),
+          this.vocab,
+        ) !== this.vocab
+      )
+        throw new Error("Specialist forward pass rejected.");
+      return this.m.HEAPF32.slice(output >> 2, (output >> 2) + this.vocab);
+    } finally {
+      this.m._free(toPtr(input));
+      this.m._free(toPtr(output));
+    }
+  }
+
+  importWeights(weights: Float32Array): void {
+    if (
+      weights.length !== this.numParams() ||
+      weights.some((v) => !Number.isFinite(v))
+    )
+      throw new Error("Specialist weight count or values are invalid.");
+    const ptr = this.m._malloc(weights.byteLength);
+    try {
+      this.m.HEAPF32.set(weights, ptr >> 2);
+      if (
+        this.m._tg_import_weights(this.handle, toPtr(ptr), weights.length) !==
+        weights.length
+      )
+        throw new Error("Specialist weight import rejected.");
+    } finally {
+      this.m._free(toPtr(ptr));
+    }
+  }
 
   numParams(): number {
     return this.m._tg_model_num_params(this.handle);
@@ -218,8 +326,14 @@ export class TinyGptModel {
     const outPtr = this.m._malloc(Math.max(1, maxNew));
     try {
       const n = this.m._tg_generate(
-        this.handle, toPtr(promptPtr), prompt.length, toPtr(outPtr),
-        maxNew, temperature, topK, seed,
+        this.handle,
+        toPtr(promptPtr),
+        prompt.length,
+        toPtr(outPtr),
+        maxNew,
+        temperature,
+        topK,
+        seed,
       );
       return this.m.HEAPU8.slice(outPtr, outPtr + n);
     } finally {

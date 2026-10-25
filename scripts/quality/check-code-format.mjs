@@ -23,6 +23,7 @@ if (pythonFiles.length > 0) {
 //
 //   browser/public/report-cards/   fine-tune report-card drift smoke
 //   evals/everyday-benchmark/      render_everyday_benchmark_report.py --check
+//   browser/public/tinygpt*.js    pinned Emscripten wasm-drift job
 const prettierFiles = changedFiles([
   ".js",
   ".mjs",
@@ -34,7 +35,10 @@ const prettierFiles = changedFiles([
 ]).filter(
   (file) =>
     !file.startsWith("browser/public/report-cards/") &&
-    !file.startsWith("evals/everyday-benchmark/"),
+    !file.startsWith("evals/everyday-benchmark/") &&
+    !["browser/public/tinygpt.js", "browser/public/tinygpt64.js"].includes(
+      file,
+    ),
 );
 if (prettierFiles.length > 0) {
   run("pnpm", [

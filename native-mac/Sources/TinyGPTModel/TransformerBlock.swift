@@ -83,8 +83,8 @@ public final class CausalSelfAttention: Module {
         self._vProj.wrappedValue = Linear(cfg.dModel, kvDim, bias: cfg.attnBias)
         self._oProj.wrappedValue = Linear(qDim, cfg.dModel, bias: cfg.attnBias)
         if cfg.useQKNorm {
-            self._qNorm.wrappedValue = RMSNorm(dimensions: cfg.headDim, eps: 1e-6)
-            self._kNorm.wrappedValue = RMSNorm(dimensions: cfg.headDim, eps: 1e-6)
+            self._qNorm.wrappedValue = RMSNorm(dimensions: cfg.headDim, eps: cfg.qkNormEps)
+            self._kNorm.wrappedValue = RMSNorm(dimensions: cfg.headDim, eps: cfg.qkNormEps)
         } else {
             self._qNorm.wrappedValue = nil
             self._kNorm.wrappedValue = nil

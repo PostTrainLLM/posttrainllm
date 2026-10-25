@@ -315,6 +315,15 @@ SQL is the current factory POC and the best-documented attempt family.
 - Next action: Keep as failed comparison evidence; do not promote without a new breadth-preserving recipe.
 - Confidence: `exact`.
 
+### Frozen gate held-out readback
+
+- Evidence: ReST `4/4 fileops, 4/4 vehicle`; multibackend `4/4 fileops, 4/4 vehicle`; frontier `8/8`; both emit the same 19 requested calls. Both runner counters report zero schema failures and zero listed unexpected side effects; actuator coverage is incomplete.
+- Status: inconclusive
+- Failure reason: The eight-task slice does not distinguish the historically retained and rejected candidates, so it cannot validate the comparative selection boundary or overturn the broader rejection.
+- Lesson: A frontier ceiling is necessary but does not make a simple smoke discriminating; a zero fixed-list side-effect counter also does not prove complete safety.
+- Next action: Preserve the ReST file-operations route and multibackend general-use rejection. Before future acceptance, freeze primary/regression slices representing historical failure classes and review every decoded mutator arguments, multiplicity and order at the execution boundary.
+- Confidence: `exact`; see `evals/verified-wins/measurement-gate-audit-result-v1.json`.
+
 ### VibeThinker 3B agentic distilled variant
 
 - Evidence: weights preserved; current eval promotion missing.
@@ -1393,7 +1402,7 @@ Current structured coverage:
 
 | Confidence | Count | Meaning |
 |---|---:|---|
-| `exact` | 116 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
+| `exact` | 117 | Direct run report, decision file, artifact metadata, or current source doc supports the reason. |
 | `inferred` | 4 | Reason is reconstructed from docs/artifact notes, not a canonical run folder. |
 | `not-applicable` | 5 | No failure reason is expected for a clean worked status. |
 | `missing-evidence` | 2 | Attempt is known, but available docs do not preserve enough evidence to state a real reason. Used by Pace planner v1-v4 and v10. |

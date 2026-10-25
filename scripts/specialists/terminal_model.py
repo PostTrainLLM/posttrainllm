@@ -28,6 +28,7 @@ from terminal_codec import (
     event_tokens,
     snapshot,
 )
+from terminal_data import identity
 
 
 @dataclasses.dataclass
@@ -114,7 +115,12 @@ def examples(episodes, max_context):
             if len(prefix) + len(target) > max_context:
                 raise ValueError("screen/event cannot fit this model's context")
             output.append(
-                {"id": f"{episode['id']}:{index}", "prefix": prefix, "target": target}
+                {
+                    "id": f"{episode['id']}:{index}",
+                    "prefix": prefix,
+                    "target": target,
+                    "episode_identity": identity(episode),
+                }
             )
             history = prefix + target
             screen = after
@@ -171,6 +177,7 @@ def correction_examples(episodes, predictions, max_context, max_changed_cells=8)
                         "id": f"repair:{episode['id']}:{index}",
                         "prefix": prefix,
                         "target": target,
+                        "episode_identity": identity(episode),
                     }
                 )
     return result
@@ -185,10 +192,19 @@ def train(model, samples, out, steps, budget, learning_rate=1e-3):
     torch.manual_seed(7)
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
     losses = []
+    identities = {
+        row["episode_identity"]["sha256"]: row["episode_identity"]
+        for row in samples
+        if "episode_identity" in row
+    }
+    sampled = {}
     model.train()
     for step in range(steps):
         budget.check()
         row = samples[step % len(samples)]
+        episode = row.get("episode_identity")
+        if episode:
+            sampled[episode["sha256"]] = sampled.get(episode["sha256"], 0) + 1
         sequence = row["prefix"] + row["target"]
         tokens = torch.tensor([sequence[:-1]])
         target = torch.tensor([sequence[1:]])
@@ -207,6 +223,12 @@ def train(model, samples, out, steps, budget, learning_rate=1e-3):
         losses.append(float(loss.detach()))
         budget.progress(step + 1, steps, losses[-1])
     model.eval()
+    prior = getattr(model, "training_episode_identities", None)
+    if prior is not None and all("episode_identity" in row for row in samples):
+        identities.update({row["sha256"]: row for row in prior})
+        training_identities = list(identities.values())
+    else:
+        training_identities = None
     save(
         model,
         out,
@@ -214,8 +236,17 @@ def train(model, samples, out, steps, budget, learning_rate=1e-3):
             "steps": steps,
             "losses": losses,
             "data_sha256": digest(samples),
+            "training_episode_identities": training_identities,
+            "sampled_episode_steps": sampled,
             **budget.measurements(),
         },
+    )
+    model.training_episode_identities = training_identities
+    model.source_identity = digest(
+        {
+            "weights": file_hash(Path(out) / "model.safetensors"),
+            "config": file_hash(Path(out) / "config.json"),
+        }
     )
     return losses
 
@@ -260,6 +291,10 @@ def load(path):
     state = load_file(path / "model.safetensors")
     state["head.weight"] = state["embedding.weight"]
     model.load_state_dict(state, strict=True)
+    model.source_identity = digest(
+        {"weights": metadata["weights_sha256"], "config": metadata["config_sha256"]}
+    )
+    model.training_episode_identities = metadata.get("training_episode_identities")
     return model.eval()
 
 
@@ -381,4 +416,7 @@ class Session:
 def new_model(config=None):
     torch.manual_seed(7)
     config = config or read_json(ROOT / "configs" / "model.terminal-tiny-v1.json")
-    return TerminalModel(ModelConfig(**config))
+    model = TerminalModel(ModelConfig(**config))
+    model.training_episode_identities = []  # Explicit random, untrained baseline.
+    model.source_identity = digest({"random_seed": 7, "config": config})
+    return model

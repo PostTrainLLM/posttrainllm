@@ -21,6 +21,124 @@ import XCTest
 /// built in-test — no model download, no multi-GB load.
 final class HFQuantizedLoadTests: XCTestCase {
 
+    private func adapter(for config: ModelConfig, names: [String]) -> LoraAdapter {
+        let entries = names.map { LoraAdapter.Entry(name: $0,
+            loraAShape: [64, 4], loraBShape: [4, 64]) }
+        let header = LoraAdapter.Header(rank: 4, alpha: 8, targetSuffixes: ["q_proj"],
+            baseLayers: config.nLayers, baseDModel: config.dModel,
+            baseCtx: config.contextLength, baseHeads: config.nHeads,
+            baseDMlp: config.dMlp, entries: entries)
+        return LoraAdapter(header: header, matrices: names.map { _ in
+            (Array(repeating: Float(0.01), count: 256),
+             Array(repeating: Float(0.02), count: 256), nil)
+        })
+    }
+
+    func test_subsetAdapter_usesNamesAndPreservesUntargetedLayers() throws {
+        var json = configJSON
+        json["num_hidden_layers"] = 3
+        let cfg = HFConfigConverter.toModelConfig(try HuggingFaceConfig.fromDict(json))
+        let model = TinyGPTModelHF(cfg)
+        let untouched = model.blocks[1].attn.qProj
+        let other = model.blocks[2].attn.vProj
+        let named = adapter(for: cfg, names: ["layers.2.self_attn.q_proj", "layers.0.self_attn.q_proj"])
+        try LoraAdapterHFReader.apply(named, to: model)
+        XCTAssertTrue(model.blocks[0].attn.qProj is LoraLinear)
+        XCTAssertTrue(model.blocks[2].attn.qProj is LoraLinear)
+        XCTAssertTrue(model.blocks[1].attn.qProj === untouched)
+        XCTAssertTrue(model.blocks[2].attn.vProj === other)
+        let lastOnly = TinyGPTModelHF(cfg)
+        try LoraAdapterHFReader.apply(adapter(for: cfg,
+            names: ["layers.2.self_attn.q_proj"]), to: lastOnly)
+        XCTAssertFalse(lastOnly.blocks[0].attn.qProj is LoraLinear)
+        XCTAssertTrue(lastOnly.blocks[2].attn.qProj is LoraLinear)
+    }
+
+    func test_invalidAdapter_rejectsAtomically() throws {
+        let cfg = HFConfigConverter.toModelConfig(try HuggingFaceConfig.fromDict(configJSON))
+        for bad in ["layers.9.self_attn.q_proj", "layers..1.self_attn.q_proj", "layers.1.mlp.q_proj"] {
+            let model = TinyGPTModelHF(cfg)
+            let original = model.blocks[0].attn.qProj
+            XCTAssertThrowsError(try LoraAdapterHFReader.apply(adapter(for: cfg,
+                names: ["layers.0.self_attn.q_proj", bad]), to: model))
+            XCTAssertTrue(model.blocks[0].attn.qProj === original)
+        }
+        let model = TinyGPTModelHF(cfg)
+        var malformed = adapter(for: cfg, names: ["layers.1.self_attn.q_proj"])
+        malformed.matrices[0].loraB[0] = .nan
+        XCTAssertThrowsError(try LoraAdapterHFReader.apply(malformed, to: model))
+        XCTAssertFalse(model.blocks[1].attn.qProj is LoraLinear)
+        malformed = adapter(for: cfg, names: ["layers.1.self_attn.q_proj", "layers.1.self_attn.q_proj"])
+        XCTAssertThrowsError(try LoraAdapterHFReader.apply(malformed, to: model))
+    }
+
+    func test_quantizedSubsetAdapter_roundtripAndFreeze() throws {
+        var json = configJSON
+        json["quantization"] = ["group_size": 64, "bits": 4]
+        let directory = try writeCheckpoint(
+            tensors: quantizedTensors(randomWeights(), bits: 4, groupSize: 64), config: json)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let loaded = try HFModelLoader.load(from: directory)
+        let named = adapter(for: loaded.config, names: ["layers.1.self_attn.q_proj"])
+        let input = MLXArray([Int32]([1, 5, 7]), [1, 3])
+        try LoraAdapterHFReader.apply(named, to: loaded.model)
+        LoraInjectionHF.freezeBase(loaded.model)
+        let keys = Set(loaded.model.trainableParameters().flattened().map(\.0))
+        XCTAssertEqual(keys, ["layers.1.self_attn.q_proj.loraA", "layers.1.self_attn.q_proj.loraB"])
+        let expected = loaded.model(input)
+        eval(expected)
+        let path = directory.appendingPathComponent("subset.lora")
+        try LoraAdapterHFWriter.write(model: loaded.model, baseConfig: loaded.config,
+            loraConfig: LoraConfig(rank: 4, alpha: 8, targetSuffixes: ["q_proj"]),
+            finalLoss: nil, to: path)
+        let restored = try HFModelLoader.load(from: directory)
+        try LoraAdapterHFReader.apply(LoraAdapterReader.read(path), to: restored.model)
+        let actual = restored.model(input)
+        XCTAssertLessThan((actual - expected).abs().max().item(Float.self), 1e-4)
+        XCTAssertTrue(restored.model.blocks[0].attn.qProj is QuantizedLinear)
+    }
+
+    func test_quantizedLoraWrapping_preservesEffectiveBaseAndAdapter() {
+        MLXRandom.seed(209)
+        let dense = Linear(weight: MLXRandom.normal([32, 64]) * 0.08,
+                           bias: MLXRandom.normal([32]) * 0.01)
+        let quantized = QuantizedLinear(dense, groupSize: 64, bits: 4)
+        let x = MLXRandom.normal([1, 3, 64])
+        let fresh = LoraLinear(wrapping: quantized, rank: 4, alpha: 8)
+        XCTAssertEqual(fresh.loraA.shape, [64, 4])
+        XCTAssertLessThan((fresh(x) - quantized(x)).abs().max().item(Float.self), 1e-4)
+
+        let a = MLXRandom.normal([64, 4]) * 0.02
+        let b = MLXRandom.normal([4, 32]) * 0.02
+        let restored = LoraLinear(wrapping: quantized, loraA: a, loraB: b,
+                                  rank: 4, alpha: 8)
+        let expected = quantized(x) + matmul(matmul(x, a), b) * MLXArray(Float(2))
+        XCTAssertLessThan((restored(x) - expected).abs().max().item(Float.self), 1e-4)
+
+        let dora = DoraLinear(wrapping: quantized, rank: 4, alpha: 8)
+        XCTAssertEqual(dora.loraA.shape, [64, 4])
+        XCTAssertLessThan((dora(x) - quantized(x)).abs().max().item(Float.self), 1e-4)
+    }
+
+    func test_hfNormEpsilon_reachesEveryQwenNorm() throws {
+        var json = configJSON
+        json["architectures"] = ["Qwen3ForCausalLM"]
+        json["rms_norm_eps"] = 0.003
+        let hf = try HuggingFaceConfig.fromDict(json)
+        let cfg = HFConfigConverter.toModelConfig(hf)
+        let model = TinyGPTModelHF(cfg)
+        XCTAssertEqual(cfg.normEps, 0.003)
+        XCTAssertEqual(model.lnFinal.eps, cfg.normEps)
+        for block in model.blocks {
+            XCTAssertEqual(block.ln1.eps, cfg.normEps)
+            XCTAssertEqual(block.ln2.eps, cfg.normEps)
+            XCTAssertEqual(block.attn.qNorm?.eps, cfg.normEps)
+            XCTAssertEqual(block.attn.kNorm?.eps, cfg.normEps)
+        }
+        XCTAssertEqual(ModelConfig().normEps, 1e-5)
+        XCTAssertEqual(ModelConfig().qkNormEps, 1e-6)
+    }
+
     // Tiny Llama-style config. Every quantized axis (Linear input dims,
     // embedding dims) is a multiple of the group size (64).
     private let configJSON: [String: Any] = [

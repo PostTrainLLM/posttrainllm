@@ -52,14 +52,14 @@ public final class TinyGPTModelHF: Module {
             b.useGradCheckpoint = cfg.useGradCheckpoint
             return b
         }
-        self._lnFinal.wrappedValue = RMSNorm(dimensions: cfg.dModel, eps: 1e-5)
+        self._lnFinal.wrappedValue = RMSNorm(dimensions: cfg.dModel, eps: cfg.normEps)
         if cfg.tieEmbeddings {
             self._lmHead.wrappedValue = nil
         } else {
             self._lmHead.wrappedValue = Linear(cfg.dModel, cfg.vocabSize, bias: false)
         }
         if cfg.useEmbeddingRMSNorm {
-            self._embedNorm.wrappedValue = RMSNorm(dimensions: cfg.dModel, eps: 1e-5)
+            self._embedNorm.wrappedValue = RMSNorm(dimensions: cfg.dModel, eps: cfg.normEps)
         } else {
             self._embedNorm.wrappedValue = nil
         }
@@ -160,7 +160,7 @@ public enum HFConfigConverter {
         let needsQKNorm = hf.architectures.contains { arch in
             arch.hasPrefix("Qwen3")
         }
-        return ModelConfig(
+        var config = ModelConfig(
             modelName: hf.architectures.first ?? "hf-loaded",
             vocabSize: hf.vocabSize,
             contextLength: hf.maxPositionEmbeddings,
@@ -180,6 +180,9 @@ public enum HFConfigConverter {
             explicitHeadDim: explicit,
             useQKNorm: needsQKNorm
         )
+        config.normEps = hf.rmsNormEps
+        config.qkNormEps = hf.rmsNormEps
+        return config
     }
 }
 

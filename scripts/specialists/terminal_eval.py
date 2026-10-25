@@ -16,6 +16,7 @@ import numpy as np
 from common import ROOT, digest, file_hash, frontier_answers, write_json
 from terminal_codec import Screen
 from terminal_model import Session
+from terminal_data import heldout_identities, public_conditions
 
 
 def ceiling(episodes, out):
@@ -29,6 +30,7 @@ def ceiling(episodes, out):
             "id": ep["id"],
             "initial_screen": ep["initial_screen"],
             "events": [frame["event"] for frame in ep["frames"]],
+            "world_conditions": public_conditions(ep),
         }
         for ep in episodes
     ]
@@ -39,8 +41,8 @@ def ceiling(episodes, out):
         "Predict the monochrome terminal after every event, including raw key bytes and waits. "
         "Return each episode's answer as a JSON string containing an array of screen objects "
         "with lines (fixed-width printable ASCII including spaces), cursor_row, cursor_col, visible. "
-        "Use ordinary shell semantics. Do not execute commands or use tools.\n"
-        + json.dumps(request)
+        "Use the explicit public world conditions and ordinary program semantics. "
+        "Do not execute commands or use tools.\n" + json.dumps(request)
     )
     started = time.monotonic()
     answers, kinds = frontier_answers(schema, out, prompt)
@@ -88,12 +90,16 @@ def validate_ceiling(episodes, receipt):
 
 def evaluate(model, episodes, receipt, budget, parallel=False):
     validate_ceiling(episodes, receipt)
+    identities = heldout_identities(model, episodes)
     exact, cursors, cells, total_cells, tokens = 0, 0, 0, 0, 0
     latencies, memory = [], []
     worlds = []
+    families = {}
     for episode in episodes:
         session = Session(model, Screen.from_dict(episode["initial_screen"]))
         probes = []
+        world_exact = True
+        probe_resets = []
         for frame in episode["frames"]:
             budget.check()
             started = time.monotonic()
@@ -101,6 +107,7 @@ def evaluate(model, episodes, receipt, budget, parallel=False):
             latencies.append(time.monotonic() - started)
             predicted, gold = session.screen, Screen.from_dict(frame["screen"])
             exact += predicted == gold
+            world_exact &= predicted == gold
             cursors += (
                 predicted.cursor_row,
                 predicted.cursor_col,
@@ -120,6 +127,7 @@ def evaluate(model, episodes, receipt, budget, parallel=False):
                 if value not in [line.strip() for line in gold.lines]:
                     raise ValueError("memory probe lacks an exact oracle output line")
                 probes.append(value in [line.strip() for line in predicted.lines])
+                probe_resets.append(session.context_resets)
         if probes:
             memory.append(all(probes))
         worlds.append(
@@ -128,8 +136,16 @@ def evaluate(model, episodes, receipt, budget, parallel=False):
                 "context_resets": session.context_resets,
                 "memory_probes": len(probes),
                 "all_readbacks_exact": all(probes) if probes else None,
+                "all_frames_exact": bool(world_exact),
+                "family": episode.get("family", "unspecified"),
+                "context_resets_at_probes": probe_resets,
             }
         )
+        family = families.setdefault(
+            episode.get("family", "unspecified"), {"passed": 0, "total": 0}
+        )
+        family["total"] += 1
+        family["passed"] += int(world_exact and all(probes))
     if not latencies:
         raise ValueError("no terminal evaluation transitions")
     return {
@@ -143,6 +159,11 @@ def evaluate(model, episodes, receipt, budget, parallel=False):
         "latency_p95_seconds": float(np.quantile(latencies, 0.95)),
         "generated_tokens_per_second": tokens / sum(latencies),
         "worlds": worlds,
+        "complete_world_successes": sum(world["all_frames_exact"] for world in worlds),
+        "complete_world_total": len(worlds),
+        "families": families,
+        "model_identity": getattr(model, "source_identity", None),
+        "evaluation_episode_identities": identities,
         "decision": "report-only; no shell competence or parity claim without frozen gates",
         **budget.measurements(),
     }

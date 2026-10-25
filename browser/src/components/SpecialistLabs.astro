@@ -82,6 +82,43 @@ uv run --project scripts/specialists python scripts/specialists/lab.py serve</co
         </p>
       </div><span id="sp-model" class="sp-model">Qwen3 · 1.7B · local</span>
     </div>
+    <details id="sp-terminal-browser" class="sp-data-import" hidden>
+      <summary>Terminal execution · Python, WASM or WebGPU</summary>
+      <p class="sp-note">
+        A browser artifact predicts screens entirely in this tab. Export your
+        trained terminal checkpoint, then select its JSON file. Three Python
+        logit probes must pass before activation. Training and qualification use
+        Python.
+      </p>
+      <label for="sp-terminal-provider"
+        >Execution<select id="sp-terminal-provider">
+          <option value="python">Local Python runtime</option>
+          <option value="wasm">This tab · WASM</option>
+          <option value="webgpu">This tab · WebGPU</option>
+        </select></label
+      >
+      <label for="sp-terminal-artifact"
+        >Exported terminal artifact<input
+          id="sp-terminal-artifact"
+          type="file"
+          accept=".json,application/json"
+        /></label
+      >
+      <div class="sp-run-actions">
+        <button id="sp-terminal-load" type="button"
+          >Load &amp; verify artifact</button
+        ><button id="sp-terminal-stop" type="button" class="sp-secondary"
+          >Stop browser terminal</button
+        >
+      </div>
+      <p class="sp-note">
+        Export with <code
+          >terminal export --model &lt;checkpoint&gt; --dtype f32 --out
+          terminal-browser.json</code
+        > through the lab CLI. f16 is an optional compression candidate with a separate
+        numerical gate.
+      </p>
+    </details>
     <div class="sp-model-picker">
       <div>
         <label for="sp-model-select">Base model</label><select
@@ -276,9 +313,9 @@ uv run --project scripts/specialists python scripts/specialists/lab.py serve</co
       </div>
     </div>
     <p class="sp-boundary">
-      These modes use a local Python runtime. Browser-only WASM/WebGPU execution
-      for these specialists has not been built. The byte-level trainer above
-      continues to run entirely in your tab.
+      Training and qualification use your local Python runtime. Exported small
+      terminal models also predict in this tab through WASM or WebGPU. Decision
+      and Timestral inference use Python.
     </p>
     <div class="sp-credits">
       Methods and upstream work: <a

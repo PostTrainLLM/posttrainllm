@@ -1,3 +1,6 @@
 browser/public/scripts/posthog.js
 browser/public/footer.js
 browser/public/footer.css
+# Pinned Emscripten output; wasm-drift verifies these byte-for-byte.
+browser/public/tinygpt.js
+browser/public/tinygpt64.js

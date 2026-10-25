@@ -1,0 +1,103 @@
+{
+  "schema": "measurement-gate-audit-v1",
+  "issue": 209,
+  "frozen_at": "2026-10-25",
+  "baseline": "posttrainllm/qwen3-4b-rest-fused",
+  "candidate": "posttrainllm/qwen3-4b-multibackend-distilled",
+  "revisions": {
+    "rest": "b332dfe437dc201922d50b28eddf0c99ebcc79a7",
+    "multibackend": "e0b97e20ede7570a341abf5c3d47bac99c6deb78"
+  },
+  "bfcl_revision": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+  "slice": {
+    "fileops": [
+      "multi_turn_base_209251",
+      "multi_turn_base_209252",
+      "multi_turn_base_209253",
+      "multi_turn_base_209254"
+    ],
+    "outside_route_vehicle": [
+      "multi_turn_base_209255",
+      "multi_turn_base_209256",
+      "multi_turn_base_209257",
+      "multi_turn_base_209258"
+    ]
+  },
+  "data_sha256": "76cb55946c142f4577a72d4fa0019c8703794375ae1649bba9d8ccdff4e548bc",
+  "gold_sha256": "65faf83b6fbd0ce735a8363eec5ec97eba09c9d8a0d9f386434001b28f4365cc",
+  "frontier_gate": "8/8 complete tasks before local scoring",
+  "local_gate": "preserve route-only: 4/4 fileops, no regression in outside-route successes, zero additional schema failures or unexpected side effects; never promote general use on eight synthetic tasks",
+  "resources": {
+    "training_steps": 0,
+    "paid_usd": 0,
+    "disk_gib": 20,
+    "peak_process_gib": 16,
+    "local_eval_seconds": 1200,
+    "cpu_threads": 2,
+    "retries_after_local_scores": 0
+  },
+  "old_results": "immutable historical evidence; no reconstruction from missing raw traces",
+  "outcome_type": "simulator tasks, not actual user outcomes",
+  "leakage_audit": {
+    "exact_question_overlap": 0,
+    "corpora": [
+      {
+        "path": "scripts/fixtures/multi_turn_breadth_data.jsonl",
+        "sha256": "1501cecb59eb9c87cd22625f892f00a82d9ba031580d31635b7a35780f72217b",
+        "rows": 52
+      },
+      {
+        "path": "scripts/fixtures/multi_turn_easy_data.jsonl",
+        "sha256": "5d1b956ac9aa21ed586673f79886e8a26eb209604a2e7b47466642f02dda9dc0",
+        "rows": 16
+      },
+      {
+        "path": "scripts/fixtures/multi_turn_hard_data.jsonl",
+        "sha256": "21a00181d7e2e62c513e8aa6a1b80959b6cb92fad64e2c0425f8e31a615596aa",
+        "rows": 12
+      },
+      {
+        "path": "scripts/fixtures/multi_turn_hardgen_data.jsonl",
+        "sha256": "1805cca092ebbae6a3b154e5e02a519232dd100d69216ac07ae42a17ea167160",
+        "rows": 40
+      },
+      {
+        "path": "scripts/fixtures/multi_turn_mbtrain_data.jsonl",
+        "sha256": "83a5e636d050b2208525dd688e77ef540206ae7822b5b5656bdca60a2a47ed97",
+        "rows": 248
+      },
+      {
+        "path": "scripts/fixtures/multi_turn_moderate_data.jsonl",
+        "sha256": "f5950efe49ee02bbcaf5066a142f97514c077a60960e20de1a54f99252b4ab71",
+        "rows": 14
+      },
+      {
+        "path": "scripts/fixtures/multi_turn_restpool_data.jsonl",
+        "sha256": "a4d686d413ed51627e73183db6ed7c6d703906c3f5c5a4bd584a80f7437b79b6",
+        "rows": 143
+      },
+      {
+        "path": "scripts/fixtures/multi_turn_train_data.jsonl",
+        "sha256": "7fa514924eb7f010379bb90018e3bd83ae9f55c1476607a7d8911c266227fdc5",
+        "rows": 300
+      },
+      {
+        "path": "scripts/fixtures/multi_turn_veryhard_data.jsonl",
+        "sha256": "3762e2d6220ae2ab08756fb1d7440478fc35361653ccae5d38ead480e822f447",
+        "rows": 12
+      }
+    ],
+    "limits": "Exact prompt overlap checked against retained source fixtures; semantic templates and pretraining exposure are not proven absent."
+  },
+  "frontier_receipt": {
+    "passed": 8,
+    "count": 8,
+    "raw_sha256": "bf39621136615476f18c7132004bfcf44b25d7fd5c19f07b4cca28de6b5e6900",
+    "model": "gpt-6.1-sol",
+    "protocol": "8"
+  },
+  "source_sha256": {
+    "scripts/bfcl/run_rest_arm.py": "26ca8d9409397419f8b2d5819296716883a2ea42aead99daec2b6e97b0769c15",
+    "scripts/bfcl/rest_protocol.py": "fe5fb1a73247f80a8ebfa8ad818024933a8c9b2e8d81420526167a294081ea42"
+  }
+}

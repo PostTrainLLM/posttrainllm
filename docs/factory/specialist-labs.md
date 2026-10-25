@@ -3,7 +3,8 @@
 These modes extend the existing `/playground` and share one local runtime.
 Implementation and remaining work are tracked in
 [Issue #210](https://github.com/PostTrainLLM/posttrainllm/issues/210).
-They are Python references with browser controls, not browser-only models.
+All three have Python references and browser controls. Exported small terminal
+models also run entirely in this tab through WASM or WebGPU.
 
 ## Install and start
 
@@ -76,26 +77,10 @@ Both paths verify training-data/base identities and emit existing factory
 report-card JSON/HTML. Missing measurements remain missing; comparisons are
 report-only and cannot automatically ship a model.
 
-The finishing check used four optimizer steps per model. Decision primary
-changed from 6/6 to 5/6, with regression unchanged at 5/6. Timestral primary MAE
-improved from 0.01742 to 0.01214 while regression MAE worsened from 0.03609 to
-0.03626 (eight observations per slice). These are tiny synthetic results,
-not general quality claims; neither candidate qualified for shipment.
-
-Workflow patterns were reviewed against Transformer Lab, Silicon Studio,
-LLaMA-Factory, AutoGluon, Orange and Ludwig. Feather's resolved experiment
-conditions inspired source/config identity capture; its E2B/Tinker integration
-is not installed. Existing MLX/Timestral trainers and factory report contracts
-remain the implementation base; no new production dependency is added.
-
-There are no bundled terminal weights. In Terminal world, select training and
-run the repeated tiny typing example, then use its trained artifact. This
-establishes the learning/checkpoint path, not useful shell competence.
-
-The server binds only to `127.0.0.1`, accepts same-origin JSON, serves built
-public assets, and serializes model operations. It never executes a generated
-command. Model locations are selected by the operator; HTTP requests cannot
-select arbitrary local files. Eight terminal sessions are retained in memory.
+Issue #210 records earlier pilots; neither candidate qualified for shipment.
+The runtime accepts same-origin JSON only on `127.0.0.1`, serializes operations
+and never executes generated commands. Models are operator-selected; it keeps
+eight terminal sessions. No E2B/Tinker service is installed.
 
 ## Operator entry point
 
@@ -116,16 +101,8 @@ allowed label tokens, and normalizes only those logits. Every label must map
 to exactly one distinct token. Multi-token labels fail instead of being
 silently truncated. Qwen thinking is disabled in the chat template.
 
-Example labeled dataset row:
-
-```json
-{
-  "id": "even-1",
-  "question": "Which integer is even?",
-  "options": { "A": "3", "B": "8" },
-  "answer": "B"
-}
-```
+Labeled rows use `id`, `question`, `options` and `answer`; see
+`scripts/specialists/examples/decision.jsonl`.
 
 Omit `answer` for prediction. Raw restricted softmax values are explicitly
 uncalibrated; they are not probabilities that the answer is correct.
@@ -179,13 +156,8 @@ Upstream code is Apache-2.0; model weights have a separate Modified MIT license.
 Input rows use variates × time matrices. JSON null means missing. The optional
 boolean `observation_mask` must match context. Every target needs an observation.
 
-```json
-{
-  "id": "series-1",
-  "context": [[1, 2, null, 4, 5, 6]],
-  "known_covariates": [[0, 1, 0, 1, 0, 1, 0, 1, 0, 1]]
-}
-```
+For example, `context: [[1, 2, null, 4, 5, 6]]` has one target and six steps;
+`known_covariates: [[0,1,0,1,0,1,0,1,0,1]]` supplies ten known steps.
 
 For a horizon of four, known covariates cover the six context steps plus all
 four future steps. Past covariates cover only history. Both numeric and
@@ -228,11 +200,9 @@ uv run --project scripts/specialists python scripts/specialists/lab.py terminal 
 uv run --project scripts/specialists python scripts/specialists/lab.py terminal train --data runs/terminal/train.jsonl --steps 1 --out checkpoints/terminal-candidate
 ```
 
-Recording executes the explicitly supplied recipe in a disposable container:
-no network, host mounts, image pulls or privilege capabilities. The image must
-already exist and contain `/bin/sh`. Recipes can drive installed vim, tmux,
-Python or games through raw keys; the default recipe exercises file operations.
-Output quiescence is a sampling policy, not an application-completion oracle.
+Recording executes supplied recipes in a disposable local image with `/bin/sh`,
+without network, mounts, pulls or privileges. Raw keys can drive installed
+programs. Quiescence is a sampling policy, not a completion oracle.
 
 The model has no shell or filesystem. Only the recorder invokes real programs.
 Training is output-masked causal SFT with alternating independent-row attention.
@@ -250,30 +220,84 @@ Closed-loop evaluation reports screen/cursor/cell agreement, exact memory
 readbacks, latency and token throughput. It never feeds later oracle screens
 back into the model. Repeated typing overfit is a separate correctness gate.
 
-The tiny architecture lives in `configs/model.terminal-tiny-v1.json`. These
-weights and protocol are not WorldTUI weights. WorldTUI's article currently
-describes downloadable training weights as forthcoming. A good tiny overfit
-result does not establish vim, tmux, snake or persistent-file competence.
+The tiny architecture is `configs/model.terminal-tiny-v1.json`, independently
+trained; tiny overfit does not establish vim, tmux, snake or file competence.
 
 ## Verification and remaining work
 
 ```sh
-uv run --project scripts/specialists pytest tests/test_specialist_labs.py tests/test_specialist_workflow.py -q
+uv run --project scripts/specialists pytest tests/test_specialist_labs.py tests/test_specialist_workflow.py tests/test_specialist_terminal_portability.py tests/test_specialist_native_export.py -q
 uv run --project scripts/specialists ruff check scripts/specialists tests/test_specialist_labs.py tests/test_specialist_workflow.py
 pnpm --dir browser run typecheck
 ```
-
-Checks cover numerical calibration, split leakage, forecasting preprocessing,
-pinball gradients, checkpoint reload, row-copy semantics, grammar bounds,
-correction visibility and exact speculative verification. Focused browser
-checks cover the unified modes, actual local inference and responsive layouts.
 
 Defaults cap PyTorch CPU threads at two. CLI work has a cooperative wall-time
 budget; it is not a hard process/RAM sandbox. Browser training is limited to
 1–200 steps; background jobs have a 180-second parent watchdog. Peak RSS is process-wide, not isolated model RAM;
 MLX GPU memory is recorded separately when training. There is no paid API use.
 
-Python-only artifact formats are not yet native TinyGPT packages. Full terminal
-training quality, broader frozen capability/regression runs, model compression,
-and browser-only WASM/WebGPU execution remain unverified or unbuilt. Do not
-present these references as feature/quality parity with the cited systems.
+Decision MLX adapters can be converted to native TGLA packages with the command
+below. Forecast checkpoints remain Python artifacts. Useful terminal quality,
+broader capability/regression runs and browser-only Qwen/Timestral inference
+remain unfinished. These references do not establish upstream feature/quality
+parity.
+
+## Portable terminal inference
+
+Export a local terminal checkpoint without changing it:
+
+```sh
+uv run --project scripts/specialists python scripts/specialists/terminal.py export --model <checkpoint-directory> --dtype f32 --out <new-browser-artifact.json>
+```
+
+`--dtype f16` halves the stored weight payload; runtimes expand it to f32.
+In **Terminal world**, open **Terminal execution**, choose WASM or WebGPU,
+select the artifact and click **Load & verify**. Three source-bound Python
+logit probes must pass before prediction becomes available. The artifact stays
+local; this path makes no specialist API request. **Stop browser terminal**
+terminates the owned worker. Provider, artifact and session changes invalidate
+queued inputs and stale responses.
+
+The export uses the existing pre-LayerNorm/GELU GPT kernels, preserving all 333
+codec token IDs, including values above 255. COPY reads the previous screen
+atomically. Sequential constrained decoding supports custom screens, raw keys
+and waits; training, evaluation and verified parallel drafting use Python.
+Parameter and activation estimates are checked before runtime allocation:
+maximum five million parameters, 128 MiB for one attention matrix and 256 MiB
+estimated tensor allocations. These are admission bounds, not a total process
+RAM measurement; encoded files, import buffers, browser and WASM heap overhead
+are additional. No browser RAM or general speedup claim is made.
+
+A tiny typing model passed f32/f16 probes and one matching screen in actual
+WASM and Apple Metal WebGPU: maximum errors 0.000010 and 0.00831, respectively.
+This establishes bounded portability, not all-input equivalence or capability.
+Unknown training provenance blocks qualification; changing episode IDs/metadata
+cannot disguise training replays. Recorder episodes bind immutable image IDs
+and public initial conditions. Eval reports whole-world/per-family successes.
+
+## Native decision adapter bridge
+
+```sh
+uv run --project scripts/specialists python scripts/specialists/decision.py export-native --base <matching-local-mlx-base> --adapter <trained-decision-directory> --out <new-adapter.lora>
+posttrainllm debug-logits --hf <matching-local-mlx-base> --lora <new-adapter.lora> --probe <exact-token-probe.json>
+```
+
+The converter admits ordinary Q/V LoRA on the declared last layers, verifies
+base/tokenizer and adapter/config hashes, preserves MLX scaling and writes a
+provenance sidecar. The probe JSON contains `tokens` (1–256 token IDs) and
+`labels` (up to 26 token IDs). This diagnostic verifies the sidecar against the
+actual base before one forward pass. Other existing native adapter commands
+check architecture, not the sidecar; keep the exact matching base.
+
+Native import now uses named projections, supports subset layers, rejects
+malformed adapters before mutation and preserves packed quantized base kernels.
+HF RMS/QK norm epsilon follows the source config. From-scratch checkpoint norm
+defaults remain unchanged. Dense effective-weight snapshots increase memory
+for adapted projections. Stacked/baked packed adapters are outside this bridge.
+
+The actual Qwen3-1.7B adapter loaded and selected the same option on one
+44-token probe. Source bf16 and native fp32 selected logits differed by 0.643;
+a Python fp32 comparison reduced that to 0.0678. This is execution compatibility,
+not numerical or calibration parity. Refit temperature and rerun primary and
+regression gates before using native confidence. No model is promoted by this
+conversion.

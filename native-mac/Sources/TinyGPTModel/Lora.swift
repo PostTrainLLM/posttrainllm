@@ -3,6 +3,19 @@ import MLX
 import MLXNN
 import MLXRandom
 
+/// Keep a dense effective-weight snapshot for weight-based variants and baking.
+/// Ordinary LoRA/DoRA forward passes retain the original packed base kernel;
+/// interpreting its uint32 storage as a floating-point Linear is invalid.
+/// The extra snapshot increases memory for adapted projections.
+private func denseLoraBase(_ base: Linear) -> Linear {
+    guard let quantized = base as? QuantizedLinear else { return base }
+    let weight = dequantized(
+        quantized.weight, scales: quantized.scales, biases: quantized.biases,
+        groupSize: quantized.groupSize, bits: quantized.bits, mode: quantized.mode,
+        dtype: .float32)
+    return Linear(weight: weight, bias: quantized.bias)
+}
+
 /// LoRA (Low-Rank Adaptation): a Linear subclass that adds a low-rank
 /// delta on top of the frozen base weight.
 ///
@@ -23,6 +36,7 @@ import MLXRandom
 /// of tens of MB, so multiple "voices" (legal text, code style, lyrics
 /// register) share the same base cheaply.
 public final class LoraLinear: Linear {
+    @ModuleInfo(key: "quantized_base") private var quantizedBase: QuantizedLinear?
     public let loraA: MLXArray  // [in, r]
     public let loraB: MLXArray  // [r, out]
     /// VeRA / AdaLoRA per-rank trainable scalars `[r]`. Used as a
@@ -52,6 +66,9 @@ public final class LoraLinear: Linear {
     /// are reused verbatim (no copy); the adapter matrices are fresh.
     public init(wrapping base: Linear, rank: Int = 4, alpha: Float = 8.0,
                 variant: PeftVariant = .lora, quantizationBits: Int = 4) {
+        self._quantizedBase.wrappedValue = (variant == .pissa || variant == .loftq)
+            ? nil : base as? QuantizedLinear
+        let base = denseLoraBase(base)
         precondition(rank > 0, "LoRA rank must be > 0")
         self.rank = rank
         self.alpha = alpha
@@ -155,6 +172,8 @@ public final class LoraLinear: Linear {
     /// adapter format doesn't yet carry the variant tag.
     public init(wrapping base: Linear, loraA: MLXArray, loraB: MLXArray,
                 rank: Int, alpha: Float) {
+        self._quantizedBase.wrappedValue = base as? QuantizedLinear
+        let base = denseLoraBase(base)
         self.rank = rank
         self.alpha = alpha
         self.variant = .lora
@@ -169,7 +188,12 @@ public final class LoraLinear: Linear {
         // base(x): inherited Linear forward — x @ weight.T + bias
         // delta:   x @ loraA · diag(d) @ loraB * scale
         // VeRA / AdaLoRA make `d` trainable; other variants leave it = 1.
-        let baseOut = super.callAsFunction(x)
+        let baseOut: MLXArray
+        if let quantizedBase {
+            baseOut = quantizedBase(x)
+        } else {
+            baseOut = super.callAsFunction(x)
+        }
         let xA = matmul(x, loraA)                // [B*T, r]
         let scaled = xA * loraD                   // broadcast over the last dim [r]
         let delta = matmul(scaled, loraB) * MLXArray(scale)
@@ -205,6 +229,7 @@ public final class LoraLinear: Linear {
 ///   `O(d_out · d_in)` extra work per linear per step — small relative
 ///   to the matmul that dominates.
 public final class DoraLinear: Linear {
+    @ModuleInfo(key: "quantized_base") private var quantizedBase: QuantizedLinear?
     public let loraA: MLXArray   // [in, r]
     public let loraB: MLXArray   // [r, out]
     public let m: MLXArray       // [out] — per-output-row magnitude (trainable)
@@ -213,6 +238,8 @@ public final class DoraLinear: Linear {
     public var scale: Float { alpha / Float(rank) }
 
     public init(wrapping base: Linear, rank: Int = 4, alpha: Float = 8.0) {
+        self._quantizedBase.wrappedValue = base as? QuantizedLinear
+        let base = denseLoraBase(base)
         precondition(rank > 0, "DoRA rank must be > 0")
         self.rank = rank
         self.alpha = alpha
@@ -239,6 +266,11 @@ public final class DoraLinear: Linear {
         // W_new = (V / rowNorm) · m_row, broadcast over input dim.
         let mCol = m.expandedDimensions(axis: -1)                          // [out, 1]
         let Wnew = (V / rowNorm) * mCol                                    // [out, in]
+        if let quantizedBase {
+            // Keep the original packed kernel at zero delta; apply only the
+            // learned magnitude/direction difference with a dense matmul.
+            return quantizedBase(x) + matmul(x, (Wnew - weight).transposed())
+        }
         // y = x @ Wnewᵀ + b. (Inherited Linear forward does x @ weight.T +
         // bias; we replicate that pattern manually since `weight` here is
         // the frozen base, not the magnitude-scaled active matrix.)

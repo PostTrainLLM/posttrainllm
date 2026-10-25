@@ -45,6 +45,14 @@ WASM_EXPORT int tg_generate(TgModel m, const unsigned char* prompt,
 // Step counter (AdamW step / number of train_step calls so far).
 WASM_EXPORT int tg_model_step(TgModel m);
 
+// Token-id inference for specialist vocabularies wider than a byte. Rejects
+// invalid ids/context/output sizes and returns 0 on failure, vocab on success.
+// Copies only last-position logits; no sampling, truncation or training.
+WASM_EXPORT int tg_forward_logits(TgModel m, const int* tokens, int count,
+                                 float* out, int out_count);
+// Weight-only import, in collect_params order. Optimizer state is cleared.
+WASM_EXPORT int tg_import_weights(TgModel m, const float* weights, int count);
+
 // --- checkpointing -------------------------------------------------------
 // Serialise the full trainable state — weights, the AdamW moments m/v, and the
 // step count — so a run can be saved to OPFS and resumed after a page refresh.
