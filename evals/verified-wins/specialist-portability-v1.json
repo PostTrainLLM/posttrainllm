@@ -13,7 +13,8 @@
     "wasm/src/model.cpp": "6f06f8806a161bf3b7182c38a7517c323b05e8346916602e9624971cf130c99c",
     "native-mac/Sources/TinyGPTModel/LoraHF.swift": "c84811d0ddfb5e1563d0e56470ad399ee78389443a769cd2daeb4c7e5a6014af",
     "native-mac/Sources/TinyGPTModel/Lora.swift": "da3c27fc48218ea1e2b947e03b2d3050292ff98a53add5794d03b1dafae6204b",
-    "native-mac/Sources/TinyGPT/DebugHFLogits.swift": "2dde13807b988cca76bb8525b32933a496c5870df8b21f558c9237a9131556c7"
+    "native-mac/Sources/TinyGPT/DebugHFLogits.swift": "2dde13807b988cca76bb8525b32933a496c5870df8b21f558c9237a9131556c7",
+    "browser/src/backend.ts": "b90ef8665729fd286636d38292d86a900c8051d0be1982931bf4e1bd56a2a034"
   },
   "terminal": {
     "source": {
@@ -101,7 +102,9 @@
     "browser_training": false,
     "browser_parallel_drafting": false,
     "compression": "f16 storage only; runtime weights expand to f32",
-    "memory": "tensor allocation admission estimate, not a measured total-process RAM ceiling"
+    "memory": "tensor allocation admission estimate, not a measured total-process RAM ceiling",
+    "wasm_asset_version": "terminal-v1",
+    "unversioned_wasm_asset_requests": 0
   },
   "native_decision": {
     "source_base_identity": "94d380f8834a59ba3cd709c8b09938882ae09c9f5047f252bf32cdc1dcb51ff0",
@@ -131,7 +134,7 @@
     "python_tests": 52,
     "browser_tests": 127,
     "native_tests": 9,
-    "browser_bundle_gzip_kb": 376.44,
+    "browser_bundle_gzip_kb": 376.59,
     "bundle_limit_kb": 500,
     "quality_complexity_violations": 301,
     "new_production_dependencies": 0
@@ -142,7 +145,7 @@
     "broader frozen primary/regression gates and native confidence recalibration"
   ],
   "raw_evidence": {
-    "runs/measurement-209-2026-10-25/browser-terminal-check.json": "768ee6fb5da34456e1a8188e0e54507f0b679b4741ebf24b236fe88bd4db2656",
+    "runs/measurement-209-2026-10-25/browser-terminal-check.json": "b51c3bc91e353f5a081eb4a0bbe0650052a5490bf64586cf3da567348fa9d113",
     "runs/measurement-209-2026-10-25/wasm-abi-check.json": "09d27715a7294e6bc222179fde9e4177b646b8793181e9a8de3fa9591eff417e",
     "runs/measurement-209-2026-10-25/native-decision-parity.json": "2e99b0c3f0a9cb58aa4a4993f55ea8c3014a07afb4331ededeba5cbeca956833",
     "runs/measurement-209-2026-10-25/native-identity-rejections.json": "4478d3816b31bd3c6f5af74724020dc5ac7884cd8e35b91e639ca0ed4b5ea622",
