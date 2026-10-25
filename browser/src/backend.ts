@@ -104,10 +104,13 @@ type Factory = (opts?: ModuleOpts) => Promise<WasmModule>;
  * fetch the module text and import it via a blob URL. `locateFile` tells
  * Emscripten where to find the .wasm regardless of import.meta.url.
  */
-const JS_URL_64 = "/tinygpt64.js";
-const WASM_URL_64 = "/tinygpt64.wasm";
-const JS_URL_32 = "/tinygpt.js";
-const WASM_URL_32 = "/tinygpt.wasm";
+// Bump whenever the compiled JS/WASM pair changes. Pages caches JS longer
+// than WASM; returning tabs must not pair a stale loader with a new binary.
+const ABI_VERSION = "terminal-v1";
+const JS_URL_64 = `/tinygpt64.js?v=${ABI_VERSION}`;
+const WASM_URL_64 = `/tinygpt64.wasm?v=${ABI_VERSION}`;
+const JS_URL_32 = `/tinygpt.js?v=${ABI_VERSION}`;
+const WASM_URL_32 = `/tinygpt.wasm?v=${ABI_VERSION}`;
 
 function supportsMemory64(): boolean {
   // The Memory64 descriptor field changed names during the proposal. Newer
