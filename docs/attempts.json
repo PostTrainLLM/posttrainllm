@@ -353,6 +353,29 @@
       "varied": "multi-backend teacher data"
     },
     {
+      "id": "measurement-gate-audit-20261025",
+      "name": "Frozen gate held-out readback",
+      "family": "file-ops",
+      "status": "inconclusive",
+      "evidence": "ReST `4/4 fileops, 4/4 vehicle`; multibackend `4/4 fileops, 4/4 vehicle`; frontier `8/8`; both emit the same 19 requested calls. Both runner counters report zero schema failures and zero listed unexpected side effects; actuator coverage is incomplete.",
+      "failure_reason": "The eight-task slice does not distinguish the historically retained and rejected candidates, so it cannot validate the comparative selection boundary or overturn the broader rejection.",
+      "failure_reason_confidence": "exact",
+      "lesson": "A frontier ceiling is necessary but does not make a simple smoke discriminating; a zero fixed-list side-effect counter also does not prove complete safety.",
+      "next_action": "Preserve the ReST file-operations route and multibackend general-use rejection. Before future acceptance, freeze primary/regression slices representing historical failure classes and review every decoded mutator arguments, multiplicity and order at the execution boundary.",
+      "evidence_sources": [
+        "evals/verified-wins/measurement-gate-audit-v1.json",
+        "evals/verified-wins/measurement-gate-audit-result-v1.json"
+      ],
+      "source": "evals/verified-wins/measurement-gate-audit-result-v1.json",
+      "kind": "model-evaluation",
+      "methods": ["evaluation", "routing"],
+      "bases": ["qwen3-4b"],
+      "objective": "breadth-retention",
+      "data_rows": 8,
+      "varied_from": "fileops-qwen3-4b-rest-fused",
+      "varied": "Unchanged pinned ReST and multibackend artifacts on a predeclared frontier-qualified four-fileops plus four-vehicle held-out slice; no training."
+    },
+    {
       "id": "vibethinker-3b-agentic-distilled",
       "name": "VibeThinker 3B agentic distilled variant",
       "family": "archive-model",
@@ -1123,7 +1146,7 @@
       "family": "sql",
       "status": "failed",
       "evidence": "composed execution `0.860 -> 0.900` (+0.040, exact `0.840 -> 0.860`)",
-      "failure_reason": "DPO pressure too low to change output FORMAT \u2014 41/50 raw",
+      "failure_reason": "DPO pressure too low to change output FORMAT — 41/50 raw",
       "failure_reason_confidence": "exact",
       "lesson": "Reference-anchored DPO is the correct fix for the SimPO collapse",
       "next_action": "~~Higher-pressure reference-anchored DPO...~~ Done 2026-07-11 (next entry).",

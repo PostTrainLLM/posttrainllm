@@ -9,6 +9,15 @@ The eval protocol exists to prevent training against noise.
 3. Keep primary score and regression score separate.
 4. Report skipped checks.
 5. Do not ship a specialist without a before/after table.
+6. Freeze primary/regression slices representing historical failure classes.
+   An all-arm tie on a simple smoke is non-discriminating evidence; do not
+   call it validation of a comparative gate or add harder cases after scoring.
+7. For tool use, classify every exposed mutator and inspect each decoded
+   action's arguments, multiplicity and order at the execution boundary.
+   Matching final state and a zero fixed-list counter are incomplete safety
+   evidence. Record counter coverage and trace review separately.
+
+Rules 6–7 follow the [dated gate readback](../../evals/verified-wins/measurement-gate-audit-result-v1.json).
 
 ## Required Metrics
 
@@ -40,8 +49,8 @@ Use the most specific verified eval:
 
 ## Frontier Calibration
 
-For benchmark-style evals, keep the existing rule: a frontier or trusted
-incumbent must be near-ceiling before the eval is used to grade small models.
+For benchmark-style evals, a frontier model must be near-ceiling before the
+eval is used to grade small models.
 If the eval punishes better-than-gold answers or ungroundable golds, use it for
 training only, not reporting.
 
