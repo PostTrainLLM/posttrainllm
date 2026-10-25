@@ -14,7 +14,7 @@
     "native-mac/Sources/TinyGPTModel/LoraHF.swift": "c84811d0ddfb5e1563d0e56470ad399ee78389443a769cd2daeb4c7e5a6014af",
     "native-mac/Sources/TinyGPTModel/Lora.swift": "da3c27fc48218ea1e2b947e03b2d3050292ff98a53add5794d03b1dafae6204b",
     "native-mac/Sources/TinyGPT/DebugHFLogits.swift": "2dde13807b988cca76bb8525b32933a496c5870df8b21f558c9237a9131556c7",
-    "browser/src/backend.ts": "b90ef8665729fd286636d38292d86a900c8051d0be1982931bf4e1bd56a2a034"
+    "browser/src/backend.ts": "c0d9fe7e44667621477ca231a2301ec78c3054b254af253d40961cc0eb6e4f95"
   },
   "terminal": {
     "source": {
@@ -58,14 +58,14 @@
     "abi_checks": [
       {
         "memory64": false,
-        "maximum_logit_error": 9.5367431640625e-6,
+        "maximum_logit_error": 9.5367431640625e-06,
         "invalid_weights_rejected": true,
         "byte_training_loss": 5.528998851776123,
         "byte_training_step": 1
       },
       {
         "memory64": true,
-        "maximum_logit_error": 9.5367431640625e-6,
+        "maximum_logit_error": 9.5367431640625e-06,
         "invalid_weights_rejected": true,
         "byte_training_loss": 5.528998851776123,
         "byte_training_step": 1

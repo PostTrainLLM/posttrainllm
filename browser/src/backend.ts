@@ -104,8 +104,8 @@ type Factory = (opts?: ModuleOpts) => Promise<WasmModule>;
  * fetch the module text and import it via a blob URL. `locateFile` tells
  * Emscripten where to find the .wasm regardless of import.meta.url.
  */
-// Bump when the C ABI changes. Pages caches JS longer than WASM; both must
-// share a fresh URL so a returning tab cannot pair an old loader with new code.
+// Bump whenever the compiled JS/WASM pair changes. Pages caches JS longer
+// than WASM; returning tabs must not pair a stale loader with a new binary.
 const ABI_VERSION = "terminal-v1";
 const JS_URL_64 = `/tinygpt64.js?v=${ABI_VERSION}`;
 const WASM_URL_64 = `/tinygpt64.wasm?v=${ABI_VERSION}`;
