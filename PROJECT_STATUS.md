@@ -1,6 +1,6 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-10-26
+Last updated: 2026-10-27
 
 Lifecycle: **learning artifact complete; public release verified; owner inference sprint active; no active model target**
 
@@ -20,10 +20,14 @@ smokes do not qualify a new specialist or establish upstream parity. The
 reference tranche was published through PR #211 at `b12f5ff`, with all eight
 CI jobs and Pages deployment `40124733205` passing. Browser-only execution
 now covers exported small terminal models and fixed-shape Timestral WASM
-artifacts. The forecast tranche is tracked in PR #216; its Python parity,
-local-file browser execution and cancellation are verified locally. Qwen browser
-inference and Timestral WebGPU remain unfinished; no forecast deployment or
-model-quality qualification is claimed.
+artifacts. The forecast tranche merged through PR #216; its Python parity,
+local-file browser execution and cancellation are verified. The local portable
+Qwen path now exports the retained q4 base and optional LoRA adapter, checks
+tokenizer and selected-logit parity, and executes in an isolated WASM worker.
+Its float32 identity differs from native MLX: native calibration is rejected,
+and confidence and model quality remain unqualified. Timestral WebGPU and
+broader quality studies remain deferred; release evidence belongs to the linked
+pull requests, not these local runtime checks.
 See the [operator commands and boundaries](docs/factory/specialist-labs.md).
 
 The owner-authorized finishing pass adds guided CSV/JSONL import, pinned model

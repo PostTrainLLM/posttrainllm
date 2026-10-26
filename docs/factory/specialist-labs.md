@@ -240,7 +240,7 @@ MLX GPU memory is recorded separately when training. There is no paid API use.
 Decision MLX adapters can be converted to native TGLA packages with the command
 below. Forecast checkpoints can be exported for fixed-shape browser WASM
 inference. Useful terminal quality, broader capability/regression runs,
-browser-only Qwen and Timestral WebGPU inference remain unfinished. These references do not establish upstream feature/quality
+Qwen has a separate portable float32 WASM path below; Timestral WebGPU remains unfinished. These references do not establish upstream feature/quality
 parity.
 
 ## Portable terminal inference
@@ -306,7 +306,7 @@ browser RAM. Runtime assets load from the site's own origin only when requested.
 Exports refuse an existing output directory. Failed exports may retain partial
 files, but do not write an activation manifest. Keep manifests private if the
 example contains private data. Numerical portability does not qualify a model.
-Timestral WebGPU execution and the Qwen browser port remain unfinished.
+Timestral WebGPU execution remains unfinished. Qwen WASM uses the separate arithmetic identity described below.
 
 ## Native decision adapter bridge
 
@@ -334,3 +334,39 @@ a Python fp32 comparison reduced that to 0.0678. This is execution compatibility
 not numerical or calibration parity. Refit temperature and rerun primary and
 regression gates before using native confidence. No model is promoted by this
 conversion.
+
+## Portable Qwen decisions
+
+Use a local tied-embedding Qwen3 MLX affine q4/group64 base and, optionally,
+an identity-checked ordinary q/v LoRA adapter. Export with the existing decision,
+forecast and browser extras installed; this command never downloads models:
+
+```sh
+uv run --project scripts/specialists python scripts/specialists/lab.py decision export-browser --base <local-base> --adapter <adapter-directory> --data example.jsonl --out <new-directory>
+```
+
+The JSONL contains one decision example. The exporter uses the maintained
+Transformers Qwen3 body, retains packed affine weights through ONNX Runtime's
+MatMulNBits plus a group-sum bias correction, and verifies three selected-logit
+probes against its Python float32 reference. No full-vocabulary generation or
+sampling substitutes for option scoring. Unknown adapters/keys, wrong base or
+configuration hashes, and failed parity cannot produce an admitted manifest.
+
+In **Decision execution**, choose WASM and select all five exported files.
+Checksums, a distinct portable model identity, tokenizer/template vectors and
+three full-model probes gate activation. All files and prompts stay in the tab.
+The maintained tokenizer package loads only in the owned worker. Stop, file or
+provider changes, mode changes and page teardown terminate that worker; requests
+have a 45-second deadline. The default limit is 256 prompt tokens; export may
+set 64–512. Inputs above that explicit limit are rejected without truncation.
+Labels must encode as distinct single tokens. Integer-index labels are rejected
+because JavaScript would reorder them; use A, B, C. Only prediction is enabled;
+training and qualification remain local Python workflows.
+
+Portable float32 arithmetic is **not original MLX BF16 arithmetic**. The model
+identity is separate and original calibration is rejected. Probabilities and
+threshold abstention are uncalibrated; no quality or confidence qualification is
+implied. Export preserves source identity and adapter checksums, but same option
+selection alone never establishes calibration equivalence. WebGPU is not exposed.
+A retained 1.7B model/adapter ran in Chrome WASM with roughly 5 GiB process-tree
+RSS in the bounded wiring probe; this is not a general memory/latency guarantee.

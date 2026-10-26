@@ -535,6 +535,13 @@ def argument_parser():
     child.add_argument("--base", required=True)
     child.add_argument("--adapter", required=True)
     child.add_argument("--out", required=True)
+    child = sub.add_parser("export-browser")
+    child.add_argument("--base", required=True)
+    child.add_argument("--adapter")
+    child.add_argument("--data", required=True)
+    child.add_argument("--out", required=True)
+    child.add_argument("--max-tokens", type=int, default=256)
+    child.add_argument("--seconds", type=float, default=60)
     return parser
 
 
@@ -571,6 +578,24 @@ def main():
         from decision_native import export
 
         print(json.dumps(export(args.base, args.adapter, args.out)))
+    elif args.command == "export-browser":
+        from decision_browser import export
+
+        rows = read_rows(args.data)
+        if len(rows) != 1:
+            raise ValueError("browser export requires exactly one example row")
+        print(
+            json.dumps(
+                export(
+                    args.base,
+                    args.adapter,
+                    rows[0],
+                    args.out,
+                    args.max_tokens,
+                    args.seconds,
+                )
+            )
+        )
     elif args.command in ("score", "train"):
         run_model(args)
     elif args.command == "calibrate":

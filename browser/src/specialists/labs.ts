@@ -1,4 +1,5 @@
 import { setupBrowserForecast } from "./browser-forecast";
+import { setupBrowserDecision } from "./browser-decision";
 /** Local specialist modes inside /playground. No network calls before Connect. */
 import { setupWorkflow } from "./workflow";
 import { setupBrowserTerminal } from "./browser-terminal";
@@ -239,10 +240,30 @@ export function setupSpecialistLabs(): void {
       resetExecution();
     },
   );
+  const portableDecision = setupBrowserDecision(
+    root,
+    () => {
+      resetExecution();
+      if (mode === "decision" && portableDecision.selected())
+        get<HTMLDetailsElement>("connect-help").open = false;
+      else workflow?.modeChanged();
+    },
+    (text) => status.replaceChildren(text),
+    (value) => {
+      if (busy || mode !== "decision") return;
+      action.value = "predict";
+      input.value = JSON.stringify(value, null, 2);
+      resetOutput();
+      resetExecution();
+    },
+  );
   const browserRuntime = () =>
-    mode === "forecast" ? portableForecast : portable;
-  const inBrowser = () =>
-    (mode === "terminal" || mode === "forecast") && browserRuntime().selected();
+    mode === "forecast"
+      ? portableForecast
+      : mode === "decision"
+        ? portableDecision
+        : portable;
+  const inBrowser = () => browserRuntime().selected();
 
   function resetExecution(): void {
     session = undefined;
@@ -282,17 +303,21 @@ export function setupSpecialistLabs(): void {
   function setBusy(value: boolean): void {
     busy = value;
     const browserForecast = mode === "forecast" && portableForecast.selected();
-    get("model-picker").hidden = browserForecast;
-    get("history-panel").hidden = browserForecast;
-    get("connection").textContent = browserForecast
+    const browserDecision = mode === "decision" && portableDecision.selected();
+    const localFiles = browserForecast || browserDecision;
+    get("model-picker").hidden = localFiles;
+    get("history-panel").hidden = localFiles;
+    get("connection").textContent = localFiles
       ? "Browser execution · local files"
       : connected
         ? "Runtime connected · local"
         : "Runtime disconnected";
-    if (browserForecast || !connected)
+    if (localFiles || !connected)
       get("model").textContent = browserForecast
         ? "Timestral · browser WASM"
-        : modes[mode].model;
+        : browserDecision
+          ? "Qwen3 · portable float32"
+          : modes[mode].model;
     form.setAttribute("aria-busy", String(value));
     run.disabled =
       value ||
@@ -323,12 +348,14 @@ export function setupSpecialistLabs(): void {
   function selectMode(next: Mode): void {
     if (busy) return;
     if (mode === "forecast" && next !== mode) portableForecast.stop();
+    if (mode === "decision" && next !== mode) portableDecision.stop();
     resetExecution();
     if (action.value)
       saved.set(mode, { action: action.value, text: input.value });
     mode = next;
     get("terminal-browser").hidden = mode !== "terminal";
     get("forecast-browser").hidden = mode !== "forecast";
+    get("decision-browser").hidden = mode !== "decision";
     const config = modes[mode];
     get("mode-title").textContent = config.title;
     get("mode-description").textContent = config.description;
@@ -453,6 +480,7 @@ export function setupSpecialistLabs(): void {
 
   async function execute(payload?: Json): Promise<void> {
     if ((!connected && !inBrowser()) || busy) return;
+    if (mode === "decision" && portableDecision.selected()) resetOutput();
     const generation = executionGeneration;
     setBusy(true);
     status.textContent = "Running locally…";

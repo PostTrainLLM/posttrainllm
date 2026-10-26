@@ -62,6 +62,9 @@ importers:
       '@fontsource-variable/bricolage-grotesque':
         specifier: ^5.3.0
         version: 5.3.0
+      '@huggingface/tokenizers':
+        specifier: 0.2.0
+        version: 0.2.0
       '@saas-maker/motion':
         specifier: github:sass-maker/ui-library#v0.1.18&path:/packages/motion
         version: https://codeload.github.com/sass-maker/ui-library/tar.gz/f61aad320ba3bed99c48df40fc16a7f55f508ba5#path:/packages/motion(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -980,6 +983,9 @@ packages:
     engines: {node: '>=20'}
     peerDependencies:
       hono: ^4
+
+  '@huggingface/tokenizers@0.2.0':
+    resolution: {integrity: sha512-LidMHe1FpcSYH4vcSjXooda34pC0M8m1gmDOv7SQi6Iv+ib1zX7J3sHBCC9/3FPCkn2k1b55FneVqMRxrr99pg==}
 
   '@iconify-json/lucide@1.2.128':
     resolution: {integrity: sha512-s8tZ6BIQfkwl6INcdHMri3bokShU/MwOVM8cyFUgE7QJ3EuwmIhXFsrqtA0WD8YrhoII1K+KA5EEIJ4x0JWIdw==}
@@ -7777,6 +7783,8 @@ snapshots:
   '@hono/node-server@2.1.1(hono@4.13.5)':
     dependencies:
       hono: 4.13.5
+
+  '@huggingface/tokenizers@0.2.0': {}
 
   '@iconify-json/lucide@1.2.128':
     dependencies:
