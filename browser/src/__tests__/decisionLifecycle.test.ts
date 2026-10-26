@@ -2,7 +2,10 @@ import { afterEach, expect, it, vi } from "vitest";
 import { setupBrowserDecision } from "../specialists/browser-decision";
 
 function fixture() {
-  const controls = new Map<string, EventTarget & Record<string, unknown>>();
+  const controls = new Map<
+    string,
+    EventTarget & { value: string; disabled: boolean; files?: unknown }
+  >();
   for (const name of ["provider", "files", "example", "load", "stop"])
     controls.set(
       name,
