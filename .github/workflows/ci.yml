@@ -82,6 +82,12 @@ jobs:
       - name: Check bundle size
         working-directory: browser
         run: pnpm run size
+      - name: Install Chromium for isolated WASM bootstrap check
+        working-directory: browser
+        run: pnpm exec playwright install --with-deps chromium --only-shell
+      - name: Verify two-thread WASM bootstrap under production isolation headers
+        working-directory: browser
+        run: pnpm run test:ort-bootstrap
 
   mac:
     name: mac (swift build + xcodebuild test)
