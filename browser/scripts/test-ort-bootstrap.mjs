@@ -16,14 +16,14 @@ await mkdir(pages, { recursive: true });
 await writeFile(
   join(pages, "index.astro"),
   `<!doctype html><title>Runtime initialization check</title><script>
-const worker = new Worker(new URL('./probe-worker.ts', import.meta.url), {type: 'module'});
+const worker = new Worker(new URL('../probe-worker.ts', import.meta.url), {type: 'module'});
 worker.onmessage = event => { window.__ortProbe = event.data; worker.terminate(); };
 worker.onerror = event => { window.__ortProbe = {error:event.message}; worker.terminate(); };
 worker.postMessage({});
 </script>`,
 );
 await writeFile(
-  join(pages, "probe-worker.ts"),
+  join(work, "src", "probe-worker.ts"),
   `import {ort} from ${JSON.stringify(join(root, "src/specialists/browser-ort.ts"))};
 self.onmessage = async () => {
   try {
