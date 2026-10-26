@@ -369,5 +369,9 @@ identity is separate and original calibration is rejected. Probabilities and
 threshold abstention are uncalibrated; no quality or confidence qualification is
 implied. Export preserves source identity and adapter checksums, but same option
 selection alone never establishes calibration equivalence. WebGPU is not exposed.
-A retained 1.7B model/adapter ran in Chrome WASM with roughly 5 GiB process-tree
-RSS in the bounded wiring probe; this is not a general memory/latency guarantee.
+The retained 1.7B model needs several GiB of memory. An earlier non-isolated
+Chrome wiring probe used roughly 5 GiB process-tree RSS. With production
+cross-origin isolation and two WASM threads, activation and prediction matched
+Python, but the combined inference/layout replay exceeded its 8 GiB process-tree
+budget afterward. Core inference peak RSS was not measured separately. This is
+not an 8 GiB device qualification or a general memory/latency guarantee.
