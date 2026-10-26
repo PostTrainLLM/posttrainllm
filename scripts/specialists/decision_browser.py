@@ -250,7 +250,7 @@ def export(base, adapter, item, out, maximum=256, seconds=60):
         "measurements": budget.measurements(),
     }
     budget.check()
-    if len(json.dumps(receipt).encode()) > 8 * 1024**2:
+    if len((json.dumps(receipt, indent=2, allow_nan=False) + "\n").encode()) > 8 * 1024**2:
         raise ValueError("portable manifest exceeds 8 MiB")
     write_json(out / "manifest.json", receipt)
     return receipt

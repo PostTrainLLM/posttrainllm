@@ -300,8 +300,7 @@ export function setupSpecialistLabs(): void {
     return body;
   }
 
-  function setBusy(value: boolean): void {
-    busy = value;
+  function updateRuntimeLabel(): void {
     const browserForecast = mode === "forecast" && portableForecast.selected();
     const browserDecision = mode === "decision" && portableDecision.selected();
     const localFiles = browserForecast || browserDecision;
@@ -318,6 +317,11 @@ export function setupSpecialistLabs(): void {
         : browserDecision
           ? "Qwen3 · portable float32"
           : modes[mode].model;
+  }
+
+  function setBusy(value: boolean): void {
+    busy = value;
+    updateRuntimeLabel();
     form.setAttribute("aria-busy", String(value));
     run.disabled =
       value ||
