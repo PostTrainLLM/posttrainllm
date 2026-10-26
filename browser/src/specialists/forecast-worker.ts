@@ -1,6 +1,5 @@
 /** Browser-owned Timestral inference. Model files and inputs stay in this worker. */
-import * as ort from "onnxruntime-web/wasm";
-import wasmUrl from "onnxruntime-web/ort-wasm-simd-threaded.wasm?url";
+import { ort } from "./browser-ort";
 import {
   manifest,
   object,
@@ -11,8 +10,6 @@ import {
   type Json,
 } from "./forecast-input";
 
-ort.env.wasm.wasmPaths = { wasm: wasmUrl };
-ort.env.wasm.numThreads = 2;
 let session: ort.InferenceSession | undefined;
 let metadata: Manifest | undefined;
 let busy = false;

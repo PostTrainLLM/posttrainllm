@@ -21,6 +21,7 @@
     "gallery:check": "node scripts/check_gallery_drift.mjs",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:ort-bootstrap": "node scripts/test-ort-bootstrap.mjs",
     "size": "size-limit",
     "size:check": "size-limit --json"
   },
