@@ -8,6 +8,7 @@ dependencies = ["numpy>=1.26,<3"]
 decision = ["torch>=2.4", "transformers>=4.51,<5", "safetensors>=0.4", "huggingface-hub>=0.30,<1"]
 mlx = ["mlx-lm>=0.28; sys_platform == 'darwin'"]
 forecast = ["timestral @ git+https://github.com/mistralai/timestral.git@a534bdbd244d64f3d9d743f46c7bf6fc330ed4ff"]
+browser = ["onnx>=1.18,<2", "onnxruntime>=1.20,<2", "onnxscript>=0.5,<1"]
 terminal = ["torch>=2.4", "pyte>=0.8.2", "safetensors>=0.4"]
 dev = ["pytest>=8", "ruff>=0.12"]
 

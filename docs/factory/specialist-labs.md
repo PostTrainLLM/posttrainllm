@@ -4,7 +4,8 @@ These modes extend the existing `/playground` and share one local runtime.
 Implementation and remaining work are tracked in
 [Issue #210](https://github.com/PostTrainLLM/posttrainllm/issues/210).
 All three have Python references and browser controls. Exported small terminal
-models also run entirely in this tab through WASM or WebGPU.
+models run entirely in this tab through WASM or WebGPU. Fixed-shape Timestral
+artifacts have a separate browser WASM path.
 
 ## Install and start
 
@@ -237,9 +238,9 @@ budget; it is not a hard process/RAM sandbox. Browser training is limited to
 MLX GPU memory is recorded separately when training. There is no paid API use.
 
 Decision MLX adapters can be converted to native TGLA packages with the command
-below. Forecast checkpoints remain Python artifacts. Useful terminal quality,
-broader capability/regression runs and browser-only Qwen/Timestral inference
-remain unfinished. These references do not establish upstream feature/quality
+below. Forecast checkpoints can be exported for fixed-shape browser WASM
+inference. Useful terminal quality, broader capability/regression runs,
+browser-only Qwen and Timestral WebGPU inference remain unfinished. These references do not establish upstream feature/quality
 parity.
 
 ## Portable terminal inference
@@ -274,6 +275,38 @@ This establishes bounded portability, not all-input equivalence or capability.
 Unknown training provenance blocks qualification; changing episode IDs/metadata
 cannot disguise training replays. Recorder episodes bind immutable image IDs
 and public initial conditions. Eval reports whole-world/per-family successes.
+
+## Portable forecast inference
+
+Install the optional browser export dependencies, then compile one example's
+input shape. No model is downloaded unless `--download` is explicitly passed.
+
+```sh
+uv sync --project scripts/specialists --all-extras --frozen
+uv run --project scripts/specialists python scripts/specialists/lab.py forecast export-browser --model mistralai/Timestral-5M --revision bdd20cfc15a3fea0e4cb5ccef37f8d3ca7aa335f --data example.jsonl --horizon 24 --out checkpoints/forecast-browser
+```
+
+The one-row JSONL uses the existing forecast input schema. Targets, history
+length, horizon and each covariate count become an explicit artifact contract;
+export another shape when they change. Missing observations, numeric/categorical
+past and known-future covariates, reflected averaging, clipping, quantile caps
+and advancing-block refinement retain the pinned Python semantics. Category
+means use observed history only; category identities retain float64 precision.
+
+In **Forecast**, open **Forecast execution**, select WASM, and load the exported
+`manifest.json` and `model.onnx`. The worker checks the model checksum and three
+Python numerical probes before activation. **Use artifact example** loads the
+matching input without contacting the local API. Prediction inputs must match
+the artifact shape. **Stop browser forecast**, replacing files, or changing the
+provider terminates the owned worker and invalidates pending replies.
+
+Models are limited to 1 GiB and manifests to 64 MiB. Each worker operation has a
+45-second cancellation deadline; these are admission limits, not measured peak
+browser RAM. Runtime assets load from the site's own origin only when requested.
+Exports refuse an existing output directory. Failed exports may retain partial
+files, but do not write an activation manifest. Keep manifests private if the
+example contains private data. Numerical portability does not qualify a model.
+Timestral WebGPU execution and the Qwen browser port remain unfinished.
 
 ## Native decision adapter bridge
 
