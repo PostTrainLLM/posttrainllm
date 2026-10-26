@@ -1,3 +1,4 @@
+import { setupBrowserForecast } from "./browser-forecast";
 /** Local specialist modes inside /playground. No network calls before Connect. */
 import { setupWorkflow } from "./workflow";
 import { setupBrowserTerminal } from "./browser-terminal";
@@ -221,7 +222,27 @@ export function setupSpecialistLabs(): void {
     () => resetExecution(),
     (text) => status.replaceChildren(text),
   );
-  const inBrowser = () => mode === "terminal" && portable.selected();
+  const portableForecast = setupBrowserForecast(
+    root,
+    () => {
+      resetExecution();
+      if (mode === "forecast" && portableForecast.selected())
+        get<HTMLDetailsElement>("connect-help").open = false;
+      else workflow?.modeChanged();
+    },
+    (text) => status.replaceChildren(text),
+    (value) => {
+      if (busy || mode !== "forecast") return;
+      action.value = "predict";
+      input.value = JSON.stringify(value, null, 2);
+      resetOutput();
+      resetExecution();
+    },
+  );
+  const browserRuntime = () =>
+    mode === "forecast" ? portableForecast : portable;
+  const inBrowser = () =>
+    (mode === "terminal" || mode === "forecast") && browserRuntime().selected();
 
   function resetExecution(): void {
     session = undefined;
@@ -260,11 +281,20 @@ export function setupSpecialistLabs(): void {
 
   function setBusy(value: boolean): void {
     busy = value;
+    const browserForecast = mode === "forecast" && portableForecast.selected();
+    get("model-picker").hidden = browserForecast;
+    get("history-panel").hidden = browserForecast;
+    get("connection").textContent = browserForecast
+      ? "Browser execution · local files"
+      : connected
+        ? "Runtime connected · local"
+        : "Runtime disconnected";
+    if (browserForecast) get("model").textContent = "Timestral · browser WASM";
     form.setAttribute("aria-busy", String(value));
     run.disabled =
       value ||
       (inBrowser()
-        ? !portable.ready() || action.value !== "predict"
+        ? !browserRuntime().ready() || action.value !== "predict"
         : !connected);
     run.textContent = value
       ? "Running locally…"
@@ -289,11 +319,13 @@ export function setupSpecialistLabs(): void {
 
   function selectMode(next: Mode): void {
     if (busy) return;
+    if (mode === "forecast" && next !== mode) portableForecast.stop();
     resetExecution();
     if (action.value)
       saved.set(mode, { action: action.value, text: input.value });
     mode = next;
     get("terminal-browser").hidden = mode !== "terminal";
+    get("forecast-browser").hidden = mode !== "forecast";
     const config = modes[mode];
     get("mode-title").textContent = config.title;
     get("mode-description").textContent = config.description;
@@ -316,9 +348,13 @@ export function setupSpecialistLabs(): void {
     }
     get("workspace").setAttribute("aria-labelledby", `sp-tab-${mode}`);
     resetOutput();
-    status.textContent = connected
-      ? "Ready. Edit the example and run locally."
-      : "Connect your local runtime to run this example.";
+    status.textContent = inBrowser()
+      ? browserRuntime().ready()
+        ? "Browser runtime ready. Edit the example and predict in this tab."
+        : "Load and verify a browser artifact before prediction."
+      : connected
+        ? "Ready. Edit the example and run locally."
+        : "Connect your local runtime to run this example.";
     workflow?.modeChanged();
     setBusy(false);
   }
@@ -401,9 +437,9 @@ export function setupSpecialistLabs(): void {
     if (inBrowser()) {
       if (action.value !== "predict")
         throw new Error(
-          "Browser terminal supports prediction. Select Python for training and qualification.",
+          "Browser execution supports prediction. Select Python for training and qualification.",
         );
-      return portable.execute(payload);
+      return browserRuntime().execute(payload);
     }
     if (["train", "compare", "ceiling"].includes(action.value)) {
       await workflow?.execute(payload);

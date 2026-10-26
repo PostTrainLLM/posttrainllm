@@ -340,7 +340,7 @@ def main():
     child.add_argument("--seed", type=int, default=7)
     child.add_argument("--length", type=int, default=128)
     child.add_argument("--out", required=True)
-    for command in ("predict", "train", "backtest"):
+    for command in ("predict", "train", "backtest", "export-browser"):
         child = sub.add_parser(command)
         child.add_argument("--model", default="mistralai/Timestral-5M")
         child.add_argument("--revision")
@@ -362,7 +362,16 @@ def main():
     budget = Budget(args.seconds)
     forecaster = load(args.model, args.revision, not args.download, budget)
     rows = read_rows(args.data)
-    if args.command == "train":
+    if args.command == "export-browser":
+        from forecast_browser import export
+
+        if len(rows) != 1:
+            raise ValueError(
+                "browser export accepts one example defining its input shape"
+            )
+        receipt = export(forecaster, rows[0], args.horizon, args.out, budget)
+        print(json.dumps(receipt["measurements"]))
+    elif args.command == "train":
         train(forecaster, rows, args.out, args.steps, budget)
     elif args.command == "predict":
         write_rows(args.out, [forecast(forecaster, row, args.horizon) for row in rows])

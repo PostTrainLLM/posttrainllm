@@ -119,7 +119,56 @@ uv run --project scripts/specialists python scripts/specialists/lab.py serve</co
         numerical gate.
       </p>
     </details>
-    <div class="sp-model-picker">
+    <details id="sp-forecast-browser" class="sp-data-import" hidden>
+      <summary>Forecast execution · Python or WASM</summary>
+      <p class="sp-note">
+        Run an exported Timestral model entirely in this tab. Its manifest fixes
+        the history length, horizon and covariate counts. Three Python probes
+        must pass before activation. Training and qualification use Python.
+      </p>
+      <label for="sp-forecast-provider"
+        >Execution<select id="sp-forecast-provider"
+          ><option value="python">Local Python runtime</option><option
+            value="wasm">This tab · WASM</option
+          ></select
+        ></label
+      >
+      <label for="sp-forecast-manifest"
+        >Forecast manifest<input
+          id="sp-forecast-manifest"
+          type="file"
+          accept=".json,application/json"
+        /></label
+      >
+      <label for="sp-forecast-model"
+        >ONNX model<input
+          id="sp-forecast-model"
+          type="file"
+          accept=".onnx"
+        /></label
+      >
+      <div class="sp-run-actions">
+        <button id="sp-forecast-load" type="button"
+          >Load &amp; verify artifact</button
+        ><button
+          id="sp-forecast-example"
+          type="button"
+          class="sp-secondary"
+          disabled>Use artifact example</button
+        ><button id="sp-forecast-stop" type="button" class="sp-secondary"
+          >Stop browser forecast</button
+        >
+      </div>
+      <p class="sp-note">
+        Export with <code
+          >forecast export-browser --model &lt;checkpoint&gt; --data
+          example.jsonl --horizon 24 --out forecast-browser</code
+        > through the lab CLI. Load <code>model.onnx</code> and <code
+          >manifest.json</code
+        > from that directory.
+      </p>
+    </details>
+    <div id="sp-model-picker" class="sp-model-picker">
       <div>
         <label for="sp-model-select">Base model</label><select
           id="sp-model-select"
@@ -296,7 +345,7 @@ uv run --project scripts/specialists python scripts/specialists/lab.py serve</co
         <p id="sp-measurements" class="sp-note"></p>
       </div>
     </div>
-    <div class="sp-history">
+    <div id="sp-history-panel" class="sp-history">
       <div class="sp-result-heading">
         <h3>Saved runs</h3><button
           id="sp-refresh-runs"
@@ -314,8 +363,8 @@ uv run --project scripts/specialists python scripts/specialists/lab.py serve</co
     </div>
     <p class="sp-boundary">
       Training and qualification use your local Python runtime. Exported small
-      terminal models also predict in this tab through WASM or WebGPU. Decision
-      and Timestral inference use Python.
+      terminal models predict in this tab through WASM or WebGPU; exported
+      Timestral forecasts use WASM. Decision inference uses Python.
     </p>
     <div class="sp-credits">
       Methods and upstream work: <a
