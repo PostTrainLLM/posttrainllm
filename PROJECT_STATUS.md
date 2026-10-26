@@ -1,6 +1,6 @@
 # posttrainllm — PROJECT STATUS
 
-Last updated: 2026-10-25
+Last updated: 2026-10-26
 
 Lifecycle: **learning artifact complete; public release verified; owner inference sprint active; no active model target**
 
@@ -18,8 +18,12 @@ actual local inference, training, artifact reload and responsive browser checks
 pass with no external network requests. Tiny correctness checks and runtime
 smokes do not qualify a new specialist or establish upstream parity. The
 reference tranche was published through PR #211 at `b12f5ff`, with all eight
-CI jobs and Pages deployment `40124733205` passing. Browser-only specialist
-execution remains unbuilt.
+CI jobs and Pages deployment `40124733205` passing. Browser-only execution
+now covers exported small terminal models and fixed-shape Timestral WASM
+artifacts. The forecast tranche is tracked in PR #216; its Python parity,
+local-file browser execution and cancellation are verified locally. Qwen browser
+inference and Timestral WebGPU remain unfinished; no forecast deployment or
+model-quality qualification is claimed.
 See the [operator commands and boundaries](docs/factory/specialist-labs.md).
 
 The owner-authorized finishing pass adds guided CSV/JSONL import, pinned model
