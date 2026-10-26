@@ -136,3 +136,18 @@ it("a synchronous transfer failure clears the pending request for a retry", asyn
   f.reply();
   await expect(next).resolves.toHaveProperty("max_tokens", 256);
 });
+
+it("stops a newly loaded worker again after a BFCache-style pagehide and restore", async () => {
+  const f = fixture();
+  for (let n = 0; n < 2; n++) {
+    f.click("load");
+    await settle();
+    f.reply(n);
+    await settle();
+    expect(f.controller.ready()).toBe(true);
+    window.dispatchEvent(new Event("pagehide"));
+    expect(f.workers[n].terminate).toHaveBeenCalledOnce();
+    expect(f.controller.ready()).toBe(false);
+    window.dispatchEvent(new Event("pageshow"));
+  }
+});

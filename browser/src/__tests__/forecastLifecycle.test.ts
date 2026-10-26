@@ -113,3 +113,19 @@ describe("forecast worker ownership", () => {
     expect(controller.ready()).toBe(false);
   });
 });
+
+it("stops a new forecast worker on every pagehide after BFCache-style restore", async () => {
+  const { controls, controller } = setup();
+  for (let n = 0; n < 2; n++) {
+    controls.load.click();
+    await flush();
+    const worker = StubWorker.instances[n];
+    worker.reply();
+    await flush();
+    expect(controller.ready()).toBe(true);
+    window.dispatchEvent(new Event("pagehide"));
+    expect(worker.terminate).toHaveBeenCalledOnce();
+    expect(controller.ready()).toBe(false);
+    window.dispatchEvent(new Event("pageshow"));
+  }
+});

@@ -110,6 +110,9 @@ async function load(data: Json) {
         format: meta.format,
         source: meta.source_identity,
         files: meta.files,
+        contract_sha256: await hash(
+          new TextEncoder().encode(meta.contract_json).buffer,
+        ),
       }),
     ).buffer,
   );

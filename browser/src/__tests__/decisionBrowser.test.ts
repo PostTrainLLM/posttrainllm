@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   canonical,
+  boundDecisionContract,
   decisionItem,
   selectedPrediction,
   tokenIds,
@@ -55,4 +56,36 @@ describe("portable decision contracts", () => {
       '{"files":{"a":1,"z":{"bytes":2,"sha256":"b"}},"format":"v1","source":"a"}',
     );
   });
+});
+
+it("binds Unicode, numeric probes, prompt limits and option order to exact exported contract bytes", () => {
+  const contract = {
+    template: { prefix: "中文", suffix: "", vectors: [] },
+    max_tokens: 256,
+    probes: [
+      { item: { options: { B: "two", A: "one" } }, logits: [1e-7, 2.0] },
+    ],
+  };
+  const data = { ...contract, contract_json: JSON.stringify(contract) };
+  expect(boundDecisionContract(data)).toBe(data.contract_json);
+  expect(() => boundDecisionContract({ ...data, max_tokens: 512 })).toThrow(
+    /contract/,
+  );
+  expect(() =>
+    boundDecisionContract({
+      ...data,
+      template: { ...contract.template, prefix: "different" },
+    }),
+  ).toThrow(/contract/);
+  expect(() => boundDecisionContract({ ...data, probes: [] })).toThrow(
+    /contract/,
+  );
+  expect(() =>
+    boundDecisionContract({
+      ...data,
+      probes: [
+        { item: { options: { A: "one", B: "two" } }, logits: [1e-7, 2.0] },
+      ],
+    }),
+  ).toThrow(/contract/);
 });

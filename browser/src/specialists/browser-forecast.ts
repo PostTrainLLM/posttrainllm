@@ -157,10 +157,11 @@ export function setupBrowserForecast(
   });
   function teardown() {
     stop();
-    window.removeEventListener("pagehide", teardown);
+    window.removeEventListener("pagehide", stop);
     document.removeEventListener("astro:before-swap", teardown);
   }
-  window.addEventListener("pagehide", teardown, { once: true });
+  // A BFCache restore keeps this instance; every later pagehide must stop it.
+  window.addEventListener("pagehide", stop);
   document.addEventListener("astro:before-swap", teardown, { once: true });
   return {
     stop,

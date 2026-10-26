@@ -9,6 +9,7 @@ export const decisionFiles = [
 ] as const;
 export type DecisionManifest = {
   format: string;
+  contract_json: string;
   model_identity: string;
   source_identity: string;
   files: Record<string, { sha256: string; bytes: number }>;
@@ -43,10 +44,23 @@ export function decisionManifest(value: unknown): DecisionManifest {
     Number(data.max_tokens) > 512
   )
     throw Error("Portable Qwen requires an explicit 64–512 token limit.");
+  boundDecisionContract(data);
   validateFiles(files);
   validateTemplate(template);
   validateProbes(data);
   return data as unknown as DecisionManifest;
+}
+export function boundDecisionContract(data: Json): string {
+  if (
+    typeof data.contract_json !== "string" ||
+    data.contract_json.length > 8 * 1024 ** 2
+  )
+    throw Error("Missing bounded decision contract serialization.");
+  const contract = object(JSON.parse(data.contract_json));
+  for (const name of ["template", "max_tokens", "probes"])
+    if (JSON.stringify(contract[name]) !== JSON.stringify(data[name]))
+      throw Error("Decision contract does not match its bound serialization.");
+  return data.contract_json;
 }
 function validateFiles(files: Json) {
   if (Object.keys(files).sort().join() !== [...decisionFiles].sort().join())

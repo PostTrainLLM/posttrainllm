@@ -322,6 +322,13 @@ export function setupSpecialistLabs(): void {
   function setBusy(value: boolean): void {
     busy = value;
     updateRuntimeLabel();
+    // Browser controls must not invalidate a running Python request.
+    for (const control of root!.querySelectorAll<
+      HTMLInputElement | HTMLButtonElement | HTMLSelectElement
+    >(
+      "#sp-decision-browser input, #sp-decision-load, #sp-decision-stop, #sp-decision-browser select, #sp-forecast-browser input, #sp-forecast-load, #sp-forecast-stop, #sp-forecast-browser select",
+    ))
+      control.disabled = value && !inBrowser();
     form.setAttribute("aria-busy", String(value));
     run.disabled =
       value ||

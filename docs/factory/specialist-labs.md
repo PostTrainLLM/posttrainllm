@@ -353,7 +353,8 @@ sampling substitutes for option scoring. Unknown adapters/keys, wrong base or
 configuration hashes, and failed parity cannot produce an admitted manifest.
 
 In **Decision execution**, choose WASM and select all five exported files.
-Checksums, a distinct portable model identity, tokenizer/template vectors and
+Checksums, a distinct portable model identity that also binds the exact prompt
+contract, token limit and probes, tokenizer/template vectors and
 three full-model probes gate activation. All files and prompts stay in the tab.
 The maintained tokenizer package loads only in the owned worker. Stop, file or
 provider changes, mode changes and page teardown terminate that worker; requests

@@ -8,6 +8,7 @@ Contract: docs/factory/specialist-labs.md.
 
 import copy
 import importlib.metadata
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -155,6 +156,24 @@ def verify_probes(model, tokenizer, items, session, maximum, budget):
     return probes
 
 
+def portable_contract(identity, artifacts, contract, maximum, probes):
+    # Preserve exact option order and float/unicode serialization across runtimes.
+    contract_json = json.dumps(
+        {"template": contract, "max_tokens": maximum, "probes": probes},
+        separators=(",", ":"),
+        allow_nan=False,
+    )
+    portable_identity = digest(
+        {
+            "format": "posttrainllm-qwen3-affine-f32-v1",
+            "source": identity,
+            "files": artifacts,
+            "contract_sha256": hashlib.sha256(contract_json.encode()).hexdigest(),
+        }
+    )
+    return contract_json, portable_identity
+
+
 def export(base, adapter, item, out, maximum=256, seconds=60):
     import onnxruntime as runtime
     import torch
@@ -208,12 +227,8 @@ def export(base, adapter, item, out, maximum=256, seconds=60):
         or artifacts["model.onnx.data"]["bytes"] > 1280 * 1024**2
     ):
         raise ValueError("portable graph/weights exceed browser admission limits")
-    portable_identity = digest(
-        {
-            "format": "posttrainllm-qwen3-affine-f32-v1",
-            "source": identity,
-            "files": artifacts,
-        }
+    contract_json, portable_identity = portable_contract(
+        identity, artifacts, contract, maximum, probes
     )
     receipt = {
         "format": "posttrainllm-qwen3-affine-f32-v1",
@@ -227,6 +242,7 @@ def export(base, adapter, item, out, maximum=256, seconds=60):
             "config_sha256": file_hash(Path(adapter) / "adapter_config.json"),
         },
         "files": artifacts,
+        "contract_json": contract_json,
         "arithmetic": "float32; MLX affine q4 weights retained",
         "native_calibration": "incompatible arithmetic identity",
         "quality": "unqualified",
@@ -250,7 +266,10 @@ def export(base, adapter, item, out, maximum=256, seconds=60):
         "measurements": budget.measurements(),
     }
     budget.check()
-    if len((json.dumps(receipt, indent=2, allow_nan=False) + "\n").encode()) > 8 * 1024**2:
+    if (
+        len((json.dumps(receipt, indent=2, allow_nan=False) + "\n").encode())
+        > 8 * 1024**2
+    ):
         raise ValueError("portable manifest exceeds 8 MiB")
     write_json(out / "manifest.json", receipt)
     return receipt
