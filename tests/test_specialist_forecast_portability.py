@@ -170,7 +170,7 @@ def test_categorical_preparation_matches_reference(horizon):
     torch.testing.assert_close(actual, expected, rtol=1e-6, atol=1e-6)
 
 
-def test_export_writes_only_a_parity_checked_manifest(tmp_path):
+def test_export_writes_only_a_parity_checked_manifest(tmp_path, monkeypatch):
     import json
     import hashlib
 
@@ -219,3 +219,12 @@ def test_export_writes_only_a_parity_checked_manifest(tmp_path):
     assert all(probe["max_error"] < 0.002 for probe in receipt["probes"])
     with pytest.raises(FileExistsError):
         export(forecaster, row, 1, output, Budget())
+
+    def reject_parity(*args):
+        raise ValueError("injected parity mismatch")
+
+    monkeypatch.setattr("forecast_browser.parity_probes", reject_parity)
+    rejected = tmp_path / "rejected"
+    with pytest.raises(ValueError, match="injected parity mismatch"):
+        export(forecaster, row, 1, rejected, Budget())
+    assert not (rejected / "manifest.json").exists()

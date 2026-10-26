@@ -68,7 +68,7 @@ afterEach(() => {
   StubWorker.instances = [];
 });
 describe("forecast worker ownership", () => {
-  it("rejects a late load reply after stop and provider changes", async () => {
+  it("rejects a late load reply after a provider change", async () => {
     const { controls, controller, status } = setup();
     controls.load.click();
     await flush();
