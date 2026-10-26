@@ -14,6 +14,7 @@ export function setupBrowserForecast(
   const useExample = get<HTMLButtonElement>("example");
   let worker: Worker | undefined,
     verified = false,
+    loading = false,
     generation = 0,
     serial = 0,
     sample: Json | undefined;
@@ -25,9 +26,10 @@ export function setupBrowserForecast(
         timer: ReturnType<typeof setTimeout>;
       }
     | undefined;
-  function stop() {
+  function stop(notify = true) {
     generation++;
     verified = false;
+    loading = false;
     sample = undefined;
     useExample.disabled = true;
     worker?.terminate();
@@ -37,7 +39,7 @@ export function setupBrowserForecast(
       pending.reject(Error("Browser forecast stopped."));
       pending = undefined;
     }
-    changed();
+    if (notify) changed();
   }
   function request(
     payload: Json,
@@ -106,6 +108,7 @@ export function setupBrowserForecast(
       );
       return;
     }
+    loading = true;
     status("Loading local forecast files and checking three Python probes…");
     try {
       const [bytes, text] = await Promise.all([
@@ -136,6 +139,7 @@ export function setupBrowserForecast(
         [bytes],
       );
       if (epoch !== generation) return;
+      loading = false;
       verified = true;
       sample = object(result.example);
       useExample.disabled = false;
@@ -155,12 +159,21 @@ export function setupBrowserForecast(
       }
     }
   });
+  function pagehide() {
+    const owned = Boolean(worker || pending || loading);
+    stop(owned);
+    if (owned)
+      status(
+        "Browser forecast stopped when leaving the page. Reload the local files to continue.",
+      );
+  }
   function teardown() {
     stop();
-    window.removeEventListener("pagehide", teardown);
+    window.removeEventListener("pagehide", pagehide);
     document.removeEventListener("astro:before-swap", teardown);
   }
-  window.addEventListener("pagehide", teardown, { once: true });
+  // A BFCache restore keeps this instance; every later pagehide must stop it.
+  window.addEventListener("pagehide", pagehide);
   document.addEventListener("astro:before-swap", teardown, { once: true });
   return {
     stop,
