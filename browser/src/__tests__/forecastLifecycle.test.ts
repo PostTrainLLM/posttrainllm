@@ -46,17 +46,18 @@ function setup() {
   vi.stubGlobal("Worker", StubWorker);
   vi.stubGlobal("window", new EventTarget());
   vi.stubGlobal("document", new EventTarget());
-  const status = vi.fn();
+  const status = vi.fn(),
+    changed = vi.fn();
   const controller = setupBrowserForecast(
     {
       querySelector: (selector: string) =>
         controls[selector.replace("#sp-forecast-", "")],
     } as unknown as HTMLElement,
-    vi.fn(),
+    changed,
     status,
     vi.fn(),
   );
-  return { controls, status, controller };
+  return { controls, status, changed, controller };
 }
 const flush = async () => {
   for (let i = 0; i < 5; i++) await Promise.resolve();
@@ -115,7 +116,7 @@ describe("forecast worker ownership", () => {
 });
 
 it("stops a new forecast worker on every pagehide after BFCache-style restore", async () => {
-  const { controls, controller } = setup();
+  const { controls, controller, status } = setup();
   for (let n = 0; n < 2; n++) {
     controls.load.click();
     await flush();
@@ -126,6 +127,32 @@ it("stops a new forecast worker on every pagehide after BFCache-style restore", 
     window.dispatchEvent(new Event("pagehide"));
     expect(worker.terminate).toHaveBeenCalledOnce();
     expect(controller.ready()).toBe(false);
+    expect(status.mock.lastCall?.[0]).toMatch(/stopped when leaving/);
     window.dispatchEvent(new Event("pageshow"));
   }
+});
+
+it("inactive forecast pagehide leaves Python workflow edits untouched", () => {
+  const { changed } = setup();
+  window.dispatchEvent(new Event("pagehide"));
+  window.dispatchEvent(new Event("pageshow"));
+  window.dispatchEvent(new Event("pagehide"));
+  expect(changed).not.toHaveBeenCalled();
+});
+
+it("pagehide invalidates owned forecast file reading and clears loading status", async () => {
+  const { controls, controller, status } = setup();
+  let finish!: (value: ArrayBuffer) => void;
+  controls.model.files[0].arrayBuffer = () =>
+    new Promise((resolve) => {
+      finish = resolve;
+    });
+  controls.load.click();
+  await flush();
+  window.dispatchEvent(new Event("pagehide"));
+  expect(status.mock.lastCall?.[0]).toMatch(/stopped when leaving/);
+  finish(new ArrayBuffer(1));
+  await flush();
+  expect(StubWorker.instances).toHaveLength(0);
+  expect(controller.ready()).toBe(false);
 });

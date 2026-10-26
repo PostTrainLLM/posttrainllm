@@ -17,6 +17,7 @@ export function setupBrowserDecision(
     generation = 0,
     serial = 0,
     verified = false,
+    loading = false,
     sample: Json | undefined;
   let pending:
     | {
@@ -26,11 +27,12 @@ export function setupBrowserDecision(
         timer: ReturnType<typeof setTimeout>;
       }
     | undefined;
-  function stop() {
+  function stop(notify = true) {
     generation++;
     worker?.terminate();
     worker = undefined;
     verified = false;
+    loading = false;
     sample = undefined;
     sampleButton.disabled = true;
     if (pending) {
@@ -38,7 +40,7 @@ export function setupBrowserDecision(
       pending.reject(Error("Browser decision stopped."));
       pending = undefined;
     }
-    changed();
+    if (notify) changed();
   }
   function request(data: Json, transfer: ArrayBuffer[] = []): Promise<Json> {
     if (!worker || pending)
@@ -81,6 +83,7 @@ export function setupBrowserDecision(
     const epoch = generation;
     try {
       const selected = packageFiles(provider.value, files.files);
+      loading = true;
       status(
         "Reading local package, verifying tokenizer and three Python logit probes…",
       );
@@ -109,6 +112,7 @@ export function setupBrowserDecision(
         Object.values(buffers),
       );
       if (epoch !== generation) return;
+      loading = false;
       verified = true;
       sample = object(result.example);
       sampleButton.disabled = false;
@@ -147,13 +151,21 @@ export function setupBrowserDecision(
     stop();
     status("Package files changed. Load and verify before prediction.");
   });
+  function pagehide() {
+    const owned = Boolean(worker || pending || loading);
+    stop(owned);
+    if (owned)
+      status(
+        "Browser decision stopped when leaving the page. Reload the local files to continue.",
+      );
+  }
   function teardown() {
     stop();
-    window.removeEventListener("pagehide", stop);
+    window.removeEventListener("pagehide", pagehide);
     document.removeEventListener("astro:before-swap", teardown);
   }
   // A BFCache restore keeps this instance; every later pagehide must stop it.
-  window.addEventListener("pagehide", stop);
+  window.addEventListener("pagehide", pagehide);
   document.addEventListener("astro:before-swap", teardown, { once: true });
   return {
     stop,

@@ -42,13 +42,14 @@ function fixture() {
   vi.stubGlobal("Worker", Worker);
   vi.stubGlobal("window", new EventTarget());
   vi.stubGlobal("document", new EventTarget());
-  const status = vi.fn();
+  const status = vi.fn(),
+    changed = vi.fn();
   const controller = setupBrowserDecision(
     {
       querySelector: (selector: string) =>
         controls.get(selector.replace("#sp-decision-", "")),
     } as unknown as HTMLElement,
-    vi.fn(),
+    changed,
     status,
     vi.fn(),
   );
@@ -60,7 +61,7 @@ function fixture() {
       data: { id: worker.last.id, result: { example: {}, max_tokens: 256 } },
     });
   };
-  return { controller, controls, workers, status, click, reply };
+  return { controller, controls, workers, status, changed, click, reply };
 }
 const settle = async () => {
   for (let n = 0; n < 20; n++) await Promise.resolve();
@@ -148,6 +149,34 @@ it("stops a newly loaded worker again after a BFCache-style pagehide and restore
     window.dispatchEvent(new Event("pagehide"));
     expect(f.workers[n].terminate).toHaveBeenCalledOnce();
     expect(f.controller.ready()).toBe(false);
+    expect(f.status.mock.lastCall?.[0]).toMatch(/stopped when leaving/);
     window.dispatchEvent(new Event("pageshow"));
   }
+});
+
+it("inactive pagehide does not reset the Python workflow on repeated restores", () => {
+  const f = fixture();
+  window.dispatchEvent(new Event("pagehide"));
+  window.dispatchEvent(new Event("pageshow"));
+  window.dispatchEvent(new Event("pagehide"));
+  expect(f.changed).not.toHaveBeenCalled();
+});
+
+it("pagehide invalidates an owned asynchronous file read and clears the loading claim", async () => {
+  const f = fixture();
+  let finish!: (value: string) => void;
+  (
+    f.controls.get("files")!.files as { text: () => Promise<string> }[]
+  )[0].text = () =>
+    new Promise((resolve) => {
+      finish = resolve;
+    });
+  f.click("load");
+  await settle();
+  window.dispatchEvent(new Event("pagehide"));
+  expect(f.status.mock.lastCall?.[0]).toMatch(/stopped when leaving/);
+  finish("{}");
+  await settle();
+  expect(f.workers).toHaveLength(0);
+  expect(f.controller.ready()).toBe(false);
 });
