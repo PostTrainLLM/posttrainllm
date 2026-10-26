@@ -125,3 +125,97 @@ def test_boolean_selection_runs_in_onnx_runtime():
         session.run(None, values)[0],
         np.where(values["condition"], values["yes"], values["no"]),
     )
+
+
+@pytest.mark.parametrize("horizon", [1, 9])
+def test_categorical_preparation_matches_reference(horizon):
+    from timestral.config import TimestralConfig
+    from timestral.forecaster import TimestralForecaster
+    from timestral.model import TimestralModel
+    from forecast import inputs
+    from forecast_browser import graph, prepare
+
+    torch.set_num_threads(2)
+    torch.manual_seed(210)
+    forecaster = TimestralForecaster(
+        TimestralModel(
+            TimestralConfig(
+                patch_size=4,
+                d_model=16,
+                num_heads=1,
+                mlp_hidden_dim=32,
+                block_schedule=("time_variate", "time"),
+                quantile_knots=(0.1, 0.5, 0.9),
+                block_size=2,
+                context_length=8,
+            )
+        )
+    )
+    row = {
+        "id": "categorical-parity",
+        "context": [[None, -2, 3, None, 5, 6, 7], [3, 4, None, 6, 7, 8, 9]],
+        "past_covariates": [[1, 2, None, 4, 5, 6, 7]],
+        "known_covariates": [[0, 1, 0, 1, 0, 1, 0] + [1] * horizon],
+        "categorical_past_covariates": [
+            [2**30, 2**30 + 1, None, 2**30, 2**30 + 1, 2**30, 2**30]
+        ],
+        "categorical_known_covariates": [[0, 1, None, 0, 1, 0, 1] + [99] * horizon],
+    }
+    context, kwargs = inputs(row, horizon)
+    with torch.no_grad():
+        expected = forecaster.forecast(context, horizon, **kwargs).quantiles
+        prepared = prepare(forecaster, row, horizon)
+        with portable_operations(forecaster.model):
+            actual = graph(forecaster, horizon)(*prepared)
+    torch.testing.assert_close(actual, expected, rtol=1e-6, atol=1e-6)
+
+
+def test_export_writes_only_a_parity_checked_manifest(tmp_path):
+    import json
+    import hashlib
+
+    pytest.importorskip("onnx")
+    pytest.importorskip("onnxruntime")
+    from timestral.config import TimestralConfig
+    from timestral.forecaster import TimestralForecaster
+    from timestral.model import TimestralModel
+    from common import Budget
+    from forecast_browser import export
+
+    torch.set_num_threads(2)
+    torch.manual_seed(210)
+    forecaster = TimestralForecaster(
+        TimestralModel(
+            TimestralConfig(
+                patch_size=4,
+                d_model=16,
+                num_heads=1,
+                mlp_hidden_dim=32,
+                block_schedule=("time_variate", "time"),
+                quantile_knots=(0.1, 0.5, 0.9),
+                block_size=2,
+                context_length=8,
+            )
+        )
+    )
+    forecaster.source_identity = "a" * 64
+    row = {
+        "id": "categorical-parity",
+        "context": [[1, None, 2, 3, 4, 5, 6]],
+        "categorical_known_covariates": [[1, 2, 1, None, 1, 2, 1, 99]],
+    }
+    output = tmp_path / "artifact"
+    receipt = export(forecaster, row, 1, output, Budget())
+    assert json.loads((output / "manifest.json").read_text()) == receipt
+    assert (
+        receipt["model_sha256"]
+        == hashlib.sha256((output / "model.onnx").read_bytes()).hexdigest()
+    )
+    assert receipt["input_names"] == ["context", "observed", "known"]
+    assert receipt["shape"]["categorical_known_covariates"] == 1
+    assert receipt["model_identity"] == forecaster.source_identity
+    assert receipt["quality"] == "unqualified"
+    assert len(receipt["probes"]) == 3
+    assert all(probe["max_error"] < 0.002 for probe in receipt["probes"])
+    with pytest.raises(FileExistsError):
+        export(forecaster, row, 1, output, Budget())

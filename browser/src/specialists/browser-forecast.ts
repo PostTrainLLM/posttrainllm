@@ -52,7 +52,7 @@ export function setupBrowserForecast(
       const timer = setTimeout(() => {
         stop();
         status(
-          "Browser forecast timed out and was stopped. Reload the artifact to retry.",
+          "Browser forecast exceeded the 45-second execution budget and was stopped. Use a smaller model or shorter fixed-shape export.",
         );
       }, 45_000);
       pending = { id, resolve, reject, timer };

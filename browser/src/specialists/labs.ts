@@ -289,7 +289,10 @@ export function setupSpecialistLabs(): void {
       : connected
         ? "Runtime connected · local"
         : "Runtime disconnected";
-    if (browserForecast) get("model").textContent = "Timestral · browser WASM";
+    if (browserForecast || !connected)
+      get("model").textContent = browserForecast
+        ? "Timestral · browser WASM"
+        : modes[mode].model;
     form.setAttribute("aria-busy", String(value));
     run.disabled =
       value ||
