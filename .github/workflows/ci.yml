@@ -79,6 +79,9 @@ jobs:
           VITE_POSTHOG_KEY: ""
           VITE_POSTHOG_HOST: ""
         run: pnpm run build
+      - name: Verify public Markdown contracts
+        run: node --test browser/scripts/agent-surfaces.test.mjs scripts/markdown-canonical-boundary.test.mjs
+
       - name: Check bundle size
         working-directory: browser
         run: pnpm run size
