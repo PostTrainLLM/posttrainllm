@@ -452,7 +452,9 @@ def validate_browser_landmarks(errors: list[str]) -> None:
                 continue
             fragment_path = (page.parent / fragment).resolve()
             if not fragment_path.is_relative_to(ROOT / "browser/src/content/public"):
-                errors.append(f"{relative}: authored fragment must stay in public content")
+                errors.append(
+                    f"{relative}: authored fragment must stay in public content"
+                )
                 continue
             if not fragment_path.is_file():
                 errors.append(f"{relative}: missing authored fragment {fragment}")
