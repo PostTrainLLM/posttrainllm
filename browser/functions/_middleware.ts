@@ -1,3 +1,11 @@
+import {
+  createStaticAssetHandler,
+  advertiseMarkdown,
+} from "../src/lib/agent-surfaces/adapters/static-assets.mjs";
+import { wantsMarkdown } from "../src/lib/agent-surfaces/http.mjs";
+const serveMarkdown = createStaticAssetHandler({
+  origin: "https://posttrainllm.com",
+});
 // CF Pages Functions middleware:
 // - Keeps release HTML fresh (hashed assets still cached by Pages headers).
 // - Handles Accept: text/markdown negotiation for pages with .md alternates.
@@ -26,6 +34,56 @@ const OPENAPI_SPEC = {
     { name: "agent-surfaces", description: "Machine-readable public surfaces" },
   ],
   paths: {
+    "/api/md": {
+      get: {
+        operationId: "getHomepageMarkdown",
+        summary: "Canonical homepage Markdown",
+        responses: {
+          "200": {
+            description: "Public Markdown",
+            content: { "text/markdown": { schema: { type: "string" } } },
+          },
+        },
+      },
+    },
+    "/api/md/{path}": {
+      get: {
+        operationId: "getPublicPageMarkdown",
+        summary: "Markdown for a registered public page",
+        parameters: [
+          {
+            name: "path",
+            in: "path",
+            required: true,
+            schema: { type: "string" },
+            description: "Canonical public page path without its leading slash",
+          },
+        ],
+        responses: {
+          "200": {
+            description: "Public Markdown",
+            content: { "text/markdown": { schema: { type: "string" } } },
+          },
+          "404": { description: "No registered public page" },
+        },
+      },
+    },
+    "/api/md/_catalog": {
+      get: {
+        operationId: "getMarkdownCatalog",
+        summary: "All registered public Markdown pages",
+        responses: {
+          "200": {
+            description: "Public route registry",
+            content: {
+              "application/json": {
+                schema: { type: "array", items: { type: "object" } },
+              },
+            },
+          },
+        },
+      },
+    },
     "/api/ai": {
       get: {
         operationId: "getAgentCatalog",
@@ -297,49 +355,6 @@ const OPENAPI_SPEC = {
   },
 };
 
-function wantsMarkdown(request: Request): boolean {
-  const accept = (request.headers.get("accept") || "").toLowerCase();
-  if (!accept.includes("text/markdown")) return false;
-  if (!accept.includes("text/html")) return true;
-  return accept.indexOf("text/markdown") < accept.indexOf("text/html");
-}
-
-function normalizePath(pathname: string): string {
-  if (!pathname || pathname === "/") return "/";
-  const withSlash = pathname.startsWith("/") ? pathname : `/${pathname}`;
-  return withSlash.replace(/\/{2,}/g, "/").replace(/\/+$/, "") || "/";
-}
-
-function markdownPathFor(pathname: string): string {
-  const path = normalizePath(pathname);
-  return path === "/" ? "/index.md" : `${path}.md`;
-}
-
-function markdown404(pathname: string, method: string): Response {
-  const path = normalizePath(pathname);
-  const body = `# 404 — Not Found
-
-\`${path}\` does not exist on posttrainllm.com.
-
-## Where to look next
-
-- [Home](https://posttrainllm.com/)
-- [Sitemap](https://posttrainllm.com/sitemap.xml)
-- [Agent index](https://posttrainllm.com/llms.txt)
-- [Full agent brief](https://posttrainllm.com/llms-full.txt)
-- [Agent catalog (JSON)](https://posttrainllm.com/api/ai)
-- [Documentation](https://posttrainllm.com/docs/)
-`;
-  return new Response(method === "HEAD" ? null : body, {
-    status: 404,
-    headers: {
-      "content-type": "text/markdown; charset=utf-8",
-      "cache-control": "no-store",
-      "x-content-type-options": "nosniff",
-    },
-  });
-}
-
 function jsonError(
   status: number,
   code: string,
@@ -372,26 +387,33 @@ function jsonError(
 export const onRequest: PagesFunction<Env> = async (context) => {
   const { request } = context;
 
-  if (request.method !== "GET" && request.method !== "HEAD") {
+  if (!["GET", "HEAD", "OPTIONS"].includes(request.method)) {
     return context.next();
   }
 
   const url = new URL(request.url);
   const pathname = url.pathname;
 
+  const markdownResponse = await serveMarkdown(request, context.env.ASSETS);
+  if (markdownResponse) return markdownResponse;
+  if (request.method === "OPTIONS") return context.next();
+
   // /openapi.json — serve the spec directly.
   if (pathname === "/openapi.json" || pathname === "/openapi.yaml") {
-    return new Response(JSON.stringify(OPENAPI_SPEC, null, 2), {
-      headers: {
-        "content-type": "application/json; charset=utf-8",
-        "access-control-allow-origin": "*",
-        "cache-control":
-          "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
-        "RateLimit-Limit": "120",
-        "RateLimit-Remaining": "119",
-        "RateLimit-Reset": "60",
+    return new Response(
+      request.method === "HEAD" ? null : JSON.stringify(OPENAPI_SPEC, null, 2),
+      {
+        headers: {
+          "content-type": "application/json; charset=utf-8",
+          "access-control-allow-origin": "*",
+          "cache-control":
+            "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+          "RateLimit-Limit": "120",
+          "RateLimit-Remaining": "119",
+          "RateLimit-Reset": "60",
+        },
       },
-    });
+    );
   }
 
   // JSON errors for unknown /api/* paths.
@@ -408,52 +430,36 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   if (
     pathname.startsWith("/_astro/") ||
     pathname.startsWith("/_next/") ||
-    (pathname.includes(".") && !pathname.endsWith(".md"))
+    /\.(?:css|m?js|map|json|xml|txt|png|jpe?g|gif|svg|webp|avif|ico|woff2?|ttf|otf|mp[34]|webm|pdf|zip|wasm|bin)$/i.test(
+      pathname,
+    )
   ) {
     return context.next();
   }
 
-  // Accept: text/markdown negotiation for HTML pages that have a .md alternate.
-  if (
-    wantsMarkdown(request) &&
-    !pathname.endsWith(".md") &&
-    !pathname.startsWith("/api/")
-  ) {
-    const mdPath = markdownPathFor(pathname);
-    // Probe the .md alternate via the assets binding.
-    if (context.env.ASSETS) {
-      const mdUrl = new URL(url);
-      mdUrl.pathname = mdPath;
-      const mdResponse = await context.env.ASSETS.fetch(
-        new Request(mdUrl.toString(), request),
-      );
-      if (mdResponse.status === 200) {
-        const headers = new Headers(mdResponse.headers);
-        headers.set("content-type", "text/markdown; charset=utf-8");
-        headers.set("vary", "Accept, Accept-Encoding");
-        headers.set("x-content-type-options", "nosniff");
-        return new Response(
-          request.method === "HEAD" ? null : mdResponse.body,
-          {
-            status: 200,
-            headers,
-          },
-        );
-      }
-    }
-  }
-
   const response = await context.next();
   const contentType = response.headers.get("content-type") ?? "";
-
-  // Agent-friendly 404 with markdown recovery body.
-  if (response.status === 404 && !pathname.startsWith("/api/")) {
-    if (wantsMarkdown(request)) {
-      return markdown404(pathname, request.method);
-    }
-    const headers = new Headers(response.headers);
-    headers.set("vary", "Accept, Accept-Encoding");
-    return new Response(response.body, { status: 404, headers });
+  if (
+    response.status === 404 &&
+    (wantsMarkdown(request) || pathname.endsWith(".md")) &&
+    !pathname.startsWith("/api/") &&
+    !pathname.startsWith("/_astro/")
+  ) {
+    return new Response(
+      request.method === "HEAD"
+        ? null
+        : "# 404 — Not Found\n\nSee [the public catalog](https://posttrainllm.com/api/md/_catalog).\n",
+      {
+        status: 404,
+        headers: {
+          "Content-Type": "text/markdown; charset=utf-8",
+          "Cache-Control": "no-store",
+          Vary: "Accept",
+          "X-Robots-Tag": "noindex, follow",
+          "Access-Control-Allow-Origin": "*",
+        },
+      },
+    );
   }
 
   // Add rate-limit headers to /api/ai responses.
@@ -475,15 +481,12 @@ export const onRequest: PagesFunction<Env> = async (context) => {
 
   const headers = new Headers(response.headers);
   headers.set("Cache-Control", "no-store");
-  // Add Vary: Accept to HTML pages that might have markdown alternates.
-  const existingVary = headers.get("vary");
-  headers.set(
-    "vary",
-    existingVary ? `${existingVary}, Accept` : "Accept, Accept-Encoding",
+  return advertiseMarkdown(
+    new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
+    }),
+    "https://posttrainllm.com",
   );
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
 };

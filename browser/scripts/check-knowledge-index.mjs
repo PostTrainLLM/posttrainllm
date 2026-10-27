@@ -97,7 +97,7 @@ for (const record of records) {
   }
   if (
     !html.includes(
-      `rel="alternate" type="text/markdown" href="${record.route}.md"`,
+      `rel="alternate" type="text/markdown" href="${origin}${record.route}.md"`,
     )
   ) {
     failures.push(`${record.route}: Markdown alternate link missing`);

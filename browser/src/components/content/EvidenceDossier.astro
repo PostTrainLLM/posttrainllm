@@ -1,4 +1,5 @@
 ---
+import readingContract from "../../content/public/dossier-reading.json";
 import SiteHeader from "../SiteHeader.astro";
 import Default from "../../layouts/Default.astro";
 import "../../styles/system.css";
@@ -139,29 +140,7 @@ const jsonLd = {
 
         <section class="reading-contract">
           <h2>How to read this dossier</h2>
-          <p>
-            This canonical page separates the retained repository decision from
-            the material that informed it. A source may describe an external
-            claim, historical measurement, local observation, or planned
-            procedure; those evidence classes are not interchangeable. Follow
-            the provenance links before reusing a number or method.
-          </p>
-          <p>
-            Status and disposition describe what PostTrainLLM retained when this
-            record was indexed. They are not a live product promise, a newly run
-            benchmark, or permission to restart historical work. Unknown or
-            unmeasured fields remain unknown rather than being treated as zero.
-          </p>
-          <p>
-            To reuse the record, first name the exact claim you need and trace
-            it to the linked source. Then check whether the original
-            environment, model revision, data split, evaluator, hardware, and
-            budget match the proposed use. If they do not, treat the record as a
-            hypothesis or design reference and run the smallest fresh comparison
-            that can falsify it. Preserve negative outcomes and regressions
-            beside any improvement; a local win on one slice does not silently
-            become a general capability claim.
-          </p>
+          {readingContract.map((paragraph) => <p>{paragraph}</p>)}
         </section>
 
         <section class="provenance">

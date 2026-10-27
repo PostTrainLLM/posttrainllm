@@ -1,12 +1,107 @@
-# PostTrainLLM — open in every sense
+# Keep in sync with ai.txt and llms.txt. Public training access approved.
+
 User-agent: *
 Allow: /
-Allow: /llms.txt
-Allow: /llms-full.txt
+Disallow: /api/
 Allow: /api/ai
-Allow: /openapi.json
-Allow: /releases/mac.json
-Allow: /*.md$
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
 
-# The wildcard policy intentionally welcomes search and AI readers alike.
+User-agent: GPTBot
+Allow: /
+Disallow: /api/
+Allow: /api/ai
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /api/
+Allow: /api/ai
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /api/
+Allow: /api/ai
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /api/
+Allow: /api/ai
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
+
+User-agent: Claude-User
+Allow: /
+Disallow: /api/
+Allow: /api/ai
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
+
+User-agent: Claude-SearchBot
+Allow: /
+Disallow: /api/
+Allow: /api/ai
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+Allow: /api/ai
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /api/
+Allow: /api/ai
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /api/
+Allow: /api/ai
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
+
+User-agent: CCBot
+Allow: /
+Disallow: /api/
+Allow: /api/ai
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
+
+User-agent: Bytespider
+Allow: /
+Disallow: /api/
+Allow: /api/ai
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
+
+User-agent: Amazonbot
+Allow: /
+Disallow: /api/
+Allow: /api/ai
+Allow: /api/md
+Disallow: /auth
+Disallow: /admin
+
 Sitemap: https://posttrainllm.com/sitemap.xml
