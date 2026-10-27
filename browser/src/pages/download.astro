@@ -5,50 +5,14 @@ import { macReleaseRecord } from "../data/mac-release";
 import { evaluateMacRelease, macReleaseStatusLabel } from "../lib/mac-release";
 import "../styles/system.css";
 
-const release = evaluateMacRelease(macReleaseRecord);
-const statusLabel = macReleaseStatusLabel(release);
-const completedChecks = Object.values(release.verification).filter(
-  Boolean,
-).length;
-const recordUpdated =
-  release.recordUpdated === "unknown"
-    ? "Unknown"
-    : new Intl.DateTimeFormat("en", {
-        dateStyle: "medium",
-        timeZone: "UTC",
-      }).format(new Date(`${release.recordUpdated}T00:00:00Z`));
-const checks = [
-  {
-    label: "Developer ID signature",
-    detail: "Personal distribution identity",
-    complete: release.verification.developerIdSigned,
-  },
-  {
-    label: "Hardened runtime",
-    detail: "Runtime protection enabled",
-    complete: release.verification.hardenedRuntime,
-  },
-  {
-    label: "Apple notarization",
-    detail: "Apple trust service",
-    complete: release.verification.notarized,
-  },
-  {
-    label: "Stapled ticket",
-    detail: "Offline trust receipt",
-    complete: release.verification.stapled,
-  },
-  {
-    label: "Gatekeeper assessment",
-    detail: "Clean-machine launch policy",
-    complete: release.verification.gatekeeperAccepted,
-  },
-  {
-    label: "Artifact checksum",
-    detail: "Published DMG integrity",
-    complete: release.verification.checksumVerified,
-  },
-] as const;
+import {
+  releaseSummary,
+  release,
+  statusLabel,
+  completedChecks,
+  recordUpdated,
+  checks,
+} from "../data/download-page";
 ---
 
 <Default
@@ -100,13 +64,7 @@ const checks = [
             }
           </span>
         </h1>
-        <p class="release-summary">
-          {
-            release.downloadable
-              ? "PostTrainLLM packages the local specialist factory into a native Apple Silicon app. Notarization, stapling, Gatekeeper, and the published checksum all agree on this exact DMG, so the download is open."
-              : "PostTrainLLM packages the local specialist factory into a native Apple Silicon app. The current candidate is not downloadable yet: the site stays closed until notarization, stapling, Gatekeeper, and checksum verification all agree on the exact DMG."
-          }
-        </p>
+        <p class="release-summary">{releaseSummary}</p>
 
         <dl class="release-facts" aria-label="Release details">
           <div>

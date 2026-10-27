@@ -20,28 +20,7 @@ const layoutProps = {
 // exports). The "custom" path lets the user pull ANY HF repo that ships an
 // onnx/ folder. The A1 entry is wired but disabled until the trained
 // tool-caller is exported to ONNX (Phase 2 — gated on the eval verdict).
-const CURATED = [
-  {
-    id: "onnx-community/Qwen2.5-0.5B-Instruct",
-    label: "Qwen2.5-0.5B-Instruct (~0.5 GB q4) — fast",
-    dtype: "q4f16",
-  },
-  {
-    id: "HuggingFaceTB/SmolLM2-1.7B-Instruct",
-    label: "SmolLM2-1.7B-Instruct (~1.1 GB q4)",
-    dtype: "q4f16",
-  },
-  {
-    id: "onnx-community/Qwen2.5-1.5B-Instruct",
-    label: "Qwen2.5-1.5B-Instruct (~1 GB q4)",
-    dtype: "q4f16",
-  },
-  {
-    id: "onnx-community/Llama-3.2-1B-Instruct-ONNX",
-    label: "Llama-3.2-1B-Instruct (~0.9 GB q4)",
-    dtype: "q4f16",
-  },
-];
+import { CURATED } from "../data/inference-models";
 
 const pageStyle = `
 :root{color-scheme:dark;--base: #0a0c0f;--panel:#0d0e10;--panel-2:#141518;--line:#1d1f23;--line-strong:#2c2f35;--fg:#e7e8ea;--muted:#9296a0;--faint:#787d88;--accent:#48e5c2;--accent-dim:#1f6f5f;--gold:#f5b14a;--err:#ff6b6b;}

@@ -1,3 +1,12 @@
+import { siteIdentity, identitySchema } from "../src/data/site-identity.mjs";
+import { absoluteMarkdownLinks } from "../src/lib/agent-surfaces/format.mjs";
+import { createAgentSurfaceManifest } from "../src/lib/agent-surfaces/manifest.mjs";
+import {
+  buildAiTxt,
+  buildMarkdownIndex,
+  buildFullMarkdown,
+} from "../src/lib/agent-surfaces/documents.mjs";
+import { reportCardMarkdown } from "./report-card-markdown.mjs";
 // Build the public search/agent discovery surface from the site output.
 //
 // Route truth is deliberately assembled after Astro and Blume have both built:
@@ -55,85 +64,6 @@ const stripTags = (value) =>
   decodeEntities(value.replace(/<[^>]+>/g, " "))
     .replace(/\s+/g, " ")
     .trim();
-
-function convertRichHtml(body, canonicalUrl) {
-  return body
-    .replace(/<(script|style|svg|noscript)\b[\s\S]*?<\/\1>/gi, "")
-    .replace(/<(nav|footer|form)\b[\s\S]*?<\/\1>/gi, "")
-    .replace(
-      /<a\b[^>]*href=(["'])(.*?)\1[^>]*>([\s\S]*?)<\/a>/gi,
-      (_, _q, href, text) => {
-        const label = stripTags(text);
-        if (!label) return "";
-        try {
-          const absolute = new URL(href, canonicalUrl);
-          return `[${label}](${absolute.href})`;
-        } catch {
-          return label;
-        }
-      },
-    )
-    .replace(/<img\b[^>]*alt=(["'])(.*?)\1[^>]*>/gi, (_, _q, alt) =>
-      alt.trim() ? ` ${alt.trim()} ` : "",
-    )
-    .replace(
-      /<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi,
-      (_, level, text) =>
-        `\n\n${"#".repeat(Number(level))} ${stripTags(text)}\n\n`,
-    )
-    .replace(
-      /<li\b[^>]*>([\s\S]*?)<\/li>/gi,
-      (_, text) => `\n- ${stripTags(text)}`,
-    );
-}
-
-function convertStructuralHtml(body) {
-  return body
-    .replace(/<(pre|blockquote)\b[^>]*>([\s\S]*?)<\/\1>/gi, (_, tag, text) => {
-      const content = decodeEntities(text.replace(/<[^>]+>/g, "")).trim();
-      if (!content) return "";
-      return tag.toLowerCase() === "pre"
-        ? `\n\n\`\`\`\n${content}\n\`\`\`\n\n`
-        : `\n\n${content
-            .split("\n")
-            .map((line) => `> ${line}`)
-            .join("\n")}\n\n`;
-    })
-    .replace(/<(p|div|section|article|header|dl|table|tr)\b[^>]*>/gi, "\n\n")
-    .replace(/<\/(p|div|section|article|header|dl|table|tr)>/gi, "\n\n")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(
-      /<(dt|th)\b[^>]*>([\s\S]*?)<\/\1>/gi,
-      (_, _tag, text) => `\n\n**${stripTags(text)}**\n`,
-    )
-    .replace(
-      /<(dd|td)\b[^>]*>([\s\S]*?)<\/\1>/gi,
-      (_, _tag, text) => ` ${stripTags(text)} `,
-    )
-    .replace(/<[^>]+>/g, " ");
-}
-
-function htmlToMarkdown(html, canonicalUrl) {
-  const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-  const title = stripTags(titleMatch?.[1] ?? new URL(canonicalUrl).pathname);
-  const mainMatch = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i);
-  let body =
-    mainMatch?.[1] ??
-    html.match(/<body\b[^>]*>([\s\S]*?)<\/body>/i)?.[1] ??
-    html;
-
-  body = convertStructuralHtml(convertRichHtml(body, canonicalUrl));
-
-  body = decodeEntities(body)
-    .split("\n")
-    .map((line) => line.replace(/[ \t]+/g, " ").trimEnd())
-    .join("\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-
-  const heading = body.match(/^#\s+/m) ? "" : `# ${title}\n\n`;
-  return `${heading}> Canonical page: ${canonicalUrl}\n\n${body}\n`;
-}
 
 function canonicalize(rawUrl) {
   const url = new URL(rawUrl, ORIGIN);
@@ -271,7 +201,46 @@ function xmlEscape(value) {
 }
 
 async function buildOutputs() {
-  const urls = await buildInventory();
+  // Astro compiles TypeScript source renderers once with its normal resolver.
+  // Consume their projection, never a rendered HTML body. Keep a build-local
+  // copy for --check, and remove the temporary JSON from deployable output.
+  const projection = resolve(DIST, "agent-source.json");
+  const cache = resolve(here, "..", ".astro", "public-markdown.json");
+  let sourceText;
+  try {
+    sourceText = await fs.readFile(projection, "utf8");
+    await fs.mkdir(dirname(cache), { recursive: true });
+    await fs.writeFile(cache, sourceText);
+    await fs.unlink(projection);
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    sourceText = await fs.readFile(cache, "utf8");
+  }
+  const sources = JSON.parse(sourceText);
+  const urls = (await buildInventory()).filter(
+    (url) => new URL(url).pathname !== "/agent-source.json",
+  );
+  for (const url of urls.filter((url) =>
+    new URL(url).pathname.startsWith("/report-cards/"),
+  )) {
+    const path = routePath(url);
+    sources[path] = reportCardMarkdown(
+      JSON.parse(
+        await fs.readFile(
+          resolve(REPO_ROOT, "browser/public", `${path.slice(1)}.json`),
+          "utf8",
+        ),
+      ),
+    );
+  }
+  const missing = urls.filter(
+    (url) =>
+      !new URL(url).pathname.startsWith("/docs") && !sources[routePath(url)],
+  );
+  if (missing.length)
+    throw new Error(
+      `Missing authored Markdown sources:\n${missing.join("\n")}`,
+    );
   const surfaces = [];
   const generatedMarkdown = new Map();
   const macRelease = JSON.parse(
@@ -362,10 +331,7 @@ async function buildOutputs() {
     const { html, md } = outputPaths(url);
     await fs.access(html);
     if (!new URL(url).pathname.startsWith("/docs")) {
-      generatedMarkdown.set(
-        md,
-        htmlToMarkdown(await fs.readFile(html, "utf8"), url),
-      );
+      generatedMarkdown.set(md, sources[routePath(url)]);
     }
     const page = await fs.readFile(html, "utf8");
     const title = stripTags(
@@ -550,7 +516,12 @@ inspect. See [the generated CLI reference](${ORIGIN}/docs/cli-reference) or
         llmsFull: `${ORIGIN}/llms-full.txt`,
         sitemap: `${ORIGIN}/sitemap.xml`,
         robots: `${ORIGIN}/robots.txt`,
-        markdown: { suffix: ".md", negotiation: true },
+        markdown: {
+          suffix: ".md",
+          negotiation: true,
+          direct: `${ORIGIN}/api/md/{path}`,
+          catalog: `${ORIGIN}/api/md/_catalog`,
+        },
         openapi: `${ORIGIN}/openapi.json`,
         release: `${ORIGIN}${MAC_RELEASE_PATH}`,
         capabilities,
@@ -654,6 +625,92 @@ async function verify(outputs) {
 }
 
 const outputs = await buildOutputs();
+const routes = outputs.surfaces.map((surface) => ({
+  path: new URL(surface.url).pathname,
+  url: surface.url,
+  md: surface.md,
+  title: surface.title,
+  description: surface.description,
+  assetPath: new URL(surface.md).pathname,
+  aliases: [new URL(surface.md).pathname],
+}));
+const htmlPathsByMarkdown = Object.fromEntries(
+  routes.map((route) => [route.assetPath, new URL(route.url).pathname]),
+);
+for (const surface of outputs.surfaces) {
+  const { md } = outputPaths(surface.url);
+  let body =
+    outputs.generatedMarkdown.get(md) ?? (await fs.readFile(md, "utf8"));
+  const alreadyEnveloped = body.startsWith("<!-- agent-source-envelope -->");
+  body = body.replace(
+    /^<!-- agent-source-envelope -->[\s\S]*?<!-- \/agent-source-envelope -->\s*/,
+    "",
+  );
+  if (!alreadyEnveloped) body = body.replace(/^#\s+[^\n]*\n+/, "");
+  const envelope = `<!-- agent-source-envelope -->\n# ${surface.title}\n\n> ${surface.description}\n\nCanonical: ${surface.url}\n<!-- /agent-source-envelope -->\n\n`;
+  outputs.generatedMarkdown.set(
+    md,
+    absoluteMarkdownLinks(envelope + body.trim() + "\n", surface.url, {
+      htmlPathsByMarkdown,
+    }),
+  );
+}
+const identity = {
+  ...siteIdentity,
+  sitemap: `${ORIGIN}/sitemap.xml`,
+  notes: [
+    outputs.llms
+      .slice(outputs.llms.indexOf("## When to use this"))
+      .replace(
+        "Every public page grouped by kind",
+        "Bounded full public page content",
+      ),
+  ],
+};
+const manifest = createAgentSurfaceManifest({ ...identity, pages: {} });
+outputs.llms = buildMarkdownIndex(manifest, routes);
+outputs.llmsFull = await buildFullMarkdown(manifest, routes, (path) =>
+  outputs.generatedMarkdown.get(
+    outputPaths(routes.find((route) => route.path === path).url).md,
+  ),
+);
+const extraFiles = new Map([
+  [resolve(DIST, "api/md/_catalog"), JSON.stringify(routes, null, 2) + "\n"],
+  [resolve(DIST, "api/md/_identity"), JSON.stringify(identity, null, 2) + "\n"],
+  [resolve(DIST, "ai.txt"), buildAiTxt(manifest, routes)],
+]);
+for (const surface of outputs.surfaces) {
+  const { html } = outputPaths(surface.url);
+  let page = await fs.readFile(html, "utf8");
+  page = page.replace(
+    /<!-- agent-readable-head -->[\s\S]*?<!-- \/agent-readable-head -->/g,
+    "",
+  );
+  page = page.replace(/<meta\b[^>]*name=["']ai-summary["'][^>]*>/gi, "");
+  page = page.replace(
+    /<link\b[^>]*rel=["']alternate["'][^>]*type=["']text\/markdown["'][^>]*>/gi,
+    "",
+  );
+  // Retain existing article/app/person schema; unify the site's WebSite identity.
+  page = page.replace(
+    /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
+    (tag, json) => {
+      try {
+        const data = JSON.parse(json);
+        if (Array.isArray(data["@graph"]))
+          data["@graph"] = data["@graph"].filter(
+            (node) => node["@type"] !== "WebSite",
+          );
+        else if (data["@type"] === "WebSite") return "";
+        return `<script type="application/ld+json">${JSON.stringify(data).replaceAll("<", "\\u003c")}</script>`;
+      } catch {
+        return tag;
+      }
+    },
+  );
+  const head = `<!-- agent-readable-head --><meta name="ai-summary" content="${xmlEscape(surface.description || surface.title)}"><link rel="alternate" type="text/markdown" href="${surface.md}"><script type="application/ld+json">${JSON.stringify(identitySchema)}</script><!-- /agent-readable-head -->`;
+  extraFiles.set(html, page.replace("</head>", head + "</head>"));
+}
 
 if (CHECK_ONLY) {
   const expectedFiles = new Map([
@@ -663,15 +720,28 @@ if (CHECK_ONLY) {
     [resolve(DIST, "llms.txt"), outputs.llms],
     [resolve(DIST, "llms-full.txt"), outputs.llmsFull],
     ...outputs.generatedMarkdown,
+    ...extraFiles,
   ]);
   for (const [path, expected] of expectedFiles) {
     const actual = await fs.readFile(path, "utf8");
-    if (actual !== expected)
+    // The generation date is metadata, not authored-content drift.
+    const comparable = (text) =>
+      path === resolve(DIST, "llms-full.txt")
+        ? text.replace(
+            /^Generated: \d{4}-\d{2}-\d{2}$/m,
+            "Generated: <build date>",
+          )
+        : text;
+    if (comparable(actual) !== comparable(expected))
       throw new Error(
         `generated agent surface drifted: ${relative(DIST, path)}`,
       );
   }
 } else {
+  for (const [path, content] of extraFiles) {
+    await fs.mkdir(dirname(path), { recursive: true });
+    await fs.writeFile(path, content, "utf8");
+  }
   for (const [path, markdown] of outputs.generatedMarkdown) {
     await fs.mkdir(dirname(path), { recursive: true });
     await fs.writeFile(path, markdown, "utf8");

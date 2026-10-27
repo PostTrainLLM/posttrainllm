@@ -3,13 +3,11 @@ import Default from "../../layouts/Default.astro";
 import SiteHeader from "../../components/SiteHeader.astro";
 import replay from "../../data/benchmarks/game-2048-pilot-v1.json";
 
-const clientData = JSON.stringify(replay).replaceAll("<", "\\u003c");
-const measuredModels = replay.models.flatMap((model) =>
-  model.aggregate ? [{ ...model, aggregate: model.aggregate }] : [],
-);
-const specialist = replay.models.find(
-  (model) => model.role === "specialist-candidate",
-);
+import {
+  clientData,
+  measuredModels,
+  specialist,
+} from "../../data/benchmark-game-2048";
 ---
 
 <Default

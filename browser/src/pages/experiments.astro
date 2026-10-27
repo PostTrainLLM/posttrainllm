@@ -9,45 +9,15 @@ import {
 } from "../data/experimentArchive";
 import attemptPayload from "../../../docs/attempts.json";
 
-type Attempt = (typeof attemptPayload.attempts)[number];
-
-const attempts = attemptPayload.attempts as Attempt[];
-const statusOrder = [
-  "worked",
-  "worked-with-caveat",
-  "failed",
-  "regressed",
-  "inconclusive",
-  "superseded",
-  "rejected",
-  "blocked",
-] as const;
-const labels: Record<string, string> = {
-  worked: "worked",
-  "worked-with-caveat": "worked · caveat",
-  failed: "failed",
-  regressed: "regressed",
-  inconclusive: "inconclusive",
-  superseded: "superseded",
-  rejected: "rejected",
-  blocked: "blocked",
-};
-const confidenceLabels: Record<string, string> = {
-  exact: "direct evidence",
-  inferred: "inferred cause",
-  "missing-evidence": "evidence gap",
-  "not-applicable": "no failure claim",
-};
-const counts = Object.fromEntries(
-  statusOrder.map((status) => [
-    status,
-    attempts.filter((attempt) => attempt.status === status).length,
-  ]),
-);
-const families = [...new Set(attempts.map((attempt) => attempt.family))].sort();
-const exact = attempts.filter(
-  (attempt) => attempt.failure_reason_confidence === "exact",
-).length;
+import {
+  attempts,
+  statusOrder,
+  labels,
+  confidenceLabels,
+  counts,
+  families,
+  exact,
+} from "../data/experiments-page";
 ---
 
 <Default

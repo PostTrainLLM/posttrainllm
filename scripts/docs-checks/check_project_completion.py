@@ -48,16 +48,22 @@ PUBLIC_CONTRACTS = {
         "learningPaths",
         "artifactStages",
         "artifact-actions",
-        "Build",
-        "Modify",
-        "Tune",
-        "Prove",
-        "Package",
+        "../data/learn-page",
+        "artifact.actions.map",
+        "{action.name}",
         "Mastery gate",
         "path.cli_commands",
         "path.recipes.map",
         "path.anchors.map",
         "path-${path.id}",
+    ],
+    "browser/src/data/learn-page.ts": [
+        "../../../docs/learn/artifact-journey.json",
+        'name: "Build"',
+        'name: "Modify"',
+        'name: "Tune"',
+        'name: "Prove"',
+        'name: "Package"',
     ],
     "browser/src/components/SiteHeader.astro": [
         '{ href: "/playground", label: "Web Lab"',
@@ -438,6 +444,22 @@ def validate_browser_landmarks(errors: list[str]) -> None:
         if "SiteHeader" not in text:
             continue
         relative = str(page.relative_to(ROOT))
+        # Count the authored fragments actually mounted by Astro, not emitted HTML.
+        for variable, fragment in re.findall(
+            r'import\s+(\w+)\s+from\s+["\']([^"\']+\.html)\?raw["\']', text
+        ):
+            if not re.search(r"set:html=\{\s*" + re.escape(variable) + r"\s*\}", text):
+                continue
+            fragment_path = (page.parent / fragment).resolve()
+            if not fragment_path.is_relative_to(ROOT / "browser/src/content/public"):
+                errors.append(
+                    f"{relative}: authored fragment must stay in public content"
+                )
+                continue
+            if not fragment_path.is_file():
+                errors.append(f"{relative}: missing authored fragment {fragment}")
+                continue
+            text += "\n" + fragment_path.read_text(encoding="utf-8")
         if text.count("<main") != 1:
             errors.append(f"{relative}: expected exactly one main landmark")
         if text.count("<h1") != 1:
