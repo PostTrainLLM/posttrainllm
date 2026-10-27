@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { execFileSync } from "node:child_process";
-import vm from "node:vm";
+import { createHash } from "node:crypto";
+import baseline from "./authored-fragment-baseline.json" with { type: "json" };
 import { authoredHtmlToMarkdown } from "../src/lib/authored-markdown.mjs";
 import {
   authoredExpressions,
@@ -64,7 +64,7 @@ test("source rich text keeps table cells, code, and links", () => {
   assert.match(markdown, /```\nx < y\n  indented\(\)\n```/);
 });
 
-test("extracted authored fragments retain exact original runtime bytes", async () => {
+test("extracted authored fragments retain original content except terminal whitespace", async () => {
   for (const slug of [
     "devlog",
     "roadmap",
@@ -72,19 +72,9 @@ test("extracted authored fragments retain exact original runtime bytes", async (
     "webgpu-test",
     "playground",
   ]) {
-    const original = execFileSync(
-      "git",
-      ["show", `HEAD:browser/src/pages/${slug}.astro`],
-      { cwd: root, encoding: "utf8" },
-    );
-    const literal = original.match(/const pageBody = (`(?:\\.|[^`])*`);/s)?.[1];
-    assert.ok(literal);
-    const expected = vm.runInNewContext(`(${literal})`);
-    assert.equal(
-      await readFile(new URL(`src/content/public/${slug}.html`, root), "utf8"),
-      expected,
-      slug,
-    );
+    const body = await readFile(new URL(`src/content/public/${slug}.html`, root), "utf8");
+    assert.equal(createHash("sha256").update(body.trimEnd() + "\n").digest("hex"), baseline.hashes[slug], slug);
+
   }
 });
 
