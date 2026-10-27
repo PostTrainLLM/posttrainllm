@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { artifactStages } from "../data/learn-page";
 import artifactJourney from "../../../docs/learn/artifact-journey.json";
 import pathRegistry from "../../../docs/learn/path-registry.json";
 
@@ -55,8 +56,28 @@ describe("buildable artifact journey", () => {
     expect(learnPage).toContain("../../../docs/learn/artifact-journey.json");
     expect(learnPage).toContain("artifactStages");
     expect(learnPage).toContain("artifact-actions");
-    for (const action of ["Build", "Modify", "Tune", "Prove", "Package"]) {
-      expect(learnPage).toContain(`name: "${action}"`);
+    expect(learnPage).toContain("../data/learn-page");
+    expect(learnPage).toContain("artifact.actions.map");
+    expect(learnPage).toContain("{action.name}");
+    for (const stage of artifactStages) {
+      for (const artifact of stage.artifacts) {
+        expect(artifact.actions.map((action) => action.name)).toEqual([
+          "Build",
+          "Modify",
+          "Tune",
+          "Prove",
+          "Package",
+        ]);
+        expect(
+          artifact.actions.map(({ name: _name, ...action }) => action),
+        ).toEqual([
+          artifact.build,
+          artifact.modify,
+          artifact.tune,
+          artifact.evaluate,
+          artifact.package,
+        ]);
+      }
     }
   });
 });
