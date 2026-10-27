@@ -632,9 +632,10 @@ const routes = outputs.surfaces.map((surface) => ({
   title: surface.title,
   description: surface.description,
   assetPath: new URL(surface.md).pathname,
+  aliases: [new URL(surface.md).pathname],
 }));
 const htmlPathsByMarkdown = Object.fromEntries(
-  routes.map((route) => [route.md, route.url]),
+  routes.map((route) => [route.assetPath, new URL(route.url).pathname]),
 );
 for (const surface of outputs.surfaces) {
   const { md } = outputPaths(surface.url);
@@ -659,10 +660,7 @@ const identity = {
   sitemap: `${ORIGIN}/sitemap.xml`,
   notes: [
     outputs.llms
-      .slice(
-        outputs.llms.indexOf("## When to use this"),
-        outputs.llms.indexOf("## CLI"),
-      )
+      .slice(outputs.llms.indexOf("## When to use this"))
       .replace(
         "Every public page grouped by kind",
         "Bounded full public page content",
@@ -726,7 +724,11 @@ if (CHECK_ONLY) {
   ]);
   for (const [path, expected] of expectedFiles) {
     const actual = await fs.readFile(path, "utf8");
-    if (actual !== expected)
+    // The generation date is metadata, not authored-content drift.
+    const comparable = (text) => path === resolve(DIST, "llms-full.txt")
+      ? text.replace(/^Generated: \d{4}-\d{2}-\d{2}$/m, "Generated: <build date>")
+      : text;
+    if (comparable(actual) !== comparable(expected))
       throw new Error(
         `generated agent surface drifted: ${relative(DIST, path)}`,
       );

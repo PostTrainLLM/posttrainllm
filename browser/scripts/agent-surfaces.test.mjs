@@ -1,6 +1,8 @@
 import test from "node:test";
+import { execFileSync } from "node:child_process";
+import { absoluteMarkdownLinks } from "../src/lib/agent-surfaces/format.mjs";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import baseline from "./authored-fragment-baseline.json" with { type: "json" };
 import { authoredHtmlToMarkdown } from "../src/lib/authored-markdown.mjs";
@@ -167,4 +169,26 @@ test("real built content supports all three Markdown forms and preserves HTTP se
     ),
     null,
   );
+});
+
+test("every advertised Markdown alternate resolves, including docs index aliases", async () => {
+  const routes = JSON.parse(await readFile(new URL("dist/api/md/_catalog", root), "utf8"));
+  const handler = createStaticAssetHandler({origin});
+  for (const route of routes) {
+    const response = await handler(new Request(route.md), assets);
+    assert.equal(response.status, 200, route.md);
+    assert.equal(response.headers.get("Content-Location"), route.url);
+  }
+  const mapping = Object.fromEntries(routes.map((route) => [route.assetPath, new URL(route.url).pathname]));
+  assert.equal(absoluteMarkdownLinks("[Docs](/docs/index.md)", origin, {htmlPathsByMarkdown:mapping}), `[Docs](${origin}/docs/)`);
+  assert.match(await readFile(new URL("dist/llms.txt", root), "utf8"), /## CLI[\s\S]*posttrainllm --help/);
+});
+
+test("drift check ignores only generated date metadata across build days", async () => {
+  const file = new URL("dist/llms-full.txt", root);
+  const body = await readFile(file, "utf8");
+  try {
+    await writeFile(file, body.replace(/^Generated: \d{4}-\d{2}-\d{2}$/m, "Generated: 2000-01-01"));
+    execFileSync(process.execPath, ["scripts/build-agent-surfaces.mjs", "--check"], {cwd:root, stdio:"pipe"});
+  } finally { await writeFile(file, body); }
 });

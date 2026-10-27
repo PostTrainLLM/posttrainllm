@@ -76,7 +76,9 @@ export function createAgentSurfaceHandler(options) {
       response = text(await full);
     } else {
       const body = route ? await render(route.path) : null;
-      const canonical = route?.url || new URL(htmlPath, manifest.origin).href;
+      const fallback = new URL(manifest.origin);
+    fallback.pathname = htmlPath;
+    const canonical = route?.url || fallback.href;
       response = markdownResponse(body ?? '# Not found\n\nNo public Markdown page exists at this path.\n', request, {
         'Content-Location': canonical,
         Link: `<${canonical}>; rel="canonical"`,
