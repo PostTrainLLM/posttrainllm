@@ -725,9 +725,13 @@ if (CHECK_ONLY) {
   for (const [path, expected] of expectedFiles) {
     const actual = await fs.readFile(path, "utf8");
     // The generation date is metadata, not authored-content drift.
-    const comparable = (text) => path === resolve(DIST, "llms-full.txt")
-      ? text.replace(/^Generated: \d{4}-\d{2}-\d{2}$/m, "Generated: <build date>")
-      : text;
+    const comparable = (text) =>
+      path === resolve(DIST, "llms-full.txt")
+        ? text.replace(
+            /^Generated: \d{4}-\d{2}-\d{2}$/m,
+            "Generated: <build date>",
+          )
+        : text;
     if (comparable(actual) !== comparable(expected))
       throw new Error(
         `generated agent surface drifted: ${relative(DIST, path)}`,

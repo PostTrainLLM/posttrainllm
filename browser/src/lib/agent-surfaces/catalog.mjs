@@ -36,28 +36,29 @@ function mapSurface(origin, s) {
  * @returns {ApiAiCatalog}
  */
 export function buildApiAiCatalog(input) {
-  if (!input?.name) throw new TypeError('buildApiAiCatalog: name required');
-  if (!input?.url) throw new TypeError('buildApiAiCatalog: url required');
+  if (!input?.name) throw new TypeError("buildApiAiCatalog: name required");
+  if (!input?.url) throw new TypeError("buildApiAiCatalog: url required");
   if (!Array.isArray(input.surfaces)) {
-    throw new TypeError('buildApiAiCatalog: surfaces[] required');
+    throw new TypeError("buildApiAiCatalog: surfaces[] required");
   }
 
-  const origin = input.url.replace(/\/$/, '');
+  const origin = input.url.replace(/\/$/, "");
   const catalog = {
     name: input.name,
-    version: input.version || '1',
+    version: input.version || "1",
     url: origin,
     llms: input.llms || `${origin}/llms.txt`,
     llmsFull: input.llmsFull === undefined ? null : input.llmsFull,
-    sitemap: input.sitemap === undefined ? `${origin}/sitemap.xml` : input.sitemap,
+    sitemap:
+      input.sitemap === undefined ? `${origin}/sitemap.xml` : input.sitemap,
     markdown: {
-      suffix: input.markdown?.suffix ?? '.md',
+      suffix: input.markdown?.suffix ?? ".md",
       negotiation: input.markdown?.negotiation ?? true,
     },
     surfaces: input.surfaces.map((s) => mapSurface(origin, s)),
     auth: {
       public: input.auth?.public ?? true,
-      notes: input.auth?.notes ?? '',
+      notes: input.auth?.notes ?? "",
     },
   };
 
@@ -70,17 +71,25 @@ export function buildApiAiCatalog(input) {
  * @param {unknown} catalog
  */
 function assertApiAiCatalog(catalog) {
-  if (!catalog || typeof catalog !== 'object') {
-    throw new TypeError('catalog must be an object');
+  if (!catalog || typeof catalog !== "object") {
+    throw new TypeError("catalog must be an object");
   }
   const c = /** @type {Record<string, unknown>} */ (catalog);
-  for (const key of ['name', 'version', 'url', 'llms', 'markdown', 'surfaces']) {
+  for (const key of [
+    "name",
+    "version",
+    "url",
+    "llms",
+    "markdown",
+    "surfaces",
+  ]) {
     if (c[key] == null) throw new TypeError(`catalog missing ${key}`);
   }
-  if (!Array.isArray(c.surfaces)) throw new TypeError('surfaces must be an array');
+  if (!Array.isArray(c.surfaces))
+    throw new TypeError("surfaces must be an array");
   const md = /** @type {Record<string, unknown>} */ (c.markdown);
-  if (typeof md.suffix !== 'string' || typeof md.negotiation !== 'boolean') {
-    throw new TypeError('markdown.suffix and markdown.negotiation required');
+  if (typeof md.suffix !== "string" || typeof md.negotiation !== "boolean") {
+    throw new TypeError("markdown.suffix and markdown.negotiation required");
   }
   return true;
 }
@@ -91,7 +100,8 @@ function assertApiAiCatalog(catalog) {
  */
 function absolutize(origin, pathOrUrl) {
   if (!pathOrUrl) return pathOrUrl;
-  if (pathOrUrl.startsWith('http://') || pathOrUrl.startsWith('https://')) return pathOrUrl;
-  const path = pathOrUrl.startsWith('/') ? pathOrUrl : `/${pathOrUrl}`;
+  if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://"))
+    return pathOrUrl;
+  const path = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
   return `${origin}${path}`;
 }

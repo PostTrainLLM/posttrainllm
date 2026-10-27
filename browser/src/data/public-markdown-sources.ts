@@ -16,7 +16,7 @@ import playground from "../content/public/playground.html?raw";
 import specialistSource from "../components/SpecialistLabs.astro?raw";
 
 /** Only authored static markup is accepted here. Expressions require a data renderer. */
-export function staticAstroMarkup(source: string): string {
+function staticAstroMarkup(source: string): string {
   const body = source
     .replace(/^---[\s\S]*?---\s*/, "")
     .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, "");

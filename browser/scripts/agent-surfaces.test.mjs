@@ -74,9 +74,17 @@ test("extracted authored fragments retain original content except terminal white
     "webgpu-test",
     "playground",
   ]) {
-    const body = await readFile(new URL(`src/content/public/${slug}.html`, root), "utf8");
-    assert.equal(createHash("sha256").update(body.trimEnd() + "\n").digest("hex"), baseline.hashes[slug], slug);
-
+    const body = await readFile(
+      new URL(`src/content/public/${slug}.html`, root),
+      "utf8",
+    );
+    assert.equal(
+      createHash("sha256")
+        .update(body.trimEnd() + "\n")
+        .digest("hex"),
+      baseline.hashes[slug],
+      slug,
+    );
   }
 });
 
@@ -172,23 +180,44 @@ test("real built content supports all three Markdown forms and preserves HTTP se
 });
 
 test("every advertised Markdown alternate resolves, including docs index aliases", async () => {
-  const routes = JSON.parse(await readFile(new URL("dist/api/md/_catalog", root), "utf8"));
-  const handler = createStaticAssetHandler({origin});
+  const routes = JSON.parse(
+    await readFile(new URL("dist/api/md/_catalog", root), "utf8"),
+  );
+  const handler = createStaticAssetHandler({ origin });
   for (const route of routes) {
     const response = await handler(new Request(route.md), assets);
     assert.equal(response.status, 200, route.md);
     assert.equal(response.headers.get("Content-Location"), route.url);
   }
-  const mapping = Object.fromEntries(routes.map((route) => [route.assetPath, new URL(route.url).pathname]));
-  assert.equal(absoluteMarkdownLinks("[Docs](/docs/index.md)", origin, {htmlPathsByMarkdown:mapping}), `[Docs](${origin}/docs/)`);
-  assert.match(await readFile(new URL("dist/llms.txt", root), "utf8"), /## CLI[\s\S]*posttrainllm --help/);
+  const mapping = Object.fromEntries(
+    routes.map((route) => [route.assetPath, new URL(route.url).pathname]),
+  );
+  assert.equal(
+    absoluteMarkdownLinks("[Docs](/docs/index.md)", origin, {
+      htmlPathsByMarkdown: mapping,
+    }),
+    `[Docs](${origin}/docs/)`,
+  );
+  assert.match(
+    await readFile(new URL("dist/llms.txt", root), "utf8"),
+    /## CLI[\s\S]*posttrainllm --help/,
+  );
 });
 
 test("drift check ignores only generated date metadata across build days", async () => {
   const file = new URL("dist/llms-full.txt", root);
   const body = await readFile(file, "utf8");
   try {
-    await writeFile(file, body.replace(/^Generated: \d{4}-\d{2}-\d{2}$/m, "Generated: 2000-01-01"));
-    execFileSync(process.execPath, ["scripts/build-agent-surfaces.mjs", "--check"], {cwd:root, stdio:"pipe"});
-  } finally { await writeFile(file, body); }
+    await writeFile(
+      file,
+      body.replace(/^Generated: \d{4}-\d{2}-\d{2}$/m, "Generated: 2000-01-01"),
+    );
+    execFileSync(
+      process.execPath,
+      ["scripts/build-agent-surfaces.mjs", "--check"],
+      { cwd: root, stdio: "pipe" },
+    );
+  } finally {
+    await writeFile(file, body);
+  }
 });

@@ -32,6 +32,9 @@ const result = capture(lizard.command, [
   "scripts/archive/*",
   "-x",
   "*/.venv/*",
+  // Canonical shared vendor is reviewed upstream; measure handwritten product code.
+  "-x",
+  "browser/src/lib/agent-surfaces/*",
   "--csv",
 ]);
 const rows = result.stdout

@@ -3,7 +3,7 @@ import type { KnowledgeRecord } from "../data/knowledgeGraph";
 import type { EditorialContent } from "../data/education-content";
 import readingContract from "../content/public/dossier-reading.json";
 
-export const publicOrigin = "https://posttrainllm.com";
+const publicOrigin = "https://posttrainllm.com";
 export function markdownLink(label: string, href: string): string {
   return `[${label.replaceAll("[", "\\[").replaceAll("]", "\\]")}](${new URL(href, publicOrigin).href})`;
 }
