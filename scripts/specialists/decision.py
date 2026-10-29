@@ -580,27 +580,32 @@ def run_model(args):
         print(json.dumps(budget.measurements()))
 
 
-def main():
-    args = argument_parser().parse_args()
-    if args.command == "score-native":
-        from decision_native_score import NativeDecisionModel
-
-        budget = Budget(args.seconds)
-        rows = read_rows(args.data)
-        if Path(args.out).exists():
-            raise FileExistsError(args.out)
-        model = NativeDecisionModel(
-            args.binary, args.base, args.source_revision, args.adapter, budget
-        )
-        model.preflight(rows)
-        scores = [model.score(row) for row in rows]
-        model.finish()
-        write_rows(args.out, scores)
-        print(json.dumps(budget.measurements()))
-    elif args.command == "export-native":
+def run_native(args):
+    if args.command == "export-native":
         from decision_native import export
 
         print(json.dumps(export(args.base, args.adapter, args.out)))
+        return
+    from decision_native_score import NativeDecisionModel
+
+    budget = Budget(args.seconds)
+    rows = read_rows(args.data)
+    if Path(args.out).exists():
+        raise FileExistsError(args.out)
+    model = NativeDecisionModel(
+        args.binary, args.base, args.source_revision, args.adapter, budget
+    )
+    model.preflight(rows)
+    scores = [model.score(row) for row in rows]
+    model.finish()
+    write_rows(args.out, scores)
+    print(json.dumps(budget.measurements()))
+
+
+def main():
+    args = argument_parser().parse_args()
+    if args.command in ("score-native", "export-native"):
+        run_native(args)
     elif args.command == "export-browser":
         from decision_browser import export
 

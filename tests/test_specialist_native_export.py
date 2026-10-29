@@ -99,6 +99,33 @@ def test_native_export_rejects_changed_base_or_adapter(tmp_path):
         export(base, adapter, tmp_path / "bad.lora")
 
 
+def test_native_export_operator_command_preserves_identity(
+    tmp_path, monkeypatch, capsys
+):
+    import decision
+
+    base, adapter = fixture(tmp_path)
+    out = tmp_path / "operator.lora"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "decision.py",
+            "export-native",
+            "--base",
+            str(base),
+            "--adapter",
+            str(adapter),
+            "--out",
+            str(out),
+        ],
+    )
+    decision.main()
+    receipt = json.loads(capsys.readouterr().out)
+    assert receipt["native_adapter_sha256"] == file_hash(out)
+    assert receipt["train_identities"] == [digest("training-example")]
+
+
 def test_native_float32_conversion_rejects_overflow(tmp_path):
     from safetensors.numpy import load_file
 
