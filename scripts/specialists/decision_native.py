@@ -136,6 +136,7 @@ def export(base, adapter, out):
         "base_identity": metadata["base_identity"],
         "source_adapter_sha256": metadata["adapter_sha256"],
         "native_adapter_sha256": file_hash(out),
+        "train_identities": metadata.get("train_identities"),
         "entries": len(entries),
         "quality": "unqualified; recalibrate after runtime conversion",
     }

@@ -56,6 +56,7 @@ def fixture(tmp_path):
         "base_identity": digest({"backend": "mlx", "files": base_files(base)}),
         "adapter_sha256": file_hash(adapter / "adapters.safetensors"),
         "adapter_config_sha256": file_hash(adapter / "adapter_config.json"),
+        "train_identities": [digest("training-example")],
     }
     (adapter / "specialist.json").write_text(json.dumps(metadata))
     return base, adapter
@@ -80,6 +81,7 @@ def test_native_export_preserves_subset_scaling_and_bytes(tmp_path):
     )
     assert receipt["native_adapter_sha256"] == file_hash(out)
     assert receipt["base_files"] == base_files(base)
+    assert receipt["train_identities"] == [digest("training-example")]
     with pytest.raises(FileExistsError):
         export(base, adapter, out)
 
@@ -95,6 +97,33 @@ def test_native_export_rejects_changed_base_or_adapter(tmp_path):
         stream.write(b"changed")
     with pytest.raises(ValueError, match="checksum"):
         export(base, adapter, tmp_path / "bad.lora")
+
+
+def test_native_export_operator_command_preserves_identity(
+    tmp_path, monkeypatch, capsys
+):
+    import decision
+
+    base, adapter = fixture(tmp_path)
+    out = tmp_path / "operator.lora"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "decision.py",
+            "export-native",
+            "--base",
+            str(base),
+            "--adapter",
+            str(adapter),
+            "--out",
+            str(out),
+        ],
+    )
+    decision.main()
+    receipt = json.loads(capsys.readouterr().out)
+    assert receipt["native_adapter_sha256"] == file_hash(out)
+    assert receipt["train_identities"] == [digest("training-example")]
 
 
 def test_native_float32_conversion_rejects_overflow(tmp_path):
