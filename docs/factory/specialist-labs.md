@@ -356,8 +356,10 @@ changes. Every row cold-loads the native model in a separate bounded process.
 The total time budget includes those loads; failure produces no final score
 file. Use a small split and retain failed-run diagnostics separately.
 All rows are checked against the native 256-token cap before any model process.
-Colocated Metal libraries, bundles and dynamic libraries are hashed too; this
-does not attest external system libraries or drivers. Exports with unknown
+Metal libraries, bundles and dynamic libraries beside the executable or in its
+packaged app's `Contents/Resources` and `Contents/Frameworks` are hashed too.
+Missing Metal libraries block scoring. This does not attest external system
+libraries or drivers. Exports with unknown
 training provenance remain loadable diagnostic artifacts; re-exporting such a
 source cannot reconstruct its training identities or qualify confidence.
 

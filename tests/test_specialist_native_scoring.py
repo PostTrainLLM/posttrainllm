@@ -48,6 +48,7 @@ def fixture(tmp_path, change=""):
         + "\nprint(json.dumps(value))\n"
     )
     binary.chmod(0o700)
+    (binary.parent / "default.metallib").write_bytes(b"process-fixture-only-metal")
     return base, binary
 
 
@@ -191,7 +192,36 @@ def test_native_identity_binds_colocated_metal_resources(tmp_path):
     assert model(base, binary).model_identity != native.model_identity
 
 
-def test_native_preflight_rejects_late_oversize_before_any_process(tmp_path):
+def test_native_identity_binds_packaged_app_resources(tmp_path):
+    base, binary = fixture(tmp_path)
+    contents = tmp_path / "posttrainllm.app/Contents"
+    destination = contents / "MacOS/posttrainllm-cli"
+    destination.parent.mkdir(parents=True)
+    binary.rename(destination)
+    bundle = contents / "Resources/mlx-swift_Cmlx.bundle"
+    bundle.mkdir(parents=True)
+    shader = bundle / "default.metallib"
+    shader.write_bytes(b"packaged-metal-fixture")
+    native = model(base, destination)
+    shader.write_bytes(b"changed-packaged-metal-fixture")
+    with pytest.raises(ValueError, match="artifacts changed"):
+        native.score(item())
+    assert model(base, destination).model_identity != native.model_identity
+
+
+def test_native_missing_metal_resources_cannot_qualify_scores(tmp_path):
+    base, binary = fixture(tmp_path)
+    (binary.parent / "default.metallib").unlink()
+    with pytest.raises(ValueError, match="Metal kernel resources unavailable"):
+        model(base, binary)
+
+
+def test_native_preflight_rejects_late_oversize_before_any_process(
+    tmp_path, monkeypatch
+):
+    import decision
+    import decision_native_score
+
     marker = tmp_path / "native-called"
     base, binary = fixture(tmp_path, f"Path({str(marker)!r}).write_text('called')")
 
@@ -202,9 +232,35 @@ def test_native_preflight_rejects_late_oversize_before_any_process(tmp_path):
             return super().encode(text, **kwargs)
 
     native = model(base, binary, tokenizer=LongTokenizer())
+    data, out = tmp_path / "data.jsonl", tmp_path / "scores.jsonl"
+    data.write_text(
+        "\n".join(json.dumps(row) for row in [item("valid"), item("too-long")]) + "\n"
+    )
+    monkeypatch.setattr(
+        decision_native_score, "NativeDecisionModel", lambda *args: native
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "decision.py",
+            "score-native",
+            "--binary",
+            str(binary),
+            "--base",
+            str(base),
+            "--source-revision",
+            "a" * 40,
+            "--data",
+            str(data),
+            "--out",
+            str(out),
+        ],
+    )
     with pytest.raises(ValueError, match="bounded exact token"):
-        native.preflight([item("valid"), item("too-long")])
+        decision.main()
     assert not marker.exists()
+    assert not out.exists()
 
 
 def test_native_non_object_response_and_stderr_are_reported(tmp_path):

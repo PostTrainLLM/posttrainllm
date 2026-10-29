@@ -75,6 +75,11 @@ class NativeDecisionModel:
             name.endswith(".safetensors") for name in files
         ):
             raise ValueError("native base requires config and local model weights")
+        resources = self.native_resources()
+        if not any(path.suffix == ".metallib" for path in resources.values()):
+            raise ValueError(
+                "native Metal kernel resources unavailable; retain the CLI's Metal library"
+            )
         result = {
             "binary_sha256": file_hash(self.binary),
             "base_files": files,
@@ -83,8 +88,7 @@ class NativeDecisionModel:
                 for path in self.tokenizer_files()
             },
             "native_resources": {
-                str(path.relative_to(self.binary.parent)): file_hash(path)
-                for path in self.native_resources()
+                name: file_hash(path) for name, path in resources.items()
             },
         }
         if self.adapter:
@@ -93,14 +97,26 @@ class NativeDecisionModel:
         return result
 
     def native_resources(self):
-        paths = set(self.binary.parent.glob("*.metallib")) | set(
-            self.binary.parent.glob("*.dylib")
-        )
-        for bundle in list(self.binary.parent.glob("*.bundle")) + list(
-            self.binary.parent.glob("*.framework")
+        roots = {"binary": self.binary.parent}
+        if (
+            self.binary.parent.name == "MacOS"
+            and self.binary.parent.parent.name == "Contents"
         ):
-            paths.update(path for path in bundle.rglob("*") if path.is_file())
-        return sorted(path for path in paths if path.is_file())
+            roots["app-resources"] = self.binary.parent.parent / "Resources"
+            roots["app-frameworks"] = self.binary.parent.parent / "Frameworks"
+        resources = {}
+        for name, root in roots.items():
+            paths = set(root.glob("*.metallib")) | set(root.glob("*.dylib"))
+            for bundle in list(root.glob("*.bundle")) + list(root.glob("*.framework")):
+                paths.update(path for path in bundle.rglob("*") if path.is_file())
+            resources.update(
+                {
+                    name + "/" + str(path.relative_to(root)): path
+                    for path in sorted(paths)
+                    if path.is_file()
+                }
+            )
+        return resources
 
     def tokenizer_files(self):
         return sorted(
@@ -123,10 +139,7 @@ class NativeDecisionModel:
             }
         )
         paths.update(
-            {
-                "native/" + str(path.relative_to(self.binary.parent)): path
-                for path in self.native_resources()
-            }
+            {"native/" + name: path for name, path in self.native_resources().items()}
         )
         paths.update(
             {
