@@ -349,6 +349,12 @@ build provenance. Every exact-token response must match its request. Changed
 files, unknown adapter training provenance, malformed output and expired budgets
 fail closed. Native adapter sidecars exported before training identities were
 preserved require re-export from their original source adapter.
+Merged bases retain their own training exclusions too. Standalone tokenizer
+files and the resolved chat template are part of this identity. Checksums run at
+the start and before final output; per-row file fingerprints detect intervening
+changes. Every row cold-loads the native model in a separate bounded process.
+The total time budget includes those loads; failure produces no final score
+file. Use a small split and retain failed-run diagnostics separately.
 
 Use `decision.py calibrate` on native calibration scores only, with train,
 primary and regression scores supplied through `--exclude`; score those splits

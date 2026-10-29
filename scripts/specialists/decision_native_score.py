@@ -34,6 +34,9 @@ class NativeDecisionModel:
             raise ValueError("native binary must be an existing executable file")
         self.training_identities = set()
         self.artifacts = self.snapshot()
+        self.fingerprints = self.file_fingerprints()
+        if (self.base / "specialist.json").exists():
+            self.read_training_identities(read_json(self.base / "specialist.json"))
         self.check_adapter()
         if tokenizer is None:
             from transformers import AutoTokenizer
@@ -60,6 +63,9 @@ class NativeDecisionModel:
             "tokenizer_class": type(tokenizer).__module__
             + "."
             + type(tokenizer).__qualname__,
+            "resolved_chat_template_sha256": digest(
+                getattr(tokenizer, "chat_template", None)
+            ),
         }
         self.model_identity = digest(self.runtime_identity)
 
@@ -69,23 +75,78 @@ class NativeDecisionModel:
             name.endswith(".safetensors") for name in files
         ):
             raise ValueError("native base requires config and local model weights")
-        result = {"binary_sha256": file_hash(self.binary), "base_files": files}
+        result = {
+            "binary_sha256": file_hash(self.binary),
+            "base_files": files,
+            "tokenizer_files": {
+                str(path.relative_to(self.base)): file_hash(path)
+                for path in self.tokenizer_files()
+            },
+        }
         if self.adapter:
             result["adapter_sha256"] = file_hash(self.adapter)
             result["adapter_provenance_sha256"] = file_hash(str(self.adapter) + ".json")
+        return result
+
+    def tokenizer_files(self):
+        return sorted(
+            {
+                path
+                for path in self.base.iterdir()
+                if path.is_file()
+                and path.suffix in (".jinja", ".txt", ".model", ".tiktoken")
+            }
+            | set((self.base / "chat_templates").glob("*.jinja"))
+        )
+
+    def file_fingerprints(self):
+        paths = {"binary": self.binary}
+        paths.update(
+            {
+                "base/" + path.name: path
+                for path in self.base.iterdir()
+                if path.is_file() and path.suffix in (".json", ".safetensors")
+            }
+        )
+        paths.update(
+            {
+                "base/" + str(path.relative_to(self.base)): path
+                for path in self.tokenizer_files()
+            }
+        )
+        if self.adapter:
+            paths.update(
+                {
+                    "adapter": self.adapter,
+                    "adapter_provenance": Path(str(self.adapter) + ".json"),
+                }
+            )
+        result = {}
+        for name, path in paths.items():
+            status = path.stat()
+            result[name] = (
+                status.st_dev,
+                status.st_ino,
+                status.st_size,
+                status.st_mtime_ns,
+                status.st_ctime_ns,
+            )
         return result
 
     def check_adapter(self):
         if not self.adapter:
             return
         metadata = read_json(str(self.adapter) + ".json")
-        identities = metadata.get("train_identities")
         if (
             metadata.get("schema") != "decision-native-adapter-v1"
             or metadata.get("base_files") != self.artifacts["base_files"]
             or metadata.get("native_adapter_sha256") != self.artifacts["adapter_sha256"]
         ):
             raise ValueError("native adapter/base provenance mismatch")
+        self.read_training_identities(metadata)
+
+    def read_training_identities(self, metadata):
+        identities = metadata.get("train_identities")
         if (
             not isinstance(identities, list)
             or not identities
@@ -95,13 +156,17 @@ class NativeDecisionModel:
             )
             or len(set(identities)) != len(identities)
         ):
-            raise ValueError(
-                "native adapter training provenance missing or invalid; re-export"
-            )
-        self.training_identities = set(identities)
+            raise ValueError("native training provenance missing or invalid; re-export")
+        self.training_identities.update(identities)
 
     def unchanged(self):
         self.budget.check()
+        if self.file_fingerprints() != self.fingerprints:
+            raise ValueError("native scoring artifacts changed; discard this score run")
+        self.budget.check()
+
+    def finish(self):
+        self.unchanged()
         if self.snapshot() != self.artifacts:
             raise ValueError("native scoring artifacts changed; discard this score run")
         self.budget.check()
@@ -141,11 +206,22 @@ class NativeDecisionModel:
             remaining = self.budget.seconds - (time.monotonic() - self.budget.started)
             if remaining <= 0:
                 raise TimeoutError("specialist work budget exhausted")
-            result = subprocess.run(
-                command, capture_output=True, text=True, timeout=remaining, check=True
-            )
+            try:
+                result = subprocess.run(
+                    command,
+                    capture_output=True,
+                    text=True,
+                    timeout=remaining,
+                    check=True,
+                )
+            except subprocess.CalledProcessError as error:
+                raise ValueError(
+                    f"native exact-token probe failed ({error.returncode}): {error.stderr.strip()[-1000:]}"
+                ) from None
         self.unchanged()
         value = json.loads(result.stdout)
+        if not isinstance(value, dict):
+            raise ValueError("native exact-token response does not match the request")
         logits = value.get("logits")
         if (
             value.get("schema") != "native-exact-token-logits-v1"

@@ -159,6 +159,84 @@ def test_native_adapter_training_provenance_and_calibration_leakage(tmp_path):
         model(base, binary, adapter)
 
 
+def test_native_merged_base_preserves_training_exclusion(tmp_path):
+    base, binary = fixture(tmp_path)
+    (base / "specialist.json").write_text(
+        json.dumps({"train_identities": [identity(item("train"))]})
+    )
+    native = model(base, binary)
+    with pytest.raises(ValueError, match="training examples"):
+        calibrate([native.score(item("train"))])
+
+
+def test_native_identity_binds_standalone_chat_template(tmp_path):
+    base, binary = fixture(tmp_path)
+    old = model(base, binary)
+    (base / "chat_template.jinja").write_text("changed prompt template")
+    with pytest.raises(ValueError, match="artifacts changed"):
+        old.score(item())
+    assert model(base, binary).model_identity != old.model_identity
+
+
+def test_native_non_object_response_and_stderr_are_reported(tmp_path):
+    base, binary = fixture(tmp_path, "value = []")
+    with pytest.raises(ValueError, match="response does not match"):
+        model(base, binary).score(item())
+    binary.write_text(
+        f"#!{Path(sys.executable).resolve()}\nimport sys\nsys.stderr.write('base identity mismatch')\nsys.exit(2)\n"
+    )
+    with pytest.raises(ValueError, match="base identity mismatch"):
+        model(base, binary).score(item())
+
+
+def test_native_full_checksum_is_rechecked_at_finish(tmp_path, monkeypatch):
+    base, binary = fixture(tmp_path)
+    native = model(base, binary)
+    native.score(item())
+    changed = {**native.artifacts, "binary_sha256": "changed"}
+    monkeypatch.setattr(native, "snapshot", lambda: changed)
+    with pytest.raises(ValueError, match="artifacts changed"):
+        native.finish()
+
+
+def test_native_cli_does_not_publish_scores_if_final_validation_fails(
+    tmp_path, monkeypatch
+):
+    import decision
+    import decision_native_score
+
+    base, binary = fixture(tmp_path)
+    native = model(base, binary)
+    data, out = tmp_path / "data.jsonl", tmp_path / "scores.jsonl"
+    data.write_text(json.dumps(item()) + "\n")
+    changed = {**native.artifacts, "binary_sha256": "changed"}
+    monkeypatch.setattr(native, "snapshot", lambda: changed)
+    monkeypatch.setattr(
+        decision_native_score, "NativeDecisionModel", lambda *args: native
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "decision.py",
+            "score-native",
+            "--binary",
+            str(binary),
+            "--base",
+            str(base),
+            "--source-revision",
+            "a" * 40,
+            "--data",
+            str(data),
+            "--out",
+            str(out),
+        ],
+    )
+    with pytest.raises(ValueError, match="artifacts changed"):
+        decision.main()
+    assert not out.exists()
+
+
 @pytest.mark.parametrize(
     "encoding, message", [([1, 2], "exactly one token"), ([32], "collide")]
 )

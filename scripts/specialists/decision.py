@@ -592,7 +592,9 @@ def main():
         model = NativeDecisionModel(
             args.binary, args.base, args.source_revision, args.adapter, budget
         )
-        write_rows(args.out, [model.score(row) for row in rows])
+        scores = [model.score(row) for row in rows]
+        model.finish()
+        write_rows(args.out, scores)
         print(json.dumps(budget.measurements()))
     elif args.command == "export-native":
         from decision_native import export
