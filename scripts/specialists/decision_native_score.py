@@ -46,7 +46,7 @@ class NativeDecisionModel:
             )
         self.tokenizer = tokenizer
         tokenizer_versions = {}
-        for package in ("transformers", "tokenizers"):
+        for package in ("transformers", "tokenizers", "jinja2", "markupsafe"):
             try:
                 tokenizer_versions[package] = importlib.metadata.version(package)
             except importlib.metadata.PackageNotFoundError:

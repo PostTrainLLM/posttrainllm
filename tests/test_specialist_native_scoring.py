@@ -179,6 +179,20 @@ def test_native_identity_binds_standalone_chat_template(tmp_path):
     assert model(base, binary).model_identity != old.model_identity
 
 
+def test_native_identity_binds_template_renderer_version(tmp_path, monkeypatch):
+    import decision_native_score
+
+    base, binary = fixture(tmp_path)
+    native = model(base, binary)
+    version = decision_native_score.importlib.metadata.version
+    monkeypatch.setattr(
+        decision_native_score.importlib.metadata,
+        "version",
+        lambda name: "changed-renderer" if name == "jinja2" else version(name),
+    )
+    assert model(base, binary).model_identity != native.model_identity
+
+
 def test_native_identity_binds_colocated_metal_resources(tmp_path):
     base, binary = fixture(tmp_path)
     bundle = binary.parent / "mlx-swift_Cmlx.bundle"
