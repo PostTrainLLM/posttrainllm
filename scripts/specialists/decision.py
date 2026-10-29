@@ -592,6 +592,7 @@ def main():
         model = NativeDecisionModel(
             args.binary, args.base, args.source_revision, args.adapter, budget
         )
+        model.preflight(rows)
         scores = [model.score(row) for row in rows]
         model.finish()
         write_rows(args.out, scores)

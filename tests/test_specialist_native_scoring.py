@@ -105,11 +105,11 @@ def test_native_timeout_reaps_the_owned_process(tmp_path):
     pid_file = tmp_path / "native.pid"
     change = (
         f"import os, time\nPath({str(pid_file)!r}).write_text(str(os.getpid()))\n"
-        "time.sleep(5)\n"
+        "time.sleep(30)\n"
     )
     base, binary = fixture(tmp_path, change)
     native = NativeDecisionModel(
-        binary, base, "a" * 40, budget=Budget(0.5), tokenizer=Tokenizer()
+        binary, base, "a" * 40, budget=Budget(3), tokenizer=Tokenizer()
     )
     with pytest.raises(subprocess.TimeoutExpired):
         native.score(item())
@@ -176,6 +176,35 @@ def test_native_identity_binds_standalone_chat_template(tmp_path):
     with pytest.raises(ValueError, match="artifacts changed"):
         old.score(item())
     assert model(base, binary).model_identity != old.model_identity
+
+
+def test_native_identity_binds_colocated_metal_resources(tmp_path):
+    base, binary = fixture(tmp_path)
+    bundle = binary.parent / "mlx-swift_Cmlx.bundle"
+    bundle.mkdir()
+    shader = bundle / "default.metallib"
+    shader.write_bytes(b"compiled-metal-fixture")
+    native = model(base, binary)
+    shader.write_bytes(b"changed-metal-fixture")
+    with pytest.raises(ValueError, match="artifacts changed"):
+        native.score(item())
+    assert model(base, binary).model_identity != native.model_identity
+
+
+def test_native_preflight_rejects_late_oversize_before_any_process(tmp_path):
+    marker = tmp_path / "native-called"
+    base, binary = fixture(tmp_path, f"Path({str(marker)!r}).write_text('called')")
+
+    class LongTokenizer(Tokenizer):
+        def encode(self, text, **kwargs):
+            if "too-long" in text:
+                return [1] * 257
+            return super().encode(text, **kwargs)
+
+    native = model(base, binary, tokenizer=LongTokenizer())
+    with pytest.raises(ValueError, match="bounded exact token"):
+        native.preflight([item("valid"), item("too-long")])
+    assert not marker.exists()
 
 
 def test_native_non_object_response_and_stderr_are_reported(tmp_path):

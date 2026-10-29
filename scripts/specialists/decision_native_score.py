@@ -82,11 +82,25 @@ class NativeDecisionModel:
                 str(path.relative_to(self.base)): file_hash(path)
                 for path in self.tokenizer_files()
             },
+            "native_resources": {
+                str(path.relative_to(self.binary.parent)): file_hash(path)
+                for path in self.native_resources()
+            },
         }
         if self.adapter:
             result["adapter_sha256"] = file_hash(self.adapter)
             result["adapter_provenance_sha256"] = file_hash(str(self.adapter) + ".json")
         return result
+
+    def native_resources(self):
+        paths = set(self.binary.parent.glob("*.metallib")) | set(
+            self.binary.parent.glob("*.dylib")
+        )
+        for bundle in list(self.binary.parent.glob("*.bundle")) + list(
+            self.binary.parent.glob("*.framework")
+        ):
+            paths.update(path for path in bundle.rglob("*") if path.is_file())
+        return sorted(path for path in paths if path.is_file())
 
     def tokenizer_files(self):
         return sorted(
@@ -106,6 +120,12 @@ class NativeDecisionModel:
                 "base/" + path.name: path
                 for path in self.base.iterdir()
                 if path.is_file() and path.suffix in (".json", ".safetensors")
+            }
+        )
+        paths.update(
+            {
+                "native/" + str(path.relative_to(self.binary.parent)): path
+                for path in self.native_resources()
             }
         )
         paths.update(
@@ -156,7 +176,9 @@ class NativeDecisionModel:
             )
             or len(set(identities)) != len(identities)
         ):
-            raise ValueError("native training provenance missing or invalid; re-export")
+            raise ValueError(
+                "native training provenance missing or invalid; source must record original training identities"
+            )
         self.training_identities.update(identities)
 
     def unchanged(self):
@@ -171,8 +193,7 @@ class NativeDecisionModel:
             raise ValueError("native scoring artifacts changed; discard this score run")
         self.budget.check()
 
-    def score(self, item):
-        self.unchanged()
+    def prepare(self, item):
         labels = validate_item(item)
         ids = option_ids(labels, self.tokenizer)
         tokens = self.tokenizer.encode(
@@ -189,6 +210,17 @@ class NativeDecisionModel:
             raise ValueError(
                 "native prompt requires bounded exact token ids; no truncation"
             )
+        return labels, ids, tokens
+
+    def preflight(self, rows):
+        self.unchanged()
+        for item in rows:
+            self.prepare(item)
+            self.budget.check()
+
+    def score(self, item):
+        self.unchanged()
+        labels, ids, tokens = self.prepare(item)
         started = time.monotonic()
         with tempfile.TemporaryDirectory(prefix="posttrain-native-probe-") as directory:
             probe = Path(directory) / "probe.json"
