@@ -535,6 +535,14 @@ def argument_parser():
     child.add_argument("--base", required=True)
     child.add_argument("--adapter", required=True)
     child.add_argument("--out", required=True)
+    child = sub.add_parser("score-native")
+    child.add_argument("--binary", required=True)
+    child.add_argument("--base", required=True)
+    child.add_argument("--source-revision", required=True)
+    child.add_argument("--adapter")
+    child.add_argument("--data", required=True)
+    child.add_argument("--out", required=True)
+    child.add_argument("--seconds", type=float, default=60)
     child = sub.add_parser("export-browser")
     child.add_argument("--base", required=True)
     child.add_argument("--adapter")
@@ -574,7 +582,19 @@ def run_model(args):
 
 def main():
     args = argument_parser().parse_args()
-    if args.command == "export-native":
+    if args.command == "score-native":
+        from decision_native_score import NativeDecisionModel
+
+        budget = Budget(args.seconds)
+        rows = read_rows(args.data)
+        if Path(args.out).exists():
+            raise FileExistsError(args.out)
+        model = NativeDecisionModel(
+            args.binary, args.base, args.source_revision, args.adapter, budget
+        )
+        write_rows(args.out, [model.score(row) for row in rows])
+        print(json.dumps(budget.measurements()))
+    elif args.command == "export-native":
         from decision_native import export
 
         print(json.dumps(export(args.base, args.adapter, args.out)))

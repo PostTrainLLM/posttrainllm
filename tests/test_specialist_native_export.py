@@ -56,6 +56,7 @@ def fixture(tmp_path):
         "base_identity": digest({"backend": "mlx", "files": base_files(base)}),
         "adapter_sha256": file_hash(adapter / "adapters.safetensors"),
         "adapter_config_sha256": file_hash(adapter / "adapter_config.json"),
+        "train_identities": [digest("training-example")],
     }
     (adapter / "specialist.json").write_text(json.dumps(metadata))
     return base, adapter
@@ -80,6 +81,7 @@ def test_native_export_preserves_subset_scaling_and_bytes(tmp_path):
     )
     assert receipt["native_adapter_sha256"] == file_hash(out)
     assert receipt["base_files"] == base_files(base)
+    assert receipt["train_identities"] == [digest("training-example")]
     with pytest.raises(FileExistsError):
         export(base, adapter, out)
 

@@ -335,6 +335,28 @@ not numerical or calibration parity. Refit temperature and rerun primary and
 regression gates before using native confidence. No model is promoted by this
 conversion.
 
+For a source-bound native score run, re-export the adapter with training
+identities retained, then use the existing local executable and model files:
+
+```sh
+uv run --project scripts/specialists python scripts/specialists/decision.py score-native --binary <existing-native-cli> --base <local-base> --adapter <new-adapter.lora> --source-revision <declared-full-commit> --data <frozen-split.jsonl> --seconds 60 --out <new-native-scores.jsonl>
+```
+
+The scorer observes the executable, base/tokenizer, adapter and sidecar hashes,
+and binds tokenizer versions and the exact prompt implementation into a distinct
+native model identity. The source revision is operator-declared, not verified
+build provenance. Every exact-token response must match its request. Changed
+files, unknown adapter training provenance, malformed output and expired budgets
+fail closed. Native adapter sidecars exported before training identities were
+preserved require re-export from their original source adapter.
+
+Use `decision.py calibrate` on native calibration scores only, with train,
+primary and regression scores supplied through `--exclude`; score those splits
+separately. Existing calibration and eval leakage checks remain authoritative.
+MLX and browser calibration cannot qualify this different runtime identity.
+The subprocess fixtures test the scoring boundary; actual native runs and a
+frontier-qualified frozen primary/regression comparison remain separate proof.
+
 ## Portable Qwen decisions
 
 Use a local tied-embedding Qwen3 MLX affine q4/group64 base and, optionally,
