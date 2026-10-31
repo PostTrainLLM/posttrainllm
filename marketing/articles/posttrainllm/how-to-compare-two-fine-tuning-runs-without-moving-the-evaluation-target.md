@@ -24,7 +24,13 @@ Evaluating a fine-tuned language model is deceptively difficult. When you change
 
 In the PostTrainLLM research factory—a project dedicated to building and evaluating Mac-local models on Apple Silicon—we discovered early on that improving a model's score often means fixing the evaluation first. The goal is not merely to build models but to understand the space rigorously, establishing a repeatable factory loop of `target -> data -> post-training -> eval -> package -> report`.
 
-This article outlines an evidence-backed protocol for comparing two fine-tuning runs without moving the evaluation target, ensuring that every point of improvement is real. Whether you are running parameter-efficient fine-tuning (PEFT) on a local machine or managing larger clusters, these principles will help you separate actual progress from evaluation artifacts. To see how these principles apply in practice across our guided learning paths, refer to our [learning labs](/learn).
+This article outlines an evidence-backed protocol for comparing two fine-tuning runs without moving the evaluation target, so measured differences have a fixed comparison basis. Whether you are running parameter-efficient fine-tuning (PEFT) on a local machine or managing larger clusters, these principles will help you separate actual progress from evaluation artifacts. To see how these principles apply in practice across our guided learning paths, refer to our [learning labs](/learn).
+
+## When a small evaluation ties, keep it inconclusive
+
+In one PostTrainLLM held-out readback, the ReST and multibackend candidates each passed 4/4 file-operation cases and 4/4 vehicle cases; the frontier passed 8/8. The candidates emitted the same 19 requested calls. Their runner counters showed no schema failures or listed unexpected side effects, but actuator coverage was incomplete. Because this slice did not distinguish the historically retained and rejected candidates, the attempt ledger records it as inconclusive. [Read the attempt ledger](/docs/attempt-ledger).
+
+An all-arm tie on a short smoke is non-discriminating evidence; it does not show that candidates are equivalent. When a preregistered decision needs a larger slice, define it before the run rather than adding harder cases after seeing scores. For small evaluations, compare paired per-question differences and report uncertainty; [Anthropic's evaluation guidance](https://www.anthropic.com/research/statistical-approach-to-model-evals) explains how pairing can reduce noise from question difficulty.
 
 ## Rule 1: The Frozen Baseline
 
