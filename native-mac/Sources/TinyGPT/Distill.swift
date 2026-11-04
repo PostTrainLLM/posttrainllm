@@ -10,7 +10,7 @@ import TinyGPTModel
 /// Trains a STUDENT model to match a frozen TEACHER's output distribution.
 /// Loss is a mix of two terms:
 ///
-///   L = α · T² · KL( softmax(s_logits / T) ‖ softmax(t_logits / T) )
+///   L = α · T² · KL( softmax(t_logits / T) ‖ softmax(s_logits / T) )
 ///     + (1 − α) · NLL(s_logits, true_targets)
 ///
 /// Where T (temperature) softens the teacher's distribution so the student
@@ -18,13 +18,12 @@ import TinyGPTModel
 /// multiplier on the KL term compensates for the gradient scaling that
 /// the temperature divide introduces.
 ///
-/// Educational/strategic value: a much smaller model can punch above its
-/// weight by absorbing a larger teacher's behaviour. The flagship Phase-4
-/// shipping artefact ("a 5M-param model that competes on the leaderboard").
+/// The corresponding guide documents prerequisites, comparison controls,
+/// and evidence limits: docs/techniques/distillation.md.
 ///
 /// Reference: Hinton et al., 2015 ("Distilling the Knowledge in a Neural
-/// Network"). Modern temperature defaults (T=4-8, α=0.5-0.9) follow the
-/// HuggingFace "distil" family recipe.
+/// Network"). Temperature and alpha below are implementation defaults,
+/// not measured optimal settings for every task.
 ///
 /// USAGE
 ///   posttrainllm distill <student> --teacher <teacher_path> \
@@ -33,7 +32,7 @@ import TinyGPTModel
 ///
 /// Both teacher and student MUST share a tokenizer (same vocab size +
 /// ids); otherwise the cross-distribution KL is meaningless. The runner
-/// asserts vocab equality at startup.
+/// asserts vocab size equality at startup, not tokenizer identity.
 enum Distill {
     static func run(args: [String]) {
         var studentPath: String? = nil
@@ -239,7 +238,7 @@ enum Distill {
     /// captured by closure so autograd treats it as a constant — no
     /// gradient flows through the teacher.
     ///
-    /// Implementation note: KL(student ‖ teacher) is computed in log-
+    /// Implementation note: KL(teacher ‖ student) is computed in log-
     /// probability space for numerical stability:
     ///   KL = Σ p_t · (log p_t − log p_s)
     /// We work with the SOFTENED versions (logits / T) of both, then

@@ -1,202 +1,198 @@
-# Knowledge distillation — making a tiny model punch above its weight
-
-Distillation is the post-training technique where a SMALL model
-("student") is trained to match a LARGER model's ("teacher's") output
-distribution on a corpus. The result: students that significantly
-outperform what you'd get by training the same architecture from
-scratch on the same data — sometimes by 2-5x in perplexity terms.
-
-This guide covers the workflow as it exists in `posttrainllm distill`, plus
-the comparison protocol for "distilled vs from-scratch at the same
-parameter count" — the case study that justifies the technique on the
-posttrainllm leaderboard.
-
-Reference: Hinton et al., 2015, "Distilling the Knowledge in a Neural
-Network" (`https://arxiv.org/abs/1503.02531`).
-
+---
+description: Compare logits distillation with response imitation, inspect local CLI prerequisites, and measure student quality, regressions, and costs fairly.
 ---
 
-## Why it works
+# LLM distillation: methods, commands, and fair comparisons
 
-Training from a one-hot target (cross-entropy NLL) gives the student a
-very thin signal at each position: "the next token is X, everything
-else is wrong." Training against the teacher's full softmax
-distribution exposes the student to the teacher's *uncertainty* — the
-fact that "Y was almost as plausible as X here, and Z is clearly out."
+LLM distillation trains a student model using a teacher's predictions or
+generated answers. It can help a smaller model learn a narrow task, but the
+gain depends on the teacher, data, student capacity, and evaluation. A lower
+training loss does not establish better task accuracy or cheaper inference.
 
-That richer signal is most valuable when:
+This guide separates two methods, explains the local `posttrainllm distill`
+command, and gives a comparison checklist. For a recorded outcome, inspect
+the [file-ops specialist report card](https://posttrainllm.com/report-cards/qwen3-4b-file-ops-distilled).
+That is a response-imitation example with a breadth regression, not a measured
+comparison of the logits loss below.
 
-- The student is too small to discover the teacher's structure on its
-  own from raw text (e.g. a 5M student vs a 100M+ teacher).
-- The corpus is small relative to what would normally be needed.
-- The teacher has been instruction-tuned, and you want the student to
-  absorb that behaviour without re-running SFT/DPO.
+## Choose the method from the teacher access you have
 
-## The loss
+| Method | What you need | What the student learns from |
+|---|---|---|
+| Soft or logits distillation | Teacher logits on the same token positions and vocabulary | A probability distribution over next tokens |
+| Response imitation | Teacher-generated answers or checked tool trajectories | The tokens in accepted responses, usually through supervised fine-tuning (SFT) |
+| Gold-label SFT | Verified target answers or executable reference trajectories | Correct examples without needing a teacher model |
 
-`posttrainllm distill` uses the standard two-term distillation loss:
+Use logits distillation when a compatible teacher can run locally and its
+distribution is useful for the task. A text-only teacher API does not provide
+the full vocabulary distribution this implementation needs. Response imitation
+fits that access pattern: collect outputs, check them, then train in the
+student's own tokenizer and chat format. It does not require a shared teacher
+tokenizer because teacher token probabilities are not being compared.
 
-    L = α · T² · KL( softmax(s_logits / T) ‖ softmax(t_logits / T) )
-      + (1 − α) · NLL(s_logits, true_target)
+If you already have reliable gold answers, compare against gold-label SFT
+before paying to generate teacher responses. In every case, first check
+whether the unchanged student with a suitable prompt already meets the task.
 
-- **T (temperature)** softens both distributions. T=1 means the
-  argmax dominates; higher T flattens the distribution so the student
-  learns the *full* shape, not just the mode. Typical: T = 4-8.
-- **The T² multiplier** compensates for the gradient-scaling caused by
-  dividing logits by T. Without it, raising T silently shrinks the KL
-  term's effective learning rate.
-- **α (alpha)** mixes the soft (KL) and hard (NLL) terms. Higher α
-  means the student listens to the teacher more; lower α keeps it
-  grounded in real data. Typical: α = 0.5-0.9.
+### Reasoning distillation is not automatically a logits loss
 
-Both terms are needed: pure KL lets the student drift away from real
-data if the teacher is wrong somewhere; pure NLL throws away the
-teacher's soft information. The 0.7/0.3 mix is the HuggingFace
-"distil" family default.
+The [DeepSeek-R1 paper, section 2.4](https://arxiv.org/html/2501.12948v1#S2.SS4),
+describes fine-tuning smaller models on curated responses using SFT. That is
+response imitation. Adding step-by-step text to a corpus does not by itself
+turn training into soft distillation, or demonstrate that a tiny student has
+acquired general reasoning ability. Test the required behavior on held-out
+tasks, including cases where an imitated answer would be wrong.
 
-## Command
+## What the local logits command computes
 
-```sh
-posttrainllm distill <student-init> \
-    --teacher <teacher-path> \
-    --corpus <corpus.txt> \
-    --tokenizer <hf-tokenizer-dir> \
-    --steps 5000 \
-    --temperature 4 \
-    --alpha 0.7 \
-    --out distilled.tinygpt
+For each next-token position, let `p_t = softmax(teacher_logits / T)` and
+`p_s = softmax(student_logits / T)`. The executable loss in
+[`Distill.swift`](https://github.com/PostTrainLLM/posttrainllm/blob/main/native-mac/Sources/TinyGPT/Distill.swift)
+is:
+
+```text
+L = alpha * T^2 * KL(p_t || p_s)
+  + (1 - alpha) * NLL(student_logits, next_token)
+
+KL(p_t || p_s) = sum_vocab p_t * (log(p_t) - log(p_s))
 ```
 
-The student-init path is a `.tinygpt` checkpoint — start with the
-output of a short `posttrainllm train --preset tiny` run (just enough to
-have valid weights — distillation does the heavy lifting). The
-teacher path is either another `.tinygpt` file OR an HF model
-directory; the loader auto-detects.
+The direction is **teacher to student**. The teacher's probabilities weight
+the discrepancy; the student is the trainable model. The hard-target NLL is
+ordinary next-token cross-entropy on the corpus. If the corpus is generated
+text, those targets are generated tokens, not independently verified truth.
 
-Both teacher and student MUST share a tokenizer (same vocab size + ids).
-The `distill` command asserts vocab equality at startup.
+[Hinton, Vinyals, and Dean (2015), section 2](https://arxiv.org/html/1503.02531v1#S2),
+explains softened targets: increasing temperature spreads probability across
+alternatives, and the `T^2` factor compensates for temperature's gradient
+scaling. This motivates the loss; it does not predict a universal perplexity
+gain for an LLM or validate this repository's implementation.
 
----
+The current command defaults are `--mode soft`, `--temperature 4`,
+`--alpha 0.7`, `--lr 3e-4`, and `--steps 1000`. They are implementation
+defaults, not proven best settings. Alpha may range from 0 to 1; both terms
+are not mandatory. Temperature must be positive. Changing either is a recipe
+change whose task and regression effects need measurement.
 
-## The comparison protocol
+## Local command and prerequisites
 
-To make the "distilled vs scratch" claim concrete, run the same target
-configuration both ways and score them on the same benchmark.
+The trainable student must be a from-scratch `TinyGPTModel` checkpoint loaded
+from `.tinygpt`; an HF-architecture student is rejected by this command. The
+teacher loader accepts a supported `.tinygpt` checkpoint or HF model
+directory. This is separate from the MLX LoRA response-imitation pipeline
+used by the file-ops specialist.
 
-### Step 1: Train a teacher
+Before running soft distillation:
 
-```sh
-# A 100M-class teacher on FineWeb-Edu, BPE-tokenised.
-posttrainllm train --preset huge \
-    --tokenizer /tmp/smollm2 \
-    --corpus /tmp/fineweb-edu-500M.txt \
-    --dtype bfloat16 --batch 4 --accum 4 --ctx 512 \
-    --steps 5000 --save-every 100 \
-    --out /tmp/teacher.tinygpt
-```
+1. Use an existing valid student checkpoint and compatible local teacher.
+   Record their identities and the student's prior training; do not hide an
+   initialization run outside the student budget.
+2. Confirm the **same tokenizer vocabulary and token IDs** for both models.
+   Equal vocabulary size is insufficient: token ID 42 must mean the same
+   thing for each. Preserve tokenizer files and hashes. The runner checks
+   vocabulary size only; it does not verify tokenizer identity or remap IDs.
+3. Supply a UTF-8 text corpus. `--corpus` is not a JSONL chat-data importer:
+   JSONL passed here is tokenized as literal text. Keep evaluation examples
+   outside this corpus and any teacher-data generation.
+4. Fit both models, logits, student gradients, and optimizer state within the
+   memory budget. The teacher adds a forward pass per step. The overhead is
+   model- and batch-dependent; there is no fixed 2× memory guarantee.
 
-### Step 2: Make a from-scratch student of the chosen tiny size
-
-```sh
-# A 5M-class student, also BPE on the same tokenizer. Train for a
-# matched compute budget (NOT a matched step count — the bigger
-# teacher's steps cost more, so the student gets more steps).
-posttrainllm train --preset tiny \
-    --tokenizer /tmp/smollm2 \
-    --corpus /tmp/fineweb-edu-500M.txt \
-    --dtype bfloat16 --batch 16 --ctx 512 \
-    --steps 20000 --save-every 200 \
-    --out /tmp/student-scratch.tinygpt
-```
-
-### Step 3: Distill the same student-init from the teacher
-
-```sh
-# Same architecture as Step 2, same compute budget. Initialise from a
-# short randomly-trained run so weights are in a reasonable range.
-posttrainllm train --preset tiny \
-    --tokenizer /tmp/smollm2 \
-    --corpus /tmp/fineweb-edu-500M.txt --dtype bfloat16 \
-    --steps 500 --out /tmp/student-init.tinygpt
-
-posttrainllm distill /tmp/student-init.tinygpt \
-    --teacher /tmp/teacher.tinygpt \
-    --corpus /tmp/fineweb-edu-500M.txt \
-    --tokenizer /tmp/smollm2 \
-    --steps 20000 \
-    --temperature 4 --alpha 0.7 \
-    --out /tmp/student-distilled.tinygpt
-```
-
-### Step 4: Score both on the same held-out benchmark
+Illustrative command shape with placeholder paths, **not a completed run**:
 
 ```sh
-posttrainllm eval /tmp/student-scratch.tinygpt    --corpus /tmp/holdout.txt
-posttrainllm eval /tmp/student-distilled.tinygpt  --corpus /tmp/holdout.txt
-posttrainllm eval /tmp/teacher.tinygpt            --corpus /tmp/holdout.txt
+posttrainllm distill ./student-init.tinygpt \
+  --teacher ./teacher-model \
+  --corpus ./train.txt \
+  --tokenizer ./shared-tokenizer \
+  --mode soft --temperature 4 --alpha 0.7 \
+  --steps 1000 --batch 1 \
+  --out ./student-distilled.tinygpt
 ```
 
-Expected (rough) result for a 100M teacher → 5M student on
-education-grade text:
+For hard next-token training on already prepared teacher text, the command
+also supports the following shape. `--mode hard` defaults alpha to zero and
+does not load a teacher unless a positive alpha is explicitly supplied:
 
-| Model | Params | Holdout PPL |
-|---|---:|---:|
-| Teacher | 100M | ~12 |
-| Distilled student | 5M | ~22 |
-| Scratch student | 5M | ~45 |
+```sh
+posttrainllm distill ./student-init.tinygpt \
+  --corpus ./checked-teacher-text.txt \
+  --tokenizer ./student-tokenizer \
+  --mode hard --alpha 0 --steps 1000 --batch 1 \
+  --out ./student-imitation.tinygpt
+```
 
-The exact numbers depend on data, training budget, and how
-instruction-tuned the teacher is. The qualitative pattern (~2× PPL
-gap between distilled and scratch at the same student size) is robust.
+This hard mode uses NLL over the entire text. It does not add assistant-only
+masking, generate responses, or verify their correctness. For chat/tool
+trajectories, inspect the [specialist distillation recipe](https://posttrainllm.com/recipes/distillation)
+and its retained data-format and evaluation evidence instead. Saving a
+checkpoint is not a quality or runtime qualification.
 
----
+## A comparison you can interpret
 
-## Hyperparameter notes
+Start with the [factory evaluation protocol](../factory/eval-protocol.md).
+Write the question before choosing the budget: are you testing whether
+teacher information helps the **same student**, or whether a smaller student
+can replace a larger teacher within a resource limit?
 
-- **Temperature**: start at 4. If the student is having trouble
-  learning the soft distribution (loss plateaus high), try T = 8.
-  If the student over-mimics teacher mistakes, try T = 2.
-- **Alpha**: start at 0.7 (KL-heavy). If you trust the data more
-  than the teacher (e.g. teacher is itself trained on a different
-  corpus), drop to 0.5. If the teacher is heavily instruction-tuned
-  and you want to inherit that, push to 0.9.
-- **Learning rate**: 3e-4 is the safe default for a from-scratch
-  student. Lower (1e-4) if initialising from a partially-trained
-  checkpoint.
-- **Batch / context**: the teacher forward runs on the same batch, so
-  per-step memory is ~2× a normal train step. The default batch
-  sizes in `Distill.swift` are halved from `Train.swift`'s defaults
-  accordingly.
+- **Freeze data and scoring.** Record train/validation/test identities,
+  overlap checks, task scorer, prompts, decoding settings, and regression
+  slices before tuning. Teacher generation must not see the sealed test set.
+  Benchmark grades here require a qualified frontier ceiling; an unqualified
+  set may still expose relative regressions but cannot establish parity.
+- **Control initialization.** For a logits-versus-NLL ablation, branch both
+  candidates from the exact same student checkpoint. Hold training corpus,
+  tokenizer, batch, context, optimizer, and sampling policy fixed where
+  possible; record seeds and differences. Keep the unchanged student and
+  teacher as evaluation anchors.
+- **Name the budget.** Equal student steps can control token exposure when
+  batches and context match. They are not matched compute: soft distillation
+  also runs a teacher forward pass. For a fixed-time or fixed-compute
+  comparison, measure that budget and record the different steps/tokens
+  completed. Do not describe one protocol as the other.
+- **Separate costs.** Record teacher pretraining or acquisition separately
+  from teacher response/logit generation, student adaptation, and evaluation.
+  State which costs are shared, sunk, unavailable, or included. Measure
+  student serving on the same hardware, runtime, precision, prompt lengths,
+  and output limits; parameter count alone does not establish latency or RAM.
+- **Decide from behavior.** Inspect target scores, error cases, safety and
+  breadth. Lower perplexity on the same held-out corpus/tokenizer may support
+  a language-modeling result; it does not substitute for tool-use or reasoning
+  accuracy. Route a narrow winner only when the router and regression policy
+  support that decision; otherwise retry or reject.
 
-## Caveats
+Keep this small result worksheet with the artifact. Use **not measured** for
+missing evidence rather than an expected number:
 
-- **Tokenizer must match**: cross-tokenizer distillation requires a
-  token-id remapping that we don't ship today. Both models use the
-  same `.tokenizer.source` field, which `distill` asserts.
-- **Student class**: the current implementation expects a from-scratch
-  student (`TinyGPTModel`). HF-architecture student support is a
-  follow-up.
-- **No gradient flows through the teacher**: the teacher's parameters
-  are not in the `valueAndGrad` target, so MLX treats its activations
-  as constants. No explicit `stop_gradient` is needed.
+| Record | Required comparison |
+|---|---|
+| Model and recipe identity | Baseline/student/teacher revisions; tokenizer; seed; changed variables |
+| Quality and regressions | Same frozen task and slices; denominators; scores; failures; decision |
+| Training cost | Student steps/tokens/time/peak RAM; teacher work and data cost separately |
+| Serving cost | Paired latency, peak RAM, tok/s, hardware/runtime/precision; or not measured |
+| Scope | What the evidence supports, missing checks, and stop/routing conditions |
 
-## Reasoning distillation (R1-Distill family)
+## Retained example: a file-ops gain with a breadth cost
 
-A particularly hot variant in 2024-2026: distilling REASONING
-behaviour from a chain-of-thought-trained teacher (e.g. DeepSeek-R1's
-distilled series) into a much smaller student. The recipe is the same
-loss; what changes is the corpus — instead of generic web text, you
-feed prompts + the teacher's STEP-BY-STEP responses. The student
-learns to produce the same reasoning structure even though it doesn't
-have the reasoning capacity to derive it from scratch.
+The [file-ops report card](https://posttrainllm.com/report-cards/qwen3-4b-file-ops-distilled) and
+[retained evaluation report](https://github.com/PostTrainLLM/posttrainllm/blob/main/specialists/qwen3-4b-file-ops-distilled/eval_report.json)
+preserve historical results from June 2026, not a fresh evaluation. They
+record a Qwen3-4B specialist adapted from the same 4B base using accepted
+trajectories. The 12-task hard gate is recorded as **58% to 100%**. The
+52-task out-of-domain breadth comparison falls from **59.6% to 42.3%**;
+its frontier ceiling was not validated, so this is a relative regression
+signal, not a frontier-capability grade. The retained verdict is routed
+file-ops use only, not general planning.
 
-To reproduce that workflow:
+Read the [dated method and failure analysis](../learn/tool-calling-frontier-parity.md)
+for trajectory filtering, chat-template formatting, and stop-signal handling.
+This response-imitation result does **not** measure soft KL against NLL,
+student-versus-scratch perplexity, smaller-student compression, or matched
+compute. Paired serving RAM, latency, and tok/s are **not recorded in that
+evaluation report**. No numerical gain for this guide's logits command is
+established by that artifact.
 
-1. Generate or collect a corpus of `prompt → step-by-step response`
-   pairs from a reasoning teacher.
-2. Format them with the same `chatml` template SFT uses.
-3. Run `posttrainllm distill` with `--temperature 2` (sharper — we want to
-   preserve the reasoning chain's specific tokens, not the broad
-   distribution shape).
-
-This is the path to a ~5M reasoning-capable student on the leaderboard.
+Next: [inspect the specialist recipe](https://posttrainllm.com/recipes/distillation), then
+[read the report card and its caveats](https://posttrainllm.com/report-cards/qwen3-4b-file-ops-distilled).
+Use the checklist above to identify what an existing result does and does
+not demonstrate before starting a new experiment.
