@@ -13,10 +13,17 @@ repository still follows the [fresh-experiment rule](../NEXT.md).
 
 ## Match task, endpoint and tokenizer
 
-| Workload                                       | Adapter and endpoint                             | Boundary                                                                                                                                          |
-| ---------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Generation, such as `gsm8k` (`generate_until`) | `local-chat-completions`, `/v1/chat/completions` | Pass `--apply_chat_template`; confirm the model's prompt format and context budget.                                                               |
-| Likelihood scoring, such as HellaSwag or ARC   | A suitable completion or native scoring backend  | The chat adapter raises `NotImplementedError` for `loglikelihood`. A completion backend needs matching tokenization and prompt log probabilities. |
+### Generation, such as `gsm8k` (`generate_until`)
+
+`local-chat-completions`, `/v1/chat/completions`
+
+Pass `--apply_chat_template`; confirm the model's prompt format and context budget.
+
+### Likelihood scoring, such as HellaSwag or ARC
+
+A suitable completion or native scoring backend
+
+The chat adapter raises `NotImplementedError` for `loglikelihood`. A completion backend needs matching tokenization and prompt log probabilities.
 
 PostTrainLLM's source exposes `/v1/models`, `/v1/chat/completions` and
 `/v1/completions`. Its plain completion handler has a separate `logprobs` plus
