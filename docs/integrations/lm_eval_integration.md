@@ -1,184 +1,162 @@
-# lm-evaluation-harness integration for posttrainllm
+# lm-evaluation-harness integration for PostTrainLLM
 
-This doc describes how posttrainllm plugs into [EleutherAI's
-`lm-evaluation-harness`](https://github.com/EleutherAI/lm-evaluation-harness),
-the canonical eval framework behind the HuggingFace Open LLM Leaderboard.
-With the wiring in this commit you can run **HellaSwag, ARC-Easy/Challenge,
-GSM8K, IFEval, MMLU-Pro, GPQA-Diamond, MATH-500, AIME, BBH, HumanEval, …**
-— anything the harness defines — against any posttrainllm-loaded model.
+Use a compatible local server with a task its adapter can score. This reference
+checks source at PostTrainLLM `73da1aa1be9293cdbd75b825e0793fe786c65a5f`
+and EleutherAI lm-evaluation-harness `0.4.10`, commit
+`f7d0b116146bd616b59d0b991549120f197369a4`. The commands below are
+source-declared examples, not a newly executed model evaluation. The version
+pin is for reproducibility, not a latest-version or safety recommendation.
 
-For the *why* (benchmark landscape, leaderboard saturation, contamination
-issues), see [`docs/research/quality_benchmarks_may_2026.md`](../research/quality_benchmarks_may_2026.md).
+For the shorter task guide and retained report-card interpretation, start at
+[Evaluate a local LLM](https://posttrainllm.com/evaluate-local-llm). A fresh model run in this
+repository still follows the [fresh-experiment rule](../NEXT.md).
 
-## How it works
+## Match task, endpoint and tokenizer
 
-```
-┌────────────────┐     spawn      ┌──────────────────────┐
-│ lm-eval-harness│ ─────────────► │ posttrainllm serve <model>│
-│  (python)      │                │  (Swift, MLX-Metal)  │
-└────────────────┘                └──────────────────────┘
-        │                                   ▲
-        │ HTTP POST /v1/chat/completions    │
-        │   {messages, max_tokens, stop}    │
-        ├──────────────────────────────────►│
-        │                                   │
-        │   {choices: [{message: {...}}]}   │
-        │◄──────────────────────────────────┤
-        ▼                                   │
-   (score / summarize)                      │
-```
+| Workload                                       | Adapter and endpoint                             | Boundary                                                                                                                                          |
+| ---------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Generation, such as `gsm8k` (`generate_until`) | `local-chat-completions`, `/v1/chat/completions` | Pass `--apply_chat_template`; confirm the model's prompt format and context budget.                                                               |
+| Likelihood scoring, such as HellaSwag or ARC   | A suitable completion or native scoring backend  | The chat adapter raises `NotImplementedError` for `loglikelihood`. A completion backend needs matching tokenization and prompt log probabilities. |
 
-The harness's `local-chat-completions` adapter talks to any
-OpenAI-compatible HTTP endpoint. `posttrainllm serve` *is* that endpoint —
-implemented in `Sources/TinyGPTServe/Serve.swift` as a hand-rolled
-POSIX-socket HTTP server (zero new deps, ~600 LOC).
+PostTrainLLM's source exposes `/v1/models`, `/v1/chat/completions` and
+`/v1/completions`. Its plain completion handler has a separate `logprobs` plus
+`echo` scoring path. That source surface does not establish end-to-end
+HellaSwag or ARC correctness for a chosen tokenizer, model or harness release.
+Changing the URL alone does not qualify a likelihood evaluation.
 
-### Endpoints
+The chat handler renders messages as ChatML-style text. Check that format
+against the model's training contract. For another prompt format, choose a
+compatible text-completion or native backend and validate the formatting.
 
-| Endpoint                          | Method | Purpose                                          |
-|-----------------------------------|--------|--------------------------------------------------|
-| `/v1/models`                      | GET    | Lists `posttrainllm` — used by clients to probe ready |
-| `/v1/chat/completions`            | POST   | OpenAI ChatCompletion (messages: [...])          |
-| `/v1/completions`                 | POST   | OpenAI text completion (prompt: "...")           |
+Sources: the pinned [chat and completion adapters](https://github.com/EleutherAI/lm-evaluation-harness/blob/f7d0b116146bd616b59d0b991549120f197369a4/lm_eval/models/openai_completions.py),
+[API interface guide](https://github.com/EleutherAI/lm-evaluation-harness/blob/f7d0b116146bd616b59d0b991549120f197369a4/docs/API_guide.md),
+and [PostTrainLLM server](https://github.com/PostTrainLLM/posttrainllm/blob/73da1aa1be9293cdbd75b825e0793fe786c65a5f/native-mac/Sources/TinyGPTServe/Serve.swift).
 
-Both completion endpoints accept the standard fields: `max_tokens`,
-`temperature`, `stop` (string or array). Response shape matches the
-OpenAI spec strictly enough that `lm-eval` parses it without complaint.
+## Prepare an existing local server
 
-### Chat formatting
+Use an already built `posttrainllm` binary and a model already on disk.
+[CONTRIBUTING.md](https://github.com/PostTrainLLM/posttrainllm/blob/73da1aa1be9293cdbd75b825e0793fe786c65a5f/CONTRIBUTING.md)
+owns build prerequisites. The main CLI already dispatches `serve`; no dispatch
+edit is required. Starting it loads the selected model:
 
-Chat messages are rendered as ChatML (`<|im_start|>role\ncontent<|im_end|>`)
-before being fed to the model. If your model was trained on a different
-template (Alpaca, Llama), prefer the `/v1/completions` endpoint and pass
-an already-formatted prompt directly.
-
-## Setup
-
-### 1. Build posttrainllm
-
-```bash
-cd native-mac
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-  xcodebuild -scheme posttrainllm -destination "platform=macOS" \
-  -derivedDataPath /tmp/posttrainllm-smoke -configuration Release build
+```sh
+posttrainllm serve /absolute/path/to/existing-model \
+  --host 127.0.0.1 --port 8765
 ```
 
-This produces `/tmp/posttrainllm-smoke/Build/Products/Release/posttrainllm`. The
-`evals/run_quality_evals.sh` script auto-detects this path.
+`--lora /path/to/adapter.lora` selects an adapter on the existing base.
+`--max-context N` only caps context below the model's native limit; it cannot
+increase the trained context capacity. Record every option used, the model
+and adapter identities, tokenizer, binary revision and machine. Check readiness
+from another terminal:
 
-### 2. Wire `case "serve":` into TinyGPT.swift
-
-Currently `Sources/TinyGPT/TinyGPT.swift` has a `TODO(serve-merge)`
-comment near the `sample` case. Add this line in the dispatch table:
-
-```swift
-case "serve":
-    Serve.run(args: Array(args.dropFirst()))
+```sh
+curl --fail --silent --show-error http://127.0.0.1:8765/v1/models
 ```
 
-The constraint that left this un-wired was agent-coordination overhead.
-Once it's in, `posttrainllm serve` becomes callable from the standard CLI.
+The PostTrainLLM model ID is `posttrainllm`. Use the advertised model ID when
+pointing at another compatible server. Readiness establishes an HTTP response,
+not correct generation or a benchmark result.
 
-There's also a stand-in executable `posttrainllm-serve-smoke` (in
-`Sources/TinyGPTServeSmoke/main.swift`) that exposes the same entry point
-through a separate binary — useful for testing the HTTP layer before the
-main dispatch is merged. Delete that target once `case "serve":` lands.
+## Pin the harness and run a bounded generation smoke
 
-### 3. Install lm-evaluation-harness
+Harness `0.4.10` requires Python 3.10 or newer. Its `api` extra supplies the
+HTTP dependencies; see the pinned [package metadata](https://github.com/EleutherAI/lm-evaluation-harness/blob/f7d0b116146bd616b59d0b991549120f197369a4/pyproject.toml).
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install lm-eval==0.4.10
+```sh
+python3 -m venv .venv-lm-eval
+source .venv-lm-eval/bin/activate
+python3 -m pip install "lm-eval[api]==0.4.10"
 ```
 
-**Why pin 0.4.10?** Release 0.4.11 introduced a regression in the
-`local-chat-completions` adapter where user-supplied `stop` sequences are
-silently dropped for generate-until tasks (GSM8K, HumanEval, IFEval,
-BBH-cot). The model keeps generating until `max_tokens`, scores
-collapse, and you spend an hour wondering why your math accuracy is 0.
-See [`docs/research/quality_benchmarks_may_2026.md`](../research/quality_benchmarks_may_2026.md)
-for the citation. Pin to 0.4.10 OR upgrade to whatever's current at the
-time of running and verify generate-until tasks against a known-good
-baseline.
+The pinned [GSM8K definition](https://github.com/EleutherAI/lm-evaluation-harness/blob/f7d0b116146bd616b59d0b991549120f197369a4/lm_eval/tasks/gsm8k/gsm8k.yaml)
+uses `generate_until` and normally requests five few-shot examples. This smoke
+explicitly uses zero, limits the task to five examples and caps each response
+at 128 generated tokens:
 
-If you can't downgrade, the workaround is to pass `--gen_kwargs
-"until=['Q:','</s>']"` explicitly on the lm-eval CLI — that bypasses the
-broken auto-stop path. Our `python_ref/lm_eval_tinygpt.py` wrapper
-exposes a `--lm-eval-extra` flag that you can use for this.
-
-## Running
-
-The one-liner:
-
-```bash
-evals/run_quality_evals.sh
+```sh
+lm-eval --model local-chat-completions \
+  --model_args "base_url=http://127.0.0.1:8765/v1/chat/completions,model=posttrainllm,tokenizer_backend=None,tokenized_requests=False,num_concurrent=1" \
+  --tasks gsm8k --apply_chat_template \
+  --num_fewshot 0 --limit 5 --batch_size 1 \
+  --gen_kwargs "max_gen_toks=128,temperature=0.0" \
+  --log_samples --output_path runs/quality-evals/gsm8k-local-smoke
 ```
 
-Defaults to running HellaSwag + ARC-Easy on `/tmp/flagship-huge.tinygpt`.
-Output lands in `runs/quality-evals/flagship-huge-<timestamp>/`.
+Check prompt lengths with the model's own tokenizer before running. Every
+prompt plus the output allowance must fit the native context. If any prompt
+is truncated, the run cannot support a scored comparison. The harness may
+download task data, and the command performs real inference. Five capped
+examples check protocol and artifact flow; they do not establish a full
+GSM8K score, baseline/candidate gain or performance budget. Preserve stop
+conditions, incomplete answers, timeouts and missing measurements.
 
-Env knobs:
+## Optional repository wrapper
 
-| Var            | Default                            | Notes                                                   |
-|----------------|------------------------------------|---------------------------------------------------------|
-| `$1`           | `/tmp/flagship-huge.tinygpt`       | Positional arg — model path                             |
-| `TASKS`        | `hellaswag,arc_easy`               | Comma-separated lm-eval task names                      |
-| `LIMIT`        | _empty_ (full)                     | Per-task example cap — set to e.g. `50` for smoke runs  |
-| `MAX_CONTEXT`  | _empty_ (model's native ctx)       | Truncate prompts to this length (helps for MMLU-Pro)    |
-| `TINYGPT_BIN`  | `/tmp/posttrainllm-smoke/.../posttrainllm`   | Explicit path to the binary                             |
+`python_ref/lm_eval_tinygpt.py` can spawn the server, wait for `/v1/models`,
+run the harness and stop its own server on exit. With an existing server, use
+an explicit generation task and pass the chat/sample flags through:
 
-Or call the Python wrapper directly:
-
-```bash
-python python_ref/lm_eval_tinygpt.py /tmp/flagship-huge.tinygpt \
-    --tasks hellaswag,arc_easy,gsm8k \
-    --limit 100 \
-    --output-path runs/quality-evals/smoke_run/
+```sh
+python3 python_ref/lm_eval_tinygpt.py --skip-spawn \
+  --base-url http://127.0.0.1:8765/v1/chat/completions \
+  --tasks gsm8k --num-fewshot 0 --limit 5 --batch-size 1 \
+  --output-path runs/quality-evals/gsm8k-local-smoke \
+  --lm-eval-extra "--apply_chat_template --log_samples --gen_kwargs max_gen_toks=128,temperature=0.0"
 ```
 
-## Task cost (Mac M-series, 27M-param flagship)
+The wrapper always selects `local-chat-completions`. Its default tasks, and
+the defaults in `evals/run_quality_evals.sh`, are HellaSwag and ARC-Easy.
+Those defaults request unsupported likelihood scoring through this chat
+adapter. Do not use them as a working recipe; choose the explicit generation
+path above. The wrapper accepts a model path, `--posttrainllm-bin`, `--port`
+and `--max-context` when spawning. Its compatibility smoke-target fallback
+is not evidence about the current installed binary.
 
-Rough wall-clock numbers from a 2025 M-series Mac, byte-level 27M model
-generating at ~150 tokens/sec on Metal. Tasks vary 10x in number of
-examples and 10x in token count per example — your mileage varies.
+## Keep and inspect raw artifacts
 
-| Task             | Examples | Type             | Approx wall-clock | Notes                              |
-|------------------|---------:|------------------|-------------------|------------------------------------|
-| `hellaswag`      | 10,000   | multiple-choice  | ~30 min           | loglikelihood — fastest            |
-| `arc_easy`       | 2,376    | multiple-choice  | ~10 min           | loglikelihood                      |
-| `arc_challenge`  | 1,172    | multiple-choice  | ~5 min            | loglikelihood                      |
-| `gsm8k`          | 1,319    | generate-until   | ~2 hrs            | needs ~200 tok/example; CoT path   |
-| `ifeval`         | 541      | generate-until   | ~30 min           | response-following metric          |
-| `mmlu_pro`       | 12,032   | multiple-choice  | ~2 hrs            | 14-choice; many prompts > 2K toks  |
-| `gpqa_diamond`   | 198      | multiple-choice  | ~5 min            | 4-choice; expert-level science     |
-| `math_500`       | 500      | generate-until   | ~45 min           | competition math                   |
-| `humaneval`      | 164      | generate-until   | ~15 min           | needs unsafe-code execution sandbox|
-| `bbh`            | 6,511    | mixed            | ~3 hrs            | 23 sub-tasks                       |
-| `aime_2024`      | 30       | generate-until   | ~10 min           | tiny dataset                       |
+For model ID `posttrainllm`, harness `0.4.10` writes beneath
+`runs/quality-evals/gsm8k-local-smoke/posttrainllm/`:
 
-Use `LIMIT=50` (or `--limit 50`) for smoke runs that finish in <1 min
-each.
+- `results_<timestamp>.json` contains aggregate metrics and configuration.
+- `samples_gsm8k_<timestamp>.jsonl` contains raw responses and filtered answers
+  when `--log_samples` is set.
 
-## Worked example: flagship-huge HellaSwag (smoke run)
+See the pinned [output writer](https://github.com/EleutherAI/lm-evaluation-harness/blob/f7d0b116146bd616b59d0b991549120f197369a4/lm_eval/loggers/evaluation_tracker.py).
+The wrapper's final summary search checks only the top output directory.
+Its `no results_*.json found` message can therefore miss the model subdirectory;
+inspect the files and the harness exit status before concluding that no
+results were written.
 
-```bash
-# After wiring case "serve": into TinyGPT.swift and pip install lm-eval==0.4.10
-LIMIT=10 TASKS=hellaswag evals/run_quality_evals.sh
-```
+Raw harness JSON and JSONL are not the site's fine-tune report-card schema.
+The offline `check_fine_tune_report_card.py` validator does not convert these
+files, run a model or prove a score. A canonical factory report needs its own
+provenance, paired target/regression gates, measurement states and decision;
+see [the report-card contract](../factory/report-card.md).
 
-**Status as of this commit:** the HTTP server is wired, end-to-end
-smoke-tested with `curl` (see report below), and the harness wrapper
-script is staged. The actual lm-eval run is **NOT executed in this
-commit** because `pip install lm-eval` is gated by the project's
-"ask before installing" rule. Once the user installs lm-eval and merges
-`case "serve":`, the wrapper runs end-to-end and writes its score JSON
-into `runs/quality-evals/`.
+## Interpret failures before interpreting scores
 
-### HTTP smoke-test results
+- Readiness or connection failure: check the process, bind host, port and URL.
+- A message-list assertion: include `--apply_chat_template` and use the full
+  chat-completions URL.
+- `loglikelihood` not implemented: the task and adapter do not match. Choose a
+  suitable scoring backend with matching tokenizer and log-probability support.
+- Truncated prompts or incomplete generations: preserve the failure and the
+  context/output limits. Do not compare the result with an uncapped full run.
+- Missing artifacts or a nonzero harness exit: inspect server/harness logs.
+  Missing scores remain missing, not zero.
 
-Captured during this commit using `posttrainllm-serve-smoke` (the stand-in
-executable) against `/tmp/flagship-huge.tinygpt`:
+Freeze the full target and regression suite, dataset revision, prompts,
+decoding settings and acceptance thresholds before a paired comparison.
+Record latency, RAM and throughput only when measured under that protocol.
+No wall-clock estimate or expected model score is qualified by this recipe.
+
+## Retained HTTP smoke evidence
+
+The historical documentation retained these responses from the separate
+`posttrainllm-serve-smoke` executable and a 27M checkpoint. They show the recorded
+HTTP response shapes and stop behavior. They do not qualify the current main
+binary, model quality or a completed lm-eval run.
 
 ```text
 $ curl -s http://127.0.0.1:8765/v1/models
@@ -209,78 +187,15 @@ $ curl -s -X POST http://127.0.0.1:8765/v1/completions \
  "choices":[{"text":". 1998.\n- \"The first ", "finish_reason":"stop", …}], …}
 ```
 
-All three endpoints answer with valid OpenAI-shaped JSON. Generated text
-is gibberish-ish (it's a 27M-param model trained for not very long) but
-the framework only cares about the *shape* — the harness will read
-those `choices[0].message.content` / `choices[0].text` fields and feed
-them to the task's grader.
+## Source files
 
-**Expected HellaSwag score for this checkpoint:** somewhere in the
-25–28% range (random baseline is 25% — 4-choice multiple choice). The
-flagship at 27M params and ~4.7 nats val loss is well below the
-"emergent benchmark capability" threshold; this run is a *plumbing*
-test, not a capability test. Repeat with a 1B+ HF-loaded model to get
-real numbers.
+- `native-mac/Sources/TinyGPT/TinyGPT.swift`: main `serve` dispatch.
+- `native-mac/Sources/TinyGPTServe/Serve.swift`: HTTP handlers, chat formatting
+  and completion scoring.
+- `python_ref/lm_eval_tinygpt.py`: spawn/reuse and argument forwarding.
+- `evals/run_quality_evals.sh`: retained driver with incompatible chat-task
+  defaults described above.
 
-## Adding new tasks
-
-`lm-eval` ships ~400 task definitions out of the box. Common ones:
-
-- **Knowledge:** `mmlu`, `mmlu_pro`, `arc_easy`, `arc_challenge`,
-  `triviaqa`, `nq_open`
-- **Reasoning:** `hellaswag`, `winogrande`, `piqa`, `gsm8k`, `math_500`,
-  `bbh`, `gpqa_diamond`, `aime_2024`, `aime_2025`
-- **Instruction-following:** `ifeval`, `mt_bench` (needs judge)
-- **Code:** `humaneval`, `mbpp`, `bigcodebench_hard`
-- **Long-context:** `ruler_*` (needs a separate config), `loft_*`
-
-To add: pass the task name to `--tasks` / `$TASKS`. Custom YAML task
-definitions go in `evals/tasks/<name>.yaml` and are picked up by
-`--include_path evals/tasks` (pass via `--lm-eval-extra`).
-
-For tasks that need a judge LLM (`mt_bench`, `arena_hard`, anything with
-`judge_model` in its config), expect to pay GPT-4 or Claude API costs.
-The harness's `--judge_model` flag accepts an OpenAI-compatible URL — so
-you could in principle judge posttrainllm's output with another posttrainllm
-serving on a second port, but the resulting scores are not comparable
-to published numbers.
-
-## Known issues
-
-- **0.4.11 stop-sequence bug** — fixed in 0.4.12 per the project's
-  changelog, but at the time of this commit 0.4.10 is the safest pin.
-  Symptoms: GSM8K answers run to 256 tokens of CoT noise instead of
-  stopping at the final answer. Workaround documented above.
-- **Context overflow** — our 256-token default `contextLength` is below
-  the prompt size of many lm-eval tasks (MMLU-Pro 0-shot can hit 2K+).
-  Pass `MAX_CONTEXT=N` to bound the prompt; the server truncates from
-  the left so the question survives. For real evaluation, retrain (or
-  HF-load) at 4K+.
-- **Throughput** — uncached, one-forward-per-token. Throughput is ~50%
-  of `posttrainllm sample`'s KV-cached path. The harness sends independent
-  prompts so KV caching doesn't help across requests. Acceptable for
-  HellaSwag-class tasks; painful for GSM8K-class generate-until.
-  TODO: per-request KV cache.
-- **Single concurrency** — the inference queue serialises all calls.
-  Setting `lm-eval --batch_size N > 1` won't actually parallelise; it
-  just queues. Don't bother tuning batch size.
-
-## Files
-
-- `Sources/TinyGPTServe/Serve.swift` — the HTTP server + OpenAI adapter
-- `Sources/TinyGPTServeSmoke/main.swift` — temporary smoke-only binary
-- `Tests/TinyGPTServeTests/TinyGPTServeTests.swift` — XCTest covering
-  HTTP parser + live endpoints
-- `python_ref/lm_eval_tinygpt.py` — subprocess wrapper that spawns
-  `posttrainllm serve`, waits for ready, runs `lm-eval`
-- `evals/run_quality_evals.sh` — one-liner driver writing to
-  `runs/quality-evals/<model>-<timestamp>/`
-- `docs/research/quality_benchmarks_may_2026.md` — background research
-  on the benchmark landscape
-
-## Related
-
-- `posttrainllm eval` — perplexity / bits-per-byte (val loss). Faster signal
-  for byte-level models; complementary to harness multi-choice tasks.
-- `posttrainllm bench` — inference-side latency/throughput harness.
-- `docs/leaderboard.md` — places we plan to publish numbers.
+For the benchmark landscape and contamination discussion, use the retained
+[benchmark research](../research/quality_benchmarks_may_2026.md). Historical
+research claims do not substitute for qualification on a chosen runtime.
