@@ -9,7 +9,7 @@ pin is for reproducibility, not a latest-version or safety recommendation.
 
 For the shorter task guide and retained report-card interpretation, start at
 [Evaluate a local LLM](https://posttrainllm.com/evaluate-local-llm). A fresh model run in this
-repository still follows the [fresh-experiment rule](../NEXT.md).
+repository still follows the [fresh-experiment rule](https://posttrainllm.com/docs/NEXT/).
 
 ## Match task, endpoint and tokenizer
 
@@ -139,7 +139,7 @@ Raw harness JSON and JSONL are not the site's fine-tune report-card schema.
 The offline `check_fine_tune_report_card.py` validator does not convert these
 files, run a model or prove a score. A canonical factory report needs its own
 provenance, paired target/regression gates, measurement states and decision;
-see [the report-card contract](../factory/report-card.md).
+see [the report-card contract](https://posttrainllm.com/docs/factory/report-card/).
 
 ## Interpret failures before interpreting scores
 
@@ -204,5 +204,5 @@ $ curl -s -X POST http://127.0.0.1:8765/v1/completions \
   defaults described above.
 
 For the benchmark landscape and contamination discussion, use the retained
-[benchmark research](../research/quality_benchmarks_may_2026.md). Historical
+[benchmark research](https://posttrainllm.com/docs/research/quality_benchmarks_may_2026/). Historical
 research claims do not substitute for qualification on a chosen runtime.
