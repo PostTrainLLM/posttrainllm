@@ -1,3 +1,7 @@
+---
+description: Source-pinned lm-eval 0.4.10 local generation recipe, adapter limits, and an offline inspector for retained results and raw samples.
+---
+
 # lm-evaluation-harness integration for PostTrainLLM
 
 Use a compatible local server with a task its adapter can score. This reference

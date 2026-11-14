@@ -179,7 +179,7 @@ export const educationContent: Record<string, EditorialContent> = {
     title:
       "Apple Foundation Models on-device: measured capabilities and limits",
     description:
-      "We scored Apple's on-device Foundation Models framework on real agentic gates. Measured verdict: a free, private floor for lightweight turns — it cannot ground tool actions and its 4096-token context cannot hold a real tool catalog.",
+      "Historical Apple Foundation Models bridge results, selected tool-use gates and their limits. Check current API availability, context and native tool support.",
     path: "/apple-foundation-models",
     intent:
       "measured evaluation for developers searching apple foundation model(s) capabilities, tool calling, context window, and agentic use",
