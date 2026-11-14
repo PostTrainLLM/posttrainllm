@@ -1,5 +1,12 @@
 # LoRA guide — fine-tuning the tiny model
 
+This page explains the low-rank mathematics and implementation used by the
+tiny-model learning lab. To adapt a pretrained language model on Apple Silicon,
+follow the [MLX LoRA fine-tuning guide](https://posttrainllm.com/mlx-lora-fine-tuning).
+It includes dataset checks, training commands, and a paired base/adapter
+evaluation. The browser lab's dimensions and parameter counts below are not
+memory estimates for a pretrained MLX model.
+
 Phase 3. LoRA adapts an already-trained, frozen base model by training small
 low-rank matrices inside selected linear layers.
 
@@ -217,5 +224,5 @@ LoRA / LoRA+retrieval, and always run the memorization test. Full detail in
 
 ## References
 
-- LoRA paper: https://arxiv.org/abs/2106.09685
-- Hugging Face PEFT — LoRA: https://huggingface.co/docs/peft/package_reference/lora
+- [LoRA paper](https://arxiv.org/abs/2106.09685)
+- [Hugging Face PEFT LoRA guide](https://huggingface.co/docs/peft/package_reference/lora)
