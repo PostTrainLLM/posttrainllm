@@ -141,6 +141,65 @@ files, run a model or prove a score. A canonical factory report needs its own
 provenance, paired target/regression gates, measurement states and decision;
 see [the report-card contract](https://posttrainllm.com/docs/factory/report-card/).
 
+## Inspect a retained harness run without inference
+
+When a score file exists, first confirm that the corresponding raw samples are
+present. Download [inspect-harness-artifacts.py](https://posttrainllm.com/examples/inspect-harness-artifacts.py)
+and run it with Python 3 against **one** retained run directory:
+
+```sh
+python3 inspect-harness-artifacts.py \
+  runs/quality-evals/gsm8k-local-smoke/posttrainllm gsm8k 5
+```
+
+The final argument is the expected number of evaluated examples from the run's
+command, not a number inferred from whichever rows survived. Use `5` only for
+the five-example smoke above. For a full or differently limited task, supply
+its declared expected count and preserve the command that establishes it.
+
+The inspector uses the pinned harness's `results` task mapping and logged
+`doc_id`, `resps` and `filtered_resps` fields. These are raw harness artifacts,
+not the fine-tune report-card schema. It requires exactly one result JSON and
+one task sample JSONL under the selected directory; archives with several runs
+must be separated rather than silently choosing the newest. It checks that the
+task has metric fields, sample IDs are unique integers, raw and filtered
+responses exist, and the sample count matches the declared count.
+
+For example, a **synthetic schema fixture**, not a measured result, can have
+this result file named `results_fixture.json`:
+
+```json
+{"results":{"gsm8k":{"exact_match,none":0.0}},"config":{"model":"fixture-no-inference"}}
+```
+
+And one line in `samples_gsm8k_fixture.jsonl`:
+
+```json
+{"doc_id":0,"resps":[["fixture answer"]],"filtered_resps":["fixture answer"]}
+```
+
+Run the inspector with expected count `1` for that fixture. It prints the task,
+count, metric keys and the two artifact paths. The zero in the fixture is only
+placeholder data; the inspector does not recompute or endorse that metric.
+The script was exercised on this schema shape and duplicate IDs, absent raw
+responses, count mismatches, absent task metrics and ambiguous multi-run
+folders, without loading a model or downloading a dataset.
+
+A structural pass is only a preflight. Manually inspect the saved configuration,
+resolved task/model revisions, prompt and chat template, stop/truncation
+behavior, per-sample outputs and scoring filters. The checker cannot establish
+that two files came from the same process, that the expected IDs are the
+correct dataset split, that an answer is correct, or that the recorded metric
+matches a recomputation. Preserve those provenance and evaluator checks before
+claiming a benchmark or comparison. A five-sample smoke remains a smoke even
+when every artifact check passes.
+
+Source contract: the harness [sample writer](https://github.com/EleutherAI/lm-evaluation-harness/blob/f7d0b116146bd616b59d0b991549120f197369a4/lm_eval/loggers/evaluation_tracker.py)
+and [sample-record construction](https://github.com/EleutherAI/lm-evaluation-harness/blob/f7d0b116146bd616b59d0b991549120f197369a4/lm_eval/evaluator.py),
+release `0.4.10`. Recheck this inspector's assumptions before using another
+release. The [paired prediction example](https://posttrainllm.com/evaluate-local-llm)
+is a separate exact-string format; raw harness files cannot be substituted for it.
+
 ## Interpret failures before interpreting scores
 
 - Readiness or connection failure: check the process, bind host, port and URL.
@@ -206,62 +265,3 @@ $ curl -s -X POST http://127.0.0.1:8765/v1/completions \
 For the benchmark landscape and contamination discussion, use the retained
 [benchmark research](https://posttrainllm.com/docs/research/quality_benchmarks_may_2026/). Historical
 research claims do not substitute for qualification on a chosen runtime.
-
-## Inspect a retained harness run without inference
-
-When a score file exists, first confirm that the corresponding raw samples are
-present. Download [inspect-harness-artifacts.py](https://posttrainllm.com/examples/inspect-harness-artifacts.py)
-and run it with Python 3 against **one** retained run directory:
-
-```sh
-python3 inspect-harness-artifacts.py \
-  runs/quality-evals/gsm8k-local-smoke/posttrainllm gsm8k 5
-```
-
-The final argument is the expected number of evaluated examples from the run's
-command, not a number inferred from whichever rows survived. Use `5` only for
-the five-example smoke above. For a full or differently limited task, supply
-its declared expected count and preserve the command that establishes it.
-
-The inspector uses the pinned harness's `results` task mapping and logged
-`doc_id`, `resps` and `filtered_resps` fields. These are raw harness artifacts,
-not the fine-tune report-card schema. It requires exactly one result JSON and
-one task sample JSONL under the selected directory; archives with several runs
-must be separated rather than silently choosing the newest. It checks that the
-task has metric fields, sample IDs are unique integers, raw and filtered
-responses exist, and the sample count matches the declared count.
-
-For example, a **synthetic schema fixture**, not a measured result, can have
-this result file named `results_fixture.json`:
-
-```json
-{"results":{"gsm8k":{"exact_match,none":0.0}},"config":{"model":"fixture-no-inference"}}
-```
-
-And one line in `samples_gsm8k_fixture.jsonl`:
-
-```json
-{"doc_id":0,"resps":[["fixture answer"]],"filtered_resps":["fixture answer"]}
-```
-
-Run the inspector with expected count `1` for that fixture. It prints the task,
-count, metric keys and the two artifact paths. The zero in the fixture is only
-placeholder data; the inspector does not recompute or endorse that metric.
-The script was exercised on this schema shape and duplicate IDs, absent raw
-responses, count mismatches, absent task metrics and ambiguous multi-run
-folders, without loading a model or downloading a dataset.
-
-A structural pass is only a preflight. Manually inspect the saved configuration,
-resolved task/model revisions, prompt and chat template, stop/truncation
-behavior, per-sample outputs and scoring filters. The checker cannot establish
-that two files came from the same process, that the expected IDs are the
-correct dataset split, that an answer is correct, or that the recorded metric
-matches a recomputation. Preserve those provenance and evaluator checks before
-claiming a benchmark or comparison. A five-sample smoke remains a smoke even
-when every artifact check passes.
-
-Source contract: the harness [sample writer](https://github.com/EleutherAI/lm-evaluation-harness/blob/f7d0b116146bd616b59d0b991549120f197369a4/lm_eval/loggers/evaluation_tracker.py)
-and [sample-record construction](https://github.com/EleutherAI/lm-evaluation-harness/blob/f7d0b116146bd616b59d0b991549120f197369a4/lm_eval/evaluator.py),
-release `0.4.10`. Recheck this inspector's assumptions before using another
-release. The [paired prediction example](https://posttrainllm.com/evaluate-local-llm)
-is a separate exact-string format; raw harness files cannot be substituted for it.

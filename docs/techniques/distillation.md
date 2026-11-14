@@ -128,6 +128,61 @@ trajectories, inspect the [specialist distillation recipe](https://posttrainllm.
 and its retained data-format and evaluation evidence instead. Saving a
 checkpoint is not a quality or runtime qualification.
 
+## Curate response-imitation data before training
+
+A teacher response is a proposal. Keep the original record and its review
+outcome so rejected generations do not disappear from the experiment history.
+For a synthetic formatting task, one candidate record could look like this:
+
+```json
+{"id":"teacher-1","prompt":"Return the label for a request to list files.","response":"file-listing","source":"synthetic-fixture-v1","teacher_revision":"fixture-no-model-called","license_reviewed":true,"private_data_reviewed":true,"verified":true,"split":"train"}
+```
+
+The revision is explicitly a fixture identity, not a real teacher model. For
+actual generations, record the teacher/model revision, generation configuration,
+source identity and reviewer or executable check that justified acceptance.
+`verified: true` records that decision; setting a boolean does not perform a
+review. Keep evaluator evidence separately. Do not let a teacher or reviewer see
+the sealed test set while making training examples.
+
+Download [curate-teacher-records.py](https://posttrainllm.com/examples/curate-teacher-records.py),
+save candidate records as `teacher-records.jsonl`, then run with Python 3:
+
+```sh
+python3 curate-teacher-records.py teacher-records.jsonl > review-decisions.jsonl
+```
+
+This dependency-free offline example emits one acceptance decision per ID. It
+does not call a teacher, load a student, write training examples or train a model.
+It fails on malformed JSON, empty input and duplicate/missing IDs. It rejects
+records with absent prompt/response/provenance, missing affirmative license,
+privacy or verification review, rows outside the training split, and exact
+prompt/response duplicates of an already accepted example.
+
+| Candidate | Review output | What to do next |
+|---|---|---|
+| Complete, reviewed record above | `accepted: true` | Inspect the associated check evidence before export |
+| Same answer with `verified: false` | `needs_verified` | Run the task-specific judge or review; do not turn the flag on to pass |
+| A second ID with the same accepted prompt and response | `duplicate_accepted_example` | Keep the rejection and deduplicate before sampling |
+| A row marked `split: "test"` | `outside_training_split` | Keep the holdout outside teacher-data generation and training |
+
+The example was exercised on valid and adversarial synthetic fixtures, including
+false/string review flags, missing provenance, duplicate content, duplicate IDs
+and holdout rows. It checks explicit review bookkeeping and exact duplicates;
+it cannot detect private data, establish licensing, judge answer quality or find
+paraphrases. Group-related sources and task templates before splitting, using
+the [trajectory dataset preflight](https://posttrainllm.com/agent-trajectory-dataset)
+when episodes are the unit.
+
+Only after acceptance should you convert the response into the student's
+training format. For the pinned [MLX LM chat format](https://github.com/ml-explore/mlx-lm/blob/56230fa02b8ff8330daf26dc95c28480423ed5fe/mlx_lm/LORA.md#local-datasets),
+map prompt and response to user and assistant messages and apply the student's
+chat template; provenance stays in a sidecar manifest. Prompt masking is a
+separate training choice in that source version, not something this filter
+adds. Measure the unchanged student and the adapted student on the untouched
+target and regression gates. An accepted corpus is input evidence, not a model
+quality result.
+
 ## A comparison you can interpret
 
 Start with the [factory evaluation protocol](../factory/eval-protocol.md).
@@ -196,58 +251,3 @@ Next: [inspect the specialist recipe](https://posttrainllm.com/recipes/distillat
 [read the report card and its caveats](https://posttrainllm.com/report-cards/qwen3-4b-file-ops-distilled).
 Use the checklist above to identify what an existing result does and does
 not demonstrate before starting a new experiment.
-
-## Curate response-imitation data before training
-
-A teacher response is a proposal. Keep the original record and its review
-outcome so rejected generations do not disappear from the experiment history.
-For a synthetic formatting task, one candidate record could look like this:
-
-```json
-{"id":"teacher-1","prompt":"Return the label for a request to list files.","response":"file-listing","source":"synthetic-fixture-v1","teacher_revision":"fixture-no-model-called","license_reviewed":true,"private_data_reviewed":true,"verified":true,"split":"train"}
-```
-
-The revision is explicitly a fixture identity, not a real teacher model. For
-actual generations, record the teacher/model revision, generation configuration,
-source identity and reviewer or executable check that justified acceptance.
-`verified: true` records that decision; setting a boolean does not perform a
-review. Keep evaluator evidence separately. Do not let a teacher or reviewer see
-the sealed test set while making training examples.
-
-Download [curate-teacher-records.py](https://posttrainllm.com/examples/curate-teacher-records.py),
-save candidate records as `teacher-records.jsonl`, then run with Python 3:
-
-```sh
-python3 curate-teacher-records.py teacher-records.jsonl > review-decisions.jsonl
-```
-
-This dependency-free offline example emits one acceptance decision per ID. It
-does not call a teacher, load a student, write training examples or train a model.
-It fails on malformed JSON, empty input and duplicate/missing IDs. It rejects
-records with absent prompt/response/provenance, missing affirmative license,
-privacy or verification review, rows outside the training split, and exact
-prompt/response duplicates of an already accepted example.
-
-| Candidate | Review output | What to do next |
-|---|---|---|
-| Complete, reviewed record above | `accepted: true` | Inspect the associated check evidence before export |
-| Same answer with `verified: false` | `needs_verified` | Run the task-specific judge or review; do not turn the flag on to pass |
-| A second ID with the same accepted prompt and response | `duplicate_accepted_example` | Keep the rejection and deduplicate before sampling |
-| A row marked `split: "test"` | `outside_training_split` | Keep the holdout outside teacher-data generation and training |
-
-The example was exercised on valid and adversarial synthetic fixtures, including
-false/string review flags, missing provenance, duplicate content, duplicate IDs
-and holdout rows. It checks explicit review bookkeeping and exact duplicates;
-it cannot detect private data, establish licensing, judge answer quality or find
-paraphrases. Group-related sources and task templates before splitting, using
-the [trajectory dataset preflight](https://posttrainllm.com/agent-trajectory-dataset)
-when episodes are the unit.
-
-Only after acceptance should you convert the response into the student's
-training format. For the pinned [MLX LM chat format](https://github.com/ml-explore/mlx-lm/blob/56230fa02b8ff8330daf26dc95c28480423ed5fe/mlx_lm/LORA.md#local-datasets),
-map prompt and response to user and assistant messages and apply the student's
-chat template; provenance stays in a sidecar manifest. Prompt masking is a
-separate training choice in that source version, not something this filter
-adds. Measure the unchanged student and the adapted student on the untouched
-target and regression gates. An accepted corpus is input evidence, not a model
-quality result.
