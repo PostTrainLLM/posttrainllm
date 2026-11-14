@@ -224,5 +224,5 @@ LoRA / LoRA+retrieval, and always run the memorization test. Full detail in
 
 ## References
 
-- LoRA paper: https://arxiv.org/abs/2106.09685
-- Hugging Face PEFT — LoRA: https://huggingface.co/docs/peft/package_reference/lora
+- [LoRA paper](https://arxiv.org/abs/2106.09685)
+- [Hugging Face PEFT LoRA guide](https://huggingface.co/docs/peft/package_reference/lora)
