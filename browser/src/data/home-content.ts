@@ -29,7 +29,7 @@ const homeContent = workbenchContent.extend({
       })
       .strict(),
   ),
-  head: z.object({ jsonLd: z.array(z.string()).min(1) }).strict(),
+  head: z.object({ jsonLd: z.array(z.string()).length(1) }).strict(),
   sources: z.array(
     z
       .object({ section: z.string(), label: z.string(), href: z.string() })
