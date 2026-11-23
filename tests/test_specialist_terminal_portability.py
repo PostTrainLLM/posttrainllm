@@ -69,7 +69,6 @@ def test_ceiling_requires_public_initial_conditions_and_pinned_image():
 
 
 def test_terminal_ceiling_uses_typed_exact_public_contract():
-    pytest.importorskip("torch")
     import terminal_eval
 
     item = episode()
@@ -118,7 +117,6 @@ def test_terminal_ceiling_uses_typed_exact_public_contract():
 
 
 def test_terminal_ceiling_is_bounded_and_uses_v2_receipt(monkeypatch, tmp_path):
-    pytest.importorskip("torch")
     import terminal_eval
 
     item = episode()
@@ -135,13 +133,15 @@ def test_terminal_ceiling_is_bounded_and_uses_v2_receipt(monkeypatch, tmp_path):
         {"event": {"wait_ms": 1}, "screen": Screen.custom("$ ", 8, 48).as_dict()}
         for _ in range(131)
     ]
-    with pytest.raises(ValueError, match="50000 screen-cell budget"):
-        terminal_eval.ceiling_request([oversized])
+    with pytest.raises(ValueError, match="50000 screen-cell request budget"):
+        terminal_eval.ceiling_request_chunks(
+            terminal_eval.ceiling_request([oversized])
+        )
 
     expected = [{"id": item["id"], "screens": [f["screen"] for f in item["frames"]]}]
 
     def fake_frontier(schema, out, prompt, timeout):
-        assert timeout == 180
+        assert 1 <= timeout <= 180
         saved_schema = json.loads(Path(schema).read_text())
         screen_schema = saved_schema["properties"]["answers"]["items"]["properties"][
             "screens"
@@ -211,7 +211,6 @@ def test_frontier_timeout_is_reported_as_infrastructure_failure(monkeypatch, tmp
 
 
 def test_current_synthetic_shell_and_memory_recipes_fit_ceiling_budget():
-    pytest.importorskip("torch")
     import terminal_eval
     from terminal_record import synthetic_recipe
 
@@ -240,8 +239,49 @@ def test_current_synthetic_shell_and_memory_recipes_fit_ceiling_budget():
         assert cells == expected_cells
 
 
+def test_multi_episode_ceiling_batches_without_losing_eval_coverage():
+    import terminal_eval
+    from terminal_record import synthetic_recipe
+
+    items = []
+    for index, memory in enumerate((False, True)):
+        recipe = synthetic_recipe(seed=index + 7, memory=memory)
+        item = episode(f"heldout-{index}")
+        item["initial_screen"] = Screen.custom("$ ", 8, 48).as_dict()
+        screen = Screen.custom("$ ", 8, 48).as_dict()
+        item["frames"] = [
+            {"event": event, "screen": screen} for event in recipe["events"]
+        ]
+        item["world_conditions"] = {
+            "cwd": "/tmp",
+            "initial_files": {},
+            "programs": {"shell": "/bin/sh"},
+            "environment": {"TERM": "xterm"},
+        }
+        item["source"] = {"timing": "quiescence"}
+        items.append(item)
+    request = terminal_eval.ceiling_request(items)
+    chunks = terminal_eval.ceiling_request_chunks(request)
+    assert [len(chunk) for chunk in chunks] == [1, 1]
+    assert sum(len(chunk) for chunk in chunks) == len(items)
+
+
+def test_duplicate_episode_ids_are_rejected_before_any_frontier_call():
+    import terminal_eval
+
+    item = episode()
+    item["world_conditions"] = {
+        "cwd": "/tmp",
+        "initial_files": {},
+        "programs": {"shell": "/bin/sh"},
+        "environment": {"TERM": "xterm"},
+    }
+    item["source"] = {"timing": "quiescence"}
+    with pytest.raises(ValueError, match="IDs must be unique"):
+        terminal_eval.ceiling_request([item, dict(item)])
+
+
 def test_invalid_receipt_fails_before_episode_request_validation():
-    pytest.importorskip("torch")
     import terminal_eval
 
     item = episode()
@@ -250,7 +290,6 @@ def test_invalid_receipt_fails_before_episode_request_validation():
 
 
 def test_terminal_ceiling_v1_receipt_is_invalidated():
-    pytest.importorskip("torch")
     import terminal_eval
 
     item = episode()
@@ -274,7 +313,6 @@ def test_terminal_ceiling_v1_receipt_is_invalidated():
 
 
 def test_high_cell_agreement_does_not_count_as_world_success(monkeypatch):
-    pytest.importorskip("torch")
     import terminal_eval
 
     item = episode()
@@ -295,7 +333,7 @@ def test_high_cell_agreement_does_not_count_as_world_success(monkeypatch):
             self.screen = before
             return {"tokens": [1]}
 
-    monkeypatch.setattr(terminal_eval, "Session", FakeSession)
+    monkeypatch.setitem(sys.modules, "terminal_model", SimpleNamespace(Session=FakeSession))
     receipt = {
         "schema": terminal_eval.TERMINAL_CEILING_SCHEMA,
         "valid": True,

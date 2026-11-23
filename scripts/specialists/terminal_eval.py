@@ -14,10 +14,10 @@ import numpy as np
 
 from common import digest, file_hash, frontier_answers, write_json
 from terminal_codec import Screen
-from terminal_model import Session
 from terminal_data import heldout_identities, public_conditions
 
 MAX_CEILING_SCREEN_CELLS = 50_000
+MAX_CEILING_TOTAL_SCREEN_CELLS = 100_000
 TERMINAL_CEILING_SCHEMA = "terminal-ceiling-v2"
 
 
@@ -25,6 +25,11 @@ def ceiling_request(episodes):
     """Return only public inputs; oracle frames remain local labels."""
     if not episodes:
         raise ValueError("terminal ceiling requires at least one episode")
+    ids = [episode.get("id") for episode in episodes]
+    if any(not isinstance(identifier, str) or not identifier for identifier in ids):
+        raise ValueError("terminal ceiling episodes need non-empty IDs")
+    if len(set(ids)) != len(ids):
+        raise ValueError("terminal ceiling episode IDs must be unique")
     request = []
     screen_cells = 0
     for episode in episodes:
@@ -51,12 +56,37 @@ def ceiling_request(episodes):
         item["sampling_policy"] = sampling_policy
         screen_cells += len(events) * initial.rows * initial.cols
         request.append(item)
-    if screen_cells > MAX_CEILING_SCREEN_CELLS:
+    if screen_cells > MAX_CEILING_TOTAL_SCREEN_CELLS:
         raise ValueError(
-            "terminal ceiling output exceeds the 50000 screen-cell budget; "
-            "use a shorter fixed world"
+            "terminal evaluation set exceeds the 100000 screen-cell budget"
         )
     return request
+
+
+def ceiling_request_chunks(request):
+    """Group whole episodes into bounded requests without splitting stateful worlds."""
+    chunks = []
+    current = []
+    current_cells = 0
+    for item in request:
+        contract = item["screen_contract"]
+        cells = (
+            contract["rows"]
+            * contract["cols"]
+            * contract["screens_after_events"]
+        )
+        if cells > MAX_CEILING_SCREEN_CELLS:
+            raise ValueError(
+                "one terminal episode exceeds the 50000 screen-cell request budget"
+            )
+        if current and current_cells + cells > MAX_CEILING_SCREEN_CELLS:
+            chunks.append(current)
+            current, current_cells = [], 0
+        current.append(item)
+        current_cells += cells
+    if current:
+        chunks.append(current)
+    return chunks
 
 
 def terminal_answer_schema(episodes):
@@ -135,19 +165,13 @@ def terminal_answers_match(episodes, answers):
 
 def ceiling(episodes, out):
     request = ceiling_request(episodes)
+    chunks = ceiling_request_chunks(request)
     out = Path(out).resolve()
     out.mkdir(parents=True, exist_ok=False)
     write_json(out / "request.json", request)
     schema = out / "schema.json"
     write_json(schema, terminal_answer_schema(episodes))
-    prompt_request = json.dumps(request, separators=(",", ":"))
-    prompt = (
-        "Simulate each episode using only its public initial screen, raw key/wait events, "
-        "world conditions, and sampling policy. Return one structured screen object after "
-        "every event, in order, with exactly the declared rows and columns; cursor coordinates "
-        "are zero-based. A wait_ms event advances time and may change the screen. Do not use "
-        "tools or execute input commands. Do not assume hidden files or state.\n" + prompt_request
-    )
+    episodes_by_id = {episode["id"]: episode for episode in episodes}
     frame_count = sum(len(episode["frames"]) for episode in episodes)
     screen_cells = sum(
         len(episode["frames"])
@@ -156,7 +180,32 @@ def ceiling(episodes, out):
         for episode in episodes
     )
     started = time.monotonic()
-    answers, kinds = frontier_answers(schema, out, prompt, timeout=180)
+    answers = []
+    observed_kinds = set()
+    request_bytes = 0
+    deadline = started + 180
+    for index, chunk in enumerate(chunks):
+        chunk_episodes = [episodes_by_id[item["id"]] for item in chunk]
+        prompt_request = json.dumps(chunk, separators=(",", ":"))
+        prompt = (
+            "Simulate each episode using only its public initial screen, raw key/wait events, "
+            "world conditions, and sampling policy. Return one structured screen object after "
+            "every event, in order, with exactly the declared rows and columns; cursor coordinates "
+            "are zero-based. A wait_ms event advances time and may change the screen. Do not use "
+            "tools or execute input commands. Do not assume hidden files or state.\n" + prompt_request
+        )
+        chunk_out = out / f"chunk-{index:02d}"
+        chunk_out.mkdir()
+        chunk_schema = chunk_out / "schema.json"
+        write_json(chunk_schema, terminal_answer_schema(chunk_episodes))
+        timeout = max(1, int(deadline - time.monotonic()))
+        chunk_answers, kinds = frontier_answers(
+            chunk_schema, chunk_out, prompt, timeout=timeout
+        )
+        answers.extend(chunk_answers)
+        observed_kinds.update(kinds)
+        request_bytes += len(prompt_request.encode("utf-8"))
+    write_json(out / "answers.json", {"answers": answers})
     valid = terminal_answers_match(episodes, answers)
     write_json(
         out / "ceiling.json",
@@ -168,11 +217,12 @@ def ceiling(episodes, out):
             "validator_sha256": file_hash(__file__),
             "answers_sha256": file_hash(out / "answers.json"),
             "model": "gpt-6.1-sol",
-            "observed_item_types": kinds,
+            "observed_item_types": sorted(observed_kinds),
             "episode_count": len(episodes),
             "frame_count": frame_count,
             "screen_cell_count": screen_cells,
-            "request_bytes": len(prompt_request.encode("utf-8")),
+            "request_bytes": request_bytes,
+            "chunk_count": len(chunks),
             "timeout_seconds": 180,
             "elapsed_seconds": time.monotonic() - started,
             "paid_usd": 0,
@@ -202,6 +252,8 @@ def validate_ceiling(episodes, receipt):
 
 def evaluate(model, episodes, receipt, budget, parallel=False):
     validate_ceiling(episodes, receipt)
+    from terminal_model import Session
+
     identities = heldout_identities(model, episodes)
     exact, cursors, cells, total_cells, tokens = 0, 0, 0, 0, 0
     latencies, memory = [], []
