@@ -17,7 +17,7 @@ from terminal_codec import Screen
 from terminal_model import Session
 from terminal_data import heldout_identities, public_conditions
 
-MAX_CEILING_SCREEN_CELLS = 20_000
+MAX_CEILING_SCREEN_CELLS = 50_000
 TERMINAL_CEILING_SCHEMA = "terminal-ceiling-v2"
 
 
@@ -53,8 +53,8 @@ def ceiling_request(episodes):
         request.append(item)
     if screen_cells > MAX_CEILING_SCREEN_CELLS:
         raise ValueError(
-            "terminal ceiling output exceeds the 20000 screen-cell budget; "
-            "split into smaller fixed worlds"
+            "terminal ceiling output exceeds the 50000 screen-cell budget; "
+            "use a shorter fixed world"
         )
     return request
 
@@ -185,11 +185,15 @@ def ceiling(episodes, out):
 
 
 def validate_ceiling(episodes, receipt):
+    if (
+        not isinstance(receipt, dict)
+        or receipt.get("schema") != TERMINAL_CEILING_SCHEMA
+        or not receipt.get("valid")
+    ):
+        raise ValueError("missing, failed, stale or mismatched terminal ceiling")
     request = ceiling_request(episodes)
     if (
-        receipt.get("schema") != TERMINAL_CEILING_SCHEMA
-        or not receipt.get("valid")
-        or receipt.get("data_sha256") != digest(episodes)
+        receipt.get("data_sha256") != digest(episodes)
         or receipt.get("request_sha256") != digest(request)
         or receipt.get("validator_sha256") != file_hash(__file__)
     ):

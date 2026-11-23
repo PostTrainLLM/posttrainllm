@@ -69,6 +69,7 @@ def test_ceiling_requires_public_initial_conditions_and_pinned_image():
 
 
 def test_terminal_ceiling_uses_typed_exact_public_contract():
+    pytest.importorskip("torch")
     import terminal_eval
 
     item = episode()
@@ -117,6 +118,7 @@ def test_terminal_ceiling_uses_typed_exact_public_contract():
 
 
 def test_terminal_ceiling_is_bounded_and_uses_v2_receipt(monkeypatch, tmp_path):
+    pytest.importorskip("torch")
     import terminal_eval
 
     item = episode()
@@ -131,9 +133,9 @@ def test_terminal_ceiling_is_bounded_and_uses_v2_receipt(monkeypatch, tmp_path):
     oversized["initial_screen"] = Screen.custom("$ ", 8, 48).as_dict()
     oversized["frames"] = [
         {"event": {"wait_ms": 1}, "screen": Screen.custom("$ ", 8, 48).as_dict()}
-        for _ in range(53)
+        for _ in range(131)
     ]
-    with pytest.raises(ValueError, match="20000 screen-cell budget"):
+    with pytest.raises(ValueError, match="50000 screen-cell budget"):
         terminal_eval.ceiling_request([oversized])
 
     expected = [{"id": item["id"], "screens": [f["screen"] for f in item["frames"]]}]
@@ -190,7 +192,65 @@ def test_frontier_answers_honors_timeout(monkeypatch, tmp_path):
     assert seen["timeout"] == 180
 
 
+def test_frontier_timeout_is_reported_as_infrastructure_failure(monkeypatch, tmp_path):
+    import subprocess
+
+    import common
+    import scripts.factory.frontier_cli as frontier_cli
+
+    monkeypatch.setattr(frontier_cli, "codex_command", lambda *args, **kwargs: ["codex"])
+
+    def timed_out(*args, **kwargs):
+        raise subprocess.TimeoutExpired("codex", kwargs["timeout"])
+
+    monkeypatch.setattr(subprocess, "run", timed_out)
+    with pytest.raises(RuntimeError, match="frontier infrastructure failure"):
+        common.frontier_answers(
+            tmp_path / "schema.json", tmp_path, "small prompt", timeout=180
+        )
+
+
+def test_current_synthetic_shell_and_memory_recipes_fit_ceiling_budget():
+    pytest.importorskip("torch")
+    import terminal_eval
+    from terminal_record import synthetic_recipe
+
+    item = episode()
+    item["world_conditions"] = {
+        "cwd": "/tmp",
+        "initial_files": {},
+        "programs": {"shell": "/bin/sh"},
+        "environment": {"TERM": "xterm"},
+    }
+    item["source"] = {"timing": "quiescence"}
+    screen = Screen.custom("$ ", 8, 48).as_dict()
+    item["initial_screen"] = Screen.custom("$ ", 8, 48).as_dict()
+    for memory, expected_cells in ((False, 25728), (True, 48768)):
+        recipe = synthetic_recipe(memory=memory)
+        item["frames"] = [
+            {"event": event, "screen": screen} for event in recipe["events"]
+        ]
+        request = terminal_eval.ceiling_request([item])
+        cells = (
+            len(request[0]["events"])
+            * len(item["initial_screen"]["lines"])
+            * len(item["initial_screen"]["lines"][0])
+        )
+        assert len(recipe["events"]) == (67 if not memory else 127)
+        assert cells == expected_cells
+
+
+def test_invalid_receipt_fails_before_episode_request_validation():
+    pytest.importorskip("torch")
+    import terminal_eval
+
+    item = episode()
+    with pytest.raises(ValueError, match="missing, failed, stale or mismatched"):
+        terminal_eval.validate_ceiling([item], {"schema": "terminal-ceiling-v1"})
+
+
 def test_terminal_ceiling_v1_receipt_is_invalidated():
+    pytest.importorskip("torch")
     import terminal_eval
 
     item = episode()
