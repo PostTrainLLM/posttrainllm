@@ -56,10 +56,6 @@ def ceiling_request(episodes):
         item["sampling_policy"] = sampling_policy
         screen_cells += len(events) * initial.rows * initial.cols
         request.append(item)
-    if screen_cells > MAX_CEILING_TOTAL_SCREEN_CELLS:
-        raise ValueError(
-            "terminal evaluation set exceeds the 100000 screen-cell budget"
-        )
     return request
 
 
@@ -166,6 +162,16 @@ def terminal_answers_match(episodes, answers):
 def ceiling(episodes, out):
     request = ceiling_request(episodes)
     chunks = ceiling_request_chunks(request)
+    screen_cells = sum(
+        len(episode["frames"])
+        * len(episode["initial_screen"]["lines"])
+        * len(episode["initial_screen"]["lines"][0])
+        for episode in episodes
+    )
+    if screen_cells > MAX_CEILING_TOTAL_SCREEN_CELLS:
+        raise ValueError(
+            "terminal ceiling run exceeds the 100000 screen-cell budget"
+        )
     out = Path(out).resolve()
     out.mkdir(parents=True, exist_ok=False)
     write_json(out / "request.json", request)
@@ -173,12 +179,6 @@ def ceiling(episodes, out):
     write_json(schema, terminal_answer_schema(episodes))
     episodes_by_id = {episode["id"]: episode for episode in episodes}
     frame_count = sum(len(episode["frames"]) for episode in episodes)
-    screen_cells = sum(
-        len(episode["frames"])
-        * len(episode["initial_screen"]["lines"])
-        * len(episode["initial_screen"]["lines"][0])
-        for episode in episodes
-    )
     started = time.monotonic()
     answers = []
     observed_kinds = set()

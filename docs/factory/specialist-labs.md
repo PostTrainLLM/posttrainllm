@@ -220,10 +220,11 @@ which may lose off-screen memory. No hidden filesystem fills that memory gap.
 Terminal ceiling v2 returns typed screen arrays and binds exact episode IDs,
 frame counts, dimensions and screens; the earlier v1 receipt shape is invalid.
 Ceiling requests are chunked between whole episodes at 50,000 output screen
-cells per request and 100,000 cells per evaluation set. This fits one default
-8x48 synthetic shell or memory episode in a request while preserving
-multi-episode aggregation. One ceiling run has a shared 180-second frontier
-timeout across all its chunks.
+cells per request, with a 100,000-cell ceiling-generation cap. This fits one
+default 8x48 synthetic shell or memory episode in a request while preserving
+bounded multi-episode aggregation. One ceiling run has a shared 180-second
+frontier timeout across all its chunks. Eval validates the matching receipt
+without applying generation-size limits again.
 Requests contain public starting conditions, sampling policy and events, never
 oracle screens. Closed-loop evaluation reports screen/cursor/cell agreement,
 exact memory readbacks, latency and token throughput. It never feeds later

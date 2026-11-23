@@ -244,7 +244,7 @@ def test_multi_episode_ceiling_batches_without_losing_eval_coverage():
     from terminal_record import synthetic_recipe
 
     items = []
-    for index, memory in enumerate((False, True)):
+    for index, memory in enumerate((False, True, True)):
         recipe = synthetic_recipe(seed=index + 7, memory=memory)
         item = episode(f"heldout-{index}")
         item["initial_screen"] = Screen.custom("$ ", 8, 48).as_dict()
@@ -262,8 +262,50 @@ def test_multi_episode_ceiling_batches_without_losing_eval_coverage():
         items.append(item)
     request = terminal_eval.ceiling_request(items)
     chunks = terminal_eval.ceiling_request_chunks(request)
-    assert [len(chunk) for chunk in chunks] == [1, 1]
+    assert [len(chunk) for chunk in chunks] == [1, 1, 1]
     assert sum(len(chunk) for chunk in chunks) == len(items)
+    receipt = {
+        "schema": terminal_eval.TERMINAL_CEILING_SCHEMA,
+        "valid": True,
+        "data_sha256": digest(items),
+        "request_sha256": digest(request),
+        "validator_sha256": file_hash(terminal_eval.__file__),
+    }
+    terminal_eval.validate_ceiling(items, receipt)
+
+
+def test_ceiling_generation_rejects_total_budget_before_frontier_call(
+    monkeypatch, tmp_path
+):
+    import terminal_eval
+    from terminal_record import synthetic_recipe
+
+    items = []
+    for index in range(3):
+        recipe = synthetic_recipe(seed=index + 7, memory=True)
+        item = episode(f"heldout-memory-{index}")
+        item["initial_screen"] = Screen.custom("$ ", 8, 48).as_dict()
+        screen = Screen.custom("$ ", 8, 48).as_dict()
+        item["frames"] = [
+            {"event": event, "screen": screen} for event in recipe["events"]
+        ]
+        item["world_conditions"] = {
+            "cwd": "/tmp",
+            "initial_files": {},
+            "programs": {"shell": "/bin/sh"},
+            "environment": {"TERM": "xterm"},
+        }
+        item["source"] = {"timing": "quiescence"}
+        items.append(item)
+
+    def unexpected_frontier(*args, **kwargs):
+        raise AssertionError("over-budget ceiling must fail before external calls")
+
+    monkeypatch.setattr(terminal_eval, "frontier_answers", unexpected_frontier)
+    out = tmp_path / "over-budget"
+    with pytest.raises(ValueError, match="100000 screen-cell budget"):
+        terminal_eval.ceiling(items, out)
+    assert not out.exists()
 
 
 def test_duplicate_episode_ids_are_rejected_before_any_frontier_call():
