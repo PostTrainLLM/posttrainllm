@@ -75,7 +75,7 @@ def softmax(logits, temperature=1.0):
     return values / values.sum()
 
 
-def frontier_answers(schema, out, prompt):
+def frontier_answers(schema, out, prompt, timeout=300):
     """One subscription-CLI ceiling request; refuse any tool-using trajectory."""
     import subprocess
     import sys
@@ -88,7 +88,7 @@ def frontier_answers(schema, out, prompt):
         cwd="/tmp",
         capture_output=True,
         text=True,
-        timeout=300,
+        timeout=timeout,
     )
     if result.returncode:
         raise RuntimeError(

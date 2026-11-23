@@ -7,67 +7,173 @@ Contract: docs/factory/specialist-labs.md.
 from __future__ import annotations
 
 import json
-import sys
 import time
 from pathlib import Path
 
 import numpy as np
 
-from common import ROOT, digest, file_hash, frontier_answers, write_json
+from common import digest, file_hash, frontier_answers, write_json
 from terminal_codec import Screen
 from terminal_model import Session
 from terminal_data import heldout_identities, public_conditions
 
+MAX_CEILING_SCREEN_CELLS = 20_000
+TERMINAL_CEILING_SCHEMA = "terminal-ceiling-v2"
+
+
+def ceiling_request(episodes):
+    """Return only public inputs; oracle frames remain local labels."""
+    if not episodes:
+        raise ValueError("terminal ceiling requires at least one episode")
+    request = []
+    screen_cells = 0
+    for episode in episodes:
+        initial = Screen.from_dict(episode["initial_screen"])
+        events = [frame["event"] for frame in episode["frames"]]
+        if not events:
+            raise ValueError("terminal ceiling requires at least one event per episode")
+        conditions = public_conditions(episode)
+        source = episode.get("source", {})
+        sampling_policy = source.get("timing") if isinstance(source, dict) else None
+        if not isinstance(sampling_policy, str) or not sampling_policy:
+            raise ValueError("terminal ceiling needs an explicit sampling policy")
+        item = {
+            "id": episode["id"],
+            "initial_screen": initial.as_dict(),
+            "events": events,
+            "world_conditions": conditions,
+            "screen_contract": {
+                "rows": initial.rows,
+                "cols": initial.cols,
+                "screens_after_events": len(events),
+            },
+        }
+        item["sampling_policy"] = sampling_policy
+        screen_cells += len(events) * initial.rows * initial.cols
+        request.append(item)
+    if screen_cells > MAX_CEILING_SCREEN_CELLS:
+        raise ValueError(
+            "terminal ceiling output exceeds the 20000 screen-cell budget; "
+            "split into smaller fixed worlds"
+        )
+    return request
+
+
+def terminal_answer_schema(episodes):
+    """Structured final screens; never put a JSON payload inside a string."""
+    screen = {
+        "type": "object",
+        "properties": {
+            "lines": {"type": "array", "items": {"type": "string"}},
+            "cursor_row": {"type": "integer"},
+            "cursor_col": {"type": "integer"},
+            "visible": {"type": "boolean"},
+        },
+        "required": ["lines", "cursor_row", "cursor_col", "visible"],
+        "additionalProperties": False,
+    }
+    answer = {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string", "enum": [episode["id"] for episode in episodes]},
+            "screens": {"type": "array", "items": screen},
+        },
+        "required": ["id", "screens"],
+        "additionalProperties": False,
+    }
+    return {
+        "type": "object",
+        "properties": {"answers": {"type": "array", "items": answer}},
+        "required": ["answers"],
+        "additionalProperties": False,
+    }
+
+
+def terminal_answers_match(episodes, answers):
+    """Require exact IDs, frame counts, dimensions and screen states."""
+    if not isinstance(answers, list) or len(answers) != len(episodes):
+        return False
+    if any(not isinstance(answer, dict) for answer in answers):
+        return False
+    ids = [answer.get("id") for answer in answers]
+    expected_ids = [episode["id"] for episode in episodes]
+    if (
+        any(not isinstance(identifier, str) for identifier in ids)
+        or len(set(ids)) != len(ids)
+        or set(ids) != set(expected_ids)
+        or any(set(answer) != {"id", "screens"} for answer in answers)
+    ):
+        return False
+    by_id = {answer["id"]: answer for answer in answers}
+    for episode in episodes:
+        screens = by_id[episode["id"]].get("screens")
+        frames = episode["frames"]
+        if not isinstance(screens, list) or len(screens) != len(frames):
+            return False
+        initial = Screen.from_dict(episode["initial_screen"])
+        for predicted, frame in zip(screens, frames):
+            if not isinstance(predicted, dict) or set(predicted) != {
+                "lines",
+                "cursor_row",
+                "cursor_col",
+                "visible",
+            }:
+                return False
+            try:
+                predicted_screen = Screen.from_dict(predicted)
+                oracle_screen = Screen.from_dict(frame["screen"])
+            except (IndexError, KeyError, TypeError, ValueError):
+                return False
+            if (
+                (predicted_screen.rows, predicted_screen.cols)
+                != (initial.rows, initial.cols)
+                or predicted_screen != oracle_screen
+            ):
+                return False
+    return True
+
 
 def ceiling(episodes, out):
-    sys.path.insert(0, str(ROOT))
-    from scripts.factory.frontier_cli import answer_schema
-
+    request = ceiling_request(episodes)
     out = Path(out).resolve()
     out.mkdir(parents=True, exist_ok=False)
-    request = [
-        {
-            "id": ep["id"],
-            "initial_screen": ep["initial_screen"],
-            "events": [frame["event"] for frame in ep["frames"]],
-            "world_conditions": public_conditions(ep),
-        }
-        for ep in episodes
-    ]
     write_json(out / "request.json", request)
     schema = out / "schema.json"
-    write_json(schema, answer_schema())
+    write_json(schema, terminal_answer_schema(episodes))
+    prompt_request = json.dumps(request, separators=(",", ":"))
     prompt = (
-        "Predict the monochrome terminal after every event, including raw key bytes and waits. "
-        "Return each episode's answer as a JSON string containing an array of screen objects "
-        "with lines (fixed-width printable ASCII including spaces), cursor_row, cursor_col, visible. "
-        "Use the explicit public world conditions and ordinary program semantics. "
-        "Do not execute commands or use tools.\n" + json.dumps(request)
+        "Simulate each episode using only its public initial screen, raw key/wait events, "
+        "world conditions, and sampling policy. Return one structured screen object after "
+        "every event, in order, with exactly the declared rows and columns; cursor coordinates "
+        "are zero-based. A wait_ms event advances time and may change the screen. Do not use "
+        "tools or execute input commands. Do not assume hidden files or state.\n" + prompt_request
+    )
+    frame_count = sum(len(episode["frames"]) for episode in episodes)
+    screen_cells = sum(
+        len(episode["frames"])
+        * len(episode["initial_screen"]["lines"])
+        * len(episode["initial_screen"]["lines"][0])
+        for episode in episodes
     )
     started = time.monotonic()
-    answers, kinds = frontier_answers(schema, out, prompt)
-    mapping = {row["id"]: row["answer"] for row in answers}
-    valid = len(mapping) == len(answers) == len(episodes)
-    for episode in episodes:
-        try:
-            predicted = json.loads(mapping[episode["id"]])
-            valid &= len(predicted) == len(episode["frames"])
-            valid &= all(
-                Screen.from_dict(a) == Screen.from_dict(b["screen"])
-                for a, b in zip(predicted, episode["frames"])
-            )
-        except (ValueError, KeyError, TypeError):
-            valid = False
+    answers, kinds = frontier_answers(schema, out, prompt, timeout=180)
+    valid = terminal_answers_match(episodes, answers)
     write_json(
         out / "ceiling.json",
         {
-            "schema": "terminal-ceiling-v1",
+            "schema": TERMINAL_CEILING_SCHEMA,
             "valid": bool(valid),
             "data_sha256": digest(episodes),
+            "request_sha256": digest(request),
             "validator_sha256": file_hash(__file__),
             "answers_sha256": file_hash(out / "answers.json"),
             "model": "gpt-6.1-sol",
             "observed_item_types": kinds,
+            "episode_count": len(episodes),
+            "frame_count": frame_count,
+            "screen_cell_count": screen_cells,
+            "request_bytes": len(prompt_request.encode("utf-8")),
+            "timeout_seconds": 180,
             "elapsed_seconds": time.monotonic() - started,
             "paid_usd": 0,
         },
@@ -79,10 +185,12 @@ def ceiling(episodes, out):
 
 
 def validate_ceiling(episodes, receipt):
+    request = ceiling_request(episodes)
     if (
-        receipt.get("schema") != "terminal-ceiling-v1"
+        receipt.get("schema") != TERMINAL_CEILING_SCHEMA
         or not receipt.get("valid")
         or receipt.get("data_sha256") != digest(episodes)
+        or receipt.get("request_sha256") != digest(request)
         or receipt.get("validator_sha256") != file_hash(__file__)
     ):
         raise ValueError("missing, failed, stale or mismatched terminal ceiling")
