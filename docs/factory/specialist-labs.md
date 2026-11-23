@@ -217,9 +217,19 @@ Context overflow explicitly rebases to the current screen and reports a reset,
 which may lose off-screen memory. No hidden filesystem fills that memory gap.
 
 `ceiling` and `eval` bind real-oracle episodes to the frontier-ceiling gate.
-Closed-loop evaluation reports screen/cursor/cell agreement, exact memory
-readbacks, latency and token throughput. It never feeds later oracle screens
-back into the model. Repeated typing overfit is a separate correctness gate.
+Terminal ceiling v2 returns typed screen arrays and binds exact episode IDs,
+frame counts, dimensions and screens; the earlier v1 receipt shape is invalid.
+Ceiling requests are chunked between whole episodes at 50,000 output screen
+cells per request, with a 100,000-cell ceiling-generation cap. This fits one
+default 8x48 synthetic shell or memory episode in a request while preserving
+bounded multi-episode aggregation. One ceiling run has a shared 180-second
+frontier timeout across all its chunks. Eval validates the matching receipt
+without applying generation-size limits again.
+Requests contain public starting conditions, sampling policy and events, never
+oracle screens. Closed-loop evaluation reports screen/cursor/cell agreement,
+exact memory readbacks, latency and token throughput. It never feeds later
+oracle screens back into the model. Repeated typing overfit is a separate
+correctness gate.
 
 The tiny architecture is `configs/model.terminal-tiny-v1.json`, independently
 trained; tiny overfit does not establish vim, tmux, snake or file competence.

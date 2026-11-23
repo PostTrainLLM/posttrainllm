@@ -75,7 +75,7 @@ def softmax(logits, temperature=1.0):
     return values / values.sum()
 
 
-def frontier_answers(schema, out, prompt):
+def frontier_answers(schema, out, prompt, timeout=300):
     """One subscription-CLI ceiling request; refuse any tool-using trajectory."""
     import subprocess
     import sys
@@ -83,13 +83,18 @@ def frontier_answers(schema, out, prompt):
     sys.path.insert(0, str(ROOT))
     from scripts.factory.frontier_cli import codex_command
 
-    result = subprocess.run(
-        codex_command(schema, out / "answers.json", prompt, json_events=True),
-        cwd="/tmp",
-        capture_output=True,
-        text=True,
-        timeout=300,
-    )
+    try:
+        result = subprocess.run(
+            codex_command(schema, out / "answers.json", prompt, json_events=True),
+            cwd="/tmp",
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(
+            "frontier infrastructure failure; local capability accuracy is prohibited"
+        ) from exc
     if result.returncode:
         raise RuntimeError(
             "frontier infrastructure failure; local capability accuracy is prohibited"
