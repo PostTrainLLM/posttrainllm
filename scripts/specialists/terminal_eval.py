@@ -66,11 +66,7 @@ def ceiling_request_chunks(request):
     current_cells = 0
     for item in request:
         contract = item["screen_contract"]
-        cells = (
-            contract["rows"]
-            * contract["cols"]
-            * contract["screens_after_events"]
-        )
+        cells = contract["rows"] * contract["cols"] * contract["screens_after_events"]
         if cells > MAX_CEILING_SCREEN_CELLS:
             raise ValueError(
                 "one terminal episode exceeds the 50000 screen-cell request budget"
@@ -150,11 +146,10 @@ def terminal_answers_match(episodes, answers):
                 oracle_screen = Screen.from_dict(frame["screen"])
             except (IndexError, KeyError, TypeError, ValueError):
                 return False
-            if (
-                (predicted_screen.rows, predicted_screen.cols)
-                != (initial.rows, initial.cols)
-                or predicted_screen != oracle_screen
-            ):
+            if (predicted_screen.rows, predicted_screen.cols) != (
+                initial.rows,
+                initial.cols,
+            ) or predicted_screen != oracle_screen:
                 return False
     return True
 
@@ -169,9 +164,7 @@ def ceiling(episodes, out):
         for episode in episodes
     )
     if screen_cells > MAX_CEILING_TOTAL_SCREEN_CELLS:
-        raise ValueError(
-            "terminal ceiling run exceeds the 100000 screen-cell budget"
-        )
+        raise ValueError("terminal ceiling run exceeds the 100000 screen-cell budget")
     out = Path(out).resolve()
     out.mkdir(parents=True, exist_ok=False)
     write_json(out / "request.json", request)
@@ -192,7 +185,8 @@ def ceiling(episodes, out):
             "world conditions, and sampling policy. Return one structured screen object after "
             "every event, in order, with exactly the declared rows and columns; cursor coordinates "
             "are zero-based. A wait_ms event advances time and may change the screen. Do not use "
-            "tools or execute input commands. Do not assume hidden files or state.\n" + prompt_request
+            "tools or execute input commands. Do not assume hidden files or state.\n"
+            + prompt_request
         )
         chunk_out = out / f"chunk-{index:02d}"
         chunk_out.mkdir()

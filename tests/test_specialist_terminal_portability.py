@@ -80,9 +80,9 @@ def test_terminal_ceiling_uses_typed_exact_public_contract():
     }
     item["source"] = {"timing": "after 60ms quiescence"}
     request = terminal_eval.ceiling_request([item])
-    item_schema = terminal_eval.terminal_answer_schema([item])["properties"][
-        "answers"
-    ]["items"]
+    item_schema = terminal_eval.terminal_answer_schema([item])["properties"]["answers"][
+        "items"
+    ]
     screen_schema = item_schema["properties"]["screens"]["items"]
     assert item_schema["properties"]["id"]["enum"] == [item["id"]]
     assert screen_schema["type"] == "object"
@@ -134,9 +134,7 @@ def test_terminal_ceiling_is_bounded_and_uses_v2_receipt(monkeypatch, tmp_path):
         for _ in range(131)
     ]
     with pytest.raises(ValueError, match="50000 screen-cell request budget"):
-        terminal_eval.ceiling_request_chunks(
-            terminal_eval.ceiling_request([oversized])
-        )
+        terminal_eval.ceiling_request_chunks(terminal_eval.ceiling_request([oversized]))
 
     expected = [{"id": item["id"], "screens": [f["screen"] for f in item["frames"]]}]
 
@@ -147,9 +145,9 @@ def test_terminal_ceiling_is_bounded_and_uses_v2_receipt(monkeypatch, tmp_path):
             "screens"
         ]["items"]
         assert screen_schema["type"] == "object"
-        assert "answer" not in saved_schema["properties"]["answers"]["items"][
-            "properties"
-        ]
+        assert (
+            "answer" not in saved_schema["properties"]["answers"]["items"]["properties"]
+        )
         assert "frames" not in prompt
         (Path(out) / "answers.json").write_text(json.dumps({"answers": expected}))
         return expected, ["agent_message"]
@@ -182,7 +180,9 @@ def test_frontier_answers_honors_timeout(monkeypatch, tmp_path):
             returncode=0, stdout='{"item":{"type":"agent_message"}}\n'
         )
 
-    monkeypatch.setattr(frontier_cli, "codex_command", lambda *args, **kwargs: ["codex"])
+    monkeypatch.setattr(
+        frontier_cli, "codex_command", lambda *args, **kwargs: ["codex"]
+    )
     monkeypatch.setattr(subprocess, "run", fake_run)
     answers, item_types = common.frontier_answers(
         tmp_path / "schema.json", tmp_path, "small prompt", timeout=180
@@ -198,7 +198,9 @@ def test_frontier_timeout_is_reported_as_infrastructure_failure(monkeypatch, tmp
     import common
     import scripts.factory.frontier_cli as frontier_cli
 
-    monkeypatch.setattr(frontier_cli, "codex_command", lambda *args, **kwargs: ["codex"])
+    monkeypatch.setattr(
+        frontier_cli, "codex_command", lambda *args, **kwargs: ["codex"]
+    )
 
     def timed_out(*args, **kwargs):
         raise subprocess.TimeoutExpired("codex", kwargs["timeout"])
@@ -375,7 +377,9 @@ def test_high_cell_agreement_does_not_count_as_world_success(monkeypatch):
             self.screen = before
             return {"tokens": [1]}
 
-    monkeypatch.setitem(sys.modules, "terminal_model", SimpleNamespace(Session=FakeSession))
+    monkeypatch.setitem(
+        sys.modules, "terminal_model", SimpleNamespace(Session=FakeSession)
+    )
     receipt = {
         "schema": terminal_eval.TERMINAL_CEILING_SCHEMA,
         "valid": True,
