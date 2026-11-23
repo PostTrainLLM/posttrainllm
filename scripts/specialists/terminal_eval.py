@@ -111,8 +111,7 @@ def terminal_answer_schema(episodes):
     }
 
 
-def terminal_answers_match(episodes, answers):
-    """Require exact IDs, frame counts, dimensions and screen states."""
+def _answers_have_unique_episode_ids(episodes, answers):
     if not isinstance(answers, list) or len(answers) != len(episodes):
         return False
     if any(not isinstance(answer, dict) for answer in answers):
@@ -126,32 +125,48 @@ def terminal_answers_match(episodes, answers):
         or any(set(answer) != {"id", "screens"} for answer in answers)
     ):
         return False
-    by_id = {answer["id"]: answer for answer in answers}
-    for episode in episodes:
-        screens = by_id[episode["id"]].get("screens")
-        frames = episode["frames"]
-        if not isinstance(screens, list) or len(screens) != len(frames):
-            return False
-        initial = Screen.from_dict(episode["initial_screen"])
-        for predicted, frame in zip(screens, frames):
-            if not isinstance(predicted, dict) or set(predicted) != {
-                "lines",
-                "cursor_row",
-                "cursor_col",
-                "visible",
-            }:
-                return False
-            try:
-                predicted_screen = Screen.from_dict(predicted)
-                oracle_screen = Screen.from_dict(frame["screen"])
-            except (IndexError, KeyError, TypeError, ValueError):
-                return False
-            if (predicted_screen.rows, predicted_screen.cols) != (
-                initial.rows,
-                initial.cols,
-            ) or predicted_screen != oracle_screen:
-                return False
     return True
+
+
+def _screen_matches(initial, predicted, frame):
+    if not isinstance(predicted, dict) or set(predicted) != {
+        "lines",
+        "cursor_row",
+        "cursor_col",
+        "visible",
+    }:
+        return False
+    try:
+        predicted_screen = Screen.from_dict(predicted)
+        oracle_screen = Screen.from_dict(frame["screen"])
+    except (IndexError, KeyError, TypeError, ValueError):
+        return False
+    return (predicted_screen.rows, predicted_screen.cols) == (
+        initial.rows,
+        initial.cols,
+    ) and predicted_screen == oracle_screen
+
+
+def _episode_screens_match(episode, screens):
+    frames = episode["frames"]
+    if not isinstance(screens, list) or len(screens) != len(frames):
+        return False
+    initial = Screen.from_dict(episode["initial_screen"])
+    for predicted, frame in zip(screens, frames):
+        if not _screen_matches(initial, predicted, frame):
+            return False
+    return True
+
+
+def terminal_answers_match(episodes, answers):
+    """Require exact IDs, frame counts, dimensions and screen states."""
+    if not _answers_have_unique_episode_ids(episodes, answers):
+        return False
+    by_id = {answer["id"]: answer for answer in answers}
+    return all(
+        _episode_screens_match(episode, by_id[episode["id"]]["screens"])
+        for episode in episodes
+    )
 
 
 def ceiling(episodes, out):
