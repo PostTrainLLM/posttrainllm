@@ -21,7 +21,7 @@ export function setupBrowserTerminal(
       timer: ReturnType<typeof setTimeout>;
     }
   >();
-  function stop(): void {
+  function stop(notify = true): void {
     generation++;
     worker?.terminate();
     worker = undefined;
@@ -31,7 +31,7 @@ export function setupBrowserTerminal(
       row.reject(new Error("Browser terminal stopped."));
     }
     pending.clear();
-    changed();
+    if (notify) changed();
   }
   function request(payload: Json): Promise<Json> {
     return new Promise((resolve, reject) => {
@@ -116,8 +116,22 @@ export function setupBrowserTerminal(
       status(String(error));
     }
   });
-  window.addEventListener("pagehide", stop);
+  function pagehide() {
+    const owned = Boolean(worker);
+    stop(owned);
+    if (owned)
+      status(
+        "Browser terminal stopped when leaving the page. Reload the local file to continue.",
+      );
+  }
+  function teardown() {
+    stop(false);
+    window.removeEventListener("pagehide", pagehide);
+  }
+  window.addEventListener("pagehide", pagehide);
+  document.addEventListener("astro:before-swap", teardown, { once: true });
   return {
+    stop,
     selected: () => provider.value !== "python",
     ready: () => verified,
     execute: (payload: Json) =>

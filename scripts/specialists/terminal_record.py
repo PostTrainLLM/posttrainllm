@@ -19,6 +19,9 @@ import re
 
 from terminal_codec import Screen, event_tokens
 
+SHELL_PROMPT = "lab$ "
+SHELL_STARTUP_SECONDS = 10.0
+
 
 def image_identity(image):
     inspected = subprocess.run(
@@ -40,6 +43,8 @@ def record(recipe, image, budget):
 
     rows, cols = recipe.get("rows", 8), recipe.get("cols", 48)
     Screen.custom("", rows, cols)  # Validate before launching a process.
+    if cols <= len(SHELL_PROMPT):
+        raise ValueError("terminal screen is too narrow for the recorder prompt")
     events = recipe["events"]
     if not 1 <= len(events) <= 10000:
         raise ValueError("recipe needs 1–10000 events")
@@ -68,7 +73,7 @@ def record(recipe, image, budget):
         "-e",
         "TERM=xterm",
         "-e",
-        "PS1=lab$ ",
+        f"PS1={SHELL_PROMPT}",
         "-e",
         f"LINES={rows}",
         "-e",
@@ -113,7 +118,9 @@ def record(recipe, image, budget):
         ).as_dict()
 
     try:
-        return capture(recipe, budget, drain, snapshot, master, image)
+        return capture(
+            recipe, budget, drain, snapshot, master, image, lambda: screen.title
+        )
     finally:
         # Only this invocation's named container is targeted, even on timeout.
         subprocess.run(
@@ -129,15 +136,43 @@ def record(recipe, image, budget):
         os.close(master)
 
 
-def capture(recipe, budget, drain, snapshot, master, image):
+def await_shell_prompt(budget, drain, snapshot, expected, setup_acknowledged=None):
+    deadline = time.monotonic() + SHELL_STARTUP_SECONDS
+    while time.monotonic() < deadline:
+        budget.check()
+        drain()
+        observed = Screen.from_dict(snapshot())
+        at_prompt = (
+            observed.visible
+            and observed.cursor_col == expected.cursor_col
+            and observed.lines[observed.cursor_row] == expected.lines[0]
+        )
+        if at_prompt and (
+            setup_acknowledged is None
+            or (setup_acknowledged() and observed == expected)
+        ):
+            return observed.as_dict()
+    raise RuntimeError("recorder shell did not reach its ready prompt")
+
+
+def capture(recipe, budget, drain, snapshot, master, image, title):
     rows, cols = recipe.get("rows", 8), recipe.get("cols", 48)
     events = recipe["events"]
-    drain(0.3)
+    expected = Screen.custom(SHELL_PROMPT, rows, cols)
+    await_shell_prompt(budget, drain, snapshot, expected)
+    ready_title = "posttrainllm-ready-" + uuid.uuid4().hex
     os.write(
-        master, f"stty rows {rows} cols {cols}; printf '\\033[2J\\033[H'\r".encode()
+        master,
+        (
+            f"stty rows {rows} cols {cols} && "
+            f"printf '\\033[2J\\033[H\\033]0;{ready_title}\\007'\r"
+        ).encode(),
     )
-    drain(0.3)
-    initial = snapshot()
+    # The existing prompt can remain visible until Docker delivers the setup
+    # command. The OSC title is a causal acknowledgment kept outside the frame.
+    initial = await_shell_prompt(
+        budget, drain, snapshot, expected, lambda: title() == ready_title
+    )
     frames = []
     for event in events:
         budget.check()
@@ -173,7 +208,7 @@ def capture(recipe, budget, drain, snapshot, master, image):
             "programs": {"shell": "/bin/sh from the pinned image"},
             "environment": {
                 "TERM": "xterm",
-                "PS1": "lab$ ",
+                "PS1": SHELL_PROMPT,
                 "rows": rows,
                 "cols": cols,
             },

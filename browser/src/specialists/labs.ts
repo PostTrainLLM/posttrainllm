@@ -358,6 +358,7 @@ export function setupSpecialistLabs(): void {
 
   function selectMode(next: Mode): void {
     if (busy) return;
+    if (mode === "terminal" && next !== mode) portable.stop();
     if (mode === "forecast" && next !== mode) portableForecast.stop();
     if (mode === "decision" && next !== mode) portableDecision.stop();
     resetExecution();
