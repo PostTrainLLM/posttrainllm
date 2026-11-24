@@ -20,7 +20,7 @@ import re
 from terminal_codec import Screen, event_tokens
 
 SHELL_PROMPT = "lab$ "
-SHELL_STARTUP_SECONDS = 5.0
+SHELL_STARTUP_SECONDS = 10.0
 
 
 def image_identity(image):
@@ -118,7 +118,9 @@ def record(recipe, image, budget):
         ).as_dict()
 
     try:
-        return capture(recipe, budget, drain, snapshot, master, image)
+        return capture(
+            recipe, budget, drain, snapshot, master, image, lambda: screen.title
+        )
     finally:
         # Only this invocation's named container is targeted, even on timeout.
         subprocess.run(
@@ -134,7 +136,7 @@ def record(recipe, image, budget):
         os.close(master)
 
 
-def await_shell_prompt(budget, drain, snapshot, expected, *, clean):
+def await_shell_prompt(budget, drain, snapshot, expected, setup_acknowledged=None):
     deadline = time.monotonic() + SHELL_STARTUP_SECONDS
     while time.monotonic() < deadline:
         budget.check()
@@ -145,22 +147,32 @@ def await_shell_prompt(budget, drain, snapshot, expected, *, clean):
             and observed.cursor_col == expected.cursor_col
             and observed.lines[observed.cursor_row] == expected.lines[0]
         )
-        if at_prompt and (not clean or observed == expected):
+        if at_prompt and (
+            setup_acknowledged is None
+            or (setup_acknowledged() and observed == expected)
+        ):
             return observed.as_dict()
     raise RuntimeError("recorder shell did not reach its ready prompt")
 
 
-def capture(recipe, budget, drain, snapshot, master, image):
+def capture(recipe, budget, drain, snapshot, master, image, title):
     rows, cols = recipe.get("rows", 8), recipe.get("cols", 48)
     events = recipe["events"]
     expected = Screen.custom(SHELL_PROMPT, rows, cols)
-    await_shell_prompt(budget, drain, snapshot, expected, clean=False)
+    await_shell_prompt(budget, drain, snapshot, expected)
+    ready_title = "posttrainllm-ready-" + uuid.uuid4().hex
     os.write(
-        master, f"stty rows {rows} cols {cols}; printf '\\033[2J\\033[H'\r".encode()
+        master,
+        (
+            f"stty rows {rows} cols {cols} && "
+            f"printf '\\033[2J\\033[H\\033]0;{ready_title}\\007'\r"
+        ).encode(),
     )
-    # A quiet PTY may still be executing the bootstrap command. Freeze the
-    # starting frame only after the clean prompt is visible.
-    initial = await_shell_prompt(budget, drain, snapshot, expected, clean=True)
+    # The existing prompt can remain visible until Docker delivers the setup
+    # command. The OSC title is a causal acknowledgment kept outside the frame.
+    initial = await_shell_prompt(
+        budget, drain, snapshot, expected, lambda: title() == ready_title
+    )
     frames = []
     for event in events:
         budget.check()
