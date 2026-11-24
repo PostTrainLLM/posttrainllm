@@ -40,14 +40,19 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("terminal worker lifecycle", () => {
   it("tears down a pending file read before an Astro page swap", async () => {
-    const { terminal, worker, load, finishRead } = setup();
+    const { terminal, worker, load, finishRead, changed, status } = setup();
     load.dispatchEvent(new Event("click"));
     document.dispatchEvent(new Event("astro:before-swap"));
+    changed.mockClear();
+    status.mockClear();
     finishRead("{}");
+    await Promise.resolve();
     await Promise.resolve();
     expect(worker.terminate).toHaveBeenCalledOnce();
     expect(worker.postMessage).not.toHaveBeenCalled();
     expect(terminal.ready()).toBe(false);
+    expect(changed).not.toHaveBeenCalled();
+    expect(status).not.toHaveBeenCalled();
   });
 
   it("leaves the active workflow alone on pagehide when no terminal worker exists", () => {
